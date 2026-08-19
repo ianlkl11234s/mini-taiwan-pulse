@@ -1239,6 +1239,12 @@
     },
     {
       "layers": [
+        "business-registry-factory-locations-overview-circle"
+      ],
+      "type": "factoryLocations"
+    },
+    {
+      "layers": [
         "business-registry-factory-locations-circle"
       ],
       "type": "factoryLocations"
@@ -1263,8 +1269,24 @@
     },
     {
       "layers": [
-        "business-registry-company-capital-grid-fill",
-        "business-registry-company-capital-grid-outline"
+        "business-registry-company-points-overview-manufacturing-overview-circle"
+      ],
+      "type": "manufacturingCompanyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-company-points-overview-company-overview-circle"
+      ],
+      "type": "companyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-company-capital-grid-150-fill",
+        "business-registry-company-capital-grid-150-outline",
+        "business-registry-company-capital-grid-450-fill",
+        "business-registry-company-capital-grid-450-outline",
+        "business-registry-company-capital-grid-1500-fill",
+        "business-registry-company-capital-grid-1500-outline"
       ],
       "type": "companyCapitalGrid"
     },
@@ -10264,6 +10286,89 @@
       "id": "companyPoints",
       "layers": [
         {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 12,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": "#2563eb",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_companies"
+                  ],
+                  0
+                ],
+                1,
+                1.3,
+                100,
+                2.6,
+                1000,
+                5,
+                10000,
+                9
+              ],
+              "circle-stroke-color": "#93c5fd",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.35
+            },
+            "light": {
+              "circle-color": "#2563eb",
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_companies"
+                  ],
+                  0
+                ],
+                1,
+                1.3,
+                100,
+                2.6,
+                1000,
+                5,
+                10000,
+                9
+              ],
+              "circle-stroke-color": "#1e3a8a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": 0.35
+            }
+          },
+          "suffix": "company-overview-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 4,
+        "sourceLayer": "company_points_overview"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-points-overview",
+      "sourceUrl": "./business_registry/company_points_overview_1500m_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "companyPoints",
+      "layers": [
+        {
           "filter": [
             "all"
           ],
@@ -10402,7 +10507,101 @@
         "all-circle"
       ],
       "sourceId": "business-registry-company-points",
-      "sourceUrl": "./business_registry/company_points_202608.pmtiles"
+      "sourceUrl": "./business_registry/company_points_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "manufacturingCompanyPoints",
+      "layers": [
+        {
+          "filter": [
+            ">",
+            [
+              "to-number",
+              [
+                "get",
+                "n_manufacturing"
+              ],
+              0
+            ],
+            0
+          ],
+          "layout": null,
+          "maxzoom": 12,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.82,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_manufacturing"
+                  ],
+                  0
+                ],
+                1,
+                1.4,
+                50,
+                2.8,
+                500,
+                5.2,
+                5000,
+                9
+              ],
+              "circle-stroke-color": "#fdba74",
+              "circle-stroke-opacity": 0.82,
+              "circle-stroke-width": 0.35
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.82,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_manufacturing"
+                  ],
+                  0
+                ],
+                1,
+                1.4,
+                50,
+                2.8,
+                500,
+                5.2,
+                5000,
+                9
+              ],
+              "circle-stroke-color": "#7c2d12",
+              "circle-stroke-opacity": 0.82,
+              "circle-stroke-width": 0.35
+            }
+          },
+          "suffix": "manufacturing-overview-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 4,
+        "sourceLayer": "company_points_overview"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-points-overview",
+      "sourceUrl": "./business_registry/company_points_overview_1500m_202608_r2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -10551,7 +10750,7 @@
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-company-points",
-      "sourceUrl": "./business_registry/company_points_202608.pmtiles"
+      "sourceUrl": "./business_registry/company_points_202608_r2.pmtiles"
     },
     {
       "dynamicData": null,
@@ -10561,7 +10760,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 6,
+          "minzoom": 4,
           "paint": {
             "dark": {
               "fill-color": [
@@ -10667,12 +10866,337 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 6,
+        "minzoom": 4,
         "sourceLayer": "company_capital_grid"
       },
       "rebuildOnParamChange": null,
-      "sourceId": "business-registry-company-capital-grid",
-      "sourceUrl": "./business_registry/company_capital_grid_202608.pmtiles"
+      "sourceId": "business-registry-company-capital-grid-150",
+      "sourceUrl": "./business_registry/company_capital_grid_150m_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "companyCapitalGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                27000000,
+                "#ddd6fe",
+                126000000,
+                "#c4b5fd",
+                513000000,
+                "#a78bfa",
+                1908000000,
+                "#8b5cf6",
+                5229000000,
+                "#7c3aed",
+                47970000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                27000000,
+                "#ddd6fe",
+                126000000,
+                "#c4b5fd",
+                513000000,
+                "#a78bfa",
+                1908000000,
+                "#8b5cf6",
+                5229000000,
+                "#7c3aed",
+                47970000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.16)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.18)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 13,
+        "minzoom": 4,
+        "sourceLayer": "company_capital_grid_450m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-capital-grid-450",
+      "sourceUrl": "./business_registry/company_capital_grid_450m_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "companyCapitalGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                300000000,
+                "#ddd6fe",
+                1400000000,
+                "#c4b5fd",
+                5700000000,
+                "#a78bfa",
+                21200000000,
+                "#8b5cf6",
+                58100000000,
+                "#7c3aed",
+                533000000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                300000000,
+                "#ddd6fe",
+                1400000000,
+                "#c4b5fd",
+                5700000000,
+                "#a78bfa",
+                21200000000,
+                "#8b5cf6",
+                58100000000,
+                "#7c3aed",
+                533000000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.16)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.18)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "company_capital_grid_1500m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-capital-grid-1500",
+      "sourceUrl": "./business_registry/company_capital_grid_1500m_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "factoryLocations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "circle-color": "#0d9488",
+              "circle-opacity": 0.76,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_factories"
+                  ],
+                  0
+                ],
+                1,
+                1.4,
+                25,
+                2.8,
+                250,
+                5.2,
+                2500,
+                9
+              ],
+              "circle-stroke-color": "#5eead4",
+              "circle-stroke-opacity": 0.76,
+              "circle-stroke-width": 0.35
+            },
+            "light": {
+              "circle-color": "#0d9488",
+              "circle-opacity": 0.76,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_factories"
+                  ],
+                  0
+                ],
+                1,
+                1.4,
+                25,
+                2.8,
+                250,
+                5.2,
+                2500,
+                9
+              ],
+              "circle-stroke-color": "#134e4a",
+              "circle-stroke-opacity": 0.76,
+              "circle-stroke-width": 0.35
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 10,
+        "minzoom": 4,
+        "sourceLayer": "factory_locations_overview"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-factory-locations-overview",
+      "sourceUrl": "./business_registry/factory_locations_overview_1500m_202606.pmtiles"
     },
     {
       "dynamicData": null,
@@ -11104,7 +11628,18 @@
       "id": "commonRegistrationAddresses",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            ">=",
+            [
+              "to-number",
+              [
+                "get",
+                "n_companies"
+              ],
+              0
+            ],
+            5
+          ],
           "layout": {
             "circle-sort-key": [
               "to-number",
@@ -11541,9 +12076,11 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
       "sourceId": "business-registry-common-registration-addresses",
-      "sourceUrl": "./business_registry/common_registration_addresses_202608.geojson"
+      "sourceUrl": "./business_registry/common_registration_addresses_202608_r2.geojson"
     },
     {
       "dynamicData": true,
@@ -44897,6 +45434,13 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      },
+      {
+        "label": "共同登記 ≥ 5 家",
+        "max": 800,
+        "min": 5,
+        "step": 1,
+        "value": 5
       }
     ],
     "communityCenters": [
@@ -44916,6 +45460,25 @@
       }
     ],
     "companyCapitalGrid": [
+      {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "150 m",
+            "value": "0"
+          },
+          {
+            "label": "450 m",
+            "value": "1"
+          },
+          {
+            "label": "1.5 km",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
       {
         "label": "指標",
         "options": [

@@ -89,7 +89,7 @@ import { FARM_HIGHLIGHT_OPTIONS } from "./livestockTypes";
 import { BUILDINGS_GBA_MODES } from "./buildingsGbaTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "./propertyValueTypes";
 import {
-  COMPANY_COUNTY_OPTIONS, COMPANY_GRID_MODES, COMPANY_INDUSTRY_MID_OPTIONS,
+  COMPANY_COUNTY_OPTIONS, COMPANY_GRID_MODES, COMPANY_GRID_SCALES, COMPANY_INDUSTRY_MID_OPTIONS,
   COMPANY_SETUP_YEAR_MAX, COMPANY_SETUP_YEAR_MIN,
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
@@ -1020,6 +1020,10 @@ export const LAYER_PARAMS_SPEC = {
   commonRegistrationAddresses: [
     opacitySlider("commonRegistrationAddressesOpacity", 0.75),
     scaleSlider("commonRegistrationAddressesScale", 1.0),
+    {
+      kind: "slider", name: "commonRegistrationAddressesMinCompanies", labelPrefix: "共同登記 ≥", digits: 0, labelSuffix: " 家",
+      default: 5, min: 5, max: 800, step: 1,
+    },
   ],
   companyPoints: [
     opacitySlider("companyPointsOpacity", 0.8),
@@ -1061,6 +1065,11 @@ export const LAYER_PARAMS_SPEC = {
     })),
   ],
   companyCapitalGrid: [
+    {
+      kind: "select", name: "companyGridScale", label: "網格大小", default: COMPANY_GRID_SCALES[0].value,
+      options: COMPANY_GRID_SCALES.map((scale) => ({ label: scale.label, value: scale.value })),
+      out: "companyGridScaleIdx", encodeNumeric: true,
+    },
     {
       kind: "select", name: "companyGridMode", label: "指標", default: COMPANY_GRID_MODES[0].value,
       options: COMPANY_GRID_MODES.map((o) => ({ ...o })),

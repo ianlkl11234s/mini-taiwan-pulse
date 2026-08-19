@@ -9,7 +9,7 @@ function formatTwd(value: unknown): string {
 
 /**
  * 只陳述同一門牌的登記聚合事實；不推論借址、空殼、違法或異常。
- * 公開契約只有 address / n_companies / capital_median 三欄。
+ * 公開契約為 address / n_companies / capital_sum / capital_median。
  */
 export function CommonRegistrationAddressesPanel({ props }: { props: Record<string, unknown> }) {
   const nCompanies = typeof props.n_companies === "number" ? props.n_companies : null;
@@ -20,6 +20,7 @@ export function CommonRegistrationAddressesPanel({ props }: { props: Record<stri
         label="共同登記公司數"
         value={nCompanies == null ? "" : `${nCompanies.toLocaleString("zh-TW")} 家`}
       />
+      <Row label="資本額總和" value={formatTwd(props.capital_sum)} />
       <Row label="資本額中位數" value={formatTwd(props.capital_median)} />
     </>
   );
@@ -30,12 +31,22 @@ function flag(value: unknown): string {
 }
 
 export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }) {
+  if (props.n_companies != null || props.n_manufacturing != null) {
+    return (
+      <>
+        <Row label="公司數" value={countLabel(props.n_companies)} />
+        <Row label="製造業公司數" value={countLabel(props.n_manufacturing)} />
+        <Row label="解讀" value="本格納入全部已定位 records；放大至 z12 可點擊個別公司。" />
+      </>
+    );
+  }
   const industryCode = typeof props.industry_mid === "string" ? props.industry_mid : "";
   const industry = COMPANY_INDUSTRY_MID_OPTIONS.find((o) => o.value === industryCode);
   const year = Number(props.setup_year);
   const quantile = Number(props.capital_q);
   return (
     <>
+      <Row label="公司名稱" value={String(props.company_name ?? "")} />
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="資本額" value={formatTwd(props.capital_total) ? `${formatTwd(props.capital_total)}（202608 快照）` : ""} />
       <Row label="資本額分位" value={Number.isFinite(quantile) ? (quantile === 0 ? "缺值" : `Q${quantile}`) : ""} />
@@ -50,11 +61,19 @@ export function CompanyPointsPanel({ props }: { props: Record<string, unknown> }
   );
 }
 
+function countLabel(value: unknown): string {
+  const count = Number(value);
+  return Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 家` : "";
+}
+
 export function CompanyCapitalGridPanel({ props }: { props: Record<string, unknown> }) {
   const nCompanies = Number(props.n_companies);
+  const gridId = String(props.grid_id ?? "");
+  const scale = gridId.startsWith("G1500_") ? "1.5 km" : gridId.startsWith("G450_") ? "450 m" : "150 m";
   return (
     <>
-      <Row label="網格 ID" value={String(props.grid_id ?? "")} />
+      <Row label="網格尺度" value={scale} />
+      <Row label="網格 ID" value={gridId} />
       <Row label="公司數" value={Number.isFinite(nCompanies) ? `${nCompanies.toLocaleString("zh-TW")} 家` : ""} />
       <Row label="資本額總和" value={formatTwd(props.capital_sum) ? `${formatTwd(props.capital_sum)}（202608 快照）` : ""} />
       <Row label="資本額中位數" value={formatTwd(props.capital_median) ? `${formatTwd(props.capital_median)}（202608 快照）` : "缺值"} />
@@ -63,6 +82,14 @@ export function CompanyCapitalGridPanel({ props }: { props: Record<string, unkno
 }
 
 export function FactoryLocationsPanel({ props }: { props: Record<string, unknown> }) {
+  if (props.n_factories != null) {
+    return (
+      <>
+        <Row label="已定位工廠數" value={countLabel(props.n_factories)} />
+        <Row label="解讀" value="本格納入全部已定位生產中工廠；放大至 z11 可點擊個別工廠。" />
+      </>
+    );
+  }
   return (
     <>
       <Row label="工廠名稱" value={String(props.factory_name ?? "")} />

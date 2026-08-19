@@ -447,7 +447,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     // ⚠️ deps 除了 visibility（已改訂閱）還要收 propertyValueGridScaleIdx：
     //    總市值網格的三個尺度共用同一個 layer key，切尺度是 param 變動而非 toggle 變動，
     //    不收這個 dep 會「選了 450m 但畫面還是 150m」（見 overlayManager.isOverlayVisible）。
-  }, [overlayParams.propertyValueGridScaleIdx]);
+  }, [overlayParams.propertyValueGridScaleIdx, overlayParams.companyGridScaleIdx]);
 
   return (
     <div

@@ -629,6 +629,7 @@ export interface OverlayLayerSpec {
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
+  maxzoom?: number;
   /**
    * 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接）。
    * 函式形式：供 rebuildOnParamChange 場景把即時 params（如 slider 門檻值）烤進 filter

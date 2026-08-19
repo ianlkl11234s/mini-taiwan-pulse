@@ -66,7 +66,7 @@ import {
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
   COMPANY_CAPITAL_Q_BANDS, COMPANY_GRID_COLORS, COMPANY_GRID_MODES,
-  COMPANY_GRID_NULL_COLOR, COMPANY_GRID_STOPS,
+  COMPANY_GRID_NULL_COLOR, COMPANY_GRID_SCALES, companyGridStops,
   FACTORY_LOCATION_COLOR, INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
   INDUSTRIAL_PARK_COMPARISON_COLORS, INDUSTRIAL_PARK_COMPARISON_MODES,
   INDUSTRIAL_PARK_COMPARISON_STOPS, INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR,
@@ -330,10 +330,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
   { id: "agriPOI", render: () => <AgriPOILegend /> },
   { id: "agriRetail", render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
-  { id: "commonRegistrationAddresses", render: () => <CommonRegistrationAddressesLegend /> },
+  { id: "commonRegistrationAddresses", render: ({ overlayParams }) => <CommonRegistrationAddressesLegend minCompanies={overlayParams.commonRegistrationAddressesMinCompanies ?? 5} /> },
   { id: "companyPoints", render: () => <CompanyPointsLegend manufacturing={false} /> },
   { id: "manufacturingCompanyPoints", render: () => <CompanyPointsLegend manufacturing /> },
-  { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} /> },
+  { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: () => <IndustrialParkBoundariesLegend /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
@@ -2782,7 +2782,7 @@ function CompanyPointsLegend({ manufacturing }: { manufacturing: boolean }) {
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        202608 登記快照；z12 起顯示。低倍率切片只供分布概觀，不宣稱精確公司數。
+        202608 登記快照；z4–11 以聚合格呈現全部已定位 records 的數量，z12+ 顯示可點擊個別公司。
         {manufacturing ? " 點位是公司登記地址，不是工廠位置。" : ""}
       </div>
     </div>
@@ -2801,7 +2801,7 @@ function FactoryLocationsLegend() {
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        202606 快照，z11 起顯示。90,652 / 100,624 筆生產中工廠可定位；9,972 筆缺座標不在圖上。
+        202606 快照；z4–10 為全已定位 records 計數概覽，z11+ 顯示個別工廠。90,652 / 100,624 筆可定位。
       </div>
     </div>
   );
@@ -2882,15 +2882,17 @@ function formatGridStop(value: number, isCount: boolean): string {
   return `${value.toLocaleString("zh-TW")} 元`;
 }
 
-function CompanyCapitalGridLegend({ modeIdx }: { modeIdx: number }) {
+function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scaleIdx: number }) {
   const t = useLegendTheme();
   const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
+  const safeScale = Math.min(Math.max(Math.round(scaleIdx), 0), COMPANY_GRID_SCALES.length - 1);
   const mode = COMPANY_GRID_MODES[safeMode]!;
-  const stops = COMPANY_GRID_STOPS[safeMode]!;
+  const scale = COMPANY_GRID_SCALES[safeScale]!;
+  const stops = companyGridStops(safeMode, safeScale);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        公司網格 COMPANY GRID · {mode.label}
+        公司網格 COMPANY GRID · {scale.shortLabel} · {mode.label}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {stops.map((stop, i) => (
@@ -2907,13 +2909,13 @@ function CompanyCapitalGridLegend({ modeIdx }: { modeIdx: number }) {
         )}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        150m 非空網格，202608 登記快照；資本額採固定非線性級距。
+        {scale.label} 非空網格，202608 登記快照；資本額採各尺度非線性級距。
       </div>
     </div>
   );
 }
 
-function CommonRegistrationAddressesLegend() {
+function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: number }) {
   const t = useLegendTheme();
   return (
     <div>
@@ -2953,7 +2955,7 @@ function CommonRegistrationAddressesLegend() {
         })}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        每點為一個門牌，僅呈現同址登記至少 5 家公司的事實。
+        目前顯示共同登記 ≥ {Math.round(minCompanies).toLocaleString("zh-TW")} 家的門牌；點擊可查資本額總和與中位數。
       </div>
     </div>
   );

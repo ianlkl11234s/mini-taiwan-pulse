@@ -288,7 +288,7 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(uploadScript).toContain('[ "$remote_sha256" = "$local_sha256" ]');
     expect(uploadScript).toContain("Skipping immutable business_registry/$name (same SHA-256)");
     expect(uploadScript).toContain('--metadata "sha256=$local_sha256"');
-    expect(uploadCovers("business_registry/company_filters_202608.json")).toBe(true);
+    expect(uploadCovers("business_registry/company_filters_202608_r2.json")).toBe(true);
   });
 
   it("industrial_zone immutable PMTiles 有 upload / pull / nginx 完整供應鏈", () => {

@@ -174,6 +174,34 @@ export const COMPANY_GRID_MODES = [
   { value: "capital_median", label: "資本額中位數" },
 ] as const;
 
+export const COMPANY_GRID_SCALES = [
+  {
+    value: "0", label: "150 m", shortLabel: "150m",
+    sourceId: "business-registry-company-capital-grid-150",
+    sourceUrl: "./business_registry/company_capital_grid_150m_202608_r2.pmtiles",
+    sourceLayer: "company_capital_grid", minzoom: 4, maxzoom: 14, areaFactor: 1,
+  },
+  {
+    value: "1", label: "450 m", shortLabel: "450m",
+    sourceId: "business-registry-company-capital-grid-450",
+    sourceUrl: "./business_registry/company_capital_grid_450m_202608_r2.pmtiles",
+    sourceLayer: "company_capital_grid_450m", minzoom: 4, maxzoom: 13, areaFactor: 9,
+  },
+  {
+    value: "2", label: "1.5 km", shortLabel: "1.5km",
+    sourceId: "business-registry-company-capital-grid-1500",
+    sourceUrl: "./business_registry/company_capital_grid_1500m_202608_r2.pmtiles",
+    sourceLayer: "company_capital_grid_1500m", minzoom: 4, maxzoom: 12, areaFactor: 100,
+  },
+] as const;
+
+export type CompanyGridScale = (typeof COMPANY_GRID_SCALES)[number];
+
+export function resolveCompanyGridScale(scaleIdx: number): CompanyGridScale {
+  const safeIdx = Math.min(Math.max(Math.round(scaleIdx), 0), COMPANY_GRID_SCALES.length - 1);
+  return COMPANY_GRID_SCALES[safeIdx]!;
+}
+
 export const COMPANY_GRID_COLORS = [
   "#f5f3ff", "#ddd6fe", "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#5b21b6",
 ] as const;
@@ -185,11 +213,19 @@ export const COMPANY_GRID_STOPS = [
   [0, 1_000_000, 2_500_000, 5_600_000, 18_500_000, 40_000_000, 500_000_000],
 ] as const;
 
-export function companyGridColorExpr(modeIdx: number): unknown[] {
+export function companyGridStops(modeIdx: number, scaleIdx = 0): readonly number[] {
+  const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
+  const base = COMPANY_GRID_STOPS[safeMode]!;
+  if (safeMode === 2) return base;
+  const factor = resolveCompanyGridScale(scaleIdx).areaFactor;
+  return base.map((value) => value * factor);
+}
+
+export function companyGridColorExpr(modeIdx: number, scaleIdx = 0): unknown[] {
   const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
   const field = COMPANY_GRID_MODES[safeMode]!.value;
   const value: unknown[] = ["to-number", ["get", field], -1];
-  const stops = COMPANY_GRID_STOPS[safeMode]!;
+  const stops = companyGridStops(safeMode, scaleIdx);
   const step: unknown[] = ["step", value, COMPANY_GRID_COLORS[0]];
   for (let i = 1; i < stops.length; i++) step.push(stops[i], COMPANY_GRID_COLORS[i]);
   if (field === "capital_median") {

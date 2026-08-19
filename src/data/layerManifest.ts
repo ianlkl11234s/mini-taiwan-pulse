@@ -107,7 +107,7 @@ import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 import {
   COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
   INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
-  INDUSTRIAL_PARK_COMPARISON_COLORS,
+  INDUSTRIAL_PARK_COMPARISON_COLORS, COMPANY_GRID_SCALES,
 } from "./businessRegistryTypes";
 
 /**
@@ -3910,16 +3910,23 @@ export const LAYER_MANIFEST = {
     icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "company_points", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
-      kind: "pmtiles", sourceId: "business-registry-company-points",
-      url: "./business_registry/company_points_202608.pmtiles",
-      sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
-      companionAssets: ["./business_registry/company_filters_202608.json"],
-    },
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
+        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points",
+        url: "./business_registry/company_points_202608_r2.pmtiles",
+        sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+        companionAssets: ["./business_registry/company_filters_202608_r2.json"],
+      },
+    ],
     legend: "companyPoints",
     popup: "companyPoints",
     params: { count: 11, kinds: ["slider", "slider", "select", "select", "select", "slider", "slider", "select", "select", "select", "select"] },
-    description: "202608 公司登記快照；z12 起顯示，低倍率不提供精確點數解讀",
+    description: "202608 公司登記快照；z4–11 為全已定位 records 計數概覽，z12+ 為可點擊個別公司",
     topics: ["工商登記", "公司", "資本額", "行業"],
   },
 
@@ -3932,15 +3939,18 @@ export const LAYER_MANIFEST = {
     icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "company_capital_grid", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
-      kind: "pmtiles", sourceId: "business-registry-company-capital-grid",
-      url: "./business_registry/company_capital_grid_202608.pmtiles",
-      sourceLayer: "company_capital_grid", minzoom: 6, maxzoom: 14,
-    },
+    source: COMPANY_GRID_SCALES.map((scale) => ({
+      kind: "pmtiles" as const,
+      sourceId: scale.sourceId,
+      url: scale.sourceUrl,
+      sourceLayer: scale.sourceLayer,
+      minzoom: scale.minzoom,
+      maxzoom: scale.maxzoom,
+    })),
     legend: "companyCapitalGrid",
     popup: "companyCapitalGrid",
-    params: { count: 2, kinds: ["select", "slider"] },
-    description: "150m 非空網格，可切換資本額總和、公司數與資本額中位數",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "150m / 450m / 1.5km 三尺度非空網格，可切換資本額總和、公司數與資本額中位數",
     topics: ["工商登記", "公司", "網格", "資本額"],
   },
 
@@ -3953,15 +3963,22 @@ export const LAYER_MANIFEST = {
     icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
-      kind: "pmtiles", sourceId: "business-registry-company-points",
-      url: "./business_registry/company_points_202608.pmtiles",
-      sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
-    },
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
+        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points",
+        url: "./business_registry/company_points_202608_r2.pmtiles",
+        sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+      },
+    ],
     legend: "manufacturingCompanyPoints",
     popup: "manufacturingCompanyPoints",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "202608 製造業公司登記點位；不是工廠位置，也不代表目前仍營運",
+    description: "202608 製造業公司登記；z4–11 為全已定位 records 計數概覽，z12+ 為個別登記點；不是工廠位置",
     topics: ["工商登記", "製造業", "公司"],
   },
 
@@ -3974,15 +3991,22 @@ export const LAYER_MANIFEST = {
     icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
-      kind: "pmtiles", sourceId: "business-registry-factory-locations",
-      url: "./business_registry/factory_locations_202606.pmtiles",
-      sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14,
-    },
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-factory-locations-overview",
+        url: "./business_registry/factory_locations_overview_1500m_202606.pmtiles",
+        sourceLayer: "factory_locations_overview", minzoom: 4, maxzoom: 10,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-factory-locations",
+        url: "./business_registry/factory_locations_202606.pmtiles",
+        sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14,
+      },
+    ],
     legend: "factoryLocations",
     popup: "factoryLocations",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "202606 生產中工廠登記點位；僅 90.09% active records 有可發布座標，z11 起顯示",
+    description: "202606 生產中工廠登記；z4–10 為全已定位 records 計數概覽，z11+ 為個別工廠；座標 coverage 90.09%",
     topics: ["工商登記", "製造業", "工廠", "工廠地址"],
   },
 
@@ -4065,12 +4089,12 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "geojson",
       sourceId: "business-registry-common-registration-addresses",
-      url: "./business_registry/common_registration_addresses_202608.geojson",
+      url: "./business_registry/common_registration_addresses_202608_r2.geojson",
     },
     legend: "commonRegistrationAddresses",
     popup: "commonRegistrationAddresses",
-    params: { count: 2, kinds: ["slider", "slider"] },
-    description: "同一門牌登記至少 5 家公司的聚合點；大小表示公司數，顏色表示資本額中位數",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "同一門牌登記至少 5 家公司的聚合點；可用門檻篩選，大小表示公司數，顏色表示資本額中位數",
     topics: ["工商登記", "公司", "共同登記地址", "資本額"],
   },
 

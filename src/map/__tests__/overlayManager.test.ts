@@ -187,6 +187,7 @@ describe("addOverlay (pmtiles)", () => {
     sourceUrl: "./geo/water_rivers.pmtiles",
     sourceId: "water-rivers",
     pmtiles: { sourceLayer: "rivers", minzoom: 4, maxzoom: 13 },
+    layers: config.layers.map((layer) => ({ ...layer, minzoom: 4, maxzoom: 12 })),
   } as unknown as OverlayConfig;
 
   it("adds a pmtile-source with min/max zoom instead of geojson", () => {
@@ -213,6 +214,8 @@ describe("addOverlay (pmtiles)", () => {
     addOverlay(map, pmtilesConfig, true, {});
     expect(layerSpecs).toHaveLength(1);
     expect(layerSpecs[0]?.["source-layer"]).toBe("rivers");
+    expect(layerSpecs[0]?.minzoom).toBe(4);
+    expect(layerSpecs[0]?.maxzoom).toBe(12);
   });
 
   it("shared sourceId 只 addSource 一次，但各自 layer 都會建立", () => {
