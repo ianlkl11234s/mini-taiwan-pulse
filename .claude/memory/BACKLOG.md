@@ -19,7 +19,7 @@
 | BR-5 | **P2** | A3 / 科學園區後續 | A3 是 assertion-only；A2 的 215 polygons 明確不含科學園區，不能由 membership flag 推測 geometry | 先取得具 provenance 的 authoritative science-park polygons；若做篩選，保留獨立 flags | 不產生籠統 `is_in_park`；不從 A3 反推 polygon；欄位、來源、測試與 handoff 完整 |
 | BR-6 | **P2** | Twinkle Hub 補 geocode misses | A1 有 9,972、A5 有 47,063 筆未定位；不可拿公司座標替代工廠/列管事業座標 | 以 authoritative address/geocode source 補點，保存 precision、method、provenance 與 unresolved reason | 不使用 company coordinates；重跑 QA/manifest/coverage，miss 下降且分母不變，低 zoom overview 只納入 resolved records |
 | BR-7 | **P0** | 202609 公司存量快照 | 來源需等 2026-09-05 後可取得，錯過後可能無法補回 | 到期立即抓取並走既有 company_stock pipeline | 202609 raw/processed、QA、manifest 與 checksum 留存；列數/座標率/對帳通過 |
-| WU-1 | **P1** | wrap-up v2 implementation / docs closeout | wrap-up v2 的 10 個 skill/harness/docs paths 尚未 commit，且與 Business Registry 共用工作樹 | 先依 scope 分成 **skill implementation** 與 **docs sync** 兩個非-memory atomic commits；保留 unrelated cached/dirty paths | validators、`bash -n`、JSON parse、targeted `rg`、`git diff --check` 全過；兩組 target paths clean，未代 commit 平行 session hunks且不自動 push |
+| WU-1 | **done 2026-08-19** | wrap-up v2 implementation / docs closeout | — | — | `07fd324` implementation＋routing contract、`284445a` docs sync；validators、`bash -n`、JSON parse、targeted `rg`、`git diff --check` 全過，target paths clean，未自動 push |
 
 ### 社福長照 Welfare（WF 系列，2026-08-13 接線後開）
 
