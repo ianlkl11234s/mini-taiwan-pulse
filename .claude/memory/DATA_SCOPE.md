@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-08-10（embed 回放快照三層**已上生產驗證**；rail 幾何現行 hash `4e0dc14093`）
+**最後更新**：2026-08-19（新增 Business Registry 202608／Factory 202606 production staging；既有 embed／rail 狀態保留於對應章節）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -740,3 +740,44 @@ bus 系 **3 天**（08-05~08-07）。
 - ✅ `public/embed-rail/` 已由 `.gitignore:141` 涵蓋（隨 #118 進 master）→ 純本機產物，不進 git
 - 舊固定檔 `rail_slim.json.gz`（366,717 B）**本機與 S3 都刻意留著**當降級後路 / 回滾前提；
   移除是 BACKLOG **EM-30**（觀察數日後連同前端 fallback 一起拆）
+
+## Business Registry 202608 / Factory 202606（2026-08-19 production staging）
+
+**Release state**：下列 12 個 immutable assets 已完成 build、contract/wire、stage、upload 與 object readback；production pull、deploy、HTTP probe、browser QA 仍 blocked（等待 follow-up PR 與授權）。A3 僅是 assertion contract，不是第 13 個公開 asset。
+
+| group | asset | features / contract | purpose |
+|---|---|---:|---|
+| Company B1/A4 | `company_points_202608_r2.pmtiles` | 654,165 | z12+ detail；公開公司名稱與核准 whitelist 欄位 |
+| Company B1/A4 | `company_points_overview_1500m_202608_r2.pmtiles` | 5,745 | z4–11 resolved-company count overview |
+| Company B2 | `company_capital_grid_150m_202608_r2.pmtiles` | 89,754 | 150m capital grid |
+| Company B2 | `company_capital_grid_450m_202608_r2.pmtiles` | 26,834 | 450m capital grid |
+| Company B2 | `company_capital_grid_1500m_202608_r2.pmtiles` | 5,745 | 1500m capital grid |
+| Company B3 | `company_filters_202608_r2.json` | 89 industry categories | county / capital / setup-year / manufacturing / listed / trademark / mismatch filter contract |
+| Common address B4 | `common_registration_addresses_202608_r2.geojson` | 11,121 | common-address threshold 5–800＋capital aggregates |
+| Factory A1 | `factory_locations_202606.pmtiles` | 90,652 | z11+ resolved-factory detail |
+| Factory A1 | `factory_locations_overview_1500m_202606.pmtiles` | 3,673 | z4–10 resolved-factory count overview |
+| Industrial A2 | `industrial_park_boundaries_20260818.pmtiles` | 215 | industrial-park polygons；不含 science parks |
+| Regulated A5 | `regulated_facilities_20260818.pmtiles` | 80,732 | resolved regulated-facility detail |
+| Comparison A6 | `industrial_park_comparison_20260818.pmtiles` | 215 | per-park factory/company comparison |
+
+### Coverage denominators
+
+| dataset | source denominator | located / published | unresolved | interpretation boundary |
+|---|---:|---:|---:|---|
+| Company B1/A4 | — | 654,165 | — | 公開 asset 的 feature count；不從缺漏推論不存在 |
+| Factory A1 | 100,624 active | 90,652 | 9,972 | overview/detail 只納入 resolved factories；不可用 company coordinates 補位 |
+| Industrial A2 | 215 polygons | 215 | 0 | 明確不含科學園區；A3 membership 不得反推 geometry |
+| Regulated A5 | 127,795 active | 80,732 | 47,063 | 「列管」不等於事故、裁罰或風險；未定位仍留在 coverage 分母 |
+| Comparison A6 — factory | 100,624 active | 90,652 | 9,972 | 零值只表示 located observations 為零，不證明園區內不存在工廠 |
+| Comparison A6 — company | 186,054 manufacturing | 184,944 | 1,110 | `company_capital_nonnull_count` 與 `company_capital_total_sum` 分開解讀 |
+
+### Publication / privacy boundary
+
+- B1/A4 detail 採明確 whitelist：`company_name`、`capital_total`、`capital_q`、`is_manufacturing`、`categories`、`industry_mid`、`setup_year`、`county`、`addr_mismatch`、`is_listed`、`has_trademark`。不公開統編、代表人、完整登記地址。
+- B4 只公開 `address`、`n_companies`、`capital_sum`、`capital_median`；不公開 immutable building key、公司名稱/統編/代表人或 member list。
+- A1/A5 unresolved records 必須留在 QA/coverage；低 zoom overview 是「全部 resolved records 的聚合」，不是 raw denominator。
+- A3 只保存可稽核的獨立 membership assertions，不發布籠統 `is_in_park`，也不由 flag 生成 polygon。
+- Exact size/checksum/object metadata 不在本檔重複，唯一證據見：
+  - `docs/features/business-registry-company-layers/handoff.md`
+  - `docs/features/business-registry-common-addresses/handoff.md`
+  - `docs/features/business-registry-industrial-layers/handoff.md`

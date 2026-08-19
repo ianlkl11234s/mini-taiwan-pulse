@@ -42,7 +42,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Video, Radio, LandPlot, TrainFront, Factory,
+  Video, Radio, Network, LandPlot, TrainFront, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
@@ -104,7 +104,11 @@ import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
-import { COMMON_REGISTRATION_BASE_COLOR } from "./businessRegistryTypes";
+import {
+  COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
+  INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
+  INDUSTRIAL_PARK_COMPARISON_COLORS, COMPANY_GRID_SCALES,
+} from "./businessRegistryTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -145,6 +149,8 @@ export type LayerSource =
       sourceLayer?: string;
       minzoom: number;
       maxzoom: number;
+      /** 與此切片同版、但不另建 layer toggle 的小型契約檔。 */
+      companionAssets?: string[];
     }
   /** dynamicData：source 以空 FeatureCollection 起手，由 loader 按日 setData 餵入 */
   | { kind: "supabase"; sourceId: string; fallbackUrl: string }
@@ -1136,28 +1142,28 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
-    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
-    label: "通訊海纜 Submarine Cable",
+    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    label: "OSM 通訊海纜 Submarine Cable",
     expandable: true,
     color: "#2196F3",
     icon: Cable,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "submarine_cable", confidence: "HIGH" }],
+      datasets: [{ datasetId: "submarine_cable", confidence: "LOW" }],
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "submarine-cables", url: "./geo/submarine_cables.geojson" },
     legend: "submarineCables",
     popup: "submarineCable",
     params: null,
-    description: "台灣周邊國際／國內通訊海纜路由 35 條（線層，含 glow 光暈）",
+    description: "OSM crowd 海纜世界概覽 104 條；OpenInfraMap z2 概化線位，非完整清冊或工程圖",
     topics: ["基礎建設", "通訊", "海纜"],
   },
 
   landingStations: {
     key: "landingStations",
-    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
-    label: "海纜登陸站 Landing Station",
+    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    label: "OSM 海纜登陸站 Landing Station",
     expandable: true,
     color: "#26c6da",
     icon: Radio,
@@ -1170,8 +1176,129 @@ export const LAYER_MANIFEST = {
     legend: "landingStations",
     popup: "landingStation",
     params: null,
-    description: "海纜登陸站 45 處（與海纜同一 catalog dataset，confidence LOW）",
+    description: "OSM crowd 海纜登陸站 58 處；標註不完整，空白區域不代表沒有設施",
     topics: ["基礎建設", "通訊", "海纜"],
+  },
+
+  internetExchangePoints: {
+    key: "internetExchangePoints",
+    section: { theme: "通訊 Communications", group: "網路互連 Internet Exchange" },
+    label: "網際網路交換中心 Internet Exchange",
+    expandable: true,
+    color: "#22C55E",
+    icon: Network,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "internet_exchange_points", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "internet-exchange-points",
+      url: "./geo/internet_exchange_points.geojson",
+    },
+    legend: "internetExchangePoints",
+    popup: "internetExchangePoint",
+    params: { count: 1, kinds: ["slider"] },
+    description: "PCH Active IXP Directory 全球網際網路交換中心點位；顏色為洲區、大小為參與者數",
+    topics: ["通訊", "網際網路", "IXP", "全球"],
+  },
+
+  anfrWirelessSites: {
+    key: "anfrWirelessSites",
+    section: { theme: "通訊 Communications", group: "官方無線站點 Official Wireless Sites" },
+    label: "法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview",
+    expandable: true,
+    color: "#F97316",
+    icon: Radio,
+    upstream: { status: "verified", datasets: [{ datasetId: "anfr_wireless_sites", confidence: "HIGH" }] },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "anfr-wireless-sites", url: "./geo/anfr_wireless_sites.geojson" },
+    legend: "anfrWirelessSites",
+    popup: "anfrWirelessSite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）",
+    topics: ["通訊", "行動網路", "5G", "全球"],
+  },
+
+  osmCommunicationSites: {
+    key: "osmCommunicationSites",
+    section: { theme: "通訊 Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
+    label: "OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates",
+    expandable: true,
+    color: "#38BDF8",
+    icon: Radio,
+    upstream: { status: "verified", datasets: [{ datasetId: "osm_communication_sites", confidence: "MED" }] },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "osm-communication-sites", url: "./geo/osm_communication_sites.geojson" },
+    legend: "osmCommunicationSites",
+    popup: "osmCommunicationSite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "OpenStreetMap mapped communication candidates；全球區域抽樣，非官方且不完整",
+    topics: ["通訊", "行動網路", "OpenStreetMap", "全球"],
+  },
+
+  ripeAtlasProbes: {
+    key: "ripeAtlasProbes",
+    section: { theme: "通訊 Communications", group: "量測節點 Measurement Nodes" },
+    label: "RIPE Atlas 連線量測節點 Connected Probes",
+    expandable: true,
+    color: "#22D3EE",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ripe_atlas_probes", confidence: "MED" }],
+      note: "RIPE Atlas public probe metadata 3,000／13,534 點穩定概覽；座標保留 80–400m obfuscation",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ripe-atlas-probes", url: "./geo/ripe_atlas_probes.geojson" },
+    legend: "ripeAtlasProbes",
+    popup: "ripeAtlasProbe",
+    params: { count: 1, kinds: ["slider"] },
+    description: "RIPE Atlas 連線量測探針；座標經 80–400m 模糊化，存在志願者偏差",
+    topics: ["通訊", "網路量測", "RIPE Atlas", "全球"],
+  },
+
+  ooklaMobilePerformance: {
+    key: "ooklaMobilePerformance",
+    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    label: "Ookla 行動網路效能格網 Mobile Performance Grid",
+    expandable: true,
+    color: "#F46D43",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "network_performance_grid", confidence: "MED" }],
+      note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ookla-mobile-performance", url: "./geo/ookla_mobile_performance.geojson" },
+    legend: "ooklaPerformanceGrid",
+    popup: "ooklaPerformanceGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Ookla Speedtest 行動網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    topics: ["通訊", "網路效能", "Ookla", "全球"],
+  },
+
+  ooklaFixedPerformance: {
+    key: "ooklaFixedPerformance",
+    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    label: "Ookla 固定網路效能格網 Fixed Performance Grid",
+    expandable: true,
+    color: "#FDAE61",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "network_performance_grid", confidence: "MED" }],
+      note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ookla-fixed-performance", url: "./geo/ookla_fixed_performance.geojson" },
+    legend: "ooklaPerformanceGrid",
+    popup: "ooklaPerformanceGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Ookla Speedtest 固定網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    topics: ["通訊", "網路效能", "Ookla", "全球"],
   },
 
   convenienceStores: {
@@ -3895,6 +4022,178 @@ export const LAYER_MANIFEST = {
     topics: ["共享運具", "H3", "即時"],
   },
 
+  companyPoints: {
+    key: "companyPoints",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "公司登記點位 Company Registry",
+    expandable: true,
+    color: "#2563eb",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_points", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
+        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points",
+        url: "./business_registry/company_points_202608_r2.pmtiles",
+        sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+        companionAssets: ["./business_registry/company_filters_202608_r2.json"],
+      },
+    ],
+    legend: "companyPoints",
+    popup: "companyPoints",
+    params: { count: 11, kinds: ["slider", "slider", "select", "select", "select", "slider", "slider", "select", "select", "select", "select"] },
+    description: "202608 公司登記快照；z4–11 為全已定位 records 計數概覽，z12+ 為可點擊個別公司",
+    topics: ["工商登記", "公司", "資本額", "行業"],
+  },
+
+  companyCapitalGrid: {
+    key: "companyCapitalGrid",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "公司資本額網格 Company Capital Grid",
+    expandable: true,
+    color: "#7c3aed",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_capital_grid", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: COMPANY_GRID_SCALES.map((scale) => ({
+      kind: "pmtiles" as const,
+      sourceId: scale.sourceId,
+      url: scale.sourceUrl,
+      sourceLayer: scale.sourceLayer,
+      minzoom: scale.minzoom,
+      maxzoom: scale.maxzoom,
+    })),
+    legend: "companyCapitalGrid",
+    popup: "companyCapitalGrid",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "150m / 450m / 1.5km 三尺度非空網格，可切換資本額總和、公司數與資本額中位數",
+    topics: ["工商登記", "公司", "網格", "資本額"],
+  },
+
+  manufacturingCompanyPoints: {
+    key: "manufacturingCompanyPoints",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "製造業公司登記點位 Manufacturing Registry",
+    expandable: true,
+    color: "#f97316",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
+        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-company-points",
+        url: "./business_registry/company_points_202608_r2.pmtiles",
+        sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+      },
+    ],
+    legend: "manufacturingCompanyPoints",
+    popup: "manufacturingCompanyPoints",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "202608 製造業公司登記；z4–11 為全已定位 records 計數概覽，z12+ 為個別登記點；不是工廠位置",
+    topics: ["工商登記", "製造業", "公司"],
+  },
+
+  factoryLocations: {
+    key: "factoryLocations",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "生產中工廠登記 Factory Locations",
+    expandable: true,
+    color: FACTORY_LOCATION_COLOR,
+    icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles", sourceId: "business-registry-factory-locations-overview",
+        url: "./business_registry/factory_locations_overview_1500m_202606.pmtiles",
+        sourceLayer: "factory_locations_overview", minzoom: 4, maxzoom: 10,
+      },
+      {
+        kind: "pmtiles", sourceId: "business-registry-factory-locations",
+        url: "./business_registry/factory_locations_202606.pmtiles",
+        sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14,
+      },
+    ],
+    legend: "factoryLocations",
+    popup: "factoryLocations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "202606 生產中工廠登記；z4–10 為全已定位 records 計數概覽，z11+ 為個別工廠；座標 coverage 90.09%",
+    topics: ["工商登記", "製造業", "工廠", "工廠地址"],
+  },
+
+  regulatedFacilities: {
+    key: "regulatedFacilities",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "列管設施 Regulated Facilities",
+    expandable: true,
+    color: REGULATED_FACILITY_COLOR,
+    icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "regulated_facilities", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-regulated-facilities",
+      url: "./business_registry/regulated_facilities_20260818.pmtiles",
+      sourceLayer: "regulated_facilities", minzoom: 5, maxzoom: 14,
+    },
+    legend: "regulatedFacilities",
+    popup: "regulatedFacilities",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部 20260818 active 列管設施；列管身分不代表排放、裁罰或風險等級，z11 起顯示",
+    topics: ["工商登記", "列管設施", "環境部"],
+  },
+
+  industrialParkBoundaries: {
+    key: "industrialParkBoundaries",
+    section: { theme: "工商登記 Business Registry", group: "園區" },
+    label: "產業園區邊界 Industrial Parks",
+    expandable: true,
+    color: INDUSTRIAL_PARK_COLOR,
+    icon: LandPlot,
+    upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_boundaries", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "industrial-zone-park-boundaries",
+      url: "./industrial_zone/industrial_park_boundaries_20260818.pmtiles",
+      sourceLayer: "industrial_park_boundaries", minzoom: 5, maxzoom: 14,
+    },
+    legend: "industrialParkBoundaries",
+    popup: "industrialParkBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "20260818 產業園區 polygon；v1 不含科學園區，不以 A3 membership 虛構邊界",
+    topics: ["工商登記", "產業園區", "工業區", "邊界"],
+  },
+
+  industrialParkComparison: {
+    key: "industrialParkComparison",
+    section: { theme: "工商登記 Business Registry", group: "園區" },
+    label: "園區商工比較 Industrial Park Metrics",
+    expandable: true,
+    color: INDUSTRIAL_PARK_COMPARISON_COLORS[4],
+    icon: BarChart3,
+    upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_comparison", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-industrial-park-comparison",
+      url: "./business_registry/industrial_park_comparison_20260818.pmtiles",
+      sourceLayer: "industrial_park_comparison", minzoom: 5, maxzoom: 14,
+    },
+    legend: "industrialParkComparison",
+    popup: "industrialParkComparison",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "215 產業園區內已定位工廠／製造業公司觀測指標；受 geocode coverage 影響，不含科學園區 membership",
+    topics: ["工商登記", "產業園區", "工廠", "公司", "資本額"],
+  },
+
   commonRegistrationAddresses: {
     key: "commonRegistrationAddresses",
     section: { theme: "工商登記 Business Registry", group: "整體公司" },
@@ -3911,12 +4210,12 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "geojson",
       sourceId: "business-registry-common-registration-addresses",
-      url: "./business_registry/common_registration_addresses_202608.geojson",
+      url: "./business_registry/common_registration_addresses_202608_r2.geojson",
     },
     legend: "commonRegistrationAddresses",
     popup: "commonRegistrationAddresses",
-    params: { count: 2, kinds: ["slider", "slider"] },
-    description: "同一門牌登記至少 5 家公司的聚合點；大小表示公司數，顏色表示資本額中位數",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "同一門牌登記至少 5 家公司的聚合點；可用門檻篩選，大小表示公司數，顏色表示資本額中位數",
     topics: ["工商登記", "公司", "共同登記地址", "資本額"],
   },
 

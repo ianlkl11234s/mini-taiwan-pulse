@@ -211,6 +211,7 @@ function extractOverlays(params: Record<string, number>): unknown[] {
       suffix: spec.suffix,
       type: spec.type,
       minzoom: sanitize(spec.minzoom),
+      ...(spec.maxzoom != null ? { maxzoom: sanitize(spec.maxzoom) } : {}),
       paint: {
         dark: evalGuard(() => spec.paint(true, params)),
         light: evalGuard(() => spec.paint(false, params)),

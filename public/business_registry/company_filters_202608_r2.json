@@ -1,0 +1,593 @@
+{
+  "codebooks": {
+    "mof_tax_industry": {
+      "path": "data/processed/business_registry/industry_codebooks/mof_tax_industry_codes_v9_20260818.csv",
+      "sha256": "0dd6d79b0d2e59acc81b44e4f4b41a221b14cba6af15a9565575489473afbdea",
+      "version": "9"
+    }
+  },
+  "contract_version": 2,
+  "display": {
+    "company_name": {
+      "field": "company_name",
+      "filterable": false,
+      "purpose": "detail point label/popup"
+    },
+    "fields": [
+      "company_name"
+    ]
+  },
+  "filter_scope": {
+    "overview_filtering_supported": false,
+    "source": "detail_pmtiles_only",
+    "warning": "B1 overview 只有網格守恆計數，不含個別公司屬性；不得用於 B3 個別公司篩選。"
+  },
+  "filters": {
+    "address_mismatch": {
+      "field": "addr_mismatch",
+      "operator": "equals",
+      "type": "tri_state"
+    },
+    "capital_quantile": {
+      "field": "capital_q",
+      "operator": "equals",
+      "type": "enum"
+    },
+    "county": {
+      "field": "county",
+      "operator": "equals",
+      "type": "enum"
+    },
+    "has_trademark": {
+      "field": "has_trademark",
+      "operator": "equals",
+      "type": "boolean"
+    },
+    "industry_mid": {
+      "field": "industry_mid",
+      "operator": "equals",
+      "options": [
+        {
+          "codebook_key": "01",
+          "label": "農、牧業",
+          "value": "01"
+        },
+        {
+          "codebook_key": "02",
+          "label": "林業",
+          "value": "02"
+        },
+        {
+          "codebook_key": "03",
+          "label": "漁業",
+          "value": "03"
+        },
+        {
+          "codebook_key": "05",
+          "label": "石油及天然氣礦業",
+          "value": "05"
+        },
+        {
+          "codebook_key": "06",
+          "label": "砂、石採取及其他礦業",
+          "value": "06"
+        },
+        {
+          "codebook_key": "08",
+          "label": "食品及飼品製造業",
+          "value": "08"
+        },
+        {
+          "codebook_key": "09",
+          "label": "飲料製造業",
+          "value": "09"
+        },
+        {
+          "codebook_key": "10",
+          "label": "菸草製造業",
+          "value": "10"
+        },
+        {
+          "codebook_key": "11",
+          "label": "紡織業",
+          "value": "11"
+        },
+        {
+          "codebook_key": "12",
+          "label": "成衣及服飾品製造業",
+          "value": "12"
+        },
+        {
+          "codebook_key": "13",
+          "label": "皮革、毛皮及其製品製造業",
+          "value": "13"
+        },
+        {
+          "codebook_key": "14",
+          "label": "木竹製品製造業",
+          "value": "14"
+        },
+        {
+          "codebook_key": "15",
+          "label": "紙漿、紙及紙製品製造業",
+          "value": "15"
+        },
+        {
+          "codebook_key": "16",
+          "label": "印刷及資料儲存媒體複製業",
+          "value": "16"
+        },
+        {
+          "codebook_key": "17",
+          "label": "石油及煤製品製造業",
+          "value": "17"
+        },
+        {
+          "codebook_key": "18",
+          "label": "化學材料及肥料製造業",
+          "value": "18"
+        },
+        {
+          "codebook_key": "19",
+          "label": "其他化學製品製造業",
+          "value": "19"
+        },
+        {
+          "codebook_key": "20",
+          "label": "藥品及醫用化學製品製造業",
+          "value": "20"
+        },
+        {
+          "codebook_key": "21",
+          "label": "橡膠製品製造業",
+          "value": "21"
+        },
+        {
+          "codebook_key": "22",
+          "label": "塑膠製品製造業",
+          "value": "22"
+        },
+        {
+          "codebook_key": "23",
+          "label": "非金屬礦物製品製造業",
+          "value": "23"
+        },
+        {
+          "codebook_key": "24",
+          "label": "基本金屬製造業",
+          "value": "24"
+        },
+        {
+          "codebook_key": "25",
+          "label": "金屬製品製造業",
+          "value": "25"
+        },
+        {
+          "codebook_key": "26",
+          "label": "電子零組件製造業",
+          "value": "26"
+        },
+        {
+          "codebook_key": "27",
+          "label": "電腦、電子產品及光學製品製造業",
+          "value": "27"
+        },
+        {
+          "codebook_key": "28",
+          "label": "電力設備及配備製造業",
+          "value": "28"
+        },
+        {
+          "codebook_key": "29",
+          "label": "機械設備製造業",
+          "value": "29"
+        },
+        {
+          "codebook_key": "30",
+          "label": "汽車及其零件製造業",
+          "value": "30"
+        },
+        {
+          "codebook_key": "31",
+          "label": "其他運輸工具及其零件製造業",
+          "value": "31"
+        },
+        {
+          "codebook_key": "32",
+          "label": "家具製造業",
+          "value": "32"
+        },
+        {
+          "codebook_key": "33",
+          "label": "其他製造業",
+          "value": "33"
+        },
+        {
+          "codebook_key": "34",
+          "label": "產業用機械設備維修及安裝業",
+          "value": "34"
+        },
+        {
+          "codebook_key": "35",
+          "label": "電力及燃氣供應業",
+          "value": "35"
+        },
+        {
+          "codebook_key": "36",
+          "label": "用水供應業",
+          "value": "36"
+        },
+        {
+          "codebook_key": "37",
+          "label": "廢水及污水處理業",
+          "value": "37"
+        },
+        {
+          "codebook_key": "38",
+          "label": "廢棄物清除、處理及資源物回收處理業",
+          "value": "38"
+        },
+        {
+          "codebook_key": "39",
+          "label": "污染整治業",
+          "value": "39"
+        },
+        {
+          "codebook_key": "41",
+          "label": "建築工程業",
+          "value": "41"
+        },
+        {
+          "codebook_key": "42",
+          "label": "土木工程業",
+          "value": "42"
+        },
+        {
+          "codebook_key": "43",
+          "label": "專門營造業",
+          "value": "43"
+        },
+        {
+          "codebook_key": "4546",
+          "label": "批發業",
+          "value": "45"
+        },
+        {
+          "codebook_key": "4546",
+          "label": "批發業",
+          "value": "46"
+        },
+        {
+          "codebook_key": "4748",
+          "label": "零售業",
+          "value": "47"
+        },
+        {
+          "codebook_key": "4748",
+          "label": "零售業",
+          "value": "48"
+        },
+        {
+          "codebook_key": "49",
+          "label": "陸上運輸業",
+          "value": "49"
+        },
+        {
+          "codebook_key": "50",
+          "label": "水上運輸業",
+          "value": "50"
+        },
+        {
+          "codebook_key": "51",
+          "label": "航空運輸業",
+          "value": "51"
+        },
+        {
+          "codebook_key": "52",
+          "label": "運輸輔助業",
+          "value": "52"
+        },
+        {
+          "codebook_key": "53",
+          "label": "倉儲業",
+          "value": "53"
+        },
+        {
+          "codebook_key": "54",
+          "label": "郵政及遞送服務業",
+          "value": "54"
+        },
+        {
+          "codebook_key": "55",
+          "label": "住宿業",
+          "value": "55"
+        },
+        {
+          "codebook_key": "56",
+          "label": "餐飲業",
+          "value": "56"
+        },
+        {
+          "codebook_key": "58",
+          "label": "出版業",
+          "value": "58"
+        },
+        {
+          "codebook_key": "59",
+          "label": "影片及電視節目業；聲音錄製及音樂發行業",
+          "value": "59"
+        },
+        {
+          "codebook_key": "60",
+          "label": "廣播、電視節目編排及傳播業",
+          "value": "60"
+        },
+        {
+          "codebook_key": "61",
+          "label": "電信業",
+          "value": "61"
+        },
+        {
+          "codebook_key": "62",
+          "label": "電腦程式設計、諮詢及相關服務業",
+          "value": "62"
+        },
+        {
+          "codebook_key": "63",
+          "label": "資訊服務業",
+          "value": "63"
+        },
+        {
+          "codebook_key": "64",
+          "label": "金融服務業",
+          "value": "64"
+        },
+        {
+          "codebook_key": "65",
+          "label": "保險業",
+          "value": "65"
+        },
+        {
+          "codebook_key": "66",
+          "label": "證券期貨及金融輔助業",
+          "value": "66"
+        },
+        {
+          "codebook_key": "67",
+          "label": "不動產開發業",
+          "value": "67"
+        },
+        {
+          "codebook_key": "68",
+          "label": "不動產經營及相關服務業",
+          "value": "68"
+        },
+        {
+          "codebook_key": "69",
+          "label": "法律及會計服務業",
+          "value": "69"
+        },
+        {
+          "codebook_key": "70",
+          "label": "企業總管理機構及管理顧問業",
+          "value": "70"
+        },
+        {
+          "codebook_key": "71",
+          "label": "建築、工程服務及技術檢測、分析服務業",
+          "value": "71"
+        },
+        {
+          "codebook_key": "72",
+          "label": "研究發展服務業",
+          "value": "72"
+        },
+        {
+          "codebook_key": "73",
+          "label": "廣告業及市場研究業",
+          "value": "73"
+        },
+        {
+          "codebook_key": "74",
+          "label": "專門設計業",
+          "value": "74"
+        },
+        {
+          "codebook_key": "75",
+          "label": "獸醫業",
+          "value": "75"
+        },
+        {
+          "codebook_key": "76",
+          "label": "其他專業、科學及技術服務業",
+          "value": "76"
+        },
+        {
+          "codebook_key": "77",
+          "label": "租賃業",
+          "value": "77"
+        },
+        {
+          "codebook_key": "78",
+          "label": "人力仲介及供應業",
+          "value": "78"
+        },
+        {
+          "codebook_key": "79",
+          "label": "旅行及其他相關服務業",
+          "value": "79"
+        },
+        {
+          "codebook_key": "80",
+          "label": "保全及偵探業",
+          "value": "80"
+        },
+        {
+          "codebook_key": "81",
+          "label": "建築物及綠化服務業",
+          "value": "81"
+        },
+        {
+          "codebook_key": "82",
+          "label": "行政支援服務業",
+          "value": "82"
+        },
+        {
+          "codebook_key": "83",
+          "label": "公共行政及國防；強制性社會安全",
+          "value": "83"
+        },
+        {
+          "codebook_key": "85",
+          "label": "教育業",
+          "value": "85"
+        },
+        {
+          "codebook_key": "86",
+          "label": "醫療保健業",
+          "value": "86"
+        },
+        {
+          "codebook_key": "87",
+          "label": "居住型照顧服務業",
+          "value": "87"
+        },
+        {
+          "codebook_key": "88",
+          "label": "其他社會工作服務業",
+          "value": "88"
+        },
+        {
+          "codebook_key": "90",
+          "label": "創作及藝術表演業",
+          "value": "90"
+        },
+        {
+          "codebook_key": "91",
+          "label": "圖書館、檔案保存、博物館及類似機構",
+          "value": "91"
+        },
+        {
+          "codebook_key": "92",
+          "label": "博弈業",
+          "value": "92"
+        },
+        {
+          "codebook_key": "93",
+          "label": "運動、娛樂及休閒服務業",
+          "value": "93"
+        },
+        {
+          "codebook_key": "94",
+          "label": "宗教、職業及類似組織",
+          "value": "94"
+        },
+        {
+          "codebook_key": "95",
+          "label": "個人及家庭用品維修業",
+          "value": "95"
+        },
+        {
+          "codebook_key": "96",
+          "label": "未分類其他服務業",
+          "value": "96"
+        }
+      ],
+      "type": "enum",
+      "warning": "只代表第一順位 6 碼行業代號的中類；45–48 依 MOF v9 合併標籤顯示"
+    },
+    "listed": {
+      "field": "is_listed",
+      "operator": "equals",
+      "type": "boolean"
+    },
+    "manufacturing": {
+      "field": "is_manufacturing",
+      "operator": "equals",
+      "type": "boolean"
+    },
+    "setup_year": {
+      "field": "setup_year",
+      "operator": "range",
+      "type": "integer_range"
+    },
+    "source_category": {
+      "field": "categories",
+      "operator": "semicolon_exact_token",
+      "options": [
+        {
+          "label": "農林漁牧",
+          "value": "A"
+        },
+        {
+          "label": "礦業土石",
+          "value": "B"
+        },
+        {
+          "label": "製造",
+          "value": "C"
+        },
+        {
+          "label": "水電燃氣",
+          "value": "D"
+        },
+        {
+          "label": "營造工程",
+          "value": "E"
+        },
+        {
+          "label": "零售批發餐飲",
+          "value": "F"
+        },
+        {
+          "label": "運輸倉儲通信",
+          "value": "G"
+        },
+        {
+          "label": "金融保險不動產",
+          "value": "H"
+        },
+        {
+          "label": "專業科學技術",
+          "value": "I"
+        },
+        {
+          "label": "文化運動休閒",
+          "value": "J"
+        },
+        {
+          "label": "其他",
+          "value": "Z"
+        }
+      ],
+      "type": "multi_enum",
+      "warning": "GCIS 來源檔群組，不等同稅務／統計行業分類"
+    }
+  },
+  "pmtiles": {
+    "feature_count": 654165,
+    "fields": [
+      "company_name",
+      "capital_total",
+      "capital_q",
+      "is_manufacturing",
+      "categories",
+      "industry_mid",
+      "setup_year",
+      "county",
+      "addr_mismatch",
+      "is_listed",
+      "has_trademark"
+    ],
+    "max_zoom": 14,
+    "min_zoom": 8,
+    "path": "data/processed/business_registry/company_points/company_points_202608_r2.pmtiles",
+    "sha256": "44210b690c0267e7667f514df4510e79d9b557ec400f6cc7db4cbdf638eb1184",
+    "source_layer": "company_points"
+  },
+  "privacy": {
+    "pii_fields_published": []
+  },
+  "semantics": "公司登記 202608 靜態快照；不代表即時或目前營業狀態",
+  "snapshot": "202608"
+}

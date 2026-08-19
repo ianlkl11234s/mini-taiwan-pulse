@@ -13,7 +13,9 @@
  */
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { COMPANY_INDUSTRY_MID_OPTIONS } from "../businessRegistryTypes";
 
 // ── 已知壞掉、待上游修（ratchet：修好後要從這裡移除，否則測試會提醒）──
 //
@@ -135,9 +137,80 @@ interface FieldContract {
 }
 
 const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
-  "business_registry/common_registration_addresses_202608.geojson": [
+  "geo/internet_exchange_points.geojson": [
+    { field: "ixp_id", type: "string" },
+    { field: "name", type: "string" },
+    { field: "region", type: "string" },           // 五洲區分色
+    { field: "participants", type: "string" },     // Mapbox to-number 後控制點大小
+    { field: "coord_qc_status", type: "string" },  // ok / swapped
+    { field: "source_org", type: "string" },
+    { field: "license", type: "string" },
+  ],
+  "geo/anfr_wireless_sites.geojson": [
+    { field: "sup_id", type: "string" },
+    { field: "record_count", type: "number" },
+    { field: "source", type: "string" },
+    { field: "license", type: "string" },
+    { field: "coord_qc_status", type: "string" },
+  ],
+  "geo/osm_communication_sites.geojson": [
+    { field: "source_id", type: "string" },
+    { field: "osm_type", type: "string" },
+    { field: "osm_id", type: "string" },
+    { field: "site_kind", type: "string" },
+    { field: "relevance", type: "string" },
+    { field: "source", type: "string" },
+    { field: "license", type: "string" },
+    { field: "attribution", type: "string" },
+  ],
+  "geo/ookla_mobile_performance.geojson": [
+    { field: "service_type", type: "string" },
+    { field: "coarse_quadkey", type: "string" },
+    { field: "coarse_zoom", type: "number" },
+    { field: "source_tile_zoom", type: "number" },
+    { field: "avg_d_kbps", type: "number" },
+    { field: "avg_u_kbps", type: "number" },
+    { field: "avg_lat_ms", type: "number" },
+    { field: "tests", type: "number" },
+    { field: "devices", type: "number" },
+    { field: "devices_method", type: "string" },
+    { field: "tile_count", type: "number" },
+    { field: "period", type: "string" },
+    { field: "source", type: "string" },
+    { field: "source_url", type: "string" },
+    { field: "license", type: "string" },
+    { field: "attribution", type: "string" },
+    { field: "accessed_at", type: "string" },
+    { field: "usage_note", type: "string" },
+    { field: "sample_bias", type: "string" },
+    { field: "coverage_caveat", type: "string" },
+  ],
+  "geo/ookla_fixed_performance.geojson": [
+    { field: "service_type", type: "string" },
+    { field: "coarse_quadkey", type: "string" },
+    { field: "coarse_zoom", type: "number" },
+    { field: "source_tile_zoom", type: "number" },
+    { field: "avg_d_kbps", type: "number" },
+    { field: "avg_u_kbps", type: "number" },
+    { field: "avg_lat_ms", type: "number" },
+    { field: "tests", type: "number" },
+    { field: "devices", type: "number" },
+    { field: "devices_method", type: "string" },
+    { field: "tile_count", type: "number" },
+    { field: "period", type: "string" },
+    { field: "source", type: "string" },
+    { field: "source_url", type: "string" },
+    { field: "license", type: "string" },
+    { field: "attribution", type: "string" },
+    { field: "accessed_at", type: "string" },
+    { field: "usage_note", type: "string" },
+    { field: "sample_bias", type: "string" },
+    { field: "coverage_caveat", type: "string" },
+  ],
+  "business_registry/common_registration_addresses_202608_r2.geojson": [
     { field: "address", type: "string" },
     { field: "n_companies", type: "number" },
+    { field: "capital_sum", type: "number" },
     { field: "capital_median", type: "number" },
   ],
   // 2026-08-01 批次（本次上線）
@@ -324,6 +397,32 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
   ],
 };
 
+/**
+ * Immutable static artifacts that the frontend contract pins to an exact payload.
+ * Only versioned files belong here; mutable aliases would make every legitimate
+ * refresh look like an unexplained production drift.
+ */
+const STATIC_ARTIFACT_SHA256: Record<string, string> = {
+  "business_registry/common_registration_addresses_202608_r2.geojson":
+    "bf78dc3cdd7524a038c2b73ea0c72b4511314e552397c65a763821d0e876d6c1",
+  "business_registry/company_filters_202608_r2.json":
+    "eac748b712faf4dd39dc414d4c3f3dfa2c778a2bab38a8031d37ae1e8ee0599f",
+};
+
+describe("immutable 靜態資料 checksum contract", () => {
+  for (const [url, expected] of Object.entries(STATIC_ARTIFACT_SHA256)) {
+    it(`${url} SHA-256 未漂移`, () => {
+      const path = `public/${url}`;
+      if (!existsSync(path)) {
+        console.log(`⚠ ${url} 本機不存在（S3 管理），跳過`);
+        return;
+      }
+      const actual = createHash("sha256").update(readFileSync(path)).digest("hex");
+      expect(actual, `${url} 內容已漂移；請確認是否應產新版本檔名`).toBe(expected);
+    });
+  }
+});
+
 describe("前端硬依賴欄位契約", () => {
   for (const [url, contracts] of Object.entries(FIELD_CONTRACTS)) {
     it(`${url} 的關鍵欄位型別/覆蓋率未漂移`, () => {
@@ -360,4 +459,28 @@ describe("前端硬依賴欄位契約", () => {
       ).toEqual([]);
     });
   }
+});
+
+describe("工商登記 B3 filter contract", () => {
+  it("202608 r2 contract 與共用 B1 r2 PMTiles 契約一致且不發布 PII", () => {
+    const path = "public/business_registry/company_filters_202608_r2.json";
+    expect(existsSync(path), "B3 r2 dated contract 未 staged").toBe(true);
+    const data = JSON.parse(readFileSync(path, "utf8")) as Record<string, any>;
+    expect(data.snapshot).toBe("202608");
+    expect(data.semantics).toContain("不代表即時或目前營業狀態");
+    expect(data.pmtiles?.source_layer).toBe("company_points");
+    expect(data.pmtiles?.feature_count).toBe(654165);
+    expect(data.pmtiles?.fields).toEqual([
+      "company_name", "capital_total", "capital_q", "is_manufacturing", "categories", "industry_mid",
+      "setup_year", "county", "addr_mismatch", "is_listed", "has_trademark",
+    ]);
+    expect(data.filters?.industry_mid?.options).toHaveLength(89);
+    expect(data.filters?.industry_mid?.options?.[0]?.value).toBe("01");
+    expect(COMPANY_INDUSTRY_MID_OPTIONS).toEqual(
+      data.filters.industry_mid.options.map((o: { value: string; label: string }) => ({
+        value: o.value, label: `${o.value} ${o.label}`,
+      })),
+    );
+    expect(data.privacy?.pii_fields_published).toEqual([]);
+  });
 });

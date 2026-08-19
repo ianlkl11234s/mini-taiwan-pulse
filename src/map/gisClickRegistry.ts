@@ -46,6 +46,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["freewayCongestion-hit"], type: "freewayCongestion" },
   { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
   { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
+  { layers: ["internet-exchange-points-circle", "internet-exchange-points-glow"], type: "internetExchangePoint" },
+  { layers: ["anfr-wireless-sites-circle", "anfr-wireless-sites-glow"], type: "anfrWirelessSite" },
+  { layers: ["osm-communication-sites-circle", "osm-communication-sites-glow"], type: "osmCommunicationSite" },
+  { layers: ["ripe-atlas-probes-circle", "ripe-atlas-probes-glow"], type: "ripeAtlasProbe" },
+  { layers: ["ookla-mobile-performance-fill", "ookla-mobile-performance-line"], type: "ooklaPerformanceGrid" },
+  { layers: ["ookla-fixed-performance-fill", "ookla-fixed-performance-line"], type: "ooklaPerformanceGrid" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
   // 全部走同一個 SchoolPanel。校地面 `edu-campus-fill` 是大面積 fill → 排在陣列最末。
   {
@@ -267,6 +273,23 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["taipei-pumb-dot", "taipei-pumb-glow"], type: "taipeiPumb" },
   { layers: ["agri-pois-circle"], type: "agriPOI" },
   { layers: ["business-registry-common-registration-addresses-circle"], type: "commonRegistrationAddresses" },
+  { layers: ["business-registry-factory-locations-overview-circle"], type: "factoryLocations" },
+  { layers: ["business-registry-factory-locations-circle"], type: "factoryLocations" },
+  { layers: ["business-registry-regulated-facilities-circle"], type: "regulatedFacilities" },
+  { layers: ["business-registry-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
+  { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
+  { layers: ["business-registry-company-points-overview-manufacturing-overview-circle"], type: "manufacturingCompanyPoints" },
+  { layers: ["business-registry-company-points-overview-company-overview-circle"], type: "companyPoints" },
+  {
+    layers: [
+      "business-registry-company-capital-grid-150-fill", "business-registry-company-capital-grid-150-outline",
+      "business-registry-company-capital-grid-450-fill", "business-registry-company-capital-grid-450-outline",
+      "business-registry-company-capital-grid-1500-fill", "business-registry-company-capital-grid-1500-outline",
+    ],
+    type: "companyCapitalGrid",
+  },
+  { layers: ["business-registry-industrial-park-comparison-fill", "business-registry-industrial-park-comparison-outline"], type: "industrialParkComparison" },
+  { layers: ["industrial-zone-park-boundaries-fill", "industrial-zone-park-boundaries-outline"], type: "industrialParkBoundaries" },
   { layers: ["agri-wholesale-market-circle"], type: "agriWholesaleMarket" },
   { layers: ["agri-produce-wholesale-circle"], type: "agriProduceWholesale" },
   { layers: ["agri-retail-circle"], type: "agriRetail" },

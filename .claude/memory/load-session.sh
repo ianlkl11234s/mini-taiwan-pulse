@@ -103,7 +103,7 @@ def features_index():
 parts = [
     "## Mini Taiwan Pulse — Session 記憶已載入\n",
     "STATUS 僅 inline 最新段落；BACKLOG / PRINCIPLES 僅注入標題索引以節省 context，",
-    "需要細節時用 Read 讀對應檔案 / 行號。完整 9 檔見 `.claude/memory/` 或 `.claude/FRAMEWORK.md`。\n",
+    "需要細節時依 `.claude/memory/README.md` routing 選讀對應檔案 / 行號，不整包讀取。\n",
     "\n=== docs/features/（feature 完整脈絡，每個功能一夾） ===\n",
     features_index(),
     "\n上游 handoff SSOT 在 `../taipei-gis-analytics/docs/handoff/`；ADR 在 `../taipei-gis-analytics/docs/adr/`。",

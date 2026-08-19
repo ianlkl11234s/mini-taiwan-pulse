@@ -121,10 +121,10 @@
 
 | 術語 | 說明 |
 |---|---|
-| Atomic commit | 一檔一 commit，訊息 prefix `memory:` |
+| Atomic commit | 保留既有 cached path set；每檔以 exact path add，再用 `git commit --only ... -- <exact-path>` 建立一檔一個 `memory:` commit |
 | Session SOP | 開頭讀 STATUS/BACKLOG/PRINCIPLES；結束用 `/wrap-up` |
 | Pitfall archive | `.claude/pitfalls/` 的 long-form 紀錄，`INCIDENTS` 放短摘要 + link |
-| 9 檔分類 | README / STATUS / BACKLOG / PRINCIPLES / PLAYBOOKS / GLOSSARY / INCIDENTS / REFLECTIONS / DATA_SCOPE |
+| memory routing | `.claude/memory/README.md` 登記核心檔與專案特定選讀檔；不維護固定檔案總數 |
 
 ## OSRM / Map-matching（2026-05-09 加）
 

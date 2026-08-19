@@ -1,130 +1,91 @@
 ---
 name: wrap-up
-description: Session 結束後收尾 + 更新 .claude/memory/ 的 skill。當使用者說 /wrap-up、「收工」、「收尾」、「session 結束」、「做完了」、「commit memory」、「整理記憶」時觸發。讀本 session 脈絡 + git log + 現有 memory → 對應更新 9 個 memory 檔 → 產出 diff 給用戶 review → 每檔 atomic commit（prefix memory:）→ 不自動 push。
-user_invocable: true
+description: 只在使用者明確要求 session 收尾、整理專案記憶、或 commit memory 時使用。不因一般任務完成、狀態報告或程式碼 commit 自動觸發。
 ---
 
-# /wrap-up — Session 收尾 SOP
+# Wrap-up v2
 
-## 目的
+把本 session 收成可審查、可接手、不誤報 release 狀態的 checkpoint。
+Wrap-up 只處理記憶與收尾 commit；不因此取得 upload、deploy、push、merge 或資料變更授權。
 
-Session 結束時自動：
-1. 分析本次做了什麼、學到什麼、失誤什麼
-2. 將 session insights 寫回 `.claude/memory/` 9 個檔
-3. 每檔獨立 atomic commit，git log 可追記憶演進
-4. 不 push，保留用戶最後 review 機會
+## 1. Gather：先定義 scope
 
-## 執行流程（5 階段）
+先用對話與工具記錄建立 **scope ledger**：
 
-### Stage 1: Gather
+- touched repos，每個 repo 的 current branch、upstream、intended base、`git status`。
+- 本 session 的 commit range；比較 intended base，不假設 base 名為 `master`。
+- external systems 與真實 side effects：object storage、DB/migration、deploy platform、CDN、PR。
+- 非本 session 的 dirty files 或 commits；標示後保留，不代為整理。
 
-**平行執行**（三個同時發 Bash / Read）：
+然後讀 `.claude/memory/README.md` 的 routing。依本 session 事件**選讀**可能要更新的 memory；
+選中的檔案要讀完，但不固定讀 9 檔，也不整包讀 `.claude/memory/`。
 
-1. Read `.claude/memory/` 全部 9 檔，掌握現狀
-2. `git log --oneline origin/master..HEAD`（本地未 push 的 commit）+ `git log -20 --oneline`（最近 20 次）
-3. `git status`（本 session 未 commit 變動）
+證據只來自本 session 對話、repo 現況、實際命令與已維護文件。不跨 session 臆測，不把 commit message 當 runtime 證明。
 
-**然後**回顧本 session 對話：
-- 用戶要求了什麼？
-- 做了哪些動作？（讀哪些檔、改哪些檔、跑哪些指令）
-- 哪裡順利、哪裡卡住、哪些指令失敗過？
-- 用戶有糾正過你嗎？（次數 / 原因）
+## 2. Release truth matrix
 
-### Stage 2: Analyze
+只要本 session 碰到 artifact 或 release，固定用下列順序記錄每個 release unit：
 
-將本 session 事件分類到對應 memory 檔：
+| build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|
 
-| 事件類型 | 寫到哪 |
-|---|---|
-| 做完某功能 / 抓完某資料 | STATUS + DATA_SCOPE |
-| 產生新待辦 idea | BACKLOG（新增 P1/P2/P3） |
-| 關閉舊待辦 | BACKLOG（劃掉 + 搬到「已完成」區） |
-| 新決策 / 新預設 | PRINCIPLES |
-| 重複性流程定型（做過 ≥2 次） | PLAYBOOKS |
-| 遇到新術語 / 新代碼 | GLOSSARY |
-| 遇到 bug / 意外並修好 | INCIDENTS（append；長篇放 `.claude/pitfalls/`） |
-| 反省「下次怎麼改」 | REFLECTIONS（append） |
+每格只能是 `done` / `failed` / `blocked` / `unknown` / `not run` / `N/A`，並附最小可核對證據。
+`unknown` 只用於證據不足、無法判定真實狀態；已知卡點用 `blocked`，尚未執行用 `not run`。
 
-**寫回規則**：
-- `INCIDENTS` / `REFLECTIONS` **只 append**，不改舊條目
-- `PRINCIPLES` 衝突時：新原則覆蓋舊，舊的搬到 `INCIDENTS` 記錄演進
-- `STATUS` 每次**重寫**（只保留當下狀態）
-- `DATA_SCOPE` 數字改動時，**先 Grep / `wc -l` 驗證**不單信對話摘要
+- 上游完成不等於下游完成；`upload ≠ deploy ≠ browser verified`。
+- upload 後要分開記 readback（checksum / size / metadata）。
+- 自動測試記指令、範圍與結果；不把 tsc/unit tests 寫成視覺驗收。
+- browser 或 network 工具不可用時寫 `blocked`，不改用代碼推斷補勾。
+- 非 release 任務可省略此矩陣。
 
-### Stage 3: Draft — 保持精簡 ⚠️
+### Contradiction gate
 
-**只產出總表**（每檔一行摘要），**不 dump 完整 diff / markdown 草稿**。
+若對話、git、feature docs、memory 或 external state 相互衝突：
 
-```
-| 檔案 | 變動 | 一句話摘要（≤ 20 字） |
-|---|---|---|
-| STATUS.md | rewrite | 18 commits / SessionStart hook 上線 |
-| INCIDENTS.md | +1 | macOS 無 jq → python3 |
-| PRINCIPLES.md | +1 條 | shell 不依賴 jq |
-| REFLECTIONS.md | +1 篇 | 首次 /wrap-up 反省 |
-```
+1. 先列出衝突與影響，用當下可得的第一手證據核對。
+2. 無法解決就保留 `blocked` / `unknown`，不為收尾而選好看的答案。
+3. 在矛盾澄清前，不將相關項目寫成 done，不進入 Apply。
 
-**禁止**：
-- ❌ 貼出完整 markdown 改寫內容
-- ❌ 列出每個 old_string / new_string
-- ❌ 條列每條 append 的全文
+## 3. Analyze 與 routing
 
-若某檔變動特別複雜，可**多加 1~2 行 bullet** 註明主要改動，但仍不 dump 全文。
+依 `memory/README.md` 的當前定義分流，不為了「全更」而碰無關檔案。
 
-### Stage 4: Confirm
+- `STATUS.md`：rewrite，只保留當前 touched repos、release truth、blockers 與下一步。
+- `DATA_SCOPE.md`：數字必須直接從 canonical data、DB query、artifact metadata、`wc`/parser 或同等第一手來源驗證；不單信對話摘要或舊文件。
+- `BACKLOG.md`：每個未完成項都要有 blocker、next step 與 acceptance criteria；不以「待處理」結案。
+- `INCIDENTS.md` / `REFLECTIONS.md`：append-only；沒有新證據不回寫舊條目。
+- `PRINCIPLES.md`：新舊原則衝突時，明確取代舊原則並留演進原因。
+- `PLAYBOOKS.md`：只記已重複實證的流程。單次做法放 feature docs 或 reflection。
 
-簡短問一句：
+收尾必須留下 **next-session entry**：目標 repo/branch、當前 blocker、第一個可執行步驟、驗收條件。
 
-> 全採用 / 看某檔細節 / skip 某檔？
+## 4. Draft 與 Confirm
 
-- **全採用** → 進 Stage 5
-- **看 X 檔** → 這時才展開該檔的實際 Edit/Write 草稿
-- **skip X** → 不 commit 該檔
+先只回報：
 
-**不要**自己 dump 細節等用戶挑。等用戶明確要求才展開。
+1. scope ledger 摘要。
+2. release truth matrix（若適用）。
+3. memory 變更總表：每檔一行、一句摘要（≤20 字）。
+4. 衝突、未完成項、next-session entry 與不應碰的檔案。
 
-### Stage 5: Atomic Commit
+不 dump 完整 diff、markdown 全文或每個 edit 片段。問：**全採用 / 看某檔細節 / skip 某檔？**
+使用者確認前不編輯 memory，不 stage，不 commit。
 
-每個檔案一個 commit，訊息格式：
+## 5. Apply 與 atomic commits
 
-```
-memory: <動詞> <檔名> (<1 句摘要>)
+只在 Confirm 後套用核准項目：
 
-<必要時：更詳細的原因 / 對應的 session 事件>
+1. 編輯前重讀目標檔；保留 unrelated dirty changes。
+2. 若同一 target memory file 已含非本 session 或平行 session hunks，path-scoped commit 無法隔離；立即停止並請使用者協調，不得代為 commit 整檔。
+3. Commit 前先記錄並列出 `git diff --cached --name-only` 的 cached path set，辨識並保留 unrelated pre-staged paths；不要求整個 staging area clean。
+4. 每個 memory 檔做 path-scoped diff-check 與 `git add <exact-path>`，再用 `git commit --only -m "..." -- <exact-path>` 建立一檔一個 atomic commit。禁用 `git add -A`。
+5. commit 訊息用 `memory: <action> <file> (<summary>)`，不加假 co-author 或模型身分。
+6. pre-commit hook 失敗時，commit 尚未產生：修正後重跑**同一個 commit**，不新開 fix commit，不 amend 不存在的 commit。
+7. `STATUS.md` 最後提交。
+8. 結束時只確認 target memory paths 已 clean，並列出仍保留的 unrelated staged 與 dirty state。
 
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-```
+## Push 邊界
 
-**範例**：
-```
-memory: update STATUS (完成倫敦 10 座補抓)
-memory: append INCIDENTS (EGLL 誤判 + bash/sh + UK 漏加)
-memory: close BACKLOG B003 + add B006 (pull 腳本動態解析 region)
-memory: reflect REFLECTIONS (今晚 3 條 next-time rules)
-```
-
-commit 順序建議：**STATUS 最後**（其他檔都 commit 完再更新 STATUS，避免 STATUS 引用到還沒 commit 的變動）。
-
-完成後：
-- `git status` 確認 tree clean
-- **提醒用戶**：「要 push 嗎？`git push origin master`」
-- **不要自己 push**
-- **若本 session 動了程式碼結構**（新增/刪除/改名 檔案或函式）→ 提醒用戶：codebase-memory 圖譜可能已過期，可 `index_repository(mode="moderate")` 重建；純改函式內部可略過。理由見 `.claude/HARNESS.md §4.2`。
-
-## 注意事項
-
-- **Read first**：Edit 前一定先 Read 目標檔，避免 old_string 不精確
-- **驗證數字**：DATA_SCOPE / STATUS 的航班數、region size，用 `wc -l` / Grep 確認，不單信對話摘要
-- **Pre-commit hook 失敗**：fix 後**再開新 commit**，不要 amend
-- **不修 CLAUDE.md**：那是規則層，`/wrap-up` 不動（除非用戶明確要求）
-- **不跨 session 臆測**：只根據「本 session 對話 + git log + 現有 memory」三者交叉驗證
-- **若本 session 沒什麼好記**（純閒聊 / 讀檔不動作）：跟用戶確認「看起來沒需要 wrap-up，要強制留紀錄嗎？」
-
-## Skill 自身的反省
-
-這個 skill 也會被反省。若某次 `/wrap-up` 漏抓重要事件、或 commit 訊息風格不理想，應：
-1. 在本次 REFLECTIONS 記下
-2. 回頭修改本 SKILL.md（加新規則）
-3. 下次 `/wrap-up` 時按新規則執行
-
-**Skill 自我優化 = 記憶系統持續進化的核心**。
+不自動 push。最後顯示 current branch、upstream 與 ahead/behind，單獨詢問 push 授權。
+只提示 current branch 的明確 refspec（例如 `git push origin HEAD:<current-branch>`），
+不寫死 `master`/`main`，不把 push 授權延伸成 PR、merge 或 deploy 授權。

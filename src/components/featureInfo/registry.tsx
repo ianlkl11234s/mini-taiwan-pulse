@@ -5,7 +5,7 @@
 import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
-  SubmarineCablePanel, LandingStationPanel, ConvenienceStorePanel,
+  SubmarineCablePanel, LandingStationPanel, InternetExchangePointPanel, AnfrWirelessSitePanel, OsmCommunicationSitePanel, RipeAtlasProbePanel, OoklaPerformanceGridPanel, ConvenienceStorePanel,
   PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
   PublicLibraryPanel, WelfareCenterPanel, RetailMarketPanel, PublicToiletPanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
@@ -64,7 +64,11 @@ import {
   EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
 } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
-import { CommonRegistrationAddressesPanel } from "./businessRegistryPanels";
+import {
+  CommonRegistrationAddressesPanel, CompanyCapitalGridPanel, CompanyPointsPanel,
+  FactoryLocationsPanel, IndustrialParkBoundariesPanel, RegulatedFacilitiesPanel,
+  IndustrialParkComparisonPanel,
+} from "./businessRegistryPanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -138,6 +142,11 @@ export interface PanelProps {
 export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
   submarineCable: SubmarineCablePanel,
   landingStation: LandingStationPanel,
+  internetExchangePoint: InternetExchangePointPanel,
+  anfrWirelessSite: AnfrWirelessSitePanel,
+  osmCommunicationSite: OsmCommunicationSitePanel,
+  ripeAtlasProbe: RipeAtlasProbePanel,
+  ooklaPerformanceGrid: OoklaPerformanceGridPanel,
   // 🎓 教育：6 個學校點層共用 school，校地面獨立 eduCampus
   // 學區面：國小／國中共用 eduDistrictK12（欄位契約完全相同），高中就學區另立（縣市級）
   school: SchoolPanel,
@@ -218,6 +227,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   agriProduceWholesale: AgriCompanyPanel,
   agriWholesaleMarket: AgriCompanyPanel,
   commonRegistrationAddresses: CommonRegistrationAddressesPanel,
+  companyPoints: CompanyPointsPanel,
+  manufacturingCompanyPoints: CompanyPointsPanel,
+  companyCapitalGrid: CompanyCapitalGridPanel,
+  factoryLocations: FactoryLocationsPanel,
+  industrialParkBoundaries: IndustrialParkBoundariesPanel,
+  industrialParkComparison: IndustrialParkComparisonPanel,
+  regulatedFacilities: RegulatedFacilitiesPanel,
   farmRoads: FarmRoadsPanel,
   ecoNetworkZones: EcoNetworkZonesPanel,
   forestryPolygon: ForestryGenericPanel,
@@ -415,6 +431,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
+  internetExchangePoint: "網際網路交換中心",
+  anfrWirelessSite: "法國 ANFR 5G 3500 無線站點",
+  osmCommunicationSite: "OSM 通訊候選點",
+  ripeAtlasProbe: "RIPE Atlas 量測節點",
+  ooklaPerformanceGrid: "Ookla 網路效能格網",
   school: "學校",
   eduCampus: "校地範圍",
   eduDistrictK12: "學區",
@@ -504,6 +525,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriProduceWholesale: "蔬果批發商",
   agriWholesaleMarket: "農產批發市場",
   commonRegistrationAddresses: "共同登記地址",
+  companyPoints: "公司登記點位（202608 快照）",
+  manufacturingCompanyPoints: "製造業公司登記點位（202608 快照）",
+  companyCapitalGrid: "公司資本額網格（202608 快照）",
+  factoryLocations: "生產中工廠登記（202606）",
+  industrialParkBoundaries: "產業園區邊界（不含科學園區）",
+  industrialParkComparison: "園區商工比較（觀測值）",
+  regulatedFacilities: "列管設施（20260818）",
   farmRoads: "農路",
   ecoNetworkZones: "國土綠網分區",
   forestryPolygon: "林業面 (polygon)",

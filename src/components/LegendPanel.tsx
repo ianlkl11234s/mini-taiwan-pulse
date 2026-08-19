@@ -65,7 +65,16 @@ import {
   COMMON_REGISTRATION_CAPITAL_BANDS,
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
+  COMPANY_CAPITAL_Q_BANDS, COMPANY_GRID_COLORS, COMPANY_GRID_MODES,
+  COMPANY_GRID_NULL_COLOR, COMPANY_GRID_SCALES, companyGridStops,
+  FACTORY_LOCATION_COLOR, INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
+  INDUSTRIAL_PARK_COMPARISON_COLORS, INDUSTRIAL_PARK_COMPARISON_MODES,
+  INDUSTRIAL_PARK_COMPARISON_STOPS, INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR,
 } from "../data/businessRegistryTypes";
+import {
+  IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
+  OOKLA_SPEED_COLORS,
+} from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -325,7 +334,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
   { id: "agriPOI", render: () => <AgriPOILegend /> },
   { id: "agriRetail", render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
-  { id: "commonRegistrationAddresses", render: () => <CommonRegistrationAddressesLegend /> },
+  { id: "commonRegistrationAddresses", render: ({ overlayParams }) => <CommonRegistrationAddressesLegend minCompanies={overlayParams.commonRegistrationAddressesMinCompanies ?? 5} /> },
+  { id: "companyPoints", render: () => <CompanyPointsLegend manufacturing={false} /> },
+  { id: "manufacturingCompanyPoints", render: () => <CompanyPointsLegend manufacturing /> },
+  { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} /> },
+  { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
+  { id: "industrialParkBoundaries", render: () => <IndustrialParkBoundariesLegend /> },
+  { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
+  { id: "industrialParkComparison", render: ({ overlayParams }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
   { id: "realEstateRentalGrid", render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
@@ -388,6 +404,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // 通訊基礎設施：海纜（線）+ 登陸站（點）
   { id: "submarineCables", render: () => <SubmarineCableLegend /> },
   { id: "landingStations", render: () => <LandingStationLegend /> },
+  { id: "internetExchangePoints", render: () => <InternetExchangePointsLegend /> },
+  { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
+  { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
+  { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
+  { id: "ooklaPerformanceGrid", render: () => <OoklaPerformanceGridLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -2754,7 +2775,156 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
   );
 }
 
-function CommonRegistrationAddressesLegend() {
+function CompanyPointsLegend({ manufacturing }: { manufacturing: boolean }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記點位 COMPANY REGISTRY"}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+        {COMPANY_CAPITAL_Q_BANDS.map((band) => (
+          <div key={band.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={band.color} round />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        202608 登記快照；z4–11 以聚合格呈現全部已定位 records 的數量，z12+ 顯示可點擊個別公司。
+        {manufacturing ? " 點位是公司登記地址，不是工廠位置。" : ""}
+      </div>
+    </div>
+  );
+}
+
+function FactoryLocationsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        生產中工廠登記 FACTORY LOCATIONS
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <Swatch color={FACTORY_LOCATION_COLOR} round />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        202606 快照；z4–10 為全已定位 records 計數概覽，z11+ 顯示個別工廠。90,652 / 100,624 筆可定位。
+      </div>
+    </div>
+  );
+}
+
+function RegulatedFacilitiesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        列管設施 REGULATED FACILITIES
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <Swatch color={REGULATED_FACILITY_COLOR} round />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        20260818 快照，z11 起顯示。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
+      </div>
+    </div>
+  );
+}
+
+function IndustrialParkBoundariesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        產業園區邊界 INDUSTRIAL PARKS
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <Swatch color={INDUSTRIAL_PARK_COLOR} round={false} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>215 個產業園區 polygon</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        v1 明確不含科學園區；A3 會員名冊不具 geometry，不混入或推測園區邊界。
+      </div>
+    </div>
+  );
+}
+
+function IndustrialParkComparisonLegend({ modeIdx }: { modeIdx: number }) {
+  const t = useLegendTheme();
+  const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
+  const mode = INDUSTRIAL_PARK_COMPARISON_MODES[safeMode]!;
+  const stops = INDUSTRIAL_PARK_COMPARISON_STOPS[safeMode]!;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        園區商工比較 · {mode.label}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <Swatch color={INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR} round={false} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>觀測值 0</span>
+        </div>
+        {stops.map((stop, i) => (
+          <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={INDUSTRIAL_PARK_COMPARISON_COLORS[i]!} round={false} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              ≥ {formatGridStop(stop, safeMode < 2)}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        僅計入具有效座標並被指派至園區 polygon 的觀測實體；A1 為 90,652 / 100,624，製造業公司為 184,944 / 186,054。
+        0 不代表實際不存在。科學園區 membership 不混入本比較。
+      </div>
+    </div>
+  );
+}
+
+function formatGridStop(value: number, isCount: boolean): string {
+  if (isCount) return `${value.toLocaleString("zh-TW")} 家`;
+  if (value >= 100_000_000) return `${value / 100_000_000} 億元`;
+  if (value >= 10_000) return `${value / 10_000} 萬元`;
+  return `${value.toLocaleString("zh-TW")} 元`;
+}
+
+function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scaleIdx: number }) {
+  const t = useLegendTheme();
+  const safeMode = Math.min(Math.max(Math.round(modeIdx), 0), 2);
+  const safeScale = Math.min(Math.max(Math.round(scaleIdx), 0), COMPANY_GRID_SCALES.length - 1);
+  const mode = COMPANY_GRID_MODES[safeMode]!;
+  const scale = COMPANY_GRID_SCALES[safeScale]!;
+  const stops = companyGridStops(safeMode, safeScale);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        公司網格 COMPANY GRID · {scale.shortLabel} · {mode.label}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+        {stops.map((stop, i) => (
+          <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {formatGridStop(stop, safeMode === 1)}</span>
+          </div>
+        ))}
+        {safeMode === 2 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={COMPANY_GRID_NULL_COLOR} round={false} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值</span>
+          </div>
+        )}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        {scale.label} 非空網格，202608 登記快照；資本額採各尺度非線性級距。
+      </div>
+    </div>
+  );
+}
+
+function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: number }) {
   const t = useLegendTheme();
   return (
     <div>
@@ -2794,7 +2964,7 @@ function CommonRegistrationAddressesLegend() {
         })}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        每點為一個門牌，僅呈現同址登記至少 5 家公司的事實。
+        目前顯示共同登記 ≥ {Math.round(minCompanies).toLocaleString("zh-TW")} 家的門牌；點擊可查資本額總和與中位數。
       </div>
     </div>
   );
@@ -4149,14 +4319,9 @@ function IotStructureLegend() {
   );
 }
 
-// ── 通訊海纜 cable_type 5 類（overlayRegistry `submarineCables` 的 line-color match；
-//    glow / line 同一份色票）。與 featureInfo/infraPanels.tsx 的 CABLE_TYPE_COLORS 同色。──
+// ── OSM crowd 通訊海纜世界概覽；線位來自 OpenInfraMap z2 概化 tiles。──
 const SUBMARINE_CABLE_CATS = [
-  { color: "#2196F3", label: "國際幹線 International" },
-  { color: "#F44336", label: "海峽專線 Strait" },
-  { color: "#4CAF50", label: "離島連接 Island link" },
-  { color: "#FF9800", label: "中國境內 China domestic" },
-  { color: "#9E9E9E", label: "規劃中 Planned（含未分類）" },
+  { color: "#26c6da", label: "OSM crowd route（z2 generalized）" },
 ];
 
 function SubmarineCableLegend() {
@@ -4179,16 +4344,16 @@ function SubmarineCableLegend() {
           </div>
         ))}
       </div>
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        群眾標註且不完整；非工程級精確路由。© OpenStreetMap contributors · ODbL 1.0
+      </div>
     </div>
   );
 }
 
-// ── 海纜登陸站 station_type（overlayRegistry `landingStations` circle-color match：
-//    2 條 match + default 灰＝端點；與 infraPanels.tsx 的 STATION_TYPE_COLORS 同色）──
+// ── OSM crowd 海纜登陸站。──
 const LANDING_STATION_CATS = [
-  { color: "#2196F3", label: "國際樞紐 International hub" },
-  { color: "#26c6da", label: "區域節點 Regional node" },
-  { color: "#9E9E9E", label: "端點 Endpoint" },
+  { color: "#ffb74d", label: "OSM cable landing station" },
 ];
 
 function LandingStationLegend() {
@@ -4199,8 +4364,98 @@ function LandingStationLegend() {
         海纜登陸站 LANDING STATION
       </div>
       <FireCatRows cats={LANDING_STATION_CATS} />
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        標註不完整；空白區域不代表沒有設施。© OpenStreetMap contributors
+      </div>
     </div>
   );
+}
+
+function InternetExchangePointsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        網際網路交換中心 INTERNET EXCHANGE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {IXP_REGIONS.map((region) => (
+          <div key={region.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: region.color, display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{region.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+        點越大代表參與者數越多 · PCH Active IXP
+      </div>
+    </div>
+  );
+}
+
+function AnfrWirelessSitesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>ANFR 5G 3500 WIRELESS SITES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {ANFR_OPERATORS.map((operator) => <div key={operator.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: operator.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{operator.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>8,000／33,761 概覽抽樣 · 點位非精確機房邊界</div>
+  </div>;
+}
+
+function OsmCommunicationSitesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>OSM COMMUNICATION CANDIDATES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OSM_COMMUNICATION_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      全球區域抽樣 · OSM mapped candidates · 非官方／非完整 · © OpenStreetMap contributors
+    </div>
+  </div>;
+}
+
+function RipeAtlasProbesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>RIPE ATLAS CONNECTED PROBES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {RIPE_ATLAS_NODE_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      座標 80–400m 模糊化 · 志願者偏差 · 僅供研究；商業使用需另取許可 · © RIPE NCC
+    </div>
+  </div>;
+}
+
+function OoklaPerformanceGridLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      OOKLA SPEEDTEST PERFORMANCE GRID
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OOKLA_SPEED_COLORS.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5, lineHeight: 1.35 }}>
+      下載速度（kbps）· 使用者量測樣本，非 coverage map · CC BY-NC-SA 4.0<br />
+      非商業使用／相同方式分享 · © Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標
+    </div>
+  </div>;
 }
 
 function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {

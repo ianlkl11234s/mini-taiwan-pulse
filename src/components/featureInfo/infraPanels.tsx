@@ -5,21 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
-
-/** 海纜 cable_type 對應色 */
-const CABLE_TYPE_COLORS: Record<string, string> = {
-  "國際幹線": "#2196F3",
-  "海峽專線": "#F44336",
-  "離島連接": "#4CAF50",
-  "中國境內": "#FF9800",
-  "規劃中": "#9E9E9E",
-};
-
-/** 登陸站 station_type 對應色 */
-const STATION_TYPE_COLORS: Record<string, string> = {
-  "國際樞紐": "#2196F3",
-  "區域節點": "#26c6da",
-};
+import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
 
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
@@ -66,8 +52,7 @@ const CCTV_SOURCE: Record<string, { color: string; label: string }> = {
 
 export function SubmarineCablePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const cableType = String(props.cable_type ?? "");
-  const accentColor = CABLE_TYPE_COLORS[cableType] ?? "#9E9E9E";
+  const accentColor = "#26c6da";
 
   return (
     <>
@@ -77,22 +62,21 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Cable")}
         </div>
       </div>
-      <Row label="類型" value={cableType} color={accentColor} />
+      <Row label="資料角色" value="OSM crowd 通訊海纜概覽" color={accentColor} />
       <Row label="狀態" value={String(props.status ?? "")} />
-      <Row label="啟用年" value={String(props.rfs_year ?? "")} />
-      <Row label="長度" value={String(props.length ?? "")} />
-      <Row label="擁有者" value={String(props.owners ?? "")} />
-      <Row label="供應商" value={String(props.suppliers ?? "")} />
-      <Row label="台灣端" value={String(props.tw_landings ?? "")} />
-      <Row label="中國端" value={String(props.cn_landings ?? "")} />
+      <Row label="營運者" value={String(props.operator ?? "")} />
+      <Row label="所有者" value={String(props.owner ?? "")} />
+      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label="線位品質" value={String(props.geometry_source ?? "")} />
+      <Row label="涵蓋限制" value="群眾標註且不完整；非工程級精確路由" />
+      <Row label="授權" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
 }
 
 export function LandingStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const stationType = String(props.station_type ?? "");
-  const accentColor = STATION_TYPE_COLORS[stationType] ?? "#9E9E9E";
+  const accentColor = "#ffb74d";
 
   return (
     <>
@@ -102,13 +86,146 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="國家" value={String(props.country ?? "")} />
-      <Row label="樞紐等級" value={stationType} color={accentColor} />
+      <Row label="資料角色" value="OSM crowd 海纜登陸站" color={accentColor} />
+      <Row label="營運者" value={String(props.operator ?? "")} />
+      <Row label="所有者" value={String(props.owner ?? "")} />
+      <Row label="狀態" value={String(props.status ?? "")} />
       <Row label="電纜數" value={String(props.cable_count ?? "")} />
-      <Row label="電纜清單" value={String(props.cable_names_str ?? "")} />
+      <Row label="電纜清單" value={String(props.cable_names ?? "")} />
+      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label="涵蓋限制" value="群眾標註且不完整；空白區域不代表沒有設施" />
+      <Row label="授權" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
+}
+
+export function InternetExchangePointPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const region = String(props.region ?? "");
+  const accentColor = ixpRegionColor(region);
+  const participants = String(props.participants ?? "");
+  const updated = String(props.updated ?? "");
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown IXP")}
+        </div>
+      </div>
+      <Row label="城市／國家" value={[props.city, props.country].filter(Boolean).map(String).join(" · ")} />
+      <Row label="洲區" value={region} color={accentColor} />
+      <Row label="參與者" value={participants ? `${participants} networks` : ""} />
+      <Row label="狀態" value={String(props.status ?? "")} />
+      <Row label="資料更新" value={updated && updated !== "0000-00-00" ? updated : "未提供"} />
+      <Row label="座標 QA" value={String(props.coord_qc_status ?? "")} />
+      <Row label="來源／授權" value={`${String(props.source_org ?? "PCH")} · ${String(props.license ?? "")}`} />
+    </>
+  );
+}
+
+export function AnfrWirelessSitePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const operators = Array.isArray(props.operators) ? props.operators.map(String) : [];
+  const primary = operators[0] ?? "other";
+  return <>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: anfrOperatorColor(primary) }} />
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>ANFR 5G 3500 無線站點</div>
+    </div>
+    <Row label="SUP ID" value={String(props.sup_id ?? "")} />
+    <Row label="營運商" value={operators.join(" · ")} color={anfrOperatorColor(primary)} />
+    <Row label="技術／系統" value={`${String((props.technologies as string[] | undefined)?.join(" · ") ?? "")} · ${String((props.systems as string[] | undefined)?.join(" · ") ?? "")}`} />
+    <Row label="狀態" value={String((props.statuses as string[] | undefined)?.join(" · ") ?? "")} />
+    <Row label="紀錄數" value={String(props.record_count ?? "")} />
+    <Row label="來源" value="ANFR Cartoradio · 8,000／33,761 概覽抽樣" />
+    <Row label="授權" value={String(props.license ?? "Licence Ouverte 2.0")} />
+  </>;
+}
+
+export function OsmCommunicationSitePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const rawKinds = props.communication_types;
+  let kinds: string[];
+  if (Array.isArray(rawKinds)) {
+    kinds = rawKinds.map(String);
+  } else {
+    const value = String(rawKinds ?? "");
+    try {
+      const parsed = JSON.parse(value);
+      kinds = Array.isArray(parsed) ? parsed.map(String) : [value];
+    } catch {
+      kinds = value.split(";").map((item) => item.trim()).filter(Boolean);
+    }
+  }
+  return <>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
+      OSM 通訊候選點
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
+      sampled OSM mapped candidate · 非官方／非完整清冊
+    </div>
+    <Row label="OSM ID" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+    <Row label="名稱／營運商" value={[props.name, props.operator].filter(Boolean).map(String).join(" · ")} />
+    <Row label="通訊類型" value={kinds.join(" · ")} />
+    <Row label="站點類型／相關性" value={`${String(props.site_kind ?? "general")} · ${String(props.relevance ?? "")}`} />
+    <Row label="區域抽樣" value={String(props.query_region ?? "")} />
+    <Row label="高度／Ref" value={[props.height, props.ref].filter(Boolean).map(String).join(" · ")} />
+    <Row label="來源／授權" value={`OpenStreetMap · ${String(props.license ?? "ODbL")}`} />
+    <Row label="資料時間" value={String(props.fetched_at ?? "")} />
+  </>;
+}
+
+export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const isAnchor = props.is_anchor === true || props.is_anchor === 1 || props.is_anchor === "true" || props.is_anchor === "1";
+  return <>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: ripeAtlasNodeColor(props.is_anchor) }} />
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>RIPE Atlas 量測節點</div>
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>Connected probe · 座標已模糊化，非精確位置</div>
+    <Row label="Probe ID／國家" value={[props.probe_id, props.country_code, props.country_name].filter(Boolean).map(String).join(" · ")} />
+    <Row label="類型／狀態" value={`${isAnchor ? "Anchor" : "Probe"} · ${String(props.status_name ?? props.status_id ?? "")}`} color={ripeAtlasNodeColor(props.is_anchor)} />
+    <Row label="連線時間" value={[props.last_connected, props.status_since].filter(Boolean).map(String).join(" · ")} />
+    <Row label="Uptime" value={String(props.total_uptime ?? "")} />
+    <Row label="座標品質" value={`${String(props.coord_qc_status ?? "obfuscated")} · ${String(props.location_obfuscation_m ?? "80–400")}m`} />
+    <Row label="研究用途" value="Volunteer bias；research use only，商業使用需另取許可" />
+    <Row label="來源／授權" value="RIPE NCC · © RIPE NCC" />
+  </>;
+}
+
+function formatOoklaMbps(value: unknown): string {
+  const kbps = Number(value);
+  if (!Number.isFinite(kbps)) return "未提供";
+  return `${(kbps / 1000).toFixed(kbps >= 100_000 ? 0 : 1)} Mbps`;
+}
+
+function formatOoklaLatency(value: unknown): string {
+  const latency = Number(value);
+  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : "未提供";
+}
+
+export function OoklaPerformanceGridPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const serviceType = String(props.service_type ?? "Ookla Speedtest");
+  return <>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
+      Ookla 網路效能格網
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
+      {serviceType} · 使用者量測樣本，不代表覆蓋範圍
+    </div>
+    <Row label="下載／上傳" value={`${formatOoklaMbps(props.avg_d_kbps)} · ${formatOoklaMbps(props.avg_u_kbps)}`} />
+    <Row label="延遲" value={formatOoklaLatency(props.avg_lat_ms)} />
+    <Row label="測試／裝置" value={`${String(props.tests ?? "未提供")} · ${String(props.devices ?? "未提供")}（z16 tile 加總，未跨 tile 去重）`} />
+    <Row label="聚合格網／解析度" value={`${String(props.tile_count ?? "未提供")} 個 z${String(props.source_tile_zoom ?? "未提供")} tiles → z${String(props.coarse_zoom ?? "未提供")} cell`} />
+    <Row label="期間" value={String(props.period ?? "未提供")} />
+    <Row label="限制" value="空格不代表沒有網路；只顯示觀測到的 Speedtest 樣本" />
+    <Row label="樣本偏差" value="Speedtest 使用者不是隨機母體，不能當成人口或 coverage 推估" />
+    <Row label="來源／授權" value="© Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標 · CC BY-NC-SA 4.0 · 非商業／相同方式分享" />
+  </>;
 }
 
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
