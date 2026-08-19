@@ -33,13 +33,14 @@
 - `official_metrics.fe_sum_count` — 月底在養總數
 - `official_metrics.max_stay_dog_count`／`max_stay_cat_count` — 犬貓核定容量；兩者完整時才衍生總容量使用率
 
-## 下一個 session 起手：staging 與 browser 驗收
+## 下一個 session 起手：production backend smoke test 與 browser 驗收
 
-這一輪前端程式已完成，不要重做資料層。先確認 gis-platform migrations 353、354 已在 staging 套用，並以實際 Supabase RPC 驗證以下 named arguments；RPC 尚未上線時，停在 platform gate 回報，不得以 mock、舊月份 fallback 或補 0 假裝成功。
+這一輪前端程式已完成，不要重做資料層。gis-platform migrations 353–357 已套用至 production，下列 5 支 PostgREST RPC 已實測 HTTP 200；先做一次 production smoke test 確認契約未漂移，再直接進 browser 驗收。不得以 mock、舊月份 fallback 或補 0 假裝成功。
 
 - `get_animal_adoption_shelter_summary(p_county_code, p_animal_kind)`
 - `get_animal_adoption_daily(p_from, p_to, p_county_code, p_shelter_id, p_animal_kind)`
 - `get_animal_shelter_pressure_latest(p_county_code, p_include_ambiguous)`
+- `get_animal_shelter_pressure_monthly(p_county_code, p_from_year, p_to_year, p_include_ambiguous)`
 - `get_animal_shelter_outcome_monthly(p_county_code, p_from_year, p_to_year, p_include_annual)`
 
 先跑 `npx tsc -b` 與 animal welfare focused tests，再啟動本機前端做 browser 驗收：
