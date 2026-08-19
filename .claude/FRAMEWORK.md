@@ -27,7 +27,7 @@
 
 **核心設計決策**：
 1. **狀態層 commit 進 git** — 跨機器、跨會話、有 history
-2. **分類 9 個檔** — 每種資訊一個檔，單一職責
+2. **README 路由＋單一職責** — 核心記憶與專案特定檔都在 `memory/README.md` 登記，不維護固定總數
 3. **Atomic commit + `memory:` prefix** — git log 可追「記憶如何演進」
 4. **append-only 的反省檔 + 每次 rewrite 的 STATUS** — 既保留歷史又保持清爽
 5. **`/wrap-up` skill 自動收尾** — Claude 自己反省、自己 commit
@@ -125,55 +125,41 @@
 
 收尾 skill 是整個系統的核心運作機制。位置：`.claude/skills/wrap-up/SKILL.md`
 
-### 5 階段流程
+### v2 流程
 
-1. **Gather**（並行）
-   - Read memory/ 全部
-   - `git log origin/master..HEAD` + `git log -20 --oneline`
-   - `git status`
-   - 回顧本 session 對話：用戶要求 / 動作 / 卡點 / 糾正次數
+1. **README routing**：先讀 `memory/README.md`，以當下 roster 判斷核心檔與專案特定檔。
+2. **Selective reads**：用 `STATUS` 最新區段與 `BACKLOG` / `PRINCIPLES` 標題索引做初步路由；確定要寫回的檔後，編輯前完整讀該檔。不整包讀 `memory/`。
+3. **Scope**：建立 scope ledger，明列 touched repos 的 current branch、upstream、intended base、commit range、worktree 狀態、external side effects 與 out-of-scope dirty files / commits。
+4. **Evidence**：以對話、當前 repo 現況、path-scoped git status/diff/log、測試與 artifact 證據驗證完成宣稱；數字依來源用 manifest、query、feature count、checksum 或 line count，commit message 不當 runtime 證明。
+5. **Release matrix**：涉及 artifact 或 release 時，每個 release unit 依 build、contract/wire、stage、upload、readback、pull、deploy、HTTP、browser 分開記錄；每格只能是 `done` / `failed` / `blocked` / `unknown` / `not run` / `N/A` 並附證據。`unknown` 只限證據不足、無法判定真實狀態；已知卡點用 `blocked`，尚未執行用 `not run`。非 release 任務可省略。
+6. **Contradiction**：對話、memory、git 或 artifact 衝突時，列出各自證據與未解點，不自行抹平。
+7. **Draft**：給使用者「檔案／變動類型／證據／一句摘要」的總表；被要求時才展開單檔草稿。
+8. **Confirm**：使用者明確選擇全採用、看細節或 skip 後才寫回。
+9. **Atomic**：commit 前先記錄 `git diff --cached --name-only` 的 cached path set，辨識並保留 unrelated pre-staged paths。每個已核准 memory path 先做 path-scoped diff-check 與 `git add <exact-path>`，再用 `git commit --only -m "..." -- <exact-path>` 建立一檔一個 `memory:` commit，`STATUS` 最後；不用 `git add -A`，不 amend、不 push。若同一 target memory file 混有平行 session hunks，path-scoped commit 無法隔離；必須停止並請使用者協調，不得整檔代 commit。hook 失敗且 commit 未產生時，修正後重跑同一 commit。
+10. **Closeout**：只確認 target memory paths clean，並列出仍保留的 unrelated staged 與 dirty state；留下 next-session entry（repo/branch、blocker、第一個可執行步驟、驗收條件），並回報 current branch/upstream/ahead-behind 與 release matrix 未竟事項。push/PR/deploy 仍要另行授權。
 
-2. **Analyze** — 事件分類到對應 memory 檔
+Release matrix 最少要有：
 
-    | 事件 | 寫到哪 |
-    |---|---|
-    | 做完功能 / 抓完資料 | STATUS + 專案專屬檔 |
-    | 新待辦 | BACKLOG (add) |
-    | 完成待辦 | BACKLOG (close) |
-    | 新決策 / 預設 | PRINCIPLES |
-    | 重複流程定型 (≥ 2 次) | PLAYBOOKS |
-    | 新術語 | GLOSSARY |
-    | Bug 並修好 | INCIDENTS (append) |
-    | 反省 | REFLECTIONS (append) |
-
-3. **Draft** — 產出**總表**（變動類型 + 摘要）+ 每個變動的實際 diff
-
-4. **Confirm** — 問用戶：全採用 / 修哪幾個 / skip 哪些
-
-5. **Atomic Commit** — 每檔一個 commit，訊息：
-    ```
-    memory: <動詞> <檔名> (<1 句摘要>)
-    ```
-    STATUS 放最後 commit（避免引用未 commit 的變動）。不自動 push。
+| release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
 
 ### 關鍵原則
 
 | 原則 | 為什麼 |
 |---|---|
-| **Read first** | Edit 工具需要精確 old_string |
-| **驗證數字** | DATA_SCOPE 的數量要 `wc -l` 驗證不單信對話摘要 |
+| **README first，選擇性讀取** | roster 會演進；全讀 memory 會浪費 context 並把無關歷史帶入判斷 |
+| **證據先於 memory** | 數字與 release state 要用相符的 manifest/query/test/checksum/git 證據驗證 |
 | **INCIDENTS / REFLECTIONS 只 append** | 歷史有價值 |
 | **STATUS 每次 rewrite** | 只要當下 |
-| **不 amend commit** | pre-commit hook 失敗就開新 commit |
-| **不修 CLAUDE.md** | 那是規則層，/wrap-up 不動 |
-| **不跨 session 臆測** | 只看 session 對話 + git log + memory |
+| **Path-scoped Git** | 只 commit 使用者核准的 memory 檔；不要求整棵 worktree clean，不把平行 session 變更帶入 |
+| **不跨 session 臆測** | 對話、git、memory 與 artifacts 要互相印證；衝突未解時誠實保留 |
 
 ### Skill 自我優化
 
 這個 skill 自己會被 REFLECTIONS 檢討。若某次 `/wrap-up` 漏抓事件、訊息風格不好，應：
-1. 在該次 REFLECTIONS 記下
-2. 回頭修 `SKILL.md`（加新規則 / 改流程）
-3. 下次 `/wrap-up` 照新規則跑
+1. 在該次 REFLECTIONS 記下證據與改善方向
+2. 把 skill 改動列為另案，取得明確授權後才修 `SKILL.md`
+3. 下次 `/wrap-up` 驗證新版是否解決原問題
 
 **這就是「自我演進」的機制**：系統在每次使用中校準自己。
 
@@ -195,7 +181,7 @@ cp /path/to/this-project/.claude/FRAMEWORK.md .claude/FRAMEWORK.md
 cp /path/to/this-project/.claude/skills/wrap-up/SKILL.md .claude/skills/wrap-up/SKILL.md
 ```
 
-### Step 3：填 9 個 memory 檔初始內容
+### Step 3：建立核心 memory 檔與 routing README
 
 用以下**最小模板**起手，內容隨 session 演進：
 
@@ -362,11 +348,12 @@ git commit -m "feat: scaffold .claude/memory/ framework"
 | 回應語言 | `PRINCIPLES.md` 第一行寫死 |
 | `SKILL.md` 觸發詞 | 加入該專案團隊常用說法 |
 | 專案專屬檔 | 見 Step 4 |
-| Commit 訊息語言 | `SKILL.md` Stage 5 模板 |
+| Commit 訊息語言 | `SKILL.md` Atomic phase 模板 |
 
 ### 反模式（不要做）
 
 - ❌ 把 session 任務清單放進 memory（那是 Task / Plan 的責任）
+- ❌ 每次全讀 `memory/` 所有檔或維護固定檔案總數（違反 README routing 與 progressive disclosure）
 - ❌ INCIDENTS / REFLECTIONS 修改歷史條目（毀掉學習軌跡）
 - ❌ 所有變動合併成一個 commit（失去 `memory:` atomic 的追蹤價值）
 - ❌ `/wrap-up` 自動 push（用戶必須有 review 機會）
@@ -400,5 +387,5 @@ git commit -m "feat: scaffold .claude/memory/ framework"
 
 追本框架自身的演進（在 REFLECTIONS 和 SKILL.md 之外）：
 
-- **v1.0（2026-04-23）** — 初版。9 檔 + `/wrap-up` 5 階段 + atomic commit。首 session 實測後產生 2 條 next-time rules（預先寫 REFLECTIONS 會重複、STATUS 每 session 至少 rewrite 一次）。
-
+- **v2.0（2026-08-19）** — 改為 README routing＋selective reads，新增 scope/evidence/release matrix/contradiction/closeout；Git 改為 branch-aware、path-scoped，不再假設固定 memory 檔案數或 `master`。
+- **v1.0（2026-04-23）** — 初版採固定 roster／舊版 Gather→Analyze→Draft→Confirm→Commit，已由 v2.0 取代。首 session 實測後產生 2 條 next-time rules（預先寫 REFLECTIONS 會重複、STATUS 每 session 至少 rewrite 一次）。

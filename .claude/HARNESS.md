@@ -18,7 +18,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 ```
 ┌─ L0 規則層      CLAUDE.md（+ docs/development-rules.md…）── 不變規則，人維護
 ├─ L1 開場注入    .claude/memory/load-session.sh (SessionStart hook) ── 每 session 自動
-├─ L2 記憶層      .claude/memory/ 9 檔 + pitfalls/ + /wrap-up ── 跨 session 狀態，半自動
+├─ L2 記憶層      .claude/memory/ README routing + 核心／選讀檔 + /wrap-up ── 跨 session 狀態，半自動
 ├─ L3 工具層      commands/ + agents/ + skills/ ── GIS 圖層生命週期
 ├─ L4 MCP 層      codebase-memory / dev-orchestrator / graphiti / pencil ── 全域註冊
 └─ L5 Codex 鏡像  .codex/hooks.json + AGENTS.md ── 讓 Codex CLI 共用同一套記憶
@@ -45,7 +45,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 
 ## 2. L2 — 記憶層（框架核心）
 
-9 檔 + pitfalls + 專案專屬檔。完整規則見 [`FRAMEWORK.md §3`](./FRAMEWORK.md)。**這裡只講維運**：
+先以 [memory/README.md](./memory/README.md) 路由核心檔與專案特定選讀檔，不維護固定檔案總數。完整規則見 [`FRAMEWORK.md §3`](./FRAMEWORK.md)。**這裡只講維運**：
 
 | 檔 | 更新時機 | 維護規則 |
 |---|---|---|
@@ -55,7 +55,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 | PLAYBOOKS | 流程做過 ≥2 次 | 標號 PB-xx |
 | GLOSSARY | 遇新術語 | — |
 | INCIDENTS / REFLECTIONS | 修好 bug / 反省 | **只 append，絕不改舊條目** |
-| DATA_SCOPE（專屬） | 資料量變動 | 數字要 `wc -l`/grep 驗證，不單信對話 |
+| DATA_SCOPE（專屬） | 資料量變動 | 依格式用 manifest/query/feature count/checksum 或 line count 驗證，不單信對話 |
 | pitfalls/ | INCIDENTS 太長時 | long-form archive |
 
 **腐化訊號**（見到就代表系統沒在用）：STATUS「上次更新 >7 天」、BACKLOG 全 P3、REFLECTIONS 無新條目。
@@ -74,7 +74,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 | skill | `supabase-optimize` | 產 pre-aggregate pattern SQL 範本 |
 | skill | `three-3d-component` | Three.js×Mapbox 立體圖層接線手冊 |
 | skill | `accessibility-analysis` / `service-coverage` | 服務可達性分析（同一實作，兩個觸發口吻） |
-| skill | `wrap-up` | 收尾 + 寫回記憶（見下節） |
+| skill | `wrap-up` | README routing＋selective reads，scope/evidence/release matrix 對帳，核准後 path-scoped atomic 寫回 |
 
 **維護**：新增/改 layer 一律先跑 `layer-onboarding` skill（P0 規則）。skill 若某次漏抓事，照 FRAMEWORK.md「Skill 自我優化」回頭改 SKILL.md。
 
@@ -156,7 +156,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 ## 7. 例行維護 checklist
 
 **每個 session 收工（`/wrap-up` 已涵蓋大部分）**
-- [ ] 記憶寫回 9 檔、atomic commit
+- [ ] 依 memory README routing 選讀，完成 scope/evidence/release matrix 對帳，只寫回已核准檔並 path-scoped atomic commit
 - [ ] 若本 session 動了程式碼結構 → 重建 codebase-memory 索引
 
 **每週/每次大改後**
@@ -167,4 +167,4 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 **改 harness 本身時**
 - [ ] 改 SessionStart hook / memory 路徑 → 同步 `.codex/hooks.json`
 - [ ] 改 CLAUDE.md 規則 → 想想 `AGENTS.md` 要不要跟
-- [ ] 新增 memory 專屬檔 → 更新 `.claude/README.md` + `load-session.sh` 索引
+- [ ] 新增 memory 專屬檔 → 先更新 `.claude/memory/README.md` routing；只有需要 SessionStart 注入才改 `load-session.sh`
