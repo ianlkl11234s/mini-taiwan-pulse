@@ -1,5 +1,8 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
+import {
+  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR, OOKLA_SPEED_COLOR_EXPR,
+} from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -107,6 +110,7 @@ import {
   REGULATED_FACILITY_COLOR,
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
+import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
@@ -1734,8 +1738,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Submarine Cables (通訊海纜) ──
-  // cable_type 分色：國際幹線 藍、海峽專線 紅、離島連接 綠、中國境內 橘、規劃中 灰
+  // ── OSM Submarine Cables (通訊海纜 crowd overview) ──
   {
     id: "submarineCables",
     sourceUrl: "./geo/submarine_cables.geojson",
@@ -1746,15 +1749,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (isDark) => ({
-          "line-color": [
-            "match", ["get", "cable_type"],
-            "國際幹線", "#2196F3",
-            "海峽專線", "#F44336",
-            "離島連接", "#4CAF50",
-            "中國境內", "#FF9800",
-            "規劃中", "#9E9E9E",
-            "#9E9E9E",
-          ] as unknown as string,
+          "line-color": "#26c6da",
           "line-width": 6,
           "line-blur": 5,
           "line-opacity": isDark ? 0.15 : 0.20,
@@ -1765,15 +1760,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (isDark) => ({
-          "line-color": [
-            "match", ["get", "cable_type"],
-            "國際幹線", "#2196F3",
-            "海峽專線", "#F44336",
-            "離島連接", "#4CAF50",
-            "中國境內", "#FF9800",
-            "規劃中", "#9E9E9E",
-            "#9E9E9E",
-          ] as unknown as string,
+          "line-color": "#26c6da",
           "line-width": [
             "interpolate", ["linear"], ["zoom"],
             4, 1, 8, 1.5, 12, 2.5,
@@ -1784,8 +1771,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Landing Stations (海纜登陸站) ──
-  // station_type 分色：國際樞紐 藍、區域節點 青、端點 灰
+  // ── OSM Landing Stations (海纜登陸站 crowd points) ──
   {
     id: "landingStations",
     sourceUrl: "./geo/landing_stations.geojson",
@@ -1803,12 +1789,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, 3 * scale, 10, 6 * scale, 14, 12 * scale,
             ],
             "circle-blur": 1,
-            "circle-color": [
-              "match", ["get", "station_type"],
-              "國際樞紐", "#2196F3",
-              "區域節點", "#26c6da",
-              "#9E9E9E",
-            ] as unknown as string,
+            "circle-color": "#ffb74d",
             "circle-opacity": isDark ? 0.2 : 0.25,
           };
         },
@@ -1823,12 +1804,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 1.5 * scale, 10, 3 * scale, 14, 5 * scale,
             ],
-            "circle-color": [
-              "match", ["get", "station_type"],
-              "國際樞紐", "#2196F3",
-              "區域節點", "#26c6da",
-              "#9E9E9E",
-            ] as unknown as string,
+            "circle-color": "#ffb74d",
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -1840,6 +1816,167 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+
+  // ── Internet Exchange Points（PCH Active IXP Directory）──
+  // region 分色、participants 控制點大小；資料為公開目錄座標，不代表機房精確邊界。
+  {
+    id: "internetExchangePoints",
+    sourceUrl: "./geo/internet_exchange_points.geojson",
+    sourceId: "internet-exchange-points",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2, 100, 4, 500, 7],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6, 100, 12, 500, 20],
+          ],
+          "circle-color": IXP_REGION_COLOR_EXPR,
+          "circle-blur": 1,
+          "circle-opacity": (params?.internetExchangePointsOpacity ?? 0.85) * 0.22,
+        }),
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5, 100, 3, 500, 5],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3, 100, 6, 500, 10],
+          ],
+          "circle-color": IXP_REGION_COLOR_EXPR,
+          "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+          "circle-opacity": params?.internetExchangePointsOpacity ?? 0.85,
+        }),
+      },
+    ],
+  },
+
+  // ── ANFR Wireless Sites（5G NR 3500 概覽抽樣）──
+  {
+    id: "anfrWirelessSites",
+    sourceUrl: "./geo/anfr_wireless_sites.geojson",
+    sourceId: "anfr-wireless-sites",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": ANFR_OPERATOR_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.anfrWirelessSitesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": ANFR_OPERATOR_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.anfrWirelessSitesOpacity ?? 0.8,
+      }) },
+    ],
+  },
+
+  // ── OSM Communication Sites（全球區域抽樣的群眾標註候選點）──
+  {
+    id: "osmCommunicationSites",
+    sourceUrl: "./geo/osm_communication_sites.geojson",
+    sourceId: "osm-communication-sites",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.osmCommunicationSitesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.osmCommunicationSitesOpacity ?? 0.8,
+      }) },
+    ],
+  },
+
+  // ── RIPE Atlas probes（座標經模糊化的量測節點）──
+  {
+    id: "ripeAtlasProbes",
+    sourceUrl: "./geo/ripe_atlas_probes.geojson",
+    sourceId: "ripe-atlas-probes",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.ripeAtlasProbesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.ripeAtlasProbesOpacity ?? 0.8,
+      }) },
+    ],
+  },
+
+  // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
+  // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
+  ...([{
+    id: "ooklaMobilePerformance",
+    sourceUrl: "./geo/ookla_mobile_performance.geojson",
+    sourceId: "ookla-mobile-performance",
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": OOKLA_SPEED_COLOR_EXPR,
+          "fill-opacity": (params?.ooklaMobilePerformanceOpacity ?? 0.65) * 0.72,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.ooklaMobilePerformanceOpacity ?? 0.65,
+        }),
+      },
+    ],
+  }, {
+    id: "ooklaFixedPerformance",
+    sourceUrl: "./geo/ookla_fixed_performance.geojson",
+    sourceId: "ookla-fixed-performance",
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": OOKLA_SPEED_COLOR_EXPR,
+          "fill-opacity": (params?.ooklaFixedPerformanceOpacity ?? 0.65) * 0.72,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.ooklaFixedPerformanceOpacity ?? 0.65,
+        }),
+      },
+    ],
+  }] as OverlayConfig[]),
 
   // ── Schools 學校總覽 (🎓 教育) ──
   // 2026-08-08：自「基礎建設→公共設施」搬入教育主題，資產改指 public/education/。

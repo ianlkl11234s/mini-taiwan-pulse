@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 367,
+    "keyCount": 373,
     "sections": [
       "gisLayers",
       "overlays",
@@ -33,6 +33,48 @@
         "landing-stations-glow"
       ],
       "type": "landingStation"
+    },
+    {
+      "layers": [
+        "internet-exchange-points-circle",
+        "internet-exchange-points-glow"
+      ],
+      "type": "internetExchangePoint"
+    },
+    {
+      "layers": [
+        "anfr-wireless-sites-circle",
+        "anfr-wireless-sites-glow"
+      ],
+      "type": "anfrWirelessSite"
+    },
+    {
+      "layers": [
+        "osm-communication-sites-circle",
+        "osm-communication-sites-glow"
+      ],
+      "type": "osmCommunicationSite"
+    },
+    {
+      "layers": [
+        "ripe-atlas-probes-circle",
+        "ripe-atlas-probes-glow"
+      ],
+      "type": "ripeAtlasProbe"
+    },
+    {
+      "layers": [
+        "ookla-mobile-performance-fill",
+        "ookla-mobile-performance-line"
+      ],
+      "type": "ooklaPerformanceGrid"
+    },
+    {
+      "layers": [
+        "ookla-fixed-performance-fill",
+        "ookla-fixed-performance-line"
+      ],
+      "type": "ooklaPerformanceGrid"
     },
     {
       "layers": [
@@ -5030,47 +5072,13 @@
           "paint": {
             "dark": {
               "line-blur": 5,
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.15,
               "line-width": 6
             },
             "light": {
               "line-blur": 5,
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.2,
               "line-width": 6
             }
@@ -5087,24 +5095,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.6,
               "line-width": [
                 "interpolate",
@@ -5123,24 +5114,7 @@
               ]
             },
             "light": {
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.5,
               "line-width": [
                 "interpolate",
@@ -5180,18 +5154,7 @@
           "paint": {
             "dark": {
               "circle-blur": 1,
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.2,
               "circle-radius": [
                 "interpolate",
@@ -5211,18 +5174,7 @@
             },
             "light": {
               "circle-blur": 1,
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.25,
               "circle-radius": [
                 "interpolate",
@@ -5250,18 +5202,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
@@ -5296,18 +5237,7 @@
               ]
             },
             "light": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.7,
               "circle-radius": [
                 "interpolate",
@@ -5353,6 +5283,1234 @@
       ],
       "sourceId": "landing-stations",
       "sourceUrl": "./geo/landing_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "internetExchangePoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.187,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.187,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "internet-exchange-points",
+      "sourceUrl": "./geo/internet_exchange_points.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "anfrWirelessSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "anfr-wireless-sites",
+      "sourceUrl": "./geo/anfr_wireless_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmCommunicationSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "osm-communication-sites",
+      "sourceUrl": "./geo/osm_communication_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ripeAtlasProbes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "ripe-atlas-probes",
+      "sourceUrl": "./geo/ripe_atlas_probes.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobilePerformance",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-mobile-performance",
+      "sourceUrl": "./geo/ookla_mobile_performance.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedPerformance",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-fixed-performance",
+      "sourceUrl": "./geo/ookla_fixed_performance.geojson"
     },
     {
       "dynamicData": null,
@@ -44760,6 +45918,15 @@
         "value": 0.6
       }
     ],
+    "anfrWirelessSites": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
     "antiCorruptionOffice": [
       {
         "label": "大小 1.0",
@@ -47950,6 +49117,15 @@
         "value": true
       }
     ],
+    "internetExchangePoints": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
     "investigationBureau": [
       {
         "label": "大小 1.0",
@@ -48895,6 +50071,33 @@
         "min": 0.05,
         "step": 0.05,
         "value": 0.35
+      }
+    ],
+    "ooklaFixedPerformance": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
+      }
+    ],
+    "ooklaMobilePerformance": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
+      }
+    ],
+    "osmCommunicationSites": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "osmExpressway": [
@@ -50665,6 +51868,15 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "ripeAtlasProbes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "riverLevel": [

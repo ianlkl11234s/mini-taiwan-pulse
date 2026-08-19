@@ -72,6 +72,10 @@ import {
   INDUSTRIAL_PARK_COMPARISON_STOPS, INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR,
 } from "../data/businessRegistryTypes";
 import {
+  IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
+  OOKLA_SPEED_COLORS,
+} from "../data/telecomTypes";
+import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
   LIBRARY_SEATS_COLORS,
@@ -400,6 +404,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // 通訊基礎設施：海纜（線）+ 登陸站（點）
   { id: "submarineCables", render: () => <SubmarineCableLegend /> },
   { id: "landingStations", render: () => <LandingStationLegend /> },
+  { id: "internetExchangePoints", render: () => <InternetExchangePointsLegend /> },
+  { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
+  { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
+  { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
+  { id: "ooklaPerformanceGrid", render: () => <OoklaPerformanceGridLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4310,14 +4319,9 @@ function IotStructureLegend() {
   );
 }
 
-// ── 通訊海纜 cable_type 5 類（overlayRegistry `submarineCables` 的 line-color match；
-//    glow / line 同一份色票）。與 featureInfo/infraPanels.tsx 的 CABLE_TYPE_COLORS 同色。──
+// ── OSM crowd 通訊海纜世界概覽；線位來自 OpenInfraMap z2 概化 tiles。──
 const SUBMARINE_CABLE_CATS = [
-  { color: "#2196F3", label: "國際幹線 International" },
-  { color: "#F44336", label: "海峽專線 Strait" },
-  { color: "#4CAF50", label: "離島連接 Island link" },
-  { color: "#FF9800", label: "中國境內 China domestic" },
-  { color: "#9E9E9E", label: "規劃中 Planned（含未分類）" },
+  { color: "#26c6da", label: "OSM crowd route（z2 generalized）" },
 ];
 
 function SubmarineCableLegend() {
@@ -4340,16 +4344,16 @@ function SubmarineCableLegend() {
           </div>
         ))}
       </div>
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        群眾標註且不完整；非工程級精確路由。© OpenStreetMap contributors · ODbL 1.0
+      </div>
     </div>
   );
 }
 
-// ── 海纜登陸站 station_type（overlayRegistry `landingStations` circle-color match：
-//    2 條 match + default 灰＝端點；與 infraPanels.tsx 的 STATION_TYPE_COLORS 同色）──
+// ── OSM crowd 海纜登陸站。──
 const LANDING_STATION_CATS = [
-  { color: "#2196F3", label: "國際樞紐 International hub" },
-  { color: "#26c6da", label: "區域節點 Regional node" },
-  { color: "#9E9E9E", label: "端點 Endpoint" },
+  { color: "#ffb74d", label: "OSM cable landing station" },
 ];
 
 function LandingStationLegend() {
@@ -4360,8 +4364,98 @@ function LandingStationLegend() {
         海纜登陸站 LANDING STATION
       </div>
       <FireCatRows cats={LANDING_STATION_CATS} />
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        標註不完整；空白區域不代表沒有設施。© OpenStreetMap contributors
+      </div>
     </div>
   );
+}
+
+function InternetExchangePointsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        網際網路交換中心 INTERNET EXCHANGE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {IXP_REGIONS.map((region) => (
+          <div key={region.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: region.color, display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{region.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+        點越大代表參與者數越多 · PCH Active IXP
+      </div>
+    </div>
+  );
+}
+
+function AnfrWirelessSitesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>ANFR 5G 3500 WIRELESS SITES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {ANFR_OPERATORS.map((operator) => <div key={operator.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: operator.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{operator.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>8,000／33,761 概覽抽樣 · 點位非精確機房邊界</div>
+  </div>;
+}
+
+function OsmCommunicationSitesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>OSM COMMUNICATION CANDIDATES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OSM_COMMUNICATION_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      全球區域抽樣 · OSM mapped candidates · 非官方／非完整 · © OpenStreetMap contributors
+    </div>
+  </div>;
+}
+
+function RipeAtlasProbesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>RIPE ATLAS CONNECTED PROBES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {RIPE_ATLAS_NODE_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      座標 80–400m 模糊化 · 志願者偏差 · 僅供研究；商業使用需另取許可 · © RIPE NCC
+    </div>
+  </div>;
+}
+
+function OoklaPerformanceGridLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      OOKLA SPEEDTEST PERFORMANCE GRID
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OOKLA_SPEED_COLORS.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5, lineHeight: 1.35 }}>
+      下載速度（kbps）· 使用者量測樣本，非 coverage map · CC BY-NC-SA 4.0<br />
+      非商業使用／相同方式分享 · © Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標
+    </div>
+  </div>;
 }
 
 function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {

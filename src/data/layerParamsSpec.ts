@@ -1120,6 +1120,12 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
     { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
+  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85)],
+  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8)],
+  osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8)],
+  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8)],
+  ooklaMobilePerformance: [opacitySlider("ooklaMobilePerformanceOpacity", 0.65)],
+  ooklaFixedPerformance: [opacitySlider("ooklaFixedPerformanceOpacity", 0.65)],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
