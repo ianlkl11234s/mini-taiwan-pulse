@@ -1511,3 +1511,33 @@ PLAYBOOKS（+PB-40 純接線棒）／GLOSSARY（+3 詞）／BACKLOG（+welfare �
 
 STATUS（2026-08-19 current truth＋4-row release matrix）／BACKLOG（BR/WU blockers-next-acceptance）／
 DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v2、overview/detail、publication whitelist）／本篇。
+
+---
+
+## 2026-08-19 — Business Registry＋世界通訊跨 worktree 整合
+
+### Worked
+
+- **用隔離 integration worktree 做雙 repo merge**：原本的 Business Registry、telecom 與其他既有 worktree 都不改寫；兩邊都用 merge commit 保留原子歷史，再由 PR 合進 `master`。
+- **三個 golden/contract conflict 採 union 解法**：Business Registry 與 telecom 都新增 layer contract，衝突不是二選一；合併 key、補齊兩邊欄位後重新產生 golden，最後固定為 373 keys。
+- **讓 clean-checkout CI 當第四層證據**：本地 637 tests 與 TypeScript 皆綠，但 CI 仍抓到被 global gitignore 排除的 B3 r2 JSON；force-add canonical artifact 後，run #355 才真正成功。
+- **把授權限制保留成缺席圖層**：PeeringDB／CAIDA 沒因為「世界圖想多一點」就硬塞進 public assets；permission-required 仍是明確 release gate。
+
+### Didn't work / drift
+
+- **把「同名 branch 曾有 PR merged」誤當成「較新的本機 commits 已在 master」**：PR #142 只包含遠端 `b64a5ac`，本機同名 branch 後續仍 ahead 14。branch 名稱、commit message 或既有 PR 連結都不能證明最新 local head 已合入。
+- **隔離 worktree 缺 ignored artifacts 造成 12 個假紅燈**：測試依賴 raw/intermediate/PMTiles，但新 worktree 按 Git tree 建立；先確認缺檔來源並連回 canonical data 後 12/12 才通過。
+- **本地現成 ignored file 遮蔽 clean checkout 缺檔**：`company_filters_202608_r2.json` 在原工作區存在且 checksum 正確，卻沒有被追蹤；本地測試無法替代 `git ls-files` 與 CI checkout 證據。
+
+### Next-time rules
+
+1. 要證明本機工作已進遠端主線，至少同時查 remote head SHA、`git merge-base --is-ancestor <local-head> origin/master` 與 topic range/tree diff；「PR merged」只證明該 PR 當時的 remote head。
+2. 新增 runtime artifact 時，commit 前跑 `git check-ignore -v <path>` 與 `git ls-files --error-unmatch <path>`；本機檔案存在不等於 clean checkout 會有。
+3. 隔離 worktree 跑資料測試前先列出 Git-tracked 與 gitignored fixtures；缺 ignored data 要標成環境缺口，補 canonical data 後只重跑受影響 cases，不把它混寫成 code regression。
+4. 兩條功能線同時擴 manifest/golden 時，衝突預設視為 set union，再由契約測試與 golden generator 驗證；不能只選 ours/theirs。
+5. 完成功能 PR merge 後才寫最終 STATUS，並用獨立 memory PR 合入，避免 STATUS 在 merge 前預告尚未發生的 release truth。
+
+### Memory output
+
+- Analytics `STATUS.md`：重寫成 PR #46、telecom data truth、驗證邊界與 deploy next step。
+- Pulse `REFLECTIONS.md`：追加本篇；Pulse `STATUS.md`：最後重寫成 PR #143、CI #355 與八個世界通訊圖層的 current truth。
