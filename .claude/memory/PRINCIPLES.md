@@ -433,30 +433,34 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 
 - 每個邏輯單位一個 commit
 - 要 commit 前 stage 特定檔案（`git add src/x.ts`），**不要** `git add -A` 或 `.`
-- Memory 系統 commit 用 `memory:` prefix，atomic（一檔一 commit）
+- Memory 系統 commit 用 `memory:` prefix，一檔一 commit。使用者 Confirm 後，先記錄原 cached path set，再以 exact-path `git add <path>` 與 `git commit --only ... -- <exact-path>` 提交；若同一 target memory file 混有平行 session hunks，path scope 無法隔離，必須停止並請使用者協調，不得整檔代 commit
 - 不自動 push，push 由用戶決定
 
 ## 記憶系統原則
 
 - `.claude/memory/` **commit 進 git**，英文檔名、繁中內容
-- Session 開頭讀 `memory/STATUS.md` → `BACKLOG.md` → `PRINCIPLES.md`
-- Session 結束用 `/wrap-up` skill 自動更新
+- Session 開頭先讀 `memory/README.md` routing；只選與本次 scope 有關的 memory files，選中的檔案必須完整讀完，不使用固定檔數或整包載入
+- Session 結束用 `/wrap-up` v2：先建立 scope/evidence ledger、矛盾清單、release matrix 與可 review 的 memory Draft；只有使用者明確 Confirm 後才編輯與 commit
 - INCIDENTS / REFLECTIONS **只 append**，不改舊條目
-- STATUS 每次 rewrite（只保留當下）
+- STATUS 只在核准的 closeout rewrite 成當下事實；feature commit 本身不等於 memory 已獲准更新
+- Release matrix 固定以 `build / contract-wire / stage / upload / readback / pull / deploy / HTTP / browser` 分欄；狀態只用 `done / failed / blocked / unknown / not run / N/A`：`unknown` 只限證據不足、`blocked` 表示已知卡點、`not run` 表示尚未執行。不得把 upload/readback 寫成 production online，也不得以本機或測試證據替代 HTTP/browser
+- closeout 只要求本次 target paths clean，必須列出保留的 unrelated staged/dirty paths；不得為了得到全樹 clean 而動平行 session，也不自動 push
 
-- **有實質 commit 後主動更新 STATUS + BACKLOG，不等 /wrap-up**（2026-04-24 教訓）
-  - **判準**：本 session 至少 commit 1 個 feature / 架構改動 → STATUS 必須同 session rewrite
-  - **觸發時機**（任一即做）：
-    - (a) 連續 commit 告一段落，用戶說「ok 繼續 / 下一步」前先更新
-    - (b) 用戶問「記錄了嗎 / 進度如何 / 目前狀態」→ 代表該更新了
-    - (c) 用戶說收工 / 結束 / 暫停，啟動 /wrap-up 前先 draft STATUS
-  - **必改兩檔**：
-    - `STATUS.md`：rewrite 成當下狀態（本次完成 / commits / 未 push / 待辦 / 下一步）
-    - `BACKLOG.md`：把剛完成的項目標 done + 補近期 10 筆
-  - **為什麼**：STATUS 被 SessionStart hook inline 到下次 session context。
-    漏更新 = 下次 Claude 看到的是昨天狀態，會誤判「已完成」為「待辦」，或
-    錯判 commits 數量。這條教訓來自 2026-04-24 session：做完 4 commit 後
-    只更新 BACKLOG 忘了 STATUS，用戶要問一次才補。
+## 大量點位低縮放採 overview + detail 雙 source（2026-08-19）
+
+- 高量點位若需要全台低 zoom 可見，production contract 應拆成 count-only overview 與 feature detail；兩者使用互斥 zoom 範圍，不以低 zoom 強畫全部 raw points。
+- overview 必須涵蓋全部 **resolved** records，並記錄 source denominator、resolved count、miss count；overview feature count 是 occupied cells，不可冒充原始資料筆數。
+- overview 只帶渲染與稽核必要的聚合欄位，不帶公司名稱、地址、識別碼或 member list；detail 才依 publication whitelist 帶可公開欄位。
+- 未選圖層時 overview 與 detail 都必須 `visibility: none`；切換層、opacity、z-order、scale 與 legend 需對兩個 source 一起驗收。
+- 目前基準：公司 z4–11 overview / z12+ detail；工廠 z4–10 overview / z11+ detail。工廠 overview 只聚合 90,652 筆 resolved factories，不納入 9,972 geocode misses，也不得用公司座標補位。
+
+## Business Registry publication whitelist（2026-08-19）
+
+- 每個公開 artifact 都要在 contract 中列 exact public fields；上游多出欄位不代表可自動發布。
+- 公司 detail 可公開 `company_name` 與核准的資本額、分類、年份、縣市、上市/商標/地址差異 flags；不公開統編、代表人、完整登記地址。
+- 共同登記地址只公開地址與 `n_companies`、`capital_sum`、`capital_median` 聚合；immutable building key、公司 member list、公司名稱/統編/代表人均不得進入 public artifact。
+- 工廠與列管事業的 unresolved records 要在 coverage 留痕；不得以公司登記座標替代，也不得把「未定位」或園區 aggregate 零值解讀為不存在。
+- A3 membership assertions 與 A2 polygons 分離；不得合併成模糊 `is_in_park`，不得由 assertion flag 反推 science-park geometry。
 
 ## 行為原則（Claude 自律）
 
