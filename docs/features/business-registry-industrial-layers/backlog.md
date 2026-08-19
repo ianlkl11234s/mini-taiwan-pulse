@@ -3,13 +3,14 @@
 ## 待辦
 
 - [ ] A3：產品確認篩選語意後，將三個 assertion flags 分開接到既有點層；不得合成 `is_in_park`。
-- [ ] All Off 瀏覽器驗收 A1/A2/A5/A6：z10→z11 gate、popup、暗色底圖、polygon 點擊與 A6 指標切換。
-- [x] upload immutable assets 並逐檔讀回驗證。
+- [ ] All Off 瀏覽器驗收 A1/A2/A5/A6：A1 z4–10 overview → z11 detail、popup、暗色底圖、polygon 點擊與 A6 指標切換。
 - [ ] deploy，驗 production Range Request 與 `/industrial_zone/` 供應鏈。
 
 ## 已完成
 
+- [x] upload A1 overview immutable asset，並完成 SHA-256、size 與 metadata 讀回驗證（A1 detail / A2 / A5 / A6 舊 assets 亦已 upload）。
 - [x] A1/A2/A5/A6 immutable staging、manifest/sidebar/params/overlay/click/popup/legend。
+- [x] A1 z4–10 全已定位 records 計數概覽 + z11+ detail；overview checksum/source-layer/count ratchet。
 - [x] A1/A5 coverage 與中性語意；A2 明示不含科學園區。
 - [x] A3 無 geometry，不建立 map layer，只保存 assertion contract 與後續篩選邊界。
 - [x] business_registry / industrial_zone deploy 與 PMTiles contract ratchet。

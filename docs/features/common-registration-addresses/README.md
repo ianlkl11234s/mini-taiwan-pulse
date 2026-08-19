@@ -1,20 +1,20 @@
 # 共同登記地址 Common Registration Addresses
 
 > **Slug**：`common-registration-addresses`
-> **狀態**：release staging（本機接線與 asset upload 完成，尚未 deploy）
+> **狀態**：r2 asset 已 upload 並讀回驗證；deploy / browser smoke 待完成
 > **Owner**：mini-taiwan-pulse
 > **上線日期**：待部署
 > **相關 PR**：待建立
 
 ## 一句話說明
 
-顯示全台同一門牌登記至少 5 家公司的地址；點大小表示公司數，顏色表示資本額中位數。
+顯示全台同一門牌登記至少 5 家公司的地址；滑桿可調整最低公司數，點大小表示公司數，顏色表示資本額中位數，popup 另顯示資本額總和。
 
 ## 圖層
 
 | 名稱（layer key） | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| `commonRegistrationAddresses` | Point | 版本化 GeoJSON（S3 volume） | 🟠 uploaded／待 deploy |
+| `commonRegistrationAddresses` | Point | 版本化 r2 GeoJSON（S3 volume） | 🟡 uploaded / deploy pending |
 
 ## 關鍵檔案
 
