@@ -128,7 +128,7 @@ export function useGroundwaterWellsLayer(
     return () => {
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
-      if (map.getLayer(LAYER_CIRCLE)) setLayerVisibility(map, false);
+      try { if (map.getLayer(LAYER_CIRCLE)) setLayerVisibility(map, false); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

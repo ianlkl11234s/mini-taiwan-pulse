@@ -16,6 +16,16 @@
 // 位置，順序就變成「其他子元件 → LayerHosts → App 自己的 effect」，
 // 與搬移前的「其他子元件 → App（含這 67 支）」差異最小。
 //
+// ── ⚠️ unmount 的順序是**反過來**的（2026-08-20 補記）────────────────
+// 掛載順序（children → parent）的鏡像是：卸載時 deleted tree 由上而下走，
+// **前面的兄弟先卸載**。MapView 在 App.tsx 的 JSX 位置遠早於 LayerHosts，
+// 所以整棵樹被刪時 `map.remove()`（MapView.tsx）先跑，這 67 支 hook 的 cleanup
+// 才輪到 —— 它們拿到的是 closure 捕捉的**已銷毀 map**，任何 `getLayer()` /
+// `set*Property()` 都會炸（`Cannot read properties of undefined (reading 'getOwnLayer')`）。
+// 搬進 Host 之前這些 cleanup 屬於 App 自己的 fiber（早於所有 children），碰不到這條路。
+// 對策不是改順序（會破壞上面刻意保真的 mount 等價），而是**每個 cleanup 自帶
+// `try { … } catch { /* map 可能已銷毀 */ }`** —— 已於 18 支 hook 全數補齊。
+//
 // 仍有一項無法消除的順序反轉：App 自己**宣告在 L507 之前**的 effect
 // （L434 的日期訂閱、L504 的 timeStore 60Hz 同步、L236/L316/L336/L367 的
 // lazy fetch）原本跑在這 67 支之前，現在跑在之後。三者都不是「先建 source

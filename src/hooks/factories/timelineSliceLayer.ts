@@ -139,9 +139,11 @@ export function startTimelineSliceController<D>(
     if (pollTimer) clearInterval(pollTimer);
     unsubDate();
     unsubTime();
-    if (config.layerIds.some((id) => map.getLayer(id))) {
-      setVisibility(false);
-    }
+    try {
+      if (config.layerIds.some((id) => map.getLayer(id))) {
+        setVisibility(false);
+      }
+    } catch { /* map 可能已銷毀 */ }
   };
 }
 

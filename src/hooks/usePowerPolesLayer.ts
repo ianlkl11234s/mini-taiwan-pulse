@@ -199,8 +199,10 @@ export function usePowerPolesLayer(
     return () => {
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
-      if (map.getLayer(HEAT_ID)) map.setLayoutProperty(HEAT_ID, "visibility", "none");
-      if (map.getLayer(CIRCLE_ID)) map.setLayoutProperty(CIRCLE_ID, "visibility", "none");
+      try {
+        if (map.getLayer(HEAT_ID)) map.setLayoutProperty(HEAT_ID, "visibility", "none");
+        if (map.getLayer(CIRCLE_ID)) map.setLayoutProperty(CIRCLE_ID, "visibility", "none");
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, opacity, size, heatStrength, z5Reveal, mapTick]);
 }

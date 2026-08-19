@@ -336,7 +336,9 @@ export function useEarthquakeReplayLayer(
       cancelAnimationFrame(raf);
       removeBeachballMarker(beachballRef.current);
       beachballRef.current = null;
-      if (map.getLayer(EQ_REPLAY_EPICENTER_LAYER)) setEarthquakeReplayVisible(map, false);
+      try {
+        if (map.getLayer(EQ_REPLAY_EPICENTER_LAYER)) setEarthquakeReplayVisible(map, false);
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, detail, mapRetry, mapTick]);
 

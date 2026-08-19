@@ -192,7 +192,7 @@ export function usePowerLinesGlowTestLayer(
       if (retryTimer) clearInterval(retryTimer);
       clearInterval(bindTimer);
       map?.off("style.load", onStyleLoad);
-      if (map) for (const id of LAYER_IDS) setVis(map, id, false);
+      try { if (map) for (const id of LAYER_IDS) setVis(map, id, false); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, opacity, widthMul, mapTick]);
 }

@@ -233,9 +233,11 @@ export function useIotWraStructureLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
       unsubDate();
-      if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
-        setLayerVisibility(map, false);
-      }
+      try {
+        if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
+          setLayerVisibility(map, false);
+        }
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, isDark, scale, opacity, showFlow, showGate, showDam, showErosion, showDust, mapTick]);
 }

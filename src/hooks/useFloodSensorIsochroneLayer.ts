@@ -169,8 +169,10 @@ export function useFloodSensorIsochroneLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
       if (refreshTimer) clearInterval(refreshTimer);
-      if (map.getLayer(FILL_ID)) map.setLayoutProperty(FILL_ID, "visibility", "none");
-      if (map.getLayer(LINE_ID)) map.setLayoutProperty(LINE_ID, "visibility", "none");
+      try {
+        if (map.getLayer(FILL_ID)) map.setLayoutProperty(FILL_ID, "visibility", "none");
+        if (map.getLayer(LINE_ID)) map.setLayoutProperty(LINE_ID, "visibility", "none");
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, opacity, mapTick]);
 }
