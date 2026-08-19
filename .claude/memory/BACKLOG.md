@@ -8,6 +8,19 @@
 > 完整性測試盲區表／snapshot-to-CDN（AR-12/13）／AI-1／關單快贏（BM-1~4·MO-17·AU-6·DS-06）
 > —— SSOT 與開工指南：[`docs/proposal/next-batch-handoff-2026-08-12.md`](../../docs/proposal/next-batch-handoff-2026-08-12.md)
 
+### Business Registry / Wrap-up v2（2026-08-19）
+
+| ID | 優先級 | 項目 | blocker | next | acceptance |
+|---|---|---|---|---|---|
+| BR-1 | **P1** | 隔離 Analytics / Pulse follow-up PR | Analytics branch 無 upstream 且 ahead 28；Pulse 有 5 個 post-merge commits，兩邊都不可混入平行 session hunks | 逐 repo 記錄 base、target commit range 與 cached path set，建立只含 Business Registry 的 reviewable branch / PR | PR diff 僅含核准的 Business Registry code、assets contract、tests 與 docs；CI 全綠，無 unrelated staged/dirty 被帶入 |
+| BR-2 | **P1** | production pull / deploy | 12 assets 雖已 upload/readback，但 follow-up PR 未完成且尚無 production pull/deploy 授權 | PR merge 且取得明確授權後，pull exact immutable assets、deploy，再記錄 runtime evidence | runtime 持有 12 個 exact assets；size/checksum 與 feature handoff 一致；部署紀錄不把 S3 readback 當正式站證據 |
+| BR-3 | **P1** | production HTTP / browser QA | production 尚未 pull/deploy，browser 驗證因此 blocked | deploy 後先做 12 asset HTTP probe，再從 All Off 驗公司 overview/detail＋名稱、三尺度資本網格、B4 threshold＋總資本額、工廠 overview/detail、A2/A5/A6 popup/legend | 正式站所有 HTTP 回應正確；zoom split 無缺口/重疊；控制項、popup、legend、dark-map 可讀性有 browser evidence |
+| BR-4 | **P1** | Analytics A2/A5 handoff drift | Analytics handoff 與目前 Pulse r2 contract 的 coverage／語意警告已有漂移 | 對照兩 repo canonical handoff，只同步 Analytics A2/A5 文件與對應 QA 敘述 | 兩邊 asset path、feature/coverage 數與「園區不含科學園區」「列管不等於事故/裁罰/風險」一致；targeted `rg` 無 stale 值 |
+| BR-5 | **P2** | A3 / 科學園區後續 | A3 是 assertion-only；A2 的 215 polygons 明確不含科學園區，不能由 membership flag 推測 geometry | 先取得具 provenance 的 authoritative science-park polygons；若做篩選，保留獨立 flags | 不產生籠統 `is_in_park`；不從 A3 反推 polygon；欄位、來源、測試與 handoff 完整 |
+| BR-6 | **P2** | Twinkle Hub 補 geocode misses | A1 有 9,972、A5 有 47,063 筆未定位；不可拿公司座標替代工廠/列管事業座標 | 以 authoritative address/geocode source 補點，保存 precision、method、provenance 與 unresolved reason | 不使用 company coordinates；重跑 QA/manifest/coverage，miss 下降且分母不變，低 zoom overview 只納入 resolved records |
+| BR-7 | **P0** | 202609 公司存量快照 | 來源需等 2026-09-05 後可取得，錯過後可能無法補回 | 到期立即抓取並走既有 company_stock pipeline | 202609 raw/processed、QA、manifest 與 checksum 留存；列數/座標率/對帳通過 |
+| WU-1 | **done 2026-08-19** | wrap-up v2 implementation / docs closeout | — | — | `07fd324` implementation＋routing contract、`284445a` docs sync；validators、`bash -n`、JSON parse、targeted `rg`、`git diff --check` 全過，target paths clean，未自動 push |
+
 ### 社福長照 Welfare（WF 系列，2026-08-13 接線後開）
 
 > 細節 SSOT：[`docs/features/welfare-layers/backlog.md`](../../docs/features/welfare-layers/backlog.md)（13 條）。本表只留需要跨主題決策或等外部的。

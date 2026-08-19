@@ -109,13 +109,12 @@ git log --oneline --graph -5   # 驗證 merge commit
 
 ## PB-04 Session 結束（/wrap-up）
 
-1. 喊 `/wrap-up` 或「收工」 → skill 自動跑 5 階段
-2. Stage 1 Gather：平行讀 memory + git log + git status
-3. Stage 2 Analyze：分類事件到 9 檔
-4. Stage 3 Draft：產 diff 給用戶 review
-5. Stage 4 Confirm：等用戶回「全採用 / 修哪幾個 / skip 哪些」
-6. Stage 5 Atomic Commit：每檔一 commit，prefix `memory:`，STATUS 最後
-7. 提醒用戶 `git push` 但不自動 push
+1. 喊 `/wrap-up` 或「收工」 → 先建 scope ledger，再讀 `.claude/memory/README.md` routing。
+2. 用開場索引選檔；確定要更新的檔，編輯前必須完整讀完。不整包讀 `memory/`。
+3. 對話、git、artifacts 與 external state 互證；涉及 release 時做 `build / contract/wire / stage / upload / readback / pull / deploy / HTTP / browser` truth matrix。每格只能是 `done` / `failed` / `blocked` / `unknown` / `not run` / `N/A`；`unknown` 只限證據不足、無法判定真實狀態，已知卡點用 `blocked`，尚未執行用 `not run`，衝突未解不寫 done。
+4. 先給 scope、matrix、memory 變動摘要與 next-session entry，等用戶回「全採用 / 看細節 / skip 哪些」。
+5. 確認後，commit 前先記錄 `git diff --cached --name-only` 的 cached path set，辨識並保留 unrelated pre-staged paths。每個核准 memory path 做 path-scoped diff-check、`git add <exact-path>`，再用 `git commit --only -m "..." -- <exact-path>` 建立一檔一個 `memory:` commit，STATUS 最後；禁 `git add -A`。若同一 target memory file 混有平行 session hunks，path-scoped commit 無法隔離，就停止並請使用者協調，不得整檔代 commit。
+6. 只確認 target memory paths clean，列出保留的 unrelated staged 與 dirty state，再回報 current branch/upstream/ahead-behind 與未竟 release 格；push/PR/deploy 均需另行授權。
 
 詳見 `.claude/skills/wrap-up/SKILL.md`。
 

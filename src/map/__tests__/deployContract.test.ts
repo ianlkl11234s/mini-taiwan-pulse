@@ -92,7 +92,10 @@ function manifestAssets(): Map<string, string[]> {
   for (const key of MANIFEST_KEYS) {
     const m = LAYER_MANIFEST[key] as LayerManifestEntry;
     for (const s of Array.isArray(m.source) ? m.source : [m.source]) {
-      if (s.kind === "geojson" || s.kind === "pmtiles") add(s.url, key);
+      if (s.kind === "geojson" || s.kind === "pmtiles") {
+        add(s.url, key);
+        if (s.kind === "pmtiles") for (const a of s.companionAssets ?? []) add(a, key);
+      }
       else if (s.kind === "supabase") add(s.fallbackUrl, key);
       else for (const a of s.staticAssets ?? []) add(a, key);
     }
@@ -285,6 +288,14 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(uploadScript).toContain('[ "$remote_sha256" = "$local_sha256" ]');
     expect(uploadScript).toContain("Skipping immutable business_registry/$name (same SHA-256)");
     expect(uploadScript).toContain('--metadata "sha256=$local_sha256"');
+    expect(uploadCovers("business_registry/company_filters_202608_r2.json")).toBe(true);
+  });
+
+  it("industrial_zone immutable PMTiles 有 upload / pull / nginx 完整供應鏈", () => {
+    expect(uploadCovers("industrial_zone/industrial_park_boundaries_20260818.pmtiles")).toBe(true);
+    expect(pullCovers("industrial_zone")).toBe(true);
+    expect(locationFor("industrial_zone/industrial_park_boundaries_20260818.pmtiles")?.readsData).toBe(true);
+    expect(uploadScript).toContain("Skipping immutable industrial_zone/$name (same SHA-256)");
   });
 
   it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {

@@ -97,7 +97,43 @@ import {
 import {
   commonRegistrationCapitalColorExpr,
   commonRegistrationRadiusExpr,
+  companyCapitalQColorExpr,
+  companyGridColorExpr,
+  COMPANY_GRID_SCALES,
+  type CompanyGridScale,
+  companyPointFilter,
+  FACTORY_LOCATION_COLOR,
+  INDUSTRIAL_PARK_COLOR,
+  REGULATED_FACILITY_COLOR,
+  industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
+
+function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
+  const scaleIdx = Number(scale.value);
+  return {
+    id: "companyCapitalGrid",
+    sourceUrl: scale.sourceUrl,
+    sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 4,
+        paint: (_isDark, p) => ({
+          "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx),
+          "fill-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+        }),
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 10,
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.18)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.15, 14, 0.55],
+          "line-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+        }),
+      },
+    ],
+  };
+}
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -3422,16 +3458,246 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 🏢 工商登記 Business Registry ──
+  // B1/A4 共用詳細點與低倍率概覽 source。概覽格的數量納入全部可發布座標 records，
+  // z4–11 看整體分佈，z12+ 才切至可點擊的個別公司，避免低 zoom 同時傳輸 65 萬個名稱。
+  {
+    id: "companyPoints",
+    sourceUrl: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+    sourceId: "business-registry-company-points-overview",
+    pmtiles: { sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11 },
+    layers: [
+      {
+        suffix: "company-overview-circle", type: "circle", minzoom: 4, maxzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.companyPointsScale ?? 1;
+          const opacity = p?.companyPointsOpacity ?? 0.8;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["to-number", ["get", "n_companies"], 0],
+              1, 1.3 * scale, 100, 2.6 * scale, 1_000, 5 * scale, 10_000, 9 * scale,
+            ],
+            "circle-color": "#2563eb",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#93c5fd" : "#1e3a8a",
+            "circle-stroke-width": 0.35,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "companyPoints",
+    sourceUrl: "./business_registry/company_points_202608_r2.pmtiles",
+    sourceId: "business-registry-company-points",
+    pmtiles: { sourceLayer: "company_points", minzoom: 8, maxzoom: 14 },
+    rebuildOnParamChange: ["all-circle"],
+    layers: [
+      {
+        suffix: "all-circle", type: "circle", minzoom: 12,
+        filter: companyPointFilter,
+        paint: (isDark, p) => {
+          const scale = p?.companyPointsScale ?? 1;
+          const opacity = p?.companyPointsOpacity ?? 0.8;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 2 * scale, 14, 3.2 * scale, 17, 6 * scale],
+            "circle-color": companyCapitalQColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12, 0, 14, 0.45, 17, 0.9],
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "manufacturingCompanyPoints",
+    sourceUrl: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
+    sourceId: "business-registry-company-points-overview",
+    pmtiles: { sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11 },
+    layers: [
+      {
+        suffix: "manufacturing-overview-circle", type: "circle", minzoom: 4, maxzoom: 12,
+        filter: [">", ["to-number", ["get", "n_manufacturing"], 0], 0],
+        paint: (isDark, p) => {
+          const scale = p?.manufacturingCompanyPointsScale ?? 1;
+          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["to-number", ["get", "n_manufacturing"], 0],
+              1, 1.4 * scale, 50, 2.8 * scale, 500, 5.2 * scale, 5_000, 9 * scale,
+            ],
+            "circle-color": "#f97316",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#fdba74" : "#7c2d12",
+            "circle-stroke-width": 0.35,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "manufacturingCompanyPoints",
+    sourceUrl: "./business_registry/company_points_202608_r2.pmtiles",
+    sourceId: "business-registry-company-points",
+    pmtiles: { sourceLayer: "company_points", minzoom: 8, maxzoom: 14 },
+    filter: ["==", ["get", "is_manufacturing"], 1],
+    layers: [
+      {
+        suffix: "manufacturing-circle", type: "circle", minzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.manufacturingCompanyPointsScale ?? 1;
+          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 2.2 * scale, 14, 3.5 * scale, 17, 6.4 * scale],
+            "circle-color": companyCapitalQColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#431407" : "#ffffff",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 12, 0, 14, 0.55, 17, 1],
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  ...COMPANY_GRID_SCALES.map(companyCapitalGridOverlay),
+  {
+    id: "factoryLocations",
+    sourceUrl: "./business_registry/factory_locations_overview_1500m_202606.pmtiles",
+    sourceId: "business-registry-factory-locations-overview",
+    pmtiles: { sourceLayer: "factory_locations_overview", minzoom: 4, maxzoom: 10 },
+    layers: [
+      {
+        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 11,
+        paint: (isDark, p) => {
+          const scale = p?.factoryLocationsScale ?? 1;
+          const opacity = p?.factoryLocationsOpacity ?? 0.76;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["to-number", ["get", "n_factories"], 0],
+              1, 1.4 * scale, 25, 2.8 * scale, 250, 5.2 * scale, 2_500, 9 * scale,
+            ],
+            "circle-color": FACTORY_LOCATION_COLOR,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#5eead4" : "#134e4a",
+            "circle-stroke-width": 0.35,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "factoryLocations",
+    sourceUrl: "./business_registry/factory_locations_202606.pmtiles",
+    sourceId: "business-registry-factory-locations",
+    pmtiles: { sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14 },
+    layers: [
+      {
+        suffix: "circle", type: "circle", minzoom: 11,
+        paint: (isDark, p) => {
+          const scale = p?.factoryLocationsScale ?? 1;
+          const opacity = p?.factoryLocationsOpacity ?? 0.76;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
+            "circle-color": FACTORY_LOCATION_COLOR,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#042f2e" : "#ffffff",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 11, 0, 14, 0.6, 17, 1],
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "regulatedFacilities",
+    sourceUrl: "./business_registry/regulated_facilities_20260818.pmtiles",
+    sourceId: "business-registry-regulated-facilities",
+    pmtiles: { sourceLayer: "regulated_facilities", minzoom: 5, maxzoom: 14 },
+    layers: [
+      {
+        suffix: "circle", type: "circle", minzoom: 11,
+        paint: (isDark, p) => {
+          const scale = p?.regulatedFacilitiesScale ?? 1;
+          const opacity = p?.regulatedFacilitiesOpacity ?? 0.72;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
+            "circle-color": REGULATED_FACILITY_COLOR,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "#451a03" : "#ffffff",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 11, 0, 14, 0.6, 17, 1],
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "industrialParkBoundaries",
+    sourceUrl: "./industrial_zone/industrial_park_boundaries_20260818.pmtiles",
+    sourceId: "industrial-zone-park-boundaries",
+    pmtiles: { sourceLayer: "industrial_park_boundaries", minzoom: 5, maxzoom: 14 },
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 5,
+        paint: (_isDark, p) => ({
+          "fill-color": INDUSTRIAL_PARK_COLOR,
+          "fill-opacity": p?.industrialParkBoundariesOpacity ?? 0.24,
+        }),
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 5,
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#86efac" : "#15803d",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.55, 12, 1.2, 15, 2],
+          "line-opacity": Math.min(1, (p?.industrialParkBoundariesOpacity ?? 0.24) * 3),
+        }),
+      },
+    ],
+  },
+  {
+    id: "industrialParkComparison",
+    sourceUrl: "./business_registry/industrial_park_comparison_20260818.pmtiles",
+    sourceId: "business-registry-industrial-park-comparison",
+    pmtiles: { sourceLayer: "industrial_park_comparison", minzoom: 5, maxzoom: 14 },
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 5,
+        paint: (_isDark, p) => ({
+          "fill-color": industrialParkComparisonColorExpr(p?.industrialParkComparisonModeIdx ?? 0),
+          "fill-opacity": p?.industrialParkComparisonOpacity ?? 0.68,
+        }),
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 5,
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#ddd6fe" : "#6d28d9",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 1.15, 15, 1.8],
+          "line-opacity": Math.min(1, (p?.industrialParkComparisonOpacity ?? 0.68) * 1.25),
+        }),
+      },
+    ],
+  },
+
   // 共同登記地址已是建物級聚合；不再 cluster，避免破壞「一點 = 一個門牌」語意。
   {
     id: "commonRegistrationAddresses",
-    sourceUrl: "./business_registry/common_registration_addresses_202608.geojson",
+    sourceUrl: "./business_registry/common_registration_addresses_202608_r2.geojson",
     sourceId: "business-registry-common-registration-addresses",
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
         minzoom: 6,
+        filter: (p) => [
+          ">=",
+          ["to-number", ["get", "n_companies"], 0],
+          p?.commonRegistrationAddressesMinCompanies ?? 5,
+        ],
         layout: {
           "circle-sort-key": ["to-number", ["get", "n_companies"], 0],
         },

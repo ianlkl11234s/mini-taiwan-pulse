@@ -158,7 +158,7 @@ done
 # 🏢 工商登記 Business Registry：dated filename 視為 immutable release asset。
 # 同名 S3 object 若內容相同就跳過（讓整支部署腳本可安全重跑）；內容不同才拒絕覆寫。
 # 新月份應產生新檔名並另開前端 PR 切換 URL。
-for f in public/business_registry/*.geojson public/business_registry/*.pmtiles; do
+for f in public/business_registry/*.geojson public/business_registry/*.pmtiles public/business_registry/*.json; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   key="$PREFIX/business_registry/$name"
@@ -184,6 +184,35 @@ for f in public/business_registry/*.geojson public/business_registry/*.pmtiles; 
     exit 1
   fi
   echo "Uploading business_registry/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$key" --region ap-southeast-2 \
+    --cache-control "public,max-age=31536000,immutable" \
+    --metadata "sha256=$local_sha256"
+done
+
+# 🏭 產業園區 Industrial Zone：dated filename 視為 immutable release asset。
+for f in public/industrial_zone/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  key="$PREFIX/industrial_zone/$name"
+  local_sha256=$(openssl dgst -sha256 "$f" | awk '{print $NF}')
+  if aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 >/dev/null 2>&1; then
+    remote_sha256=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 \
+      --query 'Metadata.sha256' --output text)
+    if [ "$remote_sha256" = "$local_sha256" ]; then
+      echo "Skipping immutable industrial_zone/$name (same SHA-256)"
+      continue
+    fi
+    remote_etag=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 \
+      --query 'ETag' --output text | tr -d '"')
+    local_md5=$(openssl dgst -md5 "$f" | awk '{print $NF}')
+    if [ "$remote_etag" = "$local_md5" ]; then
+      echo "Skipping immutable industrial_zone/$name (same legacy ETag)"
+      continue
+    fi
+    echo "Refusing to overwrite immutable industrial_zone/$name (checksum differs)" >&2
+    exit 1
+  fi
+  echo "Uploading industrial_zone/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$key" --region ap-southeast-2 \
     --cache-control "public,max-age=31536000,immutable" \
     --metadata "sha256=$local_sha256"

@@ -88,6 +88,11 @@ import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
 import { FARM_HIGHLIGHT_OPTIONS } from "./livestockTypes";
 import { BUILDINGS_GBA_MODES } from "./buildingsGbaTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "./propertyValueTypes";
+import {
+  COMPANY_COUNTY_OPTIONS, COMPANY_GRID_MODES, COMPANY_GRID_SCALES, COMPANY_INDUSTRY_MID_OPTIONS,
+  COMPANY_SETUP_YEAR_MAX, COMPANY_SETUP_YEAR_MIN,
+  INDUSTRIAL_PARK_COMPARISON_MODES,
+} from "./businessRegistryTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1015,6 +1020,85 @@ export const LAYER_PARAMS_SPEC = {
   commonRegistrationAddresses: [
     opacitySlider("commonRegistrationAddressesOpacity", 0.75),
     scaleSlider("commonRegistrationAddressesScale", 1.0),
+    {
+      kind: "slider", name: "commonRegistrationAddressesMinCompanies", labelPrefix: "共同登記 ≥", digits: 0, labelSuffix: " 家",
+      default: 5, min: 5, max: 800, step: 1,
+    },
+  ],
+  companyPoints: [
+    opacitySlider("companyPointsOpacity", 0.8),
+    scaleSlider("companyPointsScale", 1),
+    {
+      kind: "select", name: "companyIndustryMid", label: "行業中類", default: "all",
+      options: [{ label: "全部行業", value: "all" }, ...COMPANY_INDUSTRY_MID_OPTIONS],
+      out: "companyIndustryMidIdx", encode: ["all", ...COMPANY_INDUSTRY_MID_OPTIONS.map((o) => o.value)],
+    },
+    {
+      kind: "select", name: "companyCounty", label: "縣市", default: "all",
+      options: [{ label: "全部縣市", value: "all" }, ...COMPANY_COUNTY_OPTIONS.map((value) => ({ label: value, value }))],
+      out: "companyCountyIdx", encode: ["all", ...COMPANY_COUNTY_OPTIONS],
+    },
+    {
+      kind: "select", name: "companyCapitalQ", label: "資本額分位", default: "all",
+      options: [
+        { label: "全部", value: "all" }, { label: "缺值", value: "0" },
+        { label: "Q1", value: "1" }, { label: "Q2", value: "2" }, { label: "Q3", value: "3" },
+        { label: "Q4", value: "4" }, { label: "Q5", value: "5" },
+      ],
+      out: "companyCapitalQIdx", encode: ["all", "0", "1", "2", "3", "4", "5"],
+    },
+    {
+      kind: "slider", name: "companySetupYearMin", labelPrefix: "設立年下限", digits: 0,
+      default: COMPANY_SETUP_YEAR_MIN, min: COMPANY_SETUP_YEAR_MIN, max: COMPANY_SETUP_YEAR_MAX, step: 1,
+    },
+    {
+      kind: "slider", name: "companySetupYearMax", labelPrefix: "設立年上限", digits: 0,
+      default: COMPANY_SETUP_YEAR_MAX, min: COMPANY_SETUP_YEAR_MIN, max: COMPANY_SETUP_YEAR_MAX, step: 1,
+    },
+    ...(["Manufacturing", "Listed", "Trademark", "AddressMismatch"] as const).map((suffix) => ({
+      kind: "select" as const,
+      name: `company${suffix}`,
+      label: suffix === "Manufacturing" ? "製造業" : suffix === "Listed" ? "上市櫃" : suffix === "Trademark" ? "有商標" : "地址不一致",
+      default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "是", value: "yes" }, { label: "否", value: "no" }],
+      out: `company${suffix}Idx`, encode: ["all", "yes", "no"],
+    })),
+  ],
+  companyCapitalGrid: [
+    {
+      kind: "select", name: "companyGridScale", label: "網格大小", default: COMPANY_GRID_SCALES[0].value,
+      options: COMPANY_GRID_SCALES.map((scale) => ({ label: scale.label, value: scale.value })),
+      out: "companyGridScaleIdx", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "companyGridMode", label: "指標", default: COMPANY_GRID_MODES[0].value,
+      options: COMPANY_GRID_MODES.map((o) => ({ ...o })),
+      out: "companyGridModeIdx", encode: COMPANY_GRID_MODES.map((o) => o.value),
+    },
+    opacitySlider("companyCapitalGridOpacity", 0.68),
+  ],
+  manufacturingCompanyPoints: [
+    opacitySlider("manufacturingCompanyPointsOpacity", 0.82),
+    scaleSlider("manufacturingCompanyPointsScale", 1),
+  ],
+  factoryLocations: [
+    opacitySlider("factoryLocationsOpacity", 0.76),
+    scaleSlider("factoryLocationsScale", 1),
+  ],
+  regulatedFacilities: [
+    opacitySlider("regulatedFacilitiesOpacity", 0.72),
+    scaleSlider("regulatedFacilitiesScale", 1),
+  ],
+  industrialParkBoundaries: [opacitySlider("industrialParkBoundariesOpacity", 0.24)],
+  industrialParkComparison: [
+    {
+      kind: "select", name: "industrialParkComparisonMode", label: "指標",
+      default: INDUSTRIAL_PARK_COMPARISON_MODES[0].value,
+      options: INDUSTRIAL_PARK_COMPARISON_MODES.map((o) => ({ ...o })),
+      out: "industrialParkComparisonModeIdx",
+      encode: INDUSTRIAL_PARK_COMPARISON_MODES.map((o) => o.value),
+    },
+    opacitySlider("industrialParkComparisonOpacity", 0.68),
   ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
   medClinic: [opacitySlider("medClinicOpacity", 0.85), scaleSlider("medClinicScale", 1.0)],

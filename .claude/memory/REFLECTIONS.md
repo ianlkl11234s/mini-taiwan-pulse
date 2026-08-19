@@ -1479,3 +1479,35 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 DATA_SCOPE（+社福長照節）／PRINCIPLES（+5 條：除零守門・字串數值與消失的 key・
 0 值比例判準・button row label ≤4 字・上游建議 vs 站台鐵則）／INCIDENTS（+2 事件）／
 PLAYBOOKS（+PB-40 純接線棒）／GLOSSARY（+3 詞）／BACKLOG（+welfare 指標）／本篇／STATUS。
+
+## 2026-08-18/19 — Business Registry r2 + wrap-up v2
+
+### Worked
+
+- **先定 contract 再產 immutable r2 assets**：公司 detail/overview、三尺度資本額網格、共同地址聚合、工廠 detail/overview 與工業層都能以 exact filename、source-layer、zoom range、public fields 驗收，沒有覆寫 r1。
+- **大量點位拆 overview + detail**：低 zoom 仍看得到全部 resolved companies/factories 的空間分布，高 zoom 才載 feature detail；既符合使用者「拉遠也看得到」的需求，也避免低 zoom 直接渲染 65 萬/9 萬點。
+- **upload 與 readback 分開留證據**：12 個 artifacts 不只上傳，還對 object size/checksum/metadata readback；release matrix 因此能精確寫到 readback done，而不是模糊的「應該有上」。
+- **publication whitelist 先於前端 convenience**：公司名稱可公開，但統編、代表人、完整地址不進 detail；B4 只保留四個聚合欄位，immutable building key 與 member list 留在 private QA。
+- **把使用者調整轉成可測 contract**：公司/工廠 zoom split、B2 三尺度、B4 threshold 5–800 與 capital sum 都有 artifact/contract/test 對應，不只留在口頭需求。
+
+### Didn't work / drift
+
+- **「已 upload」太容易被誤說成「已上線」**：production pull、deploy、HTTP、browser 都尚未做；若沒有逐欄 release matrix，S3 object readback 會遮蔽正式站仍 blocked 的事實。
+- **PR #142 只 merge r1，後續 r2 又留在同一 topic branch**：Pulse 產生 5 個 post-merge commits，Analytics branch 又無 upstream 且相對 origin/master ahead 28；release unit 與 branch unit 沒有及早切齊。
+- **舊 wrap-up 假設已失效**：固定讀完整檔數、固定 stage 流程、預設 base/master、要求整樹 clean，遇到多 repo、多 release stage、平行 session 就會誤判或誤收檔。
+- **Analytics A2/A5 handoff drift**：Pulse r2 contract 已更新 coverage 與語意邊界，但 Analytics 對應 handoff 尚待 targeted sync，不能放任兩個 canonical docs 各說各話。
+- **browser 驗證 blocked**：目前只有 build/test/object evidence；正式站 presentation、popup、legend、dark-map 可讀性尚未有 production browser evidence。
+
+### Next-time rules
+
+1. 第一個 artifact 產生時就建立 release matrix，逐列記 `build / contract-wire / stage / upload / readback / pull / deploy / HTTP / browser`；`unknown` 只限證據不足、`blocked` 表示已知卡點、`not run` 表示尚未執行，另保留 `done / failed / N/A`，不跨欄推論。
+2. 沒有 production HTTP 與 browser evidence，不使用「已上線」「production ready at runtime」；本機 E2E、S3 readback、CI 各自只證明對應階段。
+3. 只要點位量級可能影響低 zoom，從設計第一天就決定 overview/detail 雙 source、互斥 zoom、resolved denominator 與 privacy fields，不等前端卡住才補。
+4. branch 應對齊 review/release unit：已 merge 的 branch 不繼續堆下一版；跨 repo 先記 base、upstream、commit range，再開 follow-up branch。
+5. wrap-up 先讀 `memory/README.md` routing，選中的檔完整讀；先 Draft、使用者 Confirm 後才寫與 exact-path atomic commit，不自動 push。
+6. commit 前記錄 cached path set；closeout 只要求 target paths clean並列出保留的 unrelated staged/dirty。若同一 target file 混有平行 hunks，停止協調，不得整檔代 commit。
+
+### Memory output
+
+STATUS（2026-08-19 current truth＋4-row release matrix）／BACKLOG（BR/WU blockers-next-acceptance）／
+DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v2、overview/detail、publication whitelist）／本篇。

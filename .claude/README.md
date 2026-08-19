@@ -36,7 +36,7 @@
 
 ## Session 結束
 
-喊 `/wrap-up` → skill 自動 5 階段更新 memory 並 atomic commit。
+喊 `/wrap-up` → skill 依 `memory/README.md` routing 選讀，先做 scope/evidence/release truth 對帳並等使用者確認，再做 path-scoped atomic memory commits；不因收尾自動 push/deploy。
 
 ## 分層原則
 
@@ -56,5 +56,6 @@
 ## 遷移紀錄
 
 - 2026-04-23：從 v1（散檔 `lessons.md` + `principles.md` + `retrospectives/`）
-  遷移到 v2（9 檔 `memory/` + FRAMEWORK + /wrap-up skill）。
+  遷移到分類式 `memory/` + FRAMEWORK + /wrap-up skill。
   舊檔已刪除，內容重新分類到 INCIDENTS / REFLECTIONS / PRINCIPLES / PLAYBOOKS。
+- 2026-08-19：/wrap-up 升級 v2，memory roster 改由 `memory/README.md` 路由，不再固定總數；收尾新增 selective reads、release truth matrix、contradiction gate 與 path-scoped Git。

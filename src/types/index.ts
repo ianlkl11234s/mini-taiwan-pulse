@@ -629,6 +629,7 @@ export interface OverlayLayerSpec {
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
+  maxzoom?: number;
   /**
    * 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接）。
    * 函式形式：供 rebuildOnParamChange 場景把即時 params（如 slider 門檻值）烤進 filter
@@ -740,6 +741,9 @@ export interface FeatureInfo {
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agricultureField" | "wasteTruck" | "rasterProbe"
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
+    | "companyPoints" | "manufacturingCompanyPoints" | "companyCapitalGrid"
+    | "factoryLocations" | "industrialParkBoundaries" | "regulatedFacilities"
+    | "industrialParkComparison"
     | "commonRegistrationAddresses"
     | "youbikeFullness"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
@@ -831,6 +835,13 @@ export interface LayerVisibility {
   indicators: boolean;
   socioeconomic: boolean;
   spatialEconomy: boolean;
+  companyPoints: boolean; // 202608 公司登記點位，z12+
+  manufacturingCompanyPoints: boolean; // 與 companyPoints 共用 PMTiles，is_manufacturing=1
+  companyCapitalGrid: boolean; // 150m 公司資本額／家數聚合
+  factoryLocations: boolean; // 202606 生產中工廠登記點位，z11+
+  industrialParkBoundaries: boolean; // 20260818 產業園區邊界，不含科學園區
+  industrialParkComparison: boolean; // 20260818 園區內觀測工廠/公司/公司資本額
+  regulatedFacilities: boolean; // 20260818 環境部列管設施，z11+
   commonRegistrationAddresses: boolean; // 共同登記地址（≥5 家；大小=公司數、色=資本額中位數）
   temperatureWave: boolean;
   /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */
