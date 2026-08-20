@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-08-20（VW-9 Vessel Zone Watch 資料層 + 動物福利三層合流，7 個 PR merged）
+**最後更新**：2026-08-20（VW-9 Vessel Zone Watch 資料層 + 動物福利三層合流與 browser 補證，7 個 PR merged）
 
 > 本檔只保留當前 release truth、blockers 與下一棒。歷史工作留在 git、
 > `docs/features/`、`BACKLOG.md` 與 `REFLECTIONS.md`。
@@ -21,12 +21,13 @@
 |---|---|---|---|---|---|---|
 | Vessel Zone 資料層（mig 361~366） | N/A | done：RPC + RLS，anon 角色實測可讀 | done：對帳九格逐格一致；627,686 筆 100% | done：已 apply 正式 DB；cron 實測 succeeded（0.13/0.08s） | N/A | N/A |
 | Monitor `VesselZoneCard` | done：`tsc -b` + 650 測試 | done：三處接線，monitorPacking 過 | N/A | **not run** | **not run** | **not run** |
-| 動物福利三層 | done：`tsc -b` + 650 測試 | done：六處登記簿 + golden fixture | N/A | **not run** | **not run** | **unknown**：codex session 宣稱通過，本 session 無第一手證據 |
+| 動物福利三層 | done：`tsc -b` + 650 測試 | done：六處登記簿 + golden fixture | N/A | **not run** | **not run** | **done（local）**：All Off 逐層驗 adoption／pressure／service points；連 production RPC，非正式站驗收 |
 | catalog_missing 修正（9 layer） | done | done | N/A | not run | not run | N/A：純宣告，無視覺變更 |
 | render-phase fix（PR #148） | done | done | N/A | not run | not run | **not run** |
 
-⚠️ 對 dev server 6002 做的是 `curl` 抓 module + HTTP 200，那是 **dev server 探測，不是 browser 驗收**。
-所有前端 unit 的 browser 欄一律 `not run`。
+⚠️ 對 dev server 6002 做的 `curl` 抓 module + HTTP 200 只是 **dev server 探測，不是 browser 驗收**。
+動物福利另有真實 browser 操作證據，但環境是 local frontend + production RPC；Vessel Zone、
+catalog_missing 與 render-phase fix 仍沒有 browser evidence，也沒有任何正式站 frontend 驗收。
 
 ## Current deliverables
 
@@ -45,13 +46,18 @@ approach_6 971/20、contiguous 1/1；`territorial` 全為 0。
 ### 動物福利三層（PR #147）
 
 adoption／shelter pressure／service points。service points 那層原本 21 個檔案停在工作區未 commit，
-本輪補 commit 並驗證（`tsc -b` + 650 測試 + 兩個登記簿守門）。實作與 browser 驗收由 codex session 完成。
+本輪補 commit 並驗證（`tsc -b` + 650 測試 + 兩個登記簿守門）。服務點 RPC 以 5,000 筆分頁
+取得 5,000 + 2,020 筆，history 僅在 popup 點擊後 lazy load；browser 已從 All Off 起手逐層驗證
+adoption daily history、pressure monthly history、service points 七類 filter／legend／popup history。
 
 ## Verification
 
 - **主樹（真環境）**：`npx tsc -b` 通過；Vitest **50 檔 650 passed / 0 failed / 0 skipped**。
 - ⚠️ 本輪前段多次回報的「649 測試全過」是在 worktree 跑的**假綠** ——
   `upstreamRegistry` 的 catalog 守門測試解不到 sibling repo 會靜默 skip。詳見 `INCIDENTS.md` 同日條目。
+- **動物福利 RPC／browser（第一手）**：production RPC read-only probes 全部 HTTP 200；service points
+  兩頁 7,020 keys 無重疊且座標有效。local frontend All Off 逐層操作完成，clean reload console
+  無 error／warn；這不代表 production frontend 已 deploy。
 - DB 數字全部以第一手 query 驗證，未採信 commit message 或子代理回報。
 
 ## Current blockers
@@ -70,6 +76,8 @@ adoption／shelter pressure／service points。service points 那層原本 21 �
    「只看接近船」toggle 可用；`tsc -b` + 全套測試**在主樹**跑過（worktree 綠燈不算數）。
 4. **未做的收尾**：`.gis-agent-system/journal/` 當月檔尚未 append 本輪；
    跨 repo handoff（`taipei-gis-analytics/docs/handoff/`）未建，見 VZ-11。
+5. 若之後取得 frontend deploy 授權，動物福利三層仍需補正式站 HTTP 與 browser acceptance；
+   不得把本機連 production RPC 的證據寫成 production frontend 已上線。
 
 詳細 active work 與 acceptance criteria 見 `BACKLOG.md`；
 VZ-* 執行細節見 `docs/features/vessel-watch/backlog.md`。
