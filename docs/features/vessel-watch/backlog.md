@@ -40,11 +40,20 @@
   - Outcome：每個定位點都帶「距 24 浬線幾浬、在哪一帶」，歷史與新資料一致。
   - 為何用 trigger 不改 sweep：寫入有兩條路徑（每小時 pg_cron sweep + `backfill_vessel_watch.py`），trigger 才能同時覆蓋。
   - Acceptance：回補後數字與 POC 對得上（中國海警 approach_12 = 24 艘 / 2,404 筆等，±簡化誤差）。
-- [ ] **VZ-3**：`live.vessel_zone_daily` 預聚合表 + refresh function + pg_cron + `public.get_vessel_zone_daily` RPC。
+- [x] **VZ-3**（2026-08-20 完成，migration 358）：`live.vessel_zone_daily` 1,259 列（175 天 × 10 分類）
+  + per-day refresh function + pg_cron `refresh-vessel-zone-daily`（`20 * * * *`）+ RPC。
+  **效能：即時聚合 4,551 ms → RPC 1.16 ms**。對帳逐格與直查 positions 完全一致，anon 實測通過。
+  ⚠️ 待驗：cron 首次執行（查詢時 `cron.job_run_details` 仍 0 筆，需下次確認 jobid 113 有 succeeded）。
+  ⚠️ 待補：`docs/supabase_rpc_audit.md` 未登錄本 RPC（跨 repo，上一軌授權外）。
+- [ ] ~~**VZ-3**~~：`live.vessel_zone_daily` 預聚合表 + refresh function + pg_cron + `public.get_vessel_zone_daily` RPC。
   - 為何一定要預聚合：POC 實測即時聚合 2,385 ms / 2,587 ms，破專案 1 秒門檻。
   - 日界用 **Asia/Taipei**；分類 join registry `effective_class` 保住「改字典免 backfill」性質；一律 `AND NOT is_excluded`。
   - Acceptance：`/check-rpc` < 1s。
-- [ ] **VZ-4**：Monitor 卡 `VesselZoneCard`（主視覺＝接近帶趨勢，鄰接區進入為稀疏事件標記）。
+- [ ] **VZ-4**：Monitor 卡 `VesselZoneCard`
+  - 🔴 **前端契約：`ships` 欄位絕對不可跨日 SUM**。它是每日 distinct 艘數，同一艘船跨多日會重複計數。
+    實證（臺灣本島・中國海警・approach_6）：**RPC 逐日加總 = 45，實際不重複艘數 = 13**（虛胖 3.5 倍）。
+    → 卡片只能「逐日使用」或「取 MAX」（例如「本月單日最高 M 艘」），
+    要全期不重複艘數必須另外查 `live.vessel_watch_positions`，日聚合表結構上回推不出來。（主視覺＝接近帶趨勢，鄰接區進入為稀疏事件標記）。
   - ⚠️ 三處手動同步：`monitorLayout.ts`（id union + dock 座標）／`monitorSplitLayout.ts`（split 座標，**漏了不會編譯錯、卡片靜默消失**）／`MonitorPanel.tsx`。
   - 座標走 `docs/features/monitor-split/sandbox-split.html` 沙盒匯出，不手算。
   - 復用 `HazardTrendBars`（`value===null` 灰樁區分「沒資料」與「真的 0 艘」）+ `useChartTooltip`。
