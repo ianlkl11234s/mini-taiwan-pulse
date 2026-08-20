@@ -5,7 +5,7 @@
 // LayerSidebar（手機版）與 IconRailSidebar（桌機版）共用此檔。
 //
 // 結構（2026-07 現況，PR #72 後）：
-// - 22 主題（Theme） → 多子群（SubGroup） → 多 Layer
+// - 23 主題（Theme） → 多子群（SubGroup） → 多 Layer
 // - SECTIONS 為 derived flat list，每筆 SectionDef = 一個 SubGroup，
 //   title 格式：`主題中文 English · 子群中文`，視覺上連續行構成主題分組。
 //   下一階段 sidebar 升級後可直接消費 THEMES。
@@ -1248,6 +1248,28 @@ export const THEMES: ThemeDef[] = [
         layers: [
           fromManifest("farmRoads"),
         ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🐾 ANIMAL WELFARE 動物福利
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "動物福利 Animal Welfare",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "認領養與收容 Adoption & Shelter",
+        layers: [fromManifest("animalAdoption")],
+      },
+      {
+        title: "收容成果與壓力",
+        layers: [fromManifest("animalShelterPressure")],
+      },
+      {
+        title: "服務據點 Service Points",
+        layers: [fromManifest("animalWelfarePoints")],
       },
     ],
   },

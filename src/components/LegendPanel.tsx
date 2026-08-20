@@ -48,6 +48,7 @@ import {
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
+import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
   STREET_TREE_SPECIES, STREET_TREE_OTHER_COLOR,
   STREET_TREE_DIAMETER_BANDS, STREET_TREE_HEIGHT_BANDS,
@@ -350,6 +351,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "fireIsochrone", render: () => <FireIsochroneLegend /> },
   { id: "livestockFarmPig", render: () => <LivestockFarmLegend /> },
   { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
+  { id: "animalAdoption", render: () => <AnimalAdoptionLegend /> },
+  { id: "animalShelterPressure", render: () => <AnimalShelterPressureLegend /> },
+  { id: "animalWelfarePoints", render: () => <AnimalWelfarePointsLegend /> },
   { id: "aquaculturePonds", render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { id: "aquacultureWaterSatelliteMoa", render: () => <AquacultureWaterSatelliteMoaLegend /> },
   { id: "aquacultureWaterUnion", render: () => <AquacultureWaterUnionLegend /> },
@@ -996,6 +1000,37 @@ function LivestockFacilityLegend() {
       />
     </div>
   );
+}
+
+function AnimalAdoptionLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><Swatch color="#f59e0b" round /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>犬為主</span></div>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}><Swatch color="#a855f7" round /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>貓為主</span></div>
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 4 }}>圓圈大小＝待認領養掛牌數；每日快照</div>
+  </div>;
+}
+
+function AnimalShelterPressureLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ height: 8, borderRadius: 4, background: "linear-gradient(90deg, #d1fae5, #86efac, #facc15, #f97316, #dc2626)" }} />
+    <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+      <span>低</span><span>80%</span><span>滿載 100%</span><span>超載</span>
+    </div>
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 4 }}>最新官方月報容量使用率；沒有官方值的縣市透明。</div>
+  </div>;
+}
+
+function AnimalWelfarePointsLegend() {
+  const t = useLegendTheme();
+  return <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    {ANIMAL_WELFARE_POINT_TYPES.map((item) => <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <Swatch color={item.color} round />
+      <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label}</span>
+    </div>)}
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 3 }}>服務來源涵蓋不一；未列點不表示該縣市沒有服務。</div>
+  </div>;
 }
 
 function GovServiceOfficeLegend() {
