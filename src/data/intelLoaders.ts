@@ -780,3 +780,67 @@ const foodSummaryCache = cachedByKey((k: string) => _fetchFoodPriceSummary(Numbe
 export function fetchFoodPriceSummary(days = 180): Promise<FoodPriceSummary[]> {
   return foodSummaryCache(String(days));
 }
+
+// ── Vessel Zone Watch（特殊船舶接近領海／鄰接區）─────────────────
+
+/**
+ * 中國公務船距 24 浬鄰接區外界線的每日分帶統計。
+ *
+ * 對應 gis-platform migration 358（`live.vessel_zone_daily` 預聚合表 + 薄 RPC）。
+ * 設計 SSOT：`docs/proposal/vessel-zone-watch.md`
+ *
+ * ⚠️ **`ships` 是「每日」distinct 艘數，絕對不可跨日 SUM** ——
+ * 同一艘船跨多日會被重複計數。實證（臺灣本島・中國海警・approach_6）：
+ * 逐日加總 45 艘，實際不重複只有 13 艘，虛胖 3.5 倍。
+ * 只能逐日使用或取 MAX；要全期不重複艘數必須另查 `live.vessel_watch_positions`，
+ * 日聚合表結構上回推不出來。
+ *
+ * ⚠️ RPC 的 `p_regions` 預設**只有臺灣本島**。釣魚台貢獻約當本島四成
+ * （中國海警常態巡航 778 筆／17 艘、科研船單艘駐留 848 筆），
+ * 混進主標題會把「逼近台灣」的訊號淹掉 —— 要看那邊得由呼叫端明確指定。
+ */
+export type VesselZoneName = "territorial" | "contiguous" | "approach_6" | "approach_12";
+
+export interface VesselZoneDay {
+  /** YYYY-MM-DD（Asia/Taipei 日界） */
+  day: string;
+  vesselClass: string;
+  zone: VesselZoneName;
+  zoneRegion: string;
+  /** 該日該組合的不重複艘數。⚠️ 不可跨日加總，見上方說明 */
+  ships: number | null;
+  positions: number | null;
+  /** 帶符號：負 = 已在 24 浬線內。取當日該組合最小值（最深／最近） */
+  minDistNm: number | null;
+}
+
+async function _fetchVesselZoneDaily(windowDays: number): Promise<VesselZoneDay[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `vesselZone:daily:${windowDays}`,
+    "特殊船舶接近帶",
+    supabase.rpc("get_vessel_zone_daily", { p_days: windowDays }),
+  );
+  if (error) {
+    console.warn("[Intel] get_vessel_zone_daily failed:", error.message);
+    return [];
+  }
+  return asArray<Record<string, unknown>>(data).map((r) => ({
+    day: String(r.day),
+    vesselClass: String(r.vessel_class),
+    zone: String(r.zone) as VesselZoneName,
+    zoneRegion: String(r.zone_region),
+    ships: num(r.ships),
+    positions: num(r.positions),
+    minDistNm: num(r.min_dist_nm),
+  }));
+}
+
+const vesselZoneCache = cachedByKey(
+  (k: string) => _fetchVesselZoneDaily(Number(k)),
+  TTL_DAILY,
+);
+
+export function fetchVesselZoneDaily(windowDays = 120): Promise<VesselZoneDay[]> {
+  return vesselZoneCache(String(windowDays));
+}
