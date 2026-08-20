@@ -93,6 +93,7 @@ import {
   COMPANY_SETUP_YEAR_MAX, COMPANY_SETUP_YEAR_MIN,
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
+import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS, ANIMAL_WELFARE_POINT_TYPE_VALUES } from "./animalWelfarePointsTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1226,6 +1227,15 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("animalAdoptionOpacity", 0.85),
   ],
   animalShelterPressure: [opacitySlider("animalShelterPressureOpacity", 0.78)],
+  animalWelfarePoints: [
+    {
+      kind: "select", name: "animalWelfarePointsType", label: "服務類型", default: "all",
+      options: [{ label: "全部類型", value: "all" }, ...ANIMAL_WELFARE_POINT_TYPE_OPTIONS],
+      out: "animalWelfarePointsTypeIdx", encode: ["all", ...ANIMAL_WELFARE_POINT_TYPE_VALUES],
+    },
+    opacitySlider("animalWelfarePointsOpacity", 0.85),
+    scaleSlider("animalWelfarePointsScale", 1),
+  ],
   groundwater: [
     { kind: "slider", name: "groundwaterScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     opacitySlider("groundwaterOpacity", 1.0),

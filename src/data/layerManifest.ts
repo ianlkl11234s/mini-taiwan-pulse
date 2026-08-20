@@ -1488,6 +1488,27 @@ export const LAYER_MANIFEST = {
     topics: ["動物福利", "收容所", "官方月報", "容量壓力"],
   },
 
+  animalWelfarePoints: {
+    key: "animalWelfarePoints",
+    section: { theme: "動物福利 Animal Welfare", group: "服務據點 Service Points" },
+    label: "動物服務據點 Animal Services",
+    expandable: true,
+    color: "#2563eb",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "animal_welfare.animal_service_points", confidence: "HIGH" }],
+      note: "20 個官方與地方名冊來源；地圖預設只取 active、located canonical points。地方名冊為 partial coverage，不能用缺點推論無服務。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "Supabase get_animal_welfare_points 以 5,000 筆 offset 分頁，useAnimalWelfarePointsLayer 建立未 cluster 的 GeoJSON circle layers" },
+    legend: "animalWelfarePoints",
+    popup: "animalWelfarePoints",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "全國動物醫院、寵物登記、疫苗與友善場所等服務點（7 類；約 7k active located canonical points）",
+    topics: ["動物福利", "動物醫院", "寵物服務", "服務據點"],
+  },
+
   retailMarkets: {
     key: "retailMarkets",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },

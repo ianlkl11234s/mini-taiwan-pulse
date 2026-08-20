@@ -12,6 +12,9 @@
 - 壓力 RPC：`public.get_animal_shelter_pressure_latest(p_county_code?, p_include_ambiguous=false)`
 - 成果 RPC：`public.get_animal_shelter_outcome_monthly(p_county_code,p_from_year?,p_to_year?,p_include_annual=false)`
 - 壓力／成果是官方月報，不是 realtime；缺月與歧義 revision 不補 0
+- 服務點 RPC：`get_animal_welfare_points(p_point_types,p_county_codes,p_bbox,p_include_inactive,p_include_unlocated,p_limit,p_offset)`；預設 `null/null/null/false/false/5000/offset`，必須翻頁至短頁（active located baseline 7,020 筆）
+- 服務點歷程：只在 popup 點擊單點後呼叫 `get_animal_welfare_point_history(...,p_limit=400)`；不得在初次載圖逐點查詢
+- 服務點欄位：保留 facility canonical key、類型、服務標籤、地址／電話／狀態、WGS84、geocode metadata、details、availability／last_seen／source count；無效座標不進地圖
 
 ## 前端接線位置
 
@@ -21,6 +24,7 @@
 - Manifest：`src/data/layerManifest.ts`（唯一登記 SSOT）
 - 月報 Loader：`src/data/animalShelterOutcomesLoader.ts`
 - 月報 Hook：`src/hooks/useAnimalShelterPressureLayer.ts`（重用 NLSC 縣市 PMTiles）
+- 服務點 Loader／Hook：`src/data/animalWelfarePointsLoader.ts`／`src/hooks/useAnimalWelfarePointsLayer.ts`（7 類 filter、未 cluster）
 
 ## 硬依賴欄位
 
@@ -32,22 +36,15 @@
 - `report_grain_key`／`period_start` — 月報 grain 與實際資料月
 - `official_metrics.fe_sum_count` — 月底在養總數
 - `official_metrics.max_stay_dog_count`／`max_stay_cat_count` — 犬貓核定容量；兩者完整時才衍生總容量使用率
+- `source_dataset_id`／`source_record_key` — service-point popup history 查詢 key
+- `point_type`／`service_tags`／`name`／`address`／`phone`／`status` — 服務點分類、圖例與 popup
 
-## 下一個 session 起手：production backend smoke test 與 browser 驗收
+## 2026-08-20 驗收證據
 
-這一輪前端程式已完成，不要重做資料層。gis-platform migrations 353–357 已套用至 production，下列 5 支 PostgREST RPC 已實測 HTTP 200；先做一次 production smoke test 確認契約未漂移，再直接進 browser 驗收。不得以 mock、舊月份 fallback 或補 0 假裝成功。
+- production migrations 353–360 已套用；adoption summary/daily/current/individual history、pressure latest/monthly/outcomes、service-point summary/points/history RPC 均 HTTP 200。
+- service points 分頁實測為 5,000 + 2,020 = 7,020；source keys 全唯一、跨頁無重疊、座標皆有效且全為 listed。
+- `npx tsc -b` 通過；全站 `npm test -- --run` 為 50 files、649 passed、1 skipped。
+- Browser All Off 單層驗收：adoption 點位＋daily popup、pressure 縣市著色＋monthly popup、service points 8 選項 type filter＋7 類 legend＋按點 history 均通過；乾淨重載後 console 無 error/warn。
+- Browser 首輪抓到 service-point radius 把含 `zoom` 的 interpolate 再包乘法，Mapbox 拒絕渲染；已改為直接縮放各 zoom stop，並新增 expression 回歸測試。
 
-- `get_animal_adoption_shelter_summary(p_county_code, p_animal_kind)`
-- `get_animal_adoption_daily(p_from, p_to, p_county_code, p_shelter_id, p_animal_kind)`
-- `get_animal_shelter_pressure_latest(p_county_code, p_include_ambiguous)`
-- `get_animal_shelter_pressure_monthly(p_county_code, p_from_year, p_to_year, p_include_ambiguous)`
-- `get_animal_shelter_outcome_monthly(p_county_code, p_from_year, p_to_year, p_include_annual)`
-
-先跑 `npx tsc -b` 與 animal welfare focused tests，再啟動本機前端做 browser 驗收：
-
-1. 關閉其他圖層，只開 `animalAdoption`；確認官方收容所點位、泡泡大小、popup 與每日序列，缺日保留缺口。
-2. 關閉其他圖層，只開 `animalShelterPressure`；確認重用 22 縣市 boundary、缺值透明、顯示實際資料月份，popup 可載成果趨勢。
-3. 確認 ambiguous revisions 預設排除，壓力與成果不跨來源相加，也不把缺值轉成 0。
-4. 確認 console 無錯誤、loading 不會卡住，並保存畫面與 RPC 回應作為驗收證據。
-
-驗收通過後更新 feature backlog／changelog；未取得明確授權前不要 deploy 或 push。開發伺服器依工作區規則管理，不要使用 `pkill -f vite`。
+本地 pressure 驗收需暫時從正式站補 `base_map/county_boundary.pmtiles`（S3/gitignored 資產）；驗收後已移除。未取得明確授權前不要 deploy、push 或上傳資產。

@@ -4,6 +4,8 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { fetchAnimalAdoptionDaily, type AnimalAdoptionDailyRow } from "../../data/animalAdoptionLoader";
 import { fetchAnimalShelterOutcomeMonthly, type AnimalShelterOutcomeMonthRow } from "../../data/animalShelterOutcomesLoader";
+import { fetchAnimalWelfarePointHistory, type AnimalWelfarePointHistoryRow } from "../../data/animalWelfarePointsLoader";
+import { animalWelfarePointTypeMeta } from "../../data/animalWelfarePointsTypes";
 
 const str = (v: unknown) => v == null || v === "" ? "" : String(v);
 const num = (v: unknown) => Number.isFinite(Number(v)) ? Number(v) : 0;
@@ -113,5 +115,64 @@ export function AnimalShelterPressurePanel({ props }: { props: Record<string, un
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
       資料截至 {period || "官方回傳月份"}；月粒度，非即時狀態。官方總量僅採同一來源月報，不跨來源混加。
     </div>
+  </>;
+}
+
+function displayTags(value: unknown) {
+  if (Array.isArray(value)) return value.map(String).filter(Boolean).join("、");
+  if (typeof value === "string") {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean).join("、");
+    } catch { /* Mapbox scalar property, use as-is. */ }
+    return value;
+  }
+  return "";
+}
+
+function historyDate(row: AnimalWelfarePointHistoryRow) {
+  for (const key of ["snapshot_date", "observed_date", "effective_date", "collected_at", "last_seen_at"]) {
+    const value = str(row[key]);
+    if (value) return value.slice(0, 10);
+  }
+  return "";
+}
+
+/** This component only exists after a map click, so its history request is never an initial 7k-point N+1. */
+export function AnimalWelfarePointsPanel({ props }: { props: Record<string, unknown> }) {
+  const sourceDatasetId = str(props.source_dataset_id);
+  const sourceRecordKey = str(props.source_record_key);
+  const [history, setHistory] = useState<AnimalWelfarePointHistoryRow[] | null>(null);
+  const t = useFeatureTheme();
+  const type = animalWelfarePointTypeMeta(props.point_type);
+  useEffect(() => {
+    if (!sourceDatasetId || !sourceRecordKey) return;
+    let cancelled = false;
+    setHistory(null);
+    fetchAnimalWelfarePointHistory(sourceDatasetId, sourceRecordKey)
+      .then((rows) => { if (!cancelled) setHistory(rows); })
+      .catch(() => { if (!cancelled) setHistory([]); });
+    return () => { cancelled = true; };
+  }, [sourceDatasetId, sourceRecordKey]);
+  const services = displayTags(props.service_tags);
+  return <>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+      <div style={{ width: 10, height: 10, borderRadius: "50%", background: type.color }} />
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{str(props.name) || "動物服務點"}</div>
+    </div>
+    <Row label="類型" value={type.label} color={type.color} />
+    {services ? <Row label="服務" value={services} /> : null}
+    {str(props.address) ? <Row label="地址" value={str(props.address)} /> : null}
+    {str(props.phone) ? <Row label="電話" value={str(props.phone)} /> : null}
+    {str(props.status) ? <Row label="狀態" value={str(props.status)} /> : null}
+    <Row label="來源" value={sourceDatasetId || "官方／地方公開名冊"} />
+    {str(props.last_seen_at) ? <Row label="最近出現" value={str(props.last_seen_at).slice(0, 10)} /> : null}
+    <div style={{ color: t.textMuted, fontSize: FONT_SIZE.xs, marginTop: 8 }}>
+      {history == null ? "載入此據點歷程…" : history.length ? `歷程 ${history.length.toLocaleString()} 筆（最多 400 筆）` : "尚無可顯示的據點歷程"}
+    </div>
+    {history?.length ? <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+      {history.slice(-12).map((row, index) => <span key={`${historyDate(row)}-${index}`} style={{ color: t.textDim, fontSize: FONT_SIZE.xs }}>{historyDate(row) || "未標日期"}</span>)}
+    </div> : null}
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 7 }}>地方名冊覆蓋不完整；未列點不表示該地沒有服務。</div>
   </>;
 }

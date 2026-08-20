@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 375,
+    "keyCount": 376,
     "sections": [
       "gisLayers",
       "overlays",
@@ -182,6 +182,13 @@
         "animal-shelter-pressure-line"
       ],
       "type": "animalShelterPressure"
+    },
+    {
+      "layers": [
+        "animal-welfare-points-circle",
+        "animal-welfare-points-glow"
+      ],
+      "type": "animalWelfarePoints"
     },
     {
       "layers": [
@@ -45964,6 +45971,61 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.78
+      }
+    ],
+    "animalWelfarePoints": [
+      {
+        "label": "服務類型",
+        "options": [
+          {
+            "label": "全部類型",
+            "value": "all"
+          },
+          {
+            "label": "動物醫院",
+            "value": "veterinary_clinic"
+          },
+          {
+            "label": "特定寵物業",
+            "value": "licensed_pet_business"
+          },
+          {
+            "label": "動保機關",
+            "value": "animal_protection_office"
+          },
+          {
+            "label": "寵物登記站",
+            "value": "pet_registration_station"
+          },
+          {
+            "label": "狂犬病疫苗站",
+            "value": "rabies_vaccination_site"
+          },
+          {
+            "label": "動物急診",
+            "value": "veterinary_emergency"
+          },
+          {
+            "label": "寵物友善場所",
+            "value": "pet_friendly_place"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "antiCorruptionOffice": [

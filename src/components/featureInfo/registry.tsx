@@ -127,7 +127,7 @@ import {
 } from "./policeJusticePanels";
 import { ChatHighlightPanel } from "./shared";
 import { PollutionFacilityPanel, PollutionPenaltyPanel, PollutionSitePanel } from "./pollutionPanels";
-import { AnimalAdoptionPanel, AnimalShelterPressurePanel } from "./animalWelfarePanels";
+import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -170,6 +170,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   welfareCenter: WelfareCenterPanel,
   animalAdoption: AnimalAdoptionPanel,
   animalShelterPressure: AnimalShelterPressurePanel,
+  animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
   weatherStation: WeatherStationPanel,
@@ -457,6 +458,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   welfareCenter: "社福中心",
   animalAdoption: "待認領養動物／公立收容所",
   animalShelterPressure: "收容所成果與壓力（月報）",
+  animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
   weatherStation: "氣象站",

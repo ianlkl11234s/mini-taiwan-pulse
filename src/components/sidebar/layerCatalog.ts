@@ -1267,6 +1267,10 @@ export const THEMES: ThemeDef[] = [
         title: "收容成果與壓力",
         layers: [fromManifest("animalShelterPressure")],
       },
+      {
+        title: "服務據點 Service Points",
+        layers: [fromManifest("animalWelfarePoints")],
+      },
     ],
   },
 

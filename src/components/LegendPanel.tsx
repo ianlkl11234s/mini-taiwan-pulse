@@ -48,6 +48,7 @@ import {
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
+import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
   STREET_TREE_SPECIES, STREET_TREE_OTHER_COLOR,
   STREET_TREE_DIAMETER_BANDS, STREET_TREE_HEIGHT_BANDS,
@@ -352,6 +353,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
   { id: "animalAdoption", render: () => <AnimalAdoptionLegend /> },
   { id: "animalShelterPressure", render: () => <AnimalShelterPressureLegend /> },
+  { id: "animalWelfarePoints", render: () => <AnimalWelfarePointsLegend /> },
   { id: "aquaculturePonds", render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { id: "aquacultureWaterSatelliteMoa", render: () => <AquacultureWaterSatelliteMoaLegend /> },
   { id: "aquacultureWaterUnion", render: () => <AquacultureWaterUnionLegend /> },
@@ -1017,6 +1019,17 @@ function AnimalShelterPressureLegend() {
       <span>低</span><span>80%</span><span>滿載 100%</span><span>超載</span>
     </div>
     <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 4 }}>最新官方月報容量使用率；沒有官方值的縣市透明。</div>
+  </div>;
+}
+
+function AnimalWelfarePointsLegend() {
+  const t = useLegendTheme();
+  return <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+    {ANIMAL_WELFARE_POINT_TYPES.map((item) => <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <Swatch color={item.color} round />
+      <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label}</span>
+    </div>)}
+    <div style={{ color: t.textDim, fontSize: FONT_SIZE.xs, marginTop: 3 }}>服務來源涵蓋不一；未列點不表示該縣市沒有服務。</div>
   </div>;
 }
 
