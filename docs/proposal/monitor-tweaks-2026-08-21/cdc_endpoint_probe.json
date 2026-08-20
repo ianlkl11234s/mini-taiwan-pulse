@@ -1,0 +1,534 @@
+[
+ {
+  "name": "ROD 類流感急診",
+  "url": "https://od.cdc.gov.tw/eic/RODS_Influenza_like_illness.csv",
+  "code": 200,
+  "bytes": 3647970,
+  "rows": 109907,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "類流感急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD 腸病毒急診",
+  "url": "https://od.cdc.gov.tw/eic/RODS_EnteroviralInfection.csv",
+  "code": 200,
+  "bytes": 1898823,
+  "rows": 61283,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "腸病毒急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD COVID-19 急診",
+  "url": "https://od.cdc.gov.tw/eic/RODS_COVID-19.csv",
+  "code": 200,
+  "bytes": 447126,
+  "rows": 13713,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "COVID-19急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD 急性腹瀉急診",
+  "url": "https://od.cdc.gov.tw/eic/RODS_AcuteDiarrhea.csv",
+  "code": 200,
+  "bytes": 3523698,
+  "rows": 107355,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "急性腹瀉急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD 腸病毒手足口病",
+  "url": "https://od.cdc.gov.tw/eic/RODS_HandFootMouthDisease.csv",
+  "code": 200,
+  "bytes": 1056301,
+  "rows": 34184,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "手足口病急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD 疱疹性咽峽炎",
+  "url": "https://od.cdc.gov.tw/eic/RODS_Herpangina.csv",
+  "code": 200,
+  "bytes": 1686812,
+  "rows": 54538,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "疱疹性咽峽炎急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "ROD 急性出血性結膜炎",
+  "url": "https://od.cdc.gov.tw/eic/RODS_AcuteHemorrhagicConjunctivitis.csv",
+  "code": 200,
+  "bytes": 1936385,
+  "rows": 60234,
+  "cols": [
+   "年",
+   "週",
+   "年齡別",
+   "縣市",
+   "紅眼症急診就診人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 類流感門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_Influenza_like_illness.csv",
+  "code": 200,
+  "bytes": 8313084,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "類流感健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 流感門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_Influenza.csv",
+  "code": 200,
+  "bytes": 8248946,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "流感及其所致肺炎健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 其他肺炎門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_OtherPneumonia.csv",
+  "code": 200,
+  "bytes": 8283929,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "其他肺炎健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 腹瀉門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_Diarrhea.csv",
+  "code": 200,
+  "bytes": 8326867,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "腹瀉健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 腸病毒門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_EnteroviralInfection.csv",
+  "code": 200,
+  "bytes": 8189824,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "腸病毒健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 急性上呼吸道感染",
+  "url": "https://od.cdc.gov.tw/eic/NHI_AcuteUpperRespiratoryInfections.csv",
+  "code": 200,
+  "bytes": 8375171,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "急性上呼吸道感染健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI COVID-19 門急診",
+  "url": "https://od.cdc.gov.tw/eic/NHI_COVID-19.csv",
+  "code": 200,
+  "bytes": 3955883,
+  "rows": 90373,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "COVID-19健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 猩紅熱",
+  "url": "https://od.cdc.gov.tw/eic/NHI_ScarletFever.csv",
+  "code": 200,
+  "bytes": 8145465,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "猩紅熱健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 水痘",
+  "url": "https://od.cdc.gov.tw/eic/NHI_Varicella.csv",
+  "code": 200,
+  "bytes": 8154891,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "水痘健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 手足口病",
+  "url": "https://od.cdc.gov.tw/eic/NHI_HandFootMouthDisease.csv",
+  "code": 200,
+  "bytes": 8167173,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "手足口病健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "NHI 疱疹性咽峽炎",
+  "url": "https://od.cdc.gov.tw/eic/NHI_Herpangina.csv",
+  "code": 200,
+  "bytes": 8181543,
+  "rows": 187908,
+  "cols": [
+   "年",
+   "週",
+   "就診類別",
+   "年齡別",
+   "縣市",
+   "疱疹性咽峽炎健保就診人次",
+   "健保就診總人次",
+   "縣市別代碼"
+  ],
+  "latest": "2026-W32"
+ },
+ {
+  "name": "旅遊疫情建議(現況)",
+  "url": "https://od.cdc.gov.tw/cdc/TCDCTravelAlert.csv",
+  "code": 200,
+  "bytes": 748990,
+  "rows": 2498,
+  "cols": [
+   "source",
+   "effective",
+   "senderName",
+   "instruction",
+   "web",
+   "alert_title",
+   "severity_level",
+   "alert_disease",
+   "areaDesc",
+   "areaDesc_EN",
+   "circle",
+   "ISO3166",
+   "areaDetail",
+   "ISO3166_2"
+  ]
+ },
+ {
+  "name": "旅遊疫情建議(歷史)",
+  "url": "https://od.cdc.gov.tw/cdc/TCDCTravelAlert_history.csv",
+  "code": 200,
+  "bytes": 49227,
+  "rows": 184,
+  "cols": [
+   "sent",
+   "source",
+   "effective",
+   "expires",
+   "senderName",
+   "headline",
+   "description",
+   "instruction",
+   "web",
+   "alert_title",
+   "severity_level",
+   "alert_disease",
+   "areaDesc",
+   "areaDesc_EN",
+   "circle",
+   "ISO3166",
+   "areaDetail",
+   "ISO3166_2"
+  ]
+ },
+ {
+  "name": "國際疫情訊息",
+  "url": "https://od.cdc.gov.tw/cdc/TCDCIntlEpidAll.csv",
+  "code": 200,
+  "bytes": 2143369,
+  "rows": 2450,
+  "cols": [
+   "sent",
+   "source",
+   "effective",
+   "expires",
+   "senderName",
+   "headline",
+   "description",
+   "instruction",
+   "web",
+   "alert_title",
+   "severity_level",
+   "alert_disease",
+   "areaDesc",
+   "areaDesc_EN",
+   "circle",
+   "ISO3166",
+   "areaDetail",
+   "ISO3166_2"
+  ]
+ },
+ {
+  "name": "登革熱NS1快篩合約院所",
+  "url": "https://od.cdc.gov.tw/acute/ns1hosp.csv",
+  "code": 200,
+  "bytes": 296792,
+  "rows": 2555,
+  "cols": [
+   "code",
+   "city",
+   "hospName",
+   "hospID",
+   "hospAddress",
+   "latitude",
+   "longitude",
+   "hospTel"
+  ]
+ },
+ {
+  "name": "旅遊醫學門診院所",
+  "url": "https://od.cdc.gov.tw/quarantine/TMClinicsList.csv",
+  "code": 200,
+  "bytes": 6769,
+  "rows": 37,
+  "cols": [
+   "醫事機構代碼",
+   "合約醫院名稱",
+   "所在縣市",
+   "郵遞區號",
+   "合約醫院地址",
+   "緯度",
+   "經度",
+   "看診科別",
+   "合約醫院電話",
+   "合約醫院網站",
+   "開辦日期",
+   "M痘疫苗接種"
+  ],
+  "latest": "2026/3/2"
+ },
+ {
+  "name": "旅醫門診時刻",
+  "url": "https://od.cdc.gov.tw/quarantine/ClinicsTime.csv",
+  "code": 200,
+  "bytes": 40780,
+  "rows": 693,
+  "cols": [
+   "醫事機構代碼",
+   "合約醫院名稱",
+   "星期",
+   "時段",
+   "是否看診",
+   "看診備註"
+  ]
+ },
+ {
+  "name": "旅醫處方",
+  "url": "https://od.cdc.gov.tw/quarantine/TMPrescription.csv",
+  "code": 200,
+  "bytes": 603863,
+  "rows": 5095,
+  "cols": [
+   "國名(中)",
+   "國名(英)",
+   "ISO3166-1（numeric）",
+   "主類別",
+   "次類別",
+   "疾病",
+   "警示日期",
+   "疫苗"
+  ],
+  "latest": "2026/7/28"
+ },
+ {
+  "name": "2025疫苗接種劑次",
+  "url": "https://od.cdc.gov.tw/acute/2025 Annual Vaccination Doses.csv",
+  "code": 200,
+  "bytes": 2039,
+  "rows": 22,
+  "cols": [
+   "縣市名稱",
+   "縣市代碼",
+   "卡介苗（接種人次）",
+   "五合一疫苗（接種人次）",
+   "白喉破傷風非細胞性百日咳及不活化小兒麻痺混合疫苗（接種人次）",
+   "破傷風減量白喉混合疫苗（接種人次）",
+   "B型肝炎免疫球蛋白（接種人次）",
+   "B型肝炎疫苗（接種人次）",
+   "水痘疫苗（接種人次）",
+   "麻疹腮腺炎德國麻疹混合疫苗（接種人次）",
+   "日本腦炎疫苗（接種人次）",
+   "A型肝炎疫苗（接種人次）",
+   "結合型肺炎鏈球菌疫苗（接種人次）"
+  ]
+ },
+ {
+  "name": "2025疫苗接種率",
+  "url": "https://od.cdc.gov.tw/acute/2025 Immunization Coverage Annual Data.csv",
+  "code": 200,
+  "bytes": 3143,
+  "rows": 22,
+  "cols": [
+   "縣市名稱",
+   "縣市代碼",
+   "卡介苗單一劑（完成率）",
+   "五合一疫苗第三劑（完成率）",
+   "五合一疫苗第四劑（完成率）",
+   "B型肝炎疫苗第二劑（完成率）",
+   "B型肝炎疫苗第三劑（完成率）",
+   "結合型肺炎鏈球菌疫苗第二劑（完成率）",
+   "結合型肺炎鏈球菌疫苗第三劑（完成率）",
+   "水痘疫苗單一劑（完成率）",
+   "麻疹腮腺炎德國麻疹混合疫苗第一劑（完成率）",
+   "A型肝炎疫苗第一劑（完成率）",
+   "A型肝炎疫苗第二劑（完成率）",
+   "活性減毒日本腦炎疫苗第一劑（完成率）",
+   "活性減毒日本腦炎疫苗第二劑（完成率）",
+   "白喉破傷風非細胞性百日咳及不活化小兒麻痺混合疫苗單一劑（完成率）",
+   "麻疹腮腺炎德國麻疹混合疫苗第二劑（完成率）"
+  ]
+ },
+ {
+  "name": "長照死亡資訊",
+  "url": "https://od.cdc.gov.tw/chronic/CareMagDeadInfo.csv",
+  "code": 200,
+  "bytes": 10388,
+  "rows": 460,
+  "cols": [
+   "縣市別",
+   "年別",
+   "死亡數",
+   "死亡率"
+  ]
+ },
+ {
+  "name": "[已死] NIDSS 登革熱週報",
+  "url": "https://od.cdc.gov.tw/eic/Weekly_Age_County_Gender_061.csv",
+  "code": 404,
+  "bytes": 196
+ },
+ {
+  "name": "[已死] NIDSS 流感重症週報",
+  "url": "https://od.cdc.gov.tw/eic/Weekly_Age_County_Gender_010.csv",
+  "code": 404,
+  "bytes": 196
+ }
+]
