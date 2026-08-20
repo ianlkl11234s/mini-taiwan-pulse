@@ -32,24 +32,28 @@
 
 ## Vessel Zone Watch（VZ-*，VW-9 的展開）
 
-- [ ] **VZ-1**：界線幾何入庫 `spatial.maritime_zones`（gis-platform migration 353 + data-collectors 灌入腳本）。
+- [x] **VZ-1**（2026-08-20 完成，migration 361 + `load_maritime_zones.py`）：`spatial.maritime_zones` 12 筆。
+  `ST_IsValid` 全 true、面積遞增合理（24浬 117,555 km² > 12浬 87,927 > 陸地約 36,000）、三題空間邏輯測試通過、anon 實測可讀。
+  交叉驗證：向陽紅 22 用正式全解析度幾何算 8.29 浬，POC 簡化幾何 8.17 浬，差 0.12 浬（在簡化誤差內）。
+  順手修掉上游 GeoJSON 的 region 命名跨層不一致（基線寫「臺灣」、12 浬寫「中沙群島(黃岩島)」），正規化成 4 個 canonical 值。
   - Outcome：24/12 浬線與基線在 DB 裡可做空間判斷，不再只有前端 PMTiles。
   - Acceptance：12 features 全入、`ST_IsValid` 全 true、三題空間邏輯測試通過
     （台北 101 在兩線內／遠洋點在 24 浬外／向陽紅 22 於 25.4685N,122.3982E 在 24 浬內但 12 浬外）。
-- [ ] **VZ-2**：`vessel_watch_positions` 加 `dist_24nm_nm` / `zone` / `zone_region` 三欄 + BEFORE INSERT trigger + 62.5 萬筆回補。
+- [x] **VZ-2**（2026-08-20 完成，migration 362~365 + `backfill_vessel_zone.py`）：三欄 + 分類函數 + trigger + partial index。
+  **回補 627,686 筆 100%（零剩餘）**；對帳九格全部只增不減、`territorial` 全為 0，
+  兩格與獨立 POC **完全吻合**（海事局 contiguous 39/3、海警 1/1）—— 兩套不同幾何算出同一數字。
+  生產環境每小時 sweep 從 19.4 秒降到 **2.7 秒**。
+  ⚠️ 途中踩到「幾何簡化在平面守約、`ST_Distance(::geography)` 把長弦當測地線」的坑，
+  修法 `ST_Segmentize`（405.4m → 19.9m），完整記錄見 [`.claude/pitfalls/2026-08-20-simplify-planar-vs-geography-distance.md`](../../../.claude/pitfalls/2026-08-20-simplify-planar-vs-geography-distance.md)。
   - Outcome：每個定位點都帶「距 24 浬線幾浬、在哪一帶」，歷史與新資料一致。
   - 為何用 trigger 不改 sweep：寫入有兩條路徑（每小時 pg_cron sweep + `backfill_vessel_watch.py`），trigger 才能同時覆蓋。
   - Acceptance：回補後數字與 POC 對得上（中國海警 approach_12 = 24 艘 / 2,404 筆等，±簡化誤差）。
-- [x] **VZ-3**（2026-08-20 完成，migration 358）：`live.vessel_zone_daily` 1,259 列（175 天 × 10 分類）
+- [x] **VZ-3**（2026-08-20 完成，migration 366）：`live.vessel_zone_daily` 1,259 列（175 天 × 10 分類）
   + per-day refresh function + pg_cron `refresh-vessel-zone-daily`（`20 * * * *`）+ RPC。
   **效能：即時聚合 4,551 ms → RPC 1.16 ms**。對帳逐格與直查 positions 完全一致，anon 實測通過。
-  ⚠️ 待驗：cron 首次執行（查詢時 `cron.job_run_details` 仍 0 筆，需下次確認 jobid 113 有 succeeded）。
-  ⚠️ 待補：`docs/supabase_rpc_audit.md` 未登錄本 RPC（跨 repo，上一軌授權外）。
-- [ ] ~~**VZ-3**~~：`live.vessel_zone_daily` 預聚合表 + refresh function + pg_cron + `public.get_vessel_zone_daily` RPC。
-  - 為何一定要預聚合：POC 實測即時聚合 2,385 ms / 2,587 ms，破專案 1 秒門檻。
-  - 日界用 **Asia/Taipei**；分類 join registry `effective_class` 保住「改字典免 backfill」性質；一律 `AND NOT is_excluded`。
-  - Acceptance：`/check-rpc` < 1s。
-- [ ] **VZ-4**：Monitor 卡 `VesselZoneCard`
+  cron 已實測：`refresh-vessel-zone-daily` 連續兩次 **succeeded**（0.13 / 0.08 秒）。
+  （`supabase_rpc_audit.md` 補登移到 VZ-11）
+- [x] **VZ-4**（2026-08-20 完成，PR #146）：Monitor 卡 `VesselZoneCard`
   - 🔴 **前端契約：`ships` 欄位絕對不可跨日 SUM**。它是每日 distinct 艘數，同一艘船跨多日會重複計數。
     實證（臺灣本島・中國海警・approach_6）：**RPC 逐日加總 = 45，實際不重複艘數 = 13**（虛胖 3.5 倍）。
     → 卡片只能「逐日使用」或「取 MAX」（例如「本月單日最高 M 艘」），
@@ -72,13 +76,6 @@
   ⚠️ 兩個已知瑕疵：(1) `needs_review` 目前只是報告輸出，**registry 沒有這個欄位**，
   要落地成可查詢欄位需另開 gis-platform migration；(2) `999999999` 因首碼 99 被路由進 AtoN 群組
   而非測試碼群組（已 `is_excluded` 故無害，但屬規則邊界瑕疵）。
-- [ ] ~~**VZ-8**~~（原始描述保留）：`scan_vessel_registry.py` 加壞 MMSI 守門規則。
-  - 基礎規則：「相異船名 >3 **且** 最大單一船名占比 <90%」（單看船名數會誤殺海監 66 這種真船）。
-  - ⚠️ **必須再加一條反誤判過濾：船名欄位被挪用回報狀態的樣式**。
-    2026-08-20 查證實例：`994161168`（台灣自主無人載具 MATANGI）82 個「相異船名」其實全是
-    `CT4-2073-XXXX%` 的電量回報；`412819678`（中國漁政）3 個名字是 `YU ZHENG81967` 加電量%後綴。
-    → 判準：把船名的**數字/百分比尾綴正規化後再算相異數**，否則會把真船判成假碼。
-  - 命中一律標 `needs_review`，**不自動排除**。
 - [ ] **VZ-9**：AIS 寫入端加格式閘門（`live.is_watch_candidate()` 或 sweep 前置驗證）。
   - 起因：垃圾廣播在 `source='sweep'` 與 `source='s3_backfill'` **兩條路徑都有** →
     是原始 AIS 資料流本來就有的雜訊，不是某支 collector 的 parser bug，
@@ -93,6 +90,10 @@
   - `994161168` = **MATANGI AUTONOMOUS，台灣籍自主無人載具**（MyShipTracking 有獨立紀錄）。
     目前 registry 標「軍艦」，語意不夠精確（它不是艦艇也不是固定 AtoN）。
   - 附帶未解：DB 記的 call_sign 是 `SDE03`，外部顯示 `VWMI24`，原因不明。
+
+- [ ] **VZ-11**：兩筆跨 repo 文件補登。
+  - `docs/supabase_rpc_audit.md` 未登錄 `get_vessel_zone_daily`。
+  - `taipei-gis-analytics/docs/data-catalog/environment/maritime_boundary.md` 仍寫「上游 Supabase 表：尚未建表」，已過時。
 
 ### VZ 已完成
 - [x] 2026-08-20 **第二批排除 8 筆**測試碼／格式違規 MMSI：`123456789`（MarineTraffic 官方標記
