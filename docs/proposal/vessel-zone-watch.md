@@ -31,7 +31,7 @@
 界線幾何**還沒進 Supabase**（查遍所有 schema，`maritime`/`territorial`/`baseline` 相關表 0 筆）。
 目前只存在兩個地方：
 - 上游 GeoJSON：`taipei-gis-analytics/data/processed/environment/maritime_boundary/maritime_boundaries.geojson`（4.1MB，38 features）
-- 前端 PMTiles：`public/base_map/maritime_boundary.pmtiles`（355KB，**不進 git**，VW-8 尚未上傳 S3）
+- 前端 PMTiles：`public/base_map/maritime_boundary.pmtiles`（363KB，**不進 git**，VW-8 尚未上傳 S3）
 
 → Phase 1 第一步就是把它灌進 DB。灌進去之後這份幾何同時服務「地圖顯示」與「空間判斷」兩用途。
 
@@ -347,7 +347,7 @@ approach 帶排除壞 mmsi 前後只差個位數（796/14 → 790/13）→ **這
 - 連帶影響：trigger 上線後每小時 sweep 從 ~1.5 秒變 **19.4 秒**（458 筆候選／101 筆淨新增）。
   可接受、不會與下次排程重疊，但非最終狀態。
 
-**修正方案（migration 355）**：`spatial.maritime_zones` 加 `line_geom_simplified`
+**修正方案（migration 363）**：`spatial.maritime_zones` 加 `line_geom_simplified`
 （`ST_SimplifyPreserveTopology(line_geom, 0.001)`，≈110m ≈ 0.06 浬），距離改用簡化線。
 `area_geom` 不動 → 內外判定（territorial／contiguous）完全不受影響，只有距離值走簡化線。
 
