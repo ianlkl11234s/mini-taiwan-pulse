@@ -21,6 +21,7 @@ export type MonitorWidgetId =
   | "liveWall"
   | "situationCards"
   | "plaBoard"
+  | "vesselZone"
   | "foodPriceBoard"
   | "hazardStrip"
   | "powerCard"
@@ -116,6 +117,13 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // h 9→12（2026-08-10）：多出的高度全部灌進四張卡的走勢圖（SPARK_H 34→52 + flex:1）。
   // y 48→56（同上，跟著 powerCard 下移）
   { i: "foodPriceBoard", x: 5, y: 56, w: 7, h: 12, fit: "content" },
+  // 特殊船舶接近帶（2026-08-20，VZ-4）：左欄收尾，與共機卡同寬 w5。
+  // ⚠️ y57→68 是刻意算過的：原本左欄止於 y57（airportPax）、右欄止於 y68
+  // （foodPriceBoard），兩欄不同止。本格補滿左欄到 y68 後**左右欄同時結束**，
+  // 頂層才維持「上方三欄 + 下方左右兩欄(5+7)」的兩段結構
+  // （monitorPacking.test.ts 有斷言；第一版放最底部全寬 w12 會多切出第三段）。
+  // 也刻意不用 w12：全寬約 1200px，柱狀圖會被拉到看不出形狀，w5 與 plaBoard 一致。
+  { i: "vesselZone", x: 0, y: 57, w: 5, h: 11, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */

@@ -40,6 +40,7 @@ import { PrisonCard, type PrisonDay } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
 import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
+import { VesselZoneCard } from "./VesselZoneCard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
 import {
   TyphoonCard, EarthquakeCard, RadiationCard, LightningCard,
@@ -712,6 +713,7 @@ export function MonitorPanel({
     liveWall: <LiveWall />,
     situationCards: <SituationCards health={health} />,
     plaBoard: <PlaBoard open={open} />,
+    vesselZone: <VesselZoneCard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
