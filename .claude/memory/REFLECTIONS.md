@@ -1541,3 +1541,54 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - Analytics `STATUS.md`：重寫成 PR #46、telecom data truth、驗證邊界與 deploy next step。
 - Pulse `REFLECTIONS.md`：追加本篇；Pulse `STATUS.md`：最後重寫成 PR #143、CI #355 與八個世界通訊圖層的 current truth。
+
+---
+
+## 2026-08-20 — VW-9 Vessel Zone Watch 資料層 + 兩批工作合流
+
+### What worked
+
+- **先做 POC 再定卡片主軸**：規劃階段假設主視覺是「進入鄰接區事件數」，唯讀 POC 一跑就推翻 ——
+  174 天只有 8 天真的進 24 浬、近 60 天有 59 天為 0，畫成趨勢圖是整片空白。
+  主軸改成「接近帶距離趨勢」，正好回到用戶原本要的東西（他問的就是「接近到 +6/+12 浬」）。
+  **一個唯讀查詢換掉一個會返工的設計。**
+- **對「數學上說不通」的結果起疑**：子代理回報「11 公尺容差造成 290 公尺誤差」「調緊容差誤差反增」，
+  兩者都違反直覺。自己下一個查詢（全頂點 dump + geography 距離）就定位了真因，
+  沒有接受它提議的兩層 LOD 架構 —— 那會為了一個調參數就能解的問題增加永久複雜度。
+- **驗收基準用獨立來源交叉比對**：POC 用 33/44 點簡化幾何、正式版用 segmentize 後 365 點，
+  兩套完全不同的幾何在 `contiguous` 兩格算出**同一個數字**（海事局 39/3、海警 1/1）。
+  這比任何單邊自證都有力。
+- **合併前先查責任歸屬**：master 紅燈時，先拿開工前的 commit 實測，確認 6 個 broken ref
+  是 08-18 就存在的，不是這次弄壞的。**沒有把既有問題認成自己的，也沒有拿它當藉口不修。**
+
+### Didn't work / drift
+
+- **三次「憑推算下規格」**：回補耗時（單 region 外推，錯 70 倍）、簡化容差（度數換算，選了個沒用的參數）、
+  第一輪根因（把表象當根因還寫了 pitfall）。共同模式是**用換算或外推當事實寫進派工單**，
+  而不是先花一個查詢量出來。詳見 `INCIDENTS.md` 同日條目。
+- **多輪回報「649 測試全過」其實是假綠**：worktree 解不到 sibling repo，catalog 守門測試靜默 skip。
+  輸出裡的 `1 skipped` 一直在那裡，我沒看。
+- **拿未驗證的推測當作阻擋用戶要求的理由**：用戶問「為何不切主樹分支」，我答「怕干擾平行 session」——
+  查了才知道那個工作區**整整 20 小時沒動靜**。查證只要 30 秒，我卻先停了他的 dev server 再繞遠路。
+- **批次改檔的腳本回報不可信**：regex 改壞兩個不相干 entry，腳本仍報「9/9 成功」。
+- **wrap-up 沒有主動觸發**：整場做完七個 PR、動了正式 DB，STATUS 還停在 08-19，
+  是用戶問「有跑 /wrap-up 嗎」才補。skill 定義是「不自動觸發」沒錯，但**跨 repo 大段落結束時應該主動問**。
+
+### Next-time rules
+
+1. **規格裡每個數字都要有一次實測支撐**，而且**實測用的度量必須與正式路徑一致**
+   （用平面距離驗收、卻用 geography 距離產出，等於沒驗）。外推前先問「這個樣本代表全體嗎」。
+2. **報告測試結果時，skipped 數字要跟 passed 一起講**；收尾必須在主樹（或 sibling 解得到的位置）跑一次。
+3. **批次修改結構化檔案後，逐項驗證目標的實際狀態**，並檢查 diff 有沒有碰到不該碰的區塊；
+   腳本的「成功」計數不是證據。
+4. **拿「可能有平行 session」當理由前先查**：`git log -1 --format=%cr`＋工作區 mtime，30 秒的事。
+5. **子代理反駁主 agent 的數字時要當真去查**，尤其當它指出的是方法論問題而非結論。
+6. **跨 repo 大段落結束時主動提議 wrap-up**，不等使用者想起來。
+
+### Memory output
+
+- `BACKLOG.md`：新增 CAT-1（9 個 layer 的 catalog lineage 補建）。
+- `DATA_SCOPE.md`：新增特殊船舶接近帶段（3 個表／1 個 RPC／分帶定義／實測數字／兩個資料契約）。
+- `INCIDENTS.md`：追加四個事件（估算錯 70 倍、容差診斷兩層錯、worktree 假綠、regex 誤改）。
+- `PRINCIPLES.md`：worktree 靜默 skip 跨 repo 測試（已隨 PR #150 merged）。
+- `STATUS.md`：重寫成 VW-9 資料層 current truth 與 7 個 PR 的 release 邊界。
