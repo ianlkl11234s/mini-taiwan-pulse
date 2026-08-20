@@ -1592,3 +1592,41 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `INCIDENTS.md`：追加四個事件（估算錯 70 倍、容差診斷兩層錯、worktree 假綠、regex 誤改）。
 - `PRINCIPLES.md`：worktree 靜默 skip 跨 repo 測試（已隨 PR #150 merged）。
 - `STATUS.md`：重寫成 VW-9 資料層 current truth 與 7 個 PR 的 release 邊界。
+
+---
+
+## 2026-08-20 — 動物福利 service points RPC + browser 驗收補證
+
+### What worked
+
+- **先按上游 RPC 契約逐支做 production read-only probe**：adoption、pressure、service
+  points 的 summary/current/history 都先確認 HTTP 200 與欄位形狀，再接前端；服務點以
+  `p_limit=5000` 跑出 5,000 + 2,020 兩頁，避免把第一頁誤當全國總量。
+- **history 維持 click 後 lazy load**：初載只抓 7,020 個 canonical service points，
+  點 popup 才以 dataset id + record key 查 history，沒有製造 7,020 次 N+1 請求。
+- **All Off 起手逐層驗收**：本機 frontend 連 production RPC，分別驗 adoption 點位與
+  daily history、pressure 縣市填色與 monthly history、service points 七類 filter／legend／
+  popup history；clean reload 的 console 無 error／warn。
+
+### Didn't work / drift
+
+- **TypeScript 與單元測試都沒抓到 Mapbox expression runtime 限制**：service-point radius
+  把 zoom expression 放在 multiplication 內，瀏覽器才報 illegal expression。修法是直接
+  scale interpolate stop outputs，並補 regression test。
+- **worktree 測試的 649 passed + 1 skipped 不能當主樹完整綠燈**：skip 是跨 repo sibling
+  catalog 守門在隔離 worktree 找不到上游；後續整合 session 已在主樹補跑 650 passed、
+  0 skipped。兩種證據必須分開陳述。
+
+### Next-time rules
+
+1. 分頁 RPC 的驗收要留下每頁 row count、offset 與 key overlap 證據；不能只驗「第一頁有資料」。
+2. Mapbox paint expression 即使有 unit test，仍要在真地圖 toggle；zoom expression 的合法位置
+   是 runtime contract，不由 TypeScript 保證。
+3. browser evidence 必寫明環境：本次是 local frontend + production RPC，不等於 production
+   frontend deploy／HTTP 驗收。
+
+### Memory output
+
+- `REFLECTIONS.md`：追加本篇。
+- `STATUS.md`：把動物福利 browser 從 unknown 改為第一手 local acceptance done，並保留
+  production deploy／HTTP 未執行的邊界。
