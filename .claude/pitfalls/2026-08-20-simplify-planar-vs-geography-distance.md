@@ -48,7 +48,7 @@ ST_Segmentize(ST_SimplifyPreserveTopology(line_geom, 0.0002), 0.05)
 
 頂點數 twmain 169 → 365（相對原始 6,503 仍壓縮 94.4%），其他三個 region 幾乎不變。
 
-- Migration：`gis-platform/migrations/357_*.sql`
+- Migration：`gis-platform/migrations/365_vessel_zone_segmentize.sql`
 - 連帶要處理：trigger 上線後已用壞線寫入的列必須 **re-NULL**，
   否則回補的 `WHERE zone IS NULL` 會靜默跳過它們，變成一條沒人記得的分歧路徑
 

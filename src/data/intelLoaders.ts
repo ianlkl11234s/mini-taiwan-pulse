@@ -786,7 +786,7 @@ export function fetchFoodPriceSummary(days = 180): Promise<FoodPriceSummary[]> {
 /**
  * 中國公務船距 24 浬鄰接區外界線的每日分帶統計。
  *
- * 對應 gis-platform migration 358（`live.vessel_zone_daily` 預聚合表 + 薄 RPC）。
+ * 對應 gis-platform migration 366（`live.vessel_zone_daily` 預聚合表 + 薄 RPC）。
  * 設計 SSOT：`docs/proposal/vessel-zone-watch.md`
  *
  * ⚠️ **`ships` 是「每日」distinct 艘數，絕對不可跨日 SUM** ——
