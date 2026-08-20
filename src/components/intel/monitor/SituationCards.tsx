@@ -66,8 +66,12 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         <Sparkline
           data={d.spark}
           color={d.color}
-          w={62}
-          h={20}
+          // 62→88（2026-08-20 卡片改成撐滿欄寬後）：單一疾病時整張卡有 350px 以上，
+          // 62px 的走勢圖會孤零零縮在右上角。88 是「三張並排的最窄情況」還放得下的上限
+          // ——最窄欄 200px（auto-fit 的 minmax 下限）扣掉左邊「↓-88% vs 去年同期」
+          // 約 90px 與 gap 8px，剩 102px。
+          w={88}
+          h={24}
           showTooltip
           labelAt={(i) => {
             const w = week - (d.spark.length - 1 - i);
