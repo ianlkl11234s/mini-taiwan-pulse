@@ -1344,3 +1344,24 @@ npm ci 對 lockfile/package.json 不同步是**直接報錯拒建**，不是警�
    註明「改回來是一行的事」——讓 owner 能一句話翻案，而不是日後考古為什麼沒照做
 
 2026-08-13 owner 拍板：**維持不預設開**（確認語意＝「打開網址什麼都沒點就已經開著」）。
+
+## worktree 驗證會靜默 skip 跨 repo 測試（⚠ P0，2026-08-20 教訓）
+
+`src/data/__tests__/upstreamRegistry.test.ts` 的
+「every verified datasetId exists in catalog」會解 `../../../../taipei-gis-analytics/docs/data-catalog`，
+**解不到就 `return` 靜默跳過**（測試名字就叫 `skips if sibling repo absent`）。
+
+`.claude/worktrees/<name>/` 底下的 worktree 相對路徑指向
+`mini-taiwan-pulse/.claude/taipei-gis-analytics`，**永遠解不到** → 該測試從不執行。
+
+於是「50 檔 649 測試全過」在 worktree 裡是**假綠**：真正跑到的是 649 減掉那一項。
+2026-08-20 兩批工作（vessel-zone + animal welfare）都在 worktree 驗證，
+合併回主樹才發現 10 個 broken catalog ref，其中 6 個從 08-18 就紅著沒人知道。
+
+**規則**：
+1. **收尾／發 PR 前必須在主樹（或 `GIS/` 同層的 worktree）跑一次完整測試**，
+   worktree 的綠燈不算數。
+2. 寫「若 X 不存在就 skip」的測試時，**skip 要能被看見** ——
+   至少 `console.warn`，最好讓 CI 在預期環境下 skip 時直接失敗。
+3. 報告測試結果時，**skipped 數字要跟 passed 一起講**。
+   本次多輪回報都只說「649 passed」，沒注意到那個 `1 skipped` 就是被跳過的守門測試。
