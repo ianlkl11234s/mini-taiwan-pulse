@@ -613,6 +613,40 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 
 ✅ 線上 collector 已於 2026-08-02 部署新版（data-collectors PR #41），資料自行修復、不需回填。
 
+## 特殊船舶接近帶 Vessel Zone（live + spatial schema，2026-08-20 資料層上線）
+
+VW-9 的展開。設計 SSOT：`docs/proposal/vessel-zone-watch.md`。gis-platform migration 361~366。
+
+| 表 / 欄位 | 現況（2026-08-20 第一手 query）|
+|---|---|
+| `spatial.maritime_zones` | **12 筆**（3 層 × 4 region）。內政部 98 年公告第一批領海基線／12 浬領海／24 浬鄰接區。`line_geom` 原始線、`area_geom` 封閉面（4 組線實測全閉合，可直接 `ST_MakePolygon`）、`line_geom_simplified` 供距離計算。⚠️ **不含金門／馬祖／烏坵／東引**（未公告基線），該海域不可判定 |
+| `live.vessel_watch_positions` 新增三欄 | `dist_24nm_nm real`（帶符號，負＝24 浬線內）／`zone text`（5 值）／`zone_region text`（4 值）。**627,686 筆 100% 回補完成**（零剩餘）。BEFORE INSERT trigger 自動維護新資料 —— 用 trigger 不改 sweep，因為寫入有 pg_cron sweep 與 `backfill_vessel_watch.py` 兩條路徑 |
+| `live.vessel_zone_daily` | **1,259 列**（175 天 × 10 分類）。per-day refresh function + pg_cron `refresh-vessel-zone-daily`（`20 * * * *`，實測 succeeded 0.13/0.08 秒）|
+| `public.get_vessel_zone_daily` | 薄 RPC。**即時聚合 4,551 ms → 1.16 ms**。⚠️ `p_regions` 預設只有「臺灣本島」 |
+
+### 分帶定義（以 24 浬線為基準的帶符號距離）
+
+`territorial`（12 浬內）／`contiguous`（12–24）／`approach_6`（線外 0–6）／`approach_12`（線外 6–12）／`outer`（>12，佔約 99%，不進聚合表）
+
+### 三類監看船實測（全期 174 天，四 region）
+
+| 分類 | contiguous | approach_6 | approach_12 |
+|---|---|---|---|
+| 中國海警 | 1 筆 / 1 艘 | 971 / 20 艘 | 3,018 / 26 艘 / 79 天 |
+| 中國海事局 | 39 / 3 艘 | 109 / 3 | 139 / 3 |
+| 中國科研船 | 63 / 6 艘 | 390 / 7 | 1,042 / 9 |
+
+`territorial` 全部為 0。按 region：臺灣本島海警 3,212 筆／24 艘；**釣魚台 1,632 筆**（海警 778/17 艘、科研船 848 筆但只有 1 艘＝長時間駐留）約當本島四成 —— 統計預設只算臺灣本島就是為了不讓它淹掉台灣訊號。
+
+### ⚠️ 兩個資料契約
+
+1. **`ships` 不可跨日 SUM**：每日 distinct 艘數，跨日加總會重複計數。實證：本島海警 approach_6 逐日加總 45、實際不重複 13（虛胖 3.5 倍）。只能逐日用或取 MAX
+2. **AIS 是觀測下限不是全量**：與共機的國防部官方通報性質不同。同一時刻岸基只看得到 20~33 艘
+
+### registry 清理（2026-08-20）
+
+排除 11 筆 AIS spoofing／測試碼 MMSI。`412000000` 有 43 個互異船名、最高隱含速度 1,947 節、12 筆定位落在陸地，Global Fishing Watch 專文點名。**`413555220`（海監 66）與 `994161168`（台灣自主無人載具 MATANGI）查證為真船，保留** —— 後者 82 個「船名」全是 `CT4-2073-XXXX%` 電量回報，單看船名數會誤殺。
+
 ## 殯葬 Funeral（純靜態檔，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
 
 **5 檔全進 git，合計 5.77 MB**（走 dist 供檔；`/data/funeral/` 保留同構以備日後大檔）。

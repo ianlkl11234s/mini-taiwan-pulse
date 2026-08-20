@@ -1879,3 +1879,59 @@ DOM 互動在本站一向不穩，見本檔既有的 @ref 錯位／playwright ha
 對策：label 縮到 ≤4 字（`全部`/`排除概略`/`僅概略點`），**`value` 與 `encode` 一字不動**
 （否則會改掉篩選語意與 overlayParams 編碼），筆數（98）搬去圖例。
 重測 36/54/54 px、高 17 px＝單行。規則進 PRINCIPLES；驗收順序進 PB-40。
+
+---
+
+## 2026-08-20 VW-9 資料層：三次「憑推算下規格」，以及一次靜默假綠
+
+### ① 回補耗時估錯 70 倍（推算 6 分鐘、實測 7.3 小時）
+
+派工單寫「回補約 6 分鐘、trigger 單筆 2.4ms」，是拿臺灣本島 24 浬線的 6,503 點外推的。
+實際上分類函數對**每一筆點都要算全部 4 個 region**，而東沙／釣魚台的線各有 14,177／14,137 個頂點
+（是本島的 2.2 倍）。實測 42ms/筆，全表 627,686 筆 → 7.3 小時。
+
+子代理依指示在第一批就停下回報，沒有硬跑到底 —— 這個「異常就停」的守門是對的。
+
+### ② 簡化容差：以為 0.001° ≈ 111m，實測偏離 386m
+
+改用簡化幾何換效能後，某案例距離差 0.157 浬。第一輪診斷寫成「容差參數 ≠ 最大偏離量」，
+還為此寫了一支 pitfall —— **那只是表象**。
+
+真因是 **geometry / geography 的詮釋落差**：Douglas-Peucker 在平面（經緯度）空間完全守約
+（最差頂點偏離 1.9m），但 `ST_Distance(::geography)` 把「在度空間是直線」的長線段**當測地線詮釋**，
+弦越長分歧越大。簡化的本質就是把短線段併成長弦，所以只有本島（簡化後有長弦）中招，
+另外三個 region 都只有 20m。**調緊容差救不了**（容差控制平面偏離，控制不了弦長）。
+
+修法 `ST_Segmentize(simplified, 0.05)`：405.4m → 19.9m，目標案例誤差 0.172 → 0.0008 浬。
+
+**第二個錯疊在第一個上**：我掃描候選容差時用的是 `ST_Distance(geom, geom)` 平面度距離
+再乘 111320 換算成公尺 —— 那等於把 DP 的保證重述一遍，於是「證明」了一個沒用的參數。
+是子代理指出「41m ≈ 0.0004×111km、20m ≈ 0.0002×111km，這兩格看起來是換算不是實測」，
+我回頭查自己的 SQL 才發現漏了 `::geography`。**它是對的。**
+
+完整記錄：`.claude/pitfalls/2026-08-20-simplify-planar-vs-geography-distance.md`
+
+### ③ worktree 驗證靜默 skip 跨 repo 測試 → 「649 測試全過」是假綠
+
+`upstreamRegistry.test.ts` 的 catalog 守門測試會解 `../../../../taipei-gis-analytics`，
+**解不到就 `return` 靜默跳過**（測試名就叫 `skips if sibling repo absent`）。
+`.claude/worktrees/<name>/` 底下的 worktree 永遠解不到 → 該測試從不執行。
+
+兩批工作（vessel-zone + animal welfare）都在 worktree 驗證、都回報「全過」，
+合併回主樹才發現 **10 個 broken catalog ref**，其中 **6 個從 08-18 就紅著沒人發現**。
+輸出裡一直有個 `1 skipped`，我多輪回報都只講 `649 passed`，沒看那個數字。
+
+規則已進 `PRINCIPLES.md`：收尾必須在主樹跑、skip 要能被看見、報告要連 skipped 一起講。
+
+### ④ regex 改壞兩個不相干的 layer entry
+
+批次改 9 個 layer 的 `upstream` 宣告時，regex 假設都是多行寫法。
+但 `anfrWirelessSites` / `osmCommunicationSites` 是**單行**，DOTALL + 非貪婪讓它繼續往後找，
+匹配到了 `convenienceStores` 與 `retailMarkets` 的 upstream 區塊並改掉。
+更糟的是「匹配失敗就 print ✗」的偵測沒觸發，腳本還回報「9/9 成功」。
+
+是**事後逐項驗證**（列出每個 key 的實際 status）抓到的，不是寫的時候發現的。
+復原後改用逐行解析，讓 entry 邊界自然限制住作用範圍。
+
+通則：**批次改結構化檔案時，「腳本回報成功」不是證據，要逐項驗證目標的實際狀態**，
+而且 diff 要檢查有沒有碰到不該碰的區塊。
