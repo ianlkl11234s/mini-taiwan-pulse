@@ -61,14 +61,31 @@ export function PrisonCard({ latest, series = [] }: Props) {
   // 停更時燈號一律轉灰：紅／綠是在講「今天超不超收」，資料三個月沒動還亮綠燈就是說謊
   const dotColor = isStale ? COLORS.textDim : isOver ? "#ef4444" : "#10b981";
 
-  /** 在監總數趨勢（舊→新）。RPC 給的是新到舊，畫圖要反過來 */
+  /** 序列裡所有可畫的點（舊→新）。RPC 給的是新到舊，畫圖要反過來 */
+  const allPoints: SparklinePoint[] = useMemo(
+    () =>
+      series
+        .filter((d) => d.total_inmates != null)
+        .map((d) => ({ t: Date.parse(`${d.observed_date}T00:00:00+08:00`) / 1000, v: Number(d.total_inmates) }))
+        .filter((p) => !Number.isNaN(p.t))
+        .sort((a, b) => a.t - b.t),
+    [series],
+  );
+
+  /**
+   * 視窗切片。
+   *
+   * ⚠️ 錨點是**序列最後一天**而不是 `Date.now()` —— 上游停供時（現在就是）
+   * 資料最新只到 98 天前，錨在今天的話「90D」會切出空集合，
+   * 明明資料庫有東西卻顯示不出來。這正是 RPC 端 migration 367 要修的同一個雷
+   * （`get_prison_population_window` 的視窗也錨在 now()），前端不該重犯一次。
+   */
   const trend: SparklinePoint[] = useMemo(() => {
-    const cutoff = Date.now() - windowDays * 86_400_000;
-    return series
-      .filter((d) => d.total_inmates != null && Date.parse(`${d.observed_date}T00:00:00+08:00`) >= cutoff)
-      .map((d) => ({ t: Date.parse(`${d.observed_date}T00:00:00+08:00`) / 1000, v: Number(d.total_inmates) }))
-      .sort((a, b) => a.t - b.t);
-  }, [series, windowDays]);
+    const last = allPoints[allPoints.length - 1];
+    if (!last) return [];
+    const cutoff = last.t - windowDays * 86_400;
+    return allPoints.filter((p) => p.t >= cutoff);
+  }, [allPoints, windowDays]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -152,7 +169,11 @@ export function PrisonCard({ latest, series = [] }: Props) {
           </>
         ) : (
           <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-            趨勢待回補：資料庫目前只有 {series.length || 1} 天
+            {/* 兩種「畫不出線」要分清楚：序列本身太短 vs 這個視窗內剛好沒點。
+                回補後前者會消失，後者不該再說「資料庫只有 N 天」（那是假話）。 */}
+            {allPoints.length > 1
+              ? `此視窗內無資料（最新 ${latest?.observed_date ?? "—"}）`
+              : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length || 1} 天`}
           </div>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: isStale ? "#fbbf24" : COLORS.textDim }}>
