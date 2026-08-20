@@ -351,7 +351,7 @@ export function usePlaActivityLayer(
     return () => {
       cancelAnimationFrame(rafRef.current);
       // 停止回放後不要留在半截狀態
-      if (map.getLayer(FILL_ID)) applyThresh(map, 0);
+      try { if (map.getLayer(FILL_ID)) applyThresh(map, 0); } catch { /* map 可能已銷毀 */ }
     };
   }, [visible, replay, trailDays, applyThresh, mapRef, mapTick]);
 

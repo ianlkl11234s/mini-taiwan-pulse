@@ -138,14 +138,17 @@ export function useTimeline({
     setPlaying(false);
   }, []);
 
+  // ⚠️ 副作用不可放進 useState updater：updater 由 React 在 **render 期間** 執行
+  // （basicStateReducer），此時 timeStore.setTime() 會經 scheduleThrottled 的 leading
+  // edge **同步**通知本 hook 下方的 useSyncExternalStore 訂閱者 → forceStoreRerender(App)
+  // → React「Cannot update a component (App) while rendering a different component (App)」。
+  // 改為在 handler 內用當前 selectedDate 算出 next（與上方 setSelectedDate 同模式）。
   const shiftDate = useCallback((days: number) => {
-    setSelectedDateRaw((prev) => {
-      const next = addDays(prev, days);
-      timeStore.setTime(dayStartUnix(next));
-      setPlaying(false);
-      return next;
-    });
-  }, []);
+    const next = addDays(selectedDate, days);
+    setSelectedDateRaw(next);
+    timeStore.setTime(dayStartUnix(next));
+    setPlaying(false);
+  }, [selectedDate]);
 
   // dataStartTime/dataEndTime 保留給未來日期 clamp 用，初始化不依賴它們
   void dataStartTime;

@@ -192,10 +192,12 @@ export function useDroneZonesLayer(
       if (retryTimer) clearInterval(retryTimer);
       if (bindTimer) clearInterval(bindTimer);
       map?.off("style.load", onStyleLoad);
-      if (map) {
-        setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
-        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
-      }
+      try {
+        if (map) {
+          setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
+          setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+        }
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity, mapTick]);
 }

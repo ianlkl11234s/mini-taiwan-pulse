@@ -396,9 +396,11 @@ export function useDisasterAlertLayer(
       cancelAnimationFrame(raf);
       const m = mapRef.current;
       if (!m) return;
-      for (const id of PULSE_IDS) {
-        if (m.getLayer(id)) m.setPaintProperty(id, "circle-stroke-opacity", 0);
-      }
+      try {
+        for (const id of PULSE_IDS) {
+          if (m.getLayer(id)) m.setPaintProperty(id, "circle-stroke-opacity", 0);
+        }
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [anyVisible, hasPulse, visKey, mapRef, mapTick]);
 

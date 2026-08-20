@@ -58,9 +58,11 @@ export function useOsmPowerLinesGlowLayer(
     map.on("style.load", tryMount);
     return () => {
       map.off("style.load", tryMount);
-      if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) {
-        map.removeLayer(OSM_POWER_LINES_GLOW_LAYER_ID);
-      }
+      try {
+        if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) {
+          map.removeLayer(OSM_POWER_LINES_GLOW_LAYER_ID);
+        }
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, mapTick]);
 

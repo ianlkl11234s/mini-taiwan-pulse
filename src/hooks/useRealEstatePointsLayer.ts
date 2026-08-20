@@ -44,7 +44,7 @@ export function useRealEstatePointsLayer(
     map.on("style.load", tryMount); // 切 basemap → style.load 後重掛
     return () => {
       map.off("style.load", tryMount);
-      if (map.getLayer(RE_POINTS_LAYER_ID)) map.removeLayer(RE_POINTS_LAYER_ID);
+      try { if (map.getLayer(RE_POINTS_LAYER_ID)) map.removeLayer(RE_POINTS_LAYER_ID); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, anyShown, mapTick]);
 

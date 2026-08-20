@@ -328,7 +328,7 @@ export function useFloodSensorLayer(
       if (pollTimer) clearInterval(pollTimer);
       unsubDate();
       unsubTime();
-      if (map.getLayer(LAYER_DOT)) setLayerVisibility(map, false);
+      try { if (map.getLayer(LAYER_DOT)) setLayerVisibility(map, false); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

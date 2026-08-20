@@ -248,10 +248,12 @@ export function useAviationAirspaceLayer(
       if (retryTimer) clearInterval(retryTimer);
       if (bindTimer) clearInterval(bindTimer);
       map?.off("style.load", onStyleLoad);
-      if (map) {
-        setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
-        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
-      }
+      try {
+        if (map) {
+          setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
+          setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+        }
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity, mapTick]);
 }

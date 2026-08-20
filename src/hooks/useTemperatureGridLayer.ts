@@ -198,7 +198,9 @@ export function useTemperatureGridLayer(
       map.off("sourcedata", onSourceData);
       map.off("style.load", onStyleLoad);
       unsubscribe();
-      if (map.getLayer(TEMPERATURE_GRID_FILL_LAYER_ID)) setTemperatureGridVisible(map, false);
+      try {
+        if (map.getLayer(TEMPERATURE_GRID_FILL_LAYER_ID)) setTemperatureGridVisible(map, false);
+      } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, data, visible, mapRetry, mapTick]);
 
