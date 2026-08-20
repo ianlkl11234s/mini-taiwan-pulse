@@ -125,6 +125,8 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "erCongestion", x: 0, y: 73, w: 12, h: 11, fit: "content" },
   { i: "situationOverview", x: 0, y: 84, w: 12, h: 4, fit: "content" },
   { i: "plaBoard", x: 0, y: 88, w: 12, h: 12, fit: "content" },
+  // 接在共機卡之後 —— 兩者同屬「軍事態勢」，一個看空域一個看海域
+  { i: "vesselZone", x: 0, y: 100, w: 12, h: 10, fit: "content" },
 ];
 
 /**

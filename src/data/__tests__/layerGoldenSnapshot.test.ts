@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 373 個 layer key", () => {
+  it("涵蓋全部 376 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -117,7 +117,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-18：+3 = factoryLocations / industrialParkBoundaries / regulatedFacilities。
     // 2026-08-18：+1 = industrialParkComparison。
     // 2026-08-18：+1 = internetExchangePoints（全球 IXP 點位）；+1 ANFR；+1 OSM 通訊候選點；+1 RIPE Atlas 量測節點；+2 Ookla 效能格網。
-    expect(keys.length).toBe(373);
+    // 2026-08-19：+1 = animalAdoption（每日待認養收容所摘要）；+1 = animalShelterPressure（官方月報縣市壓力）。
+    // 2026-08-20：+1 = animalWelfarePoints（7 類動物福利服務據點）。
+    expect(keys.length).toBe(376);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
