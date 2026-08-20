@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-08-19（backlog cleanup、A2/A5 handoff sync、G016 local cleanup）
+**最後更新**：2026-08-20（VW-9 Vessel Zone Watch 資料層 + 動物福利三層合流，7 個 PR merged）
 
 > 本檔只保留當前 release truth、blockers 與下一棒。歷史工作留在 git、
 > `docs/features/`、`BACKLOG.md` 與 `REFLECTIONS.md`。
@@ -9,77 +9,67 @@
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse** | `master` 已由 PR #143/#144 整合 Business Registry r2、wrap-up v2 與世界通訊圖層；本次只重整 backlog/memory，不改 runtime。 |
-| **taipei-gis-analytics** | PR #46/#47 已整合 Business Registry 與 telecom pipelines；PR #48 已 merge A2/A5 handoff sync（merge `a03d8ac`）。 |
-| **weather_change** | PR #1 已 merge legacy S3 client cleanup（merge `207e876`）；tracked config/code/docs 不再要求 AWS key。ignored `.env` 的舊 S3 keys 已在本機移除，但不屬於 Git artifact。 |
-| **AWS IAM** | 舊 key 仍可通過 STS；目前身份無 `iam:ListAccessKeys`／`iam:GetAccessKeyLastUsed` 權限，因此未撤銷、未輪替。需管理者處理 `gis-data-collectors` key ending `E7PK`。 |
-| **Production** | 本輪沒有 server pull、Zeabur deploy、正式站 HTTP／Range／404、CDN purge 或整合版 browser acceptance。 |
+| **mini-taiwan-pulse** | `master` 0/0 與 origin 同步。本輪 merge PR #146（Vessel Zone Monitor 卡）／#147（動物福利三層）／#148（hook cleanup + shiftDate 修復）／#149（backlog 修正）／#150（catalog_missing 修正）。主樹已切回 `master`。 |
+| **gis-platform** | `main` 0/0。PR #58 merged：migration **361~366**（原 353~358，因 main 的 animal_welfare 批次 PR #54~57 同時佔用該區段而順延，並同步更新 64 處交叉引用）。 |
+| **data-collectors** | `main` 0/0（PR #52 merged）。⚠️ **主樹停在 `feat/gov-events-snapshot`**，屬平行 session 狀態，未代為處理。 |
+| **正式 DB（Supabase）** | migration 361~366 已 apply；`vessel_watch_positions` 627,686 筆分帶回補 100%；registry 11 筆假 MMSI 標 `is_excluded`；新增 pg_cron `refresh-vessel-zone-daily`。 |
+| **Production（Zeabur / 正式站）** | 本輪**沒有** deploy、沒有正式站 HTTP probe、沒有 browser 驗收。 |
 
 ## Release truth matrix
 
-| release unit | build | contract/wire | assets | CI | merge | deploy | HTTP | browser |
-|---|---|---|---|---|---|---|---|---|
-| Business Registry r2 | done | done：含 A2/A5 handoff sync | upload/readback done：12 immutable assets | done：run #355 | done：code PR #143；docs PR #48 | blocked：未授權／未執行 | not run | not run：整合版 |
-| Telecom world 8 layers | done | done | done：Git static assets | done：run #355 | done：PR #143 | blocked：未執行 | not run | not run：整合版 |
-| G016 local credential cleanup | done：tracked cleanup | N/A | N/A | done：Python syntax check | done：weather PR #1 | N/A | N/A | N/A |
-| G016 AWS credential retirement | N/A | N/A | N/A | N/A | N/A | blocked：需 AWS administrator | N/A | N/A |
-| PeeringDB／CAIDA future layers | N/A | docs only | N/A | N/A | N/A | blocked：需再散布許可 | N/A | N/A |
+| release unit | build | contract/wire | readback | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|
+| Vessel Zone 資料層（mig 361~366） | N/A | done：RPC + RLS，anon 角色實測可讀 | done：對帳九格逐格一致；627,686 筆 100% | done：已 apply 正式 DB；cron 實測 succeeded（0.13/0.08s） | N/A | N/A |
+| Monitor `VesselZoneCard` | done：`tsc -b` + 650 測試 | done：三處接線，monitorPacking 過 | N/A | **not run** | **not run** | **not run** |
+| 動物福利三層 | done：`tsc -b` + 650 測試 | done：六處登記簿 + golden fixture | N/A | **not run** | **not run** | **unknown**：codex session 宣稱通過，本 session 無第一手證據 |
+| catalog_missing 修正（9 layer） | done | done | N/A | not run | not run | N/A：純宣告，無視覺變更 |
+| render-phase fix（PR #148） | done | done | N/A | not run | not run | **not run** |
 
-`assets done`、`CI done` 與 `merge done` 不代表 production deployed；沒有正式站
-HTTP 與 browser evidence 前，不使用「已上線」描述。
+⚠️ 對 dev server 6002 做的是 `curl` 抓 module + HTTP 200，那是 **dev server 探測，不是 browser 驗收**。
+所有前端 unit 的 browser 欄一律 `not run`。
 
 ## Current deliverables
 
-### Business Registry / Factory
+### Vessel Zone Watch（VW-9 展開，VZ-1~VZ-4、VZ-8 完成）
 
-- B1/A4：654,165 公司 detail points；overview 5,745 cells；184,944 manufacturing companies。
-- B2：150m／450m／1500m 資本額格網 89,754／26,834／5,745 cells。
-- B3：89 個 industry-mid options、21 縣市、9 個 filter dimensions；r2 filter contract 已進版控。
-- B4：11,121 共同地址 points／198,606 memberships；threshold 5–800，公開 `capital_sum`／`capital_median`。
-- A1：100,624 active factories；90,652 located，9,972 misses；overview 3,673 cells。
-- A2/A5/A6：215 industrial-park polygons、127,795 active cohort／80,732 located／47,063 misses；A3 保留 assertion-only 語意。
+- `spatial.maritime_zones` 12 筆（內政部 98 年公告，4 region × 3 層）
+- `vessel_watch_positions` 三欄 + BEFORE INSERT trigger，627,686 筆回補完成
+- `live.vessel_zone_daily` 1,259 列 + pg_cron；RPC **4,551 ms → 1.16 ms**
+- Monitor 卡片：主視覺為接近帶趨勢（POC 證實進 24 浬 174 天只有 8 天，畫不成趨勢圖）
+- registry 排除 11 筆假 MMSI；守門規則正樣本 15/15、負樣本 4/4
 
-### Communications — World
+實測（三類監看船、全期、四 region）：中國海警 approach_12 **3,018 筆／26 艘／79 天**、
+approach_6 971/20、contiguous 1/1；`territorial` 全為 0。
+釣魚台貢獻 1,632 筆約當本島四成，統計預設只算臺灣本島。
 
-- `submarineCables`：104 條 OSM/OpenInfraMap z2 generalized crowd 海纜。
-- `landingStations`：58 個 OSM 登陸站。
-- `internetExchangePoints`：892 個 PCH Active IXP。
-- `anfrWirelessSites`：8,000／33,761 個 ANFR 5G 3500 官方站點穩定概覽。
-- `osmCommunicationSites`：6 個區域、916 個 OSM 通訊候選點。
-- `ripeAtlasProbes`：3,000／13,534 個量測節點，147 國；座標已模糊化。
-- `ooklaMobilePerformance`／`ooklaFixedPerformance`：2026 Q1 的 751／893 個 z6 效能格網。
+### 動物福利三層（PR #147）
 
-各層維持獨立證據語意：官方站點、crowd geometry、IXP、measurement node、performance sample
-不得合併推論成基地臺、機房、coverage 或實際流量。
-
-## Completed in this closeout
-
-- `BR-1`：兩 repo 的 Business Registry commits 已在 `master` lineage；不再建立 topic-only PR，從 active backlog 關閉。
-- `BR-4`：Analytics A2/A5 handoff、index 與 layer plan 已同步；保留 coverage/semantic cautions，從 active backlog 關閉。
-- `AU-6`：單一 lockfile 決策已有 git history 證據，從 active backlog 移除。
-- `DS-06`：依 owner 判定為 AIS source-side issue，從 active backlog 移除。
-- `G016` local portion：`weather_change` 的 legacy S3 env references、unused boto3 imports/dependency 與舊 README flow 已清理；AWS revoke 仍未完成。
+adoption／shelter pressure／service points。service points 那層原本 21 個檔案停在工作區未 commit，
+本輪補 commit 並驗證（`tsc -b` + 650 測試 + 兩個登記簿守門）。實作與 browser 驗收由 codex session 完成。
 
 ## Verification
 
-- Business Registry/telecom integration：`npx tsc -b --pretty false` pass；Vitest 46 files、637 passed／1 skipped；GitHub Actions run #355 success。
-- 三個 closeout scopes：`git diff --check` pass。
-- `weather_change`：`python3 -m py_compile scripts/update_humidity.py scripts/update_pressure.py` pass；指定檔案的 legacy S3 key names、boto3/botocore/HAS_BOTO3 references 為 0。
-- Analytics A2/A5 targeted search：`upload/readback verified` 與 production deploy/HTTP/browser pending 語意一致；A2 的 288 為歷史規劃口徑，現行成品 215 features。
-- 本輪未做 merge 後正式站視覺驗收；browser 欄維持 not run。
+- **主樹（真環境）**：`npx tsc -b` 通過；Vitest **50 檔 650 passed / 0 failed / 0 skipped**。
+- ⚠️ 本輪前段多次回報的「649 測試全過」是在 worktree 跑的**假綠** ——
+  `upstreamRegistry` 的 catalog 守門測試解不到 sibling repo 會靜默 skip。詳見 `INCIDENTS.md` 同日條目。
+- DB 數字全部以第一手 query 驗證，未採信 commit message 或子代理回報。
 
 ## Current blockers
 
-1. **G016**：AWS 管理者需停用 key ending `E7PK`；停用後以舊 credential 執行 STS 必須失敗，才能關閉。
-2. **BR-2/BR-3**：12 個 Business Registry assets 仍需 production pull/deploy authority，之後才可做 HTTP/Range/404 與 browser QA。
-3. **保留工作**：`BL-25`、`AR-12/13`、`AR-14~16` 照 owner 決定繼續留在 active backlog。
-4. **PeeringDB／CAIDA**：未取得再散布許可前不建立公開圖層。
+1. **無技術阻塞**：VZ-5/VZ-6 可直接開工。
+2. **CAT-1**：9 個 layer 現為 `catalog_missing`，需在 taipei-gis-analytics 建 catalog entry 才能改回 `verified`
+   （其中 6 個通訊圖層自 08-18 起就是 broken，非本輪造成）。
+3. 既有 blockers（G016 AWS key、BR-2/BR-3 deploy authority、DS-01/02 upstream）狀態不變，見 `BACKLOG.md`。
 
 ## Next-session entry
 
-1. 由 AWS administrator 停用 `gis-data-collectors` key ending `E7PK`；舊 key 的 `sts:GetCallerIdentity` 必須失敗，才能從 backlog 移除 G016。
-2. 若取得 deploy 授權，從已合併的 `master` 部署；先確認 12 個 Business Registry immutable assets 可被 production pull。
-3. 正式站做 HTTP 200/206、404、cache probe，確認 telecom `/geo/` assets 與 Business Registry PMTiles 都可讀。
-4. Browser 從 All Off 起手，驗 Business Registry overview/detail/filters 與世界通訊 8 layers 的 popup、legend、attribution、dark-map 可讀性及 console/network 0 error。
+1. **repo/branch**：mini-taiwan-pulse `master`（0/0，乾淨）。
+2. **第一個可執行步驟**：VZ-5 —— `get_vessel_watch_current` 加 `dist_24nm_nm` / `zone` 回傳欄位。
+   ⚠️ 須 **DROP + CREATE**，Postgres 不允許 `CREATE OR REPLACE` 改 `RETURNS TABLE`。
+3. **驗收條件**：popup 顯示「距 24 浬線 X.X 浬（分帶）」、船點依 zone 描邊、
+   「只看接近船」toggle 可用；`tsc -b` + 全套測試**在主樹**跑過（worktree 綠燈不算數）。
+4. **未做的收尾**：`.gis-agent-system/journal/` 當月檔尚未 append 本輪；
+   跨 repo handoff（`taipei-gis-analytics/docs/handoff/`）未建，見 VZ-11。
 
-詳細 active work 與 acceptance criteria 見 `BACKLOG.md`。
+詳細 active work 與 acceptance criteria 見 `BACKLOG.md`；
+VZ-* 執行細節見 `docs/features/vessel-watch/backlog.md`。
