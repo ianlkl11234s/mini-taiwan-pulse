@@ -435,8 +435,10 @@ function LiveSlot({
 }
 
 export const LiveWall = memo(function LiveWall() {
-  // 預設 4 格：公視 + 中視 + 三立 + 民視
-  const [slots, setSlots] = useState(["pts", "ctv", "set", "ftv"]);
+  // 預設 4 格：公視 + 中視 + TVBS + 民視（2026-08-20 三立 set → tvbs：
+  // set 沒有 fallbackVideoId，@SETN 輪播單場直播會下播，resolver 沒解到就開天窗；
+  // tvbs 有常設 24hr 直播 + fallbackVideoId 墊底，預設格用它比較不會空）
+  const [slots, setSlots] = useState(["pts", "ctv", "tvbs", "ftv"]);
   const setSlot = (i: number) => (id: string) =>
     setSlots((prev) => prev.map((v, k) => (k === i ? id : v)));
   const ctsLive = slots.includes("cts");

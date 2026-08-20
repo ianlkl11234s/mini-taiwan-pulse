@@ -518,8 +518,8 @@ export default function App() {
   const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
-  // Monitor 呈現模式：dock（底部浮層，預設）/ wall（近全屏）/ split（右半邊，rail icon 入口）
-  const [monitorMode, setMonitorMode] = useState<MonitorMode>("dock");
+  // Monitor 呈現模式：split（右半邊，2026-08-20 起為預設）/ dock（底部浮層）/ wall（近全屏）
+  const [monitorMode, setMonitorMode] = useState<MonitorMode>("split");
   const splitActive = monitorOpen && monitorMode === "split";
   /**
    * 進入 split 時把鏡頭帶到「台灣整島落在左半可視區」的預設視角，並套用視野讓位。
@@ -1811,7 +1811,9 @@ export default function App() {
                 if (!monitorOpen) {
                   setIntelOpen(false);
                   satelliteConsoleStore.setOpen(false);
-                  setMonitorMode("dock");
+                  // 2026-08-20 起開啟一律進 split（原本是 dock）——
+                  // 會連帶觸發 MONITOR_SPLIT_CAMERA 的自動定位，即為預期行為
+                  setMonitorMode("split");
                 }
                 setMonitorOpen((v) => !v);
               }}

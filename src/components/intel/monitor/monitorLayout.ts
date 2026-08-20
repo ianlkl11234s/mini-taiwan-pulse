@@ -59,6 +59,41 @@ export interface MonitorGridItem {
   fit?: "content";
 }
 
+/**
+ * 監看模式內容區的整體縮放倍率（2026-08-20 用戶回報「字太小看不清楚」）。
+ *
+ * 為什麼用 CSS `zoom` 而不是逐處調 fontSize：
+ * 卡片裡有 ~200 處 fontSize（8.5 / 9 / 9.5 px 的字面值 + FONT_SIZE token 混用），
+ * 只放大字級不動 padding／固定高，會撐爆那些量過才定的固定高格子
+ * （例如 monitorSplitLayout.ts 註記的 alertBoard「h5 會讓六宮格數字溢出卡片外」）。
+ * `zoom` 是等比縮放整個內容座標系 —— 字、間距、圖表、卡片一起放大，
+ * 相對排版完全不變，只是同樣的欄寬裡塞的邏輯 px 變少。
+ *
+ * 套用位置：`MonitorPanel.tsx` 裡 `gridRef` **內層**的包裹層。
+ * 刻意不套在 gridRef 本身（量測 `isStacked` 的元素要維持實體 px），
+ * 也不套 header（header 有 1440 寬就會溢出的既有限制，見該處註解）。
+ *
+ * 調整建議：1.0 = 原樣；> 1.25 在 split（實寬 ~835px）會讓兩欄各自窄到
+ * 邏輯 330px 以下，趨勢圖開始看不出形狀。
+ */
+export const MONITOR_CONTENT_ZOOM = 1.15;
+
+/**
+ * 「密集卡」的額外縮放（疊在 MONITOR_CONTENT_ZOOM 之上）。
+ *
+ * 共機戰情板（PlaBoard）與特殊船舶接近帶（VesselZoneCard）是全站字級最小的兩張卡：
+ * 內文大量用 8 / 8.5 / 9 / 9.5 px 的**字面值**，而其他卡走 FONT_SIZE token（11~12px）。
+ * 2026-08-20 用戶點名這兩張「字都太小」——只套全域 1.15 後仍只有 9.2~11.5px。
+ *
+ * 用巢狀 zoom 而不是逐處改 fontSize：這兩張卡有大量「固定寬標籤欄 + 右對齊數字」
+ * （PlaBoard 的 width:62/66/54/44、VesselZoneCard 的 width:52/46），
+ * 只放大字不放大欄寬會把文字擠出欄外。zoom 連欄寬一起放大，比例完全不變。
+ *
+ * 實際倍率 = 1.15 × 1.12 ≈ 1.29 → 8.5px 讀起來約 11px、12px 約 15px，
+ * 與其他卡的 token 字級對齊。
+ */
+export const MONITOR_DENSE_CARD_ZOOM = 1.12;
+
 /** 欄數（沙盒 cols） */
 export const MONITOR_GRID_COLS = 12;
 /** 單列高度 px（沙盒 rowHeight） */

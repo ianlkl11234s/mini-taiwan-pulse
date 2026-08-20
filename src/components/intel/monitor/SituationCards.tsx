@@ -113,7 +113,10 @@ export function SituationCards({ health }: Props) {
           CDC 截至 ISO 第 W{health.week} 週
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+      {/* auto-fit + minmax：只有一種疾病時（目前 RPC 只回登革熱）整張卡撐滿欄寬，
+          不再固定切三格讓單卡縮成 1/3；三種都回來時窄欄自動折成兩排，
+          每格仍有 200px 以上讀得到 sparkline（固定 3 格在 split 的 w6 只剩 ~130px）。 */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
         {health.diseases.map((d) => (
           <DiseaseCard key={d.id} d={d} week={health.week} />
         ))}
