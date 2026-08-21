@@ -449,6 +449,15 @@ Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（
 - `get_airport_hourly_pax(airport, hours)` — border_airport_snapshot 按小時 in/out/transit pax
 - `get_a1_accidents_by_bbox(bbox, days=30)` — realtime.traffic_accidents_a1 DISTINCT ON 每事故一筆
 - `get_prison_population_window(days=30)` — 全國每日總計時序（薄 SELECT wrapper）
+  - **2026-08-21 回補**：`live.prison_population_daily` 從 **1 筆 → 2,501 筆**
+    （2019-04-18 ~ 2026-05-15，來源 `prisonmuseum.moj.gov.tw/jqw_pub/mjac.zip` 歷史打包檔）。
+    `p_days: 365` 視窗現回 214 筆，Monitor PrisonCard 的趨勢圖才有東西可畫。
+  - ⚠️ **上游已死**：`today.xml` 仍回 HTTP 200，但內容停在 `115/05/15`，
+    HTTP `Last-Modified` 顯示 2026-05-16 之後沒被重寫過一個 byte。collector 每天照跑、
+    只是一直 upsert 同一天。**沒有日更的替代源**（rjsd 矯正統計是月粒度且口徑不同）。
+    此源 2026-02-02~03-26 曾斷 53 天後自己復活，故不判死刑。
+  - ⚠️ RPC 視窗仍錨在 `now()`，上游不復活的話卡片會逐日縮水、約 2027-05 整張變空 →
+    待拍板的 migration 369 改錨 `max(observed_date)`（見 BACKLOG `PR-1`）。
 
 ### 3 個 police_justice PMTiles（S3 `deploy-assets/police_justice/`）
 
