@@ -97,6 +97,25 @@
 | G024 | P3 | verifying | Close/archive legacy tourism-canopy deployment record after checking its claimed production evidence. | Confirm asset probe and feature handoff; it is not an active G012. | Close with evidence or create a new release-gate ID. Renamed from legacy duplicate `G012`. |
 | Legacy-ID-migration | P3 | verifying | Keep historic links intelligible while restoring global ID uniqueness. | Update future references: `G011(ship LOD)→G022`; `G011(wall pause)→G023`; `G012(tourism/canopy)→G024`; `G012(alertSeries)→G025`; `G020→G017`; mountain-safety `MS-1~3→MTS-1~3`; `DS-05→PA-1` after scope verification. | Targeted search has no ambiguous active IDs; old IDs remain only as migration notes. |
 
+## Weekly audit findings
+
+> Appended by the `weekly-audit` skill. One `WA-*` ID per finding that needs cross-week tracking;
+> transient or already-fixed findings stay in the weekly report only.
+> Report: [2026-W34](../../docs/audit/weekly/2026-W34.md)
+
+| ID | Priority | State | Outcome | Next action / blocker | Acceptance / canonical link |
+|---|---|---|---|---|---|
+| WA-1 | P1 | ready | Remove the dangling `fallbackUrl` on the two owner-gated agriculture layers. | `livestockFarms` / `slaughterhouses` still declare `./agriculture/*.geojson` fallbacks, but those files are deliberately excluded from the CDN by `scripts/deploy/pull-deploy-assets.sh:59-64`; an RPC permission failure falls back to a 404. | Both layers either drop `fallbackUrl` or point at `_empty.geojson`; `probe_layers` reports 0 unexpected 404s. |
+| WA-2 | P1 | ready | Explain why `live.traffic_accidents_a1` has never been written since its collector went live. | Collector enabled 2026-07-03; latest row is 2026-06-27 — earlier than the enable date, so "no new incidents" does not explain it. Check the NPA upstream feed and whether the collector has ever succeeded. | Either fresh rows appear, or the upstream break is documented and the table is marked event-driven-idle with evidence. |
+| WA-3 | P2 | ready | Give the large `live` time-series tables an explicit retention policy. | 63 tables over 100MB have no cleanup/prune job naming them; `live` is 33GB = 89% of the database. Audit which are genuinely uncovered vs handled by a generic partition cleaner. | Every >100MB `live` table is either covered by a cleanup job or explicitly recorded as keep-forever with a reason. |
+| WA-4 | P3 | ready | Retire the orphan `public` RPCs. | 86 candidates after excluding extension-owned, cron-referenced and frontend-called functions. Residual false positives: RLS policy internals and SECURITY DEFINER call chains. | Batches of ~20 reviewed per week; each function is dropped or documented as internally called. |
+| WA-5 | P2 | ready | Decide what to do with 41 orphan assets (809 MB on disk, unreferenced by the manifest). | Largest is `base_map/taiwan_basemap.pmtiles` (283 MB). Confirm each is genuinely unused before deleting anything. | Each asset is either referenced, deleted, or recorded as an intentional standby copy. |
+| WA-6 | P3 | blocked | Archive the stale top-level docs. | 9 files are unlinked from any index and older than 60 days (oldest `NEWS_MAP_PLAN.md`, 167 days). Moving docs is outside the audit auto-fix whitelist. | Needs an explicit decision on where they go; not to be moved automatically. |
+| WA-7 | P2 | ready | Push or retire the two long-idle local branches. | `feat/monitor-widgets-batch1` (44 days) and `feat/monitor-grid-layout` (43 days) have no upstream; single-machine loss risk. 17 unpushed branches in total. | Both branches are pushed or deleted with a recorded reason. |
+| WA-8 | P3 | ready | Reassess the 19 tracked files over 5MB. | Largest is `public/forestry/forest_reserve.geojson` (44.6 MB). Other large assets already moved to S3; these did not. | Each file is either moved to S3 + gitignored, or recorded as intentionally version-controlled. |
+| WA-9 | P3 | ready | Find out why two sampled assets return `BYPASS` instead of `HIT`. | `geo/cctv.geojson` and `welfare/nursing_homes_national.geojson`; the other 6 of 8 samples are `HIT`. | Both return `HIT`, or the bypass is explained by an intentional cache rule. |
+| WA-10 | P2 | waiting_external | Produce the first trustworthy weekly slow-query ranking. | `pg_stat_statements` was reset on 2026-08-21 during audit development, so this week's numbers cover a partial window only. Next week's run diffs against this week's raw snapshot. | A ranking derived from snapshot deltas, each entry annotated with its caller (frontend / cron / upstream repo). |
+
 ## Feature backlog index
 
 Feature detail, UX matrices, popup fields, implementation subtasks and feature-level verification live in the linked backlog. This index prevents them from being copied into the core queue. `_TEMPLATE` is intentionally excluded.
