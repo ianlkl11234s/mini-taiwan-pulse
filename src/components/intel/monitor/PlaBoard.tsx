@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
+import { MONITOR_DENSE_CARD_ZOOM } from "./monitorLayout";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import {
   fetchPlaSeverityDaily, fetchPlaSituationSummary, fetchPlaKindSummary,
@@ -53,7 +54,9 @@ export function PlaBoard({ open }: Props) {
   const latest = days.length ? days[days.length - 1]! : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
+    // zoom：本板內文大量是 8.5~10px 字面值，比其他卡的 FONT_SIZE token 小一截，
+    // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
+    <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
       <SectionLabel color="#ff6b6b">共機擾台 · PLA SITUATION BOARD</SectionLabel>
       <div
         style={{

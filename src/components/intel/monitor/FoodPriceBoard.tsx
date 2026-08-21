@@ -59,6 +59,30 @@ export function FoodPriceBoard({ open }: Props) {
 
   const totalAlerts = summary.reduce((s, x) => s + x.highAlertDays + x.lowAlertDays, 0);
 
+  /**
+   * 資料截止日與落後天數。
+   *
+   * ⚠️ 為什麼非標不可（2026-08-20 用戶回報「好像沒在更新」的成因）：
+   * 指數表 `analytics.food_price_index_daily` 的寫入者是 taipei-gis-analytics 的
+   * **手動本機腳本**，沒有任何排程；而 RPC 的視窗錨在 `max(trade_date)` 而不是今天，
+   * 所以資料凍住時圖上**仍然是完整 180 點**，看起來只是「平穩」而不是「停更」。
+   * 原本 footer 又寫死「每日 T+1」，等於主動宣稱資料是新的 —— 必須改成標出實際截止日。
+   * （原始價表 `live.food_price_daily` 是新鮮的，停的只有指數這一段。）
+   */
+  const latestDate = useMemo(
+    () => summary.reduce<string | null>(
+      (m, x) => (x.latestDate && (!m || x.latestDate > m) ? x.latestDate : m), null,
+    ),
+    [summary],
+  );
+  const staleDays = useMemo(() => {
+    if (!latestDate) return null;
+    const t = Date.parse(`${latestDate}T00:00:00+08:00`);
+    return Number.isNaN(t) ? null : Math.floor((Date.now() - t) / 86_400_000);
+  }, [latestDate]);
+  // T+1 來源、連假可能連休數日 → 3 天內不算異常
+  const isStale = staleDays != null && staleDays > 3;
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <SectionLabel color="#5fbf6d">食品價格 · FOOD PRICE MONITOR</SectionLabel>
@@ -88,7 +112,13 @@ export function FoodPriceBoard({ open }: Props) {
             </div>
             <Legend />
             <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
-              農業部批發拍賣成交價 · 每日 T+1 · 基期 2024-2025 = 100 ·
+              {latestDate && (
+                <span style={{ color: isStale ? "#fbbf24" : COLORS.textMuted, fontWeight: isStale ? 700 : 400 }}>
+                  {isStale ? `⚠ 資料截至 ${latestDate}（已 ${staleDays} 天未更新）` : `資料截至 ${latestDate}`}
+                  {" · "}
+                </span>
+              )}
+              農業部批發拍賣成交價 · 基期 2024-2025 = 100 ·
               近 {WINDOW} 天{totalAlerts > 0 ? ` · 期間 ${totalAlerts} 個異常日` : " · 期間無異常日"} ·
               ⚠️ 肉價不含牛（台灣無牛肉交易行情）
             </div>

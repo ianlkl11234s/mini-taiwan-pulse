@@ -66,8 +66,12 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         <Sparkline
           data={d.spark}
           color={d.color}
-          w={62}
-          h={20}
+          // 62→88（2026-08-20 卡片改成撐滿欄寬後）：單一疾病時整張卡有 350px 以上，
+          // 62px 的走勢圖會孤零零縮在右上角。88 是「三張並排的最窄情況」還放得下的上限
+          // ——最窄欄 200px（auto-fit 的 minmax 下限）扣掉左邊「↓-88% vs 去年同期」
+          // 約 90px 與 gap 8px，剩 102px。
+          w={88}
+          h={24}
           showTooltip
           labelAt={(i) => {
             const w = week - (d.spark.length - 1 - i);
@@ -113,7 +117,10 @@ export function SituationCards({ health }: Props) {
           CDC 截至 ISO 第 W{health.week} 週
         </span>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
+      {/* auto-fit + minmax：只有一種疾病時（目前 RPC 只回登革熱）整張卡撐滿欄寬，
+          不再固定切三格讓單卡縮成 1/3；三種都回來時窄欄自動折成兩排，
+          每格仍有 200px 以上讀得到 sparkline（固定 3 格在 split 的 w6 只剩 ~130px）。 */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 10 }}>
         {health.diseases.map((d) => (
           <DiseaseCard key={d.id} d={d} week={health.week} />
         ))}

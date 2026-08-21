@@ -198,10 +198,13 @@ function GroupCard({
     >
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
         <IntelIcon d={MICON[def.iconKey]!} size={11} color={def.color} />
+        {/* nowrap：六宮格是固定高（monitorSplitLayout.ts 註記 h5 就會讓數字溢出卡外），
+            中文組名一旦折成兩行就會把數字推出格子。split 的窄欄 + 內容縮放後
+            「民生」實測會折行，兩個標籤都鎖不折 */}
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
-            color: COLORS.textDefault,
+            color: COLORS.textDefault, whiteSpace: "nowrap",
           }}
         >
           {def.label}
@@ -210,7 +213,7 @@ function GroupCard({
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
-            letterSpacing: "0.5px",
+            letterSpacing: "0.5px", whiteSpace: "nowrap",
           }}
         >
           {def.en}

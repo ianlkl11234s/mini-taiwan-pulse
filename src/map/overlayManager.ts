@@ -180,7 +180,14 @@ export function addOverlay(
       map.addSource(config.sourceId, {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,
-        attribution: config.attribution,
+        // ⚠️ 只在有值時才帶這個鍵，不可寫成 `attribution: config.attribution`：
+        // Mapbox 的 style 驗證對 `attribution: undefined` 會直接判 fail
+        // （`sources.<id>.attribution: string expected, undefined found`），
+        // **整個 source 不會被建立**，接著該 overlay 的每一層都會噴
+        // `layers.<id>: source "<id>" not found`。
+        // 實測（2026-08-22，`map.addSource` 探針）：帶 undefined → NOT added；
+        // 不帶這個鍵 → added。registry 裡絕大多數 overlay 都沒有 attribution。
+        ...(config.attribution ? { attribution: config.attribution } : {}),
         ...geojsonSourceOptions(config),
       });
     }

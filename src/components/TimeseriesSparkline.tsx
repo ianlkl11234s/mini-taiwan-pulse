@@ -233,12 +233,17 @@ export function TimeseriesSparkline({
     const extraByT = extraSeries ? new Map(extraSeries.data.map((d) => [d.t, d.v])) : undefined;
 
     // X 軸時間 tick：≤48h 取整點（local）、步距 1/2/4/8h；>48h 取日界 00:00、
-    // 步距 1/2/4/7 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
+    // 步距 1/2/4/7/14/30/60 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
     const rangeH = (tMax - tMin) / 3600;
     const timeTicks: { x: number; label: string }[] = [];
     if (rangeH > 48) {
       const rangeD = rangeH / 24;
-      const stepD = rangeD <= 5 ? 1 : rangeD <= 16 ? 2 : rangeD <= 32 ? 4 : 7;
+      // ≤70 天維持原本的 1/2/4/7 階梯（既有圖表行為不變）。
+      // 70 天以上是 2026-08-21 補的：在監卡的 1Y 視窗有 268 天跨度，
+      // 停在 7 天步距會生出 38 個 M/D 標籤，在 ~350px 寬的格子裡疊成一片字牆。
+      const stepD =
+        rangeD <= 5 ? 1 : rangeD <= 16 ? 2 : rangeD <= 32 ? 4 : rangeD <= 70 ? 7
+        : rangeD <= 150 ? 14 : rangeD <= 330 ? 30 : 60;
       const cursor = new Date(tMin * 1000);
       cursor.setHours(0, 0, 0, 0);
       if (cursor.getTime() < tMin * 1000) cursor.setDate(cursor.getDate() + 1);
