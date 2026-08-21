@@ -1630,3 +1630,76 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `REFLECTIONS.md`：追加本篇。
 - `STATUS.md`：把動物福利 browser 從 unknown 改為第一手 local acceptance done，並保留
   production deploy／HTTP 未執行的邊界。
+
+## 2026-08-21/22 — Monitor 微調過夜批次 → 拍板執行 → 兩個回頭撿到的 bug
+
+一個 session 走完三段：過夜調查 9 項 → 用戶拍板後執行三件資料面修正 → 發 PR merge →
+用戶回報新問題再回頭修。7 個 PR merged、4 項正式 DB 變更。
+
+### 做對的
+
+1. **把「調查完成」和「動手改」分開，是這次最值錢的決定。**
+   過夜那段刻意不執行任何 DB 變更，只把根因查清楚、修法備好、寫進交接包。
+   早上用戶看得懂、能一句話拍板，而不是醒來面對一堆已經改掉的東西。
+
+2. **不修 Bug A，因為它會讓 Bug B 更難看。**
+   公衛的 id 對照是一行就能修的 bug，但去重前修它會讓兩張帶著假「−91% 大跌」的卡
+   浮上檯面。**「能修」不等於「該現在修」** —— 修復順序本身是要判斷的。
+
+3. **量，不要推論。**
+   「機場卡為什麼比較窄」我一開始想從 grid 算式推，推不出來就去瀏覽器量：
+   外層格子都是正確的 413px，卡片卻只有 261/296/267 —— 一量就知道是 flex row 的
+   shrink-to-fit，不是 grid 分配。同樣地 attribution 那個 bug 也是用 `addSource` 探針
+   兩行確認，而不是讀 Mapbox 原始碼推。
+
+4. **修資料前先確認寫入端已經停止產生壞資料。**
+   災害示警修完 95 筆又冒出 17 筆，因為 collector 還在跑舊碼。這是跟 collector 賽跑。
+   正確順序是：修 code → 部署 → 確認新版在跑 → 才修既有資料。
+
+5. **交接包從 scratchpad 搬進 repo。** 三個調查 agent 的產出（SQL / patch / 提案）
+   原本都在 session 暫存區，會消失。搬進 `docs/proposal/` 才活得下來。
+
+### 做錯 / 差點做錯的
+
+1. **我自己寫的功能裡複製了同一個 bug。**
+   在監卡的趨勢視窗我寫成錨在 `Date.now()` —— 而這整件事的起因之一正是
+   「RPC 視窗錨在 now() 導致資料停更時卡片會縮水」。是 advisor 指出來的，不是我自己發現。
+   **剛在別處診斷出來的 bug 模式，要回頭檢查自己的新程式碼有沒有同一個。**
+
+2. **`gh pr merge --delete-branch` 把我自己裝的排程弄斷。**
+   它會把工作目錄切回預設分支；而 taipei-gis-analytics 的本地 master 落後 origin，
+   結果剛 merge 進去的 `run_daily.sh` 從工作區消失，launchd 指向的檔案不存在。
+   **裝了指向工作區檔案的排程之後，任何會切分支的操作都要重新確認那個檔還在。**
+
+3. **migration 編號被搶兩次**（367 → 368 → 369）。第一次是公衛先 apply 而讓號，
+   第二次是平行 session 在本地 main 用掉 368。這個 repo 已經有 358→366 的重編前例。
+   **取號前要重查當前最大編號，而且「備好但未 apply」的檔案編號隨時可能失效。**
+
+4. **commit message 差點寫進沒跑過的測試結果。**
+   data-collectors 那次 `venv/bin/python3` 路徑不存在，`||` fallback 的輸出被吃掉，
+   我已經 commit 了訊息裡寫「pytest 全綠」。發現後補跑確認是 184 passed。
+   **`(A || B) && commit` 這種寫法會讓失敗被靜默吞掉。**
+
+### 平行 session
+
+這個 session 全程與另一個 session 共用工作區。踩到的三件事都寫在上面，
+共同教訓是：**共用工作區裡，「我剛才確認過的狀態」隨時可能不成立**。
+最明顯的是用戶問「6002 為什麼看不到改動」—— 因為工作目錄被切回 master 了，不是我切的。
+
+處理原則沿用既有鐵則並驗證有效：不代為 commit 別人的未提交work、不 ff pull 別人的未推 commit、
+還原檔案時用 `git checkout origin/<branch> -- <路徑>` 精確到檔，不碰別人的髒檔。
+
+### 沒做的事（刻意）
+
+- 沒有加防呆測試（registry 契約測試 / 寫入前拒收西里爾字元）。兩個 PR 描述裡各留了建議，
+  但那是新工作，不是本輪修復的一部分。
+- 沒有正式站 browser 驗收。所有 browser 證據都是 local dev（3721 / 6002）。
+- 沒有代為處理兩個 repo 的平行 session 未推 commit。
+
+### Memory output
+
+- `INCIDENTS.md`：追加三個事件。
+- `PRINCIPLES.md`：追加兩條（style spec 禁塞 undefined、HTTP 抓 XML 一律用 bytes）。
+- `BACKLOG.md`：加 5 條待辦。
+- `DATA_SCOPE.md`：在監表 1 → 2,501 筆、上游已死。
+- `STATUS.md`：rewrite。
