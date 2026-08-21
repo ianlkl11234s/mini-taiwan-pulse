@@ -314,6 +314,273 @@ async function main() {
         }
       }
 
+      // ── 擴充：6 類新增數字對帳（主題數／主題表逐列／上游 dataset／Loader／collector／nginx location／Three.js Scene）──
+      const themedEntries = Object.entries(LAYER_MANIFEST) as [
+        string,
+        { section: { theme: string; group: string } | null },
+      ][];
+      const themeCounts = new Map<string, number>();
+      for (const [, v] of themedEntries) {
+        if (v.section === null) continue;
+        themeCounts.set(v.section.theme, (themeCounts.get(v.section.theme) ?? 0) + 1);
+      }
+      const actualThemeCount = themeCounts.size;
+
+      // 1) 主題數（開場句 + <summary>完整 N 主題清單</summary> 兩處）
+      {
+        const themeCountRegexes = [
+          { where: "README 開場句（**N 個主題**）", regex: /\*\*(\d+)\s*個主題/ },
+          { where: "README <summary>完整 N 主題清單</summary>", regex: /<summary>完整\s*(\d+)\s*主題清單<\/summary>/ },
+        ];
+        const claims: { where: string; value: number }[] = [];
+        for (const r of themeCountRegexes) {
+          const m = readme.match(r.regex);
+          if (m && m[1]) claims.push({ where: r.where, value: Number(m[1]) });
+          else errors.push({ step: "D1", message: `正則失配，抓不到「主題數」（${r.where}），需人工核對正則是否被改寫` });
+        }
+        (d1Detail.claimed as Record<string, unknown>).themeCount = claims;
+        (d1Detail.actual as Record<string, unknown>).themeCount = actualThemeCount;
+        if (claims.length > 0) {
+          const allMatch = claims.every((c) => c.value === actualThemeCount);
+          const evidence = claims.map((c) => `${c.where}＝${c.value}`).join("；") + `；實際 ${actualThemeCount} 個主題`;
+          findings.push({
+            id: "D1",
+            level: allMatch ? "green" : "yellow",
+            title: allMatch ? "README「主題數」與現況一致" : "README「主題數」已過期",
+            detail: allMatch
+              ? `${claims[0]!.value} = ${actualThemeCount}`
+              : `README 兩處敘述 vs 實際 ${actualThemeCount} 個主題（LAYER_MANIFEST section.theme unique 數）`,
+            evidence,
+          });
+        }
+      }
+
+      // 2) 主題表逐列比對（完整清單 <details> 區塊，非前十大簡表）
+      {
+        const blockMatch = readme.match(/<summary>完整[^<]*主題清單<\/summary>([\s\S]*?)<\/details>/);
+        if (!blockMatch) {
+          errors.push({ step: "D1", message: "正則失配，抓不到「完整主題清單」<details> 區塊，需人工核對格式是否被改寫" });
+        } else {
+          const rowRe = /^\|\s*([^|]+?)\s*\|\s*(\d+)\s*\|\s*$/gm;
+          const readmeThemeRows = [...blockMatch[1].matchAll(rowRe)].map((m) => ({ theme: m[1]!, count: Number(m[2]) }));
+          const readmeThemeMap = new Map(readmeThemeRows.map((r) => [r.theme, r.count]));
+
+          const mismatched: { theme: string; readme: number; actual: number }[] = [];
+          const missingInReadme: string[] = [];
+          for (const [theme, count] of themeCounts) {
+            const claimed = readmeThemeMap.get(theme);
+            if (claimed === undefined) missingInReadme.push(theme);
+            else if (claimed !== count) mismatched.push({ theme, readme: claimed, actual: count });
+          }
+          const extraInReadme = readmeThemeRows.map((r) => r.theme).filter((t) => !themeCounts.has(t));
+
+          (d1Detail.actual as Record<string, unknown>).themeTable = Object.fromEntries(themeCounts);
+          (d1Detail.claimed as Record<string, unknown>).themeTable = readmeThemeRows;
+
+          if (mismatched.length === 0 && missingInReadme.length === 0 && extraInReadme.length === 0) {
+            findings.push({
+              id: "D1",
+              level: "green",
+              title: `README 主題表逐列層數與現況一致（${readmeThemeRows.length} 列）`,
+              detail: "完整主題清單表格每一列的層數皆與 manifest 分組計數相符",
+              evidence: "README §完整主題清單 <details> vs LAYER_MANIFEST section.theme 分組計數",
+            });
+          } else {
+            const detailParts: string[] = [];
+            if (mismatched.length > 0) {
+              detailParts.push(
+                `層數不符：${mismatched.map((m) => `${m.theme}（README ${m.readme} vs 實際 ${m.actual}）`).join("、")}`,
+              );
+            }
+            if (missingInReadme.length > 0) {
+              detailParts.push(`manifest 有但表格沒有（新主題未收錄）：${missingInReadme.join("、")}`);
+            }
+            if (extraInReadme.length > 0) {
+              detailParts.push(`表格有但 manifest 已無此主題：${extraInReadme.join("、")}`);
+            }
+            findings.push({
+              id: "D1",
+              level: "yellow",
+              title: `README 主題表逐列層數已過期（${mismatched.length + missingInReadme.length + extraInReadme.length} 處落差）`,
+              detail: detailParts.join("\n"),
+              evidence: "README §完整主題清單 <details> vs LAYER_MANIFEST section.theme 分組計數",
+            });
+          }
+        }
+      }
+
+      // 3) 上游 dataset 數
+      {
+        const dsEntries = Object.entries(LAYER_MANIFEST) as [string, { upstream: { datasets: { datasetId: string }[] } }][];
+        const datasetIds = new Set<string>();
+        for (const [, v] of dsEntries) for (const d of v.upstream.datasets) datasetIds.add(d.datasetId);
+        const actualDatasets = datasetIds.size;
+        (d1Detail.actual as Record<string, unknown>).upstreamDatasets = actualDatasets;
+
+        const m = readme.match(/\*\*(\d+)\s*個不同的上游\s*dataset\*\*/);
+        if (!m || !m[1]) {
+          errors.push({ step: "D1", message: "正則失配，抓不到「上游 dataset 數」的 README 敘述（README §資料來源），需人工核對正則是否被改寫" });
+        } else {
+          const claimed = Number(m[1]);
+          (d1Detail.claimed as Record<string, unknown>).upstreamDatasets = claimed;
+          findings.push({
+            id: "D1",
+            level: claimed === actualDatasets ? "green" : "yellow",
+            title: claimed === actualDatasets ? "README「上游 dataset 數」與現況一致" : "README「上游 dataset 數」已過期",
+            detail:
+              claimed === actualDatasets
+                ? `${claimed} = ${actualDatasets}`
+                : `README 說 ${claimed}、實際 ${actualDatasets}（差 ${actualDatasets - claimed >= 0 ? "+" : ""}${actualDatasets - claimed}）`,
+            evidence: "README §資料來源／血緣 vs LAYER_MANIFEST upstream.datasets[].datasetId unique 數",
+          });
+        }
+      }
+
+      // 4) Loader 數
+      {
+        let actualLoaders = 0;
+        let readOk = true;
+        try {
+          actualLoaders = readdirSync(path.join(ROOT, "src/data"), { withFileTypes: true }).filter(
+            (d) => d.isFile() && d.name.endsWith("Loader.ts"),
+          ).length;
+        } catch (e) {
+          readOk = false;
+          errors.push({ step: "D1", message: `無法列出 src/data/*Loader.ts：${String(e)}` });
+        }
+        (d1Detail.actual as Record<string, unknown>).loaderFiles = actualLoaders;
+
+        const m = readme.match(/(\d+)\s*個\s*\*Loader\.ts/);
+        if (!m || !m[1]) {
+          errors.push({ step: "D1", message: "正則失配，抓不到「Loader 數」的 README 敘述（README §目錄結構），需人工核對正則是否被改寫" });
+        } else if (readOk) {
+          const claimed = Number(m[1]);
+          (d1Detail.claimed as Record<string, unknown>).loaderFiles = claimed;
+          findings.push({
+            id: "D1",
+            level: claimed === actualLoaders ? "green" : "yellow",
+            title: claimed === actualLoaders ? "README「Loader 數」與現況一致" : "README「Loader 數」已過期",
+            detail:
+              claimed === actualLoaders
+                ? `${claimed} = ${actualLoaders}`
+                : `README 說 ${claimed}、實際 ${actualLoaders}（差 ${actualLoaders - claimed >= 0 ? "+" : ""}${actualLoaders - claimed}）`,
+            evidence: "README §目錄結構 vs src/data/*Loader.ts 檔案數",
+          });
+        }
+      }
+
+      // 5) collector 數（sibling repo，不存在就跳過不讓整支失敗）
+      {
+        const collectorsDir = path.resolve(ROOT, "../data-collectors/collectors");
+        if (!existsSync(collectorsDir)) {
+          errors.push({ step: "D1", message: `sibling repo 不存在（${collectorsDir}），略過 collector 數對帳` });
+        } else {
+          let actualCollectors = 0;
+          let readOk = true;
+          try {
+            actualCollectors = readdirSync(collectorsDir, { withFileTypes: true }).filter(
+              (d) => d.isFile() && d.name.endsWith(".py") && !d.name.startsWith("__"),
+            ).length;
+          } catch (e) {
+            readOk = false;
+            errors.push({ step: "D1", message: `無法列出 ${collectorsDir}：${String(e)}` });
+          }
+          (d1Detail.actual as Record<string, unknown>).collectors = {
+            count: actualCollectors,
+            criteria: "頂層 .py 檔、排除 __ 開頭（__init__.py／__pycache__），不遞迴子目錄（如 global_climate/、pla_tracks/）",
+          };
+
+          const m = readme.match(/(\d+)\+?\s*收集器/);
+          if (!m || !m[1]) {
+            errors.push({ step: "D1", message: "正則失配，抓不到「收集器數」的 README 敘述（README §生態系關係），需人工核對正則是否被改寫" });
+          } else if (readOk) {
+            const claimedBase = Number(m[1]);
+            (d1Detail.claimed as Record<string, unknown>).collectors = claimedBase;
+            const severelyUnder = actualCollectors >= claimedBase * 2;
+            findings.push({
+              id: "D1",
+              level: severelyUnder ? "yellow" : "green",
+              title: severelyUnder ? `README「${claimedBase}+ 收集器」嚴重低估` : `README「${claimedBase}+ 收集器」仍在合理範圍`,
+              detail: `README 開放式寫法「${claimedBase}+ 收集器」；實際 ${actualCollectors} 個（口徑見 evidence）${severelyUnder ? "，達宣稱值 2 倍以上" : ""}`,
+              evidence: "../data-collectors/collectors/ 頂層 .py 檔、排除 __ 開頭與子目錄",
+            });
+          }
+        }
+      }
+
+      // 6) nginx location 數
+      {
+        const nginxPath = path.join(ROOT, "nginx.conf");
+        const nginxContent = readFileSafe(nginxPath);
+        if (nginxContent === null) {
+          errors.push({ step: "D1", message: `無法讀取 ${nginxPath}` });
+        } else {
+          const actualLocations = (nginxContent.match(/^\s*location\s/gm) ?? []).length;
+          (d1Detail.actual as Record<string, unknown>).nginxLocations = actualLocations;
+
+          const m = readme.match(/約\s*(\d+)\s*個\s*location/);
+          if (!m || !m[1]) {
+            errors.push({ step: "D1", message: "正則失配，抓不到「nginx location 數」的 README 敘述（README §部署），需人工核對正則是否被改寫" });
+          } else {
+            const claimed = Number(m[1]);
+            (d1Detail.claimed as Record<string, unknown>).nginxLocations = claimed;
+            const diffRatio = claimed > 0 ? Math.abs(actualLocations - claimed) / claimed : Infinity;
+            const overThreshold = diffRatio > 0.3;
+            findings.push({
+              id: "D1",
+              level: overThreshold ? "yellow" : "green",
+              title: overThreshold ? "README「約 N 個 location」落差超過 30%" : "README「約 N 個 location」仍在合理範圍",
+              detail: `README 說約 ${claimed}、實際 ${actualLocations}（差 ${Math.round(diffRatio * 1000) / 10}%）`,
+              evidence: "nginx.conf 中 /^\\s*location\\s/ 開頭的指令行（排除註解行）",
+            });
+          }
+        }
+      }
+
+      // 7) Three.js Scene 數（措辭歧義：檔案／子目錄項目數 vs *Scene.ts 數）
+      {
+        const threeDir = path.join(ROOT, "src/three");
+        let totalEntries = 0;
+        let sceneFiles = 0;
+        let readOk = true;
+        try {
+          const dirents = readdirSync(threeDir, { withFileTypes: true });
+          totalEntries = dirents.length;
+          sceneFiles = dirents.filter((d) => d.isFile() && d.name.endsWith("Scene.ts")).length;
+        } catch (e) {
+          readOk = false;
+          errors.push({ step: "D1", message: `無法列出 ${threeDir}：${String(e)}` });
+        }
+        (d1Detail.actual as Record<string, unknown>).threeScene = { totalEntries, sceneFiles };
+
+        const claims = [...readme.matchAll(/(\d+)\s*個\s*Scene/g)].map((m) => Number(m[1]));
+        (d1Detail.claimed as Record<string, unknown>).threeScene = claims;
+        if (claims.length === 0) {
+          errors.push({ step: "D1", message: "正則失配，抓不到「Three.js Scene 數」的 README 敘述，需人工核對正則是否被改寫" });
+        } else if (readOk) {
+          if (totalEntries === sceneFiles) {
+            findings.push({
+              id: "D1",
+              level: "green",
+              title: "README「Three.js Scene 數」與現況一致且用詞無歧義",
+              detail: `${claims[0]} = ${totalEntries}，且 src/three/ 下全數項目都是 *Scene.ts`,
+              evidence: "README「N 個 Scene」敘述 vs src/three/ 項目數",
+            });
+          } else {
+            findings.push({
+              id: "D1",
+              level: "yellow",
+              title: `README「Three.js Scene 數」措辭有歧義（${totalEntries} 個項目，僅 ${sceneFiles} 個是 *Scene.ts）`,
+              detail:
+                `src/three/ 共 ${totalEntries} 個項目（檔案＋子目錄），其中 ${sceneFiles} 個是 *Scene.ts、其餘 ${totalEntries - sceneFiles} 個是其他支援檔／子目錄；` +
+                `README 兩處都寫「${claims.join(" / ")} 個 Scene」，數字等於總項目數並不算錯，但可能誤導讀者以為有 ${claims[0]} 個 Scene 類別。` +
+                `建議改成類似「${sceneFiles} 個 Scene + ${totalEntries - sceneFiles} 個支援檔」的明確寫法（由主 agent 決定實際文字）。`,
+              evidence: "README「22 個 Scene」（§Three.js 場景／§目錄結構）vs src/three/ 實際項目數與 *Scene.ts 數",
+            });
+          }
+        }
+      }
+
       metrics.d1 = d1Detail;
     }
   }
