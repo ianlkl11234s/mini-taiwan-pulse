@@ -99,6 +99,12 @@ export function EmbedApp() {
   const layerKeys = url.layers ?? [];
   const visibility = useRef(buildEmbedVisibility(layerKeys)).current;
   const params = url.params ?? {};
+  // 各圖層自帶的來源顯名（OverlayConfig.attribution）。主站靠 AttributionControl
+  // 自動彙整，embed 關掉了那個控制項（見下方 `attributionControl: false`），
+  // 所以這裡自行收集去重，補進右下角那條寫死的 bar。
+  const layerAttributions = useRef(
+    [...new Set(configsFor(layerKeys).map((c) => c.attribution).filter(Boolean))] as string[],
+  ).current;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -308,6 +314,11 @@ export function EmbedApp() {
       {/*
         出處標示：OSM 為 ODbL 授權、政府開放資料多要求標示來源 —— 這是法律義務，
         刻意寫死在此，`ui=` 參數不接受移除它。
+
+        前段是**底圖**的出處；`layerAttributions` 是這次真的有開的**資料圖層**各自
+        的來源顯名，兩者是不同的義務，分開標示。政府資料開放授權條款（OGDL-1.0）
+        第三條第二項寫明「未盡顯名標示義務者，視為自始未取得開放資料之授權」，
+        所以圖層顯名不可省略、也同樣不接受 `ui=` 移除。
       */}
       <div
         style={{
@@ -316,6 +327,9 @@ export function EmbedApp() {
           color: isDark ? "#c9d1d9" : "#40474e",
           fontSize: 11, padding: "3px 7px", borderTopLeftRadius: 5,
           fontFamily: "system-ui, sans-serif",
+          maxWidth: "min(92vw, 520px)",
+          textAlign: "right", lineHeight: 1.45,
+          overflowWrap: "anywhere",
         }}
       >
         ©{" "}
@@ -328,6 +342,9 @@ export function EmbedApp() {
           OpenStreetMap
         </a>{" "}
         · Mini Taiwan Pulse
+        {layerAttributions.map((text) => (
+          <div key={text} style={{ opacity: 0.92 }}>{text}</div>
+        ))}
       </div>
     </div>
   );

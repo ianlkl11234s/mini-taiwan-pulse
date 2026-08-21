@@ -70,9 +70,30 @@ export function formatNum(v: number | null, unit: string, digits = 1): string {
 }
 
 /**
+ * 溯源清單正規化：跑 map.queryRenderedFeatures() 拿到的 properties 是 vector tile
+ * 編碼後的結果——mapbox-gl-js 的 vt-pbf writeProperties() 對非 string/boolean/number
+ * 的值一律 `JSON.stringify()`，所以巢狀 array（如 `_provenance`）到面板手上時常是
+ * JSON 字串而非真陣列（Supabase RPC 直出的 loader 如 fossilFuelLoader 才會是真陣列）。
+ * 兩種來源都要接得住。
+ */
+function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
+  if (Array.isArray(raw)) return raw as Record<string, unknown>[];
+  if (typeof raw === "string" && raw.length > 0) {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as Record<string, unknown>[];
+    } catch {
+      // 非合法 JSON，視為沒有溯源清單
+    }
+  }
+  return [];
+}
+
+/**
  * 標準溯源 footer — 任何 panel 底部都應該掛這個。
  * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier。
- * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）。
+ * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）；
+ * 部分 pipeline（如宗教）欄位名是 `_provenance`（底線開頭），兩者都接。
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
@@ -81,7 +102,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const license = String(props.license ?? "");
   const tier = props.source_tier;
   const fetched = String(props.fetched_at ?? "");
-  const provenance = Array.isArray(props.provenance) ? (props.provenance as Record<string, unknown>[]) : [];
+  const provenance = toProvenanceArray(props._provenance ?? props.provenance);
 
   return (
     <div

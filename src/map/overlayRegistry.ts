@@ -8854,6 +8854,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceId: "religion-temples",
     pmtiles: { sourceLayer: "temples", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["circle"],
+    attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
       {
         suffix: "circle",
@@ -8880,6 +8881,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/churches.geojson",
     sourceId: "religion-churches",
     rebuildOnParamChange: ["circle"],
+    attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
       {
         suffix: "circle",
@@ -8905,6 +8907,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/ancestral_halls.geojson",
     sourceId: "religion-ancestral-halls",
     rebuildOnParamChange: ["circle"],
+    attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局",
     layers: [
       {
         suffix: "circle",
@@ -8931,6 +8934,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/foundations.geojson",
     sourceId: "religion-foundations",
     rebuildOnParamChange: ["circle"],
+    attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局",
     layers: [
       {
         suffix: "circle",
@@ -8955,6 +8959,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/other_worship.geojson",
     sourceId: "religion-other-worship",
     rebuildOnParamChange: ["circle"],
+    attribution: "資料來源：內政部全國宗教資訊系統、文化部文化資產局 | © OpenStreetMap contributors (ODbL)",
     layers: [
       {
         suffix: "circle",
@@ -8981,6 +8986,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./religion/top100.geojson",
     sourceId: "religion-top100",
     rebuildOnParamChange: ["glow", "circle"],
+    attribution: "資料來源：內政部宗教及禮制司",
     layers: [
       {
         suffix: "glow", type: "circle",

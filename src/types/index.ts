@@ -661,6 +661,12 @@ export interface OverlayConfig {
    * sourceUrl 保留作為 loader 端 Supabase 未設定時的靜態 fallback 路徑。
    */
   dynamicData?: boolean;
+  /**
+   * MapLibre/Mapbox source 的 `attribution` 欄位 —— 帶上後由地圖引擎內建的
+   * AttributionControl 自動彙整顯示（常駐，不需額外 UI）。ODbL / 政府開放資料
+   * 授權要求顯名標示時填寫（如宗教圖層引用內政部全國宗教資訊系統 + OSM）。
+   */
+  attribution?: string;
 }
 
 // ── 房地產 hover tooltip ──

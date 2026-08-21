@@ -67,7 +67,6 @@ export function TemplePanel({ props }: { props: Record<string, unknown> }) {
       {props.is_top100 === true ? <Row label="宗教百景" value="是" color={RELIGION_LAYER_COLORS.religionTop100} /> : null}
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <Row label="電話" value={str(props.phone)} />
       {precision && precision !== "原始座標" ? (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
           座標來源：{precision}（非原始座標，位置為推估）
@@ -89,7 +88,6 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
       {props.heritage_flag === true ? <Row label="文化資產" value="是" color="#d4a017" /> : null}
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <Row label="電話" value={str(props.phone)} />
       <OdblNote props={props} />
       <SourceFooter props={props} />
     </>
@@ -107,7 +105,6 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
       {str(props.heritage_grade) ? <Row label="文資級別" value={str(props.heritage_grade)} /> : null}
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <Row label="負責人" value={str(props.principal)} />
       <SourceFooter props={props} />
     </>
   );
@@ -120,8 +117,6 @@ export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={RELIGION_LAYER_COLORS.religionFoundations}>{str(props.name) || "宗教基金會"}</Title>
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <Row label="電話" value={str(props.phone)} />
-      <Row label="負責人" value={str(props.principal)} />
       <SourceFooter props={props} />
     </>
   );
@@ -142,6 +137,7 @@ export function OtherWorshipPanel({ props }: { props: Record<string, unknown> })
       <Row label="鄉鎮" value={str(props.town)} />
       <Row label="地址" value={str(props.address)} />
       <OdblNote props={props} />
+      <SourceFooter props={props} />
     </>
   );
 }

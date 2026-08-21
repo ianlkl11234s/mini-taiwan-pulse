@@ -53,6 +53,12 @@ export interface OverlayEngineOptions {
 
 function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
   // 呼叫端（MapView）須先 registerPmtilesSourceTypeOnce()
+  // attribution：這個欄位在此**不會**被 mapbox-pmtiles 的 PmTilesSource 讀到——
+  // 它繼承的 mapbox-gl-js VectorTileSource 建構子只 pick ['url','scheme','tileSize',
+  // 'promoteId']，attribution 要等 TileJSON 的 load() 才會 Object.assign 進來，
+  // 而 PmTilesSource 覆寫了 load()（改讀 PMTiles header/metadata），不會走到那條路。
+  // 留著這個欄位純粹讓呼叫端讀得到 config.attribution 的值；真正生效的設定
+  // 在 addOverlay() 裡 addSource 之後手動補 `source.attribution =`（見該處註解）。
   return {
     type: PMTILES_SOURCE_TYPE,
     url: config.sourceUrl,
@@ -150,13 +156,31 @@ export function addOverlay(
       const source = (opts?.pmtilesSource ?? defaultPmtilesSource)(config);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       map.addSource(config.sourceId, source as any);
+      if (config.attribution) {
+        // PmTilesSource 的 attribution 走 source spec 傳不進去（見 defaultPmtilesSource
+        // 註解），只能拿到 addSource 建出來的 instance 直接補 property。
+        // PmTilesSource.load() 非同步抓完 header/metadata 後會 `extend(this, tileJSON)`
+        // 再 fire 一次 sourceDataType:"metadata" 事件（AttributionControl 靠這個事件
+        // 重算顯示），若 PMTiles 檔本身 metadata 沒有 attribution 鍵，這裡設的值不會被
+        // 蓋掉；用 "data" listener 保底重新賦值，避免時序或未來套件版本差異讓標示消失。
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const src = map.getSource(config.sourceId) as any;
+        if (src) {
+          src.attribution = config.attribution;
+          src.on?.("data", () => {
+            if (src.attribution !== config.attribution) src.attribution = config.attribution;
+          });
+        }
+      }
     } else {
       // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
       // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。
       // dynamicData：由對應 loader/hook 按日 setData 餵入。
+      // attribution：帶上後由地圖引擎內建的 AttributionControl 自動彙整顯示。
       map.addSource(config.sourceId, {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,
+        attribution: config.attribution,
         ...geojsonSourceOptions(config),
       });
     }
