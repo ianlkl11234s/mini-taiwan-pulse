@@ -1,5 +1,11 @@
 # PMTiles 過夜批次轉換 — STATUS
 
+> ⚠️ **本檔是 2026-06-25 那一波 campaign 的記錄，不是全站 PMTiles 清單。**
+> 全站現況（weekly-audit 2026-W34，2026-08-21 實測）：`public/` 下共 **97 個 `.pmtiles`**，
+> 分佈於 18 個目錄，前八大為 `geo` 17、`urban` 12、`business_registry` 11、`base_map` 11、`coverage` 11、`agriculture` 10、`forestry` 7、`fishery` 5。
+> 本檔記錄的 13＋3＋3 個只是最早期的三批。要查某個切片是否存在，
+> 用 `find public -iname "*.pmtiles"` 或跑 `bash scripts/audit/weekly/run_all.sh --only layers`，不要以本檔為準。
+
 **Plan**：`/Users/migu/.claude/plans/pmtiles-overnight.md`
 **啟動時間**：2026-06-25 23:59
 **結束時間**：2026-06-26 00:10
