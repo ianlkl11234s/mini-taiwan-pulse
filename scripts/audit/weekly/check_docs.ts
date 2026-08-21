@@ -558,24 +558,39 @@ async function main() {
         if (claims.length === 0) {
           errors.push({ step: "D1", message: "正則失配，抓不到「Three.js Scene 數」的 README 敘述，需人工核對正則是否被改寫" });
         } else if (readOk) {
-          if (totalEntries === sceneFiles) {
+          // 判準是「README 宣稱的 Scene 數是否等於實際 *Scene.ts 數」，
+          // 不是「目錄裡有沒有非 Scene 檔」——支援檔／shaders 子目錄本來就該存在，
+          // 拿 totalEntries !== sceneFiles 當紅線會讓這條永遠是 yellow，變成每週噪音。
+          const allMatchScenes = claims.every((c) => c === sceneFiles);
+          const claimsTotalEntries = claims.some((c) => c === totalEntries && totalEntries !== sceneFiles);
+          if (allMatchScenes) {
             findings.push({
               id: "D1",
               level: "green",
-              title: "README「Three.js Scene 數」與現況一致且用詞無歧義",
-              detail: `${claims[0]} = ${totalEntries}，且 src/three/ 下全數項目都是 *Scene.ts`,
-              evidence: "README「N 個 Scene」敘述 vs src/three/ 項目數",
+              title: "README「Three.js Scene 數」與現況一致",
+              detail:
+                `README ${claims.length} 處都寫 ${sceneFiles}，等於 src/three/ 實際的 *Scene.ts 數；` +
+                `目錄另有 ${totalEntries - sceneFiles} 個支援檔／子目錄，措辭已區分清楚。`,
+              evidence: "README「N 個 Scene」敘述 vs src/three/ 的 *Scene.ts 數",
+            });
+          } else if (claimsTotalEntries) {
+            findings.push({
+              id: "D1",
+              level: "yellow",
+              title: `README「Three.js Scene 數」措辭有歧義（寫 ${totalEntries}，實際只有 ${sceneFiles} 個 *Scene.ts）`,
+              detail:
+                `README 寫的 ${claims.join(" / ")} 是 src/three/ 的總項目數，不是 Scene 數；` +
+                `實際 ${sceneFiles} 個 *Scene.ts、${totalEntries - sceneFiles} 個支援檔／子目錄。` +
+                `建議改成「${sceneFiles} 個 Scene + ${totalEntries - sceneFiles} 個支援檔」之類的明確寫法。`,
+              evidence: `README「${claims.join(" / ")} 個 Scene」vs src/three/ 實際 ${sceneFiles} 個 *Scene.ts`,
             });
           } else {
             findings.push({
               id: "D1",
               level: "yellow",
-              title: `README「Three.js Scene 數」措辭有歧義（${totalEntries} 個項目，僅 ${sceneFiles} 個是 *Scene.ts）`,
-              detail:
-                `src/three/ 共 ${totalEntries} 個項目（檔案＋子目錄），其中 ${sceneFiles} 個是 *Scene.ts、其餘 ${totalEntries - sceneFiles} 個是其他支援檔／子目錄；` +
-                `README 兩處都寫「${claims.join(" / ")} 個 Scene」，數字等於總項目數並不算錯，但可能誤導讀者以為有 ${claims[0]} 個 Scene 類別。` +
-                `建議改成類似「${sceneFiles} 個 Scene + ${totalEntries - sceneFiles} 個支援檔」的明確寫法（由主 agent 決定實際文字）。`,
-              evidence: "README「22 個 Scene」（§Three.js 場景／§目錄結構）vs src/three/ 實際項目數與 *Scene.ts 數",
+              title: `README「Three.js Scene 數」已過期（寫 ${claims.join(" / ")}、實際 ${sceneFiles}）`,
+              detail: `src/three/ 實際有 ${sceneFiles} 個 *Scene.ts（另有 ${totalEntries - sceneFiles} 個支援檔／子目錄）。`,
+              evidence: `README「${claims.join(" / ")} 個 Scene」vs 實際 ${sceneFiles}`,
             });
           }
         }
