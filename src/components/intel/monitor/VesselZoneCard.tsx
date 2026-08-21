@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
+import { MONITOR_DENSE_CARD_ZOOM } from "./monitorLayout";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
   fetchVesselZoneDaily,
@@ -45,6 +46,9 @@ const ZONE_LABEL: Record<VesselZoneName, string> = {
   territorial: "進入領海（12 浬內）",
 };
 
+/** 分帶時間軸的排序：由深到淺（越危險的帶排越前面） */
+const ZONE_ORDER: VesselZoneName[] = ["territorial", "contiguous", "approach_6", "approach_12"];
+
 /** level → 色。越接近台灣越紅，與海域界線圖層的 12 浬紅／24 浬紫系不衝突 */
 const ZONE_COLORS = ["#fbbf24", "#fb923c", "#ef4444", "#b91c1c"];
 
@@ -65,6 +69,16 @@ interface DayAgg {
   minDistNm: number | null;
   /** 分類 → 艘數，給 tooltip */
   byClass: Map<string, number>;
+  /**
+   * 分帶 → 該日該帶艘數（給「分帶時間軸」用）。
+   *
+   * ⚠️ 與 `ships` 的加總規則不同，而且**只有分帶維度可以直接加**：
+   * RPC 的一列 = 一天 × 一分類 × 一分帶，同一格不會重複，所以「某帶當日艘數」
+   * = 該帶各分類直接相加。反過來若把四個帶的數字相加就會重複計
+   * （一艘船一天可能先在 approach_12 再進 approach_6），所以 `ships` 才要跨帶取 max。
+   * 也因此四條分帶時間軸的柱高**加起來不會等於**合併圖的柱高，這是正確的。
+   */
+  byZone: Map<VesselZoneName, number>;
 }
 
 /**
@@ -102,12 +116,14 @@ function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
     let level = 0;
     let deepest: VesselZoneName = "approach_12";
     const byClass = new Map<string, number>();
+    const byZone = new Map<VesselZoneName, number>();
 
     for (const [cls, zones] of classes) {
       // 同分類跨分帶取 max（避免同一艘船在多個帶被重複計）
       let clsShips = 0;
       for (const [zone, n] of zones) {
         clsShips = Math.max(clsShips, n);
+        byZone.set(zone, (byZone.get(zone) ?? 0) + n); // 同帶跨分類相加（見 byZone 註解）
         if (ZONE_LEVEL[zone] > level) {
           level = ZONE_LEVEL[zone];
           deepest = zone;
@@ -116,7 +132,7 @@ function aggregateByDay(rows: VesselZoneDay[]): DayAgg[] {
       byClass.set(cls, clsShips);
       ships += clsShips; // 跨分類相加是安全的
     }
-    out.push({ day, ships, level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass });
+    out.push({ day, ships, level, deepestZone: deepest, minDistNm: minDist.get(day) ?? null, byClass, byZone });
   }
   out.sort((a, b) => a.day.localeCompare(b.day));
   return out;
@@ -141,6 +157,7 @@ function fillDays(aggs: DayAgg[], windowDays: number): DayAgg[] {
         deepestZone: "approach_12",
         minDistNm: null,
         byClass: new Map(),
+        byZone: new Map(),
       },
     );
   }
@@ -202,7 +219,9 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
   const enterDays = useMemo(() => windowed.filter((a) => a.level >= 2).length, [windowed]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
+    // zoom：同 PlaBoard —— 本卡內文是 9~12px 字面值（含 HazardTrendBars 的 8~8.5px 軸標），
+    // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
+    <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
       {/* 頭 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textStrong }}>
@@ -267,6 +286,47 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             : undefined
         }
       />
+
+      {/*
+        分帶時間軸（2026-08-20 用戶要求「拆細項看不同接近程度的時間軸」）。
+        合併圖只畫得出「當日最深的那一帶」的顏色，看不出各帶各自的消長；
+        四條各自獨立的時間軸才看得到「貼線變多但沒進鄰接區」這種形狀差異。
+
+        由深到淺排（領海在最上面）—— 越危險的帶越先被看到。
+        柱高各帶自己算比例尺（HazardTrendBars 的既有行為），所以**跨帶不可比高度**，
+        每條的 footer 都印出該帶自己的單日最高值當基準。
+      */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {ZONE_ORDER.map((zone) => {
+          const lv = ZONE_LEVEL[zone];
+          const zBars: HazardBar[] = windowed.map((a) => {
+            const n = a.byZone.get(zone) ?? 0;
+            return {
+              label: fmtDay(a.day),
+              key: a.day,
+              value: n || null,
+              // 單色盤只有 index 0，這裡不能傳 zone 的 level（會超出範圍取到最後一色，
+              // 剛好也是同一色所以看不出來，但語意錯了）
+              level: 0,
+              note: n ? `${ZONE_LABEL[zone]}｜${n} 艘` : "該帶當日無船",
+            };
+          });
+          const zDays = windowed.filter((a) => (a.byZone.get(zone) ?? 0) > 0).length;
+          const zPeak = windowed.reduce((m, a) => Math.max(m, a.byZone.get(zone) ?? 0), 0);
+          return (
+            <HazardTrendBars
+              key={zone}
+              bars={zBars}
+              // 單色盤：這條線只畫這一帶，柱色不該再變動
+              levelColors={[ZONE_COLORS[lv]!]}
+              height={34}
+              unit="艘"
+              caption={ZONE_LABEL[zone]}
+              footer={zDays ? `${zDays} 天有船 · 單日最高 ${zPeak} 艘` : `${windowDays} 天內未出現`}
+            />
+          );
+        })}
+      </div>
 
       {/* 分類出現天數 */}
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>

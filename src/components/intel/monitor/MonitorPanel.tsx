@@ -47,7 +47,7 @@ import {
 } from "./HazardCards";
 import {
   MONITOR_VISIBLE_LAYOUT,
-  MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
+  MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP, MONITOR_CONTENT_ZOOM,
   type MonitorWidgetId, type MonitorGridItem,
 } from "./monitorLayout";
 import { buildMonitorTree, nodeWidth, type MonitorNode } from "./monitorPacking";
@@ -118,6 +118,16 @@ const MODE_OPTIONS: { key: MonitorMode; label: string; icon: string[] }[] = [
  */
 function renderMonitorNode(
   node: MonitorNode, widgets: Record<MonitorWidgetId, ReactNode>, key?: string,
+  /**
+   * 上層是「等高模式」的橫向 flex 容器（見 cols 分支的 allLeaf）。
+   *
+   * ⚠️ 2026-08-20 修：那層是 flex **row**（為了讓 height:auto 的卡片靠 align-self:stretch
+   * 撐滿被拉平的格高）。橫向 flex 的主軸是寬度，本 cell 沒有 flex-grow 就會退化成
+   * shrink-to-fit —— 實測 1920 寬的 split：格子 413px、卡片只長到內容寬
+   * （在監 261 / 機場 296 / 公衛 267），右邊各留一大塊空白。
+   * 加 `flex:1 1 0%` 才會撐滿欄寬（taiex 之所以「看起來正常」只是它內容本來就超過 413）。
+   */
+  fillWidth = false,
 ): ReactNode {
   if (node.t === "widget") {
     const fit = node.item.fit === "content";
@@ -130,6 +140,7 @@ function renderMonitorNode(
           minWidth: 0, minHeight: 0,
           height: fit ? "auto" : stackCellHeightPx(node.item.h),
           display: "flex", flexDirection: "column",
+          flex: fillWidth ? "1 1 0%" : undefined,
           overflow: fit ? "visible" : "auto",
         }}
       >
@@ -166,7 +177,7 @@ function renderMonitorNode(
               display: allLeaf ? "flex" : undefined,
             }}
           >
-            {renderMonitorNode(c, widgets, `c${k}`)}
+            {renderMonitorNode(c, widgets, `c${k}`, allLeaf)}
           </div>
         ))}
       </div>
@@ -292,6 +303,8 @@ export function MonitorPanel({
   const [powerDayStatus, setPowerDayStatus] = useState<PowerDayStatus>("loading");
   const [powerTrend, setPowerTrend] = useState<PowerDailyTrendRow[]>([]);
   const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
+  /** 在監完整 365 天序列（趨勢圖用）。以前只留 rows[0]，其餘直接丟掉 */
+  const [prisonSeries, setPrisonSeries] = useState<PrisonDay[]>([]);
 
   // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
   useEffect(() => {
@@ -383,6 +396,7 @@ export function MonitorPanel({
           if (error) { console.warn("[Monitor Prison]", error); return; }
           const rows = (data ?? []) as PrisonDay[];
           setPrisonLatest(rows[0] ?? null);
+          setPrisonSeries(rows);
         });
     };
     tick();
@@ -718,7 +732,7 @@ export function MonitorPanel({
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
     erCongestion: <ERCard open={open} />,
-    prison: <PrisonCard latest={prisonLatest} />,
+    prison: <PrisonCard latest={prisonLatest} series={prisonSeries} />,
     airportPax: <AirportPaxCard open={open} />,
     // 災害監看四卡：各自向 src/data 的 summary loader 輪詢（30/15/5/5 min），
     // nowTs 吃 MonitorPanel 的 5s wallClock 讓相對時間跟著跳
@@ -888,6 +902,15 @@ export function MonitorPanel({
         style={{
           flex: 1, minHeight: 0, overflowY: "auto",
           padding: "14px 16px 18px",
+        }}
+      >
+      {/* 內容縮放層：字級／間距／圖表等比放大（見 MONITOR_CONTENT_ZOOM）。
+          刻意包在 gridRef 內層 —— gridRef 要維持實體 px 才量得準 isStacked，
+          而 zoom 會讓子層的邏輯座標系縮小（實寬 835 → 邏輯 726），
+          欄寬算式與 gap 全部沿用原值，不必為了放大字另調一套座標。 */}
+      <div
+        style={{
+          zoom: MONITOR_CONTENT_ZOOM,
           display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP,
         }}
       >
@@ -911,6 +934,7 @@ export function MonitorPanel({
               </div>
             ))
           : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, widgets)}
+      </div>
       </div>
 
       <style>{`

@@ -407,6 +407,20 @@ const HEALTH_DEFAULTS: Record<CdcDisease["id"], { label: string; en: string; uni
 };
 
 /**
+ * RPC 的 `id` 是 DB 的 `disease_code`（`influenza` / `dengue` / `enterovirus`），
+ * 與前端這邊的短 id 不同名。
+ *
+ * ⚠️ 2026-08-21 修的 bug：少了這張對照表，下面的 `if (!def) continue` 會把
+ * 類流感與腸病毒兩張卡**默默丟掉**，畫面上只剩登革熱一張（RPC 其實一直回 3 筆）。
+ * 只對照不改前端 id —— `CdcDisease["id"]` 是元件的 React key 與色盤鍵，改名要動到別處。
+ */
+const HEALTH_ID_ALIAS: Record<string, CdcDisease["id"]> = {
+  influenza:   "flu",
+  dengue:      "dengue",
+  enterovirus: "entero",
+};
+
+/**
  * YouTube live video resolver — Monitor Mode LiveWall 用
  * 對應 gis-platform migration 209，collector 每 5 min 把 14 家新聞台
  * 當前直播 video_id 解析寫進 realtime.yt_live_current。
@@ -460,7 +474,8 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
   const week = Number(rows[0]?.week ?? 0);
   const diseases: CdcDisease[] = [];
   for (const r of rows) {
-    const id = r.id as CdcDisease["id"];
+    const raw = String(r.id ?? "");
+    const id = HEALTH_ID_ALIAS[raw] ?? (raw as CdcDisease["id"]);
     const def = HEALTH_DEFAULTS[id];
     if (!def) continue;
     diseases.push({
