@@ -1,7 +1,10 @@
 # Monitor 微調批次 — 2026-08-20 過夜任務交接
 
-> 分支 `feat/monitor-tweaks-20260820`（3 commits，**未 push**）
-> 用戶 9 項清單：7 項已完成並在瀏覽器實測，2 項是資料面調查（根因已定位、修法已備好、**等拍板**）。
+> 分支 `feat/monitor-tweaks-20260820`（**未 push**）
+> 用戶 9 項清單全數處理完畢。
+>
+> **2026-08-21 第二輪：用戶拍板後三件資料面修正已執行**（見文末「執行紀錄」）。
+> 本檔上半部的「待拍板」字樣為第一輪原文，實際狀態以文末紀錄為準。
 
 ## 一、已完成（可直接驗收）
 
@@ -154,3 +157,61 @@ TAIEX 之所以「看起來正常」只是它內容本來就超過 413px 被夾�
   只有 1 處真換行（已修），其餘都是 ±1px 捨入
 - ChartHoverTooltip 在單層 zoom（1.15）與**巢狀 zoom**（1.15×1.12）下各驗一次，
   定位皆正確（body portal + `clientX/Y`，不受 zoom 影響）
+
+
+---
+
+## 五、執行紀錄（2026-08-21 第二輪，用戶拍板後）
+
+### ✅ 公衛去重（已 apply 正式庫）
+
+| 步驟 | 結果 |
+|---|---|
+| 備份 | `live.public_health_weekly_backup_20260821`（174,002 列）— 確認無誤後可 DROP |
+| 去重 + 換約束 | 單一交易，`DELETE 159272` → 剩 **14,730** 列；約束改 `UNIQUE NULLS NOT DISTINCT` |
+| 交易內驗證 | 列數 = 14,730 ✓、flu W29 = 11,869 ✓、W32 = 13,304 ✓、零重複 ✓ |
+| migration | `gis-platform/migrations/367_public_health_weekly_nulls_not_distinct.sql`（分支 `fix/public-health-nulls-not-distinct`，未 push）|
+| collector | `data-collectors` 兩份改 `DO UPDATE`（分支 `fix/cdc-health-upsert-do-update`，未 push），pytest 184 passed |
+| 前端 | `HEALTH_ID_ALIAS` 對照，三張卡回來 |
+
+**畫面實測**：類流感 1.3萬 **↑+17%**（原本顯示 -91%）／登革熱 1 ↓-88%／腸病毒 329 **↑+18%**。
+
+> ⚠️ **需要你手動做的一件事**：實際跑的是 HiCloud VM 上那份 collector，
+> commit 不會自動生效，**要重新部署 VM** 才吃得到 DO UPDATE。
+> 在那之前是安全的 —— 約束已修好、重複進不來，只是吃不到 CDC 的回修值。
+
+### ✅ 在監歷史回補（已 apply 正式庫）
+
+`INSERT 0 2500` → 總計 **2,501 筆**（2019-04-18 ~ 2026-05-15）。
+`ON CONFLICT DO NOTHING` 生效，collector 原本那筆 2026-05-15 未被覆蓋（64,005 / 57,010 / 6,995 原值不變）。
+**`get_prison_population_window(365)` 回正好 214 筆** —— 即用戶要的範圍。
+
+順帶修：`TimeseriesSparkline` 的 X 軸步距階梯原本停在 7 天（設計時最長約 32 天），
+1Y 視窗的 268 天跨度會生出 38 個標籤疊成字牆 → 延長為 14/30/60 天步距，≤70 天維持原行為。
+
+**仍待拍板**：migration **368**（RPC 視窗改錨 `max(observed_date)`）。
+不套也能用（RPC 錨 now() 仍回 214 筆，前端已自行錨在序列末日），
+但上游持續不恢復的話卡片會逐日縮水、約 2027-05 整張變空。
+
+### ✅ 食品價格（已補資料 + 已上排程）
+
+- 補跑 pipeline（`--start 2026-08-01`）：VPI/FPI 到 **2026-08-21**、MPI/EPI 到 **2026-08-20**
+- 8/3 的 VPI 覆蓋率 0.41 → 0.72（脫離 low_coverage）；
+  FPI 8/3 仍是 0.0042 —— 該日漁市本來就幾乎沒交易，燈號誠實標為 `low_coverage`，非 bug
+- 前端警示自動解除：「⚠ 資料截至 2026-08-02（已 19 天未更新）」→「資料截至 2026-08-21」
+- **方案 A 已上線**：launchd `com.gis.foodprice_index` 每天 06:00 跑
+  `taipei-gis-analytics/pipelines/food_prices/wholesale_prices/run_daily.sh`
+  （分支 `feat/foodprice-daily-schedule`，未 push；plist 已 `launchctl load`）
+  - `--start` 用 `date +%Y-%m-01` 每天算，並加防呆拒收非月初（實測會擋）
+  - 已知代價：Mac 睡眠／關機不跑，醒來補跑一次
+- **方案 B 已記進 backlog**：`.claude/memory/BACKLOG.md` 的 **FP-1**（搬進 data-collectors，
+  卡在燈號 baseline 需要 1095 日歷史）與 **FP-2**（停更告警缺口）
+
+### 四個 repo 的分支狀態（全部**未 push**）
+
+| repo | 分支 |
+|---|---|
+| mini-taiwan-pulse | `feat/monitor-tweaks-20260820` |
+| gis-platform | `fix/public-health-nulls-not-distinct` |
+| data-collectors | `fix/cdc-health-upsert-do-update` |
+| taipei-gis-analytics | `feat/foodprice-daily-schedule` |
