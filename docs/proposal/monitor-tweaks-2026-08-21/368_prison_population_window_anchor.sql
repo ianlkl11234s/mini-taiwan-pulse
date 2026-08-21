@@ -1,3 +1,5 @@
+-- ⚠️ 編號 367 → 368（2026-08-21）：367 已被 public_health_weekly 去重那筆佔用
+--    （公衛先 apply 到正式庫，故先取號）。本檔**尚未 apply**，等用戶拍板。
 -- ============================================================
 -- Migration 367: get_prison_population_window() 改錨定 max(observed_date)
 --                + 新增 public.get_prison_population_summary()
@@ -35,7 +37,7 @@
 --     SELECT * FROM public.get_prison_population_summary(365);
 --   ROLLBACK;
 --
--- 套用：psql "$SUPABASE_DB_URL" -f 367_prison_population_window_anchor.sql
+-- 套用：psql "$SUPABASE_DB_URL" -f 368_prison_population_window_anchor.sql
 -- 回滾：⚠️ **不要**重新套 264_rpc_prison_population_window.sql —— 該檔內文寫的是
 --       `FROM realtime.prison_population_daily`，而 schema 已被 312_move_realtime_to_live.sql
 --       搬到 live.*，照套會指向不存在的表。用下面這段（= apply 前 pg_get_functiondef 的實況）：
