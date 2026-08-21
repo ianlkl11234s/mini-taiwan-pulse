@@ -39,6 +39,12 @@ CI 在 PR 時跑、`layer-onboarding` 在接線時跑、`wrap-up` 在 session �
    不代為 commit、不 revert。
 6. **收集器失敗就標 blocked**，不因為沒收到資料就寫「無異常」。
    `_all.json` 的 `failed[]` 必須反映到報告裡。
+7. **必須在主工作樹跑，不要在 `git worktree` 裡跑**（2026-08-21 實測）。
+   worktree 只有 git 追蹤的檔案——`public/` 的 1125 個檔在 worktree 裡只剩 156 個
+   （PMTiles／大 GeoJSON 全被 gitignore 走 S3），且 `../data-collectors` 等 sibling repo
+   的相對路徑會失效。結果是 A3／A5／D5 給出嚴重偏低的假數字、上游探測整組失效，
+   **而且不會報錯**——它會安靜地告訴你「只有 18 個 PMTiles」。
+   主樹被平行 session 佔用時，寧可等，不要改在 worktree 跑。
 
 ## 流程
 
@@ -63,7 +69,7 @@ bash scripts/audit/weekly/run_all.sh
 | `probe_upstream.sh` | A1 動態表斷更／F2 next_refresh 到期／上游 repo 狀態 |
 | `probe_layers.ts` | A2 RPC 死鏈／A3 A4 線上資產活性／A5 孤兒資產 |
 | `probe_production.sh` | C4 正式站回應／B6 CDN 快取有效性 |
-| `check_docs.ts` | D1 README 數字對帳／D2 文件齊全／D3 落後／D4 散檔／D5 狀態檔／D7 params 漂移／D8 頻率覆蓋 |
+| `check_docs.ts` | D1 README 數字對帳（14 項：layer 數／dataClass／features 夾／主題數／主題表逐列／上游 dataset／Loader 數／collector 數／nginx location／Three.js Scene）／D2 文件齊全／D3 落後／D4 散檔／D5 狀態檔／D7 params 漂移／D8 頻率覆蓋 |
 | `check_hygiene.sh` | E1 未 push／E2 dirty／E3 大檔誤入 git／E4 public 用量 |
 
 參數：`--skip-network`（離線只跑 docs／hygiene）、`--only <name>`（只跑一支）。
@@ -167,6 +173,12 @@ A1 能抓到**動態表**斷更，半動態／靜態資料的過期只能靠 F2 
    摸過幾乎每個 feature 夾）。staleness 要看單檔，或排除 `docs:`／`memory:` 前綴的 commit。
 3. `.claude/.cache/weekly-audit/` 不進版控——所以趨勢比較的基準是**報告本身**，
    報告的趨勢表必須自帶關鍵數字。
+4. **判定不要拿「結構上本來就會不等」的兩個數字當紅線**（2026-08-21 教訓）。
+   原本 Three.js 檢查用 `目錄總項目數 !== *Scene.ts 數` 判歧義，但 `src/three/`
+   本來就有支援檔與 `shaders/` 子目錄——這種判準會永遠亮黃，變成每週噪音。
+   正確做法是比對「README 宣稱的數」與「該敘述真正對應的實際數」。
+5. **「30+」「約 N」這種開放式寫法不能當精確值比**。collector 差 2 倍才報、
+   nginx location 差 30% 才報，否則每週都在報一個作者本來就沒打算寫精確的數字。
 
 ## 主動更新時機
 
