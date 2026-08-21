@@ -6,7 +6,7 @@
 
 天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
 後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星……
-**28 個主題、349 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
+**28 個主題、366 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
 
 > 統計時點 2026-08。數字會隨圖層增加而變動，以 `src/data/layerManifest.ts` 為準。
 
@@ -26,8 +26,8 @@
 
 ## 能看到什麼
 
-圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**359 個 layer key**，
-其中 349 個有 sidebar toggle，10 個是沒有 toggle 的內部 key。
+圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**376 個 layer key**，
+其中 366 個有 sidebar toggle，10 個是沒有 toggle 的內部 key。
 
 主題前段班：
 
@@ -118,7 +118,7 @@
 
 全球級的則有：衛星、全球氣候場、USGS 地震、颱風路徑。
 
-其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 40 個資料夾裡。
+其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 47 個資料夾裡。
 
 ---
 
@@ -208,10 +208,10 @@ mini-taiwan-pulse          ← 你在這裡（只讀，負責渲染）
 
 | 級別 | 路徑 | 層數 | 說明 |
 |---|---|---:|---|
-| **A** | `public/*.geojson` 全量 fetch | 119 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
-| **B** | PMTiles + HTTP Range | 73 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
+| **A** | `public/*.geojson` 全量 fetch | 126 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
+| **B** | PMTiles + HTTP Range | 80 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
 | **C** | Supabase RPC / 即時 API | 52 | 動態資料。必須註冊 loadingRegistry，時間相依一律走 timeStore 訂閱 |
-| **D** | 自行接線 | 115 | Three.js / WebGL CustomLayer，或 hook 自己 addSource/addLayer |
+| **D** | 自行接線 | 118 | Three.js / WebGL CustomLayer，或 hook 自己 addSource/addLayer |
 
 ### 前端怎麼渲染
 
@@ -318,7 +318,7 @@ mini-taiwan-pulse/
 │   ├── preprocess/      預處理
 │   ├── export/          DB 匯出
 │   └── deploy/          S3 上傳 / 容器啟動拉取 / entrypoint
-└── docs/                規則、架構、40 個 feature 資料夾
+└── docs/                規則、架構、47 個 feature 資料夾
 ```
 
 目錄規則（什麼東西該放哪）以 [`CLAUDE.md`](CLAUDE.md) 為準。
@@ -400,4 +400,4 @@ docker compose up -d      # http://localhost:3721 （host 3721 → container 808
 | [`docs/TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md) | 時間軸 UI 的三層結構設計提案 |
 | [`docs/supabase-optimization.md`](docs/supabase-optimization.md) | pre-aggregate pattern 完整指南 |
 | [`docs/known-issues.md`](docs/known-issues.md) | 歷史 bug + 診斷指令 |
-| [`docs/features/`](docs/features/) | 40 個功能領域各自的脈絡與交接文件 |
+| [`docs/features/`](docs/features/) | 47 個功能領域各自的脈絡與交接文件 |
