@@ -1935,3 +1935,90 @@ DOM 互動在本站一向不穩，見本檔既有的 @ref 錯位／playwright ha
 
 通則：**批次改結構化檔案時，「腳本回報成功」不是證據，要逐項驗證目標的實際狀態**，
 而且 diff 要檢查有沒有碰到不該碰的區塊。
+
+## 2026-08-21/22 Monitor 微調批次 — 三個「壞得很大聲但沒人擋得住」的事件
+
+三件都不是這次才壞的，是**這次才有人去看**。共同特徵：全站沒有任何測試或監控
+抓得到它們，而且症狀都被別的東西掩蓋掉了。
+
+### ① `attribution: undefined` 讓 161 個 source 建不出來（regression，隔夜才被發現）
+
+`1980b73 fix(religion)` 在 geojson source spec 加了一行 `attribution: config.attribution`。
+但 registry 裡只有 6 個 religion overlay 有這個欄位，其餘傳進去的都是 `undefined` ——
+**Mapbox 的 style 驗證對 `attribution: undefined` 直接判 fail，整個 source 不會被建立**，
+該 overlay 的每一層接著都噴 `source not found`。
+
+用戶只貼了三行 tour 圖層的錯誤來問「這是什麼」。實際量出來：
+
+| | 修前 | 修後 |
+|---|---|---|
+| `getStyle().sources` | **103** | **264** |
+| 孤兒層（layer 指向不存在的 source） | 多 | **0** |
+
+**看起來只有幾個圖層有錯，是因為 console 被洗版了。** 除了 PMTiles 類（走另一條分支）
+與那 6 個 religion overlay，其他 geojson 圖層全都沒建起來。
+
+抓法是 `map.addSource` 探針，不是讀 code 推論：
+帶 `attribution: undefined` → NOT added；不帶這個鍵 → added。
+
+**通則**：**可能是 `undefined` 的值不要直接寫進 style / spec 物件**，
+要用 `...(x ? { k: x } : {})`。JS 的 `{k: undefined}` 與「沒有 k」在多數 schema
+驗證器眼中是兩件事，而 Mapbox 選擇報錯而不是忽略。
+
+### ② NCDR 災害示警中文亂碼 —— 從 2022 年零星寫壞到現在
+
+用戶看到 popup 一片西里爾字母。查下來**亂碼在 DB 裡**，上游 CAP 檔本身是乾淨 UTF-8：
+
+```
+上游 <headline>重大火災事件通報</headline>
+DB   йҮҚеӨ§зҒ«зҒҪдәӢд»¶йҖҡе ұ
+```
+
+根因：`_fetch_cap` 用 `r.text`。NCDR 各機關 Capstorage 的 Content-Type **沒帶 charset**
+（實測 `application/xml`、`r.encoding is None`），requests 退回 chardet 猜測 ——
+中文 UTF-8 位元組常被猜成西里爾單位元組碼頁。**猜對就正常、猜錯就整段亂碼**，
+所以是零星的：16,815 筆裡壞 95 筆（0.6%），反解出 `ptcp154` 75 筆、`cp1251` 16 筆、
+壞兩次救不回的 4 筆。
+
+為什麼沒早點發現：
+1. 只有 0.6%，而且分散在四年間。
+2. `feed_title` / `author` 走 `r.json()`（JSON 規格固定 UTF-8）**一直是好的**，
+   畫面上只有部分欄位亂碼，看起來像個別資料品質問題而非系統性 bug。
+3. 沒有任何檢查會看「寫進 DB 的中文是不是亂碼」。
+
+修法是 `r.content` + `ET.fromstring(bytes)`，由 XML 宣告決定編碼。
+既有 95 筆**沒有用反解猜測**，一律回上游 `cap_url` 重抓 ground truth
+（實測 95 筆全數 HTTP 200），用與修好後的 collector 完全相同的路徑解析。
+
+**還有一個坑**：第一次修完寫入後又冒出 17 筆亂碼 —— Zeabur 上的 collector
+還在跑舊碼，15 分鐘一次的 upsert 把生效中的示警又蓋回去。
+**修資料前要先確認寫入端已經停止產生壞資料**，否則是跟 collector 賽跑。
+（最後 17 筆不用手動修：新版部署後那次 upsert 自己用正確中文蓋回去了。）
+
+### ③ 公衛週報數值被灌水 13 倍 —— 畫面畫出一條假的暴跌曲線
+
+`live.public_health_weekly` 的唯一約束含 `is_imported`，而 RODS 來源（類流感／腸病毒）
+該欄恆為 NULL。`NULL <> NULL` 讓 collector 的 `ON CONFLICT DO NOTHING` **永遠不觸發** ——
+每週收集一次就多存一份完整快照。**174,002 列 vs 14,730 個唯一鍵。**
+
+RPC 加總時數值被乘上「該週被收集過幾次」，愈舊的週被收過愈多次：
+
+| 類流感 W29~W32 | 值 |
+|---|---|
+| 畫面顯示 | `{47395, 38415, 26877, 13304}` ← 假的暴跌 |
+| 真值 | `{11869, 12816, 13463, 13304}` ← 持平微升 |
+
+YoY 更是純算術幻覺：`1 − 1/13 ≈ −92%`，所以類流感與腸病毒都顯示 −91%，
+真值是 **+17%** 與 **+18%**。**最新一週的頭條數字是對的**（它只被收過一次），
+錯的是 sparkline 與 YoY —— 這正是它能撐這麼久沒被發現的原因。
+
+去重時**必須保留 `collected_at` 最新的一列，不可任選一筆**：
+同一 key 的多份副本值不完全相同（2026-W29 台南市 65+ 為 431 vs 432），
+證明 **CDC 會回修數字**，collector 原本註解寫的「CDC 確認後不會回修」是錯的。
+配套一定要把 `DO NOTHING` 改 `DO UPDATE`，否則約束修好後數值會凍在第一次抓到的未修訂值。
+
+順帶：這張表還有第三個 bug —— 前端 `HEALTH_DEFAULTS` 的 key 是 `flu`/`entero`，
+RPC 回的是 DB 的 `disease_code`（`influenza`/`enterovirus`），
+`if (!def) continue` 把三筆裡的兩筆**默默丟掉**，畫面只剩登革熱。
+**修這個 id 對照必須排在去重之後** —— 只修它會讓兩張帶著假「−91% 大跌」的卡浮上檯面，
+比原本只有一張卡更糟。
