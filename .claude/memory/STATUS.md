@@ -33,7 +33,7 @@
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
 | Monitor 微調（#153） | done：`tsc -b`＋650 測試 | done：兩個 zoom 常數＋`flex:1 1 0%` | N/A | N/A | N/A | N/A | **done**：正式站 chunk 含 `influenza`（本輪才有的字串） | done：200 / 0.89s | done（**local 3721**，1920×1080 三模式）；**正式站 not run** |
-| 公衛去重（mig 367 + collectors #53 + 前端） | done：pytest 184 | done：約束＋collector＋id 對照 | N/A | N/A | **done**：交易內斷言 14,730／W29=11,869／W32=13,304／零重複 | N/A | **blocked**：HiCloud VM collector 未重新部署 | N/A | done（local）：三卡 +17%／−88%／+18% |
+| 公衛去重（mig 367 + collectors #53 + 前端） | done：pytest 184 | done：約束＋collector＋id 對照 | N/A | N/A | **done**：交易內斷言 14,730／W29=11,869／W32=13,304／零重複 | N/A | **done（2026-08-22）**：HiCloud VM 已部署新版，手動跑一次後 14,269 列的 `collected_at` 由 08-20 03:00 推進到 08-22 07:52 —— `DO NOTHING` 時該值永遠不會動，故 `DO UPDATE` 確認生效；總列數仍 14,730、重複 0 | N/A | done（local）：三卡 +17%／−88%／+18% |
 | 在監回補 | N/A | done：RPC 本來就回序列，前端原本丟掉 `rows[1..n]` | N/A | N/A | **done**：2,501 列、RPC 回 214 筆 | N/A | N/A | N/A | done（local）：趨勢 214 點＋53 天缺口斷線 |
 | 食品價格 pipeline＋排程（analytics #53） | done：4 步實跑 | done：`--start` 月初防呆實測會擋 | N/A | **done**：14,056 列 upsert | **done**：入庫確認四指數日期 | N/A | done：`launchctl list` 可見 | N/A | done（local）：停更警示自動解除 |
 | attribution regression（#155） | done：`tsc -b`＋650 測試 | done：`...(x ? {k:x} : {})` | N/A | N/A | N/A | N/A | **unknown**：minified chunk 無法區分是否含此 PR | done：200 | done（**local 6002**）：source 103→264、孤兒層 0 |
@@ -74,19 +74,18 @@ NCDR CAP 中文亂碼（從 2022 年零星寫壞）。細節見 `INCIDENTS.md` �
 
 ## Current blockers
 
-1. **PH-1（P1）**：HiCloud VM 的公衛 collector 未重新部署 → 吃不到 `DO UPDATE`。
-   期間是安全的（約束已修好、重複進不來），只是吃不到 CDC 的回修值。
-2. **PH-2（P1）**：登革熱上游被 CDC 整個下架（404），該卡目前沒有活的來源，需三選一決策。
-3. **PR-1（P2）**：migration **369** 已寫好但未 apply，待拍板。
-4. 兩個 repo 的本地預設分支有平行 session 未推 commit，無法 ff pull —— **不代為處理**。
-5. 既有 blockers（CAT-1、G016、BR-2/BR-3、DS-01/02）狀態不變，見 `BACKLOG.md`。
+1. **PH-2（P1）**：登革熱上游被 CDC 整個下架（404），該卡目前沒有活的來源，需三選一決策。
+2. **PR-1（P2）**：migration **369** 已寫好但未 apply，待拍板。
+3. 兩個 repo 的本地預設分支有平行 session 未推 commit，無法 ff pull —— **不代為處理**。
+4. 既有 blockers（CAT-1、G016、BR-2/BR-3、DS-01/02）狀態不變，見 `BACKLOG.md`。
 
 ## Next-session entry
 
 1. **repo/branch**：mini-taiwan-pulse `master`（0/0、乾淨）。
-2. **第一個可執行步驟**：重新部署 HiCloud VM 的 `cdc_public_health_weekly`（BACKLOG `PH-1`）。
-3. **驗收條件**：VM 跑完一輪後，同一 key 的 `metric_value` 會跟著 CDC 回修更新
-   —— 用 2026-W29 台南市 65+ 那筆（431 vs 432）對照。
+2. **第一個可執行步驟**：登革熱換源三選一（BACKLOG `PH-2`，P1）——
+   CDC 已把 `Weekly_Age_County_Gender_061.csv` 整個 dataset 下架，
+   VM collector 每次跑都會 `[ERROR] dengue: 404`（2026-08-22 手動跑仍是）。
+3. **驗收條件**：該卡有活的來源、或卡片被下架，且 collector log 不再出現 dengue 404。
 4. **待拍板**：migration 369（`PR-1`）、登革熱換源三選一（`PH-2`）。
 5. **兩張備份表**待確認後 DROP：`public_health_weekly_backup_20260821`、
    `disaster_alerts_mojibake_backup_20260822`。
