@@ -42,6 +42,7 @@ import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
 import { VesselZoneCard } from "./VesselZoneCard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
+import { TraDelayBoard } from "./TraDelayBoard";
 import {
   TyphoonCard, EarthquakeCard, RadiationCard, LightningCard,
 } from "./HazardCards";
@@ -729,6 +730,7 @@ export function MonitorPanel({
     plaBoard: <PlaBoard open={open} />,
     vesselZone: <VesselZoneCard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
+    traDelay: <TraDelayBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
     erCongestion: <ERCard open={open} />,

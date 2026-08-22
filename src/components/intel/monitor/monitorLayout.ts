@@ -31,7 +31,8 @@ export type MonitorWidgetId =
   | "typhoon"
   | "earthquake"
   | "radiation"
-  | "lightning";
+  | "lightning"
+  | "traDelay";
 
 export interface MonitorGridItem {
   /** widget id（對應 MonitorPanel 的 widget 對照表） */
@@ -107,6 +108,8 @@ export const MONITOR_GRID_GAP = 10;
  * - 2026-08-05 七版 — 新增 foodPriceBoard（食品價格監測）
  * - 2026-08-10 八版 — TAIEX 拆出獨立 widget；plaBoard / foodPriceBoard 加高給圖表
  * - 2026-08-10 九版 — 資訊卡改 `fit: "content"`（高度跟內容、欄內流式下推）
+ * - 2026-08-22 十一版 — 新增 traDelay（台鐵誤點）；vesselZone h 11→6 讓出左欄尾段，
+ *   維持左右欄同止 y68。⚠ 本版座標為接線時暫定、非沙盒匯出，定稿請回沙盒重拖。
  */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
@@ -158,7 +161,15 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // 頂層才維持「上方三欄 + 下方左右兩欄(5+7)」的兩段結構
   // （monitorPacking.test.ts 有斷言；第一版放最底部全寬 w12 會多切出第三段）。
   // 也刻意不用 w12：全寬約 1200px，柱狀圖會被拉到看不出形狀，w5 與 plaBoard 一致。
-  { i: "vesselZone", x: 0, y: 57, w: 5, h: 11, fit: "content" },
+  // h 11→6（2026-08-22）：純粹讓出左欄尾段給 traDelay。兩格都是 fit:"content"，
+  // h 不是實際高度、只決定欄內順序與拆解，所以縮 h 不會壓縮畫面上的船舶卡。
+  { i: "vesselZone", x: 0, y: 57, w: 5, h: 6, fit: "content" },
+  // 台鐵誤點（2026-08-22，migration 369）。
+  // ⚠️ 為什麼卡在 y63–68 而不是接在最底部：左右兩欄必須**同時結束**於 y68。
+  // 先前試過放 y68（左欄延伸到 y76），y68 以下只剩左欄 → guillotine 在那裡切出
+  // 貫穿全寬的第三段，monitorPacking「頂層拆成上方三欄 + 下方左右兩欄」直接紅。
+  // 版面要正式定稿請回沙盒拖完重新匯出整份 MONITOR_LAYOUT。
+  { i: "traDelay", x: 0, y: 63, w: 5, h: 5, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */

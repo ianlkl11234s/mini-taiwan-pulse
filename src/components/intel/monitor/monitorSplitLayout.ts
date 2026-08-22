@@ -127,6 +127,8 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "plaBoard", x: 0, y: 88, w: 12, h: 12, fit: "content" },
   // 接在共機卡之後 —— 兩者同屬「軍事態勢」，一個看空域一個看海域
   { i: "vesselZone", x: 0, y: 100, w: 12, h: 10, fit: "content" },
+  // 台鐵誤點（2026-08-22）：窄版底部沿用全寬堆疊，不影響「兩欄同止」規則。
+  { i: "traDelay", x: 0, y: 110, w: 12, h: 8, fit: "content" },
 ];
 
 /**
