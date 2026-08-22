@@ -457,7 +457,7 @@ Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（
     只是一直 upsert 同一天。**沒有日更的替代源**（rjsd 矯正統計是月粒度且口徑不同）。
     此源 2026-02-02~03-26 曾斷 53 天後自己復活，故不判死刑。
   - ⚠️ RPC 視窗仍錨在 `now()`，上游不復活的話卡片會逐日縮水、約 2027-05 整張變空 →
-    待拍板的 migration 369 改錨 `max(observed_date)`（見 BACKLOG `PR-1`）。
+    待拍板的 migration 改錨 `max(observed_date)`（見 BACKLOG `PR-1`；檔名不帶編號，apply 當天才取號）。
 
 ### 3 個 police_justice PMTiles（S3 `deploy-assets/police_justice/`）
 

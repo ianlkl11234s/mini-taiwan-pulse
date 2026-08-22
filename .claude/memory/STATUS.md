@@ -75,7 +75,10 @@ NCDR CAP 中文亂碼（從 2022 年零星寫壞）。細節見 `INCIDENTS.md` �
 ## Current blockers
 
 1. **PH-2（P1）**：登革熱上游被 CDC 整個下架（404），該卡目前沒有活的來源，需三選一決策。
-2. **PR-1（P2）**：migration **369** 已寫好但未 apply，待拍板。
+2. **PR-1（P2）**：在監 RPC 視窗改錨 `max(observed_date)` 的 migration 已寫好但未 apply，待拍板。
+   **檔名刻意不帶編號**（`prison_population_window_anchor.PENDING.sql`）—— 已讓號三次
+   （367 被公衛去重、368 被 religion PII revoke、369 被 tra_delay_daily 佔用），
+   本工作區長期有平行 session，預先取號一定會被搶走。**apply 當天才取號。**
 3. 兩個 repo 的本地預設分支有平行 session 未推 commit，無法 ff pull —— **不代為處理**。
 4. 既有 blockers（CAT-1、G016、BR-2/BR-3、DS-01/02）狀態不變，見 `BACKLOG.md`。
 
@@ -86,7 +89,7 @@ NCDR CAP 中文亂碼（從 2022 年零星寫壞）。細節見 `INCIDENTS.md` �
    CDC 已把 `Weekly_Age_County_Gender_061.csv` 整個 dataset 下架，
    VM collector 每次跑都會 `[ERROR] dengue: 404`（2026-08-22 手動跑仍是）。
 3. **驗收條件**：該卡有活的來源、或卡片被下架，且 collector log 不再出現 dengue 404。
-4. **待拍板**：migration 369（`PR-1`）、登革熱換源三選一（`PH-2`）。
+4. **待拍板**：在監 RPC migration（`PR-1`，待取號）、登革熱換源三選一（`PH-2`）。
 5. **兩張備份表**待確認後 DROP：`public_health_weekly_backup_20260821`、
    `disaster_alerts_mojibake_backup_20260822`。
 6. **沿用未做**：`.gis-agent-system/journal/` 當月檔仍未 append（上一輪就欠）；

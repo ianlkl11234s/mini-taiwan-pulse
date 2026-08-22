@@ -1,66 +1,15 @@
--- ⚠️ 編號兩度順延（尚未 apply）：367 已被 public_health_weekly 去重那筆佔用、
---    368 已被 religion PII revoke 佔用，故本檔取 369。
---    取號前請再確認一次 gis-platform/migrations/ 的當前最大編號 —— 本工作區
---    長期有平行 session，編號會被別人先拿走。
--- ============================================================
--- Migration 367: get_prison_population_window() 改錨定 max(observed_date)
---                + 新增 public.get_prison_population_summary()
--- ============================================================
--- 【1】改錨定 = 必要（時間軸能不能長期活著的關鍵）
--- 【2】get_prison_population_summary = 選配（比照 336 的 get_food_price_summary，
---       只是把區間增減／峰谷搬到 DB 算，前端自己算也行；不想要就刪掉第 2 段）
--- ⚠️ 提案，**尚未 apply**。migration 需 user 拍板（CLAUDE.md 鐵則）。
---    編號 367 = gis-platform/migrations/ 現有最大 366 (vessel_zone_daily) + 1。
+-- ⚠️ 檔名刻意不帶編號（2026-08-22 起）。
 --
--- 背景（2026-08-20 調查）：
---   上游 prisonmuseum.moj.gov.tw/jqw_pub/today.xml 自 2026-05-16 起停止發布，
---   內容永遠停在 115/05/15。DB 因此只有 1 筆 row（observed_date=2026-05-15）。
---   歷史可從 jqw_pub/mjac.zip 回填 2,501 天（2019-04-18 ~ 2026-05-15）。
+-- 這份 migration 已經讓號三次：367 被 public_health_weekly 去重佔用、
+-- 368 被 religion PII revoke 佔用、369 被 tra_delay_daily 佔用。
+-- 本工作區長期有平行 session，只要它一天沒 apply，任何預先取的號都會再被搶走。
 --
--- 問題：migration 264 的 window 錨在 `now()`：
---     WHERE observed_date >= (now() AT TIME ZONE 'Asia/Taipei')::date - p_days
---   上游不恢復的話，回填完 p_days=365 只看得到 215 天，且每天少一天，
---   約 2027-05-15 之後整張卡會變空 —— 明明 DB 有 7 年資料。
+-- **要 apply 的那一天才取號**：
+--   ls gis-platform/migrations/ | grep -E '^[0-9]{3}_' | sort | tail -1
+-- 拿到當前最大編號 +1，再把本檔複製過去改名。
+-- （repo 已有 358→366 的痛苦重編前例，commit 1bffc0a。）
 --
---   本專案既有慣例（336_food_price_rpc.sql get_food_price_daily）就是錨 max()：
---     WHERE trade_date >= (SELECT max(trade_date) FROM ...) - p_days
---   264 是唯一的例外。本 migration 把它拉齊。
---
--- 取捨（apply 前請確認）：
---   錨 max() = 「最後 N 天有資料的日子」，上游死掉時卡片仍看得到完整趨勢，
---   但**不會再因為資料變舊而變空** → 前端必須自己顯示 observed_date 標示資料截止日，
---   否則使用者會誤以為是今天的數字。PrisonCard 已經在標題印 observed_date，OK。
---
--- 驗證（apply 後跑）：
---   SELECT count(*), min(observed_date), max(observed_date)
---     FROM public.get_prison_population_window(365);
---   BEGIN; SET LOCAL ROLE anon;
---     SELECT count(*) FROM public.get_prison_population_window(365);
---     SELECT * FROM public.get_prison_population_summary(365);
---   ROLLBACK;
---
--- 套用：psql "$SUPABASE_DB_URL" -f 369_prison_population_window_anchor.sql
--- 回滾：⚠️ **不要**重新套 264_rpc_prison_population_window.sql —— 該檔內文寫的是
---       `FROM realtime.prison_population_daily`，而 schema 已被 312_move_realtime_to_live.sql
---       搬到 live.*，照套會指向不存在的表。用下面這段（= apply 前 pg_get_functiondef 的實況）：
---
---   CREATE OR REPLACE FUNCTION public.get_prison_population_window(p_days integer DEFAULT 30)
---    RETURNS TABLE(observed_date date, total_inmates integer, male_inmates integer,
---                  female_inmates integer, approved_capacity integer, over_capacity_pct numeric,
---                  new_in_count integer, new_out_count integer)
---    LANGUAGE sql STABLE
---    SET statement_timeout TO '10s'
---    SET search_path TO 'public', 'pg_temp'
---   AS $function$
---       SELECT observed_date, total_inmates, male_inmates, female_inmates,
---              approved_capacity, over_capacity_pct, new_in_count, new_out_count
---       FROM live.prison_population_daily
---       WHERE observed_date >= ((now() AT TIME ZONE 'Asia/Taipei')::date - make_interval(days => p_days))
---       ORDER BY observed_date DESC;
---   $function$;
---
---       + DROP FUNCTION IF EXISTS public.get_prison_population_summary(INTEGER);
--- ============================================================
+-- 狀態：**尚未 apply**，等用戶拍板。詳見同目錄 README「仍待拍板」段。
 
 BEGIN;
 
