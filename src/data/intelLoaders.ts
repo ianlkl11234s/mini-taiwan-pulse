@@ -859,3 +859,150 @@ const vesselZoneCache = cachedByKey(
 export function fetchVesselZoneDaily(windowDays = 120): Promise<VesselZoneDay[]> {
   return vesselZoneCache(String(windowDays));
 }
+
+// ── 台鐵誤點（migration 369）────────────────────────────────────
+
+/**
+ * 台鐵每日誤點彙總。
+ *
+ * 對應 gis-platform migration 369（`analytics.tra_delay_summary_daily` 預聚合表 + 薄 RPC）。
+ * 來源是 TDX TrainLiveBoard 每 2 分鐘快照 × 每日全量班表。
+ *
+ * ⚠️ 兩個必須誠實呈現的口徑問題：
+ *  1. **分母有兩個**：班表班次（scheduledTrains）與實際被觀測到的班次（observedTrains），
+ *     覆蓋率約 85%（live board 不是每班都回報）。用不同分母算準點率可差到 15pp，
+ *     所以畫面要標覆蓋率，不能只給一個「準點率」數字。
+ *  2. **誤點有兩種口徑**：delayedOver5 是「今天曾經誤點 5 分以上」、
+ *     delayedP90Over5 是「今天多數時間誤點 5 分以上」。前者對上游尖刺敏感
+ *     （實測 TDX 偶有 6→95→7 分的假尖峰），後者穩健但低估短時間誤點。
+ */
+export interface TraDelayDay {
+  serviceDate: string;
+  scheduledTrains: number | null;
+  observedTrains: number;
+  coveragePct: number | null;
+  delayedOver0: number;
+  delayedOver5: number;
+  delayedOver10: number;
+  delayedOver15: number;
+  delayedOver30: number;
+  delayedP90Over5: number;
+  /**
+   * 口徑 C（到站誤點近似）—— 分母是 nearDestTrains，不是 observedTrains。
+   * 只計「最後觀測落在終點前 3 站內」的班次，最接近一般人講的「這班車誤點了」。
+   * nearDestTrains = 0 代表當天沒有班表可對照（班表缺漏 6 天 + 班表開始前 3 天），
+   * 此組指標無意義，畫圖必須斷開不可補值連過去。
+   */
+  nearDestTrains: number;
+  nearDestOver0: number;
+  nearDestOver5: number;
+  nearDestOver15: number;
+  nearDestAvgDelay: number | null;
+  /** 準點率 %：分母為 observedTrains、閾值 5 分（口徑 A：途中曾誤點） */
+  ontimeRatePct: number | null;
+  avgDelayMin: number | null;
+  p90DelayMin: number | null;
+  maxDelayMin: number | null;
+  byTrainType: Record<string, TraDelayTypeStat> | null;
+}
+
+export interface TraDelayTypeStat {
+  trains: number;
+  delayed_5: number;
+  avg_delay: number;
+  max_delay: number;
+}
+
+export interface TraDelayTrain {
+  serviceDate: string;
+  trainNo: string;
+  trainType: string;
+  originStation: string | null;
+  destinationStation: string | null;
+  scheduledDeparture: string | null;
+  maxDelayMin: number | null;
+  p90DelayMin: number | null;
+  lastDelayMin: number | null;
+  /** 最後觀測是否落在終點前 3 站內；null = 落在通過站無法判斷 */
+  nearDestination: boolean | null;
+  obsCount: number;
+}
+
+async function _fetchTraDelaySummary(days: number): Promise<TraDelayDay[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `tra-delay:summary:${days}`,
+    "台鐵誤點彙總",
+    supabase.rpc("get_tra_delay_summary", { p_days: days }),
+  );
+  if (error) {
+    console.warn("[Intel] get_tra_delay_summary failed:", error.message);
+    return [];
+  }
+  return asArray<Record<string, unknown>>(data).map((r) => ({
+    serviceDate: String(r.service_date),
+    scheduledTrains: num(r.scheduled_trains),
+    observedTrains: Number(r.observed_trains ?? 0),
+    coveragePct: num(r.coverage_pct),
+    delayedOver0: Number(r.delayed_over_0 ?? 0),
+    delayedOver5: Number(r.delayed_over_5 ?? 0),
+    delayedOver10: Number(r.delayed_over_10 ?? 0),
+    delayedOver15: Number(r.delayed_over_15 ?? 0),
+    delayedOver30: Number(r.delayed_over_30 ?? 0),
+    nearDestTrains: Number(r.near_dest_trains ?? 0),
+    nearDestOver0: Number(r.near_dest_over_0 ?? 0),
+    nearDestOver5: Number(r.near_dest_over_5 ?? 0),
+    nearDestOver15: Number(r.near_dest_over_15 ?? 0),
+    nearDestAvgDelay: num(r.near_dest_avg_delay),
+    delayedP90Over5: Number(r.delayed_p90_over_5 ?? 0),
+    ontimeRatePct: num(r.ontime_rate_pct),
+    avgDelayMin: num(r.avg_delay_min),
+    p90DelayMin: num(r.p90_delay_min),
+    maxDelayMin: num(r.max_delay_min),
+    byTrainType: (r.by_train_type as Record<string, TraDelayTypeStat> | null) ?? null,
+  }));
+}
+
+const traDelaySummaryCache = cachedByKey((k: string) => _fetchTraDelaySummary(Number(k)), TTL_DAILY);
+export function fetchTraDelaySummary(days = 60): Promise<TraDelayDay[]> {
+  return traDelaySummaryCache(String(days));
+}
+
+async function _fetchTraDelayTrains(key: string): Promise<TraDelayTrain[]> {
+  if (!supabaseConfigured) return [];
+  const [day, minDelay, limit] = key.split("|");
+  const { data, error } = await withLoading(
+    `tra-delay:trains:${key}`,
+    "台鐵誤點車次",
+    supabase.rpc("get_tra_delay_trains", {
+      p_day: day || null,
+      p_min_delay: Number(minDelay),
+      p_limit: Number(limit),
+    }),
+  );
+  if (error) {
+    console.warn("[Intel] get_tra_delay_trains failed:", error.message);
+    return [];
+  }
+  return asArray<Record<string, unknown>>(data).map((r) => ({
+    serviceDate: String(r.service_date),
+    trainNo: String(r.train_no),
+    trainType: String(r.train_type ?? ""),
+    originStation: r.origin_station ? String(r.origin_station) : null,
+    destinationStation: r.destination_station ? String(r.destination_station) : null,
+    scheduledDeparture: r.scheduled_departure ? String(r.scheduled_departure) : null,
+    maxDelayMin: num(r.max_delay_min),
+    p90DelayMin: num(r.p90_delay_min),
+    lastDelayMin: num(r.last_delay_min),
+    nearDestination: r.near_destination === null || r.near_destination === undefined
+      ? null
+      : Boolean(r.near_destination),
+    obsCount: Number(r.obs_count ?? 0),
+  }));
+}
+
+const traDelayTrainsCache = cachedByKey(_fetchTraDelayTrains, TTL_DAILY);
+/** @param day YYYY-MM-DD；空字串 = 昨日（RPC 預設） */
+export function fetchTraDelayTrains(day = "", minDelay = 5, limit = 20): Promise<TraDelayTrain[]> {
+  return traDelayTrainsCache(`${day}|${minDelay}|${limit}`);
+}
