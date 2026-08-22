@@ -45,6 +45,8 @@ DB 端 1023 個 public function 但前端只用得到 158 個、有 RPC 平均�
 | A3 | **靜態資產線上活性**：CDN 上是否還 200 | `curl -I`（**HEAD 不 GET**，有 46 MB 級檔案）+ content-length 比對本機 | ⚙️ |
 | A4 | **PMTiles 遠端存在性**：94 個切片檔在 S3／CDN 上都還在 | HEAD + size；本機 sourceLayer 已有 `pmtilesContract` 守 | ⚙️ |
 | A5 | **孤兒資產**：S3／`public/` 有檔但無任何 manifest 引用 | 反向比對，抓出付錢養的死檔 | ⚙️ |
+| A6 | 圖層執行期建置 | 開瀏覽器跑正式站，比對 `window.__overlaySourceIds`（registry 宣告）與 `map.getStyle().sources`（實際建起來）。缺任何一個 → red | `probe_runtime.ts` |
+| A7 | 文字欄位亂碼 | 掃 `live`/`realtime`/`analytics` 的 text 欄位有無西里爾字母（U+0400-U+04FF）。台灣政府資料不可能合法出現 → count>0 直接 red | `collect_supabase.sh` |
 
 ### B. 儲存與成本 — 「Supabase 儲存狀態 / S3 價格」
 
@@ -269,3 +271,37 @@ skill 只**判讀**不收集（LLM 做趨勢比較、分級、寫成人看得懂
 
 **不在白名單 = 不自動做**：搬移／刪除文件、改程式碼、改 migration、改 pg_cron、動 S3／R2 物件、
 push、deploy、`git add -A`。這些一律列進報告等拍板。
+
+
+---
+
+## 2026-08-22 新增：A6 / A7（兩個「靜態檢查抓不到」的故障型態）
+
+同一天發現兩個 bug，共同點是**所有既有守門機制都看不到它們**：
+
+| bug | 為什麼躲過既有檢查 |
+|---|---|
+| `attribution: undefined` → 161 個 source 建不出來 | 資產照樣回 200（A3/A4 綠）、RPC 照樣存在（A2 綠）。只有把地圖真的跑起來才看得到 |
+| NCDR 災害示警中文亂碼 | 資料照樣寫進去、筆數照樣成長。沒有任何檢查看「寫進去的中文是不是中文」 |
+
+### A6 的判準修正（實測推翻第一版設計）
+
+第一版寫成「找 layer 指向不存在的 source（孤兒層）」，並假設健康時恆為 0。
+**注入真 bug 實測後發現這個訊號根本不會亮**：`addSource` 失敗後 `addLayer` 也會一起失敗，
+style 裡是 103 source / 226 layer 的自洽狀態，孤兒層 = 0，看起來完全正常。
+
+改成跟 `window.__overlaySourceIds` 對帳後才會亮：
+
+| 狀態 | 結果 |
+|---|---|
+| 注入 bug | 🔴 expected=242 / actual=103 / **missing=157**，並點名是哪些 sourceId |
+| 移除 bug | 🟢 expected=242 / actual=264 / missing=0 |
+
+教訓：**沒看過它亮紅燈的守門機制不算守門。** 新增檢查項時要故意把故障放回去試一次。
+
+### A7 的成本取捨
+
+全掃 504 張表 / 1 億列要 5 分鐘以上。降成「小表全掃、大表抽樣」後 64 秒。
+中間踩到一個坑：`pg_class.reltuples = -1` 是 PG14+ 的「從未 ANALYZE」語意，
+原本寫 `max(est, 0)` 把它壓成 0，導致 `ship_positions` / `bus_positions` 這種高頻大表
+被誤判成小表全掃 —— 最慢 8 張表吃掉整支收集器 60% 的時間。

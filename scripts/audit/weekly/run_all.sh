@@ -31,6 +31,7 @@ COLLECTORS=(
   "upstream|bash|scripts/audit/weekly/probe_upstream.sh|1"
   "layers|tsx|scripts/audit/weekly/probe_layers.ts|1"
   "production|bash|scripts/audit/weekly/probe_production.sh|1"
+  "runtime|tsx|scripts/audit/weekly/probe_runtime.ts|1"
   "storage|bash|scripts/audit/weekly/collect_storage.sh|1"
   "docs|tsx|scripts/audit/weekly/check_docs.ts|0"
   "hygiene|bash|scripts/audit/weekly/check_hygiene.sh|0"

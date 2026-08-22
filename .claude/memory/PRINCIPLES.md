@@ -1365,3 +1365,48 @@ npm ci 對 lockfile/package.json 不同步是**直接報錯拒建**，不是警�
    至少 `console.warn`，最好讓 CI 在預期環境下 skip 時直接失敗。
 3. 報告測試結果時，**skipped 數字要跟 passed 一起講**。
    本次多輪回報都只說「649 passed」，沒注意到那個 `1 skipped` 就是被跳過的守門測試。
+
+## 可能是 undefined 的值不要直接寫進 style / spec 物件（⚠ P0，2026-08-22 教訓）
+
+Mapbox 的 style 驗證對 `attribution: undefined` **直接判 fail**，
+`addSource` 靜默不建立該 source，接著該 overlay 的每一層都噴 `source not found`。
+
+實測（`map.addSource` 探針）：
+
+| source spec | 結果 |
+|---|---|
+| `{ …, attribution: undefined }` | **NOT added** |
+| 不帶這個鍵 | added |
+
+JS 的 `{k: undefined}` 與「沒有 k」在多數 schema 驗證器眼中是兩件事，
+而 Mapbox 選擇報錯而不是忽略。
+
+**規則**：
+1. 往 style / source / layer spec 塞 optional 欄位一律用 `...(x ? { k: x } : {})`，
+   不要寫 `k: config.x`。
+2. 這類錯誤**症狀會被洗版掩蓋** —— 一次事故有 161 個 source 建不出來，
+   但使用者只看到 console 最上面那幾行 tour 圖層的錯。
+   看到 `source "X" not found` 時，先量 `Object.keys(map.getStyle().sources).length`，
+   不要只修被點名的那一層。
+3. 要判斷 spec 是否被接受，用 `map.addSource` 探針實測，不要讀原始碼推論。
+
+## HTTP 抓 XML 一律用 bytes 交給 parser，不要用 `r.text`（⚠ P0，2026-08-22 教訓）
+
+`requests` 的 `r.text` 依 HTTP header 的 charset 解碼；**header 沒帶 charset 時退回
+chardet 猜測**，中文 UTF-8 位元組常被猜成西里爾單位元組碼頁（實測 `ptcp154` / `cp1251`），
+整段中文變亂碼。
+
+**猜對就正常、猜錯就整段壞**，所以症狀是零星的 —— NCDR 災害示警 16,815 筆裡壞 95 筆（0.6%），
+從 2022 年一路零星寫壞到 2026 年沒被發現。
+
+**規則**：
+1. 抓 XML 一律 `r.content` + `ET.fromstring(bytes)`，讓 **XML 宣告**
+   （`<?xml version="1.0" encoding="utf-8"?>`）決定編碼。這才是 XML 的正解，
+   完全不受上游伺服器設定不一致影響。
+2. 抓 JSON 用 `r.json()` 沒這個問題（JSON 規格固定 UTF-8）。
+   同一支 collector 兩條路徑並存時，會出現「部分欄位好、部分欄位亂碼」的詭異症狀 ——
+   那不是資料品質問題，是解碼路徑不同。
+3. 修既有壞資料時，**優先回上游重抓 ground truth**，不要靠反解猜測
+   （反解會遇到有損的情況救不回來）。
+4. **修資料前先確認寫入端已停止產生壞資料**，否則是跟 collector 賽跑 ——
+   實測修完 95 筆後 15 分鐘內又被 upsert 蓋回 17 筆。
