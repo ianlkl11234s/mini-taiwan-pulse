@@ -292,6 +292,19 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // （給 E2E / 線上排障直接操作相機、查 source/layer 狀態用）
       if (import.meta.env.DEV || window.location.search.includes("debug")) {
         (window as unknown as { __map?: mapboxgl.Map }).__map = map;
+        // 週巡檢 A6 用：這個版本的 registry 宣告了哪些 sourceId。
+        // 巡檢腳本拿它跟 `map.getStyle().sources` 對帳，就能精確指出
+        // 「哪幾個 overlay 的 source 在執行期沒建起來」。
+        //
+        // ⚠️ 為什麼要從 app 掛出來，而不是巡檢腳本自己 import registry：
+        // overlayRegistry 會連帶 import supabase client（用 `import.meta.env`），
+        // 在 Node 下跑不起來；靜態 grep 又會漏掉 factory 產生的
+        // （`scale.sourceId`、`EDU_SCHOOLS_SOURCE` 那些）。
+        // 從執行期的 registry 直接算才是唯一不會漏、也不會鏽掉的來源。
+        // OVERLAY_REGISTRY 本來就在 bundle 裡，這行不增加傳輸量。
+        (window as unknown as { __overlaySourceIds?: string[] }).__overlaySourceIds = [
+          ...new Set(OVERLAY_REGISTRY.map((c) => c.sourceId)),
+        ];
       }
       ensureH3Layers(map);
       ensurePopCountLayers(map);

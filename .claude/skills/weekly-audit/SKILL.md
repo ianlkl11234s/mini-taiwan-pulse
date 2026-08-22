@@ -30,8 +30,11 @@ CI 在 PR 時跑、`layer-onboarding` 在接線時跑、`wrap-up` 在 session �
    特別是 `pg_stat_statements_reset()`：它會清空 C1 的差分基準且不可逆
    （2026-08-21 真的被誤觸過一次，8/11~8/21 的統計因此永久遺失）。
    要驗證唯讀鎖，用 `SHOW transaction_read_only;` 讀狀態，不要真的送 DML。
-2. **執行時段無限制**：這是個人 GIS 專案的 DB，最重的一支（`probe_upstream`）也只跑 ~70 秒。
+2. **執行時段無限制**：這是個人 GIS 專案的 DB。最重的兩支是 `probe_upstream`（~70s）
+   與 `collect_supabase`（~64s，A7 亂碼掃描佔其中約 60s；不含 A7 只要 3.8s）。
    想什麼時候跑就什麼時候跑。
+   ⚠️ A7 預設是**抽樣**（小表全掃、大表抽樣），能可靠抓到「系統性解碼壞掉」，
+   但抓不到「大表裡孤零零幾筆壞」。要窮盡檢查跑 `AUDIT_MOJIBAKE_DEEP=1`（實測 5 分鐘以上）。
 3. **報告不得含密鑰**：收集器讀 env 但永不 echo 值。產報告前掃一次，
    出現疑似 secret 一律 `<REDACTED>`。
 4. **大檔一律 HEAD 不 GET**：站上有 46MB 級的 geojson。
@@ -65,9 +68,10 @@ bash scripts/audit/weekly/run_all.sh
 
 | 收集器 | 蓋到的檢查項 |
 |---|---|
-| `collect_supabase.sh` | B1 儲存量／B2 retention 缺口／B3 pg_cron 健康／C1 慢查詢 snapshot／C3 孤兒 RPC |
+| `collect_supabase.sh` | B1 儲存量／B2 retention 缺口／B3 pg_cron 健康／C1 慢查詢 snapshot／C3 孤兒 RPC／**A7 文字欄位亂碼掃描** |
 | `probe_upstream.sh` | A1 動態表斷更／F2 next_refresh 到期／上游 repo 狀態 |
 | `probe_layers.ts` | A2 RPC 死鏈／A3 A4 線上資產活性／A5 孤兒資產 |
+| `probe_runtime.ts` | **A6 圖層執行期建置**（真的開瀏覽器跑正式站，比對 registry 期望的 sourceId 與實際建起來的）|
 | `probe_production.sh` | C4 正式站回應／B6 CDN 快取有效性 |
 | `check_docs.ts` | D1 README 數字對帳（14 項：layer 數／dataClass／features 夾／主題數／主題表逐列／上游 dataset／Loader 數／collector 數／nginx location／Three.js Scene）／D2 文件齊全／D3 落後／D4 散檔／D5 狀態檔／D7 params 漂移／D8 頻率覆蓋 |
 | `check_hygiene.sh` | E1 未 push／E2 dirty／E3 大檔誤入 git／E4 public 用量 |

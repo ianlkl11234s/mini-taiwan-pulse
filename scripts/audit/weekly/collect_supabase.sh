@@ -336,6 +336,187 @@ try:
 except Exception as e:
     err("C3", e)
 
+# -- A7 文字欄位亂碼掃描 --------------------------------------------
+# 為什麼要這條（2026-08-22 教訓，見 INCIDENTS 同日 事件2）：
+# NCDR 災害示警的 collector 用 r.text 讓 requests 猜編碼，中文 UTF-8 位元組被猜成
+# 西里爾單位元組碼頁。16,815 筆裡壞 95 筆 —— 從 2022 年零星壞到 2026 年都沒被發現，
+# 因為壞的比例只有 0.6%、而且同一支 collector 的 JSON 路徑是好的，
+# 看起來只像個別資料品質問題。
+#
+# 判準：台灣的政府資料不可能合法出現西里爾字母（U+0400-U+04FF）。
+# 一出現就是解碼壞掉，不是資料內容。故 count > 0 直接 red。
+#
+# 成本控制（實測全掃 504 張表 / 1 億列要 5 分鐘以上，違反巡檢成本約束）：
+#   1. 有時間欄位的表 -> 只掃最近 N 天（預設 30，走索引）。
+#      週巡檢要抓的是「這週新寫進來的東西壞了沒」，不是每週重掃全部歷史。
+#   2. 沒有時間欄位、且估計列數 <= SMALL_TABLE_ROWS 的 -> 全掃（靜態參照表，不會長）。
+#   3. 兩者皆非 -> 跳過並記進 metrics.skipped（誠實列出，不假裝掃過）。
+#   AUDIT_MOJIBAKE_DEEP=1 可強制全掃（偶爾做深掃用，會很慢）。
+#
+# 排除清單：ALLOW_CYRILLIC 是「合法會有西里爾字母」的表。
+#   live.launches 是全球太空發射資料，Plesetsk Cosmodrome / 俄文任務名是真資料。
+#   表名含 backup 的也排除：修復前的備份本來就存著壞資料，對自己的備份報紅是噪音。
+#
+# 註：本區塊刻意不寫任何單引號字面值（用 chr(39) 組），
+# macOS bash 3.2 解析 $( ) 內的 heredoc 時會被 Python 的引號跳脫搞混。
+try:
+    Q = chr(39)
+    DQ = chr(34)
+    CYR_CLASS = "[\\u0400-\\u04FF]"
+    ALLOW_CYRILLIC = {"live.launches"}
+    # 每張表的掃描成本上限（列）。超過就改抽樣，讓大表與小表的成本一致。
+    # 預設值是量出來的（2026-08-22）：本收集器原本只跑 3.8s，A7 用 200000/2%
+    # 會變成 168s；降到 20000/0.5% 是 64s，與現有最重的 probe_upstream（~70s）同量級。
+    #
+    # 代價要講清楚：抽樣能可靠抓到「系統性解碼壞掉」（一支 collector 的每批寫入
+    # 都有固定比例壞掉），但抓不到「整張大表裡只有孤零零幾筆壞」。
+    # 要窮盡檢查請跑 AUDIT_MOJIBAKE_DEEP=1（會很慢，實測 5 分鐘以上）。
+    FULL_SCAN_ROWS = int(os.environ.get("AUDIT_MOJIBAKE_FULL_ROWS", "20000"))
+    # 大小未知的表用的固定抽樣比例（%）
+    UNKNOWN_SAMPLE_PCT = float(os.environ.get("AUDIT_MOJIBAKE_UNKNOWN_PCT", "0.5"))
+    DEEP = os.environ.get("AUDIT_MOJIBAKE_DEEP") == "1"
+
+    cur.execute("""
+        SELECT c.table_schema, c.table_name, c.column_name, c.data_type
+          FROM information_schema.columns c
+          JOIN information_schema.tables t
+            ON t.table_schema = c.table_schema AND t.table_name = c.table_name
+         WHERE c.table_schema IN ('live', 'realtime', 'analytics')
+           AND t.table_type = 'BASE TABLE'
+           AND c.table_name NOT LIKE '%%backup%%'
+         ORDER BY 1, 2, c.ordinal_position
+    """)
+    all_cols = cur.fetchall()
+
+    cur.execute("""
+        SELECT c.relnamespace::regnamespace::text, c.relname, c.reltuples::bigint
+          FROM pg_class c
+         WHERE c.relkind = 'r'
+           AND c.relnamespace::regnamespace::text IN ('live', 'realtime', 'analytics')
+    """)
+    # 保留 -1（PG14+ 的「從未 ANALYZE」語意），不要 max(x,0) 壓成 0 ——
+    # 壓成 0 會讓 ship_positions / bus_positions 這種高頻大表被誤判成小表全掃。
+    # 實測誤判的後果：最慢 8 張表吃掉整支收集器 60% 的時間。
+    est_rows = {(r[0], r[1]): r[2] for r in cur.fetchall()}
+
+    text_by_table = {}
+    for sch, tbl, col, dtype in all_cols:
+        key = (sch, tbl)
+        if dtype in ("text", "character varying"):
+            text_by_table.setdefault(key, []).append(col)
+
+    # 掃描單元：小表全掃、大表抽樣。組成後分批送（一次 SQL 掃多張表），
+    # 因為單次往返實測 87ms、503 張表光往返就 44 秒。
+    units = []
+    for (sch, tbl), cols in sorted(text_by_table.items()):
+        full_name = sch + "." + tbl
+        if full_name in ALLOW_CYRILLIC:
+            continue
+        est = est_rows.get((sch, tbl), -1)
+        pred = " OR ".join(DQ + c + DQ + " ~ " + Q + CYR_CLASS + Q for c in cols)
+        qualified = DQ + sch + DQ + "." + DQ + tbl + DQ
+        if DEEP:
+            src, mode = qualified, "full"
+        elif est < 0:
+            # 大小未知（從未 ANALYZE）。這些多半是高頻寫入的大表，
+            # 不可當小表全掃 —— 用固定比例抽樣把成本壓住。
+            src = qualified + " TABLESAMPLE SYSTEM (" + ("%.3f" % UNKNOWN_SAMPLE_PCT) + ")"
+            mode = "sampled_unknown_size"
+        elif est <= FULL_SCAN_ROWS:
+            src, mode = qualified, "full"
+        else:
+            # TABLESAMPLE SYSTEM 抽實體頁面，不需索引、成本與抽樣比例成正比。
+            # 比例算成「約 FULL_SCAN_ROWS 列」，所以大表的成本上限與小表一致。
+            pct = max(0.5, min(100.0, FULL_SCAN_ROWS * 100.0 / est))
+            src = qualified + " TABLESAMPLE SYSTEM (" + ("%.3f" % pct) + ")"
+            mode = "sampled"
+        units.append({"name": full_name, "src": src, "pred": pred, "mode": mode,
+                      "est": est, "cols": cols})
+
+    hits, skipped = [], []
+    counts = {"full": 0, "sampled": 0, "sampled_unknown_size": 0}
+    BATCH = 40
+    for i in range(0, len(units), BATCH):
+        chunk = units[i:i + BATCH]
+        # 一句 UNION ALL 掃 BATCH 張表 -> 往返次數從 503 降到 ~13
+        sql = " UNION ALL ".join(
+            "SELECT " + Q + u["name"] + Q + " AS t, count(*) AS n FROM " + u["src"]
+            + " WHERE " + u["pred"] for u in chunk
+        )
+        try:
+            cur.execute(sql)
+            got = dict(cur.fetchall())
+            for u in chunk:
+                counts[u["mode"]] += 1
+                n = got.get(u["name"], 0)
+                if n:
+                    hits.append({"table": u["name"], "rows": n, "mode": u["mode"],
+                                 "columns": u["cols"]})
+        except Exception:
+            # 整批失敗就退回逐張掃這批，避免一張怪表拖垮 40 張
+            for u in chunk:
+                try:
+                    cur.execute("SELECT count(*) FROM " + u["src"] + " WHERE " + u["pred"])
+                    n = cur.fetchone()[0]
+                    counts[u["mode"]] += 1
+                    if n:
+                        hits.append({"table": u["name"], "rows": n, "mode": u["mode"],
+                                     "columns": u["cols"]})
+                except Exception:
+                    skipped.append({"table": u["name"], "est_rows": u["est"],
+                                    "reason": "query_failed"})
+    scanned_full = counts["full"]
+    scanned_sampled = counts["sampled"] + counts["sampled_unknown_size"]
+
+    result["metrics"]["mojibake_scan"] = {
+        "deep": DEEP,
+        "full_scan_rows_threshold": FULL_SCAN_ROWS,
+        "tables_scanned_full": scanned_full,
+        "tables_scanned_sampled": scanned_sampled,
+        "tables_scanned_sampled_unknown_size": counts["sampled_unknown_size"],
+        "unknown_size_sample_pct": UNKNOWN_SAMPLE_PCT,
+        "tables_skipped": len(skipped),
+        "skipped": skipped[:20],
+        "allowlisted": sorted(ALLOW_CYRILLIC),
+        "hits": hits,
+    }
+    if hits:
+        total = sum(h["rows"] for h in hits)
+        lines = [
+            "  " + h["table"] + "：" + str(h["rows"]) + " 筆（" + h["mode"] + "，欄位 "
+            + ", ".join(h["columns"]) + "）" for h in hits
+        ]
+        scope = "全表深掃" if DEEP else ("小表全掃 + 大表抽樣（每表上限約 " + str(FULL_SCAN_ROWS) + " 列）")
+        result["findings"].append({
+            "id": "A7",
+            "level": "red",
+            "title": str(total) + " 筆資料含西里爾字母（解碼壞掉，非資料內容）",
+            "detail": (
+                "台灣政府資料不可能合法出現西里爾字母（U+0400-U+04FF）。一出現就是 collector "
+                "解碼時把 UTF-8 位元組當成單位元組碼頁解 —— 最常見成因是用 requests 的 r.text "
+                "而上游沒送 charset，chardet 猜錯。\n"
+                "修法：抓 XML 一律 r.content + ET.fromstring(bytes) 由 XML 宣告決定編碼；"
+                "既有壞資料優先回上游重抓 ground truth，不要反解猜測（雙重壞掉的反解不回來）。\n"
+                + "\n".join(lines)
+            ),
+            "evidence": ("掃描範圍 " + scope + "；full " + str(scanned_full)
+                         + " 表 / sampled " + str(scanned_sampled) + " 表 / 跳過 " + str(len(skipped)) + " 表"),
+        })
+    if skipped and not DEEP:
+        result["findings"].append({
+            "id": "A7",
+            "level": "yellow",
+            "title": str(len(skipped)) + " 張表亂碼掃描失敗",
+            "detail": (
+                "批次與逐張都查不動（型別特殊或權限）。本週這幾張沒被檢查過，"
+                "不代表乾淨。要深掃請跑 "
+                "AUDIT_MOJIBAKE_DEEP=1 bash scripts/audit/weekly/collect_supabase.sh。"
+            ),
+            "evidence": ", ".join(x["table"] for x in skipped[:8]),
+        })
+except Exception as e:
+    err("A7", e)
+
 if conn is not None:
     conn.close()
 
