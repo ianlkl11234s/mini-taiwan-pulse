@@ -62,7 +62,7 @@ TAIEX 之所以「看起來正常」只是它內容本來就超過 413px 被夾�
 | 動作 | 檔案 | 影響 |
 |---|---|---|
 | 回補 7 年歷史 | [`prison_backfill.sql`](./prison_backfill.sql)（2,501 天，2019-04-18 ~ 2026-05-15，`ON CONFLICT DO NOTHING`）| 跑完 365 天視窗內有 214 筆，趨勢圖立刻有東西。產生器：[`prison_backfill_build.py`](./prison_backfill_build.py) |
-| migration 369 | [`369_prison_population_window_anchor.sql`](./369_prison_population_window_anchor.sql) | RPC 視窗從 `now()` 錨改成 `max(observed_date)` 錨。不改的話上游不恢復時卡片會逐日縮水、約 2027-05 整張變空 |
+| migration（待取號） | [`prison_population_window_anchor.PENDING.sql`](./prison_population_window_anchor.PENDING.sql) | RPC 視窗從 `now()` 錨改成 `max(observed_date)` 錨。不改的話上游不恢復時卡片會逐日縮水、約 2027-05 整張變空 |
 | collector 加靜默斷供告警 | [`prison_collector_patch.md`](./prison_collector_patch.md) B 段 | 現在 `realtime_tables.yaml` 用 `collected_at` 判 freshness，而這是 PK=`observed_date` 的 upsert 表 → **結構上偵測不到「200 但內容三個月前」** |
 | `realtime_tables.yaml:128` `time_column: collected_at` → `observed_date` | data-collectors 共用登記檔 | 同上。共用檔，由人統一接線 |
 
@@ -189,7 +189,7 @@ TAIEX 之所以「看起來正常」只是它內容本來就超過 413px 被夾�
 順帶修：`TimeseriesSparkline` 的 X 軸步距階梯原本停在 7 天（設計時最長約 32 天），
 1Y 視窗的 268 天跨度會生出 38 個標籤疊成字牆 → 延長為 14/30/60 天步距，≤70 天維持原行為。
 
-**仍待拍板**：migration **369**（RPC 視窗改錨 `max(observed_date)`）。
+**仍待拍板**：migration（RPC 視窗改錨 `max(observed_date)`，**檔名不帶編號，apply 當天才取號**）。
 不套也能用（RPC 錨 now() 仍回 214 筆，前端已自行錨在序列末日），
 但上游持續不恢復的話卡片會逐日縮水、約 2027-05 整張變空。
 
