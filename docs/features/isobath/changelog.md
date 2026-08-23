@@ -12,7 +12,7 @@
 
 ---
 
-## 2026-08-23 — (未合併，feat/isobath 分支)
+## 2026-08-23 — PR #160 `509732c`（已上線）
 
 - 新增「海底等深線」圖層前端接線：`isobath` LayerVisibility key、manifest entry、
   overlayRegistry 一筆 config（fill=深度分帶 12 級 + line=等深線 11 級，靠 `kind` filter 分流）、
@@ -41,9 +41,23 @@
   - 三種配色模式切換皆正常
 - 陸地誤塗驗證：福州／南平／廈門／台中四個內陸點皆**未**被任何深度帶覆蓋（環差 hole 正確）
 
-### 尚未完成（需拍板）
+### 上線紀錄（2026-08-23）
 
-- ⚠️ **正式環境未部署**：`.gitignore:107` 擋 `public/base_map/*.pmtiles`，
-  prod 的 `/base_map/` 是純 volume 無 dist fallback →
-  上線前必須手動跑 `scripts/deploy/upload-deploy-assets.sh`，否則正式站 404
-- 尚未 commit / 未開 PR
+| 步驟 | 結果 |
+|---|---|
+| 上游 PR | taipei-gis-analytics **#54** → squash `494d59e` |
+| 下游 PR | mini-taiwan-pulse **#160** → squash `509732c` |
+| S3 | `deploy-assets/base_map/gebco_isobath.pmtiles`，2,930,664 bytes（與本機逐位元一致） |
+| 部署 | merge 後約 4 分鐘落地（Zeabur 綁 master，無 staging） |
+| 正式站驗證 | PMTiles HTTP 200 且 `pmtiles show` 可讀 metadata；browser 實測 z8 取得 **511 筆**（band 69 / line 442）—— **與本機數字完全一致** |
+| attribution | 正式站頁面含 GEBCO 署名 |
+
+上傳採單檔 `aws s3 cp` 而非跑整支 `upload-deploy-assets.sh` —— 後者對 `base_map/`
+用的是無條件 `aws s3 cp` 迴圈，會把 S3 上既有的 12 個檔案（約 780MB，含 297MB
+底圖與 242MB 等高線）整批重傳。容器端 `pull-deploy-assets.sh` 對 `base_map/` 是
+整夾 `aws s3 sync`（增量），新檔案自動涵蓋，不需改任何部署腳本。
+
+### 待辦
+
+- `.claude/memory/STATUS.md` 尚未更新（本次上線當下工作區被平行 session 的
+  `feat/jp-religion-layers` 佔用，未代為改動）→ 下次 `/wrap-up` 時補
