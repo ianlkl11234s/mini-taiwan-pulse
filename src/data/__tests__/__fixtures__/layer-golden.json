@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 376,
+    "keyCount": 377,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1650,6 +1650,12 @@
     },
     {
       "layers": [
+        "isobath-line"
+      ],
+      "type": "isobathLine"
+    },
+    {
+      "layers": [
         "police-station-circle"
       ],
       "type": "policeStation"
@@ -1881,6 +1887,12 @@
     },
     {
       "layers": [
+        "isobath-fill"
+      ],
+      "type": "isobathBand"
+    },
+    {
+      "layers": [
         "h3-pop-count-fill",
         "h3-pop-count-ext"
       ],
@@ -2035,6 +2047,223 @@
       "rebuildOnParamChange": null,
       "sourceId": "urban-heat-lst",
       "sourceUrl": "./environment/urban_heat_lst_taiwan.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "isobath",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "band"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "dmin"
+                ],
+                -7000,
+                "#f0faff",
+                -6000,
+                "#d6eefb",
+                -5000,
+                "#b0dcf5",
+                -4000,
+                "#86c8ee",
+                -3000,
+                "#5eaee0",
+                -2000,
+                "#3b8ec9",
+                -1000,
+                "#1d6fae",
+                -500,
+                "#0c568f",
+                -200,
+                "#0a4272",
+                -100,
+                "#083055",
+                -50,
+                "#06203a",
+                -20,
+                "#04121f",
+                "#04121f"
+              ],
+              "fill-opacity": 0.35
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "dmin"
+                ],
+                -7000,
+                "#f0faff",
+                -6000,
+                "#d6eefb",
+                -5000,
+                "#b0dcf5",
+                -4000,
+                "#86c8ee",
+                -3000,
+                "#5eaee0",
+                -2000,
+                "#3b8ec9",
+                -1000,
+                "#1d6fae",
+                -500,
+                "#0c568f",
+                -200,
+                "#0a4272",
+                -100,
+                "#083055",
+                -50,
+                "#06203a",
+                -20,
+                "#04121f",
+                "#04121f"
+              ],
+              "fill-opacity": 0.35
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "kind"
+            ],
+            "line"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "depth_m"
+                ],
+                -6000,
+                "#d6eefb",
+                -5000,
+                "#b0dcf5",
+                -4000,
+                "#86c8ee",
+                -3000,
+                "#5eaee0",
+                -2000,
+                "#3b8ec9",
+                -1000,
+                "#1d6fae",
+                -500,
+                "#0c568f",
+                -200,
+                "#0a4272",
+                -100,
+                "#083055",
+                -50,
+                "#06203a",
+                -20,
+                "#04121f",
+                "#04121f"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.4,
+                8,
+                0.7,
+                12,
+                1.4,
+                15,
+                2.2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "depth_m"
+                ],
+                -6000,
+                "#d6eefb",
+                -5000,
+                "#b0dcf5",
+                -4000,
+                "#86c8ee",
+                -3000,
+                "#5eaee0",
+                -2000,
+                "#3b8ec9",
+                -1000,
+                "#1d6fae",
+                -500,
+                "#0c568f",
+                -200,
+                "#0a4272",
+                -100,
+                "#083055",
+                -50,
+                "#06203a",
+                -20,
+                "#04121f",
+                "#04121f"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.4,
+                8,
+                0.7,
+                12,
+                1.4,
+                15,
+                2.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "isobath"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "isobath",
+      "sourceUrl": "./base_map/gebco_isobath.pmtiles"
     },
     {
       "dynamicData": null,
@@ -49324,6 +49553,46 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      }
+    ],
+    "isobath": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "單色藍（反向強調）",
+            "value": "0"
+          },
+          {
+            "label": "Haxby",
+            "value": "1"
+          },
+          {
+            "label": "Turbo",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "分帶填色",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "填色濃度 0.35",
+        "max": 0.8,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.35
       }
     ],
     "lakesPondsOsm": [

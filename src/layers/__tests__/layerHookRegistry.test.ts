@@ -141,7 +141,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
   "welfareNursingHomes", "welfareSocialWorkOrgs",
 
-  // ── OVERLAY_REGISTRY 的 PMTiles 層（63）──
+  // ── OVERLAY_REGISTRY 的 PMTiles 層（64）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
   "busStationsCity", "canopyHeight", "cemeteryOsm", "civilDefenseShelter", "contour25k",
@@ -151,7 +151,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",
   "eduDistrictJunior", "evIsland", "farmRoads", "fireHydrants", "forestCompartments",
   "forestReserve", "forestRoads", "gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc",
-  "gasCoverageTaisugar", "highways", "hikingTrails", "lakesPondsOsm", "maritimeBoundary",
+  "gasCoverageTaisugar", "highways", "hikingTrails", "isobath", "lakesPondsOsm", "maritimeBoundary",
   "medAED", "medClinic",
   "medLTC", "medPharmacy", "nonUrbanZoning", "osmExpressway", "osmRoadDrive",
   "policeIsoCityDept", "policeIsoPrecinct", "policeIsoSubstation", "propertyValueGrid",

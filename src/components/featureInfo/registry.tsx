@@ -113,6 +113,7 @@ import {
   MaritimeBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
   SlopeVectorPanel, AspectVectorPanel,
+  IsobathLinePanel, IsobathBandPanel,
 } from "./baseMapPanels";
 import {
   PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
@@ -328,6 +329,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   osmExpressway: OsmRoadDrivePanel,
   slopeVector: SlopeVectorPanel,
   aspectVector: AspectVectorPanel,
+  isobathLine: IsobathLinePanel,
+  isobathBand: IsobathBandPanel,
   // 警政司法民防 17 layer
   policeStation: PoliceStationPanel,
   womenChildWarning: WomenChildWarningPanel,
@@ -678,6 +681,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   hillshade: "山體陰影",
   slopeVector: "坡度分級",
   aspectVector: "坡向",
+  isobathLine: "海底等深線",
+  isobathBand: "海底深度分帶",
   // 警政司法民防
   policeStation: "警察機關",
   womenChildWarning: "婦幼警示點",

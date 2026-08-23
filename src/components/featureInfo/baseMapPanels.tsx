@@ -2,6 +2,7 @@ import { Row } from "./shared";
 import {
   maritimeBoundaryType, MARITIME_BOUNDARY_SOURCE_NOTE,
 } from "../../data/maritimeBoundaryTypes";
+import { formatIsobathRange, ISOBATH_ATTRIBUTION } from "../../data/isobathTypes";
 
 // Base map popup panels — 行政邊界 + 海域界線 + 等高線 + OSM 路網
 // PMTiles 來源 taipei-gis-analytics，欄位由 _manifest.json / catalog 各檔定義
@@ -149,6 +150,29 @@ export function AspectVectorPanel({ props }: { props: Record<string, unknown> })
     <div>
       <Row label="坡向" value={cls ? name : "無資料"} />
       <Row label="來源" value="坡面朝向 8 方位分級（DTM 20m 計算）" />
+    </div>
+  );
+}
+
+// 海底等深線（線）：depth_m 整數負值，11 級
+export function IsobathLinePanel({ props }: { props: Record<string, unknown> }) {
+  const depth = Number(props.depth_m ?? 0);
+  return (
+    <div>
+      <Row label="水深" value={depth ? `${Math.abs(depth).toLocaleString("zh-TW")} m` : ""} />
+      <Row label="來源" value={ISOBATH_ATTRIBUTION} />
+    </div>
+  );
+}
+
+// 海底等深線（深度分帶 band）：dmin/dmax 整數負值，12 級
+export function IsobathBandPanel({ props }: { props: Record<string, unknown> }) {
+  const dmin = Number(props.dmin ?? 0);
+  const dmax = Number(props.dmax ?? 0);
+  return (
+    <div>
+      <Row label="深度區間" value={formatIsobathRange(dmin, dmax)} />
+      <Row label="來源" value={ISOBATH_ATTRIBUTION} />
     </div>
   );
 }

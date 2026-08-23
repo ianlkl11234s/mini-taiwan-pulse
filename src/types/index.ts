@@ -788,6 +788,7 @@ export interface FeatureInfo {
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
     | "osmExpressway" | "hillshade"
     | "slopeVector" | "aspectVector"
+    | "isobathLine" | "isobathBand"
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
     | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
@@ -1209,6 +1210,7 @@ export interface LayerVisibility {
   hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
   slopeVector: boolean;        // 坡度分級向量（建管六級坡 PMTiles，可點選/疊圖）
   aspectVector: boolean;       // 坡向分級向量（8 方位 PMTiles，可點選/疊圖）
+  isobath: boolean;            // 海底等深線 GEBCO 2025（等深線 11 級 + 深度分帶 12 級，z4-12，PMTiles）
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
   policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
   womenChildWarning: boolean;         // 185 婦幼警示點

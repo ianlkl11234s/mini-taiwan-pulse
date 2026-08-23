@@ -209,6 +209,8 @@ export const THEMES: ThemeDef[] = [
           fromManifest("hillshade"),
           fromManifest("slopeVector"),
           fromManifest("aspectVector"),
+          // 海底等深線：陸域等高線／坡度／坡向的海域對照物，同屬「地形」子群
+          fromManifest("isobath"),
         ],
       },
       {
