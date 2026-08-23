@@ -69,6 +69,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
+import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
 import {
@@ -2417,6 +2418,16 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "aspectVectorOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.6, min: 0.3, max: 1, step: 0.05,
     },
+  ],
+  isobath: [
+    {
+      kind: "select", name: "isobathModeIdx", label: "配色", default: "0",
+      options: [...ISOBATH_MODES],
+      out: "isobathModeIdx", encodeNumeric: true,
+    },
+    { kind: "toggle", name: "isobathShowBands", label: "分帶填色", default: true },
+    { kind: "slider", name: "isobathOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "isobathBandOpacity", labelPrefix: "填色濃度", digits: 2, default: 0.35, min: 0, max: 0.8, step: 0.05 },
   ],
   // 溫度網格 2D（與溫度波共用資料源）——值走 hook return 餵 useTemperatureGridLayer
   temperatureGrid: [

@@ -374,6 +374,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["base-county-boundary-line", "base-county-boundary-fill"], type: "countyBoundary" },
   { layers: ["base-contour-25k-line"], type: "contour25k" },
   { layers: ["base-contour-dtm20-line"], type: "contourDtm20" },
+  // 🌊 海底等深線（線）：陸域等高線的海域對照物，同樣是細線小目標 → 緊接排在後面
+  //    （fill band 覆蓋全海域故另排在下方大面積面層那批，見檔尾）
+  { layers: ["isobath-line"], type: "isobathLine" },
   // 警政司法民防 17 layer（layer id = `${sourceId}-${suffix}`，對齊 overlayRegistry）
   { layers: ["police-station-circle"], type: "policeStation" },
   { layers: ["women-child-warning-circle"], type: "womenChildWarning" },
@@ -429,6 +432,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },
   // 🎓 高中就學區：15 個面覆蓋全台，最不該搶點擊 → 整個陣列的最末
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
+  // 🌊 海底等深線（深度分帶 fill）：覆蓋全海域的大面積 fill，同「大面積面層放最末」原則
+  { layers: ["isobath-fill"], type: "isobathBand" },
   // 🔷 H3 指標格 6 層（W2）：三個 factory 現算的六邊形網格，皆鋪滿有資料的行政區域。
   //    放在既有面層之後、田區之前 —— 這六層歷來零點擊接線，排最尾端對既有命中順序零影響。
   //    ⚠️ 每層都必須收 `-fill` **與** `-ext` 兩個 id：3D toggle 讓兩者互斥

@@ -4685,6 +4685,39 @@ export const LAYER_MANIFEST = {
     topics: ["底圖", "地形", "坡向"],
   },
 
+  // 🌊 海底等深線 GEBCO 2025（15 arc-second，Public Domain）——單一 PMTiles source-layer
+  // `isobath` 混 LineString/Polygon，靠 `kind` 屬性拆兩個 OVERLAY_REGISTRY sub-layer
+  // （fill=band 12 級深度分帶、line=line 11 級等深線），popup 因此宣告成陣列，
+  // 順序＝GIS_LAYERS 出現序（line 排在陸域等高線旁，fill 因覆蓋全海域排在大面積面層那批）。
+  isobath: {
+    key: "isobath",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "海底等深線 Isobath",
+    labelMobile: "海底等深線",
+    expandable: true,
+    color: "#0a4272",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gebco_isobath", confidence: "HIGH" }],
+      note: "GEBCO 2025 Grid 海底地形（15 arc-second ≈450m）。上游 catalog docs/data-catalog/base_map/gebco_isobath.md、handoff docs/handoff/gebco_isobath.md 皆已建立（2026-08-23）。",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "isobath",
+      url: "./base_map/gebco_isobath.pmtiles",
+      sourceLayer: "isobath",
+      minzoom: 4,
+      maxzoom: 12,
+    },
+    legend: "isobath",
+    popup: ["isobathLine", "isobathBand"],
+    params: { count: 4, kinds: ["select", "toggle", "slider", "slider"] },
+    description: "全球海底等深線（GEBCO，等深線 11 級 + 深度分帶 12 級，3 種配色模式）",
+    topics: ["底圖", "地形", "海洋", "等深線"],
+  },
+
   buildingsGba: {
     key: "buildingsGba",
     section: { theme: "底圖 Base Map", group: "建成環境" },

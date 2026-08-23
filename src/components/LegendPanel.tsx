@@ -32,6 +32,7 @@ import {
   URBAN_HEAT_CREDIT, URBAN_HEAT_COVERAGE_NOTE,
 } from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
+import { isobathLegendRows, ISOBATH_ATTRIBUTION } from "../data/isobathTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
 import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
@@ -462,6 +463,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "maritimeBoundary", render: () => <MaritimeBoundaryLegend /> },
   { id: "slopeVector", render: () => <SlopeVectorLegend /> },
   { id: "aspectVector", render: () => <AspectVectorLegend /> },
+  { id: "isobath", render: ({ overlayParams }) => <IsobathLegend modeIdx={overlayParams.isobathModeIdx ?? 0} /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
   {
     id: "policeIsoSubstation",
@@ -903,6 +905,23 @@ const ASPECT_VECTOR_CATS = [
   { color: "#984ea3", label: "NW 西北" },
   { color: "#bdbdbd", label: "平地" },
 ];
+
+// 海底等深線圖例：12 級深度分帶（深→淺），隨 modeIdx 換色（SSOT isobathTypes.ts）
+function IsobathLegend({ modeIdx = 0 }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const rows = isobathLegendRows(modeIdx);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        海底等深線 ISOBATH（深 → 淺）
+      </div>
+      <FireCatRows cats={rows} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        {ISOBATH_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
 
 function AspectVectorLegend() {
   const t = useLegendTheme();

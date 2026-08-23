@@ -48,6 +48,7 @@ import {
 import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTypes";
+import { isobathBandColorExpr, isobathLineColorExpr } from "../data/isobathTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { nonUrbanZoningColorExpr, nonUrbanZoningCodeFilter } from "../data/nonUrbanZoningTypes";
 import {
@@ -601,6 +602,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "raster-color": urbanHeatRasterColor(p?.urbanHeatModeIdx ?? 0),
           };
         },
+      },
+    ],
+  },
+
+  // ── 🌊 海底等深線 Isobath（GEBCO 2025 15″ 網格，Public Domain）──
+  // 單一 tippecanoe source-layer `isobath` 混 LineString/Polygon，靠 `kind` 屬性
+  // 拆兩個 mapbox layer：fill 吃 kind=band（12 段深度分帶），line 吃 kind=line
+  // （11 級等深線）。fill 排在 line 之前，讓等深線疊在分帶色塊之上。
+  // toggle（分帶填色）與 opacity 一律用 opacity 壓 0 切換，不用 layout.visibility
+  // （同 forestCompartments 慣例，見 overlayManager.ts 對 visibility 誤判的說明）。
+  // ⚠️ 放在 registry 前段（緊接 urbanHeat）是刻意的：band fill 覆蓋全海域，
+  //    晚加會蓋掉沿海 POI（港口/燈塔/特殊船舶/海底電纜等）。
+  {
+    id: "isobath",
+    sourceUrl: "./base_map/gebco_isobath.pmtiles",
+    sourceId: "isobath",
+    pmtiles: { sourceLayer: "isobath", minzoom: 4, maxzoom: 12 },
+    attribution: "GEBCO 2025 Grid（15″，Public Domain）",
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["get", "kind"], "band"],
+        paint: (_isDark, p) => ({
+          "fill-color": isobathBandColorExpr(p?.isobathModeIdx ?? 0),
+          "fill-opacity": (p?.isobathShowBands ?? 1) ? (p?.isobathBandOpacity ?? 0.35) : 0,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: ["==", ["get", "kind"], "line"],
+        paint: (_isDark, p) => ({
+          "line-color": isobathLineColorExpr(p?.isobathModeIdx ?? 0),
+          // 隨 zoom 縮放（layer-onboarding 線層 baseline：次要線 z6≈0.5 → z14≈2）。
+          // 固定寬度在 z13+ 會細到看不見（2026-08-23 畫面實測）。
+          // zoom 只出現在最外層 interpolate，符合 isobathTypes.ts 檔頭的表達式規則。
+          "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.4, 8, 0.7, 12, 1.4, 15, 2.2],
+          "line-opacity": p?.isobathOpacity ?? 0.85,
+        }),
       },
     ],
   },
