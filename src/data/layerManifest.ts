@@ -1061,6 +1061,58 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "環境", "垃圾"],
   },
 
+  aisstreamVessels: {
+    key: "aisstreamVessels",
+    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    label: "AISStream 船舶 AISStream Vessels",
+    labelMobile: "AISStream 船舶",
+    expandable: true,
+    color: "#22d3ee",
+    icon: Ship,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Supabase RPC get_aisstream_vessels_current；依目前 viewport 查詢最近 30 分鐘的 AIS 點位",
+      note: "AISStream API key 由 data-collectors 管理；前端只讀 gis-platform migration 371 的公開 RPC，不直接碰 live table",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGlobalMaritimeLayers 自建 global-maritime-aisstream-current GeoJSON source/circle；目前是即時點位，尚未將逐船 trail 接入",
+    },
+    legend: "aisstreamVessels",
+    popup: "aisstreamVessel",
+    params: { count: 1, kinds: ["slider"] },
+    description: "AISStream 最近 30 分鐘回報的船舶位置（視窗查詢；非全量船舶）",
+    topics: ["世界", "海事", "船舶", "AISStream"],
+  },
+
+  gfwVesselPresence: {
+    key: "gfwVesselPresence",
+    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    label: "GFW 船舶 Presence Global Fishing Watch",
+    labelMobile: "GFW 船舶 Presence",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Fish,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
+      note: "GFW_ACCESS_TOKEN 尚未申請；本層先完成獨立接線，無 token 時保持空資料，不宣稱已即時驗證或可直接識別暗船",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGlobalMaritimeLayers 自建 global-maritime-gfw-presence GeoJSON source/circle；每日/延遲資料，與 AISStream 完全分開",
+    },
+    legend: "gfwVesselPresence",
+    popup: "gfwVesselPresence",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Global Fishing Watch 船舶 presence 每日/延遲快照（不是即時 AIS，也不是暗船清單）",
+    topics: ["世界", "海事", "船舶", "GFW"],
+  },
+
   jpReligionGsi: {
     key: "jpReligionGsi",
     section: { theme: "世界 World", group: "宗教" },

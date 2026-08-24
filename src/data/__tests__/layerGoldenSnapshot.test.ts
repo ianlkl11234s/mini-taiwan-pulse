@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 380 個 layer key", () => {
+  it("涵蓋全部 382 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -121,7 +121,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-20：+1 = animalWelfarePoints（7 類動物福利服務據點）。
     // 2026-08-23：+1 = isobath（海底等深線 GEBCO 2025，等深線 11 級 + 深度分帶 12 級）。
     // 2026-08-24：+3 = jpReligionGsi / jpReligionOsm / jpReligionWikidata（日本宗教設施三獨立源）。
-    expect(keys.length).toBe(380);
+    // 2026-08-24：+2 = aisstreamVessels / gfwVesselPresence（全球海事兩個獨立來源）。
+    expect(keys.length).toBe(382);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

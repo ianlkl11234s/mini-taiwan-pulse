@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 380,
+    "keyCount": 382,
     "sections": [
       "gisLayers",
       "overlays",
@@ -532,6 +532,18 @@
         "earthquakes-global-circle"
       ],
       "type": "earthquakeGlobal"
+    },
+    {
+      "layers": [
+        "global-maritime-aisstream-circle"
+      ],
+      "type": "aisstreamVessel"
+    },
+    {
+      "layers": [
+        "global-maritime-gfw-circle"
+      ],
+      "type": "gfwVesselPresence"
     },
     {
       "layers": [
@@ -46186,6 +46198,15 @@
         "value": 0.6
       }
     ],
+    "aisstreamVessels": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
     "anfrWirelessSites": [
       {
         "label": "透明度 0.80",
@@ -49154,6 +49175,15 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "gfwVesselPresence": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.75
       }
     ],
     "govServiceOffices": [

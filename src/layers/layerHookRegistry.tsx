@@ -53,6 +53,7 @@ import {
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
+import { GlobalMaritimeHost } from "./hosts/globalMaritimeHosts";
 import {
   SatellitesHost, RoadEventsHost, FireEventsHost, FireLatestHost,
   WasteCleaningSquadHost, FreewayHost, RoadCongestionHost,
@@ -222,6 +223,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // 新層（2026-08-12）：插在 plaActivity 之後 —— 既有 entry 的相對順序不變，
   // 本層的 source/layer 因此加在共機活動區之上（船點要壓在活動區面之上才點得到）
   { id: "useVesselWatchLayer", keys: ["vesselWatch"], Host: VesselWatchHost },
+  {
+    id: "useGlobalMaritimeLayers",
+    keys: ["aisstreamVessels", "gfwVesselPresence"],
+    Host: GlobalMaritimeHost,
+  },
 
   // ── 衛星（L1204）──
   {
