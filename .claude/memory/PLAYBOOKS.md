@@ -1882,3 +1882,28 @@ pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
    worktree 的改動它看不到 → **重跑排在 PR merge 之後**，此刻跑只會寫下錯的狀態。
 8. **上游 repo 若有平行 session 的未提交改動**：只 `git add` 自己碰過的檔案路徑，
    逐一列出，**不用 `git add -A`**（見 CLAUDE.md 🔴 平行 session 條）。
+
+## PB-41 多 repo／多 worktree 大整理 → 拆分 PR → release 收斂（2026-08-24）
+
+適用：數日、多 session 的 commits 分散在多個 branch／worktree，要求把已完成的功能發布、
+保留半成品、解共用檔衝突，最後讓各 repo 預設分支與遠端同步。
+
+1. **只盤點、不切分支**：每個 repo 列 default branch、upstream、ahead/behind、dirty/staged、
+   worktrees、local-only branches、stashes、open/merged PR。先做 scope ledger，禁止一開始就 pull/rebase。
+2. **用 release unit 分類，不用 session 分類**：一單位必須可獨立說明、測試與 revert。
+   對疑似已發布 commit 跑 patch-equivalence／tree diff；已在主線的不要重發 PR。
+3. **保存現場**：預設分支 diverged 或混有未推 commits 時，先建 `backup/pre-wrapup-<date>`；
+   stash 與舊 branch 只列入清冊，不自動 pop/drop/delete。
+4. **隔離重建**：從最新遠端主線開 temporary worktree，按 exact path／topic-scoped commit
+   cherry-pick 或重建 patch；每個 PR branch 只含該 release unit。stage 一律 exact path。
+5. **共用 registry 依序整合**：先 merge 第一個 PR；下一個 branch merge／rebase 最新主線，
+   對 manifest、catalog、golden 採 set union 解衝突，再跑完整 build/test。不能只跑衝突檔測試。
+6. **外部效果另設 gate**：production migration、會 upsert DB 的 post-merge workflow、含 operational
+   metadata 的 GitHub push，各自明講 target、資料量與風險，取得批准後才執行；PR merge 授權不能
+   自動擴張成另一種 production mutation。
+7. **release truth 現場複驗**：migration 是否 applied、collector 是否 healthy、archive 是否 verified
+   以 read-only DB/runtime evidence 為準；舊文件矛盾要修正，不能照文件重跑 migration。
+8. **收斂與交接**：逐 repo 驗 `HEAD == origin/<default>`、working tree clean、open PR 清單與 CI；
+   把保留的 local-only WIP、stash、未做的 production HTTP/browser/data-quality 項目列給下一棒。
+9. **最後才寫 STATUS**：release matrix 分列 build／contract-wire／DB／collector／CI／HTTP／browser，
+   local browser + production data 不得寫成 production frontend 驗收。
