@@ -108,7 +108,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity" | "vesselWatch"
+  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -686,6 +686,7 @@ export interface FeatureInfo {
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
+    | "aisstreamVessel" | "gfwVesselPresence"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
@@ -890,6 +891,10 @@ export interface LayerVisibility {
    * ⚠️ 與 `ships`（全量 AIS，Three.js ShipScene）是**兩層**，本層為純 Mapbox circle/line。
    */
   vesselWatch: boolean;
+  /** AISStream 最近回報船位（migration 371 RPC；獨立於全量 ships 與 GFW） */
+  aisstreamVessels: boolean;
+  /** Global Fishing Watch 每日/延遲 vessel presence（獨立於 AISStream） */
+  gfwVesselPresence: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */

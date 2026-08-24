@@ -176,6 +176,7 @@ export const WORLD_TAB_THEME_TITLES: string[] = [
   WORLD_THEME_TITLE,
   COMMUNICATIONS_THEME_TITLE,
   "全球氣候 Global Climate",
+  "全球海事 Global Maritime",
 ];
 
 export const THEMES: ThemeDef[] = [
@@ -1396,6 +1397,20 @@ export const THEMES: ThemeDef[] = [
         title: "環境",
         layers: [
           fromManifest("worldTrashDebris"),
+        ],
+      },
+    ],
+  },
+
+  {
+    title: "全球海事 Global Maritime",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "船舶",
+        layers: [
+          fromManifest("aisstreamVessels"),
+          fromManifest("gfwVesselPresence"),
         ],
       },
     ],

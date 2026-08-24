@@ -107,7 +107,10 @@ import {
   LightningStrikePanel, NuclearStationPanel, EarthquakePanel,
   EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
-import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
+import {
+  EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel,
+  AisstreamVesselPanel, GfwVesselPresencePanel,
+} from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
   MaritimeBoundaryPanel,
@@ -192,6 +195,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   disasterAlert: DisasterAlertPanel,
   plaActivity: PlaActivityPanel,
   vesselWatch: VesselWatchPanel,
+  aisstreamVessel: AisstreamVesselPanel,
+  gfwVesselPresence: GfwVesselPresencePanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   freewayCongestion: FreewayCongestionPanel,
@@ -669,6 +674,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
+  aisstreamVessel: "AISStream 船舶",
+  gfwVesselPresence: "GFW 船舶 Presence",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

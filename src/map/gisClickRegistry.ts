@@ -144,6 +144,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 全球氣候 GLOBAL CLIMATE
   { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
   // 🌍 世界 WORLD
+  { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
+  { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },

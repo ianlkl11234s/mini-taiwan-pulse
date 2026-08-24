@@ -116,6 +116,42 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
   );
 }
 
+function fmtMaritimeTime(value: unknown): string {
+  if (typeof value !== "string" || !value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
+export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="船名" value={String(props.ship_name ?? "—")} />
+      <Row label="MMSI" value={String(props.mmsi ?? "—")} />
+      <Row label="船舶類型" value={String(props.ship_type ?? "—")} />
+      <Row label="航速 / 航向" value={`${props.speed_knots ?? "—"} kt / ${props.course_over_ground ?? "—"}°`} />
+      <Row label="目的地（自報）" value={String(props.destination ?? "—")} />
+      <Row label="觀測時間" value={fmtMaritimeTime(props.observed_at)} />
+      <Row label="訊息年齡" value={props.age_seconds == null ? "—" : `${Number(props.age_seconds).toFixed(0)} 秒`} />
+      <Row label="資料源" value="AISStream（AIS message feed）" />
+    </div>
+  );
+}
+
+export function GfwVesselPresencePanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="船名" value={String(props.ship_name ?? "—")} />
+      <Row label="Vessel ID" value={String(props.vessel_id ?? "—")} />
+      <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
+      <Row label="船舶類型" value={String(props.vessel_type ?? "—")} />
+      <Row label="快照日期" value={String(props.source_snapshot_date ?? "—")} />
+      <Row label="觀測時間" value={fmtMaritimeTime(props.observed_at)} />
+      <Row label="資料年齡" value={props.age_hours == null ? "—" : `${Number(props.age_hours).toFixed(1)} 小時`} />
+      <Row label="資料源" value="Global Fishing Watch（daily vessel presence；非即時）" />
+    </div>
+  );
+}
+
 // ── 氣候場 click 讀值（風場 / 海流 UV 前端取樣）──
 
 const COMPASS_16 = [

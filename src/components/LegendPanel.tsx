@@ -331,6 +331,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },
   { id: "vesselWatch", render: () => <VesselWatchLegend /> },
+  { id: "aisstreamVessels", render: () => <AisstreamVesselsLegend /> },
+  { id: "gfwVesselPresence", render: () => <GfwVesselPresenceLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -3903,6 +3905,42 @@ function VesselWatchLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         分類由船名／MMSI 規則推斷；軍艦多為他國過境（中台海軍多靜默）
+      </div>
+    </div>
+  );
+}
+
+function AisstreamVesselsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        AISSTREAM 船舶
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22d3ee", border: "1px solid #083344" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>最近 30 分鐘 AIS 回報</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        即時點位；目前未接逐船 trail
+      </div>
+    </div>
+  );
+}
+
+function GfwVesselPresenceLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        GFW VESSEL PRESENCE
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", border: "1px solid #451a03" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>每日 / 延遲 vessel presence</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        非即時 AIS；不等於暗船或 SAR unmatched 清單
       </div>
     </div>
   );
