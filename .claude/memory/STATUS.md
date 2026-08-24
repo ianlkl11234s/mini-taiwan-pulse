@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-08-24（四 repo／多 worktree 收斂；15 個 split PR；production gates 完成）
+**最後更新**：2026-08-24（四 repo／多 worktree 收斂；15 個 release PR + memory publication；production gates 完成）
 
 > 本檔只保留當前 release truth、blockers 與下一棒。歷史工作留在 git、
 > `docs/features/`、`BACKLOG.md`、`INCIDENTS.md` 與 `REFLECTIONS.md`。
@@ -9,7 +9,7 @@
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse** | 功能 release head `05d4a75` 已與 `origin/master` 同步；PR **#163** popup 座標精度、**#164** 日本宗教 raw 三層、**#165** AIS/GFW 已 merge。主樹乾淨；本次 6 顆 `memory:` commit 尚未 push，故 local master 預期 ahead 6 |
+| **mini-taiwan-pulse** | 功能 release head `05d4a75`；PR **#163** popup 座標精度、**#164** 日本宗教 raw 三層、**#165** AIS/GFW 已 merge。六顆原子 `memory:` commits 也已由獨立 PR **#166** 發布；主樹與 `origin/master` 同步、乾淨 |
 | **gis-platform** | `main == origin/main == 97d5952`、乾淨。PR **#62–#66** 已 merge：migration 370／371／372+373／374／release-truth docs |
 | **taipei-gis-analytics** | `master == origin/master == 1aaf10e`、乾淨。PR **#56–#62** 已 merge；catalog transaction fix 的 post-merge workflow 成功 |
 | **data-collectors** | `main == origin/main == 2d1856a`、乾淨；既有 PR **#55–#58** 均已 merge，無本輪未發布變更 |
@@ -23,6 +23,7 @@
 | mini-taiwan-pulse | #163 | popup coordinate precision warning | merged；CI/review pass |
 | mini-taiwan-pulse | #164 | Japan religion raw GSI/OSM/Wikidata layers | merged；禁止的 canonical POC 未進 branch history |
 | mini-taiwan-pulse | #165 | AISStream/GFW layers + release-truth correction | merged；registry conflict 採 union；tsc + 653 passed／1 skipped + browser |
+| mini-taiwan-pulse | #166 | wrap-up memory publication | merged；六檔六顆 atomic commits；review/CI pass |
 | gis-platform | #62 | migration 370 Japan religion contract | merged |
 | gis-platform | #63 | migration 371 AISStream/GFW contract | merged |
 | gis-platform | #64 | migrations 372/373 police/justice | merged |
@@ -79,7 +80,6 @@
 3. **MAR-3（P2）**：調查 AIS MMSI `994163329` 顯示在土城內陸的資料語意／座標品質。
 4. **JP-1（P2）**：用真 PostgREST 驗 migration 374 的 write denial。
 5. 既有 PH-2、PR-1、CAT-1、G016、BR-2/3 等狀態不變，見 `BACKLOG.md`。
-6. 本次 `memory:` commits 只在 local master；依 wrap-up 規則，push／PR 需另行授權。
 
 ## Verification boundaries
 
