@@ -101,6 +101,7 @@ import {
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
+import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1058,6 +1059,87 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "Outerview 全球垃圾殘骸 ~25k 點（⚠️ 點密度是街景覆蓋度，不是垃圾分佈）",
     topics: ["世界", "環境", "垃圾"],
+  },
+
+  jpReligionGsi: {
+    key: "jpReligionGsi",
+    section: { theme: "世界 World", group: "宗教" },
+    label: "日本宗教設施 GSI",
+    labelMobile: "日本宗教 GSI",
+    expandable: true,
+    color: JP_RELIGION_COLORS.shinto,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_religion_gsi", confidence: "HIGH" }],
+      processing: "国土地理院最適化ベクトルタイル的寺院／神社地圖記號，PMTiles z4-14",
+      note: "日本無官方全國宗教設施圖層；GSI 與另外兩源不可視為全量或相加",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpReligionLayers 自建 mapbox-pmtiles source；source-layer=jp_religion_gsi，maxzoom=14",
+      staticAssets: ["./world/jp_religion_gsi.pmtiles"],
+    },
+    legend: "jpReligion",
+    popup: "jpReligionGsi",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "国土地理院寺院／神社地圖記號 167,037 點（96.7% 無名稱）",
+    topics: ["世界", "日本", "宗教", "神社", "寺院"],
+  },
+
+  jpReligionOsm: {
+    key: "jpReligionOsm",
+    section: { theme: "世界 World", group: "宗教" },
+    label: "日本宗教設施 OSM",
+    labelMobile: "日本宗教 OSM",
+    expandable: true,
+    color: JP_RELIGION_COLORS.buddhist,
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_religion_osm", confidence: "HIGH" }],
+      processing: "OpenStreetMap 日本宗教設施靜態 GeoJSON；神社／佛寺／基督教三類",
+      note: "© OpenStreetMap contributors, ODbL；維持獨立圖層避免授權混合",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpReligionLayers lazy-load 靜態 GeoJSON，自建 circle source/layer",
+      staticAssets: ["./world/jp_religion_osm.geojson"],
+    },
+    legend: "jpReligion",
+    popup: "jpReligionOsm",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OpenStreetMap 日本宗教設施 71,040 點（唯一含基督教；ODbL）",
+    topics: ["世界", "日本", "宗教", "OpenStreetMap"],
+  },
+
+  jpReligionWikidata: {
+    key: "jpReligionWikidata",
+    section: { theme: "世界 World", group: "宗教" },
+    label: "日本宗教設施 Wikidata",
+    labelMobile: "日本宗教 Wikidata",
+    expandable: true,
+    color: JP_RELIGION_COLORS.christian,
+    icon: Church,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_religion_wikidata", confidence: "HIGH" }],
+      processing: "Wikidata 日本宗教設施靜態 GeoJSON；id 為 QID",
+      note: "Wikidata, CC0；日本無官方全國宗教設施圖層，單一來源並非全量",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpReligionLayers lazy-load 靜態 GeoJSON，自建 circle source/layer",
+      staticAssets: ["./world/jp_religion_wikidata.geojson"],
+    },
+    legend: "jpReligion",
+    popup: "jpReligionWikidata",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）",
+    topics: ["世界", "日本", "宗教", "Wikidata"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），
