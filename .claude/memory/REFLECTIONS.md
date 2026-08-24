@@ -1703,3 +1703,59 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：加 5 條待辦。
 - `DATA_SCOPE.md`：在監表 1 → 2,501 筆、上游已死。
 - `STATUS.md`：rewrite。
+
+## 2026-08-24 — 四 repo／多 worktree 大整理（15 個 split PR + production gates）
+
+使用者要求把兩天內散在 `mini-taiwan-pulse`、`taipei-gis-analytics`、`gis-platform`、
+`data-collectors` 的 commits／WIP 收乾淨，PR 依清楚原則拆分，全部能發布的功能 merge，
+衝突解完後同步本地與遠端；半成品則保留並列成下一棒。
+
+### What worked
+
+- **先建四 repo scope ledger，再碰 branch**：逐 repo 盤 default/upstream、worktree、local-only branch、
+  stash、open/merged PR，成功區分「真的未發布」「已 patch-equivalent」「歷史 WIP」。沒有把
+  data-collectors 的舊 gov-events WIP 或 analytics 的 business-registry 舊分支誤塞進本輪。
+- **按 release unit 拆成 15 個 PR**：Pulse 3、platform 5、analytics 7；migration、pipeline、
+  前端圖層、樣本清理、研究邊界與 release-truth docs 都能獨立 review/revert，沒有再包成一個大 PR。
+- **共用 registry 衝突採 union**：日本宗教先 merge 後，海事 PR 重新吸收最新 master，保留日本
+  raw 三層與 AIS/GFW 兩層，再跑 TypeScript、653 passed／1 skipped、layer consistency 與 browser。
+- **backup ref 先於主分支同步**：analytics 本地主線原本 ahead 24／behind 19，先留
+  `backup/pre-wrapup-20260824`，再把 master 收斂到遠端；舊 commits、memory 與 WIP 都可回溯，
+  不需要 destructive reset。
+- **production truth 推翻 stale docs**：371 已完整落地且 AIS 正在寫、archives verified；真正缺的是
+  GFW token/licence gate與 374 view ACL。避免重跑已運作 migration，改套精準安全修正。
+- **外部寫入 gate 明確分開**：374 apply、catalog 266 upserts、operational docs push 都各自說明
+  影響後取得批准；沒有把「可 merge PR」偷擴張成「可改 production DB」。
+
+### What didn't / friction
+
+- **release-truth 文件比 production 慢**：371 被寫成待部署，若沒做 read-only audit，最可能的下一步
+  反而是重跑 migration。文件與 runtime 必須在每次跨 repo closeout 對帳。
+- **catalog workflow 的 bug 只有 post-merge run 能完整驗**：focused tests 能證 transaction state，
+  但真正 455-entry diff 與 266 upserts 仍要 merge 後 workflow log 才有 production 證據。
+- **subagent 看不到直接 user approval，operational-metadata push 被安全審查拒絕**：主 agent 必須接手
+  有外部資料傳輸風險的動作；inter-agent 轉述授權不能替代使用者原訊息。
+- **AIS 實際點出現在內陸**：browser 證明 loader/render/popup 正常，但同時暴露資料品質疑點；
+  不能因「畫得出來」就宣告 maritime data-quality 驗收。
+- **本輪 browser 是 local merged frontend + production data**：沒有 production frontend deploy/browser
+  證據；必須持續把這兩種環境分開寫。
+
+### Next-time rules
+
+1. 跨 session cleanup 一開始就以 release unit 建 ledger，branch 只是承載物，不是分類單位。
+2. 主分支 diverged 時先 backup ref；已發布性用 patch/tree evidence 判斷，不用 branch 名或 PR 歷史猜。
+3. 每 merge 一個會碰共用 registry 的 PR，下一支必吸收最新主線、採 union 解衝突並全套重驗。
+4. migration apply 前先查 production objects／ACL／cron／freshness；docs 寫「待部署」不是證據。
+5. post-merge automation 有 DB write 時，PR test 與 workflow production result 要分開列；成功訊息要含
+   實際 committed count 與 stale policy。
+6. browser 驗收同時看功能與資料合理性；位置違反常識時另立 data-quality item，不把它混成 UI bug。
+7. 收尾最後一步固定重抓四 repo default SHA、open PR、worktrees、dirty/staged 與保留 WIP，避免長任務
+   前段盤點在結束時已腐敗。
+
+### Memory output
+
+- `PRINCIPLES.md`：新增 split release-unit 與 production-truth 原則。
+- `PLAYBOOKS.md`：新增 PB-41 多 repo／多 worktree 收斂 SOP。
+- `INCIDENTS.md`：追加 catalog transaction、371 stale truth、374 ACL 三事件。
+- `BACKLOG.md`：保留 GFW、production browser、AIS data quality、PostgREST write-denial 待辦。
+- `STATUS.md`：最後重寫為四 repo release truth、production evidence 與 preserved WIP。
