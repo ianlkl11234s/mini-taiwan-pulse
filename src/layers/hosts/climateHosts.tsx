@@ -4,6 +4,7 @@
 import { useEarthquakesGlobalLayer } from "../../hooks/useEarthquakesGlobalLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "../../hooks/useTyphoonTracksLayer";
 import { useWorldTrashDebrisLayer } from "../../hooks/useWorldTrashDebrisLayer";
+import { useJpReligionLayers } from "../../hooks/useJpReligionLayers";
 import { useClimateParticleLineLayer } from "../../hooks/useClimateParticleLineLayer";
 import { useDustForecastLayer } from "../../hooks/useDustForecastLayer";
 import { useDisasterAlertLayer } from "../../hooks/useDisasterAlertLayer";
@@ -54,6 +55,33 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
     p.worldTrashDebrisOpacity ?? 0.85,
+  );
+  return null;
+};
+
+/** 🌍 世界 WORLD：日本宗教設施三個彼此獨立的 raw source layer。 */
+export const JpReligionHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpReligionLayers");
+  const gsi = useKeyOverlayParams("jpReligionGsi");
+  const osm = useKeyOverlayParams("jpReligionOsm");
+  const wikidata = useKeyOverlayParams("jpReligionWikidata");
+  useJpReligionLayers(
+    deps.mapRef,
+    {
+      jpReligionGsi: deps.layerVisibility.jpReligionGsi,
+      jpReligionOsm: deps.layerVisibility.jpReligionOsm,
+      jpReligionWikidata: deps.layerVisibility.jpReligionWikidata,
+    },
+    {
+      jpReligionGsi: gsi.jpReligionGsiOpacity ?? 0.6,
+      jpReligionOsm: osm.jpReligionOsmOpacity ?? 0.75,
+      jpReligionWikidata: wikidata.jpReligionWikidataOpacity ?? 0.75,
+    },
+    {
+      jpReligionGsi: gsi.jpReligionGsiScale ?? 1,
+      jpReligionOsm: osm.jpReligionOsmScale ?? 1,
+      jpReligionWikidata: wikidata.jpReligionWikidataScale ?? 1,
+    },
   );
   return null;
 };

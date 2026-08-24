@@ -1176,6 +1176,18 @@ export const LAYER_PARAMS_SPEC = {
   worldTrashDebris: [
     { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
   ],
+  jpReligionGsi: [
+    { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
+    scaleSlider("jpReligionGsiScale", 1),
+  ],
+  jpReligionOsm: [
+    { kind: "slider", name: "jpReligionOsmOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
+    scaleSlider("jpReligionOsmScale", 1),
+  ],
+  jpReligionWikidata: [
+    { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
+    scaleSlider("jpReligionWikidataScale", 1),
+  ],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
   ],

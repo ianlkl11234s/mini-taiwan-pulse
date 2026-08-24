@@ -145,6 +145,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
   // 🌍 世界 WORLD
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
+  // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
+  { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
+  { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
+  { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
   { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },

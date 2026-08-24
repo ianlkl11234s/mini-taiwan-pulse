@@ -356,7 +356,8 @@ export type ExpandableLayerKey =
   | "pollutionPenaltyCritical" | "pollutionPenaltyGeneral" | "pollutionPenaltyMobile"
   | "pollutionSite"
   // 🌍 世界 World
-  | "worldTrashDebris";
+  | "worldTrashDebris"
+  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -800,6 +801,8 @@ export interface FeatureInfo {
     | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
+    // 🌍 世界 World（日本宗教設施三個獨立來源）
+    | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -1246,6 +1249,9 @@ export interface LayerVisibility {
   pollutionSite: boolean;       // 污染場址（EMS_S_07；8,253；S4 確認污染）
   // ── 🌍 世界 WORLD ──
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
+  jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
+  jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
+  jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
 }
 
 // ── 空氣品質 ──
