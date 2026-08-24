@@ -2022,3 +2022,46 @@ RPC 回的是 DB 的 `disease_code`（`influenza`/`enterovirus`），
 `if (!def) continue` 把三筆裡的兩筆**默默丟掉**，畫面只剩登革熱。
 **修這個 id 對照必須排在去重之後** —— 只修它會讓兩張帶著假「−91% 大跌」的卡浮上檯面，
 比原本只有一張卡更糟。
+
+## 2026-08-24 四 repo 收斂：catalog transaction bug、stale release truth 與 view 寫權限
+
+### 事件 A：catalog sync 在第一個 SELECT 後才設 autocommit，master workflow 長期失敗
+
+`taipei-gis-analytics/scripts/sync_catalog_to_supabase.py` 先用同一條 psycopg2 connection
+執行 `fetch_existing_hashes()`；該 `SELECT` 已自動開啟 transaction。程式接著才寫
+`conn.autocommit = False`，觸發 `ProgrammingError: set_session cannot be used inside a transaction`，
+導致 `Sync data-catalog to Supabase` 自 08-13 起持續失敗。
+
+修法：移除 late autocommit assignment，保留 connection 原生 transaction state；補 fake connection
+regression test，明確驗 success 走 fetch→upsert→commit→close、failure 走 rollback→close，並讓舊 setter
+行為在測試中重現原錯。PR #62 merge 後 workflow 成功：catalog 455／existing 271／NEW 196／
+CHANGED 70／STALE 12（不刪），transaction committed 266 upserts。
+
+**教訓**：psycopg2 的第一個 query 就可能開 transaction；transaction mode 必須在任何 statement 前
+決定，或乾脆沿用預設，不可在已開啟 transaction 後切 autocommit。修 workflow 要驗真實 post-merge run，
+不能只靠 unit test。
+
+### 事件 B：文件寫 migration 371「待部署」，production 其實已完整運作
+
+`gis-platform` 文件仍把 AISStream／GFW contract 寫成待部署，但 production read-only audit 顯示：
+9 張 live tables、5 支 public RPC、2 個 active cron、9 筆 retention 與 18 個 child partitions 均存在；
+AISStream feed healthy 且 archives verified，GFW 則是 schema 已部署但 token/licence gate 未解除、run count 0。
+
+若只信文件，會準備重跑已在寫入的 371。處置是**不重跑 migration**，改修 release-truth 文件並明確拆開
+「AIS healthy」與「GFW blocked」。
+
+**教訓**：migration 檔存在與文件狀態都不是 production truth；apply 前先查 object、ACL、cron、retention、
+freshness 與 archive。舊文件和 runtime 衝突時，以第一手 read-only evidence 為準。
+
+### 事件 C：日本宗教 public views 對 anon/authenticated 暴露完整 write grants
+
+migration 370 的三個 `public.world_jp_religion_*` views 在線上可讀，但 anon/authenticated 仍持有
+`DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE`，且沒有 `security_invoker=true`。
+migration 374 尚未 apply，形成「底表 RLS 正常、view ACL 仍過寬」的安全缺口。
+
+經 owner 明確批准後 apply 374；post-readback 確認六組 role/view grant 都只剩 SELECT、三個 view
+都有 `security_invoker=true`，並用 `BEGIN; SET LOCAL ROLE anon; ...; ROLLBACK;` 實讀通過。
+這是 DB ACL/read evidence，**不是** PostgREST write-denial E2E；後者另留 backlog。
+
+**教訓**：view 的 grant 與底表 RLS 是兩層不同的防線；安全 migration apply 後要分別讀回 privileges、
+reloptions 與 anon read path，且 `SET ROLE` 必須用 transaction-local 形式避免污染 pool。

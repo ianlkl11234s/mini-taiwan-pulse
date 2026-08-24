@@ -1410,3 +1410,17 @@ chardet 猜測**，中文 UTF-8 位元組常被猜成西里爾單位元組碼頁
    （反解會遇到有損的情況救不回來）。
 4. **修資料前先確認寫入端已停止產生壞資料**，否則是跟 collector 賽跑 ——
    實測修完 95 筆後 15 分鐘內又被 upsert 蓋回 17 筆。
+
+## PR 依「可獨立驗證與回復的 release unit」拆分（2026-08-24）
+
+- 一個 PR 只承擔一個可獨立說明、測試、merge 與 revert 的外部效果；「同一天完成」或
+  「碰到同一份 registry」不是綁成大包的理由。
+- 共用 manifest／registry 衝突採 **set union** 解決：先 merge 前一個 release unit，後一個
+  rebase／merge 最新主線，保留雙方 key，再重跑完整 contract 與 browser 驗收。
+- migration、pipeline、前端接線、release-truth docs 可各自成 PR；但若拆開會讓中間 commit
+  必然紅燈或產生不安全的半套契約，就應維持同一個 vertical slice。
+- 混合分支先建立 backup ref，再判斷每顆 commit 是否已 patch-equivalent 進上游；只把仍有
+  獨立價值的 path/hunk 重建到乾淨分支。不得用 branch 名或「曾有 merged PR」推論最新 local
+  head 已發布。
+- production DB／collector／archive 的現場事實優先於 migration 編號與舊文件；發現矛盾先做
+  read-only 查證，避免因「文件寫待部署」而重跑已在運作的 migration。
