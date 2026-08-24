@@ -42,9 +42,16 @@
 - Collector handoff：`../../../data-collectors` 的 AISStream/GFW collector 文件與 S3 cold archive policy
 - UI implementation：`src/data/globalMaritimeLoader.ts`、`src/hooks/useGlobalMaritimeLayers.ts`
 
-## Acceptance after upstream deployment
+## Production evidence boundary (2026-08-24)
 
-1. 先分別用 production RPC 驗證 AISStream 與 GFW 的 bounds、limit、空資料與 freshness。
+- migration 371 已完整套用至 production。
+- AISStream 的 9 個相關 tables、5 個 RPCs、cron 與 retention 已存在；feed healthy，archive 已以 backend read-only 證據驗證。
+- GFW tables/RPC 已存在，但 `GFW_ACCESS_TOKEN` 尚未就緒，token gate 下 collector runs 為 0，尚無 snapshot 可做資料驗收。
+- 本次證據不包含 PostgREST 公開 RPC 回應或 browser 真實點位驗證。
+
+## Remaining PostgREST/browser acceptance
+
+1. 先透過 production PostgREST 分別驗證 AISStream 與 GFW 的 bounds、limit、空資料與 freshness；GFW 須等 token gate 解除且 snapshot 產生後才能完成。
 2. 開啟 AISStream，確認 cyan circle、MMSI popup、30 分鐘 age 與 attribution。
 3. 開啟 GFW，確認 amber circle、snapshot date、daily/延遲文案與 attribution。
 4. 切換底圖，確認 `style.load` 後兩個 source/layer 重新建立並重新餵資料。

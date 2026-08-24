@@ -27,9 +27,9 @@
 
 ## 上游 handoff
 
-- `gis-platform/migrations/371_aisstream_gfw_independent_contract.sql`：RPC 與 quality/age 欄位 SSOT。
-- `data-collectors`：AISStream API key、S3 cold archive 與 collector 狀態由該 repo 管理；S3 不設定 expiration。
-- GFW：待 `GFW_ACCESS_TOKEN` 申請完成後，再由 data-collectors 建立每日獨立快照，且保持原始 dataset/license/noncommercial caveat。
+- `gis-platform/migrations/371_aisstream_gfw_independent_contract.sql`：已完整套用至 production，是 RPC 與 quality/age 欄位 SSOT。
+- AISStream：production 已有 9 個相關 tables、5 個 RPCs、cron 與 retention；feed healthy，S3 cold archive 已以 read-only 證據驗證。
+- GFW：production tables/RPC 已存在，但 `GFW_ACCESS_TOKEN` 尚未就緒，token gate 下 collector runs 為 0，尚無可驗證 snapshot。後續快照仍需保持原始 dataset/license/noncommercial caveat。
 
 ## 驗收
 
@@ -38,4 +38,4 @@ npx tsc -b
 npm test -- --runInBand
 ```
 
-型別驗證不等於 production RPC/browser 驗證；需在 token 與 migration 已部署後，分別開啟兩層確認 viewport、popup、attribution 與 freshness 文案。
+上述 production 證據是 backend read-only 驗證，不等於 PostgREST 公開 RPC 回應或 browser 真實點位驗證。AISStream 仍需透過 PostgREST/browser 確認 viewport、popup、attribution 與 freshness；GFW 則須先解除 token gate 並產生 snapshot，才能進行同等驗收。
