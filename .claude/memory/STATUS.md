@@ -1,99 +1,90 @@
 # Status
 
-**最後更新**：2026-08-22（Monitor 微調 9 項 → 拍板執行三件資料面修正 → 回頭修兩個 bug；7 PR merged）
+**最後更新**：2026-08-24（四 repo／多 worktree 收斂；15 個 split PR；production gates 完成）
 
 > 本檔只保留當前 release truth、blockers 與下一棒。歷史工作留在 git、
-> `docs/features/`、`BACKLOG.md` 與 `REFLECTIONS.md`。
+> `docs/features/`、`BACKLOG.md`、`INCIDENTS.md` 與 `REFLECTIONS.md`。
 
 ## Scope ledger
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse** | `master` **0/0**、乾淨。merge PR **#153**（Monitor 微調 9 項）／**#154**（migration 編號撞號）／**#155**（attribution regression）。⚠️ commit range 內夾雜平行 session 的 `1980b73` / `f1b7cdc`（religion） |
-| **gis-platform** | `main` **落後 2 / 領先 1**、乾淨。PR **#59** merged：migration **367**（公衛去重）。領先的 1 個是平行 session 未推的 `368_religion_pii_revoke` → **無法 ff pull，未代為處理** |
-| **data-collectors** | `main` **0/0**、乾淨。PR **#53**（公衛 DO UPDATE）／**#54**（CAP bytes 解析）merged。⚠️ 前一版 STATUS 寫的「主樹停在 `feat/gov-events-snapshot`」**已不成立**，本輪三方獨立確認在 `main` |
-| **taipei-gis-analytics** | `master` **落後 2 / 領先 3**、**4 個髒檔**。PR **#53**（食品指數排程）merged。領先的 3 個是平行 session 未推的 religion commit；髒檔 = 2 個平行 session modified ＋ 2 個我 `git checkout origin/master --` 還原的 staged 檔（launchd 指向的 `run_daily.sh`）。**該 repo 不做任何 commit** |
-| **正式 DB（Supabase）** | 4 項實際變更，全部第一手 query 複驗（見下表） |
-| **Production（Zeabur）** | data-collectors **已自動部署並實測驗證**；frontend 正式站 HTTP 200，但**未做 browser 驗收** |
-| **本機 launchd** | `com.gis.foodprice_index` 已 `launchctl load`，每天 06:00 |
+| **mini-taiwan-pulse** | 功能 release head `05d4a75` 已與 `origin/master` 同步；PR **#163** popup 座標精度、**#164** 日本宗教 raw 三層、**#165** AIS/GFW 已 merge。主樹乾淨；本次 6 顆 `memory:` commit 尚未 push，故 local master 預期 ahead 6 |
+| **gis-platform** | `main == origin/main == 97d5952`、乾淨。PR **#62–#66** 已 merge：migration 370／371／372+373／374／release-truth docs |
+| **taipei-gis-analytics** | `master == origin/master == 1aaf10e`、乾淨。PR **#56–#62** 已 merge；catalog transaction fix 的 post-merge workflow 成功 |
+| **data-collectors** | `main == origin/main == 2d1856a`、乾淨；既有 PR **#55–#58** 均已 merge，無本輪未發布變更 |
+| **正式 DB（Supabase）** | migration 371 已存在且 AISStream 運作中；migration 374 已 apply 並做 ACL／anon readback；catalog workflow committed 266 metadata upserts |
+| **Browser evidence** | local merged frontend `127.0.0.1:3721` + production RPC：日本三來源、AIS 點／popup、GFW honest empty state 都已驗；**不是 production frontend acceptance** |
 
-### 正式 DB 變更
+## Split PR release map
 
-| 動作 | 結果 | 備份 |
-|---|---|---|
-| `live.public_health_weekly` 去重 + 換 `UNIQUE NULLS NOT DISTINCT` | DELETE 159,272 → **14,730** 列 | `live.public_health_weekly_backup_20260821`（174,002） |
-| `live.prison_population_daily` 回補 | INSERT 2,500 → **2,501** 列（2019-04-18~2026-05-15） | 無（純新增、`DO NOTHING`，原有列未被覆蓋） |
-| `analytics.food_price_index_daily` 補資料 | **14,061** 列，補到 2026-08-21 | 無（upsert） |
-| `live.disaster_alerts` 亂碼修復 | UPDATE 95 列，全表西里爾/拉丁擴充/希臘字元 **0** | `live.disaster_alerts_mojibake_backup_20260822`（95） |
+| repo | PR | release unit | result |
+|---|---|---|---|
+| mini-taiwan-pulse | #163 | popup coordinate precision warning | merged；CI/review pass |
+| mini-taiwan-pulse | #164 | Japan religion raw GSI/OSM/Wikidata layers | merged；禁止的 canonical POC 未進 branch history |
+| mini-taiwan-pulse | #165 | AISStream/GFW layers + release-truth correction | merged；registry conflict 採 union；tsc + 653 passed／1 skipped + browser |
+| gis-platform | #62 | migration 370 Japan religion contract | merged |
+| gis-platform | #63 | migration 371 AISStream/GFW contract | merged |
+| gis-platform | #64 | migrations 372/373 police/justice | merged |
+| gis-platform | #65 | migration 374 Japan religion view hardening | merged；其後已 apply production |
+| gis-platform | #66 | maritime/religion operational release truth | merged；review/sql-lint pass |
+| taipei-gis-analytics | #56–#61 | police loaders／Japan delivery／sample inventory／AIS-GFW research／MLIT guard／Japan raw POC research | 全部依 release unit 拆分並 merge |
+| taipei-gis-analytics | #62 | catalog sync transaction state | merged；production workflow success |
 
-> 兩張備份表刻意留著，**待使用者確認後才 DROP**。
+## Production truth
+
+### Maritime contract（migration 371）
+
+- 9 張 live tables、5 支 public RPC、2 個 active cron、9 筆 retention、18 個 child partitions。
+- parent/children FORCE RLS；anon/authenticated 無 direct table SELECT。
+- AISStream feed healthy，已有 verified archive manifests。
+- GFW schema/RPC 已部署，但 token/licence gate 未解除，collector run count = 0；不得宣稱有 snapshot。
+
+### Japan religion hardening（migration 374）
+
+- 2026-08-24 20:58 CST apply 成功。
+- 六組 anon/authenticated role/view grants 只剩 SELECT。
+- 三個 views 均含 `security_invoker=true`。
+- `BEGIN; SET LOCAL ROLE anon` 後三個 view 實讀成功。
+- 尚未做真 PostgREST INSERT/UPDATE/DELETE rejection E2E（BACKLOG `JP-1`）。
+
+### Catalog sync（analytics PR #62）
+
+- Workflow run **32732878159** success。
+- Catalog 455／Existing 271／NEW 196／CHANGED 70／STALE 12。
+- transaction committed **266 upserts**；STALE 只列出、不刪除。
+- 本地 monitor DB role 無 `metadata` schema 權限，故 production 落地證據來自 workflow transaction log，未另做 SQL readback。
 
 ## Release truth matrix
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Monitor 微調（#153） | done：`tsc -b`＋650 測試 | done：兩個 zoom 常數＋`flex:1 1 0%` | N/A | N/A | N/A | N/A | **done**：正式站 chunk 含 `influenza`（本輪才有的字串） | done：200 / 0.89s | done（**local 3721**，1920×1080 三模式）；**正式站 not run** |
-| 公衛去重（mig 367 + collectors #53 + 前端） | done：pytest 184 | done：約束＋collector＋id 對照 | N/A | N/A | **done**：交易內斷言 14,730／W29=11,869／W32=13,304／零重複 | N/A | **done（2026-08-22）**：HiCloud VM 已部署新版，手動跑一次後 14,269 列的 `collected_at` 由 08-20 03:00 推進到 08-22 07:52 —— `DO NOTHING` 時該值永遠不會動，故 `DO UPDATE` 確認生效；總列數仍 14,730、重複 0 | N/A | done（local）：三卡 +17%／−88%／+18% |
-| 在監回補 | N/A | done：RPC 本來就回序列，前端原本丟掉 `rows[1..n]` | N/A | N/A | **done**：2,501 列、RPC 回 214 筆 | N/A | N/A | N/A | done（local）：趨勢 214 點＋53 天缺口斷線 |
-| 食品價格 pipeline＋排程（analytics #53） | done：4 步實跑 | done：`--start` 月初防呆實測會擋 | N/A | **done**：14,056 列 upsert | **done**：入庫確認四指數日期 | N/A | done：`launchctl list` 可見 | N/A | done（local）：停更警示自動解除 |
-| attribution regression（#155） | done：`tsc -b`＋650 測試 | done：`...(x ? {k:x} : {})` | N/A | N/A | N/A | N/A | **unknown**：minified chunk 無法區分是否含此 PR | done：200 | done（**local 6002**）：source 103→264、孤兒層 0 |
-| NCDR 亂碼（collectors #54 + 95 列修復） | done：pytest 184 | done：`r.content` + `ET.fromstring(bytes)` | N/A | N/A | **done**：全表亂碼 0 | N/A | **done**：Zeabur 自動部署，18:42 收集 121 筆／亂碼 0 | N/A | N/A |
+| Japan religion raw layers | done | done | N/A | N/A | done：production RPC/DB | N/A | unknown：frontend deploy 未查 | not run | done：local + production data |
+| AISStream | done | done | N/A | done：verified archives | done：feed/RPC/ACL | N/A | unknown：frontend deploy 未查 | not run | done：local actual point + popup |
+| GFW | done | done | N/A | blocked：無 snapshot | blocked：run count 0 | N/A | unknown：frontend deploy 未查 | not run | done：local honest empty state |
+| migration 374 ACL | N/A | done | N/A | N/A | done：grant/reloption/anon read | N/A | done：production apply | not run | N/A |
+| catalog sync fix | done：2 focused tests + dry-run | done | N/A | N/A | done：workflow committed 266 | N/A | done：GitHub Action | N/A | N/A |
 
-⚠️ **本輪所有 browser 證據都是 local dev（3721 / 6002），正式站 frontend 一次都沒驗過。**
-不得把 local 證據寫成 production frontend 已驗收。
+## Preserved WIP（刻意不清除）
 
-## Current deliverables
+- **mini-taiwan-pulse**：`codex/jp-religion-layers` 保留禁止發布的 canonical POC 研究；`chore/ar11e-legacy-rpc-retire` worktree 乾淨、未動。
+- **taipei-gis-analytics**：`backup/pre-wrapup-20260824@3ff9469` 保存原本 24 commits；舊 business-registry branch 與 2026-06-29 stash 保留，未 pop/drop。
+- **gis-platform**：舊 `feat/jp-religion-layers@7f89b50` 保留；預設分支與遠端已同步。
+- **data-collectors**：`feat/gov-events-snapshot@a215f93` 為 08-15 default-off 歷史 WIP；`medical/er-transformer-fix` 與已 merge PR #1 patch-equivalent；都未自動 merge/delete。
 
-### Monitor 微調 9 項（PR #153）
+## Current blockers / next-session entry
 
-1 split 預設／2 字級 `MONITOR_CONTENT_ZOOM=1.15`／3+4 並排卡同寬／5 在監時間軸＋停更標註／
-6 共機船舶 `MONITOR_DENSE_CARD_ZOOM=1.12`／7 船舶拆四條分帶時間軸／8 直播改 TVBS／9 食品價格誠實標註。
+1. **MAR-1（P1）**：取得 GFW token/licence、啟用 collector、驗 run/RPC/archive/browser。
+2. **MAR-2（P1）**：確認 production frontend deploy commit，補日本宗教＋海事正式站 browser acceptance。
+3. **MAR-3（P2）**：調查 AIS MMSI `994163329` 顯示在土城內陸的資料語意／座標品質。
+4. **JP-1（P2）**：用真 PostgREST 驗 migration 374 的 write denial。
+5. 既有 PH-2、PR-1、CAT-1、G016、BR-2/3 等狀態不變，見 `BACKLOG.md`。
+6. 本次 `memory:` commits 只在 local master；依 wrap-up 規則，push／PR 需另行授權。
 
-- **3+4 的根因不是 grid**：等高模式外層是 flex **row**，widget cell 沒有 `flex-grow`
-  就退化成 shrink-to-fit。實測欄寬都是正確的 413px，卡片卻只有 261/296/267。
-- **字級用 CSS `zoom` 不逐處改 `fontSize`**：卡片裡約 200 處 fontSize 混用字面值與 token，
-  只放大字會撐爆量過才定的固定高格子。調整入口是 `monitorLayout.ts` 兩個常數。
+## Verification boundaries
 
-### 三件資料面修正（用戶 2026-08-21 拍板）
-
-公衛去重／在監回補／食品價格補資料＋排程。根因、修法與驗收數字見
-`docs/proposal/monitor-tweaks-2026-08-21/README.md` 第五節。
-
-### 兩個回頭撿到的 bug
-
-`attribution: undefined` → 161 個 source 建不出來（regression，隔夜）；
-NCDR CAP 中文亂碼（從 2022 年零星寫壞）。細節見 `INCIDENTS.md` 同日條目。
-
-## Verification
-
-- **主樹（真環境）**：`npx tsc -b` 通過；Vitest **50 檔 650 passed**。
-- data-collectors：`pytest tests/` **184 passed**（第二次補跑確認 —— 第一次的
-  `venv/bin/python3` 路徑不存在，`||` fallback 把結果吃掉了）。
-- DB 數字全部第一手 query 驗證，未採信 commit message 或子代理回報。
-- 版面與圖層數字全部瀏覽器實測（`getBoundingClientRect` / `getStyle().sources`），未用推論。
-
-## Current blockers
-
-1. **PH-2（P1）**：登革熱上游被 CDC 整個下架（404），該卡目前沒有活的來源，需三選一決策。
-2. **PR-1（P2）**：在監 RPC 視窗改錨 `max(observed_date)` 的 migration 已寫好但未 apply，待拍板。
-   **檔名刻意不帶編號**（`prison_population_window_anchor.PENDING.sql`）—— 已讓號三次
-   （367 被公衛去重、368 被 religion PII revoke、369 被 tra_delay_daily 佔用），
-   本工作區長期有平行 session，預先取號一定會被搶走。**apply 當天才取號。**
-3. 兩個 repo 的本地預設分支有平行 session 未推 commit，無法 ff pull —— **不代為處理**。
-4. 既有 blockers（CAT-1、G016、BR-2/BR-3、DS-01/02）狀態不變，見 `BACKLOG.md`。
-
-## Next-session entry
-
-1. **repo/branch**：mini-taiwan-pulse `master`（0/0、乾淨）。
-2. **第一個可執行步驟**：登革熱換源三選一（BACKLOG `PH-2`，P1）——
-   CDC 已把 `Weekly_Age_County_Gender_061.csv` 整個 dataset 下架，
-   VM collector 每次跑都會 `[ERROR] dengue: 404`（2026-08-22 手動跑仍是）。
-3. **驗收條件**：該卡有活的來源、或卡片被下架，且 collector log 不再出現 dengue 404。
-4. **待拍板**：在監 RPC migration（`PR-1`，待取號）、登革熱換源三選一（`PH-2`）。
-5. **兩張備份表**待確認後 DROP：`public_health_weekly_backup_20260821`、
-   `disaster_alerts_mojibake_backup_20260822`。
-6. **沿用未做**：`.gis-agent-system/journal/` 當月檔仍未 append（上一輪就欠）；
-   跨 repo handoff（`taipei-gis-analytics/docs/handoff/`）未建，見 VZ-11。
-7. 若之後取得 frontend deploy 授權，本輪所有 UI 變更仍需補正式站 browser acceptance。
-
-詳細 active work 與 acceptance criteria 見 `BACKLOG.md`。
+- mini：`npx tsc -b`；Vitest 53 files／653 passed／1 skipped；layerConsistency 9 passed；browser console 0 errors/warnings。
+- gis-platform：各 migration PR sql-lint/review pass；374 production readback pass；#66 review/sql-lint pass。
+- analytics：PR #62 focused pytest 2 passed；post-merge catalog workflow success。
+- collectors：本輪沒有修改；main 與遠端同步。
+- local browser + production RPC ≠ production frontend deploy/browser；DB ACL readback ≠ PostgREST write-denial E2E。
