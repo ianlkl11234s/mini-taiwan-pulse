@@ -5,6 +5,9 @@ import {
   deityFamilyColor, deityFamilyLabel, ancestralHallTypeLabel,
   ANCESTRAL_HALL_TYPES, ANCESTRAL_HALL_MISSING_COLOR, RELIGION_LAYER_COLORS,
 } from "../../data/religionTypes";
+import {
+  JP_RELIGION_COLORS, jpReligionLabel, religionNameFallback,
+} from "../../data/jpReligionTypes";
 
 // 本檔 Title 為極簡本地版（同 urbanPanels / fisheryPanels 慣例）。
 function Title({ color, children }: { color: string; children: string }) {
@@ -156,4 +159,62 @@ export function ReligionTop100Panel({ props }: { props: Record<string, unknown> 
       <Row label="地址" value={str(props.address)} />
     </>
   );
+}
+
+type JpReligionSource = "gsi" | "osm" | "wikidata";
+
+const JP_RELIGION_SOURCE_LABEL: Record<JpReligionSource, string> = {
+  gsi: "国土地理院最適化ベクトルタイル",
+  osm: "OpenStreetMap contributors（ODbL）",
+  wikidata: "Wikidata（CC0）",
+};
+
+function JpReligionPanel({
+  props,
+  source,
+}: {
+  props: Record<string, unknown>;
+  source: JpReligionSource;
+}) {
+  const t = useFeatureTheme();
+  const religion = str(props.religion);
+  const name = str(props.name) || religionNameFallback(religion, source === "gsi");
+  const id = str(props.id);
+  const color = JP_RELIGION_COLORS[religion as keyof typeof JP_RELIGION_COLORS]
+    ?? JP_RELIGION_COLORS.other;
+  return (
+    <>
+      <Title color={color}>{name}</Title>
+      <Row label="類別" value={jpReligionLabel(religion)} color={color} />
+      {source === "gsi" && !str(props.name) ? (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          此點來自地圖符號，官方未提供名稱。
+        </div>
+      ) : null}
+      {id ? <Row label={source === "wikidata" ? "Wikidata" : "ID"} value={id} /> : null}
+      {source === "wikidata" && /^Q\d+$/.test(id) ? (
+        <a
+          href={`https://www.wikidata.org/wiki/${id}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: t.link, fontSize: FONT_SIZE.base, display: "inline-block", marginTop: 5 }}
+        >
+          開啟 Wikidata ↗
+        </a>
+      ) : null}
+      <Row label="資料源" value={JP_RELIGION_SOURCE_LABEL[source]} />
+    </>
+  );
+}
+
+export function JpReligionGsiPanel({ props }: { props: Record<string, unknown> }) {
+  return <JpReligionPanel props={props} source="gsi" />;
+}
+
+export function JpReligionOsmPanel({ props }: { props: Record<string, unknown> }) {
+  return <JpReligionPanel props={props} source="osm" />;
+}
+
+export function JpReligionWikidataPanel({ props }: { props: Record<string, unknown> }) {
+  return <JpReligionPanel props={props} source="wikidata" />;
 }

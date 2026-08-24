@@ -17,6 +17,7 @@ import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
+import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
@@ -304,6 +305,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -4375,6 +4377,39 @@ function WorldTrashDebrisLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.3 }}>
         資料：Outerview (CC-BY-4.0)
       </div>
+    </div>
+  );
+}
+
+function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  const attributions = [
+    visibility.jpReligionGsi ? "出典：国土地理院最適化ベクトルタイル" : null,
+    visibility.jpReligionOsm ? "© OpenStreetMap contributors, ODbL" : null,
+    visibility.jpReligionWikidata ? "Wikidata, CC0" : null,
+  ].filter((value): value is string => Boolean(value));
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本宗教設施 JAPAN RELIGION
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {JP_RELIGION_CATEGORIES.map((category) => (
+          <div key={category.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: category.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{category.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5, lineHeight: 1.35 }}>
+        日本無官方全國宗教設施圖層。任何單一圖層都不是全量，三者數字也不應相加；
+        大阪府清冊實測 GSI 僅對上 62%，三源聯集仍漏 25.9%。建議一次只開一個來源。
+      </div>
+      {attributions.map((attribution) => (
+        <div key={attribution} style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.35 }}>
+          {attribution}
+        </div>
+      ))}
     </div>
   );
 }

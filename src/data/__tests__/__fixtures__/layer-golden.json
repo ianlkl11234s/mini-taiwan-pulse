@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 379,
+    "keyCount": 382,
     "sections": [
       "gisLayers",
       "overlays",
@@ -550,6 +550,24 @@
         "world-trash-debris-circle"
       ],
       "type": "worldTrashDebris"
+    },
+    {
+      "layers": [
+        "jp-religion-wikidata-circle"
+      ],
+      "type": "jpReligionWikidata"
+    },
+    {
+      "layers": [
+        "jp-religion-osm-circle"
+      ],
+      "type": "jpReligionOsm"
+    },
+    {
+      "layers": [
+        "jp-religion-gsi-circle"
+      ],
+      "type": "jpReligionGsi"
     },
     {
       "layers": [
@@ -49623,6 +49641,54 @@
         "min": 0,
         "step": 0.05,
         "value": 0.35
+      }
+    ],
+    "jpReligionGsi": [
+      {
+        "label": "透明度 0.60",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.6
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpReligionOsm": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpReligionWikidata": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "lakesPondsOsm": [

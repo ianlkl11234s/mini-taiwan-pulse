@@ -49,6 +49,7 @@ import {
 import {
   TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
   OtherWorshipPanel, ReligionTop100Panel,
+  JpReligionGsiPanel, JpReligionOsmPanel, JpReligionWikidataPanel,
 } from "./religionPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -320,6 +321,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
+  jpReligionGsi: JpReligionGsiPanel,
+  jpReligionOsm: JpReligionOsmPanel,
+  jpReligionWikidata: JpReligionWikidataPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -676,6 +680,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   worldTrashDebris: "全球垃圾殘骸",
   aisstreamVessel: "AISStream 船舶",
   gfwVesselPresence: "GFW 船舶 Presence",
+  jpReligionGsi: "日本宗教設施 GSI",
+  jpReligionOsm: "日本宗教設施 OSM",
+  jpReligionWikidata: "日本宗教設施 Wikidata",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

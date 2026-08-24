@@ -1399,6 +1399,14 @@ export const THEMES: ThemeDef[] = [
           fromManifest("worldTrashDebris"),
         ],
       },
+      {
+        title: "宗教",
+        layers: [
+          fromManifest("jpReligionGsi"),
+          fromManifest("jpReligionOsm"),
+          fromManifest("jpReligionWikidata"),
+        ],
+      },
     ],
   },
 

@@ -49,7 +49,7 @@ import {
   LibrarySeatsHost, ParkingHost, EarthquakeHost, EarthquakeReplayHost,
 } from "./hosts/hazardHosts";
 import {
-  EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost,
+  EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
@@ -204,6 +204,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
   { id: "useTyphoonTracksLayer", keys: ["typhoonTracks"], Host: TyphoonTracksHost },
   { id: "useWorldTrashDebrisLayer", keys: ["worldTrashDebris"], Host: WorldTrashDebrisHost },
+  {
+    id: "useJpReligionLayers",
+    keys: ["jpReligionGsi", "jpReligionOsm", "jpReligionWikidata"],
+    Host: JpReligionHost,
+  },
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },
   { id: "useClimateParticleLineLayer:ocean", keys: ["oceanCurrents"], Host: OceanCurrentsHost },
   { id: "useDustForecastLayer", keys: ["dustForecast"], Host: DustForecastHost },
