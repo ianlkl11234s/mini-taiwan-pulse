@@ -16,6 +16,16 @@ function Header({ color, name }: { color: string; name: string }) {
   );
 }
 
+// 座標精度誠實標記共用（同 funeralPanels / welfarePanels 慣例：小字 + ⚠️ 前綴，不做彩色告警框）。
+function Note({ children }: { children: React.ReactNode }) {
+  const t = useFeatureTheme();
+  return (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+      {children}
+    </div>
+  );
+}
+
 const POLICE_SUBTYPE_ZH: Record<string, string> = {
   substation: "派出所",
   precinct: "分局",
@@ -451,6 +461,26 @@ export function DroneZonesPanel({ props }: PanelProps) {
 }
 
 // ── 民防 ──
+/**
+ * 座標精度誠實標記（2026-08-24 併入 TGOS 內政主題 API、62,695→110,291 筆後新增）。
+ * ⚠️ 上游整條路段的不同門牌常共用同一 fallback 座標（實測最誇張一組 274 筆／148 個
+ *    相異門牌落在同一點）——非 exact 或 suspect 一律明講，避免使用者拿去導航被誤導。
+ *    coord_shared_n 只在 GeoJSON 有、未進 PMTiles，故不在此顯示。
+ */
+function ShelterCoordNote({ props }: PanelProps) {
+  const precision = String(props.coord_precision ?? "");
+  const suspect = props.coord_suspect === true;
+  return (
+    <>
+      {suspect && <Note>⚠️ 座標可疑：與標示行政區不符，位置僅供參考</Note>}
+      {precision === "approximate" && (
+        <Note>⚠️ 位置為概略值：此座標由同路段多個門牌共用，非門牌精確位置</Note>
+      )}
+      {precision === "street_block" && <Note>⚠️ 位置為街區級概略值</Note>}
+    </>
+  );
+}
+
 export function CivilDefenseShelterPanel({ props }: PanelProps) {
   return (
     <>
@@ -459,6 +489,7 @@ export function CivilDefenseShelterPanel({ props }: PanelProps) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="容量" value={props.capacity ? `${props.capacity} 人` : ""} />
       <Row label="行政區" value={String(props.district ?? "")} />
+      <ShelterCoordNote props={props} />
       <SourceFooter props={props} />
     </>
   );
