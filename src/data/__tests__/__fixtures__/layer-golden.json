@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 382,
+    "keyCount": 385,
     "sections": [
       "gisLayers",
       "overlays",
@@ -544,6 +544,26 @@
         "global-maritime-gfw-circle"
       ],
       "type": "gfwVesselPresence"
+    },
+    {
+      "layers": [
+        "gfw-hourly-grid-count",
+        "gfw-hourly-grid-circle"
+      ],
+      "type": "gfwHourlyGrid"
+    },
+    {
+      "layers": [
+        "gfw-hourly-tracks-endpoint",
+        "gfw-hourly-tracks-line"
+      ],
+      "type": "gfwHourlyTrack"
+    },
+    {
+      "layers": [
+        "gfw-dark-vessels-circle"
+      ],
+      "type": "gfwDarkVessel"
     },
     {
       "layers": [
@@ -49175,6 +49195,56 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "gfwDarkVessels": [
+      {
+        "label": "透明度 0.86",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.86
+      }
+    ],
+    "gfwHourlyGrid": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "gfwHourlyTracks": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "拖尾",
+        "options": [
+          {
+            "label": "30 分鐘",
+            "value": "0.5"
+          },
+          {
+            "label": "1 小時",
+            "value": "1"
+          },
+          {
+            "label": "2 小時",
+            "value": "2"
+          },
+          {
+            "label": "3 小時",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0.5"
       }
     ],
     "gfwVesselPresence": [

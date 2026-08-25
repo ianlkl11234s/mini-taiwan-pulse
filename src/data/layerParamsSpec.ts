@@ -1182,6 +1182,25 @@ export const LAYER_PARAMS_SPEC = {
   gfwVesselPresence: [
     { kind: "slider", name: "gfwVesselPresenceOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
   ],
+  gfwHourlyGrid: [
+    { kind: "slider", name: "gfwHourlyGridOpacity", labelPrefix: "透明度", digits: 2, default: 0.8, min: 0, max: 1, step: 0.05 },
+  ],
+  gfwHourlyTracks: [
+    { kind: "slider", name: "gfwHourlyTracksOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05, out: null },
+    {
+      kind: "select", name: "gfwHourlyTracksWindow", label: "拖尾", default: "0.5",
+      options: [
+        { label: "30 分鐘", value: "0.5" },
+        { label: "1 小時", value: "1" },
+        { label: "2 小時", value: "2" },
+        { label: "3 小時", value: "3" },
+      ],
+      out: null,
+    },
+  ],
+  gfwDarkVessels: [
+    { kind: "slider", name: "gfwDarkVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.86, min: 0, max: 1, step: 0.05, out: null },
+  ],
   jpReligionGsi: [
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionGsiScale", 1),

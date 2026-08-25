@@ -37,6 +37,14 @@ const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
 const nginxConf = readFileSync("nginx.conf", "utf8");
 const pullScript = readFileSync("scripts/deploy/pull-deploy-assets.sh", "utf8");
 const uploadScript = readFileSync("scripts/deploy/upload-deploy-assets.sh", "utf8");
+const gfwTracksLoader = readFileSync("src/data/gfwHourlyTracksLoader.ts", "utf8");
+const gfwGridLoader = readFileSync("src/data/gfwHourlyGridLoader.ts", "utf8");
+const gfwDarkLoader = readFileSync("src/data/gfwDarkVesselsLoader.ts", "utf8");
+const gfwManifestContract = readFileSync("src/data/gfwHourlyReleaseManifest.ts", "utf8");
+const gfwRefreshScript = readFileSync("scripts/deploy/refresh-gfw-hourly.sh", "utf8");
+const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
+const dockerfile = readFileSync("Dockerfile", "utf8");
+const viteConfig = readFileSync("vite.config.ts", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -221,6 +229,11 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   // upload 的 AGRI_FILES 把兩行註解掉，pull 端另有 --exclude ＋ rm -f 清 volume 殘留。
   "agriculture/livestock_farms.geojson",
   "agriculture/slaughterhouses.geojson",
+  // GFW 7-day hourly-grid POC is a local 579 MiB acceptance artifact. It is
+  // gitignored and stripped from dist until a production storage/RPC contract exists.
+  "gfw_hourly_grid_poc/manifest.json",
+  // GFW sampled-track POC is likewise local-only, gitignored, and stripped from dist.
+  "gfw_hourly_tracks_poc/manifest.json",
 ]);
 
 /**
@@ -283,6 +296,42 @@ describe("deploy 契約（nginx + pull script）", () => {
 });
 
 describe("deploy 契約（manifest 逐檔）", () => {
+  it("GFW production 預設同域 unified root，可選 CDN override，local POC 不進 dist", () => {
+    expect(gfwManifestContract).toContain("VITE_GLOBAL_MARITIME_CDN_BASE");
+    expect(gfwManifestContract).toContain("global-maritime/gfw-hourly/manifest.json");
+    expect(gfwManifestContract).toContain('return `/${ROOT_PATH}`');
+    expect(gfwTracksLoader).toContain('fetch(manifestUrl, { cache: "no-cache" })');
+    expect(gfwTracksLoader).toContain('{ cache: "force-cache" }');
+    expect(gfwGridLoader).toContain('fetch(manifestUrl, { cache: "no-cache" })');
+    expect(gfwDarkLoader).toContain('fetch(url, { cache: "no-cache" })');
+    expect(viteConfig).toContain('"gfw_hourly_tracks_poc.geojson"');
+    expect(viteConfig).toContain('"gfw_hourly_tracks_poc"');
+    expect(viteConfig).toContain('"gfw_hourly_grid_poc"');
+  });
+
+  it("GFW S3 先同步 immutable releases 再原子切 root，container 週期追新", () => {
+    const refreshSync = gfwRefreshScript.indexOf("aws s3 sync");
+    const refreshManifest = gfwRefreshScript.indexOf("manifest.json.tmp");
+    expect(refreshSync).toBeGreaterThanOrEqual(0);
+    expect(refreshManifest).toBeGreaterThan(refreshSync);
+    expect(gfwRefreshScript).toContain('--exclude "manifest.json"');
+    expect(gfwRefreshScript).toContain('mv "/data/global-maritime/gfw-hourly/manifest.json.tmp"');
+    expect(pullScript).toContain('$S3/global-maritime/gfw-hourly/');
+    expect(pullScript.indexOf('--exclude "manifest.json"'))
+      .toBeLessThan(pullScript.indexOf('manifest.json.tmp'));
+    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-21600");
+    expect(entrypoint).toContain("/usr/local/bin/refresh-gfw-hourly.sh");
+    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.sh");
+  });
+
+  it("GFW same-origin cache headers 符合 root 60s/SWR300 與 release 7d immutable", () => {
+    expect(nginxConf).toContain("location = /global-maritime/gfw-hourly/manifest.json");
+    expect(nginxConf).toContain('Cache-Control "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
+    expect(nginxConf).toContain("location ^~ /global-maritime/gfw-hourly/releases/");
+    expect(nginxConf).toContain('Cache-Control "public,max-age=604800,s-maxage=604800,immutable"');
+    expect(gfwManifestContract).toContain('root_manifest !== "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
+    expect(gfwManifestContract).toContain('immutable_release !== "public,max-age=604800,s-maxage=604800,immutable"');
+  });
   it("business_registry immutable asset 可安全重跑，相同 checksum 不覆寫也不阻斷後續上傳", () => {
     expect(uploadScript).toContain("local_sha256=$(openssl dgst -sha256");
     expect(uploadScript).toContain('[ "$remote_sha256" = "$local_sha256" ]');

@@ -90,6 +90,7 @@ import { MessageSquare } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { TransientNotice } from "./components/TransientNotice";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
 
@@ -1338,6 +1339,7 @@ export default function App() {
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
+      <TransientNotice />
       <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (

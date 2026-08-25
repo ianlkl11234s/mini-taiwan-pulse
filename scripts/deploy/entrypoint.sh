@@ -27,6 +27,21 @@ else
   echo "[entrypoint] WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set → skip pull. Serving dist + existing /data."
 fi
 
+# GFW hourly 每日會切新 release/root manifest；預設每 6h 小範圍 re-sync，
+# 不用重啟 frontend container 也能在當日追上新資料。
+if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
+  (
+    while true; do
+      sleep "${GFW_HOURLY_REFRESH_SEC:-21600}"
+      if /usr/local/bin/refresh-gfw-hourly.sh; then
+        echo "[entrypoint] GFW hourly refresh OK $(date -u)"
+      else
+        echo "[entrypoint] WARNING: GFW hourly refresh failed (exit $?)"
+      fi
+    done
+  ) &
+fi
+
 # 氣候 texture 週期性 re-pull：烤圖 collector 每日更新 S3，前端每 CLIMATE_REFRESH_SEC（預設 6h）
 # re-sync deploy-assets/climate/ → /data/climate/，免重啟就追上最新。只同步 ~1.3MB，盡力而為不影響 nginx。
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then

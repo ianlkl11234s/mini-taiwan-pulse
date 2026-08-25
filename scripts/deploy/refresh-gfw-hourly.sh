@@ -1,0 +1,23 @@
+#!/bin/sh
+# 週期性把 GFW unified root + immutable releases 從 S3 re-sync 到 frontend volume。
+# 不加 --delete：舊 manifest 的短期讀者仍可讀到前一 release。
+
+export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="$S3_SECRET_KEY"
+export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
+
+BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
+mkdir -p /data/global-maritime/gfw-hourly
+aws s3 sync \
+  "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/" \
+  "/data/global-maritime/gfw-hourly/" \
+  --no-progress --exclude "manifest.json"
+
+# 新 release assets 全部落地後才原子更換可變指標，不暴露半套 release。
+if aws s3 cp \
+  "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/manifest.json" \
+  "/data/global-maritime/gfw-hourly/manifest.json.tmp" \
+  --no-progress; then
+  mv "/data/global-maritime/gfw-hourly/manifest.json.tmp" \
+    "/data/global-maritime/gfw-hourly/manifest.json"
+fi

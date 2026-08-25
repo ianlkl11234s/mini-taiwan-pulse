@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -134,6 +134,18 @@ aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 # 🌍 世界 World：鏡像子前綴 deploy-assets/world/ → /data/world/（Outerview 全球垃圾殘骸 GeoJSON 3.8MB）
 echo "[pull] sync world → $DATA_DIR/world/"
 aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
+
+# GFW immutable daily/hourly releases 先 sync，root manifest 最後才以 tmp+mv 原子切換。
+# 不加 --delete：release retention 切換時允許容器短暫保留舊 release，
+# 避免拿到舊 manifest 的讀者遇到 404。
+echo "[pull] sync global-maritime/gfw-hourly → $DATA_DIR/global-maritime/gfw-hourly/"
+aws s3 sync "$S3/global-maritime/gfw-hourly/" "$DATA_DIR/global-maritime/gfw-hourly/" \
+  --no-progress --exclude "manifest.json"
+if aws s3 cp "$S3/global-maritime/gfw-hourly/manifest.json" \
+  "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" --no-progress; then
+  mv "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" \
+    "$DATA_DIR/global-maritime/gfw-hourly/manifest.json"
+fi
 
 # 觀光：鏡像子前綴 deploy-assets/tourism/ → /data/tourism/（景點/旅宿/餐飲 D 類 3 大檔；其餘 9 檔 C 類在 dist fallback）
 echo "[pull] sync tourism → $DATA_DIR/tourism/"

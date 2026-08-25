@@ -1,5 +1,6 @@
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import { parseGfwHourlyGridVessels } from "../../data/gfwHourlyGridTypes";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -122,6 +123,19 @@ function fmtMaritimeTime(value: unknown): string {
   return Number.isNaN(d.getTime()) ? value : d.toLocaleString("zh-TW", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
+function fmtMaritimeUtcTime(value: unknown): string {
+  if (typeof value !== "string" || !value) return "—";
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleString("zh-TW", {
+    timeZone: "UTC",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
+
 export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
@@ -148,6 +162,91 @@ export function GfwVesselPresencePanel({ props }: { props: Record<string, unknow
       <Row label="觀測時間" value={fmtMaritimeTime(props.observed_at)} />
       <Row label="資料年齡" value={props.age_hours == null ? "—" : `${Number(props.age_hours).toFixed(1)} 小時`} />
       <Row label="資料源" value="Global Fishing Watch（daily vessel presence；非即時）" />
+    </div>
+  );
+}
+
+export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const vessels = parseGfwHourlyGridVessels(props.vessels_json) ?? [];
+  const expectedCount = Number(props.vessel_count);
+  return (
+    <div>
+      <Row label="UTC 小時" value={fmtMaritimeUtcTime(props.observed_at)} />
+      <Row label="格內船數" value={Number.isFinite(expectedCount) ? `${expectedCount} 艘` : "—"} />
+      <Row label="格網中心" value={`${props.grid_lon ?? "—"}, ${props.grid_lat ?? "—"}`} />
+      <Row label="位置語意" value="GFW HIGH 格網中心（非原始 AIS 精確座標）" />
+      <div style={{ marginTop: 8, fontSize: 11, color: t.textDim, letterSpacing: 0.6 }}>
+        格內船舶 {vessels.length.toLocaleString()} 艘
+      </div>
+      <div style={{ maxHeight: 220, overflowY: "auto", marginTop: 4, paddingRight: 4 }}>
+        {vessels.map((vessel, index) => (
+          <div
+            key={`${vessel.vesselId}-${index}`}
+            style={{ padding: "6px 0", borderTop: `1px solid ${t.border}` }}
+          >
+            <div style={{ color: t.textDefault, fontSize: 12 }}>
+              {vessel.shipName || vessel.vesselId}
+            </div>
+            <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
+              ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
+              {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
+            </div>
+          </div>
+        ))}
+        {vessels.length === 0 && (
+          <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>船舶清單無法解析</div>
+        )}
+      </div>
+      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+    </div>
+  );
+}
+
+export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const shipName = String(props.ship_name ?? "").trim();
+  const vesselId = String(props.vessel_id ?? "—");
+  const count = Number(props.point_count);
+  const interpolated = Number(props.interpolated) === 1;
+  return (
+    <div>
+      <Row label="船名" value={shipName || "（無船名）"} />
+      <Row label="Vessel ID" value={vesselId} />
+      <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
+      <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
+      <Row label="視覺分類" value={String(props.ship_type_label ?? "其他 Other")} />
+      <Row label="拖尾起點（UTC）" value={fmtMaritimeUtcTime(props.start_at)} />
+      <Row label="拖尾終點（UTC）" value={fmtMaritimeUtcTime(props.end_at)} />
+      <Row
+        label="時間軸位置（UTC）"
+        value={`${fmtMaritimeUtcTime(props.selected_time)}${interpolated ? "（線性內插）" : "（實際觀測）"}`}
+      />
+      <Row label="抽樣點數" value={Number.isFinite(count) ? `${count} 點` : "—"} />
+      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+      <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
+        這是 capped POC 的抽樣近似航跡。每個頂點代表該船每小時所在的 GFW HIGH 格網中心，
+        不是原始 AIS 精確位置；時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
+        缺訊與不合理跳點已由上游切段，前端不跨段補線。
+      </div>
+    </div>
+  );
+}
+
+export function GfwDarkVesselPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const detections = Number(props.detections);
+  return (
+    <div>
+      <Row label="觀測時間（UTC）" value={fmtMaritimeUtcTime(props.observed_at)} />
+      <Row label="SAR detections" value={Number.isFinite(detections) ? `${detections} 筆` : "—"} />
+      <Row label="位置語意" value="GFW HIGH 格網中心（非精確 SAR 座標）" />
+      <Row label="匹配狀態" value="SAR 偵測未與 AIS 匹配" />
+      <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "—")}`} />
+      <div style={{ marginTop: 8, padding: "7px 8px", border: `1px solid ${t.border}`, borderRadius: 6, color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
+        SAR 偵測未與 AIS 匹配，不代表違法、不是確認暗船，也不能據此認定船舶刻意關閉 AIS。
+        {props.interpretation_note ? ` ${String(props.interpretation_note)}` : ""}
+      </div>
     </div>
   );
 }
