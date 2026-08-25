@@ -9,7 +9,7 @@
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse** | Published `master == origin/master == a06a84a`；PR **#163–#167** 已 merge。`ar11e` worktree 已移除，兩顆 unique patches 保留在 local `chore/ar11e-legacy-rpc-retire@d83252e`；canonical POC 留 local `codex/jp-religion-layers@826104f`，不直接 push／merge |
+| **mini-taiwan-pulse** | Feature/backlog release 已依單元發布至 PR **#169**；PR **#170** 發布本次 BACKLOG／STATUS。`ar11e` worktree 已移除，兩顆 unique patches 保留在 local `chore/ar11e-legacy-rpc-retire@d83252e`；canonical POC 留 local `codex/jp-religion-layers@826104f`，不直接 push／merge |
 | **gis-platform** | `main == origin/main == 97d5952`、乾淨；已被 PR #62–#65 完整取代的 local `feat/jp-religion-layers` 已刪除，可由 `7f89b50` 復原 |
 | **taipei-gis-analytics** | `master == origin/master == 9c6d576`；skills foundation **#63**、why-drill **#64** 已 merge；religion deep-dive **#65** 保持 Draft。2026-06-29 stash 未 pop/drop |
 | **data-collectors** | `main == origin/main == 2d1856a`；patch-equivalent ER branch local/remote 已刪。Gov-events 未完成 commit 改名封存在 local `archive/gov-events-snapshot-20260815@a215f936`，未 push／未部署 |
@@ -24,6 +24,10 @@
 | mini-taiwan-pulse | #164 | Japan religion raw GSI/OSM/Wikidata layers | merged；禁止的 canonical POC 未進 branch history |
 | mini-taiwan-pulse | #165 | AISStream/GFW layers + release-truth correction | merged；registry conflict 採 union；tsc + 653 passed／1 skipped + browser |
 | mini-taiwan-pulse | #166 | wrap-up memory publication | merged；六檔六顆 atomic commits；review/CI pass |
+| mini-taiwan-pulse | #167 | wrap-up release state | merged |
+| mini-taiwan-pulse | #168 | canonical POC release gate backlog | merged；不建立 GitHub Issue、不合併 archive branch |
+| mini-taiwan-pulse | #169 | R2 CORS／legacy RPC retirement backlog | merged；保留 14 日 DB copy 與 collector dual-write |
+| mini-taiwan-pulse | #170 | archived WIP／release-gate memory | 本次 memory publication |
 | gis-platform | #62 | migration 370 Japan religion contract | merged |
 | gis-platform | #63 | migration 371 AISStream/GFW contract | merged |
 | gis-platform | #64 | migrations 372/373 police/justice | merged |
