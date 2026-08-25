@@ -76,7 +76,7 @@ import {
 } from "../data/businessRegistryTypes";
 import {
   IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
-  OOKLA_SPEED_COLORS,
+  ooklaSpeedStops,
 } from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
@@ -420,7 +420,16 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
   { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
   { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
-  { id: "ooklaPerformanceGrid", render: () => <OoklaPerformanceGridLegend /> },
+  // 四個 Ookla 層共用這張圖例；配色是 per-layer param，取目前開著的第一層
+  {
+    id: "ooklaPerformanceGrid",
+    render: ({ visibility, overlayParams }) => <OoklaPerformanceGridLegend paletteIdx={
+      visibility.ooklaMobilePerformance ? overlayParams.ooklaMobilePerformancePalette
+        : visibility.ooklaFixedPerformance ? overlayParams.ooklaFixedPerformancePalette
+          : visibility.ooklaMobileTaiwan ? overlayParams.ooklaMobileTaiwanPalette
+            : overlayParams.ooklaFixedTaiwanPalette
+    } />,
+  },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4631,14 +4640,15 @@ function RipeAtlasProbesLegend() {
   </div>;
 }
 
-function OoklaPerformanceGridLegend() {
+function OoklaPerformanceGridLegend({ paletteIdx }: { paletteIdx?: number }) {
   const t = useLegendTheme();
+  const stops = ooklaSpeedStops(paletteIdx);
   return <div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
       OOKLA SPEEDTEST PERFORMANCE GRID
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {OOKLA_SPEED_COLORS.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      {stops.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.label}</span>
       </div>)}

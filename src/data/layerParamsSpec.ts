@@ -95,7 +95,7 @@ import {
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
 import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS, ANIMAL_WELFARE_POINT_TYPE_VALUES } from "./animalWelfarePointsTypes";
-import { OOKLA_GLOBAL_ZOOMS } from "./telecomTypes";
+import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1135,6 +1135,11 @@ export const LAYER_PARAMS_SPEC = {
       options: OOKLA_GLOBAL_ZOOMS.map((z) => ({ label: z.label, value: String(z.value) })),
       out: "ooklaMobileGridZoom", encodeNumeric: true,
     },
+    {
+      kind: "select", name: "ooklaMobilePerformancePalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaMobilePerformancePalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
     opacitySlider("ooklaMobilePerformanceOpacity", 0.65),
   ],
   ooklaFixedPerformance: [
@@ -1143,11 +1148,30 @@ export const LAYER_PARAMS_SPEC = {
       options: OOKLA_GLOBAL_ZOOMS.map((z) => ({ label: z.label, value: String(z.value) })),
       out: "ooklaFixedGridZoom", encodeNumeric: true,
     },
+    {
+      kind: "select", name: "ooklaFixedPerformancePalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaFixedPerformancePalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
     opacitySlider("ooklaFixedPerformanceOpacity", 0.65),
   ],
   // 台灣層：z14 → z16 由 PMTiles 的 zoom 區間自動接手，不需要 select
-  ooklaMobileTaiwan: [opacitySlider("ooklaMobileTaiwanOpacity", 0.75)],
-  ooklaFixedTaiwan: [opacitySlider("ooklaFixedTaiwanOpacity", 0.75)],
+  ooklaMobileTaiwan: [
+    {
+      kind: "select", name: "ooklaMobileTaiwanPalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaMobileTaiwanPalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaMobileTaiwanOpacity", 0.75),
+  ],
+  ooklaFixedTaiwan: [
+    {
+      kind: "select", name: "ooklaFixedTaiwanPalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaFixedTaiwanPalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaFixedTaiwanOpacity", 0.75),
+  ],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],

@@ -1,8 +1,8 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
-  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR, OOKLA_SPEED_COLOR_EXPR,
-  OOKLA_TESTS_ALPHA_EXPR,
+  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
+  OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
@@ -1989,8 +1989,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
         ],
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
-          "fill-color": OOKLA_SPEED_COLOR_EXPR,
-          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.72, OOKLA_TESTS_ALPHA_EXPR],
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
         }),
       },
       {
@@ -2027,8 +2027,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "fill",
         ...(grid === 14 ? { maxzoom: 15 } : { minzoom: 15 }),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
-          "fill-color": OOKLA_SPEED_COLOR_EXPR,
-          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.75) * 0.72, OOKLA_TESTS_ALPHA_EXPR],
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.75) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
         }),
       },
       {
