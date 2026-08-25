@@ -1,5 +1,6 @@
 import { withLoading } from "../lib/loadingRegistry";
 import {
+  normalizeGfwUtcHour,
   parseGfwHourlyUnifiedManifest,
   resolveGfwHourlyRootManifestUrl,
   type GfwUnifiedDarkVesselHour,
@@ -45,9 +46,11 @@ export function parseGfwDarkVesselsHour(
   raw: unknown,
   expectedHour: string,
 ): GeoJSON.FeatureCollection<GeoJSON.Point> | null {
+  const canonicalExpectedHour = normalizeGfwUtcHour(expectedHour);
   if (!isObject(raw) || raw.type !== "FeatureCollection" || !Array.isArray(raw.features)) return null;
   if (
-    !isObject(raw.metadata) || raw.metadata.observed_at !== expectedHour ||
+    !canonicalExpectedHour || !isObject(raw.metadata) ||
+    normalizeGfwUtcHour(raw.metadata.observed_at) !== canonicalExpectedHour ||
     raw.metadata.temporal_resolution !== "HOURLY" || raw.metadata.spatial_resolution !== "HIGH" ||
     raw.metadata.semantic_label !== "SAR detection unmatched to AIS" ||
     raw.metadata.not_proof_of_dark_or_illegal_vessel !== true ||
@@ -63,7 +66,8 @@ export function parseGfwDarkVesselsHour(
     if (!isObject(feature.properties)) return null;
     const p = feature.properties;
     if (
-      p.observed_at !== expectedHour || !Number.isInteger(p.detections) || (p.detections as number) < 1 ||
+      normalizeGfwUtcHour(p.observed_at) !== canonicalExpectedHour ||
+      !Number.isInteger(p.detections) || (p.detections as number) < 1 ||
       typeof p.source_dataset !== "string" || p.source_dataset.length === 0 ||
       p.matched_to_ais !== false || p.matching_semantics !== "SAR_detection_not_matched_to_AIS" ||
       p.coordinate_semantics !== "GFW_HIGH_grid_cell_center" ||
