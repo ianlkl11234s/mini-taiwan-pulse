@@ -1114,8 +1114,10 @@ export default function App() {
       for (const k in next) next[k as keyof typeof next] = false;
       return next;
     });
+    // FeatureInfo 自帶 selected-feature halo；全部關閉時不可留下孤立光暈／popup。
+    setFeatureInfo(null);
     setExpandedLayer(null);
-  }, [setLayerVisibility, layerVisibilityRef]);
+  }, [setLayerVisibility, layerVisibilityRef, setFeatureInfo]);
 
   const handleBulkSetVisibility = useCallback(
     (keys: (keyof LayerVisibility)[], value: boolean) => {

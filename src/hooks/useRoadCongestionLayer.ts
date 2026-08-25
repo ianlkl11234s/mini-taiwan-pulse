@@ -69,6 +69,8 @@ export function useRoadCongestionLayer(
   const lastAppliedRef = useRef<Map<string, number>>(new Map());
   const lastSlotRef = useRef<number>(-1);
   const firstFlushDoneRef = useRef(false);
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
 
   /** 確保 source + line + hit layers 存在 */
   const ensureLayers = useCallback(
@@ -163,7 +165,7 @@ export function useRoadCongestionLayer(
           activeDateRef.current = dateStr;
           lastSlotRef.current = -1; // 強制下一次 flush 重算
           const map = mapRef.current;
-          if (map && ensureLayers(map)) flush(map, timeStore.getTime(), true);
+          if (map && visibleRef.current && ensureLayers(map)) flush(map, timeStore.getTime(), true);
         })
         .catch((err) => console.warn(`[RoadCongestion] load ${dateStr} failed:`, err))
         .finally(() => {

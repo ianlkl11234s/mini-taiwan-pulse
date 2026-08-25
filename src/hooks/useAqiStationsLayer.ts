@@ -92,11 +92,26 @@ export function useAqiStationsLayer(
     if (!map) return;
 
     if (!visible) {
-      // 關閉：移除圖層
-      if (map.isStyleLoaded()) removeLayers(map);
+      // 關閉不能被 isStyleLoaded() 擋掉：tile busy 時它也可能是 false，
+      // 但既有 layer 仍必須立即移除；真正遇到 style transition 才等 idle 重試。
+      let disposed = false;
+      let retryPending = false;
+      const remove = () => {
+        if (disposed) return;
+        retryPending = false;
+        try { removeLayers(map); }
+        catch {
+          retryPending = true;
+          map.once("idle", remove);
+        }
+      };
+      remove();
       stationsRef.current = [];
       lastKeyRef.current = "";
-      return;
+      return () => {
+        disposed = true;
+        if (retryPending) map.off("idle", remove);
+      };
     }
 
     let cancelled = false;

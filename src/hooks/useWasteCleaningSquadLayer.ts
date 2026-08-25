@@ -97,15 +97,27 @@ export function useWasteCleaningSquadLayer(
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
+    let retryPending = false;
+
+    const retry = () => {
+      retryPending = false;
+      if (!cancelled) void run();
+    };
+    const scheduleRetry = () => {
+      if (cancelled || retryPending) return;
+      retryPending = true;
+      map.once("idle", retry);
+    };
 
     const run = async () => {
+      if (!visible) {
+        try { setVisible(map, false); } catch { scheduleRetry(); }
+        return;
+      }
       try {
         ensureLayer(map, isDarkTheme);
       } catch {
-        return;
-      }
-      if (!visible) {
-        setVisible(map, false);
+        scheduleRetry();
         return;
       }
       if (!loadedRef.current) {
@@ -117,9 +129,13 @@ export function useWasteCleaningSquadLayer(
       setVisible(map, true);
     };
 
-    if (map.isStyleLoaded()) run();
-    else map.once("style.load", run);
+    void run();
+    map.on("style.load", run);
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+      map.off("style.load", run);
+      if (retryPending) map.off("idle", retry);
+    };
   }, [mapRef, visible, isDarkTheme, mapTick]);
 }

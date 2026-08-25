@@ -328,6 +328,8 @@ export function useCwaImageryLayer({
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);
       } else {
+        // style reload 會移除 Mapbox layer/source，但 handle 仍存在；先補回再更新。
+        state.handle.ensure();
         state.handle.setVisible(true); // 從軟隱藏恢復
         if (state.currentIso !== frame.observedAtIso) {
           state.handle.setUrl(url);
@@ -339,31 +341,44 @@ export function useCwaImageryLayer({
     };
 
     const run = (currentTimeSec: number) => {
-      reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
-      reconcile(radarRef.current, RADAR_DATASET, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+      // 每個 dataset 各自處理，避免雲圖在 style transition 拋錯時連帶跳過雷達關閉。
+      try {
+        reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+      } catch {
+        scheduleRetry();
+      }
+      try {
+        reconcile(radarRef.current, RADAR_DATASET, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+      } catch {
+        scheduleRetry();
+      }
     };
     runRef.current = run;
 
     let unsubTime: (() => void) | null = null;
-    const startSubscription = () => {
-      run(timeStore.getTime()); // 初始化
-      // frame 粒度約 10min，1s 節流足夠
-      unsubTime = timeStore.subscribeThrottled(1000, run);
+    let disposed = false;
+    let retryPending = false;
+    const retry = () => {
+      retryPending = false;
+      if (!disposed) run(timeStore.getTime());
     };
-
-    if (!map.isStyleLoaded()) {
-      const onLoad = () => startSubscription();
-      map.once("load", onLoad);
-      return () => {
-        map.off("load", onLoad);
-        if (unsubTime) unsubTime();
-        if (runRef.current === run) runRef.current = null;
-      };
+    function scheduleRetry() {
+      if (disposed || retryPending) return;
+      retryPending = true;
+      map!.once("idle", retry);
     }
+    const onStyleLoad = () => run(timeStore.getTime());
 
-    startSubscription();
+    // 不用 isStyleLoaded() 擋住 visibility=false：tile busy 時它也可能是 false，
+    // 但已存在的 layer 仍必須立刻 setVisible(false)。失敗才等 idle 重試。
+    run(timeStore.getTime());
+    unsubTime = timeStore.subscribeThrottled(1000, run);
+    map.on("style.load", onStyleLoad);
     return () => {
+      disposed = true;
       if (unsubTime) unsubTime();
+      map.off("style.load", onStyleLoad);
+      if (retryPending) map.off("idle", retry);
       if (runRef.current === run) runRef.current = null;
     };
   }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity, mapTick]);

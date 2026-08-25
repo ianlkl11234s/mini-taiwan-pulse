@@ -185,6 +185,11 @@ export function useMicroSensorsLayer(
       }
     };
 
+    // 關閉先直接 remove，不能被 isStyleLoaded() 擋住；tile busy 時它也可能 false。
+    if (!visible) {
+      apply();
+      return;
+    }
     if (!map.isStyleLoaded()) {
       const onLoad = () => apply();
       map.once("load", onLoad);

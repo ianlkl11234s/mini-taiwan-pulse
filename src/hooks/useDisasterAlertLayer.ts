@@ -204,6 +204,8 @@ export function useDisasterAlertLayer(
   const visKey = ALERT_GROUP_KEYS.map((k) => (visibility[k] ? "1" : "0")).join("");
   const visRef = useRef(visibility);
   visRef.current = visibility;
+  const anyVisibleRef = useRef(anyVisible);
+  anyVisibleRef.current = anyVisible;
 
   const writeCache = useCallback((dateStr: string, data: DisasterAlert[]) => {
     const cache = cacheRef.current;
@@ -261,7 +263,7 @@ export function useDisasterAlertLayer(
         activeDateRef.current = dateStr;
         lastActiveSetRef.current = "";
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+        if (map && anyVisibleRef.current && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         return;
       }
 
@@ -274,7 +276,7 @@ export function useDisasterAlertLayer(
           activeDateRef.current = dateStr;
           lastActiveSetRef.current = "";
           const map = mapRef.current;
-          if (map && ensureLayers(map)) {
+          if (map && anyVisibleRef.current && ensureLayers(map)) {
             refreshSource(map, timeStore.getTime());
             keepLoadingUntilMapIdle(map, `disaster-render:${dateStr}`, "災害示警 渲染中", SOURCE_ID);
           }

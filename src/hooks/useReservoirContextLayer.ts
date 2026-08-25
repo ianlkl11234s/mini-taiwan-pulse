@@ -266,11 +266,27 @@ export function useReservoirContextLayer(
 
     if (activeCompareId == null) {
       setContext(null);
-      if (map.isStyleLoaded()) clearSources(map);
-      return;
+      let disposed = false;
+      let retryPending = false;
+      const clear = () => {
+        retryPending = false;
+        if (disposed) return;
+        try { clearSources(map); } catch {
+          retryPending = true;
+          map.once("idle", clear);
+        }
+      };
+      // All Off 清 featureInfo 時要立刻清 context，不能因 tile busy 跳過。
+      clear();
+      return () => {
+        disposed = true;
+        if (retryPending) map.off("idle", clear);
+      };
     }
 
     let stale = false;
+    let retryPending = false;
+    let retryApply: (() => void) | null = null;
 
     const run = async () => {
       try {
@@ -285,13 +301,20 @@ export function useReservoirContextLayer(
         if (stale) return;
         setContext(ctx);
         const apply = () => {
-          ensureSources(map);
-          ensureLayers(map);
-          applyContext(map, ctx);
-          applyWatershedRivers(map, rivers);
+          retryPending = false;
+          if (stale) return;
+          try {
+            ensureSources(map);
+            ensureLayers(map);
+            applyContext(map, ctx);
+            applyWatershedRivers(map, rivers);
+          } catch {
+            retryPending = true;
+            map.once("idle", apply);
+          }
         };
-        if (!map.isStyleLoaded()) map.once("load", apply);
-        else apply();
+        retryApply = apply;
+        apply();
       } catch (err) {
         console.warn("[ReservoirContext] fetch failed:", err);
         if (!stale) setContext(null);
@@ -302,6 +325,7 @@ export function useReservoirContextLayer(
 
     return () => {
       stale = true;
+      if (retryPending && retryApply) map.off("idle", retryApply);
     };
   }, [activeCompareId, mapRef, mapTick]);
 

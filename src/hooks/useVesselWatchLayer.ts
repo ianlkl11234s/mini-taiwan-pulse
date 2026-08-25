@@ -163,6 +163,8 @@ export function useVesselWatchLayer(
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
 
   const positionsRef = useRef<VesselWatchPosition[] | null>(null);
   const trailsRef = useRef<VesselWatchTrail[] | null>(null);
@@ -254,7 +256,7 @@ export function useVesselWatchLayer(
           if (trailKeyRef.current !== key) return;
           trailsRef.current = rows;
           const map = mapRef.current;
-          if (map && ensureLayers(map)) {
+          if (map && visibleRef.current && ensureLayers(map)) {
             refreshSources(map);
             keepLoadingUntilMapIdle(
               map,

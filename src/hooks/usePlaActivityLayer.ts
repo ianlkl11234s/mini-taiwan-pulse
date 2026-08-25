@@ -174,6 +174,8 @@ export function usePlaActivityLayer(
   const statsRef = useRef<Map<string, PlaDailyStat> | null>(null);
   const layersReadyRef = useRef(false);
   const fetchingRef = useRef<string>("");
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
   const rafRef = useRef<number>(0);
   const appliedThreshRef = useRef<number>(-1);
 
@@ -238,7 +240,7 @@ export function usePlaActivityLayer(
         activeRef.current = cached.data;
         activeKeyRef.current = key;
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map);
+        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map);
         return;
       }
 
@@ -255,7 +257,7 @@ export function usePlaActivityLayer(
           activeRef.current = tracks;
           activeKeyRef.current = key;
           const map = mapRef.current;
-          if (map && ensureLayers(map)) {
+          if (map && visibleRef.current && ensureLayers(map)) {
             refreshSource(map);
             keepLoadingUntilMapIdle(
               map,
