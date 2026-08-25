@@ -19,8 +19,10 @@
 | `anfrWirelessSites` | point | ANFR Cartoradio GeoJSON | ✅ prototype |
 | `osmCommunicationSites` | point | OpenStreetMap / Overpass GeoJSON | ✅ 916-point regional prototype |
 | `ripeAtlasProbes` | point | RIPE Atlas public probe metadata | ✅ 3,000-point global overview |
-| `ooklaMobilePerformance` | polygon | Ookla Speedtest 2026 Q1 aggregated grid | ✅ 751-cell global prototype |
-| `ooklaFixedPerformance` | polygon | Ookla Speedtest 2026 Q1 aggregated grid | ✅ 893-cell global prototype |
+| `ooklaMobilePerformance` | polygon | Ookla Speedtest 2026 Q1 global grid（z6／z10 可切） | ✅ 52,107 cells |
+| `ooklaFixedPerformance` | polygon | Ookla Speedtest 2026 Q1 global grid（z6／z10 可切） | ✅ 63,101 cells |
+| `ooklaMobileTaiwan` | polygon | Ookla 台灣細格 PMTiles（z14 → z16 原生） | ✅ 4,784 / 23,881 cells |
+| `ooklaFixedTaiwan` | polygon | Ookla 台灣細格 PMTiles（z14 → z16 原生） | ✅ 5,133 / 28,028 cells |
 
 ## 關鍵檔案
 

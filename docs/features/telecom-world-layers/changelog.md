@@ -12,6 +12,18 @@
 - Popup／legend 明示座標 80–400m 模糊化、志願者偏差、research use；商業使用需另取許可；不呈現 IP 或 prefix。
 - 納入 3,000／13,534 點 SHA-256 穩定概覽：147 國、239 個 Anchor；完整快照留在 analytics 層。
 
+## 2026-08-25 — Ookla 格網解析度分級（全球 z6／z10 切換＋台灣 z14／z16 PMTiles）
+
+- 全球層改用合檔 GeoJSON（`ookla_{svc}_global.geojson`，z6 + z10 同檔帶 `z` 屬性），新增「解析度」select
+  手動切 z6（約 500 km）／z10（約 78 km）；切換走 filter rebuild，不重建 source。
+- 新增 `ooklaMobileTaiwan`／`ooklaFixedTaiwan`：台灣 bbox 兩級 PMTiles，z14（約 2.4 km，地圖 z6–14）
+  拉近自動換 z16 原生格（610 m，地圖 z15–16）。**z14 sublayer 設 `maxzoom: 15`、z16 設 `minzoom: 15`**
+  —— 少了這對 zoom 界線，MapLibre 會 overzoom 續畫 z14 tile，兩級疊成雙層。
+- 上游產物改 `--slim`：整層常數移出 feature（改由 `OOKLA_GRID_META` 提供），檔案縮約 70%。
+  popup 因此拆成 `ooklaMobileGrid`／`ooklaFixedGrid` 兩型（原本靠 `service_type` 屬性判斷，該欄已移除）。
+- 透明度乘上 `OOKLA_TESTS_ALPHA_EXPR`：z16 原生格大量只有個位數測試，不與數萬次測試等權呈現。
+- upstream 由 `catalog_missing` 轉 `verified`（`network_performance_grid` 已在 analytics 建檔）。
+
 ## 2026-08-18 — Ookla 2026 Q1 performance grid
 
 - 新增 `ooklaMobilePerformance`／`ooklaFixedPerformance`：行動／固定效能格網的 overlay、legend、popup、click、opacity params 與 static field contract。

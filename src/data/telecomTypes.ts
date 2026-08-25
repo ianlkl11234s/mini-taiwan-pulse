@@ -92,6 +92,35 @@ export const OOKLA_SPEED_COLORS = [
   { value: 500_000, label: "≥ 500 Mbps", color: "#D73027" },
 ] as const;
 
+/**
+ * Ookla grid 的整層常數 —— 產物走 `--slim`，這些值不再逐格重複（24k 格時是
+ * 純負擔），改由 pipeline 寫進 FeatureCollection metadata、由前端這份常數顯示。
+ */
+export const OOKLA_GRID_META = {
+  period: "2026-Q1",
+  sourceTileZoom: 16,
+  devicesMethod: "z16 tile 加總，未跨 tile 去重",
+  coverageCaveat: "空格不代表沒有網路；只顯示觀測到的 Speedtest 樣本",
+  sampleBias: "Speedtest 使用者不是隨機母體，不能當成人口或 coverage 推估",
+  attribution:
+    "© Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標 · CC BY-NC-SA 4.0 · 非商業／相同方式分享",
+} as const;
+
+/** 全球層的兩段解析度：z6 約 500km、z10 約 78km（同一份 GeoJSON，靠 `z` 過濾）。 */
+export const OOKLA_GLOBAL_ZOOMS = [
+  { value: 6, label: "粗 z6（約 500 km）" },
+  { value: 10, label: "細 z10（約 78 km）" },
+] as const;
+
+/**
+ * 樣本數驅動的透明度：z16 原生格大量是個位數測試，一次測速不該與數萬次
+ * 在圖面上等權。乘在 opacity 上，不改色階本身。
+ */
+export const OOKLA_TESTS_ALPHA_EXPR = [
+  "interpolate", ["linear"], ["to-number", ["get", "tests"], 0],
+  1, 0.35, 10, 0.6, 100, 0.85, 1000, 1,
+] as unknown as string;
+
 export const OOKLA_SPEED_COLOR_EXPR = [
   "interpolate", ["linear"], ["to-number", ["get", "avg_d_kbps"], 0],
   ...OOKLA_SPEED_COLORS.flatMap((stop) => [stop.value, stop.color]),

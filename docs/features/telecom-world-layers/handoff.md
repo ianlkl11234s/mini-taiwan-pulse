@@ -111,12 +111,15 @@
 
 ## Ookla 網路效能格網（行動／固定）
 
-- 產物：`public/geo/ookla_mobile_performance.geojson`、`public/geo/ookla_fixed_performance.geojson`
-- 上游：Ookla Speedtest Global Internet Performance Maps 2026 Q1；以 z6 quadkey 聚合，避免把原始 z16 tile 當成 coverage geometry。
-- 資料量：mobile 3,186,269 個 z16 tiles → 751 格；fixed 6,312,198 個 z16 tiles → 893 格；速度與延遲按 `tests` 加權。
-- 兩層皆為 overlay-only static Polygon，下載速度 `avg_d_kbps` 驅動色階；填色半透明並保留邊界描線。
-- 欄位：`service_type`, `coarse_quadkey`, `coarse_zoom`, `source_tile_zoom`, `avg_d_kbps`, `avg_u_kbps`, `avg_lat_ms`, `tests`, `devices`, `devices_method`, `tile_count`, `period`, `source`, `source_url`, `license`, `attribution`, `accessed_at`, `usage_note`, `sample_bias`, `coverage_caveat`。
-- `devices_method=tile_sum_not_deduplicated`：`devices` 是 z16 tile device counts 加總，未跨 tile 去重，不代表 coarse cell unique devices。
-- 使用限制：Speedtest 使用者樣本，不是 coverage map；樣本存在裝置／使用者偏差，不能推論未測區域的服務可得性。
-- 授權：CC BY-NC-SA 4.0，非商業使用、相同方式分享；popup／legend 必須保留 `© Ookla` 與「Ookla、Speedtest 及相關標誌為 Ookla, LLC 的商標」聲明。
-- 兩個靜態 asset 已納入 Git，走 nginx `/geo/` dist fallback；完整原始 Parquet 不進前端 repo。
+- 產物：`public/geo/ookla_{mobile,fixed}_global.geojson`（全球 z6+z10 合檔）、`public/geo/ookla_tw_z14.pmtiles`、`public/geo/ookla_tw_z16.pmtiles`（台灣兩級，各含 mobile／fixed 兩個 source layer）。
+- 上游：Ookla Speedtest Global Internet Performance Maps 2026 Q1（z16 原生 tile，赤道 610.8 m）。
+- 資料量：全球 z6 751／893 格、z10 51,356／62,208 格；台灣 z14 4,784／5,133、z16 原生 23,881／28,028。速度與延遲按 `tests` 加權。
+- 四層皆為 overlay-only Polygon，下載速度 `avg_d_kbps` 驅動色階；透明度另乘 `OOKLA_TESTS_ALPHA_EXPR`，讓整季只有個位數測試的格不與數萬次的等權。
+- 全球層一份 GeoJSON 同時裝 z6 與 z10，靠 `z` 屬性 filter 手動切（「解析度」select）—— `sourceUrl` 是 config 的固定字串，合檔才能讓切換不必重建 source。
+- 台灣層同一個 layer key 掛兩個 config（`waterReservoirs` 先例）：z14 sublayer `maxzoom: 15`、z16 sublayer `minzoom: 15`。**兩個界線缺一就 double-render** —— PMTiles source 的 maxzoom 只擋 tile 請求，不擋 MapLibre overzoom 續畫。
+- 欄位（`--slim`）：`coarse_quadkey`, `avg_d_kbps`, `avg_u_kbps`, `avg_lat_ms`, `tests`, `devices`, `tile_count`（原生 z16 省略，恆為 1）, `z`（僅全球層）。整層常數移到 `OOKLA_GRID_META`，不再逐格重複。
+- popup 分 `ooklaMobileGrid`／`ooklaFixedGrid`：slim 移除了 `service_type`，popup 型別本身成為 service 的載體。
+- `devices` 是 z16 tile device counts 加總，未跨 tile 去重，不代表 cell unique devices。
+- 使用限制：Speedtest 使用者樣本，不是 coverage map；空格不代表沒有網路。Ookla 2026-04-16 起更新支援地區，俄羅斯／伊朗本輪無量體 —— 空白格有兩種成因。
+- 授權：CC BY-NC-SA 4.0，非商業使用、相同方式分享；PMTiles 以 tippecanoe `-A` 帶 attribution（地圖右下常駐），popup／legend 另保留 `© Ookla` 與商標聲明。
+- 靜態 asset 已納入 Git，走 nginx `/geo/` dist fallback；完整原始 Parquet 不進前端 repo。
