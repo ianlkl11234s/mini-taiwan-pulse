@@ -8,6 +8,7 @@ import { describe, it, expect } from "vitest";
 import {
   parseShipTrail, filterGpsAnomalies, parseShipType, shipTypeBucket,
   shipRowsToShips, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT, SHIP_TYPE_LEGEND,
+  gfwShipTypeBucket, shipTypeBucketLabel,
   type ShipTrailRow,
 } from "../shipTrails";
 import type { TrailPoint } from "../../types";
@@ -97,6 +98,22 @@ describe("shipTypeBucket", () => {
       expect(SHIP_TYPE_COLORS_DARK[b]).toMatch(/^#[0-9a-f]{6}$/i);
       expect(SHIP_TYPE_COLORS_LIGHT[b]).toMatch(/^#[0-9a-f]{6}$/i);
     }
+  });
+});
+
+describe("gfwShipTypeBucket", () => {
+  it("GFW 類型映射到既有 Ships 六類色票", () => {
+    expect(gfwShipTypeBucket("CARGO")).toBe("cargo");
+    expect(gfwShipTypeBucket("carrier")).toBe("cargo");
+    expect(gfwShipTypeBucket("PASSENGER")).toBe("passenger");
+    expect(gfwShipTypeBucket("FISHING")).toBe("fishing");
+    expect(gfwShipTypeBucket("TANKER")).toBe("tanker");
+    for (const type of ["GEAR", "SEISMIC_VESSEL", "TUG", "SUPPORT"]) {
+      expect(gfwShipTypeBucket(type)).toBe("special");
+    }
+    expect(gfwShipTypeBucket("NA")).toBe("other");
+    expect(gfwShipTypeBucket(null)).toBe("other");
+    expect(shipTypeBucketLabel("special")).toBe("作業/拖船 Tug");
   });
 });
 

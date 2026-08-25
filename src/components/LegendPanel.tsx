@@ -15,7 +15,7 @@ import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
-import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
+import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -335,6 +335,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "vesselWatch", render: () => <VesselWatchLegend /> },
   { id: "aisstreamVessels", render: () => <AisstreamVesselsLegend /> },
   { id: "gfwVesselPresence", render: () => <GfwVesselPresenceLegend /> },
+  { id: "gfwHourlyGrid", render: () => <GfwHourlyGridLegend /> },
+  { id: "gfwHourlyTracks", render: ({ isDark }) => <GfwHourlyTracksLegend isDark={isDark} /> },
+  { id: "gfwDarkVessels", render: () => <GfwDarkVesselsLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -3943,6 +3946,68 @@ function GfwVesselPresenceLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         非即時 AIS；不等於暗船或 SAR unmatched 清單
+      </div>
+    </div>
+  );
+}
+
+function GfwHourlyGridLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        GFW 小時船舶網格
+      </div>
+      <div style={{ display: "flex", alignItems: "end", gap: 12, minHeight: 28 }}>
+        {[{ size: 10, label: "1" }, { size: 16, label: "4" }, { size: 24, label: "25" }].map((item) => (
+          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: item.size, height: item.size, borderRadius: RADIUS.full, background: "#fb923c", border: "1px solid #7c2d12" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label} 艘</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5 }}>
+        圓大小與圓內數字＝同一 GFW HIGH 格內的船舶數
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+        點位是格網中心，非原始 AIS 精確位置；依全域時間軸切換 UTC 整點
+      </div>
+    </div>
+  );
+}
+
+function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
+  const t = useLegendTheme();
+  const palette = isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        GFW 抽樣近似航跡
+      </div>
+      <FireCatRows cats={SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }))} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
+        同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
+        僅顯示 capped POC 抽樣；線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線。
+      </div>
+    </div>
+  );
+}
+
+function GfwDarkVesselsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        GFW SAR 未匹配 AIS 偵測
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: "#f43f5e", border: "1px solid #fff1f2" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>圓點大小＝同格 SAR detections</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
+        點位是 GFW HIGH 格網中心。「未與 AIS 匹配」不等於違法、暗船，也不能確認船舶刻意關閉 AIS。
       </div>
     </div>
   );

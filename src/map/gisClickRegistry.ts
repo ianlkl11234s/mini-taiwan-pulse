@@ -146,6 +146,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌍 世界 WORLD
   { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
   { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
+  { layers: ["gfw-hourly-grid-count", "gfw-hourly-grid-circle"], type: "gfwHourlyGrid" },
+  { layers: ["gfw-hourly-tracks-endpoint", "gfw-hourly-tracks-line"], type: "gfwHourlyTrack" },
+  { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
   { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },

@@ -115,6 +115,33 @@ export const SHIP_TYPE_LEGEND: readonly { bucket: ShipTypeBucket; label: string 
   { bucket: "other", label: "其他 Other" },
 ];
 
+/** GFW vessel presence 英文類型 → 既有 Ships 六類色票。 */
+export function gfwShipTypeBucket(vesselType: string | null | undefined): ShipTypeBucket {
+  switch (vesselType?.trim().toUpperCase()) {
+    case "CARGO":
+    case "CARRIER":
+      return "cargo";
+    case "PASSENGER":
+      return "passenger";
+    case "FISHING":
+      return "fishing";
+    case "TANKER":
+      return "tanker";
+    case "GEAR":
+    case "SEISMIC_VESSEL":
+    case "TUG":
+    case "SUPPORT":
+      return "special";
+    default:
+      return "other";
+  }
+}
+
+/** 與 `SHIP_TYPE_LEGEND` 同步的人類可讀分類名稱。 */
+export function shipTypeBucketLabel(bucket: ShipTypeBucket): string {
+  return SHIP_TYPE_LEGEND.find((item) => item.bucket === bucket)?.label ?? "其他 Other";
+}
+
 // ── trail 解析 ──
 
 /** 解析船舶 trail `"lat,lng,ts;..."` → TrailPoint[]（alt 恆為 0）。 */

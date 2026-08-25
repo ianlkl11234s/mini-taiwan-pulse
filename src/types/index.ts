@@ -108,7 +108,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence"
+  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -687,7 +687,7 @@ export interface FeatureInfo {
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
-    | "aisstreamVessel" | "gfwVesselPresence"
+    | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
@@ -898,6 +898,12 @@ export interface LayerVisibility {
   aisstreamVessels: boolean;
   /** Global Fishing Watch 每日/延遲 vessel presence（獨立於 AISStream） */
   gfwVesselPresence: boolean;
+  /** Global Fishing Watch HIGH 格網的小時 vessel presence（時間軸逐時切片） */
+  gfwHourlyGrid: boolean;
+  /** Global Fishing Watch HOURLY/HIGH 抽樣近似航跡（時間軸拖尾，production daily partitions） */
+  gfwHourlyTracks: boolean;
+  /** GFW SAR 偵測中未與 AIS 匹配者；非違法或確認關 AIS 認定 */
+  gfwDarkVessels: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */

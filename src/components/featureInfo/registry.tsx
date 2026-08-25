@@ -110,7 +110,7 @@ import {
 } from "./hazardPanels";
 import {
   EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel,
-  AisstreamVesselPanel, GfwVesselPresencePanel,
+  AisstreamVesselPanel, GfwVesselPresencePanel, GfwHourlyGridPanel, GfwHourlyTrackPanel, GfwDarkVesselPanel,
 } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
@@ -198,6 +198,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   vesselWatch: VesselWatchPanel,
   aisstreamVessel: AisstreamVesselPanel,
   gfwVesselPresence: GfwVesselPresencePanel,
+  gfwHourlyGrid: GfwHourlyGridPanel,
+  gfwHourlyTrack: GfwHourlyTrackPanel,
+  gfwDarkVessel: GfwDarkVesselPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   freewayCongestion: FreewayCongestionPanel,
@@ -680,6 +683,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   worldTrashDebris: "全球垃圾殘骸",
   aisstreamVessel: "AISStream 船舶",
   gfwVesselPresence: "GFW 船舶 Presence",
+  gfwHourlyGrid: "GFW 小時船舶網格",
+  gfwHourlyTrack: "GFW 抽樣近似航跡",
+  gfwDarkVessel: "GFW SAR 未匹配 AIS 偵測",
   jpReligionGsi: "日本宗教設施 GSI",
   jpReligionOsm: "日本宗教設施 OSM",
   jpReligionWikidata: "日本宗教設施 Wikidata",

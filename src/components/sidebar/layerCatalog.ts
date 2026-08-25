@@ -1419,6 +1419,9 @@ export const THEMES: ThemeDef[] = [
         layers: [
           fromManifest("aisstreamVessels"),
           fromManifest("gfwVesselPresence"),
+          fromManifest("gfwHourlyGrid"),
+          fromManifest("gfwHourlyTracks"),
+          fromManifest("gfwDarkVessels"),
         ],
       },
     ],
