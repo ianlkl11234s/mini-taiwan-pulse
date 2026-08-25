@@ -52,7 +52,7 @@ function unifiedManifest() {
       date_start: "2026-08-15",
       date_end: RELEASE,
       hours: hours.map(({ observedAt, compact }, index) => ({
-        observed_at: observedAt,
+        observed_at: observedAt.replace("Z", "+00:00"),
         path: `releases/${RELEASE}/dark_vessels/hours/${compact}.geojson`,
         sha256: "c".repeat(64), bytes: 10,
         features: index === 0 ? 1 : 0,
@@ -72,7 +72,7 @@ function validHour() {
   return {
     type: "FeatureCollection",
     metadata: {
-      observed_at: HOUR,
+      observed_at: HOUR.replace("Z", "+00:00"),
       temporal_resolution: "HOURLY",
       spatial_resolution: "HIGH",
       semantic_label: "SAR detection unmatched to AIS",
@@ -84,7 +84,7 @@ function validHour() {
       type: "Feature",
       geometry: { type: "Point", coordinates: [123.5, 24.5] },
       properties: {
-        observed_at: HOUR,
+        observed_at: HOUR.replace("Z", "+00:00"),
         detections: 2,
         source_dataset: "public-global-sar-presence:v4.0",
         matched_to_ais: false,
@@ -118,6 +118,7 @@ describe("GFW SAR unmatched-to-AIS contract", () => {
     expect(parsed?.latestCompleteDate).toBe(RELEASE);
     expect(parsed?.hours.size).toBe(168);
     expect(parsed?.hours.get(HOUR)).toMatchObject({ features: 1, detections: 2 });
+    expect(parsed?.hours.get(HOUR)?.observedAt).toBe(HOUR);
 
     raw.dark_vessels.hours.splice(10, 1);
     expect(parseGfwDarkVesselsManifest(raw, "/global-maritime/gfw-hourly/manifest.json")).toBeNull();

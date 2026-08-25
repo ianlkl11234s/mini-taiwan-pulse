@@ -8,9 +8,16 @@ const strictDate = (value: unknown): string | null => {
   const parsed = new Date(`${value}T00:00:00Z`);
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value ? value : null;
 };
-const strictHour = (value: unknown): string | null =>
-  typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:00:00Z$/.test(value) && Number.isFinite(Date.parse(value))
-    ? value : null;
+export const normalizeGfwUtcHour = (value: unknown): string | null => {
+  if (
+    typeof value !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}T\d{2}:00:00(?:Z|[+]00:00)$/.test(value)
+  ) return null;
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime())
+    ? parsed.toISOString().replace(".000Z", "Z")
+    : null;
+};
 const nonNegativeInt = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 0;
 const sha256 = (value: unknown): value is string => typeof value === "string" && /^[0-9a-f]{64}$/i.test(value);
 
@@ -129,7 +136,7 @@ export function parseGfwHourlyUnifiedManifest(
   const gridHours = new Map<string, GfwUnifiedGridHour>();
   for (const item of raw.grid.hours) {
     if (!isObject(item)) return null;
-    const observedAt = strictHour(item.observed_at);
+    const observedAt = normalizeGfwUtcHour(item.observed_at);
     const compact = observedAt?.replace(/[-:]/g, "").replace("T", "T").slice(0, 11);
     const expectedPath = observedAt ? `releases/${releaseId}/grid/hours/${compact}Z.geojson` : "";
     if (
@@ -164,7 +171,7 @@ export function parseGfwHourlyUnifiedManifest(
   let previousDarkHour = -Infinity;
   for (const item of raw.dark_vessels.hours) {
     if (!isObject(item)) return null;
-    const observedAt = strictHour(item.observed_at);
+    const observedAt = normalizeGfwUtcHour(item.observed_at);
     const compact = observedAt?.replace(/[-:]/g, "").slice(0, 11);
     const expectedPath = observedAt ? `releases/${releaseId}/dark_vessels/hours/${compact}Z.geojson` : "";
     const observedAtMs = observedAt ? Date.parse(observedAt) : Number.NaN;
