@@ -9,6 +9,7 @@
 | ID | Category | Priority | State | Trigger | Next action | Acceptance |
 |---|---|---|---|---|---|---|
 | JPR-2 | release | P2 | conditional | 本 feature 要走獨立 S3 deploy asset release | 補 world upload 清單並上傳三檔 | object HEAD、下載 checksum 與正式 HTTP 均一致 |
+| JPR-4 | release-governance | P2 | blocked | Owner 決定重新評估公開 canonical POC | 先確認 analytics 能從上游重建並固定 method/source lineage；完成 gold/blind evaluation 與 ODbL/GSI 授權、attribution review 後，從最新 master 只抽仍有效的 POC，不直接 merge local archive branch | High bucket precision ≥99%、跨宗教 false positive=0、lineage 完整、授權結論明確，且 asset HEAD/checksum、正式 HTTP/browser 驗收通過 |
 
 ## Completed / historical
 
