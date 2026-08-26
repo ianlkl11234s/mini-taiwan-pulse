@@ -120,6 +120,8 @@ export function useRoadEventsLayer(
   const layersReadyRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
 
   const writeCache = useCallback((dateStr: string, data: RoadEvent[]) => {
     const cache = cacheRef.current;
@@ -169,7 +171,7 @@ export function useRoadEventsLayer(
         activeDateRef.current = dateStr;
         lastActiveSetRef.current = "";
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         return;
       }
 
@@ -182,7 +184,7 @@ export function useRoadEventsLayer(
           activeDateRef.current = dateStr;
           lastActiveSetRef.current = "";
           const map = mapRef.current;
-          if (map && ensureLayers(map)) {
+          if (map && visibleRef.current && ensureLayers(map)) {
             refreshSource(map, timeStore.getTime());
             keepLoadingUntilMapIdle(map, `road-events-render:${dateStr}`, "即時路況 渲染中", SOURCE_ID);
           }

@@ -29,12 +29,12 @@ vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }
 
 import { useGlobalMaritimeLayers } from "../useGlobalMaritimeLayers";
 
-function createMap() {
+function createMap(styleLoaded = true) {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
   const layers = new Map<string, unknown>();
   const handlers = new Map<string, () => void>();
   const map = {
-    isStyleLoaded: () => true,
+    isStyleLoaded: () => styleLoaded,
     getBounds: () => ({ getWest: () => 120, getEast: () => 125, getSouth: () => 20, getNorth: () => 28 }),
     getSource: (id: string) => sources.get(id),
     addSource: (id: string) => { sources.set(id, { setData: vi.fn() }); },
@@ -73,5 +73,22 @@ describe("useGlobalMaritimeLayers style lifecycle", () => {
     expect(state.sources.has("global-maritime-gfw-presence")).toBe(true);
     expect(state.layers.has("global-maritime-aisstream-circle")).toBe(true);
     expect(state.layers.has("global-maritime-gfw-circle")).toBe(true);
+  });
+
+  it("style busy 時 All Off 仍立即隱藏既有海事圖層", () => {
+    vi.stubGlobal("window", { setInterval: () => 1, clearInterval: vi.fn() });
+    const state = createMap(false);
+    state.layers.set("global-maritime-aisstream-circle", {});
+    state.layers.set("global-maritime-gfw-circle", {});
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+
+    useGlobalMaritimeLayers(mapRef, false, false);
+
+    expect(state.map.setLayoutProperty).toHaveBeenCalledWith(
+      "global-maritime-aisstream-circle", "visibility", "none",
+    );
+    expect(state.map.setLayoutProperty).toHaveBeenCalledWith(
+      "global-maritime-gfw-circle", "visibility", "none",
+    );
   });
 });

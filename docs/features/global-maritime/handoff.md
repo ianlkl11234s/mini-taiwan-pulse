@@ -1,5 +1,25 @@
 # Global Maritime handoff
 
+## Full-fidelity v3 shadow handoff status (2026-08-26)
+
+| boundary | status |
+|---|---|
+| frontend/collector contract, tests, production build | complete |
+| migrations 376 / 377 | applied to production |
+| v3 shadow release assets | generated for 2026-08-15..21 UTC |
+| production S3/Supabase full audit | complete: schema3/full_fidelity root release 2026-08-21 bytes/hash; run e00 schema3 shadow and 3,311 counters/assets; HEAD 3,311/3,311 with zero missing/head_errors/bytes/SHA mismatches and timed_out=false |
+| push, deploy, browser acceptance | not yet performed |
+| canonical v2 | unchanged rollback path |
+
+Generated metrics: 1,426,359 points; 226,830 features; 64,051 vessels; 168,936
+segments; 57,894 singleton nodes; 1,105,448 grid cells; SAR 0; about 995 MB.
+
+Do not infer physical-vessel completeness from these counts. GFW HIGH values are hourly
+grid-center observations; inferred polygon footprints and same-segment linear interpolation
+are visualization semantics, not official cell boundaries or raw AIS positions. A failed
+S3 hash/bytes/cache, Supabase ledger/count, sidecar-detail, deploy, or browser check must
+leave canonical v2 selected; immutable releases are never patched in place.
+
 ## Downstream contract
 
 `mini-taiwan-pulse` 已接好兩個獨立 source/layer，但資料生命週期仍由上游 repo 負責：
@@ -42,14 +62,19 @@
 - Collector handoff：`../../../data-collectors` 的 AISStream/GFW collector 文件與 S3 cold archive policy
 - UI implementation：`src/data/globalMaritimeLoader.ts`、`src/hooks/useGlobalMaritimeLayers.ts`
 
-## Production evidence boundary (2026-08-24)
+## Historical v2 production evidence boundary (2026-08-24)
 
-- migration 371 已完整套用至 production。
+- migration 371 已完整套用至 production；full-fidelity migration 376 與 audit migration
+  377 亦已套用 production。v3 shadow full S3/Supabase audit 已完成；push/deploy/browser
+  仍未完成。
 - AISStream 的 9 個相關 tables、5 個 RPCs、cron 與 retention 已存在；feed healthy，archive 已以 backend read-only 證據驗證。
 - GFW tables/RPC 已存在；當時 token gate 下 collector runs 為 0，尚無 production snapshot 可做資料驗收。2026-08-25 後加入的本機 token 僅供 POC，不改寫此 production 證據。
 - 本次證據不包含 PostgREST 公開 RPC 回應或 browser 真實點位驗證。
 
-## Local GFW trajectory POC contract (2026-08-25)
+## Historical local GFW trajectory POC contract (2026-08-25)
+
+以下 POC/browser 數據不是 v3 shadow deploy 或 browser acceptance 證據；current release
+status、metrics 與 rollback gate 以本文開頭的 2026-08-26 表格為準。
 
 ### Scope and safety boundary
 

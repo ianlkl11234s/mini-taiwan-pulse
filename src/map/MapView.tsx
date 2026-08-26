@@ -261,7 +261,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       }
 
       // Live Status 模式：隱藏 2D 軌跡
-      if (!showTrailsRef.current) {
+      if (!showTrailsRef.current || !vis.flights) {
         setStaticTrailsVisible(map, false);
       }
 
@@ -406,8 +406,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   // showTrails 切換
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setStaticTrailsVisible(map, showTrails);
+    if (!map || !readyRef.current) return;
+    setStaticTrailsVisible(map, showTrails && layerVisibilityStore.getVisibility("flights"));
   }, [showTrails]);
 
   // Overlay 主題 + params 即時更新（一個 useEffect 取代原本 5+ 個）
@@ -441,6 +441,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       const map = mapRef.current;
       if (!map || !readyRef.current) return;
       const vis = layerVisibilityStore.getAll();
+      setStaticTrailsVisible(map, showTrailsRef.current && vis.flights);
       for (const config of OVERLAY_REGISTRY) {
         const v = isOverlayVisible(config, vis, overlayParamsRef.current);
         if (v) void hydrateOverlayIfNeeded(map, config);

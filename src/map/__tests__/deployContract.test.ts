@@ -299,7 +299,9 @@ describe("deploy 契約（manifest 逐檔）", () => {
   it("GFW production 預設同域 unified root，可選 CDN override，local POC 不進 dist", () => {
     expect(gfwManifestContract).toContain("VITE_GLOBAL_MARITIME_CDN_BASE");
     expect(gfwManifestContract).toContain("global-maritime/gfw-hourly/manifest.json");
-    expect(gfwManifestContract).toContain('return `/${ROOT_PATH}`');
+    expect(gfwManifestContract).toContain("VITE_GFW_HOURLY_V3_SHADOW_ENABLED");
+    expect(gfwManifestContract).toContain("global-maritime/gfw-hourly/v3-shadow/manifest.json");
+    expect(gfwManifestContract).toContain("const path = shadowEnabled ? GFW_HOURLY_V3_SHADOW_ROOT_PATH : ROOT_PATH");
     expect(gfwTracksLoader).toContain('fetch(manifestUrl, { cache: "no-cache" })');
     expect(gfwTracksLoader).toContain('{ cache: "force-cache" }');
     expect(gfwGridLoader).toContain('fetch(manifestUrl, { cache: "no-cache" })');
@@ -316,7 +318,10 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(refreshManifest).toBeGreaterThan(refreshSync);
     expect(gfwRefreshScript).toContain('--exclude "manifest.json"');
     expect(gfwRefreshScript).toContain('mv "/data/global-maritime/gfw-hourly/manifest.json.tmp"');
+    expect(gfwRefreshScript).toContain('v3-shadow/manifest.json.tmp');
     expect(pullScript).toContain('$S3/global-maritime/gfw-hourly/');
+    expect(pullScript).toContain('--exclude "v3-shadow/manifest.json"');
+    expect(pullScript).toContain('v3-shadow/manifest.json.tmp');
     expect(pullScript.indexOf('--exclude "manifest.json"'))
       .toBeLessThan(pullScript.indexOf('manifest.json.tmp'));
     expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-21600");
@@ -326,9 +331,12 @@ describe("deploy 契約（manifest 逐檔）", () => {
 
   it("GFW same-origin cache headers 符合 root 60s/SWR300 與 release 7d immutable", () => {
     expect(nginxConf).toContain("location = /global-maritime/gfw-hourly/manifest.json");
+    expect(nginxConf).toContain("location = /global-maritime/gfw-hourly/v3-shadow/manifest.json");
     expect(nginxConf).toContain('Cache-Control "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
     expect(nginxConf).toContain("location ^~ /global-maritime/gfw-hourly/releases/");
+    expect(nginxConf).toContain("location ^~ /global-maritime/gfw-hourly/v3-shadow/releases/");
     expect(nginxConf).toContain('Cache-Control "public,max-age=604800,s-maxage=604800,immutable"');
+    expect(nginxConf).toContain("gzip off;");
     expect(gfwManifestContract).toContain('root_manifest !== "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
     expect(gfwManifestContract).toContain('immutable_release !== "public,max-age=604800,s-maxage=604800,immutable"');
   });

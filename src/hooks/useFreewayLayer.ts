@@ -109,6 +109,8 @@ export function useFreewayLayer(
   const layersReadyRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastSnapshotTsRef = useRef<number>(-1);
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
 
   /** 寫快取 + LRU */
   const writeCache = useCallback((dateStr: string, data: FreewayDayData) => {
@@ -169,7 +171,7 @@ export function useFreewayLayer(
         activeDateRef.current = dateStr;
         lastSnapshotTsRef.current = -1; // 強制下一次 refresh
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         return;
       }
 
@@ -183,7 +185,7 @@ export function useFreewayLayer(
           activeDateRef.current = dateStr;
           lastSnapshotTsRef.current = -1;
           const map = mapRef.current;
-          if (map && ensureLayers(map)) {
+          if (map && visibleRef.current && ensureLayers(map)) {
             refreshSource(map, timeStore.getTime());
             // 新日資料載入後，延續 loading 到 Mapbox 真的畫完
             keepLoadingUntilMapIdle(map, `freeway-render:${dateStr}`, `國道壅塞 渲染中`, SOURCE_ID);

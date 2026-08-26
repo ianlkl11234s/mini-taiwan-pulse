@@ -140,11 +140,19 @@ aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
 # 避免拿到舊 manifest 的讀者遇到 404。
 echo "[pull] sync global-maritime/gfw-hourly → $DATA_DIR/global-maritime/gfw-hourly/"
 aws s3 sync "$S3/global-maritime/gfw-hourly/" "$DATA_DIR/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json"
+  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json"
 if aws s3 cp "$S3/global-maritime/gfw-hourly/manifest.json" \
   "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" --no-progress; then
   mv "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" \
     "$DATA_DIR/global-maritime/gfw-hourly/manifest.json"
+fi
+# v3 shadow 與 canonical 共用 immutable release 同步順序；shadow 指標同樣最後 tmp+mv，
+# 不能讓 runtime shadow 開關讀到一半新舊 release 的 manifest。
+mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow"
+if aws s3 cp "$S3/global-maritime/gfw-hourly/v3-shadow/manifest.json" \
+  "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" --no-progress; then
+  mv "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
+    "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json"
 fi
 
 # 觀光：鏡像子前綴 deploy-assets/tourism/ → /data/tourism/（景點/旅宿/餐飲 D 類 3 大檔；其餘 9 檔 C 類在 dist fallback）

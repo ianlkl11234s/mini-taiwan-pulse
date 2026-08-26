@@ -36,6 +36,8 @@ import type { FeatureInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
+import { GFW_HOURLY_GRID_CLICK_LAYERS } from "../hooks/useGfwHourlyGridLayer";
+import { GFW_HOURLY_TRACKS_CLICK_LAYERS } from "../hooks/useGfwHourlyTracksLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -50,8 +52,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["anfr-wireless-sites-circle", "anfr-wireless-sites-glow"], type: "anfrWirelessSite" },
   { layers: ["osm-communication-sites-circle", "osm-communication-sites-glow"], type: "osmCommunicationSite" },
   { layers: ["ripe-atlas-probes-circle", "ripe-atlas-probes-glow"], type: "ripeAtlasProbe" },
-  { layers: ["ookla-mobile-performance-fill", "ookla-mobile-performance-line"], type: "ooklaPerformanceGrid" },
-  { layers: ["ookla-fixed-performance-fill", "ookla-fixed-performance-line"], type: "ooklaPerformanceGrid" },
+  // 全球格網（z6／z8／z10 同 source）＋ 台灣兩級 PMTiles，各自 fill/line 兩個 layer
+  { layers: ["ookla-mobile-global-fill", "ookla-mobile-global-line",
+             "ookla-tw-z16-mobile-fill", "ookla-tw-z16-mobile-line",
+             "ookla-tw-z14-mobile-fill", "ookla-tw-z14-mobile-line"], type: "ooklaMobileGrid" },
+  { layers: ["ookla-fixed-global-fill", "ookla-fixed-global-line",
+             "ookla-tw-z16-fixed-fill", "ookla-tw-z16-fixed-line",
+             "ookla-tw-z14-fixed-fill", "ookla-tw-z14-fixed-line"], type: "ooklaFixedGrid" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
   // 全部走同一個 SchoolPanel。校地面 `edu-campus-fill` 是大面積 fill → 排在陣列最末。
   {
@@ -146,8 +153,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌍 世界 WORLD
   { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
   { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
-  { layers: ["gfw-hourly-grid-count", "gfw-hourly-grid-circle"], type: "gfwHourlyGrid" },
-  { layers: ["gfw-hourly-tracks-endpoint", "gfw-hourly-tracks-line"], type: "gfwHourlyTrack" },
+  // grid hook 會把 alpha dominant 的 H 或 H+1 複製到專用 hit source；此處只查它，
+  // 因此透明的另一小時絕不會搶 popup。
+  { layers: [...GFW_HOURLY_GRID_CLICK_LAYERS], type: "gfwHourlyGrid" },
+  // endpoint 永遠先於 line；同 runtime 座標的船隻已在 loader 聚合為完整 popup 清單。
+  { layers: [...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
   { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。

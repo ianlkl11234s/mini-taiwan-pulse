@@ -1,7 +1,8 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
-  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR, OOKLA_SPEED_COLOR_EXPR,
+  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
+  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
@@ -1969,55 +1970,81 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
   // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
-  ...([{
-    id: "ooklaMobilePerformance",
-    sourceUrl: "./geo/ookla_mobile_performance.geojson",
-    sourceId: "ookla-mobile-performance",
+  // 全球層一份 GeoJSON 同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
+  // —— 兩份資料合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
+  // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
+  ...(([
+    { svc: "mobile", key: "ooklaMobilePerformance" },
+    { svc: "fixed", key: "ooklaFixedPerformance" },
+  ] as const).map(({ svc, key }) => ({
+    id: key,
+    sourceUrl: `./geo/ookla_${svc}_global.geojson`,
+    sourceId: `ookla-${svc}-global`,
+    attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line"],
     layers: [
       {
         suffix: "fill",
         type: "fill",
+        filter: (p?: Record<string, number>) => [
+          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
+        ],
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
-          "fill-color": OOKLA_SPEED_COLOR_EXPR,
-          "fill-opacity": (params?.ooklaMobilePerformanceOpacity ?? 0.65) * 0.72,
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.65) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
         }),
       },
       {
         suffix: "line",
         type: "line",
+        filter: (p?: Record<string, number>) => [
+          "==", ["get", "z"], p?.[`ookla${svc === "mobile" ? "Mobile" : "Fixed"}GridZoom`] ?? 6,
+        ],
         paint: (isDark: boolean, params?: Record<string, number>) => ({
           "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
           "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
-          "line-opacity": params?.ooklaMobilePerformanceOpacity ?? 0.65,
+          "line-opacity": params?.[`${key}Opacity`] ?? 0.65,
         }),
       },
     ],
-  }, {
-    id: "ooklaFixedPerformance",
-    sourceUrl: "./geo/ookla_fixed_performance.geojson",
-    sourceId: "ookla-fixed-performance",
+  })) as OverlayConfig[]),
+
+  // ── Ookla 台灣細格（z14 → z16 兩級 PMTiles）──
+  // 同一個 layer key 掛兩個 config（waterReservoirs 先例）：z14 那份 tile 只做到地圖 z14，
+  // 但 MapLibre 會 overzoom 續畫 —— 所以 layer 端補 maxzoom: 15 把它切掉，否則 z15 起
+  // 會和 z16 格疊成雙層。z16 那份反向設 minzoom: 15，兩者剛好交棒不重疊。
+  ...(([
+    { svc: "mobile", key: "ooklaMobileTaiwan" },
+    { svc: "fixed", key: "ooklaFixedTaiwan" },
+  ] as const).flatMap(({ svc, key }) => ([14, 16] as const).map((grid) => ({
+    id: key,
+    sourceUrl: `./geo/ookla_tw_z${grid}.pmtiles`,
+    sourceId: `ookla-tw-z${grid}-${svc}`,
+    attribution: OOKLA_GRID_META.attribution,
+    pmtiles: { sourceLayer: svc, minzoom: grid === 14 ? 6 : 15, maxzoom: grid === 14 ? 14 : 16 },
     rebuildOnParamChange: ["fill", "line"],
     layers: [
       {
         suffix: "fill",
         type: "fill",
+        ...(grid === 14 ? { maxzoom: 15 } : { minzoom: 15 }),
         paint: (_isDark: boolean, params?: Record<string, number>) => ({
-          "fill-color": OOKLA_SPEED_COLOR_EXPR,
-          "fill-opacity": (params?.ooklaFixedPerformanceOpacity ?? 0.65) * 0.72,
+          "fill-color": ooklaSpeedColorExpr(params?.[`${key}Palette`]),
+          "fill-opacity": ["*", (params?.[`${key}Opacity`] ?? 0.75) * 0.88, OOKLA_TESTS_ALPHA_EXPR],
         }),
       },
       {
         suffix: "line",
         type: "line",
+        ...(grid === 14 ? { maxzoom: 15 } : { minzoom: 15 }),
         paint: (isDark: boolean, params?: Record<string, number>) => ({
-          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
-          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
-          "line-opacity": params?.ooklaFixedPerformanceOpacity ?? 0.65,
+          "line-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(15,23,42,0.45)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.2, 12, 0.5, 16, 0.9],
+          "line-opacity": (params?.[`${key}Opacity`] ?? 0.75) * 0.8,
         }),
       },
     ],
-  }] as OverlayConfig[]),
+  }))) as OverlayConfig[]),
 
   // ── Schools 學校總覽 (🎓 教育) ──
   // 2026-08-08：自「基礎建設→公共設施」搬入教育主題，資產改指 public/education/。

@@ -6,6 +6,7 @@ import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
 import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
+import { OOKLA_GRID_META } from "../../data/telecomTypes";
 
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
@@ -207,25 +208,50 @@ function formatOoklaLatency(value: unknown): string {
   return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : "未提供";
 }
 
-export function OoklaPerformanceGridPanel({ props }: { props: Record<string, unknown> }) {
+/**
+ * 格級描述 —— `--slim` 產物不再逐格帶 coarse_zoom：
+ *   全球層有 `z`（6／10）、台灣 z14 層有 tile_count、z16 原生層兩者皆無。
+ */
+function ooklaGridScale(props: Record<string, unknown>): string {
+  const z = Number(props.z);
+  if (z === 6) return "全球 z6 格（約 500 km）";
+  if (z === 10) return "全球 z10 格（約 78 km）";
+  const tiles = props.tile_count;
+  if (tiles === undefined || tiles === null) return "台灣 z16 原生格（約 610 m）";
+  return `台灣 z14 格（約 2.4 km）· 聚合 ${String(tiles)} 個 z16 tile`;
+}
+
+function OoklaGridPanel({ props, service }: { props: Record<string, unknown>; service: string }) {
   const t = useFeatureTheme();
-  const serviceType = String(props.service_type ?? "Ookla Speedtest");
+  const tests = Number(props.tests);
+  const thin = Number.isFinite(tests) && tests < 10;
   return <>
     <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
       Ookla 網路效能格網
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
-      {serviceType} · 使用者量測樣本，不代表覆蓋範圍
+      {service} · 使用者量測樣本，不代表覆蓋範圍
     </div>
     <Row label="下載／上傳" value={`${formatOoklaMbps(props.avg_d_kbps)} · ${formatOoklaMbps(props.avg_u_kbps)}`} />
     <Row label="延遲" value={formatOoklaLatency(props.avg_lat_ms)} />
-    <Row label="測試／裝置" value={`${String(props.tests ?? "未提供")} · ${String(props.devices ?? "未提供")}（z16 tile 加總，未跨 tile 去重）`} />
-    <Row label="聚合格網／解析度" value={`${String(props.tile_count ?? "未提供")} 個 z${String(props.source_tile_zoom ?? "未提供")} tiles → z${String(props.coarse_zoom ?? "未提供")} cell`} />
-    <Row label="期間" value={String(props.period ?? "未提供")} />
-    <Row label="限制" value="空格不代表沒有網路；只顯示觀測到的 Speedtest 樣本" />
-    <Row label="樣本偏差" value="Speedtest 使用者不是隨機母體，不能當成人口或 coverage 推估" />
-    <Row label="來源／授權" value="© Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標 · CC BY-NC-SA 4.0 · 非商業／相同方式分享" />
+    <Row
+      label="測試／裝置"
+      value={`${String(props.tests ?? "未提供")} · ${String(props.devices ?? "未提供")}（${OOKLA_GRID_META.devicesMethod}）${thin ? " ⚠️ 樣本極少" : ""}`}
+    />
+    <Row label="格級" value={ooklaGridScale(props)} />
+    <Row label="期間" value={OOKLA_GRID_META.period} />
+    <Row label="限制" value={OOKLA_GRID_META.coverageCaveat} />
+    <Row label="樣本偏差" value={OOKLA_GRID_META.sampleBias} />
+    <Row label="來源／授權" value={OOKLA_GRID_META.attribution} />
   </>;
+}
+
+export function OoklaMobileGridPanel({ props }: { props: Record<string, unknown> }) {
+  return <OoklaGridPanel props={props} service="行動 Mobile（蜂巢 4G／5G）" />;
+}
+
+export function OoklaFixedGridPanel({ props }: { props: Record<string, unknown> }) {
+  return <OoklaGridPanel props={props} service="固定 Fixed（WiFi／乙太）" />;
 }
 
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {

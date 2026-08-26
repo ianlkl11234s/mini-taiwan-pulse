@@ -62,19 +62,36 @@ export function useStaticRasterLayer({
           beforeId,
         });
       } else {
+        handleRef.current.ensure();
         handleRef.current.setVisible(true);
         handleRef.current.setOpacity(opacity);
       }
     };
 
-    if (!map.isStyleLoaded()) {
-      const onLoad = () => ensure();
-      map.once("load", onLoad);
-      return () => {
-        map.off("load", onLoad);
-      };
-    }
-    ensure();
+    let disposed = false;
+    let retryPending = false;
+    const retry = () => {
+      retryPending = false;
+      if (!disposed) run();
+    };
+    const scheduleRetry = () => {
+      if (disposed || retryPending) return;
+      retryPending = true;
+      map.once("idle", retry);
+    };
+    const run = () => {
+      try { ensure(); } catch { scheduleRetry(); }
+    };
+
+    // visibility=false 不能等待下一個 load；該事件通常早已發生，且 tile busy
+    // 也會讓 isStyleLoaded() 暫時為 false。先直接關，真正失敗才等 idle 重試。
+    run();
+    map.on("style.load", run);
+    return () => {
+      disposed = true;
+      map.off("style.load", run);
+      if (retryPending) map.off("idle", retry);
+    };
   }, [mapRef, sourceId, layerId, url, bbox, visible, opacity, beforeId, mapTick]);
 
   useEffect(() => {

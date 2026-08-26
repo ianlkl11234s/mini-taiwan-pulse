@@ -105,6 +105,7 @@ export type ExpandableLayerKey =
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
+  | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
@@ -681,7 +682,7 @@ export interface RealEstateTooltipInfo {
 // ── 點擊特徵資訊 ──
 
 export interface FeatureInfo {
-  layerType: "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaPerformanceGrid" | "school" | "convenienceStore"
+  layerType: "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -884,6 +885,8 @@ export interface LayerVisibility {
   ripeAtlasProbes: boolean;
   ooklaMobilePerformance: boolean;
   ooklaFixedPerformance: boolean;
+  ooklaMobileTaiwan: boolean;    // 台灣細格（z14 → z16 兩級 PMTiles）
+  ooklaFixedTaiwan: boolean;
   activeFaults: boolean;
   newsEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */

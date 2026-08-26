@@ -12,7 +12,7 @@
  * PMTiles 不在本測試範圍（需解切片；那層的點數/欄位守門該做在上游 pipeline）。
  */
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { COMPANY_INDUSTRY_MID_OPTIONS } from "../businessRegistryTypes";
@@ -45,6 +45,33 @@ function loadFeatures(rel: string): GeoJSON.Feature[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
   return data.features ?? [];
 }
+
+interface OoklaGlobalAssetContract {
+  path: string;
+  service: "fixed" | "mobile";
+  bytes: number;
+  sha256: string;
+  resolutions: Record<number, number>;
+}
+
+// 這兩份檔案各約 19–23 MB；本測試只逐 feature 驗 geometry/properties 與 digest，
+// 不把整份 JSON 複製成 snapshot，避免 fixture 膨脹及重複存放發佈資產。
+const OOKLA_GLOBAL_ASSETS: OoklaGlobalAssetContract[] = [
+  {
+    path: "geo/ookla_fixed_global.geojson",
+    service: "fixed",
+    bytes: 23_024_097,
+    sha256: "46e8d5811438bb36cd5a1fb5e9954786b9f83ef8ca4736b939c8c495684b10bf",
+    resolutions: { 6: 893, 8: 7_565, 10: 62_208 },
+  },
+  {
+    path: "geo/ookla_mobile_global.geojson",
+    service: "mobile",
+    bytes: 18_972_022,
+    sha256: "b5009e14cb28f913435d58a5652a402f0567ec6a7433a97a185b704d5475bd0c",
+    resolutions: { 6: 751, 8: 6_483, 10: 51_356 },
+  },
+];
 
 /** 取任意巢狀深度的第一組座標 */
 function firstCoord(geometry: GeoJSON.Geometry | null): number[] | null {
@@ -121,6 +148,49 @@ describe("靜態 GeoJSON 契約", () => {
   });
 });
 
+describe("Ookla 全球格網發佈資產契約", () => {
+  it("兩份固定版 GeoJSON 都存在，且大小／SHA-256 未漂移", () => {
+    for (const asset of OOKLA_GLOBAL_ASSETS) {
+      const path = `public/${asset.path}`;
+      expect(existsSync(path), `${asset.path} 不存在；靜態 overlay 會空白`).toBe(true);
+      expect(statSync(path).size, `${asset.path} bytes 已漂移；請確認是否需更新 contract`).toBe(asset.bytes);
+      expect(createHash("sha256").update(readFileSync(path)).digest("hex"), `${asset.path} SHA-256 已漂移`).toBe(asset.sha256);
+    }
+  });
+
+  it("保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度", () => {
+    const requiredNumeric = ["z", "avg_d_kbps", "avg_u_kbps", "avg_lat_ms", "tests", "devices"];
+    for (const asset of OOKLA_GLOBAL_ASSETS) {
+      const data = JSON.parse(readFileSync(`public/${asset.path}`, "utf8")) as {
+        type?: string;
+        metadata?: Record<string, unknown>;
+        features?: GeoJSON.Feature[];
+      };
+      expect(data.type, `${asset.path} 不再是 FeatureCollection`).toBe("FeatureCollection");
+      expect(data.metadata?.service_type, `${asset.path} service metadata 漂移`).toBe(asset.service);
+      expect(data.metadata?.coarse_zoom, `${asset.path} metadata 缺 z6/z8/z10`).toEqual([6, 8, 10]);
+      expect(String(data.metadata?.attribution ?? ""), `${asset.path} attribution 不可移除`).toContain("Ookla");
+
+      const counts: Record<number, number> = {};
+      const problems: string[] = [];
+      for (const feature of data.features ?? []) {
+        if (feature.geometry?.type !== "Polygon") {
+          problems.push(`geometry=${feature.geometry?.type ?? "null"}`);
+          continue;
+        }
+        const props = feature.properties ?? {};
+        if (typeof props.coarse_quadkey !== "string") problems.push("coarse_quadkey");
+        for (const field of requiredNumeric) {
+          if (typeof props[field] !== "number") problems.push(field);
+        }
+        if (typeof props.z === "number") counts[props.z] = (counts[props.z] ?? 0) + 1;
+      }
+      expect(problems, `${asset.path} geometry/必填欄位不符`).toEqual([]);
+      expect(counts, `${asset.path} resolution cells 漂移`).toEqual(asset.resolutions);
+    }
+  });
+});
+
 // ── 前端硬依賴欄位契約 ────────────────────────────────────────────
 //
 // 只列「改了前端一定壞」的欄位（分色 / 篩選 / popup 主要資訊），不求覆蓋全欄位。
@@ -162,50 +232,6 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "source", type: "string" },
     { field: "license", type: "string" },
     { field: "attribution", type: "string" },
-  ],
-  "geo/ookla_mobile_performance.geojson": [
-    { field: "service_type", type: "string" },
-    { field: "coarse_quadkey", type: "string" },
-    { field: "coarse_zoom", type: "number" },
-    { field: "source_tile_zoom", type: "number" },
-    { field: "avg_d_kbps", type: "number" },
-    { field: "avg_u_kbps", type: "number" },
-    { field: "avg_lat_ms", type: "number" },
-    { field: "tests", type: "number" },
-    { field: "devices", type: "number" },
-    { field: "devices_method", type: "string" },
-    { field: "tile_count", type: "number" },
-    { field: "period", type: "string" },
-    { field: "source", type: "string" },
-    { field: "source_url", type: "string" },
-    { field: "license", type: "string" },
-    { field: "attribution", type: "string" },
-    { field: "accessed_at", type: "string" },
-    { field: "usage_note", type: "string" },
-    { field: "sample_bias", type: "string" },
-    { field: "coverage_caveat", type: "string" },
-  ],
-  "geo/ookla_fixed_performance.geojson": [
-    { field: "service_type", type: "string" },
-    { field: "coarse_quadkey", type: "string" },
-    { field: "coarse_zoom", type: "number" },
-    { field: "source_tile_zoom", type: "number" },
-    { field: "avg_d_kbps", type: "number" },
-    { field: "avg_u_kbps", type: "number" },
-    { field: "avg_lat_ms", type: "number" },
-    { field: "tests", type: "number" },
-    { field: "devices", type: "number" },
-    { field: "devices_method", type: "string" },
-    { field: "tile_count", type: "number" },
-    { field: "period", type: "string" },
-    { field: "source", type: "string" },
-    { field: "source_url", type: "string" },
-    { field: "license", type: "string" },
-    { field: "attribution", type: "string" },
-    { field: "accessed_at", type: "string" },
-    { field: "usage_note", type: "string" },
-    { field: "sample_bias", type: "string" },
-    { field: "coverage_caveat", type: "string" },
   ],
   "business_registry/common_registration_addresses_202608_r2.geojson": [
     { field: "address", type: "string" },

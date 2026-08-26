@@ -95,6 +95,7 @@ import {
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
 import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS, ANIMAL_WELFARE_POINT_TYPE_VALUES } from "./animalWelfarePointsTypes";
+import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1126,8 +1127,51 @@ export const LAYER_PARAMS_SPEC = {
   anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8)],
   osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8)],
   ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8)],
-  ooklaMobilePerformance: [opacitySlider("ooklaMobilePerformanceOpacity", 0.65)],
-  ooklaFixedPerformance: [opacitySlider("ooklaFixedPerformanceOpacity", 0.65)],
+  // 全球層：z6（約 500km）、z8（約 156km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
+  // 切換 —— select 走 encodeNumeric，overlayParams 直接拿到 6 / 10 當 filter 值。
+  ooklaMobilePerformance: [
+    {
+      kind: "select", name: "ooklaMobileGridZoom", label: "解析度", default: "6",
+      options: OOKLA_GLOBAL_ZOOMS.map((z) => ({ label: z.label, value: String(z.value) })),
+      out: "ooklaMobileGridZoom", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "ooklaMobilePerformancePalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaMobilePerformancePalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaMobilePerformanceOpacity", 0.65),
+  ],
+  ooklaFixedPerformance: [
+    {
+      kind: "select", name: "ooklaFixedGridZoom", label: "解析度", default: "6",
+      options: OOKLA_GLOBAL_ZOOMS.map((z) => ({ label: z.label, value: String(z.value) })),
+      out: "ooklaFixedGridZoom", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "ooklaFixedPerformancePalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaFixedPerformancePalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaFixedPerformanceOpacity", 0.65),
+  ],
+  // 台灣層：z14 → z16 由 PMTiles 的 zoom 區間自動接手，不需要 select
+  ooklaMobileTaiwan: [
+    {
+      kind: "select", name: "ooklaMobileTaiwanPalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaMobileTaiwanPalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaMobileTaiwanOpacity", 0.75),
+  ],
+  ooklaFixedTaiwan: [
+    {
+      kind: "select", name: "ooklaFixedTaiwanPalette", label: "配色", default: "soft",
+      options: OOKLA_PALETTES.map((p) => ({ label: p.label, value: p.value })),
+      out: "ooklaFixedTaiwanPalette", encode: OOKLA_PALETTES.map((p) => p.value),
+    },
+    opacitySlider("ooklaFixedTaiwanOpacity", 0.75),
+  ],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],

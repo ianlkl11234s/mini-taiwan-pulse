@@ -170,12 +170,19 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
   const t = useFeatureTheme();
   const vessels = parseGfwHourlyGridVessels(props.vessels_json) ?? [];
   const expectedCount = Number(props.vessel_count);
+  const detailStatus = props.detail_status;
   return (
     <div>
       <Row label="UTC 小時" value={fmtMaritimeUtcTime(props.observed_at)} />
+      {typeof props.dominant_observed_at === "string" && <Row label="點擊主導小時" value={fmtMaritimeUtcTime(props.dominant_observed_at)} />}
       <Row label="格內船數" value={Number.isFinite(expectedCount) ? `${expectedCount} 艘` : "—"} />
-      <Row label="格網中心" value={`${props.grid_lon ?? "—"}, ${props.grid_lat ?? "—"}`} />
+      <Row label="格網中心" value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
+      {typeof props.cell_id === "string" && <Row label="網格 ID" value={props.cell_id} />}
       <Row label="位置語意" value="GFW HIGH 格網中心（非原始 AIS 精確座標）" />
+      {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label="幾何範圍" value="推定 0.01° 格網 footprint" />}
+      {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
+      {detailStatus === "loading" && <Row label="完整清單" value="正在驗證並載入全部船舶…" />}
+      {detailStatus === "error" && <Row label="完整清單" value={String(props.detail_error ?? "驗證失敗，未顯示部分清單")} color="#f87171" />}
       <div style={{ marginTop: 8, fontSize: 11, color: t.textDim, letterSpacing: 0.6 }}>
         格內船舶 {vessels.length.toLocaleString()} 艘
       </div>
@@ -194,40 +201,67 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
             </div>
           </div>
         ))}
-        {vessels.length === 0 && (
-          <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>船舶清單無法解析</div>
+        {vessels.length === 0 && detailStatus !== "loading" && (
+          <div style={{ color: t.textDim, fontSize: 11, padding: "6px 0" }}>{detailStatus === "error" ? "不顯示未驗證的部分船舶" : "船舶清單無法解析"}</div>
         )}
       </div>
       <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+      <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
+        非即時、格網中心近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
+      </div>
     </div>
   );
 }
 
 export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
+  const vessels = parseGfwHourlyGridVessels(props.vessels_json);
   const shipName = String(props.ship_name ?? "").trim();
   const vesselId = String(props.vessel_id ?? "—");
   const count = Number(props.point_count);
+  const vesselCount = Number(props.vessel_count);
   const interpolated = Number(props.interpolated) === 1;
+  const grouped = vessels && vessels.length > 1;
+  const detailStatus = props.detail_status;
   return (
     <div>
-      <Row label="船名" value={shipName || "（無船名）"} />
-      <Row label="Vessel ID" value={vesselId} />
-      <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
-      <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
-      <Row label="視覺分類" value={String(props.ship_type_label ?? "其他 Other")} />
+      {!grouped && <>
+        <Row label="船名" value={shipName || "（無船名）"} />
+        <Row label="Vessel ID" value={vesselId} />
+        <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
+        <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
+      </>}
+      <Row label={grouped ? "同座標船舶" : "視覺分類"} value={grouped && Number.isFinite(vesselCount) ? `${vesselCount} 艘` : String(props.ship_type_label ?? "其他 Other")} />
+      {Number(props.mixed_type) === 1 && <Row label="船種" value="混合船種 Mixed" />}
       <Row label="拖尾起點（UTC）" value={fmtMaritimeUtcTime(props.start_at)} />
       <Row label="拖尾終點（UTC）" value={fmtMaritimeUtcTime(props.end_at)} />
       <Row
         label="時間軸位置（UTC）"
         value={`${fmtMaritimeUtcTime(props.selected_time)}${interpolated ? "（線性內插）" : "（實際觀測）"}`}
       />
-      <Row label="抽樣點數" value={Number.isFinite(count) ? `${count} 點` : "—"} />
+      <Row label="拖尾點數" value={Number.isFinite(count) ? `${count} 點` : "—"} />
       <Row label="資料源" value={`Global Fishing Watch ${String(props.source_dataset ?? "public-global-presence")}`} />
+      {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
+      {detailStatus === "loading" && <Row label="航段詳情" value="正在驗證完整航段…" />}
+      {detailStatus === "error" && <Row label="航段詳情" value={String(props.detail_error ?? "驗證失敗，未顯示部分詳情")} color="#f87171" />}
+      {grouped && (
+        <div style={{ maxHeight: 220, overflowY: "auto", marginTop: 6, paddingRight: 4 }}>
+          {(vessels ?? []).map((vessel, index) => (
+            <div key={`${vessel.vesselId}-${index}`} style={{ padding: "6px 0", borderTop: `1px solid ${t.border}` }}>
+              <div style={{ color: t.textDefault, fontSize: 12 }}>{vessel.shipName || vessel.vesselId}</div>
+              <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
+                ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
+                {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div style={{ marginTop: 7, fontSize: 10, color: t.textDim, lineHeight: 1.5 }}>
-        這是 capped POC 的抽樣近似航跡。每個頂點代表該船每小時所在的 GFW HIGH 格網中心，
-        不是原始 AIS 精確位置；時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
+        每個頂點代表該船每小時所在的 GFW HIGH 格網中心，不是原始 AIS 精確位置；
+        時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
         缺訊與不合理跳點已由上游切段，前端不跨段補線。
+        {" "}非即時近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
       </div>
     </div>
   );

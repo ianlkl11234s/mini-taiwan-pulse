@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 385 個 layer key", () => {
+  it("涵蓋全部 387 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -125,7 +125,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-25：+1 = gfwHourlyGrid（GFW HOURLY/HIGH 時間軸格網）。
     // 2026-08-25：+1 = gfwHourlyTracks（GFW 抽樣近似航跡時間軸拖尾）。
     // 2026-08-25：+1 = gfwDarkVessels（GFW SAR 未與 AIS 匹配偵測）。
-    expect(keys.length).toBe(385);
+    // 2026-08-26：+2 = ooklaMobileTaiwan / ooklaFixedTaiwan（台灣 z14/z16 PMTiles）。
+    expect(keys.length).toBe(387);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

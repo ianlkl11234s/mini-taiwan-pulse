@@ -69,6 +69,27 @@ function unifiedOneDay() {
   };
 }
 
+function applyV3Contract(raw: ReturnType<typeof unifiedOneDay>) {
+  const buckets = () => "0123456789abcdef".split("").map((bucket) => ({
+    bucket, path: `releases/${raw.release_id}/details/${bucket}.json.gz`, sha256: bucket.repeat(64), bytes: 0, features: 0,
+  }));
+  Object.assign(raw, { full_fidelity: true });
+  Object.assign(raw.source, { coordinate_semantics: "GFW_HIGH_grid_cell_center" });
+  Object.assign(raw.grid, {
+    geometry_semantics: "inferred_0_01_degree_footprint", source_layer: "gfw_grid",
+    detail_contract: { bucket_count: 16, hash: "sha256_hex_prefix", prefix_length: 1, key: "cell_id", format: "json", content_encoding: "gzip" },
+  });
+  for (const hour of raw.grid.hours) Object.assign(hour, {
+    format: "pmtiles", path: hour.path.replace(".geojson", ".pmtiles"), detail_buckets: buckets(),
+  });
+  Object.assign(raw.tracks, {
+    source_layers: { edges: "gfw_track_edges", singletons: "gfw_track_singletons" },
+    detail_contract: { bucket_count: 16, hash: "sha256_hex_prefix", prefix_length: 1, key: "track_id", format: "json", content_encoding: "gzip" },
+    frames: raw.grid.hours.map((hour) => ({ observed_at: hour.observed_at, path: hour.path.replace("/grid/hours/", "/tracks/frames/").replace(".pmtiles", ".geojson.gz"), sha256: "f".repeat(64), bytes: 0, features: 0, format: "geojson", content_encoding: "gzip" })),
+  });
+  for (const day of raw.tracks.days) Object.assign(day, { format: "pmtiles", path: day.path.replace(".geojson", ".pmtiles"), detail_buckets: buckets() });
+}
+
 describe("GFW hourly grid contract", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -76,11 +97,14 @@ describe("GFW hourly grid contract", () => {
   });
 
   it("production 共用同域 unified root 並可 override，dev 優先 local grid manifest", () => {
-    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false))
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true)).toBe("/gfw_hourly_grid_poc/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true)).toBe("/gfw_hourly_grid_poc/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", false, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, true))
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/gfw_hourly_grid_poc/manifest.json");
   });
   it("將 timeline 秒數向下取 UTC 整點，跨時才換 key", () => {
     expect(floorUtcHourIso(Date.parse("2026-08-15T00:00:00Z") / 1000)).toBe("2026-08-15T00:00:00Z");
@@ -104,6 +128,56 @@ describe("GFW hourly grid contract", () => {
     expect(parsed?.hours[0]?.path)
       .toBe("releases/2026-08-15/grid/hours/20260815T00Z.geojson");
     expect(parseGfwHourlyGridManifest(manifestRaw, url)).toBeNull();
+  });
+
+  it("v3 必須明確宣告 full_fidelity、Polygon footprint 與 GeoJSON/PMTiles format 邊界", async () => {
+    const raw = unifiedOneDay();
+    raw.schema_version = 3;
+    applyV3Contract(raw);
+    const counts = {
+      candidate_features: 1, displayed_features: 1, published_features: 1,
+      candidate_points: 2, displayed_points: 2, published_points: 2,
+      omitted_features: 0, omitted_points: 0,
+      cap_applied: false,
+    };
+    Object.assign(raw.tracks, { counts });
+    const manifest = parseGfwHourlyGridManifest(raw, "https://cdn.example/global-maritime/gfw-hourly/manifest.json");
+    expect(manifest).toMatchObject({ schemaVersion: 3, fullFidelity: true, geometrySemantics: "inferred_0_01_degree_footprint" });
+    raw.grid.hours[0]!.path = "releases/2026-08-15/grid/hours/../escape.pmtiles";
+    expect(parseGfwHourlyGridManifest(raw)).toBeNull();
+    raw.grid.hours[0]!.path = "releases/2026-08-15/grid/hours/20260815T00Z.pmtiles";
+    Object.assign(raw.grid, { source_layer: "unknown" });
+    expect(parseGfwHourlyGridManifest(raw)).toBeNull();
+    Object.assign(raw.grid, { source_layer: "gfw_grid" });
+    counts.omitted_features = 1;
+    expect(parseGfwHourlyGridManifest(raw)).toBeNull();
+    counts.omitted_features = 0;
+    counts.cap_applied = true;
+    expect(parseGfwHourlyGridManifest(raw)).toBeNull();
+
+    const polygon = {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        geometry: { type: "Polygon", coordinates: [[[123.49, 25.49], [123.51, 25.49], [123.51, 25.51], [123.49, 25.49]]] },
+        properties: {
+          cell_id: "high:123.50:25.50", center_lon: 123.5, center_lat: 25.5,
+          observed_at: "2026-08-15T00:00:00Z", vessel_count: 2, vessels_json: JSON.stringify(vessels),
+          source_dataset: "public-global-presence:v4.0",
+        },
+      }],
+    };
+    expect(parseGfwHourlyGridFeatureCollection(polygon, "2026-08-15T00:00:00Z", {
+      fullFidelity: true, geometrySemantics: "inferred_0_01_degree_footprint",
+    })?.features[0]?.properties).toMatchObject({
+      full_fidelity: 1,
+      coordinate_semantics: "GFW_HIGH_grid_cell_center",
+      geometry_semantics: "inferred_0_01_degree_footprint",
+    });
+
+    const pmtiles = structuredClone(manifest!);
+    pmtiles.hours[0]!.format = "pmtiles";
+    expect(await loadGfwHourlyGridHour(pmtiles, "2026-08-15T00:00:00Z")).toBeNull();
   });
 
   it("驗證格網中心、船數及完整 vessels_json", () => {

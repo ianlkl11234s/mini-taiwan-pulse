@@ -76,7 +76,7 @@ import {
 } from "../data/businessRegistryTypes";
 import {
   IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
-  OOKLA_SPEED_COLORS,
+  ooklaSpeedStops,
 } from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
@@ -420,7 +420,16 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
   { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
   { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
-  { id: "ooklaPerformanceGrid", render: () => <OoklaPerformanceGridLegend /> },
+  // 四個 Ookla 層共用這張圖例；配色是 per-layer param，取目前開著的第一層
+  {
+    id: "ooklaPerformanceGrid",
+    render: ({ visibility, overlayParams }) => <OoklaPerformanceGridLegend paletteIdx={
+      visibility.ooklaMobilePerformance ? overlayParams.ooklaMobilePerformancePalette
+        : visibility.ooklaFixedPerformance ? overlayParams.ooklaFixedPerformancePalette
+          : visibility.ooklaMobileTaiwan ? overlayParams.ooklaMobileTaiwanPalette
+            : overlayParams.ooklaFixedTaiwanPalette
+    } />,
+  },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -3982,14 +3991,14 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 抽樣近似航跡
+        GFW 小時近似航跡
       </div>
       <FireCatRows cats={SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }))} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
         同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
-        僅顯示 capped POC 抽樣；線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線。
+        線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線；同座標端點會聚合並以大小表示船數。
       </div>
     </div>
   );
@@ -4631,14 +4640,15 @@ function RipeAtlasProbesLegend() {
   </div>;
 }
 
-function OoklaPerformanceGridLegend() {
+function OoklaPerformanceGridLegend({ paletteIdx }: { paletteIdx?: number }) {
   const t = useLegendTheme();
+  const stops = ooklaSpeedStops(paletteIdx);
   return <div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
       OOKLA SPEEDTEST PERFORMANCE GRID
     </div>
     <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-      {OOKLA_SPEED_COLORS.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      {stops.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.label}</span>
       </div>)}

@@ -5,14 +5,16 @@ import {
   parseGfwHourlyUnifiedManifest,
   resolveGfwHourlyRootManifestUrl,
 } from "./gfwHourlyReleaseManifest";
+import type { GfwDetailBucket } from "./gfwHourlyReleaseManifest";
 
 export const GFW_HOURLY_GRID_LOCAL_MANIFEST_URL = "/gfw_hourly_grid_poc/manifest.json";
 
 export function resolveGfwHourlyGridManifestUrl(
   cdnBase = import.meta.env.VITE_GLOBAL_MARITIME_CDN_BASE ?? "",
   isDev = import.meta.env.DEV,
+  shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
 ): string | null {
-  return resolveGfwHourlyRootManifestUrl(GFW_HOURLY_GRID_LOCAL_MANIFEST_URL, cdnBase, isDev);
+  return resolveGfwHourlyRootManifestUrl(GFW_HOURLY_GRID_LOCAL_MANIFEST_URL, cdnBase, isDev, shadowEnabled);
 }
 
 export interface GfwHourlyGridManifestHour {
@@ -21,12 +23,14 @@ export interface GfwHourlyGridManifestHour {
   path: string;
   cellCount: number;
   vesselCount: number;
+  format: "geojson" | "pmtiles";
+  detailBuckets: readonly GfwDetailBucket[];
 }
 
 export interface GfwHourlyGridManifest {
   manifestUrl: string;
   releaseId: string;
-  schemaVersion: 1;
+  schemaVersion: 1 | 2 | 3;
   generatedAt: string;
   bbox: [number, number, number, number];
   dateStart: string;
@@ -34,7 +38,11 @@ export interface GfwHourlyGridManifest {
   sourceDataset: string;
   temporalResolution: "HOURLY";
   spatialResolution: "HIGH";
-  coordinateSemantics: "GFW_HIGH_grid_cell_center";
+  coordinateSemantics: string;
+  fullFidelity: boolean;
+  geometrySemantics: "GFW_HIGH_grid_cell_center" | "inferred_0_01_degree_footprint";
+  sourceLayer: string | null;
+  attribution: { label: string; href: string };
   hours: GfwHourlyGridManifestHour[];
 }
 
@@ -66,7 +74,7 @@ export function parseGfwHourlyGridManifest(
     return {
       manifestUrl,
       releaseId: unified.releaseId,
-      schemaVersion: 1,
+      schemaVersion: unified.schemaVersion,
       generatedAt: unified.generatedAt ?? "",
       bbox: unified.bbox,
       dateStart: unified.dateStart,
@@ -74,13 +82,19 @@ export function parseGfwHourlyGridManifest(
       sourceDataset: unified.datasetAlias,
       temporalResolution: "HOURLY",
       spatialResolution: "HIGH",
-      coordinateSemantics: "GFW_HIGH_grid_cell_center",
+      coordinateSemantics: unified.sourceCoordinateSemantics,
+      fullFidelity: unified.fullFidelity,
+      geometrySemantics: unified.gridGeometrySemantics,
+      sourceLayer: unified.gridSourceLayer,
+      attribution: unified.attribution,
       hours: [...unified.gridHours.values()].map((hour) => ({
         observedAt: hour.observedAt,
         observedAtMs: hour.observedAtMs,
         path: hour.path,
         cellCount: hour.features,
         vesselCount: hour.vesselCount,
+        format: hour.format,
+        detailBuckets: hour.detailBuckets,
       })),
     };
   }
@@ -117,6 +131,8 @@ export function parseGfwHourlyGridManifest(
       path: item.path,
       cellCount: item.cell_count as number,
       vesselCount: item.vessel_count as number,
+      format: "geojson",
+      detailBuckets: [],
     });
   }
 
@@ -132,35 +148,68 @@ export function parseGfwHourlyGridManifest(
     temporalResolution: "HOURLY",
     spatialResolution: "HIGH",
     coordinateSemantics: "GFW_HIGH_grid_cell_center",
+    fullFidelity: false,
+    geometrySemantics: "GFW_HIGH_grid_cell_center",
+    sourceLayer: null,
+    attribution: { label: "Global Fishing Watch", href: "https://globalfishingwatch.org/" },
     hours,
   };
+}
+
+export interface GfwHourlyGridFeatureContract {
+  fullFidelity: boolean;
+  geometrySemantics: "GFW_HIGH_grid_cell_center" | "inferred_0_01_degree_footprint";
+  sourceCoordinateSemantics?: string;
 }
 
 export function parseGfwHourlyGridFeatureCollection(
   raw: unknown,
   expectedHour?: string,
+  contract: GfwHourlyGridFeatureContract = {
+    fullFidelity: false,
+    geometrySemantics: "GFW_HIGH_grid_cell_center",
+  },
 ): GeoJSON.FeatureCollection | null {
   if (!isObject(raw) || raw.type !== "FeatureCollection" || !Array.isArray(raw.features)) return null;
-  const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
+  const features: GeoJSON.Feature[] = [];
   for (const candidate of raw.features) {
     if (!isObject(candidate) || candidate.type !== "Feature" || !isObject(candidate.geometry)) return null;
-    if (candidate.geometry.type !== "Point" || !Array.isArray(candidate.geometry.coordinates)) return null;
+    const isPolygon = contract.geometrySemantics === "inferred_0_01_degree_footprint";
+    if (candidate.geometry.type !== (isPolygon ? "Polygon" : "Point") || !Array.isArray(candidate.geometry.coordinates)) return null;
     const coordinates = candidate.geometry.coordinates;
-    if (coordinates.length < 2 || !isFiniteNumber(coordinates[0]) || !isFiniteNumber(coordinates[1])) return null;
+    if (!isPolygon && (coordinates.length < 2 || !isFiniteNumber(coordinates[0]) || !isFiniteNumber(coordinates[1]))) return null;
+    if (isPolygon) {
+      const rings = coordinates as unknown[];
+      if (!rings.length || !rings.every((ring) => Array.isArray(ring) && ring.length >= 4 && ring.every((point) =>
+        Array.isArray(point) && point.length >= 2 && isFiniteNumber(point[0]) && isFiniteNumber(point[1]),
+      ))) return null;
+    }
     if (!isObject(candidate.properties)) return null;
     const p = candidate.properties;
+    const centerLon = isPolygon ? p.center_lon : p.grid_lon;
+    const centerLat = isPolygon ? p.center_lat : p.grid_lat;
     if (
       typeof p.observed_at !== "string" || !isUtcHour(p.observed_at) ||
-      !isFiniteNumber(p.grid_lon) || !isFiniteNumber(p.grid_lat) ||
+      !isFiniteNumber(centerLon) || !isFiniteNumber(centerLat) ||
       !Number.isInteger(p.vessel_count) || (p.vessel_count as number) < 1 ||
       typeof p.vessels_json !== "string" ||
       typeof p.source_dataset !== "string" ||
-      p.coordinate_semantics !== "GFW_HIGH_grid_cell_center"
+      (!isPolygon && p.coordinate_semantics !== "GFW_HIGH_grid_cell_center") ||
+      (isPolygon && (typeof p.cell_id !== "string" || p.cell_id.trim() === ""))
     ) return null;
     if (expectedHour && p.observed_at !== expectedHour) return null;
     const vessels = parseGfwHourlyGridVessels(p.vessels_json);
     if (!vessels || vessels.length !== p.vessel_count) return null;
-    features.push(candidate as unknown as GeoJSON.Feature<GeoJSON.Point>);
+    features.push({
+      ...(candidate as unknown as GeoJSON.Feature),
+      properties: {
+        ...p,
+        full_fidelity: contract.fullFidelity ? 1 : 0,
+        coordinate_semantics: contract.sourceCoordinateSemantics ?? "GFW_HIGH_grid_cell_center",
+        geometry_semantics: contract.geometrySemantics,
+        source_coordinate_semantics: contract.sourceCoordinateSemantics ?? "GFW_HIGH_grid_cell_center",
+      },
+    });
   }
   return { type: "FeatureCollection", features };
 }
@@ -193,7 +242,8 @@ export async function loadGfwHourlyGridHour(
   hourIso: string,
 ): Promise<GeoJSON.FeatureCollection | null> {
   const hour = findGfwHourlyGridHour(manifest, hourIso);
-  if (!hour) return null;
+  // PMTiles 的 source-layer/sidecar index 尚未由 collector 定稿；不猜 schema，也不 fetch 假資料。
+  if (!hour || hour.format === "pmtiles") return null;
   const key = `${manifest.releaseId}|${hourIso}`;
   const cached = hourPromises.get(key);
   if (cached) return cached;
@@ -205,7 +255,11 @@ export async function loadGfwHourlyGridHour(
       new URL(manifest.manifestUrl, globalThis.location?.origin ?? "http://localhost"),
     ).toString(), { cache: "force-cache" })
       .then(async (response) => response.ok
-        ? parseGfwHourlyGridFeatureCollection(await response.json(), hourIso)
+        ? parseGfwHourlyGridFeatureCollection(await response.json(), hourIso, {
+          fullFidelity: manifest.fullFidelity,
+          geometrySemantics: manifest.geometrySemantics,
+          sourceCoordinateSemantics: manifest.coordinateSemantics,
+        })
         : null)
       .catch(() => null),
   );

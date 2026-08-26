@@ -103,16 +103,36 @@ export function useGlobalMaritimeLayers(
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
+    let disposed = false;
+    let retryPending = false;
+    const retry = () => {
+      retryPending = false;
+      if (!disposed) applyStyle();
+    };
+    const scheduleRetry = () => {
+      if (disposed || retryPending) return;
+      retryPending = true;
+      map.once("idle", retry);
+    };
     const applyStyle = () => {
-      if (!map.isStyleLoaded()) return;
-      ensureSources(map);
-      if (map.getLayer(AIS_LAYER)) {
-        map.setLayoutProperty(AIS_LAYER, "visibility", aisVisible ? "visible" : "none");
-        map.setPaintProperty(AIS_LAYER, "circle-opacity", Math.max(0, Math.min(1, aisOpacity)));
-      }
-      if (map.getLayer(GFW_LAYER)) {
-        map.setLayoutProperty(GFW_LAYER, "visibility", gfwVisible ? "visible" : "none");
-        map.setPaintProperty(GFW_LAYER, "circle-opacity", Math.max(0, Math.min(1, gfwOpacity)));
+      try {
+        // All Off / 單層關閉先處理既有 layer，不等待 style readiness。
+        if (map.getLayer(AIS_LAYER) && !aisVisible) map.setLayoutProperty(AIS_LAYER, "visibility", "none");
+        if (map.getLayer(GFW_LAYER) && !gfwVisible) map.setLayoutProperty(GFW_LAYER, "visibility", "none");
+        if (!aisVisible && !gfwVisible) return;
+        if (!map.isStyleLoaded()) { scheduleRetry(); return; }
+        ensureSources(map);
+        if (map.getLayer(AIS_LAYER)) {
+          map.setLayoutProperty(AIS_LAYER, "visibility", aisVisible ? "visible" : "none");
+          map.setPaintProperty(AIS_LAYER, "circle-opacity", Math.max(0, Math.min(1, aisOpacity)));
+        }
+        if (map.getLayer(GFW_LAYER)) {
+          map.setLayoutProperty(GFW_LAYER, "visibility", gfwVisible ? "visible" : "none");
+          map.setPaintProperty(GFW_LAYER, "circle-opacity", Math.max(0, Math.min(1, gfwOpacity)));
+        }
+      } catch {
+        scheduleRetry();
+        return;
       }
       if (aisVisible || gfwVisible) void update();
     };
@@ -122,8 +142,10 @@ export function useGlobalMaritimeLayers(
     map.on("moveend", onMoveEnd);
     const interval = window.setInterval(() => { if (aisVisible || gfwVisible) void update(); }, aisVisible ? 60_000 : 6 * 60 * 60_000);
     return () => {
+      disposed = true;
       map.off("style.load", applyStyle);
       map.off("moveend", onMoveEnd);
+      if (retryPending) map.off("idle", retry);
       window.clearInterval(interval);
     };
   }, [aisVisible, gfwVisible, aisOpacity, gfwOpacity, mapRef, mapTick, update]);

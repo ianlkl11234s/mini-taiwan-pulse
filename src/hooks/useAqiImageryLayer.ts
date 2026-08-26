@@ -4,7 +4,7 @@
  * 職責：
  *  - 依 visible + selectedProduct 載入對應 frames（切換產品 → revoke 舊 URLs + 重載）
  *  - 依 timeStore.subscribeThrottled 切換到當前時刻最近一張 frame
- *  - 關閉 / unmount 時移除 layer 並釋放 object URLs
+ *  - 關閉時軟隱藏（保留 cache），unmount 時移除 layer 並釋放 object URLs
  *
  * 複用 createCwaImageryLayer（同樣是 Mapbox image source + raster layer）。
  */
@@ -133,11 +133,9 @@ export function useAqiImageryLayer({
       const state = stateRef.current;
 
       if (!visible) {
-        if (state.handle) {
-          try { state.handle.remove(); } catch { /* noop */ }
-          state.handle = null;
-        }
-        state.currentIso = null;
+        // 保留 handle 才能在 style busy 時重試；若 remove() 失敗卻先清成 null，
+        // Mapbox 會留下無人可關的 orphan raster layer。
+        state.handle?.setVisible(false);
         return;
       }
       if (!state.bundle || state.bundle.frames.length === 0) return;
@@ -163,6 +161,8 @@ export function useAqiImageryLayer({
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, "aqi-imagery-render", "空品色階 渲染中", null);
       } else {
+        state.handle.ensure();
+        state.handle.setVisible(true);
         if (state.currentIso !== frame.observedAtIso) {
           state.handle.setUrl(url);
           state.currentIso = frame.observedAtIso;
@@ -173,24 +173,31 @@ export function useAqiImageryLayer({
     };
 
     let unsubTime: (() => void) | null = null;
-    const startSubscription = () => {
-      reconcile(timeStore.getTime());
-      // airtw 粒度 1 小時，5s 節流足夠
-      unsubTime = timeStore.subscribeThrottled(5000, reconcile);
+    let disposed = false;
+    let retryPending = false;
+    const retry = () => {
+      retryPending = false;
+      if (!disposed) run(timeStore.getTime());
     };
+    const scheduleRetry = () => {
+      if (disposed || retryPending) return;
+      retryPending = true;
+      map.once("idle", retry);
+    };
+    const run = (currentTimeSec: number) => {
+      try { reconcile(currentTimeSec); } catch { scheduleRetry(); }
+    };
+    const onStyleLoad = () => run(timeStore.getTime());
 
-    if (!map.isStyleLoaded()) {
-      const onLoad = () => startSubscription();
-      map.once("load", onLoad);
-      return () => {
-        map.off("load", onLoad);
-        if (unsubTime) unsubTime();
-      };
-    }
-
-    startSubscription();
+    // visibility=false 不能被 isStyleLoaded() 擋掉；tile busy 時仍要立刻關層。
+    run(timeStore.getTime());
+    unsubTime = timeStore.subscribeThrottled(5000, run);
+    map.on("style.load", onStyleLoad);
     return () => {
+      disposed = true;
       if (unsubTime) unsubTime();
+      map.off("style.load", onStyleLoad);
+      if (retryPending) map.off("idle", retry);
     };
   }, [mapRef, visible, product, opacity, mapTick]);
 

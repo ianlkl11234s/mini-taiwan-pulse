@@ -1156,6 +1156,8 @@ export const THEMES: ThemeDef[] = [
         layers: [
           fromManifest("ooklaMobilePerformance"),
           fromManifest("ooklaFixedPerformance"),
+          fromManifest("ooklaMobileTaiwan"),
+          fromManifest("ooklaFixedTaiwan"),
         ],
       },
     ],

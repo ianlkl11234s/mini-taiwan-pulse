@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
-import type { CircleLayer, ExpressionSpecification, GeoJSONSource, LineLayer, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, GeoJSONSource, LineLayer, Map as MapboxMap, SymbolLayer } from "mapbox-gl";
 import {
   gfwHourlyTracksFrame,
+  gfwHourlyTrackFrameTrail,
   gfwHourlyTracksUtcDate,
+  loadGfwHourlyTracksFrame,
   loadGfwHourlyTrackManifest,
   loadGfwHourlyTracksDay,
   type GfwHourlyTrackCollection,
@@ -17,12 +19,15 @@ import {
   type ShipTypeBucket,
 } from "../data/shipTrails";
 import { showTransientNotice } from "../components/TransientNotice";
+import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
 
 export const GFW_HOURLY_TRACKS_SOURCE_ID = "gfw-hourly-tracks-source";
 export const GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID = "gfw-hourly-tracks-endpoint-source";
 export const GFW_HOURLY_TRACKS_LINE_LAYER_ID = "gfw-hourly-tracks-line";
 export const GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID = "gfw-hourly-tracks-endpoint";
+export const GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID = "gfw-hourly-tracks-endpoint-count";
 export const GFW_HOURLY_TRACKS_CLICK_LAYERS = [
+  GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID,
   GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID,
   GFW_HOURLY_TRACKS_LINE_LAYER_ID,
 ] as const;
@@ -72,7 +77,11 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
       type: "circle",
       source: GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 1.8, 8, 3.5, 12, 5.5],
+        "circle-radius": [
+          "*",
+          ["interpolate", ["linear"], ["zoom"], 4, 1.8, 8, 3.5, 12, 5.5],
+          ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]],
+        ],
         "circle-color": colors,
         "circle-opacity": 0.9,
         "circle-stroke-color": "#134e4a",
@@ -82,11 +91,27 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
       layout: { visibility: "none" },
     } as CircleLayer);
   }
+  if (!map.getLayer(GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID)) {
+    map.addLayer({
+      id: GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID,
+      type: "symbol",
+      source: GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID,
+      layout: {
+        visibility: "none",
+        "text-field": ["case", [">", ["get", "vessel_count"], 1], ["to-string", ["get", "vessel_count"]], ""],
+        "text-size": 10,
+        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
+        "text-allow-overlap": true,
+        "text-ignore-placement": true,
+      },
+      paint: { "text-color": "#f0fdfa", "text-halo-color": "#134e4a", "text-halo-width": 0.8, "text-opacity": 0.9 },
+    } as SymbolLayer);
+  }
 }
 
 function setVisibility(map: MapboxMap, visible: boolean): void {
   const visibility = visible ? "visible" : "none";
-  for (const id of [GFW_HOURLY_TRACKS_LINE_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID]) {
+  for (const id of [GFW_HOURLY_TRACKS_LINE_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID]) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visibility);
   }
 }
@@ -110,6 +135,8 @@ export function useGfwHourlyTracksLayer(
   const wasVisibleRef = useRef(false);
   const activationRef = useRef(0);
   const noticeActivationRef = useRef(0);
+  const pmtilesDateRef = useRef<string | null>(null);
+  const framePromiseRef = useRef(new Map<string, Promise<Awaited<ReturnType<typeof loadGfwHourlyTracksFrame>>>>());
 
   useEffect(() => {
     const map = mapRef.current;
@@ -124,9 +151,12 @@ export function useGfwHourlyTracksLayer(
     if (opening) {
       // 每次重新開層都要 no-cache refresh root manifest，不沿用上次 latest date。
       manifestRef.current = null;
+      setGfwHourlyTracksDetailContext(null);
       dataRef.current = null;
       dataDateRef.current = null;
       pendingDateRef.current = null;
+      pmtilesDateRef.current = null;
+      framePromiseRef.current.clear();
     }
 
     const showLatestNotice = (manifest: GfwHourlyTrackManifest) => {
@@ -171,6 +201,17 @@ export function useGfwHourlyTracksLayer(
       if (!manifest.days.has(displayDate)) {
         return;
       }
+      // v3 PMTiles are immutable archive/detail assets, not a visible timeline source:
+      // drawing their all-day edges would expose future geometry. The visible trail comes
+      // only from the selected-hour gzip frames below, clipped to the requested window.
+      if (manifest.days.get(displayDate)?.format === "pmtiles") {
+        pmtilesDateRef.current = displayDate;
+        dataDateRef.current = displayDate;
+        pendingDateRef.current = null;
+        renderFrame(timeStore.getTime());
+        return;
+      }
+      pmtilesDateRef.current = null;
       const data = await loadGfwHourlyTracksDay(manifest, displayDate);
       if (disposed || requestId !== requestRef.current || manifest !== manifestRef.current) return;
       pendingDateRef.current = null;
@@ -183,6 +224,44 @@ export function useGfwHourlyTracksLayer(
     const renderFrame = (timeSeconds: number) => {
       if (!visible || disposed) return;
       const displayDate = gfwHourlyTracksUtcDate(timeSeconds);
+      if (displayDate && pmtilesDateRef.current === displayDate && manifestRef.current) {
+        const manifest = manifestRef.current;
+        const selectedEpoch = Math.floor(timeSeconds);
+        const startEpoch = selectedEpoch - Math.round(Math.max(0.5, trailingHours) * 3_600);
+        const startHour = Math.floor(startEpoch / 3_600) * 3_600;
+        const endHour = Math.floor(selectedEpoch / 3_600) * 3_600;
+        const key = `${manifest.releaseId}|${startHour}|${endHour}|${selectedEpoch}|${trailingHours}`;
+        if (frameKeyRef.current === key) return;
+        frameKeyRef.current = key;
+        const hours: string[] = [];
+        for (let epoch = startHour; epoch <= endHour; epoch += 3_600) {
+          hours.push(new Date(epoch * 1_000).toISOString().replace(".000Z", "Z"));
+        }
+        const pendingFrames = hours.map((hour) => {
+          let pending = framePromiseRef.current.get(hour);
+          if (!pending) {
+            pending = loadGfwHourlyTracksFrame(manifest, hour);
+            framePromiseRef.current.set(hour, pending);
+          }
+          return pending;
+        });
+        void Promise.all(pendingFrames).then((loaded) => {
+          if (disposed || manifest !== manifestRef.current || pmtilesDateRef.current !== displayDate || frameKeyRef.current !== key) return;
+          const frames = new Map<number, NonNullable<(typeof loaded)[number]>>();
+          loaded.forEach((nodes, index) => {
+            if (nodes) frames.set(startHour + index * 3_600, nodes);
+          });
+          const frame = gfwHourlyTrackFrameTrail(frames, timeSeconds, trailingHours, manifest.fullFidelity, displayDate);
+          // Endpoint grouping is frame identity-complete; stamp producer day for later sidecar lookup.
+          frame.endpoints.features.forEach((feature) => { feature.properties = { ...feature.properties, display_date: displayDate }; });
+          linesRef.current = frame.lines;
+          endpointsRef.current = frame.endpoints;
+          (map.getSource(GFW_HOURLY_TRACKS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(frame.lines);
+          (map.getSource(GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(frame.endpoints);
+          keepLoadingUntilMapIdle(map, "gfw-hourly-tracks:render", "GFW 小時近似航跡繪製", GFW_HOURLY_TRACKS_SOURCE_ID);
+        });
+        return;
+      }
       if (!displayDate || dataDateRef.current !== displayDate || !dataRef.current) {
         void ensureDay(displayDate);
         return;
@@ -205,13 +284,17 @@ export function useGfwHourlyTracksLayer(
       manifestRefreshStarted = true;
       const requestId = ++requestRef.current;
       manifestRef.current = null;
+      setGfwHourlyTracksDetailContext(null);
       dataRef.current = null;
       dataDateRef.current = null;
       pendingDateRef.current = null;
+      pmtilesDateRef.current = null;
+      framePromiseRef.current.clear();
       clearFrame();
       const manifest = await loadGfwHourlyTrackManifest();
       if (disposed || requestId !== requestRef.current) return;
       manifestRef.current = manifest;
+      setGfwHourlyTracksDetailContext(manifest);
       if (manifest) showLatestNotice(manifest);
       await ensureDay(gfwHourlyTracksUtcDate(timeStore.getTime()));
     };
@@ -243,6 +326,7 @@ export function useGfwHourlyTracksLayer(
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", clamped * 0.45);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", clamped);
+        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID, "text-opacity", clamped);
         const colors = colorExpression(isDarkTheme);
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-color", colors);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-color", colors);
@@ -263,6 +347,7 @@ export function useGfwHourlyTracksLayer(
       unsubscribe();
       map.off("style.load", applyStyle);
       if (retryPending) map.off("idle", retry);
+      setGfwHourlyTracksDetailContext(null);
     };
   }, [mapRef, visible, opacity, trailingHours, isDarkTheme, mapTick]);
 }
