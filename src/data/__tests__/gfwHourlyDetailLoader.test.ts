@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList } from "../gfwHourlyDetailLoader";
+import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, needsGfwGridDetailHydration } from "../gfwHourlyDetailLoader";
 import { gfwHourlyTrackFrameEndpoints, gfwHourlyTrackFrameTrail, parseGfwHourlyTrackFrame } from "../gfwHourlyTracksLoader";
 
 const vessels = [{ vessel_id: "v-1", mmsi: "123", ship_name: "ONE", vessel_type: "fishing", flag: "TW" }];
@@ -12,6 +12,12 @@ describe("GFW v3 detail/frame contract", () => {
     expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: "not-json" })).toBe(false);
     expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: "[]" })).toBe(false);
     expect(hasVerifiedGfwGridVesselList({ vessel_count: 2, vessels_json: JSON.stringify(vessels) })).toBe(false);
+    expect(needsGfwGridDetailHydration({ ...base, vessels_json: JSON.stringify(vessels) })).toBe(false);
+    expect(needsGfwGridDetailHydration({
+      ...base,
+      vessels_json: JSON.stringify(vessels),
+      geometry_semantics: "inferred_0_01_degree_footprint",
+    })).toBe(true);
   });
 
   it("grid click 將 cell_id、grid_id 或 feature.id 規範為 sidecar key", () => {

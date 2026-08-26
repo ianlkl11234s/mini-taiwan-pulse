@@ -49,6 +49,15 @@ export function hasVerifiedGfwGridVesselList(properties: Record<string, unknown>
   return vessels !== null && vessels.length > 0 && vessels.length === vesselCount;
 }
 
+/**
+ * v3 tile properties are only a rendering preview.  Even an apparently valid inline list
+ * must be verified against its content-addressed bucket before a full-fidelity popup claims
+ * to show all members.  v2 keeps its already-validated inline fallback.
+ */
+export function needsGfwGridDetailHydration(properties: Record<string, unknown>): boolean {
+  return properties.geometry_semantics === "inferred_0_01_degree_footprint" || !hasVerifiedGfwGridVesselList(properties);
+}
+
 /** Hooks own the current release; click plumbing only consumes this immutable snapshot. */
 export function setGfwHourlyGridDetailContext(manifest: GfwHourlyGridManifest | null): void {
   gridContext = manifest;

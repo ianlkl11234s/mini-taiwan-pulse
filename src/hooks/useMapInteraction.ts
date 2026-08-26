@@ -14,7 +14,7 @@ import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
-import { canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, hydrateGfwGridDetail, hydrateGfwTrackDetail } from "../data/gfwHourlyDetailLoader";
+import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 
 interface TooltipInfo {
   flight: Flight;
@@ -325,7 +325,7 @@ export function useMapInteraction(
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.
             const properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
-            const needsGridDetail = type === "gfwHourlyGrid" && cellId !== null && !hasVerifiedGfwGridVesselList(properties);
+            const needsGridDetail = type === "gfwHourlyGrid" && cellId !== null && needsGfwGridDetailHydration(properties);
             const needsTrackDetail = type === "gfwHourlyTrack" && typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
             const initialProperties = needsGridDetail || needsTrackDetail
               ? { ...properties, detail_status: "loading" }

@@ -32,6 +32,7 @@ const loader = vi.hoisted(() => ({
 }));
 const clock = vi.hoisted(() => ({ current: Date.parse("2026-08-15T00:20:00Z") / 1000 }));
 const notice = vi.hoisted(() => ({ show: vi.fn() }));
+const detailContext = vi.hoisted(() => ({ set: vi.fn() }));
 
 vi.mock("react", () => ({ useRef: harness.useRef, useEffect: harness.useEffect }));
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
@@ -55,6 +56,7 @@ vi.mock("../../state/timeStore", () => ({
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
 vi.mock("../../components/TransientNotice", () => ({ showTransientNotice: notice.show }));
 vi.mock("../../map/pmtilesSourceType", () => ({ registerPmtilesSourceTypeOnce: vi.fn() }));
+vi.mock("../../data/gfwHourlyDetailLoader", () => ({ setGfwHourlyGridDetailContext: detailContext.set }));
 
 import { useGfwHourlyGridLayer } from "../useGfwHourlyGridLayer";
 
@@ -91,6 +93,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
     loader.loadManifest.mockReset();
     loader.loadHour.mockReset();
     notice.show.mockReset();
+    detailContext.set.mockReset();
   });
 
   it("同一 activation rerender 不重抓 manifest，close→open 會 refresh", async () => {
@@ -122,6 +125,20 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(notice.show).toHaveBeenCalledWith("GFW 小時網格資料最新完整日：2026-08-15（UTC，非即時）");
     harness.rerender(); useGfwHourlyGridLayer(mapRef, true, 0.8);
     expect(notice.show).toHaveBeenCalledTimes(1);
+  });
+
+  it("opacity rerender 會重新綁定已載入 release 的 grid detail context", async () => {
+    const manifest = { hours: [], dateEndInclusive: "2026-08-15" };
+    loader.loadManifest.mockResolvedValue(manifest);
+    loader.loadHour.mockResolvedValue(FC);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+    expect(detailContext.set).toHaveBeenLastCalledWith(manifest);
+
+    harness.rerender(); useGfwHourlyGridLayer(mapRef, true, 0.8);
+    expect(detailContext.set).toHaveBeenLastCalledWith(manifest);
   });
 
   it("快速跨小時時舊 response 不覆蓋新 exact-hour 資料", async () => {
@@ -232,6 +249,9 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(state.sources.has("gfw-hourly-grid-pmtiles-next-source")).toBe(true);
     expect(state.layers.has("gfw-hourly-grid-pmtiles-fill")).toBe(true);
     expect(state.layers.has("gfw-hourly-grid-pmtiles-hit-fill")).toBe(true);
+    expect(state.layers.has("gfw-hourly-grid-pmtiles-count")).toBe(false);
+    expect(state.layers.has("gfw-hourly-grid-pmtiles-next-count")).toBe(false);
+    expect(state.map.setPaintProperty).not.toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-count", "text-opacity", expect.anything());
     expect(loader.loadHour).not.toHaveBeenCalled();
   });
 });

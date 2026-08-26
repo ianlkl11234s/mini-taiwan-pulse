@@ -32,10 +32,8 @@ export const GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID = "gfw-hourly-grid-pmtiles-n
 export const GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID = "gfw-hourly-grid-pmtiles-hit-source";
 export const GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID = "gfw-hourly-grid-pmtiles-fill";
 export const GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID = "gfw-hourly-grid-pmtiles-outline";
-export const GFW_HOURLY_GRID_PMTILES_COUNT_LAYER_ID = "gfw-hourly-grid-pmtiles-count";
 export const GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID = "gfw-hourly-grid-pmtiles-next-fill";
 export const GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID = "gfw-hourly-grid-pmtiles-next-outline";
-export const GFW_HOURLY_GRID_PMTILES_NEXT_COUNT_LAYER_ID = "gfw-hourly-grid-pmtiles-next-count";
 export const GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID = "gfw-hourly-grid-pmtiles-hit-fill";
 export const GFW_HOURLY_GRID_CLICK_LAYERS = [
   GFW_HOURLY_GRID_HIT_CIRCLE_LAYER_ID,
@@ -166,7 +164,7 @@ function removePmtilesSlot(map: MapboxMap, sourceId: string, layerIds: readonly 
 function mountPmtilesSlot(
   map: MapboxMap,
   sourceId: string,
-  layerIds: readonly [string, string, string],
+  layerIds: readonly [string, string],
   url: string,
   sourceLayer: string,
   hitOnly = false,
@@ -175,7 +173,7 @@ function mountPmtilesSlot(
   // H/H+1 independent and never asks the browser to download a day GeoJSON fallback.
   removePmtilesSlot(map, sourceId, layerIds);
   map.addSource(sourceId, { type: PMTILES_SOURCE_TYPE, url, attribution: "Global Fishing Watch" } as never);
-  const [fillId, outlineId, countId] = layerIds;
+  const [fillId, outlineId] = layerIds;
   map.addLayer({ id: fillId, type: "fill", source: sourceId, "source-layer": sourceLayer,
     paint: hitOnly ? { "fill-opacity": 0 } : { "fill-color": "#fb923c", "fill-opacity": 0.24 },
     layout: { visibility: "visible" },
@@ -184,18 +182,13 @@ function mountPmtilesSlot(
   map.addLayer({ id: outlineId, type: "line", source: sourceId, "source-layer": sourceLayer,
     paint: { "line-color": "#7c2d12", "line-width": 1, "line-opacity": 0.85 }, layout: { visibility: "visible" },
   } as LineLayer);
-  map.addLayer({ id: countId, type: "symbol", source: sourceId, "source-layer": sourceLayer,
-    layout: { visibility: "visible", "text-field": ["case", [">", ["get", "vessel_count"], 1], ["to-string", ["get", "vessel_count"]], ""],
-      "text-size": 11, "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"], "text-allow-overlap": true, "text-ignore-placement": true },
-    paint: { "text-color": "#fff7ed", "text-halo-color": "#431407", "text-halo-width": 0.8, "text-opacity": 0.9 },
-  } as SymbolLayer);
 }
 
 function setPmtilesVisibility(map: MapboxMap, visible: boolean): void {
   const value = visible ? "visible" : "none";
   for (const id of [
-    GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_COUNT_LAYER_ID,
-    GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_COUNT_LAYER_ID,
+    GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID,
+    GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID,
     GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID,
   ]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", value);
 }
@@ -261,6 +254,10 @@ export function useGfwHourlyGridLayer(
       currentHourRef.current = null;
       nextHourRef.current = null;
       dominantHourRef.current = null;
+    } else if (manifestRef.current) {
+      // effect 會隨 opacity / style tick 重跑；cleanup 已解除上一輪 detail context，
+      // 必須立即恢復目前 release，否則 grid click 只能 fail-closed，永遠無法 hydration。
+      setGfwHourlyGridDetailContext(manifestRef.current);
     }
 
     const clearData = () => {
@@ -274,9 +271,9 @@ export function useGfwHourlyGridLayer(
       source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(EMPTY);
       pmtilesModeRef.current = false;
       pmtilesSlotUrlsRef.current.clear();
-      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_COUNT_LAYER_ID]);
-      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_COUNT_LAYER_ID]);
-      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, "", ""]);
+      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID]);
+      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID]);
+      removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""]);
     };
 
     const mountPmtilesPair = (manifest: GfwHourlyGridManifest, currentHour: string, nextHour: string) => {
@@ -286,9 +283,9 @@ export function useGfwHourlyGridLayer(
       if (!current && !next) return false;
       registerPmtilesSourceTypeOnce();
       pmtilesModeRef.current = true;
-      const slots: Array<[string, readonly [string, string, string], typeof current]> = [
-        [GFW_HOURLY_GRID_PMTILES_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_COUNT_LAYER_ID], current],
-        [GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_COUNT_LAYER_ID], next],
+      const slots: Array<[string, readonly [string, string], typeof current]> = [
+        [GFW_HOURLY_GRID_PMTILES_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID], current],
+        [GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID], next],
       ];
       for (const [sourceId, layerIds, entry] of slots) {
         const url = entry ? pmtilesUrl(manifest, entry.path) : "";
@@ -329,14 +326,13 @@ export function useGfwHourlyGridLayer(
         map.setPaintProperty(fillId, "fill-opacity", 0.24 * clampedOpacity * weight);
         map.setPaintProperty(outlineId, "line-opacity", 0.85 * clampedOpacity * weight);
       }
-      for (const [fillId, outlineId, countId, weight] of [
-        [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_COUNT_LAYER_ID, currentWeight],
-        [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_COUNT_LAYER_ID, nextWeight],
+      for (const [fillId, outlineId, weight] of [
+        [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, currentWeight],
+        [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, nextWeight],
       ] as const) {
         if (!map.getLayer(fillId)) continue;
         map.setPaintProperty(fillId, "fill-opacity", 0.24 * clampedOpacity * weight);
         map.setPaintProperty(outlineId, "line-opacity", 0.85 * clampedOpacity * weight);
-        map.setPaintProperty(countId, "text-opacity", clampedOpacity * weight);
       }
       const useNext = Boolean(nextDataRef.current && (!currentDataRef.current || progress >= 0.5));
       const dominantHour = useNext ? nextHourRef.current : currentHourRef.current;
@@ -347,7 +343,7 @@ export function useGfwHourlyGridLayer(
           const entry = manifest?.hours.find((hour) => hour.observedAt === dominantHour && hour.format === "pmtiles");
           if (manifest?.sourceLayer && entry) {
             mountPmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID,
-              [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, "", ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, true);
+              [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, true);
             pmtilesSlotUrlsRef.current.set(GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, entry.path);
           }
         } else source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(
