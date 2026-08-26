@@ -1,11 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, needsGfwGridDetailHydration } from "../gfwHourlyDetailLoader";
+import { parseGfwHourlyGridVessels, serializeGfwHourlyGridVessels } from "../gfwHourlyGridTypes";
 import { gfwHourlyTrackFrameEndpoints, gfwHourlyTrackFrameTrail, parseGfwHourlyTrackFrame } from "../gfwHourlyTracksLoader";
 
 const vessels = [{ vessel_id: "v-1", mmsi: "123", ship_name: "ONE", vessel_type: "fishing", flag: "TW" }];
 const epoch = Date.parse("2026-08-15T00:00:00Z") / 1000;
 
 describe("GFW v3 detail/frame contract", () => {
+  it("normalized vessel serializer 可回傳 popup parser 所需的 snake_case wire JSON", () => {
+    const normalized = [{ vesselId: "v-1", mmsi: "123", shipName: "ONE", vesselType: "fishing", flag: "TW" }];
+    expect(JSON.parse(serializeGfwHourlyGridVessels(normalized))).toEqual(vessels);
+    expect(parseGfwHourlyGridVessels(serializeGfwHourlyGridVessels(normalized))).toEqual(normalized);
+  });
+
   it("只有完整且船數相符的 inline vessels_json 才跳過 grid sidecar hydrate", () => {
     const base = { vessel_count: 1 };
     expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: JSON.stringify(vessels) })).toBe(true);
@@ -36,6 +43,16 @@ describe("GFW v3 detail/frame contract", () => {
     expect(__testOnly.parseGridEntries(raw, { releaseId: "2026-08-15", observedAt: "2026-08-15T00:00:00Z", bucket: "a" })?.get("cell-a")?.vessels).toHaveLength(1);
     raw.vessel_count = 2;
     expect(__testOnly.parseGridEntries(raw, { releaseId: "2026-08-15", observedAt: "2026-08-15T00:00:00Z", bucket: "a" })).toBeNull();
+  });
+
+  it("grid hydrate loaded 結果可被 popup parser 解析完整船舶清單", () => {
+    const props = __testOnly.loadedGfwGridDetailProperties(
+      { cell_id: "cell-a", vessel_count: 1 },
+      { vesselCount: 1, vessels: parseGfwHourlyGridVessels(vessels)! },
+      { label: "Global Fishing Watch", href: "https://globalfishingwatch.org/" },
+    );
+    expect(props).toMatchObject({ detail_status: "loaded", full_fidelity: 1, vessel_count: 1 });
+    expect(parseGfwHourlyGridVessels(props.vessels_json)).toEqual(parseGfwHourlyGridVessels(vessels));
   });
 
   it("track sidecar 拒絕 point count/time order 不自洽", () => {

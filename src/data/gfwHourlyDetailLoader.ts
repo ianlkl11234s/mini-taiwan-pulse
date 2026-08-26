@@ -1,4 +1,4 @@
-import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "./gfwHourlyGridTypes";
+import { parseGfwHourlyGridVessels, serializeGfwHourlyGridVessels, type GfwHourlyGridVessel } from "./gfwHourlyGridTypes";
 import type { GfwDetailBucket } from "./gfwHourlyReleaseManifest";
 import { withLoading } from "../lib/loadingRegistry";
 import type { GfwHourlyGridManifest } from "./gfwHourlyGridLoader";
@@ -153,6 +153,17 @@ function bucketEntry(entries: readonly GfwDetailBucket[], bucket: string): GfwDe
   return entries.find((entry) => entry.bucket === bucket) ?? null;
 }
 
+function loadedGfwGridDetailProperties(
+  properties: Record<string, unknown>,
+  detail: GfwGridDetailEntry,
+  attribution: { label: string; href: string } | undefined,
+): Record<string, unknown> {
+  return {
+    ...properties, vessel_count: detail.vesselCount, vessels_json: serializeGfwHourlyGridVessels(detail.vessels), detail_status: "loaded",
+    full_fidelity: 1, attribution_label: attribution?.label ?? "Global Fishing Watch", attribution_href: attribution?.href ?? "https://globalfishingwatch.org/",
+  };
+}
+
 export async function loadGfwGridCellDetail(
   manifestUrl: string,
   releaseId: string,
@@ -195,10 +206,7 @@ export async function hydrateGfwGridDetail(properties: Record<string, unknown>):
   if (!detail || (typeof properties.vessel_count === "number" && properties.vessel_count !== detail.vesselCount)) {
     return { ...properties, detail_status: "error", detail_error: "完整船舶清單驗證失敗" };
   }
-  return {
-    ...properties, vessel_count: detail.vesselCount, vessels_json: JSON.stringify(detail.vessels), detail_status: "loaded",
-    full_fidelity: 1, attribution_label: gridContext.attribution?.label ?? "Global Fishing Watch", attribution_href: gridContext.attribution?.href ?? "https://globalfishingwatch.org/",
-  };
+  return loadedGfwGridDetailProperties(properties, detail, gridContext.attribution);
 }
 
 export async function hydrateGfwTrackDetail(properties: Record<string, unknown>): Promise<Record<string, unknown>> {
@@ -225,4 +233,4 @@ export async function hydrateGfwTrackDetail(properties: Record<string, unknown>)
   };
 }
 
-export const __testOnly = { parseGridEntries, parseTrackEntries, resolveAssetUrl };
+export const __testOnly = { parseGridEntries, parseTrackEntries, resolveAssetUrl, loadedGfwGridDetailProperties };

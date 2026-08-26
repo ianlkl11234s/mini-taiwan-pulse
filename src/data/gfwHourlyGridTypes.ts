@@ -6,6 +6,17 @@ export interface GfwHourlyGridVessel {
   flag: string | null;
 }
 
+/** Popup-facing wire contract: the parser intentionally accepts producer-style snake_case only. */
+export function serializeGfwHourlyGridVessels(vessels: readonly GfwHourlyGridVessel[]): string {
+  return JSON.stringify(vessels.map((vessel) => ({
+    vessel_id: vessel.vesselId,
+    mmsi: vessel.mmsi,
+    ship_name: vessel.shipName,
+    vessel_type: vessel.vesselType,
+    flag: vessel.flag,
+  })));
+}
+
 function optionalString(value: unknown): string | null | undefined {
   if (value === null || value === undefined || value === "") return null;
   return typeof value === "string" ? value : undefined;
