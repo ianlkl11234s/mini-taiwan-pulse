@@ -563,7 +563,6 @@
     },
     {
       "layers": [
-        "gfw-hourly-tracks-endpoint-count",
         "gfw-hourly-tracks-endpoint",
         "gfw-hourly-tracks-line"
       ],

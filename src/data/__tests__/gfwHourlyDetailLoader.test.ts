@@ -1,11 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { __testOnly } from "../gfwHourlyDetailLoader";
+import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList } from "../gfwHourlyDetailLoader";
 import { gfwHourlyTrackFrameEndpoints, gfwHourlyTrackFrameTrail, parseGfwHourlyTrackFrame } from "../gfwHourlyTracksLoader";
 
 const vessels = [{ vessel_id: "v-1", mmsi: "123", ship_name: "ONE", vessel_type: "fishing", flag: "TW" }];
 const epoch = Date.parse("2026-08-15T00:00:00Z") / 1000;
 
 describe("GFW v3 detail/frame contract", () => {
+  it("只有完整且船數相符的 inline vessels_json 才跳過 grid sidecar hydrate", () => {
+    const base = { vessel_count: 1 };
+    expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: JSON.stringify(vessels) })).toBe(true);
+    expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: "not-json" })).toBe(false);
+    expect(hasVerifiedGfwGridVesselList({ ...base, vessels_json: "[]" })).toBe(false);
+    expect(hasVerifiedGfwGridVesselList({ vessel_count: 2, vessels_json: JSON.stringify(vessels) })).toBe(false);
+  });
+
+  it("grid click 將 cell_id、grid_id 或 feature.id 規範為 sidecar key", () => {
+    expect(canonicalGfwGridCellId({ cell_id: "cell-primary", grid_id: "cell-secondary" }, "feature-id")).toBe("cell-primary");
+    expect(canonicalGfwGridCellId({ grid_id: "cell-secondary" }, "feature-id")).toBe("cell-secondary");
+    expect(canonicalGfwGridCellId({}, "feature-id")).toBe("feature-id");
+    expect(canonicalGfwGridCellId({ cell_id: "", grid_id: "cell-secondary" }, "feature-id")).toBe("cell-secondary");
+    expect(canonicalGfwGridCellId({}, undefined)).toBeNull();
+  });
+
   it("grid bucket 必須和 release/hour/bucket/count/member 全部相符", () => {
     const raw = {
       schema_version: 1, release_id: "2026-08-15", observed_at: "2026-08-15T00:00:00Z", bucket: "a", key: "cell_id",

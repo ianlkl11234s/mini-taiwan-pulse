@@ -14,7 +14,7 @@ import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
-import { hydrateGfwGridDetail, hydrateGfwTrackDetail } from "../data/gfwHourlyDetailLoader";
+import { canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, hydrateGfwGridDetail, hydrateGfwTrackDetail } from "../data/gfwHourlyDetailLoader";
 
 interface TooltipInfo {
   flight: Flight;
@@ -313,7 +313,7 @@ export function useMapInteraction(
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
             // roadCongestion 的 level / temperatureGrid 的 temp / earthquakeReplayTown 的 eqi
             // / funeralOperatorDensity 的 operatorCount 在 feature-state（非 baked properties）→ 併入
-            const properties =
+            const queriedProperties =
               type === "roadCongestion" ||
               type === "temperatureGrid" ||
               type === "earthquakeReplayTown" ||
@@ -321,7 +321,11 @@ export function useMapInteraction(
               type === "animalShelterPressure"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
-            const needsGridDetail = type === "gfwHourlyGrid" && typeof properties.cell_id === "string" && typeof properties.vessels_json !== "string";
+            const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
+            // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
+            // before both popup rendering and detail-bucket SHA selection.
+            const properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
+            const needsGridDetail = type === "gfwHourlyGrid" && cellId !== null && !hasVerifiedGfwGridVesselList(properties);
             const needsTrackDetail = type === "gfwHourlyTrack" && typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
             const initialProperties = needsGridDetail || needsTrackDetail
               ? { ...properties, detail_status: "loading" }

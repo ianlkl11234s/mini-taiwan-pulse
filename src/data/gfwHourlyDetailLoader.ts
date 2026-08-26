@@ -29,6 +29,26 @@ type TrackDetailDay = { displayDate: string; detailBuckets: readonly GfwDetailBu
 let gridContext: GfwHourlyGridManifest | null = null;
 let tracksContext: GfwHourlyTrackManifest | null = null;
 
+/** Normalise the producer's tile identifier aliases before sidecar hashing/click hydration. */
+export function canonicalGfwGridCellId(properties: Record<string, unknown>, featureId?: unknown): string | null {
+  for (const candidate of [properties.cell_id, properties.grid_id, featureId]) {
+    if (typeof candidate === "string" && candidate.trim() !== "") return candidate;
+  }
+  return null;
+}
+
+/**
+ * PMTiles feature properties are an untrusted preview.  A present string is not sufficient:
+ * only a strict, non-empty member list whose length matches the rendered count can skip the
+ * lazy sidecar verification.  Every other form must hydrate (or fail closed there).
+ */
+export function hasVerifiedGfwGridVesselList(properties: Record<string, unknown>): boolean {
+  const vesselCount = properties.vessel_count;
+  if (!isNonNegativeInt(vesselCount) || vesselCount === 0) return false;
+  const vessels = parseGfwHourlyGridVessels(properties.vessels_json);
+  return vessels !== null && vessels.length > 0 && vessels.length === vesselCount;
+}
+
 /** Hooks own the current release; click plumbing only consumes this immutable snapshot. */
 export function setGfwHourlyGridDetailContext(manifest: GfwHourlyGridManifest | null): void {
   gridContext = manifest;
