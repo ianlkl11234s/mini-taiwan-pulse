@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { CircleLayer, ExpressionSpecification, GeoJSONSource, LineLayer, Map as MapboxMap, SymbolLayer } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, GeoJSONSource, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   gfwHourlyTracksFrame,
   gfwHourlyTrackFrameTrail,
@@ -25,9 +25,7 @@ export const GFW_HOURLY_TRACKS_SOURCE_ID = "gfw-hourly-tracks-source";
 export const GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID = "gfw-hourly-tracks-endpoint-source";
 export const GFW_HOURLY_TRACKS_LINE_LAYER_ID = "gfw-hourly-tracks-line";
 export const GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID = "gfw-hourly-tracks-endpoint";
-export const GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID = "gfw-hourly-tracks-endpoint-count";
 export const GFW_HOURLY_TRACKS_CLICK_LAYERS = [
-  GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID,
   GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID,
   GFW_HOURLY_TRACKS_LINE_LAYER_ID,
 ] as const;
@@ -95,27 +93,11 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
       layout: { visibility: "none" },
     } as CircleLayer);
   }
-  if (!map.getLayer(GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID)) {
-    map.addLayer({
-      id: GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID,
-      type: "symbol",
-      source: GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID,
-      layout: {
-        visibility: "none",
-        "text-field": ["case", [">", ["get", "vessel_count"], 1], ["to-string", ["get", "vessel_count"]], ""],
-        "text-size": 10,
-        "text-font": ["DIN Offc Pro Medium", "Arial Unicode MS Bold"],
-        "text-allow-overlap": true,
-        "text-ignore-placement": true,
-      },
-      paint: { "text-color": "#f0fdfa", "text-halo-color": "#134e4a", "text-halo-width": 0.8, "text-opacity": 0.9 },
-    } as SymbolLayer);
-  }
 }
 
 function setVisibility(map: MapboxMap, visible: boolean): void {
   const visibility = visible ? "visible" : "none";
-  for (const id of [GFW_HOURLY_TRACKS_LINE_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID]) {
+  for (const id of [GFW_HOURLY_TRACKS_LINE_LAYER_ID, GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID]) {
     if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visibility);
   }
 }
@@ -330,7 +312,6 @@ export function useGfwHourlyTracksLayer(
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-opacity", clamped * 0.45);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-opacity", clamped);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-stroke-opacity", clamped);
-        map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID, "text-opacity", clamped);
         const colors = colorExpression(isDarkTheme);
         map.setPaintProperty(GFW_HOURLY_TRACKS_LINE_LAYER_ID, "line-color", colors);
         map.setPaintProperty(GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID, "circle-color", colors);

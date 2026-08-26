@@ -157,6 +157,7 @@ describe("useGfwHourlyTracksLayer timeline", () => {
 
     expect(state.layers.has("gfw-hourly-tracks-line")).toBe(true);
     expect(state.layers.has("gfw-hourly-tracks-endpoint")).toBe(true);
+    expect(state.layers.has("gfw-hourly-tracks-endpoint-count")).toBe(false);
     expect(loader.frame).toHaveBeenCalledTimes(1);
     expect(loader.frame.mock.calls[0]?.[2]).toBe(0.5);
     expect(harness.getThrottleMs()).toBe(100);
@@ -164,6 +165,7 @@ describe("useGfwHourlyTracksLayer timeline", () => {
     expect(loader.loadDay).toHaveBeenCalledWith(manifest, "2026-08-15");
     expect(notice.show).toHaveBeenCalledWith("GFW 航跡資料最新完整日：2026-08-21（UTC，非即時）");
     expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-tracks-line", "line-opacity", 0.75 * 0.45);
+    expect(state.map.setPaintProperty).not.toHaveBeenCalledWith("gfw-hourly-tracks-endpoint-count", "text-opacity", expect.anything());
 
     // 完全相同時刻的重複 callback 不做無意義重算。
     harness.tick(Date.parse("2026-08-15T03:20:00Z") / 1000);
