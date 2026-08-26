@@ -25,7 +25,7 @@ segment，均不得冒充原始 AIS 精確軌跡或官方格界。
 - gfwHourlyTracks：canonical v2 仍是目前路徑；v3 shadow 用 hourly frame 建構 0.5/1/2/3 小時真實裁切拖尾（預設 0.5 小時），不顯示整日 edge 當作 timeline trail，full audit 已通過，仍待 deploy/browser gate。
 - `gfwDarkVessels`：GFW SAR 偵測中未與 AIS 匹配的獨立時間軸圖層；位置是 HIGH grid cell center，不是精確 SAR 座標，也不是違法、暗船或刻意關 AIS 認定。
 
-四層預設關閉，避免訪客一進站即發 RPC 或下載 POC。透明度、圖例、popup、點選與 loading 均分開；前端只讀 public RPC／本機 POC artifact，不直接讀 live table。
+四層預設關閉，避免訪客一進站即發 RPC 或下載 release assets。透明度、圖例、popup、點選與 loading 均分開；前端只讀 public RPC／已發佈 release artifact，不直接讀 live table；本機 POC 僅在明確 opt-in 時使用。
 
 ## RPC contract
 
@@ -93,12 +93,12 @@ metrics 為準。
 - 入口：`世界 World → 全球海事 Global Maritime → GFW 抽樣近似航跡`；預設關閉。
 - 視覺沿用既有 Ships 六類色票：貨船、油輪、客船、漁船、作業／拖船、其他；航跡線與船頭同色，popup 同時保留 GFW 原始船種。
 - 每次開啟圖層且 manifest 契約載入成功後，底部短暫通知會顯示 `latest_complete_date` 的最新完整 UTC 日，並明示非即時；不以 `generated_at` 代替資料日期。
-- Production 先載入 unified v2 root manifest；Vite dev 分別使用 tracks/grid local POC adapter。每次開層都 no-cache refresh manifest，時間軸只載入選定 UTC 日的單檔。日檔含 3h lookback 與 1h lookahead，足以支援最長 3h 拖尾與跨日內插；不再一次載入七日整包。
+- Production 與 Vite dev 預設都先載入同源 unified root manifest；DEV 由 `/global-maritime/gfw-hourly` proxy 轉送 production origin。只有 `VITE_GFW_HOURLY_USE_LOCAL_POC=true` 才使用 tracks/grid local POC adapter。每次開層都 no-cache refresh manifest，時間軸只載入選定 UTC 日的單檔。日檔含 3h lookback 與 1h lookahead，足以支援最長 3h 拖尾與跨日內插；不再一次載入七日整包。
 
 ### GFW 航跡 CDN 讀取契約
 
 - S3 key prefix：`deploy-assets/global-maritime/gfw-hourly/`；public CDN path：`/global-maritime/gfw-hourly/`。
-- Production 預設同域 `/global-maritime/gfw-hourly/manifest.json`；`VITE_GLOBAL_MARITIME_CDN_BASE` 僅是可選 origin override，不需要 Zeabur 額外 env。Vite dev 優先使用 `/gfw_hourly_tracks_poc/manifest.json` 與 `/gfw_hourly_grid_poc/manifest.json`；dev 沒有 SAR unified fixture 時 `gfwDarkVessels` fail closed。
+- Production 預設同域 `/global-maritime/gfw-hourly/manifest.json`；`VITE_GLOBAL_MARITIME_CDN_BASE` 僅是 production 可選 origin override，不需要 Zeabur 額外 env。Vite dev 固定同源 URL，由 `/global-maritime/gfw-hourly` proxy 讀 production release，刻意忽略該 override 以避免 CORS；只有 `VITE_GFW_HOURLY_USE_LOCAL_POC=true` 才使用 `/gfw_hourly_tracks_poc/manifest.json` 與 `/gfw_hourly_grid_poc/manifest.json`。`gis-up` 若要與目前 v3 production path 對齊，必須明確設 `VITE_GFW_HOURLY_V3_SHADOW_ENABLED=true`；未設仍是 canonical root。
 - Unified v2 root 以 `tracks.days[]` / `grid.hours[]` / `dark_vessels.hours[]` 分開索引。各 `path` 依 manifest URL origin 解析，對應 `releases/<release_id>/tracks/days/...`、`grid/hours/...` 與 `dark_vessels/hours/...`。
 - Cache-Control 邊界：root `manifest.json` 為 `public,max-age=60,s-maxage=60,stale-while-revalidate=300`；`releases/<release_id>/...` 為 `public,max-age=604800,s-maxage=604800,immutable`（7 日，與 release retention 一致）。前端也分別使用 fetch `cache: "no-cache"` 與 `cache: "force-cache"`。
 - `public/gfw_hourly_tracks_poc.geojson` 與 `public/gfw_hourly_tracks_poc/` 都是 localhost 驗收產物，同時 gitignore 且由 Vite closeBundle strip，不可進 production dist。

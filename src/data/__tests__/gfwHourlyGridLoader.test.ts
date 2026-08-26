@@ -96,15 +96,16 @@ describe("GFW hourly grid contract", () => {
     vi.unstubAllEnvs();
   });
 
-  it("production 共用同域 unified root 並可 override，dev 優先 local grid manifest", () => {
+  it("production 共用同域 unified root 並可 override，dev 預設也走 production root", () => {
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true, false))
+      .toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("", false, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, true))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/global-maritime/gfw-hourly/v3-shadow/manifest.json");
   });
   it("將 timeline 秒數向下取 UTC 整點，跨時才換 key", () => {
     expect(floorUtcHourIso(Date.parse("2026-08-15T00:00:00Z") / 1000)).toBe("2026-08-15T00:00:00Z");

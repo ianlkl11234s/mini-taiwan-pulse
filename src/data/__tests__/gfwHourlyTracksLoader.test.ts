@@ -158,13 +158,13 @@ describe("GFW hourly sampled-track contract", () => {
     vi.unstubAllEnvs();
   });
 
-  it("production 預設同域 CDN path 並可 override，dev 優先 local POC", () => {
+  it("production 預設同域 CDN path 並可 override，dev 預設也走 production root", () => {
     expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("", true, false))
-      .toBe("/gfw_hourly_tracks_poc/manifest.json");
+      .toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", true, false))
-      .toBe("/gfw_hourly_tracks_poc/manifest.json");
+      .toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("", false, false))
       .toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("", false, true))
@@ -176,7 +176,7 @@ describe("GFW hourly sampled-track contract", () => {
     vi.stubGlobal("fetch", fetchMock);
     await expect(loadGfwHourlyTrackManifest()).resolves.toMatchObject({ releaseId: "2026-08-21" });
     expect(fetchMock).toHaveBeenCalledWith(
-      "/gfw_hourly_tracks_poc/manifest.json",
+      "/global-maritime/gfw-hourly/manifest.json",
       { cache: "no-cache" },
     );
   });

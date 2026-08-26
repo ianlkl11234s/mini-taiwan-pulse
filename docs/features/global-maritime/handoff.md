@@ -108,9 +108,9 @@ status、metrics 與 rollback gate 以本文開頭的 2026-08-26 表格為準。
 
 ### Main-site sampled track layer
 
-主站 layer key `gfwHourlyTracks` 在 production 先讀 unified v2 root manifest（dev adapter 為 `gfw_hourly_tracks_poc/manifest.json`），再依 timeStore 選定 UTC 日讀取 `tracks.days[].path` 指向的 immutable daily GeoJSON。前端不 fallback 到舊的七日整包；日期越界或契約違反即清空。每個 feature 必須有與 LineString coordinates 等長的 `observed_times`，而且是明確 UTC、嚴格遞增，`start_at/end_at` 必須等於首末時間；任一 feature 違約即該日 fail closed。
+主站 layer key `gfwHourlyTracks` 在 production 與標準 Vite dev 都先讀同源 unified root manifest；DEV 的 `/global-maritime/gfw-hourly` proxy 轉送 production origin。只有 `VITE_GFW_HOURLY_USE_LOCAL_POC=true` 才使用 `gfw_hourly_tracks_poc/manifest.json`。再依 timeStore 選定 UTC 日讀取 `tracks.days[].path` 指向的 immutable daily GeoJSON。前端不 fallback 到舊的七日整包；日期越界或契約違反即清空。每個 feature 必須有與 LineString coordinates 等長的 `observed_times`，而且是明確 UTC、嚴格遞增，`start_at/end_at` 必須等於首末時間；任一 feature 違約即該日 fail closed。
 
-Production 供應契約為 S3 `deploy-assets/global-maritime/gfw-hourly/` → 同域 `/global-maritime/gfw-hourly/`。前端未設 env 時預設讀 `/global-maritime/gfw-hourly/manifest.json`；`VITE_GLOBAL_MARITIME_CDN_BASE` 僅作可選 CDN origin override。Root manifest cache 為 60s + `stale-while-revalidate=300`；release assets 為 7 日 `max-age/s-maxage=604800, immutable`。Container 每 6h 只 re-sync GFW prefix，先落地 release assets，再以 tmp+mv 原子切換 root manifest。
+Production 供應契約為 S3 `deploy-assets/global-maritime/gfw-hourly/` → 同域 `/global-maritime/gfw-hourly/`。前端 production 未設 env 時預設讀 `/global-maritime/gfw-hourly/manifest.json`；`VITE_GLOBAL_MARITIME_CDN_BASE` 僅在 production 作可選 CDN origin override。Vite dev 非 local POC 時固定讀同源 URL，經 proxy 避免 CORS；`VITE_GFW_HOURLY_USE_LOCAL_POC=true` 才使用 fixture。`gis-up` 若需與目前 v3 production path parity，必須明確設 `VITE_GFW_HOURLY_V3_SHADOW_ENABLED=true`，未設仍走 canonical root。Root manifest cache 為 60s + `stale-while-revalidate=300`；release assets 為 7 日 `max-age/s-maxage=604800, immutable`。Container 每 6h 只 re-sync GFW prefix，先落地 release assets，再以 tmp+mv 原子切換 root manifest。
 
 schema v2 artifact 已 live 重建；frontend parser 實測接受 989 tracks。以 `2026-08-21T23:00:00Z`、12h 拖尾產生 727 lines 與 645 個 exact-observation endpoints。主站 browser 另以 300x 播放至 00:32，endpoint popup 顯示 `08/21 16:32（線性內插）`，console 無 error/warning。
 
@@ -120,7 +120,7 @@ hook 採 Vessel Watch 的純 Mapbox line + endpoint 模式，不新增 Three.js 
 
 ### SAR unmatched 獨立圖層
 
-相同 bbox 的 `public-global-sar-presence:v4.0`、`matched='false'` 已 live-verified，wrapper schema 與空 tile 契約都通過；七日範圍可能仍為 0 detections。因此 `gfwDarkVessels` 已正式加入 Global Maritime catalog（預設 off），依時間軸 exact UTC hour lazy-load `dark_vessels.hours[]`。圓點位置固定說明為 GFW HIGH grid cell center；popup 及 legend 固定告知「SAR 偵測未與 AIS 匹配，非違法認定／非確認關 AIS」。它不與 AIS gaps 或 presence union。Vite dev 若沒有 unified SAR fixture 則 fail closed，不借用 grid 假裝 SAR。
+相同 bbox 的 `public-global-sar-presence:v4.0`、`matched='false'` 已 live-verified，wrapper schema 與空 tile 契約都通過；七日範圍可能仍為 0 detections。因此 `gfwDarkVessels` 已正式加入 Global Maritime catalog（預設 off），依時間軸 exact UTC hour lazy-load `dark_vessels.hours[]`。圓點位置固定說明為 GFW HIGH grid cell center；popup 及 legend 固定告知「SAR 偵測未與 AIS 匹配，非違法認定／非確認關 AIS」。它不與 AIS gaps 或 presence union。Vite dev 預設同源 proxy；僅 local POC opt-in 才可能因未提供 SAR fixture fail closed，且不借用 grid 假裝 SAR。
 
 ### Track construction contract
 

@@ -53,6 +53,21 @@ export default defineConfig({
         target: "http://localhost:8000",
         changeOrigin: true,
       },
+      // DEV 經 production origin 讀 GFW immutable releases；顯式轉送 Range，
+      // 讓 PMTiles 收到與 production 相同的 206 response。
+      "/global-maritime/gfw-hourly": {
+        target: "https://mini-taiwan-pulse.itsmigu.com",
+        changeOrigin: true,
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq, request) => {
+            // 這條只代理公開 release assets；不要把 localhost session 帶到 production origin。
+            proxyReq.removeHeader("authorization");
+            proxyReq.removeHeader("cookie");
+            const range = request.headers.range;
+            if (typeof range === "string") proxyReq.setHeader("range", range);
+          });
+        },
+      },
     },
   },
 });
