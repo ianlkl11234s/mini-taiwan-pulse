@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 385,
+    "keyCount": 387,
     "sections": [
       "gisLayers",
       "overlays",
@@ -64,17 +64,25 @@
     },
     {
       "layers": [
-        "ookla-mobile-performance-fill",
-        "ookla-mobile-performance-line"
+        "ookla-mobile-global-fill",
+        "ookla-mobile-global-line",
+        "ookla-tw-z16-mobile-fill",
+        "ookla-tw-z16-mobile-line",
+        "ookla-tw-z14-mobile-fill",
+        "ookla-tw-z14-mobile-line"
       ],
-      "type": "ooklaPerformanceGrid"
+      "type": "ooklaMobileGrid"
     },
     {
       "layers": [
-        "ookla-fixed-performance-fill",
-        "ookla-fixed-performance-line"
+        "ookla-fixed-global-fill",
+        "ookla-fixed-global-line",
+        "ookla-tw-z16-fixed-fill",
+        "ookla-tw-z16-fixed-line",
+        "ookla-tw-z14-fixed-fill",
+        "ookla-tw-z14-fixed-line"
       ],
-      "type": "ooklaPerformanceGrid"
+      "type": "ooklaFixedGrid"
     },
     {
       "layers": [
@@ -557,9 +565,7 @@
       "layers": [
         "gfw-hourly-tracks-endpoint-count",
         "gfw-hourly-tracks-endpoint",
-        "gfw-hourly-tracks-line",
-        "gfw-hourly-tracks-pmtiles-singletons",
-        "gfw-hourly-tracks-pmtiles-edges"
+        "gfw-hourly-tracks-line"
       ],
       "type": "gfwHourlyTrack"
     },
@@ -6550,7 +6556,14 @@
       "id": "ooklaMobilePerformance",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -6585,7 +6598,32 @@
                 500000,
                 "#D73027"
               ],
-              "fill-opacity": 0.46799999999999997
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
             },
             "light": {
               "fill-color": [
@@ -6618,14 +6656,46 @@
                 500000,
                 "#D73027"
               ],
-              "fill-opacity": 0.46799999999999997
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "fill",
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -6677,8 +6747,8 @@
         "fill",
         "line"
       ],
-      "sourceId": "ookla-mobile-performance",
-      "sourceUrl": "./geo/ookla_mobile_performance.geojson"
+      "sourceId": "ookla-mobile-global",
+      "sourceUrl": "./geo/ookla_mobile_global.geojson"
     },
     {
       "dynamicData": null,
@@ -6686,7 +6756,14 @@
       "id": "ooklaFixedPerformance",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -6721,7 +6798,32 @@
                 500000,
                 "#D73027"
               ],
-              "fill-opacity": 0.46799999999999997
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
             },
             "light": {
               "fill-color": [
@@ -6754,14 +6856,46 @@
                 500000,
                 "#D73027"
               ],
-              "fill-opacity": 0.46799999999999997
+              "fill-opacity": [
+                "*",
+                0.5720000000000001,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
             }
           },
           "suffix": "fill",
           "type": "fill"
         },
         {
-          "filter": null,
+          "filter": [
+            "==",
+            [
+              "get",
+              "z"
+            ],
+            6
+          ],
           "layout": null,
           "minzoom": null,
           "paint": {
@@ -6813,8 +6947,772 @@
         "fill",
         "line"
       ],
-      "sourceId": "ookla-fixed-performance",
-      "sourceUrl": "./geo/ookla_fixed_performance.geojson"
+      "sourceId": "ookla-fixed-global",
+      "sourceUrl": "./geo/ookla_fixed_global.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobileTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "mobile"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z14-mobile",
+      "sourceUrl": "./geo/ookla_tw_z14.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobileTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 16,
+        "minzoom": 15,
+        "sourceLayer": "mobile"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z16-mobile",
+      "sourceUrl": "./geo/ookla_tw_z16.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "fixed"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z14-fixed",
+      "sourceUrl": "./geo/ookla_tw_z14.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedTaiwan",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": [
+                "*",
+                0.66,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "tests"
+                    ],
+                    0
+                  ],
+                  1,
+                  0.5,
+                  10,
+                  0.72,
+                  100,
+                  0.9,
+                  1000,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.45)",
+              "line-opacity": 0.6000000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.2,
+                12,
+                0.5,
+                16,
+                0.9
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 16,
+        "minzoom": 15,
+        "sourceLayer": "fixed"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-tw-z16-fixed",
+      "sourceUrl": "./geo/ookla_tw_z16.pmtiles"
     },
     {
       "dynamicData": null,
@@ -50615,6 +51513,40 @@
     ],
     "ooklaFixedPerformance": [
       {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
+      },
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
         "label": "透明度 0.65",
         "max": 1,
         "min": 0.1,
@@ -50622,13 +51554,95 @@
         "value": 0.65
       }
     ],
+    "ooklaFixedTaiwan": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
     "ooklaMobilePerformance": [
+      {
+        "label": "解析度",
+        "options": [
+          {
+            "label": "粗 z6（約 500 km）",
+            "value": "6"
+          },
+          {
+            "label": "中 z8（約 156 km）",
+            "value": "8"
+          },
+          {
+            "label": "細 z10（約 78 km）",
+            "value": "10"
+          }
+        ],
+        "type": "select",
+        "value": "6"
+      },
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
       {
         "label": "透明度 0.65",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
         "value": 0.65
+      }
+    ],
+    "ooklaMobileTaiwan": [
+      {
+        "label": "配色",
+        "options": [
+          {
+            "label": "柔和 RdYlBu",
+            "value": "soft"
+          },
+          {
+            "label": "高對比",
+            "value": "vivid"
+          }
+        ],
+        "type": "select",
+        "value": "soft"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
       }
     ],
     "osmCommunicationSites": [

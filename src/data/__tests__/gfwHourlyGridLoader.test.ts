@@ -97,11 +97,11 @@ describe("GFW hourly grid contract", () => {
   });
 
   it("production 共用同域 unified root 並可 override，dev 優先 local grid manifest", () => {
-    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false))
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true)).toBe("/gfw_hourly_grid_poc/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true)).toBe("/gfw_hourly_grid_poc/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true, false)).toBe("/gfw_hourly_grid_poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", false, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, true))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/gfw_hourly_grid_poc/manifest.json");

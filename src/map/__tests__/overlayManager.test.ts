@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
   diffPaint,
@@ -8,10 +8,14 @@ import {
 } from "../overlayPaintDiff";
 import {
   addOverlay,
+  hydrateOverlayIfNeeded,
+  resetOverlayHydration,
   updateOverlayTheme,
   geojsonSourceOptions,
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
+import { OVERLAY_REGISTRY } from "../overlayRegistry";
+import { loadingRegistry } from "../../lib/loadingRegistry";
 
 // ── 純函式 ──
 
@@ -101,14 +105,14 @@ describe("geojsonSourceOptions", () => {
 interface Call { method: string; args: unknown[] }
 
 function createMockMap() {
-  const sources = new Set<string>();
+  const sources = new Map<string, Record<string, unknown>>();
   const layers = new Map<string, { visibility: string }>();
   const calls: Call[] = [];
   const map = {
-    getSource: (id: string) => (sources.has(id) ? {} : undefined),
+    getSource: (id: string) => sources.get(id),
     addSource: (id: string, _spec: unknown) => {
       calls.push({ method: "addSource", args: [id, _spec] });
-      sources.add(id);
+      sources.set(id, {});
     },
     getLayer: (id: string) => (layers.has(id) ? {} : undefined),
     addLayer: (spec: { id: string }) => {
@@ -127,7 +131,7 @@ function createMockMap() {
     },
     getLayoutProperty: (id: string) => layers.get(id)?.visibility,
   };
-  return { map: map as unknown as MapboxMap, calls };
+  return { map: map as unknown as MapboxMap, calls, sources };
 }
 
 const config: OverlayConfig = {
@@ -243,6 +247,53 @@ describe("addOverlay (pmtiles)", () => {
     const src = calls.find((c) => c.method === "addSource");
     expect((src?.args[1] as Record<string, unknown>).type).toBe("geojson");
     expect(layerSpecs[0]?.["source-layer"]).toBeUndefined();
+  });
+});
+
+describe("Ookla static overlay 的 attribution / loading 契約", () => {
+  const ookla = (id: OverlayConfig["id"], sourceId: string) => {
+    const config = OVERLAY_REGISTRY.find((entry) => entry.id === id && entry.sourceId === sourceId);
+    if (!config) throw new Error(`missing Ookla config ${String(id)}:${sourceId}`);
+    return config;
+  };
+
+  it("global GeoJSON 與台灣 PMTiles 都把 attribution 交給 Mapbox source", () => {
+    const global = ookla("ooklaMobilePerformance", "ookla-mobile-global");
+    const taiwan = ookla("ooklaMobileTaiwan", "ookla-tw-z14-mobile");
+    expect(global.attribution).toContain("Ookla");
+    expect(taiwan.attribution).toBe(global.attribution);
+
+    const globalMock = createMockMap();
+    addOverlay(globalMock.map, global, true, {});
+    expect(globalMock.calls.find((call) => call.method === "addSource")?.args[1]).toMatchObject({
+      attribution: global.attribution,
+    });
+
+    const pmtilesMock = createMockMap();
+    addOverlay(pmtilesMock.map, taiwan, true, {});
+    expect(pmtilesMock.sources.get(taiwan.sourceId)?.attribution).toBe(taiwan.attribution);
+  });
+
+  it("global GeoJSON lazy fetch 期間會註冊 loadingRegistry，完成後才結束", async () => {
+    const config = ookla("ooklaMobilePerformance", "ookla-mobile-global");
+    const setData = vi.fn();
+    const map = { getSource: () => ({ setData }) } as unknown as MapboxMap;
+    let resolveFetch: ((value: { ok: boolean; json: () => Promise<GeoJSON.FeatureCollection> }) => void) | undefined;
+    vi.stubGlobal("fetch", vi.fn(() => new Promise((resolve) => { resolveFetch = resolve; })));
+    resetOverlayHydration();
+
+    try {
+      const pending = hydrateOverlayIfNeeded(map, config);
+      const taskId = `overlay-hydrate:${config.sourceId}`;
+      expect(loadingRegistry.snapshot()).toContainEqual(expect.objectContaining({ id: taskId }));
+      resolveFetch?.({ ok: true, json: async () => ({ type: "FeatureCollection", features: [] }) });
+      await pending;
+      expect(setData).toHaveBeenCalledWith({ type: "FeatureCollection", features: [] });
+      expect(loadingRegistry.snapshot()).not.toContainEqual(expect.objectContaining({ id: taskId }));
+    } finally {
+      vi.unstubAllGlobals();
+      resetOverlayHydration();
+    }
   });
 });
 

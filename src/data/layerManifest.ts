@@ -1500,7 +1500,7 @@ export const LAYER_MANIFEST = {
     legend: "ooklaPerformanceGrid",
     popup: "ooklaMobileGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },
-    description: "全球格網可切 z6（約 500 km）／z10（約 78 km）；Ookla Speedtest 行動網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    description: "全球格網可切 z6（約 500 km）／z8（約 156 km）／z10（約 78 km）；Ookla Speedtest 行動網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
     topics: ["通訊", "網路效能", "Ookla", "全球"],
   },
 
@@ -1521,7 +1521,7 @@ export const LAYER_MANIFEST = {
     legend: "ooklaPerformanceGrid",
     popup: "ooklaFixedGrid",
     params: { count: 3, kinds: ["select", "select", "slider"] },
-    description: "全球格網可切 z6（約 500 km）／z10（約 78 km）；Ookla Speedtest 固定網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    description: "全球格網可切 z6（約 500 km）／z8（約 156 km）／z10（約 78 km）；Ookla Speedtest 固定網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
     topics: ["通訊", "網路效能", "Ookla", "全球"],
   },
 

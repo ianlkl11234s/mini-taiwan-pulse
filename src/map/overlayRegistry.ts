@@ -2,7 +2,7 @@ import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
-  OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
+  OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
@@ -1970,7 +1970,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
   // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
-  // 全球層一份 GeoJSON 同時裝 z6（約 500km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
+  // 全球層一份 GeoJSON 同時裝 z6（約 500km）、z8（約 156km）與 z10（約 78km），靠 `z` 屬性 filter 手動切
   // —— 兩份資料合檔是為了讓切換不必重建 source（sourceUrl 是 config 的固定字串）。
   // 透明度另乘 OOKLA_TESTS_ALPHA_EXPR：整季只有 1 次測試的格不該和數萬次的等權。
   ...(([
@@ -1980,6 +1980,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: key,
     sourceUrl: `./geo/ookla_${svc}_global.geojson`,
     sourceId: `ookla-${svc}-global`,
+    attribution: OOKLA_GRID_META.attribution,
     rebuildOnParamChange: ["fill", "line"],
     layers: [
       {
@@ -2019,6 +2020,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: key,
     sourceUrl: `./geo/ookla_tw_z${grid}.pmtiles`,
     sourceId: `ookla-tw-z${grid}-${svc}`,
+    attribution: OOKLA_GRID_META.attribution,
     pmtiles: { sourceLayer: svc, minzoom: grid === 14 ? 6 : 15, maxzoom: grid === 14 ? 14 : 16 },
     rebuildOnParamChange: ["fill", "line"],
     layers: [

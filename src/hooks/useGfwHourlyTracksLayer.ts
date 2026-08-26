@@ -20,24 +20,16 @@ import {
 } from "../data/shipTrails";
 import { showTransientNotice } from "../components/TransientNotice";
 import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
-import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
-import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 
 export const GFW_HOURLY_TRACKS_SOURCE_ID = "gfw-hourly-tracks-source";
 export const GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID = "gfw-hourly-tracks-endpoint-source";
 export const GFW_HOURLY_TRACKS_LINE_LAYER_ID = "gfw-hourly-tracks-line";
 export const GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID = "gfw-hourly-tracks-endpoint";
 export const GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID = "gfw-hourly-tracks-endpoint-count";
-export const GFW_HOURLY_TRACKS_PMTILES_EDGES_SOURCE_ID = "gfw-hourly-tracks-pmtiles-edges-source";
-export const GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_SOURCE_ID = "gfw-hourly-tracks-pmtiles-singletons-source";
-export const GFW_HOURLY_TRACKS_PMTILES_EDGES_LAYER_ID = "gfw-hourly-tracks-pmtiles-edges";
-export const GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_LAYER_ID = "gfw-hourly-tracks-pmtiles-singletons";
 export const GFW_HOURLY_TRACKS_CLICK_LAYERS = [
   GFW_HOURLY_TRACKS_ENDPOINT_COUNT_LAYER_ID,
   GFW_HOURLY_TRACKS_ENDPOINT_LAYER_ID,
   GFW_HOURLY_TRACKS_LINE_LAYER_ID,
-  GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_LAYER_ID,
-  GFW_HOURLY_TRACKS_PMTILES_EDGES_LAYER_ID,
 ] as const;
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -124,32 +116,6 @@ function setVisibility(map: MapboxMap, visible: boolean): void {
   }
 }
 
-function removePmtilesTracks(map: MapboxMap): void {
-  for (const id of [GFW_HOURLY_TRACKS_PMTILES_EDGES_LAYER_ID, GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_LAYER_ID]) if (map.getLayer(id)) map.removeLayer(id);
-  for (const id of [GFW_HOURLY_TRACKS_PMTILES_EDGES_SOURCE_ID, GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_SOURCE_ID]) if (map.getSource(id)) map.removeSource(id);
-}
-
-function mountPmtilesTracks(map: MapboxMap, manifest: GfwHourlyTrackManifest, displayDate: string): boolean {
-  const entry = manifest.days.get(displayDate);
-  if (!entry || entry.format !== "pmtiles" || !manifest.sourceLayers) return false;
-  registerPmtilesSourceTypeOnce();
-  const url = new URL(entry.path, new URL(manifest.manifestUrl, globalThis.location?.origin ?? "http://localhost")).toString();
-  removePmtilesTracks(map);
-  for (const sourceId of [GFW_HOURLY_TRACKS_PMTILES_EDGES_SOURCE_ID, GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_SOURCE_ID]) {
-    map.addSource(sourceId, { type: PMTILES_SOURCE_TYPE, url, attribution: "Global Fishing Watch" } as never);
-  }
-  const colors = colorExpression(true);
-  map.addLayer({ id: GFW_HOURLY_TRACKS_PMTILES_EDGES_LAYER_ID, type: "line", source: GFW_HOURLY_TRACKS_PMTILES_EDGES_SOURCE_ID,
-    "source-layer": manifest.sourceLayers.edges, layout: { visibility: "none", "line-cap": "round", "line-join": "round" },
-    paint: { "line-color": colors, "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.7, 7, 1.5, 11, 2.8], "line-opacity": 0.55 },
-  } as LineLayer);
-  map.addLayer({ id: GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_LAYER_ID, type: "circle", source: GFW_HOURLY_TRACKS_PMTILES_SINGLETONS_SOURCE_ID,
-    "source-layer": manifest.sourceLayers.singletons, layout: { visibility: "none" },
-    paint: { "circle-radius": 3, "circle-color": colors, "circle-opacity": 0.65 },
-  } as CircleLayer);
-  return true;
-}
-
 export function useGfwHourlyTracksLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -189,6 +155,8 @@ export function useGfwHourlyTracksLayer(
       dataRef.current = null;
       dataDateRef.current = null;
       pendingDateRef.current = null;
+      pmtilesDateRef.current = null;
+      framePromiseRef.current.clear();
     }
 
     const showLatestNotice = (manifest: GfwHourlyTrackManifest) => {
@@ -233,7 +201,10 @@ export function useGfwHourlyTracksLayer(
       if (!manifest.days.has(displayDate)) {
         return;
       }
-      if (mountPmtilesTracks(map, manifest, displayDate)) {
+      // v3 PMTiles are immutable archive/detail assets, not a visible timeline source:
+      // drawing their all-day edges would expose future geometry. The visible trail comes
+      // only from the selected-hour gzip frames below, clipped to the requested window.
+      if (manifest.days.get(displayDate)?.format === "pmtiles") {
         pmtilesDateRef.current = displayDate;
         dataDateRef.current = displayDate;
         pendingDateRef.current = null;
@@ -254,11 +225,12 @@ export function useGfwHourlyTracksLayer(
       if (!visible || disposed) return;
       const displayDate = gfwHourlyTracksUtcDate(timeSeconds);
       if (displayDate && pmtilesDateRef.current === displayDate && manifestRef.current) {
+        const manifest = manifestRef.current;
         const selectedEpoch = Math.floor(timeSeconds);
         const startEpoch = selectedEpoch - Math.round(Math.max(0.5, trailingHours) * 3_600);
         const startHour = Math.floor(startEpoch / 3_600) * 3_600;
         const endHour = Math.floor(selectedEpoch / 3_600) * 3_600;
-        const key = `${startHour}|${endHour}|${selectedEpoch}|${trailingHours}`;
+        const key = `${manifest.releaseId}|${startHour}|${endHour}|${selectedEpoch}|${trailingHours}`;
         if (frameKeyRef.current === key) return;
         frameKeyRef.current = key;
         const hours: string[] = [];
@@ -268,18 +240,18 @@ export function useGfwHourlyTracksLayer(
         const pendingFrames = hours.map((hour) => {
           let pending = framePromiseRef.current.get(hour);
           if (!pending) {
-            pending = loadGfwHourlyTracksFrame(manifestRef.current!, hour);
+            pending = loadGfwHourlyTracksFrame(manifest, hour);
             framePromiseRef.current.set(hour, pending);
           }
           return pending;
         });
         void Promise.all(pendingFrames).then((loaded) => {
-          if (disposed || pmtilesDateRef.current !== displayDate || frameKeyRef.current !== key) return;
+          if (disposed || manifest !== manifestRef.current || pmtilesDateRef.current !== displayDate || frameKeyRef.current !== key) return;
           const frames = new Map<number, NonNullable<(typeof loaded)[number]>>();
           loaded.forEach((nodes, index) => {
             if (nodes) frames.set(startHour + index * 3_600, nodes);
           });
-          const frame = gfwHourlyTrackFrameTrail(frames, timeSeconds, trailingHours, manifestRef.current?.fullFidelity ?? false, displayDate);
+          const frame = gfwHourlyTrackFrameTrail(frames, timeSeconds, trailingHours, manifest.fullFidelity, displayDate);
           // Endpoint grouping is frame identity-complete; stamp producer day for later sidecar lookup.
           frame.endpoints.features.forEach((feature) => { feature.properties = { ...feature.properties, display_date: displayDate }; });
           linesRef.current = frame.lines;
@@ -316,6 +288,8 @@ export function useGfwHourlyTracksLayer(
       dataRef.current = null;
       dataDateRef.current = null;
       pendingDateRef.current = null;
+      pmtilesDateRef.current = null;
+      framePromiseRef.current.clear();
       clearFrame();
       const manifest = await loadGfwHourlyTrackManifest();
       if (disposed || requestId !== requestRef.current) return;

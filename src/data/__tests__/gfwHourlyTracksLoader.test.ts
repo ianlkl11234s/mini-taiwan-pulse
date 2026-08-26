@@ -159,13 +159,13 @@ describe("GFW hourly sampled-track contract", () => {
   });
 
   it("production 預設同域 CDN path 並可 override，dev 優先 local POC", () => {
-    expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", false))
+    expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyTracksManifestUrl("", true))
+    expect(resolveGfwHourlyTracksManifestUrl("", true, false))
       .toBe("/gfw_hourly_tracks_poc/manifest.json");
-    expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", true))
+    expect(resolveGfwHourlyTracksManifestUrl("https://cdn.example/", true, false))
       .toBe("/gfw_hourly_tracks_poc/manifest.json");
-    expect(resolveGfwHourlyTracksManifestUrl("", false))
+    expect(resolveGfwHourlyTracksManifestUrl("", false, false))
       .toBe("/global-maritime/gfw-hourly/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("", false, true))
       .toBe("/global-maritime/gfw-hourly/v3-shadow/manifest.json");

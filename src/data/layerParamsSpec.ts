@@ -1127,7 +1127,7 @@ export const LAYER_PARAMS_SPEC = {
   anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8)],
   osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8)],
   ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8)],
-  // 全球層：z6（約 500km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
+  // 全球層：z6（約 500km）、z8（約 156km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
   // 切換 —— select 走 encodeNumeric，overlayParams 直接拿到 6 / 10 當 filter 值。
   ooklaMobilePerformance: [
     {

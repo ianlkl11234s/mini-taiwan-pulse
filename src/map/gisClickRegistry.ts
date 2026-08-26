@@ -52,7 +52,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["anfr-wireless-sites-circle", "anfr-wireless-sites-glow"], type: "anfrWirelessSite" },
   { layers: ["osm-communication-sites-circle", "osm-communication-sites-glow"], type: "osmCommunicationSite" },
   { layers: ["ripe-atlas-probes-circle", "ripe-atlas-probes-glow"], type: "ripeAtlasProbe" },
-  // 全球格網（z6／z10 同 source）＋ 台灣兩級 PMTiles，各自 fill/line 兩個 layer
+  // 全球格網（z6／z8／z10 同 source）＋ 台灣兩級 PMTiles，各自 fill/line 兩個 layer
   { layers: ["ookla-mobile-global-fill", "ookla-mobile-global-line",
              "ookla-tw-z16-mobile-fill", "ookla-tw-z16-mobile-line",
              "ookla-tw-z14-mobile-fill", "ookla-tw-z14-mobile-line"], type: "ooklaMobileGrid" },

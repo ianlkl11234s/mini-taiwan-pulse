@@ -38,6 +38,8 @@ const loader = vi.hoisted(() => ({
   loadManifest: vi.fn(),
   loadDay: vi.fn(),
   frame: vi.fn(),
+  loadFrame: vi.fn(),
+  frameTrail: vi.fn(),
 }));
 const clock = vi.hoisted(() => ({ current: Date.parse("2026-08-15T03:20:00Z") / 1000 }));
 const notice = vi.hoisted(() => ({ show: vi.fn() }));
@@ -47,7 +49,9 @@ vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
 vi.mock("../../data/gfwHourlyTracksLoader", () => ({
   loadGfwHourlyTrackManifest: loader.loadManifest,
   loadGfwHourlyTracksDay: loader.loadDay,
+  loadGfwHourlyTracksFrame: loader.loadFrame,
   gfwHourlyTracksFrame: loader.frame,
+  gfwHourlyTrackFrameTrail: loader.frameTrail,
   gfwHourlyTracksUtcDate: (time: number) => new Date(time * 1000).toISOString().slice(0, 10),
 }));
 vi.mock("../../state/timeStore", () => ({
@@ -81,9 +85,24 @@ function makeManifest(latestCompleteDate = "2026-08-21") {
   };
 }
 
+function makeV3Manifest(releaseId = "2026-08-21") {
+  const v2 = makeManifest(releaseId);
+  return {
+    ...v2,
+    releaseId,
+    fullFidelity: true,
+    days: new Map([...v2.days].map(([date, entry]) => [date, {
+      ...entry,
+      format: "pmtiles" as const,
+      path: `releases/${releaseId}/tracks/days/${date}.pmtiles`,
+    }])),
+  };
+}
+
 function createMap() {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
   const layers = new Map<string, unknown>();
+  const listeners = new Map<string, Set<() => void>>();
   const map = {
     isStyleLoaded: () => true,
     getSource: (id: string) => sources.get(id),
@@ -92,11 +111,21 @@ function createMap() {
     addLayer: (layer: { id: string }) => { layers.set(layer.id, layer); },
     setLayoutProperty: vi.fn(),
     setPaintProperty: vi.fn(),
-    on: vi.fn(),
-    off: vi.fn(),
+    on: vi.fn((event: string, listener: () => void) => {
+      const eventListeners = listeners.get(event) ?? new Set<() => void>();
+      eventListeners.add(listener);
+      listeners.set(event, eventListeners);
+    }),
+    off: vi.fn((event: string, listener: () => void) => listeners.get(event)?.delete(listener)),
     once: vi.fn(),
   } as unknown as MapboxMap;
-  return { map, sources, layers };
+  return {
+    map,
+    sources,
+    layers,
+    resetStyle: () => { sources.clear(); layers.clear(); },
+    emit: (event: string) => { for (const listener of listeners.get(event) ?? []) listener(); },
+  };
 }
 
 describe("useGfwHourlyTracksLayer timeline", () => {
@@ -106,6 +135,8 @@ describe("useGfwHourlyTracksLayer timeline", () => {
     loader.loadManifest.mockReset();
     loader.loadDay.mockReset();
     loader.frame.mockReset();
+    loader.loadFrame.mockReset();
+    loader.frameTrail.mockReset();
     notice.show.mockReset();
   });
 
@@ -234,5 +265,122 @@ describe("useGfwHourlyTracksLayer timeline", () => {
     expect(loader.loadDay).toHaveBeenCalledTimes(callsBefore);
     const lineSource = state.sources.get("gfw-hourly-tracks-source");
     expect(lineSource?.setData).toHaveBeenLastCalledWith(EMPTY);
+  });
+
+  it("v3 PMTiles archive 不掛 hidden 全日層；可見短尾只由 hourly frames 產生", async () => {
+    const frame = {
+      lines: {
+        type: "FeatureCollection" as const,
+        features: [{
+          type: "Feature" as const,
+          properties: { marker: "frame" },
+          geometry: { type: "LineString" as const, coordinates: [[121, 25], [121.1, 25.1]] },
+        }],
+      },
+      endpoints: EMPTY,
+    };
+    loader.loadManifest.mockResolvedValue(makeV3Manifest());
+    loader.loadFrame.mockResolvedValue([]);
+    loader.frameTrail.mockReturnValue(frame);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+
+    useGfwHourlyTracksLayer(mapRef, true, 0.75, 0.5, true);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect([...state.sources.keys()]).not.toContain("gfw-hourly-tracks-pmtiles-edges-source");
+    expect([...state.layers.keys()]).not.toContain("gfw-hourly-tracks-pmtiles-edges");
+    expect(loader.loadFrame).toHaveBeenCalled();
+    expect(loader.frameTrail).toHaveBeenCalled();
+    expect(state.sources.get("gfw-hourly-tracks-source")?.setData).toHaveBeenLastCalledWith(frame.lines);
+  });
+
+  it("v3 style.load 後重建可見 frame sources/layers 並回填目前短尾", async () => {
+    const frame = {
+      lines: {
+        type: "FeatureCollection" as const,
+        features: [{
+          type: "Feature" as const,
+          properties: { marker: "runtime" },
+          geometry: { type: "LineString" as const, coordinates: [[121, 25], [121.1, 25.1]] },
+        }],
+      },
+      endpoints: EMPTY,
+    };
+    loader.loadManifest.mockResolvedValue(makeV3Manifest());
+    loader.loadFrame.mockResolvedValue([]);
+    loader.frameTrail.mockReturnValue(frame);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+
+    useGfwHourlyTracksLayer(mapRef, true, 0.75, 0.5, true);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    state.resetStyle();
+    state.emit("style.load");
+
+    expect(state.layers.has("gfw-hourly-tracks-line")).toBe(true);
+    expect(state.layers.has("gfw-hourly-tracks-endpoint")).toBe(true);
+    expect(state.sources.get("gfw-hourly-tracks-source")?.setData).toHaveBeenLastCalledWith(frame.lines);
+    expect(loader.loadDay).not.toHaveBeenCalled();
+    expect(loader.loadFrame).toHaveBeenCalled();
+  });
+
+  it("重新開層取得新 release 時不重用舊 release 的 gzip frame promise", async () => {
+    const oldManifest = makeV3Manifest("old-release");
+    const newManifest = makeV3Manifest("new-release");
+    const oldResolves: ((value: unknown) => void)[] = [];
+    loader.loadManifest
+      .mockResolvedValueOnce(oldManifest)
+      .mockResolvedValueOnce(newManifest);
+    loader.loadFrame.mockImplementation((manifest: { releaseId: string }) => {
+      if (manifest.releaseId === "old-release") {
+        return new Promise((resolve) => { oldResolves.push(resolve); });
+      }
+      return Promise.resolve([{ marker: "new-release" }]);
+    });
+    loader.frameTrail.mockImplementation((frames: ReadonlyMap<number, readonly { marker: string }[]>) => {
+      const marker = [...frames.values()][0]?.[0]?.marker ?? "empty";
+      return {
+        lines: {
+          type: "FeatureCollection" as const,
+          features: [{
+            type: "Feature" as const,
+            properties: { marker },
+            geometry: { type: "LineString" as const, coordinates: [[121, 25], [121.1, 25.1]] },
+          }],
+        },
+        endpoints: EMPTY,
+      };
+    });
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+
+    useGfwHourlyTracksLayer(mapRef, true, 0.75, 0.5, true);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(loader.loadFrame.mock.calls.some(([manifest]) => manifest === oldManifest)).toBe(true);
+
+    harness.rerender();
+    useGfwHourlyTracksLayer(mapRef, false, 0.75, 0.5, true);
+    harness.rerender();
+    useGfwHourlyTracksLayer(mapRef, true, 0.75, 0.5, true);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(loader.loadFrame.mock.calls.some(([manifest]) => manifest === newManifest)).toBe(true);
+
+    for (const resolve of oldResolves) resolve([{ marker: "old-release" }]);
+    await Promise.resolve();
+    await Promise.resolve();
+    const lineSource = state.sources.get("gfw-hourly-tracks-source");
+    const calls = lineSource?.setData.mock.calls ?? [];
+    const finalData = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection;
+    expect(finalData.features[0]?.properties?.marker).toBe("new-release");
   });
 });

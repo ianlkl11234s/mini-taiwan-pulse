@@ -8,7 +8,7 @@
  * 本機沒有的切片（大檔走 S3、gitignored）自動略過；CI 上只驗 git 內的那批。
  */
 import { describe, it, expect } from "vitest";
-import { existsSync, openSync, readFileSync, readSync } from "node:fs";
+import { existsSync, openSync, readFileSync, readSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { PMTiles, type Source, type RangeResponse } from "pmtiles";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
@@ -97,6 +97,23 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
 };
 
+const OOKLA_PMTILES_CONTRACTS = [
+  {
+    file: "public/geo/ookla_tw_z14.pmtiles",
+    bytes: 4_095_539,
+    sha256: "96729ae6f44d179a4755e76959b54ea2e31f286e97e7dcc7b8d0aebe042ebdc6",
+    minZoom: 6,
+    maxZoom: 14,
+  },
+  {
+    file: "public/geo/ookla_tw_z16.pmtiles",
+    bytes: 10_035_995,
+    sha256: "45eb9953e43443900cb7e4edc7e9bda28905a9d41f1e729fa9311c0c746b8bb3",
+    minZoom: 15,
+    maxZoom: 16,
+  },
+] as const;
+
 function pmtilesEntries(): Entry[] {
   const out: Entry[] = [];
   for (const config of OVERLAY_REGISTRY) {
@@ -114,6 +131,25 @@ function pmtilesEntries(): Entry[] {
 }
 
 describe("PMTiles 契約", () => {
+  it("Ookla 台灣兩個 PMTiles 固定版保持 v3、mobile/fixed layers、zoom 與 attribution", async () => {
+    for (const contract of OOKLA_PMTILES_CONTRACTS) {
+      expect(existsSync(contract.file), `${contract.file} 不存在；台灣細格會空白`).toBe(true);
+      expect(statSync(contract.file).size, `${contract.file} bytes 已漂移`).toBe(contract.bytes);
+      expect(createHash("sha256").update(readFileSync(contract.file)).digest("hex"), `${contract.file} SHA-256 已漂移`).toBe(contract.sha256);
+
+      const archive = new PMTiles(new NodeFileSource(contract.file));
+      const [header, metadata] = await Promise.all([
+        archive.getHeader(),
+        archive.getMetadata() as Promise<{ attribution?: string; vector_layers?: { id: string }[] }>,
+      ]);
+      expect(header.specVersion).toBe(3);
+      expect(header.tileType, `${contract.file} 必須是 MVT`).toBe(1);
+      expect([header.minZoom, header.maxZoom]).toEqual([contract.minZoom, contract.maxZoom]);
+      expect((metadata.vector_layers ?? []).map((layer) => layer.id).sort()).toEqual(["fixed", "mobile"]);
+      expect(metadata.attribution ?? "", `${contract.file} attribution 不可移除`).toContain("Ookla");
+    }
+  });
+
   it("registry 的 sourceLayer 都存在於切片檔內（打錯 = 圖層永遠空白且不報錯）", async () => {
     const entries = pmtilesEntries();
     const checked: string[] = [];

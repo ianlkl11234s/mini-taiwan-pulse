@@ -104,11 +104,11 @@ describe("GFW SAR unmatched-to-AIS contract", () => {
   });
 
   it("dev/production 共用 unified root，production 可選 CDN origin override", () => {
-    expect(resolveGfwDarkVesselsManifestUrl("", false))
+    expect(resolveGfwDarkVesselsManifestUrl("", false, false))
       .toBe("/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwDarkVesselsManifestUrl("https://cdn.example/", false))
+    expect(resolveGfwDarkVesselsManifestUrl("https://cdn.example/", false, false))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwDarkVesselsManifestUrl("", true))
+    expect(resolveGfwDarkVesselsManifestUrl("", true, false))
       .toBe("/global-maritime/gfw-hourly/manifest.json");
   });
 
