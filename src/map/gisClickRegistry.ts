@@ -36,6 +36,8 @@ import type { FeatureInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
+import { GFW_HOURLY_GRID_CLICK_LAYERS } from "../hooks/useGfwHourlyGridLayer";
+import { GFW_HOURLY_TRACKS_CLICK_LAYERS } from "../hooks/useGfwHourlyTracksLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -146,8 +148,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🌍 世界 WORLD
   { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
   { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
-  { layers: ["gfw-hourly-grid-count", "gfw-hourly-grid-circle"], type: "gfwHourlyGrid" },
-  { layers: ["gfw-hourly-tracks-endpoint", "gfw-hourly-tracks-line"], type: "gfwHourlyTrack" },
+  // grid hook 會把 alpha dominant 的 H 或 H+1 複製到專用 hit source；此處只查它，
+  // 因此透明的另一小時絕不會搶 popup。
+  { layers: [...GFW_HOURLY_GRID_CLICK_LAYERS], type: "gfwHourlyGrid" },
+  // endpoint 永遠先於 line；同 runtime 座標的船隻已在 loader 聚合為完整 popup 清單。
+  { layers: [...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
   { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。

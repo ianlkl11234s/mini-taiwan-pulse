@@ -2,12 +2,27 @@
 
 ## 目的
 
+## Current full-fidelity release status (2026-08-26)
+
+- 程式、focused tests 與 production build 已完成；platform migration **376** 與 audit migration **377** 已套用 production。
+- v3 shadow release 已完成 production S3/Supabase audit：S3 root 為 schema 3/full_fidelity、
+  release 2026-08-21，root bytes/hash 一致；Supabase run e00 succeeded/is_current schema 3 shadow，
+  3,311 assets/counters 一致；full S3 HEAD audit 3,311/3,311，missing/head_errors/bytes/SHA mismatches 均為 0、timed_out=false。
+- **push、deploy 與 browser 驗收仍未完成**；canonical v2 **未切換**
+  （S3 canonical v2 release 2026-08-20 保持不變），仍是唯一可宣稱的 rollback path。
+- 生成計數：1,426,359 points、226,830 features、64,051 vessels、168,936 segments、
+  57,894 singleton nodes、1,105,448 grid cells、SAR 0，asset 約 995 MB。
+
+這些計數是 release contract 接受的資料，不是「海上所有船」。GFW HOURLY/HIGH 是
+每小時格網中心；grid polygon 是推定 footprint，trail 的線性內插僅限同一有效相鄰
+segment，均不得冒充原始 AIS 精確軌跡或官方格界。
+
 世界 tab 的五個獨立船舶視圖：
 
 - `aisstreamVessels`：AISStream 最近 30 分鐘船位，視 viewport 查詢；適合觀察目前可見的 AIS 回報。
 - `gfwVesselPresence`：Global Fishing Watch 每日／延遲 vessel presence，與 AISStream 分開呈現；不是即時 AIS，也不是暗船清單。現有 production layer 仍是 current circle contract，本次另作一個本機歷史路徑 POC。
-- `gfwHourlyGrid`：GFW `HOURLY / HIGH` 時間軸格網；每個點是固定格網中心，圓大小／數字代表同一 UTC 小時、同一格內的船數，popup 列出全部 members。
-- `gfwHourlyTracks`：同一份 GFW HOURLY/HIGH 的 capped 抽樣近似航跡；依主時間軸顯示 0.5/1/2/3 小時拖尾（預設 0.5 小時），船頭只在同 segment 相鄰觀測間線性內插，不與 current AISStream 接線。
+- gfwHourlyGrid：canonical v2 仍是目前路徑；v3 shadow 為 PMTiles polygon H/H+1 cross-fade 與 lazy 完整 member detail，full audit 已通過，仍待 deploy/browser gate。
+- gfwHourlyTracks：canonical v2 仍是目前路徑；v3 shadow 用 hourly frame 建構 0.5/1/2/3 小時真實裁切拖尾（預設 0.5 小時），不顯示整日 edge 當作 timeline trail，full audit 已通過，仍待 deploy/browser gate。
 - `gfwDarkVessels`：GFW SAR 偵測中未與 AIS 匹配的獨立時間軸圖層；位置是 HIGH grid cell center，不是精確 SAR 座標，也不是違法、暗船或刻意關 AIS 認定。
 
 四層預設關閉，避免訪客一進站即發 RPC 或下載 POC。透明度、圖例、popup、點選與 loading 均分開；前端只讀 public RPC／本機 POC artifact，不直接讀 live table。
@@ -31,6 +46,10 @@
 - AISStream trail 需要逐船呼叫 trail RPC 與額外的選取／採樣策略，尚未接入，避免把點連成不具資料支持的連續航跡。
 
 ## GFW 歷史路徑 POC（2026-08-25）
+
+以下是 capped local POC 的歷史證據，**不是** 2026-08-26 full-fidelity v3 shadow
+release 或 production acceptance；以本文件開頭的 current status 與 995 MB release
+metrics 為準。
 
 本次 POC 使用用戶框選範圍：
 
@@ -57,6 +76,9 @@
 
 ## GFW 小時格網主站 POC（2026-08-25）
 
+本節 579 MiB 數字是舊 local POC，非目前 full S3/Supabase audit 已完成、
+但仍待 deploy/browser gate 的 v3 shadow release。
+
 - 入口：主站 `世界 World → 全球海事 Global Maritime → GFW 小時船舶網格`；預設關閉。
 - 使用主時間軸選擇 2026-08-15～21；前端以 250ms 訂閱，但只有 UTC 整點改變才換檔。
 - 168 個小時、1,426,359 筆去重 presence、1,105,448 個 hour-grid features；2 duplicates、0 invalid、0 same-vessel-hour position conflicts。
@@ -64,6 +86,9 @@
 - 同格船舶沒有被丟失：每格一個 feature，`vessel_count` 等於 `vessels_json` members 數；點擊後以可捲動清單顯示船名、vessel ID、MMSI、類型與旗國。
 
 ## GFW 抽樣近似航跡主站 POC（2026-08-25）
+
+本節描述 canonical v2/capped history；v3 shadow 的 full-fidelity frame/detail delivery
+尚未 deploy 或 browser acceptance，不能以本段舊 browser POC 代替。
 
 - 入口：`世界 World → 全球海事 Global Maritime → GFW 抽樣近似航跡`；預設關閉。
 - 視覺沿用既有 Ships 六類色票：貨船、油輪、客船、漁船、作業／拖船、其他；航跡線與船頭同色，popup 同時保留 GFW 原始船種。
@@ -89,7 +114,7 @@
 
 ## 上游 handoff
 
-- `gis-platform/migrations/371_aisstream_gfw_independent_contract.sql`：已完整套用至 production，是 RPC 與 quality/age 欄位 SSOT。
+- `gis-platform/migrations/371_aisstream_gfw_independent_contract.sql`：已完整套用至 production，是既有 RPC 與 quality/age 欄位 SSOT；full-fidelity migration 376 與 audit migration 377 亦已套用 production，S3/Supabase full audit（3,311/3,311 HEAD）已完成。
 - AISStream：production 已有 9 個相關 tables、5 個 RPCs、cron 與 retention；feed healthy，S3 cold archive 已以 read-only 證據驗證。
 - GFW：production tables/RPC 已存在。`GFW_ACCESS_TOKEN` 已放在本機 collector 環境用於 POC，不代表 production collector 已啟用，也不代表 production snapshot 已產生。後續快照仍需保持原始 dataset/license/noncommercial caveat。
 

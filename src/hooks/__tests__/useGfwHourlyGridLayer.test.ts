@@ -31,6 +31,7 @@ const loader = vi.hoisted(() => ({
   loadHour: vi.fn(),
 }));
 const clock = vi.hoisted(() => ({ current: Date.parse("2026-08-15T00:20:00Z") / 1000 }));
+const notice = vi.hoisted(() => ({ show: vi.fn() }));
 
 vi.mock("react", () => ({ useRef: harness.useRef, useEffect: harness.useEffect }));
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
@@ -45,17 +46,23 @@ vi.mock("../../data/gfwHourlyGridLoader", async (importOriginal) => {
 vi.mock("../../state/timeStore", () => ({
   timeStore: {
     getTime: () => clock.current,
-    subscribeThrottled: (_ms: number, cb: (time: number) => void) => {
+    subscribe: (cb: (time: number) => void) => {
       harness.setTimeCallback(cb);
       return vi.fn();
     },
   },
 }));
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: vi.fn() }));
+vi.mock("../../components/TransientNotice", () => ({ showTransientNotice: notice.show }));
+vi.mock("../../map/pmtilesSourceType", () => ({ registerPmtilesSourceTypeOnce: vi.fn() }));
 
 import { useGfwHourlyGridLayer } from "../useGfwHourlyGridLayer";
 
 const FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
+async function flushAsync(): Promise<void> {
+  for (let i = 0; i < 8; i++) await Promise.resolve();
+}
 
 function createMap() {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
@@ -66,6 +73,8 @@ function createMap() {
     addSource: (id: string) => { sources.set(id, { setData: vi.fn() }); },
     getLayer: (id: string) => layers.get(id),
     addLayer: (layer: { id: string }) => { layers.set(layer.id, layer); },
+    removeLayer: (id: string) => { layers.delete(id); },
+    removeSource: (id: string) => { sources.delete(id); },
     setLayoutProperty: vi.fn(),
     setPaintProperty: vi.fn(),
     on: vi.fn(),
@@ -81,6 +90,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
     clock.current = Date.parse("2026-08-15T00:20:00Z") / 1000;
     loader.loadManifest.mockReset();
     loader.loadHour.mockReset();
+    notice.show.mockReset();
   });
 
   it("同一 activation rerender 不重抓 manifest，close→open 會 refresh", async () => {
@@ -102,6 +112,18 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(loader.loadManifest).toHaveBeenCalledTimes(2);
   });
 
+  it("首次開啟只通知一次最新完整日與非即時語意", async () => {
+    loader.loadManifest.mockResolvedValue({ hours: [], dateEndInclusive: "2026-08-15" });
+    loader.loadHour.mockResolvedValue(FC);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+    expect(notice.show).toHaveBeenCalledWith("GFW 小時網格資料最新完整日：2026-08-15（UTC，非即時）");
+    harness.rerender(); useGfwHourlyGridLayer(mapRef, true, 0.8);
+    expect(notice.show).toHaveBeenCalledTimes(1);
+  });
+
   it("快速跨小時時舊 response 不覆蓋新 exact-hour 資料", async () => {
     const data1: GeoJSON.FeatureCollection = {
       type: "FeatureCollection",
@@ -120,20 +142,20 @@ describe("useGfwHourlyGridLayer timeline", () => {
     const state = createMap();
     const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
     useGfwHourlyGridLayer(mapRef, true, 0.6);
-    await Promise.resolve(); await Promise.resolve(); await Promise.resolve();
+    await flushAsync();
 
     harness.tick(Date.parse("2026-08-15T01:00:00Z") / 1000);
     harness.tick(Date.parse("2026-08-15T02:00:00Z") / 1000);
-    await Promise.resolve(); await Promise.resolve();
+    await flushAsync();
     const source = state.sources.get("gfw-hourly-grid-source");
     expect(source?.setData).toHaveBeenLastCalledWith(data2);
 
     resolveHour1(data1);
-    await Promise.resolve(); await Promise.resolve();
+    await flushAsync();
     expect(source?.setData).toHaveBeenLastCalledWith(data2);
   });
 
-  it("同一 UTC 小時不重抓，跨整點才載下一個 hour file", async () => {
+  it("預載 H/H+1，同一 UTC 小時不重抓，跨整點只補下一個 hour file", async () => {
     loader.loadManifest.mockResolvedValue({ hours: [] });
     loader.loadHour.mockResolvedValue(FC);
     const state = createMap();
@@ -145,17 +167,71 @@ describe("useGfwHourlyGridLayer timeline", () => {
 
     expect(state.layers.has("gfw-hourly-grid-circle")).toBe(true);
     expect(state.layers.has("gfw-hourly-grid-count")).toBe(true);
-    expect(loader.loadHour).toHaveBeenCalledTimes(1);
+    expect(loader.loadHour).toHaveBeenCalledTimes(2);
     expect(loader.loadHour.mock.calls[0]?.[1]).toBe("2026-08-15T00:00:00Z");
+    expect(loader.loadHour.mock.calls[1]?.[1]).toBe("2026-08-15T01:00:00Z");
 
     harness.tick(Date.parse("2026-08-15T00:59:59Z") / 1000);
     await Promise.resolve();
-    expect(loader.loadHour).toHaveBeenCalledTimes(1);
+    expect(loader.loadHour).toHaveBeenCalledTimes(2);
 
     harness.tick(Date.parse("2026-08-15T01:00:00Z") / 1000);
     await Promise.resolve();
     await Promise.resolve();
-    expect(loader.loadHour).toHaveBeenCalledTimes(2);
-    expect(loader.loadHour.mock.calls[1]?.[1]).toBe("2026-08-15T01:00:00Z");
+    expect(loader.loadHour).toHaveBeenCalledTimes(3);
+    expect(loader.loadHour.mock.calls[2]?.[1]).toBe("2026-08-15T02:00:00Z");
+  });
+
+  it("H+1 成功才 crossfade，H+1 失敗時 H 保持 100%", async () => {
+    const current: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+    loader.loadManifest.mockResolvedValue({ hours: [] });
+    loader.loadHour.mockImplementation((_manifest: unknown, hour: string) =>
+      Promise.resolve(hour === "2026-08-15T00:00:00Z" ? current : null),
+    );
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+
+    // 初始時刻 00:20，next missing；current opacity 不能被 1 - 20/60 壓暗。
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-circle", "circle-opacity", 0.6);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-next-circle", "circle-opacity", 0);
+  });
+
+  it("click hit source 隨 alpha dominant 切換，透明的 H+1 不會提早搶 popup", async () => {
+    const current: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [123, 24] }, properties: { observed_at: "H" } }] };
+    const next: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [124, 25] }, properties: { observed_at: "H+1" } }] };
+    loader.loadManifest.mockResolvedValue({ hours: [] });
+    loader.loadHour.mockImplementation((_manifest: unknown, hour: string) => Promise.resolve(hour === "2026-08-15T00:00:00Z" ? current : next));
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+    const hit = state.sources.get("gfw-hourly-grid-hit-source");
+    const initialHit = hit?.setData.mock.calls[(hit?.setData.mock.calls.length ?? 1) - 1]?.[0] as GeoJSON.FeatureCollection;
+    expect(initialHit.features[0]?.properties)
+      .toMatchObject({ observed_at: "H", dominant_observed_at: "2026-08-15T00:00:00Z" });
+
+    harness.tick(Date.parse("2026-08-15T00:40:00Z") / 1000);
+    const laterHit = hit?.setData.mock.calls[(hit?.setData.mock.calls.length ?? 1) - 1]?.[0] as GeoJSON.FeatureCollection;
+    expect(laterHit.features[0]?.properties)
+      .toMatchObject({ observed_at: "H+1", dominant_observed_at: "2026-08-15T01:00:00Z" });
+  });
+
+  it("v3 PMTiles H/H+1 以兩個 native source crossfade，不退回日 GeoJSON", async () => {
+    const hours = ["2026-08-15T00:00:00Z", "2026-08-15T01:00:00Z"].map((observedAt, index) => ({
+      observedAt, observedAtMs: Date.parse(observedAt), path: `releases/2026-08-15/grid/hours/${index}.pmtiles`,
+      cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [],
+    }));
+    loader.loadManifest.mockResolvedValue({ manifestUrl: "https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json", sourceLayer: "gfw_grid", hours });
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+    expect(state.sources.has("gfw-hourly-grid-pmtiles-source")).toBe(true);
+    expect(state.sources.has("gfw-hourly-grid-pmtiles-next-source")).toBe(true);
+    expect(state.layers.has("gfw-hourly-grid-pmtiles-fill")).toBe(true);
+    expect(state.layers.has("gfw-hourly-grid-pmtiles-hit-fill")).toBe(true);
+    expect(loader.loadHour).not.toHaveBeenCalled();
   });
 });

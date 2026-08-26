@@ -23,9 +23,10 @@ const finite = (value: unknown): value is number => typeof value === "number" &&
 export function resolveGfwDarkVesselsManifestUrl(
   cdnBase = import.meta.env.VITE_GLOBAL_MARITIME_CDN_BASE ?? "",
   isDev = import.meta.env.DEV,
+  shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
 ): string {
   // Dark-vessel 沒有舊 POC manifest adapter；dev 也只接受 unified root v2。
-  return resolveGfwHourlyRootManifestUrl(ROOT_MANIFEST_PATH, cdnBase, isDev) ?? ROOT_MANIFEST_PATH;
+  return resolveGfwHourlyRootManifestUrl(ROOT_MANIFEST_PATH, cdnBase, isDev, shadowEnabled) ?? ROOT_MANIFEST_PATH;
 }
 
 export function parseGfwDarkVesselsManifest(

@@ -1,10 +1,12 @@
 import { withLoading } from "../lib/loadingRegistry";
+import { loadGfwGzipJsonAsset } from "./gfwHourlyDetailLoader";
 import { gfwShipTypeBucket, shipTypeBucketLabel } from "./shipTrails";
 import {
   isGfwHourlyProductionManifestUrl,
   parseGfwHourlyUnifiedManifest,
   resolveGfwHourlyRootManifestUrl,
 } from "./gfwHourlyReleaseManifest";
+import type { GfwDetailBucket, GfwUnifiedTrackFrame } from "./gfwHourlyReleaseManifest";
 
 export const GFW_HOURLY_TRACKS_LOCAL_MANIFEST_URL = "/gfw_hourly_tracks_poc/manifest.json";
 
@@ -12,8 +14,9 @@ export const GFW_HOURLY_TRACKS_LOCAL_MANIFEST_URL = "/gfw_hourly_tracks_poc/mani
 export function resolveGfwHourlyTracksManifestUrl(
   cdnBase = import.meta.env.VITE_GLOBAL_MARITIME_CDN_BASE ?? "",
   isDev = import.meta.env.DEV,
+  shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
 ): string | null {
-  return resolveGfwHourlyRootManifestUrl(GFW_HOURLY_TRACKS_LOCAL_MANIFEST_URL, cdnBase, isDev);
+  return resolveGfwHourlyRootManifestUrl(GFW_HOURLY_TRACKS_LOCAL_MANIFEST_URL, cdnBase, isDev, shadowEnabled);
 }
 
 export interface GfwHourlyTrack {
@@ -33,6 +36,7 @@ export interface GfwHourlyTrack {
 export interface GfwHourlyTrackCollection {
   tracks: GfwHourlyTrack[];
   displayDate: string;
+  fullFidelity: boolean;
 }
 
 export interface GfwHourlyTrackDayEntry {
@@ -41,6 +45,8 @@ export interface GfwHourlyTrackDayEntry {
   bytes: number;
   features: number;
   points: number;
+  format?: "geojson" | "pmtiles";
+  detailBuckets?: readonly GfwDetailBucket[];
 }
 
 export interface GfwHourlyTrackManifest {
@@ -50,7 +56,25 @@ export interface GfwHourlyTrackManifest {
   dateStart: string;
   dateEnd: string;
   generatedAt: string | null;
+  fullFidelity: boolean;
   days: ReadonlyMap<string, GfwHourlyTrackDayEntry>;
+  sourceLayers?: { edges: string; singletons: string } | null;
+  frames?: ReadonlyMap<string, GfwUnifiedTrackFrame>;
+  attribution?: { label: string; href: string };
+}
+
+export interface GfwHourlyTrackFrameNode {
+  trackId: string;
+  vesselId: string;
+  mmsi: string | null;
+  shipName: string | null;
+  vesselType: string | null;
+  flag: string | null;
+  shipTypeBucket: string | null;
+  coordinate: GeoJSON.Position;
+  observedEpoch: number;
+  toEpoch: number | null;
+  toCoordinate: GeoJSON.Position | null;
 }
 
 type JsonObject = Record<string, unknown>;
@@ -68,6 +92,10 @@ const strictUtcDate = (value: unknown): string | null => {
   const parsed = new Date(`${value}T00:00:00Z`);
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value ? value : null;
 };
+
+const finiteCoordinate = (raw: unknown): GeoJSON.Position | null =>
+  Array.isArray(raw) && raw.length >= 2 && typeof raw[0] === "number" && Number.isFinite(raw[0]) &&
+  typeof raw[1] === "number" && Number.isFinite(raw[1]) ? [raw[0], raw[1]] : null;
 
 function parseObservedTimes(raw: unknown): string[] | null {
   let value = raw;
@@ -150,7 +178,11 @@ export function parseGfwHourlyTrackManifest(
       dateStart: unified.dateStart,
       dateEnd: unified.dateEnd,
       generatedAt: unified.generatedAt,
+      fullFidelity: unified.fullFidelity,
       days: unified.trackDays,
+      sourceLayers: unified.trackSourceLayers,
+      frames: unified.trackFrames,
+      attribution: unified.attribution,
     };
   }
   // Production CDN 只接受單一 root v2；舊 v1 只是 dev POC adapter。
@@ -189,6 +221,8 @@ export function parseGfwHourlyTrackManifest(
       bytes: value.bytes as number,
       features: value.features as number,
       points: value.points as number,
+      format: "geojson",
+      detailBuckets: [],
     });
   }
   let expectedDayCount = 0;
@@ -208,13 +242,18 @@ export function parseGfwHourlyTrackManifest(
     dateStart,
     dateEnd,
     generatedAt: nullableString(raw.generated_at),
+    fullFidelity: false,
     days,
+    sourceLayers: null,
+    frames: new Map(),
+    attribution: { label: "Global Fishing Watch", href: "https://globalfishingwatch.org/" },
   };
 }
 
 export function parseGfwHourlyTrackCollection(
   raw: unknown,
   expectedDisplayDate: string,
+  fullFidelity = false,
 ): GfwHourlyTrackCollection | null {
   if (!isObject(raw) || raw.type !== "FeatureCollection" || !Array.isArray(raw.features)) return null;
   if (!isObject(raw.metadata) || raw.metadata.schema_version !== 1) return null;
@@ -256,7 +295,153 @@ export function parseGfwHourlyTrackCollection(
     raw.metadata.point_count !== pointCount
   ) return null;
 
-  return { tracks, displayDate: expectedDisplayDate };
+  return { tracks, displayDate: expectedDisplayDate, fullFidelity };
+}
+
+/** v3 hourly endpoint frame: only same-segment `to_*` fields permit interpolation. */
+export function parseGfwHourlyTrackFrame(raw: unknown, expectedObservedAt: string): GfwHourlyTrackFrameNode[] | null {
+  if (!isObject(raw) || raw.type !== "FeatureCollection" || !Array.isArray(raw.features)) return null;
+  const expectedEpoch = Date.parse(expectedObservedAt) / 1000;
+  if (!Number.isInteger(expectedEpoch)) return null;
+  const nodes: GfwHourlyTrackFrameNode[] = [];
+  const seen = new Set<string>();
+  for (const feature of raw.features) {
+    if (!isObject(feature) || feature.type !== "Feature" || !isObject(feature.geometry) || feature.geometry.type !== "Point" ||
+      !isObject(feature.properties)) return null;
+    const coordinate = finiteCoordinate(feature.geometry.coordinates);
+    const p = feature.properties;
+    if (!coordinate || typeof p.track_id !== "string" || !p.track_id || typeof p.vessel_id !== "string" || !p.vessel_id ||
+      !Number.isInteger(p.observed_epoch) || p.observed_epoch !== expectedEpoch) return null;
+    const toFields = [p.to_epoch, p.to_lon, p.to_lat];
+    const hasTo = toFields.some((value) => value !== undefined && value !== null);
+    const toEpoch = typeof p.to_epoch === "number" ? p.to_epoch : null;
+    const toLon = typeof p.to_lon === "number" ? p.to_lon : null;
+    const toLat = typeof p.to_lat === "number" ? p.to_lat : null;
+    if (hasTo && (toEpoch === null || !Number.isInteger(toEpoch) || toLon === null || !Number.isFinite(toLon) ||
+      toLat === null || !Number.isFinite(toLat) || toEpoch <= p.observed_epoch)) return null;
+    const key = `${p.track_id}|${p.vessel_id}`;
+    if (seen.has(key)) return null;
+    seen.add(key);
+    nodes.push({
+      trackId: p.track_id,
+      vesselId: p.vessel_id,
+      mmsi: nullableString(p.mmsi), shipName: nullableString(p.ship_name), vesselType: nullableString(p.vessel_type), flag: nullableString(p.flag),
+      shipTypeBucket: nullableString(p.ship_type_bucket),
+      coordinate,
+      observedEpoch: p.observed_epoch,
+      toEpoch: hasTo ? toEpoch : null,
+      toCoordinate: hasTo && toLon !== null && toLat !== null ? [toLon, toLat] : null,
+    });
+  }
+  return nodes;
+}
+
+export async function loadGfwHourlyTracksFrame(
+  manifest: GfwHourlyTrackManifest,
+  observedAt: string,
+): Promise<GfwHourlyTrackFrameNode[] | null> {
+  const entry = manifest.frames?.get(observedAt);
+  if (!entry) return null;
+  return parseGfwHourlyTrackFrame(await loadGfwGzipJsonAsset(manifest.manifestUrl, entry), observedAt);
+}
+
+/** v3 frame node only interpolates within the exporter-declared adjacent segment. */
+export function gfwHourlyTrackFrameEndpoints(
+  nodes: readonly GfwHourlyTrackFrameNode[],
+  timeSeconds: number,
+  fullFidelity: boolean,
+): GeoJSON.FeatureCollection {
+  const selectedEpoch = timeSeconds;
+  const grouped = new Map<string, GfwHourlyTrackFrameNode[]>();
+  const locations = new Map<string, GeoJSON.Position>();
+  for (const node of nodes) {
+    // 缺 `to_*` 只代表一個瞬時觀測，絕不可把它硬 hold 成一小時的船頭。
+    if (selectedEpoch < node.observedEpoch || (node.toEpoch === null && selectedEpoch !== node.observedEpoch) ||
+      (node.toEpoch !== null && selectedEpoch > node.toEpoch)) continue;
+    const ratio = node.toEpoch !== null && node.toCoordinate !== null
+      ? (selectedEpoch - node.observedEpoch) / (node.toEpoch - node.observedEpoch) : 0;
+    const coordinate: GeoJSON.Position = node.toCoordinate
+      ? [node.coordinate[0]! + (node.toCoordinate[0]! - node.coordinate[0]!) * ratio, node.coordinate[1]! + (node.toCoordinate[1]! - node.coordinate[1]!) * ratio]
+      : node.coordinate;
+    const key = `${coordinate[0]},${coordinate[1]}`;
+    const values = grouped.get(key) ?? [];
+    values.push(node);
+    grouped.set(key, values);
+    locations.set(key, coordinate);
+  }
+  return {
+    type: "FeatureCollection",
+    features: [...grouped.entries()].map(([key, members]) => {
+      const first = members[0]!;
+      const vessels = members.map((member) => ({ vessel_id: member.vesselId, mmsi: member.mmsi, ship_name: member.shipName, vessel_type: member.vesselType, flag: member.flag }));
+      const buckets = new Set(members.map((member) => member.shipTypeBucket ?? gfwShipTypeBucket(member.vesselType)));
+      const mixed = buckets.size > 1;
+      const bucket = first.shipTypeBucket ?? gfwShipTypeBucket(first.vesselType);
+      return {
+        type: "Feature" as const,
+        geometry: { type: "Point" as const, coordinates: locations.get(key)! },
+        properties: {
+          vessel_id: first.vesselId, track_ids: members.map((member) => member.trackId).join(","),
+          mmsi: first.mmsi, ship_name: first.shipName, vessel_type: first.vesselType, flag: first.flag,
+          vessel_count: members.length, vessels_json: JSON.stringify(vessels), mixed_type: mixed ? 1 : 0,
+          ship_type_bucket: mixed ? "mixed" : bucket, ship_type_label: mixed ? "混合船種 Mixed" : shipTypeBucketLabel(bucket as ReturnType<typeof gfwShipTypeBucket>),
+          selected_time: new Date(selectedEpoch * 1000).toISOString(), interpolated: selectedEpoch === first.observedEpoch ? 0 : 1,
+          full_fidelity: fullFidelity ? 1 : 0, source_dataset: "Global Fishing Watch", endpoint_grouped: 1,
+        },
+      };
+    }),
+  };
+}
+
+function frameCoordinate(node: GfwHourlyTrackFrameNode, epoch: number): GeoJSON.Position | null {
+  if (epoch < node.observedEpoch) return null;
+  if (epoch === node.observedEpoch) return node.coordinate;
+  if (node.toEpoch === null || node.toCoordinate === null || epoch > node.toEpoch) return null;
+  const ratio = (epoch - node.observedEpoch) / (node.toEpoch - node.observedEpoch);
+  return [
+    node.coordinate[0]! + (node.toCoordinate[0]! - node.coordinate[0]!) * ratio,
+    node.coordinate[1]! + (node.toCoordinate[1]! - node.coordinate[1]!) * ratio,
+  ];
+}
+
+/**
+ * v3 short trail only uses hourly frame segments that overlap the selected window.
+ * It clips at both ends; no PMTiles all-day edge and no segment geometry after selected time.
+ */
+export function gfwHourlyTrackFrameTrail(
+  frames: ReadonlyMap<number, readonly GfwHourlyTrackFrameNode[]>,
+  timeSeconds: number,
+  trailingHours: number,
+  fullFidelity: boolean,
+  displayDate: string,
+): { lines: GeoJSON.FeatureCollection; endpoints: GeoJSON.FeatureCollection } {
+  const selected = Math.floor(timeSeconds);
+  const start = selected - Math.round(Math.max(0.5, trailingHours) * 3_600);
+  const lines: GeoJSON.Feature[] = [];
+  const endpointNodes = frames.get(Math.floor(selected / 3_600) * 3_600) ?? [];
+  for (const nodes of frames.values()) for (const node of nodes) {
+    if (node.toEpoch === null || node.toCoordinate === null) continue;
+    const from = Math.max(start, node.observedEpoch);
+    const to = Math.min(selected, node.toEpoch);
+    if (from >= to) continue;
+    const fromCoordinate = frameCoordinate(node, from);
+    const toCoordinate = frameCoordinate(node, to);
+    if (!fromCoordinate || !toCoordinate) continue;
+    const bucket = node.shipTypeBucket ?? gfwShipTypeBucket(node.vesselType);
+    lines.push({
+      type: "Feature",
+      geometry: { type: "LineString", coordinates: [fromCoordinate, toCoordinate] },
+      properties: {
+        track_id: node.trackId, vessel_id: node.vesselId, mmsi: node.mmsi, ship_name: node.shipName,
+        vessel_type: node.vesselType, flag: node.flag, ship_type_bucket: bucket, ship_type_label: shipTypeBucketLabel(bucket as ReturnType<typeof gfwShipTypeBucket>),
+        selected_time: new Date(selected * 1_000).toISOString(), start_at: new Date(from * 1_000).toISOString(),
+        end_at: new Date(to * 1_000).toISOString(), point_count: 2, interpolated: 1,
+        display_date: displayDate,
+        full_fidelity: fullFidelity ? 1 : 0, source_dataset: "Global Fishing Watch", approximate: 1,
+      },
+    });
+  }
+  return { lines: { type: "FeatureCollection", features: lines }, endpoints: gfwHourlyTrackFrameEndpoints(endpointNodes, timeSeconds, fullFidelity) };
 }
 
 export async function loadGfwHourlyTrackManifest(): Promise<GfwHourlyTrackManifest | null> {
@@ -292,7 +477,7 @@ export function loadGfwHourlyTracksDay(
       new URL(manifest.manifestUrl, globalThis.location?.origin ?? "http://localhost"),
     ).toString(), { cache: "force-cache" })
       .then(async (response) => response.ok
-        ? parseGfwHourlyTrackCollection(await response.json(), displayDate)
+        ? parseGfwHourlyTrackCollection(await response.json(), displayDate, manifest.fullFidelity)
         : null)
       .catch(() => null),
   );
@@ -370,6 +555,7 @@ function runtimeProperties(
   selectedMs: number,
   points: TimedCoordinate[],
   endpointInterpolated: boolean,
+  fullFidelity: boolean,
 ) {
   const shipTypeBucket = gfwShipTypeBucket(track.vesselType);
   return {
@@ -382,6 +568,7 @@ function runtimeProperties(
     flag: track.flag,
     segment_index: track.segmentIndex,
     approximate: 1,
+    full_fidelity: fullFidelity ? 1 : 0,
     source_dataset: track.sourceDataset,
     coordinate_semantics: "GFW_HIGH_grid_cell_center",
     selected_time: new Date(selectedMs).toISOString(),
@@ -418,7 +605,7 @@ export function gfwHourlyTracksFrame(
     if (points.length === 0) continue;
 
     const endpoint = coordinateAt(track, selectedMs);
-    const properties = runtimeProperties(track, selectedMs, points, endpoint?.interpolated ?? false);
+    const properties = runtimeProperties(track, selectedMs, points, endpoint?.interpolated ?? false, collection.fullFidelity);
     if (points.length >= 2) {
       lines.push({
         type: "Feature",
@@ -426,17 +613,52 @@ export function gfwHourlyTracksFrame(
         properties,
       });
     }
-    if (endpoint) {
-      endpoints.push({
-        type: "Feature",
-        geometry: { type: "Point", coordinates: endpoint.coordinate },
-        properties: { ...properties, endpoint: "selected_time" },
-      });
-    }
+    if (endpoint) endpoints.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: endpoint.coordinate },
+      properties: { ...properties, endpoint: "selected_time" },
+    });
+  }
+
+  const endpointGroups = new Map<string, GeoJSON.Feature[]>();
+  for (const endpoint of endpoints) {
+    const [lon, lat] = (endpoint.geometry as GeoJSON.Point).coordinates;
+    const key = `${lon},${lat}`; // exact runtime coordinate, intentionally no spatial snap/rounding
+    const group = endpointGroups.get(key) ?? [];
+    group.push(endpoint);
+    endpointGroups.set(key, group);
+  }
+  const groupedEndpoints: GeoJSON.Feature[] = [];
+  for (const group of endpointGroups.values()) {
+    const first = group[0]!;
+    const vessels = group.map((feature) => {
+      const p = feature.properties ?? {};
+      return {
+        vessel_id: String(p.vessel_id),
+        mmsi: typeof p.mmsi === "string" ? p.mmsi : null,
+        ship_name: typeof p.ship_name === "string" ? p.ship_name : null,
+        vessel_type: typeof p.vessel_type === "string" ? p.vessel_type : null,
+        flag: typeof p.flag === "string" ? p.flag : null,
+      };
+    });
+    const buckets = new Set(group.map((feature) => String(feature.properties?.ship_type_bucket ?? "other")));
+    const mixed = buckets.size > 1;
+    groupedEndpoints.push({
+      ...first,
+      properties: {
+        ...first.properties,
+        vessel_count: vessels.length,
+        vessels_json: JSON.stringify(vessels),
+        mixed_type: mixed ? 1 : 0,
+        ship_type_bucket: mixed ? "mixed" : first.properties?.ship_type_bucket,
+        ship_type_label: mixed ? "混合船種 Mixed" : first.properties?.ship_type_label,
+        endpoint_grouped: 1,
+      },
+    });
   }
 
   return {
     lines: { type: "FeatureCollection", features: lines },
-    endpoints: { type: "FeatureCollection", features: endpoints },
+    endpoints: { type: "FeatureCollection", features: groupedEndpoints },
   };
 }

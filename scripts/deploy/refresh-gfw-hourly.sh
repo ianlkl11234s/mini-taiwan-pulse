@@ -7,11 +7,11 @@ export AWS_SECRET_ACCESS_KEY="$S3_SECRET_KEY"
 export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
 
 BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
-mkdir -p /data/global-maritime/gfw-hourly
+mkdir -p /data/global-maritime/gfw-hourly/v3-shadow
 aws s3 sync \
   "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/" \
   "/data/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json"
+  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json"
 
 # 新 release assets 全部落地後才原子更換可變指標，不暴露半套 release。
 if aws s3 cp \
@@ -20,4 +20,13 @@ if aws s3 cp \
   --no-progress; then
   mv "/data/global-maritime/gfw-hourly/manifest.json.tmp" \
     "/data/global-maritime/gfw-hourly/manifest.json"
+fi
+
+# Shadow manifest 是獨立可變指標；immutable v3 assets 已在上方完成同步後才切換。
+if aws s3 cp \
+  "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/v3-shadow/manifest.json" \
+  "/data/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
+  --no-progress; then
+  mv "/data/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
+    "/data/global-maritime/gfw-hourly/v3-shadow/manifest.json"
 fi

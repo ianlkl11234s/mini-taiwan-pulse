@@ -131,6 +131,27 @@ function rawUnifiedManifest() {
   };
 }
 
+function applyV3Contract(raw: ReturnType<typeof rawUnifiedManifest>) {
+  const buckets = () => "0123456789abcdef".split("").map((bucket) => ({
+    bucket, path: `releases/${raw.release_id}/details/${bucket}.json.gz`, sha256: bucket.repeat(64), bytes: 0, features: 0,
+  }));
+  Object.assign(raw, { full_fidelity: true });
+  Object.assign(raw.source, { coordinate_semantics: "GFW_HIGH_grid_cell_center" });
+  Object.assign(raw.grid, {
+    geometry_semantics: "inferred_0_01_degree_footprint", source_layer: "gfw_grid",
+    detail_contract: { bucket_count: 16, hash: "sha256_hex_prefix", prefix_length: 1, key: "cell_id", format: "json", content_encoding: "gzip" },
+  });
+  for (const hour of raw.grid.hours) Object.assign(hour, {
+    format: "pmtiles", path: hour.path.replace(".geojson", ".pmtiles"), detail_buckets: buckets(),
+  });
+  Object.assign(raw.tracks, {
+    source_layers: { edges: "gfw_track_edges", singletons: "gfw_track_singletons" },
+    detail_contract: { bucket_count: 16, hash: "sha256_hex_prefix", prefix_length: 1, key: "track_id", format: "json", content_encoding: "gzip" },
+    frames: raw.grid.hours.map((hour) => ({ observed_at: hour.observed_at, path: hour.path.replace("/grid/hours/", "/tracks/frames/").replace(".pmtiles", ".geojson.gz"), sha256: "f".repeat(64), bytes: 0, features: 0, format: "geojson", content_encoding: "gzip" })),
+  });
+  for (const day of raw.tracks.days) Object.assign(day, { format: "pmtiles", path: day.path.replace(".geojson", ".pmtiles"), detail_buckets: buckets() });
+}
+
 describe("GFW hourly sampled-track contract", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -146,6 +167,8 @@ describe("GFW hourly sampled-track contract", () => {
       .toBe("/gfw_hourly_tracks_poc/manifest.json");
     expect(resolveGfwHourlyTracksManifestUrl("", false))
       .toBe("/global-maritime/gfw-hourly/manifest.json");
+    expect(resolveGfwHourlyTracksManifestUrl("", false, true))
+      .toBe("/global-maritime/gfw-hourly/v3-shadow/manifest.json");
   });
 
   it("root manifest 每次都以 no-cache 讀取當前環境 URL", async () => {
@@ -201,6 +224,26 @@ describe("GFW hourly sampled-track contract", () => {
     expect(parseGfwHourlyTrackManifest(rawManifest(), url)).toBeNull();
   });
 
+  it("v3 只有 counts 完整相等且 cap_applied=false 才驗證 full fidelity", () => {
+    const raw = rawUnifiedManifest();
+    raw.schema_version = 3;
+    applyV3Contract(raw);
+    const counts = {
+      candidate_features: 14, displayed_features: 14, published_features: 14,
+      candidate_points: 56, displayed_points: 56, published_points: 56,
+      omitted_features: 0, omitted_points: 0,
+      cap_applied: false,
+    };
+    Object.assign(raw.tracks, { counts });
+    expect(parseGfwHourlyTrackManifest(raw, "https://cdn.example/global-maritime/gfw-hourly/manifest.json"))
+      .toMatchObject({ fullFidelity: true });
+    counts.displayed_points = 55;
+    expect(parseGfwHourlyTrackManifest(raw, "https://cdn.example/global-maritime/gfw-hourly/manifest.json")).toBeNull();
+    counts.displayed_points = 56;
+    counts.omitted_points = 1;
+    expect(parseGfwHourlyTrackManifest(raw, "https://cdn.example/global-maritime/gfw-hourly/manifest.json")).toBeNull();
+  });
+
   it("daily display_date 不符預期或 overlap 不足時 fail closed", () => {
     expect(parseGfwHourlyTrackCollection(rawCollection(), "2026-08-16")).toBeNull();
     const short = rawCollection();
@@ -216,6 +259,7 @@ describe("GFW hourly sampled-track contract", () => {
       dateStart: "2026-09-01",
       dateEnd: "2026-09-01",
       generatedAt: null,
+      fullFidelity: false,
       days: new Map([["2026-09-01", {
         displayDate: "2026-09-01",
         path: "releases/2026-09-01/days/2026-09-01.geojson",
@@ -358,6 +402,29 @@ describe("GFW hourly sampled-track contract", () => {
     expect((frame.lines.features[0]!.geometry as GeoJSON.LineString).coordinates).toEqual([[123, 24], [123.1, 24.1]]);
     expect((frame.lines.features[1]!.geometry as GeoJSON.LineString).coordinates).toEqual([[124, 25], [124.05, 25.05]]);
     expect(frame.endpoints.features).toHaveLength(1);
+  });
+
+  it("同一精確 runtime 座標端點聚合、sqrt count 可供圖層使用，並保留完整多船清單", () => {
+    const raw = rawCollection();
+    raw.features.push({
+      ...raw.features[0]!,
+      properties: {
+        ...raw.features[0]!.properties, vessel_id: "vessel-2", ship_name: "FISHER", vessel_type: "FISHING",
+      },
+    });
+    raw.metadata.feature_count = 2;
+    raw.metadata.point_count = 8;
+    const frame = gfwHourlyTracksFrame(
+      parseGfwHourlyTrackCollection(raw, "2026-08-15", true)!,
+      Date.parse("2026-08-15T02:30:00Z") / 1000,
+      0.5,
+    );
+    expect(frame.endpoints.features).toHaveLength(1);
+    expect(frame.endpoints.features[0]!.properties).toMatchObject({ vessel_count: 2, mixed_type: 1, full_fidelity: 1 });
+    expect(JSON.parse(String(frame.endpoints.features[0]!.properties?.vessels_json))).toEqual([
+      expect.objectContaining({ vessel_id: "vessel-1", ship_name: "TEST SHIP" }),
+      expect.objectContaining({ vessel_id: "vessel-2", ship_name: "FISHER" }),
+    ]);
   });
 
   it("不在 segment 首末外外插假船頭，但保留時間視窗內的真實歷史線", () => {

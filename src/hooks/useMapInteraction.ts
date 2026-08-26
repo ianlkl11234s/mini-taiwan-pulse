@@ -14,6 +14,7 @@ import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
+import { hydrateGfwGridDetail, hydrateGfwTrackDetail } from "../data/gfwHourlyDetailLoader";
 
 interface TooltipInfo {
   flight: Flight;
@@ -63,12 +64,14 @@ export function useMapInteraction(
   const [realEstateTooltipInfo, setRealEstateTooltipInfo] = useState<RealEstateTooltipInfo | null>(null);
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
+  const featureRequestRef = useRef(0);
 
   const bindEvents = (map: MapboxMap) => {
     if (clickBoundRef.current) return;
     clickBoundRef.current = true;
 
     map.on("click", (e) => {
+      const featureRequest = ++featureRequestRef.current;
       const container = map.getContainer();
       const w = container.clientWidth;
       const h = container.clientHeight;
@@ -318,7 +321,22 @@ export function useMapInteraction(
               type === "animalShelterPressure"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
-            setFeatureInfo({ layerType: type, properties, coords });
+            const needsGridDetail = type === "gfwHourlyGrid" && typeof properties.cell_id === "string" && typeof properties.vessels_json !== "string";
+            const needsTrackDetail = type === "gfwHourlyTrack" && typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
+            const initialProperties = needsGridDetail || needsTrackDetail
+              ? { ...properties, detail_status: "loading" }
+              : properties;
+            setFeatureInfo({ layerType: type, properties: initialProperties, coords });
+            if (needsGridDetail || needsTrackDetail) {
+              const hydrate = needsGridDetail ? hydrateGfwGridDetail : hydrateGfwTrackDetail;
+              void hydrate(properties).then((hydrated) => {
+                if (featureRequest !== featureRequestRef.current) return;
+                setFeatureInfo({ layerType: type, properties: hydrated, coords });
+              }).catch(() => {
+                if (featureRequest !== featureRequestRef.current) return;
+                setFeatureInfo({ layerType: type, properties: { ...properties, detail_status: "error", detail_error: "完整詳情載入失敗" }, coords });
+              });
+            }
             sessionTracker.log("feature_click", { layerType: type });
             found = true;
             break;

@@ -3982,14 +3982,14 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 抽樣近似航跡
+        GFW 小時近似航跡
       </div>
       <FireCatRows cats={SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }))} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
         同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
-        僅顯示 capped POC 抽樣；線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線。
+        線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線；同座標端點會聚合並以大小表示船數。
       </div>
     </div>
   );

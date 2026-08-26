@@ -547,15 +547,19 @@
     },
     {
       "layers": [
-        "gfw-hourly-grid-count",
-        "gfw-hourly-grid-circle"
+        "gfw-hourly-grid-hit-circle",
+        "gfw-hourly-grid-hit-fill",
+        "gfw-hourly-grid-pmtiles-hit-fill"
       ],
       "type": "gfwHourlyGrid"
     },
     {
       "layers": [
+        "gfw-hourly-tracks-endpoint-count",
         "gfw-hourly-tracks-endpoint",
-        "gfw-hourly-tracks-line"
+        "gfw-hourly-tracks-line",
+        "gfw-hourly-tracks-pmtiles-singletons",
+        "gfw-hourly-tracks-pmtiles-edges"
       ],
       "type": "gfwHourlyTrack"
     },

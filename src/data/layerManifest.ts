@@ -1125,12 +1125,12 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "GFW public-global-presence；HOURLY / HIGH，依 UTC 小時產出格網中心與格內船舶清單",
-      note: "POC 靜態 manifest + 逐小時 GeoJSON；前端不持有 GFW token，格網中心不是原始 AIS 精確座標",
+      note: "v2 Point 與 strict optional v3 Polygon GeoJSON manifest；前端不持有 GFW token，格網中心不是原始 AIS 精確座標。未定 PMTiles source-layer/sidecar 時 fail closed",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGfwHourlyGridLayer 依 timeStore UTC 整點讀取 gfw_hourly_grid_poc manifest 與逐小時 GeoJSON",
+      note: "useGfwHourlyGridLayer 依 timeStore 讀取 H/H+1 並 crossfade；v3 只在 root full_fidelity=true 時標示完整性",
       staticAssets: ["./gfw_hourly_grid_poc/manifest.json"],
     },
     legend: "gfwHourlyGrid",
@@ -1143,8 +1143,8 @@ export const LAYER_MANIFEST = {
   gfwHourlyTracks: {
     key: "gfwHourlyTracks",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },
-    label: "GFW 抽樣近似航跡 Sampled Tracks",
-    labelMobile: "GFW 抽樣近似航跡",
+    label: "GFW 小時近似航跡 Hourly Tracks",
+    labelMobile: "GFW 小時近似航跡",
     expandable: true,
     color: "#5eead4",
     icon: Route,
@@ -1152,7 +1152,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "GFW public-global-presence HOURLY/HIGH；依 vessel 分段後輸出與座標一對一的 observed_times",
-      note: "capped POC 資料契約；production 走 CDN daily partitions，每個頂點是 GFW HIGH 格網中心，非原始 AIS 精確位置",
+      note: "production 走 CDN daily partitions；v3 root full_fidelity=true 與 tracks.counts 驗證通過才標示完整性。每個頂點是 GFW HIGH 格網中心，非原始 AIS 精確位置",
     },
     dataClass: "D",
     source: {
@@ -1163,7 +1163,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwHourlyTracks",
     popup: "gfwHourlyTrack",
     params: { count: 2, kinds: ["slider", "select"] },
-    description: "GFW HOURLY/HIGH 抽樣船舶的格網中心近似航跡；跟隨時間軸顯示船種分色短拖尾與當時端點",
+    description: "GFW HOURLY/HIGH 船舶的格網中心近似航跡；跟隨時間軸顯示船種分色短拖尾與當時端點，同座標船舶會聚合",
     topics: ["世界", "海事", "船舶", "GFW", "時間軸", "軌跡"],
   },
 

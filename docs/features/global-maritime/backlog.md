@@ -1,5 +1,22 @@
 # Backlog
 
+## Full-fidelity v3 release gate (2026-08-26)
+
+- [x] 完成 v3 collector/frontend contract、strict parser、PMTiles/frame/detail popup、focused tests 與 production build。
+- [x] migration 376 與 audit migration 377 已套用 production。
+- [x] 生成 shadow release（2026-08-15..21 UTC）：1,426,359 points、226,830 features、
+  64,051 vessels、168,936 segments、57,894 singletons、1,105,448 grid cells、SAR 0，約 995 MB。
+- [x] **production S3/Supabase full audit 完成**：schema3/full_fidelity shadow root release
+  2026-08-21 bytes/hash 一致；migration 377、run e00 succeeded/is_current schema3 shadow、
+  3,311 assets/counters 一致；S3 HEAD 3,311/3,311，missing/head_errors/bytes/SHA mismatches 全 0、timed_out=false。
+- [ ] push/deploy/browser 驗收仍未完成；不得稱 shadow 為
+  production-ready，也不得切換 canonical v2（canonical S3 v2 release 2026-08-20 保持不變）。
+- [ ] rollback gate：先以 runtime shadow flag 切回 v2；只有 audit、deploy、browser、連續兩日 v3
+  release 與 rollback drill 都通過後，才能考慮 canonical cutover。
+
+語意 gate：HIGH 位置是每小時格網中心；polygon 是推定 visualization footprint；trail 僅在同一
+有效相鄰 segment 內線性內插。它們不是原始 AIS 精確座標、官方 GFW 格界或實際航道。
+
 ## GFW trajectory POC
 
 - [x] 對 bbox `122.43400, 23.22953, 132.85274, 34.35812` 完成 `2026-08-15..21` 的 `HOURLY` / `HIGH` probe；16/16 tiles、1,426,361 rows、57,726 vessels、2 duplicates、0 invalid。
