@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { RefObject } from "react";
+// @ts-expect-error — style-spec 的 CJS 入口無型別宣告（mapbox-gl 未導出），僅測試用
+import { validate } from "mapbox-gl/dist/style-spec/index.cjs";
 
 const harness = vi.hoisted(() => {
   const refs: { current: unknown }[] = [];
@@ -171,6 +173,29 @@ describe("useGfwHourlyTracksLayer timeline", () => {
     expect(loader.frame).toHaveBeenCalledTimes(2);
     harness.tick(Date.parse("2026-08-15T04:00:00Z") / 1000);
     expect(loader.frame).toHaveBeenCalledTimes(3);
+  });
+
+  it("endpoint 半徑 expression 通過 Mapbox style-spec，避免整層被 runtime 拒收", async () => {
+    loader.loadManifest.mockResolvedValue(makeManifest());
+    loader.loadDay.mockResolvedValue({ tracks: [], displayDate: "2026-08-15" });
+    loader.frame.mockReturnValue({ lines: EMPTY, endpoints: EMPTY });
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+
+    useGfwHourlyTracksLayer(mapRef, true, 0.75, 0.5, true);
+    await Promise.resolve();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const endpointLayer = state.layers.get("gfw-hourly-tracks-endpoint");
+    const errors = (validate({
+      version: 8,
+      sources: {
+        "gfw-hourly-tracks-endpoint-source": { type: "geojson", data: EMPTY },
+      },
+      layers: [endpointLayer],
+    }) as { message: string }[]).map((error) => error.message);
+    expect(errors).toEqual([]);
   });
 
   it("每次 false→true 載入成功只通知一次，style/rerender 不重複", async () => {

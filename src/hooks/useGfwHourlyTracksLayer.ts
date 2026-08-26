@@ -78,9 +78,13 @@ function ensureLayers(map: MapboxMap, isDarkTheme: boolean): void {
       source: GFW_HOURLY_TRACKS_ENDPOINT_SOURCE_ID,
       paint: {
         "circle-radius": [
-          "*",
-          ["interpolate", ["linear"], ["zoom"], 4, 1.8, 8, 3.5, 12, 5.5],
-          ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]],
+          // Mapbox requires zoom to be the direct input of the outermost step/interpolate.
+          // Keep the vessel-count multiplier in each stop output; nesting zoom under `*`
+          // makes Mapbox reject the entire endpoint layer at runtime.
+          "interpolate", ["linear"], ["zoom"],
+          4, ["*", 1.8, ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]]],
+          8, ["*", 3.5, ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]]],
+          12, ["*", 5.5, ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]]],
         ],
         "circle-color": colors,
         "circle-opacity": 0.9,
