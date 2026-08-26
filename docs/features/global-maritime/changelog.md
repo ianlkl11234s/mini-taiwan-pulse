@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-08-26 — localhost production release proxy
+
+- Vite dev 預設以同源 `/global-maritime/gfw-hourly` proxy 讀公開 production release；只有
+  `VITE_GFW_HOURLY_USE_LOCAL_POC=true` 才改讀 local POC fixture。
+- DEV 刻意忽略 `VITE_GLOBAL_MARITIME_CDN_BASE`，避免 localhost 繞過 proxy 後遭 CORS
+  阻擋；proxy 不轉送 cookie／authorization，並保留 PMTiles Range request。
+- `gis-up` 的 Mini Taiwan Pulse 啟動分支明確設定 v3 shadow flag，讓 6002 與目前
+  production full-fidelity path 對齊；其他 GIS 專案不受影響。
+
 ## 2026-08-26 — GFW full-fidelity v3 shadow (not deployed)
 
 - 完成 v3 full-fidelity collector/frontend contract、strict count/detail/frame validation、PMTiles

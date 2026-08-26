@@ -120,10 +120,13 @@ export function resolveGfwHourlyRootManifestUrl(
   cdnBase = import.meta.env.VITE_GLOBAL_MARITIME_CDN_BASE ?? "",
   isDev = import.meta.env.DEV,
   shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
+  useLocalPoc = import.meta.env.VITE_GFW_HOURLY_USE_LOCAL_POC === "true",
 ): string | null {
-  if (isDev) return localFallback;
-  const normalized = cdnBase.trim().replace(/\/+$/, "");
   const path = shadowEnabled ? GFW_HOURLY_V3_SHADOW_ROOT_PATH : ROOT_PATH;
+  // 一般 checkout 刻意不含 local POC；DEV 預設經 Vite 同源 proxy 走 production root，
+  // 也刻意忽略 CDN override，避免 local browser 產生 CORS 分支。只有明確 opt-in 才回退 fixture。
+  if (isDev) return useLocalPoc ? localFallback : `/${path}`;
+  const normalized = cdnBase.trim().replace(/\/+$/, "");
   if (normalized) return `${normalized}/${path}`;
   return `/${path}`;
 }

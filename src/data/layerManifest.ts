@@ -1130,7 +1130,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGfwHourlyGridLayer 依 timeStore 讀取 H/H+1 並 crossfade；v3 只在 root full_fidelity=true 時標示完整性",
+      note: "useGfwHourlyGridLayer 依 timeStore 讀取 H/H+1 並 crossfade；DEV 預設經同源 production proxy，只有 VITE_GFW_HOURLY_USE_LOCAL_POC=true 才讀 POC；v3 只在 root full_fidelity=true 時標示完整性",
       staticAssets: ["./gfw_hourly_grid_poc/manifest.json"],
     },
     legend: "gfwHourlyGrid",
@@ -1157,7 +1157,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "production 預設同域 /global-maritime/gfw-hourly/manifest.json，VITE_GLOBAL_MARITIME_CDN_BASE 僅作可選 override；再依 timeStore UTC 日只載入一個 immutable daily partition；dev 才 fallback local POC",
+      note: "production 預設同域 /global-maritime/gfw-hourly/manifest.json，VITE_GLOBAL_MARITIME_CDN_BASE 僅在 production 作可選 override；DEV 同源 proxy，只有 VITE_GFW_HOURLY_USE_LOCAL_POC=true 才 fallback POC；再依 timeStore UTC 日只載入 immutable partition",
       staticAssets: ["./gfw_hourly_tracks_poc/manifest.json"],
     },
     legend: "gfwHourlyTracks",
@@ -1184,7 +1184,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "production 預設同域 /global-maritime/gfw-hourly/manifest.json（env 可選 override），unified v2 dark_vessels.hours exact-hour lazy load；dev 無 SAR fixture 時 fail closed",
+      note: "production 預設同域 /global-maritime/gfw-hourly/manifest.json（env 僅在 production 可選 override），unified v2 dark_vessels.hours exact-hour lazy load；DEV 預設同源 proxy，local POC opt-in 時才可能 fail closed",
       staticAssets: [],
     },
     legend: "gfwDarkVessels",

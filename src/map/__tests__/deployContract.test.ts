@@ -314,6 +314,7 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(gfwManifestContract).toContain("VITE_GLOBAL_MARITIME_CDN_BASE");
     expect(gfwManifestContract).toContain("global-maritime/gfw-hourly/manifest.json");
     expect(gfwManifestContract).toContain("VITE_GFW_HOURLY_V3_SHADOW_ENABLED");
+    expect(gfwManifestContract).toContain("VITE_GFW_HOURLY_USE_LOCAL_POC");
     expect(gfwManifestContract).toContain("global-maritime/gfw-hourly/v3-shadow/manifest.json");
     expect(gfwManifestContract).toContain("const path = shadowEnabled ? GFW_HOURLY_V3_SHADOW_ROOT_PATH : ROOT_PATH");
     expect(gfwTracksLoader).toContain('fetch(manifestUrl, { cache: "no-cache" })');
@@ -323,6 +324,12 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(viteConfig).toContain('"gfw_hourly_tracks_poc.geojson"');
     expect(viteConfig).toContain('"gfw_hourly_tracks_poc"');
     expect(viteConfig).toContain('"gfw_hourly_grid_poc"');
+    expect(viteConfig).toContain('"/global-maritime/gfw-hourly"');
+    expect(viteConfig).not.toContain('"/global-maritime":');
+    expect(viteConfig).toContain('target: "https://mini-taiwan-pulse.itsmigu.com"');
+    expect(viteConfig).toContain('proxyReq.removeHeader("authorization")');
+    expect(viteConfig).toContain('proxyReq.removeHeader("cookie")');
+    expect(viteConfig).toContain('proxyReq.setHeader("range", range)');
   });
 
   it("GFW S3 先同步 immutable releases 再原子切 root，container 週期追新", () => {
