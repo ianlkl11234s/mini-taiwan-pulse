@@ -257,6 +257,20 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
+  it("Ookla dist publication assets retain cache headers, MIME types, and Range-capable static serving", () => {
+    const match = nginxConf.match(
+      /location ~ \^\/geo\/ookla_\(fixed_global\|mobile_global\|tw_z14\|tw_z16\).*?\{([\s\S]*?)\n    \}/,
+    );
+    expect(match, "Ookla exact publication location missing").not.toBeNull();
+    const body = match?.[1] ?? "";
+    expect(body).toContain("root /usr/share/nginx/html;");
+    expect(body).toContain("try_files $uri =404;");
+    expect(body).toContain("application/geo+json geojson;");
+    expect(body).toContain("application/vnd.pmtiles pmtiles;");
+    expect(body).toContain("expires 1d;");
+    expect(body).toContain('add_header Cache-Control "public";');
+  });
+
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {
     const missing = [...referencedDirs].filter((d) => !nginxCovers(d));
     expect(
