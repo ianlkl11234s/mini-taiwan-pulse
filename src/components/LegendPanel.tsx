@@ -158,6 +158,10 @@ import {
   PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS,
   type PollutionMedium, type PollutionPenaltySeverity,
 } from "../data/pollutionTypes";
+import {
+  OFFICIAL_NOISE_FRESHNESS, NOISE_CONTROL_ZONE_META, AVIATION_NOISE_ZONE_META,
+  SOUND_CAMERA_PRECISION_META, NOISE_CAPTURE_ATTRIBUTION,
+} from "../data/noiseTypes";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -496,6 +500,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     id: "pollutionPenaltyCritical",
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
   },
+  // 噪音／聲響六層各自保留觀測、法定分類、裁處、設備清單的獨立語意。
+  { id: "officialNoiseMonitoring", render: () => <OfficialNoiseMonitoringLegend /> },
+  { id: "noiseCaptureGrid", render: () => <NoiseCaptureGridLegend /> },
+  { id: "noiseControlZones", render: () => <NoiseControlZonesLegend /> },
+  { id: "aviationNoiseZones", render: () => <AviationNoiseZonesLegend /> },
+  { id: "noiseEnforcementEvents", render: () => <NoiseEnforcementEventsLegend /> },
+  { id: "soundCameraLocations", render: () => <SoundCameraLocationsLegend /> },
   // 🎓 教育 17 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
     id: "schools",
@@ -5817,6 +5828,157 @@ function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 噪音／聲響六圖層 ──────────────────────────────────────────────
+
+function NoiseLegendTitle({ children }: { children: React.ReactNode }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      {children}
+    </div>
+  );
+}
+
+function NoiseLegendRows({ rows, outline = false }: {
+  rows: readonly { label: string; color: string }[];
+  outline?: boolean;
+}) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {rows.map((row) => (
+        <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{
+            width: 14,
+            height: 10,
+            boxSizing: "border-box",
+            background: outline ? "transparent" : row.color,
+            border: outline ? `2px solid ${row.color}` : "1px solid rgba(255,255,255,0.4)",
+            borderRadius: RADIUS.sm,
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{row.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NoiseLegendNote({ children, source }: { children: React.ReactNode; source?: string }) {
+  const t = useLegendTheme();
+  return (
+    <>
+      <div style={{ marginTop: 5, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45 }}>
+        {children}
+      </div>
+      {source && (
+        <div style={{ marginTop: 4, fontSize: 9, color: t.textDim, lineHeight: 1.35 }}>
+          來源／授權：{source}
+        </div>
+      )}
+    </>
+  );
+}
+
+function OfficialNoiseMonitoringLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <NoiseLegendTitle>官方測站 · 樣本 LAeq</NoiseLegendTitle>
+      <div style={{
+        height: 8,
+        borderRadius: RADIUS.sm,
+        background: "linear-gradient(90deg,#2563eb,#06b6d4,#22c55e,#facc15,#f97316,#dc2626)",
+      }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: 9, color: t.textDim }}>
+        <span>40 dB</span><span>90 dB</span>
+      </div>
+      <div style={{ marginTop: 4 }}>
+        <NoiseLegendRows rows={Object.values(OFFICIAL_NOISE_FRESHNESS)} />
+      </div>
+      <NoiseLegendNote source="環境部資料集 28185 與地方噪音觀測來源">
+        各來源最近可用 30 日窗內「實際回報樣本」的聲能平均；請搭配 popup 的 active-day coverage。不是完整連續月均值或法規達標判定。無已驗 dB 的測站仍保留，中空點不代表安靜或 0 dB。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function NoiseCaptureGridLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <NoiseLegendTitle>NOISECAPTURE · rolling 365 天</NoiseLegendTitle>
+      <div style={{
+        height: 8,
+        borderRadius: RADIUS.sm,
+        background: "linear-gradient(90deg,#2563eb,#22c55e,#facc15,#f97316,#dc2626)",
+      }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: 9, color: t.textDim }}>
+        <span>45 dB</span><span>85 dB</span>
+      </div>
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: "#f59e0b", fontWeight: 700 }}>
+        全部 provisional
+      </div>
+      <NoiseLegendNote source={NOISE_CAPTURE_ATTRIBUTION}>
+        公民科學觀測，非法定噪音量測。z7–10 為 1 km（1 格）、z11–12 為 500 m（1 格）、z13–15 為 250 m（3 格），三尺度互斥且高度稀疏。留白不代表安靜或 0 dB；品質門檻未放寬。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function NoiseControlZonesLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>法定噪音管制區</NoiseLegendTitle>
+      <NoiseLegendRows rows={Object.values(NOISE_CONTROL_ZONE_META)} />
+      <NoiseLegendNote source="臺中市政府環境保護局 · 政府資料開放授權條款第 1 版">
+        第一類至第四類是法定管制分類，不是實測聲音大小。v1 只有臺中 113 年官方 polygon；臺中以外留白不代表沒有管制區。部分官方幾何經拓樸修復，未改畫或推估法定邊界。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function AviationNoiseZonesLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>航空噪音法定里別</NoiseLegendTitle>
+      <NoiseLegendRows rows={Object.values(AVIATION_NOISE_ZONE_META)} />
+      <NoiseLegendNote source="桃園／高雄市政府公告名單 + NLSC 2026-06-26 村里界">
+        法定村里 membership 的行政界套疊，不是 DNL 實測等噪音線，也不代表村里內每一處噪音相同。v1 只有桃園／高雄；來源未明載生效日時不自行推估。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function NoiseEnforcementEventsLegend() {
+  const rows: { label: string; color: string }[] = (["critical", "high", "normal", "mobile"] as PollutionPenaltySeverity[])
+    .map((severity) => ({
+      label: PENALTY_SEVERITY_LABELS[severity],
+      color: PENALTY_SEVERITY_COLORS[severity],
+    }));
+  return (
+    <div>
+      <NoiseLegendTitle>噪音裁處事件／罰鍰</NoiseLegendTitle>
+      <NoiseLegendRows rows={rows} />
+      <NoiseLegendNote source="環境部 EMS_P_46 污染裁處資料">
+        顏色表示裁處嚴重度，點大小可反映罰鍰；不是 dB 觀測或聲音強度。定位精度混合，資料沿用既有 pollution_penalties PMTiles，不是即時告發流。
+      </NoiseLegendNote>
+    </div>
+  );
+}
+
+function SoundCameraLocationsLegend() {
+  return (
+    <div>
+      <NoiseLegendTitle>聲音照相設備／路段</NoiseLegendTitle>
+      <NoiseLegendRows rows={Object.values(SOUND_CAMERA_PRECISION_META)} />
+      <NoiseLegendNote source="臺南市／彰化縣環保局官方清單 · 政府資料開放授權條款第 1 版">
+        333 筆清單中只有 267 筆可畫；66 筆 pending 未以行政區中心補位。位置可能是地址、路段或模糊定位；清單不代表即時運作、違規事件位置或 dB。v1 只涵蓋臺南與彰化。
+      </NoiseLegendNote>
     </div>
   );
 }

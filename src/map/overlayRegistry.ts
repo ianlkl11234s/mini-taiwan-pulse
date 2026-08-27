@@ -113,6 +113,19 @@ import {
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
+import {
+  AVIATION_NOISE_ZONE_COLOR_EXPR,
+  NOISE_CAPTURE_ATTRIBUTION,
+  NOISE_CAPTURE_COLOR_EXPR,
+  NOISE_CONTROL_ZONE_COLOR_EXPR,
+  NOISE_ENFORCEMENT_COLOR_EXPR,
+  NOISE_ENFORCEMENT_FILTER,
+  NOISE_LAYER_COLORS,
+  OFFICIAL_NOISE_COLOR_EXPR,
+  SOUND_CAMERA_PRECISION_META,
+  officialNoisePeriodFilter,
+  soundCameraFilter,
+} from "../data/noiseTypes";
 
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
@@ -8531,6 +8544,255 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "#64748b",
           ] as unknown as string,
           "circle-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  噪音／聲響 NOISE（六個獨立語意；不得合成單一噪音分數）
+  //  疊放順序：法定面 → 公民格網 → 裁處 → 官方站 → 聲音照相。
+  // ══════════════════════════════════════════════════════════════════
+
+  // 一般噪音管制區 v1：只有臺中 113 年 4 個官方 polygon；類別不是實測 dB。
+  {
+    id: "noiseControlZones",
+    sourceUrl: "./environment/noise_control_zones.pmtiles",
+    sourceId: "noise-control-zones",
+    pmtiles: { sourceLayer: "noise_control_zones", minzoom: 6, maxzoom: 15 },
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6, maxzoom: 16,
+        paint: (_isDark, p) => {
+          const op = p?.noiseControlZonesOpacity ?? 0.65;
+          return {
+            "fill-color": NOISE_CONTROL_ZONE_COLOR_EXPR as unknown as string,
+            "fill-opacity": op * 0.3,
+          };
+        },
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 6, maxzoom: 16,
+        paint: (_isDark, p) => ({
+          "line-color": NOISE_CONTROL_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.5, 12, 1.2, 15, 2] as unknown as number,
+          "line-opacity": p?.noiseControlZonesOpacity ?? 0.65,
+        }),
+      },
+    ],
+  },
+
+  // 公告村里 membership join NLSC 村里界；不是 DNL 實測等噪音線。
+  {
+    id: "aviationNoiseZones",
+    sourceUrl: "./environment/aviation_noise_zones.geojson",
+    sourceId: "aviation-noise-zones",
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6, maxzoom: 16,
+        paint: (_isDark, p) => {
+          const op = p?.aviationNoiseZonesOpacity ?? 0.65;
+          return {
+            "fill-color": AVIATION_NOISE_ZONE_COLOR_EXPR as unknown as string,
+            "fill-opacity": op * 0.28,
+          };
+        },
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 6, maxzoom: 16,
+        paint: (_isDark, p) => ({
+          "line-color": AVIATION_NOISE_ZONE_COLOR_EXPR as unknown as string,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.45, 12, 1.1, 15, 1.8] as unknown as number,
+          "line-opacity": p?.aviationNoiseZonesOpacity ?? 0.65,
+        }),
+      },
+    ],
+  },
+
+  // NoiseCapture：同一 toggle、同一 PMTiles source，style min/maxzoom 嚴格互斥。
+  // 三個 config 的 source min/max 必須相同（第一個 config 會建立 source）；archive 是 z7–15。
+  {
+    id: "noiseCaptureGrid",
+    sourceUrl: "./environment/noise_capture_grid.pmtiles",
+    sourceId: "noise-capture-grid",
+    pmtiles: { sourceLayer: "noise_capture_1000m", minzoom: 7, maxzoom: 15 },
+    attribution: NOISE_CAPTURE_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "1000m-fill", type: "fill", minzoom: 7, maxzoom: 11,
+        paint: (_isDark, p) => ({
+          "fill-color": NOISE_CAPTURE_COLOR_EXPR as unknown as string,
+          "fill-opacity": [
+            "case", ["==", ["get", "is_provisional"], true],
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.34,
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.5,
+          ] as unknown as number,
+        }),
+      },
+      {
+        suffix: "1000m-outline", type: "line", minzoom: 7, maxzoom: 11,
+        paint: (_isDark, p) => ({
+          "line-color": NOISE_LAYER_COLORS.noiseCaptureGrid,
+          "line-width": 1,
+          "line-opacity": p?.noiseCaptureGridOpacity ?? 0.75,
+          "line-dasharray": [2, 1] as unknown as number[],
+        }),
+      },
+    ],
+  },
+  {
+    id: "noiseCaptureGrid",
+    sourceUrl: "./environment/noise_capture_grid.pmtiles",
+    sourceId: "noise-capture-grid",
+    pmtiles: { sourceLayer: "noise_capture_500m", minzoom: 7, maxzoom: 15 },
+    attribution: NOISE_CAPTURE_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "500m-fill", type: "fill", minzoom: 11, maxzoom: 13,
+        paint: (_isDark, p) => ({
+          "fill-color": NOISE_CAPTURE_COLOR_EXPR as unknown as string,
+          "fill-opacity": [
+            "case", ["==", ["get", "is_provisional"], true],
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.34,
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.5,
+          ] as unknown as number,
+        }),
+      },
+      {
+        suffix: "500m-outline", type: "line", minzoom: 11, maxzoom: 13,
+        paint: (_isDark, p) => ({
+          "line-color": NOISE_LAYER_COLORS.noiseCaptureGrid,
+          "line-width": 1,
+          "line-opacity": p?.noiseCaptureGridOpacity ?? 0.75,
+          "line-dasharray": [2, 1] as unknown as number[],
+        }),
+      },
+    ],
+  },
+  {
+    id: "noiseCaptureGrid",
+    sourceUrl: "./environment/noise_capture_grid.pmtiles",
+    sourceId: "noise-capture-grid",
+    pmtiles: { sourceLayer: "noise_capture_250m", minzoom: 7, maxzoom: 15 },
+    attribution: NOISE_CAPTURE_ATTRIBUTION,
+    layers: [
+      {
+        suffix: "250m-fill", type: "fill", minzoom: 13, maxzoom: 16,
+        paint: (_isDark, p) => ({
+          "fill-color": NOISE_CAPTURE_COLOR_EXPR as unknown as string,
+          "fill-opacity": [
+            "case", ["==", ["get", "is_provisional"], true],
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.34,
+            (p?.noiseCaptureGridOpacity ?? 0.75) * 0.5,
+          ] as unknown as number,
+        }),
+      },
+      {
+        suffix: "250m-outline", type: "line", minzoom: 13, maxzoom: 16,
+        paint: (_isDark, p) => ({
+          "line-color": NOISE_LAYER_COLORS.noiseCaptureGrid,
+          "line-width": 1,
+          "line-opacity": p?.noiseCaptureGridOpacity ?? 0.75,
+          "line-dasharray": [2, 1] as unknown as number[],
+        }),
+      },
+    ],
+  },
+
+  // 重用 pollution-penalty source；只新增固定 noise preset filter，不另載第二份 PMTiles。
+  {
+    id: "noiseEnforcementEvents",
+    sourceUrl: "./geo/pollution_penalties.pmtiles",
+    sourceId: "pollution-penalty",
+    pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
+    filter: NOISE_ENFORCEMENT_FILTER,
+    layers: [{
+      suffix: "noise-circle", type: "circle", minzoom: 5, maxzoom: 15,
+      paint: (_isDark, p) => {
+        const op = p?.noiseEnforcementEventsOpacity ?? 0.8;
+        const moneyRadius: unknown[] = [
+          "interpolate", ["linear"],
+          ["log10", ["max", 10, ["coalesce", ["to-number", ["get", "penalty_money"]], 10]]],
+          3, 1.8, 4, 2.5, 5, 3.6, 6, 5, 7, 7, 9, 9,
+        ];
+        return {
+          "circle-color": NOISE_ENFORCEMENT_COLOR_EXPR as unknown as string,
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, ["*", 0.75, moneyRadius],
+            10, moneyRadius,
+            14, ["*", 1.45, moneyRadius],
+          ] as unknown as number,
+          "circle-opacity": op * 0.72,
+          "circle-stroke-color": [
+            "case", ["==", ["get", "severity_event"], "critical"], "#7f1d1d", "#fed7aa",
+          ] as unknown as string,
+          "circle-stroke-width": [
+            "case", ["==", ["get", "severity_event"], "critical"], 1.3, 0.5,
+          ] as unknown as number,
+        };
+      },
+    }],
+  },
+
+  // 官方測站：period 單選預設 day，同時保留 freshness_status=unavailable 的中空點。
+  {
+    id: "officialNoiseMonitoring",
+    sourceUrl: "./environment/official_noise_monitoring.geojson",
+    sourceId: "official-noise-monitoring",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 7, maxzoom: 19,
+      filter: (p) => officialNoisePeriodFilter(p?.officialNoiseMonitoringPeriodIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.officialNoiseMonitoringOpacity ?? 0.9;
+        const unavailable: unknown[] = ["==", ["get", "freshness_status"], "unavailable"];
+        const historical: unknown[] = ["==", ["get", "freshness_status"], "historical"];
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3, 12, 5.5, 18, 9] as unknown as number,
+          "circle-color": ["case", unavailable, "rgba(148,163,184,0)", OFFICIAL_NOISE_COLOR_EXPR] as unknown as string,
+          "circle-opacity": ["case", unavailable, 0, historical, op * 0.45, op] as unknown as number,
+          "circle-stroke-color": [
+            "case", unavailable, "#94a3b8", isDark ? "#0f172a" : "#ffffff",
+          ] as unknown as string,
+          "circle-stroke-width": ["case", unavailable, 1.8, historical, 0.7, 1] as unknown as number,
+          "circle-stroke-opacity": ["case", unavailable, op, historical, op * 0.55, op] as unknown as number,
+        };
+      },
+    }],
+  },
+
+  // 只畫 267 筆 is_renderable=true；road_segment / fuzzy 樣式刻意弱化精確點語意。
+  {
+    id: "soundCameraLocations",
+    sourceUrl: "./environment/sound_camera_locations.geojson",
+    sourceId: "sound-camera-locations",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 9, maxzoom: 19,
+      filter: (p) => soundCameraFilter(p?.soundCameraLocationsPrecisionIdx ?? 0),
+      paint: (isDark, p) => {
+        const op = p?.soundCameraLocationsOpacity ?? 0.9;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 3, 13, 5, 18, 8] as unknown as number,
+          "circle-color": [
+            "match", ["get", "spatial_precision"],
+            "geocoded_address", SOUND_CAMERA_PRECISION_META.geocoded_address.color,
+            "road_segment", SOUND_CAMERA_PRECISION_META.road_segment.color,
+            "fuzzy", SOUND_CAMERA_PRECISION_META.fuzzy.color,
+            "#64748b",
+          ] as unknown as string,
+          "circle-opacity": [
+            "match", ["get", "spatial_precision"],
+            "geocoded_address", op,
+            "road_segment", op * 0.68,
+            "fuzzy", op * 0.42,
+            op * 0.3,
+          ] as unknown as number,
+          "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          "circle-stroke-width": [
+            "match", ["get", "spatial_precision"], "geocoded_address", 1, "road_segment", 0.7, 0.5,
+          ] as unknown as number,
         };
       },
     }],

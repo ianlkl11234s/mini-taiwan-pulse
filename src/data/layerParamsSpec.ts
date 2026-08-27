@@ -96,6 +96,7 @@ import {
 } from "./businessRegistryTypes";
 import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS, ANIMAL_WELFARE_POINT_TYPE_VALUES } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
+import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -2484,6 +2485,30 @@ export const LAYER_PARAMS_SPEC = {
       out: "aqiMicroModeIdx", encodeNumeric: true,
     },
     { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
+  ],
+
+  // ── 噪音／聲響 Noise：period / precision 轉成 index，供 registry filter 重建 ──
+  officialNoiseMonitoring: [
+    opacitySlider("officialNoiseMonitoringOpacity", 0.9),
+    {
+      kind: "select", name: "officialNoiseMonitoringPeriod", label: "時段",
+      default: "day", options: [...OFFICIAL_NOISE_PERIODS],
+      out: "officialNoiseMonitoringPeriodIdx",
+      encode: OFFICIAL_NOISE_PERIODS.map((period) => period.value),
+    },
+  ],
+  noiseCaptureGrid: [opacitySlider("noiseCaptureGridOpacity", 0.75)],
+  noiseControlZones: [opacitySlider("noiseControlZonesOpacity", 0.65)],
+  aviationNoiseZones: [opacitySlider("aviationNoiseZonesOpacity", 0.65)],
+  noiseEnforcementEvents: [opacitySlider("noiseEnforcementEventsOpacity", 0.8)],
+  soundCameraLocations: [
+    opacitySlider("soundCameraLocationsOpacity", 0.9),
+    {
+      kind: "select", name: "soundCameraLocationsPrecision", label: "定位精度",
+      default: "all", options: [...SOUND_CAMERA_PRECISIONS],
+      out: "soundCameraLocationsPrecisionIdx",
+      encode: SOUND_CAMERA_PRECISIONS.map((precision) => precision.value),
+    },
   ],
 
   // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──

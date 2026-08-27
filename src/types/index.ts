@@ -161,6 +161,8 @@ export type ExpandableLayerKey =
   | "aqiImagery"
   | "aqiStations"
   | "aqiMicroSensors"
+  | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
+  | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
   | "earthquakes"
   | "earthquakeReplay"
   | "earthquakesGlobal"
@@ -801,6 +803,9 @@ export interface FeatureInfo {
     | "civilDefenseShelter"
     // 環境污染（PMTiles：設施 × 介質 × 嚴重度 / 裁處事件時間軸 / 污染場址）
     | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
+    // 噪音／聲響（觀測、公民科學、法定區、裁處、設備清單六種獨立語意）
+    | "officialNoiseMonitoring" | "noiseCaptureGrid" | "noiseControlZones"
+    | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
@@ -932,6 +937,12 @@ export interface LayerVisibility {
   aqiImagery: boolean;
   aqiStations: boolean;
   aqiMicroSensors: boolean;
+  officialNoiseMonitoring: boolean;
+  noiseCaptureGrid: boolean;
+  noiseControlZones: boolean;
+  aviationNoiseZones: boolean;
+  noiseEnforcementEvents: boolean;
+  soundCameraLocations: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
   touristShuttleLive: boolean;

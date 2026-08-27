@@ -126,7 +126,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-25：+1 = gfwHourlyTracks（GFW 抽樣近似航跡時間軸拖尾）。
     // 2026-08-25：+1 = gfwDarkVessels（GFW SAR 未與 AIS 匹配偵測）。
     // 2026-08-26：+2 = ooklaMobileTaiwan / ooklaFixedTaiwan（台灣 z14/z16 PMTiles）。
-    expect(keys.length).toBe(387);
+    // 2026-08-28：+6 = 噪音／聲響六層（官方、NoiseCapture、兩類法定區、裁處、聲音照相）。
+    expect(keys.length).toBe(393);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

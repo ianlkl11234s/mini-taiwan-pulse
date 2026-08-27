@@ -135,6 +135,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "tourScenicAreas", "trafficAccidentYearly", "wasteStopsStatic", "waterBasins",
   "waterDetentionBasins", "waterFacilities", "waterMonitorStations", "waterProtectionZones",
   "weatherStations", "welfareCenters", "windPlan", "womenChildWarning",
+  // 🔊 噪音／聲響：三個 GeoJSON 點／面層；純 registry overlay，無 loader / hook。
+  "officialNoiseMonitoring", "aviationNoiseZones", "soundCameraLocations",
   // 🤝 社福長照 9 層（第 40 主題）：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 loader / hook。
   // ⚠️ `welfareCenters`（上一行）是**基礎建設**主題的社福中心，不是本批成員 ——
   //    兩者零重疊（本批 welfareGovOffices 已在上游排除 T0103），只是名字像。
@@ -160,6 +162,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "streetTreesTaipeiDiff", "townshipBoundary", "treePitsTaipei", "urbanFormGrid", "urbanHeat",
   "urbanZoningNewTaipei", "urbanZoningTaipei", "villageBoundary", "waterCanals",
   "waterFloodExtreme", "waterLevees", "waterRivers",
+  // 🔊 噪音／聲響：NoiseCapture 三尺度共用一個 toggle/source；裁處重用既有 PMTiles。
+  "noiseCaptureGrid", "noiseControlZones", "noiseEnforcementEvents",
 
   // ── 自家 layer factory（等時圈 / 農業）：MapView 掛 factory，不經 hook（10）──
   "agriCropSuitability", "agriLeisureFarmZones", "agriPOI", "agriRuralRegen", "agriSoil",

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 387,
+    "keyCount": 393,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1827,6 +1827,24 @@
     },
     {
       "layers": [
+        "sound-camera-locations-circle"
+      ],
+      "type": "soundCameraLocations"
+    },
+    {
+      "layers": [
+        "official-noise-monitoring-circle"
+      ],
+      "type": "officialNoiseMonitoring"
+    },
+    {
+      "layers": [
+        "pollution-penalty-noise-circle"
+      ],
+      "type": "noiseEnforcementEvents"
+    },
+    {
+      "layers": [
         "pollution-site-circle"
       ],
       "type": "pollutionSite"
@@ -1905,6 +1923,31 @@
         "police-iso-city-dept-line"
       ],
       "type": "policeIsoCityDept"
+    },
+    {
+      "layers": [
+        "noise-capture-grid-250m-fill",
+        "noise-capture-grid-250m-outline",
+        "noise-capture-grid-500m-fill",
+        "noise-capture-grid-500m-outline",
+        "noise-capture-grid-1000m-fill",
+        "noise-capture-grid-1000m-outline"
+      ],
+      "type": "noiseCaptureGrid"
+    },
+    {
+      "layers": [
+        "aviation-noise-zones-fill",
+        "aviation-noise-zones-outline"
+      ],
+      "type": "aviationNoiseZones"
+    },
+    {
+      "layers": [
+        "noise-control-zones-fill",
+        "noise-control-zones-outline"
+      ],
+      "type": "noiseControlZones"
     },
     {
       "layers": [
@@ -37819,6 +37862,1526 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "noiseControlZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_class"
+                  ]
+                ],
+                1,
+                "#c4b5fd",
+                2,
+                "#a78bfa",
+                3,
+                "#7c3aed",
+                4,
+                "#4c1d95",
+                "#64748b"
+              ],
+              "fill-opacity": 0.195
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_class"
+                  ]
+                ],
+                1,
+                "#c4b5fd",
+                2,
+                "#a78bfa",
+                3,
+                "#7c3aed",
+                4,
+                "#4c1d95",
+                "#64748b"
+              ],
+              "fill-opacity": 0.195
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_class"
+                  ]
+                ],
+                1,
+                "#c4b5fd",
+                2,
+                "#a78bfa",
+                3,
+                "#7c3aed",
+                4,
+                "#4c1d95",
+                "#64748b"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.5,
+                12,
+                1.2,
+                15,
+                2
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "zone_class"
+                  ]
+                ],
+                1,
+                "#c4b5fd",
+                2,
+                "#a78bfa",
+                3,
+                "#7c3aed",
+                4,
+                "#4c1d95",
+                "#64748b"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.5,
+                12,
+                1.2,
+                15,
+                2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 6,
+        "sourceLayer": "noise_control_zones"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "noise-control-zones",
+      "sourceUrl": "./environment/noise_control_zones.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "aviationNoiseZones",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "display_zone_level"
+                  ]
+                ],
+                1,
+                "#facc15",
+                2,
+                "#f97316",
+                3,
+                "#dc2626",
+                "#64748b"
+              ],
+              "fill-opacity": 0.18200000000000002
+            },
+            "light": {
+              "fill-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "display_zone_level"
+                  ]
+                ],
+                1,
+                "#facc15",
+                2,
+                "#f97316",
+                3,
+                "#dc2626",
+                "#64748b"
+              ],
+              "fill-opacity": 0.18200000000000002
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "display_zone_level"
+                  ]
+                ],
+                1,
+                "#facc15",
+                2,
+                "#f97316",
+                3,
+                "#dc2626",
+                "#64748b"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.45,
+                12,
+                1.1,
+                15,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "display_zone_level"
+                  ]
+                ],
+                1,
+                "#facc15",
+                2,
+                "#f97316",
+                3,
+                "#dc2626",
+                "#64748b"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.45,
+                12,
+                1.1,
+                15,
+                1.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "aviation-noise-zones",
+      "sourceUrl": "./environment/aviation_noise_zones.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "noiseCaptureGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            }
+          },
+          "suffix": "1000m-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 11,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            }
+          },
+          "suffix": "1000m-outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "noise_capture_1000m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "noise-capture-grid",
+      "sourceUrl": "./environment/noise_capture_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "noiseCaptureGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 13,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            }
+          },
+          "suffix": "500m-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 13,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            }
+          },
+          "suffix": "500m-outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "noise_capture_500m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "noise-capture-grid",
+      "sourceUrl": "./environment/noise_capture_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "noiseCaptureGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "laeq_energy_db"
+                  ]
+                ],
+                45,
+                "#2563eb",
+                55,
+                "#22c55e",
+                65,
+                "#facc15",
+                75,
+                "#f97316",
+                85,
+                "#dc2626"
+              ],
+              "fill-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "is_provisional"
+                  ],
+                  true
+                ],
+                0.255,
+                0.375
+              ]
+            }
+          },
+          "suffix": "250m-fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 16,
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            },
+            "light": {
+              "line-color": "#f59e0b",
+              "line-dasharray": [
+                2,
+                1
+              ],
+              "line-opacity": 0.75,
+              "line-width": 1
+            }
+          },
+          "suffix": "250m-outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "noise_capture_250m"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "noise-capture-grid",
+      "sourceUrl": "./environment/noise_capture_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "event_medium"
+        ],
+        "noise"
+      ],
+      "id": "noiseEnforcementEvents",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 15,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "severity_event"
+                ],
+                "critical",
+                "#ef4444",
+                "high",
+                "#f59e0b",
+                "mobile",
+                "#22c55e",
+                "normal",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.576,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.75,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        10,
+                        [
+                          "coalesce",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "penalty_money"
+                            ]
+                          ],
+                          10
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.8,
+                    4,
+                    2.5,
+                    5,
+                    3.6,
+                    6,
+                    5,
+                    7,
+                    7,
+                    9,
+                    9
+                  ]
+                ],
+                10,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "log10",
+                    [
+                      "max",
+                      10,
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "penalty_money"
+                          ]
+                        ],
+                        10
+                      ]
+                    ]
+                  ],
+                  3,
+                  1.8,
+                  4,
+                  2.5,
+                  5,
+                  3.6,
+                  6,
+                  5,
+                  7,
+                  7,
+                  9,
+                  9
+                ],
+                14,
+                [
+                  "*",
+                  1.45,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        10,
+                        [
+                          "coalesce",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "penalty_money"
+                            ]
+                          ],
+                          10
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.8,
+                    4,
+                    2.5,
+                    5,
+                    3.6,
+                    6,
+                    5,
+                    7,
+                    7,
+                    9,
+                    9
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                "#7f1d1d",
+                "#fed7aa"
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                1.3,
+                0.5
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "severity_event"
+                ],
+                "critical",
+                "#ef4444",
+                "high",
+                "#f59e0b",
+                "mobile",
+                "#22c55e",
+                "normal",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.576,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                [
+                  "*",
+                  0.75,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        10,
+                        [
+                          "coalesce",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "penalty_money"
+                            ]
+                          ],
+                          10
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.8,
+                    4,
+                    2.5,
+                    5,
+                    3.6,
+                    6,
+                    5,
+                    7,
+                    7,
+                    9,
+                    9
+                  ]
+                ],
+                10,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "log10",
+                    [
+                      "max",
+                      10,
+                      [
+                        "coalesce",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "penalty_money"
+                          ]
+                        ],
+                        10
+                      ]
+                    ]
+                  ],
+                  3,
+                  1.8,
+                  4,
+                  2.5,
+                  5,
+                  3.6,
+                  6,
+                  5,
+                  7,
+                  7,
+                  9,
+                  9
+                ],
+                14,
+                [
+                  "*",
+                  1.45,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        10,
+                        [
+                          "coalesce",
+                          [
+                            "to-number",
+                            [
+                              "get",
+                              "penalty_money"
+                            ]
+                          ],
+                          10
+                        ]
+                      ]
+                    ],
+                    3,
+                    1.8,
+                    4,
+                    2.5,
+                    5,
+                    3.6,
+                    6,
+                    5,
+                    7,
+                    7,
+                    9,
+                    9
+                  ]
+                ]
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                "#7f1d1d",
+                "#fed7aa"
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "severity_event"
+                  ],
+                  "critical"
+                ],
+                1.3,
+                0.5
+              ]
+            }
+          },
+          "suffix": "noise-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "pollution_penalties"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "pollution-penalty",
+      "sourceUrl": "./geo/pollution_penalties.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "officialNoiseMonitoring",
+      "layers": [
+        {
+          "filter": [
+            "any",
+            [
+              "==",
+              [
+                "get",
+                "period_type"
+              ],
+              "day"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "freshness_status"
+              ],
+              "unavailable"
+            ]
+          ],
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 7,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "rgba(148,163,184,0)",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "laeq_window_db"
+                      ]
+                    ],
+                    40
+                  ],
+                  40,
+                  "#2563eb",
+                  50,
+                  "#06b6d4",
+                  60,
+                  "#22c55e",
+                  70,
+                  "#facc15",
+                  80,
+                  "#f97316",
+                  90,
+                  "#dc2626"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                5.5,
+                18,
+                9
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "#94a3b8",
+                "#0f172a"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0.9,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.49500000000000005,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "rgba(148,163,184,0)",
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "coalesce",
+                    [
+                      "to-number",
+                      [
+                        "get",
+                        "laeq_window_db"
+                      ]
+                    ],
+                    40
+                  ],
+                  40,
+                  "#2563eb",
+                  50,
+                  "#06b6d4",
+                  60,
+                  "#22c55e",
+                  70,
+                  "#facc15",
+                  80,
+                  "#f97316",
+                  90,
+                  "#dc2626"
+                ]
+              ],
+              "circle-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.405,
+                0.9
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                5.5,
+                18,
+                9
+              ],
+              "circle-stroke-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                "#94a3b8",
+                "#ffffff"
+              ],
+              "circle-stroke-opacity": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                0.9,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.49500000000000005,
+                0.9
+              ],
+              "circle-stroke-width": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "unavailable"
+                ],
+                1.8,
+                [
+                  "==",
+                  [
+                    "get",
+                    "freshness_status"
+                  ],
+                  "historical"
+                ],
+                0.7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "official-noise-monitoring",
+      "sourceUrl": "./environment/official_noise_monitoring.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "soundCameraLocations",
+      "layers": [
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "is_renderable"
+            ],
+            true
+          ],
+          "layout": null,
+          "maxzoom": 19,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                "#22c55e",
+                "road_segment",
+                "#eab308",
+                "fuzzy",
+                "#94a3b8",
+                "#64748b"
+              ],
+              "circle-opacity": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                0.9,
+                "road_segment",
+                0.6120000000000001,
+                "fuzzy",
+                0.378,
+                0.27
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                3,
+                13,
+                5,
+                18,
+                8
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                1,
+                "road_segment",
+                0.7,
+                0.5
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                "#22c55e",
+                "road_segment",
+                "#eab308",
+                "fuzzy",
+                "#94a3b8",
+                "#64748b"
+              ],
+              "circle-opacity": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                0.9,
+                "road_segment",
+                0.6120000000000001,
+                "fuzzy",
+                0.378,
+                0.27
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                3,
+                13,
+                5,
+                18,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-width": [
+                "match",
+                [
+                  "get",
+                  "spatial_precision"
+                ],
+                "geocoded_address",
+                1,
+                "road_segment",
+                0.7,
+                0.5
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "sound-camera-locations",
+      "sourceUrl": "./environment/sound_camera_locations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "pollutionFacility",
       "layers": [
         {
@@ -47572,6 +49135,15 @@
         "value": 0.7
       }
     ],
+    "aviationNoiseZones": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
+      }
+    ],
     "aviationRestricted": [
       {
         "label": "透明度 0.70",
@@ -51391,6 +52963,33 @@
         "value": 1
       }
     ],
+    "noiseCaptureGrid": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "noiseControlZones": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
+      }
+    ],
+    "noiseEnforcementEvents": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
     "nonUrbanZoning": [
       {
         "label": "分區",
@@ -51499,6 +53098,34 @@
         "min": 0.5,
         "step": 0.05,
         "value": 1.05
+      }
+    ],
+    "officialNoiseMonitoring": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "時段",
+        "options": [
+          {
+            "label": "日間 Day",
+            "value": "day"
+          },
+          {
+            "label": "晚間 Evening",
+            "value": "evening"
+          },
+          {
+            "label": "夜間 Night",
+            "value": "night"
+          }
+        ],
+        "type": "select",
+        "value": "day"
       }
     ],
     "offshoreWindZones": [
@@ -53918,6 +55545,38 @@
         "min": 10,
         "step": 10,
         "value": 50
+      }
+    ],
+    "soundCameraLocations": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部可畫位置",
+            "value": "all"
+          },
+          {
+            "label": "地址定位",
+            "value": "geocoded_address"
+          },
+          {
+            "label": "路段定位",
+            "value": "road_segment"
+          },
+          {
+            "label": "模糊定位",
+            "value": "fuzzy"
+          }
+        ],
+        "type": "select",
+        "value": "all"
       }
     ],
     "spatialEconomy": [
