@@ -1,6 +1,6 @@
 # Global Maritime handoff
 
-## Full-fidelity v3 shadow handoff status (2026-08-26)
+## Full-fidelity v3 production truth (2026-08-27)
 
 | boundary | status |
 |---|---|
@@ -8,8 +8,10 @@
 | migrations 376 / 377 | applied to production |
 | v3 shadow release assets | generated for 2026-08-15..21 UTC |
 | production S3/Supabase full audit | complete: schema3/full_fidelity root release 2026-08-21 bytes/hash; run e00 schema3 shadow and 3,311 counters/assets; HEAD 3,311/3,311 with zero missing/head_errors/bytes/SHA mismatches and timed_out=false |
-| push, deploy, browser acceptance | not yet performed |
-| canonical v2 | unchanged rollback path |
+| live manifest readback | complete: 2026-08-27 readback of `/global-maritime/gfw-hourly/v3-shadow/manifest.json` returned schema 3, release `2026-08-21`, bbox `122.434,23.22953,132.85274,34.35812`, 3,311 assets, 993,557,709 bytes |
+| push / deploy | push/merge complete (`master == origin/master == 019f7f8`); production deployment was user-confirmed from the live page on 2026-08-26, not re-run by this 2026-08-27 docs-only handoff |
+| browser acceptance | user-confirmed on production 2026-08-26 for Grid / Tracks / time axis / data-date notice; this is user acceptance, not a fresh agent browser run on 2026-08-27 |
+| canonical v2 | live schema 2 root remains unchanged rollback path; v4 work below must not patch either live root in place |
 
 Generated metrics: 1,426,359 points; 226,830 features; 64,051 vessels; 168,936
 segments; 57,894 singleton nodes; 1,105,448 grid cells; SAR 0; about 995 MB.
@@ -19,6 +21,190 @@ grid-center observations; inferred polygon footprints and same-segment linear in
 are visualization semantics, not official cell boundaries or raw AIS positions. A failed
 S3 hash/bytes/cache, Supabase ledger/count, sidecar-detail, deploy, or browser check must
 leave canonical v2 selected; immutable releases are never patched in place.
+
+## Next session: East Asia 0.1-degree v4 redesign (planning freeze, not implemented)
+
+> This section is the accepted implementation handoff for the next session. Nothing in this
+> section is built, uploaded, deployed, or browser-verified yet. Current v2/v3 production and
+> rollback assets remain authoritative until v4 passes every release gate below.
+
+### Frozen product decisions
+
+| item | accepted decision |
+|---|---|
+| collection bbox | `115.93462, 20.36314, 134.73486, 36.52495` |
+| coverage semantics | East China Sea / Taiwan / Ryukyu / Kyushu / Shikoku / western Honshu corridor; Osaka, Tokyo, eastern/northern Japan are outside this bbox |
+| Grid resolution | `0.1°` is the only published v4 presence-grid resolution; v4 does not require a published `0.01°` Grid |
+| Grid and Tracks | remain two independent frontend layers, sources, loading states, legends and popups; never merge them into one layer |
+| Tracks visual reference | reuse the existing Taiwan full-AIS `ships` layer mental model: selected-day preload, local timeline playback, Three.js instanced vessel heads and preallocated trail buffers |
+| vessel-type filter | accepted; it must prevent asset/source loading, not merely hide already-downloaded features in Mapbox |
+| Fishing Effort | add a third independent GFW layer based on apparent fishing effort; do not derive it by renaming vessel presence |
+| SAR unmatched | remains a fourth independent layer and retains the existing “AIS-unmatched SAR detection, not illegal/dark-vessel proof” wording |
+| production migration | build v4 as a shadow immutable release; do not mutate or delete v2/v3 until v4 upload/readback/deploy/browser/rollback gates pass |
+
+The selected bbox is about 2.625 times the current v3 bbox by spherical-area ratio. With the
+current bbox-origin 3-degree tiling algorithm it produces 42 report tiles (`7 × 6`), not a
+globally aligned 3-degree catalog. It contains 30,618 theoretical `0.1°` cells (`189 × 162`),
+but only occupied marine cells should be published.
+
+### Layer contracts
+
+#### 1. `gfwHourlyGrid` — hourly vessel-presence Grid
+
+- Publish hourly `0.1°` polygon PMTiles plus a detail contract containing every unique vessel
+  in the selected cell/hour.
+- `vessel_count` is the count of unique `vessel_id` values in that parent cell/hour. Do not
+  sum child-cell counts without cross-child deduplication.
+- The displayed count and decompressed member list length must agree. No client cap, omitted
+  members, or silent truncation is allowed.
+- Keep H/H+1 loading and visual crossfade, but the selected hour must stay visible at 100% if
+  H+1 is missing. Merge click/hit properties into the same PMTiles contract when practical so
+  the Grid does not need an extra duplicate render source.
+- Re-shard detail sidecars by a measured compressed-payload target; do not assume the current
+  fixed 16 buckets/hour remains suitable after parent-cell aggregation.
+- First compare two upstream routes on the same 24-hour sample:
+  1. GFW `LOW` (`0.1°`) report directly.
+  2. GFW `HIGH` observations locally aggregated to `0.1°`.
+- Direct `LOW` is preferred only if it preserves the hourly vessel identity set and all popup
+  fields. Otherwise fetch HIGH privately and publish only the derived `0.1°` product.
+
+#### 2. `gfwHourlyTracks` — approximate hourly Tracks
+
+- Keep this as a separate sidebar layer from Grid.
+- Replace the current full-bbox hourly GeoJSON-frame rebuild path with selected-day immutable
+  track packs split by vessel-type bucket, for example:
+
+  ```text
+  tracks/<UTC-date>/cargo.daypack
+  tracks/<UTC-date>/tanker.daypack
+  tracks/<UTC-date>/passenger.daypack
+  tracks/<UTC-date>/fishing.daypack
+  tracks/<UTC-date>/other.daypack
+  ```
+
+- Enabling a vessel type is what attaches/downloads that asset. A client-only visibility
+  filter does not satisfy the performance requirement.
+- Render with a dedicated Three.js scene modeled on the Taiwan `ships` layer: `InstancedMesh`
+  heads, preallocated `BufferGeometry` trails, viewport culling, fixed explicit render budgets,
+  and browser-local time interpolation after the selected day loads.
+- Default track types after enabling the Tracks layer: Cargo, Tanker and Passenger on;
+  Fishing and Special/Other off. Fishing activity remains available through the independent
+  Fishing Effort layer.
+- Default trail window is 30 minutes; retain 1-hour and 3-hour options. Never draw future
+  geometry. Only interpolate between valid adjacent observations in the same exporter segment;
+  gaps, non-monotonic time, impossible speeds and boundary discontinuities must split tracks.
+- Same-coordinate endpoints must aggregate visually: marker size represents member count and
+  popup access preserves the complete member list.
+- Selected-day playback must not perform a network request on every hourly timeline tick.
+  Prefetch adjacent days, abort stale foreground requests and start with an LRU limit of 2–3
+  GFW days, not the Taiwan layer's current 7-day default.
+- Day-pack format is deliberately not frozen. The 24-hour POC must compare compressed JSON
+  against a compact typed/binary representation and choose from measured transfer, decode,
+  heap and render evidence.
+- Spatial shards / time-sliced MVT are a conditional Phase 2 optimization, not a Phase 1
+  requirement. Add them only if truthful full-data day packs cannot pass mobile and desktop
+  gates without silent feature caps.
+
+#### 3. `gfwFishingEffort` — apparent Fishing Effort
+
+- New independent layer using GFW apparent fishing effort, preferably `LOW` / `0.1°` and UTC
+  daily partitions for timeline playback.
+- Primary metric is apparent fishing hours. Use a polygon sequential/log scale, not vessel-count
+  circles. A later comparison mode may show change versus a fixed 7-day or 28-day baseline.
+- Popup/legend must show selected UTC date, metric unit, dataset version, aggregation facets,
+  latest available date, GFW attribution and the apparent/model-derived/non-realtime caveat.
+- Fishing Effort does not share the Presence count contract, Grid member sidecars or SAR
+  unmatched semantics.
+
+### Capacity model for the accepted bbox
+
+These values are planning estimates derived from the current 2026-08-15..21 v3 asset inventory,
+not East Asia encoder measurements:
+
+| scenario | relative workload | vessel-hours/day | occupied 0.1° cells/day | Grid-only 7-day storage |
+|---|---:|---:|---:|---:|
+| low density | 0.656× | about 134k | about 29,662 | 0.123–0.173 GiB |
+| middle | 1.969× | about 401k | up to 30,617 | 0.189–0.378 GiB |
+| high density | 3.937× | about 802k | up to 30,618 | 0.283–0.683 GiB |
+
+If the old full-bbox hourly frame model were retained, the middle estimate would be about
+1.195 MiB gzip/hour or 200.8 MiB/7 days. This is close enough to the existing Taiwan `ships`
+day-transfer order of magnitude to justify a day-pack/Three.js POC, but gzip size is not browser
+heap or frame-time evidence.
+
+### Required implementation order
+
+All implementation must use isolated worktrees because sibling repos have parallel sessions.
+Do not sync, merge, reset or clean another session's branch/worktree.
+
+1. **Read-only audit**: re-read this handoff, current v3 manifests/contracts, the Taiwan
+   `ships` loader/cache/`ShipScene`, data-collector lifecycle and GFW official terms/API docs.
+2. **24-hour upstream shadow POC** in `data-collectors`: exact accepted bbox, LOW versus
+   HIGH-to-0.1 identity parity, Grid/detail build, vessel-type day packs and one daily Fishing
+   Effort partition. No production upload.
+3. **Contract decision**: freeze v4 manifest paths/schema only after POC evidence; document the
+   cross-repo contract/ADR in `taipei-gis-analytics` from a clean worktree.
+4. **Collector implementation**: daily scheduled immutable build, checksums, current+previous
+   release retention, rollback pointer, cleanup ordering and regression tests.
+5. **Frontend implementation** in `mini-taiwan-pulse`: independent Grid, Tracks and Fishing
+   Effort layers; Three.js Tracks scene; type-aware day loading; timeline, loading, legend,
+   popup and latest-data notice.
+6. **Release**: upload shadow assets, checksum/HEAD readback, container pull/sync, Cloudflare
+   Range/cache verification, HTTP manifest/asset verification and real desktop/mobile browser
+   acceptance before any canonical switch.
+7. **Cleanup**: retain v2/v3 rollback until the observation window and rollback test pass;
+   deletion must follow the existing manifest-ledger/lifecycle policy and be recoverable.
+
+Cross-repo ordering after the POC contract is frozen remains:
+
+`taipei-gis-analytics → gis-platform (only if DB/RPC is required) → data-collectors → mini-taiwan-pulse`.
+
+### POC evidence and acceptance gates
+
+- LOW versus HIGH-to-0.1: unique vessel-hour identity parity, identity-field null rates,
+  duplicate/conflict counts and missing-member report.
+- Grid: no-drop PMTiles evidence; every cell count equals its full detail membership; invalid
+  coordinates and omitted/capped records are zero.
+- Collector: actual 42-tile report/page/request counts, wall time, response bytes, retries,
+  429/524 handling, peak RSS, encode time and artifact bytes.
+- Tracks: per-type bytes/counts/hash; segment/gap correctness; no future line; same-coordinate
+  member aggregation; date-boundary playback.
+- Fishing Effort: resolved dataset version, latest available date, nonnegative hours, UTC-day
+  semantics, attribution and revision behavior.
+- Browser: cold/warm load bytes and time, decode time, JS heap after 3-hour scrub, desktop p95
+  frame under 16.7 ms, mobile p95 under 33 ms, no white frame and no unbounded cache growth.
+- Release truth must be reported separately for build, contract/wire, stage, upload, readback,
+  pull, deploy, HTTP and browser. Tests, HTTP and screenshots do not substitute for one another.
+
+### Explicit non-goals and safety boundaries
+
+- Do not preserve `0.01°` merely for backward compatibility if v4 `0.1°` fulfills the accepted
+  Grid/popup contract.
+- Do not merge Grid and Tracks, or substitute Grid centers for a complete Tracks interaction.
+- Do not describe vessel presence as fishing effort, or SAR unmatched as confirmed dark/illegal
+  vessels.
+- Do not connect delayed GFW endpoints to current Taiwan AIS/AISStream as one continuous track.
+- Do not meet performance gates by silently dropping vessels or retaining a hidden client cap.
+- Do not delete or overwrite immutable v2/v3 production assets during POC or shadow rollout.
+
+### Copy/paste prompt for the implementation session
+
+```text
+請先閱讀並以這份文件為 SSOT：
+/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/docs/features/global-maritime/handoff.md
+
+開始前請再讀各 repo 的 AGENTS.md / CLAUDE.md，並遵守 handoff 的「Next session: East Asia 0.1-degree v4 redesign」章節。請使用獨立 worktrees，保留其他 session 的 dirty files/branches，不要 reset、clean、同步或合併他人的平行變更。
+
+本 session 第一個目標只做 24 小時 shadow POC，不切 production：
+1. 固定 bbox 115.93462,20.36314,134.73486,36.52495。
+2. 比較 GFW LOW 0.1° 與 HIGH→本地聚合 0.1° 的 vessel-hour identity、完整 popup members、bytes、wall time 與 peak RSS。
+3. 產出 0.1° hourly Grid PMTiles/detail、依船種拆分的 selected-day Tracks day packs，以及獨立 daily Fishing Effort sample。
+4. Tracks 視覺與時間載入基準請參考既有台灣全量 AIS `ships` 的 useShipData / shipLoader / ShipScene；Grid 與 Tracks 必須維持兩個獨立 layer，Fishing Effort 是第三個獨立 layer。
+5. 不要沿用每小時整區 GeoJSON setData 作為既定答案；先以 POC 比較 day-pack 格式與 browser heap/frame time。Spatial shards 只有在 day-pack 不達標時才進 Phase 2。
+6. 完成資料正確性、單元測試、artifact readback 與本機 desktop/mobile browser 效能驗收；分開回報 build、contract、upload、readback、deploy、HTTP、browser 狀態。POC 階段 upload/deploy 應維持 not run。
+
+請由主 agent 負責契約、複雜決策、跨 repo 整合與最後驗收；依專案規則把 bounded 探索、機械工作與獨立實作分派給 task agents。先提出實際 task plan 與 worktree/ownership 配置，確認當前 repo 狀態後直接開始 POC。不要先改 production v2/v3，也不要刪除任何既有 S3/Supabase/Cloudflare 資產。
+```
 
 ## Downstream contract
 
