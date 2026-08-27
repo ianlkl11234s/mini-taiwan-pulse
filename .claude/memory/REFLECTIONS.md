@@ -1759,3 +1759,44 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `INCIDENTS.md`：追加 catalog transaction、371 stale truth、374 ACL 三事件。
 - `BACKLOG.md`：保留 GFW、production browser、AIS data quality、PostgREST write-denial 待辦。
 - `STATUS.md`：最後重寫為四 repo release truth、production evidence 與 preserved WIP。
+
+---
+
+## 2026-08-27 — GFW v3 現況釐清與東亞 v4 重規劃
+
+### What worked
+
+- **把已運作的 v3 與尚未實作的 v4 分開記 release truth**：正式站 v3、live manifest、
+  使用者 browser acceptance 都有各自證據；東亞 `0.1°`、Fishing Effort、day-pack 與
+  Three.js Tracks 則明確維持 planning only，沒有因 handoff 寫完就宣稱已產出。
+- **範圍與產品語意由使用者拍板後再凍結**：bbox 固定為
+  `115.93462,20.36314,134.73486,36.52495`；Grid、Tracks、Fishing Effort、SAR unmatched
+  保持四個獨立 layer，避免用 presence 冒充 fishing effort，或用 SAR 未匹配冒充暗船定論。
+- **把效能方案改成可否決的 POC**：先用 24 小時同範圍比較 LOW 與 HIGH→`0.1°` 的 identity
+  完整性，再量 day-pack 的 transfer、decode、heap 與 frame time；spatial shards 只在實測不達標時加入。
+
+### What didn't / drift
+
+- **一開始比較錯既有圖層**：把使用者說的「既有台灣 AIS」誤解成 AISStream current points，
+  因而過早把 GFW Tracks 當成必須先做 spatial shards 的全新問題。真正對照組是既有
+  `ships` 的 selected-day preload、`shipLoader` 與 `ShipScene`。
+- **把 client filter 與下載減量混在一起**：前端隱藏船種只能省 render，不能省已下載資產的
+  network／parse／heap；要真的減量，必須讓 vessel-type filter 控制 day-pack 是否 attach/download。
+- **第一次收尾只完成 feature handoff 與 push，沒有完整執行 `$wrap-up` 的
+  Draft → Confirm → atomic memory commits**；直到使用者再次點名 skill 才補正。
+
+### Next-time rules
+
+1. 使用者說「參考既有 layer」時，先確認 exact manifest key、loader、hook 與 renderer，
+   再做架構比較；同為船舶圖層不代表同一個效能模型。
+2. 大型 timeline layer 要分開量 delivery 與 rendering；client-only filter 不得被描述成傳輸優化。
+3. 若新資料的 daily transfer 與已驗證 layer 同量級，Phase 1 優先沿用其 day preload +
+   instanced rendering 心智模型；只有 heap／frame／mobile gate 失敗才升級 spatial shards。
+4. 宣稱執行 wrap-up 就必須完成使用者確認後的逐檔記憶 commit；handoff commit 或一般狀態報告
+   不能替代正式收尾流程。
+
+### Memory output
+
+- `REFLECTIONS.md`：本篇。
+- `STATUS.md`：重寫為 GFW v3 current truth、v4 planning boundary、平行 worktree 與下一棒入口。
+- feature handoff 已由 `dceae6d` 發布；本輪不改 production、不碰新 session worktree。
