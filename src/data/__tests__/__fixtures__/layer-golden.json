@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 387,
+    "keyCount": 389,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1275,6 +1275,13 @@
         "water-reservoir-poly-outline"
       ],
       "type": "waterReservoirPoly"
+    },
+    {
+      "layers": [
+        "marine-observation-cwa-circle",
+        "marine-observation-isohe-circle"
+      ],
+      "type": "marineObservation"
     },
     {
       "layers": [
@@ -51145,6 +51152,24 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "marineObservationCwa": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
+    "marineObservationIsohe": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
       }
     ],
     "maritimeBoundary": [

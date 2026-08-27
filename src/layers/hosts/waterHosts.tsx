@@ -9,6 +9,7 @@ import { useTaipeiEvacuateLayer } from "../../hooks/useTaipeiEvacuateLayer";
 import { useTaipeiPumbLayer } from "../../hooks/useTaipeiPumbLayer";
 import { usePrecipRasterLayer } from "../../hooks/usePrecipRasterLayer";
 import { useRiverLevelLayer } from "../../hooks/useRiverLevelLayer";
+import { useMarineObservationLayers } from "../../hooks/useMarineObservationLayer";
 import { useGroundwaterWellsLayer } from "../../hooks/useGroundwaterWellsLayer";
 import { useGroundwaterLayer } from "../../hooks/useGroundwaterLayer";
 import { useIotWraRiverLayer } from "../../hooks/useIotWraRiverLayer";
@@ -134,6 +135,21 @@ export const RiverLevelHost: LayerHostComponent = ({ deps }) => {
     deps.isDarkTheme,
     p.riverLevelScale ?? 1,
     p.riverLevelOpacity ?? 1,
+  );
+  return null;
+};
+
+/** CWA／ISOHE 固定式海洋觀測：共用 hook factory，但 source、toggle 與 freshness 各自獨立。 */
+export const MarineObservationHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useMarineObservationLayers");
+  const cwa = useKeyOverlayParams("marineObservationCwa");
+  const isohe = useKeyOverlayParams("marineObservationIsohe");
+  useMarineObservationLayers(
+    deps.mapRef,
+    deps.layerVisibility.marineObservationCwa,
+    deps.layerVisibility.marineObservationIsohe,
+    cwa.marineObservationCwaOpacity ?? 0.9,
+    isohe.marineObservationIsoheOpacity ?? 0.9,
   );
   return null;
 };

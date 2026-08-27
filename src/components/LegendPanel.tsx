@@ -39,6 +39,7 @@ import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLaye
 import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
 import { AQI_LEVELS } from "../map/aqiColorScale";
 import { useLoadingTasks } from "../hooks/useLoadingTasks";
+import { MARINE_OBSERVATION_STATUS_STYLES } from "../hooks/useMarineObservationLayer";
 import {
   WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
   DUST_BAKE_STOPS, rampToGradient,
@@ -438,6 +439,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "waterFacilities", render: () => <WaterFacilityLegend /> },
   { id: "rainGauge", render: () => <RainGaugeLegend /> },
   { id: "riverLevel", render: () => <RiverLevelLegend /> },
+  { id: "marineObservationCwa", render: () => <MarineObservationLegend network="cwa" /> },
+  { id: "marineObservationIsohe", render: () => <MarineObservationLegend network="isohe" /> },
   { id: "groundwater", render: () => <GroundwaterLegend /> },
   { id: "taipeiSewer", render: () => <TaipeiSewerLegend /> },
   { id: "taipeiPumb", render: () => <TaipeiPumbLegend /> },
@@ -4128,6 +4131,32 @@ function deltaStopsToGradient(stops: { v: number; color: string }[]): string {
   return `linear-gradient(to right, ${stops
     .map((s) => `${s.color} ${(((s.v - min) / span) * 100).toFixed(1)}%`)
     .join(", ")})`;
+}
+
+function MarineObservationLegend({ network }: { network: "cwa" | "isohe" }) {
+  const t = useLegendTheme();
+  const isCwa = network === "cwa";
+  const cats = (Object.keys(MARINE_OBSERVATION_STATUS_STYLES) as Array<keyof typeof MARINE_OBSERVATION_STATUS_STYLES>)
+    .map((key) => ({
+      color: MARINE_OBSERVATION_STATUS_STYLES[key].colors[network],
+      label: MARINE_OBSERVATION_STATUS_STYLES[key].label,
+    }));
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        {isCwa ? "CWA 海洋觀測站" : "ISOHE 港區海氣象站"}
+      </div>
+      <FireCatRows cats={cats} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.35 }}>
+        {isCwa
+          ? "中央氣象署固定站｜約每小時更新；freshness 使用 CWA 專屬門檻"
+          : "港灣環境資訊網固定站｜約每 10 分鐘更新；freshness 使用 ISOHE 專屬門檻"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 3, lineHeight: 1.35 }}>
+        點色只表示站點 freshness／來源狀態，不代表任一 metric；潮位比較前請確認 vertical datum。
+      </div>
+    </div>
+  );
 }
 
 // ── 河川水位：delta_m 色階（useRiverLevelLayer.ts colorExpression 的 interpolate stops）──

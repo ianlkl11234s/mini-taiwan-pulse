@@ -38,6 +38,7 @@ import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
 import { GFW_HOURLY_GRID_CLICK_LAYERS } from "../hooks/useGfwHourlyGridLayer";
 import { GFW_HOURLY_TRACKS_CLICK_LAYERS } from "../hooks/useGfwHourlyTracksLayer";
+import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -277,6 +278,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["lakes-ponds-osm-fill", "lakes-ponds-osm-line"], type: "lakesPondsOsm" },
   { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
+  { layers: [...MARINE_OBSERVATION_CLICK_LAYERS], type: "marineObservation" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
   // 💧 IoT 感測站兩層：properties 早已逐欄烤好（見 useIotWraRiverLayer / …Structure 的

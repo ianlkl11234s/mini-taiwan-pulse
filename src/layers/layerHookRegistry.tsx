@@ -33,7 +33,7 @@ import {
 import {
   ReservoirStatusHost, RainGaugeHost, FloodSensorHost, FloodSensorIsochroneHost,
   TaipeiSewerHost, TaipeiEvacuateHost, TaipeiPumbHost, PrecipRasterHost,
-  RiverLevelHost, GroundwaterWellsHost, GroundwaterHost,
+  RiverLevelHost, MarineObservationHost, GroundwaterWellsHost, GroundwaterHost,
   IotWraRiverHost, IotWraStructureHost,
 } from "./hosts/waterHosts";
 import { NewsEventsHost, NewsTimelineHost } from "./hosts/newsHosts";
@@ -108,6 +108,11 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useTaipeiPumbLayer", keys: ["taipeiPumb"], Host: TaipeiPumbHost },
   { id: "usePrecipRasterLayer", keys: ["precipRaster"], Host: PrecipRasterHost },
   { id: "useRiverLevelLayer", keys: ["riverLevel"], Host: RiverLevelHost },
+  {
+    id: "useMarineObservationLayers",
+    keys: ["marineObservationCwa", "marineObservationIsohe"],
+    Host: MarineObservationHost,
+  },
   { id: "useGroundwaterWellsLayer", keys: ["groundwaterWells"], Host: GroundwaterWellsHost },
   { id: "useGroundwaterLayer", keys: ["groundwater"], Host: GroundwaterHost },
   { id: "useIotWraRiverLayer", keys: ["iotWraRiver"], Host: IotWraRiverHost },

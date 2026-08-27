@@ -133,6 +133,7 @@ import {
 import { ChatHighlightPanel } from "./shared";
 import { PollutionFacilityPanel, PollutionPenaltyPanel, PollutionSitePanel } from "./pollutionPanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
+import { MarineObservationPanel } from "./marinePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -218,6 +219,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
   riverLevel: RiverLevelPanel,
+  marineObservation: MarineObservationPanel,
   // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
   // （groundwaterWells）—— 兩者的 properties 欄位契約完全相同。
   groundwater: GroundwaterPanel,
@@ -513,6 +515,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   lakesPondsOsm: "湖泊/埤塘",
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
+  marineObservation: "海洋固定站觀測",
   groundwater: "地下水井",
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",
