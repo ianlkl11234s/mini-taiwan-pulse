@@ -21,13 +21,23 @@ function scaledRadius(
   scale: number,
   zoom6Radius: number,
   zoom12Radius: number,
+  zoom4Radius?: number,
 ): ExpressionSpecification {
   return [
     "interpolate", ["linear"], ["zoom"],
+    ...(zoom4Radius === undefined ? [] : [4, zoom4Radius * scale]),
     6, zoom6Radius * scale,
     12, zoom12Radius * scale,
   ] as unknown as ExpressionSpecification;
 }
+
+// GSI 的 PMTiles 從 z4 起就是全量 167,037 點（tippecanoe -r1 不抽稀），
+// 低 zoom 描邊會讓點糊成一片，所以 z4 收掉、z8 才恢復。
+const GSI_STROKE_WIDTH = [
+  "interpolate", ["linear"], ["zoom"],
+  4, 0,
+  8, 0.35,
+] as unknown as ExpressionSpecification;
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
@@ -40,6 +50,7 @@ function circleLayer(
   opacity: number,
   sourceLayer?: string,
   strokeColor: string | ExpressionSpecification = "rgba(15, 23, 42, 0.45)",
+  strokeWidth: number | ExpressionSpecification = 0.35,
 ): CircleLayer {
   return {
     id,
@@ -52,7 +63,7 @@ function circleLayer(
       "circle-color": JP_RELIGION_COLOR_EXPRESSION as unknown as ExpressionSpecification,
       "circle-opacity": clampOpacity(opacity),
       "circle-stroke-color": strokeColor,
-      "circle-stroke-width": 0.35,
+      "circle-stroke-width": strokeWidth,
     },
   } as CircleLayer;
 }
@@ -94,15 +105,17 @@ function useGsiLayer(
         map.addLayer(circleLayer(
           GSI_LAYER_ID,
           GSI_SOURCE_ID,
-          scaledRadius(scale, 1.5, 4),
+          scaledRadius(scale, 1.5, 4, 0.7),
           opacity,
           GSI_SOURCE_LAYER,
+          undefined,
+          GSI_STROKE_WIDTH,
         ));
       }
       if (map.getLayer(GSI_LAYER_ID)) {
         map.setLayoutProperty(GSI_LAYER_ID, "visibility", "visible");
         map.setPaintProperty(GSI_LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", scaledRadius(scale, 1.5, 4));
+        map.setPaintProperty(GSI_LAYER_ID, "circle-radius", scaledRadius(scale, 1.5, 4, 0.7));
       }
     };
 
