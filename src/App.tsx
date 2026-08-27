@@ -2536,15 +2536,17 @@ export default function App() {
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : 16,
           zIndex: 30,
+          height: "calc(100vh - 80px)",
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
+          justifyContent: "flex-end",
           gap: 8,
           pointerEvents: "none",
         }}
       >
         {featureInfo && (
-          <div style={{ pointerEvents: "auto" }}>
+          <div style={{ pointerEvents: "auto", minHeight: 0, flex: "0 1 auto", display: "flex" }}>
             <FeatureInfoPanel
               feature={featureInfo}
               onClose={() => setFeatureInfo(null)}
@@ -2557,7 +2559,7 @@ export default function App() {
             這裡只留產品切換器這個「控制項」。
             LASS 微感測則走 MicroSensorLegend（三模式各自色階）。 */}
         {layerVisibility.aqiImagery && (
-          <div style={{ pointerEvents: "auto" }}>
+          <div style={{ pointerEvents: "auto", flexShrink: 0 }}>
             <AqiProductSwitcher
               current={aqiProduct}
               onChange={setAqiProduct}
@@ -2565,7 +2567,7 @@ export default function App() {
             />
           </div>
         )}
-        <div style={{ pointerEvents: "auto" }}>
+        <div style={{ pointerEvents: "auto", flexShrink: 0 }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
           <LegendPanel isDarkTheme={isDarkTheme} />
