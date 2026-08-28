@@ -16,6 +16,7 @@ import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT } from "../data/shipTrails";
+import { isGfwV4ShadowRuntimeEnabled } from "../data/gfwV4ShadowTracksLoader";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -337,6 +338,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gfwVesselPresence", render: () => <GfwVesselPresenceLegend /> },
   { id: "gfwHourlyGrid", render: () => <GfwHourlyGridLegend /> },
   { id: "gfwHourlyTracks", render: ({ isDark }) => <GfwHourlyTracksLegend isDark={isDark} /> },
+  { id: "gfwFishingEffort", render: () => <GfwFishingEffortLegend /> },
   { id: "gfwDarkVessels", render: () => <GfwDarkVesselsLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
@@ -3988,17 +3990,55 @@ function GfwHourlyGridLegend() {
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
   const palette = isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT;
+  const v4Shadow = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
+  const v4Palette = isDark
+    ? { cargo: "#39bff4", tanker: "#ff8f43", passenger: "#b3a0ff", fishing: "#58d68d", other: "#f0cc66" }
+    : { cargo: "#007da8", tanker: "#b54c00", passenger: "#6552b8", fishing: "#187c46", other: "#8a6500" };
+  const rows = v4Shadow
+    ? [
+        { color: v4Palette.cargo, label: "Cargo（目前含 CARRIER）" },
+        { color: v4Palette.tanker, label: "Tanker（本日樣本 0）" },
+        { color: v4Palette.passenger, label: "Passenger" },
+        { color: v4Palette.fishing, label: "Fishing vessel" },
+        { color: v4Palette.other, label: "Other / Unknown / GEAR（混合）" },
+      ]
+    : SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }));
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         GFW 小時近似航跡
       </div>
-      <FireCatRows cats={SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }))} />
+      <FireCatRows cats={rows} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
         同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線；同座標端點會聚合並以大小表示船數。
+      </div>
+      {v4Shadow && <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
+        POC bucket 是 exporter 分組，不等同原始 vessel_type；popup 保留上游原值。Taxonomy 尚待契約拍板。
+      </div>}
+    </div>
+  );
+}
+
+function GfwFishingEffortLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        GFW 每日捕撈活動
+      </div>
+      <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden" }}>
+        {["#0f766e", "#22d3ee", "#facc15", "#fb7185"].map((color) => (
+          <div key={color} style={{ flex: 1, background: color }} />
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+        <span>較少</span><span>apparent fishing hours</span><span>較多</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
+        每日獨立 sample；不是漁獲量、船數、執法證據或違法捕撈判定。
       </div>
     </div>
   );

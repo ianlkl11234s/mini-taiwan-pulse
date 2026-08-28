@@ -1,5 +1,22 @@
 # Changelog
 
+## 2026-08-28 — East Asia v4 local shadow POC wired into main map
+
+- Added DEV-only `?gfwV4Shadow=1` main-site wiring for independent 0.1-degree hourly Grid,
+  selected-day/type-aware Three.js Tracks, and daily Fishing Effort; existing SAR unmatched
+  remains the fourth independent layer.
+- Preserved production v2/v3 loaders and stripped local shadow assets from production `dist`.
+- Browser-verified Grid, Tracks and Fishing popups, including complete 14-field vessel members,
+  plus desktop and 390x844 visuals. Upload, pull and deploy were not run.
+- Corrected the benchmark after independent review showed the earlier DEFAULT run covered only
+  18.7% of points. The bench now exports explicit point/segment coverage, full-scrub peak frame,
+  frame-work cost, and null heap unless precise-memory launch evidence is externally attested.
+- All-five cold runs fail the day-pack target: JSON RAF/frame-work p95 80.5/72.6ms with 4,022
+  peak head overflow; typed-binary 74.4/66.9ms with 4,019 overflow. This opens a local Phase 2
+  spatial-shard POC, not production migration.
+- Added a DEV-shadow-specific five-bucket legend that discloses the current CARRIER and
+  GEAR/OTHER grouping; no production v2/v3 taxonomy was changed.
+
 ## 2026-08-26 — localhost production release proxy
 
 - Vite dev 預設以同源 `/global-maritime/gfw-hourly` proxy 讀公開 production release；只有

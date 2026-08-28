@@ -23,7 +23,11 @@ export interface GfwTrackDetailEntry {
   observedTimes: string[];
 }
 
-type GridDetailHour = { observedAt: string; detailBuckets: readonly GfwDetailBucket[] };
+type GridDetailHour = {
+  observedAt: string;
+  detailBuckets: readonly GfwDetailBucket[];
+  detailMode?: "hash-prefix" | "adaptive-shard";
+};
 type TrackDetailDay = { displayDate: string; detailBuckets: readonly GfwDetailBucket[] };
 
 let gridContext: GfwHourlyGridManifest | null = null;
@@ -55,7 +59,9 @@ export function hasVerifiedGfwGridVesselList(properties: Record<string, unknown>
  * to show all members.  v2 keeps its already-validated inline fallback.
  */
 export function needsGfwGridDetailHydration(properties: Record<string, unknown>): boolean {
-  return properties.geometry_semantics === "inferred_0_01_degree_footprint" || !hasVerifiedGfwGridVesselList(properties);
+  return properties.geometry_semantics === "inferred_0_01_degree_footprint" ||
+    properties.geometry_semantics === "globally_aligned_0_1_degree_cell" ||
+    typeof properties.detail_shard === "string" || !hasVerifiedGfwGridVesselList(properties);
 }
 
 /** Hooks own the current release; click plumbing only consumes this immutable snapshot. */
@@ -86,6 +92,29 @@ function parseGridEntries(raw: unknown, expected: { releaseId: string; observedA
     if (!cellId || !isObject(value) || !isNonNegativeInt(value.vessel_count)) return null;
     const vessels = parseGfwHourlyGridVessels(value.vessels);
     if (!vessels || vessels.length !== value.vessel_count) return null;
+    vesselCount += value.vessel_count;
+    entries.set(cellId, { vesselCount: value.vessel_count, vessels });
+  }
+  return vesselCount === raw.vessel_count ? entries : null;
+}
+
+function parseAdaptiveGridEntries(raw: unknown, expectedObservedAt: string): Map<string, GfwGridDetailEntry> | null {
+  if (!isObject(raw) || raw.schema_version !== 1 || raw.observed_at !== expectedObservedAt || raw.key !== "cell_id" ||
+    !isNonNegativeInt(raw.entry_count) || !isNonNegativeInt(raw.vessel_count) || !isObject(raw.entries)) return null;
+  const keys = Object.keys(raw.entries);
+  if (keys.length !== raw.entry_count) return null;
+  const entries = new Map<string, GfwGridDetailEntry>();
+  let vesselCount = 0;
+  for (const cellId of keys) {
+    const value = raw.entries[cellId];
+    if (!cellId || !isObject(value) || !isNonNegativeInt(value.vessel_count) || !Array.isArray(value.members)) return null;
+    const vessels = parseGfwHourlyGridVessels(value.members);
+    if (!vessels || vessels.length !== value.vessel_count || vessels.some((vessel) =>
+      vessel.imo === undefined || vessel.callsign === undefined || vessel.dataset === undefined ||
+      vessel.geartype === undefined || vessel.firstTransmissionDate === undefined ||
+      vessel.lastTransmissionDate === undefined || vessel.hours === undefined ||
+      vessel.entryTimestamp === undefined || vessel.exitTimestamp === undefined,
+    )) return null;
     vesselCount += value.vessel_count;
     entries.set(cellId, { vesselCount: value.vessel_count, vessels });
   }
@@ -137,13 +166,27 @@ function resolveAssetUrl(manifestUrl: string, path: string): string {
   return new URL(path, new URL(manifestUrl, globalThis.location?.origin ?? "http://localhost")).toString();
 }
 
-export async function loadGfwGzipJsonAsset(manifestUrl: string, entry: Pick<GfwDetailBucket, "path" | "sha256" | "bytes">): Promise<unknown | null> {
+export async function loadGfwGzipJsonAsset(
+  manifestUrl: string,
+  entry: Pick<GfwDetailBucket, "path" | "sha256" | "bytes">,
+  transparentGzip = false,
+): Promise<unknown | null> {
   try {
     const response = await fetch(resolveAssetUrl(manifestUrl, entry.path), { cache: "force-cache" });
     if (!response.ok) return null;
     const bytes = await response.arrayBuffer();
-    if (bytes.byteLength !== entry.bytes || (await sha256Hex(bytes))?.toLowerCase() !== entry.sha256.toLowerCase()) return null;
-    return decodeGzipJson(bytes);
+    if (bytes.byteLength === entry.bytes && (await sha256Hex(bytes))?.toLowerCase() === entry.sha256.toLowerCase()) {
+      return decodeGzipJson(bytes);
+    }
+    // Vite transparently decodes public *.gz responses in DEV. The immutable root already
+    // cross-checks this path/bytes/sha against its artifact ledger and collector readback;
+    // require Vite's exact encoded length/header here, then validate the decoded payload below.
+    const contentEncoding = response.headers?.get?.("content-encoding")?.toLowerCase();
+    const contentLength = Number(response.headers?.get?.("content-length"));
+    const isLocalV4Shadow = import.meta.env.DEV &&
+      new URL(manifestUrl, globalThis.location?.origin ?? "http://localhost").pathname === "/gfw-v4-poc/manifest.json";
+    if (!transparentGzip || !isLocalV4Shadow || contentEncoding !== "gzip" || contentLength !== entry.bytes) return null;
+    try { return JSON.parse(new TextDecoder().decode(bytes)); } catch { return null; }
   } catch {
     return null;
   }
@@ -169,7 +212,18 @@ export async function loadGfwGridCellDetail(
   releaseId: string,
   hour: GridDetailHour,
   cellId: string,
+  detailShard?: string,
 ): Promise<GfwGridDetailEntry | null> {
+  if (hour.detailMode === "adaptive-shard") {
+    if (!detailShard || !/^part-\d{4}\.json\.gz$/.test(detailShard)) return null;
+    const entry = hour.detailBuckets.find((candidate) => candidate.bucket === detailShard);
+    if (!entry || !entry.path.endsWith(`/${detailShard}`)) return null;
+    const parsed = parseAdaptiveGridEntries(
+      await loadGfwGzipJsonAsset(manifestUrl, entry, true),
+      hour.observedAt,
+    );
+    return parsed?.get(cellId) ?? null;
+  }
   const bucket = await gfwDetailBucketForKey(cellId);
   const entry = bucket ? bucketEntry(hour.detailBuckets, bucket) : null;
   if (!bucket || !entry) return null;
@@ -195,13 +249,14 @@ export async function hydrateGfwGridDetail(properties: Record<string, unknown>):
   const observedAt = typeof properties.dominant_observed_at === "string" ? properties.dominant_observed_at
     : typeof properties.observed_at === "string" ? properties.observed_at : null;
   const hour = observedAt ? gridContext?.hours.find((candidate) => candidate.observedAt === observedAt) : null;
+  const detailShard = typeof properties.detail_shard === "string" ? properties.detail_shard : undefined;
   if (!gridContext?.fullFidelity || !cellId || !hour?.detailBuckets?.length) {
     return { ...properties, detail_status: "error", detail_error: "此 feature 沒有可驗證的完整清單" };
   }
   const detail = await withLoading(
     `gfw-hourly-grid:detail:${gridContext.releaseId}:${observedAt}:${cellId}`,
     "GFW 格網完整船舶清單",
-    loadGfwGridCellDetail(gridContext.manifestUrl, gridContext.releaseId, hour, cellId),
+    loadGfwGridCellDetail(gridContext.manifestUrl, gridContext.releaseId, hour, cellId, detailShard),
   );
   if (!detail || (typeof properties.vessel_count === "number" && properties.vessel_count !== detail.vesselCount)) {
     return { ...properties, detail_status: "error", detail_error: "完整船舶清單驗證失敗" };
@@ -233,4 +288,4 @@ export async function hydrateGfwTrackDetail(properties: Record<string, unknown>)
   };
 }
 
-export const __testOnly = { parseGridEntries, parseTrackEntries, resolveAssetUrl, loadedGfwGridDetailProperties };
+export const __testOnly = { parseGridEntries, parseAdaptiveGridEntries, parseTrackEntries, resolveAssetUrl, loadedGfwGridDetailProperties };

@@ -2,8 +2,12 @@ import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useGlobalMaritimeLayers } from "../../hooks/useGlobalMaritimeLayers";
 import { useGfwHourlyGridLayer } from "../../hooks/useGfwHourlyGridLayer";
 import { useGfwHourlyTracksLayer } from "../../hooks/useGfwHourlyTracksLayer";
+import { useGfwV4ShadowTracksLayer } from "../../hooks/useGfwV4ShadowTracksLayer";
+import { isGfwV4ShadowRuntimeEnabled } from "../../data/gfwV4ShadowTracksLoader";
+import type { TrackBucket } from "../../gfw-v4-bench/types";
+import { useGfwFishingEffortLayer } from "../../hooks/useGfwFishingEffortLayer";
 import { useGfwDarkVesselsLayer } from "../../hooks/useGfwDarkVesselsLayer";
-import { paramNum, useLayerParams } from "../layerParamsAccess";
+import { paramBool, paramNum, useLayerParams } from "../layerParamsAccess";
 
 export const GlobalMaritimeHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGlobalMaritimeLayers");
@@ -33,12 +37,42 @@ export const GfwHourlyGridHost: LayerHostComponent = ({ deps }) => {
 export const GfwHourlyTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGfwHourlyTracksLayer");
   const values = useLayerParams("gfwHourlyTracks");
+  const shadowEnabled = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
+  const bucketParams: ReadonlyArray<readonly [TrackBucket, string]> = [
+    ["cargo", "gfwHourlyTracksCargo"],
+    ["tanker", "gfwHourlyTracksTanker"],
+    ["passenger", "gfwHourlyTracksPassenger"],
+    ["fishing", "gfwHourlyTracksFishing"],
+    ["other", "gfwHourlyTracksOther"],
+  ];
+  const enabledBuckets = bucketParams
+    .filter(([, name]) => paramBool(values, "gfwHourlyTracks", name))
+    .map(([bucket]) => bucket);
   useGfwHourlyTracksLayer(
     deps.mapRef,
-    deps.layerVisibility.gfwHourlyTracks,
+    deps.layerVisibility.gfwHourlyTracks && !shadowEnabled,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
     deps.isDarkTheme,
+  );
+  useGfwV4ShadowTracksLayer(
+    deps.mapRef,
+    deps.layerVisibility.gfwHourlyTracks && shadowEnabled,
+    paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
+    paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
+    enabledBuckets,
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+export const GfwFishingEffortHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGfwFishingEffortLayer");
+  const values = useLayerParams("gfwFishingEffort");
+  useGfwFishingEffortLayer(
+    deps.mapRef,
+    deps.layerVisibility.gfwFishingEffort,
+    paramNum(values, "gfwFishingEffort", "gfwFishingEffortOpacity"),
   );
   return null;
 };

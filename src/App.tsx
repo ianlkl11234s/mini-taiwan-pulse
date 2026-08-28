@@ -115,6 +115,9 @@ export default function App() {
   // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
   // 會在每次操作後把鏡頭拉回網址指定的位置。
   const urlStateRef = useRef<UrlState>(parseUrlState(window.location.search));
+  const gfwV4ShadowRef = useRef(
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get("gfwV4Shadow") === "1",
+  );
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -1223,6 +1226,7 @@ export default function App() {
         style: mapStyleId,
         date,
         hour,
+        gfwV4Shadow: gfwV4ShadowRef.current || undefined,
       },
       window.location.pathname,
     );

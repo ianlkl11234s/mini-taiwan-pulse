@@ -109,7 +109,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwDarkVessels"
+  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -688,7 +688,7 @@ export interface FeatureInfo {
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
-    | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwDarkVessel"
+    | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
@@ -905,6 +905,8 @@ export interface LayerVisibility {
   gfwHourlyGrid: boolean;
   /** Global Fishing Watch HOURLY/HIGH 抽樣近似航跡（時間軸拖尾，production daily partitions） */
   gfwHourlyTracks: boolean;
+  /** GFW 每日 apparent fishing effort；獨立於船舶 presence、航跡與 SAR */
+  gfwFishingEffort: boolean;
   /** GFW SAR 偵測中未與 AIS 匹配者；非違法或確認關 AIS 認定 */
   gfwDarkVessels: boolean;
   youbikeFullness: boolean;

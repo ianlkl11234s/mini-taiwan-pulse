@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 387,
+    "keyCount": 388,
     "sections": [
       "gisLayers",
       "overlays",
@@ -563,6 +563,7 @@
     },
     {
       "layers": [
+        "gfw-v4-shadow-track-hit",
         "gfw-hourly-tracks-endpoint",
         "gfw-hourly-tracks-line"
       ],
@@ -1911,6 +1912,12 @@
         "eq-replay-town-fill"
       ],
       "type": "earthquakeReplayTown"
+    },
+    {
+      "layers": [
+        "gfw-fishing-effort-fill"
+      ],
+      "type": "gfwFishingEffort"
     },
     {
       "layers": [
@@ -50107,6 +50114,15 @@
         "value": 0.86
       }
     ],
+    "gfwFishingEffort": [
+      {
+        "label": "透明度 0.58",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.58
+      }
+    ],
     "gfwHourlyGrid": [
       {
         "label": "透明度 0.80",
@@ -50146,6 +50162,31 @@
         ],
         "type": "select",
         "value": "0.5"
+      },
+      {
+        "label": "Cargo",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Tanker",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Passenger",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Fishing",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "Other",
+        "type": "toggle",
+        "value": false
       }
     ],
     "gfwVesselPresence": [

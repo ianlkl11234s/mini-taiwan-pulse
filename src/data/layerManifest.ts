@@ -1162,9 +1162,36 @@ export const LAYER_MANIFEST = {
     },
     legend: "gfwHourlyTracks",
     popup: "gfwHourlyTrack",
-    params: { count: 2, kinds: ["slider", "select"] },
+    params: { count: 7, kinds: ["slider", "select", "toggle", "toggle", "toggle", "toggle", "toggle"] },
     description: "GFW HOURLY/HIGH 船舶的格網中心近似航跡；跟隨時間軸顯示船種分色短拖尾與當時端點，同座標船舶會聚合",
     topics: ["世界", "海事", "船舶", "GFW", "時間軸", "軌跡"],
+  },
+
+  gfwFishingEffort: {
+    key: "gfwFishingEffort",
+    section: { theme: "全球海事 Global Maritime", group: "船舶" },
+    label: "GFW 每日捕撈活動 Fishing Effort",
+    labelMobile: "GFW 捕撈活動",
+    expandable: true,
+    color: "#22c55e",
+    icon: Fish,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "GFW public apparent fishing effort；以 UTC 日獨立彙整 polygon、apparent_fishing_hours 與 aggregation facets",
+      note: "v4 shadow POC 僅限固定東亞 bbox 與 2026-08-21 sample；與 Grid、Tracks、SAR 各自獨立，apparent fishing effort 不是漁獲量或違法捕撈判定",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "DEV 且 URL 帶 gfwV4Shadow=1 時，由 useGfwFishingEffortLayer 驗證 root manifest 與 immutable gzip artifact 後載入；production fail closed",
+      staticAssets: [],
+    },
+    legend: "gfwFishingEffort",
+    popup: "gfwFishingEffort",
+    params: { count: 1, kinds: ["slider"] },
+    description: "GFW 每日 apparent fishing effort sample；面積色階代表捕撈活動小時，不代表漁獲量、船數或違法性",
+    topics: ["世界", "海事", "漁業", "GFW", "時間軸", "捕撈活動"],
   },
 
   gfwDarkVessels: {

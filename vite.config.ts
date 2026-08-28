@@ -30,6 +30,10 @@ export default defineConfig({
       "gfw_hourly_tracks_poc",
       // GFW 小時格網 POC 僅供 localhost 主站時間軸驗收；production 必須改走正式 partitions/RPC
       "gfw_hourly_grid_poc",
+      // GFW East Asia v4 shadow POC 只在 DEV + ?gfwV4Shadow=1 使用；禁止進 production dist
+      "gfw-v4-poc",
+      "gfw-v4-browser-assets",
+      "gfw-v4-browser-manifest.json",
     ]),
   ],
   assetsInclude: ["**/*.vert", "**/*.frag"],

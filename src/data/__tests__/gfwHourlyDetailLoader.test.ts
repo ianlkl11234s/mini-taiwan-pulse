@@ -1,12 +1,19 @@
-import { describe, expect, it } from "vitest";
-import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, needsGfwGridDetailHydration } from "../gfwHourlyDetailLoader";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { __testOnly, canonicalGfwGridCellId, hasVerifiedGfwGridVesselList, loadGfwGridCellDetail, needsGfwGridDetailHydration } from "../gfwHourlyDetailLoader";
 import { parseGfwHourlyGridVessels, serializeGfwHourlyGridVessels } from "../gfwHourlyGridTypes";
 import { gfwHourlyTrackFrameEndpoints, gfwHourlyTrackFrameTrail, parseGfwHourlyTrackFrame } from "../gfwHourlyTracksLoader";
 
 const vessels = [{ vessel_id: "v-1", mmsi: "123", ship_name: "ONE", vessel_type: "fishing", flag: "TW" }];
 const epoch = Date.parse("2026-08-15T00:00:00Z") / 1000;
+const fullMember = {
+  vessel_id: "v-1", mmsi: "123", ship_name: "ONE", vessel_type: "fishing", flag: "TW",
+  imo: "IMO123", callsign: "CALL", dataset: "public-global-vessel-identity:v4.0", geartype: "TUNA_PURSE_SEINES",
+  first_transmission_date: "2024-01-01T00:00:00Z", last_transmission_date: "2026-08-22T00:00:00Z",
+  hours: 1, entry_timestamp: "2026-08-21T00:00:00Z", exit_timestamp: "2026-08-21T01:00:00Z",
+};
 
 describe("GFW v3 detail/frame contract", () => {
+  afterEach(() => vi.unstubAllGlobals());
   it("normalized vessel serializer 可回傳 popup parser 所需的 snake_case wire JSON", () => {
     const normalized = [{ vesselId: "v-1", mmsi: "123", shipName: "ONE", vesselType: "fishing", flag: "TW" }];
     expect(JSON.parse(serializeGfwHourlyGridVessels(normalized))).toEqual(vessels);
@@ -43,6 +50,58 @@ describe("GFW v3 detail/frame contract", () => {
     expect(__testOnly.parseGridEntries(raw, { releaseId: "2026-08-15", observedAt: "2026-08-15T00:00:00Z", bucket: "a" })?.get("cell-a")?.vessels).toHaveLength(1);
     raw.vessel_count = 2;
     expect(__testOnly.parseGridEntries(raw, { releaseId: "2026-08-15", observedAt: "2026-08-15T00:00:00Z", bucket: "a" })).toBeNull();
+  });
+
+  it("v4 adaptive shard 僅接受完整 14 欄 member 與自洽 cell/count", () => {
+    const raw = {
+      schema_version: 1, observed_at: "2026-08-21T00:00:00Z", key: "cell_id",
+      entry_count: 1, vessel_count: 1,
+      entries: { "cell-a": { vessel_count: 1, members: [fullMember] } },
+    };
+    const parsed = __testOnly.parseAdaptiveGridEntries(raw, "2026-08-21T00:00:00Z");
+    expect(parsed?.get("cell-a")?.vessels[0]).toMatchObject({
+      vesselId: "v-1", imo: "IMO123", callsign: "CALL", dataset: "public-global-vessel-identity:v4.0",
+      geartype: "TUNA_PURSE_SEINES", hours: 1,
+      entryTimestamp: "2026-08-21T00:00:00Z", exitTimestamp: "2026-08-21T01:00:00Z",
+    });
+    const incomplete = structuredClone(raw);
+    delete (incomplete.entries["cell-a"].members[0] as Partial<typeof fullMember>).callsign;
+    expect(__testOnly.parseAdaptiveGridEntries(incomplete, "2026-08-21T00:00:00Z")).toBeNull();
+    const badCount = structuredClone(raw);
+    badCount.vessel_count = 2;
+    expect(__testOnly.parseAdaptiveGridEntries(badCount, "2026-08-21T00:00:00Z")).toBeNull();
+  });
+
+  it("v4 MVT detail_shard 直讀 adaptive shard；Vite transparent gzip 仍守 manifest bytes 與完整內容契約", async () => {
+    const payload = JSON.stringify({
+      schema_version: 1, observed_at: "2026-08-21T00:00:00Z", key: "cell_id",
+      entry_count: 1, vessel_count: 1,
+      entries: { "cell-a": { vessel_count: 1, members: [fullMember] } },
+    });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      arrayBuffer: async () => new TextEncoder().encode(payload).buffer,
+      headers: new Headers({ "content-encoding": "gzip", "content-length": "321" }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const hour = {
+      observedAt: "2026-08-21T00:00:00Z", detailMode: "adaptive-shard" as const,
+      detailBuckets: [{
+        bucket: "part-0000.json.gz", path: "grid/details/20260821T00Z/part-0000.json.gz",
+        sha256: "a".repeat(64), bytes: 321, features: 1,
+      }],
+    };
+    await expect(loadGfwGridCellDetail(
+      "/gfw-v4-poc/manifest.json", "2026-08-21", hour, "cell-a", "part-0000.json.gz",
+    )).resolves.toMatchObject({ vesselCount: 1 });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost/gfw-v4-poc/grid/details/20260821T00Z/part-0000.json.gz",
+      { cache: "force-cache" },
+    );
+    await expect(loadGfwGridCellDetail(
+      "/gfw-v4-poc/manifest.json", "2026-08-21", hour, "cell-a", "../escape.json.gz",
+    )).resolves.toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   it("grid hydrate loaded 結果可被 popup parser 解析完整船舶清單", () => {

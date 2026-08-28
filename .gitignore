@@ -11,6 +11,12 @@ public/ship_data.json
 public/gfw_hourly_tracks_poc.geojson
 public/gfw_hourly_tracks_poc/
 public/gfw_hourly_grid_poc/
+# GFW East Asia v4 shadow POC runtime aliases/artifacts (local-only, often symlinks into /private/tmp)
+public/gfw-v4-poc
+public/gfw-v4-browser-assets/
+public/gfw-v4-browser-manifest.json
+# Vite task-local dependency cache created in isolated worktrees
+node_modules.vite-cache/
 public/rail/
 public/static-rpc/
 public/rail_bundle.json

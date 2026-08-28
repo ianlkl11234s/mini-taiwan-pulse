@@ -68,6 +68,8 @@ export interface UrlState {
    * 代碼是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
    */
   railSystems?: string[];
+  /** DEV-only GFW v4 shadow gate；production runtime 仍會 fail closed。 */
+  gfwV4Shadow?: boolean;
 }
 
 export interface ParseOptions {
@@ -230,6 +232,8 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
     if (items.length > 0) state.ui = items;
   }
 
+  if (q.get("gfwV4Shadow") === "1") state.gfwV4Shadow = true;
+
   return state;
 }
 
@@ -268,6 +272,7 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.style) q.set("style", state.style);
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));
+  if (state.gfwV4Shadow) q.set("gfwV4Shadow", "1");
 
   const sep = base.includes("?") ? "&" : "?";
   return `${base}${sep}${q.toString()}`;

@@ -1,6 +1,6 @@
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
-import { parseGfwHourlyGridVessels } from "../../data/gfwHourlyGridTypes";
+import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -136,6 +136,24 @@ function fmtMaritimeUtcTime(value: unknown): string {
   });
 }
 
+function GfwMemberDetails({ vessel }: { vessel: GfwHourlyGridVessel }) {
+  const t = useFeatureTheme();
+  const hasFullDetail = vessel.hours !== undefined;
+  return (
+    <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
+      ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
+      {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
+      {hasFullDetail && <>
+        <br />IMO {vessel.imo ?? "—"} · Callsign {vessel.callsign ?? "—"}
+        <br />Gear {vessel.geartype ?? "—"} · Dataset {vessel.dataset ?? "—"}
+        <br />格內小時 {vessel.hours?.toLocaleString("zh-TW", { maximumFractionDigits: 4 }) ?? "—"}
+        <br />進入 {fmtMaritimeUtcTime(vessel.entryTimestamp)} · 離開 {fmtMaritimeUtcTime(vessel.exitTimestamp)}
+        <br />首傳 {fmtMaritimeUtcTime(vessel.firstTransmissionDate)} · 末傳 {fmtMaritimeUtcTime(vessel.lastTransmissionDate)}
+      </>}
+    </div>
+  );
+}
+
 export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
@@ -178,8 +196,9 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
       <Row label="格內船數" value={Number.isFinite(expectedCount) ? `${expectedCount} 艘` : "—"} />
       <Row label="格網中心" value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
       {typeof props.cell_id === "string" && <Row label="網格 ID" value={props.cell_id} />}
-      <Row label="位置語意" value="GFW HIGH 格網中心（非原始 AIS 精確座標）" />
+      <Row label="位置語意" value={props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "GFW HIGH 本地聚合 0.1° 格網" : "GFW HIGH 格網中心（非原始 AIS 精確座標）"} />
       {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label="幾何範圍" value="推定 0.01° 格網 footprint" />}
+      {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label="幾何範圍" value="全球對齊 0.1° 格網 footprint（非原始 AIS 精確位置）" />}
       {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
       {detailStatus === "loading" && <Row label="完整清單" value="正在驗證並載入全部船舶…" />}
       {detailStatus === "error" && <Row label="完整清單" value={String(props.detail_error ?? "驗證失敗，未顯示部分清單")} color="#f87171" />}
@@ -195,10 +214,7 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
             <div style={{ color: t.textDefault, fontSize: 12 }}>
               {vessel.shipName || vessel.vesselId}
             </div>
-            <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
-              ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
-              {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
-            </div>
+            <GfwMemberDetails vessel={vessel} />
           </div>
         ))}
         {vessels.length === 0 && detailStatus !== "loading" && (
@@ -222,15 +238,19 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
   const vesselCount = Number(props.vessel_count);
   const interpolated = Number(props.interpolated) === 1;
   const grouped = vessels && vessels.length > 1;
+  const singleVessel = vessels?.length === 1 ? vessels[0] : null;
   const detailStatus = props.detail_status;
   return (
     <div>
-      {!grouped && <>
+      {!grouped && (singleVessel ? <>
+        <Row label="船名" value={singleVessel.shipName || "（無船名）"} />
+        <GfwMemberDetails vessel={singleVessel} />
+      </> : <>
         <Row label="船名" value={shipName || "（無船名）"} />
         <Row label="Vessel ID" value={vesselId} />
         <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
         <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
-      </>}
+      </>)}
       <Row label={grouped ? "同座標船舶" : "視覺分類"} value={grouped && Number.isFinite(vesselCount) ? `${vesselCount} 艘` : String(props.ship_type_label ?? "其他 Other")} />
       {Number(props.mixed_type) === 1 && <Row label="船種" value="混合船種 Mixed" />}
       <Row label="拖尾起點（UTC）" value={fmtMaritimeUtcTime(props.start_at)} />
@@ -249,10 +269,7 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
           {(vessels ?? []).map((vessel, index) => (
             <div key={`${vessel.vesselId}-${index}`} style={{ padding: "6px 0", borderTop: `1px solid ${t.border}` }}>
               <div style={{ color: t.textDefault, fontSize: 12 }}>{vessel.shipName || vessel.vesselId}</div>
-              <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
-                ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
-                {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
-              </div>
+              <GfwMemberDetails vessel={vessel} />
             </div>
           ))}
         </div>
@@ -262,6 +279,34 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
         時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
         缺訊與不合理跳點已由上游切段，前端不跨段補線。
         {" "}非即時近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
+      </div>
+    </div>
+  );
+}
+
+export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown> }) {
+  const hours = Number(props.apparent_fishing_hours);
+  const components = Number(props.component_count);
+  let facetCount: number | null = null;
+  if (typeof props.aggregation_facets_json === "string") {
+    try {
+      const parsed: unknown = JSON.parse(props.aggregation_facets_json);
+      facetCount = Array.isArray(parsed) ? parsed.length : null;
+    } catch {
+      facetCount = null;
+    }
+  }
+  return (
+    <div>
+      <Row label="UTC 日期" value={String(props.date ?? "—")} />
+      <Row label="捕撈活動" value={Number.isFinite(hours) ? `${hours.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 小時` : "—"} />
+      <Row label="彙整 components" value={Number.isFinite(components) ? components.toLocaleString("zh-TW") : "—"} />
+      {facetCount != null && <Row label="Aggregation facets" value={`${facetCount.toLocaleString("zh-TW")} 組`} />}
+      <Row label="資料版本" value={String(props.resolved_dataset_version ?? "—")} />
+      <Row label="指標語意" value={String(props.metric_semantics ?? "apparent fishing effort")} />
+      <Row label="資料源" value="Global Fishing Watch（daily apparent fishing effort）" />
+      <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.5, color: "#94a3b8" }}>
+        本指標不是漁獲量、船數、執法證據或違法捕撈判定。
       </div>
     </div>
   );

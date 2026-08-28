@@ -1,5 +1,40 @@
 # Global Maritime handoff
 
+## East Asia v4 24-hour local shadow POC truth (2026-08-28)
+
+The accepted bbox `115.93462,20.36314,134.73486,36.52495` is now wired into the
+Mini Taiwan Pulse main map behind the DEV-only `?gfwV4Shadow=1` gate. This is still a
+local immutable shadow POC: production v2/v3 resolvers and assets are unchanged; upload,
+pull and deploy were not run.
+
+| evidence | result |
+|---|---|
+| LOW vs HIGH identity | both contain exactly 799,771 canonical vessel-hours; zero missing identities and zero popup-member field mismatches |
+| route decision | use private HIGH then local 0.1-degree aggregation: LOW assigns 565,964 vessel-hours to different 0.1-degree cells under the accepted canonical grid |
+| upstream cost | LOW 372,435,396 response bytes / 90.35s / 1,292,402,688 B peak RSS; HIGH 375,200,404 B / 409.13s / 1,475,969,024 B peak RSS |
+| Grid artifact | 24 hourly PMTiles (39,389,483 B) plus 293 complete detail shards (50,322,580 B); 99,155 semantic cells read back |
+| Tracks artifact | five ship-type JSON day packs (10,900,081 B) and five typed-binary day packs (7,895,543 B); selected-day type toggles control download/attachment |
+| Fishing Effort | independent 2026-08-21 daily sample, 2,887 polygons, 1,253,080 B, 138,297.72 apparent fishing hours |
+| artifact readback | 328/328 assets, 109,760,767/109,760,767 B, SHA/JSON/binary/PMTiles structure and individual MVT semantics passed |
+| browser | main-map Grid/Tracks/Fishing visuals and popups passed on desktop and 390x844 viewport; full 14-field members are visible for Grid and Tracks. This is visual acceptance, not a mobile-device performance claim |
+| day-pack bench correction | the earlier DEFAULT run loaded only 149,827 / 799,771 points (18.7%) and 11,711 / 106,694 segments (11.0%); its 17.6ms RAF and heap values are not full-load release evidence |
+| all-five JSON cold run | 799,771 points / 106,694 segments (100%); 10,900,081 B transfer; 1,464.5ms decode; RAF p95 80.5ms; frame-work p95/max 72.6/282.6ms; peak overflow 4,022 heads / 0 vertices |
+| all-five typed cold run | 799,771 points / 106,694 segments (100%); 7,895,543 B transfer; 515.9ms decode; RAF p95 74.4ms; frame-work p95/max 66.9/150.5ms; peak overflow 4,019 heads / 0 vertices |
+| heap evidence | unavailable: the in-app browser launch did not carry externally auditable `--enable-precise-memory-info` attestation, so the corrected exporter records null plus a warning |
+
+The corrected 100% workload runs fail the current day-pack desktop target and head budget by
+a wide margin. Typed binary reduces transfer and decode cost but does not fix the per-scrub
+frame construction bottleneck. This is sufficient to enter a Phase 2 **shadow POC** for spatial
+shards / viewport-time culling; it is not permission to change production. A real mobile-device
+run and externally attested heap run are still missing, so no mobile or heap gate is passed.
+
+The v4 shadow exporter currently groups raw `CARGO|CARRIER` as `cargo`, preserves `TANKER`,
+`PASSENGER` and `FISHING`, and puts every remaining raw value (including `GEAR`, `OTHER`,
+`NA`, null, `BUNKER` and `SEISMIC`) into `other`. The DEV-only legend now states this boundary
+instead of reusing the production AIS six-class legend. Removing Tanker, excluding GEAR,
+changing the default bucket set, or reassigning CARRIER are contract decisions still awaiting
+explicit approval; production v2/v3 taxonomy remains unchanged.
+
 ## Full-fidelity v3 production truth (2026-08-27)
 
 | boundary | status |
@@ -22,11 +57,11 @@ are visualization semantics, not official cell boundaries or raw AIS positions. 
 S3 hash/bytes/cache, Supabase ledger/count, sidecar-detail, deploy, or browser check must
 leave canonical v2 selected; immutable releases are never patched in place.
 
-## Next session: East Asia 0.1-degree v4 redesign (planning freeze, not implemented)
+## East Asia 0.1-degree v4 redesign (accepted contract; local POC complete)
 
-> This section is the accepted implementation handoff for the next session. Nothing in this
-> section is built, uploaded, deployed, or browser-verified yet. Current v2/v3 production and
-> rollback assets remain authoritative until v4 passes every release gate below.
+> This section remains the accepted implementation contract. The 24-hour local shadow POC is
+> summarized above, but nothing was uploaded or deployed. Current v2/v3 production and rollback
+> assets remain authoritative until v4 passes every release gate below.
 
 ### Frozen product decisions
 

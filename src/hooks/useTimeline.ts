@@ -77,8 +77,12 @@ export function useTimeline({
   timeMode: initialTimeMode = "replay",
 }: UseTimelineOptions): UseTimelineReturn {
   void _dataEndTime; // 保留 interface 相容，實際用 dataStartTime 初始化
+  const gfwV4Shadow = import.meta.env.DEV && typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("gfwV4Shadow") === "1";
   // 預設選定日期 = 台灣時間的今天（不依賴資料範圍，避免不同資料源日期不一致）
   const [selectedDate, setSelectedDateRaw] = useState<Date>(() => {
+    // v4 是固定 24h UTC shadow POC；主站 shadow URL 直接落到可驗收的 sample day。
+    if (gfwV4Shadow) return new Date("2026-08-21T00:00:00+08:00");
     const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
     return new Date(todayStr + "T00:00:00+08:00");
   });
@@ -110,7 +114,9 @@ export function useTimeline({
   useEffect(() => {
     if (initRef.current) return;
     initRef.current = true;
-    const startUnix = Date.now() / 1000 - 3600;
+    const startUnix = gfwV4Shadow
+      ? Date.parse("2026-08-21T00:00:00Z") / 1000
+      : Date.now() / 1000 - 3600;
     const initial =
       startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
     timeStore.setTime(initial);

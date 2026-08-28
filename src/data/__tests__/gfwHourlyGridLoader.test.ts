@@ -5,6 +5,7 @@ import {
   loadGfwHourlyGridHour,
   parseGfwHourlyGridFeatureCollection,
   parseGfwHourlyGridManifest,
+  parseGfwHourlyGridV4ShadowManifest,
   resolveGfwHourlyGridManifestUrl,
 } from "../gfwHourlyGridLoader";
 import { parseGfwHourlyGridVessels } from "../gfwHourlyGridTypes";
@@ -90,6 +91,44 @@ function applyV3Contract(raw: ReturnType<typeof unifiedOneDay>) {
   for (const day of raw.tracks.days) Object.assign(day, { format: "pmtiles", path: day.path.replace(".geojson", ".pmtiles"), detail_buckets: buckets() });
 }
 
+function v4ShadowManifest() {
+  const release = "2026-08-21";
+  const artifacts: Array<Record<string, unknown>> = [];
+  const hours = Array.from({ length: 24 }, (_, index) => {
+    const observedAt = new Date(Date.parse(`${release}T00:00:00Z`) + index * 3_600_000)
+      .toISOString().replace(".000Z", "Z");
+    const stamp = observedAt.replace(/[-:]/g, "").slice(0, 11) + "Z";
+    const detail = {
+      type: "grid_detail", path: `grid/details/${stamp}/part-0000.json.gz`,
+      sha256: "a".repeat(64), bytes: 100 + index, features: 2, vessels: 3,
+    };
+    const pmtiles = {
+      type: "grid_hour_pmtiles", path: `grid/hours/${stamp}.pmtiles`,
+      sha256: "b".repeat(64), bytes: 200 + index, features: 2, vessels: 3,
+      semantic_readback: {
+        status: "passed", source_layer: "gfw_grid_0_1", expected_cells: 2, unique_cells: 2,
+        properties: ["cell_id", "vessel_count", "detail_shard"],
+      },
+    };
+    artifacts.push(detail, { ...pmtiles, semantic_readback: undefined });
+    return { observed_at: observedAt, details: [detail], pmtiles };
+  });
+  const artifactBytes = artifacts.reduce((sum, artifact) => sum + Number(artifact.bytes), 0);
+  return {
+    schema_version: 1, release_id: release, selected_utc_date: release,
+    generated_at: "2026-08-28T00:00:00Z", poc: true, shadow_only: true,
+    production_cutover: false, immutable_local_output: true,
+    bbox: [115.93462, 20.36314, 134.73486, 36.52495],
+    artifact_bytes: artifactBytes, artifacts,
+    readback: { status: "passed", checked_assets: artifacts.length, checked_bytes: artifactBytes },
+    grid: {
+      source: "compare SQLite canonical source='HIGH' locally aggregated",
+      source_layer: "gfw_grid_0_1", resolution_degrees: 0.1,
+      hour_count: 24, hour_query_count: 24, hours,
+    },
+  };
+}
+
 describe("GFW hourly grid contract", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -106,6 +145,40 @@ describe("GFW hourly grid contract", () => {
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, true))
       .toBe("https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/global-maritime/gfw-hourly/v3-shadow/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, false, "?gfwV4Shadow=1"))
+      .toBe("/gfw-v4-poc/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false, "?gfwV4Shadow=1"))
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
+  });
+
+  it("DEV v4 shadow root 嚴格驗證 HIGH→0.1°、24 PMTiles 與 adaptive detail ledger", () => {
+    const raw = v4ShadowManifest();
+    const parsed = parseGfwHourlyGridV4ShadowManifest(raw);
+    expect(parsed).toMatchObject({
+      schemaVersion: 4, releaseId: "2026-08-21", sourceLayer: "gfw_grid_0_1",
+      spatialResolution: "HIGH_TO_LOCAL_0_1", geometrySemantics: "globally_aligned_0_1_degree_cell",
+      fullFidelity: true,
+    });
+    expect(parsed?.hours).toHaveLength(24);
+    expect(parsed?.hours[0]).toMatchObject({
+      path: "grid/hours/20260821T00Z.pmtiles", format: "pmtiles", detailMode: "adaptive-shard",
+      bytes: 200, sha256: "b".repeat(64), cellCount: 2, vesselCount: 3,
+    });
+    expect(parsed?.hours[0]?.detailBuckets[0]).toMatchObject({
+      bucket: "part-0000.json.gz", path: "grid/details/20260821T00Z/part-0000.json.gz",
+      bytes: 100, sha256: "a".repeat(64), features: 2,
+    });
+    expect(parseGfwHourlyGridManifest(raw, "/gfw-v4-poc/manifest.json")?.schemaVersion).toBe(4);
+
+    const badSource = structuredClone(raw);
+    badSource.grid.source = "LOW";
+    expect(parseGfwHourlyGridV4ShadowManifest(badSource)).toBeNull();
+    const badLedger = structuredClone(raw);
+    badLedger.grid.hours[0]!.pmtiles.bytes += 1;
+    expect(parseGfwHourlyGridV4ShadowManifest(badLedger)).toBeNull();
+    const badDetailPath = structuredClone(raw);
+    badDetailPath.grid.hours[0]!.details[0]!.path = "grid/details/20260821T00Z/../escape.json.gz";
+    expect(parseGfwHourlyGridV4ShadowManifest(badDetailPath)).toBeNull();
   });
   it("將 timeline 秒數向下取 UTC 整點，跨時才換 key", () => {
     expect(floorUtcHourIso(Date.parse("2026-08-15T00:00:00Z") / 1000)).toBe("2026-08-15T00:00:00Z");
