@@ -215,6 +215,41 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-next-circle", "circle-opacity", 0);
   });
 
+  it("v4 0.1° Polygon 以 vessel_count 六級色階著色，且 base opacity 為 0.50", async () => {
+    const hours = ["2026-08-15T00:00:00Z", "2026-08-15T01:00:00Z"].map((observedAt, index) => ({
+      observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${index}.pmtiles`,
+      cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [],
+    }));
+    loader.loadManifest.mockResolvedValue({
+      schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours,
+    });
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+
+    const fill = state.layers.get("gfw-hourly-grid-pmtiles-fill") as { paint: Record<string, unknown> };
+    expect(fill.paint["fill-color"]).toEqual([
+      "step", ["to-number", ["get", "vessel_count"], 1], "#7c2d12",
+      2, "#9a3412", 4, "#c2410c", 8, "#ea580c", 16, "#fb923c", 50, "#ffedd5",
+    ]);
+    // 00:20 的 H 權重為 40/60；0.50 × user opacity 0.60 × 2/3 = 0.20。
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-fill", "fill-opacity", 0.2);
+  });
+
+  it("v3 維持固定橘色及 0.24 Polygon opacity", async () => {
+    loader.loadManifest.mockResolvedValue({ schemaVersion: 3, hours: [] });
+    loader.loadHour.mockResolvedValue(FC);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    useGfwHourlyGridLayer(mapRef, true, 0.6);
+    await flushAsync();
+
+    const fill = state.layers.get("gfw-hourly-grid-fill") as { paint: Record<string, unknown> };
+    expect(fill.paint).toMatchObject({ "fill-color": "#fb923c", "fill-opacity": 0.24 });
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-fill", "fill-opacity", 0.096);
+  });
+
   it("click hit source 隨 alpha dominant 切換，透明的 H+1 不會提早搶 popup", async () => {
     const current: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [123, 24] }, properties: { observed_at: "H" } }] };
     const next: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [124, 25] }, properties: { observed_at: "H+1" } }] };

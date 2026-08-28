@@ -13,6 +13,7 @@ pull and deploy were not run.
 | route decision | use private HIGH then local 0.1-degree aggregation: LOW assigns 565,964 vessel-hours to different 0.1-degree cells under the accepted canonical grid |
 | upstream cost | LOW 372,435,396 response bytes / 90.35s / 1,292,402,688 B peak RSS; HIGH 375,200,404 B / 409.13s / 1,475,969,024 B peak RSS |
 | Grid artifact | 24 hourly PMTiles (39,389,483 B) plus 293 complete detail shards (50,322,580 B); 99,155 semantic cells read back |
+| Grid visual | v4-only six-step `vessel_count` scale: `1`, `2–3`, `4–7`, `8–15`, `16–49`, `50+`; fixed from the 24-hour distribution and shown in the legend; production v2/v3 styling is unchanged |
 | Tracks artifact | five ship-type JSON day packs (10,900,081 B) and five typed-binary day packs (7,895,543 B); selected-day type toggles control download/attachment |
 | Fishing Effort | independent 2026-08-21 daily sample, 2,887 polygons, 1,253,080 B, 138,297.72 apparent fishing hours |
 | artifact readback | 328/328 assets, 109,760,767/109,760,767 B, SHA/JSON/binary/PMTiles structure and individual MVT semantics passed |
@@ -95,6 +96,8 @@ but only occupied marine cells should be published.
 - Keep H/H+1 loading and visual crossfade, but the selected hour must stay visible at 100% if
   H+1 is missing. Merge click/hit properties into the same PMTiles contract when practical so
   the Grid does not need an extra duplicate render source.
+- The local shadow uses stable `vessel_count` bands (`1`, `2–3`, `4–7`, `8–15`, `16–49`,
+  `50+`) instead of a per-hour auto-domain, so the same color remains comparable across hours.
 - Re-shard detail sidecars by a measured compressed-payload target; do not assume the current
   fixed 16 buckets/hour remains suitable after parent-cell aggregation.
 - First compare two upstream routes on the same 24-hour sample:

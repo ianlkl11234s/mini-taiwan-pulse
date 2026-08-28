@@ -16,6 +16,9 @@
   spatial-shard POC, not production migration.
 - Added a DEV-shadow-specific five-bucket legend that discloses the current CARRIER and
   GEAR/OTHER grouping; no production v2/v3 taxonomy was changed.
+- Added a v4-only six-step `vessel_count` density scale for the 0.1-degree Grid
+  (`1`, `2–3`, `4–7`, `8–15`, `16–49`, `50+`) and raised its base fill opacity to 0.50;
+  production v2/v3 keeps the existing fixed orange fill and 0.24 opacity.
 
 ## 2026-08-26 — localhost production release proxy
 

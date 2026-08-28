@@ -17,6 +17,7 @@ import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT } from "../data/shipTrails";
 import { isGfwV4ShadowRuntimeEnabled } from "../data/gfwV4ShadowTracksLoader";
+import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -3964,6 +3965,28 @@ function GfwVesselPresenceLegend() {
 
 function GfwHourlyGridLegend() {
   const t = useLegendTheme();
+  const v4Shadow = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
+  if (v4Shadow) return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        GFW 小時船舶網格
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, max-content)", gap: "5px 10px" }}>
+        {GFW_HOURLY_GRID_V4_COLOR_BANDS.map((item) => (
+          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ width: 10, height: 10, background: item.color, border: "1px solid #431407" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5 }}>
+        色階＝每個 0.1° 格網內的船舶數
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+        依全域時間軸切換 UTC 整點
+      </div>
+    </div>
+  );
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>

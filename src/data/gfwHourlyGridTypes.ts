@@ -16,6 +16,30 @@ export interface GfwHourlyGridVessel {
   exitTimestamp?: string;
 }
 
+/** v4 0.1° polygon grid: vessel-count classes shared by Mapbox paint and legend. */
+export const GFW_HOURLY_GRID_V4_COLOR_BANDS = [
+  { min: 1, max: 1, label: "1 艘", color: "#7c2d12" },
+  { min: 2, max: 3, label: "2–3 艘", color: "#9a3412" },
+  { min: 4, max: 7, label: "4–7 艘", color: "#c2410c" },
+  { min: 8, max: 15, label: "8–15 艘", color: "#ea580c" },
+  { min: 16, max: 49, label: "16–49 艘", color: "#fb923c" },
+  { min: 50, max: null, label: "50+ 艘", color: "#ffedd5" },
+] as const;
+
+/** Mapbox `step` stops: [2, 4, 8, 16, 50]. Keep in lockstep with the bands above. */
+export const GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION = [
+  "step", ["to-number", ["get", "vessel_count"], 1],
+  GFW_HOURLY_GRID_V4_COLOR_BANDS[0].color,
+  2, GFW_HOURLY_GRID_V4_COLOR_BANDS[1].color,
+  4, GFW_HOURLY_GRID_V4_COLOR_BANDS[2].color,
+  8, GFW_HOURLY_GRID_V4_COLOR_BANDS[3].color,
+  16, GFW_HOURLY_GRID_V4_COLOR_BANDS[4].color,
+  50, GFW_HOURLY_GRID_V4_COLOR_BANDS[5].color,
+] as const;
+
+export const GFW_HOURLY_GRID_V3_FILL_OPACITY = 0.24;
+export const GFW_HOURLY_GRID_V4_FILL_OPACITY = 0.5;
+
 /** Popup-facing wire contract: the parser intentionally accepts producer-style snake_case only. */
 export function serializeGfwHourlyGridVessels(vessels: readonly GfwHourlyGridVessel[]): string {
   return JSON.stringify(vessels.map((vessel) => ({

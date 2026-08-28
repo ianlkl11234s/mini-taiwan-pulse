@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { CircleLayer, FillLayer, LineLayer, Map as MapboxMap, SymbolLayer } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, FillLayer, LineLayer, Map as MapboxMap, SymbolLayer } from "mapbox-gl";
 import {
   floorUtcHourIso,
   loadGfwHourlyGridHour,
@@ -13,6 +13,11 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { showTransientNotice } from "../components/TransientNotice";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import {
+  GFW_HOURLY_GRID_V3_FILL_OPACITY,
+  GFW_HOURLY_GRID_V4_FILL_OPACITY,
+  GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION,
+} from "../data/gfwHourlyGridTypes";
 
 export const GFW_HOURLY_GRID_SOURCE_ID = "gfw-hourly-grid-source";
 export const GFW_HOURLY_GRID_NEXT_SOURCE_ID = "gfw-hourly-grid-next-source";
@@ -42,6 +47,25 @@ export const GFW_HOURLY_GRID_CLICK_LAYERS = [
 ] as const;
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
+function isV4GridManifest(manifest: GfwHourlyGridManifest | null): boolean {
+  // schema v4 is accepted exclusively through the DEV-only shadow manifest parser.
+  return manifest?.schemaVersion === 4;
+}
+
+function applyGridPaint(map: MapboxMap, v4: boolean): void {
+  const color: ExpressionSpecification | string = v4
+    ? GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION as unknown as ExpressionSpecification
+    : "#fb923c";
+  for (const id of [
+    GFW_HOURLY_GRID_FILL_LAYER_ID,
+    GFW_HOURLY_GRID_NEXT_FILL_LAYER_ID,
+    GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID,
+    GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID,
+  ]) {
+    if (map.getLayer(id)) map.setPaintProperty(id, "fill-color", color);
+  }
+}
 
 function dominantHitData(data: GeoJSON.FeatureCollection | null, hour: string | null): GeoJSON.FeatureCollection {
   if (!data || !hour) return EMPTY;
@@ -75,7 +99,7 @@ function ensureLayer(
       id: fillId,
       type: "fill",
       source: sourceId,
-      paint: { "fill-color": "#fb923c", "fill-opacity": 0.24 },
+      paint: { "fill-color": "#fb923c", "fill-opacity": GFW_HOURLY_GRID_V3_FILL_OPACITY },
       layout: { visibility: "none" },
     } as FillLayer);
   }
@@ -167,6 +191,7 @@ function mountPmtilesSlot(
   layerIds: readonly [string, string],
   url: string,
   sourceLayer: string,
+  v4: boolean,
   hitOnly = false,
 ): void {
   // A PMTiles source URL is immutable after addSource. Replacing the slot atomically keeps
@@ -175,7 +200,10 @@ function mountPmtilesSlot(
   map.addSource(sourceId, { type: PMTILES_SOURCE_TYPE, url, attribution: "Global Fishing Watch" } as never);
   const [fillId, outlineId] = layerIds;
   map.addLayer({ id: fillId, type: "fill", source: sourceId, "source-layer": sourceLayer,
-    paint: hitOnly ? { "fill-opacity": 0 } : { "fill-color": "#fb923c", "fill-opacity": 0.24 },
+    paint: hitOnly ? { "fill-opacity": 0 } : {
+      "fill-color": v4 ? GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION : "#fb923c",
+      "fill-opacity": v4 ? GFW_HOURLY_GRID_V4_FILL_OPACITY : GFW_HOURLY_GRID_V3_FILL_OPACITY,
+    },
     layout: { visibility: "visible" },
   } as FillLayer);
   if (hitOnly) return;
@@ -293,7 +321,7 @@ export function useGfwHourlyGridLayer(
           removePmtilesSlot(map, sourceId, layerIds);
           pmtilesSlotUrlsRef.current.delete(sourceId);
         } else if (pmtilesSlotUrlsRef.current.get(sourceId) !== url || !map.getSource(sourceId)) {
-          mountPmtilesSlot(map, sourceId, layerIds, url, manifest.sourceLayer);
+          mountPmtilesSlot(map, sourceId, layerIds, url, manifest.sourceLayer, isV4GridManifest(manifest));
           pmtilesSlotUrlsRef.current.set(sourceId, url);
         }
       }
@@ -323,7 +351,7 @@ export function useGfwHourlyGridLayer(
         [GFW_HOURLY_GRID_FILL_LAYER_ID, GFW_HOURLY_GRID_OUTLINE_LAYER_ID, currentWeight],
         [GFW_HOURLY_GRID_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_NEXT_OUTLINE_LAYER_ID, nextWeight],
       ] as const) {
-        map.setPaintProperty(fillId, "fill-opacity", 0.24 * clampedOpacity * weight);
+        map.setPaintProperty(fillId, "fill-opacity", (isV4GridManifest(manifestRef.current) ? GFW_HOURLY_GRID_V4_FILL_OPACITY : GFW_HOURLY_GRID_V3_FILL_OPACITY) * clampedOpacity * weight);
         map.setPaintProperty(outlineId, "line-opacity", 0.85 * clampedOpacity * weight);
       }
       for (const [fillId, outlineId, weight] of [
@@ -331,7 +359,7 @@ export function useGfwHourlyGridLayer(
         [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, nextWeight],
       ] as const) {
         if (!map.getLayer(fillId)) continue;
-        map.setPaintProperty(fillId, "fill-opacity", 0.24 * clampedOpacity * weight);
+        map.setPaintProperty(fillId, "fill-opacity", (isV4GridManifest(manifestRef.current) ? GFW_HOURLY_GRID_V4_FILL_OPACITY : GFW_HOURLY_GRID_V3_FILL_OPACITY) * clampedOpacity * weight);
         map.setPaintProperty(outlineId, "line-opacity", 0.85 * clampedOpacity * weight);
       }
       const useNext = Boolean(nextDataRef.current && (!currentDataRef.current || progress >= 0.5));
@@ -343,7 +371,7 @@ export function useGfwHourlyGridLayer(
           const entry = manifest?.hours.find((hour) => hour.observedAt === dominantHour && hour.format === "pmtiles");
           if (manifest?.sourceLayer && entry) {
             mountPmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID,
-              [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, true);
+              [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, isV4GridManifest(manifest), true);
             pmtilesSlotUrlsRef.current.set(GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, entry.path);
           }
         } else source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(
@@ -432,6 +460,7 @@ export function useGfwHourlyGridLayer(
       if (disposed || requestId !== requestRef.current) return;
       manifestRef.current = manifest;
       setGfwHourlyGridDetailContext(manifest);
+      applyGridPaint(map, isV4GridManifest(manifest));
       if (manifest && visible && activation === activationRef.current && noticeActivationRef.current !== activation) {
         noticeActivationRef.current = activation;
         showTransientNotice(`GFW 小時網格資料最新完整日：${manifest.dateEndInclusive}（UTC，非即時）`);
@@ -459,6 +488,7 @@ export function useGfwHourlyGridLayer(
           return;
         }
         ensureLayers(map);
+        applyGridPaint(map, isV4GridManifest(manifestRef.current));
         setVisibility(map, true);
         setPmtilesVisibility(map, true);
         source(map, GFW_HOURLY_GRID_SOURCE_ID)?.setData?.(currentDataRef.current ?? EMPTY);
