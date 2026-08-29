@@ -40,4 +40,31 @@ describe("gfw v4 shared-context custom layer", () => {
     layer.onRemove?.(map, gl);
     expect(scene.dispose).toHaveBeenCalled();
   });
+
+  it("reports a spatial frame only after it reaches the render call", () => {
+    const spatial = { points: new Float32Array([121, 24]), buckets: new Uint8Array([1]) };
+    const scene = {
+      init: vi.fn(), setOpacity: vi.fn(), setTheme: vi.fn(),
+      updateSpatialPoints: vi.fn(() => ({ pointCount: 1 })),
+      render: vi.fn(), dispose: vi.fn(),
+    } as unknown as GfwV4TrackScene;
+    const onSpatialRendered = vi.fn();
+    const map = {
+      getBounds: () => ({ getWest: () => 115, getSouth: () => 20, getEast: () => 135, getNorth: () => 37 }),
+      getZoom: () => 5,
+    } as unknown as MapboxMap;
+    const layer = createGfwV4TrackCustomLayer({
+      budget: { maxHeads: 10, maxTrailVertices: 10 },
+      getFrame: () => null, getSpatialFrame: () => spatial,
+      getVisible: () => true, getOpacity: () => 0.75, getTheme: () => "dark",
+      onSpatialRendered, sceneFactory: () => scene,
+    });
+    const gl = {} as WebGL2RenderingContext;
+    layer.onAdd?.(map, gl);
+    const render = layer.render as unknown as (context: WebGL2RenderingContext, matrix: number[], projection?: { name?: string }) => void;
+    render(gl, new Array(16).fill(0), { name: "mercator" });
+    expect(scene.updateSpatialPoints).toHaveBeenCalledWith(spatial, 5);
+    expect(scene.render).toHaveBeenCalled();
+    expect(onSpatialRendered).toHaveBeenCalledWith({ pointCount: 1, projectionName: "mercator" });
+  });
 });

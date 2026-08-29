@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import type { CircleLayer, GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
+import type { Map as MapboxMap } from "mapbox-gl";
 import { GFW_V4_TRACK_BUCKETS, loadGfwV4Release, type GfwV4Release } from "../data/gfwV4ReleaseLoader";
 import { resolveGfwV4SpatialArtifactUrl, type GfwV4SpatialArtifact, type GfwV4SpatialTracksRelease, type GfwV4TrackBucket } from "../data/gfwV4SpatialTracksLoader";
 import { fixedShardViewportTiles, gfwV4ShardSignature, quantizeGfwV4Viewport, selectGfwV4CurrentNextSpatialFrames, type GfwV4SpatialRequest, type GfwV4ShardTile } from "../data/gfwV4SpatialViewport";
 import type { GfwV4SpatialHitGroup } from "../data/gfwV4SpatialFrame";
-import { decideGfwV4TrackFrame, type GfwV4TrackWorkerReply } from "../data/gfwV4TrackFrameProtocol";
+import { GfwV4TrackLatestWinsQueue, decideGfwV4TrackFrame, type GfwV4TrackErrorReply, type GfwV4TrackFrameReply, type GfwV4TrackPickErrorReply, type GfwV4TrackPickReply, type GfwV4TrackWorkerReply, type GfwV4TrackWorkerRequest } from "../data/gfwV4TrackFrameProtocol";
+import { nearestGfwV4TrackPoint, registerGfwV4TrackPicker, type GfwV4TrackPickResult } from "../data/gfwV4TrackPicking";
 import { gfwV4TrackDataWindowStore, type GfwV4TrackDataWindowState } from "../state/gfwV4TrackDataWindowStore";
 import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
 import { withLoading } from "../lib/loadingRegistry";
@@ -16,7 +17,9 @@ import { useMapReadyTick } from "./useMapReadyTick";
 
 export const GFW_V4_TRACK_HIT_SOURCE_ID = "gfw-v4-track-hit-source";
 export const GFW_V4_TRACK_HIT_LAYER_ID = "gfw-v4-track-hit";
-export const GFW_V4_TRACK_CLICK_LAYERS = [GFW_V4_TRACK_HIT_LAYER_ID] as const;
+export const GFW_V4_TRACK_ATTRIBUTION = '<a href="https://globalfishingwatch.org/" target="_blank" rel="noopener">Powered by Global Fishing Watch</a>';
+/** Formal v4 picking uses the applied GPU frame; no stale Mapbox circle participates. */
+export const GFW_V4_TRACK_CLICK_LAYERS = [] as const;
 /** Fixed acceptance budget from the desktop all-bucket v6 benchmark (82,492 heads). */
 export const GFW_V4_TRACK_BUDGET = Object.freeze({ maxHeads: 120_000, maxTrailVertices: 240_000 });
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -32,6 +35,28 @@ type FormalBucket = typeof FORMAL_BUCKETS[number];
 const trackLabel: Record<FormalBucket | "mixed", string> = { fishing: "漁船 Fishing", cargo: "貨船 Cargo", passenger: "客船 Passenger", carrier: "運輸船 Carrier", other: "其他 Other", unknown: "未知 Unknown", mixed: "混合船種 Mixed" };
 const asFormalBucket = (index: number): FormalBucket => FORMAL_BUCKETS[index] ?? "unknown";
 let warnedEnsureFailure = false;
+
+export interface GfwV4TrackRuntimeSnapshot {
+  readonly visible: boolean;
+  readonly generation: number;
+  readonly frameEpoch: number | null;
+  readonly pointCount: number;
+  readonly segmentCount: number;
+  readonly inFlight: number;
+  readonly pending: number;
+  readonly customLayerMounted: boolean;
+  readonly opacity: number;
+  readonly scenePointCount: number;
+  readonly sceneRenderCount: number;
+  readonly projectionName: string | null;
+}
+
+let runtimeSnapshot: GfwV4TrackRuntimeSnapshot | null = null;
+
+/** Read-only acceptance telemetry; it never drives rendering or timeline state. */
+export function getGfwV4TrackRuntimeSnapshot(): GfwV4TrackRuntimeSnapshot | null {
+  return runtimeSnapshot;
+}
 
 function spatialRelease(release: GfwV4Release): GfwV4SpatialTracksRelease {
   const artifacts: GfwV4SpatialArtifact[] = release.artifacts.flatMap((asset) => {
@@ -90,24 +115,70 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
     let generation = 0;
     let lastHourKey = "";
     let lastShardKey = "";
-    let lastHits: GeoJSON.FeatureCollection = EMPTY;
     let cleared = true;
     let shardTimer: ReturnType<typeof setTimeout> | null = null;
     let pendingShardKey = "";
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let notifiedOutOfWindow = false;
     let notifiedError = false;
+    const queue = new GfwV4TrackLatestWinsQueue();
+    let appliedFrame: { generation: number; frameEpoch: number; points: Float32Array; pointAlphas: Uint8Array } | null = null;
+    let nextPickRequestId = 1;
+    let scenePointCount = 0;
+    let sceneRenderCount = 0;
+    let projectionName: string | null = null;
+    const pendingPicks = new Map<number, { generation: number; frameEpoch: number; resolve: (result: GfwV4TrackPickResult | null) => void }>();
 
-    const setHits = (data: GeoJSON.FeatureCollection) => (map.getSource(GFW_V4_TRACK_HIT_SOURCE_ID) as GeoJSONSource | undefined)?.setData(data);
+    const publishRuntime = () => {
+      runtimeSnapshot = {
+        visible: visibleRef.current,
+        generation,
+        frameEpoch: appliedFrame?.frameEpoch ?? null,
+        pointCount: appliedFrame ? appliedFrame.points.length / 2 : 0,
+        segmentCount: pointRef.current?.segmentBuckets?.length ?? 0,
+        inFlight: queue.inFlight,
+        pending: queue.pending,
+        customLayerMounted: Boolean(map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)),
+        opacity: opacityRef.current,
+        scenePointCount,
+        sceneRenderCount,
+        projectionName,
+      };
+      if (import.meta.env.DEV && typeof document !== "undefined") {
+        document.documentElement.dataset.gfwV4TrackRuntime = JSON.stringify(runtimeSnapshot);
+      }
+    };
+
     const ensure = () => {
       try {
-        if (!map.getSource(GFW_V4_TRACK_HIT_SOURCE_ID)) map.addSource(GFW_V4_TRACK_HIT_SOURCE_ID, { type: "geojson", data: EMPTY, attribution: '<a href="https://globalfishingwatch.org/" target="_blank" rel="noopener">Powered by Global Fishing Watch</a>' });
-        if (!map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)) map.addLayer(createGfwV4TrackCustomLayer({ budget: GFW_V4_TRACK_BUDGET, getFrame: () => null, getSpatialFrame: () => pointRef.current, getVisible: () => visibleRef.current, getOpacity: () => opacityRef.current, getTheme: () => themeRef.current }));
-        if (!map.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) map.addLayer({ id: GFW_V4_TRACK_HIT_LAYER_ID, type: "circle", source: GFW_V4_TRACK_HIT_SOURCE_ID, layout: { visibility: visibleRef.current ? "visible" : "none" }, paint: { "circle-radius": ["interpolate", ["linear"], ["sqrt", ["max", 1, ["to-number", ["get", "vessel_count"], 1]]], 1, 2.4, 4, 6.5], "circle-color": ["match", ["get", "ship_type_bucket"], "fishing", "#58d68d", "cargo", "#39bff4", "passenger", "#b3a0ff", "carrier", "#ff8f43", "other", "#f0cc66", "unknown", "#f5f1db", "#f5f1db"], "circle-opacity": Math.max(0, Math.min(1, opacityRef.current)), "circle-stroke-color": "#041316", "circle-stroke-width": 0.5 } } as CircleLayer);
+        // Keep an empty source solely for Mapbox attribution. It has no layer,
+        // participates in neither rendering nor queries, and is never setData'd.
+        if (map.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) map.removeLayer(GFW_V4_TRACK_HIT_LAYER_ID);
+        if (!map.getSource(GFW_V4_TRACK_HIT_SOURCE_ID)) map.addSource(GFW_V4_TRACK_HIT_SOURCE_ID, { type: "geojson", data: EMPTY, attribution: GFW_V4_TRACK_ATTRIBUTION });
+        if (!map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)) map.addLayer(createGfwV4TrackCustomLayer({
+          budget: GFW_V4_TRACK_BUDGET,
+          getFrame: () => null,
+          getSpatialFrame: () => pointRef.current,
+          getVisible: () => visibleRef.current,
+          getOpacity: () => opacityRef.current,
+          getTheme: () => themeRef.current,
+          onSpatialRendered: (rendered) => {
+            scenePointCount = rendered.pointCount;
+            sceneRenderCount += 1;
+            projectionName = rendered.projectionName;
+            publishRuntime();
+          },
+        }));
+        publishRuntime();
       } catch (error) {
         // style 尚未就緒時 addSource/addLayer 會丟；style.load 會再叫一次 ensure()。
         if (!warnedEnsureFailure) { warnedEnsureFailure = true; console.warn("[gfw-v4-tracks] deferred layer mount until style.load", error); }
       }
+    };
+
+    const invalidatePicks = () => {
+      for (const pending of pendingPicks.values()) pending.resolve(null);
+      pendingPicks.clear();
     };
 
     const setWindow = (status: GfwV4TrackDataWindowState, requestedUtcDate: string | null) => gfwV4TrackDataWindowStore.set({
@@ -119,29 +190,49 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       if (cleared) return;
       cleared = true;
       generation += 1; // 任何在途回覆立即過期
+      queue.clearPending();
       lastHourKey = ""; lastShardKey = "";
+      appliedFrame = null; invalidatePicks();
       pointRef.current = null;
-      if (lastHits !== EMPTY) { lastHits = EMPTY; setHits(EMPTY); }
+      publishRuntime();
       map.triggerRepaint();
     };
 
     const onWorkerMessage = ({ data }: MessageEvent<GfwV4TrackWorkerReply>) => {
       if (disposed || !release) return;
-      if (!data.ok) {
-        if (data.generation !== generation) return;
-        if (!notifiedError) { notifiedError = true; showTransientNotice(`GFW v4 航跡載入失敗：${data.error || "unknown"}`); }
+      if ((data as { type?: string }).type === "pick") {
+        const pickData = data as GfwV4TrackPickReply | GfwV4TrackPickErrorReply;
+        const pending = pendingPicks.get(pickData.pickRequestId);
+        if (!pending) return;
+        pendingPicks.delete(pickData.pickRequestId);
+        if (!pickData.ok || !pickData.group || pending.generation !== pickData.generation || pending.frameEpoch !== pickData.frameEpoch) { pending.resolve(null); return; }
+        const feature = gfwV4TrackHitCollection([pickData.group], release.selectedUtcDate, pickData.frameEpoch).features[0] as GeoJSON.Feature<GeoJSON.Point> | undefined;
+        pending.resolve(feature ? {
+          feature, generation: pickData.generation, frameEpoch: pickData.frameEpoch,
+          isCurrent: () => visibleRef.current && !disposed && appliedFrame?.generation === pickData.generation && appliedFrame.frameEpoch === pickData.frameEpoch,
+        } : null);
+        return;
+      }
+      const frameData = data as GfwV4TrackFrameReply | GfwV4TrackErrorReply;
+      const next = queue.complete();
+      if (next && !disposed) ensureWorker().postMessage(next);
+      publishRuntime();
+      if (!frameData.ok) {
+        if (frameData.generation !== generation) return;
+        if (!notifiedError) { notifiedError = true; showTransientNotice(`GFW v4 航跡載入失敗：${frameData.error || "unknown"}`); }
         // 畫面保持 stale，隔一段時間才重試一次。
         if (retryTimer === null) retryTimer = setTimeout(() => { retryTimer = null; lastHourKey = ""; lastShardKey = ""; evaluate(timeStore.getTime(), true); }, LOAD_RETRY_MS);
         return;
       }
-      const decision = decideGfwV4TrackFrame({ generation: data.generation, loaded: data.loaded, pointCount: data.buckets.length }, generation);
+      const decision = decideGfwV4TrackFrame({ generation: frameData.generation, loaded: frameData.loaded, pointCount: frameData.buckets.length }, generation);
       if (decision === "keep-stale") return;
       notifiedError = false;
-      pointRef.current = { points: data.points, buckets: data.buckets, memberCounts: data.memberCounts, segments: data.segments, segmentBuckets: data.segmentBuckets };
-      // hit source 只在 frame 內容實質變更（新 generation apply）時重建；
-      // 同小時的插值 tick 不重建 ~11k feature，也就不再 setData。
-      if (data.hitGroups) { lastHits = gfwV4TrackHitCollection(data.hitGroups, release.selectedUtcDate, data.frameEpoch); setHits(lastHits); }
-      else if (decision === "clear" && lastHits !== EMPTY) { lastHits = EMPTY; setHits(EMPTY); }
+      pointRef.current = {
+        points: frameData.points, buckets: frameData.buckets, memberCounts: frameData.memberCounts, pointAlphas: frameData.pointAlphas,
+        segments: frameData.segments, segmentBuckets: frameData.segmentBuckets, segmentAlphas: frameData.segmentAlphas,
+      };
+      appliedFrame = { generation: frameData.generation, frameEpoch: frameData.frameEpoch, points: frameData.points, pointAlphas: frameData.pointAlphas };
+      publishRuntime();
       map.triggerRepaint();
     };
 
@@ -154,6 +245,23 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       workerRef.current = created;
       return created;
     };
+
+    const schedule = (request: GfwV4TrackWorkerRequest) => {
+      const ready = queue.enqueue(request);
+      if (ready) ensureWorker().postMessage(ready);
+      publishRuntime();
+    };
+
+    const unregisterPicker = registerGfwV4TrackPicker((pickMap, point, radiusPx) => {
+      const frame = appliedFrame;
+      if (!frame || !visibleRef.current || disposed) return null;
+      const nearest = nearestGfwV4TrackPoint(pickMap, frame.points, point, radiusPx, frame.pointAlphas);
+      if (!nearest) return null;
+      const pickRequestId = nextPickRequestId++;
+      const result = new Promise<GfwV4TrackPickResult | null>((resolve) => pendingPicks.set(pickRequestId, { generation: frame.generation, frameEpoch: frame.frameEpoch, resolve }));
+      ensureWorker().postMessage({ type: "pick", pickRequestId, generation: frame.generation, frameEpoch: frame.frameEpoch, pointIndex: nearest.pointIndex });
+      return { generation: frame.generation, frameEpoch: frame.frameEpoch, pointIndex: nearest.pointIndex, coords: nearest.coords, result };
+    });
 
     /**
      * 真正的 trailing debounce：只有 shard 集合「又變了」才重設計時器。
@@ -171,7 +279,7 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       pendingShardKey = "";
       lastHourKey = hourKey; lastShardKey = shardKey; cleared = false;
       generation += 1;
-      ensureWorker().postMessage({
+      schedule({
         type: "load", generation,
         assets: request.assets.map((asset) => ({ url: resolveGfwV4SpatialArtifactUrl(asset, release!.rootUrl), bucket: GFW_V4_TRACK_BUCKETS.indexOf(asset.bucket), identity: `${asset.bucket}|${asset.observedAt}` })),
         tiles, epoch, trailingSeconds: trailHours * 3_600,
@@ -201,7 +309,7 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       const shardKey = gfwV4ShardSignature(tiles);
       if (hourKey === lastHourKey && (shardKey === lastShardKey || !allowShardReload)) {
         if (shardKey !== lastShardKey) armShardTimer(shardKey);
-        ensureWorker().postMessage({ type: "render", generation, epoch, trailingSeconds: trailHours * 3_600, includeHits: false });
+        schedule({ type: "render", generation, epoch, trailingSeconds: trailHours * 3_600, includeHits: false });
         return;
       }
       startLoad(request, tiles, epoch, trailHours, hourKey, shardKey);
@@ -230,25 +338,28 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       render(timeStore.getTime());
     } catch { if (!disposed) setFormalReady(false); } };
     if (visible) void start();
-    // style reload 只需要「重掛圖層 + 補回上一次的 hit source」，
+    // style reload 只需要重掛 CustomLayer；popup picking 不依賴 style source。
     // 資料更新一律走 subscribeThrottled(100)；不再訂閱高頻的 styledata。
-    const onStyleLoad = () => { ensure(); if (lastHits !== EMPTY) setHits(lastHits); render(timeStore.getTime()); };
+    const onStyleLoad = () => { ensure(); render(timeStore.getTime()); };
     const onMoveEnd = () => { if (shardTimer !== null) { clearTimeout(shardTimer); shardTimer = null; pendingShardKey = ""; } evaluate(timeStore.getTime(), true); };
     map.on("style.load", onStyleLoad);
     map.on("moveend", onMoveEnd);
     const unsubscribe = timeStore.subscribeThrottled(100, render);
     return () => {
       disposed = true; unsubscribe();
+      unregisterPicker(); invalidatePicks(); queue.reset();
       if (shardTimer !== null) clearTimeout(shardTimer);
       if (retryTimer !== null) clearTimeout(retryTimer);
       workerRef.current?.terminate(); workerRef.current = null;
       setGfwHourlyTracksDetailContext(null, "formal-v4"); gfwV4TrackDataWindowStore.clear(); pointRef.current = null;
-      if (map.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) map.removeLayer(GFW_V4_TRACK_HIT_LAYER_ID);
+      runtimeSnapshot = null;
+      if (import.meta.env.DEV && typeof document !== "undefined") delete document.documentElement.dataset.gfwV4TrackRuntime;
       if (map.getLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID)) map.removeLayer(GFW_V4_TRACK_CUSTOM_LAYER_ID);
+      if (map.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) map.removeLayer(GFW_V4_TRACK_HIT_LAYER_ID);
       if (map.getSource(GFW_V4_TRACK_HIT_SOURCE_ID)) map.removeSource(GFW_V4_TRACK_HIT_SOURCE_ID);
       map.off("style.load", onStyleLoad); map.off("moveend", onMoveEnd);
     };
   }, [bucketKey, mapRef, mapTick, trailingHours, visible]);
-  useEffect(() => { const map = mapRef.current; if (map?.getLayer(GFW_V4_TRACK_HIT_LAYER_ID)) { map.setLayoutProperty(GFW_V4_TRACK_HIT_LAYER_ID, "visibility", visible ? "visible" : "none"); map.setPaintProperty(GFW_V4_TRACK_HIT_LAYER_ID, "circle-opacity", Math.max(0, Math.min(1, opacity))); } map?.triggerRepaint(); }, [mapRef, mapTick, opacity, theme, visible]);
+  useEffect(() => { mapRef.current?.triggerRepaint(); }, [mapRef, mapTick, opacity, theme, visible]);
   return formalReady;
 }

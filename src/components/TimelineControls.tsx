@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { TimeMode } from "../types";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../hooks/useGfwHourlyGridLayer";
+import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
+import { formatGfwUtcWindow, mergeGfwTimelineWindows, nearestGfwWindowHour, utcDateWindowSeconds, type GfwTimelineWindow } from "../state/gfwTimelineDataWindow";
 
 interface Props {
   playing: boolean;
@@ -18,6 +21,7 @@ interface Props {
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
+  onJumpToTime: (time: number) => void;
   onTimeModeChange: (mode: TimeMode) => void;
   onDateChange: (d: Date) => void;
   onShiftDate: (days: number) => void;
@@ -84,6 +88,16 @@ function formatSliderLabel(t: number, rangeDays: number): string {
   return formatTime(t);
 }
 
+export function formatTaiwanDateInputValue(d: Date): string {
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+export function parseTaiwanDateInputValue(value: string): Date | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}T00:00:00+08:00`);
+  return Number.isFinite(date.getTime()) ? date : null;
+}
+
 export function TimelineControls({
   playing,
   speed,
@@ -100,6 +114,7 @@ export function TimelineControls({
   onToggle,
   onSpeedChange,
   onSeekByProgress,
+  onJumpToTime,
   onTimeModeChange,
   onDateChange,
   onShiftDate,
@@ -109,6 +124,30 @@ export function TimelineControls({
   const dark = isDarkTheme;
   const [showDatePicker, setShowDatePicker] = useState(false);
   const isFuture = currentTime > Date.now() / 1000;
+  const gridWindow = useSyncExternalStore(
+    subscribeGfwHourlyGridDataWindow,
+    getGfwHourlyGridDataWindowSnapshot,
+    () => null,
+  );
+  const trackWindow = useGfwV4TrackDataWindow();
+  const outOfWindow: GfwTimelineWindow[] = [];
+  if (gridWindow?.status === "out-of-window") {
+    const startUtcSeconds = Date.parse(gridWindow.startIso) / 1000;
+    const endUtcSecondsExclusive = Date.parse(gridWindow.endIsoExclusive) / 1000;
+    if (Number.isFinite(startUtcSeconds) && Number.isFinite(endUtcSecondsExclusive)) {
+      outOfWindow.push({ layers: ["Grid"], startUtcSeconds, endUtcSecondsExclusive });
+    }
+  }
+  if (trackWindow.status === "out-of-window" && trackWindow.startUtcDate && trackWindow.endUtcDate) {
+    const seconds = utcDateWindowSeconds(trackWindow.startUtcDate, trackWindow.endUtcDate);
+    if (seconds) {
+      outOfWindow.push({
+        layers: ["Tracks"],
+        ...seconds,
+      });
+    }
+  }
+  const gfwWindowNotices = mergeGfwTimelineWindows(outOfWindow);
 
   const arrowBtn: React.CSSProperties = {
     ...getBtnStyle(dark),
@@ -205,11 +244,11 @@ export function TimelineControls({
         <div style={{ marginBottom: 6 }}>
           <input
             type="date"
-            value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, "0")}-${String(selectedDate.getDate()).padStart(2, "0")}`}
+            value={formatTaiwanDateInputValue(selectedDate)}
             onChange={(e) => {
-              const parts = e.target.value.split("-").map(Number);
-              if (parts.length === 3) {
-                onDateChange(new Date(parts[0]!, parts[1]! - 1, parts[2]!));
+              const date = parseTaiwanDateInputValue(e.target.value);
+              if (date) {
+                onDateChange(date);
                 setShowDatePicker(false);
               }
             }}
@@ -222,6 +261,46 @@ export function TimelineControls({
           />
         </div>
       )}
+
+      {gfwWindowNotices.map((window) => {
+        const jumpTarget = nearestGfwWindowHour(
+          currentTime,
+          window.startUtcSeconds,
+          window.endUtcSecondsExclusive,
+        );
+        return (
+          <div
+            key={`${window.startUtcSeconds}-${window.endUtcSecondsExclusive}`}
+            role="status"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+              marginBottom: 6,
+              padding: "5px 7px",
+              borderRadius: RADIUS.md,
+              border: "1px solid rgba(255,152,0,0.45)",
+              background: dark ? "rgba(90,55,0,0.72)" : "rgba(255,244,225,0.96)",
+              color: dark ? "#ffd08a" : "#7a4500",
+              fontSize: FONT_SIZE.sm,
+              fontFamily: FONT_DATA,
+            }}
+          >
+            <span>
+              GFW {window.layers.join("／")} 資料窗外；可用 {formatGfwUtcWindow(window.startUtcSeconds, window.endUtcSecondsExclusive)}
+            </span>
+            <button
+              type="button"
+              disabled={jumpTarget === null}
+              onClick={() => { if (jumpTarget !== null) onJumpToTime(jumpTarget); }}
+              style={{ ...getBtnStyle(dark), flexShrink: 0, padding: "3px 7px", fontSize: FONT_SIZE.sm }}
+            >
+              跳至可用時段
+            </button>
+          </div>
+        );
+      })}
 
       {/* Row 2: Playback controls (browse mode only) */}
       {!isLive && (

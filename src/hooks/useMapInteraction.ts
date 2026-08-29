@@ -16,6 +16,7 @@ import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
+import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 
 interface TooltipInfo {
   flight: Flight;
@@ -280,6 +281,36 @@ export function useMapInteraction(
             return;
           }
         }
+      }
+
+      // Formal GFW v4 是 WebGL CustomLayer，不能走 queryRenderedFeatures。
+      // 以目前 applied typed frame 做 5px nearest，再向 Worker 只取該點 popup metadata。
+      const gfwV4Pick = vis?.gfwHourlyTracks ? beginGfwV4TrackPick(map, e.point, 5) : null;
+      if (gfwV4Pick) {
+        setTooltipInfo(null);
+        setTrainTooltipInfo(null);
+        setBusTooltipInfo(null);
+        setWasteScheduleTooltipInfo(null);
+        setRealEstateTooltipInfo(null);
+        setFeatureInfo(null);
+        void gfwV4Pick.result.then((picked) => {
+          if (featureRequest !== featureRequestRef.current || !picked?.isCurrent()) return;
+          const properties = picked.feature.properties ?? {};
+          const coords = picked.feature.geometry.coordinates as [number, number];
+          const needsDetail = typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
+          setFeatureInfo({ layerType: "gfwHourlyTrack", properties: needsDetail ? { ...properties, detail_status: "loading" } : properties, coords });
+          if (needsDetail) {
+            void hydrateGfwTrackDetail(properties).then((hydrated) => {
+              if (featureRequest !== featureRequestRef.current) return;
+              setFeatureInfo({ layerType: "gfwHourlyTrack", properties: hydrated, coords });
+            }).catch(() => {
+              if (featureRequest !== featureRequestRef.current) return;
+              setFeatureInfo({ layerType: "gfwHourlyTrack", properties: { ...properties, detail_status: "error", detail_error: "完整詳情載入失敗" }, coords });
+            });
+          }
+          sessionTracker.log("feature_click", { layerType: "gfwHourlyTrack" });
+        });
+        return;
       }
 
       // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層

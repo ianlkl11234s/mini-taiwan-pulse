@@ -22,6 +22,8 @@ export interface GfwV4TrackCustomLayerOptions {
   getOpacity: () => number;
   getTheme: () => "dark" | "light" | boolean;
   onRendered?: (visible: GfwV4RenderedFrame) => void;
+  /** Acceptance-only observation after a spatial frame reaches the shared GL render call. */
+  onSpatialRendered?: (visible: { pointCount: number; projectionName: string | null }) => void;
   sceneFactory?: (budget: FrameBudget) => GfwV4TrackScene;
 }
 
@@ -45,7 +47,7 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
       map = mapInstance;
       scene.init(gl);
     },
-    render(_gl: WebGLRenderingContext, matrix: number[]) {
+    render(_gl: WebGLRenderingContext, matrix: number[], projection?: { name?: string }) {
       try {
         if (!map || !options.getVisible()) return;
         const frame = options.getSpatialFrame?.() ?? options.getFrame();
@@ -55,17 +57,22 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
         const viewKey = `${bounds.west.toFixed(3)}|${bounds.south.toFixed(3)}|${bounds.east.toFixed(3)}|${bounds.north.toFixed(3)}|${zoom.toFixed(2)}|${options.getOpacity()}|${String(options.getTheme())}`;
         scene.setOpacity(options.getOpacity());
         scene.setTheme(options.getTheme());
+        let spatialVisible: { pointCount: number } | null = null;
         if (frame !== lastFrame || viewKey !== lastViewKey) {
           lastFrame = frame;
           lastViewKey = viewKey;
           if ("points" in frame) {
-            scene.updateSpatialPoints(frame, zoom);
+            spatialVisible = scene.updateSpatialPoints(frame, zoom);
           } else {
             const rendered = scene.update(frame, bounds, zoom);
             options.onRendered?.(rendered);
           }
         }
         scene.render(matrix);
+        if (spatialVisible) options.onSpatialRendered?.({
+          pointCount: spatialVisible.pointCount,
+          projectionName: projection?.name ?? null,
+        });
       } catch (error) {
         if (!warnedRenderFailure) {
           warnedRenderFailure = true;

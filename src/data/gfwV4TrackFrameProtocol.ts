@@ -38,11 +38,44 @@ export interface GfwV4TrackRenderRequest {
   generation: number;
   epoch: number;
   trailingSeconds: number;
-  /** 只有「新 generation 首次 apply」需要重建 popup hit source。 */
+  /** Bench/debug only; production popup picking requests one cached group on click. */
   includeHits: boolean;
 }
 
 export type GfwV4TrackWorkerRequest = GfwV4TrackLoadRequest | GfwV4TrackRenderRequest;
+
+/**
+ * Popup metadata stays in the Worker. The main thread picks against the exact
+ * applied typed point buffer, then asks for just that one group's metadata.
+ * This avoids cloning every hit group (or rebuilding GeoJSON) on every tick.
+ */
+export interface GfwV4TrackPickRequest {
+  type: "pick";
+  pickRequestId: number;
+  generation: number;
+  frameEpoch: number;
+  pointIndex: number;
+}
+
+export interface GfwV4TrackPickReply {
+  type: "pick";
+  ok: true;
+  pickRequestId: number;
+  generation: number;
+  frameEpoch: number;
+  group: GfwV4SpatialHitGroup | null;
+}
+
+export interface GfwV4TrackPickErrorReply {
+  type: "pick";
+  ok: false;
+  pickRequestId: number;
+  generation: number;
+  frameEpoch: number;
+  error: string;
+}
+
+export type GfwV4TrackWorkerMessage = GfwV4TrackWorkerRequest | GfwV4TrackPickRequest;
 
 export interface GfwV4TrackWireTelemetry {
   requestCount: number; wireBytes: number; decodedBytes: number; status206: number; status200: number;
@@ -78,9 +111,13 @@ export interface GfwV4TrackFrameReply {
   points: Float32Array;
   buckets: Uint8Array;
   memberCounts: Uint16Array;
+  /** Per-group lifecycle alpha (0..255), normalized by the GPU. */
+  pointAlphas: Uint8Array;
   segments: Float32Array;
   segmentBuckets: Uint8Array;
-  /** 只有 `includeHits` 的請求會帶；null = 不要動 hit source。 */
+  /** Per-segment lifecycle alpha (0..255), normalized by the GPU. */
+  segmentAlphas: Uint8Array;
+  /** 只有 bench/debug 的 `includeHits` 請求會帶；正式點擊不走整包 clone。 */
   hitGroups: GfwV4SpatialHitGroup[] | null;
   /** 本次 load 實際打出去的 Range 統計（render 回覆為 undefined）。 */
   wire?: GfwV4TrackWireTelemetry;
@@ -91,7 +128,51 @@ export interface GfwV4TrackFrameReply {
 
 export interface GfwV4TrackErrorReply { ok: false; generation: number; error: string; }
 
-export type GfwV4TrackWorkerReply = GfwV4TrackFrameReply | GfwV4TrackErrorReply;
+export type GfwV4TrackWorkerReply = GfwV4TrackFrameReply | GfwV4TrackErrorReply | GfwV4TrackPickReply | GfwV4TrackPickErrorReply;
+
+/**
+ * Coalesce a one-slot pending queue without ever replacing the load that makes
+ * a generation renderable. A later render for that same generation merely
+ * advances the pending load's requested epoch.
+ */
+export function coalesceGfwV4TrackRequest(
+  pending: GfwV4TrackWorkerRequest | null,
+  next: GfwV4TrackWorkerRequest,
+): GfwV4TrackWorkerRequest {
+  if (!pending) return next;
+  if (pending.type === "load" && next.type === "render" && pending.generation === next.generation) {
+    return { ...pending, epoch: next.epoch, trailingSeconds: next.trailingSeconds };
+  }
+  return next;
+}
+
+/** One render/load in flight plus one coalesced latest pending request. */
+export class GfwV4TrackLatestWinsQueue {
+  private activeRequest: GfwV4TrackWorkerRequest | null = null;
+  private pendingRequest: GfwV4TrackWorkerRequest | null = null;
+
+  enqueue(request: GfwV4TrackWorkerRequest): GfwV4TrackWorkerRequest | null {
+    if (this.activeRequest) {
+      this.pendingRequest = coalesceGfwV4TrackRequest(this.pendingRequest, request);
+      return null;
+    }
+    this.activeRequest = request;
+    return request;
+  }
+
+  complete(): GfwV4TrackWorkerRequest | null {
+    this.activeRequest = null;
+    const next = this.pendingRequest;
+    this.pendingRequest = null;
+    if (next) this.activeRequest = next;
+    return next;
+  }
+
+  clearPending(): void { this.pendingRequest = null; }
+  reset(): void { this.activeRequest = null; this.pendingRequest = null; }
+  get inFlight(): number { return this.activeRequest ? 1 : 0; }
+  get pending(): number { return this.pendingRequest ? 1 : 0; }
+}
 
 /**
  * `apply`      —— 這是目前 generation 的已載入資料，且有點 → 換上新 frame。

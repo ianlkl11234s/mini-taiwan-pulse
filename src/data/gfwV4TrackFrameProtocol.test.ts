@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { decideGfwV4TrackFrame } from "./gfwV4TrackFrameProtocol";
+import { GfwV4TrackLatestWinsQueue, decideGfwV4TrackFrame } from "./gfwV4TrackFrameProtocol";
 
 describe("GFW v4 Tracks readiness protocol", () => {
   it("applies a loaded frame that carries points", () => {
@@ -36,5 +36,45 @@ describe("GFW v4 Tracks readiness protocol", () => {
 
   it("keeps stale on a malformed generation instead of blanking the layer", () => {
     expect(decideGfwV4TrackFrame({ generation: Number.NaN, loaded: true, pointCount: 12 }, 1)).toBe("keep-stale");
+  });
+});
+
+describe("GFW v4 Tracks latest-wins queue", () => {
+  const render = (generation: number, epoch: number) => ({ type: "render" as const, generation, epoch, trailingSeconds: 1_800, includeHits: false });
+  const load = (generation: number, epoch: number) => ({ type: "load" as const, generation, epoch, trailingSeconds: 1_800, assets: [], tiles: [] });
+
+  it("bounds work to one in-flight and one pending latest render", () => {
+    const queue = new GfwV4TrackLatestWinsQueue();
+    expect(queue.enqueue(render(1, 100))).toMatchObject({ epoch: 100 });
+    expect(queue.enqueue(render(1, 110))).toBeNull();
+    expect(queue.enqueue(render(1, 120))).toBeNull();
+    expect({ inFlight: queue.inFlight, pending: queue.pending }).toEqual({ inFlight: 1, pending: 1 });
+    expect(queue.complete()).toMatchObject({ epoch: 120 });
+    expect(queue.complete()).toBeNull();
+  });
+
+  it("never lets a render replace the pending load required by its generation", () => {
+    const queue = new GfwV4TrackLatestWinsQueue();
+    queue.enqueue(render(4, 100));
+    queue.enqueue(load(5, 200));
+    queue.enqueue(render(5, 230));
+    expect(queue.complete()).toMatchObject({ type: "load", generation: 5, epoch: 230 });
+  });
+
+  it("lets a newer generation load supersede obsolete pending work", () => {
+    const queue = new GfwV4TrackLatestWinsQueue();
+    queue.enqueue(render(4, 100));
+    queue.enqueue(render(4, 110));
+    queue.enqueue(load(5, 200));
+    expect(queue.complete()).toMatchObject({ type: "load", generation: 5, epoch: 200 });
+  });
+
+  it("drops pending work when the frame lifecycle is cleared", () => {
+    const queue = new GfwV4TrackLatestWinsQueue();
+    queue.enqueue(render(4, 100));
+    queue.enqueue(render(4, 110));
+    queue.clearPending();
+    expect(queue.complete()).toBeNull();
+    expect({ inFlight: queue.inFlight, pending: queue.pending }).toEqual({ inFlight: 0, pending: 0 });
   });
 });

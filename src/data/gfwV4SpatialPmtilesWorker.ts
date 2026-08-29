@@ -6,7 +6,7 @@ import { GFW_V4_TRACK_FRAME_SOURCE_LAYER, parseGfwV4TrackFrameMvtFeature } from 
 import { buildGfwV4SpatialFrame, type GfwV4SpatialObservation } from "./gfwV4SpatialFrame";
 import type {
   GfwV4TrackAssetRef, GfwV4TrackLoadRequest, GfwV4TrackShardTileRef, GfwV4TrackTileCacheTelemetry,
-  GfwV4TrackWireTelemetry, GfwV4TrackWorkerRequest,
+  GfwV4TrackWireTelemetry, GfwV4TrackWorkerMessage,
 } from "./gfwV4TrackFrameProtocol";
 
 /**
@@ -103,28 +103,45 @@ let latestLoadGeneration = -1;
 /** 已 commit 到 loadedObservations 的 generation；render 只服務這一個。 */
 let committedGeneration = -1;
 let loadedObservations: readonly GfwV4SpatialObservation[] = [];
+/** A short epoch-keyed cache lets clicks resolve against the exact applied frame. */
+const pickFrames = new Map<string, readonly ReturnType<typeof buildGfwV4SpatialFrame>["hitGroups"][number][]>();
+const rememberPickFrame = (generation: number, epoch: number, groups: ReturnType<typeof buildGfwV4SpatialFrame>["hitGroups"]) => {
+  const key = `${generation}|${epoch}`;
+  pickFrames.delete(key); pickFrames.set(key, groups);
+  // With one render in flight, three frames cover applied + current + one queued
+  // message without retaining several full metadata copies on dense viewports.
+  while (pickFrames.size > 3) {
+    const oldest = pickFrames.keys().next();
+    if (oldest.done) break;
+    pickFrames.delete(oldest.value);
+  }
+};
 
 function postFrame(generation: number, epoch: number, trailingSeconds: number, includeHits: boolean, telemetry?: { wire: GfwV4TrackWireTelemetry; tiles: GfwV4TrackTileCacheTelemetry; started: number }) {
   const frame = buildGfwV4SpatialFrame(loadedObservations, epoch, trailingSeconds);
+  rememberPickFrame(generation, epoch, frame.hitGroups);
   const value = {
     ok: true as const, generation, loaded: true, frameEpoch: epoch,
-    points: frame.points, buckets: frame.buckets, memberCounts: frame.memberCounts,
-    segments: frame.segments, segmentBuckets: frame.segmentBuckets,
+    points: frame.points, buckets: frame.buckets, memberCounts: frame.memberCounts, pointAlphas: frame.pointAlphas,
+    segments: frame.segments, segmentBuckets: frame.segmentBuckets, segmentAlphas: frame.segmentAlphas,
     // 只有「新 generation 首次 apply」需要 hit group；同小時的插值 tick 不重建，
     // 也就不必把 ~11k 個 member 物件做 structured clone 送回 main thread。
     hitGroups: includeHits ? frame.hitGroups : null,
     wire: telemetry?.wire, tiles: telemetry?.tiles, workerMs: telemetry ? performance.now() - telemetry.started : undefined,
   };
   (self as unknown as { postMessage: (value: unknown, transfer: Transferable[]) => void })
-    .postMessage(value, [frame.points.buffer, frame.buckets.buffer, frame.memberCounts.buffer, frame.segments.buffer, frame.segmentBuckets.buffer]);
+    .postMessage(value, [
+      frame.points.buffer, frame.buckets.buffer, frame.memberCounts.buffer, frame.pointAlphas.buffer,
+      frame.segments.buffer, frame.segmentBuckets.buffer, frame.segmentAlphas.buffer,
+    ]);
 }
 
 /** 這個 generation 還沒 commit：明確回 `loaded:false`，main thread 會保留現有畫面。 */
 function postNotReady(generation: number, epoch: number) {
   const value = {
     ok: true as const, generation, loaded: false, frameEpoch: epoch,
-    points: new Float32Array(0), buckets: new Uint8Array(0), memberCounts: new Uint16Array(0),
-    segments: new Float32Array(0), segmentBuckets: new Uint8Array(0), hitGroups: null,
+    points: new Float32Array(0), buckets: new Uint8Array(0), memberCounts: new Uint16Array(0), pointAlphas: new Uint8Array(0),
+    segments: new Float32Array(0), segmentBuckets: new Uint8Array(0), segmentAlphas: new Uint8Array(0), hitGroups: null,
   };
   (self as unknown as { postMessage: (value: unknown) => void }).postMessage(value);
 }
@@ -166,12 +183,21 @@ async function handleLoad(request: GfwV4TrackLoadRequest, started: number) {
   }
   loadedObservations = observations;
   committedGeneration = request.generation;
-  postFrame(request.generation, request.epoch, request.trailingSeconds, true, { wire: wireDelta(before), tiles: tileDelta(tilesBefore), started });
+  postFrame(request.generation, request.epoch, request.trailingSeconds, false, { wire: wireDelta(before), tiles: tileDelta(tilesBefore), started });
 }
 
-self.onmessage = async ({ data }: MessageEvent<GfwV4TrackWorkerRequest>) => {
+self.onmessage = async ({ data }: MessageEvent<GfwV4TrackWorkerMessage>) => {
   const started = performance.now();
   try {
+    if (data.type === "pick") {
+      const groups = pickFrames.get(`${data.generation}|${data.frameEpoch}`);
+      (self as unknown as { postMessage: (value: unknown) => void }).postMessage({
+        type: "pick", ok: true, pickRequestId: data.pickRequestId,
+        generation: data.generation, frameEpoch: data.frameEpoch,
+        group: groups?.[data.pointIndex] ?? null,
+      });
+      return;
+    }
     if (data.type === "render") {
       if (data.generation !== committedGeneration) { postNotReady(data.generation, data.epoch); return; }
       postFrame(data.generation, data.epoch, data.trailingSeconds, data.includeHits);
@@ -179,6 +205,14 @@ self.onmessage = async ({ data }: MessageEvent<GfwV4TrackWorkerRequest>) => {
     }
     await handleLoad(data, started);
   } catch (error) {
+    if (data.type === "pick") {
+      (self as unknown as { postMessage: (value: unknown) => void }).postMessage({
+        type: "pick", ok: false, pickRequestId: data.pickRequestId,
+        generation: data.generation, frameEpoch: data.frameEpoch,
+        error: error instanceof Error ? error.message : String(error),
+      });
+      return;
+    }
     (self as unknown as { postMessage: (value: unknown) => void })
       .postMessage({ ok: false, generation: data.generation, error: error instanceof Error ? error.message : String(error) });
   }

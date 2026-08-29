@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { gfwV4TrackHitCollection } from "./useGfwV4TracksLayer";
+import { GFW_V4_TRACK_ATTRIBUTION, GFW_V4_TRACK_CLICK_LAYERS, gfwV4TrackHitCollection } from "./useGfwV4TracksLayer";
 
 describe("formal GFW v4 Tracks popup contract", () => {
+  it("retains source attribution without restoring a queryable duplicate head layer", () => {
+    expect(GFW_V4_TRACK_ATTRIBUTION).toContain("globalfishingwatch.org");
+    expect(GFW_V4_TRACK_CLICK_LAYERS).toEqual([]);
+  });
+
   it("labels Passenger canonically and retains its namespaced detail identity", () => {
     const feature = gfwV4TrackHitCollection([{
       lon: 121, lat: 31, buckets: [2], trackIds: ["passenger-track"],

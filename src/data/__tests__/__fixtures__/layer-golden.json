@@ -565,7 +565,6 @@
     },
     {
       "layers": [
-        "gfw-v4-track-hit",
         "gfw-hourly-tracks-endpoint",
         "gfw-hourly-tracks-line"
       ],

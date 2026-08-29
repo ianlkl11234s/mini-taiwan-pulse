@@ -141,6 +141,24 @@ export interface GfwHourlyGridDataWindowState {
   readonly utcDateLabel: string;
 }
 
+export interface GfwHourlyGridRuntimeSnapshot {
+  readonly visible: boolean;
+  readonly desiredHour: string | null;
+  readonly renderedHour: string | null;
+  readonly holding: boolean;
+  readonly holdingDurationMs: number;
+  readonly maxHoldingDurationMs: number;
+  readonly dataWindowStatus: "in-window" | "out-of-window" | null;
+  readonly samples: number;
+}
+
+let gridRuntimeSnapshot: GfwHourlyGridRuntimeSnapshot | null = null;
+
+/** Read-only acceptance telemetry; it never drives source rotation or paint. */
+export function getGfwHourlyGridRuntimeSnapshot(): GfwHourlyGridRuntimeSnapshot | null {
+  return gridRuntimeSnapshot;
+}
+
 // Layer-local playback state published for read-only UI (legend). Module scope because the
 // grid layer is a singleton; the snapshot object is cached so `useSyncExternalStore` consumers
 // do not spin on a fresh object per read.
@@ -469,6 +487,10 @@ export function useGfwHourlyGridLayer(
     let retryPending = false;
     let retryTimer: ReturnType<typeof setTimeout> | null = null;
     let manifestRefreshStarted = false;
+    let holdingSinceMs: number | null = null;
+    let maxHoldingDurationMs = 0;
+    let runtimeSamples = 0;
+    let lastRuntimeDomPublishMs = Number.NEGATIVE_INFINITY;
     const opening = visible && !wasVisibleRef.current;
     if (opening) activationRef.current += 1;
     wasVisibleRef.current = visible;
@@ -671,6 +693,28 @@ export function useGfwHourlyGridLayer(
           dataWindow: dataWindowRef.current,
         });
         publishDataWindowState(plan);
+        const desiredHour = progress >= 0.5 ? nextHourRef.current : currentHourRef.current;
+        const renderedHour = plan.dominantHour;
+        const holding = renderedHour !== desiredHour;
+        const nowMs = performance.now();
+        holdingSinceMs = holding ? (holdingSinceMs ?? nowMs) : null;
+        const holdingDurationMs = holdingSinceMs === null ? 0 : Math.max(0, nowMs - holdingSinceMs);
+        maxHoldingDurationMs = Math.max(maxHoldingDurationMs, holdingDurationMs);
+        runtimeSamples += 1;
+        gridRuntimeSnapshot = {
+          visible,
+          desiredHour,
+          renderedHour,
+          holding,
+          holdingDurationMs,
+          maxHoldingDurationMs,
+          dataWindowStatus: plan.dataWindowStatus,
+          samples: runtimeSamples,
+        };
+        if (import.meta.env.DEV && typeof document !== "undefined" && nowMs - lastRuntimeDomPublishMs >= 250) {
+          lastRuntimeDomPublishMs = nowMs;
+          document.documentElement.dataset.gfwHourlyGridRuntime = JSON.stringify(gridRuntimeSnapshot);
+        }
       }
       // H+1 失敗時 H 必須全亮；H 缺失時才允許 H+1 單獨呈現。
       const currentAvailable = Boolean(currentDataRef.current);
@@ -930,6 +974,10 @@ export function useGfwHourlyGridLayer(
       setGfwHourlyGridDominantHour(null);
       dominantHitLayerId = null;
       v4HitSelectionActive = false;
+      gridRuntimeSnapshot = null;
+      if (import.meta.env.DEV && typeof document !== "undefined") {
+        delete document.documentElement.dataset.gfwHourlyGridRuntime;
+      }
     };
   }, [mapRef, visible, mapTick]);
 

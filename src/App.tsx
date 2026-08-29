@@ -1725,6 +1725,7 @@ export default function App() {
               onToggle={timeline.toggle}
               onSpeedChange={timeline.setSpeed}
               onSeekByProgress={timeline.seekByProgress}
+              onJumpToTime={timeline.jumpToTime}
               onTimeModeChange={timeline.setTimeMode}
               onDateChange={timeline.setSelectedDate}
               onShiftDate={timeline.shiftDate}
@@ -2156,6 +2157,7 @@ export default function App() {
                 onToggle={timeline.toggle}
                 onSpeedChange={timeline.setSpeed}
                 onSeekByProgress={timeline.seekByProgress}
+                onJumpToTime={timeline.jumpToTime}
                 onTimeModeChange={timeline.setTimeMode}
                 onDateChange={timeline.setSelectedDate}
                 onShiftDate={timeline.shiftDate}

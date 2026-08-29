@@ -23,9 +23,13 @@ export interface GfwV4SpatialPointFrame {
   buckets: Uint8Array;
   /** Same-coordinate visual aggregation; popup identities stay in the hit source. */
   memberCounts?: Uint16Array;
+  /** Per-head transition alpha (0..255), aligned 1:1 with buckets. Defaults to fully visible. */
+  pointAlphas?: Uint8Array;
   /** selected-H successor segments: lon/lat/from + lon/lat/to; singletons omit them. */
   segments?: Float32Array;
   segmentBuckets?: Uint8Array;
+  /** Per-segment transition alpha (0..255), aligned 1:1 with segmentBuckets. Defaults to fully visible. */
+  segmentAlphas?: Uint8Array;
 }
 
 export interface GfwV4RenderedSpatialFrame { pointCount: number; }
@@ -68,26 +72,43 @@ export class GfwV4TrackScene {
   private readonly camera = new THREE.Camera();
   private renderer: THREE.WebGLRenderer | null = null;
   private readonly heads: THREE.InstancedMesh;
+  private readonly headAlphas: THREE.InstancedBufferAttribute;
   private readonly trailGeometry = new THREE.BufferGeometry();
   private readonly trailPositions: Float32Array;
-  private readonly trailColors: Float32Array;
+  private readonly trailColors: Uint8Array;
   private readonly trailLines: THREE.LineSegments;
   private readonly matrix = new THREE.Matrix4();
   private isDark = true;
   private opacity = 0.8;
 
   constructor(private readonly budget: FrameBudget) {
+    const headGeometry = new THREE.CircleGeometry(1, 12);
+    const headMaterial = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0.92,
+      depthWrite: false,
+      depthTest: false,
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+    });
+    headMaterial.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace("#include <common>", "#include <common>\nattribute float aGfwAlpha;\nvarying float vGfwAlpha;")
+        .replace("#include <color_vertex>", "#include <color_vertex>\nvGfwAlpha = aGfwAlpha;");
+      shader.fragmentShader = shader.fragmentShader
+        .replace("#include <common>", "#include <common>\nvarying float vGfwAlpha;")
+        .replace(
+          "vec4 diffuseColor = vec4( diffuse, opacity );",
+          "vec4 diffuseColor = vec4( diffuse, opacity );\ndiffuseColor.a *= clamp( vGfwAlpha, 0.0, 1.0 );",
+        );
+    };
+    headMaterial.customProgramCacheKey = () => "gfw-v4-head-instance-alpha-v1";
+    this.headAlphas = new THREE.InstancedBufferAttribute(new Uint8Array(budget.maxHeads).fill(255), 1, true);
+    this.headAlphas.setUsage(THREE.DynamicDrawUsage);
+    headGeometry.setAttribute("aGfwAlpha", this.headAlphas);
     this.heads = new THREE.InstancedMesh(
-      new THREE.CircleGeometry(1, 12),
-      new THREE.MeshBasicMaterial({
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.92,
-        depthWrite: false,
-        depthTest: false,
-        side: THREE.DoubleSide,
-        blending: THREE.AdditiveBlending,
-      }),
+      headGeometry,
+      headMaterial,
       budget.maxHeads,
     );
     this.heads.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -98,9 +119,9 @@ export class GfwV4TrackScene {
 
     // Every logical trail edge is two LineSegments vertices.
     this.trailPositions = new Float32Array(budget.maxTrailVertices * 2 * 3);
-    this.trailColors = new Float32Array(budget.maxTrailVertices * 2 * 3);
+    this.trailColors = new Uint8Array(budget.maxTrailVertices * 2 * 4);
     this.trailGeometry.setAttribute("position", new THREE.BufferAttribute(this.trailPositions, 3).setUsage(THREE.DynamicDrawUsage));
-    this.trailGeometry.setAttribute("color", new THREE.BufferAttribute(this.trailColors, 3).setUsage(THREE.DynamicDrawUsage));
+    this.trailGeometry.setAttribute("color", new THREE.BufferAttribute(this.trailColors, 4, true).setUsage(THREE.DynamicDrawUsage));
     this.trailGeometry.setDrawRange(0, 0);
     this.trailLines = new THREE.LineSegments(
       this.trailGeometry,
@@ -119,7 +140,14 @@ export class GfwV4TrackScene {
     this.renderer.autoClear = false;
   }
 
-  setTheme(theme: "dark" | "light" | boolean): void { this.isDark = theme === true || theme === "dark"; }
+  setTheme(theme: "dark" | "light" | boolean): void {
+    const isDark = theme === true || theme === "dark";
+    if (this.isDark === isDark) return;
+    this.isDark = isDark;
+    const material = this.heads.material as THREE.MeshBasicMaterial;
+    material.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
+    material.needsUpdate = true;
+  }
 
   setOpacity(opacity: number): void {
     this.opacity = Math.max(0, Math.min(1, opacity));
@@ -146,10 +174,12 @@ export class GfwV4TrackScene {
       const legacyBucket = head.buckets[0] === "tanker" ? "carrier" : head.buckets[0];
       const color = head.buckets.length === 1 && legacyBucket ? palette[legacyBucket] : palette.mixed;
       this.heads.setColorAt(index, color);
+      (this.headAlphas.array as Uint8Array)[index] = 255;
     });
     this.heads.count = visible.heads.length;
     this.heads.instanceMatrix.needsUpdate = true;
     if (this.heads.instanceColor) this.heads.instanceColor.needsUpdate = true;
+    this.headAlphas.needsUpdate = true;
 
     let vertex = 0;
     const maxVertices = this.budget.maxTrailVertices * 2;
@@ -164,9 +194,11 @@ export class GfwV4TrackScene {
           this.trailPositions[offset] = point.x;
           this.trailPositions[offset + 1] = point.y;
           this.trailPositions[offset + 2] = point.z;
-          this.trailColors[offset] = color.r;
-          this.trailColors[offset + 1] = color.g;
-          this.trailColors[offset + 2] = color.b;
+          const colorOffset = vertex * 4;
+          this.trailColors[colorOffset] = Math.round(color.r * 255);
+          this.trailColors[colorOffset + 1] = Math.round(color.g * 255);
+          this.trailColors[colorOffset + 2] = Math.round(color.b * 255);
+          this.trailColors[colorOffset + 3] = 255;
           vertex += 1;
         }
       }
@@ -182,7 +214,11 @@ export class GfwV4TrackScene {
    * Worker delivers a transfer-owned typed buffer already viewport culled.
    */
   updateSpatialPoints(frame: GfwV4SpatialPointFrame, zoom: number): GfwV4RenderedSpatialFrame {
-    if (frame.points.length !== frame.buckets.length * 2 || (frame.memberCounts && frame.memberCounts.length !== frame.buckets.length)) throw new Error("GFW v4 spatial point buffer shape mismatch");
+    if (
+      frame.points.length !== frame.buckets.length * 2
+      || (frame.memberCounts && frame.memberCounts.length !== frame.buckets.length)
+      || (frame.pointAlphas && frame.pointAlphas.length !== frame.buckets.length)
+    ) throw new Error("GFW v4 spatial point buffer shape mismatch");
     const headCount = Math.min(frame.buckets.length, this.budget.maxHeads);
     if (frame.buckets.length > this.budget.maxHeads && !warnedHeadBudget) {
       warnedHeadBudget = true;
@@ -199,11 +235,14 @@ export class GfwV4TrackScene {
       this.matrix.setPosition(position.x, position.y, position.z);
       this.heads.setMatrixAt(index, this.matrix);
       this.heads.setColorAt(index, colors[frame.buckets[index]!] ?? palette.mixed);
+      (this.headAlphas.array as Uint8Array)[index] = frame.pointAlphas?.[index] ?? 255;
     }
     this.heads.count = headCount;
     this.heads.instanceMatrix.needsUpdate = true;
     if (this.heads.instanceColor) this.heads.instanceColor.needsUpdate = true;
+    this.headAlphas.needsUpdate = true;
     const requestedSegments = frame.segmentBuckets?.length ?? 0;
+    if (frame.segmentAlphas && frame.segmentAlphas.length !== requestedSegments) throw new Error("GFW v4 spatial segment alpha buffer shape mismatch");
     const segmentCount = Math.min(requestedSegments, this.budget.maxTrailVertices);
     if (requestedSegments > this.budget.maxTrailVertices && !warnedSegmentBudget) {
       warnedSegmentBudget = true;
@@ -213,9 +252,9 @@ export class GfwV4TrackScene {
       for (let index = 0; index < segmentCount; index += 1) {
         const color = colors[frame.segmentBuckets[index]!] ?? palette.mixed;
         for (let endpoint = 0; endpoint < 2; endpoint += 1) {
-          const offset = (index * 4) + endpoint * 2; const point = MercatorCoordinate.fromLngLat([frame.segments[offset]!, frame.segments[offset + 1]!], 0); const out = (index * 2 + endpoint) * 3;
+          const offset = (index * 4) + endpoint * 2; const point = MercatorCoordinate.fromLngLat([frame.segments[offset]!, frame.segments[offset + 1]!], 0); const vertex = index * 2 + endpoint; const out = vertex * 3; const colorOut = vertex * 4;
           this.trailPositions[out] = point.x; this.trailPositions[out + 1] = point.y; this.trailPositions[out + 2] = point.z;
-          this.trailColors[out] = color.r; this.trailColors[out + 1] = color.g; this.trailColors[out + 2] = color.b;
+          this.trailColors[colorOut] = Math.round(color.r * 255); this.trailColors[colorOut + 1] = Math.round(color.g * 255); this.trailColors[colorOut + 2] = Math.round(color.b * 255); this.trailColors[colorOut + 3] = frame.segmentAlphas?.[index] ?? 255;
         }
       }
       this.trailGeometry.setDrawRange(0, segmentCount * 2);
