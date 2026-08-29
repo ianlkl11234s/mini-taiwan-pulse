@@ -113,6 +113,7 @@ import {
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
+import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
@@ -184,11 +185,15 @@ function tourTodayStr(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
-/** tourHotels 類別篩選：0=全部 / 1..4 = hotel_classes 單碼（"1"~"4"）。filter 函式 → rebuild 帶入。 */
+const TOUR_HOTEL_CLASS_VALUES = ["1", "2", "3", "4"];
+
+/** tourHotels 類別篩選：bitmask 對應 hotel_classes 的 4 個穩定類別。 */
 function tourHotelsClassFilter(p?: Record<string, number>): unknown[] {
-  const idx = p?.tourHotelsClassIdx ?? 0;
-  if (idx >= 1 && idx <= 4) return ["==", ["get", "hotel_classes"], String(idx)];
-  return ["has", "hotel_classes"];
+  return multiSelectFilter(
+    "hotel_classes",
+    p?.tourHotelsClassMask ?? allMultiSelectBitmask(TOUR_HOTEL_CLASS_VALUES),
+    TOUR_HOTEL_CLASS_VALUES,
+  );
 }
 
 // tourAttractions 熱度著色（annual_visitors_2024 log10 色帶；非 number（含 null）= 灰「無統計」，絕不當 0）
@@ -4329,7 +4334,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "protectedTreesNational",
     sourceUrl: "./urban/protected_trees_national.geojson",
     sourceId: "protected-trees-national",
-    rebuildOnParamChange: ["protectedTreesNationalOpacity", "protectedTreesNationalRadius", "protectedTreesNationalColorModeIdx", "protectedTreesNationalCityIdx"],
+    rebuildOnParamChange: ["protectedTreesNationalOpacity", "protectedTreesNationalRadius", "protectedTreesNationalColorModeIdx", "protectedTreesNationalCityMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -4337,10 +4342,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const opacity = p?.protectedTreesNationalOpacity ?? 0.85;
           const radiusMult = p?.protectedTreesNationalRadius ?? 1;
           const colorMode = p?.protectedTreesNationalColorModeIdx ?? 0; // 0=樹齡 1=城市
-          const cityIdx = p?.protectedTreesNationalCityIdx ?? 0;       // 0=全部 1..8=單一城市
-          const city = cityIdx > 0 ? PROTECTED_TREE_CITIES[cityIdx - 1]?.name : undefined;
+          const cityValues = PROTECTED_TREE_CITIES.map((city) => city.name);
+          const cityMask = p?.protectedTreesNationalCityMask ?? allMultiSelectBitmask(cityValues);
           const opExpr = (mult: number): unknown[] | number =>
-            city ? ["case", ["==", ["get", "city"], city], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("city", cityMask, cityValues, opacity * mult);
           // 胸徑因子：dbh_m 0.3→×0.7 / 1→×1 / 2→×1.6 / 4→×2.2（null coalesce 0.5 ≈ ×0.79）
           const dbhFactor: unknown[] = [
             "interpolate", ["linear"], ["coalesce", ["get", "dbh_m"], 0.5],
@@ -4365,17 +4370,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "riversideTreesTaipei",
     sourceUrl: "./urban/riverside_trees_taipei.geojson",
     sourceId: "riverside-trees-taipei",
-    rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkIdx"],
+    rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.riversideTreesTaipeiOpacity ?? 0.85;
           const radiusMult = p?.riversideTreesTaipeiRadius ?? 1;
-          const parkIdx = p?.riversideTreesTaipeiParkIdx ?? 0; // 0=全部 1..30=單一河濱公園
-          const park = parkIdx > 0 ? RIVERSIDE_PARKS[parkIdx - 1] : undefined;
+          const parkMask = p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS);
           const opExpr = (mult: number): unknown[] | number =>
-            park ? ["case", ["==", ["get", "park_name"], park], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("park_name", parkMask, RIVERSIDE_PARKS, opacity * mult);
           return {
             "circle-color": riversideTreeSpeciesColorExpr(),
             "circle-radius": ["interpolate", ["linear"], ["zoom"],
@@ -4398,17 +4402,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "parksTaipei",
     sourceUrl: "./urban/parks_taipei.geojson",
     sourceId: "parks-taipei",
-    rebuildOnParamChange: ["parksTaipeiOpacity", "parksTaipeiRadius", "parksTaipeiCategoryIdx"],
+    rebuildOnParamChange: ["parksTaipeiOpacity", "parksTaipeiRadius", "parksTaipeiCategoryMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.parksTaipeiOpacity ?? 0.85;
           const radiusMult = p?.parksTaipeiRadius ?? 1;
-          const catIdx = p?.parksTaipeiCategoryIdx ?? 0; // 0=全部 1..7=單一分類
-          const cat = catIdx > 0 ? TAIPEI_PARK_CATEGORIES[catIdx - 1]?.name : undefined;
+          const categoryValues = TAIPEI_PARK_CATEGORIES.map((category) => category.name);
+          const categoryMask = p?.parksTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           const opExpr = (mult: number): unknown[] | number =>
-            cat ? ["case", ["==", ["get", "category"], cat], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("category", categoryMask, categoryValues, opacity * mult);
           const [lo, hi] = PARK_AREA_DOMAIN;
           const area: unknown[] = ["to-number", ["get", "area_sqm"], 0]; // null → 0
           const areaRadius = (rMin: number, rMax: number): unknown[] => ["case",
@@ -4487,7 +4491,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./urban/street_trees_national.pmtiles",
     sourceId: "street-trees-national",
     pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityIdx"],
+    rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -4495,11 +4499,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const base = p?.streetTreesNationalOpacity ?? 0.7;
           const radiusMult = p?.streetTreesNationalRadius ?? 1;
           const colorMode = p?.streetTreesNationalColorModeIdx ?? 0; // 0=species 1=diameter 2=height 3=city
-          const cityIdx = p?.streetTreesNationalCityIdx ?? 0;        // 0=全部 1=台北 2=台中
-          const city = cityIdx > 0 ? STREET_TREE_NATIONAL_CITIES[cityIdx - 1]?.value : undefined;
-          const opExpr: unknown[] | number = city
-            ? ["case", ["==", ["get", "city"], city], base, 0]
-            : base;
+          const cityValues = STREET_TREE_NATIONAL_CITIES.map((city) => city.value);
+          const cityMask = p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(cityValues);
+          const opExpr = multiSelectOpacityExpression("city", cityMask, cityValues, base);
           let circleColor: unknown[];
           switch (colorMode) {
             case 1: circleColor = streetTree3epochDiameterColorExpr(); break; // 欄位同 dbh_cm
@@ -4532,17 +4534,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./urban/tree_pits_taipei.pmtiles",
     sourceId: "tree-pits-taipei",
     pmtiles: { sourceLayer: "tree_pits_taipei", minzoom: 11, maxzoom: 16 },
-    rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeIdx"],
+    rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeMask"],
     layers: [
       {
         suffix: "fill", type: "fill",
         paint: (_isDark, p) => {
           const base = p?.treePitsTaipeiOpacity ?? 0.55;
-          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0; // 0=全部 1=樹穴 2=花圃
-          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          const pitTypeValues = TREE_PIT_TYPES.map((type) => type.name);
+          const pitTypeMask = p?.treePitsTaipeiTypeMask ?? allMultiSelectBitmask(pitTypeValues);
           return {
             "fill-color": treePitTypeColorExpr(),
-            "fill-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], base, 0] : base,
+            "fill-opacity": multiSelectOpacityExpression("pit_type", pitTypeMask, pitTypeValues, base),
           };
         },
       },
@@ -4550,14 +4552,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line", type: "line",
         paint: (_isDark, p) => {
           const base = p?.treePitsTaipeiOpacity ?? 0.55;
-          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0;
-          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          const pitTypeValues = TREE_PIT_TYPES.map((type) => type.name);
+          const pitTypeMask = p?.treePitsTaipeiTypeMask ?? allMultiSelectBitmask(pitTypeValues);
           // outline 比填色略實（min(1, base+0.2)），低填色透明度時仍可辨邊界
           const lineOp = Math.min(1, base + 0.2);
           return {
             "line-color": treePitTypeColorExpr(),
             "line-width": 0.5,
-            "line-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], lineOp, 0] : lineOp,
+            "line-opacity": multiSelectOpacityExpression("pit_type", pitTypeMask, pitTypeValues, lineOp),
           };
         },
       },
@@ -4685,11 +4687,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: (p) => {
-          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          const categoryMask = p?.urbanZoningTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           // zone_raw="nan" 的 4 筆是規劃範圍框（meta-polygon 非分區面），不渲染不點擊；上游 drop 前的防禦（UZ-5）
           const notMeta = ["!=", ["get", "zone_raw"], "nan"];
-          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+          return ["all", notMeta, multiSelectFilter("zone_category", categoryMask, categoryValues)];
         },
         paint: (_isDark, p) => ({
           "fill-color": urbanZoningColorExpr(),
@@ -4700,10 +4702,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line",
         type: "line",
         filter: (p) => {
-          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0;
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          const categoryMask = p?.urbanZoningTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           const notMeta = ["!=", ["get", "zone_raw"], "nan"];
-          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+          return ["all", notMeta, multiSelectFilter("zone_category", categoryMask, categoryValues)];
         },
         paint: (_isDark, p) => ({
           "line-color": urbanZoningColorExpr(),
@@ -4724,9 +4726,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: (p) => {
-          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          return multiSelectFilter(
+            "zone_category",
+            p?.urbanZoningNewTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues),
+            categoryValues,
+          );
         },
         paint: (_isDark, p) => ({
           "fill-color": urbanZoningColorExpr(),
@@ -4737,9 +4742,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line",
         type: "line",
         filter: (p) => {
-          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0;
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          return multiSelectFilter(
+            "zone_category",
+            p?.urbanZoningNewTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues),
+            categoryValues,
+          );
         },
         paint: (_isDark, p) => ({
           "line-color": urbanZoningColorExpr(),
@@ -4765,7 +4773,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "fill",
         type: "fill",
-        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeMask),
         paint: (_isDark, p) => ({
           "fill-color": nonUrbanZoningColorExpr(),
           "fill-opacity": p?.nonUrbanZoningOpacity ?? 0.35,
@@ -4774,7 +4782,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeMask),
         paint: (_isDark, p) => ({
           "line-color": nonUrbanZoningColorExpr(),
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
@@ -4803,9 +4811,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         filter: (p) => {
-          const idx = p?.culturalFacilitiesTypeIdx ?? 0; // 0=全部 1..6=單一類型
-          const type = idx > 0 ? CULTURAL_FACILITY_TYPES[idx - 1]?.name : undefined;
-          return type ? ["==", ["get", "facility_type"], type] : ["has", "facility_type"];
+          const typeValues = CULTURAL_FACILITY_TYPES.map((type) => type.name);
+          return multiSelectFilter(
+            "facility_type",
+            p?.culturalFacilitiesTypeMask ?? allMultiSelectBitmask(typeValues),
+            typeValues,
+          );
         },
         paint: (isDark, p) => {
           const opacity = p?.culturalFacilitiesOpacity ?? 0.9;
@@ -4833,9 +4844,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         filter: (p) => {
-          const idx = p?.culturalMuseumsTypeIdx ?? 0; // 0=全部 1..5=單一類型
-          const type = idx > 0 ? CULTURAL_MUSEUM_TYPES[idx - 1]?.name : undefined;
-          return type ? ["==", ["get", "type"], type] : ["has", "type"];
+          const typeValues = CULTURAL_MUSEUM_TYPES.map((type) => type.name);
+          return multiSelectFilter(
+            "type",
+            p?.culturalMuseumsTypeMask ?? allMultiSelectBitmask(typeValues),
+            typeValues,
+          );
         },
         paint: (isDark, p) => {
           const opacity = p?.culturalMuseumsOpacity ?? 0.9;

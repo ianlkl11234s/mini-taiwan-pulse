@@ -46,9 +46,11 @@
 - 現有 popup 豁免 ledger 有 57 筆，其中 32 個 layer 目前宣告 `popup: null`；其餘是
   Three.js／hover 等非 GIS 點選路徑。兩者都必須逐筆確認是否符合「可點選資訊」政策，
   不能只把 manifest 欄位當作使用者行為。
-- 已有通用多選分類控件與 stable state encoding；`religionTemples` 已完成第一個 Mapbox
-  bitmask filter 接線（預設全選，支援全關）。其餘既有單選／boolean 篩選仍要依其 Mapbox
-  filter、GeoJSON loader 或 Three.js renderer 逐一遷移。
+- 分類多選共用 scalar state + numeric bitmask 的 Mapbox bridge：`religionTemples`、動物服務據點、
+  受保護樹木、河濱喬木、台北公園、文化設施／地方文化館、旅宿、全國行道樹、台北樹穴、
+  北市／新北與非都市土地分區皆已接線（預設全選、支援全關）。
+- bitmask 僅適用穩定且可並存的分類，最多 30 類；超過上限不可遷移，避免 JavaScript 32-bit
+  sign bit 造成分類誤判。mode、status、year、precision、metric 等互斥控制維持單選。
 
 ## 稽核原則
 

@@ -17931,7 +17931,7 @@
         "protectedTreesNationalOpacity",
         "protectedTreesNationalRadius",
         "protectedTreesNationalColorModeIdx",
-        "protectedTreesNationalCityIdx"
+        "protectedTreesNationalCityMask"
       ],
       "sourceId": "protected-trees-national",
       "sourceUrl": "./urban/protected_trees_national.geojson"
@@ -18073,7 +18073,7 @@
       "rebuildOnParamChange": [
         "riversideTreesTaipeiOpacity",
         "riversideTreesTaipeiRadius",
-        "riversideTreesTaipeiParkIdx"
+        "riversideTreesTaipeiParkMask"
       ],
       "sourceId": "riverside-trees-taipei",
       "sourceUrl": "./urban/riverside_trees_taipei.geojson"
@@ -18363,7 +18363,7 @@
       "rebuildOnParamChange": [
         "parksTaipeiOpacity",
         "parksTaipeiRadius",
-        "parksTaipeiCategoryIdx"
+        "parksTaipeiCategoryMask"
       ],
       "sourceId": "parks-taipei",
       "sourceUrl": "./urban/parks_taipei.geojson"
@@ -18647,7 +18647,7 @@
         "streetTreesNationalOpacity",
         "streetTreesNationalRadius",
         "streetTreesNationalColorModeIdx",
-        "streetTreesNationalCityIdx"
+        "streetTreesNationalCityMask"
       ],
       "sourceId": "street-trees-national",
       "sourceUrl": "./urban/street_trees_national.pmtiles"
@@ -18745,7 +18745,7 @@
       },
       "rebuildOnParamChange": [
         "treePitsTaipeiOpacity",
-        "treePitsTaipeiTypeIdx"
+        "treePitsTaipeiTypeMask"
       ],
       "sourceId": "tree-pits-taipei",
       "sourceUrl": "./urban/tree_pits_taipei.pmtiles"
@@ -47184,10 +47184,6 @@
         "label": "服務類型",
         "options": [
           {
-            "label": "全部類型",
-            "value": "all"
-          },
-          {
             "label": "動物醫院",
             "value": "veterinary_clinic"
           },
@@ -47216,8 +47212,16 @@
             "value": "pet_friendly_place"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "veterinary_clinic",
+          "licensed_pet_business",
+          "animal_protection_office",
+          "pet_registration_station",
+          "rabies_vaccination_site",
+          "veterinary_emergency",
+          "pet_friendly_place"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -48752,10 +48756,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "實體書店",
             "value": "實體書店"
           },
@@ -48780,8 +48780,15 @@
             "value": "文創商店"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "實體書店",
+          "工藝之家",
+          "博物館",
+          "特色圖書館",
+          "文化行政據點",
+          "文創商店"
+        ]
       },
       {
         "label": "透明度 0.90",
@@ -48803,10 +48810,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "歷史與人文",
             "value": "歷史與人文"
           },
@@ -48827,8 +48830,14 @@
             "value": "自然與科學"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "歷史與人文",
+          "綜合與其他",
+          "藝術與工藝",
+          "生活與休閒",
+          "自然與科學"
+        ]
       },
       {
         "label": "透明度 0.90",
@@ -51607,10 +51616,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "特定農業區",
             "value": "AA"
           },
@@ -51655,8 +51660,20 @@
             "value": "AL"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "AA",
+          "AB",
+          "AC",
+          "AD",
+          "AE",
+          "AF",
+          "AG",
+          "AH",
+          "AJ",
+          "AK",
+          "AL"
+        ]
       },
       {
         "label": "填色透明度 0.35",
@@ -52059,10 +52076,6 @@
         "label": "分類",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "公園",
             "value": "公園"
           },
@@ -52091,8 +52104,16 @@
             "value": "其他"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "公園",
+          "兒童遊戲場",
+          "綠地",
+          "鄰里公園",
+          "區域公園",
+          "廣場",
+          "其他"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -53176,10 +53197,6 @@
         "label": "城市",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "台北市",
             "value": "台北市"
           },
@@ -53212,8 +53229,17 @@
             "value": "新竹縣"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "台北市",
+          "新北市",
+          "高雄市",
+          "桃園市",
+          "花蓮縣",
+          "新竹市",
+          "嘉義縣",
+          "新竹縣"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -53719,10 +53745,6 @@
         "label": "河濱公園",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "華中",
             "value": "華中"
           },
@@ -53843,8 +53865,39 @@
             "value": "南湖左岸"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "華中",
+          "雙溪",
+          "延平",
+          "福和",
+          "古亭",
+          "百齡左岸",
+          "關渡水岸",
+          "大佳",
+          "道南",
+          "美堤",
+          "迎風",
+          "龍山",
+          "中正",
+          "百齡右岸",
+          "社子島沿線",
+          "觀山",
+          "雁鴨",
+          "景美",
+          "彩虹",
+          "成美右岸",
+          "成美左岸",
+          "福安",
+          "雙園",
+          "河雙21號",
+          "馬場町紀念公園",
+          "圓山",
+          "木柵",
+          "南湖右岸",
+          "富州",
+          "南湖左岸"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -54472,10 +54525,6 @@
         "label": "城市",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "台北",
             "value": "taipei"
           },
@@ -54484,8 +54533,11 @@
             "value": "taichung"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "taipei",
+          "taichung"
+        ]
       },
       {
         "label": "透明度 0.70",
@@ -54932,10 +54984,6 @@
         "label": "類別",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "國際觀光旅館",
             "value": "1"
           },
@@ -54952,8 +55000,13 @@
             "value": "4"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -55083,10 +55136,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "樹穴",
             "value": "樹穴"
           },
@@ -55095,8 +55144,11 @@
             "value": "花圃"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "樹穴",
+          "花圃"
+        ]
       },
       {
         "label": "填色透明度 0.55",
@@ -55397,10 +55449,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "住宅",
             "value": "residential"
           },
@@ -55437,8 +55485,18 @@
             "value": "other"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "commercial",
+          "industrial",
+          "agricultural",
+          "open_space",
+          "public_facility",
+          "transport",
+          "conservation",
+          "other"
+        ]
       },
       {
         "label": "填色透明度 0.50",
@@ -55453,10 +55511,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "住宅",
             "value": "residential"
           },
@@ -55493,8 +55547,18 @@
             "value": "other"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "commercial",
+          "industrial",
+          "agricultural",
+          "open_space",
+          "public_facility",
+          "transport",
+          "conservation",
+          "other"
+        ]
       },
       {
         "label": "填色透明度 0.50",

@@ -97,7 +97,7 @@ describe("overlay 表達式（Mapbox style-spec 靜態驗證）", () => {
     });
   }
 
-  it("有 filter 函式的 layer，在各種 params idx 下都產出合法 filter", () => {
+  it("有 filter 函式的 layer，在各種 params index/bitmask 下都產出合法 filter", () => {
     // 分類篩選類 layer（urbanZoning / nonUrbanZoning / mountainRescue / religion…）的 filter
     // 會依 idx 取不同分支，只驗 idx=0 會漏掉「選了某分類才炸」的情況。
     // 掃 0..11 涵蓋目前所有分類表長度（最長 11 = 非都市分區 zone_code）。
@@ -106,7 +106,7 @@ describe("overlay 表達式（Mapbox style-spec 靜態驗證）", () => {
       for (const spec of config.layers) {
         if (typeof spec.filter !== "function") continue;
         for (let idx = 0; idx <= 11; idx++) {
-          // 所有 *Idx 參數一起餵同一個值：filter 函式只會挑自己認得的 key
+          // 所有 *Idx/*Mask 參數一起餵同一個值：filter 函式只會挑自己認得的 key
           const params = Object.fromEntries(
             (config.rebuildOnParamChange ?? []).map((k) => [k, idx]),
           );
@@ -125,18 +125,40 @@ describe("overlay 表達式（Mapbox style-spec 靜態驗證）", () => {
     }
     expect(broken, `filter 表達式不合法：\n  ${broken.join("\n  ")}`).toEqual([]);
   });
+
+  it("分類多選全關時，所有遷移後的 Mapbox filter 仍通過 style-spec", () => {
+    const migrated = new Set([
+      "protectedTreesNational", "riversideTreesTaipei", "parksTaipei", "culturalFacilities",
+      "culturalMuseums", "tourHotels", "streetTreesNational", "treePitsTaipei",
+      "urbanZoningTaipei", "urbanZoningNewTaipei", "nonUrbanZoning",
+    ]);
+    const broken: string[] = [];
+    for (const config of OVERLAY_REGISTRY) {
+      if (!migrated.has(config.id)) continue;
+      const params = idxParamsFor(config, 0); // 所有 *Mask=0，即使用者按「全關」。
+      for (const spec of config.layers) {
+        if (typeof spec.filter !== "function") continue;
+        const layer = buildLayer(config, spec, true, params);
+        for (const msg of validateLayer(layer, sourceFor(config, spec.type))) {
+          broken.push(`${config.id}/${spec.suffix}: ${msg}`);
+        }
+      }
+    }
+    expect(broken, `全關 filter 不合法：\n  ${broken.join("\n  ")}`).toEqual([]);
+  });
 });
 
 /**
- * 猜出該 config 可能用到的 *Idx / *CategoryIdx 參數名並全部餵同一個 idx。
- * 命名慣例是 `<layerKey><Something>Idx`（urbanZoningTaipeiCategoryIdx /
- * mountainRescueIncidentsYearIdx / religionTemplesDeityIdx…），這裡窮舉常見後綴即可，
- * 猜不中的 key 只會讓 filter 走預設分支（idx=0），不會誤報。
+ * 猜出該 config 可能用到的 *Idx / *Mask 參數名並全部餵同一個數值。
+ * 命名慣例是 `<layerKey><Something>Idx|Mask`（urbanZoningTaipeiCategoryMask /
+ * mountainRescueIncidentsYearIdx / religionTemplesDeityMask…），這裡窮舉常見後綴即可，
+ * 猜不中的 key 只會讓 filter 走預設分支，不會誤報。
  */
 function idxParamsFor(config: OverlayConfig, idx: number): Record<string, number> {
   const suffixes = [
     "CategoryIdx", "CodeIdx", "YearIdx", "DeityIdx", "RegistryIdx",
     "ModeIdx", "TypeIdx", "HighlightIdx", "ScaleIdx", "ColorModeIdx", "TrajFilterIdx",
+    "CategoryMask", "CodeMask", "DeityMask", "TypeMask", "ClassMask", "CityMask", "ParkMask",
   ];
   return Object.fromEntries(suffixes.map((s) => [`${config.id}${s}`, idx]));
 }

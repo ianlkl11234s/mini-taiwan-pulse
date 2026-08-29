@@ -38,6 +38,18 @@ describe("buildParamControls", () => {
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["religionTemplesDeityMask"]).toBe(0);
   });
 
+  it("可並存分類預設全開，並以穩定 bitmask 傳給 renderer", () => {
+    const river = (buildParamControls("riversideTreesTaipei") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
+    expect(river).toMatchObject({ type: "multiSelect", label: "河濱公園" });
+    expect(river.value).toHaveLength(30);
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["riversideTreesTaipeiParkMask"])
+      .toBe(1073741823);
+
+    river.onSelectNone();
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["riversideTreesTaipeiParkMask"])
+      .toBe(0);
+  });
+
   it("市區公車區域多選預設只有雙北，且不進 overlayParams", () => {
     const control = (buildParamControls("busLive") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
     expect(control).toMatchObject({
