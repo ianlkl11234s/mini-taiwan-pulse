@@ -65,7 +65,12 @@ vi.mock("../../data/gfwHourlyDetailLoader", () => ({
   setGfwHourlyGridDominantHour: detailContext.setDominantHour,
 }));
 
-import { getGfwHourlyGridDataWindowSnapshot, useGfwHourlyGridLayer } from "../useGfwHourlyGridLayer";
+import {
+  getGfwHourlyGridDataWindowSnapshot,
+  getGfwHourlyGridDominantHitLayerId,
+  isGfwHourlyGridDominantHitLayer,
+  useGfwHourlyGridLayer,
+} from "../useGfwHourlyGridLayer";
 
 const FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -334,10 +339,10 @@ describe("useGfwHourlyGridLayer timeline", () => {
       .toBe("gfw-hourly-grid-pmtiles-next-source");
     harness.tick(Date.parse("2026-08-15T00:40:00Z") / 1000);
     expect(detailContext.setDominantHour).toHaveBeenLastCalledWith("2026-08-15T01:00:00Z");
-    // hit layer 的 visibility 是 layout change（會 relayout 共用 source），所以走節流。
-    await vi.advanceTimersByTimeAsync(400);
-    expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-hit-fill", "visibility", "none");
-    expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-hit-fill", "visibility", "visible");
+    // dominant 換手只更新查詢期的選擇器；hit layer 恆 visible（翻 visibility 會 reload 共用 source）。
+    expect(getGfwHourlyGridDominantHitLayerId()).toBe("gfw-hourly-grid-pmtiles-next-hit-fill");
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-next-hit-fill")).toBe(true);
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-hit-fill")).toBe(false);
   });
 
   it("v4 H+1 尚未 first-ready 時 H 維持全亮", async () => {
@@ -441,6 +446,65 @@ describe("useGfwHourlyGridLayer timeline", () => {
     await flushAsync();
     expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-fill", "fill-opacity")).toBe(0.6);
     expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBe(0);
+  });
+
+  it("v4 點擊選擇走查詢期述詞：只有 dominant 小時的 hit layer 可回答，且 hit layer 恆 visible", async () => {
+    const hours = [0, 1, 2].map((offset) => {
+      const observedAt = `2026-08-15T0${offset}:00:00Z`;
+      return { observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`, cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [] };
+    });
+    loader.loadManifest.mockResolvedValue({
+      schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours,
+      dateStart: "2026-08-15", dateEndInclusive: "2026-08-15",
+    });
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    state.ready("gfw-hourly-grid-pmtiles-source");
+    state.ready("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+
+    // 三個 hit layer 都恆 visible —— 翻 visibility 會 reload 與視覺層共用的 source。
+    for (const id of [
+      "gfw-hourly-grid-pmtiles-hit-fill",
+      "gfw-hourly-grid-pmtiles-next-hit-fill",
+      "gfw-hourly-grid-pmtiles-preload-hit-fill",
+    ]) {
+      expect((state.layers.get(id) as { layout?: { visibility?: string } }).layout?.visibility).toBe("visible");
+    }
+
+    expect(getGfwHourlyGridDominantHitLayerId()).toBe("gfw-hourly-grid-pmtiles-hit-fill");
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-next-hit-fill")).toBe(false);
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-preload-hit-fill")).toBe(false);
+
+    clock.current = Date.parse("2026-08-15T00:40:00Z") / 1000;
+    harness.tick(clock.current);
+    await flushAsync();
+    expect(getGfwHourlyGridDominantHitLayerId()).toBe("gfw-hourly-grid-pmtiles-next-hit-fill");
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-hit-fill")).toBe(false);
+
+    // 完全淡出資料窗後沒有 dominant，任何 hit layer 都不得回答點擊。
+    clock.current = Date.parse("2026-08-15T04:00:00Z") / 1000;
+    harness.tick(clock.current);
+    await flushAsync();
+    expect(getGfwHourlyGridDominantHitLayerId()).toBeNull();
+    for (const id of [
+      "gfw-hourly-grid-pmtiles-hit-fill",
+      "gfw-hourly-grid-pmtiles-next-hit-fill",
+      "gfw-hourly-grid-pmtiles-preload-hit-fill",
+    ]) expect(isGfwHourlyGridDominantHitLayer(id)).toBe(false);
+  });
+
+  it("v3 沒有 dominant 選擇機制時，述詞放行既有的單一 hit layer", async () => {
+    loader.loadManifest.mockResolvedValue({ schemaVersion: 3, hours: [] });
+    loader.loadHour.mockResolvedValue(FC);
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    expect(getGfwHourlyGridDominantHitLayerId()).toBeNull();
+    // v3 重用同一個 layer id 當唯一 hit layer；濾掉它等於整個 popup 失效。
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-pmtiles-hit-fill")).toBe(true);
+    expect(isGfwHourlyGridDominantHitLayer("gfw-hourly-grid-hit-fill")).toBe(true);
   });
 
   it("v4 時間軸離開 release 資料窗時淡出並標示窗外，不 teardown source", async () => {

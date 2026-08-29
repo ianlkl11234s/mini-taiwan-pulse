@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
 import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
@@ -299,7 +300,15 @@ export function useMapInteraction(
         for (const { layers: layerIds, type } of GIS_LAYERS) {
           const existingIds = layerIds.filter((id) => map.getLayer(id));
           if (existingIds.length === 0) continue;
-          const features = map.queryRenderedFeatures(bbox, { layers: existingIds });
+          const queried = map.queryRenderedFeatures(bbox, { layers: existingIds });
+          // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
+          // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
+          // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
+          // feature 進來會 vessel_count 對不上而變成「驗證失敗」面板。dominant 為 null
+          // （資料窗外已完全淡出）時視為沒命中，讓點擊落到下一個 GIS_LAYERS 條目。
+          const features = type === "gfwHourlyGrid"
+            ? queried.filter((feature) => isGfwHourlyGridDominantHitLayer(feature.layer?.id))
+            : queried;
           if (features.length > 0) {
             const f = features[0]!;
             let coords: [number, number] | undefined;

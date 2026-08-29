@@ -88,15 +88,48 @@ const V4_PMTILES_SLOTS = [
 ] as const;
 
 /**
- * Each hit-layer visibility flip is a *layout* change, and mapbox-gl 3.18.1 always relayouts
- * on those — a full reload of the grid PMTiles source the fill layers share. The dominant
- * hour flips twice per playback hour, i.e. 1–2× per second at 1800x/3600x, so applications
- * are throttled: the first flip lands immediately and rapid follow-ups coalesce.
+ * Which hit layer is allowed to answer a grid click, or null when nothing is on screen.
  *
- * Ordering (`moveLayer`, which does not relayout) would remove this cost entirely, but the
- * matching query-time filter lives in the click registry — see the handoff spec.
+ * The three v4 hit layers stay permanently `visibility: "visible"`: `visibility` is a
+ * tile-parse-time gate (WorkerTile skips hidden layers entirely), so mapbox-gl 3.18.1 must
+ * reload the whole source cache on every flip — and these layers share their source with the
+ * visual fill layers, so flipping them re-parsed the grid the user is looking at, 1–2× per
+ * second at 1800x/3600x. A constant `fill-opacity: 0` never hides a layer from
+ * `queryRenderedFeatures`, so selection moves to query time instead: the click handler keeps
+ * only features whose layer id matches this, *before* taking `features[0]`.
+ *
+ * That filter is mandatory, not cosmetic. v4 tiles carry no `observed_at`, so the popup
+ * hydrates whatever cell it hits against the dominant hour; letting a feature from another
+ * slot through yields a `vessel_count` mismatch and a "驗證失敗" panel where the old
+ * visibility gate simply produced no popup.
  */
-const HIT_VISIBILITY_THROTTLE_MS = 300;
+let dominantHitLayerId: string | null = null;
+/**
+ * Only v4 routes clicks by dominant hour. v2/v3 keep a dedicated single hit layer that reuses
+ * `GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID`, so the filter must stay off for them or the
+ * legacy popup would lose every click.
+ */
+let v4HitSelectionActive = false;
+
+const V4_HIT_LAYER_IDS: ReadonlySet<string> = new Set([
+  GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID,
+  GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID,
+  GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID,
+]);
+
+export function getGfwHourlyGridDominantHitLayerId(): string | null {
+  return v4HitSelectionActive ? dominantHitLayerId : null;
+}
+
+/**
+ * Query-time click gate. Keep a queried feature only if its layer may answer for the hour the
+ * popup will hydrate against. Applied BEFORE `features[0]` is taken.
+ */
+export function isGfwHourlyGridDominantHitLayer(layerId: string | undefined): boolean {
+  if (!v4HitSelectionActive || layerId === undefined) return !v4HitSelectionActive;
+  if (!V4_HIT_LAYER_IDS.has(layerId)) return true;
+  return layerId === dominantHitLayerId;
+}
 
 export interface GfwHourlyGridDataWindowState {
   readonly status: "in-window" | "out-of-window";
@@ -356,8 +389,12 @@ function addV4PmtilesHitLayer(map: MapboxMap, sourceId: string, layerId: string,
     type: "fill",
     source: sourceId,
     "source-layer": sourceLayer,
+    // Stays visible for the whole life of the slot — `visibility` is a tile-parse-time gate
+    // and flipping it would reload the source the visual fill layers share. A constant
+    // `fill-opacity: 0` still answers `queryRenderedFeatures`, so which hour wins a click is
+    // decided at query time via `getGfwHourlyGridDominantHitLayerId()`.
     paint: { "fill-opacity": 0 },
-    layout: { visibility: "none" },
+    layout: { visibility: "visible" },
   } as FillLayer);
 }
 
@@ -448,16 +485,14 @@ export function useGfwHourlyGridLayer(
       nextHourRef.current = null;
       dominantHourRef.current = null;
       setGfwHourlyGridDominantHour(null);
+      dominantHitLayerId = null;
+      v4HitSelectionActive = false;
     } else if (manifestRef.current) {
       // Layer visibility/style readiness can re-enter this lifecycle effect. Restore the
       // release context so grid click hydration remains available without refetching it.
       setGfwHourlyGridDetailContext(manifestRef.current);
       setGfwHourlyGridDominantHour(dominantHourRef.current);
     }
-
-    let hitVisibilityTimer: ReturnType<typeof setTimeout> | null = null;
-    let hitVisibilityAppliedAt = Number.NEGATIVE_INFINITY;
-    let pendingHitDominantHour: string | null = null;
 
     const isSourceLoaded = (sourceId: string): boolean =>
       (map as unknown as { isSourceLoaded?: (id: string) => boolean }).isSourceLoaded?.(sourceId) !== false;
@@ -500,36 +535,18 @@ export function useGfwHourlyGridLayer(
       setGfwHourlyGridDataWindowState(windowStates[plan.dataWindowStatus]);
     };
 
-    // Only the dominant hour may answer a click: v4 tiles carry no `observed_at`, so the
-    // popup hydrates whatever cell it hits against the dominant hour and a hit from another
-    // slot would fail list validation. `visibility` is a tile-parse-time gate (hence the
-    // reload); the reload-free `moveLayer` alternative needs a matching query-time filter in
-    // the click registry, which this hook does not own.
-    const applyV4HitVisibility = (dominantHour: string | null) => {
-      hitVisibilityAppliedAt = Date.now();
-      for (const { sourceId, hitLayerId } of V4_PMTILES_SLOTS) {
-        if (map.getLayer(hitLayerId)) map.setLayoutProperty(
-          hitLayerId,
-          "visibility",
-          dominantHour !== null && pmtilesSlotHoursRef.current.get(sourceId) === dominantHour ? "visible" : "none",
-        );
-      }
-    };
-
-    // Leading-edge throttle: a settled timeline flips visibility immediately, while fast
-    // playback coalesces flips so the shared grid source is not relayouted 1–2× per second.
-    const scheduleV4HitVisibility = (dominantHour: string | null) => {
-      pendingHitDominantHour = dominantHour;
-      if (hitVisibilityTimer !== null) return;
-      const elapsed = Date.now() - hitVisibilityAppliedAt;
-      if (elapsed >= HIT_VISIBILITY_THROTTLE_MS) {
-        applyV4HitVisibility(dominantHour);
-        return;
-      }
-      hitVisibilityTimer = globalThis.setTimeout(() => {
-        hitVisibilityTimer = null;
-        if (!disposed) applyV4HitVisibility(pendingHitDominantHour);
-      }, HIT_VISIBILITY_THROTTLE_MS - elapsed);
+    /**
+     * Publish which hit layer owns the dominant hour. Pure bookkeeping — no map mutation, so
+     * a dominant-hour flip during playback costs nothing and can never relayout the grid.
+     * A null dominant hour (faded outside the data window) publishes null, which the click
+     * handler treats as "no hit" so an invisible grid cannot answer a click.
+     */
+    const publishDominantHitLayer = (dominantHour: string | null) => {
+      const dominant = dominantHour === null ? undefined : V4_PMTILES_SLOTS.find(
+        ({ sourceId }) => pmtilesSlotHoursRef.current.get(sourceId) === dominantHour,
+      );
+      dominantHitLayerId = dominant && map.getLayer(dominant.hitLayerId) ? dominant.hitLayerId : null;
+      v4HitSelectionActive = true;
     };
 
     const clearData = () => {
@@ -541,6 +558,8 @@ export function useGfwHourlyGridLayer(
       dataWindowRef.current = null;
       setGfwHourlyGridDataWindowState(null);
       setGfwHourlyGridDominantHour(null);
+      dominantHitLayerId = null;
+      v4HitSelectionActive = false;
       source(map, GFW_HOURLY_GRID_SOURCE_ID)?.setData?.(EMPTY);
       source(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID)?.setData?.(EMPTY);
       source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(EMPTY);
@@ -699,7 +718,7 @@ export function useGfwHourlyGridLayer(
         if (v4) {
           // Also covers `dominantHour === null` (faded out of the data window): every hit
           // layer hides, so an invisible grid never answers a click.
-          scheduleV4HitVisibility(dominantHour);
+          publishDominantHitLayer(dominantHour);
         } else if (pmtilesModeRef.current) {
           const manifest = manifestRef.current;
           const entry = manifest?.hours.find((hour) => hour.observedAt === dominantHour && hour.format === "pmtiles");
@@ -854,7 +873,7 @@ export function useGfwHourlyGridLayer(
         setVisibility(map, true);
         setPmtilesVisibility(map, true);
         // Style restore is not a playback tick: apply immediately, bypassing the throttle.
-        if (isV4GridManifest(manifestRef.current)) applyV4HitVisibility(dominantHourRef.current);
+        if (isV4GridManifest(manifestRef.current)) publishDominantHitLayer(dominantHourRef.current);
         source(map, GFW_HOURLY_GRID_SOURCE_ID)?.setData?.(currentDataRef.current ?? EMPTY);
         source(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID)?.setData?.(nextDataRef.current ?? EMPTY);
         source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(
@@ -872,6 +891,8 @@ export function useGfwHourlyGridLayer(
           pmtilesPaintKeysRef.current.clear();
           dominantHourRef.current = null;
           setGfwHourlyGridDominantHour(null);
+          dominantHitLayerId = null;
+          v4HitSelectionActive = false;
           requestedPairRef.current = null;
         }
         applyOpacity(timeStore.getTime());
@@ -893,13 +914,14 @@ export function useGfwHourlyGridLayer(
       requestRef.current += 1;
       requestedPairRef.current = null;
       if (retryTimer !== null) globalThis.clearTimeout(retryTimer);
-      if (hitVisibilityTimer !== null) globalThis.clearTimeout(hitVisibilityTimer);
       unsubscribe();
       map.off("style.load", applyStyle);
       map.off("sourcedata", markPmtilesSlotReady);
       if (retryPending) map.off("idle", retry);
       setGfwHourlyGridDetailContext(null);
       setGfwHourlyGridDominantHour(null);
+      dominantHitLayerId = null;
+      v4HitSelectionActive = false;
     };
   }, [mapRef, visible, mapTick]);
 
