@@ -110,8 +110,21 @@ export interface GfwHourlyGridSlotReadiness {
   readonly sourceId: string;
   /** UTC hour currently mounted in this slot, or null when the slot is vacant. */
   readonly hour: string | null;
-  /** True once the slot has supplied its first viewport tile. */
+  /**
+   * Sticky: the slot has completed at least one real tile load since it was mounted.
+   *
+   * This must NOT be derived from `map.isSourceLoaded` alone. `SourceCache.loaded()` returns
+   * true whenever no tile request is outstanding — which includes the moment right after
+   * `addSource`, before any tile has even been requested. Treating that as ready lets the
+   * crossfade ramp a freshly mounted slot to full opacity while it still paints nothing.
+   */
   readonly ready: boolean;
+  /**
+   * Live `map.isSourceLoaded`: false while the slot has tile requests in flight. A ready slot
+   * keeps rendering its existing tiles during a reload, so this only downgrades a slot from
+   * "crossfade into it" to "keep it as a fallback". Undefined means unknown → treated as true.
+   */
+  readonly loaded?: boolean;
 }
 
 /** Half-open `[startMs, endMsExclusive)` span actually covered by the release. */
@@ -179,11 +192,15 @@ export function planGfwHourlyGridPlayback(input: GfwHourlyGridPlaybackInput): Gf
 
   const weights = new Map<string, number>();
   for (const slot of input.slots) weights.set(slot.sourceId, 0);
-  const readySlot = (hour: string | null) =>
-    hour === null ? undefined : input.slots.find((slot) => slot.hour === hour && slot.ready);
+  // `ready` means "has real content"; `renderable` additionally means "not mid-reload".
+  // Only a renderable slot may be crossfaded into — fading toward a slot whose tiles are
+  // still in flight is exactly how the layer ends up at full opacity over nothing.
+  const isRenderable = (slot: GfwHourlyGridSlotReadiness) => slot.ready && slot.loaded !== false;
+  const slotFor = (hour: string | null, predicate: (slot: GfwHourlyGridSlotReadiness) => boolean) =>
+    hour === null ? undefined : input.slots.find((slot) => slot.hour === hour && predicate(slot));
 
-  const currentSlot = readySlot(input.currentHour);
-  const nextSlot = readySlot(input.nextHour);
+  const currentSlot = slotFor(input.currentHour, isRenderable);
+  const nextSlot = slotFor(input.nextHour, isRenderable);
   let dominantHour: string | null = null;
   let retainHour: string | null = null;
   let holding = false;
@@ -194,15 +211,22 @@ export function planGfwHourlyGridPlayback(input: GfwHourlyGridPlaybackInput): Gf
     dominantHour = nextSlot && progress >= 0.5 ? input.nextHour : input.currentHour;
   } else {
     // Playback overtook loading (or the timeline left the release window): keep the newest
-    // ready hour that is not in the future rather than showing nothing.
+    // renderable hour that is not in the future rather than showing nothing.
     let held: GfwHourlyGridSlotReadiness | null = null;
     for (const slot of input.slots) {
-      if (!slot.ready || slot.hour === null) continue;
+      if (!isRenderable(slot) || slot.hour === null) continue;
       const ms = hourMs(slot.hour);
       if (!Number.isFinite(ms) || ms > timelineHourMs) continue;
       if (!held || hourMs(held.hour) < ms) held = slot;
     }
-    if (held) {
+    // Nothing renderable behind us: a current slot that merely reloads still paints its
+    // existing tiles, so it beats blanking the layer.
+    const reloadingCurrent = held ? null : slotFor(input.currentHour, (slot) => slot.ready);
+    if (reloadingCurrent) {
+      weights.set(reloadingCurrent.sourceId, nextSlot ? 1 - progress : 1);
+      if (nextSlot) weights.set(nextSlot.sourceId, progress);
+      dominantHour = nextSlot && progress >= 0.5 ? input.nextHour : input.currentHour;
+    } else if (held) {
       weights.set(held.sourceId, 1);
       dominantHour = held.hour;
       retainHour = held.hour;

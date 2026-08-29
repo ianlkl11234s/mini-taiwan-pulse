@@ -92,6 +92,9 @@ const V4_PMTILES_SLOTS = [
  * on those — a full reload of the grid PMTiles source the fill layers share. The dominant
  * hour flips twice per playback hour, i.e. 1–2× per second at 1800x/3600x, so applications
  * are throttled: the first flip lands immediately and rapid follow-ups coalesce.
+ *
+ * Ordering (`moveLayer`, which does not relayout) would remove this cost entirely, but the
+ * matching query-time filter lives in the click registry — see the handoff spec.
  */
 const HIT_VISIBILITY_THROTTLE_MS = 300;
 
@@ -456,10 +459,14 @@ export function useGfwHourlyGridLayer(
     let hitVisibilityAppliedAt = Number.NEGATIVE_INFINITY;
     let pendingHitDominantHour: string | null = null;
 
+    const isSourceLoaded = (sourceId: string): boolean =>
+      (map as unknown as { isSourceLoaded?: (id: string) => boolean }).isSourceLoaded?.(sourceId) !== false;
+
     const pmtilesSlotStates = (): GfwHourlyGridSlotReadiness[] => V4_PMTILES_SLOTS.map(({ sourceId }) => ({
       sourceId,
       hour: pmtilesSlotHoursRef.current.get(sourceId) ?? null,
       ready: pmtilesSlotReadyRef.current.get(sourceId) === true,
+      loaded: isSourceLoaded(sourceId),
     }));
 
     // The window labels never change while a release is mounted; only `status` moves per tick,
@@ -493,13 +500,18 @@ export function useGfwHourlyGridLayer(
       setGfwHourlyGridDataWindowState(windowStates[plan.dataWindowStatus]);
     };
 
+    // Only the dominant hour may answer a click: v4 tiles carry no `observed_at`, so the
+    // popup hydrates whatever cell it hits against the dominant hour and a hit from another
+    // slot would fail list validation. `visibility` is a tile-parse-time gate (hence the
+    // reload); the reload-free `moveLayer` alternative needs a matching query-time filter in
+    // the click registry, which this hook does not own.
     const applyV4HitVisibility = (dominantHour: string | null) => {
       hitVisibilityAppliedAt = Date.now();
       for (const { sourceId, hitLayerId } of V4_PMTILES_SLOTS) {
         if (map.getLayer(hitLayerId)) map.setLayoutProperty(
           hitLayerId,
           "visibility",
-          pmtilesSlotHoursRef.current.get(sourceId) === dominantHour ? "visible" : "none",
+          dominantHour !== null && pmtilesSlotHoursRef.current.get(sourceId) === dominantHour ? "visible" : "none",
         );
       }
     };
@@ -702,8 +714,15 @@ export function useGfwHourlyGridLayer(
       }
     };
 
-    const markPmtilesSlotReady = (event: { sourceId?: string }) => {
+    const markPmtilesSlotReady = (event: { sourceId?: string; tile?: unknown }) => {
       if (!isV4GridManifest(manifestRef.current) || !event.sourceId || !pmtilesSlotHoursRef.current.has(event.sourceId)) return;
+      // A real tile must have completed. `sourcedata` also fires for source-level metadata
+      // /content right after addSource, and at that instant `SourceCache.loaded()` is true
+      // purely because zero tiles have been requested yet — accepting it marked a slot ready
+      // before it could paint anything, so the crossfade ramped it to full opacity over an
+      // empty source (the measured 1182ms / 3558ms blank episodes). Only mapbox's tile-load
+      // event carries `tile`; the synthetic metadata/content events never do.
+      if (!event.tile) return;
       if (!(map as unknown as { isSourceLoaded?: (sourceId: string) => boolean }).isSourceLoaded?.(event.sourceId)) return;
       if (pmtilesSlotReadyRef.current.get(event.sourceId)) return;
       pmtilesSlotReadyRef.current.set(event.sourceId, true);

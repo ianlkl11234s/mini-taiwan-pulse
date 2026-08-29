@@ -16,8 +16,8 @@ function at(offset: number, minutes = 0): number {
   return (DAY_START_MS + offset * 3_600_000 + minutes * 60_000) / 1000;
 }
 
-function slot(sourceId: string, offset: number | null, ready: boolean): GfwHourlyGridSlotReadiness {
-  return { sourceId, hour: offset === null ? null : hour(offset), ready };
+function slot(sourceId: string, offset: number | null, ready: boolean, loaded = true): GfwHourlyGridSlotReadiness {
+  return { sourceId, hour: offset === null ? null : hour(offset), ready, loaded };
 }
 
 /** The release covers 24 UTC hours, exactly like the formal v4 single-day artifact. */
@@ -143,6 +143,54 @@ describe("planGfwHourlyGridPlayback hold-last-ready", () => {
     });
     expect(plan.weights.get("s0")).toBe(1);
     expect(plan.dominantHour).toBe(hour(0));
+  });
+});
+
+describe("planGfwHourlyGridPlayback reload 去黏著", () => {
+  it("current 正在 reload 時退回前一個 renderable slot，而不是亮在空 source 上", () => {
+    // 量測到的空白型態：唯一權重非 0 的 slot ld=0、n=0，opacity 卻已爬到 0.8。
+    const plan = planGfwHourlyGridPlayback({
+      timeSeconds: at(1, 30),
+      slots: [slot("s0", 0, true, true), slot("s1", 1, true, false), slot("s2", 2, false, false)],
+      currentHour: hour(1), nextHour: hour(2), dataWindow: DAY_WINDOW,
+    });
+    expect(plan.weights.get("s0")).toBe(1);
+    expect(plan.weights.get("s1")).toBe(0);
+    expect(plan.holding).toBe(true);
+    expect(plan.retainHour).toBe(hour(0));
+  });
+
+  it("沒有更早的 renderable slot 時，reload 中的 current 仍照畫（舊 tile 還在）", () => {
+    const plan = planGfwHourlyGridPlayback({
+      timeSeconds: at(1, 0),
+      slots: [slot("s0", 0, false, false), slot("s1", 1, true, false), slot("s2", 2, false, false)],
+      currentHour: hour(1), nextHour: hour(2), dataWindow: DAY_WINDOW,
+    });
+    expect(plan.weights.get("s1")).toBe(1);
+    expect(plan.dominantHour).toBe(hour(1));
+  });
+
+  it("next 正在 reload 時不啟動 crossfade，current 維持 1", () => {
+    const plan = planGfwHourlyGridPlayback({
+      timeSeconds: at(0, 45),
+      slots: [slot("s0", 0, true, true), slot("s1", 1, true, false), slot("s2", 2, false, false)],
+      currentHour: hour(0), nextHour: hour(1), dataWindow: DAY_WINDOW,
+    });
+    expect(plan.weights.get("s0")).toBe(1);
+    expect(plan.weights.get("s1")).toBe(0);
+  });
+
+  it("loaded 未提供時視為已載入（向後相容）", () => {
+    const plan = planGfwHourlyGridPlayback({
+      timeSeconds: at(0, 30),
+      slots: [
+        { sourceId: "s0", hour: hour(0), ready: true },
+        { sourceId: "s1", hour: hour(1), ready: true },
+      ],
+      currentHour: hour(0), nextHour: hour(1), dataWindow: DAY_WINDOW,
+    });
+    expect(plan.weights.get("s0")).toBeCloseTo(0.5, 10);
+    expect(plan.weights.get("s1")).toBeCloseTo(0.5, 10);
   });
 });
 

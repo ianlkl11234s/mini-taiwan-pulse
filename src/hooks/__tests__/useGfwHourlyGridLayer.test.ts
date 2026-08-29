@@ -103,13 +103,13 @@ async function flushAsync(): Promise<void> {
 function createMap() {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn>; definition?: unknown }>();
   const layers = new Map<string, unknown>();
-  const listeners = new Map<string, Set<(event: { sourceId?: string }) => void>>();
+  const listeners = new Map<string, Set<(event: { sourceId?: string; tile?: unknown; sourceDataType?: string }) => void>>();
   const sourceReady = new Set<string>();
   const addSource = vi.fn((id: string, definition: unknown) => { sources.set(id, { setData: vi.fn(), definition }); });
-  const on = vi.fn((event: string, callback: (value: { sourceId?: string }) => void) => {
+  const on = vi.fn((event: string, callback: (value: { sourceId?: string; tile?: unknown; sourceDataType?: string }) => void) => {
     (listeners.get(event) ?? listeners.set(event, new Set()).get(event)!).add(callback);
   });
-  const off = vi.fn((event: string, callback: (value: { sourceId?: string }) => void) => listeners.get(event)?.delete(callback));
+  const off = vi.fn((event: string, callback: (value: { sourceId?: string; tile?: unknown; sourceDataType?: string }) => void) => listeners.get(event)?.delete(callback));
   const map = {
     isStyleLoaded: () => true,
     isSourceLoaded: (id: string) => sourceReady.has(id),
@@ -127,7 +127,7 @@ function createMap() {
   } as unknown as MapboxMap;
   return {
     map, sources, layers, addSource,
-    emit: (event: string, value: { sourceId?: string } = {}) => {
+    emit: (event: string, value: { sourceId?: string; tile?: unknown; sourceDataType?: string } = {}) => {
       for (const callback of listeners.get(event) ?? []) callback(value);
     },
     clearStyle: () => {
@@ -135,10 +135,18 @@ function createMap() {
       layers.clear();
       sourceReady.clear();
     },
+    /** mapbox 的 tile 載入事件帶 `tile`；source-level metadata/content 事件不帶。 */
     ready: (sourceId: string) => {
       sourceReady.add(sourceId);
-      for (const callback of listeners.get("sourcedata") ?? []) callback({ sourceId });
+      for (const callback of listeners.get("sourcedata") ?? []) callback({ sourceId, tile: { uid: 1 } });
     },
+    /** addSource 之後、任何 tile 送出之前的 metadata/content 事件（isSourceLoaded 已是 true）。 */
+    announceMetadata: (sourceId: string) => {
+      sourceReady.add(sourceId);
+      for (const callback of listeners.get("sourcedata") ?? []) callback({ sourceId, sourceDataType: "metadata" });
+    },
+    /** 讓已 ready 的 slot 進入 reload（isSourceLoaded 轉 false，但既有 tile 仍在畫）。 */
+    beginReload: (sourceId: string) => { sourceReady.delete(sourceId); },
   };
 }
 
@@ -326,7 +334,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
       .toBe("gfw-hourly-grid-pmtiles-next-source");
     harness.tick(Date.parse("2026-08-15T00:40:00Z") / 1000);
     expect(detailContext.setDominantHour).toHaveBeenLastCalledWith("2026-08-15T01:00:00Z");
-    // hit layer 的 visibility 是 layout change（會 relayout 整個 source），所以走節流。
+    // hit layer 的 visibility 是 layout change（會 relayout 共用 source），所以走節流。
     await vi.advanceTimersByTimeAsync(400);
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-hit-fill", "visibility", "none");
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-hit-fill", "visibility", "visible");
@@ -374,6 +382,65 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(state.sources.get("gfw-hourly-grid-pmtiles-source")?.definition).toMatchObject({
       url: "http://localhost/gfw-v4-poc/grid/hours/20260815T03Z.pmtiles",
     });
+  });
+
+  it("v4 剛掛上的 slot 只收到 metadata 事件時不算 ready，crossfade 不得爬到空 source 上", async () => {
+    // 量測到的空白（1182ms / 3558ms）：slot ld=0、n=0，opacity 卻已到 0.8。
+    // 成因是 SourceCache.loaded() 在「還沒送出任何 tile 請求」時就回 true。
+    const hours = [0, 1, 2, 3].map((offset) => {
+      const observedAt = `2026-08-15T0${offset}:00:00Z`;
+      return { observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`, cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [] };
+    });
+    loader.loadManifest.mockResolvedValue({ schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours });
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    state.ready("gfw-hourly-grid-pmtiles-source");
+    await flushAsync();
+
+    // H+1 只宣告 metadata（archive header 讀完），一塊 tile 都還沒回來。
+    state.announceMetadata("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+    clock.current = Date.parse("2026-08-15T00:30:00Z") / 1000;
+    harness.tick(clock.current);
+    await flushAsync();
+    // 半小時處若誤判 ready 會是 0.3/0.3 的 crossfade；正確行為是 H 全亮、H+1 不吃權重。
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-fill", "fill-opacity")).toBe(0.6);
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBe(0);
+
+    // 真的有 tile 回來之後才開始 crossfade。
+    state.ready("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBeCloseTo(0.3, 6);
+  });
+
+  it("v4 crossfade 目標進入 reload 時停止淡入，畫面交回仍 renderable 的 slot", async () => {
+    const hours = [0, 1, 2, 3].map((offset) => {
+      const observedAt = `2026-08-15T0${offset}:00:00Z`;
+      return { observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`, cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [] };
+    });
+    loader.loadManifest.mockResolvedValue({ schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours });
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    state.ready("gfw-hourly-grid-pmtiles-source");
+    state.ready("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+
+    // 小時中段：H 與 H+1 正在 crossfade，H+1 已吃到大部分權重。
+    clock.current = Date.parse("2026-08-15T00:50:00Z") / 1000;
+    harness.tick(clock.current);
+    await flushAsync();
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBeCloseTo(0.5, 6);
+
+    // H+1 的 source 開始 reload（hit layer visibility 翻面就會造成）：
+    // 淡入必須停住並把權重交回仍 renderable 的 H，而不是亮在重新 parse 中的 source 上。
+    state.beginReload("gfw-hourly-grid-pmtiles-next-source");
+    clock.current += 1;
+    harness.tick(clock.current);
+    await flushAsync();
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-fill", "fill-opacity")).toBe(0.6);
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBe(0);
   });
 
   it("v4 時間軸離開 release 資料窗時淡出並標示窗外，不 teardown source", async () => {
