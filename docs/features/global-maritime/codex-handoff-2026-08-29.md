@@ -1,7 +1,7 @@
 # GFW East Asia v4 — Codex implementation handoff
 
-**Date:** 2026-08-29  
-**Audience:** Claude Code / next implementation reviewer  
+**Date:** 2026-08-29
+**Audience:** Claude Code / next implementation reviewer
 **Status:** local committed implementation; not pushed, uploaded, deployed, or enabled for automatic updates
 
 > **Post-review resolution (Claude, 2026-08-29):** both P0s in §10 are resolved — see the
