@@ -1798,3 +1798,40 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：CAT-1 改為剩餘 5 個 Global Maritime catalog lineage。
 - `REFLECTIONS.md`：本篇。
 - `STATUS.md`：重寫為 layer catalog/control branch 的 local release truth 與下一棒入口。
+
+---
+
+## 2026-08-29／30 — GFW v4 與 catalog 的安全收斂
+
+### What worked
+
+- **先驗 ancestry，才開 PR**：catalog 分支原本夾帶日本宗教、舊 GFW review 與 local-only
+  memory 祖先；改以合併後的 `master` 重放 14 個 catalog 專屬提交，沒有把平行工作混進
+  #183。
+- **把衝突當 integration work 驗證**：GFW 點擊測試與 Esc 清除測試保留雙方語意；重放後跑
+  `npx tsc -b`、重點回歸與 GitHub CI。#182、#183 的 test/review 都通過後才 squash merge。
+- **同步前先留 backup ref**：本機 `master` 原有兩顆過時 memory commit，先保存為
+  `backup/master-pre-sync-20260829`，再讓 `master` 對齊 `origin/master`；沒有遺失可回溯證據。
+
+### What didn't / drift
+
+- **舊 memory 不能機械 cherry-pick**：兩顆備份內容仍稱 GFW v4 為 planning-only，已被 #182
+  推翻；其中 REFLECTIONS 也無法乾淨套入已追加 catalog reflection 的主線。只保留 backup，
+  以本篇和 STATUS 重新記錄真實 release state。
+- **`gh pr merge --delete-branch` 的本機收尾不等於遠端結果**：CLI 受 worktree 的 `master`
+  佔用影響而報錯，但遠端 PR 已合併。後續必用 PR state／merge SHA 與 `origin/master` 核實。
+- **hard reload 不會跨 worktree**：6002 一度服務 GFW worktree，不是 root `master`；因此畫面
+  不含 #183。先查 listener 的 cwd，才能分辨 stale server 與 HMR 問題。
+
+### Next-time rules
+
+1. 多 worktree PR 前先列 `merge-base`、commit range 與不屬 scope 的祖先；必要時以
+   `rebase --onto` 重放專屬提交。
+2. PR merge 後以 GitHub merge SHA 和 `origin/master` 為準；CLI 本機切分支錯誤不可當成
+   遠端合併失敗。
+3. localhost 驗收先查 PID/cwd，再談 hard reload；server 指向錯 checkout 時必須重啟。
+
+### Memory output
+
+- `REFLECTIONS.md`：追加本篇。
+- `STATUS.md`：重寫為 #182／#183 merged、local browser 與 production 邊界、下一步。
