@@ -115,9 +115,6 @@ export default function App() {
   // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
   // 會在每次操作後把鏡頭拉回網址指定的位置。
   const urlStateRef = useRef<UrlState>(parseUrlState(window.location.search));
-  const gfwV4ShadowRef = useRef(
-    import.meta.env.DEV && new URLSearchParams(window.location.search).get("gfwV4Shadow") === "1",
-  );
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
@@ -1142,7 +1139,7 @@ export default function App() {
     [setLayerVisibility, layerVisibilityRef],
   );
 
-  const { seek: timelineSeek, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
+  const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
   const handleLocationJump = useCallback((id: string) => {
     const p = getPresetById(id);
     if (p && mapRef.current) {
@@ -1173,12 +1170,17 @@ export default function App() {
     const { layers, date, hour } = urlStateRef.current;
     if (layers?.length) handleBulkSetVisibility(layers, true);
     if (date) {
-      // 台北時區當日 hh:00（timelineSeek 收 unix 秒，同 handleLocationJump 的 p.time）
+      // 先切換 timeline 的日期視窗，再寫 hh:00。若直接呼叫舊視窗的 seek，
+      // deep link 會被今天的 window clamp 回去，網址日期看似有效但資料層永遠空白。
+      const selected = new Date(`${date}T00:00:00+08:00`);
       const hh = String(hour ?? 0).padStart(2, "0");
       const ts = Date.parse(`${date}T${hh}:00:00+08:00`);
-      if (Number.isFinite(ts)) timelineSeek(Math.floor(ts / 1000));
+      if (Number.isFinite(selected.getTime()) && Number.isFinite(ts)) {
+        timelineSetSelectedDate(selected);
+        timeStore.setTime(Math.floor(ts / 1000));
+      }
     }
-  }, [handleBulkSetVisibility, timelineSeek]);
+  }, [handleBulkSetVisibility, timelineSetSelectedDate]);
 
   // ── EM-19 網址雙向同步（分享用）────────────────────────────────────────
   //
@@ -1226,7 +1228,6 @@ export default function App() {
         style: mapStyleId,
         date,
         hour,
-        gfwV4Shadow: gfwV4ShadowRef.current || undefined,
       },
       window.location.pathname,
     );

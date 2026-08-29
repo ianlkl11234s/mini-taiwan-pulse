@@ -6,6 +6,11 @@ import {
   resolveGfwHourlyRootManifestUrl,
 } from "./gfwHourlyReleaseManifest";
 import type { GfwDetailBucket } from "./gfwHourlyReleaseManifest";
+import {
+  loadGfwV4Release,
+  resolveGfwV4RootManifestUrl,
+  type GfwV4Release,
+} from "./gfwV4ReleaseLoader";
 
 export const GFW_HOURLY_GRID_LOCAL_MANIFEST_URL = "/gfw_hourly_grid_poc/manifest.json";
 export const GFW_HOURLY_GRID_V4_SHADOW_MANIFEST_URL = "/gfw-v4-poc/manifest.json";
@@ -16,9 +21,17 @@ export function resolveGfwHourlyGridManifestUrl(
   shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
   locationSearch = globalThis.location?.search ?? "",
 ): string | null {
-  if (isDev && new URLSearchParams(locationSearch).get("gfwV4Shadow") === "1") {
-    return GFW_HOURLY_GRID_V4_SHADOW_MANIFEST_URL;
-  }
+  // Formal v4 is always the first candidate. The historical resolver remains
+  // below as an explicit fail-closed v2/v3 fallback, never as a query switch.
+  void isDev; void shadowEnabled; void locationSearch;
+  return resolveGfwV4RootManifestUrl(cdnBase);
+}
+
+function resolveLegacyGfwHourlyGridManifestUrl(
+  cdnBase = import.meta.env.VITE_GLOBAL_MARITIME_CDN_BASE ?? "",
+  isDev = import.meta.env.DEV,
+  shadowEnabled = import.meta.env.VITE_GFW_HOURLY_V3_SHADOW_ENABLED === "true",
+): string | null {
   return resolveGfwHourlyRootManifestUrl(GFW_HOURLY_GRID_LOCAL_MANIFEST_URL, cdnBase, isDev, shadowEnabled);
 }
 
@@ -52,6 +65,38 @@ export interface GfwHourlyGridManifest {
   sourceLayer: string | null;
   attribution: { label: string; href: string };
   hours: GfwHourlyGridManifestHour[];
+}
+
+function gridManifestFromV4(release: GfwV4Release): GfwHourlyGridManifest {
+  return {
+    manifestUrl: release.rootUrl,
+    releaseId: release.releaseId,
+    schemaVersion: 4,
+    generatedAt: "",
+    bbox: [...release.bbox] as [number, number, number, number],
+    dateStart: release.selectedUtcDate,
+    dateEndInclusive: release.selectedUtcDate,
+    sourceDataset: release.sourceDatasetId,
+    temporalResolution: "HOURLY",
+    spatialResolution: "HIGH_TO_LOCAL_0_1",
+    coordinateSemantics: "GFW_HIGH_locally_aggregated_to_globally_aligned_0_1_degree_cell",
+    fullFidelity: true,
+    geometrySemantics: "globally_aligned_0_1_degree_cell",
+    sourceLayer: release.grid.sourceLayer,
+    attribution: { label: "Global Fishing Watch", href: "https://globalfishingwatch.org/" },
+    hours: release.grid.hours.map((entry) => ({
+      observedAt: entry.observedAt,
+      observedAtMs: Date.parse(entry.observedAt),
+      path: entry.path,
+      cellCount: entry.cellCount,
+      vesselCount: entry.vesselCount,
+      format: "pmtiles" as const,
+      sha256: entry.sha256,
+      bytes: entry.bytes,
+      detailMode: "adaptive-shard" as const,
+      detailBuckets: entry.details,
+    })),
+  };
 }
 
 type JsonObject = Record<string, unknown>;
@@ -352,15 +397,19 @@ export function findGfwHourlyGridHour(
 }
 
 export function loadGfwHourlyGridManifest(): Promise<GfwHourlyGridManifest | null> {
-  const manifestUrl = resolveGfwHourlyGridManifestUrl();
-  if (!manifestUrl) return Promise.resolve(null);
+  const v4Url = resolveGfwHourlyGridManifestUrl();
+  const legacyUrl = resolveLegacyGfwHourlyGridManifestUrl();
+  if (!v4Url && !legacyUrl) return Promise.resolve(null);
   return withLoading(
     "gfw-hourly-grid:manifest",
     "GFW 小時網格清單",
-    fetch(manifestUrl, { cache: "no-cache" })
-      .then(async (response) => response.ok
-        ? parseGfwHourlyGridManifest(await response.json(), manifestUrl)
-        : null)
+    loadGfwV4Release(v4Url ?? undefined)
+      .then((v4) => v4 ? gridManifestFromV4(v4) : null)
+      .then(async (v4) => {
+        if (v4 || !legacyUrl) return v4;
+        const response = await fetch(legacyUrl, { cache: "no-cache" });
+        return response.ok ? parseGfwHourlyGridManifest(await response.json(), legacyUrl) : null;
+      })
       .catch(() => null),
   );
 }

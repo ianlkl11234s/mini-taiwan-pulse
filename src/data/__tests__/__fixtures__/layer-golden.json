@@ -557,13 +557,15 @@
       "layers": [
         "gfw-hourly-grid-hit-circle",
         "gfw-hourly-grid-hit-fill",
-        "gfw-hourly-grid-pmtiles-hit-fill"
+        "gfw-hourly-grid-pmtiles-hit-fill",
+        "gfw-hourly-grid-pmtiles-next-hit-fill",
+        "gfw-hourly-grid-pmtiles-preload-hit-fill"
       ],
       "type": "gfwHourlyGrid"
     },
     {
       "layers": [
-        "gfw-v4-shadow-track-hit",
+        "gfw-v4-track-hit",
         "gfw-hourly-tracks-endpoint",
         "gfw-hourly-tracks-line"
       ],
@@ -50164,12 +50166,12 @@
         "value": "0.5"
       },
       {
-        "label": "Cargo",
+        "label": "Fishing",
         "type": "toggle",
         "value": true
       },
       {
-        "label": "Tanker",
+        "label": "Cargo",
         "type": "toggle",
         "value": true
       },
@@ -50179,12 +50181,17 @@
         "value": true
       },
       {
-        "label": "Fishing",
+        "label": "Carrier",
         "type": "toggle",
         "value": false
       },
       {
         "label": "Other",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "Unknown",
         "type": "toggle",
         "value": false
       }

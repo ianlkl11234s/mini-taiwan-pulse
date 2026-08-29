@@ -2,9 +2,6 @@ import { createHash } from "node:crypto";
 import { gzipSync } from "node:zlib";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  GFW_FISHING_EFFORT_LOCAL_ASSET_URL,
-  GFW_FISHING_EFFORT_SHADOW_MANIFEST_URL,
-  isGfwFishingEffortShadowEnabled,
   loadGfwFishingEffortDay,
   loadGfwFishingEffortManifest,
   parseGfwFishingEffortCollection,
@@ -103,16 +100,12 @@ describe("GFW Fishing Effort shadow contract", () => {
     vi.unstubAllEnvs();
   });
 
-  it("runtime 只在 DEV + gfwV4Shadow=1 開啟，production 或未 opt-in 不 fetch", async () => {
-    expect(isGfwFishingEffortShadowEnabled(true, "?gfwV4Shadow=1")).toBe(true);
-    expect(isGfwFishingEffortShadowEnabled(true, "")).toBe(false);
-    expect(isGfwFishingEffortShadowEnabled(false, "?gfwV4Shadow=1")).toBe(false);
-
+  it("formal release 無法驗證時 fail closed", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
     vi.stubGlobal("location", { search: "" });
     await expect(loadGfwFishingEffortManifest()).resolves.toBeNull();
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledWith("/global-maritime/gfw-hourly/v4/manifest.json", { cache: "no-cache" });
   });
 
   it("只接受獨立 shadow layer 與指定 date/version/latest/finalization/revision 契約", () => {
@@ -137,7 +130,21 @@ describe("GFW Fishing Effort shadow contract", () => {
   it("嚴格驗 2,887 個 LOW 0.1° Polygon、非負 hours、component 與 facets 長度", () => {
     const manifest = parseGfwFishingEffortManifest(rawManifest())!;
     const collection = rawCollection();
-    expect(parseGfwFishingEffortCollection(collection, manifest)?.features).toHaveLength(FEATURE_COUNT);
+    const parsed = parseGfwFishingEffortCollection(collection, manifest);
+    expect(parsed?.features).toHaveLength(FEATURE_COUNT);
+    expect(parsed?.features[0]?.properties).toMatchObject({
+      selected_utc_date: DATE,
+      metric: "apparent_fishing_hours",
+      unit: "hours",
+      dataset_version: VERSION,
+      latest_available_date: null,
+      latest_available_date_status: "not_provided_by_gfw",
+      finalization_status: "not_provided_by_gfw",
+      revision_semantics: "dynamic_api_data_may_be_revised",
+      attribution: "Powered by Global Fishing Watch. https://globalfishingwatch.org/",
+      attribution_href: "https://globalfishingwatch.org/",
+      caveat: "Apparent/model-derived and non-realtime; not vessel presence",
+    });
 
     const badFacets = structuredClone(collection);
     badFacets.features[0]!.properties.component_count = 2;
@@ -156,9 +163,7 @@ describe("GFW Fishing Effort shadow contract", () => {
     expect(parseGfwFishingEffortCollection(missing, manifest)).toBeNull();
   });
 
-  it("先驗 compressed bytes/SHA，再解 gzip JSON；local wire 固定走 extensionless alias", async () => {
-    vi.stubEnv("DEV", true);
-    vi.stubGlobal("location", { search: "?gfwV4Shadow=1" });
+  it("先驗 compressed bytes/SHA，再解 gzip JSON", async () => {
     const collection = rawCollection();
     const compressed = gzipSync(JSON.stringify(collection));
     const bytes = compressed.buffer.slice(
@@ -168,24 +173,19 @@ describe("GFW Fishing Effort shadow contract", () => {
     const raw = rawManifest();
     raw.fishing_effort.asset.bytes = compressed.byteLength;
     raw.fishing_effort.asset.sha256 = createHash("sha256").update(compressed).digest("hex");
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce({ ok: true, json: async () => raw })
-      .mockResolvedValueOnce({ ok: true, arrayBuffer: async () => bytes });
+    const fetchMock = vi.fn().mockResolvedValueOnce({ ok: true, arrayBuffer: async () => bytes });
     vi.stubGlobal("fetch", fetchMock);
 
-    const manifest = await loadGfwFishingEffortManifest();
-    expect(manifest).not.toBeNull();
-    await expect(loadGfwFishingEffortDay(manifest!)).resolves.toMatchObject({
+    const manifest = parseGfwFishingEffortManifest(raw)!;
+    await expect(loadGfwFishingEffortDay(manifest)).resolves.toMatchObject({
       type: "FeatureCollection",
       features: expect.any(Array),
     });
-    expect(fetchMock).toHaveBeenNthCalledWith(1, GFW_FISHING_EFFORT_SHADOW_MANIFEST_URL, { cache: "no-cache" });
-    expect(fetchMock).toHaveBeenNthCalledWith(2, GFW_FISHING_EFFORT_LOCAL_ASSET_URL, { cache: "force-cache" });
+    expect(fetchMock).toHaveBeenNthCalledWith(1, "http://localhost/global-maritime/gfw-hourly/v4/fishing-effort/2026-08-21.geojson.gz", { cache: "force-cache" });
   });
 
   it("compressed size 或 SHA 不符時 fail closed 且不接受 decoded payload", async () => {
     vi.stubEnv("DEV", true);
-    vi.stubGlobal("location", { search: "?gfwV4Shadow=1" });
     const compressed = gzipSync(JSON.stringify(rawCollection()));
     const bytes = compressed.buffer.slice(
       compressed.byteOffset,

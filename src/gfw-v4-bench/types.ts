@@ -1,5 +1,11 @@
 export const TRACK_BUCKETS = ["cargo", "tanker", "passenger", "fishing", "other"] as const;
 export type TrackBucket = typeof TRACK_BUCKETS[number];
+/**
+ * Tier-2 product workload. Coverage for this preset is measured against these
+ * requested assets only, rather than against optional buckets that were not
+ * downloaded.
+ */
+export const DEFAULT_TRACK_BUCKETS = ["fishing", "cargo", "passenger"] as const satisfies readonly TrackBucket[];
 export type TrackAssetFormat = "json.gz" | "binary";
 
 export interface VesselMember {
@@ -107,6 +113,7 @@ export type BenchPreset = "default" | "all" | "custom";
 
 export interface WorkloadCoverage {
   preset: BenchPreset;
+  /** The downloaded workload denominator; this is intentionally not the full catalog. */
   enabled: { points: number; segments: number };
   total: { points: number; segments: number };
   pointFraction: number;

@@ -1,6 +1,7 @@
 import { withLoading } from "../lib/loadingRegistry";
+import { loadGfwV4Release } from "./gfwV4ReleaseLoader";
 
-export const GFW_FISHING_EFFORT_SHADOW_MANIFEST_URL = "/gfw-v4-poc/manifest.json";
+export const GFW_FISHING_EFFORT_MANIFEST_URL = "/global-maritime/gfw-hourly/v4/manifest.json";
 export const GFW_FISHING_EFFORT_LOCAL_ASSET_URL =
   "/gfw-v4-browser-assets/fishing-effort.geojson.daypack";
 
@@ -16,8 +17,9 @@ export interface GfwFishingEffortAsset {
   path: string;
   bytes: number;
   sha256: string;
-  features: 2887;
-  apparentFishingHours: number;
+  features: number;
+  /** The immutable release verifies membership; a missing aggregate must not be invented client-side. */
+  apparentFishingHours: number | null;
 }
 
 export interface GfwFishingEffortManifest {
@@ -27,10 +29,17 @@ export interface GfwFishingEffortManifest {
   generatedAt: string;
   bbox: [number, number, number, number];
   datasetAlias: typeof DATASET_ALIAS;
+  metric?: "apparent_fishing_hours";
+  unit?: "hours";
   resolvedDatasetVersion: string;
   latestObservedActiveDate: string;
+  latestAvailableDate?: string | null;
+  latestAvailableDateStatus?: string;
   finalizationStatus: typeof FINALIZATION_STATUS;
   revisionSemantics: typeof REVISION_SEMANTICS;
+  attribution?: string;
+  attributionHref?: string | null;
+  caveat?: string;
   asset: GfwFishingEffortAsset;
 }
 
@@ -57,16 +66,40 @@ const validIsoInstant = (value: unknown): value is string =>
 const sha256 = (value: unknown): value is string =>
   typeof value === "string" && /^[0-9a-f]{64}$/i.test(value);
 
-export function isGfwFishingEffortShadowEnabled(
-  isDev = import.meta.env.DEV,
-  search = globalThis.location?.search ?? "",
-): boolean {
-  return isDev && new URLSearchParams(search).get("gfwV4Shadow") === "1";
+function fishingManifestFromV4(release: Awaited<ReturnType<typeof loadGfwV4Release>>): GfwFishingEffortManifest | null {
+  if (!release) return null;
+  const attributionHref = release.fishingEffort.attribution.match(/https:\/\/globalfishingwatch\.org\/?/)?.[0] ?? null;
+  return {
+    manifestUrl: release.rootUrl,
+    releaseId: release.releaseId,
+    selectedUtcDate: release.selectedUtcDate,
+    generatedAt: "",
+    bbox: [...release.bbox] as [number, number, number, number],
+    datasetAlias: DATASET_ALIAS,
+    metric: release.fishingEffort.metric,
+    unit: release.fishingEffort.unit,
+    resolvedDatasetVersion: release.fishingEffort.resolvedDatasetVersion,
+    latestObservedActiveDate: release.fishingEffort.latestObservedActiveDate,
+    latestAvailableDate: release.fishingEffort.latestAvailableDate,
+    latestAvailableDateStatus: release.fishingEffort.latestAvailableDateStatus,
+    finalizationStatus: release.fishingEffort.finalizationStatus,
+    revisionSemantics: release.fishingEffort.revisionSemantics,
+    attribution: release.fishingEffort.attribution,
+    attributionHref,
+    caveat: release.fishingEffort.caveat,
+    asset: {
+      path: release.fishingEffort.path,
+      bytes: release.fishingEffort.bytes,
+      sha256: release.fishingEffort.sha256,
+      features: release.fishingEffort.featureCount,
+      apparentFishingHours: null,
+    },
+  };
 }
 
 export function parseGfwFishingEffortManifest(
   raw: unknown,
-  manifestUrl = GFW_FISHING_EFFORT_SHADOW_MANIFEST_URL,
+  manifestUrl = GFW_FISHING_EFFORT_MANIFEST_URL,
 ): GfwFishingEffortManifest | null {
   if (!isObject(raw) || raw.schema_version !== 1 || raw.shadow_only !== true || raw.poc !== true) return null;
   if (raw.production_cutover !== false || raw.immutable_local_output !== true) return null;
@@ -194,6 +227,20 @@ export function parseGfwFishingEffortCollection(
     if (!nonNegativeInteger(quality[key])) return null;
   }
 
+  const attributionHref = metadata.attribution.match(/https:\/\/globalfishingwatch\.org\/?/)?.[0] ?? null;
+  const governance = {
+    selected_utc_date: metadata.date,
+    metric: metadata.metric,
+    unit: metadata.unit,
+    dataset_version: metadata.resolved_dataset_version,
+    latest_available_date: metadata.latest_available_date,
+    latest_available_date_status: metadata.latest_available_date_status,
+    finalization_status: metadata.finalization_status,
+    revision_semantics: metadata.revision_semantics,
+    attribution: metadata.attribution,
+    attribution_href: attributionHref,
+    caveat: metadata.caveat,
+  };
   const features: GeoJSON.Feature<GeoJSON.Polygon>[] = [];
   const ids = new Set<string>();
   let componentCount = 0;
@@ -214,11 +261,18 @@ export function parseGfwFishingEffortCollection(
     ) return null;
     componentCount += properties.component_count as number;
     apparentFishingHours += properties.apparent_fishing_hours;
-    features.push(candidate as unknown as GeoJSON.Feature<GeoJSON.Polygon>);
+    features.push({
+      ...(candidate as unknown as GeoJSON.Feature<GeoJSON.Polygon>),
+      properties: { ...properties, ...governance },
+    });
   }
   if (componentCount !== quality.valid_rows) return null;
-  const tolerance = Math.max(1e-8, Math.abs(manifest.asset.apparentFishingHours) * 1e-12);
-  if (Math.abs(apparentFishingHours - manifest.asset.apparentFishingHours) > tolerance) return null;
+  // The formal release does not publish a synthetic client aggregate. When a
+  // publisher provides one, retain the old exact checksum-style assertion.
+  if (manifest.asset.apparentFishingHours !== null) {
+    const tolerance = Math.max(1e-8, Math.abs(manifest.asset.apparentFishingHours) * 1e-12);
+    if (Math.abs(apparentFishingHours - manifest.asset.apparentFishingHours) > tolerance) return null;
+  }
   return { type: "FeatureCollection", features };
 }
 
@@ -239,30 +293,31 @@ async function decodeGzipJson(bytes: ArrayBuffer): Promise<unknown | null> {
 }
 
 export function loadGfwFishingEffortManifest(): Promise<GfwFishingEffortManifest | null> {
-  if (!isGfwFishingEffortShadowEnabled()) return Promise.resolve(null);
-  const url = GFW_FISHING_EFFORT_SHADOW_MANIFEST_URL;
-  return withLoading(
-    "gfw-fishing-effort:manifest",
-    "GFW 漁撈活動 shadow 清單",
-    fetch(url, { cache: "no-cache" })
-      .then(async (response) => response.ok ? parseGfwFishingEffortManifest(await response.json(), url) : null)
-      .catch(() => null),
-  );
+  if (!manifestPromise) {
+    manifestPromise = withLoading(
+      "gfw-fishing-effort:manifest",
+      "GFW 漁撈活動清單",
+      loadGfwV4Release().then(fishingManifestFromV4)
+        .catch(() => null),
+    );
+  }
+  return manifestPromise;
 }
+
+let manifestPromise: Promise<GfwFishingEffortManifest | null> | null = null;
 
 const assetPromises = new Map<string, Promise<GeoJSON.FeatureCollection<GeoJSON.Polygon> | null>>();
 
 export function loadGfwFishingEffortDay(
   manifest: GfwFishingEffortManifest,
 ): Promise<GeoJSON.FeatureCollection<GeoJSON.Polygon> | null> {
-  if (!isGfwFishingEffortShadowEnabled()) return Promise.resolve(null);
   const key = `${manifest.releaseId}|${manifest.selectedUtcDate}`;
   const cached = assetPromises.get(key);
   if (cached) return cached;
   const promise = withLoading(
     `gfw-fishing-effort:${key}`,
     `GFW 漁撈活動 ${manifest.selectedUtcDate} UTC`,
-    fetch(GFW_FISHING_EFFORT_LOCAL_ASSET_URL, { cache: "force-cache" })
+    fetch(new URL(manifest.asset.path, new URL(manifest.manifestUrl, globalThis.location?.origin ?? "http://localhost")).toString(), { cache: "force-cache" })
       .then(async (response) => {
         if (!response.ok) return null;
         const compressed = await response.arrayBuffer();

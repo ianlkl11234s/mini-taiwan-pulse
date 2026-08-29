@@ -135,20 +135,20 @@ describe("GFW hourly grid contract", () => {
     vi.unstubAllEnvs();
   });
 
-  it("production 共用同域 unified root 並可 override，dev 預設也走 production root", () => {
+  it("正式 v4 root 優先且不再受 DEV/query flag 影響", () => {
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false))
-      .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/v4/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, false)).toBe("/global-maritime/gfw-hourly/v4/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", true, false))
-      .toBe("/global-maritime/gfw-hourly/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", false, false)).toBe("/global-maritime/gfw-hourly/manifest.json");
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/v4/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", false, false)).toBe("/global-maritime/gfw-hourly/v4/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, true))
-      .toBe("https://cdn.example/global-maritime/gfw-hourly/v3-shadow/manifest.json");
-    expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/global-maritime/gfw-hourly/v3-shadow/manifest.json");
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/v4/manifest.json");
+    expect(resolveGfwHourlyGridManifestUrl("", true, true)).toBe("/global-maritime/gfw-hourly/v4/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("", true, false, "?gfwV4Shadow=1"))
-      .toBe("/gfw-v4-poc/manifest.json");
+      .toBe("/global-maritime/gfw-hourly/v4/manifest.json");
     expect(resolveGfwHourlyGridManifestUrl("https://cdn.example/", false, false, "?gfwV4Shadow=1"))
-      .toBe("https://cdn.example/global-maritime/gfw-hourly/manifest.json");
+      .toBe("https://cdn.example/global-maritime/gfw-hourly/v4/manifest.json");
   });
 
   it("DEV v4 shadow root 嚴格驗證 HIGH→0.1°、24 PMTiles 與 adaptive detail ledger", () => {

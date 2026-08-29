@@ -15,15 +15,30 @@ export interface GfwV4RenderedFrame {
   trailVertices: number;
 }
 
+/** Worker-owned viewport cull result. Coordinates stay packed until GPU upload. */
+export interface GfwV4SpatialPointFrame {
+  /** lon/lat pairs, already constrained to the active viewport shard. */
+  points: Float32Array;
+  /** Index into the canonical GFW v4 bucket order. */
+  buckets: Uint8Array;
+  /** Same-coordinate visual aggregation; popup identities stay in the hit source. */
+  memberCounts?: Uint16Array;
+  /** selected-H successor segments: lon/lat/from + lon/lat/to; singletons omit them. */
+  segments?: Float32Array;
+  segmentBuckets?: Uint8Array;
+}
+
+export interface GfwV4RenderedSpatialFrame { pointCount: number; }
+
 const DARK_COLORS = {
-  cargo: new THREE.Color("#39bff4"), tanker: new THREE.Color("#ff8f43"),
+  cargo: new THREE.Color("#39bff4"), carrier: new THREE.Color("#ff8f43"),
   passenger: new THREE.Color("#b3a0ff"), fishing: new THREE.Color("#58d68d"),
-  other: new THREE.Color("#f0cc66"), mixed: new THREE.Color("#f5f1db"),
+  other: new THREE.Color("#f0cc66"), unknown: new THREE.Color("#f5f1db"), mixed: new THREE.Color("#f5f1db"),
 } as const;
 const LIGHT_COLORS = {
-  cargo: new THREE.Color("#007da8"), tanker: new THREE.Color("#b54c00"),
+  cargo: new THREE.Color("#007da8"), carrier: new THREE.Color("#b54c00"),
   passenger: new THREE.Color("#6552b8"), fishing: new THREE.Color("#187c46"),
-  other: new THREE.Color("#8a6500"), mixed: new THREE.Color("#34413e"),
+  other: new THREE.Color("#8a6500"), unknown: new THREE.Color("#34413e"), mixed: new THREE.Color("#34413e"),
 } as const;
 
 function inside(lon: number, lat: number, bounds: GfwV4ViewBounds, pad = 0.5): boolean {
@@ -121,7 +136,8 @@ export class GfwV4TrackScene {
       this.matrix.makeScale(scale, scale, scale);
       this.matrix.setPosition(position.x, position.y, position.z);
       this.heads.setMatrixAt(index, this.matrix);
-      const color = head.buckets.length === 1 ? palette[head.buckets[0]!] : palette.mixed;
+      const legacyBucket = head.buckets[0] === "tanker" ? "carrier" : head.buckets[0];
+      const color = head.buckets.length === 1 && legacyBucket ? palette[legacyBucket] : palette.mixed;
       this.heads.setColorAt(index, color);
     });
     this.heads.count = visible.heads.length;
@@ -131,7 +147,8 @@ export class GfwV4TrackScene {
     let vertex = 0;
     const maxVertices = this.budget.maxTrailVertices * 2;
     for (const trail of visible.trails) {
-      const color = palette[trail.bucket];
+      const legacyBucket = trail.bucket === "tanker" ? "carrier" : trail.bucket;
+      const color = palette[legacyBucket];
       for (let index = 0; index < trail.coordinates.length - 1 && vertex + 1 < maxVertices; index++) {
         const pair = [trail.coordinates[index]!, trail.coordinates[index + 1]!] as const;
         for (const [lon, lat] of pair) {
@@ -153,15 +170,70 @@ export class GfwV4TrackScene {
     return visible;
   }
 
+  /**
+   * Phase-2 fast path: no GeoJSON and no per-tick rebuild of day packs. The
+   * Worker delivers a transfer-owned typed buffer already viewport culled.
+   */
+  updateSpatialPoints(frame: GfwV4SpatialPointFrame, zoom: number): GfwV4RenderedSpatialFrame {
+    if (frame.points.length !== frame.buckets.length * 2 || (frame.memberCounts && frame.memberCounts.length !== frame.buckets.length)) throw new Error("GFW v4 spatial point buffer shape mismatch");
+    if (frame.buckets.length > this.budget.maxHeads) throw new Error(`GFW v4 GPU budget exceeded: heads=${frame.buckets.length}/${this.budget.maxHeads}`);
+    const palette = this.isDark ? DARK_COLORS : LIGHT_COLORS;
+    const colors = [palette.fishing, palette.cargo, palette.passenger, palette.carrier, palette.other, palette.unknown] as const;
+    const headScale = 2.8 / (512 * 2 ** zoom);
+    for (let index = 0; index < frame.buckets.length; index++) {
+      const position = MercatorCoordinate.fromLngLat([frame.points[index * 2]!, frame.points[index * 2 + 1]!], 0);
+      const members = frame.memberCounts?.[index] ?? 1;
+      const scale = headScale * (1 + Math.min(3, Math.sqrt(members) - 1) * 0.35);
+      this.matrix.makeScale(scale, scale, scale);
+      this.matrix.setPosition(position.x, position.y, position.z);
+      this.heads.setMatrixAt(index, this.matrix);
+      this.heads.setColorAt(index, colors[frame.buckets[index]!] ?? palette.mixed);
+    }
+    this.heads.count = frame.buckets.length;
+    this.heads.instanceMatrix.needsUpdate = true;
+    if (this.heads.instanceColor) this.heads.instanceColor.needsUpdate = true;
+    const segmentCount = frame.segmentBuckets?.length ?? 0;
+    if (segmentCount > this.budget.maxTrailVertices) throw new Error(`GFW v4 GPU budget exceeded: segments=${segmentCount}/${this.budget.maxTrailVertices}`);
+    if (frame.segments && frame.segmentBuckets && frame.segments.length === segmentCount * 4) {
+      for (let index = 0; index < segmentCount; index += 1) {
+        const color = colors[frame.segmentBuckets[index]!] ?? palette.mixed;
+        for (let endpoint = 0; endpoint < 2; endpoint += 1) {
+          const offset = (index * 4) + endpoint * 2; const point = MercatorCoordinate.fromLngLat([frame.segments[offset]!, frame.segments[offset + 1]!], 0); const out = (index * 2 + endpoint) * 3;
+          this.trailPositions[out] = point.x; this.trailPositions[out + 1] = point.y; this.trailPositions[out + 2] = point.z;
+          this.trailColors[out] = color.r; this.trailColors[out + 1] = color.g; this.trailColors[out + 2] = color.b;
+        }
+      }
+      this.trailGeometry.setDrawRange(0, segmentCount * 2);
+      (this.trailGeometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
+      (this.trailGeometry.getAttribute("color") as THREE.BufferAttribute).needsUpdate = true;
+    } else this.trailGeometry.setDrawRange(0, 0);
+    return { pointCount: frame.buckets.length };
+  }
+
   render(matrix: number[]): void {
     if (!this.renderer) return;
+    const gl = this.renderer.getContext();
+    const blendEnabled = gl.isEnabled(gl.BLEND);
+    const blendSrc = gl.getParameter(gl.BLEND_SRC_RGB);
+    const blendDst = gl.getParameter(gl.BLEND_DST_RGB);
+    const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
+    const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
+    const blendEquation = gl.getParameter(gl.BLEND_EQUATION_RGB);
+    const blendEquationA = gl.getParameter(gl.BLEND_EQUATION_ALPHA);
+    const blendColor = gl.getParameter(gl.BLEND_COLOR) as Float32Array | number[];
     this.camera.projectionMatrix.fromArray(matrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
+    if (blendEnabled) gl.enable(gl.BLEND); else gl.disable(gl.BLEND);
+    gl.blendFuncSeparate(blendSrc, blendDst, blendSrcA, blendDstA);
+    gl.blendEquationSeparate(blendEquation, blendEquationA);
+    gl.blendColor(blendColor[0] ?? 0, blendColor[1] ?? 0, blendColor[2] ?? 0, blendColor[3] ?? 0);
   }
 
   dispose(): void {
+    this.scene.remove(this.heads);
+    this.scene.remove(this.trailLines);
     this.heads.geometry.dispose();
     (this.heads.material as THREE.Material).dispose();
     this.trailGeometry.dispose();

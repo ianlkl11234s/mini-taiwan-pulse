@@ -2,9 +2,8 @@ import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useGlobalMaritimeLayers } from "../../hooks/useGlobalMaritimeLayers";
 import { useGfwHourlyGridLayer } from "../../hooks/useGfwHourlyGridLayer";
 import { useGfwHourlyTracksLayer } from "../../hooks/useGfwHourlyTracksLayer";
-import { useGfwV4ShadowTracksLayer } from "../../hooks/useGfwV4ShadowTracksLayer";
-import { isGfwV4ShadowRuntimeEnabled } from "../../data/gfwV4ShadowTracksLoader";
-import type { TrackBucket } from "../../gfw-v4-bench/types";
+import { useGfwV4TracksLayer } from "../../hooks/useGfwV4TracksLayer";
+import type { GfwV4TrackBucket } from "../../data/gfwV4SpatialTracksLoader";
 import { useGfwFishingEffortLayer } from "../../hooks/useGfwFishingEffortLayer";
 import { useGfwDarkVesselsLayer } from "../../hooks/useGfwDarkVesselsLayer";
 import { paramBool, paramNum, useLayerParams } from "../layerParamsAccess";
@@ -37,30 +36,32 @@ export const GfwHourlyGridHost: LayerHostComponent = ({ deps }) => {
 export const GfwHourlyTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGfwHourlyTracksLayer");
   const values = useLayerParams("gfwHourlyTracks");
-  const shadowEnabled = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
-  const bucketParams: ReadonlyArray<readonly [TrackBucket, string]> = [
-    ["cargo", "gfwHourlyTracksCargo"],
-    ["tanker", "gfwHourlyTracksTanker"],
-    ["passenger", "gfwHourlyTracksPassenger"],
-    ["fishing", "gfwHourlyTracksFishing"],
-    ["other", "gfwHourlyTracksOther"],
+  const bucketParams: ReadonlyArray<readonly [GfwV4TrackBucket, string]> = [
+    ["FISHING", "gfwHourlyTracksFishing"],
+    ["CARGO", "gfwHourlyTracksCargo"],
+    ["PASSENGER", "gfwHourlyTracksPassenger"],
+    ["CARRIER", "gfwHourlyTracksCarrier"],
+    ["OTHER", "gfwHourlyTracksOther"],
+    ["UNKNOWN", "gfwHourlyTracksUnknown"],
   ];
   const enabledBuckets = bucketParams
     .filter(([, name]) => paramBool(values, "gfwHourlyTracks", name))
     .map(([bucket]) => bucket);
-  useGfwHourlyTracksLayer(
+  const formalReady = useGfwV4TracksLayer(
     deps.mapRef,
-    deps.layerVisibility.gfwHourlyTracks && !shadowEnabled,
+    deps.layerVisibility.gfwHourlyTracks,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
+    enabledBuckets,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
     deps.isDarkTheme,
   );
-  useGfwV4ShadowTracksLayer(
+  // v2/v3 remains a no-data fallback only. It never wins when a verified formal
+  // v4 root/release has loaded, and has no URL/DEV selector.
+  useGfwHourlyTracksLayer(
     deps.mapRef,
-    deps.layerVisibility.gfwHourlyTracks && shadowEnabled,
+    deps.layerVisibility.gfwHourlyTracks && !formalReady,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
-    enabledBuckets,
     deps.isDarkTheme,
   );
   return null;

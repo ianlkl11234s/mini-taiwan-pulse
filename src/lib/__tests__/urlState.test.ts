@@ -330,17 +330,15 @@ describe("buildUrl", () => {
       theme: "dark" as const,
       ui: ["legend"],
       railSystems: ["trtc", "tmrt"],
-      gfwV4Shadow: true,
     };
     const url = buildUrl(original, "https://example.com/embed");
     const parsed = parseUrlState(new URL(url).search);
     expect(parsed).toEqual(original);
   });
 
-  it("GFW v4 shadow gate 會在 URL state round-trip 保留", () => {
-    const url = buildUrl({ gfwV4Shadow: true }, "https://e.com");
-    expect(url).toContain("gfwV4Shadow=1");
-    expect(parseUrlState(new URL(url).search).gfwV4Shadow).toBe(true);
+  it("GFW v4 不再以 URL query gate 控制", () => {
+    expect(buildUrl({}, "https://e.com")).not.toContain("gfwV4Shadow");
+    expect(parseUrlState("?gfwV4Shadow=1")).not.toHaveProperty("gfwV4Shadow");
   });
 
   it("railSystems 對稱輸出成 rsys=（空陣列不寫入）", () => {

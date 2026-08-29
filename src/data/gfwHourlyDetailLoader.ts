@@ -29,9 +29,14 @@ type GridDetailHour = {
   detailMode?: "hash-prefix" | "adaptive-shard";
 };
 type TrackDetailDay = { displayDate: string; detailBuckets: readonly GfwDetailBucket[] };
+type FormalTrackBucket = "fishing" | "cargo" | "passenger" | "carrier" | "other" | "unknown";
+const formalTrackBucket = (value: unknown): value is FormalTrackBucket => typeof value === "string" && ["fishing", "cargo", "passenger", "carrier", "other", "unknown"].includes(value);
 
 let gridContext: GfwHourlyGridManifest | null = null;
+let gridDominantObservedAt: string | null = null;
 let tracksContext: GfwHourlyTrackManifest | null = null;
+type TracksDetailContextOwner = "legacy" | "formal-v4";
+let tracksContextOwner: TracksDetailContextOwner | null = null;
 
 /** Normalise the producer's tile identifier aliases before sidecar hashing/click hydration. */
 export function canonicalGfwGridCellId(properties: Record<string, unknown>, featureId?: unknown): string | null {
@@ -67,10 +72,24 @@ export function needsGfwGridDetailHydration(properties: Record<string, unknown>)
 /** Hooks own the current release; click plumbing only consumes this immutable snapshot. */
 export function setGfwHourlyGridDetailContext(manifest: GfwHourlyGridManifest | null): void {
   gridContext = manifest;
+  if (!manifest) gridDominantObservedAt = null;
 }
 
-export function setGfwHourlyTracksDetailContext(manifest: GfwHourlyTrackManifest | null): void {
+/** v4 ring sources do not duplicate the hour into every MVT feature. */
+export function setGfwHourlyGridDominantHour(observedAt: string | null): void {
+  gridDominantObservedAt = observedAt;
+}
+
+export function setGfwHourlyTracksDetailContext(
+  manifest: GfwHourlyTrackManifest | null,
+  owner: TracksDetailContextOwner = "legacy",
+): void {
+  // Both hooks must stay mounted to preserve React hook order.  When formal v4
+  // becomes ready, the legacy fallback's effect cleanup runs afterwards; it
+  // must not erase the verified v4 sidecar namespace that now owns hydration.
+  if (manifest === null && tracksContextOwner !== owner) return;
   tracksContext = manifest;
+  tracksContextOwner = manifest === null ? null : owner;
 }
 
 export async function gfwDetailBucketForKey(key: string): Promise<string | null> {
@@ -236,9 +255,13 @@ export async function loadGfwTrackDetail(
   releaseId: string,
   day: TrackDetailDay,
   trackId: string,
+  vesselBucket?: FormalTrackBucket,
 ): Promise<GfwTrackDetailEntry | null> {
   const bucket = await gfwDetailBucketForKey(trackId);
-  const entry = bucket ? bucketEntry(day.detailBuckets, bucket) : null;
+  const formalNamespaced = day.detailBuckets.some((entry) => entry.bucket.includes(":"));
+  const entry = bucket
+    ? vesselBucket ? bucketEntry(day.detailBuckets, `${vesselBucket}:${bucket}`) : formalNamespaced ? null : bucketEntry(day.detailBuckets, bucket)
+    : null;
   if (!bucket || !entry) return null;
   const parsed = parseTrackEntries(await loadGfwGzipJsonAsset(manifestUrl, entry), { releaseId, displayDate: day.displayDate, bucket });
   return parsed?.get(trackId) ?? null;
@@ -247,7 +270,7 @@ export async function loadGfwTrackDetail(
 export async function hydrateGfwGridDetail(properties: Record<string, unknown>): Promise<Record<string, unknown>> {
   const cellId = typeof properties.cell_id === "string" ? properties.cell_id : null;
   const observedAt = typeof properties.dominant_observed_at === "string" ? properties.dominant_observed_at
-    : typeof properties.observed_at === "string" ? properties.observed_at : null;
+    : typeof properties.observed_at === "string" ? properties.observed_at : gridDominantObservedAt;
   const hour = observedAt ? gridContext?.hours.find((candidate) => candidate.observedAt === observedAt) : null;
   const detailShard = typeof properties.detail_shard === "string" ? properties.detail_shard : undefined;
   if (!gridContext?.fullFidelity || !cellId || !hour?.detailBuckets?.length) {
@@ -266,26 +289,61 @@ export async function hydrateGfwGridDetail(properties: Record<string, unknown>):
 
 export async function hydrateGfwTrackDetail(properties: Record<string, unknown>): Promise<Record<string, unknown>> {
   const trackId = typeof properties.track_id === "string" ? properties.track_id : null;
+  const trackIds = (() => {
+    if (typeof properties.track_ids_json !== "string") return trackId ? [trackId] : [];
+    try {
+      const raw: unknown = JSON.parse(properties.track_ids_json);
+      return Array.isArray(raw) && raw.every((value) => typeof value === "string" && value.length > 0)
+        ? [...new Set(raw)] : [];
+    } catch { return []; }
+  })();
   const selected = typeof properties.selected_time === "string" ? Date.parse(properties.selected_time) : Number.NaN;
   const displayDate = typeof properties.display_date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(properties.display_date)
     ? properties.display_date
     : Number.isFinite(selected) ? new Date(selected).toISOString().slice(0, 10) : null;
   const day = displayDate ? tracksContext?.days.get(displayDate) : null;
-  if (!tracksContext?.fullFidelity || !trackId || !day?.detailBuckets?.length) {
+  if (!tracksContext?.fullFidelity || trackIds.length === 0 || !day?.detailBuckets?.length) {
     return { ...properties, detail_status: "error", detail_error: "此航段沒有可驗證的完整詳情" };
   }
-  const detail = await withLoading(
-    `gfw-hourly-tracks:detail:${tracksContext.releaseId}:${displayDate}:${trackId}`,
+  const bucketByTrack = (() => {
+    const raw = properties.track_buckets_json;
+    if (typeof raw !== "string") {
+      const single = formalTrackBucket(properties.ship_type_bucket) ? properties.ship_type_bucket : null;
+      return single ? new Map(trackIds.map((id) => [id, single])) : null;
+    }
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return null;
+      const map = new Map<string, FormalTrackBucket>();
+      for (const item of parsed) {
+        if (!Array.isArray(item) || item.length !== 2 || typeof item[0] !== "string" || !formalTrackBucket(item[1]) || map.has(item[0])) return null;
+        map.set(item[0], item[1]);
+      }
+      return trackIds.every((id) => map.has(id)) ? map : null;
+    } catch { return null; }
+  })();
+  if (!bucketByTrack) return { ...properties, detail_status: "error", detail_error: "航段船種命名空間驗證失敗" };
+  const context = tracksContext;
+  const details = await withLoading(
+    `gfw-hourly-tracks:detail:${context.releaseId}:${displayDate}:${trackIds.join(",")}`,
     "GFW 航段完整詳情",
-    loadGfwTrackDetail(tracksContext.manifestUrl, tracksContext.releaseId, day as TrackDetailDay, trackId),
+    Promise.all(trackIds.map((id) => loadGfwTrackDetail(context.manifestUrl, context.releaseId, day as TrackDetailDay, id, bucketByTrack.get(id)!))),
   );
-  if (!detail) return { ...properties, detail_status: "error", detail_error: "航段完整詳情驗證失敗" };
+  if (details.some((detail) => detail === null)) return { ...properties, detail_status: "error", detail_error: "航段完整詳情驗證失敗" };
+  const complete = details as GfwTrackDetailEntry[];
+  const vessels = complete.map((detail) => ({ vessel_id: detail.vessel.vesselId, mmsi: detail.vessel.mmsi, ship_name: detail.vessel.shipName, vessel_type: detail.vessel.vesselType, flag: detail.vessel.flag }));
+  const expected = typeof properties.vessel_count === "number" ? properties.vessel_count : null;
+  if (expected !== null && expected !== vessels.length) return { ...properties, detail_status: "error", detail_error: "同座標完整成員數不一致" };
+  const detail = complete[0]!;
   return {
     ...properties, vessel_id: detail.vessel.vesselId, mmsi: detail.vessel.mmsi, ship_name: detail.vessel.shipName,
     vessel_type: detail.vessel.vesselType, flag: detail.vessel.flag, point_count: detail.pointCount,
-    start_at: detail.startAt, end_at: detail.endAt, observed_times: JSON.stringify(detail.observedTimes), detail_status: "loaded",
+    start_at: detail.startAt, end_at: detail.endAt, observed_times: JSON.stringify(detail.observedTimes), vessels_json: JSON.stringify(vessels), members_json: JSON.stringify(vessels), detail_status: "loaded",
     full_fidelity: 1, attribution_label: tracksContext.attribution?.label ?? "Global Fishing Watch", attribution_href: tracksContext.attribution?.href ?? "https://globalfishingwatch.org/",
   };
 }
 
-export const __testOnly = { parseGridEntries, parseAdaptiveGridEntries, parseTrackEntries, resolveAssetUrl, loadedGfwGridDetailProperties };
+export const __testOnly = { parseGridEntries, parseAdaptiveGridEntries, parseTrackEntries, resolveAssetUrl, loadedGfwGridDetailProperties, selectTrackDetailEntry: (day: TrackDetailDay, hash: string, vesselBucket?: FormalTrackBucket) => {
+  const formalNamespaced = day.detailBuckets.some((entry) => entry.bucket.includes(":"));
+  return vesselBucket ? bucketEntry(day.detailBuckets, `${vesselBucket}:${hash}`) : formalNamespaced ? null : bucketEntry(day.detailBuckets, hash);
+} };

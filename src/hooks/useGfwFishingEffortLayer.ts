@@ -3,7 +3,6 @@ import type { FillLayer, GeoJSONSource, LineLayer, Map as MapboxMap } from "mapb
 import {
   loadGfwFishingEffortDay,
   loadGfwFishingEffortManifest,
-  isGfwFishingEffortShadowEnabled,
   type GfwFishingEffortManifest,
 } from "../data/gfwFishingEffortLoader";
 import { showTransientNotice } from "../components/TransientNotice";
@@ -15,6 +14,21 @@ export const GFW_FISHING_EFFORT_SOURCE_ID = "gfw-fishing-effort-source";
 export const GFW_FISHING_EFFORT_FILL_LAYER_ID = "gfw-fishing-effort-fill";
 export const GFW_FISHING_EFFORT_OUTLINE_LAYER_ID = "gfw-fishing-effort-outline";
 export const GFW_FISHING_EFFORT_CLICK_LAYERS = [GFW_FISHING_EFFORT_FILL_LAYER_ID] as const;
+
+/**
+ * Sequential apparent-hours ramp.  The input is log1p(hours), rather than a
+ * linear count scale, so sparse low-activity cells remain visible without
+ * letting a few extreme cells flatten the rest of the layer.  `max` and
+ * `coalesce` keep malformed/null tile properties from producing NaN paint.
+ */
+export const GFW_FISHING_EFFORT_COLOR_EXPRESSION = [
+  "interpolate", ["linear"],
+  ["ln", ["+", 1, ["max", ["coalesce", ["to-number", ["get", "apparent_fishing_hours"]], 0], 0]]],
+  0, "#0f766e",
+  Math.log1p(1), "#22d3ee",
+  Math.log1p(12), "#facc15",
+  Math.log1p(48), "#fb7185",
+] as const;
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -38,14 +52,7 @@ function ensureLayers(map: MapboxMap): void {
       source: GFW_FISHING_EFFORT_SOURCE_ID,
       layout: { visibility: "none" },
       paint: {
-        "fill-color": [
-          "interpolate", ["linear"],
-          ["to-number", ["get", "apparent_fishing_hours"], 0],
-          0, "#0f766e",
-          1, "#22d3ee",
-          12, "#facc15",
-          48, "#fb7185",
-        ],
+        "fill-color": GFW_FISHING_EFFORT_COLOR_EXPRESSION as unknown as NonNullable<FillLayer["paint"]>["fill-color"],
         "fill-opacity": 0.55,
       },
     } as FillLayer);
@@ -90,10 +97,6 @@ export function useGfwFishingEffortLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    if (!isGfwFishingEffortShadowEnabled()) {
-      setVisibility(map, false);
-      return;
-    }
     let disposed = false;
     let retryPending = false;
     let manifestRefreshStarted = false;

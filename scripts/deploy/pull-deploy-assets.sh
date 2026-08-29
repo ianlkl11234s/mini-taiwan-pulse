@@ -140,7 +140,7 @@ aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
 # 避免拿到舊 manifest 的讀者遇到 404。
 echo "[pull] sync global-maritime/gfw-hourly → $DATA_DIR/global-maritime/gfw-hourly/"
 aws s3 sync "$S3/global-maritime/gfw-hourly/" "$DATA_DIR/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json"
+  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json" --exclude "v4/manifest.json"
 if aws s3 cp "$S3/global-maritime/gfw-hourly/manifest.json" \
   "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" --no-progress; then
   mv "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" \
@@ -153,6 +153,20 @@ if aws s3 cp "$S3/global-maritime/gfw-hourly/v3-shadow/manifest.json" \
   "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" --no-progress; then
   mv "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
     "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json"
+fi
+
+# v4 正式 release 尚未發佈時完全不影響既有服務；一旦上游先放好 immutable
+# releases 與 root manifest，才同步 releases 後以 tmp+mv 原子切換指標。
+mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v4/releases"
+if aws s3 ls "$S3/global-maritime/gfw-hourly/v4/manifest.json" >/dev/null 2>&1; then
+  echo "[pull] sync global-maritime/gfw-hourly/v4 releases → $DATA_DIR/global-maritime/gfw-hourly/v4/"
+  if aws s3 sync "$S3/global-maritime/gfw-hourly/v4/releases/" \
+    "$DATA_DIR/global-maritime/gfw-hourly/v4/releases/" --no-progress && \
+    aws s3 cp "$S3/global-maritime/gfw-hourly/v4/manifest.json" \
+      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" --no-progress; then
+    mv "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" \
+      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json"
+  fi
 fi
 
 # 觀光：鏡像子前綴 deploy-assets/tourism/ → /data/tourism/（景點/旅宿/餐飲 D 類 3 大檔；其餘 9 檔 C 類在 dist fallback）

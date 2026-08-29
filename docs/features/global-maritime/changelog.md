@@ -1,5 +1,33 @@
 # Changelog
 
+## 2026-08-29 — East Asia v4 formal local root and main-map acceptance
+
+- Removed the DEV shadow selector from the consumer path. The main map now resolves the formal
+  schema-4 root at `/global-maritime/gfw-hourly/v4/manifest.json` without query flags or special
+  environment variables; v2/v3 remain fail-closed fallback inputs.
+- Promoted and installed immutable local candidate v8: 542 artifacts, release manifest 513,811 B,
+  SHA `f4f8b650be86fdeaea4d9e355a1d23330496b6b508f26d9c58fe54c16c3cfe19`.
+- Browser-accepted the 0.1-degree Grid toggle, opacity, six stable colour bands, time crossfade,
+  Dark/Light style reload and a 59/59-member popup. Tracks and Fishing render independently;
+  Grid-off removes the URL layer state and changes the group count from 1/6 to 0/6; turning it
+  back on restores both. Grid-off leaves Tracks on. Grid and Tracks also render at 390x844.
+- Formal Tracks now use fixed-z6 spatial PMTiles and six buckets: Fishing, Cargo, Passenger,
+  Carrier, Other and Unknown. The first three default on; Tanker is not a formal v4 bucket and
+  Gear/FAD are excluded as non-vessel observations. Fractional ticks interpolate locally and
+  clip trails at now without future geometry; formal popup shards are vessel-type/hash namespaced.
+  Browser readback returned a complete 2/2 Passenger group and 24-point trail. Formal detail
+  context ownership is isolated from the mounted v2/v3 fallback cleanup.
+- Grid PMTiles use a bounded 192-tile archive cache with pending-request dedupe. Same-hour ticks
+  read 0 additional bytes; hour crossing only loads the new prefetch slot. Fishing uses a safe
+  continuous log1p scale and exposes UTC date, unit, version, facets, latest/finalization/revision,
+  attribution and model-derived/non-realtime caveats in both legend and popup.
+- Final local verification: Mini Taiwan Pulse `83` test files / `819` passed / `1` skipped;
+  collector v4 release/daily/monitoring/driver targeted tests `58` passed; TypeScript,
+  production build and diff check passed.
+- Local HTTP readback passed for root/release JSON, raw gzip SHA/bytes and PMTiles 206 Range.
+  Upload, external pull and deploy were not run; migration 379 and the external collector schedule
+  are not active, so automatic daily refresh must not yet be claimed.
+
 ## 2026-08-28 — East Asia v4 local shadow POC wired into main map
 
 - Added DEV-only `?gfwV4Shadow=1` main-site wiring for independent 0.1-degree hourly Grid,
@@ -17,8 +45,13 @@
 - Added a DEV-shadow-specific five-bucket legend that discloses the current CARRIER and
   GEAR/OTHER grouping; no production v2/v3 taxonomy was changed.
 - Added a v4-only six-step `vessel_count` density scale for the 0.1-degree Grid
-  (`1`, `2–3`, `4–7`, `8–15`, `16–49`, `50+`) and raised its base fill opacity to 0.50;
-  production v2/v3 keeps the existing fixed orange fill and 0.24 opacity.
+  (`1`, `2–3`, `4–7`, `8–15`, `16–49`, `50+`) plus continuous density-based fill/outline
+  opacity; production v2/v3 keeps the existing fixed orange fill and 0.24 opacity.
+- Replaced v4 hourly PMTiles source churn with a three-slot H/H+1/H+2 ring. Retained hours
+  keep their source/tile cache across rollover, H+1 must be first-ready before crossfade, and
+  the popup hit layer reuses the dominant ring source instead of downloading a duplicate archive.
+- The localhost-only shadow used an intermediate DEV tile bridge during the POC. The 2026-08-29
+  formal local root supersedes that runtime path with canonical immutable PMTiles Range reads.
 
 ## 2026-08-26 — localhost production release proxy
 

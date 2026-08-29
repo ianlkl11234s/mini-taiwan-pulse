@@ -1,4 +1,4 @@
-import { Fragment, memo, useState, createContext, useContext } from "react";
+import { Fragment, memo, useEffect, useState, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
@@ -15,9 +15,10 @@ import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
-import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT } from "../data/shipTrails";
-import { isGfwV4ShadowRuntimeEnabled } from "../data/gfwV4ShadowTracksLoader";
+import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
+import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
+import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -3965,8 +3966,7 @@ function GfwVesselPresenceLegend() {
 
 function GfwHourlyGridLegend() {
   const t = useLegendTheme();
-  const v4Shadow = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
-  if (v4Shadow) return (
+  return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         GFW 小時船舶網格
@@ -3980,31 +3980,10 @@ function GfwHourlyGridLegend() {
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5 }}>
-        色階＝每個 0.1° 格網內的船舶數
+        色階＝每個 0.1° 格網內的船舶數；透明度隨船舶數連續插值
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         依全域時間軸切換 UTC 整點
-      </div>
-    </div>
-  );
-  return (
-    <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW 小時船舶網格
-      </div>
-      <div style={{ display: "flex", alignItems: "end", gap: 12, minHeight: 28 }}>
-        {[{ size: 10, label: "1" }, { size: 16, label: "4" }, { size: 24, label: "25" }].map((item) => (
-          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: item.size, height: item.size, borderRadius: RADIUS.full, background: "#fb923c", border: "1px solid #7c2d12" }} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label} 艘</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5 }}>
-        圓大小與圓內數字＝同一 GFW HIGH 格內的船舶數
-      </div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
-        點位是格網中心，非原始 AIS 精確位置；依全域時間軸切換 UTC 整點
       </div>
     </div>
   );
@@ -4012,20 +3991,14 @@ function GfwHourlyGridLegend() {
 
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
-  const palette = isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT;
-  const v4Shadow = isGfwV4ShadowRuntimeEnabled(import.meta.env.DEV);
-  const v4Palette = isDark
-    ? { cargo: "#39bff4", tanker: "#ff8f43", passenger: "#b3a0ff", fishing: "#58d68d", other: "#f0cc66" }
-    : { cargo: "#007da8", tanker: "#b54c00", passenger: "#6552b8", fishing: "#187c46", other: "#8a6500" };
-  const rows = v4Shadow
-    ? [
-        { color: v4Palette.cargo, label: "Cargo（目前含 CARRIER）" },
-        { color: v4Palette.tanker, label: "Tanker（本日樣本 0）" },
-        { color: v4Palette.passenger, label: "Passenger" },
-        { color: v4Palette.fishing, label: "Fishing vessel" },
-        { color: v4Palette.other, label: "Other / Unknown / GEAR（混合）" },
-      ]
-    : SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }));
+  const palette = isDark
+    ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
+    : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
+  const rows = [
+    { color: palette.fishing, label: "Fishing" }, { color: palette.cargo, label: "Cargo" },
+    { color: palette.passenger, label: "Passenger" }, { color: palette.carrier, label: "Carrier（預設關閉）" },
+    { color: palette.other, label: "Other（預設關閉）" }, { color: palette.unknown, label: "Unknown（預設關閉）" },
+  ];
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -4038,15 +4011,31 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線；同座標端點會聚合並以大小表示船數。
       </div>
-      {v4Shadow && <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
-        POC bucket 是 exporter 分組，不等同原始 vessel_type；popup 保留上游原值。Taxonomy 尚待契約拍板。
-      </div>}
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
+        來源為正式 schema-4 day pack；Tanker 不屬於本圖層 taxonomy，GEAR/FAD 是獨立非船舶觀測。
+      </div>
     </div>
   );
 }
 
+function utcDateFromSeconds(seconds: number): string {
+  const date = new Date(seconds * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : "未提供";
+}
+
 function GfwFishingEffortLegend() {
   const t = useLegendTheme();
+  const timelineSeconds = useTimeStoreTime(1000);
+  const [manifest, setManifest] = useState<GfwFishingEffortManifest | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwFishingEffortManifest().then((next) => {
+      if (active) setManifest(next);
+    });
+    return () => { active = false; };
+  }, []);
+  const selectedUtcDate = utcDateFromSeconds(timelineSeconds);
+  const attributionHref = manifest?.attributionHref;
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
@@ -4058,10 +4047,29 @@ function GfwFishingEffortLegend() {
         ))}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-        <span>較少</span><span>apparent fishing hours</span><span>較多</span>
+        <span>0 h</span><span>1 h</span><span>12 h</span><span>48 h+</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5, lineHeight: 1.4 }}>
+        時間軸 UTC 日：{selectedUtcDate} · log1p(apparent fishing hours)
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        單位：{manifest?.unit ?? "未提供"} · 資料版本：{manifest?.resolvedDatasetVersion ?? "未提供"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        Aggregation facets：每格保留 component facets（詳 popup）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        最新可用日期：{manifest?.latestAvailableDate ?? "未提供（GFW 未提供）"} · active：{manifest?.latestObservedActiveDate ?? "未提供"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        Finalization：{manifest?.finalizationStatus ?? "未提供"} · Revision：{manifest?.revisionSemantics ?? "未提供"}
+      </div>
+      {manifest?.caveat && <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>{manifest.caveat}</div>}
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
+        {attributionHref ? <a href={attributionHref} target="_blank" rel="noreferrer" style={{ color: t.textStrong }}>Powered by {manifest?.attribution?.match(/Global Fishing Watch/) ? "Global Fishing Watch" : "資料提供者"}</a> : "資料提供者：未提供連結"}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
-        每日獨立 sample；不是漁獲量、船數、執法證據或違法捕撈判定。
+        每日獨立 sample；apparent/model-derived、非即時；不是漁獲量、船數、執法證據或違法捕撈判定。
       </div>
     </div>
   );

@@ -1,9 +1,52 @@
 # Global Maritime handoff
 
-## East Asia v4 24-hour local shadow POC truth (2026-08-28)
+## East Asia v4 formal local release truth (2026-08-29)
 
-The accepted bbox `115.93462,20.36314,134.73486,36.52495` is now wired into the
-Mini Taiwan Pulse main map behind the DEV-only `?gfwV4Shadow=1` gate. This is still a
+This section supersedes the older shadow-runtime notes below. Mini Taiwan Pulse now resolves
+the formal schema-4 root at `/global-maritime/gfw-hourly/v4/manifest.json` without a query flag
+or environment selector. The installed local root has `production_cutover: true`, but that means
+**local root cutover only**: no S3/Cloudflare upload, container pull or external deployment was run.
+Production v2/v3 assets remain present as rollback/fallback inputs and were not modified or deleted.
+
+| release boundary | current truth |
+|---|---|
+| build | passed locally; Mini Taiwan Pulse `83` test files / `819` passed / `1` skipped, collector v4 release/daily/monitoring/driver targeted `58` passed, TypeScript and production build passed |
+| contract / wire | passed; schema 4, immutable release, HIGH to local 0.1-degree Grid, fixed-z6 `track_frame_pmtiles`, complete detail sidecars, independent Fishing Effort |
+| stage | passed locally as candidate v8, then installed under the canonical local v4 root |
+| upload | **not run** |
+| readback | passed locally; root 352 B / SHA `4a73282006a90bbe42ccf28907937ebdf7de1270386490ea994367fbb9973c68`, release manifest 513,811 B / SHA `f4f8b650be86fdeaea4d9e355a1d23330496b6b508f26d9c58fe54c16c3cfe19`, 542 declared artifacts |
+| pull | external pull not run; formal local installer readback passed |
+| deploy | **not run** |
+| HTTP | localhost `6002` passed: root/release 200, PMTiles Range 206 with exact `Content-Range`, immutable asset cache headers, raw gzip bytes preserved for client SHA verification |
+| browser | no-flag Grid, Tracks and Fishing passed on desktop; Grid toggle removes/restores URL state (`1/6 -> 0/6 -> 1/6`), opacity, six-band legend, style reload and 59/59-member popup passed; same-hour Grid/Tracks ticks reuse loaded bytes; formal Tracks popup selected the vessel-type/hash sidecar and returned 2/2 Passenger members plus 24 trail points; Fishing log1p legend, governance fields and popup passed; Grid and Tracks independence passed; Grid and Tracks rendered on a 390x844 mobile viewport |
+
+The formal four-layer product boundary is frozen:
+
+1. `gfwHourlyGrid`: hourly 0.1-degree polygon PMTiles plus complete detail members.
+2. `gfwHourlyTracks`: independent fixed-z6 spatial PMTiles by selected day and vessel bucket.
+3. `gfwFishingEffort`: independent daily apparent-fishing-effort sample.
+4. `gfwDarkVessels`: existing independent SAR-unmatched-AIS layer, unchanged.
+
+Tracks use `FISHING`, `CARGO`, `PASSENGER`, `CARRIER`, `OTHER`, `UNKNOWN`; the first three
+are enabled by default. `TANKER` is not a formal v4 bucket. `GEAR`/`FAD` are non-vessel
+observations and must not be silently folded into a vessel class. Formal track frames are
+`track_frame_pmtiles`, fixed z6, `application/octet-stream`, identity encoded, and fail closed
+on missing/duplicate identities or over-budget artifacts. Legacy `track_frame_hour` remains
+historical v2/v3/POC evidence only. Popup hydration namespaces each immutable detail shard as
+`<vessel-bucket>:<sha256(track-id)[0]>`; the formal owner cannot be cleared by the mounted legacy
+fallback cleanup, and malformed or incomplete member groups still fail closed. The shared WebGL
+renderer restores Mapbox blend enable, functions, equations and blend color after every render.
+
+The collector, publisher, release-ledger migration and fail-closed schedule wiring are implemented
+and locally tested. They are **not yet an active automatic external update**: migration 379 was
+not applied, Zeabur secrets/schedule/deploy were not changed, and upload/deploy remain not run.
+Do not state that tomorrow's data will refresh automatically until those external gates plus the
+GFW license/redistribution decision are explicitly authorized and read back.
+
+## Historical: East Asia v4 24-hour local shadow POC truth (2026-08-28)
+
+The accepted bbox `115.93462,20.36314,134.73486,36.52495` was initially wired into the
+Mini Taiwan Pulse main map behind the DEV-only `?gfwV4Shadow=1` gate. This was a
 local immutable shadow POC: production v2/v3 resolvers and assets are unchanged; upload,
 pull and deploy were not run.
 
@@ -13,7 +56,7 @@ pull and deploy were not run.
 | route decision | use private HIGH then local 0.1-degree aggregation: LOW assigns 565,964 vessel-hours to different 0.1-degree cells under the accepted canonical grid |
 | upstream cost | LOW 372,435,396 response bytes / 90.35s / 1,292,402,688 B peak RSS; HIGH 375,200,404 B / 409.13s / 1,475,969,024 B peak RSS |
 | Grid artifact | 24 hourly PMTiles (39,389,483 B) plus 293 complete detail shards (50,322,580 B); 99,155 semantic cells read back |
-| Grid visual | v4-only six-step `vessel_count` scale: `1`, `2–3`, `4–7`, `8–15`, `16–49`, `50+`; fixed from the 24-hour distribution and shown in the legend; production v2/v3 styling is unchanged |
+| Grid visual | v4-only six-step `vessel_count` colour scale plus continuous density opacity; H/H+1 time alpha remains linear and waits for H+1 first-ready; production v2/v3 styling is unchanged |
 | Tracks artifact | five ship-type JSON day packs (10,900,081 B) and five typed-binary day packs (7,895,543 B); selected-day type toggles control download/attachment |
 | Fishing Effort | independent 2026-08-21 daily sample, 2,887 polygons, 1,253,080 B, 138,297.72 apparent fishing hours |
 | artifact readback | 328/328 assets, 109,760,767/109,760,767 B, SHA/JSON/binary/PMTiles structure and individual MVT semantics passed |
@@ -29,12 +72,13 @@ frame construction bottleneck. This is sufficient to enter a Phase 2 **shadow PO
 shards / viewport-time culling; it is not permission to change production. A real mobile-device
 run and externally attested heap run are still missing, so no mobile or heap gate is passed.
 
-The v4 shadow exporter currently groups raw `CARGO|CARRIER` as `cargo`, preserves `TANKER`,
+The historical v4 shadow exporter grouped raw `CARGO|CARRIER` as `cargo`, preserved `TANKER`,
 `PASSENGER` and `FISHING`, and puts every remaining raw value (including `GEAR`, `OTHER`,
 `NA`, null, `BUNKER` and `SEISMIC`) into `other`. The DEV-only legend now states this boundary
 instead of reusing the production AIS six-class legend. Removing Tanker, excluding GEAR,
 changing the default bucket set, or reassigning CARRIER are contract decisions still awaiting
-explicit approval; production v2/v3 taxonomy remains unchanged.
+explicit approval **at that historical checkpoint**; the 2026-08-29 formal decision above now
+supersedes this taxonomy. Production v2/v3 taxonomy remains unchanged.
 
 ## Full-fidelity v3 production truth (2026-08-27)
 
@@ -98,6 +142,15 @@ but only occupied marine cells should be published.
   the Grid does not need an extra duplicate render source.
 - The local shadow uses stable `vessel_count` bands (`1`, `2–3`, `4–7`, `8–15`, `16–49`,
   `50+`) instead of a per-hour auto-domain, so the same color remains comparable across hours.
+  Fill and outline opacity interpolate continuously by `vessel_count`; this visual interpolation
+  does not invent intermediate counts or member lists.
+- Keep three stable v4 PMTiles slots for H/H+1/H+2. At rollover retain the warm H+1/H+2
+  sources and recycle only the expired slot; do not fade H toward H+1 until H+1 is first-ready.
+  The dominant popup hit layer must reuse the matching ring source rather than mount a duplicate.
+- Formal local playback uses the canonical installed v4 root plus direct immutable PMTiles Range
+  reads. Vite development middleware serves that root before the production proxy and preserves
+  raw gzip bytes for client-side SHA verification. It is local HTTP evidence, not an external
+  deployment; production build continues to strip local v4 artifacts.
 - Re-shard detail sidecars by a measured compressed-payload target; do not assume the current
   fixed 16 buckets/hour remains suitable after parent-cell aggregation.
 - First compare two upstream routes on the same 24-hour sample:
@@ -113,11 +166,12 @@ but only occupied marine cells should be published.
   track packs split by vessel-type bucket, for example:
 
   ```text
-  tracks/<UTC-date>/cargo.daypack
-  tracks/<UTC-date>/tanker.daypack
-  tracks/<UTC-date>/passenger.daypack
-  tracks/<UTC-date>/fishing.daypack
-  tracks/<UTC-date>/other.daypack
+  tracks/<UTC-date>/cargo.pmtiles
+  tracks/<UTC-date>/passenger.pmtiles
+  tracks/<UTC-date>/fishing.pmtiles
+  tracks/<UTC-date>/carrier.pmtiles
+  tracks/<UTC-date>/other.pmtiles
+  tracks/<UTC-date>/unknown.pmtiles
   ```
 
 - Enabling a vessel type is what attaches/downloads that asset. A client-only visibility
@@ -125,9 +179,9 @@ but only occupied marine cells should be published.
 - Render with a dedicated Three.js scene modeled on the Taiwan `ships` layer: `InstancedMesh`
   heads, preallocated `BufferGeometry` trails, viewport culling, fixed explicit render budgets,
   and browser-local time interpolation after the selected day loads.
-- Default track types after enabling the Tracks layer: Cargo, Tanker and Passenger on;
-  Fishing and Special/Other off. Fishing activity remains available through the independent
-  Fishing Effort layer.
+- Default track types after enabling the Tracks layer: Fishing, Cargo and Passenger on;
+  Carrier, Other and Unknown off. Fishing activity remains separately available through the
+  independent Fishing Effort layer and is not interchangeable with vessel presence.
 - Default trail window is 30 minutes; retain 1-hour and 3-hour options. Never draw future
   geometry. Only interpolate between valid adjacent observations in the same exporter segment;
   gaps, non-monotonic time, impossible speeds and boundary discontinuities must split tracks.

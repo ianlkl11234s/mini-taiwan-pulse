@@ -285,28 +285,48 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown> }) {
-  const hours = Number(props.apparent_fishing_hours);
-  const components = Number(props.component_count);
+  const t = useFeatureTheme();
+  const hours = typeof props.apparent_fishing_hours === "number" && Number.isFinite(props.apparent_fishing_hours) && props.apparent_fishing_hours >= 0
+    ? props.apparent_fishing_hours : null;
+  const components = typeof props.component_count === "number" && Number.isInteger(props.component_count) && props.component_count >= 1
+    ? props.component_count : null;
+  let facets: Record<string, unknown>[] = [];
   let facetCount: number | null = null;
   if (typeof props.aggregation_facets_json === "string") {
     try {
       const parsed: unknown = JSON.parse(props.aggregation_facets_json);
-      facetCount = Array.isArray(parsed) ? parsed.length : null;
+      facets = Array.isArray(parsed) && parsed.every((item) => item !== null && typeof item === "object" && !Array.isArray(item))
+        ? parsed as Record<string, unknown>[] : [];
+      facetCount = facets.length > 0 ? facets.length : null;
     } catch {
       facetCount = null;
     }
   }
+  const unavailable = (value: unknown): string => value == null || value === "" ? "未提供" : String(value);
+  const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
   return (
     <div>
-      <Row label="UTC 日期" value={String(props.date ?? "—")} />
-      <Row label="捕撈活動" value={Number.isFinite(hours) ? `${hours.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} 小時` : "—"} />
-      <Row label="彙整 components" value={Number.isFinite(components) ? components.toLocaleString("zh-TW") : "—"} />
+      <Row label="選定 UTC 日" value={unavailable(props.selected_utc_date ?? props.date)} />
+      <Row label="捕撈活動" value={hours != null ? `${hours.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : "未提供"} />
+      <Row label="彙整 components" value={components != null ? components.toLocaleString("zh-TW") : "未提供"} />
       {facetCount != null && <Row label="Aggregation facets" value={`${facetCount.toLocaleString("zh-TW")} 組`} />}
-      <Row label="資料版本" value={String(props.resolved_dataset_version ?? "—")} />
-      <Row label="指標語意" value={String(props.metric_semantics ?? "apparent fishing effort")} />
-      <Row label="資料源" value="Global Fishing Watch（daily apparent fishing effort）" />
-      <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.5, color: "#94a3b8" }}>
-        本指標不是漁獲量、船數、執法證據或違法捕撈判定。
+      {facets.length > 0 && (
+        <details style={{ marginTop: 7, color: t.textDim }}>
+          <summary style={{ cursor: "pointer", fontSize: 10 }}>查看完整 aggregation facets</summary>
+          <pre style={{ maxHeight: 180, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 9, lineHeight: 1.35 }}>
+            {JSON.stringify(facets, null, 2)}
+          </pre>
+        </details>
+      )}
+      <Row label="資料版本" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
+      <Row label="指標" value={unavailable(props.metric_semantics ?? props.metric)} />
+      <Row label="最新可用日期" value={unavailable(props.latest_available_date)} />
+      <Row label="Finalization" value={unavailable(props.finalization_status)} />
+      <Row label="Revision" value={unavailable(props.revision_semantics)} />
+      <Row label="資料源" value={unavailable(props.attribution)} />
+      <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.5, color: t.textDim }}>
+        {unavailable(props.caveat)}
+        {attributionHref && <> · <a href={attributionHref} target="_blank" rel="noreferrer" style={{ color: t.link }}>GFW attribution</a></>}
       </div>
     </div>
   );

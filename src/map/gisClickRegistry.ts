@@ -38,7 +38,7 @@ import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
 import { GFW_HOURLY_GRID_CLICK_LAYERS } from "../hooks/useGfwHourlyGridLayer";
 import { GFW_HOURLY_TRACKS_CLICK_LAYERS } from "../hooks/useGfwHourlyTracksLayer";
-import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4ShadowTracksLayer";
+import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4TracksLayer";
 import { GFW_FISHING_EFFORT_CLICK_LAYERS } from "../hooks/useGfwFishingEffortLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */

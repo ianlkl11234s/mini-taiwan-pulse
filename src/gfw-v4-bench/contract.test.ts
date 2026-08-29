@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { findAsset, parseBenchManifest, parseJsonTrackPack, workloadCoverage } from "./contract";
-import { TRACK_BUCKETS } from "./types";
+import { DEFAULT_TRACK_BUCKETS, TRACK_BUCKETS } from "./types";
 
 const member = { vessel_id: "v-1", mmsi: null, ship_name: "A", vessel_type: "CARGO", flag: "TW" };
 const popupMember = {
@@ -69,7 +69,7 @@ describe("GFW v4 bench contract boundary", () => {
     }, "http://localhost/manifest.json")).toBeNull();
   });
 
-  it("reports enabled and total points/segments coverage for default and all presets", () => {
+  it("reports default-three as complete requested-workload coverage, not catalog coverage", () => {
     const assets = [
       { bucket: "cargo", points: 100, segments: 10 },
       { bucket: "tanker", points: 0, segments: 0 },
@@ -83,14 +83,17 @@ describe("GFW v4 bench contract boundary", () => {
       bbox: [115, 20, 134, 36],
       days: [{ display_date: "2026-08-20", assets }],
     }, "http://localhost/manifest.json")!;
-    expect(workloadCoverage(manifest, "2026-08-20", new Set(["cargo", "tanker", "passenger"]), "binary")).toEqual({
+    expect(DEFAULT_TRACK_BUCKETS).toEqual(["fishing", "cargo", "passenger"]);
+    expect(workloadCoverage(manifest, "2026-08-20", new Set(DEFAULT_TRACK_BUCKETS), "binary")).toEqual({
       preset: "default",
-      enabled: { points: 150, segments: 15 },
-      total: { points: 800, segments: 80 },
-      pointFraction: 0.1875,
-      segmentFraction: 0.1875,
+      enabled: { points: 400, segments: 40 },
+      total: { points: 400, segments: 40 },
+      pointFraction: 1,
+      segmentFraction: 1,
     });
-    expect(workloadCoverage(manifest, "2026-08-20", new Set(TRACK_BUCKETS), "binary")?.preset).toBe("all");
+    expect(workloadCoverage(manifest, "2026-08-20", new Set(TRACK_BUCKETS), "binary")).toMatchObject({
+      preset: "all", total: { points: 800, segments: 80 }, pointFraction: 1, segmentFraction: 1,
+    });
   });
 
   it("keeps segment boundaries and requires strictly increasing UTC epochs", () => {

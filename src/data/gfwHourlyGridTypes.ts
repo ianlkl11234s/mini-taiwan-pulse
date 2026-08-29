@@ -38,7 +38,22 @@ export const GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION = [
 ] as const;
 
 export const GFW_HOURLY_GRID_V3_FILL_OPACITY = 0.24;
-export const GFW_HOURLY_GRID_V4_FILL_OPACITY = 0.5;
+
+/**
+ * v4 polygon density remains continuously legible within the six colour classes.
+ * The caller supplies the user/timeline multiplier as the first factor of `*`.
+ */
+export const GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION = [
+  "interpolate", ["linear"], ["to-number", ["get", "vessel_count"], 1],
+  1, 0.28,
+  2, 0.34,
+  4, 0.40,
+  8, 0.47,
+  16, 0.54,
+  50, 0.62,
+  200, 0.68,
+  1161, 0.72,
+] as const;
 
 /** Popup-facing wire contract: the parser intentionally accepts producer-style snake_case only. */
 export function serializeGfwHourlyGridVessels(vessels: readonly GfwHourlyGridVessel[]): string {

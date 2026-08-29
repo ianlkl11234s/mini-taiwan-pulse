@@ -15,6 +15,8 @@ public/gfw_hourly_grid_poc/
 public/gfw-v4-poc
 public/gfw-v4-browser-assets/
 public/gfw-v4-browser-manifest.json
+# GFW v4 formal immutable releases are pulled/installed separately from the app bundle.
+public/global-maritime/gfw-hourly/v4/
 # Vite task-local dependency cache created in isolated worktrees
 node_modules.vite-cache/
 public/rail/

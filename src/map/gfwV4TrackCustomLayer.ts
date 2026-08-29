@@ -2,16 +2,19 @@ import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { FrameBudget, TrackFrame } from "../gfw-v4-bench/types";
 import {
   GfwV4TrackScene,
+  type GfwV4SpatialPointFrame,
   type GfwV4RenderedFrame,
   type GfwV4ViewBounds,
 } from "../three/GfwV4TrackScene";
 
-export const GFW_V4_TRACK_CUSTOM_LAYER_ID = "gfw-v4-shadow-tracks-custom";
+export const GFW_V4_TRACK_CUSTOM_LAYER_ID = "gfw-v4-tracks-custom";
 
 export interface GfwV4TrackCustomLayerOptions {
   id?: string;
   budget: FrameBudget;
   getFrame: () => TrackFrame | null;
+  /** Phase-2 Worker/GPU route. Mutually exclusive with getFrame per render. */
+  getSpatialFrame?: () => GfwV4SpatialPointFrame | null;
   getVisible: () => boolean;
   getOpacity: () => number;
   getTheme: () => "dark" | "light" | boolean;
@@ -28,7 +31,7 @@ function mapBounds(map: MapboxMap): GfwV4ViewBounds {
 export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOptions): CustomLayerInterface {
   const scene = options.sceneFactory?.(options.budget) ?? new GfwV4TrackScene(options.budget);
   let map: MapboxMap | null = null;
-  let lastFrame: TrackFrame | null = null;
+  let lastFrame: TrackFrame | GfwV4SpatialPointFrame | null = null;
   let lastViewKey = "";
   return {
     id: options.id ?? GFW_V4_TRACK_CUSTOM_LAYER_ID,
@@ -41,7 +44,7 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
     },
     render(_gl: WebGLRenderingContext, matrix: number[]) {
       if (!map || !options.getVisible()) return;
-      const frame = options.getFrame();
+      const frame = options.getSpatialFrame?.() ?? options.getFrame();
       if (!frame) return;
       const bounds = mapBounds(map);
       const zoom = map.getZoom();
@@ -51,8 +54,12 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
       if (frame !== lastFrame || viewKey !== lastViewKey) {
         lastFrame = frame;
         lastViewKey = viewKey;
-        const rendered = scene.update(frame, bounds, zoom);
-        options.onRendered?.(rendered);
+        if ("points" in frame) {
+          scene.updateSpatialPoints(frame, zoom);
+        } else {
+          const rendered = scene.update(frame, bounds, zoom);
+          options.onRendered?.(rendered);
+        }
       }
       scene.render(matrix);
     },

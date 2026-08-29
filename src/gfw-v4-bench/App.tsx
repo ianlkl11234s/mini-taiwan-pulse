@@ -6,6 +6,7 @@ import { buildTrackFrame, secondsForWindow } from "./frame";
 import { BenchRunRecorder, currentDeviceProfile, type BenchRunExport } from "./metrics";
 import { BenchTrackScene } from "./scene";
 import {
+  DEFAULT_TRACK_BUCKETS,
   TRACK_BUCKETS,
   type BenchManifest,
   type FrameBudget,
@@ -18,8 +19,8 @@ import "./styles.css";
 const BUCKET_LABELS: Record<TrackBucket, string> = {
   cargo: "Cargo", tanker: "Tanker", passenger: "Passenger", fishing: "Fishing", other: "Special / Other",
 };
-const DEFAULT_BUCKETS = new Set<TrackBucket>(["cargo", "tanker", "passenger"]);
-const BUDGET: FrameBudget = { maxHeads: 20_000, maxTrailVertices: 300_000 };
+const DEFAULT_BUCKETS = new Set<TrackBucket>(DEFAULT_TRACK_BUCKETS);
+const BUDGET: FrameBudget = { maxHeads: 20_000, maxTrailVertices: 200_000 };
 
 function queryManifest(): string {
   return new URLSearchParams(window.location.search).get("manifest") ?? "/gfw-v4-browser-manifest.json";
@@ -237,8 +238,8 @@ export function App() {
             </div>
             <div className="type-grid">{TRACK_BUCKETS.map((bucket) => <button key={bucket} className={enabled.has(bucket) ? "active" : ""} onClick={() => toggleBucket(bucket)} disabled={running} aria-pressed={enabled.has(bucket)}><i />{BUCKET_LABELS[bucket]}</button>)}</div>
             <p className="coverage" data-testid="workload-coverage">{coverage
-              ? `${coverage.enabled.points.toLocaleString()} / ${coverage.total.points.toLocaleString()} points (${percent(coverage.pointFraction)}) · ${coverage.enabled.segments.toLocaleString()} / ${coverage.total.segments.toLocaleString()} segments (${percent(coverage.segmentFraction)})`
-              : "Load a manifest to calculate workload coverage."}</p>
+              ? `${coverage.enabled.points.toLocaleString()} / ${coverage.total.points.toLocaleString()} requested points (${percent(coverage.pointFraction)}) · ${coverage.enabled.segments.toLocaleString()} / ${coverage.total.segments.toLocaleString()} requested segments (${percent(coverage.segmentFraction)})`
+              : "Load a manifest to calculate requested-workload completion."}</p>
           </fieldset>
           <div className="field-row triple">
             <label className="field"><span>Trail</span><select value={trailWindow} onChange={(event) => setTrailWindow(event.target.value as "0.5" | "1" | "3")} disabled={running}><option value="0.5">30 min</option><option value="1">1 hour</option><option value="3">3 hours</option></select></label>

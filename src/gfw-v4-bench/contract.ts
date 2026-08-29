@@ -1,4 +1,5 @@
 import {
+  DEFAULT_TRACK_BUCKETS,
   TRACK_BUCKETS,
   type BenchAssetEntry,
   type BenchDayEntry,
@@ -90,27 +91,28 @@ export function workloadCoverage(
 ): WorkloadCoverage | null {
   const day = manifest.days.get(displayDate);
   if (!day) return null;
+  const enabledInOrder = TRACK_BUCKETS.filter((bucket) => enabledBuckets.has(bucket));
+  const preset = enabledInOrder.length === TRACK_BUCKETS.length
+    ? "all"
+    : enabledInOrder.length === DEFAULT_TRACK_BUCKETS.length && DEFAULT_TRACK_BUCKETS.every((bucket) => enabledBuckets.has(bucket))
+      ? "default"
+      : "custom";
+  // This is workload completion, not catalog coverage. Optional buckets that
+  // were intentionally not fetched must not make the default day-pack appear
+  // partially loaded.
+  const workloadBuckets = preset === "default" ? DEFAULT_TRACK_BUCKETS : enabledInOrder;
   let enabledPoints = 0;
   let enabledSegments = 0;
   let totalPoints = 0;
   let totalSegments = 0;
-  for (const bucket of TRACK_BUCKETS) {
+  for (const bucket of workloadBuckets) {
     const asset = day.assets.get(assetKey(bucket, format));
     if (!asset || asset.points === undefined || asset.segments === undefined) continue;
     totalPoints += asset.points;
     totalSegments += asset.segments;
-    if (enabledBuckets.has(bucket)) {
-      enabledPoints += asset.points;
-      enabledSegments += asset.segments;
-    }
+    enabledPoints += asset.points;
+    enabledSegments += asset.segments;
   }
-  const enabledInOrder = TRACK_BUCKETS.filter((bucket) => enabledBuckets.has(bucket));
-  const defaultBuckets: readonly TrackBucket[] = ["cargo", "tanker", "passenger"];
-  const preset = enabledInOrder.length === TRACK_BUCKETS.length
-    ? "all"
-    : enabledInOrder.length === defaultBuckets.length && enabledInOrder.every((bucket, index) => bucket === defaultBuckets[index])
-      ? "default"
-      : "custom";
   return {
     preset,
     enabled: { points: enabledPoints, segments: enabledSegments },

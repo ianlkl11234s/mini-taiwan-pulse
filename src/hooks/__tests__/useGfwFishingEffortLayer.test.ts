@@ -58,6 +58,7 @@ vi.mock("../../state/timeStore", () => ({
 }));
 
 import {
+  GFW_FISHING_EFFORT_COLOR_EXPRESSION,
   GFW_FISHING_EFFORT_FILL_LAYER_ID,
   GFW_FISHING_EFFORT_OUTLINE_LAYER_ID,
   GFW_FISHING_EFFORT_SOURCE_ID,
@@ -83,8 +84,15 @@ function manifest() {
     releaseId: "2026-08-21",
     selectedUtcDate: "2026-08-21",
     latestObservedActiveDate: "2026-08-23",
+    metric: "apparent_fishing_hours",
+    unit: "hours",
+    latestAvailableDate: null,
+    latestAvailableDateStatus: "not_provided_by_gfw",
     finalizationStatus: "not_provided_by_gfw",
     revisionSemantics: "dynamic_api_data_may_be_revised",
+    attribution: "Powered by Global Fishing Watch. https://globalfishingwatch.org/",
+    attributionHref: "https://globalfishingwatch.org/",
+    caveat: "Apparent/model-derived and non-realtime; not vessel presence",
   };
 }
 
@@ -131,17 +139,6 @@ describe("useGfwFishingEffortLayer", () => {
     loading.idle.mockReset();
   });
 
-  it("shadow runtime gate 關閉時不掛 layer、不 fetch、不訂閱 timeStore", () => {
-    loader.gate.mockReturnValue(false);
-    const state = createMap();
-    useGfwFishingEffortLayer({ current: state.map } as RefObject<MapboxMap | null>, true);
-    expect(loader.manifest).not.toHaveBeenCalled();
-    expect(loader.day).not.toHaveBeenCalled();
-    expect(state.layers.size).toBe(0);
-    expect(state.map.on).not.toHaveBeenCalled();
-    expect(harness.unsubscribe).not.toHaveBeenCalled();
-  });
-
   it("只在 timeline UTC date exact match 載入，離開 sample date 立即清空", async () => {
     loader.manifest.mockResolvedValue(manifest());
     loader.day.mockResolvedValue(DATA);
@@ -162,6 +159,8 @@ describe("useGfwFishingEffortLayer", () => {
       "fill-opacity",
       0.6,
     );
+    expect((state.layers.get(GFW_FISHING_EFFORT_FILL_LAYER_ID) as { paint?: { "fill-color"?: unknown } })?.paint?.["fill-color"])
+      .toBe(GFW_FISHING_EFFORT_COLOR_EXPRESSION);
 
     harness.tick(Date.parse("2026-08-22T00:00:00Z") / 1000);
     await flush();
@@ -171,6 +170,15 @@ describe("useGfwFishingEffortLayer", () => {
       "visibility",
       "none",
     );
+  });
+
+  it("使用安全的 log1p apparent-hours 色階，null/負值不會產生 NaN", () => {
+    const expression = JSON.stringify(GFW_FISHING_EFFORT_COLOR_EXPRESSION);
+    expect(expression).toContain('"ln"');
+    expect(expression).toContain('"max"');
+    expect(expression).toContain('"coalesce"');
+    expect(expression).toContain('"apparent_fishing_hours"');
+    expect(GFW_FISHING_EFFORT_COLOR_EXPRESSION).toContain(Math.log1p(48));
   });
 
   it("manifest sample date 不符時 fail closed，不載其他日或 fallback", async () => {
