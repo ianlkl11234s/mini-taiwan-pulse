@@ -94,8 +94,9 @@ import {
   COMPANY_SETUP_YEAR_MAX, COMPANY_SETUP_YEAR_MIN,
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
-import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS, ANIMAL_WELFARE_POINT_TYPE_VALUES } from "./animalWelfarePointsTypes";
+import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
+import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -426,7 +427,63 @@ export type SelectParamSpec =
   | SelectNumericParamSpec
   | SelectNoOverlayParamSpec;
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec;
+// ── 分類多選 ────────────────────────────────────────────────────────
+
+export const MULTI_SELECT_ALL = "__all__";
+export const MULTI_SELECT_NONE = "__none__";
+
+/**
+ * 分類多選的值維持 scalar string，避免改動既有 store。`__all__` 會隨 options
+ * 自動展開，`__none__` 是全關，其他值為排序後的 JSON string array。
+ */
+export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+  kind: "multiSelect";
+  name: string;
+  label: string;
+  options: ParamSelectOption[];
+  default: string;
+  /**
+   * `null` 代表各 layer 自己訂閱資料篩選通道；有值時以 options 順序編成 bitmask，
+   * 讓 Mapbox filter 能以一個 numeric overlayParams 值接收多選狀態。
+   */
+  out: string | null;
+}
+
+export function serializeMultiSelectValues(values: readonly string[]): string {
+  return JSON.stringify([...new Set(values)].sort());
+}
+
+export function resolveMultiSelectValues(
+  value: string,
+  options: readonly ParamSelectOption[],
+): string[] {
+  const optionValues = options.map((option) => option.value);
+  if (value === MULTI_SELECT_ALL) return optionValues;
+  if (value === MULTI_SELECT_NONE) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) return [];
+    const selected = new Set(parsed);
+    return optionValues.filter((optionValue) => selected.has(optionValue));
+  } catch {
+    return [];
+  }
+}
+
+/** options 的順序就是 bit 位元；目前只用在最多 30 種的穩定分類。 */
+export function encodeMultiSelectBitmask(
+  value: string,
+  options: readonly ParamSelectOption[],
+): number {
+  assertMultiSelectBitmaskCapacity(options);
+  return resolveMultiSelectValues(value, options).reduce(
+    (mask, selected) => mask | (1 << options.findIndex((option) => option.value === selected)),
+    0,
+  );
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec;
 
 /** 控件值的三種形狀（與三種 spec 一一對應） */
 export type ParamValue = number | string | boolean;
@@ -525,8 +582,23 @@ export const BUS_GROUP_ORDER = [
   "YunChiaNan", "Kaoping", "HualienTaitung", "OffshoreIslands",
 ] as const satisfies readonly BusGroup[];
 
+/** 市區公車區域多選的選項 SSOT；順序同時定義控件與城市展開順序。 */
+export const BUS_GROUP_OPTIONS: ParamSelectOption[] = BUS_GROUP_ORDER.map((group) => ({
+  label: BUS_GROUP_LABELS[group], value: group,
+}));
+
+/** 市區公車預設只載雙北；其餘區域由使用者在多選控件明確開啟。 */
+function busGroupMultiSelect(): MultiSelectParamSpec {
+  return {
+    kind: "multiSelect", name: "busGroups", label: "服務區域",
+    options: BUS_GROUP_OPTIONS,
+    default: serializeMultiSelectValues(["TaipeiMetro"]),
+    out: null,
+  };
+}
+
 /**
- * 8 區分組 checkbox → 8 個獨立 boolean 參數（P3-2D 群2/3）。
+ * 垃圾車 8 區分組 checkbox → 8 個獨立 boolean 參數（P3-2D 群2/3）。
  *
  * 手寫版是一個 `Record<BusGroup, boolean>` 的 useState ＋ `.map()` 出 8 個 toggle。
  * 拆平成獨立參數，store 的 value 型別因此不必支援巢狀物件；
@@ -775,15 +847,11 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
 export const LAYER_PARAMS_SPEC = {
   // ══════════ 宗教 Religion 6 層 ══════════
   religionTemples: [
-    // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
+    // 主祀神祇可同時選多族；bitmask 讓 Mapbox filter 仍維持 numeric overlayParams 合約。
     {
-      kind: "select", name: "religionTemplesDeity", label: "主祀", default: "all",
-      options: [
-        { label: "全部", value: "all" },
-        ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value })),
-      ],
-      out: "religionTemplesDeityIdx",
-      encode: ["all", ...DEITY_FAMILIES.map((d) => d.value)],
+      kind: "multiSelect", name: "religionTemplesDeity", label: "主祀類別", default: MULTI_SELECT_ALL,
+      options: DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value })),
+      out: "religionTemplesDeityMask",
     },
     {
       kind: "select", name: "religionTemplesRegistry", label: "登記", default: "all",
@@ -992,20 +1060,25 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ 交通・醫療・公共設施・教育 ══════════
   bikeStations: [
     { kind: "slider", name: "bikeScale", labelPrefix: "Bike", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("bikeStationsOpacity", 1),
   ],
   highways: [
     { kind: "slider", name: "highwayWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "highwayGlow", labelPrefix: "Glow", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
+    opacitySlider("highwaysOpacity", 1),
   ],
   provincialRoads: [
     { kind: "slider", name: "provincialWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "provincialGlow", labelPrefix: "Glow", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
+    opacitySlider("provincialRoadsOpacity", 1),
   ],
   cyclingRoutes: [
     { kind: "slider", name: "cyclingWidth", labelPrefix: "Cycling", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("cyclingRoutesOpacity", 1),
   ],
   freewayCongestion: [
     { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("freewayCongestionOpacity", 1),
   ],
   roadCongestion: [
     { kind: "slider", name: "roadCongestionWidth", labelPrefix: "寬度", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
@@ -1013,13 +1086,14 @@ export const LAYER_PARAMS_SPEC = {
   ],
   weatherStations: [
     { kind: "slider", name: "weatherScale", labelPrefix: "Weather", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("weatherStationsOpacity", 1),
   ],
   fireEvents: [opacitySlider("fireEventsOpacity", 1)],
-  fireLatest: [opacitySlider("fireLatestOpacity", 1)],
-  erHospital: [opacitySlider("erHospitalOpacity", 0.85)],
-  librarySeats: [opacitySlider("librarySeatsOpacity", 0.9)],
-  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6)],
-  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9)],
+  fireLatest: [opacitySlider("fireLatestOpacity", 1), scaleSlider("fireLatestScale", 1)],
+  erHospital: [opacitySlider("erHospitalOpacity", 0.85), scaleSlider("erHospitalScale", 1)],
+  librarySeats: [opacitySlider("librarySeatsOpacity", 0.9), scaleSlider("librarySeatsScale", 1)],
+  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6), scaleSlider("parkingOnstreetScale", 1)],
+  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9), scaleSlider("parkingOffstreetScale", 1)],
   commonRegistrationAddresses: [
     opacitySlider("commonRegistrationAddressesOpacity", 0.75),
     scaleSlider("commonRegistrationAddressesScale", 1.0),
@@ -1123,10 +1197,11 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
     { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
-  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85)],
-  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8)],
-  osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8)],
-  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8)],
+  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85), scaleSlider("internetExchangePointsScale", 1)],
+  landingStations: [opacitySlider("landingOpacity", 1), scaleSlider("landingScale", 1)],
+  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8), scaleSlider("anfrWirelessSitesScale", 1)],
+  osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8), scaleSlider("osmCommunicationSitesScale", 1)],
+  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8), scaleSlider("ripeAtlasProbesScale", 1)],
   // 全球層：z6（約 500km）、z8（約 156km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
   // 切換 —— select 走 encodeNumeric，overlayParams 直接拿到 6 / 10 當 filter 值。
   ooklaMobilePerformance: [
@@ -1174,6 +1249,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("convenienceStoresOpacity", 1),
   ],
   postOffices: [opacitySlider("postOfficesOpacity", 0.85), scaleSlider("postOfficesScale", 1)],
   iPostBoxes: [opacitySlider("iPostBoxesOpacity", 0.85), scaleSlider("iPostBoxesScale", 1)],
@@ -1289,6 +1365,8 @@ export const LAYER_PARAMS_SPEC = {
   ],
   waterReservoirs: [
     { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    opacitySlider("waterReservoirsOpacity", 1),
+    scaleSlider("waterReservoirsScale", 1),
   ],
   waterFacilities: [
     { kind: "slider", name: "waterFacilityScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
@@ -1320,9 +1398,9 @@ export const LAYER_PARAMS_SPEC = {
   animalShelterPressure: [opacitySlider("animalShelterPressureOpacity", 0.78)],
   animalWelfarePoints: [
     {
-      kind: "select", name: "animalWelfarePointsType", label: "服務類型", default: "all",
-      options: [{ label: "全部類型", value: "all" }, ...ANIMAL_WELFARE_POINT_TYPE_OPTIONS],
-      out: "animalWelfarePointsTypeIdx", encode: ["all", ...ANIMAL_WELFARE_POINT_TYPE_VALUES],
+      kind: "multiSelect", name: "animalWelfarePointsType", label: "服務類型", default: MULTI_SELECT_ALL,
+      options: ANIMAL_WELFARE_POINT_TYPE_OPTIONS,
+      out: "animalWelfarePointsTypeMask",
     },
     opacitySlider("animalWelfarePointsOpacity", 0.85),
     scaleSlider("animalWelfarePointsScale", 1),
@@ -1415,7 +1493,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("forestRoadsOpacity", 0.8),
   ],
   forestAlishanRail: [
-    { kind: "slider", name: "forestAlishanRailWidth", labelPrefix: "寬度", digits: 1, default: 1.5, min: 0.5, max: 5, step: 0.1 },
+    scaleSlider("forestAlishanRailScale", 1.2),
     opacitySlider("forestAlishanRailOpacity", 0.9),
   ],
   hikingTrails: [
@@ -1427,6 +1505,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   canopyGiants: [
     { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
+    scaleSlider("canopyGiantsScale", 1),
   ],
   forestTrailSigns: [
     opacitySlider("forestTrailSignsOpacity", 0.85),
@@ -1453,6 +1532,7 @@ export const LAYER_PARAMS_SPEC = {
   powerGenerationUnit: [
     { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("powerGenerationOpacity", 0.7),
+    scaleSlider("powerGenerationScale", 1),
   ],
   facOffshore: [opacitySlider("facOffshoreOpacity", 0.45)],
   facPlanned: [scaleSlider("facPlannedScale", 0.5), opacitySlider("facPlannedOpacity", 0.7)],
@@ -1578,7 +1658,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("renewablePermitsTaipeiSize", 1),
     opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
   ],
-  evChargingStations: [opacitySlider("evChargingOpacity", 0.8)],
+  evChargingStations: [opacitySlider("evChargingOpacity", 0.8), scaleSlider("evChargingScale", 1)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 
   // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
@@ -1713,9 +1793,11 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
     { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    opacitySlider("busStationsCityOpacity", 1),
   ],
   busStationsIntercity: [
     { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    opacitySlider("busStationsIntercityOpacity", 1),
   ],
   fireIsochrone: [
     {
@@ -1836,30 +1918,30 @@ export const LAYER_PARAMS_SPEC = {
   ],
   forestTreatmentWorks: [
     { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestTreatmentWorksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestTreatmentWorksShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestTreatmentWorksScale", 1),
   ],
   forestFlatParks: [
     { kind: "slider", name: "forestFlatParksOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestFlatParksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestFlatParksShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestFlatParksScale", 1.3),
   ],
   forestDamLakes: [
     { kind: "slider", name: "forestDamLakesOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestDamLakesOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestDamLakesShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestDamLakesScale", 1.2),
   ],
   industrialRefinery: [
     { kind: "slider", name: "industrialRefineryOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialRefineryOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialRefineryScale", 1),
   ],
   industrialStorageTank: [
     { kind: "slider", name: "industrialStorageTankOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialStorageTankOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialStorageTankScale", 1),
   ],
   industrialPowerPlant: [
     { kind: "slider", name: "industrialPowerPlantOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialPowerPlantScale", 1),
   ],
   mountainRescueIncidents: [
     {
@@ -1937,45 +2019,45 @@ export const LAYER_PARAMS_SPEC = {
       out: "protectedTreesNationalColorModeIdx", encode: ["age", "city"],
     },
     {
-      kind: "select", name: "protectedTreesNationalCity", label: "城市", default: "all",
-      options: [{ label: "全部", value: "all" }, ...PROTECTED_TREE_CITIES.map((c) => ({ label: c.name, value: c.name }))],
-      out: "protectedTreesNationalCityIdx", encode: ["all", ...PROTECTED_TREE_CITIES.map((c) => c.name)],
+      kind: "multiSelect", name: "protectedTreesNationalCity", label: "城市", default: MULTI_SELECT_ALL,
+      options: PROTECTED_TREE_CITIES.map((c) => ({ label: c.name, value: c.name })),
+      out: "protectedTreesNationalCityMask",
     },
     { kind: "slider", name: "protectedTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "protectedTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   riversideTreesTaipei: [
     {
-      kind: "select", name: "riversideTreesTaipeiPark", label: "河濱公園", default: "all",
-      options: [{ label: "全部", value: "all" }, ...RIVERSIDE_PARKS.map((n) => ({ label: n, value: n }))],
-      out: "riversideTreesTaipeiParkIdx", encode: ["all", ...RIVERSIDE_PARKS],
+      kind: "multiSelect", name: "riversideTreesTaipeiPark", label: "河濱公園", default: MULTI_SELECT_ALL,
+      options: RIVERSIDE_PARKS.map((n) => ({ label: n, value: n })),
+      out: "riversideTreesTaipeiParkMask",
     },
     { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "riversideTreesTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   parksTaipei: [
     {
-      kind: "select", name: "parksTaipeiCategory", label: "分類", default: "all",
-      options: [{ label: "全部", value: "all" }, ...TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name }))],
-      out: "parksTaipeiCategoryIdx", encode: ["all", ...TAIPEI_PARK_CATEGORIES.map((c) => c.name)],
+      kind: "multiSelect", name: "parksTaipeiCategory", label: "分類", default: MULTI_SELECT_ALL,
+      options: TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name })),
+      out: "parksTaipeiCategoryMask",
     },
     { kind: "slider", name: "parksTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "parksTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   culturalFacilities: [
     {
-      kind: "select", name: "culturalFacilitiesType", label: "類型", default: "all",
-      options: [{ label: "全部", value: "all" }, ...CULTURAL_FACILITY_TYPES.map((c) => ({ label: c.name, value: c.name }))],
-      out: "culturalFacilitiesTypeIdx", encode: ["all", ...CULTURAL_FACILITY_TYPES.map((c) => c.name)],
+      kind: "multiSelect", name: "culturalFacilitiesType", label: "類型", default: MULTI_SELECT_ALL,
+      options: CULTURAL_FACILITY_TYPES.map((c) => ({ label: c.name, value: c.name })),
+      out: "culturalFacilitiesTypeMask",
     },
     { kind: "slider", name: "culturalFacilitiesOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "culturalFacilitiesRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
   ],
   culturalMuseums: [
     {
-      kind: "select", name: "culturalMuseumsType", label: "類型", default: "all",
-      options: [{ label: "全部", value: "all" }, ...CULTURAL_MUSEUM_TYPES.map((c) => ({ label: c.name, value: c.name }))],
-      out: "culturalMuseumsTypeIdx", encode: ["all", ...CULTURAL_MUSEUM_TYPES.map((c) => c.name)],
+      kind: "multiSelect", name: "culturalMuseumsType", label: "類型", default: MULTI_SELECT_ALL,
+      options: CULTURAL_MUSEUM_TYPES.map((c) => ({ label: c.name, value: c.name })),
+      out: "culturalMuseumsTypeMask",
     },
     { kind: "slider", name: "culturalMuseumsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "culturalMuseumsRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
@@ -2009,9 +2091,9 @@ export const LAYER_PARAMS_SPEC = {
   ],
   tourHotels: [
     {
-      kind: "select", name: "tourHotelsClass", label: "類別", default: "all",
-      options: [{ label: "全部", value: "all" }, { label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }],
-      out: "tourHotelsClassIdx", encode: ["all", "1", "2", "3", "4"],
+      kind: "multiSelect", name: "tourHotelsClass", label: "類別", default: MULTI_SELECT_ALL,
+      options: [{ label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }],
+      out: "tourHotelsClassMask",
     },
     { kind: "slider", name: "tourHotelsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "tourHotelsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
@@ -2037,18 +2119,18 @@ export const LAYER_PARAMS_SPEC = {
       out: "streetTreesNationalColorModeIdx", encode: ["species", "diameter", "height", "city"],
     },
     {
-      kind: "select", name: "streetTreesNationalCity", label: "城市", default: "all",
-      options: [{ label: "全部", value: "all" }, ...STREET_TREE_NATIONAL_CITIES.map((c) => ({ label: c.label, value: c.value }))],
-      out: "streetTreesNationalCityIdx", encode: ["all", ...STREET_TREE_NATIONAL_CITIES.map((c) => c.value)],
+      kind: "multiSelect", name: "streetTreesNationalCity", label: "城市", default: MULTI_SELECT_ALL,
+      options: STREET_TREE_NATIONAL_CITIES.map((c) => ({ label: c.label, value: c.value })),
+      out: "streetTreesNationalCityMask",
     },
     { kind: "slider", name: "streetTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
     { kind: "slider", name: "streetTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
   ],
   treePitsTaipei: [
     {
-      kind: "select", name: "treePitsTaipeiType", label: "類型", default: "all",
-      options: [{ label: "全部", value: "all" }, ...TREE_PIT_TYPES.map((t) => ({ label: t.name, value: t.name }))],
-      out: "treePitsTaipeiTypeIdx", encode: ["all", ...TREE_PIT_TYPES.map((t) => t.name)],
+      kind: "multiSelect", name: "treePitsTaipeiType", label: "類型", default: MULTI_SELECT_ALL,
+      options: TREE_PIT_TYPES.map((t) => ({ label: t.name, value: t.name })),
+      out: "treePitsTaipeiTypeMask",
     },
     { kind: "slider", name: "treePitsTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
   ],
@@ -2062,25 +2144,25 @@ export const LAYER_PARAMS_SPEC = {
   ],
   urbanZoningTaipei: [
     {
-      kind: "select", name: "urbanZoningTaipeiCategory", label: "分區", default: "all",
-      options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))],
-      out: "urbanZoningTaipeiCategoryIdx", encode: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)],
+      kind: "multiSelect", name: "urbanZoningTaipeiCategory", label: "分區", default: MULTI_SELECT_ALL,
+      options: URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value })),
+      out: "urbanZoningTaipeiCategoryMask",
     },
     { kind: "slider", name: "urbanZoningTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 1, step: 0.05 },
   ],
   nonUrbanZoning: [
     {
-      kind: "select", name: "nonUrbanZoningCode", label: "分區", default: "all",
-      options: [{ label: "全部", value: "all" }, ...NON_URBAN_ZONING_CODES.map((c) => ({ label: c.label, value: c.code }))],
-      out: "nonUrbanZoningCodeIdx", encode: ["all", ...NON_URBAN_ZONING_CODES.map((c) => c.code)],
+      kind: "multiSelect", name: "nonUrbanZoningCode", label: "分區", default: MULTI_SELECT_ALL,
+      options: NON_URBAN_ZONING_CODES.map((c) => ({ label: c.label, value: c.code })),
+      out: "nonUrbanZoningCodeMask",
     },
     { kind: "slider", name: "nonUrbanZoningOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.35, min: 0, max: 1, step: 0.05 },
   ],
   urbanZoningNewTaipei: [
     {
-      kind: "select", name: "urbanZoningNewTaipeiCategory", label: "分區", default: "all",
-      options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))],
-      out: "urbanZoningNewTaipeiCategoryIdx", encode: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)],
+      kind: "multiSelect", name: "urbanZoningNewTaipeiCategory", label: "分區", default: MULTI_SELECT_ALL,
+      options: URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value })),
+      out: "urbanZoningNewTaipeiCategoryMask",
     },
     { kind: "slider", name: "urbanZoningNewTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 1, step: 0.05 },
   ],
@@ -2132,6 +2214,7 @@ export const LAYER_PARAMS_SPEC = {
     // ⚠️ 大小是 2 位小數（不是 scaleSlider 的 1 位）—— 同名不同形，不可複用建構子
     { kind: "slider", name: "wasteStopsStaticScale", labelPrefix: "大小", digits: 2, default: 1, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "wasteStopsStaticGlow", labelPrefix: "光暈", digits: 2, default: 0.1, min: 0, max: 0.5, step: 0.02 },
+    opacitySlider("wasteStopsStaticOpacity", 1),
     zFloatSlider("wasteStopsStaticZ"),
   ],
 
@@ -2168,10 +2251,12 @@ export const LAYER_PARAMS_SPEC = {
   lightningCwa: [
     { kind: "slider", name: "lightningCwaMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
     opacitySlider("lightningCwaOpacity", 0.85),
+    scaleSlider("lightningCwaScale", 1),
   ],
   lightning: [
     { kind: "slider", name: "lightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
     opacitySlider("lightningOpacity", 0.85),
+    scaleSlider("lightningScale", 1),
   ],
   // ══════════ P3-2C 群2：encodeNumeric ／ 條件式 label ／ 動態 select 16 層 ══════════
 
@@ -2493,6 +2578,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "aqiMicroModeIdx", encodeNumeric: true,
     },
     { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
+    opacitySlider("aqiMicroOpacity", 1),
   ],
 
   // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──
@@ -2581,13 +2667,8 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   busLive: [
-    // 8 區分組 checkbox：原本是一個 `Record<BusGroup, boolean>` 的 useState，
-    // 拆成 8 個獨立 boolean 參數（store 的 value 不必支援巢狀物件）。
-    // hook 端重新聚合成 `enabledBusCities`（BusGroup → BusCity[] 展開）。
-    ...busGroupToggles("busGroup", {
-      TaipeiMetro: true, KeelungYilan: false, TaoyuanHsinchuMiaoli: false, CentralTaiwan: false,
-      YunChiaNan: false, Kaoping: false, HualienTaitung: false, OffshoreIslands: false,
-    }),
+    // 分類多選保留既有預設：只載雙北城市，避免改變初始 payload／per-city cache 行為。
+    busGroupMultiSelect(),
     busColorSelect("busColorMode"),
     {
       kind: "slider", name: "busAltOffset", labelPrefix: "Bus Z +", labelSep: "", digits: 0,
@@ -2597,6 +2678,7 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "busOrbScale", labelPrefix: "Bus Orb", digits: 0, displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+    opacitySlider("busOpacity", 1),
   ],
   busIntercityLive: [
     busColorSelect("busIntercityColorMode"),
@@ -2609,6 +2691,7 @@ export const LAYER_PARAMS_SPEC = {
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+    opacitySlider("busIntercityOpacity", 1),
   ],
   touristShuttleLive: [
     busColorSelect("touristShuttleColorMode"),
@@ -2644,16 +2727,19 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
   stationsTHSR: [
+    opacitySlider("thsrOpacity", 1),
     stationScaleSlider(),
     { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
+    opacitySlider("traOpacity", 1),
     stationScaleSlider(),
     { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
+    opacitySlider("metroOpacity", 1),
     stationScaleSlider(),
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
@@ -2664,6 +2750,7 @@ export const LAYER_PARAMS_SPEC = {
     pillarHeightSlider("metroPillarHeight", 0.2),
   ],
   ports: [
+    opacitySlider("portOpacity", 1),
     { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
     { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
@@ -2707,6 +2794,7 @@ export const LAYER_PARAMS_SPEC = {
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   newsEvents: [
+    opacitySlider("newsEventsOpacity", 1),
     {
       kind: "select", name: "newsMinRelevance", label: "相關度", default: "3",
       options: [
@@ -2831,13 +2919,14 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
-  wasteTruck: [...wasteOrbSliders()],
+  wasteTruck: [...wasteOrbSliders(), opacitySlider("wasteTruckOpacity", 1)],
   wasteSchedule: [
     ...busGroupToggles("wasteScheduleGroup", {
       TaipeiMetro: true, KeelungYilan: true, TaoyuanHsinchuMiaoli: true, CentralTaiwan: true,
       YunChiaNan: true, Kaoping: true, HualienTaitung: true, OffshoreIslands: true,
     }),
     ...wasteOrbSliders(),
+    opacitySlider("wasteScheduleOpacity", 1),
   ],
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
@@ -2907,7 +2996,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -3037,5 +3126,8 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
       // 第二通道 select（out: null）沒有編碼可言 —— 唯一的呼叫端
       // `encodeParamsToOverlay` 在 outKey === null 時就 continue 了，走到這裡是程式錯誤。
       throw new Error(`select "${spec.name}" 宣告 out: null（第二通道），不該被編碼`);
+    case "multiSelect":
+      if (spec.out !== null) return encodeMultiSelectBitmask(String(value), spec.options);
+      throw new Error(`multiSelect "${spec.name}" 宣告 out: null（資料篩選通道），不該被編碼`);
   }
 }

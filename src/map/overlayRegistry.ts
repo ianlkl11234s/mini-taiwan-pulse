@@ -113,6 +113,7 @@ import {
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
+import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
@@ -184,11 +185,15 @@ function tourTodayStr(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
-/** tourHotels 類別篩選：0=全部 / 1..4 = hotel_classes 單碼（"1"~"4"）。filter 函式 → rebuild 帶入。 */
+const TOUR_HOTEL_CLASS_VALUES = ["1", "2", "3", "4"];
+
+/** tourHotels 類別篩選：bitmask 對應 hotel_classes 的 4 個穩定類別。 */
 function tourHotelsClassFilter(p?: Record<string, number>): unknown[] {
-  const idx = p?.tourHotelsClassIdx ?? 0;
-  if (idx >= 1 && idx <= 4) return ["==", ["get", "hotel_classes"], String(idx)];
-  return ["has", "hotel_classes"];
+  return multiSelectFilter(
+    "hotel_classes",
+    p?.tourHotelsClassMask ?? allMultiSelectBitmask(TOUR_HOTEL_CLASS_VALUES),
+    TOUR_HOTEL_CLASS_VALUES,
+  );
 }
 
 // tourAttractions 熱度著色（annual_visitors_2024 log10 色帶；非 number（含 null）= 灰「無統計」，絕不當 0）
@@ -650,6 +655,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
     id: "stationsTHSR",
+    opacityParam: "thsrOpacity",
     sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "thsr"],
@@ -697,6 +703,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Polygon (台鐵大站) ──
   {
     id: "stationsTRA",
+    opacityParam: "traOpacity",
     sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "tra"],
@@ -744,6 +751,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Points (台鐵小站) ──
   {
     id: "stationsTRA",
+    opacityParam: "traOpacity",
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["==", ["get", "system_id"], "tra"],
@@ -799,6 +807,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Metro Station Points (捷運/輕軌站) ──
   {
     id: "stationsMetro",
+    opacityParam: "metroOpacity",
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
@@ -872,6 +881,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Ports ──
   {
     id: "ports",
+    opacityParam: "portOpacity",
     sourceUrl: "./geo/port_polygons.geojson",
     sourceId: "port-polygons",
     rebuildOnParamChange: ["glow-2", "glow-1"],
@@ -968,6 +978,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── National Highway (國道) ──
   {
     id: "highways",
+    opacityParam: "highwaysOpacity",
     sourceUrl: "./geo/national_highway.pmtiles",
     sourceId: "national-highways",
     pmtiles: { sourceLayer: "national_highway", minzoom: 0, maxzoom: 13 },
@@ -1009,6 +1020,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Provincial Road (省道) ──
   {
     id: "provincialRoads",
+    opacityParam: "provincialRoadsOpacity",
     sourceUrl: "./geo/provincial_road.pmtiles",
     sourceId: "provincial-roads",
     pmtiles: { sourceLayer: "provincial_road", minzoom: 0, maxzoom: 13 },
@@ -1086,6 +1098,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (City) ──
   {
     id: "busStationsCity",
+    opacityParam: "busStationsCityOpacity",
     sourceUrl: "./geo/bus_stations_city.pmtiles",
     sourceId: "bus-stations-city",
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
@@ -1133,6 +1146,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (Intercity) ──
   {
     id: "busStationsIntercity",
+    opacityParam: "busStationsIntercityOpacity",
     sourceUrl: "./geo/bus_stations_intercity.geojson",
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1179,6 +1193,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bike Stations ──
   {
     id: "bikeStations",
+    opacityParam: "bikeStationsOpacity",
     sourceUrl: "./geo/bike_stations.geojson",
     sourceId: "bike-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1225,6 +1240,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Cycling Routes (自行車道) ──
   {
     id: "cyclingRoutes",
+    opacityParam: "cyclingRoutesOpacity",
     sourceUrl: "./geo/cycling_routes.geojson",
     sourceId: "cycling-routes",
     rebuildOnParamChange: ["glow", "line"],
@@ -1269,6 +1285,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Weather Stations (氣象站) ──
   {
     id: "weatherStations",
+    opacityParam: "weatherStationsOpacity",
     sourceUrl: "./geo/weather_stations.geojson",
     sourceId: "weather-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1816,6 +1833,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── OSM Landing Stations (海纜登陸站 crowd points) ──
   {
     id: "landingStations",
+    opacityParam: "landingOpacity",
     sourceUrl: "./geo/landing_stations.geojson",
     sourceId: "landing-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1870,31 +1888,37 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "circle",
-        paint: (_isDark, params) => ({
+        paint: (_isDark, params) => {
+          const scale = params?.internetExchangePointsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2, 100, 4, 500, 7],
-            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6, 100, 12, 500, 20],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2 * scale, 100, 4 * scale, 500, 7 * scale],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6 * scale, 100, 12 * scale, 500, 20 * scale],
           ],
           "circle-color": IXP_REGION_COLOR_EXPR,
           "circle-blur": 1,
           "circle-opacity": (params?.internetExchangePointsOpacity ?? 0.85) * 0.22,
-        }),
+          };
+        },
       },
       {
         suffix: "circle",
         type: "circle",
-        paint: (isDark, params) => ({
+        paint: (isDark, params) => {
+          const scale = params?.internetExchangePointsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5, 100, 3, 500, 5],
-            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3, 100, 6, 500, 10],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5 * scale, 100, 3 * scale, 500, 5 * scale],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3 * scale, 100, 6 * scale, 500, 10 * scale],
           ],
           "circle-color": IXP_REGION_COLOR_EXPR,
           "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
           "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
           "circle-opacity": params?.internetExchangePointsOpacity ?? 0.85,
-        }),
+          };
+        },
       },
     ],
   },
@@ -1907,13 +1931,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.anfrWirelessSitesScale ?? 1), 7, 8 * (params?.anfrWirelessSitesScale ?? 1), 12, 14 * (params?.anfrWirelessSitesScale ?? 1)],
         "circle-color": ANFR_OPERATOR_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.anfrWirelessSitesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.anfrWirelessSitesScale ?? 1), 7, 3.5 * (params?.anfrWirelessSitesScale ?? 1), 12, 6 * (params?.anfrWirelessSitesScale ?? 1)],
         "circle-color": ANFR_OPERATOR_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -1930,13 +1954,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.osmCommunicationSitesScale ?? 1), 7, 8 * (params?.osmCommunicationSitesScale ?? 1), 12, 14 * (params?.osmCommunicationSitesScale ?? 1)],
         "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.osmCommunicationSitesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.osmCommunicationSitesScale ?? 1), 7, 3.5 * (params?.osmCommunicationSitesScale ?? 1), 12, 6 * (params?.osmCommunicationSitesScale ?? 1)],
         "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -1953,13 +1977,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.ripeAtlasProbesScale ?? 1), 7, 8 * (params?.ripeAtlasProbesScale ?? 1), 12, 14 * (params?.ripeAtlasProbesScale ?? 1)],
         "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.ripeAtlasProbesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.ripeAtlasProbesScale ?? 1), 7, 3.5 * (params?.ripeAtlasProbesScale ?? 1), 12, 6 * (params?.ripeAtlasProbesScale ?? 1)],
         "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -2105,6 +2129,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Convenience Stores (超商) ──
   {
     id: "convenienceStores",
+    opacityParam: "convenienceStoresOpacity",
     sourceUrl: "./geo/convenience_stores.geojson",
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
@@ -2797,6 +2822,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // sourceUrl 僅作為 newsEventsLoader 的靜態 fallback（Supabase 未設定時）
   {
     id: "newsEvents",
+    opacityParam: "newsEventsOpacity",
     sourceUrl: "./geo/news_events.geojson",
     sourceId: "news-events",
     dynamicData: true,
@@ -2907,6 +2933,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "text-color": isDark ? "#fff" : "#1a1a1a",
           "text-halo-color": isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
           "text-halo-width": 1.2,
+          // 讓整層 opacity multiplier 同時涵蓋事件數字與底下的 halo。
+          "text-opacity": 1,
         }),
       },
     ],
@@ -3191,6 +3219,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // PMTiles 向量切片（原 19MB GeoJSON → 按需載入；name/reservoir_name 等屬性保留供 popup）
   {
     id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
     sourceUrl: "./geo/water_reservoirs.pmtiles",
     sourceId: "water-reservoir-poly",
     pmtiles: { sourceLayer: "reservoirs", minzoom: 5, maxzoom: 13 },
@@ -3231,48 +3260,58 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 水庫 Reservoir (point — 壩體，白色發光節點像 Atlas power plants) ──
   {
     id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
     sourceUrl: "./geo/water_dams.geojson",
     sourceId: "water-reservoir-dams",
     layers: [
       {
         suffix: "glow-2",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 10, 50, 22, 200, 34,
+            0, 10 * scale, 50, 22 * scale, 200, 34 * scale,
           ],
           "circle-color": "#ffffff",
           "circle-blur": 1.8,
           "circle-opacity": isDark ? 0.35 : 0.28,
-        }),
+          };
+        },
       },
       {
         suffix: "glow-1",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 5, 50, 10, 200, 16,
+            0, 5 * scale, 50, 10 * scale, 200, 16 * scale,
           ],
           "circle-color": "#ffffff",
           "circle-blur": 0.8,
           "circle-opacity": isDark ? 0.7 : 0.55,
-        }),
+          };
+        },
       },
       {
         suffix: "core",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 2.5, 50, 4.5, 200, 7,
+            0, 2.5 * scale, 50, 4.5 * scale, 200, 7 * scale,
           ],
           "circle-color": isDark ? "#ffffff" : "#0e7490",
           "circle-stroke-color": isDark ? "#67e8f9" : "#0891b2",
           "circle-stroke-width": 1.2,
           "circle-opacity": 1,
-        }),
+          };
+        },
       },
     ],
   },
@@ -3521,6 +3560,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Waste Stops Static (全台清運點位散點) ──
   {
     id: "wasteStopsStatic",
+    opacityParam: "wasteStopsStaticOpacity",
     sourceUrl: "./geo/waste_stops_static.geojson",
     sourceId: "waste-stops-static",
     layers: [
@@ -4294,7 +4334,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "protectedTreesNational",
     sourceUrl: "./urban/protected_trees_national.geojson",
     sourceId: "protected-trees-national",
-    rebuildOnParamChange: ["protectedTreesNationalOpacity", "protectedTreesNationalRadius", "protectedTreesNationalColorModeIdx", "protectedTreesNationalCityIdx"],
+    rebuildOnParamChange: ["protectedTreesNationalOpacity", "protectedTreesNationalRadius", "protectedTreesNationalColorModeIdx", "protectedTreesNationalCityMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -4302,10 +4342,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const opacity = p?.protectedTreesNationalOpacity ?? 0.85;
           const radiusMult = p?.protectedTreesNationalRadius ?? 1;
           const colorMode = p?.protectedTreesNationalColorModeIdx ?? 0; // 0=樹齡 1=城市
-          const cityIdx = p?.protectedTreesNationalCityIdx ?? 0;       // 0=全部 1..8=單一城市
-          const city = cityIdx > 0 ? PROTECTED_TREE_CITIES[cityIdx - 1]?.name : undefined;
+          const cityValues = PROTECTED_TREE_CITIES.map((city) => city.name);
+          const cityMask = p?.protectedTreesNationalCityMask ?? allMultiSelectBitmask(cityValues);
           const opExpr = (mult: number): unknown[] | number =>
-            city ? ["case", ["==", ["get", "city"], city], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("city", cityMask, cityValues, opacity * mult);
           // 胸徑因子：dbh_m 0.3→×0.7 / 1→×1 / 2→×1.6 / 4→×2.2（null coalesce 0.5 ≈ ×0.79）
           const dbhFactor: unknown[] = [
             "interpolate", ["linear"], ["coalesce", ["get", "dbh_m"], 0.5],
@@ -4330,17 +4370,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "riversideTreesTaipei",
     sourceUrl: "./urban/riverside_trees_taipei.geojson",
     sourceId: "riverside-trees-taipei",
-    rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkIdx"],
+    rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.riversideTreesTaipeiOpacity ?? 0.85;
           const radiusMult = p?.riversideTreesTaipeiRadius ?? 1;
-          const parkIdx = p?.riversideTreesTaipeiParkIdx ?? 0; // 0=全部 1..30=單一河濱公園
-          const park = parkIdx > 0 ? RIVERSIDE_PARKS[parkIdx - 1] : undefined;
+          const parkMask = p?.riversideTreesTaipeiParkMask ?? allMultiSelectBitmask(RIVERSIDE_PARKS);
           const opExpr = (mult: number): unknown[] | number =>
-            park ? ["case", ["==", ["get", "park_name"], park], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("park_name", parkMask, RIVERSIDE_PARKS, opacity * mult);
           return {
             "circle-color": riversideTreeSpeciesColorExpr(),
             "circle-radius": ["interpolate", ["linear"], ["zoom"],
@@ -4363,17 +4402,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "parksTaipei",
     sourceUrl: "./urban/parks_taipei.geojson",
     sourceId: "parks-taipei",
-    rebuildOnParamChange: ["parksTaipeiOpacity", "parksTaipeiRadius", "parksTaipeiCategoryIdx"],
+    rebuildOnParamChange: ["parksTaipeiOpacity", "parksTaipeiRadius", "parksTaipeiCategoryMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.parksTaipeiOpacity ?? 0.85;
           const radiusMult = p?.parksTaipeiRadius ?? 1;
-          const catIdx = p?.parksTaipeiCategoryIdx ?? 0; // 0=全部 1..7=單一分類
-          const cat = catIdx > 0 ? TAIPEI_PARK_CATEGORIES[catIdx - 1]?.name : undefined;
+          const categoryValues = TAIPEI_PARK_CATEGORIES.map((category) => category.name);
+          const categoryMask = p?.parksTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           const opExpr = (mult: number): unknown[] | number =>
-            cat ? ["case", ["==", ["get", "category"], cat], opacity * mult, 0] : opacity * mult;
+            multiSelectOpacityExpression("category", categoryMask, categoryValues, opacity * mult);
           const [lo, hi] = PARK_AREA_DOMAIN;
           const area: unknown[] = ["to-number", ["get", "area_sqm"], 0]; // null → 0
           const areaRadius = (rMin: number, rMax: number): unknown[] => ["case",
@@ -4452,7 +4491,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./urban/street_trees_national.pmtiles",
     sourceId: "street-trees-national",
     pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityIdx"],
+    rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityMask"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -4460,11 +4499,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const base = p?.streetTreesNationalOpacity ?? 0.7;
           const radiusMult = p?.streetTreesNationalRadius ?? 1;
           const colorMode = p?.streetTreesNationalColorModeIdx ?? 0; // 0=species 1=diameter 2=height 3=city
-          const cityIdx = p?.streetTreesNationalCityIdx ?? 0;        // 0=全部 1=台北 2=台中
-          const city = cityIdx > 0 ? STREET_TREE_NATIONAL_CITIES[cityIdx - 1]?.value : undefined;
-          const opExpr: unknown[] | number = city
-            ? ["case", ["==", ["get", "city"], city], base, 0]
-            : base;
+          const cityValues = STREET_TREE_NATIONAL_CITIES.map((city) => city.value);
+          const cityMask = p?.streetTreesNationalCityMask ?? allMultiSelectBitmask(cityValues);
+          const opExpr = multiSelectOpacityExpression("city", cityMask, cityValues, base);
           let circleColor: unknown[];
           switch (colorMode) {
             case 1: circleColor = streetTree3epochDiameterColorExpr(); break; // 欄位同 dbh_cm
@@ -4497,17 +4534,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./urban/tree_pits_taipei.pmtiles",
     sourceId: "tree-pits-taipei",
     pmtiles: { sourceLayer: "tree_pits_taipei", minzoom: 11, maxzoom: 16 },
-    rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeIdx"],
+    rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeMask"],
     layers: [
       {
         suffix: "fill", type: "fill",
         paint: (_isDark, p) => {
           const base = p?.treePitsTaipeiOpacity ?? 0.55;
-          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0; // 0=全部 1=樹穴 2=花圃
-          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          const pitTypeValues = TREE_PIT_TYPES.map((type) => type.name);
+          const pitTypeMask = p?.treePitsTaipeiTypeMask ?? allMultiSelectBitmask(pitTypeValues);
           return {
             "fill-color": treePitTypeColorExpr(),
-            "fill-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], base, 0] : base,
+            "fill-opacity": multiSelectOpacityExpression("pit_type", pitTypeMask, pitTypeValues, base),
           };
         },
       },
@@ -4515,14 +4552,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line", type: "line",
         paint: (_isDark, p) => {
           const base = p?.treePitsTaipeiOpacity ?? 0.55;
-          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0;
-          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          const pitTypeValues = TREE_PIT_TYPES.map((type) => type.name);
+          const pitTypeMask = p?.treePitsTaipeiTypeMask ?? allMultiSelectBitmask(pitTypeValues);
           // outline 比填色略實（min(1, base+0.2)），低填色透明度時仍可辨邊界
           const lineOp = Math.min(1, base + 0.2);
           return {
             "line-color": treePitTypeColorExpr(),
             "line-width": 0.5,
-            "line-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], lineOp, 0] : lineOp,
+            "line-opacity": multiSelectOpacityExpression("pit_type", pitTypeMask, pitTypeValues, lineOp),
           };
         },
       },
@@ -4650,11 +4687,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: (p) => {
-          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          const categoryMask = p?.urbanZoningTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           // zone_raw="nan" 的 4 筆是規劃範圍框（meta-polygon 非分區面），不渲染不點擊；上游 drop 前的防禦（UZ-5）
           const notMeta = ["!=", ["get", "zone_raw"], "nan"];
-          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+          return ["all", notMeta, multiSelectFilter("zone_category", categoryMask, categoryValues)];
         },
         paint: (_isDark, p) => ({
           "fill-color": urbanZoningColorExpr(),
@@ -4665,10 +4702,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line",
         type: "line",
         filter: (p) => {
-          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0;
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          const categoryMask = p?.urbanZoningTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues);
           const notMeta = ["!=", ["get", "zone_raw"], "nan"];
-          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+          return ["all", notMeta, multiSelectFilter("zone_category", categoryMask, categoryValues)];
         },
         paint: (_isDark, p) => ({
           "line-color": urbanZoningColorExpr(),
@@ -4689,9 +4726,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         filter: (p) => {
-          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          return multiSelectFilter(
+            "zone_category",
+            p?.urbanZoningNewTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues),
+            categoryValues,
+          );
         },
         paint: (_isDark, p) => ({
           "fill-color": urbanZoningColorExpr(),
@@ -4702,9 +4742,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line",
         type: "line",
         filter: (p) => {
-          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0;
-          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          const categoryValues = URBAN_ZONING_CATEGORIES.map((category) => category.value);
+          return multiSelectFilter(
+            "zone_category",
+            p?.urbanZoningNewTaipeiCategoryMask ?? allMultiSelectBitmask(categoryValues),
+            categoryValues,
+          );
         },
         paint: (_isDark, p) => ({
           "line-color": urbanZoningColorExpr(),
@@ -4730,7 +4773,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "fill",
         type: "fill",
-        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeMask),
         paint: (_isDark, p) => ({
           "fill-color": nonUrbanZoningColorExpr(),
           "fill-opacity": p?.nonUrbanZoningOpacity ?? 0.35,
@@ -4739,7 +4782,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeMask),
         paint: (_isDark, p) => ({
           "line-color": nonUrbanZoningColorExpr(),
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
@@ -4768,9 +4811,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         filter: (p) => {
-          const idx = p?.culturalFacilitiesTypeIdx ?? 0; // 0=全部 1..6=單一類型
-          const type = idx > 0 ? CULTURAL_FACILITY_TYPES[idx - 1]?.name : undefined;
-          return type ? ["==", ["get", "facility_type"], type] : ["has", "facility_type"];
+          const typeValues = CULTURAL_FACILITY_TYPES.map((type) => type.name);
+          return multiSelectFilter(
+            "facility_type",
+            p?.culturalFacilitiesTypeMask ?? allMultiSelectBitmask(typeValues),
+            typeValues,
+          );
         },
         paint: (isDark, p) => {
           const opacity = p?.culturalFacilitiesOpacity ?? 0.9;
@@ -4798,9 +4844,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         filter: (p) => {
-          const idx = p?.culturalMuseumsTypeIdx ?? 0; // 0=全部 1..5=單一類型
-          const type = idx > 0 ? CULTURAL_MUSEUM_TYPES[idx - 1]?.name : undefined;
-          return type ? ["==", ["get", "type"], type] : ["has", "type"];
+          const typeValues = CULTURAL_MUSEUM_TYPES.map((type) => type.name);
+          return multiSelectFilter(
+            "type",
+            p?.culturalMuseumsTypeMask ?? allMultiSelectBitmask(typeValues),
+            typeValues,
+          );
         },
         paint: (isDark, p) => {
           const opacity = p?.culturalMuseumsOpacity ?? 0.9;
@@ -5201,15 +5250,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "canopyGiants",
     sourceUrl: "./forestry/canopy_giants_taiwan.geojson",
     sourceId: "canopy-giants",
-    rebuildOnParamChange: ["canopyGiantsOpacity"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          const scale = p?.canopyGiantsScale ?? 1;
           return {
             "circle-color": canopyGiantDistColorExpr(),
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 7 * scale],
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
@@ -5487,15 +5537,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "hit",
         type: "circle",
-        paint: () => ({
+        paint: (_isDark, params) => {
+          const scale = params?.powerGenerationScale ?? 1;
+          return {
           // 完全透明（看不到），但 ≥ 10px 半徑用戶仍能點到
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            5, 10, 12, 18,
+            5, 10 * scale, 12, 18 * scale,
           ],
           "circle-color": "#000000",
           "circle-opacity": 0,
-        }),
+          };
+        },
       },
     ],
   },
@@ -6087,17 +6140,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-ev-charging",
     dynamicData: true,
-    rebuildOnParamChange: ["evChargingOpacity"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
           const o = params?.evChargingOpacity ?? 0.8;
+          const scale = params?.evChargingScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              7, 2, 12, 3.5, 15, 5,
+              7, 2 * scale, 12, 3.5 * scale, 15, 5 * scale,
             ],
             "circle-color": "#10b981",
             "circle-opacity": o,
@@ -6127,10 +6181,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningOpacity ?? 0.85;
+          const scale = params?.lightningScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 4, 9, 7, 12, 12,
+              5, 4 * scale, 9, 7 * scale, 12, 12 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6150,10 +6205,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningOpacity ?? 0.85;
+          const scale = params?.lightningScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 1.2, 10, 2.2, 14, 3.5,
+              5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6187,10 +6243,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningCwaOpacity ?? 0.85;
+          const scale = params?.lightningCwaScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 4, 9, 7, 12, 12,
+              5, 4 * scale, 9, 7 * scale, 12, 12 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6210,10 +6267,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningCwaOpacity ?? 0.85;
+          const scale = params?.lightningCwaScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 1.2, 10, 2.2, 14, 3.5,
+              5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6394,10 +6452,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const o = params?.erHospitalOpacity ?? 0.85;
+          const scale = params?.erHospitalScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 6, 12, 11,
+              5, 6 * scale, 12, 11 * scale,
             ],
             "circle-color": [
               "match", ["get", "level"],
@@ -6439,10 +6498,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.librarySeatsOpacity ?? 0.9;
+          const scale = params?.librarySeatsScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, 8, 12, 14,
+              6, 8 * scale, 12, 14 * scale,
             ],
             "circle-color": [
               "case",
@@ -6493,8 +6553,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (isDark, params) => {
           const o = params?.parkingOnstreetOpacity ?? 0.6;
+          const scale = params?.parkingOnstreetScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3, 14, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3 * scale, 14, 7 * scale],
             "circle-color": availabilityColorExpr() as unknown as string,
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
@@ -6520,6 +6581,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.parkingOffstreetOpacity ?? 0.9;
+          const scale = params?.parkingOffstreetScale ?? 1;
           // 半徑隨 total_spaces（log 尺標，兩端 clamp）：小場小圓、大場大圓
           const radius = (zoom6: number, zoom13: number) => [
             "interpolate", ["linear"],
@@ -6530,8 +6592,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, radius(3, 8),
-              13, radius(6, 18),
+              6, radius(3 * scale, 8 * scale),
+              13, radius(6 * scale, 18 * scale),
             ],
             "circle-color": availabilityColorExpr() as unknown as string,
             "circle-opacity": o,
@@ -7161,8 +7223,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
+          const scale = params?.industrialRefineryScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 10, 18, 14, 36],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6 * scale, 10, 18 * scale, 14, 36 * scale],
             "circle-blur": 0.8,
             "circle-color": "#F97316",
             "circle-opacity": o * 0.5,
@@ -7175,8 +7238,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
+          const scale = params?.industrialRefineryScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2, 10, 5, 14, 9],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2 * scale, 10, 5 * scale, 14, 9 * scale],
             "circle-color": "#F97316",
             "circle-opacity": o,
           };
@@ -7225,8 +7289,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
+          const scale = params?.industrialStorageTankScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5, 10, 14, 14, 28],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5 * scale, 10, 14 * scale, 14, 28 * scale],
             "circle-blur": 0.8,
             "circle-color": "#06B6D4",
             "circle-opacity": o * 0.5,
@@ -7239,8 +7304,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
+          const scale = params?.industrialStorageTankScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5, 10, 4, 14, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5 * scale, 10, 4 * scale, 14, 7 * scale],
             "circle-color": "#06B6D4",
             "circle-opacity": o,
           };
@@ -7289,8 +7355,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          const scale = params?.industrialPowerPlantScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7, 10, 20, 14, 40],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7 * scale, 10, 20 * scale, 14, 40 * scale],
             "circle-blur": 0.8,
             "circle-color": "#D946EF",
             "circle-opacity": o * 0.55,
@@ -7303,8 +7370,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          const scale = params?.industrialPowerPlantScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5, 10, 6, 14, 10],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 10, 6 * scale, 14, 10 * scale],
             "circle-color": "#D946EF",
             "circle-opacity": o,
           };
@@ -8927,7 +8995,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityIdx ?? 0),
+        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511),
         paint: (isDark, p) => {
           const scale = p?.religionTemplesScale ?? 1;
           const opacity = p?.religionTemplesOpacity ?? 0.8;

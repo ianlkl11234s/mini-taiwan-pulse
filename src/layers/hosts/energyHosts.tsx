@@ -213,6 +213,7 @@ export const PowerGenerationBeamHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.powerGenerationUnit,
     p.powerGenerationOpacity ?? 0.7,
     p.powerGenerationHeight ?? 1,
+    p.powerGenerationScale ?? 1,
   );
   return null;
 };

@@ -77,16 +77,19 @@ export function registryModeFilter(idx: number): unknown[] {
   return ["has", "entity_id"];
 }
 
-/** 主祀神祇篩選：idx 0=全部，1..9 對應 DEITY_FAMILIES */
-export function deityFamilyFilter(idx: number): unknown[] {
-  const fam = idx > 0 ? DEITY_FAMILIES[idx - 1]?.value : undefined;
-  if (!fam) return ["has", "entity_id"];
-  return ["==", ["coalesce", ["get", "deity_family"], "unknown"], fam];
+/** 主祀神祇多選篩選：bit 位元依 DEITY_FAMILIES 順序；全選保留原有 no-op filter。 */
+export function deityFamilyFilter(mask: number): unknown[] {
+  const allMask = (1 << DEITY_FAMILIES.length) - 1;
+  if (mask === allMask) return ["has", "entity_id"];
+  const selected = DEITY_FAMILIES
+    .filter((_, index) => (mask & (1 << index)) !== 0)
+    .map((family) => family.value);
+  return ["in", ["coalesce", ["get", "deity_family"], "unknown"], ["literal", selected]];
 }
 
-/** temples 的 filter = 登記狀態 ∩ 主祀神祇（兩個 select 可同時作用） */
-export function templeFilter(registryIdx: number, deityIdx: number): unknown[] {
-  return ["all", registryModeFilter(registryIdx), deityFamilyFilter(deityIdx)];
+/** temples 的 filter = 登記狀態 ∩ 主祀神祇多選 */
+export function templeFilter(registryIdx: number, deityMask: number): unknown[] {
+  return ["all", registryModeFilter(registryIdx), deityFamilyFilter(deityMask)];
 }
 
 // ── 宗祠 facility_type 3 類 ────────────────────────────────────────

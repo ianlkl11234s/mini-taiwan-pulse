@@ -20,6 +20,8 @@ export interface WasteTruckLayerOptions {
   getOrbScale: () => number;
   getIsVisible: () => boolean;
   getAltOffset: () => number;
+  /** 整層透明度倍率（光球與音符同步）。 */
+  getOpacity?: () => number;
   /** 是否啟用音符特效（預設 true，跟 wasteTruck 同 toggle） */
   getMusicNoteEnabled?: () => boolean;
   /** 音符大小倍率（base 38px） */
@@ -59,12 +61,15 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
 
       truckScene.setOrbScale(opts.getOrbScale());
       truckScene.setAltitudeOffset(opts.getAltOffset());
+      const opacity = opts.getOpacity?.() ?? 1;
+      truckScene.setOpacity(opacity);
       truckScene.update(opts.getTrails(), opts.getCurrentTime?.());
       truckScene.render(matrix);
 
       // 音符：跟 wasteTruck 同 toggle（getMusicNoteEnabled 預設 true）
       const noteEnabled = opts.getMusicNoteEnabled?.() ?? true;
       if (noteEnabled) {
+        noteScene.setOpacity(opacity);
         noteScene.setSizeMultiplier(opts.getMusicNoteSize?.() ?? 1);
         noteScene.setBaseHeightMeters(opts.getMusicNoteZOffset?.() ?? 70);
         const nowMs = Date.now();

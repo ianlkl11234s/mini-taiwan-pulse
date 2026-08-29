@@ -87,6 +87,7 @@ export const FireLatestHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.fireLatest,
     deps.isDarkTheme,
     p.fireLatestOpacity ?? 1,
+    p.fireLatestScale ?? 1,
   );
   return null;
 };
@@ -111,6 +112,7 @@ export const FreewayHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.freewayCongestion,
     p.freewayWidth ?? 1,
     deps.isDarkTheme,
+    p.freewayCongestionOpacity ?? 1,
   );
   return null;
 };

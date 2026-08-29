@@ -84,6 +84,7 @@ export class ReservoirScene {
   private isDark = true;
   private ownsRenderer = false;
   private heightScale = 1;
+  private sizeScale = 1;
   private lastMatrix: number[] | null = null;
 
   init(glOrRenderer: WebGLRenderingContext | THREE.WebGLRenderer) {
@@ -247,7 +248,7 @@ export class ReservoirScene {
 
     for (let i = 0; i < this.data.length; i++) {
       const d = this.data[i]!;
-      const r = d.radiusMercator;
+      const r = d.radiusMercator * this.sizeScale;
       const shellH = d.shellHeightMercator * this.heightScale;
       const waterH = d.waterHeightMercator * this.heightScale;
 
@@ -353,11 +354,11 @@ export class ReservoirScene {
     if (n === 0) return;
 
     const mercPerMeter = ops.shellHeightMercator / H_SHELL_METERS;
-    const barSide = ops.radiusMercator * OPS_BAR_SIDE_FACTOR;
+    const barSide = ops.radiusMercator * this.sizeScale * OPS_BAR_SIDE_FACTOR;
     const spacingX = barSide * OPS_BAR_SPACING_FACTOR;
     const totalLen = (n - 1) * spacingX;
     const startX = ops.mercator.x - totalLen / 2;
-    const rowOffsetY = ops.radiusMercator * OPS_ROW_OFFSET_FACTOR;
+    const rowOffsetY = ops.radiusMercator * this.sizeScale * OPS_ROW_OFFSET_FACTOR;
     const floatZ = ops.mercator.z + (H_SHELL_METERS * OPS_FLOAT_Z_FACTOR) * mercPerMeter * this.heightScale;
     const maxBarH = H_SHELL_METERS * OPS_MAX_HEIGHT_FACTOR * mercPerMeter * this.heightScale;
 
@@ -414,6 +415,13 @@ export class ReservoirScene {
   setHeightScale(scale: number) {
     if (scale === this.heightScale) return;
     this.heightScale = scale;
+    this.updateMatrices();
+    this.updateOpsMatrices();
+  }
+
+  setSizeScale(scale: number) {
+    if (scale === this.sizeScale) return;
+    this.sizeScale = scale;
     this.updateMatrices();
     this.updateOpsMatrices();
   }

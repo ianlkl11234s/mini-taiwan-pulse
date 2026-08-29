@@ -66,6 +66,7 @@ uniform float uRiseHeight;
 uniform float uSwayAmpl;
 uniform float uOrbitRadius;
 uniform float uPointSize;
+uniform float uOpacity;
 uniform vec2  uViewport;
 
 varying float vT;
@@ -126,7 +127,7 @@ void main() {
   // 透明度曲線：淡入快、淡出慢
   float alpha = c.a;
   float fade = vT < 0.2 ? (vT / 0.2) : (1.0 - (vT - 0.2) / 0.8);
-  alpha *= fade;
+  alpha *= fade * uOpacity;
 
   if (alpha < 0.02) discard;
   // atlas 是白色音符 → 用 uColor 染色，保留 alpha 形狀
@@ -217,6 +218,7 @@ export class WasteMusicNoteScene {
         uSwayAmpl:    { value: SWAY_AMPL_M * METERS_TO_UNIT },
         uOrbitRadius: { value: ORBIT_RADIUS_M * METERS_TO_UNIT },
         uPointSize:   { value: POINT_SIZE_PX },
+        uOpacity:     { value: 1 },
         uViewport:    { value: new THREE.Vector2(1, 1) },
         uAtlas:       { value: atlas },
         uColor:       { value: new THREE.Color("#fff8d6") },
@@ -284,6 +286,11 @@ export class WasteMusicNoteScene {
 
   setPointSize(px: number) {
     if (this.material) this.material.uniforms.uPointSize!.value = px;
+  }
+
+  /** 圖層透明度倍率；只影響可見音符，不影響 spawn／動畫節奏。 */
+  setOpacity(opacity: number) {
+    if (this.material) this.material.uniforms.uOpacity!.value = Math.max(0, Math.min(1, opacity));
   }
 
   /** size multiplier (0.5 ~ 3)，base 38px */

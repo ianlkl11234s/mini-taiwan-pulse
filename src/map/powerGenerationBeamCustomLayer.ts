@@ -6,6 +6,7 @@ export interface PowerGenerationBeamLayerOptions {
   getIsVisible: () => boolean;
   getOpacity: () => number;
   getHeightScale: () => number;
+  getSizeScale: () => number;
   getPlants: () => PowerGenerationRow[] | null;
 }
 
@@ -40,6 +41,7 @@ export function createPowerGenerationBeamLayer(
       }
       scene.setOpacity(opts.getOpacity());
       scene.setHeightScale(opts.getHeightScale());
+      scene.setSizeScale(opts.getSizeScale());
 
       const moving = scene.render(matrix);
       if (moving) map?.triggerRepaint();

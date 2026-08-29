@@ -10664,12 +10664,14 @@
             "dark": {
               "text-color": "#fff",
               "text-halo-color": "rgba(0,0,0,0.7)",
-              "text-halo-width": 1.2
+              "text-halo-width": 1.2,
+              "text-opacity": 1
             },
             "light": {
               "text-color": "#1a1a1a",
               "text-halo-color": "rgba(255,255,255,0.9)",
-              "text-halo-width": 1.2
+              "text-halo-width": 1.2,
+              "text-opacity": 1
             }
           },
           "suffix": "count",
@@ -17929,7 +17931,7 @@
         "protectedTreesNationalOpacity",
         "protectedTreesNationalRadius",
         "protectedTreesNationalColorModeIdx",
-        "protectedTreesNationalCityIdx"
+        "protectedTreesNationalCityMask"
       ],
       "sourceId": "protected-trees-national",
       "sourceUrl": "./urban/protected_trees_national.geojson"
@@ -18071,7 +18073,7 @@
       "rebuildOnParamChange": [
         "riversideTreesTaipeiOpacity",
         "riversideTreesTaipeiRadius",
-        "riversideTreesTaipeiParkIdx"
+        "riversideTreesTaipeiParkMask"
       ],
       "sourceId": "riverside-trees-taipei",
       "sourceUrl": "./urban/riverside_trees_taipei.geojson"
@@ -18361,7 +18363,7 @@
       "rebuildOnParamChange": [
         "parksTaipeiOpacity",
         "parksTaipeiRadius",
-        "parksTaipeiCategoryIdx"
+        "parksTaipeiCategoryMask"
       ],
       "sourceId": "parks-taipei",
       "sourceUrl": "./urban/parks_taipei.geojson"
@@ -18645,7 +18647,7 @@
         "streetTreesNationalOpacity",
         "streetTreesNationalRadius",
         "streetTreesNationalColorModeIdx",
-        "streetTreesNationalCityIdx"
+        "streetTreesNationalCityMask"
       ],
       "sourceId": "street-trees-national",
       "sourceUrl": "./urban/street_trees_national.pmtiles"
@@ -18743,7 +18745,7 @@
       },
       "rebuildOnParamChange": [
         "treePitsTaipeiOpacity",
-        "treePitsTaipeiTypeIdx"
+        "treePitsTaipeiTypeMask"
       ],
       "sourceId": "tree-pits-taipei",
       "sourceUrl": "./urban/tree_pits_taipei.pmtiles"
@@ -23389,7 +23391,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "canopyGiantsOpacity"
+        "circle"
       ],
       "sourceId": "canopy-giants",
       "sourceUrl": "./forestry/canopy_giants_taiwan.geojson"
@@ -26267,7 +26269,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "evChargingOpacity"
+        "circle"
       ],
       "sourceId": "energy-ev-charging",
       "sourceUrl": "./geo/_empty.geojson"
@@ -47143,6 +47145,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "animalAdoption": [
@@ -47175,10 +47184,6 @@
         "label": "服務類型",
         "options": [
           {
-            "label": "全部類型",
-            "value": "all"
-          },
-          {
             "label": "動物醫院",
             "value": "veterinary_clinic"
           },
@@ -47207,8 +47212,16 @@
             "value": "pet_friendly_place"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "veterinary_clinic",
+          "licensed_pet_business",
+          "animal_protection_office",
+          "pet_registration_station",
+          "rabies_vaccination_site",
+          "veterinary_emergency",
+          "pet_friendly_place"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -47412,6 +47425,13 @@
         "label": "Cluster",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "aqiStations": [],
@@ -47605,6 +47625,13 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "buildingsGba": [
@@ -47683,48 +47710,56 @@
         "min": 0.000001,
         "step": 0.000001,
         "value": 0.000004
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "busLive": [
       {
-        "label": "雙北",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "基宜",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "桃竹苗",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "中彰投",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "雲嘉南",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "高屏",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "花東",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "離島",
-        "type": "toggle",
-        "value": false
+        "label": "服務區域",
+        "options": [
+          {
+            "label": "雙北",
+            "value": "TaipeiMetro"
+          },
+          {
+            "label": "基宜",
+            "value": "KeelungYilan"
+          },
+          {
+            "label": "桃竹苗",
+            "value": "TaoyuanHsinchuMiaoli"
+          },
+          {
+            "label": "中彰投",
+            "value": "CentralTaiwan"
+          },
+          {
+            "label": "雲嘉南",
+            "value": "YunChiaNan"
+          },
+          {
+            "label": "高屏",
+            "value": "Kaoping"
+          },
+          {
+            "label": "花東",
+            "value": "HualienTaitung"
+          },
+          {
+            "label": "離島",
+            "value": "OffshoreIslands"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "TaipeiMetro"
+        ]
       },
       {
         "label": "Color",
@@ -47758,6 +47793,13 @@
         "min": 0.000001,
         "step": 0.000001,
         "value": 0.000004
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "busStationsCity": [
@@ -47767,6 +47809,13 @@
         "min": 0.3,
         "step": 0.1,
         "value": 0.4
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "busStationsIntercity": [
@@ -47776,6 +47825,13 @@
         "min": 0.3,
         "step": 0.1,
         "value": 0.4
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "canopyGiants": [
@@ -47785,6 +47841,13 @@
         "min": 0.3,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "canopyHeight": [
@@ -48613,6 +48676,13 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "correctionalFacility": [
@@ -48686,10 +48756,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "實體書店",
             "value": "實體書店"
           },
@@ -48714,8 +48780,15 @@
             "value": "文創商店"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "實體書店",
+          "工藝之家",
+          "博物館",
+          "特色圖書館",
+          "文化行政據點",
+          "文創商店"
+        ]
       },
       {
         "label": "透明度 0.90",
@@ -48737,10 +48810,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "歷史與人文",
             "value": "歷史與人文"
           },
@@ -48761,8 +48830,14 @@
             "value": "自然與科學"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "歷史與人文",
+          "綜合與其他",
+          "藝術與工藝",
+          "生活與休閒",
+          "自然與科學"
+        ]
       },
       {
         "label": "透明度 0.90",
@@ -48803,6 +48878,13 @@
         "max": 3,
         "min": 0.3,
         "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
         "value": 1
       }
     ],
@@ -49139,6 +49221,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "etcGantry": [
@@ -49171,6 +49260,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "evIsland": [
@@ -49467,6 +49563,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "fireStations": [
@@ -49568,11 +49671,11 @@
     ],
     "forestAlishanRail": [
       {
-        "label": "寬度 1.5",
-        "max": 5,
-        "min": 0.5,
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
         "step": 0.1,
-        "value": 1.5
+        "value": 1.2
       },
       {
         "label": "透明度 0.90",
@@ -49612,16 +49715,11 @@
         "value": 0.7
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.2",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1.2
       }
     ],
     "forestEducationCenters": [
@@ -49649,16 +49747,11 @@
         "value": 0.6
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.3",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1.3
       }
     ],
     "forestRecreation": [
@@ -49760,16 +49853,11 @@
         "value": 0.7
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.0",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1
       }
     ],
     "forestWildlife": [
@@ -49810,6 +49898,13 @@
         "max": 3,
         "min": 0.3,
         "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
         "value": 1
       }
     ],
@@ -50309,6 +50404,13 @@
         "min": 0,
         "step": 0.1,
         "value": 0.3
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "hikingTrails": [
@@ -50483,6 +50585,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "industrialRefinery": [
@@ -50497,6 +50606,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "industrialStorageTank": [
@@ -50511,6 +50627,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "internetExchangePoints": [
@@ -50520,6 +50643,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "investigationBureau": [
@@ -50718,7 +50848,22 @@
         "value": 0.5
       }
     ],
-    "landingStations": [],
+    "landingStations": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "librarySeats": [
       {
         "label": "透明度 0.90",
@@ -50726,6 +50871,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "lifelineAlerts": [
@@ -50779,6 +50931,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "lightningCwa": [
@@ -50795,6 +50954,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "livestockFarmCattle": [
@@ -51378,6 +51544,13 @@
     ],
     "newsEvents": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "相關度",
         "options": [
           {
@@ -51443,10 +51616,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "特定農業區",
             "value": "AA"
           },
@@ -51491,8 +51660,20 @@
             "value": "AL"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "AA",
+          "AB",
+          "AC",
+          "AD",
+          "AE",
+          "AF",
+          "AG",
+          "AH",
+          "AJ",
+          "AK",
+          "AL"
+        ]
       },
       {
         "label": "填色透明度 0.35",
@@ -51698,6 +51879,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "osmExpressway": [
@@ -51858,6 +52046,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "parkingOnstreet": [
@@ -51867,16 +52062,19 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.6
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "parksTaipei": [
       {
         "label": "分類",
         "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
           {
             "label": "公園",
             "value": "公園"
@@ -51906,8 +52104,16 @@
             "value": "其他"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "公園",
+          "兒童遊戲場",
+          "綠地",
+          "鄰里公園",
+          "區域公園",
+          "廣場",
+          "其他"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -52728,6 +52934,13 @@
     ],
     "ports": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "Glow 1.0",
         "max": 3,
         "min": 0,
@@ -52777,6 +52990,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.7
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "powerLinesGlow": [
@@ -52977,10 +53197,6 @@
         "label": "城市",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "台北市",
             "value": "台北市"
           },
@@ -53013,8 +53229,17 @@
             "value": "新竹縣"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "台北市",
+          "新北市",
+          "高雄市",
+          "桃園市",
+          "花蓮縣",
+          "新竹市",
+          "嘉義縣",
+          "新竹縣"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -53045,6 +53270,13 @@
         "min": 0,
         "step": 0.1,
         "value": 0.2
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "publicLibraries": [
@@ -53342,12 +53574,8 @@
     ],
     "religionTemples": [
       {
-        "label": "主祀",
+        "label": "主祀類別",
         "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
           {
             "label": "媽祖",
             "value": "mazu"
@@ -53385,8 +53613,18 @@
             "value": "unknown"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "mazu",
+          "tudi",
+          "guanyin",
+          "guangong",
+          "xuantian",
+          "wangye",
+          "buddha",
+          "other",
+          "unknown"
+        ]
       },
       {
         "label": "登記",
@@ -53477,6 +53715,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "riverLevel": [
@@ -53499,10 +53744,6 @@
       {
         "label": "河濱公園",
         "options": [
-          {
-            "label": "全部",
-            "value": "all"
-          },
           {
             "label": "華中",
             "value": "華中"
@@ -53624,8 +53865,39 @@
             "value": "南湖左岸"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "華中",
+          "雙溪",
+          "延平",
+          "福和",
+          "古亭",
+          "百齡左岸",
+          "關渡水岸",
+          "大佳",
+          "道南",
+          "美堤",
+          "迎風",
+          "龍山",
+          "中正",
+          "百齡右岸",
+          "社子島沿線",
+          "觀山",
+          "雁鴨",
+          "景美",
+          "彩虹",
+          "成美右岸",
+          "成美左岸",
+          "福安",
+          "雙園",
+          "河雙21號",
+          "馬場町紀念公園",
+          "圓山",
+          "木柵",
+          "南湖右岸",
+          "富州",
+          "南湖左岸"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -54143,6 +54415,13 @@
     ],
     "stationsMetro": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -54164,6 +54443,13 @@
     ],
     "stationsTHSR": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -54184,6 +54470,13 @@
       }
     ],
     "stationsTRA": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
       {
         "label": "Stn 1.0",
         "max": 3,
@@ -54232,10 +54525,6 @@
         "label": "城市",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "台北",
             "value": "taipei"
           },
@@ -54244,8 +54533,11 @@
             "value": "taichung"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "taipei",
+          "taichung"
+        ]
       },
       {
         "label": "透明度 0.70",
@@ -54692,10 +54984,6 @@
         "label": "類別",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "國際觀光旅館",
             "value": "1"
           },
@@ -54712,8 +55000,13 @@
             "value": "4"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
       },
       {
         "label": "透明度 0.85",
@@ -54843,10 +55136,6 @@
         "label": "類型",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "樹穴",
             "value": "樹穴"
           },
@@ -54855,8 +55144,11 @@
             "value": "花圃"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "樹穴",
+          "花圃"
+        ]
       },
       {
         "label": "填色透明度 0.55",
@@ -55157,10 +55449,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "住宅",
             "value": "residential"
           },
@@ -55197,8 +55485,18 @@
             "value": "other"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "commercial",
+          "industrial",
+          "agricultural",
+          "open_space",
+          "public_facility",
+          "transport",
+          "conservation",
+          "other"
+        ]
       },
       {
         "label": "填色透明度 0.50",
@@ -55213,10 +55511,6 @@
         "label": "分區",
         "options": [
           {
-            "label": "全部",
-            "value": "all"
-          },
-          {
             "label": "住宅",
             "value": "residential"
           },
@@ -55253,8 +55547,18 @@
             "value": "other"
           }
         ],
-        "type": "select",
-        "value": "all"
+        "type": "multiSelect",
+        "value": [
+          "residential",
+          "commercial",
+          "industrial",
+          "agricultural",
+          "open_space",
+          "public_facility",
+          "transport",
+          "conservation",
+          "other"
+        ]
       },
       {
         "label": "填色透明度 0.50",
@@ -55364,6 +55668,13 @@
         "min": 0,
         "step": 5,
         "value": 70
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "wasteScheduleNote": [],
@@ -55382,6 +55693,13 @@
         "min": 0,
         "step": 0.02,
         "value": 0.1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       },
       {
         "label": "Z 漂浮 0px",
@@ -55412,6 +55730,13 @@
         "min": 0,
         "step": 5,
         "value": 70
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "waterBasins": [
@@ -55555,6 +55880,20 @@
         "min": 0,
         "step": 0.1,
         "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "waterRivers": [
@@ -55680,6 +56019,13 @@
         "max": 3,
         "min": 0.3,
         "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
         "value": 1
       }
     ],

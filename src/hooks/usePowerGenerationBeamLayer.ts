@@ -56,6 +56,7 @@ export function usePowerGenerationBeamLayer(
   visible: boolean,
   opacity: number,
   heightScale: number,
+  sizeScale: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -66,7 +67,14 @@ export function usePowerGenerationBeamLayer(
   opacityRef.current = opacity;
   const heightScaleRef = useRef(heightScale);
   heightScaleRef.current = heightScale;
+  const sizeScaleRef = useRef(sizeScale);
+  sizeScaleRef.current = sizeScale;
   const plantsRef = useRef<PowerGenerationRow[] | null>(null);
+
+  // Slider 值走 ref 給 CustomLayer；值變動仍需主動要求 Mapbox 再 render 一幀。
+  useEffect(() => {
+    mapRef.current?.triggerRepaint();
+  }, [mapRef, visible, opacity, heightScale, sizeScale, mapTick]);
 
   // Mount layer — toggle ON 時保證 effect 重跑（mapRef.current 初始可能 null）
   //
@@ -89,6 +97,7 @@ export function usePowerGenerationBeamLayer(
           getIsVisible: () => visibleRef.current,
           getOpacity: () => opacityRef.current,
           getHeightScale: () => heightScaleRef.current,
+          getSizeScale: () => sizeScaleRef.current,
           getPlants: () => plantsRef.current,
         });
         map.addLayer(layer);

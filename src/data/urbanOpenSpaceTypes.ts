@@ -99,7 +99,7 @@ export function riversideTreeSpeciesColorExpr(): unknown[] {
   ];
 }
 
-// 30 座河濱公園（依喬木筆數 desc；供篩選 select，index 對齊 riversideTreesTaipeiParkIdx）
+// 30 座河濱公園（依喬木筆數 desc；供分類多選，順序對齊 bitmask 位元）
 export const RIVERSIDE_PARKS: string[] = [
   "華中", "雙溪", "延平", "福和", "古亭", "百齡左岸", "關渡水岸", "大佳",
   "道南", "美堤", "迎風", "龍山", "中正", "百齡右岸", "社子島沿線", "觀山",

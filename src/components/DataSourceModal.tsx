@@ -88,7 +88,7 @@ export function DataSourceModal({ layerKey, onClose }: Props) {
         )}
 
         {/* pulse_only lineage */}
-        {status === "pulse_only" && ref.derivedFromLayers && (
+        {status === "pulse_only" && (ref.derivedFromLayers || ref.derivedFromDatasets) && (
           <div style={{ marginTop: 16, padding: 12, background: "#1F2937", borderRadius: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, color: "#A78BFA", fontSize: 13 }}>
               <GitBranch size={14} /> 派生分析
@@ -101,9 +101,11 @@ export function DataSourceModal({ layerKey, onClose }: Props) {
                 {ref.processing}
               </div>
             )}
-            <div style={{ fontSize: 12, color: "#9CA3AF" }}>
-              派生自 layers: <code style={{ color: "#A78BFA" }}>{ref.derivedFromLayers.join(", ")}</code>
-            </div>
+            {ref.derivedFromLayers && (
+              <div style={{ fontSize: 12, color: "#9CA3AF" }}>
+                派生自 layers: <code style={{ color: "#A78BFA" }}>{ref.derivedFromLayers.join(", ")}</code>
+              </div>
+            )}
             {upstreamDatasetIds.length > 0 && (
               <div style={{ fontSize: 12, color: "#9CA3AF", marginTop: 4 }}>
                 最終上游 datasets: <code style={{ color: "#60A5FA" }}>{upstreamDatasetIds.join(", ")}</code>

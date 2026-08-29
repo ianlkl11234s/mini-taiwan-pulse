@@ -42,7 +42,7 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [121.53, 25.05],
     zoom: 12,
-    pitch: 50,
+    pitch: 0,
     bearing: 0,
   },
   {
@@ -51,8 +51,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [121.30, 24.99],
     zoom: 11.5,
-    pitch: 48,
-    bearing: -10,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "台中",
@@ -60,8 +60,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [120.68, 24.15],
     zoom: 11.5,
-    pitch: 48,
-    bearing: -15,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "台南",
@@ -69,8 +69,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [120.21, 23.00],
     zoom: 11.5,
-    pitch: 48,
-    bearing: -20,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "高雄",
@@ -78,8 +78,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [120.30, 22.63],
     zoom: 11.5,
-    pitch: 50,
-    bearing: -30,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "台東",
@@ -87,8 +87,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [121.15, 22.76],
     zoom: 11,
-    pitch: 48,
-    bearing: 60,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "花蓮",
@@ -96,8 +96,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [121.60, 23.98],
     zoom: 11,
-    pitch: 50,
-    bearing: 70,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "澎湖",
@@ -105,8 +105,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [119.58, 23.57],
     zoom: 11,
-    pitch: 45,
-    bearing: 30,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "馬祖",
@@ -114,8 +114,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [119.95, 26.17],
     zoom: 12,
-    pitch: 40,
-    bearing: 50,
+    pitch: 0,
+    bearing: 0,
   },
   {
     name: "金門",
@@ -123,8 +123,8 @@ export const ALL_PRESETS: CameraPreset[] = [
     category: "city",
     center: [118.38, 24.44],
     zoom: 12,
-    pitch: 45,
-    bearing: 20,
+    pitch: 0,
+    bearing: 0,
   },
   // Airports
   {

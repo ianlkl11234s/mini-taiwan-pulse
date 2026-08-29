@@ -251,7 +251,7 @@ describe("overlayParams 編碼", () => {
   it("slider 原值、select 走 encode 的 idx", () => {
     const out = encodeParamsToOverlay(layerParamsStore.getAll());
     expect(out["cemeteryOsmOpacity"]).toBe(0.45);
-    expect(out["religionTemplesDeityIdx"]).toBe(0);
+    expect(out["religionTemplesDeityMask"]).toBe(511);
     // funeralOperators 預設 "active" ＝ OPERATOR_STATUS_MODES 的第 0 位
     expect(out["funeralOperatorsStatusIdx"]).toBe(0);
     layerParamsStore.setParam("funeralOperators", "funeralOperatorsStatus", "all");

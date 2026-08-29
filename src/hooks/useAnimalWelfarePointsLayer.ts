@@ -16,14 +16,14 @@ export function animalWelfarePointRadius(scale: number): unknown[] {
   return ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale, 16, 8 * scale];
 }
 
-function ensureLayers(map: MapboxMap, opacity: number, scale: number, pointTypeIndex: number) {
+function ensureLayers(map: MapboxMap, opacity: number, scale: number, pointTypeMask?: number) {
   if (!map.getSource(SOURCE_ID)) map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY });
   if (!map.getLayer(GLOW_ID)) map.addLayer({
-    id: GLOW_ID, type: "circle", source: SOURCE_ID, filter: animalWelfarePointTypeFilter(pointTypeIndex) as never,
+    id: GLOW_ID, type: "circle", source: SOURCE_ID, filter: animalWelfarePointTypeFilter(pointTypeMask) as never,
     paint: { "circle-radius": animalWelfarePointRadius(scale * 1.75) as never, "circle-color": ANIMAL_WELFARE_POINT_COLOR_EXPR as never, "circle-opacity": opacity * 0.22, "circle-blur": 0.72 },
   });
   if (!map.getLayer(CIRCLE_ID)) map.addLayer({
-    id: CIRCLE_ID, type: "circle", source: SOURCE_ID, filter: animalWelfarePointTypeFilter(pointTypeIndex) as never,
+    id: CIRCLE_ID, type: "circle", source: SOURCE_ID, filter: animalWelfarePointTypeFilter(pointTypeMask) as never,
     paint: {
       "circle-radius": animalWelfarePointRadius(scale) as never, "circle-color": ANIMAL_WELFARE_POINT_COLOR_EXPR as never, "circle-opacity": opacity,
       "circle-stroke-color": "rgba(255,255,255,0.9)",
@@ -32,9 +32,9 @@ function ensureLayers(map: MapboxMap, opacity: number, scale: number, pointTypeI
   });
 }
 
-function updatePaint(map: MapboxMap, opacity: number, scale: number, pointTypeIndex: number) {
+function updatePaint(map: MapboxMap, opacity: number, scale: number, pointTypeMask?: number) {
   for (const id of [GLOW_ID, CIRCLE_ID]) {
-    if (map.getLayer(id)) map.setFilter(id, animalWelfarePointTypeFilter(pointTypeIndex) as never);
+    if (map.getLayer(id)) map.setFilter(id, animalWelfarePointTypeFilter(pointTypeMask) as never);
   }
   if (map.getLayer(GLOW_ID)) {
     map.setPaintProperty(GLOW_ID, "circle-opacity", opacity * 0.22);
@@ -79,7 +79,7 @@ function setData(map: MapboxMap, rows: AnimalWelfarePointRow[]) {
 
 /** ~7k point POI layer: deliberately no clustering so type color and click selection remain exact. */
 export function useAnimalWelfarePointsLayer(
-  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = 0.85, scale = 1, pointTypeIndex = 0,
+  mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity = 0.85, scale = 1, pointTypeMask?: number,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const loaded = useRef(false);
@@ -88,7 +88,7 @@ export function useAnimalWelfarePointsLayer(
     if (!map) return;
     let cancelled = false;
     const run = async () => {
-      ensureLayers(map, opacity, scale, pointTypeIndex);
+      ensureLayers(map, opacity, scale, pointTypeMask);
       if (!visible) { setVisible(map, false); return; }
       if (!loaded.current) {
         const rows = await fetchAnimalWelfarePoints();
@@ -97,10 +97,10 @@ export function useAnimalWelfarePointsLayer(
         loaded.current = true;
         keepLoadingUntilMapIdle(map, "animal-welfare-points-render", "動物福利服務點圖層渲染中", SOURCE_ID);
       }
-      updatePaint(map, opacity, scale, pointTypeIndex);
+      updatePaint(map, opacity, scale, pointTypeMask);
       setVisible(map, true);
     };
     run().catch((error) => console.warn("[AnimalWelfarePoints] service points unavailable", error));
     return () => { cancelled = true; };
-  }, [mapRef, visible, opacity, scale, pointTypeIndex, mapTick]);
+  }, [mapRef, visible, opacity, scale, pointTypeMask, mapTick]);
 }

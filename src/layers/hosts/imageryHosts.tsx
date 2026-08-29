@@ -106,6 +106,7 @@ export const MicroSensorsHost: LayerHostComponent = ({ deps }) => {
     deps.isDarkTheme,
     paramBool(values, "aqiMicroSensors", "aqiMicroCluster"),
     paramNum(values, "aqiMicroSensors", "aqiMicroModeIdx"),
+    paramNum(values, "aqiMicroSensors", "aqiMicroOpacity"),
   );
   return null;
 };

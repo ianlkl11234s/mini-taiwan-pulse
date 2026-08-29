@@ -1,16 +1,15 @@
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
-  // ✅ AR-22 Phase 2 完成（批 8）：348 個 layer 的 icon **全部**由 layerManifest 派生，
+  // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
   Activity, Layers, MapPin, Settings, X,
   ChevronDown, ChevronRight, Search, Navigation,
-  Play, Radio,
+  Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   Lock,        // gated 圖層鎖頭
-  Globe,       // 「世界」rail tab（複合 icon）
   PiggyBank,   // 房地產總市值 rail panel（layer toggle 的 Coins 在 manifest）
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   type LucideIcon,
@@ -23,15 +22,15 @@ import type {
 import { buildParamControls } from "../state/layerParamsControls";
 import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
-import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
+import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
-// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題（含全球氣候），順序照該陣列
+// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題，順序照該陣列
 const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title));
@@ -56,13 +55,6 @@ export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   ...HANDWRITTEN_LAYER_ICONS,
   ...manifestIcons(),
 };
-
-// ── IATA Map for Locations Panel ──
-
-const IATA_MAP: Record<string, string> = {};
-for (const [icao, info] of Object.entries(AIRPORT_INFO)) {
-  IATA_MAP[icao] = info.iata;
-}
 
 // ── Props ──
 
@@ -232,8 +224,6 @@ export function IconRailSidebar({
   // Filter presets
   const overviewPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "overview"), []);
   const cityPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "city"), []);
-  const airportPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "airport"), []);
-  const scenePresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "scene"), []);
 
   const filteredCities = useMemo(() => {
     if (!locationSearch) return cityPresets;
@@ -241,27 +231,11 @@ export function IconRailSidebar({
     return cityPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
   }, [cityPresets, locationSearch]);
 
-  const filteredAirports = useMemo(() => {
-    if (!locationSearch) return airportPresets;
-    const q = locationSearch.toLowerCase();
-    return airportPresets.filter((p) =>
-      p.name.toLowerCase().includes(q)
-      || p.id.toLowerCase().includes(q)
-      || (IATA_MAP[p.id] ?? "").toLowerCase().includes(q),
-    );
-  }, [airportPresets, locationSearch]);
-
   const filteredOverviews = useMemo(() => {
     if (!locationSearch) return overviewPresets;
     const q = locationSearch.toLowerCase();
     return overviewPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
   }, [overviewPresets, locationSearch]);
-
-  const filteredScenes = useMemo(() => {
-    if (!locationSearch) return scenePresets;
-    const q = locationSearch.toLowerCase();
-    return scenePresets.filter((p) => p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q));
-  }, [scenePresets, locationSearch]);
 
   return (
     <RailThemeContext.Provider value={palette}>
@@ -294,6 +268,14 @@ export function IconRailSidebar({
           onClick={() => togglePanel("layers")}
           tooltip="Layers"
           badge={!layersBadgeSeen}
+        />
+
+        {/* 🌍 世界 World（維持獨立 rail，排在 Layers 之後） */}
+        <RailIcon
+          icon={WorldGlyph}
+          active={activePanel === "world"}
+          onClick={() => togglePanel("world")}
+          tooltip="世界 World"
         />
 
         {/* Locations */}
@@ -342,14 +324,6 @@ export function IconRailSidebar({
             tooltip="房地產總市值 Property Value"
           />
         )}
-
-        {/* 🌍 世界 World（獨立圖層清單，只顯示世界主題） */}
-        <RailIcon
-          icon={WorldGlyph}
-          active={activePanel === "world"}
-          onClick={() => togglePanel("world")}
-          tooltip="世界 World"
-        />
 
         {/* 監測模式 Monitor split（右半邊） */}
         {onMonitorSplitToggle && (
@@ -426,6 +400,7 @@ export function IconRailSidebar({
                 search={layerSearch}
                 onSearchChange={setLayerSearch}
                 themes={MAIN_THEMES}
+                showMacroGroups
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -470,8 +445,6 @@ export function IconRailSidebar({
                 onSearchChange={setLocationSearch}
                 overviewPresets={filteredOverviews}
                 cityPresets={filteredCities}
-                airportPresets={filteredAirports}
-                scenePresets={filteredScenes}
                 currentLocationId={currentLocationId}
                 onLocationJump={onLocationJump}
                 onClose={closePanel}
@@ -649,6 +622,8 @@ interface LayersPanelProps {
   themes?: ThemeDef[];
   /** PanelHeader 標題（預設 "Layers"）。 */
   title?: string;
+  /** 是否顯示 Layers 的第一層大分類；World rail 本身就是獨立分類，故不顯示。 */
+  showMacroGroups?: boolean;
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
@@ -837,8 +812,29 @@ function SubGroupLabel({ children }: { children: string }) {
   );
 }
 
+function MacroGroupLabel({ title }: { title: string }) {
+  const { BORDER, DIM } = useRailTheme();
+  return (
+    <div
+      style={{
+        color: DIM,
+        fontFamily: FONT_DATA,
+        fontSize: FONT_SIZE.xs,
+        fontWeight: 700,
+        letterSpacing: 1.6,
+        padding: "16px 12px 6px",
+        borderBottom: `1px solid ${BORDER}`,
+        textTransform: "uppercase",
+      }}
+    >
+      {title}
+    </div>
+  );
+}
+
 function LayersPanel({
   search, onSearchChange, themes, title = "Layers",
+  showMacroGroups = false,
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
@@ -847,7 +843,7 @@ function LayersPanel({
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
-  // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
+  // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
   );
@@ -919,7 +915,7 @@ function LayersPanel({
           padding: "0 0 8px",
         }}
       >
-        {themesToRender.map((theme) => {
+        {themesToRender.map((theme, themeIndex) => {
           const isCollapsed = q ? false : collapsedThemes.has(theme.title);
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;
@@ -956,8 +952,17 @@ function LayersPanel({
             }
           };
 
+          const macroGroup = showMacroGroups ? themeMacroGroup(theme.title) : null;
+          const previousMacroGroup = showMacroGroups && themeIndex > 0
+            ? themeMacroGroup(themesToRender[themeIndex - 1]!.title)
+            : null;
+          const macroTitle = macroGroup
+            ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
+            : null;
+
           return (
             <div key={theme.title}>
+              {macroTitle && macroGroup !== previousMacroGroup && <MacroGroupLabel title={macroTitle} />}
               <ThemeBanner
                 title={theme.title}
                 isCollapsed={isCollapsed}
@@ -1087,6 +1092,42 @@ function ExpandedControls({
       {controls.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
+            if (ctrl.type === "multiSelect") {
+              const selected = new Set(ctrl.value);
+              return (
+                <details
+                  key={ctrl.label}
+                  onClick={(event) => event.stopPropagation()}
+                  style={{ color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA }}
+                >
+                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
+                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
+                  </summary>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
+                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
+                    </div>
+                    {ctrl.options.map((option) => (
+                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
+                        <input
+                          type="checkbox"
+                          checked={selected.has(option.value)}
+                          disabled={option.disabled}
+                          onChange={() => {
+                            const next = new Set(selected);
+                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
+                            ctrl.onChange([...next]);
+                          }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </details>
+              );
+            }
+
             if (ctrl.type === "select") {
               // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
               if (ctrl.options.length > 3) {
@@ -1225,8 +1266,6 @@ interface LocationsPanelProps {
   onSearchChange: (v: string) => void;
   overviewPresets: typeof ALL_PRESETS;
   cityPresets: typeof ALL_PRESETS;
-  airportPresets: typeof ALL_PRESETS;
-  scenePresets: typeof ALL_PRESETS;
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
   onClose: () => void;
@@ -1269,7 +1308,7 @@ function CollapsibleSection({
 }
 
 function LocationsPanel({
-  search, onSearchChange, overviewPresets, cityPresets, airportPresets, scenePresets,
+  search, onSearchChange, overviewPresets, cityPresets,
   currentLocationId, onLocationJump, onClose,
 }: LocationsPanelProps) {
   const { DIM, SEARCH_BG, TEXT_STRONG, BORDER } = useRailTheme();
@@ -1313,23 +1352,6 @@ function LocationsPanel({
         className="layer-sidebar-scroll"
         style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}
       >
-        {/* Scenes */}
-        <CollapsibleSection title="SCENE" count={scenePresets.length} defaultOpen={false}>
-          {scenePresets.map((p) => (
-            <LocationItem
-              key={p.id}
-              name={p.name}
-              subtitle={p.description ?? ""}
-              active={currentLocationId === p.id}
-              onClick={() => onLocationJump(p.id)}
-              icon={Play}
-            />
-          ))}
-        </CollapsibleSection>
-        {scenePresets.length > 0 && overviewPresets.length > 0 && (
-          <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
-        )}
-
         {/* Overview */}
         <CollapsibleSection title="OVERVIEW" count={overviewPresets.length} defaultOpen={true}>
           {overviewPresets.map((p) => (
@@ -1357,25 +1379,6 @@ function LocationsPanel({
               onClick={() => onLocationJump(p.id)}
             />
           ))}
-        </CollapsibleSection>
-        {cityPresets.length > 0 && airportPresets.length > 0 && (
-          <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
-        )}
-
-        {/* Airports */}
-        <CollapsibleSection title="AIRPORT" count={airportPresets.length} defaultOpen={false}>
-          {airportPresets.map((p) => {
-            const iata = IATA_MAP[p.id];
-            return (
-              <LocationItem
-                key={p.id}
-                name={p.name}
-                subtitle={iata ? `IATA: ${iata}` : p.id}
-                active={currentLocationId === p.id}
-                onClick={() => onLocationJump(p.id)}
-              />
-            );
-          })}
         </CollapsibleSection>
       </div>
     </>

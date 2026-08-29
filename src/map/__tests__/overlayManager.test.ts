@@ -12,6 +12,7 @@ import {
   resetOverlayHydration,
   updateOverlayTheme,
   geojsonSourceOptions,
+  applyLayerOpacity,
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
@@ -58,6 +59,37 @@ describe("diffPaint", () => {
     const first = diffPaint(undefined, { "line-opacity": exprA });
     const second = diffPaint(first.serialized, { "line-opacity": exprB });
     expect(second.changed).toHaveLength(1);
+  });
+});
+
+describe("applyLayerOpacity", () => {
+  const config = { id: "bikeStations", opacityParam: "bikeStationsOpacity" } as OverlayConfig;
+
+  it("preserves existing paint until the layer-level opacity parameter exists", () => {
+    const paint = { "circle-opacity": 0.6, "circle-radius": 4 };
+    expect(applyLayerOpacity(config, paint, {})).toBe(paint);
+  });
+
+  it("multiplies numeric and expression opacity without changing non-opacity paint", () => {
+    const paint = { "circle-opacity": 0.6, "circle-stroke-opacity": ["get", "confidence"], "circle-radius": 4 };
+    expect(applyLayerOpacity(config, paint, { bikeStationsOpacity: 0.5 })).toEqual({
+      "circle-opacity": 0.3,
+      "circle-stroke-opacity": ["*", ["get", "confidence"], 0.5],
+      "circle-radius": 4,
+    });
+  });
+
+  it("covers all opacity paint keys, including symbol text", () => {
+    const config = { id: "newsEvents", opacityParam: "newsEventsOpacity" } as OverlayConfig;
+    expect(applyLayerOpacity(config, {
+      "circle-opacity": 0.8,
+      "text-opacity": 1,
+      "text-color": "#fff",
+    }, { newsEventsOpacity: 0.25 })).toEqual({
+      "circle-opacity": 0.2,
+      "text-opacity": 0.25,
+      "text-color": "#fff",
+    });
   });
 });
 

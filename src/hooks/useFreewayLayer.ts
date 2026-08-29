@@ -37,7 +37,7 @@ interface CachedDay {
   accessedAt: number;
 }
 
-function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
+function buildLayers(map: MapboxMap, width: number, isDark: boolean, opacity: number) {
   if (!map.getSource(SOURCE_ID)) return false;
 
   if (!map.getLayer(LAYER_GLOW)) {
@@ -50,7 +50,7 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
         "line-color": ["get", "color"],
         "line-width": 8 * width,
         "line-blur": 6,
-        "line-opacity": isDark ? 0.08 : 0.12,
+        "line-opacity": (isDark ? 0.08 : 0.12) * opacity,
       },
       filter: ["!=", ["get", "level"], 0] as unknown as FilterSpecification,
     } as LineLayer);
@@ -73,7 +73,7 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
           13, 3 * width,
           16, 5 * width,
         ],
-        "line-opacity": isDark ? 0.75 : 0.65,
+        "line-opacity": (isDark ? 0.75 : 0.65) * opacity,
       },
     } as LineLayer);
   }
@@ -99,6 +99,7 @@ export function useFreewayLayer(
   visible: boolean,
   width: number,
   isDark: boolean,
+  opacity: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -139,11 +140,11 @@ export function useFreewayLayer(
         });
       }
       if (!layersReadyRef.current || !map.getLayer(LAYER_LINE)) {
-        layersReadyRef.current = buildLayers(map, width, isDark);
+        layersReadyRef.current = buildLayers(map, width, isDark, opacity);
       }
       return layersReadyRef.current;
     },
-    [width, isDark],
+    [width, isDark, opacity],
   );
 
   /**
@@ -264,7 +265,7 @@ export function useFreewayLayer(
     if (!map || !layersReadyRef.current) return;
     if (map.getLayer(LAYER_GLOW)) {
       map.setPaintProperty(LAYER_GLOW, "line-width", 8 * width);
-      map.setPaintProperty(LAYER_GLOW, "line-opacity", isDark ? 0.08 : 0.12);
+      map.setPaintProperty(LAYER_GLOW, "line-opacity", (isDark ? 0.08 : 0.12) * opacity);
     }
     if (map.getLayer(LAYER_LINE)) {
       map.setPaintProperty(LAYER_LINE, "line-width", [
@@ -276,7 +277,7 @@ export function useFreewayLayer(
         13, 3 * width,
         16, 5 * width,
       ] as unknown as mapboxgl.ExpressionSpecification);
-      map.setPaintProperty(LAYER_LINE, "line-opacity", isDark ? 0.75 : 0.65);
+      map.setPaintProperty(LAYER_LINE, "line-opacity", (isDark ? 0.75 : 0.65) * opacity);
     }
-  }, [width, isDark, mapRef, mapTick]);
+  }, [width, isDark, opacity, mapRef, mapTick]);
 }

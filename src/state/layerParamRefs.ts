@@ -26,7 +26,7 @@ import {
   type BusCity, type BusGroup,
 } from "../types";
 import {
-  BUS_GROUP_ORDER, paramDefault,
+  BUS_GROUP_OPTIONS, BUS_GROUP_ORDER, paramDefault, resolveMultiSelectValues,
   type LayerParamValues, type ParamValue,
 } from "../data/layerParamsSpec";
 import { layerParamsStore, type LayerParamsSnapshot } from "./layerParamsStore";
@@ -35,6 +35,11 @@ import { layerParamsStore, type LayerParamsSnapshot } from "./layerParamsStore";
 function rNum(all: LayerParamsSnapshot, key: string, name: string): number {
   const v = all[key]?.[name] ?? paramDefault(key, name);
   return typeof v === "number" ? v : Number(v);
+}
+/** 新控件尚未註冊前也維持 renderer 的安全預設，避免 NaN 傳入 WebGL material。 */
+function rFiniteNum(all: LayerParamsSnapshot, key: string, name: string, fallback: number): number {
+  const value = rNum(all, key, name);
+  return Number.isFinite(value) ? value : fallback;
 }
 function rBool(all: LayerParamsSnapshot, key: string, name: string): boolean {
   const v = all[key]?.[name] ?? paramDefault(key, name);
@@ -84,11 +89,23 @@ export function buildWasteSubParams(
   return out;
 }
 
-/** 8 區分組 checkbox → 城市清單（順序 = BUS_GROUP_ORDER，同已退役的 runtime） */
+/** 市區公車區域多選 → 城市清單（群組、城市皆保留 SSOT 順序並去重）。 */
 export function enabledBusCitiesOf(values: LayerParamValues | undefined): BusCity[] {
-  return BUS_GROUP_ORDER
-    .filter((g: BusGroup) => values?.[`busGroup${g}`] === true)
-    .flatMap((g: BusGroup) => BUS_GROUP_CITIES[g]);
+  const raw = values?.busGroups;
+  const selected = new Set(
+    typeof raw === "string" ? resolveMultiSelectValues(raw, BUS_GROUP_OPTIONS) : [],
+  );
+  const cities: BusCity[] = [];
+  const seen = new Set<BusCity>();
+  for (const group of BUS_GROUP_ORDER) {
+    if (!selected.has(group)) continue;
+    for (const city of BUS_GROUP_CITIES[group]) {
+      if (seen.has(city)) continue;
+      seen.add(city);
+      cities.push(city);
+    }
+  }
+  return cities;
 }
 
 /** 表定路線的 8 區分組 checkbox → 城市清單 */
@@ -113,20 +130,21 @@ export const layerParamRefs = {
   shipOrbScale: ref(0), shipTrailOpacity: ref(0),
   railAltOffset: ref(0), railOrbScale: ref(0), railTrackOpacity: ref(0),
   railTrainVisible: ref(false), railTrackMode: ref<string>("3d"),
-  busOrbScale: ref(0), busColorMode: ref<string>("route"), busAltOffset: ref(0),
+  busOrbScale: ref(0), busColorMode: ref<string>("route"), busAltOffset: ref(0), busOpacity: ref(1),
   busIntercityOrbScale: ref(0), busIntercityColorMode: ref<string>("route"),
-  busIntercityAltOffset: ref(0),
+  busIntercityAltOffset: ref(0), busIntercityOpacity: ref(1),
   touristShuttleOrbScale: ref(0), touristShuttleColorMode: ref<string>("route"),
   touristShuttleAltOffset: ref(0), touristShuttleOpacity: ref(0),
   wasteOrbScale: ref(0), wasteNoteSize: ref(0), wasteNoteZOffset: ref(0),
+  wasteTruckOpacity: ref(1), wasteScheduleOpacity: ref(1),
   fireStationsScale: ref(0), fireStationsOpacity: ref(0), fireStations3D: ref(false),
   wasteSubParams: ref<Record<string, WasteSubParams>>({}),
   beamVisible: ref(false), beamDistance: ref(0), beamOpacity: ref(0),
-  thsrPillarVisible: ref(false), thsrPillarHeight: ref(0),
-  traPillarVisible: ref(false), traPillarHeight: ref(0),
-  metroPillarVisible: ref(false), metroPillarHeight: ref(0),
+  thsrPillarVisible: ref(false), thsrPillarHeight: ref(0), thsrOpacity: ref(1),
+  traPillarVisible: ref(false), traPillarHeight: ref(0), traOpacity: ref(1),
+  metroPillarVisible: ref(false), metroPillarHeight: ref(0), metroOpacity: ref(1),
   airportPillarVisible: ref(false), airportPillarHeight: ref(0),
-  portPillarVisible: ref(false), portPillarHeight: ref(0),
+  portPillarVisible: ref(false), portPillarHeight: ref(0), portOpacity: ref(1),
   tempHeight: ref(0), tempZOffset: ref(0), tempExtruded: ref(false),
   tempOpacity: ref(0), tempWireframe: ref(false),
 };
@@ -161,20 +179,26 @@ function sync(): void {
 
   r.thsrPillarVisible.current = rBool(a, "stationsTHSR", "thsrPillarVisible");
   r.thsrPillarHeight.current = rNum(a, "stationsTHSR", "thsrPillarHeight");
+  r.thsrOpacity.current = rFiniteNum(a, "stationsTHSR", "thsrOpacity", 1);
   r.traPillarVisible.current = rBool(a, "stationsTRA", "traPillarVisible");
   r.traPillarHeight.current = rNum(a, "stationsTRA", "traPillarHeight");
+  r.traOpacity.current = rFiniteNum(a, "stationsTRA", "traOpacity", 1);
   r.metroPillarVisible.current = rBool(a, "stationsMetro", "metroPillarVisible");
   r.metroPillarHeight.current = rNum(a, "stationsMetro", "metroPillarHeight");
+  r.metroOpacity.current = rFiniteNum(a, "stationsMetro", "metroOpacity", 1);
   r.portPillarVisible.current = rBool(a, "ports", "portPillarVisible");
   r.portPillarHeight.current = rNum(a, "ports", "portPillarHeight");
+  r.portOpacity.current = rFiniteNum(a, "ports", "portOpacity", 1);
   r.airportPillarVisible.current = rBool(a, "airports", "airportPillarVisible");
   r.airportPillarHeight.current = rNum(a, "airports", "airportPillarHeight");
 
   r.busOrbScale.current = rNum(a, "busLive", "busOrbScale");
   r.busAltOffset.current = rNum(a, "busLive", "busAltOffset");
+  r.busOpacity.current = rFiniteNum(a, "busLive", "busOpacity", 1);
   r.busColorMode.current = rOneOf(rStr(a, "busLive", "busColorMode"), BUS_COLOR_MODES, "route");
   r.busIntercityOrbScale.current = rNum(a, "busIntercityLive", "busIntercityOrbScale");
   r.busIntercityAltOffset.current = rNum(a, "busIntercityLive", "busIntercityAltOffset");
+  r.busIntercityOpacity.current = rFiniteNum(a, "busIntercityLive", "busIntercityOpacity", 1);
   r.busIntercityColorMode.current =
     rOneOf(rStr(a, "busIntercityLive", "busIntercityColorMode"), BUS_COLOR_MODES, "route");
   r.touristShuttleOrbScale.current = rNum(a, "touristShuttleLive", "touristShuttleOrbScale");
@@ -196,6 +220,8 @@ function sync(): void {
   r.wasteOrbScale.current = rNum(a, "wasteTruck", "wasteOrbScale");
   r.wasteNoteSize.current = rNum(a, "wasteTruck", "wasteNoteSize");
   r.wasteNoteZOffset.current = rNum(a, "wasteTruck", "wasteNoteZOffset");
+  r.wasteTruckOpacity.current = rFiniteNum(a, "wasteTruck", "wasteTruckOpacity", 1);
+  r.wasteScheduleOpacity.current = rFiniteNum(a, "wasteSchedule", "wasteScheduleOpacity", 1);
 
   r.wasteSubParams.current = buildWasteSubParams(a);
 }

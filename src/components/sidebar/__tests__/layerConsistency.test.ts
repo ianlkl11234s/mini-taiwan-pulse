@@ -95,7 +95,6 @@ const NO_PARAMS_LEDGER = new Set([
   // 純靜態展示層，沒有可調的視覺維度：
   "windPlan",          // 離岸風場規劃區：單一潛力區面，無分類無密度
   "submarineCables",   // 海底電纜：固定線位
-  "landingStations",   // 電纜登陸站：固定點位
   "activeFaults",      // 活動斷層：地調所固定線位
   "aqiStations",       // 測站點位本身（數值圖層是 aqiImagery / aqiMicroSensors）
   // ── 原 BASELINE_NO_PARAMS ──

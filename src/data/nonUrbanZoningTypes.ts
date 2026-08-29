@@ -12,13 +12,15 @@
  *
  * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step（同 urbanZoningTypes.ts 註）。
  */
+import { allMultiSelectBitmask, multiSelectFilter } from "./multiSelectMapbox";
+
 
 // 缺值 / 非 11 碼共用中性灰
 export const NON_URBAN_ZONING_MISSING_COLOR = "#9e9e9e";
 
 /**
  * 區域計畫法 11 種法定分區（count = 2026-08-01 成品實測，供圖例排序與比例感）。
- * index 對齊 overlayRegistry 讀的 nonUrbanZoningCodeIdx：0=全部，1..11 照本陣列順序。
+ * 順序對齊分類多選的 bit 位元（最多 30 類的 numeric overlayParams 合約）。
  */
 export const NON_URBAN_ZONING_CODES: {
   code: string; label: string; color: string; count: number;
@@ -45,10 +47,14 @@ export function nonUrbanZoningColorExpr(): unknown[] {
   ];
 }
 
-/** 分區篩選表達式：idx 0=全部，1..11 對應 NON_URBAN_ZONING_CODES（未選中的面被濾除而非淡化） */
-export function nonUrbanZoningCodeFilter(idx: number): unknown[] {
-  const code = idx > 0 ? NON_URBAN_ZONING_CODES[idx - 1]?.code : undefined;
-  return code ? ["==", ["get", "zone_code"], code] : ["has", "zone_code"];
+/** 分區篩選表達式：bitmask 支援任意多類；未選中的面被濾除而非淡化。 */
+export function nonUrbanZoningCodeFilter(mask?: number): unknown[] {
+  const codeValues = NON_URBAN_ZONING_CODES.map((category) => category.code);
+  return multiSelectFilter(
+    "zone_code",
+    mask ?? allMultiSelectBitmask(codeValues),
+    codeValues,
+  );
 }
 
 /** zone_code → 中文 label（popup / 圖例共用，純 JS 不進 mapbox 表達式） */

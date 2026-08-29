@@ -55,7 +55,7 @@ vi.mock("../useGfwHourlyGridLayer", async (importOriginal) => ({
 
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID } from "../useGfwHourlyGridLayer";
-import { useMapInteraction } from "../useMapInteraction";
+import { clearMapSelection, useMapInteraction } from "../useMapInteraction";
 
 describe("useMapInteraction GFW grid click", () => {
   beforeEach(() => harness.reset());
@@ -267,5 +267,35 @@ describe("useMapInteraction GFW v4 current-frame track picking", () => {
     await Promise.resolve();
     expect(harness.hydrateTrack).not.toHaveBeenCalled();
     expect(harness.setFeatureInfo).not.toHaveBeenCalledWith(expect.objectContaining({ layerType: "gfwHourlyTrack" }));
+  });
+});
+
+describe("clearMapSelection", () => {
+  it("Esc 的共用清除器涵蓋 FeatureInfo、所有 tooltip 與飛機跟隨", () => {
+    const setFeatureInfo = vi.fn();
+    const setTooltipInfo = vi.fn();
+    const setTrainTooltipInfo = vi.fn();
+    const setBusTooltipInfo = vi.fn();
+    const setWasteScheduleTooltipInfo = vi.fn();
+    const setRealEstateTooltipInfo = vi.fn();
+    const setSelectedFlightId = vi.fn();
+
+    clearMapSelection({
+      setFeatureInfo,
+      setTooltipInfo,
+      setTrainTooltipInfo,
+      setBusTooltipInfo,
+      setWasteScheduleTooltipInfo,
+      setRealEstateTooltipInfo,
+      setSelectedFlightId,
+    });
+
+    expect(setFeatureInfo).toHaveBeenCalledWith(null);
+    expect(setTooltipInfo).toHaveBeenCalledWith(null);
+    expect(setTrainTooltipInfo).toHaveBeenCalledWith(null);
+    expect(setBusTooltipInfo).toHaveBeenCalledWith(null);
+    expect(setWasteScheduleTooltipInfo).toHaveBeenCalledWith(null);
+    expect(setRealEstateTooltipInfo).toHaveBeenCalledWith(null);
+    expect(setSelectedFlightId).toHaveBeenCalledWith(null);
   });
 });

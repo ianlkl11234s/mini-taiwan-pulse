@@ -123,6 +123,7 @@ export function useReservoirStatusLayer(
   visible: boolean,
   isDark: boolean,
   heightScale: number,
+  sizeScale: number,
   sceneRef: React.RefObject<ReservoirScene | null>,
   statusesRef: React.RefObject<ReservoirStatus[]>,
   activeReservoirId: number | null,
@@ -133,6 +134,7 @@ export function useReservoirStatusLayer(
   const visibleRef = useRef(visible);
   const isDarkRef = useRef(isDark);
   const heightScaleRef = useRef(heightScale);
+  const sizeScaleRef = useRef(sizeScale);
   const mountedRef = useRef(false);
   const byIdRef = useRef<Map<string, ReservoirSeries>>(new Map());
   const currentDateRef = useRef<string>("");
@@ -140,6 +142,7 @@ export function useReservoirStatusLayer(
   visibleRef.current = visible;
   isDarkRef.current = isDark;
   heightScaleRef.current = heightScale;
+  sizeScaleRef.current = sizeScale;
 
   // ── 首次 visible = true 時建 scene + 掛 custom layer ──
   useEffect(() => {
@@ -165,6 +168,7 @@ export function useReservoirStatusLayer(
         getIsVisible: () => visibleRef.current,
         getIsDarkTheme: () => isDarkRef.current,
         getHeightScale: () => heightScaleRef.current,
+        getSizeScale: () => sizeScaleRef.current,
       });
       try {
         map.addLayer(layer);
@@ -263,12 +267,12 @@ export function useReservoirStatusLayer(
     };
   }, [mapRef, sceneRef, statusesRef, visible, mapTick]);
 
-  // ── heightScale / isDark / visible 變化：觸發 repaint
+  // ── heightScale / sizeScale / isDark / visible 變化：觸發 repaint
   // （移除 per-frame triggerRepaint 後，需要確保 state 變動能反映到畫面）
   useEffect(() => {
     const map = mapRef.current;
     if (map) map.triggerRepaint();
-  }, [heightScale, isDark, visible, mapRef, mapTick]);
+  }, [heightScale, sizeScale, isDark, visible, mapRef, mapTick]);
 
   // ── activeReservoirId：點選水庫後撈近 3 日進/出流量，推給 scene 畫雙柱 ──
   useEffect(() => {

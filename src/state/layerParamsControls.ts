@@ -12,7 +12,8 @@
  */
 
 import {
-  getParamsSpec, resolveParamValues, resolveSelectOptions, visibleParamsSpec,
+  getParamsSpec, MULTI_SELECT_ALL, MULTI_SELECT_NONE, resolveMultiSelectValues, resolveParamValues, resolveSelectOptions,
+  serializeMultiSelectValues, visibleParamsSpec,
   type LayerParamValues,
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
@@ -58,7 +59,17 @@ export interface SelectConfig {
   onChange: (v: string) => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
+export interface MultiSelectConfig {
+  type: "multiSelect";
+  label: string;
+  value: string[];
+  options: { label: string; value: string; disabled?: boolean }[];
+  onChange: (values: readonly string[]) => void;
+  onSelectAll: () => void;
+  onSelectNone: () => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig;
 
 /**
  * ⚠️ slider **不帶 `type` 欄位** —— `SliderConfig.type` 是選填，現行手寫 case
@@ -118,6 +129,21 @@ export function buildParamControls(
           // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
           options: resolveSelectOptions(s, resolved),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
+        };
+      }
+      case "multiSelect": {
+        const current = values[s.name];
+        const rawValue = typeof current === "string" ? current : s.default;
+        return {
+          type: "multiSelect" as const,
+          label: s.label,
+          value: resolveMultiSelectValues(rawValue, s.options),
+          options: s.options,
+          onChange: (next: readonly string[]) => layerParamsStore.setParam(
+            key, s.name, serializeMultiSelectValues(next),
+          ),
+          onSelectAll: () => layerParamsStore.setParam(key, s.name, MULTI_SELECT_ALL),
+          onSelectNone: () => layerParamsStore.setParam(key, s.name, MULTI_SELECT_NONE),
         };
       }
     }

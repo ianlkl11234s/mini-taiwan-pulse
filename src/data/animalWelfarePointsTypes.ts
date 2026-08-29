@@ -4,6 +4,8 @@
  * RPC 的 `point_type` 是穩定契約；顏色、sidebar filter、Mapbox paint 與圖例必須共用
  * 這份表，避免使用者看到的顏色和篩選語意漂移。
  */
+import { allMultiSelectBitmask, multiSelectFilter } from "./multiSelectMapbox";
+
 export const ANIMAL_WELFARE_POINT_TYPES = [
   { value: "veterinary_clinic", label: "動物醫院", color: "#2563eb" },
   { value: "licensed_pet_business", label: "特定寵物業", color: "#9333ea" },
@@ -29,12 +31,11 @@ export const ANIMAL_WELFARE_POINT_COLOR_EXPR: unknown[] = [
   "#64748b",
 ];
 
-/** 0 = all; 1..7 follow the select `encode` order in layerParamsSpec. */
-export function animalWelfarePointTypeFilter(typeIndex = 0): unknown[] {
-  const pointType = ANIMAL_WELFARE_POINT_TYPE_VALUES[typeIndex - 1];
-  return pointType
-    ? ["==", ["get", "point_type"], pointType]
-    : ["has", "point_type"];
+/** point_type 的 bitmask 多選 filter；全關回傳恆假表達式。 */
+export function animalWelfarePointTypeFilter(
+  typeMask = allMultiSelectBitmask(ANIMAL_WELFARE_POINT_TYPE_VALUES),
+): unknown[] {
+  return multiSelectFilter("point_type", typeMask, ANIMAL_WELFARE_POINT_TYPE_VALUES);
 }
 
 export function animalWelfarePointTypeMeta(pointType: unknown) {

@@ -9,6 +9,11 @@ export interface StationPillarData {
 const BASE_HEIGHT = 0.0004; // Mercator 單位中的基礎高度（≈ 14km 視覺高度）
 const RADIUS = 0.000005;    // 柱體半徑
 
+/** 保留深淺主題原始 alpha，再套 layer-level opacity multiplier。 */
+export function stationPillarMaterialOpacity(isDark: boolean, multiplier = 1): number {
+  return (isDark ? 0.35 : 0.45) * Math.max(0, Math.min(1, multiplier));
+}
+
 /**
  * 車站光柱場景 — 每個車站渲染一條垂直發光柱
  * 大站高、小站矮，半透明暖白色
@@ -23,6 +28,7 @@ export class StationPillarScene {
   private mercatorPositions: { x: number; y: number; z: number }[] = [];
   private heightScale = 1;
   private isDark = true;
+  private opacityMultiplier = 1;
   private colorDark: number;
   private colorLight: number;
   private ownsRenderer = false;
@@ -86,7 +92,7 @@ export class StationPillarScene {
     const mat = new THREE.MeshBasicMaterial({
       color: this.isDark ? this.colorDark : this.colorLight,
       transparent: true,
-      opacity: this.isDark ? 0.35 : 0.45,
+      opacity: stationPillarMaterialOpacity(this.isDark, this.opacityMultiplier),
       side: THREE.DoubleSide,
       depthWrite: false,
     });
@@ -127,14 +133,26 @@ export class StationPillarScene {
     }
   }
 
+  /** 圖層透明度倍率；不改變深淺主題的既有材質 alpha。 */
+  setOpacity(opacity: number) {
+    this.opacityMultiplier = Math.max(0, Math.min(1, opacity));
+    this.applyMaterialOpacity();
+  }
+
   setTheme(isDark: boolean) {
     if (isDark === this.isDark) return;
     this.isDark = isDark;
     if (this.instancedMesh) {
       const m = this.instancedMesh.material as THREE.MeshBasicMaterial;
       m.color.setHex(isDark ? this.colorDark : this.colorLight);
-      m.opacity = isDark ? 0.35 : 0.45;
+      this.applyMaterialOpacity();
     }
+  }
+
+  private applyMaterialOpacity() {
+    if (!this.instancedMesh) return;
+    (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity =
+      stationPillarMaterialOpacity(this.isDark, this.opacityMultiplier);
   }
 
   render(matrix: number[]) {
