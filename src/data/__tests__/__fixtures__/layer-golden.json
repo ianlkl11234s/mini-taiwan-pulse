@@ -47412,6 +47412,13 @@
         "label": "Cluster",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "aqiStations": [],
@@ -47690,6 +47697,13 @@
         "min": 0.000001,
         "step": 0.000001,
         "value": 0.000004
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "busLive": [
@@ -47766,6 +47780,13 @@
         "min": 0.000001,
         "step": 0.000001,
         "value": 0.000004
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "busStationsCity": [
@@ -49846,6 +49867,13 @@
         "max": 3,
         "min": 0.3,
         "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
         "value": 1
       }
     ],
@@ -55420,6 +55448,13 @@
         "min": 0,
         "step": 5,
         "value": 70
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "wasteScheduleNote": [],
@@ -55475,6 +55510,13 @@
         "min": 0,
         "step": 5,
         "value": 70
+      },
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
       }
     ],
     "waterBasins": [

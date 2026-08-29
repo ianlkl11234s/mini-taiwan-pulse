@@ -36,6 +36,11 @@ function rNum(all: LayerParamsSnapshot, key: string, name: string): number {
   const v = all[key]?.[name] ?? paramDefault(key, name);
   return typeof v === "number" ? v : Number(v);
 }
+/** 新控件尚未註冊前也維持 renderer 的安全預設，避免 NaN 傳入 WebGL material。 */
+function rFiniteNum(all: LayerParamsSnapshot, key: string, name: string, fallback: number): number {
+  const value = rNum(all, key, name);
+  return Number.isFinite(value) ? value : fallback;
+}
 function rBool(all: LayerParamsSnapshot, key: string, name: string): boolean {
   const v = all[key]?.[name] ?? paramDefault(key, name);
   return typeof v === "boolean" ? v : Boolean(v);
@@ -125,12 +130,13 @@ export const layerParamRefs = {
   shipOrbScale: ref(0), shipTrailOpacity: ref(0),
   railAltOffset: ref(0), railOrbScale: ref(0), railTrackOpacity: ref(0),
   railTrainVisible: ref(false), railTrackMode: ref<string>("3d"),
-  busOrbScale: ref(0), busColorMode: ref<string>("route"), busAltOffset: ref(0),
+  busOrbScale: ref(0), busColorMode: ref<string>("route"), busAltOffset: ref(0), busOpacity: ref(1),
   busIntercityOrbScale: ref(0), busIntercityColorMode: ref<string>("route"),
-  busIntercityAltOffset: ref(0),
+  busIntercityAltOffset: ref(0), busIntercityOpacity: ref(1),
   touristShuttleOrbScale: ref(0), touristShuttleColorMode: ref<string>("route"),
   touristShuttleAltOffset: ref(0), touristShuttleOpacity: ref(0),
   wasteOrbScale: ref(0), wasteNoteSize: ref(0), wasteNoteZOffset: ref(0),
+  wasteTruckOpacity: ref(1), wasteScheduleOpacity: ref(1),
   fireStationsScale: ref(0), fireStationsOpacity: ref(0), fireStations3D: ref(false),
   wasteSubParams: ref<Record<string, WasteSubParams>>({}),
   beamVisible: ref(false), beamDistance: ref(0), beamOpacity: ref(0),
@@ -184,9 +190,11 @@ function sync(): void {
 
   r.busOrbScale.current = rNum(a, "busLive", "busOrbScale");
   r.busAltOffset.current = rNum(a, "busLive", "busAltOffset");
+  r.busOpacity.current = rFiniteNum(a, "busLive", "busOpacity", 1);
   r.busColorMode.current = rOneOf(rStr(a, "busLive", "busColorMode"), BUS_COLOR_MODES, "route");
   r.busIntercityOrbScale.current = rNum(a, "busIntercityLive", "busIntercityOrbScale");
   r.busIntercityAltOffset.current = rNum(a, "busIntercityLive", "busIntercityAltOffset");
+  r.busIntercityOpacity.current = rFiniteNum(a, "busIntercityLive", "busIntercityOpacity", 1);
   r.busIntercityColorMode.current =
     rOneOf(rStr(a, "busIntercityLive", "busIntercityColorMode"), BUS_COLOR_MODES, "route");
   r.touristShuttleOrbScale.current = rNum(a, "touristShuttleLive", "touristShuttleOrbScale");
@@ -208,6 +216,8 @@ function sync(): void {
   r.wasteOrbScale.current = rNum(a, "wasteTruck", "wasteOrbScale");
   r.wasteNoteSize.current = rNum(a, "wasteTruck", "wasteNoteSize");
   r.wasteNoteZOffset.current = rNum(a, "wasteTruck", "wasteNoteZOffset");
+  r.wasteTruckOpacity.current = rFiniteNum(a, "wasteTruck", "wasteTruckOpacity", 1);
+  r.wasteScheduleOpacity.current = rFiniteNum(a, "wasteSchedule", "wasteScheduleOpacity", 1);
 
   r.wasteSubParams.current = buildWasteSubParams(a);
 }

@@ -48,6 +48,8 @@ export class BusScene {
   private isDarkTheme = true;
   private orbScale = 0.000004;
   private altOffset = 0;
+  /** 圖層控制的倍率；保留依主題決定的原始透明度。 */
+  private opacityMultiplier = 1;
 
   private colorCache = new Map<string, THREE.Color>();
   private busPositions = new Map<number, BusVehicle>(); // instanceIndex → bus
@@ -122,7 +124,7 @@ export class BusScene {
     if (this.instancedMesh) {
       const mat = this.instancedMesh.material as THREE.MeshBasicMaterial;
       mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
-      mat.opacity = isDark ? 0.85 : 0.7;
+      this.applyMaterialOpacity();
     }
   }
 
@@ -144,6 +146,22 @@ export class BusScene {
     if (this.instancedMesh) {
       (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity = opacity;
     }
+  }
+
+  /**
+   * 圖層透明度倍率。與 `setOpacity` 的舊有「絕對值覆寫」語意分開，
+   * 讓新的共通 opacity slider 在亮／暗主題都保留原本的 0.7 / 0.85 基準。
+   */
+  setOpacityMultiplier(multiplier: number) {
+    this.opacityMultiplier = Math.max(0, Math.min(1, multiplier));
+    this.applyMaterialOpacity();
+  }
+
+  private applyMaterialOpacity() {
+    if (!this.instancedMesh) return;
+    const baseOpacity = this.isDarkTheme ? 0.85 : 0.7;
+    (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity =
+      baseOpacity * this.opacityMultiplier;
   }
 
   private getColor(hex: string): THREE.Color {

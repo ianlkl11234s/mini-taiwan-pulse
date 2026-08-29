@@ -13,6 +13,8 @@ export interface BusLayerOptions {
   getAltOffset: () => number;
   /** 可選：材質透明度覆寫（未提供則沿用 BusScene 依主題自動決定的 opacity） */
   getOpacity?: () => number;
+  /** 圖層透明度倍率；保留亮／暗主題既有的材質 opacity。 */
+  getOpacityMultiplier?: () => number;
   onSceneReady?: (scene: BusScene) => void;
   maxInstances?: number;
 }
@@ -44,7 +46,10 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
 
       busScene.setOrbScale(opts.getOrbScale());
       busScene.setAltitudeOffset(opts.getAltOffset());
+      // `getOpacity` 是台灣好行既有的絕對值覆寫；新的一般 layer control
+      // 用 multiplier，避免預設畫面從暗 0.85／亮 0.7 被覆蓋成 1。
       if (opts.getOpacity) busScene.setOpacity(opts.getOpacity());
+      else busScene.setOpacityMultiplier(opts.getOpacityMultiplier?.() ?? 1);
       busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
 

@@ -35,7 +35,7 @@ const LAYER_CLUSTER = "aqi-micro-cluster";
 const LAYER_CLUSTER_COUNT = "aqi-micro-cluster-count";
 const LAYER_POINT = "aqi-micro-circle";
 
-function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx: number) {
+function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
       type: "geojson",
@@ -61,6 +61,8 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
           ],
           "circle-stroke-width": 1,
           "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)",
+          "circle-opacity": opacity,
+          "circle-stroke-opacity": opacity,
         },
       } as CircleLayer);
     }
@@ -75,7 +77,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
           "text-size": 11,
           "text-font": ["literal", ["Open Sans Regular", "Arial Unicode MS Regular"]],
         },
-        paint: { "text-color": "#ffffff" },
+        paint: { "text-color": "#ffffff", "text-opacity": opacity },
       } as SymbolLayer);
     }
   }
@@ -94,7 +96,8 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
         "circle-color": microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
         "circle-stroke-width": cluster ? 0.5 : 0.3,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)",
-        "circle-opacity": cluster ? 0.9 : 0.85,
+        "circle-opacity": (cluster ? 0.9 : 0.85) * opacity,
+        "circle-stroke-opacity": opacity,
       },
     } as CircleLayer);
   }
@@ -113,6 +116,7 @@ export function useMicroSensorsLayer(
   isDark: boolean,
   cluster: boolean,
   modeIdx: number,
+  opacity: number,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -122,6 +126,8 @@ export function useMicroSensorsLayer(
   const loadingRef = useRef(false);
   // modeIdx 走 ref 餵 ensureLayers：不進 layer 生命週期 deps，避免切模式重建整層
   const modeIdxRef = useRef(modeIdx);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   // ── Loader：首次開啟時載入 + 每 5 分鐘自動 refetch 最新快照 ──
   useEffect(() => {
@@ -175,7 +181,7 @@ export function useMicroSensorsLayer(
       // 不管是關閉或切 cluster 模式都先移除乾淨再重建（Mapbox cluster 設定不能動態改）
       removeLayers(m);
       if (!visible) return;
-      ensureLayers(m, isDark, cluster, modeIdxRef.current);
+      ensureLayers(m, isDark, cluster, modeIdxRef.current, opacityRef.current);
       if (loadedRef.current && dataRef.current.length > 0) {
         const src = m.getSource(SOURCE_ID) as GeoJSONSource | undefined;
         if (src) {
@@ -213,6 +219,21 @@ export function useMicroSensorsLayer(
       microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
     );
   }, [mapRef, visible, modeIdx, mapTick]);
+
+  // ── 透明度：只更新 paint，不重建 source / cluster ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !visible || !map.isStyleLoaded()) return;
+    if (map.getLayer(LAYER_CLUSTER)) {
+      map.setPaintProperty(LAYER_CLUSTER, "circle-opacity", opacity);
+      map.setPaintProperty(LAYER_CLUSTER, "circle-stroke-opacity", opacity);
+    }
+    if (map.getLayer(LAYER_CLUSTER_COUNT)) map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-opacity", opacity);
+    if (map.getLayer(LAYER_POINT)) {
+      map.setPaintProperty(LAYER_POINT, "circle-opacity", (cluster ? 0.9 : 0.85) * opacity);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", opacity);
+    }
+  }, [mapRef, visible, cluster, opacity, mapTick]);
 
   // ── Unmount 清理 ──
   useEffect(() => {

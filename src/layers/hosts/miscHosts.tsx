@@ -111,6 +111,7 @@ export const FreewayHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.freewayCongestion,
     p.freewayWidth ?? 1,
     deps.isDarkTheme,
+    p.freewayCongestionOpacity ?? 1,
   );
   return null;
 };

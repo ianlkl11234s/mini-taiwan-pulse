@@ -252,6 +252,8 @@ export class WasteScheduleScene {
   private isDarkTheme = true;
   private orbScale = 0.000020;
   private altOffset = 0;
+  /** 圖層透明度倍率，乘進既有明暗主題的材質 opacity。 */
+  private opacityMultiplier = 1;
 
   /** instanceIndex → route + 當下 frame debug info（給 picking 顯示）*/
   private debugByInstance = new Map<number, ScheduleDebugFrame>();
@@ -335,7 +337,7 @@ export class WasteScheduleScene {
     if (!this.instancedMesh) return;
     const mat = this.instancedMesh.material as THREE.MeshBasicMaterial;
     mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
-    mat.opacity = isDark ? 0.85 : 0.7;
+    this.applyMaterialOpacity();
     // 重新填色
     const baseColor = isDark
       ? this._color.clone().multiplyScalar(1.4)
@@ -350,6 +352,18 @@ export class WasteScheduleScene {
 
   setOrbScale(scale: number) { this.orbScale = scale; }
   setAltitudeOffset(offset: number) { this.altOffset = offset; }
+
+  setOpacity(opacity: number) {
+    this.opacityMultiplier = Math.max(0, Math.min(1, opacity));
+    this.applyMaterialOpacity();
+  }
+
+  private applyMaterialOpacity() {
+    if (!this.instancedMesh) return;
+    const baseOpacity = this.isDarkTheme ? 0.85 : 0.7;
+    (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity =
+      baseOpacity * this.opacityMultiplier;
+  }
 
   /**
    * 每幀呼叫：對每條 route 用「當日 wall-clock 秒」插值。

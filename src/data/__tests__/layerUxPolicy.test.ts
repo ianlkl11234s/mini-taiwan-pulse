@@ -4,8 +4,7 @@ import { LAYER_PARAMS_SPEC, type LayerParamSpec } from "../layerParamsSpec";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
 const OPACITY_BACKLOG = [
-  "aqiMicroSensors", "busLive", "busIntercityLive", "freewayCongestion", "newsEvents",
-  "ports", "stationsMetro", "stationsTHSR", "stationsTRA", "wasteSchedule", "wasteTruck",
+  "newsEvents", "ports", "stationsMetro", "stationsTHSR", "stationsTRA",
 ].sort();
 
 const CONFIRMED_POINT_SIZE_BACKLOG = [

@@ -6038,7 +6038,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "aqiMicroSensors",
     popup: "microSensor",
-    params: { count: 2, kinds: ["select", "toggle"] },
+    params: { count: 3, kinds: ["select", "toggle", "slider"] },
     description: "LASS 民間微型感測器即時 PM2.5 / 溫度 / 濕度（約 500 點，可聚合）",
     topics: ["環境", "空品", "公民科學"],
   },
@@ -7007,7 +7007,7 @@ export const LAYER_MANIFEST = {
     // 走 FeatureInfoPanel 而非隨車 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
     // 且同樣「會移動的 Three.js 物件開 panel」的前例是 ship（pickShip → setFeatureInfo）。
     popup: "wasteTruck",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
     description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
     topics: ["廢棄物", "清運", "即時"],
   },
@@ -7033,10 +7033,10 @@ export const LAYER_MANIFEST = {
     legend: null,
     popup: null,
     params: {
-      count: 11,
+      count: 12,
       kinds: [
         "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle",
-        "slider", "slider", "slider",
+        "slider", "slider", "slider", "slider",
       ],
     },
     description: "全台 22 縣市垃圾車表定路線（依星期幾推算，與 GPS 實跡並行）",
@@ -8623,10 +8623,10 @@ export const LAYER_MANIFEST = {
     legend: null,
     // BusScene.pickBus 命中 → setBusTooltipInfo（獨立 bus tooltip 狀態），非 setFeatureInfo
     popup: null,
-    // 區域多選 ＋ 配色 select ＋ 2 slider；預設只載雙北以維持既有 payload／cache 行為。
+    // 區域多選 ＋ 配色 select ＋ 3 slider；預設只載雙北以維持既有 payload／cache 行為。
     params: {
-      count: 4,
-      kinds: ["multiSelect", "select", "slider", "slider"],
+      count: 5,
+      kinds: ["multiSelect", "select", "slider", "slider", "slider"],
     },
     description: "市區公車即時／回放位置（八大區域可多選，依路線 progress 插值）",
     topics: ["交通", "公車", "即時"],
@@ -8651,7 +8651,7 @@ export const LAYER_MANIFEST = {
     legend: null,
     // ⚠️ 唯一**連 picking 都沒有**的即時運具：useMapInteraction 完全沒有它的分支。
     popup: null,
-    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    params: { count: 4, kinds: ["select", "slider", "slider", "slider"] },
     description: "公路客運即時／回放位置（全國單一資料源）",
     topics: ["交通", "公車", "即時"],
   },
@@ -8923,7 +8923,7 @@ export const LAYER_MANIFEST = {
     // 兩者都不適合當靶。properties 早已烤好 section_name / road_name /
     // direction_label / speed（freewayLoader.buildFreewayGeoJSON）。
     popup: "freewayCongestion",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],
   },

@@ -1076,6 +1076,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   freewayCongestion: [
     { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("freewayCongestionOpacity", 1),
   ],
   roadCongestion: [
     { kind: "slider", name: "roadCongestionWidth", labelPrefix: "寬度", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
@@ -2569,6 +2570,7 @@ export const LAYER_PARAMS_SPEC = {
       out: "aqiMicroModeIdx", encodeNumeric: true,
     },
     { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
+    opacitySlider("aqiMicroOpacity", 1),
   ],
 
   // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──
@@ -2668,6 +2670,7 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "busOrbScale", labelPrefix: "Bus Orb", digits: 0, displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+    opacitySlider("busOpacity", 1),
   ],
   busIntercityLive: [
     busColorSelect("busIntercityColorMode"),
@@ -2680,6 +2683,7 @@ export const LAYER_PARAMS_SPEC = {
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+    opacitySlider("busIntercityOpacity", 1),
   ],
   touristShuttleLive: [
     busColorSelect("touristShuttleColorMode"),
@@ -2902,13 +2906,14 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
-  wasteTruck: [...wasteOrbSliders()],
+  wasteTruck: [...wasteOrbSliders(), opacitySlider("wasteTruckOpacity", 1)],
   wasteSchedule: [
     ...busGroupToggles("wasteScheduleGroup", {
       TaipeiMetro: true, KeelungYilan: true, TaoyuanHsinchuMiaoli: true, CentralTaiwan: true,
       YunChiaNan: true, Kaoping: true, HualienTaitung: true, OffshoreIslands: true,
     }),
     ...wasteOrbSliders(),
+    opacitySlider("wasteScheduleOpacity", 1),
   ],
   // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
   // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，

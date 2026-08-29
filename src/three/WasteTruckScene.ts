@@ -230,6 +230,8 @@ export class WasteTruckScene {
   private isDarkTheme = true;
   private orbScale = 0.000020;
   private altOffset = 0;
+  /** 圖層透明度倍率，乘進既有明暗主題的材質 opacity。 */
+  private opacityMultiplier = 1;
 
   private colorCache = new Map<string, THREE.Color>();
   /** instanceIndex → trail row (給 picking 用) */
@@ -302,12 +304,24 @@ export class WasteTruckScene {
     if (this.instancedMesh) {
       const mat = this.instancedMesh.material as THREE.MeshBasicMaterial;
       mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
-      mat.opacity = isDark ? 0.85 : 0.7;
+      this.applyMaterialOpacity();
     }
   }
 
   setOrbScale(scale: number) { this.orbScale = scale; }
   setAltitudeOffset(offset: number) { this.altOffset = offset; }
+
+  setOpacity(opacity: number) {
+    this.opacityMultiplier = Math.max(0, Math.min(1, opacity));
+    this.applyMaterialOpacity();
+  }
+
+  private applyMaterialOpacity() {
+    if (!this.instancedMesh) return;
+    const baseOpacity = this.isDarkTheme ? 0.85 : 0.7;
+    (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity =
+      baseOpacity * this.opacityMultiplier;
+  }
 
   private getColor(hex: string): THREE.Color {
     let c = this.colorCache.get(hex);

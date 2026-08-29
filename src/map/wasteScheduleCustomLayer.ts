@@ -21,6 +21,8 @@ export interface WasteScheduleLayerOptions {
   getOrbScale: () => number;
   getIsVisible: () => boolean;
   getAltOffset: () => number;
+  /** 整層透明度倍率（光球與音符同步）。 */
+  getOpacity?: () => number;
   /** 音符獨立 toggle（off 時車仍顯示但不噴音符） */
   getMusicNoteEnabled?: () => boolean;
   /** 音符大小倍率（base 38px） */
@@ -60,12 +62,15 @@ export function createWasteScheduleLayer(opts: WasteScheduleLayerOptions): Custo
 
       scene.setOrbScale(opts.getOrbScale());
       scene.setAltitudeOffset(opts.getAltOffset());
+      const opacity = opts.getOpacity?.() ?? 1;
+      scene.setOpacity(opacity);
       scene.update(opts.getRoutes(), opts.getCurrentTime());
       scene.render(matrix);
 
       // 音符（獨立 toggle）
       const noteEnabled = opts.getMusicNoteEnabled?.() ?? true;
       if (noteEnabled) {
+        noteScene.setOpacity(opacity);
         noteScene.setSizeMultiplier(opts.getMusicNoteSize?.() ?? 1);
         noteScene.setBaseHeightMeters(opts.getMusicNoteZOffset?.() ?? 70);
         const nowMs = Date.now();

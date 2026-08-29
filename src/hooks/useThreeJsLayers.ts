@@ -164,6 +164,7 @@ export function useThreeJsLayers({
       getIsVisible: () => layerVisibilityRef.current.busLive,
       getColorMode: () => paramRefs.busColorMode.current as import("../types").BusColorMode,
       getAltOffset: () => paramRefs.busAltOffset.current,
+      getOpacityMultiplier: () => paramRefs.busOpacity.current,
       onSceneReady: (scene) => { busSceneRef.current = scene; },
     });
     map.addLayer(layer);
@@ -179,6 +180,7 @@ export function useThreeJsLayers({
       getIsVisible: () => layerVisibilityRef.current.busIntercityLive,
       getColorMode: () => paramRefs.busIntercityColorMode.current as import("../types").BusColorMode,
       getAltOffset: () => paramRefs.busIntercityAltOffset.current,
+      getOpacityMultiplier: () => paramRefs.busIntercityOpacity.current,
       onSceneReady: (scene) => { busIntercitySceneRef.current = scene; },
     });
     map.addLayer(layer);
@@ -211,6 +213,7 @@ export function useThreeJsLayers({
       getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
       getIsVisible: () => layerVisibilityRef.current.wasteTruck,
       getAltOffset: () => 0,
+      getOpacity: () => paramRefs.wasteTruckOpacity.current,
       getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck,
       getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
       getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
@@ -233,6 +236,7 @@ export function useThreeJsLayers({
       getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
       getIsVisible: () => layerVisibilityRef.current.wasteSchedule,
       getAltOffset: () => 0,
+      getOpacity: () => paramRefs.wasteScheduleOpacity.current,
       // 音符獨立 toggle（跟主 schedule toggle 分離），共用 GPS 的音符 size / zOffset
       getMusicNoteEnabled: () => layerVisibilityRef.current.wasteScheduleNote,
       getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
