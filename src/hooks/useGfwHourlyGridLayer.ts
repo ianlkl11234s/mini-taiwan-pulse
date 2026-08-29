@@ -494,8 +494,16 @@ export function useGfwHourlyGridLayer(
       setGfwHourlyGridDominantHour(dominantHourRef.current);
     }
 
-    const isSourceLoaded = (sourceId: string): boolean =>
-      (map as unknown as { isSourceLoaded?: (id: string) => boolean }).isSourceLoaded?.(sourceId) !== false;
+    // Guard with getSource(): Mapbox fires an ErrorEvent for unknown source ids, and an
+    // unmounted slot must read as NOT loaded (out-of-window ticks probe every slot).
+    const isSourceLoaded = (sourceId: string): boolean => {
+      const m = map as unknown as {
+        getSource?: (id: string) => unknown;
+        isSourceLoaded?: (id: string) => boolean;
+      };
+      if (!m.getSource?.(sourceId)) return false;
+      return m.isSourceLoaded?.(sourceId) !== false;
+    };
 
     const pmtilesSlotStates = (): GfwHourlyGridSlotReadiness[] => V4_PMTILES_SLOTS.map(({ sourceId }) => ({
       sourceId,
