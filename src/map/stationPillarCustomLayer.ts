@@ -8,6 +8,8 @@ export interface StationPillarGroupOptions {
   getPositions: () => StationPillarData[];
   getPillarVisible: () => boolean;
   getPillarHeight: () => number;
+  /** 同一個 layer 的 Mapbox 與 Three.js 光柱共用的透明度倍率。未提供時維持 1。 */
+  getOpacity?: () => number;
   getIsVisible: () => boolean;
 }
 
@@ -67,6 +69,7 @@ export function createCombinedStationPillarLayer(
 
         entry.scene.setPillarVisible(entry.group.getPillarVisible());
         entry.scene.setPillarHeight(entry.group.getPillarHeight());
+        entry.scene.setOpacity(entry.group.getOpacity?.() ?? 1);
         entry.scene.setTheme(opts.getIsDarkTheme());
 
         if (entry.group.getIsVisible()) {

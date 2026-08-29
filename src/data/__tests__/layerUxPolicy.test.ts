@@ -3,9 +3,7 @@ import { LAYER_MANIFEST, MANIFEST_KEYS } from "../layerManifest";
 import { LAYER_PARAMS_SPEC, type LayerParamSpec } from "../layerParamsSpec";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
-const OPACITY_BACKLOG = [
-  "newsEvents", "ports", "stationsMetro", "stationsTHSR", "stationsTRA",
-].sort();
+const OPACITY_BACKLOG: string[] = [];
 
 const CONFIRMED_POINT_SIZE_BACKLOG = [
   "fireLatest",
@@ -46,6 +44,28 @@ describe("Layer UX policy baseline", () => {
       .sort();
 
     expect(missing).toEqual(OPACITY_BACKLOG);
+  });
+
+  it("最後五個 layer 的 Mapbox 子層都登記同一個 opacity multiplier", () => {
+    const expected = {
+      newsEvents: "newsEventsOpacity",
+      ports: "portOpacity",
+      stationsMetro: "metroOpacity",
+      stationsTHSR: "thsrOpacity",
+      stationsTRA: "traOpacity",
+    } as const;
+
+    for (const [id, opacityParam] of Object.entries(expected)) {
+      const configs = OVERLAY_REGISTRY.filter((overlay) => overlay.id === id);
+      expect(configs, `${id} 必須有 OverlayConfig`).not.toHaveLength(0);
+      expect(configs.every((overlay) => overlay.opacityParam === opacityParam),
+        `${id} 的每個 Mapbox config 都必須乘同一個 opacity`,
+      ).toBe(true);
+    }
+
+    const news = OVERLAY_REGISTRY.find((overlay) => overlay.id === "newsEvents")!;
+    const countPaint = news.layers.find((layer) => layer.suffix === "count")!.paint(true, {});
+    expect(countPaint["text-opacity"]).toBe(1);
   });
 
   it("params: null 的 opacity 缺口維持顯式基線", () => {

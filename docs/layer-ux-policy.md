@@ -36,10 +36,9 @@
 
 ## 目前基線（2026-08-29）
 
-- 初始 21 個 opacity 缺口中，已完成 16 個 layer（自行車、公路、省道、自行車道、
-  氣象站、超商、水庫、兩類公車站、垃圾清運點、LASS 微型感測器、國道壅塞、
-  市區／公路客運、即時／表定垃圾車）的實際控制；尚有 5 個 layer
-  必須逐一接入各自渲染器，不能只加控件。
+- 初始 21 個 opacity 缺口已全數補齊：Mapbox layer 統一以 `opacityParam` 乘上
+  原本 paint alpha；自訂 renderer（即時運具、垃圾車、車站／港口光柱）也各自保留
+  主題基準並乘上相同倍率。預設值均為 1，不改變原始畫面。
 - 另有 12 個 `params: null` 的既有豁免；後續逐筆改為 internal-only、補控件，或移除。
 - Overlay registry 已可機械辨識 Mapbox `circle`／`symbol` 點層；23 個缺少大小控件，
   另有 `fireLatest` 等 custom scene 點位也已列入明確基線。尚未被 registry 描述的

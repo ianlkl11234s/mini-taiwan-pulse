@@ -357,7 +357,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "newsEvents",
     popup: "newsEvent",
-    params: { count: 6, kinds: ["select", "select", "toggle", "toggle", "toggle", "slider"] },
+    params: { count: 7, kinds: ["slider", "select", "select", "toggle", "toggle", "toggle", "slider"] },
     description: "新聞事件地理標定（分類著色 + 嚴重度篩選 + 時間漣漪）",
     topics: ["情勢", "新聞", "事件"],
   },
@@ -8257,7 +8257,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "port-polygons", url: "./geo/port_polygons.geojson" },
     legend: null,
     popup: "port",
-    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "商港／工業港範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
     topics: ["交通", "港口", "樞紐"],
   },
@@ -8423,7 +8423,7 @@ export const LAYER_MANIFEST = {
     // `station-points-metro-pt-*`）是不同 layer id，故另立第三筆條目收站體面。
     // station_points.geojson 零筆 thsr，站體面是高鐵唯一的可點載體。
     popup: "railStation",
-    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
     topics: ["交通", "軌道", "場站"],
   },
@@ -8450,7 +8450,7 @@ export const LAYER_MANIFEST = {
     ],
     legend: null,
     popup: "railStation",
-    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "台鐵站：大站畫站體面、小站畫點（同一個 toggle 兩份資料）",
     topics: ["交通", "軌道", "場站"],
   },
@@ -8472,7 +8472,7 @@ export const LAYER_MANIFEST = {
     // 與 stationsTRA **共用同一個 layerType**（各自的 GIS_LAYERS 條目 → 同一個 railStation
     // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
     popup: "railStation",
-    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "捷運站點（三層 glow ＋ 命中範圍圈，可切 3D 光柱）",
     topics: ["交通", "軌道", "場站"],
   },

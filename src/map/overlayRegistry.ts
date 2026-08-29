@@ -650,6 +650,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
     id: "stationsTHSR",
+    opacityParam: "thsrOpacity",
     sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "thsr"],
@@ -697,6 +698,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Polygon (台鐵大站) ──
   {
     id: "stationsTRA",
+    opacityParam: "traOpacity",
     sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "tra"],
@@ -744,6 +746,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Points (台鐵小站) ──
   {
     id: "stationsTRA",
+    opacityParam: "traOpacity",
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["==", ["get", "system_id"], "tra"],
@@ -799,6 +802,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Metro Station Points (捷運/輕軌站) ──
   {
     id: "stationsMetro",
+    opacityParam: "metroOpacity",
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
@@ -872,6 +876,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Ports ──
   {
     id: "ports",
+    opacityParam: "portOpacity",
     sourceUrl: "./geo/port_polygons.geojson",
     sourceId: "port-polygons",
     rebuildOnParamChange: ["glow-2", "glow-1"],
@@ -2812,6 +2817,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // sourceUrl 僅作為 newsEventsLoader 的靜態 fallback（Supabase 未設定時）
   {
     id: "newsEvents",
+    opacityParam: "newsEventsOpacity",
     sourceUrl: "./geo/news_events.geojson",
     sourceId: "news-events",
     dynamicData: true,
@@ -2922,6 +2928,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "text-color": isDark ? "#fff" : "#1a1a1a",
           "text-halo-color": isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
           "text-halo-width": 1.2,
+          // 讓整層 opacity multiplier 同時涵蓋事件數字與底下的 halo。
+          "text-opacity": 1,
         }),
       },
     ],

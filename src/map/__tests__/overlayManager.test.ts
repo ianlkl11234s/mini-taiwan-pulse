@@ -78,6 +78,19 @@ describe("applyLayerOpacity", () => {
       "circle-radius": 4,
     });
   });
+
+  it("covers all opacity paint keys, including symbol text", () => {
+    const config = { id: "newsEvents", opacityParam: "newsEventsOpacity" } as OverlayConfig;
+    expect(applyLayerOpacity(config, {
+      "circle-opacity": 0.8,
+      "text-opacity": 1,
+      "text-color": "#fff",
+    }, { newsEventsOpacity: 0.25 })).toEqual({
+      "circle-opacity": 0.2,
+      "text-opacity": 0.25,
+      "text-color": "#fff",
+    });
+  });
 });
 
 describe("paintSnapshotEquals", () => {

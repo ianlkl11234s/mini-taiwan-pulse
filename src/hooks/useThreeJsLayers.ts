@@ -312,6 +312,7 @@ export function useThreeJsLayers({
           getPositions: () => thsrPillarDataRef.current,
           getPillarVisible: () => paramRefs.thsrPillarVisible.current,
           getPillarHeight: () => paramRefs.thsrPillarHeight.current,
+          getOpacity: () => paramRefs.thsrOpacity.current,
           getIsVisible: () => layerVisibilityRef.current.stationsTHSR,
         },
         tra: {
@@ -319,6 +320,7 @@ export function useThreeJsLayers({
           getPositions: () => traPillarDataRef.current,
           getPillarVisible: () => paramRefs.traPillarVisible.current,
           getPillarHeight: () => paramRefs.traPillarHeight.current,
+          getOpacity: () => paramRefs.traOpacity.current,
           getIsVisible: () => layerVisibilityRef.current.stationsTRA,
         },
         metro: {
@@ -326,6 +328,7 @@ export function useThreeJsLayers({
           getPositions: () => metroPillarDataRef.current,
           getPillarVisible: () => paramRefs.metroPillarVisible.current,
           getPillarHeight: () => paramRefs.metroPillarHeight.current,
+          getOpacity: () => paramRefs.metroOpacity.current,
           getIsVisible: () => layerVisibilityRef.current.stationsMetro,
         },
         airport: {
@@ -340,6 +343,7 @@ export function useThreeJsLayers({
           getPositions: () => portPillarDataRef.current,
           getPillarVisible: () => paramRefs.portPillarVisible.current,
           getPillarHeight: () => paramRefs.portPillarHeight.current,
+          getOpacity: () => paramRefs.portOpacity.current,
           getIsVisible: () => layerVisibilityRef.current.ports,
         },
       },

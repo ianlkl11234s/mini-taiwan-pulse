@@ -10664,12 +10664,14 @@
             "dark": {
               "text-color": "#fff",
               "text-halo-color": "rgba(0,0,0,0.7)",
-              "text-halo-width": 1.2
+              "text-halo-width": 1.2,
+              "text-opacity": 1
             },
             "light": {
               "text-color": "#1a1a1a",
               "text-halo-color": "rgba(255,255,255,0.9)",
-              "text-halo-width": 1.2
+              "text-halo-width": 1.2,
+              "text-opacity": 1
             }
           },
           "suffix": "count",
@@ -51505,6 +51507,13 @@
     ],
     "newsEvents": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "相關度",
         "options": [
           {
@@ -52875,6 +52884,13 @@
       }
     ],
     "ports": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
       {
         "label": "Glow 1.0",
         "max": 3,
@@ -54311,6 +54327,13 @@
     ],
     "stationsMetro": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -54332,6 +54355,13 @@
     ],
     "stationsTHSR": [
       {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -54352,6 +54382,13 @@
       }
     ],
     "stationsTRA": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
       {
         "label": "Stn 1.0",
         "max": 3,

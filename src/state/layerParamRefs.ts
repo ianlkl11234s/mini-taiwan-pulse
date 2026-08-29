@@ -140,11 +140,11 @@ export const layerParamRefs = {
   fireStationsScale: ref(0), fireStationsOpacity: ref(0), fireStations3D: ref(false),
   wasteSubParams: ref<Record<string, WasteSubParams>>({}),
   beamVisible: ref(false), beamDistance: ref(0), beamOpacity: ref(0),
-  thsrPillarVisible: ref(false), thsrPillarHeight: ref(0),
-  traPillarVisible: ref(false), traPillarHeight: ref(0),
-  metroPillarVisible: ref(false), metroPillarHeight: ref(0),
+  thsrPillarVisible: ref(false), thsrPillarHeight: ref(0), thsrOpacity: ref(1),
+  traPillarVisible: ref(false), traPillarHeight: ref(0), traOpacity: ref(1),
+  metroPillarVisible: ref(false), metroPillarHeight: ref(0), metroOpacity: ref(1),
   airportPillarVisible: ref(false), airportPillarHeight: ref(0),
-  portPillarVisible: ref(false), portPillarHeight: ref(0),
+  portPillarVisible: ref(false), portPillarHeight: ref(0), portOpacity: ref(1),
   tempHeight: ref(0), tempZOffset: ref(0), tempExtruded: ref(false),
   tempOpacity: ref(0), tempWireframe: ref(false),
 };
@@ -179,12 +179,16 @@ function sync(): void {
 
   r.thsrPillarVisible.current = rBool(a, "stationsTHSR", "thsrPillarVisible");
   r.thsrPillarHeight.current = rNum(a, "stationsTHSR", "thsrPillarHeight");
+  r.thsrOpacity.current = rFiniteNum(a, "stationsTHSR", "thsrOpacity", 1);
   r.traPillarVisible.current = rBool(a, "stationsTRA", "traPillarVisible");
   r.traPillarHeight.current = rNum(a, "stationsTRA", "traPillarHeight");
+  r.traOpacity.current = rFiniteNum(a, "stationsTRA", "traOpacity", 1);
   r.metroPillarVisible.current = rBool(a, "stationsMetro", "metroPillarVisible");
   r.metroPillarHeight.current = rNum(a, "stationsMetro", "metroPillarHeight");
+  r.metroOpacity.current = rFiniteNum(a, "stationsMetro", "metroOpacity", 1);
   r.portPillarVisible.current = rBool(a, "ports", "portPillarVisible");
   r.portPillarHeight.current = rNum(a, "ports", "portPillarHeight");
+  r.portOpacity.current = rFiniteNum(a, "ports", "portOpacity", 1);
   r.airportPillarVisible.current = rBool(a, "airports", "airportPillarVisible");
   r.airportPillarHeight.current = rNum(a, "airports", "airportPillarHeight");
 

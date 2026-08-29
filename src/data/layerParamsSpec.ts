@@ -2720,16 +2720,19 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
   stationsTHSR: [
+    opacitySlider("thsrOpacity", 1),
     stationScaleSlider(),
     { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
+    opacitySlider("traOpacity", 1),
     stationScaleSlider(),
     { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
+    opacitySlider("metroOpacity", 1),
     stationScaleSlider(),
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
@@ -2740,6 +2743,7 @@ export const LAYER_PARAMS_SPEC = {
     pillarHeightSlider("metroPillarHeight", 0.2),
   ],
   ports: [
+    opacitySlider("portOpacity", 1),
     { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
     { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
@@ -2783,6 +2787,7 @@ export const LAYER_PARAMS_SPEC = {
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
   newsEvents: [
+    opacitySlider("newsEventsOpacity", 1),
     {
       kind: "select", name: "newsMinRelevance", label: "相關度", default: "3",
       options: [
