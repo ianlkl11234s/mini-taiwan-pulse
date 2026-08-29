@@ -1,4 +1,4 @@
-import { Fragment, memo, useEffect, useState, createContext, useContext } from "react";
+import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
@@ -17,6 +17,8 @@ import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
+import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../hooks/useGfwHourlyGridLayer";
+import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
@@ -3966,6 +3968,7 @@ function GfwVesselPresenceLegend() {
 
 function GfwHourlyGridLegend() {
   const t = useLegendTheme();
+  const dataWindow = useSyncExternalStore(subscribeGfwHourlyGridDataWindow, getGfwHourlyGridDataWindowSnapshot, () => null);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -3985,12 +3988,23 @@ function GfwHourlyGridLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         依全域時間軸切換 UTC 整點
       </div>
+      {dataWindow && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+          資料窗 {dataWindow.utcDateLabel}（UTC）
+        </div>
+      )}
+      {dataWindow?.status === "out-of-window" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 目前時間在資料窗外，圖層已淡出
+        </div>
+      )}
     </div>
   );
 }
 
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
+  const dataWindow = useGfwV4TrackDataWindow();
   const palette = isDark
     ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
     : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
@@ -4014,6 +4028,21 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
         來源為正式 schema-4 day pack；Tanker 不屬於本圖層 taxonomy，GEAR/FAD 是獨立非船舶觀測。
       </div>
+      {dataWindow.status !== "unknown" && dataWindow.startUtcDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+          資料窗 {dataWindow.startUtcDate === dataWindow.endUtcDate ? dataWindow.startUtcDate : `${dataWindow.startUtcDate} ~ ${dataWindow.endUtcDate}`}（UTC）
+        </div>
+      )}
+      {dataWindow.status === "out-of-window" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 目前 {dataWindow.requestedUtcDate ?? "所選日期"} 在資料窗外，圖層刻意空白
+        </div>
+      )}
+      {dataWindow.status === "hour-unavailable" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 該小時缺選取船種的資料
+        </div>
+      )}
     </div>
   );
 }
