@@ -30,6 +30,13 @@ export interface GfwV4SpatialPointFrame {
 
 export interface GfwV4RenderedSpatialFrame { pointCount: number; }
 
+/**
+ * 預算超標不能丟例外 —— 這條路徑跑在 Mapbox 的 paint pass 裡，丟出去會中斷整張圖。
+ * 改成 clamp 到預算上限，每個 session 只警告一次。
+ */
+let warnedHeadBudget = false;
+let warnedSegmentBudget = false;
+
 const DARK_COLORS = {
   cargo: new THREE.Color("#39bff4"), carrier: new THREE.Color("#ff8f43"),
   passenger: new THREE.Color("#b3a0ff"), fishing: new THREE.Color("#58d68d"),
@@ -176,11 +183,15 @@ export class GfwV4TrackScene {
    */
   updateSpatialPoints(frame: GfwV4SpatialPointFrame, zoom: number): GfwV4RenderedSpatialFrame {
     if (frame.points.length !== frame.buckets.length * 2 || (frame.memberCounts && frame.memberCounts.length !== frame.buckets.length)) throw new Error("GFW v4 spatial point buffer shape mismatch");
-    if (frame.buckets.length > this.budget.maxHeads) throw new Error(`GFW v4 GPU budget exceeded: heads=${frame.buckets.length}/${this.budget.maxHeads}`);
+    const headCount = Math.min(frame.buckets.length, this.budget.maxHeads);
+    if (frame.buckets.length > this.budget.maxHeads && !warnedHeadBudget) {
+      warnedHeadBudget = true;
+      console.warn(`GFW v4 GPU budget clamped: heads=${frame.buckets.length}/${this.budget.maxHeads}`);
+    }
     const palette = this.isDark ? DARK_COLORS : LIGHT_COLORS;
     const colors = [palette.fishing, palette.cargo, palette.passenger, palette.carrier, palette.other, palette.unknown] as const;
     const headScale = 2.8 / (512 * 2 ** zoom);
-    for (let index = 0; index < frame.buckets.length; index++) {
+    for (let index = 0; index < headCount; index++) {
       const position = MercatorCoordinate.fromLngLat([frame.points[index * 2]!, frame.points[index * 2 + 1]!], 0);
       const members = frame.memberCounts?.[index] ?? 1;
       const scale = headScale * (1 + Math.min(3, Math.sqrt(members) - 1) * 0.35);
@@ -189,12 +200,16 @@ export class GfwV4TrackScene {
       this.heads.setMatrixAt(index, this.matrix);
       this.heads.setColorAt(index, colors[frame.buckets[index]!] ?? palette.mixed);
     }
-    this.heads.count = frame.buckets.length;
+    this.heads.count = headCount;
     this.heads.instanceMatrix.needsUpdate = true;
     if (this.heads.instanceColor) this.heads.instanceColor.needsUpdate = true;
-    const segmentCount = frame.segmentBuckets?.length ?? 0;
-    if (segmentCount > this.budget.maxTrailVertices) throw new Error(`GFW v4 GPU budget exceeded: segments=${segmentCount}/${this.budget.maxTrailVertices}`);
-    if (frame.segments && frame.segmentBuckets && frame.segments.length === segmentCount * 4) {
+    const requestedSegments = frame.segmentBuckets?.length ?? 0;
+    const segmentCount = Math.min(requestedSegments, this.budget.maxTrailVertices);
+    if (requestedSegments > this.budget.maxTrailVertices && !warnedSegmentBudget) {
+      warnedSegmentBudget = true;
+      console.warn(`GFW v4 GPU budget clamped: segments=${requestedSegments}/${this.budget.maxTrailVertices}`);
+    }
+    if (frame.segments && frame.segmentBuckets && frame.segments.length === requestedSegments * 4) {
       for (let index = 0; index < segmentCount; index += 1) {
         const color = colors[frame.segmentBuckets[index]!] ?? palette.mixed;
         for (let endpoint = 0; endpoint < 2; endpoint += 1) {
@@ -207,7 +222,7 @@ export class GfwV4TrackScene {
       (this.trailGeometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
       (this.trailGeometry.getAttribute("color") as THREE.BufferAttribute).needsUpdate = true;
     } else this.trailGeometry.setDrawRange(0, 0);
-    return { pointCount: frame.buckets.length };
+    return { pointCount: headCount };
   }
 
   render(matrix: number[]): void {

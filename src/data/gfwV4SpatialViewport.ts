@@ -16,6 +16,30 @@ export function fixedShardViewportTiles(viewport: GfwV4Viewport, shardZoom: numb
   return tiles;
 }
 
+/**
+ * 播放中每一格動畫都算一次「新視窗」是重建 Worker 的主因之一。量化到 0.1° 讓
+ * 微幅 pan/zoom 收斂成同一個 key，且**一律向外取整** —— 量化只能放大視窗，
+ * 絕不能把邊緣的 shard 吃掉。
+ */
+export function quantizeGfwV4Viewport(viewport: GfwV4Viewport, quantum = 10): GfwV4Viewport {
+  if (!Number.isFinite(quantum) || quantum <= 0) throw new Error("invalid GFW v4 viewport quantum");
+  return {
+    west: Math.floor(viewport.west * quantum) / quantum,
+    south: Math.floor(viewport.south * quantum) / quantum,
+    east: Math.ceil(viewport.east * quantum) / quantum,
+    north: Math.ceil(viewport.north * quantum) / quantum,
+    zoom: viewport.zoom,
+  };
+}
+
+/**
+ * 真正決定「要抓哪些 PMTiles tile」的是 shard 集合，不是 bounds 的小數位。
+ * 只要 pan/zoom 沒跨出這批 tile，簽章不變 → 播放中完全不必重選 shard。
+ */
+export function gfwV4ShardSignature(tiles: readonly GfwV4ShardTile[]): string {
+  return tiles.map((tile) => `${tile.z}/${tile.x}/${tile.y}`).join(",");
+}
+
 /** Never expands to a whole day: enabled buckets × H-1/H/H+1 for preload. */
 export function selectGfwV4CurrentNextSpatialFrames(release: GfwV4SpatialTracksRelease, enabled: readonly GfwV4TrackBucket[], epochSeconds: number, viewport: GfwV4Viewport, trailingHours = 0.5): GfwV4SpatialRequest | null {
   if (!Number.isFinite(epochSeconds) || viewport.zoom < 0 || viewport.west >= viewport.east || viewport.south >= viewport.north) return null;

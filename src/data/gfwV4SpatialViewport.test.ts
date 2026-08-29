@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fixedShardViewportTiles, selectGfwV4CurrentNextSpatialFrames, spatialFrameNeedsPmtilesWorker } from "./gfwV4SpatialViewport";
+import { fixedShardViewportTiles, gfwV4ShardSignature, quantizeGfwV4Viewport, selectGfwV4CurrentNextSpatialFrames, spatialFrameNeedsPmtilesWorker } from "./gfwV4SpatialViewport";
 import type { GfwV4SpatialTracksRelease } from "./gfwV4SpatialTracksLoader";
 
 const release = (): GfwV4SpatialTracksRelease => ({
@@ -20,4 +20,30 @@ describe("GFW v4 Phase-2 viewport request", () => {
     expect(request?.assets).toHaveLength(6);
   });
   it("uses the declared fixed shard zoom rather than the map zoom", () => { const tiles = fixedShardViewportTiles({ west: 120, south: 20, east: 125, north: 28, zoom: 3 }, 7); expect(tiles.every((tile) => tile.z === 7)).toBe(true); expect(tiles.length).toBeGreaterThan(0); expect(() => fixedShardViewportTiles({ west: 1, south: 1, east: 1, north: 2, zoom: 3 }, 7)).toThrow("invalid"); });
+});
+
+describe("GFW v4 shard key debounce inputs", () => {
+  it("quantizes outward only, so the coarse viewport can never lose an edge shard", () => {
+    const raw = { west: 120.4137, south: 20.9612, east: 125.0031, north: 28.0409, zoom: 5.7 };
+    const coarse = quantizeGfwV4Viewport(raw);
+    expect(coarse).toEqual({ west: 120.4, south: 20.9, east: 125.1, north: 28.1, zoom: 5.7 });
+    expect(coarse.west).toBeLessThanOrEqual(raw.west);
+    expect(coarse.south).toBeLessThanOrEqual(raw.south);
+    expect(coarse.east).toBeGreaterThanOrEqual(raw.east);
+    expect(coarse.north).toBeGreaterThanOrEqual(raw.north);
+    // Negative coordinates must also expand, not round toward zero.
+    expect(quantizeGfwV4Viewport({ west: -120.4137, south: -20.9612, east: -119.0031, north: -18.0409, zoom: 3 }))
+      .toEqual({ west: -120.5, south: -21, east: -119, north: -18, zoom: 3 });
+  });
+
+  it("keeps the shard signature stable across a pan that stays inside the same z6 tiles", () => {
+    const shards = (viewport: { west: number; south: number; east: number; north: number }) =>
+      gfwV4ShardSignature(fixedShardViewportTiles(quantizeGfwV4Viewport({ ...viewport, zoom: 6 }), 6));
+    // z6 tiles span 5.625°; a sub-degree playback pan must not re-select shards.
+    expect(shards({ west: 121.0, south: 24.0, east: 123.0, north: 26.0 }))
+      .toBe(shards({ west: 121.31, south: 24.22, east: 123.31, north: 26.22 }));
+    // Crossing the tile edge must change it, otherwise new data never loads.
+    expect(shards({ west: 121.0, south: 24.0, east: 123.0, north: 26.0 }))
+      .not.toBe(shards({ west: 121.0, south: 24.0, east: 129.0, north: 26.0 }));
+  });
 });

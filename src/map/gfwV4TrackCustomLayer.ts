@@ -9,6 +9,9 @@ import {
 
 export const GFW_V4_TRACK_CUSTOM_LAYER_ID = "gfw-v4-tracks-custom";
 
+/** render 跑在 Mapbox 的 paint pass 裡：任何例外都必須就地吞掉，否則整張圖停畫。 */
+let warnedRenderFailure = false;
+
 export interface GfwV4TrackCustomLayerOptions {
   id?: string;
   budget: FrameBudget;
@@ -43,25 +46,32 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
       scene.init(gl);
     },
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!map || !options.getVisible()) return;
-      const frame = options.getSpatialFrame?.() ?? options.getFrame();
-      if (!frame) return;
-      const bounds = mapBounds(map);
-      const zoom = map.getZoom();
-      const viewKey = `${bounds.west.toFixed(3)}|${bounds.south.toFixed(3)}|${bounds.east.toFixed(3)}|${bounds.north.toFixed(3)}|${zoom.toFixed(2)}|${options.getOpacity()}|${String(options.getTheme())}`;
-      scene.setOpacity(options.getOpacity());
-      scene.setTheme(options.getTheme());
-      if (frame !== lastFrame || viewKey !== lastViewKey) {
-        lastFrame = frame;
-        lastViewKey = viewKey;
-        if ("points" in frame) {
-          scene.updateSpatialPoints(frame, zoom);
-        } else {
-          const rendered = scene.update(frame, bounds, zoom);
-          options.onRendered?.(rendered);
+      try {
+        if (!map || !options.getVisible()) return;
+        const frame = options.getSpatialFrame?.() ?? options.getFrame();
+        if (!frame) return;
+        const bounds = mapBounds(map);
+        const zoom = map.getZoom();
+        const viewKey = `${bounds.west.toFixed(3)}|${bounds.south.toFixed(3)}|${bounds.east.toFixed(3)}|${bounds.north.toFixed(3)}|${zoom.toFixed(2)}|${options.getOpacity()}|${String(options.getTheme())}`;
+        scene.setOpacity(options.getOpacity());
+        scene.setTheme(options.getTheme());
+        if (frame !== lastFrame || viewKey !== lastViewKey) {
+          lastFrame = frame;
+          lastViewKey = viewKey;
+          if ("points" in frame) {
+            scene.updateSpatialPoints(frame, zoom);
+          } else {
+            const rendered = scene.update(frame, bounds, zoom);
+            options.onRendered?.(rendered);
+          }
+        }
+        scene.render(matrix);
+      } catch (error) {
+        if (!warnedRenderFailure) {
+          warnedRenderFailure = true;
+          console.warn("[gfw-v4-tracks] custom layer render skipped", error);
         }
       }
-      scene.render(matrix);
     },
     onRemove() {
       scene.dispose();
