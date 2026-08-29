@@ -1823,6 +1823,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── OSM Landing Stations (海纜登陸站 crowd points) ──
   {
     id: "landingStations",
+    opacityParam: "landingOpacity",
     sourceUrl: "./geo/landing_stations.geojson",
     sourceId: "landing-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1914,13 +1915,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.anfrWirelessSitesScale ?? 1), 7, 8 * (params?.anfrWirelessSitesScale ?? 1), 12, 14 * (params?.anfrWirelessSitesScale ?? 1)],
         "circle-color": ANFR_OPERATOR_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.anfrWirelessSitesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.anfrWirelessSitesScale ?? 1), 7, 3.5 * (params?.anfrWirelessSitesScale ?? 1), 12, 6 * (params?.anfrWirelessSitesScale ?? 1)],
         "circle-color": ANFR_OPERATOR_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -1937,13 +1938,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.osmCommunicationSitesScale ?? 1), 7, 8 * (params?.osmCommunicationSitesScale ?? 1), 12, 14 * (params?.osmCommunicationSitesScale ?? 1)],
         "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.osmCommunicationSitesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.osmCommunicationSitesScale ?? 1), 7, 3.5 * (params?.osmCommunicationSitesScale ?? 1), 12, 6 * (params?.osmCommunicationSitesScale ?? 1)],
         "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -1960,13 +1961,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3 * (params?.ripeAtlasProbesScale ?? 1), 7, 8 * (params?.ripeAtlasProbesScale ?? 1), 12, 14 * (params?.ripeAtlasProbesScale ?? 1)],
         "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
         "circle-blur": 1,
         "circle-opacity": (params?.ripeAtlasProbesOpacity ?? 0.8) * 0.2,
       }) },
       { suffix: "circle", type: "circle", paint: (isDark, params) => ({
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5 * (params?.ripeAtlasProbesScale ?? 1), 7, 3.5 * (params?.ripeAtlasProbesScale ?? 1), 12, 6 * (params?.ripeAtlasProbesScale ?? 1)],
         "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
@@ -5212,15 +5213,16 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "canopyGiants",
     sourceUrl: "./forestry/canopy_giants_taiwan.geojson",
     sourceId: "canopy-giants",
-    rebuildOnParamChange: ["canopyGiantsOpacity"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
           const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          const scale = p?.canopyGiantsScale ?? 1;
           return {
             "circle-color": canopyGiantDistColorExpr(),
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 7 * scale],
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],

@@ -8,21 +8,18 @@ const OPACITY_BACKLOG = [
 ].sort();
 
 const CONFIRMED_POINT_SIZE_BACKLOG = [
-  "anfrWirelessSites", "erHospital", "evChargingStations", "fireLatest",
-  "internetExchangePoints", "librarySeats", "osmCommunicationSites",
-  "parkingOffstreet", "parkingOnstreet", "ripeAtlasProbes",
+  "erHospital", "evChargingStations", "fireLatest", "internetExchangePoints",
+  "librarySeats", "parkingOffstreet", "parkingOnstreet",
 ].sort();
 
 const MAPBOX_POINT_SIZE_BACKLOG = [
-  "anfrWirelessSites", "canopyGiants", "erHospital", "evChargingStations", "forestAlishanRail",
-  "forestDamLakes", "forestFlatParks", "forestTreatmentWorks", "industrialPowerPlant",
-  "industrialRefinery", "industrialStorageTank", "internetExchangePoints", "landingStations",
-  "librarySeats", "lightning", "lightningCwa", "maritimeBoundary", "osmCommunicationSites",
-  "parkingOffstreet", "parkingOnstreet", "powerGenerationUnit", "ripeAtlasProbes", "waterReservoirs",
+  "erHospital", "evChargingStations", "industrialPowerPlant", "industrialRefinery",
+  "industrialStorageTank", "internetExchangePoints", "librarySeats", "lightning", "lightningCwa",
+  "maritimeBoundary", "parkingOffstreet", "parkingOnstreet", "powerGenerationUnit", "waterReservoirs",
 ].sort();
 
 const NO_PARAMS_BACKLOG = [
-  "activeFaults", "aqiStations", "landingStations", "medICUBeds", "powerRegionDemand",
+  "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
   "powerStatusHud", "submarineCables", "wasteCleaningSquads", "wasteRoute", "wasteScheduleNote",
   "wasteStop", "windPlan",
 ].sort();
@@ -87,5 +84,29 @@ describe("Layer UX policy baseline", () => {
     )].sort();
 
     expect(missing).toEqual(MAPBOX_POINT_SIZE_BACKLOG);
+  });
+
+  it("本批點位大小控件會實際改變 Mapbox 的 circle radius", () => {
+    const pointSizeParams = {
+      landingStations: "landingScale",
+      anfrWirelessSites: "anfrWirelessSitesScale",
+      osmCommunicationSites: "osmCommunicationSitesScale",
+      ripeAtlasProbes: "ripeAtlasProbesScale",
+      canopyGiants: "canopyGiantsScale",
+      forestTreatmentWorks: "forestTreatmentWorksScale",
+      forestFlatParks: "forestFlatParksScale",
+      forestDamLakes: "forestDamLakesScale",
+      forestAlishanRail: "forestAlishanRailScale",
+    } as const;
+
+    for (const [id, param] of Object.entries(pointSizeParams)) {
+      const overlay = OVERLAY_REGISTRY.find((entry) => entry.id === id);
+      expect(overlay, `${id} 必須有 OverlayConfig`).toBeDefined();
+      for (const layer of overlay!.layers.filter((entry) => entry.type === "circle")) {
+        const radiusAtOne = layer.paint(false, { [param]: 1 })["circle-radius"];
+        const radiusAtTwo = layer.paint(false, { [param]: 2 })["circle-radius"];
+        expect(radiusAtTwo, `${id}/${layer.suffix} 大小控件必須影響半徑`).not.toEqual(radiusAtOne);
+      }
+    }
   });
 });

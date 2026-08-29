@@ -1196,9 +1196,10 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85)],
-  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8)],
-  osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8)],
-  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8)],
+  landingStations: [opacitySlider("landingOpacity", 1), scaleSlider("landingScale", 1)],
+  anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8), scaleSlider("anfrWirelessSitesScale", 1)],
+  osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8), scaleSlider("osmCommunicationSitesScale", 1)],
+  ripeAtlasProbes: [opacitySlider("ripeAtlasProbesOpacity", 0.8), scaleSlider("ripeAtlasProbesScale", 1)],
   // 全球層：z6（約 500km）、z8（約 156km）與 z10（約 78km）在同一份 GeoJSON 裡，靠 `z` 屬性 filter
   // 切換 —— select 走 encodeNumeric，overlayParams 直接拿到 6 / 10 當 filter 值。
   ooklaMobilePerformance: [
@@ -1489,7 +1490,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("forestRoadsOpacity", 0.8),
   ],
   forestAlishanRail: [
-    { kind: "slider", name: "forestAlishanRailWidth", labelPrefix: "寬度", digits: 1, default: 1.5, min: 0.5, max: 5, step: 0.1 },
+    scaleSlider("forestAlishanRailScale", 1.2),
     opacitySlider("forestAlishanRailOpacity", 0.9),
   ],
   hikingTrails: [
@@ -1501,6 +1502,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   canopyGiants: [
     { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
+    scaleSlider("canopyGiantsScale", 1),
   ],
   forestTrailSigns: [
     opacitySlider("forestTrailSignsOpacity", 0.85),
@@ -1912,18 +1914,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   forestTreatmentWorks: [
     { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestTreatmentWorksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestTreatmentWorksShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestTreatmentWorksScale", 1),
   ],
   forestFlatParks: [
     { kind: "slider", name: "forestFlatParksOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestFlatParksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestFlatParksShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestFlatParksScale", 1.3),
   ],
   forestDamLakes: [
     { kind: "slider", name: "forestDamLakesOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
-    { kind: "slider", name: "forestDamLakesOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestDamLakesShowOutline", label: "邊框 Outline", default: true },
+    scaleSlider("forestDamLakesScale", 1.2),
   ],
   industrialRefinery: [
     { kind: "slider", name: "industrialRefineryOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },

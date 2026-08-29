@@ -1377,8 +1377,8 @@ export const LAYER_MANIFEST = {
   //     iPostBoxes→iPostBox…）。比批 1 消防的 4/5 更整齊，也因此更危險 ——
   //     肉眼掃過去像同名，只有逐 key 反查 GIS_LAYERS 才看得出差一個 s。
   //
-  //  submarineCables / landingStations 的 `params: null` 是**有意沒有控件**
-  //  （純靜態線位／點位），不是抽取器沒掃到。⚠️ Phase 0~3 這件事寄生在
+  //  submarineCables 的 `params: null` 是**有意沒有控件**
+  //  （純靜態線位），不是抽取器沒掃到。⚠️ Phase 0~3 這件事寄生在
   //  useLayerParamsRuntime 的 `return []` 字面上（emptyByDesign）；Phase 4 起
   //  本欄位就是唯一表達，由 layerConsistency.test.ts 的 NO_PARAMS_LEDGER 凍結。
   // ══════════════════════════════════════════════════════════════
@@ -1417,7 +1417,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "landing-stations", url: "./geo/landing_stations.geojson" },
     legend: "landingStations",
     popup: "landingStation",
-    params: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "OSM crowd 海纜登陸站 58 處；標註不完整，空白區域不代表沒有設施",
     topics: ["基礎建設", "通訊", "海纜"],
   },
@@ -1461,7 +1461,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "anfr-wireless-sites", url: "./geo/anfr_wireless_sites.geojson" },
     legend: "anfrWirelessSites",
     popup: "anfrWirelessSite",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）",
     topics: ["通訊", "行動網路", "5G", "全球"],
   },
@@ -1481,7 +1481,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "osm-communication-sites", url: "./geo/osm_communication_sites.geojson" },
     legend: "osmCommunicationSites",
     popup: "osmCommunicationSite",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "OpenStreetMap mapped communication candidates；全球區域抽樣，非官方且不完整",
     topics: ["通訊", "行動網路", "OpenStreetMap", "全球"],
   },
@@ -1502,7 +1502,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "ripe-atlas-probes", url: "./geo/ripe_atlas_probes.geojson" },
     legend: "ripeAtlasProbes",
     popup: "ripeAtlasProbe",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "RIPE Atlas 連線量測探針；座標經 80–400m 模糊化，存在志願者偏差",
     topics: ["通訊", "網路量測", "RIPE Atlas", "全球"],
   },
@@ -3029,7 +3029,7 @@ export const LAYER_MANIFEST = {
     legend: "forestCompartments",
     // 雖列在「分區」子群，資料實為點位 → popup 走 forestryPOI 而非 forestryPolygon
     popup: "forestryPOI",
-    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "平地森林園區點位",
     topics: ["林業", "平地森林", "公共設施"],
   },
@@ -3090,7 +3090,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "canopyGiants",
     popup: "canopyGiants",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "樹冠 45m 以上巨木點位（依離步道距離帶分色，見 canopyGiantsTypes.ts）",
     topics: ["林業", "巨木", "衍生分析"],
   },
@@ -3114,7 +3114,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "forestCompartments",
     popup: "forestryPOI",
-    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "林業治理工程點位（崩塌地治理／野溪整治等）",
     topics: ["林業", "治理工程", "防災"],
   },
@@ -3232,7 +3232,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "forestCompartments",
     popup: "forestryPOI",
-    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "林區內堰塞湖點位（崩塌堵塞形成，土砂災害關聯）",
     topics: ["林業", "堰塞湖", "防災"],
   },
@@ -9840,7 +9840,7 @@ export const LAYER_MANIFEST = {
   // manifest 照抄整包，不是只抄 status/datasets。
   //
   // ⚠️ **`windPlan` 的 `params` 是 null**：單一潛力區面，有意沒有控件
-  // （同類另 4 個：activeFaults / aqiStations / landingStations / submarineCables）。
+  // （同類另 3 個：activeFaults / aqiStations / submarineCables）。
   // **不是抽取器沒掃到**，照抄不夾帶修正。Phase 4 起本欄位即唯一表達
   // （P3-3 之前寄生在 useLayerParamsRuntime 的 `return []` 字面）。
   //

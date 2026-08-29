@@ -23389,7 +23389,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "canopyGiantsOpacity"
+        "circle"
       ],
       "sourceId": "canopy-giants",
       "sourceUrl": "./forestry/canopy_giants_taiwan.geojson"
@@ -47143,6 +47143,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "animalAdoption": [
@@ -47828,6 +47835,13 @@
         "min": 0.3,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "canopyHeight": [
@@ -49625,11 +49639,11 @@
     ],
     "forestAlishanRail": [
       {
-        "label": "寬度 1.5",
-        "max": 5,
-        "min": 0.5,
+        "label": "大小 1.2",
+        "max": 3,
+        "min": 0.3,
         "step": 0.1,
-        "value": 1.5
+        "value": 1.2
       },
       {
         "label": "透明度 0.90",
@@ -49669,16 +49683,11 @@
         "value": 0.7
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.2",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1.2
       }
     ],
     "forestEducationCenters": [
@@ -49706,16 +49715,11 @@
         "value": 0.6
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.3",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1.3
       }
     ],
     "forestRecreation": [
@@ -49817,16 +49821,11 @@
         "value": 0.7
       },
       {
-        "label": "邊框寬 0.5",
+        "label": "大小 1.0",
         "max": 3,
-        "min": 0,
+        "min": 0.3,
         "step": 0.1,
-        "value": 0.5
-      },
-      {
-        "label": "邊框 Outline",
-        "type": "toggle",
-        "value": true
+        "value": 1
       }
     ],
     "forestWildlife": [
@@ -50789,7 +50788,22 @@
         "value": 0.5
       }
     ],
-    "landingStations": [],
+    "landingStations": [
+      {
+        "label": "透明度 1.00",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "librarySeats": [
       {
         "label": "透明度 0.90",
@@ -51769,6 +51783,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "osmExpressway": [
@@ -53561,6 +53582,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "riverLevel": [
