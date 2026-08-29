@@ -1759,3 +1759,42 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `INCIDENTS.md`：追加 catalog transaction、371 stale truth、374 ACL 三事件。
 - `BACKLOG.md`：保留 GFW、production browser、AIS data quality、PostgREST write-denial 待辦。
 - `STATUS.md`：最後重寫為四 repo release truth、production evidence 與 preserved WIP。
+
+## 2026-08-29 — Layer catalog、共用控制契約與本機瀏覽器驗收
+
+### What worked
+
+- **先盤完整 layer contract，再分 renderer 類型補控制**：把純 Mapbox、dynamic hook、Three.js
+  scene 分批處理，讓 opacity、point size、popup、分類控制各有明確適用邊界；polygon 不因同一
+  layer 帶 Point 就被錯誤縮放。
+- **共用語言同時落到兩個 sidebar**：分類型參數統一為 multi-select bitmask、預設全選、全選／全關
+  與 checkbox；公車只保留既有預設。LayerSidebar 與 IconRailSidebar 共用同一套控制語意，避免再次漂移。
+- **瀏覽器操作補上 unit test 看不到的證據**：本機實際確認 Layers→World→Locations 順序、預設收合、
+  Locations 精簡、城市文字水平、分類全關／全選、opacity／size slider、點位 popup 與 Esc 關閉。
+- **資料來源總覽保留誠實缺口**：可驗證的 lineage 補成 verified，剩餘 5 個 AIS/GFW layer 保留
+  `catalog_missing`，沒有用猜測的 dataset id 換取全綠數字。
+
+### What didn't / drift
+
+- **隔離 worktree 一開始缺 ignored runtime 檔**：只有 `node_modules` 時仍因 `.env`／`.env.local`
+  不在 worktree 而白屏；Mapbox token 與 Supabase client 都在 mount 時失敗。連回既有本機 env 後才完成真實 UI 驗收。
+- **第一次 full test 暴露 stale contract fixtures**：GSI zoom radius 與 landingStations ledger 仍是舊契約；
+  修正後才得到 763 passed／1 skipped。skipped 是跨 repo catalog 守門在 `/private/tmp` 看不到 sibling repo，
+  不能寫成完整 catalog integration 綠燈。
+- **Mapbox full-off filter 不能只看型別**：初版 `['==', 1, 0]` 通過 TypeScript，但不是合法 style-spec
+  filter；加入 style-spec 驗證後改成 property sentinel，才證明「全關」可實際渲染。
+
+### Next-time rules
+
+1. Layer UX 大盤點先建立「renderer 類型 × opacity × size × category × popup」ledger，再依類型分批；
+   不用單一 Mapbox pattern 硬套 custom/Three renderer。
+2. worktree 做 browser acceptance 前同時盤 `node_modules`、`.env*` 與必要 ignored assets；只看到 Vite ready
+   不代表應用已成功 mount。
+3. Mapbox expression/filter 變更必跑 style-spec 或真地圖操作；TypeScript 與 snapshot 只證形狀，不證 runtime 合法。
+4. full test 的 skipped 必與 passed 一起記；跨 repo 守門未執行時，下一 session 要在 sibling 可見的位置補證。
+
+### Memory output
+
+- `BACKLOG.md`：CAT-1 改為剩餘 5 個 Global Maritime catalog lineage。
+- `REFLECTIONS.md`：本篇。
+- `STATUS.md`：重寫為 layer catalog/control branch 的 local release truth 與下一棒入口。
