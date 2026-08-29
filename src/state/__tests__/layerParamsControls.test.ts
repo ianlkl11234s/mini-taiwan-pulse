@@ -38,6 +38,22 @@ describe("buildParamControls", () => {
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["religionTemplesDeityMask"]).toBe(0);
   });
 
+  it("市區公車區域多選預設只有雙北，且不進 overlayParams", () => {
+    const control = (buildParamControls("busLive") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
+    expect(control).toMatchObject({
+      type: "multiSelect", label: "服務區域", value: ["TaipeiMetro"],
+    });
+    expect(encodeParamsToOverlay(layerParamsStore.getAll()).busGroups).toBeUndefined();
+
+    control.onSelectAll();
+    expect((buildParamControls("busLive") ?? [])[0]).toMatchObject({
+      value: [
+        "TaipeiMetro", "KeelungYilan", "TaoyuanHsinchuMiaoli", "CentralTaiwan",
+        "YunChiaNan", "Kaoping", "HualienTaitung", "OffshoreIslands",
+      ],
+    });
+  });
+
   // ⚠️ 這裡的「未遷移 key」刻意取 `aqiStations`（manifest 宣告 `params: null`
   //    的 12 個之一）—— 規格檔沒有「宣告了但空陣列」這種形狀，所以它**永遠**
   //    不會被遷走。原本寫的是 `cctv`，P3-2C 把它搬走後這三條就紅了。

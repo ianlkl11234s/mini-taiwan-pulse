@@ -426,7 +426,7 @@ export type SelectParamSpec =
   | SelectNumericParamSpec
   | SelectNoOverlayParamSpec;
 
-// ── 分類多選（尚未遷移任何 layer；先提供共通宣告與狀態編碼）────────────
+// ── 分類多選 ────────────────────────────────────────────────────────
 
 export const MULTI_SELECT_ALL = "__all__";
 export const MULTI_SELECT_NONE = "__none__";
@@ -580,8 +580,23 @@ export const BUS_GROUP_ORDER = [
   "YunChiaNan", "Kaoping", "HualienTaitung", "OffshoreIslands",
 ] as const satisfies readonly BusGroup[];
 
+/** 市區公車區域多選的選項 SSOT；順序同時定義控件與城市展開順序。 */
+export const BUS_GROUP_OPTIONS: ParamSelectOption[] = BUS_GROUP_ORDER.map((group) => ({
+  label: BUS_GROUP_LABELS[group], value: group,
+}));
+
+/** 市區公車預設只載雙北；其餘區域由使用者在多選控件明確開啟。 */
+function busGroupMultiSelect(): MultiSelectParamSpec {
+  return {
+    kind: "multiSelect", name: "busGroups", label: "服務區域",
+    options: BUS_GROUP_OPTIONS,
+    default: serializeMultiSelectValues(["TaipeiMetro"]),
+    out: null,
+  };
+}
+
 /**
- * 8 區分組 checkbox → 8 個獨立 boolean 參數（P3-2D 群2/3）。
+ * 垃圾車 8 區分組 checkbox → 8 個獨立 boolean 參數（P3-2D 群2/3）。
  *
  * 手寫版是一個 `Record<BusGroup, boolean>` 的 useState ＋ `.map()` 出 8 個 toggle。
  * 拆平成獨立參數，store 的 value 型別因此不必支援巢狀物件；
@@ -2642,13 +2657,8 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   busLive: [
-    // 8 區分組 checkbox：原本是一個 `Record<BusGroup, boolean>` 的 useState，
-    // 拆成 8 個獨立 boolean 參數（store 的 value 不必支援巢狀物件）。
-    // hook 端重新聚合成 `enabledBusCities`（BusGroup → BusCity[] 展開）。
-    ...busGroupToggles("busGroup", {
-      TaipeiMetro: true, KeelungYilan: false, TaoyuanHsinchuMiaoli: false, CentralTaiwan: false,
-      YunChiaNan: false, Kaoping: false, HualienTaitung: false, OffshoreIslands: false,
-    }),
+    // 分類多選保留既有預設：只載雙北城市，避免改變初始 payload／per-city cache 行為。
+    busGroupMultiSelect(),
     busColorSelect("busColorMode"),
     {
       kind: "slider", name: "busAltOffset", labelPrefix: "Bus Z +", labelSep: "", digits: 0,

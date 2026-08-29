@@ -8623,15 +8623,12 @@ export const LAYER_MANIFEST = {
     legend: null,
     // BusScene.pickBus 命中 → setBusTooltipInfo（獨立 bus tooltip 狀態），非 setFeatureInfo
     popup: null,
-    // 全 manifest 控件數最多的一層（11 個：8 個縣市群 toggle ＋ 配色 select ＋ 2 slider）
+    // 區域多選 ＋ 配色 select ＋ 2 slider；預設只載雙北以維持既有 payload／cache 行為。
     params: {
-      count: 11,
-      kinds: [
-        "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle",
-        "select", "slider", "slider",
-      ],
+      count: 4,
+      kinds: ["multiSelect", "select", "slider", "slider"],
     },
-    description: "市區公車即時／回放位置（八大區域分組開關，依路線 progress 插值）",
+    description: "市區公車即時／回放位置（八大區域可多選，依路線 progress 插值）",
     topics: ["交通", "公車", "即時"],
   },
 

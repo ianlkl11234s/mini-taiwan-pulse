@@ -47694,44 +47694,45 @@
     ],
     "busLive": [
       {
-        "label": "雙北",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "基宜",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "桃竹苗",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "中彰投",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "雲嘉南",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "高屏",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "花東",
-        "type": "toggle",
-        "value": false
-      },
-      {
-        "label": "離島",
-        "type": "toggle",
-        "value": false
+        "label": "服務區域",
+        "options": [
+          {
+            "label": "雙北",
+            "value": "TaipeiMetro"
+          },
+          {
+            "label": "基宜",
+            "value": "KeelungYilan"
+          },
+          {
+            "label": "桃竹苗",
+            "value": "TaoyuanHsinchuMiaoli"
+          },
+          {
+            "label": "中彰投",
+            "value": "CentralTaiwan"
+          },
+          {
+            "label": "雲嘉南",
+            "value": "YunChiaNan"
+          },
+          {
+            "label": "高屏",
+            "value": "Kaoping"
+          },
+          {
+            "label": "花東",
+            "value": "HualienTaitung"
+          },
+          {
+            "label": "離島",
+            "value": "OffshoreIslands"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "TaipeiMetro"
+        ]
       },
       {
         "label": "Color",

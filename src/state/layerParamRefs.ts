@@ -26,7 +26,7 @@ import {
   type BusCity, type BusGroup,
 } from "../types";
 import {
-  BUS_GROUP_ORDER, paramDefault,
+  BUS_GROUP_OPTIONS, BUS_GROUP_ORDER, paramDefault, resolveMultiSelectValues,
   type LayerParamValues, type ParamValue,
 } from "../data/layerParamsSpec";
 import { layerParamsStore, type LayerParamsSnapshot } from "./layerParamsStore";
@@ -84,11 +84,23 @@ export function buildWasteSubParams(
   return out;
 }
 
-/** 8 區分組 checkbox → 城市清單（順序 = BUS_GROUP_ORDER，同已退役的 runtime） */
+/** 市區公車區域多選 → 城市清單（群組、城市皆保留 SSOT 順序並去重）。 */
 export function enabledBusCitiesOf(values: LayerParamValues | undefined): BusCity[] {
-  return BUS_GROUP_ORDER
-    .filter((g: BusGroup) => values?.[`busGroup${g}`] === true)
-    .flatMap((g: BusGroup) => BUS_GROUP_CITIES[g]);
+  const raw = values?.busGroups;
+  const selected = new Set(
+    typeof raw === "string" ? resolveMultiSelectValues(raw, BUS_GROUP_OPTIONS) : [],
+  );
+  const cities: BusCity[] = [];
+  const seen = new Set<BusCity>();
+  for (const group of BUS_GROUP_ORDER) {
+    if (!selected.has(group)) continue;
+    for (const city of BUS_GROUP_CITIES[group]) {
+      if (seen.has(city)) continue;
+      seen.add(city);
+      cities.push(city);
+    }
+  }
+  return cities;
 }
 
 /** 表定路線的 8 區分組 checkbox → 城市清單 */
