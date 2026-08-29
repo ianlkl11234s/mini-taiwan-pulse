@@ -1241,6 +1241,15 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
+    { kind: "toggle", name: "gfwHourlyTracksFishing", label: "Fishing", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCargo", label: "Cargo", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksPassenger", label: "Passenger", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCarrier", label: "Carrier", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksOther", label: "Other", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksUnknown", label: "Unknown", default: false, out: null },
+  ],
+  gfwFishingEffort: [
+    { kind: "slider", name: "gfwFishingEffortOpacity", labelPrefix: "透明度", digits: 2, default: 0.58, min: 0, max: 1, step: 0.05, out: null },
   ],
   gfwDarkVessels: [
     { kind: "slider", name: "gfwDarkVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.86, min: 0, max: 1, step: 0.05, out: null },

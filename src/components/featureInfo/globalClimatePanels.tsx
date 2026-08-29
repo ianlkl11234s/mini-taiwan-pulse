@@ -1,6 +1,6 @@
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
-import { parseGfwHourlyGridVessels } from "../../data/gfwHourlyGridTypes";
+import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -136,6 +136,24 @@ function fmtMaritimeUtcTime(value: unknown): string {
   });
 }
 
+function GfwMemberDetails({ vessel }: { vessel: GfwHourlyGridVessel }) {
+  const t = useFeatureTheme();
+  const hasFullDetail = vessel.hours !== undefined;
+  return (
+    <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.5 }}>
+      ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
+      {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
+      {hasFullDetail && <>
+        <br />IMO {vessel.imo ?? "—"} · Callsign {vessel.callsign ?? "—"}
+        <br />Gear {vessel.geartype ?? "—"} · Dataset {vessel.dataset ?? "—"}
+        <br />格內小時 {vessel.hours?.toLocaleString("zh-TW", { maximumFractionDigits: 4 }) ?? "—"}
+        <br />進入 {fmtMaritimeUtcTime(vessel.entryTimestamp)} · 離開 {fmtMaritimeUtcTime(vessel.exitTimestamp)}
+        <br />首傳 {fmtMaritimeUtcTime(vessel.firstTransmissionDate)} · 末傳 {fmtMaritimeUtcTime(vessel.lastTransmissionDate)}
+      </>}
+    </div>
+  );
+}
+
 export function AisstreamVesselPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
@@ -178,8 +196,9 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
       <Row label="格內船數" value={Number.isFinite(expectedCount) ? `${expectedCount} 艘` : "—"} />
       <Row label="格網中心" value={`${props.center_lon ?? props.grid_lon ?? "—"}, ${props.center_lat ?? props.grid_lat ?? "—"}`} />
       {typeof props.cell_id === "string" && <Row label="網格 ID" value={props.cell_id} />}
-      <Row label="位置語意" value="GFW HIGH 格網中心（非原始 AIS 精確座標）" />
+      <Row label="位置語意" value={props.geometry_semantics === "globally_aligned_0_1_degree_cell" ? "GFW HIGH 本地聚合 0.1° 格網" : "GFW HIGH 格網中心（非原始 AIS 精確座標）"} />
       {props.geometry_semantics === "inferred_0_01_degree_footprint" && <Row label="幾何範圍" value="推定 0.01° 格網 footprint" />}
+      {props.geometry_semantics === "globally_aligned_0_1_degree_cell" && <Row label="幾何範圍" value="全球對齊 0.1° 格網 footprint（非原始 AIS 精確位置）" />}
       {Number(props.full_fidelity) === 1 && <Row label="完整性" value="已驗證 full fidelity" />}
       {detailStatus === "loading" && <Row label="完整清單" value="正在驗證並載入全部船舶…" />}
       {detailStatus === "error" && <Row label="完整清單" value={String(props.detail_error ?? "驗證失敗，未顯示部分清單")} color="#f87171" />}
@@ -195,10 +214,7 @@ export function GfwHourlyGridPanel({ props }: { props: Record<string, unknown> }
             <div style={{ color: t.textDefault, fontSize: 12 }}>
               {vessel.shipName || vessel.vesselId}
             </div>
-            <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
-              ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
-              {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
-            </div>
+            <GfwMemberDetails vessel={vessel} />
           </div>
         ))}
         {vessels.length === 0 && detailStatus !== "loading" && (
@@ -222,15 +238,19 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
   const vesselCount = Number(props.vessel_count);
   const interpolated = Number(props.interpolated) === 1;
   const grouped = vessels && vessels.length > 1;
+  const singleVessel = vessels?.length === 1 ? vessels[0] : null;
   const detailStatus = props.detail_status;
   return (
     <div>
-      {!grouped && <>
+      {!grouped && (singleVessel ? <>
+        <Row label="船名" value={singleVessel.shipName || "（無船名）"} />
+        <GfwMemberDetails vessel={singleVessel} />
+      </> : <>
         <Row label="船名" value={shipName || "（無船名）"} />
         <Row label="Vessel ID" value={vesselId} />
         <Row label="MMSI / 旗國" value={`${props.mmsi ?? "—"} / ${props.flag ?? "—"}`} />
         <Row label="GFW 原始船種" value={String(props.vessel_type ?? "—")} />
-      </>}
+      </>)}
       <Row label={grouped ? "同座標船舶" : "視覺分類"} value={grouped && Number.isFinite(vesselCount) ? `${vesselCount} 艘` : String(props.ship_type_label ?? "其他 Other")} />
       {Number(props.mixed_type) === 1 && <Row label="船種" value="混合船種 Mixed" />}
       <Row label="拖尾起點（UTC）" value={fmtMaritimeUtcTime(props.start_at)} />
@@ -249,10 +269,7 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
           {(vessels ?? []).map((vessel, index) => (
             <div key={`${vessel.vesselId}-${index}`} style={{ padding: "6px 0", borderTop: `1px solid ${t.border}` }}>
               <div style={{ color: t.textDefault, fontSize: 12 }}>{vessel.shipName || vessel.vesselId}</div>
-              <div style={{ color: t.textDim, fontSize: 10, lineHeight: 1.45 }}>
-                ID {vessel.vesselId} · MMSI {vessel.mmsi ?? "—"}<br />
-                {vessel.vesselType ?? "類型未知"} · {vessel.flag ?? "旗國未知"}
-              </div>
+              <GfwMemberDetails vessel={vessel} />
             </div>
           ))}
         </div>
@@ -262,6 +279,54 @@ export function GfwHourlyTrackPanel({ props }: { props: Record<string, unknown> 
         時間軸位置只在同一 segment 的相鄰觀測間做線性內插。
         缺訊與不合理跳點已由上游切段，前端不跨段補線。
         {" "}非即時近似資料 · <a href={String(props.attribution_href ?? "https://globalfishingwatch.org/")} target="_blank" rel="noreferrer" style={{ color: t.link }}>Powered by {String(props.attribution_label ?? "Global Fishing Watch")}</a>
+      </div>
+    </div>
+  );
+}
+
+export function GfwFishingEffortPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const hours = typeof props.apparent_fishing_hours === "number" && Number.isFinite(props.apparent_fishing_hours) && props.apparent_fishing_hours >= 0
+    ? props.apparent_fishing_hours : null;
+  const components = typeof props.component_count === "number" && Number.isInteger(props.component_count) && props.component_count >= 1
+    ? props.component_count : null;
+  let facets: Record<string, unknown>[] = [];
+  let facetCount: number | null = null;
+  if (typeof props.aggregation_facets_json === "string") {
+    try {
+      const parsed: unknown = JSON.parse(props.aggregation_facets_json);
+      facets = Array.isArray(parsed) && parsed.every((item) => item !== null && typeof item === "object" && !Array.isArray(item))
+        ? parsed as Record<string, unknown>[] : [];
+      facetCount = facets.length > 0 ? facets.length : null;
+    } catch {
+      facetCount = null;
+    }
+  }
+  const unavailable = (value: unknown): string => value == null || value === "" ? "未提供" : String(value);
+  const attributionHref = typeof props.attribution_href === "string" && props.attribution_href ? props.attribution_href : null;
+  return (
+    <div>
+      <Row label="選定 UTC 日" value={unavailable(props.selected_utc_date ?? props.date)} />
+      <Row label="捕撈活動" value={hours != null ? `${hours.toLocaleString("zh-TW", { maximumFractionDigits: 2 })} ${unavailable(props.unit)}` : "未提供"} />
+      <Row label="彙整 components" value={components != null ? components.toLocaleString("zh-TW") : "未提供"} />
+      {facetCount != null && <Row label="Aggregation facets" value={`${facetCount.toLocaleString("zh-TW")} 組`} />}
+      {facets.length > 0 && (
+        <details style={{ marginTop: 7, color: t.textDim }}>
+          <summary style={{ cursor: "pointer", fontSize: 10 }}>查看完整 aggregation facets</summary>
+          <pre style={{ maxHeight: 180, overflow: "auto", whiteSpace: "pre-wrap", wordBreak: "break-word", fontSize: 9, lineHeight: 1.35 }}>
+            {JSON.stringify(facets, null, 2)}
+          </pre>
+        </details>
+      )}
+      <Row label="資料版本" value={unavailable(props.dataset_version ?? props.resolved_dataset_version)} />
+      <Row label="指標" value={unavailable(props.metric_semantics ?? props.metric)} />
+      <Row label="最新可用日期" value={unavailable(props.latest_available_date)} />
+      <Row label="Finalization" value={unavailable(props.finalization_status)} />
+      <Row label="Revision" value={unavailable(props.revision_semantics)} />
+      <Row label="資料源" value={unavailable(props.attribution)} />
+      <div style={{ marginTop: 7, fontSize: 10, lineHeight: 1.5, color: t.textDim }}>
+        {unavailable(props.caveat)}
+        {attributionHref && <> · <a href={attributionHref} target="_blank" rel="noreferrer" style={{ color: t.link }}>GFW attribution</a></>}
       </div>
     </div>
   );

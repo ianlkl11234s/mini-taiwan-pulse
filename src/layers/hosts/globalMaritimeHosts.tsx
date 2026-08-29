@@ -2,8 +2,11 @@ import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useGlobalMaritimeLayers } from "../../hooks/useGlobalMaritimeLayers";
 import { useGfwHourlyGridLayer } from "../../hooks/useGfwHourlyGridLayer";
 import { useGfwHourlyTracksLayer } from "../../hooks/useGfwHourlyTracksLayer";
+import { useGfwV4TracksLayer } from "../../hooks/useGfwV4TracksLayer";
+import type { GfwV4TrackBucket } from "../../data/gfwV4SpatialTracksLoader";
+import { useGfwFishingEffortLayer } from "../../hooks/useGfwFishingEffortLayer";
 import { useGfwDarkVesselsLayer } from "../../hooks/useGfwDarkVesselsLayer";
-import { paramNum, useLayerParams } from "../layerParamsAccess";
+import { paramBool, paramNum, useLayerParams } from "../layerParamsAccess";
 
 export const GlobalMaritimeHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGlobalMaritimeLayers");
@@ -33,12 +36,44 @@ export const GfwHourlyGridHost: LayerHostComponent = ({ deps }) => {
 export const GfwHourlyTracksHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGfwHourlyTracksLayer");
   const values = useLayerParams("gfwHourlyTracks");
-  useGfwHourlyTracksLayer(
+  const bucketParams: ReadonlyArray<readonly [GfwV4TrackBucket, string]> = [
+    ["FISHING", "gfwHourlyTracksFishing"],
+    ["CARGO", "gfwHourlyTracksCargo"],
+    ["PASSENGER", "gfwHourlyTracksPassenger"],
+    ["CARRIER", "gfwHourlyTracksCarrier"],
+    ["OTHER", "gfwHourlyTracksOther"],
+    ["UNKNOWN", "gfwHourlyTracksUnknown"],
+  ];
+  const enabledBuckets = bucketParams
+    .filter(([, name]) => paramBool(values, "gfwHourlyTracks", name))
+    .map(([bucket]) => bucket);
+  const formalReady = useGfwV4TracksLayer(
     deps.mapRef,
     deps.layerVisibility.gfwHourlyTracks,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
+    enabledBuckets,
     paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
     deps.isDarkTheme,
+  );
+  // v2/v3 remains a no-data fallback only. It never wins when a verified formal
+  // v4 root/release has loaded, and has no URL/DEV selector.
+  useGfwHourlyTracksLayer(
+    deps.mapRef,
+    deps.layerVisibility.gfwHourlyTracks && !formalReady,
+    paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksOpacity"),
+    paramNum(values, "gfwHourlyTracks", "gfwHourlyTracksWindow"),
+    deps.isDarkTheme,
+  );
+  return null;
+};
+
+export const GfwFishingEffortHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGfwFishingEffortLayer");
+  const values = useLayerParams("gfwFishingEffort");
+  useGfwFishingEffortLayer(
+    deps.mapRef,
+    deps.layerVisibility.gfwFishingEffort,
+    paramNum(values, "gfwFishingEffort", "gfwFishingEffortOpacity"),
   );
   return null;
 };

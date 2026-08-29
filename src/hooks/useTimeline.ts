@@ -3,21 +3,21 @@ import type { TimeMode } from "../types";
 import { timeStore } from "../state/timeStore";
 
 /** 從 Date 提取台灣時區的日期 [year, month(0-based), day] */
-function taiwanDateParts(d: Date): [number, number, number] {
+export function taiwanDateParts(d: Date): [number, number, number] {
   const s = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
   const [y, m, day] = s.split("-").map(Number);
   return [y!, m! - 1, day!];
 }
 
 /** 將 Date 轉為台灣時區當天 00:00:00 的 unix timestamp */
-function dayStartUnix(d: Date): number {
+export function dayStartUnix(d: Date): number {
   const [y, m, day] = taiwanDateParts(d);
   // Taiwan midnight = UTC midnight - 8h
   return Date.UTC(y, m, day, 0, 0, 0) / 1000 - 8 * 3600;
 }
 
 /** 將 Date 轉為台灣時區當天 23:59:59 的 unix timestamp */
-function dayEndUnix(d: Date): number {
+export function dayEndUnix(d: Date): number {
   const [y, m, day] = taiwanDateParts(d);
   return Date.UTC(y, m, day, 23, 59, 59) / 1000 - 8 * 3600;
 }
@@ -53,6 +53,8 @@ interface UseTimelineReturn {
   toggle: () => void;
   setSpeed: (s: number) => void;
   seek: (time: number) => void;
+  /** 顯式跳至指定時間，並把台北日曆視窗移到該時間所在日。 */
+  jumpToTime: (time: number) => void;
   seekByProgress: (p: number) => void;
   setTimeMode: (mode: TimeMode) => void;
   /** 切換日期（絕對） */
@@ -70,6 +72,24 @@ const UI_TIME_THROTTLE_MS = 250;
 const subscribeUiTime = (cb: () => void) =>
   timeStore.subscribeThrottled(UI_TIME_THROTTLE_MS, cb);
 const getTimeSnapshot = () => timeStore.getTime();
+
+export interface ReplayFrameAdvance {
+  time: number;
+  reachedEnd: boolean;
+}
+
+/** Replay 沒有 loop mode；抵達視窗尾端時停在尾端。 */
+export function advanceReplayFrame(
+  current: number,
+  elapsedSeconds: number,
+  speed: number,
+  windowEnd: number,
+): ReplayFrameAdvance {
+  const next = current + elapsedSeconds * speed;
+  return next >= windowEnd
+    ? { time: windowEnd, reachedEnd: true }
+    : { time: next, reachedEnd: false };
+}
 
 export function useTimeline({
   dataStartTime,
@@ -182,13 +202,11 @@ export function useTimeline({
       const dt = (now - lastFrameRef.current) / 1000;
       lastFrameRef.current = now;
 
-      const prev = timeStore.getTime();
-      const next = prev + dt * speed;
-      if (next >= windowEnd) {
+      const frame = advanceReplayFrame(timeStore.getTime(), dt, speed, windowEnd);
+      timeStore.setTime(frame.time);
+      if (frame.reachedEnd) {
         setPlaying(false);
-        timeStore.setTime(windowStart); // loop back
-      } else {
-        timeStore.setTime(next);
+        return;
       }
 
       rafRef.current = requestAnimationFrame(animate);
@@ -216,6 +234,15 @@ export function useTimeline({
     },
     [timeMode, windowStart, windowEnd],
   );
+
+  const jumpToTime = useCallback((time: number) => {
+    if (!Number.isFinite(time)) return;
+    // Date 保留絕對時間；dayStartUnix 會從中取 Asia/Taipei 日曆日。
+    setSelectedDateRaw(new Date(time * 1000));
+    setTimeMode("replay");
+    setPlaying(false);
+    timeStore.setTime(time);
+  }, []);
 
   const seekByProgress = useCallback(
     (p: number) => {
@@ -249,6 +276,7 @@ export function useTimeline({
     toggle,
     setSpeed,
     seek,
+    jumpToTime,
     seekByProgress,
     setTimeMode: handleSetTimeMode,
     setSelectedDate,

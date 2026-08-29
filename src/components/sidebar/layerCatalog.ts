@@ -1423,6 +1423,7 @@ export const THEMES: ThemeDef[] = [
           fromManifest("gfwVesselPresence"),
           fromManifest("gfwHourlyGrid"),
           fromManifest("gfwHourlyTracks"),
+          fromManifest("gfwFishingEffort"),
           fromManifest("gfwDarkVessels"),
         ],
       },

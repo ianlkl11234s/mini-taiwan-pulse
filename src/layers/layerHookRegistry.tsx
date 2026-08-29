@@ -53,7 +53,7 @@ import {
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
-import { GlobalMaritimeHost, GfwDarkVesselsHost, GfwHourlyGridHost, GfwHourlyTracksHost } from "./hosts/globalMaritimeHosts";
+import { GlobalMaritimeHost, GfwDarkVesselsHost, GfwFishingEffortHost, GfwHourlyGridHost, GfwHourlyTracksHost } from "./hosts/globalMaritimeHosts";
 import {
   SatellitesHost, RoadEventsHost, FireEventsHost, FireLatestHost,
   WasteCleaningSquadHost, FreewayHost, RoadCongestionHost,
@@ -230,6 +230,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   },
   { id: "useGfwHourlyGridLayer", keys: ["gfwHourlyGrid"], Host: GfwHourlyGridHost },
   { id: "useGfwHourlyTracksLayer", keys: ["gfwHourlyTracks"], Host: GfwHourlyTracksHost },
+  { id: "useGfwFishingEffortLayer", keys: ["gfwFishingEffort"], Host: GfwFishingEffortHost },
   { id: "useGfwDarkVesselsLayer", keys: ["gfwDarkVessels"], Host: GfwDarkVesselsHost },
 
   // ── 衛星（L1204）──

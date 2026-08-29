@@ -1,4 +1,4 @@
-import { Fragment, memo, useState, createContext, useContext } from "react";
+import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
@@ -15,7 +15,12 @@ import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
-import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT } from "../data/shipTrails";
+import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
+import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
+import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../hooks/useGfwHourlyGridLayer";
+import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
+import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
+import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -337,6 +342,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "gfwVesselPresence", render: () => <GfwVesselPresenceLegend /> },
   { id: "gfwHourlyGrid", render: () => <GfwHourlyGridLegend /> },
   { id: "gfwHourlyTracks", render: ({ isDark }) => <GfwHourlyTracksLegend isDark={isDark} /> },
+  { id: "gfwFishingEffort", render: () => <GfwFishingEffortLegend /> },
   { id: "gfwDarkVessels", render: () => <GfwDarkVesselsLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
@@ -3962,43 +3968,137 @@ function GfwVesselPresenceLegend() {
 
 function GfwHourlyGridLegend() {
   const t = useLegendTheme();
+  const dataWindow = useSyncExternalStore(subscribeGfwHourlyGridDataWindow, getGfwHourlyGridDataWindowSnapshot, () => null);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         GFW 小時船舶網格
       </div>
-      <div style={{ display: "flex", alignItems: "end", gap: 12, minHeight: 28 }}>
-        {[{ size: 10, label: "1" }, { size: 16, label: "4" }, { size: 24, label: "25" }].map((item) => (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, max-content)", gap: "5px 10px" }}>
+        {GFW_HOURLY_GRID_V4_COLOR_BANDS.map((item) => (
           <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: item.size, height: item.size, borderRadius: RADIUS.full, background: "#fb923c", border: "1px solid #7c2d12" }} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label} 艘</span>
+            <div style={{ width: 10, height: 10, background: item.color, border: "1px solid #431407" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{item.label}</span>
           </div>
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5 }}>
-        圓大小與圓內數字＝同一 GFW HIGH 格內的船舶數
+        色階＝每個 0.1° 格網內的船舶數；透明度隨船舶數連續插值
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
-        點位是格網中心，非原始 AIS 精確位置；依全域時間軸切換 UTC 整點
+        依全域時間軸切換 UTC 整點
       </div>
+      {dataWindow && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+          資料窗 {dataWindow.utcDateLabel}（UTC）
+        </div>
+      )}
+      {dataWindow?.status === "out-of-window" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 目前時間在資料窗外，圖層已淡出
+        </div>
+      )}
     </div>
   );
 }
 
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
-  const palette = isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT;
+  const dataWindow = useGfwV4TrackDataWindow();
+  const palette = isDark
+    ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
+    : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
+  const rows = [
+    { color: palette.fishing, label: "Fishing" }, { color: palette.cargo, label: "Cargo" },
+    { color: palette.passenger, label: "Passenger" }, { color: palette.carrier, label: "Carrier（預設關閉）" },
+    { color: palette.other, label: "Other（預設關閉）" }, { color: palette.unknown, label: "Unknown（預設關閉）" },
+  ];
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         GFW 小時近似航跡
       </div>
-      <FireCatRows cats={SHIP_TYPE_LEGEND.map((item) => ({ color: palette[item.bucket], label: item.label }))} />
+      <FireCatRows cats={rows} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5 }}>
         同色細線＝拖尾；同色圓點＝選定時間船頭（觀測間線性內插）
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         線為每小時 GFW HIGH 格網中心近似，不是原始 AIS 精確航跡。只在同 segment 內內插，缺訊與異常跳點不跨段連線；同座標端點會聚合並以大小表示船數。
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
+        來源為正式 schema-4 day pack；Tanker 不屬於本圖層 taxonomy，GEAR/FAD 是獨立非船舶觀測。
+      </div>
+      {dataWindow.status !== "unknown" && dataWindow.startUtcDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+          資料窗 {dataWindow.startUtcDate === dataWindow.endUtcDate ? dataWindow.startUtcDate : `${dataWindow.startUtcDate} ~ ${dataWindow.endUtcDate}`}（UTC）
+        </div>
+      )}
+      {dataWindow.status === "out-of-window" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 目前 {dataWindow.requestedUtcDate ?? "所選日期"} 在資料窗外，圖層刻意空白
+        </div>
+      )}
+      {dataWindow.status === "hour-unavailable" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
+          ⚠ 該小時缺選取船種的資料
+        </div>
+      )}
+    </div>
+  );
+}
+
+function utcDateFromSeconds(seconds: number): string {
+  const date = new Date(seconds * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : "未提供";
+}
+
+function GfwFishingEffortLegend() {
+  const t = useLegendTheme();
+  const timelineSeconds = useTimeStoreTime(1000);
+  const [manifest, setManifest] = useState<GfwFishingEffortManifest | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwFishingEffortManifest().then((next) => {
+      if (active) setManifest(next);
+    });
+    return () => { active = false; };
+  }, []);
+  const selectedUtcDate = utcDateFromSeconds(timelineSeconds);
+  const attributionHref = manifest?.attributionHref;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        GFW 每日捕撈活動
+      </div>
+      <div style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden" }}>
+        {["#0f766e", "#22d3ee", "#facc15", "#fb7185"].map((color) => (
+          <div key={color} style={{ flex: 1, background: color }} />
+        ))}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 3, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+        <span>0 h</span><span>1 h</span><span>12 h</span><span>48 h+</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 5, lineHeight: 1.4 }}>
+        時間軸 UTC 日：{selectedUtcDate} · log1p(apparent fishing hours)
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        單位：{manifest?.unit ?? "未提供"} · 資料版本：{manifest?.resolvedDatasetVersion ?? "未提供"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        Aggregation facets：每格保留 component facets（詳 popup）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        最新可用日期：{manifest?.latestAvailableDate ?? "未提供（GFW 未提供）"} · active：{manifest?.latestObservedActiveDate ?? "未提供"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
+        Finalization：{manifest?.finalizationStatus ?? "未提供"} · Revision：{manifest?.revisionSemantics ?? "未提供"}
+      </div>
+      {manifest?.caveat && <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>{manifest.caveat}</div>}
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4, lineHeight: 1.4 }}>
+        {attributionHref ? <a href={attributionHref} target="_blank" rel="noreferrer" style={{ color: t.textStrong }}>Powered by {manifest?.attribution?.match(/Global Fishing Watch/) ? "Global Fishing Watch" : "資料提供者"}</a> : "資料提供者：未提供連結"}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
+        每日獨立 sample；apparent/model-derived、非即時；不是漁獲量、船數、執法證據或違法捕撈判定。
       </div>
     </div>
   );

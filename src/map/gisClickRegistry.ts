@@ -38,6 +38,8 @@ import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
 import { GFW_HOURLY_GRID_CLICK_LAYERS } from "../hooks/useGfwHourlyGridLayer";
 import { GFW_HOURLY_TRACKS_CLICK_LAYERS } from "../hooks/useGfwHourlyTracksLayer";
+import { GFW_V4_TRACK_CLICK_LAYERS } from "../hooks/useGfwV4TracksLayer";
+import { GFW_FISHING_EFFORT_CLICK_LAYERS } from "../hooks/useGfwFishingEffortLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -157,7 +159,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 因此透明的另一小時絕不會搶 popup。
   { layers: [...GFW_HOURLY_GRID_CLICK_LAYERS], type: "gfwHourlyGrid" },
   // endpoint 永遠先於 line；同 runtime 座標的船隻已在 loader 聚合為完整 popup 清單。
-  { layers: [...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
+  { layers: [...GFW_V4_TRACK_CLICK_LAYERS, ...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
   { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
@@ -438,6 +440,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["police-iso-city-dept-fill", "police-iso-city-dept-line"], type: "policeIsoCityDept" },
   // 地震回放 鄉鎮面量圖：368 鄉鎮大面積 fill → 排在點/線層之後
   { layers: ["eq-replay-town-fill"], type: "earthquakeReplayTown" },
+  // GFW 每日捕撈活動是東亞大面積格網面；保留在船點／航跡／SAR 之後才查詢。
+  { layers: [...GFW_FISHING_EFFORT_CLICK_LAYERS], type: "gfwFishingEffort" },
   // 溫度網格 2D：鋪滿全台陸地的大面積 fill → 放最末，不擋任何點/線層
   { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
   // 殯葬業者密度：368 鄉鎮全台鋪滿的 fill → 同樣放最末

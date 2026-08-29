@@ -336,6 +336,11 @@ describe("buildUrl", () => {
     expect(parsed).toEqual(original);
   });
 
+  it("GFW v4 不再以 URL query gate 控制", () => {
+    expect(buildUrl({}, "https://e.com")).not.toContain("gfwV4Shadow");
+    expect(parseUrlState("?gfwV4Shadow=1")).not.toHaveProperty("gfwV4Shadow");
+  });
+
   it("railSystems 對稱輸出成 rsys=（空陣列不寫入）", () => {
     expect(buildUrl({ railSystems: ["trtc"] }, "https://e.com")).toContain("rsys=trtc");
     expect(buildUrl({ railSystems: [] }, "https://e.com")).not.toContain("rsys");

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 387,
+    "keyCount": 388,
     "sections": [
       "gisLayers",
       "overlays",
@@ -557,7 +557,9 @@
       "layers": [
         "gfw-hourly-grid-hit-circle",
         "gfw-hourly-grid-hit-fill",
-        "gfw-hourly-grid-pmtiles-hit-fill"
+        "gfw-hourly-grid-pmtiles-hit-fill",
+        "gfw-hourly-grid-pmtiles-next-hit-fill",
+        "gfw-hourly-grid-pmtiles-preload-hit-fill"
       ],
       "type": "gfwHourlyGrid"
     },
@@ -1911,6 +1913,12 @@
         "eq-replay-town-fill"
       ],
       "type": "earthquakeReplayTown"
+    },
+    {
+      "layers": [
+        "gfw-fishing-effort-fill"
+      ],
+      "type": "gfwFishingEffort"
     },
     {
       "layers": [
@@ -50107,6 +50115,15 @@
         "value": 0.86
       }
     ],
+    "gfwFishingEffort": [
+      {
+        "label": "透明度 0.58",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.58
+      }
+    ],
     "gfwHourlyGrid": [
       {
         "label": "透明度 0.80",
@@ -50146,6 +50163,36 @@
         ],
         "type": "select",
         "value": "0.5"
+      },
+      {
+        "label": "Fishing",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Cargo",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Passenger",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "Carrier",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "Other",
+        "type": "toggle",
+        "value": false
+      },
+      {
+        "label": "Unknown",
+        "type": "toggle",
+        "value": false
       }
     ],
     "gfwVesselPresence": [

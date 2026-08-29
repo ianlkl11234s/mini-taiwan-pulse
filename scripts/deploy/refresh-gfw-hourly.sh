@@ -11,7 +11,7 @@ mkdir -p /data/global-maritime/gfw-hourly/v3-shadow
 aws s3 sync \
   "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/" \
   "/data/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json"
+  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json" --exclude "v4/manifest.json"
 
 # 新 release assets 全部落地後才原子更換可變指標，不暴露半套 release。
 if aws s3 cp \
@@ -29,4 +29,21 @@ if aws s3 cp \
   --no-progress; then
   mv "/data/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
     "/data/global-maritime/gfw-hourly/v3-shadow/manifest.json"
+fi
+
+# v4 可選正式 release：不存在時保持 no-op；存在時先完成 immutable release
+# 同步，再以 tmp+mv 切換 root manifest，舊讀者不會讀到半套資料。
+if aws s3 ls \
+  "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/v4/manifest.json" >/dev/null 2>&1; then
+  mkdir -p /data/global-maritime/gfw-hourly/v4/releases
+  if aws s3 sync \
+    "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/v4/releases/" \
+    "/data/global-maritime/gfw-hourly/v4/releases/" --no-progress && \
+    aws s3 cp \
+      "s3://$BUCKET/deploy-assets/global-maritime/gfw-hourly/v4/manifest.json" \
+      "/data/global-maritime/gfw-hourly/v4/manifest.json.tmp" \
+      --no-progress; then
+    mv "/data/global-maritime/gfw-hourly/v4/manifest.json.tmp" \
+      "/data/global-maritime/gfw-hourly/v4/manifest.json"
+  fi
 fi
