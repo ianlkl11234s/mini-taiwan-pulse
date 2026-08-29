@@ -9,6 +9,7 @@ export interface ReservoirCustomLayerOptions {
   getIsVisible: () => boolean;
   getIsDarkTheme: () => boolean;
   getHeightScale: () => number;
+  getSizeScale: () => number;
 }
 
 /**
@@ -53,6 +54,7 @@ export function createReservoirLayer(opts: ReservoirCustomLayerOptions): CustomL
       opts.scene.setVisible(opts.getIsVisible());
       opts.scene.setTheme(opts.getIsDarkTheme());
       opts.scene.setHeightScale(opts.getHeightScale());
+      opts.scene.setSizeScale(opts.getSizeScale());
 
       if (opts.getIsVisible()) {
         opts.scene.render(matrix);

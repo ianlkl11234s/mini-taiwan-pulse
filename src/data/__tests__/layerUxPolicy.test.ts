@@ -5,14 +5,12 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
 const OPACITY_BACKLOG: string[] = [];
 
-const CONFIRMED_POINT_SIZE_BACKLOG = [
-  "fireLatest",
-].sort();
+const CONFIRMED_POINT_SIZE_BACKLOG: string[] = [];
 
-const MAPBOX_POINT_SIZE_BACKLOG = [
-  "industrialPowerPlant", "industrialRefinery", "industrialStorageTank", "maritimeBoundary",
-  "powerGenerationUnit", "waterReservoirs",
-].sort();
+const MAPBOX_POINT_SIZE_BACKLOG: string[] = [];
+
+/** 海事邊界的寬度同時縮放線與 basepoint，故不再新增重複的「大小」控制。 */
+const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary"] as const;
 
 const NO_PARAMS_BACKLOG = [
   "activeFaults", "aqiStations", "medICUBeds", "powerRegionDemand",
@@ -95,6 +93,7 @@ describe("Layer UX policy baseline", () => {
       OVERLAY_REGISTRY
         .filter((overlay) => overlay.layers.some((layer) => layer.type === "circle" || layer.type === "symbol"))
         .filter((overlay) => {
+          if (POINT_SIZE_POLICY_EXCEPTIONS.includes(overlay.id as typeof POINT_SIZE_POLICY_EXCEPTIONS[number])) return false;
           const specs = LAYER_PARAMS_SPEC[overlay.id as keyof typeof LAYER_PARAMS_SPEC] ?? [];
           return !hasPointSizeControl(specs);
         })
@@ -123,16 +122,34 @@ describe("Layer UX policy baseline", () => {
       lightningCwa: "lightningCwaScale",
       parkingOffstreet: "parkingOffstreetScale",
       parkingOnstreet: "parkingOnstreetScale",
+      waterReservoirs: "waterReservoirsScale",
+      powerGenerationUnit: "powerGenerationScale",
+      industrialRefinery: "industrialRefineryScale",
+      industrialStorageTank: "industrialStorageTankScale",
+      industrialPowerPlant: "industrialPowerPlantScale",
     } as const;
 
     for (const [id, param] of Object.entries(pointSizeParams)) {
-      const overlay = OVERLAY_REGISTRY.find((entry) => entry.id === id);
-      expect(overlay, `${id} 必須有 OverlayConfig`).toBeDefined();
-      for (const layer of overlay!.layers.filter((entry) => entry.type === "circle")) {
+      const circles = OVERLAY_REGISTRY
+        .filter((entry) => entry.id === id)
+        .flatMap((overlay) => overlay.layers.filter((entry) => entry.type === "circle"));
+      expect(circles, `${id} 必須有 circle renderer`).not.toHaveLength(0);
+      for (const layer of circles) {
         const radiusAtOne = layer.paint(false, { [param]: 1 })["circle-radius"];
         const radiusAtTwo = layer.paint(false, { [param]: 2 })["circle-radius"];
         expect(radiusAtTwo, `${id}/${layer.suffix} 大小控件必須影響半徑`).not.toEqual(radiusAtOne);
       }
     }
+  });
+
+  it("海事邊界以單一寬度控制同步縮放線與 basepoint", () => {
+    const overlay = OVERLAY_REGISTRY.find((entry) => entry.id === "maritimeBoundary");
+    expect(overlay).toBeDefined();
+    const line = overlay!.layers.find((entry) => entry.suffix === "line")!;
+    const point = overlay!.layers.find((entry) => entry.suffix === "point")!;
+    expect(line.paint(false, { maritimeBoundaryWidth: 2 })["line-width"])
+      .not.toEqual(line.paint(false, { maritimeBoundaryWidth: 1 })["line-width"]);
+    expect(point.paint(false, { maritimeBoundaryWidth: 2 })["circle-radius"])
+      .not.toEqual(point.paint(false, { maritimeBoundaryWidth: 1 })["circle-radius"]);
   });
 });

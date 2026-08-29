@@ -38,6 +38,7 @@ export class PowerGenerationBeamScene {
   private beams: BeamState[] = [];
   private opacity = 0.55;
   private heightScale = 1;
+  private sizeScale = 1;
   private ownsRenderer = false;
 
   init(glOrRenderer: WebGLRenderingContext | THREE.WebGLRenderer) {
@@ -143,6 +144,13 @@ export class PowerGenerationBeamScene {
     this.updateMatrices(); // height slider 即時生效
   }
 
+  setSizeScale(s: number) {
+    const next = Math.max(0.1, Math.min(5, s));
+    if (next === this.sizeScale) return;
+    this.sizeScale = next;
+    this.updateMatrices();
+  }
+
   setVisible(v: boolean) {
     if (this.mesh) this.mesh.visible = v;
   }
@@ -173,7 +181,7 @@ export class PowerGenerationBeamScene {
         // 高度從 maxMercatorZ × currentHeight × heightScale 算來
         const h = b.maxMercatorZ * b.currentHeight * this.heightScale;
         t.makeTranslation(b.mc.x, b.mc.y, b.mc.z + h / 2);
-        s.makeScale(1, 1, h);
+        s.makeScale(this.sizeScale, this.sizeScale, h);
         m.copy(t).multiply(s);
         this.mesh.setMatrixAt(i, m);
       } else {

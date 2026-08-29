@@ -3262,42 +3262,51 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow-2",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 10, 50, 22, 200, 34,
+            0, 10 * scale, 50, 22 * scale, 200, 34 * scale,
           ],
           "circle-color": "#ffffff",
           "circle-blur": 1.8,
           "circle-opacity": isDark ? 0.35 : 0.28,
-        }),
+          };
+        },
       },
       {
         suffix: "glow-1",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 5, 50, 10, 200, 16,
+            0, 5 * scale, 50, 10 * scale, 200, 16 * scale,
           ],
           "circle-color": "#ffffff",
           "circle-blur": 0.8,
           "circle-opacity": isDark ? 0.7 : 0.55,
-        }),
+          };
+        },
       },
       {
         suffix: "core",
         type: "circle",
-        paint: (isDark) => ({
+        paint: (isDark, params) => {
+          const scale = params?.waterReservoirsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
-            0, 2.5, 50, 4.5, 200, 7,
+            0, 2.5 * scale, 50, 4.5 * scale, 200, 7 * scale,
           ],
           "circle-color": isDark ? "#ffffff" : "#0e7490",
           "circle-stroke-color": isDark ? "#67e8f9" : "#0891b2",
           "circle-stroke-width": 1.2,
           "circle-opacity": 1,
-        }),
+          };
+        },
       },
     ],
   },
@@ -5514,15 +5523,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "hit",
         type: "circle",
-        paint: () => ({
+        paint: (_isDark, params) => {
+          const scale = params?.powerGenerationScale ?? 1;
+          return {
           // 完全透明（看不到），但 ≥ 10px 半徑用戶仍能點到
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            5, 10, 12, 18,
+            5, 10 * scale, 12, 18 * scale,
           ],
           "circle-color": "#000000",
           "circle-opacity": 0,
-        }),
+          };
+        },
       },
     ],
   },
@@ -7197,8 +7209,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
+          const scale = params?.industrialRefineryScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 10, 18, 14, 36],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6 * scale, 10, 18 * scale, 14, 36 * scale],
             "circle-blur": 0.8,
             "circle-color": "#F97316",
             "circle-opacity": o * 0.5,
@@ -7211,8 +7224,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
+          const scale = params?.industrialRefineryScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2, 10, 5, 14, 9],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2 * scale, 10, 5 * scale, 14, 9 * scale],
             "circle-color": "#F97316",
             "circle-opacity": o,
           };
@@ -7261,8 +7275,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
+          const scale = params?.industrialStorageTankScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5, 10, 14, 14, 28],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5 * scale, 10, 14 * scale, 14, 28 * scale],
             "circle-blur": 0.8,
             "circle-color": "#06B6D4",
             "circle-opacity": o * 0.5,
@@ -7275,8 +7290,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
+          const scale = params?.industrialStorageTankScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5, 10, 4, 14, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5 * scale, 10, 4 * scale, 14, 7 * scale],
             "circle-color": "#06B6D4",
             "circle-opacity": o,
           };
@@ -7325,8 +7341,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          const scale = params?.industrialPowerPlantScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7, 10, 20, 14, 40],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7 * scale, 10, 20 * scale, 14, 40 * scale],
             "circle-blur": 0.8,
             "circle-color": "#D946EF",
             "circle-opacity": o * 0.55,
@@ -7339,8 +7356,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          const scale = params?.industrialPowerPlantScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5, 10, 6, 14, 10],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5 * scale, 10, 6 * scale, 14, 10 * scale],
             "circle-color": "#D946EF",
             "circle-opacity": o,
           };

@@ -87,6 +87,7 @@ export const FireLatestHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.fireLatest,
     deps.isDarkTheme,
     p.fireLatestOpacity ?? 1,
+    p.fireLatestScale ?? 1,
   );
   return null;
 };

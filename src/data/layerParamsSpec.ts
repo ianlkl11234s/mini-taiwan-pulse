@@ -1087,7 +1087,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("weatherStationsOpacity", 1),
   ],
   fireEvents: [opacitySlider("fireEventsOpacity", 1)],
-  fireLatest: [opacitySlider("fireLatestOpacity", 1)],
+  fireLatest: [opacitySlider("fireLatestOpacity", 1), scaleSlider("fireLatestScale", 1)],
   erHospital: [opacitySlider("erHospitalOpacity", 0.85), scaleSlider("erHospitalScale", 1)],
   librarySeats: [opacitySlider("librarySeatsOpacity", 0.9), scaleSlider("librarySeatsScale", 1)],
   parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6), scaleSlider("parkingOnstreetScale", 1)],
@@ -1364,6 +1364,7 @@ export const LAYER_PARAMS_SPEC = {
   waterReservoirs: [
     { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
     opacitySlider("waterReservoirsOpacity", 1),
+    scaleSlider("waterReservoirsScale", 1),
   ],
   waterFacilities: [
     { kind: "slider", name: "waterFacilityScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
@@ -1529,6 +1530,7 @@ export const LAYER_PARAMS_SPEC = {
   powerGenerationUnit: [
     { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("powerGenerationOpacity", 0.7),
+    scaleSlider("powerGenerationScale", 1),
   ],
   facOffshore: [opacitySlider("facOffshoreOpacity", 0.45)],
   facPlanned: [scaleSlider("facPlannedScale", 0.5), opacitySlider("facPlannedOpacity", 0.7)],
@@ -1927,14 +1929,17 @@ export const LAYER_PARAMS_SPEC = {
   industrialRefinery: [
     { kind: "slider", name: "industrialRefineryOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialRefineryOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialRefineryScale", 1),
   ],
   industrialStorageTank: [
     { kind: "slider", name: "industrialStorageTankOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialStorageTankOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialStorageTankScale", 1),
   ],
   industrialPowerPlant: [
     { kind: "slider", name: "industrialPowerPlantOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
+    scaleSlider("industrialPowerPlantScale", 1),
   ],
   mountainRescueIncidents: [
     {

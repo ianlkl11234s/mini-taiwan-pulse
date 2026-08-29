@@ -25,6 +25,7 @@ export const ReservoirStatusHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.waterReservoirs,
     deps.isDarkTheme,
     p.reservoirPillarHeight ?? 1,
+    p.waterReservoirsScale ?? 1,
     deps.reservoirSceneRef,
     deps.reservoirStatusesRef,
     deps.activeReservoirId,

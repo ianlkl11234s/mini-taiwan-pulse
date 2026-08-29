@@ -49554,6 +49554,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "fireStations": [
@@ -50569,6 +50576,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "industrialRefinery": [
@@ -50583,6 +50597,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "industrialStorageTank": [
@@ -50597,6 +50618,13 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "internetExchangePoints": [
@@ -52941,6 +52969,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.7
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "powerLinesGlow": [
@@ -55787,6 +55822,13 @@
         "max": 1,
         "min": 0.1,
         "step": 0.05,
+        "value": 1
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
         "value": 1
       }
     ],
