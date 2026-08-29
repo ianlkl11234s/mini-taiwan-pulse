@@ -3,6 +3,7 @@
 // 各 layer 的 panel 元件在 src/components/featureInfo/*Panels.tsx（按 domain 分檔），
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
+import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import type { FeatureInfo } from "../types";
@@ -21,6 +22,30 @@ interface Props {
 }
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkTheme = true }: Props) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, [feature]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      const target = event.target as HTMLElement | null;
+      const isEditable = target?.isContentEditable || target?.tagName === "INPUT"
+        || target?.tagName === "TEXTAREA" || target?.tagName === "SELECT";
+      if (isEditable || !panelRef.current?.contains(document.activeElement)) return;
+      event.preventDefault();
+      onCloseRef.current();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
   // 主題化 chrome 色票（僅中性面板/邊框/次要文字；accent 藍、狀態色、資料色兩主題共用）
   const c = isDarkTheme
     ? {
@@ -55,6 +80,8 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
   return (
     <FeatureThemeProvider palette={featurePalette}>
     <div
+      ref={panelRef}
+      tabIndex={-1}
       style={{
         width: isCctv ? 460 : 280,
         maxWidth: "92vw",

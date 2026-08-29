@@ -426,7 +426,62 @@ export type SelectParamSpec =
   | SelectNumericParamSpec
   | SelectNoOverlayParamSpec;
 
-export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec;
+// ── 分類多選（尚未遷移任何 layer；先提供共通宣告與狀態編碼）────────────
+
+export const MULTI_SELECT_ALL = "__all__";
+export const MULTI_SELECT_NONE = "__none__";
+
+/**
+ * 分類多選的值維持 scalar string，避免改動既有 store。`__all__` 會隨 options
+ * 自動展開，`__none__` 是全關，其他值為排序後的 JSON string array。
+ */
+export interface MultiSelectParamSpec extends SharedSlotField, ConditionalField, CascadeField {
+  kind: "multiSelect";
+  name: string;
+  label: string;
+  options: ParamSelectOption[];
+  default: string;
+  /**
+   * `null` 代表各 layer 自己訂閱資料篩選通道；有值時以 options 順序編成 bitmask，
+   * 讓 Mapbox filter 能以一個 numeric overlayParams 值接收多選狀態。
+   */
+  out: string | null;
+}
+
+export function serializeMultiSelectValues(values: readonly string[]): string {
+  return JSON.stringify([...new Set(values)].sort());
+}
+
+export function resolveMultiSelectValues(
+  value: string,
+  options: readonly ParamSelectOption[],
+): string[] {
+  const optionValues = options.map((option) => option.value);
+  if (value === MULTI_SELECT_ALL) return optionValues;
+  if (value === MULTI_SELECT_NONE) return [];
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed) || !parsed.every((item) => typeof item === "string")) return [];
+    const selected = new Set(parsed);
+    return optionValues.filter((optionValue) => selected.has(optionValue));
+  } catch {
+    return [];
+  }
+}
+
+/** options 的順序就是 bit 位元；目前只用在小於 31 種的穩定分類。 */
+export function encodeMultiSelectBitmask(
+  value: string,
+  options: readonly ParamSelectOption[],
+): number {
+  return resolveMultiSelectValues(value, options).reduce(
+    (mask, selected) => mask | (1 << options.findIndex((option) => option.value === selected)),
+    0,
+  );
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec | MultiSelectParamSpec;
 
 /** 控件值的三種形狀（與三種 spec 一一對應） */
 export type ParamValue = number | string | boolean;
@@ -775,15 +830,11 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
 export const LAYER_PARAMS_SPEC = {
   // ══════════ 宗教 Religion 6 層 ══════════
   religionTemples: [
-    // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
+    // 主祀神祇可同時選多族；bitmask 讓 Mapbox filter 仍維持 numeric overlayParams 合約。
     {
-      kind: "select", name: "religionTemplesDeity", label: "主祀", default: "all",
-      options: [
-        { label: "全部", value: "all" },
-        ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value })),
-      ],
-      out: "religionTemplesDeityIdx",
-      encode: ["all", ...DEITY_FAMILIES.map((d) => d.value)],
+      kind: "multiSelect", name: "religionTemplesDeity", label: "主祀類別", default: MULTI_SELECT_ALL,
+      options: DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value })),
+      out: "religionTemplesDeityMask",
     },
     {
       kind: "select", name: "religionTemplesRegistry", label: "登記", default: "all",
@@ -992,17 +1043,21 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ 交通・醫療・公共設施・教育 ══════════
   bikeStations: [
     { kind: "slider", name: "bikeScale", labelPrefix: "Bike", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("bikeStationsOpacity", 1),
   ],
   highways: [
     { kind: "slider", name: "highwayWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "highwayGlow", labelPrefix: "Glow", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
+    opacitySlider("highwaysOpacity", 1),
   ],
   provincialRoads: [
     { kind: "slider", name: "provincialWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "provincialGlow", labelPrefix: "Glow", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
+    opacitySlider("provincialRoadsOpacity", 1),
   ],
   cyclingRoutes: [
     { kind: "slider", name: "cyclingWidth", labelPrefix: "Cycling", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("cyclingRoutesOpacity", 1),
   ],
   freewayCongestion: [
     { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
@@ -1013,6 +1068,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   weatherStations: [
     { kind: "slider", name: "weatherScale", labelPrefix: "Weather", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("weatherStationsOpacity", 1),
   ],
   fireEvents: [opacitySlider("fireEventsOpacity", 1)],
   fireLatest: [opacitySlider("fireLatestOpacity", 1)],
@@ -1174,6 +1230,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("convenienceStoresOpacity", 1),
   ],
   postOffices: [opacitySlider("postOfficesOpacity", 0.85), scaleSlider("postOfficesScale", 1)],
   iPostBoxes: [opacitySlider("iPostBoxesOpacity", 0.85), scaleSlider("iPostBoxesScale", 1)],
@@ -1289,6 +1346,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   waterReservoirs: [
     { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+    opacitySlider("waterReservoirsOpacity", 1),
   ],
   waterFacilities: [
     { kind: "slider", name: "waterFacilityScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
@@ -1713,9 +1771,11 @@ export const LAYER_PARAMS_SPEC = {
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
     { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    opacitySlider("busStationsCityOpacity", 1),
   ],
   busStationsIntercity: [
     { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    opacitySlider("busStationsIntercityOpacity", 1),
   ],
   fireIsochrone: [
     {
@@ -2132,6 +2192,7 @@ export const LAYER_PARAMS_SPEC = {
     // ⚠️ 大小是 2 位小數（不是 scaleSlider 的 1 位）—— 同名不同形，不可複用建構子
     { kind: "slider", name: "wasteStopsStaticScale", labelPrefix: "大小", digits: 2, default: 1, min: 0.3, max: 3, step: 0.1 },
     { kind: "slider", name: "wasteStopsStaticGlow", labelPrefix: "光暈", digits: 2, default: 0.1, min: 0, max: 0.5, step: 0.02 },
+    opacitySlider("wasteStopsStaticOpacity", 1),
     zFloatSlider("wasteStopsStaticZ"),
   ],
 
@@ -2907,7 +2968,7 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
  * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
  */
 export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
-  if (spec.kind === "select") return spec.out;
+  if (spec.kind === "select" || spec.kind === "multiSelect") return spec.out;
   return spec.out === undefined ? spec.name : spec.out;
 }
 
@@ -3037,5 +3098,8 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
       // 第二通道 select（out: null）沒有編碼可言 —— 唯一的呼叫端
       // `encodeParamsToOverlay` 在 outKey === null 時就 continue 了，走到這裡是程式錯誤。
       throw new Error(`select "${spec.name}" 宣告 out: null（第二通道），不該被編碼`);
+    case "multiSelect":
+      if (spec.out !== null) return encodeMultiSelectBitmask(String(value), spec.options);
+      throw new Error(`multiSelect "${spec.name}" 宣告 out: null（資料篩選通道），不該被編碼`);
   }
 }

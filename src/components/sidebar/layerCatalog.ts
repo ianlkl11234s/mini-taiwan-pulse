@@ -5,7 +5,7 @@
 // LayerSidebar（手機版）與 IconRailSidebar（桌機版）共用此檔。
 //
 // 結構（2026-07 現況，PR #72 後）：
-// - 23 主題（Theme） → 多子群（SubGroup） → 多 Layer
+// - 32 主題（Theme） → 多子群（SubGroup） → 多 Layer
 // - SECTIONS 為 derived flat list，每筆 SectionDef = 一個 SubGroup，
 //   title 格式：`主題中文 English · 子群中文`，視覺上連續行構成主題分組。
 //   下一階段 sidebar 升級後可直接消費 THEMES。
@@ -121,7 +121,7 @@ export interface SubGroupDef {
 export interface ThemeDef {
   /** 主題名 `中文 English` 格式 */
   title: string;
-  /** 預設是否摺疊（僅環境氣候 Environment = false，其餘全部 true） */
+  /** 預設是否摺疊 */
   defaultCollapsed?: boolean;
   groups: SubGroupDef[];
 }
@@ -179,7 +179,11 @@ export const WORLD_TAB_THEME_TITLES: string[] = [
   "全球海事 Global Maritime",
 ];
 
-export const THEMES: ThemeDef[] = [
+/**
+ * 完整目錄保留在此，避免為了 UI 敘事分段而搬動大量 layer 定義。
+ * `THEMES` 依大分類排序後才是 sidebar 的顯示順序。
+ */
+const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
@@ -269,6 +273,12 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        title: "共享運具",
+        layers: [
+          fromManifest("youbikeFullness"),
+        ],
+      },
+      {
         title: "路網",
         layers: [
           fromManifest("highways"),
@@ -332,12 +342,6 @@ export const THEMES: ThemeDef[] = [
         layers: [
           fromManifest("socioeconomic"),
           fromManifest("spatialEconomy"),
-        ],
-      },
-      {
-        title: "共享運具",
-        layers: [
-          fromManifest("youbikeFullness"),
         ],
       },
     ],
@@ -1027,6 +1031,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "環境氣候 Environment",
+    defaultCollapsed: true,
     groups: [
       {
         title: "氣象",
@@ -1124,7 +1129,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: COMMUNICATIONS_THEME_TITLE,
-    defaultCollapsed: false,
+    defaultCollapsed: true,
     groups: [
       {
         title: "全球骨幹 Global Backbone",
@@ -1394,6 +1399,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: WORLD_THEME_TITLE,
+    defaultCollapsed: true,
     groups: [
       {
         title: "環境",
@@ -1431,6 +1437,72 @@ export const THEMES: ThemeDef[] = [
   },
 
 ];
+
+/**
+ * Layers 的第一層閱讀順序：不改 theme title、layer key 或資料契約，只提供 UI 分段。
+ * 世界相關主題仍由 WORLD_TAB_THEME_TITLES 獨立顯示於桌機 World rail。
+ */
+export const LAYER_MACRO_GROUPS = [
+  { key: "baseline", title: "基準 Baseline" },
+  { key: "city", title: "移動與城市 City & Mobility" },
+  { key: "publicLife", title: "公共生活 Public Life" },
+  { key: "safety", title: "安全與治理 Safety & Governance" },
+  { key: "environment", title: "環境與資源 Environment & Resources" },
+  { key: "intelligence", title: "情報 Intelligence" },
+  { key: "world", title: "世界 World" },
+] as const;
+
+export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
+
+const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
+  "底圖 Base Map": "baseline",
+  "交通 Move": "city",
+  "人口社經 People": "city",
+  "都市分析 Urban Analysis": "city",
+  "房地產 Real Estate": "city",
+  "工商登記 Business Registry": "city",
+  "基礎建設 Infrastructure": "publicLife",
+  "教育 Education": "publicLife",
+  "社福長照 Welfare": "publicLife",
+  "運動休閒 Sports & Leisure": "publicLife",
+  "文化 Culture": "publicLife",
+  "宗教 Religion": "publicLife",
+  "殯葬 Funeral": "publicLife",
+  "觀光 Tourism": "publicLife",
+  "醫療 Medical": "safety",
+  "消防 Fire & Rescue": "safety",
+  "災害 Hazard": "safety",
+  "民防避難 Civil Defense": "safety",
+  "執法治安 Law & Order": "safety",
+  "環境氣候 Environment": "environment",
+  "水資源 Water": "environment",
+  "廢棄物 Waste": "environment",
+  "能源 Energy": "environment",
+  "農業 Agriculture": "environment",
+  "動物福利 Animal Welfare": "environment",
+  "林業 Forestry": "environment",
+  "太空 Space": "intelligence",
+  "情勢 Situation": "intelligence",
+  [WORLD_THEME_TITLE]: "world",
+  [COMMUNICATIONS_THEME_TITLE]: "world",
+  "全球氣候 Global Climate": "world",
+  "全球海事 Global Maritime": "world",
+};
+
+export function themeMacroGroup(title: string): LayerMacroGroup {
+  const group = THEME_MACRO_GROUPS[title];
+  if (!group) throw new Error(`[layerCatalog] 未分類的 theme: ${title}`);
+  return group;
+}
+
+const MACRO_GROUP_ORDER = new Map(
+  LAYER_MACRO_GROUPS.map((group, index) => [group.key, index]),
+);
+
+/** Sidebar 顯示順序；同一大分類內保留目錄原有順序。 */
+export const THEMES: ThemeDef[] = [...THEME_CATALOG].sort(
+  (a, b) => MACRO_GROUP_ORDER.get(themeMacroGroup(a.title))! - MACRO_GROUP_ORDER.get(themeMacroGroup(b.title))!,
+);
 
 // ── SECTIONS（derived flat — backward compat for 兩個 sidebar 元件）──
 // 每個 SubGroup 攤平為一筆 SectionDef，title = `主題 English · 子群中文`，

@@ -72,6 +72,27 @@ function layerId(config: OverlayConfig, suffix: string) {
 }
 
 /**
+ * Layer-level opacity 的共通乘數。個別 paint 保留自己的資料／深淺色 alpha，
+ * 使用者明確登記的 `opacityParam` 乘在最外層，沒有登記時維持原 paint。
+ */
+export function applyLayerOpacity(
+  config: OverlayConfig,
+  paint: Record<string, unknown>,
+  params?: Record<string, number>,
+): Record<string, unknown> {
+  if (!config.opacityParam) return paint;
+  const opacity = params?.[config.opacityParam];
+  if (opacity === undefined) return paint;
+
+  const out = { ...paint };
+  for (const [key, value] of Object.entries(out)) {
+    if (!key.endsWith("-opacity") || value === undefined) continue;
+    out[key] = typeof value === "number" ? value * opacity : ["*", value, opacity];
+  }
+  return out;
+}
+
+/**
  * 該 config 當下該不該可見 = 圖層 toggle 開啟 **且**（多尺度圖層）目前選的尺度就是它。
  *
  * `propertyValueGrid` 與 `companyCapitalGrid` 都是「一個 layer key ↔ 多個
@@ -198,7 +219,7 @@ export function addOverlay(
     const id = layerId(config, spec.suffix);
     if (map.getLayer(id)) continue;
 
-    const paint = spec.paint(isDark, params);
+    const paint = applyLayerOpacity(config, spec.paint(isDark, params), params);
     const filter = resolveFilter(spec, params);
     map.addLayer({
       id,
@@ -240,7 +261,7 @@ export function updateOverlayTheme(
       const id = layerId(config, spec.suffix);
       // 把 paint + (callback) layout + (函式) filter 一起 snapshot；三者任一變化都需 trigger rebuild
       // （filter 併入 __filter 合成 key 僅供比對，不是真的 mapbox paint property）
-      const paintObj = spec.paint(isDark, params);
+      const paintObj = applyLayerOpacity(config, spec.paint(isDark, params), params);
       const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : (spec.layout ?? {});
       const filterObj = resolveFilter(spec, params);
       const snapshot = snapshotPaint({ ...paintObj, ...layoutObj, ...(filterObj ? { __filter: filterObj } : {}) });
@@ -264,7 +285,7 @@ export function updateOverlayTheme(
         if (!config.rebuildOnParamChange.includes(spec.suffix)) continue;
         const id = layerId(config, spec.suffix);
         if (map.getLayer(id)) continue;
-        const paint = spec.paint(isDark, params);
+        const paint = applyLayerOpacity(config, spec.paint(isDark, params), params);
         const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout;
         const filter = resolveFilter(spec, params);
         map.addLayer({
@@ -292,7 +313,7 @@ export function updateOverlayTheme(
     // 非 rebuild layers 仍走 diff 式 setPaintProperty
     for (const spec of config.layers) {
       if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
-      applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+      applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
       if (typeof spec.layout === "function") {
         applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
       }
@@ -302,7 +323,7 @@ export function updateOverlayTheme(
 
   // 一般 layers: diff 式 setPaintProperty + callback layout 也 diff 更新
   for (const spec of config.layers) {
-    applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+    applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
     if (typeof spec.layout === "function") {
       applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
     }

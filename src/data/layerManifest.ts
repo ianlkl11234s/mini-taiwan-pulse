@@ -244,7 +244,7 @@ interface LayerManifestBase {
    * 參數控件規格佔位（Phase 4 才把 useLayerParamsRuntime 的 case 派生掉）。
    * 現在只記「有幾個控件、各是什麼型別」，讓測試能釘住宣告不漂移。
    */
-  params: { count: number; kinds: ("slider" | "toggle" | "select")[] } | null;
+  params: { count: number; kinds: ("slider" | "toggle" | "select" | "multiSelect")[] } | null;
 
   // ── 人讀 ──
   /** 一句話說明這層在講什麼（給 sidebar tooltip / 資料源瀏覽器 / BYOK 對話用） */
@@ -261,7 +261,7 @@ export interface LayerManifestThemedEntry extends LayerManifestBase {
   section: LayerSection;
   /** 桌機 IconRailSidebar 顯示文字。格式慣例 `中文 English` */
   label: string;
-  /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
+  /** 手機專用短名：保留中文主名，必要時移除英文輔名與資料筆數。 */
   labelMobile?: string;
   /** sidebar toggle 是否可展開參數面板 */
   expandable?: boolean;
@@ -480,7 +480,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "religionTemples",
     popup: "religionTemples",
-    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    params: { count: 4, kinds: ["multiSelect", "select", "slider", "slider"] },
     description: "全台登記寺廟 19,201 座（主祀神 deity_family 9 族分色）",
     topics: ["宗教", "寺廟", "民俗"],
   },
@@ -927,7 +927,7 @@ export const LAYER_MANIFEST = {
   fireLatest: {
     key: "fireLatest",
     section: { theme: "消防 Fire & Rescue", group: "事件" },
-    label: "火災 最新年度 Latest",
+    label: "火災最新年度 Latest",
     expandable: true,
     color: "#ff1744",
     icon: Flame,
@@ -985,9 +985,9 @@ export const LAYER_MANIFEST = {
     color: "#8d9c6b",
     icon: LayoutGrid,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md",
+      status: "verified",
+      datasets: [{ datasetId: "urban_form_grid", confidence: "HIGH" }],
+      note: "都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles）；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md",
     },
     dataClass: "B",
     source: {
@@ -1043,10 +1043,10 @@ export const LAYER_MANIFEST = {
     color: "#f59e0b",
     icon: Trash2,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
+      status: "verified",
+      datasets: [{ datasetId: "trash_debris_outerview", confidence: "HIGH" }],
       processing: "Outerview 全球垃圾殘骸 ~25k Point（區域名 + id）；點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈",
-      note: "外部資料源 Outerview（CC-BY-4.0）— 非台灣開放資料 catalog，尚無 dataset_id",
+      note: "外部資料源 Outerview（CC-BY-4.0）。",
     },
     dataClass: "D",
     source: {
@@ -1430,9 +1430,8 @@ export const LAYER_MANIFEST = {
     color: "#22C55E",
     icon: Network,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`internet_exchange_points`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "internet_exchange_points", confidence: "HIGH" }],
     },
     dataClass: "A",
     source: {
@@ -1455,9 +1454,8 @@ export const LAYER_MANIFEST = {
     color: "#F97316",
     icon: Radio,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`anfr_wireless_sites`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "anfr_wireless_sites", confidence: "HIGH" }],
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "anfr-wireless-sites", url: "./geo/anfr_wireless_sites.geojson" },
@@ -1476,9 +1474,8 @@ export const LAYER_MANIFEST = {
     color: "#38BDF8",
     icon: Radio,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`osm_communication_sites`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "osm_communication_sites", confidence: "HIGH" }],
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "osm-communication-sites", url: "./geo/osm_communication_sites.geojson" },
@@ -1497,9 +1494,9 @@ export const LAYER_MANIFEST = {
     color: "#22D3EE",
     icon: Activity,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "RIPE Atlas public probe metadata 3,000／13,534 點穩定概覽；座標保留 80–400m obfuscation ⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`ripe_atlas_probes`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "ripe_atlas_probes", confidence: "HIGH" }],
+      note: "RIPE Atlas public probe metadata 3,000／13,534 點穩定概覽；座標保留 80–400m obfuscation。",
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "ripe-atlas-probes", url: "./geo/ripe_atlas_probes.geojson" },
@@ -1615,9 +1612,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "convenience-stores", url: "./geo/convenience_stores.geojson" },
     legend: null,
     popup: "convenienceStore",
-    // ⚠️ 只有 1 個控件（Scale），沒有 Opacity —— 與同群其餘 9 層的「透明度 + 大小」
-    //    兩件組不同。是實況，不要照鄰居補齊。
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "全台便利商店點位（單色 POI，無圖例）",
     topics: ["基礎建設", "零售", "生活機能"],
   },
@@ -1665,7 +1660,7 @@ export const LAYER_MANIFEST = {
   communityCenters: {
     key: "communityCenters",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
-    label: "活動中心（部分縣市）Community Center",
+    label: "活動中心（部分縣市） Community Center",
     expandable: true,
     color: "#26a69a",
     icon: Users,
@@ -1750,9 +1745,9 @@ export const LAYER_MANIFEST = {
     color: "#f59e0b",
     icon: PawPrint,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "農業部動物認領養每日快照；地圖顯示收容所摘要，不直接載入個體清單 ⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`animal_welfare.animal_adoption`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "animal_adoption", confidence: "HIGH" }],
+      note: "農業部動物認領養每日快照；地圖顯示收容所摘要，不直接載入個體清單。",
     },
     dataClass: "D",
     source: { kind: "custom", note: "Supabase shelter-summary RPC 由 useAnimalAdoptionLayer 動態建立 GeoJSON source/circle layers" },
@@ -1771,9 +1766,12 @@ export const LAYER_MANIFEST = {
     color: "#f97316",
     icon: PawPrint,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "農業部收容所官方月報；壓力只採同一官方來源的在養量／容量，不跨源混加。 ⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`animal_welfare.animal_shelter_pressure_monthly`、`animal_welfare.animal_shelter_outcomes_monthly`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [
+        { datasetId: "animal_shelter_pressure_monthly", confidence: "HIGH" },
+        { datasetId: "animal_shelter_outcomes_monthly", confidence: "HIGH" },
+      ],
+      note: "農業部收容所官方月報；壓力只採同一官方來源的在養量／容量，不跨源混加。",
     },
     dataClass: "D",
     source: { kind: "custom", note: "Supabase monthly-pressure RPC 以 feature-state 套用既有 NLSC county_boundary PMTiles，不另載縣市幾何" },
@@ -1792,9 +1790,9 @@ export const LAYER_MANIFEST = {
     color: "#2563eb",
     icon: PawPrint,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "20 個官方與地方名冊來源；地圖預設只取 active、located canonical points。地方名冊為 partial coverage，不能用缺點推論無服務。 ⚠️ 上游尚未在 taipei-gis-analytics catalog 建檔，故 status 為 catalog_missing 而非 verified。原宣告 dataset id：`animal_welfare.animal_service_points`（catalog 規範為全小寫底線且須等於檔名，帶點的 id 需一併改名）。建檔後改回 verified 並填回 datasets。",
+      status: "verified",
+      datasets: [{ datasetId: "animal_service_points", confidence: "HIGH" }],
+      note: "20 個官方與地方名冊來源；地圖預設只取 active、located canonical points。地方名冊為 partial coverage，不能用缺點推論無服務。",
     },
     dataClass: "D",
     source: { kind: "custom", note: "Supabase get_animal_welfare_points 以 5,000 筆 offset 分頁，useAnimalWelfarePointsLayer 建立未 cluster 的 GeoJSON circle layers" },
@@ -1884,7 +1882,7 @@ export const LAYER_MANIFEST = {
   sportsPublicOther: {
     key: "sportsPublicOther",
     section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
-    label: "其他公共場館 Public",
+    label: "其他公共場館 Other Public Venues",
     expandable: true,
     color: "#26a69a",
     icon: Activity,
@@ -1904,7 +1902,7 @@ export const LAYER_MANIFEST = {
   sportsPrivate: {
     key: "sportsPrivate",
     section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
-    label: "民營場館 Private",
+    label: "民營場館 Private Venues",
     expandable: true,
     color: "#ef6c00",
     icon: Activity,
@@ -1969,9 +1967,9 @@ export const LAYER_MANIFEST = {
     color: "#7cb342",
     icon: Trees,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "台北公園點位（public/urban/parks_taipei.geojson），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "parks", confidence: "HIGH" }],
+      note: "台北公園點位（public/urban/parks_taipei.geojson）。",
     },
     dataClass: "A",
     source: { kind: "geojson", sourceId: "parks-taipei", url: "./urban/parks_taipei.geojson" },
@@ -3044,9 +3042,9 @@ export const LAYER_MANIFEST = {
     color: "#33691e",
     icon: Ruler,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "canopy_height_meta", confidence: "HIGH" }],
+      note: "全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles）。",
     },
     dataClass: "B",
     source: {
@@ -3077,9 +3075,12 @@ export const LAYER_MANIFEST = {
     color: "#a50026",
     icon: TreePine,
     upstream: {
-      status: "catalog_missing",
+      status: "pulse_only",
       datasets: [],
-      note: "樹冠 45m+ 巨木 GeoJSON（Meta/WRI 樹冠高度 10m × 可及性分析衍生，public/forestry/canopy_giants_taiwan.geojson），衍生資料無 catalog 來源",
+      derivedFromDatasets: ["canopy_height_meta"],
+      derivationType: "coverage",
+      processing: "從 Meta/WRI 10m 樹冠高度資料篩出 45m+ 巨木，再以可及性分析補上距離分級。",
+      note: "衍生 GeoJSON：public/forestry/canopy_giants_taiwan.geojson。",
     },
     dataClass: "A",
     source: {
@@ -3169,7 +3170,7 @@ export const LAYER_MANIFEST = {
   forestEducationCenters: {
     key: "forestEducationCenters",
     section: { theme: "林業 Forestry", group: "點位" },
-    label: "自然教育中心 Education",
+    label: "自然教育中心 Natural Education Centers",
     expandable: true,
     color: "#0EA5E9",
     icon: GraduationCap,
@@ -4361,7 +4362,7 @@ export const LAYER_MANIFEST = {
 
   youbikeFullness: {
     key: "youbikeFullness",
-    section: { theme: "人口社經 People", group: "共享運具" },
+    section: { theme: "交通 Move", group: "共享運具" },
     label: "YouBike 有車率 Fullness",
     expandable: true,
     color: "#f57c00",
@@ -5016,9 +5017,9 @@ export const LAYER_MANIFEST = {
     color: "#78909c",
     icon: Building2,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md",
+      status: "verified",
+      datasets: [{ datasetId: "buildings_3d_gba", confidence: "HIGH" }],
+      note: "全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles）；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md",
     },
     dataClass: "B",
     source: {
@@ -5837,7 +5838,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "weatherStation",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "中央氣象署地面氣象測站點位（點擊看該站即時觀測）",
     topics: ["環境", "氣象", "測站"],
   },
@@ -5946,9 +5947,9 @@ export const LAYER_MANIFEST = {
     color: "#b2182b",
     icon: ThermometerSun,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "都市熱島地表溫度 raster PMTiles（Landsat 8/9 C2 L2 ST_B10 2019–2025 暖季合成，經 Microsoft Planetary Computer STAC；public/environment/urban_heat_lst_taiwan.pmtiles），國際衛星資料源非台灣 catalog",
+      status: "verified",
+      datasets: [{ datasetId: "urban_heat_lst", confidence: "HIGH" }],
+      note: "都市熱島地表溫度 raster PMTiles（Landsat 8/9 C2 L2 ST_B10 2019–2025 暖季合成，經 Microsoft Planetary Computer STAC；public/environment/urban_heat_lst_taiwan.pmtiles）。",
     },
     dataClass: "B",
     source: {
@@ -6198,9 +6199,9 @@ export const LAYER_MANIFEST = {
     color: "#558b2f",
     icon: Sprout,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "street_trees_taipei_3epoch", confidence: "HIGH" }],
+      note: "台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles）。",
     },
     dataClass: "B",
     source: {
@@ -6226,9 +6227,9 @@ export const LAYER_MANIFEST = {
     color: "#43a047",
     icon: TreePalm,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "street_trees_national", confidence: "HIGH" }],
+      note: "行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles）。",
     },
     dataClass: "B",
     source: {
@@ -6254,9 +6255,9 @@ export const LAYER_MANIFEST = {
     color: "#00695c",
     icon: TreeDeciduous,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "protected_trees_national", confidence: "HIGH" }],
+      note: "受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson）。",
     },
     dataClass: "A",
     source: {
@@ -6279,9 +6280,9 @@ export const LAYER_MANIFEST = {
     color: "#0288d1",
     icon: Waves,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "riverside_trees_taipei", confidence: "HIGH" }],
+      note: "台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson）。",
     },
     dataClass: "A",
     source: {
@@ -6304,9 +6305,9 @@ export const LAYER_MANIFEST = {
     color: "#8d6e63",
     icon: Flower2,
     upstream: {
-      status: "catalog_missing",
-      datasets: [],
-      note: "台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建",
+      status: "verified",
+      datasets: [{ datasetId: "tree_pits_taipei", confidence: "HIGH" }],
+      note: "台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles）。",
     },
     dataClass: "B",
     source: {
@@ -6427,7 +6428,7 @@ export const LAYER_MANIFEST = {
     ],
     legend: null,
     popup: ["waterDam", "waterReservoirPoly"],
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）",
     topics: ["水資源", "水庫"],
   },
@@ -6632,7 +6633,7 @@ export const LAYER_MANIFEST = {
   taipeiPumb: {
     key: "taipeiPumb",
     section: { theme: "水資源 Water", group: "點位" },
-    label: "北市抽水站 Pumb Station (TP)",
+    label: "北市抽水站 Pump Station (TP)",
     expandable: true,
     color: "#06b6d4",
     icon: Droplets,
@@ -7016,7 +7017,7 @@ export const LAYER_MANIFEST = {
   wasteSchedule: {
     key: "wasteSchedule",
     section: { theme: "廢棄物 Waste", group: "即時" },
-    label: "垃圾車（表定）Schedule",
+    label: "垃圾車（表定） Schedule",
     expandable: true,
     color: "#fbbf24",
     icon: CalendarDays,
@@ -7110,7 +7111,7 @@ export const LAYER_MANIFEST = {
     // 唯獨密度最高、最貼近民生的清運點位不可點。route_name + routes_count 正好回答
     // 「我家這個點屬哪條路線 / 有幾條路線經過」。
     popup: "wasteStopsStatic",
-    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
     description: "全台垃圾車停靠點位（靜態快照，非即時）",
     topics: ["廢棄物", "清運", "點位"],
   },
@@ -8500,7 +8501,7 @@ export const LAYER_MANIFEST = {
     },
     legend: null,
     popup: "busStation",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "市區公車站牌點位（PMTiles 切片，雙圓 glow）",
     topics: ["交通", "公車", "場站"],
   },
@@ -8525,7 +8526,7 @@ export const LAYER_MANIFEST = {
     legend: null,
     // 與 busStationsCity 共用同一個 layerType（兩組 layer id → 同一個 busStation panel）
     popup: "busStation",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "公路客運站牌點位（雙圓 glow）",
     topics: ["交通", "公車", "場站"],
   },
@@ -8545,7 +8546,7 @@ export const LAYER_MANIFEST = {
     source: { kind: "geojson", sourceId: "bike-stations", url: "./geo/bike_stations.geojson" },
     legend: null,
     popup: "bikeStation",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "YouBike／公共自行車站點位（雙圓 glow）",
     topics: ["交通", "自行車", "場站"],
   },
@@ -8637,7 +8638,7 @@ export const LAYER_MANIFEST = {
   busIntercityLive: {
     key: "busIntercityLive",
     section: { theme: "交通 Move", group: "即時運具" },
-    label: "公路客運 InterCity",
+    label: "公路客運 Intercity",
     expandable: true,
     color: "#ba68c8",
     icon: Bus,
@@ -8729,7 +8730,7 @@ export const LAYER_MANIFEST = {
     // 但分開 layerType 讓 header 標得出「國道／省道」。ROADALIAS 0% 空（中山高／福爾摩沙）
     // 是最穩定的可讀名稱；ROADNAME 只在交流道／服務區有值。
     popup: "highway",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "國道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "國道"],
   },
@@ -8788,7 +8789,7 @@ export const LAYER_MANIFEST = {
     // 代碼語意（ROADCLASS1/2、ROADSTRUCT、MDATE）出自內政部通用電子地圖圖層內容說明
     // 附表1；WIDTH / ROADCOMNUM / DIR 三欄語意存疑，panel 刻意不顯示（見 roadPanels 註解）。
     popup: "provincialRoad",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "省道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "省道"],
   },
@@ -8811,7 +8812,7 @@ export const LAYER_MANIFEST = {
     // CyclingType / AuthorityName 上游回傳字串字面 "NULL"（1,749 筆全部）、
     // FinishedTime 有 ROC→西元轉換 bug（24.4% 壞值）→ panel 皆已擋掉。
     popup: "cyclingRoute",
-    params: { count: 1, kinds: ["slider"] },
+    params: { count: 2, kinds: ["slider", "slider"] },
     description: "自行車道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "自行車"],
   },

@@ -968,6 +968,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── National Highway (國道) ──
   {
     id: "highways",
+    opacityParam: "highwaysOpacity",
     sourceUrl: "./geo/national_highway.pmtiles",
     sourceId: "national-highways",
     pmtiles: { sourceLayer: "national_highway", minzoom: 0, maxzoom: 13 },
@@ -1009,6 +1010,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Provincial Road (省道) ──
   {
     id: "provincialRoads",
+    opacityParam: "provincialRoadsOpacity",
     sourceUrl: "./geo/provincial_road.pmtiles",
     sourceId: "provincial-roads",
     pmtiles: { sourceLayer: "provincial_road", minzoom: 0, maxzoom: 13 },
@@ -1086,6 +1088,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (City) ──
   {
     id: "busStationsCity",
+    opacityParam: "busStationsCityOpacity",
     sourceUrl: "./geo/bus_stations_city.pmtiles",
     sourceId: "bus-stations-city",
     pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
@@ -1133,6 +1136,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (Intercity) ──
   {
     id: "busStationsIntercity",
+    opacityParam: "busStationsIntercityOpacity",
     sourceUrl: "./geo/bus_stations_intercity.geojson",
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1179,6 +1183,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bike Stations ──
   {
     id: "bikeStations",
+    opacityParam: "bikeStationsOpacity",
     sourceUrl: "./geo/bike_stations.geojson",
     sourceId: "bike-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -1225,6 +1230,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Cycling Routes (自行車道) ──
   {
     id: "cyclingRoutes",
+    opacityParam: "cyclingRoutesOpacity",
     sourceUrl: "./geo/cycling_routes.geojson",
     sourceId: "cycling-routes",
     rebuildOnParamChange: ["glow", "line"],
@@ -1269,6 +1275,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Weather Stations (氣象站) ──
   {
     id: "weatherStations",
+    opacityParam: "weatherStationsOpacity",
     sourceUrl: "./geo/weather_stations.geojson",
     sourceId: "weather-stations",
     rebuildOnParamChange: ["glow", "circle"],
@@ -2105,6 +2112,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Convenience Stores (超商) ──
   {
     id: "convenienceStores",
+    opacityParam: "convenienceStoresOpacity",
     sourceUrl: "./geo/convenience_stores.geojson",
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
@@ -3191,6 +3199,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // PMTiles 向量切片（原 19MB GeoJSON → 按需載入；name/reservoir_name 等屬性保留供 popup）
   {
     id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
     sourceUrl: "./geo/water_reservoirs.pmtiles",
     sourceId: "water-reservoir-poly",
     pmtiles: { sourceLayer: "reservoirs", minzoom: 5, maxzoom: 13 },
@@ -3231,6 +3240,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 水庫 Reservoir (point — 壩體，白色發光節點像 Atlas power plants) ──
   {
     id: "waterReservoirs",
+    opacityParam: "waterReservoirsOpacity",
     sourceUrl: "./geo/water_dams.geojson",
     sourceId: "water-reservoir-dams",
     layers: [
@@ -3521,6 +3531,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Waste Stops Static (全台清運點位散點) ──
   {
     id: "wasteStopsStatic",
+    opacityParam: "wasteStopsStaticOpacity",
     sourceUrl: "./geo/waste_stops_static.geojson",
     sourceId: "waste-stops-static",
     layers: [
@@ -8927,7 +8938,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityIdx ?? 0),
+        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityMask ?? 511),
         paint: (isDark, p) => {
           const scale = p?.religionTemplesScale ?? 1;
           const opacity = p?.religionTemplesOpacity ?? 0.8;

@@ -6,7 +6,13 @@ import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from 
 import { buildParamControls } from "../state/layerParamsControls";
 import { useLayerParams } from "../state/layerParamsStore";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
+import {
+  LAYER_COLORS,
+  LAYER_MACRO_GROUPS,
+  THEMES,
+  themeMacroGroup,
+  TRANSPORT_LABELS,
+} from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 // ── Props ──
@@ -221,7 +227,13 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
-      {THEMES.map((theme) => {
+      {THEMES.map((theme, index) => {
+        const macroGroup = themeMacroGroup(theme.title);
+        const previousMacroGroup = index > 0 ? themeMacroGroup(THEMES[index - 1]!.title) : null;
+        const macroTitle = macroGroup
+          ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
+          : null;
+        const showMacroGroup = macroGroup !== previousMacroGroup && macroTitle;
         const isCollapsed = collapsedThemes.has(theme.title);
         const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
         const onCount = allKeys.filter((k) => visibility[k]).length;
@@ -240,6 +252,20 @@ function SidebarContent({
 
         return (
           <div key={theme.title}>
+            {showMacroGroup && (
+              <div
+                style={{
+                  padding: "14px 14px 5px",
+                  color: isDarkTheme ? "rgba(255,255,255,0.52)" : "rgba(0,0,0,0.48)",
+                  fontSize: baseFontSize - 1,
+                  fontWeight: 700,
+                  letterSpacing: 1.4,
+                  textTransform: "uppercase",
+                }}
+              >
+                {macroTitle}
+              </div>
+            )}
             {/* ── Theme Banner（sticky：滾到該 theme 時黏頂） ── */}
             <div
               onClick={() => toggleTheme(theme.title)}
@@ -529,6 +555,42 @@ function ExpandedPanel({
       {controls.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
+            if (ctrl.type === "multiSelect") {
+              const selected = new Set(ctrl.value);
+              return (
+                <details
+                  key={ctrl.label}
+                  onClick={(event) => event.stopPropagation()}
+                  style={{ color: isDarkTheme ? "rgba(255,255,255,0.68)" : "rgba(0,0,0,0.65)", fontSize: FONT_SIZE.sm }}
+                >
+                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
+                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
+                  </summary>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
+                    <div style={{ display: "flex", gap: 4 }}>
+                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
+                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
+                    </div>
+                    {ctrl.options.map((option) => (
+                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
+                        <input
+                          type="checkbox"
+                          checked={selected.has(option.value)}
+                          disabled={option.disabled}
+                          onChange={() => {
+                            const next = new Set(selected);
+                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
+                            ctrl.onChange([...next]);
+                          }}
+                        />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </details>
+              );
+            }
+
             if (ctrl.type === "select") {
               // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
               if (ctrl.options.length > 3) {

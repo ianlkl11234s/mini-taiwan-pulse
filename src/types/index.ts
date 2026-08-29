@@ -644,6 +644,8 @@ export interface OverlayLayerSpec {
 
 export interface OverlayConfig {
   id: keyof LayerVisibility;
+  /** 可選的整層 opacity 參數；overlayManager 會乘上既有 paint alpha。 */
+  opacityParam?: string;
   sourceUrl: string;
   sourceId: string;
   layers: OverlayLayerSpec[];

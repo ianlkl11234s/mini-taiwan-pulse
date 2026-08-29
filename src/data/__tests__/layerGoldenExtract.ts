@@ -189,7 +189,8 @@ function probeTransportParams(): {
 
 function stripOnChange(control: unknown): unknown {
   if (!control || typeof control !== "object") return control;
-  const { onChange: _onChange, ...rest } = control as Record<string, unknown>;
+  const { onChange: _onChange, onSelectAll: _onSelectAll, onSelectNone: _onSelectNone, ...rest } =
+    control as Record<string, unknown>;
   return rest;
 }
 

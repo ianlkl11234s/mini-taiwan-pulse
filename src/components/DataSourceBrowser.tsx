@@ -6,7 +6,7 @@
  *
  * 功能：
  *   - 右下角 ℹ️ 按鈕
- *   - 點開顯示 227 個 layer 分主題列表 + 每筆的上游 dataset
+ *   - 點開顯示全部 layer 的主題列表與各筆上游 dataset
  *   - 點單筆 layer → 開 DataSourceModal 看完整 catalog
  */
 import { useMemo, useState } from "react";

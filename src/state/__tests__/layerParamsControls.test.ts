@@ -11,10 +11,33 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { buildParamControls } from "../layerParamsControls";
 import { layerParamsStore, encodeParamsToOverlay } from "../layerParamsStore";
 import type { SelectConfig, SliderConfig, ToggleConfig } from "../layerParamsControls";
+import {
+  MULTI_SELECT_ALL, MULTI_SELECT_NONE, encodeMultiSelectBitmask, resolveMultiSelectValues, serializeMultiSelectValues,
+} from "../../data/layerParamsSpec";
 
 beforeEach(() => layerParamsStore.reset());
 
 describe("buildParamControls", () => {
+  it("multiSelect 值採 scalar 編碼，支援預設全選、全關與穩定排序", () => {
+    const options = [{ label: "甲", value: "a" }, { label: "乙", value: "b" }, { label: "丙", value: "c" }];
+    expect(resolveMultiSelectValues(MULTI_SELECT_ALL, options)).toEqual(["a", "b", "c"]);
+    expect(resolveMultiSelectValues(MULTI_SELECT_NONE, options)).toEqual([]);
+    expect(serializeMultiSelectValues(["c", "a", "c"])).toBe('["a","c"]');
+    expect(resolveMultiSelectValues('["c","a","unknown"]', options)).toEqual(["a", "c"]);
+    expect(encodeMultiSelectBitmask(MULTI_SELECT_ALL, options)).toBe(7);
+    expect(encodeMultiSelectBitmask('["a","c"]', options)).toBe(5);
+  });
+
+  it("宗教主祀多選預設全選，並編成 Mapbox filter 使用的 bitmask", () => {
+    const control = (buildParamControls("religionTemples") ?? [])[0] as import("../layerParamsControls").MultiSelectConfig;
+    expect(control).toMatchObject({ type: "multiSelect", label: "主祀類別", value: expect.any(Array) });
+    expect(control.value).toHaveLength(9);
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["religionTemplesDeityMask"]).toBe(511);
+
+    control.onSelectNone();
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["religionTemplesDeityMask"]).toBe(0);
+  });
+
   // ⚠️ 這裡的「未遷移 key」刻意取 `aqiStations`（manifest 宣告 `params: null`
   //    的 12 個之一）—— 規格檔沒有「宣告了但空陣列」這種形狀，所以它**永遠**
   //    不會被遷走。原本寫的是 `cctv`，P3-2C 把它搬走後這三條就紅了。
