@@ -1878,31 +1878,37 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow",
         type: "circle",
-        paint: (_isDark, params) => ({
+        paint: (_isDark, params) => {
+          const scale = params?.internetExchangePointsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2, 100, 4, 500, 7],
-            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6, 100, 12, 500, 20],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2 * scale, 100, 4 * scale, 500, 7 * scale],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6 * scale, 100, 12 * scale, 500, 20 * scale],
           ],
           "circle-color": IXP_REGION_COLOR_EXPR,
           "circle-blur": 1,
           "circle-opacity": (params?.internetExchangePointsOpacity ?? 0.85) * 0.22,
-        }),
+          };
+        },
       },
       {
         suffix: "circle",
         type: "circle",
-        paint: (isDark, params) => ({
+        paint: (isDark, params) => {
+          const scale = params?.internetExchangePointsScale ?? 1;
+          return {
           "circle-radius": [
             "interpolate", ["linear"], ["zoom"],
-            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5, 100, 3, 500, 5],
-            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3, 100, 6, 500, 10],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5 * scale, 100, 3 * scale, 500, 5 * scale],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3 * scale, 100, 6 * scale, 500, 10 * scale],
           ],
           "circle-color": IXP_REGION_COLOR_EXPR,
           "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
           "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
           "circle-opacity": params?.internetExchangePointsOpacity ?? 0.85,
-        }),
+          };
+        },
       },
     ],
   },
@@ -6100,17 +6106,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-ev-charging",
     dynamicData: true,
-    rebuildOnParamChange: ["evChargingOpacity"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
           const o = params?.evChargingOpacity ?? 0.8;
+          const scale = params?.evChargingScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              7, 2, 12, 3.5, 15, 5,
+              7, 2 * scale, 12, 3.5 * scale, 15, 5 * scale,
             ],
             "circle-color": "#10b981",
             "circle-opacity": o,
@@ -6140,10 +6147,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningOpacity ?? 0.85;
+          const scale = params?.lightningScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 4, 9, 7, 12, 12,
+              5, 4 * scale, 9, 7 * scale, 12, 12 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6163,10 +6171,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningOpacity ?? 0.85;
+          const scale = params?.lightningScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 1.2, 10, 2.2, 14, 3.5,
+              5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6200,10 +6209,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningCwaOpacity ?? 0.85;
+          const scale = params?.lightningCwaScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 4, 9, 7, 12, 12,
+              5, 4 * scale, 9, 7 * scale, 12, 12 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6223,10 +6233,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.lightningCwaOpacity ?? 0.85;
+          const scale = params?.lightningCwaScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 1.2, 10, 2.2, 14, 3.5,
+              5, 1.2 * scale, 10, 2.2 * scale, 14, 3.5 * scale,
             ],
             "circle-color": [
               "match", ["get", "strike_type"],
@@ -6407,10 +6418,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const o = params?.erHospitalOpacity ?? 0.85;
+          const scale = params?.erHospitalScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 6, 12, 11,
+              5, 6 * scale, 12, 11 * scale,
             ],
             "circle-color": [
               "match", ["get", "level"],
@@ -6452,10 +6464,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.librarySeatsOpacity ?? 0.9;
+          const scale = params?.librarySeatsScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, 8, 12, 14,
+              6, 8 * scale, 12, 14 * scale,
             ],
             "circle-color": [
               "case",
@@ -6506,8 +6519,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: ["==", ["geometry-type"], "Point"],
         paint: (isDark, params) => {
           const o = params?.parkingOnstreetOpacity ?? 0.6;
+          const scale = params?.parkingOnstreetScale ?? 1;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3, 14, 7],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3 * scale, 14, 7 * scale],
             "circle-color": availabilityColorExpr() as unknown as string,
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
@@ -6533,6 +6547,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.parkingOffstreetOpacity ?? 0.9;
+          const scale = params?.parkingOffstreetScale ?? 1;
           // 半徑隨 total_spaces（log 尺標，兩端 clamp）：小場小圓、大場大圓
           const radius = (zoom6: number, zoom13: number) => [
             "interpolate", ["linear"],
@@ -6543,8 +6558,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, radius(3, 8),
-              13, radius(6, 18),
+              6, radius(3 * scale, 8 * scale),
+              13, radius(6 * scale, 18 * scale),
             ],
             "circle-color": availabilityColorExpr() as unknown as string,
             "circle-opacity": o,

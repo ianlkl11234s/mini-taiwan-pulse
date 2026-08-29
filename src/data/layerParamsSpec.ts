@@ -1088,10 +1088,10 @@ export const LAYER_PARAMS_SPEC = {
   ],
   fireEvents: [opacitySlider("fireEventsOpacity", 1)],
   fireLatest: [opacitySlider("fireLatestOpacity", 1)],
-  erHospital: [opacitySlider("erHospitalOpacity", 0.85)],
-  librarySeats: [opacitySlider("librarySeatsOpacity", 0.9)],
-  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6)],
-  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9)],
+  erHospital: [opacitySlider("erHospitalOpacity", 0.85), scaleSlider("erHospitalScale", 1)],
+  librarySeats: [opacitySlider("librarySeatsOpacity", 0.9), scaleSlider("librarySeatsScale", 1)],
+  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6), scaleSlider("parkingOnstreetScale", 1)],
+  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9), scaleSlider("parkingOffstreetScale", 1)],
   commonRegistrationAddresses: [
     opacitySlider("commonRegistrationAddressesOpacity", 0.75),
     scaleSlider("commonRegistrationAddressesScale", 1.0),
@@ -1195,7 +1195,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
     { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
-  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85)],
+  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85), scaleSlider("internetExchangePointsScale", 1)],
   landingStations: [opacitySlider("landingOpacity", 1), scaleSlider("landingScale", 1)],
   anfrWirelessSites: [opacitySlider("anfrWirelessSitesOpacity", 0.8), scaleSlider("anfrWirelessSitesScale", 1)],
   osmCommunicationSites: [opacitySlider("osmCommunicationSitesOpacity", 0.8), scaleSlider("osmCommunicationSitesScale", 1)],
@@ -1654,7 +1654,7 @@ export const LAYER_PARAMS_SPEC = {
     scaleSlider("renewablePermitsTaipeiSize", 1),
     opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
   ],
-  evChargingStations: [opacitySlider("evChargingOpacity", 0.8)],
+  evChargingStations: [opacitySlider("evChargingOpacity", 0.8), scaleSlider("evChargingScale", 1)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 
   // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
@@ -2244,10 +2244,12 @@ export const LAYER_PARAMS_SPEC = {
   lightningCwa: [
     { kind: "slider", name: "lightningCwaMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
     opacitySlider("lightningCwaOpacity", 0.85),
+    scaleSlider("lightningCwaScale", 1),
   ],
   lightning: [
     { kind: "slider", name: "lightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
     opacitySlider("lightningOpacity", 0.85),
+    scaleSlider("lightningScale", 1),
   ],
   // ══════════ P3-2C 群2：encodeNumeric ／ 條件式 label ／ 動態 select 16 層 ══════════
 

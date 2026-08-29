@@ -8,14 +8,12 @@ const OPACITY_BACKLOG = [
 ].sort();
 
 const CONFIRMED_POINT_SIZE_BACKLOG = [
-  "erHospital", "evChargingStations", "fireLatest", "internetExchangePoints",
-  "librarySeats", "parkingOffstreet", "parkingOnstreet",
+  "fireLatest",
 ].sort();
 
 const MAPBOX_POINT_SIZE_BACKLOG = [
-  "erHospital", "evChargingStations", "industrialPowerPlant", "industrialRefinery",
-  "industrialStorageTank", "internetExchangePoints", "librarySeats", "lightning", "lightningCwa",
-  "maritimeBoundary", "parkingOffstreet", "parkingOnstreet", "powerGenerationUnit", "waterReservoirs",
+  "industrialPowerPlant", "industrialRefinery", "industrialStorageTank", "maritimeBoundary",
+  "powerGenerationUnit", "waterReservoirs",
 ].sort();
 
 const NO_PARAMS_BACKLOG = [
@@ -97,6 +95,14 @@ describe("Layer UX policy baseline", () => {
       forestFlatParks: "forestFlatParksScale",
       forestDamLakes: "forestDamLakesScale",
       forestAlishanRail: "forestAlishanRailScale",
+      internetExchangePoints: "internetExchangePointsScale",
+      evChargingStations: "evChargingScale",
+      erHospital: "erHospitalScale",
+      librarySeats: "librarySeatsScale",
+      lightning: "lightningScale",
+      lightningCwa: "lightningCwaScale",
+      parkingOffstreet: "parkingOffstreetScale",
+      parkingOnstreet: "parkingOnstreetScale",
     } as const;
 
     for (const [id, param] of Object.entries(pointSizeParams)) {

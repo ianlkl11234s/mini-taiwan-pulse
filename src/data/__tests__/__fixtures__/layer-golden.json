@@ -26267,7 +26267,7 @@
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
-        "evChargingOpacity"
+        "circle"
       ],
       "sourceId": "energy-ev-charging",
       "sourceUrl": "./geo/_empty.geojson"
@@ -49210,6 +49210,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "etcGantry": [
@@ -49242,6 +49249,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "evIsland": [
@@ -50590,6 +50604,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "investigationBureau": [
@@ -50811,6 +50832,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "lifelineAlerts": [
@@ -50864,6 +50892,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "lightningCwa": [
@@ -50880,6 +50915,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "livestockFarmCattle": [
@@ -51950,6 +51992,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "parkingOnstreet": [
@@ -51959,6 +52008,13 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.6
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "parksTaipei": [
