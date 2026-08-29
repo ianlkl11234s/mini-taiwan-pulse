@@ -43,6 +43,47 @@ export interface WasteScheduleTooltipInfo {
   y: number;
 }
 
+/**
+ * 地圖上的點選狀態可能來自 FeatureInfoPanel、Three.js picker 或 hover tooltip。
+ * 它們都屬於同一個「目前選取」範圍；Esc 應一次結束，而非只取消飛機跟隨。
+ */
+export interface MapSelectionDismissActions {
+  setFeatureInfo: (value: FeatureInfo | null) => void;
+  setTooltipInfo: (value: TooltipInfo | null) => void;
+  setTrainTooltipInfo: (value: TrainTooltipInfo | null) => void;
+  setBusTooltipInfo: (value: BusTooltipInfo | null) => void;
+  setWasteScheduleTooltipInfo: (value: WasteScheduleTooltipInfo | null) => void;
+  setRealEstateTooltipInfo: (value: RealEstateTooltipInfo | null) => void;
+  setSelectedFlightId: (value: string | null) => void;
+}
+
+/** 供 Esc 與測試共用，避免日後新增一種 tooltip 卻只清掉一半狀態。 */
+export function clearMapSelection({
+  setFeatureInfo,
+  setTooltipInfo,
+  setTrainTooltipInfo,
+  setBusTooltipInfo,
+  setWasteScheduleTooltipInfo,
+  setRealEstateTooltipInfo,
+  setSelectedFlightId,
+}: MapSelectionDismissActions): void {
+  setFeatureInfo(null);
+  setTooltipInfo(null);
+  setTrainTooltipInfo(null);
+  setBusTooltipInfo(null);
+  setWasteScheduleTooltipInfo(null);
+  setRealEstateTooltipInfo(null);
+  setSelectedFlightId(null);
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable
+    || target.tagName === "INPUT"
+    || target.tagName === "TEXTAREA"
+    || target.tagName === "SELECT";
+}
+
 export function useMapInteraction(
   mapRef: React.RefObject<MapboxMap | null>,
   flightSceneRef: React.RefObject<FlightScene | null>,
@@ -480,15 +521,35 @@ export function useMapInteraction(
     // 點 hover 暫時移除：point 已改 WebGL CustomLayer，不支援 queryRenderedFeatures（待補 GPU/空間索引 picking）
   };
 
-  // ESC 鍵取消跟隨
+  // Esc 結束目前地圖選取。用 microtask 讓已開啟的 modal／FeatureInfoPanel 先攔截：
+  // modal 優先於地圖狀態，避免關 modal 時意外連同底下的地圖選取清掉。
   useEffect(() => {
-    if (!selectedFlightId) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedFlightId(null);
+    const hasSelection = featureInfo || tooltipInfo || trainTooltipInfo || busTooltipInfo
+      || wasteScheduleTooltipInfo || realEstateTooltipInfo || selectedFlightId;
+    if (!hasSelection) return;
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented || isEditableTarget(event.target)) return;
+      queueMicrotask(() => {
+        if (event.defaultPrevented) return;
+        event.preventDefault();
+        clearMapSelection({
+          setFeatureInfo,
+          setTooltipInfo,
+          setTrainTooltipInfo,
+          setBusTooltipInfo,
+          setWasteScheduleTooltipInfo,
+          setRealEstateTooltipInfo,
+          setSelectedFlightId,
+        });
+      });
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [selectedFlightId]);
+  }, [
+    featureInfo, tooltipInfo, trainTooltipInfo, busTooltipInfo,
+    wasteScheduleTooltipInfo, realEstateTooltipInfo, selectedFlightId,
+  ]);
 
   // 雙擊追蹤：相機鎖定飛機
   useEffect(() => {

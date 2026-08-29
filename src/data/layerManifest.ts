@@ -2569,7 +2569,7 @@ export const LAYER_MANIFEST = {
   eduDistrictSenior: {
     key: "eduDistrictSenior",
     section: { theme: "教育 Education", group: "學區 District" },
-    label: "高中就學區（縣市級）Senior High District",
+    label: "高中就學區（縣市級） Senior High District",
     labelMobile: "高中就學區・縣市級 (15)",
     expandable: true,
     color: EDUCATION_LAYER_COLORS.eduDistrictSenior,
