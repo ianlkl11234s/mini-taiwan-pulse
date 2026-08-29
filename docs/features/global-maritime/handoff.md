@@ -1,5 +1,39 @@
 # Global Maritime handoff
 
+## Resolution note (2026-08-29, post-review fixes landed)
+
+The two blockers recorded in [`codex-handoff-2026-08-29.md`](./codex-handoff-2026-08-29.md) are
+resolved; that document remains the historical record of the Codex implementation state.
+
+1. **Playback flicker/jank — fixed and verified.** Root causes: per-tick data-driven
+   `setPaintProperty` forcing source-cache reloads (Grid); worker terminate/recreate per hour with
+   empty render replies applied unconditionally (Tracks); premature slot readiness on header-only
+   `sourcedata`; hit-layer visibility flips reloading the shared source; timeline leaving the
+   release data window silently. Fixed in `dd30e50`, `3d62e6c`, `051bc44`, `5a83827`, `9e4e6c5`,
+   `e286c53`, `63a940d`. Browser verification (same instrumentation as the failing runs): grid
+   zero-ink episodes 0, tracks boundary blanks 0 (was 100% per boundary, 0.3–1.6 s), worker
+   instantiations 1 (was 13 across pan/zoom), playback paint updates 100% constant values,
+   whole-session frame p95 improved vs the pre-fix baseline under a worse measurement environment.
+   Out-of-window time now fades layer-locally with a legend "資料窗外" notice; the global
+   timeStore is never clamped. Known residual (documented, not a defect of these fixes): any
+   style-dirty frame pays `Style.update` recalculate over all merged layers — visible only under
+   software rendering with high machine load.
+2. **Tier 2 binding — root-caused and rebuilt.** The "v6" manifest was not an older release: it
+   is byte-identical to the same build's pre-promotion candidate (bind-then-mutate defect — the
+   promoter validated evidence against the candidate, then mutated that manifest). Fixed in
+   data-collectors `a49f8f5` (core-digest binding, fail closed), `5c98ed1` (nested frame consumer
+   fields), `658827b` (real `spatial_contract` + installer-equivalent gates at build/promote).
+   The local release was rebuilt from the same inputs (all 542 semantic counts identical; PMTiles
+   bytes differ only from tippecanoe non-determinism), Tier 2 rerun as 4 profiles × 2 runs (20/20
+   thresholds, zero warm transfer proven by second-run `requestCount 0`), promoted with evidence
+   bound to its own core digest `22c6a9f5…`, and installed to the canonical local root (root and
+   release readback passed; the superseded v8 is backed up outside the worktree under
+   `~/gfw-v4-release-20260829/v8-backup/`).
+
+Still not run: push, S3/R2 upload, external readback/pull, deploy, migration apply, collector
+activation. The local `production_cutover: true` flag must not be read as external production
+truth.
+
 ## East Asia v4 formal local release truth (2026-08-29)
 
 This section supersedes the older shadow-runtime notes below. Mini Taiwan Pulse now resolves
@@ -263,8 +297,11 @@ Cross-repo ordering after the POC contract is frozen remains:
   member aggregation; date-boundary playback.
 - Fishing Effort: resolved dataset version, latest available date, nonnegative hours, UTC-day
   semantics, attribution and revision behavior.
-- Browser: cold/warm load bytes and time, decode time, JS heap after 3-hour scrub, desktop p95
-  frame under 16.7 ms, mobile p95 under 33 ms, no white frame and no unbounded cache growth.
+- Browser: cold `wire.*` bytes/requests and decode time (the former warm pass was removed with the
+  persistent worker — cache reuse is proven by a second same-profile run showing
+  `wire.requestCount 0` and zero `tileCache.duplicateFetches`/`evictions`), JS heap after 3-hour
+  scrub, desktop p95 frame under 16.7 ms, mobile p95 under 33 ms, no white frame and no unbounded
+  cache growth.
 - Release truth must be reported separately for build, contract/wire, stage, upload, readback,
   pull, deploy, HTTP and browser. Tests, HTTP and screenshots do not substitute for one another.
 
