@@ -16,8 +16,14 @@ import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
 import {
   GFW_HOURLY_GRID_V3_FILL_OPACITY,
-  GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION,
   GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION,
+  GFW_HOURLY_GRID_V4_FILL_COLOR_WITH_DENSITY_EXPRESSION,
+  GFW_HOURLY_GRID_V4_OUTLINE_COLOR_WITH_DENSITY_EXPRESSION,
+  GFW_HOURLY_GRID_V4_OUTLINE_OPACITY,
+  planGfwHourlyGridPlayback,
+  type GfwHourlyGridDataWindow,
+  type GfwHourlyGridPlaybackPlan,
+  type GfwHourlyGridSlotReadiness,
 } from "../data/gfwHourlyGridTypes";
 
 export const GFW_HOURLY_GRID_SOURCE_ID = "gfw-hourly-grid-source";
@@ -59,21 +65,103 @@ export const GFW_HOURLY_GRID_CLICK_LAYERS = [
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
+/** The three retained v4 slots, in the order the rotation prefers to fill them. */
+const V4_PMTILES_SLOTS = [
+  {
+    sourceId: GFW_HOURLY_GRID_PMTILES_SOURCE_ID,
+    layerIds: [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID] as const,
+    warmLayerId: GFW_HOURLY_GRID_PMTILES_WARM_LAYER_ID,
+    hitLayerId: GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID,
+  },
+  {
+    sourceId: GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID,
+    layerIds: [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID] as const,
+    warmLayerId: GFW_HOURLY_GRID_PMTILES_NEXT_WARM_LAYER_ID,
+    hitLayerId: GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID,
+  },
+  {
+    sourceId: GFW_HOURLY_GRID_PMTILES_PRELOAD_SOURCE_ID,
+    layerIds: [GFW_HOURLY_GRID_PMTILES_PRELOAD_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_OUTLINE_LAYER_ID] as const,
+    warmLayerId: GFW_HOURLY_GRID_PMTILES_PRELOAD_WARM_LAYER_ID,
+    hitLayerId: GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID,
+  },
+] as const;
+
+/**
+ * Each hit-layer visibility flip is a *layout* change, and mapbox-gl 3.18.1 always relayouts
+ * on those — a full reload of the grid PMTiles source the fill layers share. The dominant
+ * hour flips twice per playback hour, i.e. 1–2× per second at 1800x/3600x, so applications
+ * are throttled: the first flip lands immediately and rapid follow-ups coalesce.
+ */
+const HIT_VISIBILITY_THROTTLE_MS = 300;
+
+export interface GfwHourlyGridDataWindowState {
+  readonly status: "in-window" | "out-of-window";
+  /** First UTC hour covered by the release. */
+  readonly startIso: string;
+  /** Exclusive end of the release window. */
+  readonly endIsoExclusive: string;
+  /** UTC date(s) the release covers, e.g. `2026-08-21` or `2026-08-21 ~ 2026-08-22`. */
+  readonly utcDateLabel: string;
+}
+
+// Layer-local playback state published for read-only UI (legend). Module scope because the
+// grid layer is a singleton; the snapshot object is cached so `useSyncExternalStore` consumers
+// do not spin on a fresh object per read.
+let dataWindowSnapshot: GfwHourlyGridDataWindowState | null = null;
+const dataWindowListeners = new Set<() => void>();
+
+function setGfwHourlyGridDataWindowState(next: GfwHourlyGridDataWindowState | null): void {
+  const previous = dataWindowSnapshot;
+  if (previous === next) return;
+  if (previous && next && previous.status === next.status && previous.startIso === next.startIso
+    && previous.endIsoExclusive === next.endIsoExclusive && previous.utcDateLabel === next.utcDateLabel) return;
+  dataWindowSnapshot = next;
+  for (const listener of dataWindowListeners) listener();
+}
+
+export function subscribeGfwHourlyGridDataWindow(listener: () => void): () => void {
+  dataWindowListeners.add(listener);
+  return () => { dataWindowListeners.delete(listener); };
+}
+
+export function getGfwHourlyGridDataWindowSnapshot(): GfwHourlyGridDataWindowState | null {
+  return dataWindowSnapshot;
+}
+
 function isV4GridManifest(manifest: GfwHourlyGridManifest | null): boolean {
   // schema v4 is the formal immutable PMTiles release contract.
   return manifest?.schemaVersion === 4;
+}
+
+function gridDataWindow(manifest: GfwHourlyGridManifest | null): GfwHourlyGridDataWindow | null {
+  if (!manifest || manifest.hours.length === 0) return null;
+  let startMs = Number.POSITIVE_INFINITY;
+  let endMs = Number.NEGATIVE_INFINITY;
+  for (const hour of manifest.hours) {
+    if (!Number.isFinite(hour.observedAtMs)) continue;
+    startMs = Math.min(startMs, hour.observedAtMs);
+    endMs = Math.max(endMs, hour.observedAtMs);
+  }
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return null;
+  return { startMs, endMsExclusive: endMs + 3_600_000 };
+}
+
+function utcHourIso(ms: number): string {
+  return new Date(ms).toISOString().replace(".000Z", "Z");
 }
 
 function applyGridPaint(map: MapboxMap, v4: boolean): void {
   const color: ExpressionSpecification | string = v4
     ? GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION as unknown as ExpressionSpecification
     : "#fb923c";
+  // PMTiles slots are deliberately absent: `mountPmtilesSlot` writes their colour once at
+  // addLayer time (for v4 that colour also carries the density alpha, which this plain scale
+  // would silently drop), and every `fill-color` write on a data-driven property forces a
+  // full source-cache relayout.
   for (const id of [
     GFW_HOURLY_GRID_FILL_LAYER_ID,
     GFW_HOURLY_GRID_NEXT_FILL_LAYER_ID,
-    GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID,
-    GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID,
-    GFW_HOURLY_GRID_PMTILES_PRELOAD_FILL_LAYER_ID,
   ]) {
     if (map.getLayer(id)) map.setPaintProperty(id, "fill-color", color);
   }
@@ -220,18 +308,28 @@ function mountPmtilesSlot(
     attribution: "Global Fishing Watch",
   } as never);
   const [fillId, outlineId] = layerIds;
+  // Opacity starts at 0 and every later write is a plain number: the density ramp lives in
+  // the colour alpha, so mapbox-gl never sees a data-driven opacity and never relayouts on a
+  // timeline tick. `applyOpacity` runs synchronously right after mounting, and the warm layer
+  // keeps tiles loading regardless of opacity, so 0 costs no visible frame.
   map.addLayer({ id: fillId, type: "fill", source: sourceId, "source-layer": sourceLayer,
     paint: hitOnly ? { "fill-opacity": 0 } : {
-      "fill-color": v4 ? GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION : "#fb923c",
-      "fill-opacity": v4
-        ? ["*", 1, GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION]
-        : GFW_HOURLY_GRID_V3_FILL_OPACITY,
+      "fill-color": v4 ? GFW_HOURLY_GRID_V4_FILL_COLOR_WITH_DENSITY_EXPRESSION : "#fb923c",
+      "fill-opacity": 0,
+      // Default 300ms transitions would smear every per-tick opacity write across frames.
+      "fill-opacity-transition": { duration: 0, delay: 0 },
     },
     layout: { visibility: "visible" },
   } as FillLayer);
   if (hitOnly) return;
   map.addLayer({ id: outlineId, type: "line", source: sourceId, "source-layer": sourceLayer,
-    paint: { "line-color": "#7c2d12", "line-width": 1, "line-opacity": 0.85 }, layout: { visibility: "visible" },
+    paint: {
+      "line-color": v4 ? GFW_HOURLY_GRID_V4_OUTLINE_COLOR_WITH_DENSITY_EXPRESSION : "#7c2d12",
+      "line-width": 1,
+      "line-opacity": 0,
+      "line-opacity-transition": { duration: 0, delay: 0 },
+    },
+    layout: { visibility: "visible" },
   } as LineLayer);
 }
 
@@ -312,6 +410,8 @@ export function useGfwHourlyGridLayer(
   // Once a source has supplied its first viewport tile, retain that readiness across
   // pan/zoom. A later transient loading state must not make the current hour dim again.
   const pmtilesSlotReadyRef = useRef(new Map<string, boolean>());
+  // Release coverage span, so leaving it can fade the layer out instead of blanking it.
+  const dataWindowRef = useRef<GfwHourlyGridDataWindow | null>(null);
   // Timeline drives this hook at fractional-second cadence. Keep opacity outside the
   // lifecycle effect so a paint update cannot tear down/recreate immutable PMTiles sources.
   const opacityRef = useRef(opacity);
@@ -352,12 +452,82 @@ export function useGfwHourlyGridLayer(
       setGfwHourlyGridDominantHour(dominantHourRef.current);
     }
 
+    let hitVisibilityTimer: ReturnType<typeof setTimeout> | null = null;
+    let hitVisibilityAppliedAt = Number.NEGATIVE_INFINITY;
+    let pendingHitDominantHour: string | null = null;
+
+    const pmtilesSlotStates = (): GfwHourlyGridSlotReadiness[] => V4_PMTILES_SLOTS.map(({ sourceId }) => ({
+      sourceId,
+      hour: pmtilesSlotHoursRef.current.get(sourceId) ?? null,
+      ready: pmtilesSlotReadyRef.current.get(sourceId) === true,
+    }));
+
+    // The window labels never change while a release is mounted; only `status` moves per tick,
+    // so keep both published objects allocated once instead of rebuilding them 60×/s.
+    let publishedWindow: GfwHourlyGridDataWindow | null = null;
+    let windowStates: Record<"in-window" | "out-of-window", GfwHourlyGridDataWindowState> | null = null;
+
+    const publishDataWindowState = (plan: GfwHourlyGridPlaybackPlan) => {
+      const window = dataWindowRef.current;
+      const manifest = manifestRef.current;
+      if (!window || !manifest) {
+        publishedWindow = null;
+        windowStates = null;
+        setGfwHourlyGridDataWindowState(null);
+        return;
+      }
+      if (publishedWindow !== window || !windowStates) {
+        const shared = {
+          startIso: utcHourIso(window.startMs),
+          endIsoExclusive: utcHourIso(window.endMsExclusive),
+          utcDateLabel: manifest.dateStart === manifest.dateEndInclusive
+            ? manifest.dateStart
+            : `${manifest.dateStart} ~ ${manifest.dateEndInclusive}`,
+        };
+        windowStates = {
+          "in-window": { status: "in-window", ...shared },
+          "out-of-window": { status: "out-of-window", ...shared },
+        };
+        publishedWindow = window;
+      }
+      setGfwHourlyGridDataWindowState(windowStates[plan.dataWindowStatus]);
+    };
+
+    const applyV4HitVisibility = (dominantHour: string | null) => {
+      hitVisibilityAppliedAt = Date.now();
+      for (const { sourceId, hitLayerId } of V4_PMTILES_SLOTS) {
+        if (map.getLayer(hitLayerId)) map.setLayoutProperty(
+          hitLayerId,
+          "visibility",
+          pmtilesSlotHoursRef.current.get(sourceId) === dominantHour ? "visible" : "none",
+        );
+      }
+    };
+
+    // Leading-edge throttle: a settled timeline flips visibility immediately, while fast
+    // playback coalesces flips so the shared grid source is not relayouted 1–2× per second.
+    const scheduleV4HitVisibility = (dominantHour: string | null) => {
+      pendingHitDominantHour = dominantHour;
+      if (hitVisibilityTimer !== null) return;
+      const elapsed = Date.now() - hitVisibilityAppliedAt;
+      if (elapsed >= HIT_VISIBILITY_THROTTLE_MS) {
+        applyV4HitVisibility(dominantHour);
+        return;
+      }
+      hitVisibilityTimer = globalThis.setTimeout(() => {
+        hitVisibilityTimer = null;
+        if (!disposed) applyV4HitVisibility(pendingHitDominantHour);
+      }, HIT_VISIBILITY_THROTTLE_MS - elapsed);
+    };
+
     const clearData = () => {
       currentDataRef.current = null;
       nextDataRef.current = null;
       currentHourRef.current = null;
       nextHourRef.current = null;
       dominantHourRef.current = null;
+      dataWindowRef.current = null;
+      setGfwHourlyGridDataWindowState(null);
       setGfwHourlyGridDominantHour(null);
       source(map, GFW_HOURLY_GRID_SOURCE_ID)?.setData?.(EMPTY);
       source(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID)?.setData?.(EMPTY);
@@ -373,34 +543,43 @@ export function useGfwHourlyGridLayer(
       removePmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""]);
     };
 
-    const mountPmtilesPair = (manifest: GfwHourlyGridManifest, currentHour: string, nextHour: string) => {
+    const mountPmtilesPair = (manifest: GfwHourlyGridManifest, currentHour: string, nextHour: string, timeSeconds: number) => {
       if (!manifest.sourceLayer) return false;
       const current = manifest.hours.find((hour) => hour.observedAt === currentHour && hour.format === "pmtiles");
       const next = manifest.hours.find((hour) => hour.observedAt === nextHour && hour.format === "pmtiles");
-      if (!current && !next) return false;
-      pmtilesModeRef.current = true;
       const v4 = isV4GridManifest(manifest);
+      // v4 keeps ownership of the timeline even outside the release window: the slots stay
+      // mounted so the planner can fade the last covered hour out instead of the layer
+      // silently falling back to a day GeoJSON fetch that can never succeed.
+      if (!current && !next && !v4) return false;
+      pmtilesModeRef.current = true;
       if (v4) {
         const preloadHour = floorUtcHourIso(Date.parse(nextHour) / 1000 + 3600);
         const preload = manifest.hours.find((hour) => hour.observedAt === preloadHour && hour.format === "pmtiles");
-        const slots: Array<[string, readonly [string, string], string, string]> = [
-          [GFW_HOURLY_GRID_PMTILES_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID], GFW_HOURLY_GRID_PMTILES_WARM_LAYER_ID, GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID],
-          [GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID], GFW_HOURLY_GRID_PMTILES_NEXT_WARM_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID],
-          [GFW_HOURLY_GRID_PMTILES_PRELOAD_SOURCE_ID, [GFW_HOURLY_GRID_PMTILES_PRELOAD_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_OUTLINE_LAYER_ID], GFW_HOURLY_GRID_PMTILES_PRELOAD_WARM_LAYER_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID],
-        ];
         const desiredEntries = [current, next, preload].filter((entry) => entry !== undefined);
         const desired = new Map(desiredEntries.map((entry) => [entry.observedAt, entry]));
+        // Same planner as `applyOpacity`, evaluated against the *incoming* hours: if playback
+        // overtook loading, the hour it wants to hold on screen must not be recycled here.
+        const retainHour = planGfwHourlyGridPlayback({
+          timeSeconds,
+          slots: pmtilesSlotStates(),
+          currentHour: current ? currentHour : null,
+          nextHour: next ? nextHour : null,
+          dataWindow: dataWindowRef.current,
+        }).retainHour;
         const retainedHours = new Set<string>();
-        for (const [sourceId] of slots) {
+        for (const { sourceId } of V4_PMTILES_SLOTS) {
           const hour = pmtilesSlotHoursRef.current.get(sourceId);
-          if (hour && desired.has(hour)) retainedHours.add(hour);
+          if (hour && (desired.has(hour) || hour === retainHour)) retainedHours.add(hour);
         }
         for (const entry of desired.values()) {
           if (retainedHours.has(entry.observedAt)) continue;
-          const vacant = slots.find(([sourceId]) => !pmtilesSlotHoursRef.current.has(sourceId)
-            || !desired.has(pmtilesSlotHoursRef.current.get(sourceId) ?? ""));
+          const vacant = V4_PMTILES_SLOTS.find(({ sourceId }) => {
+            const hour = pmtilesSlotHoursRef.current.get(sourceId);
+            return hour === undefined || !retainedHours.has(hour);
+          });
           if (!vacant) continue;
-          const [sourceId, layerIds, warmLayerId, hitLayerId] = vacant;
+          const { sourceId, layerIds, warmLayerId, hitLayerId } = vacant;
           const url = pmtilesUrl(manifest, entry.path);
           mountPmtilesSlot(map, sourceId, layerIds, url, manifest.sourceLayer, true, false, [warmLayerId, hitLayerId]);
           addPmtilesWarmLayer(map, sourceId, warmLayerId, manifest.sourceLayer);
@@ -408,6 +587,7 @@ export function useGfwHourlyGridLayer(
           pmtilesSlotUrlsRef.current.set(sourceId, url);
           pmtilesSlotHoursRef.current.set(sourceId, entry.observedAt);
           pmtilesSlotReadyRef.current.set(sourceId, false);
+          retainedHours.add(entry.observedAt);
         }
         currentDataRef.current = current ? EMPTY : null;
         nextDataRef.current = next ? EMPTY : null;
@@ -441,14 +621,21 @@ export function useGfwHourlyGridLayer(
       const hourSeconds = Math.floor(timeSeconds / 3600) * 3600;
       const progress = Math.max(0, Math.min(1, (timeSeconds - hourSeconds) / 3600));
       const clampedOpacity = Math.max(0, Math.min(1, opacityRef.current));
-      // H+1 失敗時 H 必須全亮；H 缺失時才允許 H+1 單獨呈現。
       const v4 = isV4GridManifest(manifestRef.current);
-      const nextSlotReady = !v4 || Boolean([...pmtilesSlotHoursRef.current.entries()]
-        .find(([sourceId, hour]) => hour === nextHourRef.current && pmtilesSlotReadyRef.current.get(sourceId)));
-      // Current H must be paintable immediately so Mapbox starts loading it. Only H+1 is
-      // readiness-gated; otherwise an opacity-zero current slot can deadlock before sourcedata.
+      let plan: GfwHourlyGridPlaybackPlan | null = null;
+      if (v4) {
+        plan = planGfwHourlyGridPlayback({
+          timeSeconds,
+          slots: pmtilesSlotStates(),
+          currentHour: currentHourRef.current,
+          nextHour: nextHourRef.current,
+          dataWindow: dataWindowRef.current,
+        });
+        publishDataWindowState(plan);
+      }
+      // H+1 失敗時 H 必須全亮；H 缺失時才允許 H+1 單獨呈現。
       const currentAvailable = Boolean(currentDataRef.current);
-      const nextAvailable = Boolean(nextDataRef.current) && (!v4 || nextSlotReady);
+      const nextAvailable = Boolean(nextDataRef.current);
       const currentWeight = currentAvailable ? (nextAvailable ? 1 - progress : 1) : 0;
       const nextWeight = nextAvailable ? (currentAvailable ? progress : 1) : 0;
       if (!v4) {
@@ -468,61 +655,46 @@ export function useGfwHourlyGridLayer(
           map.setPaintProperty(outlineId, "line-opacity", 0.85 * clampedOpacity * weight);
         }
       }
-      const pmtilesSlots = [
-        [GFW_HOURLY_GRID_PMTILES_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_SOURCE_ID],
-        [GFW_HOURLY_GRID_PMTILES_NEXT_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID],
-        [GFW_HOURLY_GRID_PMTILES_PRELOAD_FILL_LAYER_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_OUTLINE_LAYER_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_SOURCE_ID],
-      ] as const;
-      for (const [fillId, outlineId, sourceId] of pmtilesSlots) {
+      for (const { sourceId, layerIds } of V4_PMTILES_SLOTS) {
+        const [fillId, outlineId] = layerIds;
         if (!map.getLayer(fillId)) continue;
-        const slotHour = pmtilesSlotHoursRef.current.get(sourceId);
         const weight = v4
-          ? (slotHour === currentHourRef.current ? currentWeight : slotHour === nextHourRef.current ? nextWeight : 0)
+          ? (plan?.weights.get(sourceId) ?? 0)
           : (sourceId === GFW_HOURLY_GRID_PMTILES_SOURCE_ID ? currentWeight : sourceId === GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID ? nextWeight : 0);
-        const fillMultiplier = clampedOpacity * weight;
-        const fillKey = v4 ? `v4:${fillMultiplier}` : `v3:${fillMultiplier}`;
+        // v4 ships a plain number: the density ramp already sits in the colour alpha, and
+        // `colorAlpha * opacity` is exactly the old `opacity * density(vessel_count)`.
+        const multiplier = clampedOpacity * weight;
+        const fillOpacity = v4 ? multiplier : GFW_HOURLY_GRID_V3_FILL_OPACITY * multiplier;
+        const outlineOpacity = (v4 ? GFW_HOURLY_GRID_V4_OUTLINE_OPACITY : 0.85) * multiplier;
+        // Quantise the dedup key to 1/255 — the alpha channel it feeds is 8-bit anyway, so
+        // finer steps only cost a redundant style write.
+        const fillKey = `${v4 ? "v4" : "v3"}:${Math.round(fillOpacity * 255)}`;
         if (pmtilesPaintKeysRef.current.get(`${fillId}:fill`) !== fillKey) {
-          map.setPaintProperty(fillId, "fill-opacity", v4
-            ? ["*", fillMultiplier, GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION]
-            : GFW_HOURLY_GRID_V3_FILL_OPACITY * fillMultiplier);
+          map.setPaintProperty(fillId, "fill-opacity", fillOpacity);
           pmtilesPaintKeysRef.current.set(`${fillId}:fill`, fillKey);
         }
-        const outlineMultiplier = (v4 ? 0.65 : 0.85) * fillMultiplier;
-        const outlineKey = `${v4 ? "v4" : "v3"}:${outlineMultiplier}`;
+        const outlineKey = `${v4 ? "v4" : "v3"}:${Math.round(outlineOpacity * 255)}`;
         if (pmtilesPaintKeysRef.current.get(`${outlineId}:outline`) !== outlineKey) {
-          map.setPaintProperty(outlineId, "line-opacity", v4
-            ? ["*", outlineMultiplier, GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION]
-            : outlineMultiplier);
+          map.setPaintProperty(outlineId, "line-opacity", outlineOpacity);
           pmtilesPaintKeysRef.current.set(`${outlineId}:outline`, outlineKey);
         }
       }
       const useNext = Boolean(nextAvailable && (!currentAvailable || progress >= 0.5));
-      const dominantHour = useNext ? nextHourRef.current : currentHourRef.current;
+      const dominantHour = v4 ? (plan?.dominantHour ?? null) : (useNext ? nextHourRef.current : currentHourRef.current);
       if (dominantHour !== dominantHourRef.current) {
         dominantHourRef.current = dominantHour;
         setGfwHourlyGridDominantHour(dominantHour);
-        if (pmtilesModeRef.current) {
+        if (v4) {
+          // Also covers `dominantHour === null` (faded out of the data window): every hit
+          // layer hides, so an invisible grid never answers a click.
+          scheduleV4HitVisibility(dominantHour);
+        } else if (pmtilesModeRef.current) {
           const manifest = manifestRef.current;
           const entry = manifest?.hours.find((hour) => hour.observedAt === dominantHour && hour.format === "pmtiles");
           if (manifest?.sourceLayer && entry) {
-            if (isV4GridManifest(manifest)) {
-              const hitSlots = [
-                [GFW_HOURLY_GRID_PMTILES_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID],
-                [GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID],
-                [GFW_HOURLY_GRID_PMTILES_PRELOAD_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID],
-              ] as const;
-              for (const [sourceId, hitLayerId] of hitSlots) {
-                if (map.getLayer(hitLayerId)) map.setLayoutProperty(
-                  hitLayerId,
-                  "visibility",
-                  pmtilesSlotHoursRef.current.get(sourceId) === dominantHour ? "visible" : "none",
-                );
-              }
-            } else {
-              mountPmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID,
-                [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, false, true);
-              pmtilesSlotUrlsRef.current.set(GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, entry.path);
-            }
+            mountPmtilesSlot(map, GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID,
+              [GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID, ""], pmtilesUrl(manifest, entry.path), manifest.sourceLayer, false, true);
+            pmtilesSlotUrlsRef.current.set(GFW_HOURLY_GRID_PMTILES_HIT_SOURCE_ID, entry.path);
           }
         } else source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(
           dominantHitData(useNext ? nextDataRef.current : currentDataRef.current, dominantHour),
@@ -535,7 +707,15 @@ export function useGfwHourlyGridLayer(
       if (!(map as unknown as { isSourceLoaded?: (sourceId: string) => boolean }).isSourceLoaded?.(event.sourceId)) return;
       if (pmtilesSlotReadyRef.current.get(event.sourceId)) return;
       pmtilesSlotReadyRef.current.set(event.sourceId, true);
+      const releasesHold = pmtilesSlotHoursRef.current.get(event.sourceId) === currentHourRef.current;
       applyOpacity(timeStore.getTime());
+      if (releasesHold) {
+        // The held hour was keeping its slot out of the rotation; now that the current hour
+        // paints on its own, re-run the pair so the skipped preload finally mounts. The slot
+        // that mounts next never carries the current hour, so this cannot recurse.
+        requestedPairRef.current = null;
+        void loadHourPair(timeStore.getTime());
+      }
     };
     applyOpacityRef.current = applyOpacity;
 
@@ -555,7 +735,7 @@ export function useGfwHourlyGridLayer(
       }
       const requestId = ++requestRef.current;
       requestedPairRef.current = pairKey;
-      if (mountPmtilesPair(manifest, currentHour, nextHour)) {
+      if (mountPmtilesPair(manifest, currentHour, nextHour, timeSeconds)) {
         applyOpacity(timeSeconds);
         return;
       }
@@ -598,8 +778,10 @@ export function useGfwHourlyGridLayer(
       if (current || next) {
         keepLoadingUntilMapIdle(map, "gfw-hourly-grid:render", "GFW 小時網格繪製", GFW_HOURLY_GRID_SOURCE_ID);
       }
-      if (!next && !disposed) {
-        // 失敗不負向 cache；小幅退避後以當前時間重新嘗試 H+1，H 仍維持 100%。
+      // 失敗不負向 cache；小幅退避後以當前時間重新嘗試 H+1，H 仍維持 100%。
+      // 資料窗外的「缺 H+1」不是失敗而是預期，重試會永遠空轉 —— 回到窗內時 pairKey 變動自然恢復。
+      const outOfWindow = getGfwHourlyGridDataWindowSnapshot()?.status === "out-of-window";
+      if (!next && !disposed && !outOfWindow) {
         if (retryTimer !== null) globalThis.clearTimeout(retryTimer);
         retryTimer = globalThis.setTimeout(() => {
           requestedPairRef.current = null;
@@ -618,6 +800,7 @@ export function useGfwHourlyGridLayer(
       const manifest = await loadGfwHourlyGridManifest();
       if (disposed || requestId !== requestRef.current) return;
       manifestRef.current = manifest;
+      dataWindowRef.current = isV4GridManifest(manifest) ? gridDataWindow(manifest) : null;
       setGfwHourlyGridDetailContext(manifest);
       applyGridPaint(map, isV4GridManifest(manifest));
       if (manifest && visible && activation === activationRef.current && noticeActivationRef.current !== activation) {
@@ -651,19 +834,8 @@ export function useGfwHourlyGridLayer(
         applyGridPaint(map, isV4GridManifest(manifestRef.current));
         setVisibility(map, true);
         setPmtilesVisibility(map, true);
-        if (isV4GridManifest(manifestRef.current)) {
-          for (const [sourceId, hitLayerId] of [
-            [GFW_HOURLY_GRID_PMTILES_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_HIT_FILL_LAYER_ID],
-            [GFW_HOURLY_GRID_PMTILES_NEXT_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_NEXT_HIT_FILL_LAYER_ID],
-            [GFW_HOURLY_GRID_PMTILES_PRELOAD_SOURCE_ID, GFW_HOURLY_GRID_PMTILES_PRELOAD_HIT_FILL_LAYER_ID],
-          ] as const) {
-            if (map.getLayer(hitLayerId)) map.setLayoutProperty(
-              hitLayerId,
-              "visibility",
-              pmtilesSlotHoursRef.current.get(sourceId) === dominantHourRef.current ? "visible" : "none",
-            );
-          }
-        }
+        // Style restore is not a playback tick: apply immediately, bypassing the throttle.
+        if (isV4GridManifest(manifestRef.current)) applyV4HitVisibility(dominantHourRef.current);
         source(map, GFW_HOURLY_GRID_SOURCE_ID)?.setData?.(currentDataRef.current ?? EMPTY);
         source(map, GFW_HOURLY_GRID_NEXT_SOURCE_ID)?.setData?.(nextDataRef.current ?? EMPTY);
         source(map, GFW_HOURLY_GRID_HIT_SOURCE_ID)?.setData?.(
@@ -702,6 +874,7 @@ export function useGfwHourlyGridLayer(
       requestRef.current += 1;
       requestedPairRef.current = null;
       if (retryTimer !== null) globalThis.clearTimeout(retryTimer);
+      if (hitVisibilityTimer !== null) globalThis.clearTimeout(hitVisibilityTimer);
       unsubscribe();
       map.off("style.load", applyStyle);
       map.off("sourcedata", markPmtilesSlotReady);

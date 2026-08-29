@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { RefObject } from "react";
 
@@ -65,9 +65,36 @@ vi.mock("../../data/gfwHourlyDetailLoader", () => ({
   setGfwHourlyGridDominantHour: detailContext.setDominantHour,
 }));
 
-import { useGfwHourlyGridLayer } from "../useGfwHourlyGridLayer";
+import { getGfwHourlyGridDataWindowSnapshot, useGfwHourlyGridLayer } from "../useGfwHourlyGridLayer";
 
 const FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
+const VESSEL_COUNT = ["to-number", ["get", "vessel_count"], 1];
+const DENSITY_ALPHA = [
+  "interpolate", ["linear"], VESSEL_COUNT,
+  1, 0.28, 2, 0.34, 4, 0.40, 8, 0.47, 16, 0.54, 50, 0.62, 200, 0.68, 1161, 0.72,
+];
+/** 六級色階拆成數值通道後併進 rgba；alpha 由 vessel_count 密度提供。 */
+const FILL_COLOR_WITH_DENSITY = [
+  "rgba",
+  ["step", VESSEL_COUNT, 124, 2, 154, 4, 194, 8, 234, 16, 251, 50, 255],
+  ["step", VESSEL_COUNT, 45, 2, 52, 4, 65, 8, 88, 16, 146, 50, 237],
+  ["step", VESSEL_COUNT, 18, 2, 18, 4, 12, 8, 12, 16, 60, 50, 213],
+  DENSITY_ALPHA,
+];
+const OUTLINE_COLOR_WITH_DENSITY = ["rgba", 124, 45, 18, DENSITY_ALPHA];
+
+type PaintCall = [string, string, unknown];
+
+function paintCalls(map: MapboxMap): PaintCall[] {
+  return (map.setPaintProperty as unknown as { mock: { calls: PaintCall[] } }).mock.calls;
+}
+
+/** 最後一次對某 layer/property 的 paint 寫入值。 */
+function lastPaint(map: MapboxMap, layerId: string, property: string): unknown {
+  const matched = paintCalls(map).filter((call) => call[0] === layerId && call[1] === property);
+  return matched.length === 0 ? undefined : matched[matched.length - 1]![2];
+}
 
 async function flushAsync(): Promise<void> {
   for (let i = 0; i < 8; i++) await Promise.resolve();
@@ -116,8 +143,12 @@ function createMap() {
 }
 
 describe("useGfwHourlyGridLayer timeline", () => {
+  // hit layer 的 visibility 節流用 setTimeout + Date.now，需要可控時鐘。
+  beforeEach(() => { vi.useFakeTimers(); });
+
   afterEach(() => {
     harness.reset();
+    vi.useRealTimers();
     clock.current = Date.parse("2026-08-15T00:20:00Z") / 1000;
     loader.loadManifest.mockReset();
     loader.loadHour.mockReset();
@@ -245,13 +276,14 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-next-circle", "circle-opacity", 0);
   });
 
-  it("v4 以六級色階及連續 vessel_count opacity crossfade", async () => {
+  it("v4 六級色階與密度併進 rgba color，每 tick 只送純數字 opacity", async () => {
     const hours = ["2026-08-15T00:00:00Z", "2026-08-15T01:00:00Z", "2026-08-15T02:00:00Z"].map((observedAt) => ({
       observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`,
       cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [],
     }));
     loader.loadManifest.mockResolvedValue({
       schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours,
+      dateStart: "2026-08-15", dateEndInclusive: "2026-08-15",
     });
     const state = createMap();
     const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
@@ -259,38 +291,45 @@ describe("useGfwHourlyGridLayer timeline", () => {
     await flushAsync();
 
     const fill = state.layers.get("gfw-hourly-grid-pmtiles-fill") as { paint: Record<string, unknown> };
-    expect(fill.paint["fill-color"]).toEqual([
-      "step", ["to-number", ["get", "vessel_count"], 1], "#7c2d12",
-      2, "#9a3412", 4, "#c2410c", 8, "#ea580c", 16, "#fb923c", 50, "#ffedd5",
-    ]);
+    expect(fill.paint["fill-color"]).toEqual(FILL_COLOR_WITH_DENSITY);
+    // 每 tick 的 opacity 一定要是常數，否則 mapbox-gl 會 requiresRelayout 重刷整個 source。
+    expect(fill.paint["fill-opacity"]).toBe(0);
+    expect(fill.paint["fill-opacity-transition"]).toEqual({ duration: 0, delay: 0 });
+    const outline = state.layers.get("gfw-hourly-grid-pmtiles-outline") as { paint: Record<string, unknown> };
+    expect(outline.paint["line-color"]).toEqual(OUTLINE_COLOR_WITH_DENSITY);
+    expect(outline.paint["line-opacity-transition"]).toEqual({ duration: 0, delay: 0 });
+
     state.ready("gfw-hourly-grid-pmtiles-source");
     state.ready("gfw-hourly-grid-pmtiles-next-source");
     await flushAsync();
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-fill", "fill-opacity", [
-      "*", 0.4, ["interpolate", ["linear"], ["to-number", ["get", "vessel_count"], 1],
-      1, 0.28, 2, 0.34, 4, 0.40, 8, 0.47, 16, 0.54, 50, 0.62, 200, 0.68, 1161, 0.72,
-    ]]);
-    const paintCalls = (state.map.setPaintProperty as unknown as { mock: { calls: [string, string, unknown][] } }).mock.calls;
-    const nextOpacityCalls = paintCalls.filter((call) => call[0] === "gfw-hourly-grid-pmtiles-next-fill" && call[1] === "fill-opacity" && Array.isArray(call[2]));
-    const nextOpacity = nextOpacityCalls[nextOpacityCalls.length - 1]?.[2] as unknown[];
-    expect(nextOpacity[0]).toBe("*");
-    expect(nextOpacity[1]).toBeCloseTo(0.2);
-    expect(nextOpacity[2]).toEqual(["interpolate", ["linear"], ["to-number", ["get", "vessel_count"], 1],
-      1, 0.28, 2, 0.34, 4, 0.40, 8, 0.47, 16, 0.54, 50, 0.62, 200, 0.68, 1161, 0.72,
-    ]);
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-outline", "line-opacity", [
-      "*", 0.26, ["interpolate", ["linear"], ["to-number", ["get", "vessel_count"], 1],
-      1, 0.28, 2, 0.34, 4, 0.40, 8, 0.47, 16, 0.54, 50, 0.62, 200, 0.68, 1161, 0.72,
-    ]]);
+    // 逐 tick 的 PMTiles opacity 寫入一律是純數字（含 data-driven 就會 requiresRelayout）。
+    const perTickCalls = paintCalls(state.map).filter((call) => call[0].startsWith("gfw-hourly-grid-pmtiles-"));
+    expect(perTickCalls.length).toBeGreaterThan(0);
+    expect(perTickCalls.every((call) => typeof call[2] === "number")).toBe(true);
+    expect(perTickCalls.every((call) => call[1] === "fill-opacity" || call[1] === "line-opacity")).toBe(true);
+    // 00:20 → progress 1/3；H 權重 2/3、H+1 權重 1/3，乘上使用者 opacity 0.6。
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-fill", "fill-opacity", 0.4);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-outline", "line-opacity", 0.26);
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBeCloseTo(0.2);
+
+    expect(getGfwHourlyGridDataWindowSnapshot()).toEqual({
+      status: "in-window",
+      startIso: "2026-08-15T00:00:00Z",
+      endIsoExclusive: "2026-08-15T03:00:00Z",
+      utcDateLabel: "2026-08-15",
+    });
+
     expect(state.sources.has("gfw-hourly-grid-pmtiles-hit-source")).toBe(false);
     expect((state.layers.get("gfw-hourly-grid-pmtiles-hit-fill") as { source?: string }).source)
       .toBe("gfw-hourly-grid-pmtiles-source");
     expect((state.layers.get("gfw-hourly-grid-pmtiles-next-hit-fill") as { source?: string }).source)
       .toBe("gfw-hourly-grid-pmtiles-next-source");
     harness.tick(Date.parse("2026-08-15T00:40:00Z") / 1000);
+    expect(detailContext.setDominantHour).toHaveBeenLastCalledWith("2026-08-15T01:00:00Z");
+    // hit layer 的 visibility 是 layout change（會 relayout 整個 source），所以走節流。
+    await vi.advanceTimersByTimeAsync(400);
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-hit-fill", "visibility", "none");
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-hit-fill", "visibility", "visible");
-    expect(detailContext.setDominantHour).toHaveBeenLastCalledWith("2026-08-15T01:00:00Z");
   });
 
   it("v4 H+1 尚未 first-ready 時 H 維持全亮", async () => {
@@ -303,8 +342,71 @@ describe("useGfwHourlyGridLayer timeline", () => {
     await flushAsync();
     state.ready("gfw-hourly-grid-pmtiles-source");
     await flushAsync();
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-fill", "fill-opacity", expect.arrayContaining(["*", 0.6]));
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-fill", "fill-opacity", expect.arrayContaining(["*", 0]));
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-fill", "fill-opacity", 0.6);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-fill", "fill-opacity", 0);
+  });
+
+  it("v4 播放超車：current 尚未 ready 時保留上一個 ready 小時，slot 不被回收", async () => {
+    const hours = [0, 1, 2, 3].map((offset) => {
+      const observedAt = `2026-08-15T0${offset}:00:00Z`;
+      return { observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`, cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [] };
+    });
+    loader.loadManifest.mockResolvedValue({ schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours });
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    // 只有 H 供出了第一批 tile；H+1 還在載入。
+    state.ready("gfw-hourly-grid-pmtiles-source");
+    await flushAsync();
+    const h0Source = state.sources.get("gfw-hourly-grid-pmtiles-source");
+
+    clock.current = Date.parse("2026-08-15T01:00:00Z") / 1000;
+    harness.tick(clock.current);
+    await flushAsync();
+    // H 的 slot 沒被拿去掛 H+3，畫面仍由 H 撐著（不是空白）。
+    expect(state.sources.get("gfw-hourly-grid-pmtiles-source")).toBe(h0Source);
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-fill", "fill-opacity")).toBe(0.6);
+    expect(detailContext.setDominantHour).toHaveBeenLastCalledWith("2026-08-15T00:00:00Z");
+
+    // H+1 一旦 ready，hold 解除、被跳過的 H+3 預載補掛上來。
+    state.ready("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+    expect(state.sources.get("gfw-hourly-grid-pmtiles-source")?.definition).toMatchObject({
+      url: "http://localhost/gfw-v4-poc/grid/hours/20260815T03Z.pmtiles",
+    });
+  });
+
+  it("v4 時間軸離開 release 資料窗時淡出並標示窗外，不 teardown source", async () => {
+    const hours = [0, 1].map((offset) => {
+      const observedAt = `2026-08-15T0${offset}:00:00Z`;
+      return { observedAt, observedAtMs: Date.parse(observedAt), path: `grid/hours/${observedAt.replace(/[-:]/g, "").slice(0, 11)}Z.pmtiles`, cellCount: 1, vesselCount: 1, format: "pmtiles" as const, detailBuckets: [] };
+    });
+    loader.loadManifest.mockResolvedValue({
+      schemaVersion: 4, manifestUrl: "/gfw-v4-poc/manifest.json", sourceLayer: "gfw_grid_0_1", hours,
+      dateStart: "2026-08-15", dateEndInclusive: "2026-08-15",
+    });
+    const state = createMap();
+    useGfwHourlyGridLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6);
+    await flushAsync();
+    state.ready("gfw-hourly-grid-pmtiles-source");
+    state.ready("gfw-hourly-grid-pmtiles-next-source");
+    await flushAsync();
+    const removedBefore = (state.map.removeSource as unknown as { mock: { calls: unknown[][] } }).mock.calls.length;
+
+    // 資料窗是 [00:00, 02:00)；跳到 02:07:30 = 窗外半個 fade。
+    harness.tick(Date.parse("2026-08-15T02:07:30Z") / 1000);
+    await flushAsync();
+    expect(getGfwHourlyGridDataWindowSnapshot()).toMatchObject({
+      status: "out-of-window", utcDateLabel: "2026-08-15",
+    });
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBeCloseTo(0.3, 6);
+    // 淡出是 layer-local 的 paint 行為，source 一律留著。
+    expect((state.map.removeSource as unknown as { mock: { calls: unknown[][] } }).mock.calls).toHaveLength(removedBefore);
+    expect(state.sources.has("gfw-hourly-grid-pmtiles-next-source")).toBe(true);
+
+    harness.tick(Date.parse("2026-08-15T02:20:00Z") / 1000);
+    await flushAsync();
+    expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBe(0);
   });
 
   it("v4 fill/outline/hit 關閉後全隱藏，重開與 style reload 都會復原", async () => {
@@ -357,7 +459,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
     expect(h1).toBeTruthy();
     expect(h2).toBeTruthy();
     expect(state.map.setPaintProperty).toHaveBeenCalledWith(
-      "gfw-hourly-grid-pmtiles-preload-fill", "fill-opacity", expect.arrayContaining(["*", 0]),
+      "gfw-hourly-grid-pmtiles-preload-fill", "fill-opacity", 0,
     );
     expect(state.layers.get("gfw-hourly-grid-pmtiles-next-warm")).toMatchObject({
       source: "gfw-hourly-grid-pmtiles-next-source",
@@ -396,9 +498,10 @@ describe("useGfwHourlyGridLayer timeline", () => {
     await flushAsync();
     expect(state.sources.has("gfw-hourly-grid-pmtiles-preload-source")).toBe(false);
     state.ready("gfw-hourly-grid-pmtiles-source"); state.ready("gfw-hourly-grid-pmtiles-next-source");
-    harness.tick(Date.parse("2026-08-15T01:00:00Z") / 1000);
+    clock.current = Date.parse("2026-08-15T01:00:00Z") / 1000;
+    harness.tick(clock.current);
     await flushAsync();
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-fill", "fill-opacity", expect.arrayContaining(["*", 0.6]));
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith("gfw-hourly-grid-pmtiles-next-fill", "fill-opacity", 0.6);
   });
 
   it("v3 維持固定橘色及 0.24 Polygon opacity", async () => {

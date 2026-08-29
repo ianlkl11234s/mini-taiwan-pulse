@@ -39,9 +39,19 @@ export const GFW_HOURLY_GRID_V4_FILL_COLOR_EXPRESSION = [
 
 export const GFW_HOURLY_GRID_V3_FILL_OPACITY = 0.24;
 
+/** v4 polygon outline colour; kept here so the composed rgba expression stays in lockstep. */
+export const GFW_HOURLY_GRID_V4_OUTLINE_COLOR = "#7c2d12";
+export const GFW_HOURLY_GRID_V4_OUTLINE_OPACITY = 0.65;
+
 /**
  * v4 polygon density remains continuously legible within the six colour classes.
- * The caller supplies the user/timeline multiplier as the first factor of `*`.
+ *
+ * This expression is data-driven, so it must only ever appear inside a paint property that
+ * is written **once** at addLayer time. mapbox-gl 3.18.1 returns `requiresRelayout = true`
+ * from `StyleLayer.setPaintProperty` whenever the new *or* previous value is data-driven,
+ * which forces a full source-cache reload (re-parse + re-tessellate of every loaded tile).
+ * During playback that turns a per-tick opacity write into a per-tick relayout, so density
+ * lives in the colour alpha channel and the per-tick multiplier stays a plain number.
  */
 export const GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION = [
   "interpolate", ["linear"], ["to-number", ["get", "vessel_count"], 1],
@@ -54,6 +64,179 @@ export const GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION = [
   200, 0.68,
   1161, 0.72,
 ] as const;
+
+function hexChannel(hex: string, index: 0 | 1 | 2): number {
+  return Number.parseInt(hex.slice(1 + index * 2, 3 + index * 2), 16);
+}
+
+/** Same `step` stops as the fill colour scale, split into one numeric channel for `rgba`. */
+function bandChannelExpression(index: 0 | 1 | 2): unknown[] {
+  return [
+    "step", ["to-number", ["get", "vessel_count"], 1],
+    hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[0].color, index),
+    2, hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[1].color, index),
+    4, hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[2].color, index),
+    8, hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[3].color, index),
+    16, hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[4].color, index),
+    50, hexChannel(GFW_HOURLY_GRID_V4_COLOR_BANDS[5].color, index),
+  ];
+}
+
+/**
+ * Six-band colour scale with the density ramp folded into the alpha channel.
+ *
+ * Rendering is unchanged: mapbox-gl uploads paint colours premultiplied and both the fill
+ * and line fragment shaders compute `out_color *= opacity`, so `rgba(R, G, B, density) *
+ * multiplier` and `rgba(R, G, B, 1) * (multiplier * density)` produce the same pixel.
+ */
+export const GFW_HOURLY_GRID_V4_FILL_COLOR_WITH_DENSITY_EXPRESSION = [
+  "rgba",
+  bandChannelExpression(0),
+  bandChannelExpression(1),
+  bandChannelExpression(2),
+  GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION,
+] as const;
+
+export const GFW_HOURLY_GRID_V4_OUTLINE_COLOR_WITH_DENSITY_EXPRESSION = [
+  "rgba",
+  hexChannel(GFW_HOURLY_GRID_V4_OUTLINE_COLOR, 0),
+  hexChannel(GFW_HOURLY_GRID_V4_OUTLINE_COLOR, 1),
+  hexChannel(GFW_HOURLY_GRID_V4_OUTLINE_COLOR, 2),
+  GFW_HOURLY_GRID_V4_DENSITY_OPACITY_EXPRESSION,
+] as const;
+
+/** One retained v4 PMTiles slot as seen by the playback planner. */
+export interface GfwHourlyGridSlotReadiness {
+  readonly sourceId: string;
+  /** UTC hour currently mounted in this slot, or null when the slot is vacant. */
+  readonly hour: string | null;
+  /** True once the slot has supplied its first viewport tile. */
+  readonly ready: boolean;
+}
+
+/** Half-open `[startMs, endMsExclusive)` span actually covered by the release. */
+export interface GfwHourlyGridDataWindow {
+  readonly startMs: number;
+  readonly endMsExclusive: number;
+}
+
+export interface GfwHourlyGridPlaybackInput {
+  readonly timeSeconds: number;
+  readonly slots: readonly GfwHourlyGridSlotReadiness[];
+  /** Manifest-backed hour for `floor(timeSeconds)`, or null when the release has no such hour. */
+  readonly currentHour: string | null;
+  readonly nextHour: string | null;
+  readonly dataWindow: GfwHourlyGridDataWindow | null;
+  readonly fadeSeconds?: number;
+}
+
+export interface GfwHourlyGridPlaybackPlan {
+  /** sourceId → 0..1 weight, before the user opacity slider is applied. */
+  readonly weights: ReadonlyMap<string, number>;
+  readonly dominantHour: string | null;
+  /** Hour whose slot must survive slot rotation because it is the only thing on screen. */
+  readonly retainHour: string | null;
+  readonly dataWindowStatus: "in-window" | "out-of-window";
+  readonly windowFade: number;
+  readonly holding: boolean;
+}
+
+/**
+ * Timeline seconds over which the layer fades out once the timeline leaves the release
+ * window. Deliberately expressed in timeline time (not wall clock) so the plan stays a pure
+ * function of the tick; tune here if the fade reads too slow at 1x.
+ */
+export const GFW_HOURLY_GRID_V4_WINDOW_FADE_SECONDS = 900;
+
+function hourMs(hour: string | null): number {
+  return hour === null ? Number.NaN : Date.parse(hour);
+}
+
+/**
+ * Decide, for one timeline tick, which retained slot is visible and at what weight.
+ *
+ * Two behaviours beyond a plain crossfade:
+ * - **hold-last-ready**: when playback overtakes loading and the current hour has not
+ *   produced its first tile yet, the newest already-ready hour stays on screen instead of
+ *   the layer blanking. `retainHour` tells the slot rotation not to recycle it.
+ * - **data window**: outside the release's own hours the layer fades to hidden rather than
+ *   snapping to invisible. Layer-local only — the global timeline is never clamped.
+ */
+export function planGfwHourlyGridPlayback(input: GfwHourlyGridPlaybackInput): GfwHourlyGridPlaybackPlan {
+  const fadeSeconds = input.fadeSeconds ?? GFW_HOURLY_GRID_V4_WINDOW_FADE_SECONDS;
+  const hourSeconds = Math.floor(input.timeSeconds / 3600) * 3600;
+  const progress = Math.max(0, Math.min(1, (input.timeSeconds - hourSeconds) / 3600));
+  const timelineHourMs = hourSeconds * 1000;
+  const timeMs = input.timeSeconds * 1000;
+
+  const window = input.dataWindow;
+  const inWindow = !window || (timeMs >= window.startMs && timeMs < window.endMsExclusive);
+  let windowFade = 1;
+  if (window && !inWindow) {
+    const beyondMs = timeMs < window.startMs ? window.startMs - timeMs : timeMs - window.endMsExclusive;
+    windowFade = fadeSeconds > 0 ? Math.max(0, Math.min(1, 1 - beyondMs / (fadeSeconds * 1000))) : 0;
+  }
+
+  const weights = new Map<string, number>();
+  for (const slot of input.slots) weights.set(slot.sourceId, 0);
+  const readySlot = (hour: string | null) =>
+    hour === null ? undefined : input.slots.find((slot) => slot.hour === hour && slot.ready);
+
+  const currentSlot = readySlot(input.currentHour);
+  const nextSlot = readySlot(input.nextHour);
+  let dominantHour: string | null = null;
+  let retainHour: string | null = null;
+  let holding = false;
+
+  if (currentSlot) {
+    weights.set(currentSlot.sourceId, nextSlot ? 1 - progress : 1);
+    if (nextSlot) weights.set(nextSlot.sourceId, progress);
+    dominantHour = nextSlot && progress >= 0.5 ? input.nextHour : input.currentHour;
+  } else {
+    // Playback overtook loading (or the timeline left the release window): keep the newest
+    // ready hour that is not in the future rather than showing nothing.
+    let held: GfwHourlyGridSlotReadiness | null = null;
+    for (const slot of input.slots) {
+      if (!slot.ready || slot.hour === null) continue;
+      const ms = hourMs(slot.hour);
+      if (!Number.isFinite(ms) || ms > timelineHourMs) continue;
+      if (!held || hourMs(held.hour) < ms) held = slot;
+    }
+    if (held) {
+      weights.set(held.sourceId, 1);
+      dominantHour = held.hour;
+      retainHour = held.hour;
+      holding = true;
+    } else if (input.currentHour === null && nextSlot) {
+      // Leading edge of the window: H is missing entirely, H+1 already covers the screen.
+      weights.set(nextSlot.sourceId, 1);
+      dominantHour = input.nextHour;
+    } else {
+      // Nothing ready yet at all. The current slot stays fully painted so a slot that never
+      // reports readiness cannot deadlock the layer into permanent invisibility.
+      const mounted = input.slots.find((slot) => slot.hour !== null && slot.hour === input.currentHour);
+      if (mounted) {
+        weights.set(mounted.sourceId, 1);
+        dominantHour = input.currentHour;
+      }
+    }
+  }
+
+  if (windowFade !== 1) {
+    for (const [sourceId, weight] of weights) weights.set(sourceId, weight * windowFade);
+    // Fully faded out means nothing is on screen, so nothing may claim clicks either.
+    if (windowFade === 0) dominantHour = null;
+  }
+
+  return {
+    weights,
+    dominantHour,
+    retainHour,
+    dataWindowStatus: inWindow ? "in-window" : "out-of-window",
+    windowFade,
+    holding,
+  };
+}
 
 /** Popup-facing wire contract: the parser intentionally accepts producer-style snake_case only. */
 export function serializeGfwHourlyGridVessels(vessels: readonly GfwHourlyGridVessel[]): string {
