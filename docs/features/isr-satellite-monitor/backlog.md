@@ -4,8 +4,7 @@
 
 | ID | Category | Priority | State | Outcome | Next action | Acceptance |
 |---|---|---|---|---|---|---|
-| ISR-MON-1 | validation | P1 | waiting_external | 前端可讀到真實每日過境列 | 平台完成 RPC 後，以 anon 角色回讀預設參數 | RPC schema 對齊、最近完整日非空、缺日未補 0 |
-| ISR-MON-2 | validation | P1 | waiting_external | dock / split 已通過本機 error/null 與範圍警示驗收；真實柱仍待 RPC | 平台完成 RPC/backfill 後，檢查 30 日柱、tooltip、partial census、stale 與真零狀態 | live RPC Browser 截圖與互動證據 |
+| ISR-MON-2 | validation | P1 | in_progress | dock / split 已通過本機 error/null 與範圍警示驗收；production anon RPC 已有 30 日資料 | PR #185 發布後檢查真實柱、tooltip、partial census、stale 與真零狀態 | production Browser 截圖與互動證據 |
 | ISR-MON-3 | data-health | P1 | waiting_external | ISR registry 覆核日期可監測 | 上游確認 registry review SLA 與告警門檻 | `registry_reviewed_at` 有值且逾期狀態有規格 |
 
 ## Decision needed
@@ -16,8 +15,9 @@
 
 ## Completed / historical
 
-- [x] **ISR-MON-0**：完成 frontend loader、Monitor card、dock/split packing 與 null/zero contract tests — 2026-08-30，尚未 commit／PR；詳見 [changelog.md](./changelog.md)
+- [x] **ISR-MON-0**：完成 frontend loader、Monitor card、dock/split packing 與 null/zero contract tests — 2026-08-30，PR #185；詳見 [changelog.md](./changelog.md)
 - [x] **ISR-MON-0B**：localhost dock/split 均可見卡片；production RPC 尚未套用時正確顯示「更新失敗，不以 0 代替」與 v1 scope 警示 — 2026-08-30
+- [x] **ISR-MON-1**：production migrations、三種 tier mode 各 30 日 backfill 與 anon HTTP RPC 回讀通過 — 2026-08-30
 
 ## Explicitly not planned
 

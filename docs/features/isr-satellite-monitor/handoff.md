@@ -62,7 +62,7 @@ RPC 暫不直接回 `freshness`，前端依以下條件推導：
 
 ## 已知不對稱
 
-- 前端已完成暫定契約接線，但目前未在本 worktree 驗證 production RPC 回讀。
+- production anon HTTP RPC 已於 2026-08-30 驗證預設參數回傳 30 日資料；frontend production Browser 驗收仍待 PR #185 發布。
 - 過境是星下點與領海 polygon 的幾何事件，不等於感測器實際蒐情。
 - v1 registry 只承諾 YAOGAN／GAOFEN／JILIN 三家族 scope，不代表全中國 ISR census。
 - `twmain_12nm` 的精確 islands inclusion 由上游 region registry 定義，前端不自行 buffer 或改 geometry。

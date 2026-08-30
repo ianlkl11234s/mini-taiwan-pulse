@@ -1,10 +1,10 @@
 # 中國 ISR 衛星領海過境監測
 
 > **Slug**：`isr-satellite-monitor`
-> **狀態**：dev
+> **狀態**：release candidate
 > **Owner**：Mini Taiwan Pulse
-> **上線日期**：未上線
-> **相關 PR**：未建立
+> **上線日期**：frontend 待 PR #185 merge；production RPC 已於 2026-08-30 上線
+> **相關 PR**：#185
 
 ## 一句話說明
 
@@ -14,7 +14,7 @@
 
 | 名稱 | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| 中國 ISR 衛星領海過境 | Monitor card | `public.get_isr_satellite_passes_daily` RPC | frontend ready，等待平台 RPC |
+| 中國 ISR 衛星領海過境 | Monitor card | `public.get_isr_satellite_passes_daily` RPC | production RPC/backfill ready，frontend 待發布 |
 
 ## 關鍵檔案
 
