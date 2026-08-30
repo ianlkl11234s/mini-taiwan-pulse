@@ -4,8 +4,8 @@
 
 | ID | Category | Priority | State | Outcome | Next action | Acceptance |
 |---|---|---|---|---|---|---|
-| ISR-MON-2 | validation | P1 | in_progress | dock / split 已通過本機 error/null 與範圍警示驗收；production anon RPC 已有 30 日資料 | PR #185 發布後檢查真實柱、tooltip、partial census、stale 與真零狀態 | production Browser 截圖與互動證據 |
 | ISR-MON-3 | data-health | P1 | waiting_external | ISR registry 覆核日期可監測 | 上游確認 registry review SLA 與告警門檻 | `registry_reviewed_at` 有值且逾期狀態有規格 |
+| ISR-MON-5 | data-health | P1 | investigating | collector deploy 後 aggregate `refreshed_at` 已更新，證明排程有執行；但 `metadata.collector_status` 尚無專屬列 | 確認 direct-SQL runtime heartbeat 的 role/RLS，或正式指定 aggregate `refreshed_at` 為健康 SSOT | 專屬 heartbeat 可讀，或文件／告警統一採 aggregate freshness |
 
 ## Decision needed
 
@@ -18,6 +18,7 @@
 - [x] **ISR-MON-0**：完成 frontend loader、Monitor card、dock/split packing 與 null/zero contract tests — 2026-08-30，PR #185；詳見 [changelog.md](./changelog.md)
 - [x] **ISR-MON-0B**：localhost dock/split 均可見卡片；production RPC 尚未套用時正確顯示「更新失敗，不以 0 代替」與 v1 scope 警示 — 2026-08-30
 - [x] **ISR-MON-1**：production migrations、三種 tier mode 各 30 日 backfill 與 anon HTTP RPC 回讀通過 — 2026-08-30
+- [x] **ISR-MON-2**：production Dock／Split 均顯示 30 日柱；最新日 72 次／53 顆，tooltip、freshness、scope 與 census 警示驗收通過，console 無 error — 2026-08-30
 
 ## Explicitly not planned
 
