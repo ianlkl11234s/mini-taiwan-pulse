@@ -114,6 +114,8 @@ export const MONITOR_GRID_GAP = 10;
  *   維持左右欄同止 y68。⚠ 本版座標為接線時暫定、非沙盒匯出，定稿請回沙盒重拖。
  * - 2026-08-30 十二版 — 上半事件區與下半雙欄之間插入全寬 internetHealth 狀態卡；
  *   下半整體 +4，左右欄同止改為 y72。
+ * - 2026-08-30 十三版 — 軍事態勢尾段改為特殊船舶 → ISR 衛星 → 台鐵；
+ *   左右欄仍同止於 y80。
  */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
@@ -160,27 +162,21 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // 迷你走勢圖會擠到看不出形狀；w7 每格約 280px 才讀得出趨勢。
   // h 9→12（2026-08-10）：多出的高度全部灌進四張卡的走勢圖（SPARK_H 34→52 + flex:1）。
   // y 48→56（同上，跟著 powerCard 下移）
-  // h 12→20：fit:"content" 不改實際高度，只讓右欄跨過 y72、與新增的 ISR 卡同止 y80，
+  // h 12→20：fit:"content" 不改實際高度，只讓右欄跨過軍事態勢尾段、同止 y80，
   // 維持頂層「下方左右兩欄（5+7）」而不切出第三個全寬段。
   { i: "foodPriceBoard", x: 5, y: 60, w: 7, h: 20, fit: "content" },
   // 特殊船舶接近帶（2026-08-20，VZ-4）：左欄收尾，與共機卡同寬 w5。
-  // ⚠️ y61→72 是刻意算過的：原本左欄止於 y61（airportPax）、右欄止於 y72
-  // （foodPriceBoard），兩欄不同止。本格補滿左欄到 y72 後**左右欄同時結束**，
-  // 頂層才維持「上方三欄 + 下方左右兩欄(5+7)」的兩段結構
-  // （monitorPacking.test.ts 有斷言；第一版放最底部全寬 w12 會多切出第三段）。
+  // ⚠️ y61 起的三張左欄卡與 foodPriceBoard 同止 y80，頂層才維持
+  // 「上方三欄 + 下方左右兩欄(5+7)」的兩段結構（packing test 有斷言）。
   // 也刻意不用 w12：全寬約 1200px，柱狀圖會被拉到看不出形狀，w5 與 plaBoard 一致。
-  // h 11→6（2026-08-22）：純粹讓出左欄尾段給 traDelay。兩格都是 fit:"content"，
+  // h 11→6（2026-08-22）：純粹讓出左欄尾段給後續卡片。三格都是 fit:"content"，
   // h 不是實際高度、只決定欄內順序與拆解，所以縮 h 不會壓縮畫面上的船舶卡。
   { i: "vesselZone", x: 0, y: 61, w: 5, h: 6, fit: "content" },
-  // 台鐵誤點（2026-08-22，migration 369）。
-  // ⚠️ 為什麼卡在 y67–72 而不是接在最底部：左右兩欄必須**同時結束**於 y72。
-  // 先前試過接在同止點（左欄再向下延伸），其下只剩左欄 → guillotine 在那裡切出
-  // 貫穿全寬的第三段，monitorPacking「頂層拆成上方三欄 + 下方左右兩欄」直接紅。
-  // 版面要正式定稿請回沙盒拖完重新匯出整份 MONITOR_LAYOUT。
-  { i: "traDelay", x: 0, y: 67, w: 5, h: 5, fit: "content" },
-  // 中國 ISR 衛星領海過境頻率：左欄軍事態勢尾段；右欄由 foodPriceBoard 的排序佔位
-  // 跨過 y72，兩欄同止 y80（fit h 只影響 packing，不改卡片實際高度）。
-  { i: "isrSatellitePasses", x: 0, y: 72, w: 5, h: 8, fit: "content" },
+  // 中國 ISR 衛星領海過境頻率：接在特殊船舶後，形成海域 → 太空的態勢順序。
+  { i: "isrSatellitePasses", x: 0, y: 67, w: 5, h: 8, fit: "content" },
+  // 台鐵誤點收尾；右欄由 foodPriceBoard 跨過同一排序範圍，左右同止 y80。
+  // fit h 只影響 packing，不改卡片實際高度。
+  { i: "traDelay", x: 0, y: 75, w: 5, h: 5, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */

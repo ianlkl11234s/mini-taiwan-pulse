@@ -139,9 +139,9 @@ describe("monitorPacking · split dock（右半邊窄版）", () => {
     expect(head.children.map(nodeWidth)).toEqual([6, 6]);
   });
 
-  it("軍事態勢尾段依序為 PLA、ISR、特殊船舶、台鐵", () => {
+  it("軍事態勢尾段依序為 PLA、特殊船舶、ISR、台鐵", () => {
     expect(
       items.filter((item) => item.y >= 92).map((item) => item.i),
-    ).toEqual(["plaBoard", "isrSatellitePasses", "vesselZone", "traDelay"]);
+    ).toEqual(["plaBoard", "vesselZone", "isrSatellitePasses", "traDelay"]);
   });
 });
