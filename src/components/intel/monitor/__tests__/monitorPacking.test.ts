@@ -34,12 +34,13 @@ describe("monitorPacking", () => {
   // guillotine 會先在那裡把版面切成上下兩段 —— 右欄底部那塊於是從「右欄」變成
   // 撐滿 12 欄的獨立區塊（寬度爆掉、與上方右欄對不齊）。
   // 新 widget 要接在右欄下方時，左欄必須有格子跨過那條線，或改插進右欄中段。
-  it("頂層拆成「上方三欄」+「下方左右兩欄（5 + 7）」", () => {
+  it("頂層拆成「上方三欄」+「全寬網路狀態」+「下方左右兩欄（5 + 7）」", () => {
     const tree = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
     expect(tree.t).toBe("rows");
     if (tree.t !== "rows") return;
-    expect(tree.children).toHaveLength(2);
-    const bottom = tree.children[1]!;
+    expect(tree.children).toHaveLength(3);
+    expect(flattenNode(tree.children[1]!).map((it) => it.i)).toEqual(["internetHealth"]);
+    const bottom = tree.children[2]!;
     expect(bottom.t).toBe("cols");
     if (bottom.t !== "cols") return;
     expect(bottom.children.map(nodeWidth)).toEqual([5, 7]);
