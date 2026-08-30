@@ -239,7 +239,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         style={{
           borderRadius: RADIUS.xl,
           border: `1px solid ${COLORS.panelBorder}`,
-          background: "linear-gradient(160deg, rgba(139,92,246,0.08), rgba(255,255,255,0.012))",
+          background: "rgba(255,255,255,0.02)",
           padding: "11px 13px",
           display: "flex", flexDirection: "column", gap: 9,
         }}

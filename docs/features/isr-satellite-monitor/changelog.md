@@ -6,6 +6,7 @@
 - 新增期間 `pass_count` 中位數與最新日高／低／相等、絕對差；median 排除 null、保留合法 0，偶數筆取兩中央平均。
 - 顯示「可呈現日 X/window」，不補缺日、不把過境解讀為實際蒐情。
 - Dock／Split 皆將本卡排在「特殊船舶接近帶」後面。
+- 面板底色改為與其他 Monitor 卡一致的中性灰，不再使用紫色漸層。
 - Breaking dependency：RPC `p_days` 上限需由 31 擴至 120。
 
 ## 2026-08-30 — Released
