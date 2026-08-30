@@ -4,6 +4,11 @@ import { buildMonitorTree, flattenNode, hasGridFallback, nodeWidth } from "../mo
 import { MONITOR_SPLIT_VISIBLE_LAYOUT } from "../monitorSplitLayout";
 
 describe("monitorPacking", () => {
+  it("ISR 衛星卡同時接入 dock 與 split 佈局", () => {
+    expect(MONITOR_VISIBLE_LAYOUT.some((item) => item.i === "isrSatellitePasses")).toBe(true);
+    expect(MONITOR_SPLIT_VISIBLE_LAYOUT.some((item) => item.i === "isrSatellitePasses")).toBe(true);
+  });
+
   it("實際佈局可完整拆解（不需要退回固定網格）", () => {
     const tree = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
     expect(hasGridFallback(tree)).toBe(false);
@@ -44,6 +49,20 @@ describe("monitorPacking", () => {
     expect(bottom.t).toBe("cols");
     if (bottom.t !== "cols") return;
     expect(bottom.children.map(nodeWidth)).toEqual([5, 7]);
+  });
+
+  it("ISR 插入後 dock 左右兩欄同止於 y80", () => {
+    const leftEnd = Math.max(
+      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.x < 5 && item.y >= 55)
+        .map((item) => item.y + item.h),
+    );
+    const rightEnd = Math.max(
+      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.x >= 5 && item.y >= 55)
+        .map((item) => item.y + item.h),
+    );
+
+    expect(leftEnd).toBe(80);
+    expect(rightEnd).toBe(80);
   });
 
   it("互卡佈局（風車形）退回固定網格而不是掉 widget", () => {
@@ -118,5 +137,11 @@ describe("monitorPacking · split dock（右半邊窄版）", () => {
     expect(head.t).toBe("cols");
     if (head.t !== "cols") return;
     expect(head.children.map(nodeWidth)).toEqual([6, 6]);
+  });
+
+  it("軍事態勢尾段依序為 PLA、ISR、特殊船舶、台鐵", () => {
+    expect(
+      items.filter((item) => item.y >= 92).map((item) => item.i),
+    ).toEqual(["plaBoard", "isrSatellitePasses", "vesselZone", "traDelay"]);
   });
 });
