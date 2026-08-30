@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { buildIsrPassBars, deriveIsrLatestDisplay } from "../IsrSatellitePassCard";
+import {
+  buildIsrPassBars,
+  compareLatestToMedian,
+  deriveIsrLatestDisplay,
+  medianOfIsrPassCounts,
+  selectIsrPassWindow,
+} from "../IsrSatellitePassCard";
 import type { IsrSatellitePassReport } from "../../../../data/isrSatellitePassesLoader";
 
 function report(overrides: Partial<IsrSatellitePassReport> = {}): IsrSatellitePassReport {
@@ -62,5 +68,69 @@ describe("ISR pass card zero/null semantics", () => {
       { day: "2026-08-30", passCount: 1, uniqueSatelliteCount: 1, coverageComplete: false },
     ], true, "2026-08-29");
     expect(bars.map((bar) => bar.key)).toEqual(["2026-08-29"]);
+  });
+});
+
+describe("ISR pass card calendar windows", () => {
+  it("anchors the 30D window at latest_valid_day without synthesizing missing days", () => {
+    const rows: IsrSatellitePassReport["rows"] = [
+      { day: "2026-07-31", passCount: 1, uniqueSatelliteCount: 1, coverageComplete: true },
+      { day: "2026-08-01", passCount: 2, uniqueSatelliteCount: 2, coverageComplete: true },
+      { day: "2026-08-15", passCount: null, uniqueSatelliteCount: null, coverageComplete: false },
+      { day: "2026-08-30", passCount: 4, uniqueSatelliteCount: 3, coverageComplete: true },
+      { day: "2026-08-31", passCount: 5, uniqueSatelliteCount: 4, coverageComplete: true },
+    ];
+
+    expect(selectIsrPassWindow(rows, "2026-08-30", 30).map((row) => row.day)).toEqual([
+      "2026-08-01",
+      "2026-08-15",
+      "2026-08-30",
+    ]);
+  });
+
+  it("returns no window when latest_valid_day is unavailable", () => {
+    expect(selectIsrPassWindow(report().rows, null, 120)).toEqual([]);
+  });
+
+  it("uses inclusive calendar boundaries for the 90D and 120D windows", () => {
+    const rows: IsrSatellitePassReport["rows"] = [
+      { day: "2026-05-02", passCount: 1, uniqueSatelliteCount: 1, coverageComplete: true },
+      { day: "2026-05-03", passCount: 2, uniqueSatelliteCount: 2, coverageComplete: true },
+      { day: "2026-06-01", passCount: 3, uniqueSatelliteCount: 3, coverageComplete: true },
+      { day: "2026-06-02", passCount: 4, uniqueSatelliteCount: 4, coverageComplete: true },
+      { day: "2026-08-30", passCount: 5, uniqueSatelliteCount: 5, coverageComplete: true },
+    ];
+
+    expect(selectIsrPassWindow(rows, "2026-08-30", 90).map((row) => row.day)).toEqual([
+      "2026-06-02",
+      "2026-08-30",
+    ]);
+    expect(selectIsrPassWindow(rows, "2026-08-30", 120).map((row) => row.day)).toEqual([
+      "2026-05-03",
+      "2026-06-01",
+      "2026-06-02",
+      "2026-08-30",
+    ]);
+  });
+});
+
+describe("ISR pass card median comparison", () => {
+  it("excludes null but includes a legitimate zero in an odd-sized median", () => {
+    expect(medianOfIsrPassCounts([0, null, 4, 2])).toBe(2);
+  });
+
+  it("averages the two central values for an even-sized median", () => {
+    expect(medianOfIsrPassCounts([0, 2, null, 8, 10])).toBe(5);
+  });
+
+  it("keeps an all-missing window unknown instead of turning it into zero", () => {
+    expect(medianOfIsrPassCounts([null, null])).toBeNull();
+  });
+
+  it("reports higher, lower and equal with an absolute difference", () => {
+    expect(compareLatestToMedian(8, 5.5)).toEqual({ direction: "higher", difference: 2.5 });
+    expect(compareLatestToMedian(3, 5.5)).toEqual({ direction: "lower", difference: 2.5 });
+    expect(compareLatestToMedian(5.5, 5.5)).toEqual({ direction: "equal", difference: 0 });
+    expect(compareLatestToMedian(null, 5.5)).toEqual({ direction: "unknown", difference: null });
   });
 });

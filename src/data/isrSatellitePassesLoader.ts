@@ -2,8 +2,14 @@ import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { keyedThunkCache } from "../lib/loaderCache";
 
+export const ISR_PASSES_WINDOW_OPTIONS = [30, 90, 120] as const;
+export type IsrPassWindowDays = typeof ISR_PASSES_WINDOW_OPTIONS[number];
+export const ISR_PASSES_DEFAULT_WINDOW_DAYS: IsrPassWindowDays = 30;
+/** 一次取足所有 UI 日曆窗；切窗不重新呼叫 RPC。 */
+export const ISR_PASSES_FETCH_DAYS = 120;
+/** 保留 loader 的既有呼叫預設；需要完整切窗的 card 會明確傳 120。 */
 export const ISR_PASSES_DEFAULT_DAYS = 30;
-export const ISR_PASSES_MAX_DAYS = 31;
+export const ISR_PASSES_MAX_DAYS = ISR_PASSES_FETCH_DAYS;
 export const ISR_PASSES_DEFAULT_REGION = "twmain_12nm";
 export const ISR_PASSES_DEFAULT_TIER_MODE = "confirmed_plus_dual_use";
 
