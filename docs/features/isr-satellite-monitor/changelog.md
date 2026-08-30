@@ -1,13 +1,15 @@
 # Changelog — 中國 ISR 衛星領海過境監測
 
-## Unreleased
+## 2026-08-30 — 30D／90D／120D released
 
 - 新增 30D／90D／120D 期間切換，預設 30D；前端一次取 120 日後依 `latest_valid_day` 日曆窗篩選，切窗不重打 RPC。
 - 新增期間 `pass_count` 中位數與最新日高／低／相等、絕對差；median 排除 null、保留合法 0，偶數筆取兩中央平均。
 - 顯示「可呈現日 X/window」，不補缺日、不把過境解讀為實際蒐情。
 - Dock／Split 皆將本卡排在「特殊船舶接近帶」後面。
 - 面板底色改為與其他 Monitor 卡一致的中性灰，不再使用紫色漸層。
-- Breaking dependency：RPC `p_days` 上限需由 31 擴至 120。
+- gis-platform PR #73 已將 RPC `p_days` 上限擴至 120；production 120 日回填與 anon HTTP 驗證通過。
+- mini-taiwan-pulse PR #187 已發布；CI、Zeabur deployment 與正式站 Dock／Split Browser 驗收通過。
+- 正式站 30D／90D／120D 中位數分別為 94／94.5／95.5，最新完整日 72 次，三段皆顯示低於中位數；面板 computed background 為中性灰 `rgba(255,255,255,0.02)`。
 
 ## 2026-08-30 — Released
 
