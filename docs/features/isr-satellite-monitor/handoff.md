@@ -9,8 +9,10 @@
 - RPC：`public.get_isr_satellite_passes_daily(p_days, p_region_key, p_tier_mode)`
 - 更新頻率：每日批次；前端每 30 分鐘檢查一次並以 30 分鐘 TTL 去重
 - 日界：Asia/Taipei
-- `p_days` 契約：`1..31`；前端預設 30，超過 31 會 clamp 為 31
-- 預設：`p_days=30`、`p_region_key='twmain_12nm'`、`p_tier_mode='confirmed_plus_dual_use'`
+- `p_days` 契約：`1..120`；前端固定取 120 日，超過 120 會 clamp 為 120
+- RPC 參數預設仍為 `p_days=7`；一般 loader 呼叫預設仍為 30，Monitor card 明確請求 120
+- Monitor 查詢：`p_days=120`、`p_region_key='twmain_12nm'`、`p_tier_mode='confirmed_plus_dual_use'`
+- UI 預設 30D，可切換 30D／90D／120D；切換只篩已取得資料，不重新呼叫 RPC
 - tier modes：`confirmed_only` / `confirmed_plus_dual_use` / `all_non_excluded`
 
 ## 前端接線位置
@@ -38,6 +40,8 @@
 
 缺少的 calendar day 不由前端補列，也不補 0。
 圖表只保留 `target_day <= latest_valid_day`；`latest_valid_day` 之後的未完成日不呈現。
+期間以 `latest_valid_day` 為終點往前算 30／90／120 個日曆日，不使用最後 N 筆資料；UI 顯示可呈現日 X/window。
+期間 median 只納入可呈現的非 null `pass_count`，合法 0 納入，偶數筆取兩中央值平均；最新日與 median 顯示高／低／相等及絕對差。
 
 `coverage_complete=false` 可能仍回 partial registry 計數，前端會保留數字並搭配固定範圍警示；卡片不得將這種情況當成無資料。卡片固定顯示「v1 YAOGAN／GAOFEN／JILIN 範圍，非全中國 ISR census」。
 
@@ -59,6 +63,7 @@ RPC 暫不直接回 `freshness`，前端依以下條件推導：
 | 日界改動 | 更新日期標籤、freshness 推導與 tooltip |
 | coverage 定義改動 | 重新驗證 scoped true-zero 與 partial China-wide census 的顯示規則 |
 | tier enum 改動 | 更新 TypeScript union 與預設模式 |
+| `p_days` 上限低於 120 | 90D／120D 不可發布；先擴約並完成 RPC contract 驗證 |
 
 ## 已知不對稱
 
