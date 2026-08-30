@@ -64,3 +64,13 @@ is_stale, active_incident_id, incident_status, metadata
 5. 用 stale 或空資料 fixture 驗證總體為「資料不足」且 fresh sources 為 0；用 RPC 失敗驗證舊 normal 不會繼續亮綠。
 6. 用 fresh detector + Cloudflare + IODA fixture 驗證 normal quorum；加入 active NCDR official evidence 時驗證 outage 與 incident 摘要。
 7. 縮窄視窗檢查來源列換行、卡片內容不裁切；Mapbox sources/layers 數量不應因本卡增加。
+
+## Production truth（2026-08-31）
+
+- Frontend：PR #184 已 merge；Zeabur production revision `30ccf4f9480bfab2eb364ab848fee7283b0cf2a5` 為 `RUNNING`，正式網址為 `https://mini-taiwan-pulse.itsmigu.com`。
+- Collector：archive gate 與 Cloudflare／IODA 排程已啟用；第一輪 scheduled run 為 Cloudflare 7 筆（partial／stale）、IODA 159 筆（succeeded）。Collector succeeded 不等於該批 rows 都符合 public country/TW status RPC 的輸出範圍。
+- Browser：headed Chromium 實際開啟 production Monitor。卡片顯示 `資料不足 / UNKNOWN / 0/3`；Cloudflare Radar 保留 stale row 的 signal、value 與資料時間但標示「無資料」，IODA 無 public row，NCDR 無 active official evidence 時顯示「未通報／無資料」，沒有被當成正常證據。
+- RPC：browser response 為 HTTP 200；request body 是 country/TW、include evidence、limit 500。當次回 1 筆 Cloudflare row：`effective_status=unknown`、`is_stale=true`、`age_seconds=6051`；沒有 IODA 或 NCDR public row。
+- Console：沒有 `TelecomStatusCard`／`get_internet_health_status` error。頁面另有既有 owner-gated 電力機組 RPC 401，console 同時標示 `get_ssot_facility_output_24h: permission denied`，不屬於本卡。
+
+此 production snapshot 只證明「stale／缺來源不會假正常」。當下沒有 active NCDR official evidence，故尚未以 production live incident 驗證 outage 優先路徑；該路徑目前只有 contract/unit test 證據。
