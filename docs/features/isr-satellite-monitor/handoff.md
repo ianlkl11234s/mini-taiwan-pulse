@@ -67,6 +67,7 @@ RPC 暫不直接回 `freshness`，前端依以下條件推導：
 
 ## 已知不對稱
 
+- gis-platform migration 382、120 日 backfill 與 anon HTTP RPC 已於 2026-08-30 驗證；frontend PR #187 已發布並完成 Dock／Split、30D／90D／120D 與灰底 Browser 驗收。
 - production anon HTTP RPC 與 frontend Dock／Split Browser 已於 2026-08-30 完成驗收。
 - 過境是星下點與領海 polygon 的幾何事件，不等於感測器實際蒐情。
 - v1 registry 只承諾 YAOGAN／GAOFEN／JILIN 三家族 scope，不代表全中國 ISR census。
