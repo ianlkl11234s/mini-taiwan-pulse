@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyIsrPassLevels,
   buildIsrPassBars,
+  classifyIsrPassLevel,
   compareLatestToMedian,
   deriveIsrLatestDisplay,
+  deriveIsrPassThresholds,
   medianOfIsrPassCounts,
+  quantileOfIsrPassCounts,
   selectIsrPassWindow,
 } from "../IsrSatellitePassCard";
 import type { IsrSatellitePassReport } from "../../../../data/isrSatellitePassesLoader";
@@ -132,5 +136,76 @@ describe("ISR pass card median comparison", () => {
     expect(compareLatestToMedian(3, 5.5)).toEqual({ direction: "lower", difference: 2.5 });
     expect(compareLatestToMedian(5.5, 5.5)).toEqual({ direction: "equal", difference: 0 });
     expect(compareLatestToMedian(null, 5.5)).toEqual({ direction: "unknown", difference: null });
+  });
+});
+
+describe("ISR pass card relative color thresholds", () => {
+  const values = [0, 10, 20, 30, 40, 50, 60, 70, 80, 100];
+
+  it("uses Type-7 quantiles, excludes null and keeps legitimate zero", () => {
+    expect(quantileOfIsrPassCounts([null, ...values], 0.25)).toBe(22.5);
+    expect(quantileOfIsrPassCounts([null, ...values], 0.5)).toBe(45);
+    expect(quantileOfIsrPassCounts([null, ...values], 0.75)).toBe(67.5);
+    expect(quantileOfIsrPassCounts([null, ...values], 0.9)).toBeCloseTo(82);
+    expect(quantileOfIsrPassCounts([...values].reverse(), 0.9)).toBeCloseTo(82);
+    expect(quantileOfIsrPassCounts(values, Number.NaN)).toBeNull();
+    expect(quantileOfIsrPassCounts(values, Number.POSITIVE_INFINITY)).toBeNull();
+  });
+
+  it("does not classify fewer than eight displayable days", () => {
+    expect(deriveIsrPassThresholds([0, 1, 2, 3, 4, 5, 6, null])).toBeNull();
+    expect(deriveIsrPassThresholds([0, 1, 2, 3, 4, 5, 6, 7])).not.toBeNull();
+    expect(applyIsrPassLevels([
+      { key: "a", label: "a", value: 3, level: 0 },
+    ], null)[0]).toMatchObject({ level: 1, value: 3 });
+  });
+
+  it("crosses levels only after each exact threshold", () => {
+    const thresholds = { p25: 10, p50: 20, p75: 30, p90: 40 };
+    expect(classifyIsrPassLevel(null, thresholds)).toBeNull();
+    expect(classifyIsrPassLevel(10, thresholds)).toBe(0);
+    expect(classifyIsrPassLevel(20, thresholds)).toBe(1);
+    expect(classifyIsrPassLevel(30, thresholds)).toBe(2);
+    expect(classifyIsrPassLevel(40, thresholds)).toBe(3);
+    expect(classifyIsrPassLevel(41, thresholds)).toBe(4);
+  });
+
+  it("keeps a flat series in the lowest baseline band instead of a false peak", () => {
+    const thresholds = deriveIsrPassThresholds(Array.from({ length: 8 }, () => 12));
+    expect(classifyIsrPassLevel(12, thresholds)).toBe(0);
+  });
+
+  it("adds relative-level notes without coloring missing bars", () => {
+    const bars = buildIsrPassBars([
+      { day: "2026-08-28", passCount: 42, uniqueSatelliteCount: 7, coverageComplete: true },
+      { day: "2026-08-29", passCount: null, uniqueSatelliteCount: null, coverageComplete: false },
+    ], true, "2026-08-29");
+    const leveled = applyIsrPassLevels(bars, { p25: 10, p50: 20, p75: 30, p90: 40 });
+
+    expect(leveled[0]).toMatchObject({ level: 4, value: 42 });
+    expect(leveled[0]?.note).toContain("不重複衛星 7 顆");
+    expect(leveled[0]?.note).toContain("相對高峰");
+    expect(leveled[0]?.note).toContain("非威脅或實際蒐情判定");
+    expect(leveled[1]).toMatchObject({ level: 0, value: null });
+  });
+
+  it("recomputes thresholds from each selected window", () => {
+    const shortWindow = deriveIsrPassThresholds([1, 2, 3, 4, 5, 6, 7, 8]);
+    const longWindow = deriveIsrPassThresholds([10, 20, 30, 40, 50, 60, 70, 80]);
+    expect(shortWindow?.p90).not.toBe(longWindow?.p90);
+  });
+
+  it("does not let a scope-incomplete zero affect thresholds", () => {
+    const bars = buildIsrPassBars([
+      { day: "2026-08-01", passCount: 0, uniqueSatelliteCount: 0, coverageComplete: false },
+      ...Array.from({ length: 8 }, (_, index) => ({
+        day: `2026-08-${String(index + 2).padStart(2, "0")}`,
+        passCount: index + 10,
+        uniqueSatelliteCount: 2,
+        coverageComplete: false,
+      })),
+    ], false, "2026-08-09");
+    expect(bars[0]?.value).toBeNull();
+    expect(deriveIsrPassThresholds(bars.map((bar) => bar.value))?.p25).toBe(11.75);
   });
 });

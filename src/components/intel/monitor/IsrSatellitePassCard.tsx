@@ -39,6 +39,27 @@ export interface IsrMedianComparison {
   difference: number | null;
 }
 
+export type IsrPassLevel = 0 | 1 | 2 | 3 | 4;
+
+export interface IsrPassThresholds {
+  p25: number;
+  p50: number;
+  p75: number;
+  p90: number;
+}
+
+export const ISR_PASS_MIN_DISTRIBUTION_DAYS = 8;
+
+export const ISR_PASS_LEVEL_COLORS = [
+  "#34d399", "#94a3b8", "#fbbf24", "#fb923c", "#ef4444",
+] as const;
+
+export const ISR_PASS_LEVEL_LABELS: Record<IsrPassLevel, string> = {
+  0: "基準低段", 1: "基準中段", 2: "相對偏多", 3: "相對高量", 4: "相對高峰",
+};
+
+const ISR_PASS_LEVELS = [0, 1, 2, 3, 4] as const satisfies readonly IsrPassLevel[];
+
 /** 頭部只讀 latest_valid_day；全中國 census 不完整不會擋住 v1 scope 內計數。 */
 export function deriveIsrLatestDisplay(
   report: IsrSatellitePassReport | null,
@@ -107,14 +128,78 @@ export function selectIsrPassWindow(
 
 /** null 不納入；0 是合法觀測值；偶數筆取兩個中央值平均。 */
 export function medianOfIsrPassCounts(values: ReadonlyArray<number | null>): number | null {
+  return quantileOfIsrPassCounts(values, 0.5);
+}
+
+/** Type-7 線性插值分位數；null 排除，合法 0 保留。 */
+export function quantileOfIsrPassCounts(
+  values: ReadonlyArray<number | null>,
+  quantile: number,
+): number | null {
+  if (!Number.isFinite(quantile)) return null;
   const valid = values
     .filter((value): value is number => value !== null)
     .sort((a, b) => a - b);
   if (!valid.length) return null;
-  const midpoint = Math.floor(valid.length / 2);
-  return valid.length % 2 === 1
-    ? valid[midpoint]!
-    : (valid[midpoint - 1]! + valid[midpoint]!) / 2;
+  const position = Math.min(1, Math.max(0, quantile)) * (valid.length - 1);
+  const lower = Math.floor(position);
+  const upper = Math.ceil(position);
+  const weight = position - lower;
+  return valid[lower]! + (valid[upper]! - valid[lower]!) * weight;
+}
+
+export function deriveIsrPassThresholds(
+  values: ReadonlyArray<number | null>,
+): IsrPassThresholds | null {
+  if (values.filter((value) => value !== null).length < ISR_PASS_MIN_DISTRIBUTION_DAYS) {
+    return null;
+  }
+  const p25 = quantileOfIsrPassCounts(values, 0.25);
+  const p50 = quantileOfIsrPassCounts(values, 0.5);
+  const p75 = quantileOfIsrPassCounts(values, 0.75);
+  const p90 = quantileOfIsrPassCounts(values, 0.9);
+  return p25 === null || p50 === null || p75 === null || p90 === null
+    ? null
+    : { p25, p50, p75, p90 };
+}
+
+/** 色階只表達所選期間內的相對量，不是威脅或實際蒐情分級。 */
+export function classifyIsrPassLevel(
+  value: number | null,
+  thresholds: IsrPassThresholds | null,
+): IsrPassLevel | null {
+  if (value === null || !thresholds) return null;
+  if (value <= thresholds.p25) return 0;
+  if (value <= thresholds.p50) return 1;
+  if (value <= thresholds.p75) return 2;
+  if (value <= thresholds.p90) return 3;
+  return 4;
+}
+
+export function applyIsrPassLevels(
+  bars: HazardBar[],
+  thresholds: IsrPassThresholds | null,
+): HazardBar[] {
+  if (!thresholds) {
+    return bars.map((bar) => bar.value === null
+      ? bar
+      : { ...bar, level: 1, note: [bar.note, "樣本不足，暫不做相對分級"].filter(Boolean).join("｜") });
+  }
+  return bars.map((bar) => {
+    const level = classifyIsrPassLevel(bar.value, thresholds);
+    if (level === null) return bar;
+    return {
+      ...bar,
+      level,
+      note: [
+        bar.note,
+        `本區間相對位階：${ISR_PASS_LEVEL_LABELS[level]}`,
+        "公開軌道推算，非威脅或實際蒐情判定",
+      ]
+        .filter(Boolean)
+        .join("｜"),
+    };
+  });
 }
 
 export function compareLatestToMedian(
@@ -165,13 +250,6 @@ const MEDIAN_DIRECTION_LABEL: Record<Exclude<IsrMedianDirection, "unknown">, str
   equal: "＝ 等於中位數",
 };
 
-const MEDIAN_DIRECTION_COLOR: Record<IsrMedianDirection, string> = {
-  higher: "#c4b5fd",
-  lower: "#93c5fd",
-  equal: COLORS.textMuted,
-  unknown: COLORS.textFaint,
-};
-
 export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
   const [report, setReport] = useState<IsrSatellitePassReport | null>(null);
   const [state, setState] = useState<LoadState>("loading");
@@ -210,7 +288,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     ),
     [report, windowDays],
   );
-  const bars = useMemo(
+  const baseBars = useMemo(
     () => buildIsrPassBars(
       windowRows,
       report?.scopeCoverageComplete ?? null,
@@ -218,19 +296,31 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
     ),
     [report?.latestValidDay, report?.scopeCoverageComplete, windowRows],
   );
+  const thresholds = useMemo(
+    () => deriveIsrPassThresholds(baseBars.map((bar) => bar.value)),
+    [baseBars],
+  );
+  const bars = useMemo(
+    () => applyIsrPassLevels(baseBars, thresholds),
+    [baseBars, thresholds],
+  );
   const countedBars = useMemo(
     () => bars.filter((bar): bar is HazardBar & { value: number } => bar.value !== null),
     [bars],
   );
   const peak = countedBars.length ? Math.max(...countedBars.map((bar) => bar.value)) : null;
-  const medianPassCount = useMemo(
-    () => medianOfIsrPassCounts(bars.map((bar) => bar.value)),
-    [bars],
-  );
+  const medianPassCount = medianOfIsrPassCounts(baseBars.map((bar) => bar.value));
   const medianComparison = compareLatestToMedian(
     latest.kind === "ready" ? latest.passCount : null,
     medianPassCount,
   );
+  const latestLevel = classifyIsrPassLevel(
+    latest.kind === "ready" ? latest.passCount : null,
+    thresholds,
+  );
+  const latestLevelColor = latestLevel === null
+    ? COLORS.textFaint
+    : ISR_PASS_LEVEL_COLORS[latestLevel];
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
@@ -301,22 +391,82 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
         >
           <span>{windowDays}D 中位數 {formatMetric(medianPassCount)} 次／日</span>
           <span>可呈現日 {countedBars.length}/{windowDays} · 缺日不補 0</span>
-          <span style={{ color: MEDIAN_DIRECTION_COLOR[medianComparison.direction] }}>
+          <span style={{ color: latestLevelColor }}>
             {medianComparison.direction === "unknown"
               ? "最新日比較 —"
               : `最新 ${MEDIAN_DIRECTION_LABEL[medianComparison.direction]} · 差 ${formatMetric(medianComparison.difference)} 次`}
           </span>
+          {latestLevel !== null && (
+            <span
+              title="依所選期間 p25／p50／p75／p90 分布判定；不是威脅或實際蒐情分級"
+              style={{
+                padding: "1px 6px", borderRadius: RADIUS.pill,
+                color: latestLevelColor, background: `${latestLevelColor}18`,
+                border: `1px solid ${latestLevelColor}66`,
+              }}
+            >
+              {latestLevel === 4 ? "⚠ " : ""}最新相對{ISR_PASS_LEVEL_LABELS[latestLevel]}
+            </span>
+          )}
+          {!thresholds && countedBars.length > 0 && (
+            <span style={{ color: COLORS.textFaint }}>
+              樣本不足（至少 {ISR_PASS_MIN_DISTRIBUTION_DAYS} 個可呈現日），暫不分級
+            </span>
+          )}
         </div>
+
+        {latest.kind === "ready" && latestLevel === 4 && thresholds && (
+          <div
+            role="status"
+            style={{
+              padding: "5px 7px", borderRadius: RADIUS.md,
+              color: latestLevelColor, background: `${latestLevelColor}12`,
+              border: `1px solid ${latestLevelColor}55`,
+              fontSize: 9, lineHeight: 1.5,
+            }}
+          >
+            ⚠ 相對量提醒：最新完整日 {latest.passCount} 次，高於所選 {windowDays}D 的
+            p90（{formatMetric(thresholds.p90)}）門檻。
+            僅為公開軌道推算的過境量比較，不代表威脅、任務執行或實際蒐情。
+          </div>
+        )}
 
         {bars.length > 0 && (
           <HazardTrendBars
             bars={bars}
-            levelColors={["#8b5cf6"]}
+            levelColors={[...ISR_PASS_LEVEL_COLORS]}
             height={74}
             unit="次"
-            caption={`${windowDays}D · 過境事件（柱）／不重複衛星（tooltip）`}
+            caption={`${windowDays}D · 過境事件（柱高）／本區間相對位階（色）`}
             footer={`可呈現日 ${countedBars.length}/${windowDays} · 缺日不補 0${peak === null ? "" : ` · 單日最高 ${peak} 次`}`}
           />
+        )}
+
+        {thresholds && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+            <div
+              aria-label="ISR 相對過境量色階"
+              style={{
+                display: "flex", flexWrap: "wrap", gap: "3px 9px",
+                fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDim,
+              }}
+            >
+              {ISR_PASS_LEVELS.map((level) => (
+                <span key={level} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: ISR_PASS_LEVEL_COLORS[level] }} />
+                  {ISR_PASS_LEVEL_LABELS[level]}
+                  {level === 0 && ` ≤${formatMetric(thresholds.p25)}`}
+                  {level === 1 && ` >${formatMetric(thresholds.p25)}–${formatMetric(thresholds.p50)}`}
+                  {level === 2 && ` >${formatMetric(thresholds.p50)}–${formatMetric(thresholds.p75)}`}
+                  {level === 3 && ` >${formatMetric(thresholds.p75)}–${formatMetric(thresholds.p90)}`}
+                  {level === 4 && ` >${formatMetric(thresholds.p90)}`}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
+              門檻隨所選期間重算；色階非威脅或實際蒐情判定
+            </div>
+          </div>
         )}
 
         <div
