@@ -105,7 +105,7 @@ export function HazardTrendBars({
             return (
               <div
                 key={barKey}
-                {...tip.bind(() => ({ title: b.label, rows: [{ value: "無資料" }] }))}
+                {...tip.bind(() => ({ title: b.label, rows: [{ value: "無資料" }], note: b.note }))}
                 onClick={onClick}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",
