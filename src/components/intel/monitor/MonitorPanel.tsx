@@ -43,6 +43,7 @@ import { PlaBoard } from "./PlaBoard";
 import { VesselZoneCard } from "./VesselZoneCard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
 import { TraDelayBoard } from "./TraDelayBoard";
+import { TelecomStatusCard } from "./TelecomStatusCard";
 import {
   TyphoonCard, EarthquakeCard, RadiationCard, LightningCard,
 } from "./HazardCards";
@@ -692,6 +693,7 @@ export function MonitorPanel({
         nowTs={now}
       />
     ),
+    internetHealth: <TelecomStatusCard open={open} nowTs={now} />,
     histogram: <HourlyHistogramWidget events={allEventsToday} />,
     timeline: (
       <TimelineDock
