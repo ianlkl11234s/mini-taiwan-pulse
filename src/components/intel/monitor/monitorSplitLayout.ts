@@ -126,10 +126,12 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "erCongestion", x: 0, y: 77, w: 12, h: 11, fit: "content" },
   { i: "situationOverview", x: 0, y: 88, w: 12, h: 4, fit: "content" },
   { i: "plaBoard", x: 0, y: 92, w: 12, h: 12, fit: "content" },
+  // 中國 ISR 衛星過境：與共機／特殊船舶同屬軍事態勢，窄版用全寬保留日柱可讀性。
+  { i: "isrSatellitePasses", x: 0, y: 104, w: 12, h: 8, fit: "content" },
   // 接在共機卡之後 —— 兩者同屬「軍事態勢」，一個看空域一個看海域
-  { i: "vesselZone", x: 0, y: 104, w: 12, h: 10, fit: "content" },
+  { i: "vesselZone", x: 0, y: 112, w: 12, h: 10, fit: "content" },
   // 台鐵誤點（2026-08-22）：窄版底部沿用全寬堆疊，不影響「兩欄同止」規則。
-  { i: "traDelay", x: 0, y: 114, w: 12, h: 8, fit: "content" },
+  { i: "traDelay", x: 0, y: 122, w: 12, h: 8, fit: "content" },
 ];
 
 /**

@@ -4,6 +4,11 @@ import { buildMonitorTree, flattenNode, hasGridFallback, nodeWidth } from "../mo
 import { MONITOR_SPLIT_VISIBLE_LAYOUT } from "../monitorSplitLayout";
 
 describe("monitorPacking", () => {
+  it("ISR 衛星卡同時接入 dock 與 split 佈局", () => {
+    expect(MONITOR_VISIBLE_LAYOUT.some((item) => item.i === "isrSatellitePasses")).toBe(true);
+    expect(MONITOR_SPLIT_VISIBLE_LAYOUT.some((item) => item.i === "isrSatellitePasses")).toBe(true);
+  });
+
   it("實際佈局可完整拆解（不需要退回固定網格）", () => {
     const tree = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
     expect(hasGridFallback(tree)).toBe(false);

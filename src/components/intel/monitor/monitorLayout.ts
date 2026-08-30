@@ -33,7 +33,8 @@ export type MonitorWidgetId =
   | "earthquake"
   | "radiation"
   | "lightning"
-  | "traDelay";
+  | "traDelay"
+  | "isrSatellitePasses";
 
 export interface MonitorGridItem {
   /** widget id（對應 MonitorPanel 的 widget 對照表） */
@@ -159,7 +160,9 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // 迷你走勢圖會擠到看不出形狀；w7 每格約 280px 才讀得出趨勢。
   // h 9→12（2026-08-10）：多出的高度全部灌進四張卡的走勢圖（SPARK_H 34→52 + flex:1）。
   // y 48→56（同上，跟著 powerCard 下移）
-  { i: "foodPriceBoard", x: 5, y: 60, w: 7, h: 12, fit: "content" },
+  // h 12→20：fit:"content" 不改實際高度，只讓右欄跨過 y72、與新增的 ISR 卡同止 y80，
+  // 維持頂層「下方左右兩欄（5+7）」而不切出第三個全寬段。
+  { i: "foodPriceBoard", x: 5, y: 60, w: 7, h: 20, fit: "content" },
   // 特殊船舶接近帶（2026-08-20，VZ-4）：左欄收尾，與共機卡同寬 w5。
   // ⚠️ y61→72 是刻意算過的：原本左欄止於 y61（airportPax）、右欄止於 y72
   // （foodPriceBoard），兩欄不同止。本格補滿左欄到 y72 後**左右欄同時結束**，
@@ -175,6 +178,9 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // 貫穿全寬的第三段，monitorPacking「頂層拆成上方三欄 + 下方左右兩欄」直接紅。
   // 版面要正式定稿請回沙盒拖完重新匯出整份 MONITOR_LAYOUT。
   { i: "traDelay", x: 0, y: 67, w: 5, h: 5, fit: "content" },
+  // 中國 ISR 衛星領海過境頻率：左欄軍事態勢尾段；右欄由 foodPriceBoard 的排序佔位
+  // 跨過 y72，兩欄同止 y80（fit h 只影響 packing，不改卡片實際高度）。
+  { i: "isrSatellitePasses", x: 0, y: 72, w: 5, h: 8, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
