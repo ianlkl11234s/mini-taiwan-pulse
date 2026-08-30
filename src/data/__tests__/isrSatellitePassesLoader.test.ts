@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   deriveIsrPassFreshness,
   hasIsrPassCounts,
+  ISR_PASSES_DEFAULT_DAYS,
+  ISR_PASSES_DEFAULT_WINDOW_DAYS,
+  ISR_PASSES_FETCH_DAYS,
   normalizeIsrPassDays,
   parseIsrSatellitePassReport,
 } from "../isrSatellitePassesLoader";
@@ -72,10 +75,18 @@ describe("ISR satellite daily pass RPC contract", () => {
     expect(report.rows.map((row) => row.day)).toEqual(["2026-08-27", "2026-08-29"]);
   });
 
-  it("normalizes p_days to the RPC's 1..31 contract", () => {
+  it("loads 120 days once while keeping the default UI window at 30 days", () => {
+    expect(ISR_PASSES_FETCH_DAYS).toBe(120);
+    expect(ISR_PASSES_DEFAULT_DAYS).toBe(30);
+    expect(ISR_PASSES_DEFAULT_WINDOW_DAYS).toBe(30);
+  });
+
+  it("normalizes p_days to the RPC's 1..120 contract", () => {
     expect(normalizeIsrPassDays(1)).toBe(1);
     expect(normalizeIsrPassDays(31)).toBe(31);
-    expect(normalizeIsrPassDays(90)).toBe(31);
+    expect(normalizeIsrPassDays(90)).toBe(90);
+    expect(normalizeIsrPassDays(120)).toBe(120);
+    expect(normalizeIsrPassDays(121)).toBe(120);
     expect(normalizeIsrPassDays(0)).toBe(30);
     expect(normalizeIsrPassDays(1.5)).toBe(30);
   });

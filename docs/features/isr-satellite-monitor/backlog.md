@@ -19,6 +19,7 @@
 - [x] **ISR-MON-0B**：localhost dock/split 均可見卡片；production RPC 尚未套用時正確顯示「更新失敗，不以 0 代替」與 v1 scope 警示 — 2026-08-30
 - [x] **ISR-MON-1**：production migrations、三種 tier mode 各 30 日 backfill 與 anon HTTP RPC 回讀通過 — 2026-08-30
 - [x] **ISR-MON-2**：production Dock／Split 均顯示 30 日柱；最新日 72 次／53 顆，tooltip、freshness、scope 與 census 警示驗收通過，console 無 error — 2026-08-30
+- [x] **ISR-MON-6**：frontend 完成 30D／90D／120D 日曆窗、期間中位數、最新日差異與 X/window 缺日揭露；production release 仍待上游 `p_days<=120` 與整體發布驗收 — 2026-08-30
 
 ## Explicitly not planned
 
