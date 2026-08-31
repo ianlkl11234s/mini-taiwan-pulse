@@ -1,12 +1,13 @@
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
-export type FeedTab = "all" | "news" | "alerts";
+export type FeedTab = "all" | "news" | "alerts" | "international";
 
 interface Props {
   tab: FeedTab;
   onTab: (t: FeedTab) => void;
   newsCount: number;
+  internationalCount: number;
   /** 警報 tab 的數字 = 全部 active（含折疊區） */
   alertCount: number;
   /** 全部 tab 的數字只算沒被折疊的（長期持續事件不進「全部」時間軸） */
@@ -15,12 +16,26 @@ interface Props {
 }
 
 const TABS: { key: FeedTab; label: string }[] = [
-  { key: "all",    label: "全部" },
-  { key: "news",   label: "新聞" },
-  { key: "alerts", label: "警報" },
+  { key: "all",           label: "全部" },
+  { key: "news",          label: "新聞" },
+  { key: "alerts",        label: "警報" },
+  { key: "international", label: "國際" },
 ];
 
-export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere }: Props) {
+export function feedTabCount(
+  tab: FeedTab,
+  counts: Pick<Props, "newsCount" | "internationalCount" | "alertCount" | "alertCountInAll">,
+): number {
+  if (tab === "news") return counts.newsCount;
+  if (tab === "alerts") return counts.alertCount;
+  if (tab === "international") return counts.internationalCount;
+  return counts.newsCount + counts.alertCountInAll + counts.internationalCount;
+}
+
+export function FeedTabs({
+  tab, onTab, newsCount, internationalCount, alertCount, alertCountInAll, alertSevere,
+}: Props) {
+  const counts = { newsCount, internationalCount, alertCount, alertCountInAll };
   return (
     <div
       style={{
@@ -34,10 +49,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
         const active = tab === t.key;
         const isAlerts = t.key === "alerts";
         const hot = isAlerts && alertSevere > 0;
-        const count =
-          t.key === "news" ? newsCount
-            : t.key === "alerts" ? alertCount
-              : newsCount + alertCountInAll;
+        const count = feedTabCount(t.key, counts);
         return (
           <button
             key={t.key}

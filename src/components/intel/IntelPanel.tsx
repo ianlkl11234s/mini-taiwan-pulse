@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
@@ -10,6 +10,8 @@ import { IntelCard, type IntelCardEvent } from "./IntelCard";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
 import { AlertCard } from "./alerts/AlertCard";
+import { IntlMediaCard } from "./IntlMediaCard";
+import { IntlMediaPreviewNotice } from "./IntlMediaPreviewNotice";
 import {
   fetchSourceHealth,
   fetchNewsTrending,
@@ -36,6 +38,13 @@ import {
 } from "../../data/alertRules";
 import { fetchDisasterAlertsDay } from "../../data/disasterAlertLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
+import {
+  fetchIntlMediaTaiwan,
+  invalidateIntlMediaTaiwanCache,
+  isIntlMediaPreviewEnabled,
+  visibleIntlMediaTaiwan,
+  type IntlMediaTaiwanItem,
+} from "../../data/intlMediaTaiwanLoader";
 import { timeStore } from "../../state/timeStore";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
 
@@ -83,6 +92,7 @@ export function IntelPanel({
   onSelectLocation,
   externalSelectedId,
 }: Props) {
+  const intlMediaPreview = isIntlMediaPreviewEnabled();
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
   const filter = filterProp ?? storeFilter;
@@ -99,7 +109,9 @@ export function IntelPanel({
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   // ── alerts state ──
-  const [feedTab, setFeedTab] = useState<FeedTab>("all");
+  const [feedTab, setFeedTab] = useState<FeedTab>(() => (
+    intlMediaPreview ? "international" : "all"
+  ));
   const [alertsExpanded, setAlertsExpanded] = useState(false);
   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
@@ -107,6 +119,7 @@ export function IntelPanel({
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
+  const [intlExpandedId, setIntlExpandedId] = useState<string | null>(null);
   const [staleOpen, setStaleOpen] = useState(false);
   /** 非 null = 時間軸停在過去某天，警報列表改看該日歷史 */
   const [historyDate, setHistoryDate] = useState<string | null>(null);
@@ -114,6 +127,9 @@ export function IntelPanel({
 
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
   const [trending, setTrending] = useState<TrendingRow[]>([]);
+  const [intlMedia, setIntlMedia] = useState<IntlMediaTaiwanItem[]>([]);
+  const [intlMediaLoading, setIntlMediaLoading] = useState(false);
+  const [intlMediaError, setIntlMediaError] = useState<string | null>(null);
   const [clusters, setClusters] = useState<
     Array<{
       county: string | null;
@@ -130,6 +146,28 @@ export function IntelPanel({
     const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => window.clearInterval(id);
   }, [open]);
+
+  const refreshIntlMedia = useCallback(async (force = false) => {
+    if (force && !intlMediaPreview) invalidateIntlMediaTaiwanCache();
+    setIntlMediaLoading(true);
+    setIntlMediaError(null);
+    try {
+      const rows = await fetchIntlMediaTaiwan({ limit: 200, minTaiwanRelevance: 2 });
+      setIntlMedia(rows);
+    } catch (error) {
+      setIntlMediaError(error instanceof Error ? error.message : "國際媒體資料載入失敗");
+    } finally {
+      setIntlMediaLoading(false);
+    }
+  }, [intlMediaPreview]);
+
+  // GDELT GKG 每 15 分鐘產生一個檔；前端同頻率更新 metadata-only 清單。
+  useEffect(() => {
+    if (!open) return;
+    void refreshIntlMedia();
+    const id = window.setInterval(() => void refreshIntlMedia(), 15 * 60_000);
+    return () => window.clearInterval(id);
+  }, [open, refreshIntlMedia]);
 
   // 60s polling source health + trending（降載：cross-tab TTL 已蓋住中間的 re-render）
   useEffect(() => {
@@ -193,7 +231,7 @@ export function IntelPanel({
 
   // active alerts list — re-fetch when tab / filter change
   const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
-  const needsAlertList = feedTab !== "news";
+  const needsAlertList = feedTab === "all" || feedTab === "alerts";
   useEffect(() => {
     if (!open || !needsAlertList) return;
     let alive = true;
@@ -289,6 +327,16 @@ export function IntelPanel({
     return out;
   }, [clusters, cats, county, windowStartTs, effectivePlayback]);
 
+  const visibleIntlMedia = useMemo(
+    () => visibleIntlMediaTaiwan(
+      intlMedia,
+      windowStartTs,
+      effectivePlayback,
+      intlMediaPreview,
+    ),
+    [intlMedia, windowStartTs, effectivePlayback, intlMediaPreview],
+  );
+
   const countyByEventId = useMemo(() => {
     const m = new Map<number, string>();
     for (const c of clusters) for (const e of c.events) m.set(e.id, c.county ?? "");
@@ -379,6 +427,8 @@ export function IntelPanel({
   const onAlertSelect = (id: string) => setAlertSelectedId(id);
   const onAlertToggle = (id: string) =>
     setAlertExpandedId((p) => (p === id ? null : id));
+  const onIntlToggle = (id: string) =>
+    setIntlExpandedId((p) => (p === id ? null : id));
 
   const onPickGroup = (g: AlertGroupShort) => {
     setFeedTab("alerts");
@@ -410,7 +460,7 @@ export function IntelPanel({
       }}
     >
       <IntelHeader
-        totalCount={flatEvents.length}
+        totalCount={flatEvents.length + visibleIntlMedia.length + alertRows.length}
         lastUpdateTs={now}
         countdownSec={countdownSec}
         sourceHealth={sourceHealth}
@@ -429,6 +479,7 @@ export function IntelPanel({
         tab={feedTab}
         onTab={(t) => setFeedTab(t)}
         newsCount={flatEvents.length}
+        internationalCount={visibleIntlMedia.length}
         alertCount={historyMode ? historyRows.length : alertTally.total}
         alertCountInAll={alertRows.length}
         alertSevere={
@@ -521,8 +572,17 @@ export function IntelPanel({
               color: COLORS.textFaint, marginRight: 4,
             }}
           >
-            RANGE
+            {feedTab === "international" ? "GDELT · METADATA" : "RANGE"}
           </span>
+          {feedTab === "international" && (
+            <span
+              title="清單時間為 GDELT GKG 收錄時間，不保證等於原媒體發布時間"
+              style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}
+            >
+              收錄時間
+            </span>
+          )}
+          <div style={{ flex: feedTab === "international" ? 1 : undefined }} />
           {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
             const active = timeRange === r;
             return (
@@ -554,6 +614,7 @@ export function IntelPanel({
       )}
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
+        {feedTab === "international" && intlMediaPreview && <IntlMediaPreviewNotice />}
         {feedTab === "alerts" ? (
           <>
           {historyMode && (
@@ -668,15 +729,135 @@ export function IntelPanel({
             </>
           )}
           </>
+        ) : feedTab === "international" ? (
+          intlMediaLoading && intlMedia.length === 0 ? (
+            <div
+              role="status"
+              aria-live="polite"
+              style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                height: "100%", gap: 9, textAlign: "center", padding: 24,
+              }}
+            >
+              <IntelIcon
+                d={ICON.refresh}
+                size={26}
+                color={COLORS.textMuted}
+                style={{ animation: "intlMediaSpin 1s linear infinite" }}
+              />
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
+                載入國際媒體涉台報導
+              </div>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                透過 GDELT GKG metadata 查詢
+              </div>
+            </div>
+          ) : intlMediaError && intlMedia.length === 0 ? (
+            <div
+              role="alert"
+              style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                height: "100%", gap: 9, textAlign: "center", padding: 24,
+              }}
+            >
+              <IntelIcon d={ICON.alert} size={28} color={COLORS.statusWarn} />
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
+                國際媒體資料載入失敗
+              </div>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                {intlMediaError}
+              </div>
+              <button
+                onClick={() => void refreshIntlMedia(true)}
+                style={{
+                  marginTop: 3, padding: "5px 12px", borderRadius: RADIUS.md,
+                  background: COLORS.accentFaint, border: `1px solid ${COLORS.accentSoft}`,
+                  color: COLORS.accent, fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
+                }}
+              >
+                重新載入
+              </button>
+            </div>
+          ) : visibleIntlMedia.length === 0 ? (
+            <div
+              style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                height: "100%", gap: 8, textAlign: "center", padding: 24,
+              }}
+            >
+              <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
+                目前時間範圍無國際媒體收錄
+              </div>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                切換 24h，或回到即時查看最新 GDELT metadata
+              </div>
+            </div>
+          ) : (
+            <>
+              {intlMediaError && (
+                <div
+                  role="alert"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 7,
+                    marginBottom: 10, padding: "7px 9px", borderRadius: RADIUS.lg,
+                    background: COLORS.statusWarnSoft, border: `1px solid ${COLORS.statusWarnBorder}`,
+                    color: COLORS.statusWarn, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+                  }}
+                >
+                  <IntelIcon d={ICON.alert} size={12} color={COLORS.statusWarn} />
+                  本次更新失敗，保留前次資料
+                  <button
+                    onClick={() => void refreshIntlMedia(true)}
+                    style={{
+                      marginLeft: "auto", padding: "2px 7px", borderRadius: RADIUS.md,
+                      background: "transparent", border: `1px solid ${COLORS.statusWarnBorder}`,
+                      color: COLORS.statusWarn, fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs,
+                      cursor: "pointer",
+                    }}
+                  >
+                    重試
+                  </button>
+                </div>
+              )}
+              <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+                <span
+                  style={{
+                    position: "absolute", left: 12, top: 6, bottom: 6,
+                    width: 1.5,
+                    background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                  }}
+                />
+                {visibleIntlMedia.map((item) => (
+                  <IntlMediaCard
+                    key={item.id}
+                    item={item}
+                    expanded={item.id === intlExpandedId}
+                    onToggle={onIntlToggle}
+                    nowTs={now}
+                  />
+                ))}
+              </div>
+            </>
+          )
         ) : feedTab === "all" ? (
           (() => {
             const merged: Array<
               { kind: "news"; ts: number; e: IntelCardEvent } |
-              { kind: "alert"; ts: number; a: ActiveAlert }
+              { kind: "alert"; ts: number; a: ActiveAlert } |
+              { kind: "international"; ts: number; item: IntlMediaTaiwanItem }
             > = [
               ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
               // 長期持續事件不進「全部」時間軸（本來就沉底，只是噪音）；要看走「警報」tab 的折疊區
               ...alertRows.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
+              ...visibleIntlMedia.map((item) => ({
+                kind: "international" as const,
+                ts: item.gdeltRecordedTs,
+                item,
+              })),
             ];
             merged.sort((x, y) => y.ts - x.ts);
             if (merged.length === 0) {
@@ -690,7 +871,7 @@ export function IntelPanel({
                 >
                   <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
                   <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-                    目前無事件 / 警報
+                    目前無新聞 / 警報 / 國際媒體收錄
                   </div>
                 </div>
               );
@@ -716,7 +897,7 @@ export function IntelPanel({
                       onToggle={onToggleExpand}
                       nowTs={now}
                     />
-                  ) : (
+                  ) : row.kind === "alert" ? (
                     <AlertCard
                       key={`a${row.a.id}`}
                       a={row.a}
@@ -724,6 +905,14 @@ export function IntelPanel({
                       expanded={row.a.id === alertExpandedId}
                       onSelect={onAlertSelect}
                       onToggle={onAlertToggle}
+                      nowTs={now}
+                    />
+                  ) : (
+                    <IntlMediaCard
+                      key={`i${row.item.id}`}
+                      item={row.item}
+                      expanded={row.item.id === intlExpandedId}
+                      onToggle={onIntlToggle}
                       nowTs={now}
                     />
                   ),
@@ -810,8 +999,9 @@ export function IntelPanel({
           from { opacity: 0; transform: translateY(-6px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes intlMediaSpin { to { transform: rotate(360deg); } }
         @media (prefers-reduced-motion: reduce) {
-          [style*="alertBreathe"],[style*="alertPulse"],[style*="alertEdge"] { animation: none !important; }
+          [style*="alertBreathe"],[style*="alertPulse"],[style*="alertEdge"],[style*="intlMediaSpin"] { animation: none !important; }
         }
       `}</style>
     </div>

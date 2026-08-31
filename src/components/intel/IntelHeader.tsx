@@ -173,7 +173,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               marginBottom: 6,
             }}
           >
-            來源管線 PIPELINE · RSS×{total} → Gemini 地理編碼
+            來源管線 PIPELINE · {total} 個來源健康回報
           </div>
           {total === 0 ? (
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
