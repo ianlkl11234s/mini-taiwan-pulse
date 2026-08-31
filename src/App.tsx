@@ -1216,7 +1216,7 @@ export default function App() {
     const isPastDay = cur.date !== today;
     const date = isPastDay ? cur.date : undefined;
     const hour = isPastDay && Number.isFinite(cur.hour) ? cur.hour % 24 : undefined;
-    const next = buildUrl(
+    let next = buildUrl(
       {
         camera: {
           center: [c.lng, c.lat],
@@ -1231,6 +1231,14 @@ export default function App() {
       },
       window.location.pathname,
     );
+    // Dev-only international-media review mode must survive the normal map-state
+    // URL rewrite. Production builds compile this branch away.
+    if (
+      import.meta.env.DEV
+      && new URLSearchParams(window.location.search).get("intlMediaPreview") === "1"
+    ) {
+      next += "&intlMediaPreview=1";
+    }
     if (next !== window.location.pathname + window.location.search) {
       window.history.replaceState(null, "", next);
     }
