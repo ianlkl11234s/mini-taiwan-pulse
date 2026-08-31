@@ -108,10 +108,20 @@ overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` a
 - Public-safety gate：針對受限 provider detail 的 8 個 forbidden markers 全部為 false；公開頁面未出現
   被禁止的 observation ID、signal、raw value／unit、sample、timestamp 或 confidence 明細。
 - RPC／collector：RIPE Atlas internal scheduled collection 已 live，但 Atlas provider rows 在 public RPC
-  仍為 0，符合 internal-only 契約。RIPE RIS Live 仍 disabled；必須先取得 Zeabur control plane 的
-  actual Replicas = 1 證據，不能只依賴環境變數宣稱 singleton，才可啟用 bounded worker。
+  仍為 0，符合 internal-only 契約。RIPE RIS Live 的 Zeabur actual Replicas = 1 已由 control plane
+  驗證；production flags 為 `RIPE_RIS_LIVE_ENABLED=true`、`RIPE_RIS_REPLICA_COUNT=1`。
+- RIPE RIS smoke：18 分鐘 bounded run 為 1 個 `partial`、2 個 `succeeded`；兩個成功窗各寫入
+  6 筆 `unknown` evidence，`current` 有 6 筆 fresh rows，public RPC provider rows 維持 0。
+  兩份 private archives 均完成 full readback。Production logs 記錄 `22:51:02` worker 啟動並建立
+  15 個 subscriptions、`22:55` partial、`23:00` succeeded。
+- Production recurring（截至 2026-08-31 15:05 UTC）：共 3 runs（1 `partial`／2 `succeeded`），
+  兩個成功窗皆為 6 筆 `unknown`；`current` 6/6 fresh，`observed_at=15:05 UTC`，public
+  status／timeseries provider rows 均為 0。Runtime 為 enabled=true／replica gate=1；health HTTP 200，
+  overall healthy、main loop／DB green、breaker=false。自動產生 1 個 production archive object，
+  manifest `record_count=1292`，full GET／SHA／manifest readback 全部通過。
 - Console：production browser console errors 為 0。
 
-此 snapshot 證明五來源 UI、restricted evidence 防洩漏與 unknown 語意已在 production 生效；它不證明
-臺灣網路正常或正在斷網。當下沒有 active NCDR official evidence／confirmed incident，outage 優先路徑
-仍只有 contract 與 unit test 證據。
+此 snapshot 證明五來源 UI、restricted evidence 防洩漏與 unknown 語意已在 production 生效；RIPE RIS
+即使 worker／archive／fresh current 成功，頁面仍只顯示 internal-only `LIMITED`，不公開 provider detail，
+也不把 collector success 或 6 筆 `unknown` 當成 `normal`。它不證明臺灣網路正常或正在斷網。當下沒有
+active NCDR official evidence／confirmed incident，outage 優先路徑仍只有 contract 與 unit test 證據。
