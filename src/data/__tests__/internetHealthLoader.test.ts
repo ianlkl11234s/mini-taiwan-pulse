@@ -34,17 +34,112 @@ const row = (overrides: Record<string, unknown> = {}) => ({
 });
 
 describe("internet health RPC contract", () => {
-  it("requires Cloudflare + IODA fresh normal evidence before overall normal", () => {
+  it("requires a fresh composite with explicit quorum before overall normal", () => {
     const summary = aggregateInternetHealthRows([
-      row(),
-      row({ source: "ioda", evidence_family: "active_probing", signal: "reachability" }),
+      row({
+        source: "internet_health_detector_v1",
+        evidence_family: "composite",
+        signal: "internet_health",
+        confidence: 0.91,
+        metadata: {
+          normal_quorum_met: true,
+          fresh_evidence_families: ["cloudflare", "ioda", "ripe_atlas", "ripe_ris"],
+          restricted_evidence_families: ["ioda", "ripe_atlas", "ripe_ris"],
+        },
+      }),
+      row({ source: "cloudflare_radar" }),
     ]);
     expect(summary.overall_status).toBe("normal");
-    expect(summary.fresh_source_count).toBe(2);
-    expect(summary.source_total).toBe(3);
-    expect(summary.sources.find((source) => source.key === "ncdr")).toMatchObject({
-      status: "unknown", fresh: false, value: null,
+    expect(summary.confidence_score).toBe(0.91);
+    expect(summary.normal_quorum_met).toBe(true);
+    expect(summary.fresh_source_count).toBe(1);
+    expect(summary.public_source_total).toBe(2);
+    expect(summary.source_total).toBe(5);
+    expect(summary.sources.find((source) => source.key === "ripe_atlas")).toMatchObject({
+      availability: "restricted", detector_fresh: true, fresh: false,
     });
+    expect(summary.sources.find((source) => source.key === "ripe_ris")).toMatchObject({
+      availability: "restricted", detector_fresh: true, fresh: false,
+    });
+    expect(summary.sources.find((source) => source.key === "ncdr")).toMatchObject({
+      status: "unknown", fresh: false, availability: "missing", value: null,
+    });
+  });
+
+  it("does not accept provider-only normal or a composite without quorum metadata", () => {
+    expect(aggregateInternetHealthRows([row()]).overall_status).toBe("unknown");
+    expect(aggregateInternetHealthRows([
+      row({ source: "internet_health_detector_v1", evidence_family: "composite" }),
+    ]).overall_status).toBe("unknown");
+    expect(aggregateInternetHealthRows([
+      row({
+        source: "internet_health_detector_v1",
+        evidence_family: "composite",
+        metadata: { normal_quorum_met: false },
+      }),
+    ]).overall_status).toBe("unknown");
+  });
+
+  it("recognizes RIPE source aliases but protects restricted provider detail", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source: "internet_health_detector_v1",
+        evidence_family: "composite",
+        effective_status: "watch",
+        metadata: {
+          normal_quorum_met: false,
+          fresh_evidence_families: ["ripe_atlas"],
+          stale_evidence_families: ["ripe_ris"],
+          restricted_evidence_families: ["ripe_atlas", "ripe_ris"],
+        },
+      }),
+      row({
+        source_observation_id: "private-atlas-observation",
+        source: "ripe_atlas",
+        evidence_family: "ripe_atlas",
+        signal: "private_probe_success_ratio",
+        value: 0.123456,
+        unit: "private_ratio",
+        sample_count: 42,
+        observed_at: "2026-08-30T03:42:01Z",
+        source_updated_at: "2026-08-30T03:42:02Z",
+      }),
+      row({
+        source_observation_id: "private-ris-observation",
+        source: "ripe_ris_live",
+        evidence_family: "ripe_ris",
+        signal: "private_prefix_visibility",
+        value: 0.654321,
+        confidence: 0.74,
+        observed_at: "2026-08-30T03:43:01Z",
+        source_updated_at: "2026-08-30T03:43:02Z",
+      }),
+    ]);
+    expect(summary.overall_status).toBe("watch");
+    expect(summary.evidence).toHaveLength(1);
+    expect(summary.evidence[0]).toMatchObject({ row_type: "detector", signal: "http_requests" });
+    expect(summary.evidence.some((item) => item.source_key === "ripe_atlas" || item.source_key === "ripe_ris")).toBe(false);
+    expect(summary.sources.find((source) => source.key === "ripe_atlas")).toMatchObject({
+      availability: "restricted", detector_fresh: true, signal: null, value: null,
+      sample_count: null, observed_at: null, source_updated_at: null,
+      confidence: "unknown", confidence_score: null, evidence_count: 0,
+    });
+    expect(summary.sources.find((source) => source.key === "ripe_ris")).toMatchObject({
+      availability: "restricted", detector_stale: true, signal: null, value: null,
+      sample_count: null, observed_at: null, source_updated_at: null,
+      confidence: "unknown", confidence_score: null, evidence_count: 0,
+    });
+    const publicModel = JSON.stringify(summary);
+    expect(publicModel).not.toContain("private-atlas-observation");
+    expect(publicModel).not.toContain("private-ris-observation");
+    expect(publicModel).not.toContain("private_probe_success_ratio");
+    expect(publicModel).not.toContain("private_prefix_visibility");
+    expect(publicModel).not.toContain("private_ratio");
+    expect(publicModel).not.toContain("0.123456");
+    expect(publicModel).not.toContain("0.654321");
+    expect(publicModel).not.toContain("0.74");
+    expect(publicModel).not.toContain("2026-08-30T03:42:01Z");
+    expect(publicModel).not.toContain("2026-08-30T03:43:02Z");
   });
 
   it("does not treat NCDR no-alert row as proof of normal internet", () => {
@@ -78,7 +173,7 @@ describe("internet health RPC contract", () => {
   it("uses effective_status rather than reported_status and preserves active incident scope as text", () => {
     const summary = aggregateInternetHealthRows([
       row({
-        source: "ioda",
+        source: "cloudflare_radar",
         entity_type: "asn",
         entity_id: "AS3462",
         entity_name: "HiNet",
@@ -132,6 +227,7 @@ describe("internet health RPC contract", () => {
         evidence_family: "composite",
         effective_status: "normal",
         confidence: 0.9,
+        metadata: { normal_quorum_met: true },
       }),
       row({
         row_type: "official_evidence",

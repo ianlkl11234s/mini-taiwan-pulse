@@ -1,14 +1,14 @@
 /**
  * 台灣電信與網路狀態 loader。
  *
- * 資料只走 public.get_internet_health_status RPC；前端不直打 Cloudflare / IODA，
+ * 資料只走 public.get_internet_health_status RPC；前端不直打各 provider，
  * 也不把 ASN 或 country status 轉成地圖 geometry。
  *
  * 保守語意：
  * - effective_status 是 UI 狀態真相，reported_status 只留作溯源。
  * - stale / unavailable / 缺列都只能是 unknown，不能安靜變成 normal 或 0。
- * - normal 至少需要 Cloudflare Radar + IODA 兩個 fresh network evidence 都是 normal；
- *   NCDR 無通報只能表示「未通報」，不能單獨證明網路正常。
+ * - normal 只接受 fresh detector composite 且 metadata 明示 normal quorum；
+ *   provider 明細缺席／受限或 NCDR 無通報都不能單獨證明網路正常。
  */
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
@@ -16,7 +16,8 @@ import { cachedOnce } from "../lib/loaderCache";
 
 export type InternetHealthStatus = "normal" | "watch" | "degraded" | "outage" | "unknown";
 export type InternetHealthConfidence = "low" | "medium" | "high" | "unknown";
-export type InternetHealthSourceKey = "cloudflare" | "ioda" | "ncdr";
+export type InternetHealthSourceKey = "cloudflare" | "ioda" | "ripe_atlas" | "ripe_ris" | "ncdr";
+export type InternetHealthSourceAvailability = "fresh" | "stale" | "missing" | "restricted";
 export type InternetHealthRowType = "detector" | "evidence" | "official" | "unknown";
 
 export interface InternetHealthEvidence {
@@ -37,6 +38,7 @@ export interface InternetHealthEvidence {
   baseline_value: number | null;
   change_ratio: number | null;
   confidence: InternetHealthConfidence;
+  confidence_score: number | null;
   sample_count: number | null;
   observed_at: string | null;
   source_updated_at: string | null;
@@ -53,13 +55,19 @@ export interface InternetHealthSourceSummary {
   label: string;
   status: InternetHealthStatus;
   fresh: boolean;
+  availability: InternetHealthSourceAvailability;
+  detector_fresh: boolean;
+  detector_stale: boolean;
   observed_at: string | null;
   source_updated_at: string | null;
+  age_seconds: number | null;
   signal: string | null;
   value: number | null;
   unit: string | null;
   change_ratio: number | null;
   confidence: InternetHealthConfidence;
+  confidence_score: number | null;
+  sample_count: number | null;
   evidence_count: number;
 }
 
@@ -79,10 +87,16 @@ export interface InternetHealthIncident {
 export interface InternetHealthSummary {
   overall_status: InternetHealthStatus;
   confidence: InternetHealthConfidence;
+  confidence_score: number | null;
   summary: string;
   last_updated_at: string | null;
   fresh_source_count: number;
+  public_source_total: number;
   source_total: number;
+  normal_quorum_met: boolean | null;
+  fresh_evidence_families: string[];
+  stale_evidence_families: string[];
+  restricted_evidence_families: string[];
   sources: InternetHealthSourceSummary[];
   incidents: InternetHealthIncident[];
   evidence: InternetHealthEvidence[];
@@ -91,7 +105,30 @@ export interface InternetHealthSummary {
 const SOURCE_LABELS: Record<InternetHealthSourceKey, string> = {
   cloudflare: "Cloudflare Radar",
   ioda: "IODA",
+  ripe_atlas: "RIPE Atlas",
+  ripe_ris: "RIPE RIS Live",
   ncdr: "NCDR",
+};
+
+const SOURCE_KEYS: readonly InternetHealthSourceKey[] = [
+  "cloudflare", "ioda", "ripe_atlas", "ripe_ris", "ncdr",
+];
+
+/**
+ * Production public RPC policy (2026-08-31): IODA and both RIPE provider rows
+ * stay internal-only. The detector may disclose family names/freshness in its
+ * public-safe metadata, but the UI must not infer or reveal provider metrics.
+ */
+const RESTRICTED_SOURCE_KEYS = new Set<InternetHealthSourceKey>([
+  "ioda", "ripe_atlas", "ripe_ris",
+]);
+
+const SOURCE_FAMILIES: Record<InternetHealthSourceKey, readonly string[]> = {
+  cloudflare: ["cloudflare", "cloudflare_radar"],
+  ioda: ["ioda"],
+  ripe_atlas: ["ripe_atlas"],
+  ripe_ris: ["ripe_ris", "ripe_ris_live"],
+  ncdr: ["ncdr", "official"],
 };
 
 const STATUS_RANK: Record<InternetHealthStatus, number> = {
@@ -134,6 +171,11 @@ function timestamp(value: unknown): string | null {
   return out;
 }
 
+function stringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return [...new Set(value.map(text).filter((item): item is string => item !== null))];
+}
+
 export function normalizeInternetHealthStatus(value: unknown): InternetHealthStatus {
   const raw = text(value)?.toLowerCase().replace(/[\s-]+/g, "_") ?? "";
   if (["normal", "ok", "healthy", "clear"].includes(raw)) return "normal";
@@ -158,10 +200,17 @@ function normalizeConfidence(value: unknown): InternetHealthConfidence {
   return "unknown";
 }
 
+function confidenceScore(value: unknown): number | null {
+  const numeric = num(value);
+  return numeric !== null && numeric >= 0 && numeric <= 1 ? numeric : null;
+}
+
 function sourceKeyOf(value: unknown): InternetHealthSourceKey | "other" {
   const raw = text(value)?.toLowerCase() ?? "";
   if (raw.includes("cloudflare") || raw.includes("radar")) return "cloudflare";
   if (raw.includes("ioda")) return "ioda";
+  if (raw.includes("ripe_atlas") || raw.includes("ripe atlas")) return "ripe_atlas";
+  if (raw.includes("ripe_ris") || raw.includes("ris_live") || raw.includes("ris live")) return "ripe_ris";
   if (raw.includes("ncdr")) return "ncdr";
   return "other";
 }
@@ -207,6 +256,7 @@ export function parseInternetHealthEvidence(raw: unknown): InternetHealthEvidenc
     baseline_value: num(raw.baseline_value),
     change_ratio: num(raw.change_ratio),
     confidence: normalizeConfidence(raw.confidence),
+    confidence_score: confidenceScore(raw.confidence),
     sample_count: num(raw.sample_count),
     observed_at: timestamp(raw.observed_at),
     source_updated_at: timestamp(raw.source_updated_at),
@@ -248,30 +298,96 @@ function conservativeConfidence(rows: InternetHealthEvidence[]): InternetHealthC
   return known.reduce((a, b) => CONFIDENCE_RANK[a] <= CONFIDENCE_RANK[b] ? a : b);
 }
 
-function sourceSummary(key: InternetHealthSourceKey, rows: InternetHealthEvidence[]): InternetHealthSourceSummary {
+function conservativeConfidenceScore(rows: InternetHealthEvidence[]): number | null {
+  const known = rows
+    .map((row) => row.confidence_score)
+    .filter((score): score is number => score !== null);
+  return known.length ? Math.min(...known) : null;
+}
+
+interface DetectorMetadataSummary {
+  normalQuorumMet: boolean | null;
+  freshFamilies: string[];
+  staleFamilies: string[];
+  restrictedFamilies: string[];
+}
+
+function detectorMetadata(rows: InternetHealthEvidence[]): DetectorMetadataSummary {
+  const sorted = [...rows].sort((a, b) => {
+    const ta = Date.parse(a.source_updated_at ?? a.observed_at ?? "") || 0;
+    const tb = Date.parse(b.source_updated_at ?? b.observed_at ?? "") || 0;
+    return tb - ta;
+  });
+  const latest = sorted[0];
+  if (!latest) {
+    return { normalQuorumMet: null, freshFamilies: [], staleFamilies: [], restrictedFamilies: [] };
+  }
+  return {
+    normalQuorumMet: typeof latest.metadata.normal_quorum_met === "boolean"
+      ? latest.metadata.normal_quorum_met
+      : null,
+    freshFamilies: stringArray(latest.metadata.fresh_evidence_families),
+    staleFamilies: stringArray(latest.metadata.stale_evidence_families),
+    restrictedFamilies: stringArray(latest.metadata.restricted_evidence_families),
+  };
+}
+
+function familyListed(key: InternetHealthSourceKey, families: string[]): boolean {
+  return SOURCE_FAMILIES[key].some((family) => families.includes(family));
+}
+
+function sourceSummary(
+  key: InternetHealthSourceKey,
+  rows: InternetHealthEvidence[],
+  metadata: DetectorMetadataSummary,
+): InternetHealthSourceSummary {
   const sourceRows = rows.filter((row) => row.source_key === key);
   const freshRows = sourceRows.filter((row) => !row.is_stale && row.status !== "unknown");
-  const status = worstStatus(freshRows);
+  const restricted = RESTRICTED_SOURCE_KEYS.has(key) || familyListed(key, metadata.restrictedFamilies);
+  const status = restricted ? "unknown" : worstStatus(freshRows);
   const candidates = freshRows.filter((row) => row.status === status);
   const notable = [...(candidates.length ? candidates : sourceRows)].sort((a, b) => {
     const ta = Date.parse(a.source_updated_at ?? a.observed_at ?? "") || 0;
     const tb = Date.parse(b.source_updated_at ?? b.observed_at ?? "") || 0;
     return tb - ta;
   })[0] ?? null;
+  const availability: InternetHealthSourceAvailability = restricted
+    ? "restricted"
+    : freshRows.length > 0
+      ? "fresh"
+      : sourceRows.length > 0
+        ? "stale"
+        : "missing";
   return {
     key,
     label: SOURCE_LABELS[key],
     status,
-    fresh: freshRows.length > 0,
-    observed_at: notable?.observed_at ?? null,
-    source_updated_at: notable?.source_updated_at ?? null,
-    signal: notable?.signal ?? null,
-    value: notable?.value ?? null,
-    unit: notable?.unit ?? null,
-    change_ratio: notable?.change_ratio ?? null,
-    confidence: conservativeConfidence(candidates),
+    fresh: !restricted && freshRows.length > 0,
+    availability,
+    detector_fresh: familyListed(key, metadata.freshFamilies),
+    detector_stale: familyListed(key, metadata.staleFamilies),
+    observed_at: restricted ? null : (notable?.observed_at ?? null),
+    source_updated_at: restricted ? null : (notable?.source_updated_at ?? null),
+    age_seconds: restricted ? null : (notable?.age_seconds ?? null),
+    signal: restricted ? null : (notable?.signal ?? null),
+    value: restricted ? null : (notable?.value ?? null),
+    unit: restricted ? null : (notable?.unit ?? null),
+    change_ratio: restricted ? null : (notable?.change_ratio ?? null),
+    confidence: restricted ? "unknown" : conservativeConfidence(candidates),
+    confidence_score: restricted ? null : conservativeConfidenceScore(candidates),
+    sample_count: restricted ? null : (notable?.sample_count ?? null),
     evidence_count: sourceRows.length,
   };
+}
+
+/**
+ * Defense in depth for the browser model. The production RPC already applies
+ * a migration-owned allowlist, but an upstream policy regression must not put
+ * restricted provider rows (or an unknown future provider) into page memory.
+ */
+function isPublicEvidence(row: InternetHealthEvidence): boolean {
+  if (row.row_type === "detector" || row.row_type === "official") return true;
+  return row.source_key === "cloudflare" || row.source_key === "ncdr";
 }
 
 function activeIncidents(rows: InternetHealthEvidence[]): InternetHealthIncident[] {
@@ -311,23 +427,27 @@ function summaryText(status: InternetHealthStatus): string {
 
 /** 將 RPC evidence rows 彙整成 Monitor 卡片模型。 */
 export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSummary {
-  const evidence = Array.isArray(rawRows)
+  const parsedEvidence = Array.isArray(rawRows)
     ? rawRows.map(parseInternetHealthEvidence).filter((row): row is InternetHealthEvidence => row !== null)
     : [];
-  const sources = (["cloudflare", "ioda", "ncdr"] as const).map((key) => sourceSummary(key, evidence));
+  const evidence = parsedEvidence.filter(isPublicEvidence);
   const freshEvidence = evidence.filter((row) => !row.is_stale && row.status !== "unknown");
   const freshDetectors = freshEvidence.filter((row) => row.row_type === "detector");
   const freshOfficial = freshEvidence.filter((row) => row.row_type === "official");
+  const detectorMeta = detectorMetadata(freshDetectors);
+  const sources = SOURCE_KEYS.map((key) => sourceSummary(key, evidence, detectorMeta));
   // Provider evidence 是 detector 的輸入，不可蓋過 composite；NCDR active official evidence
   // 則保留為獨立正向中斷證據。
   const primaryRows = freshDetectors.length ? [...freshDetectors, ...freshOfficial] : freshEvidence;
   let overall = worstStatus(primaryRows);
 
-  // normal 是唯一需要 quorum 的狀態：NCDR 無通報不能單獨證明正常。
+  // normal 只接受 fresh composite 明示 quorum。IODA／RIPE provider 明細受限，
+  // 因此不能再靠公開 provider rows 重算 normal；metadata 缺欄一律 unknown。
   if (overall === "normal") {
-    const cloudflare = sources.find((source) => source.key === "cloudflare");
-    const ioda = sources.find((source) => source.key === "ioda");
-    if (!cloudflare?.fresh || cloudflare.status !== "normal" || !ioda?.fresh || ioda.status !== "normal") {
+    const hasQuorumDetector = freshDetectors.some((row) => (
+      row.status === "normal" && row.metadata.normal_quorum_met === true
+    ));
+    if (!hasQuorumDetector) {
       overall = "unknown";
     }
   }
@@ -337,10 +457,16 @@ export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSum
   return {
     overall_status: overall,
     confidence: conservativeConfidence(contributing),
+    confidence_score: conservativeConfidenceScore(contributing),
     summary: summaryText(overall),
     last_updated_at: latestTimestamp(evidence),
     fresh_source_count: sources.filter((source) => source.fresh).length,
+    public_source_total: sources.filter((source) => source.availability !== "restricted").length,
     source_total: sources.length,
+    normal_quorum_met: detectorMeta.normalQuorumMet,
+    fresh_evidence_families: detectorMeta.freshFamilies,
+    stale_evidence_families: detectorMeta.staleFamilies,
+    restricted_evidence_families: detectorMeta.restrictedFamilies,
     sources,
     incidents: activeIncidents(evidence),
     evidence,
