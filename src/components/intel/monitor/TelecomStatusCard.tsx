@@ -21,7 +21,7 @@ export type InternetHealthPhase = "loading" | "ready" | "error";
 
 const STATUS_META: Record<InternetHealthStatus, { label: string; en: string; color: string; tint: string }> = {
   normal: { label: "目前正常", en: "NORMAL", color: COLORS.statusLive, tint: "rgba(34,197,94,0.07)" },
-  watch: { label: "需要留意", en: "WATCH", color: COLORS.statusWarn, tint: "rgba(250,204,21,0.07)" },
+  watch: { label: "疑似異常", en: "WATCH", color: COLORS.statusWarn, tint: "rgba(250,204,21,0.07)" },
   degraded: { label: "局部異常", en: "DEGRADED", color: "#fb923c", tint: "rgba(251,146,60,0.08)" },
   outage: { label: "中斷訊號", en: "OUTAGE", color: COLORS.statusErr, tint: "rgba(239,68,68,0.09)" },
   unknown: { label: "資料不足", en: "UNKNOWN", color: COLORS.textDim, tint: "rgba(148,163,184,0.05)" },
@@ -43,18 +43,39 @@ function metricLabel(source: InternetHealthSourceSummary): string {
 }
 
 function sourceStatusLabel(source: InternetHealthSourceSummary): string {
-  if (!source.fresh) return source.key === "ncdr" ? "未通報／無資料" : "無資料";
+  if (source.availability === "restricted") {
+    if (source.detector_fresh) return "判定來源新鮮 · 明細不公開";
+    if (source.detector_stale) return "判定來源逾時 · 明細不公開";
+    return "明細不公開 · freshness 未知";
+  }
+  if (source.availability === "stale") return "資料逾時";
+  if (source.availability === "missing") return source.key === "ncdr" ? "未通報／無資料" : "無資料";
   return STATUS_META[source.status].label;
+}
+
+function ageLabel(ageSeconds: number | null): string {
+  if (ageSeconds == null || ageSeconds < 0) return "—";
+  if (ageSeconds < 60) return `${Math.round(ageSeconds)}s`;
+  if (ageSeconds < 3600) return `${Math.round(ageSeconds / 60)}m`;
+  if (ageSeconds < 86400) return `${(ageSeconds / 3600).toFixed(ageSeconds < 36_000 ? 1 : 0)}h`;
+  return `${(ageSeconds / 86400).toFixed(ageSeconds < 864_000 ? 1 : 0)}d`;
+}
+
+function confidenceLabel(source: InternetHealthSourceSummary): string {
+  const score = source.confidence_score == null ? "" : ` ${(source.confidence_score * 100).toFixed(0)}%`;
+  return `${source.confidence}${score}`;
 }
 
 function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSummary; nowTs: number }) {
   const meta = STATUS_META[source.fresh ? source.status : "unknown"];
+  const restricted = source.availability === "restricted";
+  const timestamp = source.source_updated_at ?? source.observed_at;
   return (
     <div
       data-testid={`internet-health-source-${source.key}`}
       style={{
         display: "grid", gridTemplateColumns: "minmax(110px, 1fr) auto",
-        alignItems: "center", gap: 9, padding: "7px 9px", borderRadius: RADIUS.lg,
+        alignItems: "center", columnGap: 9, rowGap: 2, padding: "7px 9px", borderRadius: RADIUS.lg,
         background: "rgba(255,255,255,0.025)", border: `1px solid ${COLORS.borderSoft}`,
       }}
     >
@@ -73,6 +94,17 @@ function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSumm
         >
           {source.label}
         </span>
+        {restricted && (
+          <span
+            style={{
+              padding: "1px 5px", borderRadius: RADIUS.full, border: `1px solid ${COLORS.borderMid}`,
+              color: COLORS.textDim, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+              letterSpacing: "0.6px", flexShrink: 0,
+            }}
+          >
+            LIMITED
+          </span>
+        )}
       </span>
       <span style={{ minWidth: 0, gridColumn: "1 / -1", gridRow: 2 }}>
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: meta.color }}>
@@ -85,7 +117,15 @@ function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSumm
           }}
           title={source.signal ?? undefined}
         >
-          {source.signal ?? "—"} · {timeLabel(source.source_updated_at ?? source.observed_at, nowTs)}
+          {restricted ? "detector evidence" : (source.signal ?? "—")} · {timestamp ? timeLabel(timestamp, nowTs) : "—"}
+        </span>
+        <span
+          style={{
+            display: "block", marginTop: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
+            color: COLORS.textFaint, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          }}
+        >
+          age {ageLabel(source.age_seconds)} · n={source.sample_count?.toLocaleString("zh-TW") ?? "—"} · confidence {confidenceLabel(source)}
         </span>
       </span>
       <span
@@ -95,7 +135,7 @@ function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSumm
           color: source.fresh ? meta.color : COLORS.textFaint, whiteSpace: "nowrap",
         }}
       >
-        {metricLabel(source)}
+        {restricted ? "—" : metricLabel(source)}
       </span>
     </div>
   );
@@ -152,11 +192,22 @@ export function TelecomStatusCardView({
       ? "本次更新失敗，暫時無法判斷"
       : (summary?.summary ?? "核心來源不足，暫時無法判斷");
   const sources = (summary?.sources ?? []).map((source) => phase === "error"
-    ? { ...source, status: "unknown" as const, fresh: false }
+    ? {
+        ...source,
+        status: "unknown" as const,
+        fresh: false,
+        availability: source.availability === "restricted" ? "restricted" as const : "missing" as const,
+        detector_fresh: false,
+        detector_stale: false,
+      }
     : source);
   const incidents = summary?.incidents ?? [];
   const confidence = phase === "error" ? "unknown" : (summary?.confidence ?? "unknown");
+  const confidenceScore = phase === "error" ? null : (summary?.confidence_score ?? null);
   const freshSourceCount = phase === "error" ? 0 : (summary?.fresh_source_count ?? 0);
+  const quorumLabel = phase === "error" || summary?.normal_quorum_met == null
+    ? "—"
+    : summary.normal_quorum_met ? "PASS" : "NO";
 
   return (
     <div data-testid="internet-health-card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -188,7 +239,7 @@ export function TelecomStatusCardView({
               </span>
             </div>
             <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.6px", color: COLORS.textFaint }}>
-              {meta.en} · confidence {confidence}
+              {meta.en} · confidence {confidence}{confidenceScore == null ? "" : ` ${(confidenceScore * 100).toFixed(0)}%`}
             </div>
           </div>
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.45, color: COLORS.textMuted }}>
@@ -196,9 +247,15 @@ export function TelecomStatusCardView({
           </div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
             <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-              FRESH SOURCES<br />
+              FRESH PUBLIC<br />
               <b style={{ fontSize: FONT_SIZE.md, color: COLORS.textDefault }}>
-                {freshSourceCount}/{summary?.source_total ?? 3}
+                {freshSourceCount}/{summary?.public_source_total ?? 2}
+              </b>
+            </span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+              NORMAL QUORUM<br />
+              <b style={{ fontSize: FONT_SIZE.sm, color: summary?.normal_quorum_met ? COLORS.statusLive : COLORS.textDefault }}>
+                {quorumLabel}
               </b>
             </span>
             <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
@@ -216,7 +273,7 @@ export function TelecomStatusCardView({
           </span>
           {sources.length > 0
             ? sources.map((source) => <SourceEvidenceRow key={source.key} source={source} nowTs={nowTs} />)
-            : (["Cloudflare Radar", "IODA", "NCDR"] as const).map((label) => (
+            : (["Cloudflare Radar", "IODA", "RIPE Atlas", "RIPE RIS Live", "NCDR"] as const).map((label) => (
               <div key={label} style={{ padding: "7px 9px", borderRadius: RADIUS.lg, border: `1px solid ${COLORS.borderSoft}`, color: COLORS.textFaint, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm }}>
                 {label} · —
               </div>
@@ -241,7 +298,7 @@ export function TelecomStatusCardView({
               </div>
             )}
           <span style={{ marginTop: "auto", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, lineHeight: 1.4, color: COLORS.textFaint }}>
-            Cloudflare Radar + IODA + NCDR；多來源觀測，不代表完整臺灣網路普查。ASN 僅列文字，不推測服務範圍。
+            Cloudflare Radar + IODA + RIPE Atlas + RIPE RIS Live + NCDR；受限來源僅依綜合判定揭露 freshness，不公開明細。ASN／prefix 僅列文字，不推測服務範圍。
           </span>
         </div>
       </div>

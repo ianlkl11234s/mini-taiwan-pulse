@@ -3,7 +3,8 @@
 ## 產品目的
 
 在 Monitor 顯示臺灣目前的電信與網路狀態。這是多來源狀態卡，不是地圖圖層：
-Cloudflare Radar、IODA 與 NCDR evidence 只顯示文字／數值，不替 ASN、國家狀態或缺資料區域製造 geometry。
+Cloudflare Radar、IODA、RIPE Atlas、RIPE RIS Live 與 NCDR evidence 只顯示文字／數值，
+不替 ASN、prefix、國家狀態或缺資料區域製造 geometry。
 
 ## 上游契約
 
@@ -33,10 +34,33 @@ is_stale, active_incident_id, incident_status, metadata
 3. RPC 的 `row_type = status` 中，`evidence_family = composite` 才正規化為 detector；其他 status rows 是 provider evidence，`official_evidence` 是 NCDR 正向證據。
 4. 有 fresh detector 時，以 detector composite 加 active official evidence 的 `effective_status` 為總體真相；沒有 detector 時才保守退回 fresh rows。
 5. `confidence` 的 RPC 值為 0–1；前端以 `<0.5 / 0.5–<0.8 / ≥0.8` 顯示 low / medium / high。
-6. `normal` 仍至少需要 Cloudflare Radar 與 IODA 兩個 fresh evidence 都是 normal。
+6. `normal` 只接受 fresh composite detector 且 `metadata.normal_quorum_met = true`；metadata 缺欄或 false 都回到 unknown。
 7. NCDR 無 row 或 0 alerts 只能顯示「未通報／無資料」，不可單獨證明正常。
 8. active incident 只列 entity name/id、類型與時間。
 9. 不新增 LayerVisibility、Mapbox source、overlay、popup 或 ASN geometry。
+
+## RIPE 擴充契約（2026-08-31）
+
+- `source = ripe_atlas`、`evidence_family = ripe_atlas`：active probing evidence。
+- `source = ripe_ris_live`、`evidence_family = ripe_ris`：BGP routing evidence。
+- detector 維持 `source = internet_health_detector_v1`、`evidence_family = composite`、
+  `signal = internet_health`。
+- IODA、RIPE Atlas 與 RIPE RIS provider rows 初期皆為 internal-only；public RPC 不回傳其
+  normalized/raw 明細。前端以 LIMITED 呈現；只有 composite metadata 明示時才標 fresh／stale，
+  metadata 缺欄則顯示 freshness 未知，不把缺 row 說成來源故障。
+- Public-safe composite metadata 可包含：`detector_version`、`normal_quorum_met`、
+  `fresh_evidence_families`、`stale_evidence_families`、`restricted_evidence_families`、
+  `dependency_groups`、`evidence_class_count`、`coverage_gate_met`、`decision_reasons`。
+  前端只讀取已知欄位，缺欄保持 unknown。
+- `normal` 只接受 fresh composite detector 且 `metadata.normal_quorum_met = true`；不再要求
+  永遠不公開的 IODA provider row。Provider-only normal、stale composite 或缺 quorum metadata
+  都必須顯示「資料不足」。
+- 來源列區分 `fresh / stale / missing / restricted`，公開 evidence 才顯示 signal、value、
+  sample count、資料年齡與 confidence。受限來源只顯示 detector metadata 揭露的 family freshness，
+  不推測或洩露 raw metrics。
+
+既有 `ripeAtlasProbes` 是 3,000 點全球靜態 connected-probe metadata 概覽，座標經模糊化且有
+志願者偏差；本卡不以 country／ASN／BGP 狀態替探針染色。RIPE RIS prefix／ASN 也不建立 geometry。
 
 ## 前端觸點
 
@@ -46,23 +70,30 @@ is_stale, active_incident_id, incident_status, metadata
 - `src/components/intel/monitor/monitorLayout.ts`：dock/wall 全寬位置。
 - `src/components/intel/monitor/monitorSplitLayout.ts`：split 全寬位置。
 
+RIPE 擴充只修改 loader、卡片、tests 與本文件。`MonitorPanel`／兩份 layout、layer manifest、
+overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` asset 均維持不變。
+
 既有 `lifelineAlerts` 仍負責 NCDR CAP 地圖：只有上游真的提供 geometry 才渲染；本卡不複製或推測其範圍。
 
 ## 驗收邊界
 
 - RPC migration 未 apply 前，卡片應誠實顯示「資料不足」，不代表前端壞掉。
 - Browser live gate 必須把卡片與實際 RPC rows、`source_updated_at`、`is_stale` 逐項對照。
-- 單元測試覆蓋 stale、空資料、NCDR-only normal、雙來源 normal、incident 與 null 語意。
+- 單元測試覆蓋 stale、空資料、NCDR-only normal、composite quorum、受限來源、incident 與 null 語意。
 - 正式上線仍需 migration apply、collector fresh data、RPC anonymous grant、browser QA 與 deploy 分別確認。
 
 ## Browser live gate
 
-1. 確認 migration 已 apply，且 RPC 用 anonymous session 呼叫 country/TW 能回 fresh detector 與 provider rows。
+1. 確認 migration 已 apply，且 RPC 用 anonymous session 呼叫 country/TW 能回 fresh detector；只有
+   `public_rpc_enabled=true` 的 provider rows 會回傳，IODA 與兩個 RIPE provider rows 缺席是預期政策。
 2. 啟動前端並開啟 Monitor；`電信與網路 · CONNECTIVITY` 應位於事件區下方、全寬、不壓到下方雙欄卡片。
 3. 在 browser Network 面板確認 request 是 `get_internet_health_status`，參數為 country、`[TW]`、include evidence、limit 500。
-4. 逐列對照 Cloudflare／IODA／NCDR 的狀態、metric、最後資料時間；null 必須是 `—`，NCDR 缺 row 必須是「未通報／無資料」。
+4. 逐列對照 Cloudflare／IODA／RIPE Atlas／RIPE RIS Live／NCDR；公開來源顯示狀態、metric、
+   sample、confidence 與資料年齡，受限來源顯示 LIMITED 與 detector family freshness；null 必須是 `—`，
+   NCDR 缺 row 必須是「未通報／無資料」。
 5. 用 stale 或空資料 fixture 驗證總體為「資料不足」且 fresh sources 為 0；用 RPC 失敗驗證舊 normal 不會繼續亮綠。
-6. 用 fresh detector + Cloudflare + IODA fixture 驗證 normal quorum；加入 active NCDR official evidence 時驗證 outage 與 incident 摘要。
+6. 用 fresh detector + `normal_quorum_met=true` fixture 驗證 normal；缺 metadata／false 必須 unknown；
+   加入 active NCDR official evidence 時驗證 outage 與 incident 摘要。
 7. 縮窄視窗檢查來源列換行、卡片內容不裁切；Mapbox sources/layers 數量不應因本卡增加。
 
 ## Production truth（2026-08-31）
