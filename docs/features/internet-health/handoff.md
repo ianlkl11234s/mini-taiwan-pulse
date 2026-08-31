@@ -98,10 +98,20 @@ overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` a
 
 ## Production truth（2026-08-31）
 
-- Frontend：PR #184 已 merge；Zeabur production revision `30ccf4f9480bfab2eb364ab848fee7283b0cf2a5` 為 `RUNNING`，正式網址為 `https://mini-taiwan-pulse.itsmigu.com`。
-- Collector：archive gate 與 Cloudflare／IODA 排程已啟用；第一輪 scheduled run 為 Cloudflare 7 筆（partial／stale）、IODA 159 筆（succeeded）。Collector succeeded 不等於該批 rows 都符合 public country/TW status RPC 的輸出範圍。
-- Browser：headed Chromium 實際開啟 production Monitor。卡片顯示 `資料不足 / UNKNOWN / 0/3`；Cloudflare Radar 保留 stale row 的 signal、value 與資料時間但標示「無資料」，IODA 無 public row，NCDR 無 active official evidence 時顯示「未通報／無資料」，沒有被當成正常證據。
-- RPC：browser response 為 HTTP 200；request body 是 country/TW、include evidence、limit 500。當次回 1 筆 Cloudflare row：`effective_status=unknown`、`is_stale=true`、`age_seconds=6051`；沒有 IODA 或 NCDR public row。
-- Console：沒有 `TelecomStatusCard`／`get_internet_health_status` error。頁面另有既有 owner-gated 電力機組 RPC 401，console 同時標示 `get_ssot_facility_output_24h: permission denied`，不屬於本卡。
+- Release：PR #192 已 merge，master baseline 為 `553446598b423822698ff3991b1fc86e28aa9844`。
+  Zeabur production deployment `6a9541f89ed7d65609e25e16` 為 `RUNNING`，正式網址為
+  `https://mini-taiwan-pulse.itsmigu.com/`。該次 redeploy 的 Zeabur metadata 未回填 commit SHA，
+  因此不把 deployment ID 與 Git commit 說成 control-plane 已直接綁定。
+- Browser：production Monitor 實際顯示 Cloudflare Radar、IODA、RIPE Atlas、RIPE RIS Live、NCDR
+  五個來源列；IODA／RIPE Atlas／RIPE RIS Live 共 3 列為 `LIMITED`。總體維持
+  `UNKNOWN / 資料不足`，且顯示沒有 confirmed incident；缺資料與無官方事件沒有被當成正常證據。
+- Public-safety gate：針對受限 provider detail 的 8 個 forbidden markers 全部為 false；公開頁面未出現
+  被禁止的 observation ID、signal、raw value／unit、sample、timestamp 或 confidence 明細。
+- RPC／collector：RIPE Atlas internal scheduled collection 已 live，但 Atlas provider rows 在 public RPC
+  仍為 0，符合 internal-only 契約。RIPE RIS Live 仍 disabled；必須先取得 Zeabur control plane 的
+  actual Replicas = 1 證據，不能只依賴環境變數宣稱 singleton，才可啟用 bounded worker。
+- Console：production browser console errors 為 0。
 
-此 production snapshot 只證明「stale／缺來源不會假正常」。當下沒有 active NCDR official evidence，故尚未以 production live incident 驗證 outage 優先路徑；該路徑目前只有 contract/unit test 證據。
+此 snapshot 證明五來源 UI、restricted evidence 防洩漏與 unknown 語意已在 production 生效；它不證明
+臺灣網路正常或正在斷網。當下沒有 active NCDR official evidence／confirmed incident，outage 優先路徑
+仍只有 contract 與 unit test 證據。
