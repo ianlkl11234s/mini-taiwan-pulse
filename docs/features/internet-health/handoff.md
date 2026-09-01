@@ -39,15 +39,18 @@ is_stale, active_incident_id, incident_status, metadata
 8. active incident 只列 entity name/id、類型與時間。
 9. 不新增 LayerVisibility、Mapbox source、overlay、popup 或 ASN geometry。
 
-## RIPE 擴充契約（2026-08-31）
+## RIPE 擴充契約（2026-09-01）
 
 - `source = ripe_atlas`、`evidence_family = ripe_atlas`：active probing evidence。
 - `source = ripe_ris_live`、`evidence_family = ripe_ris`：BGP routing evidence。
 - detector 維持 `source = internet_health_detector_v1`、`evidence_family = composite`、
   `signal = internet_health`。
-- IODA、RIPE Atlas 與 RIPE RIS provider rows 初期皆為 internal-only；public RPC 不回傳其
-  normalized/raw 明細。前端以 LIMITED 呈現；只有 composite metadata 明示時才標 fresh／stale，
-  metadata 缺欄則顯示 freshness 未知，不把缺 row 說成來源故障。
+- IODA 維持 internal-only。RIPE Atlas／RIS 只接受 platform public RPC 回傳的 allowlisted normalized
+  measurements；前端不得繞過 RPC 連 provider realtime，也不得保留 observation ID 或 provider metadata。
+- Atlas allowlist：`probe_connectivity_ratio_ipv4/ipv6`、`ping_success_ratio_ipv4/ipv6`、
+  `median_rtt_ms_ipv4/ipv6`、`reachable_asn_ratio_ipv4/ipv6`。
+- RIS allowlist：`prefix_visibility_ratio_ipv4/ipv6`、`withdrawn_prefix_ratio_ipv4/ipv6`、
+  `origin_change_count_ipv4/ipv6`。其他 signal 即使因上游 policy regression 出現在 RPC 也整列丟棄。
 - Public-safe composite metadata 可包含：`detector_version`、`normal_quorum_met`、
   `fresh_evidence_families`、`stale_evidence_families`、`restricted_evidence_families`、
   `dependency_groups`、`evidence_class_count`、`coverage_gate_met`、`decision_reasons`。
@@ -55,9 +58,25 @@ is_stale, active_incident_id, incident_status, metadata
 - `normal` 只接受 fresh composite detector 且 `metadata.normal_quorum_met = true`；不再要求
   永遠不公開的 IODA provider row。Provider-only normal、stale composite 或缺 quorum metadata
   都必須顯示「資料不足」。
-- 來源列區分 `fresh / stale / missing / restricted`，公開 evidence 才顯示 signal、value、
-  sample count、資料年齡與 confidence。受限來源只顯示 detector metadata 揭露的 family freshness，
-  不推測或洩露 raw metrics。
+- Atlas／RIS 以兩張主要量測卡顯示 allowlisted value、sample count、confidence、資料時間與 freshness；
+  Cloudflare／IODA／NCDR 是旁證。Freshness 與 judgment 分開：fresh unknown 只代表資料剛更新，總體仍可為
+  `UNKNOWN · BASELINE BUILDING`。null 顯示 `—`；RIS visibility null 額外顯示「RIB 基準建立中」。
+- 100% Ping、0 Origin change 或 0 Withdrawal 都只是單一量測值，不能推導 `normal`。Atlas 與 RIS 同屬
+  `ripe_ncc` dependency group，不當成兩個獨立 quorum。
+- Browser model 的 RIPE rows 不進 `summary.evidence`；只輸出 allowlisted `summary.measurements`，固定單位為
+  ratio／milliseconds／count，並移除 source observation ID、baseline/change ratio、incident 與 metadata。
+- Provider metadata 只保留 `measurement_state`（暫定 allowlist：`ready / baseline_building / partial /
+  unavailable`；相同 enum 的 `quality_state` 可正規化為此欄）。`stream_gap`／empty window、缺
+  `source_updated_at`、`sample_count = 0`、partial 或 unavailable 都不可標為 CURRENT；provider 時間不以
+  `observed_at` fallback 冒充更新時間。
+- 非 partial row 若缺 `source_updated_at` 或 `sample_count <= 0`，value 同時 fail-closed 為 null、state 為
+  unavailable；visibility 維持 baseline building。Partial row 可保留值，但必須同時標示 PARTIAL 與
+  non-current freshness。
+- Ratio 必須在 0–1、milliseconds 必須 `>= 0`、count 與 sample count 必須是 `>= 0` 的整數；invalid
+  value fail-closed 為 null。`prefix_visibility_ratio_*` 即使非 null，也只有明示
+  `measurement_state = ready` 才可公開，否則維持 `— / RIB 基準建立中`。
+- Sample count 依 metric 標示其母體：Atlas probe connectivity／Ping 使用 `probes`、median RTT 使用
+  `RTT samples`、ASN reachability 使用 `ASNs`、RIS 使用 `BGP messages`，不使用語意模糊的統一 `n=`。
 
 既有 `ripeAtlasProbes` 是 3,000 點全球靜態 connected-probe metadata 概覽，座標經模糊化且有
 志願者偏差；本卡不以 country／ASN／BGP 狀態替探針染色。RIPE RIS prefix／ASN 也不建立 geometry。
@@ -85,16 +104,20 @@ overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` a
 ## Browser live gate
 
 1. 確認 migration 已 apply，且 RPC 用 anonymous session 呼叫 country/TW 能回 fresh detector；只有
-   `public_rpc_enabled=true` 的 provider rows 會回傳，IODA 與兩個 RIPE provider rows 缺席是預期政策。
+   `public_rpc_enabled=true` 且 signal 在 public allowlist 的 provider rows 才能回傳，IODA 缺席是預期政策。
 2. 啟動前端並開啟 Monitor；`電信與網路 · CONNECTIVITY` 應位於事件區下方、全寬、不壓到下方雙欄卡片。
 3. 在 browser Network 面板確認 request 是 `get_internet_health_status`，參數為 country、`[TW]`、include evidence、limit 500。
-4. 逐列對照 Cloudflare／IODA／RIPE Atlas／RIPE RIS Live／NCDR；公開來源顯示狀態、metric、
-   sample、confidence 與資料年齡，受限來源顯示 LIMITED 與 detector family freshness；null 必須是 `—`，
-   NCDR 缺 row 必須是「未通報／無資料」。
+4. 逐列對照兩張 RIPE 主卡與 Cloudflare／IODA／NCDR 旁證；RIPE 公開量測顯示 value、sample、confidence、
+   freshness 與資料時間，IODA 顯示 LIMITED；null 必須是 `—`，RIS visibility null 同時顯示
+   「RIB 基準建立中」，NCDR 缺 row 必須是「未通報／無資料」。
 5. 用 stale 或空資料 fixture 驗證總體為「資料不足」且 fresh sources 為 0；用 RPC 失敗驗證舊 normal 不會繼續亮綠。
 6. 用 fresh detector + `normal_quorum_met=true` fixture 驗證 normal；缺 metadata／false 必須 unknown；
    加入 active NCDR official evidence 時驗證 outage 與 incident 摘要。
 7. 縮窄視窗檢查來源列換行、卡片內容不裁切；Mapbox sources/layers 數量不應因本卡增加。
+8. 用 100% Ping + 0 Withdrawal + 0 Origin change fixture 驗證頁面仍為 `UNKNOWN / 建立基準中`；
+   Network response 若混入非 allowlisted RIPE signal 或 provider metadata，頁面與前端 summary 都不得出現。
+9. 用 stream gap、sample count 0、缺 `source_updated_at` 與 visibility 非 null 但缺 `ready` fixture，驗證
+   不顯示 CURRENT、不 fallback `observed_at`，且 visibility 仍為 `— / RIB 基準建立中`。
 
 ## Production truth（2026-08-31）
 
