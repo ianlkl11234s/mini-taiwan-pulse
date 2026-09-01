@@ -39,13 +39,13 @@ describe("monitorPacking", () => {
   // guillotine 會先在那裡把版面切成上下兩段 —— 右欄底部那塊於是從「右欄」變成
   // 撐滿 12 欄的獨立區塊（寬度爆掉、與上方右欄對不齊）。
   // 新 widget 要接在右欄下方時，左欄必須有格子跨過那條線，或改插進右欄中段。
-  it("頂層拆成「上方三欄」+「全寬網路狀態」+「下方左右兩欄（5 + 7）」", () => {
+  it("頂層拆成「上方三欄」+「下方左右兩欄（5 + 7）」+「全寬網路狀態」", () => {
     const tree = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
     expect(tree.t).toBe("rows");
     if (tree.t !== "rows") return;
     expect(tree.children).toHaveLength(3);
-    expect(flattenNode(tree.children[1]!).map((it) => it.i)).toEqual(["internetHealth"]);
-    const bottom = tree.children[2]!;
+    expect(flattenNode(tree.children[2]!).map((it) => it.i)).toEqual(["internetHealth"]);
+    const bottom = tree.children[1]!;
     expect(bottom.t).toBe("cols");
     if (bottom.t !== "cols") return;
     expect(bottom.children.map(nodeWidth)).toEqual([5, 7]);
@@ -53,16 +53,23 @@ describe("monitorPacking", () => {
 
   it("ISR 插入後 dock 左右兩欄同止於 y80", () => {
     const leftEnd = Math.max(
-      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.x < 5 && item.y >= 55)
+      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.w < 12 && item.x < 5 && item.y >= 55)
         .map((item) => item.y + item.h),
     );
     const rightEnd = Math.max(
-      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.x >= 5 && item.y >= 55)
+      ...MONITOR_VISIBLE_LAYOUT.filter((item) => item.w < 12 && item.x >= 5 && item.y >= 55)
         .map((item) => item.y + item.h),
     );
 
     expect(leftEnd).toBe(80);
     expect(rightEnd).toBe(80);
+  });
+
+  it("RIPE 網路觀察在 dock 與 split 都位於 TRA DELAY 後方", () => {
+    for (const layout of [MONITOR_VISIBLE_LAYOUT, MONITOR_SPLIT_VISIBLE_LAYOUT]) {
+      const ids = flattenNode(buildMonitorTree(layout)).map((item) => item.i);
+      expect(ids.indexOf("internetHealth")).toBeGreaterThan(ids.indexOf("traDelay"));
+    }
   });
 
   it("互卡佈局（風車形）退回固定網格而不是掉 widget", () => {
@@ -139,9 +146,9 @@ describe("monitorPacking · split dock（右半邊窄版）", () => {
     expect(head.children.map(nodeWidth)).toEqual([6, 6]);
   });
 
-  it("軍事態勢尾段依序為 PLA、特殊船舶、ISR、台鐵", () => {
+  it("尾段依序為 PLA、特殊船舶、ISR、台鐵、RIPE 網路觀察", () => {
     expect(
       items.filter((item) => item.y >= 92).map((item) => item.i),
-    ).toEqual(["plaBoard", "vesselZone", "isrSatellitePasses", "traDelay"]);
+    ).toEqual(["plaBoard", "vesselZone", "isrSatellitePasses", "traDelay", "internetHealth"]);
   });
 });

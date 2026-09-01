@@ -370,7 +370,7 @@ export function TelecomStatusCardView({
   const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
   const reportingFeeds = Number(atlasMeasurements.some((item) => item.freshness === "fresh")) + Number(risMeasurements.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
-  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測暫時無法更新" : freshMetricCount > 0 ? "RIPE 量測中" : "等待 RIPE 量測";
+  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測暫時無法更新" : freshMetricCount > 0 ? "網路穩定度" : "等待 RIPE 量測";
   const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : COLORS.textDim;
   const description = phase === "error" ? "本次更新失敗；不沿用舊資料判定網路狀態。" : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
 

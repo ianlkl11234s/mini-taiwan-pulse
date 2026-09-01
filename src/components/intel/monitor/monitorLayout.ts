@@ -116,6 +116,7 @@ export const MONITOR_GRID_GAP = 10;
  *   下半整體 +4，左右欄同止改為 y72。
  * - 2026-08-30 十三版 — 軍事態勢尾段改為特殊船舶 → ISR 衛星 → 台鐵；
  *   左右欄仍同止於 y80。
+ * - 2026-09-01 十四版 — internetHealth 移到台鐵誤點後方，作為 Monitor 尾端全寬觀察卡。
  */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
@@ -123,8 +124,6 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "timeline", x: 7, y: 0, w: 5, h: 9 },
   { i: "hotZones", x: 4, y: 7, w: 3, h: 5 },
   { i: "triage", x: 7, y: 9, w: 5, h: 3 },
-  // 電信／網路狀態是 country/ASN 文字證據，不建立 map geometry。
-  { i: "internetHealth", x: 0, y: 12, w: 12, h: 4, fit: "content" },
   { i: "situationOverview", x: 0, y: 16, w: 5, h: 5, fit: "content" },
   { i: "liveWall", x: 5, y: 16, w: 7, h: 14, fit: "content" },
   // TAIEX 從 situationOverview 右側拆出成獨立 widget（2026-08-10）：
@@ -177,6 +176,8 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   // 台鐵誤點收尾；右欄由 foodPriceBoard 跨過同一排序範圍，左右同止 y80。
   // fit h 只影響 packing，不改卡片實際高度。
   { i: "traDelay", x: 0, y: 75, w: 5, h: 5, fit: "content" },
+  // RIPE country/ASN 網路觀察接在 TRA DELAY 後方，不建立 map geometry。
+  { i: "internetHealth", x: 0, y: 80, w: 12, h: 4, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
