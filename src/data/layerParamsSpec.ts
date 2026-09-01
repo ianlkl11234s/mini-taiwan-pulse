@@ -1342,6 +1342,13 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
   ],
+  jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
+  jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
+  jpStations: [
+    opacitySlider("jpStationsOpacity", 0.85),
+    scaleSlider("jpStationsScale", 1),
+  ],
+  jpAirports: [opacitySlider("jpAirportsOpacity", 0.5)],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
   ],

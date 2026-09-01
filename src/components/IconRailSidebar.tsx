@@ -24,7 +24,7 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 
@@ -33,7 +33,9 @@ import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 // - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題，順序照該陣列
 const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
-const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title));
+const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
+  .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
+const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title));
 
 // ── Color Config ──
 
@@ -98,6 +100,8 @@ interface IconRailSidebarProps {
   monitorSplitActive?: boolean;
   /** split 開啟時把 Layers 浮動面板縮短，避免擋住台灣本島 */
   compactLayers?: boolean;
+  /** 打開「日本」rail tab 時觸發（App 用來 flyTo 日本；clone SatelliteConsole 自動飛台灣模式） */
+  onJapanOpen?: () => void;
 }
 
 // ── Shared Styles ──
@@ -137,7 +141,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "world";
+type PanelId = "layers" | "locations" | "world" | "japan";
 
 // ── Main Component ──
 
@@ -156,6 +160,7 @@ export function IconRailSidebar({
   externalCloseEpoch,
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
+  onJapanOpen,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
@@ -164,6 +169,7 @@ export function IconRailSidebar({
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
   const [worldSearch, setWorldSearch] = useState("");
+  const [japanSearch, setJapanSearch] = useState("");
   const [comingSoon, setComingSoon] = useState(false);
 
   // 齒輪「規劃中」提示：顯示後 2 秒自動消失
@@ -202,6 +208,8 @@ export function IconRailSidebar({
       if (intelActive && onIntelToggle) onIntelToggle();
       if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
       if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
+      // 打開「日本」tab → 自動飛日本（App 用 mapRef flyTo）
+      if (panel === "japan") onJapanOpen?.();
     }
     setActivePanel((prev) => (prev === panel ? null : panel));
   };
@@ -276,6 +284,14 @@ export function IconRailSidebar({
           active={activePanel === "world"}
           onClick={() => togglePanel("world")}
           tooltip="世界 World"
+        />
+
+        {/* 🗾 日本 Japan（clone 世界 tab；打開自動飛日本） */}
+        <RailIcon
+          icon={JapanGlyph}
+          active={activePanel === "japan"}
+          onClick={() => togglePanel("japan")}
+          tooltip="日本 Japan"
         />
 
         {/* Locations */}
@@ -439,6 +455,28 @@ export function IconRailSidebar({
                 onClose={closePanel}
               />
             )}
+            {activePanel === "japan" && (
+              <LayersPanel
+                search={japanSearch}
+                onSearchChange={setJapanSearch}
+                themes={JAPAN_THEMES}
+                title="日本 Japan"
+                visibility={visibility}
+                lockedKeys={lockedKeys}
+                expandedLayer={expandedLayer}
+                viewMode={viewMode}
+                displayMode={displayMode}
+                getCount={getCount}
+                onLayerClick={onLayerClick}
+                onToggleVisibility={onToggleVisibility}
+                onViewModeChange={onViewModeChange}
+                onDisplayModeChange={onDisplayModeChange}
+                onHideTransport={onHideTransport}
+                onAllOff={onAllOff}
+                onBulkSetVisibility={onBulkSetVisibility}
+                onClose={closePanel}
+              />
+            )}
             {activePanel === "locations" && (
               <LocationsPanel
                 search={locationSearch}
@@ -469,6 +507,23 @@ function WorldGlyph({ size = 20 }: { size?: number }) {
       <Globe
         size={badge}
         style={{ position: "absolute", right: -3, bottom: -3, strokeWidth: 2.5 }}
+      />
+    </span>
+  );
+}
+
+// 「日本」複合 icon：Layers 底 + 右下疊紅色日之丸圓盤（固定紅，不隨 active/dim 變色）。
+function JapanGlyph({ size = 20 }: { size?: number }) {
+  const disc = Math.round(size * 0.42);
+  return (
+    <span style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
+      <Layers size={size} />
+      <span
+        style={{
+          position: "absolute", right: -2, bottom: -2,
+          width: disc, height: disc, borderRadius: "50%",
+          background: "#bc002d",
+        }}
       />
     </span>
   );

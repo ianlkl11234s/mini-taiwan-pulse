@@ -162,6 +162,9 @@ const NO_LEGEND_LEDGER = new Set([
   // （tourAttractions / tourHotels / tourHeritage / tourEvents）已接 LEGEND_REGISTRY。
   "tourHotSprings", "tourHotSpringZones", "tourScenicAreas",
   "tourFactories", "tourAmusementParks", "tourCamping", "tourRestaurants",
+  // 日本 Japan Batch 2：行政區 2 層（單色灰階面）＋ 交通 2 層（單色 POI / 單色面），
+  // 皆無分類分色，本輪不做（見任務書「4 層都是單一顏色」）。
+  "jpAdminPrefecture", "jpAdminBoundaries", "jpStations", "jpAirports",
 ]);
 
 /**

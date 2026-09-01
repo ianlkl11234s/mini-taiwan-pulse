@@ -1223,7 +1223,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionGsi: {
     key: "jpReligionGsi",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "日本 Japan", group: "宗教" },
     label: "日本宗教設施 GSI",
     labelMobile: "日本宗教 GSI",
     expandable: true,
@@ -1250,7 +1250,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionOsm: {
     key: "jpReligionOsm",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "日本 Japan", group: "宗教" },
     label: "日本宗教設施 OSM",
     labelMobile: "日本宗教 OSM",
     expandable: true,
@@ -1277,7 +1277,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionWikidata: {
     key: "jpReligionWikidata",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "日本 Japan", group: "宗教" },
     label: "日本宗教設施 Wikidata",
     labelMobile: "日本宗教 Wikidata",
     expandable: true,
@@ -1300,6 +1300,114 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）",
     topics: ["世界", "日本", "宗教", "Wikidata"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  日本 Japan Batch 2 —— 行政區 2 層（PMTiles polygon）＋ 交通 2 層（車站/機場）
+  //  4 層皆單色（legend: null，見 layerConsistency 的 NO_LEGEND_LEDGER）
+  // ══════════════════════════════════════════════════════════════
+  jpAdminPrefecture: {
+    key: "jpAdminPrefecture",
+    section: { theme: "日本 Japan", group: "行政區" },
+    label: "日本都道府県界",
+    labelMobile: "日本縣界",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_admin_boundaries", confidence: "HIGH" }],
+      processing: "日本都道府県界 PMTiles，47 筆",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAdminLayers 自建 mapbox-pmtiles source；source-layer=jp_admin_boundaries_prefecture，minzoom=2 maxzoom=9",
+      staticAssets: ["./world/jp_admin_boundaries_prefecture.pmtiles"],
+    },
+    legend: null,
+    popup: "jpAdminPrefecture",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本都道府県界（47 筆）",
+    topics: ["世界", "日本", "行政區"],
+  },
+
+  jpAdminBoundaries: {
+    key: "jpAdminBoundaries",
+    section: { theme: "日本 Japan", group: "行政區" },
+    label: "日本市区町村界",
+    labelMobile: "日本市界",
+    expandable: true,
+    color: "#fbbf24",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_admin_boundaries", confidence: "HIGH" }],
+      processing: "日本市区町村界 PMTiles，1,905 筆",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAdminLayers 自建 mapbox-pmtiles source；source-layer=jp_admin_boundaries，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_admin_boundaries.pmtiles"],
+    },
+    legend: null,
+    popup: "jpAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本市区町村界（1,905 筆）",
+    topics: ["世界", "日本", "行政區"],
+  },
+
+  jpStations: {
+    key: "jpStations",
+    section: { theme: "日本 Japan", group: "交通" },
+    label: "日本車站",
+    labelMobile: "日本車站",
+    expandable: true,
+    color: "#38bdf8",
+    icon: TrainFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_stations", confidence: "HIGH" }],
+      processing: "日本車站靜態 GeoJSON，9,046 點；含路線／營運者／運量（2022-2024）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpStationsLayer lazy-load 靜態 GeoJSON，自建 circle source/layer",
+      staticAssets: ["./world/jp_stations.geojson"],
+    },
+    legend: null,
+    popup: "jpStations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本車站（9,046 點，含路線／營運者／運量）",
+    topics: ["世界", "日本", "交通", "車站"],
+  },
+
+  jpAirports: {
+    key: "jpAirports",
+    section: { theme: "日本 Japan", group: "交通" },
+    label: "日本機場",
+    labelMobile: "日本機場",
+    expandable: true,
+    color: "#a78bfa",
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_airports", confidence: "HIGH" }],
+      processing: "日本機場靜態 GeoJSON，108 面；空港種別／供用狀態／跑道規格",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAirportsLayer lazy-load 靜態 GeoJSON，自建 fill+line source/layer",
+      staticAssets: ["./world/jp_airports.geojson"],
+    },
+    legend: null,
+    popup: "jpAirports",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本機場（108 面，含空港種別／跑道規格）",
+    topics: ["世界", "日本", "交通", "機場"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），
