@@ -608,6 +608,7 @@
     },
     {
       "layers": [
+        "jp-airports-circle",
         "jp-airports-fill"
       ],
       "type": "jpAirports"
@@ -50840,6 +50841,21 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.5
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       }
     ],
     "jpReligionGsi": [

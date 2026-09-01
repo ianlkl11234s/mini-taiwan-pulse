@@ -45,10 +45,12 @@ export const JpStationsHost: LayerHostComponent = ({ deps }) => {
 export const JpAirportsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpAirportsLayer");
   const p = useKeyOverlayParams("jpAirports");
+  const displayMode = p.jpAirportsDisplayModeIdx === 1 ? "polygon" : "point";
   useJpAirportsLayer(
     deps.mapRef,
     deps.layerVisibility.jpAirports,
     p.jpAirportsOpacity ?? 0.5,
+    displayMode,
   );
   return null;
 };

@@ -1,5 +1,17 @@
 # Changelog — jp-core-layers
 
+## 2026-09-01 — jpAirports 樣式切換：點位（預設）／面（用戶回饋）
+
+機場 footprint polygon 在國家級 zoom 看不到 → 加「樣式」切換，預設點位。tsc + 963 測試綠（視覺待人工確認）。
+
+- hook `useJpAirportsLayer` 加 `displayMode: "point" | "polygon"`：
+  - 新增 `jp-airports-pt` point source（由 polygon feature 的 `longitude`/`latitude` 派生，`toPointFeatureCollection`）+ `jp-airports-circle` circle layer（#a78bfa，z6=4→z12=8）。
+  - 依模式切 fill/line（面）vs circle（點位）可見性；opacity 同步套兩者。
+- `JpAirportsHost` 讀 `overlayParams.jpAirportsDisplayModeIdx`（1=面/其餘=點位）。
+- layerParamsSpec `jpAirports` 加 select（樣式：點位/面，button row，預設 point）；manifest params 1→2。
+- gisClickRegistry jpAirports → `["jp-airports-circle","jp-airports-fill"]`（兩模式都可點 popup）。
+- legend 維持 null（顯示樣式非分色，不需圖例）。
+
 ## 2026-09-01 — jpStations 雙上色模式：種類（預設）／運量（用戶回饋）
 
 tsc -b + 963 測試綠。⚠️ 視覺（點色/圖例切換）尚待瀏覽器人工確認（headless @ref 不穩、eval 被 worktree 守衛擋，未能自驗）。

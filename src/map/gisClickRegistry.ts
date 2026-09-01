@@ -171,7 +171,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源）。
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
-  { layers: ["jp-airports-fill"], type: "jpAirports" },
+  { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },

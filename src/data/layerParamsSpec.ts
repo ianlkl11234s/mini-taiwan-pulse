@@ -1354,7 +1354,14 @@ export const LAYER_PARAMS_SPEC = {
       out: "jpStationsColorModeIdx", encode: JP_STATION_COLOR_MODES.map((m) => m.value),
     },
   ],
-  jpAirports: [opacitySlider("jpAirportsOpacity", 0.5)],
+  jpAirports: [
+    opacitySlider("jpAirportsOpacity", 0.5),
+    {
+      kind: "select", name: "jpAirportsDisplayMode", label: "樣式", default: "point",
+      options: [{ label: "點位", value: "point" }, { label: "面", value: "polygon" }],
+      out: "jpAirportsDisplayModeIdx", encode: ["point", "polygon"],
+    },
+  ],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
   ],
