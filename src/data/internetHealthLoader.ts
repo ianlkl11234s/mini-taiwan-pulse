@@ -19,6 +19,36 @@ export type InternetHealthConfidence = "low" | "medium" | "high" | "unknown";
 export type InternetHealthSourceKey = "cloudflare" | "ioda" | "ripe_atlas" | "ripe_ris" | "ncdr";
 export type InternetHealthSourceAvailability = "fresh" | "stale" | "missing" | "restricted";
 export type InternetHealthRowType = "detector" | "evidence" | "official" | "unknown";
+export type InternetHealthAssessmentPhase = "assessed" | "baseline_building" | "insufficient_data";
+export type InternetHealthMeasurementFreshness = "fresh" | "stale" | "unavailable";
+export type InternetHealthMeasurementState = "available" | "baseline_building" | "partial" | "unavailable" | "missing";
+export type InternetHealthMeasurementQualityState = "ready" | "baseline_building" | "partial" | "unavailable";
+export type InternetHealthMeasurementSignal =
+  | "probe_connectivity_ratio_ipv4" | "probe_connectivity_ratio_ipv6"
+  | "ping_success_ratio_ipv4" | "ping_success_ratio_ipv6"
+  | "median_rtt_ms_ipv4" | "median_rtt_ms_ipv6"
+  | "reachable_asn_ratio_ipv4" | "reachable_asn_ratio_ipv6"
+  | "prefix_visibility_ratio_ipv4" | "prefix_visibility_ratio_ipv6"
+  | "withdrawn_prefix_ratio_ipv4" | "withdrawn_prefix_ratio_ipv6"
+  | "origin_change_count_ipv4" | "origin_change_count_ipv6";
+
+export interface InternetHealthMeasurement {
+  source_key: "ripe_atlas" | "ripe_ris";
+  dependency_group: "ripe_ncc";
+  signal: InternetHealthMeasurementSignal;
+  address_family: 4 | 6;
+  value: number | null;
+  unit: "ratio" | "milliseconds" | "count";
+  sample_count: number | null;
+  confidence: InternetHealthConfidence;
+  confidence_score: number | null;
+  observed_at: string | null;
+  source_updated_at: string | null;
+  age_seconds: number | null;
+  freshness: InternetHealthMeasurementFreshness;
+  state: InternetHealthMeasurementState;
+  quality_state: InternetHealthMeasurementQualityState | null;
+}
 
 export interface InternetHealthEvidence {
   row_type: InternetHealthRowType;
@@ -69,6 +99,7 @@ export interface InternetHealthSourceSummary {
   confidence_score: number | null;
   sample_count: number | null;
   evidence_count: number;
+  dependency_group: "ripe_ncc" | null;
 }
 
 export interface InternetHealthIncident {
@@ -89,6 +120,7 @@ export interface InternetHealthSummary {
   confidence: InternetHealthConfidence;
   confidence_score: number | null;
   summary: string;
+  assessment_phase: InternetHealthAssessmentPhase;
   last_updated_at: string | null;
   fresh_source_count: number;
   public_source_total: number;
@@ -99,6 +131,7 @@ export interface InternetHealthSummary {
   restricted_evidence_families: string[];
   sources: InternetHealthSourceSummary[];
   incidents: InternetHealthIncident[];
+  measurements: InternetHealthMeasurement[];
   evidence: InternetHealthEvidence[];
 }
 
@@ -115,12 +148,42 @@ const SOURCE_KEYS: readonly InternetHealthSourceKey[] = [
 ];
 
 /**
- * Production public RPC policy (2026-08-31): IODA and both RIPE provider rows
- * stay internal-only. The detector may disclose family names/freshness in its
- * public-safe metadata, but the UI must not infer or reveal provider metrics.
+ * IODA remains internal-only. RIPE rows may be returned by the public RPC only
+ * after the platform allowlist approves their exact signal; this loader repeats
+ * that allowlist so a policy regression cannot expose arbitrary provider data.
  */
 const RESTRICTED_SOURCE_KEYS = new Set<InternetHealthSourceKey>([
-  "ioda", "ripe_atlas", "ripe_ris",
+  "ioda",
+]);
+
+const RIPE_SIGNAL_UNITS: Record<InternetHealthMeasurementSignal, InternetHealthMeasurement["unit"]> = {
+  probe_connectivity_ratio_ipv4: "ratio",
+  probe_connectivity_ratio_ipv6: "ratio",
+  ping_success_ratio_ipv4: "ratio",
+  ping_success_ratio_ipv6: "ratio",
+  median_rtt_ms_ipv4: "milliseconds",
+  median_rtt_ms_ipv6: "milliseconds",
+  reachable_asn_ratio_ipv4: "ratio",
+  reachable_asn_ratio_ipv6: "ratio",
+  prefix_visibility_ratio_ipv4: "ratio",
+  prefix_visibility_ratio_ipv6: "ratio",
+  withdrawn_prefix_ratio_ipv4: "ratio",
+  withdrawn_prefix_ratio_ipv6: "ratio",
+  origin_change_count_ipv4: "count",
+  origin_change_count_ipv6: "count",
+};
+
+const RIPE_ATLAS_SIGNALS = new Set<InternetHealthMeasurementSignal>([
+  "probe_connectivity_ratio_ipv4", "probe_connectivity_ratio_ipv6",
+  "ping_success_ratio_ipv4", "ping_success_ratio_ipv6",
+  "median_rtt_ms_ipv4", "median_rtt_ms_ipv6",
+  "reachable_asn_ratio_ipv4", "reachable_asn_ratio_ipv6",
+]);
+
+const RIPE_RIS_SIGNALS = new Set<InternetHealthMeasurementSignal>([
+  "prefix_visibility_ratio_ipv4", "prefix_visibility_ratio_ipv6",
+  "withdrawn_prefix_ratio_ipv4", "withdrawn_prefix_ratio_ipv6",
+  "origin_change_count_ipv4", "origin_change_count_ipv6",
 ]);
 
 const SOURCE_FAMILIES: Record<InternetHealthSourceKey, readonly string[]> = {
@@ -224,6 +287,45 @@ function rowTypeOf(value: unknown, evidenceFamily: string | null): InternetHealt
   return "unknown";
 }
 
+function normalizeMeasurementQualityState(value: unknown): InternetHealthMeasurementQualityState | null {
+  const state = text(value)?.toLowerCase();
+  if (state === "stream_gap" || state === "empty") return "unavailable";
+  return state === "ready" || state === "baseline_building" || state === "partial" || state === "unavailable"
+    ? state
+    : null;
+}
+
+function safeMetadata(
+  raw: Record<string, unknown>,
+  rowType: InternetHealthRowType,
+  sourceKey: InternetHealthSourceKey | "other",
+): Record<string, unknown> {
+  const metadata = isRecord(raw.metadata) ? raw.metadata : {};
+  if (sourceKey === "ripe_atlas" || sourceKey === "ripe_ris") {
+    const rawMeasurementState = metadata.measurement_state ?? metadata.quality_state;
+    const measurementState = normalizeMeasurementQualityState(rawMeasurementState);
+    if (measurementState) return { measurement_state: measurementState };
+    // A present but unknown quality state is not equivalent to no state: fail closed.
+    return rawMeasurementState == null ? {} : { measurement_state: "unavailable" };
+  }
+  if (rowType !== "detector") return {};
+  const out: Record<string, unknown> = {};
+  if (typeof metadata.normal_quorum_met === "boolean") out.normal_quorum_met = metadata.normal_quorum_met;
+  for (const key of [
+    "fresh_evidence_families", "stale_evidence_families", "restricted_evidence_families",
+    "dependency_groups", "decision_reasons",
+  ] as const) {
+    const values = stringArray(metadata[key]);
+    if (values.length) out[key] = values;
+  }
+  const detectorVersion = text(metadata.detector_version);
+  const evidenceClassCount = num(metadata.evidence_class_count);
+  if (detectorVersion !== null) out.detector_version = detectorVersion;
+  if (evidenceClassCount !== null) out.evidence_class_count = evidenceClassCount;
+  if (typeof metadata.coverage_gate_met === "boolean") out.coverage_gate_met = metadata.coverage_gate_met;
+  return out;
+}
+
 /** 單列 parser；欄位缺失時保守保留 null，不補 0。 */
 export function parseInternetHealthEvidence(raw: unknown): InternetHealthEvidence | null {
   if (!isRecord(raw)) return null;
@@ -237,15 +339,17 @@ export function parseInternetHealthEvidence(raw: unknown): InternetHealthEvidenc
   const effective = normalizeInternetHealthStatus(raw.effective_status);
   const status = isStale ? "unknown" : effective;
   const evidenceFamily = text(raw.evidence_family);
+  const rowType = rowTypeOf(raw.row_type, evidenceFamily);
+  const sourceKey = sourceKeyOf(source);
 
   return {
-    row_type: rowTypeOf(raw.row_type, evidenceFamily),
+    row_type: rowType,
     source_observation_id: text(raw.source_observation_id),
     entity_type: entityType,
     entity_id: entityId,
     entity_name: text(raw.entity_name),
     source,
-    source_key: sourceKeyOf(source),
+    source_key: sourceKey,
     evidence_family: evidenceFamily,
     signal: text(raw.signal),
     reported_status: text(raw.reported_status),
@@ -265,7 +369,7 @@ export function parseInternetHealthEvidence(raw: unknown): InternetHealthEvidenc
     is_stale: isStale,
     active_incident_id: text(raw.active_incident_id),
     incident_status: text(raw.incident_status),
-    metadata: isRecord(raw.metadata) ? raw.metadata : {},
+    metadata: safeMetadata(raw, rowType, sourceKey),
   };
 }
 
@@ -342,8 +446,11 @@ function sourceSummary(
   metadata: DetectorMetadataSummary,
 ): InternetHealthSourceSummary {
   const sourceRows = rows.filter((row) => row.source_key === key);
-  const freshRows = sourceRows.filter((row) => !row.is_stale && row.status !== "unknown");
-  const restricted = RESTRICTED_SOURCE_KEYS.has(key) || familyListed(key, metadata.restrictedFamilies);
+  // Freshness is transport recency, not a judgment. Fresh RIPE rows commonly
+  // have effective_status=unknown while a baseline is still being built.
+  const freshRows = sourceRows.filter((row) => !row.is_stale);
+  const restricted = RESTRICTED_SOURCE_KEYS.has(key)
+    || (sourceRows.length === 0 && familyListed(key, metadata.restrictedFamilies));
   const status = restricted ? "unknown" : worstStatus(freshRows);
   const candidates = freshRows.filter((row) => row.status === status);
   const notable = [...(candidates.length ? candidates : sourceRows)].sort((a, b) => {
@@ -377,6 +484,102 @@ function sourceSummary(
     confidence_score: restricted ? null : conservativeConfidenceScore(candidates),
     sample_count: restricted ? null : (notable?.sample_count ?? null),
     evidence_count: sourceRows.length,
+    dependency_group: key === "ripe_atlas" || key === "ripe_ris" ? "ripe_ncc" : null,
+  };
+}
+
+function ripeSignal(row: InternetHealthEvidence): InternetHealthMeasurementSignal | null {
+  const signal = row.signal as InternetHealthMeasurementSignal | null;
+  if (!signal) return null;
+  if (row.source_key === "ripe_atlas" && RIPE_ATLAS_SIGNALS.has(signal)) return signal;
+  if (row.source_key === "ripe_ris" && RIPE_RIS_SIGNALS.has(signal)) return signal;
+  return null;
+}
+
+function validSampleCount(value: number | null): number | null {
+  return value !== null && Number.isInteger(value) && value >= 0 ? value : null;
+}
+
+function validMeasurementValue(
+  value: number | null,
+  unit: InternetHealthMeasurement["unit"],
+): number | null {
+  if (value === null) return null;
+  if (unit === "ratio") return value >= 0 && value <= 1 ? value : null;
+  if (unit === "milliseconds") return value >= 0 ? value : null;
+  return Number.isInteger(value) && value >= 0 ? value : null;
+}
+
+function toRipeMeasurement(row: InternetHealthEvidence): InternetHealthMeasurement | null {
+  const signal = ripeSignal(row);
+  if (!signal || (row.source_key !== "ripe_atlas" && row.source_key !== "ripe_ris")) return null;
+  const isVisibility = signal.startsWith("prefix_visibility_ratio_");
+  const unit = RIPE_SIGNAL_UNITS[signal];
+  const qualityState = normalizeMeasurementQualityState(row.metadata.measurement_state);
+  const sampleCount = validSampleCount(row.sample_count);
+  const validatedValue = validMeasurementValue(row.value, unit);
+  const hasUsableWindow = row.source_updated_at !== null && sampleCount !== null && sampleCount > 0;
+  let value: number | null = validatedValue;
+  let state: InternetHealthMeasurementState;
+  if (isVisibility && (qualityState !== "ready" || !hasUsableWindow || validatedValue === null)) {
+    value = null;
+    state = "baseline_building";
+  } else if (qualityState === "partial") {
+    // A partial window may retain a clearly labelled value, but is never CURRENT.
+    state = "partial";
+  } else if (qualityState === "baseline_building") {
+    value = null;
+    state = "baseline_building";
+  } else if (qualityState === "unavailable" || !hasUsableWindow) {
+    value = null;
+    state = "unavailable";
+  } else if (validatedValue === null) {
+    state = "missing";
+  } else {
+    state = "available";
+  }
+  const freshness: InternetHealthMeasurementFreshness = row.is_stale
+    ? "stale"
+    : state !== "available"
+      ? "unavailable"
+      : "fresh";
+  return {
+    source_key: row.source_key,
+    dependency_group: "ripe_ncc",
+    signal,
+    address_family: signal.endsWith("_ipv6") ? 6 : 4,
+    value,
+    unit,
+    sample_count: sampleCount,
+    confidence: row.confidence,
+    confidence_score: row.confidence_score,
+    observed_at: row.observed_at,
+    source_updated_at: row.source_updated_at,
+    age_seconds: row.age_seconds,
+    freshness,
+    state,
+    quality_state: qualityState,
+  };
+}
+
+function safeRipeEvidence(row: InternetHealthEvidence): InternetHealthEvidence | null {
+  const measurement = toRipeMeasurement(row);
+  if (!measurement) return null;
+  return {
+    ...row,
+    source_observation_id: null,
+    signal: measurement.signal,
+    value: measurement.value,
+    unit: measurement.unit,
+    sample_count: measurement.sample_count,
+    source_updated_at: measurement.source_updated_at,
+    is_stale: measurement.freshness !== "fresh",
+    baseline_value: null,
+    change_ratio: null,
+    active_incident_id: null,
+    incident_status: null,
+    incident_kind: null,
+    metadata: measurement.quality_state ? { measurement_state: measurement.quality_state } : {},
   };
 }
 
@@ -386,7 +589,10 @@ function sourceSummary(
  * restricted provider rows (or an unknown future provider) into page memory.
  */
 function isPublicEvidence(row: InternetHealthEvidence): boolean {
-  if (row.row_type === "detector" || row.row_type === "official") return true;
+  // Provider identity wins over a forged/misclassified row_type.
+  if (row.source_key === "ioda" || row.source_key === "ripe_atlas" || row.source_key === "ripe_ris") return false;
+  if (row.row_type === "detector") return row.evidence_family === "composite";
+  if (row.row_type === "official") return row.source_key === "ncdr";
   return row.source_key === "cloudflare" || row.source_key === "ncdr";
 }
 
@@ -417,11 +623,12 @@ function activeIncidents(rows: InternetHealthEvidence[]): InternetHealthIncident
   return [...byId.values()].sort((a, b) => STATUS_RANK[b.severity] - STATUS_RANK[a.severity]);
 }
 
-function summaryText(status: InternetHealthStatus): string {
+function summaryText(status: InternetHealthStatus, phase: InternetHealthAssessmentPhase): string {
   if (status === "normal") return "多來源未見明顯網路異常";
   if (status === "watch") return "部分訊號需要持續觀察";
   if (status === "degraded") return "偵測到局部或服務品質下降";
   if (status === "outage") return "偵測到網路中斷訊號";
+  if (phase === "baseline_building") return "量測持續收集中，判定基準建立中";
   return "核心來源不足，暫時無法判斷";
 }
 
@@ -430,12 +637,19 @@ export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSum
   const parsedEvidence = Array.isArray(rawRows)
     ? rawRows.map(parseInternetHealthEvidence).filter((row): row is InternetHealthEvidence => row !== null)
     : [];
+  const measurements = parsedEvidence
+    .map(toRipeMeasurement)
+    .filter((measurement): measurement is InternetHealthMeasurement => measurement !== null);
+  const safeRipeRows = parsedEvidence
+    .map(safeRipeEvidence)
+    .filter((row): row is InternetHealthEvidence => row !== null);
   const evidence = parsedEvidence.filter(isPublicEvidence);
+  const publicRows = [...evidence, ...safeRipeRows];
   const freshEvidence = evidence.filter((row) => !row.is_stale && row.status !== "unknown");
   const freshDetectors = freshEvidence.filter((row) => row.row_type === "detector");
   const freshOfficial = freshEvidence.filter((row) => row.row_type === "official");
   const detectorMeta = detectorMetadata(freshDetectors);
-  const sources = SOURCE_KEYS.map((key) => sourceSummary(key, evidence, detectorMeta));
+  const sources = SOURCE_KEYS.map((key) => sourceSummary(key, publicRows, detectorMeta));
   // Provider evidence 是 detector 的輸入，不可蓋過 composite；NCDR active official evidence
   // 則保留為獨立正向中斷證據。
   const primaryRows = freshDetectors.length ? [...freshDetectors, ...freshOfficial] : freshEvidence;
@@ -453,13 +667,27 @@ export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSum
   }
   if (!primaryRows.length) overall = "unknown";
 
+  const assessmentPhase: InternetHealthAssessmentPhase = overall !== "unknown"
+    ? "assessed"
+    : measurements.some((measurement) => (
+        measurement.freshness === "fresh"
+        || measurement.state === "baseline_building"
+        || measurement.state === "partial"
+      ))
+      ? "baseline_building"
+      : "insufficient_data";
+
   const contributing = primaryRows.filter((row) => row.status === overall);
   return {
     overall_status: overall,
     confidence: conservativeConfidence(contributing),
     confidence_score: conservativeConfidenceScore(contributing),
-    summary: summaryText(overall),
-    last_updated_at: latestTimestamp(evidence),
+    summary: summaryText(overall, assessmentPhase),
+    assessment_phase: assessmentPhase,
+    last_updated_at: latestTimestamp([
+      ...evidence,
+      ...safeRipeRows.filter((row) => row.source_updated_at !== null),
+    ]),
     fresh_source_count: sources.filter((source) => source.fresh).length,
     public_source_total: sources.filter((source) => source.availability !== "restricted").length,
     source_total: sources.length,
@@ -469,6 +697,7 @@ export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSum
     restricted_evidence_families: detectorMeta.restrictedFamilies,
     sources,
     incidents: activeIncidents(evidence),
+    measurements,
     evidence,
   };
 }

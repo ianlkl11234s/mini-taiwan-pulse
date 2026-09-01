@@ -142,6 +142,190 @@ describe("internet health RPC contract", () => {
     expect(publicModel).not.toContain("2026-08-30T03:43:02Z");
   });
 
+  it("exposes only allowlisted RIPE measurements while keeping the assessment unknown", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source_observation_id: "atlas-private-id",
+        source: "ripe_atlas",
+        evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4",
+        effective_status: "unknown",
+        reported_status: "unknown",
+        value: 1,
+        unit: "provider_ratio",
+        sample_count: 18,
+        confidence: 0.82,
+        metadata: { measurement_ids: [1234], target_groups: ["secret-target"] },
+      }),
+      row({
+        source_observation_id: "ris-private-id",
+        source: "ripe_ris_live",
+        evidence_family: "ripe_ris",
+        signal: "withdrawn_prefix_ratio_ipv4",
+        effective_status: "unknown",
+        reported_status: "unknown",
+        value: 0,
+        unit: "provider_ratio",
+        sample_count: 1292,
+        metadata: { subscription_sha256: "private-sha", raw_archive_prefix: "private-path" },
+      }),
+      row({
+        source: "ripe_atlas",
+        evidence_family: "ripe_atlas",
+        signal: "not_public_probe_identifier",
+        value: 999,
+        metadata: { secret: "must-not-leak" },
+      }),
+    ]);
+
+    expect(summary.overall_status).toBe("unknown");
+    expect(summary.assessment_phase).toBe("baseline_building");
+    expect(summary.summary).toContain("基準建立中");
+    expect(summary.fresh_source_count).toBe(2);
+    expect(summary.public_source_total).toBe(4);
+    expect(summary.measurements).toEqual([
+      expect.objectContaining({
+        source_key: "ripe_atlas", dependency_group: "ripe_ncc",
+        signal: "ping_success_ratio_ipv4", value: 1, unit: "ratio",
+        address_family: 4, freshness: "fresh", state: "available", sample_count: 18,
+      }),
+      expect.objectContaining({
+        source_key: "ripe_ris", dependency_group: "ripe_ncc",
+        signal: "withdrawn_prefix_ratio_ipv4", value: 0, unit: "ratio",
+        address_family: 4, freshness: "fresh", state: "available", sample_count: 1292,
+      }),
+    ]);
+    expect(summary.evidence).toHaveLength(0);
+    expect(summary.sources.find((source) => source.key === "ripe_atlas")).toMatchObject({
+      availability: "fresh", fresh: true, status: "unknown", dependency_group: "ripe_ncc",
+    });
+    const publicModel = JSON.stringify(summary);
+    for (const forbidden of [
+      "atlas-private-id", "ris-private-id", "measurement_ids", "secret-target",
+      "subscription_sha256", "private-sha", "private-path", "must-not-leak",
+      "not_public_probe_identifier", "999", "provider_ratio",
+    ]) expect(publicModel).not.toContain(forbidden);
+  });
+
+  it("keeps null RIS visibility as a baseline-building null and stale measurements stale", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv6", effective_status: "unknown",
+        value: null, unit: "ratio", is_stale: false,
+      }),
+      row({
+        source: "ripe_atlas", evidence_family: "ripe_atlas",
+        signal: "median_rtt_ms_ipv6", effective_status: "unknown",
+        value: 37.5, unit: "milliseconds", is_stale: true,
+      }),
+    ]);
+    expect(summary.overall_status).toBe("unknown");
+    expect(summary.measurements).toEqual([
+      expect.objectContaining({
+        signal: "prefix_visibility_ratio_ipv6", value: null,
+        freshness: "unavailable", state: "baseline_building",
+      }),
+      expect.objectContaining({
+        signal: "median_rtt_ms_ipv6", value: 37.5,
+        freshness: "stale", state: "available",
+      }),
+    ]);
+    expect(summary.sources.find((source) => source.key === "ripe_atlas")).toMatchObject({
+      availability: "stale", fresh: false,
+    });
+  });
+
+  it("requires an explicit ready state before exposing non-null prefix visibility", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv4", effective_status: "unknown",
+        value: 0.97, sample_count: 300, metadata: {},
+      }),
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv6", effective_status: "unknown",
+        value: 0.91, sample_count: 240,
+        metadata: { measurement_state: "ready", subscription_sha256: "must-not-leak" },
+      }),
+    ]);
+    expect(summary.measurements).toEqual([
+      expect.objectContaining({
+        signal: "prefix_visibility_ratio_ipv4", value: null,
+        quality_state: null, state: "baseline_building", freshness: "unavailable",
+      }),
+      expect.objectContaining({
+        signal: "prefix_visibility_ratio_ipv6", value: 0.91,
+        quality_state: "ready", state: "available", freshness: "fresh",
+      }),
+    ]);
+    expect(JSON.stringify(summary)).not.toContain("subscription_sha256");
+    expect(JSON.stringify(summary)).not.toContain("must-not-leak");
+  });
+
+  it("does not call stream gaps, empty samples, or missing provider timestamps current", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", effective_status: "unknown",
+        value: 0, sample_count: 0, source_updated_at: null,
+        observed_at: "2026-08-30T04:00:00Z",
+        metadata: { quality_state: "stream_gap" },
+      }),
+      row({
+        source: "ripe_atlas", evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4", effective_status: "unknown",
+        value: 1, sample_count: 12, source_updated_at: null,
+        observed_at: "2026-08-30T04:00:00Z",
+        metadata: { quality_state: "ready" },
+      }),
+    ]);
+    expect(summary.measurements).toEqual([
+      expect.objectContaining({
+        signal: "origin_change_count_ipv4", value: null, freshness: "unavailable",
+        state: "unavailable", quality_state: "unavailable", sample_count: 0,
+      }),
+      expect.objectContaining({
+        signal: "ping_success_ratio_ipv4", value: null, freshness: "unavailable",
+        state: "unavailable", quality_state: "ready", source_updated_at: null,
+      }),
+    ]);
+    expect(summary.fresh_source_count).toBe(0);
+    expect(summary.last_updated_at).toBeNull();
+  });
+
+  it("fails closed on invalid values and non-integer or negative sample counts", () => {
+    const summary = aggregateInternetHealthRows([
+      row({
+        source: "ripe_atlas", evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4", effective_status: "unknown",
+        value: 1.01, sample_count: 2.5,
+      }),
+      row({
+        source: "ripe_atlas", evidence_family: "ripe_atlas",
+        signal: "median_rtt_ms_ipv4", effective_status: "unknown",
+        value: -0.1, sample_count: -1,
+      }),
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv6", effective_status: "unknown",
+        value: 1.5, sample_count: 20,
+      }),
+      row({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "withdrawn_prefix_ratio_ipv4", effective_status: "unknown",
+        value: 0, sample_count: 0,
+      }),
+    ]);
+    expect(summary.measurements).toEqual([
+      expect.objectContaining({ value: null, sample_count: null, freshness: "unavailable", state: "unavailable" }),
+      expect.objectContaining({ value: null, sample_count: null, freshness: "unavailable", state: "unavailable" }),
+      expect.objectContaining({ value: null, sample_count: 20, freshness: "unavailable", state: "missing" }),
+      expect.objectContaining({ value: null, sample_count: 0, freshness: "unavailable", state: "unavailable" }),
+    ]);
+  });
+
   it("does not treat NCDR no-alert row as proof of normal internet", () => {
     const summary = aggregateInternetHealthRows([
       row({ source: "ncdr", signal: "mobile_outage_alerts", value: 0, unit: "alerts" }),

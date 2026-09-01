@@ -12,6 +12,8 @@ import {
   fetchInternetHealthStatus,
   invalidateInternetHealthStatus,
   type InternetHealthIncident,
+  type InternetHealthMeasurement,
+  type InternetHealthMeasurementSignal,
   type InternetHealthSourceSummary,
   type InternetHealthStatus,
   type InternetHealthSummary,
@@ -64,6 +66,134 @@ function ageLabel(ageSeconds: number | null): string {
 function confidenceLabel(source: InternetHealthSourceSummary): string {
   const score = source.confidence_score == null ? "" : ` ${(source.confidence_score * 100).toFixed(0)}%`;
   return `${source.confidence}${score}`;
+}
+
+const MEASUREMENT_LABELS: Record<InternetHealthMeasurementSignal, string> = {
+  probe_connectivity_ratio_ipv4: "Probe 回報率",
+  probe_connectivity_ratio_ipv6: "Probe 回報率",
+  ping_success_ratio_ipv4: "Ping 成功率",
+  ping_success_ratio_ipv6: "Ping 成功率",
+  median_rtt_ms_ipv4: "中位 RTT",
+  median_rtt_ms_ipv6: "中位 RTT",
+  reachable_asn_ratio_ipv4: "可達 ASN 比率",
+  reachable_asn_ratio_ipv6: "可達 ASN 比率",
+  prefix_visibility_ratio_ipv4: "Prefix 可見度",
+  prefix_visibility_ratio_ipv6: "Prefix 可見度",
+  withdrawn_prefix_ratio_ipv4: "撤回 Prefix 比率",
+  withdrawn_prefix_ratio_ipv6: "撤回 Prefix 比率",
+  origin_change_count_ipv4: "Origin 變更",
+  origin_change_count_ipv6: "Origin 變更",
+};
+
+const ATLAS_SIGNALS: InternetHealthMeasurementSignal[] = [
+  "ping_success_ratio_ipv4", "ping_success_ratio_ipv6",
+  "median_rtt_ms_ipv4", "median_rtt_ms_ipv6",
+  "probe_connectivity_ratio_ipv4", "probe_connectivity_ratio_ipv6",
+  "reachable_asn_ratio_ipv4", "reachable_asn_ratio_ipv6",
+];
+
+const RIS_SIGNALS: InternetHealthMeasurementSignal[] = [
+  "prefix_visibility_ratio_ipv4", "prefix_visibility_ratio_ipv6",
+  "withdrawn_prefix_ratio_ipv4", "withdrawn_prefix_ratio_ipv6",
+  "origin_change_count_ipv4", "origin_change_count_ipv6",
+];
+
+function measurementValue(measurement: InternetHealthMeasurement | undefined): string {
+  if (!measurement || measurement.value == null) return "—";
+  if (measurement.unit === "ratio") return `${(measurement.value * 100).toFixed(1)}%`;
+  if (measurement.unit === "milliseconds") return `${measurement.value.toFixed(1)} ms`;
+  return measurement.value.toLocaleString("zh-TW", { maximumFractionDigits: 0 });
+}
+
+function measurementSampleLabel(measurement: InternetHealthMeasurement): string {
+  const count = measurement.sample_count?.toLocaleString("zh-TW") ?? "—";
+  if (measurement.source_key === "ripe_ris") return `BGP messages=${count}`;
+  if (measurement.signal.startsWith("reachable_asn_ratio_")) return `ASNs=${count}`;
+  if (measurement.signal.startsWith("median_rtt_ms_")) return `RTT samples=${count}`;
+  return `probes=${count}`;
+}
+
+function measurementStateLabel(measurement: InternetHealthMeasurement | undefined): string | null {
+  if (!measurement) return null;
+  if (measurement.state === "baseline_building") return "RIB 基準建立中";
+  if (measurement.state === "partial") return "PARTIAL";
+  if (measurement.state === "unavailable" || measurement.state === "missing") return "UNAVAILABLE";
+  return null;
+}
+
+function MeasurementCard({
+  title, subtitle, source, measurements, signals, nowTs,
+}: {
+  title: string;
+  subtitle: string;
+  source: InternetHealthSourceSummary | undefined;
+  measurements: InternetHealthMeasurement[];
+  signals: InternetHealthMeasurementSignal[];
+  nowTs: number;
+}) {
+  const current = measurements.filter((item) => item.freshness === "fresh").length;
+  const hasPartial = measurements.some((item) => item.state === "partial");
+  const hasBaseline = measurements.some((item) => item.state === "baseline_building");
+  const hasStale = measurements.some((item) => item.freshness === "stale");
+  const freshness = source?.availability === "restricted" ? "LIMITED"
+    : current > 0 ? "CURRENT"
+      : hasPartial ? "PARTIAL"
+        : hasBaseline ? "BASELINE"
+          : hasStale ? "STALE"
+            : measurements.length > 0 ? "UNAVAILABLE" : "NO DATA";
+  const freshnessColor = current > 0 ? "#22d3ee" : COLORS.textDim;
+  const pairs = signals.filter((_, index) => index % 2 === 0);
+  return (
+    <div
+      data-testid={`internet-health-measurements-${source?.key ?? "missing"}`}
+      style={{
+        minWidth: 0, padding: "11px 12px", borderRadius: RADIUS.xl,
+        border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.32)",
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+        <span>
+          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>{title}</b>
+          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>{subtitle}</span>
+        </span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: freshnessColor, letterSpacing: "0.8px" }}>{freshness}</span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(94px, 1.2fr) repeat(2, minmax(70px, 1fr))", gap: "5px 8px", marginTop: 10 }}>
+        <span />
+        {([4, 6] as const).map((family) => (
+          <span key={family} style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>IPv{family}</span>
+        ))}
+        {pairs.map((signal) => {
+          const base = signal.replace(/_ipv4$/, "");
+          const ipv4 = measurements.find((item) => item.signal === `${base}_ipv4`);
+          const ipv6 = measurements.find((item) => item.signal === `${base}_ipv6`);
+          return [
+            <span key={`${base}-label`} style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{MEASUREMENT_LABELS[signal]}</span>,
+            ...([ipv4, ipv6] as const).map((measurement, index) => (
+              <span key={`${base}-${index}`} style={{ minWidth: 0 }}>
+                <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: measurement?.freshness === "stale" ? COLORS.textFaint : COLORS.textDefault }}>
+                  {measurementValue(measurement)}
+                </b>
+                {measurementStateLabel(measurement) && (
+                  <span style={{ display: "block", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn }}>
+                    {measurementStateLabel(measurement)}
+                  </span>
+                )}
+                <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+                  {measurement ? `${measurement.freshness.toUpperCase()} · ${measurementSampleLabel(measurement)}` : "—"}
+                </span>
+                {measurement && (
+                  <span style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+                    {timeLabel(measurement.source_updated_at, nowTs)} · confidence {measurement.confidence}
+                  </span>
+                )}
+              </span>
+            )),
+          ];
+        })}
+      </div>
+    </div>
+  );
 }
 
 function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSummary; nowTs: number }) {
@@ -186,6 +316,9 @@ export function TelecomStatusCardView({
     ? "unknown"
     : (summary?.overall_status ?? "unknown");
   const meta = STATUS_META[effectiveStatus];
+  const baselineBuilding = phase === "ready" && summary?.assessment_phase === "baseline_building";
+  const statusLabel = baselineBuilding ? "建立基準中" : meta.label;
+  const statusEn = baselineBuilding ? "UNKNOWN · BASELINE BUILDING" : meta.en;
   const description = phase === "loading"
     ? "正在取得多來源觀測…"
     : phase === "error"
@@ -205,6 +338,12 @@ export function TelecomStatusCardView({
   const confidence = phase === "error" ? "unknown" : (summary?.confidence ?? "unknown");
   const confidenceScore = phase === "error" ? null : (summary?.confidence_score ?? null);
   const freshSourceCount = phase === "error" ? 0 : (summary?.fresh_source_count ?? 0);
+  const measurements = phase === "error" ? [] : (summary?.measurements ?? []);
+  const atlasSource = sources.find((source) => source.key === "ripe_atlas");
+  const risSource = sources.find((source) => source.key === "ripe_ris");
+  const supportingSources = sources.filter((source) => (
+    source.key === "cloudflare" || source.key === "ioda" || source.key === "ncdr"
+  ));
   const quorumLabel = phase === "error" || summary?.normal_quorum_met == null
     ? "—"
     : summary.normal_quorum_met ? "PASS" : "NO";
@@ -221,7 +360,7 @@ export function TelecomStatusCardView({
           gap: 14, alignItems: "stretch",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10, gridColumn: "1 / -1" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span
@@ -235,11 +374,11 @@ export function TelecomStatusCardView({
                 data-testid="internet-health-status-label"
                 style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: meta.color }}
               >
-                {meta.label}
+                {statusLabel}
               </span>
             </div>
             <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.6px", color: COLORS.textFaint }}>
-              {meta.en} · confidence {confidence}{confidenceScore == null ? "" : ` ${(confidenceScore * 100).toFixed(0)}%`}
+              {statusEn} · confidence {confidence}{confidenceScore == null ? "" : ` ${(confidenceScore * 100).toFixed(0)}%`}
             </div>
           </div>
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.45, color: COLORS.textMuted }}>
@@ -267,13 +406,31 @@ export function TelecomStatusCardView({
           </div>
         </div>
 
+        <div
+          style={{
+            gridColumn: "1 / -1", display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 10,
+          }}
+        >
+          <MeasurementCard
+            title="RIPE Atlas" subtitle="端到端主動量測 · RIPE NCC"
+            source={atlasSource} measurements={measurements.filter((item) => item.source_key === "ripe_atlas")}
+            signals={ATLAS_SIGNALS} nowTs={nowTs}
+          />
+          <MeasurementCard
+            title="RIPE RIS Live" subtitle="BGP 路由觀測 · RIPE NCC"
+            source={risSource} measurements={measurements.filter((item) => item.source_key === "ripe_ris")}
+            signals={RIS_SIGNALS} nowTs={nowTs}
+          />
+        </div>
+
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-            SOURCE EVIDENCE
+            SUPPORTING EVIDENCE
           </span>
-          {sources.length > 0
-            ? sources.map((source) => <SourceEvidenceRow key={source.key} source={source} nowTs={nowTs} />)
-            : (["Cloudflare Radar", "IODA", "RIPE Atlas", "RIPE RIS Live", "NCDR"] as const).map((label) => (
+          {supportingSources.length > 0
+            ? supportingSources.map((source) => <SourceEvidenceRow key={source.key} source={source} nowTs={nowTs} />)
+            : (["Cloudflare Radar", "IODA", "NCDR"] as const).map((label) => (
               <div key={label} style={{ padding: "7px 9px", borderRadius: RADIUS.lg, border: `1px solid ${COLORS.borderSoft}`, color: COLORS.textFaint, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm }}>
                 {label} · —
               </div>
@@ -298,7 +455,7 @@ export function TelecomStatusCardView({
               </div>
             )}
           <span style={{ marginTop: "auto", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, lineHeight: 1.4, color: COLORS.textFaint }}>
-            Cloudflare Radar + IODA + RIPE Atlas + RIPE RIS Live + NCDR；受限來源僅依綜合判定揭露 freshness，不公開明細。ASN／prefix 僅列文字，不推測服務範圍。
+            Atlas 與 RIS 同屬 RIPE NCC，不視為兩個獨立 quorum。量測 freshness 與狀態判讀分離；100% Ping、0 Origin 變更或 0 Withdrawal 都不能單獨推導為正常。ASN／prefix 僅列文字，不推測服務範圍。
           </span>
         </div>
       </div>

@@ -76,11 +76,79 @@ describe("TelecomStatusCardView", () => {
     expect(html).toContain("confidence high 91%");
     expect(html).toContain("1/2");
     expect(html).toContain("PASS");
-    expect(html).toContain("判定來源新鮮 · 明細不公開");
+    expect(html).toContain("LIMITED");
     expect(html).toContain("n=24");
     expect(html).toContain("confidence high 86%");
     expect(html).toContain("NCDR");
     expect(html).toContain("未通報／無資料");
+  });
+
+  it("renders RIPE measurements as primary cards without promoting perfect or zero values to normal", () => {
+    const summary = aggregateInternetHealthRows([
+      {
+        ...freshNormal("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "ping_success_ratio_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 1, unit: "ratio", sample_count: 18,
+      },
+      {
+        ...freshNormal("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "median_rtt_ms_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 23.4, unit: "milliseconds", sample_count: 17,
+      },
+      {
+        ...freshNormal("ripe_atlas"), evidence_family: "ripe_atlas",
+        signal: "reachable_asn_ratio_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 0.8, unit: "ratio", sample_count: 4,
+      },
+      {
+        ...freshNormal("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: null, unit: "ratio", sample_count: 1292,
+      },
+      {
+        ...freshNormal("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "withdrawn_prefix_ratio_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 0, unit: "ratio", sample_count: 1292,
+      },
+      {
+        ...freshNormal("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 0, unit: "count", sample_count: 1292,
+      },
+    ]);
+    const html = renderCard(summary, "ready");
+    expect(html).toContain("建立基準中");
+    expect(html).toContain("UNKNOWN · BASELINE BUILDING");
+    expect(html).toContain("internet-health-measurements-ripe_atlas");
+    expect(html).toContain("internet-health-measurements-ripe_ris");
+    expect(html).toContain("Ping 成功率");
+    expect(html).toContain("100.0%");
+    expect(html).toContain("23.4 ms");
+    expect(html).toContain("RIB 基準建立中");
+    expect(html).toContain("0.0%");
+    expect(html).toContain("probes=18");
+    expect(html).toContain("RTT samples=17");
+    expect(html).toContain("ASNs=4");
+    expect(html).toContain("BGP messages=1,292");
+    expect(html).not.toContain("n=1292");
+    expect(html).toContain("Atlas 與 RIS 同屬 RIPE NCC");
+    expect(html).not.toContain("目前正常");
+  });
+
+  it("shows partial or untimed RIPE rows as unavailable instead of current", () => {
+    const summary = aggregateInternetHealthRows([
+      {
+        ...freshNormal("ripe_ris_live"), evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", effective_status: "unknown",
+        reported_status: "unknown", value: 0, sample_count: 0,
+        source_updated_at: null, metadata: { measurement_state: "partial" },
+      },
+    ]);
+    const html = renderCard(summary, "ready");
+    expect(html).toContain("PARTIAL");
+    expect(html).toContain("UNAVAILABLE · BGP messages=0");
+    expect(html).toContain("— · confidence high");
+    expect(html).not.toContain("CURRENT");
   });
 
   it("labels watch as suspected and distinguishes stale public evidence", () => {
@@ -96,7 +164,7 @@ describe("TelecomStatusCardView", () => {
     const html = renderCard(summary, "ready");
     expect(html).toContain("疑似異常");
     expect(html).toContain("資料逾時");
-    expect(html).toContain("判定來源逾時 · 明細不公開");
+    expect(html).toContain("LIMITED");
   });
 
   it("a refresh error overrides a previous normal snapshot", () => {
