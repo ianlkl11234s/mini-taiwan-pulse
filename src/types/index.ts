@@ -358,7 +358,8 @@ export type ExpandableLayerKey =
   | "pollutionSite"
   // 🌍 世界 World
   | "worldTrashDebris"
-  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata";
+  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+  | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -807,6 +808,8 @@ export interface FeatureInfo {
     | "worldTrashDebris"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
     | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+    // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
+    | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -1270,6 +1273,10 @@ export interface LayerVisibility {
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
+  jpAdminPrefecture: boolean;   // 日本都道府県界（PMTiles polygon，47 筆）
+  jpAdminBoundaries: boolean;   // 日本市区町村界（PMTiles polygon，1,905 筆）
+  jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
+  jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
 }
 
 // ── 空氣品質 ──

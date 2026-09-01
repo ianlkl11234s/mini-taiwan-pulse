@@ -127,7 +127,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-25：+1 = gfwDarkVessels（GFW SAR 未與 AIS 匹配偵測）。
     // 2026-08-26：+2 = ooklaMobileTaiwan / ooklaFixedTaiwan（台灣 z14/z16 PMTiles）。
     // 2026-08-28：+1 = gfwFishingEffort（DEV-only v4 shadow daily sample）。
-    expect(keys.length).toBe(388);
+    // 2026-09-01：+4 = jpAdminPrefecture / jpAdminBoundaries / jpStations / jpAirports
+    // （日本 Japan Batch 2：行政區 2 層 PMTiles + 交通 2 層 GeoJSON）。
+    expect(keys.length).toBe(392);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

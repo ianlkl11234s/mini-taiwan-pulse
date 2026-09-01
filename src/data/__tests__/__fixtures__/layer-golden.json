@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 388,
+    "keyCount": 392,
     "sections": [
       "gisLayers",
       "overlays",
@@ -584,6 +584,12 @@
     },
     {
       "layers": [
+        "jp-stations-circle"
+      ],
+      "type": "jpStations"
+    },
+    {
+      "layers": [
         "jp-religion-wikidata-circle"
       ],
       "type": "jpReligionWikidata"
@@ -599,6 +605,25 @@
         "jp-religion-gsi-circle"
       ],
       "type": "jpReligionGsi"
+    },
+    {
+      "layers": [
+        "jp-airports-circle",
+        "jp-airports-fill"
+      ],
+      "type": "jpAirports"
+    },
+    {
+      "layers": [
+        "jp-admin-municipality-fill"
+      ],
+      "type": "jpAdminBoundaries"
+    },
+    {
+      "layers": [
+        "jp-admin-prefecture-fill"
+      ],
+      "type": "jpAdminPrefecture"
     },
     {
       "layers": [
@@ -50791,6 +50816,48 @@
         "value": 0.35
       }
     ],
+    "jpAdminBoundaries": [
+      {
+        "label": "透明度 0.15",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.15
+      }
+    ],
+    "jpAdminPrefecture": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpAirports": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.5
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
     "jpReligionGsi": [
       {
         "label": "透明度 0.60",
@@ -50837,6 +50904,37 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "jpStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "上色",
+        "options": [
+          {
+            "label": "種類",
+            "value": "type"
+          },
+          {
+            "label": "運量",
+            "value": "ridership"
+          }
+        ],
+        "type": "select",
+        "value": "type"
       }
     ],
     "lakesPondsOsm": [

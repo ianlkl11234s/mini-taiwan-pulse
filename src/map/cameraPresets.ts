@@ -292,6 +292,21 @@ export const DEFAULT_CAMERA: CameraPreset = {
   zoom: 12.5,
 };
 
+/**
+ * 「日本 Japan」rail tab 打開時 flyTo 的相機（clone SatelliteConsole 自動飛台灣模式）。
+ * 刻意不放進 ALL_PRESETS —— 只給 App 的 onJapanOpen flyTo 用，不在 Locations 面板多長一顆按鈕。
+ * 座標為主要島嶼中心估算；含沖繩可改用 fitBounds([[127.6,26.2],[146.5,45.8]])。上瀏覽器目視微調。
+ */
+export const JAPAN_CAMERA: CameraPreset = {
+  name: "日本",
+  id: "japan",
+  category: "overview",
+  center: [137.5, 37.5],
+  zoom: 4.7,
+  pitch: 0,
+  bearing: 0,
+};
+
 export function getPresetById(id: string): CameraPreset | undefined {
   return ALL_PRESETS.find((p) => p.id === id);
 }

@@ -69,6 +69,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
+import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -1341,6 +1342,25 @@ export const LAYER_PARAMS_SPEC = {
   jpReligionWikidata: [
     { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
+  ],
+  jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
+  jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
+  jpStations: [
+    opacitySlider("jpStationsOpacity", 0.85),
+    scaleSlider("jpStationsScale", 1),
+    {
+      kind: "select", name: "jpStationsColorMode", label: "上色", default: "type",
+      options: JP_STATION_COLOR_MODES.map((m) => ({ label: m.label, value: m.value })),
+      out: "jpStationsColorModeIdx", encode: JP_STATION_COLOR_MODES.map((m) => m.value),
+    },
+  ],
+  jpAirports: [
+    opacitySlider("jpAirportsOpacity", 0.5),
+    {
+      kind: "select", name: "jpAirportsDisplayMode", label: "樣式", default: "point",
+      options: [{ label: "點位", value: "point" }, { label: "面", value: "polygon" }],
+      out: "jpAirportsDisplayModeIdx", encode: ["point", "polygon"],
+    },
   ],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },

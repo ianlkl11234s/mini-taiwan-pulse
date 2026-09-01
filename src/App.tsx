@@ -52,7 +52,7 @@ import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { getH3Resolution } from "./map/h3LayerFactory";
-import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
+import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
@@ -1651,6 +1651,16 @@ export default function App() {
               }}
               monitorSplitActive={monitorOpen && monitorMode === "split"}
               compactLayers={monitorOpen && monitorMode === "split"}
+              onJapanOpen={() => {
+                mapRef.current?.flyTo({
+                  center: JAPAN_CAMERA.center,
+                  zoom: JAPAN_CAMERA.zoom,
+                  pitch: JAPAN_CAMERA.pitch,
+                  bearing: JAPAN_CAMERA.bearing,
+                  speed: 1.0,
+                });
+                setLayerVisibility((prev) => (prev.jpAdminPrefecture ? prev : { ...prev, jpAdminPrefecture: true }));
+              }}
             />
           </div>
 
