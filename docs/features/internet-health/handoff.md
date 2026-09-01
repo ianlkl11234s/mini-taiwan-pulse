@@ -125,7 +125,7 @@ RIPE-only 時間軸修改 loader、卡片、共用 sparkline 的 opt-in 明示�
 
 1. 確認 migration 已 apply，且 RPC 用 anonymous session 呼叫 country/TW 能回 fresh detector；只有
    `public_rpc_enabled=true` 且 signal 在 public allowlist 的 provider rows 才能回傳，IODA 缺席是預期政策。
-2. 啟動前端並開啟 Monitor；`RIPE NCC 網路觀察 · NETWORK OBSERVATION` 應位於事件區下方、全寬，
+2. 啟動前端並開啟 Monitor；`RIPE NCC 網路觀察 · NETWORK OBSERVATION` 應位於 TRA DELAY 後方、Monitor 尾端全寬，
    且卡片內不得出現 Cloudflare／IODA／NCDR／supporting evidence／active incidents。
 3. 在 browser Network 面板確認 current request 是 `get_internet_health_status`；timeline request 是
    `get_internet_health_timeseries`，固定 country/TW 且只含選定的 RIPE IPv4／IPv6 signals。

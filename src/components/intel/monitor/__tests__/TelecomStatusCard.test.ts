@@ -143,7 +143,8 @@ describe("TelecomStatusCardView", () => {
       },
     ]);
     const html = renderCard(summary, "ready");
-    expect(html).toContain("RIPE 量測中");
+    expect(html).toContain("網路穩定度");
+    expect(html).not.toContain("RIPE 量測中");
     expect(html).toContain("5/14");
     expect(html).toContain("2/2");
     expect(html).toContain("100.0%");

@@ -83,9 +83,10 @@ export const MONITOR_SPLIT_CAMERA = {
  * 結構：**上半 2 欄（兩欄同止於 y17）＋ 下半以全寬為主的縱向流**
  *   y0–16   newsFeed(w6)     | timeline → alertBoard → hotZones（右欄三段）
  *           triage(w6, y14)  |
- *   y17–    internetHealth → liveWall → hazardStrip → 颱風（全寬）→ 其餘三卡（一列 w4）→ foodPriceBoard
+ *   y17–    liveWall → hazardStrip → 颱風（全寬）→ 其餘三卡（一列 w4）→ foodPriceBoard
  *           → taiex|situationCards → prison|airportPax → powerCard
  *           → erCongestion → situationOverview → plaBoard
+ *           → 特殊船舶 → ISR → 台鐵 → internetHealth
  *
  * 下半刻意走全寬：窄欄（~415px）放不下影像牆與趨勢圖，全寬（~835px）才讀得出來。
  * 全寬區塊之間都是乾淨的水平切線，guillotine 拆解不會有互卡。
@@ -106,7 +107,6 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "triage", x: 0, y: 14, w: 6, h: 3 },
 
   // ── 下半：全寬縱向流 ──
-  { i: "internetHealth", x: 0, y: 17, w: 12, h: 4, fit: "content" },
   { i: "liveWall", x: 0, y: 21, w: 12, h: 13, fit: "content" },
   { i: "hazardStrip", x: 0, y: 34, w: 12, h: 7, fit: "content" },
   // 颱風卡獨立一列全寬（2026-08-16）：它有上下兩排趨勢圖（接近程度 + 1000km 內顆數），
@@ -132,6 +132,8 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "isrSatellitePasses", x: 0, y: 114, w: 12, h: 8, fit: "content" },
   // 台鐵誤點（2026-08-22）：窄版底部沿用全寬堆疊，不影響「兩欄同止」規則。
   { i: "traDelay", x: 0, y: 122, w: 12, h: 8, fit: "content" },
+  // RIPE 網路觀察接在 TRA DELAY 後方，維持尾端全寬。
+  { i: "internetHealth", x: 0, y: 130, w: 12, h: 4, fit: "content" },
 ];
 
 /**
