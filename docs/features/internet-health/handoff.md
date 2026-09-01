@@ -119,7 +119,29 @@ overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` a
 9. 用 stream gap、sample count 0、缺 `source_updated_at` 與 visibility 非 null 但缺 `ready` fixture，驗證
    不顯示 CURRENT、不 fallback `observed_at`，且 visibility 仍為 `— / RIB 基準建立中`。
 
-## Production truth（2026-08-31）
+## Production truth（2026-09-01）
+
+- Release：PR #195 已 merge，master commit 為 `04507604d2e2ef42cfa3703ab3248622a68678e5`；
+  Zeabur deployment `6a966e532aa889148228eae4` 為 `RUNNING`，control plane 的 commit SHA 與 master
+  一致。正式網址為 `https://mini-taiwan-pulse.itsmigu.com/`。
+- DB contract：migration 384 已完成 production apply、rollback fixture 與 verify。Anon status current
+  正好回傳 14 個核准的 RIPE country/TW signal，24 小時 timeseries 為 3,186 列；IODA、非 TW scope、
+  內部 IDs、額外 metadata 與 provider 判讀欄位均為 0。
+- Browser：production Monitor 已顯示 RIPE Atlas／RIPE RIS Live 兩張主卡，以及 Cloudflare／IODA／NCDR
+  supporting evidence。量測值、母體 sample、資料時間與 freshness 可見；null 維持 `—`，RIS prefix
+  visibility 顯示「RIB 基準建立中」。
+- 狀態語意：production 當下同時出現 100% Ping 與 0 次 Origin 變更，總體仍為
+  `UNKNOWN / 建立基準中`；Atlas/RIS 同屬 RIPE NCC，不構成兩個獨立 normal quorum。Partial/stale rows
+  沒有被標成 CURRENT，也沒有補 0 或推導「臺灣網路正常」。
+- Public-safety gate：`measurement_ids`、`target_groups`、`source_observation_id`、`observation_id`、
+  `subscription_sha256`、`archive_path`、`provider_values`、`forbidden_secret` 八個 markers 全部未出現；
+  production console errors 為 0。
+
+此 snapshot 證明安全的 RIPE 聚合量測已可在 production 前端直接查看；它仍只是觀測值與 freshness，
+不是「正常／斷網」的最終判讀。Composite detector、coverage baseline 與 incident lifecycle 尚未 production，
+因此目前維持 UNKNOWN 是刻意的 fail-closed 行為。
+
+## Previous production truth（2026-08-31）
 
 - Release：PR #192 已 merge，master baseline 為 `553446598b423822698ff3991b1fc86e28aa9844`。
   Zeabur production deployment `6a9541f89ed7d65609e25e16` 為 `RUNNING`，正式網址為
