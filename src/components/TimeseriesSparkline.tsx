@@ -15,6 +15,11 @@ export interface SparklinePoint {
 
 export interface TimeseriesSparklineProps {
   data: SparklinePoint[];
+  /**
+   * X 軸明示的 half-open 時間範圍 [from, to)（unix seconds）。
+   * 僅在 from/to 皆為 finite 且 from < to 時生效；無效值回退到既有 data 首尾範圍。
+   */
+  timeDomain?: { from: number; to: number };
   /** value 單位（例：m / cm / mm） */
   unit?: string;
   /** 警戒值（畫紅色水平虛線）；不傳則不畫 */
@@ -71,6 +76,25 @@ export function computeCombinedYRange(
     vMax = Math.max(vMax, warningValue);
   }
   return { vMin, vMax };
+}
+
+/**
+ * X 軸值域（純函式，可獨立測試）。不傳或傳入無效 domain 時，逐位元沿用既有 data 首尾算法。
+ */
+export function computeTimeRange(
+  data: SparklinePoint[],
+  timeDomain?: { from: number; to: number },
+): { tMin: number; tMax: number } | null {
+  if (data.length === 0) return null;
+  if (
+    timeDomain
+    && Number.isFinite(timeDomain.from)
+    && Number.isFinite(timeDomain.to)
+    && timeDomain.from < timeDomain.to
+  ) {
+    return { tMin: timeDomain.from, tMax: timeDomain.to };
+  }
+  return { tMin: data[0]!.t, tMax: data[data.length - 1]!.t };
 }
 
 /** 缺口分段（沿用主線舊邏輯，抽出後主線與 extraSeries 共用） */
@@ -172,6 +196,7 @@ function fmtTooltipValue(v: number, unit: string): string {
 
 export function TimeseriesSparkline({
   data,
+  timeDomain,
   unit = "",
   warningValue = null,
   warningLabel = "警戒",
@@ -208,8 +233,7 @@ export function TimeseriesSparkline({
 
   const view = useMemo(() => {
     if (data.length === 0) return null;
-    const tMin = data[0]!.t;
-    const tMax = data[data.length - 1]!.t;
+    const { tMin, tMax } = computeTimeRange(data, timeDomain)!;
     // Y 值域把 extraSeries（如有）與警戒線一起納入，否則第二條線／警戒線可能跑出畫面
     const { vMin, vMax } = computeCombinedYRange(data, extraSeries?.data, warningValue)!;
     // 給 vMax 留 10% 空間，避免最高點貼頂
@@ -274,7 +298,7 @@ export function TimeseriesSparkline({
     }
 
     return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, timeTicks };
-  }, [data, warningValue, height, w, gapSec, extraSeries]);
+  }, [data, timeDomain, warningValue, height, w, gapSec, extraSeries]);
 
   function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
     if (!showTooltip || !view || data.length === 0) return;

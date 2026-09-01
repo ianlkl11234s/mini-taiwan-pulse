@@ -1,33 +1,33 @@
 /**
- * 台灣電信與網路狀態卡。
+ * RIPE NCC 臺灣網路觀察卡。
  *
- * 這是 Monitor widget，不是地圖 layer：ASN / country 狀態只顯示文字證據，
- * 不建立 Mapbox source，也不推測 coverage geometry。
+ * Atlas / RIS 都屬同一個 RIPE NCC dependency group；這裡只呈現量測與歷史，
+ * 不把單一來源的漂亮數字推導成「臺灣網路正常」，也不建立任何推測 geometry。
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { COLORS, FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import {
   fetchInternetHealthStatus,
+  fetchInternetHealthTimeline,
   invalidateInternetHealthStatus,
-  type InternetHealthIncident,
+  invalidateInternetHealthTimelineCache,
   type InternetHealthMeasurement,
   type InternetHealthMeasurementSignal,
-  type InternetHealthSourceSummary,
-  type InternetHealthStatus,
   type InternetHealthSummary,
+  type InternetHealthTimelineMetric,
+  type InternetHealthTimelineRange,
+  type InternetHealthTimelineSource,
+  type InternetHealthTimelineSummary,
 } from "../../../data/internetHealthLoader";
 
 export type InternetHealthPhase = "loading" | "ready" | "error";
+type TimelinePhase = "loading" | "ready" | "error";
 
-const STATUS_META: Record<InternetHealthStatus, { label: string; en: string; color: string; tint: string }> = {
-  normal: { label: "目前正常", en: "NORMAL", color: COLORS.statusLive, tint: "rgba(34,197,94,0.07)" },
-  watch: { label: "疑似異常", en: "WATCH", color: COLORS.statusWarn, tint: "rgba(250,204,21,0.07)" },
-  degraded: { label: "局部異常", en: "DEGRADED", color: "#fb923c", tint: "rgba(251,146,60,0.08)" },
-  outage: { label: "中斷訊號", en: "OUTAGE", color: COLORS.statusErr, tint: "rgba(239,68,68,0.09)" },
-  unknown: { label: "資料不足", en: "UNKNOWN", color: COLORS.textDim, tint: "rgba(148,163,184,0.05)" },
-};
+const RIPE_CYAN = "#22d3ee";
+const IPV6_VIOLET = "#a78bfa";
 
 function timeLabel(iso: string | null, nowTs: number): string {
   if (!iso) return "—";
@@ -35,37 +35,16 @@ function timeLabel(iso: string | null, nowTs: number): string {
   return Number.isFinite(ts) ? relTime(ts, nowTs) : "—";
 }
 
-function metricLabel(source: InternetHealthSourceSummary): string {
-  if (source.change_ratio != null) {
-    const pct = source.change_ratio * 100;
-    return `${pct > 0 ? "+" : ""}${pct.toFixed(Math.abs(pct) < 10 ? 1 : 0)}%`;
-  }
-  if (source.value == null) return "—";
-  return `${source.value.toLocaleString("zh-TW", { maximumFractionDigits: 2 })}${source.unit ? ` ${source.unit}` : ""}`;
+function unixTimeLabel(ts: number | null, nowTs: number): string {
+  return ts == null ? "—" : relTime(ts, nowTs);
 }
 
-function sourceStatusLabel(source: InternetHealthSourceSummary): string {
-  if (source.availability === "restricted") {
-    if (source.detector_fresh) return "判定來源新鮮 · 明細不公開";
-    if (source.detector_stale) return "判定來源逾時 · 明細不公開";
-    return "明細不公開 · freshness 未知";
-  }
-  if (source.availability === "stale") return "資料逾時";
-  if (source.availability === "missing") return source.key === "ncdr" ? "未通報／無資料" : "無資料";
-  return STATUS_META[source.status].label;
-}
-
-function ageLabel(ageSeconds: number | null): string {
-  if (ageSeconds == null || ageSeconds < 0) return "—";
-  if (ageSeconds < 60) return `${Math.round(ageSeconds)}s`;
-  if (ageSeconds < 3600) return `${Math.round(ageSeconds / 60)}m`;
-  if (ageSeconds < 86400) return `${(ageSeconds / 3600).toFixed(ageSeconds < 36_000 ? 1 : 0)}h`;
-  return `${(ageSeconds / 86400).toFixed(ageSeconds < 864_000 ? 1 : 0)}d`;
-}
-
-function confidenceLabel(source: InternetHealthSourceSummary): string {
-  const score = source.confidence_score == null ? "" : ` ${(source.confidence_score * 100).toFixed(0)}%`;
-  return `${source.confidence}${score}`;
+function newestMeasurementAt(measurements: InternetHealthMeasurement[]): string | null {
+  const timestamps = measurements
+    .map((item) => item.source_updated_at)
+    .filter((value): value is string => value != null && Number.isFinite(Date.parse(value)))
+    .sort((a, b) => Date.parse(b) - Date.parse(a));
+  return timestamps[0] ?? null;
 }
 
 const MEASUREMENT_LABELS: Record<InternetHealthMeasurementSignal, string> = {
@@ -122,11 +101,11 @@ function measurementStateLabel(measurement: InternetHealthMeasurement | undefine
 }
 
 function MeasurementCard({
-  title, subtitle, source, measurements, signals, nowTs,
+  title, subtitle, sourceKey, measurements, signals, nowTs,
 }: {
   title: string;
   subtitle: string;
-  source: InternetHealthSourceSummary | undefined;
+  sourceKey: "ripe_atlas" | "ripe_ris";
   measurements: InternetHealthMeasurement[];
   signals: InternetHealthMeasurementSignal[];
   nowTs: number;
@@ -135,17 +114,16 @@ function MeasurementCard({
   const hasPartial = measurements.some((item) => item.state === "partial");
   const hasBaseline = measurements.some((item) => item.state === "baseline_building");
   const hasStale = measurements.some((item) => item.freshness === "stale");
-  const freshness = source?.availability === "restricted" ? "LIMITED"
-    : current > 0 ? "CURRENT"
-      : hasPartial ? "PARTIAL"
-        : hasBaseline ? "BASELINE"
-          : hasStale ? "STALE"
-            : measurements.length > 0 ? "UNAVAILABLE" : "NO DATA";
-  const freshnessColor = current > 0 ? "#22d3ee" : COLORS.textDim;
+  const freshness = current > 0 ? "CURRENT"
+    : hasPartial ? "PARTIAL"
+      : hasBaseline ? "BASELINE"
+        : hasStale ? "STALE"
+          : measurements.length > 0 ? "UNAVAILABLE" : "NO DATA";
   const pairs = signals.filter((_, index) => index % 2 === 0);
+
   return (
     <div
-      data-testid={`internet-health-measurements-${source?.key ?? "missing"}`}
+      data-testid={`internet-health-measurements-${sourceKey}`}
       style={{
         minWidth: 0, padding: "11px 12px", borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.32)",
@@ -156,7 +134,7 @@ function MeasurementCard({
           <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>{title}</b>
           <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>{subtitle}</span>
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: freshnessColor, letterSpacing: "0.8px" }}>{freshness}</span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: current > 0 ? RIPE_CYAN : COLORS.textDim, letterSpacing: "0.8px" }}>{freshness}</span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(94px, 1.2fr) repeat(2, minmax(70px, 1fr))", gap: "5px 8px", marginTop: 10 }}>
         <span />
@@ -196,267 +174,235 @@ function MeasurementCard({
   );
 }
 
-function SourceEvidenceRow({ source, nowTs }: { source: InternetHealthSourceSummary; nowTs: number }) {
-  const meta = STATUS_META[source.fresh ? source.status : "unknown"];
-  const restricted = source.availability === "restricted";
-  const timestamp = source.source_updated_at ?? source.observed_at;
+const RANGE_LABELS: Record<InternetHealthTimelineRange, string> = { "24h": "24H", "7d": "7D", "30d": "30D" };
+
+const SOURCE_LABELS: Record<InternetHealthTimelineSource, string> = {
+  ripe_atlas: "RIPE Atlas",
+  ripe_ris: "RIPE RIS Live",
+};
+
+const METRIC_OPTIONS: Record<InternetHealthTimelineSource, { value: InternetHealthTimelineMetric; label: string }[]> = {
+  ripe_atlas: [
+    { value: "ping_success_ratio", label: "Ping 成功率" },
+    { value: "median_rtt_ms", label: "中位 RTT" },
+    { value: "probe_connectivity_ratio", label: "Probe 回報率" },
+    { value: "reachable_asn_ratio", label: "可達 ASN 比率" },
+  ],
+  ripe_ris: [
+    { value: "prefix_visibility_ratio", label: "Prefix 可見度" },
+    { value: "withdrawn_prefix_ratio", label: "撤回 Prefix 比率" },
+    { value: "origin_change_count", label: "Origin 變更" },
+  ],
+};
+
+function chartUnit(summary: InternetHealthTimelineSummary): string {
+  if (summary.unit === "ratio") return "%";
+  if (summary.unit === "milliseconds") return "ms";
+  return "次";
+}
+
+function toSparkline(summary: InternetHealthTimelineSummary, family: 4 | 6): SparklinePoint[] {
+  const series = family === 4 ? summary.ipv4 : summary.ipv6;
+  const ratio = summary.unit === "ratio";
+  return series.points.flatMap((point) => (
+    point.state === "ready" && point.value != null
+      ? [{ t: point.at, v: ratio ? point.value * 100 : point.value }]
+      : []
+  ));
+}
+
+function coverageLabel(value: number): string {
+  return `${(value * 100).toFixed(value < 0.1 ? 1 : 0)}%`;
+}
+
+export function RipeTimelineView({
+  summary, phase, range, source, metric, nowTs,
+  onRangeChange, onSourceChange, onMetricChange,
+}: {
+  summary: InternetHealthTimelineSummary | null;
+  phase: TimelinePhase;
+  range: InternetHealthTimelineRange;
+  source: InternetHealthTimelineSource;
+  metric: InternetHealthTimelineMetric;
+  nowTs: number;
+  onRangeChange?: (range: InternetHealthTimelineRange) => void;
+  onSourceChange?: (source: InternetHealthTimelineSource) => void;
+  onMetricChange?: (metric: InternetHealthTimelineMetric) => void;
+}) {
+  const displayedSummary = summary?.range === range && summary.source === source && summary.metric === metric
+    ? summary
+    : null;
+  const ipv4 = displayedSummary ? toSparkline(displayedSummary, 4) : [];
+  const ipv6 = displayedSummary ? toSparkline(displayedSummary, 6) : [];
+  const hasIPv4 = ipv4.length > 0;
+  const primary = hasIPv4 ? ipv4 : ipv6;
+  const secondary = hasIPv4 ? ipv6 : [];
+  const primaryFamily = hasIPv4 ? 4 : 6;
+  const metricLabel = METRIC_OPTIONS[source].find((item) => item.value === metric)?.label ?? metric;
+  // 兩個 ready 點中間只缺一格時相距 2 buckets；門檻必須 < 2 才會誠實斷線。
+  const gapSec = displayedSummary ? displayedSummary.bucketSeconds * 1.5 : undefined;
+
   return (
-    <div
-      data-testid={`internet-health-source-${source.key}`}
-      style={{
-        display: "grid", gridTemplateColumns: "minmax(110px, 1fr) auto",
-        alignItems: "center", columnGap: 9, rowGap: 2, padding: "7px 9px", borderRadius: RADIUS.lg,
-        background: "rgba(255,255,255,0.025)", border: `1px solid ${COLORS.borderSoft}`,
-      }}
-    >
-      <span style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>
-        <span
-          style={{
-            width: 7, height: 7, borderRadius: RADIUS.full, background: meta.color,
-            boxShadow: source.fresh ? `0 0 5px ${meta.color}` : "none", flexShrink: 0,
-          }}
-        />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
-            color: COLORS.textDefault, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}
-        >
-          {source.label}
+    <div data-testid="ripe-internet-health-timeline" style={{ gridColumn: "1 / -1", padding: "12px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, background: "rgba(2,8,23,0.42)", minWidth: 0 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10, flexWrap: "wrap" }}>
+        <span>
+          <b style={{ display: "block", fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>RIPE 歷史量測</b>
+          <span style={{ display: "block", marginTop: 2, fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>觀察趨勢與資料缺口 · 不單獨判定全臺正常或斷網</span>
         </span>
-        {restricted && (
-          <span
-            style={{
-              padding: "1px 5px", borderRadius: RADIUS.full, border: `1px solid ${COLORS.borderMid}`,
-              color: COLORS.textDim, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-              letterSpacing: "0.6px", flexShrink: 0,
-            }}
-          >
-            LIMITED
-          </span>
+        <span style={{ display: "flex", gap: 4 }}>
+          {(Object.keys(RANGE_LABELS) as InternetHealthTimelineRange[]).map((item) => {
+            const selected = item === range;
+            return (
+              <button key={item} type="button" aria-pressed={selected} onClick={() => onRangeChange?.(item)} style={{ border: `1px solid ${selected ? RIPE_CYAN : COLORS.borderMid}`, borderRadius: RADIUS.md, padding: "4px 8px", cursor: "pointer", background: selected ? "rgba(34,211,238,0.12)" : "rgba(255,255,255,0.02)", color: selected ? RIPE_CYAN : COLORS.textDim, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs }}>
+                {RANGE_LABELS[item]}
+              </button>
+            );
+          })}
+        </span>
+      </div>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+        <span style={{ display: "flex", gap: 4 }}>
+          {(Object.keys(SOURCE_LABELS) as InternetHealthTimelineSource[]).map((item) => {
+            const selected = item === source;
+            return (
+              <button key={item} type="button" aria-pressed={selected} onClick={() => onSourceChange?.(item)} style={{ border: 0, borderBottom: `1px solid ${selected ? RIPE_CYAN : "transparent"}`, padding: "4px 5px", cursor: "pointer", background: "transparent", color: selected ? COLORS.textDefault : COLORS.textDim, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs }}>
+                {SOURCE_LABELS[item]}
+              </button>
+            );
+          })}
+        </span>
+        <label style={{ marginLeft: "auto", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          指標{" "}
+          <select aria-label="RIPE 時間軸指標" value={metric} onChange={(event) => onMetricChange?.(event.target.value as InternetHealthTimelineMetric)} style={{ marginLeft: 4, minHeight: 27, padding: "3px 24px 3px 7px", borderRadius: RADIUS.md, border: `1px solid ${COLORS.borderMid}`, background: "#09101d", color: COLORS.textDefault, fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs }}>
+            {METRIC_OPTIONS[source].map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+          </select>
+        </label>
+      </div>
+
+      <div style={{ minHeight: 148, marginTop: 8 }}>
+        {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>正在載入 {SOURCE_LABELS[source]} {RANGE_LABELS[range]} 歷史量測…</div>}
+        {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.statusWarn, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>歷史量測暫時無法更新；目前數值仍可繼續查看</div>}
+        {phase === "ready" && (!displayedSummary || displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
+        {phase === "ready" && displayedSummary && primary.length > 0 && (
+          <TimeseriesSparkline
+            data={primary}
+            timeDomain={{ from: displayedSummary.from, to: displayedSummary.to }}
+            unit={chartUnit(displayedSummary)}
+            height={142}
+            gapSec={gapSec}
+            fillArea
+            lineColor={primaryFamily === 4 ? RIPE_CYAN : IPV6_VIOLET}
+            seriesLabel={`IPv${primaryFamily}`}
+            extraSeries={secondary.length > 0 ? { data: secondary, color: IPV6_VIOLET, label: "IPv6" } : undefined}
+            showTooltip
+          />
         )}
-      </span>
-      <span style={{ minWidth: 0, gridColumn: "1 / -1", gridRow: 2 }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: meta.color }}>
-          {sourceStatusLabel(source)}
-        </span>
-        <span
-          style={{
-            display: "block", marginTop: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-            color: COLORS.textFaint, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}
-          title={source.signal ?? undefined}
-        >
-          {restricted ? "detector evidence" : (source.signal ?? "—")} · {timestamp ? timeLabel(timestamp, nowTs) : "—"}
-        </span>
-        <span
-          style={{
-            display: "block", marginTop: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
-            color: COLORS.textFaint, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-          }}
-        >
-          age {ageLabel(source.age_seconds)} · n={source.sample_count?.toLocaleString("zh-TW") ?? "—"} · confidence {confidenceLabel(source)}
-        </span>
-      </span>
-      <span
-        style={{
-          gridColumn: 2, gridRow: 1,
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
-          color: source.fresh ? meta.color : COLORS.textFaint, whiteSpace: "nowrap",
-        }}
-      >
-        {restricted ? "—" : metricLabel(source)}
-      </span>
+      </div>
+
+      <div style={{ display: "flex", gap: "6px 14px", flexWrap: "wrap", alignItems: "center", marginTop: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: RIPE_CYAN }} />IPv4</span>
+        <span><i style={{ display: "inline-block", width: 9, height: 2, marginRight: 5, verticalAlign: "middle", background: IPV6_VIOLET }} />IPv6</span>
+        <span>IPv4 coverage {displayedSummary ? coverageLabel(displayedSummary.ipv4.coverage) : "—"}</span>
+        <span>IPv6 coverage {displayedSummary ? coverageLabel(displayedSummary.ipv6.coverage) : "—"}</span>
+        <span>最後回報 {displayedSummary ? unixTimeLabel(displayedSummary.latestAt, nowTs) : "—"}</span>
+        {displayedSummary?.partial && <span style={{ color: COLORS.statusWarn }}>含缺口／部分資料</span>}
+        {displayedSummary?.truncated && <span style={{ color: COLORS.statusErr }}>回傳達上限，圖表不完整</span>}
+      </div>
     </div>
   );
 }
 
-const INCIDENT_KIND_LABELS: Record<string, string> = {
-  single_asn_outage: "單一電信商異常",
-  multi_asn_partial_outage: "多家電信商局部異常",
-  national_outage: "全臺大規模中斷",
-  international_path_degradation: "國際路徑異常",
-  selective_service_blocking: "特定服務異常",
-};
+function RipeTimelinePanel({ open, nowTs }: { open: boolean; nowTs: number }) {
+  const [range, setRange] = useState<InternetHealthTimelineRange>("24h");
+  const [source, setSource] = useState<InternetHealthTimelineSource>("ripe_atlas");
+  const [metric, setMetric] = useState<InternetHealthTimelineMetric>("ping_success_ratio");
+  const [summary, setSummary] = useState<InternetHealthTimelineSummary | null>(null);
+  const [phase, setPhase] = useState<TimelinePhase>("loading");
 
-function IncidentRow({ incident, nowTs }: { incident: InternetHealthIncident; nowTs: number }) {
-  const meta = STATUS_META[incident.severity];
-  const kind = incident.kind ? (INCIDENT_KIND_LABELS[incident.kind] ?? incident.kind.replace(/_/g, " ")) : "網路異常";
-  const entity = incident.entity_name ?? incident.entity_id;
-  return (
-    <div
-      data-testid="internet-health-incident"
-      style={{
-        display: "flex", gap: 8, alignItems: "flex-start", padding: "6px 8px",
-        borderRadius: RADIUS.lg, background: meta.tint, border: `1px solid ${meta.color}44`,
-      }}
-    >
-      <span style={{ width: 7, height: 7, marginTop: 4, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
-      <span style={{ minWidth: 0, flex: 1 }}>
-        <span style={{ display: "block", fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>
-          {entity} · {kind}
-        </span>
-        <span style={{ display: "block", marginTop: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-          {incident.source} · {timeLabel(incident.observed_at, nowTs)} · confidence {incident.confidence}
-        </span>
-      </span>
-    </div>
-  );
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    let latestRequest = 0;
+    const tick = (force = false) => {
+      const requestId = ++latestRequest;
+      if (force) invalidateInternetHealthTimelineCache();
+      setSummary(null);
+      setPhase("loading");
+      fetchInternetHealthTimeline({ range, source, metric })
+        .then((next) => {
+          if (cancelled || requestId !== latestRequest) return;
+          setSummary(next);
+          setPhase("ready");
+        })
+        .catch((error) => {
+          console.warn("[TelecomStatusCard] get_internet_health_timeseries failed", error);
+          if (!cancelled && requestId === latestRequest) setPhase("error");
+        });
+    };
+    tick();
+    const id = window.setInterval(() => tick(true), 5 * 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [metric, open, range, source]);
+
+  const handleSourceChange = (next: InternetHealthTimelineSource) => {
+    setSource(next);
+    setMetric(METRIC_OPTIONS[next][0]!.value);
+  };
+
+  return <RipeTimelineView summary={summary} phase={phase} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} />;
 }
 
 export function TelecomStatusCardView({
-  summary, phase, nowTs,
+  summary, phase, nowTs, timeline,
 }: {
   summary: InternetHealthSummary | null;
   phase: InternetHealthPhase;
   nowTs: number;
+  timeline?: ReactNode;
 }) {
-  // 載入失敗時即使留有上次成功資料，也不能繼續亮 normal。
-  const effectiveStatus: InternetHealthStatus = phase === "error"
-    ? "unknown"
-    : (summary?.overall_status ?? "unknown");
-  const meta = STATUS_META[effectiveStatus];
-  const baselineBuilding = phase === "ready" && summary?.assessment_phase === "baseline_building";
-  const statusLabel = baselineBuilding ? "建立基準中" : meta.label;
-  const statusEn = baselineBuilding ? "UNKNOWN · BASELINE BUILDING" : meta.en;
-  const description = phase === "loading"
-    ? "正在取得多來源觀測…"
-    : phase === "error"
-      ? "本次更新失敗，暫時無法判斷"
-      : (summary?.summary ?? "核心來源不足，暫時無法判斷");
-  const sources = (summary?.sources ?? []).map((source) => phase === "error"
-    ? {
-        ...source,
-        status: "unknown" as const,
-        fresh: false,
-        availability: source.availability === "restricted" ? "restricted" as const : "missing" as const,
-        detector_fresh: false,
-        detector_stale: false,
-      }
-    : source);
-  const incidents = summary?.incidents ?? [];
-  const confidence = phase === "error" ? "unknown" : (summary?.confidence ?? "unknown");
-  const confidenceScore = phase === "error" ? null : (summary?.confidence_score ?? null);
-  const freshSourceCount = phase === "error" ? 0 : (summary?.fresh_source_count ?? 0);
   const measurements = phase === "error" ? [] : (summary?.measurements ?? []);
-  const atlasSource = sources.find((source) => source.key === "ripe_atlas");
-  const risSource = sources.find((source) => source.key === "ripe_ris");
-  const supportingSources = sources.filter((source) => (
-    source.key === "cloudflare" || source.key === "ioda" || source.key === "ncdr"
-  ));
-  const quorumLabel = phase === "error" || summary?.normal_quorum_met == null
-    ? "—"
-    : summary.normal_quorum_met ? "PASS" : "NO";
+  const atlasMeasurements = measurements.filter((item) => item.source_key === "ripe_atlas");
+  const risMeasurements = measurements.filter((item) => item.source_key === "ripe_ris");
+  const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
+  const reportingFeeds = Number(atlasMeasurements.some((item) => item.freshness === "fresh")) + Number(risMeasurements.some((item) => item.freshness === "fresh"));
+  const latestAt = newestMeasurementAt(measurements);
+  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測暫時無法更新" : freshMetricCount > 0 ? "RIPE 量測中" : "等待 RIPE 量測";
+  const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : COLORS.textDim;
+  const description = phase === "error" ? "本次更新失敗；不沿用舊資料判定網路狀態。" : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
 
   return (
     <div data-testid="internet-health-card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <SectionLabel color="#22d3ee">電信與網路 · CONNECTIVITY</SectionLabel>
-      <div
-        style={{
-          borderRadius: RADIUS.xl, border: `1px solid ${meta.color}55`,
-          background: `linear-gradient(145deg, ${meta.tint}, rgba(255,255,255,0.012) 48%)`,
-          padding: "12px 14px", display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))",
-          gap: 14, alignItems: "stretch",
-        }}
-      >
+      <SectionLabel color={RIPE_CYAN}>RIPE NCC 網路觀察 · NETWORK OBSERVATION</SectionLabel>
+      <div style={{ borderRadius: RADIUS.xl, border: `1px solid ${statusColor}55`, background: "linear-gradient(145deg, rgba(34,211,238,0.055), rgba(255,255,255,0.012) 48%)", padding: "12px 14px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))", gap: 14, alignItems: "stretch" }}>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 10, gridColumn: "1 / -1" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span
-                data-testid="internet-health-status-dot"
-                style={{
-                  width: 12, height: 12, borderRadius: RADIUS.full, background: meta.color,
-                  boxShadow: effectiveStatus === "unknown" ? "none" : `0 0 8px ${meta.color}`,
-                }}
-              />
-              <span
-                data-testid="internet-health-status-label"
-                style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: meta.color }}
-              >
-                {statusLabel}
-              </span>
+              <span data-testid="internet-health-status-dot" style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: statusColor }} />
+              <span data-testid="internet-health-status-label" style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: statusColor }}>{statusLabel}</span>
             </div>
-            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.6px", color: COLORS.textFaint }}>
-              {statusEn} · confidence {confidence}{confidenceScore == null ? "" : ` ${(confidenceScore * 100).toFixed(0)}%`}
-            </div>
+            <div style={{ marginTop: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.6px", color: COLORS.textFaint }}>OBSERVATION ONLY · BASELINE BUILDING</div>
           </div>
-          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.45, color: COLORS.textMuted }}>
-            {description}
-          </div>
+          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, lineHeight: 1.45, color: COLORS.textMuted }}>{description}</div>
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-              FRESH PUBLIC<br />
-              <b style={{ fontSize: FONT_SIZE.md, color: COLORS.textDefault }}>
-                {freshSourceCount}/{summary?.public_source_total ?? 2}
-              </b>
-            </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-              NORMAL QUORUM<br />
-              <b style={{ fontSize: FONT_SIZE.sm, color: summary?.normal_quorum_met ? COLORS.statusLive : COLORS.textDefault }}>
-                {quorumLabel}
-              </b>
-            </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-              LAST UPDATE<br />
-              <b style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>
-                {timeLabel(summary?.last_updated_at ?? null, nowTs)}
-              </b>
-            </span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>FRESH METRICS<br /><b style={{ fontSize: FONT_SIZE.md, color: COLORS.textDefault }}>{freshMetricCount}/14</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>REPORTING FEEDS<br /><b style={{ fontSize: FONT_SIZE.md, color: COLORS.textDefault }}>{reportingFeeds}/2</b></span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>LAST RIPE UPDATE<br /><b style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{timeLabel(latestAt, nowTs)}</b></span>
           </div>
         </div>
 
-        <div
-          style={{
-            gridColumn: "1 / -1", display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 10,
-          }}
-        >
-          <MeasurementCard
-            title="RIPE Atlas" subtitle="端到端主動量測 · RIPE NCC"
-            source={atlasSource} measurements={measurements.filter((item) => item.source_key === "ripe_atlas")}
-            signals={ATLAS_SIGNALS} nowTs={nowTs}
-          />
-          <MeasurementCard
-            title="RIPE RIS Live" subtitle="BGP 路由觀測 · RIPE NCC"
-            source={risSource} measurements={measurements.filter((item) => item.source_key === "ripe_ris")}
-            signals={RIS_SIGNALS} nowTs={nowTs}
-          />
+        <div style={{ gridColumn: "1 / -1", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))", gap: 10 }}>
+          <MeasurementCard title="RIPE Atlas" subtitle="端到端主動量測 · RIPE NCC" sourceKey="ripe_atlas" measurements={atlasMeasurements} signals={ATLAS_SIGNALS} nowTs={nowTs} />
+          <MeasurementCard title="RIPE RIS Live" subtitle="BGP 路由觀測 · RIPE NCC" sourceKey="ripe_ris" measurements={risMeasurements} signals={RIS_SIGNALS} nowTs={nowTs} />
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-            SUPPORTING EVIDENCE
-          </span>
-          {supportingSources.length > 0
-            ? supportingSources.map((source) => <SourceEvidenceRow key={source.key} source={source} nowTs={nowTs} />)
-            : (["Cloudflare Radar", "IODA", "NCDR"] as const).map((label) => (
-              <div key={label} style={{ padding: "7px 9px", borderRadius: RADIUS.lg, border: `1px solid ${COLORS.borderSoft}`, color: COLORS.textFaint, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm }}>
-                {label} · —
-              </div>
-            ))}
-        </div>
+        {timeline}
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-            ACTIVE INCIDENTS
-          </span>
-          {incidents.length > 0
-            ? incidents.slice(0, 3).map((incident) => <IncidentRow key={incident.id} incident={incident} nowTs={nowTs} />)
-            : (
-              <div
-                style={{
-                  flex: 1, minHeight: 54, display: "flex", alignItems: "center", justifyContent: "center",
-                  borderRadius: RADIUS.lg, border: `1px dashed ${COLORS.borderMid}`,
-                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, textAlign: "center",
-                }}
-              >
-                {effectiveStatus === "normal" ? "目前沒有 active incident" : "沒有可確認的 incident 資料"}
-              </div>
-            )}
-          <span style={{ marginTop: "auto", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, lineHeight: 1.4, color: COLORS.textFaint }}>
-            Atlas 與 RIS 同屬 RIPE NCC，不視為兩個獨立 quorum。量測 freshness 與狀態判讀分離；100% Ping、0 Origin 變更或 0 Withdrawal 都不能單獨推導為正常。ASN／prefix 僅列文字，不推測服務範圍。
-          </span>
+        <div style={{ gridColumn: "1 / -1", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, lineHeight: 1.5, color: COLORS.textFaint }}>
+          Atlas 與 RIS 同屬 RIPE NCC，只算一個來源群組。CURRENT 只表示至少一項量測新鮮；100% Ping、0 Origin 變更或 0 Withdrawal 都不能單獨推導為正常。圖表缺口維持空白，不補成 0。
         </div>
       </div>
     </div>
@@ -491,5 +437,6 @@ export function TelecomStatusCard({ open, nowTs }: { open: boolean; nowTs: numbe
     };
   }, [open]);
 
-  return <TelecomStatusCardView summary={summary} phase={phase} nowTs={nowTs} />;
+  const timeline = useMemo(() => <RipeTimelinePanel open={open} nowTs={nowTs} />, [nowTs, open]);
+  return <TelecomStatusCardView summary={summary} phase={phase} nowTs={nowTs} timeline={timeline} />;
 }
