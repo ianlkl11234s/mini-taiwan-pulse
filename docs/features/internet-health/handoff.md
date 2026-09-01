@@ -143,25 +143,20 @@ RIPE-only 時間軸修改 loader、卡片、共用 sparkline 的 opt-in 明示�
 9. 用 stream gap、sample count 0、缺 `source_updated_at` 與 visibility 非 null 但缺 `ready` fixture，驗證
    不顯示 CURRENT、不 fallback `observed_at`，且 visibility 仍為 `— / RIB 基準建立中`。
 
-## Target release（RIPE-only timeline）
-
-- Branch：`codex/ripe-observation-timeline`。
-- 目標：Monitor 只顯示 RIPE Atlas／RIS current measurements 與 24H／7D／30D timeline；既有其他來源
-  仍在後端收集，但不構成此畫面。
-- 下方 Production truth 是上一版已部署證據；本段功能必須在 merge、Zeabur deploy 與 browser gate
-  完成後才能改寫為 production truth。
-
 ## Production truth（2026-09-01）
 
-- Release：PR #195 已 merge，master commit 為 `04507604d2e2ef42cfa3703ab3248622a68678e5`；
-  Zeabur deployment `6a966e532aa889148228eae4` 為 `RUNNING`，control plane 的 commit SHA 與 master
-  一致。正式網址為 `https://mini-taiwan-pulse.itsmigu.com/`。
+- Release：RIPE-only timeline PR #197 已 merge，master commit 為
+  `aa8e0fdba0714cd1638bc5c2a217fabfeddd3d35`；Zeabur deployment
+  `6a969ed00c6b9d6a226d9fdc` 為 `RUNNING`，control plane 的 commit SHA 與 master 一致。正式網址為
+  `https://mini-taiwan-pulse.itsmigu.com/`。
 - DB contract：migration 384 已完成 production apply、rollback fixture 與 verify。Anon status current
   正好回傳 14 個核准的 RIPE country/TW signal，24 小時 timeseries 為 3,186 列；IODA、非 TW scope、
   內部 IDs、額外 metadata 與 provider 判讀欄位均為 0。
-- Browser：production Monitor 已顯示 RIPE Atlas／RIPE RIS Live 兩張主卡，以及 Cloudflare／IODA／NCDR
-  supporting evidence。量測值、母體 sample、資料時間與 freshness 可見；null 維持 `—`，RIS prefix
-  visibility 顯示「RIB 基準建立中」。
+- Browser：production Monitor 只顯示 RIPE Atlas／RIPE RIS Live current cards 與
+  `24H / 7D / 30D` timeline；Cloudflare、IODA、NCDR 與 Active Incidents 均未出現在卡片。24H Atlas
+  Ping 的 IPv4／IPv6 coverage 均為 100%；30D 時間軸完整顯示 8/3 至 8/31，當下 Atlas coverage
+  為 3.5%、RIS Origin 變更 coverage 為 2.6%。這些低 coverage 反映資料剛開始累積，不代表網路異常。
+  RIS Prefix 可見度無可畫資料時明示「空白不是 0，也不代表異常」，時間缺口不補 0。
 - 狀態語意：production 當下同時出現 100% Ping 與 0 次 Origin 變更，總體仍為
   `UNKNOWN / 建立基準中`；Atlas/RIS 同屬 RIPE NCC，不構成兩個獨立 normal quorum。Partial/stale rows
   沒有被標成 CURRENT，也沒有補 0 或推導「臺灣網路正常」。
@@ -169,9 +164,9 @@ RIPE-only 時間軸修改 loader、卡片、共用 sparkline 的 opt-in 明示�
   `subscription_sha256`、`archive_path`、`provider_values`、`forbidden_secret` 八個 markers 全部未出現；
   production console errors 為 0。
 
-此 snapshot 證明安全的 RIPE 聚合量測已可在 production 前端直接查看；它仍只是觀測值與 freshness，
-不是「正常／斷網」的最終判讀。Composite detector、coverage baseline 與 incident lifecycle 尚未 production，
-因此目前維持 UNKNOWN 是刻意的 fail-closed 行為。
+此 snapshot 證明安全的 RIPE 聚合量測與時間軸已可在 production 前端直接查看；它仍只是觀測值與
+freshness，不是「正常／斷網」的最終判讀。30D 歷史需要持續收集約 30 天才會逐步補滿；在 coverage
+與 baseline 足夠以前，維持 observation-only 是刻意的 fail-closed 行為。
 
 ## Previous production truth（2026-08-31）
 
