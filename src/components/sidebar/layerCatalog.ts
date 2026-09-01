@@ -180,14 +180,17 @@ export const WORLD_TAB_THEME_TITLES: string[] = [
 ];
 
 /**
- * 「日本 Japan」主題 title —— 獨立 rail tab「日本」的唯一來源（clone 世界 tab 模式）。
- * 桌機主 Layers panel 用 JAPAN_TAB_THEME_TITLES 把日本 tab 的主題濾掉（只在日本 tab 出現），
- * 日本 tab 則只渲染這批主題。
+ * 「日本 Japan」rail tab 的抬頭名（LayersPanel 標題）。tab 本身已是「日本」，
+ * 故底下不再包一層「日本」主題，而是 行政區 / 交通 / 宗教 直接當頂層主題。
  */
 export const JAPAN_THEME_TITLE = "日本 Japan";
 
-/** 劃入「日本」rail tab 的主題清單。 */
-export const JAPAN_TAB_THEME_TITLES: string[] = [JAPAN_THEME_TITLE];
+/**
+ * 劃入「日本」rail tab 的主題清單（陣列順序＝日本 tab 內顯示順序）。
+ * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
+ * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
+ */
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "宗教"];
 
 /**
  * 完整目錄保留在此，避免為了 UI 敘事分段而搬動大量 layer 定義。
@@ -1439,29 +1442,43 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除此主題）
-  //    群組隨批次擴充：行政區 / 交通 / 教育 / 人口 / 宗教（Batch 1 先宗教 + 4 小層）
+  // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
+  //    tab 抬頭已是「日本 Japan」，故不再多包一層「日本」主題 ——
+  //    行政區 / 交通 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
+  //    主題隨批次擴充：教育 / 人口（schools / mesh 落地那批再加）。
   // ───────────────────────────────────────────────────────────────
   {
-    title: JAPAN_THEME_TITLE,
-    defaultCollapsed: true,
+    title: "行政區",
+    defaultCollapsed: false,
     groups: [
       {
-        title: "行政區",
+        title: "面",
         layers: [
           fromManifest("jpAdminPrefecture"),
           fromManifest("jpAdminBoundaries"),
         ],
       },
+    ],
+  },
+  {
+    title: "交通",
+    defaultCollapsed: false,
+    groups: [
       {
-        title: "交通",
+        title: "點位",
         layers: [
           fromManifest("jpStations"),
           fromManifest("jpAirports"),
         ],
       },
+    ],
+  },
+  {
+    title: "宗教",
+    defaultCollapsed: false,
+    groups: [
       {
-        title: "宗教",
+        title: "點位",
         layers: [
           fromManifest("jpReligionGsi"),
           fromManifest("jpReligionOsm"),
@@ -1522,7 +1539,10 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   [COMMUNICATIONS_THEME_TITLE]: "world",
   "全球氣候 Global Climate": "world",
   "全球海事 Global Maritime": "world",
-  [JAPAN_THEME_TITLE]: "world",
+  // 日本 tab 三主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
+  "行政區": "world",
+  "交通": "world",
+  "宗教": "world",
 };
 
 export function themeMacroGroup(title: string): LayerMacroGroup {

@@ -1,5 +1,19 @@
 # Changelog — jp-core-layers
 
+## 2026-09-01 — UX 修正：攤平主題結構 + 日本地圖 icon（用戶回饋）
+
+tsc -b + 963 測試綠；瀏覽器複驗結構與 icon。
+
+- **攤平主題結構**：原本是「單一『日本 Japan』主題 → 展開才見 行政區/交通/宗教 三 group」。
+  tab 抬頭已是「日本 Japan」，多包一層冗餘 → 改成 **行政區 / 交通 / 宗教 三個獨立主題直接並列**
+  （比照世界 tab 多主題），各帶一個子群（行政區→面、交通/宗教→點位），預設展開。
+  - manifest 7 層 section 改為 `{ theme: 行政區|交通|宗教, group: 面|點位 }`
+  - `JAPAN_TAB_THEME_TITLES = ["行政區","交通","宗教"]`（全域唯一字串，與台灣「交通 Move」「宗教 Religion」不同）
+  - THEME_MACRO_GROUPS 三主題皆 map 到 `"world"`；`JAPAN_THEME_TITLE` 保留為 tab 抬頭名
+  - 未動 LayersPanel 渲染（子群標籤靠既有 theme→group→layer 結構自然呈現）
+- **rail icon 換掉紅色日之丸**（看起來像未讀通知）→ twemoji 🗾 日本剪影
+  （© Twitter/jdecked，CC-BY 4.0；去藍底、改 currentColor 隨 active/dim 變色）。
+
 ## 2026-09-01 — Batch 1：日本 tab 外殼 + flyTo + 宗教搬移 + 4 小層（前端接線）
 
 分支 `worktree-japan-tab`（PR 前改 `feat/jp-core-layers`）。tsc -b + 全套 98 檔 963 測試綠。

@@ -1223,7 +1223,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionGsi: {
     key: "jpReligionGsi",
-    section: { theme: "日本 Japan", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 GSI",
     labelMobile: "日本宗教 GSI",
     expandable: true,
@@ -1250,7 +1250,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionOsm: {
     key: "jpReligionOsm",
-    section: { theme: "日本 Japan", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 OSM",
     labelMobile: "日本宗教 OSM",
     expandable: true,
@@ -1277,7 +1277,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionWikidata: {
     key: "jpReligionWikidata",
-    section: { theme: "日本 Japan", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 Wikidata",
     labelMobile: "日本宗教 Wikidata",
     expandable: true,
@@ -1308,7 +1308,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   jpAdminPrefecture: {
     key: "jpAdminPrefecture",
-    section: { theme: "日本 Japan", group: "行政區" },
+    section: { theme: "行政區", group: "面" },
     label: "日本都道府県界",
     labelMobile: "日本縣界",
     expandable: true,
@@ -1334,7 +1334,7 @@ export const LAYER_MANIFEST = {
 
   jpAdminBoundaries: {
     key: "jpAdminBoundaries",
-    section: { theme: "日本 Japan", group: "行政區" },
+    section: { theme: "行政區", group: "面" },
     label: "日本市区町村界",
     labelMobile: "日本市界",
     expandable: true,
@@ -1360,7 +1360,7 @@ export const LAYER_MANIFEST = {
 
   jpStations: {
     key: "jpStations",
-    section: { theme: "日本 Japan", group: "交通" },
+    section: { theme: "交通", group: "點位" },
     label: "日本車站",
     labelMobile: "日本車站",
     expandable: true,
@@ -1386,7 +1386,7 @@ export const LAYER_MANIFEST = {
 
   jpAirports: {
     key: "jpAirports",
-    section: { theme: "日本 Japan", group: "交通" },
+    section: { theme: "交通", group: "點位" },
     label: "日本機場",
     labelMobile: "日本機場",
     expandable: true,

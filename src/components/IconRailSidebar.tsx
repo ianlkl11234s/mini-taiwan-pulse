@@ -512,19 +512,31 @@ function WorldGlyph({ size = 20 }: { size?: number }) {
   );
 }
 
-// 「日本」複合 icon：Layers 底 + 右下疊紅色日之丸圓盤（固定紅，不隨 active/dim 變色）。
+// 「日本」rail icon：比照 WorldGlyph 的「Layers 底 + 右下角徽章」構圖 ——
+// 世界是 Layers＋地球，日本是 Layers＋右下「JP」圓徽（currentColor 隨 active/dim 變色，非紅點）。
+// 圓徽底色用 rail 背景做 knockout，讓 JP 兩字在 Layers 線條上仍清楚。
 function JapanGlyph({ size = 20 }: { size?: number }) {
-  const disc = Math.round(size * 0.42);
+  const { BG_RAIL } = useRailTheme();
+  const badge = Math.round(size * 0.66);
   return (
-    <span style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
+    // aria-hidden：「JP」是裝飾文字，button 名稱應走 RailIcon 的 title「日本 Japan」
+    // （否則 button 的 accessible name 會被可見文字 JP 蓋過）。
+    <span aria-hidden style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
       <Layers size={size} />
       <span
         style={{
-          position: "absolute", right: -2, bottom: -2,
-          width: disc, height: disc, borderRadius: "50%",
-          background: "#bc002d",
+          position: "absolute", right: -4, bottom: -4,
+          width: badge, height: badge, borderRadius: "50%",
+          background: BG_RAIL,
+          border: "1.5px solid currentColor",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: Math.round(badge * 0.5),
+          fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
+          fontFamily: "Inter, system-ui, sans-serif",
         }}
-      />
+      >
+        JP
+      </span>
     </span>
   );
 }
