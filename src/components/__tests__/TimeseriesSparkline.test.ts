@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeCombinedYRange, type SparklinePoint } from "../TimeseriesSparkline";
+import { computeCombinedYRange, computeTimeRange, type SparklinePoint } from "../TimeseriesSparkline";
 
 /**
  * TimeseriesSparkline 的 Y 值域計算是 view useMemo 內唯一被抽成純函式的部分
@@ -63,5 +63,44 @@ describe("computeCombinedYRange", () => {
     const extra: SparklinePoint[] = [{ t: 1, v: 200 }];
     const result = computeCombinedYRange(data, extra, -50);
     expect(result).toEqual({ vMin: -50, vMax: 200 });
+  });
+});
+
+describe("computeTimeRange", () => {
+  const day = 24 * 60 * 60;
+  const from = 1_700_000_000;
+  const data: SparklinePoint[] = [
+    { t: from + 10 * day, v: 10 },
+    { t: from + 20 * day, v: 20 },
+  ];
+
+  it("不傳 timeDomain 時沿用既有 data 首尾範圍", () => {
+    expect(computeTimeRange(data)).toEqual({
+      tMin: data[0]!.t,
+      tMax: data[data.length - 1]!.t,
+    });
+  });
+
+  it("明示 30d half-open domain 時使用完整 [from, to) 範圍", () => {
+    expect(computeTimeRange(data, { from, to: from + 30 * day })).toEqual({
+      tMin: from,
+      tMax: from + 30 * day,
+    });
+  });
+
+  it.each([
+    { from: 10, to: 10 },
+    { from: 11, to: 10 },
+    { from: Number.NaN, to: 10 },
+    { from: 0, to: Number.POSITIVE_INFINITY },
+  ])("無效 domain $from..$to 安全回退到既有範圍", (timeDomain) => {
+    expect(computeTimeRange(data, timeDomain)).toEqual({
+      tMin: data[0]!.t,
+      tMax: data[data.length - 1]!.t,
+    });
+  });
+
+  it("空資料維持 null，即使有明示 domain 也不渲染空圖", () => {
+    expect(computeTimeRange([], { from, to: from + 30 * day })).toBeNull();
   });
 });

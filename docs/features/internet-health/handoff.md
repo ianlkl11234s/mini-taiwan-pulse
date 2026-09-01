@@ -1,10 +1,13 @@
-# Handoff — 臺灣電信與網路狀態 MVP
+# Handoff — 臺灣 RIPE NCC 網路觀察
 
 ## 產品目的
 
-在 Monitor 顯示臺灣目前的電信與網路狀態。這是多來源狀態卡，不是地圖圖層：
-Cloudflare Radar、IODA、RIPE Atlas、RIPE RIS Live 與 NCDR evidence 只顯示文字／數值，
-不替 ASN、prefix、國家狀態或缺資料區域製造 geometry。
+在 Monitor 顯示臺灣目前的 RIPE NCC 網路量測與歷史趨勢。畫面只使用 RIPE Atlas 與
+RIPE RIS Live；Cloudflare Radar、IODA、NCDR 不再出現在這張卡，但既有 collector、資料與
+後端判讀契約都不停止或刪除。這不是地圖圖層，不替 ASN、prefix、國家狀態或缺資料區域製造 geometry。
+
+此畫面是 `OBSERVATION ONLY`：先呈現數值、freshness、coverage 與缺口，不把 RIPE 單一
+dependency group 直接判成「臺灣正常／斷網」。異常判讀待歷史基準與 detector 成熟後再加入。
 
 ## 上游契約
 
@@ -59,8 +62,9 @@ is_stale, active_incident_id, incident_status, metadata
   永遠不公開的 IODA provider row。Provider-only normal、stale composite 或缺 quorum metadata
   都必須顯示「資料不足」。
 - Atlas／RIS 以兩張主要量測卡顯示 allowlisted value、sample count、confidence、資料時間與 freshness；
-  Cloudflare／IODA／NCDR 是旁證。Freshness 與 judgment 分開：fresh unknown 只代表資料剛更新，總體仍可為
-  `UNKNOWN · BASELINE BUILDING`。null 顯示 `—`；RIS visibility null 額外顯示「RIB 基準建立中」。
+  Monitor 不顯示 Cloudflare／IODA／NCDR。Freshness 與 judgment 分開：fresh 只代表資料剛更新，
+  header 顯示 `OBSERVATION ONLY · BASELINE BUILDING`。null 顯示 `—`；RIS visibility null 額外顯示
+  「RIB 基準建立中」。
 - 100% Ping、0 Origin change 或 0 Withdrawal 都只是單一量測值，不能推導 `normal`。Atlas 與 RIS 同屬
   `ripe_ncc` dependency group，不當成兩個獨立 quorum。
 - Browser model 的 RIPE rows 不進 `summary.evidence`；只輸出 allowlisted `summary.measurements`，固定單位為
@@ -78,6 +82,21 @@ is_stale, active_incident_id, incident_status, metadata
 - Sample count 依 metric 標示其母體：Atlas probe connectivity／Ping 使用 `probes`、median RTT 使用
   `RTT samples`、ASN reachability 使用 `ASNs`、RIS 使用 `BGP messages`，不使用語意模糊的統一 `n=`。
 
+## RIPE 時間軸契約（2026-09-01）
+
+- RPC：`public.get_internet_health_timeseries`；固定 `country / TW`，只請求目前選定 metric 的
+  IPv4／IPv6 兩個 allowlisted signals，前端不直讀 `realtime.*`。
+- 範圍：`24H` 保留 5 分鐘 bucket、`7D` 聚合為 30 分鐘、`30D` 聚合為 2 小時。
+- 30D 拆成連續 half-open chunks 查詢並在前端去除重複邊界；任一 response 達 5,000 rows 即標為
+  truncated／partial，不冒充完整歷史。
+- Ratio 用 `sample_count` 加權平均；RTT 使用 median-of-medians；Origin change count 加總；
+  prefix visibility 取 bucket 內最後一筆 ready 值。
+- 缺資料、partial、unavailable、無 provider timestamp、`sample_count <= 0` 都維持 null／圖表斷線，
+  不補 0。coverage 是 ready 5 分鐘 observation ÷ expected 5 分鐘 observation，IPv4／IPv6 分開顯示；
+  7D／30D aggregate bucket 少任一底層 subslot 即標 partial，不冒充完整 bucket。
+- 所有 RPC 包在 `loadingRegistry`；range／source／metric keyed cache 4 分鐘，畫面每 5 分鐘重抓；
+  切換 Atlas／RIS 時只保留該來源合法 metric。
+
 既有 `ripeAtlasProbes` 是 3,000 點全球靜態 connected-probe metadata 概覽，座標經模糊化且有
 志願者偏差；本卡不以 country／ASN／BGP 狀態替探針染色。RIPE RIS prefix／ASN 也不建立 geometry。
 
@@ -89,35 +108,48 @@ is_stale, active_incident_id, incident_status, metadata
 - `src/components/intel/monitor/monitorLayout.ts`：dock/wall 全寬位置。
 - `src/components/intel/monitor/monitorSplitLayout.ts`：split 全寬位置。
 
-RIPE 擴充只修改 loader、卡片、tests 與本文件。`MonitorPanel`／兩份 layout、layer manifest、
-overlay registry、legend、popup、click registry 與既有 `ripeAtlasProbes` asset 均維持不變。
+RIPE-only 時間軸修改 loader、卡片、共用 sparkline 的 opt-in 明示時間範圍、tests 與本文件。
+`MonitorPanel`／兩份 layout、layer manifest、overlay registry、legend、popup、click registry 與既有
+`ripeAtlasProbes` asset 均維持不變。
 
 既有 `lifelineAlerts` 仍負責 NCDR CAP 地圖：只有上游真的提供 geometry 才渲染；本卡不複製或推測其範圍。
 
 ## 驗收邊界
 
-- RPC migration 未 apply 前，卡片應誠實顯示「資料不足」，不代表前端壞掉。
+- RPC migration 未 apply 前，卡片應誠實顯示「等待 RIPE 量測」或載入失敗，不代表前端壞掉。
 - Browser live gate 必須把卡片與實際 RPC rows、`source_updated_at`、`is_stale` 逐項對照。
-- 單元測試覆蓋 stale、空資料、NCDR-only normal、composite quorum、受限來源、incident 與 null 語意。
+- 單元測試覆蓋 stale／partial／空資料、RIPE allowlist、時間窗聚合、缺口斷線、source 切換與 null 語意。
 - 正式上線仍需 migration apply、collector fresh data、RPC anonymous grant、browser QA 與 deploy 分別確認。
 
 ## Browser live gate
 
 1. 確認 migration 已 apply，且 RPC 用 anonymous session 呼叫 country/TW 能回 fresh detector；只有
    `public_rpc_enabled=true` 且 signal 在 public allowlist 的 provider rows 才能回傳，IODA 缺席是預期政策。
-2. 啟動前端並開啟 Monitor；`電信與網路 · CONNECTIVITY` 應位於事件區下方、全寬、不壓到下方雙欄卡片。
-3. 在 browser Network 面板確認 request 是 `get_internet_health_status`，參數為 country、`[TW]`、include evidence、limit 500。
-4. 逐列對照兩張 RIPE 主卡與 Cloudflare／IODA／NCDR 旁證；RIPE 公開量測顯示 value、sample、confidence、
-   freshness 與資料時間，IODA 顯示 LIMITED；null 必須是 `—`，RIS visibility null 同時顯示
-   「RIB 基準建立中」，NCDR 缺 row 必須是「未通報／無資料」。
-5. 用 stale 或空資料 fixture 驗證總體為「資料不足」且 fresh sources 為 0；用 RPC 失敗驗證舊 normal 不會繼續亮綠。
-6. 用 fresh detector + `normal_quorum_met=true` fixture 驗證 normal；缺 metadata／false 必須 unknown；
-   加入 active NCDR official evidence 時驗證 outage 與 incident 摘要。
-7. 縮窄視窗檢查來源列換行、卡片內容不裁切；Mapbox sources/layers 數量不應因本卡增加。
-8. 用 100% Ping + 0 Withdrawal + 0 Origin change fixture 驗證頁面仍為 `UNKNOWN / 建立基準中`；
-   Network response 若混入非 allowlisted RIPE signal 或 provider metadata，頁面與前端 summary 都不得出現。
+2. 啟動前端並開啟 Monitor；`RIPE NCC 網路觀察 · NETWORK OBSERVATION` 應位於事件區下方、全寬，
+   且卡片內不得出現 Cloudflare／IODA／NCDR／supporting evidence／active incidents。
+3. 在 browser Network 面板確認 current request 是 `get_internet_health_status`；timeline request 是
+   `get_internet_health_timeseries`，固定 country/TW 且只含選定的 RIPE IPv4／IPv6 signals。
+4. 逐列對照兩張 RIPE 主卡；公開量測顯示 value、sample、confidence、freshness 與資料時間；null 必須是
+   `—`，RIS visibility null 同時顯示「RIB 基準建立中」。
+5. 用 stale／partial／空資料 fixture 驗證 header 不顯示舊值或 normal；RPC 失敗時不得沿用上一個
+   range／source／metric 的 coverage 或最後回報。
+6. 用 100% Ping + 0 Withdrawal + 0 Origin change fixture 驗證頁面仍只有 `OBSERVATION ONLY /
+   BASELINE BUILDING`，沒有 normal／outage 判讀。
+7. 逐一切換 24H／7D／30D、Atlas／RIS 與各指標；確認 IPv4／IPv6、coverage、最後回報與缺口可見，
+   partial／empty 不連線也不補 0。縮窄視窗確認控制列換行、卡片內容不裁切；Mapbox sources/layers
+   數量不應因本卡增加。
+8. Network response 若混入 Cloudflare／IODA／NCDR、非 allowlisted RIPE signal 或 provider metadata，
+   Monitor 卡片不得渲染；前端 timeline summary 不得保留 provider metadata。
 9. 用 stream gap、sample count 0、缺 `source_updated_at` 與 visibility 非 null 但缺 `ready` fixture，驗證
    不顯示 CURRENT、不 fallback `observed_at`，且 visibility 仍為 `— / RIB 基準建立中`。
+
+## Target release（RIPE-only timeline）
+
+- Branch：`codex/ripe-observation-timeline`。
+- 目標：Monitor 只顯示 RIPE Atlas／RIS current measurements 與 24H／7D／30D timeline；既有其他來源
+  仍在後端收集，但不構成此畫面。
+- 下方 Production truth 是上一版已部署證據；本段功能必須在 merge、Zeabur deploy 與 browser gate
+  完成後才能改寫為 production truth。
 
 ## Production truth（2026-09-01）
 

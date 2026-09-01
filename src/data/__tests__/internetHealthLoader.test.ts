@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateInternetHealthRows,
+  aggregateInternetHealthTimelineRows,
   parseInternetHealthEvidence,
+  planInternetHealthTimelineChunks,
 } from "../internetHealthLoader";
 
 const row = (overrides: Record<string, unknown> = {}) => ({
@@ -30,6 +32,32 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   active_incident_id: null,
   incident_status: null,
   metadata: {},
+  ...overrides,
+});
+
+const timelineRow = (overrides: Record<string, unknown> = {}) => ({
+  observation_id: null,
+  source: "ripe_atlas",
+  evidence_family: "ripe_atlas",
+  entity_type: "country",
+  entity_id: "TW",
+  entity_name: "Taiwan",
+  signal: "ping_success_ratio_ipv4",
+  observed_at: "2026-08-31T23:35:00Z",
+  window_start: "2026-08-31T23:30:00Z",
+  window_end: "2026-08-31T23:35:00Z",
+  value: 0.9,
+  unit: "ratio",
+  baseline_value: null,
+  change_ratio: null,
+  reported_status: "unknown",
+  incident_kind: null,
+  confidence: null,
+  sample_count: 10,
+  source_updated_at: "2026-08-31T23:36:00Z",
+  collected_at: "2026-08-31T23:36:30Z",
+  quality_flags: {},
+  metadata: { address_family: 4, measurement_state: "ready" },
   ...overrides,
 });
 
@@ -454,5 +482,215 @@ describe("internet health RPC contract", () => {
       sample_count: null,
       observed_at: null,
     });
+  });
+});
+
+describe("internet health RIPE timeline", () => {
+  const to = "2026-09-01T00:00:00Z";
+
+  it("plans continuous half-open chunks and splits 30d below the RPC cap", () => {
+    const chunks = planInternetHealthTimelineChunks({
+      range: "30d", source: "ripe_atlas", metric: "ping_success_ratio", to,
+    });
+    expect(chunks).toHaveLength(5);
+    expect(chunks[0]?.from).toBe("2026-08-02T00:00:00.000Z");
+    expect(chunks[chunks.length - 1]?.to).toBe("2026-09-01T00:00:00.000Z");
+    for (let index = 1; index < chunks.length; index++) {
+      expect(chunks[index]?.from).toBe(chunks[index - 1]?.to);
+    }
+    expect(planInternetHealthTimelineChunks({
+      range: "7d", source: "ripe_atlas", metric: "median_rtt_ms", to,
+    })).toHaveLength(1);
+  });
+
+  it("builds IPv4 and IPv6 series and sample-weights ratio buckets", () => {
+    const summary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({ value: 0.4, sample_count: 10 }),
+      timelineRow({ observed_at: "2026-08-31T23:40:00Z", value: 1, sample_count: 30 }),
+      timelineRow({
+        signal: "ping_success_ratio_ipv6",
+        observed_at: "2026-08-31T23:40:00Z",
+        value: 0.5,
+        sample_count: 20,
+        metadata: { address_family: 6, measurement_state: "ready" },
+      }),
+    ] }], { range: "7d", source: "ripe_atlas", metric: "ping_success_ratio", to });
+
+    expect(summary.bucketSeconds).toBe(1800);
+    expect(summary.ipv4.points).toHaveLength(336);
+    expect(summary.ipv6.points).toHaveLength(336);
+    expect(summary.ipv4.points.find((point) => point.value !== null)).toMatchObject({
+      value: 0.85, state: "partial", sampleCount: 40,
+    });
+    expect(summary.ipv6.points.find((point) => point.value !== null)).toMatchObject({
+      value: 0.5, state: "partial", sampleCount: 20,
+    });
+    expect(summary.coverage).toBeCloseTo(3 / 4032);
+    expect(summary.latestAt).toBe(Date.parse("2026-08-31T23:36:00Z") / 1000);
+    expect(summary.empty).toBe(false);
+    expect(summary.partial).toBe(true);
+  });
+
+  it("uses median-of-medians for RTT and preserves null buckets", () => {
+    const summary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({
+        signal: "median_rtt_ms_ipv4", value: 10, unit: "milliseconds", sample_count: 2,
+      }),
+      timelineRow({
+        signal: "median_rtt_ms_ipv4", observed_at: "2026-08-31T23:40:00Z",
+        value: 100, unit: "milliseconds", sample_count: 2,
+      }),
+      timelineRow({
+        signal: "median_rtt_ms_ipv4", observed_at: "2026-08-31T23:45:00Z",
+        value: 20, unit: "milliseconds", sample_count: 2,
+      }),
+    ] }], { range: "30d", source: "ripe_atlas", metric: "median_rtt_ms", to });
+
+    expect(summary.bucketSeconds).toBe(7200);
+    expect(summary.ipv4.points.find((point) => point.value !== null)).toMatchObject({
+      value: 20, state: "partial", sampleCount: 6,
+    });
+    expect(summary.ipv6.points.every((point) => point.value === null && point.state === "empty")).toBe(true);
+  });
+
+  it("sums count buckets but uses the latest ready visibility value", () => {
+    const countSummary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", value: 2, unit: "count",
+      }),
+      timelineRow({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "origin_change_count_ipv4", observed_at: "2026-08-31T23:40:00Z",
+        value: 3, unit: "count",
+      }),
+    ] }], { range: "7d", source: "ripe_ris", metric: "origin_change_count", to });
+    expect(countSummary.ipv4.points.find((point) => point.value !== null)?.value).toBe(5);
+
+    const visibilitySummary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv4", value: 0.9,
+      }),
+      timelineRow({
+        source: "ripe_ris_live", evidence_family: "ripe_ris",
+        signal: "prefix_visibility_ratio_ipv4", observed_at: "2026-08-31T23:40:00Z", value: 0.7,
+      }),
+    ] }], { range: "7d", source: "ripe_ris", metric: "prefix_visibility_ratio", to });
+    expect(visibilitySummary.ipv4.points.find((point) => point.value !== null)?.value).toBe(0.7);
+  });
+
+  it("keeps partial, missing timestamps and zero samples null instead of zero/current", () => {
+    const summary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({
+        value: 1,
+        metadata: { address_family: 4, measurement_state: "partial" },
+      }),
+      timelineRow({
+        signal: "ping_success_ratio_ipv6",
+        observed_at: "2026-08-31T23:40:00Z",
+        value: 1,
+        sample_count: 0,
+        source_updated_at: null,
+        metadata: { address_family: 6, measurement_state: "ready" },
+      }),
+    ] }], { range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", to });
+
+    expect(summary.ipv4.points.find((point) => point.state === "partial")).toMatchObject({
+      value: null, sampleCount: null,
+    });
+    expect(summary.ipv6.points.find((point) => point.state === "unavailable")).toMatchObject({
+      value: null, sampleCount: null,
+    });
+    expect(summary.ipv4.points.some((point) => point.value === 0)).toBe(false);
+    expect(summary.latestAt).toBe(Date.parse("2026-08-31T23:36:00Z") / 1000);
+  });
+
+  it("strictly allows country/TW RIPE rows and never retains unknown metadata", () => {
+    const summary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({ entity_id: "US", value: 0.1 }),
+      timelineRow({ source: "cloudflare_radar", value: 0.2 }),
+      timelineRow({ signal: "private_probe_id", value: 999 }),
+      timelineRow({ metadata: { address_family: 6, measurement_state: "ready" }, value: 0.3 }),
+      timelineRow({
+        metadata: {
+          address_family: 4,
+          measurement_state: "ready",
+          probe_ids: [1234],
+          archive_path: "private/archive.json",
+        },
+      }),
+    ] }], { range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", to });
+
+    expect(summary.ipv4.readyBuckets).toBe(1);
+    const serialized = JSON.stringify(summary);
+    for (const forbidden of [
+      "private_probe_id", "999", "probe_ids", "1234", "archive_path", "private/archive.json",
+      "cloudflare_radar",
+    ]) expect(serialized).not.toContain(forbidden);
+  });
+
+  it("fails timeline values and unknown quality states closed", () => {
+    const summary = aggregateInternetHealthTimelineRows([{ rows: [
+      timelineRow({ value: 1.2 }),
+      timelineRow({
+        signal: "ping_success_ratio_ipv6",
+        value: 0.9,
+        metadata: { address_family: 6, measurement_state: "future_state" },
+      }),
+    ] }], { range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", to });
+
+    expect(summary.ipv4.points.find((point) => point.state === "unavailable")).toMatchObject({ value: null });
+    expect(summary.ipv6.points.find((point) => point.state === "unavailable")).toMatchObject({ value: null });
+    expect(summary.coverage).toBe(0);
+    expect(summary.ipv4.points.some((point) => point.value === 1.2)).toBe(false);
+    expect(JSON.stringify(summary)).not.toContain("future_state");
+  });
+
+  it("deduplicates chunk boundaries and excludes the half-open upper boundary", () => {
+    const duplicate = timelineRow({
+      source: "ripe_ris_live", evidence_family: "ripe_ris",
+      signal: "origin_change_count_ipv4", value: 2, unit: "count",
+    });
+    const upperBoundary = timelineRow({
+      source: "ripe_ris_live", evidence_family: "ripe_ris",
+      signal: "origin_change_count_ipv4", observed_at: to, value: 9, unit: "count",
+    });
+    const summary = aggregateInternetHealthTimelineRows([
+      { rows: [duplicate] },
+      { rows: [duplicate, upperBoundary] },
+    ], { range: "24h", source: "ripe_ris", metric: "origin_change_count", to });
+
+    expect(summary.ipv4.points.filter((point) => point.value !== null)).toHaveLength(1);
+    expect(summary.ipv4.points.find((point) => point.value !== null)?.value).toBe(2);
+  });
+
+  it("marks a 5,000-row RPC response truncated without inventing complete coverage", () => {
+    const from = Date.parse("2026-08-02T00:00:00Z");
+    const rows = Array.from({ length: 5000 }, (_, index) => {
+      const observedAt = new Date(from + index * 5 * 60_000).toISOString();
+      return timelineRow({ observed_at: observedAt, source_updated_at: observedAt });
+    });
+    const summary = aggregateInternetHealthTimelineRows(
+      [{ rows }],
+      { range: "30d", source: "ripe_atlas", metric: "ping_success_ratio", to },
+    );
+    expect(summary.truncated).toBe(true);
+    expect(summary.partial).toBe(true);
+    expect(summary.coverage).toBeLessThan(1);
+  });
+
+  it("returns explicit empty dual series and rejects a mismatched source/metric", () => {
+    const summary = aggregateInternetHealthTimelineRows(
+      [{ rows: [] }],
+      { range: "24h", source: "ripe_atlas", metric: "ping_success_ratio", to },
+    );
+    expect(summary).toMatchObject({ empty: true, partial: false, truncated: false, latestAt: null });
+    expect(summary.ipv4.points).toHaveLength(288);
+    expect(summary.ipv6.points).toHaveLength(288);
+    expect(summary.ipv4.points.every((point) => point.value === null)).toBe(true);
+    expect(() => planInternetHealthTimelineChunks({
+      range: "24h", source: "ripe_ris", metric: "ping_success_ratio", to,
+    })).toThrow(/source\/metric/);
   });
 });

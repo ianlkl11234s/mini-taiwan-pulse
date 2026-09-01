@@ -1,8 +1,8 @@
 /**
  * 台灣電信與網路狀態 loader。
  *
- * 資料只走 public.get_internet_health_status RPC；前端不直打各 provider，
- * 也不把 ASN 或 country status 轉成地圖 geometry。
+ * Current 與 history 只走 public.get_internet_health_status / get_internet_health_timeseries RPC；
+ * 前端不直打各 provider，也不把 ASN 或 country status 轉成地圖 geometry。
  *
  * 保守語意：
  * - effective_status 是 UI 狀態真相，reported_status 只留作溯源。
@@ -12,7 +12,7 @@
  */
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
 
 export type InternetHealthStatus = "normal" | "watch" | "degraded" | "outage" | "unknown";
 export type InternetHealthConfidence = "low" | "medium" | "high" | "unknown";
@@ -31,6 +31,71 @@ export type InternetHealthMeasurementSignal =
   | "prefix_visibility_ratio_ipv4" | "prefix_visibility_ratio_ipv6"
   | "withdrawn_prefix_ratio_ipv4" | "withdrawn_prefix_ratio_ipv6"
   | "origin_change_count_ipv4" | "origin_change_count_ipv6";
+
+export type InternetHealthTimelineRange = "24h" | "7d" | "30d";
+export type InternetHealthTimelineSource = "ripe_atlas" | "ripe_ris";
+export type InternetHealthTimelineMetric =
+  | "probe_connectivity_ratio"
+  | "ping_success_ratio"
+  | "median_rtt_ms"
+  | "reachable_asn_ratio"
+  | "prefix_visibility_ratio"
+  | "withdrawn_prefix_ratio"
+  | "origin_change_count";
+export type InternetHealthTimelinePointState = "ready" | "partial" | "unavailable" | "empty";
+
+export interface InternetHealthTimelineRequest {
+  range: InternetHealthTimelineRange;
+  source: InternetHealthTimelineSource;
+  metric: InternetHealthTimelineMetric;
+  /** ISO timestamp. Omitted requests are anchored to the latest five-minute boundary. */
+  to?: string;
+}
+
+export interface InternetHealthTimelinePoint {
+  at: number;
+  value: number | null;
+  state: InternetHealthTimelinePointState;
+  sampleCount: number | null;
+}
+
+export interface InternetHealthTimelineSeries {
+  addressFamily: 4 | 6;
+  signal: InternetHealthMeasurementSignal;
+  points: InternetHealthTimelinePoint[];
+  coverage: number;
+  readyBuckets: number;
+  totalBuckets: number;
+}
+
+export interface InternetHealthTimelineSummary {
+  range: InternetHealthTimelineRange;
+  source: InternetHealthTimelineSource;
+  metric: InternetHealthTimelineMetric;
+  unit: InternetHealthMeasurement["unit"];
+  from: number;
+  to: number;
+  bucketSeconds: number;
+  ipv4: InternetHealthTimelineSeries;
+  ipv6: InternetHealthTimelineSeries;
+  coverage: number;
+  /** Latest provider timestamp; never falls back to observed_at. */
+  latestAt: number | null;
+  truncated: boolean;
+  partial: boolean;
+  empty: boolean;
+}
+
+export interface InternetHealthTimelineChunk {
+  from: string;
+  to: string;
+}
+
+export interface InternetHealthTimelineChunkResult {
+  rows: unknown;
+  /** Set by the transport when the RPC returns its hard 5,000-row limit. */
+  hitLimit?: boolean;
+}
 
 export interface InternetHealthMeasurement {
   source_key: "ripe_atlas" | "ripe_ris";
@@ -185,6 +250,43 @@ const RIPE_RIS_SIGNALS = new Set<InternetHealthMeasurementSignal>([
   "withdrawn_prefix_ratio_ipv4", "withdrawn_prefix_ratio_ipv6",
   "origin_change_count_ipv4", "origin_change_count_ipv6",
 ]);
+
+const TIMELINE_RANGE_SECONDS: Record<InternetHealthTimelineRange, number> = {
+  "24h": 24 * 60 * 60,
+  "7d": 7 * 24 * 60 * 60,
+  "30d": 30 * 24 * 60 * 60,
+};
+
+const TIMELINE_BUCKET_SECONDS: Record<InternetHealthTimelineRange, number> = {
+  "24h": 5 * 60,
+  "7d": 30 * 60,
+  "30d": 2 * 60 * 60,
+};
+
+const TIMELINE_METRICS: Record<InternetHealthTimelineMetric, {
+  source: InternetHealthTimelineSource;
+  unit: InternetHealthMeasurement["unit"];
+  aggregation: "weighted_average" | "median" | "sum" | "latest";
+}> = {
+  probe_connectivity_ratio: { source: "ripe_atlas", unit: "ratio", aggregation: "weighted_average" },
+  ping_success_ratio: { source: "ripe_atlas", unit: "ratio", aggregation: "weighted_average" },
+  median_rtt_ms: { source: "ripe_atlas", unit: "milliseconds", aggregation: "median" },
+  reachable_asn_ratio: { source: "ripe_atlas", unit: "ratio", aggregation: "weighted_average" },
+  prefix_visibility_ratio: { source: "ripe_ris", unit: "ratio", aggregation: "latest" },
+  withdrawn_prefix_ratio: { source: "ripe_ris", unit: "ratio", aggregation: "weighted_average" },
+  origin_change_count: { source: "ripe_ris", unit: "count", aggregation: "sum" },
+};
+
+const TIMELINE_RPC_SOURCES: Record<InternetHealthTimelineSource, "ripe_atlas" | "ripe_ris_live"> = {
+  ripe_atlas: "ripe_atlas",
+  ripe_ris: "ripe_ris_live",
+};
+
+const TIMELINE_RPC_LIMIT = 5000;
+const TIMELINE_CACHE_TTL_MS = 4 * 60_000;
+const TIMELINE_DEFAULT_ANCHOR_MS = 5 * 60_000;
+const TIMELINE_SOURCE_BUCKET_SECONDS = 5 * 60;
+const TIMELINE_30D_CHUNK_SECONDS = 6 * 24 * 60 * 60;
 
 const SOURCE_FAMILIES: Record<InternetHealthSourceKey, readonly string[]> = {
   cloudflare: ["cloudflare", "cloudflare_radar"],
@@ -700,6 +802,327 @@ export function aggregateInternetHealthRows(rawRows: unknown): InternetHealthSum
     measurements,
     evidence,
   };
+}
+
+interface NormalizedTimelineRequest extends InternetHealthTimelineRequest {
+  to: string;
+  fromMs: number;
+  toMs: number;
+  bucketSeconds: number;
+  unit: InternetHealthMeasurement["unit"];
+}
+
+interface ParsedTimelineRow {
+  signal: InternetHealthMeasurementSignal;
+  addressFamily: 4 | 6;
+  observedAt: number;
+  sourceUpdatedAt: number | null;
+  value: number | null;
+  sampleCount: number | null;
+  state: InternetHealthMeasurementQualityState;
+}
+
+function normalizeTimelineRequest(request: InternetHealthTimelineRequest): NormalizedTimelineRequest {
+  const metric = TIMELINE_METRICS[request.metric];
+  if (!metric || metric.source !== request.source) {
+    throw new Error(`Invalid internet health timeline source/metric: ${request.source}/${request.metric}`);
+  }
+  const parsedTo = request.to === undefined
+    ? Math.floor(Date.now() / TIMELINE_DEFAULT_ANCHOR_MS) * TIMELINE_DEFAULT_ANCHOR_MS
+    : Date.parse(request.to);
+  if (!Number.isFinite(parsedTo)) throw new Error("Invalid internet health timeline to timestamp");
+  const toMs = Math.floor(parsedTo / 1000) * 1000;
+  const fromMs = toMs - TIMELINE_RANGE_SECONDS[request.range] * 1000;
+  return {
+    ...request,
+    to: new Date(toMs).toISOString(),
+    fromMs,
+    toMs,
+    bucketSeconds: TIMELINE_BUCKET_SECONDS[request.range],
+    unit: metric.unit,
+  };
+}
+
+/** Build continuous half-open RPC windows. Only 30d needs chunking for the 5,000-row cap. */
+export function planInternetHealthTimelineChunks(
+  request: InternetHealthTimelineRequest,
+): InternetHealthTimelineChunk[] {
+  const normalized = normalizeTimelineRequest(request);
+  const chunkSeconds = request.range === "30d"
+    ? TIMELINE_30D_CHUNK_SECONDS
+    : TIMELINE_RANGE_SECONDS[request.range];
+  const chunks: InternetHealthTimelineChunk[] = [];
+  for (let fromMs = normalized.fromMs; fromMs < normalized.toMs;) {
+    const toMs = Math.min(fromMs + chunkSeconds * 1000, normalized.toMs);
+    chunks.push({ from: new Date(fromMs).toISOString(), to: new Date(toMs).toISOString() });
+    fromMs = toMs;
+  }
+  return chunks;
+}
+
+function expectedTimelineSignals(
+  metric: InternetHealthTimelineMetric,
+): readonly [InternetHealthMeasurementSignal, InternetHealthMeasurementSignal] {
+  return [`${metric}_ipv4`, `${metric}_ipv6`] as readonly [
+    InternetHealthMeasurementSignal,
+    InternetHealthMeasurementSignal,
+  ];
+}
+
+function parseTimelineRow(
+  raw: unknown,
+  request: NormalizedTimelineRequest,
+): ParsedTimelineRow | null {
+  if (!isRecord(raw)) return null;
+  const rpcSource = TIMELINE_RPC_SOURCES[request.source];
+  const expectedFamily = request.source === "ripe_atlas" ? "ripe_atlas" : "ripe_ris";
+  if (
+    raw.entity_type !== "country"
+    || raw.entity_id !== "TW"
+    || raw.source !== rpcSource
+    || raw.evidence_family !== expectedFamily
+  ) return null;
+
+  const [ipv4Signal, ipv6Signal] = expectedTimelineSignals(request.metric);
+  const signal = raw.signal;
+  if (signal !== ipv4Signal && signal !== ipv6Signal) return null;
+  const safeSignal = signal as InternetHealthMeasurementSignal;
+  const addressFamily: 4 | 6 = signal === ipv4Signal ? 4 : 6;
+  const metadata = isRecord(raw.metadata) ? raw.metadata : {};
+  if (metadata.address_family !== addressFamily) return null;
+  const rawState = metadata.measurement_state;
+  const state = normalizeMeasurementQualityState(rawState) ?? "unavailable";
+
+  const observedAtText = timestamp(raw.observed_at);
+  if (observedAtText === null) return null;
+  const observedAt = Date.parse(observedAtText) / 1000;
+  if (observedAt < request.fromMs / 1000 || observedAt >= request.toMs / 1000) return null;
+  const sourceUpdatedText = timestamp(raw.source_updated_at);
+  const sourceUpdatedAt = sourceUpdatedText === null ? null : Date.parse(sourceUpdatedText) / 1000;
+  const sampleCount = typeof raw.sample_count === "number"
+    && Number.isInteger(raw.sample_count)
+    && raw.sample_count >= 0
+    ? raw.sample_count
+    : null;
+  const rawValue = typeof raw.value === "number" && Number.isFinite(raw.value) ? raw.value : null;
+  const value = validMeasurementValue(rawValue, request.unit);
+  const qualityFlags = isRecord(raw.quality_flags) ? raw.quality_flags : null;
+  const qualityFailure = qualityFlags === null || [
+    "missing_value", "stream_gap", "state_uninitialized",
+  ].some((key) => qualityFlags[key] !== undefined && qualityFlags[key] !== false);
+  const ready = state === "ready"
+    && sourceUpdatedAt !== null
+    && sampleCount !== null
+    && sampleCount > 0
+    && value !== null
+    && !qualityFailure;
+  return {
+    signal: safeSignal,
+    addressFamily,
+    observedAt,
+    sourceUpdatedAt,
+    value: ready ? value : null,
+    sampleCount,
+    state: ready
+      ? "ready"
+      : state === "partial" || qualityFailure
+        ? "partial"
+        : state === "baseline_building" ? "baseline_building" : "unavailable",
+  };
+}
+
+function median(values: number[]): number | null {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) return sorted[middle] ?? null;
+  const left = sorted[middle - 1];
+  const right = sorted[middle];
+  return left === undefined || right === undefined ? null : (left + right) / 2;
+}
+
+function aggregateTimelineValue(
+  rows: ParsedTimelineRow[],
+  metric: InternetHealthTimelineMetric,
+): number | null {
+  const ready = rows.filter((row) => row.state === "ready" && row.value !== null);
+  if (!ready.length) return null;
+  const aggregation = TIMELINE_METRICS[metric].aggregation;
+  if (aggregation === "weighted_average") {
+    const weight = ready.reduce((sum, row) => sum + (row.sampleCount ?? 0), 0);
+    return weight > 0
+      ? ready.reduce((sum, row) => sum + row.value! * (row.sampleCount ?? 0), 0) / weight
+      : null;
+  }
+  if (aggregation === "median") return median(ready.map((row) => row.value!));
+  if (aggregation === "sum") return ready.reduce((sum, row) => sum + row.value!, 0);
+  return [...ready].sort((a, b) => b.observedAt - a.observedAt)[0]?.value ?? null;
+}
+
+function buildTimelineSeries(
+  rows: ParsedTimelineRow[],
+  request: NormalizedTimelineRequest,
+  addressFamily: 4 | 6,
+): InternetHealthTimelineSeries {
+  const totalBuckets = TIMELINE_RANGE_SECONDS[request.range] / request.bucketSeconds;
+  const expectedSubslotsPerBucket = request.bucketSeconds / TIMELINE_SOURCE_BUCKET_SECONDS;
+  const expectedSubslots = totalBuckets * expectedSubslotsPerBucket;
+  const buckets = new Map<number, ParsedTimelineRow[]>();
+  for (const row of rows) {
+    if (row.addressFamily !== addressFamily) continue;
+    const index = Math.floor((row.observedAt - request.fromMs / 1000) / request.bucketSeconds);
+    if (index < 0 || index >= totalBuckets) continue;
+    const bucket = buckets.get(index) ?? [];
+    bucket.push(row);
+    buckets.set(index, bucket);
+  }
+
+  const points: InternetHealthTimelinePoint[] = [];
+  let readyBuckets = 0;
+  let readySubslots = 0;
+  for (let index = 0; index < totalBuckets; index++) {
+    const bucketRows = buckets.get(index) ?? [];
+    const readyRows = bucketRows.filter((row) => row.state === "ready" && row.value !== null);
+    readySubslots += Math.min(readyRows.length, expectedSubslotsPerBucket);
+    const value = aggregateTimelineValue(bucketRows, request.metric);
+    const hasNonReady = bucketRows.some((row) => row.state !== "ready");
+    const complete = readyRows.length === expectedSubslotsPerBucket && !hasNonReady;
+    const state: InternetHealthTimelinePointState = bucketRows.length === 0
+      ? "empty"
+      : complete
+        ? "ready"
+        : readyRows.length > 0
+          ? "partial"
+        : bucketRows.some((row) => row.state === "partial") ? "partial" : "unavailable";
+    if (state === "ready") readyBuckets++;
+    const sampleCount = readyRows.length > 0
+      ? readyRows.reduce((sum, row) => sum + (row.sampleCount ?? 0), 0)
+      : null;
+    points.push({
+      at: request.fromMs / 1000 + index * request.bucketSeconds,
+      value,
+      state,
+      sampleCount,
+    });
+  }
+  return {
+    addressFamily,
+    signal: expectedTimelineSignals(request.metric)[addressFamily === 4 ? 0 : 1],
+    points,
+    // Coverage counts the underlying expected five-minute observations, not merely
+    // aggregate buckets containing at least one value.
+    coverage: expectedSubslots > 0 ? readySubslots / expectedSubslots : 0,
+    readyBuckets,
+    totalBuckets,
+  };
+}
+
+/**
+ * Parse, de-duplicate and aggregate RPC chunks without retaining raw rows or metadata.
+ * This helper is exported so the security and cap behavior stay directly testable.
+ */
+export function aggregateInternetHealthTimelineRows(
+  rawChunks: readonly InternetHealthTimelineChunkResult[],
+  request: InternetHealthTimelineRequest,
+): InternetHealthTimelineSummary {
+  const normalized = normalizeTimelineRequest(request);
+  const truncated = rawChunks.some((chunk) => (
+    chunk.hitLimit === true || (Array.isArray(chunk.rows) && chunk.rows.length >= TIMELINE_RPC_LIMIT)
+  ));
+  const deduped = new Map<string, ParsedTimelineRow>();
+  for (const chunk of rawChunks) {
+    if (!Array.isArray(chunk.rows)) continue;
+    for (const raw of chunk.rows) {
+      const parsed = parseTimelineRow(raw, normalized);
+      if (!parsed) continue;
+      const key = `${parsed.signal}|${parsed.observedAt}`;
+      if (!deduped.has(key)) deduped.set(key, parsed);
+    }
+  }
+  const rows = [...deduped.values()].sort((a, b) => a.observedAt - b.observedAt);
+  const ipv4 = buildTimelineSeries(rows, normalized, 4);
+  const ipv6 = buildTimelineSeries(rows, normalized, 6);
+  const totalBuckets = ipv4.totalBuckets + ipv6.totalBuckets;
+  const readyBuckets = ipv4.readyBuckets + ipv6.readyBuckets;
+  const coverage = totalBuckets > 0 ? readyBuckets / totalBuckets : 0;
+  const latestAt = rows.reduce<number | null>((latest, row) => (
+    row.sourceUpdatedAt !== null && (latest === null || row.sourceUpdatedAt > latest)
+      ? row.sourceUpdatedAt
+      : latest
+  ), null);
+  const empty = rows.length === 0;
+  return {
+    range: normalized.range,
+    source: normalized.source,
+    metric: normalized.metric,
+    unit: normalized.unit,
+    from: normalized.fromMs / 1000,
+    to: normalized.toMs / 1000,
+    bucketSeconds: normalized.bucketSeconds,
+    ipv4,
+    ipv6,
+    coverage,
+    latestAt,
+    truncated,
+    partial: truncated || (!empty && coverage < 1),
+    empty,
+  };
+}
+
+async function fetchInternetHealthTimelineUncached(
+  request: InternetHealthTimelineRequest,
+): Promise<InternetHealthTimelineSummary> {
+  if (!supabaseConfigured) throw new Error("Supabase not configured");
+  const chunks = planInternetHealthTimelineChunks(request);
+  const rpcSource = TIMELINE_RPC_SOURCES[request.source];
+  const signals = [...expectedTimelineSignals(request.metric)];
+  const settled = await withLoading(
+    `internet-health:timeline:${request.range}:${request.source}:${request.metric}`,
+    `網路量測歷史 ${request.range}`,
+    Promise.allSettled(chunks.map(async (chunk): Promise<InternetHealthTimelineChunkResult> => {
+      const { data, error } = await supabase.rpc("get_internet_health_timeseries", {
+        p_entity_type: "country",
+        p_entity_id: "TW",
+        p_from: chunk.from,
+        p_to: chunk.to,
+        p_sources: [rpcSource],
+        p_signals: signals,
+        p_limit: TIMELINE_RPC_LIMIT,
+      });
+      if (error) throw new Error(`get_internet_health_timeseries: ${error.message}`);
+      return {
+        rows: data,
+        hitLimit: Array.isArray(data) && data.length >= TIMELINE_RPC_LIMIT,
+      };
+    })),
+  );
+  const rejected = settled.find((result): result is PromiseRejectedResult => result.status === "rejected");
+  if (rejected) throw rejected.reason;
+  const results = settled.map((result) => (result as PromiseFulfilledResult<InternetHealthTimelineChunkResult>).value);
+  return aggregateInternetHealthTimelineRows(results, request);
+}
+
+const internetHealthTimelineCache = keyedThunkCache<InternetHealthTimelineSummary>(
+  TIMELINE_CACHE_TTL_MS,
+  18,
+);
+
+export function fetchInternetHealthTimeline(
+  request: InternetHealthTimelineRequest,
+): Promise<InternetHealthTimelineSummary> {
+  const normalized = normalizeTimelineRequest(request);
+  const stableRequest: InternetHealthTimelineRequest = {
+    range: normalized.range,
+    source: normalized.source,
+    metric: normalized.metric,
+    to: normalized.to,
+  };
+  const key = `${stableRequest.range}|${stableRequest.source}|${stableRequest.metric}|${stableRequest.to}`;
+  return internetHealthTimelineCache(key, () => fetchInternetHealthTimelineUncached(stableRequest));
+}
+
+export function invalidateInternetHealthTimelineCache(): void {
+  internetHealthTimelineCache.invalidate();
 }
 
 async function fetchInternetHealthStatusUncached(): Promise<InternetHealthSummary> {
