@@ -1,5 +1,22 @@
 # Changelog — jp-core-layers
 
+## 2026-09-01 — jpStations 雙上色模式：種類（預設）／運量（用戶回饋）
+
+tsc -b + 963 測試綠。⚠️ 視覺（點色/圖例切換）尚待瀏覽器人工確認（headless @ref 不穩、eval 被 worktree 守衛擋，未能自驗）。
+
+- 新增 `src/data/jpStationTypes.ts`（SSOT）：種類色票（operator_types 5 類 + その他）、
+  運量級距（5 級 + 無資料灰）、`match`/`step` 表達式、`classifyJpStationType` 優先序、
+  `jpStationPax` 逐年 fallback、`JP_STATION_COLOR_MODES`。
+- loader 補算純量欄位 `jp_type` / `jp_pax`（供 Mapbox 表達式，避開陣列屬性限制）。
+- hook `useJpStationsLayer` 加 `colorMode` 參數，circle-color 依模式套表達式。
+- `JpStationsHost` 從 `overlayParams.jpStationsColorModeIdx` 換算模式（0=種類/1=運量）。
+- layerParamsSpec `jpStations` 加第三個 select 控件（2 選項 → button row）；
+  manifest `params` 2→3、`legend: null` → `"jpStations"`。
+- `LegendPanel` 加 `JpStationsLegend`（隨 modeIdx 切種類/運量圖例）+ LEGEND_REGISTRY 一筆；
+  `NO_LEGEND_LEDGER` 移除 jpStations。
+- 種類用 **operator_types**（JR在来線/民営/第三セクター/公営/新幹線）而非 railway_categories
+  （後者偏軌道型式；operator_types 5 類更符合「種類」語意且乾淨）。
+
 ## 2026-09-01 — UX 修正：攤平主題結構 + 日本地圖 icon（用戶回饋）
 
 tsc -b + 963 測試綠；瀏覽器複驗結構與 icon。

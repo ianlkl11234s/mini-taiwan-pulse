@@ -8,8 +8,9 @@
 
 ## 增強（本輪刻意從簡）
 
-- [ ] 車站按 railway_categories（JR/私鐵/地下鐵…）分類分色 + 圖例 + `jpStationsTypes.ts` 三邊色彩 SSOT
-- [ ] 車站按運量做 graduated 圓大小 / 分級色（需圖例）
+- [x] 車站雙上色模式：種類（operator_types 5 類，預設）／運量（5 級距）+ 切換 button row + 隨模式圖例
+      + `jpStationTypes.ts` 色彩 SSOT（2026-09-01；視覺待瀏覽器人工確認）
+- [ ] 車站按運量做 graduated 圓大小（目前運量走分級色，未動圓大小）
 - [ ] 機場按 category（空港種別，拠点/地方管理…）分色 + 圖例
 - [ ] auto-flyTo 座標目視微調（`JAPAN_CAMERA`）；含沖繩可改 `fitBounds([[127.6,26.2],[146.5,45.8]])`
 - [ ] Locations 面板加「日本」跳點按鈕（目前 JAPAN_CAMERA 刻意不進 ALL_PRESETS）

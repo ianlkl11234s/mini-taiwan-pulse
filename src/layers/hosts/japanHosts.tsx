@@ -30,11 +30,13 @@ export const JpAdminHost: LayerHostComponent = ({ deps }) => {
 export const JpStationsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpStationsLayer");
   const p = useKeyOverlayParams("jpStations");
+  const colorMode = p.jpStationsColorModeIdx === 1 ? "ridership" : "type";
   useJpStationsLayer(
     deps.mapRef,
     deps.layerVisibility.jpStations,
     p.jpStationsOpacity ?? 0.85,
     p.jpStationsScale ?? 1,
+    colorMode,
   );
   return null;
 };

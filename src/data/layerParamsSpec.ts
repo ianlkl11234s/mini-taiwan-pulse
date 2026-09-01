@@ -69,6 +69,7 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
+import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -1347,6 +1348,11 @@ export const LAYER_PARAMS_SPEC = {
   jpStations: [
     opacitySlider("jpStationsOpacity", 0.85),
     scaleSlider("jpStationsScale", 1),
+    {
+      kind: "select", name: "jpStationsColorMode", label: "上色", default: "type",
+      options: JP_STATION_COLOR_MODES.map((m) => ({ label: m.label, value: m.value })),
+      out: "jpStationsColorModeIdx", encode: JP_STATION_COLOR_MODES.map((m) => m.value),
+    },
   ],
   jpAirports: [opacitySlider("jpAirportsOpacity", 0.5)],
   dustForecast: [

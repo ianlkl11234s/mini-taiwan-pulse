@@ -50904,6 +50904,21 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      },
+      {
+        "label": "上色",
+        "options": [
+          {
+            "label": "種類",
+            "value": "type"
+          },
+          {
+            "label": "運量",
+            "value": "ridership"
+          }
+        ],
+        "type": "select",
+        "value": "type"
       }
     ],
     "lakesPondsOsm": [

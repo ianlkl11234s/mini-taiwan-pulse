@@ -54,6 +54,7 @@ import {
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
+import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -311,6 +312,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
+  { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1037,6 +1039,40 @@ function LivestockFacilityLegend() {
         cats={[
           { color: FEED_COLOR, label: "飼料廠 Feed Factory" },
           { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
+        ]}
+      />
+    </div>
+  );
+}
+
+// ── 日本車站（種類 / 運量 雙模式）──
+
+function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  if (modeIdx === 1) {
+    return (
+      <div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+          日本車站 運量（人/日）
+        </div>
+        <FireCatRows
+          cats={[
+            ...JP_STATION_PAX_BUCKETS.map((b) => ({ color: b.color, label: b.label })),
+            { color: JP_STATION_PAX_NO_DATA.color, label: JP_STATION_PAX_NO_DATA.label },
+          ]}
+        />
+      </div>
+    );
+  }
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本車站 種類
+      </div>
+      <FireCatRows
+        cats={[
+          ...JP_STATION_TYPES.map((s) => ({ color: s.color, label: s.label })),
+          { color: JP_STATION_TYPE_OTHER.color, label: JP_STATION_TYPE_OTHER.label },
         ]}
       />
     </div>

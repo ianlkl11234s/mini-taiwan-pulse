@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { CircleLayer, ExpressionSpecification, Map as MapboxMap } from "mapbox-gl";
 import { fetchJpStations } from "../data/jpStationsLoader";
+import { JP_STATION_TYPE_COLOR_EXPRESSION, JP_STATION_PAX_COLOR_EXPRESSION } from "../data/jpStationTypes";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-stations";
 const LAYER_ID = "jp-stations-circle";
-const COLOR = "#38bdf8";
 
 function scaledRadius(scale: number, zoom6Radius: number, zoom12Radius: number): ExpressionSpecification {
   return [
@@ -19,7 +19,11 @@ function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
 }
 
-function circleLayer(radius: ExpressionSpecification, opacity: number): CircleLayer {
+function colorExpression(colorMode: "type" | "ridership"): ExpressionSpecification {
+  return colorMode === "ridership" ? JP_STATION_PAX_COLOR_EXPRESSION : JP_STATION_TYPE_COLOR_EXPRESSION;
+}
+
+function circleLayer(radius: ExpressionSpecification, opacity: number, colorMode: "type" | "ridership"): CircleLayer {
   return {
     id: LAYER_ID,
     type: "circle",
@@ -27,7 +31,7 @@ function circleLayer(radius: ExpressionSpecification, opacity: number): CircleLa
     layout: { visibility: "none" },
     paint: {
       "circle-radius": radius,
-      "circle-color": COLOR,
+      "circle-color": colorExpression(colorMode),
       "circle-opacity": clampOpacity(opacity),
       "circle-stroke-color": "rgba(15, 23, 42, 0.45)",
       "circle-stroke-width": 0.35,
@@ -41,6 +45,7 @@ export function useJpStationsLayer(
   visible: boolean,
   opacity: number,
   scale: number,
+  colorMode: "type" | "ridership",
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -74,17 +79,18 @@ export function useJpStationsLayer(
         map.addSource(SOURCE_ID, { type: "geojson", data: dataRef.current });
       }
       if (!map.getLayer(LAYER_ID)) {
-        map.addLayer(circleLayer(scaledRadius(scale, 3, 6), opacity));
+        map.addLayer(circleLayer(scaledRadius(scale, 3, 6), opacity, colorMode));
       }
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
         map.setPaintProperty(LAYER_ID, "circle-radius", scaledRadius(scale, 3, 6));
+        map.setPaintProperty(LAYER_ID, "circle-color", colorExpression(colorMode));
       }
     };
 
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, mapTick, dataTick]);
+  }, [mapRef, visible, opacity, scale, colorMode, mapTick, dataTick]);
 }
