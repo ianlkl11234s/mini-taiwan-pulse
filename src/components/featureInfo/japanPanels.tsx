@@ -1,7 +1,11 @@
 import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { JP_RAILWAY_LAYER_COLOR } from "../../data/jpRailwayTypes";
+import {
+  JP_RAILWAY_LAYER_COLOR,
+  JP_RAILWAY_TYPES,
+  JP_RAILWAY_TYPE_OTHER,
+} from "../../data/jpRailwayTypes";
 import { JP_SCHOOL_TYPES, JP_SCHOOL_TYPE_OTHER } from "../../data/jpSchoolTypes";
 import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
@@ -134,12 +138,15 @@ export function JpAirportsPanel({ props }: { props: Record<string, unknown> }) {
  * PMTiles 屬性全為 String 純量（非車站那種陣列），直接 str() 即可。
  */
 export function JpRailwaysPanel({ props }: { props: Record<string, unknown> }) {
+  const operatorType = str(props.operator_type);
+  const color =
+    JP_RAILWAY_TYPES.find((t) => t.value === operatorType)?.color ?? JP_RAILWAY_TYPE_OTHER.color;
   return (
     <>
-      <Title color={JP_RAILWAY_LAYER_COLOR}>{str(props.line_name) || "鉄道路線"}</Title>
-      <Row label="路線名" value={str(props.line_name)} />
+      {/* 標題已是路線名，故不再重複一列「路線名」（比照 JpSchoolsPanel 以校名為標題）。 */}
+      <Title color={color || JP_RAILWAY_LAYER_COLOR}>{str(props.line_name) || "鉄道路線"}</Title>
       <Row label="運営会社" value={str(props.operator)} />
-      <Row label="事業者種別" value={str(props.operator_type)} />
+      <Row label="事業者種別" value={operatorType} />
       <Row label="鉄道区分" value={str(props.railway_category)} />
     </>
   );

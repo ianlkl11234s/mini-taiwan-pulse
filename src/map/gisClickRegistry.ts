@@ -177,12 +177,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
   { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
+  // 人口網格 1km 格是本組最小的面（< 市区町村 < 都道府県），依「小面 → 大面」排在兩個
+  // 行政區界之前。⚠️ 反過來排在界層之後會讓本層 popup 不可達 —— 縣界 tab 開啟時預設開、
+  // 且與網格同樣無縫鋪滿全日本，first-hit-wins 會由縣界吃掉每一次點擊。
+  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
-  // 🔴 人口網格覆蓋全日本、且格子最小 —— 但它是「最大面積的面層」語意（無縫鋪滿），
-  //    排在所有日本層之後（first-hit-wins）。反過來排前面會吃掉全部日本點擊。
-  //    ⚠️ 代價：縣界／市界任一開著時本層 popup 不可達（那兩層排在前面且同樣鋪滿）。
-  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
   { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },

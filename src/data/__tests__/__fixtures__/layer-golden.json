@@ -627,6 +627,12 @@
     },
     {
       "layers": [
+        "jp-population-mesh-fill"
+      ],
+      "type": "jpPopulationMesh1km"
+    },
+    {
+      "layers": [
         "jp-admin-municipality-fill"
       ],
       "type": "jpAdminBoundaries"
@@ -636,12 +642,6 @@
         "jp-admin-prefecture-fill"
       ],
       "type": "jpAdminPrefecture"
-    },
-    {
-      "layers": [
-        "jp-population-mesh-fill"
-      ],
-      "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
