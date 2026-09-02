@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 392,
+    "keyCount": 393,
     "sections": [
       "gisLayers",
       "overlays",
@@ -540,6 +540,12 @@
         "earthquakes-global-circle"
       ],
       "type": "earthquakeGlobal"
+    },
+    {
+      "layers": [
+        "global-events-current-circle"
+      ],
+      "type": "globalEvent"
     },
     {
       "layers": [
@@ -50322,6 +50328,15 @@
         "min": 0,
         "step": 0.05,
         "value": 0.75
+      }
+    ],
+    "globalEvents": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.9
       }
     ],
     "govServiceOffices": [

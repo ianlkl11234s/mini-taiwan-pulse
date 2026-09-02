@@ -4,6 +4,7 @@
 import { useEarthquakesGlobalLayer } from "../../hooks/useEarthquakesGlobalLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "../../hooks/useTyphoonTracksLayer";
 import { useWorldTrashDebrisLayer } from "../../hooks/useWorldTrashDebrisLayer";
+import { useGlobalEventsLayer } from "../../hooks/useGlobalEventsLayer";
 import { useJpReligionLayers } from "../../hooks/useJpReligionLayers";
 import { useClimateParticleLineLayer } from "../../hooks/useClimateParticleLineLayer";
 import { useDustForecastLayer } from "../../hooks/useDustForecastLayer";
@@ -55,6 +56,18 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
     p.worldTrashDebrisOpacity ?? 0.85,
+  );
+  return null;
+};
+
+/** 🌍 世界 WORLD：已發布的全球重要事件（僅有真實 Point 者）。 */
+export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGlobalEventsLayer");
+  const p = useKeyOverlayParams("globalEvents");
+  useGlobalEventsLayer(
+    deps.mapRef,
+    deps.layerVisibility.globalEvents,
+    p.globalEventsOpacity ?? 0.9,
   );
   return null;
 };
