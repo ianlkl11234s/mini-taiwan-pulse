@@ -1,34 +1,39 @@
 # Status
 
-**最後更新**：2026-08-30（GFW v4／layer catalog PR 收斂與 memory 同步）
+**最後更新**：2026-09-01（Supabase 儲存稽核 → retention + road_congestion dedup/LOCF + aqi R2，全部上線驗證）
 
-> 本檔只保留目前主線、release truth、blockers 與下一棒；歷史過程留在 git、
-> feature 文件與 `REFLECTIONS.md`。
+> 本檔只保留目前主線、release truth、blockers 與下一棒；歷史過程留在 git、feature 文件與 `REFLECTIONS.md`。
 
 ## Scope ledger
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse root** | `master == origin/master == 928fddb`，工作區乾淨；PR #182（GFW v4）與 #183（layer catalog）皆已 squash merge |
-| **preserved worktrees** | GFW v4、catalog、marine observations、noise layers worktree 均保留且乾淨；不是本次再發布範圍 |
-| **backup evidence** | `backup/master-pre-sync-20260829` 保留兩顆過時 memory commits；不可原樣 cherry-pick，僅供回溯 |
-| **external systems** | 本輪只有 GitHub push／PR／merge／branch cleanup；未執行 DB mutation、object upload、deploy、CDN 或 production HTTP readback |
-| **local browser** | 6002 曾服務舊 GFW worktree，不能證明 #183；該 listener 已停止，尚待從 root `master` 重啟後驗收 |
+| **gis-platform** | PR **#82 merged** origin/main（migrations 385-388）；migrations 已套用+驗證 production。local main 未同步 origin（ahead/behind，非本 session 造成）|
+| **data-collectors** | PR **#69**（road dedup+heartbeat）、**#70**（aqi R2 雙寫）merged origin/main；**Zeabur 已部署並實測運作**（資料行為佐證）|
+| **mini-taiwan-pulse** | `master`：memory + `docs/proposal/supabase-retention-2026-09-01/`；**未 push**（memory commits 依 wrap-up 不 push）|
+| **DB (Supabase)** | retention cron ×7 排上、首夜 22:xx UTC 已首刷；road_congestion LOCF 上線、refresh cron 連續 succeeded；aqi 16,185 幀全上 R2 |
+| **R2 (mini-tw-pulse bucket)** | aqi backfill 100%（`imagery/aqi/…`，物件數 = DB image_key 數）|
 
 ## Release truth matrix
 
-| release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
-|---|---|---|---|---|---|---|---|---|---|
-| GFW v4 PR #182 | done：`npx tsc -b`、132 focused tests、GitHub CI/review | done：merged `706ec66` | N/A | not run | not run | N/A | not run | not run | done：舊 GFW worktree localhost 可載入；非 production |
-| Layer catalog PR #183 | done：`npx tsc -b`、focused tests、GitHub CI/review | done：merged `928fddb` | N/A | not run | not run | N/A | not run | not run | blocked：6002 曾服務錯 worktree，須重啟 root master 後驗收 |
+| release unit | build | applied/upload | deploy | verify |
+|---|---|---|---|---|
+| migrations 385-388 | done：檔+idempotent | done：套用 DB | done：PR#82 | done：cron/function/column 查驗 |
+| road_congestion dedup+LOCF | done：pytest 330 | done：#69 | done：Zeabur | done：rows/section 12→3-5；refresh 12 輪 succeeded；聚合 dash 10% 正常 |
+| aqi R2 雙寫+backfill | done：pytest 339 | done：backfill 16185 = R2 count | done：#70 | done：15z 起新圖自帶 image_key |
 
-## Current blockers / next-session entry
+無 `blocked`/`unknown`；全鏈第一手證據驗證。
 
-1. **Local browser acceptance（ready）**：在 root worktree 以 `gis-up` 重啟 6002；驗收為 World 排在 Layers 後、分類／multi-select 控制可見，且 console 無 error/warn。
-2. **Production release（not run）**：若要發布，先另行授權 deploy；驗收為目標 commit 的 production HTTP 與 browser readback。
-3. **Maritime data gate（blocked）**：GFW token/licence 與 collector snapshot gate 仍未在本輪驗證；不能把 v4 UI merge 寫成資料已上線。
+## Blockers / next-session entry
+
+- **無 blocker**；三改動皆上線並驗證。
+- 下一步（皆可選）：
+  1. read-only 驗昨晚 retention 實際回收多少空間（6 表 + aqi）。
+  2. **WA-3 殘留**：把 coverage 現在 flag 的 6 表（iot_wra_measurements / ship_trails_daily / bus_trails_daily / youbike_h3_daily / news_events / freeway_sections_current）補登記或標 keep-forever。
+  3. **ST-1**：aqi_imagery_frames + groundwater/rain_gauge index 的 `VACUUM FULL`（回收 OS 空間，避尖峰）。
+- ⚠️ 不碰：三 repo 的 local main/master 未同步 origin，屬既有狀態，非本 session 造成，未代 sync/push。
 
 ## Verification boundaries
 
-- GitHub CI/review 與 local TypeScript／unit tests 證明程式整合，不等於 deploy 或 production browser。
-- localhost 只能證明其實際服務的 checkout；hard reload 不會跨 worktree 載入最新 `master`。
+- 部署以 GitHub merge SHA + DB／資料行為第一手證據為準。Zeabur CLI 未登入，部署用 `image_key`（新圖自帶 key）與 `rows/section`（12→3-5）資料行為佐證，非代碼推斷。
+- `stats_reset` 會歸零 pg_stat_*；判 bloat/unused-index 一律用 `pg_class.reltuples`。
