@@ -67,7 +67,8 @@
   1. 建議先轉 PMTiles 縮到 <5MB（線資料 tippecanoe，`-l jp_railways`）→ 逐 zoom 稽核；或直接 git-track 14MB（灰帶，可接受但偏大）。
      > ⟳ **實際**：走 PMTiles，**不需要在兩者間取捨**——`tippecanoe -l jp_railways -Z4 -z12 -pf -pk --no-tile-size-limit`
      > 一次就壓到 **4.86MB（5,093,949 B）**，遠低於 5MB 目標，git-track 毫無壓力。
-     > ⚠️ 未下 `-r1`；z4.7 只渲染 17,069 條 vs 資料 21,933 段的差額成因**未驗證**（已列 backlog）。
+     > ⚠️ 未下 `-r1`，但 PMTiles `strategies` 各 zoom 皆空、`tilestats.count` = 21,933 完整 ——
+     > z4.7 只渲染 17,069 條是視窗裁切＋低 zoom 併段，非資料遺失（2026-09-02 查明）。
   2. 若走 PMTiles：hook clone `useJpAdminLayers` 的 PMTiles source 建法，但 layer type = `line`（非 fill）。source-layer 名 = tippecanoe `-l` 值（＝ `jp_railways`），min/maxzoom 用 `pmtiles show` 確認。
   3. section `{ theme: "交通", group: "線" }`（交通 theme 目前只有「點位」群組，加一個「線」群組）。
   4. 單色即可（免圖例）；或按事業者種別分色（則配圖例 + `jpRailwayTypes.ts`）。popup：路線名/會社。

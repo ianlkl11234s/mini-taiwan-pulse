@@ -43,7 +43,10 @@
 - [ ] **人口網格 timeline slider**（deferred-handoff §2c step 5）：pop_2020..2070 是時序，目前用 select 逐一切換。
       若做需走 timeStore 訂閱、不可把時間放 deps（development-rules §8）。
 - [ ] **鐵道無「大小」控件**：目前只有透明度滑桿，線寬固定 z6=1 → z14=3；密集區可考慮加線寬滑桿。
-- [ ] **鐵道 z4.7 渲染 17,069 條 vs 資料 21,933 段的差額成因未驗證**（配方未下 `-r1`）——要下結論得跑逐 zoom unique id 稽核，比照學校那道。
+- [x] **鐵道 z4.7 渲染 17,069 條 vs 資料 21,933 段的差額**（2026-09-02 已查明，非資料遺失）：
+      PMTiles metadata 的 `strategies` 陣列**各 zoom 皆為空**（tippecanoe 只要有 drop／coalesce 就會記錄），
+      `tilestats.count` = 21,933 完整。差額來自 `queryRenderedFeatures` 只計目前視窗內的圖徵
+      （z4.7 未涵蓋沖繩與九州南緣），加上低 zoom 相鄰線段被併成 MultiLineString。
 - [ ] 車站按運量做 graduated 圓大小（目前運量走分級色，未動圓大小）
 - [ ] 機場按 category（空港種別，拠点/地方管理…）分色 + 圖例
 - [ ] auto-flyTo 座標目視微調（`JAPAN_CAMERA`）；含沖繩可改 `fitBounds([[127.6,26.2],[146.5,45.8]])`
