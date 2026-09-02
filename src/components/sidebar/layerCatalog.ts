@@ -190,7 +190,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育", "宗教"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育", "人口", "宗教"];
 
 /**
  * 完整目錄保留在此，避免為了 UI 敘事分段而搬動大量 layer 定義。
@@ -1444,8 +1444,7 @@ const THEME_CATALOG: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   // 🗾 JAPAN 日本（獨立 rail tab「日本」專屬；桌機主 Layers panel 排除這批主題）
   //    tab 抬頭已是「日本 Japan」，故不再多包一層「日本」主題 ——
-  //    行政區 / 交通 / 教育 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
-  //    主題隨批次擴充：人口（mesh 落地那批再加）。
+  //    行政區 / 交通 / 教育 / 人口 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
   // ───────────────────────────────────────────────────────────────
   {
     title: "行政區",
@@ -1487,6 +1486,18 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "點位",
         layers: [
           fromManifest("jpSchools"),
+        ],
+      },
+    ],
+  },
+  {
+    title: "人口",
+    defaultCollapsed: false,
+    groups: [
+      {
+        title: "面",
+        layers: [
+          fromManifest("jpPopulationMesh1km"),
         ],
       },
     ],
@@ -1557,10 +1568,11 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   [COMMUNICATIONS_THEME_TITLE]: "world",
   "全球氣候 Global Climate": "world",
   "全球海事 Global Maritime": "world",
-  // 日本 tab 四主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
+  // 日本 tab 五主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
   "行政區": "world",
   "交通": "world",
   "教育": "world",
+  "人口": "world",
   "宗教": "world",
 };
 

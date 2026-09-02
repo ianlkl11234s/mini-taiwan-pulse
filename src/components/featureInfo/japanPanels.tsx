@@ -3,6 +3,9 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { JP_RAILWAY_LAYER_COLOR } from "../../data/jpRailwayTypes";
 import { JP_SCHOOL_TYPES, JP_SCHOOL_TYPE_OTHER } from "../../data/jpSchoolTypes";
+import {
+  JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
+} from "../../data/jpPopulationMeshModes";
 
 // 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
 function Title({ color, children }: { color: string; children: string }) {
@@ -158,6 +161,46 @@ export function JpSchoolsPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="設置者" value={str(props.administrator)} />
       <Row label="休校区分" value={str(props.closed_status)} />
       <Row label="所在地" value={str(props.address)} />
+    </>
+  );
+}
+
+// ⚠️ 兩個坑（同 JpStationsPanel 的 passengerCount）：(1) null 經 vt-pbf
+// writeProperties() 會變字串 "null"；(2) Number(null)===0（finite）。
+// 兩者都要先擋 null/""/"null" 再 Number，否則顯示「0 人」或「NaN」。
+const meshNum = (v: unknown): number | null => {
+  if (v == null || v === "" || v === "null") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+};
+const meshPopText = (v: unknown): string => {
+  const n = meshNum(v);
+  return n == null ? "" : `${n.toLocaleString()} 人`;
+};
+// ratio65 是 0~1 比例 → ×100 顯示成 %；**0 是官方對極小人口 mesh 的隱私遮罩，
+// 不是真的 0%**（見 jpPopulationMeshModes.ts），故顯示「未公開」而非 0.0%。
+const meshRatioText = (v: unknown): string => {
+  const n = meshNum(v);
+  if (n == null) return "";
+  if (n === 0) return JP_POPULATION_MESH_MASK.label;
+  return `${(n * 100).toFixed(1)}%`;
+};
+
+/**
+ * 日本 1km 人口網格（176,896 格，JIS X0410 3次メッシュ）。
+ * 一次列出 5 個年份的總人口與 4 個年份的高齡比 —— popup 本身就是一條時間序列，
+ * 不必反覆切 select 才看得到同一格的世代變化。
+ */
+export function JpPopulationMeshPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <>
+      <Title color={JP_POPULATION_MESH_LAYER_COLOR}>{`網格 ${str(props.id) || "—"}`}</Title>
+      {JP_POPULATION_MESH_MODES.filter((m) => m.metric === "pop").map((m) => (
+        <Row key={m.field} label={m.label} value={meshPopText(props[m.field])} />
+      ))}
+      {JP_POPULATION_MESH_MODES.filter((m) => m.metric === "ratio65").map((m) => (
+        <Row key={m.field} label={m.label} value={meshRatioText(props[m.field])} />
+      ))}
     </>
   );
 }

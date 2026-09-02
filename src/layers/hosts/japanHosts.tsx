@@ -6,6 +6,7 @@ import { useJpStationsLayer } from "../../hooks/useJpStationsLayer";
 import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
 import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
+import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -78,6 +79,19 @@ export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpSchools,
     p.jpSchoolsOpacity ?? 0.75,
     p.jpSchoolsScale ?? 1,
+  );
+  return null;
+};
+
+/** 日本 1km 人口網格：PMTiles polygon choropleth，9 種指標／年份由 select 切換。 */
+export const JpPopulationMeshHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPopulationMeshLayer");
+  const p = useKeyOverlayParams("jpPopulationMesh1km");
+  useJpPopulationMeshLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpPopulationMesh1km,
+    p.jpPopulationMeshOpacity ?? 0.55,
+    p.jpPopulationMeshModeIdx ?? 0,
   );
   return null;
 };

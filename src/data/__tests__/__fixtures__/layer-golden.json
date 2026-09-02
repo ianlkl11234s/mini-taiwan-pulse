@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 394,
+    "keyCount": 395,
     "sections": [
       "gisLayers",
       "overlays",
@@ -636,6 +636,12 @@
         "jp-admin-prefecture-fill"
       ],
       "type": "jpAdminPrefecture"
+    },
+    {
+      "layers": [
+        "jp-population-mesh-fill"
+      ],
+      "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
@@ -50868,6 +50874,58 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpPopulationMesh1km": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口 2020",
+            "value": "pop_2020"
+          },
+          {
+            "label": "人口 2030",
+            "value": "pop_2030"
+          },
+          {
+            "label": "人口 2040",
+            "value": "pop_2040"
+          },
+          {
+            "label": "人口 2050",
+            "value": "pop_2050"
+          },
+          {
+            "label": "人口 2070",
+            "value": "pop_2070"
+          },
+          {
+            "label": "高齡比 2030",
+            "value": "ratio65_2030"
+          },
+          {
+            "label": "高齡比 2040",
+            "value": "ratio65_2040"
+          },
+          {
+            "label": "高齡比 2050",
+            "value": "ratio65_2050"
+          },
+          {
+            "label": "高齡比 2070",
+            "value": "ratio65_2070"
+          }
+        ],
+        "type": "select",
+        "value": "pop_2020"
       }
     ],
     "jpRailways": [

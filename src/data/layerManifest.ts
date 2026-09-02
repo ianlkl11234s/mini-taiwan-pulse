@@ -104,6 +104,7 @@ import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
+import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1463,6 +1464,38 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "日本學校（56,807 點，学校分類 13 類分色）",
     topics: ["世界", "日本", "教育", "學校"],
+  },
+
+  jpPopulationMesh1km: {
+    key: "jpPopulationMesh1km",
+    section: { theme: "人口", group: "面" },
+    label: "日本人口網格",
+    labelMobile: "日本人口",
+    expandable: true,
+    color: JP_POPULATION_MESH_LAYER_COLOR,
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_population_mesh_1km", confidence: "HIGH" }],
+      processing:
+        "国土数値情報 1km メッシュ別将来推計人口（JIS X0410 3次メッシュ）→ PMTiles z4-11，176,896 格；" +
+        "跨都道府縣重複的 895 個 MESH_ID 已依 id 聚合",
+      note:
+        "契約見 taipei-gis-analytics/docs/handoff/jp-core-layers.md。" +
+        "⚠️ ratio65_* 為 0~1 比例（非百分比），且 0 多為官方對極小人口 mesh 的隱私遮罩（非真的 0%）；" +
+        "pop 只有 2020/2030/2040/2050/2070 五年（無 2060），ratio65 無 2020（基準年未釋出年齡細分）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpPopulationMeshLayer 自建 mapbox-pmtiles source；source-layer=jp_population_mesh_1km，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_population_mesh_1km.pmtiles"],
+    },
+    legend: "jpPopulationMesh1km",
+    popup: "jpPopulationMesh1km",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）",
+    topics: ["世界", "日本", "人口", "高齡化", "網格"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），

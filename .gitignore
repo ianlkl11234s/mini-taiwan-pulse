@@ -101,6 +101,12 @@ public/coverage/real_estate_points_buffer.bin
 #    real_estate_*，power_poles 從未被上傳過 → gitignore 掉又沒進 S3 = 兩條路都沒有。
 #    已在該腳本補進迴圈，本行現在名副其實；src/map/__tests__/deployContract.test.ts 釘住。
 public/coverage/power_poles.pmtiles
+# 日本 1km 人口網格 PMTiles 48.6MB（176,896 格 × 9 個推計欄位，走 S3 deploy-assets/world/）
+# ⚠️ 刻意寫**單一檔名**而不是 public/world/*.pmtiles —— 同夾的 jp_admin_boundaries*.pmtiles /
+#    jp_religion_gsi.pmtiles / jp_railways.pmtiles / jp_schools.pmtiles 都已 git-track（皆 <25MB），
+#    glob 會把它們一起 un-track；deployContract 對 /world/ 是「upload 或 git-track 其一即可」
+#    （nginx 有 dist fallback）⇒ 那種靜默退化測試擋不住。
+public/world/jp_population_mesh_1km.pmtiles
 # 醫療 GeoJSON（走 S3 deploy-assets，5 檔合計 ~65MB）
 public/geo/medical_*.geojson
 # 醫療 PMTiles（走 S3 deploy-assets/medical/）

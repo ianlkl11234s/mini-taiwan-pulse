@@ -179,6 +179,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
+  // 🔴 人口網格覆蓋全日本、且格子最小 —— 但它是「最大面積的面層」語意（無縫鋪滿），
+  //    排在所有日本層之後（first-hit-wins）。反過來排前面會吃掉全部日本點擊。
+  //    ⚠️ 代價：縣界／市界任一開著時本層 popup 不可達（那兩層排在前面且同樣鋪滿）。
+  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
   { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },
