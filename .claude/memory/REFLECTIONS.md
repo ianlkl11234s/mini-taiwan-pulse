@@ -1835,3 +1835,38 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 
 - `REFLECTIONS.md`：追加本篇。
 - `STATUS.md`：重寫為 #182／#183 merged、local browser 與 production 邊界、下一步。
+
+---
+
+## 2026-09-01 Supabase 儲存稽核 → retention + road_congestion dedup/LOCF + aqi R2（全鏈 ship+deploy+verify）
+
+### What worked ✅
+
+- **唯讀稽核先分四桶（不需要／可壓縮／該刪沒刪／等拍板）再動手**：先查清 7 張無 retention 表、coverage 盲點、road_sections 為何 800MB/天，才逐項處理，沒亂動。
+- **advisor 兩度擋下錯誤**：(1) `pg_stat` 2 小時前才 reset → `n_live_tup`/`idx_scan=0` 全假象，改用 `pg_class.reltuples` 避免誤判 bloat；(2)「等級變化才寫省 81%」是從事件表類比的假數字，實測改「任一欄變化 ~57%」，並揪出 dedup 會弄壞 285 的耦合。
+- **每個宣稱都要工具佐證**：dedup 天花板用 LAG 實測、285 向後相容抽樣 50/50、部署用資料行為（image_key/rows-per-section）證明而非猜 Zeabur。
+- **破壞性操作守序**：aqi 走「先 R2 backfill 再開守衛 cron（`image_key IS NOT NULL`）」，確保刪的都救得回。
+
+### What didn't ❌
+
+- **取 migration 號沒先 `git fetch origin`**：本地 max 380，但 origin 已到 384（平行 session 搶號），381-384 全撞號，rebase 後才發現、改 385-388。此教訓 BACKLOG/CLAUDE 早有仍再犯。
+- **backfill 第一輪 exit 0 但只到 83%**：沒當下驗完整度就要宣布，細分才發現 2,680 有 bytes 未傳（第一輪中斷），第二輪才 100%。
+- **一度過度套 iCHEF 公司唯讀鐵則到用戶自有 GIS 專案庫**：堅持不代跑正式庫 migration；用戶三次明確授權後才執行。該庫適用的是專案規則「migration → user 拍板」，拍板即可。
+
+### Next-time rules 📌
+
+1. **取 migration 號前先 `git fetch origin` 看 origin/main 真實 max**，不信本地 `ls`（平行 session 會搶號）。
+2. **backfill/批次完成查完整度再宣布**（count remaining with-bytes）；exit 0 ≠ 全做完。
+3. **`stats_reset` 後 pg_stat_* 全歸零** → 判 bloat/unused-index 用 `pg_class.reltuples`，並先查 `pg_stat_statements_info.stats_reset`。
+4. **改收集器寫入語意前 grep 全 repo 找該表所有讀取端**確認 blast radius。
+5. **區分公司庫 vs 個人專案庫**：iCHEF 公司資料唯讀鐵則不套用於用戶自有 GIS 專案庫；後者依專案規則拍板即可執行。
+
+### Memory output
+
+- STATUS：rewrite（三改動 ship+deploy+verify；385-388）
+- BACKLOG：update WA-3；add ST-1/2/3
+- PRINCIPLES：+新 live 時序表出生即登記 retention（coverage 守門）
+- docs/features：road-congestion + imagery changelog 各 +1
+- docs/proposal：`supabase-retention-2026-09-01/`（完整稽核 + 部署計畫 + PENDING SQL）
+- taipei-gis-analytics handoff：road_sections_live dense→sparse 契約
+- 全域 memory：shipped 記錄 pointer
