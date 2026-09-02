@@ -53,7 +53,7 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel,
+  JpRailwaysPanel, JpSchoolsPanel,
 } from "./japanPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
@@ -338,6 +338,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
+  jpSchools: JpSchoolsPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -707,6 +708,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpStations: "日本車站",
   jpAirports: "日本機場",
   jpRailways: "日本鐵道路線",
+  jpSchools: "日本學校",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

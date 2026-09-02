@@ -1363,6 +1363,7 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   jpRailways: [opacitySlider("jpRailwaysOpacity", 0.9)],
+  jpSchools: [opacitySlider("jpSchoolsOpacity", 0.75), scaleSlider("jpSchoolsScale", 1)],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
   ],

@@ -5,6 +5,7 @@ import { useJpAdminLayers } from "../../hooks/useJpAdminLayers";
 import { useJpStationsLayer } from "../../hooks/useJpStationsLayer";
 import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
 import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
+import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -64,6 +65,19 @@ export const JpRailwaysHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.jpRailways,
     p.jpRailwaysOpacity ?? 0.9,
+  );
+  return null;
+};
+
+/** 日本學校：PMTiles point，按学校分類 13 色分色，無時間維度。 */
+export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpSchoolsLayer");
+  const p = useKeyOverlayParams("jpSchools");
+  useJpSchoolsLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpSchools,
+    p.jpSchoolsOpacity ?? 0.75,
+    p.jpSchoolsScale ?? 1,
   );
   return null;
 };

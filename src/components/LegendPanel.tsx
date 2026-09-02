@@ -56,6 +56,7 @@ import {
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -315,6 +316,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1093,6 +1095,29 @@ function JpRailwaysLegend() {
         日本鐵道 事業者種別
       </div>
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
+    </div>
+  );
+}
+
+// ── 日本學校（学校分類 13 類，靜態無模式切換）──
+// 13 列單欄太長 → 兩欄排版（比照非都市土地使用分區）；13 類已窮盡 56,807 筆，
+// 故不列「その他」。色票 SSOT: data/jpSchoolTypes.ts（排列＝學制階梯，同階梯同色系）。
+
+function JpSchoolsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本學校 学校分類
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {JP_SCHOOL_TYPES.map((c) => (
+          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

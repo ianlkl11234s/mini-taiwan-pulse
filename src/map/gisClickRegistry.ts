@@ -168,10 +168,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
   { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
   { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
+  // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
+  { layers: ["jp-schools-circle"], type: "jpSchools" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
-  // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 鐵道線）。
+  // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
   { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },

@@ -103,6 +103,7 @@ import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
+import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1435,6 +1436,33 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "日本鐵道路線（21,933 段，事業者種別 5 類分色）",
     topics: ["世界", "日本", "交通", "鐵道"],
+  },
+
+  jpSchools: {
+    key: "jpSchools",
+    section: { theme: "教育", group: "點位" },
+    label: "日本學校",
+    labelMobile: "日本學校",
+    expandable: true,
+    color: JP_SCHOOL_LAYER_COLOR,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_schools", confidence: "HIGH" }],
+      processing: "日本全国学校一覧 PMTiles，56,807 點；含校名／所在地／学校分類／設置者／休校区分",
+      note: "轉檔時已剔除 *_code 冗餘代碼欄與 latitude/longitude/campus_note，前端只讀 6 個屬性",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpSchoolsLayer 自建 mapbox-pmtiles source；source-layer=jp_schools，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_schools.pmtiles"],
+    },
+    legend: "jpSchools",
+    popup: "jpSchools",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本學校（56,807 點，学校分類 13 類分色）",
+    topics: ["世界", "日本", "教育", "學校"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），

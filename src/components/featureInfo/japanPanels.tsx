@@ -2,6 +2,7 @@ import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { JP_RAILWAY_LAYER_COLOR } from "../../data/jpRailwayTypes";
+import { JP_SCHOOL_TYPES, JP_SCHOOL_TYPE_OTHER } from "../../data/jpSchoolTypes";
 
 // 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
 function Title({ color, children }: { color: string; children: string }) {
@@ -137,6 +138,26 @@ export function JpRailwaysPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="運営会社" value={str(props.operator)} />
       <Row label="事業者種別" value={str(props.operator_type)} />
       <Row label="鉄道区分" value={str(props.railway_category)} />
+    </>
+  );
+}
+
+/**
+ * 日本學校（56,807 點，学校分類 13 色）。
+ * PMTiles 只保留 6 個 String 屬性（*_code 冗餘欄已在轉檔剔除），直接 str() 即可。
+ * 標題色跟著該校的分類走，與地圖上的點同色。
+ */
+export function JpSchoolsPanel({ props }: { props: Record<string, unknown> }) {
+  const schoolClass = str(props.school_class);
+  const color =
+    JP_SCHOOL_TYPES.find((t) => t.value === schoolClass)?.color ?? JP_SCHOOL_TYPE_OTHER.color;
+  return (
+    <>
+      <Title color={color}>{str(props.name) || "学校"}</Title>
+      <Row label="学校分類" value={schoolClass} />
+      <Row label="設置者" value={str(props.administrator)} />
+      <Row label="休校区分" value={str(props.closed_status)} />
+      <Row label="所在地" value={str(props.address)} />
     </>
   );
 }
