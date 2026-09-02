@@ -4,6 +4,7 @@
 import { useJpAdminLayers } from "../../hooks/useJpAdminLayers";
 import { useJpStationsLayer } from "../../hooks/useJpStationsLayer";
 import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
+import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -51,6 +52,18 @@ export const JpAirportsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpAirports,
     p.jpAirportsOpacity ?? 0.5,
     displayMode,
+  );
+  return null;
+};
+
+/** 日本鐵道路線：PMTiles line，按事業者種別分色，無時間維度。 */
+export const JpRailwaysHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpRailwaysLayer");
+  const p = useKeyOverlayParams("jpRailways");
+  useJpRailwaysLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpRailways,
+    p.jpRailwaysOpacity ?? 0.9,
   );
   return null;
 };

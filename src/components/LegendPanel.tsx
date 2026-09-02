@@ -55,6 +55,7 @@ import {
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
+import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -313,6 +314,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
+  { id: "jpRailways", render: () => <JpRailwaysLegend /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1075,6 +1077,22 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
           { color: JP_STATION_TYPE_OTHER.color, label: JP_STATION_TYPE_OTHER.label },
         ]}
       />
+    </div>
+  );
+}
+
+// ── 日本鐵道路線（事業者種別 5 類，靜態無模式切換）──
+// 5 類已窮盡 21,933 段（其他為 0 筆）→ 不列「その他」。
+// 同名類別與日本車站共用 hex（色票 SSOT: data/jpRailwayTypes.ts）。
+
+function JpRailwaysLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本鐵道 事業者種別
+      </div>
+      <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
   );
 }

@@ -102,6 +102,7 @@ import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
+import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1408,6 +1409,32 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "日本機場（108 面，含空港種別／跑道規格）",
     topics: ["世界", "日本", "交通", "機場"],
+  },
+
+  jpRailways: {
+    key: "jpRailways",
+    section: { theme: "交通", group: "線" },
+    label: "日本鐵道路線",
+    labelMobile: "日本鐵道",
+    expandable: true,
+    color: JP_RAILWAY_LAYER_COLOR,
+    icon: RailSymbol,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_railways", confidence: "HIGH" }],
+      processing: "日本鐵道路線 PMTiles，21,933 段；含路線名／運営会社／事業者種別／鉄道区分",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpRailwaysLayer 自建 mapbox-pmtiles source；source-layer=jp_railways，minzoom=4 maxzoom=12",
+      staticAssets: ["./world/jp_railways.pmtiles"],
+    },
+    legend: "jpRailways",
+    popup: "jpRailways",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本鐵道路線（21,933 段，事業者種別 5 類分色）",
+    topics: ["世界", "日本", "交通", "鐵道"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），

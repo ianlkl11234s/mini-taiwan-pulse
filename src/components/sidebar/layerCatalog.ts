@@ -1471,6 +1471,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("jpAirports"),
         ],
       },
+      {
+        title: "線",
+        layers: [
+          fromManifest("jpRailways"),
+        ],
+      },
     ],
   },
   {

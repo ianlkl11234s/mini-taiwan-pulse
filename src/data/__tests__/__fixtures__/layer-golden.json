@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 392,
+    "keyCount": 393,
     "sections": [
       "gisLayers",
       "overlays",
@@ -605,6 +605,12 @@
         "jp-religion-gsi-circle"
       ],
       "type": "jpReligionGsi"
+    },
+    {
+      "layers": [
+        "jp-railways-line"
+      ],
+      "type": "jpRailways"
     },
     {
       "layers": [
@@ -50856,6 +50862,15 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpRailways": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
       }
     ],
     "jpReligionGsi": [

@@ -1,6 +1,7 @@
 import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { JP_RAILWAY_LAYER_COLOR } from "../../data/jpRailwayTypes";
 
 // 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
 function Title({ color, children }: { color: string; children: string }) {
@@ -120,6 +121,22 @@ export function JpAirportsPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="供用状況" value={str(props.status)} />
       <Row label="定期便" value={str(props.regular_flight)} />
       <Row label="滑走路" value={runwayLabel} />
+    </>
+  );
+}
+
+/**
+ * 日本鐵道路線（21,933 段，事業者種別 5 色）。
+ * PMTiles 屬性全為 String 純量（非車站那種陣列），直接 str() 即可。
+ */
+export function JpRailwaysPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <>
+      <Title color={JP_RAILWAY_LAYER_COLOR}>{str(props.line_name) || "鉄道路線"}</Title>
+      <Row label="路線名" value={str(props.line_name)} />
+      <Row label="運営会社" value={str(props.operator)} />
+      <Row label="事業者種別" value={str(props.operator_type)} />
+      <Row label="鉄道区分" value={str(props.railway_category)} />
     </>
   );
 }

@@ -68,7 +68,7 @@ import {
   SocioeconomicHost, SpatialEconomyHost, YoubikeHost,
 } from "./hosts/gridHosts";
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
-import { JpAdminHost, JpStationsHost, JpAirportsHost } from "./hosts/japanHosts";
+import { JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost } from "./hosts/japanHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -217,6 +217,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   },
   { id: "useJpStationsLayer", keys: ["jpStations"], Host: JpStationsHost },
   { id: "useJpAirportsLayer", keys: ["jpAirports"], Host: JpAirportsHost },
+  { id: "useJpRailwaysLayer", keys: ["jpRailways"], Host: JpRailwaysHost },
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },
   { id: "useClimateParticleLineLayer:ocean", keys: ["oceanCurrents"], Host: OceanCurrentsHost },
   { id: "useDustForecastLayer", keys: ["dustForecast"], Host: DustForecastHost },

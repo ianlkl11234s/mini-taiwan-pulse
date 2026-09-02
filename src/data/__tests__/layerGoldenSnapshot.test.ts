@@ -129,7 +129,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-08-28：+1 = gfwFishingEffort（DEV-only v4 shadow daily sample）。
     // 2026-09-01：+4 = jpAdminPrefecture / jpAdminBoundaries / jpStations / jpAirports
     // （日本 Japan Batch 2：行政區 2 層 PMTiles + 交通 2 層 GeoJSON）。
-    expect(keys.length).toBe(392);
+    // 2026-09-02：+1 = jpRailways（日本鐵道路線 PMTiles line，事業者種別 5 色）。
+    expect(keys.length).toBe(393);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

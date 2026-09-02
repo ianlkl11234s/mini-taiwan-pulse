@@ -359,7 +359,7 @@ export type ExpandableLayerKey =
   // 🌍 世界 World
   | "worldTrashDebris"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
-  | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports";
+  | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -810,6 +810,8 @@ export interface FeatureInfo {
     | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
+    // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
+    | "jpRailways"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -1277,6 +1279,7 @@ export interface LayerVisibility {
   jpAdminBoundaries: boolean;   // 日本市区町村界（PMTiles polygon，1,905 筆）
   jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
   jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
+  jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
 }
 
 // ── 空氣品質 ──
