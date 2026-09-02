@@ -1424,3 +1424,11 @@ chardet 猜測**，中文 UTF-8 位元組常被猜成西里爾單位元組碼頁
   head 已發布。
 - production DB／collector／archive 的現場事實優先於 migration 編號與舊文件；發現矛盾先做
   read-only 查證，避免因「文件寫待部署」而重跑已在運作的 migration。
+
+## 新 live 時序表出生即登記 retention（2026-09-01）
+
+- 新 `live` 時序表建立當下就在 `metadata.retention_policies` 登記：需清理的填 `kind=delete/partition` + retention_days + time_column；刻意永久保留的用 `retention_days=NULL` 明確豁免。不靠事後稽核補（2026-09 發現 7 張漏網、~4.1GB 持續成長）。
+- `metadata.check_retention_coverage()`（migration 385 擴充）現在會自動 flag「任何未登記的 >100MB live 表」；回非空 = 有表在長大沒人管，daily_report 會現形。原本只查「分區母表未登記」+「已登記 delete 表無 cron」，**看不到從未登記的非分區表**（假安心的盲點）。
+- retention 天數下限 = 前端/RPC 實際回看窗口（從 RPC body 的 `now()-interval` / 參數預設 + 呼叫端實傳值推）；設低於它會弄壞現有卡（例：er_hospital `get_er_wait_total_14d` → ≥14 天）。
+- 影像類（base64 存 DB）加 retention 前**必須先 R2 雙寫**，cleanup 一律加 `image_key IS NOT NULL` 守衛只刪已備份的（cwa/aqi pattern）；沒副本刪了救不回。
+- 改收集器寫入語意（如 dedup 讓表變稀疏）前，先 grep 全 repo 找該表**所有時間窗讀取端**確認 blast radius；稀疏化後下游查詢須改 as-of（≤T 最新 + LOCF），不能假設每槽有列。
