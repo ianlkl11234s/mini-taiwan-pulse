@@ -4,6 +4,16 @@
 
 ---
 
+## 2026-09-01 — dedup + heartbeat + 285 LOCF（data-collectors #69 / gis-platform #82 migration 386，已上線驗證）
+
+- **收集器 dedup**：`road_sections_live` 從「每 5 分鐘全量 append」改為「congestion_level/travel_speed/travel_time 任一變化才寫」（float4 round(2) 防浮點誤判）；`road_sections_current` 維持每輪全量 upsert。**每台北日第一輪 bypass dedup 全量寫一次（heartbeat）** 保證每天至少一張完整快照。實測 rows/section 12 → 3-5（省 ~57-75%）。
+- **285 改 LOCF**（migration 386）：原 `refresh_road_congestion_daily()` 純時間桶對位、無 forward-fill，稀疏化會破洞/整段消失。重寫成 LOCF forward-fill（island 技巧）+ 跨日 seed（`seed_lookback_days=1`，依賴 heartbeat）+ section 清單改用 `road_sections_current`。簽名/回傳 char(288)/合約不變。
+- **blast radius**：全 repo grep 確認 `road_sections_live` 唯一時間窗讀取端就是這支聚合。
+- **驗收**：pytest 330（含 heartbeat 跨日）；合成稀疏 4 案 + 正式庫向後相容抽樣 50/50 不覆蓋有效讀數；部署後 refresh cron 連續 12 輪 succeeded、聚合 dash 10% 正常；EXPLAIN 44s（15-min cron 餘裕充足，約基準 2x，dedup 後降）。
+- 取捨：`seed_lookback_days` 必須 < road_sections_live retention（7 天）；若 refresh 成長可拆 seed 子查詢（見 BACKLOG ST-2）。
+
+---
+
 ## 2026-07-10 — Batch 2（branch `feat/road-congestion`，stack 於 feat/er-hospital，未 PR / 未 push）
 
 - 新增 `roadCongestion` 圖層（即時監控 §，**v1 省道 highway**）：省道路段依即時 congestion level 綠→紅染色。
