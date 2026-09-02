@@ -50,6 +50,7 @@ import {
 } from "./hosts/hazardHosts";
 import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
+  GlobalEventsHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
@@ -205,6 +206,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
   { id: "useTyphoonTracksLayer", keys: ["typhoonTracks"], Host: TyphoonTracksHost },
   { id: "useWorldTrashDebrisLayer", keys: ["worldTrashDebris"], Host: WorldTrashDebrisHost },
+  { id: "useGlobalEventsLayer", keys: ["globalEvents"], Host: GlobalEventsHost },
   {
     id: "useJpReligionLayers",
     keys: ["jpReligionGsi", "jpReligionOsm", "jpReligionWikidata"],

@@ -1,6 +1,7 @@
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
+import { globalEventCategoryLabel, globalEventSeverityLabel } from "../../data/globalEventsTypes";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -113,6 +114,36 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
       <Row label="ID" value={String(props.id ?? "—")} />
       <Row label="資料" value="Outerview（CC-BY-4.0）" />
       <Row label="說明" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
+    </div>
+  );
+}
+
+function fmtGlobalEventTime(value: unknown): string {
+  if (typeof value !== "string" || !value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("zh-TW", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+
+export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) {
+  const confidence = typeof props.confidence === "number" && Number.isFinite(props.confidence)
+    ? `${Math.round(props.confidence * 100)}%`
+    : "—";
+  const placeParts = [props.place_name, props.admin2, props.admin1, props.country_code]
+    .filter((value) => typeof value === "string" && value.length > 0);
+  return (
+    <div>
+      <Row label="事件" value={String(props.title_zh_tw ?? "—")} />
+      <Row label="摘要" value={String(props.summary_zh_tw ?? "—")} />
+      <Row label="分類" value={globalEventCategoryLabel(props.category)} />
+      <Row label="嚴重度" value={globalEventSeverityLabel(props.severity)} />
+      <Row label="信心" value={confidence} />
+      <Row label="地點" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
+      <Row label="事件時間" value={fmtGlobalEventTime(props.valid_from)} />
+      <Row label="發布時間" value={fmtGlobalEventTime(props.published_at)} />
+      <Row label="位置精度" value={String(props.precision ?? "—")} />
     </div>
   );
 }

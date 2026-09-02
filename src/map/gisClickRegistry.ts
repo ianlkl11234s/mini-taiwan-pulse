@@ -153,6 +153,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 全球氣候 GLOBAL CLIMATE
   { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
   // 🌍 世界 WORLD
+  { layers: ["global-events-current-circle"], type: "globalEvent" },
   { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
   { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
   // grid hook 會把 alpha dominant 的 H 或 H+1 複製到專用 hit source；此處只查它，

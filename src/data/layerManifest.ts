@@ -1061,6 +1061,32 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "環境", "垃圾"],
   },
 
+  globalEvents: {
+    key: "globalEvents",
+    section: { theme: "世界 World", group: "重要事件" },
+    label: "全球重要事件 Global Events",
+    labelMobile: "全球重要事件",
+    expandable: true,
+    color: "#f97316",
+    icon: MapPinned,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Collector + Qwen 大量初篩，Codex cloud 深度研究；GitHub 為研究 SSOT，publisher 發布 current version 到 Supabase",
+      note: "前端只讀 anon-safe public.get_global_event_places_current RPC；unknown geometry 不顯示也不補代理座標",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGlobalEventsLayer 自建 global-events-current GeoJSON source/circle；RPC 最多取最新 100 筆，僅接受非 null Point geometry",
+    },
+    legend: "globalEvents",
+    popup: "globalEvent",
+    params: { count: 1, kinds: ["slider"] },
+    description: "已發布的全球重要事件；顏色表示分類、大小表示嚴重度，無可靠位置者不畫上地圖",
+    topics: ["世界", "重要事件", "情報"],
+  },
+
   aisstreamVessels: {
     key: "aisstreamVessels",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },

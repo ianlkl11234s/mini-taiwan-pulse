@@ -14,6 +14,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../data/globalEventsTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
@@ -311,6 +312,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
@@ -4586,6 +4588,36 @@ function WorldTrashDebrisLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.3 }}>
         資料：Outerview (CC-BY-4.0)
+      </div>
+    </div>
+  );
+}
+
+function GlobalEventsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        全球重要事件 GLOBAL EVENTS
+      </div>
+      <FireCatRows cats={GLOBAL_EVENT_CATEGORIES.map(({ color, label }) => ({ color, label }))} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
+        {GLOBAL_EVENT_SEVERITIES.map((item) => (
+          <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <div style={{
+              width: item.radius * 2,
+              height: item.radius * 2,
+              borderRadius: RADIUS.full,
+              background: "#94a3b8",
+              border: "1px solid rgba(15,23,42,0.8)",
+              flexShrink: 0,
+            }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{item.value}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>
+        大小 = 嚴重度 0–3；無可靠位置的事件不顯示
       </div>
     </div>
   );
