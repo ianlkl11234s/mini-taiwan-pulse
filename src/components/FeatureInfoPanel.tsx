@@ -85,10 +85,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
       style={{
         width: isCctv ? 460 : 280,
         maxWidth: "92vw",
-        maxHeight: "100%",
-        boxSizing: "border-box",
-        position: "relative",
-        overflow: "hidden",
+        maxHeight: "80vh",
         display: "flex",
         flexDirection: "column",
         background: c.panelBg,
@@ -125,7 +122,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
         {HEADER_LABELS[feature.layerType]}
       </div>
 
-      <div className="mtp-scroll" style={{ overflowY: "auto", minHeight: 0, flex: "1 1 auto", overscrollBehavior: "contain" }}>
+      <div style={{ overflowY: "auto", minHeight: 0, flex: 1 }}>
         {content}
       </div>
     </div>
