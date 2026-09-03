@@ -7,7 +7,13 @@ const OPACITY_BACKLOG: string[] = [];
 
 const CONFIRMED_POINT_SIZE_BACKLOG: string[] = [];
 
-const MAPBOX_POINT_SIZE_BACKLOG: string[] = [];
+const MAPBOX_POINT_SIZE_BACKLOG: string[] = [
+  // 2026-09-04：噪音三個點層來自 codex/noise-layers（2026-08-28 分支），早於 master 把本清單
+  // 收斂成空陣列的「點層必備大小控件」政策。合併時只登記缺口、不順手補控件（補齊要同步
+  // layerParamsSpec + overlay circle-radius + manifest params.count + golden fixture）。
+  // 補上大小控件時把這三筆刪掉，讓清單縮回空陣列。
+  "noiseEnforcementEvents", "officialNoiseMonitoring", "soundCameraLocations",
+];
 
 /** 海事邊界的寬度同時縮放線與 basepoint，故不再新增重複的「大小」控制。 */
 const POINT_SIZE_POLICY_EXCEPTIONS = ["maritimeBoundary"] as const;
