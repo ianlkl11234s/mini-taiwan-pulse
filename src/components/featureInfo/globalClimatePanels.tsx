@@ -127,23 +127,51 @@ function fmtGlobalEventTime(value: unknown): string {
   });
 }
 
+export function globalEventLocationLabel(props: Record<string, unknown>): string {
+  if (props.location_kind === "event_point") return "精確事件位置（來源直接支持）";
+  if (props.location_kind === "city_center") return "城市代表點（非事件精確座標）";
+  if (props.location_kind === "country_center") return "國家代表點（非事件精確座標）";
+  if (props.is_proxy === true && props.representative_precision === "city") {
+    return "城市代表點（非事件精確座標）";
+  }
+  if (props.is_proxy === true && props.representative_precision === "country") {
+    return "國家代表點（非事件精確座標）";
+  }
+  return "事件位置";
+}
+
 export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) {
   const confidence = typeof props.confidence === "number" && Number.isFinite(props.confidence)
     ? `${Math.round(props.confidence * 100)}%`
     : "—";
-  const placeParts = [props.place_name, props.admin2, props.admin1, props.country_code]
-    .filter((value) => typeof value === "string" && value.length > 0);
+  const placeParts = [...new Set(
+    [props.place_name, props.admin2, props.admin1, props.country_code]
+      .filter((value): value is string => typeof value === "string" && value.length > 0),
+  )];
+  const publicationNo = typeof props.publication_no === "number" && Number.isInteger(props.publication_no)
+    ? props.publication_no
+    : null;
   return (
-    <div>
+    <div data-testid="global-event-popup">
       <Row label="事件" value={String(props.title_zh_tw ?? "—")} />
       <Row label="摘要" value={String(props.summary_zh_tw ?? "—")} />
       <Row label="分類" value={globalEventCategoryLabel(props.category)} />
       <Row label="嚴重度" value={globalEventSeverityLabel(props.severity)} />
       <Row label="信心" value={confidence} />
       <Row label="地點" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
+      <Row label="落點語意" value={globalEventLocationLabel(props)} />
       <Row label="事件時間" value={fmtGlobalEventTime(props.valid_from)} />
       <Row label="發布時間" value={fmtGlobalEventTime(props.published_at)} />
-      <Row label="位置精度" value={String(props.precision ?? "—")} />
+      {publicationNo !== null && <Row label="發布版本" value={`#${publicationNo}`} />}
+      {typeof props.lifecycle_state === "string" && <Row label="生命週期" value={props.lifecycle_state} />}
+      {typeof props.display_from === "string" && <Row label="時間軸顯示起點" value={fmtGlobalEventTime(props.display_from)} />}
+      {typeof props.display_from === "string" && (
+        <Row
+          label="時間軸顯示終點"
+          value={typeof props.display_to === "string" ? fmtGlobalEventTime(props.display_to) : "未有真實結束時間"}
+        />
+      )}
+      <Row label="位置來源" value={String(props.location_source ?? "—")} />
     </div>
   );
 }

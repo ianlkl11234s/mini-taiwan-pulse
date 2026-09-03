@@ -4617,7 +4617,14 @@ function GlobalEventsLegend() {
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>
-        大小 = 嚴重度 0–3；無可靠位置的事件不顯示
+        大小 = 嚴重度 0–3
+      </div>
+      <div style={{ display: "flex", gap: 9, marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim }}>
+        <span><span style={{ color: "#facc15" }}>○</span> 新事件</span>
+        <span><span style={{ color: "#38bdf8" }}>○</span> 版本更新</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.35 }}>
+        點位可能是來源支持的事件點，或城市／國家代表中心；代表點不是精確發生座標，詳見 popup。
       </div>
     </div>
   );
