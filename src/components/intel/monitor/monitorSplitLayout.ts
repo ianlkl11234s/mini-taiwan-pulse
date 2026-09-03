@@ -86,6 +86,7 @@ export const MONITOR_SPLIT_CAMERA = {
  *   y17–    liveWall → hazardStrip → 颱風（全寬）→ 其餘三卡（一列 w4）→ foodPriceBoard
  *           → taiex|situationCards → prison|airportPax → powerCard
  *           → erCongestion → situationOverview → plaBoard
+ *           → 特殊船舶 → ISR → 台鐵 → internetHealth
  *
  * 下半刻意走全寬：窄欄（~415px）放不下影像牆與趨勢圖，全寬（~835px）才讀得出來。
  * 全寬區塊之間都是乾淨的水平切線，guillotine 拆解不會有互卡。
@@ -106,29 +107,33 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "triage", x: 0, y: 14, w: 6, h: 3 },
 
   // ── 下半：全寬縱向流 ──
-  { i: "liveWall", x: 0, y: 17, w: 12, h: 13, fit: "content" },
-  { i: "hazardStrip", x: 0, y: 30, w: 12, h: 7, fit: "content" },
+  { i: "liveWall", x: 0, y: 21, w: 12, h: 13, fit: "content" },
+  { i: "hazardStrip", x: 0, y: 34, w: 12, h: 7, fit: "content" },
   // 颱風卡獨立一列全寬（2026-08-16）：它有上下兩排趨勢圖（接近程度 + 1000km 內顆數），
   // 比其他三張高一截。留在同一列的話，`renderMonitorNode` 的等高規則（並排葉節點
   // stretch）會把輻射／落雷／地震一起拉到颱風的高度，底下拖三塊空白。
-  { i: "typhoon", x: 0, y: 37, w: 12, h: 6, fit: "content" },
+  { i: "typhoon", x: 0, y: 41, w: 12, h: 6, fit: "content" },
   // 其餘三卡一列三格（各 w4 ≈ 275px，比原本四格的 200px 還寬鬆）
-  { i: "radiation", x: 0, y: 43, w: 4, h: 4, fit: "content" },
-  { i: "lightning", x: 4, y: 43, w: 4, h: 4, fit: "content" },
-  { i: "earthquake", x: 8, y: 43, w: 4, h: 4, fit: "content" },
-  { i: "foodPriceBoard", x: 0, y: 47, w: 12, h: 7, fit: "content" },
-  { i: "taiex", x: 0, y: 54, w: 6, h: 3, fit: "content" },
-  { i: "situationCards", x: 6, y: 54, w: 6, h: 3, fit: "content" },
-  { i: "prison", x: 0, y: 57, w: 6, h: 5, fit: "content" },
-  { i: "airportPax", x: 6, y: 57, w: 6, h: 5, fit: "content" },
-  { i: "powerCard", x: 0, y: 62, w: 12, h: 11, fit: "content" },
-  { i: "erCongestion", x: 0, y: 73, w: 12, h: 11, fit: "content" },
-  { i: "situationOverview", x: 0, y: 84, w: 12, h: 4, fit: "content" },
-  { i: "plaBoard", x: 0, y: 88, w: 12, h: 12, fit: "content" },
-  // 接在共機卡之後 —— 兩者同屬「軍事態勢」，一個看空域一個看海域
-  { i: "vesselZone", x: 0, y: 100, w: 12, h: 10, fit: "content" },
+  { i: "radiation", x: 0, y: 47, w: 4, h: 4, fit: "content" },
+  { i: "lightning", x: 4, y: 47, w: 4, h: 4, fit: "content" },
+  { i: "earthquake", x: 8, y: 47, w: 4, h: 4, fit: "content" },
+  { i: "foodPriceBoard", x: 0, y: 51, w: 12, h: 7, fit: "content" },
+  { i: "taiex", x: 0, y: 58, w: 6, h: 3, fit: "content" },
+  { i: "situationCards", x: 6, y: 58, w: 6, h: 3, fit: "content" },
+  { i: "prison", x: 0, y: 61, w: 6, h: 5, fit: "content" },
+  { i: "airportPax", x: 6, y: 61, w: 6, h: 5, fit: "content" },
+  { i: "powerCard", x: 0, y: 66, w: 12, h: 11, fit: "content" },
+  { i: "erCongestion", x: 0, y: 77, w: 12, h: 11, fit: "content" },
+  { i: "situationOverview", x: 0, y: 88, w: 12, h: 4, fit: "content" },
+  { i: "plaBoard", x: 0, y: 92, w: 12, h: 12, fit: "content" },
+  // 接在共機卡之後 —— 兩者同屬「軍事態勢」，一個看空域一個看海域。
+  { i: "vesselZone", x: 0, y: 104, w: 12, h: 10, fit: "content" },
+  // 中國 ISR 衛星過境接在特殊船舶後；窄版用全寬保留日柱可讀性。
+  { i: "isrSatellitePasses", x: 0, y: 114, w: 12, h: 8, fit: "content" },
   // 台鐵誤點（2026-08-22）：窄版底部沿用全寬堆疊，不影響「兩欄同止」規則。
-  { i: "traDelay", x: 0, y: 110, w: 12, h: 8, fit: "content" },
+  { i: "traDelay", x: 0, y: 122, w: 12, h: 8, fit: "content" },
+  // RIPE 網路觀察接在 TRA DELAY 後方，維持尾端全寬。
+  { i: "internetHealth", x: 0, y: 130, w: 12, h: 4, fit: "content" },
 ];
 
 /**

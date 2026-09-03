@@ -153,6 +153,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 全球氣候 GLOBAL CLIMATE
   { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
   // 🌍 世界 WORLD
+  { layers: ["global-events-current-circle", "global-events-relations-line"], type: "globalEvent" },
   { layers: ["global-maritime-aisstream-circle"], type: "aisstreamVessel" },
   { layers: ["global-maritime-gfw-circle"], type: "gfwVesselPresence" },
   // grid hook 會把 alpha dominant 的 H 或 H+1 複製到專用 hit source；此處只查它，
@@ -162,10 +163,27 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: [...GFW_V4_TRACK_CLICK_LAYERS, ...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
   { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
+  // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  { layers: ["jp-stations-circle"], type: "jpStations" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
   { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
   { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
   { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
+  // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
+  { layers: ["jp-schools-circle"], type: "jpSchools" },
+  // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
+  // （面層若搶先會吃掉線上的點擊）。
+  { layers: ["jp-railways-line"], type: "jpRailways" },
+  // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
+  // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
+  // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
+  { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
+  // 人口網格 1km 格是本組最小的面（< 市区町村 < 都道府県），依「小面 → 大面」排在兩個
+  // 行政區界之前。⚠️ 反過來排在界層之後會讓本層 popup 不可達 —— 縣界 tab 開啟時預設開、
+  // 且與網格同樣無縫鋪滿全日本，first-hit-wins 會由縣界吃掉每一次點擊。
+  { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
+  { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
+  { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
   { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },

@@ -43,6 +43,8 @@ import { PlaBoard } from "./PlaBoard";
 import { VesselZoneCard } from "./VesselZoneCard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
 import { TraDelayBoard } from "./TraDelayBoard";
+import { TelecomStatusCard } from "./TelecomStatusCard";
+import { IsrSatellitePassCard } from "./IsrSatellitePassCard";
 import {
   TyphoonCard, EarthquakeCard, RadiationCard, LightningCard,
 } from "./HazardCards";
@@ -692,6 +694,7 @@ export function MonitorPanel({
         nowTs={now}
       />
     ),
+    internetHealth: <TelecomStatusCard open={open} nowTs={now} />,
     histogram: <HourlyHistogramWidget events={allEventsToday} />,
     timeline: (
       <TimelineDock
@@ -731,6 +734,7 @@ export function MonitorPanel({
     vesselZone: <VesselZoneCard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
     traDelay: <TraDelayBoard open={open} />,
+    isrSatellitePasses: <IsrSatellitePassCard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
     erCongestion: <ERCard open={open} />,

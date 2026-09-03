@@ -69,6 +69,8 @@ import {
 } from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
+import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
+import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -1296,6 +1298,14 @@ export const LAYER_PARAMS_SPEC = {
   worldTrashDebris: [
     { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
   ],
+  globalEvents: [
+    { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
+      { label: "最近七天總覽", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
+    ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
+    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: true },
+    { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
+  ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
   ],
@@ -1341,6 +1351,38 @@ export const LAYER_PARAMS_SPEC = {
   jpReligionWikidata: [
     { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
+  ],
+  jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
+  jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
+  jpStations: [
+    opacitySlider("jpStationsOpacity", 0.85),
+    scaleSlider("jpStationsScale", 1),
+    {
+      kind: "select", name: "jpStationsColorMode", label: "上色", default: "type",
+      options: JP_STATION_COLOR_MODES.map((m) => ({ label: m.label, value: m.value })),
+      out: "jpStationsColorModeIdx", encode: JP_STATION_COLOR_MODES.map((m) => m.value),
+    },
+  ],
+  jpAirports: [
+    opacitySlider("jpAirportsOpacity", 0.5),
+    {
+      kind: "select", name: "jpAirportsDisplayMode", label: "樣式", default: "point",
+      options: [{ label: "點位", value: "point" }, { label: "面", value: "polygon" }],
+      out: "jpAirportsDisplayModeIdx", encode: ["point", "polygon"],
+    },
+  ],
+  jpRailways: [opacitySlider("jpRailwaysOpacity", 0.9)],
+  jpSchools: [opacitySlider("jpSchoolsOpacity", 0.75), scaleSlider("jpSchoolsScale", 1)],
+  // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名
+  // （非數值字串）⇒ 走 encode 存索引，overlayParams.jpPopulationMeshModeIdx 是 index。
+  jpPopulationMesh1km: [
+    opacitySlider("jpPopulationMeshOpacity", 0.55),
+    {
+      kind: "select", name: "jpPopulationMeshMode", label: "指標",
+      default: JP_POPULATION_MESH_MODES[0]?.field ?? "pop_2020",
+      options: JP_POPULATION_MESH_MODES.map((m) => ({ label: m.label, value: m.field })),
+      out: "jpPopulationMeshModeIdx", encode: JP_POPULATION_MESH_MODES.map((m) => m.field),
+    },
   ],
   dustForecast: [
     { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },

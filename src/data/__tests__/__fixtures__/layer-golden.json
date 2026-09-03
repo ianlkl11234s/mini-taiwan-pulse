@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 388,
+    "keyCount": 396,
     "sections": [
       "gisLayers",
       "overlays",
@@ -543,6 +543,13 @@
     },
     {
       "layers": [
+        "global-events-current-circle",
+        "global-events-relations-line"
+      ],
+      "type": "globalEvent"
+    },
+    {
+      "layers": [
         "global-maritime-aisstream-circle"
       ],
       "type": "aisstreamVessel"
@@ -584,6 +591,12 @@
     },
     {
       "layers": [
+        "jp-stations-circle"
+      ],
+      "type": "jpStations"
+    },
+    {
+      "layers": [
         "jp-religion-wikidata-circle"
       ],
       "type": "jpReligionWikidata"
@@ -599,6 +612,43 @@
         "jp-religion-gsi-circle"
       ],
       "type": "jpReligionGsi"
+    },
+    {
+      "layers": [
+        "jp-schools-circle"
+      ],
+      "type": "jpSchools"
+    },
+    {
+      "layers": [
+        "jp-railways-line"
+      ],
+      "type": "jpRailways"
+    },
+    {
+      "layers": [
+        "jp-airports-circle",
+        "jp-airports-fill"
+      ],
+      "type": "jpAirports"
+    },
+    {
+      "layers": [
+        "jp-population-mesh-fill"
+      ],
+      "type": "jpPopulationMesh1km"
+    },
+    {
+      "layers": [
+        "jp-admin-municipality-fill"
+      ],
+      "type": "jpAdminBoundaries"
+    },
+    {
+      "layers": [
+        "jp-admin-prefecture-fill"
+      ],
+      "type": "jpAdminPrefecture"
     },
     {
       "layers": [
@@ -50299,6 +50349,40 @@
         "value": 0.75
       }
     ],
+    "globalEvents": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近七天總覽",
+            "value": "recent7d"
+          },
+          {
+            "label": "跟隨時間軸",
+            "value": "timeline"
+          }
+        ],
+        "type": "select",
+        "value": "recent7d"
+      },
+      {
+        "label": "跨國關聯線（非移動軌跡）",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "包含 AI 初判／待判斷",
+        "type": "toggle",
+        "value": true
+      }
+    ],
     "govServiceOffices": [
       {
         "label": "透明度 0.90",
@@ -50791,6 +50875,109 @@
         "value": 0.35
       }
     ],
+    "jpAdminBoundaries": [
+      {
+        "label": "透明度 0.15",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.15
+      }
+    ],
+    "jpAdminPrefecture": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpAirports": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.5
+      },
+      {
+        "label": "樣式",
+        "options": [
+          {
+            "label": "點位",
+            "value": "point"
+          },
+          {
+            "label": "面",
+            "value": "polygon"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      }
+    ],
+    "jpPopulationMesh1km": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口 2020",
+            "value": "pop_2020"
+          },
+          {
+            "label": "人口 2030",
+            "value": "pop_2030"
+          },
+          {
+            "label": "人口 2040",
+            "value": "pop_2040"
+          },
+          {
+            "label": "人口 2050",
+            "value": "pop_2050"
+          },
+          {
+            "label": "人口 2070",
+            "value": "pop_2070"
+          },
+          {
+            "label": "高齡比 2030",
+            "value": "ratio65_2030"
+          },
+          {
+            "label": "高齡比 2040",
+            "value": "ratio65_2040"
+          },
+          {
+            "label": "高齡比 2050",
+            "value": "ratio65_2050"
+          },
+          {
+            "label": "高齡比 2070",
+            "value": "ratio65_2070"
+          }
+        ],
+        "type": "select",
+        "value": "pop_2020"
+      }
+    ],
+    "jpRailways": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
     "jpReligionGsi": [
       {
         "label": "透明度 0.60",
@@ -50837,6 +51024,53 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "jpSchools": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "上色",
+        "options": [
+          {
+            "label": "種類",
+            "value": "type"
+          },
+          {
+            "label": "運量",
+            "value": "ridership"
+          }
+        ],
+        "type": "select",
+        "value": "type"
       }
     ],
     "lakesPondsOsm": [

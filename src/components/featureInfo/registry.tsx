@@ -52,6 +52,10 @@ import {
   JpReligionGsiPanel, JpReligionOsmPanel, JpReligionWikidataPanel,
 } from "./religionPanels";
 import {
+  JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPopulationMeshPanel,
+} from "./japanPanels";
+import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
@@ -109,7 +113,7 @@ import {
   EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import {
-  EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel,
+  EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel, GlobalEventPanel,
   AisstreamVesselPanel, GfwVesselPresencePanel, GfwHourlyGridPanel, GfwHourlyTrackPanel, GfwFishingEffortPanel, GfwDarkVesselPanel,
 } from "./globalClimatePanels";
 import {
@@ -321,6 +325,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeReplayStation: EarthquakeReplayStationPanel,
   earthquakeReplayTown: EarthquakeReplayTownPanel,
   earthquakeGlobal: EarthquakeGlobalPanel,
+  globalEvent: GlobalEventPanel,
   typhoonTrack: TyphoonTrackPanel,
   climateField: ClimateFieldPanel,
   rasterProbe: RasterProbePanel,
@@ -329,6 +334,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpReligionGsi: JpReligionGsiPanel,
   jpReligionOsm: JpReligionOsmPanel,
   jpReligionWikidata: JpReligionWikidataPanel,
+  jpAdminPrefecture: JpAdminPrefecturePanel,
+  jpAdminBoundaries: JpAdminBoundariesPanel,
+  jpStations: JpStationsPanel,
+  jpAirports: JpAirportsPanel,
+  jpRailways: JpRailwaysPanel,
+  jpSchools: JpSchoolsPanel,
+  jpPopulationMesh1km: JpPopulationMeshPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -679,6 +691,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeReplayStation: "地震回放 強震測站",
   earthquakeReplayTown: "地震回放 鄉鎮震度",
   earthquakeGlobal: "全球地震 USGS",
+  globalEvent: "全球重要事件",
   typhoonTrack: "颱風軌跡",
   climateField: "氣候場讀值",
   rasterProbe: "圖層讀值",
@@ -693,6 +706,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpReligionGsi: "日本宗教設施 GSI",
   jpReligionOsm: "日本宗教設施 OSM",
   jpReligionWikidata: "日本宗教設施 Wikidata",
+  jpAdminPrefecture: "日本都道府県界",
+  jpAdminBoundaries: "日本市区町村界",
+  jpStations: "日本車站",
+  jpAirports: "日本機場",
+  jpRailways: "日本鐵道路線",
+  jpSchools: "日本學校",
+  jpPopulationMesh1km: "日本人口網格",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

@@ -102,6 +102,9 @@ import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { JP_RELIGION_COLORS } from "./jpReligionTypes";
+import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
+import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
+import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1061,6 +1064,32 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "環境", "垃圾"],
   },
 
+  globalEvents: {
+    key: "globalEvents",
+    section: { theme: "世界 World", group: "重要事件" },
+    label: "全球情勢 Global Events",
+    labelMobile: "全球情勢",
+    expandable: true,
+    color: "#f97316",
+    icon: MapPinned,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Collector + Qwen 兩層判斷全量保留，anon-safe candidate window 分頁讀取；Codex cloud 選擇性深度研究，publisher 正式發布保持獨立",
+      note: "AI 初判與正式事件同層區分。unknown geometry 保留列表不畫點；城市／地點與國家代表位置保留來源，跨國弧線只是事件關聯",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGlobalEventsLayer 自建 points/association sources；預設最近七天總覽，另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
+    },
+    legend: "globalEvents",
+    popup: "globalEvent",
+    params: { count: 4, kinds: ["slider", "select", "toggle", "toggle"] },
+    description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
+    topics: ["世界", "重要事件", "情報"],
+  },
+
   aisstreamVessels: {
     key: "aisstreamVessels",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },
@@ -1223,7 +1252,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionGsi: {
     key: "jpReligionGsi",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 GSI",
     labelMobile: "日本宗教 GSI",
     expandable: true,
@@ -1250,7 +1279,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionOsm: {
     key: "jpReligionOsm",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 OSM",
     labelMobile: "日本宗教 OSM",
     expandable: true,
@@ -1277,7 +1306,7 @@ export const LAYER_MANIFEST = {
 
   jpReligionWikidata: {
     key: "jpReligionWikidata",
-    section: { theme: "世界 World", group: "宗教" },
+    section: { theme: "宗教", group: "點位" },
     label: "日本宗教設施 Wikidata",
     labelMobile: "日本宗教 Wikidata",
     expandable: true,
@@ -1300,6 +1329,199 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）",
     topics: ["世界", "日本", "宗教", "Wikidata"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  //  日本 Japan Batch 2 —— 行政區 2 層（PMTiles polygon）＋ 交通 2 層（車站/機場）
+  //  4 層皆單色（legend: null，見 layerConsistency 的 NO_LEGEND_LEDGER）
+  // ══════════════════════════════════════════════════════════════
+  jpAdminPrefecture: {
+    key: "jpAdminPrefecture",
+    section: { theme: "行政區", group: "面" },
+    label: "日本都道府県界",
+    labelMobile: "日本縣界",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_admin_boundaries", confidence: "HIGH" }],
+      processing: "日本都道府県界 PMTiles，47 筆",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAdminLayers 自建 mapbox-pmtiles source；source-layer=jp_admin_boundaries_prefecture，minzoom=2 maxzoom=9",
+      staticAssets: ["./world/jp_admin_boundaries_prefecture.pmtiles"],
+    },
+    legend: null,
+    popup: "jpAdminPrefecture",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本都道府県界（47 筆）",
+    topics: ["世界", "日本", "行政區"],
+  },
+
+  jpAdminBoundaries: {
+    key: "jpAdminBoundaries",
+    section: { theme: "行政區", group: "面" },
+    label: "日本市区町村界",
+    labelMobile: "日本市界",
+    expandable: true,
+    color: "#fbbf24",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_admin_boundaries", confidence: "HIGH" }],
+      processing: "日本市区町村界 PMTiles，1,905 筆",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAdminLayers 自建 mapbox-pmtiles source；source-layer=jp_admin_boundaries，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_admin_boundaries.pmtiles"],
+    },
+    legend: null,
+    popup: "jpAdminBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本市区町村界（1,905 筆）",
+    topics: ["世界", "日本", "行政區"],
+  },
+
+  jpStations: {
+    key: "jpStations",
+    section: { theme: "交通", group: "點位" },
+    label: "日本車站",
+    labelMobile: "日本車站",
+    expandable: true,
+    color: "#38bdf8",
+    icon: TrainFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_stations", confidence: "HIGH" }],
+      processing: "日本車站靜態 GeoJSON，9,046 點；含路線／營運者／運量（2022-2024）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpStationsLayer lazy-load 靜態 GeoJSON，自建 circle source/layer",
+      staticAssets: ["./world/jp_stations.geojson"],
+    },
+    legend: "jpStations",
+    popup: "jpStations",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "日本車站（9,046 點，含路線／營運者／運量）",
+    topics: ["世界", "日本", "交通", "車站"],
+  },
+
+  jpAirports: {
+    key: "jpAirports",
+    section: { theme: "交通", group: "點位" },
+    label: "日本機場",
+    labelMobile: "日本機場",
+    expandable: true,
+    color: "#a78bfa",
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_airports", confidence: "HIGH" }],
+      processing: "日本機場靜態 GeoJSON，108 面；空港種別／供用狀態／跑道規格",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpAirportsLayer lazy-load 靜態 GeoJSON，自建 fill+line source/layer；point 模式自 lat/lon 建 jp-airports-circle",
+      staticAssets: ["./world/jp_airports.geojson"],
+    },
+    legend: null,
+    popup: "jpAirports",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本機場（108 面，含空港種別／跑道規格）",
+    topics: ["世界", "日本", "交通", "機場"],
+  },
+
+  jpRailways: {
+    key: "jpRailways",
+    section: { theme: "交通", group: "線" },
+    label: "日本鐵道路線",
+    labelMobile: "日本鐵道",
+    expandable: true,
+    color: JP_RAILWAY_LAYER_COLOR,
+    icon: RailSymbol,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_railways", confidence: "HIGH" }],
+      processing: "日本鐵道路線 PMTiles，21,933 段；含路線名／運営会社／事業者種別／鉄道区分",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpRailwaysLayer 自建 mapbox-pmtiles source；source-layer=jp_railways，minzoom=4 maxzoom=12",
+      staticAssets: ["./world/jp_railways.pmtiles"],
+    },
+    legend: "jpRailways",
+    popup: "jpRailways",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本鐵道路線（21,933 段，事業者種別 5 類分色）",
+    topics: ["世界", "日本", "交通", "鐵道"],
+  },
+
+  jpSchools: {
+    key: "jpSchools",
+    section: { theme: "教育", group: "點位" },
+    label: "日本學校",
+    labelMobile: "日本學校",
+    expandable: true,
+    color: JP_SCHOOL_LAYER_COLOR,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_schools", confidence: "HIGH" }],
+      processing: "日本全国学校一覧 PMTiles，56,807 點；含校名／所在地／学校分類／設置者／休校区分",
+      note: "轉檔時已剔除 *_code 冗餘代碼欄與 latitude/longitude/campus_note，前端只讀 6 個屬性",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpSchoolsLayer 自建 mapbox-pmtiles source；source-layer=jp_schools，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_schools.pmtiles"],
+    },
+    legend: "jpSchools",
+    popup: "jpSchools",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本學校（56,807 點，学校分類 13 類分色）",
+    topics: ["世界", "日本", "教育", "學校"],
+  },
+
+  jpPopulationMesh1km: {
+    key: "jpPopulationMesh1km",
+    section: { theme: "人口", group: "面" },
+    label: "日本人口網格",
+    labelMobile: "日本人口",
+    expandable: true,
+    color: JP_POPULATION_MESH_LAYER_COLOR,
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_population_mesh_1km", confidence: "HIGH" }],
+      processing:
+        "国土数値情報 1km メッシュ別将来推計人口（JIS X0410 3次メッシュ）→ PMTiles z4-11，176,896 格；" +
+        "跨都道府縣重複的 895 個 MESH_ID 已依 id 聚合",
+      note:
+        "契約見 taipei-gis-analytics/docs/handoff/jp-core-layers.md。" +
+        "⚠️ ratio65_* 為 0~1 比例（非百分比），且 0 多為官方對極小人口 mesh 的隱私遮罩（非真的 0%）；" +
+        "pop 只有 2020/2030/2040/2050/2070 五年（無 2060），ratio65 無 2020（基準年未釋出年齡細分）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpPopulationMeshLayer 自建 mapbox-pmtiles source；source-layer=jp_population_mesh_1km，minzoom=4 maxzoom=11",
+      staticAssets: ["./world/jp_population_mesh_1km.pmtiles"],
+    },
+    legend: "jpPopulationMesh1km",
+    popup: "jpPopulationMesh1km",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）",
+    topics: ["世界", "日本", "人口", "高齡化", "網格"],
   },
 
   // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），

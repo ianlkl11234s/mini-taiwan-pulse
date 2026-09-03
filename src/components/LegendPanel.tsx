@@ -14,6 +14,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../data/globalEventsTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
@@ -54,6 +55,12 @@ import {
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
+import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
+import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
+import {
+  jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
+} from "../data/jpPopulationMeshModes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -310,7 +317,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
+  { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
+  { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpSchools", render: () => <JpSchoolsLegend /> },
+  { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1037,6 +1049,111 @@ function LivestockFacilityLegend() {
         cats={[
           { color: FEED_COLOR, label: "飼料廠 Feed Factory" },
           { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
+        ]}
+      />
+    </div>
+  );
+}
+
+// ── 日本車站（種類 / 運量 雙模式）──
+
+function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  if (modeIdx === 1) {
+    return (
+      <div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+          日本車站 運量（人/日）
+        </div>
+        <FireCatRows
+          cats={[
+            ...JP_STATION_PAX_BUCKETS.map((b) => ({ color: b.color, label: b.label })),
+            { color: JP_STATION_PAX_NO_DATA.color, label: JP_STATION_PAX_NO_DATA.label },
+          ]}
+        />
+      </div>
+    );
+  }
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本車站 種類
+      </div>
+      <FireCatRows
+        cats={[
+          ...JP_STATION_TYPES.map((s) => ({ color: s.color, label: s.label })),
+          { color: JP_STATION_TYPE_OTHER.color, label: JP_STATION_TYPE_OTHER.label },
+        ]}
+      />
+    </div>
+  );
+}
+
+// ── 日本鐵道路線（事業者種別 5 類，靜態無模式切換）──
+// 5 類已窮盡 21,933 段（其他為 0 筆）→ 不列「その他」。
+// 同名類別與日本車站共用 hex（色票 SSOT: data/jpRailwayTypes.ts）。
+
+function JpRailwaysLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本鐵道 事業者種別
+      </div>
+      <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
+    </div>
+  );
+}
+
+// ── 日本學校（学校分類 13 類，靜態無模式切換）──
+// 13 列單欄太長 → 兩欄排版（比照非都市土地使用分區）；13 類已窮盡 56,807 筆，
+// 故不列「その他」。色票 SSOT: data/jpSchoolTypes.ts（排列＝學制階梯，同階梯同色系）。
+
+function JpSchoolsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本學校 学校分類
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {JP_SCHOOL_TYPES.map((c) => (
+          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 日本人口網格（9 種指標／年份，兩套色階隨 select 切換）──
+// 斷點跨年份固定（見 data/jpPopulationMeshModes.ts）：同一個顏色在 2020 與 2070
+// 代表同一個人數／比率級距，切年份才能真的看出人口消退。
+// ratio65 多一列「未公開（遮罩）」—— 官方對極小人口 mesh 的年齡細分抹成 0，
+// 那不是「最年輕」而是「查無資料」，圖例必須講明。
+
+function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const idx = modeIdx ?? 0;
+  const mode = jpPopulationMeshMode(idx);
+  const isRatio = mode.metric === "ratio65";
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本人口網格 {mode.label}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
+        {isRatio ? "65 歲以上比率（1km 格）" : "總人口（人／1km 格）"}
+      </div>
+      <FireCatRows
+        square
+        cats={[
+          ...jpPopulationMeshBuckets(idx).map((b) => ({ color: b.color, label: b.label })),
+          ...(isRatio
+            ? [{ color: JP_POPULATION_MESH_MASK.color, label: JP_POPULATION_MESH_MASK.label }]
+            : []),
         ]}
       />
     </div>
@@ -4550,6 +4667,45 @@ function WorldTrashDebrisLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.3 }}>
         資料：Outerview (CC-BY-4.0)
+      </div>
+    </div>
+  );
+}
+
+function GlobalEventsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        全球情勢 GLOBAL EVENTS
+      </div>
+      <FireCatRows cats={GLOBAL_EVENT_CATEGORIES.map(({ color, label }) => ({ color, label }))} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
+        {GLOBAL_EVENT_SEVERITIES.map((item) => (
+          <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <div style={{
+              width: item.radius * 2,
+              height: item.radius * 2,
+              borderRadius: RADIUS.full,
+              background: "#94a3b8",
+              border: "1px solid rgba(15,23,42,0.8)",
+              flexShrink: 0,
+            }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{item.value}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>
+        大小 = 嚴重度 0–3
+        <br />淺色外框 = AI 初判；深色外框 = 已研究發布。全部重要程度均保留。
+      </div>
+      <div style={{ display: "flex", gap: 9, marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim }}>
+        <span><span style={{ color: "#facc15" }}>○</span> 新事件</span>
+        <span><span style={{ color: "#38bdf8" }}>○</span> 版本更新</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.35 }}>
+        點位可能是來源支持的事件點，或城市／國家代表中心；代表點不是精確發生座標，詳見 popup。
+        同位置不同事件並排；數字點可點開展開。弧線僅表示跨國事件關聯，沒有移動方向或時間順序。
       </div>
     </div>
   );

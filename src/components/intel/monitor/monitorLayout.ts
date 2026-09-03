@@ -12,6 +12,7 @@
 export type MonitorWidgetId =
   | "newsFeed"
   | "alertBoard"
+  | "internetHealth"
   | "histogram"
   | "timeline"
   | "triage"
@@ -32,7 +33,8 @@ export type MonitorWidgetId =
   | "earthquake"
   | "radiation"
   | "lightning"
-  | "traDelay";
+  | "traDelay"
+  | "isrSatellitePasses";
 
 export interface MonitorGridItem {
   /** widget id（對應 MonitorPanel 的 widget 對照表） */
@@ -110,6 +112,11 @@ export const MONITOR_GRID_GAP = 10;
  * - 2026-08-10 九版 — 資訊卡改 `fit: "content"`（高度跟內容、欄內流式下推）
  * - 2026-08-22 十一版 — 新增 traDelay（台鐵誤點）；vesselZone h 11→6 讓出左欄尾段，
  *   維持左右欄同止 y68。⚠ 本版座標為接線時暫定、非沙盒匯出，定稿請回沙盒重拖。
+ * - 2026-08-30 十二版 — 上半事件區與下半雙欄之間插入全寬 internetHealth 狀態卡；
+ *   下半整體 +4，左右欄同止改為 y72。
+ * - 2026-08-30 十三版 — 軍事態勢尾段改為特殊船舶 → ISR 衛星 → 台鐵；
+ *   左右欄仍同止於 y80。
+ * - 2026-09-01 十四版 — internetHealth 移到台鐵誤點後方，作為 Monitor 尾端全寬觀察卡。
  */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
@@ -117,59 +124,60 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "timeline", x: 7, y: 0, w: 5, h: 9 },
   { i: "hotZones", x: 4, y: 7, w: 3, h: 5 },
   { i: "triage", x: 7, y: 9, w: 5, h: 3 },
-  { i: "situationOverview", x: 0, y: 12, w: 5, h: 5, fit: "content" },
-  { i: "liveWall", x: 5, y: 12, w: 7, h: 14, fit: "content" },
+  { i: "situationOverview", x: 0, y: 16, w: 5, h: 5, fit: "content" },
+  { i: "liveWall", x: 5, y: 16, w: 7, h: 14, fit: "content" },
   // TAIEX 從 situationOverview 右側拆出成獨立 widget（2026-08-10）：
   // 原本擠在壓力環旁邊只放得下 150×24 的日線，拆出後給 260×44。
   // 其下同欄 widget y 各 +3。
-  { i: "taiex", x: 0, y: 17, w: 5, h: 3, fit: "content" },
+  { i: "taiex", x: 0, y: 21, w: 5, h: 3, fit: "content" },
   // PLA 從 situationCards 拆出成獨立 plaBoard（2026-08-03）：嚴重度分級 + 120 天趨勢
   // + 空域方位 + 侵擾方式四段。
   // situationCards 只剩健康卡 → h 6→3；其下同欄 widget y 各 +12。
-  { i: "situationCards", x: 0, y: 20, w: 5, h: 3, fit: "content" },
+  { i: "situationCards", x: 0, y: 24, w: 5, h: 3, fit: "content" },
   // h 15→13（2026-08-10）：空域方位／侵擾方式改單欄（4+6 列，原本各佔 2+3 列）後，
   // 其餘區塊固定高約 450px，剩下的全歸 120 天趨勢柱狀圖（TrendRow flex:1）。
   // h13 → 柱狀圖約 190px（原本固定 54px）；再加高只會讓柱子過胖，量過才定的值。
-  { i: "plaBoard", x: 0, y: 23, w: 5, h: 13, fit: "content" },
-  { i: "erCongestion", x: 0, y: 36, w: 5, h: 15, fit: "content" },
-  { i: "hazardStrip", x: 5, y: 26, w: 7, h: 8, fit: "content" },
+  { i: "plaBoard", x: 0, y: 27, w: 5, h: 13, fit: "content" },
+  { i: "erCongestion", x: 0, y: 40, w: 5, h: 15, fit: "content" },
+  { i: "hazardStrip", x: 5, y: 30, w: 7, h: 8, fit: "content" },
   // 災害監看四卡（2026-08-10 十版）：颱風／地震／輻射／落雷，接在災防直播下方
   // 形成「影像 + 數據」的災害區塊。右欄 w7 拆 4+3，每格仍有 ~280px 以上。
   //
-  // ⚠️ 位置不能改放到最下面（試過會壞）：左欄止於 y57，右欄若在那之後還有格線，
+  // ⚠️ 位置不能改放到最下面（試過會壞）：左欄止於 y61，右欄若在那之後還有格線，
   // 那條格線就成為**貫穿全寬**的橫切線 —— guillotine 會先在那裡把版面切成上下兩段，
   // 右欄那塊就不再是「右欄」而是撐滿 12 欄的獨立區塊（monitorPacking.test.ts
-  // 的「rows 子節點寬度 = 自身寬度」會抓到）。右欄在 y57 之後只能留一個
-  // 跨過 57 的格子（現為 foodPriceBoard 56–68）。
-  { i: "typhoon", x: 5, y: 34, w: 4, h: 4, fit: "content" },
-  { i: "earthquake", x: 9, y: 34, w: 3, h: 4, fit: "content" },
-  { i: "radiation", x: 5, y: 38, w: 4, h: 4, fit: "content" },
-  { i: "lightning", x: 9, y: 38, w: 3, h: 4, fit: "content" },
+  // 的「rows 子節點寬度 = 自身寬度」會抓到）。右欄在 y61 之後只能留一個
+  // 跨過 61 的格子（現為 foodPriceBoard 60–72）。
+  { i: "typhoon", x: 5, y: 38, w: 4, h: 4, fit: "content" },
+  { i: "earthquake", x: 9, y: 38, w: 3, h: 4, fit: "content" },
+  { i: "radiation", x: 5, y: 42, w: 4, h: 4, fit: "content" },
+  { i: "lightning", x: 9, y: 42, w: 3, h: 4, fit: "content" },
   // y 34→42（四卡插隊 8 列）
-  { i: "powerCard", x: 5, y: 42, w: 7, h: 14, fit: "content" },
-  { i: "prison", x: 0, y: 51, w: 2, h: 4, fit: "content" },
-  { i: "airportPax", x: 2, y: 51, w: 3, h: 6, fit: "content" },
+  { i: "powerCard", x: 5, y: 46, w: 7, h: 14, fit: "content" },
+  { i: "prison", x: 0, y: 55, w: 2, h: 4, fit: "content" },
+  { i: "airportPax", x: 2, y: 55, w: 3, h: 6, fit: "content" },
   // 食品價格監測（2026-08-05）：四指數 2×2 × 180 天。
   // 走右欄 w7 而非比照 PLA 的 w5 —— 2×2 在 w5 每格只剩 ~190px，
   // 迷你走勢圖會擠到看不出形狀；w7 每格約 280px 才讀得出趨勢。
   // h 9→12（2026-08-10）：多出的高度全部灌進四張卡的走勢圖（SPARK_H 34→52 + flex:1）。
   // y 48→56（同上，跟著 powerCard 下移）
-  { i: "foodPriceBoard", x: 5, y: 56, w: 7, h: 12, fit: "content" },
+  // h 12→20：fit:"content" 不改實際高度，只讓右欄跨過軍事態勢尾段、同止 y80，
+  // 維持頂層「下方左右兩欄（5+7）」而不切出第三個全寬段。
+  { i: "foodPriceBoard", x: 5, y: 60, w: 7, h: 20, fit: "content" },
   // 特殊船舶接近帶（2026-08-20，VZ-4）：左欄收尾，與共機卡同寬 w5。
-  // ⚠️ y57→68 是刻意算過的：原本左欄止於 y57（airportPax）、右欄止於 y68
-  // （foodPriceBoard），兩欄不同止。本格補滿左欄到 y68 後**左右欄同時結束**，
-  // 頂層才維持「上方三欄 + 下方左右兩欄(5+7)」的兩段結構
-  // （monitorPacking.test.ts 有斷言；第一版放最底部全寬 w12 會多切出第三段）。
+  // ⚠️ y61 起的三張左欄卡與 foodPriceBoard 同止 y80，頂層才維持
+  // 「上方三欄 + 下方左右兩欄(5+7)」的兩段結構（packing test 有斷言）。
   // 也刻意不用 w12：全寬約 1200px，柱狀圖會被拉到看不出形狀，w5 與 plaBoard 一致。
-  // h 11→6（2026-08-22）：純粹讓出左欄尾段給 traDelay。兩格都是 fit:"content"，
+  // h 11→6（2026-08-22）：純粹讓出左欄尾段給後續卡片。三格都是 fit:"content"，
   // h 不是實際高度、只決定欄內順序與拆解，所以縮 h 不會壓縮畫面上的船舶卡。
-  { i: "vesselZone", x: 0, y: 57, w: 5, h: 6, fit: "content" },
-  // 台鐵誤點（2026-08-22，migration 369）。
-  // ⚠️ 為什麼卡在 y63–68 而不是接在最底部：左右兩欄必須**同時結束**於 y68。
-  // 先前試過放 y68（左欄延伸到 y76），y68 以下只剩左欄 → guillotine 在那裡切出
-  // 貫穿全寬的第三段，monitorPacking「頂層拆成上方三欄 + 下方左右兩欄」直接紅。
-  // 版面要正式定稿請回沙盒拖完重新匯出整份 MONITOR_LAYOUT。
-  { i: "traDelay", x: 0, y: 63, w: 5, h: 5, fit: "content" },
+  { i: "vesselZone", x: 0, y: 61, w: 5, h: 6, fit: "content" },
+  // 中國 ISR 衛星領海過境頻率：接在特殊船舶後，形成海域 → 太空的態勢順序。
+  { i: "isrSatellitePasses", x: 0, y: 67, w: 5, h: 8, fit: "content" },
+  // 台鐵誤點收尾；右欄由 foodPriceBoard 跨過同一排序範圍，左右同止 y80。
+  // fit h 只影響 packing，不改卡片實際高度。
+  { i: "traDelay", x: 0, y: 75, w: 5, h: 5, fit: "content" },
+  // RIPE country/ASN 網路觀察接在 TRA DELAY 後方，不建立 map geometry。
+  { i: "internetHealth", x: 0, y: 80, w: 12, h: 4, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */

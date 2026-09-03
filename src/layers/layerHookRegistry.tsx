@@ -50,6 +50,7 @@ import {
 } from "./hosts/hazardHosts";
 import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost, JpReligionHost,
+  GlobalEventsHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
   DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
@@ -68,6 +69,10 @@ import {
   SocioeconomicHost, SpatialEconomyHost, YoubikeHost,
 } from "./hosts/gridHosts";
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
+import {
+  JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost,
+  JpPopulationMeshHost,
+} from "./hosts/japanHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -204,11 +209,22 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useEarthquakesGlobalLayer", keys: ["earthquakesGlobal"], Host: EarthquakesGlobalHost },
   { id: "useTyphoonTracksLayer", keys: ["typhoonTracks"], Host: TyphoonTracksHost },
   { id: "useWorldTrashDebrisLayer", keys: ["worldTrashDebris"], Host: WorldTrashDebrisHost },
+  { id: "useGlobalEventsLayer", keys: ["globalEvents"], Host: GlobalEventsHost },
   {
     id: "useJpReligionLayers",
     keys: ["jpReligionGsi", "jpReligionOsm", "jpReligionWikidata"],
     Host: JpReligionHost,
   },
+  {
+    id: "useJpAdminLayers",
+    keys: ["jpAdminPrefecture", "jpAdminBoundaries"],
+    Host: JpAdminHost,
+  },
+  { id: "useJpStationsLayer", keys: ["jpStations"], Host: JpStationsHost },
+  { id: "useJpAirportsLayer", keys: ["jpAirports"], Host: JpAirportsHost },
+  { id: "useJpRailwaysLayer", keys: ["jpRailways"], Host: JpRailwaysHost },
+  { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
+  { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },
   { id: "useClimateParticleLineLayer:ocean", keys: ["oceanCurrents"], Host: OceanCurrentsHost },
   { id: "useDustForecastLayer", keys: ["dustForecast"], Host: DustForecastHost },

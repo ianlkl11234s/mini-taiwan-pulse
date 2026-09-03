@@ -4,6 +4,7 @@
 import { useEarthquakesGlobalLayer } from "../../hooks/useEarthquakesGlobalLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "../../hooks/useTyphoonTracksLayer";
 import { useWorldTrashDebrisLayer } from "../../hooks/useWorldTrashDebrisLayer";
+import { useGlobalEventsLayer } from "../../hooks/useGlobalEventsLayer";
 import { useJpReligionLayers } from "../../hooks/useJpReligionLayers";
 import { useClimateParticleLineLayer } from "../../hooks/useClimateParticleLineLayer";
 import { useDustForecastLayer } from "../../hooks/useDustForecastLayer";
@@ -55,6 +56,23 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.worldTrashDebris,
     p.worldTrashDebrisOpacity ?? 0.85,
+  );
+  return null;
+};
+
+/** 🌍 世界 WORLD：全球情勢，預設最近七天總覽；明確選擇後跟隨時間軸。 */
+export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useGlobalEventsLayer");
+  const p = useKeyOverlayParams("globalEvents");
+  useGlobalEventsLayer(
+    deps.mapRef,
+    deps.layerVisibility.globalEvents,
+    p.globalEventsOpacity ?? 0.9,
+    deps.appMode === "historical" ? "replay" : deps.timeMode,
+    p.globalEventsViewIdx === 1 ? "timeline" : "recent7d",
+    (p.globalEventsRelations ?? 1) === 1,
+    deps.featureInfo?.layerType === "globalEvent" ? String(deps.featureInfo.properties.event_id ?? "") : null,
+    (p.globalEventsIncludeAI ?? 1) === 1,
   );
   return null;
 };

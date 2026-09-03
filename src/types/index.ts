@@ -109,7 +109,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
+  | "newsEvents" | "globalEvents" | "plaActivity" | "vesselWatch" | "aisstreamVessels" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTracks" | "gfwFishingEffort" | "gfwDarkVessels"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -358,7 +358,9 @@ export type ExpandableLayerKey =
   | "pollutionSite"
   // 🌍 世界 World
   | "worldTrashDebris"
-  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata";
+  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+  | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
+  | "jpSchools" | "jpPopulationMesh1km";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -689,7 +691,7 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
+    | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
@@ -807,6 +809,14 @@ export interface FeatureInfo {
     | "worldTrashDebris"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
     | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+    // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
+    | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
+    // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
+    | "jpRailways"
+    // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
+    | "jpSchools"
+    // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
+    | "jpPopulationMesh1km"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -891,6 +901,8 @@ export interface LayerVisibility {
   ooklaFixedTaiwan: boolean;
   activeFaults: boolean;
   newsEvents: boolean;
+  /** GitHub append-only 研究經 publisher 發布的全球重要事件；僅顯示有真實 Point 的位置 */
+  globalEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */
   plaActivity: boolean;
   /**
@@ -1270,6 +1282,13 @@ export interface LayerVisibility {
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
+  jpAdminPrefecture: boolean;   // 日本都道府県界（PMTiles polygon，47 筆）
+  jpAdminBoundaries: boolean;   // 日本市区町村界（PMTiles polygon，1,905 筆）
+  jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
+  jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
+  jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
+  jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
+  jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
 }
 
 // ── 空氣品質 ──

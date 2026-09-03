@@ -1,6 +1,8 @@
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import { parseGfwHourlyGridVessels, type GfwHourlyGridVessel } from "../../data/gfwHourlyGridTypes";
+import { globalEventCategoryLabel, globalEventSeverityLabel } from "../../data/globalEventsTypes";
+import { FONT_SIZE } from "../../styles/designTokens";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -113,6 +115,76 @@ export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown
       <Row label="ID" value={String(props.id ?? "—")} />
       <Row label="資料" value="Outerview（CC-BY-4.0）" />
       <Row label="說明" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
+    </div>
+  );
+}
+
+function fmtGlobalEventTime(value: unknown): string {
+  if (typeof value !== "string" || !value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString("zh-TW", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+
+export function globalEventLocationLabel(props: Record<string, unknown>): string {
+  if (props.source_kind === "gdelt_metadata_mention") return "新聞地理提及的概略位置，未核實精確發生地";
+  if (props.source_kind === "headline_gazetteer") return "標題提及國家／城市的概略位置，未核實精確發生地";
+  if (props.research_status === "ai_assessed" && (props.location_kind === "country_center" || props.location_kind === "city_center")) {
+    return "新聞相關國家／城市概略位置，未確認精確發生地";
+  }
+  if (props.location_kind === "event_point") return "精確事件位置（來源直接支持）";
+  if (props.location_kind === "city_center") return "城市代表點（非事件精確座標）";
+  if (props.location_kind === "country_center") return "國家代表點（非事件精確座標）";
+  if (props.is_proxy === true && props.representative_precision === "city") {
+    return "城市代表點（非事件精確座標）";
+  }
+  if (props.is_proxy === true && props.representative_precision === "country") {
+    return "國家代表點（非事件精確座標）";
+  }
+  return "事件位置";
+}
+
+export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const isInitial = props.research_status === "ai_assessed";
+  let locationUrl: URL | null = null;
+  if (typeof props.location_source === "string") {
+    try {
+      const parsed = new URL(props.location_source);
+      if (["https:", "http:"].includes(parsed.protocol) && !parsed.username && !parsed.password) locationUrl = parsed;
+    } catch { /* Missing/invalid evidence links are not replaced with invented sources. */ }
+  }
+  const placeParts = [...new Set(
+    [props.place_name, props.admin2, props.admin1, props.country_code]
+      .filter((value): value is string => typeof value === "string" && value.length > 0),
+  )];
+  return (
+    <div data-testid="global-event-popup" style={{ color: t.textDefault }}>
+      <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base, marginBottom: 3 }}>事件</div>
+      <h3 style={{ color: t.textStrong, fontSize: FONT_SIZE.xl, fontWeight: 600, lineHeight: 1.45, margin: "0 0 10px", overflowWrap: "anywhere" }}>
+        {String(props.title_zh_tw ?? "—")}
+      </h3>
+      <Row label="查證狀態" value={isInitial ? (props.assessment_status === "pending" ? "待 AI 判斷（尚未研究確認）" : "AI 初判（尚未研究確認）") : "已研究並正式發布"} />
+      <div style={{ marginTop: 10 }}>
+        <div style={{ color: t.textMuted, fontSize: FONT_SIZE.base }}>摘要</div>
+        <p style={{ color: t.textStrong, fontSize: FONT_SIZE.md, lineHeight: 1.65, margin: "3px 0 10px", overflowWrap: "anywhere" }}>
+          {String(props.summary_zh_tw ?? "—")}
+        </p>
+      </div>
+      <Row label="分類／嚴重度" value={`${globalEventCategoryLabel(props.category)} · ${globalEventSeverityLabel(props.severity)}`} />
+      <Row label="臺灣影響" value={String(props.taiwan_impact_zh_tw ?? "—")} />
+      <Row label="判斷理由" value={String(props.reason_zh_tw ?? "—")} />
+      <Row label="地點" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
+      <Row label="落點語意" value={globalEventLocationLabel(props)} />
+      {/* Candidate valid_from carries observed_at; formal valid_from is not a collection time. */}
+      <Row label="來源收集時間" value={fmtGlobalEventTime(props.observed_at ?? (isInitial ? props.valid_from : null))} />
+      <div style={{ display: "flex", gap: 8, marginTop: 8, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
+        <span style={{ color: t.textMuted, flexShrink: 0 }}>位置來源</span>
+        {locationUrl ? <a href={String(props.location_source)} target="_blank" rel="noopener noreferrer"
+          style={{ color: t.link, overflowWrap: "anywhere" }}>{locationUrl.hostname}</a> : <span style={{ color: t.textStrong }}>—</span>}
+      </div>
     </div>
   );
 }
