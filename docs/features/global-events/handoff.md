@@ -16,9 +16,11 @@
 
 ## Release
 
+INTEL全球情勢分頁本次僅搬UI：列表／統計仍讀globalEventsViewStore，資料載入與選取仍由原visible layer hook提供；off時顯示明確enable按鈕，不顯示舊快照。七天／時間軸由原controls決定，獨立於新聞range／警報filters／all counts。尚待本次CI與deployment，視覺由使用者確認。
+
 固定錨點 hotfix PR #207 merge 78c90aa 已部署，Zeabur 6a99545bc3fffb61baebd662 於11:10:02Z RUNNING；tsc-b、23 focused／1031 full tests（1 skipped）與CI通過。本地 browser 驗證加拿大7件群組分別點選、平移／旋轉／縮放後錨點不變、opacity0／off／on與console皆通過；style reload 僅以 regression 驗證。
 
-後續popup瘦身只改顯示，底層欄位及位置不變。依使用者最新指示，不再做browser／截圖／devserver視覺驗收；固定錨點與popup正式視覺確認均交使用者。Popup發布證據待本次CI／deployment完成，不能以測試代稱視覺已驗。
+後續popup瘦身只改顯示，底層欄位及位置不變。PR #208 merge 5230181，deployment 6a997433c3fffb61baebe158 於13:27:27Z RUNNING；17 focused／tsc／CI通過。依使用者最新指示，不再做browser／截圖／devserver視覺驗收；固定錨點與popup正式視覺確認均交使用者，不能以測試代稱視覺已驗。
 
 實作基線：frontend e16dc2354c74d7563d6b7525120c935f43e64f2b；platform 1f4f7e352ef4292ce1615474cf400716dffb4ba3；collector 48250361d1d459d1590d1f228f2e4cd4e51390fc。
 

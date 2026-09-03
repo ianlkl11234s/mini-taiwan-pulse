@@ -1,6 +1,5 @@
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
-import { GlobalEventsList } from "./sidebar/GlobalEventsList";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
@@ -1156,7 +1155,6 @@ function ExpandedControls({
         </div>
       )}
 
-      {layerKey === "globalEvents" && <GlobalEventsList palette={{ textStrong: TEXT_STRONG, textMuted: INACTIVE_TEXT, border: CTRL_INACTIVE_BORDER, link: TEXT_STRONG, bgSubtle: CTRL_INACTIVE_BG }} />}
       {/* Controls */}
       {controls.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

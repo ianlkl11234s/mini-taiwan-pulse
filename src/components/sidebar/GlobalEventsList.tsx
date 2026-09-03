@@ -4,15 +4,16 @@ import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { DARK_FEATURE, type FeaturePalette } from "../featureInfo/featureTheme";
 
 type ListPalette = Pick<FeaturePalette, "textStrong" | "textMuted" | "border" | "link" | "bgSubtle">;
-export function GlobalEventsList({ palette = DARK_FEATURE }: { palette?: ListPalette }) {
+export function GlobalEventsList({ palette = DARK_FEATURE, fillPanel = false }: { palette?: ListPalette; fillPanel?: boolean }) {
   const snapshot = useSyncExternalStore(globalEventsViewStore.subscribe, globalEventsViewStore.getSnapshot, globalEventsViewStore.getSnapshot);
   const events = [...new Map(snapshot.entries.map((row) => [row.eventId, row])).values()];
   const located = new Set(snapshot.entries.filter((row) => row.coordinates !== null && !row.mapSuppressed).map((row) => row.eventId));
   return <section aria-label="全球情勢事件列表" style={{ fontSize: FONT_SIZE.base, color: palette.textStrong, lineHeight: 1.5 }}>
     <div style={{ color: palette.textMuted }}>{snapshot.windowLabel}{(snapshot.status === "ready" || snapshot.status === "partial") && <> · 已載入 {events.length} 件 · {events.filter((row) => !located.has(row.eventId) && !row.mapSuppressed).length} 件待定位</>}</div>
     {snapshot.status === "loading" && <div role="status">正在載入全球情勢…</div>}
+    {snapshot.status === "idle" && <div role="status">等待全球情勢圖層載入…</div>}
     {snapshot.message && <div role="status" style={{ color: "#d97706" }}>{snapshot.message}</div>}
-    <div style={{ maxHeight: 240, overflowY: "auto", marginTop: 5 }}>
+    <div style={{ maxHeight: fillPanel ? undefined : 240, overflowY: fillPanel ? "visible" : "auto", marginTop: 5 }}>
       {events.map((event) => <details key={event.eventId} style={{ borderTop: `1px solid ${palette.border}`, padding: "5px 0" }}>
         <summary style={{ cursor: "pointer", lineHeight: 1.5 }}>
           <span style={{ color: palette.textMuted }}>{event.candidateId ? (event.assessmentStatus === "pending" ? "待判斷" : "AI 初判") : "已研究"} · {event.mapSuppressed ? "正式事件已撤回／取代，不上圖" : located.has(event.eventId) ? "可定位" : "待定位"}</span><br />

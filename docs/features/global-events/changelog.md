@@ -1,10 +1,18 @@
 # Changelog
 
-## 2026-09-03 — Popup 摘要瘦身（待發布）
+## 2026-09-03 — 全球情勢列表移至 INTEL（待發布）
+
+將兩個sidebar的GlobalEventsList與統計搬到「即時情報 INTEL → 全球情勢」獨立第四分頁；sidebar只留原圖層controls。全球分頁不混入全部／新聞／警報總量，不顯示新聞LIVE／更新健康列、1H／6H／24H、警報篩選或IntelReplay。統計與unknown／定位展開完全沿用既有globalEventsViewStore，依原七天／時間軸窗口，不新增RPC或reader。
+
+圖層關閉時不顯示cached統計，提供「開啟全球情勢圖層以載入」按鈕，走App既有handleBulkSetVisibility；切分頁不暗中開啟圖層。沿用theme與列表資料，取消sidebar用的240px內層捲動上限。19 focused tests與tsc-b通過，正常CI另跑；依使用者要求不做browser／devserver視覺自驗，畫面由使用者確認。
+
+## 2026-09-03 — PR #208 Popup 摘要瘦身
 
 僅 Global Events popup 保留：18px 事件標題、查證狀態、摘要、同列分類／嚴重度、臺灣影響、判斷理由、地點、落點語意、來源收集時間及可點位置來源。隱藏信心／Qwen分類／關聯代碼／座標／避讓／時間軸／lineage等內部細節，底層資料與其他圖層不變。來源用網域標籤、原http(s) URL，拒絕不安全或帶帳密連結；正式事件沒有來源收集時間時顯示—，不挪用事件時間。
 
 依使用者要求，不做browser、截圖或devserver視覺驗收；只跑focused tests、tsc與既有CI。視覺驗收由使用者。
+
+PR #208 merge 5230181，Zeabur deployment 6a997433c3fffb61baebe158 於13:27:27Z RUNNING；17 focused／tsc／CI通過。沒有宣稱視覺已验。
 
 ## 2026-09-03 — PR #207 固定地理錨點 hotfix
 
