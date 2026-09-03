@@ -282,6 +282,32 @@ describe("useGlobalEventsLayer timeline", () => {
     expect(globalEventsViewStore.getSnapshot().status).toBe("partial");
     expect(globalEventsViewStore.getSnapshot().message).toContain("載入失敗");
   });
+
+  it("clamps pulse phase when RAF frame time precedes performance.now at animation start", async () => {
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", vi.fn((callback: FrameRequestCallback) => {
+      frames.push(callback);
+      return frames.length;
+    }));
+    vi.spyOn(performance, "now").mockReturnValue(1000);
+    clock.current = Date.parse("2026-09-03T09:59:00Z") / 1000;
+    loader.window.mockResolvedValue([point()]);
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.8, "replay");
+    await flush();
+    harness.tick(Date.parse("2026-09-03T10:01:00Z") / 1000);
+    expect(frames).toHaveLength(1);
+    frames.shift()!(990); // The browser's current frame began before this animation was started.
+    frames.shift()!(1900);
+    frames.shift()!(4000); // Late frame must also remain within the end bound.
+    const calls = vi.mocked(state.map.setPaintProperty).mock.calls;
+    const opacities = calls.filter(([id, property]) => id === GLOBAL_EVENTS_PULSE_LAYER_ID && property === "circle-stroke-opacity").map((call) => Number(call[2]));
+    const radii = calls.filter(([id, property]) => id === GLOBAL_EVENTS_PULSE_LAYER_ID && property === "circle-radius").map((call) => Number(call[2]));
+    expect(opacities.every((value) => Number.isFinite(value) && value >= 0 && value <= 0.8)).toBe(true);
+    expect(radii).toEqual([8, 19, 30]);
+    expect(opacities[opacities.length - 1]).toBe(0);
+    expect(frames).toHaveLength(0);
+  });
 });
 
 describe("Global Events pulse and location semantics", () => {
