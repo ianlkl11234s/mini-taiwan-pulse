@@ -56,6 +56,11 @@ import {
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
+import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
+import {
+  jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
+} from "../data/jpPopulationMeshModes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -315,6 +320,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
+  { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpSchools", render: () => <JpSchoolsLegend /> },
+  { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1075,6 +1083,77 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
         cats={[
           ...JP_STATION_TYPES.map((s) => ({ color: s.color, label: s.label })),
           { color: JP_STATION_TYPE_OTHER.color, label: JP_STATION_TYPE_OTHER.label },
+        ]}
+      />
+    </div>
+  );
+}
+
+// ── 日本鐵道路線（事業者種別 5 類，靜態無模式切換）──
+// 5 類已窮盡 21,933 段（其他為 0 筆）→ 不列「その他」。
+// 同名類別與日本車站共用 hex（色票 SSOT: data/jpRailwayTypes.ts）。
+
+function JpRailwaysLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本鐵道 事業者種別
+      </div>
+      <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
+    </div>
+  );
+}
+
+// ── 日本學校（学校分類 13 類，靜態無模式切換）──
+// 13 列單欄太長 → 兩欄排版（比照非都市土地使用分區）；13 類已窮盡 56,807 筆，
+// 故不列「その他」。色票 SSOT: data/jpSchoolTypes.ts（排列＝學制階梯，同階梯同色系）。
+
+function JpSchoolsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本學校 学校分類
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {JP_SCHOOL_TYPES.map((c) => (
+          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 日本人口網格（9 種指標／年份，兩套色階隨 select 切換）──
+// 斷點跨年份固定（見 data/jpPopulationMeshModes.ts）：同一個顏色在 2020 與 2070
+// 代表同一個人數／比率級距，切年份才能真的看出人口消退。
+// ratio65 多一列「未公開（遮罩）」—— 官方對極小人口 mesh 的年齡細分抹成 0，
+// 那不是「最年輕」而是「查無資料」，圖例必須講明。
+
+function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const idx = modeIdx ?? 0;
+  const mode = jpPopulationMeshMode(idx);
+  const isRatio = mode.metric === "ratio65";
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        日本人口網格 {mode.label}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
+        {isRatio ? "65 歲以上比率（1km 格）" : "總人口（人／1km 格）"}
+      </div>
+      <FireCatRows
+        square
+        cats={[
+          ...jpPopulationMeshBuckets(idx).map((b) => ({ color: b.color, label: b.label })),
+          ...(isRatio
+            ? [{ color: JP_POPULATION_MESH_MASK.color, label: JP_POPULATION_MESH_MASK.label }]
+            : []),
         ]}
       />
     </div>

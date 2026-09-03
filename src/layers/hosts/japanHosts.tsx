@@ -4,6 +4,9 @@
 import { useJpAdminLayers } from "../../hooks/useJpAdminLayers";
 import { useJpStationsLayer } from "../../hooks/useJpStationsLayer";
 import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
+import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
+import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
+import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -51,6 +54,44 @@ export const JpAirportsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.jpAirports,
     p.jpAirportsOpacity ?? 0.5,
     displayMode,
+  );
+  return null;
+};
+
+/** 日本鐵道路線：PMTiles line，按事業者種別分色，無時間維度。 */
+export const JpRailwaysHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpRailwaysLayer");
+  const p = useKeyOverlayParams("jpRailways");
+  useJpRailwaysLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpRailways,
+    p.jpRailwaysOpacity ?? 0.9,
+  );
+  return null;
+};
+
+/** 日本學校：PMTiles point，按学校分類 13 色分色，無時間維度。 */
+export const JpSchoolsHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpSchoolsLayer");
+  const p = useKeyOverlayParams("jpSchools");
+  useJpSchoolsLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpSchools,
+    p.jpSchoolsOpacity ?? 0.75,
+    p.jpSchoolsScale ?? 1,
+  );
+  return null;
+};
+
+/** 日本 1km 人口網格：PMTiles polygon choropleth，9 種指標／年份由 select 切換。 */
+export const JpPopulationMeshHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPopulationMeshLayer");
+  const p = useKeyOverlayParams("jpPopulationMesh1km");
+  useJpPopulationMeshLayer(
+    deps.mapRef,
+    deps.layerVisibility.jpPopulationMesh1km,
+    p.jpPopulationMeshOpacity ?? 0.55,
+    p.jpPopulationMeshModeIdx ?? 0,
   );
   return null;
 };

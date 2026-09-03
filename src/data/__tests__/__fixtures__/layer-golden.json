@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 393,
+    "keyCount": 396,
     "sections": [
       "gisLayers",
       "overlays",
@@ -615,10 +615,28 @@
     },
     {
       "layers": [
+        "jp-schools-circle"
+      ],
+      "type": "jpSchools"
+    },
+    {
+      "layers": [
+        "jp-railways-line"
+      ],
+      "type": "jpRailways"
+    },
+    {
+      "layers": [
         "jp-airports-circle",
         "jp-airports-fill"
       ],
       "type": "jpAirports"
+    },
+    {
+      "layers": [
+        "jp-population-mesh-fill"
+      ],
+      "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
@@ -50899,6 +50917,67 @@
         "value": "point"
       }
     ],
+    "jpPopulationMesh1km": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      },
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "人口 2020",
+            "value": "pop_2020"
+          },
+          {
+            "label": "人口 2030",
+            "value": "pop_2030"
+          },
+          {
+            "label": "人口 2040",
+            "value": "pop_2040"
+          },
+          {
+            "label": "人口 2050",
+            "value": "pop_2050"
+          },
+          {
+            "label": "人口 2070",
+            "value": "pop_2070"
+          },
+          {
+            "label": "高齡比 2030",
+            "value": "ratio65_2030"
+          },
+          {
+            "label": "高齡比 2040",
+            "value": "ratio65_2040"
+          },
+          {
+            "label": "高齡比 2050",
+            "value": "ratio65_2050"
+          },
+          {
+            "label": "高齡比 2070",
+            "value": "ratio65_2070"
+          }
+        ],
+        "type": "select",
+        "value": "pop_2020"
+      }
+    ],
+    "jpRailways": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
     "jpReligionGsi": [
       {
         "label": "透明度 0.60",
@@ -50936,6 +51015,22 @@
         "label": "透明度 0.75",
         "max": 1,
         "min": 0,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpSchools": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
         "step": 0.05,
         "value": 0.75
       },
