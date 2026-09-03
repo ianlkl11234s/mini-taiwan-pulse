@@ -21,4 +21,12 @@ Platform [PR #90](https://github.com/ianlkl11234s/gis-platform/pull/90) 已合�
 
 Workbench [PR #29](https://github.com/ianlkl11234s/pulse-intel-workbench/pull/29) 已合併（412e20f），保留兩層判斷與原 frozen artifacts。Collector [PR #79](https://github.com/ianlkl11234s/gis-data-collectors/pull/79) 已合併（a284253），另接續來源地理提及的概略定位放寬。
 
-Frontend [PR #205](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/205) 包含本次實作；tsc-b 與 1027 tests（1 skipped）通過。正式部署 commit／最後 production browser 證據記錄於該 PR 與上游 handoff；不能只以 CI 成功代替 production 驗收。
+Frontend [PR #205](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/205) merge ab813b0；tsc-b 與 1027 tests（1 skipped）通過。[PR #206](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/206) 修正pulse負opacity，merge def3dc662b645696824e61451416288b496219cb；11 focused／tsc／CI通過。Zeabur deployment 6a994975c3fffb61baebd2b3 RUNNING，新JS main-Bblqfkou.js 已由正式browser確認。
+
+Production browser：最近七天、AI off僅3正式事件／1未知、Nigeria drop_noise／none國家代表點popup、同位置7件群組展開、跨國線ON/OFF與opacity0均通過。歷史9/2無導入資料→0，9/3讀出實際available版本；新版scrub無consoleerror。驗收時163顯示事件／58待定位是Qwen74候選補正前快照，不應當作永久總量。
+
+Platform #91／migration399與45舊候選概略位置enrichment已上線；Collector #80來源地理提及fallback、#81相容性修正已上線（43b5665）。首輪74候選已用原cache補正為74有效／0待判斷，未重跑Qwen。Workbench #30／#31已合併，舊partial與新repair紀錄均保留，open PR=[]。
+
+18:29台北最終anon讀回179候選，110有位置／69unknown、199代表點，所有core34／watch39／drop106保留。正式browser合併重複報導後155件／58待定位（97件有位置），待判斷標籤0。來源仍落後約14小時，不宣稱近七天已完整；Publisher始終0。不同筆數分母與完整證據以上游handoff及PR #205發布紀錄為準。
+
+正式網址：https://mini-taiwan-pulse.itsmigu.com/?v=1&lng=10&lat=25&z=1.8&layers=globalEvents&style=dark 。圖層會啟用，World側欄需自行展開。
