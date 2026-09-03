@@ -1732,6 +1732,8 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
+            globalEventsEnabled={layerVisibility.globalEvents}
+            onEnableGlobalEvents={() => handleBulkSetVisibility(["globalEvents"], true)}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 12, speed: 1.2 });
             }}

@@ -38,6 +38,7 @@ import { fetchDisasterAlertsDay } from "../../data/disasterAlertLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
+import { GlobalEventsList } from "../sidebar/GlobalEventsList";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
@@ -73,6 +74,8 @@ interface Props {
   onSelectLocation?: (lon: number, lat: number) => void;
   /** 來自地圖 pin click 的選取（清單應 scroll + 展開） */
   externalSelectedId?: number | null;
+  globalEventsEnabled: boolean;
+  onEnableGlobalEvents: () => void;
 }
 
 export function IntelPanel({
@@ -82,6 +85,8 @@ export function IntelPanel({
   onFilterChange: onFilterChangeProp,
   onSelectLocation,
   externalSelectedId,
+  globalEventsEnabled,
+  onEnableGlobalEvents,
 }: Props) {
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
@@ -100,6 +105,7 @@ export function IntelPanel({
 
   // ── alerts state ──
   const [feedTab, setFeedTab] = useState<FeedTab>("all");
+  const isGlobalEventsTab = feedTab === "globalEvents";
   const [alertsExpanded, setAlertsExpanded] = useState(false);
   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
@@ -193,7 +199,7 @@ export function IntelPanel({
 
   // active alerts list — re-fetch when tab / filter change
   const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
-  const needsAlertList = feedTab !== "news";
+  const needsAlertList = feedTab === "all" || feedTab === "alerts";
   useEffect(() => {
     if (!open || !needsAlertList) return;
     let alive = true;
@@ -410,6 +416,7 @@ export function IntelPanel({
       }}
     >
       <IntelHeader
+        showFeedStatus={!isGlobalEventsTab}
         totalCount={flatEvents.length}
         lastUpdateTs={now}
         countdownSec={countdownSec}
@@ -417,13 +424,13 @@ export function IntelPanel({
         onClose={onClose}
       />
 
-      <AlertSummaryBar
+      {!isGlobalEventsTab && <AlertSummaryBar
         tally={alertTally}
         expanded={alertsExpanded}
         onToggle={() => setAlertsExpanded((v) => !v)}
         activeGroups={pickedGroups}
         onPickGroup={onPickGroup}
-      />
+      />}
 
       <FeedTabs
         tab={feedTab}
@@ -507,7 +514,7 @@ export function IntelPanel({
             </>
           )}
         </div>
-      ) : (
+      ) : feedTab === "all" ? (
         <div
           style={{
             display: "flex", alignItems: "center", gap: 5,
@@ -543,7 +550,7 @@ export function IntelPanel({
             );
           })}
         </div>
-      )}
+      ) : null}
 
       {feedTab === "news" && (
         <IntelSituation
@@ -554,7 +561,17 @@ export function IntelPanel({
       )}
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
-        {feedTab === "alerts" ? (
+        {isGlobalEventsTab ? (
+          globalEventsEnabled ? <GlobalEventsList fillPanel palette={{ textStrong: COLORS.textStrong, textMuted: COLORS.textMuted,
+            border: COLORS.borderMid, link: COLORS.accent, bgSubtle: COLORS.accentFaint }} /> : (
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted, lineHeight: 1.6 }}>
+              <p style={{ margin: "0 0 10px" }}>全球情勢圖層目前關閉。開啟後會顯示該圖層的最近七天或時間軸資料。</p>
+              <button onClick={onEnableGlobalEvents} style={{ padding: "7px 10px", borderRadius: RADIUS.md,
+                border: `1px solid ${COLORS.accentSoft}`, background: COLORS.accentFaint, color: COLORS.textStrong,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, cursor: "pointer" }}>開啟全球情勢圖層以載入</button>
+            </div>
+          )
+        ) : feedTab === "alerts" ? (
           <>
           {historyMode && (
             <div
@@ -780,7 +797,7 @@ export function IntelPanel({
         )}
       </div>
 
-      <IntelReplay
+      {!isGlobalEventsTab && <IntelReplay
         playbackTs={effectivePlayback}
         windowStartTs={windowStartTs}
         nowTs={now}
@@ -789,7 +806,7 @@ export function IntelPanel({
         onScrub={onScrub}
         onLive={goLive}
         onTogglePlay={togglePlay}
-      />
+      />}
 
       <style>{`
         @keyframes intelPanelFadeIn {

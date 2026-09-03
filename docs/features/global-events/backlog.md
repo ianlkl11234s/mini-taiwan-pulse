@@ -12,6 +12,9 @@
 - [x] 固定錨點 hotfix PR #207／正式部署 RUNNING（78c90aa）
 - [ ] 固定錨點／popup瘦身正式視覺驗收（由使用者執行，不由agent自驗）
 - [x] Popup 瘦身與18px標題；資料、位置與其他圖層不變
-- [ ] Popup 瘦身 CI／正式部署
+- [x] Popup 瘦身 CI／正式部署（PR #208／5230181 RUNNING）
+- [x] 全球情勢列表與統計移到INTEL獨立分頁；sidebar保留controls
+- [x] 圖層off不顯示舊統計，明確按鈕啟用同一圖層；不新增資料pipeline
+- [ ] INTEL全球情勢分頁 CI／正式部署（視覺由使用者確認）
 
 後續：重要性判準持續校準；本次不引入新的分數體系。

@@ -1,7 +1,7 @@
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
-export type FeedTab = "all" | "news" | "alerts";
+export type FeedTab = "all" | "news" | "alerts" | "globalEvents";
 
 interface Props {
   tab: FeedTab;
@@ -18,11 +18,14 @@ const TABS: { key: FeedTab; label: string }[] = [
   { key: "all",    label: "全部" },
   { key: "news",   label: "新聞" },
   { key: "alerts", label: "警報" },
+  { key: "globalEvents", label: "全球情勢" },
 ];
 
 export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere }: Props) {
   return (
     <div
+      role="tablist"
+      aria-label="情報分頁"
       style={{
         flexShrink: 0,
         display: "flex", gap: 4,
@@ -35,17 +38,20 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
         const isAlerts = t.key === "alerts";
         const hot = isAlerts && alertSevere > 0;
         const count =
-          t.key === "news" ? newsCount
+          t.key === "globalEvents" ? null : t.key === "news" ? newsCount
             : t.key === "alerts" ? alertCount
               : newsCount + alertCountInAll;
         return (
           <button
             key={t.key}
+            role="tab"
+            aria-selected={active}
             onClick={() => onTab(t.key)}
             style={{
               flex: 1,
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
-              padding: "5px 8px",
+              minWidth: 0, whiteSpace: "nowrap",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+              padding: "5px 6px",
               borderRadius: RADIUS.lg,
               cursor: "pointer",
               background: active
@@ -61,7 +67,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
             }}
           >
             {t.label}
-            <span
+            {count !== null && <span
               style={{
                 fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
                 color: hot && active ? "#ef4444" : "inherit",
@@ -69,7 +75,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
               }}
             >
               {count}
-            </span>
+            </span>}
           </button>
         );
       })}
