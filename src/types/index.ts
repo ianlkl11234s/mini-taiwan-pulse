@@ -745,6 +745,7 @@ export interface FeatureInfo {
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
+    | "marineObservation"
     | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
     | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
@@ -976,6 +977,10 @@ export interface LayerVisibility {
   riverLevel: boolean;
   groundwater: boolean;
   groundwaterWells: boolean;
+  /** CWA 固定式海洋觀測站；與 ISOHE 港區海氣象網路維持獨立。 */
+  marineObservationCwa: boolean;
+  /** ISOHE 港區海氣象站；與 CWA 固定式海洋觀測網路維持獨立。 */
+  marineObservationIsohe: boolean;
   iotWraRiver: boolean;
   iotWraStructure: boolean;
   lakesPondsOsm: boolean;        // 湖泊/埤塘/池塘（OSM natural=water，52,314 面，預設濾掉與魚塭重疊者）

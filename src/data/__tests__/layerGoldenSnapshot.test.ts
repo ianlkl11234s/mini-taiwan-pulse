@@ -134,9 +134,10 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-02：+1 = jpPopulationMesh1km（日本 1km 人口網格 PMTiles polygon choropleth，
     // 9 指標／年份 select；新增「人口」theme）。
     // 2026-09-03：+1 = globalEvents（已發布全球重要事件的真實 Point 點位）。
+    // 2026-09-04：+2 = marineObservationCwa / marineObservationIsohe（CWA／ISOHE 固定站觀測分源）。
     // 2026-09-04：+6 = 噪音／聲響六層（官方測站、NoiseCapture 公民格網、噪音管制區、
     // 航空噪音法定里別、噪音裁處事件、聲音照相設備）。
-    expect(keys.length).toBe(402);
+    expect(keys.length).toBe(404);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

@@ -6824,6 +6824,54 @@ export const LAYER_MANIFEST = {
     topics: ["水資源", "水庫"],
   },
 
+  marineObservationCwa: {
+    key: "marineObservationCwa",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "CWA 海洋觀測站 CWA Marine",
+    expandable: true,
+    color: "#22d3ee",
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "中央氣象署固定式海洋觀測網路；production public marine observation RPC 已上線，但 taipei-gis-analytics catalog 尚未建立對應 dataset entry。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMarineObservationLayers 以 source_network=cwa 呼叫 stations/current RPC，按 station_uid 組成獨立 GeoJSON source；不與 ISOHE 或 CMEMS 預報合併。",
+    },
+    legend: "marineObservationCwa",
+    popup: "marineObservation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "中央氣象署固定式海洋觀測站；點色表示 freshness／source status，各指標保留 depth、quality 與 vertical datum。",
+    topics: ["水資源", "海洋", "觀測站", "CWA", "即時"],
+  },
+
+  marineObservationIsohe: {
+    key: "marineObservationIsohe",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "ISOHE 港區海氣象 ISOHE Port",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Anchor,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "港灣環境資訊網 ISOHE 港區海氣象固定站；production public marine observation RPC 已上線，但 taipei-gis-analytics catalog 尚未建立對應 dataset entry。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMarineObservationLayers 以 source_network=isohe 呼叫 stations/current RPC，按 station_uid 組成獨立 GeoJSON source；不與 CWA 或 CMEMS 預報合併。",
+    },
+    legend: "marineObservationIsohe",
+    popup: "marineObservation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "ISOHE 港區海氣象固定站；採自身更新頻率判讀 freshness，不與 CWA 同名指標平均或直接比較不同 vertical datum。",
+    topics: ["水資源", "海洋", "港區", "ISOHE", "即時"],
+  },
+
   // ⚠️ 與 `groundwater` 是不同層：這層是**靜態 backdrop**（48h 內有讀值的 ~733 站，
   //    灰色小點、不受 timeline 影響），layer id 是 `groundwater-wells-circle`
   //    （GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）。W2 popup 補強後兩者各有

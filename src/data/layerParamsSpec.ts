@@ -1456,6 +1456,12 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "groundwaterWellsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     opacitySlider("groundwaterWellsOpacity", 1.0),
   ],
+  marineObservationCwa: [
+    opacitySlider("marineObservationCwaOpacity", 0.9),
+  ],
+  marineObservationIsohe: [
+    opacitySlider("marineObservationIsoheOpacity", 0.9),
+  ],
   floodSensor: [
     { kind: "slider", name: "floodSensorScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     opacitySlider("floodSensorOpacity", 1.0),
