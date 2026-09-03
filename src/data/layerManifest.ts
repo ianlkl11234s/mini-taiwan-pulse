@@ -1043,7 +1043,7 @@ export const LAYER_MANIFEST = {
     label: "全球垃圾殘骸 Trash & Debris",
     labelMobile: "全球垃圾殘骸",
     expandable: true,
-    color: "#a78bfa",
+    color: "#f59e0b",
     icon: Trash2,
     upstream: {
       status: "verified",
