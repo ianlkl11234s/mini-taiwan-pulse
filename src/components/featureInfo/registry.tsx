@@ -136,6 +136,10 @@ import {
 } from "./policeJusticePanels";
 import { ChatHighlightPanel } from "./shared";
 import { PollutionFacilityPanel, PollutionPenaltyPanel, PollutionSitePanel } from "./pollutionPanels";
+import {
+  OfficialNoiseMonitoringPanel, NoiseCaptureGridPanel, NoiseControlZonesPanel,
+  AviationNoiseZonesPanel, NoiseEnforcementEventsPanel, SoundCameraLocationsPanel,
+} from "./noisePanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 
@@ -389,6 +393,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   pollutionFacility: PollutionFacilityPanel,
   pollutionPenalty: PollutionPenaltyPanel,
   pollutionSite: PollutionSitePanel,
+  // 噪音／聲響（觀測、法定區、裁處、設備清單各自保留原始語意）
+  officialNoiseMonitoring: OfficialNoiseMonitoringPanel,
+  noiseCaptureGrid: NoiseCaptureGridPanel,
+  noiseControlZones: NoiseControlZonesPanel,
+  aviationNoiseZones: AviationNoiseZonesPanel,
+  noiseEnforcementEvents: NoiseEnforcementEventsPanel,
+  soundCameraLocations: SoundCameraLocationsPanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
   // 🐷 畜牧
@@ -761,6 +772,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   pollutionFacility: "污染潛勢設施",
   pollutionPenalty: "污染裁處事件",
   pollutionSite: "污染場址",
+  // 噪音／聲響
+  officialNoiseMonitoring: "官方噪音測站",
+  noiseCaptureGrid: "NoiseCapture 公民格網",
+  noiseControlZones: "法定噪音管制區",
+  aviationNoiseZones: "航空噪音法定里別",
+  noiseEnforcementEvents: "噪音裁處事件",
+  soundCameraLocations: "聲音照相設備／路段",
   // AI 助手標記點
   chatHighlight: "地圖標記",
 };

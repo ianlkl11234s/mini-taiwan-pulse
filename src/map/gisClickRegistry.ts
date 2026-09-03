@@ -437,6 +437,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["immigration-office-circle"], type: "immigrationOffice" },
   { layers: ["coast-guard-station-circle"], type: "coastGuardStation" },
   { layers: ["civil-defense-shelter-circle"], type: "civilDefenseShelter" },
+  // 🔊 噪音／聲響點層：與環境污染家族相鄰；三個 polygon 家族另置於陣列末段。
+  // noise preset 要排在泛用 pollutionPenalty 前，兩個入口同開時才保留「裁處非 dB」語意。
+  { layers: ["sound-camera-locations-circle"], type: "soundCameraLocations" },
+  { layers: ["official-noise-monitoring-circle"], type: "officialNoiseMonitoring" },
+  { layers: ["pollution-penalty-noise-circle"], type: "noiseEnforcementEvents" },
   // 環境污染（點層優先於大面積；三層皆 PMTiles circle）
   { layers: ["pollution-site-circle"], type: "pollutionSite" },
   {
@@ -458,6 +463,17 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["police-iso-substation-fill", "police-iso-substation-line"], type: "policeIsoSubstation" },
   { layers: ["police-iso-precinct-fill", "police-iso-precinct-line"], type: "policeIsoPrecinct" },
   { layers: ["police-iso-city-dept-fill", "police-iso-city-dept-line"], type: "policeIsoCityDept" },
+  // 🔊 噪音／聲響 polygon：細格網先於法定區，且全部晚於點層，避免攔截測站／裁處／設備。
+  {
+    layers: [
+      "noise-capture-grid-250m-fill", "noise-capture-grid-250m-outline",
+      "noise-capture-grid-500m-fill", "noise-capture-grid-500m-outline",
+      "noise-capture-grid-1000m-fill", "noise-capture-grid-1000m-outline",
+    ],
+    type: "noiseCaptureGrid",
+  },
+  { layers: ["aviation-noise-zones-fill", "aviation-noise-zones-outline"], type: "aviationNoiseZones" },
+  { layers: ["noise-control-zones-fill", "noise-control-zones-outline"], type: "noiseControlZones" },
   // 地震回放 鄉鎮面量圖：368 鄉鎮大面積 fill → 排在點/線層之後
   { layers: ["eq-replay-town-fill"], type: "earthquakeReplayTown" },
   // GFW 每日捕撈活動是東亞大面積格網面；保留在船點／航跡／SAR 之後才查詢。

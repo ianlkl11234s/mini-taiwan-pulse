@@ -1066,6 +1066,17 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "噪音／聲響 Noise",
+        layers: [
+          fromManifest("officialNoiseMonitoring"),
+          fromManifest("noiseCaptureGrid"),
+          fromManifest("noiseControlZones"),
+          fromManifest("aviationNoiseZones"),
+          fromManifest("noiseEnforcementEvents"),
+          fromManifest("soundCameraLocations"),
+        ],
+      },
+      {
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
