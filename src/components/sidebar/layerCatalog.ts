@@ -1415,6 +1415,12 @@ const THEME_CATALOG: ThemeDef[] = [
     defaultCollapsed: true,
     groups: [
       {
+        title: "重要事件",
+        layers: [
+          fromManifest("globalEvents"),
+        ],
+      },
+      {
         title: "環境",
         layers: [
           fromManifest("worldTrashDebris"),

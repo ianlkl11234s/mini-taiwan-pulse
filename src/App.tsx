@@ -7,7 +7,7 @@ import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
-import { useTimeline } from "./hooks/useTimeline";
+import { historicalPeriodSnapshot, useTimeline } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
 // AR-22 P4：`useLayerParamsRuntime` 已整支退役。參數的消費端各自 per-key 訂閱
@@ -593,9 +593,11 @@ export default function App() {
   );
   // 火災資料覆蓋範圍（民國 111~113）— 月/日推進的上限
   const FIRE_MAX_YEAR = 113;
-  // 共機活動區已向量化到 115 年（2026）。開著它時月/日推進要能走到 115，
-  // 沒開就維持火災的 113 上限，不改變既有行為。
-  const monthDayMaxYear = layerVisibility.plaActivity ? 115 : FIRE_MAX_YEAR;
+  // 共機活動區與 Global Events 都有 115 年（2026）資料。開著任一時，
+  // 月/日推進要能走到 115；只有火災時仍維持原本的 113 上限。
+  const monthDayMaxYear = layerVisibility.plaActivity || layerVisibility.globalEvents
+    ? 115
+    : FIRE_MAX_YEAR;
 
   // 歷史模式自動播放：依粒度推進年/月/日，到頂暫停
   // （房地產的播放交給 useRealEstateTimeline 的 RAF 引擎，這裡略過）
@@ -667,7 +669,12 @@ export default function App() {
       for (const k of Object.keys(allOff) as (keyof LayerVisibility)[]) {
         allOff[k] = false;
       }
-      setLayerVisibility({ ...allOff, popCount: true, plaActivity: current.plaActivity });
+      setLayerVisibility({
+        ...allOff,
+        popCount: true,
+        plaActivity: current.plaActivity,
+        globalEvents: current.globalEvents,
+      });
     } else {
       const snapshot = layerVisBeforeHistoricalRef.current;
       if (snapshot) {
@@ -772,6 +779,30 @@ export default function App() {
       `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
     );
   }, [appMode, historicalYear, historicalMonth, historicalDay, historicalGranularity]);
+
+  // Global Events 沿用共用 timeStore。HistoricalTimeline 本身只管理年/月/日，
+  // 因此僅在該圖層開啟時，把所選期間結束前的 snapshot 同步給 useTimeline；
+  // 火災仍直接使用既有 historical state，不改其語意。
+  const globalEventsHistoricalSnapshot = useMemo(() => {
+    if (appMode !== "historical" || !layerVisibility.globalEvents) return null;
+    return historicalPeriodSnapshot(
+      historicalYear,
+      historicalMonth,
+      historicalDay,
+      historicalGranularity,
+    );
+  }, [
+    appMode,
+    layerVisibility.globalEvents,
+    historicalYear,
+    historicalMonth,
+    historicalDay,
+    historicalGranularity,
+  ]);
+  useEffect(() => {
+    if (!globalEventsHistoricalSnapshot) return;
+    timeline.jumpToTime(globalEventsHistoricalSnapshot.cursorTime);
+  }, [globalEventsHistoricalSnapshot, timeline.jumpToTime]);
 
   // 共機活動區 / 衛星 / 路況 / 火災 / 清潔隊 / 地形 raster / 坡度坡向 /
   // 氣象空品影像 / 壅塞 / 殯葬密度 / 溫度網格的 hook 全部搬進 LayerHost
@@ -1701,6 +1732,8 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
+            globalEventsEnabled={layerVisibility.globalEvents}
+            onEnableGlobalEvents={() => handleBulkSetVisibility(["globalEvents"], true)}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 12, speed: 1.2 });
             }}
@@ -1759,6 +1792,7 @@ export default function App() {
               onDayChange={setHistoricalDay}
               onGranularityChange={setHistoricalGranularity}
               plaActive={layerVisibility.plaActivity}
+              globalEventsActive={layerVisibility.globalEvents}
               reActive={realEstateActive}
               reGran={reGran}
               onReGranChange={(g) => { setReGran(g); if (g === "quarter") setReCursorTs((t) => snapQuarterStart(t)); }}
@@ -2191,6 +2225,7 @@ export default function App() {
                 onDayChange={setHistoricalDay}
                 onGranularityChange={setHistoricalGranularity}
                 plaActive={layerVisibility.plaActivity}
+                globalEventsActive={layerVisibility.globalEvents}
               />
             )}
           </div>

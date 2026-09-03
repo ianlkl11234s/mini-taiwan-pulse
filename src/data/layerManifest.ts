@@ -1064,6 +1064,32 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "環境", "垃圾"],
   },
 
+  globalEvents: {
+    key: "globalEvents",
+    section: { theme: "世界 World", group: "重要事件" },
+    label: "全球情勢 Global Events",
+    labelMobile: "全球情勢",
+    expandable: true,
+    color: "#f97316",
+    icon: MapPinned,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Collector + Qwen 兩層判斷全量保留，anon-safe candidate window 分頁讀取；Codex cloud 選擇性深度研究，publisher 正式發布保持獨立",
+      note: "AI 初判與正式事件同層區分。unknown geometry 保留列表不畫點；城市／地點與國家代表位置保留來源，跨國弧線只是事件關聯",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGlobalEventsLayer 自建 points/association sources；預設最近七天總覽，另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
+    },
+    legend: "globalEvents",
+    popup: "globalEvent",
+    params: { count: 4, kinds: ["slider", "select", "toggle", "toggle"] },
+    description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
+    topics: ["世界", "重要事件", "情報"],
+  },
+
   aisstreamVessels: {
     key: "aisstreamVessels",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },

@@ -133,7 +133,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-02：+1 = jpSchools（日本學校 PMTiles point，学校分類 13 色；新增「教育」theme）。
     // 2026-09-02：+1 = jpPopulationMesh1km（日本 1km 人口網格 PMTiles polygon choropleth，
     // 9 指標／年份 select；新增「人口」theme）。
-    expect(keys.length).toBe(395);
+    // 2026-09-03：+1 = globalEvents（已發布全球重要事件的真實 Point 點位）。
+    expect(keys.length).toBe(396);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

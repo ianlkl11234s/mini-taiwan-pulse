@@ -10,6 +10,8 @@ interface Props {
   countdownSec: number;
   sourceHealth: SourceHealthSummary;
   onClose: () => void;
+  /** Global Events has its own immutable window/status; news health and LIVE badge do not apply. */
+  showFeedStatus?: boolean;
 }
 
 const STATUS_COLOR: Record<SourceStatus, string> = {
@@ -26,7 +28,7 @@ function fmtLag(sec: number | null): string {
   return `${Math.floor(sec / 3600)}h`;
 }
 
-export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHealth, onClose }: Props) {
+export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHealth, onClose, showFeedStatus = true }: Props) {
   const [showHealth, setShowHealth] = useState(false);
 
   const degraded = sourceHealth.degraded + sourceHealth.lagging > 0;
@@ -55,7 +57,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             INTEL
           </span>
         </div>
-        <span
+        {showFeedStatus && <span
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -80,7 +82,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: COLORS.statusLive }}>
             LIVE
           </span>
-        </span>
+        </span>}
         <div style={{ flex: 1 }} />
         <button
           onClick={onClose}
@@ -103,7 +105,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
       </div>
 
       {/* ── status row ── */}
-      <div
+      {showFeedStatus && <div
         style={{
           flexShrink: 0,
           padding: "8px 14px",
@@ -150,10 +152,10 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         <span style={{ display: "flex", alignItems: "center", gap: 4, color: COLORS.textDim }}>
           <IntelIcon d={ICON.refresh} size={11} color={COLORS.textDim} /> {fmtCountdown(countdownSec)}
         </span>
-      </div>
+      </div>}
 
       {/* ── source health popover ── */}
-      {showHealth && (
+      {showFeedStatus && showHealth && (
         <div
           style={{
             flexShrink: 0,

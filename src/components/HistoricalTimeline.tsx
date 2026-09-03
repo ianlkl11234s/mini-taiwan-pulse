@@ -17,6 +17,8 @@ interface Props {
   onTogglePlay: () => void;
   /** 共機活動區是否開著（決定資料範圍提示） */
   plaActive?: boolean;
+  /** 全球事件是否開著（依已發布 immutable versions 回放）。 */
+  globalEventsActive?: boolean;
   onSpeedChange: (s: number) => void;
   onYearChange: (y: number) => void;
   onMonthChange: (m: number) => void;
@@ -97,6 +99,7 @@ export function HistoricalTimeline({
   leftOffset = 16,
   onTogglePlay,
   plaActive = false,
+  globalEventsActive = false,
   onSpeedChange,
   onYearChange,
   onMonthChange,
@@ -122,7 +125,9 @@ export function HistoricalTimeline({
   // 提示該模式下「現在開著的圖層」實際有資料的區間，避免使用者在空年份亂撥
   const dataNote = reActive
     ? "房地產：2024Q3~2026Q1"
-    : plaActive
+    : globalEventsActive
+      ? "全球重要事件：依已發布版本回放"
+      : plaActive
       ? "共機活動區：115/01~115/07"
       : "火災資料：111~113";
   const playStepLabel = reActive ? reGranLabel[reGran] : granLabel[granularity];
@@ -207,7 +212,7 @@ export function HistoricalTimeline({
   );
 
   return (
-    <div style={wrapStyle}>
+    <div style={wrapStyle} data-testid="historical-timeline">
       {/* Row 1: 粒度 + Label */}
       <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
         {reActive ? (

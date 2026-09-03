@@ -22,9 +22,58 @@ export function dayEndUnix(d: Date): number {
   return Date.UTC(y, m, day, 23, 59, 59) / 1000 - 8 * 3600;
 }
 
+export interface HistoricalPeriodSnapshot {
+  /** 所選期間結束前 1ms；只代表回放游標，不是事件的結束時間。 */
+  cursorTime: number;
+  /** 游標所在的台北日曆日。 */
+  dateKey: string;
+  /** RPC 查詢用的單日 half-open window。 */
+  windowStart: string;
+  windowEnd: string;
+}
+
+/**
+ * HistoricalTimeline 的年／月／日都是「該期間結束前的快照」。
+ * 台灣沒有 DST，因此可安全用固定 +08:00 日界；不替事件製造 valid_to。
+ */
+export function historicalPeriodSnapshot(
+  rocYear: number,
+  month: number,
+  day: number,
+  granularity: "year" | "month" | "day",
+): HistoricalPeriodSnapshot {
+  const adYear = Math.trunc(rocYear) + 1911;
+  const safeMonth = Math.max(1, Math.min(12, Math.trunc(month)));
+  const daysInSelectedMonth = new Date(Date.UTC(adYear, safeMonth, 0)).getUTCDate();
+  const safeDay = Math.max(1, Math.min(daysInSelectedMonth, Math.trunc(day)));
+  const taipeiOffsetMs = 8 * 3_600_000;
+  const nextBoundaryMs = granularity === "year"
+    ? Date.UTC(adYear + 1, 0, 1) - taipeiOffsetMs
+    : granularity === "month"
+      ? Date.UTC(adYear, safeMonth, 1) - taipeiOffsetMs
+      : Date.UTC(adYear, safeMonth - 1, safeDay + 1) - taipeiOffsetMs;
+  const cursorMs = nextBoundaryMs - 1;
+  const dateKey = new Date(cursorMs).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const windowStartMs = new Date(`${dateKey}T00:00:00+08:00`).getTime();
+  return {
+    cursorTime: cursorMs / 1000,
+    dateKey,
+    windowStart: new Date(windowStartMs).toISOString(),
+    windowEnd: new Date(windowStartMs + 86_400_000).toISOString(),
+  };
+}
+
 /** 加減天數（台灣無 DST，直接加 86400 秒） */
 function addDays(d: Date, n: number): Date {
   return new Date(d.getTime() + n * 86400 * 1000);
+}
+
+function windowDateKeysFor(selectedDate: Date, rangeDays: number): string[] {
+  const keys: string[] = [];
+  for (let i = 0; i < rangeDays; i++) {
+    keys.push(addDays(selectedDate, i).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
+  }
+  return keys;
 }
 
 interface UseTimelineOptions {
@@ -115,11 +164,7 @@ export function useTimeline({
   // 視窗內每一天的 dateKey（YYYY-MM-DD, Asia/Taipei）→ 寫入 timeStore SSOT，
   // time-aware loader 訂閱 subscribeWindowDateKeys 後嚴格只預載這份；視窗外不打 RPC。
   useEffect(() => {
-    const keys: string[] = [];
-    for (let i = 0; i < rangeDays; i++) {
-      keys.push(addDays(selectedDate, i).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
-    }
-    timeStore.setWindowDateKeys(keys);
+    timeStore.setWindowDateKeys(windowDateKeysFor(selectedDate, rangeDays));
   }, [selectedDate, rangeDays]);
 
   // 首次掛載寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）。
@@ -238,11 +283,15 @@ export function useTimeline({
   const jumpToTime = useCallback((time: number) => {
     if (!Number.isFinite(time)) return;
     // Date 保留絕對時間；dayStartUnix 會從中取 Asia/Taipei 日曆日。
-    setSelectedDateRaw(new Date(time * 1000));
+    const selected = new Date(time * 1000);
+    setSelectedDateRaw(selected);
     setTimeMode("replay");
     setPlaying(false);
+    // 先同步 window，再推進 cursor：跨日 loader 才能保留舊 cursor，判斷向前
+    // 跨過 display_from 的 new_event / version_update pulse。
+    timeStore.setWindowDateKeys(windowDateKeysFor(selected, rangeDays));
     timeStore.setTime(time);
-  }, []);
+  }, [rangeDays]);
 
   const seekByProgress = useCallback(
     (p: number) => {

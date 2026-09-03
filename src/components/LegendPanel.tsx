@@ -14,6 +14,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../data/globalEventsTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
@@ -316,6 +317,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
@@ -4665,6 +4667,45 @@ function WorldTrashDebrisLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.3 }}>
         資料：Outerview (CC-BY-4.0)
+      </div>
+    </div>
+  );
+}
+
+function GlobalEventsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        全球情勢 GLOBAL EVENTS
+      </div>
+      <FireCatRows cats={GLOBAL_EVENT_CATEGORIES.map(({ color, label }) => ({ color, label }))} />
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
+        {GLOBAL_EVENT_SEVERITIES.map((item) => (
+          <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+            <div style={{
+              width: item.radius * 2,
+              height: item.radius * 2,
+              borderRadius: RADIUS.full,
+              background: "#94a3b8",
+              border: "1px solid rgba(15,23,42,0.8)",
+              flexShrink: 0,
+            }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{item.value}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>
+        大小 = 嚴重度 0–3
+        <br />淺色外框 = AI 初判；深色外框 = 已研究發布。全部重要程度均保留。
+      </div>
+      <div style={{ display: "flex", gap: 9, marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim }}>
+        <span><span style={{ color: "#facc15" }}>○</span> 新事件</span>
+        <span><span style={{ color: "#38bdf8" }}>○</span> 版本更新</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.35 }}>
+        點位可能是來源支持的事件點，或城市／國家代表中心；代表點不是精確發生座標，詳見 popup。
+        同位置不同事件並排；數字點可點開展開。弧線僅表示跨國事件關聯，沒有移動方向或時間順序。
       </div>
     </div>
   );
