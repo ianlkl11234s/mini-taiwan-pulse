@@ -96,7 +96,7 @@ import {
   //    MapPinned 已在上方 import 復用）
   Sun, Bed,
   // 🚢 情勢／軍事：特殊船舶 Vessel Watch（Ship 已被 `ships` 佔用，改用 Radar）
-  Radar,
+  Radar, Volume2,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -113,6 +113,7 @@ import {
   INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
   INDUSTRIAL_PARK_COMPARISON_COLORS, COMPANY_GRID_SCALES,
 } from "./businessRegistryTypes";
+import { NOISE_LAYER_COLORS } from "./noiseTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -6263,6 +6264,174 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["select", "toggle", "slider"] },
     description: "LASS 民間微型感測器即時 PM2.5 / 溫度 / 濕度（約 500 點，可聚合）",
     topics: ["環境", "空品", "公民科學"],
+  },
+
+  // 六層刻意保持獨立：測站／群眾量測／法定分類／裁處／設備清單不可合成噪音分數。
+  officialNoiseMonitoring: {
+    key: "officialNoiseMonitoring",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "官方噪音測站 Official Monitoring",
+    labelMobile: "官方噪音測站 Official Noise Monitoring",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.officialNoiseMonitoring,
+    icon: Volume2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "official_noise_monitoring", confidence: "HIGH" }],
+      processing: "320 unique stations／426 mixed-grain features；最近可用 30 日窗內實際回報樣本的聲能平均",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "official-noise-monitoring",
+      url: "./environment/official_noise_monitoring.geojson",
+    },
+    legend: "officialNoiseMonitoring",
+    popup: "officialNoiseMonitoring",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "官方站點最近可用視窗內的實際回報樣本 LAeq；非完整連續月均值，無已驗 dB 站仍保留",
+    topics: ["環境", "噪音", "官方測站", "LAeq", "時間涵蓋率"],
+  },
+
+  noiseCaptureGrid: {
+    key: "noiseCaptureGrid",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "NoiseCapture 公民格網",
+    labelMobile: "NoiseCapture 公民科學格網",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.noiseCaptureGrid,
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "noise_capture_grid", confidence: "HIGH" }],
+      processing: "rolling 365 天品質門檻；1 km／500 m／250 m = 1／1／3 格，5/5 provisional",
+    },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles", sourceId: "noise-capture-grid",
+        url: "./environment/noise_capture_grid.pmtiles", sourceLayer: "noise_capture_1000m",
+        minzoom: 7, maxzoom: 15,
+      },
+      {
+        kind: "pmtiles", sourceId: "noise-capture-grid",
+        url: "./environment/noise_capture_grid.pmtiles", sourceLayer: "noise_capture_500m",
+        minzoom: 7, maxzoom: 15,
+      },
+      {
+        kind: "pmtiles", sourceId: "noise-capture-grid",
+        url: "./environment/noise_capture_grid.pmtiles", sourceLayer: "noise_capture_250m",
+        minzoom: 7, maxzoom: 15,
+      },
+    ],
+    legend: "noiseCaptureGrid",
+    popup: "noiseCaptureGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NoiseCapture／Noise-Planet rolling-365 公民科學格網；高度稀疏且 provisional，留白不代表安靜或 0 dB",
+    topics: ["環境", "噪音", "公民科學", "NoiseCapture", "ODbL", "provisional"],
+  },
+
+  noiseControlZones: {
+    key: "noiseControlZones",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "噪音管制區 Control Zones",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.noiseControlZones,
+    icon: LandPlot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "noise_control_zones", confidence: "HIGH" }],
+      processing: "臺中 113 年官方 polygon；原始 geometry 拓樸修復不等於改畫法定邊界",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "noise-control-zones",
+      url: "./environment/noise_control_zones.pmtiles", sourceLayer: "noise_control_zones",
+      minzoom: 6, maxzoom: 15,
+    },
+    legend: "noiseControlZones",
+    popup: "noiseControlZones",
+    params: { count: 1, kinds: ["slider"] },
+    description: "臺中 v1 第一至第四類法定噪音管制區；類別不是實測聲音大小",
+    topics: ["環境", "噪音", "法定管制區", "臺中"],
+  },
+
+  aviationNoiseZones: {
+    key: "aviationNoiseZones",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "航空噪音法定里別 Aviation Zones",
+    labelMobile: "航空噪音法定里別 Aviation Noise Zones",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.aviationNoiseZones,
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aviation_noise_zones", confidence: "HIGH" }],
+      processing: "桃園／高雄法定村里 membership join 2026-06-26 NLSC 村里界；admin_join，非 DNL contour",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "aviation-noise-zones",
+      url: "./environment/aviation_noise_zones.geojson",
+    },
+    legend: "aviationNoiseZones",
+    popup: "aviationNoiseZones",
+    params: { count: 1, kinds: ["slider"] },
+    description: "桃園／高雄 v1 航空噪音法定村里 membership；不是 DNL 實測等噪音線",
+    topics: ["環境", "噪音", "航空", "法定里別", "行政區 join"],
+  },
+
+  noiseEnforcementEvents: {
+    key: "noiseEnforcementEvents",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "噪音裁處事件 Enforcement",
+    labelMobile: "噪音裁處事件 Noise Enforcement",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.noiseEnforcementEvents,
+    icon: Gavel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pollution_source", confidence: "HIGH" }],
+      processing: "重用既有 pollution_penalties.pmtiles，固定 event_medium=noise；不建立第二份資產",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "pollution-penalty",
+      url: "./geo/pollution_penalties.pmtiles", sourceLayer: "pollution_penalties",
+      minzoom: 5, maxzoom: 14,
+    },
+    legend: "noiseEnforcementEvents",
+    popup: "noiseEnforcementEvents",
+    params: { count: 1, kinds: ["slider"] },
+    description: "官方噪音裁處事件與罰鍰（固定 noise subset）；不是 dB 觀測或聲音強度",
+    topics: ["環境", "噪音", "裁處", "罰鍰"],
+  },
+
+  soundCameraLocations: {
+    key: "soundCameraLocations",
+    section: { theme: "環境氣候 Environment", group: "噪音／聲響 Noise" },
+    label: "聲音照相設備 Sound Camera",
+    labelMobile: "聲音照相設備／路段 Sound Camera",
+    expandable: true,
+    color: NOISE_LAYER_COLORS.soundCameraLocations,
+    icon: Camera,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "sound_camera_locations", confidence: "HIGH" }],
+      processing: "333 筆官方清單；只畫 267 筆 is_renderable=true，66 pending 不以行政區中心補位",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "sound-camera-locations",
+      url: "./environment/sound_camera_locations.geojson",
+    },
+    legend: "soundCameraLocations",
+    popup: "soundCameraLocations",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "臺南／彰化官方設備或執法路段清單；定位精度混合，不代表即時啟用、違規事件位置或 dB",
+    topics: ["環境", "噪音", "聲音照相", "定位精度", "設備清單"],
   },
 
   // 裁處 3 層共用同一份 PMTiles **同一個 sourceId**（pollution-penalty），
