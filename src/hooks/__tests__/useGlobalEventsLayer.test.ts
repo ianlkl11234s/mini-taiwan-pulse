@@ -73,6 +73,7 @@ import { globalEventsViewStore } from "../../state/globalEventsViewStore";
 import {
   GLOBAL_EVENTS_LAYER_ID,
   GLOBAL_EVENTS_PULSE_LAYER_ID,
+  globalEventPointImage,
   globalEventTransitions,
   globalEventWindowBounds,
   useGlobalEventsLayer,
@@ -117,22 +118,25 @@ function point(overrides: Partial<GlobalEventPoint> = {}): GlobalEventPoint {
 function createMap() {
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
   const layers = new Map<string, unknown>();
-  const handlers = new Map<string, () => void>();
+  const handlers = new Map<string, (event?: unknown) => void>();
+  const images = new Set<string>();
   const map = {
     getSource: (id: string) => sources.get(id),
     addSource: (id: string) => sources.set(id, { setData: vi.fn() }),
     getLayer: (id: string) => layers.get(id),
     addLayer: (layer: { id: string }) => layers.set(layer.id, layer),
+    hasImage: (id: string) => images.has(id),
+    addImage: vi.fn((id: string) => images.add(id)),
     setLayoutProperty: vi.fn(),
     setPaintProperty: vi.fn(),
-    on: vi.fn((event: string, handler: () => void) => handlers.set(event, handler)),
+    on: vi.fn((event: string, handler: (event?: unknown) => void) => handlers.set(event, handler)),
     off: vi.fn((event: string) => handlers.delete(event)),
-    project: ([x, y]: [number, number]) => ({ x, y }),
-    unproject: ([lng, lat]: [number, number]) => ({ lng, lat }),
+    project: vi.fn(([x, y]: [number, number]) => ({ x, y })),
+    unproject: vi.fn(([lng, lat]: [number, number]) => ({ lng, lat })),
     queryRenderedFeatures: vi.fn(() => []),
     easeTo: vi.fn(),
   } as unknown as MapboxMap;
-  return { map, sources, layers, handlers };
+  return { map, sources, layers, handlers, images };
 }
 
 async function flush(): Promise<void> {
@@ -237,9 +241,49 @@ describe("useGlobalEventsLayer timeline", () => {
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(2);
     expect(harness.getThrottleMs()).toBeNull();
     state.layers.clear();
+    state.images.clear();
     state.handlers.get("style.load")?.();
-    expect(state.map.setPaintProperty).toHaveBeenCalledWith(GLOBAL_EVENTS_LAYER_ID, "circle-opacity", 0.4);
+    expect(state.images.has("global-events-point-sdf")).toBe(true);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", 0.4);
     expect(state.map.setLayoutProperty).toHaveBeenCalledWith("global-events-relations-line", "visibility", "none");
+  });
+
+  it("pan/rotation/zoom never rewrite coordinates; native offset symbols preserve all colocated events and cleanup", async () => {
+    const rows = Array.from({ length: 8 }, (_, i) => point({ eventId: `event-${i}`, versionId: `v-${i}`, eventPlaceId: `place-${i}`, displayPlaceId: `place-${i}` }));
+    loader.current.mockResolvedValue(rows);
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.6, "live");
+    await flush();
+    const cluster = state.sources.get("global-events-clusters")!.setData.mock.lastCall![0].features[0];
+    vi.mocked(state.map.queryRenderedFeatures).mockReturnValue([{ properties: cluster.properties }] as never);
+    state.handlers.get("click")?.({ point: { x: 100, y: 100 } });
+    const source = state.sources.get("global-events-current")!.setData;
+    const expanded = source.mock.lastCall![0] as GeoJSON.FeatureCollection<GeoJSON.Point>;
+    expect(expanded.features).toHaveLength(8);
+    expect(new Set(expanded.features.map((f) => f.properties?.event_id)).size).toBe(8);
+    expect(new Set(expanded.features.map((f) => JSON.stringify(f.properties?.icon_offset))).size).toBe(8);
+    expect(expanded.features.every((f) => JSON.stringify(f.geometry.coordinates) === "[10,20]")).toBe(true);
+    expect(state.layers.get(GLOBAL_EVENTS_LAYER_ID)).toMatchObject({ type: "symbol", layout: {
+      "icon-pitch-alignment": "viewport", "icon-rotation-alignment": "viewport",
+      "icon-offset": ["get", "icon_offset"], "icon-allow-overlap": true, "icon-ignore-placement": true,
+    } });
+    const callCount = source.mock.calls.length;
+    for (const [scale, bearing] of [[1, 0], [4, 90], [0.1, 180]]) {
+      vi.mocked(state.map.project).mockImplementation(() => ({ x: scale, y: bearing }) as never);
+      vi.mocked(state.map.unproject).mockImplementation(() => ({ lng: bearing, lat: scale }) as never);
+      for (const event of ["move", "rotate", "zoom", "moveend", "render"]) state.handlers.get(event)?.();
+    }
+    expect(source).toHaveBeenCalledTimes(callCount);
+    expect(state.map.project).not.toHaveBeenCalled();
+    expect(state.map.unproject).not.toHaveBeenCalled();
+    expect(source.mock.lastCall![0]).toEqual(expanded);
+    state.images.clear();
+    state.handlers.get("styleimagemissing")?.({ id: "global-events-point-sdf" });
+    expect(state.images.has("global-events-point-sdf")).toBe(true);
+    harness.reset(); // Mirrors effect cleanup when layer turns off/unmounts.
+    for (const id of state.layers.keys()) expect(state.map.setLayoutProperty).toHaveBeenCalledWith(id, "visibility", "none");
+    expect(state.handlers.size).toBe(0);
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-stroke-opacity", 0);
   });
 
   it("unchanged cursor slices do not publish sidebar snapshots every200ms", async () => {
@@ -311,6 +355,13 @@ describe("useGlobalEventsLayer timeline", () => {
 });
 
 describe("Global Events pulse and location semantics", () => {
+  it("registers an opaque-centered SDF circle with transparent edge and no async image dependency", () => {
+    const image = globalEventPointImage();
+    expect(image.data).toBeInstanceOf(Uint8Array);
+    expect(image.data.length).toBe(image.width * image.height * 4);
+    expect(image.data[3]).toBe(0);
+    expect(image.data[(32 * image.width + 32) * 4 + 3]).toBe(255);
+  });
   it("只在時間向前跨過 display_from 時 pulse，並以 publication_no 分新事件／版本更新", () => {
     const newEvent = point({ displayFrom: "2026-09-03T10:00:00Z", publicationNo: 1 });
     const update = point({

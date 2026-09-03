@@ -1,11 +1,8 @@
 import { globalEventsToGeoJSON, type GlobalEventPoint, type GlobalEventRecord } from "./globalEventsLoader";
+import { GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 
 export type GlobalEventsView = "recent7d" | "timeline";
-type XY = { x: number; y: number };
-export interface EventProjection {
-  project(coordinates: [number, number]): XY;
-  unproject(point: [number, number]): { lng: number; lat: number };
-}
+export const GLOBAL_EVENT_ICON_RADIUS = 8;
 
 /** Rolling seven days, never the timeline's forward-looking seven-day window. */
 export function recentGlobalEventWindow(nowMs = Date.now()): { start: string; end: string } {
@@ -57,14 +54,13 @@ function coordinateKey(coordinates: readonly number[]): string {
   return coordinates.map((value) => value.toFixed(6)).join(",");
 }
 
-/** Display-only spider offsets; source coordinates remain unchanged and travel in popup props. */
+/** Camera-independent layout. Native symbol offsets move pixels, never geographic anchors. */
 export function layoutGlobalEventPoints(
   rows: readonly GlobalEventPoint[],
-  projection: EventProjection,
   expandedGroups: ReadonlySet<string> = new Set(),
 ): {
   points: GeoJSON.FeatureCollection<GeoJSON.Point>;
-  connectors: GeoJSON.FeatureCollection<GeoJSON.LineString>;
+  anchors: GeoJSON.FeatureCollection<GeoJSON.Point>;
   clusters: GeoJSON.FeatureCollection<GeoJSON.Point>;
 } {
   const groups = new Map<string, GlobalEventPoint[]>();
@@ -75,7 +71,7 @@ export function layoutGlobalEventPoints(
     groups.set(key, group);
   }
   const points: GeoJSON.FeatureCollection<GeoJSON.Point> = { type: "FeatureCollection", features: [] };
-  const connectors: GeoJSON.FeatureCollection<GeoJSON.LineString> = { type: "FeatureCollection", features: [] };
+  const anchors: GeoJSON.FeatureCollection<GeoJSON.Point> = { type: "FeatureCollection", features: [] };
   const clusters: GeoJSON.FeatureCollection<GeoJSON.Point> = { type: "FeatureCollection", features: [] };
   for (const [groupKey, group] of groups) {
     group.sort((a, b) => a.eventId.localeCompare(b.eventId));
@@ -84,25 +80,30 @@ export function layoutGlobalEventPoints(
         properties: { group_key: groupKey, point_count: group.length } });
       continue;
     }
+    if (group.length > 1) anchors.features.push({ type: "Feature", geometry: { type: "Point", coordinates: group[0]!.coordinates },
+      properties: { group_key: groupKey, display_only: true } });
     for (const [index, row] of group.entries()) {
       const feature = globalEventsToGeoJSON([row]).features[0]!;
-      feature.properties = { ...feature.properties, original_lng: row.coordinates[0], original_lat: row.coordinates[1],
-        display_offset: group.length > 1, colocated_count: group.length };
+      const iconScale = (GLOBAL_EVENT_SEVERITIES.find((item) => item.value === row.severity)?.radius ?? 4.5) / GLOBAL_EVENT_ICON_RADIUS;
+      let offsetX = 0;
+      let offsetY = 0;
       if (group.length > 1) {
-        const origin = projection.project(row.coordinates);
         const ring = Math.floor(index / 12);
         const count = Math.min(12, group.length - ring * 12);
         const angle = (index % 12) * 2 * Math.PI / count - Math.PI / 2;
         const radius = group.length === 2 ? 13 : Math.max(22, Math.min(12, group.length) * 4) + ring * 30;
-        const offset = projection.unproject([origin.x + Math.cos(angle) * radius, origin.y + Math.sin(angle) * radius]);
-        feature.geometry = { type: "Point", coordinates: [offset.lng, offset.lat] };
-        connectors.features.push({ type: "Feature", geometry: { type: "LineString", coordinates: [row.coordinates, [offset.lng, offset.lat]] },
-          properties: { event_id: row.eventId, display_only: true } });
+        offsetX = Math.cos(angle) * radius;
+        offsetY = Math.sin(angle) * radius;
       }
+      feature.properties = { ...feature.properties, original_lng: row.coordinates[0], original_lat: row.coordinates[1],
+        display_offset: group.length > 1, colocated_count: group.length,
+        display_offset_x: offsetX, display_offset_y: offsetY, icon_scale: iconScale,
+        // Mapbox multiplies icon-offset by icon-size; normalize so severity never changes spacing.
+        icon_offset: [offsetX / iconScale, offsetY / iconScale] };
       points.features.push(feature);
     }
   }
-  return { points, connectors, clusters };
+  return { points, anchors, clusters };
 }
 
 /** Static quadratic association arc. Unwrapped longitude takes the short dateline crossing. */

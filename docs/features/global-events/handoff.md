@@ -10,10 +10,13 @@
 - `observed_at` / `assessed_at` / `available_at` 分開，不把收集時間假裝發生時間。
 - 已發布版本依 explicit candidate reference 與candidate去重，不靠模糊標題猜事件。
 - 代表點與原始geometry在避讓時不變；弧線沒有移動、因果或先後語意。
+- 固定錨點 hotfix：顯示 GeoJSON 也不得因相機改變座標；僅 native symbol viewport icon-offset 可做並排，icon-size 需反向補償。原位置小錨點與跨國 arc endpoints 固定，無 moveend 座標重算。
 - 國家／城市可採來源地理提及或固定版本 gazetteer 的概略代表點，不要求精確發生地；Popup 需標示概略位置，Qwen 信心不代表定位精度。
 - 單日回放的候選查詢向前擴七天，再依實際 available_at 過濾；不修改正式事件窗口，不倒灌回填前的歷史。
 
 ## Release
+
+固定錨點 hotfix 目前本地完成（base def3dc6）：tsc-b、23 focused／1031 full tests（1 skipped）通過。本地 browser 驗證加拿大7件群組分別點選、平移／旋轉／縮放後錨點不變、opacity0／off／on與console皆通過；style reload 僅以 regression 驗證。新 deployment 尚待驗收，以下 PR #205／#206 是前次發布紀錄，不代表此修正已上線。
 
 實作基線：frontend e16dc2354c74d7563d6b7525120c935f43e64f2b；platform 1f4f7e352ef4292ce1615474cf400716dffb4ba3；collector 48250361d1d459d1590d1f228f2e4cd4e51390fc。
 

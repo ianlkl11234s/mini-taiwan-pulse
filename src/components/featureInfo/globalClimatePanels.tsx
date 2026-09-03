@@ -179,7 +179,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       {typeof props.original_lng === "number" && typeof props.original_lat === "number" && (
         <Row label="原始位置座標" value={`${props.original_lat.toFixed(5)}, ${props.original_lng.toFixed(5)}`} />
       )}
-      {props.display_offset === true && <Row label="畫面避讓" value="與其他事件同位置，僅在畫面上展開；原始座標未變" />}
+      {props.display_offset === true && <Row label="畫面避讓" value="小錨點固定原位置；事件圖示僅在畫面上並排，座標不變" />}
       <Row label={props.research_status === "ai_assessed" ? "來源收集時間" : "事件時間"} value={fmtGlobalEventTime(props.valid_from)} />
       {props.research_status !== "ai_assessed" && <Row label="發布時間" value={fmtGlobalEventTime(props.published_at)} />}
       {publicationNo !== null && <Row label="發布版本" value={`#${publicationNo}`} />}

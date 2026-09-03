@@ -13,13 +13,12 @@ import {
 } from "../data/globalEventsLoader";
 import {
   GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
-  GLOBAL_EVENT_SEVERITY_RADIUS_EXPR,
 } from "../data/globalEventsTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 
 const SOURCE_ID = "global-events-current";
@@ -32,6 +31,7 @@ const CONNECTORS_SOURCE_ID = "global-events-connectors";
 const CLUSTERS_SOURCE_ID = "global-events-clusters";
 const CONNECTORS_LAYER_ID = "global-events-connectors-line";
 const CLUSTER_LABEL_LAYER_ID = "global-events-clusters-label";
+const POINT_IMAGE_ID = "global-events-point-sdf";
 
 const EMPTY: GeoJSON.FeatureCollection<GeoJSON.Point> = {
   type: "FeatureCollection",
@@ -86,7 +86,25 @@ function prefersReducedMotion(): boolean {
     && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+/** Small signed-distance circle: synchronous, no image fetch or canvas/WebGL dependency. */
+export function globalEventPointImage(): { width: number; height: number; data: Uint8Array } {
+  const size = 64;
+  const data = new Uint8Array(size * size * 4);
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const distance = Math.hypot(x + 0.5 - size / 2, y + 0.5 - size / 2) / 2;
+    const offset = (y * size + x) * 4;
+    data[offset] = data[offset + 1] = data[offset + 2] = 255;
+    data[offset + 3] = Math.round(255 * Math.max(0, Math.min(1, 0.75 + (GLOBAL_EVENT_ICON_RADIUS - distance) / 4)));
+  }
+  return { width: size, height: size, data };
+}
+
+function ensurePointImage(map: MapboxMap): void {
+  if (!map.hasImage(POINT_IMAGE_ID)) map.addImage(POINT_IMAGE_ID, globalEventPointImage(), { sdf: true, pixelRatio: 2 });
+}
+
 function ensureLayers(map: MapboxMap): void {
+  ensurePointImage(map);
   for (const id of [RELATIONS_SOURCE_ID, CONNECTORS_SOURCE_ID, CLUSTERS_SOURCE_ID]) {
     if (!map.getSource(id)) map.addSource(id, { type: "geojson", data: EMPTY });
   }
@@ -95,8 +113,9 @@ function ensureLayers(map: MapboxMap): void {
     paint: { "line-color": "#94a3b8", "line-width": 1, "line-opacity": 0.22 },
   });
   if (!map.getLayer(CONNECTORS_LAYER_ID)) map.addLayer({
-    id: CONNECTORS_LAYER_ID, type: "line", source: CONNECTORS_SOURCE_ID,
-    paint: { "line-color": "#94a3b8", "line-width": 0.8, "line-opacity": 0.5 },
+    // Keep legacy IDs, but render only the actual shared location, never an offset line endpoint.
+    id: CONNECTORS_LAYER_ID, type: "circle", source: CONNECTORS_SOURCE_ID,
+    paint: { "circle-color": "#94a3b8", "circle-radius": 2, "circle-opacity": 0.5 },
   });
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY });
@@ -104,17 +123,25 @@ function ensureLayers(map: MapboxMap): void {
   if (!map.getLayer(GLOBAL_EVENTS_LAYER_ID)) {
     map.addLayer({
       id: GLOBAL_EVENTS_LAYER_ID,
-      type: "circle",
+      type: "symbol",
       source: SOURCE_ID,
-      paint: {
-        "circle-radius": GLOBAL_EVENT_SEVERITY_RADIUS_EXPR,
-        "circle-color": GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
-        "circle-opacity": 0.9,
-        "circle-stroke-color": ["case", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"],
-        "circle-stroke-width": ["match", ["get", "severity"], 3, 2, 2, 1.5, 1],
-        "circle-stroke-opacity": 0.85,
+      layout: {
+        "icon-image": POINT_IMAGE_ID,
+        "icon-size": ["get", "icon_scale"],
+        "icon-offset": ["get", "icon_offset"],
+        "icon-pitch-alignment": "viewport",
+        "icon-rotation-alignment": "viewport",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+        "icon-padding": 0,
       },
-    } as CircleLayer);
+      paint: {
+        "icon-color": GLOBAL_EVENT_CATEGORY_COLOR_EXPR,
+        "icon-opacity": 0.9,
+        "icon-halo-color": ["case", ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"],
+        "icon-halo-width": 1.5,
+      },
+    });
   }
   if (!map.getLayer(GLOBAL_EVENTS_PULSE_LAYER_ID)) {
     map.addLayer({
@@ -193,10 +220,9 @@ export function useGlobalEventsLayer(
     const safeOpacity = Math.max(0, Math.min(1, opacityRef.current));
     const selected = selectedRef.current ?? "";
     if (map.getLayer(GLOBAL_EVENTS_LAYER_ID)) {
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "circle-opacity", safeOpacity);
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "circle-stroke-opacity", safeOpacity * 0.9);
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "circle-stroke-width", ["case", ["==", ["get", "event_id"], selected], 3, 1.5]);
-      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "circle-stroke-color", ["case", ["==", ["get", "event_id"], selected], "#facc15",
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-opacity", safeOpacity);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-width", ["case", ["==", ["get", "event_id"], selected], 3, 1.5]);
+      map.setPaintProperty(GLOBAL_EVENTS_LAYER_ID, "icon-halo-color", ["case", ["==", ["get", "event_id"], selected], "#facc15",
         ["==", ["get", "research_status"], "ai_assessed"], "#e2e8f0", "#0f172a"]);
     }
     if (map.getLayer(GLOBAL_EVENTS_RELATIONS_LAYER_ID)) {
@@ -204,7 +230,7 @@ export function useGlobalEventsLayer(
       map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-opacity", ["case", ["==", ["get", "event_id"], selected], safeOpacity * 0.9, safeOpacity * 0.22]);
       map.setPaintProperty(GLOBAL_EVENTS_RELATIONS_LAYER_ID, "line-width", ["case", ["==", ["get", "event_id"], selected], 2.5, 1]);
     }
-    if (map.getLayer(CONNECTORS_LAYER_ID)) map.setPaintProperty(CONNECTORS_LAYER_ID, "line-opacity", safeOpacity * 0.5);
+    if (map.getLayer(CONNECTORS_LAYER_ID)) map.setPaintProperty(CONNECTORS_LAYER_ID, "circle-opacity", safeOpacity * 0.5);
     if (map.getLayer(GLOBAL_EVENTS_CLUSTER_LAYER_ID)) {
       map.setPaintProperty(GLOBAL_EVENTS_CLUSTER_LAYER_ID, "circle-opacity", safeOpacity);
       map.setPaintProperty(GLOBAL_EVENTS_CLUSTER_LAYER_ID, "circle-stroke-opacity", safeOpacity);
@@ -261,14 +287,14 @@ export function useGlobalEventsLayer(
 
     const feed = (events: readonly GlobalEventPoint[], transitions = new Map<string, GlobalEventTransitionKind>()) => {
       displayedRowsRef.current = [...events];
-      const layout = layoutGlobalEventPoints(events, map, expandedGroupsRef.current);
+      const layout = layoutGlobalEventPoints(events, expandedGroupsRef.current);
       const collection = layout.points;
       for (const feature of collection.features) {
         if (feature.properties) feature.properties.transition_kind = transitions.get(String(feature.properties.event_id)) ?? null;
       }
       const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
       source?.setData(collection);
-      (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.connectors);
+      (map.getSource(CONNECTORS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.anchors);
       (map.getSource(CLUSTERS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(layout.clusters);
       (map.getSource(RELATIONS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(globalEventRelations(events));
       startPulse(map, transitions);
@@ -356,7 +382,10 @@ export function useGlobalEventsLayer(
       applyPaint(map);
     };
     map.on("style.load", onStyleLoad);
-    const onMove = () => feed(displayedRowsRef.current);
+    const onImageMissing = (event: { id: string }) => {
+      if (event.id === POINT_IMAGE_ID) ensurePointImage(map);
+    };
+    map.on("styleimagemissing", onImageMissing);
     const onClick = (event: MapMouseEvent) => {
       if (!map.getLayer(GLOBAL_EVENTS_CLUSTER_LAYER_ID)) return;
       const hit = map.queryRenderedFeatures(event.point, { layers: [GLOBAL_EVENTS_CLUSTER_LAYER_ID] })[0];
@@ -364,7 +393,6 @@ export function useGlobalEventsLayer(
       expandedGroupsRef.current.add(String(hit.properties.group_key));
       feed(displayedRowsRef.current);
     };
-    map.on("moveend", onMove);
     map.on("click", onClick);
     globalEventsViewStore.setSelectHandler((entry) => {
       const point = displayedRowsRef.current.find((row) => row.eventId === entry.eventId);
@@ -392,7 +420,7 @@ export function useGlobalEventsLayer(
       unsubscribeWindow();
       unsubscribeTime();
       map.off("style.load", onStyleLoad);
-      map.off("moveend", onMove);
+      map.off("styleimagemissing", onImageMissing);
       map.off("click", onClick);
       clearInterval(refreshTimer);
       globalEventsViewStore.setSelectHandler(null);
