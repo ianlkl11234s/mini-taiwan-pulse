@@ -210,11 +210,15 @@ export function useGlobalEventsLayer(
       feed(events, transitions);
     };
 
-    const acceptRows = (events: GlobalEventPoint[], loadingKey: string) => {
+    const acceptRows = (
+      events: GlobalEventPoint[],
+      loadingKey: string,
+      transitionFromTime = timeStore.getTime(),
+    ) => {
       if (cancelled) return;
       allEventsRef.current = events;
       signatureRef.current = "";
-      previousTimeRef.current = timeStore.getTime();
+      previousTimeRef.current = transitionFromTime;
       renderAt(timeStore.getTime());
       keepLoadingUntilMapIdle(map, `global-events:render:${loadingKey}`, "全球重要事件 渲染中", SOURCE_ID);
     };
@@ -231,6 +235,9 @@ export function useGlobalEventsLayer(
 
     const loadWindow = (dateKeys: readonly string[]) => {
       const bounds = globalEventWindowBounds(dateKeys);
+      // 跨日 scrub 會換 RPC window。保留換窗前的 cursor，等新 rows 回來後仍可
+      // 判斷是否向前跨過 display_from；不可在 fetch 完成時重設成新 cursor。
+      const transitionFromTime = previousTimeRef.current ?? timeStore.getTime();
       const request = ++requestRef.current;
       allEventsRef.current = [];
       signatureRef.current = "";
@@ -239,7 +246,7 @@ export function useGlobalEventsLayer(
       fetchGlobalEventsWindow(bounds.start, bounds.end)
         .then((events) => {
           if (request !== requestRef.current) return;
-          acceptRows(events, `${bounds.start}/${bounds.end}`);
+          acceptRows(events, `${bounds.start}/${bounds.end}`, transitionFromTime);
         })
         .catch((error) => console.warn("[GlobalEvents] window load failed:", error));
     };
