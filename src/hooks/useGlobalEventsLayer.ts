@@ -229,7 +229,9 @@ export function useGlobalEventsLayer(
         rafRef.current = 0;
         return;
       }
-      const phase = Math.min(1, (now - startedAt) / PULSE_DURATION_MS);
+      // RAF timestamps mark the frame start and can precede performance.now() sampled
+      // later in that same frame. Clamp both ends before deriving Mapbox paint values.
+      const phase = Math.max(0, Math.min(1, (now - startedAt) / PULSE_DURATION_MS));
       map.setPaintProperty(GLOBAL_EVENTS_PULSE_LAYER_ID, "circle-radius", 8 + phase * 22);
       map.setPaintProperty(
         GLOBAL_EVENTS_PULSE_LAYER_ID,
