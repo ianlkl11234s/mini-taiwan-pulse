@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseGlobalEventPoint } from "../globalEventsLoader";
-import { dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview } from "../globalEventsPresentation";
+import { dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview } from "../globalEventsPresentation";
 
 const point = (event = "e1", country = "TW", coordinates: [number, number] = [121, 25]) => parseGlobalEventPoint({
   event_id: event, version_id: `${event}-v1`, event_place_id: `${event}-${country}`, display_place_id: `${event}-${country}`,
@@ -14,6 +14,14 @@ describe("Global Events complete situation presentation", () => {
     expect(recentGlobalEventWindow(Date.parse("2026-09-03T10:00:00Z"))).toEqual({
       start: "2026-08-27T10:00:00.000Z", end: "2026-09-03T10:00:00.000Z",
     });
+  });
+
+  it("candidate timeline prefetch extends seven days back while fixing end and respecting 31-day RPC limit", () => {
+    expect(globalEventCandidateLookbackWindow({ start: "2026-09-02T16:00:00.000Z", end: "2026-09-03T16:00:00.000Z" })).toEqual({
+      start: "2026-08-26T16:00:00.000Z", end: "2026-09-03T16:00:00.000Z",
+    });
+    const bounded = globalEventCandidateLookbackWindow({ start: "2026-08-01T00:00:00Z", end: "2026-09-01T00:00:00Z" });
+    expect(Date.parse(bounded.end) - Date.parse(bounded.start)).toBe(31 * 86_400_000);
   });
 
   it("keeps one latest version and all its countries, suppressing retracted winners", () => {

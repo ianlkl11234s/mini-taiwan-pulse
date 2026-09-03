@@ -12,6 +12,14 @@ export function recentGlobalEventWindow(nowMs = Date.now()): { start: string; en
   return { start: new Date(nowMs - 7 * 86_400_000).toISOString(), end: new Date(nowMs).toISOString() };
 }
 
+/** Candidate RPC windows use source observed_at; delayed assessments still need to be
+ * prefetched on their real available day. Widen retrieval only, never backdate visibility. */
+export function globalEventCandidateLookbackWindow(bounds: { start: string; end: string }): { start: string; end: string } {
+  const end = Date.parse(bounds.end);
+  const start = Math.max(Date.parse(bounds.start) - 7 * 86_400_000, end - 31 * 86_400_000);
+  return { start: new Date(start).toISOString(), end: bounds.end };
+}
+
 /** One latest version per event within the requested overview, not a fabricated end-time. */
 export function selectGlobalEventsOverview<T extends GlobalEventRecord>(rows: readonly T[]): T[] {
   const winners = new Map<string, T>();

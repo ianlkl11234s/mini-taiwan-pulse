@@ -19,7 +19,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 
 const SOURCE_ID = "global-events-current";
@@ -318,9 +318,10 @@ export function useGlobalEventsLayer(
       feed([]);
       globalEventsViewStore.set({ entries: [], status: "loading", message: null,
         windowLabel: view === "recent7d" ? "最近七天總覽" : current ? "目前情勢（候選近七天）" : "跟隨時間軸" });
+      const candidateBounds = !current && view === "timeline" ? globalEventCandidateLookbackWindow(bounds) : bounds;
       Promise.allSettled([
         current ? fetchGlobalEventsCurrent() : fetchGlobalEventsWindow(bounds.start, bounds.end),
-        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
+        includeAI ? fetchGlobalEventCandidatesWindow(candidateBounds.start, candidateBounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
       ]).then(([published, candidates]) => {
         if (cancelled || request !== requestRef.current) return;
         candidatesRef.current = candidates.status === "fulfilled" ? candidates.value.rows : [];

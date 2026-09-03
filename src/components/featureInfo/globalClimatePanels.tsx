@@ -128,7 +128,11 @@ function fmtGlobalEventTime(value: unknown): string {
 }
 
 export function globalEventLocationLabel(props: Record<string, unknown>): string {
-  if (props.source_kind === "gdelt_metadata_mention" && props.location_kind === "city_center") return "城市／地點代表位置（非精確發生座標）";
+  if (props.source_kind === "gdelt_metadata_mention") return "新聞地理提及的概略位置，未核實精確發生地";
+  if (props.source_kind === "headline_gazetteer") return "標題提及國家／城市的概略位置，未核實精確發生地";
+  if (props.research_status === "ai_assessed" && (props.location_kind === "country_center" || props.location_kind === "city_center")) {
+    return "新聞相關國家／城市概略位置，未確認精確發生地";
+  }
   if (props.location_kind === "event_point") return "精確事件位置（來源直接支持）";
   if (props.location_kind === "city_center") return "城市代表點（非事件精確座標）";
   if (props.location_kind === "country_center") return "國家代表點（非事件精確座標）";
@@ -165,7 +169,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="摘要" value={String(props.summary_zh_tw ?? "—")} />
       <Row label="分類" value={globalEventCategoryLabel(props.category)} />
       <Row label="嚴重度" value={globalEventSeverityLabel(props.severity)} />
-      <Row label="信心" value={confidence} />
+      <Row label={props.research_status === "ai_assessed" ? "AI 判斷信心（非定位精度）" : "信心"} value={confidence} />
       {typeof props.decision === "string" && <Row label="Qwen 分類" value={props.decision} />}
       {typeof props.taiwan_relationship === "string" && <Row label="臺灣關聯" value={props.taiwan_relationship} />}
       {typeof props.taiwan_impact_zh_tw === "string" && <Row label="臺灣影響" value={props.taiwan_impact_zh_tw} />}
@@ -189,6 +193,7 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
       )}
       <Row label="位置來源" value={String(props.location_source ?? "—")} />
       {props.source_kind === "gdelt_metadata_mention" && <Row label="位置依據" value="新聞 metadata 提及地點，尚待研究確認事件與地點的關係" />}
+      {props.source_kind === "headline_gazetteer" && <Row label="位置依據" value="新聞標題地名＋固定地名表，非精確事件座標" />}
       {assessments.length > 1 && <details>
         <summary>同組 {assessments.length} 筆候選原始判斷</summary>
         {assessments.map((assessment, index) => <div key={String(assessment.candidateId ?? index)}>
