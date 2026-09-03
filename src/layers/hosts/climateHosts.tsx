@@ -68,7 +68,7 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     deps.mapRef,
     deps.layerVisibility.globalEvents,
     p.globalEventsOpacity ?? 0.9,
-    deps.timeMode,
+    deps.appMode === "historical" ? "replay" : deps.timeMode,
   );
   return null;
 };

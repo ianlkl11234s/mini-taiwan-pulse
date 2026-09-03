@@ -171,6 +171,30 @@ describe("useGlobalEventsLayer timeline", () => {
     expect(loader.window).toHaveBeenCalledTimes(2);
   });
 
+  it("跨日換 window 仍保留舊 cursor，9/2→9/3 跨發布時間會 pulse", async () => {
+    clock.current = Date.parse("2026-09-02T15:59:59Z") / 1000;
+    const published = point({
+      displayFrom: "2026-09-03T05:41:00Z",
+      publishedAt: "2026-09-03T05:41:00Z",
+    });
+    loader.window.mockResolvedValueOnce([]).mockResolvedValueOnce([published]);
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.8, "replay");
+    await flush();
+
+    harness.changeWindow(["2026-09-03"]);
+    clock.current = Date.parse("2026-09-03T15:59:59.999Z") / 1000;
+    harness.tick(clock.current);
+    await flush();
+
+    const calls = state.sources.get("global-events-current")?.setData.mock.calls ?? [];
+    const fc = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection;
+    expect(fc.features[0]?.properties).toMatchObject({
+      event_id: "event-1",
+      transition_kind: "new_event",
+    });
+  });
+
   it("Live 只使用 current RPC，仍保留 proxy metadata 給 popup", async () => {
     loader.current.mockResolvedValue([point({
       locationKind: "country_center",
