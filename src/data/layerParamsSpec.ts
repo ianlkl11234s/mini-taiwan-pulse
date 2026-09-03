@@ -1299,6 +1299,11 @@ export const LAYER_PARAMS_SPEC = {
   ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
+      { label: "最近七天總覽", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
+    ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
+    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: true },
+    { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },

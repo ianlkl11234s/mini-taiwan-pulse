@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { GlobalEventsList } from "./sidebar/GlobalEventsList";
+import { DARK_FEATURE, LIGHT_FEATURE } from "./featureInfo/featureTheme";
 import { Lock } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 // AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
@@ -551,6 +553,7 @@ function ExpandedPanel({
         </div>
       )}
 
+      {layerKey === "globalEvents" && <GlobalEventsList palette={isDarkTheme ? DARK_FEATURE : LIGHT_FEATURE} />}
       {/* Controls: sliders + toggles */}
       {controls.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
