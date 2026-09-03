@@ -1099,6 +1099,8 @@ const THEME_CATALOG: ThemeDef[] = [
       {
         title: "點位",
         layers: [
+          fromManifest("marineObservationCwa"),
+          fromManifest("marineObservationIsohe"),
           fromManifest("waterFacilities"),
           fromManifest("waterMonitorStations"),
           fromManifest("waterReservoirs"),
