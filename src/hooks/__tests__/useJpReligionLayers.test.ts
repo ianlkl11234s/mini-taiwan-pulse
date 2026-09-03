@@ -118,7 +118,8 @@ describe("useJpReligionLayers scale", () => {
 
     expectTopLevelZoomRadius(
       "jp-religion-gsi-circle",
-      ["interpolate", ["linear"], ["zoom"], 6, 1.5, 12, 4],
+      // GSI 的 PMTiles 自 2026-08-28 起 z4 即全量 167,037 點，故 radius 帶 z4 端點。
+      ["interpolate", ["linear"], ["zoom"], 4, 0.7, 6, 1.5, 12, 4],
     );
     expectTopLevelZoomRadius(
       "jp-religion-osm-circle",
@@ -138,7 +139,7 @@ describe("useJpReligionLayers scale", () => {
     expect(setPaintProperty).toHaveBeenCalledWith(
       "jp-religion-gsi-circle",
       "circle-radius",
-      ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 8],
+      ["interpolate", ["linear"], ["zoom"], 4, 1.4, 6, 3, 12, 8],
     );
     expect(setPaintProperty).toHaveBeenCalledWith(
       "jp-religion-osm-circle",
