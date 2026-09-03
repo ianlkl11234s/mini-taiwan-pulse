@@ -1,12 +1,18 @@
 # Changelog
 
-## 2026-09-03 — 固定地理錨點 hotfix（待發布）
+## 2026-09-03 — Popup 摘要瘦身（待發布）
+
+僅 Global Events popup 保留：18px 事件標題、查證狀態、摘要、同列分類／嚴重度、臺灣影響、判斷理由、地點、落點語意、來源收集時間及可點位置來源。隱藏信心／Qwen分類／關聯代碼／座標／避讓／時間軸／lineage等內部細節，底層資料與其他圖層不變。來源用網域標籤、原http(s) URL，拒絕不安全或帶帳密連結；正式事件沒有來源收集時間時顯示—，不挪用事件時間。
+
+依使用者要求，不做browser、截圖或devserver視覺驗收；只跑focused tests、tsc與既有CI。視覺驗收由使用者。
+
+## 2026-09-03 — PR #207 固定地理錨點 hotfix
 
 修正同位置避讓先 `project` 再 `unproject`，導致移動地球後顯示座標重算、點位跳動。事件與群組的 GeoJSON geometry 現在始終保留原國家／城市座標；並排改用 native symbol `icon-offset`，以 viewport 對齊並反向補償 severity 的 icon-size。移除 moveend 資料重送，原避讓短線改為固定位置小錨點；跨國關聯弧線仍用真實 endpoints。
 
 保留 category 分色、severity 大小、AI／選取外框、群組展開、popup、opacity 與原錨點 pulse。同步 SDF image 在 style reload／missing 時補回，layer off 隱藏所有相關圖層並解除 listener。本地 tsc-b、23 focused tests、完整 1031 tests（1 skipped）通過。
 
-本地 browser 通過：加拿大7件群組展開後可分別點出亞伯達特別投票與工會事件；平移、bearing15、zoom2.2→3後錨點保持Canada 60,-96，無moveend重排。分色／大小／popup、opacity0、AllOff／再ON皆正常，console error=[]；style reload 以 regression 驗證，未宣稱 browser 已切換底圖。正式部署仍待完成。
+本地 browser 通過：加拿大7件群組展開後可分別點出亞伯達特別投票與工會事件；平移、bearing15、zoom2.2→3後錨點保持Canada 60,-96，無moveend重排。分色／大小／popup、opacity0、AllOff／再ON皆正常，console error=[]；style reload 以 regression 驗證，未宣稱 browser 已切換底圖。PR #207 merge 78c90aa，deployment 6a99545bc3fffb61baebd662 於11:10:02Z RUNNING；正式視覺驗收依使用者後續指示交由使用者，不宣稱已驗。
 
 ## 2026-09-03 — PR #205
 
