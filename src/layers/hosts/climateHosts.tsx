@@ -60,7 +60,7 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 🌍 世界 WORLD：已發布的全球重要事件（僅有真實 Point 者）。 */
+/** 🌍 世界 WORLD：全球情勢，預設最近七天總覽；明確選擇後跟隨時間軸。 */
 export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGlobalEventsLayer");
   const p = useKeyOverlayParams("globalEvents");
@@ -69,6 +69,10 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.globalEvents,
     p.globalEventsOpacity ?? 0.9,
     deps.appMode === "historical" ? "replay" : deps.timeMode,
+    p.globalEventsViewIdx === 1 ? "timeline" : "recent7d",
+    (p.globalEventsRelations ?? 1) === 1,
+    deps.featureInfo?.layerType === "globalEvent" ? String(deps.featureInfo.properties.event_id ?? "") : null,
+    (p.globalEventsIncludeAI ?? 1) === 1,
   );
   return null;
 };

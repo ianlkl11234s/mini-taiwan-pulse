@@ -40,7 +40,7 @@ const harness = vi.hoisted(() => {
   };
 });
 
-const loader = vi.hoisted(() => ({ current: vi.fn(), window: vi.fn() }));
+const loader = vi.hoisted(() => ({ current: vi.fn(), window: vi.fn(), candidates: vi.fn() }));
 const loading = vi.hoisted(() => ({ idle: vi.fn() }));
 const clock = vi.hoisted(() => ({ current: Date.parse("2026-09-03T10:30:00Z") / 1000 }));
 
@@ -55,6 +55,7 @@ vi.mock("../../data/globalEventsLoader", async (importOriginal) => ({
   ...await importOriginal<typeof import("../../data/globalEventsLoader")>(),
   fetchGlobalEventsCurrent: loader.current,
   fetchGlobalEventsWindow: loader.window,
+  fetchGlobalEventCandidatesWindow: loader.candidates,
 }));
 vi.mock("../../lib/loadingRegistry", () => ({ keepLoadingUntilMapIdle: loading.idle }));
 vi.mock("../../state/timeStore", () => ({
@@ -67,6 +68,8 @@ vi.mock("../../state/timeStore", () => ({
 }));
 
 import { globalEventLocationLabel } from "../../components/featureInfo/globalClimatePanels";
+import { parseGlobalEventCandidate } from "../../data/globalEventsLoader";
+import { globalEventsViewStore } from "../../state/globalEventsViewStore";
 import {
   GLOBAL_EVENTS_LAYER_ID,
   GLOBAL_EVENTS_PULSE_LAYER_ID,
@@ -124,8 +127,12 @@ function createMap() {
     setPaintProperty: vi.fn(),
     on: vi.fn((event: string, handler: () => void) => handlers.set(event, handler)),
     off: vi.fn((event: string) => handlers.delete(event)),
+    project: ([x, y]: [number, number]) => ({ x, y }),
+    unproject: ([lng, lat]: [number, number]) => ({ lng, lat }),
+    queryRenderedFeatures: vi.fn(() => []),
+    easeTo: vi.fn(),
   } as unknown as MapboxMap;
-  return { map, sources, layers };
+  return { map, sources, layers, handlers };
 }
 
 async function flush(): Promise<void> {
@@ -138,15 +145,18 @@ describe("useGlobalEventsLayer timeline", () => {
   beforeEach(() => {
     vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
+    loader.candidates.mockResolvedValue({ rows: [], totalCandidates: 0 });
   });
 
   afterEach(() => {
     harness.reset();
     loader.current.mockReset();
     loader.window.mockReset();
+    loader.candidates.mockReset();
     loading.idle.mockReset();
     clock.current = Date.parse("2026-09-03T10:30:00Z") / 1000;
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it("Replay 每個 window 載一次，200ms 訂閱只做本地 immutable selection", async () => {
@@ -211,6 +221,67 @@ describe("useGlobalEventsLayer timeline", () => {
     const fc = calls[calls.length - 1]?.[0] as GeoJSON.FeatureCollection;
     expect(fc.features[0]?.properties).toMatchObject({ location_kind: "country_center", is_proxy: true });
   });
+
+  it("recent7d loads backward overview, retains low-importance and unlocated entries, and restores paint after style reload", async () => {
+    const now = Date.parse("2026-09-03T10:30:00Z");
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    loader.window.mockResolvedValue([point()]);
+    const unknown = parseGlobalEventCandidate({ candidate_id: "unknown", observation_sha256: "v1", available_at: "2026-09-02T00:00:00Z", geometry: null,
+      assessment_status: "pending", decision: "drop_noise", taiwan_relationship: "unrelated" });
+    loader.candidates.mockResolvedValue({ rows: [unknown], totalCandidates: 1 });
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.4, "replay", "recent7d", false, "event-1");
+    await flush();
+    expect(loader.window).toHaveBeenCalledWith("2026-08-27T10:30:00.000Z", "2026-09-03T10:30:00.000Z");
+    expect(loader.current).not.toHaveBeenCalled();
+    expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(2);
+    expect(harness.getThrottleMs()).toBeNull();
+    state.layers.clear();
+    state.handlers.get("style.load")?.();
+    expect(state.map.setPaintProperty).toHaveBeenCalledWith(GLOBAL_EVENTS_LAYER_ID, "circle-opacity", 0.4);
+    expect(state.map.setLayoutProperty).toHaveBeenCalledWith("global-events-relations-line", "visibility", "none");
+  });
+
+  it("unchanged cursor slices do not publish sidebar snapshots every200ms", async () => {
+    loader.window.mockResolvedValue([point()]);
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9, "replay");
+    await flush();
+    const listener = vi.fn();
+    const unsubscribe = globalEventsViewStore.subscribe(listener);
+    harness.tick(clock.current + 1);
+    harness.tick(clock.current + 2);
+    expect(listener).not.toHaveBeenCalled();
+    unsubscribe();
+  });
+
+  it("September2 sources imported September3 become visible on September3 without backdating availability or changing formal window", async () => {
+    loader.window.mockResolvedValue([]);
+    const delayed = parseGlobalEventCandidate({ candidate_id: "delayed", observation_sha256: "v1", observed_at: "2026-09-02T01:00:00Z",
+      available_at: "2026-09-03T10:00:00Z", display_from: "2026-09-03T10:00:00Z", geometry: null,
+      assessment_status: "assessed", decision: "drop_noise", taiwan_relationship: "unrelated" });
+    loader.candidates.mockResolvedValue({ rows: [delayed], totalCandidates: 1 });
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9, "replay");
+    await flush();
+    expect(loader.window).toHaveBeenCalledWith("2026-09-02T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
+    expect(loader.candidates).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
+    expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(1);
+    harness.tick(Date.parse("2026-09-03T09:59:59Z") / 1000);
+    expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(0);
+    harness.tick(Date.parse("2026-09-03T10:00:00Z") / 1000);
+    expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(1);
+  });
+
+  it("candidate failure remains partial, not a successful empty candidate result", async () => {
+    loader.window.mockResolvedValue([point()]);
+    loader.candidates.mockRejectedValue(new Error("RPC unavailable"));
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9, "replay");
+    await flush();
+    expect(globalEventsViewStore.getSnapshot().status).toBe("partial");
+    expect(globalEventsViewStore.getSnapshot().message).toContain("載入失敗");
+  });
 });
 
 describe("Global Events pulse and location semantics", () => {
@@ -244,5 +315,8 @@ describe("Global Events pulse and location semantics", () => {
     expect(globalEventLocationLabel({ location_kind: "city_center" })).toContain("城市代表點");
     expect(globalEventLocationLabel({ location_kind: "country_center" })).toContain("國家代表點");
     expect(globalEventLocationLabel({ location_kind: "country_center" })).toContain("非事件精確座標");
+    expect(globalEventLocationLabel({ research_status: "ai_assessed", location_kind: "country_center", source_kind: "metadata_representative" })).toBe("新聞相關國家／城市概略位置，未確認精確發生地");
+    expect(globalEventLocationLabel({ research_status: "ai_assessed", location_kind: "city_center", source_kind: "gdelt_metadata_mention" })).toBe("新聞地理提及的概略位置，未核實精確發生地");
+    expect(globalEventLocationLabel({ research_status: "ai_assessed", location_kind: "country_center", source_kind: "headline_gazetteer" })).toBe("標題提及國家／城市的概略位置，未核實精確發生地");
   });
 });

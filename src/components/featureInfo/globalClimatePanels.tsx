@@ -128,6 +128,11 @@ function fmtGlobalEventTime(value: unknown): string {
 }
 
 export function globalEventLocationLabel(props: Record<string, unknown>): string {
+  if (props.source_kind === "gdelt_metadata_mention") return "新聞地理提及的概略位置，未核實精確發生地";
+  if (props.source_kind === "headline_gazetteer") return "標題提及國家／城市的概略位置，未核實精確發生地";
+  if (props.research_status === "ai_assessed" && (props.location_kind === "country_center" || props.location_kind === "city_center")) {
+    return "新聞相關國家／城市概略位置，未確認精確發生地";
+  }
   if (props.location_kind === "event_point") return "精確事件位置（來源直接支持）";
   if (props.location_kind === "city_center") return "城市代表點（非事件精確座標）";
   if (props.location_kind === "country_center") return "國家代表點（非事件精確座標）";
@@ -141,6 +146,11 @@ export function globalEventLocationLabel(props: Record<string, unknown>): string
 }
 
 export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) {
+  let assessments: Record<string, unknown>[] = [];
+  try {
+    const parsed: unknown = typeof props.candidate_assessments === "string" ? JSON.parse(props.candidate_assessments) : [];
+    if (Array.isArray(parsed)) assessments = parsed.filter((item): item is Record<string, unknown> => item !== null && typeof item === "object" && !Array.isArray(item));
+  } catch { /* Malformed optional details must not break the popup. */ }
   const confidence = typeof props.confidence === "number" && Number.isFinite(props.confidence)
     ? `${Math.round(props.confidence * 100)}%`
     : "—";
@@ -154,14 +164,24 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <div data-testid="global-event-popup">
       <Row label="事件" value={String(props.title_zh_tw ?? "—")} />
+      {props.relation_kind === "association" && <Row label="關聯線" value="同一事件涉及多國；不是移動軌跡、方向或發生順序" />}
+      <Row label="查證狀態" value={props.research_status === "ai_assessed" ? (props.assessment_status === "pending" ? "待 AI 判斷（尚未研究確認）" : "AI 初判（尚未研究確認）") : "已研究並正式發布"} />
       <Row label="摘要" value={String(props.summary_zh_tw ?? "—")} />
       <Row label="分類" value={globalEventCategoryLabel(props.category)} />
       <Row label="嚴重度" value={globalEventSeverityLabel(props.severity)} />
-      <Row label="信心" value={confidence} />
+      <Row label={props.research_status === "ai_assessed" ? "AI 判斷信心（非定位精度）" : "信心"} value={confidence} />
+      {typeof props.decision === "string" && <Row label="Qwen 分類" value={props.decision} />}
+      {typeof props.taiwan_relationship === "string" && <Row label="臺灣關聯" value={props.taiwan_relationship} />}
+      {typeof props.taiwan_impact_zh_tw === "string" && <Row label="臺灣影響" value={props.taiwan_impact_zh_tw} />}
+      {typeof props.reason_zh_tw === "string" && <Row label="判斷理由" value={props.reason_zh_tw} />}
       <Row label="地點" value={placeParts.length > 0 ? placeParts.join(" · ") : "—"} />
       <Row label="落點語意" value={globalEventLocationLabel(props)} />
-      <Row label="事件時間" value={fmtGlobalEventTime(props.valid_from)} />
-      <Row label="發布時間" value={fmtGlobalEventTime(props.published_at)} />
+      {typeof props.original_lng === "number" && typeof props.original_lat === "number" && (
+        <Row label="原始位置座標" value={`${props.original_lat.toFixed(5)}, ${props.original_lng.toFixed(5)}`} />
+      )}
+      {props.display_offset === true && <Row label="畫面避讓" value="與其他事件同位置，僅在畫面上展開；原始座標未變" />}
+      <Row label={props.research_status === "ai_assessed" ? "來源收集時間" : "事件時間"} value={fmtGlobalEventTime(props.valid_from)} />
+      {props.research_status !== "ai_assessed" && <Row label="發布時間" value={fmtGlobalEventTime(props.published_at)} />}
       {publicationNo !== null && <Row label="發布版本" value={`#${publicationNo}`} />}
       {typeof props.lifecycle_state === "string" && <Row label="生命週期" value={props.lifecycle_state} />}
       {typeof props.display_from === "string" && <Row label="時間軸顯示起點" value={fmtGlobalEventTime(props.display_from)} />}
@@ -172,6 +192,18 @@ export function GlobalEventPanel({ props }: { props: Record<string, unknown> }) 
         />
       )}
       <Row label="位置來源" value={String(props.location_source ?? "—")} />
+      {props.source_kind === "gdelt_metadata_mention" && <Row label="位置依據" value="新聞 metadata 提及地點，尚待研究確認事件與地點的關係" />}
+      {props.source_kind === "headline_gazetteer" && <Row label="位置依據" value="新聞標題地名＋固定地名表，非精確事件座標" />}
+      {assessments.length > 1 && <details>
+        <summary>同組 {assessments.length} 筆候選原始判斷</summary>
+        {assessments.map((assessment, index) => <div key={String(assessment.candidateId ?? index)}>
+          <Row label="候選" value={String(assessment.title ?? "—")} />
+          <Row label="Qwen 分類" value={String(assessment.decision ?? "待判斷")} />
+          <Row label="臺灣關聯" value={String(assessment.taiwanRelationship ?? "未知")} />
+          <Row label="臺灣影響" value={String(assessment.taiwanImpact ?? "—")} />
+          <Row label="判斷理由" value={String(assessment.reason ?? "—")} />
+        </div>)}
+      </details>}
     </div>
   );
 }

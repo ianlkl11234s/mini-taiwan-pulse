@@ -543,7 +543,8 @@
     },
     {
       "layers": [
-        "global-events-current-circle"
+        "global-events-current-circle",
+        "global-events-relations-line"
       ],
       "type": "globalEvent"
     },
@@ -50337,6 +50338,31 @@
         "min": 0,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "時間範圍",
+        "options": [
+          {
+            "label": "最近七天總覽",
+            "value": "recent7d"
+          },
+          {
+            "label": "跟隨時間軸",
+            "value": "timeline"
+          }
+        ],
+        "type": "select",
+        "value": "recent7d"
+      },
+      {
+        "label": "跨國關聯線（非移動軌跡）",
+        "type": "toggle",
+        "value": true
+      },
+      {
+        "label": "包含 AI 初判／待判斷",
+        "type": "toggle",
+        "value": true
       }
     ],
     "govServiceOffices": [
