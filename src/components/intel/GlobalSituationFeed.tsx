@@ -1,6 +1,6 @@
 import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_CJK } from "./intelTokens";
+import { COLORS, FONT_CJK, clockTime } from "./intelTokens";
 import { FONT_SIZE } from "../../styles/designTokens";
 import type { GlobalSituationEntry } from "../../data/globalEventsLoader";
 import type { GlobalSituationFeedSnapshot } from "../../state/globalSituationFeedStore";
@@ -18,15 +18,15 @@ export function isGlobalSituationPublished(entry: GlobalSituationEntry): boolean
 }
 
 /**
- * INTEL 的預設過濾：只顯示已研究與 `keep_core`；toggle 開啟後才加入
- * `keep_watch`。`drop_noise`（與尚未判斷的 null decision）在 INTEL 永不顯示
- * —— 面板要在短時間內把「世界上正在發生的重要事情」講完。
+ * INTEL 的預設過濾：只顯示已研究與 `keep_core`；toggle 開啟後加入
+ * `keep_watch` 與尚未判斷（`decision = null`，約佔候選 15%）。`drop_noise`
+ * 在 INTEL 永不顯示 —— 面板要在短時間內把「世界上正在發生的重要事情」講完。
  * 地圖圖層與 sidebar 的行為不受影響。
  */
 export function isGlobalSituationVisible(entry: GlobalSituationEntry, includeWatch: boolean): boolean {
   if (isGlobalSituationPublished(entry)) return true;
   if (entry.decision === "keep_core") return true;
-  return includeWatch && entry.decision === "keep_watch";
+  return includeWatch && (entry.decision === "keep_watch" || entry.decision === null || entry.decision === undefined);
 }
 
 function firstSentence(text: string | null): string | null {
@@ -88,6 +88,32 @@ export function toIntelCardEvent(entry: GlobalSituationEntry): IntelCardEvent | 
   };
 }
 
+function latestSeconds(entries: readonly GlobalSituationEntry[], pick: (entry: GlobalSituationEntry) => (string | null | undefined)[]): number | null {
+  let latest: number | null = null;
+  for (const entry of entries) {
+    for (const value of pick(entry)) {
+      const parsed = Date.parse(value ?? "");
+      if (!Number.isFinite(parsed)) continue;
+      if (latest === null || parsed > latest) latest = parsed;
+      break;
+    }
+  }
+  return latest === null ? null : Math.floor(latest / 1000);
+}
+
+/**
+ * 空清單時的第二行說明。上游收集→研判有延遲，事件時間（observed_at）會落在
+ * 資料源最後一次更新（available_at）之前；把實際數字算出來講，不寫死。
+ */
+export function describeFeedLag(entries: readonly GlobalSituationEntry[]): string {
+  const updated = latestSeconds(entries, (entry) => [entry.availableAt, entry.displayFrom, entry.publishedAt]);
+  if (updated === null) return "近 24 小時尚無已研究或核心事件";
+  const event = latestSeconds(entries, (entry) => [entry.validFrom, entry.publishedAt]);
+  const lagHours = event === null ? null : Math.round((updated - event) / 3600);
+  return `資料源最新更新：${clockTime(updated)}`
+    + (lagHours !== null && lagHours >= 1 ? `，事件時間落後約 ${lagHours} 小時` : "");
+}
+
 export interface GlobalFeedWindow {
   includeWatch: boolean;
   /** 與新聞同一組 RANGE 邊界（前端過濾，不送 RPC） */
@@ -143,7 +169,7 @@ export function GlobalSituationFeed({
               : "目前無符合條件的國際事件"}
         </div>
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-          {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : "資料源目前落後約一天，可能需要放寬時間窗"}
+          {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : describeFeedLag(snapshot.entries)}
         </div>
       </div>
     );

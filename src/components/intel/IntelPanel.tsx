@@ -105,7 +105,7 @@ export function IntelPanel({
   const [county, setCounty] = useState("全部");
   const [selectedId, setSelectedId] = useState<number | string | null>(null);
   const [expandedId, setExpandedId] = useState<number | string | null>(null);
-  /** 全球情勢：預設只看已研究 ＋ keep_core，開啟後加入 keep_watch */
+  /** 全球情勢：預設只看已研究 ＋ keep_core，開啟後加入 keep_watch 與未判斷 */
   const [includeWatch, setIncludeWatch] = useState(false);
 
   // ── alerts state ──
@@ -634,7 +634,7 @@ export function IntelPanel({
               <div style={{ flex: 1 }} />
               <button
                 onClick={() => setIncludeWatch((v) => !v)}
-                title="加入 AI 判為「觀察中」(keep_watch) 的事件；低價值 (drop_noise) 一律不顯示"
+                title="加入 AI 判為「觀察中」(keep_watch) 與尚未判斷的事件；低價值 (drop_noise) 一律不顯示"
                 style={{
                   padding: "3px 9px", borderRadius: RADIUS.md,
                   background: includeWatch ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
@@ -643,7 +643,7 @@ export function IntelPanel({
                   fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
                 }}
               >
-                含觀察中
+                含觀察中／未判斷
               </button>
             </>
           )}

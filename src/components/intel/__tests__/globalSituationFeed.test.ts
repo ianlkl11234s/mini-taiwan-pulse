@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  describeFeedLag,
   isGlobalSituationPublished,
   isGlobalSituationVisible,
   selectGlobalFeedCards,
@@ -90,13 +91,14 @@ describe("decision 過濾", () => {
     expect(isGlobalSituationPublished(candidate("a", "keep_core"))).toBe(false);
   });
 
-  it("預設只顯示已研究＋keep_core；keep_watch 要 toggle；drop_noise／未判斷永不顯示", () => {
+  it("預設只顯示已研究＋keep_core；keep_watch 與未判斷要 toggle；drop_noise 永不顯示", () => {
     const table: Array<[string | null, boolean, boolean]> = [
-      // decision, 預設可見, 含觀察中可見
+      // decision, 預設可見, 含觀察中／未判斷可見
       ["keep_core", true, true],
       ["keep_watch", false, true],
+      // decision = null（尚未判斷，約佔候選 15%）跟著 toggle 一起進來
+      [null, false, true],
       ["drop_noise", false, false],
-      [null, false, false],
     ];
     for (const [decision, base, withWatch] of table) {
       const entry = candidate("x", decision);
@@ -175,10 +177,46 @@ describe("selectGlobalFeedCards", () => {
       .toEqual(["candidate:core-new", "evt-published", "candidate:core-old"]);
   });
 
-  it("含觀察中 toggle 會加入 keep_watch，drop_noise 仍不出現", () => {
-    const cards = selectGlobalFeedCards(entries, { includeWatch: true, windowStartTs: endTs - 86400, endTs });
-    expect(cards.map((card) => card.card_key)).toContain("candidate:watch");
-    expect(cards.map((card) => card.card_key)).not.toContain("candidate:noise");
+  it("含觀察中／未判斷 toggle 會加入 keep_watch 與 null，drop_noise 仍不出現", () => {
+    const withPending = [...entries, candidate("pending", null)];
+    const off = selectGlobalFeedCards(withPending, { includeWatch: false, windowStartTs: endTs - 86400, endTs });
+    expect(off.map((card) => card.card_key)).not.toContain("candidate:pending");
+    const cards = selectGlobalFeedCards(withPending, { includeWatch: true, windowStartTs: endTs - 86400, endTs });
+    const keys = cards.map((card) => card.card_key);
+    expect(keys).toContain("candidate:watch");
+    expect(keys).toContain("candidate:pending");
+    expect(keys).not.toContain("candidate:noise");
     expect(cards.map((card) => card.published_ts)).toEqual([...cards.map((card) => card.published_ts)].sort((a, b) => b - a));
+  });
+});
+
+describe("describeFeedLag", () => {
+  it("沒有任何資料就不假裝知道延遲", () => {
+    expect(describeFeedLag([])).toBe("近 24 小時尚無已研究或核心事件");
+  });
+
+  it("以 available_at 當資料源更新時間，與事件時間的差算出實際落後小時數", () => {
+    // observed 03:00Z、available 05:30Z → 台北 13:30，落後約 3 小時（2.5 進位）
+    const lagged = candidate("lag", "keep_core", { available_at: "2026-09-05T05:30:00.000Z" });
+    expect(describeFeedLag([lagged])).toBe("資料源最新更新：13:30，事件時間落後約 3 小時");
+  });
+
+  it("追平後只報更新時間，不硬掛一個落後小時數", () => {
+    const caughtUp = candidate("fresh", "keep_core", { available_at: OBSERVED });
+    expect(describeFeedLag([caughtUp])).toBe("資料源最新更新：11:00");
+  });
+
+  it("正式事件沒有 available_at，退回 display_from／published_at", () => {
+    // 真實 RPC（migration 396）一定帶 published_at／display_from，只有 available_at 是候選才有
+    const withPublishedAt = parseGlobalEventRecord({
+      event_id: "evt-pub-at",
+      valid_from: OBSERVED,
+      published_at: "2026-09-05T04:00:00.000Z",
+      display_from: "2026-09-05T04:00:00.000Z",
+      geometry: { type: "Point", coordinates: [1, 2] },
+    });
+    expect(describeFeedLag([withPublishedAt])).toBe("資料源最新更新：12:00，事件時間落後約 1 小時");
+    // 三個欄位都空才說「沒資料」
+    expect(describeFeedLag([published])).toBe("近 24 小時尚無已研究或核心事件");
   });
 });
