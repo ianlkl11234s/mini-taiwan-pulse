@@ -6,9 +6,16 @@
 
 格式統一：移除 `<details>` 清單，改用新聞的 `IntelCard`（adapter `toIntelCardEvent`）。事件時間一律取 `valid_from`（＝候選的 `observed_at`），不用 `available_at` 假裝發生時間；分類 enum 與新聞完全同名（accident／crime／disaster／traffic／health／policy／other），直接吃 `getNewsCategoryDef` 不做轉換。卡片多兩顆 chip：「國際」（`scope`）與「AI 初判」／「已研究」（`origin_label`），讓「全部」分頁混排時仍分得出來源。移除「開啟全球情勢圖層以載入」CTA，刪掉沒人再引用的 `GlobalEventsList`。
 
-預設過濾 decision：feed 只顯示已研究與 `keep_core`，分頁頂端「含觀察中」toggle 才加入 `keep_watch`，`drop_noise` 在 INTEL 永不顯示（地圖圖層與 sidebar 行為不變）。理由是使用者要「一定時間內看到世界上正在發生的重要事情」，而低價值條目集中在 `drop_noise`——依本文件 handoff §Release 記錄的 2026-09-03 anon 讀回快照，179 件候選中 core 34／watch 39／drop_noise 106，`drop_noise` 約佔六成，全部塞進 feed 等於讓重要事件被埋掉。RANGE 1H／6H／24H 沿用新聞的前端過濾（以事件時間），分頁按鈕數字＝過濾後筆數，「全部」的數字併入國際筆數，header 的「共 N 則」維持新聞語意不動。點擊有座標的卡片飛到 zoom 4（新聞是 12），未定位只展開不飛；不開 popup、不自動開圖層。
+預設過濾 decision：feed 只顯示已研究與 `keep_core`，分頁頂端「含觀察中」toggle 才加入 `keep_watch`，`drop_noise` 在 INTEL 永不顯示（地圖圖層與 sidebar 行為不變）。理由是使用者要「一定時間內看到世界上正在發生的重要事情」，而低價值條目集中在 `drop_noise`——2026-09-05 對 `get_global_event_candidates_window` 近七天窗口的 anon 唯讀探測：812 件候選、首頁 491 件的 decision 分佈為 keep_core 116／keep_watch 133／drop_noise 170／未判斷（null）72，`drop_noise` 約佔 35%，全部塞進 feed 等於讓重要事件被埋掉。注意 `decision = null`（未判斷）約 15%，依本次規格也不顯示。RANGE 1H／6H／24H 沿用新聞的前端過濾（以事件時間），分頁按鈕數字＝過濾後筆數，「全部」的數字併入國際筆數，header 的「共 N 則」維持新聞語意不動。點擊有座標的卡片飛到 zoom 4（新聞是 12），未定位只展開不飛；不開 popup、不自動開圖層。
 
 **已知落差**：正式事件 RPC（`get_global_event_places_window`，migration 396）沒有 `source_urls` 欄位，所以「已研究」卡片沒有原文連結與來源網域，只有「AI 初判」卡片有。要補需要上游加欄位，本次不動。另外 RANGE 邊界沿用新聞的 `now - RANGE`（掛鐘），所以時間軸切到過去某天時 feed 會是 0 件——這是既有的新聞行為，國際 feed 刻意繼承同一個算式，將來修新聞會一起修好。
+
+**⚠️ 待決策：本次規格的 24 小時窗口在目前資料下必然是 0 件。** 2026-09-05 02:30Z 對 prod 的 anon 唯讀探測結果：
+
+- 候選 RPC 以 `observed_at` 開窗。全庫最新的 `observed_at` 是 `2026-09-04T00:30Z`（約 26 小時前），而 `available_at` 一路到 `2026-09-05T01:33Z`（約 1 小時前）——收集→研判的延遲約 25–49 小時。所以 `[now-24h, now)` 的 `observed_at` 窗口回 **0 件**，七天窗口回 812 件。
+- 正式事件 RPC 以 `display_from`/`display_to` 開窗，24 小時窗口確實回了 3 件（皆 `lifecycle_state=published`，沒有被 overview 濾掉），但它們的 `valid_from` 是 09-02／09-03，被「RANGE 以事件時間過濾」擋掉。
+- 兩半都不是程式缺陷，是「最近」的定義問題：**要的是「最近發生」還是「最近才知道」**？在目前的延遲下只有後者拿得到資料。選項：(a) 全球分頁的窗口與 RANGE 改以 `available_at` 計算，卡片仍顯示 `valid_from` 當事件時間（誠實，但 1H 的卡片可能寫「26 小時前」）；(b) 今天的窗口改成七天（與圖層 `recent7d` 一致），全球分頁不套 RANGE 或給另一組選項；(c) 維持現狀，改治上游延遲。
+- 順帶一提：`observed_at` 的最小／最大值都落在 :00／:30 整點，看起來是批次時間而非真正的事件時間。若是如此，「`valid_from` ＝事情何時發生」這個前提本身就要打折，值得上游確認。
 
 tsc -b 與 `npm test` 全套（109 檔／1084 tests，3 skipped）通過。
 

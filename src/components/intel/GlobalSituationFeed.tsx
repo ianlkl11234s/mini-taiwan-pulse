@@ -143,7 +143,7 @@ export function GlobalSituationFeed({
               : "目前無符合條件的國際事件"}
         </div>
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-          {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : "調整時間範圍，或開啟「含觀察中」"}
+          {snapshot.status === "error" ? snapshot.message ?? "稍後重試" : "資料源目前落後約一天，可能需要放寬時間窗"}
         </div>
       </div>
     );
