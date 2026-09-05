@@ -127,6 +127,7 @@ import {
   officialNoisePeriodFilter,
   soundCameraFilter,
 } from "../data/noiseTypes";
+import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
@@ -248,6 +249,57 @@ function unionClassFilter(p?: Record<string, number>): unknown[] {
 }
 
 const BASE_RADIUS = 5;
+
+function hubModeLayout(param: string, mode: "polygon" | "point") {
+  const expected = mode === "point" ? 1 : 0;
+  return (_isDark: boolean, params?: Record<string, number>) => ({
+    visibility: (params?.[param] ?? 0) === expected ? "visible" : "none",
+  });
+}
+
+function hubPointLayers(
+  suffixPrefix: string,
+  modeParam: string,
+  color: unknown,
+  scaleParam: string,
+  opacityParam?: string,
+): OverlayConfig["layers"] {
+  const opacity = (params?: Record<string, number>) => opacityParam
+    ? Math.max(0, Math.min(1, params?.[opacityParam] ?? 1))
+    : 1;
+  return [
+    {
+      suffix: `${suffixPrefix}point-glow`,
+      type: "circle",
+      layout: hubModeLayout(modeParam, "point"),
+      paint: (_isDark, params) => {
+        const scale = params?.[scaleParam] ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7 * scale, 9, 11 * scale, 13, 16 * scale],
+          "circle-color": color,
+          "circle-blur": 0.8,
+          "circle-opacity": 0.28 * opacity(params),
+        };
+      },
+    },
+    {
+      suffix: `${suffixPrefix}point-core`,
+      type: "circle",
+      layout: hubModeLayout(modeParam, "point"),
+      paint: (isDark, params) => {
+        const scale = params?.[scaleParam] ?? 1;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3.5 * scale, 9, 5.5 * scale, 13, 8 * scale],
+          "circle-color": color,
+          "circle-opacity": 0.92 * opacity(params),
+          "circle-stroke-color": isDark ? "#0b1118" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, 0.8, 12, 1.4],
+          "circle-stroke-opacity": 0.9 * opacity(params),
+        };
+      },
+    },
+  ];
+}
 
 // ── 🐷 畜牧 Livestock helpers ──
 const FARM_SOURCE = "./agriculture/livestock_farms.geojson";
@@ -676,6 +728,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "thsr-poly-glow-2",
         type: "line",
+        layout: hubModeLayout("thsrDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ff8c00" : "#cc7000",
           "line-width": 15,
@@ -686,6 +739,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "thsr-poly-glow-1",
         type: "line",
+        layout: hubModeLayout("thsrDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ff8c00" : "#cc7000",
           "line-width": 6,
@@ -696,6 +750,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "thsr-poly-fill",
         type: "fill",
+        layout: hubModeLayout("thsrDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "fill-color": isDark ? "#ff8c00" : "#e8a040",
           "fill-opacity": isDark ? 0.08 : 0.12,
@@ -704,6 +759,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "thsr-poly-line",
         type: "line",
+        layout: hubModeLayout("thsrDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ff8c00" : "#e8a040",
           "line-width": isDark ? 1 : 1.5,
@@ -711,6 +767,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
     ],
+  },
+
+  // 高鐵只有站體面；點位模式在 lazy hydration 後從原面心派生，properties 原樣保留。
+  {
+    id: "stationsTHSR",
+    opacityParam: "thsrOpacity",
+    sourceUrl: "./geo/station_polygons.geojson",
+    sourceId: "station-polygon-centroids",
+    geojsonTransform: "centroid",
+    filter: ["==", ["get", "system_id"], "thsr"],
+    layers: hubPointLayers("thsr-", "thsrDisplayModeIdx", "#ff8c00", "stationScale"),
   },
 
   // ── TRA Station Polygon (台鐵大站) ──
@@ -724,6 +791,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "tra-poly-glow-2",
         type: "line",
+        layout: hubModeLayout("traDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#d4c4a8",
           "line-width": 15,
@@ -734,6 +802,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "tra-poly-glow-1",
         type: "line",
+        layout: hubModeLayout("traDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#d4c4a8",
           "line-width": 6,
@@ -744,6 +813,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "tra-poly-fill",
         type: "fill",
+        layout: hubModeLayout("traDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "fill-color": isDark ? "#ffffff" : "#e8dcc8",
           "fill-opacity": isDark ? 0.08 : 0.12,
@@ -752,6 +822,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "tra-poly-line",
         type: "line",
+        layout: hubModeLayout("traDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#e8dcc8",
           "line-width": isDark ? 1 : 1.5,
@@ -761,7 +832,21 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // 台鐵大站面的代表點；小站繼續由 station_points 承載，點位模式才能完整覆蓋。
+  {
+    id: "stationsTRA",
+    opacityParam: "traOpacity",
+    sourceUrl: "./geo/station_polygons.geojson",
+    sourceId: "station-polygon-centroids",
+    geojsonTransform: "centroid",
+    filter: ["==", ["get", "system_id"], "tra"],
+    layers: hubPointLayers("tra-", "traDisplayModeIdx", "#b8a080", "stationScale"),
+  },
+
   // ── TRA Station Points (台鐵小站) ──
+  // z<10 使用 overview 點補齊全 212 個小站；大站同時由上方
+  // station-polygon-centroids 顯示，因此全台視角不再只剩 32 個大站。
+  // z>=10 交還原 detail layers，保留既有近距樣式。
   {
     id: "stationsTRA",
     opacityParam: "traOpacity",
@@ -770,6 +855,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     filter: ["==", ["get", "system_id"], "tra"],
     rebuildOnParamChange: ["tra-pt-glow-2", "tra-pt-glow-1", "tra-pt-fill"],
     layers: [
+      ...hubPointLayers(
+        "tra-overview-",
+        "traDisplayModeIdx",
+        "#b8a080",
+        "stationScale",
+      ).map((layer) => ({ ...layer, maxzoom: 10 })),
       {
         suffix: "tra-pt-glow-2",
         type: "circle",
@@ -818,6 +909,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── Metro Station Points (捷運/輕軌站) ──
+  // z<10 使用 overview 點，讓全台視角仍看得到系統分佈；
+  // z>=10 無縫交給原本的 detail layers，保留既有細節與 3D 光柱邏輯。
   {
     id: "stationsMetro",
     opacityParam: "metroOpacity",
@@ -826,6 +919,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
     rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
     layers: [
+      ...hubPointLayers(
+        "metro-overview-",
+        "metroDisplayModeIdx",
+        ["get", "color"],
+        "stationScale",
+      ).map((layer) => ({ ...layer, maxzoom: 10 })),
       {
         suffix: "metro-pt-range",
         type: "circle",
@@ -897,15 +996,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     opacityParam: "portOpacity",
     sourceUrl: "./geo/port_polygons.geojson",
     sourceId: "port-polygons",
-    rebuildOnParamChange: ["glow-2", "glow-1"],
     layers: [
       {
         suffix: "glow-2",
         type: "line",
+        layout: hubModeLayout("portDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
           const g = params?.portGlow ?? 1;
           return {
-            "line-color": isDark ? "#88bbff" : "#3a7bd5",
+            "line-color": PORT_CLASS_COLOR_EXPRESSION,
             "line-width": 12 * g,
             "line-blur": 8 * g,
             "line-opacity": g * (isDark ? 0.04 : 0.10),
@@ -915,10 +1014,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow-1",
         type: "line",
+        layout: hubModeLayout("portDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
           const g = params?.portGlow ?? 1;
           return {
-            "line-color": isDark ? "#88bbff" : "#3a7bd5",
+            "line-color": PORT_CLASS_COLOR_EXPRESSION,
             "line-width": 5 * g,
             "line-blur": 3 * g,
             "line-opacity": g * (isDark ? 0.10 : 0.20),
@@ -928,21 +1028,32 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "fill",
         type: "fill",
+        layout: hubModeLayout("portDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
-          "fill-color": isDark ? "#ffffff" : "#4a90d9",
-          "fill-opacity": isDark ? 0.06 : 0.10,
+          "fill-color": PORT_CLASS_COLOR_EXPRESSION,
+          "fill-opacity": isDark ? 0.16 : 0.22,
         }),
       },
       {
         suffix: "line",
         type: "line",
+        layout: hubModeLayout("portDisplayModeIdx", "polygon"),
         paint: (isDark) => ({
-          "line-color": isDark ? "#ffffff" : "#4a90d9",
+          "line-color": PORT_CLASS_COLOR_EXPRESSION,
           "line-width": isDark ? 1 : 1.5,
           "line-opacity": isDark ? 0.25 : 0.40,
         }),
       },
     ],
+  },
+
+  {
+    id: "ports",
+    opacityParam: "portOpacity",
+    sourceUrl: "./geo/port_polygons.geojson",
+    sourceId: "port-centroids",
+    geojsonTransform: "centroid",
+    layers: hubPointLayers("", "portDisplayModeIdx", PORT_CLASS_COLOR_EXPRESSION, "portScale"),
   },
 
   // ── Lighthouses ──
@@ -1351,53 +1462,66 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "glow-2",
         type: "line",
+        layout: hubModeLayout("airportDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
           const glow = params?.airportGlow ?? 0.8;
+          const opacity = params?.airportOpacity ?? 0.9;
           return {
             "line-color": isDark ? "#ffffff" : "#daa520",
             "line-width": 30,
             "line-blur": 15,
-            "line-opacity": glow * (isDark ? 0.06 : 0.15),
+            "line-opacity": glow * opacity * (isDark ? 0.06 : 0.15),
           };
         },
       },
       {
         suffix: "glow-1",
         type: "line",
+        layout: hubModeLayout("airportDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
           const glow = params?.airportGlow ?? 0.8;
+          const opacity = params?.airportOpacity ?? 0.9;
           return {
             "line-color": isDark ? "#ffffff" : "#daa520",
             "line-width": 10,
             "line-blur": 5,
-            "line-opacity": glow * (isDark ? 0.15 : 0.3),
+            "line-opacity": glow * opacity * (isDark ? 0.15 : 0.3),
           };
         },
       },
       {
         suffix: "fill",
         type: "fill",
+        layout: hubModeLayout("airportDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
-          const opacity = params?.airportOpacity ?? 0.12;
+          const opacity = params?.airportOpacity ?? 0.9;
           return {
             "fill-color": isDark ? "#ffffff" : "#c89520",
-            "fill-opacity": isDark ? opacity : opacity * 1.5,
+            "fill-opacity": opacity * (isDark ? 0.12 : 0.18),
           };
         },
       },
       {
         suffix: "line",
         type: "line",
+        layout: hubModeLayout("airportDisplayModeIdx", "polygon"),
         paint: (isDark, params) => {
-          const opacity = params?.airportOpacity ?? 0.12;
+          const opacity = params?.airportOpacity ?? 0.9;
           return {
             "line-color": isDark ? "#ffffff" : "#c89520",
             "line-width": isDark ? 1.5 : 2,
-            "line-opacity": Math.min(opacity * 3, isDark ? 0.5 : 0.7),
+            "line-opacity": opacity * (isDark ? 0.5 : 0.7),
           };
         },
       },
     ],
+  },
+  {
+    id: "airports",
+    sourceUrl: "./geo/airports.geojson",
+    sourceId: "airport-centroids",
+    geojsonTransform: "centroid",
+    layers: hubPointLayers("", "airportDisplayModeIdx", "#daa520", "airportScale", "airportOpacity"),
   },
   // ── CCTV (道路 CCTV 攝影機，~6,129 點) ──
   // source 分色：freeway 橙 / highway 黃 / city 青

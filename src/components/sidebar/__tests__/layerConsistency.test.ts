@@ -119,7 +119,7 @@ const NO_PARAMS_LEDGER = new Set([
 const NO_LEGEND_LEDGER = new Set([
   // 交通：車站/場站/線形皆單色（鐵道車種分色在 rail，已接 RailLegend）
   "stationsTHSR", "stationsTRA", "stationsMetro",
-  "ports", "lighthouses", "airports", "highways", "provincialRoads",
+  "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
   "weatherStations",

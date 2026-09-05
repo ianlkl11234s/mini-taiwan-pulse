@@ -325,9 +325,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       for (const config of OVERLAY_REGISTRY) {
         const v = isOverlayVisible(config, vis, overlayParamsRef.current);
         if (v) void hydrateOverlayIfNeeded(map, config);
-        setOverlayVisible(map, config, v);
+        setOverlayVisible(map, config, v, isDarkThemeRef.current, overlayParamsRef.current);
       }
-      updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current);
+      updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current, vis);
       onMapReadyRef.current?.(map);
     });
 
@@ -419,7 +419,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     const vis = layerVisibilityStore.getAll();
-    updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
+    updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams, vis);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
     updateAllAgricultureLayers(map, vis, overlayParams);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
@@ -445,7 +445,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       for (const config of OVERLAY_REGISTRY) {
         const v = isOverlayVisible(config, vis, overlayParamsRef.current);
         if (v) void hydrateOverlayIfNeeded(map, config);
-        setOverlayVisible(map, config, v);
+        setOverlayVisible(map, config, v, isDarkThemeRef.current, overlayParamsRef.current);
       }
       // OVERLAY_REGISTRY 之外的專屬圖層
       updateAllAgricultureLayers(map, vis, overlayParamsRef.current);

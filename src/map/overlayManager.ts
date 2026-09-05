@@ -246,6 +246,7 @@ export function updateOverlayTheme(
   config: OverlayConfig,
   isDark: boolean,
   params?: Record<string, number>,
+  overlayVisible = true,
 ) {
   if (!map.getSource(config.sourceId)) return;
 
@@ -315,7 +316,8 @@ export function updateOverlayTheme(
       if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
       applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
       if (typeof spec.layout === "function") {
-        applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+        const layout = spec.layout(isDark, params);
+        applyLayoutDiff(map, layerId(config, spec.suffix), overlayVisible ? layout : { ...layout, visibility: "none" });
       }
     }
     return;
@@ -325,7 +327,8 @@ export function updateOverlayTheme(
   for (const spec of config.layers) {
     applyPaintDiff(map, cache, layerId(config, spec.suffix), applyLayerOpacity(config, spec.paint(isDark, params), params));
     if (typeof spec.layout === "function") {
-      applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+      const layout = spec.layout(isDark, params);
+      applyLayoutDiff(map, layerId(config, spec.suffix), overlayVisible ? layout : { ...layout, visibility: "none" });
     }
   }
 }
@@ -385,6 +388,76 @@ function applyPaintDiff(
 // key 用 sourceId（不是 config.id），自然處理「多個 overlay 共用同一 sourceUrl」。
 const hydratedSources = new Set<string>();
 
+function ringCentroid(ring: GeoJSON.Position[]): [number, number] | null {
+  if (ring.length < 3) return null;
+  let area2 = 0;
+  let xSum = 0;
+  let ySum = 0;
+  for (let i = 0; i < ring.length; i += 1) {
+    const a = ring[i]!;
+    const b = ring[(i + 1) % ring.length]!;
+    const ax = Number(a[0]);
+    const ay = Number(a[1]);
+    const bx = Number(b[0]);
+    const by = Number(b[1]);
+    if (![ax, ay, bx, by].every(Number.isFinite)) continue;
+    const cross = ax * by - bx * ay;
+    area2 += cross;
+    xSum += (ax + bx) * cross;
+    ySum += (ay + by) * cross;
+  }
+  if (Math.abs(area2) > 1e-12) return [xSum / (3 * area2), ySum / (3 * area2)];
+
+  const valid = ring
+    .map((position) => [Number(position[0]), Number(position[1])] as const)
+    .filter(([x, y]) => Number.isFinite(x) && Number.isFinite(y));
+  if (valid.length === 0) return null;
+  return [
+    valid.reduce((sum, [x]) => sum + x, 0) / valid.length,
+    valid.reduce((sum, [, y]) => sum + y, 0) / valid.length,
+  ];
+}
+
+function ringArea2(ring: GeoJSON.Position[]): number {
+  let area2 = 0;
+  for (let i = 0; i < ring.length; i += 1) {
+    const a = ring[i]!;
+    const b = ring[(i + 1) % ring.length]!;
+    area2 += Number(a[0]) * Number(b[1]) - Number(b[0]) * Number(a[1]);
+  }
+  return Number.isFinite(area2) ? Math.abs(area2) : 0;
+}
+
+/**
+ * Polygon / MultiPolygon 的主外環面心。MultiPolygon 取面積最大的部件，
+ * 避免機場離島或碎面把點位拉到幾何之間的空白區。
+ */
+function polygonCentroid(geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon): [number, number] | null {
+  const polygons = geometry.type === "Polygon" ? [geometry.coordinates] : geometry.coordinates;
+  const largest = polygons
+    .map((polygon) => ({ ring: polygon[0] ?? [], area: ringArea2(polygon[0] ?? []) }))
+    .sort((a, b) => b.area - a.area)[0];
+  return largest ? ringCentroid(largest.ring) : null;
+}
+
+/** 保留 feature id / properties，只轉換可驗證的面幾何；其他類型不猜測也不補零。 */
+export function polygonFeaturesToCentroids(data: GeoJSON.FeatureCollection): GeoJSON.FeatureCollection<GeoJSON.Point> {
+  const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
+  for (const feature of data.features) {
+    const geometry = feature.geometry;
+    if (!geometry || (geometry.type !== "Polygon" && geometry.type !== "MultiPolygon")) continue;
+    const coordinates = polygonCentroid(geometry);
+    if (!coordinates) continue;
+    features.push({
+      type: "Feature",
+      ...(feature.id !== undefined ? { id: feature.id } : {}),
+      geometry: { type: "Point", coordinates },
+      properties: feature.properties,
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
 /**
  * 若 config 是靜態 GeoJSON 且尚未 hydrate → fetch sourceUrl + setData。
  * dynamicData / pmtiles 配置直接 no-op（pmtiles 由 Mapbox 自動 lazy load tile，
@@ -407,7 +480,10 @@ export async function hydrateOverlayIfNeeded(
   try {
     const res = await fetch(config.sourceUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const json = (await res.json()) as GeoJSON.FeatureCollection;
+    const raw = (await res.json()) as GeoJSON.FeatureCollection;
+    const json = config.geojsonTransform === "centroid"
+      ? polygonFeaturesToCentroids(raw)
+      : raw;
     const src = map.getSource(config.sourceId);
     if (src && "setData" in src) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -432,11 +508,17 @@ export function setOverlayVisible(
   map: OverlayMap,
   config: OverlayConfig,
   visible: boolean,
+  isDark = false,
+  params?: Record<string, number>,
 ) {
-  const v = visible ? "visible" : "none";
   for (const spec of config.layers) {
     const id = layerId(config, spec.suffix);
     if (map.getLayer(id)) {
+      const resolvedLayout = typeof spec.layout === "function"
+        ? spec.layout(isDark, params)
+        : spec.layout;
+      const modeAllows = resolvedLayout?.visibility !== "none";
+      const v = visible && modeAllows ? "visible" : "none";
       map.setLayoutProperty(id, "visibility", v);
     }
   }
@@ -454,7 +536,7 @@ export function addAllOverlays(
   for (const config of registry) {
     addOverlay(map, config, isDark, params, opts);
     if (!isOverlayVisible(config, visibility, params)) {
-      setOverlayVisible(map, config, false);
+      setOverlayVisible(map, config, false, isDark, params);
     }
   }
 }
@@ -465,8 +547,15 @@ export function updateAllOverlayThemes(
   registry: OverlayConfig[],
   isDark: boolean,
   params?: Record<string, number>,
+  visibility?: LayerVisibility,
 ) {
   for (const config of registry) {
-    updateOverlayTheme(map, config, isDark, params);
+    updateOverlayTheme(
+      map,
+      config,
+      isDark,
+      params,
+      visibility ? isOverlayVisible(config, visibility, params) : true,
+    );
   }
 }

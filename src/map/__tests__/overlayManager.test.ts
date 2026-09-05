@@ -10,6 +10,8 @@ import {
   addOverlay,
   hydrateOverlayIfNeeded,
   resetOverlayHydration,
+  polygonFeaturesToCentroids,
+  setOverlayVisible,
   updateOverlayTheme,
   geojsonSourceOptions,
   applyLayerOpacity,
@@ -132,6 +134,55 @@ describe("geojsonSourceOptions", () => {
   });
 });
 
+describe("polygonFeaturesToCentroids", () => {
+  it("把 polygon 轉成保留 properties 的代表點，非面幾何不假造", () => {
+    const data: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          id: "hub-1",
+          properties: { name: "A" },
+          geometry: { type: "Polygon", coordinates: [[[0, 0], [4, 0], [4, 2], [0, 2], [0, 0]]] },
+        },
+        {
+          type: "Feature",
+          properties: { name: "skip" },
+          geometry: { type: "Point", coordinates: [9, 9] },
+        },
+      ],
+    };
+
+    expect(polygonFeaturesToCentroids(data)).toEqual({
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        id: "hub-1",
+        properties: { name: "A" },
+        geometry: { type: "Point", coordinates: [2, 1] },
+      }],
+    });
+  });
+
+  it("MultiPolygon 取最大部件，不把代表點放在兩塊面之間", () => {
+    const data: GeoJSON.FeatureCollection = {
+      type: "FeatureCollection",
+      features: [{
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "MultiPolygon",
+          coordinates: [
+            [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+            [[[10, 10], [14, 10], [14, 14], [10, 14], [10, 10]]],
+          ],
+        },
+      }],
+    };
+    expect(polygonFeaturesToCentroids(data).features[0]?.geometry.coordinates).toEqual([12, 12]);
+  });
+});
+
 // ── mock map 整合測試：diff 式更新 ──
 
 interface Call { method: string; args: unknown[] }
@@ -214,6 +265,90 @@ describe("updateOverlayTheme (diff-based)", () => {
       .filter((c) => c.method === "setPaintProperty")
       .map((c) => c.args[1]);
     expect(keys).toContain("line-color");
+  });
+});
+
+describe("setOverlayVisible", () => {
+  it("圖層重開時仍尊重模式 layout，不會同時露出 polygon 與 point", () => {
+    const modeConfig: OverlayConfig = {
+      ...config,
+      layers: [{
+        suffix: "core",
+        type: "line",
+        layout: (_isDark, p) => ({ visibility: (p?.modeIdx ?? 0) === 1 ? "visible" : "none" }),
+        paint: () => ({}),
+      }],
+    } as OverlayConfig;
+    const { map, calls } = createMockMap();
+    addOverlay(map, modeConfig, true, { modeIdx: 0 });
+    calls.length = 0;
+
+    setOverlayVisible(map, modeConfig, true, true, { modeIdx: 0 });
+    setOverlayVisible(map, modeConfig, true, true, { modeIdx: 1 });
+
+    expect(calls.filter((call) => call.method === "setLayoutProperty").map((call) => call.args))
+      .toEqual([
+        ["water-rivers-core", "visibility", "none"],
+        ["water-rivers-core", "visibility", "visible"],
+      ]);
+  });
+
+  it("母圖層關閉時，params 更新不會讓 mode layout 穿透開關", () => {
+    const modeConfig: OverlayConfig = {
+      ...config,
+      layers: [{
+        suffix: "core",
+        type: "line",
+        layout: (_isDark, p) => ({ visibility: (p?.modeIdx ?? 0) === 1 ? "visible" : "none" }),
+        paint: () => ({}),
+      }],
+    } as OverlayConfig;
+    const { map, calls } = createMockMap();
+    addOverlay(map, modeConfig, true, { modeIdx: 0 });
+    calls.length = 0;
+
+    updateOverlayTheme(map, modeConfig, true, { modeIdx: 1 }, false);
+
+    expect(calls.filter((call) => call.method === "setLayoutProperty").map((call) => call.args))
+      .toEqual([["water-rivers-core", "visibility", "none"]]);
+  });
+});
+
+describe("交通場站派生點位接線", () => {
+  const expected = [
+    ["stationsTHSR", "station-polygon-centroids"],
+    ["stationsTRA", "station-polygon-centroids"],
+    ["ports", "port-centroids"],
+    ["airports", "airport-centroids"],
+  ] as const;
+
+  it.each(expected)("%s 的點位模式只由原 Polygon 心點派生", (id, sourceId) => {
+    const entry = OVERLAY_REGISTRY.find((config) => config.id === id && config.sourceId === sourceId);
+    expect(entry).toBeDefined();
+    expect(entry?.geojsonTransform).toBe("centroid");
+    expect(entry?.sourceUrl).toMatch(/\.geojson$/);
+    expect(entry?.layers.every((layer) => layer.type === "circle")).toBe(true);
+  });
+
+  it("捷運保留原 detail layers，並在 z10 以下提供全台 overview 點", () => {
+    const metro = OVERLAY_REGISTRY.filter((config) => config.id === "stationsMetro");
+    const overview = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-overview-point-core"));
+    const detail = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-pt-fill"));
+    expect(overview?.sourceId).toBe("station-points");
+    expect(overview?.layers
+      .filter((layer) => layer.suffix.startsWith("metro-overview-"))
+      .every((layer) => layer.maxzoom === 10 && layer.minzoom == null)).toBe(true);
+    expect(detail?.layers.some((layer) => layer.minzoom === 10)).toBe(true);
+  });
+
+  it("台鐵小站在 z10 以下有 overview，z10 以上保留原 detail layers", () => {
+    const tra = OVERLAY_REGISTRY.find(
+      (config) => config.id === "stationsTRA" && config.sourceId === "station-points",
+    );
+    const overview = tra?.layers.filter((layer) => layer.suffix.startsWith("tra-overview-"));
+    expect(overview).toHaveLength(2);
+    expect(overview?.every((layer) => layer.maxzoom === 10 && layer.minzoom == null)).toBe(true);
+    expect(tra?.layers.some((layer) => layer.suffix === "tra-pt-fill" && layer.minzoom === 10)).toBe(true);
   });
 });
 

@@ -100,6 +100,7 @@ import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
+import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -639,6 +640,28 @@ function stationScaleSlider(): SliderParamSpec {
     kind: "slider", name: "stationScale", labelPrefix: "Stn", digits: 1,
     default: 1, min: 0.3, max: 3, step: 0.1,
     sharedGroup: "stationScale",
+  };
+}
+
+function hubDisplayModeSelect(
+  name: string,
+  defaultMode: "polygon" | "point" = "point",
+  polygonUnavailable = false,
+): SelectIndexParamSpec {
+  return {
+    kind: "select",
+    name,
+    label: "顯示",
+    default: defaultMode,
+    options: TRANSPORT_HUB_DISPLAY_MODES.map((mode) => ({
+      label: polygonUnavailable && mode.value === "polygon"
+        ? "實際範圍（無面資料）"
+        : mode.label,
+      value: mode.value,
+      ...(polygonUnavailable && mode.value === "polygon" ? { disabled: true } : {}),
+    })),
+    out: `${name}Idx`,
+    encode: TRANSPORT_HUB_DISPLAY_MODES.map((mode) => mode.value),
   };
 }
 
@@ -2801,18 +2824,21 @@ export const LAYER_PARAMS_SPEC = {
   // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
   stationsTHSR: [
     opacitySlider("thsrOpacity", 1),
+    hubDisplayModeSelect("thsrDisplayMode"),
     stationScaleSlider(),
     { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
     opacitySlider("traOpacity", 1),
+    hubDisplayModeSelect("traDisplayMode"),
     stationScaleSlider(),
     { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
     opacitySlider("metroOpacity", 1),
+    hubDisplayModeSelect("metroDisplayMode", "point", true),
     stationScaleSlider(),
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
@@ -2824,15 +2850,16 @@ export const LAYER_PARAMS_SPEC = {
   ],
   ports: [
     opacitySlider("portOpacity", 1),
+    hubDisplayModeSelect("portDisplayMode"),
+    scaleSlider("portScale", 1),
     { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
     { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
   ],
   airports: [
-    {
-      kind: "slider", name: "airportOpacity", labelPrefix: "APT", digits: 2,
-      default: 0.12, min: 0, max: 0.3, step: 0.01,
-    },
+    opacitySlider("airportOpacity", 0.9),
+    hubDisplayModeSelect("airportDisplayMode"),
+    scaleSlider("airportScale", 1),
     {
       kind: "slider", name: "airportGlow", labelPrefix: "Glow", digits: 1,
       default: 0.8, min: 0, max: 2, step: 0.1,

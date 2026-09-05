@@ -8670,10 +8670,9 @@ export const LAYER_MANIFEST = {
   // 只有 `ships` 是真的 `setFeatureInfo({ layerType: "ship" })`（批 4 的
   // `extractNonGisFeatureTypes` 已涵蓋）。照「Three.js 一定有 popup」推會四層全填錯。
   //
-  // ⚠️ **`stationsTHSR` 是本段唯一的「有 registry entry 卻沒有 popup」**：
-  // `GIS_LAYERS` 的 `railStation` 只收 `station-points-{tra,metro}-pt-*`，
-  // 高鐵那組是 `station-polygons-thsr-poly-*`、一個都不在裡面。三個車站層長得極像，
-  // 只有逐 layer id 反查才看得出來（同批 2 基礎建設的單複數陷阱，只是這次差在「有沒有」）。
+  // `stationsTHSR` 與 `stationsTRA` 的站體面及派生面心、`stationsMetro` 的原始點
+  // 全部共用 `railStation` popup。點層在 GIS_LAYERS 前段，站體面放末段，
+  // 避免面範圍搖先同區的細節點位。
   //
   // dataClass：A 8 ／ B 1（busStationsCity 是 PMTiles）／ D 9。
   // 9 個 D 沒有一個是「自繪 = 沒資料」：航空 4 層自建 PmTilesSource（同批 5 slopeVector /
@@ -8693,11 +8692,14 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "ports", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "port-polygons", url: "./geo/port_polygons.geojson" },
-    legend: null,
+    source: [
+      { kind: "geojson", sourceId: "port-polygons", url: "./geo/port_polygons.geojson" },
+      { kind: "geojson", sourceId: "port-centroids", url: "./geo/port_polygons.geojson" },
+    ],
+    legend: "ports",
     popup: "port",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
-    description: "商港／工業港範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    params: { count: 6, kinds: ["slider", "select", "slider", "slider", "toggle", "slider"] },
+    description: "港口實際範圍／代表點切換，依 port_class 分級上色，可另開 3D 光柱",
     topics: ["交通", "港口", "樞紐"],
   },
 
@@ -8713,11 +8715,14 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "airport", confidence: "HIGH" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "airport-boundaries", url: "./geo/airports.geojson" },
+    source: [
+      { kind: "geojson", sourceId: "airport-boundaries", url: "./geo/airports.geojson" },
+      { kind: "geojson", sourceId: "airport-centroids", url: "./geo/airports.geojson" },
+    ],
     legend: null,
     popup: "airport",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
-    description: "機場範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    params: { count: 6, kinds: ["slider", "select", "slider", "slider", "toggle", "slider"] },
+    description: "機場實際範圍／代表點切換，可另開 3D 光柱",
     topics: ["交通", "航空", "樞紐"],
   },
 
@@ -8855,15 +8860,16 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "rail_stations", confidence: "MED" }],
     },
     dataClass: "A",
-    source: { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
+    source: [
+      { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
+      { kind: "geojson", sourceId: "station-polygon-centroids", url: "./geo/station_polygons.geojson" },
+    ],
     legend: null,
-    // W2 popup 補強：本層 4 個 layer id 全是 `station-polygons-thsr-poly-*`，
-    // 與 GIS_LAYERS 既有兩筆 railStation（`station-points-tra-pt-*` /
-    // `station-points-metro-pt-*`）是不同 layer id，故另立第三筆條目收站體面。
-    // station_points.geojson 零筆 thsr，站體面是高鐵唯一的可點載體。
+    // station_points.geojson 零筆 thsr：範圍模式用原站體面，點位模式由
+    // overlay hydration 自同一面資料派生面心，兩者都保留同一份 popup properties。
     popup: "railStation",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
-    description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    params: { count: 5, kinds: ["slider", "select", "slider", "toggle", "slider"] },
+    description: "高鐵站體實際範圍／代表點切換，可另開 3D 光柱",
     topics: ["交通", "軌道", "場站"],
   },
 
@@ -8879,18 +8885,19 @@ export const LAYER_MANIFEST = {
       datasets: [{ datasetId: "rail_stations", confidence: "MED" }],
     },
     dataClass: "A",
-    // 拍板②的第五個「同 key 多 config」（前四個 propertyValueGrid×3 / waterRivers×2 /
+    // 「同 key 多 config」：原站體面＋面心派生點＋原小站點。
     // waterReservoirs×2 已搬）。⚠️ 順序 = OVERLAY_REGISTRY 出現序：面在前、點在後，
     // 決定疊放，測試逐位對齊。兩筆 kind 同質（都是 geojson）→ dataClass 直接是 A。
-    // popup 只由第二筆（點）貢獻：面那組的 layer id 不在 GIS_LAYERS，同 stationsTHSR。
+    // 三組都接 railStation popup；點層優先、面層置後。
     source: [
       { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
+      { kind: "geojson", sourceId: "station-polygon-centroids", url: "./geo/station_polygons.geojson" },
       { kind: "geojson", sourceId: "station-points", url: "./geo/station_points.geojson" },
     ],
     legend: null,
     popup: "railStation",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
-    description: "台鐵站：大站畫站體面、小站畫點（同一個 toggle 兩份資料）",
+    params: { count: 5, kinds: ["slider", "select", "slider", "toggle", "slider"] },
+    description: "台鐵站：原模式以大站範圍面＋小站點呈現，可切為全點位模式",
     topics: ["交通", "軌道", "場站"],
   },
 
@@ -8911,8 +8918,8 @@ export const LAYER_MANIFEST = {
     // 與 stationsTRA **共用同一個 layerType**（各自的 GIS_LAYERS 條目 → 同一個 railStation
     // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
     popup: "railStation",
-    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
-    description: "捷運站點（三層 glow ＋ 命中範圍圈，可切 3D 光柱）",
+    params: { count: 5, kinds: ["slider", "select", "slider", "toggle", "slider"] },
+    description: "捷運站點（上游無站體面，實際範圍選項會明示停用），可另開 3D 光柱",
     topics: ["交通", "軌道", "場站"],
   },
 
