@@ -4,9 +4,15 @@ import { GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 export type GlobalEventsView = "recent7d" | "timeline";
 export const GLOBAL_EVENT_ICON_RADIUS = 8;
 
-/** Rolling seven days, never the timeline's forward-looking seven-day window. */
+/**
+ * Rolling seven days, never the timeline's forward-looking seven-day window.
+ * Floors to the minute so repeated calls that land in the same minute (periodic
+ * refresh callers comparing bounds to detect a genuinely new window) produce an
+ * identical, comparable key instead of always missing on raw millisecond `Date.now()`.
+ */
 export function recentGlobalEventWindow(nowMs = Date.now()): { start: string; end: string } {
-  return { start: new Date(nowMs - 7 * 86_400_000).toISOString(), end: new Date(nowMs).toISOString() };
+  const alignedNow = Math.floor(nowMs / 60_000) * 60_000;
+  return { start: new Date(alignedNow - 7 * 86_400_000).toISOString(), end: new Date(alignedNow).toISOString() };
 }
 
 /** Candidate RPC windows use source observed_at; delayed assessments still need to be

@@ -280,6 +280,12 @@ export function useGlobalEventsLayer(
     let cancelled = false;
     let unsubscribeWindow = () => {};
     let unsubscribeTime = () => {};
+    let windowDebounceTimer: ReturnType<typeof setTimeout> | undefined;
+    let pendingTransitionFrom: number | null = null;
+    // 記錄最近一次成功送出的 window key，判斷刷新（同一個 window 再打一次）
+    // 是否要清空既有 rows／entries。effect 重掛（view/includeAI/timeMode 切換）
+    // 會拿到全新的 closure，等同重置為 null，自然視為「新 window」。
+    let lastWindowKey: string | null = null;
     ensureLayers(map);
     setLayerVisibility(map, true);
     applyPaint(map);
@@ -340,39 +346,76 @@ export function useGlobalEventsLayer(
 
     const loadSituation = (bounds: { start: string; end: string }, current: boolean, transitionFromTime = timeStore.getTime()) => {
       const request = ++requestRef.current;
-      allEventsRef.current = [];
-      candidatesRef.current = [];
-      signatureRef.current = "";
-      feed([]);
-      globalEventsViewStore.set({ entries: [], status: "loading", message: null,
-        windowLabel: view === "recent7d" ? "最近七天總覽" : current ? "目前情勢（候選近七天）" : "跟隨時間軸" });
+      // recent7d 的 window 定義上「永遠是同一個情境」（每 5 分鐘的 rolling 7 天，
+      // bounds 字面值一定跟著 Date.now() 往前移，不能用來判斷是否為同一個 window）；
+      // current／timeline 用實際 bounds 字面值比對，跨日 scrub 到不同日才算換 window。
+      const windowKey = current ? "current" : view === "recent7d" ? "recent7d" : `${bounds.start}/${bounds.end}`;
+      const isRefresh = windowKey === lastWindowKey;
+      lastWindowKey = windowKey;
+      if (!isRefresh) {
+        // 真的換到不同 window（跨日 scrub／view·includeAI 切換連帶重掛整個 effect）：
+        // 舊資料已經不代表這個 window，清空並顯示 loading。
+        allEventsRef.current = [];
+        candidatesRef.current = [];
+        signatureRef.current = "";
+        listSignatureRef.current = "";
+        feed([]);
+        globalEventsViewStore.set({ entries: [], status: "loading", message: null,
+          windowLabel: view === "recent7d" ? "最近七天總覽" : current ? "目前情勢（候選近七天）" : "跟隨時間軸" });
+      } else {
+        // 同一個 window 的背景刷新（例如 recent7d 每 5 分鐘 interval）：保留舊
+        // rows／entries 繼續顯示，只標記 loading，等新結果整批回來再換。
+        globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status: "loading" });
+      }
       const candidateBounds = !current && view === "timeline" ? globalEventCandidateLookbackWindow(bounds) : bounds;
       Promise.allSettled([
         current ? fetchGlobalEventsCurrent() : fetchGlobalEventsWindow(bounds.start, bounds.end),
         includeAI ? fetchGlobalEventCandidatesWindow(candidateBounds.start, candidateBounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
       ]).then(([published, candidates]) => {
         if (cancelled || request !== requestRef.current) return;
-        candidatesRef.current = candidates.status === "fulfilled" ? candidates.value.rows : [];
         const errors = [published, candidates].filter((result) => result.status === "rejected");
-        const formalRows = published.status === "fulfilled" ? published.value : [];
-        globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(),
-          status: errors.length === 2 ? "error" : errors.length ? "partial" : "ready",
-          message: errors.length ? `${published.status === "rejected" ? "研究事件" : "AI 初判"}資料載入失敗，並非零件。`
-            : new Set(formalRows.map((row) => row.eventId)).size >= 100 ? "研究事件已達單次100件上限；AI初判仍完整分頁載入。" : null,
-        });
-        acceptRows(formalRows, `${bounds.start}/${bounds.end}`, transitionFromTime);
+        const status = errors.length === 2 ? "error" : errors.length ? "partial" : "ready";
+        const message = errors.length ? `${published.status === "rejected" ? "研究事件" : "AI 初判"}資料載入失敗，並非零件。`
+          : published.status === "fulfilled" && new Set(published.value.map((row) => row.eventId)).size >= 100
+            ? "研究事件已達單次100件上限；AI初判仍完整分頁載入。" : null;
+        if (published.status !== "fulfilled") {
+          // 正式事件 RPC 本身失敗：保留舊 allEventsRef／candidatesRef／entries，
+          // 只更新錯誤訊息；不再用空陣列覆寫掉上一次成功載入的好資料。
+          globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status, message });
+          return;
+        }
+        // 候選（AI 初判）獨立失敗時保留舊 candidatesRef，不用空陣列覆蓋。
+        candidatesRef.current = candidates.status === "fulfilled" ? candidates.value.rows : candidatesRef.current;
+        globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status, message });
+        acceptRows(published.value, `${bounds.start}/${bounds.end}`, transitionFromTime);
       });
     };
 
     const loadCurrent = () => loadSituation(recentGlobalEventWindow(), true);
 
-    const loadWindow = (dateKeys: readonly string[]) => {
+    const loadWindow = (dateKeys: readonly string[], transitionFromTime?: number) => {
       const bounds = view === "recent7d" ? recentGlobalEventWindow() : globalEventWindowBounds(dateKeys);
       // 跨日 scrub 會換 RPC window。保留換窗前的 cursor，等新 rows 回來後仍可
       // 判斷是否向前跨過 display_from；不可在 fetch 完成時重設成新 cursor。
-      const transitionFromTime = previousTimeRef.current ?? timeStore.getTime();
+      const resolvedFrom = transitionFromTime ?? previousTimeRef.current ?? timeStore.getTime();
       if (!bounds) return;
-      loadSituation(bounds, false, transitionFromTime);
+      loadSituation(bounds, false, resolvedFrom);
+    };
+
+    // 跨日 scrub 常常連續觸發多次 window 變化（拖曳游標經過好幾天），trailing debounce
+    // 250ms 只在停下來後打一次 RPC。cursor 必須在「這串變化的第一次」就鎖住
+    //（此時 previousTimeRef 還是換窗前的值）：期間 200ms 的 renderAt 節流訂閱會把
+    // previousTimeRef 推進到新時間，等 debounce 到期才讀就會拿到錯的 cursor，
+    // 跨日 pulse（new_event/version_update）判斷會失準。
+    const debouncedLoadWindow = (dateKeys: readonly string[]) => {
+      if (pendingTransitionFrom === null) pendingTransitionFrom = previousTimeRef.current ?? timeStore.getTime();
+      if (windowDebounceTimer !== undefined) clearTimeout(windowDebounceTimer);
+      windowDebounceTimer = setTimeout(() => {
+        const transitionFromTime = pendingTransitionFrom!;
+        pendingTransitionFrom = null;
+        windowDebounceTimer = undefined;
+        loadWindow(dateKeys, transitionFromTime);
+      }, 250);
     };
 
     const onStyleLoad = () => {
@@ -410,7 +453,7 @@ export function useGlobalEventsLayer(
       loadCurrent();
     } else {
       loadWindow(timeStore.getWindowDateKeys());
-      unsubscribeWindow = timeStore.subscribeWindowDateKeys(loadWindow);
+      unsubscribeWindow = timeStore.subscribeWindowDateKeys(debouncedLoadWindow);
       unsubscribeTime = timeStore.subscribeThrottled(200, renderAt);
     }
 
@@ -419,11 +462,15 @@ export function useGlobalEventsLayer(
       requestRef.current += 1;
       unsubscribeWindow();
       unsubscribeTime();
+      if (windowDebounceTimer !== undefined) clearTimeout(windowDebounceTimer);
       map.off("style.load", onStyleLoad);
       map.off("styleimagemissing", onImageMissing);
       map.off("click", onClick);
       clearInterval(refreshTimer);
       globalEventsViewStore.setSelectHandler(null);
+      // 圖層關閉／unmount：清空共用 store，避免 IntelPanel 之後重新開啟時
+      // 先閃一下上一輪的殘留 entries／status。
+      globalEventsViewStore.set({ entries: [], status: "idle", message: null, windowLabel: "最近七天" });
       stopPulse(map);
       setLayerVisibility(map, false);
     };
