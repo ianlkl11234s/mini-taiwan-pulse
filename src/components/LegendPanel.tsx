@@ -31,6 +31,7 @@ import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import {
   MARITIME_BOUNDARY_TYPES, MARITIME_BOUNDARY_SOURCE_NOTE,
 } from "../data/maritimeBoundaryTypes";
+import { PORT_CLASSES, PORT_CLASS_FALLBACK } from "../data/transportHubTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
@@ -352,6 +353,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "ships", render: () => <ShipsLegend /> },
   { id: "flights", render: () => <FlightsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },
   { id: "vesselWatch", render: () => <VesselWatchLegend /> },
@@ -849,6 +851,27 @@ function FireCatRows({ cats, square }: { cats: { color: string; label: string }[
           <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+function PortsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        港口分類 PORT CLASS
+      </div>
+      <FireCatRows
+        square
+        cats={[
+          ...PORT_CLASSES.map((entry) => ({ color: entry.color, label: entry.label })),
+          { color: PORT_CLASS_FALLBACK.color, label: PORT_CLASS_FALLBACK.label },
+        ]}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        顏色依原始 port_class；缺值不當作任一既有分級
+      </div>
     </div>
   );
 }

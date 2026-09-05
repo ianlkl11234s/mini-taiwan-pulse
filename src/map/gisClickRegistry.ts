@@ -186,6 +186,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
+  { layers: ["port-centroids-point-core", "port-centroids-point-glow"], type: "port" },
+  { layers: ["airport-centroids-point-core", "airport-centroids-point-glow"], type: "airport" },
   { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
   { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },
   { layers: ["cctv-circle", "cctv-glow"], type: "cctv" },
@@ -193,6 +195,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["service-area-circle", "service-area-glow"], type: "serviceArea" },
   { layers: ["service-area-polygon-fill", "service-area-polygon-line"], type: "serviceAreaPolygon" },
   { layers: ["taxi-stand-circle", "taxi-stand-glow"], type: "taxiStand" },
+  {
+    layers: [
+      "station-polygon-centroids-thsr-point-core", "station-polygon-centroids-thsr-point-glow",
+      "station-polygon-centroids-tra-point-core", "station-polygon-centroids-tra-point-glow",
+    ],
+    type: "railStation",
+  },
+  { layers: ["station-points-tra-overview-point-core", "station-points-tra-overview-point-glow"], type: "railStation" },
+  { layers: ["station-points-metro-overview-point-core", "station-points-metro-overview-point-glow"], type: "railStation" },
   { layers: ["station-points-tra-pt-fill", "station-points-tra-pt-glow-1", "station-points-tra-pt-glow-2"], type: "railStation" },
   { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
   { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
@@ -383,9 +394,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 🗑️ 清運點位 73,060 點：全站密度最高的點層，且 click 用 ±5px bbox 命中
   //    → 排在其他點層之後，免得在市區把消防栓 / 行道樹 / POI 的點擊整片吃掉。
   { layers: ["waste-stops-static-waste-stops-fill"], type: "wasteStopsStatic" },
-  // 🚄 高鐵站體面（12 面，station_points 零筆 thsr → 全台唯一點不到的車站族）。
-  //    唯一的載體是面，依「面層不可搶點層」放在所有點層之後；站體範圍內的消防栓 /
-  //    行道樹 / 停車場等點層因此仍優先命中。與 station-points-* 共用 railStation panel。
+  // 台鐵大站站體面；小站點層已在前段，所以面層放這裡不會搖先 popup。
+  { layers: ["station-polygons-tra-poly-fill", "station-polygons-tra-poly-line"], type: "railStation" },
+  // 🚄 高鐵站體面（12 面）。點位模式的派生面心已在前段；這裡保留原面 popup，
+  //    依「面層不可搶點層」放在所有點層之後。與 station-points-* 共用 railStation panel。
   { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
   // 💧 水資源 線 / 面 5 層 —— 線層在前（±5px bbox 已夠命中細線，不必收 glow），
   //    面層依覆蓋面積由小到大排後，保護區流域級最大故置末。

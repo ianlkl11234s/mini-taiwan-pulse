@@ -660,6 +660,20 @@
     },
     {
       "layers": [
+        "port-centroids-point-core",
+        "port-centroids-point-glow"
+      ],
+      "type": "port"
+    },
+    {
+      "layers": [
+        "airport-centroids-point-core",
+        "airport-centroids-point-glow"
+      ],
+      "type": "airport"
+    },
+    {
+      "layers": [
         "port-polygons-fill",
         "port-polygons-line",
         "port-polygons-glow-1",
@@ -710,6 +724,29 @@
         "taxi-stand-glow"
       ],
       "type": "taxiStand"
+    },
+    {
+      "layers": [
+        "station-polygon-centroids-thsr-point-core",
+        "station-polygon-centroids-thsr-point-glow",
+        "station-polygon-centroids-tra-point-core",
+        "station-polygon-centroids-tra-point-glow"
+      ],
+      "type": "railStation"
+    },
+    {
+      "layers": [
+        "station-points-tra-overview-point-core",
+        "station-points-tra-overview-point-glow"
+      ],
+      "type": "railStation"
+    },
+    {
+      "layers": [
+        "station-points-metro-overview-point-core",
+        "station-points-metro-overview-point-glow"
+      ],
+      "type": "railStation"
     },
     {
       "layers": [
@@ -1665,6 +1702,13 @@
     },
     {
       "layers": [
+        "station-polygons-tra-poly-fill",
+        "station-polygons-tra-poly-line"
+      ],
+      "type": "railStation"
+    },
+    {
+      "layers": [
         "station-polygons-thsr-poly-fill",
         "station-polygons-thsr-poly-line"
       ],
@@ -2446,7 +2490,14 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2467,7 +2518,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2488,7 +2546,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2505,7 +2570,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2536,13 +2608,178 @@
           "get",
           "system_id"
         ],
+        "thsr"
+      ],
+      "id": "stationsTHSR",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ff8c00",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#ff8c00",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "thsr-point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff8c00",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": "#ff8c00",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "thsr-point-core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "station-polygon-centroids",
+      "sourceUrl": "./geo/station_polygons.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "system_id"
+        ],
         "tra"
       ],
       "id": "stationsTRA",
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2563,7 +2800,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2584,7 +2828,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2601,7 +2852,14 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
@@ -2636,6 +2894,306 @@
       ],
       "id": "stationsTRA",
       "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "tra-point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "tra-point-core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "station-polygon-centroids",
+      "sourceUrl": "./geo/station_polygons.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "system_id"
+        ],
+        "tra"
+      ],
+      "id": "stationsTRA",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "tra-overview-point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": "#b8a080",
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "tra-overview-point-core",
+          "type": "circle"
+        },
         {
           "filter": null,
           "layout": null,
@@ -2733,6 +3291,160 @@
       ],
       "id": "stationsMetro",
       "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "metro-overview-point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "maxzoom": 10,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "metro-overview-point-core",
+          "type": "circle"
+        },
         {
           "filter": null,
           "layout": null,
@@ -2851,18 +3563,75 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "line-blur": 8,
-              "line-color": "#88bbff",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.04,
               "line-width": 12
             },
             "light": {
               "line-blur": 8,
-              "line-color": "#3a7bd5",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.1,
               "line-width": 12
             }
@@ -2872,18 +3641,75 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "line-blur": 3,
-              "line-color": "#88bbff",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.1,
               "line-width": 5
             },
             "light": {
               "line-blur": 3,
-              "line-color": "#3a7bd5",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.2,
               "line-width": 5
             }
@@ -2893,16 +3719,73 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
-              "fill-color": "#ffffff",
-              "fill-opacity": 0.06
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.16
             },
             "light": {
-              "fill-color": "#4a90d9",
-              "fill-opacity": 0.1
+              "fill-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "fill-opacity": 0.22
             }
           },
           "suffix": "fill",
@@ -2910,16 +3793,73 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": "#ffffff",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.25,
               "line-width": 1
             },
             "light": {
-              "line-color": "#4a90d9",
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
               "line-opacity": 0.4,
               "line-width": 1.5
             }
@@ -2929,11 +3869,259 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": [
-        "glow-2",
-        "glow-1"
-      ],
+      "rebuildOnParamChange": null,
       "sourceId": "port-polygons",
+      "sourceUrl": "./geo/port_polygons.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ports",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.28,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "port_class"
+                ],
+                "國際商港",
+                "#3b82f6",
+                "國內商港",
+                "#14b8a6",
+                "客運港",
+                "#8b5cf6",
+                "渡輪/觀光碼頭",
+                "#a855f7",
+                "離島渡輪港",
+                "#d946ef",
+                "第一類漁港",
+                "#f59e0b",
+                "第二類漁港",
+                "#5f8f78",
+                "廢止漁港",
+                "#64748b",
+                "對岸港口",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.92,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.9,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "point-core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "port-centroids",
       "sourceUrl": "./geo/port_polygons.geojson"
     },
     {
@@ -4013,19 +5201,26 @@
       "layers": [
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "line-blur": 15,
               "line-color": "#ffffff",
-              "line-opacity": 0.048,
+              "line-opacity": 0.0432,
               "line-width": 30
             },
             "light": {
               "line-blur": 15,
               "line-color": "#daa520",
-              "line-opacity": 0.12,
+              "line-opacity": 0.10800000000000001,
               "line-width": 30
             }
           },
@@ -4034,19 +5229,26 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "line-blur": 5,
               "line-color": "#ffffff",
-              "line-opacity": 0.12,
+              "line-opacity": 0.10800000000000001,
               "line-width": 10
             },
             "light": {
               "line-blur": 5,
               "line-color": "#daa520",
-              "line-opacity": 0.24,
+              "line-opacity": 0.21600000000000003,
               "line-width": 10
             }
           },
@@ -4055,16 +5257,23 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "fill-color": "#ffffff",
-              "fill-opacity": 0.12
+              "fill-opacity": 0.108
             },
             "light": {
               "fill-color": "#c89520",
-              "fill-opacity": 0.18
+              "fill-opacity": 0.162
             }
           },
           "suffix": "fill",
@@ -4072,17 +5281,24 @@
         },
         {
           "filter": null,
-          "layout": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
           "minzoom": null,
           "paint": {
             "dark": {
               "line-color": "#ffffff",
-              "line-opacity": 0.36,
+              "line-opacity": 0.45,
               "line-width": 1.5
             },
             "light": {
               "line-color": "#c89520",
-              "line-opacity": 0.36,
+              "line-opacity": 0.63,
               "line-width": 2
             }
           },
@@ -4093,6 +5309,157 @@
       "pmtiles": null,
       "rebuildOnParamChange": null,
       "sourceId": "airport-boundaries",
+      "sourceUrl": "./geo/airports.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "airports",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#daa520",
+              "circle-opacity": 0.25200000000000006,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#daa520",
+              "circle-opacity": 0.25200000000000006,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                7,
+                9,
+                11,
+                13,
+                16
+              ]
+            }
+          },
+          "suffix": "point-glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "visible"
+            },
+            "light": {
+              "visibility": "visible"
+            }
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#daa520",
+              "circle-opacity": 0.8280000000000001,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#0b1118",
+              "circle-stroke-opacity": 0.81,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            },
+            "light": {
+              "circle-color": "#daa520",
+              "circle-opacity": 0.8280000000000001,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                3.5,
+                9,
+                5.5,
+                13,
+                8
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.81,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.8,
+                12,
+                1.4
+              ]
+            }
+          },
+          "suffix": "point-core",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "airport-centroids",
       "sourceUrl": "./geo/airports.geojson"
     },
     {
@@ -48723,11 +50090,33 @@
     ],
     "airports": [
       {
-        "label": "APT 0.12",
-        "max": 0.3,
-        "min": 0,
-        "step": 0.01,
-        "value": 0.12
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "實際範圍",
+            "value": "polygon"
+          },
+          {
+            "label": "Mapbox 點位",
+            "value": "point"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       },
       {
         "label": "Glow 0.8",
@@ -54827,6 +56216,28 @@
         "value": 1
       },
       {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "實際範圍",
+            "value": "polygon"
+          },
+          {
+            "label": "Mapbox 點位",
+            "value": "point"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
         "label": "Glow 1.0",
         "max": 3,
         "min": 0,
@@ -56340,6 +57751,22 @@
         "value": 1
       },
       {
+        "label": "顯示",
+        "options": [
+          {
+            "disabled": true,
+            "label": "實際範圍（無面資料）",
+            "value": "polygon"
+          },
+          {
+            "label": "Mapbox 點位",
+            "value": "point"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -56368,6 +57795,21 @@
         "value": 1
       },
       {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "實際範圍",
+            "value": "polygon"
+          },
+          {
+            "label": "Mapbox 點位",
+            "value": "point"
+          }
+        ],
+        "type": "select",
+        "value": "point"
+      },
+      {
         "label": "Stn 1.0",
         "max": 3,
         "min": 0.3,
@@ -56394,6 +57836,21 @@
         "min": 0.1,
         "step": 0.05,
         "value": 1
+      },
+      {
+        "label": "顯示",
+        "options": [
+          {
+            "label": "實際範圍",
+            "value": "polygon"
+          },
+          {
+            "label": "Mapbox 點位",
+            "value": "point"
+          }
+        ],
+        "type": "select",
+        "value": "point"
       },
       {
         "label": "Stn 1.0",

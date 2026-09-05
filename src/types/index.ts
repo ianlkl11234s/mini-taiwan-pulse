@@ -652,6 +652,11 @@ export interface OverlayConfig {
   opacityParam?: string;
   sourceUrl: string;
   sourceId: string;
+  /**
+   * 靜態 GeoJSON 載入後的輕量幾何轉換。`centroid` 只把 Polygon /
+   * MultiPolygon 轉成代表點並保留原 properties，供同一場站的範圍／點位模式共用。
+   */
+  geojsonTransform?: "centroid";
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
   filter?: unknown[];

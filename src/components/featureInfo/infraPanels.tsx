@@ -7,6 +7,7 @@ import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
 import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
 import { OOKLA_GRID_META } from "../../data/telecomTypes";
+import { portClassColor } from "../../data/transportHubTypes";
 
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
@@ -32,16 +33,6 @@ const TOILET_GRADE_COLOR: Record<string, string> = {
   優等級: "#ab47bc",
   普通級: "#ffb300",
   不合格: "#e53935",
-};
-
-/** 港口分類對應色 */
-const PORT_CLASS_COLORS: Record<string, string> = {
-  "國際商港": "#42a5f5",
-  "國內商港": "#64b5f6",
-  "第一類漁港": "#26c6da",
-  "第二類漁港": "#4dd0e1",
-  "工業專用港": "#ffa726",
-  "軍港": "#78909c",
 };
 
 /** CCTV source 對應色 / 標籤 */
@@ -449,7 +440,7 @@ export function LighthousePanel({ props }: { props: Record<string, unknown> }) {
 export function PortPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const portClass = String(props.port_class ?? "");
-  const accentColor = PORT_CLASS_COLORS[portClass] ?? "#88bbff";
+  const accentColor = portClassColor(portClass);
 
   return (
     <>
