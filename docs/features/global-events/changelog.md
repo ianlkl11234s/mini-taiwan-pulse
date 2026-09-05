@@ -1,5 +1,25 @@
 # Changelog
 
+## 2026-09-05 — INTEL 全球情勢 feed 與國內新聞對齊（待發布）
+
+分頁行為改成與國內新聞同一套契約：面板自己載資料，不再依賴 `globalEvents` 圖層是否開啟。新增 `fetchGlobalSituationFeed(dateKey)`（今天走滾動 24 小時、歷史日走 Asia/Taipei 當日 [00:00, 24:00)），組合既有 `get_global_event_places_window` ＋ `get_global_event_candidates_window` 分頁 ＋ `selectGlobalSituationEntries` 的 available_at 篩選，沒有新增 RPC，也沒有動圖層 hook 的渲染邏輯。資料落在面板自己的 `globalSituationFeedStore`，刻意不共用被地圖 effect 綁死的 `globalEventsViewStore`。載入時機比照新聞：面板開啟 + `timeStore.subscribeDate`，日期跨天才重抓；額外每 10 分鐘背景刷新（collector 每小時跑），刷新與失敗都保留舊資料不清空。
+
+格式統一：移除 `<details>` 清單，改用新聞的 `IntelCard`（adapter `toIntelCardEvent`）。事件時間一律取 `valid_from`（＝候選的 `observed_at`），不用 `available_at` 假裝發生時間；分類 enum 與新聞完全同名（accident／crime／disaster／traffic／health／policy／other），直接吃 `getNewsCategoryDef` 不做轉換。卡片多兩顆 chip：「國際」（`scope`）與「AI 初判」／「已研究」（`origin_label`），讓「全部」分頁混排時仍分得出來源。移除「開啟全球情勢圖層以載入」CTA，刪掉沒人再引用的 `GlobalEventsList`。
+
+預設過濾 decision：feed 只顯示已研究與 `keep_core`，分頁頂端「含觀察中／未判斷」toggle 才加入 `keep_watch` 與尚未判斷（`decision = null`），`drop_noise` 在 INTEL 永不顯示（地圖圖層與 sidebar 行為不變）。理由是使用者要「一定時間內看到世界上正在發生的重要事情」，而低價值條目集中在 `drop_noise`——2026-09-05 對 `get_global_event_candidates_window` 近七天窗口的 anon 唯讀探測：812 件候選、首頁 491 件的 decision 分佈為 keep_core 116／keep_watch 133／drop_noise 170／未判斷（null）72，`drop_noise` 約佔 35%，全部塞進 feed 等於讓重要事件被埋掉。`decision = null`（未判斷，約 15%）跟著「含觀察中／未判斷」toggle 一起進來，預設仍不顯示。RANGE 1H／6H／24H 沿用新聞的前端過濾（以事件時間），分頁按鈕數字＝過濾後筆數，「全部」的數字併入國際筆數，header 的「共 N 則」維持新聞語意不動。點擊有座標的卡片飛到 zoom 4（新聞是 12），未定位只展開不飛；不開 popup、不自動開圖層。
+
+**已知落差**：正式事件 RPC（`get_global_event_places_window`，migration 396）沒有 `source_urls` 欄位，所以「已研究」卡片沒有原文連結與來源網域，只有「AI 初判」卡片有。要補需要上游加欄位，本次不動。另外 RANGE 邊界沿用新聞的 `now - RANGE`（掛鐘），所以時間軸切到過去某天時 feed 會是 0 件——這是既有的新聞行為，國際 feed 刻意繼承同一個算式，將來修新聞會一起修好。
+
+**24 小時窗口在探測當下必然是 0 件（已拍板選 (c)：維持 `observed_at` 時間語意，治上游延遲）。** 2026-09-05 02:30Z 對 prod 的 anon 唯讀探測結果：
+
+- 候選 RPC 以 `observed_at` 開窗。全庫最新的 `observed_at` 是 `2026-09-04T00:30Z`（約 26 小時前），而 `available_at` 一路到 `2026-09-05T01:33Z`（約 1 小時前）——收集→研判的延遲約 25–49 小時。所以 `[now-24h, now)` 的 `observed_at` 窗口回 **0 件**，七天窗口回 812 件。
+- 正式事件 RPC 以 `display_from`/`display_to` 開窗，24 小時窗口確實回了 3 件（皆 `lifecycle_state=published`，沒有被 overview 濾掉），但它們的 `valid_from` 是 09-02／09-03，被「RANGE 以事件時間過濾」擋掉。
+- 兩半都不是程式缺陷，是「最近」的定義問題：**要的是「最近發生」還是「最近才知道」**？
+- **拍板：選 (c)** —— 時間語意維持 `observed_at`（與新聞 `published_ts` 同為「事件／報導時間」），不改成 `available_at`：上游延遲是暫時的，止血 PR #85 已部署、實測每輪縮 5 小時，追平後 24h 窗自然有資料；改吃 `available_at` 會讓 30 小時前的新聞顯示「5 分鐘前」，比空清單更誤導。另兩個被否決的選項留檔：(a) 窗口與 RANGE 改以 `available_at` 計算；(b) 今天的窗口改成七天、不套 RANGE。
+- 順帶一提：`observed_at` 的最小／最大值都落在 :00／:30 整點，看起來是批次時間而非真正的事件時間。若是如此，「`valid_from` ＝事情何時發生」這個前提本身就要打折，值得上游確認。
+
+tsc -b 與 `npm test` 全套（109 檔／1084 tests，3 skipped）通過。
+
 ## 2026-09-03 — 全球情勢列表移至 INTEL（待發布）
 
 將兩個sidebar的GlobalEventsList與統計搬到「即時情報 INTEL → 全球情勢」獨立第四分頁；sidebar只留原圖層controls。全球分頁不混入全部／新聞／警報總量，不顯示新聞LIVE／更新健康列、1H／6H／24H、警報篩選或IntelReplay。統計與unknown／定位展開完全沿用既有globalEventsViewStore，依原七天／時間軸窗口，不新增RPC或reader。
@@ -33,3 +53,8 @@ PR #208 merge 5230181，Zeabur deployment 6a997433c3fffb61baebe158 於13:27:27Z 
 ## 2026-09-03 — PR #206 pulse hotfix
 
 修正requestAnimationFrame時間戳早於pulse起點時產生負opacity；phase限制為[0,1]。Regression先重現舊碼失敗，修後11 focused／tsc／CI通過。Merge def3dc6，Zeabur 6a994975c3fffb61baebd2b3 RUNNING，新資產main-Bblqfkou.js。Production歷史scrub後讀出163件／58件待定位（Qwen補正前快照），新版console無error；最後恢復即時／最近七天。
+
+### 2026-09-05 追加（同 PR）
+
+- 「含觀察中」改為「含觀察中／未判斷」：`decision = null` 的候選跟著 toggle 一起顯示，預設仍只有已研究＋`keep_core`。
+- 空清單第二行改成動態的 `describeFeedLag(entries)`：讀 feed 內最新的 `available_at`（正式事件退回 `display_from`／`published_at`）算出「資料源最新更新：HH:MM，事件時間落後約 N 小時」；追平時只報更新時間，三個欄位都空才顯示「近 24 小時尚無已研究或核心事件」。不再寫死「約一天」。

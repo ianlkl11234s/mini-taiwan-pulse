@@ -16,7 +16,9 @@
 
 ## Release
 
-INTEL全球情勢分頁本次僅搬UI：列表／統計仍讀globalEventsViewStore，資料載入與選取仍由原visible layer hook提供；off時顯示明確enable按鈕，不顯示舊快照。七天／時間軸由原controls決定，獨立於新聞range／警報filters／all counts。尚待本次CI與deployment，視覺由使用者確認。
+~~INTEL全球情勢分頁本次僅搬UI：列表／統計仍讀globalEventsViewStore，資料載入與選取仍由原visible layer hook提供；off時顯示明確enable按鈕，不顯示舊快照。七天／時間軸由原controls決定，獨立於新聞range／警報filters／all counts。~~（2026-09-05 起不再成立，見下段）
+
+2026-09-05：INTEL 全球情勢分頁**不再依賴圖層**。分頁自己走 `fetchGlobalSituationFeed(dateKey)` 讀既有兩支 window RPC，資料放面板自己的 `globalSituationFeedStore`；圖層關閉也有資料，enable CTA 已移除，`GlobalEventsList` 已刪。窗口改成「今天滾動 24 小時／歷史日當日」跟著 `timeStore` 日期走（不再是圖層 controls 的七天／時間軸），並以 decision 過濾（已研究＋keep_core 預設，keep_watch 靠 toggle，drop_noise 不顯示）。圖層 hook 的載入、渲染與 `globalEventsViewStore` 完全未動。尚待本次CI與deployment，視覺由使用者確認。
 
 固定錨點 hotfix PR #207 merge 78c90aa 已部署，Zeabur 6a99545bc3fffb61baebd662 於11:10:02Z RUNNING；tsc-b、23 focused／1031 full tests（1 skipped）與CI通過。本地 browser 驗證加拿大7件群組分別點選、平移／旋轉／縮放後錨點不變、opacity0／off／on與console皆通過；style reload 僅以 regression 驗證。
 

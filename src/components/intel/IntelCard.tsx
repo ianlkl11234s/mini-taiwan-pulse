@@ -14,6 +14,20 @@ export interface IntelCardEvent extends ClusterEvent {
   related_count?: number;
   /** 同一篇被多家報的 source 列（暫不用，留欄位） */
   extra_sources?: string[];
+  /**
+   * 選取／展開用的識別碼。國內新聞的 `id` 是 RPC 的數字主鍵；國際事件的
+   * event_id 是 UUID 字串，無法塞進 `id`，故另開此欄。有值就以它為準。
+   */
+  card_key?: string;
+  /** 來源範圍。`"global"` 會多一顆「國際」chip，與國內新聞區分 */
+  scope?: "global";
+  /** 研判來源標籤 chip（國際事件用「AI 初判」／「已研究」） */
+  origin_label?: string;
+}
+
+/** 卡片的選取鍵：國際事件用 card_key（UUID），國內新聞維持數字 id */
+export function intelCardId(e: IntelCardEvent): number | string {
+  return e.card_key ?? e.id;
 }
 
 interface Props {
@@ -21,11 +35,23 @@ interface Props {
   selected: boolean;
   expanded: boolean;
   trending: boolean;
-  onSelect: (id: number) => void;
-  onToggle: (id: number) => void;
+  onSelect: (id: number | string) => void;
+  onToggle: (id: number | string) => void;
   /** 用於相對時間計算 */
   nowTs: number;
 }
+
+/** 中性 chip（「聲明」／國際事件的研判來源標籤共用） */
+const chipGhost: CSSProperties = {
+  fontFamily: FONT_CJK,
+  fontSize: 9.5,
+  color: COLORS.textDim,
+  whiteSpace: "nowrap",
+  padding: "1px 6px",
+  borderRadius: RADIUS.md,
+  background: "rgba(255,255,255,0.04)",
+  border: `1px solid ${COLORS.borderSoft}`,
+};
 
 const btnGhost: CSSProperties = {
   display: "flex",
@@ -52,8 +78,9 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
   const conf = e.confidence == null ? null : Math.round(e.confidence * 100);
 
   const handleClick = () => {
-    onSelect(e.id);
-    onToggle(e.id);
+    const id = intelCardId(e);
+    onSelect(id);
+    onToggle(id);
   };
   const stop =
     (fn?: () => void): React.MouseEventHandler =>
@@ -109,6 +136,25 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               {cat.label}
             </span>
           </span>
+          {e.scope === "global" && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 3,
+                fontFamily: FONT_CJK,
+                fontSize: 9.5,
+                color: COLORS.cluster,
+                whiteSpace: "nowrap",
+                padding: "1px 6px",
+                borderRadius: RADIUS.md,
+                background: `${COLORS.cluster}1f`,
+                border: `1px solid ${COLORS.cluster}66`,
+              }}
+            >
+              國際
+            </span>
+          )}
           {trending && (
             <span
               style={{
@@ -144,22 +190,8 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               重大
             </span>
           )}
-          {e.is_event === false && (
-            <span
-              style={{
-                fontFamily: FONT_CJK,
-                fontSize: 9.5,
-                color: COLORS.textDim,
-                whiteSpace: "nowrap",
-                padding: "1px 6px",
-                borderRadius: RADIUS.md,
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${COLORS.borderSoft}`,
-              }}
-            >
-              聲明
-            </span>
-          )}
+          {e.is_event === false && <span style={chipGhost}>聲明</span>}
+          {e.origin_label && <span style={chipGhost}>{e.origin_label}</span>}
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
