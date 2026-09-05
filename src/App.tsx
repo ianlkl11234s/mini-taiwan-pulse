@@ -7,7 +7,7 @@ import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
-import { historicalPeriodSnapshot, useTimeline } from "./hooks/useTimeline";
+import { historicalPeriodSnapshot, restoreTimelineSnapshot, useTimeline, type TimelineModeSnapshot } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
 // AR-22 P4：`useLayerParamsRuntime` 已整支退役。參數的消費端各自 per-key 訂閱
@@ -686,6 +686,30 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
 
+  // 歷史模式（globalEvents 開啟時）會透過 timeline.jumpToTime 把共用 timeStore 撥到
+  // 歷史期間（見下方 globalEventsHistoricalSnapshot effect）。切回 realtime 時若不還原，
+  // 所有訂閱 timeStore／subscribeWindowDateKeys／subscribeDate 的即時圖層與 IntelPanel
+  // 新聞都會停在歷史日期。比照上面的 layerVisBeforeHistoricalRef：進入歷史模式時快照，
+  // 離開時還原（live 直接切回 live；replay 用 jumpToTime 精確還原原本的 cursor）。
+  const timelineBeforeHistoricalRef = useRef<TimelineModeSnapshot | null>(null);
+  useEffect(() => {
+    if (appMode === "historical") {
+      if (timelineBeforeHistoricalRef.current === null) {
+        timelineBeforeHistoricalRef.current = { timeMode: timeline.timeMode, currentTime: timeStore.getTime() };
+      }
+    } else {
+      const snapshot = timelineBeforeHistoricalRef.current;
+      if (snapshot) {
+        restoreTimelineSnapshot(snapshot, { setTimeMode: timeline.setTimeMode, jumpToTime: timeline.jumpToTime });
+        timelineBeforeHistoricalRef.current = null;
+      }
+    }
+    // 只依 appMode 觸發（比照上方 layerVisBeforeHistoricalRef）；timeline.setTimeMode /
+    // timeline.jumpToTime 在效果實際執行當下讀取，不需要也不應該讓 rangeDays 等次要依賴
+    // 觸發額外重跑。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appMode]);
+
   // 房地產時間軸 / 「點」CustomLayer 的 hook 已搬進 LayerHost
   //（useRealEstateTimeline / useRealEstatePointsLayer，見 layerHookRegistry）
   const stopHistorical = useCallback(() => setHistoricalPlaying(false), []);
@@ -758,9 +782,12 @@ export default function App() {
 
   // ── 共機活動區（航跡示意圖向量化；依日期回放 + 30/60/90/120 天疊加）──
   //
-  // 歷史模式走 HistoricalTimeline 的 年/月/日（它不寫 timeStore），所以要把日期
-  // 算成視窗結束日交給圖層；同時停掉圖層自己的回放，避免兩個 clock 互相打架
-  //（歷史時間軸的 ▶ 推進日期 = 疊加視窗往前滑，本身就是一種回放）。
+  // 歷史模式走 HistoricalTimeline 的 年/月/日；這個 state 本身不寫 timeStore，
+  // 所以共機活動區要自己把日期算成視窗結束日交給圖層；同時停掉圖層自己的回放，
+  // 避免兩個 clock 互相打架（歷史時間軸的 ▶ 推進日期 = 疊加視窗往前滑，本身就是一種回放）。
+  // ⚠️ 這只適用共機活動區：globalEvents 開啟時（見下方 globalEventsHistoricalSnapshot
+  // effect）仍會透過 timeline.jumpToTime 把年/月/日換算成 snapshot 寫進共用 timeStore，
+  // 因此上方 timelineBeforeHistoricalRef 才需要在進出歷史模式時快照／還原。
   const plaHistoricalDate = useMemo(() => {
     if (appMode !== "historical") return null;
     const y = historicalYear + 1911;

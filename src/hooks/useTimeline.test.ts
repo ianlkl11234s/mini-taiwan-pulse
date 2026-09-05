@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   advanceReplayFrame,
   dayEndUnix,
   dayStartUnix,
   historicalPeriodSnapshot,
+  restoreTimelineSnapshot,
   taiwanDateParts,
 } from "./useTimeline";
 
@@ -35,5 +36,21 @@ describe("useTimeline 時間契約", () => {
       .toBe("2026-09-30T15:59:59.999Z");
     expect(new Date(historicalPeriodSnapshot(115, 1, 1, "year").cursorTime * 1000).toISOString())
       .toBe("2026-12-31T15:59:59.999Z");
+  });
+
+  it("離開歷史模式：進入前是 live 就還原成 live（不精確還原時間，交給 setTimeMode 重新同步 now）", () => {
+    const setTimeMode = vi.fn();
+    const jumpToTime = vi.fn();
+    restoreTimelineSnapshot({ timeMode: "live", currentTime: 1_725_000_000 }, { setTimeMode, jumpToTime });
+    expect(setTimeMode).toHaveBeenCalledWith("live");
+    expect(jumpToTime).not.toHaveBeenCalled();
+  });
+
+  it("離開歷史模式：進入前是 replay 就用 jumpToTime 精確還原原本的 cursor", () => {
+    const setTimeMode = vi.fn();
+    const jumpToTime = vi.fn();
+    restoreTimelineSnapshot({ timeMode: "replay", currentTime: 1_725_000_000 }, { setTimeMode, jumpToTime });
+    expect(jumpToTime).toHaveBeenCalledWith(1_725_000_000);
+    expect(setTimeMode).not.toHaveBeenCalled();
   });
 });
