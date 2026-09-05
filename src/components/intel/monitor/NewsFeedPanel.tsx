@@ -141,8 +141,9 @@ export function NewsFeedPanel({
                 selected={e.id === selectedId}
                 expanded={e.id === expandedId}
                 trending={isTrendingFor(e)}
-                onSelect={onSelectCard}
-                onToggle={onToggleExpand}
+                // 監看模式只有國內新聞（數字 id）；IntelCard 的 id 型別為了國際事件放寬成 number | string
+                onSelect={(id) => { if (typeof id === "number") onSelectCard(id); }}
+                onToggle={(id) => { if (typeof id === "number") onToggleExpand(id); }}
                 nowTs={nowTs}
               />
             ))}
