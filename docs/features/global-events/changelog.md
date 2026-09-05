@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-09-05 — INTEL 全球情勢 feed 與國內新聞對齊（待發布）
+
+分頁行為改成與國內新聞同一套契約：面板自己載資料，不再依賴 `globalEvents` 圖層是否開啟。新增 `fetchGlobalSituationFeed(dateKey)`（今天走滾動 24 小時、歷史日走 Asia/Taipei 當日 [00:00, 24:00)），組合既有 `get_global_event_places_window` ＋ `get_global_event_candidates_window` 分頁 ＋ `selectGlobalSituationEntries` 的 available_at 篩選，沒有新增 RPC，也沒有動圖層 hook 的渲染邏輯。資料落在面板自己的 `globalSituationFeedStore`，刻意不共用被地圖 effect 綁死的 `globalEventsViewStore`。載入時機比照新聞：面板開啟 + `timeStore.subscribeDate`，日期跨天才重抓；額外每 10 分鐘背景刷新（collector 每小時跑），刷新與失敗都保留舊資料不清空。
+
+格式統一：移除 `<details>` 清單，改用新聞的 `IntelCard`（adapter `toIntelCardEvent`）。事件時間一律取 `valid_from`（＝候選的 `observed_at`），不用 `available_at` 假裝發生時間；分類 enum 與新聞完全同名（accident／crime／disaster／traffic／health／policy／other），直接吃 `getNewsCategoryDef` 不做轉換。卡片多兩顆 chip：「國際」（`scope`）與「AI 初判」／「已研究」（`origin_label`），讓「全部」分頁混排時仍分得出來源。移除「開啟全球情勢圖層以載入」CTA，刪掉沒人再引用的 `GlobalEventsList`。
+
+預設過濾 decision：feed 只顯示已研究與 `keep_core`，分頁頂端「含觀察中」toggle 才加入 `keep_watch`，`drop_noise` 在 INTEL 永不顯示（地圖圖層與 sidebar 行為不變）。理由是使用者要「一定時間內看到世界上正在發生的重要事情」，而低價值條目集中在 `drop_noise`——依本文件 handoff §Release 記錄的 2026-09-03 anon 讀回快照，179 件候選中 core 34／watch 39／drop_noise 106，`drop_noise` 約佔六成，全部塞進 feed 等於讓重要事件被埋掉。RANGE 1H／6H／24H 沿用新聞的前端過濾（以事件時間），分頁按鈕數字＝過濾後筆數，「全部」的數字併入國際筆數，header 的「共 N 則」維持新聞語意不動。點擊有座標的卡片飛到 zoom 4（新聞是 12），未定位只展開不飛；不開 popup、不自動開圖層。
+
+**已知落差**：正式事件 RPC（`get_global_event_places_window`，migration 396）沒有 `source_urls` 欄位，所以「已研究」卡片沒有原文連結與來源網域，只有「AI 初判」卡片有。要補需要上游加欄位，本次不動。另外 RANGE 邊界沿用新聞的 `now - RANGE`（掛鐘），所以時間軸切到過去某天時 feed 會是 0 件——這是既有的新聞行為，國際 feed 刻意繼承同一個算式，將來修新聞會一起修好。
+
+tsc -b 與 `npm test` 全套（109 檔／1084 tests，3 skipped）通過。
+
 ## 2026-09-03 — 全球情勢列表移至 INTEL（待發布）
 
 將兩個sidebar的GlobalEventsList與統計搬到「即時情報 INTEL → 全球情勢」獨立第四分頁；sidebar只留原圖層controls。全球分頁不混入全部／新聞／警報總量，不顯示新聞LIVE／更新健康列、1H／6H／24H、警報篩選或IntelReplay。統計與unknown／定位展開完全沿用既有globalEventsViewStore，依原七天／時間軸窗口，不新增RPC或reader。
