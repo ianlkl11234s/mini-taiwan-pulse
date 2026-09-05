@@ -31,6 +31,7 @@ import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
 } from "../map/overlayManager";
 import { LegendPanel } from "../components/LegendPanel";
+import { isEmbedCameraRequest, postEmbedCamera } from "./cameraBridge";
 
 /**
  * 回放播放列（EM-16）。極簡：一顆播放/暫停 + `HH:MM`（台北時區）。
@@ -133,6 +134,18 @@ export function EmbedApp() {
     });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+
+    // 文章頁需要精確記錄讀者調整後的視角。只在載入完成與 moveend 發送，
+    // 避免用 move 每幀跨 frame 傳訊；相機資料不含私密資訊，因此允許任意嵌入來源接收。
+    const publishCamera = () => {
+      if (window.parent !== window) postEmbedCamera(map, window.parent);
+    };
+    const onParentMessage = (event: MessageEvent<unknown>) => {
+      if (event.source === window.parent && isEmbedCameraRequest(event.data)) publishCamera();
+    };
+    window.addEventListener("message", onParentMessage);
+    map.once("load", publishCamera);
+    map.on("moveend", publishCamera);
 
     // EM-20 popup：layer id → layer key。snapshot 層是非同步加入的，故用外層 Map 累加。
     const layerIdToKey = new Map<string, keyof LayerVisibility>();
@@ -254,6 +267,8 @@ export function EmbedApp() {
       stopReplay?.();          // 停時鐘 RAF + 移除 custom layer（→ scene.dispose）
       map.off("click", onClick);
       map.off("mousemove", onMove);
+      map.off("moveend", publishCamera);
+      window.removeEventListener("message", onParentMessage);
       mapRef.current = null;
       map.remove();
     };

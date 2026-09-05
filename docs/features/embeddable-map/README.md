@@ -59,6 +59,26 @@
 **主站不支援 `p.*` 是刻意的**：主站有 sidebar，URL override 會與使用者拉 slider 打架
 （`useTransportParams` 3028 行、數百個 hardcode `useState`，無法注入初始值）。
 
+## 文章端相機事件
+
+`/embed` 在地圖初次載入完成與每次 `moveend` 後，會向 iframe parent 發送目前相機：
+
+```js
+{
+  type: "mini-taiwan-pulse:camera",
+  version: 1,
+  camera: { lng, lat, zoom, pitch, bearing }
+}
+```
+
+事件使用 `postMessage(..., "*")`，內容只有公開地圖視角；接收端仍須同時核對
+`event.source === iframe.contentWindow` 與預期的 `event.origin`，再使用 payload。
+這個事件只在動作結束時發送，不會在拖曳中的每一幀傳訊。
+
+若文章接收器在 iframe 初次載入後才完成註冊，可再送出
+`{ type: "mini-taiwan-pulse:camera-request", version: 1 }`；embed 只接受 parent window
+傳來的請求，並立即回覆同一份 camera 訊息。
+
 ## `rsys=` 鐵路代碼表（營運者級 + 線路級）
 
 一個參數吃三種粒度，可混用取聯集（`rsys=trtc-bl,tymc`）。代碼一律小寫、線路碼**必帶
