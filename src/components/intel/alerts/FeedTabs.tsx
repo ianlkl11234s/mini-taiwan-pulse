@@ -12,6 +12,10 @@ interface Props {
   /** 全部 tab 的數字只算沒被折疊的（長期持續事件不進「全部」時間軸） */
   alertCountInAll: number;
   alertSevere: number;
+  /** 全球情勢 tab 的數字 = decision + RANGE 過濾後的筆數 */
+  globalCount: number;
+  /** 全部 tab 併入的國際筆數（只有已研究＋keep_core 會進「全部」時間軸） */
+  globalCountInAll: number;
 }
 
 const TABS: { key: FeedTab; label: string }[] = [
@@ -21,7 +25,7 @@ const TABS: { key: FeedTab; label: string }[] = [
   { key: "globalEvents", label: "全球情勢" },
 ];
 
-export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere }: Props) {
+export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
   return (
     <div
       role="tablist"
@@ -38,9 +42,9 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
         const isAlerts = t.key === "alerts";
         const hot = isAlerts && alertSevere > 0;
         const count =
-          t.key === "globalEvents" ? null : t.key === "news" ? newsCount
+          t.key === "globalEvents" ? globalCount : t.key === "news" ? newsCount
             : t.key === "alerts" ? alertCount
-              : newsCount + alertCountInAll;
+              : newsCount + alertCountInAll + globalCountInAll;
         return (
           <button
             key={t.key}
@@ -67,7 +71,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
             }}
           >
             {t.label}
-            {count !== null && <span
+            <span
               style={{
                 fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
                 color: hot && active ? "#ef4444" : "inherit",
@@ -75,7 +79,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
               }}
             >
               {count}
-            </span>}
+            </span>
           </button>
         );
       })}

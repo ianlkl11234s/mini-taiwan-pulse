@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
@@ -6,7 +6,8 @@ import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
 import { IntelFilters, type TimeRange } from "./IntelFilters";
 import { IntelSituation } from "./IntelSituation";
-import { IntelCard, type IntelCardEvent } from "./IntelCard";
+import { IntelCard, intelCardId, type IntelCardEvent } from "./IntelCard";
+import { GlobalSituationFeed, selectGlobalFeedCards } from "./GlobalSituationFeed";
 import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
 import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
 import { AlertCard } from "./alerts/AlertCard";
@@ -38,13 +39,19 @@ import { fetchDisasterAlertsDay } from "../../data/disasterAlertLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
-import { GlobalEventsList } from "../sidebar/GlobalEventsList";
+import { fetchGlobalSituationFeed } from "../../data/globalSituationFeedLoader";
+import { globalSituationFeedStore } from "../../state/globalSituationFeedStore";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
 };
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+
+/** 國際事件飛過去的 zoom（國內新聞用 12，全球尺度用 4） */
+const GLOBAL_FLY_ZOOM = 4;
+/** 面板開著時的背景重抓間隔（collector 每小時跑一次，重抓不清空舊資料） */
+const GLOBAL_FEED_REFRESH_MS = 10 * 60_000;
 
 /** YYYY-MM-DD（Asia/Taipei），與 timeStore.getDateKey 同一套算法 */
 function toTaipeiDateKey(unixSec: number): string {
@@ -70,12 +77,10 @@ interface Props {
    */
   filter?: NewsFilter;
   onFilterChange?: (next: NewsFilter) => void;
-  /** 選 cluster 後通知地圖飛去（lon, lat） */
-  onSelectLocation?: (lon: number, lat: number) => void;
+  /** 選 cluster 後通知地圖飛去（lon, lat；國際事件會帶較小的 zoom） */
+  onSelectLocation?: (lon: number, lat: number, zoom?: number) => void;
   /** 來自地圖 pin click 的選取（清單應 scroll + 展開） */
   externalSelectedId?: number | null;
-  globalEventsEnabled: boolean;
-  onEnableGlobalEvents: () => void;
 }
 
 export function IntelPanel({
@@ -85,8 +90,6 @@ export function IntelPanel({
   onFilterChange: onFilterChangeProp,
   onSelectLocation,
   externalSelectedId,
-  globalEventsEnabled,
-  onEnableGlobalEvents,
 }: Props) {
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
@@ -100,8 +103,10 @@ export function IntelPanel({
   const [timeRange, setTimeRange] = useState<TimeRange>("24h");
   const [cats, setCats] = useState<NewsCategory[]>([]);
   const [county, setCounty] = useState("全部");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | string | null>(null);
+  const [expandedId, setExpandedId] = useState<number | string | null>(null);
+  /** 全球情勢：預設只看已研究 ＋ keep_core，開啟後加入 keep_watch */
+  const [includeWatch, setIncludeWatch] = useState(false);
 
   // ── alerts state ──
   const [feedTab, setFeedTab] = useState<FeedTab>("all");
@@ -249,6 +254,57 @@ export function IntelPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, fKey]);
 
+  // ── 全球情勢 feed：與新聞同一套契約（面板自己載，不依賴地圖圖層）──
+  // 訂閱 timeStore.subscribeDate（日期級，currentTime 不進 deps）；額外允許
+  // 一個偏離：面板開著時每 10 分鐘背景重抓，重抓保留舊資料不清空。
+  const feedSnapshot = useSyncExternalStore(
+    globalSituationFeedStore.subscribe,
+    globalSituationFeedStore.getSnapshot,
+    globalSituationFeedStore.getSnapshot,
+  );
+  const feedRequestRef = useRef(0);
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    let dateKey = timeStore.getDateKey();
+    const load = (key: string, isRefresh: boolean) => {
+      if (!key) return;
+      const request = ++feedRequestRef.current;
+      const before = globalSituationFeedStore.getSnapshot();
+      globalSituationFeedStore.set(
+        isRefresh && before.dateKey === key
+          ? { ...before, status: "loading" }
+          : { entries: [], status: "loading", message: null, dateKey: key },
+      );
+      fetchGlobalSituationFeed(key)
+        .then((entries) => {
+          if (!alive || request !== feedRequestRef.current) return;
+          globalSituationFeedStore.set({ entries, status: "ready", message: null, dateKey: key });
+        })
+        .catch((error: unknown) => {
+          if (!alive || request !== feedRequestRef.current) return;
+          // 保留舊資料，只標記錯誤 —— 一次失敗不該把整頁清空。
+          globalSituationFeedStore.set({
+            ...globalSituationFeedStore.getSnapshot(),
+            status: "error",
+            message: error instanceof Error ? error.message : "全球情勢載入失敗",
+          });
+        });
+    };
+    const handler = (next: string) => {
+      dateKey = next;
+      load(next, false);
+    };
+    handler(dateKey);
+    const unsub = timeStore.subscribeDate(handler);
+    const refresh = window.setInterval(() => load(dateKey, true), GLOBAL_FEED_REFRESH_MS);
+    return () => {
+      alive = false;
+      unsub();
+      window.clearInterval(refresh);
+    };
+  }, [open]);
+
   // playback animation
   const spanRef = useRef(RANGE_SEC[timeRange]);
   spanRef.current = RANGE_SEC[timeRange];
@@ -309,6 +365,26 @@ export function IntelPanel({
     }
     return m;
   }, [clusters]);
+
+  // 全球情勢卡片：decision 過濾 → 卡片轉換 → 與新聞同一組 RANGE 前端過濾。
+  // 「全部」分頁只併入已研究＋keep_core（不含觀察中），與分頁自身的 toggle 無關。
+  const globalCards = useMemo(
+    () => selectGlobalFeedCards(feedSnapshot.entries, { includeWatch, windowStartTs, endTs: effectivePlayback }),
+    [feedSnapshot, includeWatch, windowStartTs, effectivePlayback],
+  );
+  const globalCardsInAll = useMemo(
+    () => (includeWatch
+      ? selectGlobalFeedCards(feedSnapshot.entries, { includeWatch: false, windowStartTs, endTs: effectivePlayback })
+      : globalCards),
+    [feedSnapshot, includeWatch, windowStartTs, effectivePlayback, globalCards],
+  );
+  const globalLocByEventId = useMemo(() => {
+    const m = new Map<string, { lon: number; lat: number }>();
+    for (const entry of feedSnapshot.entries) {
+      if (entry.coordinates) m.set(entry.eventId, { lon: entry.coordinates[0], lat: entry.coordinates[1] });
+    }
+    return m;
+  }, [feedSnapshot]);
 
   const trendingKeySet = useMemo(() => buildTrendingKeys(trending), [trending]);
   const isTrendingFor = (e: IntelCardEvent) => {
@@ -373,12 +449,14 @@ export function IntelPanel({
     setPlaying(true);
   };
 
-  const onSelectCard = (id: number) => {
+  const onSelectCard = (id: number | string) => {
     setSelectedId(id);
-    const loc = locByEventId.get(id);
-    if (loc && onSelectLocation) onSelectLocation(loc.lon, loc.lat);
+    // 未定位的國際事件只展開卡片，不飛（與新聞一致：不開 popup、不動圖層）
+    const loc = typeof id === "string" ? globalLocByEventId.get(id) : locByEventId.get(id);
+    if (!loc || !onSelectLocation) return;
+    onSelectLocation(loc.lon, loc.lat, typeof id === "string" ? GLOBAL_FLY_ZOOM : undefined);
   };
-  const onToggleExpand = (id: number) => setExpandedId((p) => (p === id ? null : id));
+  const onToggleExpand = (id: number | string) => setExpandedId((p) => (p === id ? null : id));
   const toggleCat = (k: NewsCategory) =>
     setCats((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]));
 
@@ -438,6 +516,8 @@ export function IntelPanel({
         newsCount={flatEvents.length}
         alertCount={historyMode ? historyRows.length : alertTally.total}
         alertCountInAll={alertRows.length}
+        globalCount={globalCards.length}
+        globalCountInAll={globalCardsInAll.length}
         alertSevere={
           historyMode
             ? historyRows.filter((a) => a.severity >= 3).length
@@ -514,7 +594,7 @@ export function IntelPanel({
             </>
           )}
         </div>
-      ) : feedTab === "all" ? (
+      ) : feedTab === "all" || isGlobalEventsTab ? (
         <div
           style={{
             display: "flex", alignItems: "center", gap: 5,
@@ -549,6 +629,24 @@ export function IntelPanel({
               </button>
             );
           })}
+          {isGlobalEventsTab && (
+            <>
+              <div style={{ flex: 1 }} />
+              <button
+                onClick={() => setIncludeWatch((v) => !v)}
+                title="加入 AI 判為「觀察中」(keep_watch) 的事件；低價值 (drop_noise) 一律不顯示"
+                style={{
+                  padding: "3px 9px", borderRadius: RADIUS.md,
+                  background: includeWatch ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${includeWatch ? COLORS.accentSoft : COLORS.borderMid}`,
+                  color: includeWatch ? COLORS.accent : COLORS.textMuted,
+                  fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
+                }}
+              >
+                含觀察中
+              </button>
+            </>
+          )}
         </div>
       ) : null}
 
@@ -562,15 +660,15 @@ export function IntelPanel({
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
         {isGlobalEventsTab ? (
-          globalEventsEnabled ? <GlobalEventsList fillPanel palette={{ textStrong: COLORS.textStrong, textMuted: COLORS.textMuted,
-            border: COLORS.borderMid, link: COLORS.accent, bgSubtle: COLORS.accentFaint }} /> : (
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted, lineHeight: 1.6 }}>
-              <p style={{ margin: "0 0 10px" }}>全球情勢圖層目前關閉。開啟後會顯示該圖層的最近七天或時間軸資料。</p>
-              <button onClick={onEnableGlobalEvents} style={{ padding: "7px 10px", borderRadius: RADIUS.md,
-                border: `1px solid ${COLORS.accentSoft}`, background: COLORS.accentFaint, color: COLORS.textStrong,
-                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, cursor: "pointer" }}>開啟全球情勢圖層以載入</button>
-            </div>
-          )
+          <GlobalSituationFeed
+            cards={globalCards}
+            snapshot={feedSnapshot}
+            selectedId={selectedId}
+            expandedId={expandedId}
+            onSelect={onSelectCard}
+            onToggle={onToggleExpand}
+            nowTs={now}
+          />
         ) : feedTab === "alerts" ? (
           <>
           {historyMode && (
@@ -692,6 +790,8 @@ export function IntelPanel({
               { kind: "alert"; ts: number; a: ActiveAlert }
             > = [
               ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
+              // 國際卡片走同一條時間軸（只收已研究＋keep_core，卡片上有「國際」chip 可辨識）
+              ...globalCardsInAll.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
               // 長期持續事件不進「全部」時間軸（本來就沉底，只是噪音）；要看走「警報」tab 的折疊區
               ...alertRows.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
             ];
@@ -724,10 +824,10 @@ export function IntelPanel({
                 {merged.map((row) =>
                   row.kind === "news" ? (
                     <IntelCard
-                      key={`n${row.e.id}`}
+                      key={`n${intelCardId(row.e)}`}
                       e={row.e}
-                      selected={row.e.id === selectedId}
-                      expanded={row.e.id === expandedId}
+                      selected={intelCardId(row.e) === selectedId}
+                      expanded={intelCardId(row.e) === expandedId}
                       trending={isTrendingFor(row.e)}
                       onSelect={onSelectCard}
                       onToggle={onToggleExpand}
