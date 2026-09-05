@@ -16,6 +16,7 @@ import { SNAPSHOT_KEYS, snapshotUrl } from "../snapshotLayers";
 import { REPLAY_KEYS, REPLAY_LAYERS, replaySnapshotUrl, isReplayLayer } from "../replayLayers";
 import { GATED_LAYERS, LAYER_COLORS } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor } from "../embedWhitelist";
+import { EMBED_FACTORY_OVERLAY_CONFIGS } from "../factoryOverlayConfigs";
 import type { LayerVisibility } from "../../types";
 
 describe("EMBED_ALLOWED 白名單", () => {
@@ -73,6 +74,9 @@ describe("EMBED_ALLOWED 白名單", () => {
       ...OVERLAY_REGISTRY
         .filter((o) => (!o.dynamicData || o.id in EMBED_CDN_LAYERS) && !GATED_LAYERS.has(o.id))
         .map((o) => o.id),
+      ...EMBED_FACTORY_OVERLAY_CONFIGS
+        .filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id))
+        .map((o) => o.id),
       // EM-15：快照圖層不在 registry（主站是專屬 hook 畫的）
       ...SNAPSHOT_KEYS,
       // EM-16：回放圖層不在 registry（主站是 Three.js CustomLayer 畫的）
@@ -115,6 +119,24 @@ describe("EMBED_ALLOWED 白名單", () => {
     const missing = EMBED_ALLOWED_CONFIGS.filter((o) => !o.sourceUrl).map((o) => o.id);
     expect(missing).toEqual([]);
   });
+
+  it("🔒 custom factory 例外不得是動態圖層", () => {
+    const dynamic = EMBED_FACTORY_OVERLAY_CONFIGS.filter((o) => o.dynamicData).map((o) => o.id);
+    expect(dynamic).toEqual([]);
+  });
+
+  it("custom factory 的 FTW 農田使用靜態 PMTiles，且不碰動態資料", () => {
+    expect(EMBED_ALLOWED.has("agriculture")).toBe(true);
+    const [config] = configsFor(["agriculture"]);
+    expect(config).toMatchObject({
+      id: "agriculture",
+      sourceUrl: "./agriculture/ftw_fields_2025.pmtiles",
+      sourceId: "agri-ftw-fields",
+      pmtiles: { sourceLayer: "fields", minzoom: 5, maxzoom: 14 },
+    });
+    expect(config?.dynamicData).not.toBe(true);
+    expect(config?.layers.map((layer) => layer.suffix)).toEqual(["fill", "outline"]);
+  });
 });
 
 describe("buildEmbedVisibility", () => {
@@ -127,6 +149,12 @@ describe("buildEmbedVisibility", () => {
     const v = buildEmbedVisibility(["aquaculturePonds"]);
     expect(v.aquaculturePonds).toBe(true);
     expect(Object.entries(v).filter(([, on]) => on).map(([k]) => k)).toEqual(["aquaculturePonds"]);
+  });
+
+  it("可單獨開啟 custom factory 的農田圖層", () => {
+    const v = buildEmbedVisibility(["agriculture"]);
+    expect(v.agriculture).toBe(true);
+    expect(Object.entries(v).filter(([, on]) => on).map(([k]) => k)).toEqual(["agriculture"]);
   });
 
   it("🔒 即使被硬塞 gated key 也不會開啟（第二道防線）", () => {

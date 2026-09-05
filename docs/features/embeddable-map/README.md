@@ -171,12 +171,16 @@ aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --reg
 
 | 類別 | 數量 | 來源 | 說明 |
 |---|---|---|---|
-| 靜態 | **145** | `overlayRegistry` 扣掉 dynamicData 與 gated | 自動派生，新增圖層不必改程式 |
+| 靜態 | **145 + factory 例外** | `overlayRegistry` 扣掉 dynamicData 與 gated，再加逐案審核的靜態 factory | registry 自動派生；factory 必須明列靜態 CDN 契約 |
 | 動態但已 CDN 化 | **7** | `/static-rpc/*.json` | 風機/光電/離岸風場/地熱/充電站/離島電網/北市再生 |
 | 歷史快照 | **1** | `/embed-snapshots/<layer>/<date>.geojson` | `plaActivity`（共機），需帶 `date=` |
 
 🔒 **35 個 owner-gated 圖層一律排除**，且不只是「不顯示」——實測 URL 硬塞 gated key 時，
 對應的資料檔**連一個 byte 都不會下載**（source 根本不建立）。
+
+**Factory 例外**：`agriculture`（FTW Fields 2025）在主站由 Mapbox 專用 factory 建立，
+embed 另以 `factoryOverlayConfigs.ts` 描述同一份靜態 PMTiles 與樣式，再交給 MapLibre adapter。
+它不查 Supabase；田區為衛星影像 AI 判讀結果，並非法定農地分區。
 
 **回放層（EM-16，2026-08-09 上線）**：`ships` / `flights` / `rail` 三層 Three.js 回放，
 只在網址真的帶了這些 key + `date=` 時才 `import()` three（純靜態嵌入完全不下載）。
@@ -190,6 +194,7 @@ aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --reg
 | `src/lib/urlState.ts` | 網址 ↔ 狀態（`parseUrlState` / `buildUrl`）；版本閘門 + 靜默降級 |
 | `src/embed/EmbedApp.tsx` | 嵌入版主體（MapLibre）。不呼叫 `useTransportParams`、不掛 Three.js |
 | `src/embed/embedWhitelist.ts` | 三層白名單派生 |
+| `src/embed/factoryOverlayConfigs.ts` | 主站 custom factory 的 embed 靜態例外（目前為 FTW 農田） |
 | `src/embed/maplibreAdapters.ts` | PMTiles protocol（兩引擎唯一的**實質**差異） |
 | `src/embed/basemapStyle.ts` | Protomaps style；底圖位置可由 `VITE_EMBED_BASEMAP_URL` 覆寫 |
 | `src/embed/dynamicCdnLayers.ts` | CDN 例外清單 + 通用 `rowsToGeoJSON` |

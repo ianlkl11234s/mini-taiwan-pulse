@@ -1,11 +1,13 @@
 /**
  * `/embed` 可用圖層白名單（EM-06）
  *
- * **自動派生，不手動維護** —— 新增圖層時不必回來改這裡，規則本身保證安全：
+ * registry 圖層自動派生；不在 registry 的 custom factory 必須逐案登記靜態 config。
+ * 兩條路徑都共用下列安全規則：
  *
  * 1. `dynamicData !== true` → 只收純靜態檔（GeoJSON / PMTiles）。動態圖層走 Supabase RPC，
  *    嵌在別人文章裡等於把 DB egress 交給別人的流量決定（見 embeddable-map.md §6-2）。
  * 2. 排除 `GATED_LAYERS` → owner-only 私人圖層不得經由嵌入洩漏。
+ * 3. custom factory 例外只能描述 CDN 靜態資產，仍由 MapLibre adapter 載入。
  *
  * 要開放某個動態圖層時，是「逐案評估 egress 後加例外」，不是放寬這裡的規則。
  */
@@ -14,6 +16,7 @@ import { GATED_LAYERS } from "../components/sidebar/layerCatalog";
 import { EMBED_CDN_LAYERS } from "./dynamicCdnLayers";
 import { SNAPSHOT_KEYS } from "./snapshotLayers";
 import { REPLAY_KEYS } from "./replayLayers";
+import { EMBED_FACTORY_OVERLAY_CONFIGS } from "./factoryOverlayConfigs";
 import type { OverlayConfig, LayerVisibility } from "../types";
 
 /**
@@ -24,9 +27,12 @@ function hasCdnSnapshot(id: keyof LayerVisibility): boolean {
   return id in EMBED_CDN_LAYERS;
 }
 
-export const EMBED_ALLOWED_CONFIGS: OverlayConfig[] = OVERLAY_REGISTRY.filter(
-  (o) => (!o.dynamicData || hasCdnSnapshot(o.id)) && !GATED_LAYERS.has(o.id),
-);
+export const EMBED_ALLOWED_CONFIGS: OverlayConfig[] = [
+  ...OVERLAY_REGISTRY.filter(
+    (o) => (!o.dynamicData || hasCdnSnapshot(o.id)) && !GATED_LAYERS.has(o.id),
+  ),
+  ...EMBED_FACTORY_OVERLAY_CONFIGS.filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id)),
+];
 
 export const EMBED_ALLOWED: ReadonlySet<string> = new Set([
   ...EMBED_ALLOWED_CONFIGS.map((o) => o.id),
@@ -42,6 +48,7 @@ export const EMBED_ALLOWED: ReadonlySet<string> = new Set([
 export function buildEmbedVisibility(keys: readonly (keyof LayerVisibility)[] = []): LayerVisibility {
   const out = {} as LayerVisibility;
   for (const config of OVERLAY_REGISTRY) out[config.id] = false;
+  for (const config of EMBED_FACTORY_OVERLAY_CONFIGS) out[config.id] = false;
   for (const k of SNAPSHOT_KEYS) out[k] = false;
   for (const k of REPLAY_KEYS) out[k] = false;
   for (const k of keys) {
