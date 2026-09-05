@@ -22,6 +22,35 @@ export function dayEndUnix(d: Date): number {
   return Date.UTC(y, m, day, 23, 59, 59) / 1000 - 8 * 3600;
 }
 
+export interface TimelineModeSnapshot {
+  /** 離開歷史模式前的 timeMode（live / replay）。 */
+  timeMode: TimeMode;
+  /** 離開歷史模式前的共用 timeStore 時間（unix 秒）。 */
+  currentTime: number;
+}
+
+/**
+ * 離開歷史模式時，把共用 timeStore 還原成進入歷史模式前的狀態。
+ * live 直接切回 live（setTimeMode 內部會把 selectedDate 設回今天並讓 RAF 重新同步
+ * Date.now()）；replay 用 jumpToTime 精確還原 selectedDate/windowDateKeys/currentTime
+ *（前提：rangeDays 沒有在歷史模式期間被改動，這在目前的呼叫路徑下成立）。
+ * 抽成純函數＋依賴注入方便測試；實際的 setTimeMode / jumpToTime 由呼叫端（App.tsx 的
+ * useTimeline() 回傳值）提供。
+ */
+export function restoreTimelineSnapshot(
+  snapshot: TimelineModeSnapshot,
+  actions: {
+    setTimeMode: (mode: TimeMode) => void;
+    jumpToTime: (time: number) => void;
+  },
+): void {
+  if (snapshot.timeMode === "live") {
+    actions.setTimeMode("live");
+  } else {
+    actions.jumpToTime(snapshot.currentTime);
+  }
+}
+
 export interface HistoricalPeriodSnapshot {
   /** 所選期間結束前 1ms；只代表回放游標，不是事件的結束時間。 */
   cursorTime: number;
