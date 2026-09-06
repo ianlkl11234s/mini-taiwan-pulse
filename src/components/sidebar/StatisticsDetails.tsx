@@ -35,10 +35,9 @@ const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
   budget_type: { civil_aviation_fund: '民航基金', public_budget: '公務預算', special_budget: '特別預算' },
   value_basis: { year_to_date_cumulative: '年度累計快照' },
-  geographic_coverage: { taipei_only: '僅臺北市', taichung_only: '僅臺中市', taipei_township_only: '僅臺北市 12 區', county_location: '縣市所在地' },
+  geographic_coverage: { taipei_only: '僅臺北市', taichung_only: '僅臺中市', taipei_township_only: '僅臺北市 12 區', national_county: '全國縣市', county_location: '縣市所在地' },
   bus_metric: { operating_route_length_km: '期末營業里程', approved_route_count: '核定路線數', urban_bus_operator_count: '市區客運業家數', operating_vehicle_count: '期末營業車輛', accessible_vehicle_count: '期末無障礙車輛', electric_vehicle_count: '期末電動車輛', operating_trip_count: '營業行車次數', operating_vehicle_km: '營業行車里程' },
   system_id: { tmrt: '臺中捷運' },
-  source_field: { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' },
   geographic_semantics: { station_location: '車站所在地', facility_location_activity: '設施所在地活動' },
   health: { CURRENT: 'CURRENT', STALE: 'STALE' }, coverage: { PARTIAL: 'PARTIAL' }, refresh: { manual: '人工更新' },
 };
@@ -49,14 +48,23 @@ function statisticsDimensionLabel(key: string): string {
   return DIMENSION_LABELS[key] ?? key;
 }
 
-function statisticsDimensionValueLabel(key: string, value: string): string {
+const BICYCLE_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' };
+const BUS_SOURCE_FIELD_LABELS: Record<string, string> = { COLUMN1: '期末營業里程', COLUMN2: '核定路線數', COLUMN3: '市區客運業家數', COLUMN4: '期末營業車輛', COLUMN5: '期末無障礙車輛', COLUMN6: '期末電動車輛', COLUMN7: '營業行車次數', COLUMN8: '營業行車里程' };
+
+function statisticsDimensionValueLabel(key: string, value: string, datasetId?: string): string {
   if (key === 'roc_year') return `民國 ${value} 年`;
   if (key === 'month') return `${value} 月`;
+  if (key === 'source_field') {
+    const labels = datasetId === 'segis_bus_operation_county_315fh_1d3' ? BUS_SOURCE_FIELD_LABELS
+      : datasetId === 'segis_taipei_bicycle_usage_township_110' ? BICYCLE_SOURCE_FIELD_LABELS
+      : BICYCLE_SOURCE_FIELD_LABELS;
+    return labels[value] ?? value;
+  }
   return DIMENSION_VALUE_LABELS[key]?.[value] ?? value;
 }
 
 /** Compact, human-readable selection text for the collapsed filter disclosure. */
-export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined, release?: Pick<StatisticsRelease, 'period_start' | 'period_end'> | null): string {
+export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined, release?: Pick<StatisticsRelease, 'period_start' | 'period_end'> | null, datasetId?: string): string {
   if (!dimensions && !release) return '';
   const parts: string[] = [];
   const year = typeof dimensions?.roc_year === 'string' ? dimensions.roc_year : '';
@@ -67,7 +75,7 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
   else if (release) parts.push(`期間：${statisticsPeriodLabel(release)}`);
   for (const [key, value] of Object.entries(dimensions ?? {})) {
     if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'quarter' || key === 'agency_fund') continue;
-    parts.push(`${statisticsDimensionLabel(key)}：${statisticsDimensionValueLabel(key, value)}`);
+    parts.push(`${statisticsDimensionLabel(key)}：${statisticsDimensionValueLabel(key, value, datasetId)}`);
   }
   if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
   return parts.join('；');
@@ -120,8 +128,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const selectorDimensions = configured?.dimensions;
   const selectedDimensions = state.selection?.dimensions ?? selectorDimensions;
   const selectedRelease = state.releases.find(release => release.release_id === selected) ?? state.release;
-  const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease);
   const recipe = STATISTICS_RECIPES[layerKey];
+  const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
   const healthUnit = state.health?.currency ?? recipe.unit;
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
@@ -167,7 +175,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
           return <label key={key} style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
             {statisticsDimensionLabel(key)}
             <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value })}>
-              {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option)}</option>)}
+              {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option, recipe.dataset_id)}</option>)}
             </select>
           </label>;
         })}
