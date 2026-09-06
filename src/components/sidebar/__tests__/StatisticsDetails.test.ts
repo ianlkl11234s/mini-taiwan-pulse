@@ -12,4 +12,15 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', month: '', agency_fund: '' })).toBe('期間：民國 114 年');
     expect(statisticsDimensionSummary({})).toBe('');
   });
+
+  it('falls back to the selected release period and humanizes fixed dimensions', () => {
+    expect(statisticsDimensionSummary(
+      { sector: 'residential' },
+      { period_start: '2025-01-01', period_end: '2025-12-31' },
+    )).toBe('期間：2025 年；用電別：住宅');
+    expect(statisticsDimensionSummary(
+      { roc_year: '112', quarter: 'Q4' },
+      { period_start: '2023-10-01', period_end: '2023-12-31' },
+    )).toBe('期間：民國 112 年；季度：Q4');
+  });
 });

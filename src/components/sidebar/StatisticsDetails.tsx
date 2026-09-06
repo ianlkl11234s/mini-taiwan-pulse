@@ -5,28 +5,48 @@ import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../..
 import { FONT_SIZE, SURFACE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
-export function statisticsPeriodLabel(release: StatisticsRelease): string {
+export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
   return `${start} — ${end}`;
 }
 const DIMENSION_LABELS: Record<string, string> = {
   agency_fund: '基金',
+  sector: '用電別',
+  quarter: '季度',
+  budget: '預算',
+  budget_type: '預算類型',
+};
+const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
+  sector: { residential: '住宅' },
 };
 
+function statisticsDimensionLabel(key: string): string {
+  if (key === 'roc_year') return '年度';
+  if (key === 'month') return '月份';
+  return DIMENSION_LABELS[key] ?? key;
+}
+
+function statisticsDimensionValueLabel(key: string, value: string): string {
+  if (key === 'roc_year') return `民國 ${value} 年`;
+  if (key === 'month') return `${value} 月`;
+  return DIMENSION_VALUE_LABELS[key]?.[value] ?? value;
+}
+
 /** Compact, human-readable selection text for the collapsed filter disclosure. */
-export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined): string {
-  if (!dimensions) return '';
+export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined, release?: Pick<StatisticsRelease, 'period_start' | 'period_end'> | null): string {
+  if (!dimensions && !release) return '';
   const parts: string[] = [];
-  const year = typeof dimensions.roc_year === 'string' ? dimensions.roc_year : '';
-  const month = typeof dimensions.month === 'string' ? dimensions.month : '';
+  const year = typeof dimensions?.roc_year === 'string' ? dimensions.roc_year : '';
+  const month = typeof dimensions?.month === 'string' ? dimensions.month : '';
   if (year) parts.push(`期間：民國 ${year} 年${month ? `・${month} 月` : ''}`);
   else if (month) parts.push(`期間：${month} 月`);
-  if (typeof dimensions.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
-  for (const [key, value] of Object.entries(dimensions)) {
+  else if (release) parts.push(`期間：${statisticsPeriodLabel(release)}`);
+  for (const [key, value] of Object.entries(dimensions ?? {})) {
     if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'agency_fund') continue;
-    parts.push(`${DIMENSION_LABELS[key] ?? key}：${value}`);
+    parts.push(`${statisticsDimensionLabel(key)}：${statisticsDimensionValueLabel(key, value)}`);
   }
+  if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
   return parts.join('；');
 }
 export function statisticsRecipe(key: StatisticsLayerKey): StatisticsRecipe {
@@ -73,7 +93,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     ?? selectable[0];
   const selectorDimensions = configured?.dimensions;
   const selectedDimensions = state.selection?.dimensions ?? selectorDimensions;
-  const selectionSummary = statisticsDimensionSummary(selectedDimensions);
+  const selectedRelease = state.releases.find(release => release.release_id === selected) ?? state.release;
+  const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease);
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
     .map(option => option.dimensions[name])
@@ -98,6 +119,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
+  const selectorDimensionKeys = selectorDimensions ? Object.keys(selectorDimensions).filter(key => typeof selectorDimensions[key] === 'string' && selectorDimensions[key]) : [];
   return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: COLORS.textDefault, colorScheme: 'dark', lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid ${COLORS.textDefault};outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
@@ -107,11 +129,16 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
       </summary>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: SPACING.xs, minWidth: 0, maxWidth: '100%', paddingTop: SPACING.xs }} aria-label={`${STATISTICS_RECIPES[layerKey].label} 篩選器`}>
-        {selectorDimensions && <>
-          <label style={filterLabel}>年度 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 年度`} style={control} value={selectorDimensions.roc_year} onChange={event => chooseDimensions({ ...selectorDimensions, roc_year: event.target.value })}>{selectorValues('roc_year').map(value => <option key={value} value={value}>民國 {value} 年</option>)}</select></label>
-          <label style={filterLabel}>月份 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 月份`} style={control} value={selectorDimensions.month} onChange={event => chooseDimensions({ ...selectorDimensions, month: event.target.value })}>{selectorValues('month', { roc_year: selectorDimensions.roc_year }).map(value => <option key={value} value={value}>{value} 月</option>)}</select></label>
-          <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>機關／基金 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 機關或基金`} style={control} title={selectorDimensions.agency_fund} value={selectorDimensions.agency_fund} onChange={event => chooseDimensions({ ...selectorDimensions, agency_fund: event.target.value })}>{selectorValues('agency_fund', { roc_year: selectorDimensions.roc_year, month: selectorDimensions.month }).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
-        </>}
+        {selectorDimensions && selectorDimensionKeys.map((key, index) => {
+          const value = selectorDimensions[key]!;
+          const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
+          return <label key={key} style={{ ...filterLabel, ...(selectorDimensionKeys.length % 2 === 1 && index === selectorDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
+            {statisticsDimensionLabel(key)}
+            <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value })}>
+              {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option)}</option>)}
+            </select>
+          </label>;
+        })}
         {state.releases.length > 0 && !selectorDimensions && <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料期別`} style={control} value={String(selected)} onChange={event => {
           regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
           void regionalStatisticsStore.load(layerKey);
