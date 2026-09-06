@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
@@ -31,6 +31,9 @@ import {
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
+import { layerVisibilityStore } from "./state/layerVisibilityStore";
+import { isStatisticsChoropleth, type StatisticsChoroplethKey } from "./data/statisticsLayerRegistry";
+import { resolveStatisticsModeForUrl, statisticsDisplayModeStore } from "./state/statisticsDisplayModeStore";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
@@ -118,6 +121,11 @@ export default function App() {
 
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
+  const statisticsDisplayMode = useSyncExternalStore(
+    statisticsDisplayModeStore.subscribe,
+    statisticsDisplayModeStore.getSnapshot,
+    statisticsDisplayModeStore.getSnapshot,
+  ).mode;
 
   // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
   // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
@@ -669,16 +677,16 @@ export default function App() {
       for (const k of Object.keys(allOff) as (keyof LayerVisibility)[]) {
         allOff[k] = false;
       }
-      setLayerVisibility({
+      setLayerVisibility(statisticsDisplayModeStore.admitVisibility({
         ...allOff,
         popCount: true,
         plaActivity: current.plaActivity,
         globalEvents: current.globalEvents,
-      });
+      }));
     } else {
       const snapshot = layerVisBeforeHistoricalRef.current;
       if (snapshot) {
-        setLayerVisibility(snapshot);
+        setLayerVisibility(statisticsDisplayModeStore.admitVisibility(snapshot));
         layerVisBeforeHistoricalRef.current = null;
       }
     }
@@ -1127,7 +1135,8 @@ export default function App() {
     if (handleGatedIntercept(layer)) return;
     const isVisible = layerVisibilityRef.current[layer];
     if (!isVisible) {
-      setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
+      if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
+      else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
       setExpandedLayer(layer as ExpandableLayerKey);
       sessionTracker.logWithSnapshot("layer_toggle", { layer, on: true }, layerVisibilityRef.current);
     } else {
@@ -1144,7 +1153,8 @@ export default function App() {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
     if (!layerVisibilityRef.current[layer] && handleGatedIntercept(layer)) return;
     const wasVisible = layerVisibilityRef.current[layer];
-    toggleVisibility(layer);
+    if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.setVisible(layer, !wasVisible, prev));
+    else toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
@@ -1183,9 +1193,15 @@ export default function App() {
       const effectiveKeys = value
         ? keys.filter((k) => !lockedKeysRef.current.has(k))
         : keys;
+      const statisticsKeys = effectiveKeys.filter(isStatisticsChoropleth);
+      const ordinaryKeys = effectiveKeys.filter((key) => !isStatisticsChoropleth(key));
       setLayerVisibility((prev) => {
-        const next = { ...prev };
-        for (const k of effectiveKeys) next[k] = value;
+        let next = statisticsKeys.length > 0
+          ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
+          : prev;
+        if (ordinaryKeys.length === 0) return next;
+        next = { ...next };
+        for (const key of ordinaryKeys) next[key] = value;
         return next;
       });
       sessionTracker.logWithSnapshot(
@@ -1213,7 +1229,7 @@ export default function App() {
       if (p.speed != null) timelineSetSpeed(p.speed);
       if (p.autoPlay) timelinePlay();
       if (p.layers) {
-        setLayerVisibility((prev) => ({ ...prev, ...p.layers }));
+        setLayerVisibility((prev) => statisticsDisplayModeStore.admitVisibility({ ...prev, ...p.layers }));
       }
     }
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
@@ -1225,7 +1241,13 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date, hour } = urlStateRef.current;
+    const { layers, date, hour, statisticsMode: urlStatisticsMode } = urlStateRef.current;
+    // URL 明示模式優先於 localStorage；舊連結若列出統計面卻沒有 sm，安全地以單一
+    // 模式收斂（layers 原始順序的最後一個統計面保留），避免舊多色階重疊難以閱讀。
+    const hydratedStatisticsMode = resolveStatisticsModeForUrl(urlStatisticsMode, layers?.some(isStatisticsChoropleth) ?? false);
+    if (hydratedStatisticsMode) {
+      setLayerVisibility((prev) => statisticsDisplayModeStore.setMode(hydratedStatisticsMode, prev));
+    }
     if (layers?.length) handleBulkSetVisibility(layers, true);
     if (date) {
       // 先切換 timeline 的日期視窗，再寫 hh:00。若直接呼叫舊視窗的 seek，
@@ -1283,6 +1305,7 @@ export default function App() {
           bearing: map.getBearing(),
         },
         layers: keys,
+        statisticsMode: statisticsDisplayMode,
         style: mapStyleId,
         date,
         hour,
@@ -1301,7 +1324,7 @@ export default function App() {
     map.on("moveend", onMoveEnd);
     syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
     return () => { map.off("moveend", onMoveEnd); };
-  }, [mapPrepared, layerVisibility, mapStyleId]);
+  }, [mapPrepared, layerVisibility, mapStyleId, statisticsDisplayMode]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
@@ -1323,7 +1346,9 @@ export default function App() {
       setFeatureInfo({ layerType: lt, properties: props, coords: [lng, lat] });
     },
     getVisibleLayerKeys: () =>
-      Object.entries(layerVisibilityRef.current)
+      // chat tool 寫入後同一個 call stack 就會讀回；不能用 render-lagged ref，否則
+      // tool 結果會把已被 single-mode 替換的統計面報成仍可見。
+      Object.entries(layerVisibilityStore.getAll())
         .filter(([, v]) => v)
         .map(([k]) => k),
     getCurrentTimeISO: () => new Date(timeStore.getTime() * 1000).toISOString(),
@@ -2281,7 +2306,8 @@ export default function App() {
                         const isVisible = layerVisibility[layer];
                         if (!isVisible && handleGatedIntercept(layer)) return;
                         if (!isVisible) {
-                          setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
+                          if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
+                          else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
                           setExpandedLayer(layer as ExpandableLayerKey);
                         } else if (expandedLayer === layer) {
                           setExpandedLayer(null);

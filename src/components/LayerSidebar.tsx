@@ -14,6 +14,7 @@ import {
   TRANSPORT_LABELS,
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 
 // ── Props ──
 
@@ -227,6 +228,7 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
+      {isMobile && <StatisticsModeControl />}
       {THEMES.map((theme, index) => {
         const macroGroup = themeMacroGroup(theme.title);
         const previousMacroGroup = index > 0 ? themeMacroGroup(THEMES[index - 1]!.title) : null;
