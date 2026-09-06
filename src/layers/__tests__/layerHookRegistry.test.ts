@@ -93,6 +93,9 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   // usePowerDashboard → { dataRef }：KPI 性質（monitor 面板），
   // 同一個 ref 也經 hostDeps 餵 LayerHost 的 usePowerRegionBarsLayer
   "powerStatusHud",
+  // MapView.attachRegionalStatistics：統計 recipes 共享一個 Mapbox lifecycle adapter，
+  // 不是 LayerHost React hook；各 recipe key 由 STATISTICS_KEYS 派生後一起掛載。
+  "statsMaritimeSubsidyCounty",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

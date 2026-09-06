@@ -3,7 +3,7 @@ export interface RegionalStatisticsSnapshot {
   loading: boolean; error: string | null; selection: StatisticsRecipe | null;
   catalog: RegionalStatisticsResult['catalog']; releases: RegionalStatisticsResult['releases'];
   data: GeoJSON.FeatureCollection | null; source: RegionalStatisticsResult['sources'] | null;
-  release: RegionalStatisticsResult['values']['release'] | null;
+  release: RegionalStatisticsResult['values']['release'] | null; health: RegionalStatisticsResult['health'] | null;
 }
 const STORAGE = 'mini-taiwan:regional-statistics:v1';
 const snapshots = new Map<string, RegionalStatisticsSnapshot>();
@@ -15,7 +15,7 @@ function readSelections(): Record<string, StatisticsRecipe> {
 }
 const persisted = readSelections();
 function getSnapshot(key: string): RegionalStatisticsSnapshot {
-  if (!snapshots.has(key)) snapshots.set(key, { loading: false, error: null, selection: null, catalog: [], releases: [], data: null, source: null, release: null });
+  if (!snapshots.has(key)) snapshots.set(key, { loading: false, error: null, selection: null, catalog: [], releases: [], data: null, source: null, release: null, health: null });
   return snapshots.get(key)!;
 }
 function update(key: string, changes: Partial<RegionalStatisticsSnapshot>) {
@@ -34,17 +34,17 @@ export const regionalStatisticsStore = {
     if (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId) return;
     const saved = persisted[key];
     const matching = saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId;
-    update(key, { selection: matching ? { ...recipe, ...(typeof saved.releaseId === 'string' ? { releaseId: saved.releaseId } : {}) } : recipe, data: null, source: null, release: null });
+    update(key, { selection: matching ? { ...recipe, ...saved } : recipe, data: null, source: null, release: null, health: null });
   },
   setSelection(key: string, recipe: StatisticsRecipe | null) {
     cancel(key);
     if (recipe) persisted[key] = recipe; else delete persisted[key];
     try { localStorage.setItem(STORAGE, JSON.stringify(persisted)); } catch { /* Optional browser persistence. */ }
-    update(key, { selection: recipe, data: null, source: null, release: null, loading: false, error: null });
+    update(key, { selection: recipe, data: null, source: null, release: null, health: null, loading: false, error: null });
   },
   disable(key: string) {
     cancel(key);
-    update(key, { data: null, source: null, release: null, loading: false, error: null });
+    update(key, { data: null, source: null, release: null, health: null, loading: false, error: null });
   },
   async load(key: string) {
     const recipe = getSnapshot(key).selection;
@@ -52,11 +52,11 @@ export const regionalStatisticsStore = {
     cancel(key);
     const generation = generations.get(key);
     const controller = new AbortController(); controllers.set(key, controller);
-    update(key, { loading: true, error: null, data: null, source: null, release: null });
+    update(key, { loading: true, error: null, data: null, source: null, release: null, health: null });
     try {
       const result = await loadRegionalStatistics(recipe, controller.signal);
       if (controller.signal.aborted || generations.get(key) !== generation) return;
-      update(key, { loading: false, catalog: result.catalog, releases: result.releases, data: { type: 'FeatureCollection', features: result.features }, source: result.sources, release: result.values.release });
+      update(key, { loading: false, catalog: result.catalog, releases: result.releases, data: { type: 'FeatureCollection', features: result.features }, source: result.sources, health: result.health ?? null, release: result.values.release });
     } catch (error) {
       if (controller.signal.aborted || generations.get(key) !== generation) return;
       update(key, { loading: false, error: error instanceof Error ? error.message : String(error) });

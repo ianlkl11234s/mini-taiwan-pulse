@@ -11,6 +11,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   statsBirthsTownship: "choropleth",
   statsPigWaterCounty: "choropleth",
   statsWaterSupplyHistorical: "choropleth",
+  statsMaritimeSubsidyCounty: "choropleth",
   crimeAreaMonthly: "choropleth",
   countyBoundary: "boundary",
   townshipBoundary: "boundary",

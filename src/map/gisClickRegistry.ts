@@ -439,7 +439,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["prosecutors-office-circle"], type: "prosecutorsOffice" },
   { layers: ["correctional-facility-circle"], type: "correctionalFacility" },
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
-  { layers: ["statsWasteCounty-fill", "statsRecyclingCounty-fill", "statsWasteRecyclingRate-fill", "statsResidentialElectricity-fill", "statsRiceHarvest-fill", "statsBirthsTownship-fill", "statsPigWaterCounty-fill", "statsWaterSupplyHistorical-fill"], type: "regionalStatistic" },
+  { layers: ["statsWasteCounty-fill", "statsRecyclingCounty-fill", "statsWasteRecyclingRate-fill", "statsResidentialElectricity-fill", "statsRiceHarvest-fill", "statsBirthsTownship-fill", "statsPigWaterCounty-fill", "statsWaterSupplyHistorical-fill", "statsMaritimeSubsidyCounty-fill"], type: "regionalStatistic" },
   { layers: ["crime-area-monthly-fill", "crime-area-monthly-line"], type: "crimeAreaMonthly" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },

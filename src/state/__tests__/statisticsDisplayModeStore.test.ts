@@ -114,6 +114,18 @@ describe("statisticsDisplayModeStore", () => {
     expect(layerVisibilityStore.getVisibility("countyBoundary")).toBe(true);
   });
 
+  it("航港 county layer 在單一與重疊模式都走同一 admission contract", () => {
+    apply(statisticsDisplayModeStore.enable(A!, layerVisibilityStore.getAll()));
+    apply(statisticsDisplayModeStore.enable("statsMaritimeSubsidyCounty", layerVisibilityStore.getAll()));
+    expect(layerVisibilityStore.getVisibility(A!)).toBe(false);
+    expect(layerVisibilityStore.getVisibility("statsMaritimeSubsidyCounty")).toBe(true);
+
+    apply(statisticsDisplayModeStore.setMode("overlap", layerVisibilityStore.getAll()));
+    apply(statisticsDisplayModeStore.enable(A!, layerVisibilityStore.getAll()));
+    expect(layerVisibilityStore.getVisibility(A!)).toBe(true);
+    expect(layerVisibilityStore.getVisibility("statsMaritimeSubsidyCounty")).toBe(true);
+  });
+
   it("raw restore 在單一模式也會經 admission gate 收斂", () => {
     const restored = statisticsDisplayModeStore.admitVisibility({
       ...layerVisibilityStore.getAll(),

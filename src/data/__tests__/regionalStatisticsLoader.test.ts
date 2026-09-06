@@ -16,7 +16,7 @@ const manifest = async (body = bytes) => ({ status: 'OK', geometry: { resource: 
 const page = (rows: unknown[], offset = 0, total = rows.length, truncated = false) => ({ status: rows.length ? 'OK' : 'NO_DATA', release, area_level: 'county', total, returned: rows.length, truncated, next_offset: truncated ? offset + rows.length : null, observations: rows });
 
 function json(data: unknown) { return new Response(JSON.stringify(data), { status: 200 }); }
-function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[] } = {}) {
+function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[]; health?: unknown } = {}) {
   const values = responses.values ?? [page([{ area_code: 'A', value: 0, status: 'observed' }, { area_code: 'B', value: null, status: 'suppressed' }])];
   let i = 0;
   vi.stubGlobal('fetch', vi.fn(async (input: string) => {
@@ -24,6 +24,7 @@ function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifes
     if (input.includes('/releases')) return json({ status: 'OK', releases: responses.releases ?? [release] });
     if (input.includes('/values')) return json(values[i++]);
     if (input.includes('/sources')) return json(source);
+    if (input.includes('/health')) return json(responses.health ?? { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, mapped_total: 58186094, unallocated_total: 0, currency: 'TWD' });
     if (input.includes('/geometry-manifest')) return json(await manifest(responses.manifestBytes ?? responses.geometry));
     if (input === 'https://geometry.test/county.json') return new Response(responses.geometry ?? bytes);
     throw new Error(`unexpected ${input}`);
@@ -65,5 +66,14 @@ describe('regional statistics loader public contract', () => {
     await expect(loadRegionalStatistics(recipe)).resolves.toMatchObject({ values: { status: 'NO_DATA', total: 0 } });
     install({ values: [page([{ area_code: 'C', value: 1, status: 'observed' }])] });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('找不到對應邊界');
+  });
+
+  it('loads the 408 health contract only when the recipe requests reconciliation disclosure', async () => {
+    install();
+    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).resolves.toMatchObject({
+      health: { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, unallocated_total: 0, currency: 'TWD' },
+    });
+    install({ health: { status: 'NOT_FOUND' } });
+    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).rejects.toThrow('健康狀態不可用');
   });
 });

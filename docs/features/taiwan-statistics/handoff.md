@@ -8,6 +8,8 @@
 
 犯罪圖層為既有獨立 PMTiles 路徑；已補齊 368 鄉鎮圖磚，zoom 5 起可用，完整重載後 zoom 6.8 可見填色。
 
+首個交通 slice 為「航港局獎補助金額（受補助對象所在地）」（data.gov.tw 43445）：dataset `maritime_bureau_subsidy_county`、indicator `maritime_bureau_recipient_county_subsidy_twd`、county／TWD。預設只取已驗證的 115 年 07 月「交通部航港局」release；年／月／機關或基金選擇器只從公開 release 清單解析的實際組合產生，不會組出不存在的 dimensions。資料依受補助對象所在地彙總，絕非工程地、港口投資地或最終受益地；`PARTIAL` coverage、unallocated 金額與 missing 均會明示，missing 不等於 0。此 layer 需要 platform 408 的 `get_stat_health` 才呈現 coverage/reconciliation。
+
 ## 新增統計圖層
 
 1. Analytics 依 long-term-plan.md 與 onboarding-template.md 確認來源、授權、期別、單位與行政區層級。

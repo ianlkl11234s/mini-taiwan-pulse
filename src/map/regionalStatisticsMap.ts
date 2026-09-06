@@ -10,7 +10,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
   const rendered = new Map<StatisticsLayerKey, GeoJSON.FeatureCollection>();
   for (const key of STATISTICS_KEYS) {
     const recipe = STATISTICS_RECIPES[key];
-    regionalStatisticsStore.registerRecipe(key, { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions });
+    regionalStatisticsStore.registerRecipe(key, { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
   }
   function render() {
     if (!map.isStyleLoaded()) return;

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 412,
+    "keyCount": 413,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1874,7 +1874,8 @@
         "statsRiceHarvest-fill",
         "statsBirthsTownship-fill",
         "statsPigWaterCounty-fill",
-        "statsWaterSupplyHistorical-fill"
+        "statsWaterSupplyHistorical-fill",
+        "statsMaritimeSubsidyCounty-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -57886,6 +57887,15 @@
       }
     ],
     "statsBirthsTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMaritimeSubsidyCounty": [
       {
         "label": "透明度 0.55",
         "max": 1,
