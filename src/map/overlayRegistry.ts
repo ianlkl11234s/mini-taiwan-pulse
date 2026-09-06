@@ -8294,7 +8294,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "crimeAreaMonthly",
     sourceUrl: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
     sourceId: "crime-area-monthly",
-    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 8, maxzoom: 12 },
+    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 5, maxzoom: 12 },
     rebuildOnParamChange: ["crimeAreaMonthlyOpacity"],
     layers: [
       {

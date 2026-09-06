@@ -319,6 +319,74 @@ const SAT_SOURCE_NOTE =
  *    丟掉，ManifestKey 就退化成 348 個 key 的全集，下游 Omit 的 tsc 護欄整個失效。
  */
 export const LAYER_MANIFEST = {
+  statsWaterSupplyHistorical: {
+    key: "statsWaterSupplyHistorical", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
+    label: "供水普及率（2015年／7縣市）", expandable: true, color: "#06b6d4", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "water_supply_county_historical", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsWaterSupplyHistorical", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+
+  statsPigWaterCounty: {
+    key: "statsPigWaterCounty", section: { theme: "水資源統計 Water Statistics", group: "畜牧用水" },
+    label: "養豬用水量（歷史統計）", expandable: true, color: "#0891b2", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "livestock_pig_water_county", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsPigWaterCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+
+  statsWasteRecyclingRate: {
+    key: "statsWasteRecyclingRate", section: { theme: "廢棄物統計 Waste Statistics", group: "回收成果" },
+    label: "一般廢棄物回收率", expandable: true, color: "#059669", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "waste_recycling_rate_county", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsWasteRecyclingRate", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+  statsResidentialElectricity: {
+    key: "statsResidentialElectricity", section: { theme: "能源統計 Energy Statistics", group: "住宅用電" },
+    label: "住宅每月售電量", expandable: true, color: "#f59e0b", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "residential_electricity_sales_county_monthly", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsResidentialElectricity", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+  statsRiceHarvest: {
+    key: "statsRiceHarvest", section: { theme: "農業統計 Agriculture Statistics", group: "稻作生產" },
+    label: "全年稻作收穫面積（複種計次）", expandable: true, color: "#84cc16", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "rice_harvested_area_township", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsRiceHarvest", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+  statsBirthsTownship: {
+    key: "statsBirthsTownship", section: { theme: "人口統計 Population Statistics", group: "出生登記" },
+    label: "每月出生數（歷史快照）", expandable: true, color: "#a78bfa", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "village_births_township_monthly", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
+    legend: "statsBirthsTownship", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱", topics: ["統計", "行政區", "歷史版本"],
+  },
+
+  statsWasteCounty: {
+    key: "statsWasteCounty", section: { theme: "廢棄物統計 Waste Statistics", group: "清運量能" },
+    label: "垃圾清運車輛數 Waste Vehicles", expandable: true, color: "#10b981", icon: Truck,
+    upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
+    legend: "statsWasteCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關", topics: ["統計", "行政區", "歷史版本"],
+  },
+  statsRecyclingCounty: {
+    key: "statsRecyclingCounty", section: { theme: "資源回收統計 Recycling Statistics", group: "資源回收量能" },
+    label: "資源回收車輛數 Recycling Vehicles", expandable: true, color: "#eab308", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
+    legend: "statsRecyclingCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關", topics: ["統計", "行政區", "歷史版本"],
+  },
+
   // ① 純 registry 靜態 GeoJSON —— 最單純的形狀：legend 獨佔、popup 與 key 同名
   cctv: {
     key: "cctv",
@@ -4271,7 +4339,7 @@ export const LAYER_MANIFEST = {
       sourceId: "crime-area-monthly",
       url: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
       sourceLayer: "crime_area_monthly",
-      minzoom: 8,
+      minzoom: 5,
       maxzoom: 12,
     },
     legend: "policeStation",

@@ -1,3 +1,4 @@
+import { attachRegionalStatistics } from "./regionalStatisticsMap";
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -331,7 +332,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       onMapReadyRef.current?.(map);
     });
 
+    const detachStatistics = attachRegionalStatistics(map);
     return () => {
+      detachStatistics();
       map.remove();
       mapRef.current = null;
       readyRef.current = false;
