@@ -10,7 +10,7 @@
 
 首個交通 slice 為「航港局獎補助金額（受補助對象所在地）」（data.gov.tw 43445）：dataset `maritime_bureau_subsidy_county`、indicator `maritime_bureau_recipient_county_subsidy_twd`、county／TWD。預設由公開且可解析的 release 自動選最新期別與基金，不保留可被撤回的 opaque release ID；年／月／機關或基金選擇器只從公開 release 清單解析的實際組合產生，不會組出不存在的 dimensions。資料依受補助對象所在地彙總，絕非工程地、港口投資地或最終受益地；`PARTIAL` coverage、unallocated 金額與 missing 均會明示，missing 不等於 0。此 layer 需要 platform 408 的 `get_stat_health` 才呈現 coverage/reconciliation。
 
-## 2026-09-07 transport release candidate（未發布）
+## 2026-09-07 transport delivery
 
 本輪 33 個新增交通統計指標已完成 Pulse 登錄；本次範圍含臺北自行車 5 項（110 年、臺北 12 區 township）、A1 事故 3 項（114 年）、CAA 各機場所在地活動 3 項（115 年 7 月）與桃園機場所在地旅客活動 4 項（2022 年）。全部預設關閉；開啟後才載入，資料篩選 `<details>` 預設關閉，並與 source disclosure 獨立。
 
@@ -21,8 +21,10 @@ CAA `caa_airport_activity_county_33238` 使用 v4 三個 release suffix `152b35d
 - [x] `npx tsc -b`
 - [x] focused statistics／layer manifest／golden tests
 - [x] release selector 僅接受 analytics manifest 的最新 immutable IDs 與 dimensions
-- [ ] Browser：All Off 後逐層開啟、legend、popup、opacity、default-closed filters/source disclosure
-- [ ] Production：RPC/readback、deploy 與 production browser evidence
+- [x] 本地 browser：single/overlap、bus15/22、A1 21/22、mobile390×844自行車12區填色；filters/source獨立收合、opacity鍵盤操作。
+- 完整正式站 acceptance 依跨 repo closeout，不以 unit tests 代替。
+- [x] Production 資料：SQL 逐 release＋HTTPS dataset representative values/sources/health readback。
+- 正式 frontend deployment／browser 最終證據見 [跨 repo closeout](https://github.com/ianlkl11234s/taipei-gis-analytics/blob/master/docs/topic-research/regional_statistics/transport-production-closeout-20260907.md)。
 
 ## 新增統計圖層
 
