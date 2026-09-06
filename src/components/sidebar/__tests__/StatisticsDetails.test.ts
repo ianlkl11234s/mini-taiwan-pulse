@@ -41,4 +41,9 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', bus_metric: 'electric_vehicle_count' })).toBe('期間：民國 114 年；統計項目：期末電動車輛');
     expect(statisticsDimensionSummary({ roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' })).toBe('期間：民國 114 年・12 月；系統：臺中捷運；地理語意：車站所在地');
   });
+
+  it('humanizes new source-field and facility-location disclosures', () => {
+    expect(statisticsDimensionSummary({ roc_year: '110', source_field: 'COLUMN7', geographic_coverage: 'taipei_township_only' })).toBe('期間：民國 110 年；來源欄位：河濱年租借次數；地理涵蓋：僅臺北市 12 區');
+    expect(statisticsDimensionSummary({ roc_year: '115', month: '07', geographic_semantics: 'facility_location_activity', health: 'CURRENT', coverage: 'PARTIAL' })).toBe('期間：民國 115 年・07 月；地理語意：設施所在地活動；資料新鮮度：CURRENT；覆蓋狀態：PARTIAL');
+  });
 });

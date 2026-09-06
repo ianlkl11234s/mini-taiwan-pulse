@@ -201,6 +201,10 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
     { title: "臺中道路噪音監測", layers: [fromManifest("statsTaichungRoadNoiseMonitoringStations")] },
     { title: "市區客運營運概況", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"), fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm")] },
     { title: "中捷車站出站人次", layers: [fromManifest("statsTmrtStationOutboundCounty")] },
+    { title: "臺北自行車使用（110 年）", layers: [fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"), fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"), fromManifest("statsTaipeiRiversideRentalTrips")] },
+    { title: "A1 交通事故（114 年）", layers: [fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount")] },
+    { title: "民航各機場所在地活動（115 年 7 月）", layers: [fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"), fromManifest("statsAirportCargoTonnes")] },
+    { title: "桃園機場所在地旅客活動（2022 年）", layers: [fromManifest("statsTaoyuanAirportArrivals"), fromManifest("statsTaoyuanAirportDepartures"), fromManifest("statsTaoyuanAirportTransit"), fromManifest("statsTaoyuanAirportPassengerMovements")] },
     { title: "縣市交通供給", layers: [
       fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
       fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),

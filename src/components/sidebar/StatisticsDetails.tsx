@@ -22,16 +22,25 @@ const DIMENSION_LABELS: Record<string, string> = {
   control_zone_class: '管制區類別',
   bus_metric: '統計項目',
   system_id: '系統',
+  source_field: '來源欄位',
+  accident_class: '事故類別',
+  airport_iata: '機場 IATA',
+  airport_icao: '機場 ICAO',
+  health: '資料新鮮度',
+  coverage: '覆蓋狀態',
+  refresh: '更新方式',
   geographic_semantics: '地理語意',
 };
 const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
   budget_type: { civil_aviation_fund: '民航基金', public_budget: '公務預算', special_budget: '特別預算' },
   value_basis: { year_to_date_cumulative: '年度累計快照' },
-  geographic_coverage: { taipei_only: '僅臺北市', taichung_only: '僅臺中市' },
+  geographic_coverage: { taipei_only: '僅臺北市', taichung_only: '僅臺中市', taipei_township_only: '僅臺北市 12 區', county_location: '縣市所在地' },
   bus_metric: { operating_route_length_km: '期末營業里程', approved_route_count: '核定路線數', urban_bus_operator_count: '市區客運業家數', operating_vehicle_count: '期末營業車輛', accessible_vehicle_count: '期末無障礙車輛', electric_vehicle_count: '期末電動車輛', operating_trip_count: '營業行車次數', operating_vehicle_km: '營業行車里程' },
   system_id: { tmrt: '臺中捷運' },
-  geographic_semantics: { station_location: '車站所在地' },
+  source_field: { COLUMN1: '市區租借站數', COLUMN3: '市區年租借次數', COLUMN5: '河濱租借站數', COLUMN6: '河濱自行車數', COLUMN7: '河濱年租借次數' },
+  geographic_semantics: { station_location: '車站所在地', facility_location_activity: '設施所在地活動' },
+  health: { CURRENT: 'CURRENT', STALE: 'STALE' }, coverage: { PARTIAL: 'PARTIAL' }, refresh: { manual: '人工更新' },
 };
 
 function statisticsDimensionLabel(key: string): string {
@@ -169,7 +178,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
       </div>
     </details>}
     <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
-    {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（來源目前僅有 112Q4 歷史快照）</p>}
+    {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</p>}
     {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
@@ -199,7 +208,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey })
   return <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, display: 'grid', gap: 4 }}>
     <strong>{recipe.label}</strong>
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
-    {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（歷史快照）</span>}
+    {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
     {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
     {state.health?.coverage_status && <span>{state.health.coverage_status}：{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {LEVEL_LABELS[recipe.level]}；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}

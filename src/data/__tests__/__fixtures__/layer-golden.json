@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 431,
+    "keyCount": 446,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1888,6 +1888,21 @@
         "statsBusOperatingTripCount-fill",
         "statsBusOperatingVehicleKm-fill",
         "statsTmrtStationOutboundCounty-fill",
+        "statsTaipeiUrbanRentalStations-fill",
+        "statsTaipeiUrbanRentalTrips-fill",
+        "statsTaipeiRiversideRentalStations-fill",
+        "statsTaipeiRiversideBicycles-fill",
+        "statsTaipeiRiversideRentalTrips-fill",
+        "statsA1AccidentCount-fill",
+        "statsA1DeathCount-fill",
+        "statsA1InjuryCount-fill",
+        "statsAirportTakeoffsLandings-fill",
+        "statsAirportPassengerMovements-fill",
+        "statsAirportCargoTonnes-fill",
+        "statsTaoyuanAirportArrivals-fill",
+        "statsTaoyuanAirportDepartures-fill",
+        "statsTaoyuanAirportTransit-fill",
+        "statsTaoyuanAirportPassengerMovements-fill",
         "statsOffstreetSmallCarParkingSpacesCount-fill",
         "statsOnstreetSmallCarParkingSpacesCount-fill",
         "statsMotorcycleRegisteredCount-fill",
@@ -57904,6 +57919,60 @@
         "value": 0.5
       }
     ],
+    "statsA1AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsA1DeathCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsA1InjuryCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportCargoTonnes": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportPassengerMovements": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportTakeoffsLandings": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsAutomobileLicenseHoldersCount": [
       {
         "label": "透明度 0.55",
@@ -58093,7 +58162,88 @@
         "value": 0.55
       }
     ],
+    "statsTaipeiRiversideBicycles": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiRiversideRentalStations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiRiversideRentalTrips": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsTaipeiTrafficViolationCitations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiUrbanRentalStations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiUrbanRentalTrips": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportArrivals": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportDepartures": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportPassengerMovements": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportTransit": [
       {
         "label": "透明度 0.55",
         "max": 1,
