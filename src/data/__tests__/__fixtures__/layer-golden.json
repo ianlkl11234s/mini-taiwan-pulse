@@ -36790,7 +36790,7 @@
       ],
       "pmtiles": {
         "maxzoom": 12,
-        "minzoom": 8,
+        "minzoom": 5,
         "sourceLayer": "crime_area_monthly"
       },
       "rebuildOnParamChange": [

@@ -4339,7 +4339,7 @@ export const LAYER_MANIFEST = {
       sourceId: "crime-area-monthly",
       url: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
       sourceLayer: "crime_area_monthly",
-      minzoom: 8,
+      minzoom: 5,
       maxzoom: 12,
     },
     legend: "policeStation",
