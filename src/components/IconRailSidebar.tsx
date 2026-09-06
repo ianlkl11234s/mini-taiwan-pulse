@@ -5,7 +5,7 @@ import {
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, MapPin, Settings, X,
+  Activity, Layers, MapPin, Settings, X, User, Star,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -27,6 +27,7 @@ import { ALL_PRESETS } from "../map/cameraPresets";
 import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
+import { searchLayers } from "../lib/layerSearch";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -102,6 +103,11 @@ interface IconRailSidebarProps {
   compactLayers?: boolean;
   /** 打開「日本」rail tab 時觸發（App 用來 flyTo 日本；clone SatelliteConsole 自動飛台灣模式） */
   onJapanOpen?: () => void;
+  /** 外部持有會員面板互斥與登入狀態；rail 只提供入口。 */
+  onMemberToggle?: () => void;
+  memberActive?: boolean;
+  favoriteKeys?: ReadonlySet<string>;
+  onToggleFavorite?: (key: string) => void;
 }
 
 // ── Shared Styles ──
@@ -161,6 +167,8 @@ export function IconRailSidebar({
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
   onJapanOpen,
+  onMemberToggle, memberActive,
+  favoriteKeys, onToggleFavorite,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
@@ -205,6 +213,7 @@ export function IconRailSidebar({
     // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
     // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
     if (willOpen) {
+      if (memberActive && onMemberToggle) onMemberToggle();
       if (intelActive && onIntelToggle) onIntelToggle();
       if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
       if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
@@ -351,6 +360,15 @@ export function IconRailSidebar({
           />
         )}
 
+        {onMemberToggle && (
+          <RailIcon
+            icon={User}
+            active={!!memberActive}
+            onClick={() => { if (!memberActive) closePanel(); onMemberToggle(); }}
+            tooltip="會員專區"
+          />
+        )}
+
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -430,6 +448,8 @@ export function IconRailSidebar({
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
+                favoriteKeys={favoriteKeys}
+                onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
             )}
@@ -452,6 +472,8 @@ export function IconRailSidebar({
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
+                favoriteKeys={favoriteKeys}
+                onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
             )}
@@ -474,6 +496,8 @@ export function IconRailSidebar({
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
+                favoriteKeys={favoriteKeys}
+                onToggleFavorite={onToggleFavorite}
                 onClose={closePanel}
               />
             )}
@@ -553,6 +577,7 @@ function RailIcon({
     <button
       onClick={onClick}
       title={tooltip}
+      aria-label={tooltip}
       style={{
         position: "relative",
         width: 40,
@@ -704,6 +729,8 @@ interface LayersPanelProps {
   onHideTransport: () => void;
   onAllOff: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
+  favoriteKeys?: ReadonlySet<string>;
+  onToggleFavorite?: (key: string) => void;
   onClose: () => void;
 }
 
@@ -906,10 +933,13 @@ function LayersPanel({
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
   onAllOff, onBulkSetVisibility, onClose,
+  favoriteKeys, onToggleFavorite,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
+  const searchResults = searchLayers(search, { favoriteKeys });
+  const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
@@ -959,6 +989,7 @@ function LayersPanel({
           <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
           <input
             type="text"
+            aria-label="搜尋圖層"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="搜尋圖層… Search layers…"
@@ -982,27 +1013,47 @@ function LayersPanel({
           padding: "0 0 8px",
         }}
       >
-        {themesToRender.map((theme, themeIndex) => {
+        {q ? (
+          searchResults.length === 0 ? (
+            <div style={{ padding: "12px", color: DIM, fontSize: FONT_SIZE.md }}>找不到相符圖層</div>
+          ) : <>
+            <div aria-live="polite" style={{ padding: "6px 12px", color: DIM, fontSize: FONT_SIZE.xs }}>
+              找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
+            </div>
+            {visibleSearchResults.map((result) => {
+            const locked = !!lockedKeys?.has(result.key);
+            const active = visibility[result.key];
+            const favorite = favoriteKeys?.has(result.key) ?? false;
+            return (
+              <div key={result.key} style={{ display: "flex", gap: 4, padding: "7px 10px", borderBottom: `1px solid ${ALLOFF_BORDER}` }}>
+                <button
+                  onClick={() => locked ? onToggleVisibility(result.key) : (active ? onLayerClick(result.key) : onToggleVisibility(result.key))}
+                  title={locked ? "此圖層受權限限制" : result.description}
+                  style={{ flex: 1, minWidth: 0, padding: 0, border: "none", background: "transparent", color: TEXT_STRONG, textAlign: "left", cursor: "pointer" }}
+                >
+                  <div style={{ display: "flex", gap: 6, alignItems: "center", fontSize: FONT_SIZE.md, fontWeight: 600 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: LAYER_COLORS[result.key], flexShrink: 0 }} />
+                    {result.label}{locked && <Lock size={12} color={DIM} />}
+                  </div>
+                  <div style={{ marginTop: 2, color: INACTIVE_TEXT, fontSize: FONT_SIZE.base, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{result.description}</div>
+                  <div style={{ marginTop: 2, color: DIM, fontSize: FONT_SIZE.xs, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{result.topics.join("、")} · {result.source}</div>
+                </button>
+                {onToggleFavorite && (
+                  <button aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : DIM, cursor: "pointer", padding: 2 }}>
+                    <Star size={15} fill={favorite ? "currentColor" : "none"} />
+                  </button>
+                )}
+              </div>
+            );
+            })}
+          </>
+        ) : themesToRender.map((theme, themeIndex) => {
           const isCollapsed = q ? false : collapsedThemes.has(theme.title);
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;
           const someOn = onCount > 0;
 
-          // 搜尋過濾：query 非空時只保留符合的 group/layer；整組/整 theme 空則不渲染
-          const groups = q
-            ? theme.groups
-                .map((g) => ({
-                  ...g,
-                  layers: g.layers.filter(
-                    (l) =>
-                      l.label.toLowerCase().includes(q) ||
-                      (l.labelMobile?.toLowerCase().includes(q) ?? false) ||
-                      l.key.toLowerCase().includes(q),
-                  ),
-                }))
-                .filter((g) => g.layers.length > 0)
-            : theme.groups;
-          if (q && groups.length === 0) return null;
+          const groups = theme.groups;
 
           const handleBulkToggle = () => {
             // 有任何一個 on → 全部 off；全部 off → 全部 on

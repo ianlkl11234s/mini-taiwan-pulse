@@ -59,10 +59,18 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
       }}
     >
       {/* Drag handle */}
-      <div
+      <button
+        type="button"
+        aria-label={level === "full" ? "收起圖層與搜尋" : "展開圖層與搜尋"}
+        aria-expanded={level !== "collapsed"}
         onClick={cycleLevel}
         style={{
           display: "flex",
+          border: 0,
+          background: "transparent",
+          color: "#cbd5e1",
+          fontSize: 12,
+          gap: 8,
           justifyContent: "center",
           alignItems: "center",
           padding: "10px 0 6px",
@@ -70,6 +78,7 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
           flexShrink: 0,
         }}
       >
+        <span>圖層與搜尋</span>
         <div
           style={{
             width: 36,
@@ -78,7 +87,7 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
             background: "rgba(255,255,255,0.3)",
           }}
         />
-      </div>
+      </button>
 
       {/* Content */}
       <div

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lock } from "lucide-react";
+import { Lock, Search, Star, User } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 // AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
 // 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
@@ -14,6 +14,7 @@ import {
   TRANSPORT_LABELS,
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { searchLayers } from "../lib/layerSearch";
 
 // ── Props ──
 
@@ -34,6 +35,11 @@ interface LayerSidebarProps {
   onHideTransport: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
+  /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
+  onMemberToggle?: () => void;
+  memberActive?: boolean;
+  favoriteKeys?: ReadonlySet<string>;
+  onToggleFavorite?: (key: string) => void;
 }
 
 // ── Component ──
@@ -53,6 +59,10 @@ export function LayerSidebar({
   onDisplayModeChange,
   onHideTransport,
   onBulkSetVisibility,
+  onMemberToggle,
+  memberActive,
+  favoriteKeys,
+  onToggleFavorite,
 }: LayerSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const textColor = isDarkTheme ? "#fff" : "#333";
@@ -82,6 +92,8 @@ export function LayerSidebar({
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
         onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onMemberToggle={onMemberToggle} memberActive={memberActive}
+        favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
     );
   }
@@ -166,6 +178,8 @@ export function LayerSidebar({
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
         onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onMemberToggle={onMemberToggle} memberActive={memberActive}
+        favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
     </div>
   );
@@ -178,6 +192,7 @@ function SidebarContent({
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility,
+  onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
@@ -196,7 +211,14 @@ function SidebarContent({
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
+  onMemberToggle?: () => void;
+  memberActive?: boolean;
+  favoriteKeys?: ReadonlySet<string>;
+  onToggleFavorite?: (key: string) => void;
 }) {
+  const [search, setSearch] = useState("");
+  const searchResults = searchLayers(search, { favoriteKeys });
+  const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
@@ -227,7 +249,67 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
-      {THEMES.map((theme, index) => {
+      {onMemberToggle && (
+        <button
+          onClick={onMemberToggle}
+          style={{
+            display: "flex", alignItems: "center", gap: 6, margin: "0 12px 6px", padding: "6px 8px",
+            border: "none", borderRadius: RADIUS.lg, cursor: "pointer",
+            background: memberActive ? (isDarkTheme ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)") : "transparent",
+            color: textColor, fontSize: baseFontSize,
+          }}
+        >
+          <User size={14} /> 我的
+        </button>
+      )}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, margin: "0 12px 6px", padding: "6px 8px", borderRadius: RADIUS.lg, background: isDarkTheme ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)" }}>
+        <Search size={13} color={dimColor} />
+        <input
+          aria-label="搜尋圖層"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="搜尋圖層…"
+          style={{ flex: 1, minWidth: 0, border: "none", outline: "none", background: "transparent", color: textColor, fontSize: baseFontSize }}
+        />
+      </div>
+      {search.trim() && (
+        <div style={{ paddingBottom: 6 }}>
+          {searchResults.length === 0 ? (
+            <div style={{ padding: "8px 14px", color: dimColor, fontSize: baseFontSize }}>找不到相符圖層</div>
+          ) : <>
+            <div aria-live="polite" style={{ padding: "4px 14px", color: dimColor, fontSize: baseFontSize - 1 }}>
+              找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
+            </div>
+            {visibleSearchResults.map((result) => {
+            const locked = !!lockedKeys?.has(result.key);
+            const active = visibility[result.key];
+            const favorite = favoriteKeys?.has(result.key) ?? false;
+            return (
+              <div key={result.key} style={{ display: "flex", gap: 6, padding: "7px 12px", borderBottom: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}` }}>
+                <button
+                  onClick={() => locked ? onToggleVisibility(result.key) : (active ? onLayerClick(result.key) : onToggleVisibility(result.key))}
+                  title={locked ? "此圖層受權限限制" : result.description}
+                  style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", color: textColor, cursor: "pointer", padding: 0 }}
+                >
+                  <div style={{ display: "flex", gap: 5, alignItems: "center", fontSize: baseFontSize, fontWeight: 600 }}>
+                    <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: LAYER_COLORS[result.key], flexShrink: 0 }} />
+                    {result.label} {locked && <Lock size={12} />}
+                  </div>
+                  <div style={{ marginTop: 2, color: dimColor, fontSize: baseFontSize - 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{result.description}</div>
+                  <div style={{ marginTop: 2, color: dimColor, fontSize: baseFontSize - 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>主題：{result.topics.join("、")} · {result.source}</div>
+                </button>
+                {onToggleFavorite && (
+                  <button aria-label={`${favorite ? "取消收藏" : "收藏圖層"} ${result.label}`} onClick={() => onToggleFavorite(result.key)} title={favorite ? "取消收藏" : "收藏圖層"} style={{ border: "none", background: "transparent", color: favorite ? "#facc15" : dimColor, cursor: "pointer", padding: 2 }}>
+                    <Star size={15} fill={favorite ? "currentColor" : "none"} />
+                  </button>
+                )}
+              </div>
+            );
+            })}
+          </>}
+        </div>
+      )}
+      {!search.trim() && THEMES.map((theme, index) => {
         const macroGroup = themeMacroGroup(theme.title);
         const previousMacroGroup = index > 0 ? themeMacroGroup(THEMES[index - 1]!.title) : null;
         const macroTitle = macroGroup
