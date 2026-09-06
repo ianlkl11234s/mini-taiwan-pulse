@@ -89,7 +89,7 @@ describe("statistics layer role registry", () => {
   });
 
   it("只暴露 manifest 的八個 114Y 市區客運指標與 TMRT 歷史 release", () => {
-    expect(busOperationReleaseSelector.resolve({ release_id: "2025-114-column6-5a90492f645a", period_start: "2025-01-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-114-column6-5a90492f645a", dimensions: { roc_year: "114", bus_metric: "electric_vehicle_count" } });
+    expect(busOperationReleaseSelector.resolve({ release_id: "2025-114-column6-5a90492f645a", period_start: "2025-01-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-114-column6-5a90492f645a", dimensions: { roc_year: "114", source_field: "COLUMN6", geographic_coverage: "national_county" } });
     expect(busOperationReleaseSelector.resolve({ release_id: "2025-114-column6-unknown", period_start: "2025-01-01", period_end: "2025-12-31" })).toBeNull();
     expect(STATISTICS_RECIPES.statsBusElectricVehicleCount).toMatchObject({ dataset_id: "segis_bus_operation_county_315fh_1d3", indicator_id: "bus_electric_vehicle_count", unit: "輛", includeHealth: true });
     expect(tmrtStationOutboundReleaseSelector.resolve({ release_id: "2025-12-tmrt-station-outbound-2412a544-4ace434cfa54", period_start: "2025-12-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-12-tmrt-station-outbound-2412a544-4ace434cfa54", dimensions: { roc_year: "114", month: "12", system_id: "tmrt", geographic_semantics: "station_location" } });
