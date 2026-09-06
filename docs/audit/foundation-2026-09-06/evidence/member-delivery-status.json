@@ -15,11 +15,15 @@
   },
   "release": {
     "commit": true,
-    "push": false,
+    "push": true,
     "merge": false,
     "frontendDeploy": false,
     "productionMigration": true,
-    "platformPr": "https://github.com/ianlkl11234s/gis-platform/pull/98"
+    "platformPr": "https://github.com/ianlkl11234s/gis-platform/pull/98",
+    "platformMerge": true,
+    "platformMergeCommit": "3166c4a2fc7a5e4eacf17a6edc392f58018cd2c4",
+    "frontendPr": "https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/220",
+    "statisticsProduction": true
   },
   "commits": [
     {

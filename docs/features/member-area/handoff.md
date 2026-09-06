@@ -13,7 +13,7 @@
 | 正式 Supabase migration | **408 已套用**；三表 RLS／policy／indexes 回讀；anon REST 401／42501，service role limit=0 回讀 200 |
 | Google OAuth 真實帳號、多實體裝置、正式 browser | 尚未驗收；合成 Auth 不替代這些證據 |
 | 原子 commit | 前端 6 筆、上游 1 筆；見 [提交對照](../../audit/foundation-2026-09-06/evidence/atomic-commits.md) |
-| push／merge／部署 | 上游 [PR #98](https://github.com/ianlkl11234s/gis-platform/pull/98)；前端整合 release 進行中，正式部署需獨立驗收 |
+| push／merge／部署 | 上游 [PR #98](https://github.com/ianlkl11234s/gis-platform/pull/98) 已合併 3166c4a；前端 [PR #220](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/220)，正式部署需獨立驗收 |
 
 ## 使用流程
 

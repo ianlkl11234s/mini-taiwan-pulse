@@ -1,0 +1,141 @@
+{
+  "date": "2026-09-06",
+  "migration": "407_statistics_foundation_draft.sql",
+  "productionApplied": true,
+  "schedulerEnabled": false,
+  "anonCatalog": {
+    "status": "OK",
+    "indicators": 8
+  },
+  "dbReadback": {
+    "geometries": [
+      {
+        "version": "COUNTY_MOI_1140318",
+        "level": "county",
+        "members": 22,
+        "sha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c",
+        "official_source": "https://data.gov.tw/dataset/7442"
+      },
+      {
+        "version": "township_reference_20260626_v1",
+        "level": "township",
+        "members": 368,
+        "sha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84",
+        "official_source": "https://data.gov.tw/dataset/7441"
+      }
+    ],
+    "events": 14,
+    "public_releases": 14
+  },
+  "anonRpc": {
+    "releases": [
+      {
+        "release_id": "2024-recycling_vehicles-v2-9b599ac94ade",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2024-total_vehicles-v2-b418be604011",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2025-recycling_vehicles-v2-0fa6af75841d",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2025-total_vehicles-v2-ea2f61886315",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2023-municipal-waste-recycling-rate-v1-a2e331bfcba6",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2024-municipal-waste-recycling-rate-v1-cfbcd2d85cea",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2026-05-residential-electricity-sales-v1-7a13567e379c",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2026-06-residential-electricity-sales-v1-7a7cb251c40b",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2018-04-village-births-township-v1-a6fab714fb3d",
+        "rows": 368,
+        "observed": 368,
+        "missing": 0
+      },
+      {
+        "release_id": "2022-01-village-births-township-v1-7180b8ca494b",
+        "rows": 368,
+        "observed": 368,
+        "missing": 0
+      },
+      {
+        "release_id": "2025-rice-harvested-area-v1-2c1670421009",
+        "rows": 368,
+        "observed": 231,
+        "missing": 137
+      },
+      {
+        "release_id": "2018-pig-water-v1-844ee820df16",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2019-pig-water-v1-9e81c389c242",
+        "rows": 22,
+        "observed": 22,
+        "missing": 0
+      },
+      {
+        "release_id": "2015-water-supply-county-historical-v1-2b1787befda5",
+        "rows": 22,
+        "observed": 7,
+        "missing": 15
+      }
+    ],
+    "geometries": [
+      {
+        "version": "COUNTY_MOI_1140318",
+        "level": "county",
+        "sha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c"
+      },
+      {
+        "version": "township_reference_20260626_v1",
+        "level": "township",
+        "sha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84"
+      }
+    ]
+  },
+  "values": {
+    "total": 1346,
+    "observed": 1194,
+    "missing": 152
+  },
+  "privateLineage": "anon database role denied; metadata schema not exposed via public REST",
+  "geometryResources": [
+    "https://raw.githubusercontent.com/ianlkl11234s/mini-taiwan-pulse/482b45a2ce40753514b57648d8f42709cbdf7e44/public/statistics/county-reference-2025.geojson",
+    "https://raw.githubusercontent.com/ianlkl11234s/mini-taiwan-pulse/482b45a2ce40753514b57648d8f42709cbdf7e44/public/statistics/township-reference.geojson"
+  ],
+  "boundaryCaveat": "Reference geometry is for identity join; not historical boundary or area-density trend evidence."
+}
