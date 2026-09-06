@@ -10,6 +10,25 @@ export function statisticsPeriodLabel(release: StatisticsRelease): string {
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
   return `${start} — ${end}`;
 }
+const DIMENSION_LABELS: Record<string, string> = {
+  agency_fund: '基金',
+};
+
+/** Compact, human-readable selection text for the collapsed filter disclosure. */
+export function statisticsDimensionSummary(dimensions: Record<string, unknown> | undefined): string {
+  if (!dimensions) return '';
+  const parts: string[] = [];
+  const year = typeof dimensions.roc_year === 'string' ? dimensions.roc_year : '';
+  const month = typeof dimensions.month === 'string' ? dimensions.month : '';
+  if (year) parts.push(`期間：民國 ${year} 年${month ? `・${month} 月` : ''}`);
+  else if (month) parts.push(`期間：${month} 月`);
+  if (typeof dimensions.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
+  for (const [key, value] of Object.entries(dimensions)) {
+    if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'agency_fund') continue;
+    parts.push(`${DIMENSION_LABELS[key] ?? key}：${value}`);
+  }
+  return parts.join('；');
+}
 export function statisticsRecipe(key: StatisticsLayerKey): StatisticsRecipe {
   const recipe = STATISTICS_RECIPES[key];
   const fallback = statisticsReleaseFallback(key);
@@ -53,6 +72,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     ?? selectable.find(option => option.releaseId === defaultReleaseId)
     ?? selectable[0];
   const selectorDimensions = configured?.dimensions;
+  const selectedDimensions = state.selection?.dimensions ?? selectorDimensions;
+  const selectionSummary = statisticsDimensionSummary(selectedDimensions);
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
     .map(option => option.dimensions[name])
@@ -76,18 +97,27 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     gap: SPACING.xs, minWidth: 0, color: COLORS.textMuted, lineHeight: 1.35,
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
-  return <div style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: COLORS.textDefault, colorScheme: 'dark', lineHeight: 1.45 }}>
+  const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: COLORS.textDefault, colorScheme: 'dark', lineHeight: 1.45 }}>
+    <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid ${COLORS.textDefault};outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
-    {selectorDimensions && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: SPACING.xs, minWidth: 0, maxWidth: '100%' }} aria-label={`${STATISTICS_RECIPES[layerKey].label} 篩選器`}>
-      <label style={filterLabel}>年度 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 年度`} style={control} value={selectorDimensions.roc_year} onChange={event => chooseDimensions({ ...selectorDimensions, roc_year: event.target.value })}>{selectorValues('roc_year').map(value => <option key={value} value={value}>民國 {value} 年</option>)}</select></label>
-      <label style={filterLabel}>月份 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 月份`} style={control} value={selectorDimensions.month} onChange={event => chooseDimensions({ ...selectorDimensions, month: event.target.value })}>{selectorValues('month', { roc_year: selectorDimensions.roc_year }).map(value => <option key={value} value={value}>{value} 月</option>)}</select></label>
-      <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>機關／基金 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 機關或基金`} style={control} title={selectorDimensions.agency_fund} value={selectorDimensions.agency_fund} onChange={event => chooseDimensions({ ...selectorDimensions, agency_fund: event.target.value })}>{selectorValues('agency_fund', { roc_year: selectorDimensions.roc_year, month: selectorDimensions.month }).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
-    </div>}
-    {state.releases.length > 0 && !selectorDimensions && <label style={filterLabel}>資料期別 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料期別`} style={control} value={String(selected)} onChange={event => {
-      regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
-      void regionalStatisticsStore.load(layerKey);
-    }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
+    {hasFilterControls && <details>
+      <summary aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料篩選：${selectionSummary || '選擇資料期別'}`} style={{ cursor: 'pointer', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
+      </summary>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: SPACING.xs, minWidth: 0, maxWidth: '100%', paddingTop: SPACING.xs }} aria-label={`${STATISTICS_RECIPES[layerKey].label} 篩選器`}>
+        {selectorDimensions && <>
+          <label style={filterLabel}>年度 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 年度`} style={control} value={selectorDimensions.roc_year} onChange={event => chooseDimensions({ ...selectorDimensions, roc_year: event.target.value })}>{selectorValues('roc_year').map(value => <option key={value} value={value}>民國 {value} 年</option>)}</select></label>
+          <label style={filterLabel}>月份 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 月份`} style={control} value={selectorDimensions.month} onChange={event => chooseDimensions({ ...selectorDimensions, month: event.target.value })}>{selectorValues('month', { roc_year: selectorDimensions.roc_year }).map(value => <option key={value} value={value}>{value} 月</option>)}</select></label>
+          <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>機關／基金 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 機關或基金`} style={control} title={selectorDimensions.agency_fund} value={selectorDimensions.agency_fund} onChange={event => chooseDimensions({ ...selectorDimensions, agency_fund: event.target.value })}>{selectorValues('agency_fund', { roc_year: selectorDimensions.roc_year, month: selectorDimensions.month }).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
+        </>}
+        {state.releases.length > 0 && !selectorDimensions && <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料期別`} style={control} value={String(selected)} onChange={event => {
+          regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
+          void regionalStatisticsStore.load(layerKey);
+        }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
+      </div>
+    </details>}
     <p style={factStyle}>地理層級：{LEVEL_LABELS[STATISTICS_RECIPES[layerKey].level]} · 單位：{STATISTICS_RECIPES[layerKey].unit}</p>
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
