@@ -1,4 +1,5 @@
 import type { OverlayConfig } from "../types";
+import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
@@ -10533,5 +10534,42 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         },
       },
     ],
+  },
+
+  // 路網結構放在 registry 末端：既有全島 raster / 面層已先加入，避免覆蓋細橋線與端點。
+  {
+    id: "osmBridgeCarriers",
+    rebuildOnParamChange: ["line"],
+    sourceUrl: "./network_structures/osm_bridge_carriers_20260906.pmtiles",
+    sourceId: "osm-bridge-carriers",
+    pmtiles: { sourceLayer: "osm_bridge_carriers", minzoom: 5, maxzoom: 14 },
+    attribution: "© OpenStreetMap contributors (ODbL)",
+    layers: [{ suffix: "line", type: "line", filter: (p) => { const i = p?.osmBridgeCarriersKindIdx ?? 0; return i === 0 ? ["has", "feature_id"] : ["==", ["get", "carrier_kind"], ["at", i, ["literal", ["all", "road", "rail", "foot", "bicycle", "aqueduct", "pipeline", "other"]]]]; }, paint: (_d, p) => ({ "line-color": carrierColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.7, 11, 1.7, 16, 3], "line-opacity": p?.osmBridgeCarriersOpacity ?? 0.85 }) }],
+  },
+  {
+    id: "osmBridgeFootprints",
+    sourceUrl: "./network_structures/osm_bridge_footprints_20260906.pmtiles",
+    sourceId: "osm-bridge-footprints",
+    pmtiles: { sourceLayer: "osm_bridge_footprints", minzoom: 8, maxzoom: 15 },
+    attribution: "© OpenStreetMap contributors (ODbL)",
+    layers: [{ suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": NETWORK_STRUCTURES_COLORS.footprint, "fill-opacity": (p?.osmBridgeFootprintsOpacity ?? 0.65) * 0.22 }) }, { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": NETWORK_STRUCTURES_COLORS.footprint, "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 14, 1.8], "line-opacity": p?.osmBridgeFootprintsOpacity ?? 0.65 }) }],
+  },
+  {
+    id: "officialBridgesNewTaipei",
+    rebuildOnParamChange: ["line", "coincident-endpoints"],
+    sourceUrl: "./network_structures/official_bridges_new_taipei_20260906.pmtiles",
+    sourceId: "official-bridges-new-taipei",
+    pmtiles: { sourceLayer: "official_bridges", minzoom: 7, maxzoom: 15 },
+    attribution: "新北市政府橋梁清冊",
+    layers: [{ suffix: "line", type: "line", paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "line-color": NETWORK_STRUCTURES_COLORS.official, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * scale, 12, 2.5 * scale, 16, 4 * scale], "line-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => { const scale = p?.officialBridgesNewTaipeiScale ?? 1; return { "circle-color": NETWORK_STRUCTURES_COLORS.official, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.officialBridgesNewTaipeiOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
+  },
+  {
+    id: "bridgeComparisonNewTaipei",
+    rebuildOnParamChange: ["line", "coincident-endpoints"],
+    sourceUrl: "./network_structures/bridge_comparison_new_taipei_20260906.pmtiles",
+    sourceId: "bridge-comparison-new-taipei",
+    pmtiles: { sourceLayer: "bridge_comparison", minzoom: 7, maxzoom: 15 },
+    attribution: "新北市政府橋梁清冊；© OpenStreetMap contributors (ODbL)",
+    layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
 ];

@@ -56,6 +56,7 @@ import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
   JpRailwaysPanel, JpSchoolsPanel, JpPopulationMeshPanel,
 } from "./japanPanels";
+import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
@@ -348,6 +349,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpRailways: JpRailwaysPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
+  osmBridgeCarriers: OsmBridgeCarrierPanel,
+  osmBridgeFootprints: OsmBridgeFootprintPanel,
+  officialBridgesNewTaipei: OfficialBridgeNewTaipeiPanel,
+  bridgeComparisonNewTaipei: BridgeComparisonNewTaipeiPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -730,6 +735,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpRailways: "日本鐵道路線",
   jpSchools: "日本學校",
   jpPopulationMesh1km: "日本人口網格",
+  osmBridgeCarriers: "OSM 橋梁承載線",
+  osmBridgeFootprints: "OSM 橋梁輪廓",
+  officialBridgesNewTaipei: "新北市轄管橋梁",
+  bridgeComparisonNewTaipei: "新北橋梁 OSM 比對",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
