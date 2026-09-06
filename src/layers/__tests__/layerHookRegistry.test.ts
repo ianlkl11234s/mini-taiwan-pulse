@@ -95,7 +95,16 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "powerStatusHud",
   // MapView.attachRegionalStatistics：統計 recipes 共享一個 Mapbox lifecycle adapter，
   // 不是 LayerHost React hook；各 recipe key 由 STATISTICS_KEYS 派生後一起掛載。
-  "statsMaritimeSubsidyCounty",
+  "statsMaritimeSubsidyCounty", "statsCivilAeronauticsSubsidyCounty",
+  "statsTaipeiTrafficViolationCitations",
+  "statsTaichungRoadNoiseMonitoringStations",
+  "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
+  "statsTaipeiUrbanRentalStations", "statsTaipeiUrbanRentalTrips", "statsTaipeiRiversideRentalStations", "statsTaipeiRiversideBicycles", "statsTaipeiRiversideRentalTrips",
+  "statsA1AccidentCount", "statsA1DeathCount", "statsA1InjuryCount", "statsAirportTakeoffsLandings", "statsAirportPassengerMovements", "statsAirportCargoTonnes",
+  "statsTaoyuanAirportArrivals", "statsTaoyuanAirportDepartures", "statsTaoyuanAirportTransit", "statsTaoyuanAirportPassengerMovements",
+  "statsOffstreetSmallCarParkingSpacesCount", "statsOnstreetSmallCarParkingSpacesCount",
+  "statsMotorcycleRegisteredCount", "statsAutomobileRegisteredCount",
+  "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

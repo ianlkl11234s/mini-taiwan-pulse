@@ -194,7 +194,23 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
-  { title: "交通統計 Transport Statistics", groups: [{ title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] }] },
+  { title: "交通統計 Transport Statistics", groups: [
+    { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
+    { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
+    { title: "臺北市違規舉發", layers: [fromManifest("statsTaipeiTrafficViolationCitations")] },
+    { title: "臺中道路噪音監測", layers: [fromManifest("statsTaichungRoadNoiseMonitoringStations")] },
+    { title: "市區客運營運概況", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"), fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm")] },
+    { title: "中捷車站出站人次", layers: [fromManifest("statsTmrtStationOutboundCounty")] },
+    { title: "臺北自行車使用（110 年）", layers: [fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"), fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"), fromManifest("statsTaipeiRiversideRentalTrips")] },
+    { title: "A1 交通事故（114 年）", layers: [fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount")] },
+    { title: "民航各機場所在地活動（115 年 7 月）", layers: [fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"), fromManifest("statsAirportCargoTonnes")] },
+    { title: "桃園機場所在地旅客活動（2022 年）", layers: [fromManifest("statsTaoyuanAirportArrivals"), fromManifest("statsTaoyuanAirportDepartures"), fromManifest("statsTaoyuanAirportTransit"), fromManifest("statsTaoyuanAirportPassengerMovements")] },
+    { title: "縣市交通供給", layers: [
+      fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
+      fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),
+      fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
+    ] },
+  ] },
   { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
   { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }] },
   { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }] },

@@ -15,9 +15,18 @@ import {
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
+import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
 
 // ── Props ──
+
+/**
+ * 統計圖層即使沒有一般參數控件，也必須可展開以讀取來源、涵蓋與資料健康狀態。
+ */
+export function hasLayerDetails(key: keyof LayerVisibility, expandable?: boolean): boolean {
+  return Boolean(expandable || isStatisticsLayer(key));
+}
 
 interface LayerSidebarProps {
   visibility: LayerVisibility;
@@ -442,6 +451,7 @@ function SidebarContent({
             const count = getCount(key);
             const isExpanded = expandedLayer === key;
             const isTransport = key in TRANSPORT_LABELS;
+            const hasDetails = hasLayerDetails(key, expandable);
             // 動態 gating：對此使用者上鎖 → 顯示鎖頭、點擊走 App 端 gate（onToggleVisibility）
             const locked = !!lockedKeys?.has(key);
 
@@ -487,7 +497,7 @@ function SidebarContent({
                   )}
 
                   <div
-                    onClick={() => locked ? onToggleVisibility(key) : (expandable ? onLayerClick(key) : onToggleVisibility(key))}
+                    onClick={() => locked ? onToggleVisibility(key) : (hasDetails ? onLayerClick(key) : onToggleVisibility(key))}
                     style={{
                       flex: 1,
                       fontSize: baseFontSize,
@@ -504,9 +514,12 @@ function SidebarContent({
                     )}
                   </div>
 
-                  {expandable && !locked && (
-                    <span
-                      onClick={() => onLayerClick(key)}
+                  {hasDetails && !locked && (
+                    <button
+                      type="button"
+                      aria-label={`${displayLabel} 詳情`}
+                      aria-expanded={isExpanded}
+                      onClick={(event) => { event.stopPropagation(); onLayerClick(key); }}
                       style={{
                         fontSize: FONT_SIZE.sm,
                         color: dimColor,
@@ -514,14 +527,17 @@ function SidebarContent({
                         transition: "transform 0.2s",
                         cursor: "pointer",
                         userSelect: "none",
+                        background: "transparent",
+                        border: 0,
+                        padding: 0,
                       }}
                     >
                       &#x25B6;
-                    </span>
+                    </button>
                   )}
                 </div>
 
-                {isExpanded && expandable && (
+                {isExpanded && hasDetails && (
                   <ExpandedPanel
                     layerKey={key as ExpandableLayerKey}
                     isTransport={isTransport}
@@ -607,6 +623,7 @@ function ExpandedPanel({
         overflow: "hidden",
       }}
     >
+      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

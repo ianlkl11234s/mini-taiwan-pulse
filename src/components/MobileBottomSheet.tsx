@@ -45,7 +45,8 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
         left: 0,
         right: 0,
         height,
-        zIndex: 30,
+        // 統計圖例與地圖控制也在右下角；sheet 必須在其上方，否則會攔截圖層詳情按鈕。
+        zIndex: 40,
         background: "rgba(0,0,0,0.7)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",

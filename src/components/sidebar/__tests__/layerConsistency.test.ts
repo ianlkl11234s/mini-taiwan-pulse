@@ -39,6 +39,8 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 
 import { LAYER_COLORS } from "../layerCatalog";
+import { hasLayerDetails } from "../../LayerSidebar";
+import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
 import { buildDefaultVisibility } from "../../../state/layerVisibilityStore";
 
@@ -432,5 +434,25 @@ describe("鐵則 4：select 控件渲染閾值", () => {
         `中文標籤的 button row 一定撐爆 240px 窄欄。`,
       ).toBe(true);
     }
+  });
+});
+
+describe("區域統計 sidebar 接線", () => {
+  it("統計圖層即使一般參數可展開旗標漂移，仍有資料詳情入口", () => {
+    for (const key of STATISTICS_KEYS) expect(hasLayerDetails(key, false)).toBe(true);
+    expect(hasLayerDetails("flights", false)).toBe(false);
+  });
+
+  it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
+    const wiring = 'isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
+    for (const file of [
+      'src/components/IconRailSidebar.tsx',
+      'src/components/LayerSidebar.tsx',
+    ]) expect(readFileSync(file, 'utf8')).toContain(wiring);
+    const mobileSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
+    expect(mobileSidebar).toContain('aria-label={`${displayLabel} 詳情`}');
+    expect(mobileSidebar).toContain('{isExpanded && hasDetails && (');
+    expect(readFileSync('src/components/MobileBottomSheet.tsx', 'utf8')).toContain('zIndex: 40');
+    expect(readFileSync('src/App.tsx', 'utf8')).toContain('onLayerClick={handleLayerClick}');
   });
 });

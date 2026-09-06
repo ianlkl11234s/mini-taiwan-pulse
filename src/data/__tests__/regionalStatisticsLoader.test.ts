@@ -87,6 +87,14 @@ describe('regional statistics loader public contract', () => {
     expect(vi.mocked(fetch).mock.calls.some(([input]) => String(input).includes('release_id=r-latest') && String(input).includes('dimensions=%7B%22fund%22%3A%22verified-latest%22%7D'))).toBe(true);
   });
 
+  it('resolves an initial dimension selection through a real compatible release', async () => {
+    const older = { ...release, release_id: 'r-112', period_start: '2023-01-01', period_end: '2023-12-31' };
+    const latest = { ...release, release_id: 'r-113', period_start: '2024-01-01', period_end: '2024-12-31' };
+    install({ releases: [older, latest], responseRelease: latest });
+    const result = await loadRegionalStatistics({ ...recipe, dimensions: { roc_year: '113' }, releaseFallback: candidate => candidate.period_start === '2024-01-01' ? { roc_year: '113' } : candidate.period_start === '2023-01-01' ? { roc_year: '112' } : null });
+    expect(result.effectiveRecipe).toMatchObject({ releaseId: 'r-113', dimensions: { roc_year: '113' }, allowReleaseFallback: false });
+  });
+
   it('does not replace an explicit user or URL release, and errors when no compatible public fallback exists', async () => {
     install({ releases: [release] });
     await expect(loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-user-choice', allowReleaseFallback: false })).rejects.toThrow('指定統計期別尚未公開或已撤回');

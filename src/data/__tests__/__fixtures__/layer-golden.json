@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 417,
+    "keyCount": 450,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1902,7 +1902,40 @@
         "statsBirthsTownship-fill",
         "statsPigWaterCounty-fill",
         "statsWaterSupplyHistorical-fill",
-        "statsMaritimeSubsidyCounty-fill"
+        "statsMaritimeSubsidyCounty-fill",
+        "statsCivilAeronauticsSubsidyCounty-fill",
+        "statsTaipeiTrafficViolationCitations-fill",
+        "statsTaichungRoadNoiseMonitoringStations-fill",
+        "statsBusOperatingRouteLengthKm-fill",
+        "statsBusApprovedRouteCount-fill",
+        "statsUrbanBusOperatorCount-fill",
+        "statsBusOperatingVehicleCount-fill",
+        "statsBusAccessibleVehicleCount-fill",
+        "statsBusElectricVehicleCount-fill",
+        "statsBusOperatingTripCount-fill",
+        "statsBusOperatingVehicleKm-fill",
+        "statsTmrtStationOutboundCounty-fill",
+        "statsTaipeiUrbanRentalStations-fill",
+        "statsTaipeiUrbanRentalTrips-fill",
+        "statsTaipeiRiversideRentalStations-fill",
+        "statsTaipeiRiversideBicycles-fill",
+        "statsTaipeiRiversideRentalTrips-fill",
+        "statsA1AccidentCount-fill",
+        "statsA1DeathCount-fill",
+        "statsA1InjuryCount-fill",
+        "statsAirportTakeoffsLandings-fill",
+        "statsAirportPassengerMovements-fill",
+        "statsAirportCargoTonnes-fill",
+        "statsTaoyuanAirportArrivals-fill",
+        "statsTaoyuanAirportDepartures-fill",
+        "statsTaoyuanAirportTransit-fill",
+        "statsTaoyuanAirportPassengerMovements-fill",
+        "statsOffstreetSmallCarParkingSpacesCount-fill",
+        "statsOnstreetSmallCarParkingSpacesCount-fill",
+        "statsMotorcycleRegisteredCount-fill",
+        "statsAutomobileRegisteredCount-fill",
+        "statsAutomobileLicenseHoldersCount-fill",
+        "statsMotorcycleLicenseHoldersCount-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -58545,6 +58578,78 @@
         "value": 0.5
       }
     ],
+    "statsA1AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsA1DeathCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsA1InjuryCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportCargoTonnes": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportPassengerMovements": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportTakeoffsLandings": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAutomobileLicenseHoldersCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAutomobileRegisteredCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsBirthsTownship": [
       {
         "label": "透明度 0.55",
@@ -58554,7 +58659,115 @@
         "value": 0.55
       }
     ],
+    "statsBusAccessibleVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusApprovedRouteCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusElectricVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingRouteLengthKm": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingTripCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingVehicleKm": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsCivilAeronauticsSubsidyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsMaritimeSubsidyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMotorcycleLicenseHoldersCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMotorcycleRegisteredCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsOffstreetSmallCarParkingSpacesCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsOnstreetSmallCarParkingSpacesCount": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -58591,6 +58804,123 @@
       }
     ],
     "statsRiceHarvest": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaichungRoadNoiseMonitoringStations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiRiversideBicycles": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiRiversideRentalStations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiRiversideRentalTrips": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiTrafficViolationCitations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiUrbanRentalStations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiUrbanRentalTrips": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportArrivals": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportDepartures": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportPassengerMovements": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaoyuanAirportTransit": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTmrtStationOutboundCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsUrbanBusOperatorCount": [
       {
         "label": "透明度 0.55",
         "max": 1,
