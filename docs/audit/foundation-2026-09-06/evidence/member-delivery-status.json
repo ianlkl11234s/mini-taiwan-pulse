@@ -1,13 +1,13 @@
 {
-  "status": "NOT_APPLIED",
-  "reason": "automatic approval review requires explicit confirmation of production migration407",
-  "migration": "407_member_private_storage.sql",
-  "sha256": "ed43eb8273e01d4941e92138b232626e9fd97a490a63f2346dfc1fd4a3e14ccc",
+  "status": "APPLIED",
+  "reason": "Explicit production authorization received; migration408 applied and metadata/REST readback verified.",
+  "migration": "408_member_private_storage.sql",
+  "sha256": "be6eff0cf25ab9765c16169e193e9d27bd14bf92f95ed05e7e9e305b2d048e12",
   "productionPreflight": "member-db-preflight.json",
   "tests": {
     "typecheck": "pass",
-    "files": 119,
-    "passed": 1145,
+    "files": 123,
+    "passed": 1159,
     "skipped": 3,
     "build": "pass",
     "isolatedPostgres17": "RLS, quota, CAS, concurrency passed",
@@ -18,7 +18,8 @@
     "push": false,
     "merge": false,
     "frontendDeploy": false,
-    "productionMigration": false
+    "productionMigration": true,
+    "platformPr": "https://github.com/ianlkl11234s/gis-platform/pull/98"
   },
   "commits": [
     {
@@ -51,5 +52,6 @@
       "hash": "79d87443c461c52f52f84a842c88a59d533cd824",
       "subject": "feat(member): add private storage schema with RLS and quotas"
     }
-  ]
+  ],
+  "productionReadback": "member408-production.json"
 }

@@ -9,11 +9,11 @@
 | 桌機側邊會員 icon、手機會員入口／緊湊 header | 已實作、browser 驗收 |
 | 圖層共用搜尋、訪客收藏、已開啟清單 | 已實作、重整及手機驗收 |
 | 登入收藏匯入、雲端 CRUD、場景／地點重開 | 已實作；合成帳號＋隔離 PG 的 browser 寫入／讀回通過 |
-| DB schema／RLS／quota／CAS | migration 407 已在隔離 PostgreSQL 17 驗證 |
-| 正式 Supabase migration | **未套用**；自動核准審查要求具體正式變更確認 |
+| DB schema／RLS／quota／CAS | migration 408 已在隔離 PostgreSQL 17 驗證 |
+| 正式 Supabase migration | **408 已套用**；三表 RLS／policy／indexes 回讀；anon REST 401／42501，service role limit=0 回讀 200 |
 | Google OAuth 真實帳號、多實體裝置、正式 browser | 尚未驗收；合成 Auth 不替代這些證據 |
 | 原子 commit | 前端 6 筆、上游 1 筆；見 [提交對照](../../audit/foundation-2026-09-06/evidence/atomic-commits.md) |
-| push／merge／部署 | 未執行 |
+| push／merge／部署 | 上游 [PR #98](https://github.com/ianlkl11234s/gis-platform/pull/98)；前端整合 release 進行中，正式部署需獨立驗收 |
 
 ## 使用流程
 
@@ -53,7 +53,7 @@ flowchart LR
 
 ## 上游契約與發佈順序
 
-上游 SSOT：`gis-platform/migrations/407_member_private_storage.sql`、`gis-platform/docs/handoff/member-private-storage.md`。本次上游 worktree 為 `/private/tmp/pulse-foundation-review-20260906/platform-member`，分支 `codex/member-private-storage-20260906`。前端 worktree 為 `/private/tmp/pulse-foundation-review-20260906/mini-taiwan-pulse`。
+上游 SSOT：`gis-platform/migrations/408_member_private_storage.sql`、`gis-platform/docs/handoff/member-private-storage.md`。本次上游 worktree 為 `/private/tmp/pulse-foundation-review-20260906/platform-member`，分支 `codex/member-private-storage-20260906`。前端 worktree 為 `/private/tmp/pulse-foundation-review-20260906/mini-taiwan-pulse`。
 
 | 表 | 配額／唯一性 | 值與權限 |
 |---|---|---|
@@ -63,7 +63,7 @@ flowchart LR
 
 新表 FK 參照 `auth.users`、刪帳號 cascade。quota trigger 用 transaction advisory lock；滿額重送同一收藏不算新名額。scene/place UPDATE/DELETE 帶原 `updated_at` 做 CAS；0 rows 為衝突，不覆寫新版。更新時間使用 clock_timestamp 並保持單調遞增。JSON 必填值、數值型別與 null 明確驗證；DB 不複製會持續變動的前端 layer allowlist。
 
-1. 確認正式 migration 407，套用前再次檢查遠端 migration 編號及物件碰撞。
+1. 確認正式 migration 408，套用前再次檢查遠端 migration 編號及物件碰撞。
 2. 在交易內套用，readback 三表 RLS、grants、policy、indexes，重新載入 PostgREST schema。不得以 migration 檔案存在當已建表。
 3. 以真實登入做本人 CRUD／第二帳號隔離、失效 session、回讀與同步驗收；不要把 local mock JWT 當 Supabase JWT 驗證。
 4. 依專案流程整合上游，再發佈前端及 production browser。
@@ -72,3 +72,9 @@ flowchart LR
 這是使用者自行保存的資料，不需 analytics pipeline 或 collector，不新增 TABLE_MAP、cron、AI 分析 job 或 Storage bucket。GIS 運算、會員計費、通知規則、Capture 圖片雲端保存屬後續批次。
 
 驗收詳見 [批次 1–2 evidence](../../audit/foundation-2026-09-06/evidence/batch-1-2-validation.md)。
+
+## 與統計圖層整合（2026-09-06）
+
+保留統計 PR #219（482b45a）的入口、8 指標與犯罪 PMTiles 修正；會員入口與統計入口同時存在，統計搜尋也支援收藏。統計 All Off 仍只關閉其範圍。統計 releaseId 目前由 regionalStatisticsStore 存在此瀏覽器，**不包含於會員場景快照／URL／跨裝置同步**；保存場景不保證重現統計期別。批次 3 前應擴充並驗證版本化快照，不能把目前的本機期別保存描述為雲端同步。
+
+正式會員證據：[member408-production.json](../../audit/foundation-2026-09-06/evidence/member408-production.json)。初次 REST 404 為 schema cache 尚未刷新；後續權限拒絕與管理角色空查詢均已確認。未讀取或改動既有會員 rows。
