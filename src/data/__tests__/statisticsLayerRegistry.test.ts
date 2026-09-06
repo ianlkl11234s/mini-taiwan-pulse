@@ -97,7 +97,7 @@ describe("statistics layer role registry", () => {
   });
 
   it("只接四份 manifest 白名單的 15 個交通統計 release，並保留層級與語意", () => {
-    expect(taipeiBicycleReleaseSelector.resolve({ release_id: "2021-110-column7-e8e91f65c958", period_start: "2021-01-01", period_end: "2021-12-31" })).toEqual({ releaseId: "2021-110-column7-e8e91f65c958", dimensions: { roc_year: "110", source_field: "COLUMN7", geographic_coverage: "taipei_township_only" } });
+    expect(taipeiBicycleReleaseSelector.resolve({ release_id: "2021-110-column7-789178e51f5b", period_start: "2021-01-01", period_end: "2021-12-31" })).toEqual({ releaseId: "2021-110-column7-789178e51f5b", dimensions: { roc_year: "110", source_field: "COLUMN7", geographic_coverage: "taipei_township_only" } });
     expect(taipeiBicycleReleaseSelector.resolve({ release_id: "2021-110-column2-unknown", period_start: "2021-01-01", period_end: "2021-12-31" })).toBeNull();
     expect(STATISTICS_RECIPES.statsTaipeiUrbanRentalStations).toMatchObject({ dataset_id: "segis_taipei_bicycle_usage_township_110", indicator_id: "taipei_urban_rental_stations", level: "township", freshness: "STALE", includeHealth: true });
     expect(a1AccidentReleaseSelector.resolve({ release_id: "2025-a1_death_count-6c2ddae0632c", period_start: "2025-01-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-a1_death_count-6c2ddae0632c", dimensions: { year: "2025", accident_class: "A1", geographic_coverage: "county_location" } });
