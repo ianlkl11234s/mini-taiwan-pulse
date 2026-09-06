@@ -68,10 +68,15 @@ export function useMemberGate(): { user: User | null; tier: string | null; isOwn
   const { user, loading: userLoading } = useUser();
   const [tier, setTier] = useState<string | null>(null);
   const [tierLoading, setTierLoading] = useState(false);
+  // A tier belongs to exactly one resolved account. Keep the previous account's tier
+  // unusable during an auth transition, before the next profile read returns.
+  const [resolvedUserId, setResolvedUserId] = useState<string | null>(null);
+  const userId = user?.id ?? null;
 
   useEffect(() => {
-    if (!user) {
+    if (!userId) {
       setTier(null);
+      setResolvedUserId(null);
       setTierLoading(false);
       return;
     }
@@ -80,22 +85,25 @@ export function useMemberGate(): { user: User | null; tier: string | null; isOwn
     void supabase
       .from("profiles")
       .select("tier")
-      .eq("id", user.id)
+      .eq("id", userId)
       .maybeSingle()
       .then(({ data }) => {
         if (!mounted) return;
         setTier((data?.tier as string | undefined) ?? null);
+        setResolvedUserId(userId);
         setTierLoading(false);
       });
     return () => {
       mounted = false;
     };
-  }, [user]);
+  }, [userId]);
+
+  const currentTier = resolvedUserId === userId ? tier : null;
 
   return {
     user,
-    tier,
-    isOwner: tier === "owner",
-    loading: userLoading || tierLoading,
+    tier: currentTier,
+    isOwner: currentTier === "owner",
+    loading: userLoading || (userId !== null && (tierLoading || resolvedUserId !== userId)),
   };
 }

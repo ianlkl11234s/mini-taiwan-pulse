@@ -1,0 +1,61 @@
+{
+  "status": "APPLIED",
+  "reason": "Explicit production authorization received; migration408 applied and metadata/REST readback verified.",
+  "migration": "408_member_private_storage.sql",
+  "sha256": "be6eff0cf25ab9765c16169e193e9d27bd14bf92f95ed05e7e9e305b2d048e12",
+  "productionPreflight": "member-db-preflight.json",
+  "tests": {
+    "typecheck": "pass",
+    "files": 123,
+    "passed": 1159,
+    "skipped": 3,
+    "build": "pass",
+    "isolatedPostgres17": "RLS, quota, CAS, concurrency passed",
+    "browser": "guest, synthetic account CRUD, separate origins, Point/Polygon, Embed, mobile320/390"
+  },
+  "release": {
+    "commit": true,
+    "push": true,
+    "merge": false,
+    "frontendDeploy": false,
+    "productionMigration": true,
+    "platformPr": "https://github.com/ianlkl11234s/gis-platform/pull/98",
+    "platformMerge": true,
+    "platformMergeCommit": "3166c4a2fc7a5e4eacf17a6edc392f58018cd2c4",
+    "frontendPr": "https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/220",
+    "statisticsProduction": true
+  },
+  "commits": [
+    {
+      "group": "01",
+      "hash": "0de64be156f1b32c2c99d8ac9d9bc5cca15017d7",
+      "subject": "fix(ai): preserve population missingness and sample boundaries"
+    },
+    {
+      "group": "02",
+      "hash": "6609b9e8eaf3d7875771736f72e1165f2f8b9b7d",
+      "subject": "perf(ai): defer chat engine loading until first use"
+    },
+    {
+      "group": "03",
+      "hash": "d041515f7b3b0aaaa0d9b3bb077501f3585eb545",
+      "subject": "perf(embed): isolate legend metadata from rendering engines"
+    },
+    {
+      "group": "04",
+      "hash": "f7363216ce1b54dd78b26c3cfb879dd1a29dfa6f",
+      "subject": "fix(auth): isolate account tiers and prevent write retries"
+    },
+    {
+      "group": "05",
+      "hash": "08c4e3a1e41f9b1bb9759ad923152828a94f1a1e",
+      "subject": "feat(member): add shared layer search and private saved maps"
+    },
+    {
+      "group": "06",
+      "hash": "79d87443c461c52f52f84a842c88a59d533cd824",
+      "subject": "feat(member): add private storage schema with RLS and quotas"
+    }
+  ],
+  "productionReadback": "member408-production.json"
+}

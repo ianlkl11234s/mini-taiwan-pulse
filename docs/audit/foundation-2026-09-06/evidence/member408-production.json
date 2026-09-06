@@ -1,0 +1,145 @@
+{
+  "migration": "408_member_private_storage.sql",
+  "sha256": "be6eff0cf25ab9765c16169e193e9d27bd14bf92f95ed05e7e9e305b2d048e12",
+  "startedAt": "2026-09-06T05:38:08.845042+00:00",
+  "scope": "new member tables only; no user rows inspected or changed",
+  "applied": true,
+  "tableAcl": [
+    [
+      "user_layer_favorites",
+      true,
+      false,
+      false,
+      true
+    ],
+    [
+      "user_places",
+      true,
+      false,
+      false,
+      true
+    ],
+    [
+      "user_scenes",
+      true,
+      false,
+      false,
+      true
+    ]
+  ],
+  "policies": [
+    [
+      "user_layer_favorites",
+      "member_own_crud",
+      [
+        "authenticated"
+      ],
+      "ALL",
+      "(auth.uid() = user_id)",
+      "(auth.uid() = user_id)"
+    ],
+    [
+      "user_places",
+      "member_own_crud",
+      [
+        "authenticated"
+      ],
+      "ALL",
+      "(auth.uid() = user_id)",
+      "(auth.uid() = user_id)"
+    ],
+    [
+      "user_scenes",
+      "member_own_crud",
+      [
+        "authenticated"
+      ],
+      "ALL",
+      "(auth.uid() = user_id)",
+      "(auth.uid() = user_id)"
+    ]
+  ],
+  "indexes": [
+    [
+      "user_layer_favorites",
+      "user_layer_favorites_pkey",
+      "CREATE UNIQUE INDEX user_layer_favorites_pkey ON public.user_layer_favorites USING btree (user_id, layer_key)"
+    ],
+    [
+      "user_layer_favorites",
+      "user_layer_favorites_user_created_idx",
+      "CREATE INDEX user_layer_favorites_user_created_idx ON public.user_layer_favorites USING btree (user_id, created_at DESC)"
+    ],
+    [
+      "user_places",
+      "user_places_pkey",
+      "CREATE UNIQUE INDEX user_places_pkey ON public.user_places USING btree (id)"
+    ],
+    [
+      "user_places",
+      "user_places_user_updated_idx",
+      "CREATE INDEX user_places_user_updated_idx ON public.user_places USING btree (user_id, updated_at DESC)"
+    ],
+    [
+      "user_scenes",
+      "user_scenes_pkey",
+      "CREATE UNIQUE INDEX user_scenes_pkey ON public.user_scenes USING btree (id)"
+    ],
+    [
+      "user_scenes",
+      "user_scenes_user_updated_idx",
+      "CREATE INDEX user_scenes_user_updated_idx ON public.user_scenes USING btree (user_id, updated_at DESC)"
+    ]
+  ],
+  "anonRest": {
+    "user_layer_favorites": {
+      "httpStatus": 404,
+      "code": "PGRST205"
+    },
+    "user_places": {
+      "httpStatus": 404,
+      "code": "PGRST205"
+    },
+    "user_scenes": {
+      "httpStatus": 404,
+      "code": "PGRST205"
+    }
+  },
+  "completedAt": "2026-09-06T05:38:13.565316+00:00",
+  "restReadback": {
+    "anon": {
+      "user_layer_favorites": {
+        "httpStatus": 401,
+        "code": "42501",
+        "empty": false
+      },
+      "user_places": {
+        "httpStatus": 401,
+        "code": "42501",
+        "empty": false
+      },
+      "user_scenes": {
+        "httpStatus": 401,
+        "code": "42501",
+        "empty": false
+      }
+    },
+    "service_role": {
+      "user_layer_favorites": {
+        "httpStatus": 200,
+        "code": null,
+        "empty": true
+      },
+      "user_places": {
+        "httpStatus": 200,
+        "code": null,
+        "empty": true
+      },
+      "user_scenes": {
+        "httpStatus": 200,
+        "code": null,
+        "empty": true
+      }
+    }
+  }
+}

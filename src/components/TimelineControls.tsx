@@ -1,7 +1,7 @@
 import { useState, useSyncExternalStore } from "react";
 import type { TimeMode } from "../types";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
-import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../hooks/useGfwHourlyGridLayer";
+import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { formatGfwUtcWindow, mergeGfwTimelineWindows, nearestGfwWindowHour, utcDateWindowSeconds, type GfwTimelineWindow } from "../state/gfwTimelineDataWindow";
 

@@ -1,0 +1,3472 @@
+{
+  "collectedAt": "2026-09-05T18:10:48.532Z",
+  "scope": "Vite production build; publicDir=false to avoid copying unrelated large assets",
+  "entries": [
+    {
+      "file": "assets/main-N0qCxRQ6.js",
+      "files": [
+        "assets/main-N0qCxRQ6.js",
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/LegendPanel-BDjRacfl.js",
+        "assets/rotate-ccw-CuTuI5Gx.js",
+        "assets/RailScene-CzNhjrWC.js"
+      ],
+      "bytes": 6034841,
+      "gzipBytesSum": 1624603,
+      "note": "Transitive static JS only; excludes CSS, public assets and lazy chunks. Sum of per-file gzip sizes, not measured network."
+    },
+    {
+      "file": "assets/embed-fFAvnlaw.js",
+      "files": [
+        "assets/embed-fFAvnlaw.js",
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/LegendPanel-BDjRacfl.js"
+      ],
+      "bytes": 4960278,
+      "gzipBytesSum": 1317166,
+      "note": "Transitive static JS only; excludes CSS, public assets and lazy chunks. Sum of per-file gzip sizes, not measured network."
+    },
+    {
+      "file": "assets/bbox-BL4DOTti.js",
+      "files": [
+        "assets/bbox-BL4DOTti.js",
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/rotate-ccw-CuTuI5Gx.js"
+      ],
+      "bytes": 1902973,
+      "gzipBytesSum": 532905,
+      "note": "Transitive static JS only; excludes CSS, public assets and lazy chunks. Sum of per-file gzip sizes, not measured network."
+    }
+  ],
+  "chunks": [
+    {
+      "file": "assets/main-N0qCxRQ6.js",
+      "name": "main",
+      "entry": true,
+      "bytes": 2154006,
+      "gzipBytes": 596275,
+      "imports": [
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/LegendPanel-BDjRacfl.js",
+        "assets/rotate-ccw-CuTuI5Gx.js",
+        "assets/RailScene-CzNhjrWC.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/ai/dist/index.js",
+          "renderedLength": 299003
+        },
+        {
+          "id": "node_modules/@ai-sdk/openai/dist/index.js",
+          "renderedLength": 282714
+        },
+        {
+          "id": "node_modules/@ai-sdk/google/dist/index.js",
+          "renderedLength": 250872
+        },
+        {
+          "id": "node_modules/@ai-sdk/anthropic/dist/index.js",
+          "renderedLength": 226232
+        },
+        {
+          "id": "src/App.tsx",
+          "renderedLength": 95111
+        },
+        {
+          "id": "node_modules/@ai-sdk/provider-utils/dist/index.js",
+          "renderedLength": 88224
+        },
+        {
+          "id": "node_modules/satellite.js/dist/satellite.es.js",
+          "renderedLength": 83813
+        },
+        {
+          "id": "src/components/InfoModal.tsx",
+          "renderedLength": 78601
+        },
+        {
+          "id": "node_modules/@ai-sdk/gateway/dist/index.js",
+          "renderedLength": 76687
+        },
+        {
+          "id": "node_modules/zod/v4/core/schemas.js",
+          "renderedLength": 63735
+        },
+        {
+          "id": "src/components/IconRailSidebar.tsx",
+          "renderedLength": 48752
+        },
+        {
+          "id": "src/components/featureInfo/waterPanels.tsx",
+          "renderedLength": 41871
+        },
+        {
+          "id": "src/components/featureInfo/energyPanels.tsx",
+          "renderedLength": 37022
+        },
+        {
+          "id": "src/components/featureInfo/infraPanels.tsx",
+          "renderedLength": 36259
+        },
+        {
+          "id": "src/components/intel/IntelPanel.tsx",
+          "renderedLength": 33961
+        },
+        {
+          "id": "node_modules/zod/v4/classic/schemas.js",
+          "renderedLength": 33610
+        },
+        {
+          "id": "src/map/gisClickRegistry.ts",
+          "renderedLength": 33334
+        },
+        {
+          "id": "src/components/intel/monitor/MonitorPanel.tsx",
+          "renderedLength": 31874
+        },
+        {
+          "id": "src/data/internetHealthLoader.ts",
+          "renderedLength": 31214
+        },
+        {
+          "id": "src/components/featureInfo/globalClimatePanels.tsx",
+          "renderedLength": 28138
+        },
+        {
+          "id": "src/components/LayerSidebar.tsx",
+          "renderedLength": 27526
+        },
+        {
+          "id": "src/map/climateParticleLineLayer.ts",
+          "renderedLength": 26025
+        },
+        {
+          "id": "src/components/featureInfo/policeJusticePanels.tsx",
+          "renderedLength": 24717
+        },
+        {
+          "id": "src/components/intel/monitor/LiveWall.tsx",
+          "renderedLength": 24480
+        },
+        {
+          "id": "src/three/WasteFacilityScenes.ts",
+          "renderedLength": 23772
+        },
+        {
+          "id": "src/components/intel/monitor/TelecomStatusCard.tsx",
+          "renderedLength": 23604
+        },
+        {
+          "id": "src/components/intel/monitor/HazardCards.tsx",
+          "renderedLength": 23067
+        },
+        {
+          "id": "src/hooks/useEnergyPoiLayer.ts",
+          "renderedLength": 23062
+        },
+        {
+          "id": "src/components/satelliteConsole/ManeuverCompareModal.tsx",
+          "renderedLength": 22551
+        },
+        {
+          "id": "src/data/gfwHourlyTracksLoader.ts",
+          "renderedLength": 22297
+        },
+        {
+          "id": "src/components/featureInfo/registry.tsx",
+          "renderedLength": 21205
+        },
+        {
+          "id": "node_modules/zod/v4/core/json-schema-processors.js",
+          "renderedLength": 20206
+        },
+        {
+          "id": "src/components/featureInfo/marinePanels.tsx",
+          "renderedLength": 19642
+        },
+        {
+          "id": "src/components/intel/monitor/PlaBoard.tsx",
+          "renderedLength": 19586
+        },
+        {
+          "id": "src/components/intel/monitor/PowerCard.tsx",
+          "renderedLength": 19552
+        },
+        {
+          "id": "src/hooks/useGlobalEventsLayer.ts",
+          "renderedLength": 19416
+        },
+        {
+          "id": "src/components/featureInfo/urbanPanels.tsx",
+          "renderedLength": 19176
+        },
+        {
+          "id": "src/components/admin/AdminPanel.tsx",
+          "renderedLength": 18942
+        },
+        {
+          "id": "src/components/intel/alerts/AlertBoard.tsx",
+          "renderedLength": 18786
+        },
+        {
+          "id": "src/data/intelLoaders.ts",
+          "renderedLength": 18534
+        },
+        {
+          "id": "src/components/intel/monitor/IsrSatellitePassCard.tsx",
+          "renderedLength": 18458
+        },
+        {
+          "id": "src/engines/BusEngine.ts",
+          "renderedLength": 18010
+        },
+        {
+          "id": "src/hooks/useMapInteraction.ts",
+          "renderedLength": 17932
+        },
+        {
+          "id": "src/components/featureInfo/eventPanels.tsx",
+          "renderedLength": 17600
+        },
+        {
+          "id": "src/hooks/useGfwV4TracksLayer.ts",
+          "renderedLength": 17139
+        },
+        {
+          "id": "node_modules/zod/v4/core/to-json-schema.js",
+          "renderedLength": 16740
+        },
+        {
+          "id": "src/components/chat/ChatPanel.tsx",
+          "renderedLength": 16627
+        },
+        {
+          "id": "src/components/TimeseriesSparkline.tsx",
+          "renderedLength": 16253
+        },
+        {
+          "id": "src/components/intel/monitor/TimelineDock.tsx",
+          "renderedLength": 15844
+        },
+        {
+          "id": "src/components/featureInfo/noisePanels.tsx",
+          "renderedLength": 15752
+        },
+        {
+          "id": "src/components/intel/IntelCard.tsx",
+          "renderedLength": 15321
+        },
+        {
+          "id": "src/hooks/useThreeJsLayers.ts",
+          "renderedLength": 15303
+        },
+        {
+          "id": "src/components/featureInfo/taipeiWicPanels.tsx",
+          "renderedLength": 15184
+        },
+        {
+          "id": "src/components/featureInfo/agriPanels.tsx",
+          "renderedLength": 15124
+        },
+        {
+          "id": "src/data/globalEventsLoader.ts",
+          "renderedLength": 15029
+        },
+        {
+          "id": "src/components/satelliteConsole/CoverageStatsSection.tsx",
+          "renderedLength": 14980
+        },
+        {
+          "id": "src/components/TimelineControls.tsx",
+          "renderedLength": 14588
+        },
+        {
+          "id": "node_modules/zod/v4/core/util.js",
+          "renderedLength": 14349
+        },
+        {
+          "id": "node_modules/zod/v4/core/checks.js",
+          "renderedLength": 14196
+        },
+        {
+          "id": "src/components/satelliteConsole/ManeuverAlertSection.tsx",
+          "renderedLength": 14133
+        },
+        {
+          "id": "src/components/intel/monitor/FoodPriceBoard.tsx",
+          "renderedLength": 14066
+        },
+        {
+          "id": "src/three/ReservoirScene.ts",
+          "renderedLength": 13774
+        },
+        {
+          "id": "src/components/intel/monitor/SituationOverview.tsx",
+          "renderedLength": 13467
+        },
+        {
+          "id": "src/components/intel/monitor/ERCard.tsx",
+          "renderedLength": 13414
+        },
+        {
+          "id": "src/hooks/useSatellitesLayer.ts",
+          "renderedLength": 13366
+        },
+        {
+          "id": "src/components/intel/monitor/PressureRing.tsx",
+          "renderedLength": 13364
+        },
+        {
+          "id": "src/components/featureInfo/educationPanels.tsx",
+          "renderedLength": 13295
+        },
+        {
+          "id": "node_modules/zod/v4/core/api.js",
+          "renderedLength": 13197
+        },
+        {
+          "id": "src/components/featureInfo/welfarePanels.tsx",
+          "renderedLength": 13092
+        },
+        {
+          "id": "src/components/intel/IntelSituation.tsx",
+          "renderedLength": 12811
+        },
+        {
+          "id": "src/components/featureInfo/tourismPanels.tsx",
+          "renderedLength": 12582
+        },
+        {
+          "id": "src/hooks/useGfwHourlyTracksLayer.ts",
+          "renderedLength": 12550
+        },
+        {
+          "id": "src/three/WasteTruckScene.ts",
+          "renderedLength": 12345
+        },
+        {
+          "id": "src/components/EarthquakeReplayPanel.tsx",
+          "renderedLength": 12065
+        },
+        {
+          "id": "src/three/GfwV4TrackScene.ts",
+          "renderedLength": 12033
+        },
+        {
+          "id": "src/components/satelliteConsole/SatelliteDetailCard.tsx",
+          "renderedLength": 11943
+        },
+        {
+          "id": "src/map/MapView.tsx",
+          "renderedLength": 11828
+        },
+        {
+          "id": "src/components/intel/monitor/TraDelayBoard.tsx",
+          "renderedLength": 11475
+        },
+        {
+          "id": "src/three/WasteScheduleScene.ts",
+          "renderedLength": 11459
+        },
+        {
+          "id": "src/components/intel/alerts/AlertCard.tsx",
+          "renderedLength": 11331
+        },
+        {
+          "id": "src/components/satelliteConsole/TWFleetSection.tsx",
+          "renderedLength": 11298
+        },
+        {
+          "id": "src/layers/layerHookRegistry.tsx",
+          "renderedLength": 11259
+        },
+        {
+          "id": "src/components/featureInfo/wastePanels.tsx",
+          "renderedLength": 11180
+        },
+        {
+          "id": "src/hooks/useDisasterAlertLayer.ts",
+          "renderedLength": 11161
+        },
+        {
+          "id": "src/components/featureInfo/businessRegistryPanels.tsx",
+          "renderedLength": 11155
+        },
+        {
+          "id": "src/three/RealEstatePointsScene.ts",
+          "renderedLength": 11141
+        },
+        {
+          "id": "node_modules/@ai-sdk/provider/dist/index.js",
+          "renderedLength": 10916
+        },
+        {
+          "id": "src/data/typhoonTracksLoader.ts",
+          "renderedLength": 10914
+        },
+        {
+          "id": "src/components/DataSourceModal.tsx",
+          "renderedLength": 10829
+        },
+        {
+          "id": "src/map/earthquakeReplayLayerFactory.ts",
+          "renderedLength": 10775
+        },
+        {
+          "id": "src/components/featureInfo/hazardPanels.tsx",
+          "renderedLength": 10764
+        },
+        {
+          "id": "src/components/chat/KeySettings.tsx",
+          "renderedLength": 10664
+        },
+        {
+          "id": "src/components/featureInfo/animalWelfarePanels.tsx",
+          "renderedLength": 10597
+        },
+        {
+          "id": "src/map/agricultureLayerFactory.ts",
+          "renderedLength": 10562
+        },
+        {
+          "id": "src/hooks/useCwaImageryLayer.ts",
+          "renderedLength": 10142
+        },
+        {
+          "id": "src/components/intel/monitor/VesselZoneCard.tsx",
+          "renderedLength": 10078
+        },
+        {
+          "id": "src/components/featureInfo/culturePanels.tsx",
+          "renderedLength": 9770
+        },
+        {
+          "id": "src/data/railLoader.ts",
+          "renderedLength": 9697
+        },
+        {
+          "id": "src/components/intel/IntelHeader.tsx",
+          "renderedLength": 9627
+        },
+        {
+          "id": "src/components/satelliteConsole/CNGroupSection.tsx",
+          "renderedLength": 9413
+        },
+        {
+          "id": "src/components/PropertyValuePanel.tsx",
+          "renderedLength": 9405
+        },
+        {
+          "id": "src/components/featureInfo/medicalPanels.tsx",
+          "renderedLength": 9191
+        },
+        {
+          "id": "src/three/WasteMusicNoteScene.ts",
+          "renderedLength": 9152
+        },
+        {
+          "id": "src/components/featureInfo/religionPanels.tsx",
+          "renderedLength": 9121
+        },
+        {
+          "id": "src/components/HistoricalTimeline.tsx",
+          "renderedLength": 9044
+        },
+        {
+          "id": "src/hooks/useEarthquakeReplayLayer.ts",
+          "renderedLength": 9005
+        },
+        {
+          "id": "src/components/LoadingScreen.tsx",
+          "renderedLength": 8905
+        },
+        {
+          "id": "src/components/DataSourceBrowser.tsx",
+          "renderedLength": 8866
+        },
+        {
+          "id": "src/components/featureInfo/fisheryPanels.tsx",
+          "renderedLength": 8847
+        },
+        {
+          "id": "src/three/BusScene.ts",
+          "renderedLength": 8761
+        },
+        {
+          "id": "src/components/intel/monitor/HazardWatchStrip.tsx",
+          "renderedLength": 8595
+        },
+        {
+          "id": "src/hooks/useEarthquakesGlobalLayer.ts",
+          "renderedLength": 8542
+        },
+        {
+          "id": "src/map/wasteMapboxLayers.ts",
+          "renderedLength": 8510
+        },
+        {
+          "id": "src/components/featureInfo/roadPanels.tsx",
+          "renderedLength": 8507
+        },
+        {
+          "id": "src/components/featureInfo/airPanels.tsx",
+          "renderedLength": 8362
+        },
+        {
+          "id": "src/hooks/usePlaActivityLayer.ts",
+          "renderedLength": 8360
+        },
+        {
+          "id": "src/hooks/useFloodSensorLayer.ts",
+          "renderedLength": 8160
+        },
+        {
+          "id": "src/three/OsmPowerLinesGlowScene.ts",
+          "renderedLength": 8061
+        },
+        {
+          "id": "src/components/featureInfo/transportPanels.tsx",
+          "renderedLength": 8049
+        },
+        {
+          "id": "src/components/featureInfo/baseMapPanels.tsx",
+          "renderedLength": 8001
+        },
+        {
+          "id": "src/hooks/useReservoirStatusLayer.ts",
+          "renderedLength": 7930
+        },
+        {
+          "id": "src/state/layerParamRefs.ts",
+          "renderedLength": 7846
+        },
+        {
+          "id": "node_modules/eventsource-parser/dist/index.js",
+          "renderedLength": 7753
+        },
+        {
+          "id": "src/components/intel/IntelFilters.tsx",
+          "renderedLength": 7651
+        },
+        {
+          "id": "src/hooks/useReservoirContextLayer.ts",
+          "renderedLength": 7521
+        },
+        {
+          "id": "src/hooks/useTyphoonTracksLayer.ts",
+          "renderedLength": 7395
+        },
+        {
+          "id": "src/components/intel/alerts/AlertSummaryBar.tsx",
+          "renderedLength": 7256
+        },
+        {
+          "id": "src/hooks/useEarthquakeLayer.ts",
+          "renderedLength": 7251
+        },
+        {
+          "id": "src/hooks/useVesselWatchLayer.ts",
+          "renderedLength": 7233
+        },
+        {
+          "id": "src/components/featureInfo/japanPanels.tsx",
+          "renderedLength": 7188
+        },
+        {
+          "id": "src/components/auth/UserAvatar.tsx",
+          "renderedLength": 7085
+        },
+        {
+          "id": "src/data/vesselWatchLoader.ts",
+          "renderedLength": 7063
+        },
+        {
+          "id": "src/hooks/useTimeline.ts",
+          "renderedLength": 7023
+        },
+        {
+          "id": "src/hooks/useFreewayLayer.ts",
+          "renderedLength": 7014
+        },
+        {
+          "id": "src/layers/hosts/gridHosts.tsx",
+          "renderedLength": 7008
+        },
+        {
+          "id": "src/data/wasteLoader.ts",
+          "renderedLength": 6986
+        },
+        {
+          "id": "src/hooks/useRainGaugeLayer.ts",
+          "renderedLength": 6972
+        },
+        {
+          "id": "src/hooks/useGfwFishingEffortLayer.ts",
+          "renderedLength": 6920
+        },
+        {
+          "id": "src/hooks/useRoadEventsLayer.ts",
+          "renderedLength": 6901
+        },
+        {
+          "id": "src/hooks/useAviationAirspaceLayer.ts",
+          "renderedLength": 6899
+        },
+        {
+          "id": "src/components/intel/monitor/PrisonCard.tsx",
+          "renderedLength": 6869
+        },
+        {
+          "id": "src/components/ShareModal.tsx",
+          "renderedLength": 6840
+        },
+        {
+          "id": "src/components/intel/alerts/AlertsTrack.tsx",
+          "renderedLength": 6732
+        },
+        {
+          "id": "src/components/intel/GlobalSituationFeed.tsx",
+          "renderedLength": 6658
+        },
+        {
+          "id": "src/components/intel/monitor/HotspotsWidget.tsx",
+          "renderedLength": 6636
+        },
+        {
+          "id": "src/data/busLoader.ts",
+          "renderedLength": 6634
+        },
+        {
+          "id": "src/data/globalEventsPresentation.ts",
+          "renderedLength": 6581
+        },
+        {
+          "id": "src/components/intel/monitor/NewsFeedPanel.tsx",
+          "renderedLength": 6486
+        },
+        {
+          "id": "src/hooks/useMicroSensorsLayer.ts",
+          "renderedLength": 6483
+        },
+        {
+          "id": "src/components/intel/monitor/SituationCards.tsx",
+          "renderedLength": 6468
+        },
+        {
+          "id": "src/data/changelog.ts",
+          "renderedLength": 6449
+        },
+        {
+          "id": "src/components/featureInfo/h3MetricPanels.tsx",
+          "renderedLength": 6324
+        },
+        {
+          "id": "src/hooks/usePowerPolesLayer.ts",
+          "renderedLength": 6297
+        },
+        {
+          "id": "src/components/featureInfo/forestryPanels.tsx",
+          "renderedLength": 6222
+        },
+        {
+          "id": "src/layers/hosts/energyHosts.tsx",
+          "renderedLength": 6202
+        },
+        {
+          "id": "src/three/GlowPointsScene.ts",
+          "renderedLength": 6170
+        },
+        {
+          "id": "src/components/satelliteConsole/SatelliteConsoleHeader.tsx",
+          "renderedLength": 6150
+        },
+        {
+          "id": "src/components/featureInfo/funeralPanels.tsx",
+          "renderedLength": 6059
+        },
+        {
+          "id": "src/data/alertsLoader.ts",
+          "renderedLength": 5964
+        },
+        {
+          "id": "src/hooks/useRoadCongestionLayer.ts",
+          "renderedLength": 5879
+        },
+        {
+          "id": "src/data/globalMaritimeLoader.ts",
+          "renderedLength": 5814
+        },
+        {
+          "id": "src/hooks/useClimateParticleLineLayer.ts",
+          "renderedLength": 5812
+        },
+        {
+          "id": "src/hooks/useAirspaceData.ts",
+          "renderedLength": 5809
+        },
+        {
+          "id": "src/data/climateFrames.ts",
+          "renderedLength": 5757
+        },
+        {
+          "id": "src/three/FireStationScene.ts",
+          "renderedLength": 5728
+        },
+        {
+          "id": "src/hooks/useGfwDarkVesselsLayer.ts",
+          "renderedLength": 5717
+        },
+        {
+          "id": "src/components/intel/monitor/HourlyHistogramWidget.tsx",
+          "renderedLength": 5678
+        },
+        {
+          "id": "src/chat/tools/geojsonQuery.ts",
+          "renderedLength": 5672
+        },
+        {
+          "id": "src/chat/tools/dataTools.ts",
+          "renderedLength": 5657
+        },
+        {
+          "id": "src/hooks/useShipData.ts",
+          "renderedLength": 5622
+        },
+        {
+          "id": "src/data/earthquakeReplayLoader.ts",
+          "renderedLength": 5611
+        },
+        {
+          "id": "src/components/featureInfo/firePanels.tsx",
+          "renderedLength": 5609
+        },
+        {
+          "id": "src/components/featureInfo/pollutionPanels.tsx",
+          "renderedLength": 5598
+        },
+        {
+          "id": "src/hooks/useIotWraStructureLayer.ts",
+          "renderedLength": 5587
+        },
+        {
+          "id": "src/hooks/useNewsTimeline.ts",
+          "renderedLength": 5539
+        },
+        {
+          "id": "src/hooks/useJpReligionLayers.ts",
+          "renderedLength": 5535
+        },
+        {
+          "id": "src/hooks/useRailData.ts",
+          "renderedLength": 5486
+        },
+        {
+          "id": "src/hooks/useDustForecastLayer.ts",
+          "renderedLength": 5482
+        },
+        {
+          "id": "src/data/h3Loader.ts",
+          "renderedLength": 5473
+        },
+        {
+          "id": "src/components/AirportSelector.tsx",
+          "renderedLength": 5469
+        },
+        {
+          "id": "src/three/PowerGenerationBeamScene.ts",
+          "renderedLength": 5443
+        },
+        {
+          "id": "src/components/featureInfo/parkingPanels.tsx",
+          "renderedLength": 5419
+        },
+        {
+          "id": "src/components/ChartHoverTooltip.tsx",
+          "renderedLength": 5357
+        },
+        {
+          "id": "src/components/satelliteConsole/SatelliteConsole.tsx",
+          "renderedLength": 5320
+        },
+        {
+          "id": "src/map/customLayer.ts",
+          "renderedLength": 5317
+        },
+        {
+          "id": "src/components/CctvStreamView.tsx",
+          "renderedLength": 5296
+        },
+        {
+          "id": "src/components/featureInfo/shared.tsx",
+          "renderedLength": 5271
+        },
+        {
+          "id": "src/data/disasterAlertLoader.ts",
+          "renderedLength": 5254
+        },
+        {
+          "id": "src/layers/hosts/climateHosts.tsx",
+          "renderedLength": 5236
+        },
+        {
+          "id": "src/hooks/useGlobalMaritimeLayers.ts",
+          "renderedLength": 5208
+        },
+        {
+          "id": "src/hooks/useAnimalShelterPressureLayer.ts",
+          "renderedLength": 5205
+        },
+        {
+          "id": "src/hooks/useTemperatureGridLayer.ts",
+          "renderedLength": 5147
+        },
+        {
+          "id": "src/hooks/useDroneRestrictedZonesLayer.ts",
+          "renderedLength": 5138
+        },
+        {
+          "id": "src/hooks/useIotWraRiverLayer.ts",
+          "renderedLength": 5094
+        },
+        {
+          "id": "src/data/isrSatellitePassesLoader.ts",
+          "renderedLength": 4970
+        },
+        {
+          "id": "src/hooks/useRiverLevelLayer.ts",
+          "renderedLength": 4929
+        },
+        {
+          "id": "node_modules/zod/v4/core/regexes.js",
+          "renderedLength": 4910
+        },
+        {
+          "id": "src/chat/tools/datasets.ts",
+          "renderedLength": 4878
+        },
+        {
+          "id": "src/chat/agent.ts",
+          "renderedLength": 4855
+        },
+        {
+          "id": "src/hooks/usePowerLinesGlowTestLayer.ts",
+          "renderedLength": 4843
+        },
+        {
+          "id": "src/data/earthquakeLoader.ts",
+          "renderedLength": 4824
+        },
+        {
+          "id": "src/data/fossilFuelLoader.ts",
+          "renderedLength": 4796
+        },
+        {
+          "id": "src/three/PowerRegionBarsScene.ts",
+          "renderedLength": 4751
+        },
+        {
+          "id": "src/hooks/useAviationRestrictedGlowLayer.ts",
+          "renderedLength": 4741
+        },
+        {
+          "id": "src/data/newsEventsLoader.ts",
+          "renderedLength": 4723
+        },
+        {
+          "id": "src/hooks/useGroundwaterLayer.ts",
+          "renderedLength": 4696
+        },
+        {
+          "id": "src/hooks/useFuneralDensityLayer.ts",
+          "renderedLength": 4684
+        },
+        {
+          "id": "src/components/intel/monitor/AirportPaxCard.tsx",
+          "renderedLength": 4682
+        },
+        {
+          "id": "src/hooks/useBusLayer.ts",
+          "renderedLength": 4664
+        },
+        {
+          "id": "src/hooks/useAqiStationsLayer.ts",
+          "renderedLength": 4646
+        },
+        {
+          "id": "src/map/cameraPresets.ts",
+          "renderedLength": 4633
+        },
+        {
+          "id": "src/data/gfwDarkVesselsLoader.ts",
+          "renderedLength": 4543
+        },
+        {
+          "id": "src/hooks/useAqiImageryLayer.ts",
+          "renderedLength": 4516
+        },
+        {
+          "id": "src/three/StationPillarScene.ts",
+          "renderedLength": 4497
+        },
+        {
+          "id": "src/hooks/useJpAirportsLayer.ts",
+          "renderedLength": 4497
+        },
+        {
+          "id": "src/hooks/useHazardLayer.ts",
+          "renderedLength": 4495
+        },
+        {
+          "id": "src/hooks/useFloodSensorIsochroneLayer.ts",
+          "renderedLength": 4420
+        },
+        {
+          "id": "src/hooks/useTouristShuttleLayer.ts",
+          "renderedLength": 4368
+        },
+        {
+          "id": "src/hooks/useBusIntercityLayer.ts",
+          "renderedLength": 4359
+        },
+        {
+          "id": "src/layers/hosts/waterHosts.tsx",
+          "renderedLength": 4279
+        },
+        {
+          "id": "src/hooks/usePrecipRasterLayer.ts",
+          "renderedLength": 4245
+        },
+        {
+          "id": "src/hooks/useRealEstateTimeline.ts",
+          "renderedLength": 4238
+        },
+        {
+          "id": "src/hooks/useJpAdminLayers.ts",
+          "renderedLength": 4204
+        },
+        {
+          "id": "src/hooks/useSelectedFeatureHalo.ts",
+          "renderedLength": 4164
+        },
+        {
+          "id": "src/hooks/usePowerGenerationBeamLayer.ts",
+          "renderedLength": 4127
+        },
+        {
+          "id": "src/map/youbikeLayerFactory.ts",
+          "renderedLength": 4096
+        },
+        {
+          "id": "src/components/intel/monitor/TriageWidget.tsx",
+          "renderedLength": 3991
+        },
+        {
+          "id": "src/data/animalShelterOutcomesLoader.ts",
+          "renderedLength": 3975
+        },
+        {
+          "id": "src/components/intel/monitor/HazardTrendBars.tsx",
+          "renderedLength": 3974
+        },
+        {
+          "id": "src/map/h3LayerFactory.ts",
+          "renderedLength": 3946
+        },
+        {
+          "id": "src/hooks/useAnimalAdoptionLayer.ts",
+          "renderedLength": 3925
+        },
+        {
+          "id": "src/chat/tools/catalogTools.ts",
+          "renderedLength": 3904
+        },
+        {
+          "id": "src/hooks/useTaipeiPumbLayer.ts",
+          "renderedLength": 3867
+        },
+        {
+          "id": "src/data/animalWelfarePointsLoader.ts",
+          "renderedLength": 3793
+        },
+        {
+          "id": "src/components/intel/IntelReplay.tsx",
+          "renderedLength": 3769
+        },
+        {
+          "id": "src/hooks/useAnimalWelfarePointsLayer.ts",
+          "renderedLength": 3728
+        },
+        {
+          "id": "src/hooks/useParkingLayer.ts",
+          "renderedLength": 3718
+        },
+        {
+          "id": "src/hooks/useYoubikeH3.ts",
+          "renderedLength": 3685
+        },
+        {
+          "id": "src/hooks/useFossilFuelLayers.ts",
+          "renderedLength": 3669
+        },
+        {
+          "id": "src/hooks/useWasteLayer.ts",
+          "renderedLength": 3605
+        },
+        {
+          "id": "src/data/satelliteHistoryLoader.ts",
+          "renderedLength": 3577
+        },
+        {
+          "id": "src/components/FeatureInfoPanel.tsx",
+          "renderedLength": 3546
+        },
+        {
+          "id": "src/lib/beachball.ts",
+          "renderedLength": 3483
+        },
+        {
+          "id": "src/components/satelliteConsole/satelliteConsoleTokens.ts",
+          "renderedLength": 3440
+        },
+        {
+          "id": "src/hooks/useFireEventsLayer.ts",
+          "renderedLength": 3428
+        },
+        {
+          "id": "src/hooks/useGroundwaterWellsLayer.ts",
+          "renderedLength": 3422
+        },
+        {
+          "id": "src/hooks/useWasteCleaningSquadLayer.ts",
+          "renderedLength": 3408
+        },
+        {
+          "id": "node_modules/zod/v4/core/parse.js",
+          "renderedLength": 3407
+        },
+        {
+          "id": "src/components/intel/monitor/monitorLayout.ts",
+          "renderedLength": 3381
+        },
+        {
+          "id": "src/hooks/useTaipeiEvacuateLayer.ts",
+          "renderedLength": 3371
+        },
+        {
+          "id": "src/hooks/useLivestockLayers.ts",
+          "renderedLength": 3337
+        },
+        {
+          "id": "src/map/temperatureGridLayerFactory.ts",
+          "renderedLength": 3298
+        },
+        {
+          "id": "src/data/touristShuttleLoader.ts",
+          "renderedLength": 3272
+        },
+        {
+          "id": "src/lib/sessionTracker.ts",
+          "renderedLength": 3263
+        },
+        {
+          "id": "src/data/satelliteLoader.ts",
+          "renderedLength": 3263
+        },
+        {
+          "id": "src/map/staticTrails.ts",
+          "renderedLength": 3252
+        },
+        {
+          "id": "src/data/roadEventsLoader.ts",
+          "renderedLength": 3206
+        },
+        {
+          "id": "src/data/erHospitalLoader.ts",
+          "renderedLength": 3180
+        },
+        {
+          "id": "src/data/railScheduleLoader.ts",
+          "renderedLength": 3172
+        },
+        {
+          "id": "src/hooks/usePollutionLayers.ts",
+          "renderedLength": 3133
+        },
+        {
+          "id": "src/layers/hosts/miscHosts.tsx",
+          "renderedLength": 3112
+        },
+        {
+          "id": "src/components/featureInfo/livestockPanels.tsx",
+          "renderedLength": 3101
+        },
+        {
+          "id": "src/map/wasteFacilityCustomLayer.ts",
+          "renderedLength": 3080
+        },
+        {
+          "id": "src/hooks/useDataRegistry.ts",
+          "renderedLength": 3079
+        },
+        {
+          "id": "src/three/LighthouseScene.ts",
+          "renderedLength": 3056
+        },
+        {
+          "id": "src/chat/tools/mapTools.ts",
+          "renderedLength": 3029
+        },
+        {
+          "id": "src/hooks/useTaipeiSewerLayer.ts",
+          "renderedLength": 3026
+        },
+        {
+          "id": "src/hooks/useFireLatestLayer.ts",
+          "renderedLength": 2992
+        },
+        {
+          "id": "src/chat/tools/rpcTools.ts",
+          "renderedLength": 2948
+        },
+        {
+          "id": "src/hooks/useOsmPowerLinesGlowLayer.ts",
+          "renderedLength": 2942
+        },
+        {
+          "id": "src/hooks/useAspectVectorLayer.ts",
+          "renderedLength": 2935
+        },
+        {
+          "id": "src/data/temperatureLoader.ts",
+          "renderedLength": 2909
+        },
+        {
+          "id": "src/hooks/useSlopeVectorLayer.ts",
+          "renderedLength": 2893
+        },
+        {
+          "id": "src/data/earthquakesGlobalLoader.ts",
+          "renderedLength": 2871
+        },
+        {
+          "id": "src/map/buildingsNightBloomCustomLayer.ts",
+          "renderedLength": 2868
+        },
+        {
+          "id": "src/components/intel/monitor/powerCardData.ts",
+          "renderedLength": 2753
+        },
+        {
+          "id": "src/components/LoadingIndicator.tsx",
+          "renderedLength": 2719
+        },
+        {
+          "id": "node_modules/zod/v4/core/errors.js",
+          "renderedLength": 2713
+        },
+        {
+          "id": "src/data/climateFieldSampler.ts",
+          "renderedLength": 2689
+        },
+        {
+          "id": "src/components/intel/monitor/monitorSplitLayout.ts",
+          "renderedLength": 2666
+        },
+        {
+          "id": "src/hooks/useJpStationsLayer.ts",
+          "renderedLength": 2657
+        },
+        {
+          "id": "src/data/rasterProbeSampler.ts",
+          "renderedLength": 2624
+        },
+        {
+          "id": "src/state/layerParamsControls.ts",
+          "renderedLength": 2623
+        },
+        {
+          "id": "src/hooks/factories/timelineSliceLayer.ts",
+          "renderedLength": 2572
+        },
+        {
+          "id": "src/components/featureInfo/sportsPanels.tsx",
+          "renderedLength": 2545
+        },
+        {
+          "id": "src/components/MobileBottomSheet.tsx",
+          "renderedLength": 2514
+        },
+        {
+          "id": "src/data/librarySeatsLoader.ts",
+          "renderedLength": 2449
+        },
+        {
+          "id": "src/hooks/useA1AccidentRealtimeLayer.ts",
+          "renderedLength": 2443
+        },
+        {
+          "id": "src/components/intel/alerts/FeedTabs.tsx",
+          "renderedLength": 2437
+        },
+        {
+          "id": "src/data/gfwV4SpatialViewport.ts",
+          "renderedLength": 2425
+        },
+        {
+          "id": "src/data/animalAdoptionLoader.ts",
+          "renderedLength": 2425
+        },
+        {
+          "id": "src/layers/hosts/imageryHosts.tsx",
+          "renderedLength": 2360
+        },
+        {
+          "id": "src/data/wicTaipeiLoader.ts",
+          "renderedLength": 2324
+        },
+        {
+          "id": "src/layers/hosts/globalMaritimeHosts.tsx",
+          "renderedLength": 2324
+        },
+        {
+          "id": "src/hooks/useWasteScheduleLayer.ts",
+          "renderedLength": 2322
+        },
+        {
+          "id": "src/map/gfwV4TrackCustomLayer.ts",
+          "renderedLength": 2280
+        },
+        {
+          "id": "src/hooks/useJpSchoolsLayer.ts",
+          "renderedLength": 2271
+        },
+        {
+          "id": "node_modules/zod/v4/core/core.js",
+          "renderedLength": 2206
+        },
+        {
+          "id": "src/hooks/useNewsEventsLayer.ts",
+          "renderedLength": 2138
+        },
+        {
+          "id": "src/chat/systemPrompt.ts",
+          "renderedLength": 2116
+        },
+        {
+          "id": "src/data/satelliteManeuversLoader.ts",
+          "renderedLength": 2100
+        },
+        {
+          "id": "node_modules/zod/v3/types.js",
+          "renderedLength": 2095
+        },
+        {
+          "id": "src/hooks/useJpRailwaysLayer.ts",
+          "renderedLength": 2065
+        },
+        {
+          "id": "src/data/youbikeH3Loader.ts",
+          "renderedLength": 2053
+        },
+        {
+          "id": "src/state/chatStore.ts",
+          "renderedLength": 1995
+        },
+        {
+          "id": "src/hooks/useJpPopulationMeshLayer.ts",
+          "renderedLength": 1993
+        },
+        {
+          "id": "src/hooks/useWorldTrashDebrisLayer.ts",
+          "renderedLength": 1983
+        },
+        {
+          "id": "src/map/medicalIsochroneLayerFactory.ts",
+          "renderedLength": 1964
+        },
+        {
+          "id": "src/map/cwaImageryLayer.ts",
+          "renderedLength": 1936
+        },
+        {
+          "id": "src/data/cwaImageryLoader.ts",
+          "renderedLength": 1922
+        },
+        {
+          "id": "src/hooks/useManeuverImpacts.ts",
+          "renderedLength": 1912
+        },
+        {
+          "id": "src/data/aqiStationsLoader.ts",
+          "renderedLength": 1909
+        },
+        {
+          "id": "src/layers/hosts/japanHosts.tsx",
+          "renderedLength": 1907
+        },
+        {
+          "id": "src/components/intel/monitor/monitorPacking.ts",
+          "renderedLength": 1856
+        },
+        {
+          "id": "src/hooks/useDemographicsH3.ts",
+          "renderedLength": 1821
+        },
+        {
+          "id": "src/data/satelliteTaiwanLocale.ts",
+          "renderedLength": 1820
+        },
+        {
+          "id": "src/map/realEstatePointsCustomLayer.ts",
+          "renderedLength": 1803
+        },
+        {
+          "id": "src/chat/tools/h3Population.ts",
+          "renderedLength": 1802
+        },
+        {
+          "id": "node_modules/@vercel/oidc/dist/index-browser.js",
+          "renderedLength": 1801
+        },
+        {
+          "id": "src/hooks/useSubstationDiamondIcon.ts",
+          "renderedLength": 1756
+        },
+        {
+          "id": "src/data/reservoirContextLoader.ts",
+          "renderedLength": 1737
+        },
+        {
+          "id": "src/utils/maneuverImpact.ts",
+          "renderedLength": 1734
+        },
+        {
+          "id": "src/map/fireIsochroneLayerFactory.ts",
+          "renderedLength": 1733
+        },
+        {
+          "id": "src/data/reservoirOpsLoader.ts",
+          "renderedLength": 1732
+        },
+        {
+          "id": "src/data/airspaceLoader.ts",
+          "renderedLength": 1728
+        },
+        {
+          "id": "src/components/intel/monitor/erCardData.ts",
+          "renderedLength": 1722
+        },
+        {
+          "id": "src/lib/auth.ts",
+          "renderedLength": 1720
+        },
+        {
+          "id": "src/data/globalSituationFeedLoader.ts",
+          "renderedLength": 1708
+        },
+        {
+          "id": "src/lib/layerGates.ts",
+          "renderedLength": 1697
+        },
+        {
+          "id": "src/hooks/usePowerPlantGlowLayer.ts",
+          "renderedLength": 1694
+        },
+        {
+          "id": "src/hooks/useStaticRasterLayer.ts",
+          "renderedLength": 1669
+        },
+        {
+          "id": "src/layers/hosts/hazardHosts.tsx",
+          "renderedLength": 1666
+        },
+        {
+          "id": "node_modules/@vercel/oidc/dist/auth-errors.js",
+          "renderedLength": 1644
+        },
+        {
+          "id": "src/data/dataCatalogLoader.ts",
+          "renderedLength": 1642
+        },
+        {
+          "id": "src/hooks/useSubstationEhvGlowLayer.ts",
+          "renderedLength": 1635
+        },
+        {
+          "id": "src/data/shipLoader.ts",
+          "renderedLength": 1629
+        },
+        {
+          "id": "src/lib/keyVault.ts",
+          "renderedLength": 1626
+        },
+        {
+          "id": "src/data/satelliteCatalogLoader.ts",
+          "renderedLength": 1619
+        },
+        {
+          "id": "src/data/floodSensorLoader.ts",
+          "renderedLength": 1597
+        },
+        {
+          "id": "src/map/stationPillarCustomLayer.ts",
+          "renderedLength": 1596
+        },
+        {
+          "id": "src/data/alertRules.ts",
+          "renderedLength": 1592
+        },
+        {
+          "id": "src/data/microSensorsLoader.ts",
+          "renderedLength": 1572
+        },
+        {
+          "id": "src/data/wasteScheduleLoader.ts",
+          "renderedLength": 1563
+        },
+        {
+          "id": "src/state/gfwTimelineDataWindow.ts",
+          "renderedLength": 1541
+        },
+        {
+          "id": "src/map/wasteTruckCustomLayer.ts",
+          "renderedLength": 1530
+        },
+        {
+          "id": "src/map/substationEhvGlowCustomLayer.ts",
+          "renderedLength": 1512
+        },
+        {
+          "id": "src/lib/realEstateTime.ts",
+          "renderedLength": 1503
+        },
+        {
+          "id": "src/hooks/useRailEngine.ts",
+          "renderedLength": 1502
+        },
+        {
+          "id": "src/map/wasteScheduleCustomLayer.ts",
+          "renderedLength": 1478
+        },
+        {
+          "id": "src/components/AqiProductSwitcher.tsx",
+          "renderedLength": 1471
+        },
+        {
+          "id": "src/components/StyleSelector.tsx",
+          "renderedLength": 1457
+        },
+        {
+          "id": "src/map/fireStationCustomLayer.ts",
+          "renderedLength": 1415
+        },
+        {
+          "id": "node_modules/zod/v4/core/registries.js",
+          "renderedLength": 1410
+        },
+        {
+          "id": "src/components/ModeToggle.tsx",
+          "renderedLength": 1385
+        },
+        {
+          "id": "node_modules/@vercel/oidc/dist/get-context.js",
+          "renderedLength": 1383
+        },
+        {
+          "id": "node_modules/zod/v4/classic/errors.js",
+          "renderedLength": 1365
+        },
+        {
+          "id": "src/data/satelliteSGP4.ts",
+          "renderedLength": 1363
+        },
+        {
+          "id": "src/map/powerPlantGlowCustomLayer.ts",
+          "renderedLength": 1341
+        },
+        {
+          "id": "src/components/intel/IntelIcon.tsx",
+          "renderedLength": 1339
+        },
+        {
+          "id": "src/map/railTracks.ts",
+          "renderedLength": 1293
+        },
+        {
+          "id": "src/lib/adminApi.ts",
+          "renderedLength": 1289
+        },
+        {
+          "id": "src/data/gfwV4TrackFrameProtocol.ts",
+          "renderedLength": 1286
+        },
+        {
+          "id": "src/data/groundwaterLoader.ts",
+          "renderedLength": 1267
+        },
+        {
+          "id": "src/hooks/useWasteDisposalPointLayer.ts",
+          "renderedLength": 1238
+        },
+        {
+          "id": "src/hooks/useWasteFacilityLayer.ts",
+          "renderedLength": 1230
+        },
+        {
+          "id": "src/data/fireLoader.ts",
+          "renderedLength": 1217
+        },
+        {
+          "id": "src/hooks/useLibrarySeatsLayer.ts",
+          "renderedLength": 1212
+        },
+        {
+          "id": "src/hooks/useErHospitalLayer.ts",
+          "renderedLength": 1205
+        },
+        {
+          "id": "src/hooks/useBuildingsNightBloomLayer.ts",
+          "renderedLength": 1190
+        },
+        {
+          "id": "src/state/satelliteConsoleStore.ts",
+          "renderedLength": 1187
+        },
+        {
+          "id": "src/lib/dayPrefetch.ts",
+          "renderedLength": 1167
+        },
+        {
+          "id": "src/state/earthquakeReplayClock.ts",
+          "renderedLength": 1144
+        },
+        {
+          "id": "src/hooks/useRealEstatePointsLayer.ts",
+          "renderedLength": 1133
+        },
+        {
+          "id": "src/data/gfwV4TrackPicking.ts",
+          "renderedLength": 1132
+        },
+        {
+          "id": "src/layers/hosts/realEstateHosts.tsx",
+          "renderedLength": 1113
+        },
+        {
+          "id": "node_modules/zod/v4/core/doc.js",
+          "renderedLength": 1080
+        },
+        {
+          "id": "src/data/aqiImageryLoader.ts",
+          "renderedLength": 1072
+        },
+        {
+          "id": "src/data/a1AccidentRealtimeLoader.ts",
+          "renderedLength": 1053
+        },
+        {
+          "id": "src/map/reservoirCustomLayer.ts",
+          "renderedLength": 1046
+        },
+        {
+          "id": "src/components/featureInfo/satellitePanels.tsx",
+          "renderedLength": 1038
+        },
+        {
+          "id": "src/data/reservoirStatusLoader.ts",
+          "renderedLength": 1035
+        },
+        {
+          "id": "src/map/osmPowerLinesGlowCustomLayer.ts",
+          "renderedLength": 1002
+        },
+        {
+          "id": "src/map/busCustomLayer.ts",
+          "renderedLength": 999
+        },
+        {
+          "id": "src/hooks/useDataCatalog.ts",
+          "renderedLength": 977
+        },
+        {
+          "id": "src/map/temperatureWaveCustomLayer.ts",
+          "renderedLength": 962
+        },
+        {
+          "id": "src/map/powerGenerationBeamCustomLayer.ts",
+          "renderedLength": 960
+        },
+        {
+          "id": "src/hooks/useNewsFilter.ts",
+          "renderedLength": 956
+        },
+        {
+          "id": "src/hooks/usePowerRegionBarsLayer.ts",
+          "renderedLength": 945
+        },
+        {
+          "id": "node_modules/zod/v4/classic/iso.js",
+          "renderedLength": 919
+        },
+        {
+          "id": "src/data/precipRasterLoader.ts",
+          "renderedLength": 906
+        },
+        {
+          "id": "node_modules/@workflow/serde/dist/index.js",
+          "renderedLength": 903
+        },
+        {
+          "id": "src/hooks/useIsMobile.ts",
+          "renderedLength": 873
+        },
+        {
+          "id": "src/map/lighthouseCustomLayer.ts",
+          "renderedLength": 865
+        },
+        {
+          "id": "src/map/powerRegionBarsCustomLayer.ts",
+          "renderedLength": 865
+        },
+        {
+          "id": "src/data/iotWraRiverLoader.ts",
+          "renderedLength": 845
+        },
+        {
+          "id": "src/layers/hosts/animalWelfareHosts.tsx",
+          "renderedLength": 838
+        },
+        {
+          "id": "src/data/riverLevelLoader.ts",
+          "renderedLength": 836
+        },
+        {
+          "id": "src/hooks/useInView.ts",
+          "renderedLength": 833
+        },
+        {
+          "id": "src/components/featureInfo/featureTheme.tsx",
+          "renderedLength": 832
+        },
+        {
+          "id": "src/data/rainGaugeLoader.ts",
+          "renderedLength": 801
+        },
+        {
+          "id": "src/data/jpStationsLoader.ts",
+          "renderedLength": 793
+        },
+        {
+          "id": "src/data/jpReligionLoader.ts",
+          "renderedLength": 785
+        },
+        {
+          "id": "node_modules/zod/v4/classic/parse.js",
+          "renderedLength": 768
+        },
+        {
+          "id": "src/hooks/useTemperatureData.ts",
+          "renderedLength": 754
+        },
+        {
+          "id": "src/hooks/useH3SpatialEconomy.ts",
+          "renderedLength": 749
+        },
+        {
+          "id": "src/hooks/useH3Socioeconomic.ts",
+          "renderedLength": 743
+        },
+        {
+          "id": "src/hooks/usePowerDashboard.ts",
+          "renderedLength": 722
+        },
+        {
+          "id": "src/chat/tools/truncate.ts",
+          "renderedLength": 721
+        },
+        {
+          "id": "src/data/iotWraStructureLoader.ts",
+          "renderedLength": 719
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/settings.js",
+          "renderedLength": 714
+        },
+        {
+          "id": "src/hooks/useH3Data.ts",
+          "renderedLength": 710
+        },
+        {
+          "id": "src/lib/rpcDebounce.ts",
+          "renderedLength": 663
+        },
+        {
+          "id": "src/data/worldTrashDebrisLoader.ts",
+          "renderedLength": 658
+        },
+        {
+          "id": "node_modules/eventsource-parser/dist/stream.js",
+          "renderedLength": 653
+        },
+        {
+          "id": "src/data/upstreamRegistry.ts",
+          "renderedLength": 652
+        },
+        {
+          "id": "src/hooks/useLayerVisibility.ts",
+          "renderedLength": 649
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/piggy-bank.js",
+          "renderedLength": 642
+        },
+        {
+          "id": "src/data/livestockLoader.ts",
+          "renderedLength": 641
+        },
+        {
+          "id": "src/data/gfwV4SpatialTracksLoader.ts",
+          "renderedLength": 639
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/file-text.js",
+          "renderedLength": 635
+        },
+        {
+          "id": "src/state/globalSituationFeedStore.ts",
+          "renderedLength": 623
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/door-open.js",
+          "renderedLength": 622
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/scroll-text.js",
+          "renderedLength": 592
+        },
+        {
+          "id": "src/data/funeralDensityLoader.ts",
+          "renderedLength": 585
+        },
+        {
+          "id": "src/state/globalEventsViewStore.ts",
+          "renderedLength": 536
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/send.js",
+          "renderedLength": 509
+        },
+        {
+          "id": "src/hooks/useSatelliteManeuvers.ts",
+          "renderedLength": 497
+        },
+        {
+          "id": "src/data/jpAirportsLoader.ts",
+          "renderedLength": 487
+        },
+        {
+          "id": "src/chat/providers.ts",
+          "renderedLength": 479
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/external-link.js",
+          "renderedLength": 459
+        },
+        {
+          "id": "src/layers/hosts/newsHosts.tsx",
+          "renderedLength": 458
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/database.js",
+          "renderedLength": 453
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/message-square.js",
+          "renderedLength": 452
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/globe.js",
+          "renderedLength": 447
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/log-in.js",
+          "renderedLength": 432
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/log-out.js",
+          "renderedLength": 432
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/pause.js",
+          "renderedLength": 419
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/info.js",
+          "renderedLength": 408
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/play.js",
+          "renderedLength": 400
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/panel-right.js",
+          "renderedLength": 394
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/user.js",
+          "renderedLength": 391
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/corner-down-left.js",
+          "renderedLength": 386
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/circle-check.js",
+          "renderedLength": 380
+        },
+        {
+          "id": "src/data/propertyValueAdminLoader.ts",
+          "renderedLength": 376
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/arrow-left.js",
+          "renderedLength": 361
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/square.js",
+          "renderedLength": 339
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/x.js",
+          "renderedLength": 338
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/navigation.js",
+          "renderedLength": 336
+        },
+        {
+          "id": "src/data/airportPaxLoader.ts",
+          "renderedLength": 305
+        },
+        {
+          "id": "src/main.tsx",
+          "renderedLength": 274
+        },
+        {
+          "id": "src/hooks/useWallClock.ts",
+          "renderedLength": 238
+        },
+        {
+          "id": "src/layers/LayerHost.tsx",
+          "renderedLength": 225
+        },
+        {
+          "id": "src/state/realEstatePointsStore.ts",
+          "renderedLength": 182
+        },
+        {
+          "id": "src/chat/tools/registry.ts",
+          "renderedLength": 120
+        },
+        {
+          "id": "node_modules/zod/v4/classic/coerce.js",
+          "renderedLength": 73
+        },
+        {
+          "id": "node_modules/zod/v4/core/versions.js",
+          "renderedLength": 62
+        },
+        {
+          "id": "node_modules/@vercel/oidc/dist/index-browser.js?commonjs-es-import",
+          "renderedLength": 48
+        },
+        {
+          "id": "src/utils/mercatorEngineMapbox.ts",
+          "renderedLength": 47
+        },
+        {
+          "id": "node_modules/react-dom/index.js?commonjs-es-import",
+          "renderedLength": 40
+        },
+        {
+          "id": "index.html?html-proxy&inline-css&index=0.css",
+          "renderedLength": 0
+        },
+        {
+          "id": "index.html",
+          "renderedLength": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/embed-fFAvnlaw.js",
+      "name": "embed",
+      "entry": true,
+      "bytes": 1111996,
+      "gzipBytes": 298473,
+      "imports": [
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/LegendPanel-BDjRacfl.js"
+      ],
+      "dynamicImports": [
+        "assets/replayRuntime-P7ClPvh_.js"
+      ],
+      "modules": [
+        {
+          "id": "node_modules/maplibre-gl/dist/maplibre-gl.js",
+          "renderedLength": 1060907
+        },
+        {
+          "id": "node_modules/@protomaps/basemaps/dist/esm/index.js",
+          "renderedLength": 38033
+        },
+        {
+          "id": "src/embed/EmbedApp.tsx",
+          "renderedLength": 10578
+        },
+        {
+          "id": "src/embed/replayClock.ts",
+          "renderedLength": 4249
+        },
+        {
+          "id": "src/embed/embedPopup.ts",
+          "renderedLength": 4188
+        },
+        {
+          "id": "src/embed/dynamicCdnLayers.ts",
+          "renderedLength": 2226
+        },
+        {
+          "id": "\u0000vite/preload-helper.js",
+          "renderedLength": 2206
+        },
+        {
+          "id": "src/embed/factoryOverlayConfigs.ts",
+          "renderedLength": 1504
+        },
+        {
+          "id": "src/embed/snapshotLayers.ts",
+          "renderedLength": 1334
+        },
+        {
+          "id": "src/embed/replayLayers.ts",
+          "renderedLength": 1327
+        },
+        {
+          "id": "src/embed/embedWhitelist.ts",
+          "renderedLength": 1187
+        },
+        {
+          "id": "src/embed/basemapStyle.ts",
+          "renderedLength": 749
+        },
+        {
+          "id": "src/embed/cameraBridge.ts",
+          "renderedLength": 747
+        },
+        {
+          "id": "src/embed/maplibreAdapters.ts",
+          "renderedLength": 595
+        },
+        {
+          "id": "src/embed/main.tsx",
+          "renderedLength": 279
+        },
+        {
+          "id": "node_modules/maplibre-gl/dist/maplibre-gl.js?commonjs-es-import",
+          "renderedLength": 120
+        },
+        {
+          "id": "src/embed/mercatorEngineMaplibre.ts",
+          "renderedLength": 49
+        },
+        {
+          "id": "node_modules/maplibre-gl/dist/maplibre-gl.js?commonjs-module",
+          "renderedLength": 33
+        },
+        {
+          "id": "embed.html?html-proxy&inline-css&index=0.css",
+          "renderedLength": 0
+        },
+        {
+          "id": "node_modules/maplibre-gl/dist/maplibre-gl.css",
+          "renderedLength": 0
+        },
+        {
+          "id": "embed.html",
+          "renderedLength": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/LegendPanel-BDjRacfl.js",
+      "name": "LegendPanel",
+      "entry": false,
+      "bytes": 1963595,
+      "gzipBytes": 492870,
+      "imports": [
+        "assets/crosshair-DJuz6vyp.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/three/build/three.module.js",
+          "renderedLength": 565121
+        },
+        {
+          "id": "node_modules/h3-js/dist/browser/h3-js.es.js",
+          "renderedLength": 408120
+        },
+        {
+          "id": "src/map/overlayRegistry.ts",
+          "renderedLength": 383085
+        },
+        {
+          "id": "src/data/layerManifest.ts",
+          "renderedLength": 360011
+        },
+        {
+          "id": "node_modules/three/build/three.core.js",
+          "renderedLength": 311202
+        },
+        {
+          "id": "src/components/LegendPanel.tsx",
+          "renderedLength": 285853
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+          "renderedLength": 217888
+        },
+        {
+          "id": "src/data/layerParamsSpec.ts",
+          "renderedLength": 121788
+        },
+        {
+          "id": "node_modules/@supabase/postgrest-js/dist/index.mjs",
+          "renderedLength": 120476
+        },
+        {
+          "id": "node_modules/@supabase/storage-js/dist/index.mjs",
+          "renderedLength": 94831
+        },
+        {
+          "id": "node_modules/@supabase/phoenix/priv/static/phoenix.mjs",
+          "renderedLength": 53913
+        },
+        {
+          "id": "node_modules/mapbox-pmtiles/dist/mapbox-pmtiles.js",
+          "renderedLength": 48064
+        },
+        {
+          "id": "src/components/sidebar/layerCatalog.ts",
+          "renderedLength": 39687
+        },
+        {
+          "id": "src/hooks/useGfwHourlyGridLayer.ts",
+          "renderedLength": 36144
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js",
+          "renderedLength": 34048
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/webauthn.js",
+          "renderedLength": 33385
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/RealtimeChannel.js",
+          "renderedLength": 28259
+        },
+        {
+          "id": "node_modules/@supabase/supabase-js/dist/index.mjs",
+          "renderedLength": 23501
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/RealtimeClient.js",
+          "renderedLength": 22451
+        },
+        {
+          "id": "node_modules/iceberg-js/dist/index.mjs",
+          "renderedLength": 15840
+        },
+        {
+          "id": "src/data/gfwHourlyGridLoader.ts",
+          "renderedLength": 15779
+        },
+        {
+          "id": "node_modules/fflate/esm/browser.js",
+          "renderedLength": 14991
+        },
+        {
+          "id": "src/data/energyLoader.ts",
+          "renderedLength": 14933
+        },
+        {
+          "id": "src/data/gfwHourlyDetailLoader.ts",
+          "renderedLength": 14636
+        },
+        {
+          "id": "node_modules/pmtiles/dist/esm/index.js",
+          "renderedLength": 14040
+        },
+        {
+          "id": "src/data/gfwHourlyReleaseManifest.ts",
+          "renderedLength": 13758
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/helpers.js",
+          "renderedLength": 13621
+        },
+        {
+          "id": "src/map/overlayManager.ts",
+          "renderedLength": 12534
+        },
+        {
+          "id": "node_modules/@supabase/functions-js/dist/module/FunctionsClient.js",
+          "renderedLength": 12425
+        },
+        {
+          "id": "src/data/businessRegistryTypes.ts",
+          "renderedLength": 11864
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js",
+          "renderedLength": 11079
+        },
+        {
+          "id": "src/data/marineObservationLoader.ts",
+          "renderedLength": 10786
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/locks.js",
+          "renderedLength": 10673
+        },
+        {
+          "id": "src/data/gfwV4ReleaseLoader.ts",
+          "renderedLength": 10429
+        },
+        {
+          "id": "src/data/welfareTypes.ts",
+          "renderedLength": 9876
+        },
+        {
+          "id": "src/three/TemperatureWaveScene.ts",
+          "renderedLength": 9148
+        },
+        {
+          "id": "src/data/gfwFishingEffortLoader.ts",
+          "renderedLength": 9130
+        },
+        {
+          "id": "src/data/gfwHourlyGridTypes.ts",
+          "renderedLength": 9003
+        },
+        {
+          "id": "src/map/demographicsLayerFactory.ts",
+          "renderedLength": 8684
+        },
+        {
+          "id": "src/hooks/useMarineObservationLayer.ts",
+          "renderedLength": 8426
+        },
+        {
+          "id": "src/data/educationTypes.ts",
+          "renderedLength": 8224
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/lib/transformers.js",
+          "renderedLength": 8171
+        },
+        {
+          "id": "src/data/parkingLoader.ts",
+          "renderedLength": 8071
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/base64url.js",
+          "renderedLength": 7936
+        },
+        {
+          "id": "src/data/lightningLoader.ts",
+          "renderedLength": 7413
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/errors.js",
+          "renderedLength": 7255
+        },
+        {
+          "id": "src/data/propertyValueTypes.ts",
+          "renderedLength": 7194
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/lib/serializer.js",
+          "renderedLength": 7145
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/fetch.js",
+          "renderedLength": 6882
+        },
+        {
+          "id": "src/components/intel/intelTokens.ts",
+          "renderedLength": 6850
+        },
+        {
+          "id": "src/data/agriSoilFertilityMetrics.ts",
+          "renderedLength": 6752
+        },
+        {
+          "id": "src/data/urbanOpenSpaceTypes.ts",
+          "renderedLength": 6566
+        },
+        {
+          "id": "src/data/cropSuitabilityCrops.ts",
+          "renderedLength": 6310
+        },
+        {
+          "id": "src/data/nuclearLoader.ts",
+          "renderedLength": 5959
+        },
+        {
+          "id": "src/data/funeralTypes.ts",
+          "renderedLength": 5827
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/lib/websocket-factory.js",
+          "renderedLength": 5272
+        },
+        {
+          "id": "src/state/layerParamsStore.ts",
+          "renderedLength": 4821
+        },
+        {
+          "id": "src/data/telecomTypes.ts",
+          "renderedLength": 4763
+        },
+        {
+          "id": "src/state/timeStore.ts",
+          "renderedLength": 4636
+        },
+        {
+          "id": "src/data/plaTracksLoader.ts",
+          "renderedLength": 4497
+        },
+        {
+          "id": "src/lib/urlState.ts",
+          "renderedLength": 4482
+        },
+        {
+          "id": "src/map/gfwPmtilesSourceType.ts",
+          "renderedLength": 4311
+        },
+        {
+          "id": "src/constants/railLines.ts",
+          "renderedLength": 4238
+        },
+        {
+          "id": "src/data/urbanFormGridTypes.ts",
+          "renderedLength": 3760
+        },
+        {
+          "id": "src/lib/supabase.ts",
+          "renderedLength": 3672
+        },
+        {
+          "id": "src/data/shipTrails.ts",
+          "renderedLength": 3405
+        },
+        {
+          "id": "src/data/freewayLoader.ts",
+          "renderedLength": 3344
+        },
+        {
+          "id": "src/data/satelliteTypes.ts",
+          "renderedLength": 3303
+        },
+        {
+          "id": "src/data/noiseTypes.ts",
+          "renderedLength": 3220
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/phoenix/presenceAdapter.js",
+          "renderedLength": 3090
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js",
+          "renderedLength": 3043
+        },
+        {
+          "id": "src/types/index.ts",
+          "renderedLength": 3040
+        },
+        {
+          "id": "src/data/religionTypes.ts",
+          "renderedLength": 2951
+        },
+        {
+          "id": "src/data/livestockTypes.ts",
+          "renderedLength": 2919
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/phoenix/channelAdapter.js",
+          "renderedLength": 2880
+        },
+        {
+          "id": "src/data/mountainSafetyTypes.ts",
+          "renderedLength": 2787
+        },
+        {
+          "id": "src/state/layerVisibilityStore.ts",
+          "renderedLength": 2710
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/phoenix/socketAdapter.js",
+          "renderedLength": 2697
+        },
+        {
+          "id": "src/data/sportsTypes.ts",
+          "renderedLength": 2689
+        },
+        {
+          "id": "src/data/buildingsGbaTypes.ts",
+          "renderedLength": 2639
+        },
+        {
+          "id": "node_modules/@supabase/functions-js/dist/module/types.js",
+          "renderedLength": 2546
+        },
+        {
+          "id": "src/data/isobathTypes.ts",
+          "renderedLength": 2482
+        },
+        {
+          "id": "src/data/pollutionTypes.ts",
+          "renderedLength": 2466
+        },
+        {
+          "id": "src/data/jpPopulationMeshModes.ts",
+          "renderedLength": 2366
+        },
+        {
+          "id": "src/data/urbanHeatTypes.ts",
+          "renderedLength": 2221
+        },
+        {
+          "id": "node_modules/tslib/tslib.es6.mjs",
+          "renderedLength": 2160
+        },
+        {
+          "id": "src/data/microSensorTypes.ts",
+          "renderedLength": 2116
+        },
+        {
+          "id": "src/lib/loaderCache.ts",
+          "renderedLength": 2106
+        },
+        {
+          "id": "src/data/streetTreeColors.ts",
+          "renderedLength": 1987
+        },
+        {
+          "id": "src/data/disasterAlertTypes.ts",
+          "renderedLength": 1900
+        },
+        {
+          "id": "src/data/roadCongestionLoader.ts",
+          "renderedLength": 1815
+        },
+        {
+          "id": "src/data/tourTypes.ts",
+          "renderedLength": 1814
+        },
+        {
+          "id": "src/data/jpStationTypes.ts",
+          "renderedLength": 1766
+        },
+        {
+          "id": "src/data/earthquakeReplayTypes.ts",
+          "renderedLength": 1672
+        },
+        {
+          "id": "src/lib/loadingRegistry.ts",
+          "renderedLength": 1663
+        },
+        {
+          "id": "src/data/nonUrbanZoningTypes.ts",
+          "renderedLength": 1558
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/RealtimePresence.js",
+          "renderedLength": 1409
+        },
+        {
+          "id": "src/data/cultureTypes.ts",
+          "renderedLength": 1379
+        },
+        {
+          "id": "src/data/multiSelectMapbox.ts",
+          "renderedLength": 1376
+        },
+        {
+          "id": "src/components/TransientNotice.tsx",
+          "renderedLength": 1360
+        },
+        {
+          "id": "src/data/vesselWatchTypes.ts",
+          "renderedLength": 1348
+        },
+        {
+          "id": "src/data/animalWelfarePointsTypes.ts",
+          "renderedLength": 1321
+        },
+        {
+          "id": "src/data/maritimeBoundaryTypes.ts",
+          "renderedLength": 1320
+        },
+        {
+          "id": "src/data/jpSchoolTypes.ts",
+          "renderedLength": 1314
+        },
+        {
+          "id": "src/data/fireTypes.ts",
+          "renderedLength": 1302
+        },
+        {
+          "id": "src/layers/layerParamsAccess.ts",
+          "renderedLength": 1284
+        },
+        {
+          "id": "src/data/globalEventsTypes.ts",
+          "renderedLength": 1230
+        },
+        {
+          "id": "src/map/aqiColorScale.ts",
+          "renderedLength": 1089
+        },
+        {
+          "id": "src/data/urbanZoningTypes.ts",
+          "renderedLength": 1079
+        },
+        {
+          "id": "src/data/jpReligionTypes.ts",
+          "renderedLength": 1063
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/party-popper.js",
+          "renderedLength": 1059
+        },
+        {
+          "id": "src/data/transportHubTypes.ts",
+          "renderedLength": 1049
+        },
+        {
+          "id": "src/state/dateNotifier.ts",
+          "renderedLength": 996
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/biohazard.js",
+          "renderedLength": 955
+        },
+        {
+          "id": "src/data/fireIsochroneCounties.ts",
+          "renderedLength": 951
+        },
+        {
+          "id": "src/styles/designTokens.ts",
+          "renderedLength": 947
+        },
+        {
+          "id": "src/utils/coordinates.ts",
+          "renderedLength": 928
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/fish.js",
+          "renderedLength": 925
+        },
+        {
+          "id": "src/data/medicalPOITypes.ts",
+          "renderedLength": 921
+        },
+        {
+          "id": "src/data/temperatureGridTypes.ts",
+          "renderedLength": 920
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/satellite.js",
+          "renderedLength": 915
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/constants.js",
+          "renderedLength": 914
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/recycle.js",
+          "renderedLength": 896
+        },
+        {
+          "id": "src/state/gfwV4TrackDataWindowStore.ts",
+          "renderedLength": 896
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/flower.js",
+          "renderedLength": 886
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/receipt.js",
+          "renderedLength": 885
+        },
+        {
+          "id": "src/map/overlayPaintDiff.ts",
+          "renderedLength": 865
+        },
+        {
+          "id": "src/data/forestReserveTypes.ts",
+          "renderedLength": 847
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/university.js",
+          "renderedLength": 796
+        },
+        {
+          "id": "src/map/climateRamps.ts",
+          "renderedLength": 788
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/theater.js",
+          "renderedLength": 785
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/calendar-days.js",
+          "renderedLength": 775
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/dam.js",
+          "renderedLength": 773
+        },
+        {
+          "id": "src/data/erCongestionTypes.ts",
+          "renderedLength": 758
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cable.js",
+          "renderedLength": 757
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/ship.js",
+          "renderedLength": 753
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/radar.js",
+          "renderedLength": 752
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/sparkles.js",
+          "renderedLength": 739
+        },
+        {
+          "id": "src/data/newsEventTypes.ts",
+          "renderedLength": 738
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/ferris-wheel.js",
+          "renderedLength": 736
+        },
+        {
+          "id": "src/data/ecoNetworkZoneTypes.ts",
+          "renderedLength": 731
+        },
+        {
+          "id": "src/state/climateFrameStore.ts",
+          "renderedLength": 730
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/sun.js",
+          "renderedLength": 729
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/store.js",
+          "renderedLength": 727
+        },
+        {
+          "id": "src/hooks/useTimeStoreTime.ts",
+          "renderedLength": 727
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/bus.js",
+          "renderedLength": 725
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/footprints.js",
+          "renderedLength": 722
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/church.js",
+          "renderedLength": 716
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tree-palm.js",
+          "renderedLength": 716
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/waves.js",
+          "renderedLength": 713
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/layers.js",
+          "renderedLength": 711
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/school.js",
+          "renderedLength": 708
+        },
+        {
+          "id": "src/constants/traTrainTypes.ts",
+          "renderedLength": 707
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/container.js",
+          "renderedLength": 700
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/flower-2.js",
+          "renderedLength": 698
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/polyfills.js",
+          "renderedLength": 698
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/atom.js",
+          "renderedLength": 695
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/heart-handshake.js",
+          "renderedLength": 680
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/package-check.js",
+          "renderedLength": 669
+        },
+        {
+          "id": "src/lib/taipeiDay.ts",
+          "renderedLength": 669
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/castle.js",
+          "renderedLength": 668
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/map-pinned.js",
+          "renderedLength": 666
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tower-control.js",
+          "renderedLength": 663
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/landmark.js",
+          "renderedLength": 661
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/truck.js",
+          "renderedLength": 661
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shopping-basket.js",
+          "renderedLength": 656
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/map.js",
+          "renderedLength": 654
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/car.js",
+          "renderedLength": 653
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/factory.js",
+          "renderedLength": 649
+        },
+        {
+          "id": "src/data/jpRailwayTypes.ts",
+          "renderedLength": 648
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/ruler.js",
+          "renderedLength": 645
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/baby.js",
+          "renderedLength": 636
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/building-2.js",
+          "renderedLength": 636
+        },
+        {
+          "id": "src/data/canopyGiantsTypes.ts",
+          "renderedLength": 636
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/hospital.js",
+          "renderedLength": 634
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/network.js",
+          "renderedLength": 629
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/hammer.js",
+          "renderedLength": 627
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/plane-takeoff.js",
+          "renderedLength": 627
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/droplets.js",
+          "renderedLength": 626
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cloud-sun.js",
+          "renderedLength": 624
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/thermometer-sun.js",
+          "renderedLength": 623
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/volume-2.js",
+          "renderedLength": 621
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/warehouse.js",
+          "renderedLength": 617
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/train-front.js",
+          "renderedLength": 616
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/lib/constants.js",
+          "renderedLength": 615
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/trees.js",
+          "renderedLength": 603
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/paw-print.js",
+          "renderedLength": 600
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/radio.js",
+          "renderedLength": 597
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/layout-grid.js",
+          "renderedLength": 595
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/utensils-crossed.js",
+          "renderedLength": 594
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/land-plot.js",
+          "renderedLength": 591
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shield-alert.js",
+          "renderedLength": 588
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/plug-zap.js",
+          "renderedLength": 586
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/accessibility.js",
+          "renderedLength": 576
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/graduation-cap.js",
+          "renderedLength": 571
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/stethoscope.js",
+          "renderedLength": 571
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/camera.js",
+          "renderedLength": 565
+        },
+        {
+          "id": "src/data/medicalIsochroneTypes.ts",
+          "renderedLength": 563
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/heart-pulse.js",
+          "renderedLength": 560
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shapes.js",
+          "renderedLength": 559
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/scale.js",
+          "renderedLength": 551
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/trash-2.js",
+          "renderedLength": 548
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shield-check.js",
+          "renderedLength": 546
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/coffee.js",
+          "renderedLength": 545
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/fuel.js",
+          "renderedLength": 543
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/sprout.js",
+          "renderedLength": 539
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/toilet.js",
+          "renderedLength": 538
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/gavel.js",
+          "renderedLength": 537
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shopping-cart.js",
+          "renderedLength": 536
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tree-pine.js",
+          "renderedLength": 532
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/grid-3x3.js",
+          "renderedLength": 526
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/brush.js",
+          "renderedLength": 524
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cross.js",
+          "renderedLength": 521
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/lightbulb.js",
+          "renderedLength": 521
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/users.js",
+          "renderedLength": 520
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/plane.js",
+          "renderedLength": 519
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/bed-double.js",
+          "renderedLength": 513
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/bike.js",
+          "renderedLength": 511
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/book-open.js",
+          "renderedLength": 504
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/triangle-alert.js",
+          "renderedLength": 502
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/coins.js",
+          "renderedLength": 501
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/rewind.js",
+          "renderedLength": 498
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shirt.js",
+          "renderedLength": 497
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cloud-rain.js",
+          "renderedLength": 496
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tree-deciduous.js",
+          "renderedLength": 490
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/signal.js",
+          "renderedLength": 488
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tornado.js",
+          "renderedLength": 487
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/map-pin.js",
+          "renderedLength": 486
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/shield.js",
+          "renderedLength": 484
+        },
+        {
+          "id": "src/data/agriPOITypes.ts",
+          "renderedLength": 482
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/anchor.js",
+          "renderedLength": 476
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/video.js",
+          "renderedLength": 476
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/circle-alert.js",
+          "renderedLength": 475
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/chart-column.js",
+          "renderedLength": 469
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/zap.js",
+          "renderedLength": 467
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/route.js",
+          "renderedLength": 463
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/tent.js",
+          "renderedLength": 458
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/timer.js",
+          "renderedLength": 457
+        },
+        {
+          "id": "src/map/pmtilesSourceType.ts",
+          "renderedLength": 456
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/activity.js",
+          "renderedLength": 450
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/bed.js",
+          "renderedLength": 449
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/hexagon.js",
+          "renderedLength": 447
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/wind.js",
+          "renderedLength": 446
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/git-branch.js",
+          "renderedLength": 444
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/library.js",
+          "renderedLength": 444
+        },
+        {
+          "id": "node_modules/@supabase/realtime-js/dist/module/lib/version.js",
+          "renderedLength": 442
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/version.js",
+          "renderedLength": 442
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/spline.js",
+          "renderedLength": 436
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/droplet.js",
+          "renderedLength": 427
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/briefcase.js",
+          "renderedLength": 426
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cloud-lightning.js",
+          "renderedLength": 423
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/square-parking.js",
+          "renderedLength": 417
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/pill.js",
+          "renderedLength": 416
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/mail.js",
+          "renderedLength": 414
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/flame.js",
+          "renderedLength": 412
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/rail-symbol.js",
+          "renderedLength": 412
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/lock.js",
+          "renderedLength": 409
+        },
+        {
+          "id": "src/data/legendGroups.ts",
+          "renderedLength": 406
+        },
+        {
+          "id": "src/hooks/useMapReadyTick.ts",
+          "renderedLength": 403
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/circle-parking.js",
+          "renderedLength": 398
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/battery.js",
+          "renderedLength": 396
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/local-storage.js",
+          "renderedLength": 391
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/circle-dot.js",
+          "renderedLength": 388
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/ban.js",
+          "renderedLength": 377
+        },
+        {
+          "id": "src/data/agriCompanyTypes.ts",
+          "renderedLength": 374
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/search.js",
+          "renderedLength": 371
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/gauge.js",
+          "renderedLength": 370
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/clock.js",
+          "renderedLength": 367
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/power.js",
+          "renderedLength": 365
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/thermometer.js",
+          "renderedLength": 346
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/cloud.js",
+          "renderedLength": 345
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/chevron-right.js",
+          "renderedLength": 318
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/mountain.js",
+          "renderedLength": 318
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/chevron-down.js",
+          "renderedLength": 315
+        },
+        {
+          "id": "src/data/staticRpc.ts",
+          "renderedLength": 268
+        },
+        {
+          "id": "src/hooks/useLoadingTasks.ts",
+          "renderedLength": 169
+        },
+        {
+          "id": "node_modules/@supabase/functions-js/dist/module/helper.js",
+          "renderedLength": 163
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/lib/types.js",
+          "renderedLength": 54
+        },
+        {
+          "id": "src/map/pmtilesConstants.ts",
+          "renderedLength": 44
+        },
+        {
+          "id": "node_modules/@supabase/auth-js/dist/module/AuthClient.js",
+          "renderedLength": 32
+        }
+      ]
+    },
+    {
+      "file": "assets/bbox-BL4DOTti.js",
+      "name": "bbox",
+      "entry": true,
+      "bytes": 17909,
+      "gzipBytes": 6791,
+      "imports": [
+        "assets/crosshair-DJuz6vyp.js",
+        "assets/rotate-ccw-CuTuI5Gx.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/bbox/BboxSelectorApp.tsx",
+          "renderedLength": 22294
+        },
+        {
+          "id": "src/bbox/gfwTrackContract.ts",
+          "renderedLength": 4456
+        },
+        {
+          "id": "src/bbox/bboxSelection.ts",
+          "renderedLength": 1409
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/eye-off.js",
+          "renderedLength": 697
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/hand.js",
+          "renderedLength": 639
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/eye.js",
+          "renderedLength": 478
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/copy.js",
+          "renderedLength": 437
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/check.js",
+          "renderedLength": 303
+        },
+        {
+          "id": "src/bbox/main.tsx",
+          "renderedLength": 280
+        },
+        {
+          "id": "bbox.html?html-proxy&inline-css&index=0.css",
+          "renderedLength": 0
+        },
+        {
+          "id": "src/bbox/bboxSelector.css",
+          "renderedLength": 0
+        },
+        {
+          "id": "bbox.html",
+          "renderedLength": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/rotate-ccw-CuTuI5Gx.js",
+      "name": "rotate-ccw",
+      "entry": false,
+      "bytes": 377,
+      "gzipBytes": 291,
+      "imports": [
+        "assets/crosshair-DJuz6vyp.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/rotate-ccw.js",
+          "renderedLength": 392
+        },
+        {
+          "id": "node_modules/mapbox-gl/dist/mapbox-gl.css",
+          "renderedLength": 0
+        }
+      ]
+    },
+    {
+      "file": "assets/crosshair-DJuz6vyp.js",
+      "name": "crosshair",
+      "entry": false,
+      "bytes": 1884687,
+      "gzipBytes": 525823,
+      "imports": [],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "node_modules/mapbox-gl/dist/mapbox-gl.js",
+          "renderedLength": 1680296
+        },
+        {
+          "id": "node_modules/react-dom/cjs/react-dom-client.production.js",
+          "renderedLength": 552879
+        },
+        {
+          "id": "node_modules/react/cjs/react.production.js",
+          "renderedLength": 18321
+        },
+        {
+          "id": "node_modules/scheduler/cjs/scheduler.production.js",
+          "renderedLength": 11182
+        },
+        {
+          "id": "node_modules/react-dom/cjs/react-dom.production.js",
+          "renderedLength": 7216
+        },
+        {
+          "id": "node_modules/react/cjs/react-jsx-runtime.production.js",
+          "renderedLength": 1294
+        },
+        {
+          "id": "\u0000vite/modulepreload-polyfill.js",
+          "renderedLength": 1280
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/Icon.js",
+          "renderedLength": 920
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/createLucideIcon.js",
+          "renderedLength": 615
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/icons/crosshair.js",
+          "renderedLength": 600
+        },
+        {
+          "id": "node_modules/react-dom/index.js",
+          "renderedLength": 520
+        },
+        {
+          "id": "node_modules/react-dom/client.js",
+          "renderedLength": 512
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/defaultAttributes.js",
+          "renderedLength": 404
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/shared/src/utils/mergeClasses.js",
+          "renderedLength": 371
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/shared/src/utils/hasA11yProp.js",
+          "renderedLength": 359
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/shared/src/utils/toPascalCase.js",
+          "renderedLength": 318
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/shared/src/utils/toCamelCase.js",
+          "renderedLength": 313
+        },
+        {
+          "id": "node_modules/lucide-react/dist/esm/shared/src/utils/toKebabCase.js",
+          "renderedLength": 266
+        },
+        {
+          "id": "node_modules/react/jsx-runtime.js",
+          "renderedLength": 239
+        },
+        {
+          "id": "node_modules/scheduler/index.js",
+          "renderedLength": 226
+        },
+        {
+          "id": "node_modules/react/index.js",
+          "renderedLength": 194
+        },
+        {
+          "id": "\u0000commonjsHelpers.js",
+          "renderedLength": 140
+        },
+        {
+          "id": "node_modules/mapbox-gl/dist/mapbox-gl.js?commonjs-es-import",
+          "renderedLength": 112
+        },
+        {
+          "id": "node_modules/react/jsx-runtime.js?commonjs-es-import",
+          "renderedLength": 44
+        },
+        {
+          "id": "node_modules/react/cjs/react-jsx-runtime.production.js?commonjs-exports",
+          "renderedLength": 36
+        },
+        {
+          "id": "node_modules/react-dom/client.js?commonjs-es-import",
+          "renderedLength": 36
+        },
+        {
+          "id": "node_modules/react-dom/cjs/react-dom-client.production.js?commonjs-exports",
+          "renderedLength": 35
+        },
+        {
+          "id": "node_modules/react/index.js?commonjs-es-import",
+          "renderedLength": 34
+        },
+        {
+          "id": "node_modules/react/jsx-runtime.js?commonjs-module",
+          "renderedLength": 31
+        },
+        {
+          "id": "node_modules/mapbox-gl/dist/mapbox-gl.js?commonjs-module",
+          "renderedLength": 31
+        },
+        {
+          "id": "node_modules/scheduler/index.js?commonjs-module",
+          "renderedLength": 30
+        },
+        {
+          "id": "node_modules/scheduler/cjs/scheduler.production.js?commonjs-exports",
+          "renderedLength": 30
+        },
+        {
+          "id": "node_modules/react-dom/index.js?commonjs-module",
+          "renderedLength": 29
+        },
+        {
+          "id": "node_modules/react-dom/cjs/react-dom.production.js?commonjs-exports",
+          "renderedLength": 29
+        },
+        {
+          "id": "node_modules/react-dom/client.js?commonjs-module",
+          "renderedLength": 27
+        },
+        {
+          "id": "node_modules/react/index.js?commonjs-module",
+          "renderedLength": 26
+        },
+        {
+          "id": "node_modules/react/cjs/react.production.js?commonjs-exports",
+          "renderedLength": 26
+        }
+      ]
+    },
+    {
+      "file": "assets/replayRuntime-P7ClPvh_.js",
+      "name": "replayRuntime",
+      "entry": false,
+      "bytes": 6412,
+      "gzipBytes": 2804,
+      "imports": [
+        "assets/RailScene-CzNhjrWC.js",
+        "assets/LegendPanel-BDjRacfl.js",
+        "assets/embed-fFAvnlaw.js",
+        "assets/crosshair-DJuz6vyp.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/embed/replayRuntime.ts",
+          "renderedLength": 5817
+        },
+        {
+          "id": "src/embed/railReplayData.ts",
+          "renderedLength": 5570
+        },
+        {
+          "id": "src/embed/threeReplayLayer.ts",
+          "renderedLength": 538
+        }
+      ]
+    },
+    {
+      "file": "assets/RailScene-CzNhjrWC.js",
+      "name": "RailScene",
+      "entry": false,
+      "bytes": 32176,
+      "gzipBytes": 9344,
+      "imports": [
+        "assets/LegendPanel-BDjRacfl.js"
+      ],
+      "dynamicImports": [],
+      "modules": [
+        {
+          "id": "src/three/RailScene.ts",
+          "renderedLength": 13212
+        },
+        {
+          "id": "src/three/FlightScene.ts",
+          "renderedLength": 10589
+        },
+        {
+          "id": "src/three/ShipScene.ts",
+          "renderedLength": 9568
+        },
+        {
+          "id": "src/engines/TraTrainEngine.ts",
+          "renderedLength": 8810
+        },
+        {
+          "id": "src/engines/RailEngine.ts",
+          "renderedLength": 4824
+        },
+        {
+          "id": "src/utils/interpolation.ts",
+          "renderedLength": 2079
+        },
+        {
+          "id": "src/three/LightOrb.ts",
+          "renderedLength": 1923
+        },
+        {
+          "id": "src/data/flightTrails.ts",
+          "renderedLength": 1893
+        },
+        {
+          "id": "src/three/LightTrail.ts",
+          "renderedLength": 1875
+        },
+        {
+          "id": "src/engines/railUtils.ts",
+          "renderedLength": 1632
+        },
+        {
+          "id": "src/three/BlinkingLight.ts",
+          "renderedLength": 959
+        },
+        {
+          "id": "src/three/shaders/trail.frag?raw",
+          "renderedLength": 389
+        },
+        {
+          "id": "src/three/shaders/trail.vert?raw",
+          "renderedLength": 258
+        }
+      ]
+    }
+  ],
+  "durationSeconds": 8.05
+}

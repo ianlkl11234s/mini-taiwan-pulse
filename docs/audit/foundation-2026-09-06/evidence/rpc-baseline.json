@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2026-09-06T03:50:57.949Z",
+  "scope": "Existing public read-only UI RPCs, invoked sequentially with the project anon client identity. No response rows, credentials, or endpoint URL are recorded.",
+  "method": {
+    "transport": "REST RPC",
+    "timeoutMs": 10000,
+    "runsPerRpc": 3,
+    "p95": "not_reported: n=3 is not a representative p95 sample"
+  },
+  "rpcs": [
+    {
+      "name": "get_data_catalog_for_layer",
+      "uiUse": "DataSourceModal / catalog tool",
+      "params": { "p_layer_key": "cctv" },
+      "runs": [
+        { "run": 1, "clientElapsedMs": 1906.6, "status": 200, "returnedCount": 1 },
+        { "run": 2, "clientElapsedMs": 202.6, "status": 200, "returnedCount": 1 },
+        { "run": 3, "clientElapsedMs": 210.4, "status": 200, "returnedCount": 1 }
+      ],
+      "summary": { "minMs": 202.6, "medianMs": 210.4, "maxMs": 1906.6, "statuses": [200], "returnedCountRange": [1, 1] }
+    },
+    {
+      "name": "get_source_health",
+      "uiUse": "Intel source-health summary",
+      "params": {},
+      "runs": [
+        { "run": 1, "clientElapsedMs": 207.2, "status": 200, "returnedCount": 29 },
+        { "run": 2, "clientElapsedMs": 197.5, "status": 200, "returnedCount": 29 },
+        { "run": 3, "clientElapsedMs": 458.7, "status": 200, "returnedCount": 29 }
+      ],
+      "summary": { "minMs": 197.5, "medianMs": 207.2, "maxMs": 458.7, "statuses": [200], "returnedCountRange": [29, 29] }
+    },
+    {
+      "name": "get_layer_gates",
+      "uiUse": "Layer gate bootstrap",
+      "params": {},
+      "runs": [
+        { "run": 1, "clientElapsedMs": 194.1, "status": 200, "returnedCount": 34 },
+        { "run": 2, "clientElapsedMs": 221.4, "status": 200, "returnedCount": 34 },
+        { "run": 3, "clientElapsedMs": 197.2, "status": 200, "returnedCount": 34 }
+      ],
+      "summary": { "minMs": 194.1, "medianMs": 197.2, "maxMs": 221.4, "statuses": [200], "returnedCountRange": [34, 34] }
+    }
+  ],
+  "errors": []
+}

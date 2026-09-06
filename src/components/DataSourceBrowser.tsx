@@ -10,17 +10,21 @@
  *   - 點單筆 layer → 開 DataSourceModal 看完整 catalog
  */
 import { useMemo, useState } from "react";
-import { Info, X, Layers } from "lucide-react";
+import { Info, X, Layers, Lock, Power } from "lucide-react";
 import { DataSourceModal } from "./DataSourceModal";
 import { UPSTREAM_REGISTRY } from "../data/upstreamRegistry";
 import { THEMES, LAYER_COLORS } from "./sidebar/layerCatalog";
 import type { LayerVisibility } from "../types";
+import { searchLayers } from "../lib/layerSearch";
 
 interface Props {
   /** 覆寫按鈕位置。預設 bottom-right。 */
   position?: { top?: number; right?: number; bottom?: number; left?: number };
   /** 淺色底圖時切換浮動鈕主題色 */
   isDarkTheme?: boolean;
+  /** 由 App 接既有 gate；本元件不自行推測會員權限。 */
+  onActivateLayer?: (key: keyof LayerVisibility) => void;
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -29,7 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
   catalog_missing: "?",
 };
 
-export function DataSourceBrowser({ position, isDarkTheme = true }: Props) {
+export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLayer, lockedKeys }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState<keyof LayerVisibility | null>(null);
   const [filter, setFilter] = useState("");
@@ -49,6 +53,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true }: Props) {
     }
     return out;
   }, [filter]);
+  const searchResults = useMemo(() => searchLayers(filter), [filter]);
 
   const totals = useMemo(() => {
     let v = 0, po = 0, cm = 0;
@@ -117,6 +122,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true }: Props) {
                 {totals.cm > 0 && <span style={{ color: "#F59E0B" }}>? {totals.cm} 待補</span>}
               </div>
               <input
+                aria-label="搜尋資料來源圖層"
                 placeholder="搜尋 layer 名稱…"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -128,9 +134,32 @@ export function DataSourceBrowser({ position, isDarkTheme = true }: Props) {
               />
             </div>
 
-            {/* Themed list */}
+            {/* 搜尋走共用 manifest 索引；空白時維持可按主題瀏覽。 */}
             <div style={{ padding: 8 }}>
-              {themedLayers.map((t) => (
+              {filter ? (searchResults.length === 0 ? (
+                <div style={{ padding: 12, color: "#9CA3AF", fontSize: 13 }}>找不到相符圖層</div>
+              ) : <>
+                <div aria-live="polite" style={{ padding: "4px 10px", color: "#9CA3AF", fontSize: 11 }}>找到 {searchResults.length} 筆</div>
+                {searchResults.slice(0, 50).map((layer) => {
+                const locked = !!lockedKeys?.has(layer.key);
+                const color = LAYER_COLORS[layer.key] ?? "#666";
+                return (
+                  <div key={layer.key} style={{ display: "flex", gap: 8, padding: "8px 10px", borderBottom: "1px solid #1F2937" }}>
+                    <button onClick={() => setSelectedLayer(layer.key)} style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", color: "#E5E7EB", cursor: "pointer", padding: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />{layer.label}{locked && <Lock size={12} color="#9CA3AF" />}</div>
+                      <div style={{ marginTop: 3, color: "#9CA3AF", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{layer.description}</div>
+                      <div style={{ marginTop: 2, color: "#6B7280", fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{layer.topics.join("、")} · {layer.source}</div>
+                    </button>
+                    {onActivateLayer && (
+                      <button disabled={locked} aria-label={`${locked ? "需授權" : "開啟圖層"} ${layer.label}`} onClick={() => onActivateLayer(layer.key)} title={locked ? "此圖層需要授權" : "開啟圖層"} style={{ border: "none", background: "transparent", color: locked ? "#9CA3AF" : "#60A5FA", cursor: "pointer" }}>
+                        {locked ? <Lock size={16} /> : <Power size={16} />}
+                      </button>
+                    )}
+                  </div>
+                );
+                })}
+                {searchResults.length > 50 && <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: 11 }}>顯示前 50 筆，請增加關鍵字縮小範圍。</div>}
+              </>) : themedLayers.map((t) => (
                 <div key={t.theme} style={{ marginBottom: 12 }}>
                   <div style={{ padding: "6px 8px", fontSize: 11, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1 }}>
                     {t.theme}
