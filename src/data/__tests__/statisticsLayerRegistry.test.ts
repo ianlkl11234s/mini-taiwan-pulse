@@ -4,7 +4,7 @@ import {
   STATISTICS_TAB_LAYER_ROLES,
   isStatisticsChoropleth,
 } from "../statisticsLayerRegistry";
-import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector } from "../regionalStatisticsRecipes";
+import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiTrafficViolationCitationReleaseSelector } from "../regionalStatisticsRecipes";
 
 describe("statistics layer role registry", () => {
   it("將 Statistics tab 的 crime choropleth 納入模式，行政邊界明確豁免", () => {
@@ -64,5 +64,16 @@ describe("statistics layer role registry", () => {
       STATISTICS_RECIPES.statsAutomobileLicenseHoldersCount,
       STATISTICS_RECIPES.statsMotorcycleLicenseHoldersCount,
     ].every(recipe => recipe.includeHealth)).toBe(true);
+  });
+
+  it("只將 manifest 驗證的臺北違規法條 release 對應到法條維度", () => {
+    expect(STATISTICS_RECIPES.statsTaipeiTrafficViolationCitations).toMatchObject({
+      dataset_id: "taipei_traffic_violation_citations_135096", indicator_id: "traffic_violation_citation_count", level: "county", unit: "筆",
+      releaseId: "2025-63000-3ae38195a39a-22c825ca2e23", dimensions: { roc_year: "114", law_article: "第12條", geographic_coverage: "taipei_only" }, includeHealth: true,
+    });
+    expect(taipeiTrafficViolationCitationReleaseSelector.resolve({ release_id: "2025-63000-3ae38195a39a-22c825ca2e23", period_start: "2025-01-01", period_end: "2025-12-31" })).toEqual({
+      releaseId: "2025-63000-3ae38195a39a-22c825ca2e23", dimensions: { roc_year: "114", law_article: "第12條", geographic_coverage: "taipei_only" },
+    });
+    expect(taipeiTrafficViolationCitationReleaseSelector.resolve({ release_id: "2025-63000-3ae38195a39a-unknown", period_start: "2025-01-01", period_end: "2025-12-31" })).toBeNull();
   });
 });

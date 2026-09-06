@@ -10,6 +10,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(layers.map((layer) => layer.key)).toEqual([
       "statsMaritimeSubsidyCounty",
       "statsCivilAeronauticsSubsidyCounty",
+      "statsTaipeiTrafficViolationCitations",
       "statsOffstreetSmallCarParkingSpacesCount",
       "statsOnstreetSmallCarParkingSpacesCount",
       "statsMotorcycleRegisteredCount",
@@ -42,6 +43,7 @@ describe("STATISTICS_TAB_THEMES", () => {
     expect(getThemeLayerKeys(STATISTICS_TAB_THEMES)).toEqual([
       "statsMaritimeSubsidyCounty",
       "statsCivilAeronauticsSubsidyCounty",
+      "statsTaipeiTrafficViolationCitations",
       "statsOffstreetSmallCarParkingSpacesCount",
       "statsOnstreetSmallCarParkingSpacesCount",
       "statsMotorcycleRegisteredCount",

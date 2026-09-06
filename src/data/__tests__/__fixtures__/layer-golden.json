@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 420,
+    "keyCount": 421,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1877,6 +1877,7 @@
         "statsWaterSupplyHistorical-fill",
         "statsMaritimeSubsidyCounty-fill",
         "statsCivilAeronauticsSubsidyCounty-fill",
+        "statsTaipeiTrafficViolationCitations-fill",
         "statsOffstreetSmallCarParkingSpacesCount-fill",
         "statsOnstreetSmallCarParkingSpacesCount-fill",
         "statsMotorcycleRegisteredCount-fill",
@@ -58002,6 +58003,15 @@
       }
     ],
     "statsRiceHarvest": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTaipeiTrafficViolationCitations": [
       {
         "label": "透明度 0.55",
         "max": 1,

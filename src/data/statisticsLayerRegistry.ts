@@ -13,6 +13,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   statsWaterSupplyHistorical: "choropleth",
   statsMaritimeSubsidyCounty: "choropleth",
   statsCivilAeronauticsSubsidyCounty: "choropleth",
+  statsTaipeiTrafficViolationCitations: "choropleth",
   statsOffstreetSmallCarParkingSpacesCount: "choropleth",
   statsOnstreetSmallCarParkingSpacesCount: "choropleth",
   statsMotorcycleRegisteredCount: "choropleth",

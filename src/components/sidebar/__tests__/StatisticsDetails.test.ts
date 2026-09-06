@@ -28,4 +28,8 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsValueLabel(null, 'TWD')).toBe('未提供');
     expect(statisticsValueLabel(0, 'TWD')).toBe('0 TWD');
   });
+
+  it('humanizes the Taipei-only article selection summary', () => {
+    expect(statisticsDimensionSummary({ roc_year: '114', law_article: '第12條', geographic_coverage: 'taipei_only' })).toBe('期間：民國 114 年；法條：第12條；地理涵蓋：僅臺北市');
+  });
 });

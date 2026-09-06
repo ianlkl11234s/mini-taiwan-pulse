@@ -852,6 +852,7 @@ export interface LayerVisibility {
   statsWaterSupplyHistorical: boolean;
   statsMaritimeSubsidyCounty: boolean;
   statsCivilAeronauticsSubsidyCounty: boolean;
+  statsTaipeiTrafficViolationCitations: boolean;
   statsOffstreetSmallCarParkingSpacesCount: boolean;
   statsOnstreetSmallCarParkingSpacesCount: boolean;
   statsMotorcycleRegisteredCount: boolean;

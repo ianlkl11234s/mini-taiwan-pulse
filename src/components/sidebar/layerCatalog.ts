@@ -197,6 +197,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "交通統計 Transport Statistics", groups: [
     { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
     { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
+    { title: "臺北市違規舉發", layers: [fromManifest("statsTaipeiTrafficViolationCitations")] },
     { title: "縣市交通供給", layers: [
       fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
       fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),

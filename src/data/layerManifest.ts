@@ -335,6 +335,14 @@ export const LAYER_MANIFEST = {
     legend: "statsCivilAeronauticsSubsidyCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
     description: "112Q4 年度累計歷史快照，依受補助對象所在地縣市呈現；不是機場、工程或實際受益地。不得跨預算類型或期別合計。", topics: ["統計", "交通", "民航", "行政區", "歷史版本"],
   },
+  statsTaipeiTrafficViolationCitations: {
+    key: "statsTaipeiTrafficViolationCitations", section: { theme: "交通統計 Transport Statistics", group: "臺北市違規舉發" },
+    label: "臺北市交通違規舉發筆數（法條）", expandable: true, color: "#7c3aed", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "taipei_traffic_violation_citations_135096", confidence: "HIGH" }] },
+    dataClass: "D", source: { kind: "custom", note: "Immutable Taipei-only law-article statistics releases plus verified county geometry; regionalStatisticsMap runtime" },
+    legend: "statsTaipeiTrafficViolationCitations", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "臺北市法條分類交通違規舉發筆數；其餘縣市為缺資料，法條間不得相加推論唯一事件或人數。", topics: ["統計", "交通", "違規", "臺北市", "行政區"],
+  },
   statsOffstreetSmallCarParkingSpacesCount: {
     key: "statsOffstreetSmallCarParkingSpacesCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     label: "小型汽車路外停車位", expandable: true, color: "#0891b2", icon: Recycle,

@@ -17,11 +17,14 @@ const DIMENSION_LABELS: Record<string, string> = {
   budget: '預算',
   budget_type: '預算類型',
   value_basis: '數值基準',
+  law_article: '法條',
+  geographic_coverage: '地理涵蓋',
 };
 const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
   budget_type: { civil_aviation_fund: '民航基金', public_budget: '公務預算', special_budget: '特別預算' },
   value_basis: { year_to_date_cumulative: '年度累計快照' },
+  geographic_coverage: { taipei_only: '僅臺北市' },
 };
 
 function statisticsDimensionLabel(key: string): string {
@@ -129,6 +132,10 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
   const selectorDimensionKeys = selectorDimensions ? Object.keys(selectorDimensions).filter(key => typeof selectorDimensions[key] === 'string' && selectorDimensions[key]) : [];
+  const selectableDimensionKeys = selectorDimensionKeys.filter((key, index) => {
+    const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
+    return selectorValues(key, filters).length > 1;
+  });
   return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: COLORS.textDefault, colorScheme: 'dark', lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid ${COLORS.textDefault};outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
@@ -138,10 +145,10 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
       </summary>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: SPACING.xs, minWidth: 0, maxWidth: '100%', paddingTop: SPACING.xs }} aria-label={`${STATISTICS_RECIPES[layerKey].label} 篩選器`}>
-        {selectorDimensions && selectorDimensionKeys.map((key, index) => {
+        {selectorDimensions && selectableDimensionKeys.map((key, index) => {
           const value = selectorDimensions[key]!;
-          const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
-          return <label key={key} style={{ ...filterLabel, ...(selectorDimensionKeys.length % 2 === 1 && index === selectorDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
+          const filters = Object.fromEntries(selectorDimensionKeys.slice(0, selectorDimensionKeys.indexOf(key)).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
+          return <label key={key} style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
             {statisticsDimensionLabel(key)}
             <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value })}>
               {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option)}</option>)}
