@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsDimensionSummary, statisticsValueLabel } from '../StatisticsDetails';
+import { statisticsCoverageAreaLabel, statisticsDimensionSummary, statisticsValueLabel } from '../StatisticsDetails';
+import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
   it('renders the selected period and fund as a compact disclosure label', () => {
@@ -50,4 +51,9 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary({ roc_year: '110', source_field: 'COLUMN7', geographic_coverage: 'taipei_township_only' })).toBe('期間：民國 110 年；來源欄位：河濱年租借次數；地理涵蓋：僅臺北市 12 區');
     expect(statisticsDimensionSummary({ roc_year: '115', month: '07', geographic_semantics: 'facility_location_activity', health: 'CURRENT', coverage: 'PARTIAL' })).toBe('期間：民國 115 年・07 月；地理語意：設施所在地活動；資料新鮮度：CURRENT；覆蓋狀態：PARTIAL');
   });
+  it('uses each recipe level for health coverage, including township statistics', () => {
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsTaipeiUrbanRentalStations)).toBe('鄉鎮市區');
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount)).toBe('縣市');
+  });
+
 });

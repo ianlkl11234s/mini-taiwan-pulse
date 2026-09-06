@@ -5,6 +5,11 @@ import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../..
 import { FONT_SIZE, SURFACE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
+
+/** Health coverage denominators use the recipe's actual geographic level. */
+export function statisticsCoverageAreaLabel(recipe: Pick<StatisticsRecipe, 'level'>): string {
+  return LEVEL_LABELS[recipe.level];
+}
 export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
   if (start.endsWith('-01-01') && end === `${start.slice(0,4)}-12-31`) return `${start.slice(0,4)} 年`;
@@ -191,7 +196,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
     {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別無法安全解析成年／月／機關或基金，未提供選擇，請查看來源紀錄。</p>}
-    {state.health?.coverage_status && <p style={factStyle} role="status">覆蓋狀態：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
+    {state.health?.coverage_status && <p style={factStyle} role="status">覆蓋狀態：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
     <details><summary>來源與處理紀錄</summary>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         <span>提供機關：{String(source.publisher ?? '未提供')}</span>
