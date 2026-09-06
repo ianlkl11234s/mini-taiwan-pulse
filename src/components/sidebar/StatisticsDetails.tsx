@@ -156,6 +156,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     </details>}
     <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
     {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（來源目前僅有 112Q4 歷史快照）</p>}
+    {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
     {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別無法安全解析成年／月／機關或基金，未提供選擇，請查看來源紀錄。</p>}
@@ -185,6 +186,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey })
     <strong>{recipe.label}</strong>
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
     {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（目前僅 112Q4 歷史快照）</span>}
+    {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
     {state.health?.coverage_status && <span>{state.health.coverage_status}：{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {recipe.colors.map((color, index) => <div key={color} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{index === 0 ? `低於 ${recipe.breaks[0]}` : index === recipe.breaks.length ? `${recipe.breaks[index - 1]} 以上` : `${recipe.breaks[index - 1]} 至未滿 ${recipe.breaks[index]}`}</div>)}

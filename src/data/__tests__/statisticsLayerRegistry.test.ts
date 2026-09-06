@@ -55,6 +55,14 @@ describe("statistics layer role registry", () => {
   it("交通供給只從真實年度 period 導出 112／113，不依 opaque release id 猜測", () => {
     expect(countyTransportSupplyReleaseSelector.resolve({ release_id: "actual-2024", period_start: "2024-01-01", period_end: "2024-12-31" })).toEqual({ releaseId: "actual-2024", dimensions: { roc_year: "113" } });
     expect(countyTransportSupplyReleaseSelector.resolve({ release_id: "looks-like-2024", period_start: "2024-02-01", period_end: "2024-12-31" })).toBeNull();
-    expect(STATISTICS_RECIPES.statsMotorcycleLicenseHoldersCount).toMatchObject({ dataset_id: "dgbas_county_transport_supply_10935", indicator_id: "motorcycle_license_holders_count", level: "county", unit: "人", dimensions: { roc_year: "113" } });
+    expect(STATISTICS_RECIPES.statsMotorcycleLicenseHoldersCount).toMatchObject({ dataset_id: "dgbas_county_transport_supply_10935", indicator_id: "motorcycle_license_holders_count", level: "county", unit: "人", dimensions: { roc_year: "113" }, includeHealth: true });
+    expect([
+      STATISTICS_RECIPES.statsOffstreetSmallCarParkingSpacesCount,
+      STATISTICS_RECIPES.statsOnstreetSmallCarParkingSpacesCount,
+      STATISTICS_RECIPES.statsMotorcycleRegisteredCount,
+      STATISTICS_RECIPES.statsAutomobileRegisteredCount,
+      STATISTICS_RECIPES.statsAutomobileLicenseHoldersCount,
+      STATISTICS_RECIPES.statsMotorcycleLicenseHoldersCount,
+    ].every(recipe => recipe.includeHealth)).toBe(true);
   });
 });
