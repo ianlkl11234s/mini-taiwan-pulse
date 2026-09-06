@@ -15,6 +15,8 @@ import {
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
+import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
 
 // ── Props ──
@@ -607,6 +609,7 @@ function ExpandedPanel({
         overflow: "hidden",
       }}
     >
+      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

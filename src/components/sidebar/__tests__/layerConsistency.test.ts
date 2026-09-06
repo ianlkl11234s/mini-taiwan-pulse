@@ -434,3 +434,15 @@ describe("鐵則 4：select 控件渲染閾值", () => {
     }
   });
 });
+
+describe("區域統計 sidebar 接線", () => {
+  it("desktop rail 與 mobile bottom-sheet 共用的 LayerSidebar 都掛載統計詳情", () => {
+    const wiring = 'isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
+    for (const file of [
+      'src/components/IconRailSidebar.tsx',
+      'src/components/LayerSidebar.tsx',
+    ]) {
+      expect(readFileSync(file, 'utf8')).toContain(wiring);
+    }
+  });
+});
