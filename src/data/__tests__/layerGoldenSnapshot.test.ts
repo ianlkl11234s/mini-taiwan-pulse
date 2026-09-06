@@ -137,8 +137,10 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-04：+2 = marineObservationCwa / marineObservationIsohe（CWA／ISOHE 固定站觀測分源）。
     // 2026-09-04：+6 = 噪音／聲響六層（官方測站、NoiseCapture 公民格網、噪音管制區、
     // 航空噪音法定里別、噪音裁處事件、聲音照相設備）。
+    // 2026-09-06：+4 = Network Structures 四層（OSM 承載線／輪廓、
+    // 新北市轄管橋梁、OSM × 官方候選比對）。
     // 2026-09-06：+1 = 航港局獎補助金額（受補助對象所在地）county statistics。
-    expect(keys.length).toBe(413);
+    expect(keys.length).toBe(417);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

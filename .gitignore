@@ -171,3 +171,6 @@ public/embed-rail/
 
 # 教育 Education（第 38 主題；全走 S3 deploy-assets/education/）
 public/education/
+
+# Versioned Network Structures PMTiles are published to S3, not Git.
+public/network_structures/

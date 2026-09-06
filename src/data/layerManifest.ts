@@ -105,6 +105,7 @@ import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
+import { NETWORK_STRUCTURES_COLORS } from "./networkStructuresTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
@@ -1543,6 +1544,72 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "日本", "交通", "鐵道"],
   },
 
+  osmBridgeCarriers: {
+    key: "osmBridgeCarriers",
+    expandable: true,
+    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    label: "OSM 橋梁承載線",
+    color: NETWORK_STRUCTURES_COLORS.carriers,
+    icon: Network,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "network_structures", confidence: "HIGH" }],
+      processing: "OSM bridge=* 承載線；carrier_kind 分類。",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "osm-bridge-carriers", url: "./network_structures/osm_bridge_carriers_20260906.pmtiles", sourceLayer: "osm_bridge_carriers", minzoom: 5, maxzoom: 14 },
+    legend: "osmBridgeCarriers",
+    popup: "osmBridgeCarriers",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "OSM 橋梁的道路、鐵道與其他承載線。",
+    topics: ["交通", "路網", "bridge", "橋梁"],
+  },
+  osmBridgeFootprints: {
+    key: "osmBridgeFootprints",
+    expandable: true,
+    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    label: "OSM 橋梁輪廓",
+    color: NETWORK_STRUCTURES_COLORS.footprint,
+    icon: Network,
+    upstream: { status: "verified", datasets: [{ datasetId: "network_structures", confidence: "HIGH" }], processing: "OSM man_made=bridge 原生輪廓；不以 buffer 補全。" },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "osm-bridge-footprints", url: "./network_structures/osm_bridge_footprints_20260906.pmtiles", sourceLayer: "osm_bridge_footprints", minzoom: 8, maxzoom: 15 },
+    legend: "osmBridgeFootprints",
+    popup: "osmBridgeFootprints",
+    params: { count: 1, kinds: ["slider"] },
+    description: "OSM 原生橋梁輪廓，資料可能不完整。",
+    topics: ["交通", "路網", "bridge", "橋梁"],
+  },
+  officialBridgesNewTaipei: {
+    key: "officialBridgesNewTaipei",
+    expandable: true,
+    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    label: "新北市轄管橋梁",
+    color: NETWORK_STRUCTURES_COLORS.official,
+    icon: Network,
+    upstream: { status: "verified", datasets: [{ datasetId: "network_structures", confidence: "HIGH" }], processing: "新北市轄管橋梁官方清冊；幾何為近似軸線。" }, dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "official-bridges-new-taipei", url: "./network_structures/official_bridges_new_taipei_20260906.pmtiles", sourceLayer: "official_bridges", minzoom: 7, maxzoom: 15 },
+    legend: "officialBridgesNewTaipei",
+    popup: "officialBridgesNewTaipei",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "新北市轄管橋梁，不代表全市所有橋梁。",
+    topics: ["交通", "路網", "bridge", "橋梁", "新北"],
+  },
+  bridgeComparisonNewTaipei: {
+    key: "bridgeComparisonNewTaipei",
+    expandable: true,
+    section: { theme: "交通 Move", group: "路網結構 Network Structures" },
+    label: "新北橋梁 OSM 比對",
+    color: NETWORK_STRUCTURES_COLORS.matched,
+    icon: Network,
+    upstream: { status: "verified", datasets: [{ datasetId: "network_structures", confidence: "HIGH" }], processing: "官方清冊與 OSM way 的候選比對，狀態不等於權威配對。" }, dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "bridge-comparison-new-taipei", url: "./network_structures/bridge_comparison_new_taipei_20260906.pmtiles", sourceLayer: "bridge_comparison", minzoom: 7, maxzoom: 15 },
+    legend: "bridgeComparisonNewTaipei",
+    popup: "bridgeComparisonNewTaipei",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "新北官方橋梁與 OSM 的候選比對。",
+    topics: ["交通", "路網", "bridge", "橋梁", "新北"],
+  },
   jpSchools: {
     key: "jpSchools",
     section: { theme: "教育", group: "點位" },

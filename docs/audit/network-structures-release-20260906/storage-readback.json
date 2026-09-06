@@ -1,0 +1,83 @@
+{
+  "build": "20260906",
+  "objects": [
+    {
+      "key": "deploy-assets/network_structures/osm_bridge_carriers_20260906.pmtiles",
+      "size_bytes": 13529953,
+      "sha256": "c7e49f2f0eaf85fe879860fb51c608c0a52b86c8deb27a794f9a5ef7993813f4",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/osm_bridge_footprints_20260906.pmtiles",
+      "size_bytes": 1313438,
+      "sha256": "e4f310799e5094734a2c93e168232593902541708a10c850e59464cc15683d31",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/official_bridges_new_taipei_20260906.pmtiles",
+      "size_bytes": 1119033,
+      "sha256": "474f6653c0a69ccc8cb861151fad55301e806bfa9c5a2b4caf73f12bc79a11eb",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/bridge_comparison_new_taipei_20260906.pmtiles",
+      "size_bytes": 3722084,
+      "sha256": "52e595bcfb75c9f39e65d6d0699e2564fa008b5076161be1cba49a50ce2ca2cc",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/metadata_20260906.json",
+      "size_bytes": 1541,
+      "sha256": "1d44dca845ea1195ff402bc258b1388f80b4ac8955d10019599ca7332ddc0335",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/qc_20260906.json",
+      "size_bytes": 2497,
+      "sha256": "afab4da13c185b9b635315f2933f99dbc12bbb915686176f7a21cca165fd2107",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/_manifest.json",
+      "size_bytes": 2805,
+      "sha256": "e6371c34cf9dce966e41da5e2dc296cdef293d651179ea1a1810e376b577791c",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/taiwan-260905.osm.pbf",
+      "size_bytes": 326111453,
+      "sha256": "3c54b0013d37d819ae0d4f73d3be8cab0663eb539a83cc5d881053d6d61bf18d",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/taiwan-260905.osm.pbf.md5",
+      "size_bytes": 56,
+      "sha256": "122d6ffce65d65a50889bff1e9595ae83cd7f4fe672dfe5301272cf8a1fb1008",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/official_bridges_new_taipei_20260906.csv",
+      "size_bytes": 120219,
+      "sha256": "2df2d0b3bb2b117b590c497878955c1d9400c61be32c4135a7c1d2e95a1144cb",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/official_bridges_metadata.json",
+      "size_bytes": 3129,
+      "sha256": "0f8be785097080b8f71fd1ff9c13201ba99c6e72c6ab571f722ad3b7074facbc",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/official_bridges.headers",
+      "size_bytes": 140,
+      "sha256": "6309af3f05adc088338084dad78f5f1ebf6fc21ef4c3ad0c35ca6078e6f736a2",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "source-archives/network_structures/20260906/raw/county_boundary_20260626.geojson",
+      "size_bytes": 14719725,
+      "sha256": "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6",
+      "status": "uploaded_and_verified"
+    }
+  ]
+}

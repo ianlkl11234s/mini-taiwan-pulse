@@ -175,6 +175,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
+  // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
+  { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
+  { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },
+  { layers: ["bridge-comparison-new-taipei-line", "bridge-comparison-new-taipei-coincident-endpoints"], type: "bridgeComparisonNewTaipei" },
+  { layers: ["osm-bridge-footprints-fill", "osm-bridge-footprints-outline"], type: "osmBridgeFootprints" },
   // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
