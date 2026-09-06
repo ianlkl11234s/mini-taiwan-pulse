@@ -18,7 +18,7 @@ import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../data/global
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
-import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../hooks/useGfwHourlyGridLayer";
+import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
@@ -43,7 +43,7 @@ import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { isobathLegendRows, ISOBATH_ATTRIBUTION } from "../data/isobathTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
-import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
+import { DIVERGING_STOPS } from "../data/temperatureWavePalette";
 import { AQI_LEVELS } from "../map/aqiColorScale";
 import { useLoadingTasks } from "../hooks/useLoadingTasks";
 import { MARINE_OBSERVATION_STATUS_STYLES } from "../hooks/useMarineObservationLayer";
