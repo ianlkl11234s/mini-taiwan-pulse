@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 387 個 layer key", () => {
+  it("涵蓋全部 412 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -137,7 +137,7 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-04：+2 = marineObservationCwa / marineObservationIsohe（CWA／ISOHE 固定站觀測分源）。
     // 2026-09-04：+6 = 噪音／聲響六層（官方測站、NoiseCapture 公民格網、噪音管制區、
     // 航空噪音法定里別、噪音裁處事件、聲音照相設備）。
-    expect(keys.length).toBe(404);
+    expect(keys.length).toBe(412);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

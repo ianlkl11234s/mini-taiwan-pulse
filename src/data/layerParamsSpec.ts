@@ -1789,6 +1789,14 @@ export const LAYER_PARAMS_SPEC = {
   courtJurisdiction: [
     { kind: "slider", name: "courtJurisdictionOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.18, min: 0, max: 0.6, step: 0.02 },
   ],
+  statsWasteRecyclingRate: [opacitySlider("statsWasteRecyclingRateOpacity", 0.55)],
+  statsResidentialElectricity: [opacitySlider("statsResidentialElectricityOpacity", 0.55)],
+  statsRiceHarvest: [opacitySlider("statsRiceHarvestOpacity", 0.55)],
+  statsBirthsTownship: [opacitySlider("statsBirthsTownshipOpacity", 0.55)],
+  statsPigWaterCounty: [opacitySlider("statsPigWaterCountyOpacity", 0.55)],
+  statsWaterSupplyHistorical: [opacitySlider("statsWaterSupplyHistoricalOpacity", 0.55)],
+  statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
+  statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
   crimeAreaMonthly: [
     { kind: "slider", name: "crimeAreaMonthlyOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
   ],
