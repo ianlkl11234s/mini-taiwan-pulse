@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 404,
+    "keyCount": 412,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1864,6 +1864,19 @@
         "court-jurisdiction-line"
       ],
       "type": "courtJurisdiction"
+    },
+    {
+      "layers": [
+        "statsWasteCounty-fill",
+        "statsRecyclingCounty-fill",
+        "statsWasteRecyclingRate-fill",
+        "statsResidentialElectricity-fill",
+        "statsRiceHarvest-fill",
+        "statsBirthsTownship-fill",
+        "statsPigWaterCounty-fill",
+        "statsWaterSupplyHistorical-fill"
+      ],
+      "type": "regionalStatistic"
     },
     {
       "layers": [
@@ -36777,7 +36790,7 @@
       ],
       "pmtiles": {
         "maxzoom": 12,
-        "minzoom": 8,
+        "minzoom": 5,
         "sourceLayer": "crime_area_monthly"
       },
       "rebuildOnParamChange": [
@@ -57870,6 +57883,78 @@
         "min": 0.2,
         "step": 0.1,
         "value": 0.5
+      }
+    ],
+    "statsBirthsTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsPigWaterCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsRecyclingCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsResidentialElectricity": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsRiceHarvest": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsWasteCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsWasteRecyclingRate": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsWaterSupplyHistorical": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
       }
     ],
     "streetTreesNational": [

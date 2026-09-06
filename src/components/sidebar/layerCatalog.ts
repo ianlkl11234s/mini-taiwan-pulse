@@ -192,11 +192,45 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  */
 export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育", "人口", "宗教"];
 
+/** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
+export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
+  { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }] },
+  { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }] },
+  { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
+  { title: "農業統計 Agriculture Statistics", groups: [{ title: "稻作生產", layers: [fromManifest("statsRiceHarvest")] }] },
+  { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
+];
+
+export const STATISTICS_TAB_THEMES: ThemeDef[] = [
+  ...STATISTICS_DATA_THEMES,
+  {
+    title: "治安與交通 Safety & Transport",
+    groups: [
+      {
+        title: "現有統計",
+        layers: [fromManifest("crimeAreaMonthly")],
+      },
+    ],
+  },
+  {
+    title: "行政區參考 Administrative Boundaries",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "行政邊界",
+        layers: [fromManifest("countyBoundary"), fromManifest("townshipBoundary")],
+      },
+    ],
+  },
+];
+
 /**
  * 完整目錄保留在此，避免為了 UI 敘事分段而搬動大量 layer 定義。
  * `THEMES` 依大分類排序後才是 sidebar 的顯示順序。
  */
 const THEME_CATALOG: ThemeDef[] = [
+  ...STATISTICS_DATA_THEMES,
   // ───────────────────────────────────────────────────────────────
   // 📍 BASE 底圖（頂置・預設摺疊）
   // ───────────────────────────────────────────────────────────────
@@ -1555,6 +1589,14 @@ export const LAYER_MACRO_GROUPS = [
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
 
 const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
+  "水資源統計 Water Statistics": "environment",
+  "廢棄物統計 Waste Statistics": "environment",
+  "能源統計 Energy Statistics": "environment",
+  "農業統計 Agriculture Statistics": "environment",
+  "人口統計 Population Statistics": "city",
+  "資源回收統計 Recycling Statistics": "environment",
+  "治安與交通 Safety & Transport": "safety",
+  "行政區參考 Administrative Boundaries": "baseline",
   "底圖 Base Map": "baseline",
   "交通 Move": "city",
   "人口社經 People": "city",

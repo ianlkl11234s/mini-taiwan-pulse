@@ -173,6 +173,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   // medICUBeds：Phase 3 未實作渲染，幽靈 toggle 已自 sidebar 移除
   // wasteRoute / wasteStop：除了 types 與 manifest，src/ 內零引用（保留 key 供 internal use）
   "medICUBeds", "wasteRoute", "wasteStop",
+  // Versioned statistics renderer is attached directly by MapView; it is not a
+  // React layer hook and must remain outside the hook registry.
+  "statsWasteCounty", "statsRecyclingCounty", "statsWaterSupplyHistorical", "statsPigWaterCounty", "statsWasteRecyclingRate", "statsResidentialElectricity", "statsRiceHarvest", "statsBirthsTownship",
 ]);
 
 // ══════════════════════════════════════════════════════════════════

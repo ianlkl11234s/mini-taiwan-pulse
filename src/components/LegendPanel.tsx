@@ -1,3 +1,4 @@
+import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -319,6 +320,14 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "statsWasteRecyclingRate", render: () => <StatisticsLegend layerKey="statsWasteRecyclingRate" /> },
+  { id: "statsResidentialElectricity", render: () => <StatisticsLegend layerKey="statsResidentialElectricity" /> },
+  { id: "statsRiceHarvest", render: () => <StatisticsLegend layerKey="statsRiceHarvest" /> },
+  { id: "statsBirthsTownship", render: () => <StatisticsLegend layerKey="statsBirthsTownship" /> },
+  { id: "statsPigWaterCounty", render: () => <StatisticsLegend layerKey="statsPigWaterCounty" /> },
+  { id: "statsWaterSupplyHistorical", render: () => <StatisticsLegend layerKey="statsWaterSupplyHistorical" /> },
+  { id: "statsWasteCounty", render: () => <StatisticsLegend layerKey="statsWasteCounty" /> },
+  { id: "statsRecyclingCounty", render: () => <StatisticsLegend layerKey="statsRecyclingCounty" /> },
   { id: "earthquakes", render: () => <EarthquakeLegend /> },
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },

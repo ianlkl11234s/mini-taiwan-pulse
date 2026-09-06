@@ -1,0 +1,14 @@
+{
+  "dataset_id": "crime_area_monthly",
+  "source_artifact": "crime_area_monthly_20260626.geojson",
+  "source_sha256": "7798f0a616b53a131c09c4aa1b99db17ecd184ce52ee17feaf5a2b178eef530f",
+  "source_layer": "crime_area_monthly",
+  "feature_count": 368,
+  "minzoom": 5,
+  "maxzoom": 12,
+  "file": "crime_area_monthly.pmtiles",
+  "sha256": "3f47f175cb4e31bc40c9eb981371ad04d76a92bb73e9d80564e82c4b9efdc25a",
+  "size_bytes": 4792305,
+  "rebuild": "bash scripts/preprocess/prepare-crime-area-preview.sh /path/to/crime_area_monthly_20260626.geojson",
+  "scope": "Local frontend asset; original aggregate source data unchanged"
+}

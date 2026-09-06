@@ -1,3 +1,4 @@
+import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -372,6 +373,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   prosecutorsOffice: ProsecutorsOfficePanel,
   correctionalFacility: CorrectionalFacilityPanel,
   courtJurisdiction: CourtJurisdictionPanel,
+  regionalStatistic: RegionalStatisticsPanel,
   crimeAreaMonthly: CrimeAreaMonthlyPanel,
   theftTaoyuan: TheftTaoyuanPanel,
   trafficAccidentYearly: TrafficAccidentYearlyPanel,
@@ -475,6 +477,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+  regionalStatistic: "區域統計",
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
   internetExchangePoint: "網際網路交換中心",

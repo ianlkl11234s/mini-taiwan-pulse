@@ -693,7 +693,7 @@ export interface RealEstateTooltipInfo {
 // ── 點擊特徵資訊 ──
 
 export interface FeatureInfo {
-  layerType: "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
+  layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -844,6 +844,14 @@ export interface FeatureInfo {
 // ── 圖層控制 ──
 
 export interface LayerVisibility {
+  statsWasteRecyclingRate: boolean;
+  statsResidentialElectricity: boolean;
+  statsRiceHarvest: boolean;
+  statsBirthsTownship: boolean;
+  statsPigWaterCounty: boolean;
+  statsWaterSupplyHistorical: boolean;
+  statsWasteCounty: boolean;
+  statsRecyclingCounty: boolean;
   flights: boolean;
   ships: boolean;
   rail: boolean;

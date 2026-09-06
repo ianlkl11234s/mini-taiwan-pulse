@@ -1,3 +1,5 @@
+import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
@@ -5,7 +7,7 @@ import {
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, MapPin, Settings, X, User, Star,
+  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -24,7 +26,7 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
@@ -36,7 +38,7 @@ const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.titl
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title));
+const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !t.title.endsWith("Statistics"));
 
 // ── Color Config ──
 
@@ -147,12 +149,16 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "world" | "japan";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
 
 // ── Main Component ──
 
 const RAIL_WIDTH = 56;
 const PANEL_WIDTH = 288;
+
+export function getThemeLayerKeys(themes: ThemeDef[]): (keyof LayerVisibility)[] {
+  return themes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)));
+}
 
 export function IconRailSidebar({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode,
@@ -176,6 +182,7 @@ export function IconRailSidebar({
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
+  const [statisticsSearch, setStatisticsSearch] = useState("");
   const [worldSearch, setWorldSearch] = useState("");
   const [japanSearch, setJapanSearch] = useState("");
   const [comingSoon, setComingSoon] = useState(false);
@@ -285,6 +292,14 @@ export function IconRailSidebar({
           onClick={() => togglePanel("layers")}
           tooltip="Layers"
           badge={!layersBadgeSeen}
+        />
+
+        {/* 統計 Statistics：獨立功能入口，共用既有圖層開關狀態 */}
+        <RailIcon
+          icon={StatisticsGlyph}
+          active={activePanel === "statistics"}
+          onClick={() => togglePanel("statistics")}
+          tooltip="統計 Statistics"
         />
 
         {/* 🌍 世界 World（維持獨立 rail，排在 Layers 之後） */}
@@ -477,6 +492,32 @@ export function IconRailSidebar({
                 onClose={closePanel}
               />
             )}
+            {activePanel === "statistics" && (
+              <LayersPanel
+                search={statisticsSearch}
+                onSearchChange={setStatisticsSearch}
+                themes={STATISTICS_TAB_THEMES}
+                showMacroGroups
+                allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
+                title="統計 Statistics"
+                visibility={visibility}
+                lockedKeys={lockedKeys}
+                expandedLayer={expandedLayer}
+                viewMode={viewMode}
+                displayMode={displayMode}
+                getCount={getCount}
+                onLayerClick={onLayerClick}
+                onToggleVisibility={onToggleVisibility}
+                onViewModeChange={onViewModeChange}
+                onDisplayModeChange={onDisplayModeChange}
+                onHideTransport={onHideTransport}
+                onAllOff={onAllOff}
+                onBulkSetVisibility={onBulkSetVisibility}
+                favoriteKeys={favoriteKeys}
+                onToggleFavorite={onToggleFavorite}
+                onClose={closePanel}
+              />
+            )}
             {activePanel === "japan" && (
               <LayersPanel
                 search={japanSearch}
@@ -522,7 +563,22 @@ export function IconRailSidebar({
 
 // ── Rail Icon Button ──
 
-// 「世界」複合 icon：Layers 底 + 右下疊小 Globe（沿用 currentColor 隨 active/dim 變色）。
+// 統計沿用 Layers 底圖，右下角以長條圖徽章辨識。
+function StatisticsGlyph({ size = 20 }: { size?: number }) {
+  const { BG_RAIL } = useRailTheme();
+  const badge = Math.round(size * 0.66);
+  return (
+    <span aria-hidden style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
+      <Layers size={size} />
+      <span style={{ position: "absolute", right: -4, bottom: -4, width: badge, height: badge,
+        borderRadius: "50%", background: BG_RAIL, border: "1.5px solid currentColor",
+        display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <ChartColumn size={Math.round(badge * 0.75)} strokeWidth={2} />
+      </span>
+    </span>
+  );
+}
+
 function WorldGlyph({ size = 20 }: { size?: number }) {
   const badge = Math.round(size * 0.58);
   return (
@@ -728,6 +784,7 @@ interface LayersPanelProps {
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
   onAllOff: () => void;
+  allOffKeys?: (keyof LayerVisibility)[];
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
@@ -933,7 +990,7 @@ function LayersPanel({
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
   onAllOff, onBulkSetVisibility, onClose,
-  favoriteKeys, onToggleFavorite,
+  favoriteKeys, onToggleFavorite, allOffKeys,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
@@ -958,7 +1015,10 @@ function LayersPanel({
       <PanelHeader title={title} onClose={onClose} />
       <div style={{ padding: "4px 12px 4px" }}>
         <button
-          onClick={onAllOff}
+          onClick={() => {
+            if (allOffKeys && onBulkSetVisibility) onBulkSetVisibility(allOffKeys, false);
+            else onAllOff();
+          }}
           style={{
             width: "100%",
             padding: "5px 0",
@@ -1178,6 +1238,7 @@ function ExpandedControls({
 
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
+      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
