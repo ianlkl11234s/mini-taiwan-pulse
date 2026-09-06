@@ -2468,20 +2468,7 @@ export default function App() {
                         busesIntercity: busIntercityCount,
                         wasteTrucks: wasteCount,
                       }}
-                      onLayerClick={(layer) => {
-                        const isVisible = layerVisibility[layer];
-                        if (!isVisible && handleGatedIntercept(layer)) return;
-                        if (!isVisible) {
-                          if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
-                          else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
-                          setExpandedLayer(layer as ExpandableLayerKey);
-                        } else if (expandedLayer === layer) {
-                          setExpandedLayer(null);
-                        } else {
-                          setExpandedLayer(layer as ExpandableLayerKey);
-                        }
-                        sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !isVisible }, layerVisibilityRef.current);
-                      }}
+                      onLayerClick={handleLayerClick}
                       onToggleVisibility={handleToggleVisibility}
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
