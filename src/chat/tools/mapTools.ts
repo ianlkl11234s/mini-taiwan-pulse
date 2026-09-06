@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { MapBridge } from "../types";
 import { LAYER_LABELS } from "../../components/sidebar/layerCatalog";
 import { ALL_PRESETS, getPresetById } from "../../map/cameraPresets";
+import { isStatisticsChoropleth } from "../../data/statisticsLayerRegistry";
 
 // 台灣範圍（含外島：金門 118.36 / 馬祖 26.2 / 澎湖 / 綠島）
 const LNG_MIN = 118;
@@ -28,13 +29,17 @@ export function mapTools(bridge: MapBridge) {
         const valid = new Set(Object.keys(LAYER_LABELS));
         const applied = keys.filter((k) => valid.has(k));
         const invalid = keys.filter((k) => !valid.has(k));
+        const visibleBefore = bridge.getVisibleLayerKeys();
         if (applied.length > 0) bridge.bulkSetVisibility(applied, visible);
+        const visibleNow = bridge.getVisibleLayerKeys();
+        const visibleStatistics = visibleNow.filter(isStatisticsChoropleth);
+        const replacedStatistics = visibleBefore.filter(isStatisticsChoropleth).filter((key) => !visibleNow.includes(key));
         const action = visible ? "開啟" : "關閉";
         const summary =
           applied.length > 0
-            ? `${action} ${applied.length} 個圖層${invalid.length ? `（${invalid.length} 個無效 key 已略過）` : ""}`
+            ? `${action}後目前可見 ${visibleNow.length} 個圖層${visibleStatistics.length ? `；統計面：${visibleStatistics.join("、")}` : ""}${replacedStatistics.length ? `；已替換：${replacedStatistics.join("、")}` : ""}${invalid.length ? `（${invalid.length} 個無效 key 已略過）` : ""}`
             : `無有效 key 可${action}${invalid.length ? `（${invalid.join("、")} 皆無效）` : ""}`;
-        return { summary, applied, invalid, visible };
+        return { summary, applied, invalid, visible, visibleNow, visibleStatistics, replacedStatistics };
       },
     }),
 

@@ -14,6 +14,7 @@ import {
   TRANSPORT_LABELS,
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { searchLayers } from "../lib/layerSearch";
 
 // ── Props ──
@@ -249,6 +250,7 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
+      {isMobile && <StatisticsModeControl />}
       {onMemberToggle && (
         <button
           onClick={onMemberToggle}

@@ -1795,6 +1795,7 @@ export const LAYER_PARAMS_SPEC = {
   statsBirthsTownship: [opacitySlider("statsBirthsTownshipOpacity", 0.55)],
   statsPigWaterCounty: [opacitySlider("statsPigWaterCountyOpacity", 0.55)],
   statsWaterSupplyHistorical: [opacitySlider("statsWaterSupplyHistoricalOpacity", 0.55)],
+  statsMaritimeSubsidyCounty: [opacitySlider("statsMaritimeSubsidyCountyOpacity", 0.55)],
   statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
   statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
   crimeAreaMonthly: [

@@ -320,6 +320,7 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
   { id: "statsWasteRecyclingRate", render: () => <StatisticsLegend layerKey="statsWasteRecyclingRate" /> },
   { id: "statsResidentialElectricity", render: () => <StatisticsLegend layerKey="statsResidentialElectricity" /> },
   { id: "statsRiceHarvest", render: () => <StatisticsLegend layerKey="statsRiceHarvest" /> },

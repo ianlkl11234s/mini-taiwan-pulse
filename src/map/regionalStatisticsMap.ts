@@ -1,4 +1,4 @@
-import { STATISTICS_KEYS, STATISTICS_RECIPES, type StatisticsLayerKey } from '../data/regionalStatisticsRecipes';
+import { STATISTICS_KEYS, STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
 import { layerParamsStore } from '../state/layerParamsStore';
@@ -10,7 +10,8 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
   const rendered = new Map<StatisticsLayerKey, GeoJSON.FeatureCollection>();
   for (const key of STATISTICS_KEYS) {
     const recipe = STATISTICS_RECIPES[key];
-    regionalStatisticsStore.registerRecipe(key, { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions });
+    const fallback = statisticsReleaseFallback(key);
+    regionalStatisticsStore.registerRecipe(key, { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
   }
   function render() {
     if (!map.isStyleLoaded()) return;

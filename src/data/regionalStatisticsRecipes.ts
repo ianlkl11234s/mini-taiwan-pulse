@@ -1,4 +1,38 @@
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
+export interface StatisticsReleaseOption {
+  releaseId: string;
+  dimensions: Record<string, string>;
+}
+
+export interface StatisticsReleaseSelector {
+  /** Only derives choices from public releases, never invents a dimensions tuple. */
+  resolve(release: { release_id: string; period_start: string }): StatisticsReleaseOption | null;
+}
+
+const MARITIME_FUND_BY_RELEASE_PREFIX: Record<string, string> = {
+  '1450d8e18741': '航港建設基金',
+  'd6c9ce1998ef': '交通部航港局',
+  '5f44af09d338': '交通部航港局-前瞻基礎建設計畫第3期特別預算',
+  '469152708767': '交通部航港局-前瞻基礎建設計畫第4期特別預算',
+  'f6a788d31216': '交通部航港局-前瞻基礎建設計畫第5期特別預算',
+};
+
+export const maritimeSubsidyReleaseSelector: StatisticsReleaseSelector = {
+  resolve(release) {
+    const matched = /^(\d{4})-(\d{2})-01-([0-9a-f]{12})-/.exec(release.release_id);
+    if (!matched) return null;
+    const year = matched[1]!;
+    const month = matched[2]!;
+    const prefix = matched[3]!;
+    const fund = MARITIME_FUND_BY_RELEASE_PREFIX[prefix];
+    if (!fund || release.period_start !== `${year}-${month}-01`) return null;
+    return {
+      releaseId: release.release_id,
+      dimensions: { roc_year: String(Number(year) - 1911), month, agency_fund: fund },
+    };
+  },
+};
+
 export const STATISTICS_RECIPES = {
   statsWasteCounty: {
     dataset_id: 'waste_vehicles_county', indicator_id: 'total_vehicles', level: 'county',
@@ -40,9 +74,26 @@ export const STATISTICS_RECIPES = {
     label: '供水普及率（2015年／7縣市）', unit: '%', frequency: '歷史年度統計', dimensions: {},
     breaks: [80, 90, 95, 99], colors: ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e3a8a'],
   },
+  statsMaritimeSubsidyCounty: {
+    dataset_id: 'maritime_bureau_subsidy_county', indicator_id: 'maritime_bureau_recipient_county_subsidy_twd', level: 'county',
+    label: '航港局獎補助金額（受補助對象所在地）', unit: 'TWD', frequency: '每月',
+    releaseId: '2026-07-01-d6c9ce1998ef-37b0932fc00e',
+    dimensions: { roc_year: '115', month: '07', agency_fund: '交通部航港局' },
+    includeHealth: true,
+    releaseSelector: maritimeSubsidyReleaseSelector,
+    interpretationNote: '依受補助對象所在地彙總；不是工程地、港口投資地或最終受益地。PARTIAL coverage 與未分配金額會另外揭露，缺值不等於 0。',
+    breaks: [1_000_000, 5_000_000, 20_000_000, 50_000_000], colors: ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e3a8a'],
+  },
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];
+
+/** Optional fallback is safe only when its release identity gives exact dimensions. */
+export function statisticsReleaseFallback(key: StatisticsLayerKey) {
+  const recipe = STATISTICS_RECIPES[key];
+  if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return undefined;
+  return (release: { release_id: string; period_start: string }) => recipe.releaseSelector.resolve(release)?.dimensions ?? null;
+}
 export function isStatisticsLayer(key: string): key is StatisticsLayerKey {
   return Object.prototype.hasOwnProperty.call(STATISTICS_RECIPES, key);
 }
