@@ -362,6 +362,7 @@ export type ExpandableLayerKey =
   | "worldTrashDebris"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
+  | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
   | "jpSchools" | "jpPopulationMesh1km";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
@@ -824,6 +825,7 @@ export interface FeatureInfo {
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
     // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
     | "jpRailways"
+    | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpSchools"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
@@ -1350,6 +1352,10 @@ export interface LayerVisibility {
   jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
   jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
   jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
+  osmBridgeCarriers: boolean;
+  osmBridgeFootprints: boolean;
+  officialBridgesNewTaipei: boolean;
+  bridgeComparisonNewTaipei: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
 }

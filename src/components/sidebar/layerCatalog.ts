@@ -369,6 +369,15 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "路網結構 Network Structures",
+        layers: [
+          fromManifest("osmBridgeCarriers"),
+          fromManifest("osmBridgeFootprints"),
+          fromManifest("officialBridgesNewTaipei"),
+          fromManifest("bridgeComparisonNewTaipei"),
+        ],
+      },
+      {
         title: "即時監控",
         layers: [
           fromManifest("freewayCongestion"),

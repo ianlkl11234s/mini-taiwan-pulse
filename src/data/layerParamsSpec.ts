@@ -101,6 +101,7 @@ import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
+import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1396,6 +1397,42 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   jpRailways: [opacitySlider("jpRailwaysOpacity", 0.9)],
+  osmBridgeCarriers: [
+    opacitySlider("osmBridgeCarriersOpacity", 0.85),
+    {
+      kind: "select",
+      name: "osmBridgeCarriersKind",
+      label: "承載類型",
+      default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...CARRIER_KINDS.map((item) => ({ label: item.label, value: item.value })),
+      ],
+      out: "osmBridgeCarriersKindIdx",
+      encode: ["all", ...CARRIER_KINDS.map((item) => item.value)],
+    },
+  ],
+  osmBridgeFootprints: [opacitySlider("osmBridgeFootprintsOpacity", 0.65)],
+  officialBridgesNewTaipei: [
+    opacitySlider("officialBridgesNewTaipeiOpacity", 0.85),
+    scaleSlider("officialBridgesNewTaipeiScale", 1),
+  ],
+  bridgeComparisonNewTaipei: [
+    opacitySlider("bridgeComparisonNewTaipeiOpacity", 0.9),
+    scaleSlider("bridgeComparisonNewTaipeiScale", 1),
+    {
+      kind: "select",
+      name: "bridgeComparisonNewTaipeiStatus",
+      label: "比對狀態",
+      default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...MATCH_STATUSES.map((item) => ({ label: item.label, value: item.value })),
+      ],
+      out: "bridgeComparisonNewTaipeiStatusIdx",
+      encode: ["all", ...MATCH_STATUSES.map((item) => item.value)],
+    },
+  ],
   jpSchools: [opacitySlider("jpSchoolsOpacity", 0.75), scaleSlider("jpSchoolsScale", 1)],
   // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名
   // （非數值字串）⇒ 走 encode 存索引，overlayParams.jpPopulationMeshModeIdx 是 index。

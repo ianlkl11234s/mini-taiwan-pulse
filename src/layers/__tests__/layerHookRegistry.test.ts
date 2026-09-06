@@ -120,6 +120,7 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
  * 有 hook 的 key 塞進來會紅。
  */
 const NO_HOOK_LEDGER = new Set<string>([
+  "osmBridgeCarriers", "osmBridgeFootprints", "officialBridgesNewTaipei", "bridgeComparisonNewTaipei", // 純 PMTiles overlayRegistry，無 hook。
   // ── OVERLAY_REGISTRY 的靜態 GeoJSON 層（104）──
   "accidentTaipei", "activeFaults", "agriWholesaleMarket", "antiCorruptionOffice",
   "aquacultureCageNet", "aquacultureZone", "artsEvents", "bikeStations",

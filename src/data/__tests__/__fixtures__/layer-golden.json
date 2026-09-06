@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 446,
+    "keyCount": 450,
     "sections": [
       "gisLayers",
       "overlays",
@@ -624,6 +624,33 @@
         "jp-railways-line"
       ],
       "type": "jpRailways"
+    },
+    {
+      "layers": [
+        "osm-bridge-carriers-line"
+      ],
+      "type": "osmBridgeCarriers"
+    },
+    {
+      "layers": [
+        "official-bridges-new-taipei-line",
+        "official-bridges-new-taipei-coincident-endpoints"
+      ],
+      "type": "officialBridgesNewTaipei"
+    },
+    {
+      "layers": [
+        "bridge-comparison-new-taipei-line",
+        "bridge-comparison-new-taipei-coincident-endpoints"
+      ],
+      "type": "bridgeComparisonNewTaipei"
+    },
+    {
+      "layers": [
+        "osm-bridge-footprints-fill",
+        "osm-bridge-footprints-outline"
+      ],
+      "type": "osmBridgeFootprints"
     },
     {
       "layers": [
@@ -49396,6 +49423,514 @@
       ],
       "sourceId": "tour-restaurants",
       "sourceUrl": "./tourism/restaurants_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmBridgeCarriers",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "feature_id"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "carrier_kind"
+                ],
+                "road",
+                "#f97316",
+                "rail",
+                "#8b5cf6",
+                "foot",
+                "#22c55e",
+                "bicycle",
+                "#06b6d4",
+                "aqueduct",
+                "#3b82f6",
+                "pipeline",
+                "#ec4899",
+                "other",
+                "#94a3b8",
+                "#f97316"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.7,
+                11,
+                1.7,
+                16,
+                3
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "carrier_kind"
+                ],
+                "road",
+                "#f97316",
+                "rail",
+                "#8b5cf6",
+                "foot",
+                "#22c55e",
+                "bicycle",
+                "#06b6d4",
+                "aqueduct",
+                "#3b82f6",
+                "pipeline",
+                "#ec4899",
+                "other",
+                "#94a3b8",
+                "#f97316"
+              ],
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.7,
+                11,
+                1.7,
+                16,
+                3
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "osm_bridge_carriers"
+      },
+      "rebuildOnParamChange": [
+        "line"
+      ],
+      "sourceId": "osm-bridge-carriers",
+      "sourceUrl": "./network_structures/osm_bridge_carriers_20260906.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmBridgeFootprints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#38bdf8",
+              "fill-opacity": 0.14300000000000002
+            },
+            "light": {
+              "fill-color": "#38bdf8",
+              "fill-opacity": 0.14300000000000002
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#38bdf8",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": "#38bdf8",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                8,
+                0.5,
+                14,
+                1.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 8,
+        "sourceLayer": "osm_bridge_footprints"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "osm-bridge-footprints",
+      "sourceUrl": "./network_structures/osm_bridge_footprints_20260906.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "officialBridgesNewTaipei",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#38bdf8",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            },
+            "light": {
+              "line-color": "#38bdf8",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "geometry_role"
+            ],
+            "coincident_endpoints"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#38bdf8",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "coincident-endpoints",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "official_bridges"
+      },
+      "rebuildOnParamChange": [
+        "line",
+        "coincident-endpoints"
+      ],
+      "sourceId": "official-bridges-new-taipei",
+      "sourceUrl": "./network_structures/official_bridges_new_taipei_20260906.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "bridgeComparisonNewTaipei",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "feature_id"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "match_status"
+                ],
+                "MATCHED",
+                "#22c55e",
+                "AMBIGUOUS",
+                "#f59e0b",
+                "GEOMETRY_MISMATCH",
+                "#ef4444",
+                "OFFICIAL_ONLY",
+                "#8b5cf6",
+                "OSM_ONLY",
+                "#64748b",
+                "NOT_EVALUATED",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1.4,
+                12,
+                3,
+                16,
+                4.5
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "match_status"
+                ],
+                "MATCHED",
+                "#22c55e",
+                "AMBIGUOUS",
+                "#f59e0b",
+                "GEOMETRY_MISMATCH",
+                "#ef4444",
+                "OFFICIAL_ONLY",
+                "#8b5cf6",
+                "OSM_ONLY",
+                "#64748b",
+                "NOT_EVALUATED",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.9,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1.4,
+                12,
+                3,
+                16,
+                4.5
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_id"
+            ],
+            [
+              "==",
+              [
+                "get",
+                "geometry_role"
+              ],
+              "coincident_endpoints"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "match_status"
+                ],
+                "MATCHED",
+                "#22c55e",
+                "AMBIGUOUS",
+                "#f59e0b",
+                "GEOMETRY_MISMATCH",
+                "#ef4444",
+                "OFFICIAL_ONLY",
+                "#8b5cf6",
+                "OSM_ONLY",
+                "#64748b",
+                "NOT_EVALUATED",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "match_status"
+                ],
+                "MATCHED",
+                "#22c55e",
+                "AMBIGUOUS",
+                "#f59e0b",
+                "GEOMETRY_MISMATCH",
+                "#ef4444",
+                "OFFICIAL_ONLY",
+                "#8b5cf6",
+                "OSM_ONLY",
+                "#64748b",
+                "NOT_EVALUATED",
+                "#94a3b8",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "coincident-endpoints",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "bridge_comparison"
+      },
+      "rebuildOnParamChange": [
+        "line",
+        "coincident-endpoints"
+      ],
+      "sourceId": "bridge-comparison-new-taipei",
+      "sourceUrl": "./network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
     }
   ],
   "params": {
@@ -50697,6 +51232,57 @@
         "min": 0.1,
         "step": 0.05,
         "value": 1
+      }
+    ],
+    "bridgeComparisonNewTaipei": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "比對狀態",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "候選一致",
+            "value": "MATCHED"
+          },
+          {
+            "label": "多重候選",
+            "value": "AMBIGUOUS"
+          },
+          {
+            "label": "幾何不符",
+            "value": "GEOMETRY_MISMATCH"
+          },
+          {
+            "label": "僅官方",
+            "value": "OFFICIAL_ONLY"
+          },
+          {
+            "label": "僅 OSM",
+            "value": "OSM_ONLY"
+          },
+          {
+            "label": "未評估",
+            "value": "NOT_EVALUATED"
+          }
+        ],
+        "type": "select",
+        "value": "all"
       }
     ],
     "buildingsGba": [
@@ -55023,6 +55609,22 @@
         "value": 1.05
       }
     ],
+    "officialBridgesNewTaipei": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "officialNoiseMonitoring": [
       {
         "label": "透明度 0.90",
@@ -55192,6 +55794,63 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.75
+      }
+    ],
+    "osmBridgeCarriers": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "承載類型",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "道路",
+            "value": "road"
+          },
+          {
+            "label": "鐵道",
+            "value": "rail"
+          },
+          {
+            "label": "步行",
+            "value": "foot"
+          },
+          {
+            "label": "自行車",
+            "value": "bicycle"
+          },
+          {
+            "label": "輸水",
+            "value": "aqueduct"
+          },
+          {
+            "label": "管線",
+            "value": "pipeline"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      }
+    ],
+    "osmBridgeFootprints": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
       }
     ],
     "osmCommunicationSites": [

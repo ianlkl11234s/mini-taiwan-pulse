@@ -41,6 +41,11 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
 echo "[pull] sync geo pmtiles → $DATA_DIR/geo/"
 aws s3 sync "$S3/geo/" "$DATA_DIR/geo/" --no-progress
 
+# Network Structures: mirror immutable build filenames without deleting older releases.
+mkdir -p "$DATA_DIR/network_structures"
+echo "[pull] sync network_structures → $DATA_DIR/network_structures/"
+aws s3 sync "$S3/network_structures/" "$DATA_DIR/network_structures/" --no-progress
+
 echo "[pull] sync h3 → $DATA_DIR/h3/"
 aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_res8.json"
 
@@ -49,7 +54,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
