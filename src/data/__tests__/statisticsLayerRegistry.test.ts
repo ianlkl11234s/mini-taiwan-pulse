@@ -4,7 +4,7 @@ import {
   STATISTICS_TAB_LAYER_ROLES,
   isStatisticsChoropleth,
 } from "../statisticsLayerRegistry";
-import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiTrafficViolationCitationReleaseSelector, taichungRoadNoiseMonitoringReleaseSelector } from "../regionalStatisticsRecipes";
+import { STATISTICS_RECIPES, busOperationReleaseSelector, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiTrafficViolationCitationReleaseSelector, taichungRoadNoiseMonitoringReleaseSelector, tmrtStationOutboundReleaseSelector } from "../regionalStatisticsRecipes";
 
 describe("statistics layer role registry", () => {
   it("將 Statistics tab 的 crime choropleth 納入模式，行政邊界明確豁免", () => {
@@ -86,5 +86,13 @@ describe("statistics layer role registry", () => {
       releaseId: "2024-Q3-66000-40789289a250", dimensions: { roc_year: "113", quarter: "Q3", control_zone_class: "第四類管制區", geographic_coverage: "taichung_only" },
     });
     expect(taichungRoadNoiseMonitoringReleaseSelector.resolve({ release_id: "2024-Q3-66000-unknown", period_start: "2024-07-01", period_end: "2024-09-30" })).toBeNull();
+  });
+
+  it("只暴露 manifest 的八個 114Y 市區客運指標與 TMRT 歷史 release", () => {
+    expect(busOperationReleaseSelector.resolve({ release_id: "2025-114-column6-5a90492f645a", period_start: "2025-01-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-114-column6-5a90492f645a", dimensions: { roc_year: "114", bus_metric: "electric_vehicle_count" } });
+    expect(busOperationReleaseSelector.resolve({ release_id: "2025-114-column6-unknown", period_start: "2025-01-01", period_end: "2025-12-31" })).toBeNull();
+    expect(STATISTICS_RECIPES.statsBusElectricVehicleCount).toMatchObject({ dataset_id: "segis_bus_operation_county_315fh_1d3", indicator_id: "bus_electric_vehicle_count", unit: "輛", includeHealth: true });
+    expect(tmrtStationOutboundReleaseSelector.resolve({ release_id: "2025-12-tmrt-station-outbound-2412a544-4ace434cfa54", period_start: "2025-12-01", period_end: "2025-12-31" })).toEqual({ releaseId: "2025-12-tmrt-station-outbound-2412a544-4ace434cfa54", dimensions: { roc_year: "114", month: "12", system_id: "tmrt", geographic_semantics: "station_location" } });
+    expect(STATISTICS_RECIPES.statsTmrtStationOutboundCounty).toMatchObject({ dataset_id: "tmrt_station_outbound_county", indicator_id: "station_outbound_count", unit: "人次", freshness: "STALE", includeHealth: true });
   });
 });

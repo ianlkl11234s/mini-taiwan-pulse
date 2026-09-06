@@ -199,6 +199,8 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
     { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
     { title: "臺北市違規舉發", layers: [fromManifest("statsTaipeiTrafficViolationCitations")] },
     { title: "臺中道路噪音監測", layers: [fromManifest("statsTaichungRoadNoiseMonitoringStations")] },
+    { title: "市區客運營運概況", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"), fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm")] },
+    { title: "中捷車站出站人次", layers: [fromManifest("statsTmrtStationOutboundCounty")] },
     { title: "縣市交通供給", layers: [
       fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
       fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),

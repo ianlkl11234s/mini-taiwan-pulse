@@ -98,6 +98,7 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "statsMaritimeSubsidyCounty", "statsCivilAeronauticsSubsidyCounty",
   "statsTaipeiTrafficViolationCitations",
   "statsTaichungRoadNoiseMonitoringStations",
+  "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
   "statsOffstreetSmallCarParkingSpacesCount", "statsOnstreetSmallCarParkingSpacesCount",
   "statsMotorcycleRegisteredCount", "statsAutomobileRegisteredCount",
   "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",

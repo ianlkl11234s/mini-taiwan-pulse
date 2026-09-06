@@ -141,7 +141,7 @@ describe("黃金快照覆蓋度", () => {
     // +7 = 民航局獎補助與 DGBAS 縣市交通供給六項原生行政區統計；
     // +1 = 臺北市法條分類交通違規舉發筆數統計；
     // +1 = 臺中市道路交通噪音監測站數統計。
-    expect(keys.length).toBe(422);
+    expect(keys.length).toBe(431);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

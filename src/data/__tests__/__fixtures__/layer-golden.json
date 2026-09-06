@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 422,
+    "keyCount": 431,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1879,6 +1879,15 @@
         "statsCivilAeronauticsSubsidyCounty-fill",
         "statsTaipeiTrafficViolationCitations-fill",
         "statsTaichungRoadNoiseMonitoringStations-fill",
+        "statsBusOperatingRouteLengthKm-fill",
+        "statsBusApprovedRouteCount-fill",
+        "statsUrbanBusOperatorCount-fill",
+        "statsBusOperatingVehicleCount-fill",
+        "statsBusAccessibleVehicleCount-fill",
+        "statsBusElectricVehicleCount-fill",
+        "statsBusOperatingTripCount-fill",
+        "statsBusOperatingVehicleKm-fill",
+        "statsTmrtStationOutboundCounty-fill",
         "statsOffstreetSmallCarParkingSpacesCount-fill",
         "statsOnstreetSmallCarParkingSpacesCount-fill",
         "statsMotorcycleRegisteredCount-fill",
@@ -57922,6 +57931,69 @@
         "value": 0.55
       }
     ],
+    "statsBusAccessibleVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusApprovedRouteCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusElectricVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingRouteLengthKm": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingTripCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingVehicleCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBusOperatingVehicleKm": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsCivilAeronauticsSubsidyCounty": [
       {
         "label": "透明度 0.55",
@@ -58022,6 +58094,24 @@
       }
     ],
     "statsTaipeiTrafficViolationCitations": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsTmrtStationOutboundCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsUrbanBusOperatorCount": [
       {
         "label": "透明度 0.55",
         "max": 1,

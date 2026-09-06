@@ -114,6 +114,34 @@ export const taichungRoadNoiseMonitoringReleaseSelector: StatisticsReleaseSelect
   },
 };
 
+const BUS_OPERATION_METRIC_BY_RELEASE: Record<string, string> = {
+  '2025-114-column1-fcb90c6e6b05': 'operating_route_length_km',
+  '2025-114-column2-2cfcc51bbaeb': 'approved_route_count',
+  '2025-114-column3-d29188c54350': 'urban_bus_operator_count',
+  '2025-114-column4-9e012e606e3a': 'operating_vehicle_count',
+  '2025-114-column5-f4969fae6a17': 'accessible_vehicle_count',
+  '2025-114-column6-5a90492f645a': 'electric_vehicle_count',
+  '2025-114-column7-27ac5f545458': 'operating_trip_count',
+  '2025-114-column8-be577682e7b9': 'operating_vehicle_km',
+};
+
+/** Only the eight manifest-listed 114Y SEGIS fields are selectable. */
+export const busOperationReleaseSelector: StatisticsReleaseSelector = {
+  resolve(release) {
+    const busMetric = BUS_OPERATION_METRIC_BY_RELEASE[release.release_id];
+    if (!busMetric || release.period_start !== '2025-01-01' || release.period_end !== '2025-12-31') return null;
+    return { releaseId: release.release_id, dimensions: { roc_year: '114', bus_metric: busMetric } };
+  },
+};
+
+/** Only the manifest-listed 2025-12 facility-crosswalk release is selectable. */
+export const tmrtStationOutboundReleaseSelector: StatisticsReleaseSelector = {
+  resolve(release) {
+    if (release.release_id !== '2025-12-tmrt-station-outbound-2412a544-4ace434cfa54' || release.period_start !== '2025-12-01' || release.period_end !== '2025-12-31') return null;
+    return { releaseId: release.release_id, dimensions: { roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' } };
+  },
+};
+
 export const STATISTICS_RECIPES = {
   statsWasteCounty: {
     dataset_id: 'waste_vehicles_county', indicator_id: 'total_vehicles', level: 'county',
@@ -192,6 +220,15 @@ export const STATISTICS_RECIPES = {
     interpretationNote: '僅臺中市原生監測站數，其他 21 縣市為缺資料；按管制區類別不可合計。來源表名的「不合格情形」不表示這些監測站數為不合格站數，12 筆不合格時段未納入。',
     breaks: [1, 2, 3, 4], colors: ['#ecfeff', '#a5f3fc', '#22d3ee', '#0891b2', '#164e63'],
   },
+  statsBusOperatingRouteLengthKm: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_operating_route_length_km', level: 'county', label: '期末營業里程', unit: '公里', frequency: '年度（114 年）', releaseId: '2025-114-column1-fcb90c6e6b05', dimensions: { roc_year: '114', bus_metric: 'operating_route_length_km' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [500, 1_500, 3_000, 6_000], colors: ['#eff6ff', '#bfdbfe', '#60a5fa', '#2563eb', '#1e3a8a'] },
+  statsBusApprovedRouteCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_approved_route_count', level: 'county', label: '核定路線數', unit: '條', frequency: '年度（114 年）', releaseId: '2025-114-column2-2cfcc51bbaeb', dimensions: { roc_year: '114', bus_metric: 'approved_route_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [50, 150, 300, 600], colors: ['#f0fdf4', '#bbf7d0', '#4ade80', '#16a34a', '#14532d'] },
+  statsUrbanBusOperatorCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'urban_bus_operator_count', level: 'county', label: '市區客運業家數', unit: '家', frequency: '年度（114 年）', releaseId: '2025-114-column3-d29188c54350', dimensions: { roc_year: '114', bus_metric: 'urban_bus_operator_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [5, 15, 30, 60], colors: ['#fdf4ff', '#f5d0fe', '#e879f9', '#c026d3', '#701a75'] },
+  statsBusOperatingVehicleCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_operating_vehicle_count', level: 'county', label: '期末營業車輛', unit: '輛', frequency: '年度（114 年）', releaseId: '2025-114-column4-9e012e606e3a', dimensions: { roc_year: '114', bus_metric: 'operating_vehicle_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [100, 300, 800, 1_500], colors: ['#fff7ed', '#fed7aa', '#fb923c', '#ea580c', '#7c2d12'] },
+  statsBusAccessibleVehicleCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_accessible_vehicle_count', level: 'county', label: '期末無障礙車輛', unit: '輛', frequency: '年度（114 年）', releaseId: '2025-114-column5-f4969fae6a17', dimensions: { roc_year: '114', bus_metric: 'accessible_vehicle_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [30, 100, 300, 600], colors: ['#ecfeff', '#a5f3fc', '#22d3ee', '#0891b2', '#164e63'] },
+  statsBusElectricVehicleCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_electric_vehicle_count', level: 'county', label: '期末電動車輛', unit: '輛', frequency: '年度（114 年）', releaseId: '2025-114-column6-5a90492f645a', dimensions: { roc_year: '114', bus_metric: 'electric_vehicle_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；7 個縣市來源為 null，保留為缺資料；不可跨指標或路線加總。', breaks: [20, 80, 200, 500], colors: ['#fefce8', '#fef08a', '#facc15', '#ca8a04', '#713f12'] },
+  statsBusOperatingTripCount: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_operating_trip_count', level: 'county', label: '營業行車次數', unit: '班次', frequency: '年度（114 年）', releaseId: '2025-114-column7-27ac5f545458', dimensions: { roc_year: '114', bus_metric: 'operating_trip_count' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [100_000, 500_000, 1_500_000, 4_000_000], colors: ['#f5f3ff', '#ddd6fe', '#a78bfa', '#7c3aed', '#4c1d95'] },
+  statsBusOperatingVehicleKm: { dataset_id: 'segis_bus_operation_county_315fh_1d3', indicator_id: 'bus_operating_vehicle_km', level: 'county', label: '營業行車里程', unit: '車公里', frequency: '年度（114 年）', releaseId: '2025-114-column8-be577682e7b9', dimensions: { roc_year: '114', bus_metric: 'operating_vehicle_km' }, includeHealth: true, releaseSelector: busOperationReleaseSelector, interpretationNote: '官方縣市市區客運供給統計；不可跨指標或路線加總，也不代表唯一乘客或路線。', breaks: [1_000_000, 10_000_000, 30_000_000, 80_000_000], colors: ['#fef2f2', '#fecaca', '#f87171', '#dc2626', '#7f1d1d'] },
+  statsTmrtStationOutboundCounty: { dataset_id: 'tmrt_station_outbound_county', indicator_id: 'station_outbound_count', level: 'county', label: '中捷車站所在地出站人次', unit: '人次', frequency: '2025 年 12 月歷史快照', freshness: 'STALE', releaseId: '2025-12-tmrt-station-outbound-2412a544-4ace434cfa54', dimensions: { roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' }, includeHealth: true, releaseSelector: tmrtStationOutboundReleaseSelector, interpretationNote: '18 個中捷車站所在地的出站人次；不是不重複旅客、居民旅運或全市旅次。僅臺中市可由站點 crosswalk 分派，256 人次其他出站不可分派。', breaks: [100_000, 500_000, 1_000_000, 1_500_000], colors: ['#ecfeff', '#a5f3fc', '#22d3ee', '#0891b2', '#164e63'] },
   statsOffstreetSmallCarParkingSpacesCount: {
     dataset_id: 'dgbas_county_transport_supply_10935', indicator_id: 'offstreet_small_car_parking_spaces_count', level: 'county',
     label: '小型汽車路外停車位', unit: '個', frequency: '年度（112／113 年）', dimensions: { roc_year: '113' },

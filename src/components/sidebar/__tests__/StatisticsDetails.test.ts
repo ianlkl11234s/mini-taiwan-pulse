@@ -36,4 +36,9 @@ describe('statisticsDimensionSummary', () => {
   it('humanizes the Taichung-only control-zone selection summary', () => {
     expect(statisticsDimensionSummary({ roc_year: '113', quarter: 'Q3', control_zone_class: '第一類管制區', geographic_coverage: 'taichung_only' })).toBe('期間：民國 113 年・Q3；管制區類別：第一類管制區；地理涵蓋：僅臺中市');
   });
+
+  it('shows the selected bus metric and TMRT station-location semantics', () => {
+    expect(statisticsDimensionSummary({ roc_year: '114', bus_metric: 'electric_vehicle_count' })).toBe('期間：民國 114 年；統計項目：期末電動車輛');
+    expect(statisticsDimensionSummary({ roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' })).toBe('期間：民國 114 年・12 月；系統：臺中捷運；地理語意：車站所在地');
+  });
 });

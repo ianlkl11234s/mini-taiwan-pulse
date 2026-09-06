@@ -854,6 +854,15 @@ export interface LayerVisibility {
   statsCivilAeronauticsSubsidyCounty: boolean;
   statsTaipeiTrafficViolationCitations: boolean;
   statsTaichungRoadNoiseMonitoringStations: boolean;
+  statsBusOperatingRouteLengthKm: boolean;
+  statsBusApprovedRouteCount: boolean;
+  statsUrbanBusOperatorCount: boolean;
+  statsBusOperatingVehicleCount: boolean;
+  statsBusAccessibleVehicleCount: boolean;
+  statsBusElectricVehicleCount: boolean;
+  statsBusOperatingTripCount: boolean;
+  statsBusOperatingVehicleKm: boolean;
+  statsTmrtStationOutboundCounty: boolean;
   statsOffstreetSmallCarParkingSpacesCount: boolean;
   statsOnstreetSmallCarParkingSpacesCount: boolean;
   statsMotorcycleRegisteredCount: boolean;

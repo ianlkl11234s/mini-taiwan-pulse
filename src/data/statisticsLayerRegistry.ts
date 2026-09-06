@@ -15,6 +15,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   statsCivilAeronauticsSubsidyCounty: "choropleth",
   statsTaipeiTrafficViolationCitations: "choropleth",
   statsTaichungRoadNoiseMonitoringStations: "choropleth",
+  statsBusOperatingRouteLengthKm: "choropleth", statsBusApprovedRouteCount: "choropleth", statsUrbanBusOperatorCount: "choropleth", statsBusOperatingVehicleCount: "choropleth", statsBusAccessibleVehicleCount: "choropleth", statsBusElectricVehicleCount: "choropleth", statsBusOperatingTripCount: "choropleth", statsBusOperatingVehicleKm: "choropleth", statsTmrtStationOutboundCounty: "choropleth",
   statsOffstreetSmallCarParkingSpacesCount: "choropleth",
   statsOnstreetSmallCarParkingSpacesCount: "choropleth",
   statsMotorcycleRegisteredCount: "choropleth",

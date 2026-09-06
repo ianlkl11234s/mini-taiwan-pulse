@@ -1799,6 +1799,7 @@ export const LAYER_PARAMS_SPEC = {
   statsCivilAeronauticsSubsidyCounty: [opacitySlider("statsCivilAeronauticsSubsidyCountyOpacity", 0.55)],
   statsTaipeiTrafficViolationCitations: [opacitySlider("statsTaipeiTrafficViolationCitationsOpacity", 0.55)],
   statsTaichungRoadNoiseMonitoringStations: [opacitySlider("statsTaichungRoadNoiseMonitoringStationsOpacity", 0.55)],
+  statsBusOperatingRouteLengthKm: [opacitySlider("statsBusOperatingRouteLengthKmOpacity", 0.55)], statsBusApprovedRouteCount: [opacitySlider("statsBusApprovedRouteCountOpacity", 0.55)], statsUrbanBusOperatorCount: [opacitySlider("statsUrbanBusOperatorCountOpacity", 0.55)], statsBusOperatingVehicleCount: [opacitySlider("statsBusOperatingVehicleCountOpacity", 0.55)], statsBusAccessibleVehicleCount: [opacitySlider("statsBusAccessibleVehicleCountOpacity", 0.55)], statsBusElectricVehicleCount: [opacitySlider("statsBusElectricVehicleCountOpacity", 0.55)], statsBusOperatingTripCount: [opacitySlider("statsBusOperatingTripCountOpacity", 0.55)], statsBusOperatingVehicleKm: [opacitySlider("statsBusOperatingVehicleKmOpacity", 0.55)], statsTmrtStationOutboundCounty: [opacitySlider("statsTmrtStationOutboundCountyOpacity", 0.55)],
   statsOffstreetSmallCarParkingSpacesCount: [opacitySlider("statsOffstreetSmallCarParkingSpacesCountOpacity", 0.55)],
   statsOnstreetSmallCarParkingSpacesCount: [opacitySlider("statsOnstreetSmallCarParkingSpacesCountOpacity", 0.55)],
   statsMotorcycleRegisteredCount: [opacitySlider("statsMotorcycleRegisteredCountOpacity", 0.55)],
