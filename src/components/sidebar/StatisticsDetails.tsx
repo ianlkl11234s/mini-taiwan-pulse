@@ -16,9 +16,12 @@ const DIMENSION_LABELS: Record<string, string> = {
   quarter: '季度',
   budget: '預算',
   budget_type: '預算類型',
+  value_basis: '數值基準',
 };
 const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
+  budget_type: { civil_aviation_fund: '民航基金', public_budget: '公務預算', special_budget: '特別預算' },
+  value_basis: { year_to_date_cumulative: '年度累計快照' },
 };
 
 function statisticsDimensionLabel(key: string): string {
@@ -39,11 +42,12 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
   const parts: string[] = [];
   const year = typeof dimensions?.roc_year === 'string' ? dimensions.roc_year : '';
   const month = typeof dimensions?.month === 'string' ? dimensions.month : '';
-  if (year) parts.push(`期間：民國 ${year} 年${month ? `・${month} 月` : ''}`);
+  const quarter = typeof dimensions?.quarter === 'string' ? dimensions.quarter : '';
+  if (year) parts.push(`期間：民國 ${year} 年${quarter ? `・${quarter}` : month ? `・${month} 月` : ''}`);
   else if (month) parts.push(`期間：${month} 月`);
   else if (release) parts.push(`期間：${statisticsPeriodLabel(release)}`);
   for (const [key, value] of Object.entries(dimensions ?? {})) {
-    if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'agency_fund') continue;
+    if (typeof value !== 'string' || !value || key === 'roc_year' || key === 'month' || key === 'quarter' || key === 'agency_fund') continue;
     parts.push(`${statisticsDimensionLabel(key)}：${statisticsDimensionValueLabel(key, value)}`);
   }
   if (typeof dimensions?.agency_fund === 'string' && dimensions.agency_fund) parts.push(`基金：${dimensions.agency_fund}`);
@@ -76,6 +80,9 @@ function publicLink(value: unknown): string | undefined {
   if (typeof value !== 'string') return;
   try { const url = new URL(value); if (['https:', 'http:'].includes(url.protocol) && !url.username && !url.password) return value; } catch { /* no link */ }
 }
+export function statisticsValueLabel(value: unknown, unit: string): string {
+  return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
+}
 export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }) {
   const state = useStatisticsSnapshot(layerKey);
   useEffect(() => {
@@ -95,6 +102,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const selectedDimensions = state.selection?.dimensions ?? selectorDimensions;
   const selectedRelease = state.releases.find(release => release.release_id === selected) ?? state.release;
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease);
+  const recipe = STATISTICS_RECIPES[layerKey];
+  const healthUnit = state.health?.currency ?? recipe.unit;
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
     .map(option => option.dimensions[name])
@@ -145,11 +154,12 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
       </div>
     </details>}
-    <p style={factStyle}>地理層級：{LEVEL_LABELS[STATISTICS_RECIPES[layerKey].level]} · 單位：{STATISTICS_RECIPES[layerKey].unit}</p>
+    <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
+    {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（來源目前僅有 112Q4 歷史快照）</p>}
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
     {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別無法安全解析成年／月／機關或基金，未提供選擇，請查看來源紀錄。</p>}
-    {state.health?.coverage_status === 'PARTIAL' && <p style={factStyle} role="status">覆蓋狀態：PARTIAL（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市）；未分配 {Number(state.health.unallocated_total ?? 0).toLocaleString()} {state.health.currency ?? ''}</p>}
+    {state.health?.coverage_status && <p style={factStyle} role="status">覆蓋狀態：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
     <details><summary>來源與處理紀錄</summary>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         <span>提供機關：{String(source.publisher ?? '未提供')}</span>
@@ -174,7 +184,8 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey })
   return <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, display: 'grid', gap: 4 }}>
     <strong>{recipe.label}</strong>
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
-    {state.health?.coverage_status === 'PARTIAL' && <span>PARTIAL：{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市；未分配 {Number(state.health.unallocated_total ?? 0).toLocaleString()} {state.health.currency ?? ''}</span>}
+    {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（目前僅 112Q4 歷史快照）</span>}
+    {state.health?.coverage_status && <span>{state.health.coverage_status}：{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {recipe.colors.map((color, index) => <div key={color} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{index === 0 ? `低於 ${recipe.breaks[0]}` : index === recipe.breaks.length ? `${recipe.breaks[index - 1]} 以上` : `${recipe.breaks[index - 1]} 至未滿 ${recipe.breaks[index]}`}</div>)}
     <span>灰色：缺資料／未發布數值</span>

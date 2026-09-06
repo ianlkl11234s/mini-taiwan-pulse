@@ -34,14 +34,21 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const { releases } = releasesResponse;
     if (!Array.isArray(catalog) || !Array.isArray(releases)) throw new Error('統計目錄格式不符');
     let effectiveRecipe = recipe;
+    const compatibleReleases = () => releases
+      .filter(item => !item.levels || item.levels.includes(recipe.level))
+      .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
+      .filter((item): item is { release: StatisticsRelease; dimensions: Record<string, unknown> } => item.dimensions !== null)
+      .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
     let release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
+    if (!recipe.releaseId && recipe.releaseFallback) {
+      const requested = recipe.dimensions ?? {};
+      const matched = compatibleReleases().find(candidate => Object.entries(requested).every(([key, value]) => candidate.dimensions[key] === value));
+      if (!matched) throw new Error('指定統計維度尚未公開或已撤回，請重新選擇');
+      release = matched.release;
+      effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: matched.dimensions, allowReleaseFallback: false };
+    }
     if (!release && recipe.releaseId && recipe.allowReleaseFallback) {
-      const candidates = releases
-        .filter(item => !item.levels || item.levels.includes(recipe.level))
-        .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
-        .filter((item): item is { release: StatisticsRelease; dimensions: Record<string, unknown> } => item.dimensions !== null)
-        .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
-      const fallback = candidates[0];
+      const fallback = compatibleReleases()[0];
       if (!fallback) throw new Error('預設統計期別已撤回，且沒有相容的公開期別可使用');
       release = fallback.release;
       effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: fallback.dimensions, allowReleaseFallback: false };

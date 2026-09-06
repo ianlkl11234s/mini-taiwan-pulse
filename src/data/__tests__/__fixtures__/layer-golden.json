@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 413,
+    "keyCount": 420,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1875,7 +1875,14 @@
         "statsBirthsTownship-fill",
         "statsPigWaterCounty-fill",
         "statsWaterSupplyHistorical-fill",
-        "statsMaritimeSubsidyCounty-fill"
+        "statsMaritimeSubsidyCounty-fill",
+        "statsCivilAeronauticsSubsidyCounty-fill",
+        "statsOffstreetSmallCarParkingSpacesCount-fill",
+        "statsOnstreetSmallCarParkingSpacesCount-fill",
+        "statsMotorcycleRegisteredCount-fill",
+        "statsAutomobileRegisteredCount-fill",
+        "statsAutomobileLicenseHoldersCount-fill",
+        "statsMotorcycleLicenseHoldersCount-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -57886,6 +57893,24 @@
         "value": 0.5
       }
     ],
+    "statsAutomobileLicenseHoldersCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAutomobileRegisteredCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsBirthsTownship": [
       {
         "label": "透明度 0.55",
@@ -57895,7 +57920,52 @@
         "value": 0.55
       }
     ],
+    "statsCivilAeronauticsSubsidyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsMaritimeSubsidyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMotorcycleLicenseHoldersCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMotorcycleRegisteredCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsOffstreetSmallCarParkingSpacesCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsOnstreetSmallCarParkingSpacesCount": [
       {
         "label": "透明度 0.55",
         "max": 1,

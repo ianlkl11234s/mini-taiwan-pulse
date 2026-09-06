@@ -1796,6 +1796,13 @@ export const LAYER_PARAMS_SPEC = {
   statsPigWaterCounty: [opacitySlider("statsPigWaterCountyOpacity", 0.55)],
   statsWaterSupplyHistorical: [opacitySlider("statsWaterSupplyHistoricalOpacity", 0.55)],
   statsMaritimeSubsidyCounty: [opacitySlider("statsMaritimeSubsidyCountyOpacity", 0.55)],
+  statsCivilAeronauticsSubsidyCounty: [opacitySlider("statsCivilAeronauticsSubsidyCountyOpacity", 0.55)],
+  statsOffstreetSmallCarParkingSpacesCount: [opacitySlider("statsOffstreetSmallCarParkingSpacesCountOpacity", 0.55)],
+  statsOnstreetSmallCarParkingSpacesCount: [opacitySlider("statsOnstreetSmallCarParkingSpacesCountOpacity", 0.55)],
+  statsMotorcycleRegisteredCount: [opacitySlider("statsMotorcycleRegisteredCountOpacity", 0.55)],
+  statsAutomobileRegisteredCount: [opacitySlider("statsAutomobileRegisteredCountOpacity", 0.55)],
+  statsAutomobileLicenseHoldersCount: [opacitySlider("statsAutomobileLicenseHoldersCountOpacity", 0.55)],
+  statsMotorcycleLicenseHoldersCount: [opacitySlider("statsMotorcycleLicenseHoldersCountOpacity", 0.55)],
   statsWasteCounty: [opacitySlider("statsWasteCountyOpacity", 0.55)],
   statsRecyclingCounty: [opacitySlider("statsRecyclingCountyOpacity", 0.55)],
   crimeAreaMonthly: [

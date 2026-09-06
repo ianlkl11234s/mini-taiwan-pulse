@@ -321,6 +321,13 @@ export interface LegendEntry {
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
+  { id: "statsCivilAeronauticsSubsidyCounty", render: () => <StatisticsLegend layerKey="statsCivilAeronauticsSubsidyCounty" /> },
+  { id: "statsOffstreetSmallCarParkingSpacesCount", render: () => <StatisticsLegend layerKey="statsOffstreetSmallCarParkingSpacesCount" /> },
+  { id: "statsOnstreetSmallCarParkingSpacesCount", render: () => <StatisticsLegend layerKey="statsOnstreetSmallCarParkingSpacesCount" /> },
+  { id: "statsMotorcycleRegisteredCount", render: () => <StatisticsLegend layerKey="statsMotorcycleRegisteredCount" /> },
+  { id: "statsAutomobileRegisteredCount", render: () => <StatisticsLegend layerKey="statsAutomobileRegisteredCount" /> },
+  { id: "statsAutomobileLicenseHoldersCount", render: () => <StatisticsLegend layerKey="statsAutomobileLicenseHoldersCount" /> },
+  { id: "statsMotorcycleLicenseHoldersCount", render: () => <StatisticsLegend layerKey="statsMotorcycleLicenseHoldersCount" /> },
   { id: "statsWasteRecyclingRate", render: () => <StatisticsLegend layerKey="statsWasteRecyclingRate" /> },
   { id: "statsResidentialElectricity", render: () => <StatisticsLegend layerKey="statsResidentialElectricity" /> },
   { id: "statsRiceHarvest", render: () => <StatisticsLegend layerKey="statsRiceHarvest" /> },

@@ -851,6 +851,13 @@ export interface LayerVisibility {
   statsPigWaterCounty: boolean;
   statsWaterSupplyHistorical: boolean;
   statsMaritimeSubsidyCounty: boolean;
+  statsCivilAeronauticsSubsidyCounty: boolean;
+  statsOffstreetSmallCarParkingSpacesCount: boolean;
+  statsOnstreetSmallCarParkingSpacesCount: boolean;
+  statsMotorcycleRegisteredCount: boolean;
+  statsAutomobileRegisteredCount: boolean;
+  statsAutomobileLicenseHoldersCount: boolean;
+  statsMotorcycleLicenseHoldersCount: boolean;
   statsWasteCounty: boolean;
   statsRecyclingCounty: boolean;
   flights: boolean;

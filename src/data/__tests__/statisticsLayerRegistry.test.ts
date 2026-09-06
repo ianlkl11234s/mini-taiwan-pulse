@@ -4,7 +4,7 @@ import {
   STATISTICS_TAB_LAYER_ROLES,
   isStatisticsChoropleth,
 } from "../statisticsLayerRegistry";
-import { STATISTICS_RECIPES, maritimeSubsidyReleaseSelector } from "../regionalStatisticsRecipes";
+import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector } from "../regionalStatisticsRecipes";
 
 describe("statistics layer role registry", () => {
   it("將 Statistics tab 的 crime choropleth 納入模式，行政邊界明確豁免", () => {
@@ -39,5 +39,22 @@ describe("statistics layer role registry", () => {
       { releaseId: "2025-12-01-f6a788d31216-b89e229b4a8c", dimensions: { roc_year: "114", month: "12", agency_fund: "交通部航港局-前瞻基礎建設計畫第5期特別預算" } },
     ]);
     expect(maritimeSubsidyReleaseSelector.resolve({ release_id: "2026-07-01-unknown-000", period_start: "2026-07-01" })).toBeNull();
+  });
+
+  it("只暴露 analytics 已驗證的民航局 112Q4 immutable release 與完整 dimensions", () => {
+    expect(STATISTICS_RECIPES.statsCivilAeronauticsSubsidyCounty).toMatchObject({
+      dataset_id: "civil_aeronautics_subsidy_county", indicator_id: "civil_aeronautics_recipient_county_subsidy_twd_ytd", level: "county", unit: "TWD", freshness: "STALE",
+      dimensions: { roc_year: "112", quarter: "Q4", budget_type: "civil_aviation_fund", value_basis: "year_to_date_cumulative" },
+    });
+    expect(civilAeronauticsSubsidyReleaseSelector.resolve({ release_id: "2023-Q4-special_budget-2637a10528ce", period_start: "2023-01-01" })).toEqual({
+      releaseId: "2023-Q4-special_budget-2637a10528ce", dimensions: { roc_year: "112", quarter: "Q4", budget_type: "special_budget", value_basis: "year_to_date_cumulative" },
+    });
+    expect(civilAeronauticsSubsidyReleaseSelector.resolve({ release_id: "2023-Q4-special_budget-000000000000", period_start: "2023-01-01" })).toBeNull();
+  });
+
+  it("交通供給只從真實年度 period 導出 112／113，不依 opaque release id 猜測", () => {
+    expect(countyTransportSupplyReleaseSelector.resolve({ release_id: "actual-2024", period_start: "2024-01-01", period_end: "2024-12-31" })).toEqual({ releaseId: "actual-2024", dimensions: { roc_year: "113" } });
+    expect(countyTransportSupplyReleaseSelector.resolve({ release_id: "looks-like-2024", period_start: "2024-02-01", period_end: "2024-12-31" })).toBeNull();
+    expect(STATISTICS_RECIPES.statsMotorcycleLicenseHoldersCount).toMatchObject({ dataset_id: "dgbas_county_transport_supply_10935", indicator_id: "motorcycle_license_holders_count", level: "county", unit: "人", dimensions: { roc_year: "113" } });
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsDimensionSummary } from '../StatisticsDetails';
+import { statisticsDimensionSummary, statisticsValueLabel } from '../StatisticsDetails';
 
 describe('statisticsDimensionSummary', () => {
   it('renders the selected period and fund as a compact disclosure label', () => {
@@ -21,6 +21,11 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsDimensionSummary(
       { roc_year: '112', quarter: 'Q4' },
       { period_start: '2023-10-01', period_end: '2023-12-31' },
-    )).toBe('期間：民國 112 年；季度：Q4');
+    )).toBe('期間：民國 112 年・Q4');
+  });
+
+  it('keeps missing reconciliation amounts distinct from a real zero', () => {
+    expect(statisticsValueLabel(null, 'TWD')).toBe('未提供');
+    expect(statisticsValueLabel(0, 'TWD')).toBe('0 TWD');
   });
 });
