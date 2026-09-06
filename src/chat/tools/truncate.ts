@@ -8,7 +8,10 @@ export interface CapOptions {
 
 export interface CappedResult<T> {
   truncated: true;
+  /** 原始完整清單筆數；sample 只是前段樣本，不能當成聚合或完整結果。 */
   total: number;
+  /** 實際回傳的 sample 筆數。 */
+  returned: number;
   sample: T[];
   note: string;
 }
@@ -18,7 +21,7 @@ const DEFAULT_MAX_CHARS = 4000;
 
 /**
  * 若 data 在上限內 → 原樣回傳陣列；
- * 超過 maxItems 或序列化後超過 maxChars → 回 { truncated, total, sample, note }。
+ * 超過 maxItems 或序列化後超過 maxChars → 回 { truncated, total, returned, sample, note }。
  */
 export function capToolResult<T>(
   data: T[],
@@ -47,7 +50,8 @@ export function capToolResult<T>(
   return {
     truncated: true,
     total,
+    returned: sample.length,
     sample,
-    note: `僅示範前 ${sample.length} 筆（共 ${total} 筆），請以統計值回答，不要逐筆列舉`,
+    note: `僅回傳 ${sample.length} 筆樣本（完整結果共 ${total} 筆）；sample 不是聚合或完整清單。`,
   };
 }

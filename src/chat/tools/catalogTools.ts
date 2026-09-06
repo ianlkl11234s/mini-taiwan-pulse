@@ -4,7 +4,8 @@
 import { tool } from "ai";
 import { z } from "zod";
 import type { MapBridge } from "../types";
-import { THEMES, LAYER_LABELS } from "../../components/sidebar/layerCatalog";
+import { THEMES } from "../../components/sidebar/layerCatalog";
+import { searchLayers } from "../../lib/layerSearch";
 import { capToolResult } from "./truncate";
 import { callWhitelistedRpc } from "./rpcTools";
 
@@ -112,19 +113,12 @@ export function catalogTools(bridge: MapBridge) {
     }),
 
     search_layers: tool({
-      description: "以中英文關鍵字模糊搜尋圖層名稱，回前 10 筆 {key,label}。",
+      description: "以中英文、多關鍵字搜尋由 manifest 派生的圖層索引，回前 10 筆（含描述、主題與來源血緣摘要）。",
       inputSchema: z.object({
         query: z.string().describe("關鍵字，例如「消防」「flood」「bus」"),
       }),
       execute: ({ query }) => {
-        const q = query.trim().toLowerCase();
-        const hits: LayerRef[] = [];
-        for (const [key, label] of Object.entries(LAYER_LABELS)) {
-          if (!label) continue;
-          if (key.toLowerCase().includes(q) || label.toLowerCase().includes(q)) {
-            hits.push({ key, label });
-          }
-        }
+        const hits = searchLayers(query, { limit: 50 });
         const results = hits.slice(0, 10);
         const visible = new Set(bridge.getVisibleLayerKeys());
         const visibleNow = results.filter((l) => visible.has(l.key)).map((l) => l.key);

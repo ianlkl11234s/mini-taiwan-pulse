@@ -118,7 +118,7 @@ export function dataTools(_bridge: MapBridge) {
 
     rank_by_population: tool({
       description:
-        "把某資料集的點位對到 H3 人口網格，依「附近人口密度」排名。回答「哪些消防分隊 / 醫院附近人口最多」這類問題。metric：day 日間人口 / night 夜間人口（預設 night）。",
+        "把某資料集的點位對到所在 H3 人口網格，依該格日 / 夜間人口排名。這是網格人口，不是附近人口密度或服務範圍；回傳的 coverage 會標示無可用人口值的點位。metric：day 日間人口 / night 夜間人口（預設 night）。",
       inputSchema: z.object({
         datasetId: z.string().describe("白名單資料集 id，例如 fireStations"),
         topN: z.number().optional().describe("回前幾名，預設 10"),
@@ -150,7 +150,7 @@ export function dataTools(_bridge: MapBridge) {
         const m = metric ?? "night";
         const r = await rankPointsByPopulation(points, n, m);
         return {
-          summary: `${meta.label} 依${m === "day" ? "日" : "夜"}間人口密度排名（top ${n}）`,
+          summary: `${meta.label} 依所在 H3 格${m === "day" ? "日" : "夜"}間人口排名（top ${n}）`,
           datasetId,
           ...r,
         };

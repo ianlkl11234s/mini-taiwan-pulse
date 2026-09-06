@@ -1,18 +1,9 @@
 import * as THREE from "three";
 import mapboxgl from "mapbox-gl";
 import type { TemperatureGridData } from "../data/temperatureLoader";
+import { DIVERGING_STOPS } from "../data/temperatureWavePalette";
 
-// ── 溫度發散色盤（藍→白→紅，RdBu diverging） ──
-// 中心點 ~15°C（台灣冬季均溫），冷色往藍、暖色往紅
-export const DIVERGING_STOPS: { t: number; r: number; g: number; b: number }[] = [
-  { t: 0.000, r: 0x21 / 255, g: 0x66 / 255, b: 0xac / 255 }, // #2166ac  -10°C  深藍
-  { t: 0.222, r: 0x67 / 255, g: 0xa9 / 255, b: 0xcf / 255 }, // #67a9cf    0°C  中藍
-  { t: 0.389, r: 0xd1 / 255, g: 0xe5 / 255, b: 0xf0 / 255 }, // #d1e5f0  7.5°C  淺藍
-  { t: 0.556, r: 0xf7 / 255, g: 0xf7 / 255, b: 0xf7 / 255 }, // #f7f7f7   15°C  近白（中心）
-  { t: 0.667, r: 0xfd / 255, g: 0xdb / 255, b: 0xc7 / 255 }, // #fddbc7   20°C  淺橙
-  { t: 0.778, r: 0xef / 255, g: 0x8a / 255, b: 0x62 / 255 }, // #ef8a62   25°C  橙紅
-  { t: 1.000, r: 0xb2 / 255, g: 0x18 / 255, b: 0x2b / 255 }, // #b2182b   35°C  深紅
-];
+export { DIVERGING_STOPS } from "../data/temperatureWavePalette";
 
 function temperatureToColor(temp: number, tMin: number, tRange: number, out: Float32Array, offset: number) {
   // 用實際資料範圍正規化 → 0~1

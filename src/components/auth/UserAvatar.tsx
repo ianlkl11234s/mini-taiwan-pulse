@@ -23,7 +23,7 @@ import {
  * @param isOwner      是否為 owner（決定是否顯示「資料治理」入口）。
  * @param onOpenAdmin  點「資料治理」時開啟站內後台（僅 owner）。
  */
-export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean } = {}) {
+export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact = false }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean; compact?: boolean } = {}) {
   const { user, loading } = useUser();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,6 +66,8 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwn
     return (
       <button
         type="button"
+        aria-label="使用 Google 登入"
+        title="使用 Google 登入"
         onClick={() => {
           void signInWithGoogle().catch((err) => console.error("[auth] signIn failed", err));
         }}
@@ -73,7 +75,9 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwn
           display: "inline-flex",
           alignItems: "center",
           gap: SPACING.sm,
-          padding: `${SPACING.sm}px ${SPACING.lg}px`,
+          padding: compact ? 0 : `${SPACING.sm}px ${SPACING.lg}px`,
+          width: compact ? 36 : undefined,
+          height: compact ? 36 : undefined,
           background: SURFACE.panel,
           color: COLORS.textStrong,
           border: `1px solid ${BORDER.mid}`,
@@ -86,7 +90,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwn
         }}
       >
         <LogIn size={14} />
-        使用 Google 登入
+        {!compact && "使用 Google 登入"}
       </button>
     );
   }
@@ -97,15 +101,19 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwn
   const avatarUrl: string | null = meta.avatar_url ?? meta.picture ?? null;
 
   return (
-    <div ref={containerRef} style={{ position: "relative" }}>
+    <div ref={containerRef} style={{ position: "relative", flexShrink: 0 }}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-label={`帳號選單：${displayName}`}
+        title={displayName}
         style={{
           display: "inline-flex",
           alignItems: "center",
           gap: SPACING.sm,
-          padding: `${SPACING.xs}px ${SPACING.md}px`,
+          padding: compact ? 0 : `${SPACING.xs}px ${SPACING.md}px`,
+          width: compact ? 36 : undefined,
+          height: compact ? 36 : undefined,
           background: SURFACE.panel,
           color: COLORS.textStrong,
           border: `1px solid ${BORDER.mid}`,
@@ -117,9 +125,9 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwn
         }}
       >
         <Avatar url={avatarUrl} />
-        <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {!compact && <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {displayName}
-        </span>
+        </span>}
       </button>
 
       {open && (

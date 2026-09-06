@@ -13,6 +13,11 @@ import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { GFW_PMTILES_SOURCE_TYPE, registerGfwPmtilesSourceTypeOnce } from "../map/gfwPmtilesSourceType";
 import { showTransientNotice } from "../components/TransientNotice";
 import { timeStore } from "../state/timeStore";
+import {
+  getGfwHourlyGridDataWindowSnapshot,
+  setGfwHourlyGridDataWindowState,
+  type GfwHourlyGridDataWindowState,
+} from "../state/gfwHourlyGridDataWindowStore";
 import { useMapReadyTick } from "./useMapReadyTick";
 import {
   GFW_HOURLY_GRID_V3_FILL_OPACITY,
@@ -131,15 +136,11 @@ export function isGfwHourlyGridDominantHitLayer(layerId: string | undefined): bo
   return layerId === dominantHitLayerId;
 }
 
-export interface GfwHourlyGridDataWindowState {
-  readonly status: "in-window" | "out-of-window";
-  /** First UTC hour covered by the release. */
-  readonly startIso: string;
-  /** Exclusive end of the release window. */
-  readonly endIsoExclusive: string;
-  /** UTC date(s) the release covers, e.g. `2026-08-21` or `2026-08-21 ~ 2026-08-22`. */
-  readonly utcDateLabel: string;
-}
+export type { GfwHourlyGridDataWindowState } from "../state/gfwHourlyGridDataWindowStore";
+export {
+  getGfwHourlyGridDataWindowSnapshot,
+  subscribeGfwHourlyGridDataWindow,
+} from "../state/gfwHourlyGridDataWindowStore";
 
 export interface GfwHourlyGridRuntimeSnapshot {
   readonly visible: boolean;
@@ -157,30 +158,6 @@ let gridRuntimeSnapshot: GfwHourlyGridRuntimeSnapshot | null = null;
 /** Read-only acceptance telemetry; it never drives source rotation or paint. */
 export function getGfwHourlyGridRuntimeSnapshot(): GfwHourlyGridRuntimeSnapshot | null {
   return gridRuntimeSnapshot;
-}
-
-// Layer-local playback state published for read-only UI (legend). Module scope because the
-// grid layer is a singleton; the snapshot object is cached so `useSyncExternalStore` consumers
-// do not spin on a fresh object per read.
-let dataWindowSnapshot: GfwHourlyGridDataWindowState | null = null;
-const dataWindowListeners = new Set<() => void>();
-
-function setGfwHourlyGridDataWindowState(next: GfwHourlyGridDataWindowState | null): void {
-  const previous = dataWindowSnapshot;
-  if (previous === next) return;
-  if (previous && next && previous.status === next.status && previous.startIso === next.startIso
-    && previous.endIsoExclusive === next.endIsoExclusive && previous.utcDateLabel === next.utcDateLabel) return;
-  dataWindowSnapshot = next;
-  for (const listener of dataWindowListeners) listener();
-}
-
-export function subscribeGfwHourlyGridDataWindow(listener: () => void): () => void {
-  dataWindowListeners.add(listener);
-  return () => { dataWindowListeners.delete(listener); };
-}
-
-export function getGfwHourlyGridDataWindowSnapshot(): GfwHourlyGridDataWindowState | null {
-  return dataWindowSnapshot;
 }
 
 function isV4GridManifest(manifest: GfwHourlyGridManifest | null): boolean {

@@ -74,7 +74,7 @@ import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
-import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
+import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
 import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -87,13 +87,19 @@ import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
-import { runChatTurn, testKey } from "./chat/agent";
+import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { MessageSquare } from "lucide-react";
+import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
-import { TransientNotice } from "./components/TransientNotice";
+import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
+import { MemberPanel } from "./components/member/MemberPanel";
+import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
+import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
+import { captureSceneParams, resolveSceneRestore } from "./lib/memberSceneAdapter";
+import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } from "./lib/memberSchema";
+import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
 
@@ -129,7 +135,31 @@ export default function App() {
 
   // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
   // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
-  const { user: memberUser, tier: memberTier, isOwner } = useMemberGate();
+  const { user: memberUser, tier: memberTier, isOwner, loading: memberAuthLoading } = useMemberGate();
+  const [memberOpen, setMemberOpen] = useState(false);
+  const memberLibrary = useMemberLibrary();
+  const privateViewRef = useRef(false);
+  const [memberPlaceGeometry, setMemberPlaceGeometry] = useState<MemberPlaceGeometry | null>(null);
+  const previousMemberIdRef = useRef<string | null>(memberUser?.id ?? null);
+  const restoringMemberSceneRef = useRef(false);
+  const [pendingMemberScene, setPendingMemberScene] = useState<MemberSceneSnapshot | null>(null);
+  const favoriteKeys = useMemo(() => new Set(memberLibrary.userId === (memberUser?.id ?? null) ? memberLibrary.favorites : []), [memberLibrary.favorites, memberLibrary.userId, memberUser?.id]);
+  const memberLabels = useMemo(() => Object.fromEntries(LAYER_SEARCH_INDEX.map((item) => [item.key, item.label])), []);
+  const knownMemberKeys = useMemo(() => new Set(Object.keys(memberLabels)), [memberLabels]);
+  useEffect(() => { memberLibraryStore.setUser(memberUser?.id ?? null); }, [memberUser?.id]);
+  useEffect(() => {
+    const refresh = () => { if (memberLibraryStore.getSnapshot().userId) void memberLibraryStore.refresh(); };
+    window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
+    return () => { window.removeEventListener("focus", refresh); window.removeEventListener("online", refresh); };
+  }, []);
+  const handleToggleFavorite = useCallback((key: string) => {
+    if (memberAuthLoading) { showTransientNotice("會員狀態載入中，請稍候。"); return; }
+    void memberLibraryStore.toggleFavorite(key).then(() => {
+      const message = memberLibraryStore.getSnapshot().message;
+      if (message) showTransientNotice(message);
+    });
+  }, [memberAuthLoading]);
   const memberUserRef = useRef(memberUser);
   memberUserRef.current = memberUser;
   const [gatedNotice, setGatedNotice] = useState(false);
@@ -666,6 +696,7 @@ export default function App() {
   // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
   const layerVisBeforeHistoricalRef = useRef<LayerVisibility | null>(null);
   useEffect(() => {
+    if (restoringMemberSceneRef.current) { layerVisBeforeHistoricalRef.current = null; return; }
     if (appMode === "historical") {
       if (layerVisBeforeHistoricalRef.current === null) {
         layerVisBeforeHistoricalRef.current = layerVisibilityRef.current;
@@ -701,6 +732,7 @@ export default function App() {
   // 離開時還原（live 直接切回 live；replay 用 jumpToTime 精確還原原本的 cursor）。
   const timelineBeforeHistoricalRef = useRef<TimelineModeSnapshot | null>(null);
   useEffect(() => {
+    if (restoringMemberSceneRef.current) { timelineBeforeHistoricalRef.current = null; return; }
     if (appMode === "historical") {
       if (timelineBeforeHistoricalRef.current === null) {
         timelineBeforeHistoricalRef.current = { timeMode: timeline.timeMode, currentTime: timeStore.getTime() };
@@ -937,7 +969,7 @@ export default function App() {
       const lng = +c.lng.toFixed(4);
       const p = +map.getPitch().toFixed(0);
       setCameraInfo({ lng, lat, zoom: z, pitch: p, bearing: +map.getBearing().toFixed(0) });
-      sessionTracker.logMapView(z, lat, lng, p);
+      if (!privateViewRef.current) sessionTracker.logMapView(z, lat, lng, p);
     };
     map.on("move", updateCamera);
     updateCamera();
@@ -1107,6 +1139,122 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReady, timeRange.start]);
 
+  const handleMemberToggle = useCallback(() => {
+    if (memberOpen) { setMemberOpen(false); return; }
+    setMemberOpen(true);
+    setIntelOpen(false); setPropertyValueOpen(false); setMonitorOpen(false);
+    satelliteConsoleStore.setOpen(false); setChatOpen(false);
+    setRailCloseEpoch((value) => value + 1);
+  }, [memberOpen]);
+
+  const markPrivateView = useCallback(() => {
+    privateViewRef.current = true;
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
+  const captureMemberScene = (): MemberSceneSnapshot => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) throw new Error("地圖尚未就緒，請稍候再保存。");
+    const center = map.getCenter();
+    const layers = Object.entries(layerVisibilityRef.current).filter(([key, on]) => on && knownMemberKeys.has(key)).map(([key]) => key);
+    const snapshot: MemberSceneSnapshot = {
+      version: 1, camera: { lng: ((center.lng + 180) % 360 + 360) % 360 - 180, lat: center.lat, zoom: map.getZoom(), pitch: map.getPitch(), bearing: map.getBearing() },
+      basemap: mapStyleId, layers, params: captureSceneParams(layers, layerParamsStore.getAll()),
+      time: { mode: appMode, playback: timeline.timeMode, cursorISO: new Date(timeStore.getTime() * 1000).toISOString(), windowDays: timeline.rangeDays,
+        ...(appMode === "historical" ? { historical: { year: historicalYear + 1911, month: historicalMonth, day: historicalDay, granularity: historicalGranularity } } : {}),
+      },
+    };
+    const result = validateScene(snapshot);
+    if (!result.ok) throw new Error(result.errors.join("；"));
+    return result.value;
+  };
+  const restoreMemberScene = (snapshot: MemberSceneSnapshot): string[] => {
+    const validated = validateScene(snapshot);
+    if (!validated.ok) throw new Error(validated.errors.join("；"));
+    if (!mapRef.current || !mapPrepared) throw new Error("地圖尚未就緒。");
+    const resolved = resolveSceneRestore(validated.value, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
+    markPrivateView(); setMemberPlaceGeometry(null); restoringMemberSceneRef.current = true;
+    setPendingMemberScene(validated.value); setAppMode(validated.value.time.mode);
+    setHistoricalPlaying(false);
+    return resolved.skipped;
+  };
+  useEffect(() => {
+    if (!pendingMemberScene || appMode !== pendingMemberScene.time.mode) return;
+    const scene = pendingMemberScene;
+    const resolved = resolveSceneRestore(scene, knownMemberKeys, lockedKeysRef.current, MAP_STYLES.map((style) => style.id));
+    for (const [key, values] of Object.entries(resolved.params)) for (const [name, value] of Object.entries(values)) layerParamsStore.setParamDirect(key, name, value);
+    setLayerVisibility((previous) => { const next = { ...previous }; for (const key of Object.keys(next) as (keyof LayerVisibility)[]) next[key] = resolved.layers.includes(key); return next; });
+    setMapStyleId(resolved.basemap);
+    const historical = scene.time.historical;
+    if (historical) { setHistoricalYear(historical.year - 1911); setHistoricalMonth(historical.month); setHistoricalDay(historical.day); setHistoricalGranularity(historical.granularity); }
+    timeline.setRangeDays(scene.time.windowDays); timeline.pause();
+    if (scene.time.mode === "realtime" && scene.time.playback === "live") timeline.setTimeMode("live");
+    else timeline.jumpToTime(Date.parse(scene.time.cursorISO) / 1000);
+    mapRef.current?.jumpTo({ center: [scene.camera.lng, scene.camera.lat], zoom: scene.camera.zoom, pitch: scene.camera.pitch, bearing: scene.camera.bearing });
+    setFeatureInfo(null); setExpandedLayer(null);
+    restoringMemberSceneRef.current = false; setPendingMemberScene(null);
+  }, [pendingMemberScene, appMode, knownMemberKeys, setLayerVisibility, setFeatureInfo, timeline]);
+
+  const captureMemberPlace = (kind: "center" | "selection" | "bounds"): MemberPlaceGeometry => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) throw new Error("地圖尚未就緒。");
+    if (kind === "selection") {
+      if (!featureInfo?.coords) throw new Error("請先在地圖點選一個位置。這會保存點選座標，不代表原始資料的精確位置。");
+      return { type: "Point", coordinates: [...featureInfo.coords] };
+    }
+    if (kind === "bounds") {
+      const bounds = map.getBounds();
+      if (!bounds || bounds.getWest() < -180 || bounds.getEast() > 180) throw new Error("此視野跨越換日線，請縮小或改存單點。");
+      const west = bounds.getWest(), east = bounds.getEast(), south = bounds.getSouth(), north = bounds.getNorth();
+      return { type: "Polygon", coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]] };
+    }
+    const center = map.getCenter();
+    return { type: "Point", coordinates: [((center.lng + 180) % 360 + 360) % 360 - 180, center.lat] };
+  };
+  const restoreMemberPlace = (place: SavedPlace) => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) throw new Error("地圖尚未就緒。");
+    markPrivateView(); setMemberPlaceGeometry(place.geometry);
+    if (place.geometry.type === "Point") map.flyTo({ center: place.geometry.coordinates, zoom: Math.max(map.getZoom(), 13) });
+    else {
+      const coordinates = place.geometry.coordinates.flat();
+      map.fitBounds([[Math.min(...coordinates.map((p) => p[0])), Math.min(...coordinates.map((p) => p[1]))], [Math.max(...coordinates.map((p) => p[0])), Math.max(...coordinates.map((p) => p[1]))]], { padding: 70 });
+    }
+  };
+
+  useEffect(() => {
+    const userId = memberUser?.id ?? null;
+    if (previousMemberIdRef.current !== userId) {
+      setMemberPlaceGeometry(null); setPendingMemberScene(null); restoringMemberSceneRef.current = false;
+      if (privateViewRef.current) {
+        mapRef.current?.jumpTo({ center: [121.5318, 25.0464], zoom: 12.5, pitch: 0, bearing: 0 });
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+      // Keep private URL/telemetry suppression until an explicit Share action.
+      previousMemberIdRef.current = userId;
+    }
+  }, [memberUser?.id]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared || !memberPlaceGeometry) return;
+    const sourceId = "member-selected-place";
+    const ids = ["member-place-fill", "member-place-outline", "member-place-point"];
+    const draw = () => {
+      if (!map.isStyleLoaded()) return;
+      if (!map.getSource(sourceId)) map.addSource(sourceId, { type: "geojson", data: { type: "Feature", properties: {}, geometry: memberPlaceGeometry } });
+      if (!map.getLayer(ids[0]!)) map.addLayer({ id: ids[0]!, type: "fill", source: sourceId, filter: ["==", "$type", "Polygon"], paint: { "fill-color": "#65b6c7", "fill-opacity": 0.15 } });
+      if (!map.getLayer(ids[1]!)) map.addLayer({ id: ids[1]!, type: "line", source: sourceId, filter: ["==", "$type", "Polygon"], paint: { "line-color": "#65b6c7", "line-width": 2 } });
+      if (!map.getLayer(ids[2]!)) map.addLayer({ id: ids[2]!, type: "circle", source: sourceId, filter: ["==", "$type", "Point"], paint: { "circle-color": "#65b6c7", "circle-radius": 8, "circle-stroke-color": "#fff", "circle-stroke-width": 2 } });
+    };
+    draw(); map.on("style.load", draw); map.on("idle", draw);
+    return () => {
+      map.off("style.load", draw); map.off("idle", draw);
+      if (!styleReady(map)) return;
+      for (const id of [...ids].reverse()) if (map.getLayer(id)) map.removeLayer(id);
+      if (map.getSource(sourceId)) map.removeSource(sourceId);
+    };
+  }, [memberPlaceGeometry, mapPrepared]);
+
   // ── Sidebar props 穩定化（讓 IconRailSidebar / LayersPanel 能用 React.memo） ──
 
   const sidebarCounts = useMemo(() => ({
@@ -1273,6 +1421,7 @@ export default function App() {
   //    不產生任何網路請求（Mapbox map load 只在 Map 初始化時計費，與此無關）。
   const syncUrlRef = useRef<() => void>(() => {});
   syncUrlRef.current = () => {
+    if (privateViewRef.current) return;
     const map = mapRef.current;
     if (!map) return;
     const c = map.getCenter();
@@ -1671,6 +1820,10 @@ export default function App() {
             <IconRailSidebar
               isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
+              onMemberToggle={handleMemberToggle}
+              memberActive={memberOpen}
+              favoriteKeys={favoriteKeys}
+              onToggleFavorite={handleToggleFavorite}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
@@ -1692,6 +1845,7 @@ export default function App() {
               onDateSelect={timeline.setSelectedDate}
               onIntelToggle={() => {
                 if (!intelOpen) {
+                  setMemberOpen(false);
                   // 開啟 Intel → 同時關 Satellite / PropertyValue + 收 rail Layers/Locations panel
                   satelliteConsoleStore.setOpen(false);
                   setPropertyValueOpen(false);
@@ -1702,6 +1856,7 @@ export default function App() {
               intelActive={intelOpen}
               onSatelliteToggle={() => {
                 if (!satConsole.open) {
+                  setMemberOpen(false);
                   // 開啟 Satellite → 同時關 Intel / PropertyValue + 收 rail Layers/Locations panel
                   setIntelOpen(false);
                   setPropertyValueOpen(false);
@@ -1712,6 +1867,7 @@ export default function App() {
               satelliteActive={satConsole.open}
               onPropertyValueToggle={() => {
                 if (!propertyValueOpen) {
+                  setMemberOpen(false);
                   // 開啟總市值 → 同時關 Intel / Satellite + 收 rail Layers/Locations panel
                   setIntelOpen(false);
                   satelliteConsoleStore.setOpen(false);
@@ -1726,6 +1882,7 @@ export default function App() {
                   setMonitorOpen(false);
                 } else {
                   // 開啟 split Monitor → 同上方 Monitor 按鈕的開啟衛生：關 Intel / Satellite
+                  setMemberOpen(false);
                   setIntelOpen(false);
                   satelliteConsoleStore.setOpen(false);
                   setMonitorOpen(true);
@@ -1876,7 +2033,7 @@ export default function App() {
               }}
             />
             <button
-              onClick={() => { syncUrlRef.current(); setShareOpen(true); }}
+              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
               title="分享目前畫面 / 取得嵌入碼"
               style={{
                 padding: "6px 14px",
@@ -1913,6 +2070,7 @@ export default function App() {
             <button
               onClick={() => {
                 if (!monitorOpen) {
+                  setMemberOpen(false);
                   setIntelOpen(false);
                   satelliteConsoleStore.setOpen(false);
                   // 2026-08-20 起開啟一律進 split（原本是 dock）——
@@ -2103,8 +2261,8 @@ export default function App() {
               zIndex: 10,
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              padding: "0 12px",
+              gap: 2,
+              padding: "0 6px",
               paddingTop: "env(safe-area-inset-top, 0px)",
               background: "rgba(0,0,0,0.5)",
               backdropFilter: "blur(12px)",
@@ -2115,16 +2273,12 @@ export default function App() {
               MTP
             </span>
 
-            <div style={{ flex: 1 }} />
-
-            {loading && (
-              <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>
-                Loading...
-              </span>
-            )}
+            <div style={{ flex: 1, minWidth: 0 }} />
 
             <button
               onClick={() => setShowInfo(true)}
+              aria-label="資訊"
+              title="資訊"
               style={{
                 width: 36,
                 height: 36,
@@ -2140,15 +2294,16 @@ export default function App() {
                 justifyContent: "center",
               }}
             >
-              Info
+              <CircleHelp size={17} />
             </button>
 
             <button
-              onClick={() => { syncUrlRef.current(); setShareOpen(true); }}
+              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
               title="分享目前畫面 / 取得嵌入碼"
+              aria-label="分享目前畫面 / 取得嵌入碼"
               style={{
+                width: 36,
                 height: 36,
-                padding: "0 10px",
                 borderRadius: RADIUS.xl,
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -2158,14 +2313,16 @@ export default function App() {
                 cursor: "pointer",
               }}
             >
-              Share
+              <Share2 size={17} />
             </button>
 
             <button
               onClick={() => setCaptureMode(true)}
+              title="截圖"
+              aria-label="截圖"
               style={{
+                width: 36,
                 height: 36,
-                padding: "0 10px",
                 borderRadius: RADIUS.xl,
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -2173,14 +2330,16 @@ export default function App() {
                 fontSize: FONT_SIZE.md,
                 fontFamily: FONT_DATA,
                 cursor: "pointer",
-                letterSpacing: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
-              Capture
+              <Camera size={17} />
             </button>
 
             <button
-              onClick={() => setChatOpen((v) => !v)}
+              onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
               title="AI 助手"
               style={{
                 width: 36,
@@ -2202,7 +2361,7 @@ export default function App() {
               onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
               style={{
                 height: 36,
-                padding: "0 10px",
+                width: 36,
                 borderRadius: RADIUS.xl,
                 background: renderMode === "3d"
                   ? "rgba(80,140,255,0.25)"
@@ -2212,13 +2371,16 @@ export default function App() {
                 fontSize: FONT_SIZE.md,
                 fontFamily: FONT_DATA,
                 cursor: "pointer",
-                letterSpacing: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
               }}
             >
               {renderMode === "3d" ? "3D" : "2D"}
             </button>
 
-            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
+            <button aria-label="會員專區" title="會員專區" onClick={handleMemberToggle} style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid #577184", background: memberOpen ? "#285563" : "rgba(0,0,0,.45)", color: "white", display: "grid", placeItems: "center" }}><UserRound size={17} /></button>
+            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
           </div>
 
           {/* Timeline */}
@@ -2288,6 +2450,10 @@ export default function App() {
                   <div style={{ marginTop: 12 }}>
                     <LayerSidebar
                       visibility={layerVisibility}
+                      onMemberToggle={handleMemberToggle}
+                      memberActive={memberOpen}
+                      favoriteKeys={favoriteKeys}
+                      onToggleFavorite={handleToggleFavorite}
                       lockedKeys={lockedKeys}
                       expandedLayer={expandedLayer}
                       viewMode={viewMode}
@@ -2682,6 +2848,12 @@ export default function App() {
           : "16px"}
       />
 
+      <MemberPanel key={memberUser?.id ?? "guest"} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
+        userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
+        authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
+        onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
+        captureScene={captureMemberScene} restoreScene={restoreMemberScene} capturePlace={captureMemberPlace} restorePlace={restoreMemberPlace} />
+
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
       {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
@@ -2698,7 +2870,7 @@ export default function App() {
       />
 
       {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
-      <DataSourceBrowser isDarkTheme={isDarkTheme} />
+      {!memberOpen && <DataSourceBrowser isDarkTheme={isDarkTheme} lockedKeys={lockedKeys} onActivateLayer={(key) => handleBulkSetVisibility([key], true)} />}
 
       {/*
         ── 圖層掛載（AR-22 P1）────────────────────────────────────

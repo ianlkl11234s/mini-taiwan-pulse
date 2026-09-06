@@ -177,7 +177,9 @@ describe("truncate.capToolResult", () => {
     const r = capToolResult(data, { maxItems: 20 }) as CappedResult<{ i: number }>;
     expect(r.truncated).toBe(true);
     expect(r.total).toBe(50);
+    expect(r.returned).toBe(20);
     expect(r.sample).toHaveLength(20);
+    expect(r.note).toContain("不是聚合或完整清單");
   });
 
   it("truncates further by maxChars", () => {
@@ -223,7 +225,7 @@ describe("h3Population.rankPointsByPopulation", () => {
       { lng: 120.3, lat: 22.6, name: "B" },
       { lng: 121.0, lat: 23.5, name: "C-no-cell" },
     ];
-    // 只給 A、B 建 cell（C 對不到 → population 0）
+    // 只給 A、B 建 cell（C 對不到 → 缺值，不可假裝為 population 0）
     const cells = [
       { h: latLngToCell(points[0]!.lat, points[0]!.lng, res), d: 5000, n: 8000 },
       { h: latLngToCell(points[1]!.lat, points[1]!.lng, res), d: 3000, n: 2000 },
@@ -233,7 +235,15 @@ describe("h3Population.rankPointsByPopulation", () => {
       vi.fn(async () => ({
         ok: true,
         status: 200,
-        json: async () => ({ metadata: { resolution: res, value_columns: ["d", "n"] }, cells }),
+        json: async () => ({
+          metadata: {
+            resolution: res,
+            value_columns: ["d", "n"],
+            source: "fixture-source",
+            generated_at: "2026-01-02T03:04:05Z",
+          },
+          cells,
+        }),
       })),
     );
 
@@ -243,7 +253,20 @@ describe("h3Population.rankPointsByPopulation", () => {
     expect(ranked[0]!.name).toBe("A"); // 夜間 8000 最高
     expect(ranked[0]!.population).toBe(8000);
     expect(ranked[1]!.name).toBe("B");
-    expect(ranked[2]!.population).toBe(0); // 對不到 cell
+    expect(ranked).toHaveLength(2);
+    expect(r.coverage).toMatchObject({
+      inputPoints: 3,
+      validPopulationPoints: 2,
+      missingPopulationPoints: 1,
+      coverageRatio: 2 / 3,
+    });
+    expect(r.data).toMatchObject({
+      source: "fixture-source",
+      generatedAt: "2026-01-02T03:04:05Z",
+      interpretation: expect.stringContaining("不是附近人口密度"),
+      aggregation: expect.stringContaining("不可跨點位加總"),
+    });
+    expect(r.coverage.coverageMeaning).toContain("不代表地理涵蓋率");
   });
 
   it("switches to day population when metric=day", async () => {
@@ -268,6 +291,59 @@ describe("h3Population.rankPointsByPopulation", () => {
     const r = await rankPointsByPopulation(points, 10, "day");
     const ranked = r.ranked as { name: string }[];
     expect(ranked[0]!.name).toBe("B"); // 日間 B 較高
+  });
+
+  it("keeps a valid zero but excludes null and invalid population values", async () => {
+    const res = 7;
+    const points = [
+      { lng: 121.5, lat: 25.04, name: "zero" },
+      { lng: 120.3, lat: 22.6, name: "null" },
+      { lng: 121.0, lat: 23.5, name: "invalid" },
+    ];
+    const cells = [
+      { h: latLngToCell(points[0]!.lat, points[0]!.lng, res), d: 0, n: 0 },
+      { h: latLngToCell(points[1]!.lat, points[1]!.lng, res), d: 1, n: null },
+      { h: latLngToCell(points[2]!.lat, points[2]!.lng, res), d: 1, n: "unknown" },
+    ];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ metadata: { resolution: res }, cells }),
+      })),
+    );
+
+    const r = await rankPointsByPopulation(points, 10, "night");
+    expect(r.ranked).toEqual([
+      expect.objectContaining({ name: "zero", population: 0 }),
+    ]);
+    expect(r.coverage).toMatchObject({ validPopulationPoints: 1, missingPopulationPoints: 2 });
+  });
+
+  it("marks top-N rankings as samples with total and returned counts", async () => {
+    const res = 7;
+    const points = Array.from({ length: 3 }, (_, i) => ({
+      lng: 121.5 + i * 0.02,
+      lat: 25.04,
+      name: `point-${i}`,
+    }));
+    const cells = points.map((point, i) => ({
+      h: latLngToCell(point.lat, point.lng, res),
+      d: i,
+      n: i,
+    }));
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ metadata: { resolution: res }, cells }),
+      })),
+    );
+
+    const r = await rankPointsByPopulation(points, 2, "night");
+    expect(r.ranked).toMatchObject({ truncated: true, total: 3, returned: 2 });
   });
 });
 

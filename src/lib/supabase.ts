@@ -44,7 +44,7 @@ function createStubClient(): SupabaseClient {
 // 2. 每請求 30s timeout（AbortController；與 caller 自帶 signal 合成）
 // 3. 網路層錯誤（fetch TypeError）與 5xx / 429 最多 retry 2 次
 //    （backoff 500ms / 1500ms + jitter）；caller 主動 abort、timeout 不 retry
-// 4. 寫入類 RPC 一律不 retry（重送會重複寫入）
+// 4. REST 寫入、Auth POST 與寫入類 RPC 一律不 retry（重送會重複寫入）
 // 錯誤最終仍 throw / 交給 supabase-js 轉成 { error } 給 caller —— 不吞錯，
 // loadingRegistry 錯誤態依賴這點。
 
@@ -88,6 +88,19 @@ function isWriteRpc(input: RequestInfo | URL): boolean {
   return WRITE_RPC_DENYLIST.some((name) => url.includes(`/rpc/${name}`));
 }
 
+function requestMethod(input: RequestInfo | URL, init?: RequestInit): string {
+  return (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase();
+}
+
+/** 只有明確 read 的 REST，以及 denylist 外的 RPC 可以重試。 */
+function isRetryableRequest(input: RequestInfo | URL, init?: RequestInit): boolean {
+  const url = requestUrl(input);
+  const method = requestMethod(input, init);
+  if (url.includes("/rpc/")) return !isWriteRpc(input);
+  if (url.includes("/auth/")) return method === "GET" || method === "HEAD";
+  return method === "GET" || method === "HEAD";
+}
+
 function backoffDelay(attempt: number): number {
   const base = RETRY_BACKOFF_MS[attempt] ?? RETRY_BACKOFF_MS[RETRY_BACKOFF_MS.length - 1]!;
   return base + Math.random() * 250; // jitter
@@ -99,7 +112,7 @@ function sleep(ms: number): Promise<void> {
 
 async function resilientFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const callerSignal = init?.signal ?? (input instanceof Request ? input.signal : null);
-  const retryable = !isWriteRpc(input);
+  const retryable = isRetryableRequest(input, init);
 
   for (let attempt = 0; ; attempt++) {
     await acquireSlot();
@@ -139,6 +152,9 @@ async function resilientFetch(input: RequestInfo | URL, init?: RequestInit): Pro
     await sleep(retryDelay ?? 0);
   }
 }
+
+/** 測試用：避免把 retry 分類規則散落在測試的 mock 實作。 */
+export const __test__ = { resilientFetch, isRetryableRequest };
 
 export const supabase: SupabaseClient = supabaseConfigured
   ? createClient(SUPABASE_URL!, SUPABASE_ANON_KEY!, {
