@@ -42,6 +42,27 @@ for f in "${FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# Network Structures files have versioned names; the scoped publisher verifies hashes
+# and refuses to replace a different object at the same key.
+# For this release use publish-network-structures.py instead of uploading unrelated data.
+NETWORK_STRUCTURE_FILES=(
+  "public/network_structures/osm_bridge_carriers_20260906.pmtiles"
+  "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
+  "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
+  "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
+)
+for f in "${NETWORK_STRUCTURE_FILES[@]}"; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  # Existing releases remain immutable; publish-network-structures.py handles readback.
+  if aws s3api head-object --bucket "$BUCKET" --key "$PREFIX/network_structures/$name" >/dev/null 2>&1; then
+    echo "Skipping existing network_structures/$name (verify with scoped publisher)"
+    continue
+  fi
+  aws s3api put-object --bucket "$BUCKET" --key "$PREFIX/network_structures/$name" \
+    --body "$f" --if-none-match '*' --content-type application/vnd.pmtiles --region ap-southeast-2 || exit 1
+done
+
 # 水資源圖層：glob 動態上傳 public/geo/water_*.geojson
 # 新增 water 圖層時不用改本腳本，export 完直接跑 upload 即可
 shopt -s nullglob 2>/dev/null || true
