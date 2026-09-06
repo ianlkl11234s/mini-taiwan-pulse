@@ -12,6 +12,9 @@ export interface StatisticsReleaseSelector {
 const MARITIME_FUND_BY_RELEASE_PREFIX: Record<string, string> = {
   '1450d8e18741': '航港建設基金',
   'd6c9ce1998ef': '交通部航港局',
+  '5f44af09d338': '交通部航港局-前瞻基礎建設計畫第3期特別預算',
+  '469152708767': '交通部航港局-前瞻基礎建設計畫第4期特別預算',
+  'f6a788d31216': '交通部航港局-前瞻基礎建設計畫第5期特別預算',
 };
 
 export const maritimeSubsidyReleaseSelector: StatisticsReleaseSelector = {
@@ -84,6 +87,13 @@ export const STATISTICS_RECIPES = {
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];
+
+/** Optional fallback is safe only when its release identity gives exact dimensions. */
+export function statisticsReleaseFallback(key: StatisticsLayerKey) {
+  const recipe = STATISTICS_RECIPES[key];
+  if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return undefined;
+  return (release: { release_id: string; period_start: string }) => recipe.releaseSelector.resolve(release)?.dimensions ?? null;
+}
 export function isStatisticsLayer(key: string): key is StatisticsLayerKey {
   return Object.prototype.hasOwnProperty.call(STATISTICS_RECIPES, key);
 }

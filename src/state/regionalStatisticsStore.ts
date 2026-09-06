@@ -34,7 +34,8 @@ export const regionalStatisticsStore = {
     if (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId) return;
     const saved = persisted[key];
     const matching = saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId;
-    update(key, { selection: matching ? { ...recipe, ...saved } : recipe, data: null, source: null, release: null, health: null });
+    const selection = matching ? { ...recipe, ...saved, ...(saved.releaseId && saved.releaseId !== recipe.releaseId ? { allowReleaseFallback: false } : {}) } : recipe;
+    update(key, { selection, data: null, source: null, release: null, health: null });
   },
   setSelection(key: string, recipe: StatisticsRecipe | null) {
     cancel(key);
@@ -56,7 +57,7 @@ export const regionalStatisticsStore = {
     try {
       const result = await loadRegionalStatistics(recipe, controller.signal);
       if (controller.signal.aborted || generations.get(key) !== generation) return;
-      update(key, { loading: false, catalog: result.catalog, releases: result.releases, data: { type: 'FeatureCollection', features: result.features }, source: result.sources, health: result.health ?? null, release: result.values.release });
+      update(key, { loading: false, selection: result.effectiveRecipe ?? recipe, catalog: result.catalog, releases: result.releases, data: { type: 'FeatureCollection', features: result.features }, source: result.sources, health: result.health ?? null, release: result.values.release });
     } catch (error) {
       if (controller.signal.aborted || generations.get(key) !== generation) return;
       update(key, { loading: false, error: error instanceof Error ? error.message : String(error) });

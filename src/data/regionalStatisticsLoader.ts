@@ -2,7 +2,7 @@ import { supabase } from '../lib/supabase';
 import { withLoading } from '../lib/loadingRegistry';
 
 export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2';
-export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; label?: string; includeHealth?: boolean }
+export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
 export interface StatisticsCatalogItem { dataset_id: string; indicator_id: string; name: string; unit: string; levels: StatisticsLevel[] }
 export interface StatisticsRelease { release_id: string; dataset_id: string; indicator_id: string; boundary_version: string; period_start: string; period_end: string; levels?: StatisticsLevel[] }
 export interface StatisticsObservation { area_code: string; value: number | null; status: string }
@@ -10,7 +10,7 @@ export interface StatisticsValues { status: string; release: StatisticsRelease; 
 export type StatisticsSource = Record<string, unknown>;
 export interface StatisticsHealth { status: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string }
 export interface GeometryManifest { resource: string; sha256: string; code_scheme: string; boundary_version: string; level: StatisticsLevel }
-export interface RegionalStatisticsResult { catalog: StatisticsCatalogItem[]; releases: StatisticsRelease[]; values: StatisticsValues; sources: StatisticsSource; health?: StatisticsHealth; geometryManifest: GeometryManifest; features: GeoJSON.Feature[] }
+export interface RegionalStatisticsResult { catalog: StatisticsCatalogItem[]; releases: StatisticsRelease[]; values: StatisticsValues; sources: StatisticsSource; health?: StatisticsHealth; effectiveRecipe: StatisticsRecipe; geometryManifest: GeometryManifest; features: GeoJSON.Feature[] }
 
 async function request<T>(route: string, query: Record<string, unknown>, args: Record<string, unknown>, signal?: AbortSignal): Promise<T> {
   const base = String(import.meta.env.VITE_STATISTICS_API_URL ?? '').replace(/\/$/, '');
@@ -33,7 +33,19 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const { indicators: catalog } = catalogResponse;
     const { releases } = releasesResponse;
     if (!Array.isArray(catalog) || !Array.isArray(releases)) throw new Error('統計目錄格式不符');
-    const release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
+    let effectiveRecipe = recipe;
+    let release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
+    if (!release && recipe.releaseId && recipe.allowReleaseFallback) {
+      const candidates = releases
+        .filter(item => !item.levels || item.levels.includes(recipe.level))
+        .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
+        .filter((item): item is { release: StatisticsRelease; dimensions: Record<string, unknown> } => item.dimensions !== null)
+        .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
+      const fallback = candidates[0];
+      if (!fallback) throw new Error('預設統計期別已撤回，且沒有相容的公開期別可使用');
+      release = fallback.release;
+      effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: fallback.dimensions, allowReleaseFallback: false };
+    }
     if (!release) throw new Error('指定統計期別尚未公開或已撤回，請重新選擇');
     const indicator = catalog.find(c => c.dataset_id === recipe.datasetId && c.indicator_id === recipe.indicatorId);
     if (!indicator || !indicator.levels.includes(recipe.level)) throw new Error('此指標不提供指定地理層級');
@@ -41,8 +53,8 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const observations: StatisticsObservation[] = [];
     let offset = 0;
     for (let pageIndex = 0; pageIndex < 100; pageIndex++) {
-      const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: recipe.dimensions ?? {}, limit: 10000, offset };
-      const page = await request<StatisticsValues>('values', query, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: release.release_id, p_level: recipe.level, p_dimensions: recipe.dimensions ?? {}, p_limit: 10000, p_offset: offset }, signal);
+      const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {}, limit: 10000, offset };
+      const page = await request<StatisticsValues>('values', query, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: release.release_id, p_level: recipe.level, p_dimensions: effectiveRecipe.dimensions ?? {}, p_limit: 10000, p_offset: offset }, signal);
       if (!['OK', 'NO_DATA'].includes(page.status) || page.release?.release_id !== release.release_id || page.release.boundary_version !== release.boundary_version || page.release.dataset_id !== recipe.datasetId || page.release.indicator_id !== recipe.indicatorId || page.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
       if (!Array.isArray(page.observations) || page.returned !== page.observations.length || !Number.isInteger(page.total) || page.total < 0 || (first && page.total !== first.total)) throw new Error('統計分頁完整度不符');
       first ??= page;
@@ -80,6 +92,6 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', indicator_name: indicator.name, unit: indicator.unit, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
-    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, geometryManifest, features };
+    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest, features };
   })());
 }

@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
-import { STATISTICS_RECIPES, type StatisticsLayerKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
+import { STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
 import { FONT_SIZE, SURFACE, COLORS } from '../../styles/designTokens';
 
@@ -12,7 +12,8 @@ export function statisticsPeriodLabel(release: StatisticsRelease): string {
 }
 export function statisticsRecipe(key: StatisticsLayerKey): StatisticsRecipe {
   const recipe = STATISTICS_RECIPES[key];
-  return { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
+  const fallback = statisticsReleaseFallback(key);
+  return { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
 }
 
 /** A selector is allowed to expose only public releases that resolve to an exact dimensions tuple. */
@@ -23,6 +24,11 @@ export function statisticsReleaseOptions(key: StatisticsLayerKey, releases: Stat
     const option = recipe.releaseSelector.resolve(release);
     return option ? [option] : [];
   });
+}
+export function unparseableStatisticsReleaseCount(key: StatisticsLayerKey, releases: StatisticsRelease[]): number {
+  const recipe = STATISTICS_RECIPES[key];
+  if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return 0;
+  return releases.filter(release => !recipe.releaseSelector.resolve(release)).length;
 }
 export function useStatisticsSnapshot(key: StatisticsLayerKey) {
   return useSyncExternalStore(cb => regionalStatisticsStore.subscribe(key, cb), () => regionalStatisticsStore.getSnapshot(key));
@@ -41,6 +47,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const freshness = source?.freshness as { last_checked_at?: string; outcome?: string } | undefined;
   const selected = state.selection?.releaseId ?? state.release?.release_id ?? '';
   const selectable = statisticsReleaseOptions(layerKey, state.releases);
+  const unparseableCount = unparseableStatisticsReleaseCount(layerKey, state.releases);
   const defaultReleaseId = 'releaseId' in STATISTICS_RECIPES[layerKey] ? STATISTICS_RECIPES[layerKey].releaseId : undefined;
   const configured = selectable.find(option => option.releaseId === selected)
     ?? selectable.find(option => option.releaseId === defaultReleaseId)
@@ -55,7 +62,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
       ?? selectable.find(candidate => candidate.dimensions.roc_year === dimensions.roc_year)
       ?? selectable[0];
     if (!option) return;
-    regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey), releaseId: option.releaseId, dimensions: option.dimensions });
+    regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey), releaseId: option.releaseId, dimensions: option.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
   };
   const control = { background: SURFACE.strong, color: COLORS.textDefault, border: '1px solid currentColor', borderRadius: 4, padding: 4, maxWidth: '100%' };
@@ -68,12 +75,13 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
       <label>機關／基金 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 機關或基金`} style={control} value={selectorDimensions.agency_fund} onChange={event => chooseDimensions({ ...selectorDimensions, agency_fund: event.target.value })}>{selectorValues('agency_fund', { roc_year: selectorDimensions.roc_year, month: selectorDimensions.month }).map(value => <option key={value} value={value}>{value}</option>)}</select></label>
     </div>}
     {state.releases.length > 0 && !selectorDimensions && <label>資料期別 <select aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料期別`} style={control} value={String(selected)} onChange={event => {
-      regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value });
+      regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
       void regionalStatisticsStore.load(layerKey);
     }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
     <span>地理層級：{LEVEL_LABELS[STATISTICS_RECIPES[layerKey].level]} · 單位：{STATISTICS_RECIPES[layerKey].unit}</span>
     {state.data && <span>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</span>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <span>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</span>}
+    {unparseableCount > 0 && <span role="alert">有 {unparseableCount} 個公開期別無法安全解析成年／月／機關或基金，未提供選擇，請查看來源紀錄。</span>}
     {state.health?.coverage_status === 'PARTIAL' && <span role="status">覆蓋狀態：PARTIAL（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} 縣市）；未分配 {Number(state.health.unallocated_total ?? 0).toLocaleString()} {state.health.currency ?? ''}</span>}
     <details><summary>來源與處理紀錄</summary>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
