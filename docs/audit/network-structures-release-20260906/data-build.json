@@ -1,0 +1,115 @@
+{
+  "metadata": {
+    "assets": {
+      "carriers": {
+        "feature_count": 45721,
+        "filename": "osm_bridge_carriers_20260906.pmtiles",
+        "geometry_type": [
+          "LineString"
+        ],
+        "sha256": "c7e49f2f0eaf85fe879860fb51c608c0a52b86c8deb27a794f9a5ef7993813f4",
+        "source_layer": "osm_bridge_carriers"
+      },
+      "comparison": {
+        "feature_count": 4267,
+        "filename": "bridge_comparison_new_taipei_20260906.pmtiles",
+        "geometry_type": [
+          "LineString",
+          "Point"
+        ],
+        "sha256": "52e595bcfb75c9f39e65d6d0699e2564fa008b5076161be1cba49a50ce2ca2cc",
+        "source_layer": "bridge_comparison"
+      },
+      "footprints": {
+        "feature_count": 1505,
+        "filename": "osm_bridge_footprints_20260906.pmtiles",
+        "geometry_type": [
+          "MultiPolygon"
+        ],
+        "sha256": "e4f310799e5094734a2c93e168232593902541708a10c850e59464cc15683d31",
+        "source_layer": "osm_bridge_footprints"
+      },
+      "official": {
+        "feature_count": 1028,
+        "filename": "official_bridges_new_taipei_20260906.pmtiles",
+        "geometry_type": [
+          "LineString",
+          "Point"
+        ],
+        "sha256": "474f6653c0a69ccc8cb861151fad55301e806bfa9c5a2b4caf73f12bc79a11eb",
+        "source_layer": "official_bridges"
+      }
+    },
+    "build_id": "20260906",
+    "qc": "qc_20260906.json",
+    "retrieved_at": "2026-09-06T14:18:45Z",
+    "source_urls": {
+      "official": "https://data.ntpc.gov.tw/api/datasets/38061b5c-165e-48bf-baec-158dbd5b2c52/csv/file",
+      "osm": "https://download.geofabrik.de/asia/taiwan.html"
+    }
+  },
+  "qc": {
+    "build_id": "20260906",
+    "carrier_kind": {
+      "aqueduct": 180,
+      "bicycle": 1029,
+      "foot": 7887,
+      "other": 210,
+      "pipeline": 37,
+      "rail": 2235,
+      "road": 34143
+    },
+    "comparison_status": {
+      "AMBIGUOUS": 218,
+      "GEOMETRY_MISMATCH": 26,
+      "MATCHED": 633,
+      "NOT_EVALUATED": 1,
+      "OFFICIAL_ONLY": 150,
+      "OSM_ONLY": 3239
+    },
+    "counts": {
+      "bridge_comparison": 4267,
+      "official_bridges": 1028,
+      "osm_bridge_carriers": 45721,
+      "osm_bridge_footprints": 1505
+    },
+    "excluded": {
+      "carriers": {
+        "excluded_non_target_geometry_or_tag": 4105
+      },
+      "footprints": {
+        "excluded_non_target_geometry_or_tag": 1534
+      },
+      "meaning": "osmium referenced objects, non-target geometry, or bridge=no/non-native tags excluded by target contract; not source invalidity"
+    },
+    "inputs": {
+      "new_taipei_boundary": {
+        "path": "data/raw/transportation/network_structures/county_boundary_20260626.geojson",
+        "sha256": "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6"
+      },
+      "official_csv": {
+        "path": "data/raw/transportation/network_structures/official_bridges_new_taipei_20260906.csv",
+        "sha256": "2df2d0b3bb2b117b590c497878955c1d9400c61be32c4135a7c1d2e95a1144cb",
+        "source_date": "2025-12-29T10:39:33+08:00",
+        "source_date_semantics": "declared dataset metadata modified time, not bridge observation/survey time"
+      },
+      "pbf": {
+        "path": "data/raw/transportation/network_structures/taiwan-260905.osm.pbf",
+        "sha256": "3c54b0013d37d819ae0d4f73d3be8cab0663eb539a83cc5d881053d6d61bf18d",
+        "source_date": "2026-09-05T20:22:06Z"
+      }
+    },
+    "official_geometry_qc": {
+      "axis_over_official_length_1_25x": 179,
+      "coincident_endpoints": 1
+    },
+    "retrieved_at": "2026-09-06T14:18:45Z",
+    "semantics": {
+      "carrier": "OSM bridge-tagged carrier ways; multiple ways are not physical bridge counts",
+      "comparison": "candidate consistency only, using EPSG:3826 distance/bearing/length/name v1; null confidence is not zero",
+      "footprint": "native man_made=bridge polygons/multipolygons only; no buffers",
+      "official": "endpoint axis is approximate; official_length_m is not recalculated; coincident endpoints remain native Point",
+      "scope": "OSM_ONLY means no selected candidate in the New Taipei managed bridge register; it can reflect different managers such as freeway, railway, or waterway"
+    }
+  }
+}
