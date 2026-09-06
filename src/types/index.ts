@@ -852,6 +852,7 @@ export interface LayerVisibility {
   statsBirthsTownship: boolean;
   statsPigWaterCounty: boolean;
   statsWaterSupplyHistorical: boolean;
+  statsMaritimeSubsidyCounty: boolean;
   statsWasteCounty: boolean;
   statsRecyclingCounty: boolean;
   flights: boolean;

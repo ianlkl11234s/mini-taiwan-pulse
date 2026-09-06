@@ -12,7 +12,7 @@
 | Analytics | 6 pytest 通過、py_compile、4 個 pmtiles verify | PASS |
 | 跨 repo | [上游 PR #79](https://github.com/ianlkl11234s/taipei-gis-analytics/pull/79)，merge 710ff483 | MERGED |
 | Storage | [storage-readback.json](storage-readback.json)，13 物件完整 SHA-256 readback | PASS |
-| 前端靜態 | tsc -b、Vite production build、125 test files／1164 pass／3 skip | PASS |
+| 前端靜態 | tsc -b、Vite production build、128 test files／1186 pass／3 skip | PASS |
 | 本地瀏覽器 | 4188 新 browser，搜尋橋梁四結果，四層 render／來源 popup | PASS |
 | 互動 | 比對 MATCHED／NOT_EVALUATED 同步 line＋circle；opacity 0.4、scale 1.5（z14 radius 10.5） | PASS |
 | 正式部署／Range／瀏覽器 | 合併前尚未執行；發布後於 PR 補正式站證據 | PENDING |
@@ -34,3 +34,9 @@
 Analytics 全站 catalog audit 仍有兩個既存 fatal：GEBCO manifest 額外欄位、MLIT passenger_route 缺 manifest；本次 network_structures 無新增 fatal。前端 build 仍有既存 chunk >500 kB 提示。
 
 以原子 commit 分別保存部署支援、四層接線與驗收文件；透過 revert commit 回滾，保留原分支與 immutable S3 原始資料／圖磚，不刪檔。上游兩個 commit：3ae244f（pipeline）／2ae0cd7（lineage），merge 710ff483。
+
+## 主線整合
+
+PR #222 建立後，主線合併交通統計 PR #221（6f8b1bb）。於本次隔離 worktree 三方合併，保留海運補貼圖層、單選／重疊模式；兩處衝突只涉及快照圖層總數，合計 417 層。既有 params、overlay 與 GIS 點選順序逐項比對未改動。整合版重新通過 128 test files／1186 tests，3 skipped，與 production build。
+
+新 browser 的 light → dark 切換可重建並載入比對層；z7／z14 切換後來源可用。All Off 七個子層皆 hidden 且 0 rendered。開發 HMR 舊 browser 的 style listener 曾產生重複告警，fresh browser 切換僅 Mapbox 正常 setSprite fallback 警告。

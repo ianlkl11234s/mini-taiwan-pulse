@@ -1,4 +1,5 @@
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -500,6 +501,7 @@ export function IconRailSidebar({
                 showMacroGroups
                 allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
                 title="統計 Statistics"
+                statisticsModeControl
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -785,6 +787,8 @@ interface LayersPanelProps {
   onHideTransport: () => void;
   onAllOff: () => void;
   allOffKeys?: (keyof LayerVisibility)[];
+  /** 僅 Statistics rail panel 顯示單一／重疊模式。 */
+  statisticsModeControl?: boolean;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
@@ -991,6 +995,7 @@ function LayersPanel({
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
+  statisticsModeControl = false,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
@@ -1065,6 +1070,7 @@ function LayersPanel({
           />
         </div>
       </div>
+      {statisticsModeControl && <StatisticsModeControl />}
       <div
         className="layer-sidebar-scroll"
         style={{

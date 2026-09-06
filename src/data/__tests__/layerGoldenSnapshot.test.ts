@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 412 個 layer key", () => {
+  it("涵蓋全部 413 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -139,7 +139,8 @@ describe("黃金快照覆蓋度", () => {
     // 航空噪音法定里別、噪音裁處事件、聲音照相設備）。
     // 2026-09-06：+4 = Network Structures 四層（OSM 承載線／輪廓、
     // 新北市轄管橋梁、OSM × 官方候選比對）。
-    expect(keys.length).toBe(416);
+    // 2026-09-06：+1 = 航港局獎補助金額（受補助對象所在地）county statistics。
+    expect(keys.length).toBe(417);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

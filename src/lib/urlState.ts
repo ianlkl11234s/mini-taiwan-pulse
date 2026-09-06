@@ -23,6 +23,7 @@
 import type { LayerVisibility } from "../types";
 import { LAYER_COLORS, GATED_LAYERS } from "../components/sidebar/layerCatalog";
 import { isRailCode } from "../constants/railLines";
+import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
 
 export const URL_STATE_VERSION = 1;
 
@@ -37,6 +38,8 @@ export interface UrlState {
   camera?: UrlCamera;
   /** 要開啟的圖層（已濾除未知 key / gated / 不在白名單者） */
   layers?: (keyof LayerVisibility)[];
+  /** Statistics choropleth display mode. URL presence takes precedence over local preference. */
+  statisticsMode?: StatisticsDisplayMode;
   /** overlayParams 覆寫。**僅 `/embed` 消費**，主站忽略（見 impl §1-1） */
   params?: Record<string, number>;
   /** 凍結歷史畫面的日期 YYYY-MM-DD */
@@ -206,6 +209,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
   const layers = parseLayers(q, opts);
   if (layers) state.layers = layers;
 
+  const statisticsMode = q.get("sm");
+  if (statisticsMode === "single" || statisticsMode === "overlap") state.statisticsMode = statisticsMode;
+
   const params = parseParams(q);
   if (params) state.params = params;
 
@@ -256,6 +262,7 @@ export function buildUrl(state: UrlState, base: string): string {
     if (bearing) q.set("bearing", String(round(bearing, 1)));
   }
   if (state.layers?.length) q.set("layers", state.layers.join(","));
+  if (state.statisticsMode) q.set("sm", state.statisticsMode);
   if (state.params) {
     for (const [k, v] of Object.entries(state.params)) {
       if (Number.isFinite(v)) q.set(`p.${k}`, String(round(v, 4)));

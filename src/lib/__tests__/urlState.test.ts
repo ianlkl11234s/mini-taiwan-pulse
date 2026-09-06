@@ -115,6 +115,18 @@ describe("parseUrlState — 圖層安全過濾", () => {
   });
 });
 
+describe("parseUrlState — Statistics mode", () => {
+  it("sm 只接受 single / overlap，供 URL 覆寫本機偏好", () => {
+    expect(parseUrlState(`?${V}&sm=overlap`).statisticsMode).toBe("overlap");
+    expect(parseUrlState(`?${V}&sm=single`).statisticsMode).toBe("single");
+    expect(parseUrlState(`?${V}&sm=invalid`).statisticsMode).toBeUndefined();
+  });
+
+  it("舊網址沒有 sm 時保留 undefined，消費端可依統計 layers 採 documented safe fallback", () => {
+    expect(parseUrlState(`?${V}&layers=statsWasteCounty,crimeAreaMonthly`).statisticsMode).toBeUndefined();
+  });
+});
+
 describe("parseUrlState — overlayParams", () => {
   it("解析 p.* 為數字", () => {
     const s = parseUrlState(`?${V}&p.aquaculturePondsOpacity=0.85&p.someIdx=2`);
@@ -308,6 +320,11 @@ describe("buildUrl", () => {
 
   it("base 已有 query 時用 & 串接", () => {
     expect(buildUrl({}, "https://example.com/e?x=1")).toBe(`https://example.com/e?x=1&${V}`);
+  });
+
+  it("序列化 Statistics mode，分享網址可決定性重現單一或重疊", () => {
+    expect(buildUrl({ statisticsMode: "overlap" }, "https://example.com/embed")).toContain("sm=overlap");
+    expect(buildUrl({ statisticsMode: "single" }, "https://example.com/embed")).toContain("sm=single");
   });
 
   it("pitch / bearing 為 0 時不寫入（保持網址精簡）", () => {

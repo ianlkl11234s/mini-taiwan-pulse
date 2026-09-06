@@ -13,17 +13,19 @@ const release = { dataset_id: 'waste', indicator_id: 'vehicles', release_id: 'r1
 const catalog = { status: 'OK', indicators: [{ dataset_id: 'waste', indicator_id: 'vehicles', name: '車輛', unit: '輛', levels: ['county'] }] };
 const source = { status: 'OK', source: { publisher: '環境部' } };
 const manifest = async (body = bytes) => ({ status: 'OK', geometry: { resource: 'https://geometry.test/county.json', sha256: [...new Uint8Array(await webcrypto.subtle.digest('SHA-256', body))].map(x => x.toString(16).padStart(2, '0')).join(''), code_scheme: 'area_code', boundary_version: 'county-v1', level: 'county' } });
-const page = (rows: unknown[], offset = 0, total = rows.length, truncated = false) => ({ status: rows.length ? 'OK' : 'NO_DATA', release, area_level: 'county', total, returned: rows.length, truncated, next_offset: truncated ? offset + rows.length : null, observations: rows });
+const page = (rows: unknown[], offset = 0, total = rows.length, truncated = false, responseRelease = release) => ({ status: rows.length ? 'OK' : 'NO_DATA', release: responseRelease, area_level: 'county', total, returned: rows.length, truncated, next_offset: truncated ? offset + rows.length : null, observations: rows });
 
 function json(data: unknown) { return new Response(JSON.stringify(data), { status: 200 }); }
-function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[] } = {}) {
-  const values = responses.values ?? [page([{ area_code: 'A', value: 0, status: 'observed' }, { area_code: 'B', value: null, status: 'suppressed' }])];
+function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[]; health?: unknown; responseRelease?: typeof release } = {}) {
+  const responseRelease = responses.responseRelease ?? release;
+  const values = responses.values ?? [page([{ area_code: 'A', value: 0, status: 'observed' }, { area_code: 'B', value: null, status: 'suppressed' }], 0, 2, false, responseRelease)];
   let i = 0;
   vi.stubGlobal('fetch', vi.fn(async (input: string) => {
     if (input.includes('/catalog')) return json(catalog);
     if (input.includes('/releases')) return json({ status: 'OK', releases: responses.releases ?? [release] });
     if (input.includes('/values')) return json(values[i++]);
     if (input.includes('/sources')) return json(source);
+    if (input.includes('/health')) return json(responses.health ?? { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, mapped_total: 58186094, unallocated_total: 0, currency: 'TWD' });
     if (input.includes('/geometry-manifest')) return json(await manifest(responses.manifestBytes ?? responses.geometry));
     if (input === 'https://geometry.test/county.json') return new Response(responses.geometry ?? bytes);
     throw new Error(`unexpected ${input}`);
@@ -65,5 +67,30 @@ describe('regional statistics loader public contract', () => {
     await expect(loadRegionalStatistics(recipe)).resolves.toMatchObject({ values: { status: 'NO_DATA', total: 0 } });
     install({ values: [page([{ area_code: 'C', value: 1, status: 'observed' }])] });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('找不到對應邊界');
+  });
+
+  it('loads the 408 health contract only when the recipe requests reconciliation disclosure', async () => {
+    install();
+    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).resolves.toMatchObject({
+      health: { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, unallocated_total: 0, currency: 'TWD' },
+    });
+    install({ health: { status: 'NOT_FOUND' } });
+    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).rejects.toThrow('健康狀態不可用');
+  });
+
+  it('falls back from a missing recipe default to the latest compatible public release and its exact dimensions', async () => {
+    const older = { ...release, release_id: 'r-old', period_start: '2024-01-01', period_end: '2024-01-31' };
+    const latest = { ...release, release_id: 'r-latest', period_start: '2025-02-01', period_end: '2025-02-28' };
+    install({ releases: [older, latest], responseRelease: latest });
+    const result = await loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-default', allowReleaseFallback: true, releaseFallback: candidate => candidate.release_id === 'r-latest' ? { fund: 'verified-latest' } : null });
+    expect(result.effectiveRecipe).toMatchObject({ releaseId: 'r-latest', dimensions: { fund: 'verified-latest' }, allowReleaseFallback: false });
+    expect(vi.mocked(fetch).mock.calls.some(([input]) => String(input).includes('release_id=r-latest') && String(input).includes('dimensions=%7B%22fund%22%3A%22verified-latest%22%7D'))).toBe(true);
+  });
+
+  it('does not replace an explicit user or URL release, and errors when no compatible public fallback exists', async () => {
+    install({ releases: [release] });
+    await expect(loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-user-choice', allowReleaseFallback: false })).rejects.toThrow('指定統計期別尚未公開或已撤回');
+    install({ releases: [release] });
+    await expect(loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-default', allowReleaseFallback: true, releaseFallback: () => null })).rejects.toThrow('沒有相容的公開期別');
   });
 });

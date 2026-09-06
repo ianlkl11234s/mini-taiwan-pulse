@@ -320,6 +320,15 @@ const SAT_SOURCE_NOTE =
  *    丟掉，ManifestKey 就退化成 348 個 key 的全集，下游 Omit 的 tsc 護欄整個失效。
  */
 export const LAYER_MANIFEST = {
+  statsMaritimeSubsidyCounty: {
+    key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
+    label: "航港局獎補助金額（受補助對象所在地）", expandable: true, color: "#2563eb", icon: Anchor,
+    upstream: { status: "verified", datasets: [{ datasetId: "maritime_bureau_subsidy_county", confidence: "HIGH" }] },
+    dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC plus verified county geometry; regionalStatisticsMap runtime" },
+    legend: "statsMaritimeSubsidyCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "依受補助對象所在地彙總的航港局獎補助金額；不是工程地、港口投資地或最終受益地。PARTIAL coverage、未分配金額與缺值會明確揭露。", topics: ["統計", "交通", "航港", "行政區"],
+  },
+
   statsWaterSupplyHistorical: {
     key: "statsWaterSupplyHistorical", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
     label: "供水普及率（2015年／7縣市）", expandable: true, color: "#06b6d4", icon: Recycle,

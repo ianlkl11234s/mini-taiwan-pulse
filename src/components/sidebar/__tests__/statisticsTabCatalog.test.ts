@@ -8,6 +8,7 @@ describe("STATISTICS_TAB_THEMES", () => {
 
   it("只聚合目前已接線的行政區統計與邊界圖層", () => {
     expect(layers.map((layer) => layer.key)).toEqual([
+      "statsMaritimeSubsidyCounty",
       "statsPigWaterCounty",
       "statsWaterSupplyHistorical",
       "statsWasteCounty",
@@ -32,6 +33,7 @@ describe("STATISTICS_TAB_THEMES", () => {
 
   it("All Off scope 只包含統計入口的圖層", () => {
     expect(getThemeLayerKeys(STATISTICS_TAB_THEMES)).toEqual([
+      "statsMaritimeSubsidyCounty",
       "statsPigWaterCounty",
       "statsWaterSupplyHistorical",
       "statsWasteCounty",

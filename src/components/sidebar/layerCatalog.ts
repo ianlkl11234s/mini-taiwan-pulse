@@ -194,6 +194,7 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: "交通統計 Transport Statistics", groups: [{ title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] }] },
   { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
   { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }] },
   { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }] },
@@ -1598,6 +1599,7 @@ export const LAYER_MACRO_GROUPS = [
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
 
 const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
+  "交通統計 Transport Statistics": "city",
   "水資源統計 Water Statistics": "environment",
   "廢棄物統計 Waste Statistics": "environment",
   "能源統計 Energy Statistics": "environment",
