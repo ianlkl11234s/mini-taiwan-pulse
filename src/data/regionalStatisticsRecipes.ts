@@ -34,9 +34,9 @@ export const maritimeSubsidyReleaseSelector: StatisticsReleaseSelector = {
 };
 
 const CIVIL_AERONAUTICS_SUBSIDY_DIMENSIONS: Record<string, Record<string, string>> = {
-  '2023-Q4-civil_aviation_fund-bf87441bea20': { roc_year: '112', quarter: 'Q4', budget_type: 'civil_aviation_fund', value_basis: 'year_to_date_cumulative' },
-  '2023-Q4-public_budget-2e4392228299': { roc_year: '112', quarter: 'Q4', budget_type: 'public_budget', value_basis: 'year_to_date_cumulative' },
-  '2023-Q4-special_budget-2637a10528ce': { roc_year: '112', quarter: 'Q4', budget_type: 'special_budget', value_basis: 'year_to_date_cumulative' },
+  '2023-Q4-civil_aviation_fund-f5ca6a3e44fb': { roc_year: '112', quarter: 'Q4', budget_type: 'civil_aviation_fund', value_basis: 'year_to_date_cumulative' },
+  '2023-Q4-public_budget-095e5ac41d6f': { roc_year: '112', quarter: 'Q4', budget_type: 'public_budget', value_basis: 'year_to_date_cumulative' },
+  '2023-Q4-special_budget-83258b75651f': { roc_year: '112', quarter: 'Q4', budget_type: 'special_budget', value_basis: 'year_to_date_cumulative' },
 };
 
 /** Only exposes the three immutable 112Q4 bundles verified by analytics. */
@@ -112,7 +112,7 @@ export const STATISTICS_RECIPES = {
     dataset_id: 'civil_aeronautics_subsidy_county', indicator_id: 'civil_aeronautics_recipient_county_subsidy_twd_ytd', level: 'county',
     label: '民航局獎補助費（受補助對象所在地）', unit: 'TWD', frequency: '每季（目前僅 112Q4 歷史快照）',
     freshness: 'STALE',
-    releaseId: '2023-Q4-civil_aviation_fund-bf87441bea20',
+    releaseId: '2023-Q4-civil_aviation_fund-f5ca6a3e44fb',
     dimensions: { roc_year: '112', quarter: 'Q4', budget_type: 'civil_aviation_fund', value_basis: 'year_to_date_cumulative' },
     includeHealth: true,
     releaseSelector: civilAeronauticsSubsidyReleaseSelector,

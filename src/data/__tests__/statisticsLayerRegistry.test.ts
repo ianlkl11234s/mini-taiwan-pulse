@@ -46,8 +46,8 @@ describe("statistics layer role registry", () => {
       dataset_id: "civil_aeronautics_subsidy_county", indicator_id: "civil_aeronautics_recipient_county_subsidy_twd_ytd", level: "county", unit: "TWD", freshness: "STALE",
       dimensions: { roc_year: "112", quarter: "Q4", budget_type: "civil_aviation_fund", value_basis: "year_to_date_cumulative" },
     });
-    expect(civilAeronauticsSubsidyReleaseSelector.resolve({ release_id: "2023-Q4-special_budget-2637a10528ce", period_start: "2023-01-01" })).toEqual({
-      releaseId: "2023-Q4-special_budget-2637a10528ce", dimensions: { roc_year: "112", quarter: "Q4", budget_type: "special_budget", value_basis: "year_to_date_cumulative" },
+    expect(civilAeronauticsSubsidyReleaseSelector.resolve({ release_id: "2023-Q4-special_budget-83258b75651f", period_start: "2023-01-01" })).toEqual({
+      releaseId: "2023-Q4-special_budget-83258b75651f", dimensions: { roc_year: "112", quarter: "Q4", budget_type: "special_budget", value_basis: "year_to_date_cumulative" },
     });
     expect(civilAeronauticsSubsidyReleaseSelector.resolve({ release_id: "2023-Q4-special_budget-000000000000", period_start: "2023-01-01" })).toBeNull();
   });
