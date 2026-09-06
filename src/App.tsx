@@ -84,7 +84,7 @@ import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
-import { runChatTurn, testKey } from "./chat/agent";
+import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { MessageSquare } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
