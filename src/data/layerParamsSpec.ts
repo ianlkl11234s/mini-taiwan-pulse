@@ -1798,6 +1798,7 @@ export const LAYER_PARAMS_SPEC = {
   statsMaritimeSubsidyCounty: [opacitySlider("statsMaritimeSubsidyCountyOpacity", 0.55)],
   statsCivilAeronauticsSubsidyCounty: [opacitySlider("statsCivilAeronauticsSubsidyCountyOpacity", 0.55)],
   statsTaipeiTrafficViolationCitations: [opacitySlider("statsTaipeiTrafficViolationCitationsOpacity", 0.55)],
+  statsTaichungRoadNoiseMonitoringStations: [opacitySlider("statsTaichungRoadNoiseMonitoringStationsOpacity", 0.55)],
   statsOffstreetSmallCarParkingSpacesCount: [opacitySlider("statsOffstreetSmallCarParkingSpacesCountOpacity", 0.55)],
   statsOnstreetSmallCarParkingSpacesCount: [opacitySlider("statsOnstreetSmallCarParkingSpacesCountOpacity", 0.55)],
   statsMotorcycleRegisteredCount: [opacitySlider("statsMotorcycleRegisteredCountOpacity", 0.55)],

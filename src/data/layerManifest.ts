@@ -343,6 +343,14 @@ export const LAYER_MANIFEST = {
     legend: "statsTaipeiTrafficViolationCitations", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
     description: "臺北市法條分類交通違規舉發筆數；其餘縣市為缺資料，法條間不得相加推論唯一事件或人數。", topics: ["統計", "交通", "違規", "臺北市", "行政區"],
   },
+  statsTaichungRoadNoiseMonitoringStations: {
+    key: "statsTaichungRoadNoiseMonitoringStations", section: { theme: "交通統計 Transport Statistics", group: "臺中道路噪音監測" },
+    label: "臺中市道路交通噪音監測站數", expandable: true, color: "#0891b2", icon: Recycle,
+    upstream: { status: "verified", datasets: [{ datasetId: "taichung_road_noise_monitoring_stations_89477", confidence: "HIGH" }] },
+    dataClass: "D", source: { kind: "custom", note: "Immutable Taichung-only control-zone releases plus verified county geometry; regionalStatisticsMap runtime" },
+    legend: "statsTaichungRoadNoiseMonitoringStations", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+    description: "臺中市道路交通噪音監測站數，依管制區類別呈現；不是不合格站數、噪音均值或暴露人口。", topics: ["統計", "交通", "噪音", "臺中市", "行政區"],
+  },
   statsOffstreetSmallCarParkingSpacesCount: {
     key: "statsOffstreetSmallCarParkingSpacesCount", section: { theme: "交通統計 Transport Statistics", group: "縣市交通供給" },
     label: "小型汽車路外停車位", expandable: true, color: "#0891b2", icon: Recycle,

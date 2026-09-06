@@ -19,12 +19,13 @@ const DIMENSION_LABELS: Record<string, string> = {
   value_basis: '數值基準',
   law_article: '法條',
   geographic_coverage: '地理涵蓋',
+  control_zone_class: '管制區類別',
 };
 const DIMENSION_VALUE_LABELS: Record<string, Record<string, string>> = {
   sector: { residential: '住宅' },
   budget_type: { civil_aviation_fund: '民航基金', public_budget: '公務預算', special_budget: '特別預算' },
   value_basis: { year_to_date_cumulative: '年度累計快照' },
-  geographic_coverage: { taipei_only: '僅臺北市' },
+  geographic_coverage: { taipei_only: '僅臺北市', taichung_only: '僅臺中市' },
 };
 
 function statisticsDimensionLabel(key: string): string {

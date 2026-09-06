@@ -98,6 +98,22 @@ export const taipeiTrafficViolationCitationReleaseSelector: StatisticsReleaseSel
   },
 };
 
+const TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE: Record<string, string> = {
+  '2024-Q3-66000-5d2656bf680f': '第一類管制區',
+  '2024-Q3-66000-ad3c4abfd5d6': '第二類管制區',
+  '2024-Q3-66000-10cd7f07523f': '第三類管制區',
+  '2024-Q3-66000-40789289a250': '第四類管制區',
+};
+
+/** Only the four immutable 2024-Q3 source classes are selectable. */
+export const taichungRoadNoiseMonitoringReleaseSelector: StatisticsReleaseSelector = {
+  resolve(release) {
+    const controlZoneClass = TAICHUNG_ROAD_NOISE_ZONE_BY_RELEASE[release.release_id];
+    if (!controlZoneClass || release.period_start !== '2024-07-01' || release.period_end !== '2024-09-30') return null;
+    return { releaseId: release.release_id, dimensions: { roc_year: '113', quarter: 'Q3', control_zone_class: controlZoneClass, geographic_coverage: 'taichung_only' } };
+  },
+};
+
 export const STATISTICS_RECIPES = {
   statsWasteCounty: {
     dataset_id: 'waste_vehicles_county', indicator_id: 'total_vehicles', level: 'county',
@@ -167,6 +183,14 @@ export const STATISTICS_RECIPES = {
     includeHealth: true, releaseSelector: taipeiTrafficViolationCitationReleaseSelector,
     interpretationNote: '僅臺北市原生統計，其他 21 縣市為缺資料；按法條分類的舉發筆數不可跨法條合計為唯一事件或人數。',
     breaks: [1_000, 10_000, 50_000, 200_000], colors: ['#f5f3ff', '#ddd6fe', '#a78bfa', '#7c3aed', '#4c1d95'],
+  },
+  statsTaichungRoadNoiseMonitoringStations: {
+    dataset_id: 'taichung_road_noise_monitoring_stations_89477', indicator_id: 'road_traffic_noise_monitoring_station_count', level: 'county',
+    label: '臺中市道路交通噪音監測站數', unit: '站', frequency: '2024 Q3 歷史快照',
+    releaseId: '2024-Q3-66000-5d2656bf680f', dimensions: { roc_year: '113', quarter: 'Q3', control_zone_class: '第一類管制區', geographic_coverage: 'taichung_only' },
+    includeHealth: true, releaseSelector: taichungRoadNoiseMonitoringReleaseSelector,
+    interpretationNote: '僅臺中市原生監測站數，其他 21 縣市為缺資料；按管制區類別不可合計。來源表名的「不合格情形」不表示這些監測站數為不合格站數，12 筆不合格時段未納入。',
+    breaks: [1, 2, 3, 4], colors: ['#ecfeff', '#a5f3fc', '#22d3ee', '#0891b2', '#164e63'],
   },
   statsOffstreetSmallCarParkingSpacesCount: {
     dataset_id: 'dgbas_county_transport_supply_10935', indicator_id: 'offstreet_small_car_parking_spaces_count', level: 'county',

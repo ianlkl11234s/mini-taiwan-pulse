@@ -97,6 +97,7 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   // 不是 LayerHost React hook；各 recipe key 由 STATISTICS_KEYS 派生後一起掛載。
   "statsMaritimeSubsidyCounty", "statsCivilAeronauticsSubsidyCounty",
   "statsTaipeiTrafficViolationCitations",
+  "statsTaichungRoadNoiseMonitoringStations",
   "statsOffstreetSmallCarParkingSpacesCount", "statsOnstreetSmallCarParkingSpacesCount",
   "statsMotorcycleRegisteredCount", "statsAutomobileRegisteredCount",
   "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",

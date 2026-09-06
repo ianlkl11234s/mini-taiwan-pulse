@@ -32,4 +32,8 @@ describe('statisticsDimensionSummary', () => {
   it('humanizes the Taipei-only article selection summary', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', law_article: '第12條', geographic_coverage: 'taipei_only' })).toBe('期間：民國 114 年；法條：第12條；地理涵蓋：僅臺北市');
   });
+
+  it('humanizes the Taichung-only control-zone selection summary', () => {
+    expect(statisticsDimensionSummary({ roc_year: '113', quarter: 'Q3', control_zone_class: '第一類管制區', geographic_coverage: 'taichung_only' })).toBe('期間：民國 113 年・Q3；管制區類別：第一類管制區；地理涵蓋：僅臺中市');
+  });
 });

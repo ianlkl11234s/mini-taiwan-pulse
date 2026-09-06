@@ -4,7 +4,7 @@ import {
   STATISTICS_TAB_LAYER_ROLES,
   isStatisticsChoropleth,
 } from "../statisticsLayerRegistry";
-import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiTrafficViolationCitationReleaseSelector } from "../regionalStatisticsRecipes";
+import { STATISTICS_RECIPES, civilAeronauticsSubsidyReleaseSelector, countyTransportSupplyReleaseSelector, maritimeSubsidyReleaseSelector, taipeiTrafficViolationCitationReleaseSelector, taichungRoadNoiseMonitoringReleaseSelector } from "../regionalStatisticsRecipes";
 
 describe("statistics layer role registry", () => {
   it("將 Statistics tab 的 crime choropleth 納入模式，行政邊界明確豁免", () => {
@@ -75,5 +75,16 @@ describe("statistics layer role registry", () => {
       releaseId: "2025-63000-3ae38195a39a-22c825ca2e23", dimensions: { roc_year: "114", law_article: "第12條", geographic_coverage: "taipei_only" },
     });
     expect(taipeiTrafficViolationCitationReleaseSelector.resolve({ release_id: "2025-63000-3ae38195a39a-unknown", period_start: "2025-01-01", period_end: "2025-12-31" })).toBeNull();
+  });
+
+  it("只將 manifest 驗證的臺中道路噪音 release 對應到管制區類別", () => {
+    expect(STATISTICS_RECIPES.statsTaichungRoadNoiseMonitoringStations).toMatchObject({
+      dataset_id: "taichung_road_noise_monitoring_stations_89477", indicator_id: "road_traffic_noise_monitoring_station_count", level: "county", unit: "站",
+      releaseId: "2024-Q3-66000-5d2656bf680f", dimensions: { roc_year: "113", quarter: "Q3", control_zone_class: "第一類管制區", geographic_coverage: "taichung_only" }, includeHealth: true,
+    });
+    expect(taichungRoadNoiseMonitoringReleaseSelector.resolve({ release_id: "2024-Q3-66000-40789289a250", period_start: "2024-07-01", period_end: "2024-09-30" })).toEqual({
+      releaseId: "2024-Q3-66000-40789289a250", dimensions: { roc_year: "113", quarter: "Q3", control_zone_class: "第四類管制區", geographic_coverage: "taichung_only" },
+    });
+    expect(taichungRoadNoiseMonitoringReleaseSelector.resolve({ release_id: "2024-Q3-66000-unknown", period_start: "2024-07-01", period_end: "2024-09-30" })).toBeNull();
   });
 });
