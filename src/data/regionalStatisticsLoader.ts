@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { withLoading } from '../lib/loadingRegistry';
+import { statisticsGeometryCache, waitForGeometry } from './statisticsGeometryCache';
 
 export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2';
 export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
@@ -78,20 +79,18 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       : undefined;
     const geometryManifest = geometryResponse.geometry;
     if (geometryResponse.status !== 'OK' || sourceResponse.status !== 'OK' || (health && health.status !== 'OK') || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
-    const response = await fetch(geometryManifest.resource, { signal });
-    if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
-    const bytes = await response.arrayBuffer();
-    const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(n => n.toString(16).padStart(2, '0')).join('');
-    if (digest !== geometryManifest.sha256) throw new Error('邊界檔案版本校驗失敗');
-    const geometry = JSON.parse(new TextDecoder().decode(bytes)) as GeoJSON.FeatureCollection;
-    if (geometry.type !== 'FeatureCollection' || !Array.isArray(geometry.features)) throw new Error('邊界格式不符');
+    const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
+      const response = await fetch(geometryManifest.resource);
+      if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
+      return response.arrayBuffer();
+    }), signal);
     const byCode = new Map<string, StatisticsObservation>();
     for (const value of observations) {
       if (typeof value.area_code !== 'string' || byCode.has(value.area_code) || (value.status === 'observed' ? typeof value.value !== 'number' || !Number.isFinite(value.value) : value.value !== null)) throw new Error('統計區代碼或數值格式錯誤');
       byCode.set(value.area_code, value);
     }
     const geometryCodes = new Set<string>();
-    const features = geometry.features.map(feature => {
+    const features = boundary.features.map(feature => {
       const code = feature.properties?.area_code;
       if (typeof code !== 'string' || geometryCodes.has(code) || !feature.geometry || !['Polygon', 'MultiPolygon'].includes(feature.geometry.type)) throw new Error('參考邊界代碼或幾何錯誤');
       geometryCodes.add(code);

@@ -3,6 +3,7 @@ import { webcrypto } from 'node:crypto';
 
 vi.mock('../../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }));
 import { loadRegionalStatistics } from '../regionalStatisticsLoader';
+import { statisticsGeometryCache } from '../statisticsGeometryCache';
 
 const bytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
   { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [[[120, 23], [121, 23], [121, 24], [120, 23]]] } },
@@ -16,12 +17,12 @@ const manifest = async (body = bytes) => ({ status: 'OK', geometry: { resource: 
 const page = (rows: unknown[], offset = 0, total = rows.length, truncated = false, responseRelease = release) => ({ status: rows.length ? 'OK' : 'NO_DATA', release: responseRelease, area_level: 'county', total, returned: rows.length, truncated, next_offset: truncated ? offset + rows.length : null, observations: rows });
 
 function json(data: unknown) { return new Response(JSON.stringify(data), { status: 200 }); }
-function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[]; health?: unknown; responseRelease?: typeof release } = {}) {
+function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[]; health?: unknown; responseRelease?: typeof release; catalog?: typeof catalog } = {}) {
   const responseRelease = responses.responseRelease ?? release;
   const values = responses.values ?? [page([{ area_code: 'A', value: 0, status: 'observed' }, { area_code: 'B', value: null, status: 'suppressed' }], 0, 2, false, responseRelease)];
   let i = 0;
   vi.stubGlobal('fetch', vi.fn(async (input: string) => {
-    if (input.includes('/catalog')) return json(catalog);
+    if (input.includes('/catalog')) return json(responses.catalog ?? catalog);
     if (input.includes('/releases')) return json({ status: 'OK', releases: responses.releases ?? [release] });
     if (input.includes('/values')) return json(values[i++]);
     if (input.includes('/sources')) return json(source);
@@ -32,7 +33,7 @@ function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifes
   }));
 }
 
-beforeEach(() => { vi.stubEnv('VITE_STATISTICS_API_URL', 'http://127.0.0.1:3733'); vi.stubGlobal('crypto', webcrypto); });
+beforeEach(() => { statisticsGeometryCache.clear(); vi.stubEnv('VITE_STATISTICS_API_URL', 'http://127.0.0.1:3733'); vi.stubGlobal('crypto', webcrypto); });
 
 describe('regional statistics loader public contract', () => {
   it('consumes nested catalog/releases/values/source/geometry payloads and preserves zero/null', async () => {
@@ -43,6 +44,33 @@ describe('regional statistics loader public contract', () => {
   it('rejects a SHA mismatch before rendering geometry', async () => {
     install({ geometry: new TextEncoder().encode('{}'), manifestBytes: bytes });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('邊界檔案版本校驗失敗');
+  });
+  it('shares one verified boundary between different indicators', async () => {
+    install();
+    await loadRegionalStatistics(recipe);
+    const firstFetch = vi.mocked(fetch);
+    const weightRelease = { ...release, indicator_id: 'weight', release_id: 'r-weight' };
+    install({
+      responseRelease: weightRelease,
+      releases: [weightRelease],
+      catalog: { status: 'OK', indicators: [...catalog.indicators, { dataset_id: 'waste', indicator_id: 'weight', name: '重量', unit: '噸', levels: ['county'] }] },
+    });
+    await loadRegionalStatistics({ ...recipe, indicatorId: 'weight' });
+    expect(firstFetch.mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(0);
+  });
+  it('refetches when the immutable boundary identity changes', async () => {
+    install();
+    await loadRegionalStatistics(recipe);
+    const firstFetch = vi.mocked(fetch);
+    const nextBytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
+      { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [[[120, 23], [121, 23], [121, 24], [120, 23]]] } },
+      { type: 'Feature', properties: { area_code: 'B' }, geometry: { type: 'Polygon', coordinates: [[[121, 23], [122.1, 23], [122.1, 24], [121, 23]]] } },
+    ] }));
+    install({ geometry: nextBytes, manifestBytes: nextBytes });
+    await loadRegionalStatistics(recipe);
+    expect(firstFetch.mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
+    expect(vi.mocked(fetch).mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
   });
   it('does not fall back when an explicit release was withdrawn', async () => {
     install({ releases: [release] });
