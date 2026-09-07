@@ -1,0 +1,192 @@
+{
+  "checkedAt": "2026-09-07T14:40:05.781Z",
+  "auth": "anon",
+  "reads": {
+    "rpc/get_stat_catalog": {
+      "http": 200,
+      "status": "OK",
+      "indicators": [
+        {
+          "dataset_id": "caa_airport_activity_county_33238",
+          "indicator_id": "airport_cargo_tonnes"
+        },
+        {
+          "dataset_id": "caa_airport_activity_county_33238",
+          "indicator_id": "airport_passenger_movements"
+        },
+        {
+          "dataset_id": "caa_airport_activity_county_33238",
+          "indicator_id": "takeoffs_landings_count"
+        },
+        {
+          "dataset_id": "civil_aeronautics_subsidy_county",
+          "indicator_id": "civil_aeronautics_recipient_county_subsidy_twd_ytd"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "automobile_license_holders_count"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "automobile_registered_count"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "motorcycle_license_holders_count"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "motorcycle_registered_count"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "offstreet_small_car_parking_spaces_count"
+        },
+        {
+          "dataset_id": "dgbas_county_transport_supply_10935",
+          "indicator_id": "onstreet_small_car_parking_spaces_count"
+        },
+        {
+          "dataset_id": "livestock_pig_water_county",
+          "indicator_id": "pig_water_thousand_m3"
+        },
+        {
+          "dataset_id": "maritime_bureau_subsidy_county",
+          "indicator_id": "maritime_bureau_recipient_county_subsidy_twd"
+        },
+        {
+          "dataset_id": "npa_a1_accident_county_177136",
+          "indicator_id": "a1_accident_count"
+        },
+        {
+          "dataset_id": "npa_a1_accident_county_177136",
+          "indicator_id": "a1_death_count"
+        },
+        {
+          "dataset_id": "npa_a1_accident_county_177136",
+          "indicator_id": "a1_injury_count"
+        },
+        {
+          "dataset_id": "residential_electricity_sales_county_monthly",
+          "indicator_id": "residential_electricity_sales_kwh"
+        },
+        {
+          "dataset_id": "rice_harvested_area_township",
+          "indicator_id": "rice_harvested_area_hectare"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_accessible_vehicle_count"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_approved_route_count"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_electric_vehicle_count"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_operating_route_length_km"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_operating_trip_count"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_operating_vehicle_count"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "bus_operating_vehicle_km"
+        },
+        {
+          "dataset_id": "segis_bus_operation_county_315fh_1d3",
+          "indicator_id": "urban_bus_operator_count"
+        },
+        {
+          "dataset_id": "segis_taipei_bicycle_usage_township_110",
+          "indicator_id": "taipei_riverside_annual_rental_person_trips"
+        },
+        {
+          "dataset_id": "segis_taipei_bicycle_usage_township_110",
+          "indicator_id": "taipei_riverside_bicycles"
+        },
+        {
+          "dataset_id": "segis_taipei_bicycle_usage_township_110",
+          "indicator_id": "taipei_riverside_rental_stations"
+        },
+        {
+          "dataset_id": "segis_taipei_bicycle_usage_township_110",
+          "indicator_id": "taipei_urban_annual_rental_person_trips"
+        },
+        {
+          "dataset_id": "segis_taipei_bicycle_usage_township_110",
+          "indicator_id": "taipei_urban_rental_stations"
+        },
+        {
+          "dataset_id": "taichung_road_noise_monitoring_stations_89477",
+          "indicator_id": "road_traffic_noise_monitoring_station_count"
+        },
+        {
+          "dataset_id": "taipei_traffic_violation_citations_135096",
+          "indicator_id": "traffic_violation_citation_count"
+        },
+        {
+          "dataset_id": "taoyuan_airport_passengers_county_32997",
+          "indicator_id": "airport_arrivals_count"
+        },
+        {
+          "dataset_id": "taoyuan_airport_passengers_county_32997",
+          "indicator_id": "airport_departures_count"
+        },
+        {
+          "dataset_id": "taoyuan_airport_passengers_county_32997",
+          "indicator_id": "airport_passenger_movements"
+        },
+        {
+          "dataset_id": "taoyuan_airport_passengers_county_32997",
+          "indicator_id": "airport_transit_count"
+        },
+        {
+          "dataset_id": "tmrt_station_outbound_county",
+          "indicator_id": "station_outbound_count"
+        },
+        {
+          "dataset_id": "village_births_township_monthly",
+          "indicator_id": "birth_count"
+        },
+        {
+          "dataset_id": "waste_recycling_rate_county",
+          "indicator_id": "municipal_waste_recycling_rate_pct"
+        },
+        {
+          "dataset_id": "waste_vehicles_county",
+          "indicator_id": "recycling_vehicles"
+        },
+        {
+          "dataset_id": "waste_vehicles_county",
+          "indicator_id": "total_vehicles"
+        },
+        {
+          "dataset_id": "water_supply_county_historical",
+          "indicator_id": "supplied_population_rate_pct"
+        }
+      ]
+    },
+    "user_places?select=id&limit=0": {
+      "http": 401,
+      "code": "42501"
+    },
+    "user_scenes?select=id&limit=0": {
+      "http": 401,
+      "code": "42501"
+    },
+    "user_layer_favorites?select=layer_key&limit=0": {
+      "http": 401,
+      "code": "42501"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 # 日本 Japan rail tab + 核心圖層
 
 > **Slug**：`jp-core-layers`（與 taipei-gis-analytics handoff 一致）
-> **狀態**：Batch 1 已 merge 進 master（PR #199 / `632a7d2`）；**Batch 2 遞延三層程式碼完成**（`npx tsc -b` 綠、98 檔 990 測試綠、瀏覽器實測過），PR 待開、🔴 人口網格待 owner 上傳 S3
+> **狀態**：Batch 1 PR #199、Batch 2 PR #210 已合併；日本警察另見 PR #224。2026-09-07 S3 唯讀盤點確認人口網格物件存在（50,998,171 bytes）；正式畫面驗收與備份完整性須分別看證據。
 > **Owner**：migu
-> **上線日期**：YYYY-MM-DD（待定）
-> **相關 PR**：#199（Batch 1）／#201（遞延交辦文件）／Batch 2 待開（分支 `feat/jp-deferred-layers`）
+> **上線日期**：各批次依 changelog／handoff 的部署證據，不以合併日期代替。
+> **相關 PR**：#199（Batch 1）／#201（交辦）／#210（Batch 2）／#211（宗教全密度）／#224（警察）
 
 ## 一句話說明
 
@@ -16,7 +16,7 @@
 > `jp_railways` / `jp_schools` / `jp_population_mesh_1km` / `jp_religion_{gsi,osm,wikidata}`）。
 > 前端 **layer key 共 10 個**——行政區的縣界與市界是同一資料集切出的兩支 PMTiles、各自一個 key。
 >
-> 日本 tab 現有五個主題：**行政區 / 交通 / 教育 / 人口 / 宗教**
+> 日本 tab 現有六個主題：**行政區 / 交通 / 治安 / 教育 / 人口 / 宗教**
 > （`JAPAN_TAB_THEME_TITLES = ["行政區","交通","教育","人口","宗教"]`）。
 
 ### Batch 1（7 個 layer key，2026-09-01，PR #199 已 merge）
@@ -35,7 +35,7 @@
 |---|---|---|---|---|---|---|
 | **jpRailways**<br>日本鐵道路線 | `jp_railways.pmtiles`<br>21,933 段・z4–12<br>source-layer `jp_railways` | 4.86MB<br>(5,093,949 B) | **git-track**<br>（nginx `/world/` → `@dist` fallback，免 S3）| 交通 ／ **線**（新群組）| ✅ 事業者種別 5 色 | `line_name`（標題）/ `operator` / `operator_type` / `railway_category` |
 | **jpSchools**<br>日本學校 | `jp_schools.pmtiles`<br>56,807 點・z4–11<br>source-layer `jp_schools` | 16.5MB<br>(17,303,011 B) | **git-track**（同上）| **教育**（新主題）／ 點位 | ✅ `school_class` 13 類（兩欄）| `name`（標題）/ `school_class` / `administrator` / `closed_status` / `address` |
-| **jpPopulationMesh1km**<br>日本人口網格 | `jp_population_mesh_1km.pmtiles`<br>176,896 格・z4–11<br>source-layer `jp_population_mesh_1km` | 48.6MB<br>(50,998,171 B) | 🔴 **S3**<br>（`.gitignore` 單檔 + `upload-deploy-assets.sh` world 區塊；**尚未上傳**）| **人口**（新主題）／ 面 | ✅ choropleth，隨 9 模式切換<br>（含「未公開（遮罩）」列）| `id`（標題）+ `pop_{2020,2030,2040,2050,2070}` + `ratio65_{2030,2040,2050,2070}`（9 欄一次列完，不隨模式變）|
+| **jpPopulationMesh1km**<br>日本人口網格 | `jp_population_mesh_1km.pmtiles`<br>176,896 格・z4–11<br>source-layer `jp_population_mesh_1km` | 48.6MB<br>(50,998,171 B) | **S3**<br>（`.gitignore` 單檔 + `upload-deploy-assets.sh` world 區塊；2026-09-07 已唯讀確認 S3 物件存在）| **人口**（新主題）／ 面 | ✅ choropleth，隨 9 模式切換<br>（含「未公開（遮罩）」列）| `id`（標題）+ `pop_{2020,2030,2040,2050,2070}` + `ratio65_{2030,2040,2050,2070}`（9 欄一次列完，不隨模式變）|
 
 三層的資料坑（學校配方變更、`ratio65=0` 是隱私遮罩、年份不連續）與瀏覽器實測數字見 [changelog.md](./changelog.md) Batch 2 段。
 
@@ -65,3 +65,7 @@
 - 上游 handoff：`../../../taipei-gis-analytics/docs/handoff/jp-core-layers.md`
 - 既有宗教層：`docs/features/jp-religion-layers/`
 - 開發規則（20 觸點）：`../../development-rules.md` §4
+
+## 近期對帳
+
+日本警察設施見 [獨立 handoff](../jp-police-facilities/handoff.md)。Git/dist 供應與 S3 備份是不同契約；現有 S3 world prefix 並未涵蓋全部日本檔案，詳見 [近期成果對帳](../../audit/recent-delivery-2026-09-07/README.md)。

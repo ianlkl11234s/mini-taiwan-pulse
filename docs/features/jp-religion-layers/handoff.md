@@ -18,8 +18,8 @@
 
 - Loader：`src/data/jpReligionLoader.ts`（OSM／Wikidata）
 - Hook：`src/hooks/useJpReligionLayers.ts`（含 GSI PMTiles source）
-- Host：`src/layers/hosts/climateHosts.tsx`
-- UI：`src/components/sidebar/layerCatalog.ts` 的 `世界 World · 宗教`
+- Host：`src/layers/hosts/japanHosts.tsx`
+- UI：`src/components/sidebar/layerCatalog.ts` 的 `日本 Japan · 宗教`
 - Legend／popup：`src/components/LegendPanel.tsx`、`src/components/featureInfo/religionPanels.tsx`
 
 ## 硬依賴欄位

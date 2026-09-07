@@ -44,3 +44,15 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 ## 正式發布證據
 
 [statistics-production.json](../../audit/foundation-2026-09-06/evidence/statistics-production.json) 記錄每個 release 回讀與 geometry SHA。先全部以 draft 匯入並驗 count，當時 public releases=0，再於交易內發布14版。私人 lineage 不開放給 anon。歷史期別保持原意，參考行政區幾何不能作歷史邊界或面積密度趨勢推論。排程尚未啟用；目前 refresh runner 只支援 waste，其他指標暫採人工檢查新版來源後不可變匯入。
+
+## 2026-09-07 近期收整與新增資料入口
+
+42 個統計指標的匿名 catalog 本次回讀為 HTTP 200／OK（這不是逐版 values 全驗收）。正式交通批次沿用上方 production closeout；不要引用 overnight 舊分支的「尚未套用 migration」覆蓋此狀態。
+
+新增題目沿用同一條鏈：**analytics source adapter → immutable bundle/manifest → platform import/RPC → Pulse recipe/既有 renderer**。一般新增來源不另建 API、另一套統計 panel、獨立 polling 或另一份行政區 geometry；只有單位、層級或資料契約確實不同時才擴充共用契約。
+
+每份新資料需留下原始下載＋receipt、來源與授權、解析程式版本、觀測期別、單位／分母、行政區／boundary version、release ID、checksum、missing/suppressed/unallocated 與 coverage。不能把引用邊界當成歷史實際邊界，也不能把缺值補零。
+
+S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 `deploy-assets` 供應路徑分開；前端仍只經既有 RPC／geometry manifest 讀公開資料。私人來源路徑不能隨 sources RPC 送到瀏覽器。本次只完成 [具體封存清單與現況對帳](../../audit/recent-delivery-2026-09-07/README.md)，未上傳、未改 DB geometry URL，不能標成全部 S3 完成。
+
+本批 loader 已共用經 SHA-256 校驗的 immutable geometry，避免疊多項指標時反覆下載和解析同一邊界；觀測值每次獨立 join，快取不共享指標數值。

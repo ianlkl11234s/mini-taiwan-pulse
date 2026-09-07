@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-09-07T14:35:39.548Z",
+  "prefixes": {
+    "deploy-assets/world/": {
+      "truncated": false,
+      "objects": [
+        {
+          "key": "deploy-assets/world/jp_population_mesh_1km.pmtiles",
+          "bytes": 50998171,
+          "modified": "2026-09-02T06:57:46.000Z"
+        },
+        {
+          "key": "deploy-assets/world/trash_debris.geojson",
+          "bytes": 3975283,
+          "modified": "2026-07-19T14:58:19.000Z"
+        }
+      ]
+    },
+    "deploy-assets/statistics/": {
+      "truncated": false,
+      "objects": []
+    },
+    "statistics/": {
+      "truncated": false,
+      "objects": []
+    },
+    "backups/": {
+      "truncated": false,
+      "objects": []
+    }
+  },
+  "configuration": {
+    "policy": [
+      {
+        "Effect": "Allow",
+        "Principal": "*",
+        "Action": "s3:GetObject",
+        "Resource": "arn:aws:s3:::migu-gis-data-collector/flight-arc/*",
+        "hasCondition": false
+      }
+    ],
+    "versioning": {},
+    "publicAccessBlock": {
+      "PublicAccessBlockConfiguration": {
+        "BlockPublicAcls": true,
+        "IgnorePublicAcls": true,
+        "BlockPublicPolicy": false,
+        "RestrictPublicBuckets": false
+      }
+    }
+  }
+}

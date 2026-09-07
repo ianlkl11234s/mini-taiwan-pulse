@@ -15,15 +15,9 @@
 
 ## 🔴 擋合併 / 需拍板
 
-- [ ] 🔴 **人口網格 pmtiles 上傳 S3（owner 執行）**——尚未上傳，上線後該層 tile 會 404：
-      ```
-      aws s3 cp public/world/jp_population_mesh_1km.pmtiles \
-        s3://migu-gis-data-collector/deploy-assets/world/jp_population_mesh_1km.pmtiles \
-        --region ap-southeast-2
-      ```
-      ⚠️ `deployContract` 對 `/world/` 的判準是「upload 清單**或** git-track 其一即可」（nginx 有 dist fallback），
-      **不會**機械擋住這種漏上傳——`.gitignore:101` 記錄過 `power_poles.pmtiles` 正是兩條路都空的靜默退化。
-- [ ] **Batch 2 開 PR**（`feat/jp-deferred-layers` → master），走 `gh pr create` 模板 + `gh pr merge --merge`（不 squash）。
+- [x] **人口網格已存在 S3**：2026-09-07 唯讀 list 確認 `deploy-assets/world/jp_population_mesh_1km.pmtiles`，50,998,171 bytes，LastModified 2026-09-02。這只證明物件存在，不等於本次重驗全圖渲染或端對端 hash。
+- [x] **Batch 2 PR #210 已合併**：merge `0d8033c9`；舊分支保留不代表尚未交付。
+- [ ] **日本全資料 S3 副本**：Git/dist 小檔目前未全數納入封存，待依 hash 清單存入與網站供應分離的 archive 位置。
 
 ## 上游（taipei-gis-analytics）待提交
 
