@@ -1,4 +1,5 @@
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
+import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -356,6 +357,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "osmBridgeFootprints", render: () => <NetworkStructuresLegend title="OSM 原生橋梁輪廓" rows={[{ label: "原生 outline（可能不完整）", color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
   { id: "officialBridgesNewTaipei", render: () => <NetworkStructuresLegend title="新北市轄管橋梁" rows={[{ label: "近似軸線；非登錄長度", color: NETWORK_STRUCTURES_COLORS.official }, { label: "圓點：原始重合端點，無可評估軸線", color: NETWORK_STRUCTURES_COLORS.official }]} /> },
   { id: "bridgeComparisonNewTaipei", render: () => <NetworkStructuresLegend title="OSM × 官方候選比對" rows={MATCH_STATUSES} /> },
+  { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
@@ -6323,4 +6325,19 @@ function SoundCameraLocationsLegend() {
       </NoiseLegendNote>
     </div>
   );
+}
+
+function JpPoliceFacilitiesLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 320 }}>
+    <div style={{ marginBottom: 4 }}>日本警察設施</div>
+    {JP_POLICE_FACILITY_TYPES.map(c => <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+      <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color }} />{c.label}
+    </div>)}
+    <div style={{ marginTop: 5 }}><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: RADIUS.full, border: `2px solid ${JP_POLICE_DEGRADED_COLOR}` }} /> 橘色外框＝約略位置（22 點）；地址只解析到丁目／町域。</div>
+    <div>NPA 官方名冊：13,196 筆</div>
+    <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
+    <div>資料時點：2025-04-01</div>
+    <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
+  </div>;
 }

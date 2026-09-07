@@ -5,6 +5,7 @@ import { useJpAdminLayers } from "../../hooks/useJpAdminLayers";
 import { useJpStationsLayer } from "../../hooks/useJpStationsLayer";
 import { useJpAirportsLayer } from "../../hooks/useJpAirportsLayer";
 import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
+import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
@@ -93,5 +94,13 @@ export const JpPopulationMeshHost: LayerHostComponent = ({ deps }) => {
     p.jpPopulationMeshOpacity ?? 0.55,
     p.jpPopulationMeshModeIdx ?? 0,
   );
+  return null;
+};
+
+export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpPoliceFacilitiesLayer");
+  const p = useKeyOverlayParams("jpPoliceFacilities");
+  useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
+    p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1, p.jpPoliceFacilitiesTypeIdx ?? 0);
   return null;
 };

@@ -1,3 +1,4 @@
+import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
 import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
@@ -210,4 +211,23 @@ export function JpPopulationMeshPanel({ props }: { props: Record<string, unknown
       ))}
     </>
   );
+}
+
+/** MVT null may be serialized as the string "null". */
+const policeText = (v: unknown): string => v == null || v === "null" || v === "undefined" ? "" : String(v).trim();
+export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
+  const facilityType = JP_POLICE_FACILITY_TYPES.find(t => t.value === props.facility_type);
+  const precision: Record<string, string> = { mapped_poi: "地圖設施點", mapped_label: "地圖注記", address: "地址", block: "街區", chome: "丁目", town: "町域" };
+  return <>
+    <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "日本警察設施"}</Title>
+    <Row label="設施類型" value={facilityType?.label ?? "未提供"} />
+    <Row label="都道府縣" value={policeText(props.prefecture) || "未提供"} />
+    <Row label="地址" value={policeText(props.address) || "未提供"} />
+    <Row label="電話" value={policeText(props.phone) || "未提供"} />
+    <Row label="資料時點" value={policeText(props.source_as_of) || "未提供"} />
+    {props.geom_status === "degraded" && <Row label="約略位置" value="地址僅解析到丁目／町域，非精確設施位置" />}
+    <Row label="座標精度" value={precision[policeText(props.geom_precision)] ?? "未提供"} />
+    <Row label="位置來源" value={props.geometry_source === "gsi_address" ? "国土地理院 AddressSearch" : props.geometry_source === "gsi_optimal_bvmap" ? "国土地理院最適化ベクトルタイル" : "未提供"} />
+    <Row label="出典" value={JP_POLICE_ATTRIBUTION} />
+  </>;
 }

@@ -190,7 +190,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "教育", "人口", "宗教"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "治安", "教育", "人口", "宗教"];
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
@@ -1558,6 +1558,11 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    title: "治安",
+    defaultCollapsed: false,
+    groups: [{ title: "點位", layers: [fromManifest("jpPoliceFacilities")] }],
+  },
+  {
     title: "教育",
     defaultCollapsed: false,
     groups: [
@@ -1659,6 +1664,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   // 日本 tab 五主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
   "行政區": "world",
   "交通": "world",
+  "治安": "world",
   "教育": "world",
   "人口": "world",
   "宗教": "world",

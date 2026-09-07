@@ -171,6 +171,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
   { layers: ["jp-religion-gsi-circle"], type: "jpReligionGsi" },
   // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
+  { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
   { layers: ["jp-schools-circle"], type: "jpSchools" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。

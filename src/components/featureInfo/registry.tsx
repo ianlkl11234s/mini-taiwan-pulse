@@ -54,7 +54,7 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel, JpSchoolsPanel, JpPopulationMeshPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
 } from "./japanPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
 import {
@@ -347,6 +347,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpStations: JpStationsPanel,
   jpAirports: JpAirportsPanel,
   jpRailways: JpRailwaysPanel,
+  jpPoliceFacilities: JpPoliceFacilitiesPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   osmBridgeCarriers: OsmBridgeCarrierPanel,
@@ -733,6 +734,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpStations: "日本車站",
   jpAirports: "日本機場",
   jpRailways: "日本鐵道路線",
+  jpPoliceFacilities: "日本警察設施",
   jpSchools: "日本學校",
   jpPopulationMesh1km: "日本人口網格",
   osmBridgeCarriers: "OSM 橋梁承載線",

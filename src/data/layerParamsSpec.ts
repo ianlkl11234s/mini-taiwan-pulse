@@ -56,6 +56,7 @@
 // 要跳兩個檔，可讀性比現在差。要縮檔的話，先切上半段的型別與 builder
 // （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
+import { JP_POLICE_FACILITY_TYPES } from "./jpPoliceFacilityTypes";
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
 import {
@@ -1432,6 +1433,12 @@ export const LAYER_PARAMS_SPEC = {
       out: "bridgeComparisonNewTaipeiStatusIdx",
       encode: ["all", ...MATCH_STATUSES.map((item) => item.value)],
     },
+  ],
+  jpPoliceFacilities: [
+    opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),
+    { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
+      options: [{ value: "all", label: "全部" }, ...JP_POLICE_FACILITY_TYPES],
+      out: "jpPoliceFacilitiesTypeIdx", encode: ["all", ...JP_POLICE_FACILITY_TYPES.map(t => t.value)] },
   ],
   jpSchools: [opacitySlider("jpSchoolsOpacity", 0.75), scaleSlider("jpSchoolsScale", 1)],
   // 9 個模式攤平成單一 select（pop×5 年 + ratio65×4 年）：option value 是 PMTiles 屬性名

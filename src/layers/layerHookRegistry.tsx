@@ -70,7 +70,7 @@ import {
 } from "./hosts/gridHosts";
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
 import {
-  JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost,
+  JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
   JpPopulationMeshHost,
 } from "./hosts/japanHosts";
 
@@ -228,6 +228,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpStationsLayer", keys: ["jpStations"], Host: JpStationsHost },
   { id: "useJpAirportsLayer", keys: ["jpAirports"], Host: JpAirportsHost },
   { id: "useJpRailwaysLayer", keys: ["jpRailways"], Host: JpRailwaysHost },
+  { id: "useJpPoliceFacilitiesLayer", keys: ["jpPoliceFacilities"], Host: JpPoliceFacilitiesHost },
   { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },

@@ -1,3 +1,4 @@
+import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -1705,6 +1706,32 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "select"] },
     description: "新北官方橋梁與 OSM 的候選比對。",
     topics: ["交通", "路網", "bridge", "橋梁", "新北"],
+  },
+  jpPoliceFacilities: {
+    key: "jpPoliceFacilities",
+    section: { theme: "治安", group: "點位" },
+    label: "日本警察設施",
+    labelMobile: "日本警察設施",
+    expandable: true,
+    color: JP_POLICE_LAYER_COLOR,
+    icon: Shield,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_police_facilities", confidence: "HIGH" }],
+      processing: "NPA 官方名冊 13,196 筆；地圖可顯示 13,195 點；無座標 1 筆；22 點約略位置",
+      note: "設施名冊時點 2025-04-01；座標來源国土地理院，保留 geom_status 與精度語意",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useJpPoliceFacilitiesLayer 自建 mapbox-pmtiles source；source-layer=jp_police_facilities，minzoom=5 maxzoom=14；z15+ overzoom",
+      staticAssets: ["./world/jp_police_facilities.pmtiles"],
+    },
+    legend: "jpPoliceFacilities",
+    popup: "jpPoliceFacilities",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊",
+    topics: ["世界", "日本", "治安", "警察"],
   },
   jpSchools: {
     key: "jpSchools",
