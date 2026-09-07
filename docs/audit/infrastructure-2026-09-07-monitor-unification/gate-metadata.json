@@ -1,0 +1,206 @@
+[
+  {
+    "layer_key": "livestockSlaughter",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "powerLinesGlow",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "osmPowerTowers",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facPrimary",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "powerPlantGlow",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facPlanned",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facHistorical",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmPig",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmChicken",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmCattle",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmDuck",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmGoose",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmSheep",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "livestockFarmOther",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "lpgSubpackaging",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "lpgRetailers",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "lngTerminal",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "pipelineGas",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "pipelineOilGas",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "industrialRefinery",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "industrialStorageTank",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "industrialPowerPlant",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "coalTerminal",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "fossilFuelInfra",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "osmSubstationsEhv",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "osmSubstations",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "substationEhvGlow",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "osmPowerLines",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facSecondary",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facOsmSupplement",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "powerGenerationUnit",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "osmPowerPlantsStatic",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "facOffshore",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  },
+  {
+    "layer_key": "aviationRestrictedGlow",
+    "required_tier": "owner",
+    "enabled": true,
+    "lock_type": "full"
+  }
+]
