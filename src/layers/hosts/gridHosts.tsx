@@ -10,7 +10,7 @@
 //     `spatialParams` / `youbikeParams` 六個 useMemo），identity 同樣用
 //    per-key 快照當 deps —— store 保證「只有這個 key 真的變動時才換 identity」。
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, type RefObject } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { timeStore } from "../../state/timeStore";
 import { updateH3Layer, ensureH3Layers } from "../../map/h3LayerFactory";
@@ -40,6 +40,26 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
   } catch {
     return false;
   }
+}
+
+/** Re-run a grid host after Mapbox has replaced its sources during setStyle(). */
+export function bindGridStyleRehydration(map: MapboxMap, rehydrate: (map: MapboxMap) => void): () => void {
+  const onStyleLoad = () => {
+    if (styleReady(map)) rehydrate(map);
+  };
+  map.on("style.load", onStyleLoad);
+  return () => map.off("style.load", onStyleLoad);
+}
+
+function useGridStyleRehydration(
+  mapRef: RefObject<MapboxMap | null>,
+  rehydrate: (map: MapboxMap) => void,
+): void {
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    return bindGridStyleRehydration(map, rehydrate);
+  }, [mapRef, rehydrate]);
 }
 
 /** 軌道靜態線（2D Mapbox）—— `railTrackMode` 是 select（2d / 3d） */
@@ -83,13 +103,16 @@ export const H3PopulationHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, h3DataMap, h3Resolution } = deps;
   const visible = deps.layerVisibility.h3Population;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensureH3Layers(map);
+    updateH3Layer(map, h3DataMap.get(h3Resolution) ?? [], h3Params, visible);
+  }, [h3DataMap, h3Resolution, h3Params, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensureH3Layers(map);
-    const cells = h3DataMap.get(h3Resolution) ?? [];
-    updateH3Layer(map, cells, h3Params, visible);
-  }, [mapRef, h3DataMap, h3Resolution, visible, h3Params]);
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -106,16 +129,19 @@ export const PopCountHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
   const visible = deps.layerVisibility.popCount;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensurePopCountLayers(map);
+    const cells = appMode === "historical"
+      ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+      : (demographicsDataMap.get(demoResolution) ?? []);
+    updatePopCountLayer(map, cells, popCountParams, visible);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells, popCountParams, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensurePopCountLayers(map);
-    const cells =
-      appMode === "historical"
-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
-        : (demographicsDataMap.get(demoResolution) ?? []);
-    updatePopCountLayer(map, cells, popCountParams, visible);
-  }, [mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, visible, popCountParams, getYearlyCells]);
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -134,16 +160,19 @@ export const IndicatorsHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
   const visible = deps.layerVisibility.indicators;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensureIndicatorsLayers(map);
+    const cells = appMode === "historical"
+      ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+      : (demographicsDataMap.get(demoResolution) ?? []);
+    updateIndicatorsLayer(map, cells, indicatorsParams, visible);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells, indicatorsParams, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensureIndicatorsLayers(map);
-    const cells =
-      appMode === "historical"
-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
-        : (demographicsDataMap.get(demoResolution) ?? []);
-    updateIndicatorsLayer(map, cells, indicatorsParams, visible);
-  }, [mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, visible, indicatorsParams, getYearlyCells]);
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -161,13 +190,16 @@ export const SocioeconomicHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, socioDataMap, demoResolution } = deps;
   const visible = deps.layerVisibility.socioeconomic;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensureSocioLayers(map);
+    updateSocioLayer(map, socioDataMap.get(demoResolution) ?? [], socioParams, visible);
+  }, [socioDataMap, demoResolution, socioParams, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensureSocioLayers(map);
-    const cells = socioDataMap.get(demoResolution) ?? [];
-    updateSocioLayer(map, cells, socioParams, visible);
-  }, [mapRef, socioDataMap, demoResolution, visible, socioParams]);
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -185,13 +217,16 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, spatialDataMap, demoResolution } = deps;
   const visible = deps.layerVisibility.spatialEconomy;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensureSpatialLayers(map);
+    updateSpatialLayer(map, spatialDataMap.get(demoResolution) ?? [], spatialParams, visible);
+  }, [spatialDataMap, demoResolution, spatialParams, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensureSpatialLayers(map);
-    const cells = spatialDataMap.get(demoResolution) ?? [];
-    updateSpatialLayer(map, cells, spatialParams, visible);
-  }, [mapRef, spatialDataMap, demoResolution, visible, spatialParams]);
+    rehydrate(map);
+  }, [mapRef, rehydrate]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
 
@@ -211,12 +246,15 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
 
   const { mapRef, getYoubikeCellsForTime, youbikeTimeKey } = deps;
   const visible = deps.layerVisibility.youbikeFullness;
+  const rehydrate = useCallback((map: MapboxMap) => {
+    ensureYoubikeLayers(map);
+    updateYoubikeLayer(map, getYoubikeCellsForTime(timeStore.getTime()), youbikeParams, visible);
+  }, [getYoubikeCellsForTime, youbikeParams, visible]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
-    ensureYoubikeLayers(map);
-    const cells = getYoubikeCellsForTime(timeStore.getTime());
-    updateYoubikeLayer(map, cells, youbikeParams, visible);
-  }, [mapRef, getYoubikeCellsForTime, youbikeTimeKey, visible, youbikeParams]);
+    rehydrate(map);
+  }, [mapRef, rehydrate, youbikeTimeKey]);
+  useGridStyleRehydration(mapRef, rehydrate);
   return null;
 };
