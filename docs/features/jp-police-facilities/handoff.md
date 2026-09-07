@@ -53,3 +53,5 @@ NPA 負責名冊、GSI 負責位置；不推斷即時營運或值勤。唯一無
 ## PR 整合驗收（2026-09-07）
 
 以遠端 master `97cd878` 為基底整合，保留橋梁與區域統計等既有圖層；golden 原有 450 keys 不變，只新增警察設施（451 keys）。`npx tsc -b` 通過；全套 Vitest 131 files passed，1,213 passed / 3 skipped。整合版本本機 3722 另驗全密度點位。前述「未發布」與 113 files 為初版本機驗收記錄；本次已獲使用者授權建立 PR 與 merge。
+
+上游正式整合 commit：`a98e4e96f9c874dd3498edc6430698e892459f47`（analytics PR #82）。前端 PR #224。

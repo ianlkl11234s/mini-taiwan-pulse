@@ -16,4 +16,6 @@
 
 - 最新 master 整合：保留既有 450 層，新增日本警察設施。
 - TypeScript 通過；Vitest 131 files、1,213 tests passed、3 skipped。
-- 使用者已授權 commit、PR、merge；合併結果以 GitHub PR 記錄為準。
+- Frontend PR [#224](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/224)；實作 commit `a88b96f`。
+- Upstream PR [#82](https://github.com/ianlkl11234s/taipei-gis-analytics/pull/82) 已合併，squash `a98e4e96f9c874dd3498edc6430698e892459f47`。
+- Frontend squash hash 以 PR #224 的合併記錄為準。
