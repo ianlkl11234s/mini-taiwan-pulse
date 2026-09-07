@@ -17,7 +17,11 @@ import type { LayerVisibility } from "../types";
 const TIER_RANK: Record<string, number> = { free: 0, member: 1, insider: 2, owner: 3 };
 
 export function tierRank(tier: string | null | undefined): number {
-  return TIER_RANK[tier ?? "free"] ?? 0;
+  return isKnownTier(tier ?? "free") ? TIER_RANK[tier ?? "free"]! : 0;
+}
+
+function isKnownTier(tier: string): boolean {
+  return Object.prototype.hasOwnProperty.call(TIER_RANK, tier);
 }
 
 export interface LayerGate {
@@ -32,6 +36,16 @@ export interface LayerGate {
   lock_type: "ui" | "full";
 }
 export type LayerGates = ReadonlyMap<string, LayerGate>;
+
+/** Normalize untrusted RPC metadata before it becomes a frontend permission decision. */
+export function normalizeLayerGate(row: Partial<LayerGate>): LayerGate {
+  if (!isKnownTier(row.required_tier ?? "") || typeof row.enabled !== "boolean"
+    || (row.lock_type !== "ui" && row.lock_type !== "full")) {
+    return { required_tier: "owner", enabled: true, lock_type: "full" };
+  }
+  return { required_tier: row.required_tier!, enabled: row.enabled, lock_type: row.lock_type };
+}
+
 
 // ── module-level cache（null = 尚未成功載入 → 用靜態 fallback）──
 let gatesCache: LayerGates | null = null;
@@ -55,11 +69,8 @@ export async function loadLayerGates(): Promise<void> {
     if (error) throw error;
     const next = new Map<string, LayerGate>();
     for (const row of (data ?? []) as Array<{ layer_key: string; required_tier: string; enabled: boolean; lock_type?: "ui" | "full" }>) {
-      next.set(row.layer_key, {
-        required_tier: row.required_tier,
-        enabled: row.enabled,
-        lock_type: row.lock_type === "ui" ? "ui" : "full", // 缺值 fallback 'full'（fail-safe）
-      });
+      if (!row || typeof row.layer_key !== "string") throw new Error("Invalid layer gate row");
+      next.set(row.layer_key, normalizeLayerGate(row));
     }
     gatesCache = next;
     emit();
@@ -84,8 +95,10 @@ export function useLayerGates(): LayerGates | null {
 
 /**
  * 某 key 對某 tier 是否上鎖（純函式）。
- * - gates 已載入 → 權威來源（get_layer_gates 只回 enabled 的鎖定層）：
- *   不在清單 = 公開；在清單 = 依 lock_type 判定：
+ * - gates 已載入 → 僅明確有效的 enabled gate 可覆寫靜態安全清單：
+ *   靜態敏感 key 不在清單（RPC 成功但空列、資料遺漏）仍維持 owner 鎖；
+ *   full disabled / 不合法 gate 也維持 owner 底線。其他不在清單的公開 key 保持公開。
+ *   有效 gate 依 lock_type 判定：
  *     • full：tierRank(tier) < required → locked（未登入 tier=null → rank 0，也 locked）。
  *     • ui  ：未登入（tier==null）→ locked（顯示鎖頭引導登入）；
  *             已登入 → tierRank(tier) < required 才 locked（tier>=required 即開）。
@@ -99,18 +112,27 @@ export function isLayerLocked(
   gates: LayerGates | null,
 ): boolean {
   const userRank = tierRank(tier);
+  const requiresStaticOwner = GATED_LAYERS.has(key);
+  const requiresOwner = (): boolean => userRank < tierRank("owner");
   if (gates) {
     const gate = gates.get(key);
-    if (!gate) return false;
+    if (!gate) return requiresStaticOwner && requiresOwner();
+    // get_layer_gates() only returns enabled rows. A disabled full row or a malformed
+    // row must never turn a DB-protected layer into a public UI state.
+    if (!isKnownTier(gate.required_tier) || (gate.lock_type !== "ui" && gate.lock_type !== "full")) {
+      return requiresOwner();
+    }
     if (gate.lock_type === "ui") {
+      if (gate.enabled !== true) return requiresStaticOwner && requiresOwner();
       // UI 鎖：未登入一律上鎖（引導登入）；已登入依 tier 判定
       if (tier == null) return true;
       return userRank < tierRank(gate.required_tier);
     }
     // full（乾淨鎖，現狀不變）
+    if (gate.enabled !== true) return requiresOwner();
     return userRank < tierRank(gate.required_tier);
   }
-  return GATED_LAYERS.has(key) && userRank < tierRank("owner");
+  return requiresStaticOwner && requiresOwner();
 }
 
 /** 後端鎖定 RPC 對非授權者回 403 / code 42501 —— 視為「無權限」靜默處理（不噴 error / 不重試）。 */
