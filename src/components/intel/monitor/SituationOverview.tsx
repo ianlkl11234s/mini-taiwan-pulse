@@ -9,6 +9,7 @@ import type {
   PressureIndexNow, PressureSignal, SourceHealthSummary,
 } from "../../../data/intelLoaders";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 function MiniStat({
   label, en, value, color,
@@ -172,16 +173,24 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
 interface Props {
   pressure: PressureIndexNow;
   smoothedScore: number;
+  status: IntelQueryStatus;
+  lastSuccessAt: number | null;
   sourceHealth: SourceHealthSummary;
   totalEvents: number;
   severeCount: number;
 }
 
 export function SituationOverview({
-  pressure, smoothedScore, sourceHealth, totalEvents, severeCount,
+  pressure, smoothedScore, status, lastSuccessAt, sourceHealth, totalEvents, severeCount,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const level = pressureLevel(smoothedScore);
+  const level = pressureLevel(status === "ready" ? smoothedScore : 50);
+  const stale = status === "error" && lastSuccessAt !== null;
+  const availability = status === "denied"
+    ? "壓力指數無權限讀取"
+    : status === "error"
+      ? `壓力指數更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`
+      : status === "unknown" ? "壓力指數讀取中" : null;
 
   return (
     <Widget
@@ -228,7 +237,7 @@ export function SituationOverview({
             cursor: "pointer", position: "relative", lineHeight: 0,
           }}
         >
-          <PressureRing score={smoothedScore} level={level} />
+          <PressureRing score={smoothedScore} level={level} status={status} stale={stale} />
           <span
             style={{
               position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
@@ -253,8 +262,12 @@ export function SituationOverview({
 
         {/* TAIEX 2026-08-10 拆成獨立 widget 後這裡多出橫向空間 → 讓本欄吃滿，不留右側空洞 */}
         <div style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 150 }}>
-          <CompareLine delta={pressure.vs_baseline} label="vs 平常週日同時段" />
-          <CompareLine delta={pressure.vs_1h_ago} label="vs 1 小時前" />
+          {status === "ready" || stale ? <>
+            <CompareLine delta={pressure.vs_baseline} muted={stale} label={stale ? "最後成功值 · vs 基準" : "vs 平常週日同時段"} />
+            <CompareLine delta={pressure.vs_1h_ago} muted={stale} label={stale ? "最後成功值 · vs 1 小時前" : "vs 1 小時前"} />
+          </> : (
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>{availability}</span>
+          )}
           <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
             <MiniStat en="EVENTS" label="事件" value={totalEvents} />
@@ -270,7 +283,7 @@ export function SituationOverview({
         </div>
       </div>
 
-      {open && <PressureDrawer signals={pressure.per_signal} />}
+      {open && status === "ready" && <PressureDrawer signals={pressure.per_signal} />}
     </Widget>
   );
 }

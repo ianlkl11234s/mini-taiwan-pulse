@@ -12,6 +12,7 @@ import {
 } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
 function hourLabel(h: number): string {
@@ -20,6 +21,8 @@ function hourLabel(h: number): string {
 
 interface Props {
   tally: AlertTally;
+  status: IntelQueryStatus;
+  lastSuccessAt: number | null;
   series: Record<AlertGroupShort, number[]>;
   accent: string;
   nowTs: number;
@@ -343,8 +346,18 @@ function AlertDrawer({
 }
 
 // ─── AlertBoard 主元件 ───────────────────────
-export function AlertBoard({ tally, series, accent, nowTs }: Props) {
+export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
+
+  if (status !== "ready") {
+    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
+    const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
+    return (
+      <div style={{ padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
+        {label}{at}
+      </div>
+    );
+  }
 
   // 0-state — 單條綠訊息
   if (tally.total === 0) {

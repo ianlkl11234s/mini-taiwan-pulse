@@ -6,9 +6,12 @@ import {
 } from "../intelTokens";
 import type { AlertTally } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 interface Props {
   tally: AlertTally;
+  status: IntelQueryStatus;
+  lastSuccessAt: number | null;
   expanded: boolean;
   onToggle: () => void;
   activeGroups: AlertGroupShort[];
@@ -16,9 +19,21 @@ interface Props {
 }
 
 export function AlertSummaryBar({
-  tally, expanded, onToggle, activeGroups, onPickGroup,
+  tally, status, lastSuccessAt, expanded, onToggle, activeGroups, onPickGroup,
 }: Props) {
   const { total, severe, byGroup } = tally;
+
+  if (status !== "ready") {
+    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
+    const at = status === "error" && lastSuccessAt
+      ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}`
+      : "";
+    return (
+      <div style={{ flexShrink: 0, padding: "6px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
+        {label}{at}
+      </div>
+    );
+  }
 
   // 0-state — 極簡單條
   if (total === 0) {

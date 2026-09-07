@@ -7,15 +7,20 @@ import {
   type MarketIndexDailyPoint,
 } from "../../../data/intelLoaders";
 import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
 export function PressureRing({
   score,
   level,
+  status = "ready",
+  stale = false,
   size = 132,
 }: {
   score: number;
   level: PressureLevelDef;
+  status?: IntelQueryStatus;
+  stale?: boolean;
   size?: number;
 }) {
   const r = 52;
@@ -40,11 +45,11 @@ export function PressureRing({
           strokeWidth="9" strokeDasharray={`${track} ${c}`} strokeLinecap="round"
         />
         <circle
-          cx="66" cy="66" r={r} fill="none" stroke={level.color}
+          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? level.color : COLORS.textMuted}
           strokeWidth="9" strokeDasharray={`${val} ${c}`} strokeLinecap="round"
           style={{
             transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1), stroke .4s",
-            filter: hasGlow ? `drop-shadow(0 0 6px ${level.glow})` : "none",
+            filter: status === "ready" && hasGlow ? `drop-shadow(0 0 6px ${level.glow})` : "none",
           }}
         />
       </svg>
@@ -60,29 +65,29 @@ export function PressureRing({
             color: "#fff", letterSpacing: "-1px",
           }}
         >
-          {Math.round(score)}
+          {status === "ready" || stale ? Math.round(score) : "—"}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: level.color }}>
-          {level.label}
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
+          {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
         </span>
         <span
           style={{ fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "2px", color: COLORS.textFaint }}
         >
-          {level.en}
+          {status === "ready" ? level.en : "DATA"}
         </span>
       </div>
     </div>
   );
 }
 
-export function CompareLine({ delta, label }: { delta: number; label: string }) {
+export function CompareLine({ delta, label, muted = false }: { delta: number; label: string; muted?: boolean }) {
   const up = delta >= 0;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
           fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, width: 40,
-          color: up ? COLORS.statusWarn : COLORS.statusLive,
+          color: muted ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
         }}
       >
         {up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}
@@ -94,7 +99,9 @@ export function CompareLine({ delta, label }: { delta: number; label: string }) 
   );
 }
 
-export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean }) {
+export function TwseTicker({
+  data, status, lastSuccessAt, open,
+}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
   // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
   const [history, setHistory] = useState<MarketIndexDailyPoint[]>([]);
   useEffect(() => {
@@ -112,11 +119,13 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
     };
   }, [open]);
 
+  const stale = status === "error" && lastSuccessAt !== null;
+  const available = status === "ready" || stale;
   const up = data.change >= 0;
   // 台股慣例：漲紅跌綠
-  const mk = up ? "#ff4d4f" : "#16c784";
+  const mk = stale ? COLORS.textMuted : up ? "#ff4d4f" : "#16c784";
   const closed = (data.status ?? "") !== "盤中";
-  const has = data.index > 0;
+  const has = available && data.index > 0;
   const closes = history.map((p) => p.close);
   const histFirst = history[0];
   const histLast = history[history.length - 1];
@@ -147,7 +156,7 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
           }}
         >
-          {data.status ?? "—"} {data.time ?? ""}
+          {status === "ready" ? `${data.status ?? "—"} ${data.time ?? ""}` : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中"}
         </span>
       </div>
       <div style={{ display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
@@ -176,10 +185,13 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
           color: COLORS.textDim, whiteSpace: "nowrap",
         }}
       >
-        <span>H <b style={{ color: COLORS.textDefault }}>{data.high.toLocaleString()}</b></span>
-        <span>L <b style={{ color: COLORS.textDefault }}>{data.low.toLocaleString()}</b></span>
-        <span>量 <b style={{ color: COLORS.textDefault }}>{data.turnover ?? "—"}</b></span>
+        <span>H <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
+        <span>L <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
+        <span>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
       </div>
+      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+        {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
+      </span>}
       {closes.length >= 2 && histFirst && histLast && (
         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
           <span
@@ -354,4 +366,3 @@ export function Widget({
     </div>
   );
 }
-

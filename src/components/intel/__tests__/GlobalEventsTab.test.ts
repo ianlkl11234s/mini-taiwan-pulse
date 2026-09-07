@@ -8,6 +8,7 @@ vi.mock("react", async (importOriginal) => ({
   ...await importOriginal<typeof import("react")>(),
   useState: (initial: unknown) => [initial === "all" ? harness.tab : typeof initial === "function" ? initial() : initial, vi.fn()],
   useMemo: (factory: () => unknown) => factory(),
+  useCallback: (callback: unknown) => callback,
   useRef: (current: unknown) => ({ current }),
   useEffect: () => {},
   useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(),
@@ -170,5 +171,10 @@ describe("Global Events Intel tab", () => {
     expect(all).toContain("共 0 則");
     harness.tab = "alerts";
     expect(renderToStaticMarkup(panel())).toContain("SEVERITY ≥");
+  });
+
+  it("「全部」分頁不會把新聞讀取中當成空清單", () => {
+    harness.tab = "all";
+    expect(renderToStaticMarkup(panel())).toContain("正在讀取新聞資料");
   });
 });

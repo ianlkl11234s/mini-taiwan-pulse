@@ -6,6 +6,7 @@
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, cachedByKey, keyedThunkCache } from "../lib/loaderCache";
+import { isAccessDenied } from "../lib/layerGates";
 
 // TTL：對齊 60s polling interval，讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch、減輕連線池。
 const TTL_FAST = 55_000;   // 即時值（pressure / market / alertSummary）— 約每次輪詢實打一次
@@ -138,12 +139,26 @@ export interface PressureIndexNow {
   asof: string | null;   // ISO
 }
 
+export interface IntelLoadResult<T> {
+  status: "ready" | "error" | "denied";
+  data: T;
+  lastSuccessAt: number | null;
+  message?: string | null;
+}
+
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
 };
 
-async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
-  if (!supabaseConfigured) return EMPTY_PRESSURE;
+function requiredFiniteNumber(value: unknown): number | null {
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  if (typeof value !== "string" || !value.trim()) return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function _fetchPressureIndexRaw(): Promise<IntelLoadResult<PressureIndexNow>> {
+  if (!supabaseConfigured) return { status: "error", data: EMPTY_PRESSURE, lastSuccessAt: null, message: "Supabase 未設定" };
   const { data, error } = await withLoading(
     "intel:pressure-index",
     "壓力指數",
@@ -151,18 +166,30 @@ async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
   );
   if (error) {
     console.warn("[Intel] get_pressure_index_now failed:", error.message);
-    return EMPTY_PRESSURE;
+    return {
+      status: isAccessDenied(error) ? "denied" : "error",
+      data: EMPTY_PRESSURE,
+      lastSuccessAt: null,
+      message: error.message,
+    };
   }
   // RPC 可能回 single row 或 array，做防呆攤平
   const row = Array.isArray(data) ? data[0] : data;
-  if (!row) return EMPTY_PRESSURE;
+  const composite = requiredFiniteNumber(row?.composite);
+  if (!row || row.asof == null || composite === null) {
+    return { status: "error", data: EMPTY_PRESSURE, lastSuccessAt: null, message: "壓力指數尚無有效觀測值" };
+  }
   return {
-    composite: Number(row.composite ?? 0),
-    level: row.level ?? null,
-    vs_baseline: Number(row.vs_baseline ?? 0),
-    vs_1h_ago: Number(row.vs_1h_ago ?? 0),
-    per_signal: asArray<PressureSignal>(row.per_signal),
-    asof: row.asof ?? null,
+    status: "ready",
+    lastSuccessAt: Date.now(),
+    data: {
+      composite,
+      level: row.level ?? null,
+      vs_baseline: Number(row.vs_baseline ?? 0),
+      vs_1h_ago: Number(row.vs_1h_ago ?? 0),
+      per_signal: asArray<PressureSignal>(row.per_signal),
+      asof: row.asof ?? null,
+    },
   };
 }
 export const fetchPressureIndex = cachedOnce(_fetchPressureIndexRaw, TTL_FAST);
@@ -222,8 +249,8 @@ const EMPTY_MARKET: MarketIndex = {
   change: 0, change_pct: 0, turnover: null, time: null, status: null,
 };
 
-async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
-  if (!supabaseConfigured) return EMPTY_MARKET;
+async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
+  if (!supabaseConfigured) return { status: "error", data: EMPTY_MARKET, lastSuccessAt: null, message: "Supabase 未設定" };
   // realtime.* 不能直接打，走 public RPC wrapper（後端已上線 get_market_index_now）
   const { data, error } = await withLoading(
     "intel:market-index",
@@ -232,25 +259,34 @@ async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
   );
   if (error) {
     console.warn("[Intel] get_market_index_now failed:", error.message);
-    return EMPTY_MARKET;
+    return {
+      status: isAccessDenied(error) ? "denied" : "error",
+      data: EMPTY_MARKET,
+      lastSuccessAt: null,
+      message: error.message,
+    };
   }
   const row = Array.isArray(data) ? data[0] : data;
-  if (!row) return EMPTY_MARKET;
+  if (!row) return { status: "ready", data: EMPTY_MARKET, lastSuccessAt: Date.now() };
   const index = Number(row.index ?? row.idx ?? 0);
   const prev = Number(row.prev_close ?? row.y ?? 0);
   const change = Number(row.change ?? (index - prev).toFixed(2));
   const pct = Number(row.change_pct ?? (prev ? +((change / prev) * 100).toFixed(2) : 0));
   return {
-    index,
-    prev_close: prev,
-    open: Number(row.open ?? 0),
-    high: Number(row.high ?? 0),
-    low: Number(row.low ?? 0),
-    change,
-    change_pct: pct,
-    turnover: row.turnover ?? null,
-    time: row.time ?? null,
-    status: row.status ?? null,
+    status: "ready",
+    lastSuccessAt: Date.now(),
+    data: {
+      index,
+      prev_close: prev,
+      open: Number(row.open ?? 0),
+      high: Number(row.high ?? 0),
+      low: Number(row.low ?? 0),
+      change,
+      change_pct: pct,
+      turnover: row.turnover ?? null,
+      time: row.time ?? null,
+      status: row.status ?? null,
+    },
   };
 }
 export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);

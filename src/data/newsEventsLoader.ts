@@ -221,7 +221,7 @@ export async function fetchNewsEventsDayClusters(
   );
   if (error) {
     console.warn(`[NewsEvents] clusters ${cacheKey} failed:`, error.message);
-    return [];
+    throw error;
   }
   return (data ?? []) as RawCluster[];
 }

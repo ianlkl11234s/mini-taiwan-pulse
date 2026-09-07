@@ -12,6 +12,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+import { isAccessDenied } from "../lib/layerGates";
 import type { DisasterAlert } from "./disasterAlertLoader";
 import { alertGroupOf, EXCLUDED_TERMS } from "./disasterAlertTypes";
 import { MAP_GROUP_TO_SHORT } from "./alertRules";
@@ -34,6 +35,13 @@ export interface AlertSummary {
   sev_moderate: number;
   sev_severe: number;
   sev_extreme: number;
+}
+
+export interface AlertSummaryLoadResult {
+  status: "ready" | "error" | "denied";
+  data: AlertSummary[];
+  lastSuccessAt: number | null;
+  message?: string | null;
 }
 
 export interface ActiveAlert {
@@ -151,7 +159,7 @@ function normalizeCounty(raw: string | null | undefined, group: AlertGroupShort)
   return group === "earthquake" ? countyFromLocationDesc(t) : t;
 }
 
-async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
+async function _fetchAlertSummaryRaw(): Promise<AlertSummaryLoadResult> {
   try {
     const { data, error } = await withLoading(
       "alert-summary",
@@ -160,7 +168,10 @@ async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
     );
     if (error) throw error;
     const rows = (data ?? []) as SummaryRaw[];
-    return rows
+    return {
+      status: "ready",
+      lastSuccessAt: Date.now(),
+      data: rows
       .map((r): AlertSummary | null => {
         const g = asGroup(r.group);
         if (!g) return null;
@@ -175,10 +186,16 @@ async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
           sev_extreme: r.sev_extreme ?? 0,
         };
       })
-      .filter((x): x is AlertSummary => x !== null);
+      .filter((x): x is AlertSummary => x !== null),
+    };
   } catch (err) {
     console.warn("[alertsLoader] fetchAlertSummary failed:", err);
-    return [];
+    return {
+      status: isAccessDenied(err) ? "denied" : "error",
+      data: [],
+      lastSuccessAt: null,
+      message: err instanceof Error ? err.message : String(err ?? "讀取失敗"),
+    };
   }
 }
 export const fetchAlertSummary = cachedOnce(_fetchAlertSummaryRaw, TTL_FAST);

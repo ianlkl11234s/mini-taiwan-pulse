@@ -1,5 +1,5 @@
 import {
-  useEffect, useLayoutEffect, useMemo, useRef, useState,
+  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
   type ReactNode,
 } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
@@ -20,8 +20,9 @@ import {
 import {
   fetchAlertSummary, fetchAlertSeries24h,
   tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
-  type AlertSummary, type AlertSeriesPoint,
+  type AlertSeriesPoint,
 } from "../../../data/alertsLoader";
+import { useIntelPollingQuery } from "../../../hooks/useIntelPollingQuery";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import { timeStore } from "../../../state/timeStore";
 import { TimelineDock } from "./TimelineDock";
@@ -79,6 +80,8 @@ const EMPTY_MARKET: MarketIndex = {
   turnover: null, time: null, status: null,
 };
 const EMPTY_HEALTH_WEEK: PublicHealthWeek = { week: 0, diseases: [] };
+const EMPTY_CLUSTERS: Cluster[] = [];
+const EMPTY_ALERT_SUMMARY: [] = [];
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
 
@@ -294,12 +297,8 @@ export function MonitorPanel({
   // ── 全部資料 ──
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
   const [trending, setTrending] = useState<TrendingRow[]>([]);
-  const [pressure, setPressure] = useState<PressureIndexNow>(EMPTY_PRESSURE);
   const [smoothed, setSmoothed] = useState<number>(0);
-  const [market, setMarket] = useState<MarketIndex>(EMPTY_MARKET);
   const [health, setHealth] = useState<PublicHealthWeek>(EMPTY_HEALTH_WEEK);
-  const [clusters, setClusters] = useState<Cluster[]>([]);
-  const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
@@ -308,21 +307,49 @@ export function MonitorPanel({
   const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
   /** 在監完整 365 天序列（趨勢圖用）。以前只留 rows[0]，其餘直接丟掉 */
   const [prisonSeries, setPrisonSeries] = useState<PrisonDay[]>([]);
+  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
+  const loadClusters = useCallback(async () => {
+    const rows = await fetchNewsEventsDayClusters(dayKey, newsFilter);
+    const data: Cluster[] = rows.map((r) => ({
+      county: r.county,
+      location_name: r.location_name,
+      lon: r.lon,
+      lat: r.lat,
+      events: (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
+        ...e, county: r.county ?? undefined, location_name: r.location_name ?? undefined,
+        related_count: Math.max(0, arr.length - 1 - idx),
+      })),
+    }));
+    return { status: "ready" as const, data, lastSuccessAt: Date.now() };
+  }, [dayKey, newsFilter]);
+  const clustersQuery = useIntelPollingQuery({
+    enabled: open, queryKey: `${dayKey}|${fKey}`, intervalMs: 60_000,
+    emptyData: EMPTY_CLUSTERS, load: loadClusters,
+  });
+  const clusters = clustersQuery.data;
 
-  // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
+  const pressureQuery = useIntelPollingQuery({
+    enabled: open, queryKey: "pressure", intervalMs: 60_000,
+    emptyData: EMPTY_PRESSURE, load: fetchPressureIndex,
+  });
+  const marketQuery = useIntelPollingQuery({
+    enabled: open, queryKey: "market", intervalMs: 60_000,
+    emptyData: EMPTY_MARKET, load: fetchMarketIndex,
+  });
+  const alertSummaryQuery = useIntelPollingQuery({
+    enabled: open, queryKey: "alert-summary", intervalMs: 60_000,
+    emptyData: EMPTY_ALERT_SUMMARY, load: fetchAlertSummary,
+  });
+  const pressure = pressureQuery.data;
+
+  // 60s source health + trending；pressure / market / alert 由 guarded polling 管理。
   useEffect(() => {
     if (!open) return;
     let alive = true;
     const tick = () => {
-      fetchPressureIndex().then((p) => {
-        if (!alive) return;
-        setPressure(p);
-        setSmoothed((prev) => smoothPressure(prev || null, p.composite));
-      });
-      fetchMarketIndex().then((m) => alive && setMarket(m));
       fetchSourceHealth().then((s) => alive && setSourceHealth(s));
       fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
-      fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
       fetchAlertSeries24h().then((s) => alive && setAlertSeriesRows(s));
     };
     tick();
@@ -332,6 +359,11 @@ export function MonitorPanel({
       window.clearInterval(id);
     };
   }, [open]);
+
+  useEffect(() => {
+    if (pressureQuery.status !== "ready") return;
+    setSmoothed((prev) => smoothPressure(prev || null, pressureQuery.data.composite));
+  }, [pressureQuery.status, pressureQuery.data]);
 
   // 5min Power dashboard + 10min Power generation 24h（與 App.tsx 共用 cachedOnce）
   useEffect(() => {
@@ -351,6 +383,7 @@ export function MonitorPanel({
         if (isAccessDenied(e)) {
           // owner-gated RPC（PR #60 刻意鎖）：匿名/非 owner 使用者的正常路徑，非故障
           console.info("[Monitor PowerGen24h] access denied (owner-gated)", e);
+          setPowerDay(null);
           setPowerDayStatus("denied");
         } else {
           console.warn("[Monitor PowerGen24h]", e);
@@ -422,40 +455,16 @@ export function MonitorPanel({
     };
   }, [open]);
 
-  // ── 訂閱 timeStore 日期變化（rule 6）→ 重抓 clusters ──
-  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  // ── 訂閱 timeStore 日期變化（rule 6）；guarded polling 依 dayKey 重抓 clusters ──
   useEffect(() => {
     if (!open) return;
-    let alive = true;
     const handler = (key: string) => {
       if (!key) return;
       setDayKey(key);
-      fetchNewsEventsDayClusters(key, filter).then((rows) => {
-        if (!alive) return;
-        const built: Cluster[] = rows.map((r) => {
-          const events = (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
-            ...e,
-            county: r.county ?? undefined,
-            location_name: r.location_name ?? undefined,
-            related_count: Math.max(0, arr.length - 1 - idx),
-          }));
-          return {
-            county: r.county,
-            location_name: r.location_name,
-            lon: r.lon,
-            lat: r.lat,
-            events,
-          };
-        });
-        setClusters(built);
-      });
     };
     handler(timeStore.getDateKey());
     const unsub = timeStore.subscribeDate(handler);
-    return () => {
-      alive = false;
-      unsub();
-    };
+    return unsub;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, fKey]);
 
@@ -555,8 +564,8 @@ export function MonitorPanel({
   }, [clusters]);
 
   const alertTally = useMemo(
-    () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
-    [alertSummaryRows],
+    () => (alertSummaryQuery.status === "ready" ? tallySummary(alertSummaryQuery.data) : EMPTY_TALLY),
+    [alertSummaryQuery],
   );
   const alertSeries = useMemo(
     () => (alertSeriesRows.length ? indexSeries(alertSeriesRows) : emptySeries()),
@@ -684,11 +693,15 @@ export function MonitorPanel({
         onToggleExpand={onToggleExpand}
         isTrendingFor={isTrendingFor}
         nowTs={now}
+        status={clustersQuery.status}
+        lastSuccessAt={clustersQuery.lastSuccessAt}
       />
     ),
     alertBoard: (
       <AlertBoard
         tally={alertTally}
+        status={alertSummaryQuery.status}
+        lastSuccessAt={alertSummaryQuery.lastSuccessAt}
         series={alertSeries}
         accent={COLORS.accent}
         nowTs={now}
@@ -722,12 +735,14 @@ export function MonitorPanel({
       <SituationOverview
         pressure={pressure}
         smoothedScore={smoothed}
+        status={pressureQuery.status}
+        lastSuccessAt={pressureQuery.lastSuccessAt}
         sourceHealth={sourceHealth}
         totalEvents={allEventsToday.length}
         severeCount={severeCount}
       />
     ),
-    taiex: <TwseTicker data={market} open={open} />,
+    taiex: <TwseTicker data={marketQuery.data} status={marketQuery.status} lastSuccessAt={marketQuery.lastSuccessAt} open={open} />,
     liveWall: <LiveWall />,
     situationCards: <SituationCards health={health} />,
     plaBoard: <PlaBoard open={open} />,

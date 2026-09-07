@@ -5,6 +5,7 @@ import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
 import type { NewsFilter } from "../../../data/newsEventsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
+import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
 
 interface Props {
   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
@@ -24,6 +25,8 @@ interface Props {
   onToggleExpand: (id: number) => void;
   isTrendingFor: (e: IntelCardEvent) => boolean;
   nowTs: number;
+  status: IntelQueryStatus;
+  lastSuccessAt: number | null;
 }
 
 export function NewsFeedPanel({
@@ -31,8 +34,16 @@ export function NewsFeedPanel({
   timeRange, onTimeRange, county, onCounty,
   filter, onFilterChange,
   selectedId, expandedId, onSelectCard, onToggleExpand,
-  isTrendingFor, nowTs,
+  isTrendingFor, nowTs, status, lastSuccessAt,
 }: Props) {
+  const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
+  const statusVisual = status === "ready"
+    ? { color: COLORS.statusLive, background: COLORS.statusLiveSoft, border: COLORS.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
+    : status === "denied"
+      ? { color: COLORS.statusWarn, background: COLORS.statusWarnSoft, border: COLORS.statusWarnBorder, animation: "none" }
+      : status === "error"
+        ? { color: COLORS.statusErr, background: "rgba(239,68,68,0.16)", border: "rgba(239,68,68,0.45)", animation: "none" }
+        : { color: COLORS.textMuted, background: "rgba(255,255,255,0.05)", border: COLORS.borderMid, animation: "none" };
   return (
     <div
       style={{
@@ -62,25 +73,25 @@ export function NewsFeedPanel({
           style={{
             display: "inline-flex", alignItems: "center", gap: 4,
             padding: "1px 7px", borderRadius: RADIUS.md,
-            background: COLORS.statusLiveSoft,
-            border: `1px solid ${COLORS.statusLiveBorder}`,
+            background: statusVisual.background,
+            border: `1px solid ${statusVisual.border}`,
           }}
         >
           <span
             style={{
               width: 5, height: 5, borderRadius: RADIUS.full,
-              background: COLORS.statusLive,
-              boxShadow: `0 0 5px ${COLORS.statusLive}`,
-              animation: "intelRing 1.6s ease-in-out infinite",
+              background: statusVisual.color,
+              boxShadow: `0 0 5px ${statusVisual.color}`,
+              animation: statusVisual.animation,
             }}
           />
           <span
             style={{
               fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
-              color: COLORS.statusLive,
+              color: statusVisual.color,
             }}
           >
-            LIVE
+            {statusLabel}
           </span>
         </span>
         <div style={{ flex: 1 }} />
@@ -88,6 +99,12 @@ export function NewsFeedPanel({
           {events.length} 則
         </span>
       </div>
+
+      {status !== "ready" && (
+        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+        </div>
+      )}
 
       <IntelFilters
         cats={cats}
