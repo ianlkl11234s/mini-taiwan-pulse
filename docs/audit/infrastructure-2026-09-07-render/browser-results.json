@@ -1,0 +1,21 @@
+{
+  "environment": "local Vite 127.0.0.1:3739; CUA in-app browser",
+  "react_harness": {
+    "mode": "React StrictMode, synthetic map events",
+    "moves": 120,
+    "parentRenderDelta": 0,
+    "heavySiblingRenderDelta": 0,
+    "hudProbeRenderDelta": 238,
+    "repeatAfterHudRemount": "PASS"
+  },
+  "app_smoke": {
+    "normalBefore": "25.0464, 121.5318 z12.5 pitch 0 bearing 0",
+    "normalAfterZoom": "25.0494, 121.5307 z11.6 pitch 0 bearing 0",
+    "captureAfterZoom": "25.0464, 121.5318 z12.5 pitch 0 bearing 0"
+  },
+  "limits": [
+    "Not whole-App profiler counts",
+    "Not production FPS or multi-layer benchmark",
+    "No soak, outage exercise, or load test"
+  ]
+}

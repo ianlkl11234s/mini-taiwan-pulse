@@ -1,0 +1,31 @@
+
+ RUN  v3.2.6 /private/tmp/mtp-infrastructure-20260907
+
+ ❯ src/map/gfwV4TrackCustomLayer.test.ts (4 tests | 2 failed) 18ms
+   ✓ gfw v4 shared-context custom layer > initializes with Mapbox GL, renders the current frame, and disposes 4ms
+   ✓ gfw v4 shared-context custom layer > reports a spatial frame only after it reaches the render call 1ms
+   × gfw v4 shared-context custom layer > does not rebuild geometry for opacity-only changes (spatial=false) 11ms
+     → expected "spy" to be called 1 times, but got 101 times
+   × gfw v4 shared-context custom layer > does not rebuild geometry for opacity-only changes (spatial=true) 2ms
+     → expected "spy" to be called 1 times, but got 101 times
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  16:52:35
+   Duration  568ms (transform 58ms, setup 0ms, collect 254ms, tests 18ms, environment 0ms, prepare 81ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/map/gfwV4TrackCustomLayer.test.ts > gfw v4 shared-context custom layer > does not rebuild geometry for opacity-only changes (spatial=false)
+ FAIL  src/map/gfwV4TrackCustomLayer.test.ts > gfw v4 shared-context custom layer > does not rebuild geometry for opacity-only changes (spatial=true)
+AssertionError: expected "spy" to be called 1 times, but got 101 times
+ ❯ src/map/gfwV4TrackCustomLayer.test.ts:104:20
+    102|     }
+    103|     const update = spatial ? scene.updateSpatialPoints : scene.update;
+    104|     expect(update).toHaveBeenCalledTimes(1);
+       |                    ^
+    105|     expect(scene.render).toHaveBeenCalledTimes(101);
+    106|     expect(scene.setOpacity).toHaveBeenLastCalledWith(0.99);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
