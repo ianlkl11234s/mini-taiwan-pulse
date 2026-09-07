@@ -1,0 +1,62 @@
+{
+  "environment": "Codex in-app browser, Vite dev, React.StrictMode, synthetic local data, 300ms polling; no production request fault injection",
+  "observations": [
+    {
+      "action": "initial",
+      "status": "ready",
+      "data": [
+        7
+      ],
+      "query": "A"
+    },
+    {
+      "action": "Outage",
+      "status": "error",
+      "data": [
+        7
+      ],
+      "hasSuccess": true
+    },
+    {
+      "action": "Recover",
+      "status": "ready",
+      "data": [
+        7
+      ]
+    },
+    {
+      "action": "Deny",
+      "status": "denied",
+      "data": [],
+      "hasSuccess": false
+    },
+    {
+      "action": "Recover + Switch query",
+      "status": "ready",
+      "data": [
+        9
+      ],
+      "query": "B"
+    },
+    {
+      "action": "Toggle polling off",
+      "status": "unknown",
+      "calls": 158,
+      "enabled": false
+    },
+    {
+      "action": "Toggle polling on after idle",
+      "status": "ready",
+      "data": [
+        9
+      ],
+      "calls": 159,
+      "enabled": true
+    }
+  ],
+  "limitations": [
+    "Short browser acceptance only",
+    "Not a 2h/8h soak",
+    "No database load/ACL verification"
+  ]
+}
