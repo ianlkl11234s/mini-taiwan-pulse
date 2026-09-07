@@ -115,7 +115,10 @@ export function isLayerLocked(
 
 /** 後端鎖定 RPC 對非授權者回 403 / code 42501 —— 視為「無權限」靜默處理（不噴 error / 不重試）。 */
 export function isAccessDenied(err: unknown): boolean {
-  const code = (err as { code?: string } | null)?.code;
-  const msg = err instanceof Error ? err.message : String(err ?? "");
-  return code === "42501" || /42501|access denied|permission denied/i.test(msg);
+  const value = err as { code?: string | number; status?: number; message?: string } | null;
+  const code = String(value?.code ?? "");
+  const status = value?.status;
+  const msg = value?.message ?? String(err ?? "");
+  return code === "42501" || code === "401" || code === "403" || status === 401 || status === 403
+    || /42501|access denied|permission denied/i.test(msg);
 }
