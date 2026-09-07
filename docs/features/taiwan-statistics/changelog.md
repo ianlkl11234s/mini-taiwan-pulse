@@ -18,3 +18,8 @@
 
 - migration407、8指標／14版本／1346筆已正式發布，152 missing保留；anon逐版RPC與geometry雜湊回讀完成。
 - 與會員PR220整合；統計搜尋可收藏。自動refresh排程與會員場景的統計期別同步未包含。
+
+## 2026-09-07 基礎整合 PR #225
+
+- 統計共用 SHA 驗證 immutable geometry，保留各指標獨立數值與缺值；有界快取與取消等待隔離測試通過。
+- 近期成果與 S3 封存計畫統一入口：`docs/audit/recent-delivery-2026-09-07/README.md`。未上傳 S3 或改 DB geometry manifest。

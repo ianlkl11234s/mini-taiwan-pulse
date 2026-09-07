@@ -1,5 +1,7 @@
 # 近期成果、資料封存與工作線對帳
 
+> 主線整合入口：[PR #225](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/225)。下方「未合併／未部署」為各批驗收當時的紀錄；當前合併、CI 與發布狀態以 PR 及其 checks 為準。S3 封存尚未上傳。
+
 2026-09-07。本文件是此次統計、日本、會員與近期工作線的對帳入口，連回各 feature handoff，不取代上游資料契約。修改在 `codex/infrastructure-foundation-20260907`；主工作區 51 筆未提交狀態保持原樣。長跑與故障演練依使用者要求延後。
 
 ## 結論
