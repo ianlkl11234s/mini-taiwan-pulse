@@ -53,6 +53,6 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 
 每份新資料需留下原始下載＋receipt、來源與授權、解析程式版本、觀測期別、單位／分母、行政區／boundary version、release ID、checksum、missing/suppressed/unallocated 與 coverage。不能把引用邊界當成歷史實際邊界，也不能把缺值補零。
 
-S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 `deploy-assets` 供應路徑分開；前端仍只經既有 RPC／geometry manifest 讀公開資料。私人來源路徑不能隨 sources RPC 送到瀏覽器。本次只完成 [具體封存清單與現況對帳](../../audit/recent-delivery-2026-09-07/README.md)，未上傳、未改 DB geometry URL，不能標成全部 S3 完成。
+S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 `deploy-assets` 供應路徑分開；前端仍只經既有 RPC／geometry manifest 讀公開資料。私人來源路徑不能隨 sources RPC 送到瀏覽器。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。DB geometry URL 保持原樣；這是一次性檔案快照，不含完整資料庫，也不代表未來新增來源已自動封存。
 
 本批 loader 已共用經 SHA-256 校驗的 immutable geometry，避免疊多項指標時反覆下載和解析同一邊界；觀測值每次獨立 join，快取不共享指標數值。

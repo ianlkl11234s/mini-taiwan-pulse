@@ -1,12 +1,12 @@
 # 近期成果、資料封存與工作線對帳
 
-> 主線整合入口：[PR #225](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/225)。下方「未合併／未部署」為各批驗收當時的紀錄；當前合併、CI 與發布狀態以 PR 及其 checks 為準。S3 封存尚未上傳。
+> 主線整合入口：[PR #225](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/225)。下方「未合併／未部署」為各批驗收當時的紀錄；當前合併、CI 與發布狀態以 PR 及其 checks 為準。S3 封存已於 2026-09-08（台灣時間）上傳並完成驗讀，見下方「封存完成證據」。
 
 2026-09-07。本文件是此次統計、日本、會員與近期工作線的對帳入口，連回各 feature handoff，不取代上游資料契約。修改在 `codex/infrastructure-foundation-20260907`；主工作區 51 筆未提交狀態保持原樣。長跑與故障演練依使用者要求延後。
 
 ## 結論
 
-主要近期功能已合併，不能因舊 worktree 仍在就判定未交付。資料目前分別由 Git/dist、Supabase、S3 供應；「網站可用」不代表「所有原始資料都有 S3 副本」。本輪修正過期文件、統計邊界重複處理與前端 gate 缺漏判定；尚未合併本次基礎分支、上傳封存或清除舊工作線。
+主要近期功能已合併，不能因舊 worktree 仍在就判定未交付。資料目前分別由 Git/dist、Supabase、S3 供應；「網站可用」不代表「所有原始資料都有 S3 副本」。本輪修正過期文件、統計邊界重複處理與前端 gate 缺漏判定；本次基礎分支已由 PR #225 合併至主線 `6832eab`；S3 上傳進度另見下節，舊工作線保持原樣。
 
 ## 功能交付對照
 
@@ -20,7 +20,7 @@
 | 海洋／噪音 | 海洋觀測兩層、噪音／聲響六層 | PR #212、#213 已合併。此輪僅成果對帳，未重測全部資料活性。 |
 | Network Structures | 橋梁官方／OSM／比對多層 | PR #222 已合併；發布後驗收另留在 `20b11d8`，尚未併入 master。固定證據：[production readback](https://github.com/ianlkl11234s/mini-taiwan-pulse/blob/20b11d8f2e5b72e6abf76dd14c2ed3b03619f535/docs/audit/network-structures-release-20260906/production-readback.json)。 |
 | Global Events | 固定地理錨點、popup、Intel 分頁與刷新修正 | PR #207–209、#214–215 已合併；部分發布後 docs 仍在獨立分支，見 worktrees.json，不重做已交付功能。 |
-| 本次基礎整理 | Monitor、listeners、H3、HUD、GFW、房地產 lifecycle | 已有原子 commits／測試，尚在獨立分支，未部署。見前述 infrastructure audit 目錄。 |
+| 本次基礎整理 | Monitor、listeners、H3、HUD、GFW、房地產 lifecycle | 已有原子 commits／測試，已由 PR #225 合併；本紀錄不將合併等同正式部署驗收。見前述 infrastructure audit 目錄。 |
 
 GitHub merged PR 現場讀回見 merged-prs.json；本地 master 基準 `9cf23f9a`。歷史 deployment 證據與本次 runtime 讀回分列，沒有將 merge 自動等同部署。
 
@@ -28,7 +28,7 @@ GitHub merged PR 現場讀回見 merged-prs.json；本地 master 基準 `9cf23f9
 
 - 本次 `deploy-assets/world/` 完整列出兩個物件：人口網格 50,998,171 bytes、trash_debris 3,975,283 bytes。人口網格 LastModified 2026-09-02，舊 README/backlog「未上傳」已修正。
 - 已查 `deploy-assets/statistics/`、`statistics/`、`backups/` 均為空，這僅限所查 prefixes，**不證明整個帳號或其他 bucket 都沒有備份**。
-- 日本其餘多數 PMTiles／GeoJSON 使用 Git/dist。統計數值透過 Supabase RPC；geometry manifest 指向固定 commit URL 並驗 SHA-256。這條來源鏈可用，但尚沒有完整 S3 archive 的驗收紀錄。
+- 日本其餘多數 PMTiles／GeoJSON 使用 Git/dist。統計數值透過 Supabase RPC；geometry manifest 指向固定 commit URL 並驗 SHA-256。這條來源鏈可用；本次核定範圍的 S3 archive 已有下方驗收紀錄。
 - 現有 bucket policy 只列公開讀取 `flight-arc/*`；未查到 bucket versioning 啟用。沒有改 policy、versioning、既有物件或供應 URL。
 - 不能把所有 Git 小檔直接同步到 deploy-assets：nginx 部分路徑優先 `/data`，部署後遺留的 S3/volume 舊副本可能遮蔽 Git 新檔。備份應放獨立 `archives/` namespace，以 SHA-256 content key 不覆寫；不接 nginx，也不公開私人來源。
 
@@ -38,7 +38,19 @@ GitHub merged PR 現場讀回見 merged-prs.json；本地 master 基準 `9cf23f9
 
 410 個統計 manifest 宣告的檔案已逐一核對 hash／size，零不一致，見 archive-validation.json。每筆含 project、來源路徑、角色、size、SHA-256 與 proposed key；`prepare-archive.py` 可在目前本地路徑重建。原始路徑依實際 adapter 對齊（台中噪音 raw/processed 名稱不同），本清單 unresolved_paths 為空。這不是整個 Supabase dump，也未包含會員私人 rows；檔案存在不等於已查驗所有來源授權或每份 raw 足以重建所有歷史版。
 
-**狀態 PLAN_ONLY_NOT_UPLOADED**。實際上傳前需核定 destination（建議沿用現有 bucket 的私有 archives prefix，不改公開政策），對照此清單，逐物件核對 hash/size；既有同 key 不同內容要停止。完成 readback 後才可標已備份，不能因此刪本地來源。不可變 key 與 bucket versioning 是不同保障，清單不宣稱具備刪除恢復能力。
+### 封存完成證據
+
+**狀態 VERIFIED**（2026-09-08 台灣時間）。使用者明確核定上述清單與 `s3://migu-gis-data-collector/archives/`（`ap-southeast-2`）後執行。
+
+- 731 個來源檔案（4,419,917,022 bytes）去重為 700 個資料物件（4,288,505,724 bytes），另上傳 1 個原始封存清單。沒有失敗項目。
+- 每份本地檔案先驗 SHA-256／大小；S3 PutObject 指定 SHA-256 供服務端驗證，之後每件 HeadObject 讀回相同 checksum／大小。所有資料物件均為 AES256 伺服器端加密。
+- 精確清單存於 `archives/manifests/sha256/e0ab1ca85c2d9f1869c047ace912d2f988adb8cb213b9f6dab5e8573fcfea4f4.json`；下載回來重新計算 SHA-256，與本地核定清單一致。原始 `archive-plan.json` 保留當時 PLAN_ONLY 狀態與原始 bytes，當前完成狀態由 [archive-upload-receipt.json](archive-upload-receipt.json) 證明。
+- 重新讀取 bucket policy：公開讀取仍限 `flight-arc/*`；BlockPublicAcls／IgnorePublicAcls 均啟用。清單及兩個 project 各抽一物件，皆無群組 ACL grant，匿名 HEAD 均 403。
+- 本地來源保留；未更改 bucket policy、網站供應 URL、Supabase 或 deploy-assets。此次是一次性快照，不是自動排程，也不是完整資料庫備份。不可變 key 不等於 bucket versioning，未宣稱刪除後可恢復。
+
+重跑入口：`node docs/audit/recent-delivery-2026-09-07/upload-archive.mjs` 只做本地 preflight；加 `--upload` 才會寫入固定目的地。既有 checksum 不同即停止，同內容跳過，使用 IfNoneMatch 防覆寫。`verify-archive.mjs` 獨立核對本地／遠端清單、700 個 receipt 項目及私有性；工具使用本次固定本地資料路徑。
+
+本次驗證：上述 S3 runtime/readback 通過；`node --check`、`npx tsc -b`、150 test files／1300 passed／3 skipped 通過。無前端行為變更，未重做 browser／長時間監看驗收。
 
 ## 工作線如何收尾
 
@@ -69,4 +81,4 @@ GitHub merged PR 現場讀回見 merged-prs.json；本地 master 基準 `9cf23f9
 - `fa4e270`：統計 immutable geometry 共用與有界快取。
 - `72c7384`：gate metadata 缺漏／非法時保留 owner 邊界。
 
-兩筆可獨立審查；已授權本地修正與 commits 完成，未合併或部署。
+兩筆可獨立審查；已包含於 PR #225 squash commit `6832eab`。

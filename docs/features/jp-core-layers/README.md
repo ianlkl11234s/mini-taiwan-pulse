@@ -68,4 +68,4 @@
 
 ## 近期對帳
 
-日本警察設施見 [獨立 handoff](../jp-police-facilities/handoff.md)。Git/dist 供應與 S3 備份是不同契約；現有 S3 world prefix 並未涵蓋全部日本檔案，詳見 [近期成果對帳](../../audit/recent-delivery-2026-09-07/README.md)。
+日本警察設施見 [獨立 handoff](../jp-police-facilities/handoff.md)。Git/dist 供應與 S3 備份是不同契約；2026-09-08 已將核定的日本 frontend/raw/processed 檔案存入私有 archives 並驗讀；world 供應 prefix 保持原樣，詳見 [近期成果對帳](../../audit/recent-delivery-2026-09-07/README.md)。
