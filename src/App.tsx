@@ -95,6 +95,7 @@ import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
+import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MemberPanel } from "./components/member/MemberPanel";
 import { memberLibraryStore, useMemberLibrary } from "./state/memberLibraryStore";
 import { LAYER_SEARCH_INDEX } from "./lib/layerSearch";
@@ -381,7 +382,6 @@ export default function App() {
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
-  const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
 
   // 從 Registry 計算整體資料範圍（供日期導航參考）
   const dataTimeRange = useMemo(() => {
@@ -956,10 +956,15 @@ export default function App() {
   // 避免「資料 RPC 完成但場景還沒畫出來」的空窗 — state 宣告已上移至 waste lazy setup 前
 
   const [mapInstanceEvents] = useState(createMapInstanceEvents);
-  useEffect(() => () => mapInstanceEvents.dispose(), [mapInstanceEvents]);
+  const [cameraHud] = useState(createCameraHudStore);
+  useEffect(() => () => {
+    mapInstanceEvents.dispose();
+    cameraHud.dispose();
+  }, [mapInstanceEvents, cameraHud]);
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
+    cameraHud.bind(map);
     addAllLayers(map);
 
     const updateCamera = () => {
@@ -968,7 +973,6 @@ export default function App() {
       const lat = +c.lat.toFixed(4);
       const lng = +c.lng.toFixed(4);
       const p = +map.getPitch().toFixed(0);
-      setCameraInfo({ lng, lat, zoom: z, pitch: p, bearing: +map.getBearing().toFixed(0) });
       if (!privateViewRef.current) sessionTracker.logMapView(z, lat, lng, p);
     };
 
@@ -1724,7 +1728,8 @@ export default function App() {
                 hour12: false,
               })}
             </div>
-            <div
+            <CameraHud
+              store={cameraHud}
               style={{
                 fontSize: FONT_SIZE.lg,
                 fontFamily: FONT_DATA,
@@ -1733,9 +1738,7 @@ export default function App() {
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
               }}
-            >
-              {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
-            </div>
+            />
           </div>
           <button
             onClick={() => setCaptureMode(false)}
@@ -2240,15 +2243,14 @@ export default function App() {
               {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
-            <div
+            <CameraHud
+              store={cameraHud}
               style={{
                 color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
                 fontSize: FONT_SIZE.base,
                 fontFamily: FONT_DATA,
               }}
-            >
-              {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
-            </div>
+            />
           </div>
         </>
       )}
