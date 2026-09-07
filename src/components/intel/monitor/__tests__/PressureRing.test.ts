@@ -6,6 +6,10 @@ vi.mock("react", async (importOriginal) => ({
   useState: <T,>(initial: T) => [initial, vi.fn()] as const,
 }));
 
+vi.mock("../../../../hooks/useMonitorResource", () => ({
+  useMonitorResource: () => ({ status: "ready", data: [], lastSuccessAt: 1 }),
+}));
+
 import { TwseTicker } from "../PressureRing";
 
 function textOf(node: unknown): string {

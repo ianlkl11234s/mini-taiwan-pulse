@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
-import { fetchAirportHourlyPax } from "../../../data/airportPaxLoader";
+import { fetchAirportHourlyPax, type AirportPaxBucket } from "../../../data/airportPaxLoader";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "TPE", label: "桃園 TPE" },
@@ -11,43 +13,29 @@ const AIRPORTS: Array<{ code: string; label: string }> = [
   { code: "KHH", label: "高雄 KHH" },
   { code: "RMQ", label: "台中 RMQ" },
 ];
+const EMPTY_PAX: AirportPaxBucket[] = [];
 
 interface Props { open: boolean }
 
 export function AirportPaxCard({ open }: Props) {
   const [activeCode, setActiveCode] = useState("TPE");
-  const [inSeries, setInSeries] = useState<SparklinePoint[]>([]);
-  const [outSeries, setOutSeries] = useState<SparklinePoint[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    setLoading(true);
-    const tick = () => {
-      fetchAirportHourlyPax(activeCode, 24)
-        .then((rows) => {
-          if (cancelled) return;
-          // v=0 視為缺格剔除：APIS 快照常見「該小時只收到單一方向細格」，
-          // 另一方向被 RPC SUM(CASE…ELSE 0) 聚合成假 0（TPE 白天 in=0 即此類）。
-          // 剔除後由 sparkline 的 gapSec 呈現斷線；24h 加總不受影響（0 貢獻 0）。
-          const toSeries = (pick: (r: (typeof rows)[number]) => number) =>
-            rows
-              .map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: pick(r) || 0 }))
-              .filter((p) => p.v > 0);
-          setInSeries(toSeries((r) => Number(r.pax_in)));
-          setOutSeries(toSeries((r) => Number(r.pax_out)));
-        })
-        .catch((e) => console.warn("[AirportPaxCard]", e))
-        .finally(() => { if (!cancelled) setLoading(false); });
-    };
-    tick();
-    const id = window.setInterval(tick, 5 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open, activeCode]);
+  const load = useCallback(() => fetchAirportHourlyPax(activeCode, 24), [activeCode]);
+  const query = useMonitorResource({
+    open, queryKey: `airport-pax:${activeCode}`, intervalMs: 5 * 60_000,
+    emptyData: EMPTY_PAX, load,
+  });
+  const [inSeries, outSeries] = useMemo(() => {
+    // v=0 視為缺格剔除：APIS 快照常見單方向細格，避免聚合假 0 被畫成低谷。
+    const toSeries = (pick: (r: AirportPaxBucket) => number): SparklinePoint[] =>
+      query.data
+        .map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: pick(r) || 0 }))
+        .filter((p) => p.v > 0);
+    return [toSeries((r) => Number(r.pax_in)), toSeries((r) => Number(r.pax_out))];
+  }, [query.data]);
 
   const sumIn = inSeries.reduce((s, p) => s + p.v, 0);
   const sumOut = outSeries.reduce((s, p) => s + p.v, 0);
+  const hasReadableData = query.status === "ready" || query.lastSuccessAt !== null;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -81,13 +69,14 @@ export function AirportPaxCard({ open }: Props) {
         </div>
         <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: FONT_SIZE.sm }}>
           <span style={{ color: "#10b981" }}>
-            24h 入 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{sumIn.toLocaleString("zh-TW")}</span>
+            24h 入 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? sumIn.toLocaleString("zh-TW") : "—"}</span>
           </span>
           <span style={{ color: "#fb7185" }}>
-            24h 出 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{sumOut.toLocaleString("zh-TW")}</span>
+            24h 出 <span style={{ fontFamily: FONT_DATA, fontWeight: 700 }}>{hasReadableData ? sumOut.toLocaleString("zh-TW") : "—"}</span>
           </span>
         </div>
-        {loading ? (
+        <MonitorDataStatus label="機場旅客資料" query={query} />
+        {query.status === "unknown" ? (
           <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, textAlign: "center", padding: "8px 0" }}>
             載入中…
           </div>

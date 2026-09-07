@@ -1,3 +1,5 @@
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -434,6 +436,9 @@ function LiveSlot({
   );
 }
 
+const EMPTY_RESOLVER_ROWS: YtLiveVideo[] = [];
+const loadResolverRows = () => fetchLiveVideos(false);
+
 export const LiveWall = memo(function LiveWall() {
   // 預設 4 格：公視 + 中視 + TVBS + 民視（2026-08-20 三立 set → tvbs：
   // set 沒有 fallbackVideoId，@SETN 輪播單場直播會下播，resolver 沒解到就開天窗；
@@ -444,21 +449,8 @@ export const LiveWall = memo(function LiveWall() {
   const ctsLive = slots.includes("cts");
 
   // 抓 realtime.yt_live_current → handle→video_id 對照（10 min refresh）
-  const [resolvedRows, setResolvedRows] = useState<YtLiveVideo[]>([]);
-  useEffect(() => {
-    let alive = true;
-    const tick = () => {
-      fetchLiveVideos(false).then((rows) => {
-        if (alive) setResolvedRows(rows);
-      });
-    };
-    tick();
-    const id = window.setInterval(tick, 10 * 60 * 1000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, []);
+  const resolverQuery = useMonitorResource({ open: true, queryKey: "live-resolver:all", intervalMs: 10 * 60_000, emptyData: EMPTY_RESOLVER_ROWS, load: loadResolverRows });
+  const resolvedRows = resolverQuery.data;
   const resolvedMap = useMemo(() => {
     const m = new Map<string, YtLiveVideo>();
     for (const r of resolvedRows) m.set(r.handle, r);
@@ -504,6 +496,7 @@ export const LiveWall = memo(function LiveWall() {
         padding: 13, display: "flex", flexDirection: "column",
       }}
     >
+      <MonitorDataStatus label="直播解析" query={resolverQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
         <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
         <span

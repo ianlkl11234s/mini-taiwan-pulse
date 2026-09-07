@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useMemo, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
@@ -7,6 +7,8 @@ import {
   type TraDelayDay, type TraDelayTrain,
 } from "../../../data/intelLoaders";
 import { useChartTooltip } from "../../ChartHoverTooltip";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 /**
  * 台鐵誤點監測（migration 369）
@@ -27,6 +29,8 @@ import { useChartTooltip } from "../../ChartHoverTooltip";
 
 const WINDOW = 60;
 const TOP_N = 5;
+const EMPTY_TRA_DAYS: TraDelayDay[] = [];
+const EMPTY_TRA_TRAINS: TraDelayTrain[] = [];
 
 interface Props { open: boolean }
 
@@ -39,25 +43,12 @@ function delayColor(min: number | null): string {
 }
 
 export function TraDelayBoard({ open }: Props) {
-  const [days, setDays] = useState<TraDelayDay[]>([]);
-  const [trains, setTrains] = useState<TraDelayTrain[]>([]);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetchTraDelaySummary(WINDOW)
-        .then((r) => { if (!cancelled) setDays(r); })
-        .catch((e) => console.warn("[TraDelayBoard] summary", e));
-      fetchTraDelayTrains("", 5, TOP_N)
-        .then((r) => { if (!cancelled) setTrains(r); })
-        .catch((e) => console.warn("[TraDelayBoard] trains", e));
-    };
-    tick();
-    // 來源是 T+1 的每日聚合（pg_cron 01:56），一小時一次已遠快於需要
-    const id = window.setInterval(tick, 60 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const loadDays = useCallback(() => fetchTraDelaySummary(WINDOW), []);
+  const loadTrains = useCallback(() => fetchTraDelayTrains("", 5, TOP_N), []);
+  const daysQuery = useMonitorResource({ open, queryKey: "tra-delay-summary", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_DAYS, load: loadDays });
+  const trainsQuery = useMonitorResource({ open, queryKey: "tra-delay-trains", intervalMs: 60 * 60_000, emptyData: EMPTY_TRA_TRAINS, load: loadTrains });
+  const days = daysQuery.data;
+  const trains = trainsQuery.data;
 
   // 主數字用「最後一個算得出到站誤點的日子」——最新一天可能剛好缺班表（實測 175 天內有 9 天）
   const latest = useMemo(() => {
@@ -71,8 +62,10 @@ export function TraDelayBoard({ open }: Props) {
     return (
       <div>
         <SectionLabel>TRA DELAY</SectionLabel>
+        <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
+        <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
         <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
-          尚無台鐵誤點資料
+          {daysQuery.status === "unknown" ? "資料載入中…" : "尚無台鐵誤點資料"}
         </div>
       </div>
     );
@@ -85,6 +78,8 @@ export function TraDelayBoard({ open }: Props) {
   return (
     <div>
       <SectionLabel>TRA DELAY</SectionLabel>
+      <MonitorDataStatus label="台鐵誤點摘要" query={daysQuery} />
+      <MonitorDataStatus label="台鐵誤點車次" query={trainsQuery} />
 
       {/* 三個主數字 */}
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>

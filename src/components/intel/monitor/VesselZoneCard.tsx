@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
 import { MONITOR_DENSE_CARD_ZOOM } from "./monitorLayout";
@@ -8,6 +8,8 @@ import {
   type VesselZoneDay,
   type VesselZoneName,
 } from "../../../data/intelLoaders";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 /**
  * 特殊船舶接近帶 —— 中國公務船距 24 浬鄰接區外界線的每日態勢。
@@ -27,6 +29,7 @@ import {
 
 const WINDOWS = [30, 90, 120] as const;
 type WindowDays = (typeof WINDOWS)[number];
+const EMPTY_VESSEL_ZONE: VesselZoneDay[] = [];
 
 /** 監看名單（2026-08-20 用戶拍板）。漁政／海監等其餘中國類別資料層有算，但不進本卡 */
 const WATCH_CLASSES = ["中國海警", "中國海事局", "中國科研船"] as const;
@@ -169,21 +172,11 @@ const fmtDist = (nm: number | null) =>
   nm === null ? "—" : nm < 0 ? `線內 ${Math.abs(nm).toFixed(1)} 浬` : `${nm.toFixed(1)} 浬`;
 
 export function VesselZoneCard({ open = true }: { open?: boolean }) {
-  const [rows, setRows] = useState<VesselZoneDay[]>([]);
   const [windowDays, setWindowDays] = useState<WindowDays>(90);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetchVesselZoneDaily(120)
-        .then((r) => { if (!cancelled) setRows(r); })
-        .catch((e) => console.warn("[VesselZoneCard] daily", e));
-    };
-    tick();
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const loadRows = useCallback(() => fetchVesselZoneDaily(120), []);
+  const rowsQuery = useMonitorResource({ open, queryKey: "vessel-zone", intervalMs: 30 * 60_000, emptyData: EMPTY_VESSEL_ZONE, load: loadRows });
+  const rows = rowsQuery.data;
+  const hasReadableData = rowsQuery.status === "ready" || rowsQuery.lastSuccessAt !== null;
 
   const aggs = useMemo(() => aggregateByDay(rows), [rows]);
   const windowed = useMemo(() => fillDays(aggs, windowDays), [aggs, windowDays]);
@@ -222,6 +215,7 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
     // zoom：同 PlaBoard —— 本卡內文是 9~12px 字面值（含 HazardTrendBars 的 8~8.5px 軸標），
     // 疊在 MonitorPanel 的全域縮放之上補齊（見 MONITOR_DENSE_CARD_ZOOM 註解）
     <div style={{ zoom: MONITOR_DENSE_CARD_ZOOM, display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
+      <MonitorDataStatus label="特殊船舶接近帶" query={rowsQuery} />
       {/* 頭 */}
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: COLORS.textStrong }}>
@@ -246,10 +240,13 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
             </span>
           </>
         ) : (
-          <span style={{ fontSize: 11, color: COLORS.textDim }}>資料載入中…</span>
+          <span style={{ fontSize: 11, color: COLORS.textDim }}>
+            {rowsQuery.status === "unknown" ? "資料載入中…" : rowsQuery.status === "ready" ? `${windowDays} 天內無觀測紀錄` : "資料暫不可用"}
+          </span>
         )}
       </div>
 
+      {hasReadableData ? <>
       {/* 視窗切換 */}
       <div style={{ display: "flex", gap: 4 }}>
         {WINDOWS.map((w) => (
@@ -356,6 +353,9 @@ export function VesselZoneCard({ open = true }: { open?: boolean }) {
           );
         })}
       </div>
+      </> : (
+        <div style={{ fontSize: 10, color: COLORS.textDim }}>不以空資料推斷未出現特殊船舶。</div>
+      )}
 
       {/*
         誠實限制。與共機卡的關鍵差異：那邊是國防部官方全量通報，這邊是船自願廣播的 AIS。

@@ -456,7 +456,7 @@ async function fetchTyphoonSummaryUncached(): Promise<TyphoonSummary | null> {
     .select(
       "storm_id,source,valid_at,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
     );
-  if (error) throw new Error(`Supabase typhoons_active: ${error.message}`);
+  if (error) throw error;
   return pickActiveTyphoon((data ?? []) as TyphoonActiveRow[], Math.floor(Date.now() / 1000));
 }
 
@@ -528,27 +528,22 @@ function clampProximityDays(daysKey: string): number {
 }
 
 async function fetchTyphoonProximityUncached(daysKey: string): Promise<TyphoonProximityDay[]> {
-  try {
-    const { data, error } = await supabase.rpc("get_typhoon_proximity_daily", {
-      p_days: clampProximityDays(daysKey),
-    });
-    if (error) throw error;
-    const rows = (data ?? []) as ProximityRpcRow[];
-    return padTaipeiDaily(rows, clampProximityDays(daysKey), (r) => r.obs_date, (dateKey, r) => ({
-      dateKey,
-      nearestKm: r?.nearest_km ?? null,
-      stormId: r?.nearest_storm_id ?? null,
-      name: r?.nearest_name ?? null,
-      windKt: r?.nearest_wind_kt ?? null,
-      stormsNearby: r?.storms_nearby ?? 0,
-      nearby: (r?.nearby ?? []).map((n) => ({
-        stormId: n.storm_id, name: n.name, km: n.km, kt: n.kt,
-      })),
-    }));
-  } catch (e) {
-    console.warn("[TyphoonProximity] get_typhoon_proximity_daily 失敗，回空陣列:", e);
-    return [];
-  }
+  const { data, error } = await supabase.rpc("get_typhoon_proximity_daily", {
+    p_days: clampProximityDays(daysKey),
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as ProximityRpcRow[];
+  return padTaipeiDaily(rows, clampProximityDays(daysKey), (r) => r.obs_date, (dateKey, r) => ({
+    dateKey,
+    nearestKm: r?.nearest_km ?? null,
+    stormId: r?.nearest_storm_id ?? null,
+    name: r?.nearest_name ?? null,
+    windKt: r?.nearest_wind_kt ?? null,
+    stormsNearby: r?.storms_nearby ?? 0,
+    nearby: (r?.nearby ?? []).map((n) => ({
+      stormId: n.storm_id, name: n.name, km: n.km, kt: n.kt,
+    })),
+  }));
 }
 
 const fetchTyphoonProximityCached = cachedByKey(
@@ -557,7 +552,7 @@ const fetchTyphoonProximityCached = cachedByKey(
   4,
 );
 
-/** 近 N 天逐日接近程度，由舊到新。失敗回 [] */
+/** 近 N 天逐日接近程度，由舊到新。成功但無觀測才補 null / 0。 */
 export const fetchTyphoonProximityDaily = (
   days: number = DEFAULT_PROXIMITY_DAYS,
 ): Promise<TyphoonProximityDay[]> => fetchTyphoonProximityCached(String(days));

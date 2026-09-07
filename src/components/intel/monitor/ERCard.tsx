@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
@@ -10,33 +10,25 @@ import {
 } from "../../../data/erHospitalLoader";
 import { erCongestionColor, ER_LEVEL_COLORS, ER_LEVEL_LABELS, classifyErCongestion } from "../../../data/erCongestionTypes";
 import { buildErRegionGroups, buildErSummary, ER_SEVERITY_ORDER, type ErHospitalCell, type ErSummary } from "./erCardData";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 interface Props { open: boolean }
+const EMPTY_ER_LATEST: ErHospitalLatest[] = [];
+const EMPTY_ER_SERIES: ErHospital24hAllRow[] = [];
+const EMPTY_ER_TREND: ErWaitTotal14dRow[] = [];
 
 export function ERCard({ open }: Props) {
-  const [latest, setLatest] = useState<ErHospitalLatest[]>([]);
-  const [series, setSeries] = useState<ErHospital24hAllRow[]>([]);
-  const [trend14d, setTrend14d] = useState<ErWaitTotal14dRow[]>([]);
-
-  // ── latest 快照 + 全院 24h + 全台 14d 趨勢，open 時載入 + 5min poll（沿用舊 ERCard 節奏）──
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetchErHospitalLatest()
-        .then((rows) => { if (!cancelled) setLatest(rows); })
-        .catch((e) => console.warn("[ERCard] latest", e));
-      fetchErHospital24hAll()
-        .then((rows) => { if (!cancelled) setSeries(rows); })
-        .catch((e) => console.warn("[ERCard] 24h all", e));
-      fetchErWaitTotal14d()
-        .then((rows) => { if (!cancelled) setTrend14d(rows); })
-        .catch((e) => console.warn("[ERCard] wait total 14d", e));
-    };
-    tick();
-    const id = window.setInterval(tick, 5 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const loadLatest = useCallback(() => fetchErHospitalLatest(), []);
+  const loadSeries = useCallback(() => fetchErHospital24hAll(), []);
+  const loadTrend = useCallback(() => fetchErWaitTotal14d(), []);
+  const latestQuery = useMonitorResource({ open, queryKey: "er-latest", intervalMs: 5 * 60_000, emptyData: EMPTY_ER_LATEST, load: loadLatest });
+  const seriesQuery = useMonitorResource({ open, queryKey: "er-24h", intervalMs: 5 * 60_000, emptyData: EMPTY_ER_SERIES, load: loadSeries });
+  const trendQuery = useMonitorResource({ open, queryKey: "er-14d", intervalMs: 5 * 60_000, emptyData: EMPTY_ER_TREND, load: loadTrend });
+  const latest = latestQuery.data;
+  const series = seriesQuery.data;
+  const trend14d = trendQuery.data;
+  const readableLatest = latestQuery.status === "ready" || latestQuery.lastSuccessAt !== null;
 
   const groups = useMemo(() => buildErRegionGroups(latest, series), [latest, series]);
   const allHospitals = useMemo(() => groups.flatMap((g) => g.hospitals), [groups]);
@@ -73,8 +65,11 @@ export function ERCard({ open }: Props) {
         }}
       >
         <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-          ER WAIT · {latest.length} 院 24h 等一般病床
+          ER WAIT · {readableLatest ? latest.length : "—"} 院 24h 等一般病床
         </span>
+        <MonitorDataStatus label="急診最新快照" query={latestQuery} />
+        <MonitorDataStatus label="急診 24h 序列" query={seriesQuery} />
+        <MonitorDataStatus label="急診 14 天趨勢" query={trendQuery} />
 
         {allHospitals.length > 0 && <ErNationalSummaryRow summary={nationalSummary} />}
 
@@ -82,7 +77,7 @@ export function ERCard({ open }: Props) {
 
         {groups.length === 0 ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
-            資料載入中…
+            {latestQuery.status === "unknown" ? "資料載入中…" : "尚無急診觀測資料"}
           </div>
         ) : groups.map((g) => {
           const regionSummary = buildErSummary(g.hospitals);

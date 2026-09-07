@@ -4,16 +4,8 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 
-export interface PrisonDay {
-  observed_date: string;
-  total_inmates: number | null;
-  male_inmates: number | null;
-  female_inmates: number | null;
-  approved_capacity: number | null;
-  over_capacity_pct: number | null;
-  new_in_count: number | null;
-  new_out_count: number | null;
-}
+import type { PrisonDay } from "../../../data/prisonLoader";
+export type { PrisonDay } from "../../../data/prisonLoader";
 
 /** 趨勢視窗（天）。RPC 一次撈 365 天，切窗純前端 */
 const WINDOWS = [90, 365] as const;
@@ -173,7 +165,7 @@ export function PrisonCard({ latest, series = [] }: Props) {
                 回補後前者會消失，後者不該再說「資料庫只有 N 天」（那是假話）。 */}
             {allPoints.length > 1
               ? `此視窗內無資料（最新 ${latest?.observed_date ?? "—"}）`
-              : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length || 1} 天`}
+              : series.length === 0 ? "尚無可用趨勢資料" : `趨勢待回補：資料庫目前只有 ${allPoints.length || series.length} 天`}
           </div>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: isStale ? "#fbbf24" : COLORS.textDim }}>

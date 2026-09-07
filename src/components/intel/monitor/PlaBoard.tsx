@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
@@ -9,6 +9,8 @@ import {
   PLA_LEVEL_LABELS, PLA_LEVEL_COLORS, PLA_KIND_LABELS,
   type PlaSeverityDay, type PlaSituationSummary, type PlaKindStat, type PlaLevel,
 } from "../../../data/intelLoaders";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 /**
  * 共機擾台戰情板（migration 332/333）
@@ -24,32 +26,21 @@ import {
  */
 
 const WINDOW = 120;
+const EMPTY_PLA_DAYS: PlaSeverityDay[] = [];
+const EMPTY_PLA_KINDS: PlaKindStat[] = [];
 
 interface Props { open: boolean }
 
 export function PlaBoard({ open }: Props) {
-  const [days, setDays] = useState<PlaSeverityDay[]>([]);
-  const [summary, setSummary] = useState<PlaSituationSummary | null>(null);
-  const [kinds, setKinds] = useState<PlaKindStat[]>([]);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetchPlaSeverityDaily(WINDOW)
-        .then((r) => { if (!cancelled) setDays(r); })
-        .catch((e) => console.warn("[PlaBoard] severity", e));
-      fetchPlaSituationSummary(WINDOW)
-        .then((r) => { if (!cancelled) setSummary(r); })
-        .catch((e) => console.warn("[PlaBoard] summary", e));
-      fetchPlaKindSummary(WINDOW)
-        .then((r) => { if (!cancelled) setKinds(r); })
-        .catch((e) => console.warn("[PlaBoard] kinds", e));
-    };
-    tick();
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const loadDays = useCallback(() => fetchPlaSeverityDaily(WINDOW), []);
+  const loadSummary = useCallback(() => fetchPlaSituationSummary(WINDOW), []);
+  const loadKinds = useCallback(() => fetchPlaKindSummary(WINDOW), []);
+  const daysQuery = useMonitorResource({ open, queryKey: "pla-severity", intervalMs: 30 * 60_000, emptyData: EMPTY_PLA_DAYS, load: loadDays });
+  const summaryQuery = useMonitorResource({ open, queryKey: "pla-summary", intervalMs: 30 * 60_000, emptyData: null as PlaSituationSummary | null, load: loadSummary });
+  const kindsQuery = useMonitorResource({ open, queryKey: "pla-kinds", intervalMs: 30 * 60_000, emptyData: EMPTY_PLA_KINDS, load: loadKinds });
+  const days = daysQuery.data;
+  const summary = summaryQuery.data;
+  const kinds = kindsQuery.data;
 
   const latest = days.length ? days[days.length - 1]! : null;
 
@@ -69,9 +60,12 @@ export function PlaBoard({ open }: Props) {
           flex: 1, minHeight: 0,
         }}
       >
+        <MonitorDataStatus label="共機每日態勢" query={daysQuery} />
+        <MonitorDataStatus label="共機統計摘要" query={summaryQuery} />
+        <MonitorDataStatus label="共機機型統計" query={kindsQuery} />
         {!latest || !summary ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "10px 0" }}>
-            資料載入中…
+            {daysQuery.status === "unknown" || summaryQuery.status === "unknown" ? "資料載入中…" : "尚無可用共機態勢資料"}
           </div>
         ) : (
           <>

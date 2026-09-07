@@ -51,7 +51,7 @@ async function fetchPowerDashboardUncached(): Promise<PowerDashboard> {
     "供電燈號 + 區域用電",
     supabase.rpc("get_power_dashboard"),
   );
-  if (error) throw new Error(`get_power_dashboard: ${error.message}`);
+  if (error) throw error;
   const obj = (data ?? {}) as Partial<PowerDashboard>;
   return {
     status: obj.status ?? null,
@@ -81,7 +81,7 @@ async function fetchPowerDailyTrendUncached(): Promise<PowerDailyTrendRow[]> {
     "供電 30 天趨勢",
     supabase.rpc("get_power_daily_trend"),
   );
-  if (error) throw new Error(`get_power_daily_trend: ${error.message}`);
+  if (error) throw error;
   return (data ?? []) as PowerDailyTrendRow[];
 }
 const fetchPowerDailyTrendCached = cachedOnce(fetchPowerDailyTrendUncached, 30 * 60_000); // 每日才變，快取 30min
@@ -147,7 +147,7 @@ async function fetchPowerGeneration24hUncached(): Promise<PowerGenerationDay> {
     `機組 24h 出力預載`,
     supabase.rpc("get_ssot_facility_output_24h"),
   );
-  if (error) throw new Error(`get_ssot_facility_output_24h: ${error.message}`);
+  if (error) throw error;
   const obj = (data ?? {}) as Partial<PowerGenerationDay>;
   return {
     plants: obj.plants ?? [],

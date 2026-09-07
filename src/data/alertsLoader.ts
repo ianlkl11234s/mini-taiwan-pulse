@@ -277,7 +277,7 @@ async function _fetchAlertSeries24hRaw(): Promise<AlertSeriesPoint[]> {
       .filter((x): x is AlertSeriesPoint => x !== null);
   } catch (err) {
     console.warn("[alertsLoader] fetchAlertSeries24h failed:", err);
-    return [];
+    throw err;
   }
 }
 export const fetchAlertSeries24h = cachedOnce(_fetchAlertSeries24hRaw, TTL_SERIES);

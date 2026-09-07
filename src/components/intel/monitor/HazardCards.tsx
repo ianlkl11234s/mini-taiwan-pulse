@@ -13,25 +13,28 @@
  * 資料一律走 src/data/*Loader.ts（元件內不直接打 supabase）。
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
+import { MonitorDataStatus } from "./MonitorDataStatus";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import type { IntelQueryState } from "../../../hooks/useIntelPollingQuery";
 import {
-  fetchTyphoonProximityDaily, fetchTyphoonSummary, invalidateTyphoonSummary,
+  fetchTyphoonProximityDaily, fetchTyphoonSummary,
   type TyphoonProximityDay, type TyphoonSummary,
 } from "../../../data/typhoonTracksLoader";
 import {
-  fetchEarthquakeDaily, fetchEarthquakeSummary, invalidateEarthquakeSummary,
-  type EarthquakeSummary,
+  fetchEarthquakeDaily, fetchEarthquakeSummary,
+  type EarthquakeDay, type EarthquakeSummary,
 } from "../../../data/earthquakeLoader";
 import {
-  fetchNuclearDaily, fetchNuclearSummary, type NuclearSummary,
+  fetchNuclearDaily, fetchNuclearSummary, type NuclearDoseDay, type NuclearSummary,
 } from "../../../data/nuclearLoader";
 import {
-  fetchLightningDaily, fetchLightningSummary, invalidateLightningSummary,
-  LIGHTNING_TYPE_LABELS, type LightningSummary,
+  fetchLightningDaily, fetchLightningSummary,
+  LIGHTNING_TYPE_LABELS, type LightningDay, type LightningSummary,
 } from "../../../data/lightningLoader";
 
 interface Props {
@@ -39,12 +42,12 @@ interface Props {
   nowTs: number;
 }
 
-type Phase = "loading" | "ready" | "error";
+type MonitorQuery = Pick<IntelQueryState<unknown>, "status" | "lastSuccessAt">;
 
 /* ── 共用外殼 ─────────────────────────────────────────── */
 
 function HazardShell({
-  label, labelColor, tint, dot, title, badges, children, footer,
+  label, labelColor, tint, dot, title, badges, children, footer, query, dailyQuery,
 }: {
   label: string;
   labelColor: string;
@@ -55,7 +58,14 @@ function HazardShell({
   badges?: string[];
   children?: ReactNode;
   footer: string;
+  query?: MonitorQuery;
+  dailyQuery?: MonitorQuery;
 }) {
+  const queries = [query, dailyQuery].filter((q): q is MonitorQuery => q != null);
+  const denied = queries.some((q) => q.status === "denied");
+  const failed = queries.some((q) => q.status === "error");
+  const healthTitle = denied ? "資料無權限讀取" : failed ? "資料更新中斷" : title;
+  const healthDot = denied || failed ? COLORS.textDim : dot;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <SectionLabel color={labelColor}>{label}</SectionLabel>
@@ -71,8 +81,8 @@ function HazardShell({
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span
             style={{
-              width: 11, height: 11, borderRadius: RADIUS.full, background: dot,
-              boxShadow: `0 0 7px ${dot}`, flexShrink: 0,
+              width: 11, height: 11, borderRadius: RADIUS.full, background: healthDot,
+              boxShadow: `0 0 7px ${healthDot}`, flexShrink: 0,
             }}
           />
           <span
@@ -81,7 +91,7 @@ function HazardShell({
               color: COLORS.textStrong, minWidth: 0,
             }}
           >
-            {title}
+            {healthTitle}
           </span>
           <div style={{ flex: 1 }} />
           {badges?.map((b) => (
@@ -98,6 +108,8 @@ function HazardShell({
             </span>
           ))}
         </div>
+        {query && <MonitorDataStatus label={label} query={query} />}
+        {dailyQuery && <MonitorDataStatus label={`${label} 趨勢`} query={dailyQuery} />}
         {children}
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{footer}</div>
       </div>
@@ -163,43 +175,11 @@ const TREND_DAYS = 14;
  * 其餘三卡維持 14 天 —— 地震／落雷／輻射是天天有數字的連續量。
  */
 const TYPHOON_TREND_DAYS = 45;
+const EMPTY_TYHOON_PROXIMITY: TyphoonProximityDay[] = [];
+const EMPTY_EARTHQUAKE_DAILY: EarthquakeDay[] = [];
+const EMPTY_NUCLEAR_DAILY: NuclearDoseDay[] = [];
+const EMPTY_LIGHTNING_DAILY: LightningDay[] = [];
 const fetchTyphoonProximity = () => fetchTyphoonProximityDaily(TYPHOON_TREND_DAYS);
-
-/** 每張卡共用的輪詢：open 時立刻抓一次，之後每 pollMs 失效重抓 */
-function usePolledSummary<T>(
-  open: boolean,
-  fetcher: () => Promise<T>,
-  invalidate: (() => void) | null,
-  pollMs: number,
-  tag: string,
-): { data: T | null; phase: Phase } {
-  const [data, setData] = useState<T | null>(null);
-  const [phase, setPhase] = useState<Phase>("loading");
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetcher()
-        .then((d) => {
-          if (cancelled) return;
-          setData(d);
-          setPhase("ready");
-        })
-        .catch((e) => {
-          console.warn(tag, e);
-          if (!cancelled) setPhase("error");
-        });
-    };
-    tick();
-    const id = window.setInterval(() => {
-      invalidate?.();
-      tick();
-    }, pollMs);
-    return () => { cancelled = true; window.clearInterval(id); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, pollMs]);
-  return { data, phase };
-}
 
 /* ── 颱風 ─────────────────────────────────────────────── */
 
@@ -321,13 +301,15 @@ function TyphoonTrendSection({
 }
 
 export function TyphoonCard({ open, nowTs }: Props) {
-  const { data, phase } = usePolledSummary<TyphoonSummary | null>(
-    open, fetchTyphoonSummary, invalidateTyphoonSummary, 30 * 60_000, "[TyphoonCard]",
-  );
+  const summaryQuery = useMonitorResource<TyphoonSummary | null>({
+    open, queryKey: "typhoon-summary", intervalMs: 30 * 60_000, emptyData: null,
+    load: fetchTyphoonSummary,
+  });
   // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 45 天約 900ms
-  const { data: proximity } = usePolledSummary(
-    open, fetchTyphoonProximity, null, 30 * 60_000, "[TyphoonCard/proximity]",
-  );
+  const dailyQuery = useMonitorResource<TyphoonProximityDay[]>({
+    open, queryKey: "typhoon-proximity-45d", intervalMs: 30 * 60_000, emptyData: EMPTY_TYHOON_PROXIMITY,
+    load: fetchTyphoonProximity,
+  });
   // 點某一天的柱 → 下方展開那天是哪顆颱風。兩排圖共用同一個選取（同一天的兩種切面）
   const [pickedDate, setPickedDate] = useState<string | null>(null);
   const pickBar = (b: HazardBar) => {
@@ -338,21 +320,18 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const tint = "rgba(56,189,248,0.06)";
   const footer = "來源：JMA / JTWC 颱風路徑 · 活躍判定 24h";
 
-  if (phase === "error") {
+  if (summaryQuery.lastSuccessAt === null) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="颱風資料暫時無法取得" footer={footer}>
-        <Note>下次輪詢（30 分鐘）會再試一次。</Note>
+        dot={COLORS.textDim} title="活躍颱風（載入中）" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
+        {summaryQuery.status === "error" && <Note>查詢失敗，非「無活躍颱風」。</Note>}
       </HazardShell>
     );
   }
-  if (phase === "loading") {
-    return (
-      <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="活躍颱風（載入中）" footer={footer} />
-    );
-  }
-  const days = proximity ?? [];
+  const data = summaryQuery.data;
+  const days = dailyQuery.data;
 
   if (!data) {
     // 無活躍颱風時，45 天趨勢柱照常畫（見檔頭 bug 說明：RPC 349 的設計初衷就是回答
@@ -360,7 +339,9 @@ export function TyphoonCard({ open, nowTs }: Props) {
     // 沒資料（RPC 失敗或窗內真的零觀測）才退回純一句話的空狀態。
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.statusLive} title="目前無活躍颱風" footer={footer}>
+        dot={COLORS.statusLive} title="目前無活躍颱風" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
         <Note>JMA / JTWC 近 24 小時無颱風觀測回報。</Note>
         {days.length > 0 && (
           <TyphoonTrendSection days={days} pickedDate={pickedDate} onSelectBar={pickBar} />
@@ -379,7 +360,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
       dot={remote ? COLORS.statusLive : tone.dot}
-      title={remote ? "無颱風接近" : name}
+      title={remote ? "無颱風接近" : name} query={summaryQuery} dailyQuery={dailyQuery}
       badges={data.sources} footer={footer}
     >
       <MetricRow>
@@ -420,54 +401,55 @@ const EQ_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr]
 const fetchEqDaily = () => fetchEarthquakeDaily(TREND_DAYS);
 
 export function EarthquakeCard({ open, nowTs }: Props) {
-  const { data, phase } = usePolledSummary<EarthquakeSummary>(
-    open, fetchEarthquakeSummary, invalidateEarthquakeSummary, 15 * 60_000, "[EarthquakeCard]",
-  );
+  const summaryQuery = useMonitorResource<EarthquakeSummary | null>({
+    open, queryKey: "earthquake-summary", intervalMs: 15 * 60_000, emptyData: null,
+    load: fetchEarthquakeSummary,
+  });
   // 逐日趨勢與當下快照分開輪詢：兩者資料來源同一張表但聚合方式不同，
   // 且趨勢只有跨日才會變，沒必要跟快照綁在同一次請求裡。
-  const { data: daily } = usePolledSummary(
-    open, fetchEqDaily, null, 15 * 60_000, "[EarthquakeCard/daily]",
-  );
+  const dailyQuery = useMonitorResource({
+    open, queryKey: "earthquake-daily-14d", intervalMs: 15 * 60_000, emptyData: EMPTY_EARTHQUAKE_DAILY,
+    load: fetchEqDaily,
+  });
   const label = "地震 · SEISMIC";
   const tint = "rgba(255,152,0,0.05)";
   const footer = "來源：中央氣象署 CWA 地震報告";
 
-  if (phase === "error") {
+  if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="地震資料暫時無法取得" footer={footer}>
-        <Note>下次輪詢（15 分鐘）會再試一次。</Note>
+        dot={COLORS.textDim} title="最新有感地震（載入中）" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
+        {summaryQuery.status === "error" && <Note>查詢失敗，非「無地震紀錄」。</Note>}
       </HazardShell>
     );
   }
-  if (phase === "loading" || !data) {
-    return (
-      <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="最新有感地震（載入中）" footer={footer} />
-    );
-  }
+  const data = summaryQuery.data;
   const latest = data.latest;
   if (!latest) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.statusLive} title="無地震紀錄" footer={footer}>
+        dot={COLORS.statusLive} title="無地震紀錄" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
         <Note>資料庫中查無地震事件。</Note>
       </HazardShell>
     );
   }
 
   const color = magColor(latest.magnitude);
-  const eqBars: HazardBar[] = (daily ?? []).map((d) => ({
+  const eqBars: HazardBar[] = dailyQuery.data.map((d) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.count,
     level: magLevel(d.maxMag),
     note: d.maxMag != null ? `最大 M${d.maxMag.toFixed(1)}` : "無地震",
   }));
-  const eqTotal = (daily ?? []).reduce((s, d) => s + d.count, 0);
+  const eqTotal = dailyQuery.data.reduce((s, d) => s + d.count, 0);
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
-      dot={color} title="最新有感地震" footer={footer}
+      dot={color} title="最新有感地震" footer={footer} query={summaryQuery} dailyQuery={dailyQuery}
     >
       <MetricRow>
         <div>
@@ -516,35 +498,35 @@ const DOSE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusEr
 const fetchNuclearTrend = () => fetchNuclearDaily(TREND_DAYS);
 
 export function RadiationCard({ open }: Props) {
-  const { data, phase } = usePolledSummary<NuclearSummary>(
-    open, fetchNuclearSummary, null, 5 * 60_000, "[RadiationCard]",
-  );
-  // RPC（migration 348）還沒上線時 loader 安靜回 []，柱狀圖自己不渲染，卡片維持原樣
-  const { data: daily } = usePolledSummary(
-    open, fetchNuclearTrend, null, 30 * 60_000, "[RadiationCard/daily]",
-  );
+  const summaryQuery = useMonitorResource<NuclearSummary | null>({
+    open, queryKey: "nuclear-summary", intervalMs: 5 * 60_000, emptyData: null,
+    load: fetchNuclearSummary,
+  });
+  const dailyQuery = useMonitorResource({
+    open, queryKey: "nuclear-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_NUCLEAR_DAILY,
+    load: fetchNuclearTrend,
+  });
   const label = "輻射 · RADIATION";
   const tint = "rgba(34,197,94,0.05)";
   const footer = "來源：全國環境輻射即時監測站 · 自然背景 0.039–0.072 µSv/h";
 
-  if (phase === "error") {
+  if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="輻射資料暫時無法取得" footer={footer}>
-        <Note>下次輪詢（5 分鐘）會再試一次。</Note>
+        dot={COLORS.textDim} title="全國環境輻射（載入中）" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
+        {summaryQuery.status === "error" && <Note>查詢失敗，非「上游未回報任何監測站」。</Note>}
       </HazardShell>
     );
   }
-  if (phase === "loading" || !data) {
-    return (
-      <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="全國環境輻射（載入中）" footer={footer} />
-    );
-  }
+  const data = summaryQuery.data;
   if (data.total === 0) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="全國環境輻射" footer={footer}>
+        dot={COLORS.textDim} title="全國環境輻射" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
         <Note>上游未回報任何監測站。</Note>
       </HazardShell>
     );
@@ -553,7 +535,7 @@ export function RadiationCard({ open }: Props) {
   const alarm = data.alarm_count > 0;
   const watch = data.warning_count > 0;
   const dot = alarm ? COLORS.statusErr : watch ? COLORS.statusWarn : COLORS.statusLive;
-  const doseBars: HazardBar[] = (daily ?? []).map((d) => ({
+  const doseBars: HazardBar[] = dailyQuery.data.map((d) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
     // 沒有量測的日子是 null（畫灰樁）；不是 0 —— 0 µSv/h 在物理上不會發生，畫成 0 會誤導
     value: d.meanUsvh == null ? null : Number(d.meanUsvh.toFixed(3)),
@@ -564,6 +546,7 @@ export function RadiationCard({ open }: Props) {
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
       dot={dot} title="全國環境輻射" badges={[`${data.reporting}/${data.total} 站`]} footer={footer}
+      query={summaryQuery} dailyQuery={dailyQuery}
     >
       <MetricRow>
         <Metric value={fmtDose(data.avg_usvh)} unit="µSv/h 平均" />
@@ -614,32 +597,29 @@ const STRIKE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.status
 const fetchLightningTrend = () => fetchLightningDaily(TREND_DAYS);
 
 export function LightningCard({ open, nowTs }: Props) {
-  const { data, phase } = usePolledSummary<LightningSummary>(
-    open, fetchLightningSummary, invalidateLightningSummary, 5 * 60_000, "[LightningCard]",
-  );
-  // 同輻射：RPC（migration 348）未上線時回 []，圖自己不渲染
-  const { data: daily } = usePolledSummary(
-    open, fetchLightningTrend, null, 30 * 60_000, "[LightningCard/daily]",
-  );
+  const summaryQuery = useMonitorResource<LightningSummary | null>({
+    open, queryKey: "lightning-summary", intervalMs: 5 * 60_000, emptyData: null,
+    load: fetchLightningSummary,
+  });
+  const dailyQuery = useMonitorResource({
+    open, queryKey: "lightning-daily-14d", intervalMs: 30 * 60_000, emptyData: EMPTY_LIGHTNING_DAILY,
+    load: fetchLightningTrend,
+  });
   const label = "落雷 · LIGHTNING";
   const tint = "rgba(251,146,60,0.05)";
   const footer = "來源：氣象署 CWA 落雷觀測（滾動 1h，無電流強度）";
 
-  if (phase === "loading" || !data) {
+  if (summaryQuery.lastSuccessAt === null || !summaryQuery.data) {
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="全國落雷（載入中）" footer={footer} />
-    );
-  }
-  // 查詢失敗與「真的沒打雷」必須分得出來 —— 失敗畫成 0 次會謊報平安
-  if (data.failed || phase === "error") {
-    return (
-      <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
-        dot={COLORS.textDim} title="落雷資料暫時無法取得" footer={footer}>
-        <Note>查詢失敗，非「無落雷」。下次輪詢（5 分鐘）會再試一次。</Note>
+        dot={COLORS.textDim} title="全國落雷（載入中）" footer={footer}
+        query={summaryQuery} dailyQuery={dailyQuery}
+      >
+        {summaryQuery.status === "error" && <Note>查詢失敗，非「無落雷」。</Note>}
       </HazardShell>
     );
   }
+  const data = summaryQuery.data;
 
   const active = data.count1h > 0;
   const quiet = data.countDay === 0;
@@ -648,8 +628,8 @@ export function LightningCard({ open, nowTs }: Props) {
   const fallbackNote = data.fallbackCountDay > 0
     ? `台電源 今日 ${data.fallbackCountDay.toLocaleString("zh-TW")} 筆`
     : "台電源 上游斷供中（端點回空）";
-  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds((daily ?? []).map((d) => d.count));
-  const strikeBars: HazardBar[] = (daily ?? []).map((d) => ({
+  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds(dailyQuery.data.map((d) => d.count));
+  const strikeBars: HazardBar[] = dailyQuery.data.map((d) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.count,
     level: d.count > strikeP90 ? 2 : d.count > strikeMedian ? 1 : 0,
@@ -660,6 +640,7 @@ export function LightningCard({ open, nowTs }: Props) {
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
       dot={dot} title={quiet ? "今日尚無落雷" : "全國落雷"} badges={["CWA"]} footer={footer}
+      query={summaryQuery} dailyQuery={dailyQuery}
     >
       {quiet ? (
         <Note>氣象署源今日（{data.dateKey}）尚無落雷紀錄。</Note>

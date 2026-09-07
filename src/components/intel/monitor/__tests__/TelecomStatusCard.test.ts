@@ -143,7 +143,7 @@ describe("TelecomStatusCardView", () => {
       },
     ]);
     const html = renderCard(summary, "ready");
-    expect(html).toContain("網路穩定度");
+    expect(html).toContain("RIPE 量測可用");
     expect(html).not.toContain("RIPE 量測中");
     expect(html).toContain("5/14");
     expect(html).toContain("2/2");
@@ -172,16 +172,16 @@ describe("TelecomStatusCardView", () => {
     expect(html).toContain(">PARTIAL</span>");
   });
 
-  it("does not keep a previous snapshot current after refresh error", () => {
+  it("keeps the prior observation visible after refresh error without calling it CURRENT", () => {
     const summary = aggregateInternetHealthRows([{
       ...freshRow("ripe_atlas"), evidence_family: "ripe_atlas",
       signal: "ping_success_ratio_ipv4", value: 1, unit: "ratio", sample_count: 18,
     }]);
     const html = renderCard(summary, "error");
-    expect(html).toContain("RIPE 量測暫時無法更新");
-    expect(html).toContain("不沿用舊資料");
-    expect(html).toContain("0/14");
-    expect(html).not.toContain("100.0%");
+    expect(html).toContain("RIPE 量測更新中斷");
+    expect(html).toContain("保留最後成功量測");
+    expect(html).toContain("1/14");
+    expect(html).toContain("100.0%");
   });
 });
 
@@ -245,5 +245,19 @@ describe("RipeTimelineView", () => {
     expect(html).toContain("IPv6 coverage —");
     expect(html).not.toContain("coverage 67%");
     expect(html).not.toContain("coverage 100%");
+  });
+
+  it("keeps the same query's last successful curve visible when its next refresh fails", () => {
+    const html = renderToStaticMarkup(createElement(RipeTimelineView, {
+      summary: timelineSummary,
+      phase: "error",
+      range: "24h",
+      source: "ripe_atlas",
+      metric: "ping_success_ratio",
+      nowTs: 1_788_060_000,
+    }));
+    expect(html).toContain("歷史量測暫時無法更新");
+    expect(html).toContain("IPv4 coverage 67%");
+    expect(html).toContain("<svg");
   });
 });

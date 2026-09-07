@@ -242,7 +242,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
-            UNIT OUTPUT · {plants.length} 廠 24h
+            UNIT OUTPUT · {day == null && dayStatus !== "ready" ? "—" : plants.length} 廠 24h
           </span>
         </div>
         {plants.length === 0 ? (

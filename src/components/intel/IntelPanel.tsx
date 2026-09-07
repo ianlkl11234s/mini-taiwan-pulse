@@ -1,3 +1,5 @@
+import { useMonitorResource } from "../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./monitor/MonitorDataStatus";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
@@ -87,6 +89,9 @@ interface Props {
   externalSelectedId?: number | null;
 }
 
+const EMPTY_TRENDING: TrendingRow[] = [];
+const loadTrending = () => fetchNewsTrending(1, 50);
+
 export function IntelPanel({
   open,
   onClose,
@@ -127,8 +132,10 @@ export function IntelPanel({
   const [historyAlerts, setHistoryAlerts] = useState<ActiveAlert[]>([]);
   const [newsDayKey, setNewsDayKey] = useState(() => timeStore.getDateKey());
 
-  const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
-  const [trending, setTrending] = useState<TrendingRow[]>([]);
+  const sourceQuery = useMonitorResource({ open, queryKey: "source-health", intervalMs: 60_000, emptyData: EMPTY_HEALTH, load: fetchSourceHealth });
+  const trendingQuery = useMonitorResource({ open, queryKey: "trending:1:50", intervalMs: 60_000, emptyData: EMPTY_TRENDING, load: loadTrending });
+  const sourceHealth = sourceQuery.data;
+  const trending = trendingQuery.data;
   const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
   const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
   const loadClusters = useCallback(async () => {
@@ -156,22 +163,6 @@ export function IntelPanel({
     if (!open) return;
     const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => window.clearInterval(id);
-  }, [open]);
-
-  // 60s polling source health + trending（降載：cross-tab TTL 已蓋住中間的 re-render）
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    const tick = () => {
-      fetchSourceHealth().then((s) => alive && setSourceHealth(s));
-      fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
-    };
-    tick();
-    const id = window.setInterval(tick, 60_000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
   }, [open]);
 
   const alertSummaryQuery = useIntelPollingQuery({
@@ -635,6 +626,8 @@ export function IntelPanel({
         </div>
       ) : null}
 
+      <MonitorDataStatus label="來源健康" query={sourceQuery} />
+      <MonitorDataStatus label="升溫排行" query={trendingQuery} />
       {(feedTab === "news" || feedTab === "all") && clustersQuery.status !== "ready" && (
         <div style={{ padding: "8px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
           {clustersQuery.status === "denied" ? "新聞資料無權限讀取" : clustersQuery.status === "error" ? `新聞更新中斷${clustersQuery.lastSuccessAt ? ` · 最後成功 ${new Date(clustersQuery.lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}

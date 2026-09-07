@@ -35,10 +35,11 @@ describe("ISR pass card zero/null semantics", () => {
     });
   });
 
-  it("does not expose a numeric headline for stale, incomplete, error or null states", () => {
+  it("does not expose a numeric headline for stale, incomplete or null states, but retains a prior result after transport error", () => {
     expect(deriveIsrLatestDisplay(report({ freshness: "stale" }), "ready")).toMatchObject({ kind: "stale", passCount: null });
     expect(deriveIsrLatestDisplay(report({ scopeCoverageComplete: false }), "ready")).toMatchObject({ kind: "incomplete", passCount: null });
-    expect(deriveIsrLatestDisplay(report(), "error")).toMatchObject({ kind: "error", passCount: null });
+    expect(deriveIsrLatestDisplay(report(), "error")).toMatchObject({ kind: "ready", passCount: 0 });
+    expect(deriveIsrLatestDisplay(null, "error")).toMatchObject({ kind: "error", passCount: null });
     expect(deriveIsrLatestDisplay(report({ rows: [] }), "ready")).toMatchObject({ kind: "empty", passCount: null });
   });
 

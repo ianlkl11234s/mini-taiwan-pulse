@@ -157,8 +157,6 @@ export interface LightningSummary {
   fallbackSource: LightningSource;
   /** 對照來源當日累計 —— 0 代表上游持續斷供 */
   fallbackCountDay: number;
-  /** 任一查詢失敗 → 卡片顯示「資料暫時無法取得」而不是把失敗畫成 0 次 */
-  failed: boolean;
 }
 
 async function fetchLightningDayCount(
@@ -172,7 +170,7 @@ async function fetchLightningDayCount(
   const { count, error } = await (
     sinceTs == null ? lightningCountQuery : lightningCountQuery.gte("strike_ts", sinceTs)
   );
-  if (error) throw new Error(`get_lightning_day count(${source}): ${error.message}`);
+  if (error) throw error;
   return count ?? 0;
 }
 
@@ -186,7 +184,7 @@ async function fetchLightningLatest(
   const { data, error } = await lightningLatestQuery
     .order("strike_ts", { ascending: false })
     .limit(1);
-  if (error) throw new Error(`get_lightning_day latest(${source}): ${error.message}`);
+  if (error) throw error;
   return ((data ?? []) as LightningStrike[])[0] ?? null;
 }
 
@@ -200,29 +198,23 @@ async function fetchLightningSummaryUncached(): Promise<LightningSummary> {
     latest: null,
     fallbackSource: MONITOR_LIGHTNING_FALLBACK_SOURCE,
     fallbackCountDay: 0,
-    failed: false,
   };
-  try {
-    const sinceTs = Math.floor(Date.now() / 1000) - 3600;
-    const [countDay, count1h, latest, fallbackCountDay] = await Promise.all([
-      fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, null),
-      fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, sinceTs),
-      fetchLightningLatest(MONITOR_LIGHTNING_SOURCE, dateKey),
-      fetchLightningDayCount(MONITOR_LIGHTNING_FALLBACK_SOURCE, dateKey, null),
-    ]);
-    return {
-      ...base,
-      countDay,
-      count1h,
-      fallbackCountDay,
-      latest: latest
-        ? { ts: latest.strike_ts, lon: latest.lon, lat: latest.lat, strikeType: latest.strike_type }
-        : null,
-    };
-  } catch (e) {
-    console.warn("[LightningSummary]", e);
-    return { ...base, failed: true };
-  }
+  const sinceTs = Math.floor(Date.now() / 1000) - 3600;
+  const [countDay, count1h, latest, fallbackCountDay] = await Promise.all([
+    fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, null),
+    fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, sinceTs),
+    fetchLightningLatest(MONITOR_LIGHTNING_SOURCE, dateKey),
+    fetchLightningDayCount(MONITOR_LIGHTNING_FALLBACK_SOURCE, dateKey, null),
+  ]);
+  return {
+    ...base,
+    countDay,
+    count1h,
+    fallbackCountDay,
+    latest: latest
+      ? { ts: latest.strike_ts, lon: latest.lon, lat: latest.lat, strikeType: latest.strike_type }
+      : null,
+  };
 }
 
 const fetchLightningSummaryCached = cachedOnce(fetchLightningSummaryUncached, 5 * 60_000);
@@ -238,12 +230,8 @@ export const invalidateLightningSummary = (): void => fetchLightningSummaryCache
 //  Monitor 落雷卡歷史趨勢（RPC 348 get_lightning_daily，近 N 天逐日）
 // ══════════════════════════════════════════════════════════════════
 //
-// gis-platform migration 348 尚未 apply（待 user review）之前，PostgREST 對
-// 不存在的函式回 404 / code PGRST202——這類「還沒上線」的失敗才安靜拿到空陣列、
-// 用 console.debug 不噴紅字；其餘（500 / RLS 撤權 / 網路錯誤…）一律 console.warn
-// 仍照樣回 []（卡片還是要優雅降級，只是不能再無聲吞掉真正的故障，見
-// isMissingRpcError）。migration apply 後 isMissingRpcError 分支自然不會再命中，
-// 不用再改本檔。
+// RPC 未部署、RLS 或網路失敗都必須 reject；只有 RPC 成功且 rows 為空才回 []。
+// 保留原始錯誤物件，讓 Monitor 能把 42501 顯示為 denied 並清除舊資料。
 //
 // 補零口徑刻意跟 earthquakeLoader.ts 的 fetchEarthquakeDaily 不同一部分、
 // 相同一部分：count 缺日補 0（跟地震一樣，COUNT() 對空集合就是 0），但
@@ -256,8 +244,8 @@ export const invalidateLightningSummary = (): void => fetchLightningSummaryCache
 // 最舊一天擠掉、同時把 today 補成一根假的「今日 0 次」柱——每天都錯一格。
 // 改錨在 RPC 實際回傳的最新一筆 strike_date（=表內 MAX(strike_date)，
 // 正常情況下就是昨天；pipeline 落後時右界也會誠實跟著落後，而不是用假零
-// 蓋過去）。rows 為空（RPC 成功但聚合表全空）直接回 []，比照 RPC 未上線
-// 的降級行為——沒有任何一天有資料時，軸該錨在哪一天本來就無意義。
+// 蓋過去）。rows 為空（RPC 成功但聚合表全空）直接回 []——沒有任何一天有資料時，
+// 軸該錨在哪一天本來就無意義。
 //
 // 刻意不包 withLoading：Monitor 面板背景輪詢（30min 一次），非圖層載入 ——
 // 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 loadingRegistryContract.test.ts
@@ -295,39 +283,22 @@ function padLightningDaily(rows: LightningDailyRpcRow[], days: number): Lightnin
   }));
 }
 
-/** PostgREST 對不存在的函式回 PGRST202（HTTP 404）——這類才是「RPC 還沒上線」。 */
-function isMissingRpcError(error: { code?: string } | null, status: number): boolean {
-  return error?.code === "PGRST202" || status === 404;
-}
-
 function clampDailyDays(daysKey: string): number {
   return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
 }
 
 async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDay[]> {
-  try {
-    const { data, error, status } = await supabase.rpc("get_lightning_daily", {
-      p_days: clampDailyDays(daysKey),
-      // ⚠️ 一定要指定來源。RPC 的 p_source=null 會把 cwa 與 taipower **加總**，
-      // 但兩者是同一批落雷的兩份獨立觀測，加起來等於重複計算
-      // （實測 2026-08-14：cwa 2985 + taipower 2204 = 5189）。
-      // 卡片的主數字（今日累計／近 1h）走的是氣象署，趨勢圖必須同口徑，
-      // 否則同一張卡上下兩半的數字對不起來。台電源另有斷供問題，見檔頭。
-      p_source: "cwa",
-    });
-    if (error) {
-      if (isMissingRpcError(error, status)) {
-        console.debug("[LightningDaily] get_lightning_daily 尚未上線，回空陣列:", error);
-      } else {
-        console.warn("[LightningDaily] get_lightning_daily 查詢失敗，回空陣列:", error);
-      }
-      return [];
-    }
-    return padLightningDaily((data ?? []) as LightningDailyRpcRow[], clampDailyDays(daysKey));
-  } catch (e) {
-    console.warn("[LightningDaily] get_lightning_daily 查詢例外，回空陣列:", e);
-    return [];
-  }
+  const { data, error } = await supabase.rpc("get_lightning_daily", {
+    p_days: clampDailyDays(daysKey),
+    // ⚠️ 一定要指定來源。RPC 的 p_source=null 會把 cwa 與 taipower **加總**，
+    // 但兩者是同一批落雷的兩份獨立觀測，加起來等於重複計算
+    // （實測 2026-08-14：cwa 2985 + taipower 2204 = 5189）。
+    // 卡片的主數字（今日累計／近 1h）走的是氣象署，趨勢圖必須同口徑，
+    // 否則同一張卡上下兩半的數字對不起來。台電源另有斷供問題，見檔頭。
+    p_source: "cwa",
+  });
+  if (error) throw error;
+  return padLightningDaily((data ?? []) as LightningDailyRpcRow[], clampDailyDays(daysKey));
 }
 
 const fetchLightningDailyCached = cachedByKey<LightningDay[]>(
@@ -338,8 +309,7 @@ const fetchLightningDailyCached = cachedByKey<LightningDay[]>(
 
 /**
  * 過去 days 天逐日落雷趨勢，由舊到新；右界是資料實際回溯到的最新一天
- * （通常是昨天，不保證是今天，見檔頭錨點說明）。RPC 未上線、失敗、或
- * 聚合表全空回 []。
+ * （通常是昨天，不保證是今天，見檔頭錨點說明）。成功但聚合表全空回 []。
  */
 export const fetchLightningDaily = (
   days: number = DEFAULT_LIGHTNING_DAILY_DAYS,

@@ -8,19 +8,17 @@ import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelToke
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { type IntelCardEvent } from "../IntelCard";
 import { type TimeRange } from "../IntelFilters";
-import {
-  fetchSourceHealth, fetchNewsTrending, trendingKeys as buildTrendingKeys,
-  fetchPressureIndex, fetchMarketIndex, fetchPublicHealthWeekly,
-  type SourceHealthSummary, type TrendingRow,
-  type PressureIndexNow, type MarketIndex, type PublicHealthWeek,
-} from "../../../data/intelLoaders";
+import { fetchPressureIndex, fetchMarketIndex, trendingKeys as buildTrendingKeys,
+  type PressureIndexNow, type MarketIndex } from "../../../data/intelLoaders";
+import { useMonitorDashboardData } from "../../../hooks/useMonitorDashboardData";
+import { MonitorDataStatus } from "./MonitorDataStatus";
+
 import {
   fetchNewsEventsDayClusters, type NewsFilter,
 } from "../../../data/newsEventsLoader";
 import {
-  fetchAlertSummary, fetchAlertSeries24h,
+  fetchAlertSummary,
   tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
-  type AlertSeriesPoint,
 } from "../../../data/alertsLoader";
 import { useIntelPollingQuery } from "../../../hooks/useIntelPollingQuery";
 import type { NewsCategory } from "../../../data/newsEventTypes";
@@ -37,7 +35,7 @@ import { PowerCard } from "./PowerCard";
 import { HotspotsWidget } from "./HotspotsWidget";
 import { HourlyHistogramWidget } from "./HourlyHistogramWidget";
 import { TriageWidget } from "./TriageWidget";
-import { PrisonCard, type PrisonDay } from "./PrisonCard";
+import { PrisonCard } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
 import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
@@ -58,20 +56,8 @@ import { buildMonitorTree, nodeWidth, type MonitorNode } from "./monitorPacking"
 import {
   MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
 } from "./monitorSplitLayout";
-import { supabase } from "../../../lib/supabase";
-import { isAccessDenied } from "../../../lib/layerGates";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
-import {
-  fetchPowerDashboard, invalidatePowerDashboard,
-  fetchPowerGeneration24h, invalidatePowerGeneration24h,
-  fetchPowerDailyTrend,
-  type PowerDashboard, type PowerGenerationDay, type PowerDailyTrendRow,
-} from "../../../data/energyLoader";
-import type { PowerDayStatus } from "./PowerCard";
 
-const EMPTY_HEALTH: SourceHealthSummary = {
-  total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
-};
 const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
 };
@@ -79,7 +65,6 @@ const EMPTY_MARKET: MarketIndex = {
   index: 0, prev_close: 0, open: 0, high: 0, low: 0, change: 0, change_pct: 0,
   turnover: null, time: null, status: null,
 };
-const EMPTY_HEALTH_WEEK: PublicHealthWeek = { week: 0, diseases: [] };
 const EMPTY_CLUSTERS: Cluster[] = [];
 const EMPTY_ALERT_SUMMARY: [] = [];
 
@@ -246,6 +231,8 @@ interface Cluster {
 }
 
 interface Props {
+  /** Existing owner policy, resolved by App; null never exposes protected card data. */
+  privateDataScope?: string | null;
   open: boolean;
   onClose: () => void;
   /**
@@ -263,7 +250,7 @@ interface Props {
 }
 
 export function MonitorPanel({
-  open, onClose, filter: filterProp, onFilterChange: onFilterChangeProp,
+  open, onClose, privateDataScope = null, filter: filterProp, onFilterChange: onFilterChangeProp,
   onSelectLocation, externalSelectedId,
   mode: modeProp, onModeChange: onModeChangeProp,
 }: Props) {
@@ -295,18 +282,11 @@ export function MonitorPanel({
   const setMode = onModeChangeProp ?? setModeState;
 
   // ── 全部資料 ──
-  const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
-  const [trending, setTrending] = useState<TrendingRow[]>([]);
+  const dashboard = useMonitorDashboardData(open, privateDataScope);
+  const sourceHealth = dashboard.sourceHealth.data;
+  const trending = dashboard.trending.data;
+  const alertSeriesRows = dashboard.alertSeries.data;
   const [smoothed, setSmoothed] = useState<number>(0);
-  const [health, setHealth] = useState<PublicHealthWeek>(EMPTY_HEALTH_WEEK);
-  const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
-  const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
-  const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
-  const [powerDayStatus, setPowerDayStatus] = useState<PowerDayStatus>("loading");
-  const [powerTrend, setPowerTrend] = useState<PowerDailyTrendRow[]>([]);
-  const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
-  /** 在監完整 365 天序列（趨勢圖用）。以前只留 rows[0]，其餘直接丟掉 */
-  const [prisonSeries, setPrisonSeries] = useState<PrisonDay[]>([]);
   const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
   const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
   const loadClusters = useCallback(async () => {
@@ -343,117 +323,10 @@ export function MonitorPanel({
   });
   const pressure = pressureQuery.data;
 
-  // 60s source health + trending；pressure / market / alert 由 guarded polling 管理。
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    const tick = () => {
-      fetchSourceHealth().then((s) => alive && setSourceHealth(s));
-      fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
-      fetchAlertSeries24h().then((s) => alive && setAlertSeriesRows(s));
-    };
-    tick();
-    const id = window.setInterval(tick, 60_000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, [open]);
-
   useEffect(() => {
     if (pressureQuery.status !== "ready") return;
     setSmoothed((prev) => smoothPressure(prev || null, pressureQuery.data.composite));
   }, [pressureQuery.status, pressureQuery.data]);
-
-  // 5min Power dashboard + 10min Power generation 24h（與 App.tsx 共用 cachedOnce）
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    const tickFast = () => {
-      fetchPowerDashboard().then((d) => alive && setPowerDashboard(d))
-        .catch((e) => console.warn("[Monitor PowerDashboard]", e));
-    };
-    const tickSlow = () => {
-      fetchPowerGeneration24h().then((d) => {
-        if (!alive) return;
-        setPowerDay(d);
-        setPowerDayStatus("ready");
-      }).catch((e) => {
-        if (!alive) return;
-        if (isAccessDenied(e)) {
-          // owner-gated RPC（PR #60 刻意鎖）：匿名/非 owner 使用者的正常路徑，非故障
-          console.info("[Monitor PowerGen24h] access denied (owner-gated)", e);
-          setPowerDay(null);
-          setPowerDayStatus("denied");
-        } else {
-          console.warn("[Monitor PowerGen24h]", e);
-          setPowerDayStatus("error");
-        }
-      });
-    };
-    tickFast();
-    tickSlow();
-    const idFast = window.setInterval(() => {
-      invalidatePowerDashboard();
-      tickFast();
-    }, 5 * 60_000);
-    const idSlow = window.setInterval(() => {
-      invalidatePowerGeneration24h();
-      tickSlow();
-    }, 10 * 60_000);
-    return () => {
-      alive = false;
-      window.clearInterval(idFast);
-      window.clearInterval(idSlow);
-    };
-  }, [open]);
-
-  // 30min Power daily trend（每日才變一次；PowerCard 為 timeline-isolated 卡片，不吃 currentTime）
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    const tick = () => {
-      fetchPowerDailyTrend().then((rows) => alive && setPowerTrend(rows))
-        .catch((e) => console.warn("[Monitor PowerDailyTrend]", e));
-    };
-    tick();
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { alive = false; window.clearInterval(id); };
-  }, [open]);
-
-  // 30min Prison population (最新一筆，realtime.prison_population_daily PK=observed_date)
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    const tick = () => {
-      supabase.rpc("get_prison_population_window", { p_days: 365 })
-        .then(({ data, error }) => {
-          if (!alive) return;
-          if (error) { console.warn("[Monitor Prison]", error); return; }
-          const rows = (data ?? []) as PrisonDay[];
-          setPrisonLatest(rows[0] ?? null);
-          setPrisonSeries(rows);
-        });
-    };
-    tick();
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { alive = false; window.clearInterval(id); };
-  }, [open]);
-
-  // week-once Health（共機的輪詢 2026-08-03 起由 PlaBoard 自己負責）
-  useEffect(() => {
-    if (!open) return;
-    let alive = true;
-    fetchPublicHealthWeekly().then((h) => alive && setHealth(h));
-    const id = window.setInterval(() => {
-      if (!alive) return;
-      fetchPublicHealthWeekly().then((h) => alive && setHealth(h));
-    }, 30 * 60 * 1000);
-    return () => {
-      alive = false;
-      window.clearInterval(id);
-    };
-  }, [open]);
 
   // ── 訂閱 timeStore 日期變化（rule 6）；guarded polling 依 dayKey 重抓 clusters ──
   useEffect(() => {
@@ -671,9 +544,14 @@ export function MonitorPanel({
   const severeCount = allEventsToday.filter((e) => (e.severity ?? 0) >= 3).length;
 
   // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
+  const newsDerived = (children: ReactNode) => <>
+    <MonitorDataStatus label="新聞資料" query={clustersQuery} />
+    {clustersQuery.lastSuccessAt !== null ? children : null}
+  </>;
+
   const widgets: Record<MonitorWidgetId, ReactNode> = {
     newsFeed: (
-      <NewsFeedPanel
+      <><MonitorDataStatus label="升溫排行" query={dashboard.trending} /><NewsFeedPanel
         events={flatEvents}
         cats={cats}
         onToggleCat={toggleCat}
@@ -695,21 +573,21 @@ export function MonitorPanel({
         nowTs={now}
         status={clustersQuery.status}
         lastSuccessAt={clustersQuery.lastSuccessAt}
-      />
+      /></>
     ),
     alertBoard: (
-      <AlertBoard
+      <><MonitorDataStatus label="警報歷史" query={dashboard.alertSeries} /><AlertBoard
         tally={alertTally}
         status={alertSummaryQuery.status}
         lastSuccessAt={alertSummaryQuery.lastSuccessAt}
         series={alertSeries}
         accent={COLORS.accent}
         nowTs={now}
-      />
+      /></>
     ),
     internetHealth: <TelecomStatusCard open={open} nowTs={now} />,
-    histogram: <HourlyHistogramWidget events={allEventsToday} />,
-    timeline: (
+    histogram: newsDerived(<HourlyHistogramWidget events={allEventsToday} />),
+    timeline: newsDerived(
       <TimelineDock
         events={allEventsToday}
         dayStartTs={dayStartTs}
@@ -723,8 +601,8 @@ export function MonitorPanel({
         alertSeries={alertSeries}
       />
     ),
-    triage: <TriageWidget events={allEventsToday} />,
-    hotZones: (
+    triage: newsDerived(<TriageWidget events={allEventsToday} />),
+    hotZones: newsDerived(
       <HotspotsWidget
         events={allEventsToday}
         countyByEventId={countyByEventId}
@@ -732,28 +610,34 @@ export function MonitorPanel({
       />
     ),
     situationOverview: (
-      <SituationOverview
+      <><MonitorDataStatus label="來源健康" query={dashboard.sourceHealth} /><SituationOverview
         pressure={pressure}
         smoothedScore={smoothed}
         status={pressureQuery.status}
         lastSuccessAt={pressureQuery.lastSuccessAt}
         sourceHealth={sourceHealth}
-        totalEvents={allEventsToday.length}
-        severeCount={severeCount}
-      />
+        sourceHealthAvailable={dashboard.sourceHealth.lastSuccessAt !== null}
+        totalEvents={clustersQuery.lastSuccessAt !== null ? allEventsToday.length : null}
+        severeCount={clustersQuery.lastSuccessAt !== null ? severeCount : null}
+      /></>
     ),
     taiex: <TwseTicker data={marketQuery.data} status={marketQuery.status} lastSuccessAt={marketQuery.lastSuccessAt} open={open} />,
     liveWall: <LiveWall />,
-    situationCards: <SituationCards health={health} />,
+    situationCards: <><MonitorDataStatus label="公衛週報" query={dashboard.health} /><SituationCards health={dashboard.health.data} /></>,
     plaBoard: <PlaBoard open={open} />,
     vesselZone: <VesselZoneCard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
     traDelay: <TraDelayBoard open={open} />,
     isrSatellitePasses: <IsrSatellitePassCard open={open} />,
     hazardStrip: <HazardWatchStrip />,
-    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
+    powerCard: <>
+      <MonitorDataStatus label="供電摘要" query={dashboard.powerDashboard} />
+      <MonitorDataStatus label="機組出力" query={dashboard.powerDay} />
+      <MonitorDataStatus label="供電趨勢" query={dashboard.powerTrend} />
+      <PowerCard dashboard={dashboard.powerDashboard.data} day={dashboard.powerDay.data} dayStatus={dashboard.powerDay.status === "unknown" ? "loading" : dashboard.powerDay.status} trend={dashboard.powerTrend.data} />
+    </>,
     erCongestion: <ERCard open={open} />,
-    prison: <PrisonCard latest={prisonLatest} series={prisonSeries} />,
+    prison: <><MonitorDataStatus label="在監人口" query={dashboard.prison} /><PrisonCard latest={dashboard.prison.data[0] ?? null} series={dashboard.prison.data} /></>,
     airportPax: <AirportPaxCard open={open} />,
     // 災害監看四卡：各自向 src/data 的 summary loader 輪詢（30/15/5/5 min），
     // nowTs 吃 MonitorPanel 的 5s wallClock 讓相對時間跟著跳

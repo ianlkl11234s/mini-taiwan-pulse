@@ -1,4 +1,6 @@
-import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
+import { type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import {
@@ -99,25 +101,14 @@ export function CompareLine({ delta, label, muted = false }: { delta: number; la
   );
 }
 
+const EMPTY_MARKET_HISTORY: MarketIndexDailyPoint[] = [];
+
 export function TwseTicker({
   data, status, lastSuccessAt, open,
 }: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
   // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
-  const [history, setHistory] = useState<MarketIndexDailyPoint[]>([]);
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const load = () =>
-      fetchMarketIndexHistory().then((rows) => {
-        if (!cancelled) setHistory(rows);
-      });
-    load();
-    const id = window.setInterval(load, 10 * 60_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [open]);
+  const historyQuery = useMonitorResource({ open, queryKey: "market-history:30d", intervalMs: 10 * 60_000, emptyData: EMPTY_MARKET_HISTORY, load: fetchMarketIndexHistory });
+  const history = historyQuery.data;
 
   const stale = status === "error" && lastSuccessAt !== null;
   const available = status === "ready" || stale;
@@ -140,6 +131,7 @@ export function TwseTicker({
         display: "flex", flexDirection: "column", gap: 6, minWidth: 208,
       }}
     >
+      <MonitorDataStatus label="行情歷史" query={historyQuery} />
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{

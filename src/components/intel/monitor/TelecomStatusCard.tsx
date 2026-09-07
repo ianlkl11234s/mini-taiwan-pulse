@@ -4,7 +4,7 @@
  * Atlas / RIS 都屬同一個 RIPE NCC dependency group；這裡只呈現量測與歷史，
  * 不把單一來源的漂亮數字推導成「臺灣網路正常」，也不建立任何推測 geometry。
  */
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import { COLORS, FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
@@ -12,8 +12,6 @@ import { SectionLabel } from "./PressureRing";
 import {
   fetchInternetHealthStatus,
   fetchInternetHealthTimeline,
-  invalidateInternetHealthStatus,
-  invalidateInternetHealthTimelineCache,
   type InternetHealthMeasurement,
   type InternetHealthMeasurementSignal,
   type InternetHealthSummary,
@@ -22,6 +20,8 @@ import {
   type InternetHealthTimelineSource,
   type InternetHealthTimelineSummary,
 } from "../../../data/internetHealthLoader";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 export type InternetHealthPhase = "loading" | "ready" | "error";
 type TimelinePhase = "loading" | "ready" | "error";
@@ -283,8 +283,8 @@ export function RipeTimelineView({
       <div style={{ minHeight: 148, marginTop: 8 }}>
         {phase === "loading" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>正在載入 {SOURCE_LABELS[source]} {RANGE_LABELS[range]} 歷史量測…</div>}
         {phase === "error" && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.statusWarn, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>歷史量測暫時無法更新；目前數值仍可繼續查看</div>}
-        {phase === "ready" && (!displayedSummary || displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
-        {phase === "ready" && displayedSummary && primary.length > 0 && (
+        {displayedSummary && (displayedSummary.empty || primary.length === 0) && <div style={{ height: 138, display: "grid", placeItems: "center", color: COLORS.textFaint, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, textAlign: "center" }}>這段期間尚無可畫的 {metricLabel}；空白不是 0，也不代表異常</div>}
+        {displayedSummary && primary.length > 0 && (
           <TimeseriesSparkline
             data={primary}
             timeDomain={{ from: displayedSummary.from, to: displayedSummary.to }}
@@ -313,47 +313,35 @@ export function RipeTimelineView({
   );
 }
 
+function queryPhase(status: "unknown" | "ready" | "error" | "denied"): InternetHealthPhase {
+  return status === "ready" ? "ready" : status === "error" || status === "denied" ? "error" : "loading";
+}
+
 function RipeTimelinePanel({ open, nowTs }: { open: boolean; nowTs: number }) {
   const [range, setRange] = useState<InternetHealthTimelineRange>("24h");
   const [source, setSource] = useState<InternetHealthTimelineSource>("ripe_atlas");
   const [metric, setMetric] = useState<InternetHealthTimelineMetric>("ping_success_ratio");
-  const [summary, setSummary] = useState<InternetHealthTimelineSummary | null>(null);
-  const [phase, setPhase] = useState<TimelinePhase>("loading");
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    let latestRequest = 0;
-    const tick = (force = false) => {
-      const requestId = ++latestRequest;
-      if (force) invalidateInternetHealthTimelineCache();
-      setSummary(null);
-      setPhase("loading");
-      fetchInternetHealthTimeline({ range, source, metric })
-        .then((next) => {
-          if (cancelled || requestId !== latestRequest) return;
-          setSummary(next);
-          setPhase("ready");
-        })
-        .catch((error) => {
-          console.warn("[TelecomStatusCard] get_internet_health_timeseries failed", error);
-          if (!cancelled && requestId === latestRequest) setPhase("error");
-        });
-    };
-    tick();
-    const id = window.setInterval(() => tick(true), 5 * 60_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [metric, open, range, source]);
+  const load = useCallback(
+    () => fetchInternetHealthTimeline({ range, source, metric }),
+    [metric, range, source],
+  );
+  const query = useMonitorResource({
+    open,
+    queryKey: `internet-health-timeline:${range}:${source}:${metric}`,
+    intervalMs: 5 * 60_000,
+    emptyData: null as InternetHealthTimelineSummary | null,
+    load,
+  });
 
   const handleSourceChange = (next: InternetHealthTimelineSource) => {
     setSource(next);
     setMetric(METRIC_OPTIONS[next][0]!.value);
   };
 
-  return <RipeTimelineView summary={summary} phase={phase} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} />;
+  return <>
+    <MonitorDataStatus label="RIPE 歷史量測" query={query} />
+    <RipeTimelineView summary={query.data} phase={queryPhase(query.status)} range={range} source={source} metric={metric} nowTs={nowTs} onRangeChange={setRange} onSourceChange={handleSourceChange} onMetricChange={setMetric} />
+  </>;
 }
 
 export function TelecomStatusCardView({
@@ -364,15 +352,15 @@ export function TelecomStatusCardView({
   nowTs: number;
   timeline?: ReactNode;
 }) {
-  const measurements = phase === "error" ? [] : (summary?.measurements ?? []);
+  const measurements = summary?.measurements ?? [];
   const atlasMeasurements = measurements.filter((item) => item.source_key === "ripe_atlas");
   const risMeasurements = measurements.filter((item) => item.source_key === "ripe_ris");
   const freshMetricCount = measurements.filter((item) => item.freshness === "fresh").length;
   const reportingFeeds = Number(atlasMeasurements.some((item) => item.freshness === "fresh")) + Number(risMeasurements.some((item) => item.freshness === "fresh"));
   const latestAt = newestMeasurementAt(measurements);
-  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測暫時無法更新" : freshMetricCount > 0 ? "網路穩定度" : "等待 RIPE 量測";
+  const statusLabel = phase === "loading" ? "正在讀取 RIPE 量測" : phase === "error" ? "RIPE 量測更新中斷" : freshMetricCount > 0 ? "RIPE 量測可用" : "等待 RIPE 量測";
   const statusColor = freshMetricCount > 0 && phase === "ready" ? RIPE_CYAN : COLORS.textDim;
-  const description = phase === "error" ? "本次更新失敗；不沿用舊資料判定網路狀態。" : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
+  const description = phase === "error" ? "本次更新失敗；保留最後成功量測，但傳輸成功或舊資料都不等於 CURRENT。" : "持續觀察 RIPE Atlas 端到端量測與 RIPE RIS BGP 路由更新。數值先如實呈現，異常判讀待基準累積後再加入。";
 
   return (
     <div data-testid="internet-health-card" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -410,33 +398,18 @@ export function TelecomStatusCardView({
 }
 
 export function TelecomStatusCard({ open, nowTs }: { open: boolean; nowTs: number }) {
-  const [summary, setSummary] = useState<InternetHealthSummary | null>(null);
-  const [phase, setPhase] = useState<InternetHealthPhase>("loading");
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = (force = false) => {
-      if (force) invalidateInternetHealthStatus();
-      fetchInternetHealthStatus()
-        .then((next) => {
-          if (cancelled) return;
-          setSummary(next);
-          setPhase("ready");
-        })
-        .catch((error) => {
-          console.warn("[TelecomStatusCard] get_internet_health_status failed", error);
-          if (!cancelled) setPhase("error");
-        });
-    };
-    tick();
-    const id = window.setInterval(() => tick(true), 5 * 60_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, [open]);
+  const load = useCallback(() => fetchInternetHealthStatus(), []);
+  const query = useMonitorResource({
+    open,
+    queryKey: "internet-health-status",
+    intervalMs: 5 * 60_000,
+    emptyData: null as InternetHealthSummary | null,
+    load,
+  });
 
   const timeline = useMemo(() => <RipeTimelinePanel open={open} nowTs={nowTs} />, [nowTs, open]);
-  return <TelecomStatusCardView summary={summary} phase={phase} nowTs={nowTs} timeline={timeline} />;
+  return <>
+    <MonitorDataStatus label="RIPE 現況量測" query={query} />
+    <TelecomStatusCardView summary={query.data} phase={queryPhase(query.status)} nowTs={nowTs} timeline={timeline} />
+  </>;
 }

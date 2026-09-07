@@ -176,12 +176,13 @@ interface Props {
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
   sourceHealth: SourceHealthSummary;
-  totalEvents: number;
-  severeCount: number;
+  sourceHealthAvailable?: boolean;
+  totalEvents: number | null;
+  severeCount: number | null;
 }
 
 export function SituationOverview({
-  pressure, smoothedScore, status, lastSuccessAt, sourceHealth, totalEvents, severeCount,
+  pressure, smoothedScore, status, lastSuccessAt, sourceHealth, sourceHealthAvailable = true, totalEvents, severeCount,
 }: Props) {
   const [open, setOpen] = useState(false);
   const level = pressureLevel(status === "ready" ? smoothedScore : 50);
@@ -270,14 +271,14 @@ export function SituationOverview({
           )}
           <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
-            <MiniStat en="EVENTS" label="事件" value={totalEvents} />
+            <MiniStat en="EVENTS" label="事件" value={totalEvents ?? "—"} />
             <MiniStat
-              en="SEVERE ≥3" label="嚴重" value={severeCount}
-              color={severeCount > 0 ? COLORS.statusWarn : "#fff"}
+              en="SEVERE ≥3" label="嚴重" value={severeCount ?? "—"}
+              color={(severeCount ?? 0) > 0 ? COLORS.statusWarn : "#fff"}
             />
             <MiniStat
               en="SOURCES" label="來源"
-              value={`${sourceHealth.ok}/${sourceHealth.total}`}
+              value={sourceHealthAvailable ? `${sourceHealth.ok}/${sourceHealth.total}` : "—"}
             />
           </div>
         </div>

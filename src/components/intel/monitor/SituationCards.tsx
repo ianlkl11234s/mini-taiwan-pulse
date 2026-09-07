@@ -114,7 +114,7 @@ export function SituationCards({ health }: Props) {
         </span>
         <div style={{ flex: 1 }} />
         <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-          CDC 截至 ISO 第 W{health.week} 週
+          CDC 截至 ISO 第 W{health.week > 0 ? health.week : "—"} 週
         </span>
       </div>
       {/* auto-fit + minmax：只有一種疾病時（目前 RPC 只回登革熱）整張卡撐滿欄寬，

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { useCallback, useMemo, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
@@ -8,6 +8,8 @@ import {
   type FoodPriceDay, type FoodPriceSummary, type FoodIndicator,
 } from "../../../data/intelLoaders";
 import { useChartTooltip } from "../../ChartHoverTooltip";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 /**
  * 食品價格監測（migration 334/336）
@@ -25,28 +27,18 @@ import { useChartTooltip } from "../../ChartHoverTooltip";
 
 const WINDOW = 180;
 const ORDER: FoodIndicator[] = ["VPI", "FPI", "MPI", "EPI"];
+const EMPTY_FOOD_DAYS: FoodPriceDay[] = [];
+const EMPTY_FOOD_SUMMARY: FoodPriceSummary[] = [];
 
 interface Props { open: boolean }
 
 export function FoodPriceBoard({ open }: Props) {
-  const [days, setDays] = useState<FoodPriceDay[]>([]);
-  const [summary, setSummary] = useState<FoodPriceSummary[]>([]);
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      fetchFoodPriceDaily(WINDOW)
-        .then((r) => { if (!cancelled) setDays(r); })
-        .catch((e) => console.warn("[FoodPriceBoard] daily", e));
-      fetchFoodPriceSummary(WINDOW)
-        .then((r) => { if (!cancelled) setSummary(r); })
-        .catch((e) => console.warn("[FoodPriceBoard] summary", e));
-    };
-    tick();
-    const id = window.setInterval(tick, 60 * 60_000);   // 來源 T+1，一小時一次已遠快於需要
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const loadDays = useCallback(() => fetchFoodPriceDaily(WINDOW), []);
+  const loadSummary = useCallback(() => fetchFoodPriceSummary(WINDOW), []);
+  const daysQuery = useMonitorResource({ open, queryKey: "food-price-daily", intervalMs: 60 * 60_000, emptyData: EMPTY_FOOD_DAYS, load: loadDays });
+  const summaryQuery = useMonitorResource({ open, queryKey: "food-price-summary", intervalMs: 60 * 60_000, emptyData: EMPTY_FOOD_SUMMARY, load: loadSummary });
+  const days = daysQuery.data;
+  const summary = summaryQuery.data;
 
   const byIndicator = useMemo(() => {
     const m = new Map<FoodIndicator, FoodPriceDay[]>();
@@ -97,9 +89,11 @@ export function FoodPriceBoard({ open }: Props) {
           flex: 1, minHeight: 0,
         }}
       >
+        <MonitorDataStatus label="食品價格日序列" query={daysQuery} />
+        <MonitorDataStatus label="食品價格摘要" query={summaryQuery} />
         {!summary.length ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "10px 0" }}>
-            資料載入中…
+            {summaryQuery.status === "unknown" ? "資料載入中…" : "尚無食品價格摘要"}
           </div>
         ) : (
           <>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { FONT_SIZE, RADIUS } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
@@ -13,6 +13,8 @@ import {
   type IsrPassWindowDays,
   type IsrSatellitePassReport,
 } from "../../../data/isrSatellitePassesLoader";
+import { useMonitorResource } from "../../../hooks/useMonitorResource";
+import { MonitorDataStatus } from "./MonitorDataStatus";
 
 export type LoadState = "loading" | "ready" | "error";
 
@@ -67,7 +69,7 @@ export function deriveIsrLatestDisplay(
 ): IsrLatestDisplay {
   const empty = { passCount: null, uniqueSatelliteCount: null, day: report?.latestValidDay ?? null };
   if (state === "loading" && !report) return { kind: "loading", ...empty };
-  if (state === "error") return { kind: "error", ...empty };
+  if (state === "error" && !report) return { kind: "error", ...empty };
   if (!report || !report.rows.length) return { kind: "empty", ...empty };
   if (report.freshness === "stale") return { kind: "stale", ...empty };
   if (report.freshness === "unknown") return { kind: "unknown_freshness", ...empty };
@@ -251,33 +253,23 @@ const MEDIAN_DIRECTION_LABEL: Record<Exclude<IsrMedianDirection, "unknown">, str
 };
 
 export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
-  const [report, setReport] = useState<IsrSatellitePassReport | null>(null);
-  const [state, setState] = useState<LoadState>("loading");
   const [windowDays, setWindowDays] = useState<IsrPassWindowDays>(
     ISR_PASSES_DEFAULT_WINDOW_DAYS,
   );
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    const tick = () => {
-      setState((current) => (current === "ready" ? current : "loading"));
-      fetchIsrSatellitePassesDaily(ISR_PASSES_FETCH_DAYS)
-        .then((next) => {
-          if (cancelled) return;
-          setReport(next);
-          setState("ready");
-        })
-        .catch((error) => {
-          if (cancelled) return;
-          console.warn("[IsrSatellitePassCard] daily", error);
-          setState("error");
-        });
-    };
-    tick();
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open]);
+  const load = useCallback(
+    () => fetchIsrSatellitePassesDaily(ISR_PASSES_FETCH_DAYS),
+    [],
+  );
+  const query = useMonitorResource({
+    open,
+    queryKey: "isr-satellite-passes:daily",
+    intervalMs: 30 * 60_000,
+    emptyData: null as IsrSatellitePassReport | null,
+    load,
+  });
+  const report = query.data;
+  const state: LoadState = query.status === "ready" ? "ready"
+    : query.status === "error" || query.status === "denied" ? "error" : "loading";
 
   const latest = deriveIsrLatestDisplay(report, state);
   const windowRows = useMemo(
@@ -324,6 +316,7 @@ export function IsrSatellitePassCard({ open = true }: { open?: boolean }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, fontFamily: FONT_CJK }}>
+      <MonitorDataStatus label="ISR 過境資料" query={query} />
       <SectionLabel color="#a78bfa">中國 ISR 衛星 · TERRITORIAL PASS MONITOR</SectionLabel>
       <div
         style={{

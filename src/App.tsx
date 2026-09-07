@@ -1953,6 +1953,7 @@ export default function App() {
 
           {/* Monitor Mode 戰情看板（底部上拉） */}
           <MonitorPanel
+            privateDataScope={isOwner && !memberAuthLoading ? memberUser?.id ?? null : null}
             open={monitorOpen}
             onClose={() => setMonitorOpen(false)}
             mode={monitorMode}

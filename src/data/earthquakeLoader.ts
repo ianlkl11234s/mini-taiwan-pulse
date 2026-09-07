@@ -110,8 +110,8 @@ async function fetchEarthquakeSummaryUncached(): Promise<EarthquakeSummary> {
       .select("event_id", { count: "exact", head: true })
       .gte("occurred_at", since),
   ]);
-  if (latestRes.error) throw new Error(`Supabase earthquake_events: ${latestRes.error.message}`);
-  if (countRes.error) throw new Error(`Supabase earthquake_events 24h: ${countRes.error.message}`);
+  if (latestRes.error) throw latestRes.error;
+  if (countRes.error) throw countRes.error;
 
   const rows = (latestRes.data ?? []) as RawRow[];
   const pick = rows.find((r) => isFeltReport(r.report_type) && r.magnitude != null) ?? rows[0];
@@ -179,7 +179,7 @@ async function fetchEarthquakeDailyRaw(daysKey: string): Promise<EarthquakeDay[]
     .gte("occurred_at", startIso)
     .order("occurred_at", { ascending: false })
     .limit(5000);
-  if (error) throw new Error(`Supabase earthquake_events daily: ${error.message}`);
+  if (error) throw error;
 
   const rows = (data ?? []) as Pick<RawRow, "magnitude" | "occurred_at">[];
   const buckets = new Map<string, { count: number; maxMag: number | null }>();
@@ -207,12 +207,9 @@ async function fetchEarthquakeDailyRaw(daysKey: string): Promise<EarthquakeDay[]
 
 const fetchEarthquakeDailyCached = cachedByKey(fetchEarthquakeDailyRaw, 10 * 60_000, 8);
 
-/** 過去 p_days 天（含今天）的逐日統計，依日期由舊到新。查不到（失敗）回 [] */
+/** 過去 p_days 天（含今天）的逐日統計，依日期由舊到新。成功但無事件才補零。 */
 export function fetchEarthquakeDaily(days: number = DEFAULT_DAILY_WINDOW): Promise<EarthquakeDay[]> {
-  return fetchEarthquakeDailyCached(String(days)).catch((err) => {
-    console.error("[Earthquake] fetchEarthquakeDaily failed:", err);
-    return [];
-  });
+  return fetchEarthquakeDailyCached(String(days));
 }
 
 /** 轉成 GeoJSON FeatureCollection */
