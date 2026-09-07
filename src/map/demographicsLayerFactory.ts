@@ -20,6 +20,18 @@ const SPATIAL_SRC = "h3-spatial-src";
 const SPATIAL_FILL = "h3-spatial-fill";
 const SPATIAL_EXT = "h3-spatial-ext";
 
+interface CachedGeoJSON {
+  source: object;
+  cells: object;
+  dataKey: string;
+  data: GeoJSON.FeatureCollection;
+}
+
+// Sources are replaced by setStyle().  Cache data by map/source so paint-only
+// changes avoid H3 boundary work while a newly-created source is still refilled.
+const geojsonCaches = new WeakMap<MapboxMap, Map<string, CachedGeoJSON>>();
+const EMPTY_CELLS: DemographicH3CellData[] = [];
+
 // ── Inferno color scale ──
 
 export const INFERNO: [number, number, number][] = [
@@ -64,6 +76,27 @@ const COUNT_METRICS = new Set(["p", "hh", "m", "f"]);
 /** 從 DemographicH3CellData 中取指定 metric 的值 */
 function getMetricValue(cell: DemographicH3CellData, metric: string): number {
   return (cell as unknown as Record<string, number>)[metric] ?? 0;
+}
+
+function syncGeoJSON(
+  map: MapboxMap,
+  cacheKey: string,
+  source: object & { setData: (data: GeoJSON.FeatureCollection) => void },
+  cells: object,
+  dataKey: string,
+  build: () => GeoJSON.FeatureCollection,
+): void {
+  let cache = geojsonCaches.get(map);
+  if (!cache) {
+    cache = new Map();
+    geojsonCaches.set(map, cache);
+  }
+  const cached = cache.get(cacheKey);
+  if (cached?.source === source && cached.cells === cells && cached.dataKey === dataKey) return;
+
+  const data = cached?.cells === cells && cached.dataKey === dataKey ? cached.data : build();
+  source.setData(data);
+  cache.set(cacheKey, { source, cells, dataKey, data });
 }
 
 // ── GeoJSON builder ──
@@ -196,12 +229,13 @@ function updateDemographicsLayer(
   const source = map.getSource(srcId);
   if (!source || source.type !== "geojson") return;
 
-  if (cells.length > 0) {
-    const geojson = demographicsToGeoJSON(cells, metric, contrast);
-    source.setData(geojson);
-  } else {
-    source.setData({ type: "FeatureCollection", features: [] });
-  }
+  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
+  const dataKey = `${metric}|${contrast}`;
+  syncGeoJSON(map, srcId, source, cachedCells, dataKey, () =>
+    cells.length > 0
+      ? demographicsToGeoJSON(cells, metric, contrast)
+      : { type: "FeatureCollection", features: [] },
+  );
 
   if (!visible || cells.length === 0) {
     map.setLayoutProperty(fillId, "visibility", "none");
@@ -334,12 +368,14 @@ export function updateSocioLayer(
   if (!source || source.type !== "geojson") return;
 
   const useLog = params.metric === "im";
-  if (cells.length > 0) {
-    const geojson = genericToGeoJSON(cells, params.metric as keyof SocioeconomicH3CellData, params.contrast, useLog, VIRIDIS);
-    source.setData(geojson);
-  } else {
-    source.setData({ type: "FeatureCollection", features: [] });
-  }
+  const metric = params.metric as keyof SocioeconomicH3CellData;
+  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
+  const dataKey = `${String(metric)}|${params.contrast}`;
+  syncGeoJSON(map, SOCIO_SRC, source, cachedCells, dataKey, () =>
+    cells.length > 0
+      ? genericToGeoJSON(cells, metric, params.contrast, useLog, VIRIDIS)
+      : { type: "FeatureCollection", features: [] },
+  );
 
   if (!visible || cells.length === 0) {
     map.setLayoutProperty(SOCIO_FILL, "visibility", "none");
@@ -378,12 +414,14 @@ export function updateSpatialLayer(
   if (!source || source.type !== "geojson") return;
 
   const useLog = params.metric === "hp" || params.metric === "hpr";
-  if (cells.length > 0) {
-    const geojson = genericToGeoJSON(cells, params.metric as keyof SpatialEconomyH3CellData, params.contrast, useLog, MAGMA);
-    source.setData(geojson);
-  } else {
-    source.setData({ type: "FeatureCollection", features: [] });
-  }
+  const metric = params.metric as keyof SpatialEconomyH3CellData;
+  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
+  const dataKey = `${String(metric)}|${params.contrast}`;
+  syncGeoJSON(map, SPATIAL_SRC, source, cachedCells, dataKey, () =>
+    cells.length > 0
+      ? genericToGeoJSON(cells, metric, params.contrast, useLog, MAGMA)
+      : { type: "FeatureCollection", features: [] },
+  );
 
   if (!visible || cells.length === 0) {
     map.setLayoutProperty(SPATIAL_FILL, "visibility", "none");

@@ -6,6 +6,19 @@ const SOURCE_ID = "h3-population-src";
 const FILL_LAYER_ID = "h3-population-fill";
 const EXTRUSION_LAYER_ID = "h3-population-ext";
 
+interface CachedGeoJSON {
+  source: object;
+  cells: object;
+  dataKey: string;
+  data: GeoJSON.FeatureCollection;
+}
+
+// Mapbox drops sources when a style is replaced.  Keep the generated data per
+// map, but tie it to the concrete source object so the next update restores it.
+const geojsonCache = new WeakMap<MapboxMap, CachedGeoJSON>();
+const EMPTY_CELLS: H3CellData[] = [];
+const EMPTY_GEOJSON: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
 // ── Color scales ──
 
 // Plasma (warm) — perceptually uniform, dark-background optimized
@@ -101,6 +114,26 @@ function h3CellsToGeoJSON(
   return { type: "FeatureCollection", features };
 }
 
+function syncH3Data(
+  map: MapboxMap,
+  source: { setData: (data: GeoJSON.FeatureCollection) => void },
+  cells: H3CellData[],
+  params: H3LayerParams,
+): void {
+  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
+  const dataKey = `${params.metric}|${params.contrast}`;
+  const cached = geojsonCache.get(map);
+  if (cached?.source === source && cached.cells === cachedCells && cached.dataKey === dataKey) return;
+
+  const data = cached?.cells === cachedCells && cached.dataKey === dataKey
+    ? cached.data
+    : cells.length > 0
+      ? h3CellsToGeoJSON(cells, params)
+      : EMPTY_GEOJSON;
+  source.setData(data);
+  geojsonCache.set(map, { source, cells: cachedCells, dataKey, data });
+}
+
 /**
  * Ensure H3 source + layers exist on the map.
  * Safe to call repeatedly (idempotent) — needed after style changes.
@@ -152,13 +185,9 @@ export function updateH3Layer(
   const source = map.getSource(SOURCE_ID);
   if (!source || source.type !== "geojson") return;
 
-  // Update GeoJSON data
-  if (cells.length > 0) {
-    const geojson = h3CellsToGeoJSON(cells, params);
-    source.setData(geojson);
-  } else {
-    source.setData({ type: "FeatureCollection", features: [] });
-  }
+  // Geometry/data only change when the cells or data-derived parameters do.
+  // Opacity, extrusion and elevation are paint/layout concerns below.
+  syncH3Data(map, source, cells, params);
 
   // Visibility: overall on/off + fill vs extrusion toggle
   if (!visible || cells.length === 0) {
