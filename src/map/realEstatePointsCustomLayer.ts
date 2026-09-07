@@ -21,8 +21,16 @@ function loadBuffer(): Promise<Float32Array> {
   if (cachedBuffer) return Promise.resolve(cachedBuffer);
   if (!bufferPromise) {
     bufferPromise = fetch(BUFFER_URL)
-      .then((r) => r.arrayBuffer())
-      .then((b) => (cachedBuffer = new Float32Array(b)));
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status} 載入房地產點資料失敗`);
+        return r.arrayBuffer();
+      })
+      .then((b) => (cachedBuffer = new Float32Array(b)))
+      // 失敗不可留住 rejected Promise，讓下次 lazy mount 能重試。
+      .catch((error) => {
+        bufferPromise = null;
+        throw error;
+      });
   }
   return bufferPromise;
 }
@@ -53,10 +61,13 @@ export function createRealEstatePointsLayer(): CustomLayerInterface {
   const scene = new RealEstatePointsScene();
   let map: MapboxMap | null = null;
   let loaded = false;
+  let mountToken = 0;
 
-  const loadData = async () => {
+  const loadData = async (token: number) => {
     try {
       const buf = await loadBuffer();
+      // style 切換或 map 銷毀時，舊的 async 載入不得碰已移除的 scene。
+      if (token !== mountToken || !map) return;
       scene.setBuffer(buf);
       loaded = true;
       console.log("[realEstatePoints] buffer 載入 ✓", buf.length / 5, "點");
@@ -73,9 +84,11 @@ export function createRealEstatePointsLayer(): CustomLayerInterface {
 
     onAdd(mapInstance, gl) {
       map = mapInstance;
+      loaded = false;
+      const token = ++mountToken;
       activeScene = scene;
       scene.init(gl);
-      loadData();
+      loadData(token);
     },
 
     render(_gl, matrix) {
@@ -88,6 +101,9 @@ export function createRealEstatePointsLayer(): CustomLayerInterface {
     },
 
     onRemove() {
+      ++mountToken;
+      map = null;
+      loaded = false;
       if (activeScene === scene) activeScene = null;
       scene.dispose();
     },

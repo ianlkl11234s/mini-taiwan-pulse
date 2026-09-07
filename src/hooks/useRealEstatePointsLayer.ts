@@ -32,18 +32,37 @@ export function useRealEstatePointsLayer(
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !anyShown) return;
+    let disposed = false;
+    let retryPending = false;
+    const clearRetry = () => {
+      if (!retryPending) return;
+      map.off("idle", retry);
+      retryPending = false;
+    };
+    const retry = () => {
+      retryPending = false;
+      if (disposed) return;
+      tryMount();
+    };
     const tryMount = () => {
+      if (disposed) return;
       if (map.getLayer(RE_POINTS_LAYER_ID)) return;
       try {
         map.addLayer(createRealEstatePointsLayer());
+        clearRetry();
       } catch {
-        map.once("idle", tryMount);
+        if (!retryPending) {
+          retryPending = true;
+          map.once("idle", retry);
+        }
       }
     };
     tryMount();
     map.on("style.load", tryMount); // 切 basemap → style.load 後重掛
     return () => {
+      disposed = true;
       map.off("style.load", tryMount);
+      clearRetry();
       try { if (map.getLayer(RE_POINTS_LAYER_ID)) map.removeLayer(RE_POINTS_LAYER_ID); } catch { /* map 可能已銷毀 */ }
     };
   }, [mapRef, anyShown, mapTick]);
