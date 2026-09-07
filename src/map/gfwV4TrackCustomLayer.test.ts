@@ -67,4 +67,50 @@ describe("gfw v4 shared-context custom layer", () => {
     expect(scene.render).toHaveBeenCalled();
     expect(onSpatialRendered).toHaveBeenCalledWith({ pointCount: 1, projectionName: "mercator" });
   });
+
+  it.each([false, true])("does not rebuild geometry for opacity-only changes (spatial=%s)", (spatial) => {
+    const scene = {
+      init: vi.fn(), setOpacity: vi.fn(), setTheme: vi.fn(),
+      update: vi.fn(() => ({ heads: [], trails: [], trailVertices: 0 })),
+      updateSpatialPoints: vi.fn(() => ({ pointCount: 1 })),
+      render: vi.fn(), dispose: vi.fn(),
+    };
+    const frame = { heads: [], trails: [], visibleHeadGroups: 0, visibleMembers: 0,
+      visibleTrailVertices: 0, renderedHeadGroups: 0, renderedTrailVertices: 0,
+      overBudgetHeads: 0, overBudgetTrailVertices: 0 };
+    const points = { points: new Float32Array([121, 24]), buckets: new Uint8Array([1]) };
+    let opacity = 0.7;
+    let theme: "dark" | "light" = "dark";
+    let zoom = 5;
+    const map = {
+      getBounds: () => ({ getWest: () => 115, getSouth: () => 20, getEast: () => 135, getNorth: () => 37 }),
+      getZoom: () => zoom,
+    } as unknown as MapboxMap;
+    const layer = createGfwV4TrackCustomLayer({
+      budget: { maxHeads: 10, maxTrailVertices: 10 }, getFrame: () => frame,
+      ...(spatial ? { getSpatialFrame: () => points } : {}),
+      getVisible: () => true, getOpacity: () => opacity, getTheme: () => theme,
+      sceneFactory: () => scene as unknown as GfwV4TrackScene,
+    });
+    const gl = {} as WebGL2RenderingContext;
+    const render = () => (layer.render as unknown as (gl: WebGL2RenderingContext, matrix: number[]) => void)(gl, new Array(16).fill(0));
+    layer.onAdd?.(map, gl);
+    render();
+    for (let index = 0; index < 100; index++) {
+      opacity = index / 100;
+      render();
+    }
+    const update = spatial ? scene.updateSpatialPoints : scene.update;
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(scene.render).toHaveBeenCalledTimes(101);
+    expect(scene.setOpacity).toHaveBeenLastCalledWith(0.99);
+    // Theme changes vertex colors; zoom changes point sizes. Both still rebuild.
+    theme = "light";
+    render();
+    zoom = 6;
+    render();
+    expect(update).toHaveBeenCalledTimes(3);
+    layer.onRemove?.(map, gl);
+  });
+
 });

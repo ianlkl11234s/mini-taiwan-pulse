@@ -54,7 +54,8 @@ export function createGfwV4TrackCustomLayer(options: GfwV4TrackCustomLayerOption
         if (!frame) return;
         const bounds = mapBounds(map);
         const zoom = map.getZoom();
-        const viewKey = `${bounds.west.toFixed(3)}|${bounds.south.toFixed(3)}|${bounds.east.toFixed(3)}|${bounds.north.toFixed(3)}|${zoom.toFixed(2)}|${options.getOpacity()}|${String(options.getTheme())}`;
+        // Opacity only changes material uniforms, never the geometry buffers.
+        const viewKey = `${bounds.west.toFixed(3)}|${bounds.south.toFixed(3)}|${bounds.east.toFixed(3)}|${bounds.north.toFixed(3)}|${zoom.toFixed(2)}|${String(options.getTheme())}`;
         scene.setOpacity(options.getOpacity());
         scene.setTheme(options.getTheme());
         let spatialVisible: { pointCount: number } | null = null;

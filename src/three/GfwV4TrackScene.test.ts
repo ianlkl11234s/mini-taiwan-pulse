@@ -127,6 +127,32 @@ describe("GfwV4TrackScene viewport culling", () => {
     scene.dispose();
   });
 
+  it("changes material opacity without altering spatial geometry or source alpha", () => {
+    const scene = new GfwV4TrackScene({ maxHeads: 2, maxTrailVertices: 2 });
+    scene.updateSpatialPoints({
+      points: new Float32Array([121, 24]), buckets: new Uint8Array([1]),
+      pointAlphas: new Uint8Array([64]),
+      segments: new Float32Array([121, 24, 122, 25]),
+      segmentBuckets: new Uint8Array([1]), segmentAlphas: new Uint8Array([102]),
+    }, 5);
+    const { heads, trailLines } = scene as unknown as {
+      heads: THREE.InstancedMesh; trailLines: THREE.LineSegments;
+    };
+    const matrix = Array.from(heads.instanceMatrix.array);
+    const positions = Array.from(trailLines.geometry.getAttribute("position").array);
+    const drawCount = trailLines.geometry.drawRange.count;
+    scene.setOpacity(0.3);
+    expect((heads.material as THREE.MeshBasicMaterial).opacity).toBe(0.3);
+    expect((trailLines.material as THREE.LineBasicMaterial).opacity).toBeCloseTo(0.21);
+    expect(heads.count).toBe(1);
+    expect(Array.from(heads.instanceMatrix.array)).toEqual(matrix);
+    expect(Array.from(trailLines.geometry.getAttribute("position").array)).toEqual(positions);
+    expect(trailLines.geometry.drawRange.count).toBe(drawCount);
+    expect(heads.geometry.getAttribute("aGfwAlpha").getX(0)).toBeCloseTo(64 / 255);
+    expect(trailLines.geometry.getAttribute("color").getW(0)).toBeCloseTo(102 / 255);
+    scene.dispose();
+  });
+
   it("rejects opacity buffers that are not aligned with their geometry", () => {
     const scene = new GfwV4TrackScene({ maxHeads: 3, maxTrailVertices: 2 });
     expect(() => scene.updateSpatialPoints({
