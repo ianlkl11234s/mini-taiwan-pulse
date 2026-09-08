@@ -105,6 +105,7 @@ import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } fro
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
+import { coralSafeFeatureInfo, isCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -788,6 +789,23 @@ export default function App() {
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
+
+  // Auth changes first remove the private source in its host. This derived state also
+  // hides a previously selected Coral feature in the same render, before its cleanup
+  // effect runs, so neither popup nor selected-feature halo can linger after logout.
+  const coralUiFeatureInfo = coralSafeFeatureInfo(
+    featureInfo,
+    coralAccess.allowed,
+    layerVisibility.coralReefDistribution,
+  );
+  useEffect(() => {
+    if (!coralAccess.allowed && layerVisibility.coralReefDistribution) {
+      setLayerVisibility((prev) => ({ ...prev, coralReefDistribution: false }));
+    }
+    if (featureInfo && coralUiFeatureInfo === null && isCoralPrivateFeature(featureInfo)) {
+      setFeatureInfo(null);
+    }
+  }, [coralAccess.allowed, layerVisibility.coralReefDistribution, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1560,7 +1578,7 @@ export default function App() {
     onReCursorChange: setReCursorTs,
     onHistoricalStop: stopHistorical,
 
-    featureInfo,
+    featureInfo: coralUiFeatureInfo,
     activeReservoirId,
     aqiProduct,
     eqReplaySelectedId,
@@ -2810,10 +2828,10 @@ export default function App() {
           pointerEvents: "none",
         }}
       >
-        {featureInfo && (
+        {coralUiFeatureInfo && (
           <div style={{ pointerEvents: "auto" }}>
             <FeatureInfoPanel
-              feature={featureInfo}
+              feature={coralUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
               reservoirContext={reservoirContext}
               isDarkTheme={isDarkTheme}
