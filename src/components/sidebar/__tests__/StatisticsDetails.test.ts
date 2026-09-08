@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsDimensionSummary, statisticsValueLabel } from '../StatisticsDetails';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDimensionSummary, statisticsSelectedTupleAreaLabel, statisticsValueLabel } from '../StatisticsDetails';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
@@ -53,6 +53,14 @@ describe('statisticsDimensionSummary', () => {
   });
   it('uses each recipe level for health coverage, including township statistics', () => {
     expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsTaipeiUrbanRentalStations)).toBe('鄉鎮市區');
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount)).toBe('縣市');
+  });
+
+  it('labels livestock reconciliation as whole-dataset township-by-animal observations, distinct from its selected tuple', () => {
+    expect(statisticsCoverageStatusLabel(true)).toBe('整份資料覆蓋狀態');
+    expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsLivestockHeadCountTownship)).toBe('鄉鎮×畜種資料筆');
+    expect(statisticsSelectedTupleAreaLabel(STATISTICS_RECIPES.statsLivestockHeadCountTownship)).toBe('鄉鎮統計值');
+    expect(statisticsCoverageStatusLabel(false)).toBe('覆蓋狀態');
     expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount)).toBe('縣市');
   });
 

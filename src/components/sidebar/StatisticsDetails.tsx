@@ -9,10 +9,18 @@ import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../..
 import { FONT_SIZE, SURFACE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
+const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
 
 /** Health coverage denominators use the recipe's actual geographic level. */
-export function statisticsCoverageAreaLabel(recipe: Pick<StatisticsRecipe, 'level'>): string {
+export function statisticsCoverageAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }): string {
+  if ((recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET) return '鄉鎮×畜種資料筆';
   return LEVEL_LABELS[recipe.level];
+}
+export function statisticsCoverageStatusLabel(isAgri: boolean): string {
+  return isAgri ? '整份資料覆蓋狀態' : '覆蓋狀態';
+}
+export function statisticsSelectedTupleAreaLabel(recipe: Pick<StatisticsRecipe, 'level'> & { datasetId?: string; dataset_id?: string }): string {
+  return (recipe.datasetId ?? recipe.dataset_id) === LIVESTOCK_TOWNSHIP_STATISTICS_DATASET ? '鄉鎮統計值' : '區域統計值';
 }
 export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_start' | 'period_end'>): string {
   const start = release.period_start, end = release.period_end;
@@ -147,6 +155,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const agri = getAgriRecipe(layerKey);
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
   const healthUnit = state.health?.currency ?? recipe.unit;
+  const coverageStatusLabel = statisticsCoverageStatusLabel(Boolean(agri));
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
     .map(option => option.dimensions[name])
@@ -211,11 +220,11 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
     {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</p>}
     {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
-    {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
+    {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length}／{state.data.features.length} 個{statisticsSelectedTupleAreaLabel(recipe)}；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
     {agri && state.data && <p style={factStyle}>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</p>}
     {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇，請查看來源紀錄。</p>}
-    {state.health?.coverage_status && <p style={factStyle} role="status">覆蓋狀態：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
+    {state.health?.coverage_status && <p style={factStyle} role="status">{coverageStatusLabel}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
     <details><summary>來源與處理紀錄</summary>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
         <span>提供機關：{String(source.publisher ?? '未提供')}</span>
@@ -246,7 +255,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey })
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
     {'freshness' in recipe && <span>新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</span>}
     {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
-    {state.health?.coverage_status && <span>{state.health.coverage_status}：{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {LEVEL_LABELS[recipe.level]}；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
+    {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {recipe.colors.map((color, index) => <div key={color} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{index === 0 ? `低於 ${recipe.breaks[0]}` : index === recipe.breaks.length ? `${recipe.breaks[index - 1]} 以上` : `${recipe.breaks[index - 1]} 至未滿 ${recipe.breaks[index]}`}</div>)}
     <span>灰色：缺資料／未發布數值</span>
