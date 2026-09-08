@@ -260,4 +260,3 @@ stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles åˆ†é
       Tests  1312 passed | 3 skipped (1315)
    Start at  10:47:19
    Duration  16.50s (transform 6.10s, setup 0ms, collect 37.01s, tests 7.70s, environment 19ms, prepare 15.33s)
-
