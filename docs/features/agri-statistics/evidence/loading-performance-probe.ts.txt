@@ -1,0 +1,30 @@
+import { it, vi } from 'vitest';
+import { webcrypto } from 'node:crypto';
+vi.mock('../../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }));
+import { loadRegionalStatistics as before } from '../statisticsPerfBaselineLoader';
+import { loadRegionalStatistics as after } from '../regionalStatisticsLoader';
+import { statisticsGeometryCache as beforeCache } from '../statisticsPerfBaselineCache';
+import { statisticsGeometryCache as afterCache } from '../statisticsGeometryCache';
+import { getAgriRecipe } from '../agriStatisticsRecipes';
+it('measures real local bundles and geometry, no remote writes', async () => {
+  vi.stubEnv('VITE_AGRI_STATISTICS_PREVIEW', 'true');
+  vi.stubGlobal('crypto', webcrypto);
+  const networkFetch = globalThis.fetch;
+  for (const [variant, loader, cache] of [['before', before, beforeCache], ['after', after, afterCache]] as const) {
+    cache.clear();
+    for (const key of ['statsPaddyLandAreaTownship','statsDryFieldAreaTownship','statsPaddyLandAreaTownship']) {
+      const recipe = getAgriRecipe(key)!;
+      if (!recipe) throw new Error(key);
+      const requests: unknown[] = [];
+      vi.stubGlobal('fetch', async (input: string, options: RequestInit) => {
+        const started = performance.now();
+        const response = await networkFetch(new URL(input, 'http://127.0.0.1:3744'), options);
+        requests.push({ path: input.split('?')[0], start: Math.round(started), headersMs: Math.round(performance.now()-started), bytes: response.headers.get('content-length') });
+        return response;
+      });
+      const started = performance.now();
+      const result = await loader({ layerKey:key, datasetId:recipe.dataset_id, indicatorId:recipe.indicator_id, level:recipe.level, includeHealth:true });
+      console.log(JSON.stringify({variant,key,totalMs:Math.round(performance.now()-started),features:result.features.length,requests}));
+    }
+  }
+},60000);

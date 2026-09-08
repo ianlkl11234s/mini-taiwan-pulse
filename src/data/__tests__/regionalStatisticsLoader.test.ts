@@ -37,6 +37,51 @@ function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifes
 beforeEach(() => { statisticsGeometryCache.clear(); vi.stubEnv('VITE_STATISTICS_API_URL', 'http://127.0.0.1:3733'); vi.stubGlobal('crypto', webcrypto); });
 
 describe('regional statistics loader public contract', () => {
+  it('starts catalog and releases together without waiting for catalog latency', async () => {
+    install();
+    const originalFetch = fetch;
+    let finishCatalog!: () => void;
+    const gate = new Promise<void>(resolve => { finishCatalog = resolve; });
+    const started: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (input: string) => {
+      started.push(input);
+      if (input.includes('/catalog')) await gate;
+      return originalFetch(input);
+    }));
+    const loading = loadRegionalStatistics(recipe);
+    try {
+      await vi.waitFor(() => expect(started.some(url => url.includes('/releases'))).toBe(true));
+      expect(started.some(url => url.includes('/values'))).toBe(false);
+    } finally { finishCatalog(); }
+    await expect(loading).resolves.toMatchObject({ values: { total: 2 } });
+  });
+
+  it('downloads geometry alongside values but waits for health before exposing the result', async () => {
+    install();
+    const originalFetch = fetch;
+    let finishValues!: () => void, finishHealth!: () => void;
+    const valuesGate = new Promise<void>(resolve => { finishValues = resolve; });
+    const healthGate = new Promise<void>(resolve => { finishHealth = resolve; });
+    const started: string[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (input: string) => {
+      started.push(input);
+      if (input.includes('/values')) await valuesGate;
+      if (input.includes('/health')) await healthGate;
+      return originalFetch(input);
+    }));
+    let completed = false;
+    const loading = loadRegionalStatistics({ ...recipe, includeHealth: true }).then(result => { completed = true; return result; });
+    try {
+      await vi.waitFor(() => expect(started).toContain('https://geometry.test/county.json'));
+      expect(started.some(url => url.includes('/sources'))).toBe(true);
+      expect(started.some(url => url.includes('/health'))).toBe(true);
+      finishValues();
+      await Promise.resolve();
+      expect(completed).toBe(false);
+    } finally { finishValues(); finishHealth(); }
+    await expect(loading).resolves.toMatchObject({ health: { availability: 'CURRENT' }, values: { total: 2 } });
+  });
+
   it('requires livestock sidecar tokens only for nonnumeric observations', () => {
     expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: 12, status: 'observed' }, true)).not.toThrow();
     expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'missing' }, true)).toThrow('來源狀態');

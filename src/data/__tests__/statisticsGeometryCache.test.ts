@@ -51,16 +51,18 @@ describe('StatisticsGeometryCache', () => {
     expect(cache.size).toBe(2);
   });
 
-  it('does not reuse a boundary across declared boundary versions', async () => {
+  it('shares immutable geometry across boundary-version aliases with identical mapping', async () => {
     vi.stubGlobal('crypto', webcrypto);
     const bytes = geometry('A');
     const cache = new StatisticsGeometryCache();
     const first = await manifest('https://geometry.test/a', bytes, '1');
     const second = await manifest('https://geometry.test/a', bytes, '2');
     const fetcher = vi.fn(async () => bytes.buffer.slice(0));
-    await cache.load(first, fetcher);
-    await cache.load(second, fetcher);
-    expect(fetcher).toHaveBeenCalledTimes(2);
+    const firstLoad = cache.load(first, fetcher);
+    const secondLoad = cache.load(second, fetcher);
+    expect(secondLoad).toBe(firstLoad);
+    await firstLoad;
+    expect(fetcher).toHaveBeenCalledTimes(1);
   });
   it('normalizes a declared delivery code property only after SHA verification', async () => {
     vi.stubGlobal('crypto', webcrypto);
@@ -69,7 +71,7 @@ describe('StatisticsGeometryCache', () => {
     const cache = new StatisticsGeometryCache();
     await expect(cache.load(item, async () => bytes.buffer.slice(0))).resolves.toMatchObject({ features: [{ properties: { TOWNCODE: '09007010', area_code: '09007010' } }] });
   });
-  it('bounds pending entries and does not retain oversized geometry', async () => {
+  it('bounds pending entries and does not retain a completed boundary beyond the total budget', async () => {
     vi.stubGlobal('crypto', webcrypto);
     const bytes = geometry('A');
     const cache = new StatisticsGeometryCache(2, 1);
@@ -83,6 +85,24 @@ describe('StatisticsGeometryCache', () => {
     resolve(bytes.buffer.slice(0));
     await Promise.all(promises);
     expect(cache.size).toBe(0);
+    expect(cache.byteLength).toBe(0);
+  });
+
+  it('evicts least-recent completed boundaries against a total raw-byte budget', async () => {
+    vi.stubGlobal('crypto', webcrypto);
+    const first = geometry('A'); const second = geometry('B');
+    const cache = new StatisticsGeometryCache(8, first.byteLength + second.byteLength - 1);
+    const one = await manifest('https://geometry.test/a', first, '1');
+    const two = await manifest('https://geometry.test/b', second, '2');
+    const reload = vi.fn(async () => first.buffer.slice(0));
+
+    await cache.load(one, reload);
+    await cache.load(two, async () => second.buffer.slice(0));
+    expect(cache.size).toBe(1);
+    expect(cache.byteLength).toBe(second.byteLength);
+
+    await cache.load(one, reload);
+    expect(reload).toHaveBeenCalledTimes(2);
   });
 
 });

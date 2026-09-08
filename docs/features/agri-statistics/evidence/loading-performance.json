@@ -1,0 +1,276 @@
+{
+  "date": "2026-09-08",
+  "baseline_commit": "db7dc1c845f10af724c7735a37c4cd2a9ebdf617",
+  "scope": "real local preview data loader, Node/Vitest; excludes Mapbox rendering and internet latency",
+  "requests": [
+    {
+      "variant": "before",
+      "key": "statsPaddyLandAreaTownship",
+      "totalMs": 1030,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 1589,
+          "headersMs": 79,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 1682,
+          "headersMs": 9,
+          "bytes": "577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 1691,
+          "headersMs": 26,
+          "bytes": "62290"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 1718,
+          "headersMs": 43,
+          "bytes": "2630"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 1763,
+          "headersMs": 6,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-boundaries/statistics_township_reference.geojson",
+          "start": 1769,
+          "headersMs": 14,
+          "bytes": "51289454"
+        }
+      ]
+    },
+    {
+      "variant": "before",
+      "key": "statsDryFieldAreaTownship",
+      "totalMs": 706,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 2618,
+          "headersMs": 11,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 2635,
+          "headersMs": 1,
+          "bytes": "574"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 2636,
+          "headersMs": 12,
+          "bytes": "62628"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 2649,
+          "headersMs": 1,
+          "bytes": "2629"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 2651,
+          "headersMs": 4,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-boundaries/statistics_township_reference.geojson",
+          "start": 2656,
+          "headersMs": 2,
+          "bytes": "51289454"
+        }
+      ]
+    },
+    {
+      "variant": "before",
+      "key": "statsPaddyLandAreaTownship",
+      "totalMs": 704,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 3324,
+          "headersMs": 9,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 3337,
+          "headersMs": 1,
+          "bytes": "577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 3339,
+          "headersMs": 6,
+          "bytes": "62290"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 3345,
+          "headersMs": 1,
+          "bytes": "2630"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 3347,
+          "headersMs": 1,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-boundaries/statistics_township_reference.geojson",
+          "start": 3348,
+          "headersMs": 1,
+          "bytes": "51289454"
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "key": "statsPaddyLandAreaTownship",
+      "totalMs": 911,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 4029,
+          "headersMs": 6,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 4029,
+          "headersMs": 7,
+          "bytes": "577"
+        },
+        {
+          "path": "/__agri-statistics-preview-boundaries/statistics_township_reference.geojson",
+          "start": 4041,
+          "headersMs": 1,
+          "bytes": "51289454"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 4041,
+          "headersMs": 2,
+          "bytes": "2630"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 4041,
+          "headersMs": 2,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 4040,
+          "headersMs": 5,
+          "bytes": "62290"
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "key": "statsDryFieldAreaTownship",
+      "totalMs": 88,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 4940,
+          "headersMs": 50,
+          "bytes": "574"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 4940,
+          "headersMs": 51,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 5015,
+          "headersMs": 5,
+          "bytes": "2629"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 5016,
+          "headersMs": 5,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 5015,
+          "headersMs": 12,
+          "bytes": "62628"
+        }
+      ]
+    },
+    {
+      "variant": "after",
+      "key": "statsPaddyLandAreaTownship",
+      "totalMs": 32,
+      "features": 368,
+      "requests": [
+        {
+          "path": "/__agri-statistics-preview-api/statistics/releases",
+          "start": 5028,
+          "headersMs": 16,
+          "bytes": "577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/catalog",
+          "start": 5027,
+          "headersMs": 17,
+          "bytes": "1283577"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/sources",
+          "start": 5053,
+          "headersMs": 4,
+          "bytes": "2630"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/health",
+          "start": 5053,
+          "headersMs": 4,
+          "bytes": "310"
+        },
+        {
+          "path": "/__agri-statistics-preview-api/statistics/values",
+          "start": 5052,
+          "headersMs": 6,
+          "bytes": "62290"
+        }
+      ]
+    }
+  ],
+  "browser_cua_observations_ms": {
+    "before": {
+      "paddy_data": 4612,
+      "paddy_loading_hidden": 5052,
+      "dry_field_data": 3990,
+      "dry_field_loading_hidden": 4426
+    },
+    "after": {
+      "paddy_data": 1982,
+      "paddy_loading_hidden": 3227,
+      "dry_field_data": 3488,
+      "dry_field_loading_hidden": 4244,
+      "return_paddy_data": 3124,
+      "return_paddy_loading_hidden": 4254
+    }
+  },
+  "browser_limits": "single samples include CUA click/scroll/wait overhead, not a benchmark SLA; viewport 1280x720; displayed paddy 478.23 ha at 北斗鎮10007190; versions preserved"
+}

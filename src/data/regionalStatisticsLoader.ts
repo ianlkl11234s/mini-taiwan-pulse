@@ -108,8 +108,10 @@ async function request<T>(route: string, query: Record<string, unknown>, args: R
 }
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
   return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
-    const catalogResponse = await request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, {}, signal, recipe);
-    const releasesResponse = await request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId }, signal, recipe);
+    const [catalogResponse, releasesResponse] = await Promise.all([
+      request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, {}, signal, recipe),
+      request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId }, signal, recipe),
+    ]);
     const { indicators: catalog } = catalogResponse;
     const { releases } = releasesResponse;
     if (!Array.isArray(catalog) || !Array.isArray(releases)) throw new Error('統計目錄格式不符');
@@ -150,34 +152,45 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       if (!resolved) throw new Error('農業統計期別或維度不在已驗證白名單中');
       effectiveRecipe = { ...effectiveRecipe, releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false };
     }
-    let first: StatisticsValues | undefined;
-    const observations: StatisticsObservation[] = [];
-    let offset = 0;
-    for (let pageIndex = 0; pageIndex < 100; pageIndex++) {
-      const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {}, limit: 10000, offset };
-      const page = await request<StatisticsValues>('values', query, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: release.release_id, p_level: recipe.level, p_dimensions: effectiveRecipe.dimensions ?? {}, p_limit: 10000, p_offset: offset }, signal, recipe);
-      if (!['OK', 'NO_DATA'].includes(page.status) || page.release?.release_id !== release.release_id || page.release.boundary_version !== release.boundary_version || page.release.dataset_id !== recipe.datasetId || page.release.indicator_id !== recipe.indicatorId || page.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
-      if (!Array.isArray(page.observations) || page.returned !== page.observations.length || !Number.isInteger(page.total) || page.total < 0 || (first && page.total !== first.total)) throw new Error('統計分頁完整度不符');
-      first ??= page;
-      observations.push(...page.observations);
-      if (!page.truncated) break;
-      if (!Number.isInteger(page.next_offset) || page.next_offset !== offset + page.returned || page.returned === 0 || pageIndex === 99) throw new Error('統計分頁無法繼續');
-      offset = page.next_offset!;
-    }
-    if (!first || observations.length !== first.total) throw new Error('統計資料未完整載入');
-    const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, { p_boundary_version: release.boundary_version, p_level: recipe.level }, signal, recipe);
     const previewDimensions = agriPreviewEnabled() && agri ? { dimensions: effectiveRecipe.dimensions ?? {} } : {};
-    const sourceResponse = await request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe);
-    const health = recipe.includeHealth
-      ? await request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe)
-      : undefined;
-    const geometryManifest = geometryResponse.geometry;
-    if (geometryResponse.status !== 'OK' || sourceResponse.status !== 'OK' || (health && health.status !== 'OK') || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
-    const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
-      const response = await fetch(geometryManifest.resource);
-      if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
-      return response.arrayBuffer();
-    }), signal);
+    // These requests share a validated release, not each other's response. Keep
+    // the atomic result gate below: no values render before provenance/health/SHA pass.
+    const [{ first, observations }, { geometryManifest, boundary }, sourceResponse, health] = await Promise.all([
+      (async () => {
+        let first: StatisticsValues | undefined;
+        const observations: StatisticsObservation[] = [];
+        let offset = 0;
+        for (let pageIndex = 0; pageIndex < 100; pageIndex++) {
+          const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {}, limit: 10000, offset };
+          const page = await request<StatisticsValues>('values', query, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: release.release_id, p_level: recipe.level, p_dimensions: effectiveRecipe.dimensions ?? {}, p_limit: 10000, p_offset: offset }, signal, recipe);
+          if (!['OK', 'NO_DATA'].includes(page.status) || page.release?.release_id !== release.release_id || page.release.boundary_version !== release.boundary_version || page.release.dataset_id !== recipe.datasetId || page.release.indicator_id !== recipe.indicatorId || page.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
+          if (!Array.isArray(page.observations) || page.returned !== page.observations.length || !Number.isInteger(page.total) || page.total < 0 || (first && page.total !== first.total)) throw new Error('統計分頁完整度不符');
+          first ??= page;
+          observations.push(...page.observations);
+          if (!page.truncated) break;
+          if (!Number.isInteger(page.next_offset) || page.next_offset !== offset + page.returned || page.returned === 0 || pageIndex === 99) throw new Error('統計分頁無法繼續');
+          offset = page.next_offset!;
+        }
+        if (!first || observations.length !== first.total) throw new Error('統計資料未完整載入');
+        return { first, observations };
+      })(),
+      (async () => {
+        const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, { p_boundary_version: release.boundary_version, p_level: recipe.level }, signal, recipe);
+        const geometryManifest = geometryResponse.geometry;
+        if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
+        const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
+          const response = await fetch(geometryManifest.resource);
+          if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
+          return response.arrayBuffer();
+        }), signal);
+        return { geometryManifest, boundary };
+      })(),
+      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe),
+      recipe.includeHealth
+        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe)
+        : Promise.resolve(undefined),
+    ]);
+    if (sourceResponse.status !== 'OK' || (health && health.status !== 'OK')) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
     const requiresSourceSemantics = agri?.release_options.some(option => option.release_id === release!.release_id && Boolean(option.semantics_sidecar_path));
     const byCode = new Map<string, StatisticsObservation>();
     for (const value of observations) {

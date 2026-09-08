@@ -54,3 +54,5 @@ VITE_SUPABASE_URL=http://127.0.0.1:3743 VITE_SUPABASE_ANON_KEY=local-preview-no-
 ## 尚未授權的 production 步驟
 
 正式 API 尚未發布這批 releases；本次成果不代表 production 可用。後續需另行授權資料／sidecar與boundary發布、正式 RPC readback與權限確認、部署與正式網址桌面及手機驗收。Preview server 不可作為 production backend。
+
+本地載入改善與正式資料落點見 [loading-performance.md](./loading-performance.md)（尚未提交／發布）。

@@ -16,15 +16,26 @@ export interface StatisticsBoundaryGeometry {
 
 interface CacheEntry {
   promise: Promise<StatisticsBoundaryGeometry>;
+  /** Present only after a successful immutable boundary has been retained. */
+  byteLength?: number;
 }
 
 const DEFAULT_MAX_ENTRIES = 8;
-// Large boundaries may be useful to a concurrent caller, but should not occupy a
-// long-lived browser session cache by themselves.
-const DEFAULT_MAX_BYTES = 8 * 1024 * 1024;
+/** Total raw boundary bytes retained by the browser cache, not a per-file limit. */
+const DEFAULT_MAX_TOTAL_BYTES = 64 * 1024 * 1024;
 
 function cacheKey(manifest: StatisticsGeometryManifest): string {
-  return JSON.stringify([manifest.resource, manifest.sha256, manifest.boundary_version, manifest.level, manifest.code_scheme, manifest.code_property, manifest.name_property]);
+  // boundary_version describes the caller's statistical release. The immutable
+  // geometry is instead identified by its source, SHA, level, and normalization
+  // mapping, so aliases which deliver identical bytes share one fetch and parse.
+  return JSON.stringify([
+    manifest.resource,
+    manifest.sha256,
+    manifest.level,
+    manifest.code_scheme,
+    manifest.code_property ?? 'area_code',
+    manifest.name_property ?? null,
+  ]);
 }
 
 function deepFreeze<T>(value: T): T {
@@ -42,23 +53,56 @@ function freezeBoundary(features: GeoJSON.Feature[]): readonly GeoJSON.Feature[]
 /** Immutable, SHA-verified raw boundaries only. Statistics values are joined by callers. */
 export class StatisticsGeometryCache {
   private readonly entries = new Map<string, CacheEntry>();
+  private cachedBytes = 0;
 
   constructor(
     private readonly maxEntries = DEFAULT_MAX_ENTRIES,
-    private readonly maxBytes = DEFAULT_MAX_BYTES,
+    private readonly maxTotalBytes = DEFAULT_MAX_TOTAL_BYTES,
   ) {}
+
+  private remove(key: string): void {
+    const entry = this.entries.get(key);
+    if (!entry) return;
+    this.entries.delete(key);
+    if (entry.byteLength !== undefined) this.cachedBytes -= entry.byteLength;
+  }
+
+  private touch(key: string, entry: CacheEntry): void {
+    this.entries.delete(key);
+    this.entries.set(key, entry);
+  }
+
+  private trimEntryCount(): void {
+    // Pending entries consume no raw-byte budget, but are still capped so a
+    // burst of distinct requests cannot make the bookkeeping unbounded.
+    while (this.entries.size > this.maxEntries) {
+      const oldest = this.entries.keys().next().value;
+      if (oldest === undefined) break;
+      this.remove(oldest);
+    }
+  }
+
+  private trimByteBudget(): void {
+    while (this.cachedBytes > this.maxTotalBytes) {
+      // Do not evict a pending fetch for byte accounting: it has not retained
+      // raw geometry yet, and callers may still be sharing it.
+      const oldestCompleted = [...this.entries].find(([, entry]) => entry.byteLength !== undefined)?.[0];
+      if (oldestCompleted === undefined) break;
+      this.remove(oldestCompleted);
+    }
+  }
 
   load(manifest: StatisticsGeometryManifest, fetcher: () => Promise<ArrayBuffer>): Promise<StatisticsBoundaryGeometry> {
     const key = cacheKey(manifest);
     const hit = this.entries.get(key);
     if (hit) {
-      this.entries.delete(key);
-      this.entries.set(key, hit);
+      this.touch(key, hit);
       return hit.promise;
     }
 
-    let entry: CacheEntry;
-    const promise = fetcher()
+    let entry!: CacheEntry;
+    const promise = Promise.resolve()
+      .then(fetcher)
       .then(async bytes => {
         const digest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
           .map(n => n.toString(16).padStart(2, '0')).join('');
@@ -77,36 +121,27 @@ export class StatisticsGeometryCache {
           return { ...feature, properties: { ...feature.properties, area_code: code, ...(manifest.name_property ? { area_name: feature.properties?.[manifest.name_property] } : {}) } };
         });
         return { features: freezeBoundary(features), byteLength: bytes.byteLength };
-      });
+    });
     entry = { promise };
     this.entries.set(key, entry);
-    // Bound cache bookkeeping even while downloads are pending. Eviction does not
-    // cancel promises still owned by callers; completed evicted work cannot reinsert itself.
-    while (this.entries.size > this.maxEntries) {
-      const oldest = this.entries.keys().next().value;
-      if (oldest === undefined) break;
-      this.entries.delete(oldest);
-    }
+    // Eviction does not cancel promises still owned by callers; completed evicted
+    // work cannot reinsert itself.
+    this.trimEntryCount();
     promise.then(
       boundary => {
         if (this.entries.get(key) !== entry) return;
-        if (boundary.byteLength > this.maxBytes) {
-          this.entries.delete(key);
-          return;
-        }
-        while (this.entries.size > this.maxEntries) {
-          const oldest = this.entries.keys().next().value;
-          if (oldest === undefined) break;
-          this.entries.delete(oldest);
-        }
+        entry.byteLength = boundary.byteLength;
+        this.cachedBytes += boundary.byteLength;
+        this.trimByteBudget();
       },
-      () => { if (this.entries.get(key) === entry) this.entries.delete(key); },
+      () => { if (this.entries.get(key) === entry) this.remove(key); },
     );
     return promise;
   }
 
-  clear(): void { this.entries.clear(); }
+  clear(): void { this.entries.clear(); this.cachedBytes = 0; }
   get size(): number { return this.entries.size; }
+  get byteLength(): number { return this.cachedBytes; }
 }
 
 export const statisticsGeometryCache = new StatisticsGeometryCache();
