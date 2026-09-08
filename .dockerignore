@@ -7,3 +7,6 @@ dist
 scripts/flight-list.json
 scripts/track-progress.json
 .git
+
+**/node_modules
+docs/features/coral-reef-layers/evidence

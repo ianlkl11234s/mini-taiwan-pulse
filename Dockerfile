@@ -13,9 +13,16 @@ ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 
 RUN npm run build
 
+FROM node:22-alpine AS coral-server
+WORKDIR /coral-server
+COPY server/coral-private/package*.json ./
+RUN npm ci --omit=dev
+COPY server/coral-private/ ./
+
 # ── Stage 2: Serve ──
 FROM nginx:alpine
-RUN apk add --no-cache aws-cli
+RUN apk add --no-cache aws-cli nodejs
+COPY --from=coral-server /coral-server /opt/coral-server
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY scripts/deploy/pull-deploy-assets.sh /usr/local/bin/pull-deploy-assets.sh

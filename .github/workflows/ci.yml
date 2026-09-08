@@ -14,7 +14,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       # AU-6：package-lock.json 是唯一 lockfile SSOT（見 .claude/memory/PRINCIPLES.md）
@@ -34,3 +34,8 @@ jobs:
 
       - name: Tests (vitest)
         run: npm test
+
+      - name: Private coral backend tests
+        run: |
+          npm ci --prefix server/coral-private
+          npm test --prefix server/coral-private

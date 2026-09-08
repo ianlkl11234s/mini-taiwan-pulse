@@ -7,8 +7,8 @@ describe("coral local-only URL state", () => {
     expect(parseUrlState("?v=1&layers=coralReefDistribution").layers).toBeUndefined();
     expect(buildUrl({ layers: ["coralReefDistribution"] }, "https://example.test/")).not.toContain("coralReefDistribution");
   });
-  it("retains the local research layer in development", () => {
+  it("also excludes private research layer from development URLs", () => {
     vi.stubEnv("DEV", true);
-    expect(parseUrlState("?v=1&layers=coralReefDistribution").layers).toEqual(["coralReefDistribution"]);
+    expect(parseUrlState("?v=1&layers=coralReefDistribution").layers).toBeUndefined();
   });
 });

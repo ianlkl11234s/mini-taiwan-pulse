@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { mountCoralReefDistribution, CORAL_SOURCE_ID } from "./useCoralReefDistributionLayer";
-vi.mock("../map/pmtilesSourceType", () => ({ registerPmtilesSourceTypeOnce: vi.fn() }));
+vi.mock("../map/privateCoralPmtiles", () => ({ registerPrivateCoralSourceOnce: vi.fn(), PRIVATE_CORAL_PMTILES_SOURCE_TYPE: "private-coral-pmtile-source" }));
 function mockMap() {
   const listeners = new Map<string, Set<(event: unknown) => void>>();
   const sources = new Map<string, unknown>();

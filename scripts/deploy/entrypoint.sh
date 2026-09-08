@@ -14,6 +14,9 @@ set -u
 
 echo "[entrypoint] $(date -u) container start"
 
+# Dedicated loopback-only backend: missing configuration fails closed with 503.
+node /opt/coral-server/coral-private-server.mjs &
+
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
   echo "[entrypoint] launching background pull (nginx starts immediately) ..."
   (
