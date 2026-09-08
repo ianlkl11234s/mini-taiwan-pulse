@@ -1,0 +1,883 @@
+{
+  "status": "PASS",
+  "mode": "database_read_only",
+  "transaction": "BEGIN READ ONLY; statement_timeout=30s; ROLLBACK",
+  "verified_at": "2026-09-08T15:34:16.030422+00:00",
+  "package_root": "/private/tmp/agri-production-package-20260908",
+  "platform_importer": "/private/tmp/agri-statistics-platform-production-20260908/scripts/statistics/import_bundle.py",
+  "published_mode": true,
+  "prepared": {
+    "bundle_count": 50,
+    "enabled": 24,
+    "disabled": 3,
+    "recipes_sha256": "e23e9f4d988eaa2074341fe1d7652eb9e1edc35e9ac4c9ac8b7c61f5cbc3695b"
+  },
+  "exact_selector_tuples": 2748,
+  "releases": [
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "paddy_land_area_hectare",
+      "release_id": "2024-2025-paddy_land_area_hectare-1287362dfee3",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "dry_field_area_hectare",
+      "release_id": "2024-2025-dry_field_area_hectare-305d5a5a5201",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "orchard_area_hectare",
+      "release_id": "2024-2025-orchard_area_hectare-5fc8feb97724",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "agricultural_facility_area_hectare",
+      "release_id": "2024-2025-agricultural_facility_area_hectare-d8d2d2f6001d",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "livestock_building_area_hectare",
+      "release_id": "2024-2025-livestock_building_area_hectare-5b6919c79ae8",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "pasture_area_hectare",
+      "release_id": "2024-2025-pasture_area_hectare-3c38fdfa3486",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "aquaculture_land_area_hectare",
+      "release_id": "2024-2025-aquaculture_land_area_hectare-8c5115de7136",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "conifer_forest_area_hectare",
+      "release_id": "2024-2025-conifer_forest_area_hectare-10a58a8cb4d2",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "broadleaf_forest_area_hectare",
+      "release_id": "2024-2025-broadleaf_forest_area_hectare-6f2c7cf9d83b",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "bamboo_forest_area_hectare",
+      "release_id": "2024-2025-bamboo_forest_area_hectare-a632d1f8fc93",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "mixed_forest_area_hectare",
+      "release_id": "2024-2025-mixed_forest_area_hectare-a6c8ad33fbd6",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "road_land_area_hectare",
+      "release_id": "2024-2025-road_land_area_hectare-119af2949437",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "rail_land_area_hectare",
+      "release_id": "2024-2025-rail_land_area_hectare-8d4337e73a9c",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "airport_land_area_hectare",
+      "release_id": "2024-2025-airport_land_area_hectare-1a4ed2a91ac0",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "land_use_township_statistics",
+      "indicator_id": "port_land_area_hectare",
+      "release_id": "2024-2025-port_land_area_hectare-cb0234729ed4",
+      "observations": 368,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "moa_crop_township_statistics_7302",
+      "indicator_id": "crop_planted_area_township",
+      "release_id": "2025-crop_planted_area_township-3cc6a88b2a3e",
+      "observations": 244352,
+      "null_values": 200814,
+      "semantic_values": 0,
+      "health": {
+        "availability": "PARTIAL",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "moa_crop_township_statistics_7302",
+      "indicator_id": "crop_harvested_area_township",
+      "release_id": "2025-crop_harvested_area_township-756339c70544",
+      "observations": 244352,
+      "null_values": 200814,
+      "semantic_values": 0,
+      "health": {
+        "availability": "PARTIAL",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "moa_crop_township_statistics_7302",
+      "indicator_id": "crop_production_township",
+      "release_id": "2025-crop_production_township-f0fa60d97d70",
+      "observations": 244352,
+      "null_values": 200814,
+      "semantic_values": 0,
+      "health": {
+        "availability": "PARTIAL",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "moa_crop_township_statistics_7302",
+      "indicator_id": "crop_yield_township",
+      "release_id": "2025-crop_yield_township-e9adfc715e44",
+      "observations": 244352,
+      "null_values": 200814,
+      "semantic_values": 0,
+      "health": {
+        "availability": "PARTIAL",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2024-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2023-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2022-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2021-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2020-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2019-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2018-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2017-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2016-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_production_tonnes",
+      "release_id": "2015-fishery_production_tonnes-de30f6da9a05-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2024-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2023-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2022-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2021-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2020-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2019-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2018-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2017-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2016-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "fishery_value_thousand",
+      "release_id": "2015-fishery_value_thousand-8abcc9373a33-v2",
+      "observations": 22,
+      "null_values": 0,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2023-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2022-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2021-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2020-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2019-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2018-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2017-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2016-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_area_ha",
+      "release_id": "2015-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "observations": 22,
+      "null_values": 3,
+      "semantic_values": 0,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22,
+        "unallocated_total": null,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "livestock_township_statistics",
+      "indicator_id": "livestock_farm_count",
+      "release_id": "2026-Q1-livestock_farm_count-8982facb5a08",
+      "observations": 8832,
+      "null_values": 7341,
+      "semantic_values": 7341,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 1491,
+        "coverage_denominator": 8832,
+        "unallocated_total": 0,
+        "public_rpc": "OK"
+      }
+    },
+    {
+      "dataset_id": "livestock_township_statistics",
+      "indicator_id": "livestock_head_count",
+      "release_id": "2026-Q1-livestock_head_count-f6428b119930",
+      "observations": 8832,
+      "null_values": 7343,
+      "semantic_values": 7343,
+      "health": {
+        "availability": "STALE",
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 1489,
+        "coverage_denominator": 8832,
+        "unallocated_total": 0,
+        "public_rpc": "OK"
+      }
+    }
+  ],
+  "disabled_no_publication": [
+    {
+      "layer_key": "statsForestMainProductValueCounty",
+      "dataset_id": "moa_forest_product_value",
+      "indicator_id": "forest_main_product_value_county",
+      "public_releases": 0
+    },
+    {
+      "layer_key": "statsForestByproductValueCounty",
+      "dataset_id": "moa_forest_product_value",
+      "indicator_id": "forest_byproduct_value_county",
+      "public_releases": 0
+    },
+    {
+      "layer_key": "statsAquacultureStockingCounty",
+      "dataset_id": "fishery_stats_by_county",
+      "indicator_id": "aquaculture_stock_amount",
+      "public_releases": 0
+    }
+  ],
+  "existing_rice_pig_reference_evidence": [
+    {
+      "dataset_id": "rice_harvested_area_township",
+      "indicator_id": "rice_harvested_area_hectare",
+      "target_scope_disjoint": true,
+      "release_rows": [
+        {
+          "release_id": "2025-rice-harvested-area-v1-2c1670421009",
+          "content_sha256": "d56c8921808f06fa84dd99084ff84f7de0f837dff7e2044f28b287e70fa4c838",
+          "expected_count": 368,
+          "public": true
+        }
+      ],
+      "value_rows": 368
+    },
+    {
+      "dataset_id": "livestock_pig_water_county",
+      "indicator_id": "pig_water_thousand_m3",
+      "target_scope_disjoint": true,
+      "release_rows": [
+        {
+          "release_id": "2018-pig-water-v1-844ee820df16",
+          "content_sha256": "3d462c305b2e6023a2fa83df1280bc5e26db5b1149e3c62d7063b4912c48475d",
+          "expected_count": 22,
+          "public": true
+        },
+        {
+          "release_id": "2019-pig-water-v1-9e81c389c242",
+          "content_sha256": "f8364b0c32260bbc04d24ddbff02639f9943bdc692f85ab1e9fea81d977ddac5",
+          "expected_count": 22,
+          "public": true
+        }
+      ],
+      "value_rows": 44
+    }
+  ],
+  "legacy_releases_before": {
+    "status": "MATCHED",
+    "path": "/private/tmp/agri-production-evidence-20260908/legacy-releases-before.json",
+    "sha256": "cea4543a2d41efc68910d3c0f7595baa511b27af142921cdc3029e7ae8d11d8c",
+    "release_count": 753
+  },
+  "total_observations": 1001230,
+  "total_null_values": 817967,
+  "total_livestock_semantic_values": 14684
+}

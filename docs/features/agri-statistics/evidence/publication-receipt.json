@@ -1,0 +1,302 @@
+[
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "paddy_land_area_hectare",
+    "release_id": "2024-2025-paddy_land_area_hectare-1287362dfee3",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "dry_field_area_hectare",
+    "release_id": "2024-2025-dry_field_area_hectare-305d5a5a5201",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "orchard_area_hectare",
+    "release_id": "2024-2025-orchard_area_hectare-5fc8feb97724",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "agricultural_facility_area_hectare",
+    "release_id": "2024-2025-agricultural_facility_area_hectare-d8d2d2f6001d",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "livestock_building_area_hectare",
+    "release_id": "2024-2025-livestock_building_area_hectare-5b6919c79ae8",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "pasture_area_hectare",
+    "release_id": "2024-2025-pasture_area_hectare-3c38fdfa3486",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "aquaculture_land_area_hectare",
+    "release_id": "2024-2025-aquaculture_land_area_hectare-8c5115de7136",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "conifer_forest_area_hectare",
+    "release_id": "2024-2025-conifer_forest_area_hectare-10a58a8cb4d2",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "broadleaf_forest_area_hectare",
+    "release_id": "2024-2025-broadleaf_forest_area_hectare-6f2c7cf9d83b",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "bamboo_forest_area_hectare",
+    "release_id": "2024-2025-bamboo_forest_area_hectare-a632d1f8fc93",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "mixed_forest_area_hectare",
+    "release_id": "2024-2025-mixed_forest_area_hectare-a6c8ad33fbd6",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "road_land_area_hectare",
+    "release_id": "2024-2025-road_land_area_hectare-119af2949437",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "rail_land_area_hectare",
+    "release_id": "2024-2025-rail_land_area_hectare-8d4337e73a9c",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "airport_land_area_hectare",
+    "release_id": "2024-2025-airport_land_area_hectare-1a4ed2a91ac0",
+    "result": null
+  },
+  {
+    "dataset_id": "land_use_township_statistics",
+    "indicator_id": "port_land_area_hectare",
+    "release_id": "2024-2025-port_land_area_hectare-cb0234729ed4",
+    "result": null
+  },
+  {
+    "dataset_id": "moa_crop_township_statistics_7302",
+    "indicator_id": "crop_planted_area_township",
+    "release_id": "2025-crop_planted_area_township-3cc6a88b2a3e",
+    "result": null
+  },
+  {
+    "dataset_id": "moa_crop_township_statistics_7302",
+    "indicator_id": "crop_harvested_area_township",
+    "release_id": "2025-crop_harvested_area_township-756339c70544",
+    "result": null
+  },
+  {
+    "dataset_id": "moa_crop_township_statistics_7302",
+    "indicator_id": "crop_production_township",
+    "release_id": "2025-crop_production_township-f0fa60d97d70",
+    "result": null
+  },
+  {
+    "dataset_id": "moa_crop_township_statistics_7302",
+    "indicator_id": "crop_yield_township",
+    "release_id": "2025-crop_yield_township-e9adfc715e44",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2024-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2023-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2022-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2021-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2020-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2019-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2018-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2017-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2016-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_production_tonnes",
+    "release_id": "2015-fishery_production_tonnes-de30f6da9a05-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2024-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2023-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2022-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2021-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2020-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2019-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2018-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2017-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2016-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "fishery_value_thousand",
+    "release_id": "2015-fishery_value_thousand-8abcc9373a33-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2023-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2022-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2021-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2020-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2019-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2018-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2017-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2016-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "fishery_stats_by_county",
+    "indicator_id": "aquaculture_area_ha",
+    "release_id": "2015-aquaculture_area_ha-e76e8c1c54bd-v2",
+    "result": null
+  },
+  {
+    "dataset_id": "livestock_township_statistics",
+    "indicator_id": "livestock_farm_count",
+    "release_id": "2026-Q1-livestock_farm_count-8982facb5a08",
+    "result": null
+  },
+  {
+    "dataset_id": "livestock_township_statistics",
+    "indicator_id": "livestock_head_count",
+    "release_id": "2026-Q1-livestock_head_count-f6428b119930",
+    "result": null
+  }
+]

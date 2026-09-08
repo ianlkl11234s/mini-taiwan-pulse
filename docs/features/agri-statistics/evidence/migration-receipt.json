@@ -1,0 +1,7 @@
+{
+  "migration": "410_statistics_source_semantics_health.sql",
+  "sha256": "7be1295ddf4f71d72e18f654f00b396fc8d130742e232d3d9cf299cf57252eaa",
+  "status": "APPLIED",
+  "acl_unchanged": true,
+  "existing_releases_unchanged": 753
+}

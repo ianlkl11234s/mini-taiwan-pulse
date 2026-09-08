@@ -1,18 +1,19 @@
 # Statistics 載入改善與正式資料落點
 
-2026-09-08。本次只做本地效能修改／測試／browser 驗收，未 commit、push、merge、部署或上傳資料。工作分支 `codex/statistics-loading-performance-20260908`，基底 `30e48cfe`；與基準 `db7dc1c8` 的兩個 Statistics loader/cache 檔內容相同。
+2026-09-08。載入改善已由 PR #233 合併並部署；正式資料與 source semantics 由 platform PR #102 發布，catalog 索引改善由 PR #103 套用。下方 localhost 前後量測保留為歷史基準。
+
+正式 catalog 資料庫執行時間由 12,325.914 ms 降至 354.851 ms；匿名 HTTP 全流程單次樣本 1,097 ms。這不是整張地圖的渲染時間。索引前後 catalog 回應相同，803 個 release hashes 與 ACL 維持一致，見 [index-receipt.json](./evidence/index-receipt.json)。
 
 ## 正式資料需要放哪裡
 
-| 資料 | 既有正式落點／入口 | 本批尚需處理 |
-|---|---|---|
-| datasets、indicators | Supabase `reference.stat_datasets`、`reference.stat_indicators`；`gis-platform/scripts/statistics/import_bundle.py` | 僅匯入交付白名單 bundles |
-| releases、lineage、發布事件 | `metadata.stat_releases`、`metadata.stat_lineage`、`metadata.stat_publication_events` | 校驗 immutable hash、發布後匿名 RPC readback |
-| observations | `spatial.stat_values` | 維持 exact dimensions、缺值；不複製兩個既有圖層的資料 |
-| boundary GeoJSON | 公開 S3/CDN URL；`scripts/statistics/register_geometry.py` 登記至 `spatial.stat_area_sets`／`spatial.stat_area_members` | URL 與 SHA 對齊，再由 `get_stat_geometry_manifest` 提供前端；未確認可直接使用的 bucket/prefix，不猜目的路徑 |
-| 畜禽 sidecar | 需先補 platform importer/schema/public values 契約，或提供可透過 values 還原的 immutable provenance | 現有 importer 只接受 observation 五欄與四種 status，不能原樣承載 source_status/source_token；直接丟棄 sidecar 不符合交付 |
+| 資料 | 正式落點／結果 |
+|---|---|
+| datasets、indicators、releases、observations | 既有 Supabase Statistics tables；50 releases 已公開，exact dimensions 保留 |
+| 畜禽 sidecar | importer 寫入 observation 的 source_status/source_token，values RPC 原樣回傳 |
+| boundary GeoJSON | 既有部署資產 mirror 的 `/geo/` URL，manifest SHA 與匿名下載一致；未修改座標 |
+| geometry 對應 | 新增必要 logical aliases；既有 county／township manifests 保留 |
 
-不需把 tar.gz 放進 frontend Git 或把本地 Python preview 上 production。現有 importer 的 `--apply`／`--publish` 是遠端寫入／發布步驟，本次未執行。此處根據本地程式碼確認承載位置，不將舊 foundation 文件視為目前整個 production 的部署狀態。
+正式鄉鎮資產正規化後 45,242,401 bytes（未簡化座標），SHA 見 [geometry-upload.json](./evidence/geometry-upload.json)。不需將 tar.gz 加入 frontend Git；正式服務不依賴 Python preview。
 
 ## 找到的瓶頸與本地修改
 

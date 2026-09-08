@@ -1,0 +1,440 @@
+{
+  "status": "PASS",
+  "anonymous": true,
+  "catalog_ms": 1097,
+  "enabled_layers": 24,
+  "layers": [
+    {
+      "layer_key": "statsPaddyLandAreaTownship",
+      "release_id": "2024-2025-paddy_land_area_hectare-1287362dfee3",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 216,
+        "health": 237,
+        "sources": 363,
+        "geometry": 207
+      }
+    },
+    {
+      "layer_key": "statsDryFieldAreaTownship",
+      "release_id": "2024-2025-dry_field_area_hectare-305d5a5a5201",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 188,
+        "health": 264,
+        "sources": 196,
+        "geometry": 205
+      }
+    },
+    {
+      "layer_key": "statsOrchardAreaTownship",
+      "release_id": "2024-2025-orchard_area_hectare-5fc8feb97724",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 211,
+        "health": 241,
+        "sources": 196,
+        "geometry": 230
+      }
+    },
+    {
+      "layer_key": "statsAgriculturalFacilityAreaTownship",
+      "release_id": "2024-2025-agricultural_facility_area_hectare-d8d2d2f6001d",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 175,
+        "health": 251,
+        "sources": 219,
+        "geometry": 226
+      }
+    },
+    {
+      "layer_key": "statsLivestockBuildingAreaTownship",
+      "release_id": "2024-2025-livestock_building_area_hectare-5b6919c79ae8",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 321,
+        "health": 300,
+        "sources": 178,
+        "geometry": 227
+      }
+    },
+    {
+      "layer_key": "statsPastureAreaTownship",
+      "release_id": "2024-2025-pasture_area_hectare-3c38fdfa3486",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 236,
+        "health": 242,
+        "sources": 173,
+        "geometry": 237
+      }
+    },
+    {
+      "layer_key": "statsAquacultureLandAreaTownship",
+      "release_id": "2024-2025-aquaculture_land_area_hectare-8c5115de7136",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 204,
+        "health": 278,
+        "sources": 187,
+        "geometry": 236
+      }
+    },
+    {
+      "layer_key": "statsConiferForestAreaTownship",
+      "release_id": "2024-2025-conifer_forest_area_hectare-10a58a8cb4d2",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 294,
+        "health": 232,
+        "sources": 249,
+        "geometry": 206
+      }
+    },
+    {
+      "layer_key": "statsBroadleafForestAreaTownship",
+      "release_id": "2024-2025-broadleaf_forest_area_hectare-6f2c7cf9d83b",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 273,
+        "health": 217,
+        "sources": 185,
+        "geometry": 214
+      }
+    },
+    {
+      "layer_key": "statsBambooForestAreaTownship",
+      "release_id": "2024-2025-bamboo_forest_area_hectare-a632d1f8fc93",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 197,
+        "health": 231,
+        "sources": 186,
+        "geometry": 213
+      }
+    },
+    {
+      "layer_key": "statsMixedForestAreaTownship",
+      "release_id": "2024-2025-mixed_forest_area_hectare-a6c8ad33fbd6",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 157,
+        "health": 320,
+        "sources": 152,
+        "geometry": 207
+      }
+    },
+    {
+      "layer_key": "statsRoadLandAreaTownship",
+      "release_id": "2024-2025-road_land_area_hectare-119af2949437",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 197,
+        "health": 202,
+        "sources": 185,
+        "geometry": 225
+      }
+    },
+    {
+      "layer_key": "statsRailLandAreaTownship",
+      "release_id": "2024-2025-rail_land_area_hectare-8d4337e73a9c",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 186,
+        "health": 163,
+        "sources": 153,
+        "geometry": 206
+      }
+    },
+    {
+      "layer_key": "statsAirportLandAreaTownship",
+      "release_id": "2024-2025-airport_land_area_hectare-1a4ed2a91ac0",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 198,
+        "health": 282,
+        "sources": 173,
+        "geometry": 517
+      }
+    },
+    {
+      "layer_key": "statsPortLandAreaTownship",
+      "release_id": "2024-2025-port_land_area_hectare-cb0234729ed4",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 368,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 187,
+        "health": 234,
+        "sources": 170,
+        "geometry": 518
+      }
+    },
+    {
+      "layer_key": "statsCropPlantedAreaTownship",
+      "release_id": "2025-crop_planted_area_township-3cc6a88b2a3e",
+      "count": 368,
+      "status": "PASS",
+      "availability": "PARTIAL",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 185,
+        "health": 564,
+        "sources": 420,
+        "geometry": 230
+      }
+    },
+    {
+      "layer_key": "statsCropHarvestedAreaTownship",
+      "release_id": "2025-crop_harvested_area_township-756339c70544",
+      "count": 368,
+      "status": "PASS",
+      "availability": "PARTIAL",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 589,
+        "health": 533,
+        "sources": 199,
+        "geometry": 1241
+      }
+    },
+    {
+      "layer_key": "statsCropProductionTownship",
+      "release_id": "2025-crop_production_township-f0fa60d97d70",
+      "count": 368,
+      "status": "PASS",
+      "availability": "PARTIAL",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 175,
+        "health": 408,
+        "sources": 217,
+        "geometry": 545
+      }
+    },
+    {
+      "layer_key": "statsCropYieldTownship",
+      "release_id": "2025-crop_yield_township-e9adfc715e44",
+      "count": 368,
+      "status": "PASS",
+      "availability": "PARTIAL",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 345,
+        "coverage_denominator": 368
+      },
+      "milliseconds": {
+        "values": 189,
+        "health": 584,
+        "sources": 1232,
+        "geometry": 217
+      }
+    },
+    {
+      "layer_key": "statsFisheryProductionCounty",
+      "release_id": "2024-fishery_production_tonnes-de30f6da9a05-v2",
+      "count": 22,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22
+      },
+      "milliseconds": {
+        "values": 1215,
+        "health": 1206,
+        "sources": 258,
+        "geometry": 253
+      }
+    },
+    {
+      "layer_key": "statsFisheryProductionValueCounty",
+      "release_id": "2024-fishery_value_thousand-8abcc9373a33-v2",
+      "count": 22,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "COMPLETE",
+        "coverage_numerator": 22,
+        "coverage_denominator": 22
+      },
+      "milliseconds": {
+        "values": 843,
+        "health": 233,
+        "sources": 232,
+        "geometry": 232
+      }
+    },
+    {
+      "layer_key": "statsAquacultureAreaCounty",
+      "release_id": "2023-aquaculture_area_ha-e76e8c1c54bd-v2",
+      "count": 22,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 19,
+        "coverage_denominator": 22
+      },
+      "milliseconds": {
+        "values": 189,
+        "health": 238,
+        "sources": 285,
+        "geometry": 219
+      }
+    },
+    {
+      "layer_key": "statsLivestockFarmCountTownship",
+      "release_id": "2026-Q1-livestock_farm_count-8982facb5a08",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 1491,
+        "coverage_denominator": 8832
+      },
+      "milliseconds": {
+        "values": 208,
+        "health": 239,
+        "sources": 193,
+        "geometry": 211
+      }
+    },
+    {
+      "layer_key": "statsLivestockHeadCountTownship",
+      "release_id": "2026-Q1-livestock_head_count-f6428b119930",
+      "count": 368,
+      "status": "PASS",
+      "availability": "STALE",
+      "coverage": {
+        "coverage_status": "PARTIAL",
+        "coverage_numerator": 1489,
+        "coverage_denominator": 8832
+      },
+      "milliseconds": {
+        "values": 272,
+        "health": 232,
+        "sources": 183,
+        "geometry": 287
+      }
+    }
+  ]
+}

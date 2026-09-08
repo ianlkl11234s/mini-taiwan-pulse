@@ -1,0 +1,11 @@
+{
+  "status": "UPLOADED",
+  "bucket": "migu-gis-data-collector",
+  "key": "deploy-assets/geo/statistics-township-1140318-80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd.json",
+  "sha256": "80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd",
+  "bytes": 45242401,
+  "resource": "https://mini-taiwan-pulse.itsmigu.com/geo/statistics-township-1140318-80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd.json",
+  "public_readback": "PASS",
+  "storage": "private existing bucket served through existing Pulse /geo mirror; no ACL changes",
+  "public_readback_sha256": "80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd"
+}

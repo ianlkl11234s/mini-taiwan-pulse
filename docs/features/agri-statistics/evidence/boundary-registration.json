@@ -1,0 +1,26 @@
+[
+  {
+    "version": "COUNTY_MOI_1140318",
+    "status": "EXISTING_PRESERVED",
+    "codes": 22,
+    "sha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c"
+  },
+  {
+    "version": "township_reference_20260626_v1",
+    "status": "EXISTING_PRESERVED",
+    "codes": 368,
+    "sha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84"
+  },
+  {
+    "version": "township_boundary_20260626_identity_only",
+    "status": "REGISTERED",
+    "codes": 368,
+    "sha256": "80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd"
+  },
+  {
+    "version": "TOWN_MOI_1140318",
+    "status": "REGISTERED",
+    "codes": 368,
+    "sha256": "80749d605be86044650d6d73e0cf36fe48feb9f71ef4192702ced39a29432afd"
+  }
+]

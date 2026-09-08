@@ -1,0 +1,7 @@
+{
+  "status": "APPLIED",
+  "migration": "411_statistics_catalog_selector_index.sql",
+  "sha256": "130bc4826fa373149c140173e375a13fce81a480532bc8fc6f615c51bde4a9be",
+  "catalog_acl_unchanged": true,
+  "release_hashes_unchanged": 803
+}

@@ -1,0 +1,276 @@
+{
+  "site": "https://mini-taiwan-pulse.itsmigu.com/",
+  "desktop_viewport": [
+    1280,
+    720
+  ],
+  "desktop_status": "PASS",
+  "desktop_rows": [
+    {
+      "label": "水田用地面積",
+      "value": "478.23 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "旱田用地面積",
+      "value": "579.44 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "果園用地面積",
+      "value": "55.96 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "農業生產設施用地面積",
+      "value": "46.51 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "畜禽舍用地面積",
+      "value": "36.36 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "牧場用地面積",
+      "value": "1.14 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "水產養殖用地面積",
+      "value": "0 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "針葉林用地面積",
+      "value": "0.85 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "闊葉林用地面積",
+      "value": "23.12 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "竹林用地面積",
+      "value": "0.25 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "混合林用地面積",
+      "value": "0 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "道路用地面積",
+      "value": "157.1 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "鐵路用地面積",
+      "value": "4.71 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "機場用地面積",
+      "value": "0 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "港口用地面積",
+      "value": "0 公頃",
+      "observed_regions": 368,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "作物種植面積",
+      "value": "缺資料（missing），不等於 0",
+      "observed_regions": 15,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "作物收穫面積",
+      "value": "缺資料（missing），不等於 0",
+      "observed_regions": 15,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "作物收量",
+      "value": "缺資料（missing），不等於 0",
+      "observed_regions": 15,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "每公頃收穫量",
+      "value": "缺資料（missing），不等於 0",
+      "observed_regions": 15,
+      "total_regions": 368,
+      "area": "北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "漁業生產量",
+      "value": "12,373.6652 公噸",
+      "observed_regions": 22,
+      "total_regions": 22,
+      "area": "彰化縣",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "漁業生產值",
+      "value": "1,846,093 千元",
+      "observed_regions": 22,
+      "total_regions": 22,
+      "area": "彰化縣",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "水產養殖面積",
+      "value": "2,767.46 公頃",
+      "observed_regions": 19,
+      "total_regions": 22,
+      "area": "彰化縣",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "畜禽飼養場數",
+      "value": "未報告 not_reported（-），不等於 0",
+      "observed_regions": 27,
+      "total_regions": 368,
+      "area": "彰化縣北斗鎮",
+      "render_and_map_click": "PASS"
+    },
+    {
+      "label": "畜禽在養數量",
+      "value": "未報告 not_reported（-），不等於 0",
+      "observed_regions": 27,
+      "total_regions": 368,
+      "area": "彰化縣北斗鎮",
+      "render_and_map_click": "PASS"
+    }
+  ],
+  "mobile_status": "PASS",
+  "note": "Actual CUA interactions against formal RPCs; screenshots emitted in conversation. Desktop all24 before coverage-label-only deployment. Mobile crop/fishery/landuse verified; livestock new label, map, tooltip and legend rechecked after final deployment reload. Viewport simulation, not physical phone test. Viewport reset after acceptance.",
+  "mobile_viewport": [
+    390,
+    844
+  ],
+  "mobile_cases": [
+    {
+      "family": "landuse",
+      "layer": "水田用地面積",
+      "observed": 368,
+      "total": 368,
+      "statistical_version": "TOWNSHIP_REFERENCE_MOI_11501",
+      "geometry_version": "TOWN_MOI_1140318",
+      "map": "PASS"
+    },
+    {
+      "family": "crop",
+      "layer": "作物種植面積",
+      "crop": "水稻",
+      "period": "114年",
+      "seasons": [
+        {
+          "season": "一期作",
+          "observed": 1
+        },
+        {
+          "season": "二期作",
+          "observed": 3
+        }
+      ],
+      "total": 368,
+      "missing_not_zero": true,
+      "map": "PASS"
+    },
+    {
+      "family": "fishery",
+      "layer": "水產養殖面積",
+      "year": 2021,
+      "area": "彰化縣",
+      "value": 2919.25,
+      "unit": "公頃",
+      "observed": 19,
+      "total": 22,
+      "map_click": "PASS"
+    },
+    {
+      "family": "livestock",
+      "layer": "畜禽在養數量",
+      "animal": "鹿",
+      "area": "苗栗縣通霄鎮",
+      "source_status": "suppressed",
+      "source_token": "*",
+      "observed": 36,
+      "suppressed": 113,
+      "not_reported": 219,
+      "total": 368,
+      "health": "STALE",
+      "coverage": "PARTIAL",
+      "coverage_rows": [
+        1489,
+        8832
+      ],
+      "coverage_unit": "鄉鎮×畜種資料筆",
+      "map_hatching_tooltip_legend": "PASS"
+    }
+  ],
+  "mobile_width": {
+    "clientWidth": 390,
+    "scrollWidth": 390
+  },
+  "final_code_commit": "172a284955d697478c4fa0327ce18daff530bb75",
+  "final_deployment_id": "6aa02d3b7b89d694354a15c7",
+  "final_deployment_status": "RUNNING"
+}

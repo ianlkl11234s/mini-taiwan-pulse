@@ -1,6 +1,8 @@
-# 農林漁牧 Statistics 本地交付
+# 農林漁牧 Statistics 正式發布
 
-完成日期：2026-09-08。範圍為本地 frontend wiring 與真實交付資料 UI 驗收；[PR #227](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/227) 已合併至 master（`0f8bed5e`）；未執行部署、migration 或 production 資料寫入。Git 交付進度見 [changelog](./changelog.md)。
+更新：2026-09-08。24 層已發布至 [Mini Taiwan Pulse 正式站](https://mini-taiwan-pulse.itsmigu.com/)，3 層維持停用。50 releases、1,001,230 observations 與 2,748 exact selector tuples 完成正式回讀；畜禽未報告／遮蔽與真 0 分別保留。
+
+正式驗收與部署證據見 [production acceptance](./evidence/browser-production.json)、[匿名 API 回讀](./evidence/http-readback.json) 及 [changelog](./changelog.md)。以下本地啟動方式保留供重現，不需要啟動 preview 才能在正式站看到資料。
 
 ## 工作區
 
@@ -40,7 +42,7 @@ VITE_SUPABASE_URL=http://127.0.0.1:3743 VITE_SUPABASE_ANON_KEY=local-preview-no-
 
 全部 2,748 個 release_options tuple 與 boundary 對應已檢查；filters.options 不做笛卡兒積。國土利用顯示115年1月統計參考（113–114年調查）及實際圖形 `TOWN_MOI_1140318`，依使用者取消相容證明門檻的決定繼續。真0、missing、suppressed、not_reported、STALE、PARTIAL 分別保留；不回推縣市總數、不復活 deprecated 林業分析。
 
-## 驗收證據
+## 原始本地驗收證據
 
 - 交付驗證：24 enabled／3 blocked、50 bundles、2,748 tuples；154/154 SHA-256 檔案一致。封裝 hash 見 `evidence/browser-acceptance.json`。
 - `npm test -- --run`：151 個 test files，1,312 passed、3 skipped，見 `evidence/tests.log`。
@@ -51,8 +53,16 @@ VITE_SUPABASE_URL=http://127.0.0.1:3743 VITE_SUPABASE_ANON_KEY=local-preview-no-
 - 手機390×844實際操作國土利用、農情、漁業、畜禽代表層與篩選。鹿在養量的通霄鎮顯示 suppressed／原始 `*`、斜線；not_reported 原始 `-` 保留。水稻一期作1/368、二期作3/368，coverage保持PARTIAL。DOM寬度390、scrollWidth390。
 - 重疊雙 legend、切回單一、All Off、透明度0.55→0.50均操作驗證。截圖已在本次 CUA 工具輸出呈現；未另存 screenshot 檔案。手機驗收為瀏覽器 viewport 模擬，未宣稱實體手機驗收。
 
-## 尚未授權的 production 步驟
+## 正式發布驗收
 
-正式 API 尚未發布這批 releases；本次成果不代表 production 可用。後續需另行授權資料／sidecar與boundary發布、正式 RPC readback與權限確認、部署與正式網址桌面及手機驗收。Preview server 不可作為 production backend。
+使用者後續已授權正式資料寫入、migration、commit、PR、merge 與部署。
 
-本地載入改善與正式資料落點見 [loading-performance.md](./loading-performance.md)（尚未提交／發布）。
+- Platform [PR #102](https://github.com/ianlkl11234s/gis-platform/pull/102)：migration 410 與 importer 保留 `source_status`／`source_token`，health 支援 PARTIAL。
+- Platform [PR #103](https://github.com/ianlkl11234s/gis-platform/pull/103)：migration 411 使用索引與即時查詢改善 catalog；沒有新增 projection table、trigger 或變更 ACL/RLS。
+- Frontend [PR #233](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/233)：共用已驗證 geometry 與平行載入；[PR #234](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/234)：畜禽覆蓋率以「鄉鎮×畜種資料筆」表達，選定畜種仍以 368 鄉鎮為分母。
+- 正式發布保留 817,967 個 null、14,684 筆畜禽來源狀態；753 個既有 release hashes 未變。停用三層沒有公開 release。
+- 正式桌面 1280×720 全部 24 層逐一載入、渲染與地圖點選通過。手機 390×844 完成國土利用、水稻一期／二期、養殖年度切換與畜禽代表層操作；通霄鎮 suppressed（*）、斜線、legend、STALE/PARTIAL 及新版 coverage 單位確認，寬度無水平溢出。結果詳見上述 production acceptance；viewport 模擬不等於實體手機效能測試。
+- 完整 frontend tests：1,332 passed、3 skipped；最後覆蓋率修正 11 tests、`tsc -b`、build 通過。Platform importer tests 10 passed，實際 PostgreSQL 整合與 migrations 重跑通過。
+- 程式部署 `172a284955d697478c4fa0327ce18daff530bb75`，Zeabur `6aa02d3b7b89d694354a15c7` 狀態 RUNNING。證據見 `evidence/zeabur-final.json`。
+
+載入改善、正式落點及量測限制見 [loading-performance.md](./loading-performance.md)。本次授權的 production 步驟已完成；preview server 仍只供本地重現。
