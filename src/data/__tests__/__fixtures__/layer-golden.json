@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 475,
+    "keyCount": 476,
     "sections": [
       "gisLayers",
       "overlays",
@@ -588,6 +588,13 @@
         "world-trash-debris-circle"
       ],
       "type": "worldTrashDebris"
+    },
+    {
+      "layers": [
+        "coral-reef-distribution-fill",
+        "coral-reef-distribution-line"
+      ],
+      "type": "coralReefDistribution"
     },
     {
       "layers": [
@@ -52364,6 +52371,15 @@
         "min": 0.1,
         "step": 0.05,
         "value": 1
+      }
+    ],
+    "coralReefDistribution": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.55
       }
     ],
     "correctionalFacility": [

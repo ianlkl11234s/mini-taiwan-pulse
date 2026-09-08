@@ -118,9 +118,63 @@ function serveAgriStatisticsPreviewBoundaries(): Plugin {
   };
 }
 
+/** Licensed coral archive stays outside public/dist; loopback-only development access. */
+function serveLocalCoralResearch(): Plugin {
+  const filename = "coral_reef_distribution_global.pmtiles";
+  const target = resolve(process.cwd(), "../taipei-gis-analytics/data/processed/marine/coral_reef_distribution", filename);
+  return {
+    name: "serve-local-coral-research",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/__local-research", (request, response) => {
+        const remote = request.socket.remoteAddress;
+        const host = request.headers.host?.replace(/:\d+$/, "");
+        if (!["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(remote ?? "") ||
+            !["127.0.0.1", "localhost", "[::1]"].includes(host ?? "")) {
+          response.statusCode = 403;
+          response.end("Local research only");
+          return;
+        }
+        if (request.url?.split("?", 1)[0] !== `/${filename}` ||
+            !["GET", "HEAD"].includes(request.method ?? "")) {
+          response.statusCode = 404;
+          response.end("Unknown local research asset");
+          return;
+        }
+        void stat(target).then((info) => {
+          const range = parseSingleByteRange(request.headers.range, info.size);
+          response.setHeader("cache-control", "private, no-store");
+          response.setHeader("accept-ranges", "bytes");
+          if (range === "invalid") {
+            response.statusCode = 416;
+            response.setHeader("content-range", `bytes */${info.size}`);
+            response.end();
+            return;
+          }
+          const start = range?.start ?? 0;
+          const end = range?.end ?? info.size - 1;
+          response.statusCode = range ? 206 : 200;
+          response.setHeader("content-type", "application/octet-stream");
+          response.setHeader("content-length", end - start + 1);
+          if (range) response.setHeader("content-range", `bytes ${start}-${end}/${info.size}`);
+          if (request.method === "HEAD") return response.end();
+          const stream = createReadStream(target, { start, end });
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => {
+          response.statusCode = 404;
+          response.end("Local coral archive unavailable; no coverage inference");
+        });
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
+    serveLocalCoralResearch(),
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([

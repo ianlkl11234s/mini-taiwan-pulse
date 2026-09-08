@@ -165,6 +165,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: [...GFW_V4_TRACK_CLICK_LAYERS, ...GFW_HOURLY_TRACKS_CLICK_LAYERS], type: "gfwHourlyTrack" },
   { layers: ["gfw-dark-vessels-circle"], type: "gfwDarkVessel" },
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
+  // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
+  { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
   { layers: ["jp-stations-circle"], type: "jpStations" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。

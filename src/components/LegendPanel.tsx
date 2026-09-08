@@ -1,3 +1,4 @@
+import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
@@ -355,6 +356,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
@@ -4775,6 +4777,20 @@ function WorldTrashDebrisLegend() {
       </div>
     </div>
   );
+}
+
+function CoralReefDistributionLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 340 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
+      <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: CORAL_REEF_COLOR }} />
+      <span>暖水珊瑚礁歷史分布 · v4.1（2021-03 發布）</span>
+    </div>
+    <div style={{ color: t.textDim, lineHeight: 1.45 }}>歷史基線，非現況健康、活珊瑚覆蓋率或白化。</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45 }}>低 zoom 可見性損失與無 coverage 都不等於沒有珊瑚；馬祖本版無 coverage。</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45 }}>臺灣僅為研究窗口，非行政邊界；面積是全球完整來源 feature，不可加總。</div>
+    <div style={{ marginTop: 4, color: t.textDim, lineHeight: 1.45 }}>{CORAL_REEF_ATTRIBUTION}</div>
+  </div>;
 }
 
 function GlobalEventsLegend() {

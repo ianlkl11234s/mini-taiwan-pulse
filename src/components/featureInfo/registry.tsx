@@ -144,6 +144,7 @@ import {
 } from "./noisePanels";
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
+import { CoralReefPanel } from "./CoralReefPanel";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -339,6 +340,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
+  coralReefDistribution: CoralReefPanel,
   jpReligionGsi: JpReligionGsiPanel,
   jpReligionOsm: JpReligionOsmPanel,
   jpReligionWikidata: JpReligionWikidataPanel,
@@ -720,6 +722,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
+  coralReefDistribution: "珊瑚礁歷史分布（本地研究）",
   aisstreamVessel: "AISStream 船舶",
   gfwVesselPresence: "GFW 船舶 Presence",
   gfwHourlyGrid: "GFW 小時船舶網格",

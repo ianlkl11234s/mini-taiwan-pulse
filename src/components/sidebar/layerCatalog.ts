@@ -1513,6 +1513,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "環境",
         layers: [
           fromManifest("worldTrashDebris"),
+          ...(import.meta.env.DEV ? [fromManifest("coralReefDistribution")] : []),
         ],
       },
     ],

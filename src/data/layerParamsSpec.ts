@@ -1349,6 +1349,9 @@ export const LAYER_PARAMS_SPEC = {
   worldTrashDebris: [
     { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
   ],
+  coralReefDistribution: [
+    { kind: "slider", name: "coralReefDistributionOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0, max: 1, step: 0.05 },
+  ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [

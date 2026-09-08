@@ -1,3 +1,4 @@
+import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 // ══════════════════════════════════════════════════════════════════
@@ -1256,6 +1257,32 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "Outerview 全球垃圾殘骸 ~25k 點（⚠️ 點密度是街景覆蓋度，不是垃圾分佈）",
     topics: ["世界", "環境", "垃圾"],
+  },
+
+  coralReefDistribution: {
+    key: "coralReefDistribution",
+    section: { theme: "世界 World", group: "環境" },
+    label: "珊瑚礁歷史分布（本地研究）",
+    labelMobile: "珊瑚礁歷史分布（本地研究）",
+    expandable: true,
+    color: CORAL_REEF_COLOR,
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "coral_reef_distribution", confidence: "HIGH" }],
+      processing: "UNEP-WCMC Global distribution of coral reefs v4.1（2021-03 發布）全球 polygon PMTiles；19 欄原始語意逐 tile 對帳。",
+      note: "本機非商業研究資料，非公開發布或再散布；空白、低 zoom 不可解讀為沒有珊瑚。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "DEV 本地研究：dev server 僅掛載 /__local-research/coral_reef_distribution_global.pmtiles；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+    },
+    legend: "coralReefDistribution",
+    popup: "coralReefDistribution",
+    params: { count: 1, kinds: ["slider"] },
+    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化；僅 DEV 本地研究。",
+    topics: ["世界", "海洋", "自然環境", "珊瑚礁", "本地研究"],
   },
 
   globalEvents: {

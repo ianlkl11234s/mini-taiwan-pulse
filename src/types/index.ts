@@ -360,6 +360,7 @@ export type ExpandableLayerKey =
   | "pollutionSite"
   // 🌍 世界 World
   | "worldTrashDebris"
+  | "coralReefDistribution"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
@@ -819,6 +820,7 @@ export interface FeatureInfo {
     | "aviationNoiseZones" | "noiseEnforcementEvents" | "soundCameraLocations"
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
+    | "coralReefDistribution"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
     | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
@@ -1368,6 +1370,7 @@ export interface LayerVisibility {
   pollutionSite: boolean;       // 污染場址（EMS_S_07；8,253；S4 確認污染）
   // ── 🌍 世界 WORLD ──
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
+  coralReefDistribution: boolean; // 全球暖水珊瑚礁歷史基線（v4.1；DEV 本地研究；非健康／白化）
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
