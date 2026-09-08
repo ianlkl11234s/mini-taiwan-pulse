@@ -1,6 +1,6 @@
 # 農林漁牧 Statistics 本地交付
 
-完成日期：2026-09-08。範圍為本地 frontend wiring 與真實交付資料 UI 驗收；本次已授權 commit、PR 與 merge；未執行部署、migration 或 production 資料寫入。Git 交付進度見 [changelog](./changelog.md)。
+完成日期：2026-09-08。範圍為本地 frontend wiring 與真實交付資料 UI 驗收；[PR #227](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/227) 已合併至 master（`0f8bed5e`）；未執行部署、migration 或 production 資料寫入。Git 交付進度見 [changelog](./changelog.md)。
 
 ## 工作區
 
