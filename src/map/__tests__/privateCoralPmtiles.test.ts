@@ -11,6 +11,20 @@ function partialResponse(offset: number, length: number, status = 206): Response
 }
 
 describe("PrivateCoralFetchSource", () => {
+  it("default browser fetch is not called with the Source as its receiver", async () => {
+    const original = globalThis.fetch;
+    let receiver: unknown;
+    globalThis.fetch = function (this: unknown) {
+      receiver = this;
+      if (this !== undefined && this !== globalThis) throw new TypeError("Illegal invocation");
+      return Promise.resolve(partialResponse(0, 4));
+    };
+    try {
+      const source = new __test__.PrivateCoralFetchSource(URL, () => "token");
+      await expect(source.getBytes(0, 4)).resolves.toMatchObject({ data: expect.any(ArrayBuffer) });
+      expect(receiver === undefined || receiver === globalThis).toBe(true);
+    } finally { globalThis.fetch = original; }
+  });
   it("每次 Range 都取當前 token，傳 Bearer、Range 並禁止 HTTP cache", async () => {
     const getToken = vi.fn().mockResolvedValueOnce("first").mockResolvedValueOnce("second");
     const fetchFn = vi.fn((_request: RequestInfo | URL, _init?: RequestInit) => Promise.resolve(partialResponse(12, 4)));

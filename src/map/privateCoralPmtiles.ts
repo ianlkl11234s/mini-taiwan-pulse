@@ -68,7 +68,7 @@ export class PrivateCoralFetchSource implements Source {
   constructor(
     readonly url: string,
     private readonly getToken: NonNullable<PrivateCoralPmtilesOptions["getToken"]>,
-    private readonly fetchFn: FetchLike = fetch,
+    private readonly fetchFn: FetchLike = (input, init) => fetch(input, init),
   ) {}
 
   getKey(): string {
