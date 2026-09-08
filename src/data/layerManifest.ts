@@ -1262,8 +1262,8 @@ export const LAYER_MANIFEST = {
   coralReefDistribution: {
     key: "coralReefDistribution",
     section: { theme: "世界 World", group: "環境" },
-    label: "珊瑚礁歷史分布（本地研究）",
-    labelMobile: "珊瑚礁歷史分布（本地研究）",
+    label: "珊瑚礁歷史分布（私人研究）",
+    labelMobile: "珊瑚礁歷史分布（私人研究）",
     expandable: true,
     color: CORAL_REEF_COLOR,
     icon: Waves,
@@ -1276,12 +1276,12 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "DEV 本地研究：dev server 僅掛載 /__local-research/coral_reef_distribution_global.pmtiles；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+      note: "本人帳號限定：/api/private-research/coral 逐 Range 驗證 Supabase 身分；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
     },
     legend: "coralReefDistribution",
     popup: "coralReefDistribution",
     params: { count: 1, kinds: ["slider"] },
-    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化；僅 DEV 本地研究。",
+    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化；僅本人帳號私人研究。",
     topics: ["世界", "海洋", "自然環境", "珊瑚礁", "本地研究"],
   },
 

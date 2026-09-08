@@ -1,0 +1,13 @@
+{
+  "name": "coral-private-sidecar",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node coral-private-server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.995.0",
+    "@supabase/supabase-js": "^2.101.1"
+  }
+}

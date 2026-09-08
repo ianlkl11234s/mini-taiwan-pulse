@@ -1,3 +1,4 @@
+import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -175,6 +176,7 @@ export default function App() {
   // 動態 gating（Phase 2）：啟動拉一次公開 get_layer_gates()（fail-safe：失敗維持靜態 GATED_LAYERS）。
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
+  const coralAccess = useCoralPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -185,8 +187,9 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
+    if (!coralAccess.allowed) s.add("coralReefDistribution");
     return s;
-  }, [memberTier, layerGates]);
+  }, [memberTier, layerGates, coralAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 

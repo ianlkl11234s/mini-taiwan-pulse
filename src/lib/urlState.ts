@@ -138,7 +138,7 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
     .map((s) => s.trim())
     .filter((k) => {
       if (!k || seen.has(k)) return false;
-      if (k === "coralReefDistribution" && !import.meta.env.DEV) return false; // local research has no production source
+      if (k === "coralReefDistribution") return false; // private account layer is never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
       if (opts.allowedLayers && !opts.allowedLayers.has(k)) return false;
@@ -262,7 +262,7 @@ export function buildUrl(state: UrlState, base: string): string {
     if (pitch) q.set("pitch", String(round(pitch, 1)));
     if (bearing) q.set("bearing", String(round(bearing, 1)));
   }
-  const layers = state.layers?.filter(k => import.meta.env.DEV || k !== "coralReefDistribution");
+  const layers = state.layers?.filter(k => k !== "coralReefDistribution");
   if (layers?.length) q.set("layers", layers.join(","));
   if (state.statisticsMode) q.set("sm", state.statisticsMode);
   if (state.params) {
