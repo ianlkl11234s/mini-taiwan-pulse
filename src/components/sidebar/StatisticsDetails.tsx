@@ -1,4 +1,8 @@
 import { useEffect, useSyncExternalStore, type CSSProperties } from 'react';
+import { getAgriRecipe, agriReleaseOptions, AGRI_EXISTING_LAYER_REFERENCES } from '../../data/agriStatisticsRecipes';
+import { layerVisibilityStore } from '../../state/layerVisibilityStore';
+import { LAYER_MANIFEST, type LayerManifestEntry } from '../../data/layerManifest';
+import type { LayerVisibility } from '../../types';
 import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
@@ -16,6 +20,7 @@ export function statisticsPeriodLabel(release: Pick<StatisticsRelease, 'period_s
   return `${start} — ${end}`;
 }
 const DIMENSION_LABELS: Record<string, string> = {
+  crop: '作物', season: '期作', year: '年度', animal: '畜種', animal_kind: '畜種', survey_years_roc: '調查年度', area_unit: '面積單位',
   agency_fund: '基金',
   sector: '用電別',
   quarter: '季度',
@@ -88,11 +93,12 @@ export function statisticsDimensionSummary(dimensions: Record<string, unknown> |
 export function statisticsRecipe(key: StatisticsLayerKey): StatisticsRecipe {
   const recipe = STATISTICS_RECIPES[key];
   const fallback = statisticsReleaseFallback(key);
-  return { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
+  return { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}), label: recipe.label };
 }
 
 /** A selector is allowed to expose only public releases that resolve to an exact dimensions tuple. */
 export function statisticsReleaseOptions(key: StatisticsLayerKey, releases: StatisticsRelease[]): StatisticsReleaseOption[] {
+  if (getAgriRecipe(key)) return agriReleaseOptions(key, releases);
   const recipe = STATISTICS_RECIPES[key];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return [];
   return releases.flatMap(release => {
@@ -101,6 +107,10 @@ export function statisticsReleaseOptions(key: StatisticsLayerKey, releases: Stat
   });
 }
 export function unparseableStatisticsReleaseCount(key: StatisticsLayerKey, releases: StatisticsRelease[]): number {
+  if (getAgriRecipe(key)) {
+    const allowed = new Set(agriReleaseOptions(key, releases).map(option => option.releaseId));
+    return releases.filter(release => !allowed.has(release.release_id)).length;
+  }
   const recipe = STATISTICS_RECIPES[key];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return 0;
   return releases.filter(release => !recipe.releaseSelector.resolve(release)).length;
@@ -127,21 +137,26 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
   const selectable = statisticsReleaseOptions(layerKey, state.releases);
   const unparseableCount = unparseableStatisticsReleaseCount(layerKey, state.releases);
   const defaultReleaseId = 'releaseId' in STATISTICS_RECIPES[layerKey] ? STATISTICS_RECIPES[layerKey].releaseId : undefined;
-  const configured = selectable.find(option => option.releaseId === selected)
+  const configured = selectable.find(option => option.releaseId === selected && (!state.selection?.dimensions || JSON.stringify(Object.entries(option.dimensions).sort()) === JSON.stringify(Object.entries(state.selection.dimensions).sort())))
     ?? selectable.find(option => option.releaseId === defaultReleaseId)
     ?? selectable[0];
   const selectorDimensions = configured?.dimensions;
   const selectedDimensions = state.selection?.dimensions ?? selectorDimensions;
   const selectedRelease = state.releases.find(release => release.release_id === selected) ?? state.release;
   const recipe = STATISTICS_RECIPES[layerKey];
+  const agri = getAgriRecipe(layerKey);
   const selectionSummary = statisticsDimensionSummary(selectedDimensions, selectedRelease, recipe.dataset_id);
   const healthUnit = state.health?.currency ?? recipe.unit;
   const selectorValues = (name: string, filters: Partial<Record<string, string>> = {}) => [...new Set(selectable
     .filter(option => Object.entries(filters).every(([key, value]) => option.dimensions[key] === value))
     .map(option => option.dimensions[name])
     .filter((value): value is string => typeof value === 'string'))];
-  const chooseDimensions = (dimensions: Record<string, string>) => {
-    const option = selectable.find(candidate => Object.entries(dimensions).every(([key, value]) => candidate.dimensions[key] === value))
+  const chooseDimensions = (dimensions: Record<string, string>, changedKey: string) => {
+    // Cascading controls enumerate existing tuples only. Changing an upstream
+    // dimension selects a real tuple and explicitly updates dependent controls.
+    const keys = Object.keys(selectorDimensions ?? {});
+    const prefix = Object.fromEntries(keys.slice(0, keys.indexOf(changedKey) + 1).map(key => [key, dimensions[key]]));
+    const option = agri ? selectable.find(candidate => Object.entries(prefix).every(([key, value]) => candidate.dimensions[key] === value)) : selectable.find(candidate => Object.entries(dimensions).every(([key, value]) => candidate.dimensions[key] === value))
       ?? selectable.find(candidate => candidate.dimensions.roc_year === dimensions.roc_year)
       ?? selectable[0];
     if (!option) return;
@@ -169,6 +184,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
     <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid ${COLORS.textDefault};outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
+    {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
     {hasFilterControls && <details>
       <summary aria-label={`${STATISTICS_RECIPES[layerKey].label} 資料篩選：${selectionSummary || '選擇資料期別'}`} style={{ cursor: 'pointer', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         資料篩選{selectionSummary && <span title={selectionSummary}>：{selectionSummary}</span>}
@@ -179,7 +195,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
           const filters = Object.fromEntries(selectorDimensionKeys.slice(0, selectorDimensionKeys.indexOf(key)).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
           return <label key={key} style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
             {statisticsDimensionLabel(key)}
-            <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value })}>
+            <select className="statistics-detail-control" aria-label={`${STATISTICS_RECIPES[layerKey].label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value }, key)}>
               {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option, recipe.dataset_id)}</option>)}
             </select>
           </label>;
@@ -190,12 +206,15 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}
       </div>
     </details>}
+    {agri && <p style={factStyle}>{agri.disclosure ?? agri.boundary_semantics}</p>}
+    {agri?.source_statistical_boundary_version && <p style={factStyle}>統計參考版：{agri.source_statistical_boundary_version}；實際圖形：{agri.boundary_version}</p>}
     <p style={factStyle}>地理層級：{LEVEL_LABELS[recipe.level]} · 單位：{recipe.unit}</p>
     {'freshness' in recipe && <p style={factStyle} role="status">資料新鮮度：{String(recipe.freshness)}（{recipe.frequency}）</p>}
     {state.health?.availability && <p style={factStyle} role="status">資料可用狀態：{state.health.availability}</p>}
     {state.data && <p style={factStyle}>已載入 {state.data.features.filter(f => f.properties?.status === 'observed').length} ／{state.data.features.length} 個區域統計值；灰色區域為缺資料，不等於 0</p>}
     {'interpretationNote' in STATISTICS_RECIPES[layerKey] && <p style={factStyle}>{String(STATISTICS_RECIPES[layerKey].interpretationNote)}</p>}
-    {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別無法安全解析成年／月／機關或基金，未提供選擇，請查看來源紀錄。</p>}
+    {agri && state.data && <p style={factStyle}>缺資料 {state.data.features.filter(f => f.properties?.status === 'missing' && f.properties?.source_status !== 'not_reported').length}；遮蔽 suppressed {state.data.features.filter(f => f.properties?.status === 'suppressed').length}；未報告 not_reported {state.data.features.filter(f => f.properties?.source_status === 'not_reported').length}。遮蔽與未報告皆非 0。</p>}
+    {unparseableCount > 0 && <p style={factStyle} role="alert">有 {unparseableCount} 個公開期別不符合完整 selector 白名單，未提供選擇，請查看來源紀錄。</p>}
     {state.health?.coverage_status && <p style={factStyle} role="status">覆蓋狀態：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, healthUnit)}</p>}
     <details><summary>來源與處理紀錄</summary>
       {source ? <div style={{ display: 'grid', gap: 5, paddingTop: 6, overflowWrap: 'anywhere' }}>
@@ -207,17 +226,21 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsLayerKey }
         <span>最近檢查：{freshness?.last_checked_at ?? '尚未檢查'}{freshness?.outcome === 'failed' ? '（更新失敗，保留上一版）' : freshness?.outcome === 'unchanged' ? '（無新版本）' : ''}</span>
         <span>授權：{String(source.license ?? '未提供')}</span>
         <span>處理方式：{String((source.processing_summary as { processing_description?: string } | undefined)?.processing_description ?? source.method_version ?? '未提供')}</span>
+        <span>原始 SHA-256：{String(source.raw_sha256 ?? '未提供')}</span>
         <span>參考邊界：{String(source.boundary_version ?? '未提供')}</span>
         <span>地圖使用已核對代碼的參考邊界；不是歷史邊界變動比較。</span>
         {publicLink(source.source_landing_url) && <a style={{ color: COLORS.textDefault, textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
         {publicLink(source.source_download_url) && <a style={{ color: COLORS.textDefault, textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
       </div> : <span>載入資料後顯示來源紀錄。</span>}
     </details>
+    {agri && AGRI_EXISTING_LAYER_REFERENCES.some(ref => ref.group === agri.group) && <details><summary>跨主題統計索引</summary><div style={{ display: 'grid', gap: 4 }}>{AGRI_EXISTING_LAYER_REFERENCES.filter(ref => ref.group === agri.group).map(ref => <button key={ref.layer_key} type="button" onClick={() => layerVisibilityStore.toggle(ref.layer_key as keyof LayerVisibility)}>{ref.group}／{ref.subgroup}：{(LAYER_MANIFEST[ref.layer_key as keyof LayerVisibility] as LayerManifestEntry).label ?? ref.layer_key}</button>)}</div></details>}
+    {agri && <details><summary>相關 GIS 圖層</summary><div style={{ display: 'grid', gap: 4 }}>{agri.related_layer_keys.filter(key => key in LAYER_MANIFEST).map(key => <button key={key} type="button" onClick={() => layerVisibilityStore.toggle(key as keyof LayerVisibility)}>{(LAYER_MANIFEST[key as keyof LayerVisibility] as LayerManifestEntry).label ?? key}</button>)}</div></details>}
   </div>;
 }
 export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey }) {
   const state = useStatisticsSnapshot(layerKey);
   const recipe = STATISTICS_RECIPES[layerKey];
+  const agri = getAgriRecipe(layerKey);
   return <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, display: 'grid', gap: 4 }}>
     <strong>{recipe.label}</strong>
     <span>{state.release ? statisticsPeriodLabel(state.release) : '尚未載入'} · {recipe.unit}</span>
@@ -227,5 +250,6 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsLayerKey })
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
     {recipe.colors.map((color, index) => <div key={color} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{index === 0 ? `低於 ${recipe.breaks[0]}` : index === recipe.breaks.length ? `${recipe.breaks[index - 1]} 以上` : `${recipe.breaks[index - 1]} 至未滿 ${recipe.breaks[index]}`}</div>)}
     <span>灰色：缺資料／未發布數值</span>
+    {agri && <><span><i style={{ display: 'inline-block', width: 16, height: 12, marginRight: 6, background: `repeating-linear-gradient(135deg, #334155 0 2px, ${agri.legend.missing_color} 2px 6px)` }} />斜線：遮蔽 suppressed（*）</span><span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span></>}
   </div>;
 }

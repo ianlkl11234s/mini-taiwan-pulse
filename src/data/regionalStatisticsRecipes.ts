@@ -1,4 +1,6 @@
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
+import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
+import type { StatisticsLevel } from "./regionalStatisticsLoader";
 export interface StatisticsReleaseOption {
   releaseId: string;
   dimensions: Record<string, string>;
@@ -316,6 +318,30 @@ export const STATISTICS_RECIPES = {
     releaseSelector: countyTransportSupplyReleaseSelector,
     breaks: [100_000, 300_000, 600_000, 1_000_000], colors: ['#fefce8', '#fef08a', '#facc15', '#ca8a04', '#713f12'],
   },
+  ...Object.fromEntries(Object.entries(AGRI_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
+    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    includeHealth: true,
+    releaseOptions: recipe.release_options,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      sourceStatisticalBoundaryVersion: recipe.source_statistical_boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+      source: recipe.source,
+    },
+    breaks: recipe.legend.breaks,
+    colors: recipe.legend.colors,
+  }])) as Record<keyof typeof AGRI_STATISTICS_RECIPES_BY_KEY, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { webcrypto } from 'node:crypto';
 
 vi.mock('../../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }));
-import { loadRegionalStatistics } from '../regionalStatisticsLoader';
+import { assertStatisticsSourceSemantics, loadRegionalStatistics, normalizeAgriPreviewHealth, statisticsAncillaryRpcArgs } from '../regionalStatisticsLoader';
+import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
 
 const bytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
@@ -36,10 +37,38 @@ function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifes
 beforeEach(() => { statisticsGeometryCache.clear(); vi.stubEnv('VITE_STATISTICS_API_URL', 'http://127.0.0.1:3733'); vi.stubGlobal('crypto', webcrypto); });
 
 describe('regional statistics loader public contract', () => {
+  it('requires livestock sidecar tokens only for nonnumeric observations', () => {
+    expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: 12, status: 'observed' }, true)).not.toThrow();
+    expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'missing' }, true)).toThrow('來源狀態');
+    expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'missing', source_status: 'not_reported', source_token: '-' }, true)).not.toThrow();
+    expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'suppressed', source_status: 'suppressed', source_token: '*' }, true)).not.toThrow();
+    expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'missing' }, false)).not.toThrow();
+  });
+  it('normalizes both delivery coverage shapes without conflating tuple and source coverage', () => {
+    expect(normalizeAgriPreviewHealth({ status: 'PARTIAL', coverage: { observed: 118, expected: 368, status: 'PARTIAL' } }, 'township')).toMatchObject({ availability: 'PARTIAL', coverage_status: 'PARTIAL', coverage_numerator: 118, coverage_denominator: 368 });
+    expect(normalizeAgriPreviewHealth({ status: 'STALE', coverage: { observed: { township_count: 3, status: 'PARTIAL' }, expected: { township_count: 368 } } }, 'township')).toMatchObject({ availability: 'STALE', coverage_status: 'PARTIAL', coverage_numerator: 3, coverage_denominator: 368 });
+  });
+  it('keeps preview whitelist tuples exact and defaults to the latest verified option', () => {
+    const agri = getAgriRecipe('statsCropPlantedAreaTownship')!;
+    const releases = [...new Map(agri.release_options.map(option => [option.release_id, { release_id: option.release_id, dataset_id: agri.dataset_id, indicator_id: agri.indicator_id, boundary_version: agri.boundary_version, period_start: option.period_start, period_end: option.period_end, levels: [agri.level] }])).values()];
+    const selected = agriReleaseOptions(agri.layer_key, releases)[0]!;
+    const release = releases.find(item => item.release_id === selected.releaseId)!;
+    expect(resolveAgriRelease(agri.layer_key, release, selected.dimensions)).toEqual(selected);
+    expect(resolveAgriRelease(agri.layer_key, release, { crop: String(selected.dimensions.crop) })).toBeNull();
+  });
+  it('uses the public RPC signatures for source and health without p_dimensions', () => {
+    expect(statisticsAncillaryRpcArgs(recipe, 'r1')).toEqual({ p_dataset: 'waste', p_indicator: 'vehicles', p_release: 'r1' });
+    expect(statisticsAncillaryRpcArgs(recipe, 'r1')).not.toHaveProperty('p_dimensions');
+  });
   it('consumes nested catalog/releases/values/source/geometry payloads and preserves zero/null', async () => {
     install(); const result = await loadRegionalStatistics(recipe);
     expect(result.features.map(f => f.properties?.value)).toEqual([0, null]);
     expect(result.features.map(f => f.properties?.status)).toEqual(['observed', 'suppressed']);
+  });
+  it('carries source-specific missing semantics into rendered feature properties', async () => {
+    install({ values: [page([{ area_code: 'A', value: null, status: 'missing', source_status: 'not_reported', source_token: '-' }, { area_code: 'B', value: null, status: 'suppressed', source_status: 'suppressed', source_token: '*' }])] });
+    const result = await loadRegionalStatistics(recipe);
+    expect(result.features.map(feature => [feature.properties?.source_status, feature.properties?.source_token])).toEqual([['not_reported', '-'], ['suppressed', '*']]);
   });
   it('rejects a SHA mismatch before rendering geometry', async () => {
     install({ geometry: new TextEncoder().encode('{}'), manifestBytes: bytes });

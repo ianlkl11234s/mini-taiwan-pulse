@@ -2,6 +2,9 @@ export interface StatisticsGeometryManifest {
   resource: string;
   sha256: string;
   code_scheme: string;
+  /** Delivery-only source property; normalized to area_code after SHA verification. */
+  code_property?: string;
+  name_property?: string;
   boundary_version: string;
   level: string;
 }
@@ -21,7 +24,7 @@ const DEFAULT_MAX_ENTRIES = 8;
 const DEFAULT_MAX_BYTES = 8 * 1024 * 1024;
 
 function cacheKey(manifest: StatisticsGeometryManifest): string {
-  return JSON.stringify([manifest.resource, manifest.sha256, manifest.boundary_version, manifest.level, manifest.code_scheme]);
+  return JSON.stringify([manifest.resource, manifest.sha256, manifest.boundary_version, manifest.level, manifest.code_scheme, manifest.code_property, manifest.name_property]);
 }
 
 function deepFreeze<T>(value: T): T {
@@ -64,14 +67,16 @@ export class StatisticsGeometryCache {
         if (geometry.type !== 'FeatureCollection' || !Array.isArray(geometry.features)) throw new Error('邊界格式不符');
 
         const codes = new Set<string>();
-        for (const feature of geometry.features) {
-          const code = feature.properties?.area_code;
+        const codeProperty = manifest.code_property ?? 'area_code';
+        const features = geometry.features.map(feature => {
+          const code = feature.properties?.[codeProperty];
           if (typeof code !== 'string' || codes.has(code) || !feature.geometry || !['Polygon', 'MultiPolygon'].includes(feature.geometry.type)) {
             throw new Error('參考邊界代碼或幾何錯誤');
           }
           codes.add(code);
-        }
-        return { features: freezeBoundary(geometry.features), byteLength: bytes.byteLength };
+          return { ...feature, properties: { ...feature.properties, area_code: code, ...(manifest.name_property ? { area_name: feature.properties?.[manifest.name_property] } : {}) } };
+        });
+        return { features: freezeBoundary(features), byteLength: bytes.byteLength };
       });
     entry = { promise };
     this.entries.set(key, entry);

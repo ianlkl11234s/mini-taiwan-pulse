@@ -142,7 +142,8 @@ describe("黃金快照覆蓋度", () => {
     // +30 = 區域統計：航港、民航、DGBAS、違規、噪音、客運、TMRT、
     // 臺北自行車、A1 事故與機場活動。
     // 2026-09-07：+1 = jpPoliceFacilities（日本核心警察設施）。
-    expect(keys.length).toBe(451);
+    // 2026-09-08：+24 = 農林漁牧 enabled Statistics recipes；3 HOLD recipe 不入 registry。
+    expect(keys.length).toBe(475);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

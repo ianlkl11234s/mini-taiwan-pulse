@@ -87,10 +87,42 @@ function serveGfwV4CandidateStage(): Plugin {
   };
 }
 
+/**
+ * Immutable agriculture-statistics delivery boundaries are intentionally outside
+ * public/. They are exposed only to an opted-in local DEV preview, never copied
+ * to dist or proxied by a production server.
+ */
+function serveAgriStatisticsPreviewBoundaries(): Plugin {
+  const enabled = process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true';
+  const deliveryRoot = process.env.AGRI_STATISTICS_PREVIEW_ROOT;
+  const boundaryRoot = deliveryRoot ? resolve(deliveryRoot, 'data/shared/boundaries') : '';
+  return {
+    name: 'serve-agri-statistics-preview-boundaries',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/__agri-statistics-preview-boundaries', (request, response, next) => {
+        if (!enabled || !boundaryRoot || !request.url) return next();
+        const relative = decodeURIComponent(request.url.split('?', 1)[0] ?? '').replace(/^\/+/, '');
+        const target = resolve(boundaryRoot, relative);
+        if (target !== boundaryRoot && !target.startsWith(`${boundaryRoot}/`)) return next();
+        void stat(target).then(info => {
+          if (!info.isFile()) return next();
+          response.statusCode = 200;
+          response.setHeader('content-length', info.size);
+          response.setHeader('cache-control', 'no-store');
+          response.setHeader('content-type', 'application/geo+json');
+          createReadStream(target).pipe(response);
+        }).catch(() => next());
+      });
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     react(),
     serveGfwV4CandidateStage(),
+    serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
       // 55MB，bundle-rail-data.py 產出 → upload-rail-to-s3.ts 上傳 S3 的中間產物，app runtime 不載入
       "rail_bundle.json",
@@ -121,6 +153,15 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      // Python preview deliberately binds localhost and has no CORS headers.
+      // Expose it through Vite only under the explicit local preview opt-in.
+      ...(process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' ? {
+        '/__agri-statistics-preview-api': {
+          target: 'http://127.0.0.1:3743',
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__agri-statistics-preview-api/, ''),
+        },
+      } : {}),
       "/api": {
         target: "http://localhost:8000",
         changeOrigin: true,

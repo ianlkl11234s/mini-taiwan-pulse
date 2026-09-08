@@ -1,4 +1,5 @@
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
+import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -312,6 +313,22 @@ export type LayerManifestEntry = LayerManifestThemedEntry | LayerManifestOrphanE
 const SAT_SOURCE_NOTE =
   "useSatellitesLayer 單一實作服務全部 16 個 toggle：Supabase view satellite_classified 取 TLE（localStorage cache 6h）→ satellite.js SGP4 逐秒推算 → 3 個自建 geojson source（sat-footprint-fc / sat-track-fc / sat-point-fc）× 5 個 layer（footprint 內外圈 / 未來軌跡 / 即時點 / 變軌 pulse ring）；分類以 `cat` 欄位走 match 表達式上色、各 toggle 以 layer-level filter 切分 —— 非 OVERLAY_REGISTRY";
 
+const AGRI_STATISTICS_COLORS: Record<string, string> = {
+  農業統計: "#65a30d", 畜牧統計: "#b45309", 漁業統計: "#0891b2", 林業統計: "#15803d", 交通統計: "#2563eb",
+};
+
+/** 24 enabled recipes share the dynamic Statistics renderer; this derives only their manifest registration. */
+const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+  key: recipe.layer_key,
+  section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
+  label: recipe.label, expandable: true, color: AGRI_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
+  upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+  source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+  legend: recipe.layer_key, popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+  description: recipe.disclosure ?? "依公開完整期別與行政區參考邊界呈現；缺值不補零。",
+  topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
+}])) as Record<AgriStatisticsLayerKey, LayerManifestEntry>;
+
 /**
  * Phase 1 試點：5 個**體質各異**的層。刻意不挑 5 個長得像的——
  * 派生機制要先撞過所有形狀（有無 overlay entry / 有無 labelMobile /
@@ -321,6 +338,7 @@ const SAT_SOURCE_NOTE =
  *    丟掉，ManifestKey 就退化成 348 個 key 的全集，下游 Omit 的 tsc 護欄整個失效。
  */
 export const LAYER_MANIFEST = {
+  ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
     label: "航港局獎補助金額（受補助對象所在地）", expandable: true, color: "#2563eb", icon: Anchor,

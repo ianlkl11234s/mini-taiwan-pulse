@@ -25,6 +25,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { STATISTICS_KEYS, STATISTICS_RECIPES } from "../../data/regionalStatisticsRecipes";
 
@@ -92,7 +93,7 @@ describe("GIS 點擊註冊表的 layer id", () => {
     expect(renderer).toContain("map.addLayer({ id: `${key}-fill`");
     expect(renderer).toContain("map.addLayer({ id: `${key}-line`");
     for (const key of STATISTICS_KEYS) {
-      expect(referencedLayerIds()).toContain(`${key}-fill`);
+      expect(GIS_LAYERS.filter(entry => entry.type === "regionalStatistic").flatMap(entry => entry.layers)).toContain(`${key}-fill`);
       expect(statisticsRuntimeLayerIds().has(`${key}-fill`)).toBe(true);
       expect(statisticsRuntimeLayerIds().has(`${key}-line`)).toBe(true);
     }

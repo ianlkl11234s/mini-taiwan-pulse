@@ -27,6 +27,8 @@ import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
+import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
+import type { StatisticsLayerKey } from "../data/regionalStatisticsRecipes";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
@@ -322,6 +324,10 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsLayerKey} />,
+  })),
   { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
   { id: "statsCivilAeronauticsSubsidyCounty", render: () => <StatisticsLegend layerKey="statsCivilAeronauticsSubsidyCounty" /> },
   { id: "statsTaipeiTrafficViolationCitations", render: () => <StatisticsLegend layerKey="statsTaipeiTrafficViolationCitations" /> },

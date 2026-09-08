@@ -1,0 +1,16 @@
+
+> mini-taiwan-pulse@0.1.0 test
+> vitest run --run src/data/__tests__/regionalStatisticsLoader.test.ts src/data/__tests__/statisticsGeometryCache.test.ts src/data/__tests__/agriStatisticsContract.test.ts
+
+
+ RUN  v3.2.6 /private/tmp/pulse-agri-ui-20260908
+
+ ✓ src/data/__tests__/statisticsGeometryCache.test.ts (6 tests) 14ms
+ ✓ src/data/__tests__/regionalStatisticsLoader.test.ts (17 tests) 128ms
+ ✓ src/data/__tests__/agriStatisticsContract.test.ts (6 tests) 289ms
+
+ Test Files  3 passed (3)
+      Tests  29 passed (29)
+   Start at  10:39:19
+   Duration  4.58s (transform 2.95s, setup 0ms, collect 5.97s, tests 431ms, environment 1ms, prepare 849ms)
+

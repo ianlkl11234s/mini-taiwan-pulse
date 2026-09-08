@@ -873,6 +873,31 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  * ⚠️ 陣列順序 = 控件在面板上的顯示順序，也是黃金快照比對的順序。
  */
 export const LAYER_PARAMS_SPEC = {
+  // 農林漁牧 Statistics 的實質 values/filter 邏輯由 dynamic renderer 處理；登記簿只宣告共通透明度。
+  statsPaddyLandAreaTownship: [opacitySlider("statsPaddyLandAreaTownshipOpacity", 0.55)],
+  statsDryFieldAreaTownship: [opacitySlider("statsDryFieldAreaTownshipOpacity", 0.55)],
+  statsOrchardAreaTownship: [opacitySlider("statsOrchardAreaTownshipOpacity", 0.55)],
+  statsAgriculturalFacilityAreaTownship: [opacitySlider("statsAgriculturalFacilityAreaTownshipOpacity", 0.55)],
+  statsCropPlantedAreaTownship: [opacitySlider("statsCropPlantedAreaTownshipOpacity", 0.55)],
+  statsCropHarvestedAreaTownship: [opacitySlider("statsCropHarvestedAreaTownshipOpacity", 0.55)],
+  statsCropProductionTownship: [opacitySlider("statsCropProductionTownshipOpacity", 0.55)],
+  statsCropYieldTownship: [opacitySlider("statsCropYieldTownshipOpacity", 0.55)],
+  statsLivestockBuildingAreaTownship: [opacitySlider("statsLivestockBuildingAreaTownshipOpacity", 0.55)],
+  statsPastureAreaTownship: [opacitySlider("statsPastureAreaTownshipOpacity", 0.55)],
+  statsLivestockFarmCountTownship: [opacitySlider("statsLivestockFarmCountTownshipOpacity", 0.55)],
+  statsLivestockHeadCountTownship: [opacitySlider("statsLivestockHeadCountTownshipOpacity", 0.55)],
+  statsAquacultureLandAreaTownship: [opacitySlider("statsAquacultureLandAreaTownshipOpacity", 0.55)],
+  statsFisheryProductionCounty: [opacitySlider("statsFisheryProductionCountyOpacity", 0.55)],
+  statsFisheryProductionValueCounty: [opacitySlider("statsFisheryProductionValueCountyOpacity", 0.55)],
+  statsAquacultureAreaCounty: [opacitySlider("statsAquacultureAreaCountyOpacity", 0.55)],
+  statsConiferForestAreaTownship: [opacitySlider("statsConiferForestAreaTownshipOpacity", 0.55)],
+  statsBroadleafForestAreaTownship: [opacitySlider("statsBroadleafForestAreaTownshipOpacity", 0.55)],
+  statsBambooForestAreaTownship: [opacitySlider("statsBambooForestAreaTownshipOpacity", 0.55)],
+  statsMixedForestAreaTownship: [opacitySlider("statsMixedForestAreaTownshipOpacity", 0.55)],
+  statsRoadLandAreaTownship: [opacitySlider("statsRoadLandAreaTownshipOpacity", 0.55)],
+  statsRailLandAreaTownship: [opacitySlider("statsRailLandAreaTownshipOpacity", 0.55)],
+  statsAirportLandAreaTownship: [opacitySlider("statsAirportLandAreaTownshipOpacity", 0.55)],
+  statsPortLandAreaTownship: [opacitySlider("statsPortLandAreaTownshipOpacity", 0.55)],
   // ══════════ 宗教 Religion 6 層 ══════════
   religionTemples: [
     // 主祀神祇可同時選多族；bitmask 讓 Mapbox filter 仍維持 numeric overlayParams 合約。

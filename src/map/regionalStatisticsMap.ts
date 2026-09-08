@@ -1,3 +1,4 @@
+import { getAgriRecipe } from '../data/agriStatisticsRecipes';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
@@ -11,23 +12,34 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
   for (const key of STATISTICS_KEYS) {
     const recipe = STATISTICS_RECIPES[key];
     const fallback = statisticsReleaseFallback(key);
-    regionalStatisticsStore.registerRecipe(key, { datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
+    regionalStatisticsStore.registerRecipe(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
   }
   function render() {
     if (!map.isStyleLoaded()) return;
+    const hatchId = 'statistics-suppressed-hatch';
+    if (!map.hasImage(hatchId)) {
+      const size = 8, data = new Uint8Array(size * size * 4);
+      for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+        const i = (y * size + x) * 4;
+        data[i] = 51; data[i + 1] = 65; data[i + 2] = 85; data[i + 3] = (x + y) % size < 2 ? 220 : 0;
+      }
+      map.addImage(hatchId, { width: size, height: size, data });
+    }
     for (const key of STATISTICS_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
       const recipe = STATISTICS_RECIPES[key];
+      const agri = getAgriRecipe(key);
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
         const step: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
         recipe.breaks.forEach((value, index) => step.push(value, recipe.colors[index + 1]));
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
-          'fill-color': ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], step, '#64748b'] as mapboxgl.ExpressionSpecification,
+          'fill-color': ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], step, agri?.legend.missing_color ?? '#64748b'] as mapboxgl.ExpressionSpecification,
           'fill-opacity': 0.55,
         } });
+        if (agri) map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchId, 'fill-opacity': 0.55 } });
         map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { 'line-color': recipe.colors[4], 'line-width': 0.8, 'line-opacity': 0.8 } });
       }
       const data = state.data;
@@ -39,10 +51,11 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
         rendered.delete(key);
         (map.getSource(key) as mapboxgl.GeoJSONSource).setData({ type: 'FeatureCollection', features: [] });
       }
-      for (const suffix of ['fill', 'line']) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', visible && data ? 'visible' : 'none');
+      for (const suffix of agri ? ['fill', 'line', 'suppressed'] : ['fill', 'line']) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', visible && data ? 'visible' : 'none');
       const opacity = Number(layerParamsStore.getParam(key, `${key}Opacity`) ?? 0.55);
       map.setPaintProperty(`${key}-fill`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-line`, 'line-opacity', opacity);
+      if (agri) map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
     }
   }
   function visibilityChanged() {

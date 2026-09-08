@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 451,
+    "keyCount": 475,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1941,7 +1941,31 @@
         "statsMotorcycleRegisteredCount-fill",
         "statsAutomobileRegisteredCount-fill",
         "statsAutomobileLicenseHoldersCount-fill",
-        "statsMotorcycleLicenseHoldersCount-fill"
+        "statsMotorcycleLicenseHoldersCount-fill",
+        "statsPaddyLandAreaTownship-fill",
+        "statsDryFieldAreaTownship-fill",
+        "statsOrchardAreaTownship-fill",
+        "statsAgriculturalFacilityAreaTownship-fill",
+        "statsLivestockBuildingAreaTownship-fill",
+        "statsPastureAreaTownship-fill",
+        "statsAquacultureLandAreaTownship-fill",
+        "statsConiferForestAreaTownship-fill",
+        "statsBroadleafForestAreaTownship-fill",
+        "statsBambooForestAreaTownship-fill",
+        "statsMixedForestAreaTownship-fill",
+        "statsRoadLandAreaTownship-fill",
+        "statsRailLandAreaTownship-fill",
+        "statsAirportLandAreaTownship-fill",
+        "statsPortLandAreaTownship-fill",
+        "statsCropPlantedAreaTownship-fill",
+        "statsCropHarvestedAreaTownship-fill",
+        "statsCropProductionTownship-fill",
+        "statsCropYieldTownship-fill",
+        "statsFisheryProductionCounty-fill",
+        "statsFisheryProductionValueCounty-fill",
+        "statsAquacultureAreaCounty-fill",
+        "statsLivestockFarmCountTownship-fill",
+        "statsLivestockHeadCountTownship-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -58658,7 +58682,25 @@
         "value": 0.55
       }
     ],
+    "statsAgriculturalFacilityAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsAirportCargoTonnes": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAirportLandAreaTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -58685,6 +58727,24 @@
         "value": 0.55
       }
     ],
+    "statsAquacultureAreaCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsAquacultureLandAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsAutomobileLicenseHoldersCount": [
       {
         "label": "透明度 0.55",
@@ -58703,7 +58763,25 @@
         "value": 0.55
       }
     ],
+    "statsBambooForestAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsBirthsTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsBroadleafForestAreaTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -58784,7 +58862,115 @@
         "value": 0.55
       }
     ],
+    "statsConiferForestAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsCropHarvestedAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsCropPlantedAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsCropProductionTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsCropYieldTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsDryFieldAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsFisheryProductionCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsFisheryProductionValueCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLivestockBuildingAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLivestockFarmCountTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLivestockHeadCountTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsMaritimeSubsidyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsMixedForestAreaTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -58829,7 +59015,52 @@
         "value": 0.55
       }
     ],
+    "statsOrchardAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsPaddyLandAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsPastureAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsPigWaterCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsPortLandAreaTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsRailLandAreaTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,
@@ -58857,6 +59088,15 @@
       }
     ],
     "statsRiceHarvest": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsRoadLandAreaTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,

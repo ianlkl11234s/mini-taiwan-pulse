@@ -62,6 +62,13 @@ describe('StatisticsGeometryCache', () => {
     await cache.load(second, fetcher);
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
+  it('normalizes a declared delivery code property only after SHA verification', async () => {
+    vi.stubGlobal('crypto', webcrypto);
+    const bytes = text.encode(JSON.stringify({ type: 'FeatureCollection', features: [{ type: 'Feature', properties: { TOWNCODE: '09007010' }, geometry: { type: 'Polygon', coordinates: [] } }] }));
+    const item = { ...(await manifest('https://geometry.test/township', bytes)), code_property: 'TOWNCODE', code_scheme: 'TOWNCODE' };
+    const cache = new StatisticsGeometryCache();
+    await expect(cache.load(item, async () => bytes.buffer.slice(0))).resolves.toMatchObject({ features: [{ properties: { TOWNCODE: '09007010', area_code: '09007010' } }] });
+  });
   it('bounds pending entries and does not retain oversized geometry', async () => {
     vi.stubGlobal('crypto', webcrypto);
     const bytes = geometry('A');

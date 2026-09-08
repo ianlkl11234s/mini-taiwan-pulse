@@ -210,12 +210,28 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
       fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),
       fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
     ] },
+    { title: "土地使用結構", layers: [fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"), fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship")] },
   ] },
   { title: "水資源統計 Water Statistics", groups: [{ title: "畜牧用水", layers: [fromManifest("statsPigWaterCounty")] }, { title: "公共給水", layers: [fromManifest("statsWaterSupplyHistorical")] }] },
   { title: "廢棄物統計 Waste Statistics", groups: [{ title: "清運量能", layers: [fromManifest("statsWasteCounty")] }, { title: "回收成果", layers: [fromManifest("statsWasteRecyclingRate")] }] },
   { title: "資源回收統計 Recycling Statistics", groups: [{ title: "資源回收量能", layers: [fromManifest("statsRecyclingCounty")] }] },
   { title: "能源統計 Energy Statistics", groups: [{ title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] }] },
+  // 舊稻作 saved-state/語意入口維持原 section；cross-topic index 另由 recipe metadata 提供。
   { title: "農業統計 Agriculture Statistics", groups: [{ title: "稻作生產", layers: [fromManifest("statsRiceHarvest")] }] },
+  { title: "農業統計", groups: [
+    { title: "土地使用結構", layers: [fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"), fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship")] },
+    { title: "作物生產", layers: [fromManifest("statsCropPlantedAreaTownship"), fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"), fromManifest("statsCropYieldTownship")] },
+  ] },
+  { title: "畜牧統計", groups: [
+    { title: "土地使用結構", layers: [fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship")] },
+    { title: "在養與場數", layers: [fromManifest("statsLivestockFarmCountTownship"), fromManifest("statsLivestockHeadCountTownship")] },
+  ] },
+  { title: "漁業統計", groups: [
+    { title: "土地使用結構", layers: [fromManifest("statsAquacultureLandAreaTownship")] },
+    { title: "產量與產值", layers: [fromManifest("statsFisheryProductionCounty"), fromManifest("statsFisheryProductionValueCounty")] },
+    { title: "養殖結構", layers: [fromManifest("statsAquacultureAreaCounty")] },
+  ] },
+  { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
   { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
 ];
 
@@ -1620,6 +1636,10 @@ export const LAYER_MACRO_GROUPS = [
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
 
 const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
+  "農業統計": "environment",
+  "畜牧統計": "environment",
+  "漁業統計": "environment",
+  "林業統計": "environment",
   "交通統計 Transport Statistics": "city",
   "水資源統計 Water Statistics": "environment",
   "廢棄物統計 Waste Statistics": "environment",

@@ -52,6 +52,7 @@ import { describe, it, expect } from "vitest";
 
 import { MANIFEST_KEYS } from "../../data/layerManifest";
 import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
+import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
 
 // ══════════════════════════════════════════════════════════════════
 //  桶 2：hook 留在 App.tsx（pattern E）
@@ -105,6 +106,8 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "statsOffstreetSmallCarParkingSpacesCount", "statsOnstreetSmallCarParkingSpacesCount",
   "statsMotorcycleRegisteredCount", "statsAutomobileRegisteredCount",
   "statsAutomobileLicenseHoldersCount", "statsMotorcycleLicenseHoldersCount",
+  // MapView.attachRegionalStatistics handles all agri recipes as the same dynamic runtime family.
+  ...AGRI_ENABLED_STATISTICS_KEYS,
 ]);
 
 // ══════════════════════════════════════════════════════════════════
