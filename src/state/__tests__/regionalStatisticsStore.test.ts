@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({ loadRegionalStatistics: vi.fn() }));
 vi.mock('../../data/regionalStatisticsLoader', () => ({ loadRegionalStatistics: mocks.loadRegionalStatistics }));
@@ -11,6 +11,8 @@ const result = (id: string) => ({
 function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(r => { resolve = r; }); return { promise, resolve }; }
 
 describe('regionalStatisticsStore selection snapshots', () => {
+  beforeEach(() => { mocks.loadRegionalStatistics.mockReset(); });
+
   it('keeps independent keyed selections and stable completed snapshots', async () => {
     const a = 'stats-test-a'; const b = 'stats-test-b';
     regionalStatisticsStore.setSelection(a, { datasetId: 'waste', indicatorId: 'total', level: 'county' });
@@ -44,5 +46,30 @@ describe('regionalStatisticsStore selection snapshots', () => {
     old.resolve(result('old'));
     await oldWork;
     expect(regionalStatisticsStore.getSnapshot(key)).toMatchObject({ selection: { indicatorId: 'new', releaseId: 'r-new' }, release: { release_id: 'new' } });
+  });
+
+  it('shares concurrent loads for an identical selector', async () => {
+    const key = 'stats-test-inflight'; const pending = deferred<never>();
+    regionalStatisticsStore.setSelection(key, { datasetId: 'waste', indicatorId: 'total', level: 'county', dimensions: { year: '113' } });
+    mocks.loadRegionalStatistics.mockReturnValueOnce(pending.promise);
+    const first = regionalStatisticsStore.load(key);
+    const second = regionalStatisticsStore.load(key);
+    expect(mocks.loadRegionalStatistics).toHaveBeenCalledTimes(1);
+    pending.resolve(result('shared'));
+    await Promise.all([first, second]);
+    expect(regionalStatisticsStore.getSnapshot(key)).toMatchObject({ loading: false, release: { release_id: 'shared' } });
+  });
+
+  it('reuses a completed snapshot until the selector changes', async () => {
+    const key = 'stats-test-completed';
+    regionalStatisticsStore.setSelection(key, { datasetId: 'waste', indicatorId: 'total', level: 'county' });
+    mocks.loadRegionalStatistics.mockResolvedValueOnce(result('cached'));
+    await regionalStatisticsStore.load(key);
+    await regionalStatisticsStore.load(key);
+    expect(mocks.loadRegionalStatistics).toHaveBeenCalledTimes(1);
+    regionalStatisticsStore.setSelection(key, { datasetId: 'waste', indicatorId: 'total', level: 'county', releaseId: 'r2' });
+    mocks.loadRegionalStatistics.mockResolvedValueOnce(result('r2'));
+    await regionalStatisticsStore.load(key);
+    expect(mocks.loadRegionalStatistics).toHaveBeenCalledTimes(2);
   });
 });

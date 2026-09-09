@@ -1,5 +1,5 @@
-import { supabase } from '../lib/supabase';
 import { withLoading } from '../lib/loadingRegistry';
+import { cachedByKey } from '../lib/loaderCache';
 import { statisticsGeometryCache, waitForGeometry } from './statisticsGeometryCache';
 import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
 
@@ -18,6 +18,94 @@ export function assertStatisticsSourceSemantics(value: StatisticsObservation, re
 export interface StatisticsHealth { status: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string; coverage?: Record<string, unknown> }
 export interface GeometryManifest { resource: string; sha256: string; code_scheme: string; code_property?: string; name_property?: string; boundary_version: string; level: StatisticsLevel }
 export interface RegionalStatisticsResult { catalog: StatisticsCatalogItem[]; releases: StatisticsRelease[]; values: StatisticsValues; sources: StatisticsSource; health?: StatisticsHealth; effectiveRecipe: StatisticsRecipe; geometryManifest: GeometryManifest; features: GeoJSON.Feature[] }
+
+const STATISTICS_CDN_SCHEMA = 'regional-statistics-cdn-v1';
+const DEFAULT_STATISTICS_CDN_BASE = 'https://data.itsmigu.com/statistics/v1';
+interface StatisticsCdnAsset { path: string; sha256: string; bytes: number }
+interface StatisticsCdnPointer { schema_version: string; manifest: StatisticsCdnAsset }
+interface StatisticsCdnSelector {
+  dataset_id: string; indicator_id: string; release_id: string; area_level: StatisticsLevel;
+  dimensions: Record<string, unknown>; artifact: StatisticsCdnAsset;
+}
+interface StatisticsCdnIndicator { dataset_id: string; indicator_id: string; releases: StatisticsRelease[] }
+interface StatisticsCdnManifest {
+  schema_version: string;
+  catalog: { status: string; indicators: StatisticsCatalogItem[] };
+  indicators: StatisticsCdnIndicator[];
+  selectors: StatisticsCdnSelector[];
+  geometries: GeometryManifest[];
+}
+interface StatisticsCdnArtifact {
+  schema_version: string;
+  values: StatisticsValues;
+  sources: { status: string; source: StatisticsSource };
+  health?: StatisticsHealth | null;
+  geometry: { status: string; geometry: GeometryManifest };
+}
+
+function statisticsCdnBase(): string {
+  return String(import.meta.env.VITE_STATISTICS_CDN_BASE || DEFAULT_STATISTICS_CDN_BASE).replace(/\/+$/, '');
+}
+
+function assetUrl(base: string, path: string): string {
+  if (!path || path.startsWith('/') || path.includes('\\')) throw new Error('Statistics CDN artifact path 不合法');
+  const root = new URL(`${base}/`);
+  const resolved = new URL(path, root);
+  if (resolved.origin !== root.origin || !resolved.pathname.startsWith(root.pathname) || resolved.username || resolved.password) {
+    throw new Error('Statistics CDN artifact 不可離開版本根目錄');
+  }
+  return resolved.href;
+}
+
+async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
+  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))]
+    .map(value => value.toString(16).padStart(2, '0')).join('');
+}
+
+async function fetchJson(url: string, expected?: StatisticsCdnAsset): Promise<unknown> {
+  const response = await fetch(url, expected ? undefined : { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`Statistics CDN 回應 ${response.status}`);
+  const bytes = await response.arrayBuffer();
+  if (expected) {
+    if (!Number.isInteger(expected.bytes) || expected.bytes < 2 || bytes.byteLength !== expected.bytes) throw new Error('Statistics CDN artifact 大小不符');
+    if (!/^[0-9a-f]{64}$/.test(expected.sha256) || await sha256Hex(bytes) !== expected.sha256) throw new Error('Statistics CDN artifact SHA-256 不符');
+  }
+  try { return JSON.parse(new TextDecoder().decode(bytes)); }
+  catch { throw new Error('Statistics CDN JSON 格式不符'); }
+}
+
+const loadCdnManifestCached = cachedByKey<StatisticsCdnManifest>(async base => {
+  const pointer = await fetchJson(`${base}/current.json`) as StatisticsCdnPointer;
+  if (pointer?.schema_version !== STATISTICS_CDN_SCHEMA || !pointer.manifest) throw new Error('Statistics CDN current manifest 契約不符');
+  const manifest = await fetchJson(assetUrl(base, pointer.manifest.path), pointer.manifest) as StatisticsCdnManifest;
+  if (manifest?.schema_version !== STATISTICS_CDN_SCHEMA || manifest.catalog?.status !== 'OK'
+    || !Array.isArray(manifest.catalog.indicators) || !Array.isArray(manifest.indicators)
+    || !Array.isArray(manifest.selectors) || !Array.isArray(manifest.geometries)) throw new Error('Statistics CDN manifest 契約不符');
+  return manifest;
+}, 60_000, 2);
+
+const loadCdnArtifactCached = cachedByKey<StatisticsCdnArtifact>(async key => {
+  const { base, asset } = JSON.parse(key) as { base: string; asset: StatisticsCdnAsset };
+  const artifact = await fetchJson(assetUrl(base, asset.path), asset) as StatisticsCdnArtifact;
+  if (artifact?.schema_version !== STATISTICS_CDN_SCHEMA || !artifact.values || !artifact.sources || !artifact.geometry) {
+    throw new Error('Statistics CDN release artifact 契約不符');
+  }
+  return artifact;
+}, 24 * 60 * 60_000, 64);
+
+export function clearRegionalStatisticsCdnCache(): void {
+  loadCdnManifestCached.invalidate();
+  loadCdnArtifactCached.invalidate();
+}
+
+async function cdnManifest(signal?: AbortSignal): Promise<StatisticsCdnManifest> {
+  return waitForGeometry(loadCdnManifestCached(statisticsCdnBase()), signal);
+}
+
+async function cdnArtifact(asset: StatisticsCdnAsset, signal?: AbortSignal): Promise<StatisticsCdnArtifact> {
+  const base = statisticsCdnBase();
+  return waitForGeometry(loadCdnArtifactCached(JSON.stringify({ base, asset })), signal);
+}
 
 const AGRI_PREVIEW_DEFAULT_URL = '/__agri-statistics-preview-api';
 const AGRI_PREVIEW_BOUNDARY_PATH = '/__agri-statistics-preview-boundaries';
@@ -57,11 +145,6 @@ export function normalizeAgriPreviewHealth(body: Record<string, unknown>, level:
   };
 }
 
-/** Sources and health use the stable three-argument public RPC contract. */
-export function statisticsAncillaryRpcArgs(recipe: Pick<StatisticsRecipe, 'datasetId' | 'indicatorId'>, releaseId: string) {
-  return { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: releaseId };
-}
-
 async function previewRequest<T>(route: string, query: Record<string, unknown>, recipe: StatisticsRecipe, agri: AgriRecipe, signal?: AbortSignal): Promise<T> {
   if (route === 'geometry-manifest') {
     const boundary = AGRI_BOUNDARIES[String(query.boundary_version)];
@@ -90,27 +173,34 @@ async function previewRequest<T>(route: string, query: Record<string, unknown>, 
   return body as T;
 }
 
-async function request<T>(route: string, query: Record<string, unknown>, args: Record<string, unknown>, signal?: AbortSignal, recipe?: StatisticsRecipe): Promise<T> {
+async function request<T>(route: string, query: Record<string, unknown>, signal?: AbortSignal, recipe?: StatisticsRecipe): Promise<T> {
   const agri = recipe?.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
   if (agriPreviewEnabled() && agri) return previewRequest<T>(route, query, recipe!, agri, signal);
-  const base = String(import.meta.env.VITE_STATISTICS_API_URL ?? '').replace(/\/$/, '');
-  if (base) {
-    const params = new URLSearchParams(Object.entries(query).filter(([, v]) => v != null).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]));
-    const response = await fetch(`${base}/statistics/${route}?${params}`, { signal });
-    if (!response.ok) throw new Error(`統計服務回應 ${response.status}`);
-    return response.json() as Promise<T>;
+  const manifest = await cdnManifest(signal);
+  if (route === 'catalog') return manifest.catalog as T;
+  if (route === 'releases') {
+    const indicator = manifest.indicators.find(item => item.dataset_id === query.dataset_id && item.indicator_id === query.indicator_id);
+    return { status: 'OK', releases: indicator?.releases ?? [] } as T;
   }
-  let call = supabase.rpc(`get_stat_${route.replace(/-/g, '_')}`, args);
-  if (signal) call = call.abortSignal(signal);
-  const { data, error } = await call;
-  if (error) throw new Error(error.message);
-  return data as T;
+  if (route === 'geometry-manifest') {
+    const geometry = manifest.geometries.find(item => item.boundary_version === query.boundary_version && item.level === query.level);
+    return (geometry ? { status: 'OK', geometry: { ...geometry, resource: assetUrl(statisticsCdnBase(), geometry.resource) } } : { status: 'NOT_FOUND' }) as T;
+  }
+  const selector = manifest.selectors.find(item => item.dataset_id === query.dataset_id
+    && item.indicator_id === query.indicator_id && item.release_id === query.release_id
+    && (route !== 'values' || (item.area_level === query.level && sameDimensions(item.dimensions, (query.dimensions ?? {}) as Record<string, unknown>))));
+  if (!selector) return { status: 'NOT_FOUND' } as T;
+  const artifact = await cdnArtifact(selector.artifact, signal);
+  if (route === 'values') return artifact.values as T;
+  if (route === 'sources') return artifact.sources as T;
+  if (route === 'health') return (artifact.health ?? { status: 'NOT_FOUND' }) as T;
+  throw new Error(`Statistics CDN 不支援 route: ${route}`);
 }
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
   return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
     const [catalogResponse, releasesResponse] = await Promise.all([
-      request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, {}, signal, recipe),
-      request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId }, signal, recipe),
+      request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
+      request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, signal, recipe),
     ]);
     const { indicators: catalog } = catalogResponse;
     const { releases } = releasesResponse;
@@ -157,25 +247,14 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     // the atomic result gate below: no values render before provenance/health/SHA pass.
     const [{ first, observations }, { geometryManifest, boundary }, sourceResponse, health] = await Promise.all([
       (async () => {
-        let first: StatisticsValues | undefined;
-        const observations: StatisticsObservation[] = [];
-        let offset = 0;
-        for (let pageIndex = 0; pageIndex < 100; pageIndex++) {
-          const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {}, limit: 10000, offset };
-          const page = await request<StatisticsValues>('values', query, { p_dataset: recipe.datasetId, p_indicator: recipe.indicatorId, p_release: release.release_id, p_level: recipe.level, p_dimensions: effectiveRecipe.dimensions ?? {}, p_limit: 10000, p_offset: offset }, signal, recipe);
-          if (!['OK', 'NO_DATA'].includes(page.status) || page.release?.release_id !== release.release_id || page.release.boundary_version !== release.boundary_version || page.release.dataset_id !== recipe.datasetId || page.release.indicator_id !== recipe.indicatorId || page.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
-          if (!Array.isArray(page.observations) || page.returned !== page.observations.length || !Number.isInteger(page.total) || page.total < 0 || (first && page.total !== first.total)) throw new Error('統計分頁完整度不符');
-          first ??= page;
-          observations.push(...page.observations);
-          if (!page.truncated) break;
-          if (!Number.isInteger(page.next_offset) || page.next_offset !== offset + page.returned || page.returned === 0 || pageIndex === 99) throw new Error('統計分頁無法繼續');
-          offset = page.next_offset!;
-        }
-        if (!first || observations.length !== first.total) throw new Error('統計資料未完整載入');
-        return { first, observations };
+        const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {} };
+        const first = await request<StatisticsValues>('values', query, signal, recipe);
+        if (!['OK', 'NO_DATA'].includes(first.status) || first.release?.release_id !== release.release_id || first.release.boundary_version !== release.boundary_version || first.release.dataset_id !== recipe.datasetId || first.release.indicator_id !== recipe.indicatorId || first.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
+        if (!Array.isArray(first.observations) || first.returned !== first.observations.length || first.total !== first.returned || first.truncated || first.next_offset !== null || !Number.isInteger(first.total) || first.total < 0) throw new Error('Statistics CDN release artifact 不完整');
+        return { first, observations: first.observations };
       })(),
       (async () => {
-        const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, { p_boundary_version: release.boundary_version, p_level: recipe.level }, signal, recipe);
+        const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, signal, recipe);
         const geometryManifest = geometryResponse.geometry;
         if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
         const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
@@ -185,9 +264,9 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
         }), signal);
         return { geometryManifest, boundary };
       })(),
-      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe),
+      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe),
       recipe.includeHealth
-        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, statisticsAncillaryRpcArgs(recipe, release.release_id), signal, recipe)
+        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe)
         : Promise.resolve(undefined),
     ]);
     if (sourceResponse.status !== 'OK' || (health && health.status !== 'OK')) throw new Error('參考邊界、來源紀錄或健康狀態不可用');

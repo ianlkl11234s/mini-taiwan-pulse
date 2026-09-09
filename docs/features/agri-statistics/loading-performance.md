@@ -13,6 +13,8 @@
 | boundary GeoJSON | 既有部署資產 mirror 的 `/geo/` URL，manifest SHA 與匿名下載一致；未修改座標 |
 | geometry 對應 | 新增必要 logical aliases；既有 county／township manifests 保留 |
 
+2026-09-10 起，上表 Supabase 是發布來源而非 browser runtime。`gis-platform/scripts/statistics/export_r2_cdn.py` 從 read-only、anon 可見的同一 public contract 組出完整 R2 snapshot，並在不改 geometry bytes 的前提下驗原 SHA 後鏡像；前端只讀 `current.json`、content-hashed manifest/artifact/geometry。新增 Statistics 指標也必須走此路徑，無 Supabase fallback。
+
 正式鄉鎮資產正規化後 45,242,401 bytes（未簡化座標），SHA 見 [geometry-upload.json](./evidence/geometry-upload.json)。不需將 tar.gz 加入 frontend Git；正式服務不依賴 Python preview。
 
 ## 找到的瓶頸與本地修改
@@ -20,7 +22,7 @@
 - 鄉鎮 boundary 51,289,454 bytes，縣市14,719,725 bytes。舊快取超過8 MiB單檔就淘汰，兩者都無法留住；相同 geometry 的 logical boundary aliases 也分開快取。
 - `statisticsGeometryCache.ts` 改成64 MiB**總 raw-byte 預算**的 LRU；保留 pending entry 上限、SHA校驗、失敗淘汰與 caller abort。相同 resource/SHA/level/code/name mapping 共用解析後 geometry，呼叫者的 manifest/version 仍分開驗證與揭露。
 - raw-byte 預算是資產大小的計帳方式，**不等於 JavaScript heap 上限**。解析後座標與 Mapbox worker 仍占記憶體；沒有宣稱實體手機容量已驗證。
-- `regionalStatisticsLoader.ts` 將 catalog/releases 平行取用；release 驗證後 values、geometry、sources、health 平行載入。分頁仍依 offset 順序，所有證據都通過才回傳完整結果。不快取可撤回的 releases／values／health。
+- `regionalStatisticsLoader.ts` 共用短 TTL manifest 與 content-hashed artifact；同 selector 的 store 載入也會去重。每個 artifact 必須含完整 observations，所有 values、source、health、geometry SHA 證據都通過才回傳，不會轉回 Supabase 分頁補讀。
 
 ## 真實資料量測
 

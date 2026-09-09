@@ -30,10 +30,12 @@ CAA `caa_airport_activity_county_33238` 使用 v4 三個 release suffix `152b35d
 
 1. Analytics 依 long-term-plan.md 與 onboarding-template.md 確認來源、授權、期別、單位與行政區層級。
 2. 沿用 regional_statistics bundle contract，新增來源 adapter，保留 raw receipt、checksum、processing、coverage 與缺值。
-3. Platform 註冊 geometry 版本、匯入資料版本並逐筆回讀；本機預覽與 production 分別驗收。
-4. 前端新增 regionalStatisticsRecipes 與 layerManifest／layerParamsSpec，使用既有統計 UI 與 renderer，再跑測試與瀏覽器驗收。
+3. Platform 註冊 geometry 版本、匯入資料版本並逐筆回讀；再以 `scripts/statistics/export_r2_cdn.py` 產出完整 public snapshot，先 dry-run 驗 count，獲發布授權後才 `--upload`。
+4. 前端新增 regionalStatisticsRecipes 與 layerManifest／layerParamsSpec，使用既有統計 UI 與 renderer；runtime 固定讀 R2 CDN，再跑測試與瀏覽器驗收。
 
-本機 VITE_STATISTICS_API_URL=http://localhost:3735；未設定時預設 Supabase public RPC。正式環境使用 Supabase public RPC，不設定 local API override。public/statistics 的縣市與鄉鎮 geometry 已入版控；已比對正式站與固定 commit raw URL 的 SHA-256；DB manifest 使用固定 commit URL（22 縣市／368 鄉鎮），避免覆蓋已發布幾何版本。
+正式與本機預設讀 `https://data.itsmigu.com/statistics/v1`；需要替代 origin 時設定 `VITE_STATISTICS_CDN_BASE`。前端沒有 Supabase fallback，CDN pointer／manifest／artifact 不完整時應顯示 ERROR，避免 CDN 事故放大成 DB 流量。publisher 會從既有 public resource 驗 SHA 後將 geometry 原 bytes 一併鏡像至 R2，前端也只讀版本根目錄內的 content-hashed geometry。DEV 農業 preview 仍須同時符合 DEV 與 `VITE_AGRI_STATISTICS_PREVIEW=true`，不進 production。
+
+2026-09-10 已正式發布 `regional-statistics-cdn-v1`：66 indicators、476 releases、3,174 exact selectors、4 geometry manifests；current 指向 manifest SHA-256 `83e3c0635218f3d4c2a5b3dc4d8c9cb16f6e69831c47da64205e40b418aa6278`。公開 CDN 已回讀 current／manifest／代表 artifact／geometry 的 HTTP 200、CORS、bytes 與 SHA-256；Cloudflare `cache-static-assets` 規則也已納入 `/statistics/`，immutable artifact 實測由 MISS 轉 HIT。
 
 Analytics 文件：docs/topic-research/regional_statistics/long-term-plan.md、onboarding-template.md、commit-map.md。
 
@@ -49,10 +51,10 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 
 42 個統計指標的匿名 catalog 本次回讀為 HTTP 200／OK（這不是逐版 values 全驗收）。正式交通批次沿用上方 production closeout；不要引用 overnight 舊分支的「尚未套用 migration」覆蓋此狀態。
 
-新增題目沿用同一條鏈：**analytics source adapter → immutable bundle/manifest → platform import/RPC → Pulse recipe/既有 renderer**。一般新增來源不另建 API、另一套統計 panel、獨立 polling 或另一份行政區 geometry；只有單位、層級或資料契約確實不同時才擴充共用契約。
+新增題目沿用同一條鏈：**analytics source adapter → immutable bundle/manifest → platform import/public contract → R2 immutable snapshot → Pulse recipe/既有 renderer**。一般新增來源不另建 API、另一套統計 panel、獨立 polling 或另一份行政區 geometry；只有單位、層級或資料契約確實不同時才擴充共用契約。
 
 每份新資料需留下原始下載＋receipt、來源與授權、解析程式版本、觀測期別、單位／分母、行政區／boundary version、release ID、checksum、missing/suppressed/unallocated 與 coverage。不能把引用邊界當成歷史實際邊界，也不能把缺值補零。
 
-S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 `deploy-assets` 供應路徑分開；前端仍只經既有 RPC／geometry manifest 讀公開資料。私人來源路徑不能隨 sources RPC 送到瀏覽器。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。DB geometry URL 保持原樣；這是一次性檔案快照，不含完整資料庫，也不代表未來新增來源已自動封存。
+S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 R2 runtime 供應路徑分開；前端只讀 R2 公開 snapshot 與 geometry resource。私人來源路徑不能進入 sources 或 artifact。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。這是一次性封存證據，不代表未來新增來源已自動封存或已發布到 R2。
 
 本批 loader 已共用經 SHA-256 校驗的 immutable geometry，避免疊多項指標時反覆下載和解析同一邊界；觀測值每次獨立 join，快取不共享指標數值。
