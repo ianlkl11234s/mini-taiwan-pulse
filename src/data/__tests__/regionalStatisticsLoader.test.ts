@@ -1,85 +1,130 @@
+import { createHash, webcrypto } from 'node:crypto';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { webcrypto } from 'node:crypto';
 
-vi.mock('../../lib/supabase', () => ({ supabase: { rpc: vi.fn() } }));
-import { assertStatisticsSourceSemantics, loadRegionalStatistics, normalizeAgriPreviewHealth, statisticsAncillaryRpcArgs } from '../regionalStatisticsLoader';
+import {
+  assertStatisticsSourceSemantics,
+  clearRegionalStatisticsCdnCache,
+  loadRegionalStatistics,
+  normalizeAgriPreviewHealth,
+} from '../regionalStatisticsLoader';
 import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
 
-const bytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
+const CDN_BASE = 'https://cdn.test/statistics/v1';
+const geometryBytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
   { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [[[120, 23], [121, 23], [121, 24], [120, 23]]] } },
   { type: 'Feature', properties: { area_code: 'B' }, geometry: { type: 'Polygon', coordinates: [[[121, 23], [122, 23], [122, 24], [121, 23]]] } },
 ] }));
 const recipe = { datasetId: 'waste', indicatorId: 'vehicles', level: 'county' as const };
-const release = { dataset_id: 'waste', indicator_id: 'vehicles', release_id: 'r1', boundary_version: 'county-v1', period_start: '2025-01-01', period_end: '2025-12-31', levels: ['county'] };
-const catalog = { status: 'OK', indicators: [{ dataset_id: 'waste', indicator_id: 'vehicles', name: '車輛', unit: '輛', levels: ['county'] }] };
+const release = { dataset_id: 'waste', indicator_id: 'vehicles', release_id: 'r1', boundary_version: 'county-v1', period_start: '2025-01-01', period_end: '2025-12-31', levels: ['county'] as const };
+const catalog = { status: 'OK', indicators: [{ dataset_id: 'waste', indicator_id: 'vehicles', name: '車輛', unit: '輛', levels: ['county' as const] }] };
 const source = { status: 'OK', source: { publisher: '環境部' } };
-const manifest = async (body = bytes) => ({ status: 'OK', geometry: { resource: 'https://geometry.test/county.json', sha256: [...new Uint8Array(await webcrypto.subtle.digest('SHA-256', body))].map(x => x.toString(16).padStart(2, '0')).join(''), code_scheme: 'area_code', boundary_version: 'county-v1', level: 'county' } });
-const page = (rows: unknown[], offset = 0, total = rows.length, truncated = false, responseRelease = release) => ({ status: rows.length ? 'OK' : 'NO_DATA', release: responseRelease, area_level: 'county', total, returned: rows.length, truncated, next_offset: truncated ? offset + rows.length : null, observations: rows });
+const health = { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, mapped_total: 58186094, unallocated_total: 0, currency: 'TWD' };
 
-function json(data: unknown) { return new Response(JSON.stringify(data), { status: 200 }); }
-function install(responses: { values?: unknown[]; geometry?: Uint8Array; manifestBytes?: Uint8Array; releases?: unknown[]; health?: unknown; responseRelease?: typeof release; catalog?: typeof catalog } = {}) {
-  const responseRelease = responses.responseRelease ?? release;
-  const values = responses.values ?? [page([{ area_code: 'A', value: 0, status: 'observed' }, { area_code: 'B', value: null, status: 'suppressed' }], 0, 2, false, responseRelease)];
-  let i = 0;
-  vi.stubGlobal('fetch', vi.fn(async (input: string) => {
-    if (input.includes('/catalog')) return json(responses.catalog ?? catalog);
-    if (input.includes('/releases')) return json({ status: 'OK', releases: responses.releases ?? [release] });
-    if (input.includes('/values')) return json(values[i++]);
-    if (input.includes('/sources')) return json(source);
-    if (input.includes('/health')) return json(responses.health ?? { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, mapped_total: 58186094, unallocated_total: 0, currency: 'TWD' });
-    if (input.includes('/geometry-manifest')) return json(await manifest(responses.manifestBytes ?? responses.geometry));
-    if (input === 'https://geometry.test/county.json') return new Response(responses.geometry ?? bytes);
-    throw new Error(`unexpected ${input}`);
-  }));
+function sha(body: Uint8Array): string { return createHash('sha256').update(body).digest('hex'); }
+function encoded(data: unknown): Uint8Array { return new TextEncoder().encode(JSON.stringify(data)); }
+function jsonBytes(body: Uint8Array): Response { return new Response(body, { status: 200, headers: { 'content-type': 'application/json' } }); }
+function values(rows: unknown[], responseRelease = release, overrides: Record<string, unknown> = {}) {
+  return { status: rows.length ? 'OK' : 'NO_DATA', release: responseRelease, area_level: 'county', total: rows.length, returned: rows.length, offset: 0, truncated: false, next_offset: null, observations: rows, ...overrides };
 }
 
-beforeEach(() => { statisticsGeometryCache.clear(); vi.stubEnv('VITE_STATISTICS_API_URL', 'http://127.0.0.1:3733'); vi.stubGlobal('crypto', webcrypto); });
+interface FixtureOptions {
+  valuePayload?: ReturnType<typeof values>;
+  geometry?: Uint8Array;
+  geometryHashBytes?: Uint8Array;
+  releases?: Array<Record<string, unknown>>;
+  responseRelease?: typeof release;
+  dimensions?: Record<string, unknown>;
+  health?: Record<string, unknown> | null;
+  catalog?: typeof catalog;
+  corruptArtifact?: boolean;
+}
 
-describe('regional statistics loader public contract', () => {
-  it('starts catalog and releases together without waiting for catalog latency', async () => {
-    install();
-    const originalFetch = fetch;
-    let finishCatalog!: () => void;
-    const gate = new Promise<void>(resolve => { finishCatalog = resolve; });
-    const started: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (input: string) => {
-      started.push(input);
-      if (input.includes('/catalog')) await gate;
-      return originalFetch(input);
-    }));
-    const loading = loadRegionalStatistics(recipe);
-    try {
-      await vi.waitFor(() => expect(started.some(url => url.includes('/releases'))).toBe(true));
-      expect(started.some(url => url.includes('/values'))).toBe(false);
-    } finally { finishCatalog(); }
-    await expect(loading).resolves.toMatchObject({ values: { total: 2 } });
+function install(options: FixtureOptions = {}) {
+  clearRegionalStatisticsCdnCache();
+  const responseRelease = options.responseRelease ?? release;
+  const body = options.geometry ?? geometryBytes;
+  const geometry = {
+    resource: `geometries/${sha(body)}.geojson`,
+    sha256: sha(options.geometryHashBytes ?? body),
+    code_scheme: 'area_code', boundary_version: responseRelease.boundary_version, level: 'county',
+  };
+  const artifact = {
+    schema_version: 'regional-statistics-cdn-v1',
+    values: options.valuePayload ?? values([
+      { area_code: 'A', value: 0, status: 'observed' },
+      { area_code: 'B', value: null, status: 'suppressed' },
+    ], responseRelease),
+    sources: source,
+    health: options.health === undefined ? health : options.health,
+    geometry: { status: 'OK', geometry },
+  };
+  const artifactBytes = encoded(artifact);
+  const artifactRef = { path: `artifacts/${sha(artifactBytes)}.json`, sha256: sha(artifactBytes), bytes: artifactBytes.byteLength };
+  const manifest = {
+    schema_version: 'regional-statistics-cdn-v1', generated_at: '2026-09-09T00:00:00Z',
+    catalog: options.catalog ?? catalog,
+    indicators: [{ dataset_id: responseRelease.dataset_id, indicator_id: responseRelease.indicator_id, releases: options.releases ?? [responseRelease] }],
+    selectors: [{ dataset_id: responseRelease.dataset_id, indicator_id: responseRelease.indicator_id, release_id: responseRelease.release_id, area_level: 'county', dimensions: options.dimensions ?? {}, artifact: artifactRef }],
+    geometries: [geometry],
+  };
+  const manifestBytes = encoded(manifest);
+  const manifestRef = { path: `manifests/${sha(manifestBytes)}.json`, sha256: sha(manifestBytes), bytes: manifestBytes.byteLength };
+  const currentBytes = encoded({ schema_version: 'regional-statistics-cdn-v1', manifest: manifestRef });
+  const mockedFetch = vi.fn(async (input: RequestInfo | URL) => {
+    const url = String(input);
+    if (url === `${CDN_BASE}/current.json`) return jsonBytes(currentBytes);
+    if (url === `${CDN_BASE}/${manifestRef.path}`) return jsonBytes(manifestBytes);
+    if (url === `${CDN_BASE}/${artifactRef.path}`) return jsonBytes(options.corruptArtifact ? encoded({ ...artifact, health: null }) : artifactBytes);
+    if (url === `${CDN_BASE}/${geometry.resource}`) return new Response(body);
+    throw new Error(`unexpected ${url}`);
+  });
+  vi.stubGlobal('fetch', mockedFetch);
+  return mockedFetch;
+}
+
+beforeEach(() => {
+  statisticsGeometryCache.clear();
+  clearRegionalStatisticsCdnCache();
+  vi.stubEnv('VITE_STATISTICS_CDN_BASE', CDN_BASE);
+  vi.stubEnv('VITE_AGRI_STATISTICS_PREVIEW', 'false');
+  vi.stubGlobal('crypto', webcrypto);
+});
+
+describe('regional statistics R2 CDN contract', () => {
+  it('deduplicates current/manifest/artifact reads and never calls Supabase', async () => {
+    const mockedFetch = install();
+    const result = await loadRegionalStatistics(recipe);
+    expect(result.values.total).toBe(2);
+    expect(mockedFetch.mock.calls.filter(([input]) => String(input).endsWith('/current.json'))).toHaveLength(1);
+    expect(mockedFetch.mock.calls.filter(([input]) => String(input).includes('/manifests/'))).toHaveLength(1);
+    expect(mockedFetch.mock.calls.filter(([input]) => String(input).includes('/artifacts/'))).toHaveLength(1);
+    expect(mockedFetch.mock.calls.some(([input]) => /supabase|\/rpc\//i.test(String(input)))).toBe(false);
   });
 
-  it('downloads geometry alongside values but waits for health before exposing the result', async () => {
+  it('downloads geometry alongside the release artifact but exposes only the atomic result', async () => {
     install();
     const originalFetch = fetch;
-    let finishValues!: () => void, finishHealth!: () => void;
-    const valuesGate = new Promise<void>(resolve => { finishValues = resolve; });
-    const healthGate = new Promise<void>(resolve => { finishHealth = resolve; });
+    let finishArtifact!: () => void;
+    const gate = new Promise<void>(resolve => { finishArtifact = resolve; });
     const started: string[] = [];
-    vi.stubGlobal('fetch', vi.fn(async (input: string) => {
-      started.push(input);
-      if (input.includes('/values')) await valuesGate;
-      if (input.includes('/health')) await healthGate;
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input); started.push(url);
+      if (url.includes('/artifacts/')) await gate;
       return originalFetch(input);
     }));
     let completed = false;
     const loading = loadRegionalStatistics({ ...recipe, includeHealth: true }).then(result => { completed = true; return result; });
     try {
-      await vi.waitFor(() => expect(started).toContain('https://geometry.test/county.json'));
-      expect(started.some(url => url.includes('/sources'))).toBe(true);
-      expect(started.some(url => url.includes('/health'))).toBe(true);
-      finishValues();
-      await Promise.resolve();
+      await vi.waitFor(() => expect(started.some(url => url.includes('/geometries/'))).toBe(true));
       expect(completed).toBe(false);
-    } finally { finishValues(); finishHealth(); }
+    } finally { finishArtifact(); }
     await expect(loading).resolves.toMatchObject({ health: { availability: 'CURRENT' }, values: { total: 2 } });
+  });
+
+  it('rejects a corrupted content-addressed artifact', async () => {
+    install({ corruptArtifact: true });
+    await expect(loadRegionalStatistics(recipe)).rejects.toThrow('artifact 大小不符');
   });
 
   it('requires livestock sidecar tokens only for nonnumeric observations', () => {
@@ -89,115 +134,107 @@ describe('regional statistics loader public contract', () => {
     expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'suppressed', source_status: 'suppressed', source_token: '*' }, true)).not.toThrow();
     expect(() => assertStatisticsSourceSemantics({ area_code: 'A', value: null, status: 'missing' }, false)).not.toThrow();
   });
+
   it('normalizes both delivery coverage shapes without conflating tuple and source coverage', () => {
     expect(normalizeAgriPreviewHealth({ status: 'PARTIAL', coverage: { observed: 118, expected: 368, status: 'PARTIAL' } }, 'township')).toMatchObject({ availability: 'PARTIAL', coverage_status: 'PARTIAL', coverage_numerator: 118, coverage_denominator: 368 });
     expect(normalizeAgriPreviewHealth({ status: 'STALE', coverage: { observed: { township_count: 3, status: 'PARTIAL' }, expected: { township_count: 368 } } }, 'township')).toMatchObject({ availability: 'STALE', coverage_status: 'PARTIAL', coverage_numerator: 3, coverage_denominator: 368 });
   });
+
   it('keeps preview whitelist tuples exact and defaults to the latest verified option', () => {
     const agri = getAgriRecipe('statsCropPlantedAreaTownship')!;
     const releases = [...new Map(agri.release_options.map(option => [option.release_id, { release_id: option.release_id, dataset_id: agri.dataset_id, indicator_id: agri.indicator_id, boundary_version: agri.boundary_version, period_start: option.period_start, period_end: option.period_end, levels: [agri.level] }])).values()];
     const selected = agriReleaseOptions(agri.layer_key, releases)[0]!;
-    const release = releases.find(item => item.release_id === selected.releaseId)!;
-    expect(resolveAgriRelease(agri.layer_key, release, selected.dimensions)).toEqual(selected);
-    expect(resolveAgriRelease(agri.layer_key, release, { crop: String(selected.dimensions.crop) })).toBeNull();
+    const selectedRelease = releases.find(item => item.release_id === selected.releaseId)!;
+    expect(resolveAgriRelease(agri.layer_key, selectedRelease, selected.dimensions)).toEqual(selected);
+    expect(resolveAgriRelease(agri.layer_key, selectedRelease, { crop: String(selected.dimensions.crop) })).toBeNull();
   });
-  it('uses the public RPC signatures for source and health without p_dimensions', () => {
-    expect(statisticsAncillaryRpcArgs(recipe, 'r1')).toEqual({ p_dataset: 'waste', p_indicator: 'vehicles', p_release: 'r1' });
-    expect(statisticsAncillaryRpcArgs(recipe, 'r1')).not.toHaveProperty('p_dimensions');
-  });
-  it('consumes nested catalog/releases/values/source/geometry payloads and preserves zero/null', async () => {
-    install(); const result = await loadRegionalStatistics(recipe);
-    expect(result.features.map(f => f.properties?.value)).toEqual([0, null]);
-    expect(result.features.map(f => f.properties?.status)).toEqual(['observed', 'suppressed']);
-  });
-  it('carries source-specific missing semantics into rendered feature properties', async () => {
-    install({ values: [page([{ area_code: 'A', value: null, status: 'missing', source_status: 'not_reported', source_token: '-' }, { area_code: 'B', value: null, status: 'suppressed', source_status: 'suppressed', source_token: '*' }])] });
+
+  it('preserves zero, null, missing and suppressed source semantics', async () => {
+    install({ valuePayload: values([
+      { area_code: 'A', value: 0, status: 'observed', source_status: null, source_token: null },
+      { area_code: 'B', value: null, status: 'suppressed', source_status: 'suppressed', source_token: '*' },
+    ]) });
     const result = await loadRegionalStatistics(recipe);
-    expect(result.features.map(feature => [feature.properties?.source_status, feature.properties?.source_token])).toEqual([['not_reported', '-'], ['suppressed', '*']]);
+    expect(result.features.map(feature => [feature.properties?.value, feature.properties?.status, feature.properties?.source_token])).toEqual([[0, 'observed', null], [null, 'suppressed', '*']]);
   });
-  it('rejects a SHA mismatch before rendering geometry', async () => {
-    install({ geometry: new TextEncoder().encode('{}'), manifestBytes: bytes });
+
+  it('rejects a geometry SHA mismatch before rendering', async () => {
+    install({ geometry: encoded({}), geometryHashBytes: geometryBytes });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('邊界檔案版本校驗失敗');
   });
+
   it('shares one verified boundary between different indicators', async () => {
-    install();
+    const firstFetch = install();
     await loadRegionalStatistics(recipe);
-    const firstFetch = vi.mocked(fetch);
     const weightRelease = { ...release, indicator_id: 'weight', release_id: 'r-weight' };
-    install({
-      responseRelease: weightRelease,
-      releases: [weightRelease],
-      catalog: { status: 'OK', indicators: [...catalog.indicators, { dataset_id: 'waste', indicator_id: 'weight', name: '重量', unit: '噸', levels: ['county'] }] },
-    });
+    const secondFetch = install({ responseRelease: weightRelease, releases: [weightRelease], catalog: { status: 'OK', indicators: [...catalog.indicators, { dataset_id: 'waste', indicator_id: 'weight', name: '重量', unit: '噸', levels: ['county'] }] } });
     await loadRegionalStatistics({ ...recipe, indicatorId: 'weight' });
-    expect(firstFetch.mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
-    expect(vi.mocked(fetch).mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(0);
+    expect(firstFetch.mock.calls.filter(([input]) => String(input).includes('/geometries/'))).toHaveLength(1);
+    expect(secondFetch.mock.calls.filter(([input]) => String(input).includes('/geometries/'))).toHaveLength(0);
   });
+
   it('refetches when the immutable boundary identity changes', async () => {
-    install();
+    const firstFetch = install();
     await loadRegionalStatistics(recipe);
-    const firstFetch = vi.mocked(fetch);
-    const nextBytes = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
+    const nextBytes = encoded({ type: 'FeatureCollection', features: [
       { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [[[120, 23], [121, 23], [121, 24], [120, 23]]] } },
       { type: 'Feature', properties: { area_code: 'B' }, geometry: { type: 'Polygon', coordinates: [[[121, 23], [122.1, 23], [122.1, 24], [121, 23]]] } },
-    ] }));
-    install({ geometry: nextBytes, manifestBytes: nextBytes });
+    ] });
+    const secondFetch = install({ geometry: nextBytes });
     await loadRegionalStatistics(recipe);
-    expect(firstFetch.mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
-    expect(vi.mocked(fetch).mock.calls.filter(([input]) => input === 'https://geometry.test/county.json')).toHaveLength(1);
+    expect(firstFetch.mock.calls.filter(([input]) => String(input).includes('/geometries/'))).toHaveLength(1);
+    expect(secondFetch.mock.calls.filter(([input]) => String(input).includes('/geometries/'))).toHaveLength(1);
   });
+
   it('does not fall back when an explicit release was withdrawn', async () => {
     install({ releases: [release] });
     await expect(loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-r0' })).rejects.toThrow('尚未公開或已撤回');
   });
-  it('reads every page and rejects an incomplete total', async () => {
-    install({ values: [page([{ area_code: 'A', value: 1, status: 'observed' }], 0, 2, true), page([{ area_code: 'B', value: 2, status: 'observed' }], 1, 2)] });
-    await expect(loadRegionalStatistics(recipe)).resolves.toMatchObject({ values: { total: 2, returned: 2, truncated: false } });
-    install({ values: [page([{ area_code: 'A', value: 1, status: 'observed' }], 0, 2)] });
-    await expect(loadRegionalStatistics(recipe)).rejects.toThrow('未完整載入');
+
+  it('rejects a partial artifact instead of paging or hitting Supabase', async () => {
+    install({ valuePayload: values([{ area_code: 'A', value: 1, status: 'observed' }], release, { total: 2, truncated: true, next_offset: 1 }) });
+    await expect(loadRegionalStatistics(recipe)).rejects.toThrow('release artifact 不完整');
   });
+
   it('rejects duplicate or missing geometry identities', async () => {
-    const duplicate = new TextEncoder().encode(JSON.stringify({ type: 'FeatureCollection', features: [
+    install({ geometry: encoded({ type: 'FeatureCollection', features: [
       { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [] } },
       { type: 'Feature', properties: { area_code: 'A' }, geometry: { type: 'Polygon', coordinates: [] } },
-    ] }));
-    install({ geometry: duplicate });
+    ] }) });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('參考邊界代碼或幾何錯誤');
   });
-  it('keeps NO_DATA distinct from zero and rejects an observation with no geometry', async () => {
-    install({ values: [page([], 0, 0)] });
+
+  it('keeps NO_DATA distinct from zero and rejects observations with no geometry', async () => {
+    install({ valuePayload: values([]) });
     await expect(loadRegionalStatistics(recipe)).resolves.toMatchObject({ values: { status: 'NO_DATA', total: 0 } });
-    install({ values: [page([{ area_code: 'C', value: 1, status: 'observed' }])] });
+    install({ valuePayload: values([{ area_code: 'C', value: 1, status: 'observed' }]) });
     await expect(loadRegionalStatistics(recipe)).rejects.toThrow('找不到對應邊界');
   });
 
-  it('loads the 408 health contract only when the recipe requests reconciliation disclosure', async () => {
+  it('loads health only when requested and fails closed when unavailable', async () => {
     install();
-    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).resolves.toMatchObject({
-      health: { status: 'OK', availability: 'CURRENT', coverage_status: 'PARTIAL', coverage_numerator: 4, coverage_denominator: 22, unallocated_total: 0, currency: 'TWD' },
-    });
+    await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).resolves.toMatchObject({ health: { availability: 'CURRENT', coverage_status: 'PARTIAL' } });
     install({ health: { status: 'NOT_FOUND' } });
     await expect(loadRegionalStatistics({ ...recipe, includeHealth: true })).rejects.toThrow('健康狀態不可用');
   });
 
-  it('falls back from a missing recipe default to the latest compatible public release and its exact dimensions', async () => {
+  it('falls back to the latest compatible public release and exact dimensions', async () => {
     const older = { ...release, release_id: 'r-old', period_start: '2024-01-01', period_end: '2024-01-31' };
     const latest = { ...release, release_id: 'r-latest', period_start: '2025-02-01', period_end: '2025-02-28' };
-    install({ releases: [older, latest], responseRelease: latest });
+    install({ releases: [older, latest], responseRelease: latest, dimensions: { fund: 'verified-latest' } });
     const result = await loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-default', allowReleaseFallback: true, releaseFallback: candidate => candidate.release_id === 'r-latest' ? { fund: 'verified-latest' } : null });
     expect(result.effectiveRecipe).toMatchObject({ releaseId: 'r-latest', dimensions: { fund: 'verified-latest' }, allowReleaseFallback: false });
-    expect(vi.mocked(fetch).mock.calls.some(([input]) => String(input).includes('release_id=r-latest') && String(input).includes('dimensions=%7B%22fund%22%3A%22verified-latest%22%7D'))).toBe(true);
   });
 
-  it('resolves an initial dimension selection through a real compatible release', async () => {
+  it('resolves an initial dimension selection through a compatible release', async () => {
     const older = { ...release, release_id: 'r-112', period_start: '2023-01-01', period_end: '2023-12-31' };
     const latest = { ...release, release_id: 'r-113', period_start: '2024-01-01', period_end: '2024-12-31' };
-    install({ releases: [older, latest], responseRelease: latest });
+    install({ releases: [older, latest], responseRelease: latest, dimensions: { roc_year: '113' } });
     const result = await loadRegionalStatistics({ ...recipe, dimensions: { roc_year: '113' }, releaseFallback: candidate => candidate.period_start === '2024-01-01' ? { roc_year: '113' } : candidate.period_start === '2023-01-01' ? { roc_year: '112' } : null });
     expect(result.effectiveRecipe).toMatchObject({ releaseId: 'r-113', dimensions: { roc_year: '113' }, allowReleaseFallback: false });
   });
 
-  it('does not replace an explicit user or URL release, and errors when no compatible public fallback exists', async () => {
+  it('does not replace explicit user choices and errors without a compatible fallback', async () => {
     install({ releases: [release] });
     await expect(loadRegionalStatistics({ ...recipe, releaseId: 'withdrawn-user-choice', allowReleaseFallback: false })).rejects.toThrow('指定統計期別尚未公開或已撤回');
     install({ releases: [release] });

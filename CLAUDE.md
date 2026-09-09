@@ -27,7 +27,7 @@ SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES�
 `npx tsc -b`（project references，禁用 `--noEmit`）— commit 前必跑。
 
 ### 2. 資料來源管理
-資料來源契約（動態走 `public.*` RPC / 靜態走 `public/*.geojson` / 禁前端直打 `realtime.*`）→ [`docs/development-rules.md`](./docs/development-rules.md) §1
+資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `realtime.*`）→ [`docs/development-rules.md`](./docs/development-rules.md) §1
 
 ### 3. 資料載入必須有 Loading UI ⚠️
 所有非同步載入必註冊 loadingRegistry，禁靜默 `.rpc().then()` → development-rules §2

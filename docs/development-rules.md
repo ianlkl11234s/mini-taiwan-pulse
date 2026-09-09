@@ -4,9 +4,10 @@
 
 ## 1. 資料來源管理
 
-### Supabase 為主，靜態檔為輔
+### 依更新語意選 runtime 路徑
 - **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等）→ Supabase RPC
 - **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/*.geojson`
+- **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
 - **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/`（由 S3 deploy-assets 管理）
 
 ### Schema 分工

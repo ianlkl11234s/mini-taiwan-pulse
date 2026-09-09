@@ -32,7 +32,7 @@ VITE_SUPABASE_URL=http://127.0.0.1:3743 VITE_SUPABASE_ANON_KEY=local-preview-no-
 - `src/data/agriStatisticsRecipes.json` 保留交付機讀資料；`agriStatisticsRecipes.ts` 提供型別與 exact tuple helper。24 個 enabled key 由此派生；3 個 disabled key 無 toggle、manifest 或空殼。
 - `regionalStatisticsRecipes.ts`、`statisticsLayerRegistry.ts`、`layerManifest.ts`、`layerParamsSpec.ts`、`src/types/index.ts` 接入既有 Statistics 路徑。保留 `statsRiceHarvest`、`statsPigWaterCounty`，只加跨主題索引，沒有複製 observations/releases。
 - `src/components/sidebar/layerCatalog.ts`、`StatisticsDetails.tsx` 提供分類、完整 release whitelist、相依篩選、coverage/health、來源與版本揭露、既有統計索引及 related GIS 連結。
-- `src/data/regionalStatisticsLoader.ts`、`statisticsGeometryCache.ts`、`vite.config.ts` 提供 DEV preview adapter、正式 RPC 參數契約、geometry hash 與 code/name 對應。sources/health 正式 RPC 沿用三參數契約，不傳多餘 dimensions。
+- `src/data/regionalStatisticsLoader.ts`、`statisticsGeometryCache.ts`、`vite.config.ts` 提供 DEV preview adapter、正式 R2 CDN snapshot 契約、geometry hash 與 code/name 對應。資料庫 public RPC 只由 platform publisher 讀取，正式瀏覽器不再呼叫 Supabase。
 - `src/map/regionalStatisticsMap.ts`、`gisClickRegistry.ts`、`src/components/LegendPanel.tsx`、`featureInfo/regionalStatisticsPanel.tsx` 接入地圖、點選、legend、斜線遮蔽與 source_status/source_token。畜禽非數值 sidecar 缺失時拒絕載入，不以一般 missing 或 0 取代；observed 數值不強求不存在的 sidecar token。
 - 更新現有 loader、geometry、catalog、manifest golden、hook/click registry 測試；新增 `src/data/__tests__/agriStatisticsContract.test.ts`。原交付說明與 selector 放在 `docs/handoff/`。
 
