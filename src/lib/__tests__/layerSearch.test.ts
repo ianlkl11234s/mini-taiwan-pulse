@@ -35,4 +35,19 @@ describe("layerSearch", () => {
     expect(results.every((layer) => layer.source === "來源詳情")).toBe(true);
     expect(results.flatMap((layer) => [layer.source, layer.description]).join(" ")).not.toMatch(/OVERLAY_REGISTRY|useSatellitesLayer|\.pmtiles/i);
   });
+
+  it("scopes results to one sidebar and searches its local taxonomy", () => {
+    const scopeKeys = new Set(["statsBusOperatingRouteLengthKm", "jpAirports"]);
+    const contextByKey = new Map([
+      ["statsBusOperatingRouteLengthKm", "交通與運輸 Transport 大眾運輸"],
+      ["jpAirports", "日本 Japan 交通"],
+    ]);
+
+    expect(searchLayers("大眾運輸", { scopeKeys, contextByKey }).map((result) => result.key))
+      .toEqual(["statsBusOperatingRouteLengthKm"]);
+    expect(searchLayers("日本", {
+      scopeKeys: new Set(["statsBusOperatingRouteLengthKm"]),
+      contextByKey,
+    })).toEqual([]);
+  });
 });

@@ -447,7 +447,7 @@ export const LAYER_MANIFEST = {
 
   statsWaterSupplyHistorical: {
     key: "statsWaterSupplyHistorical", section: { theme: "水資源統計 Water Statistics", group: "公共給水" },
-    label: "供水普及率（2015年／7縣市）", expandable: true, color: "#06b6d4", icon: Recycle,
+    label: "供水普及率（2015 年，7 縣市）", expandable: true, color: "#06b6d4", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "water_supply_county_historical", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned statistics RPC and verified geometry; regionalStatisticsMap runtime" },
     legend: "statsWaterSupplyHistorical", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
@@ -498,7 +498,7 @@ export const LAYER_MANIFEST = {
 
   statsWasteCounty: {
     key: "statsWasteCounty", section: { theme: "廢棄物統計 Waste Statistics", group: "清運量能" },
-    label: "垃圾清運車輛數 Waste Vehicles", expandable: true, color: "#10b981", icon: Truck,
+    label: "垃圾清運車輛數", expandable: true, color: "#10b981", icon: Truck,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
     legend: "statsWasteCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
@@ -506,7 +506,7 @@ export const LAYER_MANIFEST = {
   },
   statsRecyclingCounty: {
     key: "statsRecyclingCounty", section: { theme: "資源回收統計 Recycling Statistics", group: "資源回收量能" },
-    label: "資源回收車輛數 Recycling Vehicles", expandable: true, color: "#eab308", icon: Recycle,
+    label: "資源回收車輛數", expandable: true, color: "#eab308", icon: Recycle,
     upstream: { status: "verified", datasets: [{ datasetId: "waste_vehicles_county", confidence: "MED" }] },
     dataClass: "D", source: { kind: "custom", note: "Versioned public statistics RPC and verified geometry manifest; regionalStatisticsMap runtime" },
     legend: "statsRecyclingCounty", popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
@@ -4569,7 +4569,7 @@ export const LAYER_MANIFEST = {
   crimeAreaMonthly: {
     key: "crimeAreaMonthly",
     section: { theme: "執法治安 Law & Order", group: "治安態勢" },
-    label: "鄉鎮犯罪統計 Crime Area",
+    label: "鄉鎮市區犯罪統計",
     expandable: true,
     color: "#991b1b", // 鄉鎮犯罪 choropleth — 暗紅
     icon: Hexagon,

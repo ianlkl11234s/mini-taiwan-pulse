@@ -498,7 +498,6 @@ export function IconRailSidebar({
                 search={statisticsSearch}
                 onSearchChange={setStatisticsSearch}
                 themes={STATISTICS_TAB_THEMES}
-                showMacroGroups
                 allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
                 title="統計 Statistics"
                 statisticsModeControl
@@ -1000,7 +999,20 @@ function LayersPanel({
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
-  const searchResults = searchLayers(search, { favoriteKeys });
+  const searchContext = useMemo(() => {
+    const context = new Map<string, string>();
+    for (const theme of themesToRender) {
+      for (const group of theme.groups) {
+        for (const layer of group.layers) context.set(layer.key, `${theme.title} ${group.title}`);
+      }
+    }
+    return context;
+  }, [themesToRender]);
+  const searchResults = searchLayers(search, {
+    favoriteKeys,
+    scopeKeys: new Set(searchContext.keys()),
+    contextByKey: searchContext,
+  });
   const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(

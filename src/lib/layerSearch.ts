@@ -124,14 +124,21 @@ function scoreTerm(doc: SearchDocument, term: string): number {
  */
 export function searchLayers(
   query: string,
-  options: { limit?: number; favoriteKeys?: ReadonlySet<string> } = {},
+  options: {
+    limit?: number;
+    favoriteKeys?: ReadonlySet<string>;
+    scopeKeys?: ReadonlySet<string>;
+    contextByKey?: ReadonlyMap<string, string>;
+  } = {},
 ): LayerSearchResult[] {
   const terms = queryTerms(query);
   if (terms.length === 0) return [];
   const limit = options.limit ?? Number.MAX_SAFE_INTEGER;
   return LAYER_SEARCH_INDEX
+    .filter((doc) => !options.scopeKeys || options.scopeKeys.has(doc.key))
     .map((doc) => {
-      const scores = terms.map((term) => scoreTerm(doc, term));
+      const context = normalize(options.contextByKey?.get(doc.key) ?? "");
+      const scores = terms.map((term) => Math.max(scoreTerm(doc, term), context.includes(term) ? 150 : 0));
       if (scores.some((score) => score === 0)) return null;
       return { ...doc, score: scores.reduce((sum, score) => sum + score, 0) };
     })

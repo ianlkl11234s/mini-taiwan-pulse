@@ -235,25 +235,108 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
 ];
 
+/**
+ * 統計專屬入口以「使用者想找的主題」重新索引既有 layers。
+ *
+ * 這裡刻意不沿用 manifest.section：manifest 的 section 是完整 Layers 目錄位置，
+ * 統計入口則是跨主題索引。Layer key、label、來源、release 與 geometry 契約仍由
+ * manifest / statistics recipes 管理，這裡只決定統計入口的閱讀順序。
+ */
 export const STATISTICS_TAB_THEMES: ThemeDef[] = [
-  ...STATISTICS_DATA_THEMES,
   {
-    title: "治安與交通 Safety & Transport",
+    title: "人口與社會 People & Society",
     groups: [
-      {
-        title: "現有統計",
-        layers: [fromManifest("crimeAreaMonthly")],
-      },
+      { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
+      { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
   {
-    title: "行政區參考 Administrative Boundaries",
+    title: "交通與運輸 Transport",
     defaultCollapsed: true,
     groups: [
-      {
-        title: "行政邊界",
-        layers: [fromManifest("countyBoundary"), fromManifest("townshipBoundary")],
-      },
+      { title: "大眾運輸", layers: [
+        fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"),
+        fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"),
+        fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"),
+        fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm"),
+        fromManifest("statsTmrtStationOutboundCounty"),
+      ] },
+      { title: "自行車（臺北市，民國 110 年）", layers: [
+        fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"),
+        fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"),
+        fromManifest("statsTaipeiRiversideRentalTrips"),
+      ] },
+      { title: "道路安全與監測", layers: [
+        fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount"),
+        fromManifest("statsTaipeiTrafficViolationCitations"), fromManifest("statsTaichungRoadNoiseMonitoringStations"),
+      ] },
+      { title: "車輛與停車", layers: [
+        fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
+        fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),
+        fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
+      ] },
+      { title: "航空運輸", layers: [
+        fromManifest("statsAirportTakeoffsLandings"), fromManifest("statsAirportPassengerMovements"),
+        fromManifest("statsAirportCargoTonnes"), fromManifest("statsTaoyuanAirportArrivals"),
+        fromManifest("statsTaoyuanAirportDepartures"), fromManifest("statsTaoyuanAirportTransit"),
+        fromManifest("statsTaoyuanAirportPassengerMovements"),
+      ] },
+      { title: "運輸補助", layers: [
+        fromManifest("statsMaritimeSubsidyCounty"), fromManifest("statsCivilAeronauticsSubsidyCounty"),
+      ] },
+      { title: "交通用地", layers: [
+        fromManifest("statsRoadLandAreaTownship"), fromManifest("statsRailLandAreaTownship"),
+        fromManifest("statsAirportLandAreaTownship"), fromManifest("statsPortLandAreaTownship"),
+      ] },
+    ],
+  },
+  {
+    title: "農林漁牧 Agriculture, Forestry & Fisheries",
+    defaultCollapsed: true,
+    groups: [
+      { title: "農地與設施", layers: [
+        fromManifest("statsPaddyLandAreaTownship"), fromManifest("statsDryFieldAreaTownship"),
+        fromManifest("statsOrchardAreaTownship"), fromManifest("statsAgriculturalFacilityAreaTownship"),
+      ] },
+      { title: "作物生產", layers: [
+        fromManifest("statsRiceHarvest"), fromManifest("statsCropPlantedAreaTownship"),
+        fromManifest("statsCropHarvestedAreaTownship"), fromManifest("statsCropProductionTownship"),
+        fromManifest("statsCropYieldTownship"),
+      ] },
+      { title: "畜牧用地", layers: [
+        fromManifest("statsLivestockBuildingAreaTownship"), fromManifest("statsPastureAreaTownship"),
+      ] },
+      { title: "畜牧飼養", layers: [
+        fromManifest("statsLivestockFarmCountTownship"), fromManifest("statsLivestockHeadCountTownship"),
+      ] },
+      { title: "漁業生產", layers: [
+        fromManifest("statsFisheryProductionCounty"), fromManifest("statsFisheryProductionValueCounty"),
+      ] },
+      { title: "水產養殖", layers: [
+        fromManifest("statsAquacultureLandAreaTownship"), fromManifest("statsAquacultureAreaCounty"),
+      ] },
+      { title: "森林用地", layers: [
+        fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"),
+        fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship"),
+      ] },
+    ],
+  },
+  {
+    title: "環境與資源 Environment & Resources",
+    defaultCollapsed: true,
+    groups: [
+      { title: "用水與供水", layers: [fromManifest("statsPigWaterCounty"), fromManifest("statsWaterSupplyHistorical")] },
+      { title: "住宅用電", layers: [fromManifest("statsResidentialElectricity")] },
+      { title: "廢棄物與回收", layers: [
+        fromManifest("statsWasteCounty"), fromManifest("statsRecyclingCounty"), fromManifest("statsWasteRecyclingRate"),
+      ] },
+    ],
+  },
+  {
+    title: "地圖參考 Map Reference",
+    defaultCollapsed: true,
+    groups: [
+      { title: "行政邊界", layers: [fromManifest("countyBoundary"), fromManifest("townshipBoundary")] },
     ],
   },
 ];

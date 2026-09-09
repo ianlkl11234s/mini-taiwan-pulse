@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-09 — statistics sidebar taxonomy
+
+- 統計專屬入口改為 5 個使用者主題：人口與社會、交通與運輸、農林漁牧、環境與資源、地圖參考；移除完整 Layers 目錄使用的 macro band，避免四層導覽。
+- 69 個既有統計／參考 layer 全數保留，依 20 個語意小群組重新排序；未改 layer key、資料來源、release selector、缺值狀態或行政區 geometry 契約。
+- 除「人口與社會」外的大群組預設收合，讓入口總覽不需捲動即可讀完；統計搜尋同時支援專屬大／小群組名稱，且不再混入世界、日本等其他側邊欄應用的結果。
+- 統一少量顯示名稱：移除 layer row 內不一致的英文尾綴、補齊「鄉鎮市區」層級，並統一 2015 年／7 縣市的日期與範圍標點。
+
 ## 2026-09-07 — transport statistics delivery
 
 - 新增本輪 33 個交通統計指標的前端登錄；其中本次完成的四組為臺北自行車 5 項（township）、A1 事故 3 項、CAA 各機場所在地活動 3 項、桃園機場所在地旅客活動 4 項。每一層沿用 regional statistics runtime，含預設關閉 toggle、展開後才顯示的資料篩選、health／coverage／unallocated、legend、popup 與 opacity。
