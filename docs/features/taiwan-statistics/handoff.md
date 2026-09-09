@@ -35,7 +35,7 @@ CAA `caa_airport_activity_county_33238` 使用 v4 三個 release suffix `152b35d
 
 正式與本機預設讀 `https://data.itsmigu.com/statistics/v1`；需要替代 origin 時設定 `VITE_STATISTICS_CDN_BASE`。前端沒有 Supabase fallback，CDN pointer／manifest／artifact 不完整時應顯示 ERROR，避免 CDN 事故放大成 DB 流量。publisher 會從既有 public resource 驗 SHA 後將 geometry 原 bytes 一併鏡像至 R2，前端也只讀版本根目錄內的 content-hashed geometry。DEV 農業 preview 仍須同時符合 DEV 與 `VITE_AGRI_STATISTICS_PREVIEW=true`，不進 production。
 
-2026-09-10 已正式發布 `regional-statistics-cdn-v1`：66 indicators、476 releases、3,174 exact selectors、4 geometry manifests；current 指向 manifest SHA-256 `83e3c0635218f3d4c2a5b3dc4d8c9cb16f6e69831c47da64205e40b418aa6278`。公開 CDN 已回讀 current／manifest／代表 artifact／geometry 的 HTTP 200、CORS、bytes 與 SHA-256；Cloudflare `cache-static-assets` 規則也已納入 `/statistics/`，immutable artifact 實測由 MISS 轉 HIT。
+2026-09-10 已正式發布 `regional-statistics-cdn-v1`：66 indicators、476 releases、3,174 exact selectors、4 geometry manifests；current 指向 manifest SHA-256 `83e3c0635218f3d4c2a5b3dc4d8c9cb16f6e69831c47da64205e40b418aa6278`。公開 CDN 已回讀 current／manifest／代表 artifact／geometry 的 HTTP 200、CORS、bytes 與 SHA-256。Cloudflare `cache-static-assets` 只納入 `/statistics/v1/manifests/`、`artifacts/`、`geometries/` 三個 immutable 前綴，代表 artifact 與 45 MB township geometry 均實測由 MISS 轉 HIT；`current.json` 刻意維持 `max-age=60`／`DYNAMIC`，避免 immutable 規則把 pointer 凍結成長 TTL。
 
 Analytics 文件：docs/topic-research/regional_statistics/long-term-plan.md、onboarding-template.md、commit-map.md。
 
