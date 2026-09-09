@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { BORDER, COLORS, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { COLORS, FONT_SIZE, FONT_WEIGHT } from "../../styles/designTokens";
 import { statisticsDisplayModeStore } from "../../state/statisticsDisplayModeStore";
 import { layerVisibilityStore, useLayerVisibilityAll } from "../../state/layerVisibilityStore";
 
@@ -11,31 +11,52 @@ export function StatisticsModeControl() {
     statisticsDisplayModeStore.getSnapshot,
   );
 
+  const setMode = (nextMode: "single" | "overlap") => {
+    layerVisibilityStore.setAll(statisticsDisplayModeStore.setMode(nextMode, visibility));
+  };
+
+  const modeButtonStyle = (active: boolean) => ({
+    padding: 0,
+    border: 0,
+    background: "transparent",
+    color: active ? COLORS.textStrong : COLORS.textDim,
+    font: "inherit",
+    fontWeight: active ? FONT_WEIGHT.bold : FONT_WEIGHT.regular,
+    cursor: "pointer",
+    transition: "color 0.15s ease",
+  });
+
   return (
-    <fieldset
+    <div
+      role="group"
       aria-label="統計圖層顯示模式"
       style={{
-        margin: "0 12px 8px",
-        padding: "8px",
-        border: `1px solid ${BORDER.panel}`,
-        borderRadius: RADIUS.lg,
-        color: COLORS.textDefault,
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        margin: "0 12px 10px",
+        minHeight: 20,
+        color: COLORS.textMuted,
+        fontSize: FONT_SIZE.sm,
       }}
     >
-      <legend style={{ padding: "0 4px", fontSize: FONT_SIZE.sm }}>統計圖層顯示</legend>
-      <div style={{ display: "flex", gap: 12, fontSize: FONT_SIZE.sm }}>
-        <label style={{ cursor: "pointer" }}>
-          <input type="radio" name="statistics-display-mode" value="single" checked={mode === "single"} onChange={() => layerVisibilityStore.setAll(statisticsDisplayModeStore.setMode("single", visibility))} /> 單一
-        </label>
-        <label style={{ cursor: "pointer" }}>
-          <input type="radio" name="statistics-display-mode" value="overlap" checked={mode === "overlap"} onChange={() => layerVisibilityStore.setAll(statisticsDisplayModeStore.setMode("overlap", visibility))} /> 重疊
-        </label>
-      </div>
-      {mode === "overlap" && (
-        <p role="note" style={{ margin: "6px 0 0", fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: 1.45 }}>
-          可同時顯示多個統計面；重疊色階可能較難閱讀。
-        </p>
-      )}
-    </fieldset>
+      <span style={{ marginRight: 2, fontWeight: FONT_WEIGHT.semibold }}>統計圖層顯示</span>
+      <button
+        type="button"
+        aria-pressed={mode === "single"}
+        style={modeButtonStyle(mode === "single")}
+        onClick={() => setMode("single")}
+      >
+        單一
+      </button>
+      <button
+        type="button"
+        aria-pressed={mode === "overlap"}
+        style={modeButtonStyle(mode === "overlap")}
+        onClick={() => setMode("overlap")}
+      >
+        可重疊
+      </button>
+    </div>
   );
 }
