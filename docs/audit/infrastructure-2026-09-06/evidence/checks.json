@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-06",
+  "head": "484f97a7cd024bfd7978a1dbcad33b47683c94b5",
+  "working_tree": "pre-existing dirty changes retained",
+  "checks": [
+    {
+      "command": "npx tsc -b",
+      "exit_code": 0
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "test_files_passed": 111,
+      "passed": 1085,
+      "skipped": 2
+    },
+    {
+      "command": "Vite build API publicDir:false outDir:/tmp/mtp-infrastructure-audit-build",
+      "exit_code": 0,
+      "scope": "code bundle only; excludes copying public and Docker deployment"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ]
+}

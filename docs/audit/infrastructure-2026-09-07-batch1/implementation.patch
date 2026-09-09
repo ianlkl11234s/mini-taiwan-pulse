@@ -1,0 +1,2185 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 8fe0266..21ede61 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -4,6 +4,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
+ import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
+ import type { StationPillarData } from "./three/StationPillarScene";
+ import { MapView } from "./map/MapView";
++import { createMapInstanceEvents } from "./map/mapInstanceEvents";
+ import { useAirspaceData } from "./hooks/useAirspaceData";
+ import { useShipData } from "./hooks/useShipData";
+ import { useRailData } from "./hooks/useRailData";
+@@ -954,13 +955,12 @@ export default function App() {
+   // 地圖首次渲染完成（idle 或 4s 保底）才允許 LoadingScreen 收掉，
+   // 避免「資料 RPC 完成但場景還沒畫出來」的空窗 — state 宣告已上移至 waste lazy setup 前
+ 
++  const [mapInstanceEvents] = useState(createMapInstanceEvents);
++  useEffect(() => () => mapInstanceEvents.dispose(), [mapInstanceEvents]);
++
+   const handleMapReady = (map: MapboxMap) => {
+     mapRef.current = map;
+     addAllLayers(map);
+-    map.once("idle", () => setMapPrepared(true));
+-    setTimeout(() => setMapPrepared(true), 4000);
+-    sessionTracker.init("mini-taiwan-pulse");
+-    sessionTracker.logWithSnapshot("session_start", { appMode }, layerVisibilityRef.current);
+ 
+     const updateCamera = () => {
+       const c = map.getCenter();
+@@ -971,8 +971,6 @@ export default function App() {
+       setCameraInfo({ lng, lat, zoom: z, pitch: p, bearing: +map.getBearing().toFixed(0) });
+       if (!privateViewRef.current) sessionTracker.logMapView(z, lat, lng, p);
+     };
+-    map.on("move", updateCamera);
+-    updateCamera();
+ 
+     // H3 zoom-based resolution switching
+     const onZoomH3 = () => {
+@@ -980,8 +978,6 @@ export default function App() {
+       setH3Resolution(res);
+       setDemoResolution(Math.min(res, 8)); // cap at 8 for demographics
+     };
+-    map.on("zoomend", onZoomH3);
+-    onZoomH3(); // initial
+     // H3 res 預載已移除 — 各 h3* subscriber（L1086 / L1105 / L1119 / L1126）會在 visibility 開啟時自行 loadResolution
+ 
+     bindEvents(map);
+@@ -989,37 +985,46 @@ export default function App() {
+     // 垃圾設施 / 投放點 Mapbox circle setup 已移至獨立 effect（lazy：任一 wf* toggle 開才 setup）
+ 
+     // 3D 垃圾處理設施 click pick（5 sub-scene 任一命中 → popup）
+-    map.on("click", (e) => {
+-      const layer = wasteFacilityLayerRef.current;
+-      if (!layer) return;
+-      // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
+-      const v = layerVisibilityRef.current;
+-      if (!(v.wfIncinerator || v.wfLandfill || v.wfLandfillCoastal || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
+-      const canvas = map.getCanvas();
+-      const hit = layer.pickFacility(
+-        e.point.x, e.point.y,
+-        canvas.clientWidth, canvas.clientHeight,
+-      );
+-      if (!hit) return;
+-      const r = hit.row;
+-      setFeatureInfo({
+-        layerType: "wasteFacility",
+-        properties: {
+-          kind: "facility",
+-          id: r.id,
+-          facility_name: r.facility_name,
+-          facility_type: r.facility_type,
+-          city: r.city,
+-          operator: r.operator,
+-          address: r.address,
+-          capacity_tpd: r.capacity_tpd,
+-          status: r.status,
+-          start_year: r.start_year,
+-          source_url: r.source_url,
+-          is_coastal: r.is_coastal,
+-          distance_to_sea_m: r.distance_to_sea_m,
+-        },
+-      });
++    mapInstanceEvents.ready(map, {
++      onStart: () => {
++        sessionTracker.init("mini-taiwan-pulse");
++        sessionTracker.logWithSnapshot("session_start", { appMode }, layerVisibilityRef.current);
++      },
++      onPrepared: () => setMapPrepared(true),
++      onMove: updateCamera,
++      onZoomEnd: onZoomH3,
++      onClick: (e) => {
++        const layer = wasteFacilityLayerRef.current;
++        if (!layer) return;
++        // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
++        const v = layerVisibilityRef.current;
++        if (!(v.wfIncinerator || v.wfLandfill || v.wfLandfillCoastal || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
++        const canvas = map.getCanvas();
++        const hit = layer.pickFacility(
++          e.point.x, e.point.y,
++          canvas.clientWidth, canvas.clientHeight,
++        );
++        if (!hit) return;
++        const r = hit.row;
++        setFeatureInfo({
++          layerType: "wasteFacility",
++          properties: {
++            kind: "facility",
++            id: r.id,
++            facility_name: r.facility_name,
++            facility_type: r.facility_type,
++            city: r.city,
++            operator: r.operator,
++            address: r.address,
++            capacity_tpd: r.capacity_tpd,
++            status: r.status,
++            start_year: r.start_year,
++            source_url: r.source_url,
++            is_coastal: r.is_coastal,
++            distance_to_sea_m: r.distance_to_sea_m,
++          },
++        });
++      },
+     });
+   };
+ 
+diff --git a/src/components/intel/IntelPanel.tsx b/src/components/intel/IntelPanel.tsx
+index 415ebe2..e4a520b 100644
+--- a/src/components/intel/IntelPanel.tsx
++++ b/src/components/intel/IntelPanel.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
++import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+ import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
+ import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+ import { IntelIcon, ICON } from "./IntelIcon";
+@@ -29,8 +29,8 @@ import {
+   tallySummary,
+   EMPTY_TALLY,
+   type ActiveAlert,
+-  type AlertSummary,
+ } from "../../data/alertsLoader";
++import { useIntelPollingQuery } from "../../hooks/useIntelPollingQuery";
+ import {
+   partitionByPersistence,
+   ALERT_PERSISTENCE_RULES,
+@@ -45,6 +45,10 @@ import { globalSituationFeedStore } from "../../state/globalSituationFeedStore";
+ const EMPTY_HEALTH: SourceHealthSummary = {
+   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
+ };
++const EMPTY_ALERT_SUMMARY: [] = [];
++const EMPTY_CLUSTERS: Array<{
++  county: string | null; location_name: string | null; lon: number | null; lat: number | null; events: IntelCardEvent[];
++}> = [];
+ 
+ const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+ 
+@@ -114,7 +118,6 @@ export function IntelPanel({
+   const [alertsExpanded, setAlertsExpanded] = useState(false);
+   const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
+   const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
+-  const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
+   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
+   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
+   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
+@@ -122,18 +125,31 @@ export function IntelPanel({
+   /** 非 null = 時間軸停在過去某天，警報列表改看該日歷史 */
+   const [historyDate, setHistoryDate] = useState<string | null>(null);
+   const [historyAlerts, setHistoryAlerts] = useState<ActiveAlert[]>([]);
++  const [newsDayKey, setNewsDayKey] = useState(() => timeStore.getDateKey());
+ 
+   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
+   const [trending, setTrending] = useState<TrendingRow[]>([]);
+-  const [clusters, setClusters] = useState<
+-    Array<{
+-      county: string | null;
+-      location_name: string | null;
+-      lon: number | null;
+-      lat: number | null;
+-      events: IntelCardEvent[];
+-    }>
+-  >([]);
++  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
++  const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
++  const loadClusters = useCallback(async () => {
++    const rows = await fetchNewsEventsDayClusters(newsDayKey, newsFilter);
++    return {
++      status: "ready" as const,
++      lastSuccessAt: Date.now(),
++      data: rows.map((r) => ({
++        county: r.county, location_name: r.location_name, lon: r.lon, lat: r.lat,
++        events: (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
++          ...e, county: r.county ?? undefined, location_name: r.location_name ?? undefined,
++          related_count: Math.max(0, arr.length - 1 - idx),
++        })),
++      })),
++    };
++  }, [newsDayKey, newsFilter]);
++  const clustersQuery = useIntelPollingQuery({
++    enabled: open, queryKey: `${newsDayKey}|${fKey}`, intervalMs: 60_000,
++    emptyData: EMPTY_CLUSTERS, load: loadClusters,
++  });
++  const clusters = clustersQuery.data;
+ 
+   // tick now（顯示與倒數）
+   useEffect(() => {
+@@ -158,20 +174,10 @@ export function IntelPanel({
+     };
+   }, [open]);
+ 
+-  // 60s polling alert summary（降載）
+-  useEffect(() => {
+-    if (!open) return;
+-    let alive = true;
+-    const tick = () => {
+-      fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
+-    };
+-    tick();
+-    const id = window.setInterval(tick, 60_000);
+-    return () => {
+-      alive = false;
+-      window.clearInterval(id);
+-    };
+-  }, [open]);
++  const alertSummaryQuery = useIntelPollingQuery({
++    enabled: open, queryKey: "alert-summary", intervalMs: 60_000,
++    emptyData: EMPTY_ALERT_SUMMARY, load: fetchAlertSummary,
++  });
+ 
+   // ── 歷史檢索：時間軸切到過去某天 → 警報改看「該日 NCDR 示警」──
+   // 重用地圖那支按日 RPC（已含 loadingRegistry + 10min 快取），不新開 RPC。
+@@ -218,39 +224,16 @@ export function IntelPanel({
+     return () => { alive = false; };
+   }, [open, needsAlertList, groupKey, severityMin, pickedGroups]);
+ 
+-  // 跟著 timeStore 日期載資料 + filter 變動觸發重抓
+-  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
++  // 跟著 timeStore 日期切換 scope；guarded polling 負責初載與 60s refresh。
+   useEffect(() => {
+     if (!open) return;
+-    let alive = true;
+     const handler = (dateStr: string) => {
+       if (!dateStr) return;
+-      fetchNewsEventsDayClusters(dateStr, filter).then((rows) => {
+-        if (!alive) return;
+-        const built = rows.map((r) => {
+-          const events = (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
+-            ...e,
+-            county: r.county ?? undefined,
+-            location_name: r.location_name ?? undefined,
+-            related_count: Math.max(0, arr.length - 1 - idx),
+-          }));
+-          return {
+-            county: r.county,
+-            location_name: r.location_name,
+-            lon: r.lon,
+-            lat: r.lat,
+-            events,
+-          };
+-        });
+-        setClusters(built);
+-      });
++      setNewsDayKey(dateStr);
+     };
+     handler(timeStore.getDateKey());
+     const unsub = timeStore.subscribeDate(handler);
+-    return () => {
+-      alive = false;
+-      unsub();
+-    };
++    return unsub;
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [open, fKey]);
+ 
+@@ -394,8 +377,8 @@ export function IntelPanel({
+   };
+ 
+   const alertTally = useMemo(
+-    () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
+-    [alertSummaryRows],
++    () => (alertSummaryQuery.status === "ready" ? tallySummary(alertSummaryQuery.data) : EMPTY_TALLY),
++    [alertSummaryQuery],
+   );
+ 
+   // 「持續中」折疊：長效期告警（海洋污染／長期停水…）不佔主列表。
+@@ -504,6 +487,8 @@ export function IntelPanel({
+ 
+       {!isGlobalEventsTab && <AlertSummaryBar
+         tally={alertTally}
++        status={alertSummaryQuery.status}
++        lastSuccessAt={alertSummaryQuery.lastSuccessAt}
+         expanded={alertsExpanded}
+         onToggle={() => setAlertsExpanded((v) => !v)}
+         activeGroups={pickedGroups}
+@@ -651,11 +636,18 @@ export function IntelPanel({
+       ) : null}
+ 
+       {feedTab === "news" && (
+-        <IntelSituation
+-          events={flatEvents}
+-          countyByEventId={countyByEventId}
+-          trending={trending}
+-        />
++        <>
++          {clustersQuery.status !== "ready" && (
++            <div style={{ padding: "8px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
++              {clustersQuery.status === "denied" ? "新聞資料無權限讀取" : clustersQuery.status === "error" ? `新聞更新中斷${clustersQuery.lastSuccessAt ? ` · 最後成功 ${new Date(clustersQuery.lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
++            </div>
++          )}
++          <IntelSituation
++            events={flatEvents}
++            countyByEventId={countyByEventId}
++            trending={trending}
++          />
++        </>
+       )}
+ 
+       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
+diff --git a/src/components/intel/__tests__/GlobalEventsTab.test.ts b/src/components/intel/__tests__/GlobalEventsTab.test.ts
+index 7db64a8..62bee98 100644
+--- a/src/components/intel/__tests__/GlobalEventsTab.test.ts
++++ b/src/components/intel/__tests__/GlobalEventsTab.test.ts
+@@ -8,6 +8,7 @@ vi.mock("react", async (importOriginal) => ({
+   ...await importOriginal<typeof import("react")>(),
+   useState: (initial: unknown) => [initial === "all" ? harness.tab : typeof initial === "function" ? initial() : initial, vi.fn()],
+   useMemo: (factory: () => unknown) => factory(),
++  useCallback: (callback: unknown) => callback,
+   useRef: (current: unknown) => ({ current }),
+   useEffect: () => {},
+   useSyncExternalStore: (_subscribe: unknown, getSnapshot: () => unknown) => getSnapshot(),
+diff --git a/src/components/intel/alerts/AlertBoard.tsx b/src/components/intel/alerts/AlertBoard.tsx
+index 1ee1529..8c1f240 100644
+--- a/src/components/intel/alerts/AlertBoard.tsx
++++ b/src/components/intel/alerts/AlertBoard.tsx
+@@ -12,6 +12,7 @@ import {
+ } from "../../../data/alertsLoader";
+ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
++import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+ 
+ /** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
+ function hourLabel(h: number): string {
+@@ -20,6 +21,8 @@ function hourLabel(h: number): string {
+ 
+ interface Props {
+   tally: AlertTally;
++  status: IntelQueryStatus;
++  lastSuccessAt: number | null;
+   series: Record<AlertGroupShort, number[]>;
+   accent: string;
+   nowTs: number;
+@@ -343,9 +346,19 @@ function AlertDrawer({
+ }
+ 
+ // ─── AlertBoard 主元件 ───────────────────────
+-export function AlertBoard({ tally, series, accent, nowTs }: Props) {
++export function AlertBoard({ tally, status, lastSuccessAt, series, accent, nowTs }: Props) {
+   const [openGroup, setOpenGroup] = useState<AlertGroupShort | null>(null);
+ 
++  if (status !== "ready") {
++    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
++    const at = lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "";
++    return (
++      <div style={{ padding: "12px 14px", borderRadius: RADIUS.xl, border: `1px solid ${COLORS.borderMid}`, color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm }}>
++        {label}{at}
++      </div>
++    );
++  }
++
+   // 0-state — 單條綠訊息
+   if (tally.total === 0) {
+     return (
+diff --git a/src/components/intel/alerts/AlertSummaryBar.tsx b/src/components/intel/alerts/AlertSummaryBar.tsx
+index 75bb920..6475913 100644
+--- a/src/components/intel/alerts/AlertSummaryBar.tsx
++++ b/src/components/intel/alerts/AlertSummaryBar.tsx
+@@ -6,9 +6,12 @@ import {
+ } from "../intelTokens";
+ import type { AlertTally } from "../../../data/alertsLoader";
+ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
++import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+ 
+ interface Props {
+   tally: AlertTally;
++  status: IntelQueryStatus;
++  lastSuccessAt: number | null;
+   expanded: boolean;
+   onToggle: () => void;
+   activeGroups: AlertGroupShort[];
+@@ -16,10 +19,22 @@ interface Props {
+ }
+ 
+ export function AlertSummaryBar({
+-  tally, expanded, onToggle, activeGroups, onPickGroup,
++  tally, status, lastSuccessAt, expanded, onToggle, activeGroups, onPickGroup,
+ }: Props) {
+   const { total, severe, byGroup } = tally;
+ 
++  if (status !== "ready") {
++    const label = status === "denied" ? "警報摘要無權限讀取" : status === "error" ? "警報摘要更新中斷" : "警報摘要讀取中";
++    const at = status === "error" && lastSuccessAt
++      ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}`
++      : "";
++    return (
++      <div style={{ flexShrink: 0, padding: "6px 14px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.borderSoft}` }}>
++        {label}{at}
++      </div>
++    );
++  }
++
+   // 0-state — 極簡單條
+   if (total === 0) {
+     return (
+diff --git a/src/components/intel/monitor/MonitorPanel.tsx b/src/components/intel/monitor/MonitorPanel.tsx
+index aef0783..0c09d8a 100644
+--- a/src/components/intel/monitor/MonitorPanel.tsx
++++ b/src/components/intel/monitor/MonitorPanel.tsx
+@@ -1,5 +1,5 @@
+ import {
+-  useEffect, useLayoutEffect, useMemo, useRef, useState,
++  useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState,
+   type ReactNode,
+ } from "react";
+ import { useWallClock } from "../../../hooks/useWallClock";
+@@ -20,8 +20,9 @@ import {
+ import {
+   fetchAlertSummary, fetchAlertSeries24h,
+   tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
+-  type AlertSummary, type AlertSeriesPoint,
++  type AlertSeriesPoint,
+ } from "../../../data/alertsLoader";
++import { useIntelPollingQuery } from "../../../hooks/useIntelPollingQuery";
+ import type { NewsCategory } from "../../../data/newsEventTypes";
+ import { timeStore } from "../../../state/timeStore";
+ import { TimelineDock } from "./TimelineDock";
+@@ -79,6 +80,8 @@ const EMPTY_MARKET: MarketIndex = {
+   turnover: null, time: null, status: null,
+ };
+ const EMPTY_HEALTH_WEEK: PublicHealthWeek = { week: 0, diseases: [] };
++const EMPTY_CLUSTERS: Cluster[] = [];
++const EMPTY_ALERT_SUMMARY: [] = [];
+ 
+ const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+ 
+@@ -294,12 +297,8 @@ export function MonitorPanel({
+   // ── 全部資料 ──
+   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
+   const [trending, setTrending] = useState<TrendingRow[]>([]);
+-  const [pressure, setPressure] = useState<PressureIndexNow>(EMPTY_PRESSURE);
+   const [smoothed, setSmoothed] = useState<number>(0);
+-  const [market, setMarket] = useState<MarketIndex>(EMPTY_MARKET);
+   const [health, setHealth] = useState<PublicHealthWeek>(EMPTY_HEALTH_WEEK);
+-  const [clusters, setClusters] = useState<Cluster[]>([]);
+-  const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
+   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
+   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
+   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
+@@ -308,21 +307,49 @@ export function MonitorPanel({
+   const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
+   /** 在監完整 365 天序列（趨勢圖用）。以前只留 rows[0]，其餘直接丟掉 */
+   const [prisonSeries, setPrisonSeries] = useState<PrisonDay[]>([]);
+-
+-  // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
++  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
++  const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
++  const loadClusters = useCallback(async () => {
++    const rows = await fetchNewsEventsDayClusters(dayKey, newsFilter);
++    const data: Cluster[] = rows.map((r) => ({
++      county: r.county,
++      location_name: r.location_name,
++      lon: r.lon,
++      lat: r.lat,
++      events: (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
++        ...e, county: r.county ?? undefined, location_name: r.location_name ?? undefined,
++        related_count: Math.max(0, arr.length - 1 - idx),
++      })),
++    }));
++    return { status: "ready" as const, data, lastSuccessAt: Date.now() };
++  }, [dayKey, newsFilter]);
++  const clustersQuery = useIntelPollingQuery({
++    enabled: open, queryKey: `${dayKey}|${fKey}`, intervalMs: 60_000,
++    emptyData: EMPTY_CLUSTERS, load: loadClusters,
++  });
++  const clusters = clustersQuery.data;
++
++  const pressureQuery = useIntelPollingQuery({
++    enabled: open, queryKey: "pressure", intervalMs: 60_000,
++    emptyData: EMPTY_PRESSURE, load: fetchPressureIndex,
++  });
++  const marketQuery = useIntelPollingQuery({
++    enabled: open, queryKey: "market", intervalMs: 60_000,
++    emptyData: EMPTY_MARKET, load: fetchMarketIndex,
++  });
++  const alertSummaryQuery = useIntelPollingQuery({
++    enabled: open, queryKey: "alert-summary", intervalMs: 60_000,
++    emptyData: EMPTY_ALERT_SUMMARY, load: fetchAlertSummary,
++  });
++  const pressure = pressureQuery.data;
++
++  // 60s source health + trending；pressure / market / alert 由 guarded polling 管理。
+   useEffect(() => {
+     if (!open) return;
+     let alive = true;
+     const tick = () => {
+-      fetchPressureIndex().then((p) => {
+-        if (!alive) return;
+-        setPressure(p);
+-        setSmoothed((prev) => smoothPressure(prev || null, p.composite));
+-      });
+-      fetchMarketIndex().then((m) => alive && setMarket(m));
+       fetchSourceHealth().then((s) => alive && setSourceHealth(s));
+       fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
+-      fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
+       fetchAlertSeries24h().then((s) => alive && setAlertSeriesRows(s));
+     };
+     tick();
+@@ -333,6 +360,11 @@ export function MonitorPanel({
+     };
+   }, [open]);
+ 
++  useEffect(() => {
++    if (pressureQuery.status !== "ready") return;
++    setSmoothed((prev) => smoothPressure(prev || null, pressureQuery.data.composite));
++  }, [pressureQuery.status, pressureQuery.data]);
++
+   // 5min Power dashboard + 10min Power generation 24h（與 App.tsx 共用 cachedOnce）
+   useEffect(() => {
+     if (!open) return;
+@@ -351,6 +383,7 @@ export function MonitorPanel({
+         if (isAccessDenied(e)) {
+           // owner-gated RPC（PR #60 刻意鎖）：匿名/非 owner 使用者的正常路徑，非故障
+           console.info("[Monitor PowerGen24h] access denied (owner-gated)", e);
++          setPowerDay(null);
+           setPowerDayStatus("denied");
+         } else {
+           console.warn("[Monitor PowerGen24h]", e);
+@@ -422,40 +455,16 @@ export function MonitorPanel({
+     };
+   }, [open]);
+ 
+-  // ── 訂閱 timeStore 日期變化（rule 6）→ 重抓 clusters ──
+-  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
++  // ── 訂閱 timeStore 日期變化（rule 6）；guarded polling 依 dayKey 重抓 clusters ──
+   useEffect(() => {
+     if (!open) return;
+-    let alive = true;
+     const handler = (key: string) => {
+       if (!key) return;
+       setDayKey(key);
+-      fetchNewsEventsDayClusters(key, filter).then((rows) => {
+-        if (!alive) return;
+-        const built: Cluster[] = rows.map((r) => {
+-          const events = (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
+-            ...e,
+-            county: r.county ?? undefined,
+-            location_name: r.location_name ?? undefined,
+-            related_count: Math.max(0, arr.length - 1 - idx),
+-          }));
+-          return {
+-            county: r.county,
+-            location_name: r.location_name,
+-            lon: r.lon,
+-            lat: r.lat,
+-            events,
+-          };
+-        });
+-        setClusters(built);
+-      });
+     };
+     handler(timeStore.getDateKey());
+     const unsub = timeStore.subscribeDate(handler);
+-    return () => {
+-      alive = false;
+-      unsub();
+-    };
++    return unsub;
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+   }, [open, fKey]);
+ 
+@@ -555,8 +564,8 @@ export function MonitorPanel({
+   }, [clusters]);
+ 
+   const alertTally = useMemo(
+-    () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
+-    [alertSummaryRows],
++    () => (alertSummaryQuery.status === "ready" ? tallySummary(alertSummaryQuery.data) : EMPTY_TALLY),
++    [alertSummaryQuery],
+   );
+   const alertSeries = useMemo(
+     () => (alertSeriesRows.length ? indexSeries(alertSeriesRows) : emptySeries()),
+@@ -684,11 +693,15 @@ export function MonitorPanel({
+         onToggleExpand={onToggleExpand}
+         isTrendingFor={isTrendingFor}
+         nowTs={now}
++        status={clustersQuery.status}
++        lastSuccessAt={clustersQuery.lastSuccessAt}
+       />
+     ),
+     alertBoard: (
+       <AlertBoard
+         tally={alertTally}
++        status={alertSummaryQuery.status}
++        lastSuccessAt={alertSummaryQuery.lastSuccessAt}
+         series={alertSeries}
+         accent={COLORS.accent}
+         nowTs={now}
+@@ -722,12 +735,14 @@ export function MonitorPanel({
+       <SituationOverview
+         pressure={pressure}
+         smoothedScore={smoothed}
++        status={pressureQuery.status}
++        lastSuccessAt={pressureQuery.lastSuccessAt}
+         sourceHealth={sourceHealth}
+         totalEvents={allEventsToday.length}
+         severeCount={severeCount}
+       />
+     ),
+-    taiex: <TwseTicker data={market} open={open} />,
++    taiex: <TwseTicker data={marketQuery.data} status={marketQuery.status} lastSuccessAt={marketQuery.lastSuccessAt} open={open} />,
+     liveWall: <LiveWall />,
+     situationCards: <SituationCards health={health} />,
+     plaBoard: <PlaBoard open={open} />,
+diff --git a/src/components/intel/monitor/NewsFeedPanel.tsx b/src/components/intel/monitor/NewsFeedPanel.tsx
+index 6776487..e9598d5 100644
+--- a/src/components/intel/monitor/NewsFeedPanel.tsx
++++ b/src/components/intel/monitor/NewsFeedPanel.tsx
+@@ -5,6 +5,7 @@ import { IntelCard, type IntelCardEvent } from "../IntelCard";
+ import { IntelFilters, type TimeRange } from "../IntelFilters";
+ import type { NewsFilter } from "../../../data/newsEventsLoader";
+ import type { NewsCategory } from "../../../data/newsEventTypes";
++import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+ 
+ interface Props {
+   /** 已套完 timeRange / 分類 / 縣市 篩選的事件（原 MonitorPanel flatEvents） */
+@@ -24,6 +25,8 @@ interface Props {
+   onToggleExpand: (id: number) => void;
+   isTrendingFor: (e: IntelCardEvent) => boolean;
+   nowTs: number;
++  status: IntelQueryStatus;
++  lastSuccessAt: number | null;
+ }
+ 
+ export function NewsFeedPanel({
+@@ -31,8 +34,9 @@ export function NewsFeedPanel({
+   timeRange, onTimeRange, county, onCounty,
+   filter, onFilterChange,
+   selectedId, expandedId, onSelectCard, onToggleExpand,
+-  isTrendingFor, nowTs,
++  isTrendingFor, nowTs, status, lastSuccessAt,
+ }: Props) {
++  const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
+   return (
+     <div
+       style={{
+@@ -80,7 +84,7 @@ export function NewsFeedPanel({
+               color: COLORS.statusLive,
+             }}
+           >
+-            LIVE
++              {statusLabel}
+           </span>
+         </span>
+         <div style={{ flex: 1 }} />
+@@ -89,6 +93,12 @@ export function NewsFeedPanel({
+         </span>
+       </div>
+ 
++      {status !== "ready" && (
++        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
++          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
++        </div>
++      )}
++
+       <IntelFilters
+         cats={cats}
+         onToggleCat={onToggleCat}
+diff --git a/src/components/intel/monitor/PressureRing.tsx b/src/components/intel/monitor/PressureRing.tsx
+index f13cb8a..902d8a3 100644
+--- a/src/components/intel/monitor/PressureRing.tsx
++++ b/src/components/intel/monitor/PressureRing.tsx
+@@ -7,15 +7,20 @@ import {
+   type MarketIndexDailyPoint,
+ } from "../../../data/intelLoaders";
+ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
++import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+ 
+ /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
+ export function PressureRing({
+   score,
+   level,
++  status = "ready",
++  stale = false,
+   size = 132,
+ }: {
+   score: number;
+   level: PressureLevelDef;
++  status?: IntelQueryStatus;
++  stale?: boolean;
+   size?: number;
+ }) {
+   const r = 52;
+@@ -40,11 +45,11 @@ export function PressureRing({
+           strokeWidth="9" strokeDasharray={`${track} ${c}`} strokeLinecap="round"
+         />
+         <circle
+-          cx="66" cy="66" r={r} fill="none" stroke={level.color}
++          cx="66" cy="66" r={r} fill="none" stroke={status === "ready" ? level.color : COLORS.textMuted}
+           strokeWidth="9" strokeDasharray={`${val} ${c}`} strokeLinecap="round"
+           style={{
+             transition: "stroke-dasharray .6s cubic-bezier(.22,1,.36,1), stroke .4s",
+-            filter: hasGlow ? `drop-shadow(0 0 6px ${level.glow})` : "none",
++            filter: status === "ready" && hasGlow ? `drop-shadow(0 0 6px ${level.glow})` : "none",
+           }}
+         />
+       </svg>
+@@ -60,29 +65,29 @@ export function PressureRing({
+             color: "#fff", letterSpacing: "-1px",
+           }}
+         >
+-          {Math.round(score)}
++          {status === "ready" || stale ? Math.round(score) : "—"}
+         </span>
+-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: level.color }}>
+-          {level.label}
++        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: status === "ready" ? level.color : COLORS.textMuted }}>
++          {status === "ready" ? level.label : status === "denied" ? "受限" : status === "error" ? "中斷" : "未知"}
+         </span>
+         <span
+           style={{ fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "2px", color: COLORS.textFaint }}
+         >
+-          {level.en}
++          {status === "ready" ? level.en : "DATA"}
+         </span>
+       </div>
+     </div>
+   );
+ }
+ 
+-export function CompareLine({ delta, label }: { delta: number; label: string }) {
++export function CompareLine({ delta, label, muted = false }: { delta: number; label: string; muted?: boolean }) {
+   const up = delta >= 0;
+   return (
+     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+       <span
+         style={{
+           fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, width: 40,
+-          color: up ? COLORS.statusWarn : COLORS.statusLive,
++          color: muted ? COLORS.textMuted : up ? COLORS.statusWarn : COLORS.statusLive,
+         }}
+       >
+         {up ? "↗" : "↘"}{up ? "+" : ""}{Math.round(delta)}
+@@ -94,7 +99,9 @@ export function CompareLine({ delta, label }: { delta: number; label: string })
+   );
+ }
+ 
+-export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean }) {
++export function TwseTicker({
++  data, status, lastSuccessAt, open,
++}: { data: MarketIndex; status: IntelQueryStatus; lastSuccessAt: number | null; open: boolean }) {
+   // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
+   const [history, setHistory] = useState<MarketIndexDailyPoint[]>([]);
+   useEffect(() => {
+@@ -112,11 +119,13 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
+     };
+   }, [open]);
+ 
++  const stale = status === "error" && lastSuccessAt !== null;
++  const available = status === "ready" || stale;
+   const up = data.change >= 0;
+   // 台股慣例：漲紅跌綠
+-  const mk = up ? "#ff4d4f" : "#16c784";
++  const mk = stale ? COLORS.textMuted : up ? "#ff4d4f" : "#16c784";
+   const closed = (data.status ?? "") !== "盤中";
+-  const has = data.index > 0;
++  const has = available && data.index > 0;
+   const closes = history.map((p) => p.close);
+   const histFirst = history[0];
+   const histLast = history[history.length - 1];
+@@ -147,7 +156,7 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
+             padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
+           }}
+         >
+-          {data.status ?? "—"} {data.time ?? ""}
++          {status === "ready" ? `${data.status ?? "—"} ${data.time ?? ""}` : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中"}
+         </span>
+       </div>
+       <div style={{ display: "flex", alignItems: "baseline", gap: 9, whiteSpace: "nowrap" }}>
+@@ -176,10 +185,13 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
+           color: COLORS.textDim, whiteSpace: "nowrap",
+         }}
+       >
+-        <span>H <b style={{ color: COLORS.textDefault }}>{data.high.toLocaleString()}</b></span>
+-        <span>L <b style={{ color: COLORS.textDefault }}>{data.low.toLocaleString()}</b></span>
+-        <span>量 <b style={{ color: COLORS.textDefault }}>{data.turnover ?? "—"}</b></span>
++        <span>H <b style={{ color: COLORS.textDefault }}>{has ? data.high.toLocaleString() : "—"}</b></span>
++        <span>L <b style={{ color: COLORS.textDefault }}>{has ? data.low.toLocaleString() : "—"}</b></span>
++        <span>量 <b style={{ color: COLORS.textDefault }}>{has ? data.turnover ?? "—" : "—"}</b></span>
+       </div>
++      {status !== "ready" && <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
++        {status === "error" && lastSuccessAt ? `最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : "不以 0 或舊行情判斷漲跌"}
++      </span>}
+       {closes.length >= 2 && histFirst && histLast && (
+         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+           <span
+@@ -354,4 +366,3 @@ export function Widget({
+     </div>
+   );
+ }
+-
+diff --git a/src/components/intel/monitor/SituationOverview.tsx b/src/components/intel/monitor/SituationOverview.tsx
+index a38ee44..7426f2c 100644
+--- a/src/components/intel/monitor/SituationOverview.tsx
++++ b/src/components/intel/monitor/SituationOverview.tsx
+@@ -9,6 +9,7 @@ import type {
+   PressureIndexNow, PressureSignal, SourceHealthSummary,
+ } from "../../../data/intelLoaders";
+ import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
++import type { IntelQueryStatus } from "../../../hooks/useIntelPollingQuery";
+ 
+ function MiniStat({
+   label, en, value, color,
+@@ -172,16 +173,24 @@ function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] })
+ interface Props {
+   pressure: PressureIndexNow;
+   smoothedScore: number;
++  status: IntelQueryStatus;
++  lastSuccessAt: number | null;
+   sourceHealth: SourceHealthSummary;
+   totalEvents: number;
+   severeCount: number;
+ }
+ 
+ export function SituationOverview({
+-  pressure, smoothedScore, sourceHealth, totalEvents, severeCount,
++  pressure, smoothedScore, status, lastSuccessAt, sourceHealth, totalEvents, severeCount,
+ }: Props) {
+   const [open, setOpen] = useState(false);
+-  const level = pressureLevel(smoothedScore);
++  const level = pressureLevel(status === "ready" ? smoothedScore : 50);
++  const stale = status === "error" && lastSuccessAt !== null;
++  const availability = status === "denied"
++    ? "壓力指數無權限讀取"
++    : status === "error"
++      ? `壓力指數更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`
++      : status === "unknown" ? "壓力指數讀取中" : null;
+ 
+   return (
+     <Widget
+@@ -228,7 +237,7 @@ export function SituationOverview({
+             cursor: "pointer", position: "relative", lineHeight: 0,
+           }}
+         >
+-          <PressureRing score={smoothedScore} level={level} />
++          <PressureRing score={smoothedScore} level={level} status={status} stale={stale} />
+           <span
+             style={{
+               position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
+@@ -253,8 +262,12 @@ export function SituationOverview({
+ 
+         {/* TAIEX 2026-08-10 拆成獨立 widget 後這裡多出橫向空間 → 讓本欄吃滿，不留右側空洞 */}
+         <div style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 150 }}>
+-          <CompareLine delta={pressure.vs_baseline} label="vs 平常週日同時段" />
+-          <CompareLine delta={pressure.vs_1h_ago} label="vs 1 小時前" />
++          {status === "ready" || stale ? <>
++            <CompareLine delta={pressure.vs_baseline} muted={stale} label={stale ? "最後成功值 · vs 基準" : "vs 平常週日同時段"} />
++            <CompareLine delta={pressure.vs_1h_ago} muted={stale} label={stale ? "最後成功值 · vs 1 小時前" : "vs 1 小時前"} />
++          </> : (
++            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>{availability}</span>
++          )}
+           <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
+           <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
+             <MiniStat en="EVENTS" label="事件" value={totalEvents} />
+@@ -270,7 +283,7 @@ export function SituationOverview({
+         </div>
+       </div>
+ 
+-      {open && <PressureDrawer signals={pressure.per_signal} />}
++      {open && status === "ready" && <PressureDrawer signals={pressure.per_signal} />}
+     </Widget>
+   );
+ }
+diff --git a/src/data/alertsLoader.ts b/src/data/alertsLoader.ts
+index e5dd452..4d43e53 100644
+--- a/src/data/alertsLoader.ts
++++ b/src/data/alertsLoader.ts
+@@ -12,6 +12,7 @@
+ import { supabase } from "../lib/supabase";
+ import { withLoading } from "../lib/loadingRegistry";
+ import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
++import { isAccessDenied } from "../lib/layerGates";
+ import type { DisasterAlert } from "./disasterAlertLoader";
+ import { alertGroupOf, EXCLUDED_TERMS } from "./disasterAlertTypes";
+ import { MAP_GROUP_TO_SHORT } from "./alertRules";
+@@ -36,6 +37,13 @@ export interface AlertSummary {
+   sev_extreme: number;
+ }
+ 
++export interface AlertSummaryLoadResult {
++  status: "ready" | "error" | "denied";
++  data: AlertSummary[];
++  lastSuccessAt: number | null;
++  message?: string | null;
++}
++
+ export interface ActiveAlert {
+   id: string;
+   group: AlertGroupShort;
+@@ -151,7 +159,7 @@ function normalizeCounty(raw: string | null | undefined, group: AlertGroupShort)
+   return group === "earthquake" ? countyFromLocationDesc(t) : t;
+ }
+ 
+-async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
++async function _fetchAlertSummaryRaw(): Promise<AlertSummaryLoadResult> {
+   try {
+     const { data, error } = await withLoading(
+       "alert-summary",
+@@ -160,7 +168,10 @@ async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
+     );
+     if (error) throw error;
+     const rows = (data ?? []) as SummaryRaw[];
+-    return rows
++    return {
++      status: "ready",
++      lastSuccessAt: Date.now(),
++      data: rows
+       .map((r): AlertSummary | null => {
+         const g = asGroup(r.group);
+         if (!g) return null;
+@@ -175,10 +186,16 @@ async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
+           sev_extreme: r.sev_extreme ?? 0,
+         };
+       })
+-      .filter((x): x is AlertSummary => x !== null);
++      .filter((x): x is AlertSummary => x !== null),
++    };
+   } catch (err) {
+     console.warn("[alertsLoader] fetchAlertSummary failed:", err);
+-    return [];
++    return {
++      status: isAccessDenied(err) ? "denied" : "error",
++      data: [],
++      lastSuccessAt: null,
++      message: err instanceof Error ? err.message : String(err ?? "讀取失敗"),
++    };
+   }
+ }
+ export const fetchAlertSummary = cachedOnce(_fetchAlertSummaryRaw, TTL_FAST);
+diff --git a/src/data/intelLoaders.ts b/src/data/intelLoaders.ts
+index 710e7e9..3ced6d9 100644
+--- a/src/data/intelLoaders.ts
++++ b/src/data/intelLoaders.ts
+@@ -6,6 +6,7 @@
+ import { supabase, supabaseConfigured } from "../lib/supabase";
+ import { withLoading } from "../lib/loadingRegistry";
+ import { cachedOnce, cachedByKey, keyedThunkCache } from "../lib/loaderCache";
++import { isAccessDenied } from "../lib/layerGates";
+ 
+ // TTL：對齊 60s polling interval，讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch、減輕連線池。
+ const TTL_FAST = 55_000;   // 即時值（pressure / market / alertSummary）— 約每次輪詢實打一次
+@@ -138,12 +139,19 @@ export interface PressureIndexNow {
+   asof: string | null;   // ISO
+ }
+ 
++export interface IntelLoadResult<T> {
++  status: "ready" | "error" | "denied";
++  data: T;
++  lastSuccessAt: number | null;
++  message?: string | null;
++}
++
+ const EMPTY_PRESSURE: PressureIndexNow = {
+   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
+ };
+ 
+-async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
+-  if (!supabaseConfigured) return EMPTY_PRESSURE;
++async function _fetchPressureIndexRaw(): Promise<IntelLoadResult<PressureIndexNow>> {
++  if (!supabaseConfigured) return { status: "error", data: EMPTY_PRESSURE, lastSuccessAt: null, message: "Supabase 未設定" };
+   const { data, error } = await withLoading(
+     "intel:pressure-index",
+     "壓力指數",
+@@ -151,18 +159,29 @@ async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
+   );
+   if (error) {
+     console.warn("[Intel] get_pressure_index_now failed:", error.message);
+-    return EMPTY_PRESSURE;
++    return {
++      status: isAccessDenied(error) ? "denied" : "error",
++      data: EMPTY_PRESSURE,
++      lastSuccessAt: null,
++      message: error.message,
++    };
+   }
+   // RPC 可能回 single row 或 array，做防呆攤平
+   const row = Array.isArray(data) ? data[0] : data;
+-  if (!row) return EMPTY_PRESSURE;
++  if (!row || row.asof == null || !Number.isFinite(Number(row.composite))) {
++    return { status: "error", data: EMPTY_PRESSURE, lastSuccessAt: null, message: "壓力指數尚無有效觀測值" };
++  }
+   return {
+-    composite: Number(row.composite ?? 0),
+-    level: row.level ?? null,
+-    vs_baseline: Number(row.vs_baseline ?? 0),
+-    vs_1h_ago: Number(row.vs_1h_ago ?? 0),
+-    per_signal: asArray<PressureSignal>(row.per_signal),
+-    asof: row.asof ?? null,
++    status: "ready",
++    lastSuccessAt: Date.now(),
++    data: {
++      composite: Number(row.composite ?? 0),
++      level: row.level ?? null,
++      vs_baseline: Number(row.vs_baseline ?? 0),
++      vs_1h_ago: Number(row.vs_1h_ago ?? 0),
++      per_signal: asArray<PressureSignal>(row.per_signal),
++      asof: row.asof ?? null,
++    },
+   };
+ }
+ export const fetchPressureIndex = cachedOnce(_fetchPressureIndexRaw, TTL_FAST);
+@@ -222,8 +241,8 @@ const EMPTY_MARKET: MarketIndex = {
+   change: 0, change_pct: 0, turnover: null, time: null, status: null,
+ };
+ 
+-async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
+-  if (!supabaseConfigured) return EMPTY_MARKET;
++async function _fetchMarketIndexRaw(): Promise<IntelLoadResult<MarketIndex>> {
++  if (!supabaseConfigured) return { status: "error", data: EMPTY_MARKET, lastSuccessAt: null, message: "Supabase 未設定" };
+   // realtime.* 不能直接打，走 public RPC wrapper（後端已上線 get_market_index_now）
+   const { data, error } = await withLoading(
+     "intel:market-index",
+@@ -232,25 +251,34 @@ async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
+   );
+   if (error) {
+     console.warn("[Intel] get_market_index_now failed:", error.message);
+-    return EMPTY_MARKET;
++    return {
++      status: isAccessDenied(error) ? "denied" : "error",
++      data: EMPTY_MARKET,
++      lastSuccessAt: null,
++      message: error.message,
++    };
+   }
+   const row = Array.isArray(data) ? data[0] : data;
+-  if (!row) return EMPTY_MARKET;
++  if (!row) return { status: "ready", data: EMPTY_MARKET, lastSuccessAt: Date.now() };
+   const index = Number(row.index ?? row.idx ?? 0);
+   const prev = Number(row.prev_close ?? row.y ?? 0);
+   const change = Number(row.change ?? (index - prev).toFixed(2));
+   const pct = Number(row.change_pct ?? (prev ? +((change / prev) * 100).toFixed(2) : 0));
+   return {
+-    index,
+-    prev_close: prev,
+-    open: Number(row.open ?? 0),
+-    high: Number(row.high ?? 0),
+-    low: Number(row.low ?? 0),
+-    change,
+-    change_pct: pct,
+-    turnover: row.turnover ?? null,
+-    time: row.time ?? null,
+-    status: row.status ?? null,
++    status: "ready",
++    lastSuccessAt: Date.now(),
++    data: {
++      index,
++      prev_close: prev,
++      open: Number(row.open ?? 0),
++      high: Number(row.high ?? 0),
++      low: Number(row.low ?? 0),
++      change,
++      change_pct: pct,
++      turnover: row.turnover ?? null,
++      time: row.time ?? null,
++      status: row.status ?? null,
++    },
+   };
+ }
+ export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);
+diff --git a/src/data/newsEventsLoader.ts b/src/data/newsEventsLoader.ts
+index 28a810c..5428b1a 100644
+--- a/src/data/newsEventsLoader.ts
++++ b/src/data/newsEventsLoader.ts
+@@ -221,7 +221,7 @@ export async function fetchNewsEventsDayClusters(
+   );
+   if (error) {
+     console.warn(`[NewsEvents] clusters ${cacheKey} failed:`, error.message);
+-    return [];
++    throw error;
+   }
+   return (data ?? []) as RawCluster[];
+ }
+diff --git a/src/layers/hosts/gridHosts.tsx b/src/layers/hosts/gridHosts.tsx
+index 9d3f26d..cbfbabe 100644
+--- a/src/layers/hosts/gridHosts.tsx
++++ b/src/layers/hosts/gridHosts.tsx
+@@ -10,7 +10,7 @@
+ //     `spatialParams` / `youbikeParams` 六個 useMemo），identity 同樣用
+ //    per-key 快照當 deps —— store 保證「只有這個 key 真的變動時才換 identity」。
+ 
+-import { useEffect, useMemo } from "react";
++import { useCallback, useEffect, useMemo, type RefObject } from "react";
+ import type { Map as MapboxMap } from "mapbox-gl";
+ import { timeStore } from "../../state/timeStore";
+ import { updateH3Layer, ensureH3Layers } from "../../map/h3LayerFactory";
+@@ -42,6 +42,26 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
+   }
+ }
+ 
++/** Re-run a grid host after Mapbox has replaced its sources during setStyle(). */
++export function bindGridStyleRehydration(map: MapboxMap, rehydrate: (map: MapboxMap) => void): () => void {
++  const onStyleLoad = () => {
++    if (styleReady(map)) rehydrate(map);
++  };
++  map.on("style.load", onStyleLoad);
++  return () => map.off("style.load", onStyleLoad);
++}
++
++function useGridStyleRehydration(
++  mapRef: RefObject<MapboxMap | null>,
++  rehydrate: (map: MapboxMap) => void,
++): void {
++  useEffect(() => {
++    const map = mapRef.current;
++    if (!map) return;
++    return bindGridStyleRehydration(map, rehydrate);
++  }, [mapRef, rehydrate]);
++}
++
+ /** 軌道靜態線（2D Mapbox）—— `railTrackMode` 是 select（2d / 3d） */
+ export const RailTracksHost: LayerHostComponent = ({ deps }) => {
+   bumpHostRender("railTracks");
+@@ -83,13 +103,16 @@ export const H3PopulationHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, h3DataMap, h3Resolution } = deps;
+   const visible = deps.layerVisibility.h3Population;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensureH3Layers(map);
++    updateH3Layer(map, h3DataMap.get(h3Resolution) ?? [], h3Params, visible);
++  }, [h3DataMap, h3Resolution, h3Params, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensureH3Layers(map);
+-    const cells = h3DataMap.get(h3Resolution) ?? [];
+-    updateH3Layer(map, cells, h3Params, visible);
+-  }, [mapRef, h3DataMap, h3Resolution, visible, h3Params]);
++    rehydrate(map);
++  }, [mapRef, rehydrate]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+ 
+@@ -106,16 +129,19 @@ export const PopCountHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
+   const visible = deps.layerVisibility.popCount;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensurePopCountLayers(map);
++    const cells = appMode === "historical"
++      ? (getYearlyCells(historicalYear, demoResolution) ?? [])
++      : (demographicsDataMap.get(demoResolution) ?? []);
++    updatePopCountLayer(map, cells, popCountParams, visible);
++  }, [appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells, popCountParams, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensurePopCountLayers(map);
+-    const cells =
+-      appMode === "historical"
+-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+-        : (demographicsDataMap.get(demoResolution) ?? []);
+-    updatePopCountLayer(map, cells, popCountParams, visible);
+-  }, [mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, visible, popCountParams, getYearlyCells]);
++    rehydrate(map);
++  }, [mapRef, rehydrate]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+ 
+@@ -134,16 +160,19 @@ export const IndicatorsHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells } = deps;
+   const visible = deps.layerVisibility.indicators;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensureIndicatorsLayers(map);
++    const cells = appMode === "historical"
++      ? (getYearlyCells(historicalYear, demoResolution) ?? [])
++      : (demographicsDataMap.get(demoResolution) ?? []);
++    updateIndicatorsLayer(map, cells, indicatorsParams, visible);
++  }, [appMode, historicalYear, demographicsDataMap, demoResolution, getYearlyCells, indicatorsParams, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensureIndicatorsLayers(map);
+-    const cells =
+-      appMode === "historical"
+-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+-        : (demographicsDataMap.get(demoResolution) ?? []);
+-    updateIndicatorsLayer(map, cells, indicatorsParams, visible);
+-  }, [mapRef, appMode, historicalYear, demographicsDataMap, demoResolution, visible, indicatorsParams, getYearlyCells]);
++    rehydrate(map);
++  }, [mapRef, rehydrate]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+ 
+@@ -161,13 +190,16 @@ export const SocioeconomicHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, socioDataMap, demoResolution } = deps;
+   const visible = deps.layerVisibility.socioeconomic;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensureSocioLayers(map);
++    updateSocioLayer(map, socioDataMap.get(demoResolution) ?? [], socioParams, visible);
++  }, [socioDataMap, demoResolution, socioParams, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensureSocioLayers(map);
+-    const cells = socioDataMap.get(demoResolution) ?? [];
+-    updateSocioLayer(map, cells, socioParams, visible);
+-  }, [mapRef, socioDataMap, demoResolution, visible, socioParams]);
++    rehydrate(map);
++  }, [mapRef, rehydrate]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+ 
+@@ -185,13 +217,16 @@ export const SpatialEconomyHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, spatialDataMap, demoResolution } = deps;
+   const visible = deps.layerVisibility.spatialEconomy;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensureSpatialLayers(map);
++    updateSpatialLayer(map, spatialDataMap.get(demoResolution) ?? [], spatialParams, visible);
++  }, [spatialDataMap, demoResolution, spatialParams, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensureSpatialLayers(map);
+-    const cells = spatialDataMap.get(demoResolution) ?? [];
+-    updateSpatialLayer(map, cells, spatialParams, visible);
+-  }, [mapRef, spatialDataMap, demoResolution, visible, spatialParams]);
++    rehydrate(map);
++  }, [mapRef, rehydrate]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+ 
+@@ -211,12 +246,15 @@ export const YoubikeHost: LayerHostComponent = ({ deps }) => {
+ 
+   const { mapRef, getYoubikeCellsForTime, youbikeTimeKey } = deps;
+   const visible = deps.layerVisibility.youbikeFullness;
++  const rehydrate = useCallback((map: MapboxMap) => {
++    ensureYoubikeLayers(map);
++    updateYoubikeLayer(map, getYoubikeCellsForTime(timeStore.getTime()), youbikeParams, visible);
++  }, [getYoubikeCellsForTime, youbikeParams, visible]);
+   useEffect(() => {
+     const map = mapRef.current;
+     if (!styleReady(map)) return;
+-    ensureYoubikeLayers(map);
+-    const cells = getYoubikeCellsForTime(timeStore.getTime());
+-    updateYoubikeLayer(map, cells, youbikeParams, visible);
+-  }, [mapRef, getYoubikeCellsForTime, youbikeTimeKey, visible, youbikeParams]);
++    rehydrate(map);
++  }, [mapRef, rehydrate, youbikeTimeKey]);
++  useGridStyleRehydration(mapRef, rehydrate);
+   return null;
+ };
+diff --git a/src/map/demographicsLayerFactory.ts b/src/map/demographicsLayerFactory.ts
+index 306a889..d31faae 100644
+--- a/src/map/demographicsLayerFactory.ts
++++ b/src/map/demographicsLayerFactory.ts
+@@ -20,6 +20,18 @@ const SPATIAL_SRC = "h3-spatial-src";
+ const SPATIAL_FILL = "h3-spatial-fill";
+ const SPATIAL_EXT = "h3-spatial-ext";
+ 
++interface CachedGeoJSON {
++  source: object;
++  cells: object;
++  dataKey: string;
++  data: GeoJSON.FeatureCollection;
++}
++
++// Sources are replaced by setStyle().  Cache data by map/source so paint-only
++// changes avoid H3 boundary work while a newly-created source is still refilled.
++const geojsonCaches = new WeakMap<MapboxMap, Map<string, CachedGeoJSON>>();
++const EMPTY_CELLS: DemographicH3CellData[] = [];
++
+ // ── Inferno color scale ──
+ 
+ export const INFERNO: [number, number, number][] = [
+@@ -66,6 +78,27 @@ function getMetricValue(cell: DemographicH3CellData, metric: string): number {
+   return (cell as unknown as Record<string, number>)[metric] ?? 0;
+ }
+ 
++function syncGeoJSON(
++  map: MapboxMap,
++  cacheKey: string,
++  source: object & { setData: (data: GeoJSON.FeatureCollection) => void },
++  cells: object,
++  dataKey: string,
++  build: () => GeoJSON.FeatureCollection,
++): void {
++  let cache = geojsonCaches.get(map);
++  if (!cache) {
++    cache = new Map();
++    geojsonCaches.set(map, cache);
++  }
++  const cached = cache.get(cacheKey);
++  if (cached?.source === source && cached.cells === cells && cached.dataKey === dataKey) return;
++
++  const data = cached?.cells === cells && cached.dataKey === dataKey ? cached.data : build();
++  source.setData(data);
++  cache.set(cacheKey, { source, cells, dataKey, data });
++}
++
+ // ── GeoJSON builder ──
+ 
+ function demographicsToGeoJSON(
+@@ -196,12 +229,13 @@ function updateDemographicsLayer(
+   const source = map.getSource(srcId);
+   if (!source || source.type !== "geojson") return;
+ 
+-  if (cells.length > 0) {
+-    const geojson = demographicsToGeoJSON(cells, metric, contrast);
+-    source.setData(geojson);
+-  } else {
+-    source.setData({ type: "FeatureCollection", features: [] });
+-  }
++  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
++  const dataKey = `${metric}|${contrast}`;
++  syncGeoJSON(map, srcId, source, cachedCells, dataKey, () =>
++    cells.length > 0
++      ? demographicsToGeoJSON(cells, metric, contrast)
++      : { type: "FeatureCollection", features: [] },
++  );
+ 
+   if (!visible || cells.length === 0) {
+     map.setLayoutProperty(fillId, "visibility", "none");
+@@ -334,12 +368,14 @@ export function updateSocioLayer(
+   if (!source || source.type !== "geojson") return;
+ 
+   const useLog = params.metric === "im";
+-  if (cells.length > 0) {
+-    const geojson = genericToGeoJSON(cells, params.metric as keyof SocioeconomicH3CellData, params.contrast, useLog, VIRIDIS);
+-    source.setData(geojson);
+-  } else {
+-    source.setData({ type: "FeatureCollection", features: [] });
+-  }
++  const metric = params.metric as keyof SocioeconomicH3CellData;
++  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
++  const dataKey = `${String(metric)}|${params.contrast}`;
++  syncGeoJSON(map, SOCIO_SRC, source, cachedCells, dataKey, () =>
++    cells.length > 0
++      ? genericToGeoJSON(cells, metric, params.contrast, useLog, VIRIDIS)
++      : { type: "FeatureCollection", features: [] },
++  );
+ 
+   if (!visible || cells.length === 0) {
+     map.setLayoutProperty(SOCIO_FILL, "visibility", "none");
+@@ -378,12 +414,14 @@ export function updateSpatialLayer(
+   if (!source || source.type !== "geojson") return;
+ 
+   const useLog = params.metric === "hp" || params.metric === "hpr";
+-  if (cells.length > 0) {
+-    const geojson = genericToGeoJSON(cells, params.metric as keyof SpatialEconomyH3CellData, params.contrast, useLog, MAGMA);
+-    source.setData(geojson);
+-  } else {
+-    source.setData({ type: "FeatureCollection", features: [] });
+-  }
++  const metric = params.metric as keyof SpatialEconomyH3CellData;
++  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
++  const dataKey = `${String(metric)}|${params.contrast}`;
++  syncGeoJSON(map, SPATIAL_SRC, source, cachedCells, dataKey, () =>
++    cells.length > 0
++      ? genericToGeoJSON(cells, metric, params.contrast, useLog, MAGMA)
++      : { type: "FeatureCollection", features: [] },
++  );
+ 
+   if (!visible || cells.length === 0) {
+     map.setLayoutProperty(SPATIAL_FILL, "visibility", "none");
+diff --git a/src/map/h3LayerFactory.ts b/src/map/h3LayerFactory.ts
+index 14cb4f7..eef4621 100644
+--- a/src/map/h3LayerFactory.ts
++++ b/src/map/h3LayerFactory.ts
+@@ -6,6 +6,19 @@ const SOURCE_ID = "h3-population-src";
+ const FILL_LAYER_ID = "h3-population-fill";
+ const EXTRUSION_LAYER_ID = "h3-population-ext";
+ 
++interface CachedGeoJSON {
++  source: object;
++  cells: object;
++  dataKey: string;
++  data: GeoJSON.FeatureCollection;
++}
++
++// Mapbox drops sources when a style is replaced.  Keep the generated data per
++// map, but tie it to the concrete source object so the next update restores it.
++const geojsonCache = new WeakMap<MapboxMap, CachedGeoJSON>();
++const EMPTY_CELLS: H3CellData[] = [];
++const EMPTY_GEOJSON: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
++
+ // ── Color scales ──
+ 
+ // Plasma (warm) — perceptually uniform, dark-background optimized
+@@ -101,6 +114,26 @@ function h3CellsToGeoJSON(
+   return { type: "FeatureCollection", features };
+ }
+ 
++function syncH3Data(
++  map: MapboxMap,
++  source: { setData: (data: GeoJSON.FeatureCollection) => void },
++  cells: H3CellData[],
++  params: H3LayerParams,
++): void {
++  const cachedCells = cells.length === 0 ? EMPTY_CELLS : cells;
++  const dataKey = `${params.metric}|${params.contrast}`;
++  const cached = geojsonCache.get(map);
++  if (cached?.source === source && cached.cells === cachedCells && cached.dataKey === dataKey) return;
++
++  const data = cached?.cells === cachedCells && cached.dataKey === dataKey
++    ? cached.data
++    : cells.length > 0
++      ? h3CellsToGeoJSON(cells, params)
++      : EMPTY_GEOJSON;
++  source.setData(data);
++  geojsonCache.set(map, { source, cells: cachedCells, dataKey, data });
++}
++
+ /**
+  * Ensure H3 source + layers exist on the map.
+  * Safe to call repeatedly (idempotent) — needed after style changes.
+@@ -152,13 +185,9 @@ export function updateH3Layer(
+   const source = map.getSource(SOURCE_ID);
+   if (!source || source.type !== "geojson") return;
+ 
+-  // Update GeoJSON data
+-  if (cells.length > 0) {
+-    const geojson = h3CellsToGeoJSON(cells, params);
+-    source.setData(geojson);
+-  } else {
+-    source.setData({ type: "FeatureCollection", features: [] });
+-  }
++  // Geometry/data only change when the cells or data-derived parameters do.
++  // Opacity, extrusion and elevation are paint/layout concerns below.
++  syncH3Data(map, source, cells, params);
+ 
+   // Visibility: overall on/off + fill vs extrusion toggle
+   if (!visible || cells.length === 0) {
+diff --git a/src/components/intel/monitor/__tests__/PressureRing.test.ts b/src/components/intel/monitor/__tests__/PressureRing.test.ts
+new file mode 100644
+index 0000000..de40f10
+--- /dev/null
++++ b/src/components/intel/monitor/__tests__/PressureRing.test.ts
+@@ -0,0 +1,32 @@
++import { describe, expect, it, vi } from "vitest";
++
++vi.mock("react", async (importOriginal) => ({
++  ...await importOriginal<typeof import("react")>(),
++  useEffect: () => {},
++  useState: <T,>(initial: T) => [initial, vi.fn()] as const,
++}));
++
++import { TwseTicker } from "../PressureRing";
++
++function textOf(node: unknown): string {
++  if (node == null || typeof node === "boolean") return "";
++  if (typeof node === "string" || typeof node === "number") return String(node);
++  if (Array.isArray(node)) return node.map(textOf).join("");
++  if (typeof node === "object" && "props" in node) return textOf((node as { props: { children?: unknown } }).props.children);
++  return "";
++}
++
++const market = {
++  index: 22_000, prev_close: 21_900, open: 21_950, high: 22_030, low: 21_870,
++  change: 100, change_pct: 0.46, turnover: "100 萬張", time: "13:30", status: "盤中" as string | null,
++};
++
++describe("TwseTicker stale presentation", () => {
++  it("keeps the last successful quote but labels an interrupted refresh instead of market status", () => {
++    const text = textOf(TwseTicker({ data: market, status: "error", lastSuccessAt: Date.now(), open: false }));
++    expect(text).toContain("22,000");
++    expect(text).toContain("更新中斷");
++    expect(text).toContain("最後成功");
++    expect(text).not.toContain("盤中 13:30");
++  });
++});
+diff --git a/src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts b/src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts
+new file mode 100644
+index 0000000..cc6baf5
+--- /dev/null
++++ b/src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts
+@@ -0,0 +1,127 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++
++const runtime = vi.hoisted(() => {
++  const slots: unknown[] = [];
++  const effects: Array<{ deps?: readonly unknown[]; cleanup?: () => void; effect: () => void | (() => void) }> = [];
++  const pending = new Set<number>();
++  let cursor = 0;
++  return {
++    resetCursor: () => { cursor = 0; },
++    reset: () => { slots.length = 0; effects.length = 0; pending.clear(); cursor = 0; },
++    cleanup: () => effects.forEach((entry) => entry.cleanup?.()),
++    flushEffects: () => {
++      for (const i of pending) {
++        const entry = effects[i]!;
++        entry.cleanup?.();
++        entry.cleanup = entry.effect() ?? undefined;
++      }
++      pending.clear();
++    },
++    useState: <T,>(initial: T | (() => T)) => {
++      const i = cursor++;
++      if (!(i in slots)) slots[i] = typeof initial === "function" ? (initial as () => T)() : initial;
++      return [slots[i] as T, (next: T | ((old: T) => T)) => {
++        slots[i] = typeof next === "function" ? (next as (old: T) => T)(slots[i] as T) : next;
++      }] as const;
++    },
++    useRef: <T,>(initial: T) => {
++      const i = cursor++;
++      if (!(i in slots)) slots[i] = { current: initial };
++      return slots[i] as { current: T };
++    },
++    useEffect: (effect: () => void | (() => void), deps?: readonly unknown[]) => {
++      const i = cursor++;
++      const prior = effects[i];
++      const changed = !prior || !deps || !prior.deps || deps.length !== prior.deps.length || deps.some((v, n) => v !== prior.deps?.[n]);
++      effects[i] = { effect, deps, cleanup: prior?.cleanup };
++      if (changed) pending.add(i);
++    },
++  };
++});
++
++vi.mock("react", () => ({
++  useState: runtime.useState,
++  useRef: runtime.useRef,
++  useEffect: runtime.useEffect,
++}));
++
++import { useIntelPollingQuery } from "../useIntelPollingQuery";
++
++const empty: number[] = [];
++const result = (data: number[]) => ({ status: "ready" as const, data, lastSuccessAt: Date.now() });
++const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
++
++describe("useIntelPollingQuery runtime scheduling", () => {
++  afterEach(() => { runtime.cleanup(); runtime.reset(); vi.useRealTimers(); });
++
++  function render(queryKey: string, load: () => Promise<ReturnType<typeof result>>, enabled = true) {
++    runtime.resetCursor();
++    const view = useIntelPollingQuery({ enabled, queryKey, intervalMs: 1000, emptyData: empty, load });
++    runtime.flushEffects();
++    return view;
++  }
++
++  it("does not overlap a slow refresh and schedules the next only after completion", async () => {
++    vi.useFakeTimers();
++    let resolve!: (value: ReturnType<typeof result>) => void;
++    const load = vi.fn(() => new Promise<ReturnType<typeof result>>((r) => { resolve = r; }));
++    render("today", load);
++    await vi.advanceTimersByTimeAsync(5_000);
++    expect(load).toHaveBeenCalledTimes(1);
++    resolve(result([1]));
++    await flush();
++    await vi.advanceTimersByTimeAsync(1_000);
++    expect(load).toHaveBeenCalledTimes(2);
++  });
++
++  it("cleanup prevents the next timer from firing after unmount", async () => {
++    vi.useFakeTimers();
++    const load = vi.fn(async () => result([1]));
++    render("today", load);
++    await flush();
++    runtime.cleanup();
++    await vi.advanceTimersByTimeAsync(2_000);
++    expect(load).toHaveBeenCalledTimes(1);
++  });
++
++  it("a normal rerender keeps its timer, while disabled work cannot start another request", async () => {
++    vi.useFakeTimers();
++    const load = vi.fn(async () => result([1]));
++    render("today", load);
++    await flush();
++    render("today", load); // same deps: no second immediate fetch or timer reset
++    expect(load).toHaveBeenCalledTimes(1);
++    render("today", load, false);
++    await vi.advanceTimersByTimeAsync(2_000);
++    expect(load).toHaveBeenCalledTimes(1);
++  });
++
++  it("waits for an old query then runs the newest query without applying a second overlap", async () => {
++    vi.useFakeTimers();
++    let resolve!: (value: ReturnType<typeof result>) => void;
++    const load = vi.fn(() => new Promise<ReturnType<typeof result>>((r) => { resolve = r; }));
++    render("old", load);
++    const newView = render("new", load);
++    expect(newView).toMatchObject({ status: "unknown", data: [] });
++    expect(load).toHaveBeenCalledTimes(1);
++    resolve(result([1]));
++    await flush();
++    expect(load).toHaveBeenCalledTimes(2);
++  });
++
++  it("turns a rejected 42501 response into denied and clears query data", async () => {
++    vi.useFakeTimers();
++    let resolve!: (value: ReturnType<typeof result>) => void;
++    let reject!: (reason: unknown) => void;
++    const load = vi.fn()
++      .mockImplementationOnce(() => new Promise<ReturnType<typeof result>>((r) => { resolve = r; }))
++      .mockImplementationOnce(() => new Promise<ReturnType<typeof result>>((_resolve, r) => { reject = r; }));
++    render("restricted", load);
++    resolve(result([7]));
++    await flush();
++    await vi.advanceTimersByTimeAsync(1_000);
++    reject({ code: "42501", message: "permission denied" });
++    await flush();
++    expect(render("restricted", load)).toMatchObject({ status: "denied", data: [] });
++  });
++});
+diff --git a/src/hooks/__tests__/useIntelPollingQuery.test.ts b/src/hooks/__tests__/useIntelPollingQuery.test.ts
+new file mode 100644
+index 0000000..bd4694a
+--- /dev/null
++++ b/src/hooks/__tests__/useIntelPollingQuery.test.ts
+@@ -0,0 +1,41 @@
++import { describe, expect, it } from "vitest";
++import {
++  applyIntelQueryResult,
++  initialIntelQueryState,
++} from "../useIntelPollingQuery";
++
++describe("Intel polling query state", () => {
++  it("keeps the last successful value and marks a refresh outage", () => {
++    const ready = applyIntelQueryResult(initialIntelQueryState<number[]>([], "today"), {
++      status: "ready", data: [7], lastSuccessAt: 100,
++    }, []);
++    expect(applyIntelQueryResult(ready, {
++      status: "error", data: [], lastSuccessAt: null, message: "timeout",
++    }, [])).toMatchObject({ status: "error", data: [7], lastSuccessAt: 100, queryKey: "today" });
++  });
++
++  it("treats a successful empty response as a real clear state", () => {
++    const previous = initialIntelQueryState<number[]>([7], "today");
++    expect(applyIntelQueryResult(previous, {
++      status: "ready", data: [], lastSuccessAt: 200,
++    }, [])).toMatchObject({ status: "ready", data: [], lastSuccessAt: 200 });
++  });
++
++  it("clears retained data when access is denied", () => {
++    const previous = applyIntelQueryResult(initialIntelQueryState<number[]>([], "today"), {
++      status: "ready", data: [7], lastSuccessAt: 100,
++    }, []);
++    expect(applyIntelQueryResult(previous, {
++      status: "denied", data: [], lastSuccessAt: null,
++    }, [])).toMatchObject({ status: "denied", data: [], lastSuccessAt: null });
++  });
++
++  it("starts a changed query as unknown so old-range data cannot render", () => {
++    const old = applyIntelQueryResult(initialIntelQueryState<number[]>([], "2026-09-06"), {
++      status: "ready", data: [7], lastSuccessAt: 100,
++    }, []);
++    const changed = initialIntelQueryState<number[]>([], "2026-09-07");
++    expect(old.queryKey).not.toBe(changed.queryKey);
++    expect(changed).toMatchObject({ status: "unknown", data: [] });
++  });
++});
+diff --git a/src/hooks/useIntelPollingQuery.ts b/src/hooks/useIntelPollingQuery.ts
+new file mode 100644
+index 0000000..c8419d1
+--- /dev/null
++++ b/src/hooks/useIntelPollingQuery.ts
+@@ -0,0 +1,106 @@
++import { useEffect, useRef, useState } from "react";
++import { isAccessDenied } from "../lib/layerGates";
++
++export type IntelQueryStatus = "unknown" | "ready" | "error" | "denied";
++
++export interface IntelQueryResult<T> {
++  status: Exclude<IntelQueryStatus, "unknown">;
++  data: T;
++  /** 最近一次成功讀取時間；error 時仍指向保留資料的時間。 */
++  lastSuccessAt: number | null;
++  message?: string | null;
++}
++
++export interface IntelQueryState<T> extends Omit<IntelQueryResult<T>, "status"> {
++  status: IntelQueryStatus;
++  queryKey: string;
++}
++
++export function initialIntelQueryState<T>(data: T, queryKey = ""): IntelQueryState<T> {
++  return { status: "unknown", data, lastSuccessAt: null, message: null, queryKey };
++}
++
++/**
++ * 只在同一個 query 的最新回應套用資料。
++ * error 保留最後一次成功結果，但以 error 標記，呼叫端不可再把舊資料判成正常；
++ * denied 則清掉可能受限的舊資料。
++ */
++export function applyIntelQueryResult<T>(
++  previous: IntelQueryState<T>,
++  result: IntelQueryResult<T>,
++  emptyData: T,
++): IntelQueryState<T> {
++  if (result.status === "ready") return { ...result, queryKey: previous.queryKey };
++  if (result.status === "denied") return { ...result, data: emptyData, lastSuccessAt: null, queryKey: previous.queryKey };
++  return {
++    ...result,
++    data: previous.lastSuccessAt === null ? emptyData : previous.data,
++    lastSuccessAt: previous.lastSuccessAt,
++    queryKey: previous.queryKey,
++  };
++}
++
++interface Options<T> {
++  enabled: boolean;
++  queryKey: string;
++  intervalMs: number;
++  emptyData: T;
++  load: () => Promise<IntelQueryResult<T>>;
++}
++
++/**
++ * 專給 Intel/Monitor 的小型 polling hook：同時只保留一個 RPC，卸載與 query
++ * 切換後的舊回應不會覆寫新 query。慢請求結束後才排下一輪，避免 interval 堆疊。
++ */
++export function useIntelPollingQuery<T>({
++  enabled, queryKey, intervalMs, emptyData, load,
++}: Options<T>): IntelQueryState<T> {
++  const [state, setState] = useState<IntelQueryState<T>>(() => initialIntelQueryState(emptyData, queryKey));
++  const generationRef = useRef(0);
++  const inFlightRef = useRef(false);
++  const kickRef = useRef<() => void>(() => {});
++
++  useEffect(() => {
++    const generation = ++generationRef.current;
++    let disposed = false;
++    let timeout: ReturnType<typeof setTimeout> | undefined;
++    setState(initialIntelQueryState(emptyData, queryKey));
++
++    const run = () => {
++      if (disposed || !enabled || inFlightRef.current) return;
++      inFlightRef.current = true;
++      load()
++        .then((result) => {
++          if (!disposed && generation === generationRef.current) {
++            setState((previous) => ({ ...applyIntelQueryResult(previous, result, emptyData), queryKey }));
++          }
++        })
++        .catch((error: unknown) => {
++          if (!disposed && generation === generationRef.current) {
++            const message = error instanceof Error ? error.message : String(error ?? "讀取失敗");
++            setState((previous) => ({ ...applyIntelQueryResult(previous, {
++              status: isAccessDenied(error) ? "denied" : "error", data: emptyData, lastSuccessAt: null, message,
++            }, emptyData), queryKey }));
++          }
++        })
++        .finally(() => {
++          inFlightRef.current = false;
++          if (generation !== generationRef.current) {
++            // query 在慢請求途中切換：舊請求結束後才啟動最新 query，絕不重疊。
++            kickRef.current();
++          } else if (!disposed) {
++            timeout = globalThis.setTimeout(run, intervalMs);
++          }
++        });
++    };
++    kickRef.current = run;
++    if (enabled) run();
++    return () => {
++      disposed = true;
++      if (timeout !== undefined) globalThis.clearTimeout(timeout);
++    };
++  }, [enabled, queryKey, intervalMs, emptyData, load]);
++
++  // effect 在 render 後才 reset；此 guard 避免 query 切換的那一幀拿舊範圍資料。
++  return state.queryKey === queryKey ? state : initialIntelQueryState(emptyData, queryKey);
++}
+diff --git a/src/layers/hosts/__tests__/gridHostsStyleReload.test.ts b/src/layers/hosts/__tests__/gridHostsStyleReload.test.ts
+new file mode 100644
+index 0000000..51ccb44
+--- /dev/null
++++ b/src/layers/hosts/__tests__/gridHostsStyleReload.test.ts
+@@ -0,0 +1,69 @@
++import { describe, expect, it, vi } from "vitest";
++
++const h3 = vi.hoisted(() => ({ cellToBoundary: vi.fn(() => [[25, 121], [25.1, 121.1], [25.2, 121]]) }));
++vi.mock("h3-js", () => h3);
++
++import { bindGridStyleRehydration } from "../gridHosts";
++import { updateH3Layer } from "../../../map/h3LayerFactory";
++import {
++  updateIndicatorsLayer, updatePopCountLayer, updateSocioLayer, updateSpatialLayer,
++} from "../../../map/demographicsLayerFactory";
++
++type Source = { type: "geojson"; setData: ReturnType<typeof vi.fn> };
++
++function styleMap() {
++  const sources = new Map<string, Source>();
++  const layers = new Set<string>();
++  const handlers = new Map<string, Set<() => void>>();
++  const map = {
++    getStyle: vi.fn(() => ({})),
++    getSource: vi.fn((id: string) => sources.get(id)),
++    addSource: vi.fn((id: string) => sources.set(id, { type: "geojson", setData: vi.fn() })),
++    getLayer: vi.fn((id: string) => layers.has(id) ? { id } : undefined),
++    addLayer: vi.fn((layer: { id: string }) => layers.add(layer.id)),
++    setLayoutProperty: vi.fn(),
++    setPaintProperty: vi.fn(),
++    on: vi.fn((event: string, handler: () => void) => {
++      if (!handlers.has(event)) handlers.set(event, new Set());
++      handlers.get(event)!.add(handler);
++    }),
++    off: vi.fn((event: string, handler: () => void) => handlers.get(event)?.delete(handler)),
++  };
++  return {
++    map,
++    resetStyle: () => { sources.clear(); layers.clear(); },
++    emitStyleLoad: () => handlers.get("style.load")?.forEach((handler) => handler()),
++    source: (id: string) => sources.get(id),
++  };
++}
++
++describe("grid host style reload lifecycle", () => {
++  it("recreates and refills all visible People grids after style.load", () => {
++    const state = styleMap();
++    const population = [{ h: "8928308280fffff", d: 12, n: 8 }];
++    const demographic = [{ h: "8928308280fffff", p: 30, hh: 12, m: 14, f: 16, sr: 88, pph: 2.5, dr: 40, cd: 12, ed: 28, ai: 220 }];
++    const rehydrate = (map: never) => {
++      updateH3Layer(map, population, { metric: "day", opacity: 0.6, extruded: false, elevationScale: 1, contrast: 1 }, true);
++      updatePopCountLayer(map, demographic, { opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++      updateIndicatorsLayer(map, demographic, { category: "population", metric: "hh", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++      updateSocioLayer(map, [{ h: "8928308280fffff", im: 50, iq: 1, sr: 1, vs: 0.5, vl: 0.2 }], { metric: "im", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++      updateSpatialLayer(map, [{ h: "8928308280fffff", hp: 50, hu: 30, hpr: 1, ad: 2, lm: 0.5 }], { metric: "hp", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++    };
++
++    rehydrate(state.map as never);
++    state.resetStyle();
++    const stop = bindGridStyleRehydration(state.map as never, rehydrate as never);
++    state.emitStyleLoad();
++
++    for (const id of ["h3-population-src", "h3-pop-count-src", "h3-indicators-src", "h3-socio-src", "h3-spatial-src"]) {
++      const source = state.source(id);
++      expect(source).toBeDefined();
++      expect(source!.setData).toHaveBeenCalledTimes(1);
++      expect((source!.setData.mock.calls[0]?.[0] as GeoJSON.FeatureCollection).features).toHaveLength(1);
++    }
++    stop();
++    state.resetStyle();
++    state.emitStyleLoad();
++    expect(state.source("h3-population-src")).toBeUndefined();
++  });
++});
+diff --git a/src/map/__tests__/h3LayerFactory.test.ts b/src/map/__tests__/h3LayerFactory.test.ts
+new file mode 100644
+index 0000000..c804eff
+--- /dev/null
++++ b/src/map/__tests__/h3LayerFactory.test.ts
+@@ -0,0 +1,143 @@
++import { beforeEach, describe, expect, it, vi } from "vitest";
++
++const h3 = vi.hoisted(() => ({ cellToBoundary: vi.fn(() => [[25, 121], [25.1, 121.1], [25.2, 121]]) }));
++vi.mock("h3-js", () => h3);
++
++import { updateH3Layer } from "../h3LayerFactory";
++import {
++  updateIndicatorsLayer, updatePopCountLayer, updateSocioLayer, updateSpatialLayer,
++} from "../demographicsLayerFactory";
++
++type Source = { type: "geojson"; setData: ReturnType<typeof vi.fn> };
++
++function mockMap() {
++  const sources = new Map<string, Source>();
++  const layers = new Set<string>();
++  return {
++    getSource: vi.fn((id: string) => sources.get(id)),
++    addSource: vi.fn((id: string) => sources.set(id, { type: "geojson", setData: vi.fn() })),
++    getLayer: vi.fn((id: string) => layers.has(id) ? { id } : undefined),
++    addLayer: vi.fn((layer: { id: string }) => layers.add(layer.id)),
++    setLayoutProperty: vi.fn(),
++    setPaintProperty: vi.fn(),
++    source: (id: string) => sources.get(id),
++    replaceStyle: () => { sources.clear(); layers.clear(); },
++  };
++}
++
++const h3Cells = [{ h: "8928308280fffff", d: 12, n: 8 }];
++const h3Params = { metric: "day" as const, opacity: 0.6, extruded: false, elevationScale: 1, contrast: 1 };
++const demoCells = [{ h: "8928308280fffff", p: 30, hh: 12, m: 14, f: 16, sr: 88, pph: 2.5, dr: 40, cd: 12, ed: 28, ai: 220 }];
++const indicatorParams = { category: "population", metric: "p", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 };
++
++describe("H3 grid factories", () => {
++  beforeEach(() => h3.cellToBoundary.mockClear());
++
++  it("H3 paint-only changes do not rewrite data or recompute boundaries", () => {
++    const map = mockMap();
++    updateH3Layer(map as never, h3Cells, h3Params, true);
++    const source = map.source("h3-population-src")!;
++    expect(source.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(1);
++
++    updateH3Layer(map as never, h3Cells, { ...h3Params, opacity: 0.3, extruded: true, elevationScale: 2 }, true);
++    expect(source.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(1);
++    expect(map.setPaintProperty).toHaveBeenCalledWith("h3-population-fill", "fill-opacity", 0.3);
++  });
++
++  it("does not read any H3 cell fields during 20 paint-only updates", () => {
++    let reads = 0;
++    const cells = [{
++      get h() { reads++; return "8928308280fffff"; },
++      get d() { reads++; return 12; },
++      get n() { reads++; return 8; },
++    }];
++    const map = mockMap();
++    updateH3Layer(map as never, cells, h3Params, true);
++    reads = 0;
++    for (let opacity = 1; opacity <= 20; opacity++) {
++      updateH3Layer(map as never, cells, { ...h3Params, opacity: opacity / 20 }, true);
++    }
++    expect(reads).toBe(0);
++    expect(map.source("h3-population-src")!.setData).toHaveBeenCalledTimes(1);
++  });
++
++  it("H3 data/metric updates rebuild, and a style replacement refills its new source", () => {
++    const map = mockMap();
++    updateH3Layer(map as never, h3Cells, h3Params, true);
++    const first = map.source("h3-population-src")!;
++    updateH3Layer(map as never, [{ ...h3Cells[0]!, d: 24 }], h3Params, true);
++    expect(first.setData).toHaveBeenCalledTimes(2);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(2);
++
++    updateH3Layer(map as never, h3Cells, { ...h3Params, metric: "night" }, true);
++    expect(first.setData).toHaveBeenCalledTimes(3);
++    map.replaceStyle();
++    updateH3Layer(map as never, h3Cells, { ...h3Params, metric: "night" }, true);
++    const restored = map.source("h3-population-src")!;
++    expect(restored).not.toBe(first);
++    expect(restored.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(3);
++  });
++
++  it("demographic paint-only changes skip setData, while metric/data changes and style replacement update correctly", () => {
++    const map = mockMap();
++    updateIndicatorsLayer(map as never, demoCells, indicatorParams, true);
++    const source = map.source("h3-indicators-src")!;
++    expect(source.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(1);
++
++    updateIndicatorsLayer(map as never, demoCells, { ...indicatorParams, opacity: 0.2, extruded: true }, true);
++    expect(source.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(1);
++
++    updateIndicatorsLayer(map as never, demoCells, { ...indicatorParams, metric: "hh" }, true);
++    expect(source.setData).toHaveBeenCalledTimes(2);
++    const updatedCells = [{ ...demoCells[0]!, hh: 15 }];
++    updateIndicatorsLayer(map as never, updatedCells, { ...indicatorParams, metric: "hh" }, true);
++    expect(source.setData).toHaveBeenCalledTimes(3);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(3);
++
++    map.replaceStyle();
++    updateIndicatorsLayer(map as never, updatedCells, { ...indicatorParams, metric: "hh" }, true);
++    expect(map.source("h3-indicators-src")!.setData).toHaveBeenCalledTimes(1);
++    expect(h3.cellToBoundary).toHaveBeenCalledTimes(3);
++  });
++
++  it("all demographic grid factories use identity caching, including empty clears", () => {
++    const popMap = mockMap();
++    updatePopCountLayer(popMap as never, demoCells, { opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++    updatePopCountLayer(popMap as never, demoCells, { opacity: 0.2, contrast: 1, extruded: true, elevationScale: 2 }, true);
++    expect(popMap.source("h3-pop-count-src")!.setData).toHaveBeenCalledTimes(1);
++
++    const socioMap = mockMap();
++    const socioCells = [{ h: "8928308280fffff", im: 50, iq: 1, sr: 1, vs: 0.5, vl: 0.2 }];
++    const socioParams = { metric: "im", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 };
++    updateSocioLayer(socioMap as never, socioCells, socioParams, true);
++    updateSocioLayer(socioMap as never, socioCells, { ...socioParams, opacity: 0.2 }, true);
++    expect(socioMap.source("h3-socio-src")!.setData).toHaveBeenCalledTimes(1);
++
++    const spatialMap = mockMap();
++    const spatialCells = [{ h: "8928308280fffff", hp: 50, hu: 30, hpr: 1, ad: 2, lm: 0.5 }];
++    const spatialParams = { metric: "hp", opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 };
++    updateSpatialLayer(spatialMap as never, spatialCells, spatialParams, true);
++    updateSpatialLayer(spatialMap as never, spatialCells, { ...spatialParams, elevationScale: 2 }, true);
++    expect(spatialMap.source("h3-spatial-src")!.setData).toHaveBeenCalledTimes(1);
++
++    updateH3Layer(popMap as never, h3Cells, h3Params, true);
++    const h3Source = popMap.source("h3-population-src")!;
++    updateH3Layer(popMap as never, [], h3Params, true);
++    updateH3Layer(popMap as never, [], { ...h3Params, opacity: 0.2 }, true);
++    expect(h3Source.setData).toHaveBeenCalledTimes(2);
++    expect(h3Source.setData.mock.calls[1]?.[0]).toEqual({ type: "FeatureCollection", features: [] });
++  });
++
++  it("keeps the existing demographic null-to-zero transform", () => {
++    const map = mockMap();
++    const nullCells = [{ ...demoCells[0]!, p: null }] as never;
++    updatePopCountLayer(map as never, nullCells, { opacity: 0.6, contrast: 1, extruded: false, elevationScale: 1 }, true);
++    const data = map.source("h3-pop-count-src")!.setData.mock.calls[0]?.[0] as GeoJSON.FeatureCollection;
++    expect(data.features[0]?.properties?.value).toBe(0);
++  });
++});
+diff --git a/src/map/__tests__/mapInstanceEvents.test.ts b/src/map/__tests__/mapInstanceEvents.test.ts
+new file mode 100644
+index 0000000..cc1ebe6
+--- /dev/null
++++ b/src/map/__tests__/mapInstanceEvents.test.ts
+@@ -0,0 +1,107 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
++import { createMapInstanceEvents } from "../mapInstanceEvents";
++
++function fakeMap() {
++  const events = new Map<string, Set<(event?: unknown) => void>>();
++  const map = {
++    on(name: string, fn: (event?: unknown) => void) {
++      if (!events.has(name)) events.set(name, new Set());
++      events.get(name)!.add(fn);
++      return map;
++    },
++    once(name: string, fn: (event?: unknown) => void) {
++      // The production handler removes itself on its first event.
++      return map.on(name, fn);
++    },
++    off(name: string, fn: (event?: unknown) => void) {
++      events.get(name)?.delete(fn);
++      return map;
++    },
++  };
++  return {
++    map: map as unknown as MapboxMap,
++    emit(name: string, event?: unknown) {
++      [...(events.get(name) ?? [])].forEach(fn => fn(event));
++    },
++    count: (name: string) => events.get(name)?.size ?? 0,
++  };
++}
++
++function callbacks() {
++  return { onStart: vi.fn(), onPrepared: vi.fn(), onMove: vi.fn(), onZoomEnd: vi.fn(), onClick: vi.fn() };
++}
++
++afterEach(() => vi.useRealTimers());
++
++describe("map-instance listeners across style changes", () => {
++  it("keeps one listener after 20 style rebuilds and refreshes the latest consumers", () => {
++    vi.useFakeTimers();
++    const map = fakeMap();
++    const lifecycle = createMapInstanceEvents();
++    const first = callbacks();
++    lifecycle.ready(map.map, first);
++    const latest = callbacks();
++    for (let i = 0; i < 20; i++) lifecycle.ready(map.map, latest);
++    for (const name of ["move", "zoomend", "click", "idle", "remove"]) expect(map.count(name)).toBe(1);
++    expect(first.onStart).toHaveBeenCalledTimes(1);
++    expect(latest.onStart).not.toHaveBeenCalled();
++    expect(latest.onMove).toHaveBeenCalledTimes(20);
++    latest.onMove.mockClear();
++    map.emit("move");
++    map.emit("click", { point: { x: 1, y: 2 } } as MapMouseEvent);
++    expect(latest.onMove).toHaveBeenCalledTimes(1);
++    expect(latest.onClick).toHaveBeenCalledTimes(1);
++    expect(first.onClick).not.toHaveBeenCalled();
++    lifecycle.dispose();
++  });
++
++  it("cancels the fallback after idle and prepares only once", () => {
++    vi.useFakeTimers();
++    const map = fakeMap();
++    const cb = callbacks();
++    const lifecycle = createMapInstanceEvents();
++    lifecycle.ready(map.map, cb);
++    map.emit("idle");
++    vi.advanceTimersByTime(5000);
++    map.emit("idle");
++    expect(cb.onPrepared).toHaveBeenCalledTimes(1);
++    expect(map.count("idle")).toBe(0);
++    lifecycle.dispose();
++  });
++
++  it("prepares after four seconds when an animated map never idles", () => {
++    vi.useFakeTimers();
++    const map = fakeMap();
++    const cb = callbacks();
++    const lifecycle = createMapInstanceEvents();
++    lifecycle.ready(map.map, cb);
++    vi.advanceTimersByTime(4000);
++    expect(cb.onPrepared).toHaveBeenCalledTimes(1);
++    expect(map.count("idle")).toBe(0);
++    lifecycle.dispose();
++  });
++
++  it("disposes on removal and supports a replacement map without stale callbacks", () => {
++    vi.useFakeTimers();
++    const old = fakeMap();
++    const current = fakeMap();
++    const before = callbacks();
++    const after = callbacks();
++    const lifecycle = createMapInstanceEvents();
++    lifecycle.ready(old.map, before);
++    old.emit("remove");
++    for (const name of ["move", "zoomend", "click", "idle", "remove"]) expect(old.count(name)).toBe(0);
++    vi.advanceTimersByTime(5000);
++    expect(before.onPrepared).not.toHaveBeenCalled();
++    lifecycle.ready(current.map, after);
++    old.emit("idle");
++    expect(after.onPrepared).not.toHaveBeenCalled();
++    current.emit("idle");
++    expect(after.onPrepared).toHaveBeenCalledTimes(1);
++    lifecycle.dispose();
++    lifecycle.dispose();
++    expect(current.count("move")).toBe(0);
++    expect(vi.getTimerCount()).toBe(0);
++  });
++});
+diff --git a/src/map/mapInstanceEvents.ts b/src/map/mapInstanceEvents.ts
+new file mode 100644
+index 0000000..19e2c93
+--- /dev/null
++++ b/src/map/mapInstanceEvents.ts
+@@ -0,0 +1,65 @@
++import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
++
++interface Callbacks {
++  onStart(): void;
++  onPrepared(): void;
++  onMove(): void;
++  onZoomEnd(): void;
++  onClick(event: MapMouseEvent): void;
++}
++
++/** Map-instance listeners survive style changes, but never survive map removal. */
++export function createMapInstanceEvents() {
++  let boundMap: MapboxMap | null = null;
++  let callbacks: Callbacks | null = null;
++  let timer: ReturnType<typeof setTimeout> | undefined;
++  let prepared = false;
++  const move = () => callbacks?.onMove();
++  const zoomEnd = () => callbacks?.onZoomEnd();
++  const click = (event: MapMouseEvent) => callbacks?.onClick(event);
++  const markPrepared = () => {
++    if (prepared || !boundMap) return;
++    prepared = true;
++    clearTimeout(timer);
++    boundMap.off("idle", markPrepared);
++    callbacks?.onPrepared();
++  };
++
++  function dispose() {
++    const map = boundMap;
++    boundMap = null;
++    callbacks = null;
++    clearTimeout(timer);
++    timer = undefined;
++    prepared = false;
++    if (!map) return;
++    map.off("move", move);
++    map.off("zoomend", zoomEnd);
++    map.off("click", click);
++    map.off("idle", markPrepared);
++    map.off("remove", dispose);
++  }
++
++  return {
++    ready(map: MapboxMap, nextCallbacks: Callbacks) {
++      if (boundMap !== map) {
++        dispose();
++        boundMap = map;
++        callbacks = nextCallbacks;
++        map.on("move", move);
++        map.on("zoomend", zoomEnd);
++        map.on("click", click);
++        map.on("remove", dispose);
++        map.once("idle", markPrepared);
++        timer = setTimeout(markPrepared, 4000);
++        callbacks.onStart();
++      } else {
++        callbacks = nextCallbacks;
++      }
++      // Style rebuilds still refresh the camera/H3 consumers with current values.
++      move();
++      zoomEnd();
++    },
++    dispose,
++  };
++}

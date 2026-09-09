@@ -1,0 +1,9 @@
+HTTP/2 200 
+date: Sun, 06 Sep 2026 14:35:14 GMT
+content-type: text/html
+content-security-policy: frame-ancestors *
+content-security-policy-report-only: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://protomaps.github.io; worker-src 'self' blob:; child-src 'self' blob:; connect-src 'self' https://protomaps.github.io https://utcmcikhvxnohbxchbrs.supabase.co wss://utcmcikhvxnohbxchbrs.supabase.co https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com https://api.anthropic.com https://api.openai.com https://generativelanguage.googleapis.com https://data.itsmigu.com https://pub-eae6980c040441adbd1eaded2870d3d2.r2.dev; frame-src 'self' https:; media-src 'self' blob: https:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors *
+last-modified: Sun, 06 Sep 2026 14:16:17 GMT
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+cf-cache-status: DYNAMIC

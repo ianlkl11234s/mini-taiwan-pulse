@@ -1,0 +1,11 @@
+HTTP/2 206 
+date: Sun, 06 Sep 2026 14:37:54 GMT
+content-type: application/octet-stream
+content-length: 127
+age: 1579161
+cache-control: max-age=31536000
+cache-control: public, immutable
+etag: "6a847744-1af3c12"
+last-modified: Tue, 18 Aug 2026 15:16:20 GMT
+content-range: bytes 0-126/28261394
+cf-cache-status: HIT

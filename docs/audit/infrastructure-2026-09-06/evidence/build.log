@@ -1,0 +1,26 @@
+vite v6.4.1 building for production...
+transforming...
+✓ 2446 modules transformed.
+rendering chunks...
+computing gzip size...
+../../../../../../../../tmp/mtp-infrastructure-audit-build/bbox.html                                         0.92 kB │ gzip:   0.51 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/embed.html                                        1.35 kB │ gzip:   0.80 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/index.html                                        1.92 kB │ gzip:   0.82 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/gfwV4SpatialPmtilesWorker-BrWGtgaQ.js     41.12 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/bbox-DgJhuJZO.css                          9.17 kB │ gzip:   2.53 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/rotate-ccw-V3smlL-h.css                   38.67 kB │ gzip:   5.42 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/embed-B-YMMjus.css                        69.94 kB │ gzip:  10.11 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/rotate-ccw-CuTuI5Gx.js                     0.38 kB │ gzip:   0.29 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/replayRuntime-gbMH0aNT.js                  6.41 kB │ gzip:   2.81 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/bbox-BL4DOTti.js                          17.91 kB │ gzip:   6.79 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/RailScene-ChmD0u5w.js                     32.18 kB │ gzip:   9.35 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/embed-DV87lh-H.js                      1,112.21 kB │ gzip: 298.59 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/crosshair-DJuz6vyp.js                  1,884.69 kB │ gzip: 525.82 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/LegendPanel-C6QEanFP.js                1,963.60 kB │ gzip: 492.88 kB
+../../../../../../../../tmp/mtp-infrastructure-audit-build/assets/main-DVykWypM.js                       2,149.21 kB │ gzip: 594.57 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 49.80s

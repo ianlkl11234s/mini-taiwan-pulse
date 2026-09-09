@@ -1,0 +1,30 @@
+{
+  "baseCommit": "9cf23f9a92eeb5300c654a2fe0e0bfd79d7ac2d1",
+  "branch": "codex/infrastructure-foundation-20260907",
+  "patchSha256": "98dcd82bf492271d51de39708b31f971ba8f7e4344c948942635ef03f4bc0923",
+  "files": {
+    "src/App.tsx": "c66aa30c2c952b53f1990ff5659872492c8c9f9c478af8eb2094005405014310",
+    "src/components/intel/IntelPanel.tsx": "9d9b972e6f7476e7f26eeb72fe62378306dba0247474330da7eee4ee3ad51fda",
+    "src/components/intel/__tests__/GlobalEventsTab.test.ts": "fe9005bf711f1abb023fba20c842ccc31e3258197a4bc90912dae137a51d6055",
+    "src/components/intel/alerts/AlertBoard.tsx": "8cdb5c6f0a09aa9ed83f35be5e52a82769ed7028d2a2a791222a874206822a73",
+    "src/components/intel/alerts/AlertSummaryBar.tsx": "71ee5432990d1defb995e9023f50af3f14a06807c060413f12acd94772c79ee0",
+    "src/components/intel/monitor/MonitorPanel.tsx": "09cfdd4cdba5a75cfbef94a32de322addcaeb12c960de01610c9ad8fc0b6dd73",
+    "src/components/intel/monitor/NewsFeedPanel.tsx": "d69f4d10949846df76897173df598112e5b473ba61050e6ffecfb951c96ae77a",
+    "src/components/intel/monitor/PressureRing.tsx": "c6af8dbf0157bcbfadab8d99852fb61da7c3c9b50a4c2747eff5cc55fd839f31",
+    "src/components/intel/monitor/SituationOverview.tsx": "d0f9f5b2d2a09f8e0c65ee8e1bcc34e4fe194d79ca8af719a05b27016ae7c90f",
+    "src/components/intel/monitor/__tests__/PressureRing.test.ts": "c456c54da9fae81d0ebb478582169cb0c4657c22956370fc02492e1e24d937c3",
+    "src/data/alertsLoader.ts": "cb0943680eea7734eb0ef9bebf1f6cb63c1f8238745e58018353f654848db751",
+    "src/data/intelLoaders.ts": "f0e8714cdc6111ad482c550af922f5490de8f0df951e1763b64312994310f7a4",
+    "src/data/newsEventsLoader.ts": "8f288cbc15ddea024add5a3734b7b8553c4ceb32e5093a0eb6c35ee06f41062f",
+    "src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts": "1219e899fb4a9b69f14ddc1e41eb257343b9c3e5cc8e0a7e54161dbb19d87831",
+    "src/hooks/__tests__/useIntelPollingQuery.test.ts": "2fdeea4740de8aef06a503e6216400b9f5d04d5565050e5955e6f4975a0b8cf7",
+    "src/hooks/useIntelPollingQuery.ts": "2afaf996ae8f75c874114441d0715f8814e6292a80f13a33a607e86a434d26c8",
+    "src/layers/hosts/__tests__/gridHostsStyleReload.test.ts": "8a461bd411a63198c36acd7125d203ba6984965306f15a0f51f484d1b321c0c0",
+    "src/layers/hosts/gridHosts.tsx": "74f5cf7b5b92e02466abc740126e02298faf0a7d0220eee81d4c70919672e68e",
+    "src/map/__tests__/h3LayerFactory.test.ts": "013781cece602327488bce10f4a40e43fbaa00b5805c1f1e41378c2bc89021b1",
+    "src/map/__tests__/mapInstanceEvents.test.ts": "e2eeab3789a89034c084f6e96ab404f81b431a6dcd4cf5d8e9892ddb2d0bf137",
+    "src/map/demographicsLayerFactory.ts": "1e835c46249145657c24f7a6cb7d8a18886f264a83b11e4270abd0ebe408a75d",
+    "src/map/h3LayerFactory.ts": "6536b58b5bfdd1bd83d61ccd510ba25a8ac25b1a4e9758b467fa7e75d2ac2f5f",
+    "src/map/mapInstanceEvents.ts": "1238ea497808e1160243d236db66a676ce4156ee1014e3fdb6defe25cce4b60e"
+  }
+}

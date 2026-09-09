@@ -1,0 +1,32 @@
+{
+  "publicDir": false,
+  "initial_js": [
+    {
+      "asset": "/assets/main-DVykWypM.js",
+      "bytes": 2149208,
+      "gzip_bytes": 592927
+    },
+    {
+      "asset": "/assets/crosshair-DJuz6vyp.js",
+      "bytes": 1884687,
+      "gzip_bytes": 523937
+    },
+    {
+      "asset": "/assets/LegendPanel-C6QEanFP.js",
+      "bytes": 1963595,
+      "gzip_bytes": 490669
+    },
+    {
+      "asset": "/assets/rotate-ccw-CuTuI5Gx.js",
+      "bytes": 377,
+      "gzip_bytes": 291
+    },
+    {
+      "asset": "/assets/RailScene-ChmD0u5w.js",
+      "bytes": 32176,
+      "gzip_bytes": 9331
+    }
+  ],
+  "total_bytes": 6030043,
+  "gzip_bytes": 1617155
+}

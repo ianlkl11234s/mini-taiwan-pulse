@@ -8,7 +8,7 @@
 
 ## Session 記憶迴圈
 
-SessionStart hook 自動 inline `STATUS` 最新段落與 `BACKLOG` / `PRINCIPLES` 標題索引；似曾相識的 bug → 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。大段落完成 → `/wrap-up` v2：依 [`.claude/memory/README.md`](./.claude/memory/README.md) routing 選讀，用 scope/evidence/release matrix 對帳，確認後只做 path-scoped atomic memory commits，不 push。框架機制：[`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
+SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES。有接手需求才依 [`.claude/memory/README.md`](./.claude/memory/README.md) 查相關段落；似曾相識的 bug 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)。明確收尾時依 wrap-up 的 scope/evidence/release matrix 留本次紀錄，提交／發布沿用各自授權。框架機制按需查 [`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
 
 ## 常用指令
 
