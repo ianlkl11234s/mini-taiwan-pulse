@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 476,
+    "keyCount": 494,
     "sections": [
       "gisLayers",
       "overlays",
@@ -604,6 +604,48 @@
     },
     {
       "layers": [
+        "jp-tourism-jp-accommodation-canonical-circle"
+      ],
+      "type": "jpAccommodationCanonical"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-jta-circle"
+      ],
+      "type": "jpAccommodationJta"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-local-circle"
+      ],
+      "type": "jpAccommodationLocal"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-osm-circle"
+      ],
+      "type": "jpAccommodationOsm"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-heritage-cultural-circle"
+      ],
+      "type": "jpWorldHeritageCultural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-heritage-natural-circle"
+      ],
+      "type": "jpWorldHeritageNatural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-ramsar-sites-circle"
+      ],
+      "type": "jpRamsarSites"
+    },
+    {
+      "layers": [
         "jp-religion-wikidata-circle"
       ],
       "type": "jpReligionWikidata"
@@ -671,6 +713,72 @@
         "jp-airports-fill"
       ],
       "type": "jpAirports"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-natural-parks-national-fill"
+      ],
+      "type": "jpNaturalParksNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-natural-parks-quasi-national-fill"
+      ],
+      "type": "jpNaturalParksQuasiNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-natural-parks-prefectural-fill"
+      ],
+      "type": "jpNaturalParksPrefectural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-nature-conservation-area-fill"
+      ],
+      "type": "jpNatureConservationArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-primitive-nature-environment-area-fill"
+      ],
+      "type": "jpPrimitiveNatureEnvironmentArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-nature-conservation-special-district-fill"
+      ],
+      "type": "jpNatureConservationSpecialDistrict"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-protection-national-fill"
+      ],
+      "type": "jpWildlifeProtectionNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-special-protection-district-fill"
+      ],
+      "type": "jpWildlifeSpecialProtectionDistrict"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-special-protection-designated-area-fill"
+      ],
+      "type": "jpWildlifeSpecialProtectionDesignatedArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-natural-heritage-historical-fill"
+      ],
+      "type": "jpWorldNaturalHeritageHistorical"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-marine-ebsa-coastal-fill"
+      ],
+      "type": "jpMarineEbsaCoastal"
     },
     {
       "layers": [
@@ -54608,6 +54716,70 @@
         "value": 0.35
       }
     ],
+    "jpAccommodationCanonical": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationJta": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationLocal": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationOsm": [
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.72
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "jpAdminBoundaries": [
       {
         "label": "透明度 0.15",
@@ -54648,6 +54820,60 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpMarineEbsaCoastal": [
+      {
+        "label": "透明度 0.22",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.22
+      }
+    ],
+    "jpNaturalParksNational": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      }
+    ],
+    "jpNaturalParksPrefectural": [
+      {
+        "label": "透明度 0.22",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.22
+      }
+    ],
+    "jpNaturalParksQuasiNational": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpNatureConservationArea": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpNatureConservationSpecialDistrict": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
       }
     ],
     "jpPoliceFacilities": [
@@ -54749,6 +54975,15 @@
         "value": "pop_2020"
       }
     ],
+    "jpPrimitiveNatureEnvironmentArea": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.3
+      }
+    ],
     "jpRailways": [
       {
         "label": "透明度 0.90",
@@ -54756,6 +54991,41 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      }
+    ],
+    "jpRamsarSites": [
+      {
+        "label": "位置精度",
+        "options": [
+          {
+            "label": "名稱命中 10",
+            "value": "name_match"
+          },
+          {
+            "label": "低精度中心點 44",
+            "value": "degraded"
+          },
+          {
+            "label": "全部 54",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "name_match"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "jpReligionGsi": [
@@ -54851,6 +55121,74 @@
         ],
         "type": "select",
         "value": "type"
+      }
+    ],
+    "jpWildlifeProtectionNational": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpWildlifeSpecialProtectionDesignatedArea": [
+      {
+        "label": "透明度 0.32",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.32
+      }
+    ],
+    "jpWildlifeSpecialProtectionDistrict": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      }
+    ],
+    "jpWorldHeritageCultural": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpWorldHeritageNatural": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpWorldNaturalHeritageHistorical": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
       }
     ],
     "lakesPondsOsm": [

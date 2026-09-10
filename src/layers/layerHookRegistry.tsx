@@ -73,6 +73,7 @@ import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost 
 import {
   JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
   JpPopulationMeshHost,
+  JpTourismHost,
 } from "./hosts/japanHosts";
 
 export interface LayerHookEntry {
@@ -233,6 +234,18 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useJpPoliceFacilitiesLayer", keys: ["jpPoliceFacilities"], Host: JpPoliceFacilitiesHost },
   { id: "useJpSchoolsLayer", keys: ["jpSchools"], Host: JpSchoolsHost },
   { id: "useJpPopulationMeshLayer", keys: ["jpPopulationMesh1km"], Host: JpPopulationMeshHost },
+  {
+    id: "useJpTourismLayers",
+    keys: [
+      "jpAccommodationCanonical", "jpAccommodationJta", "jpAccommodationLocal", "jpAccommodationOsm",
+      "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
+      "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
+      "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
+      "jpWorldHeritageCultural", "jpWorldHeritageNatural", "jpWorldNaturalHeritageHistorical",
+      "jpRamsarSites", "jpMarineEbsaCoastal",
+    ],
+    Host: JpTourismHost,
+  },
   { id: "useClimateParticleLineLayer:wind", keys: ["windField"], Host: WindFieldHost },
   { id: "useClimateParticleLineLayer:ocean", keys: ["oceanCurrents"], Host: OceanCurrentsHost },
   { id: "useDustForecastLayer", keys: ["dustForecast"], Host: DustForecastHost },

@@ -168,6 +168,14 @@ const NO_LEGEND_LEDGER = new Set([
   // 皆無分類分色，本輪不做（見任務書「4 層都是單一顏色」；jpStations 已接種類／運量
   // 雙模式圖例，見 LEGEND_REGISTRY）。
   "jpAdminPrefecture", "jpAdminBoundaries", "jpAirports",
+  // 日本旅宿／自然保護／世界遺產：每個 toggle 採單一色，來源與狀態由 popup 說明；
+  // Ramsar filter 只切 geometry precision，不以不同顏色編碼。
+  "jpAccommodationCanonical", "jpAccommodationJta", "jpAccommodationLocal", "jpAccommodationOsm",
+  "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
+  "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
+  "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
+  "jpWorldHeritageCultural", "jpWorldHeritageNatural", "jpWorldNaturalHeritageHistorical",
+  "jpRamsarSites", "jpMarineEbsaCoastal",
 ]);
 
 /**

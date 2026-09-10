@@ -363,6 +363,12 @@ export type ExpandableLayerKey =
   | "coralReefDistribution"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
+  | "jpAccommodationCanonical" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+  | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
+  | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
+  | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
+  | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
+  | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
 
@@ -825,6 +831,13 @@ export interface FeatureInfo {
     | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
+    // 🗾 日本旅宿、自然保護區與世界遺產（來源／historical 狀態分層）
+    | "jpAccommodationCanonical" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+    | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
+    | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
+    | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
+    | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
+    | "jpRamsarSites" | "jpMarineEbsaCoastal"
     // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
     | "jpRailways"
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
@@ -1386,6 +1399,24 @@ export interface LayerVisibility {
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
+  jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical；預設開啟）
+  jpAccommodationJta: boolean; // 觀光廳登錄旅宿法定子集
+  jpAccommodationLocal: boolean; // 京都／靜岡／江東地方許可首批
+  jpAccommodationOsm: boolean; // OSM 住宿 coverage（ODbL）
+  jpNaturalParksNational: boolean; // A10 2010 國立公園 historical／非商用
+  jpNaturalParksQuasiNational: boolean; // A10 2010 國定公園 historical／非商用
+  jpNaturalParksPrefectural: boolean; // A10 2010 都道府縣立自然公園 historical／非商用
+  jpNatureConservationArea: boolean; // A11 2015 自然保全地域 historical／HOLD_LICENSE
+  jpPrimitiveNatureEnvironmentArea: boolean; // A11 2015 原生自然環境地域 historical／HOLD_LICENSE
+  jpNatureConservationSpecialDistrict: boolean; // A11 2015 自然保全特別地區 historical／HOLD_LICENSE
+  jpWildlifeProtectionNational: boolean; // 環境省國指定鳥獸保護區 2025-04
+  jpWildlifeSpecialProtectionDistrict: boolean; // 環境省鳥獸特別保護地區 2025-04
+  jpWildlifeSpecialProtectionDesignatedArea: boolean; // 環境省鳥獸特別保護指定地域 2025-04
+  jpWorldHeritageCultural: boolean; // UNESCO 現行文化遺產代表點
+  jpWorldHeritageNatural: boolean; // UNESCO 現行自然遺產代表點
+  jpWorldNaturalHeritageHistorical: boolean; // A28 2011 historical 面（僅 3 處）
+  jpRamsarSites: boolean; // Ramsar 名冊衍生點；預設只顯示 NAME_MATCH
+  jpMarineEbsaCoastal: boolean; // 2015 沿岸 EBSA；非法定保護區
 }
 
 // ── 空氣品質 ──

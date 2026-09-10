@@ -8,6 +8,8 @@ import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
+import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
+import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -102,5 +104,64 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpPoliceFacilities");
   useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
     p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1, p.jpPoliceFacilitiesTypeIdx ?? 0);
+  return null;
+};
+
+/** 日本旅宿、自然保護與世界遺產：production PMTiles/GeoJSON + DEV-only research layers。 */
+export const JpTourismHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpTourismLayers");
+  const canonical = useKeyOverlayParams("jpAccommodationCanonical");
+  const jta = useKeyOverlayParams("jpAccommodationJta");
+  const local = useKeyOverlayParams("jpAccommodationLocal");
+  const osm = useKeyOverlayParams("jpAccommodationOsm");
+  const parksNational = useKeyOverlayParams("jpNaturalParksNational");
+  const parksQuasi = useKeyOverlayParams("jpNaturalParksQuasiNational");
+  const parksPrefectural = useKeyOverlayParams("jpNaturalParksPrefectural");
+  const conservation = useKeyOverlayParams("jpNatureConservationArea");
+  const primitive = useKeyOverlayParams("jpPrimitiveNatureEnvironmentArea");
+  const specialConservation = useKeyOverlayParams("jpNatureConservationSpecialDistrict");
+  const wildlife = useKeyOverlayParams("jpWildlifeProtectionNational");
+  const wildlifeSpecial = useKeyOverlayParams("jpWildlifeSpecialProtectionDistrict");
+  const wildlifeDesignated = useKeyOverlayParams("jpWildlifeSpecialProtectionDesignatedArea");
+  const unescoCultural = useKeyOverlayParams("jpWorldHeritageCultural");
+  const unescoNatural = useKeyOverlayParams("jpWorldHeritageNatural");
+  const a28 = useKeyOverlayParams("jpWorldNaturalHeritageHistorical");
+  const ramsar = useKeyOverlayParams("jpRamsarSites");
+  const ebsa = useKeyOverlayParams("jpMarineEbsaCoastal");
+
+  const visibility = Object.fromEntries(
+    JP_TOURISM_LAYER_KEYS.map((key) => [key, deps.layerVisibility[key]]),
+  ) as Record<JpTourismLayerKey, boolean>;
+  const opacity = {
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalOpacity ?? 0.85,
+    jpAccommodationJta: jta.jpAccommodationJtaOpacity ?? 0.85,
+    jpAccommodationLocal: local.jpAccommodationLocalOpacity ?? 0.85,
+    jpAccommodationOsm: osm.jpAccommodationOsmOpacity ?? 0.72,
+    jpNaturalParksNational: parksNational.jpNaturalParksNationalOpacity ?? 0.28,
+    jpNaturalParksQuasiNational: parksQuasi.jpNaturalParksQuasiNationalOpacity ?? 0.25,
+    jpNaturalParksPrefectural: parksPrefectural.jpNaturalParksPrefecturalOpacity ?? 0.22,
+    jpNatureConservationArea: conservation.jpNatureConservationAreaOpacity ?? 0.25,
+    jpPrimitiveNatureEnvironmentArea: primitive.jpPrimitiveNatureEnvironmentAreaOpacity ?? 0.3,
+    jpNatureConservationSpecialDistrict: specialConservation.jpNatureConservationSpecialDistrictOpacity ?? 0.28,
+    jpWildlifeProtectionNational: wildlife.jpWildlifeProtectionNationalOpacity ?? 0.25,
+    jpWildlifeSpecialProtectionDistrict: wildlifeSpecial.jpWildlifeSpecialProtectionDistrictOpacity ?? 0.28,
+    jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated.jpWildlifeSpecialProtectionDesignatedAreaOpacity ?? 0.32,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalOpacity ?? 0.9,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalOpacity ?? 0.9,
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalOpacity ?? 0.25,
+    jpRamsarSites: ramsar.jpRamsarSitesOpacity ?? 0.9,
+    jpMarineEbsaCoastal: ebsa.jpMarineEbsaCoastalOpacity ?? 0.22,
+  };
+  const scale = {
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalScale ?? 1,
+    jpAccommodationJta: jta.jpAccommodationJtaScale ?? 1,
+    jpAccommodationLocal: local.jpAccommodationLocalScale ?? 1,
+    jpAccommodationOsm: osm.jpAccommodationOsmScale ?? 1,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalScale ?? 1,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalScale ?? 1,
+    jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
+  };
+  const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode);
   return null;
 };
