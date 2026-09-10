@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseGlobalEventPoint } from "../globalEventsLoader";
-import { dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview } from "../globalEventsPresentation";
+import { filterGlobalEvents, dedupeGlobalEventPlaces, globalEventAssociationArc, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview } from "../globalEventsPresentation";
 
 const point = (event = "e1", country = "TW", coordinates: [number, number] = [121, 25]) => parseGlobalEventPoint({
   event_id: event, version_id: `${event}-v1`, event_place_id: `${event}-${country}`, display_place_id: `${event}-${country}`,
@@ -12,14 +12,6 @@ describe("Global Events complete situation presentation", () => {
     expect(recentGlobalEventWindow(Date.parse("2026-09-03T10:00:00Z"))).toEqual({
       start: "2026-08-27T10:00:00.000Z", end: "2026-09-03T10:00:00.000Z",
     });
-  });
-
-  it("candidate timeline prefetch extends seven days back while fixing end and respecting 31-day RPC limit", () => {
-    expect(globalEventCandidateLookbackWindow({ start: "2026-09-02T16:00:00.000Z", end: "2026-09-03T16:00:00.000Z" })).toEqual({
-      start: "2026-08-26T16:00:00.000Z", end: "2026-09-03T16:00:00.000Z",
-    });
-    const bounded = globalEventCandidateLookbackWindow({ start: "2026-08-01T00:00:00Z", end: "2026-09-01T00:00:00Z" });
-    expect(Date.parse(bounded.end) - Date.parse(bounded.start)).toBe(31 * 86_400_000);
   });
 
   it("keeps one latest version and all its countries, suppressing retracted winners", () => {
@@ -65,6 +57,8 @@ describe("Global Events complete situation presentation", () => {
     const key = String(collapsed.clusters.features[0]!.properties?.group_key);
     const expanded = layoutGlobalEventPoints(rows, new Set([key]));
     expect(expanded.points.features).toHaveLength(20);
+    expect(expanded.clusters.features[0]!.properties).toMatchObject({ point_count: 20, expanded: true });
+    expect(layoutGlobalEventPoints(rows, new Set()).points.features).toHaveLength(0);
     expect(new Set(expanded.points.features.map((f) => JSON.stringify(f.properties?.icon_offset))).size).toBe(20);
     expect(expanded.points.features.every((f) => f.geometry.coordinates[0] === 121 && f.geometry.coordinates[1] === 25)).toBe(true);
   });
@@ -111,5 +105,42 @@ describe("Global Events complete situation presentation", () => {
     ].map((row) => ({ ...row, countryCode: null, locationKind: "country_center" as const }));
     expect(globalEventRelations(rows).features).toHaveLength(3);
     expect(globalEventRelations(rows.map((row) => ({ ...row, locationKind: "city_center" }))).features).toHaveLength(0);
+  });
+});
+
+describe("Global Events importance and source-age filters", () => {
+  const now = Date.parse("2026-09-10T10:00:00Z") / 1000;
+  const row = { ...point(), validFrom: "2026-09-10T09:00:00Z", displayFrom: "2026-09-10T09:30:00Z", severity: 3, category: "disaster" };
+  it("uses source age, not a recent AI reassessment, and excludes future/unknown time", () => {
+    const old = { ...row, candidateId: "old", validFrom: "2026-09-01T09:00:00Z" };
+    expect(filterGlobalEvents([row, old, { ...row, validFrom: null, displayFrom: null },
+      { ...row, displayFrom: "2026-09-10T11:00:00Z" }], now, 7)).toEqual([row]);
+  });
+  it("includes the exact age boundary, excludes just older, and keeps unlocated records", () => {
+    const boundary = { ...row, coordinates: null, validFrom: "2026-09-09T10:00:00Z" };
+    expect(filterGlobalEvents([boundary, { ...row, validFrom: "2026-09-09T09:59:59Z" }], now, 1)).toEqual([boundary]);
+  });
+  it("combines category and inclusive severity threshold without converting unknown to zero", () => {
+    const unknown = { ...row, severity: null };
+    const major = { ...row, severity: 2 };
+    expect(filterGlobalEvents([row, unknown, major], now, 1, "disaster", 3)).toEqual([row]);
+    expect(filterGlobalEvents([row, major], now, 1, "disaster", 2)).toEqual([row, major]);
+    expect(filterGlobalEvents([row], now, 1, "policy", 3)).toEqual([]);
+    expect(filterGlobalEvents([unknown], now, 1, "all", 0)).toEqual([unknown]);
+    expect(unknown.severity).toBeNull();
+  });
+  it("Taiwan-only uses structured direct/indirect, never inconsistent explanatory prose", () => {
+    const rows = ["direct", "indirect", "none", "unrelated", "unknown", null, undefined].map((taiwanRelationship) => ({
+      ...row, taiwanRelationship, taiwanImpactZhTw: "可能影響臺灣",
+    }));
+    expect(filterGlobalEvents(rows, now, 1, "all", 0, true)).toEqual(rows.slice(0, 2));
+    expect(filterGlobalEvents(rows, now, 1, "all", 0, false)).toEqual(rows);
+    for (const text of ["無直接關聯。", "模型判斷無臺灣關聯，未提供補充說明。"]) {
+      expect(filterGlobalEvents([{ ...row, taiwanImpactZhTw: text }], now, 1, "all", 0, true)).toEqual([]);
+    }
+  });
+  it("uses the chosen rolling duration", () => {
+    expect(recentGlobalEventWindow(now * 1000, 1).start).toBe("2026-09-09T10:00:00.000Z");
+    expect(recentGlobalEventWindow(now * 1000, 3).start).toBe("2026-09-07T10:00:00.000Z");
   });
 });

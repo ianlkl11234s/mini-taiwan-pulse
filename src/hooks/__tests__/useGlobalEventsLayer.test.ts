@@ -155,6 +155,7 @@ async function flushDebounce(): Promise<void> {
 
 describe("useGlobalEventsLayer timeline", () => {
   beforeEach(() => {
+  vi.spyOn(Date, "now").mockImplementation(() => clock.current * 1000);
     vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1));
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     loader.candidates.mockResolvedValue({ rows: [], totalCandidates: 0 });
@@ -177,7 +178,7 @@ describe("useGlobalEventsLayer timeline", () => {
     useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.8, "replay");
     await flush();
 
-    expect(loader.window).toHaveBeenCalledWith("2026-09-02T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
+    expect(loader.window).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
     expect(loader.current).not.toHaveBeenCalled();
     expect(harness.getThrottleMs()).toBe(200);
     expect(state.layers.has(GLOBAL_EVENTS_LAYER_ID)).toBe(true);
@@ -238,7 +239,7 @@ describe("useGlobalEventsLayer timeline", () => {
     const now = Date.parse("2026-09-03T10:30:00Z");
     vi.spyOn(Date, "now").mockReturnValue(now);
     loader.window.mockResolvedValue([point()]);
-    const unknown = parseGlobalEventCandidate({ candidate_id: "unknown", observation_sha256: "v1", available_at: "2026-09-02T00:00:00Z", geometry: null,
+    const unknown = parseGlobalEventCandidate({ candidate_id: "unknown", observed_at: "2026-09-02T00:00:00Z", observation_sha256: "v1", available_at: "2026-09-02T00:00:00Z", geometry: null,
       assessment_status: "pending", decision: "drop_noise", taiwan_relationship: "unrelated" });
     loader.candidates.mockResolvedValue({ rows: [unknown], totalCandidates: 1 });
     const state = createMap();
@@ -288,6 +289,9 @@ describe("useGlobalEventsLayer timeline", () => {
     state.images.clear();
     state.handlers.get("styleimagemissing")?.({ id: "global-events-point-sdf" });
     expect(state.images.has("global-events-point-sdf")).toBe(true);
+    state.handlers.get("click")?.({ point: { x: 100, y: 100 } });
+    expect(source.mock.lastCall![0].features).toHaveLength(0);
+    expect(state.sources.get("global-events-clusters")!.setData.mock.lastCall![0].features[0].properties.expanded).toBe(false);
     harness.reset(); // Mirrors effect cleanup when layer turns off/unmounts.
     for (const id of state.layers.keys()) expect(state.map.setLayoutProperty).toHaveBeenCalledWith(id, "visibility", "none");
     expect(state.handlers.size).toBe(0);
@@ -307,7 +311,7 @@ describe("useGlobalEventsLayer timeline", () => {
     unsubscribe();
   });
 
-  it("September2 sources imported September3 become visible on September3 without backdating availability or changing formal window", async () => {
+  it("September2 sources imported September3 become visible on September3 without backdating availability", async () => {
     loader.window.mockResolvedValue([]);
     const delayed = parseGlobalEventCandidate({ candidate_id: "delayed", observation_sha256: "v1", observed_at: "2026-09-02T01:00:00Z",
       available_at: "2026-09-03T10:00:00Z", display_from: "2026-09-03T10:00:00Z", geometry: null,
@@ -316,13 +320,32 @@ describe("useGlobalEventsLayer timeline", () => {
     const state = createMap();
     useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9, "replay");
     await flush();
-    expect(loader.window).toHaveBeenCalledWith("2026-09-02T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
+    expect(loader.window).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
     expect(loader.candidates).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(1);
     harness.tick(Date.parse("2026-09-03T09:59:59Z") / 1000);
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(0);
     harness.tick(Date.parse("2026-09-03T10:00:00Z") / 1000);
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(1);
+  });
+
+  it("filters map and shared entries by source age/category/severity at the replay cursor", async () => {
+    const old = point({ eventId: "old", validFrom: "2026-08-25T10:00:00Z" });
+    const minor = point({ eventId: "minor", severity: 1 });
+    const severe = point({ eventId: "severe", severity: 3 });
+    loader.window.mockResolvedValue([old, minor, severe, point({ eventId: "other", category: "health", severity: 3 })]);
+    loader.candidates.mockResolvedValue({ rows: [
+      { ...old, eventId: "old-ai", candidateId: "old-ai", severity: 3 },
+    ], totalCandidates: 1 });
+    const state = createMap();
+    useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9,
+      "replay", "timeline", false, null, true, 1, "policy", 3);
+    await flush();
+    expect(globalEventsViewStore.getSnapshot().entries.map((row) => row.eventId)).toEqual(["severe"]);
+    expect(state.sources.get("global-events-current")!.setData.mock.lastCall![0].features).toHaveLength(1);
+    harness.tick(Date.parse("2026-09-04T10:00:01Z") / 1000);
+    expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(0);
+    expect(state.sources.get("global-events-current")!.setData.mock.lastCall![0].features).toHaveLength(0);
   });
 
   it("candidate failure remains partial, not a successful empty candidate result", async () => {
@@ -403,7 +426,7 @@ describe("useGlobalEventsLayer timeline", () => {
     await flushDebounce();
 
     expect(loader.window).toHaveBeenCalledTimes(2); // 三次連續變化只多打一次 RPC
-    expect(loader.window).toHaveBeenLastCalledWith("2026-09-05T16:00:00.000Z", "2026-09-06T16:00:00.000Z");
+    expect(loader.window).toHaveBeenLastCalledWith("2026-08-29T16:00:00.000Z", "2026-09-06T16:00:00.000Z");
   });
 
   it("clamps pulse phase when RAF frame time precedes performance.now at animation start", async () => {

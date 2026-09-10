@@ -1302,11 +1302,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGlobalEventsLayer 自建 points/association sources；預設最近七天總覽，另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
+      note: "useGlobalEventsLayer 自建 points/association sources；預設最近一天嚴重事件，分類／最低嚴重度／天數可調；另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
     },
     legend: "globalEvents",
     popup: "globalEvent",
-    params: { count: 4, kinds: ["slider", "select", "toggle", "toggle"] },
+    params: { count: 8, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle"] },
     description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
     topics: ["世界", "重要事件", "情報"],
   },

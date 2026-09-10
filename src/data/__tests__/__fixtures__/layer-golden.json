@@ -54005,10 +54005,91 @@
         "value": 0.9
       },
       {
+        "label": "分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "災害",
+            "value": "disaster"
+          },
+          {
+            "label": "事故",
+            "value": "accident"
+          },
+          {
+            "label": "健康",
+            "value": "health"
+          },
+          {
+            "label": "治安",
+            "value": "crime"
+          },
+          {
+            "label": "交通",
+            "value": "traffic"
+          },
+          {
+            "label": "政策",
+            "value": "policy"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "最低嚴重度",
+        "options": [
+          {
+            "label": "一般",
+            "value": "0"
+          },
+          {
+            "label": "關注",
+            "value": "1"
+          },
+          {
+            "label": "重大",
+            "value": "2"
+          },
+          {
+            "label": "嚴重",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "3"
+      },
+      {
+        "label": "過去",
+        "options": [
+          {
+            "label": "1 天",
+            "value": "1"
+          },
+          {
+            "label": "3 天",
+            "value": "3"
+          },
+          {
+            "label": "7 天",
+            "value": "7"
+          }
+        ],
+        "type": "select",
+        "value": "1"
+      },
+      {
         "label": "時間範圍",
         "options": [
           {
-            "label": "最近七天總覽",
+            "label": "最近範圍",
             "value": "recent7d"
           },
           {
@@ -54022,12 +54103,17 @@
       {
         "label": "跨國關聯線（非移動軌跡）",
         "type": "toggle",
-        "value": true
+        "value": false
       },
       {
         "label": "包含 AI 初判／待判斷",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "僅顯示臺灣相關（直接／間接）",
+        "type": "toggle",
+        "value": false
       }
     ],
     "govServiceOffices": [

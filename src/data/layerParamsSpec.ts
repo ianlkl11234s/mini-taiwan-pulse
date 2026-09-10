@@ -103,6 +103,7 @@ import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1354,11 +1355,27 @@ export const LAYER_PARAMS_SPEC = {
   ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    {
+      kind: "select", name: "globalEventsCategory", label: "分類", default: "all",
+      options: [{ label: "全部", value: "all" }, ...GLOBAL_EVENT_CATEGORIES.map(({ label, value }) => ({ label, value }))],
+      out: "globalEventsCategoryIdx", encode: ["all", ...GLOBAL_EVENT_CATEGORIES.map(({ value }) => value)],
+    },
+    {
+      kind: "select", name: "globalEventsMinSeverity", label: "最低嚴重度", default: "3",
+      options: GLOBAL_EVENT_SEVERITIES.map(({ label, value }) => ({ label, value: String(value) })),
+      out: "globalEventsMinSeverity", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "globalEventsDays", label: "過去", default: "1",
+      options: [{ label: "1 天", value: "1" }, { label: "3 天", value: "3" }, { label: "7 天", value: "7" }],
+      out: "globalEventsDays", encodeNumeric: true,
+    },
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
-      { label: "最近七天總覽", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
+      { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: true },
+    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
+    { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
