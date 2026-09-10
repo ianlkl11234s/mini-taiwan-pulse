@@ -5,22 +5,14 @@ export type GlobalEventsView = "recent7d" | "timeline";
 export const GLOBAL_EVENT_ICON_RADIUS = 8;
 
 /**
- * Rolling seven days, never the timeline's forward-looking seven-day window.
+ * Rolling selected days, never the timeline's forward-looking seven-day window.
  * Floors to the minute so repeated calls that land in the same minute (periodic
  * refresh callers comparing bounds to detect a genuinely new window) produce an
  * identical, comparable key instead of always missing on raw millisecond `Date.now()`.
  */
-export function recentGlobalEventWindow(nowMs = Date.now()): { start: string; end: string } {
+export function recentGlobalEventWindow(nowMs = Date.now(), days = 7): { start: string; end: string } {
   const alignedNow = Math.floor(nowMs / 60_000) * 60_000;
-  return { start: new Date(alignedNow - 7 * 86_400_000).toISOString(), end: new Date(alignedNow).toISOString() };
-}
-
-/** Candidate RPC windows use source observed_at; delayed assessments still need to be
- * prefetched on their real available day. Widen retrieval only, never backdate visibility. */
-export function globalEventCandidateLookbackWindow(bounds: { start: string; end: string }): { start: string; end: string } {
-  const end = Date.parse(bounds.end);
-  const start = Math.max(Date.parse(bounds.start) - 7 * 86_400_000, end - 31 * 86_400_000);
-  return { start: new Date(start).toISOString(), end: bounds.end };
+  return { start: new Date(alignedNow - days * 86_400_000).toISOString(), end: new Date(alignedNow).toISOString() };
 }
 
 /** One latest version per event within the requested overview, not a fabricated end-time. */
@@ -81,10 +73,10 @@ export function layoutGlobalEventPoints(
   const clusters: GeoJSON.FeatureCollection<GeoJSON.Point> = { type: "FeatureCollection", features: [] };
   for (const [groupKey, group] of groups) {
     group.sort((a, b) => a.eventId.localeCompare(b.eventId));
-    if (group.length > 6 && !expandedGroups.has(groupKey)) {
+    if (group.length > 6) {
       clusters.features.push({ type: "Feature", geometry: { type: "Point", coordinates: group[0]!.coordinates },
-        properties: { group_key: groupKey, point_count: group.length } });
-      continue;
+        properties: { group_key: groupKey, point_count: group.length, expanded: expandedGroups.has(groupKey) } });
+      if (!expandedGroups.has(groupKey)) continue;
     }
     if (group.length > 1) anchors.features.push({ type: "Feature", geometry: { type: "Point", coordinates: group[0]!.coordinates },
       properties: { group_key: groupKey, display_only: true } });
@@ -163,4 +155,24 @@ export function globalEventRelations(rows: readonly GlobalEventPoint[]): GeoJSON
     }
   }
   return { type: "FeatureCollection", features };
+}
+
+/** Age uses source observation for candidates and event validFrom for published
+ * records. Availability is a separate upper bound; reassessment never renews age.
+ * Missing dates and severity remain unknown, never silently become zero. */
+export function filterGlobalEvents<T extends GlobalEventRecord>(
+  rows: readonly T[], asOfSeconds: number, days: number, category = "all", minSeverity = 0, taiwanOnly = false,
+): T[] {
+  const end = asOfSeconds * 1000;
+  const start = end - days * 86_400_000;
+  return rows.filter((row) => {
+    const timestamp = Date.parse(row.validFrom ?? (row.candidateId ? "" : row.publishedAt ?? row.displayFrom ?? ""));
+    const available = Date.parse(row.displayFrom ?? row.availableAt ?? row.publishedAt ?? "");
+    return Number.isFinite(timestamp) && timestamp >= start && timestamp <= end
+      && Number.isFinite(available) && available <= end
+      && (category === "all" || row.category === category)
+      // Structured assessment only: prose and missing values cannot establish a relationship.
+      && (!taiwanOnly || row.taiwanRelationship === "direct" || row.taiwanRelationship === "indirect")
+      && (minSeverity === 0 || (row.severity !== null && row.severity >= minSeverity));
+  });
 }

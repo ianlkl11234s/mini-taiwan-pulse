@@ -18,7 +18,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import type { TimeMode } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
-import { GLOBAL_EVENT_ICON_RADIUS, globalEventCandidateLookbackWindow, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
+import { GLOBAL_EVENT_ICON_RADIUS, filterGlobalEvents, globalEventRelations, layoutGlobalEventPoints, recentGlobalEventWindow, selectGlobalEventsOverview, type GlobalEventsView } from "../data/globalEventsPresentation";
 import { globalEventsViewStore } from "../state/globalEventsViewStore";
 
 const SOURCE_ID = "global-events-current";
@@ -198,6 +198,10 @@ export function useGlobalEventsLayer(
   showRelations = true,
   selectedEventId: string | null = null,
   includeAI = true,
+  days = 7,
+  category = "all",
+  minSeverity = 0,
+  taiwanOnly = false,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const allEventsRef = useRef<GlobalEventRecord[]>([]);
@@ -312,7 +316,9 @@ export function useGlobalEventsLayer(
         ? allEventsRef.current
         : selectGlobalEventPlacesAt(allEventsRef.current, timelineSeconds);
       const asOf = view === "recent7d" || timeMode === "live" ? Date.now() / 1000 : timelineSeconds;
-      const entries = selectGlobalSituationEntries(published, includeAI ? candidatesRef.current : [], asOf);
+      const entries = selectGlobalSituationEntries(
+        filterGlobalEvents(published, asOf, days, category, minSeverity, taiwanOnly),
+        filterGlobalEvents(includeAI ? candidatesRef.current : [], asOf, days, category, minSeverity, taiwanOnly), asOf);
       const events = entries.filter((entry): entry is GlobalEventPoint => entry.coordinates !== null && !entry.mapSuppressed);
       const listSignature = entries.map((entry) => `${entry.eventId}/${entry.versionId}/${entry.eventPlaceId}/${entry.mapSuppressed ?? false}`).sort().join("|");
       if (listSignature !== listSignatureRef.current) {
@@ -361,16 +367,15 @@ export function useGlobalEventsLayer(
         listSignatureRef.current = "";
         feed([]);
         globalEventsViewStore.set({ entries: [], status: "loading", message: null,
-          windowLabel: view === "recent7d" ? "最近七天總覽" : current ? "目前情勢（候選近七天）" : "跟隨時間軸" });
+          windowLabel: view === "recent7d" || current ? `最近 ${days} 天` : `跟隨時間軸・過去 ${days} 天` });
       } else {
         // 同一個 window 的背景刷新（例如 recent7d 每 5 分鐘 interval）：保留舊
         // rows／entries 繼續顯示，只標記 loading，等新結果整批回來再換。
         globalEventsViewStore.set({ ...globalEventsViewStore.getSnapshot(), status: "loading" });
       }
-      const candidateBounds = !current && view === "timeline" ? globalEventCandidateLookbackWindow(bounds) : bounds;
       Promise.allSettled([
         current ? fetchGlobalEventsCurrent() : fetchGlobalEventsWindow(bounds.start, bounds.end),
-        includeAI ? fetchGlobalEventCandidatesWindow(candidateBounds.start, candidateBounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
+        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
       ]).then(([published, candidates]) => {
         if (cancelled || request !== requestRef.current) return;
         const errors = [published, candidates].filter((result) => result.status === "rejected");
@@ -391,15 +396,15 @@ export function useGlobalEventsLayer(
       });
     };
 
-    const loadCurrent = () => loadSituation(recentGlobalEventWindow(), true);
+    const loadCurrent = () => loadSituation(recentGlobalEventWindow(Date.now(), days), true);
 
     const loadWindow = (dateKeys: readonly string[], transitionFromTime?: number) => {
-      const bounds = view === "recent7d" ? recentGlobalEventWindow() : globalEventWindowBounds(dateKeys);
+      const bounds = view === "recent7d" ? recentGlobalEventWindow(Date.now(), days) : globalEventWindowBounds(dateKeys);
       // 跨日 scrub 會換 RPC window。保留換窗前的 cursor，等新 rows 回來後仍可
       // 判斷是否向前跨過 display_from；不可在 fetch 完成時重設成新 cursor。
       const resolvedFrom = transitionFromTime ?? previousTimeRef.current ?? timeStore.getTime();
       if (!bounds) return;
-      loadSituation(bounds, false, resolvedFrom);
+      loadSituation(view === "timeline" ? { ...bounds, start: new Date(Date.parse(bounds.start) - days * 86_400_000).toISOString() } : bounds, false, resolvedFrom);
     };
 
     // 跨日 scrub 常常連續觸發多次 window 變化（拖曳游標經過好幾天），trailing debounce
@@ -433,7 +438,9 @@ export function useGlobalEventsLayer(
       if (!map.getLayer(GLOBAL_EVENTS_CLUSTER_LAYER_ID)) return;
       const hit = map.queryRenderedFeatures(event.point, { layers: [GLOBAL_EVENTS_CLUSTER_LAYER_ID] })[0];
       if (!hit?.properties?.group_key) return;
-      expandedGroupsRef.current.add(String(hit.properties.group_key));
+      const groupKey = String(hit.properties.group_key);
+      if (expandedGroupsRef.current.has(groupKey)) expandedGroupsRef.current.delete(groupKey);
+      else expandedGroupsRef.current.add(groupKey);
       feed(displayedRowsRef.current);
     };
     map.on("click", onClick);
@@ -451,6 +458,7 @@ export function useGlobalEventsLayer(
       refreshTimer = setInterval(() => loadWindow([]), 5 * 60_000);
     } else if (timeMode === "live") {
       loadCurrent();
+      refreshTimer = setInterval(loadCurrent, 5 * 60_000);
     } else {
       loadWindow(timeStore.getWindowDateKeys());
       unsubscribeWindow = timeStore.subscribeWindowDateKeys(debouncedLoadWindow);
@@ -474,7 +482,7 @@ export function useGlobalEventsLayer(
       stopPulse(map);
       setLayerVisibility(map, false);
     };
-  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI]);
+  }, [mapRef, mapTick, startPulse, stopPulse, timeMode, view, visible, applyPaint, includeAI, days, category, minSeverity, taiwanOnly]);
 
   useEffect(() => {
     const map = mapRef.current;

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-09-10 — 臺灣關聯 toggle（本地，未發布）
+
+新增預設 OFF 的「僅顯示臺灣相關（直接／間接）」。採 taiwan_relationship direct／indirect 白名單；缺值與未知排除，不比對影響說明文字。正式事件 parser 同步保留上游有提供的結構化關聯值。100 項相關測試通過。
+
+## 2026-09-10 — 地圖重要性篩選與群聚收合（本地，未發布）
+
+新增分類、最低嚴重度與 1／3／7 天天數；預設 1 天／嚴重／關聯線 OFF。recent7d 保留為既有參數值，畫面名稱改為「最近範圍」。來源時間限制與 availability 同時生效，時間軸以游標往回計算；預載歷史不再直接變成可見舊新聞。群聚展開後中央數字仍可點擊收合。INTEL 獨立 feed 與上游 RPC 契約維持原設計。
+
+驗收：tsc -b 通過；npm test 156 檔、1346 passed／3 skipped。localhost:3731 瀏覽器確認新控制項可切換、設定收合不關閉圖層。群聚展開再收合、來源超齡、分類／嚴重度交集與時間軸游標排除由回歸測試覆蓋；尚未 production 部署。
+
 ## 2026-09-05 — INTEL 全球情勢 feed 與國內新聞對齊（待發布）
 
 分頁行為改成與國內新聞同一套契約：面板自己載資料，不再依賴 `globalEvents` 圖層是否開啟。新增 `fetchGlobalSituationFeed(dateKey)`（今天走滾動 24 小時、歷史日走 Asia/Taipei 當日 [00:00, 24:00)），組合既有 `get_global_event_places_window` ＋ `get_global_event_candidates_window` 分頁 ＋ `selectGlobalSituationEntries` 的 available_at 篩選，沒有新增 RPC，也沒有動圖層 hook 的渲染邏輯。資料落在面板自己的 `globalSituationFeedStore`，刻意不共用被地圖 effect 綁死的 `globalEventsViewStore`。載入時機比照新聞：面板開啟 + `timeStore.subscribeDate`，日期跨天才重抓；額外每 10 分鐘背景刷新（collector 每小時跑），刷新與失敗都保留舊資料不清空。
