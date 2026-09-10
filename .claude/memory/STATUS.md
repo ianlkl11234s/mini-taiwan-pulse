@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-09-01（Supabase 儲存稽核 → retention + road_congestion dedup/LOCF + aqi R2，全部上線驗證）
+**最後更新**：2026-09-10（Statistics browser runtime 去 Supabase：R2 snapshot、Cloudflare immutable cache、Zeabur production 全鏈完成）
 
 > 本檔只保留目前主線、release truth、blockers 與下一棒；歷史過程留在 git、feature 文件與 `REFLECTIONS.md`。
 
@@ -8,32 +8,35 @@
 
 | repo / system | current truth |
 |---|---|
-| **gis-platform** | PR **#82 merged** origin/main（migrations 385-388）；migrations 已套用+驗證 production。local main 未同步 origin（ahead/behind，非本 session 造成）|
-| **data-collectors** | PR **#69**（road dedup+heartbeat）、**#70**（aqi R2 雙寫）merged origin/main；**Zeabur 已部署並實測運作**（資料行為佐證）|
-| **mini-taiwan-pulse** | `master`：memory + `docs/proposal/supabase-retention-2026-09-01/`；**未 push**（memory commits 依 wrap-up 不 push）|
-| **DB (Supabase)** | retention cron ×7 排上、首夜 22:xx UTC 已首刷；road_congestion LOCF 上線、refresh cron 連續 succeeded；aqi 16,185 幀全上 R2 |
-| **R2 (mini-tw-pulse bucket)** | aqi backfill 100%（`imagery/aqi/…`，物件數 = DB image_key 數）|
+| **taipei-gis-analytics** | `master == origin/master` `02dbb218`；PR **#87 merged**，Statistics exact-selector contract 與 snapshot input 完成。|
+| **gis-platform** | `main == origin/main` `09494f14`；PR **#106** publisher code／docs merged，docs correction PR **#107** merged。|
+| **mini-taiwan-pulse** | remote `master` `1f992a3e`；PR **#239** R2 frontend merged，docs correction PR **#240** merged。收尾記憶在本機 `docs/statistics-r2-wrap-up-memory`，四個 atomic commits，未 push。|
+| **R2** | `regional-statistics-cdn-v1`；current manifest `83e3c063…6278`，66 indicators／476 releases／3,174 selectors／4 geometries；3,177 immutable objects readback，pointer last。|
+| **Cloudflare** | `current.json`：60 秒、DYNAMIC；僅 `manifests/`、`artifacts/`、`geometries/` 三個 content-hashed prefix 為一年 immutable，代表 artifact 與 45 MB geometry 已 HIT。|
+| **Zeabur** | core deployment `6aa196d3…82a7`（`7b473eb2`）完成；docs-only deployment `6aa23b93…2838`（`1f992a3e`）2026-09-10 05:14Z 完成且為 RUNNING。|
 
 ## Release truth matrix
 
-| release unit | build | applied/upload | deploy | verify |
-|---|---|---|---|---|
-| migrations 385-388 | done：檔+idempotent | done：套用 DB | done：PR#82 | done：cron/function/column 查驗 |
-| road_congestion dedup+LOCF | done：pytest 330 | done：#69 | done：Zeabur | done：rows/section 12→3-5；refresh 12 輪 succeeded；聚合 dash 10% 正常 |
-| aqi R2 雙寫+backfill | done：pytest 339 | done：backfill 16185 = R2 count | done：#70 | done：15z 起新圖自帶 image_key |
-
-無 `blocked`/`unknown`；全鏈第一手證據驗證。
+| release unit | build | contract-wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| Analytics Statistics contract | done | done：PR#87 | N/A | N/A | done：exact selectors／geometry refs | N/A | N/A | N/A | N/A |
+| Platform R2 publisher | done：4 tests + py_compile | done：PR#106 | done | done：3,177 immutable + pointer last | done：hash／size／manifest counts | N/A | N/A | done：custom-domain objects | N/A |
+| Cloudflare cache scopes | N/A | done：3 immutable prefixes | N/A | N/A | done：pointer DYNAMIC；artifact／geometry HIT | N/A | N/A | done：CORS + Cache-Control + CF status | N/A |
+| Pulse Statistics frontend | done：47 focused tests + tsc | done：PR#239；no Supabase fallback | N/A | N/A | done：production lazy chunk | done：R2 fetch | done：`6aa196d3…82a7` | done | done：selector／日期／單位／STALE／COMPLETE 368/368／缺值語意 |
+| docs cache evidence | done：platform sql-lint + Pulse test | done：#107／#240 | N/A | N/A | done：merge SHA | N/A | done：docs-only `6aa23b93…2838` | done：正式站 200；pointer 60 秒 | no rerun：runtime code unchanged；沿用 #239 production browser evidence |
 
 ## Blockers / next-session entry
 
-- **無 blocker**；三改動皆上線並驗證。
-- 下一步（皆可選）：
-  1. read-only 驗昨晚 retention 實際回收多少空間（6 表 + aqi）。
-  2. **WA-3 殘留**：把 coverage 現在 flag 的 6 表（iot_wra_measurements / ship_trails_daily / bus_trails_daily / youbike_h3_daily / news_events / freeway_sections_current）補登記或標 keep-forever。
-  3. **ST-1**：aqi_imagery_frames + groundwater/rain_gauge index 的 `VACUUM FULL`（回收 OS 空間，避尖峰）。
-- ⚠️ 不碰：三 repo 的 local main/master 未同步 origin，屬既有狀態，非本 session 造成，未代 sync/push。
+- **runtime／資料發布／docs 無 blocker**；Statistics production 已完成，可正常封存功能工作。
+- 唯一未遠端化項目是本機 memory branch `docs/statistics-r2-wrap-up-memory`：
+  - commits：`fec1f7bf` DATA_SCOPE、`2ef03437` INCIDENTS、`1fc1062e` REFLECTIONS、STATUS（本 commit）。
+  - 原因：wrap-up memory commits 不沿用先前 push 授權，需使用者另行明確允許。
+  - 下一棒第一步：取得授權後 `git push -u origin docs/statistics-r2-wrap-up-memory`；若要 PR／merge，再依明確授權執行。
+  - 驗收：remote branch 含四個 path-scoped commits；四個 target memory paths clean；不夾帶其他檔案。
 
 ## Verification boundaries
 
-- 部署以 GitHub merge SHA + DB／資料行為第一手證據為準。Zeabur CLI 未登入，部署用 `image_key`（新圖自帶 key）與 `rows/section`（12→3-5）資料行為佐證，非代碼推斷。
-- `stats_reset` 會歸零 pg_stat_*；判 bloat/unused-index 一律用 `pg_class.reltuples`。
+- 「不打 Supabase」只指 Statistics browser runtime。整個應用仍因 auth／其他功能保留 Supabase host，不能宣稱全站去 Supabase。
+- `current.json` 的 `CF-Cache-Status: DYNAMIC` 是刻意設計，不是 cache miss；只有 content-hashed objects 可 immutable。
+- docs PR 的 Claude review job 因外部組織 access／runtime `is_error:true` 失敗；必要 `sql-lint`／`test` 已通過，失敗不屬 code evidence。
+- docs-only deployment 未重跑 browser；因 runtime code 未變，browser evidence來自 core PR #239 的 production acceptance，另以 docs-only deployment HTTP 200 證明 cutover。
