@@ -34,3 +34,11 @@
 1. 只允許 upload script 的逐檔 production allowlist；禁止 `public/world/*` wildcard。
 2. HOLD/local-only 資產由 deployContract 雙向 ledger 阻擋。
 3. S3 上傳後需驗證 object bytes/checksum、公開 URL `206 Range`、容器 pull、desktop/mobile browser；缺任一項只能稱 code-ready。
+
+## Release evidence（2026-09-11）
+
+- PR #243：squash `59c57c7717b94556a2be4890d6a1bcc8a7ceb80a`。
+- S3：6/6 production objects bytes/SHA-256 readback 相符；沒有上傳 local-research/HOLD assets。
+- HTTP：6/6 `/world/` URLs 的 `Range: bytes=0-15` 回 `206`；canonical total bytes `15,504,752`。
+- Browser：desktop canonical/EBSA/popup 與 Japan catalog 通過；mobile 390×844 通過且無水平 overflow；console 無 warning/error。
+- CI：build、Vitest、private coral backend tests 通過；Claude Code Review OAuth infrastructure failure，無 code finding。

@@ -1,6 +1,6 @@
 # 日本旅宿、自然保護與世界遺產
 
-> **狀態**：production-ready code；production assets 需以 scoped publisher 完成 S3 readback
+> **狀態**：production verified（2026-09-11）；PR #243 squash `59c57c77`
 > **上游 SSOT**：`/private/tmp/jp-tourism-data-ready-20260910/docs/handoff/jp-tourism-data-ready.md`
 
 ## Runtime 路徑
@@ -25,3 +25,10 @@ S3_ENV_FILE=/path/to/local/.env scripts/deploy/publish-jp-tourism-assets.sh --up
 ```
 
 第一行只做 read-only preflight；第二行只建立缺少的 6 個 production objects。若同 key 已存在但 bytes 或 SHA-256 不符，腳本會拒絕覆寫。
+
+## Production readback（2026-09-11）
+
+- 6 個 production objects 的 S3 `ContentLength` 與 SHA-256 均和本地產物一致；所有公開 URL 的 16-byte Range request 回 `206`。
+- Desktop：canonical 點位、EBSA polygon、source attribution 與 popup metadata 實際可見；日本面板顯示行政區 `0 / 2`、旅宿 `1 / 4`、自然保護 `1 / 1`、世界遺產 `0 / 2`。
+- Mobile 390×844：canonical 搜尋結果可見，root/body `scrollWidth = 390`；browser console 無 warning/error。
+- GitHub CI build/tests 通過。Claude Code Review 因組織 OAuth 無權限而失敗，未產生任何 code finding，不視為產品驗收通過證據。
