@@ -2065,3 +2065,33 @@ migration 374 尚未 apply，形成「底表 RLS 正常、view ACL 仍過寬」�
 
 **教訓**：view 的 grant 與底表 RLS 是兩層不同的防線；安全 migration apply 後要分別讀回 privileges、
 reloptions 與 anon read path，且 `SET ROLE` 必須用 transaction-local 形式避免污染 pool。
+
+## 2026-09-10 Statistics R2 broad Cache Rule 凍結 mutable pointer
+
+### 現象
+
+Statistics snapshot 已上 R2，`current.json` 的 R2 object metadata 明確是
+`Cache-Control: public, max-age=60`；但新增 Cloudflare `/statistics/` broad Cache Rule 後，
+公開 URL 回成 `max-age=14400`。這會把可變 pointer 凍結四小時，使新 manifest 已發布、browser
+卻仍可能讀到舊版本。
+
+### 根因
+
+為了把 content-hashed statistics objects 交給 Cloudflare cache，第一版規則直接涵蓋整個
+`/statistics/` 路徑。Cloudflare rule 覆寫 origin metadata，連本來應短 TTL 的 `current.json`
+也套上 immutable objects 的長效策略。只查 R2 HEAD 會看到 60 秒，無法證明 edge 實際回應。
+
+### 修正與 readback
+
+- 移除 broad `/statistics/` 規則，只保留三個 immutable prefix：`/statistics/v1/manifests/`、
+  `/statistics/v1/artifacts/`、`/statistics/v1/geometries/`。
+- `current.json` 公開讀回：HTTP 200、CORS `*`、`Cache-Control: public, max-age=60`、
+  `CF-Cache-Status: DYNAMIC`。
+- 代表性 artifact：一年 immutable、HIT；45,242,401-byte township geometry：MISS 後轉 HIT、
+  一年 immutable。
+
+### 下次守門
+
+1. mutable pointer 與 content-hashed objects 必須使用不同 cache scope，禁止 broad parent-path rule。
+2. 發布驗收同時查 origin object metadata 與 public edge headers；任一邊不能替另一邊作證。
+3. 至少讀回一個 pointer、一個 artifact 與一個大 geometry；Cloudflare dashboard 設定成功不是 runtime evidence。
