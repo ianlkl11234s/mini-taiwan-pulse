@@ -1870,3 +1870,47 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - docs/proposal：`supabase-retention-2026-09-01/`（完整稽核 + 部署計畫 + PENDING SQL）
 - taipei-gis-analytics handoff：road_sections_live dense→sparse 契約
 - 全域 memory：shipped 記錄 pointer
+
+---
+
+## 2026-09-09/10 — Statistics runtime 去 Supabase：R2 snapshot + Cloudflare + production closeout
+
+### What worked
+
+- **upstream-first 三 repo 契約有守住**：Analytics 固定 exact selector 與資料語意，Platform publisher
+  產 content-hashed snapshot，Pulse loader 只讀 R2；沒有把 browser runtime fallback 回 Supabase。
+- **發布矩陣逐格留證據**：build、contract wire、3,177 immutable objects upload/readback、pointer-last、
+  Cloudflare headers、Zeabur deployment、production bundle 與 browser legend 都各自驗收，沒有用 HTTP 200
+  或 CI 綠燈替代整條 release truth。
+- **公開 edge readback 抓到 cache scope 錯誤**：R2 metadata 明明是 60 秒，Cloudflare broad rule 卻把
+  `current.json` 改成四小時；在收尾前拆成三個 immutable prefixes，避免把 stale pointer 留給後續圖層複製。
+- **資料語意在 UI 可見**：production browser 顯示日期、單位、STALE、COMPLETE 368/368，並保留
+  missing／suppressed／not_reported，而不是只確認圖面有著色。
+- **未過度宣稱整站去 Supabase**：Statistics lazy chunk 已無 `get_stat_values` 與 Supabase import；shared bundle
+  仍可因 auth／其他功能含 Supabase host，兩件事分開陳述。
+
+### What didn't / friction
+
+- **第一版 Cloudflare 規則範圍太大**：為了沿用既有 cache rule，先把 parent path 整段納入，漏看
+  mutable pointer 與 immutable artifacts 的生命週期不同；若只驗 R2 HEAD 會留下 production stale window。
+- **production bundle 證據起初找錯 chunk**：Statistics 是 lazy `LegendPanel` chunk，不在 main bundle；只 grep
+  `main-*.js` 會誤判 runtime code 沒部署。
+- **Resource Timing 不是完整 network ledger**：buffer 上限與 lazy load 時機都可能讓「沒有 entry」變成
+  假陰性；最後以 public headers、bundle source 與可見 UI metadata 組合驗證。
+- **Claude review job 仍受外部組織權限／runtime 影響**：docs PR 的必要 `sql-lint`／`test` 通過，review job
+  回 `Your organization does not have access to Claude`／`is_error:true`；它不是 code failure，但必須明確留界線。
+
+### Next-time rules
+
+1. Statistics 類圖層預設走同一路線：contract → publisher → immutable upload/readback → pointer last → edge headers → browser；禁止新增 browser-to-Supabase fallback。
+2. cache 驗收固定檢查四類 URL：pointer、manifest、artifact、geometry；pointer 短 TTL，另外三類只有 content hash 才可 immutable。
+3. origin metadata 與 Cloudflare public headers 分開讀；cache rule 變更後不接受 dashboard 截圖代替 HTTP readback。
+4. production bundle 查不到 feature 字串時，先列 lazy chunks，再判斷部署是否缺碼。
+5. browser acceptance 不只看圖形：至少核對 selector、日期、單位、source health、completeness 與 null/suppression 語意。
+
+### Memory output
+
+- `DATA_SCOPE.md`：Statistics R2 snapshot counts、hash、TTL、runtime 與資料語意邊界。
+- `INCIDENTS.md`：broad Cache Rule 凍結 `current.json` 的事件、修正與四類 URL 守門。
+- `REFLECTIONS.md`：本篇。
+- `STATUS.md`：最後重寫為三 repo merge、R2／Cloudflare／Zeabur／browser current truth 與下一棒入口。

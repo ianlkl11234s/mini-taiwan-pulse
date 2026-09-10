@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-08-19（新增 Business Registry 202608／Factory 202606 production staging；既有 embed／rail 狀態保留於對應章節）
+**最後更新**：2026-09-10（新增 Statistics R2 production runtime contract；既有資料範圍保留於對應章節）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -824,3 +824,29 @@ bus 系 **3 天**（08-05~08-07）。
   - `docs/features/business-registry-company-layers/handoff.md`
   - `docs/features/business-registry-common-addresses/handoff.md`
   - `docs/features/business-registry-industrial-layers/handoff.md`
+
+## Statistics R2 runtime（2026-09-10 production）
+
+### Snapshot 與 publication contract
+
+| 項目 | production truth |
+|---|---|
+| runtime base | `https://data.itsmigu.com/statistics/v1/`；Statistics 前端不再呼叫 Supabase `get_stat_values` |
+| mutable pointer | `current.json`，365 bytes；`Cache-Control: public, max-age=60`，Cloudflare `DYNAMIC` |
+| current manifest | `manifests/83e3c0635218f3d4c2a5b3dc4d8c9cb16f6e69831c47da64205e40b418aa6278.json`，1,845,792 bytes |
+| manifest coverage | 66 indicators／476 releases／3,174 exact selectors／4 boundary geometries |
+| immutable upload | publisher 上傳並 readback 3,177 個 immutable objects，最後才發布 `current.json` |
+| immutable cache | `manifests/`、`artifacts/`、`geometries/` 三個前綴：`max-age=31536000, immutable`；公開讀回可達 `CF-Cache-Status: HIT` |
+
+代表性 readback：
+
+- artifact `artifacts/67bcc304c05c064f9240ba2dfc0d39f20d7214d64ece313c4f59abf421bce8c8.json`：一年 immutable、Cloudflare HIT。
+- township geometry `geometries/80749dc856df19c1fe7f776e2b1d1f899e484c60ae97911657ae997178bfafd.geojson`：45,242,401 bytes，MISS 後轉 HIT、一年 immutable。
+
+### 語意與邊界
+
+- Supabase 仍是 upstream release contract／publisher 的來源；「不打 Supabase」只指 Statistics 的 browser runtime，不代表整個應用不使用 Supabase（auth 與其他圖層仍可能使用）。
+- 前端依 manifest 的 exact selector tuple 取 artifact，不生成 filter Cartesian product；publisher 遇到 contract 不完整時 fail closed。
+- `null`、missing、suppressed、`not_reported`、source status、health 與 geometry boundary version 必須原樣保留，禁止轉成 0 或推論成權威值。
+- `current.json` 是可變指標，必須短 TTL；只有 content-hashed manifest／artifact／geometry 能使用 immutable 長 TTL。
+- 後續新增 Statistics 圖層固定走：upstream contract → publisher build/validate → immutable upload/readback → pointer last → public headers → production browser acceptance；不新增 browser-to-Supabase fallback。
