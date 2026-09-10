@@ -1928,7 +1928,6 @@ export default function App() {
                   bearing: JAPAN_CAMERA.bearing,
                   speed: 1.0,
                 });
-                setLayerVisibility((prev) => (prev.jpAdminPrefecture ? prev : { ...prev, jpAdminPrefecture: true }));
               }}
             />
           </div>
