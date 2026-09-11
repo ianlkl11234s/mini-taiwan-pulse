@@ -4,7 +4,7 @@
 
 | ID | State | Next action | Acceptance |
 |---|---|---|---|
-| JP-TOUR-1 | verifying | 上傳 production allowlist 後做 S3/nginx/browser readback | 6 assets checksum/bytes 相符；PMTiles URL 回 `206`；desktop/mobile 無 error |
+| JP-TOUR-1 | done | PR #243 squash `59c57c77`；S3/nginx/desktop/mobile readback 完成 | 6 assets checksum/bytes 相符；6 URLs 回 `206`；desktop/mobile 無 error |
 
 ## Conditional
 
