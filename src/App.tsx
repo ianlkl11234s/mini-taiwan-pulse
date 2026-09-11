@@ -1,3 +1,4 @@
+import { MainMapConnection } from "./research/MainMapConnection";
 import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
@@ -1669,6 +1670,7 @@ export default function App() {
           </div>
         </div>
       )}
+      {import.meta.env.DEV && <MainMapConnection bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} />}
       {/* AR-21：layerVisibility 不再經由 prop —— MapView 直接訂閱 layerVisibilityStore */}
       <MapView
         preset={preset}
