@@ -1,7 +1,7 @@
 # AGENTS
 
 本專案規則 SSOT 是 [`CLAUDE.md`](./CLAUDE.md)，請直接讀它。
-本檔僅為各家 agent 的入口指標，不維護規則副本（避免漂移）。
+本檔不維護一般開發規則副本；下方 `Code Review Rules` 是原生 Codex GitHub review 的必要整合入口，只保留高風險檢查。
 
 ## Astra／Terra／Luna 協作
 
