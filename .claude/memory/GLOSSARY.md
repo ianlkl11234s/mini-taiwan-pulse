@@ -246,14 +246,14 @@
 | critical halo | 白色背景光暈 layer，只對 gis_relevance=3 + severity≥2 cluster 亮起 |
 | CRITICAL_FRESH_WINDOW | critical 事件 ripple 持續時間延長至 60min（既有 FRESH_WINDOW 15min 對一般事件） |
 
-## CI/CD（2026-06-13）
+## CI/CD（2026-09-11 更新）
 
 | 術語 | 說明 |
 |---|---|
-| CLAUDE_CODE_OAUTH_TOKEN | `claude setup-token` 產出的 OAuth token，repo secret，讓 GitHub Actions 走 Claude 訂閱而非 API key |
-| claude-review.yml | PR 開啟/更新時自動跑 Claude review，prompt 限制「只看 diff、無問題單行 LGTM」 |
-| claude-mention.yml | issue / PR comment 內 `@claude` 觸發回應 |
-| Workflow validation skip | Claude Code Action 安全機制：PR 修改 workflow 檔本身會跳過 review（防 prompt 注入），merge 後生效 |
+| Native Codex review | Codex GitHub App 提供的 PR review；由 Codex settings 啟用，不使用 GitHub Actions API key |
+| `@codex review` | 手動要求 Codex review PR 最新 head 的留言指令 |
+| Code Review Rules | 根目錄 `AGENTS.md` 中供原生 Codex review 使用的 repo-specific 高風險檢查 |
+| Reviewed commit | Codex 審查完成時對應的 commit；安全 merge 前必須等於 PR 最新 head |
 
 ## 能源 ENERGY（2026-06-19 加 — v1.0~v1.3.5）
 
