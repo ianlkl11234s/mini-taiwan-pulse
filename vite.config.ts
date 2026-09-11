@@ -196,6 +196,8 @@ export default defineConfig({
       input: {
         // 主站（mapbox-gl + Three.js）
         main: resolve(process.cwd(), "index.html"),
+        // Isolated research canvas; no ordinary App state or data loaders.
+        lab: resolve(process.cwd(), "lab/index.html"),
         // EM-06 嵌入版（MapLibre + Protomaps 底圖，不載入 mapbox-gl / Three.js）
         embed: resolve(process.cwd(), "embed.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
@@ -207,6 +209,7 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      "/api/research/v1": { target: "http://127.0.0.1:8790", changeOrigin: false },
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.

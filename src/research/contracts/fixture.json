@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "research-result/0.1",
+  "artifactId": "synthetic-density-demo-001",
+  "title": "Synthetic point, line, polygon density demonstration",
+  "createdAt": "2026-09-10T00:00:00Z",
+  "inputMode": "synthetic",
+  "inputs": [],
+  "method": {
+    "name": "synthetic-density-fixture",
+    "version": "0.1.0",
+    "parameters": { "aoi": "synthetic:aoi-demo", "areaKm2": 2, "featureCount": 3 },
+    "scriptHash": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "environmentRef": "synthetic:node-python-fixture"
+  },
+  "geojson": {
+    "type": "FeatureCollection",
+    "bbox": [121.5, 25, 121.55, 25.05],
+    "features": [
+      { "type": "Feature", "id": "synthetic-point", "geometry": { "type": "Point", "coordinates": [121.5, 25] }, "properties": { "kind": "synthetic_point", "count": 1 } },
+      { "type": "Feature", "id": "synthetic-line", "geometry": { "type": "LineString", "coordinates": [[121.5, 25], [121.55, 25.05]] }, "properties": { "kind": "synthetic_line", "count": 1 } },
+      { "type": "Feature", "id": "synthetic-polygon", "geometry": { "type": "Polygon", "coordinates": [[[121.51, 25.01], [121.53, 25.01], [121.53, 25.03], [121.51, 25.01]]] }, "properties": { "kind": "synthetic_polygon", "count": 1 } }
+    ]
+  },
+  "table": {
+    "columns": ["feature_id", "kind", "synthetic_count"],
+    "rows": [["synthetic-point", "point", 1], ["synthetic-line", "line", 1], ["synthetic-polygon", "polygon", 1]]
+  },
+  "metrics": [
+    {
+      "name": "synthetic_feature_density",
+      "value": 1.5,
+      "unit": "features/km2",
+      "status": "valid",
+      "scope": { "spatialRef": "synthetic:aoi-demo", "timeInterval": null },
+      "coverage": "complete",
+      "numerator": { "value": 3, "status": "valid", "unit": "features" },
+      "denominator": { "value": 2, "status": "valid", "unit": "km2" }
+    }
+  ],
+  "quality": {
+    "executionStatus": "succeeded",
+    "coverage": {
+      "status": "complete",
+      "requested": { "spatialRef": "synthetic:aoi-demo", "timeInterval": null },
+      "covered": { "spatialRef": "synthetic:aoi-demo", "timeInterval": null },
+      "dataVersion": "synthetic-fixture-0.1",
+      "validInputCount": 0
+    },
+    "freshness": { "status": "not_applicable", "evaluatedAt": "2026-09-10T00:00:00Z", "observedAt": null, "sourceVersion": null, "thresholdPolicyRef": null },
+    "exclusions": { "missing_geometry": 0, "invalid_geometry": 0, "missing_value": 0, "duplicate": 0, "outside_scope": 0 },
+    "analysisComplete": true,
+    "displayTruncated": false
+  },
+  "sourceRefs": ["synthetic:agent-research-workbench-phase-a"],
+  "licenseRefs": ["synthetic:internal-test-only"],
+  "limitations": ["Synthetic fixture only; it has no acquisition receipt, external source coverage, or production authority."]
+}

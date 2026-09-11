@@ -1,0 +1,10 @@
+{
+  "source": "taipei-gis-analytics/src/analysis/contracts",
+  "schemaVersion": "research-result/0.1",
+  "files": {
+    "result-validator.mjs": "71c2ef382846578687324f07747a8613b48d73113ea69ac0a423d7dfffd9a6bd",
+    "result-validator.d.mts": "388c06dc3bbc87275a9632e1df61d7a932155dd3fc2b8d0b292b4b3fd7bea40b",
+    "result.schema.json": "9eacff500b453fe740f30fa32fb2dc2a98ff43567136a75b60a1e8ca6d19beb2",
+    "fixture.json": "f8ddd189c61876d4bee51640f036250a51b13ca3ef2f82fbf0150adbd7bd03cd"
+  }
+}
