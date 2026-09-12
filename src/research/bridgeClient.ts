@@ -74,11 +74,11 @@ function isStudyState(value: unknown): value is StudyState { return exactObject(
 
 function isLayers(value: unknown): value is Record<string, boolean> { return isObject(value) && Object.keys(value).length <= 20 && Object.entries(value).every(([key, on]) => /^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(key) && !["__proto__", "constructor", "prototype"].includes(key) && typeof on === "boolean"); }
 
-export type BrowserQuery = { requestId: string; operation: "search_layers" | "describe_layer" | "read_layer" | "map_context" | "find_places" | "nearby"; args: Record<string, unknown>; expiresAt: number };
+export type BrowserQuery = { requestId: string; operation: "search_layers" | "describe_layer" | "read_layer" | "map_context" | "find_places" | "nearby" | "search_datasets" | "describe_dataset" | "query_records"; args: Record<string, unknown>; expiresAt: number };
 export type QueryResult = { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 function isNearby(value: unknown): value is { queryId: string } | null { return value === null || exactObject(value, ["queryId"]) && safeId(value.queryId); }
 function isQueryEnvelope(value: unknown): value is { request: BrowserQuery | null } {
   if (!exactObject(value, ["request"])) return false;
   const request = value.request;
-  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["search_layers", "describe_layer", "read_layer", "map_context", "find_places", "nearby"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
+  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["search_layers", "describe_layer", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
 }

@@ -11,6 +11,7 @@ import { executeDiscovery, queryNearby, type DiscoveryOperation, type NearbyResu
 import { installNearbyOverlay, removeNearbyOverlay, setNearbyOpacity, NEARBY_SOURCE } from "./nearbyOverlay";
 import { NearbyResults } from "./NearbyResults";
 import { loadingRegistry } from "../lib/loadingRegistry";
+import { describeDataset, queryRecords, searchDatasets } from "./researchDatasets";
 import "./mainMapConnection.css";
 
 type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null };
@@ -86,7 +87,14 @@ export function MainMapConnection(props: Props) {
         if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
         return { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), selection: picked.current ?? current.selection ?? null, selectionSource: picked.current ? "user_point" : current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0,100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0,20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility" };
       }
-      const operations: Record<Exclude<BrowserQuery["operation"], "map_context">, DiscoveryOperation> = { search_layers: "discoverLayers", describe_layer: "describeLayer", find_places: "findPlaces", read_layer: "readLayer", nearby: "queryNearby" };
+      if (request.operation === "search_datasets") return searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20));
+      if (request.operation === "describe_dataset") return describeDataset(String(request.args.datasetId ?? "")) as unknown as Record<string, unknown>;
+      if (request.operation === "query_records") {
+        const result = await queryRecords(request.args as unknown as Parameters<typeof queryRecords>[0]);
+        if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
+        return result;
+      }
+      const operations: Record<"search_layers" | "describe_layer" | "find_places" | "read_layer" | "nearby", DiscoveryOperation> = { search_layers: "discoverLayers", describe_layer: "describeLayer", find_places: "findPlaces", read_layer: "readLayer", nearby: "queryNearby" };
       const args = { ...request.args };
       if (request.operation === "nearby") { const center = args.center as [number,number]; args.center = { lng: center[0], lat: center[1] }; }
       const result = await executeDiscovery(operations[request.operation], args, { locked: current.locked, visible: new Set(visible) });

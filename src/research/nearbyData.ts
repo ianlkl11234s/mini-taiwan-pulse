@@ -46,6 +46,11 @@ interface SchoolSource {
   license: "unknown";
   coverage: "unknown";
 }
+export interface SchoolDatasetSnapshot {
+  rows: Record<string, unknown>[];
+  source: SchoolSource;
+  exclusions: CachedSchools["exclusions"];
+}
 export interface ReadLayerResult {
   operation: "readLayer"; queryId: string; layerKey: string; dataReadSupport: "supported"; source: SchoolSource;
   offset: number; limit: number; totalMatched: number; returned: number; truncated: boolean; exclusions: CachedSchools["exclusions"] | null; features: ReadFeature[];
@@ -150,6 +155,20 @@ async function loadSchools(): Promise<CachedSchools> {
 }
 
 export function clearNearbyDataCache(): void { schoolsCache = null; schoolsInFlight = null; }
+
+/** Shared analysis adapter entrypoint. This exposes normalized records, not layer visibility state. */
+export async function loadSchoolDatasetSnapshot(): Promise<SchoolDatasetSnapshot> {
+  const cache = await loadSchools();
+  return {
+    rows: cache.features.map(feature => ({
+      ...safeProperties(feature.properties),
+      geometry: { type: "Point", coordinates: [...feature.geometry.coordinates] },
+      record_id: `${cache.dataHash.slice(0, 16)}-${feature.featureIndex}`,
+    })),
+    source: source(cache),
+    exclusions: { ...cache.exclusions },
+  };
+}
 
 export async function readLayer(layerKey: string, offset = 0, limit = 20, nameContains?: string, context?: DiscoveryContext): Promise<ReadLayerResult> {
   const safeOffset = bounds(offset, 0, 10_000, "offset"); const safeLimit = bounds(limit, 1, 20, "limit");

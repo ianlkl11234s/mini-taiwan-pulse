@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.mini-taiwan-pulse.local/pulse-dataset/0.1/dataset.schema.json",
+  "title": "Pulse analysis dataset descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "datasetId", "label", "description", "layerRefs", "kind", "recordGrain", "primaryKey", "fields", "geometry", "timeFields", "coverage", "license", "versions", "source", "accessPolicy", "supportedOperations", "adapterId"],
+  "properties": {
+    "schemaVersion": { "const": "pulse-dataset/0.1" },
+    "datasetId": { "$ref": "#/$defs/id" },
+    "label": { "$ref": "#/$defs/text" },
+    "description": { "$ref": "#/$defs/text" },
+    "layerRefs": { "type": "array", "maxItems": 100, "items": { "type": "string", "maxLength": 160 }, "uniqueItems": true },
+    "kind": { "enum": ["point", "event", "admin_statistic"] },
+    "recordGrain": { "enum": ["place", "event", "admin_statistic"] },
+    "primaryKey": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "$ref": "#/$defs/fieldName" }, "uniqueItems": true },
+    "fields": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/$defs/field" } },
+    "geometry": { "$ref": "#/$defs/geometry" },
+    "timeFields": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/timeField" } },
+    "coverage": { "$ref": "#/$defs/text" },
+    "license": { "$ref": "#/$defs/text" },
+    "versions": {
+      "type": "array", "maxItems": 100, "items": {
+        "type": "object", "additionalProperties": false, "required": ["versionId", "observedAt", "availableAt", "checksumSha256", "mutable"],
+        "properties": { "versionId": { "$ref": "#/$defs/id" }, "observedAt": { "type": ["string", "null"] }, "availableAt": { "type": ["string", "null"] }, "checksumSha256": { "anyOf": [{ "type": "string", "pattern": "^[a-f0-9]{64}$" }, { "type": "null" }] }, "mutable": { "type": "boolean" } }
+      }
+    },
+    "source": {
+      "type": "object", "additionalProperties": false, "required": ["publisher", "reference", "lineage"],
+      "properties": { "publisher": { "$ref": "#/$defs/text" }, "reference": { "$ref": "#/$defs/text" }, "lineage": { "$ref": "#/$defs/text" } }
+    },
+    "accessPolicy": {
+      "type": "object", "additionalProperties": false, "required": ["mode", "maxRowsPerQuery", "maxScanRows"],
+      "properties": { "mode": { "enum": ["public", "authenticated"] }, "maxRowsPerQuery": { "type": "integer", "minimum": 1, "maximum": 1000 }, "maxScanRows": { "type": "integer", "minimum": 1, "maximum": 100000 } }
+    },
+    "supportedOperations": { "type": "array", "minItems": 1, "items": { "enum": ["query_records", "nearest", "aggregate"] }, "uniqueItems": true },
+    "adapterId": { "$ref": "#/$defs/id" }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$" },
+    "fieldName": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,79}$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "field": {
+      "type": "object", "additionalProperties": false, "required": ["name", "type", "nullable", "nullMeaning", "unit"],
+      "properties": { "name": { "$ref": "#/$defs/fieldName" }, "type": { "enum": ["string", "number", "boolean", "datetime", "json"] }, "nullable": { "type": "boolean" }, "nullMeaning": { "type": ["string", "null"], "maxLength": 4000 }, "unit": { "type": ["string", "null"], "maxLength": 160 } }
+    },
+    "geometry": {
+      "type": "object", "additionalProperties": false, "required": ["type", "crs", "role", "precision", "spatialAnalysisEligible"],
+      "properties": { "type": { "enum": ["Point", "Polygon", "MultiPolygon", "none"] }, "crs": { "enum": ["EPSG:4326", null] }, "role": { "enum": ["actual", "proxy", "centroid", "generalized", "none"] }, "precision": { "$ref": "#/$defs/text" }, "spatialAnalysisEligible": { "type": "boolean" } }
+    },
+    "timeField": {
+      "type": "object", "additionalProperties": false, "required": ["name", "role", "timezone"],
+      "properties": { "name": { "$ref": "#/$defs/fieldName" }, "role": { "enum": ["occurred", "published", "observed", "available", "period_start", "period_end"] }, "timezone": { "$ref": "#/$defs/text" } }
+    }
+  }
+}
