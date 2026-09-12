@@ -226,6 +226,23 @@ export async function fetchNewsEventsDayClusters(
   return (data ?? []) as RawCluster[];
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isOptionalFiniteNumber(value: unknown): boolean {
+  return value == null || typeof value === "number" && Number.isFinite(value);
+}
+
+function isStrictResearchCluster(value: unknown): value is RawCluster {
+  if (!isRecord(value) || !Array.isArray(value.events)) return false;
+  if (!isOptionalFiniteNumber(value.lon) || !isOptionalFiniteNumber(value.lat)) return false;
+  return value.events.every(event => isRecord(event)
+    && typeof event.id === "number" && Number.isFinite(event.id)
+    && typeof event.title === "string"
+    && typeof event.published_ts === "number" && Number.isFinite(event.published_ts));
+}
+
 /**
  * 研究查詢專用的 raw cluster reader。
  *
@@ -249,6 +266,6 @@ export async function fetchNewsEventsDayClustersStrict(
     }),
   );
   if (error) throw new Error(`get_news_events_day_clustered_v2(${cacheKey}): ${error.message}`);
-  if (!Array.isArray(data)) throw new Error("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+  if (!Array.isArray(data) || !data.every(isStrictResearchCluster)) throw new Error("NEWS_EVENTS_INVALID_RPC_RESPONSE");
   return data as RawCluster[];
 }

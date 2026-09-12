@@ -26,7 +26,18 @@ describe("news event research reader", () => {
     await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
     source.rpc.mockResolvedValueOnce({ data: { events: [] }, error: null });
     await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    source.rpc.mockResolvedValueOnce({ data: [{}], error: null });
+    await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    source.rpc.mockResolvedValueOnce({ data: [{ events: null }], error: null });
+    await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    source.rpc.mockResolvedValueOnce({ data: [{ events: [{ id: null, title: "缺少識別碼", published_ts: 0 }] }], error: null });
+    await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    source.rpc.mockResolvedValueOnce({ data: [{ events: [{ id: 1, title: "缺少發布時間", published_ts: null }] }], error: null });
+    await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
     source.rpc.mockResolvedValueOnce({ data: [], error: null });
     await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).resolves.toEqual([]);
+    const validCluster = { lon: 121.5, lat: 25, events: [{ id: 1, title: "最小合法事件", published_ts: 0 }] };
+    source.rpc.mockResolvedValueOnce({ data: [validCluster], error: null });
+    await expect(fetchNewsEventsDayClustersStrict("2026-09-11")).resolves.toEqual([validCluster]);
   });
 });

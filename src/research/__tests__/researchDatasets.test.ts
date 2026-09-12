@@ -54,6 +54,7 @@ describe("built-in research datasets", () => {
   it("rejects null or non-array news RPC payloads, but accepts a legitimate empty array", async () => {
     await expect(queryNewsWithSupabasePayload(true, null)).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
     await expect(queryNewsWithSupabasePayload(true, { events: [] })).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+    await expect(queryNewsWithSupabasePayload(true, [{}])).rejects.toThrow("NEWS_EVENTS_INVALID_RPC_RESPONSE");
     await expect(queryNewsWithSupabasePayload(true, [])).resolves.toMatchObject({ datasetId: "tw-news-events", totalMatched: 0, returned: 0 });
   });
 });
