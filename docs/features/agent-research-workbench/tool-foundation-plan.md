@@ -1,12 +1,12 @@
 # 跨圖層、新聞與消息的通用 Tools 規劃
 
-日期：2026-09-11。2026-09-12 更新：**最小runtime foundation完成**。P1與有真實pilot可驗收的P2基本操作已完成；新聞／統計真實來源readback、S3 manifest/disk cache及尚無真實adapter的進階operation維持明確待辦，未完成項不得宣稱可用。
+日期：2026-09-11。2026-09-13 更新：**最小runtime foundation與三類pilot readback完成**。P1與有真實pilot可驗收的P2基本操作已完成；S3 manifest/disk cache及尚無真實adapter的進階operation維持明確待辦，未完成項不得宣稱可用。
 
 本輪分析 baseline：Pulse worktree `b1a811586c4411991456314a905226febe5f5818`。盤點登記、接線與 adapter，不宣稱所有遠端資料可取得、授權已確認或正式站健康；未掃 S3、未執行 Supabase 查詢、未下載圖層資料。完整逐層清單見 [inventory](inventory/)，另保留舊 chat 與 research MCP 的能力界線。
 
 ## 已確認的協作方向（2026-09-11）
 
-本節為使用者確認的架構方向，後續協作以此為基準；下方工具名稱與分期仍是待實作提案。若與先前以圖層開關為中心的說明不同，以本節為準。
+本節為使用者確認的架構方向，後續協作以此為基準；下方狀態欄記錄已完成與仍待實作的項目，沒有真實adapter或驗收證據者仍只算提案。若與先前以圖層開關為中心的說明不同，以本節為準。
 
 **核心：datasetId → analysis → resultId；layer 是可選的顯示出口。**
 
@@ -48,7 +48,7 @@ S3／Supabase／Twinkle Hub／其他來源
 
 1. ✅ 定義DatasetDescriptor與ResultEnvelope，先確認grain、geometry role、時間、source/version、access及budget。
 2. ✅ 做共用query executor與第一個點資料adapter；analysis入口不要求來源layer已開啟。
-3. 🟡 raw新聞／消息及exact-release統計adapter、time window、evidence與null/suppression契約驗收完成；真實來源readback待配對環境補證。
+3. ✅ raw新聞／消息及exact-release統計adapter、time window、evidence與null/suppression契約完成；2026-09-13 已由配對環境取得真實RPC／固定release receipt。新聞當日合法0筆只證明該selector，不代表沒有其他日期事件。
 4. ✅ result reference、基本analysis operations與最多4組actual Point呈現；學校沿用既有學制分色，舊nearby範圍仍只畫虛線圈。
 5. 🟡 短效access plan、query/source-version cache receipt與一次性materialize已完成；S3 manifest/disk cache與進階GIS operations依真實資料需求後續註冊。
 
@@ -251,7 +251,9 @@ mini-pulse-gis-mcp/src/research/
 
 ## 11. 檢查與本輪交付界線
 
-2026-09-12 最小runtime foundation已完成並留在本地commit，未push／未上線。canonical schema、共用executor、四個pilot adapter、result session、P1/P2基本分析、data access plan與result presentation已接通。新聞／統計仍需已配對且有來源權限的真實readback，不因單元測試通過而宣稱遠端資料健康。
+2026-09-13 最小runtime foundation已完成並留在本地commit，未push／未上線。canonical schema、共用executor、四個pilot adapter、result session、P1/P2基本分析、data access plan與result presentation已接通。目前Codex task以本地Agent配對完成discovery／query／nearby／presentation；另以source build的MCP SDK host驗證完整37項tool schema及 datasetId→resultId→analysis resultId→地圖呈現與fit bounds。Browser回報ready revision 2，並讀回1組／9筆點位的可存取摘要；SDK host驗收不冒充另一個自然語言Codex task。
+
+三類真實pilot證據：學校資產4,315筆，以臺北車站座標1公里直線半徑得到9筆並依學制聚合為3／2／1／3；2026-09-12新聞selector合法回傳0筆且有RPC checksum，proxy geometry被拒絕做精確空間分析；水田統計固定release為368／368鄉鎮、STALE、總和158,701.13公頃。這些是本地配對readback，不是production健康或資料最新性證明；學校／新聞license仍為unknown，行政統計的observed 0與null狀態保持分離。
 
 實作優先順序：
 1. ✅ DatasetDescriptor與capability discovery，不再將「圖層存在」等同「可查詢」。

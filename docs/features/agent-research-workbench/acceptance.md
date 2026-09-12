@@ -55,3 +55,18 @@ Query回傳receipt可能pending；以 `pulse_get_query_result(requestId)` 繼續
 ## 本輪驗收結果
 
 2026-09-11：前端34／Gateway34／MCP23相關測試通過；型別與build通過。真登入＋MCP SDK＋真正Codex CLI的nearby結果與獨立計算一致。原站browser驗證9筆、limit3截斷說明、popup、地圖選點與結果列定位；學校資料時間／授權／覆蓋仍unknown，不因測試通過升級。正式站尚未部署。
+
+## 2026-09-13 資料分析閉環
+
+本輪先由目前 Codex task 透過已載入的research MCP完成 `search_datasets → describe_dataset → query_records → query_nearby → present_nearby → wait_scene_ready`，Browser逐筆讀回臺北車站座標 `[121.5170,25.0478]` 直線1公里內9筆學校。接著以目前source build啟動獨立MCP SDK host驗證完整37項tool schema與組合流程；這一段是SDK host驗收，不冒充另一個自然語言Codex task。
+
+完整流程為 `tw-schools → query resultId → spatial resultId → aggregate → quality/evidence → present_result → fit_bounds`。來源共4,315筆、2,504,719 bytes、SHA-256 `7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3`；1公里結果9筆，依來源 `school_level` 計為高級中等學校3、國民中學2、附設國民中學1、國民小學3。這是9筆來源place records，包含同代碼不同學制，不宣稱是9個獨立機構，也不是步行可達性。Browser回報revision 2 ready，DOM可讀到「1組分析結果／9筆點位」與resultId／datasetId摘要。
+
+另以同一executor完成兩類來源readback：
+
+- 新聞：2026-09-12、`minRelevance=0/eventsOnly=false/minSeverity=0` 合法回傳0筆，仍有Supabase RPC source receipt與checksum；0筆只適用這個selector。descriptor標示township cluster proxy，精確半徑空間查詢回 `SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY`。strict reader另拒絕未設定來源、非陣列payload、缺cluster events，以及缺event id/title/published timestamp，避免來源異常被收斂成成功0筆。非空新聞紀錄仍需另一個真實日期補證。
+- 行政統計：固定release `2024-2025-paddy_land_area_hectare-1287362dfee3` 讀到368／368鄉鎮，boundary `TOWN_MOI_1140318`，狀態STALE，彙總158,701.13公頃；observed 0保留為0，`source_status/source_token` 的null不補成0。統計結果無geometry，未經版本相符邊界join不得直接上圖。
+
+驗收期間也驗到兩個負向邊界並修正：來源build完成但舊dist只列21項，重新build後為37項；撤銷／重配對改為更換整個analysis session instance，避免舊的在途查詢晚到後進入新session。未push、未部署，學校／新聞license與freshness未知仍保留unknown。
+
+本地證據：`/private/tmp/pulse-research-workbench/evidence/full-analysis-live-result.json`、`full-analysis-live-news.json`、`full-analysis-live-statistics.json`。截圖含研究登入資訊，不作可分享證據；Browser DOM與SDK receipt分開驗證。
