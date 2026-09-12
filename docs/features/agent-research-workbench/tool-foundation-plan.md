@@ -1,6 +1,6 @@
 # 跨圖層、新聞與消息的通用 Tools 規劃
 
-日期：2026-09-11。2026-09-12 更新：**實作中**。P1 的 dataset contract、三類 adapter 程式與 typed `query_records` 已完成；新聞／統計真實來源 readback 尚待驗收，其餘依本文件狀態欄繼續實作，未完成項不得宣稱可用。
+日期：2026-09-11。2026-09-12 更新：**最小runtime foundation完成**。P1與有真實pilot可驗收的P2基本操作已完成；新聞／統計真實來源readback、S3 manifest/disk cache及尚無真實adapter的進階operation維持明確待辦，未完成項不得宣稱可用。
 
 本輪分析 baseline：Pulse worktree `b1a811586c4411991456314a905226febe5f5818`。盤點登記、接線與 adapter，不宣稱所有遠端資料可取得、授權已確認或正式站健康；未掃 S3、未執行 Supabase 查詢、未下載圖層資料。完整逐層清單見 [inventory](inventory/)，另保留舊 chat 與 research MCP 的能力界線。
 
@@ -48,9 +48,9 @@ S3／Supabase／Twinkle Hub／其他來源
 
 1. ✅ 定義DatasetDescriptor與ResultEnvelope，先確認grain、geometry role、時間、source/version、access及budget。
 2. ✅ 做共用query executor與第一個點資料adapter；analysis入口不要求來源layer已開啟。
-3. 🟡 raw新聞／消息及exact-release統計adapter程式與合成契約驗收完成；真實來源readback待補。
-4. ⏳ 擴充result reference與多組呈現；保留來源分色，附近範圍預設只畫虛線圈。
-5. ⏳ 再補版本cache／S3取得計畫、外部來源與更進階GIS operations。
+3. 🟡 raw新聞／消息及exact-release統計adapter、time window、evidence與null/suppression契約驗收完成；真實來源readback待配對環境補證。
+4. ✅ result reference、基本analysis operations與最多4組actual Point呈現；學校沿用既有學制分色，舊nearby範圍仍只畫虛線圈。
+5. 🟡 短效access plan、query/source-version cache receipt與一次性materialize已完成；S3 manifest/disk cache與進階GIS operations依真實資料需求後續註冊。
 
 驗收以真實問題帶動：未開來源layer也可完成有界查詢；無geometry消息仍能列出；相同輸入與方法可重現；多組結果可比較；超成本／未授權／缺資料明確回報。附近不等於受影響，相關不等於因果。
 
@@ -136,20 +136,20 @@ S3／Supabase／Twinkle Hub／其他來源
 
 |Family／tools|主要輸入 → 輸出|階段|狀態（2026-09-12）|
 |---|---|---|---|
-|search_datasets / describe_dataset|query/kind/capability → datasetId、layerRefs、fields、grain、geometry、time、source、access、supportedOperations|P1；現有 search_layers/describe_layer 沿用alias|✅ 已註冊；目前3個pilot dataset|
-|query_records|datasetId、select、typed filters、time field/window、spatial constraint、cursor → resultRef、page、total/exclusions/truncation|P1；read_layer兼容入口|🟡 typed filter/resultId已完成；time/spatial/cursor待補|
-|spatial_query|dataset/result refs、nearest/within_distance/intersects/within、distance model → matching rows + distances/relationships|P1點；P2線面；nearby為alias|⏳|
-|aggregate_records|inputRef、groupBy、count/distinct/sum/mean/min/max、明確grain → tableRef|P1基本；P2跨資料|⏳|
-|join_records|left/right refs、key或spatial predicate、cardinality policy → resultRef+unmatched/duplicated counts|P2|
-|calculate_metric|inputRef、allowlisted arithmetic expression、unit、denominator/coverage policy → metric/tableRef|P2；禁止eval/任意code|
-|read_series / compare_series|dataset/entity、time interval、resolution、baseline、aggregation → seriesRef + missing windows|P2|
-|get_data_quality|dataset/resultRef → freshness、coverage、geometry eligibility、source lag、known limits|P1；unknown保留|⏳|
-|get_record_evidence|record/eventRef、version/asOf → source observations/URLs、dedup/group關係、撤回狀態|P1新聞；不憑空產生「佐證」|⏳|
-|plan_data_access / materialize_data|dataset+query+budget → plan/hash/bytes/cache；approved plan → bounded local artifact receipt|P2；S3索引與cache先行|
-|present_result / list_results / remove_result|scoped resultRef+style/visibility+revision → map receipt|P1多圈；P2任意合法衍生geometry/table|
-|fit_bounds|bounds/resultRefs、padding → camera receipt|P1；沿用既有camera executor|
-|inspect_map / capture_map|viewport/layerRefs → visible feature sample／受控截圖artifact、相機與載入狀態|P2；視覺驗收用，不作全量統計|
-|run_analysis / get_analysis_result / cancel_analysis|allowlisted registered operation+input refs+budget → jobRef/status/artifacts|P2長任務；P3專業分析|
+|search_datasets / describe_dataset|query/kind/capability → datasetId、layerRefs、fields、grain、geometry、time、source、access、supportedOperations|P1；現有 search_layers/describe_layer 沿用alias|✅ 已註冊；4個pilot dataset|
+|query_records|datasetId、select、typed filters、time field/window、spatial constraint、cursor → resultRef、page、total/exclusions/truncation|P1；read_layer兼容入口|✅ typed filter、time window、offset page、完整session resultId；空間條件由後續spatial_query組合|
+|spatial_query|dataset/result refs、nearest/within_distance/intersects/within、distance model → matching rows + distances/relationships|P1點；P2線面；nearby為alias|✅ actual Point的nearest/within_distance；⏳線面predicate待真實adapter|
+|aggregate_records|inputRef、groupBy、count/distinct/sum/mean/min/max、明確grain → tableRef|P1基本；P2跨資料|✅ null-safe基本彙總；無有效數值的sum為null|
+|join_records|left/right refs、key或spatial predicate、cardinality policy → resultRef+unmatched/duplicated counts|P2|✅ key join、one-to-one/one-to-many與null key排除；⏳spatial join|
+|calculate_metric|inputRef、allowlisted arithmetic expression、unit、denominator/coverage policy → metric/tableRef|P2；禁止eval/任意code|✅ ratio/difference；缺值保留、零分母拒絕|
+|read_series / compare_series|dataset/entity、time interval、resolution、baseline、aggregation → seriesRef + missing windows|P2|✅ stored result的UTC日／週count/sum/mean與baseline比較；缺period／baseline=0明示|
+|get_data_quality|dataset/resultRef → freshness、coverage、geometry eligibility、source lag、known limits|P1；unknown保留|✅ result品質、null、exclusions、source receipt；未宣稱不存在的source lag|
+|get_record_evidence|record/eventRef、version/asOf → source observations/URLs、dedup/group關係、撤回狀態|P1新聞；不憑空產生「佐證」|✅ 回傳stored record與其source receipt；未另抓外部佐證|
+|plan_data_access / materialize_data|dataset+query+budget → plan/hash/bytes/cache；approved plan → bounded local artifact receipt|P2；S3索引與cache先行|🟡 短效plan、硬限制、未知cost與一次性materialize已完成；S3 partition index／disk artifact待有manifest後接|
+|present_result / list_results / remove_result|scoped resultRef+style/visibility+revision → map receipt|P1多圈；P2任意合法衍生geometry/table|✅ session scope、TTL/capacity、最多4組actual Point transient layers與revision receipt；非空間表保留為table result|
+|fit_bounds|bounds/resultRefs、padding → camera receipt|P1；沿用既有camera executor|✅ get_result_bounds＋revision-controlled fit_bounds|
+|inspect_map / capture_map|viewport/layerRefs → visible feature sample／受控截圖artifact、相機與載入狀態|P2；視覺驗收用，不作全量統計|🟡 map_context已有camera/layers/loading；capture沿用本地Agent瀏覽器，未另開MCP截圖傳輸|
+|run_analysis / get_analysis_result / cancel_analysis|allowlisted registered operation+input refs+budget → jobRef/status/artifacts|P2長任務；P3專業分析|🟡 get_analysis_result已完成；尚無需背景執行的registered long operation，因此不建立假job/cancel|
 
 未來專業 operations：cluster（DBSCAN等與單位）、spatial_autocorrelation（明確鄰接／空間權重）、raster_sample/zonal_statistics、terrain_profile/slope、network_reachability、track_dwell/crossing。按真實資料與驗收需求逐步註冊，初期不需要為每種演算法增加一個獨立 MCP 名稱。
 
@@ -236,28 +236,31 @@ mini-pulse-gis-mcp/src/research/
 
 來源：[WorldMonitor analysis registry](https://github.com/koala73/worldmonitor/blob/df2ac7daf76cd4f287e5b505509abdcb672e40aa/api/mcp/registry/analysis-tools.ts)、[MCP registry](https://github.com/koala73/worldmonitor/blob/df2ac7daf76cd4f287e5b505509abdcb672e40aa/api/mcp/registry/index.ts)、[monolith DEM](https://github.com/kaolti/monolith-terrain/blob/f95b3bb47c826e88ac0330548278e1ba124ec276/src/dem.js)。WorldMonitor AGPL-3.0、monolith MIT，設計借鑑不等於直接搬移程式；各資料來源授權另計。
 
-## 10. 現有21個research MCP tools對照
+## 10. 現有37個research MCP tools對照
 
 - 連線：pulse_pair_session、pulse_get_session、pulse_disconnect_session、pulse_get_study_state。
 - 探索／讀取：pulse_search_layers、pulse_describe_layer、pulse_read_layer、pulse_get_map_context、pulse_find_places、pulse_query_nearby、pulse_get_query_result。
-- Dataset tools：pulse_search_datasets、pulse_describe_dataset、pulse_query_records。
-- 地圖：pulse_apply_scene、pulse_set_layers、pulse_set_camera、pulse_present_nearby、pulse_wait_scene_ready。
+- Dataset tools：pulse_search_datasets、pulse_describe_dataset、pulse_query_records、pulse_plan_data_access、pulse_materialize_data。
+- Result/analysis：pulse_spatial_query、pulse_aggregate_records、pulse_join_records、pulse_calculate_metric、pulse_read_series、pulse_compare_series、pulse_get_data_quality、pulse_get_record_evidence、pulse_get_analysis_result、pulse_get_result_bounds、pulse_list_results、pulse_remove_result。
+- 地圖：pulse_apply_scene、pulse_set_layers、pulse_set_camera、pulse_present_nearby、pulse_present_result、pulse_fit_bounds、pulse_wait_scene_ready。
 - 本地：pulse_validate_result、pulse_inspect_local_assets。
 
-程式：mini-pulse-gis-mcp/src/research/server.ts。共用 executor 已有 schools、raw news events、exact-release paddy statistics 三個 pilot adapter；舊 read_layer／nearby仍僅schools。find_places只是具名鏡位；present_nearby是單圈；validate_result目前synthetic-only，沒有任意結果上傳；本地資產工具不是完整快取。
+程式：mini-pulse-gis-mcp/src/research/server.ts。共用 executor 已有 schools、medical hospitals、raw news events、exact-release paddy statistics 四個 pilot adapter；舊 read_layer／nearby仍僅schools。medical hospitals在本worktree缺S3管理資產，adapter存在不等於本地可讀。find_places只是具名鏡位；present_nearby是舊單圈入口，present_result可獨立呈現最多4組actual Point result；validate_result仍是synthetic-only，沒有任意結果上傳；本地資產工具不是完整disk cache。
 
 既有browser chat另有22個dataset與10個RPC白名單，見[adapter盤點](inventory/data-adapter-families.md)。這些是可重用的既有入口，不是18個research tools已取得的能力。
 
 ## 11. 檢查與本輪交付界線
 
-2026-09-12 已開始修改 runtime，新增3個 dataset MCP tools、canonical schema、共用 executor 與三個 pilot adapter；尚未上線。新聞／統計仍需真實來源 readback，不因單元測試通過而宣稱遠端資料健康。
+2026-09-12 最小runtime foundation已完成並留在本地commit，未push／未上線。canonical schema、共用executor、四個pilot adapter、result session、P1/P2基本分析、data access plan與result presentation已接通。新聞／統計仍需已配對且有來源權限的真實readback，不因單元測試通過而宣稱遠端資料健康。
 
 實作優先順序：
 1. ✅ DatasetDescriptor與capability discovery，不再將「圖層存在」等同「可查詢」。
 2. ✅ typed query_records＋GeoJSON點adapter，重用既有schools入口。
 3. ✅ raw新聞／消息adapter、時間／grain／precision驗收，無geometry仍可查。
-4. 🟡 exact-release統計adapter已完成；aggregate、join、metric待補。三種資料已驗證同一套result contract。
-5. 多組結果及fit_bounds；本地artifact驗證／授權呈現，保持瀏覽器只接收有界結果。
-6. S3索引、access plan與版本cache；再開長任務、raster、網路及聚集分析。
+4. ✅ exact-release統計adapter、aggregate、key join、metric與null/suppression負向測試。
+5. ✅ 多組result、list/page/remove、result bounds、fit_bounds及revision-controlled呈現；只接受session內actual Point result。
+6. 🟡 版本／query hash cache receipt與access plan已完成；S3 partition index與disk materialization須等實際manifest契約。長任務、raster、network、cluster與spatial join維持後續registered operation，不以空殼tool冒充完成。
+
+本地驗收：`public/education/schools.geojson`實讀2,504,719 bytes、SHA-256 `7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3`，4,315/4,315為合法Point，code與school_level皆無缺值。這只證明該工作樹資產，不替代新聞RPC、統計R2或production readback。
 
 測試recipe以合成資料驗證邊界，再用授權真實樣本驗收；不能只驗工具回應成功。新聞記事數與事件數、發布與發生時間、proxy座標、suppression與零、重複join、cache過期與撤權都需負向案例。
