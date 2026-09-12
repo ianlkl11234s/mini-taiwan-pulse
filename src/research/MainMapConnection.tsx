@@ -17,6 +17,7 @@ import { analysisResultSourceIds, installAnalysisResults, removeAnalysisResults 
 import "./mainMapConnection.css";
 
 type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null };
+type PresentedAnalysisSummary = { resultId: string; datasetId: string; pointCount: number };
 const ANALYSIS_QUERY_OPERATIONS = new Set<BrowserQuery["operation"]>(["spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 function isAnalysisQueryOperation(operation: BrowserQuery["operation"]): operation is AnalysisQueryOperation { return ANALYSIS_QUERY_OPERATIONS.has(operation); }
 /** Thin adapter: the original map handlers remain the only visibility writer. */
@@ -28,6 +29,7 @@ export function MainMapConnection(props: Props) {
   const [querying, setQuerying] = useState(false);
   const [selectionPoint, setSelectionPoint] = useState<[number, number] | null>(null);
   const [selecting, setSelecting] = useState(false);
+  const [presentedAnalysis, setPresentedAnalysis] = useState<PresentedAnalysisSummary[]>([]);
   const picked = useRef<[number, number] | null>(null);
   const picking = useRef(false); picking.current = selecting;
   const [message, setMessage] = useState("先配對，再讓 Agent 開關這張地圖的圖層。");
@@ -68,6 +70,7 @@ export function MainMapConnection(props: Props) {
       if (analysisResults.length) installAnalysisResults(map, analysisResults);
       else removeAnalysisResults(map);
       presented.current = nextResult ?? null; setNearby(nextResult ?? null);
+      setPresentedAnalysis(analysisResults.map(result => ({ resultId: result.resultId, datasetId: result.datasetId, pointCount: result.rows.length })));
       if (nextResult) setOpen(true);
       previous.current = scene;
     } finally { applying.current = false; }
@@ -86,11 +89,13 @@ export function MainMapConnection(props: Props) {
       while (run === generation.current && !map.isSourceLoaded(sourceId) && Date.now() - started < 8_000) await new Promise(resolve => setTimeout(resolve, 50));
       matches = matches && run === generation.current && map.isSourceLoaded(sourceId);
     }
-    setMessage(matches ? nextResult ? `r${revision} 附近查詢結果已呈現。` : `r${revision} 圖層開關已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
+    const analysisMessage = analysisResults.length ? `${analysisResults.length} 組分析結果／${analysisResults.reduce((sum, result) => sum + result.rows.length, 0)} 筆點位已呈現。` : null;
+    setMessage(matches ? nextResult ? `r${revision} 附近查詢結果已呈現。${analysisMessage ? `另有 ${analysisMessage}` : ""}` : analysisMessage ? `r${revision} ${analysisMessage}` : `r${revision} 圖層開關已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear(); analysisSession.current.clear();
+    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear(); analysisSession.current.clear(); popup.current?.remove(); presented.current = null; setNearby(null); setPresentedAnalysis([]);
+    if (latest.current.map) { removeNearbyOverlay(latest.current.map); removeAnalysisResults(latest.current.map); }
     controller.current = context ? new StudyController(context, render, () => setMessage("操作未完成，連線已暫停。請確認圖層權限或重新配對。")) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
@@ -216,6 +221,10 @@ export function MainMapConnection(props: Props) {
         <small>首批支援學校；使用已取得的站台資料，最多讀取 5 MiB，重複查詢重用本頁快取。距離採直線，不代表步行可達。</small>
       </section>
       {nearby && <NearbyResults result={nearby} opacity={opacity} onOpacity={value => { setOpacity(value); if (props.map) setNearbyOpacity(props.map, value); }} onSelect={selectRow} onClear={clear} />}
+      {presentedAnalysis.length > 0 && <section aria-label="分析結果摘要">
+        <h3>已呈現的分析結果</h3>
+        <ul>{presentedAnalysis.map(result => <li key={result.resultId}><code>{result.resultId}</code>／<code>{result.datasetId}</code>／{result.pointCount} 筆點位</li>)}</ul>
+      </section>}
     </div>
   </div>;
 }
