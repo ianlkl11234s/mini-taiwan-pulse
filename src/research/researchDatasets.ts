@@ -1,5 +1,5 @@
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
-import { fetchNewsEventsDayClusters } from "../data/newsEventsLoader";
+import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
 import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
 import type { DatasetDescriptor, Scalar, SourceReceipt } from "./dataContracts";
 import { loadPointDataset } from "./pointDatasetAdapter";
@@ -143,7 +143,7 @@ const newsAdapter = createNewsEventAdapter(newsDescriptor, async parameters => {
   const eventsOnly = parameters.eventsOnly;
   const minSeverity = parameters.minSeverity;
   if (![0, 2, 3].includes(minRelevance as number) || typeof eventsOnly !== "boolean" || ![0, 1, 2].includes(minSeverity as number)) throw new Error("INVALID_NEWS_FILTER");
-  const clusters = await fetchNewsEventsDayClusters(date, { minRelevance: minRelevance as 0 | 2 | 3, eventsOnly, minSeverity: minSeverity as 0 | 1 | 2 });
+  const clusters = await fetchNewsEventsDayClustersStrict(date, { minRelevance: minRelevance as 0 | 2 | 3, eventsOnly, minSeverity: minSeverity as 0 | 1 | 2 });
   const rows = new Map<number, Record<string, unknown>>();
   let omittedFromMap = 0;
   let rowsScanned = 0;

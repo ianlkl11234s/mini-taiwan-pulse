@@ -225,3 +225,30 @@ export async function fetchNewsEventsDayClusters(
   }
   return (data ?? []) as RawCluster[];
 }
+
+/**
+ * 研究查詢專用的 raw cluster reader。
+ *
+ * 展示端維持既有的未設定來源時回傳空陣列行為；研究入口則必須把「未設定」
+ * 與「有效但零筆」分開，避免來源失效被誤判為零事件。
+ */
+export async function fetchNewsEventsDayClustersStrict(
+  date: string,
+  filter: NewsFilter = DEFAULT_NEWS_FILTER,
+): Promise<RawCluster[]> {
+  if (!supabaseConfigured) throw new Error("NEWS_EVENTS_SOURCE_NOT_CONFIGURED");
+  const cacheKey = `${date}|${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  const { data, error } = await withLoading(
+    `news-events-research:${cacheKey}`,
+    `新聞事件研究查詢 ${date}`,
+    supabase.rpc("get_news_events_day_clustered_v2", {
+      p_day: date,
+      p_min_gis_relevance: filter.minRelevance,
+      p_require_event: filter.eventsOnly,
+      p_min_severity: filter.minSeverity,
+    }),
+  );
+  if (error) throw new Error(`get_news_events_day_clustered_v2(${cacheKey}): ${error.message}`);
+  if (!Array.isArray(data)) throw new Error("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+  return data as RawCluster[];
+}
