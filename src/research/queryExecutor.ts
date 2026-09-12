@@ -8,6 +8,7 @@ export interface QueryRecordsInput {
   datasetId: string;
   select?: readonly string[];
   filters?: readonly QueryFilter[];
+  time?: { field: string; start?: string; end?: string };
   offset?: number;
   limit?: number;
   parameters?: Readonly<Record<string, Scalar>>;
@@ -31,6 +32,12 @@ export interface QueryAdapter {
   descriptor: DatasetDescriptor;
   allowedParameters: Readonly<Record<string, "string" | "number" | "boolean">>;
   read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal): Promise<AdapterReadResult>;
+}
+
+export interface QueryExecution {
+  envelope: ResultEnvelope;
+  materializedRows: readonly Record<string, unknown>[];
+  descriptor: DatasetDescriptor;
 }
 
 function stable(value: unknown): string {
@@ -60,6 +67,13 @@ function applyFilter(row: Record<string, unknown>, filter: QueryFilter): boolean
   const actual = row[filter.field];
   if (filter.op === "eq") return scalarMatches(actual, filter.value);
   return typeof actual === "string" && actual.normalize("NFKC").toLocaleLowerCase().includes(filter.value.normalize("NFKC").toLocaleLowerCase());
+}
+
+function applyTime(row: Record<string, unknown>, time: NonNullable<QueryRecordsInput["time"]>): boolean {
+  const value = row[time.field];
+  if (typeof value !== "string") return false;
+  const instant = Date.parse(value);
+  return Number.isFinite(instant) && (time.start === undefined || instant >= Date.parse(time.start)) && (time.end === undefined || instant < Date.parse(time.end));
 }
 
 function validPoint(value: unknown): boolean {
@@ -110,6 +124,10 @@ export class QueryExecutor {
   describe(datasetId: string): DatasetDescriptor | null { return this.adapters.get(datasetId)?.descriptor ?? null; }
 
   async execute(input: QueryRecordsInput, signal?: AbortSignal): Promise<ResultEnvelope> {
+    return (await this.executeDetailed(input, signal)).envelope;
+  }
+
+  async executeDetailed(input: QueryRecordsInput, signal?: AbortSignal): Promise<QueryExecution> {
     const adapter = this.adapters.get(input.datasetId);
     if (!adapter) throw new Error("DATASET_NOT_FOUND");
     const { descriptor } = adapter;
@@ -124,6 +142,12 @@ export class QueryExecutor {
       const field = fieldMap.get(filter.field)!;
       if (filter.op === "contains" && field.type !== "string") throw new Error("FILTER_NOT_ALLOWED");
     }
+    const time = input.time;
+    if (time) {
+      if (!descriptor.timeFields.some(field => field.name === time.field) || time.start === undefined && time.end === undefined
+        || time.start !== undefined && !Number.isFinite(Date.parse(time.start)) || time.end !== undefined && !Number.isFinite(Date.parse(time.end))
+        || time.start !== undefined && time.end !== undefined && Date.parse(time.start) >= Date.parse(time.end)) throw new Error("INVALID_TIME_WINDOW");
+    }
     const parameters = { ...(input.parameters ?? {}) };
     if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
     for (const [name, value] of Object.entries(parameters)) {
@@ -133,11 +157,11 @@ export class QueryExecutor {
     const read = await adapter.read(parameters, signal);
     validateAdapterRead(descriptor, read);
     if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.accessPolicy.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
-    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)));
+    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)));
     const rows = matched.slice(offset, offset + limit).map(row => Object.fromEntries(select.map(field => [field, row[field] ?? null])));
-    const normalized = { datasetId: input.datasetId, select, filters, offset, limit, parameters };
+    const normalized = { datasetId: input.datasetId, select, filters, ...(time ? { time } : {}), offset, limit, parameters };
     const queryHash = await sha256({ query: normalized, sources: read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 })) });
-    return {
+    const envelope: ResultEnvelope = {
       schemaVersion: "pulse-query-result/0.1", resultId: `result-${queryHash.slice(0, 24)}`, queryHash, datasetId: input.datasetId,
       executionStatus: "complete", method: { operation: "query_records", version: "0.1", parameters: normalized }, sourceRefs: read.sourceRefs,
       recordGrain: descriptor.recordGrain, countGrain: descriptor.recordGrain,
@@ -146,5 +170,6 @@ export class QueryExecutor {
       excludedByReason: { ...read.exclusions }, rows,
       cost: { rowsScanned: read.rowsScanned, bytesScanned: read.bytesScanned, downloadedBytes: read.downloadedBytes, requests: read.requests, cacheHit: read.cacheHit }, expiresAt: read.expiresAt,
     };
+    return { envelope, materializedRows: matched, descriptor };
   }
 }

@@ -82,11 +82,14 @@ describe("shared research query executor", () => {
 
     const pointResult = await executor.execute({ datasetId: "tw-schools", filters: [{ field: "city", op: "eq", value: "臺北市" }] });
     const newsResult = await executor.execute({ datasetId: "tw-news-events", parameters: { date: "2026-09-11", minRelevance: 0, eventsOnly: false, minSeverity: 0 } });
+    const newsWindow = await executor.execute({ datasetId: "tw-news-events", time: { field: "published_at", start: "2026-09-11T02:30:00Z", end: "2026-09-11T04:00:00Z" }, parameters: { date: "2026-09-11", minRelevance: 0, eventsOnly: false, minSeverity: 0 } });
     const statsResult = await executor.execute({ datasetId: "agri-crop-production", parameters: { releaseId: "release-2025" } });
 
     expect([pointResult, newsResult, statsResult].every(result => result.schemaVersion === "pulse-query-result/0.1" && result.executionStatus === "complete")).toBe(true);
     expect(pointResult.excludedByReason.invalid_geometry).toBe(1);
     expect(newsResult.rows).toHaveLength(2);
+    expect(newsWindow.rows).toHaveLength(1);
+    expect(newsWindow.rows[0]?.event_id).toBe("N2");
     expect(newsResult.rows[1]?.geometry).toBeNull();
     expect(newsResult.excludedByReason.omitted_from_map_no_geometry).toBe(1);
     expect(statsResult.rows).toEqual(expect.arrayContaining([
@@ -104,6 +107,7 @@ describe("shared research query executor", () => {
     expect(first.rows[0]?.city).toBeNull();
     await expect(executor.execute({ datasetId: "tw-schools", select: ["secret"] })).rejects.toThrow("FIELD_NOT_ALLOWED");
     await expect(executor.execute({ datasetId: "tw-schools", parameters: { url: "file:///etc/passwd" } })).rejects.toThrow("PARAMETER_NOT_ALLOWED");
+    await expect(executor.execute({ datasetId: "tw-schools", time: { field: "published_at", start: "2026-09-11T00:00:00Z" } })).rejects.toThrow("INVALID_TIME_WINDOW");
 
     const overBudget = new QueryExecutor([createPointDatasetAdapter(schools, async () => ({ rows: [], source: source("schools", "v1"), coverage: "unknown", rowsScanned: 101 }))]);
     await expect(overBudget.execute({ datasetId: "tw-schools" })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");

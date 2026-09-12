@@ -1,10 +1,10 @@
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
 import { fetchNewsEventsDayClusters } from "../data/newsEventsLoader";
-import { loadRegionalStatistics } from "../data/regionalStatisticsLoader";
+import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
 import type { DatasetDescriptor, Scalar, SourceReceipt } from "./dataContracts";
-import { loadSchoolDatasetSnapshot } from "./nearbyData";
+import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
-import { QueryExecutor, type QueryRecordsInput } from "./queryExecutor";
+import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 
@@ -27,6 +27,26 @@ const schoolsDescriptor: DatasetDescriptor = {
   versions: [],
   source: { publisher: "教育部", reference: "/education/schools.geojson", lineage: "public GeoJSON -> validated Point records" },
   accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 10_000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+};
+
+const medicalHospitalsDescriptor: DatasetDescriptor = {
+  schemaVersion: "pulse-dataset/0.1", datasetId: "tw-medical-hospitals", label: "全國醫院", description: "健保特約醫院院區點位；設施數不代表醫療量能或服務覆蓋。",
+  layerRefs: ["medHospitals"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "facility_id", type: "string", nullable: true, nullMeaning: "來源未提供院區識別碼", unit: null },
+    { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供院名", unit: null },
+    { name: "facility_name", type: "string", nullable: true, nullMeaning: "來源未提供設施名稱", unit: null },
+    { name: "hospital_name", type: "string", nullable: true, nullMeaning: "來源未提供醫院名稱", unit: null },
+    { name: "county", type: "string", nullable: true, nullMeaning: "來源未提供縣市", unit: null },
+    { name: "city", type: "string", nullable: true, nullMeaning: "來源未提供縣市", unit: null },
+    { name: "address", type: "string", nullable: true, nullMeaning: "來源未提供地址", unit: null },
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source facility coordinate", spatialAnalysisEligible: true }, timeFields: [],
+  coverage: "全臺健保特約醫院；實際完整度須由來源 receipt 驗證", license: "unknown", versions: [],
+  source: { publisher: "衛生福利部中央健康保險署", reference: "/geo/medical_hospitals.geojson", lineage: "public GeoJSON -> validated Point records" },
+  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 20_000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
 };
 
 const newsDescriptor: DatasetDescriptor = {
@@ -100,15 +120,20 @@ function requireDate(value: Scalar | undefined): string {
 }
 
 const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async () => {
-  const snapshot = await loadSchoolDatasetSnapshot();
+  const snapshot = await loadPointDataset({ datasetId: schoolsDescriptor.datasetId, url: schoolsDescriptor.source.reference, idField: "code", safeFields: schoolsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)) });
   return {
-    rows: snapshot.rows, source: receipt("tw-schools", snapshot.source.dataHash, snapshot.source.reference, snapshot.source.dataHash),
-    coverage: snapshot.source.coverage, freshness: "unknown", exclusions: {
-      missing_geometry: snapshot.exclusions.missingGeometry,
-      non_point_geometry: snapshot.exclusions.nonPoint,
-      invalid_geometry: snapshot.exclusions.invalidCoordinates,
-    },
-    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), cacheHit: null,
+    rows: snapshot.rows, source: receipt("tw-schools", snapshot.checksumSha256, schoolsDescriptor.source.reference, snapshot.checksumSha256),
+    coverage: schoolsDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit,
+  };
+});
+
+const medicalHospitalsAdapter = createPointDatasetAdapter(medicalHospitalsDescriptor, async () => {
+  const snapshot = await loadPointDataset({ datasetId: medicalHospitalsDescriptor.datasetId, url: medicalHospitalsDescriptor.source.reference, idField: "facility_id", safeFields: medicalHospitalsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)) });
+  return {
+    rows: snapshot.rows, source: receipt("tw-medical-hospitals", snapshot.checksumSha256, medicalHospitalsDescriptor.source.reference, snapshot.checksumSha256),
+    coverage: medicalHospitalsDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit,
   };
 });
 
@@ -148,7 +173,7 @@ const newsAdapter = createNewsEventAdapter(newsDescriptor, async parameters => {
 const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, async parameters => {
   const release = PADDY.release_options.find(option => option.release_id === parameters.releaseId);
   if (!release) throw new Error("RELEASE_NOT_ALLOWED");
-  const result = await loadRegionalStatistics({ datasetId: PADDY.dataset_id, indicatorId: PADDY.indicator_id, level: PADDY.level, dimensions: release.dimensions, releaseId: release.release_id, layerKey: PADDY.layer_key, includeHealth: true, allowReleaseFallback: false });
+  const result = await loadRegionalStatisticsValues({ datasetId: PADDY.dataset_id, indicatorId: PADDY.indicator_id, level: PADDY.level, dimensions: release.dimensions, releaseId: release.release_id, layerKey: PADDY.layer_key, includeHealth: true, allowReleaseFallback: false });
   return {
     rows: result.values.observations.map(row => ({ ...row, release_id: result.values.release.release_id, period_start: result.values.release.period_start, period_end: result.values.release.period_end, boundary_version: result.values.release.boundary_version })),
     source: receipt("regional-statistics", release.release_id, statisticsDescriptor.source.reference, typeof result.sources.raw_sha256 === "string" ? result.sources.raw_sha256 : null),
@@ -156,7 +181,7 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
   };
 });
 
-export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, newsAdapter, statisticsAdapter]);
+export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter]);
 
 function normalize(value: string): string { return value.normalize("NFKC").toLocaleLowerCase().replace(/臺/g, "台").trim(); }
 
@@ -176,4 +201,8 @@ export function describeDataset(datasetId: string): DatasetDescriptor {
 
 export async function queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
   return await RESEARCH_QUERY_EXECUTOR.execute(input) as unknown as Record<string, unknown>;
+}
+
+export async function queryRecordsDetailed(input: QueryRecordsInput): Promise<QueryExecution> {
+  return await RESEARCH_QUERY_EXECUTOR.executeDetailed(input);
 }

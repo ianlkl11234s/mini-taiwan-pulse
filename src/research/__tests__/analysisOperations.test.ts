@@ -41,6 +41,8 @@ describe("AnalysisOperations", () => {
     const mean = operations.aggregate({ resultId: "points", operation: "mean", field: "population", groupBy: ["city"] });
     expect(mean.rows).toEqual(expect.arrayContaining([expect.objectContaining({ city: "T", value: 10, nullOrNonNumeric: 1 }), expect.objectContaining({ city: "K", value: 30 })]));
     expect(operations.aggregate({ resultId: "points", operation: "count", field: "population" }).rows[0]).toMatchObject({ value: 2 });
+    const nullOnly = setup({ ...pointResult("nulls"), rows: [{ population: null }] }).operations;
+    expect(nullOnly.aggregate({ resultId: "nulls", operation: "sum", field: "population" }).rows[0]).toMatchObject({ value: null, nullOrNonNumeric: 1 });
   });
 
   it("enforces join cardinality and reports unmatched plus duplicate keys", () => {
@@ -50,6 +52,12 @@ describe("AnalysisOperations", () => {
     expect(() => operations.keyJoin({ leftResultId: "left", rightResultId: "right", leftKey: "code", rightKey: "code", cardinality: "one_to_one" })).toThrow("JOIN_CARDINALITY_VIOLATION");
     const joined = operations.keyJoin({ leftResultId: "left", rightResultId: "right", leftKey: "code", rightKey: "code", cardinality: "one_to_many" });
     expect(joined.rows).toHaveLength(2); expect(joined.summary).toMatchObject({ unmatchedLeft: 2, unmatchedRight: 1, duplicatedRightKeys: 1 });
+    const nullableLeft = { ...pointResult("nullable-left"), rows: [{ code: null }, { code: "A" }] };
+    const nullableRight = { ...pointResult("nullable-right"), rows: [{ code: null }, { code: "A" }] };
+    const nullableOps = setup(nullableLeft, nullableRight).operations;
+    const nullableJoin = nullableOps.keyJoin({ leftResultId: "nullable-left", rightResultId: "nullable-right", leftKey: "code", rightKey: "code", cardinality: "one_to_one" });
+    expect(nullableJoin.rows).toHaveLength(1);
+    expect(nullableJoin.summary).toMatchObject({ unmatchedLeft: 1, unmatchedRight: 1, missingLeftKeys: 1, missingRightKeys: 1 });
   });
 
   it("calculates allowlisted metrics and retains nulls while rejecting a zero denominator", () => {

@@ -13,11 +13,11 @@
     "executionStatus": { "const": "complete" },
     "method": {
       "type": "object", "additionalProperties": false, "required": ["operation", "version", "parameters"],
-      "properties": { "operation": { "const": "query_records" }, "version": { "const": "0.1" }, "parameters": { "$ref": "#/$defs/jsonData" } }
+      "properties": { "operation": { "enum": ["query_records", "spatial_query", "aggregate_records", "join_records", "calculate_metric"] }, "version": { "const": "0.1" }, "parameters": { "$ref": "#/$defs/jsonData" } }
     },
     "sourceRefs": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "$ref": "#/$defs/sourceReceipt" } },
-    "recordGrain": { "$ref": "#/$defs/grain" },
-    "countGrain": { "$ref": "#/$defs/grain" },
+    "recordGrain": { "$ref": "#/$defs/resultGrain" },
+    "countGrain": { "$ref": "#/$defs/sourceGrain" },
     "units": { "type": "object", "maxProperties": 50, "additionalProperties": { "type": ["string", "null"], "maxLength": 160 } },
     "coverage": { "type": "string", "minLength": 1, "maxLength": 4000 },
     "freshness": { "enum": ["current", "stale", "unknown"] },
@@ -34,7 +34,8 @@
     "expiresAt": { "anyOf": [{ "$ref": "#/$defs/instant" }, { "type": "null" }] }
   },
   "$defs": {
-    "grain": { "enum": ["place", "event", "admin_statistic"] },
+    "sourceGrain": { "enum": ["place", "event", "admin_statistic"] },
+    "resultGrain": { "enum": ["place", "event", "admin_statistic", "aggregate", "joined", "metric"] },
     "instant": { "type": "string", "format": "date-time" },
     "sourceReceipt": {
       "type": "object", "additionalProperties": false, "required": ["sourceId", "version", "acquiredAt", "checksumSha256", "reference"],

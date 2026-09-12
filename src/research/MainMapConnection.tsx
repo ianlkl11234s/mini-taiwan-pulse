@@ -11,10 +11,14 @@ import { executeDiscovery, queryNearby, type DiscoveryOperation, type NearbyResu
 import { installNearbyOverlay, removeNearbyOverlay, setNearbyOpacity, NEARBY_SOURCE } from "./nearbyOverlay";
 import { NearbyResults } from "./NearbyResults";
 import { loadingRegistry } from "../lib/loadingRegistry";
-import { describeDataset, queryRecords, searchDatasets } from "./researchDatasets";
+import { describeDataset, searchDatasets } from "./researchDatasets";
+import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
+import { analysisResultSourceIds, installAnalysisResults, removeAnalysisResults } from "./analysisResultOverlay";
 import "./mainMapConnection.css";
 
 type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null };
+const ANALYSIS_QUERY_OPERATIONS = new Set<BrowserQuery["operation"]>(["spatial_query", "aggregate_records", "join_records", "calculate_metric", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+function isAnalysisQueryOperation(operation: BrowserQuery["operation"]): operation is AnalysisQueryOperation { return ANALYSIS_QUERY_OPERATIONS.has(operation); }
 /** Thin adapter: the original map handlers remain the only visibility writer. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -31,6 +35,7 @@ export function MainMapConnection(props: Props) {
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
   const resultCache = useRef(new Map<string, NearbyResult>());
+  const analysisSession = useRef(new ResearchAnalysisSession());
   const presented = useRef<NearbyResult | null>(null);
   const opacityRef = useRef(opacity); opacityRef.current = opacity;
   const popup = useRef<mapboxgl.Popup | null>(null);
@@ -40,7 +45,7 @@ export function MainMapConnection(props: Props) {
   const generation = useRef(0);
   const capture = (): Scene => {
     const camera = latest.current.bridge.getCamera();
-    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), nearby: previous.current?.nearby ?? null };
+    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), nearby: previous.current?.nearby ?? null, results: previous.current?.results ?? null };
   };
   const render = useCallback(async (scene: Scene, revision: number): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
@@ -50,6 +55,7 @@ export function MainMapConnection(props: Props) {
     if (revision === 0) { previous.current = scene; return "ready"; }
     const nextResult = scene.nearby ? resultCache.current.get(scene.nearby.queryId) : null;
     if (scene.nearby && !nextResult) throw new Error("QUERY_RESULT_UNAVAILABLE");
+    const analysisResults = scene.results ? analysisSession.current.presentable(scene.results.resultIds) : [];
     if (nextResult && locked.has(nextResult.layerKey)) throw new Error("LAYER_DENIED");
     const run = ++generation.current;
     applying.current = true;
@@ -59,6 +65,8 @@ export function MainMapConnection(props: Props) {
       if (nextResult?.queryId !== presented.current?.queryId) popup.current?.remove();
       if (nextResult) installNearbyOverlay(map, nextResult, opacityRef.current);
       else removeNearbyOverlay(map);
+      if (analysisResults.length) installAnalysisResults(map, analysisResults);
+      else removeAnalysisResults(map);
       presented.current = nextResult ?? null; setNearby(nextResult ?? null);
       if (nextResult) setOpen(true);
       previous.current = scene;
@@ -73,11 +81,16 @@ export function MainMapConnection(props: Props) {
       while (run === generation.current && !map.isSourceLoaded(NEARBY_SOURCE) && Date.now() - started < 8_000) await new Promise(resolve => setTimeout(resolve, 50));
       matches = matches && run === generation.current && map.isSourceLoaded(NEARBY_SOURCE);
     }
+    for (const sourceId of analysisResultSourceIds(analysisResults.length)) {
+      const started = Date.now();
+      while (run === generation.current && !map.isSourceLoaded(sourceId) && Date.now() - started < 8_000) await new Promise(resolve => setTimeout(resolve, 50));
+      matches = matches && run === generation.current && map.isSourceLoaded(sourceId);
+    }
     setMessage(matches ? nextResult ? `r${revision} 附近查詢結果已呈現。` : `r${revision} 圖層開關已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear();
+    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear(); analysisSession.current.clear();
     controller.current = context ? new StudyController(context, render, () => setMessage("操作未完成，連線已暫停。請確認圖層權限或重新配對。")) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
@@ -90,9 +103,12 @@ export function MainMapConnection(props: Props) {
       if (request.operation === "search_datasets") return searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20));
       if (request.operation === "describe_dataset") return describeDataset(String(request.args.datasetId ?? "")) as unknown as Record<string, unknown>;
       if (request.operation === "query_records") {
-        const result = await queryRecords(request.args as unknown as Parameters<typeof queryRecords>[0]);
+        const result = await analysisSession.current.queryRecords(request.args as unknown as Parameters<ResearchAnalysisSession["queryRecords"]>[0]);
         if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
         return result;
+      }
+      if (isAnalysisQueryOperation(request.operation)) {
+        return analysisSession.current.execute(request.operation, request.args);
       }
       const operations: Record<"search_layers" | "describe_layer" | "find_places" | "read_layer" | "nearby", DiscoveryOperation> = { search_layers: "discoverLayers", describe_layer: "describeLayer", find_places: "findPlaces", read_layer: "readLayer", nearby: "queryNearby" };
       const args = { ...request.args };
@@ -139,7 +155,12 @@ export function MainMapConnection(props: Props) {
   };
   useEffect(() => {
     const map = props.map; if (!map) return;
-    const draw = () => { if (nearby && map.isStyleLoaded()) installNearbyOverlay(map, nearby, opacityRef.current); };
+    const draw = () => {
+      if (!map.isStyleLoaded()) return;
+      if (nearby) installNearbyOverlay(map, nearby, opacityRef.current);
+      const resultIds = previous.current?.results?.resultIds;
+      if (resultIds?.length) installAnalysisResults(map, analysisSession.current.presentable(resultIds));
+    };
     const click = (event: mapboxgl.MapMouseEvent) => {
       if (picking.current) {
         const point: [number, number] = [event.lngLat.lng, event.lngLat.lat];
@@ -149,7 +170,7 @@ export function MainMapConnection(props: Props) {
 
     };
     draw(); map.on("style.load", draw); map.on("click", click);
-    return () => { map.off("style.load", draw); map.off("click", click); removeNearbyOverlay(map); };
+    return () => { map.off("style.load", draw); map.off("click", click); removeNearbyOverlay(map); removeAnalysisResults(map); };
   }, [props.map, nearby]);
   const localNearby = async (useSelection: boolean) => {
     if (querying || !props.map?.isStyleLoaded()) return;

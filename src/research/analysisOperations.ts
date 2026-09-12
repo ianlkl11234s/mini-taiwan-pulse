@@ -80,7 +80,7 @@ function distanceMeters(a: { lng: number; lat: number }, b: Point): number {
 }
 
 function keyOf(value: unknown): string {
-  if (value === null || value === undefined) return "null";
+  if (value === null || value === undefined) throw new Error("MISSING_JOIN_KEY");
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return `${typeof value}:${value}`;
   throw new Error("INVALID_JOIN_KEY");
 }
@@ -136,7 +136,7 @@ export class AnalysisOperations {
       switch (input.operation) {
         case "count": value = input.field ? present.length : group.values.length; break;
         case "distinct": value = new Set(present.map(keyOf)).size; break;
-        case "sum": value = numbers.reduce((sum, item) => sum + item, 0); break;
+        case "sum": value = numbers.length ? numbers.reduce((sum, item) => sum + item, 0) : Number.NaN; break;
         case "mean": value = numbers.length ? numbers.reduce((sum, item) => sum + item, 0) / numbers.length : Number.NaN; break;
         case "min": value = numbers.length ? Math.min(...numbers) : Number.NaN; break;
         case "max": value = numbers.length ? Math.max(...numbers) : Number.NaN; break;
@@ -149,20 +149,21 @@ export class AnalysisOperations {
   keyJoin(input: KeyJoinInput): AnalysisResult {
     if (!validField(input.leftKey) || !validField(input.rightKey)) throw new Error("INVALID_JOIN_KEY");
     const left = this.data(input.leftResultId); const right = this.data(input.rightResultId);
-    const leftIndex = this.index(left.rows, input.leftKey); const rightIndex = this.index(right.rows, input.rightKey);
+    const { index: leftIndex, missingKeys: missingLeftKeys } = this.index(left.rows, input.leftKey);
+    const { index: rightIndex, missingKeys: missingRightKeys } = this.index(right.rows, input.rightKey);
     const leftDuplicateKeys = [...leftIndex.values()].filter(rows => rows.length > 1).length;
     const rightDuplicateKeys = [...rightIndex.values()].filter(rows => rows.length > 1).length;
     if (input.cardinality === "one_to_one" && (leftDuplicateKeys || rightDuplicateKeys)) throw new Error("JOIN_CARDINALITY_VIOLATION");
     if (input.cardinality === "one_to_many" && leftDuplicateKeys) throw new Error("JOIN_CARDINALITY_VIOLATION");
-    const rows: Row[] = []; let unmatchedLeft = 0;
+    const rows: Row[] = []; let unmatchedLeft = missingLeftKeys;
     for (const [key, leftRows] of leftIndex) {
       const rightRows = rightIndex.get(key);
       if (!rightRows) { unmatchedLeft += leftRows.length; continue; }
       for (const leftRow of leftRows) for (const rightRow of rightRows) rows.push({ left: leftRow, right: rightRow });
     }
-    let unmatchedRight = 0;
+    let unmatchedRight = missingRightKeys;
     for (const [key, rightRows] of rightIndex) if (!leftIndex.has(key)) unmatchedRight += rightRows.length;
-    return this.save("key_join", [left, right], rows, "joined", { type: "none", role: "none", spatialAnalysisEligible: false }, {}, { ...input }, { unmatchedLeft, unmatchedRight, duplicatedLeftKeys: leftDuplicateKeys, duplicatedRightKeys: rightDuplicateKeys, cardinality: input.cardinality });
+    return this.save("key_join", [left, right], rows, "joined", { type: "none", role: "none", spatialAnalysisEligible: false }, {}, { ...input }, { unmatchedLeft, unmatchedRight, missingLeftKeys, missingRightKeys, duplicatedLeftKeys: leftDuplicateKeys, duplicatedRightKeys: rightDuplicateKeys, cardinality: input.cardinality });
   }
 
   calculateMetric(input: MetricInput): AnalysisResult {
@@ -201,14 +202,20 @@ export class AnalysisOperations {
   private assertActualPoints(result: StoredDataResult): void {
     if (result.geometry.type !== "Point" || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
-  private index(rows: readonly Row[], field: string): Map<string, Row[]> {
+  private index(rows: readonly Row[], field: string): { index: Map<string, Row[]>; missingKeys: number } {
     const index = new Map<string, Row[]>();
-    for (const row of rows) { const key = keyOf(row[field]); const existing = index.get(key) ?? []; existing.push(row); index.set(key, existing); }
-    return index;
+    let missingKeys = 0;
+    for (const row of rows) {
+      if (row[field] === null || row[field] === undefined) { missingKeys += 1; continue; }
+      const key = keyOf(row[field]); const existing = index.get(key) ?? []; existing.push(row); index.set(key, existing);
+    }
+    return { index, missingKeys };
   }
   private save(operation: AnalysisResult["operation"], inputs: readonly StoredDataResult[], rows: readonly Row[], recordGrain: AnalysisResult["recordGrain"], geometry: ResultGeometry, units: Readonly<Record<string, string | null>>, method: Readonly<Record<string, unknown>>, summary: Readonly<Record<string, unknown>>): AnalysisResult {
     this.sequence += 1;
-    const result: AnalysisResult = { resultId: `analysis-${operation}-${Date.now().toString(36)}-${this.sequence}`, datasetId: inputs.map(input => input.datasetId).join("+"), rows: structuredClone(rows), recordGrain, geometry, sourceRefs: inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version) === index), coverage: inputs.map(input => input.coverage).join(" | "), freshness: inputs.some(input => input.freshness === "stale") ? "stale" : inputs.some(input => input.freshness === "unknown") ? "unknown" : "current", units: { ...units }, excludedByReason: Object.assign({}, ...inputs.map(input => input.excludedByReason ?? {})), operation, inputResultIds: inputs.map(input => input.resultId), method: structuredClone(method), summary: structuredClone(summary) };
+    const excludedByReason: Record<string, number> = {};
+    for (const input of inputs) for (const [reason, count] of Object.entries(input.excludedByReason ?? {})) excludedByReason[reason] = (excludedByReason[reason] ?? 0) + count;
+    const result: AnalysisResult = { resultId: `analysis-${operation}-${Date.now().toString(36)}-${this.sequence}`, datasetId: inputs.map(input => input.datasetId).join("+"), rows: structuredClone(rows), recordGrain, geometry, sourceRefs: inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version) === index), coverage: inputs.map(input => input.coverage).join(" | "), freshness: inputs.some(input => input.freshness === "stale") ? "stale" : inputs.some(input => input.freshness === "unknown") ? "unknown" : "current", units: { ...units }, excludedByReason, operation, inputResultIds: inputs.map(input => input.resultId), method: structuredClone(method), summary: structuredClone(summary) };
     this.store.put(result);
     return structuredClone(result);
   }

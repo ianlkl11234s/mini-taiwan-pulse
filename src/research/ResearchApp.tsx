@@ -45,7 +45,7 @@ export function ResearchApp() {
   const loading = useLoadingTasks().filter(t => t.id.startsWith("research:"));
 
   const renderScene = useCallback((scene: Scene, nextRevision: number): Promise<"ready" | "error"> => {
-    if (scene.nearby) throw new Error("MAIN_MAP_REQUIRED");
+    if (scene.nearby || scene.results) throw new Error("MAIN_MAP_REQUIRED");
     if (scene.layers && Object.keys(scene.layers).length) throw new Error("MAIN_MAP_REQUIRED");
     const instance = map.current;
     if (!instance || !instance.isStyleLoaded()) throw new Error("MAP_NOT_READY");
