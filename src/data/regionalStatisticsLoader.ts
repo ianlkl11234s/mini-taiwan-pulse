@@ -1,6 +1,6 @@
 import { withLoading } from '../lib/loadingRegistry';
 import { cachedByKey } from '../lib/loaderCache';
-import { statisticsGeometryCache, waitForGeometry } from './statisticsGeometryCache';
+import { statisticsGeometryCache, waitForGeometry, type StatisticsBoundaryGeometry } from './statisticsGeometryCache';
 import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease, type AgriRecipe } from './agriStatisticsRecipes';
 
 export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_min' | 'statistical_l1' | 'statistical_l2';
@@ -18,6 +18,21 @@ export function assertStatisticsSourceSemantics(value: StatisticsObservation, re
 export interface StatisticsHealth { status: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string; coverage?: Record<string, unknown> }
 export interface GeometryManifest { resource: string; sha256: string; code_scheme: string; code_property?: string; name_property?: string; boundary_version: string; level: StatisticsLevel }
 export interface RegionalStatisticsResult { catalog: StatisticsCatalogItem[]; releases: StatisticsRelease[]; values: StatisticsValues; sources: StatisticsSource; health?: StatisticsHealth; effectiveRecipe: StatisticsRecipe; geometryManifest: GeometryManifest; features: GeoJSON.Feature[] }
+/**
+ * A release-scoped statistics read that deliberately does not download or join
+ * administrative boundary features.  Consumers that need geometry must use
+ * loadRegionalStatistics instead, so a values query cannot silently acquire a
+ * display geometry or claim that its rows are spatial features.
+ */
+export interface RegionalStatisticsValuesResult {
+  catalog: StatisticsCatalogItem[];
+  releases: StatisticsRelease[];
+  values: StatisticsValues;
+  sources: StatisticsSource;
+  health?: StatisticsHealth;
+  effectiveRecipe: StatisticsRecipe;
+  geometryManifest: GeometryManifest;
+}
 
 const STATISTICS_CDN_SCHEMA = 'regional-statistics-cdn-v1';
 const DEFAULT_STATISTICS_CDN_BASE = 'https://data.itsmigu.com/statistics/v1';
@@ -188,7 +203,7 @@ async function request<T>(route: string, query: Record<string, unknown>, signal?
   }
   const selector = manifest.selectors.find(item => item.dataset_id === query.dataset_id
     && item.indicator_id === query.indicator_id && item.release_id === query.release_id
-    && (route !== 'values' || (item.area_level === query.level && sameDimensions(item.dimensions, (query.dimensions ?? {}) as Record<string, unknown>))));
+    && item.area_level === query.level && sameDimensions(item.dimensions, (query.dimensions ?? {}) as Record<string, unknown>));
   if (!selector) return { status: 'NOT_FOUND' } as T;
   const artifact = await cdnArtifact(selector.artifact, signal);
   if (route === 'values') return artifact.values as T;
@@ -196,8 +211,15 @@ async function request<T>(route: string, query: Record<string, unknown>, signal?
   if (route === 'health') return (artifact.health ?? { status: 'NOT_FOUND' }) as T;
   throw new Error(`Statistics CDN 不支援 route: ${route}`);
 }
-export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
-  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
+interface ResolvedStatisticsRecipe {
+  catalog: StatisticsCatalogItem[];
+  releases: StatisticsRelease[];
+  release: StatisticsRelease;
+  effectiveRecipe: StatisticsRecipe;
+  agri?: AgriRecipe;
+}
+
+async function resolveStatisticsRecipe(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<ResolvedStatisticsRecipe> {
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
       request<{releases: StatisticsRelease[]}>('releases', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId }, signal, recipe),
@@ -242,21 +264,30 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       if (!resolved) throw new Error('農業統計期別或維度不在已驗證白名單中');
       effectiveRecipe = { ...effectiveRecipe, releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false };
     }
-    const previewDimensions = agriPreviewEnabled() && agri ? { dimensions: effectiveRecipe.dimensions ?? {} } : {};
+    return { catalog, releases, release, effectiveRecipe, agri };
+}
+
+function validateStatisticsValues(first: StatisticsValues, release: StatisticsRelease, recipe: StatisticsRecipe): StatisticsObservation[] {
+  if (!['OK', 'NO_DATA'].includes(first.status) || first.release?.release_id !== release.release_id || first.release.boundary_version !== release.boundary_version || first.release.dataset_id !== recipe.datasetId || first.release.indicator_id !== recipe.indicatorId || first.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
+  if (!Array.isArray(first.observations) || first.returned !== first.observations.length || first.total !== first.returned || first.truncated || first.next_offset !== null || !Number.isInteger(first.total) || first.total < 0) throw new Error('Statistics CDN release artifact 不完整');
+  return first.observations;
+}
+
+async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: AbortSignal, includeBoundary = false): Promise<RegionalStatisticsValuesResult & { boundary?: StatisticsBoundaryGeometry }> {
+    const { catalog, releases, release, effectiveRecipe, agri } = await resolveStatisticsRecipe(recipe, signal);
+    const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {} };
     // These requests share a validated release, not each other's response. Keep
     // the atomic result gate below: no values render before provenance/health/SHA pass.
-    const [{ first, observations }, { geometryManifest, boundary }, sourceResponse, health] = await Promise.all([
+    const [{ first, observations }, geometryResult, sourceResponse, health] = await Promise.all([
       (async () => {
-        const query = { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {} };
         const first = await request<StatisticsValues>('values', query, signal, recipe);
-        if (!['OK', 'NO_DATA'].includes(first.status) || first.release?.release_id !== release.release_id || first.release.boundary_version !== release.boundary_version || first.release.dataset_id !== recipe.datasetId || first.release.indicator_id !== recipe.indicatorId || first.area_level !== recipe.level) throw new Error('統計回應期別或範圍不符');
-        if (!Array.isArray(first.observations) || first.returned !== first.observations.length || first.total !== first.returned || first.truncated || first.next_offset !== null || !Number.isInteger(first.total) || first.total < 0) throw new Error('Statistics CDN release artifact 不完整');
-        return { first, observations: first.observations };
+        return { first, observations: validateStatisticsValues(first, release, recipe) };
       })(),
       (async () => {
         const geometryResponse = await request<{status: string; geometry: GeometryManifest}>('geometry-manifest', { boundary_version: release.boundary_version, level: recipe.level }, signal, recipe);
         const geometryManifest = geometryResponse.geometry;
         if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
+        if (!includeBoundary) return { geometryManifest };
         const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
           const response = await fetch(geometryManifest.resource);
           if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
@@ -264,9 +295,9 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
         }), signal);
         return { geometryManifest, boundary };
       })(),
-      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe),
+      request<{status: string; source: StatisticsSource}>('sources', query, signal, recipe),
       recipe.includeHealth
-        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe)
+        ? request<StatisticsHealth>('health', query, signal, recipe)
         : Promise.resolve(undefined),
     ]);
     if (sourceResponse.status !== 'OK' || (health && health.status !== 'OK')) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
@@ -277,6 +308,25 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       if (typeof value.area_code !== 'string' || byCode.has(value.area_code) || (value.status === 'observed' ? typeof value.value !== 'number' || !Number.isFinite(value.value) : value.value !== null)) throw new Error('統計區代碼或數值格式錯誤');
       byCode.set(value.area_code, value);
     }
+    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest: geometryResult.geometryManifest, boundary: geometryResult.boundary };
+}
+
+export async function loadRegionalStatisticsValues(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsValuesResult> {
+  return withLoading(`statistics-values:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計數值', loadStatisticsValuesResult(recipe, signal));
+}
+
+export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
+  return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
+    const result = await loadStatisticsValuesResult(recipe, signal, true);
+    const { catalog, releases, values: first, sources, health, effectiveRecipe, geometryManifest, boundary } = result;
+    const { release } = first;
+    const agri = effectiveRecipe.layerKey ? getAgriRecipe(effectiveRecipe.layerKey) : undefined;
+    const sourceResponse = { source: sources };
+    const observations = first.observations;
+    if (!boundary) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
+    const indicator = catalog.find(item => item.dataset_id === recipe.datasetId && item.indicator_id === recipe.indicatorId);
+    if (!indicator) throw new Error('此指標不提供指定地理層級');
+    const byCode = new Map(observations.map(value => [value.area_code, value]));
     const geometryCodes = new Set<string>();
     const features = boundary.features.map(feature => {
       const code = feature.properties?.area_code;
@@ -286,6 +336,6 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, indicator_name: indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
-    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest, features };
+    return { catalog, releases, values: first, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest, features };
   })());
 }
