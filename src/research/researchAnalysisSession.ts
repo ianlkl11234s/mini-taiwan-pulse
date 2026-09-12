@@ -4,7 +4,7 @@ import { queryRecordsDetailed } from "./researchDatasets";
 import { describeDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
-export type AnalysisQueryOperation = "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
+export type AnalysisQueryOperation = "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry">;
 
 function integer(value: unknown, fallback: number, min: number, max: number): number {
@@ -100,8 +100,12 @@ export class ResearchAnalysisSession {
       result = this.operations.aggregate({ resultId: id(args.resultId), operation: args.operation as Parameters<AnalysisOperations["aggregate"]>[0]["operation"], ...(typeof args.field === "string" ? { field: args.field } : {}), ...(Array.isArray(args.groupBy) ? { groupBy: args.groupBy as string[] } : {}) });
     } else if (operation === "join_records") {
       result = this.operations.keyJoin({ leftResultId: id(args.leftResultId), rightResultId: id(args.rightResultId), leftKey: String(args.leftKey ?? ""), rightKey: String(args.rightKey ?? ""), cardinality: args.cardinality as "one_to_one" | "one_to_many" });
-    } else {
+    } else if (operation === "calculate_metric") {
       result = this.operations.calculateMetric({ resultId: id(args.resultId), operation: args.operation as "ratio" | "difference", numeratorField: String(args.numeratorField ?? ""), ...(typeof args.denominatorField === "string" ? { denominatorField: args.denominatorField } : {}), ...(typeof args.outputField === "string" ? { outputField: args.outputField } : {}), ...(typeof args.unit === "string" || args.unit === null ? { unit: args.unit } : {}) });
+    } else if (operation === "read_series") {
+      result = this.operations.readSeries({ resultId: id(args.resultId), timeField: String(args.timeField ?? ""), resolution: args.resolution as "day" | "week", operation: args.operation as "count" | "sum" | "mean", ...(typeof args.valueField === "string" ? { valueField: args.valueField } : {}) });
+    } else {
+      result = this.operations.compareSeries({ currentResultId: id(args.currentResultId), baselineResultId: id(args.baselineResultId), operation: args.operation as "ratio" | "difference" });
     }
     return page(result, 0, args.limit);
   }

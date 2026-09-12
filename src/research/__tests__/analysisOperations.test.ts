@@ -73,4 +73,24 @@ describe("AnalysisOperations", () => {
     expect(operations.recordEvidence("points", 1)).toMatchObject({ recordIndex: 1, record: { code: "B" }, sourceRefs: source });
     expect(() => operations.recordEvidence("points", 3)).toThrow("RECORD_NOT_FOUND");
   });
+
+  it("builds and compares UTC series without inventing missing or zero-baseline values", () => {
+    const current = { ...pointResult("current-events"), units: { amount: "items" }, rows: [
+      { published_at: "2026-09-01T01:00:00Z", amount: 4 }, { published_at: "2026-09-01T20:00:00Z", amount: null }, { published_at: null, amount: 8 },
+    ] };
+    const baseline = { ...pointResult("baseline-events"), units: { amount: "items" }, rows: [
+      { published_at: "2026-09-01T02:00:00Z", amount: 0 }, { published_at: "2026-09-02T02:00:00Z", amount: 2 },
+    ] };
+    const { operations } = setup(current, baseline);
+    const currentSeries = operations.readSeries({ resultId: "current-events", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const baselineSeries = operations.readSeries({ resultId: "baseline-events", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    expect(currentSeries.rows).toEqual([{ period_start: "2026-09-01T00:00:00.000Z", value: 4, records: 2, missing_value: 1 }]);
+    expect(currentSeries.summary).toMatchObject({ invalidTime: 1, missingPeriodsFilled: false });
+    const compared = operations.compareSeries({ currentResultId: currentSeries.resultId, baselineResultId: baselineSeries.resultId, operation: "ratio" });
+    expect(compared.rows).toEqual([
+      expect.objectContaining({ period_start: "2026-09-01T00:00:00.000Z", value: null, status: "zero_baseline" }),
+      expect.objectContaining({ period_start: "2026-09-02T00:00:00.000Z", value: null, status: "missing_current" }),
+    ]);
+    expect(compared.summary).toMatchObject({ zeroBaseline: 1, missingCurrent: 1 });
+  });
 });

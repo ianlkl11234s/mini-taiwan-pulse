@@ -17,7 +17,7 @@ import { analysisResultSourceIds, installAnalysisResults, removeAnalysisResults 
 import "./mainMapConnection.css";
 
 type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null };
-const ANALYSIS_QUERY_OPERATIONS = new Set<BrowserQuery["operation"]>(["spatial_query", "aggregate_records", "join_records", "calculate_metric", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+const ANALYSIS_QUERY_OPERATIONS = new Set<BrowserQuery["operation"]>(["spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 function isAnalysisQueryOperation(operation: BrowserQuery["operation"]): operation is AnalysisQueryOperation { return ANALYSIS_QUERY_OPERATIONS.has(operation); }
 /** Thin adapter: the original map handlers remain the only visibility writer. */
 export function MainMapConnection(props: Props) {

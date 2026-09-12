@@ -11,7 +11,7 @@
     "result-validator.d.mts": "388c06dc3bbc87275a9632e1df61d7a932155dd3fc2b8d0b292b4b3fd7bea40b",
     "result.schema.json": "9eacff500b453fe740f30fa32fb2dc2a98ff43567136a75b60a1e8ca6d19beb2",
     "dataset.schema.json": "d0f143426076d8dc37df11e0375a865eb0f987470c19c6aaa6642a5f9e8cbd81",
-    "query-result.schema.json": "18a5ada3320c13b3a7d9373596daeb8f0ecbcbe0aae8b588d26c64d58a54a4c3",
+    "query-result.schema.json": "15c3ba817a8de97953ca5ae79c62becb6a252093b9dd56714f610c97da21298e",
     "fixture.json": "f8ddd189c61876d4bee51640f036250a51b13ca3ef2f82fbf0150adbd7bd03cd"
   }
 }

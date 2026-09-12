@@ -13,7 +13,7 @@
     "executionStatus": { "const": "complete" },
     "method": {
       "type": "object", "additionalProperties": false, "required": ["operation", "version", "parameters"],
-      "properties": { "operation": { "enum": ["query_records", "spatial_query", "aggregate_records", "join_records", "calculate_metric"] }, "version": { "const": "0.1" }, "parameters": { "$ref": "#/$defs/jsonData" } }
+      "properties": { "operation": { "enum": ["query_records", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series"] }, "version": { "const": "0.1" }, "parameters": { "$ref": "#/$defs/jsonData" } }
     },
     "sourceRefs": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "$ref": "#/$defs/sourceReceipt" } },
     "recordGrain": { "$ref": "#/$defs/resultGrain" },
@@ -35,7 +35,7 @@
   },
   "$defs": {
     "sourceGrain": { "enum": ["place", "event", "admin_statistic"] },
-    "resultGrain": { "enum": ["place", "event", "admin_statistic", "aggregate", "joined", "metric"] },
+    "resultGrain": { "enum": ["place", "event", "admin_statistic", "aggregate", "joined", "metric", "series"] },
     "instant": { "type": "string", "format": "date-time" },
     "sourceReceipt": {
       "type": "object", "additionalProperties": false, "required": ["sourceId", "version", "acquiredAt", "checksumSha256", "reference"],

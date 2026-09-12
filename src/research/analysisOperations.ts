@@ -15,7 +15,7 @@ export interface ResultGeometry {
 export interface StoredDataResult extends ResultReference {
   datasetId: string;
   rows: readonly Row[];
-  recordGrain: RecordGrain | "aggregate" | "joined" | "metric";
+  recordGrain: RecordGrain | "aggregate" | "joined" | "metric" | "series";
   geometry: ResultGeometry;
   sourceRefs: readonly SourceReceipt[];
   coverage: string;
@@ -25,7 +25,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "aggregate" | "key_join" | "ratio" | "difference";
+  operation: "within_distance" | "nearest" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;
@@ -36,6 +36,8 @@ export interface NearestInput { resultId: string; center: { lng: number; lat: nu
 export interface AggregateInput { resultId: string; operation: AggregateOperation; field?: string; groupBy?: readonly string[]; }
 export interface KeyJoinInput { leftResultId: string; rightResultId: string; leftKey: string; rightKey: string; cardinality: "one_to_one" | "one_to_many"; }
 export interface MetricInput { resultId: string; operation: "ratio" | "difference"; numeratorField: string; denominatorField?: string; outputField?: string; unit?: string | null; }
+export interface ReadSeriesInput { resultId: string; timeField: string; resolution: "day" | "week"; operation: "count" | "sum" | "mean"; valueField?: string; }
+export interface CompareSeriesInput { currentResultId: string; baselineResultId: string; operation: "ratio" | "difference"; }
 
 export interface QualitySummary {
   resultId: string;
@@ -179,6 +181,41 @@ export class AnalysisOperations {
       return { ...row, [outputField]: value };
     });
     return this.save(input.operation, [source], rows, "metric", source.geometry, { ...source.units, [outputField]: input.unit ?? null }, { ...input, outputField }, { nullMetrics: rows.filter(row => row[outputField] === null).length, nullsPreserved: true });
+  }
+
+  readSeries(input: ReadSeriesInput): AnalysisResult {
+    if (!validField(input.timeField) || input.operation !== "count" && (!input.valueField || !validField(input.valueField))) throw new Error("INVALID_SERIES_FIELD");
+    const source = this.data(input.resultId); const groups = new Map<string, { rows: number; values: number[] }>(); let invalidTime = 0;
+    for (const row of source.rows) {
+      const instant = typeof row[input.timeField] === "string" ? new Date(row[input.timeField] as string) : null;
+      if (!instant || !Number.isFinite(instant.getTime())) { invalidTime += 1; continue; }
+      const start = new Date(Date.UTC(instant.getUTCFullYear(), instant.getUTCMonth(), instant.getUTCDate()));
+      if (input.resolution === "week") { const day = start.getUTCDay() || 7; start.setUTCDate(start.getUTCDate() - day + 1); }
+      const key = start.toISOString(); const group = groups.get(key) ?? { rows: 0, values: [] }; group.rows += 1;
+      const value = input.valueField ? numeric(row[input.valueField]) : null; if (value !== null) group.values.push(value); groups.set(key, group);
+    }
+    const rows = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([periodStart, group]) => {
+      const value = input.operation === "count" ? group.rows : group.values.length ? input.operation === "sum" ? group.values.reduce((sum, item) => sum + item, 0) : group.values.reduce((sum, item) => sum + item, 0) / group.values.length : null;
+      return { period_start: periodStart, value, records: group.rows, missing_value: input.operation === "count" ? 0 : group.rows - group.values.length };
+    });
+    return this.save("read_series", [source], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: input.operation === "count" ? "records" : source.units[input.valueField ?? ""] ?? null }, { ...input, timezone: "UTC" }, { periods: rows.length, invalidTime, missingPeriodsFilled: false });
+  }
+
+  compareSeries(input: CompareSeriesInput): AnalysisResult {
+    const current = this.data(input.currentResultId); const baseline = this.data(input.baselineResultId);
+    if (current.recordGrain !== "series" || baseline.recordGrain !== "series") throw new Error("SERIES_RESULT_REQUIRED");
+    const currentRows = new Map(current.rows.map(row => [String(row.period_start), row])); const baselineRows = new Map(baseline.rows.map(row => [String(row.period_start), row]));
+    const keys = [...new Set([...currentRows.keys(), ...baselineRows.keys()])].sort(); let missingCurrent = 0; let missingBaseline = 0; let zeroBaseline = 0;
+    const rows = keys.map(periodStart => {
+      const currentValue = numeric(currentRows.get(periodStart)?.value); const baselineValue = numeric(baselineRows.get(periodStart)?.value);
+      let status = "valid"; let value: number | null = null;
+      if (currentValue === null) { missingCurrent += 1; status = "missing_current"; }
+      else if (baselineValue === null) { missingBaseline += 1; status = "missing_baseline"; }
+      else if (input.operation === "ratio" && baselineValue === 0) { zeroBaseline += 1; status = "zero_baseline"; }
+      else value = input.operation === "ratio" ? currentValue / baselineValue : currentValue - baselineValue;
+      return { period_start: periodStart, current_value: currentValue, baseline_value: baselineValue, value, status };
+    });
+    return this.save("compare_series", [current, baseline], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: input.operation === "ratio" ? "ratio" : current.units.value ?? null }, { operation: input.operation, keyField: "period_start", valueField: "value" }, { periods: rows.length, missingCurrent, missingBaseline, zeroBaseline, nullsPreserved: true });
   }
 
   qualitySummary(resultId: string): QualitySummary {
