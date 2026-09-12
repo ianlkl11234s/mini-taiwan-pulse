@@ -13,6 +13,11 @@ describe("research analysis session", () => {
     ] });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body, { headers: { "content-length": String(body.length) } })));
     const session = new ResearchAnalysisSession();
+    const plan = await session.planDataAccess({ datasetId: "tw-schools", limit: 2 });
+    expect(plan).toMatchObject({ datasetId: "tw-schools", costKnown: false, estimatedDownloadBytes: null, requiresApproval: false });
+    const plannedResult = await session.materializeData(plan.planId);
+    expect(plannedResult).toMatchObject({ planId: plan.planId, materialized: true, result: { totalMatched: 3 } });
+    await expect(session.materializeData(plan.planId)).rejects.toThrow("PLAN_NOT_FOUND_OR_EXPIRED");
     const queried = await session.queryRecords({ datasetId: "tw-schools", limit: 2 });
     expect(queried).toMatchObject({ totalMatched: 3, returned: 2, displayTruncated: true });
     const resultId = String(queried.resultId);

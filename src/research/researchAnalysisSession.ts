@@ -1,6 +1,7 @@
 import { AnalysisOperations, type AnalysisResult, type StoredDataResult } from "./analysisOperations";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { queryRecordsDetailed } from "./researchDatasets";
+import { describeDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
 export type AnalysisQueryOperation = "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
@@ -36,6 +37,7 @@ function isAnalysis(result: StoredDataResult): result is AnalysisResult { return
 export class ResearchAnalysisSession {
   private readonly store = new BrowserMemoryResultStore<ResultReference>();
   private readonly operations = new AnalysisOperations(this.store);
+  private readonly plans = new Map<string, { input: QueryRecordsInput; expiresAt: number }>();
 
   async queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
     const execution = await queryRecordsDetailed(input);
@@ -49,6 +51,32 @@ export class ResearchAnalysisSession {
     };
     this.store.put(stored);
     return execution.envelope as unknown as Record<string, unknown>;
+  }
+
+  async planDataAccess(input: QueryRecordsInput): Promise<Record<string, unknown>> {
+    const descriptor = describeDataset(input.datasetId);
+    const encoded = new TextEncoder().encode(stable({ input, versions: descriptor.versions, adapterId: descriptor.adapterId }));
+    const digest = await crypto.subtle.digest("SHA-256", encoded);
+    const hash = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+    const planId = `plan-${hash.slice(0, 24)}`; const expiresAt = Date.now() + 5 * 60_000;
+    this.plans.set(planId, { input: structuredClone(input), expiresAt });
+    while (this.plans.size > 8) this.plans.delete(this.plans.keys().next().value!);
+    return {
+      planId, datasetId: descriptor.datasetId, adapterId: descriptor.adapterId, accessMode: descriptor.accessPolicy.mode,
+      sourceVersions: descriptor.versions, estimatedScanRows: descriptor.accessPolicy.maxScanRows,
+      estimatedScanBytes: null, estimatedDownloadBytes: null, estimatedRequests: 1,
+      cacheReuse: "source_version_and_query_hash", cacheHit: null, costKnown: false, estimatedMonetaryCost: null,
+      requiresApproval: false, hardLimits: { rowsPerPage: descriptor.accessPolicy.maxRowsPerQuery, scanRows: descriptor.accessPolicy.maxScanRows },
+      expiresAt: new Date(expiresAt).toISOString(), limitations: ["Byte and monetary cost remain unknown until the allowlisted adapter returns a source receipt; unknown is not zero."],
+    };
+  }
+
+  async materializeData(planIdInput: unknown): Promise<Record<string, unknown>> {
+    const planId = id(planIdInput); const plan = this.plans.get(planId);
+    if (!plan || plan.expiresAt <= Date.now()) { this.plans.delete(planId); throw new Error("PLAN_NOT_FOUND_OR_EXPIRED"); }
+    this.plans.delete(planId);
+    const result = await this.queryRecords(plan.input);
+    return { planId, materialized: true, result };
   }
 
   execute(operation: AnalysisQueryOperation, args: Record<string, unknown>): Record<string, unknown> {
@@ -78,7 +106,7 @@ export class ResearchAnalysisSession {
     return page(result, 0, args.limit);
   }
 
-  clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); }
+  clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
 
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || resultIds.length > 4 || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
@@ -108,4 +136,11 @@ export class ResearchAnalysisSession {
     if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
     return page(result, offset, limit);
   }
+}
+
+function stable(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
+  const object = value as Record<string, unknown>;
+  return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${stable(object[key])}`).join(",")}}`;
 }

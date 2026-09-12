@@ -107,6 +107,12 @@ export function MainMapConnection(props: Props) {
         if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
         return result;
       }
+      if (request.operation === "plan_data_access") return analysisSession.current.planDataAccess(request.args.query as Parameters<ResearchAnalysisSession["planDataAccess"]>[0]);
+      if (request.operation === "materialize_data") {
+        const result = await analysisSession.current.materializeData(request.args.planId);
+        if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
+        return result;
+      }
       if (isAnalysisQueryOperation(request.operation)) {
         return analysisSession.current.execute(request.operation, request.args);
       }
