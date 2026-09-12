@@ -94,7 +94,10 @@ export function MainMapConnection(props: Props) {
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear(); analysisSession.current.clear(); popup.current?.remove(); presented.current = null; setNearby(null); setPresentedAnalysis([]);
+    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear();
+    // In-flight queries retain this old instance; rotating prevents their late store writes from entering the new session.
+    analysisSession.current = new ResearchAnalysisSession();
+    popup.current?.remove(); presented.current = null; setNearby(null); setPresentedAnalysis([]);
     if (latest.current.map) { removeNearbyOverlay(latest.current.map); removeAnalysisResults(latest.current.map); }
     controller.current = context ? new StudyController(context, render, () => setMessage("操作未完成，連線已暫停。請確認圖層權限或重新配對。")) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
