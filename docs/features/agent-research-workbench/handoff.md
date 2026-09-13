@@ -1,3 +1,13 @@
+## 新 Session 接手點：GIS Research Library ＋ Grid／Network Foundation（2026-09-14）
+
+- **目標與共識**：核心流程固定為 `datasetId → analysis → resultId`；圖層只是呈現出口。MCP 提供受控操作、Skill 規範分析流程、本地 Agent 組合工具。下一階段要把一次性分析變成可搜尋、可驗證、可版本化重用的 GIS Research Library；原始 point／line／polygon 不得被格網取代。
+- **目前完成**：M0 資料契約與共用 query executor 完成；37 個 research MCP tool schemas、session-scoped results、budget／receipt／hash／access plan、基本 filter／time／nearby／aggregate／join／metric／quality／evidence 已有測試。主地圖的本地 Agent 已整合進左側 app rail，可呈現多組 Point 結果與 fit bounds；`/lab/` 僅作診斷。
+- **真實 pilot 證據**：schools GeoJSON 4,315/4,315 個有效 Point；台北車站直線 1 km 回傳 9 筆來源 place records。2026-09-12 新聞 exact selector 合法回傳 0，非空樣本仍缺；水稻統計 exact release 有 368/368 鄉鎮、總計 158,701.13 ha，但尚未做版本相符 boundary join。詳細數字、checksum 與限制以 [acceptance.md](./acceptance.md) 為準。
+- **不可誤報**：直線附近查詢不是步行／駕車可達性；學校筆數不是教育品質；行政統計不是 parcel geometry；圖層已登記／頁面可見不等於可供 executor 分析。尚無通用 grid/H3、school district、real-estate、network isochrone、持久研究庫或 production 證據。
+- **下一個最小切片**：先完成 M2 Semantic Registry 的 machine-readable schema、validator 與 schools／news／paddy 三份語意卡，再建立 `ResearchAsset`／`GridDefinition`／`GridMetric` 契約及 library index（search／describe／promote／stale）。接著以真實 schools 做第一個 H3 或方格 assign＋aggregate＋materialize 驗收；沒有已驗證 walking profile 前，不以空殼 `network.isochrone` 冒充完成。
+- **驗收與邊界**：負向測試必須保留 hypothesis、missing／suppressed／zero、來源與版本；格網結果保留 CRS／resolution／時間與原始資料血緣。更新 [GIS roadmap](./gis-analysis-roadmap.md)、[tool plan](./tool-foundation-plan.md) 與本 handoff，使用原子化 commit。不得重做全圖層盤點，不 push、不 deploy。
+- **工作位置**：`/private/tmp/pulse-research-workbench/mini-taiwan-pulse`，branch `codex/agent-research-workbench`，本 checkpoint 前最新 commit `cf7e29de`。互動說明頁為 [gis-analysis-roadmap-guide.html](./gis-analysis-roadmap-guide.html)。
+
 ## 協作基準更新（2026-09-11）
 
 使用者已確認改以 **datasetId → analysis → resultId** 為中心，圖層是呈現出口；分析可直接使用有版本／血緣的資料，不需先開啟來源圖層。MCP提供受控操作，Skill提供分析流程，本地Agent負責組合與程式，工作台顯示研究與結果。Twinkle Hub為待評估外部來源。
