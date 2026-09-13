@@ -24,7 +24,7 @@ function page(result: StoredDataResult, offsetInput?: unknown, limitInput?: unkn
   const rows = result.rows.slice(offset, offset + limit);
   return {
     resultId: result.resultId, datasetId: result.datasetId, recordGrain: result.recordGrain, geometry: result.geometry,
-    sourceRefs: result.sourceRefs, coverage: result.coverage, freshness: result.freshness, units: result.units,
+    sourceRefs: result.sourceRefs, lineage: result.lineage, coverage: result.coverage, freshness: result.freshness, units: result.units,
     totalRows: result.rows.length, offset, limit, returned: rows.length, truncated: offset + rows.length < result.rows.length,
     nextOffset: offset + rows.length < result.rows.length ? offset + rows.length : null, rows,
     ...(isAnalysis(result) ? { operation: result.operation, inputResultIds: result.inputResultIds, method: result.method, summary: result.summary } : {}),
@@ -46,7 +46,7 @@ export class ResearchAnalysisSession {
       recordGrain: execution.envelope.recordGrain, geometry: {
         type: execution.descriptor.geometry.type, role: execution.descriptor.geometry.role,
         spatialAnalysisEligible: execution.descriptor.geometry.spatialAnalysisEligible,
-      }, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
+      }, lineage: execution.envelope.lineage, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
       units: execution.envelope.units, excludedByReason: execution.envelope.excludedByReason,
     };
     this.store.put(stored);
@@ -112,27 +112,32 @@ export class ResearchAnalysisSession {
 
   clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
 
+  hasResult(resultId: string): boolean { return this.store.has(resultId); }
+
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || resultIds.length > 4 || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
     return resultIds.map(resultId => {
       const result = this.store.get(id(resultId)) as StoredDataResult | null;
       if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
-      if (result.geometry.type !== "Point" || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("RESULT_NOT_MAP_ELIGIBLE");
-      if (result.rows.length > 2_000) throw new Error("RESULT_PRESENTATION_TOO_LARGE");
+      if (!(result.geometry.type === "Point" && result.geometry.role === "actual" && result.geometry.spatialAnalysisEligible) && !(result.datasetId === "tw-schools-grid-150m" && result.geometry.type === "Polygon" && result.geometry.role === "generalized")) throw new Error("RESULT_NOT_MAP_ELIGIBLE");
+      if (result.rows.length > (result.geometry.type === "Polygon" ? 10_000 : 2_000)) throw new Error("RESULT_PRESENTATION_TOO_LARGE");
       return { resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry };
     });
   }
 
-  bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number } {
+  bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
     const results = this.presentable(resultIds);
-    const points = results.flatMap(result => result.rows.map(row => row.geometry)).filter((geometry): geometry is { type: "Point"; coordinates: [number, number] } => {
+    const points = results.flatMap(result => result.rows.flatMap(row => {
+      const geometry = row.geometry as { type?: string; coordinates?: number[][][] };
+      return geometry?.type === "Polygon" ? (geometry.coordinates?.[0] ?? []).map(coordinates => ({ type: "Point", coordinates })) : [row.geometry];
+    })).filter((geometry): geometry is { type: "Point"; coordinates: [number, number] } => {
       if (!geometry || typeof geometry !== "object" || Array.isArray(geometry)) return false;
       const candidate = geometry as { type?: unknown; coordinates?: unknown };
       return candidate.type === "Point" && Array.isArray(candidate.coordinates) && candidate.coordinates.length === 2 && candidate.coordinates.every(value => typeof value === "number" && Number.isFinite(value));
     });
     if (!points.length) throw new Error("RESULT_HAS_NO_MAP_GEOMETRY");
     const lngs = points.map(point => point.coordinates[0]); const lats = points.map(point => point.coordinates[1]);
-    return { bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)], pointCount: points.length };
+    return { bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)], pointCount: results.filter(result => result.geometry.type === "Point").reduce((n, result) => n + result.rows.length, 0), featureCount: results.reduce((n, result) => n + result.rows.length, 0), vertexCount: points.length };
   }
 
   private getPage(resultId: string, offset?: unknown, limit?: unknown): Record<string, unknown> {

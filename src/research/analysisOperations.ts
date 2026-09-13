@@ -18,6 +18,7 @@ export interface StoredDataResult extends ResultReference {
   recordGrain: RecordGrain | "aggregate" | "joined" | "metric" | "series";
   geometry: ResultGeometry;
   sourceRefs: readonly SourceReceipt[];
+  lineage?: Readonly<Record<string, unknown>>;
   coverage: string;
   freshness: "current" | "stale" | "unknown";
   units: Readonly<Record<string, string | null>>;
@@ -49,6 +50,7 @@ export interface QualitySummary {
   coverage: string;
   excludedByReason: Record<string, number>;
   sourceRefs: readonly SourceReceipt[];
+  lineage?: Readonly<Record<string, unknown>>;
 }
 
 export interface RecordEvidence {
@@ -56,6 +58,7 @@ export interface RecordEvidence {
   recordIndex: number;
   record: Row;
   sourceRefs: readonly SourceReceipt[];
+  lineage?: Readonly<Record<string, unknown>>;
   coverage: string;
   freshness: StoredDataResult["freshness"];
 }
@@ -221,13 +224,13 @@ export class AnalysisOperations {
   qualitySummary(resultId: string): QualitySummary {
     const source = this.data(resultId); const nullByField: Record<string, number> = {};
     for (const row of source.rows) for (const [field, value] of Object.entries(row)) if (value === null || value === undefined) nullByField[field] = (nullByField[field] ?? 0) + 1;
-    return { resultId, rows: source.rows.length, nullByField, geometry: { ...source.geometry }, spatialAnalysisEligible: source.geometry.role === "actual" && source.geometry.spatialAnalysisEligible, freshness: source.freshness, coverage: source.coverage, excludedByReason: { ...(source.excludedByReason ?? {}) }, sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })) };
+    return { resultId, lineage: source.lineage, rows: source.rows.length, nullByField, geometry: { ...source.geometry }, spatialAnalysisEligible: source.geometry.role === "actual" && source.geometry.spatialAnalysisEligible, freshness: source.freshness, coverage: source.coverage, excludedByReason: { ...(source.excludedByReason ?? {}) }, sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })) };
   }
 
   recordEvidence(resultId: string, recordIndex: number): RecordEvidence {
     const source = this.data(resultId);
     if (!Number.isInteger(recordIndex) || recordIndex < 0 || recordIndex >= source.rows.length) throw new Error("RECORD_NOT_FOUND");
-    return { resultId, recordIndex, record: structuredClone(source.rows[recordIndex]!), sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })), coverage: source.coverage, freshness: source.freshness };
+    return { resultId, recordIndex, lineage: source.lineage, record: structuredClone(source.rows[recordIndex]!), sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })), coverage: source.coverage, freshness: source.freshness };
   }
 
   private data(resultId: string): StoredDataResult {
@@ -252,7 +255,7 @@ export class AnalysisOperations {
     this.sequence += 1;
     const excludedByReason: Record<string, number> = {};
     for (const input of inputs) for (const [reason, count] of Object.entries(input.excludedByReason ?? {})) excludedByReason[reason] = (excludedByReason[reason] ?? 0) + count;
-    const result: AnalysisResult = { resultId: `analysis-${operation}-${Date.now().toString(36)}-${this.sequence}`, datasetId: inputs.map(input => input.datasetId).join("+"), rows: structuredClone(rows), recordGrain, geometry, sourceRefs: inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version) === index), coverage: inputs.map(input => input.coverage).join(" | "), freshness: inputs.some(input => input.freshness === "stale") ? "stale" : inputs.some(input => input.freshness === "unknown") ? "unknown" : "current", units: { ...units }, excludedByReason, operation, inputResultIds: inputs.map(input => input.resultId), method: structuredClone(method), summary: structuredClone(summary) };
+    const result: AnalysisResult = { resultId: `analysis-${operation}-${Date.now().toString(36)}-${this.sequence}`, datasetId: inputs.map(input => input.datasetId).join("+"), rows: structuredClone(rows), recordGrain, geometry, ...(inputs.some(input => input.lineage) ? { lineage: { inputs: inputs.filter(input => input.lineage).map(input => ({ resultId: input.resultId, lineage: structuredClone(input.lineage) })) } } : {}), sourceRefs: inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version) === index), coverage: inputs.map(input => input.coverage).join(" | "), freshness: inputs.some(input => input.freshness === "stale") ? "stale" : inputs.some(input => input.freshness === "unknown") ? "unknown" : "current", units: { ...units }, excludedByReason, operation, inputResultIds: inputs.map(input => input.resultId), method: structuredClone(method), summary: structuredClone(summary) };
     this.store.put(result);
     return structuredClone(result);
   }

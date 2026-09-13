@@ -48,6 +48,8 @@ export class BrowserMemoryResultStore<T extends ResultReference = ResultReferenc
     return entry ? copy(entry.value) : null;
   }
 
+  has(resultId: string): boolean { this.purgeExpired(); return this.entries.has(resultId); }
+
   list(): T[] {
     this.purgeExpired();
     return [...this.entries.values()].sort((a, b) => a.sequence - b.sequence).map(entry => copy(entry.value));

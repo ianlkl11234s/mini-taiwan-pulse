@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "semantic-card/0.1",
+  "semanticVersion": "0.1.0",
+  "datasetId": "tw-schools",
+  "datasetVersion": null,
+  "label": "全國各級學校",
+  "recordGrain": "place",
+  "geometry": { "role": "actual", "spatialAnalysisEligible": true, "meaning": "來源校址 Point；機構與校區的識別語意沿用來源，不能自行去重為教育服務量。" },
+  "versions": [{ "datasetVersion": null, "sourceVersion": null, "freshness": "unknown", "note": "Pulse descriptor 沒有固定版本；每次分析必須附來源 receipt/checksum 才能主張快照。" }],
+  "requiredEvidence": [
+    { "evidenceId": "source_receipt", "description": "取得時間、來源 reference 與 checksum 或等價 snapshot receipt。" },
+    { "evidenceId": "valid_point_geometry", "description": "參與空間分析的 records 已驗證為可用 EPSG:4326 Point。" },
+    { "evidenceId": "population", "description": "與研究範圍和時間對齊的人口或學生需求資料。" },
+    { "evidenceId": "capacity", "description": "可用學額或容量資料及其資料期別。" },
+    { "evidenceId": "eligibility", "description": "入學資格、學區或服務對象規則。" },
+    { "evidenceId": "network", "description": "可達性所需道路、步行或運輸網路及阻抗方法。" }
+  ],
+  "concepts": [
+    { "conceptId": "school_site", "kind": "observed", "definition": "來源所列的學校校址 record。", "method": { "methodId": "source_record_read", "version": "0.1.0" }, "scope": { "spatialScale": "school-site point", "timeScale": "source snapshot" }, "confidence": { "level": "unknown", "rationale": "需由每次 receipt 驗證。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-schools descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["source_receipt", "valid_point_geometry"], "allowedAnalyses": ["以來源 record 為單位的點位查詢與距離計算"], "prohibitedClaims": ["record 數等於教育量能、學生數或服務品質"] },
+    { "conceptId": "nearest_school_site", "kind": "derived", "definition": "由已驗證校址點位計算的直線最近距離。", "method": { "methodId": "haversine_nearest", "version": "0.1.0" }, "scope": { "spatialScale": "point-to-school-site", "timeScale": "source snapshot" }, "confidence": { "level": "unknown", "rationale": "受來源點位完整性限制。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-schools descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["source_receipt", "valid_point_geometry"], "allowedAnalyses": ["Haversine 最近點與指定半徑內校址計數"], "prohibitedClaims": ["直線距離等於步行、開車或無障礙可達時間"] },
+    { "conceptId": "school_site_map_marker", "kind": "proxy", "definition": "為顯示而使用的校址 marker，不代表校園範圍或服務區。", "method": { "methodId": "point_marker_display", "version": "0.1.0" }, "scope": { "spatialScale": "display point", "timeScale": "source snapshot" }, "confidence": { "level": "unknown", "rationale": "point 是校址而非校地邊界。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-schools descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["source_receipt", "valid_point_geometry"], "allowedAnalyses": ["以 point marker 探索來源校址"], "prohibitedClaims": ["marker 面積或所在網格等於校園或服務區範圍"] },
+    { "conceptId": "education_access", "kind": "hypothesis", "definition": "從校址分布推測的教育可近性問題。", "method": { "methodId": "accessibility_hypothesis", "version": "0.1.0" }, "scope": { "spatialScale": "population-to-school network", "timeScale": "aligned source periods" }, "confidence": { "level": "unknown", "rationale": "校址本身沒有需求、容量、資格或路網語意。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-schools descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["source_receipt", "valid_point_geometry", "population", "capacity", "eligibility", "network"], "allowedAnalyses": ["提出需以道路、容量、資格與人口資料驗證的研究假設"], "prohibitedClaims": ["僅憑校址點位宣稱教育服務充足或不足"] }
+  ],
+  "allowedAnalyses": ["point query", "nearest", "bounded-radius count"],
+  "prohibitedClaims": ["未有 receipt 時宣稱完整或最新全臺 coverage", "將缺 geometry 的 record 視為空間上的零"]
+}

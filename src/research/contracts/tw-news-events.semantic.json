@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "semantic-card/0.1",
+  "semanticVersion": "0.1.0",
+  "datasetId": "tw-news-events",
+  "datasetVersion": null,
+  "label": "國內新聞事件",
+  "recordGrain": "event",
+  "geometry": { "role": "proxy", "spatialAnalysisEligible": false, "meaning": "geometry 是 township cluster proxy 或 null；它不代表事件實際發生位置。" },
+  "versions": [{ "datasetVersion": null, "sourceVersion": null, "freshness": "unknown", "note": "版本由查詢日與 snapshot hash 組成；沒有 receipt 不可將結果描述為特定日的完整快照。" }],
+  "requiredEvidence": [
+    { "evidenceId": "query_receipt", "description": "查詢日、filters、RPC/source reference 與 snapshot hash。" },
+    { "evidenceId": "event_identity", "description": "event_id 與來源文章／分類 lineage；不可用地圖 cluster 取代 event grain。" },
+    { "evidenceId": "location_precision", "description": "每筆定位精度；沒有 geometry 必須保留未定位狀態。" }
+  ],
+  "concepts": [
+    { "conceptId": "news_event_record", "kind": "observed", "definition": "符合明示 filters 的 raw event record，而非文章數或地圖 cluster。", "method": { "methodId": "filtered_event_read", "version": "0.1.0" }, "scope": { "spatialScale": "event record", "timeScale": "query date" }, "confidence": { "level": "unknown", "rationale": "依 query receipt 與 identity 驗證。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-news-events descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["query_receipt", "event_identity"], "allowedAnalyses": ["按 event_id 的篩選與計數"], "prohibitedClaims": ["event record 數等於獨立真實世界事件數"] },
+    { "conceptId": "filtered_event_count", "kind": "derived", "definition": "對帶有 query receipt 的 event records 所做的計數。", "method": { "methodId": "event_count", "version": "0.1.0" }, "scope": { "spatialScale": "filtered event set", "timeScale": "query date" }, "confidence": { "level": "unknown", "rationale": "filters 與定位排除須可追溯。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-news-events descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["query_receipt", "event_identity"], "allowedAnalyses": ["在相同 filters、日期與 event grain 下比較計數"], "prohibitedClaims": ["跨不同 filters 或未定位排除規則直接比較"] },
+    { "conceptId": "township_cluster_location", "kind": "proxy", "definition": "用於呈現的 township cluster 位置。", "method": { "methodId": "township_cluster_display", "version": "0.1.0" }, "scope": { "spatialScale": "township cluster proxy", "timeScale": "query date" }, "confidence": { "level": "unknown", "rationale": "不是事件實際位置。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-news-events descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["query_receipt", "location_precision"], "allowedAnalyses": ["標示為 proxy 的地圖展示與 cluster-level exploration"], "prohibitedClaims": ["以 proxy 做事件發生地、精確距離或行政區歸屬斷言"] },
+    { "conceptId": "local_incident_pattern", "kind": "hypothesis", "definition": "從篩選新聞 event 與 proxy 位置得到的在地事件模式推測。", "method": { "methodId": "pattern_hypothesis", "version": "0.1.0" }, "scope": { "spatialScale": "proxy-labelled event set", "timeScale": "query date" }, "confidence": { "level": "unknown", "rationale": "新聞 coverage 不等於事件發生率。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts tw-news-events descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["query_receipt", "event_identity", "location_precision"], "allowedAnalyses": ["提出後續需由原始報導、時間與真實位置驗證的假設"], "prohibitedClaims": ["將新聞 coverage 或 proxy 分布宣稱為事件發生率"] }
+  ],
+  "allowedAnalyses": ["raw event listing", "filter-bound aggregation", "proxy-labelled map exploration"],
+  "prohibitedClaims": ["以 confidence 欄位代替來源、identity 或定位 evidence", "將 null geometry 填成零座標或未發生"]
+}

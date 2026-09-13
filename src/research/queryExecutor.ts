@@ -17,6 +17,7 @@ export interface QueryRecordsInput {
 export interface AdapterReadResult {
   rows: readonly Record<string, unknown>[];
   sourceRefs: readonly SourceReceipt[];
+  lineage?: Readonly<Record<string, unknown>>;
   coverage: string;
   freshness: "current" | "stale" | "unknown";
   exclusions: Record<string, number>;
@@ -163,7 +164,7 @@ export class QueryExecutor {
     const queryHash = await sha256({ query: normalized, sources: read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 })) });
     const envelope: ResultEnvelope = {
       schemaVersion: "pulse-query-result/0.1", resultId: `result-${queryHash.slice(0, 24)}`, queryHash, datasetId: input.datasetId,
-      executionStatus: "complete", method: { operation: "query_records", version: "0.1", parameters: normalized }, sourceRefs: read.sourceRefs,
+      executionStatus: "complete", method: { operation: "query_records", version: "0.1", parameters: normalized }, sourceRefs: read.sourceRefs, ...(read.lineage ? { lineage: read.lineage } : {}),
       recordGrain: descriptor.recordGrain, countGrain: descriptor.recordGrain,
       units: Object.fromEntries(select.map(name => [name, fieldMap.get(name)!.unit])), coverage: read.coverage, freshness: read.freshness,
       totalMatched: matched.length, returned: rows.length, displayTruncated: offset + rows.length < matched.length, analysisComplete: true,

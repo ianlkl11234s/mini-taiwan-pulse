@@ -13,6 +13,10 @@ if (!analytics) throw new Error('Usage: node scripts/research/sync-contracts.mjs
 const destination = resolve(value('--consumer') ?? resolve(root, 'src/research/contracts'));
 const source = resolve(analytics, 'src/analysis/contracts');
 const files = [
+  ['semantic-card.schema.json', 'semantic-card.schema.json'],
+  ['semantic-validator.mjs', 'semantic-validator.mjs'],
+  ['semantic-validator.d.ts', 'semantic-validator.d.mts'],
+  ...['tw-schools', 'tw-news-events', 'land-use-paddy-area-township'].map(name => [`../semantics/cards/${name}.semantic.json`, `${name}.semantic.json`]),
   ['result-validator.mjs', 'result-validator.mjs'],
   ['result-validator.d.ts', 'result-validator.d.mts'],
   ['result.schema.json', 'result.schema.json'],
@@ -20,7 +24,7 @@ const files = [
   ['query-result.schema.json', 'query-result.schema.json'],
   ['../../../tests/analysis/fixtures/research-result-synthetic.json', 'fixture.json'],
 ];
-const manifest = { source: 'taipei-gis-analytics/src/analysis/contracts', schemaVersion: 'research-result/0.1', contractVersions: ['research-result/0.1', 'pulse-dataset/0.1', 'pulse-query-result/0.1'], files: {} };
+const manifest = { source: 'taipei-gis-analytics/src/analysis/contracts', schemaVersion: 'research-result/0.1', contractVersions: ['research-result/0.1', 'pulse-dataset/0.1', 'pulse-query-result/0.1', 'semantic-card/0.1'], files: {} };
 if (!args.includes('--check')) await mkdir(destination, { recursive: true });
 for (const [from, to] of files) {
   const bytes = await readFile(resolve(source, from));

@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "required": ["schemaVersion", "resultId", "queryHash", "datasetId", "executionStatus", "method", "sourceRefs", "recordGrain", "countGrain", "units", "coverage", "freshness", "totalMatched", "returned", "displayTruncated", "analysisComplete", "excludedByReason", "rows", "cost", "expiresAt"],
   "properties": {
+    "lineage": { "type": "object" },
     "schemaVersion": { "const": "pulse-query-result/0.1" },
     "resultId": { "type": "string", "pattern": "^result-[a-f0-9]{24}$" },
     "queryHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
@@ -34,8 +35,8 @@
     "expiresAt": { "anyOf": [{ "$ref": "#/$defs/instant" }, { "type": "null" }] }
   },
   "$defs": {
-    "sourceGrain": { "enum": ["place", "event", "admin_statistic"] },
-    "resultGrain": { "enum": ["place", "event", "admin_statistic", "aggregate", "joined", "metric", "series"] },
+    "sourceGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell"] },
+    "resultGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell", "aggregate", "joined", "metric", "series"] },
     "instant": { "type": "string", "format": "date-time" },
     "sourceReceipt": {
       "type": "object", "additionalProperties": false, "required": ["sourceId", "version", "acquiredAt", "checksumSha256", "reference"],

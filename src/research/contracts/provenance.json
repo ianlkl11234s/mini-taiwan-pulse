@@ -4,14 +4,21 @@
   "contractVersions": [
     "research-result/0.1",
     "pulse-dataset/0.1",
-    "pulse-query-result/0.1"
+    "pulse-query-result/0.1",
+    "semantic-card/0.1"
   ],
   "files": {
+    "semantic-card.schema.json": "cff4572a5a3161a879007c8ac2ad2072b90550ea3ec75c7f492125a98af32d81",
+    "semantic-validator.mjs": "f08e89b2b3e245b6af5a46a7a09547c7b2f6bf7af2441c24a7825b2639493c62",
+    "semantic-validator.d.mts": "51c7117916fafc0bf17638ec5db683658aee92d5d65089ea72901e9c5b70d47d",
+    "tw-schools.semantic.json": "5d6280c79e5fd5b92f8e7ed63c7deacd29594be9d423fe113cd4d20c25d91f46",
+    "tw-news-events.semantic.json": "70001602cf6f67b34f554c397041575edbc75f4aec9f36849d025883b4f94d77",
+    "land-use-paddy-area-township.semantic.json": "e6c64077c63cd238a64be89baa861c8a1824692068afee1df4a4822271cdca48",
     "result-validator.mjs": "71c2ef382846578687324f07747a8613b48d73113ea69ac0a423d7dfffd9a6bd",
     "result-validator.d.mts": "388c06dc3bbc87275a9632e1df61d7a932155dd3fc2b8d0b292b4b3fd7bea40b",
     "result.schema.json": "9eacff500b453fe740f30fa32fb2dc2a98ff43567136a75b60a1e8ca6d19beb2",
-    "dataset.schema.json": "d0f143426076d8dc37df11e0375a865eb0f987470c19c6aaa6642a5f9e8cbd81",
-    "query-result.schema.json": "15c3ba817a8de97953ca5ae79c62becb6a252093b9dd56714f610c97da21298e",
+    "dataset.schema.json": "3a7a5d4f52623a0dddfb819e40058544c37edfcddab3afb264638be0a9ee6442",
+    "query-result.schema.json": "13247b23238503fd7161aa3ec4a3be35ff7d64e23238e042822695f9c5574286",
     "fixture.json": "f8ddd189c61876d4bee51640f036250a51b13ca3ef2f82fbf0150adbd7bd03cd"
   }
 }

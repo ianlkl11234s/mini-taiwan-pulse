@@ -1,5 +1,5 @@
-export type DatasetKind = "point" | "event" | "admin_statistic";
-export type RecordGrain = "place" | "event" | "admin_statistic";
+export type DatasetKind = "point" | "event" | "admin_statistic" | "grid";
+export type RecordGrain = "place" | "event" | "admin_statistic" | "grid_cell";
 export type ResultGrain = RecordGrain | "aggregate" | "joined" | "metric" | "series";
 export type GeometryRole = "actual" | "proxy" | "centroid" | "generalized" | "none";
 export type FieldType = "string" | "number" | "boolean" | "datetime" | "json";
@@ -56,6 +56,7 @@ export interface ResultEnvelope<Row extends Record<string, unknown> = Record<str
   executionStatus: "complete";
   method: { operation: "query_records" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series"; version: "0.1"; parameters: Record<string, unknown> };
   sourceRefs: readonly SourceReceipt[];
+  lineage?: Readonly<Record<string, unknown>>;
   recordGrain: ResultGrain;
   countGrain: RecordGrain;
   units: Record<string, string | null>;

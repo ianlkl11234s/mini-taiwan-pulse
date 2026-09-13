@@ -1,3 +1,6 @@
+import { describeDatasetSemantics } from "./semanticRegistry";
+import type { SemanticCard } from "./contracts/semantic-validator.mjs";
+import { schoolsGridAdapter } from "./gridDatasetAdapter";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
 import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
 import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
@@ -181,7 +184,7 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
   };
 });
 
-export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter]);
+export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter, schoolsGridAdapter]);
 
 function normalize(value: string): string { return value.normalize("NFKC").toLocaleLowerCase().replace(/臺/g, "台").trim(); }
 
@@ -193,10 +196,10 @@ export function searchDatasets(query: string, offset = 0, limit = 20) {
   return { query, offset, limit, totalMatched: matched.length, returned: datasets.length, truncated: offset + datasets.length < matched.length, datasets };
 }
 
-export function describeDataset(datasetId: string): DatasetDescriptor {
+export function describeDataset(datasetId: string): DatasetDescriptor & { semantics: SemanticCard | null } {
   const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId);
   if (!descriptor) throw new Error("DATASET_NOT_FOUND");
-  return descriptor;
+  return { ...descriptor, semantics: describeDatasetSemantics(datasetId) };
 }
 
 export async function queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
