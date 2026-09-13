@@ -32,7 +32,7 @@ export function MainMapConnection(props: Props) {
   const [presentedAnalysis, setPresentedAnalysis] = useState<PresentedAnalysisSummary[]>([]);
   const picked = useRef<[number, number] | null>(null);
   const picking = useRef(false); picking.current = selecting;
-  const [message, setMessage] = useState("先配對，再讓 Agent 開關這張地圖的圖層。");
+  const [message, setMessage] = useState("先配對，再讓 Agent 分析資料，並把結果呈現在這張地圖。");
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);

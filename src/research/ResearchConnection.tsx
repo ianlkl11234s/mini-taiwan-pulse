@@ -106,6 +106,6 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, surfac
       {status?.deviceLabel && <p>裝置：{status.deviceLabel}</p>}{status?.phrase && <p>比對短語：{status.phrase}</p>}
       <button disabled={!status?.claimed || !status?.phrase || status.approved} onClick={() => void approve()}>確認配對</button>{" "}<button onClick={() => void pause()}>{paused ? "恢復" : "暫停"}</button>{" "}<button onClick={() => void revoke()}>撤銷</button>
     </>}
-    <small>{surface === "map" ? "操作此頁既有圖層；開啟圖層會沿用原本的資料載入。正式連線尚未部署。" : "目前可測試移動地圖、顯示合成成果與清除。正式連線尚待部署驗收。"}</small>
+    <small>{surface === "map" ? "可分析有界資料、把結果呈現在這張主地圖，並操作既有圖層；開啟圖層會沿用原本的資料載入。正式連線尚未部署。" : "此頁只供獨立驗證連線與呈現；實際使用請回到 Mini Taiwan Pulse 主地圖。正式連線尚待部署驗收。"}</small>
   </section>;
 }

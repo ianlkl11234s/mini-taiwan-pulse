@@ -41,7 +41,7 @@
 
 ## 最新狀態：真實本地登入與 Codex 已接通
 
-- Gateway 已在本機 `127.0.0.1:8790` 執行；網站 `127.0.0.1:3731/lab/` 代理同源 API。
+- Gateway 已在本機 `127.0.0.1:8790` 執行；Mini Taiwan Pulse 主站 `127.0.0.1:3731/` 代理同源 API。`/lab/` 僅保留作獨立驗證頁，不是使用入口。
 - 使用原專案的 **兩個公開 VITE_SUPABASE 設定**，未複製 service-role／DB key。研究登入已改獨立 PKCE + tab sessionStorage，與一般地圖登入分開。
 - 私有 runtime 設定在 `/private/tmp/pulse-research-workbench/runtime/gateway.env`（0600），SQLite parent0700、DB0600；僅目前登入且 email 已由 Supabase 確認的試辦帳號可用。不在 repo 記錄其 email／憑證。
 - 透過官方 `codex mcp add` 新增全域 `pulse-research`，保留其他 MCP。設定指向此 worktree 的 built stdio entry 與本地研究網址；未配置來源讀取 root。
@@ -65,7 +65,7 @@ npm run dev -- --host 127.0.0.1 --port 3731
 
 ## 開啟與工作位置
 
-- 開發預覽：`http://127.0.0.1:3731/lab/`。
+- 實際使用與驗收入口：`http://127.0.0.1:3731/` 右上「本地 Agent」。`http://127.0.0.1:3731/lab/` 僅供獨立連線／renderer 診斷。
 - Worktree 根：`/private/tmp/pulse-research-workbench/`。
 - 四個 repo 的 branch 均為 `codex/agent-research-workbench`。
 - Pulse baseline `617f1dcb117e72738dde85f0cf0ab19281661432`。
