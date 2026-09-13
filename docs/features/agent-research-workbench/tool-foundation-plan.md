@@ -1,6 +1,6 @@
 # 跨圖層、新聞與消息的通用 Tools 規劃
 
-> 理想 GIS 分析的能力缺口、里程碑、可解問題與持續監看總表，見 [gis-analysis-roadmap.md](./gis-analysis-roadmap.md)；互動流程見 [gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)。
+> 理想 GIS 分析的能力缺口、里程碑、可解問題與持續監看總表，見 [gis-analysis-roadmap.md](./gis-analysis-roadmap.md)；淺白互動說明見 [gis-analysis-roadmap-guide.html](./gis-analysis-roadmap-guide.html)，工程版流程見 [gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)。
 
 日期：2026-09-11。2026-09-13 更新：**最小runtime foundation與三類pilot readback完成**。P1與有真實pilot可驗收的P2基本操作已完成；S3 manifest/disk cache及尚無真實adapter的進階operation維持明確待辦，未完成項不得宣稱可用。
 

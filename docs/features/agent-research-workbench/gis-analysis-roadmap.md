@@ -4,7 +4,9 @@
 >
 > 狀態：本地規劃基準；未 push、未部署
 >
-> 互動版：[gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)
+> 淺白互動說明：[gis-analysis-roadmap-guide.html](./gis-analysis-roadmap-guide.html)
+>
+> 工程版流程圖：[gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)
 >
 > 現行工具細節：[tool-foundation-plan.md](./tool-foundation-plan.md)
 >
