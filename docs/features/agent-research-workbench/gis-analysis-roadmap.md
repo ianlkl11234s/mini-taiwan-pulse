@@ -1,6 +1,6 @@
 # Mini Taiwan Pulse 理想 GIS 分析總路線圖
 
-> 更新日期：2026-09-13
+> 更新日期：2026-09-14
 >
 > 狀態：本地規劃基準；未 push、未部署
 >
@@ -11,6 +11,10 @@
 > 現行工具細節：[tool-foundation-plan.md](./tool-foundation-plan.md)
 >
 > 已完成驗收：[acceptance.md](./acceptance.md)
+
+## 本輪增量
+
+2026-09-14 已實作 Semantic Registry、單機 SQLite Research Library 與真實 schools 150m occupied grid。4,315 筆來源校址紀錄 → 4,061 個格網，來源觀測時間與授權 unknown，維持本地 HOLD。詳細重算／CLI／主地圖流程見 [tool plan](./tool-foundation-plan.md)；各證據面見 [acceptance](./acceptance.md)。學區、房價、network 仍 HOLD；沒有 production 交付。
 
 ## 一句話目標
 
@@ -175,16 +179,16 @@ MCP tool 是受控動作；Skill／Recipe 決定「什麼問題該用哪些動�
 |---|---|---|---|---|
 | M0 資料契約與共用 executor | **完成** | contract、query receipt、budget、result session | 單元測試、型別、真實點資料 readback | 可重用資料讀取 |
 | M1 三類 pilot 閉環 | **部分完成** | 點、新聞事件、行政統計 | 學校完成；新聞需非空樣本；統計需 boundary join | 跨資料型態 recipe |
-| M2 Semantic Registry MVP | **下一步** | machine-readable schema、學校／新聞／統計語意、wiki view | 四類語意與禁用主張可驗證；缺 evidence 必拒絕／保留假設的負向測試通過 | Agent 能知道資料「代表什麼」 |
+| M2 Semantic Registry MVP | **本地 MVP 完成** | machine-readable schema、學校／新聞／統計語意、wiki view | 四類語意與禁用主張可驗證；缺 evidence 必拒絕／保留假設的負向測試通過 | Agent 能知道資料「代表什麼」 |
 | M3 Vector 與行政區交叉分析 | **待做** | spatial join、buffer、nearest、cluster、versioned boundary join | CRS、距離／面積單位、geometry validity／topology、重複 join、crosswalk 權重、MAUP／生態謬誤、邊界版本與 null／0 測試 | 教育可及性、事件空間關聯／潛在暴露、服務缺口 |
 | M4 Network、Raster、Temporal | **待做** | 路網／等時圈、raster sampling、時序 baseline | 直線與路網分離；旅行模式／連通性、CRS、resolution、NoData 與時間基準明確 | 步行可達、災害暴露、環境與時段分析 |
-| M5 持久研究檔案庫 | **待做** | result archive、lineage、materialization、cache policy | 可重算、可撤回、跨 session、權限隔離 | 長時間自主分析與比較 |
+| M5 持久研究檔案庫 | **本地 asset index 完成；多人／雲端待做** | result archive、lineage、materialization、cache policy | 可重算、可撤回、跨 session、權限隔離 | 長時間自主分析與比較 |
 | M6 完整成果 UX | **待做** | Point／line／polygon／raster、表格、圖表、compare | Browser 與可存取摘要一致；手機與桌面可用 | 在主地圖直接理解複合結果 |
 | M7 Production 化 | **待做** | 正式 auth、TLS、監控、部署與來源 readback | production 證據獨立通過，不沿用本地綠燈 | 可持續對外使用 |
 
 ### 建議實作順序
 
-1. 完成 M2：先讓 Agent 知道資料的語意與禁用推論。
+1. M2 三張語意卡與本地 schools grid 已完成；擴展時沿用 machine-readable validator 與負向 evidence 閘門。
 2. 補齊 M1 的新聞非空樣本、統計 boundary join 與醫院資產證據。
 3. 完成 M3：先把常用 vector／行政區交叉分析做穩。
 4. 依實際問題增加 M4，不一次把所有 GIS 演算法搬進來。

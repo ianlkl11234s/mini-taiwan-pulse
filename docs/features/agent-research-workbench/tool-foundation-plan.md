@@ -1,3 +1,42 @@
+## 2026-09-14：Semantic Registry 與本地 Research Library／Grid
+
+本輪為 local research/prototype。M2 三張語意卡與 validator 已接 `describe_dataset.semantics`，包含 semanticVersion、datasetVersion、四類概念、方法與版本、尺度、required evidence、allowed analyses、prohibited claims。缺 evidence 保留 hypothesis；confidence 不會自動升級 kind。學校與新聞的版本仍為 null，需查詢 receipt；水田卡綁既有 exact release。宣告的分析語意不會替尚不存在的 operation 解鎖能力。
+
+ResearchAsset／GridDefinition／GridMetric 契約在 analytics `src/analysis/library/`；SQLite index 提供本地 search／describe／promote／mark-stale CLI。source hash 實讀、版本不可覆寫、stale 不可被 materialize 洗掉；未知授權／觀測時間的 schools 資產留在 HOLD。原始 Point 另存 content-addressed archive；派生格網不取代原始 point／line／polygon。這是單一可信本地使用者的研究庫，尚非多人 ACL、雲端 archive 或持久 resultId store。
+
+第一個真實垂直切片：4,315 筆來源校址紀錄 → 4,061 occupied cells。Grid EPSG:3826，origin `(144250,2399250)`，150m，方法 `schools-point-count-v1`；輸出 EPSG:4326 Polygon。逐格重新投影、重算 assign/count 與原檔 hash 通過後，Pulse 用完整 bundle SHA pin 讀入 `tw-schools-grid-150m`，仍經共用 executor → session resultId → 主地圖 transient Polygon。格網是投影座標中的 150m，不宣稱各地地表面積完全相等；無輸出 cell 不代表零。
+
+目前只計來源 place records，不宣稱獨立機構數、學生數、教育品質或服務涵蓋。學區與房價分析維持 **HOLD**：缺版本相符、可用的 school-district／real-estate 資產。未製造 synthetic 資料冒充完成。
+
+Network 維持 **HOLD**。本地僅找到 OSMnx／pyrosm 舊流程與速度假設，沒有固定可驗收 graph/profile/runtime。下一里程碑需固定 engine、walking/driving profile 版本與 hash、OSM extract 日期／hash、coverage、方向／連通性／unreachable／turn restrictions、cutoff 單位及 snap distance，再以真實路線測 nearest／isochrone／coverage；本輪沒有註冊空殼 network operation。參考 analytics `pipelines/police_justice/isochrone/10_police_isochrone.py:70`、`src/osm_utils.py:211`；edge-length ego graph 不等於 travel-time routing。
+
+### 操作與重算
+
+在 analytics worktree：
+
+```sh
+python3 -m src.analysis.library.schools_grid --source ../mini-taiwan-pulse/public/education/schools.geojson --output-dir data/intermediate/research-library/schools-grid-v3
+python3 -m src.analysis.library.schools_grid --action search --index data/intermediate/research-library/schools-grid-v3/library.sqlite --query schools
+# 使用 search 回傳的 asset id；promote 對目前 schools HOLD 會拒絕
+python3 -m src.analysis.library.schools_grid --action describe --index data/intermediate/research-library/schools-grid-v3/library.sqlite --asset-id '<asset-id>'
+python3 -m src.analysis.library.schools_grid --action promote --index data/intermediate/research-library/schools-grid-v3/library.sqlite --asset-id '<asset-id>'
+python3 -m src.analysis.library.schools_grid --action mark-stale --index data/intermediate/research-library/schools-grid-v3/library.sqlite --asset-id '<asset-id>' --reason '<具體原因>'
+```
+
+在 Pulse worktree：
+
+```sh
+python3 scripts/research/sync-grid-receipt.py --analytics ../taipei-gis-analytics --check
+node scripts/research/sync-contracts.mjs --analytics ../taipei-gis-analytics --check
+npm run dev -- --host 127.0.0.1 --port 3731
+```
+
+Python 需可用 pyproj；沒有套件時使用已裝好套件的環境，不以降級公式代替投影。來源或方法更換時，使用新的 output version directory，先完整 readback，再更新固定 route 與 receipt；不同 bytes 不覆寫舊 bundle。
+
+主地圖 → 本地 Agent →「呈現學校 150m 格網」。提供透明度、圖例、點选 popup、結果摘要與清除；本地按鈕可直接操作公開資料。Agent 配對後則用既有 `query_records(datasetId="tw-schools-grid-150m")`、`get_analysis_result`、`aggregate_records(field="source_place_record_count", operation="sum")`、`present_result`／`fit_bounds`。query 回傳分頁與 store 完整結果分開，limit=1 不會把地圖縮為一格。session resultId 仍有 TTL；跨 session 重用的是 library asset，而非沿用過期 resultId。
+
+固定 DEV route `/__local-research/schools-grid.json` 只讀 analytics v3 bundle，讀取前檢查 SQLite lifecycle；stale/missing 拒絕。檔案不在 public/dist，只有 localhost 可讀，不自動抓外網、不部署。既有已載入的結果是當次快照，不是持續監看索引的服務；移除或 TTL 到期會清除圖形。
+
 # 跨圖層、新聞與消息的通用 Tools 規劃
 
 > 理想 GIS 分析的能力缺口、里程碑、可解問題與持續監看總表，見 [gis-analysis-roadmap.md](./gis-analysis-roadmap.md)；淺白互動說明見 [gis-analysis-roadmap-guide.html](./gis-analysis-roadmap-guide.html)，工程版流程見 [gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)。

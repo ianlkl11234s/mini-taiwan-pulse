@@ -1,3 +1,14 @@
+## 2026-09-14 本輪增量
+
+- [x] M2 語意卡 schema／validator／schools、news、paddy 與負向測試。
+- [x] 本地 Research Library 契約、immutable asset、search／describe／promote／stale。
+- [x] 真實 schools 150 m assign／aggregate／materialize、固定 receipt、resultId 與主地圖驗收。
+- [x] Routing 現況盤點：缺 graph／profile 證據，明確 HOLD。
+- [ ] 新 grid 透過登入配對 MCP 的端到端及 mobile 驗收。
+- [ ] 合格來源 licence／observed time 與第二個真實 library asset。
+- [ ] Network engine／graph version／walking profile／topology／unreachable 證據。
+- [ ] School district、real estate 真實可用資料；雲端 library 與跨使用者 ACL。
+
 # Implementation backlog
 
 完整目標以 spec.md 為準；證據以 handoff.md 為準。

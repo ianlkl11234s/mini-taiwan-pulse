@@ -1,3 +1,7 @@
+## 2026-09-14 — Semantic Registry 與本地 Library／Grid
+
+新增三份語意卡與 evidence validator、本地 ResearchAsset／GridDefinition／GridMetric 和 SQLite lifecycle；真實 schools assign／aggregate／materialize 產生固定 receipt，以 session resultId 在主地圖呈現 Polygon、popup、圖例、透明度及清除。補齊 hash／版本／geometry／缺值負向檢查、更新 roadmap 與互動說明。驗收與明確 HOLD 見 acceptance；僅本地提交。
+
 # Changelog
 
 ## 2026-09-11 — local implementation, uncommitted

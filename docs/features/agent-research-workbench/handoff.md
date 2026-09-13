@@ -1,3 +1,15 @@
+## 已完成接手點：本地 Semantic Registry／Research Library／Grid（2026-09-14）
+
+下方同日「下一個最小切片」已由本輪完成，本節與 [acceptance](./acceptance.md) 為最新狀態。
+
+- M2 三份 machine-readable 語意卡、validator 與證據 gate 已完成；canonical 在 analytics，Pulse／MCP 以 SHA provenance 同步。
+- 本地 Library 契約與 SQLite lifecycle 已完成；schools 真實 150 m grid 為 4,061 格／4,315 source records，固定 receipt 驗證後可從主地圖本地 Agent 面板產生 resultId 並呈現。原始 Point archive 保留。資料授權、時間與完整 coverage 尚未知，維持 HOLD／local research only。
+- 主要入口：[tool plan](./tool-foundation-plan.md)、[roadmap](./gis-analysis-roadmap.md)、[互動說明](./gis-analysis-roadmap-guide.html)。重現與 CLI 命令在 tool plan；canonical library 設計在 analytics `docs/adr/0005-research-library-local-school-grid.md`。
+- 三個工作位置均為 `/private/tmp/pulse-research-workbench/{mini-taiwan-pulse,taipei-gis-analytics,mini-pulse-gis-mcp}`，branch `codex/agent-research-workbench`；c92d checkout 未修改。DEV 主地圖為 `http://127.0.0.1:3731/`，bundle 必須存在於 analytics `schools-grid-v3` 本地目錄。
+- 下一步：補來源 licence／observed time 證據才考慮 promote；用已配對 MCP 重跑新 grid 的端到端驗收；再以合格真實來源擴充第二個 asset。Network 要先補完整 graph/profile 證據；school district／real estate 維持 HOLD。雲端持久化、跨使用者 ACL、任意 geometry grid、production 都未完成。
+- 本輪提交：analytics `eb237bdd`（semantic）、`cdc75625`（library/grid）；MCP `ff3542a`（契約同步）；Pulse `1664e179`（接線與測試）。本 handoff／roadmap／acceptance 另為文件提交。
+- 本輪本地檢查與 browser 證據見 acceptance；原子提交留本地，沒有 push 或部署。
+
 ## 新 Session 接手點：GIS Research Library ＋ Grid／Network Foundation（2026-09-14）
 
 - **目標與共識**：核心流程固定為 `datasetId → analysis → resultId`；圖層只是呈現出口。MCP 提供受控操作、Skill 規範分析流程、本地 Agent 組合工具。下一階段要把一次性分析變成可搜尋、可驗證、可版本化重用的 GIS Research Library；原始 point／line／polygon 不得被格網取代。

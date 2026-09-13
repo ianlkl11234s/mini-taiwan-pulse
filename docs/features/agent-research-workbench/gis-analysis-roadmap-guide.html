@@ -636,7 +636,7 @@
         <div class="component-list">
           <article class="component"><span class="component-code">C01</span><h3>資料來源與版本</h3><div class="component-copy"><strong>像資料倉庫與收據。</strong> 保存來源、授權、取得時間、checksum、筆數與涵蓋範圍。完成後，結果不會變成「不知道從哪裡來的數字」。</div><span class="chip partial component-state">部分完成</span></article>
           <article class="component"><span class="component-code">C02</span><h3>Dataset Contract</h3><div class="component-copy"><strong>像每份資料的使用說明書。</strong> 定義一筆紀錄代表什麼、時間和位置怎麼解讀、哪些欄位可能缺值。這是目前已站穩的底座。</div><span class="chip done component-state">基礎完成</span></article>
-          <article class="component"><span class="component-code">C03</span><h3>Semantic Registry</h3><div class="component-copy"><strong>像 GIS 知識字典。</strong> 分開來源紀錄、衍生指標、proxy 與 hypothesis，也寫明禁止結論。完成後，Agent 才知道資料「能不能這樣解讀」。</div><span class="chip partial component-state">下一個核心</span></article>
+          <article class="component"><span class="component-code">C03</span><h3>Semantic Registry</h3><div class="component-copy"><strong>像 GIS 知識字典。</strong> 分開來源紀錄、衍生指標、proxy 與 hypothesis，也寫明禁止結論。完成後，Agent 才知道資料「能不能這樣解讀」。</div><span class="chip partial component-state">三張語意卡完成</span></article>
           <article class="component"><span class="component-code">C04</span><h3>Recipe／Skill</h3><div class="component-copy"><strong>像標準研究方法。</strong> 告訴 Agent 遇到某類問題該依什麼順序用工具、要檢查什麼、什麼情況必須停下來。</div><span class="chip component-state">待建立</span></article>
           <article class="component"><span class="component-code">C05</span><h3>Query Executor</h3><div class="component-copy"><strong>像受控的資料領用櫃台。</strong> 控制讀取範圍、成本與權限，留下查詢收據。已能支援目前的三類 pilot。</div><span class="chip done component-state">基礎完成</span></article>
           <article class="component"><span class="component-code">C06</span><h3>GIS／時序引擎</h3><div class="component-copy"><strong>像研究室裡的計算設備。</strong> 現在有 nearby 與基本彙總；接下來要補行政區 join、路網、raster、時間趨勢與不確定性。</div><span class="chip partial component-state">部分完成</span></article>
@@ -699,8 +699,8 @@
   <footer class="closing">
     <div class="wrap">
       <p class="eyebrow" style="justify-content:center">Next Move</p>
-      <h2>下一步不是增加更多圖層，而是建立 GIS Semantic Registry</h2>
-      <p>先替學校、新聞事件與行政統計建立可驗證的語意規則，讓 Agent 開始知道哪些資料可以連、哪些只能當假設、哪些情況必須停下來。</p>
+      <h2>語意卡與學校格網已完成本地切片</h2>
+      <p>學校、新聞與水田語意卡已接 describe_dataset；4,315 筆校址紀錄產生 4,061 個 150m 格網。從主地圖「本地 Agent」點「呈現學校 150m 格網」，可調透明度、看圖例、點選來源或清除。來源授權與觀測時間未知，僅本地 HOLD；學區、房價與路網仍需真實資料證據。</p>
       <div class="actions">
         <a class="action primary" href="./gis-analysis-roadmap.md">閱讀完整總文件</a>
         <a class="action" href="./gis-analysis-roadmap-interactive.html">查看工程版流程圖</a>
@@ -748,7 +748,7 @@
 
     const steps = [
       { kicker: "STEP 01 · DATASET", title: "找到可信資料", plain: "先確認要用哪些資料，以及每份資料的版本、時間、授權與涵蓋範圍。", component: "Source Registry＋版本化 Dataset，像研究的資料倉庫與收據。", status: "部分完成", state: "partial" },
-      { kicker: "STEP 02 · MEANING", title: "理解資料意思", plain: "分辨來源紀錄、可重算指標、替代觀察和待驗假設，先知道什麼不能直接說。", component: "Dataset Contract＋Semantic Registry，像資料說明書與 GIS 知識字典。", status: "下一個核心", state: "partial" },
+      { kicker: "STEP 02 · MEANING", title: "理解資料意思", plain: "分辨來源紀錄、可重算指標、替代觀察和待驗假設，先知道什麼不能直接說。", component: "Dataset Contract＋Semantic Registry，像資料說明書與 GIS 知識字典。", status: "三張語意卡完成", state: "partial" },
       { kicker: "STEP 03 · METHOD", title: "安排分析方法", plain: "按照問題選擇方法、工具順序、必要資料和停止條件，而不是讓 Agent 隨意拼接。", component: "Recipe／Skill，像標準研究方法與操作手冊。", status: "待建立", state: "future" },
       { kicker: "STEP 04 · COMPUTE", title: "執行 GIS 運算", plain: "受控讀取資料，進行附近、彙總、交叉、路網、raster 或時間分析，每一步留下 resultId。", component: "Query Executor＋GIS／時序引擎，像資料櫃台與計算設備。", status: "部分完成", state: "partial" },
       { kicker: "STEP 05 · EVIDENCE", title: "檢查證據邊界", plain: "確認 grain、位置精度、缺值、過期狀態與方法限制，拒絕不被證據支持的結論。", component: "Evidence Guard，像研究審稿人與安全閘門。", status: "基礎完成", state: "done" },
@@ -758,10 +758,10 @@
     const milestones = [
       { id: "M0", group: "done", title: "資料契約與共用讀取", unlock: "不同 dataset 可走同一套受控入口", build: "DatasetDescriptor、Query Executor、budget、receipt 與 result session。", gate: "型別與測試通過；真實學校資料能讀取並產生 resultId。" },
       { id: "M1", group: "now", title: "三類 Pilot 閉環", unlock: "點、事件、統計開始共用工具", build: "學校 Point、新聞事件、行政統計三種 adapter 與負向邊界。", gate: "學校已完成；還需新聞非空真實樣本、統計 boundary join、醫院資產證據。" },
-      { id: "M2", group: "now", title: "GIS Semantic Registry", unlock: "Agent 知道資料能代表什麼", build: "machine-readable 語意 schema、三類 pilot 規則、validator 與 wiki view。", gate: "四類語意與 prohibited claims 可驗證；缺 evidence 時必須拒絕或保留假設。" },
+      { id: "M2", group: "done", title: "GIS Semantic Registry", unlock: "Agent 知道資料能代表什麼", build: "machine-readable 語意卡、semantic/dataset versions、validator；describe_dataset 可查三類 pilot 的允許分析與禁用推論。", gate: "已測四類語意、版本與 prohibited claims；缺 evidence 保留假設，confidence 不會升級 kind。" },
       { id: "M3", group: "future", title: "Vector 與行政區交叉分析", unlock: "服務缺口與事件空間關聯", build: "spatial join、buffer、nearest、cluster、版本相符 boundary join。", gate: "CRS、單位、topology、crosswalk、MAUP、null／0 與重複 join 測試通過。" },
       { id: "M4", group: "future", title: "Network、Raster、Temporal", unlock: "步行可達、環境與災害暴露", build: "路網／等時圈、raster sampling、時序 baseline 與不確定性。", gate: "旅行模式、連通性、resolution、NoData 與時間基準明確。" },
-      { id: "M5", group: "future", title: "持久研究檔案庫", unlock: "跨 session 重算、比較與撤回", build: "result archive、lineage、materialization、cache 與權限隔離。", gate: "研究結果可追到來源與父 resultId，跨 session 後仍可重算。" },
+      { id: "M5", group: "now", title: "持久研究檔案庫", unlock: "跨 session 重算、比較與撤回", build: "本地 SQLite asset index、search／describe／promote／stale 與原始 Point archive 已建立；多人 ACL 與雲端 archive 尚未做。", gate: "研究結果可追到來源與父 resultId，跨 session 後仍可重算。" },
       { id: "M6", group: "future", title: "完整成果 UX", unlock: "在主地圖理解複合分析", build: "Point／line／polygon／raster、表格、圖表與比較介面。", gate: "Browser 畫面與可存取摘要一致，桌面與手機皆可使用。" },
       { id: "M7", group: "future", title: "Production 化", unlock: "可以持續對外使用", build: "正式 auth、TLS、監控、部署與真實來源 readback。", gate: "production 證據獨立通過，不沿用本地綠燈。" }
     ];

@@ -1,3 +1,17 @@
+## 2026-09-14 Semantic Registry／Research Library／Schools Grid 本地驗收
+
+本節是本輪最新證據；下方保留歷史驗收。
+
+- Canonical semantic cards：schools、news、paddy；observed／derived／proxy／hypothesis 分開，confidence 不提升 hypothesis。缺少證據、錯誤來源版本、重複／衝突 evidence、missing／suppressed／zero 均有負向測試。
+- Library：SQLite 本地 search／describe／promote／mark-stale、不可覆寫的版本化 bundle 與原始 Point archive。來源 SHA readback、時間與授權證據是 promote gate；目前 schools 維持 HOLD，未知來源時間不使用檔案 mtime 代替。
+- 真實格網：4,315 筆來源 place records → 4,061 個有紀錄的 150 m 方格，計數加總 4,315。EPSG:3826 計算，EPSG:4326 呈現；未輸出格子不代表零。這不是去重學校數、教育品質、學區或可達性。
+- 原始來源 SHA-256 `7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3`；bundle SHA-256 `6243c6e1c9129202157741c2ed22ab457421430dfe6fac96f9e0553de4521f2d`，3,016,574 bytes。完整來源、grid definition、geometry 重算與計數守恆通過後才產生前端固定 receipt。
+- 本地 pipeline 為 Python assign → aggregate → materialize；前端固定 dataset adapter → query → session resultId → 主地圖暫時 Polygon overlay。不是任意輸入的通用 grid executor。來源、方法、版本、unknown 時間／coverage 隨 lineage 保留；持久 asset 與暫存 resultId 分開。
+- Browser 1280×720 實際驗證 4,061 格、來源 popup、圖例、透明度 0.55→0.25→0.55、清除結果；guide 新進度文字已讀回。截圖：`/private/tmp/pulse-research-workbench/evidence/grid-foundation/main-map-popup.png`。
+- Pulse research＋layer consistency：64 pass／1 skip；analytics Python：27 pass／1 skip；semantic Node：8 pass；MCP research：23 pass。Pulse `tsc -b`／build 與 MCP build 通過。Python JSON Schema 依賴缺少的略過不列為成功，契約 invariant 由現有驗證器及測試覆蓋。
+- 實體 bundle 留在 analytics ignored `data/intermediate/research-library/schools-grid-v3/`，只經 loopback DEV allowlist 讀取；stale／不合格 lifecycle 回拒絕。build 未包含 bundle。
+- 缺口：本輪未重做登入配對 MCP 端到端或 mobile 驗收；未 push／deploy／migration／production 變更。Network HOLD：缺 engine/profile、graph 版本與 topology／unreachable 證據；school district／real estate 缺合格真實輸入，未建立假資料或空殼 operation。
+
 # 地圖探索與附近查詢驗收
 
 ## 本輪範圍
