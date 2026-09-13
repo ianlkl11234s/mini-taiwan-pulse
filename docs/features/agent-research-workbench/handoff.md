@@ -1,3 +1,11 @@
+## 協作基準更新（2026-09-11）
+
+使用者已確認改以 **datasetId → analysis → resultId** 為中心，圖層是呈現出口；分析可直接使用有版本／血緣的資料，不需先開啟來源圖層。MCP提供受控操作，Skill提供分析流程，本地Agent負責組合與程式，工作台顯示研究與結果。Twinkle Hub為待評估外部來源。
+
+下一次接手先讀 [tool-foundation-plan.md 的已確認協作方向](./tool-foundation-plan.md)，再按需查看 [inventory](./inventory/README.md)。目前優先tools與資料底層，暫不擴充工作台UI。最小runtime foundation、共用query executor、四個pilot adapter、result session、基本分析與地圖呈現已完成；進階raster／network／cluster／spatial join及持久化研究紀錄仍是後續工作。
+
+本輪功能與修正已依責任拆成原子commit；完整狀態、驗收數字與明確未完成項目見 [tool-foundation-plan.md](./tool-foundation-plan.md) 與 [acceptance.md](./acceptance.md)。其下歷史段落的「未commit」描述為當時紀錄，不代表目前狀態。未push／未部署。
+
 ## 最新顯示調整（2026-09-11）
 
 附近查詢只呈現虛線半徑圈，取消查詢中心白點與結果金色點，保留原始圖層分色。結果清單及點選定位保留；清單截斷不代表原始圖層也被篩選。
