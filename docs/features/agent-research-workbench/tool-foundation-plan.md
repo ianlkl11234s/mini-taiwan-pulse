@@ -1,5 +1,7 @@
 # 跨圖層、新聞與消息的通用 Tools 規劃
 
+> 理想 GIS 分析的能力缺口、里程碑、可解問題與持續監看總表，見 [gis-analysis-roadmap.md](./gis-analysis-roadmap.md)；互動流程見 [gis-analysis-roadmap-interactive.html](./gis-analysis-roadmap-interactive.html)。
+
 日期：2026-09-11。2026-09-13 更新：**最小runtime foundation與三類pilot readback完成**。P1與有真實pilot可驗收的P2基本操作已完成；S3 manifest/disk cache及尚無真實adapter的進階operation維持明確待辦，未完成項不得宣稱可用。
 
 本輪分析 baseline：Pulse worktree `b1a811586c4411991456314a905226febe5f5818`。盤點登記、接線與 adapter，不宣稱所有遠端資料可取得、授權已確認或正式站健康；未掃 S3、未執行 Supabase 查詢、未下載圖層資料。完整逐層清單見 [inventory](inventory/)，另保留舊 chat 與 research MCP 的能力界線。
