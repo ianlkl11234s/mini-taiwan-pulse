@@ -1670,7 +1670,6 @@ export default function App() {
           </div>
         </div>
       )}
-      {import.meta.env.DEV && <MainMapConnection bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} />}
       {/* AR-21：layerVisibility 不再經由 prop —— MapView 直接訂閱 layerVisibilityStore */}
       <MapView
         preset={preset}
@@ -1855,6 +1854,7 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
+              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} /> : undefined}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}

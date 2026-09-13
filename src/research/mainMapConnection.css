@@ -11,6 +11,19 @@
 .main-map-agent li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid #344b42; }
 .main-map-agent li button { flex-shrink: 0; font-size: 11px; }
 .main-map-agent button:disabled { opacity: .5; cursor: default; }
+.main-map-agent--embedded { position: static; width: 100%; color: var(--agent-text); font-family: Inter, system-ui, sans-serif; font-size: 11px; line-height: 1.5; }
+.main-map-agent--embedded .main-map-agent-panel { margin: 0; box-sizing: border-box; width: 100%; max-height: calc(70vh - 48px); padding: 10px 12px 12px; border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.main-map-agent--embedded .research-pairing { margin: 0; padding: 0; border: 0; background: transparent; }
+.main-map-agent--embedded .research-pairing > strong { display: block; margin-bottom: 2px; font-size: 12px; font-weight: 600; }
+.main-map-agent--embedded p { margin: 6px 0; font-size: 11px; line-height: 1.5; }
+.main-map-agent--embedded h3 { margin: 12px 0 4px; font-size: 12px; line-height: 1.4; font-weight: 600; }
+.main-map-agent--embedded label { display: block; font-size: 10px; color: var(--agent-muted); }
+.main-map-agent--embedded button { min-height: 28px; padding: 4px 8px; color: var(--agent-text); background: var(--agent-control-bg); border-color: var(--agent-control-border); border-radius: 6px; font: inherit; }
+.main-map-agent--embedded button:hover:not(:disabled) { background: var(--agent-control-hover); }
+.main-map-agent--embedded input { min-height: 30px; margin: 4px 0 6px; padding: 5px 8px; color: var(--agent-text); background: var(--agent-control-bg); border-color: var(--agent-control-border); border-radius: 6px; font: inherit; }
+.main-map-agent--embedded small { margin: 6px 0; color: var(--agent-muted); font-size: 10px; line-height: 1.5; }
+.main-map-agent--embedded code { color: var(--agent-accent); }
+.main-map-agent--embedded li, .main-map-agent--embedded .nearby-results { border-color: var(--agent-border); }
 .main-map-agent .nearby-results { margin-top: 18px; padding-top: 12px; border-top: 1px solid #64716e; }
 .main-map-agent .nearby-results-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .main-map-agent .nearby-results h3 { margin: 0; }

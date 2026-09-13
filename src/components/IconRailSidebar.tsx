@@ -1,14 +1,14 @@
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star,
+  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -111,6 +111,8 @@ interface IconRailSidebarProps {
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
+  /** DEV-only 本地研究 Agent；保持 mounted，切換其他 rail app 不會中斷配對。 */
+  agentPanel?: ReactNode;
 }
 
 // ── Shared Styles ──
@@ -150,7 +152,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "agent";
 
 // ── Main Component ──
 
@@ -176,10 +178,20 @@ export function IconRailSidebar({
   onJapanOpen,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
+  agentPanel,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
   const { BG_RAIL, BORDER, BG_PANEL } = palette;
+  const agentTheme = {
+    "--agent-text": palette.TEXT_STRONG,
+    "--agent-muted": palette.SUB_LABEL,
+    "--agent-accent": palette.ACCENT,
+    "--agent-border": palette.BORDER,
+    "--agent-control-bg": palette.CTRL_INACTIVE_BG,
+    "--agent-control-hover": palette.CTRL_ACTIVE_BG,
+    "--agent-control-border": palette.CTRL_INACTIVE_BORDER,
+  } as CSSProperties;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
@@ -327,6 +339,15 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
+        {agentPanel && (
+          <RailIcon
+            icon={Bot}
+            active={activePanel === "agent"}
+            onClick={() => togglePanel("agent")}
+            tooltip="本地 Agent"
+          />
+        )}
+
         {/* 即時情報 Intel */}
         {onIntelToggle && (
           <RailIcon
@@ -418,7 +439,7 @@ export function IconRailSidebar({
       )}
 
       {/* ── Floating Panel ── */}
-      {panelOpen && (
+      {panelOpen && activePanel !== "agent" && (
         <>
           <style>{`
             @keyframes panelFadeIn {
@@ -556,6 +577,33 @@ export function IconRailSidebar({
             )}
           </div>
         </>
+      )}
+
+      {agentPanel && (
+        <div
+          style={{
+            ...agentTheme,
+            position: "absolute",
+            left: RAIL_WIDTH + 8,
+            top: 92,
+            width: PANEL_WIDTH,
+            maxWidth: "calc(100vw - 80px)",
+            maxHeight: "70vh",
+            background: BG_PANEL,
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderRadius: RADIUS.xl,
+            display: activePanel === "agent" ? "flex" : "none",
+            flexDirection: "column",
+            overflow: "hidden",
+            zIndex: 3,
+            pointerEvents: "auto",
+            animation: "panelFadeIn 0.25s ease-out",
+          }}
+        >
+          <PanelHeader title="本地 Agent" onClose={closePanel} />
+          {agentPanel}
+        </div>
       )}
     </div>
     </RailThemeContext.Provider>

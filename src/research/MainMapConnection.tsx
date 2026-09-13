@@ -16,7 +16,7 @@ import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./research
 import { analysisResultSourceIds, installAnalysisResults, removeAnalysisResults } from "./analysisResultOverlay";
 import "./mainMapConnection.css";
 
-type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null };
+type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
 type PresentedAnalysisSummary = { resultId: string; datasetId: string; pointCount: number };
 const ANALYSIS_QUERY_OPERATIONS = new Set<BrowserQuery["operation"]>(["spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 function isAnalysisQueryOperation(operation: BrowserQuery["operation"]): operation is AnalysisQueryOperation { return ANALYSIS_QUERY_OPERATIONS.has(operation); }
@@ -208,10 +208,11 @@ export function MainMapConnection(props: Props) {
     const scene = { ...capture(), nearby: null }; previous.current = scene; controller.current?.manual(scene);
   };
 
-  return <div className="main-map-agent">
-    <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>
-    <div className="main-map-agent-panel" hidden={!open}>
-      <h2>連接這張地圖</h2>
+  const panelOpen = props.embedded || open;
+  return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
+    {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
+    <div className="main-map-agent-panel" hidden={!panelOpen}>
+      {!props.embedded && <h2>連接這張地圖</h2>}
       <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} />
       <p role="status">{message}</p>
       <section aria-label="附近查詢">
