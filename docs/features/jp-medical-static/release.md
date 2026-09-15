@@ -19,10 +19,11 @@
 | 發布保護測試 | Python 9 PASS：順序、失敗不動 current、immutable conflict、路徑拒絕、完整成功安裝、中途壞 SHA 保留 current；部署契約 19 PASS |
 | 既有層保留 | Golden 494 原 entries 完全保留；加 3 medical → 497 |
 | 本地 browser | 新整合 worktree 單層醫療／全國聚合／圖例／來源日期；桌機東京 z16 宮内庁病院按需 24 列 hours；桌機與 390×844 screenshot 見 release/；完整功能尺度先前矩陣見 acceptance.md |
-| S3 | RUNNING；逐檔 SHA/bytes/content-type/cache 回讀 receipt：`release/s3-publication-receipt.json` |
-| Git PR／merge | 尚待執行 |
+| S3 | PASS：781／781，1,640,390,952 bytes，2026-09-15 07:43:51 UTC 完成；逐檔完整 GET 驗 SHA/bytes/content-type/cache，current 最後；receipt：`release/s3-publication-receipt.json` |
+| Git PR／merge | PR [#247](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/247)，code commit `e4db9e45b350cea09217b756e0bce05e6ba8f097`；CI test PASS；待 S3 完成再合併 |
 | Zeabur deployment | 尚待執行 |
 | 正式 HTTP／browser | 尚待執行；發布前 curl 200／browser 可開啟；Python urllib 曾 403，不當作網站故障 |
+| 本地 nginx runtime | 實際 nginx 設定 syntax PASS，獨立 port 3740 的 19 個 MIME/cache/SHA/Range 檢查 PASS，見 `release/local-nginx-http.json`；測完已停止 |
 | 本地 Docker runtime | not run：Docker daemon 未啟動；正式容器行為另以網站驗收 |
 | 實體手機 | not run；390×844 是 browser viewport，非實機 |
 
