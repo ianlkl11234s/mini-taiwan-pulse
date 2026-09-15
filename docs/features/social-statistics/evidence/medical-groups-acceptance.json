@@ -31,7 +31,17 @@
   },
   "limitations": [
     "No new normalized metrics implemented",
-    "No new data publication needed",
-    "Production pending"
-  ]
+    "No new data publication needed"
+  ],
+  "production": {
+    "pr": 251,
+    "merge": "c3713be138e5ca224fdde95f68bae4b67fea7737",
+    "status": "RUNNING",
+    "finishedAt": "2026-09-15T13:35:24.396Z",
+    "browser": [
+      "grouped Statistics catalog",
+      "old ICU URL loads 2025 CURRENT PARTIAL159/368",
+      "ICU to hospice updates URL and legend, retains2025"
+    ]
+  }
 }

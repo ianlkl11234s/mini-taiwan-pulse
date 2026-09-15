@@ -35,4 +35,4 @@
 - 類型切換使用原始 key 與相同期別 exact selector，保留透明度，遵守單一／重疊模式；舊網址與搜尋保留。切換指標清除舊 popup。
 - 本次為呈現收納，未新增人均、面積或可達性推算；既有縣市每萬人口指標維持獨立來源定義。
 - 本地：1371 tests passed、4 skipped；TypeScript/build 通過。真實 browser 驗證 2024 加護病床年份／圖例／中山區100床 popup、2025西醫師，以及390×844手機護理師切換和群組關閉／重開；桌面 All Off 保留一般圖層。
-- 發布狀態與 PR 於完成後補記。
+- PR #251 以一般 merge commit `c3713be138e5ca224fdde95f68bae4b67fea7737` 合併；Zeabur於2026-09-15T13:35:24Z回報RUNNING。正式browser確認舊加護網址及加護→安寧切換，2025 CURRENT／PARTIAL 159/368與圖例正確。
