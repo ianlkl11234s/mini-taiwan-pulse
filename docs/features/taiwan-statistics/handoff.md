@@ -58,3 +58,7 @@ PR 保留 loader／UI／犯罪修正等原子提交；移除共用功能需先�
 S3 封存需包含 raw、processed bundle、manifest、geometry；依內容 hash 保存、驗讀後才標已備份。封存位置與 R2 runtime 供應路徑分開；前端只讀 R2 公開 snapshot 與 geometry resource。私人來源路徑不能進入 sources 或 artifact。2026-09-08 已完成 [核定範圍的 S3 封存與驗讀](../../audit/recent-delivery-2026-09-07/README.md)：日本／統計合計 731 個來源檔案、700 個去重資料物件。這是一次性封存證據，不代表未來新增來源已自動封存或已發布到 R2。
 
 本批 loader 已共用經 SHA-256 校驗的 immutable geometry，避免疊多項指標時反覆下載和解析同一邊界；觀測值每次獨立 join，快取不共享指標數值。
+
+## 2026-09-15 社會統計增量本地接線
+
+教育11、醫療長照16、住宅18共45 recipes／416 exact selectors的本地接線見 [social-statistics handoff](../social-statistics/handoff.md)。這是獨立worktree的增量交付，DEV僅針對新增datasets路由，不能替換既有全量CDN current。後續已授權本地Git提交；正式CDN上傳、production匯入與部署均未執行；完整browser與測試證據以該文件為準。

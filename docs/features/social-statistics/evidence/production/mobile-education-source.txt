@@ -1,0 +1,796 @@
+- region "Map"
+- button "Toggle attribution"
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- generic: MTP
+- button "資訊":
+- button "分享目前畫面 / 取得嵌入碼":
+- button "截圖":
+- button "AI 助手":
+- button "3D"
+- button "會員專區":
+- button "帳號選單：[帳號名稱]"
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 17:09
+- slider: "0.7145"
+- generic: 00:00
+- generic: 23:59
+- button "收起圖層與搜尋" [expanded]:
+  - generic: 圖層與搜尋
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- button "我的":
+  - text: 我的
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層…
+- generic: 基準 Baseline
+- generic: ▶
+- generic: 底圖 Base Map
+- generic: 0/15
+- button
+- generic: 移動與城市 City & Mobility
+- generic: ▼
+- generic: 交通統計 Transport Statistics
+- generic: 0/38
+- button
+- generic: └ 航港獎補助
+- button
+- generic: 航港局獎補助金額（受補助對象所在地）
+- button "航港局獎補助金額（受補助對象所在地） 詳情": ▶
+- generic: └ 民航獎補助
+- button
+- generic: 民航局獎補助費（受補助對象所在地）
+- button "民航局獎補助費（受補助對象所在地） 詳情": ▶
+- generic: └ 臺北市違規舉發
+- button
+- generic: 臺北市交通違規舉發筆數（法條）
+- button "臺北市交通違規舉發筆數（法條） 詳情": ▶
+- generic: └ 臺中道路噪音監測
+- button
+- generic: 臺中市道路交通噪音監測站數
+- button "臺中市道路交通噪音監測站數 詳情": ▶
+- generic: └ 市區客運營運概況
+- button
+- generic: 期末營業里程
+- button "期末營業里程 詳情": ▶
+- button
+- generic: 核定路線數
+- button "核定路線數 詳情": ▶
+- button
+- generic: 市區客運業家數
+- button "市區客運業家數 詳情": ▶
+- button
+- generic: 期末營業車輛
+- button "期末營業車輛 詳情": ▶
+- button
+- generic: 期末無障礙車輛
+- button "期末無障礙車輛 詳情": ▶
+- button
+- generic: 期末電動車輛
+- button "期末電動車輛 詳情": ▶
+- button
+- generic: 營業行車次數
+- button "營業行車次數 詳情": ▶
+- button
+- generic: 營業行車里程
+- button "營業行車里程 詳情": ▶
+- generic: └ 中捷車站出站人次
+- button
+- generic: 中捷車站所在地出站人次
+- button "中捷車站所在地出站人次 詳情": ▶
+- generic: └ 臺北自行車使用（110 年）
+- button
+- generic: 市區自行車租借站數
+- button "市區自行車租借站數 詳情": ▶
+- button
+- generic: 市區自行車年租借次數
+- button "市區自行車年租借次數 詳情": ▶
+- button
+- generic: 河濱公園租借站數
+- button "河濱公園租借站數 詳情": ▶
+- button
+- generic: 河濱公園自行車數
+- button "河濱公園自行車數 詳情": ▶
+- button
+- generic: 河濱公園年租借次數
+- button "河濱公園年租借次數 詳情": ▶
+- generic: └ A1 交通事故（114 年）
+- button
+- generic: A1 交通事故件數
+- button "A1 交通事故件數 詳情": ▶
+- button
+- generic: A1 交通事故死亡人數
+- button "A1 交通事故死亡人數 詳情": ▶
+- button
+- generic: A1 交通事故受傷人數
+- button "A1 交通事故受傷人數 詳情": ▶
+- generic: └ 民航各機場所在地活動（115 年 7 月）
+- button
+- generic: 機場所在地起降架次
+- button "機場所在地起降架次 詳情": ▶
+- button
+- generic: 機場所在地旅客人次
+- button "機場所在地旅客人次 詳情": ▶
+- button
+- generic: 機場所在地貨運量
+- button "機場所在地貨運量 詳情": ▶
+- generic: └ 桃園機場所在地旅客活動（2022 年）
+- button
+- generic: 桃園機場所在地入境旅客人次
+- button "桃園機場所在地入境旅客人次 詳情": ▶
+- button
+- generic: 桃園機場所在地出境旅客人次
+- button "桃園機場所在地出境旅客人次 詳情": ▶
+- button
+- generic: 桃園機場所在地過境旅客人次
+- button "桃園機場所在地過境旅客人次 詳情": ▶
+- button
+- generic: 桃園機場所在地旅客人次總計
+- button "桃園機場所在地旅客人次總計 詳情": ▶
+- generic: └ 縣市交通供給
+- button
+- generic: 小型汽車路外停車位
+- button "小型汽車路外停車位 詳情": ▶
+- button
+- generic: 小型汽車路邊停車位
+- button "小型汽車路邊停車位 詳情": ▶
+- button
+- generic: 機車登記數
+- button "機車登記數 詳情": ▶
+- button
+- generic: 汽車登記數
+- button "汽車登記數 詳情": ▶
+- button
+- generic: 汽車駕照持有人數
+- button "汽車駕照持有人數 詳情": ▶
+- button
+- generic: 機車駕照持有人數
+- button "機車駕照持有人數 詳情": ▶
+- generic: └ 土地使用結構
+- button
+- generic: 道路用地面積
+- button "道路用地面積 詳情": ▶
+- button
+- generic: 鐵路用地面積
+- button "鐵路用地面積 詳情": ▶
+- button
+- generic: 機場用地面積
+- button "機場用地面積 詳情": ▶
+- button
+- generic: 港口用地面積
+- button "港口用地面積 詳情": ▶
+- generic: ▼
+- generic: 人口統計 Population Statistics
+- generic: 0/1
+- button
+- generic: └ 出生登記
+- button
+- generic: 每月出生數（歷史快照）
+- button "每月出生數（歷史快照） 詳情": ▶
+- generic: ▼
+- generic: 住宅存量與使用
+- generic: 0/18
+- button
+- generic: └ 住宅使用類別
+- button
+- generic: 住宅總數（縣市）
+- button "住宅總數（縣市） 詳情": ▶
+- button
+- generic: 有人經常居住住宅（縣市）
+- button "有人經常居住住宅（縣市） 詳情": ▶
+- button
+- generic: 無人經常居住住宅（縣市）
+- button "無人經常居住住宅（縣市） 詳情": ▶
+- button
+- generic: 偶爾自住住宅（縣市）
+- button "偶爾自住住宅（縣市） 詳情": ▶
+- button
+- generic: 自住以外用途住宅（縣市）
+- button "自住以外用途住宅（縣市） 詳情": ▶
+- button
+- generic: 目前沒有使用住宅（縣市）
+- button "目前沒有使用住宅（縣市） 詳情": ▶
+- button
+- generic: 有人居住住宅－住宅專用（縣市）
+- button "有人居住住宅－住宅專用（縣市） 詳情": ▶
+- button
+- generic: 有人居住住宅－兼農工服務業用（縣市）
+- button "有人居住住宅－兼農工服務業用（縣市） 詳情": ▶
+- button
+- generic: 住宅總數（鄉鎮市區）
+- button "住宅總數（鄉鎮市區） 詳情": ▶
+- button
+- generic: 有人經常居住住宅（鄉鎮市區）
+- button "有人經常居住住宅（鄉鎮市區） 詳情": ▶
+- button
+- generic: 無人經常居住住宅（鄉鎮市區）
+- button "無人經常居住住宅（鄉鎮市區） 詳情": ▶
+- button
+- generic: 偶爾自住住宅（鄉鎮市區）
+- button "偶爾自住住宅（鄉鎮市區） 詳情": ▶
+- button
+- generic: 自住以外用途住宅（鄉鎮市區）
+- button "自住以外用途住宅（鄉鎮市區） 詳情": ▶
+- button
+- generic: 目前沒有使用住宅（鄉鎮市區）
+- button "目前沒有使用住宅（鄉鎮市區） 詳情": ▶
+- generic: └ 住宅使用比例
+- button
+- generic: 經常居住住宅占比（縣市）
+- button "經常居住住宅占比（縣市） 詳情": ▶
+- button
+- generic: 目前未使用住宅占比（縣市）
+- button "目前未使用住宅占比（縣市） 詳情": ▶
+- button
+- generic: 經常居住住宅占比（鄉鎮市區）
+- button "經常居住住宅占比（鄉鎮市區） 詳情": ▶
+- button
+- generic: 目前未使用住宅占比（鄉鎮市區）
+- button "目前未使用住宅占比（鄉鎮市區） 詳情": ▶
+- generic: ▶
+- generic: 交通 Move
+- generic: 0/38
+- button
+- generic: ▶
+- generic: 人口社經 People
+- generic: 0/5
+- button
+- generic: ▶
+- generic: 都市分析 Urban Analysis
+- generic: 0/1
+- button
+- generic: ▶
+- generic: 房地產 Real Estate
+- generic: 0/7
+- button
+- generic: ▶
+- generic: 工商登記 Business Registry
+- generic: 0/8
+- button
+- generic: 公共生活 Public Life
+- generic: ▼
+- generic: 教育與少子化統計
+- generic: 1/11
+- button
+- generic: └ 學校所在地縣市別
+- button
+- generic: 機構或學校數
+- button "機構或學校數 詳情": ▶
+- button
+- generic: 教師數
+- button "教師數 詳情": ▶
+- button
+- generic: 職員數
+- button "職員數 詳情": ▶
+- button
+- generic: 學生或幼生數
+- button "學生或幼生數 詳情" [expanded]: ▶
+- generic "學生或幼生數 資料篩選：期間：2022-08-01 — 2023-07-31；學年度：民國 111 年；學段：幼兒園；來源 schema：111–114 current":
+  - text: 資料篩選
+  - generic "期間：2022-08-01 — 2023-07-31；學年度：民國 111 年；學段：幼兒園；來源 schema：111–114 current": ：期間：2022-08-01 — 2023-07-31；學年度：民國 111 年；學段：幼兒園；來源 schema：111–114 current
+- option "民國 114 年"
+- option "民國 113 年"
+- option "民國 112 年"
+- option "民國 111 年" [selected]
+- option "民國 110 年"
+- option "民國 109 年"
+- option "民國 108 年"
+- option "民國 107 年"
+- option "民國 106 年"
+- option "民國 105 年"
+- option "民國 104 年"
+- option "國民小學"
+- option "國民中學"
+- option "幼兒園" [selected]
+- option "高級中等學校"
+- paragraph: 統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。
+- paragraph: 參考邊界：COUNTY_MOI_1140318；reference boundary；不宣稱歷史原生界線。
+- paragraph: 地理層級：縣市 · 單位：人
+- status: 資料可用狀態：STALE
+- paragraph: 已載入 22／22 個區域統計值；灰色區域為缺資料，不等於 0
+- generic "來源與處理紀錄" [active]
+- generic: 提供機關：教育部統計處
+- generic: 發布時間：來源未提供
+- generic: 取得時間：2026-09-14T12:00:00+00:00
+- generic: 資料期間：2022-08-01 — 2023-07-31
+- generic: 更新頻率：依已公開完整選項；資料期別不等於取得日期
+- generic: 最近檢查：尚未檢查
+- generic: 授權：政府資料開放授權條款-第1版
+- generic: 處理方式：education-county-statistics-v2
+- generic: 原始 SHA-256：516e12889a0396c7634d7f9cd91cf7f9e58c0bf80bbe29a5126650204c291f57
+- generic: 參考邊界：COUNTY_MOI_1140318
+- generic: 地圖使用已核對代碼的參考邊界；不是歷史邊界變動比較。
+- link "官方資料頁 ↗":
+  - /url: https://data.gov.tw/dataset/31448
+- link "來源下載端點 ↗":
+  - /url: https://stats.moe.gov.tw/files/opendata/edu_B_2_2_2.csv
+- button "Hide"
+- generic: 透明度 0.50
+- slider "透明度 0.50": "0.5"
+- button
+- generic: 班級數
+- button "班級數 詳情": ▶
+- button
+- generic: 12班以下學校數
+- button "12班以下學校數 詳情": ▶
+- button
+- generic: 12班以下學校占比
+- button "12班以下學校占比 詳情": ▶
+- button
+- generic: 生師比
+- button "生師比 詳情": ▶
+- button
+- generic: 每班學生數
+- button "每班學生數 詳情": ▶
+- button
+- generic: 學生或幼生年增減數
+- button "學生或幼生年增減數 詳情": ▶
+- button
+- generic: 學生或幼生年增減率
+- button "學生或幼生年增減率 詳情": ▶
+- generic: ▼
+- generic: 醫療與長照統計
+- generic: 0/16
+- button
+- generic: └ 醫院病床與人力
+- button
+- generic: 醫院家數
+- button "醫院家數 詳情": ▶
+- button
+- generic: 醫院病床總數
+- button "醫院病床總數 詳情": ▶
+- button
+- generic: 急性病床
+- button "急性病床 詳情": ▶
+- button
+- generic: 加護病床
+- button "加護病床 詳情": ▶
+- button
+- generic: 安寧病床
+- button "安寧病床 詳情": ▶
+- button
+- generic: 醫院醫事人員總計
+- button "醫院醫事人員總計 詳情": ▶
+- button
+- generic: 醫院西醫師
+- button "醫院西醫師 詳情": ▶
+- button
+- generic: 醫院護理師
+- button "醫院護理師 詳情": ▶
+- generic: └ 一般護理之家人力
+- button
+- generic: 一般護理之家列示護理人員欄位加總
+- button "一般護理之家列示護理人員欄位加總 詳情": ▶
+- button
+- generic: 一般護理之家列示照服員欄位加總
+- button "一般護理之家列示照服員欄位加總 詳情": ▶
+- generic: └ 一般護理之家床位
+- button
+- generic: 一般護理之家開放床數
+- button "一般護理之家開放床數 詳情": ▶
+- generic: └ 母嬰照護床位
+- button
+- generic: 產後護理之家開放護理床數
+- button "產後護理之家開放護理床數 詳情": ▶
+- button
+- generic: 產後護理之家開放嬰兒床數
+- button "產後護理之家開放嬰兒床數 詳情": ▶
+- generic: └ 長照人員登錄
+- button
+- generic: 照顧服務員登錄數
+- button "照顧服務員登錄數 詳情": ▶
+- generic: └ 每萬人口醫療資源
+- button
+- generic: 醫療院所每萬人口病床數
+- button "醫療院所每萬人口病床數 詳情": ▶
+- button
+- generic: 機構每萬人口執業醫事人員數
+- button "機構每萬人口執業醫事人員數 詳情": ▶
+- generic: ▶
+- generic: 基礎建設 Infrastructure
+- generic: 0/9
+- button
+- generic: ▶
+- generic: 教育 Education
+- generic: 0/17
+- button
+- generic: ▶
+- generic: 社福長照 Welfare
+- generic: 0/9
+- button
+- generic: ▶
+- generic: 運動休閒 Sports & Leisure
+- generic: 0/6
+- button
+- generic: ▶
+- generic: 文化 Culture
+- generic: 0/5
+- button
+- generic: ▶
+- generic: 宗教 Religion
+- generic: 0/6
+- button
+- generic: ▶
+- generic: 殯葬 Funeral
+- generic: 0/5
+- button
+- generic: ▶
+- generic: 觀光 Tourism
+- generic: 0/11
+- button
+- generic: 安全與治理 Safety & Governance
+- generic: ▶
+- generic: 醫療 Medical
+- generic: 0/8
+- button
+- generic: ▶
+- generic: 消防 Fire & Rescue
+- generic: 0/5
+- button
+- generic: ▶
+- generic: 災害 Hazard
+- generic: 0/12
+- button
+- generic: ▶
+- generic: 民防避難 Civil Defense
+- generic: 0/1
+- button
+- generic: ▶
+- generic: 執法治安 Law & Order
+- generic: 0/20
+- button
+- generic: 環境與資源 Environment & Resources
+- generic: ▼
+- generic: 水資源統計 Water Statistics
+- generic: 0/2
+- button
+- generic: └ 畜牧用水
+- button
+- generic: 養豬用水量（歷史統計）
+- button "養豬用水量（歷史統計） 詳情": ▶
+- generic: └ 公共給水
+- button
+- generic: 供水普及率（2015 年，7 縣市）
+- button "供水普及率（2015 年，7 縣市） 詳情": ▶
+- generic: ▼
+- generic: 廢棄物統計 Waste Statistics
+- generic: 0/2
+- button
+- generic: └ 清運量能
+- button
+- generic: 垃圾清運車輛數
+- button "垃圾清運車輛數 詳情": ▶
+- generic: └ 回收成果
+- button
+- generic: 一般廢棄物回收率
+- button "一般廢棄物回收率 詳情": ▶
+- generic: ▼
+- generic: 資源回收統計 Recycling Statistics
+- generic: 0/1
+- button
+- generic: └ 資源回收量能
+- button
+- generic: 資源回收車輛數
+- button "資源回收車輛數 詳情": ▶
+- generic: ▼
+- generic: 能源統計 Energy Statistics
+- generic: 0/1
+- button
+- generic: └ 住宅用電
+- button
+- generic: 住宅每月售電量
+- button "住宅每月售電量 詳情": ▶
+- generic: ▼
+- generic: 農業統計 Agriculture Statistics
+- generic: 0/1
+- button
+- generic: └ 稻作生產
+- button
+- generic: 全年稻作收穫面積（複種計次）
+- button "全年稻作收穫面積（複種計次） 詳情": ▶
+- generic: ▼
+- generic: 農業統計
+- generic: 0/8
+- button
+- generic: └ 土地使用結構
+- button
+- generic: 水田用地面積
+- button "水田用地面積 詳情": ▶
+- button
+- generic: 旱田用地面積
+- button "旱田用地面積 詳情": ▶
+- button
+- generic: 果園用地面積
+- button "果園用地面積 詳情": ▶
+- button
+- generic: 農業生產設施用地面積
+- button "農業生產設施用地面積 詳情": ▶
+- generic: └ 作物生產
+- button
+- generic: 作物種植面積
+- button "作物種植面積 詳情": ▶
+- button
+- generic: 作物收穫面積
+- button "作物收穫面積 詳情": ▶
+- button
+- generic: 作物收量
+- button "作物收量 詳情": ▶
+- button
+- generic: 每公頃收穫量
+- button "每公頃收穫量 詳情": ▶
+- generic: ▼
+- generic: 畜牧統計
+- generic: 0/4
+- button
+- generic: └ 土地使用結構
+- button
+- generic: 畜禽舍用地面積
+- button "畜禽舍用地面積 詳情": ▶
+- button
+- generic: 牧場用地面積
+- button "牧場用地面積 詳情": ▶
+- generic: └ 在養與場數
+- button
+- generic: 畜禽飼養場數
+- button "畜禽飼養場數 詳情": ▶
+- button
+- generic: 畜禽在養數量
+- button "畜禽在養數量 詳情": ▶
+- generic: ▼
+- generic: 漁業統計
+- generic: 0/4
+- button
+- generic: └ 土地使用結構
+- button
+- generic: 水產養殖用地面積
+- button "水產養殖用地面積 詳情": ▶
+- generic: └ 產量與產值
+- button
+- generic: 漁業生產量
+- button "漁業生產量 詳情": ▶
+- button
+- generic: 漁業生產值
+- button "漁業生產值 詳情": ▶
+- generic: └ 養殖結構
+- button
+- generic: 水產養殖面積
+- button "水產養殖面積 詳情": ▶
+- generic: ▼
+- generic: 林業統計
+- generic: 0/4
+- button
+- generic: └ 土地使用結構
+- button
+- generic: 針葉林用地面積
+- button "針葉林用地面積 詳情": ▶
+- button
+- generic: 闊葉林用地面積
+- button "闊葉林用地面積 詳情": ▶
+- button
+- generic: 竹林用地面積
+- button "竹林用地面積 詳情": ▶
+- button
+- generic: 混合林用地面積
+- button "混合林用地面積 詳情": ▶
+- generic: ▶
+- generic: 能源 Energy
+- generic: 0/41
+- button
+- generic: ▶
+- generic: 廢棄物 Waste
+- generic: 0/18
+- button
+- generic: ▶
+- generic: 環境氣候 Environment
+- generic: 0/26
+- button
+- generic: ▶
+- generic: 水資源 Water
+- generic: 0/25
+- button
+- generic: ▶
+- generic: 農業 Agriculture
+- generic: 0/29
+- button
+- generic: ▶
+- generic: 動物福利 Animal Welfare
+- generic: 0/3
+- button
+- generic: ▶
+- generic: 林業 Forestry
+- generic: 0/16
+- button
+- generic: 情報 Intelligence
+- generic: ▶
+- generic: 太空 Space
+- generic: 0/16
+- button
+- generic: ▶
+- generic: 情勢 Situation
+- generic: 0/3
+- button
+- generic: 世界 World
+- generic: ▶
+- generic: 通訊 Communications
+- generic: 0/10
+- button
+- generic: ▶
+- generic: 全球氣候 Global Climate
+- generic: 0/5
+- button
+- generic: ▶
+- generic: 世界 World
+- generic: 0/3
+- button
+- generic: ▶
+- generic: 全球海事 Global Maritime
+- generic: 0/6
+- button
+- generic: ▼
+- generic: 行政區
+- generic: 0/2
+- button
+- generic: └ 面
+- button
+- generic: 日本縣界
+- button "日本縣界 詳情": ▶
+- button
+- generic: 日本市界
+- button "日本市界 詳情": ▶
+- generic: ▼
+- generic: 交通
+- generic: 0/3
+- button
+- generic: └ 點位
+- button
+- generic: 日本車站
+- button "日本車站 詳情": ▶
+- button
+- generic: 日本機場
+- button "日本機場 詳情": ▶
+- generic: └ 線
+- button
+- generic: 日本鐵道
+- button "日本鐵道 詳情": ▶
+- generic: ▼
+- generic: 旅宿
+- generic: 1/4
+- button
+- generic: └ 總覽
+- button
+- generic: 日本旅宿總覽
+- button "日本旅宿總覽 詳情": ▶
+- generic: └ 來源
+- button
+- generic: JTA 登錄旅宿
+- button "JTA 登錄旅宿 詳情": ▶
+- button
+- generic: 地方許可旅宿
+- button "地方許可旅宿 詳情": ▶
+- button
+- generic: OSM 住宿
+- button "OSM 住宿 詳情": ▶
+- generic: ▼
+- generic: 自然保護
+- generic: 0/1
+- button
+- generic: └ 濕地與海域
+- button
+- generic: 沿岸 EBSA 2015
+- button "沿岸 EBSA 2015 詳情": ▶
+- generic: ▼
+- generic: 世界遺產
+- generic: 0/2
+- button
+- generic: └ UNESCO 現行名錄
+- button
+- generic: UNESCO 文化遺產代表點
+- button "UNESCO 文化遺產代表點 詳情": ▶
+- button
+- generic: UNESCO 自然遺產代表點
+- button "UNESCO 自然遺產代表點 詳情": ▶
+- generic: ▼
+- generic: 治安
+- generic: 0/1
+- button
+- generic: └ 點位
+- button
+- generic: 日本警察設施
+- button "日本警察設施 詳情": ▶
+- generic: ▼
+- generic: 教育
+- generic: 0/1
+- button
+- generic: └ 點位
+- button
+- generic: 日本學校
+- button "日本學校 詳情": ▶
+- generic: ▼
+- generic: 人口
+- generic: 0/1
+- button
+- generic: └ 面
+- button
+- generic: 日本人口
+- button "日本人口 詳情": ▶
+- generic: ▼
+- generic: 宗教
+- generic: 0/3
+- button
+- generic: └ 點位
+- button
+- generic: 日本宗教 GSI
+- button "日本宗教 GSI 詳情": ▶
+- button
+- generic: 日本宗教 OSM
+- button "日本宗教 OSM 詳情": ▶
+- button
+- generic: 日本宗教 Wikidata
+- button "日本宗教 Wikidata 詳情": ▶
+- generic: Style
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "地點跳轉 ▾"
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 學生或幼生數
+- generic: 數值
+- generic: 55,677 人
+- generic: 資料期別
+- generic: 2022-08-01 — 2023-07-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 處理版本
+- generic: education-county-statistics-v2
+- generic: 原始 SHA-256
+- generic: 516e12889a0396c7634d7f9cd91cf7f9e58c0bf80bbe29a5126650204c291f57
+- generic: 來源
+- generic: 教育部統計處
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 學生或幼生數
+- generic: 2022-08-01 — 2023-07-31 · 人
+- generic: 資料可用狀態：STALE
+- generic: 低於 1,000
+- generic: 1,000 至未滿 10,000
+- generic: 10,000 至未滿 50,000
+- generic: 50,000 至未滿 150,000
+- generic: 150,000 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

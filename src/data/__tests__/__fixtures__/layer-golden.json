@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 497,
+    "keyCount": 542,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2100,7 +2100,52 @@
         "statsFisheryProductionValueCounty-fill",
         "statsAquacultureAreaCounty-fill",
         "statsLivestockFarmCountTownship-fill",
-        "statsLivestockHeadCountTownship-fill"
+        "statsLivestockHeadCountTownship-fill",
+        "statsEducationCountyInstitutionCount-fill",
+        "statsEducationCountyTeacherCount-fill",
+        "statsEducationCountyStaffCount-fill",
+        "statsEducationCountyStudentCount-fill",
+        "statsEducationCountyClassCount-fill",
+        "statsEducationCountySmallSchoolCount-fill",
+        "statsEducationCountySmallSchoolSharePct-fill",
+        "statsEducationCountyStudentTeacherRatio-fill",
+        "statsEducationCountyStudentsPerClass-fill",
+        "statsEducationCountyStudentYearChange-fill",
+        "statsEducationCountyStudentYearChangePct-fill",
+        "statsHealthHospitalCount-fill",
+        "statsHealthHospitalBedTotal-fill",
+        "statsHealthAcuteBedTotal-fill",
+        "statsHealthIcuBedTotal-fill",
+        "statsHealthHospiceBedTotal-fill",
+        "statsHealthHealthProfessionalTotal-fill",
+        "statsHealthWesternPhysicianCount-fill",
+        "statsHealthRegisteredNurseCount-fill",
+        "statsHealthNursingStaffListedAgeSexSum-fill",
+        "statsHealthCareWorkerListedSexSum-fill",
+        "statsHealthGeneralNursingHomeOpenBeds-fill",
+        "statsHealthPostpartumNursingHomeOpenBeds-fill",
+        "statsHealthPostpartumNursingHomeOpenInfantBeds-fill",
+        "statsHealthCareWorkerRegistration-fill",
+        "statsHealthMedicalInstitutionBedsPer10000Population-fill",
+        "statsHealthPracticingMedicalPersonnelPer10000Population-fill",
+        "statsHousingTotalCounty-fill",
+        "statsHousingOccupiedCounty-fill",
+        "statsHousingUnoccupiedCounty-fill",
+        "statsHousingOccasionalCounty-fill",
+        "statsHousingOtherUseCounty-fill",
+        "statsHousingUnusedCounty-fill",
+        "statsHousingResidenceOnlyCounty-fill",
+        "statsHousingMixedUseCounty-fill",
+        "statsHousingOccupiedPctCounty-fill",
+        "statsHousingUnusedPctCounty-fill",
+        "statsHousingTotalTownship-fill",
+        "statsHousingOccupiedTownship-fill",
+        "statsHousingUnoccupiedTownship-fill",
+        "statsHousingOccasionalTownship-fill",
+        "statsHousingOtherUseTownship-fill",
+        "statsHousingUnusedTownship-fill",
+        "statsHousingOccupiedPctTownship-fill",
+        "statsHousingUnusedPctTownship-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -59598,6 +59643,105 @@
         "value": 0.55
       }
     ],
+    "statsEducationCountyClassCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyInstitutionCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountySmallSchoolCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountySmallSchoolSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStaffCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentTeacherRatio": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentYearChange": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentYearChangePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentsPerClass": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyTeacherCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsFisheryProductionCounty": [
       {
         "label": "透明度 0.55",
@@ -59608,6 +59752,312 @@
       }
     ],
     "statsFisheryProductionValueCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthAcuteBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthCareWorkerListedSexSum": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthCareWorkerRegistration": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthGeneralNursingHomeOpenBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHealthProfessionalTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospiceBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospitalBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospitalCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthIcuBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthMedicalInstitutionBedsPer10000Population": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthNursingStaffListedAgeSexSum": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenInfantBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPracticingMedicalPersonnelPer10000Population": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthRegisteredNurseCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthWesternPhysicianCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingMixedUseCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccasionalCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccasionalTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedPctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOtherUseCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOtherUseTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingResidenceOnlyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingTotalCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingTotalTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnoccupiedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnoccupiedTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedPctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,

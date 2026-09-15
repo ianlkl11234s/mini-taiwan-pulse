@@ -1,0 +1,362 @@
+[
+  {
+    "key": "statsEducationCountyInstitutionCount",
+    "label": "機構或學校數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 機構或學校數\n- generic: 數值\n- generic: 147 所\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 機構或學校數\n- generic: 2025-08-01 — 2026-07-31 · 所\n- generic: 資料可用狀態：STALE\n- generic: 低於 10\n- generic: 10 至未滿 50\n- generic: 50 至未滿 150\n- generic: 150 至未滿 500\n- generic: 500 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountyTeacherCount",
+    "label": "教師數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 教師數\n- generic: 數值\n- generic: 9,761 人\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 教師數\n- generic: 2025-08-01 — 2026-07-31 · 人\n- generic: 資料可用狀態：STALE\n- generic: 低於 100\n- generic: 100 至未滿 1000\n- generic: 1000 至未滿 3000\n- generic: 3000 至未滿 10000\n- generic: 10000 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountyStaffCount",
+    "label": "職員數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 職員數\n- generic: 數值\n- generic: 1,163 人\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 職員數\n- generic: 2025-08-01 — 2026-07-31 · 人\n- generic: 資料可用狀態：STALE\n- generic: 低於 10\n- generic: 10 至未滿 100\n- generic: 100 至未滿 500\n- generic: 500 至未滿 1500\n- generic: 1500 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountyStudentCount",
+    "label": "學生或幼生數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 學生或幼生數\n- generic: 數值\n- generic: 117,650 人\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 學生或幼生數\n- generic: 2025-08-01 — 2026-07-31 · 人\n- generic: 資料可用狀態：STALE\n- generic: 低於 1000\n- generic: 1000 至未滿 10000\n- generic: 10000 至未滿 50000\n- generic: 50000 至未滿 150000\n- generic: 150000 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountyClassCount",
+    "label": "班級數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 班級數\n- generic: 數值\n- generic: 4,516 班\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 班級數\n- generic: 2025-08-01 — 2026-07-31 · 班\n- generic: 資料可用狀態：STALE\n- generic: 低於 50\n- generic: 50 至未滿 500\n- generic: 500 至未滿 2000\n- generic: 2000 至未滿 5000\n- generic: 5000 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountySmallSchoolCount",
+    "label": "12班以下學校數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 12班以下學校數\n- generic: 數值\n- generic: 22 所\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 12班以下學校數\n- generic: 2025-08-01 — 2026-07-31 · 所\n- generic: 資料可用狀態：STALE\n- generic: 低於 5\n- generic: 5 至未滿 20\n- generic: 20 至未滿 50\n- generic: 50 至未滿 100\n- generic: 100 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsEducationCountySmallSchoolSharePct",
+    "label": "12班以下學校占比",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 12班以下學校占比\n- generic: 數值\n- generic: 14.97 %\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 12班以下學校占比\n- generic: 2025-08-01 — 2026-07-31 · %\n- generic: 資料可用狀態：STALE\n- generic: 低於 20\n- generic: 20 至未滿 40\n- generic: 40 至未滿 6"
+  },
+  {
+    "key": "statsEducationCountyStudentTeacherRatio",
+    "label": "生師比",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 生師比\n- generic: 數值\n- generic: 12.05 學生或幼生/教師\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 生師比\n- generic: 2025-08-01 — 2026-07-31 · 學生或幼生/教師\n- generic: 資料可用狀態：STALE\n- generic: 低於 10\n- generic: 10 至未滿 15\n- generic: 15 至未滿"
+  },
+  {
+    "key": "statsEducationCountyStudentsPerClass",
+    "label": "每班學生數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 每班學生數\n- generic: 數值\n- generic: 26.05 學生/班\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 每班學生數\n- generic: 2025-08-01 — 2026-07-31 · 學生/班\n- generic: 資料可用狀態：STALE\n- generic: 低於 10\n- generic: 10 至未滿 20\n- generic: 20 至未滿 25\n"
+  },
+  {
+    "key": "statsEducationCountyStudentYearChange",
+    "label": "學生或幼生年增減數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 學生或幼生年增減數\n- generic: 數值\n- generic: \"-5,337 人\"\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 學生或幼生年增減數\n- generic: 2025-08-01 — 2026-07-31 · 人\n- generic: 資料可用狀態：STALE\n- generic: 低於 -1000\n- generic: \"-1000 至未滿 -100\"\n- gene"
+  },
+  {
+    "key": "statsEducationCountyStudentYearChangePct",
+    "label": "學生或幼生年增減率",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 學生或幼生年增減率\n- generic: 數值\n- generic: \"-4.34 %\"\n- generic: 資料期別\n- generic: 2025-08-01 — 2026-07-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 處理版本\n- generic: education-county-statistics-v2\n- generic: 原始 SHA-256\n- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75\n- generic: 來源\n- generic: 教育部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 學生或幼生年增減率\n- generic: 2025-08-01 — 2026-07-31 · %\n- generic: 資料可用狀態：STALE\n- generic: 低於 -10\n- generic: \"-10 至未滿 -3\"\n- generic: \"-"
+  },
+  {
+    "key": "statsHealthHospitalCount",
+    "label": "醫院家數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 醫院家數\n- generic: 數值\n- generic: 6 家\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 9e60d392eb8ec13675b9c7f32bdbf7d013b42f1932f705b1210a62daebd5488e\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫院家數\n- generic: 2025 年 · 家\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（1"
+  },
+  {
+    "key": "statsHealthHospitalBedTotal",
+    "label": "醫院病床總數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 醫院病床總數\n- generic: 數值\n- generic: 1,694 床\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 9e60d392eb8ec13675b9c7f32bdbf7d013b42f1932f705b1210a62daebd5488e\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫院病床總數\n- generic: 2025 年 · 床\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（159／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 153\n- generic: 153 至未滿 409\n- generic: 409 至未滿 777\n- generic: 777 至未滿 1434\n- generic: 1434 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthAcuteBedTotal",
+    "label": "急性病床",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 急性病床\n- generic: 數值\n- generic: 1,238 床\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 9e60d392eb8ec13675b9c7f32bdbf7d013b42f1932f705b1210a62daebd5488e\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 急性病床\n- generic: 2025 年 · 床\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTI"
+  },
+  {
+    "key": "statsHealthIcuBedTotal",
+    "label": "加護病床",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 加護病床\n- generic: 數值\n- generic: 89 床\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 9e60d392eb8ec13675b9c7f32bdbf7d013b42f1932f705b1210a62daebd5488e\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 加護病床\n- generic: 2025 年 · 床\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（"
+  },
+  {
+    "key": "statsHealthHospiceBedTotal",
+    "label": "安寧病床",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 安寧病床\n- generic: 數值\n- generic: 0 床\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 9e60d392eb8ec13675b9c7f32bdbf7d013b42f1932f705b1210a62daebd5488e\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 安寧病床\n- generic: 2025 年 · 床\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（1"
+  },
+  {
+    "key": "statsHealthHealthProfessionalTotal",
+    "label": "醫院醫事人員總計",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 醫院醫事人員總計\n- generic: 數值\n- generic: 3,359 人\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 8eee7f49305969e09872e731503302f3df884070f92354d9eb700d5bcd157c3d\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫院醫事人員總計\n- generic: 2025 年 · 人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（159／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 117\n- generic: 117 至未滿 432\n- generic: 432 至未滿 1015\n- generic: 1015 至未滿 1979\n- generic: 1979 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthWesternPhysicianCount",
+    "label": "醫院西醫師",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 醫院西醫師\n- generic: 數值\n- generic: 744 人\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 8eee7f49305969e09872e731503302f3df884070f92354d9eb700d5bcd157c3d\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫院西醫師\n- generic: 2025 年 · 人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（159／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 15\n- generic: 15 至未滿 53\n- generic: 53 至未滿 138\n- generic: 138 至未滿 350\n- generic: 350 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthRegisteredNurseCount",
+    "label": "醫院護理師",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 醫院護理師\n- generic: 數值\n- generic: 1,753 人\n- generic: 資料期別\n- generic: 2025-01-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: township_reference_20260626_v1\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v1-receipt-gated\n- generic: 原始 SHA-256\n- generic: 8eee7f49305969e09872e731503302f3df884070f92354d9eb700d5bcd157c3d\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫院護理師\n- generic: 2025 年 · 人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（159／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 57\n- generic: 57 至未滿 240\n- generic: 240 至未滿 606\n- generic: 606 至未滿 1184\n- generic: 1184 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthNursingStaffListedAgeSexSum",
+    "label": "一般護理之家列示護理人員欄位加總",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 一般護理之家列示護理人員欄位加總\n- generic: 數值\n- generic: 缺資料（missing），不等於 0\n- generic: 來源狀態\n- generic: missing\n- generic: 來源原值\n- generic: \"-\"\n- generic: 資料期別\n- generic: 2025-12-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v2-nursing-numeric-coverage\n- generic: 原始 SHA-256\n- generic: b1500659c4146a5b569a3ad63c009807d690f1f74a40b16fda407001c46ac62f\n- generic: 來源\n- generic: 衛生福利部護理及健康照護司\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 一般護理之家列示護理人員欄位加總\n- generic: 2025-12-01 — 2025-12-31 · 人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（1／22 縣市）；未分配 未提供\n- generic: 低於 378\n- generic: 378 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- "
+  },
+  {
+    "key": "statsHealthCareWorkerListedSexSum",
+    "label": "一般護理之家列示照服員欄位加總",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 一般護理之家列示照服員欄位加總\n- generic: 數值\n- generic: 403 人\n- generic: 資料期別\n- generic: 2025-12-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: PARTIAL\n- generic: 處理版本\n- generic: mohw-health-regional-v2-nursing-numeric-coverage\n- generic: 原始 SHA-256\n- generic: b1500659c4146a5b569a3ad63c009807d690f1f74a40b16fda407001c46ac62f\n- generic: 來源\n- generic: 衛生福利部護理及健康照護司\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 一般護理之家列示照服員欄位加總\n- generic: 2025-12-01 — 2025-12-31 · 人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：PARTIAL（20／22 縣市）；未分配 未提供\n- generic: 低於 154\n- generic: 154 至未滿 374\n- generic: 374 至未滿 469\n- generic: 469 至未滿 1209\n- generic: 1209 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資"
+  },
+  {
+    "key": "statsHealthGeneralNursingHomeOpenBeds",
+    "label": "一般護理之家開放床數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 一般護理之家開放床數\n- generic: 數值\n- generic: 1,101 床\n- generic: 資料期別\n- generic: 2025-12-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-115950-nursing-facility-capacity-v2-receipt-required\n- generic: 原始 SHA-256\n- generic: 1292c98a06752994ede0b7f3530349f861aefd56f96f9be86aa863f2762b5fd0\n- generic: 來源\n- generic: 衛生福利部護理及健康照護司\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 一般護理之家開放床數\n- generic: 2025-12-01 — 2025-12-31 · 床\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 484\n- generic: 484 至未滿 963\n- generic: 963 至未滿 1529\n- generic: 1529 至未滿 4268\n- generic: 4268 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \""
+  },
+  {
+    "key": "statsHealthPostpartumNursingHomeOpenBeds",
+    "label": "產後護理之家開放護理床數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 產後護理之家開放護理床數\n- generic: 數值\n- generic: 958 床\n- generic: 資料期別\n- generic: 2025-12-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-115950-nursing-facility-capacity-v2-receipt-required\n- generic: 原始 SHA-256\n- generic: 1292c98a06752994ede0b7f3530349f861aefd56f96f9be86aa863f2762b5fd0\n- generic: 來源\n- generic: 衛生福利部護理及健康照護司\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 產後護理之家開放護理床數\n- generic: 2025-12-01 — 2025-12-31 · 床\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 0\n- generic: 0 至未滿 46\n- generic: 46 至未滿 207\n- generic: 207 至未滿 518\n- generic: 518 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthPostpartumNursingHomeOpenInfantBeds",
+    "label": "產後護理之家開放嬰兒床數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 產後護理之家開放嬰兒床數\n- generic: 數值\n- generic: 1,112 床\n- generic: 資料期別\n- generic: 2025-12-01 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-115950-nursing-facility-capacity-v2-receipt-required\n- generic: 原始 SHA-256\n- generic: 1292c98a06752994ede0b7f3530349f861aefd56f96f9be86aa863f2762b5fd0\n- generic: 來源\n- generic: 衛生福利部護理及健康照護司\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 產後護理之家開放嬰兒床數\n- generic: 2025-12-01 — 2025-12-31 · 床\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 0\n- generic: 0 至未滿 50\n- generic: 50 至未滿 215\n- generic: 215 至未滿 566\n- generic: 566 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽"
+  },
+  {
+    "key": "statsHealthCareWorkerRegistration",
+    "label": "照顧服務員登錄數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 照顧服務員登錄數\n- generic: 數值\n- generic: 5,209 登錄數\n- generic: 資料期別\n- generic: 2024-01-01 — 2024-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-care-worker-registration-count-v2-tls-fetch-receipt-gated\n- generic: 原始 SHA-256\n- generic: 847d6fd4cf4be2f0a2c0298155cf1b79f04e50533613c488d9698877db8d946e\n- generic: 來源\n- generic: 衛生福利部\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 照顧服務員登錄數\n- generic: 2024 年 · 登錄數\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 273\n- generic: 273 至未滿 1117\n- generic: 1117 至未滿 1993\n- generic: 1993 至未滿 4785\n- generic: 4785 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHealthMedicalInstitutionBedsPer10000Population",
+    "label": "醫療院所每萬人口病床數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 醫療院所每萬人口病床數\n- generic: 數值\n- generic: 107.07 每萬人口床\n- generic: 資料期別\n- generic: 2025-12-31 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-medical-percapita-v2-native-rate-receipt-bound\n- generic: 原始 SHA-256\n- generic: c460d9b6e7e4d28c59f1949958d3cd6803e7166b52f74ee2533b3af3826e0c89\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 醫療院所每萬人口病床數\n- generic: 2025-12-31 — 2025-12-31 · 每萬人口床\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 0 每萬人口\n- generic: 低於 58.63688497827488\n- generic: 58.63688497827488 至未滿 62.645367972967044\n- generic: 62.645367972967044 至未滿 75.0618212750678\n- generic: 75.0618212750678 至未滿 80.78680287686613\n"
+  },
+  {
+    "key": "statsHealthPracticingMedicalPersonnelPer10000Population",
+    "label": "機構每萬人口執業醫事人員數",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 機構每萬人口執業醫事人員數\n- generic: 數值\n- generic: 272.55 每萬人口人\n- generic: 資料期別\n- generic: 2025-12-31 — 2025-12-31\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: CURRENT\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: mohw-medical-percapita-v2-native-rate-receipt-bound\n- generic: 原始 SHA-256\n- generic: 3e052a5454b2b39cc3c022ce9d14ca025589c35791f8dcd8fac092320ba84646\n- generic: 來源\n- generic: 衛生福利部統計處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 機構每萬人口執業醫事人員數\n- generic: 2025-12-31 — 2025-12-31 · 每萬人口人\n- generic: 資料可用狀態：CURRENT\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 0 每萬人口\n- generic: 低於 115.39419075852612\n- generic: 115.39419075852612 至未滿 126.86798328965986\n- generic: 126.86798328965986 至未滿 142.65151050295557\n- generic: 142.65151050295557 至未滿 181.5750"
+  },
+  {
+    "key": "statsHousingTotalCounty",
+    "label": "住宅總數（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 住宅總數（縣市）\n- generic: 數值\n- generic: 950,496 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 住宅總數（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 106368\n- generic: 106368 至未滿 181086\n- generic: 181086 至未滿 227420\n- generic: 227420 至未滿 867883\n- generic: 867883 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccupiedCounty",
+    "label": "有人經常居住住宅（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 有人經常居住住宅（縣市）\n- generic: 數值\n- generic: 754,585 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 有人經常居住住宅（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 77911\n- generic: 77911 至未滿 130056\n- generic: 130056 至未滿 165304\n- generic: 165304 至未滿 685312\n- generic: 685312 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingUnoccupiedCounty",
+    "label": "無人經常居住住宅（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 無人經常居住住宅（縣市）\n- generic: 數值\n- generic: 195,911 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 無人經常居住住宅（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 28457\n- generic: 28457 至未滿 44383\n- generic: 44383 至未滿 65905\n- generic: 65905 至未滿 182571\n- generic: 182571 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccasionalCounty",
+    "label": "偶爾自住住宅（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 偶爾自住住宅（縣市）\n- generic: 數值\n- generic: 49,051 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 偶爾自住住宅（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 6862\n- generic: 6862 至未滿 11950\n- generic: 11950 至未滿 17628\n- generic: 17628 至未滿 37153\n- generic: 37153 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOtherUseCounty",
+    "label": "自住以外用途住宅（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 自住以外用途住宅（縣市）\n- generic: 數值\n- generic: 53,059 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 自住以外用途住宅（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 4290\n- generic: 4290 至未滿 7289\n- generic: 7289 至未滿 12618\n- generic: 12618 至未滿 33094\n- generic: 33094 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingUnusedCounty",
+    "label": "目前沒有使用住宅（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 目前沒有使用住宅（縣市）\n- generic: 數值\n- generic: 93,801 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 目前沒有使用住宅（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 15734\n- generic: 15734 至未滿 25461\n- generic: 25461 至未滿 34514\n- generic: 34514 至未滿 93801\n- generic: 93801 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingResidenceOnlyCounty",
+    "label": "有人居住住宅－住宅專用（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 有人居住住宅－住宅專用（縣市）\n- generic: 數值\n- generic: 735,700 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 有人居住住宅－住宅專用（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 72137\n- generic: 72137 至未滿 122058\n- generic: 122058 至未滿 156309\n- generic: 156309 至未滿 655478\n- generic: 655478 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingMixedUseCounty",
+    "label": "有人居住住宅－兼農工服務業用（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 有人居住住宅－兼農工服務業用（縣市）\n- generic: 數值\n- generic: 18,885 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 有人居住住宅－兼農工服務業用（縣市）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 4387\n- generic: 4387 至未滿 6576\n- generic: 6576 至未滿 8995\n- generic: 8995 至未滿 28832\n- generic: 28832 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccupiedPctCounty",
+    "label": "經常居住住宅占比（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 經常居住住宅占比（縣市）\n- generic: 數值\n- generic: 79.39 %\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 經常居住住宅占比（縣市）\n- generic: 2020-11-08 — 2020-11-08 · %\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 70.81572751024095\n- generic: 70.81572751024095 至未滿 72.68665904493888\n- generic: 72.68665904493888 至未滿 75.81239178472694\n- generic: 75.81239178472694 至未滿 77.71407682954536\n- generic: 77.71407682954536 以上\n- generic: 灰色："
+  },
+  {
+    "key": "statsHousingUnusedPctCounty",
+    "label": "目前未使用住宅占比（縣市）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 臺北市\n- generic: 統計指標\n- generic: 目前未使用住宅占比（縣市）\n- generic: 數值\n- generic: 9.87 %\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000\"\n- generic: 參考邊界\n- generic: COUNTY_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 目前未使用住宅占比（縣市）\n- generic: 2020-11-08 — 2020-11-08 · %\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供\n- generic: 低於 12.401315789473685\n- generic: 12.401315789473685 至未滿 13.263884648045877\n- generic: 13.263884648045877 至未滿 13.93481550202666\n- generic: 13.93481550202666 至未滿 16.638141023768775\n- generic: 16.638141023768775 以上\n- gener"
+  },
+  {
+    "key": "statsHousingTotalTownship",
+    "label": "住宅總數（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 住宅總數（鄉鎮市區）\n- generic: 數值\n- generic: 111,460 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 住宅總數（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 3624\n- generic: 3624 至未滿 7736\n- generic: 7736 至未滿 15154\n- generic: 15154 至未滿 36299\n- generic: 36299 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccupiedTownship",
+    "label": "有人經常居住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 有人經常居住住宅（鄉鎮市區）\n- generic: 數值\n- generic: 92,188 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 有人經常居住住宅（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 2472\n- generic: 2472 至未滿 5607\n- generic: 5607 至未滿 10956\n- generic: 10956 至未滿 27909\n- generic: 27909 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingUnoccupiedTownship",
+    "label": "無人經常居住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 無人經常居住住宅（鄉鎮市區）\n- generic: 數值\n- generic: 19,272 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 無人經常居住住宅（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 1080\n- generic: 1080 至未滿 2067\n- generic: 2067 至未滿 3793\n- generic: 3793 至未滿 8516\n- generic: 8516 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccasionalTownship",
+    "label": "偶爾自住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 偶爾自住住宅（鄉鎮市區）\n- generic: 數值\n- generic: 4,817 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 偶爾自住住宅（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 363\n- generic: 363 至未滿 622\n- generic: 622 至未滿 976\n- generic: 976 至未滿 1998\n- generic: 1998 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOtherUseTownship",
+    "label": "自住以外用途住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 自住以外用途住宅（鄉鎮市區）\n- generic: 數值\n- generic: 5,069 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 自住以外用途住宅（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 123\n- generic: 123 至未滿 312\n- generic: 312 至未滿 742\n- generic: 742 至未滿 1748\n- generic: 1748 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingUnusedTownship",
+    "label": "目前沒有使用住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 目前沒有使用住宅（鄉鎮市區）\n- generic: 數值\n- generic: 9,386 宅\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 目前沒有使用住宅（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · 宅\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 526\n- generic: 526 至未滿 1047\n- generic: 1047 至未滿 1915\n- generic: 1915 至未滿 5106\n- generic: 5106 以上\n- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階\n- generic: 斜線：遮蔽 suppressed（*）\n- button \"資料來源總覽\":"
+  },
+  {
+    "key": "statsHousingOccupiedPctTownship",
+    "label": "經常居住住宅占比（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 經常居住住宅占比（鄉鎮市區）\n- generic: 數值\n- generic: 82.71 %\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 經常居住住宅占比（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · %\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 65.87341409217977\n- generic: 65.87341409217977 至未滿 71.43859649122807\n- generic: 71.43859649122807 至未滿 76.01518026565465\n- generic: 76.01518026565465 至未滿 79.37330663211215\n- generic: 79.37330663211215 以上\n- gen"
+  },
+  {
+    "key": "statsHousingUnusedPctTownship",
+    "label": "目前未使用住宅占比（鄉鎮市區）",
+    "popup": true,
+    "legend": true,
+    "undefinedLegend": false,
+    "excerpt": "- generic: 區域統計\n- generic: 區域\n- generic: 大安區\n- generic: 統計指標\n- generic: 目前未使用住宅占比（鄉鎮市區）\n- generic: 數值\n- generic: 8.42 %\n- generic: 資料期別\n- generic: 2020-11-08 — 2020-11-08\n- generic: 行政區代碼\n- generic: \"63000030\"\n- generic: 參考邊界\n- generic: TOWN_MOI_1140318\n- generic: 資料可用狀態\n- generic: STALE\n- generic: 覆蓋狀態\n- generic: COMPLETE\n- generic: 處理版本\n- generic: housing-census109-v1\n- generic: 原始 SHA-256\n- generic: 148466f1817f1fa36fe801a914a6be130fbd7ca524072328fce6d27235f8fa59\n- generic: 來源\n- generic: 行政院主計總處\n- button \"LEGEND\":\n  - generic: LEGEND\n- strong: 目前未使用住宅占比（鄉鎮市區）\n- generic: 2020-11-08 — 2020-11-08 · %\n- generic: 資料可用狀態：STALE\n- generic: 覆蓋狀態：COMPLETE（368／368 鄉鎮市區）；未分配 未提供\n- generic: 低於 9.540740740740741\n- generic: 9.540740740740741 至未滿 12.38276903512955\n- generic: 12.38276903512955 至未滿 14.637904468412943\n- generic: 14.637904468412943 至未滿 18.028016178356516\n- generic: 18.028016178356516 以上\n"
+  }
+]

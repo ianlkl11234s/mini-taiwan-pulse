@@ -33,3 +33,5 @@
 
 - **hotfix**：線上炸了、用戶感知（例如 Supabase 打掛、layer 全消失） → `hotfix/<slug>` → 快速 PR + 一般 merge commit（保留各筆 commit）
 - **正常**：其他一律走 `feat/fix/perf/docs`
+
+未經使用者明確要求，不改寫既有提交歷史。

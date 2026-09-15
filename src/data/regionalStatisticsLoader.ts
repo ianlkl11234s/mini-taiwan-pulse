@@ -1,3 +1,4 @@
+import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from './socialStatisticsRecipes';
 import { withLoading } from '../lib/loadingRegistry';
 import { cachedByKey } from '../lib/loaderCache';
 import { statisticsGeometryCache, waitForGeometry } from './statisticsGeometryCache';
@@ -12,7 +13,7 @@ export interface StatisticsValues { status: string; release: StatisticsRelease; 
 export type StatisticsSource = Record<string, unknown>;
 /** Sidecars describe nonnumeric source tokens; observed numbers need no invented token. */
 export function assertStatisticsSourceSemantics(value: StatisticsObservation, required: boolean) {
-  if (required && value.status !== 'observed' && (typeof value.source_status !== 'string' || typeof value.source_token !== 'string')) throw new Error('畜禽來源狀態或原始符號未提供，不能以一般缺值取代');
+  if (required && value.status !== 'observed' && (typeof value.source_status !== 'string' || typeof value.source_token !== 'string')) throw new Error('統計來源狀態或原始符號未提供，不能以一般缺值取代');
 }
 
 export interface StatisticsHealth { status: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string; coverage?: Record<string, unknown> }
@@ -43,7 +44,13 @@ interface StatisticsCdnArtifact {
   geometry: { status: string; geometry: GeometryManifest };
 }
 
-function statisticsCdnBase(): string {
+function statisticsCdnBase(recipe?: StatisticsRecipe): string {
+  // This delivery is incremental. Only its exact registered datasets use the opt-in local origin.
+  const social = recipe?.layerKey ? getSocialRecipe(recipe.layerKey) : undefined;
+  if (import.meta.env.DEV && import.meta.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true'
+    && social?.enabled && social.dataset_id === recipe?.datasetId) {
+    return new URL('/__social-statistics-cdn', window.location.origin).href;
+  }
   return String(import.meta.env.VITE_STATISTICS_CDN_BASE || DEFAULT_STATISTICS_CDN_BASE).replace(/\/+$/, '');
 }
 
@@ -98,12 +105,11 @@ export function clearRegionalStatisticsCdnCache(): void {
   loadCdnArtifactCached.invalidate();
 }
 
-async function cdnManifest(signal?: AbortSignal): Promise<StatisticsCdnManifest> {
-  return waitForGeometry(loadCdnManifestCached(statisticsCdnBase()), signal);
+async function cdnManifest(base: string, signal?: AbortSignal): Promise<StatisticsCdnManifest> {
+  return waitForGeometry(loadCdnManifestCached(base), signal);
 }
 
-async function cdnArtifact(asset: StatisticsCdnAsset, signal?: AbortSignal): Promise<StatisticsCdnArtifact> {
-  const base = statisticsCdnBase();
+async function cdnArtifact(base: string, asset: StatisticsCdnAsset, signal?: AbortSignal): Promise<StatisticsCdnArtifact> {
   return waitForGeometry(loadCdnArtifactCached(JSON.stringify({ base, asset })), signal);
 }
 
@@ -176,7 +182,8 @@ async function previewRequest<T>(route: string, query: Record<string, unknown>, 
 async function request<T>(route: string, query: Record<string, unknown>, signal?: AbortSignal, recipe?: StatisticsRecipe): Promise<T> {
   const agri = recipe?.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
   if (agriPreviewEnabled() && agri) return previewRequest<T>(route, query, recipe!, agri, signal);
-  const manifest = await cdnManifest(signal);
+  const base = statisticsCdnBase(recipe);
+  const manifest = await cdnManifest(base, signal);
   if (route === 'catalog') return manifest.catalog as T;
   if (route === 'releases') {
     const indicator = manifest.indicators.find(item => item.dataset_id === query.dataset_id && item.indicator_id === query.indicator_id);
@@ -184,13 +191,13 @@ async function request<T>(route: string, query: Record<string, unknown>, signal?
   }
   if (route === 'geometry-manifest') {
     const geometry = manifest.geometries.find(item => item.boundary_version === query.boundary_version && item.level === query.level);
-    return (geometry ? { status: 'OK', geometry: { ...geometry, resource: assetUrl(statisticsCdnBase(), geometry.resource) } } : { status: 'NOT_FOUND' }) as T;
+    return (geometry ? { status: 'OK', geometry: { ...geometry, resource: assetUrl(base, geometry.resource) } } : { status: 'NOT_FOUND' }) as T;
   }
   const selector = manifest.selectors.find(item => item.dataset_id === query.dataset_id
     && item.indicator_id === query.indicator_id && item.release_id === query.release_id
-    && (route !== 'values' || (item.area_level === query.level && sameDimensions(item.dimensions, (query.dimensions ?? {}) as Record<string, unknown>))));
+    && item.area_level === query.level && sameDimensions(item.dimensions, (query.dimensions ?? {}) as Record<string, unknown>));
   if (!selector) return { status: 'NOT_FOUND' } as T;
-  const artifact = await cdnArtifact(selector.artifact, signal);
+  const artifact = await cdnArtifact(base, selector.artifact, signal);
   if (route === 'values') return artifact.values as T;
   if (route === 'sources') return artifact.sources as T;
   if (route === 'health') return (artifact.health ?? { status: 'NOT_FOUND' }) as T;
@@ -206,7 +213,8 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const { releases } = releasesResponse;
     if (!Array.isArray(catalog) || !Array.isArray(releases)) throw new Error('統計目錄格式不符');
     let effectiveRecipe = recipe;
-    const agri = recipe.layerKey ? getAgriRecipe(recipe.layerKey) : undefined;
+    const social = recipe.layerKey ? getSocialRecipe(recipe.layerKey) : undefined;
+    const agri = (recipe.layerKey ? getAgriRecipe(recipe.layerKey) : undefined) ?? social;
     const compatibleReleases = () => releases
       .filter(item => !item.levels || item.levels.includes(recipe.level))
       .map(item => ({ release: item, dimensions: recipe.releaseFallback ? recipe.releaseFallback(item) : recipe.dimensions ?? {} }))
@@ -214,8 +222,8 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       .sort((a, b) => b.release.period_end.localeCompare(a.release.period_end) || b.release.period_start.localeCompare(a.release.period_start) || b.release.release_id.localeCompare(a.release.release_id));
     let release: StatisticsRelease | undefined;
     if (!recipe.releaseId && agri) {
-      const option = agriReleaseOptions(recipe.layerKey!, releases)[0];
-      if (!option) throw new Error('農業統計尚無已公開且通過交付白名單的期別');
+      const option = (social ? socialReleaseOptions : agriReleaseOptions)(recipe.layerKey!, releases)[0];
+      if (!option) throw new Error('統計尚無已公開且通過交付白名單的期別');
       release = releases.find(item => item.release_id === option.releaseId);
       effectiveRecipe = { ...recipe, releaseId: option.releaseId, dimensions: option.dimensions, allowReleaseFallback: false };
     } else release = recipe.releaseId ? releases.find(r => r.release_id === recipe.releaseId) : releases[0];
@@ -226,7 +234,7 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       release = matched.release;
       effectiveRecipe = { ...recipe, releaseId: release.release_id, dimensions: matched.dimensions, allowReleaseFallback: false };
     }
-    if (!release && recipe.releaseId && recipe.allowReleaseFallback) {
+    if (!social && !release && recipe.releaseId && recipe.allowReleaseFallback) {
       const fallback = compatibleReleases()[0];
       if (!fallback) throw new Error('預設統計期別已撤回，且沒有相容的公開期別可使用');
       release = fallback.release;
@@ -236,13 +244,13 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     const indicator = catalog.find(c => c.dataset_id === recipe.datasetId && c.indicator_id === recipe.indicatorId);
     if (!indicator || !indicator.levels.includes(recipe.level)) throw new Error('此指標不提供指定地理層級');
     if (agri) {
-      if (!agri.enabled || agri.dataset_id !== recipe.datasetId || agri.indicator_id !== recipe.indicatorId || agri.level !== recipe.level || agri.boundary_version !== release.boundary_version) throw new Error('農業統計 recipe 與正式發布契約不符');
-      if (indicator.unit !== agri.unit) throw new Error('農業統計單位與已驗證 recipe 不符');
-      const resolved = resolveAgriRelease(recipe.layerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
-      if (!resolved) throw new Error('農業統計期別或維度不在已驗證白名單中');
+      if (!agri.enabled || agri.dataset_id !== recipe.datasetId || agri.indicator_id !== recipe.indicatorId || agri.level !== recipe.level || agri.boundary_version !== release.boundary_version) throw new Error('統計 recipe 與正式發布契約不符');
+      if (indicator.unit !== agri.unit) throw new Error('統計單位與已驗證 recipe 不符');
+      const resolved = (social ? resolveSocialRelease : resolveAgriRelease)(recipe.layerKey!, release, (effectiveRecipe.dimensions ?? {}) as Record<string, string>);
+      if (!resolved) throw new Error('統計期別或維度不在已驗證白名單中');
       effectiveRecipe = { ...effectiveRecipe, releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false };
     }
-    const previewDimensions = agriPreviewEnabled() && agri ? { dimensions: effectiveRecipe.dimensions ?? {} } : {};
+    const selectorScope = { level: recipe.level, dimensions: effectiveRecipe.dimensions ?? {} };
     // These requests share a validated release, not each other's response. Keep
     // the atomic result gate below: no values render before provenance/health/SHA pass.
     const [{ first, observations }, { geometryManifest, boundary }, sourceResponse, health] = await Promise.all([
@@ -264,13 +272,13 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
         }), signal);
         return { geometryManifest, boundary };
       })(),
-      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe),
+      request<{status: string; source: StatisticsSource}>('sources', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...selectorScope }, signal, recipe),
       recipe.includeHealth
-        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...previewDimensions }, signal, recipe)
+        ? request<StatisticsHealth>('health', { dataset_id: recipe.datasetId, indicator_id: recipe.indicatorId, release_id: release.release_id, ...selectorScope }, signal, recipe)
         : Promise.resolve(undefined),
     ]);
     if (sourceResponse.status !== 'OK' || (health && health.status !== 'OK')) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
-    const requiresSourceSemantics = agri?.release_options.some(option => option.release_id === release!.release_id && Boolean(option.semantics_sidecar_path));
+    const requiresSourceSemantics = social?.dataset_id === 'nursing_workforce_statistics' || agri?.release_options.some(option => option.release_id === release!.release_id && Boolean(option.semantics_sidecar_path));
     const byCode = new Map<string, StatisticsObservation>();
     for (const value of observations) {
       assertStatisticsSourceSemantics(value, Boolean(requiresSourceSemantics));
@@ -283,7 +291,7 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       if (typeof code !== 'string' || geometryCodes.has(code) || !feature.geometry || !['Polygon', 'MultiPolygon'].includes(feature.geometry.type)) throw new Error('參考邊界代碼或幾何錯誤');
       geometryCodes.add(code);
       const value = byCode.get(code);
-      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, indicator_name: indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status } };
+      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, indicator_name: social?.label ?? indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
     return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest, features };

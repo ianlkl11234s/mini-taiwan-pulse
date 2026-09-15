@@ -2,6 +2,7 @@ import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } f
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -332,6 +333,21 @@ const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATIST
   topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
 }])) as Record<AgriStatisticsLayerKey, LayerManifestEntry>;
 
+const SOCIAL_STATISTICS_COLORS: Record<string, string> = {
+  教育與少子化統計: "#2563eb", 醫療與長照統計: "#dc2626", 住宅存量與使用: "#7c3aed",
+};
+/** Social-statistics recipes use the shared dynamic Statistics renderer. */
+const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+  key: recipe.layer_key,
+  section: { theme: recipe.group, group: recipe.subgroup },
+  label: recipe.label, expandable: true, color: SOCIAL_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
+  upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+  source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+  legend: recipe.layer_key, popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+  description: recipe.disclosure ?? "依公開完整期別與行政區參考邊界呈現；缺值不補零。",
+  topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
+}])) as Record<SocialStatisticsLayerKey, LayerManifestEntry>;
+
 /**
  * Phase 1 試點：5 個**體質各異**的層。刻意不挑 5 個長得像的——
  * 派生機制要先撞過所有形狀（有無 overlay entry / 有無 labelMobile /
@@ -342,6 +358,7 @@ const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATIST
  */
 export const LAYER_MANIFEST = {
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
+  ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
     label: "航港局獎補助金額（受補助對象所在地）", expandable: true, color: "#2563eb", icon: Anchor,

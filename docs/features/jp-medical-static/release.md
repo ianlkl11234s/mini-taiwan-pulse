@@ -34,3 +34,7 @@
 正常 GitHub Flow：feature PR → 一般 merge commit 進 master（保留各筆 commit）→ Zeabur。資料安裝由既有 pull 執行，不新增排程。回復以 revert 本次 feature commit 復原前端接線；既有 immutable 物件保留，不刪除／不原地改寫。如有上一版醫療，可受控 CAS 回復舊 pointer；本次初版沒有上一版醫療 pointer。
 
 來源 analytics 已取得資料仍在獨立 worktree，沒有把整個研究分支合併；本次發布凍結的 allowlist 產物與前端。固定 catalog 內 LOCAL_READY_NOT_DEPLOYED 代表產製時狀態，receipt／deployment／HTTP 是發布證據。
+
+## 合併前最新 master 整合
+
+一般 merge 整合 `a9d522f4`（包含社會統計與其 UI 修正），保留雙方 commit。539 個 master 圖層的 params／overlays／gisLayers 逐項比對不變，加 3 個日本醫療共 542。整合後 TypeScript PASS，165 test files PASS／1 skipped，1,385 tests PASS／4 skipped；build PASS。衝突僅合併政策與 golden fixture/count，保留使用者指定的一般 merge 慣例。

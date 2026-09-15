@@ -1,5 +1,6 @@
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
+import { SOCIAL_STATISTICS_RECIPES_BY_KEY, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
 export interface StatisticsReleaseOption {
   releaseId: string;
@@ -339,6 +340,30 @@ export const STATISTICS_RECIPES = {
     breaks: recipe.legend.breaks,
     colors: recipe.legend.colors,
   }])) as Record<keyof typeof AGRI_STATISTICS_RECIPES_BY_KEY, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
+  ...Object.fromEntries(Object.entries(SOCIAL_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
+    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    includeHealth: true,
+    releaseOptions: recipe.release_options,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+      fragmentContext: recipe.fragment_context,
+      sourceFamily: recipe.source_family,
+    },
+    breaks: recipe.legend.breaks,
+    colors: recipe.legend.colors,
+  }])) as Record<SocialStatisticsLayerKey, {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
   }>,

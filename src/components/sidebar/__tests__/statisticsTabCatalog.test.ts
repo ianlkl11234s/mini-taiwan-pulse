@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_THEMES } from "../layerCatalog";
-import { getThemeLayerKeys } from "../../IconRailSidebar";
+import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與社會 People & Society", groups: ["人口動態", "犯罪與治安"] },
+  { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "犯罪與治安"] },
   { title: "交通與運輸 Transport", groups: ["大眾運輸", "自行車（臺北市，民國 110 年）", "道路安全與監測", "車輛與停車", "航空運輸", "運輸補助", "交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收"] },
@@ -12,7 +12,11 @@ const EXPECTED_THEME_STRUCTURE = [
 ];
 
 const EXPECTED_LAYER_KEYS = [
-  "statsBirthsTownship", "crimeAreaMonthly",
+  "statsBirthsTownship",
+  "statsEducationCountyInstitutionCount", "statsEducationCountyTeacherCount", "statsEducationCountyStaffCount", "statsEducationCountyStudentCount", "statsEducationCountyClassCount", "statsEducationCountySmallSchoolCount", "statsEducationCountySmallSchoolSharePct", "statsEducationCountyStudentTeacherRatio", "statsEducationCountyStudentsPerClass", "statsEducationCountyStudentYearChange", "statsEducationCountyStudentYearChangePct",
+  "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
+  "statsHousingTotalCounty", "statsHousingOccupiedCounty", "statsHousingUnoccupiedCounty", "statsHousingOccasionalCounty", "statsHousingOtherUseCounty", "statsHousingUnusedCounty", "statsHousingResidenceOnlyCounty", "statsHousingMixedUseCounty", "statsHousingOccupiedPctCounty", "statsHousingUnusedPctCounty", "statsHousingTotalTownship", "statsHousingOccupiedTownship", "statsHousingUnoccupiedTownship", "statsHousingOccasionalTownship", "statsHousingOtherUseTownship", "statsHousingUnusedTownship", "statsHousingOccupiedPctTownship", "statsHousingUnusedPctTownship",
+  "crimeAreaMonthly",
   "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
   "statsTaipeiUrbanRentalStations", "statsTaipeiUrbanRentalTrips", "statsTaipeiRiversideRentalStations", "statsTaipeiRiversideBicycles", "statsTaipeiRiversideRentalTrips",
   "statsA1AccidentCount", "statsA1DeathCount", "statsA1InjuryCount", "statsTaipeiTrafficViolationCitations", "statsTaichungRoadNoiseMonitoringStations",
@@ -56,5 +60,19 @@ describe("STATISTICS_TAB_THEMES", () => {
 
   it("All Off scope 只包含統計入口的圖層", () => {
     expect(getThemeLayerKeys(STATISTICS_TAB_THEMES)).toEqual(EXPECTED_LAYER_KEYS);
+  });
+});
+
+describe("Layers 與 Statistics 分頁", () => {
+  it("中文統計主題只出現在 Statistics，原有一般圖層仍保留", () => {
+    const mainKeys = getThemeLayerKeys(MAIN_THEMES);
+    const statisticsKeys = getThemeLayerKeys(STATISTICS_TAB_THEMES);
+    for (const key of EXPECTED_LAYER_KEYS.filter((key) => key.startsWith("stats"))) {
+      expect(mainKeys).not.toContain(key);
+      expect(statisticsKeys).toContain(key);
+    }
+    expect(mainKeys).toContain("countyBoundary");
+    expect(mainKeys).toContain("townshipBoundary");
+    expect(mainKeys).toContain("crimeAreaMonthly");
   });
 });
