@@ -361,6 +361,7 @@ export type ExpandableLayerKey =
   // 🌍 世界 World
   | "worldTrashDebris"
   | "coralReefDistribution"
+  | "allenCoralAtlas"
   | "jpMedicalFacilities" | "jpMedicalCare" | "jpMedicalAreas"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
@@ -828,6 +829,7 @@ export interface FeatureInfo {
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
     | "coralReefDistribution"
+    | "allenCoralAtlas"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
     | "jpMedicalFacilities" | "jpMedicalCare" | "jpMedicalAreas"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
@@ -1431,6 +1433,7 @@ export interface LayerVisibility {
   // ── 🌍 世界 WORLD ──
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
   coralReefDistribution: boolean; // 全球暖水珊瑚礁歷史基線（v4.1；DEV 本地研究；非健康／白化）
+  allenCoralAtlas: boolean; // Allen Coral Atlas 淺海棲地／礁體地形（私人研究；非健康／物種）
   jpMedicalFacilities: boolean;
   jpMedicalCare: boolean;
   jpMedicalAreas: boolean;

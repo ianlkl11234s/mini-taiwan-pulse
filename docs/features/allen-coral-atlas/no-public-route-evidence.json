@@ -1,0 +1,20 @@
+[
+  {
+    "path": "/allen_coral_atlas_benthic.pmtiles",
+    "status": 200,
+    "contentType": "text/html",
+    "contentLength": null
+  },
+  {
+    "path": "/__local-research/allen_coral_atlas_benthic.pmtiles",
+    "status": 404,
+    "contentType": null,
+    "contentLength": null
+  },
+  {
+    "path": "/@fs/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/marine/allen_coral_atlas/allen_coral_atlas_benthic.pmtiles",
+    "status": 200,
+    "contentType": "text/html",
+    "contentLength": null
+  }
+]

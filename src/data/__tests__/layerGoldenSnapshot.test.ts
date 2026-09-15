@@ -144,8 +144,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-07：+1 = jpPoliceFacilities（日本核心警察設施）。
     // 2026-09-08：+24 = 農林漁牧 enabled Statistics recipes；3 HOLD recipe 不入 registry。
     // coralReefDistribution: local research layer.
-// +18 日本旅宿／自然保護／世界遺產；+45 社會統計；+3 日本醫療靜態入口。
-    expect(keys.length).toBe(542);
+    // +18 日本自然與旅宿、+45 社會統計、+3 日本醫療、+1 Allen 私人研究。
+    expect(keys.length).toBe(543);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

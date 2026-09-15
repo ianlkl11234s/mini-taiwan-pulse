@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 542,
+    "keyCount": 543,
     "sections": [
       "gisLayers",
       "overlays",
@@ -726,6 +726,13 @@
         "osm-bridge-footprints-outline"
       ],
       "type": "osmBridgeFootprints"
+    },
+    {
+      "layers": [
+        "allen-coral-atlas-benthic-fill",
+        "allen-coral-atlas-geomorphic-fill"
+      ],
+      "type": "allenCoralAtlas"
     },
     {
       "layers": [
@@ -50937,6 +50944,53 @@
         "min": 0,
         "step": 0.05,
         "value": 0.9
+      }
+    ],
+    "allenCoralAtlas": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.65
+      },
+      {
+        "label": "主題",
+        "options": [
+          {
+            "label": "珊瑚／藻類棲地",
+            "value": "coralAlgae"
+          },
+          {
+            "label": "淺海棲地分類",
+            "value": "benthic"
+          },
+          {
+            "label": "礁體地形分區",
+            "value": "geomorphic"
+          }
+        ],
+        "type": "select",
+        "value": "coralAlgae"
+      },
+      {
+        "label": "研究區域",
+        "options": [
+          {
+            "label": "全部研究區",
+            "value": "all"
+          },
+          {
+            "label": "臺灣研究區",
+            "value": "taiwan"
+          },
+          {
+            "label": "沖繩研究區",
+            "value": "okinawa"
+          }
+        ],
+        "type": "select",
+        "value": "all"
       }
     ],
     "anfrWirelessSites": [

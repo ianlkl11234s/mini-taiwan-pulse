@@ -1,0 +1,110 @@
+{
+  "runtime_auth": "real Supabase owner, normal Google OAuth browser login; no injected authenticator",
+  "audit_sha256": "047a53fb3348d2347ab7367d9340153fb7d6cf57afb4465dc906df083b1c0efa",
+  "counts": [
+    {
+      "asset": "benthic",
+      "status": 401,
+      "requests": 4
+    },
+    {
+      "asset": "benthic",
+      "status": 200,
+      "requests": 10
+    },
+    {
+      "asset": "benthic",
+      "status": 206,
+      "requests": 101
+    },
+    {
+      "asset": "geomorphic",
+      "status": 206,
+      "requests": 29
+    },
+    {
+      "asset": null,
+      "status": 200,
+      "requests": 1
+    },
+    {
+      "asset": "geomorphic",
+      "status": 401,
+      "requests": 2
+    }
+  ],
+  "range_responses": 130,
+  "range_mismatches": [],
+  "examples": [
+    {
+      "timestamp": "2026-09-15T13:10:27.206Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/benthic",
+      "asset": "benthic",
+      "method": "GET",
+      "status": 206,
+      "range": "bytes=0-16383",
+      "contentRange": "bytes 0-16383/94597292"
+    },
+    {
+      "timestamp": "2026-09-15T13:14:14.495Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/geomorphic",
+      "asset": "geomorphic",
+      "method": "GET",
+      "status": 206,
+      "range": "bytes=0-16383",
+      "contentRange": "bytes 0-16383/52624835"
+    }
+  ],
+  "revoke_responses": [
+    {
+      "timestamp": "2026-09-15T13:25:19.773Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/revoke",
+      "asset": null,
+      "method": "POST",
+      "status": 200,
+      "range": null,
+      "contentRange": null
+    }
+  ],
+  "anonymous_after_logout": [
+    {
+      "timestamp": "2026-09-15T13:26:15.019Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/benthic",
+      "asset": "benthic",
+      "method": "GET",
+      "status": 401,
+      "range": "bytes=0-127",
+      "contentRange": null
+    },
+    {
+      "timestamp": "2026-09-15T13:26:15.023Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/benthic",
+      "asset": "benthic",
+      "method": "HEAD",
+      "status": 401,
+      "range": "bytes=0-127",
+      "contentRange": null
+    },
+    {
+      "timestamp": "2026-09-15T13:26:15.024Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/geomorphic",
+      "asset": "geomorphic",
+      "method": "GET",
+      "status": 401,
+      "range": "bytes=0-127",
+      "contentRange": null
+    },
+    {
+      "timestamp": "2026-09-15T13:26:15.025Z",
+      "endpoint": "/api/private-research/allen-coral-atlas/geomorphic",
+      "asset": "geomorphic",
+      "method": "HEAD",
+      "status": 401,
+      "range": "bytes=0-127",
+      "contentRange": null
+    }
+  ],
+  "limitations": [
+    "Live non-owner Google account was not available. Non-owner 403 and revoked-session replay are covered by server tests, not a second real browser identity."
+  ]
+}

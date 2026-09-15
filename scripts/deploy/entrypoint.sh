@@ -15,6 +15,9 @@ set -u
 echo "[entrypoint] $(date -u) container start"
 
 # Dedicated loopback-only backend: missing configuration fails closed with 503.
+export ALLEN_CORAL_ATLAS_STORAGE=s3
+export ALLEN_CORAL_ATLAS_ORIGINS="${ALLEN_CORAL_ATLAS_ORIGINS:-https://mini-taiwan-pulse.itsmigu.com}"
+export ALLEN_CORAL_ATLAS_REVOKE_PATH=/data/.private-allen/revoked-sessions.jsonl
 node /opt/coral-server/coral-private-server.mjs &
 
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
