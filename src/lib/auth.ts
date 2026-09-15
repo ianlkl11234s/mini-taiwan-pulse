@@ -20,7 +20,7 @@ export async function signInWithGoogle(): Promise<void> {
 /** 登出：清除本地 session */
 export async function signOut(): Promise<void> {
   // An Allen grant survives page reloads but must be revoked before dropping its token.
-  if (import.meta.env.DEV && sessionStorage.getItem("allen-private-session-active") === "1") {
+  if (sessionStorage.getItem("allen-private-session-active") === "1") {
     const { data } = await supabase.auth.getSession();
     if (data.session) {
       let revoked = false;
@@ -32,7 +32,7 @@ export async function signOut(): Promise<void> {
         });
         revoked = result.ok || result.status === 401 || result.status === 403;
       } catch { /* Keep the session until its private archive grant can be revoked. */ }
-      if (!revoked) throw new Error("私人資料服務無法確認撤銷，尚未登出；請恢復本地服務後重試。");
+      if (!revoked) throw new Error("私人資料服務無法確認撤銷，尚未登出；請稍後重試。");
     }
     sessionStorage.removeItem("allen-private-session-active");
   }

@@ -3,6 +3,7 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { Readable } from "node:stream";
 import test from "node:test";
 import {
   ALLEN_CORAL_ATLAS_PORT,
@@ -10,6 +11,7 @@ import {
   EXPECTED_SIZE,
   MAX_RANGE_BYTES,
   createAllenCoralAtlasGateway,
+  createAllenCoralAtlasS3Gateway,
   createAllenSessionDenylist,
   getAllenCoralAtlasConfig,
   getConfig,
@@ -166,7 +168,7 @@ test("integrity and S3 range mismatches fail closed", async () => {
   assert.equal(range.status, 502);
 });
 
-test("Allen configuration needs Supabase auth only, never legacy S3 settings", () => {
+test("Allen local configuration needs Supabase auth only, never legacy S3 settings", () => {
   const resolved = getAllenCoralAtlasConfig({
     VITE_SUPABASE_URL: "https://example.supabase.co",
     VITE_SUPABASE_ANON_KEY: "anon-key",
@@ -175,6 +177,65 @@ test("Allen configuration needs Supabase auth only, never legacy S3 settings", (
   assert.equal(resolved.supabaseAnonKey, "anon-key");
   assert.equal(resolved.origins.has("http://127.0.0.1:3735"), true);
   assert.equal(ALLEN_CORAL_ATLAS_PORT, 8796);
+});
+
+test("Allen S3 configuration requires explicit origins and reuses S3 credentials", () => {
+  const base = {
+    VITE_SUPABASE_URL: "https://example.supabase.co",
+    VITE_SUPABASE_ANON_KEY: "anon-key",
+    ALLEN_CORAL_ATLAS_STORAGE: "s3",
+    S3_ACCESS_KEY: "access-key",
+    S3_SECRET_KEY: "secret-key",
+  };
+  assert.equal(getAllenCoralAtlasConfig(base).error, "configuration unavailable");
+  const resolved = getAllenCoralAtlasConfig({ ...base, ALLEN_CORAL_ATLAS_ORIGINS: "https://pulse.example.test" });
+  assert.equal(resolved.storage, "s3");
+  assert.equal(resolved.bucket, "migu-gis-data-collector");
+  assert.equal(resolved.region, "ap-southeast-2");
+  assert.equal(resolved.revokePath, "/data/.private-allen/revoked-sessions.jsonl");
+  assert.equal(resolved.origins.has("https://pulse.example.test"), true);
+});
+
+test("Allen S3 gateway fully verifies immutable snapshots before serving ranges", async () => {
+  const bytes = Buffer.from("verified-s3-snapshot");
+  const asset = Object.freeze({
+    filename: "asset.pmtiles",
+    size: bytes.length,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  });
+  const calls = [];
+  const client = {
+    async send(command) {
+      calls.push(command.input);
+      return { ContentLength: bytes.length, Body: Readable.from([bytes]) };
+    },
+  };
+  const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client,
+    assets: { benthic: asset },
+  });
+  const metadata = await gateway.head(asset);
+  const object = await gateway.get(asset, { start: 0, end: 7, length: 8 });
+  assert.equal(metadata.etag, `\"${asset.sha256}\"`);
+  assert.equal(object.body.toString(), "verified");
+  assert.deepEqual(calls, [{
+    Bucket: "migu-gis-data-collector",
+    Key: `private-research/allen-coral-atlas/${asset.sha256}/asset.pmtiles`,
+    ChecksumMode: "ENABLED",
+  }]);
+});
+
+test("Allen S3 gateway rejects a complete read with a wrong immutable digest", async () => {
+  const asset = Object.freeze({
+    filename: "asset.pmtiles",
+    size: 4,
+    sha256: createHash("sha256").update("good").digest("hex"),
+  });
+  const gateway = createAllenCoralAtlasS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send() { return { ContentLength: 4, Body: Readable.from([Buffer.from("evil")]) }; } },
+    assets: { benthic: asset },
+  });
+  await assert.rejects(() => gateway.head(asset), /checksum mismatch/);
 });
 
 test("Allen exact allowlist authenticates GET, HEAD, and access probe before data", async () => {

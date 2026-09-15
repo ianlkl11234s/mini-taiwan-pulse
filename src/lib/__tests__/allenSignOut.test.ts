@@ -30,7 +30,7 @@ function session() {
 
 describe("Allen private grant sign-out", () => {
   beforeEach(() => {
-    vi.stubEnv("DEV", true);
+    vi.stubEnv("DEV", false);
     api.getSession.mockReset();
     api.signOut.mockReset().mockResolvedValue({ error: null });
     vi.stubGlobal("fetch", vi.fn());

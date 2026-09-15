@@ -14,6 +14,9 @@ export const MAX_RANGE_BYTES = 8 * 1024 * 1024;
 
 const ALLEN_CORAL_ATLAS_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/processed/marine/allen_coral_atlas";
 const ALLEN_CORAL_ATLAS_PATH = "/api/private-research/allen-coral-atlas";
+const ALLEN_CORAL_ATLAS_S3_BUCKET = "migu-gis-data-collector";
+const ALLEN_CORAL_ATLAS_S3_REGION = "ap-southeast-2";
+const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
     filename: "allen_coral_atlas_benthic.pmtiles",
@@ -66,14 +69,20 @@ export function getConfig(env = process.env) {
   };
 }
 
-/** Allen is local-only and must not be coupled to the legacy private S3 configuration. */
 export function getAllenCoralAtlasConfig(env = process.env) {
   const supabaseUrl = firstConfigured(env.SUPABASE_URL, env.VITE_SUPABASE_URL);
   const supabaseAnonKey = firstConfigured(env.SUPABASE_ANON_KEY, env.VITE_SUPABASE_ANON_KEY);
   if (!supabaseUrl || !supabaseAnonKey) return { error: "configuration unavailable" };
 
+  const storage = firstConfigured(env.ALLEN_CORAL_ATLAS_STORAGE) ?? "local";
+  if (storage !== "local" && storage !== "s3") return { error: "configuration unavailable" };
+  const accessKeyId = firstConfigured(env.S3_ACCESS_KEY);
+  const secretAccessKey = firstConfigured(env.S3_SECRET_KEY);
+  if (storage === "s3" && (!accessKeyId || !secretAccessKey)) return { error: "configuration unavailable" };
+
   const origins = new Set();
-  const configuredOrigins = env.ALLEN_CORAL_ATLAS_ORIGINS ?? "http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3735";
+  const configuredOrigins = firstConfigured(env.ALLEN_CORAL_ATLAS_ORIGINS)
+    ?? (storage === "local" ? "http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3735" : "");
   for (const value of configuredOrigins.split(",")) {
     const origin = value.trim();
     if (!origin) continue;
@@ -84,10 +93,20 @@ export function getAllenCoralAtlasConfig(env = process.env) {
       return { error: "configuration unavailable" };
     }
   }
+  if (origins.size === 0) return { error: "configuration unavailable" };
   const auditPath = firstConfigured(env.ALLEN_CORAL_ATLAS_AUDIT_PATH);
-  const revokePath = firstConfigured(env.ALLEN_CORAL_ATLAS_REVOKE_PATH) ?? ALLEN_CORAL_ATLAS_REVOKE_PATH;
+  const revokePath = firstConfigured(env.ALLEN_CORAL_ATLAS_REVOKE_PATH)
+    ?? (storage === "s3" ? ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH : ALLEN_CORAL_ATLAS_REVOKE_PATH);
   if ((auditPath && !auditPath.startsWith("/")) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
-  return { supabaseUrl, supabaseAnonKey, origins, auditPath, revokePath };
+  return {
+    supabaseUrl, supabaseAnonKey, storage, origins, auditPath, revokePath,
+    ...(storage === "s3" ? {
+      accessKeyId,
+      secretAccessKey,
+      bucket: ALLEN_CORAL_ATLAS_S3_BUCKET,
+      region: ALLEN_CORAL_ATLAS_S3_REGION,
+    } : {}),
+  };
 }
 
 function firstConfigured(...values) {
@@ -333,6 +352,79 @@ export function createAllenCoralAtlasGateway(root = ALLEN_CORAL_ATLAS_ROOT, asse
   };
 }
 
+/**
+ * Downloads each allowlisted immutable S3 object once, then serves only the
+ * verified process-local snapshot. This cache never includes authentication:
+ * handleAllenCoralAtlasRequest authenticates every request before reaching it.
+ */
+export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_CORAL_ATLAS_ASSETS } = {}) {
+  const s3 = client ?? new S3Client({
+    region: config.region,
+    credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+  });
+  const snapshots = new Map();
+
+  async function verifiedSnapshot(asset, signal) {
+    if (!Object.values(assets).includes(asset)) throw new Error("invalid S3 asset");
+    const key = `private-research/allen-coral-atlas/${asset.sha256}/${asset.filename}`;
+    let pending = snapshots.get(key);
+    if (!pending) {
+      pending = (async () => {
+        const timed = timedSignal(signal);
+        let value;
+        try {
+          value = await s3.send(new GetObjectCommand({
+            Bucket: ALLEN_CORAL_ATLAS_S3_BUCKET,
+            Key: key,
+            ChecksumMode: "ENABLED",
+          }), { abortSignal: timed.signal });
+          if (!value.Body || typeof value.Body[Symbol.asyncIterator] !== "function") throw new Error("S3 returned no readable body");
+          if (value.ContentLength !== asset.size) throw new Error("S3 asset size mismatch");
+          const chunks = [];
+          let length = 0;
+          for await (const chunk of value.Body) {
+            const bytes = Buffer.from(chunk);
+            length += bytes.length;
+            if (length > asset.size) throw new Error("S3 asset size mismatch");
+            chunks.push(bytes);
+          }
+          const snapshot = Buffer.concat(chunks, length);
+          if (snapshot.length !== asset.size) throw new Error("S3 asset size mismatch");
+          if (createHash("sha256").update(snapshot).digest("hex") !== asset.sha256) throw new Error("S3 asset checksum mismatch");
+          return snapshot;
+        } finally {
+          timed.dispose();
+          if (value?.Body?.destroy) value.Body.destroy();
+        }
+      })();
+      snapshots.set(key, pending);
+    }
+    try {
+      return await pending;
+    } catch (error) {
+      snapshots.delete(key);
+      throw error;
+    }
+  }
+
+  return {
+    async head(asset, signal) {
+      await verifiedSnapshot(asset, signal);
+      return { contentLength: asset.size, contentType: "application/octet-stream", etag: `\"${asset.sha256}\"` };
+    },
+    async get(asset, range, signal) {
+      const snapshot = await verifiedSnapshot(asset, signal);
+      return {
+        body: Buffer.from(snapshot.subarray(range.start, range.end + 1)),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `\"${asset.sha256}\"`,
+      };
+    },
+  };
+}
+
 const persistentDenylistByPath = new Map();
 
 export function createAllenSessionDenylist(file) {
@@ -444,15 +536,17 @@ export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
   }
   if (request.method === "GET" && url.searchParams.get("access") === "1") return json(200, cors, { allowed: true });
 
-  const gateway = dependencies.gateway ?? createAllenCoralAtlasGateway();
+  const gateway = dependencies.gateway ?? (config.storage === "s3"
+    ? createAllenCoralAtlasS3Gateway(config)
+    : createAllenCoralAtlasGateway());
   let metadata;
   try {
     metadata = await gateway.head(asset, request.signal);
   } catch {
-    return json(502, cors, { error: "private local asset integrity check failed" });
+    return json(502, cors, { error: "private Allen asset integrity check failed" });
   }
   if (metadata.contentLength !== asset.size || metadata.etag !== `\"${asset.sha256}\"`) {
-    return json(502, cors, { error: "private local asset integrity check failed" });
+    return json(502, cors, { error: "private Allen asset integrity check failed" });
   }
   if (request.method === "HEAD") {
     return response(200, cors, null, {
@@ -465,11 +559,11 @@ export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
   try {
     object = await gateway.get(asset, range, request.signal);
   } catch {
-    return json(502, cors, { error: "private local asset unavailable" });
+    return json(502, cors, { error: "private Allen asset unavailable" });
   }
   if (object.contentLength !== range.length || object.contentRange !== `bytes ${range.start}-${range.end}/${asset.size}` || object.etag !== metadata.etag) {
     if (typeof object.body?.cancel === "function") await object.body.cancel().catch(() => undefined);
-    return json(502, cors, { error: "private local asset range check failed" });
+    return json(502, cors, { error: "private Allen asset range check failed" });
   }
   return response(206, cors, object.body, {
     "Content-Length": String(range.length), "Content-Range": object.contentRange,
@@ -563,8 +657,11 @@ export function startCoralPrivateServer({ port = 8789, host = "127.0.0.1", ...de
 
 export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host = "127.0.0.1", ...dependencies } = {}) {
   if (!["127.0.0.1", "::1", "localhost"].includes(host)) throw new Error("Allen Coral Atlas server must bind loopback only");
-  const gateway = dependencies.gateway ?? createAllenCoralAtlasGateway();
-  const runtimeDependencies = { ...dependencies, gateway };
+  const config = dependencies.config ?? getAllenCoralAtlasConfig();
+  const gateway = dependencies.gateway ?? (config.storage === "s3"
+    ? createAllenCoralAtlasS3Gateway(config)
+    : createAllenCoralAtlasGateway());
+  const runtimeDependencies = { ...dependencies, config, gateway };
   // Do not accept a browser request until both local snapshots have been read
   // and verified once. A failed warmup still starts the server; its request path
   // retries and fails closed instead of claiming the data is available.
