@@ -1,10 +1,14 @@
 import type { LayerVisibility } from "../types";
 import { STATISTICS_KEYS, type StatisticsLayerKey } from "./regionalStatisticsRecipes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, AGRI_EXISTING_LAYER_REFERENCES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 
 const AGRI_STATISTICS_TAB_LAYER_ROLES = Object.fromEntries(
   AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, "choropleth"]),
 ) as Record<AgriStatisticsLayerKey, "choropleth">;
+const SOCIAL_STATISTICS_TAB_LAYER_ROLES = Object.fromEntries(
+  SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, "choropleth"]),
+) as Record<SocialStatisticsLayerKey, "choropleth">;
 
 /** Index-only existing recipes are for StatisticsDetails navigation, never sidebar registration. */
 export { AGRI_EXISTING_LAYER_REFERENCES };
@@ -12,6 +16,7 @@ export { AGRI_EXISTING_LAYER_REFERENCES };
 /** Statistics tab 的圖層角色是 UI 行為契約，不從 tab 的顯示陣列推測。 */
 export const STATISTICS_TAB_LAYER_ROLES = {
   ...AGRI_STATISTICS_TAB_LAYER_ROLES,
+  ...SOCIAL_STATISTICS_TAB_LAYER_ROLES,
   statsWasteCounty: "choropleth",
   statsRecyclingCounty: "choropleth",
   statsWasteRecyclingRate: "choropleth",

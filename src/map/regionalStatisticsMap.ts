@@ -1,3 +1,5 @@
+import { statisticsColorStops } from '../data/statisticsColorScale';
+import { getSocialRecipe } from '../data/socialStatisticsRecipes';
 import { getAgriRecipe } from '../data/agriStatisticsRecipes';
 import { STATISTICS_KEYS, STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
@@ -29,12 +31,12 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
       const recipe = STATISTICS_RECIPES[key];
-      const agri = getAgriRecipe(key);
+      const agri = getAgriRecipe(key) ?? getSocialRecipe(key);
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
         const step: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
-        recipe.breaks.forEach((value, index) => step.push(value, recipe.colors[index + 1]));
+        statisticsColorStops(recipe.breaks, recipe.colors).forEach(({ value, color }) => step.push(value, color));
         map.addLayer({ id: `${key}-fill`, type: 'fill', source: key, layout: { visibility: 'none' }, paint: {
           'fill-color': ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], step, agri?.legend.missing_color ?? '#64748b'] as mapboxgl.ExpressionSpecification,
           'fill-opacity': 0.55,
