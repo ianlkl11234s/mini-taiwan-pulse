@@ -7,6 +7,7 @@ import { ALLEN_CORAL_SOURCES } from "../data/allenCoralAtlasTypes";
 export function useAllenCoralPrivateAccess() {
   const { user, loading } = useUser();
   const [verifiedId, setVerifiedId] = useState<string | null>(null);
+  const [authGeneration, setAuthGeneration] = useState(0);
   // A 401/403 during any authenticated Range request revokes the UI grant too.
   // It cannot be restored by a view change; a later auth change reruns the check.
   useEffect(() => {
@@ -14,6 +15,16 @@ export function useAllenCoralPrivateAccess() {
     window.addEventListener("allen-coral-access-denied", revoke);
     return () => window.removeEventListener("allen-coral-access-denied", revoke);
   }, []);
+  useEffect(() => {
+    const { data: subscription } = supabase.auth.onAuthStateChange((event) => {
+      // A healthy refresh must retain the existing grant: App closes the layer
+      // when allowed becomes false. Range requests still obtain the fresh token.
+      if (event === "TOKEN_REFRESHED" && verifiedId === null) {
+        setAuthGeneration((generation) => generation + 1);
+      }
+    });
+    return () => subscription.subscription.unsubscribe();
+  }, [verifiedId]);
   useEffect(() => {
     setVerifiedId(null);
     if (!user) return;
@@ -37,7 +48,7 @@ export function useAllenCoralPrivateAccess() {
       finally { clearTimeout(timeout); }
     })();
     return () => { controller.abort(); clearTimeout(timeout); };
-  }, [user?.id]);
+  }, [user?.id, authGeneration]);
   return { allowed: !loading && !!user && verifiedId === user.id, userId: user?.id ?? null };
 }
 

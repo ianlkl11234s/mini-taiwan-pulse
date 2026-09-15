@@ -598,13 +598,6 @@
     },
     {
       "layers": [
-        "allen-coral-atlas-benthic-fill",
-        "allen-coral-atlas-geomorphic-fill"
-      ],
-      "type": "allenCoralAtlas"
-    },
-    {
-      "layers": [
         "jp-medical-facilities-points",
         "jp-medical-facilities-clusters"
       ],
@@ -733,6 +726,13 @@
         "osm-bridge-footprints-outline"
       ],
       "type": "osmBridgeFootprints"
+    },
+    {
+      "layers": [
+        "allen-coral-atlas-benthic-fill",
+        "allen-coral-atlas-geomorphic-fill"
+      ],
+      "type": "allenCoralAtlas"
     },
     {
       "layers": [

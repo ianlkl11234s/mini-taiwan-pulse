@@ -167,7 +167,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
-  { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
   { layers: ["jp-medical-facilities-points", "jp-medical-facilities-clusters"], type: "jpMedicalFacilities" },
   { layers: ["jp-medical-care-points", "jp-medical-care-clusters"], type: "jpMedicalCare" },
@@ -195,6 +194,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },
   { layers: ["bridge-comparison-new-taipei-line", "bridge-comparison-new-taipei-coincident-endpoints"], type: "bridgeComparisonNewTaipei" },
   { layers: ["osm-bridge-footprints-fill", "osm-bridge-footprints-outline"], type: "osmBridgeFootprints" },
+  // Allen 覆蓋面排在日本點與線之後，避免攔截細目標的 popup。
+  { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
   // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。

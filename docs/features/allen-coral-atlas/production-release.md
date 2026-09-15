@@ -35,3 +35,9 @@
 - 已實查 bucket Object Ownership 為 BucketOwnerEnforced，upload 已適配 ACL-disabled 模式。
 
 - PR #253；兩次合入 master，保留日本醫療新接線。高並行跑法曾有 Ookla 5s timeout，改2 workers全套通過。
+
+## PR review 修正
+
+- 同 owner token refresh 在被拒絕後重新 probe；健康 grant 不因例行 refresh 清除，舊 probe response 被 abort guard 排除。
+- Allen fill 點擊順序移至日本點／線層之後，避免 popup 命中被面搶走。
+- CI 不持有私人 PMTiles：真檔 local integration test 在檔案缺少時明確 skip，其他 S3/auth/Range/revoke tests照常執行。本地20項含真檔通過；Linux CI預期19 passed、1 skipped。
