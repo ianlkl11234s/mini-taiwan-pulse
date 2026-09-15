@@ -1,3 +1,11 @@
+## 2026-09-15 最新增量：本地 open-ended 研究閉環（以本節為準）
+
+目前可用的窄閉環是 `datasetId → analysis → resultId`：explore 找候選，再由 canonical 或 generic registered same-origin GeoJSON Point subset reader query，對 complete Point snapshots 做多來源 neighborhood 個別 count，最後以 resultId 呈現。這不把 generic metadata/readability 視為 spatial approval；PMTiles、RPC、network 與跨市界分析仍需各自 adapter／方法證據。
+
+實測基線：schools 4,315 筆、臺北 345；libraries 634。1 km 校址候選不能推出全域 hotspot、教育／圖書館品質、步行可達性或獨立機構數。真 Codex offline v2 已在明示 lineage scope 後自行 explore、describe×2、query×2、compare×2，並保留 345 candidates、臺北 libraries 64、跨市界未算、freshness unknown 等限制；不是登入配對或 browser E2E。
+
+本地檢查為 Pulse 61 pass／1既有 optional-grid skip＋tsc pass，MCP 23 pass＋build pass，gateway 37 pass。診斷頁有 345 points 實際 render 和 opacity 證據；主站配對待使用者，沒有 push、deploy 或 production 證據。
+
 # Mini Taiwan Pulse 理想 GIS 分析總路線圖
 
 > 更新日期：2026-09-14

@@ -1,3 +1,11 @@
+## 2026-09-15 最新增量：Open-ended query surface（以本節為準）
+
+新增受控順序為 `explore_data → describe/sample → declare lineage/scope → query full result reference → compare/aggregate/spatial → present_result`；頁面 limit 不縮短 stored result。`explore_data` 是 catalog discovery，不是 payload／geometry／coverage proof；probe 最多讀 3 個登記來源 reader、每個 sample 最多 2 rows，無 arbitrary code／URL／external fallback。
+
+`compare_neighborhoods` 只接受 complete actual Point result snapshots，使用 Haversine，source counts 分開，固定 `includeSelf=true`，以 `rankSourceIndex` 選擇呈現欄位；不產生 combined score，不代表 walking、品質或全域排名。generic registered GeoJSON metadata 不能提升成 spatial-approved；PMTiles／RPC 必須另有 adapter。讀取界限為 8 MiB asset、20,000 rows、2,000 neighborhood candidates、5,000,000 pair comparisons、100–5,000 m radius。
+
+失敗仍是狀態而非零：`DATASET_ASSET_MISSING`（含 404／HTML SPA）、`INVALID_DATASET`、`DATASET_NOT_FOUND` 不應轉用不相關 web source。MCP 23 tests＋build pass，gateway 37 pass；offline evaluation 與真 paired browser/prod 是不同證據面。
+
 ## 2026-09-14：Semantic Registry 與本地 Research Library／Grid
 
 本輪為 local research/prototype。M2 三張語意卡與 validator 已接 `describe_dataset.semantics`，包含 semanticVersion、datasetVersion、四類概念、方法與版本、尺度、required evidence、allowed analyses、prohibited claims。缺 evidence 保留 hypothesis；confidence 不會自動升級 kind。學校與新聞的版本仍為 null，需查詢 receipt；水田卡綁既有 exact release。宣告的分析語意不會替尚不存在的 operation 解鎖能力。

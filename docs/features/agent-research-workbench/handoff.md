@@ -1,3 +1,15 @@
+## 2026-09-15 最新增量：Open-ended 本地資料研究（以本節為準）
+
+本地提交：Pulse `89336514`、MCP `76f16e4`、gateway `07063d1`。未 push／部署。
+
+- 主線維持 `datasetId → analysis → resultId`：`explore_data` 先找 catalog，canonical 與 generic registered same-origin GeoJSON 的 Point subset reader 才可 query，之後可做 `compare_neighborhoods` 的多來源個別計數並以 resultId 呈現。generic metadata 可讀不等於 spatial-approved；PMTiles／RPC 仍要專用 adapter。
+- 上限：單一 asset 8 MiB、reader 20,000 rows、neighborhood 候選 2,000、最多 5,000,000 次點對比較、半徑 100–5,000 m。schools 為 4,315 筆（臺北 345），libraries 634；1 km 校址候選不代表全域 hotspot、品質、步行可達性或獨立機構。
+- 真 Codex 離線原問句首輪因範圍過廣失敗；補 lineage scope 後 v2 自行完成 explore、describe×2、query×2、compare×2。`answer-v2.md` 保留半徑、345 候選、臺北 libraries 64、未算跨市界與 freshness unknown；offline 不是真 paired/browser E2E。
+- 瀏覽器診斷頁已實際 render 345 點並確認 opacity、清除無殘留；主站登入配對仍待使用者，不能宣稱 E2E 已過。來源 hash 證據在 [驗收 receipt](./evidence/open-ended-acceptance.json) 與 [Agent 實際回答](./evidence/open-ended-agent-answer.txt)。
+- 新 worktree：`/private/tmp/pulse-research-open-ended{,-mcp,-gateway}-20260915`，branch `codex/research-open-ended`。站 3732、gateway 8791 已啟動；global `pulse-research` 已指向新 MCP dist entry，需重載 Codex 才有新 tools。無 push／deploy，commit 由主 agent 處理。
+
+啟動（不含 secrets）：`node scripts/research/start-local.mjs --port 3732 --gateway-origin http://127.0.0.1:8791 --asset-source /private/tmp/pulse-research-workbench/mini-taiwan-pulse/public --analytics-root /private/tmp/pulse-research-workbench/taipei-gis-analytics`。
+
 ## 已完成接手點：本地 Semantic Registry／Research Library／Grid（2026-09-14）
 
 下方同日「下一個最小切片」已由本輪完成，本節與 [acceptance](./acceptance.md) 為最新狀態。

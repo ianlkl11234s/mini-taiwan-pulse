@@ -1,3 +1,11 @@
+## 2026-09-15 最新增量驗收：Open-ended local research（以本節為準）
+
+- 可驗證鏈：`explore_data → canonical/generic registered same-origin GeoJSON Point subset reader → query → compare_neighborhoods`（每個 source 個別 count）`→ resultId` 呈現。generic metadata/readability 不等於 spatial approval；其他 PMTiles／RPC 尚無通用 reader（已接專用 adapter 除外）。
+- 有界性：asset 8 MiB、reader 20,000 rows、neighborhood candidates 2,000、最多 5,000,000 次點對比較、半徑 100–5,000 m。schools 4,315（臺北 345）、libraries 634；這些是來源 record counts，不是獨立機構、服務品質、全域 hotspot 或步行分析。
+- 本地檢查：Pulse tests 61 pass／1 skip（既有 optional grid）、`tsc` pass；MCP 23 pass＋build pass；gateway 37 pass。來源 hash／讀取證據在 [驗收 receipt](./evidence/open-ended-acceptance.json) 與 [Agent 實際回答](./evidence/open-ended-agent-answer.txt)。
+- 真 Codex offline v2 在補 lineage scope 後，自行跑 explore、describe×2、query×2、compare×2；`answer-v2.md` 明示半徑、345 candidates、臺北 libraries 64、未計跨市界及 freshness unknown。這是 offline data/reasoning 驗收，非 paired browser 驗收。
+- 診斷 browser 已 render 345 actual points 並讀回 opacity 與清除無殘留；主站登入配對待使用者，production、主站 E2E、來源 freshness／coverage 都未由此驗收證明。
+
 ## 2026-09-14 Semantic Registry／Research Library／Schools Grid 本地驗收
 
 本節是本輪最新證據；下方保留歷史驗收。
