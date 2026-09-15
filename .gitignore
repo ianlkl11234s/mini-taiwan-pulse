@@ -193,3 +193,6 @@ public/education/
 
 # Versioned Network Structures PMTiles are published to S3, not Git.
 public/network_structures/
+
+# 日本醫療本地第一批：exact payload 清單獨立交付，不進 Git/app bundle。
+public/jp-medical

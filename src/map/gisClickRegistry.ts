@@ -168,6 +168,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  { layers: ["jp-medical-facilities-points", "jp-medical-facilities-clusters"], type: "jpMedicalFacilities" },
+  { layers: ["jp-medical-care-points", "jp-medical-care-clusters"], type: "jpMedicalCare" },
   { layers: ["jp-stations-circle"], type: "jpStations" },
   { layers: ["jp-tourism-jp-accommodation-canonical-circle"], type: "jpAccommodationCanonical" },
   { layers: ["jp-tourism-jp-accommodation-jta-circle"], type: "jpAccommodationJta" },
@@ -186,6 +188,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
+  { layers: ["jp-medical-areas-fill"], type: "jpMedicalAreas" },
   // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
   { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },

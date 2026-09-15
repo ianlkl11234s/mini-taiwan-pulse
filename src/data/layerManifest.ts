@@ -1,3 +1,4 @@
+import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -1590,6 +1591,54 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "GFW SAR 偵測未與 AIS 匹配的格網中心；非暗船、違法船或確認關 AIS 認定",
     topics: ["世界", "海事", "SAR", "AIS", "GFW", "時間軸", "偵測"],
+  },
+
+  jpMedicalFacilities: {
+    key: "jpMedicalFacilities",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本醫療設施", labelMobile: "日本醫療設施", expandable: true,
+    color: JP_MEDICAL_CATEGORIES[0].color, icon: Cross,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "Navii 來源設施列；五類獨立篩選；公告時段不等於目前可接診" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalFacilities", popup: "jpMedicalFacilities",
+    params: { count: 6, kinds: ["slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
+    description: "Navii 來源設施列；五類獨立篩選；公告時段不等於目前可接診", topics: ["日本", "醫療", "靜態", "長照"],
+  },
+
+  jpMedicalCare: {
+    key: "jpMedicalCare",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本長照服務", labelMobile: "日本長照服務", expandable: true,
+    color: JP_MEDICAL_CARE_COLOR, icon: HeartHandshake,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "H17 服務登記粒度；同址可有多服務，不是唯一機構數" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalCare", popup: "jpMedicalCare",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "H17 服務登記粒度；同址可有多服務，不是唯一機構數", topics: ["日本", "醫療", "靜態", "長照"],
+  },
+
+  jpMedicalAreas: {
+    key: "jpMedicalAreas",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本醫療圈 · 2020", labelMobile: "日本醫療圈 · 2020", expandable: true,
+    color: JP_MEDICAL_AREA_COLOR, icon: Map,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_areas", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "A38 2020 歷史版；一次／二次／三次；簡化 polygon parts，人口不可按 part 加總" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalAreas", popup: "jpMedicalAreas",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "A38 2020 歷史版；一次／二次／三次；簡化 polygon parts，人口不可按 part 加總", topics: ["日本", "醫療", "靜態", "長照"],
   },
 
   jpReligionGsi: {

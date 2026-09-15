@@ -42,6 +42,9 @@ for f in "${FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# Japan medical: use publish-jp-medical-assets.py with its exact publication plan.
+# Deliberately excluded from this broad uploader; current must be published last.
+
 # Network Structures files have versioned names; the scoped publisher verifies hashes
 # and refuses to replace a different object at the same key.
 # For this release use publish-network-structures.py instead of uploading unrelated data.

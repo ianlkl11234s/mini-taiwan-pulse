@@ -1,0 +1,84 @@
+{
+  "status": "PASS",
+  "version": "d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a",
+  "local_files_sha_bytes_verified": 778,
+  "payload_asset_bytes": 1640075169,
+  "catalog_bytes": 217375,
+  "http_checks": [
+    {
+      "path": "current.json",
+      "status": 200,
+      "bytes_read": 359,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/catalog.json",
+      "status": 200,
+      "bytes_read": 217375,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/navii_facilities.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/33161920"
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/navii-z6.geojson",
+      "status": 200,
+      "bytes_read": 22900,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/h17_services.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/35994205"
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/h17-z6.geojson",
+      "status": 200,
+      "bytes_read": 151147,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_1.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/9165621"
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_2.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/6505194"
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_3.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/4178852"
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/hospital_hours/00.json",
+      "status": 200,
+      "bytes_read": 1443641,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/clinic_hours/00.json",
+      "status": 200,
+      "bytes_read": 3391942,
+      "range": null
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/dental_hours/00.json",
+      "status": 200,
+      "bytes_read": 1955057,
+      "range": null
+    }
+  ],
+  "production": "not run",
+  "cdn_cache_headers": "not run",
+  "pmtiles_integrity": "full local SHA-256; HTTP header Range reads only, not a browser visual assertion"
+}
