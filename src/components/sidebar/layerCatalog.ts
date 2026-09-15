@@ -1597,6 +1597,7 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("worldTrashDebris"),
           fromManifest("coralReefDistribution"),
+          fromManifest("allenCoralAtlas"),
         ],
       },
     ],

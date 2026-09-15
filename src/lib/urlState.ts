@@ -82,6 +82,7 @@ export interface ParseOptions {
 }
 
 const ALL_LAYER_KEYS = new Set(Object.keys(LAYER_COLORS));
+const NON_SHAREABLE_PARAM_NAMES = new Set(["allenCoralAtlasOpacity", "allenCoralAtlasView", "allenCoralAtlasRegion"]);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
@@ -138,7 +139,7 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
     .map((s) => s.trim())
     .filter((k) => {
       if (!k || seen.has(k)) return false;
-      if (k === "coralReefDistribution") return false; // private account layer is never shareable
+      if (k === "coralReefDistribution" || k === "allenCoralAtlas") return false; // private account layers are never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
       if (opts.allowedLayers && !opts.allowedLayers.has(k)) return false;
@@ -178,7 +179,7 @@ function parseParams(q: URLSearchParams): Record<string, number> | undefined {
   for (const [key, value] of q.entries()) {
     if (!key.startsWith("p.")) continue;
     const name = key.slice(2);
-    if (!name) continue;
+    if (!name || NON_SHAREABLE_PARAM_NAMES.has(name)) continue;
     const n = finiteNum(value);
     if (n == null) continue;   // overlayParams 契約：只收數字（boolean 走 0/1、select 走 Idx）
     out[name] = n;
@@ -262,11 +263,12 @@ export function buildUrl(state: UrlState, base: string): string {
     if (pitch) q.set("pitch", String(round(pitch, 1)));
     if (bearing) q.set("bearing", String(round(bearing, 1)));
   }
-  const layers = state.layers?.filter(k => k !== "coralReefDistribution");
+  const layers = state.layers?.filter(k => k !== "coralReefDistribution" && k !== "allenCoralAtlas");
   if (layers?.length) q.set("layers", layers.join(","));
   if (state.statisticsMode) q.set("sm", state.statisticsMode);
   if (state.params) {
     for (const [k, v] of Object.entries(state.params)) {
+      if (NON_SHAREABLE_PARAM_NAMES.has(k)) continue;
       if (Number.isFinite(v)) q.set(`p.${k}`, String(round(v, 4)));
     }
   }

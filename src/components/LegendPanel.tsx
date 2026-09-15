@@ -1,4 +1,5 @@
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
+import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
@@ -8,7 +9,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
-import { useOverlayParams } from "../layers/layerParamsAccess";
+import { oneOfParam, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -357,6 +358,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
+  { id: "allenCoralAtlas", render: () => <AllenCoralAtlasLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
@@ -4790,6 +4792,30 @@ function CoralReefDistributionLegend() {
     <div style={{ color: t.textDim, lineHeight: 1.45 }}>低 zoom 可見性損失與無 coverage 都不等於沒有珊瑚；馬祖本版無 coverage。</div>
     <div style={{ color: t.textDim, lineHeight: 1.45 }}>臺灣僅為研究窗口，非行政邊界；面積是全球完整來源 feature，不可加總。</div>
     <div style={{ marginTop: 4, color: t.textDim, lineHeight: 1.45 }}>{CORAL_REEF_ATTRIBUTION}</div>
+  </div>;
+}
+
+function AllenCoralAtlasLegend() {
+  const t = useLegendTheme();
+  const values = useLayerParams("allenCoralAtlas");
+  const view = oneOfParam(
+    paramStr(values, "allenCoralAtlas", "allenCoralAtlasView"),
+    ["coralAlgae", "benthic", "geomorphic"] as const satisfies readonly AllenCoralAtlasView[],
+    "coralAlgae",
+  );
+  const rows = allenCoralSource(view).legend.filter((item) => view !== "coralAlgae" || item.value === "Coral/Algae");
+  const title = view === "coralAlgae" ? "珊瑚／藻類棲地" : view === "benthic" ? "淺海棲地分類" : "礁體地形分區";
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 340 }}>
+    <div style={{ color: t.textStrong, fontWeight: 700, marginBottom: 4 }}>Allen Coral Atlas · {title}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "3px 8px" }}>
+      {rows.map((item) => <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+        <span style={{ width: 8, height: 8, flexShrink: 0, borderRadius: 2, background: item.color }} />
+        <span>{item.label_zh}</span>
+      </div>)}
+    </div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>{ALLEN_CORAL_WARNING}</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>取得日：{ALLEN_CORAL_ACQUIRED_AT.slice(0, 10)}（非觀測日）；來源完整要素面積未裁切，不可作研究區總面積。</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>{ALLEN_CORAL_ATTRIBUTION}</div>
   </div>;
 }
 

@@ -1,4 +1,5 @@
 import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
+import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -105,7 +106,7 @@ import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } fro
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
-import { coralSafeFeatureInfo, isCoralPrivateFeature } from "./lib/coralPrivateUi";
+import { coralSafeFeatureInfo, isAllenCoralPrivateFeature, isCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -178,6 +179,7 @@ export default function App() {
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
   const coralAccess = useCoralPrivateAccess();
+  const allenCoralAccess = useAllenCoralPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -189,8 +191,9 @@ export default function App() {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
     if (!coralAccess.allowed) s.add("coralReefDistribution");
+    if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     return s;
-  }, [memberTier, layerGates, coralAccess.allowed]);
+  }, [memberTier, layerGates, coralAccess.allowed, allenCoralAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -797,15 +800,34 @@ export default function App() {
     featureInfo,
     coralAccess.allowed,
     layerVisibility.coralReefDistribution,
+    allenCoralAccess.allowed,
+    layerVisibility.allenCoralAtlas,
   );
+  useEffect(() => {
+    const onAllenAccessDenied = () => {
+      setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
+      if (isAllenCoralPrivateFeature(featureInfo)) setFeatureInfo(null);
+      showTransientNotice("Allen 私人資料存取失敗，已清除圖層；這不是沒有珊瑚或沒有製圖 coverage。");
+    };
+    const clearAllenSelection = () => setFeatureInfo(current => isAllenCoralPrivateFeature(current) ? null : current);
+    window.addEventListener("allen-coral-access-denied", onAllenAccessDenied);
+    window.addEventListener("allen-coral-selection-clear", clearAllenSelection);
+    return () => {
+      window.removeEventListener("allen-coral-access-denied", onAllenAccessDenied);
+      window.removeEventListener("allen-coral-selection-clear", clearAllenSelection);
+    };
+  }, [featureInfo, setFeatureInfo, setLayerVisibility]);
   useEffect(() => {
     if (!coralAccess.allowed && layerVisibility.coralReefDistribution) {
       setLayerVisibility((prev) => ({ ...prev, coralReefDistribution: false }));
     }
-    if (featureInfo && coralUiFeatureInfo === null && isCoralPrivateFeature(featureInfo)) {
+    if (!allenCoralAccess.allowed && layerVisibility.allenCoralAtlas) {
+      setLayerVisibility((prev) => ({ ...prev, allenCoralAtlas: false }));
+    }
+    if (featureInfo && coralUiFeatureInfo === null && (isCoralPrivateFeature(featureInfo) || isAllenCoralPrivateFeature(featureInfo))) {
       setFeatureInfo(null);
     }
-  }, [coralAccess.allowed, layerVisibility.coralReefDistribution, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  }, [coralAccess.allowed, allenCoralAccess.allowed, layerVisibility.coralReefDistribution, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context

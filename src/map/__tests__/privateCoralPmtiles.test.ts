@@ -52,6 +52,15 @@ describe("PrivateCoralFetchSource", () => {
     await expect(badRange.getBytes(0, 4)).rejects.toThrow("invalid Content-Range");
   });
 
+  it("Allen owner denial callback runs before any response data can be returned", async () => {
+    for (const status of [401, 403]) {
+      const denied = vi.fn();
+      const source = new __test__.PrivateCoralFetchSource(URL, () => "token", vi.fn().mockResolvedValue(new Response(null, { status })), denied);
+      await expect(source.getBytes(0, 4)).rejects.toMatchObject({ status });
+      expect(denied).toHaveBeenCalledOnce();
+    }
+  });
+
   it("source dispose 會 abort pending requests，且單次 Range 不可超過 8 MiB", async () => {
     let signal: AbortSignal | undefined;
     const pending = new Promise<Response>(() => {});

@@ -144,7 +144,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-07：+1 = jpPoliceFacilities（日本核心警察設施）。
     // 2026-09-08：+24 = 農林漁牧 enabled Statistics recipes；3 HOLD recipe 不入 registry。
     // coralReefDistribution: local research layer.
-    expect(keys.length).toBe(476);
+    // 2026-09-15：+1 = Allen Coral Atlas（owner-only local research）。
+    expect(keys.length).toBe(477);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

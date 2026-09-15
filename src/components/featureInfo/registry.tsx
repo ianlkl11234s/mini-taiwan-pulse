@@ -1,4 +1,5 @@
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
+import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -341,6 +342,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
   coralReefDistribution: CoralReefPanel,
+  allenCoralAtlas: AllenCoralAtlasPanel,
   jpReligionGsi: JpReligionGsiPanel,
   jpReligionOsm: JpReligionOsmPanel,
   jpReligionWikidata: JpReligionWikidataPanel,
@@ -723,6 +725,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
   coralReefDistribution: "珊瑚礁歷史分布（私人研究）",
+  allenCoralAtlas: "Allen Coral Atlas（私人研究）",
   aisstreamVessel: "AISStream 船舶",
   gfwVesselPresence: "GFW 船舶 Presence",
   gfwHourlyGrid: "GFW 小時船舶網格",

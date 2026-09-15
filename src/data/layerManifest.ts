@@ -1285,6 +1285,32 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "海洋", "自然環境", "珊瑚礁", "本地研究"],
   },
 
+  allenCoralAtlas: {
+    key: "allenCoralAtlas",
+    section: { theme: "世界 World", group: "環境" },
+    label: "Allen Coral Atlas（私人研究）",
+    labelMobile: "Allen Coral Atlas（私人研究）",
+    expandable: true,
+    color: "#ee6c83",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "allen_coral_atlas", confidence: "HIGH" }],
+      processing: "Allen Coral Atlas 棲地分類與礁體地形分區的本地 PMTiles 快照；完整相交 polygon，未作行政裁切。",
+      note: "本人限定私人非商業研究，禁止公開 CDN、分享 URL 與離線公開快取；401/403 時清除圖層。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAllenCoralAtlasLayer 以 owner-authenticated Range endpoint 自建 allen-coral-atlas-benthic／allen-coral-atlas-geomorphic source；view 一次僅顯示一種主題，fill ids 分別為 allen-coral-atlas-benthic-fill／allen-coral-atlas-geomorphic-fill；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+    },
+    legend: "allenCoralAtlas",
+    popup: "allenCoralAtlas",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。",
+    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究"],
+  },
+
   globalEvents: {
     key: "globalEvents",
     section: { theme: "世界 World", group: "重要事件" },

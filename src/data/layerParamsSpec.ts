@@ -1352,6 +1352,19 @@ export const LAYER_PARAMS_SPEC = {
   coralReefDistribution: [
     { kind: "slider", name: "coralReefDistributionOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0, max: 1, step: 0.05 },
   ],
+  allenCoralAtlas: [
+    { kind: "slider", name: "allenCoralAtlasOpacity", labelPrefix: "透明度", digits: 2, default: 0.65, min: 0, max: 1, step: 0.05 },
+    { kind: "select", name: "allenCoralAtlasView", label: "主題", default: "coralAlgae", options: [
+      { label: "珊瑚／藻類棲地", value: "coralAlgae" },
+      { label: "淺海棲地分類", value: "benthic" },
+      { label: "礁體地形分區", value: "geomorphic" },
+    ], out: null },
+    { kind: "select", name: "allenCoralAtlasRegion", label: "研究區域", default: "all", options: [
+      { label: "全部研究區", value: "all" },
+      { label: "臺灣研究區", value: "taiwan" },
+      { label: "沖繩研究區", value: "okinawa" },
+    ], out: null },
+  ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [

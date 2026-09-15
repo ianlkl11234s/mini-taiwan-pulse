@@ -28,6 +28,7 @@ import { join } from "node:path";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { STATISTICS_KEYS, STATISTICS_RECIPES } from "../../data/regionalStatisticsRecipes";
+import { ALLEN_CORAL_SOURCES } from "../../data/allenCoralAtlasTypes";
 
 const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
 const source = readFileSync(REGISTRY_FILE, "utf8");
@@ -56,6 +57,11 @@ function statisticsRuntimeLayerIds(): Set<string> {
   return new Set(STATISTICS_KEYS.flatMap((key) => [`${key}-fill`, `${key}-line`]));
 }
 
+/** Allen owns one authenticated PMTiles source per thematic view; its fill id is derived from sourceId. */
+function allenCoralRuntimeLayerIds(): Set<string> {
+  return new Set(Object.values(ALLEN_CORAL_SOURCES).map((source) => `${source.sourceId}-fill`));
+}
+
 /** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除註冊表自己與測試檔） */
 function otherSources(dir = "src"): string[] {
   const out: string[] = [];
@@ -75,9 +81,10 @@ describe("GIS 點擊註冊表的 layer id", () => {
   it("引用的每個 layer id 都真的被建立（否則 popup 靜默失效）", () => {
     const fromRegistry = registryLayerIds();
     const fromStatisticsRuntime = statisticsRuntimeLayerIds();
+    const fromAllenCoralRuntime = allenCoralRuntimeLayerIds();
     const others = otherSources().join("\n");
     const orphans = referencedLayerIds().filter(
-      (id) => !fromRegistry.has(id) && !fromStatisticsRuntime.has(id) && !others.includes(`"${id}"`) && !others.includes(`\`${id}\``),
+      (id) => !fromRegistry.has(id) && !fromStatisticsRuntime.has(id) && !fromAllenCoralRuntime.has(id) && !others.includes(`"${id}"`) && !others.includes(`\`${id}\``),
     );
     expect(
       orphans,

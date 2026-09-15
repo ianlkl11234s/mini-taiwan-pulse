@@ -167,6 +167,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["world-trash-debris-circle"], type: "worldTrashDebris" },
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
+  { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
   { layers: ["jp-stations-circle"], type: "jpStations" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
