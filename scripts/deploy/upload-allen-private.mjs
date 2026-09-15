@@ -1,7 +1,7 @@
 /** Explicit private publication only: never part of build or public asset sync. */
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { S3Client, GetBucketPolicyCommand, PutObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetBucketPolicyCommand, GetBucketOwnershipControlsCommand, PutObjectCommand, GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 const root = process.argv[2];
 if (!root) throw new Error('Pass the verified local Allen data directory');
 const Bucket = 'migu-gis-data-collector';
@@ -21,6 +21,9 @@ for (const statement of JSON.parse(policy.Policy).Statement) {
     if (resources.some(value => !value.startsWith(`arn:aws:s3:::${Bucket}/flight-arc/`))) throw new Error('Unexpected public bucket policy; stop publication');
   }
 }
+const ownership = await client.send(new GetBucketOwnershipControlsCommand({ Bucket }));
+const ownerEnforced = ownership.OwnershipControls?.Rules?.some(rule => rule.ObjectOwnership === 'BucketOwnerEnforced');
+const privateAcl = ownerEnforced ? {} : { ACL: 'private' };
 const results = [];
 for (const [product, size, sha256] of assets) {
   const filename = `allen_coral_atlas_${product}.pmtiles`;
@@ -30,7 +33,7 @@ for (const [product, size, sha256] of assets) {
   let exists = false;
   try { await client.send(new HeadObjectCommand({ Bucket, Key })); exists = true; }
   catch (error) { if (error.$metadata?.httpStatusCode !== 404) throw error; }
-  if (!exists) await client.send(new PutObjectCommand({ Bucket, Key, Body: bytes, IfNoneMatch: '*', ACL: 'private', ServerSideEncryption: 'AES256', CacheControl: 'private, no-store', ContentType: 'application/vnd.pmtiles', ChecksumSHA256: Buffer.from(sha256, 'hex').toString('base64') }));
+  if (!exists) await client.send(new PutObjectCommand({ Bucket, Key, Body: bytes, IfNoneMatch: '*', ...privateAcl, ServerSideEncryption: 'AES256', CacheControl: 'private, no-store', ContentType: 'application/vnd.pmtiles', ChecksumSHA256: Buffer.from(sha256, 'hex').toString('base64') }));
   const response = await client.send(new GetObjectCommand({ Bucket, Key, ChecksumMode: 'ENABLED' }));
   const downloaded = await response.Body.transformToByteArray();
   if (downloaded.length !== size || createHash('sha256').update(downloaded).digest('hex') !== sha256 || response.CacheControl !== 'private, no-store' || response.ServerSideEncryption !== 'AES256') throw new Error('Private readback mismatch');

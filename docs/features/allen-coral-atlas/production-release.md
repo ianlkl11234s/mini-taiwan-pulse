@@ -8,7 +8,7 @@
 - Zeabur service: `69a3b5f307e6de1869be6e2c`；project `69a3b5eb07e6de1869be6e28`。
 - `ALLEN_CORAL_ATLAS_STORAGE=s3` 使用固定私人 bucket `migu-gis-data-collector`、region `ap-southeast-2`。
 - 每個精確資產 key：`private-research/allen-coral-atlas/<contract SHA256>/<filename>`。不使用 deploy-assets、public 或公開 CDN。
-- `scripts/deploy/upload-allen-private.mjs` 先檢查公開 bucket policy 僅限既有 flight-arc 前綴，再以 private ACL、AES256、If-None-Match 上傳，完整回讀核對 SHA/bytes 並驗匿名403。
+- `scripts/deploy/upload-allen-private.mjs` 先檢查公開 bucket policy 僅限既有 flight-arc 前綴，再依 Object Ownership 使用 private ACL（BucketOwnerEnforced 不送 ACL header）、AES256、If-None-Match 上傳，完整回讀核對 SHA/bytes 並驗匿名403。
 - Sidecar 首次完整驗 SHA 後只供 immutable 記憶體快照；每個請求獨立驗 Supabase owner 及撤銷清單。兩檔常駐約147MB，初始化峰值更高。
 - nginx 僅代理 benthic、geomorphic、revoke 路徑，不快取。持久撤銷清單 `/data/.private-allen/revoked-sessions.jsonl`，目錄0700／檔案0600；nginx 明確禁止該路徑。
 - 登出 production 同樣先完成 revoke 才捨棄 token。服務錯誤時保留登入並提示重試。
@@ -31,3 +31,5 @@
 ## 待驗證
 
 私人 S3 上傳／readback、PR CI、安全 merge、production revision、本人 browser/206、匿名401、登出撤銷、公開路徑封鎖。真實非本人帳號仍未提供，403分支已有自動測試。
+
+- 已實查 bucket Object Ownership 為 BucketOwnerEnforced，upload 已適配 ACL-disabled 模式。
