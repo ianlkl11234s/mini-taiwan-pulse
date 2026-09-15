@@ -27,10 +27,12 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -39,7 +41,8 @@ const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.titl
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !t.title.endsWith("Statistics"));
+const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
+export const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title));
 
 // ── Color Config ──
 
@@ -1170,8 +1173,32 @@ function LayersPanel({
               {!isCollapsed && groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label, expandable }) => {
-                    const active = visibility[key];
+                    {group.layers.map(({ key, label, expandable }) => {
+                      const medicalGroup = getMedicalStatisticsGroup(key);
+                      if (medicalGroup) {
+                        if (medicalGroup.options[0].key !== key) return null;
+                        return (
+                          <MedicalStatisticsGroupControls
+                            key={medicalGroup.key}
+                            groupKey={key}
+                            visibility={visibility}
+                            expandedLayer={expandedLayer}
+                            onLayerClick={onLayerClick}
+                            textColor={TEXT_STRONG}
+                            dimColor={DIM}
+                            renderControls={(selectedKey) => (
+                              <ExpandedControls
+                                layerKey={selectedKey as ExpandableLayerKey}
+                                isTransport={false}
+                                displayMode={displayMode}
+                                onDisplayModeChange={onDisplayModeChange}
+                                onHide={onHideTransport}
+                              />
+                            )}
+                          />
+                        );
+                      }
+                      const active = visibility[key];
                     const isExpanded = expandedLayer === key;
                     const isTransport = key in TRANSPORT_LABELS;
                     return (

@@ -474,16 +474,33 @@ for f in public/coverage/real_estate_*.pmtiles public/coverage/real_estate_point
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/coverage/$name" --region ap-southeast-2
 done
 
-# 🌍 世界 World 大檔：上傳到 deploy-assets/world/ 子前綴（鏡像結構，pull 端整夾 sync 已存在）。
-# 目前只有日本 1km 人口網格 PMTiles（48.6MB / 176,896 格）—— 唯一 >25MB 故 gitignore 的 world 檔；
-# 同夾其餘 world 資產（jp_admin_* / jp_religion_gsi / jp_railways / jp_schools 等）仍進 git/dist，
-# 走 nginx `location /world/` 的 @dist fallback，刻意不上傳（原語意保留）。
-# ⚠️ 刻意寫**檔名字面**而不是 public/world/*.pmtiles：glob 會把那些 git 小檔一起推上去。
-for f in public/world/jp_population_mesh_1km.pmtiles; do
+# 🌍 世界 World S3 資產：逐檔 allowlist，禁止 wildcard 意外發布 HOLD / non-commercial research 檔。
+# pull 端整夾 sync 已存在；nginx `/world/` 先讀 /data，再 fallback 到 git/dist 小檔。
+for f in \
+  public/world/jp_population_mesh_1km.pmtiles \
+  public/world/jp_accommodation_canonical_20260910.pmtiles \
+  public/world/jp_accommodation_jta_20260331.geojson \
+  public/world/jp_accommodation_local_20260910.geojson \
+  public/world/jp_accommodation_osm_20260910.pmtiles \
+  public/world/jp_world_heritage_unesco_current.geojson \
+  public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
-  echo "Uploading world/$name..."
-  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/world/$name" --region ap-southeast-2
+  key="$PREFIX/world/$name"
+  local_sha256=$(openssl dgst -sha256 "$f" | awk '{print $2}')
+  remote_sha256=$(aws s3api head-object --bucket "$BUCKET" --key "$key" \
+    --query 'Metadata.sha256' --output text --region ap-southeast-2 2>/dev/null || true)
+  if [ "$remote_sha256" = "$local_sha256" ]; then
+    echo "Skipping immutable world/$name (same SHA-256)"
+    continue
+  fi
+  if aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 >/dev/null 2>&1; then
+    echo "ERROR: refusing to replace world/$name with a different or unverifiable SHA-256" >&2
+    exit 1
+  fi
+  echo "Uploading immutable world/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$key" --region ap-southeast-2 \
+    --metadata "sha256=$local_sha256" --cache-control "public,max-age=86400"
 done
 
 # 靜態化 RPC 快照：上傳到 deploy-assets/static-rpc/ 子前綴（鏡像結構，pull 端整夾 sync）

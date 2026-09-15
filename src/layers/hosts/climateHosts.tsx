@@ -1,3 +1,4 @@
+import { GLOBAL_EVENT_CATEGORIES } from "../../data/globalEventsTypes";
 // 全球氣候 / 世界 / 災防告警 / 共機活動區的 Layer Host（AR-22 P2）
 // —— App.tsx 原 L1088-1201
 
@@ -60,7 +61,7 @@ export const WorldTrashDebrisHost: LayerHostComponent = ({ deps }) => {
   return null;
 };
 
-/** 🌍 世界 WORLD：全球情勢，預設最近七天總覽；明確選擇後跟隨時間軸。 */
+/** 🌍 世界 WORLD：全球情勢，預設最近一天嚴重事件；明確選擇後跟隨時間軸。 */
 export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useGlobalEventsLayer");
   const p = useKeyOverlayParams("globalEvents");
@@ -70,9 +71,13 @@ export const GlobalEventsHost: LayerHostComponent = ({ deps }) => {
     p.globalEventsOpacity ?? 0.9,
     deps.appMode === "historical" ? "replay" : deps.timeMode,
     p.globalEventsViewIdx === 1 ? "timeline" : "recent7d",
-    (p.globalEventsRelations ?? 1) === 1,
+    (p.globalEventsRelations ?? 0) === 1,
     deps.featureInfo?.layerType === "globalEvent" ? String(deps.featureInfo.properties.event_id ?? "") : null,
     (p.globalEventsIncludeAI ?? 1) === 1,
+    p.globalEventsDays ?? 1,
+    ["all", ...GLOBAL_EVENT_CATEGORIES.map((item) => item.value)][p.globalEventsCategoryIdx ?? 0] ?? "all",
+    p.globalEventsMinSeverity ?? 3,
+    (p.globalEventsTaiwanOnly ?? 0) === 1,
   );
   return null;
 };

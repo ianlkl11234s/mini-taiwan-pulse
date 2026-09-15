@@ -30,9 +30,9 @@ type VisKey = keyof LayerVisibility;
  * key 全集從 layerCatalog 的 LAYER_COLORS 派生（型別強制完整）—
  * 新增 layer 不用再改本檔，除非要預設開啟。
  *
- * 預設全關：訪客一進站不打任何 RPC、不載任何圖層（2026-08-10 移除行道樹預設開啟）。
+ * 日本旅宿 canonical 是資料交付契約指定的唯一預設開啟層；其餘維持關閉。
  */
-const DEFAULT_ON: ReadonlySet<VisKey> = new Set<VisKey>([]);
+const DEFAULT_ON: ReadonlySet<VisKey> = new Set<VisKey>(["jpAccommodationCanonical"]);
 
 export function buildDefaultVisibility(): LayerVisibility {
   const keys = Object.keys(LAYER_COLORS) as VisKey[];

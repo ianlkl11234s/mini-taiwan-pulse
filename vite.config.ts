@@ -188,6 +188,24 @@ export default defineConfig({
       "gfw_hourly_grid_poc",
       // GFW v4 immutable releases 由獨立 pull/install 流程管理；dev 可讀，但 app build 不複製。
       "global-maritime/gfw-hourly/v4",
+      // Japan tourism production files are supplied by S3 /data/world; research-only files must fail closed.
+      "world/jp_accommodation_canonical_20260910.geojson",
+      "world/jp_accommodation_canonical_20260910.pmtiles",
+      "world/jp_accommodation_jta_20260331.geojson",
+      "world/jp_accommodation_local_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.pmtiles",
+      "world/jp_natural_parks_ksj_2010.geojson",
+      "world/jp_natural_parks_ksj_2010.pmtiles",
+      "world/jp_nature_conservation_ksj_2015.geojson",
+      "world/jp_nature_conservation_ksj_2015.pmtiles",
+      "world/jp_wildlife_protection_moe_202504.geojson",
+      "world/jp_wildlife_protection_moe_202504.pmtiles",
+      "world/jp_world_natural_heritage_ksj_2011.geojson",
+      "world/jp_world_heritage_unesco_current.geojson",
+      "world/jp_ramsar_moe_current.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
     ]),
   ],
   assetsInclude: ["**/*.vert", "**/*.frag"],
@@ -207,6 +225,13 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
+        '/__social-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__social-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.

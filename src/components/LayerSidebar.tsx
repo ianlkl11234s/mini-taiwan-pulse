@@ -16,6 +16,8 @@ import {
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
 
@@ -443,8 +445,36 @@ function SidebarContent({
                   └ {group.title}
                 </div>
 
-                {group.layers.map(({ key, label, labelMobile, expandable }) => {
-            // 手機版優先用全稱 labelMobile，未提供則沿用桌機 label
+                  {group.layers.map(({ key, label, labelMobile, expandable }) => {
+              const medicalGroup = getMedicalStatisticsGroup(key);
+              if (medicalGroup) {
+                if (medicalGroup.options[0].key !== key) return null;
+                return (
+                  <MedicalStatisticsGroupControls
+                    key={medicalGroup.key}
+                    groupKey={key}
+                    visibility={visibility}
+                    expandedLayer={expandedLayer}
+                    onLayerClick={onLayerClick}
+                    textColor={textColor}
+                    dimColor={dimColor}
+                    renderControls={(selectedKey) => (
+                      <ExpandedPanel
+                        layerKey={selectedKey as ExpandableLayerKey}
+                        isTransport={false}
+                        isDarkTheme={isDarkTheme}
+                        isMobile={isMobile}
+                        viewMode={viewMode}
+                        displayMode={displayMode}
+                        onViewModeChange={onViewModeChange}
+                        onDisplayModeChange={onDisplayModeChange}
+                        onHide={onHideTransport}
+                      />
+                    )}
+                  />
+                );
+              }
+              // 手機版優先用全稱 labelMobile，未提供則沿用桌機 label
             const displayLabel = labelMobile ?? label;
             const active = visibility[key];
             const color = LAYER_COLORS[key];

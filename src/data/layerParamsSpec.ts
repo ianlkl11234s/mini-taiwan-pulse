@@ -72,6 +72,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
+import { JP_RAMSAR_GEOMETRY_FILTERS } from "./jpTourismTypes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -103,6 +104,7 @@ import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -874,6 +876,52 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  */
 export const LAYER_PARAMS_SPEC = {
   // 農林漁牧 Statistics 的實質 values/filter 邏輯由 dynamic renderer 處理；登記簿只宣告共通透明度。
+  // 社會統計同樣由 dynamic renderer 處理；release/filter 選項由 recipe exact whitelist 提供。
+  statsEducationCountyInstitutionCount: [opacitySlider("statsEducationCountyInstitutionCountOpacity", 0.55)],
+  statsEducationCountyTeacherCount: [opacitySlider("statsEducationCountyTeacherCountOpacity", 0.55)],
+  statsEducationCountyStaffCount: [opacitySlider("statsEducationCountyStaffCountOpacity", 0.55)],
+  statsEducationCountyStudentCount: [opacitySlider("statsEducationCountyStudentCountOpacity", 0.55)],
+  statsEducationCountyClassCount: [opacitySlider("statsEducationCountyClassCountOpacity", 0.55)],
+  statsEducationCountySmallSchoolCount: [opacitySlider("statsEducationCountySmallSchoolCountOpacity", 0.55)],
+  statsEducationCountySmallSchoolSharePct: [opacitySlider("statsEducationCountySmallSchoolSharePctOpacity", 0.55)],
+  statsEducationCountyStudentTeacherRatio: [opacitySlider("statsEducationCountyStudentTeacherRatioOpacity", 0.55)],
+  statsEducationCountyStudentsPerClass: [opacitySlider("statsEducationCountyStudentsPerClassOpacity", 0.55)],
+  statsEducationCountyStudentYearChange: [opacitySlider("statsEducationCountyStudentYearChangeOpacity", 0.55)],
+  statsEducationCountyStudentYearChangePct: [opacitySlider("statsEducationCountyStudentYearChangePctOpacity", 0.55)],
+  statsHealthHospitalCount: [opacitySlider("statsHealthHospitalCountOpacity", 0.55)],
+  statsHealthHospitalBedTotal: [opacitySlider("statsHealthHospitalBedTotalOpacity", 0.55)],
+  statsHealthAcuteBedTotal: [opacitySlider("statsHealthAcuteBedTotalOpacity", 0.55)],
+  statsHealthIcuBedTotal: [opacitySlider("statsHealthIcuBedTotalOpacity", 0.55)],
+  statsHealthHospiceBedTotal: [opacitySlider("statsHealthHospiceBedTotalOpacity", 0.55)],
+  statsHealthHealthProfessionalTotal: [opacitySlider("statsHealthHealthProfessionalTotalOpacity", 0.55)],
+  statsHealthWesternPhysicianCount: [opacitySlider("statsHealthWesternPhysicianCountOpacity", 0.55)],
+  statsHealthRegisteredNurseCount: [opacitySlider("statsHealthRegisteredNurseCountOpacity", 0.55)],
+  statsHealthNursingStaffListedAgeSexSum: [opacitySlider("statsHealthNursingStaffListedAgeSexSumOpacity", 0.55)],
+  statsHealthCareWorkerListedSexSum: [opacitySlider("statsHealthCareWorkerListedSexSumOpacity", 0.55)],
+  statsHealthGeneralNursingHomeOpenBeds: [opacitySlider("statsHealthGeneralNursingHomeOpenBedsOpacity", 0.55)],
+  statsHealthPostpartumNursingHomeOpenBeds: [opacitySlider("statsHealthPostpartumNursingHomeOpenBedsOpacity", 0.55)],
+  statsHealthPostpartumNursingHomeOpenInfantBeds: [opacitySlider("statsHealthPostpartumNursingHomeOpenInfantBedsOpacity", 0.55)],
+  statsHealthCareWorkerRegistration: [opacitySlider("statsHealthCareWorkerRegistrationOpacity", 0.55)],
+  statsHealthMedicalInstitutionBedsPer10000Population: [opacitySlider("statsHealthMedicalInstitutionBedsPer10000PopulationOpacity", 0.55)],
+  statsHealthPracticingMedicalPersonnelPer10000Population: [opacitySlider("statsHealthPracticingMedicalPersonnelPer10000PopulationOpacity", 0.55)],
+  statsHousingTotalCounty: [opacitySlider("statsHousingTotalCountyOpacity", 0.55)],
+  statsHousingOccupiedCounty: [opacitySlider("statsHousingOccupiedCountyOpacity", 0.55)],
+  statsHousingUnoccupiedCounty: [opacitySlider("statsHousingUnoccupiedCountyOpacity", 0.55)],
+  statsHousingOccasionalCounty: [opacitySlider("statsHousingOccasionalCountyOpacity", 0.55)],
+  statsHousingOtherUseCounty: [opacitySlider("statsHousingOtherUseCountyOpacity", 0.55)],
+  statsHousingUnusedCounty: [opacitySlider("statsHousingUnusedCountyOpacity", 0.55)],
+  statsHousingResidenceOnlyCounty: [opacitySlider("statsHousingResidenceOnlyCountyOpacity", 0.55)],
+  statsHousingMixedUseCounty: [opacitySlider("statsHousingMixedUseCountyOpacity", 0.55)],
+  statsHousingOccupiedPctCounty: [opacitySlider("statsHousingOccupiedPctCountyOpacity", 0.55)],
+  statsHousingUnusedPctCounty: [opacitySlider("statsHousingUnusedPctCountyOpacity", 0.55)],
+  statsHousingTotalTownship: [opacitySlider("statsHousingTotalTownshipOpacity", 0.55)],
+  statsHousingOccupiedTownship: [opacitySlider("statsHousingOccupiedTownshipOpacity", 0.55)],
+  statsHousingUnoccupiedTownship: [opacitySlider("statsHousingUnoccupiedTownshipOpacity", 0.55)],
+  statsHousingOccasionalTownship: [opacitySlider("statsHousingOccasionalTownshipOpacity", 0.55)],
+  statsHousingOtherUseTownship: [opacitySlider("statsHousingOtherUseTownshipOpacity", 0.55)],
+  statsHousingUnusedTownship: [opacitySlider("statsHousingUnusedTownshipOpacity", 0.55)],
+  statsHousingOccupiedPctTownship: [opacitySlider("statsHousingOccupiedPctTownshipOpacity", 0.55)],
+  statsHousingUnusedPctTownship: [opacitySlider("statsHousingUnusedPctTownshipOpacity", 0.55)],
   statsPaddyLandAreaTownship: [opacitySlider("statsPaddyLandAreaTownshipOpacity", 0.55)],
   statsDryFieldAreaTownship: [opacitySlider("statsDryFieldAreaTownshipOpacity", 0.55)],
   statsOrchardAreaTownship: [opacitySlider("statsOrchardAreaTownshipOpacity", 0.55)],
@@ -1367,11 +1415,27 @@ export const LAYER_PARAMS_SPEC = {
   ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    {
+      kind: "select", name: "globalEventsCategory", label: "分類", default: "all",
+      options: [{ label: "全部", value: "all" }, ...GLOBAL_EVENT_CATEGORIES.map(({ label, value }) => ({ label, value }))],
+      out: "globalEventsCategoryIdx", encode: ["all", ...GLOBAL_EVENT_CATEGORIES.map(({ value }) => value)],
+    },
+    {
+      kind: "select", name: "globalEventsMinSeverity", label: "最低嚴重度", default: "3",
+      options: GLOBAL_EVENT_SEVERITIES.map(({ label, value }) => ({ label, value: String(value) })),
+      out: "globalEventsMinSeverity", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "globalEventsDays", label: "過去", default: "1",
+      options: [{ label: "1 天", value: "1" }, { label: "3 天", value: "3" }, { label: "7 天", value: "7" }],
+      out: "globalEventsDays", encodeNumeric: true,
+    },
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
-      { label: "最近七天總覽", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
+      { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: true },
+    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
+    { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
@@ -1419,6 +1483,50 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
   ],
+  jpAccommodationCanonical: [
+    opacitySlider("jpAccommodationCanonicalOpacity", 0.85),
+    scaleSlider("jpAccommodationCanonicalScale", 1),
+  ],
+  jpAccommodationJta: [
+    opacitySlider("jpAccommodationJtaOpacity", 0.85),
+    scaleSlider("jpAccommodationJtaScale", 1),
+  ],
+  jpAccommodationLocal: [
+    opacitySlider("jpAccommodationLocalOpacity", 0.85),
+    scaleSlider("jpAccommodationLocalScale", 1),
+  ],
+  jpAccommodationOsm: [
+    opacitySlider("jpAccommodationOsmOpacity", 0.72),
+    scaleSlider("jpAccommodationOsmScale", 1),
+  ],
+  jpNaturalParksNational: [opacitySlider("jpNaturalParksNationalOpacity", 0.28)],
+  jpNaturalParksQuasiNational: [opacitySlider("jpNaturalParksQuasiNationalOpacity", 0.25)],
+  jpNaturalParksPrefectural: [opacitySlider("jpNaturalParksPrefecturalOpacity", 0.22)],
+  jpNatureConservationArea: [opacitySlider("jpNatureConservationAreaOpacity", 0.25)],
+  jpPrimitiveNatureEnvironmentArea: [opacitySlider("jpPrimitiveNatureEnvironmentAreaOpacity", 0.3)],
+  jpNatureConservationSpecialDistrict: [opacitySlider("jpNatureConservationSpecialDistrictOpacity", 0.28)],
+  jpWildlifeProtectionNational: [opacitySlider("jpWildlifeProtectionNationalOpacity", 0.25)],
+  jpWildlifeSpecialProtectionDistrict: [opacitySlider("jpWildlifeSpecialProtectionDistrictOpacity", 0.28)],
+  jpWildlifeSpecialProtectionDesignatedArea: [opacitySlider("jpWildlifeSpecialProtectionDesignatedAreaOpacity", 0.32)],
+  jpWorldHeritageCultural: [
+    opacitySlider("jpWorldHeritageCulturalOpacity", 0.9),
+    scaleSlider("jpWorldHeritageCulturalScale", 1),
+  ],
+  jpWorldHeritageNatural: [
+    opacitySlider("jpWorldHeritageNaturalOpacity", 0.9),
+    scaleSlider("jpWorldHeritageNaturalScale", 1),
+  ],
+  jpWorldNaturalHeritageHistorical: [opacitySlider("jpWorldNaturalHeritageHistoricalOpacity", 0.25)],
+  jpRamsarSites: [
+    {
+      kind: "select", name: "jpRamsarGeometry", label: "位置精度", default: "name_match",
+      options: [...JP_RAMSAR_GEOMETRY_FILTERS], out: "jpRamsarGeometryIdx",
+      encode: JP_RAMSAR_GEOMETRY_FILTERS.map((option) => option.value),
+    },
+    opacitySlider("jpRamsarSitesOpacity", 0.9),
+    scaleSlider("jpRamsarSitesScale", 1),
+  ],
+  jpMarineEbsaCoastal: [opacitySlider("jpMarineEbsaCoastalOpacity", 0.22)],
   jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   jpStations: [

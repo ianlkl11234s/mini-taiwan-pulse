@@ -1,0 +1,123 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=[REDACTED]#/121.5318/25.0464/12.5
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+  - text: 12班以下學校數
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 找到 1 筆
+- button "12班以下學校數 統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。 主題：統計、教育與少子化、行政區、縣市 · 來源詳情":
+  - generic: 12班以下學校數
+  - generic: 統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。
+  - generic: 主題：統計、教育與少子化、行政區、縣市 · 來源詳情
+- button "收藏圖層 12班以下學校數":
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 15:00
+- slider: "0.6255"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 25.0464, 121.5318 z12.5 pitch 0 bearing 0
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 12班以下學校數
+- generic: 數值
+- generic: 22 所
+- generic: 資料期別
+- generic: 2025-08-01 — 2026-07-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 處理版本
+- generic: education-county-statistics-v2
+- generic: 原始 SHA-256
+- generic: b6882f15f49bf9d8146d9b5dea7a023b200d1bfa4d6c3488707544b13330ad75
+- generic: 來源
+- generic: 教育部統計處
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 12班以下學校數
+- generic: 2025-08-01 — 2026-07-31 · 所
+- generic: 資料可用狀態：STALE
+- generic: 低於 5
+- generic: 5 至未滿 20
+- generic: 20 至未滿 50
+- generic: 50 至未滿 100
+- generic: 100 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

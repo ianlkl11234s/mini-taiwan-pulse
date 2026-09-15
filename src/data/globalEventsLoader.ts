@@ -128,6 +128,7 @@ function parseGlobalEventFields(row: JsonObject): Omit<GlobalEventPoint, "coordi
     category: nullableString(row.category),
     severity: nullableFiniteNumber(row.severity),
     confidence: nullableFiniteNumber(row.confidence),
+    taiwanRelationship: nullableString(row.taiwan_relationship),
     validFrom: nullableString(row.valid_from),
     publishedAt: nullableString(row.published_at),
     explicitValidTo: nullableString(row.explicit_valid_to),

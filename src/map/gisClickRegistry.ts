@@ -170,6 +170,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
   { layers: ["jp-stations-circle"], type: "jpStations" },
+  { layers: ["jp-tourism-jp-accommodation-canonical-circle"], type: "jpAccommodationCanonical" },
+  { layers: ["jp-tourism-jp-accommodation-jta-circle"], type: "jpAccommodationJta" },
+  { layers: ["jp-tourism-jp-accommodation-local-circle"], type: "jpAccommodationLocal" },
+  { layers: ["jp-tourism-jp-accommodation-osm-circle"], type: "jpAccommodationOsm" },
+  { layers: ["jp-tourism-jp-world-heritage-cultural-circle"], type: "jpWorldHeritageCultural" },
+  { layers: ["jp-tourism-jp-world-heritage-natural-circle"], type: "jpWorldHeritageNatural" },
+  { layers: ["jp-tourism-jp-ramsar-sites-circle"], type: "jpRamsarSites" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
   { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
   { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
@@ -189,6 +196,17 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
   { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
+  { layers: ["jp-tourism-jp-natural-parks-national-fill"], type: "jpNaturalParksNational" },
+  { layers: ["jp-tourism-jp-natural-parks-quasi-national-fill"], type: "jpNaturalParksQuasiNational" },
+  { layers: ["jp-tourism-jp-natural-parks-prefectural-fill"], type: "jpNaturalParksPrefectural" },
+  { layers: ["jp-tourism-jp-nature-conservation-area-fill"], type: "jpNatureConservationArea" },
+  { layers: ["jp-tourism-jp-primitive-nature-environment-area-fill"], type: "jpPrimitiveNatureEnvironmentArea" },
+  { layers: ["jp-tourism-jp-nature-conservation-special-district-fill"], type: "jpNatureConservationSpecialDistrict" },
+  { layers: ["jp-tourism-jp-wildlife-protection-national-fill"], type: "jpWildlifeProtectionNational" },
+  { layers: ["jp-tourism-jp-wildlife-special-protection-district-fill"], type: "jpWildlifeSpecialProtectionDistrict" },
+  { layers: ["jp-tourism-jp-wildlife-special-protection-designated-area-fill"], type: "jpWildlifeSpecialProtectionDesignatedArea" },
+  { layers: ["jp-tourism-jp-world-natural-heritage-historical-fill"], type: "jpWorldNaturalHeritageHistorical" },
+  { layers: ["jp-tourism-jp-marine-ebsa-coastal-fill"], type: "jpMarineEbsaCoastal" },
   // 人口網格 1km 格是本組最小的面（< 市区町村 < 都道府県），依「小面 → 大面」排在兩個
   // 行政區界之前。⚠️ 反過來排在界層之後會讓本層 popup 不可達 —— 縣界 tab 開啟時預設開、
   // 且與網格同樣無縫鋪滿全日本，first-hit-wins 會由縣界吃掉每一次點擊。

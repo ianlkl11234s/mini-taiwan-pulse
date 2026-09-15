@@ -161,6 +161,13 @@ function fromManifest(key: ManifestKey): LayerDef {
   return def;
 }
 
+/** HOLD / non-commercial Japan research layers exist in local DEV only. */
+function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
+  return import.meta.env.PROD
+    ? []
+    : [{ title, layers: keys.map((key) => fromManifest(key)) }];
+}
+
 // ── THEMES（新 SSOT）──
 
 /**
@@ -190,7 +197,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "治安", "教育", "人口", "宗教"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教"];
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
@@ -233,6 +240,21 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   ] },
   { title: "林業統計", groups: [{ title: "土地使用結構", layers: [fromManifest("statsConiferForestAreaTownship"), fromManifest("statsBroadleafForestAreaTownship"), fromManifest("statsBambooForestAreaTownship"), fromManifest("statsMixedForestAreaTownship")] }] },
   { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
+  { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
+    fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
+  ] }] },
+  { title: "醫療與長照統計", groups: [
+    { title: "醫院病床與人力", layers: [fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount")] },
+    { title: "一般護理之家人力", layers: [fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum")] },
+    { title: "一般護理之家床位", layers: [fromManifest("statsHealthGeneralNursingHomeOpenBeds")] },
+    { title: "母嬰照護床位", layers: [fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds")] },
+    { title: "長照人員登錄", layers: [fromManifest("statsHealthCareWorkerRegistration")] },
+    { title: "每萬人口醫療資源", layers: [fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population")] },
+  ] },
+  { title: "住宅存量與使用", groups: [
+    { title: "住宅使用類別", layers: [fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship")] },
+    { title: "住宅使用比例", layers: [fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship")] },
+  ] },
 ];
 
 /**
@@ -247,6 +269,15 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     title: "人口與社會 People & Society",
     groups: [
       { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
+      { title: "教育與少子化", layers: [
+        fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
+      ] },
+      { title: "醫療與長照", layers: [
+        fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
+      ] },
+      { title: "住宅存量與使用", layers: [
+        fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
+      ] },
       { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
@@ -1659,6 +1690,45 @@ const THEME_CATALOG: ThemeDef[] = [
     ],
   },
   {
+    title: "旅宿",
+    defaultCollapsed: false,
+    groups: [
+      { title: "總覽", layers: [fromManifest("jpAccommodationCanonical")] },
+      { title: "來源", layers: [
+        fromManifest("jpAccommodationJta"),
+        fromManifest("jpAccommodationLocal"),
+        fromManifest("jpAccommodationOsm"),
+      ] },
+    ],
+  },
+  {
+    title: "自然保護",
+    defaultCollapsed: false,
+    groups: [
+      ...localResearchGroup("自然公園 A10 historical", [
+        "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
+      ]),
+      ...localResearchGroup("自然保全 A11 historical", [
+        "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
+      ]),
+      ...localResearchGroup("鳥獸保護 2025-04", [
+        "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
+      ]),
+      { title: "濕地與海域", layers: [
+        ...(import.meta.env.PROD ? [] : [fromManifest("jpRamsarSites")]),
+        fromManifest("jpMarineEbsaCoastal"),
+      ] },
+    ],
+  },
+  {
+    title: "世界遺產",
+    defaultCollapsed: false,
+    groups: [
+      { title: "UNESCO 現行名錄", layers: [fromManifest("jpWorldHeritageCultural"), fromManifest("jpWorldHeritageNatural")] },
+      ...localResearchGroup("Historical", ["jpWorldNaturalHeritageHistorical"]),
+    ],
+  },
+  {
     title: "治安",
     defaultCollapsed: false,
     groups: [{ title: "點位", layers: [fromManifest("jpPoliceFacilities")] }],
@@ -1731,6 +1801,9 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "能源統計 Energy Statistics": "environment",
   "農業統計 Agriculture Statistics": "environment",
   "人口統計 Population Statistics": "city",
+  "教育與少子化統計": "publicLife",
+  "醫療與長照統計": "publicLife",
+  "住宅存量與使用": "city",
   "資源回收統計 Recycling Statistics": "environment",
   "治安與交通 Safety & Transport": "safety",
   "行政區參考 Administrative Boundaries": "baseline",
@@ -1769,6 +1842,9 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   // 日本 tab 五主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
   "行政區": "world",
   "交通": "world",
+  "旅宿": "world",
+  "自然保護": "world",
+  "世界遺產": "world",
   "治安": "world",
   "教育": "world",
   "人口": "world",
