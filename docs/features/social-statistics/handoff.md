@@ -9,9 +9,9 @@
 
 資料若消失，依穩定交付目錄 SHA256SUMS 驗證 tar.gz，再解到全新目錄並依delivery-files逐檔核對；不可覆蓋現有repo。
 
-## 驗收
+## 本地驗收歷史（正式發布結果見下方）
 
-- **本地驗收完成；已依後續授權原子提交，未發布。** Worktree `/private/tmp/pulse-social-statistics-frontend-20260915`，branch `codex/social-statistics-frontend-20260915`，基底 `617f1dcb117e72738dde85f0cf0ab19281661432`。
+- **本地驗收完成；當時尚未發布，後续正式發布已完成。** Worktree `/private/tmp/pulse-social-statistics-frontend-20260915`，branch `codex/social-statistics-frontend-20260915`，基底 `617f1dcb117e72738dde85f0cf0ab19281661432`。
 - 精確45 enabled recipes、416 selectors全部通過實際前端loader的manifest/artifact/geometry SHA與bytes驗證；[逐selector結果](./evidence/actual-loader-selectors.json)。本測試以真實交付bytes供應fetch；上游416 HTTP證據在資料根目錄frontend-acceptance.json，兩者不混稱browser驗收。
 - 全站160 files、1,353 tests passed／3既有skipped；最後UI提示/格式修正後17項focused tests與`npm run build`再通過。build仍有大chunk提示。[tests](./evidence/tests.log)、[最後focused](./evidence/final-focused-tests.log)、[build](./evidence/build.log)。
 - 真實桌面1280×720：45層逐一開啟、填色、地圖點選與固定legend。每層PNG與DOM讀回檔保存在evidence，彙整 [desktop-layers](./evidence/desktop-layers.json)。最終文字格式修正另以手機住宅截圖回驗，沒有宣稱此前每層截圖全部重拍。
@@ -24,9 +24,7 @@
 
 沒有本輪尚未通過的接線驗收項目。資料缺列、1/22或20/22 PARTIAL、歷史STALE為上游資料事實，均保持顯示；不能藉由前端補0或假CURRENT消除。build的既有大chunk提示仍在。
 
-新層正式資料尚未發布：DEV旗標關閉或production bundle會使用既有全量CDN，正式發布前須另外合併保留舊selectors的完整snapshot、讀回hash，再取得發布授權。本包不可直接覆蓋current。production bundle已確認無本地preview路徑。
-
-原checkout平行未提交工作未帶入本worktree，也未修改；後續整合須對照當時最新差異。前次驗收時未提交；本次後續授權已完成本地原子提交，仍未push/merge、CDN上傳、production匯入、部署或排程。
+正式資料已合併全量 snapshot 並發布；原 checkout 平行工作維持不動。正式結果見下方。
 
 ## 原子提交紀錄
 
@@ -42,4 +40,8 @@
 - 整合後 tsc、build 通過；1364 tests passed、4 skipped。
 - 416 selectors 搭配正式既有 reference geometry 經實際 loader 重新驗證：[release geometry evidence](./evidence/release-geometry-loader-selectors.json)。這仍是本地 hash-validating fetch fixture，未冒充 production browser。
 - 上游 414 bundles 的 health/coverage publication adapter、平台 nursing sidecar adapter 已完成本地測試與提交。原始 source bytes/數值不變。
-- GitHub push 遭自動核准審查要求具體目的地授權而拒絕；已詢問使用者。當前 production import / R2 upload / PR merge / deployment 皆未執行。
+- 初次 push 的自動審查要求目的地確認；使用者已明確授權依既有目的地完整發布，後續全部執行成功。
+
+## 正式發布完成
+
+完整版本、驗收與限制見 [production-release](./production-release.md)。
