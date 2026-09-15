@@ -1,3 +1,5 @@
+import { JpMedicalAlert } from "../../components/JpMedicalStatus";
+import { useJpMedicalLayers } from "../../hooks/useJpMedicalLayers";
 // 日本 Japan Batch 2 的 Layer Host：行政區 2 層（PMTiles polygon）＋ 交通 2 層（GeoJSON）。
 // clone hosts/climateHosts.tsx 的 JpReligionHost 慣例。
 
@@ -164,4 +166,18 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
   const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
   useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode);
   return null;
+};
+
+/** 日本靜態醫療：可見時才讀 allowlist，點位與詳情均按需載入。 */
+export const JpMedicalHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMedicalLayers");
+  const facilities = useKeyOverlayParams("jpMedicalFacilities");
+  const care = useKeyOverlayParams("jpMedicalCare");
+  const areas = useKeyOverlayParams("jpMedicalAreas");
+  useJpMedicalLayers(deps.mapRef, {
+    jpMedicalFacilities: deps.layerVisibility.jpMedicalFacilities,
+    jpMedicalCare: deps.layerVisibility.jpMedicalCare,
+    jpMedicalAreas: deps.layerVisibility.jpMedicalAreas,
+  }, { ...facilities, ...care, ...areas });
+  return deps.layerVisibility.jpMedicalFacilities || deps.layerVisibility.jpMedicalCare || deps.layerVisibility.jpMedicalAreas ? <JpMedicalAlert /> : null;
 };

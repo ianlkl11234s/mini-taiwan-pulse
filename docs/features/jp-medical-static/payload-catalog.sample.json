@@ -1,0 +1,37 @@
+{
+  "contract_version": 1,
+  "version": "sha256-of-catalog-inputs",
+  "status": "LOCAL_READY_NOT_DEPLOYED",
+  "datasets": {
+    "navii": {
+      "source_date": "20260601",
+      "source": "MHLW Navii open data",
+      "grain": "source facility row",
+      "national_totals": {
+        "hospital": {"mapped_point_count": 7447, "source_record_count": 7715, "excluded_no_coordinate_count": 268, "unique_source_id_count": 7447},
+        "clinic": {"mapped_point_count": 75190, "source_record_count": 80155, "excluded_no_coordinate_count": 4965, "unique_source_id_count": 75190},
+        "dental": {"mapped_point_count": 51384, "source_record_count": 54637, "excluded_no_coordinate_count": 3253, "unique_source_id_count": 51384},
+        "maternity": {"mapped_point_count": 1684, "source_record_count": 2138, "excluded_no_coordinate_count": 454, "unique_source_id_count": 1684},
+        "pharmacy": {"mapped_point_count": 54095, "source_record_count": 61398, "excluded_no_coordinate_count": 7303, "unique_source_id_count": 54095}
+      }
+    },
+    "h17": {
+      "source_date": "20260709",
+      "source": "H17",
+      "status": "SOURCE_SNAPSHOT",
+      "grain": "service registration; multiple services at one establishment remain separate",
+      "service_types": ["read exact values from payload-contract.md; final catalog is authoritative"],
+      "national_totals": {"source_record_count": 222615, "mapped_service_registration_count": 222194, "excluded_no_coordinate_count": 416, "duplicate_quarantine_count": 5, "service_type_count": 35}
+    },
+    "a38": {"source_date": "2020", "status": "STALE", "grain": "source geometry part; do not use PMTiles feature count as medical-area count"}
+  },
+  "layers": [
+    {"key": "navii_facilities", "kind_codes": ["hospital", "clinic", "dental", "maternity", "pharmacy"], "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": "navii_facilities", "minimum_point_zoom": 10, "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
+    {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": "h17_services", "minimum_point_zoom": 10, "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": null},
+    {"key": "a38_1", "pmtiles_path": "areas/A38-20_1.pmtiles", "source_layer": "A38-20_1", "status": "STALE", "source_date": "2020", "grain": "source geometry part"},
+    {"key": "a38_2", "pmtiles_path": "areas/A38-20_2.pmtiles", "source_layer": "A38-20_2", "status": "STALE", "source_date": "2020", "grain": "source geometry part"},
+    {"key": "a38_3", "pmtiles_path": "areas/A38-20_3.pmtiles", "source_layer": "A38-20_3", "status": "STALE", "source_date": "2020", "grain": "source geometry part"}
+  ],
+  "files": {"relative/path": {"sha256": "lowercase-hex", "bytes": 123}},
+  "publication": {"scope": "local-only; no upload or deployment"}
+}

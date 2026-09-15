@@ -178,6 +178,8 @@ export default defineConfig({
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
+      // 日本醫療依 exact allowlist 獨立交付；不隨 app bundle 發布。
+      "jp-medical",
       // 55MB，bundle-rail-data.py 產出 → upload-rail-to-s3.ts 上傳 S3 的中間產物，app runtime 不載入
       "rail_bundle.json",
       // GFW 7-day trajectory POC 僅供 localhost bbox.html 驗收，不可跟 production bundle 部署

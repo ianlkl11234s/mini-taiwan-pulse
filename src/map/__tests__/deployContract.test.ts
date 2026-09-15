@@ -195,6 +195,9 @@ function uploadPatterns(): { globs: string[]; syncDirs: Set<string> } {
 }
 
 const UPLOAD = uploadPatterns();
+// Versioned medical assets use a dedicated exact-plan publisher, never a glob.
+const medicalPlan = JSON.parse(readFileSync("docs/features/jp-medical-static/payload-publication-plan.json", "utf8")) as { entries: { relative_path: string }[] };
+const medicalUploadPaths = new Set(medicalPlan.entries.map(entry => `jp-medical/${entry.relative_path}`));
 
 /** glob → RegExp（`*` 不跨 `/`，其餘字元字面比對） */
 function globToRe(glob: string): RegExp {
@@ -205,6 +208,7 @@ const UPLOAD_RES = UPLOAD.globs.map(globToRe);
 
 /** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
 function uploadCovers(path: string): boolean {
+  if (medicalUploadPaths.has(path)) return true;
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
@@ -309,6 +313,20 @@ describe("deploy 契約（nginx + pull script）", () => {
       `這些 sourceUrl 本機不存在且不屬於任何 S3 管理目錄（dev 與容器都會 404）：` +
       `${orphans.join(", ")}\n→ 不是檔案忘了產，就是部署管線（nginx/pull）漏接`,
     ).toEqual([]);
+  });
+
+  it("Japan medical exact publisher/install/nginx are connected without broad upload", () => {
+    expect(uploadCovers("jp-medical/current.json")).toBe(true);
+    expect(uploadCovers("jp-medical/raw/private.json")).toBe(false);
+    expect(medicalPlan.entries[medicalPlan.entries.length - 1]?.relative_path).toBe("current.json");
+    expect(pullCovers("jp-medical")).toBe(true);
+    expect(locationFor("jp-medical/current.json")?.readsData).toBe(true);
+    expect(pullScript).toContain('python3 /usr/local/bin/install-jp-medical-assets.py');
+    expect(pullScript).toContain('--exclude "jp-medical/*"');
+    expect(dockerfile).toContain('COPY scripts/deploy/install-jp-medical-assets.py');
+    expect(dockerIgnore).toContain('public/jp-medical');
+    expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
+    expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
   });
 
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {

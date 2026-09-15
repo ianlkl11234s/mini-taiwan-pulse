@@ -1,3 +1,5 @@
+import { JpMedicalStatus } from "./JpMedicalStatus";
+import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
@@ -358,6 +360,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
+  { id: "jpMedicalFacilities", render: () => <JpMedicalLegend kind="facilities" /> },
+  { id: "jpMedicalCare", render: () => <JpMedicalLegend kind="care" /> },
+  { id: "jpMedicalAreas", render: () => <JpMedicalLegend kind="areas" /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
@@ -6361,5 +6366,26 @@ function JpPoliceFacilitiesLegend() {
     <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
     <div>資料時點：2025-04-01</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
+  </div>;
+}
+
+
+function JpMedicalLegend({ kind }: { kind: "facilities" | "care" | "areas" }) {
+  const t = useLegendTheme();
+  const rows = kind === "facilities" ? JP_MEDICAL_CATEGORIES : kind === "care"
+    ? [{ value: "care", label: "長照服務登記", color: JP_MEDICAL_CARE_COLOR }]
+    : [{ value: "areas", label: "2020 歷史醫療圈", color: JP_MEDICAL_AREA_COLOR }];
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.5 }}>
+    <strong>{kind === "facilities" ? "日本醫療設施" : kind === "care" ? "日本長照服務" : "日本醫療圈"}</strong>
+    <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} /></div>
+    {kind === "facilities" && <div>◯ 灰色圓圈：目前分類合計（固定格網中心）</div>}
+    {rows.map(row => <div key={row.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
+    </div>)}
+    <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
+      ? "国土数値情報 A38 · 2020 歷史版。簡化邊界；小比例尺可能省略小面。人口／面積不可按 polygon part 加總。"
+      : kind === "care"
+      ? "厚生労働省 H17。圓圈為登記聚合，放大檢視來源點位；同址可有多筆服務，不代表唯一機構數。"
+      : "厚生労働省 Navii。圓圈為可繪製設施聚合，放大檢視點位；缺座標另列。助產所來源僅涵蓋 45 縣。公告時段非即時可接診。"}</div>
   </div>;
 }

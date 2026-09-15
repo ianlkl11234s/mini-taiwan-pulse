@@ -30,3 +30,6 @@ public/world/jp_world_heritage_unesco_current.geojson
 public/world/jp_ramsar_moe_current.geojson
 public/world/jp_marine_ebsa_moe_coastal_20150101.geojson
 public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles
+
+# Japan medical is installed from the reviewed S3 release, never baked into the app image.
+public/jp-medical
