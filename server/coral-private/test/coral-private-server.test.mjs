@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
@@ -279,7 +280,9 @@ test("Allen exact allowlist authenticates GET, HEAD, and access probe before dat
   assert.equal(unknown.status, 404);
 });
 
-test("Allen local file range verifies the contract asset with injected auth", async () => {
+test("Allen local file range verifies the contract asset with injected auth", {
+  skip: !existsSync(join(allenRoot, "allen_coral_atlas_benthic.pmtiles")) && "Private local artifact is intentionally absent from CI",
+}, async () => {
   // This exercises the real local PMTiles bytes. Injected auth proves handler wiring only;
   // it is explicitly not evidence of a real Supabase login or token revocation behavior.
   const output = await handleAllenCoralAtlasRequest(allenRequest("benthic", { headers: { Range: "bytes=0-3" } }), {
