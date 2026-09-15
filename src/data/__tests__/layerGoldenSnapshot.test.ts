@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 521 個 layer key", () => {
+  it("涵蓋全部 539 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -144,7 +144,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-07：+1 = jpPoliceFacilities（日本核心警察設施）。
     // 2026-09-08：+24 = 農林漁牧 enabled Statistics recipes；3 HOLD recipe 不入 registry。
     // coralReefDistribution: local research layer.
-    expect(keys.length).toBe(521);
+    // 2026-09-10：+18 日本旅宿／自然保護／世界遺產本地 static GeoJSON layers。
+    // 2026-09-15：+45 社會統計（教育與少子化、醫療與長照、住宅存量與使用）。
+    expect(keys.length).toBe(539);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

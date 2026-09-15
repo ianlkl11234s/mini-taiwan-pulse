@@ -102,6 +102,34 @@ describe("buildParamControls", () => {
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["funeralOperatorsStatusIdx"]).toBe(1);
   });
 
+  it("全球情勢篩選保留分類值，並把嚴重度與天數編為數值", () => {
+    const controls = buildParamControls("globalEvents") ?? [];
+    const category = controls[1] as SelectConfig;
+    const severity = controls[2] as SelectConfig;
+    const days = controls[3] as SelectConfig;
+    const relations = controls[5] as ToggleConfig;
+    const taiwanOnly = controls[7] as ToggleConfig;
+    expect(taiwanOnly.value).toBe(false);
+    taiwanOnly.onChange(true);
+
+    expect(category).toMatchObject({ label: "分類", value: "all" });
+    expect(category.options.map((option) => option.value))
+      .toEqual(["all", "disaster", "accident", "health", "crime", "traffic", "policy", "other"]);
+    expect(severity).toMatchObject({ label: "最低嚴重度", value: "3" });
+    expect(days).toMatchObject({ label: "過去", value: "1" });
+    expect(relations).toMatchObject({ label: "跨國關聯線（非移動軌跡）", value: false });
+
+    category.onChange("policy");
+    severity.onChange("2");
+    days.onChange("7");
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())).toMatchObject({
+      globalEventsCategoryIdx: 6,
+      globalEventsMinSeverity: 2,
+      globalEventsDays: 7,
+      globalEventsTaiwanOnly: 1,
+    });
+  });
+
   it("傳入的 values 快照優先於 store 現值（避免 useSyncExternalStore tearing）", () => {
     layerParamsStore.setParam("cemeteryOsm", "cemeteryOsmOpacity", 0.9);
     const stale = buildParamControls("cemeteryOsm", { cemeteryOsmOpacity: 0.45 }) ?? [];

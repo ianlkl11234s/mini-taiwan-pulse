@@ -72,6 +72,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
+import { JP_RAMSAR_GEOMETRY_FILTERS } from "./jpTourismTypes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -103,6 +104,7 @@ import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
 import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
+import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1400,11 +1402,27 @@ export const LAYER_PARAMS_SPEC = {
   ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    {
+      kind: "select", name: "globalEventsCategory", label: "分類", default: "all",
+      options: [{ label: "全部", value: "all" }, ...GLOBAL_EVENT_CATEGORIES.map(({ label, value }) => ({ label, value }))],
+      out: "globalEventsCategoryIdx", encode: ["all", ...GLOBAL_EVENT_CATEGORIES.map(({ value }) => value)],
+    },
+    {
+      kind: "select", name: "globalEventsMinSeverity", label: "最低嚴重度", default: "3",
+      options: GLOBAL_EVENT_SEVERITIES.map(({ label, value }) => ({ label, value: String(value) })),
+      out: "globalEventsMinSeverity", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "globalEventsDays", label: "過去", default: "1",
+      options: [{ label: "1 天", value: "1" }, { label: "3 天", value: "3" }, { label: "7 天", value: "7" }],
+      out: "globalEventsDays", encodeNumeric: true,
+    },
     { kind: "select", name: "globalEventsView", label: "時間範圍", default: "recent7d", options: [
-      { label: "最近七天總覽", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
+      { label: "最近範圍", value: "recent7d" }, { label: "跟隨時間軸", value: "timeline" },
     ], out: "globalEventsViewIdx", encode: ["recent7d", "timeline"] },
-    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: true },
+    { kind: "toggle", name: "globalEventsRelations", label: "跨國關聯線（非移動軌跡）", default: false },
     { kind: "toggle", name: "globalEventsIncludeAI", label: "包含 AI 初判／待判斷", default: true },
+    { kind: "toggle", name: "globalEventsTaiwanOnly", label: "僅顯示臺灣相關（直接／間接）", default: false },
   ],
   aisstreamVessels: [
     { kind: "slider", name: "aisstreamVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
@@ -1452,6 +1470,50 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "jpReligionWikidataOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionWikidataScale", 1),
   ],
+  jpAccommodationCanonical: [
+    opacitySlider("jpAccommodationCanonicalOpacity", 0.85),
+    scaleSlider("jpAccommodationCanonicalScale", 1),
+  ],
+  jpAccommodationJta: [
+    opacitySlider("jpAccommodationJtaOpacity", 0.85),
+    scaleSlider("jpAccommodationJtaScale", 1),
+  ],
+  jpAccommodationLocal: [
+    opacitySlider("jpAccommodationLocalOpacity", 0.85),
+    scaleSlider("jpAccommodationLocalScale", 1),
+  ],
+  jpAccommodationOsm: [
+    opacitySlider("jpAccommodationOsmOpacity", 0.72),
+    scaleSlider("jpAccommodationOsmScale", 1),
+  ],
+  jpNaturalParksNational: [opacitySlider("jpNaturalParksNationalOpacity", 0.28)],
+  jpNaturalParksQuasiNational: [opacitySlider("jpNaturalParksQuasiNationalOpacity", 0.25)],
+  jpNaturalParksPrefectural: [opacitySlider("jpNaturalParksPrefecturalOpacity", 0.22)],
+  jpNatureConservationArea: [opacitySlider("jpNatureConservationAreaOpacity", 0.25)],
+  jpPrimitiveNatureEnvironmentArea: [opacitySlider("jpPrimitiveNatureEnvironmentAreaOpacity", 0.3)],
+  jpNatureConservationSpecialDistrict: [opacitySlider("jpNatureConservationSpecialDistrictOpacity", 0.28)],
+  jpWildlifeProtectionNational: [opacitySlider("jpWildlifeProtectionNationalOpacity", 0.25)],
+  jpWildlifeSpecialProtectionDistrict: [opacitySlider("jpWildlifeSpecialProtectionDistrictOpacity", 0.28)],
+  jpWildlifeSpecialProtectionDesignatedArea: [opacitySlider("jpWildlifeSpecialProtectionDesignatedAreaOpacity", 0.32)],
+  jpWorldHeritageCultural: [
+    opacitySlider("jpWorldHeritageCulturalOpacity", 0.9),
+    scaleSlider("jpWorldHeritageCulturalScale", 1),
+  ],
+  jpWorldHeritageNatural: [
+    opacitySlider("jpWorldHeritageNaturalOpacity", 0.9),
+    scaleSlider("jpWorldHeritageNaturalScale", 1),
+  ],
+  jpWorldNaturalHeritageHistorical: [opacitySlider("jpWorldNaturalHeritageHistoricalOpacity", 0.25)],
+  jpRamsarSites: [
+    {
+      kind: "select", name: "jpRamsarGeometry", label: "位置精度", default: "name_match",
+      options: [...JP_RAMSAR_GEOMETRY_FILTERS], out: "jpRamsarGeometryIdx",
+      encode: JP_RAMSAR_GEOMETRY_FILTERS.map((option) => option.value),
+    },
+    opacitySlider("jpRamsarSitesOpacity", 0.9),
+    scaleSlider("jpRamsarSitesScale", 1),
+  ],
+  jpMarineEbsaCoastal: [opacitySlider("jpMarineEbsaCoastalOpacity", 0.22)],
   jpAdminPrefecture: [opacitySlider("jpAdminPrefectureOpacity", 0.2)],
   jpAdminBoundaries: [opacitySlider("jpAdminBoundariesOpacity", 0.15)],
   jpStations: [
