@@ -20,9 +20,9 @@
 | 既有層保留 | Golden 494 原 entries 完全保留；加 3 medical → 497 |
 | 本地 browser | 新整合 worktree 單層醫療／全國聚合／圖例／來源日期；桌機東京 z16 宮内庁病院按需 24 列 hours；桌機與 390×844 screenshot 見 release/；完整功能尺度先前矩陣見 acceptance.md |
 | S3 | PASS：781／781，1,640,390,952 bytes，2026-09-15 07:43:51 UTC 完成；逐檔完整 GET 驗 SHA/bytes/content-type/cache，current 最後；receipt：`release/s3-publication-receipt.json` |
-| Git PR／merge | PR [#247](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/247)，code commit `e4db9e45b350cea09217b756e0bce05e6ba8f097`；CI test PASS；待 S3 完成再合併 |
-| Zeabur deployment | 尚待執行 |
-| 正式 HTTP／browser | 尚待執行；發布前 curl 200／browser 可開啟；Python urllib 曾 403，不當作網站故障 |
+| Git PR／merge | PR [#247](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/247)，code commit `e4db9e45b350cea09217b756e0bce05e6ba8f097`，receipt head `a08fcbc2acac7ee80d7f45dcee1d1455f655fce9`；最新 CI test PASS；使用者已明確授權合併 PR，改用一般 merge 保留所有 commit；合併待執行 |
+| Zeabur deployment | not run：待本次一般 merge 後驗證部署 |
+| 正式 HTTP／browser | 本批 not run：尚未部署；發布前 curl 200／browser 可開啟；Python urllib 曾 403，不當作網站故障 |
 | 本地 nginx runtime | 實際 nginx 設定 syntax PASS，獨立 port 3740 的 19 個 MIME/cache/SHA/Range 檢查 PASS，見 `release/local-nginx-http.json`；測完已停止 |
 | 本地 Docker runtime | not run：Docker daemon 未啟動；正式容器行為另以網站驗收 |
 | 實體手機 | not run；390×844 是 browser viewport，非實機 |
@@ -31,6 +31,6 @@
 
 `publish-jp-medical-assets.py --root public/jp-medical --plan docs/features/jp-medical-static/payload-publication-plan.json --env-file .env --receipt <path>` 預設 dry-run；`--apply` 依使用者授權執行。immutable 檔完整成功後依序 catalog → manifest → current。不同的既有 current 要以讀回 hash 或 ETag 作 CAS 條件。
 
-正常 GitHub Flow：feature PR → squash master → Zeabur。資料安裝由既有 pull 執行，不新增排程。回復以 revert 本次 feature commit 復原前端接線；既有 immutable 物件保留，不刪除／不原地改寫。如有上一版醫療，可受控 CAS 回復舊 pointer；本次初版沒有上一版醫療 pointer。
+正常 GitHub Flow：feature PR → 一般 merge commit 進 master（保留各筆 commit）→ Zeabur。資料安裝由既有 pull 執行，不新增排程。回復以 revert 本次 feature commit 復原前端接線；既有 immutable 物件保留，不刪除／不原地改寫。如有上一版醫療，可受控 CAS 回復舊 pointer；本次初版沒有上一版醫療 pointer。
 
 來源 analytics 已取得資料仍在獨立 worktree，沒有把整個研究分支合併；本次發布凍結的 allowlist 產物與前端。固定 catalog 內 LOCAL_READY_NOT_DEPLOYED 代表產製時狀態，receipt／deployment／HTTP 是發布證據。
