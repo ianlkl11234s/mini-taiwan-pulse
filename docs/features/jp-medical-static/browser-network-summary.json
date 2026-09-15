@@ -1,0 +1,66 @@
+{
+  "scope": "localhost browser requests only; development instrumentation removed after capture",
+  "recorded_requests": 211,
+  "status_counts": {
+    "304": 147,
+    "200": 5,
+    "206": 59
+  },
+  "pmtiles_full_file_requests": 0,
+  "pmtiles_range_requests": 151,
+  "details_requested": [
+    "hospital_hours/6e.json",
+    "hospital_hours/b7.json"
+  ],
+  "excluded_scope_requests": 0,
+  "fault_probe": "current temporarily pointed to local-failure-probe; original current restored byte-identically; UI retry rendered points",
+  "national_window": [
+    {
+      "at": "2026-09-13T15:19:56.963Z",
+      "url": "/jp-medical/current.json",
+      "range": null,
+      "status": 304,
+      "bytes": null
+    },
+    {
+      "at": "2026-09-13T15:20:02.755Z",
+      "url": "/jp-medical/releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/catalog.json",
+      "range": null,
+      "status": 304,
+      "bytes": null
+    },
+    {
+      "at": "2026-09-13T15:20:02.840Z",
+      "url": "/jp-medical/releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/navii-z6.geojson",
+      "range": null,
+      "status": 304,
+      "bytes": null
+    },
+    {
+      "at": "2026-09-13T15:20:03.400Z",
+      "url": "/jp-medical/releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/navii_facilities.pmtiles",
+      "range": "bytes=0-16383",
+      "status": 304,
+      "bytes": null
+    },
+    {
+      "at": "2026-09-13T15:20:03.422Z",
+      "url": "/jp-medical/releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/navii_facilities.pmtiles",
+      "range": "bytes=204-5429",
+      "status": 304,
+      "bytes": null
+    },
+    {
+      "at": "2026-09-13T15:22:32.230Z",
+      "url": "/jp-medical/releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/navii-z6.geojson",
+      "range": null,
+      "status": 304,
+      "bytes": null
+    }
+  ],
+  "limitations": [
+    "304 has no response bytes in journal; do not treat null bytes as zero bytes fetched by browser",
+    "Not a HAR; no external basemap requests or browser cache hits with no HTTP",
+    "S3/CDN/production not run"
+  ]
+}

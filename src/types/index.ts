@@ -362,6 +362,7 @@ export type ExpandableLayerKey =
   | "worldTrashDebris"
   | "coralReefDistribution"
   | "allenCoralAtlas"
+  | "jpMedicalFacilities" | "jpMedicalCare" | "jpMedicalAreas"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -830,7 +831,8 @@ export interface FeatureInfo {
     | "coralReefDistribution"
     | "allenCoralAtlas"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
-    | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+    | "jpMedicalFacilities" | "jpMedicalCare" | "jpMedicalAreas"
+  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
     // 🗾 日本旅宿、自然保護區與世界遺產（來源／historical 狀態分層）
@@ -1432,6 +1434,9 @@ export interface LayerVisibility {
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
   coralReefDistribution: boolean; // 全球暖水珊瑚礁歷史基線（v4.1；DEV 本地研究；非健康／白化）
   allenCoralAtlas: boolean; // Allen Coral Atlas 淺海棲地／礁體地形（私人研究；非健康／物種）
+  jpMedicalFacilities: boolean;
+  jpMedicalCare: boolean;
+  jpMedicalAreas: boolean;
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）

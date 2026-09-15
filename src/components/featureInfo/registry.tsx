@@ -1,3 +1,4 @@
+import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
@@ -343,6 +344,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   worldTrashDebris: WorldTrashDebrisPanel,
   coralReefDistribution: CoralReefPanel,
   allenCoralAtlas: AllenCoralAtlasPanel,
+  jpMedicalFacilities: JpMedicalFacilitiesPanel,
+  jpMedicalCare: JpMedicalCarePanel,
+  jpMedicalAreas: JpMedicalAreasPanel,
   jpReligionGsi: JpReligionGsiPanel,
   jpReligionOsm: JpReligionOsmPanel,
   jpReligionWikidata: JpReligionWikidataPanel,
@@ -750,6 +754,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   gfwHourlyTrack: "GFW 抽樣近似航跡",
   gfwFishingEffort: "GFW 每日捕撈活動",
   gfwDarkVessel: "GFW SAR 未匹配 AIS 偵測",
+  jpMedicalFacilities: "日本醫療設施",
+  jpMedicalCare: "日本長照服務登記",
+  jpMedicalAreas: "日本醫療圈 · 2020 歷史版",
   jpReligionGsi: "日本宗教設施 GSI",
   jpReligionOsm: "日本宗教設施 OSM",
   jpReligionWikidata: "日本宗教設施 Wikidata",

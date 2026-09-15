@@ -18,8 +18,8 @@
 
 - 已實查 production `/data` 掛載存在。
 - 既有 `S3_ACCESS_KEY`、`S3_SECRET_KEY`、`VITE_SUPABASE_URL`、`VITE_SUPABASE_ANON_KEY` 存在；未輸出值。
-- 合入最新 master，保留日本與社會統計平行變更；registry 540 layers。
-- 整合後 Vitest：166 files passed、1 skipped；1390 tests passed、4 skipped。
+- 合入最新 master，保留日本與社會統計平行變更；registry 543 layers。
+- 整合後 Vitest：169 files passed、1 skipped；1404 tests passed、4 skipped。
 - 私人 backend：20/20 pass，含 S3 checksum/size/failure/integrity 測試。
 - nginx configuration syntax test 通過。
 - production build 通過（既有 chunk size 警告）。
@@ -33,3 +33,5 @@
 私人 S3 上傳／readback、PR CI、安全 merge、production revision、本人 browser/206、匿名401、登出撤銷、公開路徑封鎖。真實非本人帳號仍未提供，403分支已有自動測試。
 
 - 已實查 bucket Object Ownership 為 BucketOwnerEnforced，upload 已適配 ACL-disabled 模式。
+
+- PR #253；兩次合入 master，保留日本醫療新接線。高並行跑法曾有 Ookla 5s timeout，改2 workers全套通過。
