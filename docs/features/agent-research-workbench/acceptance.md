@@ -1,3 +1,12 @@
+## 2026-09-15 研究動作與流暢互動
+
+- 進度卡由 QueryResponder 實際開始／完成事件驅動；重送不重播動作，斷線後不發晚到完成。純 context/result readback 不閃卡，沒有假百分比或假掃描。
+- 鏡頭採 650ms ease，camera readback 才算完成；拖動會關閉「跟隨 Agent」並取消舊動作。reduced-motion 使用即時定位與靜態指示。結果 380ms 淡入，清除或透明度操作取消舊 callback。
+- 可點選 actual Point 來源紀錄；已知半徑才畫地表直線圈。新增 pulse_focus_result(resultId, recordId, expectedRevision)：先呈現結果，再聚焦其中一筆。保留 session、record、locked gate；不讀取或攔截外部聊天文字。
+- 樣式重載會重新驗證並重建 focus，來源或權限失效會清除。ready 同時檢查來源與圖層存在。
+- 驗收：Pulse research 73 pass／1 optional grid skip，MCP research 23 pass＋build，gateway 37 pass。主地圖附近查詢顯示 12 筆與進度卡，拖動後跟隨關閉；診斷頁 345 個候選、雙蓮國小 1km 聚焦圈與數值已視覺確認。新 focus 工具仍未完成真登入配對的 Agent E2E，未部署。
+- 試用仍為 http://127.0.0.1:3732/；新版 MCP 需重新載入。/scripts/research/acceptance-map.html 是真資料本地診斷，不是配對驗收替代品。
+
 ## 2026-09-15 最新增量驗收：Open-ended local research（以本節為準）
 
 - 可驗證鏈：`explore_data → canonical/generic registered same-origin GeoJSON Point subset reader → query → compare_neighborhoods`（每個 source 個別 count）`→ resultId` 呈現。generic metadata/readability 不等於 spatial approval；其他 PMTiles／RPC 尚無通用 reader（已接專用 adapter 除外）。

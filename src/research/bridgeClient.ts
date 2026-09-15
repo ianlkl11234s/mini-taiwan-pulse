@@ -2,7 +2,7 @@ export const RESEARCH_API_PREFIX = "/api/research/v1";
 export const BRIDGE_TIMEOUT_MS = 8_000;
 export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
 
-export type Scene = { camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; nearby?: { queryId: string } | null; results?: { resultIds: string[] } | null };
+export type Scene = { camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; nearby?: { queryId: string } | null; results?: { resultIds: string[] } | null; focus?: { resultId: string; recordId: string } | null };
 export type Command = { protocolVersion: "1"; sessionId: string; studyId: string; tabId: string; commandId: string; expectedRevision: number; expiresAt: number; patch: Partial<Scene> };
 export type StudyState = { studyId: string; tabId: string; revision: number; scene: Scene; view: { revision: number; phase: "empty" | "applied" | "ready" | "error" }; connected: boolean; paused: boolean; pendingCommand: Command | null };
 export type PairingRequest = { pairingId: string; code: string; expiresAt: string | number };

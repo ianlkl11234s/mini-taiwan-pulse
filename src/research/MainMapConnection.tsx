@@ -1,3 +1,8 @@
+import { createPortal } from "react-dom";
+import { ResearchActivity } from "./ResearchActivityCard";
+import { activityForOperation, type Activity } from "./researchActivity";
+import { researchFocusLayerIds, FOCUS_SOURCE, cancelResearchMotion, clearResearchFocus, moveResearchCamera, showResearchFocus } from "./researchMotion";
+import { researchPlaces, type ResearchPlace } from "./researchPlaces";
 import { useCallback, useEffect, useRef, useState } from "react";
 import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
@@ -24,6 +29,10 @@ function isAnalysisQueryOperation(operation: BrowserQuery["operation"]): operati
 /** Thin adapter: the original map handlers remain the only visibility writer. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
+  const [activity, setActivity] = useState<Activity | null>(null);
+  const [following, setFollowing] = useState(true);
+  const followingRef = useRef(true);
+  const [places, setPlaces] = useState<ResearchPlace[]>([]);
   const [nearby, setNearby] = useState<NearbyResult | null>(null);
   const [radius, setRadius] = useState(1000);
   const [opacity, setOpacity] = useState(0.9);
@@ -51,7 +60,7 @@ export function MainMapConnection(props: Props) {
   const generation = useRef(0);
   const capture = (): Scene => {
     const camera = latest.current.bridge.getCamera();
-    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), nearby: previous.current?.nearby ?? null, results: previous.current?.results ?? null };
+    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), nearby: previous.current?.nearby ?? null, results: previous.current?.results ?? null, focus: previous.current?.focus ?? null };
   };
   const render = useCallback(async (scene: Scene, revision: number): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
@@ -63,47 +72,62 @@ export function MainMapConnection(props: Props) {
     if (scene.nearby && !nextResult) throw new Error("QUERY_RESULT_UNAVAILABLE");
     const analysisResults = scene.results ? analysisSession.current.presentable(scene.results.resultIds) : [];
     if (nextResult && locked.has(nextResult.layerKey)) throw new Error("LAYER_DENIED");
+    const focusChanged = JSON.stringify(scene.focus ?? null) !== JSON.stringify(previous.current?.focus ?? null);
+    const cameraChanged = JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
+    const focus = scene.focus ? researchPlaces(analysisResults, Number.MAX_SAFE_INTEGER).find(place => place.resultId === scene.focus!.resultId && place.recordId === scene.focus!.recordId) : undefined;
+    if (scene.focus && !focus) throw new Error("FOCUS_RECORD_UNAVAILABLE");
     const run = ++generation.current;
+    let movement: Promise<boolean> = Promise.resolve(true);
+    setActivity({ phase: "presenting", title: focus ? `帶你看${focus.label}` : "正在把結果放到地圖上", detail: focus?.detail });
     applying.current = true;
     try {
       applyMainMapLayers(scene.layers ?? {}, new Set(Object.keys(labels)), locked, bridge);
-      if (JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera)) map.jumpTo({ center: scene.camera.center, zoom: scene.camera.zoom });
+      if ((cameraChanged || (focusChanged && focus)) && followingRef.current) {
+        movement = moveResearchCamera(map, focusChanged && focus ? { center: focus.center, zoom: Math.max(13.5, Math.min(15, map.getZoom())) } : scene.camera);
+      } else if (cameraChanged || (focusChanged && focus)) movement = Promise.resolve(false);
+      if (focusChanged || (focus && !map.getSource(FOCUS_SOURCE))) { if (focus) { if (!showResearchFocus(map, focus.center, focus.radiusM)) throw new Error("FOCUS_NOT_READY"); } else clearResearchFocus(map); }
       if (nextResult?.queryId !== presented.current?.queryId) popup.current?.remove();
       if (nextResult) installNearbyOverlay(map, nextResult, opacityRef.current);
       else removeNearbyOverlay(map);
       if (analysisResults.length) installAnalysisResults(map, analysisResults, analysisOpacityRef.current);
       else removeAnalysisResults(map);
       presented.current = nextResult ?? null; setNearby(nextResult ?? null);
+      setPlaces(researchPlaces(analysisResults));
       setPresentedAnalysis(analysisResults.map(result => ({ resultId: result.resultId, datasetId: result.datasetId, pointCount: result.rows.length, presentation: result.presentation })));
       if (nextResult || analysisResults.length) setOpen(true);
       previous.current = scene;
     } finally { applying.current = false; }
+    const cameraReady = await movement;
     // This receipt confirms switch state only. Loading/coverage remains the map's own UI.
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     if (run !== generation.current) return "error";
     const visible = new Set(bridge.getVisibleLayerKeys());
-    let matches = Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    let matches = cameraReady && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     if (nextResult) {
       const started = Date.now();
       while (run === generation.current && !map.isSourceLoaded(NEARBY_SOURCE) && Date.now() - started < 8_000) await new Promise(resolve => setTimeout(resolve, 50));
       matches = matches && run === generation.current && map.isSourceLoaded(NEARBY_SOURCE);
     }
-    for (const sourceId of analysisResultSourceIds(analysisResults.length)) {
+    for (const sourceId of [...analysisResultSourceIds(analysisResults.length), ...(scene.focus ? [FOCUS_SOURCE] : [])]) {
       const started = Date.now();
       while (run === generation.current && !map.isSourceLoaded(sourceId) && Date.now() - started < 8_000) await new Promise(resolve => setTimeout(resolve, 50));
       matches = matches && run === generation.current && map.isSourceLoaded(sourceId);
     }
+    matches = matches && analysisResultLayerIds(analysisResults.length).every(id => Boolean(map.getLayer(id)));
+    if (scene.focus) matches = matches && researchFocusLayerIds.every(id => Boolean(map.getLayer(id)));
     const analysisMessage = analysisResults.length ? `${analysisResults.length} 組分析結果／${analysisResults.reduce((sum, result) => sum + result.rows.length, 0)} 筆空間紀錄已呈現。` : null;
     setMessage(matches ? nextResult ? `r${revision} 附近查詢結果已呈現。${analysisMessage ? `另有 ${analysisMessage}` : ""}` : analysisMessage ? `r${revision} ${analysisMessage}` : `r${revision} 圖層開關已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
+    setActivity({ phase: matches ? "ready" : "error", title: matches ? focus ? focus.label : analysisResults.length || nextResult ? "結果已準備好，可以在地圖上查看" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : focus?.detail ?? (analysisResults.length ? `${analysisResults.reduce((sum, result) => sum + result.rows.length, 0)} 個候選位置；點選下方地點查看周邊。` : undefined) });
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
     controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; resultCache.current.clear();
     // In-flight queries retain this old instance; rotating prevents their late store writes from entering the new session.
     analysisSession.current = new ResearchAnalysisSession(() => latest.current.locked);
-    popup.current?.remove(); presented.current = null; setNearby(null); setPresentedAnalysis([]);
+    popup.current?.remove(); presented.current = null; setNearby(null); setPresentedAnalysis([]); setPlaces([]); setActivity(null);
+    if (latest.current.map) { cancelResearchMotion(latest.current.map); clearResearchFocus(latest.current.map); }
     if (latest.current.map) { removeNearbyOverlay(latest.current.map); removeAnalysisResults(latest.current.map); }
-    controller.current = context ? new StudyController(context, render, () => setMessage("操作未完成，連線已暫停。請確認圖層權限或重新配對。")) : null;
+    controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
       const epoch = connectionEpoch.current;
       const current = latest.current;
@@ -146,11 +170,26 @@ export function MainMapConnection(props: Props) {
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
       if (request.operation === "nearby") { result.queryId = request.requestId; remember(result as unknown as NearbyResult); }
       return result;
-    }, () => setMessage("讀取服務暫時無法同步，請檢查連線。")) : null;
+    }, () => { setMessage("讀取服務暫時無法同步，請檢查連線。"); setActivity({ phase: "error", title: "連線暫時中斷", detail: "已取得的結果會保留，請確認連線後繼續。" }); }, event => {
+      const next = activityForOperation(event.request.operation, event.request.args);
+      if (!next) return;
+      if (event.phase === "started") { setActivity(next); return; }
+      if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: "資料可能暫時無法讀取；這不代表沒有符合的結果。" }); return; }
+      const data = event.result.data;
+      const count = typeof data.totalRows === "number" ? data.totalRows : typeof data.totalMatched === "number" ? data.totalMatched : null;
+      setActivity({ phase: "complete", title: "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可接著整理與比較。" : `取得 ${count} 筆紀錄，等待 Agent 選擇下一步。` });
+    }) : null;
     responder.current?.start();
   }, [render]);
   const disconnect = useCallback(() => connect(null), [connect]);
-  const receive = useCallback((state: StudyState) => controller.current?.receive(state), []);
+  const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "研究已暫停", detail: "目前的地圖與結果會保留。" }); controller.current?.receive(state); }, []);
+  const changeFollowing = (value: boolean) => {
+    followingRef.current = value; setFollowing(value);
+    if (!value && latest.current.map) {
+      ++generation.current; cancelResearchMotion(latest.current.map);
+      const scene = capture(); previous.current = scene; controller.current?.manual(scene);
+    }
+  };
   useEffect(() => {
     const manual = () => {
       if (applying.current) return;
@@ -161,19 +200,29 @@ export function MainMapConnection(props: Props) {
     };
     const unsubscribe = layerVisibilityStore.subscribe(manual);
     const map = props.map;
+    const started = (event: { originalEvent?: unknown }) => {
+      if (!event.originalEvent) return;
+      followingRef.current = false; setFollowing(false); ++generation.current;
+      controller.current?.beginManual();
+      if (map) { cancelResearchMotion(map); clearResearchFocus(map); }
+      if (previous.current) previous.current = { ...previous.current, focus: null };
+      setActivity(current => current ? { ...current, phase: current.phase === "presenting" ? "complete" : current.phase, detail: "你正在查看地圖，Agent 已暫停自動帶鏡頭。" } : null);
+    };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
-    map?.on("moveend", moved);
-    return () => { unsubscribe(); map?.off("moveend", moved); };
+    map?.on("movestart", started); map?.on("moveend", moved);
+    return () => { unsubscribe(); map?.off("movestart", started); map?.off("moveend", moved); if (map) { cancelResearchMotion(map); clearResearchFocus(map); } };
   }, [props.map]);
   useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); popup.current?.remove(); ++generation.current; ++connectionEpoch.current; }, []);
   const remember = (result: NearbyResult) => {
     resultCache.current.set(result.queryId, result);
     if (resultCache.current.size > 4) resultCache.current.delete(resultCache.current.keys().next().value!);
   };
-  const selectRow = (row: NearbyRow) => {
+  const selectRow = async (row: NearbyRow) => {
     const map = latest.current.map; if (!map) return;
-    map.jumpTo({ center: row.coordinates, zoom: Math.max(14, map.getZoom()) });
-    ++generation.current;
+    changeFollowing(false);
+    const run = ++generation.current;
+    const arrived = await moveResearchCamera(map, { center: row.coordinates, zoom: Math.max(14, map.getZoom()) });
+    if (!arrived || run !== generation.current) return;
     const scene = capture(); previous.current = scene; controller.current?.manual(scene);
     popup.current?.remove();
     const content = document.createElement("div"); content.style.color = "#172421";
@@ -188,8 +237,22 @@ export function MainMapConnection(props: Props) {
       if (!map.isStyleLoaded()) return;
       if (nearby) installNearbyOverlay(map, nearby, opacityRef.current);
       const resultIds = previous.current?.results?.resultIds;
-      if (resultIds?.length && resultIds.every(id => analysisSession.current.hasResult(id))) installAnalysisResults(map, analysisSession.current.presentable(resultIds), analysisOpacityRef.current);
-      else removeAnalysisResults(map);
+      try {
+        const results = resultIds?.length && resultIds.every(id => analysisSession.current.hasResult(id)) ? analysisSession.current.presentable(resultIds) : [];
+        if (results.length) installAnalysisResults(map, results, analysisOpacityRef.current);
+        else removeAnalysisResults(map);
+        const focus = previous.current?.focus;
+        const place = focus ? researchPlaces(results, Number.MAX_SAFE_INTEGER).find(item => item.resultId === focus.resultId && item.recordId === focus.recordId) : undefined;
+        if (place) { if (!showResearchFocus(map, place.center, place.radiusM)) throw new Error("FOCUS_NOT_READY"); }
+        else {
+          clearResearchFocus(map);
+          if (focus && previous.current) { const scene = { ...capture(), focus: null }; previous.current = scene; controller.current?.manual(scene); }
+        }
+      } catch {
+        removeAnalysisResults(map); clearResearchFocus(map); setPlaces([]); setPresentedAnalysis([]);
+        const scene = { ...capture(), results: null, focus: null }; previous.current = scene; controller.current?.manual(scene);
+        setActivity({ phase: "error", title: "結果需要重新取得", detail: "資料已過期、權限改變，或地圖尚未準備完成。" });
+      }
     };
     const click = (event: mapboxgl.MapMouseEvent) => {
       if (picking.current) {
@@ -217,22 +280,23 @@ export function MainMapConnection(props: Props) {
     if (queryBusy.current || !props.map?.isStyleLoaded()) return;
     queryBusy.current = true;
     const queryGeneration = ++generation.current;
-    setQuerying(true); setMessage("正在查詢附近學校…");
+    setQuerying(true); setMessage("正在查詢附近學校…"); setActivity({ phase: "working", title: "正在查看附近的學校", detail: `以直線 ${radius} 公尺為範圍。` });
     const camera = props.bridge.getCamera(); const point = useSelection ? picked.current ?? props.selection : [camera.lng, camera.lat];
-    if (!point) { queryBusy.current = false; setQuerying(false); setMessage("請先在原地圖點選一個位置。"); return; }
+    if (!point) { queryBusy.current = false; setQuerying(false); setMessage("請先在原地圖點選一個位置。"); setActivity(null); return; }
     try {
       const result = await queryNearby("schools", { lng: point[0]!, lat: point[1]! }, radius, 50, { locked: props.locked, visible: new Set(props.bridge.getVisibleLayerKeys()) });
       if (queryGeneration !== generation.current) return;
       remember(result); presented.current = result; setNearby(result); popup.current?.remove();
       installNearbyOverlay(props.map, result, opacityRef.current);
       const scene = { ...capture(), nearby: { queryId: result.queryId } }; previous.current = scene; controller.current?.manual(scene);
-      setMessage(`查詢完成：${result.totalMatched} 筆符合，顯示 ${result.returned} 筆。`);
-    } catch { if (queryGeneration === generation.current) setMessage("查詢未完成：請確認學校資料可讀取、半徑與圖層權限。此狀態不是零筆結果。"); }
-    finally { queryBusy.current = false; setQuerying(false); }
+      setMessage(`查詢完成：${result.totalMatched} 筆符合，顯示 ${result.returned} 筆。`); setActivity({ phase: "ready", title: "附近資料已準備好", detail: `找到 ${result.totalMatched} 筆學校紀錄；範圍圈採直線距離。` });
+    } catch { if (queryGeneration === generation.current) { setMessage("查詢未完成：請確認學校資料可讀取、半徑與圖層權限。此狀態不是零筆結果。"); setActivity({ phase: "error", title: "附近資料暫時無法讀取", detail: "請確認來源與範圍後再試；這不代表零筆。" }); } }
+    finally { queryBusy.current = false; setQuerying(false); if (queryGeneration !== generation.current) setActivity(current => current?.title === "正在查看附近的學校" ? { phase: "complete", title: "已保留你目前的視角", detail: "這次查詢沒有更新地圖，可從目前位置重新查看。" } : current); }
   };
   const clear = () => {
     ++generation.current; presented.current = null; setNearby(null); popup.current?.remove();
-    if (props.map) removeNearbyOverlay(props.map);
+    if (props.map) { cancelResearchMotion(props.map); removeNearbyOverlay(props.map); }
+    setActivity(null); setMessage("已清除附近結果，可以從目前位置重新查詢。");
     const scene = { ...capture(), nearby: null }; previous.current = scene; controller.current?.manual(scene);
   };
 
@@ -258,9 +322,10 @@ export function MainMapConnection(props: Props) {
   };
   const clearAnalysis = () => {
     ++generation.current; popup.current?.remove();
-    if (props.map) removeAnalysisResults(props.map);
-    setPresentedAnalysis([]);
-    const scene = { ...capture(), results: null }; previous.current = scene; controller.current?.manual(scene);
+    if (props.map) { cancelResearchMotion(props.map); removeAnalysisResults(props.map); }
+    setPresentedAnalysis([]); setPlaces([]); setActivity(null); setMessage("已清除分析呈現，資料可重新查詢。");
+    if (props.map) clearResearchFocus(props.map);
+    const scene = { ...capture(), results: null, focus: null }; previous.current = scene; controller.current?.manual(scene);
   };
 
   useEffect(() => {
@@ -273,8 +338,25 @@ export function MainMapConnection(props: Props) {
     return () => clearInterval(timer);
   }, [presentedAnalysis, props.map]);
 
+  const selectPlace = async (place: ResearchPlace) => {
+    const map = latest.current.map; if (!map) return;
+    // A user choice is always allowed, even while automatic following is off.
+    changeFollowing(false);
+    const run = ++generation.current;
+    try {
+      const current = researchPlaces(analysisSession.current.presentable([place.resultId]), Number.MAX_SAFE_INTEGER).find(item => item.recordId === place.recordId);
+      if (!current) return;
+      showResearchFocus(map, current.center, current.radiusM);
+      setActivity({ phase: "presenting", title: `帶你看${current.label}`, detail: current.detail });
+      const arrived = await moveResearchCamera(map, { center: current.center, zoom: Math.max(13.5, Math.min(15, map.getZoom())) });
+      if (run !== generation.current) return;
+      const scene = { ...capture(), focus: { resultId: place.resultId, recordId: place.recordId } }; previous.current = scene; controller.current?.manual(scene);
+      setActivity({ phase: arrived ? "ready" : "complete", title: current.label, detail: current.detail });
+    } catch { setActivity({ phase: "error", title: "這筆結果已無法查看", detail: "請重新取得資料後再選擇。" }); }
+  };
   const panelOpen = props.embedded || open;
   return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
+    {props.map && createPortal(<div className="research-activity-position"><ResearchActivity activity={activity} following={following} onFollowingChange={changeFollowing} places={places.map(place => ({ id: `${place.resultId}:${place.recordId}`, label: place.label, detail: place.detail, onSelect: () => void selectPlace(place) }))} /></div>, props.map.getContainer())}
     {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" hidden={!panelOpen}>
       {!props.embedded && <h2>連接這張地圖</h2>}

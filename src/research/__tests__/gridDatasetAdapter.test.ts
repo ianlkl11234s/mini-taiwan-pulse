@@ -43,7 +43,7 @@ async function roundTrip(body: string) {
   expect(query.sourceRefs).toHaveLength(2);
   expect(session.execute("get_analysis_result", { resultId })).toHaveProperty("lineage.gridDefinition.cell_size_m",150);
   const sources = new Map(), layers = new Map();
-  const map = { getSource: (id: string) => sources.get(id), addSource: (id: string, data: unknown) => sources.set(id, data), getLayer: (id: string) => layers.get(id), addLayer: (layer: { id: string }) => layers.set(layer.id, layer), removeLayer: (id: string) => layers.delete(id), removeSource: (id: string) => sources.delete(id), setPaintProperty: vi.fn() };
+  const map = { getSource: (id: string) => sources.get(id), addSource: (id: string, data: unknown) => sources.set(id, data), getLayer: (id: string) => layers.get(id), addLayer: (layer: { id: string }) => layers.set(layer.id, layer), removeLayer: (id: string) => layers.delete(id), removeSource: (id: string) => sources.delete(id), setPaintProperty: vi.fn(), on: vi.fn(), off: vi.fn() };
   installAnalysisResults(map as unknown as MapboxMap, polygon);
   expect([...layers.values()][0].type).toBe("fill");
   expect([...sources.values()][0].data.features.length).toBe(polygon[0]!.rows.length);
