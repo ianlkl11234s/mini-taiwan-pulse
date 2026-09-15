@@ -2,7 +2,7 @@
 
 > 本檔是 mini-taiwan-pulse 的 Git 工作流完整版（branch 命名 / PR 流程 / hotfix 判準），從 `CLAUDE.md` 拆出。CLAUDE.md 只留指標與「跨 repo 同步順序」。
 
-單人開發，採 GitHub Flow：`master` = 生產、`feat/*` 分支 → PR → squash 進 master。
+單人開發，採 GitHub Flow：`master` = 生產、`feat/*` 分支 → PR → 一般 merge commit 進 master。
 
 ## Branch 命名
 
@@ -24,10 +24,12 @@
 3. 若動到跨 repo 資料契約 → **先開 upstream handoff**：`taipei-gis-analytics/docs/handoff/<slug>.md`
 4. 完成 → `npx tsc -b` + `npm test` 全綠
 5. `gh pr create` — PR 描述用 `.github/pull_request_template.md`（自動帶入）
-6. Squash merge 進 master
-7. 更新 `docs/features/<slug>/changelog.md` 記錄 PR # + squash hash
+6. 一般 merge commit 進 master，保留每筆 commit；不使用 squash 或 rebase merge
+7. 更新 `docs/features/<slug>/changelog.md` 記錄 PR # + merge commit hash
 
 ## 何時開 hotfix、何時走正常 feature flow
 
-- **hotfix**：線上炸了、用戶感知（例如 Supabase 打掛、layer 全消失） → `hotfix/<slug>` → 快速 PR + squash
+- **hotfix**：線上炸了、用戶感知（例如 Supabase 打掛、layer 全消失） → `hotfix/<slug>` → 快速 PR + 一般 merge commit
 - **正常**：其他一律走 `feat/fix/perf/docs`
+
+未經使用者明確要求，不改寫既有提交歷史。

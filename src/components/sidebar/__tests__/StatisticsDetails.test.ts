@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDimensionSummary, statisticsSelectedTupleAreaLabel, statisticsValueLabel } from '../StatisticsDetails';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
+import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
   it('renders the selected period and fund as a compact disclosure label', () => {
@@ -62,6 +63,57 @@ describe('statisticsDimensionSummary', () => {
     expect(statisticsSelectedTupleAreaLabel(STATISTICS_RECIPES.statsLivestockHeadCountTownship)).toBe('鄉鎮統計值');
     expect(statisticsCoverageStatusLabel(false)).toBe('覆蓋狀態');
     expect(statisticsCoverageAreaLabel(STATISTICS_RECIPES.statsBusElectricVehicleCount)).toBe('縣市');
+  });
+
+  it('renders exactly breaks plus one numeric legend intervals, matching the map step expression', () => {
+    const rows = statisticsLegendRows(STATISTICS_RECIPES.statsEducationCountyInstitutionCount);
+    expect(rows).toEqual([
+      { color: '#eff6ff', label: '低於 10' },
+      { color: '#bfdbfe', label: '10 至未滿 50' },
+      { color: '#60a5fa', label: '50 至未滿 150' },
+      { color: '#2563eb', label: '150 至未滿 500' },
+      { color: '#1e3a8a', label: '500 以上' },
+    ]);
+    expect(rows).toHaveLength(STATISTICS_RECIPES.statsEducationCountyInstitutionCount.breaks.length + 1);
+  });
+
+  it('removes duplicate-threshold legend intervals with the same final reachable colours as the map', () => {
+    expect(statisticsLegendRows(STATISTICS_RECIPES.statsHealthHospiceBedTotal)).toEqual([
+      { color: '#eff6ff', label: '低於 0' },
+      { color: '#60a5fa', label: '0 至未滿 2' },
+      { color: '#2563eb', label: '2 至未滿 12' },
+      { color: '#1e3a8a', label: '12 以上' },
+    ]);
+    expect(statisticsLegendRows(STATISTICS_RECIPES.statsHealthNursingStaffListedAgeSexSum)).toEqual([
+      { color: '#eff6ff', label: '低於 378' },
+      { color: '#1e3a8a', label: '378 以上' },
+    ]);
+  });
+
+  it('does not alert a county housing recipe about the same indicator’s township release, but retains same-level mismatches', () => {
+    const key = 'statsHousingTotalCounty';
+    const recipe = getSocialRecipe(key)!;
+    const option = recipe.release_options[0]!;
+    const release = {
+      release_id: option.release_id,
+      dataset_id: recipe.dataset_id,
+      indicator_id: recipe.indicator_id,
+      boundary_version: recipe.boundary_version,
+      period_start: option.period_start,
+      period_end: option.period_end,
+      levels: ['county'] as Array<'county'>,
+    };
+    const townshipSibling = { ...release, release_id: 'township-sibling', levels: ['township'] as Array<'township'> };
+    const unknownCounty = { ...release, release_id: 'unknown-county' };
+    expect(unparseableStatisticsReleaseCount(key, [release, townshipSibling])).toBe(0);
+    expect(unparseableStatisticsReleaseCount(key, [release, townshipSibling, unknownCounty])).toBe(1);
+  });
+
+  it('formats social legend labels from recipe format while marking rounded boundaries approximate', () => {
+    const social = getSocialRecipe('statsHousingUnusedPctCounty')!;
+    expect(statisticsLegendRows(STATISTICS_RECIPES.statsHousingUnusedPctCounty, social.format).map(row => row.label)).toEqual([
+      '低於 ≈12.4', '≈12.4 至未滿 ≈13.26', '≈13.26 至未滿 ≈13.93', '≈13.93 至未滿 ≈16.64', '≈16.64 以上',
+    ]);
   });
 
 });

@@ -1,0 +1,74 @@
+- region "Map"
+- button "Toggle attribution"
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- generic: MTP
+- button "資訊":
+- button "分享目前畫面 / 取得嵌入碼":
+- button "截圖":
+- button "AI 助手":
+- button "3D"
+- button "會員專區":
+- button "使用 Google 登入":
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 15:00
+- slider: "0.6255"
+- generic: 00:00
+- generic: 23:59
+- button "展開圖層與搜尋" [active]:
+  - generic: 圖層與搜尋
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 學生或幼生數
+- generic: 數值
+- generic: 55,677 人
+- generic: 資料期別
+- generic: 2022-08-01 — 2023-07-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 處理版本
+- generic: education-county-statistics-v2
+- generic: 原始 SHA-256
+- generic: 516e12889a0396c7634d7f9cd91cf7f9e58c0bf80bbe29a5126650204c291f57
+- generic: 來源
+- generic: 教育部統計處
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 學生或幼生數
+- generic: 2022-08-01 — 2023-07-31 · 人
+- generic: 資料可用狀態：STALE
+- generic: 低於 1000
+- generic: 1000 至未滿 10000
+- generic: 10000 至未滿 50000
+- generic: 50000 至未滿 150000
+- generic: 150000 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

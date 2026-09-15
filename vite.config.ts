@@ -225,6 +225,13 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
+        '/__social-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__social-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.
