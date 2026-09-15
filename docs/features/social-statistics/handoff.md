@@ -34,3 +34,12 @@
 - `3d393b7f`：完整UI/registry/map/loader接線、DEV增量路由及整合測試。
 - 本文件與驗收證據另作docs commit。提交前再驗證 `npx tsc -b` 與24項focused tests，全數通過。
 - evidence中的publication欄位描述原browser驗收當時狀態，保留歷史紀錄。
+
+## 正式發布準備（2026-09-15）
+
+- 後續已授權正式發布；依新規則所有 PR 使用一般 merge commit。
+- 已合併當時 origin/master 的 8 筆提交，保留平行新增 18 日本圖層；539 keys 的 golden/consistency 通過。
+- 整合後 tsc、build 通過；1364 tests passed、4 skipped。
+- 416 selectors 搭配正式既有 reference geometry 經實際 loader 重新驗證：[release geometry evidence](./evidence/release-geometry-loader-selectors.json)。這仍是本地 hash-validating fetch fixture，未冒充 production browser。
+- 上游 414 bundles 的 health/coverage publication adapter、平台 nursing sidecar adapter 已完成本地測試與提交。原始 source bytes/數值不變。
+- GitHub push 遭自動核准審查要求具體目的地授權而拒絕；已詢問使用者。當前 production import / R2 upload / PR merge / deployment 皆未執行。
