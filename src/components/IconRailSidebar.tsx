@@ -31,6 +31,8 @@ import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_T
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -1171,8 +1173,32 @@ function LayersPanel({
               {!isCollapsed && groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label, expandable }) => {
-                    const active = visibility[key];
+                    {group.layers.map(({ key, label, expandable }) => {
+                      const medicalGroup = getMedicalStatisticsGroup(key);
+                      if (medicalGroup) {
+                        if (medicalGroup.options[0].key !== key) return null;
+                        return (
+                          <MedicalStatisticsGroupControls
+                            key={medicalGroup.key}
+                            groupKey={key}
+                            visibility={visibility}
+                            expandedLayer={expandedLayer}
+                            onLayerClick={onLayerClick}
+                            textColor={TEXT_STRONG}
+                            dimColor={DIM}
+                            renderControls={(selectedKey) => (
+                              <ExpandedControls
+                                layerKey={selectedKey as ExpandableLayerKey}
+                                isTransport={false}
+                                displayMode={displayMode}
+                                onDisplayModeChange={onDisplayModeChange}
+                                onHide={onHideTransport}
+                              />
+                            )}
+                          />
+                        );
+                      }
+                      const active = visibility[key];
                     const isExpanded = expandedLayer === key;
                     const isTransport = key in TRANSPORT_LABELS;
                     return (

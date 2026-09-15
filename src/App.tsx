@@ -1311,6 +1311,8 @@ export default function App() {
 
   const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
     if (handleGatedIntercept(layer)) return;
+    // Switching statistical indicators must not retain a popup for the old indicator.
+    if (isStatisticsChoropleth(layer)) setFeatureInfo(null);
     const isVisible = layerVisibilityRef.current[layer];
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
@@ -1325,7 +1327,7 @@ export default function App() {
     // 點 layer 時自動關掉即時情報 / 衛星情報 panel（與點 location 一致）
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept]);
+  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept, setFeatureInfo]);
 
   const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）

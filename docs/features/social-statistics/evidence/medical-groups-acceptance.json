@@ -1,0 +1,37 @@
+{
+  "date": "2026-09-15",
+  "scope": "hospital statistics presentation grouping",
+  "environment": "http://127.0.0.1:3760",
+  "browser": "real CUA browser",
+  "desktop": [
+    "grouped catalog",
+    "2024 total beds to ICU retains 2024, STALE, PARTIAL162/368",
+    "ICU popup Zhongshan district Taipei 100 beds, 2024",
+    "switch to workforce clears prior popup",
+    "2025 western physician CURRENT159/368",
+    "Statistics All Off retains jpAccommodationCanonical"
+  ],
+  "mobile": {
+    "viewport": [
+      390,
+      844
+    ],
+    "checks": [
+      "western physician to registered nurse",
+      "2025 CURRENT PARTIAL159/368",
+      "group off retains jpAccommodationCanonical",
+      "group on restores registered nurse"
+    ]
+  },
+  "tests": {
+    "passed": 1371,
+    "skipped": 4,
+    "build": "passed",
+    "warning": "existing large chunks"
+  },
+  "limitations": [
+    "No new normalized metrics implemented",
+    "No new data publication needed",
+    "Production pending"
+  ]
+}
