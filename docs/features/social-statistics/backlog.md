@@ -7,7 +7,7 @@
 - [x] 手機390×844三主題、篩選、來源揭露、透明度與無水平溢出
 - [x] 0、missing/-、1/22與20/22 PARTIAL、STALE、歷史普查日期
 - [x] 新舊層共存、single/overlap、All Off
-- [ ] 正式完整snapshot合併與hash讀回：須另行授權
+- [x] 正式完整snapshot合併與hash讀回：舊3174與新增416全部保留
 - [x] 本地原子commit：後續已授權完成
-- [ ] push/merge、production匯入/CDN上傳/部署：未授權
+- [x] push/一般merge commit、production匯入/CDN上傳/部署及正式browser驗收
 - [ ] 28延伸候選：另輪規劃

@@ -1,4 +1,4 @@
-# 教育、醫療長照、住宅 Statistics 本地接線
+# 教育、醫療長照、住宅 Statistics 接線與正式發布
 
 本輪範圍為教育11層 → 醫療長照16層 → 住宅18層，共45 enabled recipes、416 exact selectors。28延伸候選不在範圍。
 
@@ -35,4 +35,4 @@ npm run build
 
 保留數值0、null與原始缺值符號、資料期別、單位、固定legend、STALE與PARTIAL。醫院未列鄉鎮不是0；照服為登錄數，非去重人數；住宅109年普查「無人經常居住」不能改稱空屋率。1140318參考邊界不等於歷史原生界線。
 
-驗收結果與 browser 證據見 [handoff](./handoff.md)。已依後續授權完成本地原子提交；未push、merge、CDN上傳、production匯入、部署或啟用排程。
+驗收結果與 browser 證據見 [handoff](./handoff.md)。已依後續授權完成正式發布，詳見 [發布驗收](./production-release.md)。
