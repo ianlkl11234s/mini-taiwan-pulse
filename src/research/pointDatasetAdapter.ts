@@ -67,6 +67,7 @@ function safeValue(value: unknown): string | number | boolean | null | undefined
 }
 
 function parse(config: PointDatasetConfig, bytes: Uint8Array, checksumSha256: string): PointDatasetSnapshot {
+  if (new TextDecoder().decode(bytes.slice(0, 100)).trimStart().startsWith("<")) throw new Error("DATASET_ASSET_MISSING");
   let raw: unknown;
   try { raw = JSON.parse(new TextDecoder().decode(bytes)); } catch { throw new Error("INVALID_DATASET"); }
   if (!raw || typeof raw !== "object" || Array.isArray(raw) || (raw as { type?: unknown }).type !== "FeatureCollection") throw new Error("INVALID_DATASET");
@@ -87,8 +88,7 @@ function parse(config: PointDatasetConfig, bytes: Uint8Array, checksumSha256: st
       const value = safeValue(source[field]);
       if (value !== undefined) row[field] = value;
     }
-    const sourceId = safeValue(source[config.idField]);
-    row.record_id = typeof sourceId === "string" || typeof sourceId === "number" ? String(sourceId) : `${checksumSha256.slice(0, 16)}-${index}`;
+    row.record_id = `${checksumSha256}-${index}`;
     rows.push(row);
   }
   return { rows, checksumSha256, acquiredAt: new Date().toISOString(), bytes: bytes.byteLength, cacheHit: false, exclusions };
@@ -104,7 +104,9 @@ export async function loadPointDataset(config: PointDatasetConfig): Promise<Poin
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
       const response = await fetch(config.url, { signal: controller.signal, credentials: "same-origin", redirect: "error" });
+      if (response.status === 404) throw new Error("DATASET_ASSET_MISSING");
       if (!response.ok) throw new Error("DATASET_UNAVAILABLE");
+      if (response.headers.get("content-type")?.includes("text/html")) throw new Error("DATASET_ASSET_MISSING");
       const bytes = await boundedBytes(response);
       const snapshot = parse(config, bytes, await sha256(bytes));
       cache.set(config.datasetId, snapshot);

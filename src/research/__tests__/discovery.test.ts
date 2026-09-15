@@ -6,7 +6,7 @@ describe("research discovery", () => {
     const context = { locked: new Set(["schools"]), visible: new Set<string>() };
     const result = discoverLayers("學校", 0, 20, context);
     expect(result.layers.some(layer => layer.key === "schools" && layer.locked && layer.dataReadSupport === "supported")).toBe(true);
-    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("unsupported");
+    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("supported");
   });
   it("returns local camera candidates without claiming a geocoder result", () => {
     const result = findPlaces("台北");

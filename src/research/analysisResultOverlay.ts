@@ -41,11 +41,12 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     } else if (!map.getLayer(layerId(index))) map.addLayer({
       id: layerId(index), type: "circle", source: sourceId(index),
       paint: {
-        "circle-color": result.datasetId === "tw-schools" ? schoolLevelColorExpr(COLORS[index]!) as never : COLORS[index]!,
+        "circle-color": result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : result.datasetId === "tw-schools" ? schoolLevelColorExpr(COLORS[index]!) as never : COLORS[index]!,
         "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9],
         "circle-opacity": 0.86, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1,
       },
     });
+    if (!polygon) map.setPaintProperty(layerId(index), "circle-color", result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : result.datasetId === "tw-schools" ? schoolLevelColorExpr(COLORS[index]!) as never : COLORS[index]!);
     map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : "circle-opacity", opacity);
   });
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);

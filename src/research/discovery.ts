@@ -1,3 +1,5 @@
+import { datasetIdsForLayer } from "./dataExploration";
+import { searchScore } from "./researchSearch";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
 import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
 import { ALL_PRESETS } from "../map/cameraPresets";
@@ -17,6 +19,7 @@ export interface LayerDiscovery {
   locked: boolean;
   visible: boolean;
   dataReadSupport: DataReadSupport;
+  datasetIds: string[];
 }
 
 export interface LayerDescription extends LayerDiscovery {
@@ -40,7 +43,7 @@ const DEFAULT_CONTEXT: DiscoveryContext = { locked: new Set(), visible: new Set(
 
 /** Deliberately small first pilot: it is an actual readable asset, not a claim about every visible layer. */
 export function dataReadSupport(layerKey: string): DataReadSupport {
-  return layerKey === "schools" ? "supported" : "unsupported";
+  return datasetIdsForLayer(layerKey).length ? "supported" : "unsupported";
 }
 
 function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscovery {
@@ -53,6 +56,7 @@ function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscover
     locked: context.locked.has(key),
     visible: context.visible.has(key),
     dataReadSupport: dataReadSupport(key),
+    datasetIds: datasetIdsForLayer(key),
   };
 }
 
@@ -70,11 +74,10 @@ export function discoverLayers(query: string, offset = 0, limit = 20, context: D
 } {
   const safeOffset = bounded(offset, 0, 0, 10_000);
   const safeLimit = bounded(limit, 20, 1, 20);
-  const terms = normalize(query).split(" ").filter(Boolean);
   const matched = LAYER_SEARCH_INDEX
-    .filter(item => terms.every(term => [item.key, item.label, item.description, item.topics.join(" "), item.aliases.join(" ")].some(value => normalize(value).includes(term))))
+    .filter(item => searchScore(query, `${item.key} ${item.label} ${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")}`) > 0)
     .map(item => asDiscovery(item.key, context))
-    .sort((a, b) => a.key.localeCompare(b.key));
+    .sort((a, b) => searchScore(query, `${b.key} ${b.label}`) - searchScore(query, `${a.key} ${a.label}`) || a.key.localeCompare(b.key));
   const layers = matched.slice(safeOffset, safeOffset + safeLimit);
   return { query, offset: safeOffset, limit: safeLimit, totalMatched: matched.length, returned: layers.length, truncated: safeOffset + layers.length < matched.length, layers };
 }

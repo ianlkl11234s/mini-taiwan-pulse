@@ -122,3 +122,19 @@ describe("shared research query executor", () => {
     await expect(suppressedAsZero.execute({ datasetId: "agri-crop-production", parameters: { releaseId: "release-2025" } })).rejects.toThrow("INVALID_STATISTICS_VALUE");
   });
 });
+
+it("evicts only least-recent dynamic readers while stored snapshots remain independent", async () => {
+  const adapterFor = (datasetId: string) => createPointDatasetAdapter(base({ datasetId }), async () => ({ rows: [{ id: "one" }], source: source(datasetId, "v1"), coverage: "fixture" }));
+  const executor = new QueryExecutor(Array.from({ length: 6 }, (_, i) => adapterFor(`fixed-${i}`)));
+  for (let i = 0; i < 8; i++) executor.register(adapterFor(`layer:source-${i}`));
+  const captured = await executor.executeDetailed({ datasetId: "layer:source-0" });
+  executor.describe("layer:source-0");
+  executor.register(adapterFor("layer:source-8"));
+  expect(executor.descriptors()).toHaveLength(14);
+  expect(executor.describe("fixed-0")).not.toBeNull();
+  expect(executor.describe("layer:source-0")).not.toBeNull();
+  expect(executor.describe("layer:source-1")).toBeNull();
+  expect(captured.materializedRows).toEqual([{ id: "one" }]);
+  executor.register(adapterFor("layer:source-1"));
+  await expect(executor.execute({ datasetId: "layer:source-1" })).resolves.toMatchObject({ totalMatched: 1 });
+});

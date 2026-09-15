@@ -1,11 +1,13 @@
+import { neighborhoodCount, type NeighborhoodCountResult } from "./neighborhoodAnalysis";
+import { assertDatasetAccess, assertLayerSourceAccess } from "./dataExploration";
 import { AnalysisOperations, type AnalysisResult, type StoredDataResult } from "./analysisOperations";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { queryRecordsDetailed } from "./researchDatasets";
-import { describeDataset } from "./researchDatasets";
+import { describeDataset, ensureDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
-export type AnalysisQueryOperation = "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
-export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry">;
+export type AnalysisQueryOperation = "compare_neighborhoods" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
+export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation">;
 
 function integer(value: unknown, fallback: number, min: number, max: number): number {
   const result = value === undefined ? fallback : value;
@@ -24,29 +26,33 @@ function page(result: StoredDataResult, offsetInput?: unknown, limitInput?: unkn
   const rows = result.rows.slice(offset, offset + limit);
   return {
     resultId: result.resultId, datasetId: result.datasetId, recordGrain: result.recordGrain, geometry: result.geometry,
-    sourceRefs: result.sourceRefs, lineage: result.lineage, coverage: result.coverage, freshness: result.freshness, units: result.units,
+    presentation: result.presentation, sourceRefs: result.sourceRefs, lineage: result.lineage, coverage: result.coverage, freshness: result.freshness, units: result.units,
     totalRows: result.rows.length, offset, limit, returned: rows.length, truncated: offset + rows.length < result.rows.length,
     nextOffset: offset + rows.length < result.rows.length ? offset + rows.length : null, rows,
     ...(isAnalysis(result) ? { operation: result.operation, inputResultIds: result.inputResultIds, method: result.method, summary: result.summary } : {}),
   };
 }
 
-function isAnalysis(result: StoredDataResult): result is AnalysisResult { return "operation" in result && "inputResultIds" in result; }
+function isAnalysis(result: StoredDataResult): result is AnalysisResult | NeighborhoodCountResult { return "operation" in result && "inputResultIds" in result; }
 
 /** One instance belongs to one paired browser component/study. */
 export class ResearchAnalysisSession {
   private readonly store = new BrowserMemoryResultStore<ResultReference>();
   private readonly operations = new AnalysisOperations(this.store);
+  constructor(private readonly locked: () => ReadonlySet<string> = () => new Set()) {}
   private readonly plans = new Map<string, { input: QueryRecordsInput; expiresAt: number }>();
 
   async queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
+    await ensureDataset(input.datasetId, this.locked());
+    assertDatasetAccess(input.datasetId, this.locked());
     const execution = await queryRecordsDetailed(input);
+    assertDatasetAccess(input.datasetId, this.locked());
     const stored: StoredDataResult = {
       resultId: execution.envelope.resultId, datasetId: execution.envelope.datasetId, rows: execution.materializedRows,
       recordGrain: execution.envelope.recordGrain, geometry: {
         type: execution.descriptor.geometry.type, role: execution.descriptor.geometry.role,
         spatialAnalysisEligible: execution.descriptor.geometry.spatialAnalysisEligible,
-      }, lineage: execution.envelope.lineage, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
+      }, lineage: { ...execution.envelope.lineage, queryScope: { datasetId: input.datasetId, filters: input.filters ?? [], time: input.time ?? null, totalMatched: execution.envelope.totalMatched } }, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
       units: execution.envelope.units, excludedByReason: execution.envelope.excludedByReason,
     };
     this.store.put(stored);
@@ -54,6 +60,8 @@ export class ResearchAnalysisSession {
   }
 
   async planDataAccess(input: QueryRecordsInput): Promise<Record<string, unknown>> {
+    await ensureDataset(input.datasetId, this.locked());
+    assertDatasetAccess(input.datasetId, this.locked());
     const descriptor = describeDataset(input.datasetId);
     const encoded = new TextEncoder().encode(stable({ input, versions: descriptor.versions, adapterId: descriptor.adapterId }));
     const digest = await crypto.subtle.digest("SHA-256", encoded);
@@ -80,6 +88,23 @@ export class ResearchAnalysisSession {
   }
 
   execute(operation: AnalysisQueryOperation, args: Record<string, unknown>): Record<string, unknown> {
+    // Access can change after a query; recheck the result lineage before reuse or presentation.
+    for (const [key, value] of Object.entries(args)) {
+      if (key.endsWith("ResultId") || key === "resultId") this.assertResultAccess(id(value));
+      if (key.endsWith("ResultIds") || key === "resultIds") if (Array.isArray(value)) value.forEach(v => this.assertResultAccess(id(v)));
+    }
+    if (operation === "compare_neighborhoods") {
+      const get = (value: unknown) => { const result = this.store.get(id(value)) as StoredDataResult | null; if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED"); return result; };
+      const sources = Array.isArray(args.sourceResultIds) ? args.sourceResultIds.map(get) : [];
+      if (new Set(args.sourceResultIds as string[]).size !== sources.length) throw new Error("INVALID_INPUT");
+      const rank = integer(args.rankBySource, 0, 0, sources.length - 1);
+      const result = neighborhoodCount({ candidates: get(args.candidateResultId), sources, radiusM: Number(args.radiusM), includeSelf: true, rankSourceIndex: rank });
+      const label = (datasetId: string) => { try { return describeDataset(datasetId).label; } catch { return datasetId; } };
+      result.presentation = { kind: "neighborhood", countField: `source_${rank}_count`, label: label(sources[rank]!.datasetId), radiusM: Number(args.radiusM), sourceLabels: sources.map((source, index) => ({ field: `source_${index}_count`, label: label(source.datasetId) })) };
+      result.lineage = { ...result.lineage, datasets: [get(args.candidateResultId).datasetId, ...sources.map(source => source.datasetId)] };
+      this.store.put(result);
+      return page(result, 0, args.limit);
+    }
     if (operation === "list_results") return { results: this.store.list().map(item => page(item as StoredDataResult, 0, 1)).map(({ rows: _rows, ...summary }) => summary) };
     if (operation === "remove_result") return { resultId: id(args.resultId), removed: this.store.remove(id(args.resultId)) };
     if (operation === "get_analysis_result") return this.getPage(id(args.resultId), args.offset, args.limit);
@@ -112,16 +137,24 @@ export class ResearchAnalysisSession {
 
   clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
 
+  private assertResultAccess(resultId: string): void {
+    const result = this.store.get(resultId) as StoredDataResult | null;
+    if (!result) return;
+    const datasets = [...result.datasetId.split("+"), ...(Array.isArray(result.lineage?.datasets) ? result.lineage.datasets.filter((v): v is string => typeof v === "string") : [])];
+    for (const datasetId of datasets) { if (datasetId.startsWith("layer:")) assertLayerSourceAccess(datasetId.slice(6), this.locked()); else if (describeDatasetSafe(datasetId)) assertDatasetAccess(datasetId, this.locked()); }
+  }
+
   hasResult(resultId: string): boolean { return this.store.has(resultId); }
 
   presentable(resultIds: readonly string[]): PresentableResult[] {
     if (!resultIds.length || resultIds.length > 4 || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
     return resultIds.map(resultId => {
+      this.assertResultAccess(resultId);
       const result = this.store.get(id(resultId)) as StoredDataResult | null;
       if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
       if (!(result.geometry.type === "Point" && result.geometry.role === "actual" && result.geometry.spatialAnalysisEligible) && !(result.datasetId === "tw-schools-grid-150m" && result.geometry.type === "Polygon" && result.geometry.role === "generalized")) throw new Error("RESULT_NOT_MAP_ELIGIBLE");
       if (result.rows.length > (result.geometry.type === "Polygon" ? 10_000 : 2_000)) throw new Error("RESULT_PRESENTATION_TOO_LARGE");
-      return { resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry };
+      return { resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry, presentation: result.presentation };
     });
   }
 
@@ -153,3 +186,5 @@ function stable(value: unknown): string {
   const object = value as Record<string, unknown>;
   return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${stable(object[key])}`).join(",")}}`;
 }
+
+function describeDatasetSafe(datasetId: string): boolean { try { describeDataset(datasetId); return true; } catch { return false; } }

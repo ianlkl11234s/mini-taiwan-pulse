@@ -123,9 +123,10 @@ function serveAgriStatisticsPreviewBoundaries(): Plugin {
 /** Local research archives stay outside public/dist; loopback-only development access. */
 function serveLocalResearchAssets(): Plugin {
   const filename = "coral_reef_distribution_global.pmtiles";
+  const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT ?? resolve(process.cwd(), "../taipei-gis-analytics");
   const targets: Record<string, string> = {
-    [`/${filename}`]: resolve(process.cwd(), "../taipei-gis-analytics/data/processed/marine/coral_reef_distribution", filename),
-    "/schools-grid.json": resolve(process.cwd(), "../taipei-gis-analytics/data/intermediate/research-library/schools-grid-v3/bundle.json"),
+    [`/${filename}`]: resolve(analyticsRoot, "data/processed/marine/coral_reef_distribution", filename),
+    "/schools-grid.json": resolve(analyticsRoot, "data/intermediate/research-library/schools-grid-v3/bundle.json"),
   };
   return {
     name: "serve-local-coral-research",
@@ -224,7 +225,7 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
-      "/api/research/v1": { target: "http://127.0.0.1:8790", changeOrigin: false },
+      "/api/research/v1": { target: process.env.PULSE_RESEARCH_GATEWAY_ORIGIN ?? "http://127.0.0.1:8790", changeOrigin: false },
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.

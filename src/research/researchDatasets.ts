@@ -1,3 +1,5 @@
+import { readRegisteredLayer } from "./registeredLayerReader";
+import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
@@ -51,6 +53,25 @@ const medicalHospitalsDescriptor: DatasetDescriptor = {
   source: { publisher: "衛生福利部中央健康保險署", reference: "/geo/medical_hospitals.geojson", lineage: "public GeoJSON -> validated Point records" },
   accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 20_000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
 };
+
+const librariesDescriptor: DatasetDescriptor = {
+  schemaVersion: "pulse-dataset/0.1", datasetId: "tw-public-libraries", label: "公共圖書館", description: "全國公共圖書館含分館的來源設施紀錄；教育與學習資源的一個面向，不代表座位、開館狀態或教育品質。",
+  layerRefs: ["publicLibraries"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    ...["name", "type", "county"].map(name => ({ name, type: "string" as const, nullable: true, nullMeaning: "來源未提供", unit: null })),
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source library coordinate", spatialAnalysisEligible: true }, timeFields: [],
+  coverage: "來源快照內全國公共圖書館含分館；現況完整性 unknown", license: "unknown", versions: [],
+  source: { publisher: "unknown; existing publicLibraries layer asset", reference: "/culture/public_libraries_national.geojson", lineage: "existing layer GeoJSON -> validated source records; no seat/capacity inference" },
+  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 10000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+};
+const librariesAdapter = createPointDatasetAdapter(librariesDescriptor, async () => {
+  const snapshot = await loadPointDataset({ datasetId: librariesDescriptor.datasetId, url: librariesDescriptor.source.reference, idField: "record_id", safeFields: ["name", "type", "county"] });
+  return { rows: snapshot.rows, source: receipt(librariesDescriptor.datasetId, snapshot.checksumSha256, librariesDescriptor.source.reference, snapshot.checksumSha256), coverage: librariesDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((a, b) => a + b, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit };
+});
 
 const newsDescriptor: DatasetDescriptor = {
   schemaVersion: "pulse-dataset/0.1", datasetId: "tw-news-events", label: "國內新聞事件", description: "按發布日取得的 raw event records；報導、事件與地圖 cluster 不混為同一 grain。",
@@ -184,14 +205,11 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
   };
 });
 
-export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter, schoolsGridAdapter]);
-
-function normalize(value: string): string { return value.normalize("NFKC").toLocaleLowerCase().replace(/臺/g, "台").trim(); }
+export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter, schoolsGridAdapter, librariesAdapter]);
 
 export function searchDatasets(query: string, offset = 0, limit = 20) {
   if (!Number.isInteger(offset) || offset < 0 || offset > 10_000 || !Number.isInteger(limit) || limit < 1 || limit > 20) throw new Error("INVALID_INPUT");
-  const needle = normalize(query);
-  const matched = RESEARCH_QUERY_EXECUTOR.descriptors().filter(descriptor => normalize(`${descriptor.datasetId} ${descriptor.label} ${descriptor.description} ${descriptor.kind}`).includes(needle));
+  const matched = RESEARCH_QUERY_EXECUTOR.descriptors().map(descriptor => ({ descriptor, score: searchScore(query, `${descriptor.datasetId} ${descriptor.label} ${descriptor.description} ${descriptor.layerRefs.join(" ")}`) })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.descriptor);
   const datasets = matched.slice(offset, offset + limit);
   return { query, offset, limit, totalMatched: matched.length, returned: datasets.length, truncated: offset + datasets.length < matched.length, datasets };
 }
@@ -208,4 +226,26 @@ export async function queryRecords(input: QueryRecordsInput): Promise<Record<str
 
 export async function queryRecordsDetailed(input: QueryRecordsInput): Promise<QueryExecution> {
   return await RESEARCH_QUERY_EXECUTOR.executeDetailed(input);
+}
+
+const hydrating = new Map<string, Promise<void>>();
+/** Hydrate only a manifest-owned local Point asset, never a user-supplied URL. */
+export async function ensureDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): Promise<void> {
+  if (RESEARCH_QUERY_EXECUTOR.describe(datasetId)) return;
+  if (!datasetId.startsWith("layer:")) throw new Error("DATASET_NOT_FOUND");
+  const layerKey = datasetId.slice(6);
+  if (locked.has(layerKey)) throw new Error("LAYER_DENIED");
+  const pending = hydrating.get(datasetId); if (pending) return pending;
+  if (hydrating.size >= 8) throw new Error("DATASET_REGISTRY_LIMIT");
+  const work = (async () => {
+    const { descriptor, snapshot } = await readRegisteredLayer(layerKey, { locked });
+    let reads = 0;
+    RESEARCH_QUERY_EXECUTOR.register({ descriptor, allowedParameters: {}, async read() {
+      const cached = reads++ > 0;
+      return { rows: snapshot.rows, sourceRefs: [snapshot.source], coverage: snapshot.coverage, freshness: snapshot.freshness ?? "unknown", exclusions: { ...snapshot.exclusions },
+        rowsScanned: snapshot.rowsScanned ?? snapshot.rows.length, bytesScanned: snapshot.bytesScanned ?? null, downloadedBytes: cached ? 0 : snapshot.downloadedBytes ?? null, requests: cached ? 0 : 1, cacheHit: cached, expiresAt: null };
+    } });
+  })();
+  hydrating.set(datasetId, work);
+  try { await work; } finally { hydrating.delete(datasetId); }
 }

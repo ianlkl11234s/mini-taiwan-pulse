@@ -23,7 +23,7 @@ async function queryNewsWithSupabasePayload(configured: boolean, data: unknown) 
 
 describe("built-in research datasets", () => {
   it("discovers the three pilot families with explicit geometry and null semantics", () => {
-    expect(searchDatasets("").datasets.map(item => item.datasetId)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m"]);
+    expect(searchDatasets("").datasets.map(item => item.datasetId)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
   });

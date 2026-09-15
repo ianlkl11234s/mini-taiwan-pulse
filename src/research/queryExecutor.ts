@@ -61,13 +61,15 @@ function integer(value: number | undefined, fallback: number, min: number, max: 
 }
 
 function scalarMatches(actual: unknown, expected: Scalar): boolean {
-  return actual === expected;
+  return typeof actual === "string" && typeof expected === "string"
+    ? actual.normalize("NFKC").replace(/臺/g, "台") === expected.normalize("NFKC").replace(/臺/g, "台")
+    : actual === expected;
 }
 
 function applyFilter(row: Record<string, unknown>, filter: QueryFilter): boolean {
   const actual = row[filter.field];
   if (filter.op === "eq") return scalarMatches(actual, filter.value);
-  return typeof actual === "string" && actual.normalize("NFKC").toLocaleLowerCase().includes(filter.value.normalize("NFKC").toLocaleLowerCase());
+  return typeof actual === "string" && actual.normalize("NFKC").replace(/臺/g, "台").toLocaleLowerCase().includes(filter.value.normalize("NFKC").replace(/臺/g, "台").toLocaleLowerCase());
 }
 
 function applyTime(row: Record<string, unknown>, time: NonNullable<QueryRecordsInput["time"]>): boolean {
@@ -121,8 +123,23 @@ export class QueryExecutor {
     }
   }
 
+  register(adapter: QueryAdapter): void {
+    assertDatasetDescriptor(adapter.descriptor);
+    if (this.adapters.has(adapter.descriptor.datasetId)) throw new Error("DUPLICATE_DATASET_ID");
+    if (this.adapters.size >= 14) {
+      const oldest = [...this.adapters.keys()].find(key => key.startsWith("layer:"));
+      if (!oldest) throw new Error("DATASET_REGISTRY_LIMIT");
+      this.adapters.delete(oldest); // Stored results retain their own rows and receipts.
+    }
+    this.adapters.set(adapter.descriptor.datasetId, adapter);
+  }
+
   descriptors(): DatasetDescriptor[] { return [...this.adapters.values()].map(adapter => adapter.descriptor); }
-  describe(datasetId: string): DatasetDescriptor | null { return this.adapters.get(datasetId)?.descriptor ?? null; }
+  describe(datasetId: string): DatasetDescriptor | null {
+    const adapter = this.adapters.get(datasetId);
+    if (adapter && datasetId.startsWith("layer:")) { this.adapters.delete(datasetId); this.adapters.set(datasetId, adapter); }
+    return adapter?.descriptor ?? null;
+  }
 
   async execute(input: QueryRecordsInput, signal?: AbortSignal): Promise<ResultEnvelope> {
     return (await this.executeDetailed(input, signal)).envelope;

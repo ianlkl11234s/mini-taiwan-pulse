@@ -18,6 +18,7 @@ export interface StoredDataResult extends ResultReference {
   recordGrain: RecordGrain | "aggregate" | "joined" | "metric" | "series";
   geometry: ResultGeometry;
   sourceRefs: readonly SourceReceipt[];
+  presentation?: { kind: "neighborhood"; countField: string; label: string; radiusM: number; sourceLabels: { field: string; label: string }[] };
   lineage?: Readonly<Record<string, unknown>>;
   coverage: string;
   freshness: "current" | "stale" | "unknown";
