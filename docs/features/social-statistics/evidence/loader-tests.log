@@ -1,0 +1,11 @@
+
+ RUN  v3.2.6 /private/tmp/pulse-social-statistics-frontend-20260915
+
+ ✓ src/data/__tests__/regionalStatisticsLoader.test.ts (18 tests) 83ms
+ ✓ src/data/__tests__/socialStatisticsDelivery.test.ts (1 test) 896ms
+   ✓ loads all 416 delivered exact selectors through the real hash-validating loader  895ms
+
+ Test Files  2 passed (2)
+      Tests  19 passed (19)
+   Start at  15:50:23
+   Duration  1.72s (transform 390ms, setup 0ms, collect 1.15s, tests 979ms, environment 0ms, prepare 89ms)

@@ -1,0 +1,94 @@
+{
+  "status": "LOCAL_ACCEPTED_NOT_PUBLISHED",
+  "desktop": {
+    "viewport": [
+      1280,
+      720
+    ],
+    "layers": 45,
+    "popup_pass": 45,
+    "legend_pass": 45,
+    "per_layer_files": "<layer_key>.txt and <layer_key>.png",
+    "all_off": true,
+    "single_overlap": true,
+    "existing_cdn_births": {
+      "area": "臺北市大安區",
+      "value": 156,
+      "period": "2022-01"
+    }
+  },
+  "mobile": {
+    "viewport": [
+      390,
+      844
+    ],
+    "scrollWidth": 390,
+    "physical_device": false,
+    "education": {
+      "years": [
+        110,
+        111
+      ],
+      "stages": [
+        "elementary",
+        "preschool"
+      ],
+      "taipei_111_preschool": 55677,
+      "opacity": [
+        0.55,
+        0.5
+      ],
+      "source_disclosure": true
+    },
+    "registration": {
+      "taipei_total": 6507,
+      "taipei_male": 1298,
+      "taipei_female_desktop": 5209,
+      "unit": "登錄數",
+      "period": "113年",
+      "unique_people": false
+    },
+    "housing": {
+      "area": "臺北市中山區",
+      "unused_pct": 17.26,
+      "period": "2020-11-08",
+      "coverage": "368/368"
+    }
+  },
+  "edge_cases": {
+    "hospital_missing": "平溪區 missing, not 0",
+    "hospice_zero": "大安區0床",
+    "nursing_partial": "彰化縣378人;1/22 PARTIAL;臺北市missing source_token -",
+    "care_worker_listed_partial": "20/22 PARTIAL",
+    "education_negative": "臺北市-5337人/-4.34%",
+    "medical_rates": "臺北市107.07每萬人口床;272.55每萬人口人"
+  },
+  "fixes": [
+    "duplicate fixed breaks collapse to last reachable color without editing SSOT",
+    "legend drops unused palette entries",
+    "social source - is missing",
+    "housing other-level releases excluded from false alert",
+    "rounded legend labels marked approximate"
+  ],
+  "tests": {
+    "full_passed": 1353,
+    "full_skipped": 3,
+    "full_files": 160,
+    "final_focused_passed": 17,
+    "actual_loader_selectors": 416,
+    "build": "PASS; chunk-size warnings remain"
+  },
+  "publication": {
+    "commit": false,
+    "push": false,
+    "merge": false,
+    "upload": false,
+    "production_import": false,
+    "deploy": false
+  },
+  "limits": [
+    "Browser viewport simulation, not physical mobile hardware",
+    "Original checkout parallel dirty work not included; integrate/review separately",
+    "Some per-layer screenshots precede final label formatting-only correction; final mobile-housing captures show corrected labels"
+  ]
+}
