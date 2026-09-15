@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
 import { STATISTICS_TAB_THEMES } from "../layerCatalog";
-import { getThemeLayerKeys } from "../../IconRailSidebar";
+import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 
 const EXPECTED_THEME_STRUCTURE = [
   { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "犯罪與治安"] },
@@ -60,5 +60,19 @@ describe("STATISTICS_TAB_THEMES", () => {
 
   it("All Off scope 只包含統計入口的圖層", () => {
     expect(getThemeLayerKeys(STATISTICS_TAB_THEMES)).toEqual(EXPECTED_LAYER_KEYS);
+  });
+});
+
+describe("Layers 與 Statistics 分頁", () => {
+  it("中文統計主題只出現在 Statistics，原有一般圖層仍保留", () => {
+    const mainKeys = getThemeLayerKeys(MAIN_THEMES);
+    const statisticsKeys = getThemeLayerKeys(STATISTICS_TAB_THEMES);
+    for (const key of EXPECTED_LAYER_KEYS.filter((key) => key.startsWith("stats"))) {
+      expect(mainKeys).not.toContain(key);
+      expect(statisticsKeys).toContain(key);
+    }
+    expect(mainKeys).toContain("countyBoundary");
+    expect(mainKeys).toContain("townshipBoundary");
+    expect(mainKeys).toContain("crimeAreaMonthly");
   });
 });

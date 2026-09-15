@@ -21,3 +21,10 @@
 - 414 releases / 13,716 values 匯入；R2全量3590 selectors，既有3174不變。
 - 1364 tests passed / 4 skipped、tsc/build通過；公開HTTP416與正式桌面45層、手機三主題驗收通過。
 - 詳見 [production-release](./production-release.md)。
+
+## 統計分頁分類修正
+
+- Layers 改依 STATISTICS_DATA_THEMES 排除統計主題，修正只比對英文 Statistics 字尾而漏掉中文住宅、教育、醫療及農林漁牧主題的問題。
+- Statistics 的住宅 18 層與全部統計 key 保留；一般行政邊界與犯罪圖層保留原入口。
+- 5 項分類測試、TypeScript/build 通過。真實本地 browser：Layers 搜尋住宅總數無結果，Statistics 仍完整顯示住宅 18 層。
+- 手機原本為單一合併目錄，沒有獨立 Statistics 分頁；本次修正桌面分頁分類。
