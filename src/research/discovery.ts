@@ -1,4 +1,3 @@
-import { datasetIdsForLayer } from "./dataExploration";
 import { searchScore } from "./researchSearch";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
 import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
@@ -9,7 +8,7 @@ export interface DiscoveryContext {
   visible: ReadonlySet<string>;
 }
 
-export type DataReadSupport = "supported" | "unsupported";
+export type DataReadSupport = "not_provided_in_first_phase";
 
 export interface LayerDiscovery {
   key: string;
@@ -21,7 +20,7 @@ export interface LayerDiscovery {
   dataReadSupport: DataReadSupport;
   /** Display registration is a separate claim from whether a payload reader exists. */
   displayCapability: { canOpen: boolean; basis: "manifest_registration" };
-  datasetIds: string[];
+  datasetIds: readonly string[];
 }
 
 export interface LayerDescription extends LayerDiscovery {
@@ -48,9 +47,10 @@ export interface PlaceCandidate {
 
 const DEFAULT_CONTEXT: DiscoveryContext = { locked: new Set(), visible: new Set() };
 
-/** Deliberately small first pilot: it is an actual readable asset, not a claim about every visible layer. */
+/** This phase describes map registrations only; it never claims payload-reader support. */
 export function dataReadSupport(layerKey: string): DataReadSupport {
-  return datasetIdsForLayer(layerKey).length ? "supported" : "unsupported";
+  void layerKey;
+  return "not_provided_in_first_phase";
 }
 
 function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscovery {
@@ -64,7 +64,7 @@ function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscover
     visible: context.visible.has(key),
     dataReadSupport: dataReadSupport(key),
     displayCapability: { canOpen: entry.section !== null && !context.locked.has(key), basis: "manifest_registration" },
-    datasetIds: datasetIdsForLayer(key),
+    datasetIds: [],
   };
 }
 

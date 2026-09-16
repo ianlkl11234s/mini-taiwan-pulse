@@ -12,6 +12,7 @@ describe("describeLayers", () => {
     expect(output.layers[0]).toMatchObject({ key: "eduSchoolElementary", locked: true, displayCapability: { canOpen: false, basis: "manifest_registration" }, metadataBasis: "manifest_registration_not_live_verification", catalog: { status: "entries", metadataTrust: "untrusted" } });
     expect(output.layers[0]?.upstream.datasets.length).toBeGreaterThan(0);
     expect(output.layers[0]?.catalog.entries[0]).toMatchObject({ sourceUrl: "https://data.example/catalog", externalLinks: [{ label: "來源網站", url: "https://data.example/catalog" }] });
+    expect(output.layers[0]?.fieldSummary).toMatchObject({ status: "not_provided_in_first_phase" });
   });
 
   it("uses injected fallback without calling a live provider and does not call an empty response no data", async () => {

@@ -1,48 +1,17 @@
-<!doctype html><html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Research Pipeline — 本地診斷</title>
-<style>body{margin:0;background:#102327;color:#ecf8f5;font:15px system-ui}main{display:grid;grid-template-columns:360px 1fr;height:100vh}aside{padding:20px;overflow:auto}h1{font-size:20px}textarea{box-sizing:border-box;width:100%;height:220px;background:#17383d;color:#e5f5ef;border:1px solid #527a77;font:12px monospace}button{padding:9px 16px;margin:8px 8px 8px 0}#map{min-height:500px;position:relative}.mapboxgl-popup-content{color:#122528}pre{white-space:pre-wrap;font:12px monospace}label{display:block} @media(max-width:700px){main{display:block}#map{height:65vh}}</style>
-<link href="/node_modules/mapbox-gl/dist/mapbox-gl.css" rel="stylesheet">
-<main><aside><h1>Research Pipeline 本地診斷</h1><p>使用實際 session 與 overlay 模組。這是公開資料的本地診斷，非登入配對或自然語言驗收。</p><textarea id="plan" aria-label="分析步驟 JSON"></textarea><button id="run">執行分析</button><button id="clear">清除呈現</button><label>透明度 <input id="opacity" type="range" min="0.1" max="1" step="0.05" value="0.7"></label><p id="status">等待執行</p><p id="legend"></p><pre id="result"></pre></aside><div id="map"></div></main>
-<script type="module">
-import mapboxgl from 'mapbox-gl';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { ResearchActivity } from '/src/research/ResearchActivityCard.tsx';
-import { activityForOperation } from '/src/research/researchActivity.ts';
-import { researchPlaces } from '/src/research/researchPlaces.ts';
-import { moveResearchCamera, showResearchFocus, clearResearchFocus, cancelResearchMotion } from '/src/research/researchMotion.ts';
-import { ResearchAnalysisSession } from '/src/research/researchAnalysisSession.ts';
-import { installAnalysisResults, removeAnalysisResults, setAnalysisOpacity, analysisResultLayerIds } from '/src/research/analysisResultOverlay.ts';
-const $=id=>document.getElementById(id);
-if (!import.meta.env.DEV) throw new Error('DEV_ONLY');
-mapboxgl.accessToken=import.meta.env.VITE_MAPBOX_TOKEN;
-const map=new mapboxgl.Map({container:'map',style:'mapbox://styles/mapbox/dark-v11',center:[121.53,25.05],zoom:12});
-let session=new ResearchAnalysisSession();let popup=null;
-const activityContainer=document.createElement('div');activityContainer.className='research-activity-position';$('map').append(activityContainer);const activityRoot=createRoot(activityContainer);
-let activity=null,following=true,places=[];
-function updateActivity(next){activity=next;activityRoot.render(React.createElement(ResearchActivity,{activity,following,onFollowingChange(value){following=value;if(!value)cancelResearchMotion(map);updateActivity(activity);},places:places.map(place=>({id:place.recordId,label:place.label,detail:place.detail,onSelect:async()=>{showResearchFocus(map,place.center,place.radiusM);updateActivity({phase:'presenting',title:`帶你看${place.label}`,detail:place.detail});const arrived=await moveResearchCamera(map,{center:place.center,zoom:14});updateActivity({phase:arrived?'ready':'complete',title:place.label,detail:place.detail});}}))}));}
-map.on('movestart',event=>{if(event.originalEvent){following=false;cancelResearchMotion(map);clearResearchFocus(map);updateActivity(activity?{...activity,phase:'complete',detail:'你正在查看地圖，自動帶鏡頭已暫停。'}:null);}});
-$('plan').value=JSON.stringify([
- {key:'candidates',query:{datasetId:'tw-schools',filters:[{field:'city',op:'eq',value:'台北市'}],limit:1}},
- {key:'schools',query:{datasetId:'tw-schools',limit:1}},
- {key:'libraries',query:{datasetId:'tw-public-libraries',limit:1}},
- {compare:{candidate:'candidates',sources:['schools','libraries'],radiusM:1000,rankBySource:0}}
-],null,2);
-$('run').onclick=async()=>{
- $('run').disabled=true; $('status').textContent='正在計算…';
- try{
-  if(!map.isStyleLoaded())throw new Error('地圖仍在載入，請稍後執行');
-  const plan=JSON.parse($('plan').value);if(!Array.isArray(plan)||plan.length>6)throw new Error('INVALID_PLAN');
-  session=new ResearchAnalysisSession();const ids=new Map();let result;
-  for(const step of plan){if(step.query){updateActivity(activityForOperation('query_records',step.query));const q=await session.queryRecords(step.query);ids.set(step.key,q.resultId);}else if(step.compare){const c=step.compare;updateActivity(activityForOperation('compare_neighborhoods',c));result=session.execute('compare_neighborhoods',{candidateResultId:ids.get(c.candidate),sourceResultIds:c.sources.map(k=>ids.get(k)),radiusM:c.radiusM,rankBySource:c.rankBySource,limit:5});}else throw new Error('INVALID_STEP');}
-  if(!result)throw new Error('NO_RESULT');
-  installAnalysisResults(map,session.presentable([result.resultId]),Number($('opacity').value));places=researchPlaces(session.presentable([result.resultId]));
-  const {bounds}=session.bounds([result.resultId]);if(following){const camera=map.cameraForBounds(bounds,{padding:45});if(camera)await moveResearchCamera(map,{center:[camera.center.lng,camera.center.lat],zoom:camera.zoom});}updateActivity({phase:'ready',title:'結果已準備好，選個地方看看',detail:`已比較 ${result.totalRows} 個候選位置。`});
-  $('status').textContent=`已呈現 ${result.totalRows} 個候選位置；${result.returned} 筆摘要。`;
-  $('legend').textContent=`${result.presentation.label}：半徑 ${result.presentation.radiusM} 公尺內來源紀錄數（含本身）；淺色 0–4／藍 5–9／深藍 ≥10。只比較已選候選點；不是教育品質或步行可達性。`;
-  $('result').textContent=JSON.stringify({resultId:result.resultId,sourceRefs:result.sourceRefs,method:result.method,freshness:result.freshness,rows:result.rows.map(r=>({name:r.school_name??r.name,schoolRecords:r.source_0_count,libraryRecords:r.source_1_count}))},null,2);
- }catch(error){updateActivity({phase:'error',title:'這一步沒有完成',detail:'請查看診斷資訊；此狀態不是零筆。'});$('status').textContent=`失敗：${error.message}（不是零筆）`;}finally{$('run').disabled=false;}
-};
-$('clear').onclick=()=>{cancelResearchMotion(map);clearResearchFocus(map);places=[];updateActivity(null);removeAnalysisResults(map);popup?.remove();session.clear();$('status').textContent='已清除呈現';$('legend').textContent='';$('result').textContent='';};
-$('opacity').oninput=()=>setAnalysisOpacity(map,1,Number($('opacity').value));
-map.on('click',event=>{const layers=analysisResultLayerIds(1).filter(id=>map.getLayer(id));if(!layers.length)return;const f=map.queryRenderedFeatures(event.point,{layers})[0];if(!f)return;popup?.remove();const box=document.createElement('div');box.textContent=`${f.properties.school_name??f.properties.name}｜學校紀錄 ${f.properties.source_0_count}｜圖書館紀錄 ${f.properties.source_1_count}`;popup=new mapboxgl.Popup().setLngLat(event.lngLat).setDOMContent(box).addTo(map);});
-</script></html>
+<!doctype html>
+<html lang="zh-Hant">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>圖層探索測試</title>
+<style>
+  :root { color-scheme: dark; font: 16px/1.7 system-ui, sans-serif; background: #101010; color: #eee; }
+  main { max-width: 36rem; margin: 12vh auto; padding: 2rem; border: 1px solid #ffffff20; border-radius: 12px; background: #191919; }
+  h1 { font-size: 1.4rem; } p { color: #bbb; } a { color: #eee; text-underline-offset: 4px; }
+</style>
+<main>
+  <h1>圖層探索測試</h1>
+  <p>第一階段直接在主地圖測試：配對、搜尋與說明圖層、開關疊圖、移動視角及同步狀態。</p>
+  <p>進階分析展示已退出此測試入口。</p>
+  <a href="/?v=1&lng=121.5318&lat=25.0464&z=12.5&sm=single&style=dark">開啟主地圖</a>
+</main>
+</html>

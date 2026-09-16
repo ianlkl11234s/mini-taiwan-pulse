@@ -10,7 +10,7 @@
 4. 操作前讀取 map context 與 study revision；保留既有無關圖層。沿用一般、世界、統計、日本圖層的實際開關與載入途徑。
 5. 提議一兩個有理由的延伸方向；相同來源的不同呈現不當作獨立證據。
 6. 需要時使用 host web tools 查官方背景並引用網址；區分站內資訊與外部補充，不能宣稱外部資料已載入地圖。
-7. 只有明確需要計算時再使用 dataset reader 與分析工具。能看、能讀、能算是不同能力。
+7. 第一階段不提供計算、原始紀錄查詢與跨圖層分析。遇到這類問題先說明目前範圍，仍可建議相關圖層協助探索；不得假裝已完成計算。
 
 本指引的核心已放進 MCP server instructions 與 tool descriptions，Agent 連接工具時即可取得，不要求額外 Skill。此文件供開發、接手與驗收；不得假設其他 Codex 對話會自動讀取本文件。
 
@@ -29,3 +29,25 @@
 ## 驗收邊界
 
 工具測試、UI 測試與 paired Agent E2E 分開記錄。新增 Skill 不能取代工具接線與實際資料，亦不保證任何問題都有答案。
+
+## 2026-09-17 探索分支邊界
+
+三個 repo 均使用 `codex/map-exploration`。完整進階版留在 `codex/research-recovered`：前端 `e38f32a3`、MCP `1c954c5`、Gateway `aa43c0e`。以分支差異逐步取回後续功能，不整段合併分析工具。
+
+- MCP 僅註冊配對／連線、讀狀態、搜尋與說明圖層、地點預設、圖層開關、鏡頭與範圍定位、操作與查詢回執。
+- 地圖入口不建立 analysis session、不掛 analysis/nearby overlays、不呈現進階分析 UI。
+- Gateway 僅接受 `search_layers`、`layer_details`、`describe_layer`、`map_context`、`find_places`；拒絕分析操作與 synthetic/result presentation。保留 null 清除舊狀態的相容性。
+- 第一階段可查看現有統計圖層，但不提供新的聚合、排行或交叉計算。一般、世界、統計、日本面板繼續沿用。
+- 本機啟動改用獨立 `runtime/map-exploration.sqlite`，避免承接進階版 pending command、暫停或配對狀態。首次需重新配對；原 `gateway.sqlite` 不刪除。
+- 進階模組若仍留在 repo，不代表開放使用；判斷基準為 MCP 註冊清單、Gateway allowlist 與地圖入口 dependency graph。
+
+驗收順序：配對 → 問「教育相關有哪些圖層」→ 查看來源與限制 → 選擇開啟 → 確認真實載入 → 手動拖動與切換圖層 → 再次探索。進階問題需明確回覆範圍，不得以空結果冒充不支援。
+
+### 本次驗證
+
+- 前端 `npx tsc -b` 通過；research Vitest 93 passed / 2 skipped（既有可選資料測試）。包含真 Gateway 回應與 runtime dependency boundary。
+- MCP build 與完整測試 33 passed；`node scripts/research/evaluation-mcp.mjs --smoke` 以真正 dist stdio 入口核對 14 個工具，分析工具不可呼叫。
+- Gateway 全部測試 37 passed，包含 HTTP 直接呼叫分析被拒絕。
+- Browser：Agent 面板只有配對與跟隨設定；搜尋「學校」得到 11 個候選，開啟 schools 後實際可見點位；未配對不出現假 Agent 動作。
+- 尚未驗收：新探索資料庫下的使用者登入、重新配對及 Codex → Gateway → browser 完整往返；需另開 Codex session 取得新工具清單。
+- 舊 `acceptance-map.html` 不再載入分析模組，改指向主地圖；evaluation harness 僅做探索工具邊界 smoke。

@@ -1,7 +1,6 @@
 import { fetchDataCatalogForLayer, type DataCatalogEntry } from "../data/dataCatalogLoader";
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
 import { withLoading } from "../lib/loadingRegistry";
-import { describeDataset } from "./researchDatasets";
 import { dataReadSupport, describeLayer, type DiscoveryContext } from "./discovery";
 
 const MAX_KEYS = 3;
@@ -62,14 +61,8 @@ async function within<T>(promise: Promise<T>, timeoutMs: number): Promise<T | nu
   catch { return null; } finally { if (timer) clearTimeout(timer); }
 }
 
-function fieldSummary(key: ManifestKey) {
-  const known = [] as Array<{ basis: "analysis_dataset_descriptor_not_layer_payload"; datasetId: string; fields: { name: string; type: string; nullable: boolean; unit: string | null }[]; fieldsTruncated: boolean }>;
-  const ids = describeLayer(key)?.datasetIds ?? [];
-  for (const datasetId of ids) try {
-    const descriptor = describeDataset(datasetId);
-    known.push({ basis: "analysis_dataset_descriptor_not_layer_payload", datasetId, fields: descriptor.fields.slice(0, 12).map(field => ({ name: field.name, type: field.type, nullable: field.nullable, unit: field.unit })), fieldsTruncated: descriptor.fields.length > 12 });
-  } catch { /* Generic, unmaterialized sources intentionally have no guessed schema. */ }
-  return known;
+function fieldSummary(_key: ManifestKey) {
+  return { status: "not_provided_in_first_phase" as const, reason: "Layer metadata does not establish payload fields; a later reader phase must verify them." };
 }
 
 /** Bounded metadata view. Catalog rows are advisory metadata, never payload evidence. */

@@ -101,7 +101,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const copyPairing = async () => {
     if (!pairing || Date.now() >= Number(pairing.expiresAt)) { setMessage("配對碼已過期，請撤銷後重新建立。"); return; }
     try {
-      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。取得比對短語後等我在網站確認，再讀取目前地圖狀態。接著依我的問題搜尋圖層、查看來源說明並協助探索；沒有分析 reader 不妨礙開圖。`);
+      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。取得比對短語後等我在網站確認，再讀取目前地圖狀態。接著依我的問題搜尋圖層、查看來源說明並協助探索；本階段僅使用圖層探索與地圖操作工具；需要計算時先說明目前範圍，並提供相關圖層作為探索起點。`);
       setMessage("已複製，請貼給已載入 pulse-research 的 Codex。");
     } catch { setMessage("無法複製，請手動複製下方配對 ID 與配對碼。"); }
   };
@@ -109,8 +109,8 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const pause = async () => { if (!study) return; try { const current = await client.sync(study.studyId, study.tabId); const next = await client.pause(study.studyId, study.tabId, !current.paused); setPaused(next.paused); callbacks.current.onState(next); setMessage(next.paused ? "已暫停網站操作。 " : "已恢復網站操作。 "); } catch { setMessage("暫停狀態未確認。 "); } };
   const revoke = async () => { if (!study) return; try { await client.revoke(study.studyId); } catch { setMessage("撤銷未確認，保留配對資訊以便重試。 "); return; } setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); setMessage("已撤銷研究連線。離頁時無法保證請求送達。 "); };
 
-  return <section aria-label="研究連線" className="research-pairing">
-    <strong>本地 Agent 連線</strong>{session && <><small>登入帳號：{session.user.email}</small><button onClick={() => void signOut()}>登出這次研究登入</button></>}<p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
+  return <section aria-label="圖層探索連線" className="research-pairing">
+    <strong>本地 Agent 連線</strong>{session && <><small>登入帳號：{session.user.email}</small><button onClick={() => void signOut()}>登出這次探索登入</button></>}<p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
     {!supabaseConfigured ? <small>未啟用：缺少網站登入設定。</small> : !session ? <button onClick={() => void signIn()}>使用 Google 登入</button> : !pairing ? <button disabled={creating} onClick={() => void begin()}>{creating ? "正在建立…" : "建立配對"}</button> : <>
       {!status?.approved && <>
       <p>配對碼：<code>{pairing.code}</code></p><small>有效至 {new Date(pairing.expiresAt).toLocaleTimeString("zh-TW")}，請比對兩端短語再確認。</small><p>配對 ID：<code>{pairing.pairingId}</code></p><button onClick={() => void copyPairing()}>複製配對指令</button>

@@ -5,8 +5,8 @@ describe("research discovery", () => {
   it("derives searchable layers from the manifest and keeps access separate from read support", () => {
     const context = { locked: new Set(["schools"]), visible: new Set<string>() };
     const result = discoverLayers("學校", 0, 20, context);
-    expect(result.layers.some(layer => layer.key === "schools" && layer.locked && layer.dataReadSupport === "supported")).toBe(true);
-    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("supported");
+    expect(result.layers.some(layer => layer.key === "schools" && layer.locked && layer.dataReadSupport === "not_provided_in_first_phase")).toBe(true);
+    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("not_provided_in_first_phase");
   });
   it("returns local camera candidates without claiming a geocoder result", () => {
     const result = findPlaces("台北");
