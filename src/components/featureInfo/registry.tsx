@@ -746,7 +746,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
-  coralReefDistribution: "珊瑚礁歷史分布（私人研究）",
+  coralReefDistribution: "珊瑚礁歷史分布",
   allenCoralAtlas: "Allen Coral Atlas（私人研究）",
   aisstreamVessel: "AISStream 船舶",
   gfwVesselPresence: "GFW 船舶 Presence",

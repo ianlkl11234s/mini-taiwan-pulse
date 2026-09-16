@@ -61,7 +61,6 @@ function gateway(overrides = {}) {
   };
 }
 
-const owner = async () => ({ status: 200 });
 const allenOwner = async () => ({ status: 200, sessionId: "owner-session" });
 const allenConfig = {
   supabaseUrl: "https://example.supabase.co",
@@ -83,18 +82,15 @@ test("Range accepts exactly one bounded byte range", () => {
   assert.equal(parseRange(`bytes=0-${MAX_RANGE_BYTES}`), null);
 });
 
-test("Supabase server settings accept non-secret VITE fallbacks", () => {
+test("public coral settings only require the S3 gateway configuration", () => {
   const resolved = getConfig({
-    VITE_SUPABASE_URL: "https://example.supabase.co",
-    VITE_SUPABASE_ANON_KEY: "anon-key",
     S3_ACCESS_KEY: "access-key",
     S3_SECRET_KEY: "secret-key",
     CORAL_PRIVATE_BUCKET: "migu-gis-data-collector",
     CORAL_PRIVATE_KEY: "private-research/coral-reef/v4.1/coral.pmtiles",
     CORAL_PRIVATE_REGION: "ap-southeast-2",
   });
-  assert.equal(resolved.supabaseUrl, "https://example.supabase.co");
-  assert.equal(resolved.supabaseAnonKey, "anon-key");
+  assert.equal(resolved.bucket, "migu-gis-data-collector");
 });
 
 test("missing configuration fails closed", async () => {
@@ -104,12 +100,12 @@ test("missing configuration fails closed", async () => {
 });
 
 test("only the coral endpoint is served", async () => {
-  const output = await handleCoralRequest(request("/api/private-research/other"), { config, authenticate: owner });
+  const output = await handleCoralRequest(request("/api/private-research/other"), { config });
   assert.equal(output.status, 404);
 });
 
 test("CORS only reflects an exact configured origin", async () => {
-  const denied = await handleCoralRequest(request("/api/private-research/coral", { headers: { Origin: "https://attacker.example" } }), { config, authenticate: owner });
+  const denied = await handleCoralRequest(request("/api/private-research/coral", { headers: { Origin: "https://attacker.example" } }), { config });
   assert.equal(denied.status, 403);
   const options = await handleCoralRequest(request("/api/private-research/coral", { method: "OPTIONS", headers: { Origin: "https://pulse.example.test" } }), { config });
   assert.equal(options.status, 204);
@@ -117,25 +113,21 @@ test("CORS only reflects an exact configured origin", async () => {
   assert.equal(options.headers.get("access-control-allow-headers"), "Authorization, Range");
 });
 
-test("authentication is required, and only the fixed owner is authorized", async () => {
-  const unauthenticated = await handleCoralRequest(request(), { config, authenticate: async () => ({ status: 401 }) });
-  assert.equal(unauthenticated.status, 401);
-  const otherUser = await handleCoralRequest(request(), { config, authenticate: async () => ({ status: 403 }) });
-  assert.equal(otherUser.status, 403);
+test("anonymous requests are allowed only through verified metadata and bounded Range reads", async () => {
+  const s3 = gateway();
+  const output = await handleCoralRequest(request("/api/private-research/coral", { headers: { Range: "bytes=0-3" } }), {
+    config,
+    gateway: s3,
+    authenticate: async () => { throw new Error("legacy coral must not authenticate"); },
+  });
+  assert.equal(output.status, 206);
+  assert.equal(s3.calls.head, 1);
+  assert.equal(s3.calls.get, 1);
 });
 
-test("access probe is authorized and does not read S3", async () => {
+test("HEAD returns verified public metadata without fetching object bytes", async () => {
   const s3 = gateway();
-  const output = await handleCoralRequest(request("/api/private-research/coral?access=1"), { config, authenticate: owner, gateway: s3 });
-  assert.equal(output.status, 200);
-  assert.deepEqual(await output.json(), { allowed: true });
-  assert.equal(s3.calls.head, 0);
-  assert.equal(s3.calls.get, 0);
-});
-
-test("HEAD returns verified private metadata without fetching object bytes", async () => {
-  const s3 = gateway();
-  const output = await handleCoralRequest(request("/api/private-research/coral", { method: "HEAD" }), { config, authenticate: owner, gateway: s3 });
+  const output = await handleCoralRequest(request("/api/private-research/coral", { method: "HEAD" }), { config, gateway: s3 });
   assert.equal(output.status, 200);
   assert.equal(output.headers.get("content-length"), String(EXPECTED_SIZE));
   assert.equal(output.headers.get("etag"), '"coral-etag"');
@@ -145,15 +137,15 @@ test("HEAD returns verified private metadata without fetching object bytes", asy
 
 test("GET requires Range and proxies only the verified byte window", async () => {
   const s3 = gateway();
-  const missingRange = await handleCoralRequest(request(), { config, authenticate: owner, gateway: s3 });
+  const missingRange = await handleCoralRequest(request(), { config, gateway: s3 });
   assert.equal(missingRange.status, 416);
   assert.equal(missingRange.headers.get("content-range"), `bytes */${EXPECTED_SIZE}`);
 
-  const output = await handleCoralRequest(request("/api/private-research/coral", { headers: { Range: "bytes=0-3" } }), { config, authenticate: owner, gateway: s3 });
+  const output = await handleCoralRequest(request("/api/private-research/coral", { headers: { Range: "bytes=0-3" } }), { config, gateway: s3 });
   assert.equal(output.status, 206);
   assert.equal(output.headers.get("content-range"), `bytes 0-3/${EXPECTED_SIZE}`);
   assert.equal(output.headers.get("content-length"), "4");
-  assert.equal(output.headers.get("cache-control"), "private, no-store");
+  assert.equal(output.headers.get("cache-control"), "no-store");
   assert.equal(await output.text(), "data");
   assert.equal(s3.calls.get, 1);
   assert.equal(s3.calls.ifMatch, '"coral-etag"');
@@ -161,11 +153,11 @@ test("GET requires Range and proxies only the verified byte window", async () =>
 
 test("integrity and S3 range mismatches fail closed", async () => {
   const wrongChecksum = gateway({ head: { checksumSHA256: Buffer.from("wrong").toString("base64") } });
-  const integrity = await handleCoralRequest(request("/api/private-research/coral", { method: "HEAD" }), { config, authenticate: owner, gateway: wrongChecksum });
+  const integrity = await handleCoralRequest(request("/api/private-research/coral", { method: "HEAD" }), { config, gateway: wrongChecksum });
   assert.equal(integrity.status, 502);
 
   const wrongRange = gateway({ get: { contentRange: `bytes 1-4/${EXPECTED_SIZE}` } });
-  const range = await handleCoralRequest(request("/api/private-research/coral", { headers: { Range: "bytes=0-3" } }), { config, authenticate: owner, gateway: wrongRange });
+  const range = await handleCoralRequest(request("/api/private-research/coral", { headers: { Range: "bytes=0-3" } }), { config, gateway: wrongRange });
   assert.equal(range.status, 502);
 });
 

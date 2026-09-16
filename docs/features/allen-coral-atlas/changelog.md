@@ -11,3 +11,9 @@
 ## 2026-09-15 — Production 接線
 
 使用者授權 PR、merge 與 production。新增私人 S3 SHA 快照、正式 nginx 白名單、持久 revoke 與 production 登出；狀態與缺口見 production-release.md。
+
+## 2026-09-16 — 正式資料補齊與存取區分
+
+- 使用者明確授權 Allen 两份 PMTiles 私人 S3 上傳；完整回讀 SHA/bytes 相符，匿名403，正式本人 browser 已顯示墾丁圖形與 popup。
+- 依使用者指定，UNEP-WCMC 歷史珊瑚改為匿名地圖與分享 URL 可用；Allen本人gate維持。
+- 實際證據與限制見 `access-release-20260916.md`。

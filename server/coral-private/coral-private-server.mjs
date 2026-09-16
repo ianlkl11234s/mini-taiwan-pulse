@@ -35,14 +35,12 @@ const ALLEN_CORAL_ATLAS_REVOKE_PATH = "/private/tmp/pulse-allen-private-runtime/
 const allenSnapshotCache = new Map();
 
 export function getConfig(env = process.env) {
-  const supabaseUrl = firstConfigured(env.SUPABASE_URL, env.VITE_SUPABASE_URL);
-  const supabaseAnonKey = firstConfigured(env.SUPABASE_ANON_KEY, env.VITE_SUPABASE_ANON_KEY);
   const accessKeyId = firstConfigured(env.S3_ACCESS_KEY);
   const secretAccessKey = firstConfigured(env.S3_SECRET_KEY);
   const bucket = firstConfigured(env.CORAL_PRIVATE_BUCKET);
   const key = firstConfigured(env.CORAL_PRIVATE_KEY);
   const region = firstConfigured(env.CORAL_PRIVATE_REGION);
-  if (!supabaseUrl || !supabaseAnonKey || !accessKeyId || !secretAccessKey || !bucket || !key || !region) {
+  if (!accessKeyId || !secretAccessKey || !bucket || !key || !region) {
     return { error: "configuration unavailable" };
   }
 
@@ -58,8 +56,6 @@ export function getConfig(env = process.env) {
     }
   }
   return {
-    supabaseUrl,
-    supabaseAnonKey,
     accessKeyId,
     secretAccessKey,
     bucket,
@@ -582,31 +578,21 @@ export async function handleCoralRequest(request, dependencies = {}) {
   if (request.method === "OPTIONS") return response(204, cors);
   if (request.method !== "GET" && request.method !== "HEAD") return response(405, cors, null, { Allow: "GET, HEAD, OPTIONS" });
 
-  const authenticate = dependencies.authenticate ?? createSupabaseAuthenticator(config);
-  let identity;
-  try {
-    identity = await authenticate(request.headers.get("authorization"), request.signal);
-  } catch {
-    return json(503, cors, { error: "authentication unavailable" });
-  }
-  if (identity.status !== 200) return json(identity.status, cors, { error: identity.status === 401 ? "unauthorized" : "forbidden" });
-
-  if (request.method === "GET" && url.searchParams.get("access") === "1") return json(200, cors, { allowed: true });
-
   const gateway = dependencies.gateway ?? createAwsGateway(config);
   let metadata;
   try {
     metadata = await gateway.head(request.signal);
   } catch {
-    return json(502, cors, { error: "private object unavailable" });
+    return json(502, cors, { error: "coral object unavailable" });
   }
-  if (!isExpectedObject(metadata)) return json(502, cors, { error: "private object integrity check failed" });
+  if (!isExpectedObject(metadata)) return json(502, cors, { error: "coral object integrity check failed" });
 
   if (request.method === "HEAD") {
     return response(200, cors, null, {
       "Content-Length": String(EXPECTED_SIZE),
       "Content-Type": metadata.contentType ?? "application/octet-stream",
       "ETag": metadata.etag ?? "",
+      "Cache-Control": "no-store",
     });
   }
   const range = parseRange(request.headers.get("range"));
@@ -615,17 +601,18 @@ export async function handleCoralRequest(request, dependencies = {}) {
   try {
     object = await gateway.get(range, metadata.etag, request.signal);
   } catch {
-    return json(502, cors, { error: "private object unavailable" });
+    return json(502, cors, { error: "coral object unavailable" });
   }
   if (object.contentLength !== range.length || object.contentRange !== `bytes ${range.start}-${range.end}/${EXPECTED_SIZE}` || object.etag !== metadata.etag) {
     await object.body.cancel().catch(() => undefined);
-    return json(502, cors, { error: "private object range check failed" });
+    return json(502, cors, { error: "coral object range check failed" });
   }
   return response(206, cors, object.body, {
     "Content-Length": String(range.length),
     "Content-Range": object.contentRange,
     "Content-Type": object.contentType ?? metadata.contentType ?? "application/octet-stream",
     "ETag": object.etag ?? metadata.etag ?? "",
+    "Cache-Control": "no-store",
   });
 }
 
