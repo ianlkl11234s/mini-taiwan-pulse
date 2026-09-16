@@ -9,8 +9,8 @@ import { isAbsolute, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const MAX_BYTES = 8 * 1024 * 1024;
-const DEFAULT_PULSE_ROOT = "/private/tmp/pulse-research-open-ended-20260915";
-const DEFAULT_MCP_ROOT = "/private/tmp/pulse-research-open-ended-mcp-20260915";
+const DEFAULT_PULSE_ROOT = "/Users/migu/.codex/worktrees/c92d/research-recovery/mini-taiwan-pulse";
+const DEFAULT_MCP_ROOT = "/Users/migu/.codex/worktrees/c92d/research-recovery/mini-pulse-gis-mcp";
 const ANALYSIS_OPERATIONS = new Set(["compare_neighborhoods", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 
 function args(argv) {
@@ -64,15 +64,16 @@ async function production(pulseRoot) {
   const vite = await import(pathToFileURL(join(resolve(pulseRoot), "node_modules/vite/dist/node/index.js")).href);
   const originalFetch = globalThis.fetch;
   globalThis.fetch = await offlineFetchFactory(pulseRoot);
-  const server = await vite.createServer({ root: resolve(pulseRoot), configFile: false, cacheDir: process.env.PULSE_EVAL_VITE_CACHE ?? "/private/tmp/pulse-evaluation-vite-cache", appType: "custom", logLevel: "error", server: { middlewareMode: true, hmr: false } });
+  const server = await vite.createServer({ root: resolve(pulseRoot), configFile: false, cacheDir: process.env.PULSE_EVAL_VITE_CACHE ?? "/Users/migu/.codex/worktrees/c92d/research-recovery/mini-taiwan-pulse/node_modules/.cache/pulse-evaluation", appType: "custom", logLevel: "error", server: { middlewareMode: true, hmr: false } });
   try {
-    const [exploration, datasets, analysis, nearby] = await Promise.all([
+    const [exploration, datasets, analysis, nearby, layers] = await Promise.all([
       server.ssrLoadModule("/src/research/dataExploration.ts"),
       server.ssrLoadModule("/src/research/researchDatasets.ts"),
       server.ssrLoadModule("/src/research/researchAnalysisSession.ts"),
       server.ssrLoadModule("/src/research/nearbyData.ts"),
+      server.ssrLoadModule("/src/research/layerExploration.ts"),
     ]);
-    return { ...exploration, ...datasets, ...analysis, ...nearby, close: async () => { globalThis.fetch = originalFetch; await server.close(); } };
+    return { ...exploration, ...datasets, ...analysis, ...nearby, ...layers, close: async () => { globalThis.fetch = originalFetch; await server.close(); } };
   } catch (error) { globalThis.fetch = originalFetch; await server.close(); throw error; }
 }
 
@@ -88,6 +89,7 @@ async function createRelay(pulseRoot, mcpRoot) {
   const receipts = new Map();
   let serial = 0;
   const run = async (operation, input) => {
+    if (operation === "layer_details") return runtime.describeLayers(input.layerKeys, { locked: new Set(), visible: new Set() }, { fetchCatalog: async () => [] });
     if (operation === "explore_data") return runtime.exploreData(input, { locked: new Set(), visible: new Set() }, datasetId => session.queryRecords({ datasetId, limit: 2 }));
     if (operation === "search_datasets") return runtime.searchDatasets(input.query, input.offset, input.limit);
     if (operation === "describe_dataset") { await runtime.ensureDataset(input.datasetId, new Set()); return runtime.describeDataset(input.datasetId); }
@@ -139,6 +141,8 @@ async function smoke(options) {
   const client = new Client({ name: "pulse-evaluation-smoke", version: "0.1.0" });
   try {
     await client.connect(new StdioClientTransport({ command: process.execPath, args: [process.argv[1], "--serve", "--pulse-root", options.pulseRoot, "--mcp-root", options.mcpRoot], env: process.env }));
+    const details = await client.callTool({ name: "pulse_get_layer_details", arguments: { layerKeys: ["agriculture", "funeralFacilities", "schools"] } });
+    if (details.isError || !details.structuredContent?.result?.ok || details.structuredContent.result.data.returned !== 3) throw new Error("LAYER_DETAILS_SMOKE_ERROR");
     const explore = await client.callTool({ name: "pulse_explore_data", arguments: { query: "教育資源", probe: true } });
     const queried = await client.callTool({ name: "pulse_query_records", arguments: { datasetId: "tw-schools", limit: 1 } });
     if (explore.isError || queried.isError) throw new Error("SMOKE_TOOL_ERROR");

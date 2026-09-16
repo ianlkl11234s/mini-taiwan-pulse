@@ -23,12 +23,13 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-function setup(overrides: Partial<Record<"ack" | "manual" | "pause", ReturnType<typeof vi.fn>>> = {}) {
+function setup(overrides: Partial<Record<"ack" | "manual" | "pause" | "sync", ReturnType<typeof vi.fn>>> = {}) {
   const report = vi.fn().mockResolvedValue(state(1));
   const client = {
     ack: overrides.ack ?? vi.fn().mockResolvedValue(state(1)),
     manual: overrides.manual ?? vi.fn().mockResolvedValue(state(1)),
     pause: overrides.pause ?? vi.fn().mockResolvedValue(state(0, { paused: true })),
+    sync: overrides.sync ?? vi.fn().mockResolvedValue(state(0)),
     report,
   };
   const connection = { client, studyId: "study-1", tabId: "tab-1", pairingId: "pair-1" } as unknown as BridgeConnectionContext;
@@ -80,13 +81,53 @@ describe("StudyController", () => {
     expect(render).toHaveBeenCalledWith(baseScene, 2);
   });
 
-  it("ack failure pauses and never reports ready", async () => {
+  it("ack failure syncs without pausing and never reports ready", async () => {
     const { controller, client, render, onError } = setup({ ack: vi.fn().mockRejectedValue(new Error("ack failed")) });
     render.mockResolvedValueOnce("ready");
     controller.receive(state(0, { pendingCommand: pending() }));
-    await vi.waitFor(() => expect(client.pause).toHaveBeenCalledWith("study-1", "tab-1", true));
+    await vi.waitFor(() => expect(client.sync).toHaveBeenCalledWith("study-1", "tab-1"));
+    expect(client.pause).not.toHaveBeenCalled();
     expect(client.report).not.toHaveBeenCalled();
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it("reports a render rejection immediately when acknowledgement later fails", async () => {
+    const renderGate = deferred<"ready">(); const ackGate = deferred<StudyState>();
+    const { controller, client, render, onError } = setup({ ack: vi.fn(() => ackGate.promise) });
+    render.mockReturnValueOnce(renderGate.promise);
+    controller.receive(state(0, { pendingCommand: pending() }));
+    renderGate.reject(new Error("render failed"));
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
+    ackGate.reject(new Error("ack failed"));
+    await vi.waitFor(() => expect(client.sync).toHaveBeenCalledWith("study-1", "tab-1"));
+    expect(onError).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not repeat an acknowledgement whose result is unknown after sync", async () => {
+    const command = pending();
+    const { controller, client } = setup({
+      ack: vi.fn().mockRejectedValue(new Error("lost ack response")),
+      sync: vi.fn().mockResolvedValue(state(0, { pendingCommand: command })),
+    });
+    controller.receive(state(0, { pendingCommand: command }));
+    await vi.waitFor(() => expect(client.sync).toHaveBeenCalledTimes(1));
+    controller.receive(state(0, { pendingCommand: command }));
+    await Promise.resolve();
+    expect(client.ack).toHaveBeenCalledTimes(1);
+    expect(client.pause).not.toHaveBeenCalled();
+  });
+
+  it("manual revision conflict syncs the latest scene without pausing", async () => {
+    const latest: Scene = { ...baseScene, resultMode: "synthetic" };
+    const { controller, client, render } = setup({
+      manual: vi.fn().mockRejectedValue(new Error("REVISION_CONFLICT")),
+      sync: vi.fn().mockResolvedValue(state(1, { scene: latest })),
+    });
+    controller.receive(state(0));
+    controller.manual(baseScene);
+    await vi.waitFor(() => expect(client.sync).toHaveBeenCalledWith("study-1", "tab-1"));
+    expect(client.pause).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(render).toHaveBeenCalledWith(latest, 1));
   });
 
   it("disconnect prevents late render or acknowledgement response from reporting", async () => {

@@ -5,13 +5,14 @@ import { BridgeClient, BridgeError, type BridgeConnectionContext, type PairingRe
 
 export type ResearchConnectionProps = {
   surface?: "lab" | "map";
+  onReady?: () => void;
   onState: (state: StudyState) => void;
   onDisconnect: () => void;
   onConnection: (context: BridgeConnectionContext | null) => void;
 };
 
 /** Pairing controls; the separate PKCE client owns tab-scoped auth. Relay secrets stay in the companion. */
-export function ResearchConnection({ onState, onDisconnect, onConnection, surface = "lab" }: ResearchConnectionProps) {
+export function ResearchConnection({ onState, onDisconnect, onConnection, onReady, surface = "lab" }: ResearchConnectionProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [pairing, setPairing] = useState<PairingRequest | null>(null);
   const [status, setStatus] = useState<PairingStatus | null>(null);
@@ -27,10 +28,19 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, surfac
   }), []);
   const active = useRef(true);
   const polling = useRef(false);
-  const callbacks = useRef({ onState, onDisconnect, onConnection });
+  const callbacks = useRef({ onState, onDisconnect, onConnection, onReady });
   const approved = useRef(false);
-  callbacks.current = { onState, onDisconnect, onConnection };
+  callbacks.current = { onState, onDisconnect, onConnection, onReady };
   approved.current = status?.approved === true;
+  const welcomedStudy = useRef<string | null>(null);
+  useEffect(() => {
+    if (!study) { welcomedStudy.current = null; return; }
+    if (status?.approved && online && welcomedStudy.current !== study.studyId) {
+      welcomedStudy.current = study.studyId;
+      callbacks.current.onReady?.();
+    }
+  }, [study, status?.approved, online]);
+
 
   useEffect(() => {
     active.current = true;
@@ -54,7 +64,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, surfac
           const next = await client.pairingStatus(pairing.pairingId, study.tabId);
           if (!cancelled) { setStatus(next); if (next.approved) { const synced = await client.sync(study.studyId, study.tabId); if (!cancelled) { setOnline(synced.connected); setPaused(synced.paused); callbacks.current.onState(synced); } } }
         }
-      } catch { if (!cancelled) setMessage("配對狀態暫時無法更新。未確認前不會視為連線。 "); }
+      } catch { if (!cancelled) { setOnline(false); setMessage("連線狀態暫時無法更新，請稍後重試。 "); } }
       finally { polling.current = false; }
     };
     void poll(); const timer = window.setInterval(() => void poll(), 2_000);
@@ -91,7 +101,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, surfac
   const copyPairing = async () => {
     if (!pairing || Date.now() >= Number(pairing.expiresAt)) { setMessage("配對碼已過期，請撤銷後重新建立。"); return; }
     try {
-      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。取得比對短語後等我在網站確認，再讀取研究畫布狀態。`);
+      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。取得比對短語後等我在網站確認，再讀取目前地圖狀態。接著依我的問題搜尋圖層、查看來源說明並協助探索；沒有分析 reader 不妨礙開圖。`);
       setMessage("已複製，請貼給已載入 pulse-research 的 Codex。");
     } catch { setMessage("無法複製，請手動複製下方配對 ID 與配對碼。"); }
   };
@@ -100,12 +110,14 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, surfac
   const revoke = async () => { if (!study) return; try { await client.revoke(study.studyId); } catch { setMessage("撤銷未確認，保留配對資訊以便重試。 "); return; } setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); setMessage("已撤銷研究連線。離頁時無法保證請求送達。 "); };
 
   return <section aria-label="研究連線" className="research-pairing">
-    <strong>本地 Agent 連線</strong>{session && <><small>登入帳號：{session.user.email}</small><button onClick={() => void signOut()}>登出這次研究登入</button></>}<p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可由本地 Agent 操作畫布。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
+    <strong>本地 Agent 連線</strong>{session && <><small>登入帳號：{session.user.email}</small><button onClick={() => void signOut()}>登出這次研究登入</button></>}<p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
     {!supabaseConfigured ? <small>未啟用：缺少網站登入設定。</small> : !session ? <button onClick={() => void signIn()}>使用 Google 登入</button> : !pairing ? <button disabled={creating} onClick={() => void begin()}>{creating ? "正在建立…" : "建立配對"}</button> : <>
+      {!status?.approved && <>
       <p>配對碼：<code>{pairing.code}</code></p><small>有效至 {new Date(pairing.expiresAt).toLocaleTimeString("zh-TW")}，請比對兩端短語再確認。</small><p>配對 ID：<code>{pairing.pairingId}</code></p><button onClick={() => void copyPairing()}>複製配對指令</button>
       {status?.deviceLabel && <p>裝置：{status.deviceLabel}</p>}{status?.phrase && <p>比對短語：{status.phrase}</p>}
-      <button disabled={!status?.claimed || !status?.phrase || status.approved} onClick={() => void approve()}>確認配對</button>{" "}<button onClick={() => void pause()}>{paused ? "恢復" : "暫停"}</button>{" "}<button onClick={() => void revoke()}>撤銷</button>
+      <button disabled={!status?.claimed || !status?.phrase || status.approved} onClick={() => void approve()}>確認配對</button></>}
+      {status?.approved && <button onClick={() => void pause()}>{paused ? "恢復" : "暫停"}</button>}{" "}<button onClick={() => void revoke()}>撤銷</button>
     </>}
-    <small>{surface === "map" ? "可分析有界資料、把結果呈現在這張主地圖，並操作既有圖層；開啟圖層會沿用原本的資料載入。正式連線尚未部署。" : "此頁只供獨立驗證連線與呈現；實際使用請回到 Mini Taiwan Pulse 主地圖。正式連線尚待部署驗收。"}</small>
+    <small>{surface === "map" ? "配對後，在 Codex 說出想了解的主題，就能搜尋、解釋與開啟圖層。你也可以隨時手動操作地圖。" : "此頁只供獨立驗證連線與呈現；實際使用請回到 Mini Taiwan Pulse 主地圖。正式連線尚待部署驗收。"}</small>
   </section>;
 }

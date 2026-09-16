@@ -19,6 +19,8 @@ export interface LayerDiscovery {
   locked: boolean;
   visible: boolean;
   dataReadSupport: DataReadSupport;
+  /** Display registration is a separate claim from whether a payload reader exists. */
+  displayCapability: { canOpen: boolean; basis: "manifest_registration" };
   datasetIds: string[];
 }
 
@@ -29,6 +31,11 @@ export interface LayerDescription extends LayerDiscovery {
   sourceTime: "unknown";
   license: "unknown";
   coverage: "unknown";
+  manifestSources: readonly { kind: string; reference: string | null }[];
+  upstream: { status: string; datasets: readonly { datasetId: string; confidence: string }[]; note: string | null; processing: string | null; derivedFromLayers: readonly string[] };
+  theme: string | null;
+  group: string | null;
+  metadataBasis: "manifest_registration_not_live_verification";
 }
 
 export interface PlaceCandidate {
@@ -56,6 +63,7 @@ function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscover
     locked: context.locked.has(key),
     visible: context.visible.has(key),
     dataReadSupport: dataReadSupport(key),
+    displayCapability: { canOpen: entry.section !== null && !context.locked.has(key), basis: "manifest_registration" },
     datasetIds: datasetIdsForLayer(key),
   };
 }
@@ -75,9 +83,10 @@ export function discoverLayers(query: string, offset = 0, limit = 20, context: D
   const safeOffset = bounded(offset, 0, 0, 10_000);
   const safeLimit = bounded(limit, 20, 1, 20);
   const matched = LAYER_SEARCH_INDEX
-    .filter(item => searchScore(query, `${item.key} ${item.label} ${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")}`) > 0)
-    .map(item => asDiscovery(item.key, context))
-    .sort((a, b) => searchScore(query, `${b.key} ${b.label}`) - searchScore(query, `${a.key} ${a.label}`) || a.key.localeCompare(b.key));
+    .map(item => ({ item, score: searchScore(query, `${item.key} ${item.label}`) * 3 + searchScore(query, `${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")} ${item.source}`) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || a.item.key.localeCompare(b.item.key))
+    .map(({ item }) => asDiscovery(item.key, context));
   const layers = matched.slice(safeOffset, safeOffset + safeLimit);
   return { query, offset: safeOffset, limit: safeLimit, totalMatched: matched.length, returned: layers.length, truncated: safeOffset + layers.length < matched.length, layers };
 }
@@ -90,11 +99,24 @@ function sourceReference(key: ManifestKey): { kind: string; reference: string | 
   return { kind: first.kind, reference: "url" in first ? first.url : first.fallbackUrl };
 }
 
+function allSources(key: ManifestKey): { kind: string; reference: string | null }[] {
+  const source = LAYER_MANIFEST[key].source;
+  return (Array.isArray(source) ? source : [source]).map(item => item.kind === "custom"
+    ? { kind: item.kind, reference: item.note }
+    : { kind: item.kind, reference: "url" in item ? item.url : item.fallbackUrl });
+}
+
 export function describeLayer(layerKey: string, context: DiscoveryContext = DEFAULT_CONTEXT): LayerDescription | null {
   if (!Object.prototype.hasOwnProperty.call(LAYER_MANIFEST, layerKey)) return null;
   const key = layerKey as ManifestKey;
   const entry = LAYER_MANIFEST[key];
-  return { ...asDiscovery(key, context), source: sourceReference(key), sourceStatus: entry.upstream.status, sourceStatusBasis: "manifest_registration_not_live_verification", sourceTime: "unknown", license: "unknown", coverage: "unknown" };
+  const upstream = entry.upstream as { status: string; datasets?: readonly { datasetId: string; confidence: string }[]; note?: string; processing?: string; derivedFromLayers?: readonly string[] };
+  return {
+    ...asDiscovery(key, context), source: sourceReference(key), manifestSources: allSources(key), sourceStatus: entry.upstream.status,
+    sourceStatusBasis: "manifest_registration_not_live_verification", metadataBasis: "manifest_registration_not_live_verification", sourceTime: "unknown", license: "unknown", coverage: "unknown",
+    upstream: { status: upstream.status, datasets: upstream.datasets ?? [], note: upstream.note ?? null, processing: upstream.processing ?? null, derivedFromLayers: upstream.derivedFromLayers ?? [] },
+    theme: entry.section?.theme ?? null, group: entry.section?.group ?? null,
+  };
 }
 
 /** Camera presets are local named viewpoints only; no geocoder is consulted. */

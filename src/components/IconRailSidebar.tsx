@@ -31,6 +31,7 @@ import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_T
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -193,6 +194,7 @@ export function IconRailSidebar({
     "--agent-control-border": palette.CTRL_INACTIVE_BORDER,
   } as CSSProperties;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
+  const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
   const [statisticsSearch, setStatisticsSearch] = useState("");
@@ -215,6 +217,29 @@ export function IconRailSidebar({
     setActivePanel(null);
   }, [externalCloseEpoch]);
 
+  const closeExternalPanels = () => {
+    if (memberActive && onMemberToggle) onMemberToggle();
+    if (intelActive && onIntelToggle) onIntelToggle();
+    if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
+    if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
+  };
+
+  useEffect(() => {
+    const onExplore = (event: Event) => {
+      const detail = (event as CustomEvent<unknown>).detail;
+      const rawKeys = detail && typeof detail === "object" && Array.isArray((detail as { layerKeys?: unknown }).layerKeys)
+        ? (detail as { layerKeys: unknown[] }).layerKeys.filter((key): key is string => typeof key === "string") : [];
+      if (rawKeys.length) {
+        const panel = panelForExplorationLayers(rawKeys);
+        lastExplorationPanel.current = panel;
+        closeExternalPanels();
+        setActivePanel(panel);
+      } else setActivePanel(current => current === "agent" ? lastExplorationPanel.current : current);
+    };
+    window.addEventListener("pulse:explore-layers", onExplore);
+    return () => window.removeEventListener("pulse:explore-layers", onExplore);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, propertyValueActive, onPropertyValueToggle]);
+
   const panelOpen = activePanel !== null;
 
   // Floating panel doesn't push content — always report rail width only
@@ -233,10 +258,8 @@ export function IconRailSidebar({
     // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
     // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
     if (willOpen) {
-      if (memberActive && onMemberToggle) onMemberToggle();
-      if (intelActive && onIntelToggle) onIntelToggle();
-      if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
-      if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
+      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "japan") lastExplorationPanel.current = panel;
+      closeExternalPanels();
       // 打開「日本」tab → 自動飛日本（App 用 mapRef flyTo）
       if (panel === "japan") onJapanOpen?.();
     }

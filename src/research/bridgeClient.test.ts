@@ -38,6 +38,15 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, extra: true }))).sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" } satisfies Partial<BridgeError>);
   });
 
+  it("accepts cleared and valid focus, but rejects malformed focus", async () => {
+    for (const focus of [null, { resultId: "result-1", recordId: "row:1" }]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, focus } })));
+      await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { focus } });
+    }
+    const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, focus: { resultId: "r" } } })));
+    await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
   it.skipIf(!gatewayRoot)("parses real gateway pairing status and pending command state", async () => {
     const { join } = await import("node:path");
     const { pathToFileURL } = await import("node:url");
@@ -57,8 +66,11 @@ describe("BridgeClient", () => {
     await client.approve(pairing.pairingId, study.tabId, claim.phrase);
     const exchanged = await (await publicPost("/pairings/exchange", { pairingId: pairing.pairingId, claimSecret: claim.claimSecret })).json() as { credential: string; sessionId: string };
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: null });
-    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 0, expiresAt: Date.now() + 10_000, patch: { resultMode: "synthetic" } }, exchanged.credential);
+    const manuallyMoved = await client.manual(study.studyId, study.tabId, 0, { camera: { center: [120.63, 24.16], zoom: 11 }, resultMode: "empty", focus: null });
+    expect(manuallyMoved).toMatchObject({ revision: 1, paused: false, scene: { focus: null } });
+    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ scene: { focus: null }, paused: false });
+    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { resultMode: "synthetic", focus: null } }, exchanged.credential);
     expect(commandResponse.status).toBe(200);
-    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { resultMode: "synthetic" } } });
+    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { resultMode: "synthetic", focus: null } } });
   });
 });

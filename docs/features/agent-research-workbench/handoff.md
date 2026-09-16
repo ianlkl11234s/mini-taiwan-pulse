@@ -238,3 +238,44 @@ node scripts/research/sync-contracts.mjs --analytics ../taipei-gis-analytics --c
 本次Browser DOM：desktop viewport 1422 CSS px、mobile 433 CSS px（工具390 device width在目前瀏覽器zoom下），scrollWidth等於innerWidth，無橫向溢出；同一canvas、合成呈現ready與清除empty。截圖工具產出有重影，截圖不作完整視覺驗收證據。正式登入／配對的UI仍待端到端驗收。
 
 跨repo client/gateway contract test 須顯式 `PULSE_RESEARCH_GATEWAY_ROOT=/absolute/gis-platform/services/research-gateway npm test -- src/research`；獨立Pulse checkout預設略過此1項，其他16項照跑，避免CI硬依賴 sibling repo。
+
+## 2026-09-16：先完成看地圖與探索資料
+
+本輪依使用者收斂：Codex 先搜尋現有圖層、解釋來源與內容、提出相關圖層，依對話開圖及定位；交叉分析不擴充。
+
+- `pulse_get_layer_details` / `layer_details` 串接 MCP、gateway、browser；每次 1–3 個圖層，重用 manifest 與既有 data catalog loader。
+- 回傳來源與 lineage、catalog 更新與授權資訊、related layers、descriptor 欄位；descriptor 明示並非已讀取的 layer payload。
+- 搜尋支援自然中文斷詞與主題同義詞，農田問題可找到 agriculture（FTW Fields），殯葬可找到 funeralFacilities；沒有分析 reader 不阻止開圖。
+- MCP instructions 區分探索與分析；保留既有 overrides，外部背景可由 host web tools 補充並標明來源，不冒稱外部資料已上圖。
+- catalog 空白或逾時仍回 manifest，標記 no_entries_or_unavailable。
+
+驗證：Pulse research suite 首跑 75 passed、2 failed、2 skipped；兩個失敗修正後 focused 6/6 passed（含真實本地 schools/library regression），搜尋與 discovery 5/5 passed。MCP 工具測試 12/12、gateway relay 12/12 passed；offline production MCP smoke 含 agriculture/funeralFacilities/schools layer_details 成功。此 smoke 沒有瀏覽器配對或遠端 catalog 證據。
+
+Runtime：3732 本機站已啟動。8791 gateway 未啟動，原 `/private/tmp/pulse-research-workbench/runtime/gateway.env` 不存在；保留原 SQLite，不繞過登入或憑空新增 pilot 身份。重新提供既有 gateway 環境設定後才可做 paired Agent E2E。變更留在三個 open-ended temp worktrees，未發布。
+
+第一階段產品範圍、Agent 指引、context/tool 分工及前端流程已記錄於 [map-exploration.md](./map-exploration.md)。指引核心已在 MCP instructions，暫不另建 Skill。配對區預設隱藏進階分析控制，連線成功回圖層面板；實際活動提示沿用 QueryResponder 與地圖操作事件。
+
+## 2026-09-16 暫存目錄消失後恢復
+
+Git bases: Pulse 61f53a3e、MCP 07c5b94、gateway c65d72d。由本任務與子任務操作紀錄恢復探索與配對介面未提交修改；新 branch 均為 codex/research-recovered。持久工作目錄：/Users/migu/.codex/worktrees/c92d/research-recovery/{mini-taiwan-pulse,mini-pulse-gis-mcp,gis-platform}。
+
+驗證：tsc -b pass；Pulse research 80 passed/1 skipped；MCP server 12/12、gateway relay 12/12；offline MCP smoke pass；3732 browser 主地圖與精簡配對面板正常。原 SQLite 已不存在，需重新配對；未宣稱登入後 E2E 已完成。
+
+已啟動 3732 與 8791；Codex pulse-research args 已換成持久 MCP dist/research/index.js。gateway 使用 scripts/research/start-gateway.mjs，需由環境提供使用者指定 PULSE_RESEARCH_PILOT_EMAILS，沿用網站既有 public auth 設定，不繞過驗證。前端啟動使用 start-local.mjs --port 3732 --gateway-origin http://127.0.0.1:8791；public 學校/圖書館已校驗。
+
+本地未提交差異另備份於 ../recovery-backups（相對於三 repo 的共同父目錄）；不含 .env、node_modules、登入資訊或 runtime DB。未 push 或部署。
+
+## 2026-09-16 黑色玻璃動作紀錄
+
+右上角 activity 改為中性黑色玻璃，只呈現動作與文字；跟隨 Agent checkbox 與地點操作移至左側 Agent 面板。保留本次連線最新 6 筆（最新在上、舊訊息淡化，可捲動），相同狀態去重，disconnect/reconnect 清除；不跨重整保存。tsc -b pass，activity/QueryResponder/motion 11/11 pass，瀏覽器示例樣式檢視通過；示例不作為 paired runtime 證據。
+
+## 本機圖層缺檔修復
+
+恢復的 worktree 缺少原 public 中未納入 Git 的資料。新增 link-local-assets.mjs，以既有 Desktop public 為來源，只連結缺少的公開資料/素材檔，不覆寫、不跟隨來源 symlink、不處理 hidden/private 目錄。start-local --asset-source 現在先執行此步驟，再校驗 pilot assets。補回 970 檔。HTTP 驗證：agriculture/ftw_fields_2025.pmtiles 206 + PMTiles magic +正確 Content-Range；觀光 6070、殯葬 3707、學校 4315 FeatureCollection。此證據不代表所有 RPC/遠端圖層均已驗收。
+
+## 2026-09-16 連鎖錯誤修復
+- 根因：MainMapConnection 手動 scene 包含 focus:null，Gateway 合法接受，但 bridgeClient 的 scene/patch runtime guard 未接受 focus，造成 INVALID_RESPONSE；已補嚴格 focus validation。真 Gateway in-memory 測試確認 manual → sync 含 focus:null 正常。
+- StudyController 失敗改 sync 恢復、不自動 pause 整段 session；未知 ack 不重送同一 command。
+- QueryResponder 僅在 queryResult 送達後回報完成；連續 3 次同步失敗才 offline，成功空輪詢可清除舊錯誤，區分取消/逾時與登入配對問題。面板 message 保留錯誤代碼。
+- 手動移動顯示獨立「已保留你的視角」，不再沿用上一則錯誤標題。
+- 舊 session 已被暫停者仍需使用者按恢復，不能替使用者自動取消明確暫停。尚未完成使用者真實配對 session 的 browser E2E；不宣稱所有網路錯誤根因已消除。

@@ -3,12 +3,13 @@
 import { readFile, mkdir, copyFile, stat } from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
-import { spawn } from 'node:child_process';
+import { spawn, execFileSync } from 'node:child_process';
 const args = process.argv.slice(2);
 const option = name => { const index = args.indexOf(name); return index < 0 ? undefined : args[index + 1]; };
 const port = Number(option('--port') ?? 3731);
 if (!Number.isInteger(port) || port < 1024 || port > 65535) throw new Error('INVALID_PORT');
 const root = process.cwd();
+if (option('--asset-source')) execFileSync(process.execPath, [resolve(root, 'scripts/research/link-local-assets.mjs'), option('--asset-source')], { stdio: 'inherit' });
 const assets = ['/education/schools.geojson', '/culture/public_libraries_national.geojson'];
 const receipts = [];
 for (const url of assets) {

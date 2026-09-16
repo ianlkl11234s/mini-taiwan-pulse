@@ -31,3 +31,8 @@
 .main-map-agent .nearby-results li { display: block; }
 .main-map-agent .nearby-results li button { display: flex; justify-content: space-between; width: 100%; gap: 10px; text-align: left; }
 .main-map-agent .nearby-results details { overflow-wrap: anywhere; }
+.main-map-agent .agent-follow-setting { display: flex; align-items: flex-start; gap: 9px; margin: 14px 0 10px; padding-top: 12px; border-top: 1px solid #ffffff1a; color: inherit; font-size: 12px; cursor: pointer; }
+.main-map-agent .agent-follow-setting input { flex: 0 0 auto; width: 14px; height: 14px; min-height: 0; margin: 3px 0 0; padding: 0; accent-color: #d4d4d4; }
+.main-map-agent .agent-follow-setting small { margin: 3px 0 0; color: #999; font-size: 11px; }
+.main-map-agent .agent-place-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.main-map-agent .agent-follow-setting input:focus-visible { outline: 2px solid #ddd; outline-offset: 3px; }

@@ -9,13 +9,16 @@ export class StudyController {
   private interacting = false;
   private generation = 0;
   private queued: Scene | null = null;
+  /** An ack may have committed after its response was lost; never replay it blindly. */
+  private uncertainCommandId: string | null = null;
   constructor(private readonly connection: BridgeConnectionContext, private readonly render: Render, private readonly onError: () => void) {}
 
   receive(state: StudyState): void {
     if (this.stopped || this.busy || this.interacting || state.studyId !== this.connection.studyId || state.tabId !== this.connection.tabId || (this.state && state.revision < this.state.revision)) return;
     const changed = !this.state || state.revision !== this.state.revision;
     this.state = state;
-    if (state.pendingCommand && !state.paused) { void this.applyCommand(state); return; }
+    if (this.uncertainCommandId && state.pendingCommand?.commandId !== this.uncertainCommandId) this.uncertainCommandId = null;
+    if (state.pendingCommand && !state.paused && state.pendingCommand.commandId !== this.uncertainCommandId) { void this.applyCommand(state); return; }
     if (changed) this.present(state.scene, state.revision, state.view.phase === "applied");
   }
 
@@ -48,18 +51,25 @@ export class StudyController {
     this.busy = true;
     const generation = ++this.generation;
     const { client, studyId, tabId } = this.connection;
+    let ackStarted = false;
     try {
       // render() synchronously applies the typed scene; its promise waits for actual idle.
       const rendered = this.render({ ...state.scene, ...pending.patch }, state.revision + 1);
+      let renderFailureReported = false;
+      void rendered.catch(() => {
+        renderFailureReported = true;
+        if (!this.stopped && generation === this.generation) this.onError();
+      });
+      ackStarted = true;
       const applied = await client.ack(studyId, tabId, pending.commandId, state.revision);
       if (this.stopped) return;
       this.state = applied;
       void rendered.then(async phase => {
         if (this.stopped || generation !== this.generation || this.state?.revision !== applied.revision) return;
         await client.report(studyId, tabId, applied.revision, phase);
-      }).catch(() => { if (!this.stopped && generation === this.generation) this.onError(); });
+      }).catch(() => { if (!renderFailureReported && !this.stopped && generation === this.generation) this.onError(); });
     } catch {
-      await this.recover();
+      await this.recover(ackStarted ? pending.commandId : null);
     } finally {
       this.busy = false;
       if (this.queued && !this.stopped) void this.flushManual();
@@ -84,15 +94,18 @@ export class StudyController {
     }
   }
 
-  private async recover(): Promise<void> {
+  private async recover(uncertainCommandId: string | null = null): Promise<void> {
     ++this.generation;
     if (this.stopped) return;
     this.onError();
-    // Keep the user's visible scene; pause prevents a failed acknowledgement from replaying.
+    if (uncertainCommandId) this.uncertainCommandId = uncertainCommandId;
     try {
       const { client, studyId, tabId } = this.connection;
-      const state = await client.pause(studyId, tabId, true);
-      if (!this.stopped) this.state = state;
-    } catch { this.stop(); }
+      const state = await client.sync(studyId, tabId);
+      if (this.stopped) return;
+      this.state = state;
+      if (this.uncertainCommandId && state.pendingCommand?.commandId !== this.uncertainCommandId) this.uncertainCommandId = null;
+      this.present(state.scene, state.revision, state.view.phase === "applied");
+    } catch { /* Preserve the error and let the next scheduled sync retry. */ }
   }
 }

@@ -46,6 +46,7 @@ export async function exploreData(args: { query: string; offset?: number; limit?
     const group = grouped.get(identity);
     if (group) group.keys.push(item.key); else grouped.set(identity, { keys: [item.key], score });
   }
+  // This optional reader probe is separate from display-first search_layers.
   const groups = [...grouped.values()].sort((a, b) => {
     const readable = (g: typeof a) => descriptors.some(d => d.layerRefs.some(key => g.keys.includes(key as ManifestKey))) ? 1 : 0;
     return readable(b) - readable(a) || b.score - a.score;
@@ -88,9 +89,9 @@ export async function exploreData(args: { query: string; offset?: number; limit?
     candidates.push({ layerKeys: group.keys, label: (entry.section === null ? key : entry.label), description: entry.description.slice(0, 500), topics: entry.topics,
       visible: group.keys.some(ref => context.visible.has(ref)), locked: group.keys.some(ref => context.locked.has(ref)), sources,
       catalogStatus: "registered_not_payload_proof", readers, analysisReadiness: readers.length ? "reader_registered_check_payload" : "metadata_only_adapter_required",
-      next: readers.length ? "Inspect sample and semantics; select filters and scope before composing analysis." : "Layer display is not a dataset reader. Report the missing adapter; do not infer zero or fetch arbitrary URLs." });
+      next: readers.length ? "Inspect sample and semantics; select filters and scope before composing analysis." : "Open this registered layer for map exploration. A data reader is only needed for calculations; do not infer zero from its absence." });
   }
   return { query, offset, limit, totalMatched: groups.length, returned: candidates.length, nextOffset: offset + candidates.length < groups.length ? offset + candidates.length : null,
-    probes, candidates, workflow: ["explore_data", "describe_dataset", "query_records with declared scope", "compare_neighborhoods / aggregate_records / spatial_query", "present_result", "wait_scene_ready"],
+    probes, candidates, workflow: { exploration: ["search_layers", "get_layer_details", "discuss relevant layers", "set_layers / set_camera when requested"], analysis: ["describe_dataset", "query_records with declared scope", "analysis operation", "present_result", "wait_scene_ready"] },
     interpretation: "Vocabulary matches are candidates, not evidence. Use source counts separately; declare scale and assumptions. Resource counts do not establish quality, capacity or walking access." };
 }
