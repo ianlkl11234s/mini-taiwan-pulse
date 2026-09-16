@@ -18,6 +18,8 @@ echo "[entrypoint] $(date -u) container start"
 export ALLEN_CORAL_ATLAS_STORAGE=s3
 export ALLEN_CORAL_ATLAS_ORIGINS="${ALLEN_CORAL_ATLAS_ORIGINS:-https://mini-taiwan-pulse.itsmigu.com}"
 export ALLEN_CORAL_ATLAS_REVOKE_PATH=/data/.private-allen/revoked-sessions.jsonl
+# Metadata only (no bearer/session/body), outside webroot; cleared on container replacement.
+export ALLEN_CORAL_ATLAS_AUDIT_PATH=/tmp/allen-coral-access-audit.jsonl
 node /opt/coral-server/coral-private-server.mjs &
 
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then

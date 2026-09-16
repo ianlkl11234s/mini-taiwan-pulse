@@ -1,4 +1,3 @@
-import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
@@ -106,7 +105,7 @@ import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } fro
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
-import { coralSafeFeatureInfo, isAllenCoralPrivateFeature, isCoralPrivateFeature } from "./lib/coralPrivateUi";
+import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -178,7 +177,6 @@ export default function App() {
   // 動態 gating（Phase 2）：啟動拉一次公開 get_layer_gates()（fail-safe：失敗維持靜態 GATED_LAYERS）。
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
-  const coralAccess = useCoralPrivateAccess();
   const allenCoralAccess = useAllenCoralPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
@@ -190,10 +188,9 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
-    if (!coralAccess.allowed) s.add("coralReefDistribution");
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     return s;
-  }, [memberTier, layerGates, coralAccess.allowed, allenCoralAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -793,13 +790,11 @@ export default function App() {
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
-  // Auth changes first remove the private source in its host. This derived state also
-  // hides a previously selected Coral feature in the same render, before its cleanup
-  // effect runs, so neither popup nor selected-feature halo can linger after logout.
+  // Allen auth changes first remove the private source in its host. This derived state also
+  // hides a previously selected Allen feature in the same render, before its cleanup effect
+  // runs, so neither popup nor selected-feature halo can linger after logout.
   const coralUiFeatureInfo = coralSafeFeatureInfo(
     featureInfo,
-    coralAccess.allowed,
-    layerVisibility.coralReefDistribution,
     allenCoralAccess.allowed,
     layerVisibility.allenCoralAtlas,
   );
@@ -818,16 +813,13 @@ export default function App() {
     };
   }, [featureInfo, setFeatureInfo, setLayerVisibility]);
   useEffect(() => {
-    if (!coralAccess.allowed && layerVisibility.coralReefDistribution) {
-      setLayerVisibility((prev) => ({ ...prev, coralReefDistribution: false }));
-    }
     if (!allenCoralAccess.allowed && layerVisibility.allenCoralAtlas) {
       setLayerVisibility((prev) => ({ ...prev, allenCoralAtlas: false }));
     }
-    if (featureInfo && coralUiFeatureInfo === null && (isCoralPrivateFeature(featureInfo) || isAllenCoralPrivateFeature(featureInfo))) {
+    if (featureInfo && coralUiFeatureInfo === null && isAllenCoralPrivateFeature(featureInfo)) {
       setFeatureInfo(null);
     }
-  }, [coralAccess.allowed, allenCoralAccess.allowed, layerVisibility.coralReefDistribution, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  }, [allenCoralAccess.allowed, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context

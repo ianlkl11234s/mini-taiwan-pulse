@@ -16,7 +16,7 @@ const area = (value: unknown): string => {
   return `${n.toLocaleString("en-US", { maximumFractionDigits: 3 })} km²`;
 };
 
-/** 本地研究 PMTiles 的 19 欄屬性；MVT 缺屬性仍視為 null。 */
+/** UNEP-WCMC PMTiles 的 19 欄屬性；MVT 缺屬性仍視為 null。 */
 export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   return <>
