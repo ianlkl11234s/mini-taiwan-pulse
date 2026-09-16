@@ -1,0 +1,11 @@
+{
+  "status": "LOCAL_ONLY",
+  "original_selectors": 3590,
+  "added_selectors": 244,
+  "total_selectors": 3834,
+  "recipe_count": 188,
+  "manifest_sha256": "fc6961b36f9164cf7041a60688e699cafe3bf40d75ef570c0d3de59a90dca539",
+  "bundle_sha256": "d146c15b572a6a7e06e1f6a587647cf88117942cd8e7e1ee3adaf3b8579aca0f",
+  "bundle_bytes": 1557858,
+  "recovered_on": "2026-09-17"
+}

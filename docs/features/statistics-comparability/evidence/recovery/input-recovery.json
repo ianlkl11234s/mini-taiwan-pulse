@@ -1,0 +1,24 @@
+{
+  "status": "INPUTS_RECOVERED_AND_LOCAL_VALIDATION_PASSED",
+  "source": "public immutable CDN plus original official downloads",
+  "inputs": [
+    {
+      "path": "statistics-audit-live-manifest.json",
+      "bytes": 2198417,
+      "sha256": "d8aefb0375568a57126283e7fbd3901ee0c46cbb25c68af2c12647a14d35165a"
+    },
+    {
+      "path": "statistics-a1-a2-2025-official.zip",
+      "bytes": 43253520,
+      "sha256": "2a8e32266708fba9bd9764cefc07717ded978f65bae834c3b6795a992d04fbc7"
+    },
+    {
+      "path": "statistics-comparison-data/denominators/township_density_114.csv",
+      "bytes": 18521,
+      "sha256": "8706fcc4c70a6315d26b3e18aa4ac04fe1691ff844d53265881e494761ea6bd0"
+    }
+  ],
+  "cdn_artifacts_and_geometries_verified": 534,
+  "historical_manifest_sha_match": true,
+  "historical_a1_a2_sha_match": true
+}
