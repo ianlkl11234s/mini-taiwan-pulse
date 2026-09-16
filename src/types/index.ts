@@ -1,3 +1,4 @@
+import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
@@ -860,7 +861,7 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
   statsEducationCountyInstitutionCount: boolean;
   statsEducationCountyTeacherCount: boolean;
@@ -873,6 +874,18 @@ export interface LayerVisibility {
   statsEducationCountyStudentsPerClass: boolean;
   statsEducationCountyStudentYearChange: boolean;
   statsEducationCountyStudentYearChangePct: boolean;
+  statsEducationPreschoolSchool: boolean;
+  statsEducationPreschoolTeacher: boolean;
+  statsEducationPreschoolStudent: boolean;
+  statsEducationElementarySchool: boolean;
+  statsEducationElementaryTeacher: boolean;
+  statsEducationElementaryStudent: boolean;
+  statsEducationJuniorHighSchool: boolean;
+  statsEducationJuniorHighTeacher: boolean;
+  statsEducationJuniorHighStudent: boolean;
+  statsEducationSeniorHighSchool: boolean;
+  statsEducationSeniorHighTeacher: boolean;
+  statsEducationSeniorHighStudent: boolean;
   statsHealthHospitalCount: boolean;
   statsHealthHospitalBedTotal: boolean;
   statsHealthAcuteBedTotal: boolean;

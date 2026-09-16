@@ -1,4 +1,4 @@
-import { STATISTICS_KEYS } from '../data/regionalStatisticsRecipes';
+import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
 /**
  * GIS 點擊接線註冊表（AR-22 Phase 4b）
  * ══════════════════════════════════════════════════════════════════
@@ -466,7 +466,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["prosecutors-office-circle"], type: "prosecutorsOffice" },
   { layers: ["correctional-facility-circle"], type: "correctionalFacility" },
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
-  { layers: STATISTICS_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
+  { layers: STATISTICS_RENDER_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
   { layers: ["crime-area-monthly-fill", "crime-area-monthly-line"], type: "crimeAreaMonthly" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },

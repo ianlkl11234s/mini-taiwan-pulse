@@ -1,6 +1,6 @@
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
+import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
@@ -501,7 +501,7 @@ export function IconRailSidebar({
                 search={statisticsSearch}
                 onSearchChange={setStatisticsSearch}
                 themes={STATISTICS_TAB_THEMES}
-                allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
+                allOffKeys={[...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])]}
                 title="統計 Statistics"
                 statisticsModeControl
                 visibility={visibility}
@@ -1176,7 +1176,7 @@ function LayersPanel({
                     {group.layers.map(({ key, label, expandable }) => {
                       const medicalGroup = getMedicalStatisticsGroup(key);
                       if (medicalGroup) {
-                        if (medicalGroup.options[0].key !== key) return null;
+                        if (medicalGroup.options[0]?.key !== key) return null;
                         return (
                           <MedicalStatisticsGroupControls
                             key={medicalGroup.key}
@@ -1283,7 +1283,7 @@ function ExpandedControls({
 
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

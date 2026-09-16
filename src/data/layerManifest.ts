@@ -1,7 +1,9 @@
+import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -347,6 +349,22 @@ const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STA
   topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
 }])) as Record<SocialStatisticsLayerKey, LayerManifestEntry>;
 
+/** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
+const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
+  const metric = view.metrics[0]!;
+  const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(candidate => candidate.layer_key === metric.layerKey)!;
+  return [view.key, {
+    key: view.key,
+    section: { theme: '教育與少子化統計', group: '學校所在地縣市別' },
+    label: view.label, expandable: true, color: SOCIAL_STATISTICS_COLORS['教育與少子化統計'], icon: Recycle,
+    upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
+    source: { kind: 'custom', note: `Fixed ${view.stage} presentation view over immutable ${recipe.dataset_id} releases; regionalStatisticsMap runtime` },
+    legend: view.key, popup: 'regionalStatistic', params: { count: 1, kinds: ['slider'] },
+    description: '固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。',
+    topics: ['統計', '教育', '行政區', '縣市'],
+  }];
+})) as Record<EducationPresentationViewKey, LayerManifestEntry>;
+
 /**
  * Phase 1 試點：5 個**體質各異**的層。刻意不挑 5 個長得像的——
  * 派生機制要先撞過所有形狀（有無 overlay entry / 有無 labelMobile /
@@ -355,9 +373,19 @@ const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STA
  * ⚠️ `satisfies` 而非型別標註：標註成 Partial<Record<…>> 會把 key 的 literal 型別
  *    丟掉，ManifestKey 就退化成 348 個 key 的全集，下游 Omit 的 tsc 護欄整個失效。
  */
+const COMPARISON_MANIFEST_ENTRIES = Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
+  key: recipe.layer_key, section: { theme: '統計比較', group: recipe.groupLabel }, label: recipe.label,
+  expandable: true, color: '#2563eb', icon: Recycle,
+  upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
+  source: { kind: 'custom', note: 'Offline derived immutable Statistics artifacts; exact release allowlist and regionalStatisticsMap runtime' },
+  legend: recipe.layer_key, popup: 'regionalStatistic', params: { count: 1, kinds: ['slider'] },
+  description: recipe.disclosure, topics: ['統計', recipe.groupLabel, recipe.level === 'county' ? '縣市' : '鄉鎮市區'],
+}])) as Record<ComparisonStatisticsLayerKey, LayerManifestEntry>;
 export const LAYER_MANIFEST = {
+  ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
+  ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
     label: "航港局獎補助金額（受補助對象所在地）", expandable: true, color: "#2563eb", icon: Anchor,

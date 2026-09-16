@@ -452,7 +452,7 @@ describe("區域統計 sidebar 接線", () => {
   });
 
   it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
-    const wiring = 'isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
+    const wiring = 'isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
     for (const file of [
       'src/components/IconRailSidebar.tsx',
       'src/components/LayerSidebar.tsx',

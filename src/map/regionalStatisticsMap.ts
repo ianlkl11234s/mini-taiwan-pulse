@@ -1,7 +1,7 @@
 import { statisticsColorStops } from '../data/statisticsColorScale';
 import { getSocialRecipe } from '../data/socialStatisticsRecipes';
 import { getAgriRecipe } from '../data/agriStatisticsRecipes';
-import { STATISTICS_KEYS, STATISTICS_RECIPES, statisticsReleaseFallback, type StatisticsLayerKey } from '../data/regionalStatisticsRecipes';
+import { STATISTICS_RENDER_KEYS, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
 import { layerParamsStore } from '../state/layerParamsStore';
@@ -9,10 +9,10 @@ import { keepLoadingUntilMapIdle } from '../lib/loadingRegistry';
 
 /** Owns only statistics sources/layers; other GIS visibility is untouched. */
 export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
-  const shown = new Map<StatisticsLayerKey, boolean>();
-  const rendered = new Map<StatisticsLayerKey, GeoJSON.FeatureCollection>();
-  for (const key of STATISTICS_KEYS) {
-    const recipe = STATISTICS_RECIPES[key];
+  const shown = new Map<StatisticsRenderKey, boolean>();
+  const rendered = new Map<StatisticsRenderKey, GeoJSON.FeatureCollection>();
+  for (const key of STATISTICS_RENDER_KEYS) {
+    const recipe = statisticsRenderRecipe(key);
     const fallback = statisticsReleaseFallback(key);
     regionalStatisticsStore.registerRecipe(key, { layerKey: key, datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: recipe.level, label: recipe.label, dimensions: recipe.dimensions, ...('releaseId' in recipe ? { releaseId: recipe.releaseId, allowReleaseFallback: true } : {}), ...(fallback ? { releaseFallback: fallback } : {}), ...('includeHealth' in recipe ? { includeHealth: recipe.includeHealth } : {}) });
   }
@@ -27,11 +27,13 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
       }
       map.addImage(hatchId, { width: size, height: size, data });
     }
-    for (const key of STATISTICS_KEYS) {
+    for (const key of STATISTICS_RENDER_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
-      const recipe = STATISTICS_RECIPES[key];
-      const agri = getAgriRecipe(key) ?? getSocialRecipe(key);
+      const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId);
+      if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
+      const baseKey = statisticsBaseKey(key, state.selection?.indicatorId);
+      const agri = getAgriRecipe(baseKey) ?? getSocialRecipe(baseKey);
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });
@@ -41,9 +43,14 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
           'fill-color': ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], step, agri?.legend.missing_color ?? '#64748b'] as mapboxgl.ExpressionSpecification,
           'fill-opacity': 0.55,
         } });
-        if (agri) map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchId, 'fill-opacity': 0.55 } });
+        map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchId, 'fill-opacity': 0.55 } });
         map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { 'line-color': recipe.colors[4], 'line-width': 0.8, 'line-opacity': 0.8 } });
       }
+      // A presentation source survives metric switches; refresh the scale as well as values.
+      const colorSteps: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
+      statisticsColorStops(recipe.breaks, recipe.colors).forEach(({value, color}) => colorSteps.push(value, color));
+      map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], colorSteps, agri?.legend.missing_color ?? '#64748b']);
+      map.setPaintProperty(`${key}-line`, 'line-color', recipe.colors[4]);
       const data = state.data;
       if (data && rendered.get(key) !== data) {
         rendered.set(key, data);
@@ -53,15 +60,15 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
         rendered.delete(key);
         (map.getSource(key) as mapboxgl.GeoJSONSource).setData({ type: 'FeatureCollection', features: [] });
       }
-      for (const suffix of agri ? ['fill', 'line', 'suppressed'] : ['fill', 'line']) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', visible && data ? 'visible' : 'none');
+      for (const suffix of ['fill', 'line', 'suppressed']) map.setLayoutProperty(`${key}-${suffix}`, 'visibility', visible && data ? 'visible' : 'none');
       const opacity = Number(layerParamsStore.getParam(key, `${key}Opacity`) ?? 0.55);
       map.setPaintProperty(`${key}-fill`, 'fill-opacity', opacity);
       map.setPaintProperty(`${key}-line`, 'line-opacity', opacity);
-      if (agri) map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
+      map.setPaintProperty(`${key}-suppressed`, 'fill-opacity', opacity);
     }
   }
   function visibilityChanged() {
-    for (const key of STATISTICS_KEYS) {
+    for (const key of STATISTICS_RENDER_KEYS) {
       const visible = layerVisibilityStore.getVisibility(key);
       if (shown.get(key) === visible) continue;
       shown.set(key, visible);
@@ -70,13 +77,13 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
     }
     render();
   }
-  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(render), ...STATISTICS_KEYS.map(key => regionalStatisticsStore.subscribe(key, render))];
+  const dispose = [layerVisibilityStore.subscribe(visibilityChanged), layerParamsStore.subscribe(render), ...STATISTICS_RENDER_KEYS.map(key => regionalStatisticsStore.subscribe(key, render))];
   map.on('style.load', render);
   // Data may finish during a Mapbox source update; idle retries rendering that state.
   const onIdle = () => {
-    if (STATISTICS_KEYS.some(key => regionalStatisticsStore.getSnapshot(key).data !== (rendered.get(key) ?? null))) render();
+    if (STATISTICS_RENDER_KEYS.some(key => regionalStatisticsStore.getSnapshot(key).data !== (rendered.get(key) ?? null))) render();
   };
   map.on('idle', onIdle);
   visibilityChanged();
-  return () => { dispose.forEach(fn => fn()); map.off('style.load', render); map.off('idle', onIdle); STATISTICS_KEYS.forEach(key => regionalStatisticsStore.disable(key)); };
+  return () => { dispose.forEach(fn => fn()); map.off('style.load', render); map.off('idle', onIdle); STATISTICS_RENDER_KEYS.forEach(key => regionalStatisticsStore.disable(key)); };
 }

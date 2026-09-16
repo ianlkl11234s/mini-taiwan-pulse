@@ -27,7 +27,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
-import { STATISTICS_KEYS, STATISTICS_RECIPES } from "../../data/regionalStatisticsRecipes";
+import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
 
 const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
 const source = readFileSync(REGISTRY_FILE, "utf8");
@@ -53,7 +53,7 @@ function registryLayerIds(): Set<string> {
 /** Statistics layers are dynamically named `${key}-fill` / `${key}-line` by
  * the MapView-attached runtime renderer, rather than OVERLAY_REGISTRY. */
 function statisticsRuntimeLayerIds(): Set<string> {
-  return new Set(STATISTICS_KEYS.flatMap((key) => [`${key}-fill`, `${key}-line`]));
+  return new Set(STATISTICS_RENDER_KEYS.flatMap((key) => [`${key}-fill`, `${key}-line`]));
 }
 
 /** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除註冊表自己與測試檔） */
@@ -92,7 +92,7 @@ describe("GIS 點擊註冊表的 layer id", () => {
     const renderer = readFileSync("src/map/regionalStatisticsMap.ts", "utf8");
     expect(renderer).toContain("map.addLayer({ id: `${key}-fill`");
     expect(renderer).toContain("map.addLayer({ id: `${key}-line`");
-    for (const key of STATISTICS_KEYS) {
+    for (const key of STATISTICS_RENDER_KEYS) {
       expect(GIS_LAYERS.filter(entry => entry.type === "regionalStatistic").flatMap(entry => entry.layers)).toContain(`${key}-fill`);
       expect(statisticsRuntimeLayerIds().has(`${key}-fill`)).toBe(true);
       expect(statisticsRuntimeLayerIds().has(`${key}-line`)).toBe(true);

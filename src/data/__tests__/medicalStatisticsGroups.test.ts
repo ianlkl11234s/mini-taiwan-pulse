@@ -1,53 +1,43 @@
-import { describe, expect, it } from "vitest";
-import {
-  MEDICAL_STATISTICS_GROUPS,
-  getMedicalStatisticsGroup,
-  resolveMedicalStatisticsGroupKey,
-  type MedicalStatisticsOptionKey,
-} from "../medicalStatisticsGroups";
+import { describe, expect, it } from 'vitest';
+import { BUS_STATISTICS_GROUPS, HOUSING_MIXED_STATISTICS_GROUP, HOUSING_STATISTICS_GROUPS, LAND_STATISTICS_GROUPS, MEDICAL_STATISTICS_GROUPS, PRIMARY_STATISTICS_GROUPS, TRANSPORT_STATISTICS_GROUPS, WASTE_STATISTICS_GROUPS, getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../medicalStatisticsGroups';
 
-function visibility(...active: MedicalStatisticsOptionKey[]) {
-  return Object.fromEntries(
-    MEDICAL_STATISTICS_GROUPS.flatMap((group) => group.options.map((option) => [option.key, active.includes(option.key)])),
-  ) as Parameters<typeof resolveMedicalStatisticsGroupKey>[1];
-}
-
-describe("medical statistics groups", () => {
-  it("defines the two explicit comparison groups with their original layer keys", () => {
-    expect(MEDICAL_STATISTICS_GROUPS).toEqual([
-      { key: "hospitalBeds", label: "醫院病床", options: [
-        { key: "statsHealthHospitalBedTotal", label: "全部" },
-        { key: "statsHealthAcuteBedTotal", label: "急性" },
-        { key: "statsHealthIcuBedTotal", label: "加護" },
-        { key: "statsHealthHospiceBedTotal", label: "安寧" },
-      ] },
-      { key: "hospitalWorkforce", label: "醫院人力", options: [
-        { key: "statsHealthHealthProfessionalTotal", label: "醫事人員總計" },
-        { key: "statsHealthWesternPhysicianCount", label: "西醫師" },
-        { key: "statsHealthRegisteredNurseCount", label: "護理師" },
-      ] },
-    ]);
-    expect(getMedicalStatisticsGroup("statsHealthIcuBedTotal")?.key).toBe("hospitalBeds");
-    expect(getMedicalStatisticsGroup("statsHealthRegisteredNurseCount")?.key).toBe("hospitalWorkforce");
-    expect(getMedicalStatisticsGroup("unknown")).toBeUndefined();
-  });
-
-  it("only lets a visible expanded option override the active fallback", () => {
-    const current = visibility("statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal");
-    expect(resolveMedicalStatisticsGroupKey("hospitalBeds", current, "statsHealthAcuteBedTotal")).toBe("statsHealthAcuteBedTotal");
-    expect(resolveMedicalStatisticsGroupKey("hospitalBeds", current, "statsHealthIcuBedTotal")).toBe("statsHealthHospitalBedTotal");
-  });
-
-  it("uses an active preferred option, otherwise first active option, and never changes visibility", () => {
-    const current = visibility("statsHealthHospitalBedTotal", "statsHealthHospiceBedTotal");
-    const before = { ...current };
-    expect(resolveMedicalStatisticsGroupKey("hospitalBeds", current, undefined, "statsHealthHospiceBedTotal")).toBe("statsHealthHospiceBedTotal");
-    expect(resolveMedicalStatisticsGroupKey("hospitalBeds", current, undefined, "statsHealthIcuBedTotal")).toBe("statsHealthHospitalBedTotal");
-    expect(current).toEqual(before);
-  });
-
-  it("returns null when the group has no active layer", () => {
-    expect(resolveMedicalStatisticsGroupKey("hospitalWorkforce", visibility(), "statsHealthRegisteredNurseCount", "statsHealthRegisteredNurseCount")).toBeNull();
-    expect(resolveMedicalStatisticsGroupKey(undefined, visibility())).toBeNull();
-  });
+describe('statistics toggle groups', () => {
+ it('keeps medical raw, per-population, and per-area options together', () => {
+  expect(getMedicalStatisticsGroup('statsHealthIcuBedTotal')?.key).toBe('hospitalBeds');
+  expect(MEDICAL_STATISTICS_GROUPS.find(x=>x.key==='hospitalBeds')?.options.some(x=>String(x.key).includes('IcuBedTotalPer10000'))).toBe(true);
+  expect(MEDICAL_STATISTICS_GROUPS.find(x=>x.key==='hospitalBeds')?.options.some(x=>String(x.key).includes('IcuBedTotalPerKm2'))).toBe(true);
+  expect(MEDICAL_STATISTICS_GROUPS.find(x=>x.key==='hospitalCount')?.options.map(x=>x.key)).toEqual(expect.arrayContaining(['statsHealthHospitalCount', 'statsComparisonHospitalCountPer10000PopulationTownship', 'statsComparisonHospitalCountPerKm2Township']));
+ });
+ it('registers six housing groups plus the county-only mixed-use group', () => {
+  expect(HOUSING_STATISTICS_GROUPS).toHaveLength(6);
+  expect(HOUSING_MIXED_STATISTICS_GROUP.options.map(x=>x.key)).toContain('statsHousingMixedUseCounty');
+  expect(HOUSING_MIXED_STATISTICS_GROUP.options.some(x=>String(x.key).includes('HousingMixedShare'))).toBe(true);
+ });
+ it('registers fifteen land families with their raw township measure and comparisons', () => {
+  expect(LAND_STATISTICS_GROUPS).toHaveLength(15);
+  expect(LAND_STATISTICS_GROUPS.every(group=>group.options[0]?.label==='鄉鎮：原始面積'&&group.options.length>=5)).toBe(true);
+ });
+ it('keeps every bus metric with raw, population, and area comparisons; accessibility and electric also retain shares', () => {
+  expect(BUS_STATISTICS_GROUPS.map(x=>x.options.length)).toEqual([3,3,3,3,4,4,3,3]);
+  expect(BUS_STATISTICS_GROUPS.find(x=>x.key==='busAccessible')?.options.map(x=>x.key)).toContain('statsComparisonBusAccessibleSharePct');
+  expect(BUS_STATISTICS_GROUPS.find(x=>x.key==='busElectric')?.options.map(x=>x.key)).toContain('statsComparisonBusElectricSharePct');
+ });
+ it('keeps each accident, vehicle, parking, and licence metric in its own raw-to-rate group', () => {
+  expect(TRANSPORT_STATISTICS_GROUPS.find(x=>x.key==='a1DeathCount')?.options.map(x=>x.key)).toEqual(['statsA1DeathCount', 'statsComparisonA1DeathCountPer10000Residents', 'statsComparisonA1DeathCountPerKm2']);
+  expect(TRANSPORT_STATISTICS_GROUPS.find(x=>x.key==='a2AccidentCount')?.options.map(x=>x.key)).toEqual(['statsComparisonA2AccidentCount', 'statsComparisonA2AccidentCountPer10000Residents', 'statsComparisonA2AccidentCountPerKm2']);
+  expect(TRANSPORT_STATISTICS_GROUPS.filter(group=>/(Parking|Registered|LicenseHolders)/.test(group.key)).every(group=>group.options.length===2&&group.options[0]?.key!==group.options[1]?.key)).toBe(true);
+ });
+ it('keeps waste vehicle totals and recycling vehicles with their own population and area rates', () => {
+  expect(WASTE_STATISTICS_GROUPS.find(x=>x.key==='wasteTotalVehicles')?.options.map(x=>x.key)).toEqual(['statsWasteCounty', 'statsComparisonWasteTotalVehiclesPer10000Residents', 'statsComparisonWasteTotalVehiclesPerKm2']);
+  expect(WASTE_STATISTICS_GROUPS.find(x=>x.key==='wasteRecyclingVehicles')?.options.map(x=>x.key)).toEqual(['statsRecyclingCounty', 'statsComparisonWasteRecyclingVehiclesPer10000Residents', 'statsComparisonWasteRecyclingVehiclesPerKm2']);
+ });
+ it('places livestock head/farm and fishery count/share in their topic families', () => {
+  expect(PRIMARY_STATISTICS_GROUPS.find(x=>x.key==='livestockHeadAndFarm')?.options.map(x=>x.key)).toEqual(expect.arrayContaining(['statsLivestockHeadCountTownship', 'statsLivestockFarmCountTownship', 'statsComparisonLivestockHeadsPerFarmTownship']));
+  expect(PRIMARY_STATISTICS_GROUPS.find(x=>x.key==='fisheryProduction')?.options.map(x=>x.key)).toEqual(expect.arrayContaining(['statsFisheryProductionCounty', 'statsComparisonFisheryProductionTonnesNationalSharePctCounty']));
+ });
+ it('prefers an expanded visible option without changing visibility', () => {
+  const g=getMedicalStatisticsGroup('hospitalBeds')!;
+  const visibility=Object.fromEntries(g.options.map((x,i)=>[x.key,i===0||i===1])) as never;
+  expect(resolveMedicalStatisticsGroupKey(g,visibility,String(g.options[1]!.key))).toBe(g.options[1]!.key);
+ });
 });

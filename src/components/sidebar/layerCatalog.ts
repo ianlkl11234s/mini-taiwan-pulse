@@ -1,3 +1,4 @@
+import { COMPARISON_ENABLED_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // ══════════════════════════════════════════════════════════════════
 //  Layer Catalog — Sidebar 圖層目錄「單一真實來源」
 // ══════════════════════════════════════════════════════════════════
@@ -24,6 +25,7 @@
 // 3. 每主題內子群順序：點位 → 線/面 → 即時 → 分析
 
 import type { LayerVisibility, TransportType } from "../../types";
+import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 
 // ── Color Config ──
 
@@ -201,6 +203,7 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: '統計比較', groups: [...new Set(COMPARISON_ENABLED_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_ENABLED_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) },
   { title: "交通統計 Transport Statistics", groups: [
     { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
     { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
@@ -242,6 +245,7 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
   { title: "人口統計 Population Statistics", groups: [{ title: "出生登記", layers: [fromManifest("statsBirthsTownship")] }] },
   { title: "教育與少子化統計", groups: [{ title: "學校所在地縣市別", layers: [
     fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
+    ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
   ] }] },
   { title: "醫療與長照統計", groups: [
     { title: "醫院病床與人力", layers: [fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount")] },
@@ -270,7 +274,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     groups: [
       { title: "人口動態", layers: [fromManifest("statsBirthsTownship")] },
       { title: "教育與少子化", layers: [
-        fromManifest("statsEducationCountyInstitutionCount"), fromManifest("statsEducationCountyTeacherCount"), fromManifest("statsEducationCountyStaffCount"), fromManifest("statsEducationCountyStudentCount"), fromManifest("statsEducationCountyClassCount"), fromManifest("statsEducationCountySmallSchoolCount"), fromManifest("statsEducationCountySmallSchoolSharePct"), fromManifest("statsEducationCountyStudentTeacherRatio"), fromManifest("statsEducationCountyStudentsPerClass"), fromManifest("statsEducationCountyStudentYearChange"), fromManifest("statsEducationCountyStudentYearChangePct"),
+        ...EDUCATION_PRESENTATION_VIEW_KEYS.map(fromManifest),
       ] },
       { title: "醫療與長照", layers: [
         fromManifest("statsHealthHospitalCount"), fromManifest("statsHealthHospitalBedTotal"), fromManifest("statsHealthAcuteBedTotal"), fromManifest("statsHealthIcuBedTotal"), fromManifest("statsHealthHospiceBedTotal"), fromManifest("statsHealthHealthProfessionalTotal"), fromManifest("statsHealthWesternPhysicianCount"), fromManifest("statsHealthRegisteredNurseCount"), fromManifest("statsHealthNursingStaffListedAgeSexSum"), fromManifest("statsHealthCareWorkerListedSexSum"), fromManifest("statsHealthGeneralNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenBeds"), fromManifest("statsHealthPostpartumNursingHomeOpenInfantBeds"), fromManifest("statsHealthCareWorkerRegistration"), fromManifest("statsHealthMedicalInstitutionBedsPer10000Population"), fromManifest("statsHealthPracticingMedicalPersonnelPer10000Population"),
@@ -285,13 +289,9 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     title: "交通與運輸 Transport",
     defaultCollapsed: true,
     groups: [
-      { title: "大眾運輸", layers: [
-        fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount"),
-        fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingVehicleCount"),
-        fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"),
-        fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm"),
-        fromManifest("statsTmrtStationOutboundCounty"),
-      ] },
+      { title: "建置量", layers: [fromManifest("statsBusOperatingRouteLengthKm"), fromManifest("statsBusApprovedRouteCount")] },
+      { title: "使用與營運", layers: [fromManifest("statsUrbanBusOperatorCount"), fromManifest("statsBusOperatingTripCount"), fromManifest("statsBusOperatingVehicleKm"), fromManifest("statsTmrtStationOutboundCounty")] },
+      { title: "車輛登記存量", layers: [fromManifest("statsBusOperatingVehicleCount"), fromManifest("statsBusAccessibleVehicleCount"), fromManifest("statsBusElectricVehicleCount"), fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount")] },
       { title: "自行車（臺北市，民國 110 年）", layers: [
         fromManifest("statsTaipeiUrbanRentalStations"), fromManifest("statsTaipeiUrbanRentalTrips"),
         fromManifest("statsTaipeiRiversideRentalStations"), fromManifest("statsTaipeiRiversideBicycles"),
@@ -301,9 +301,8 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
         fromManifest("statsA1AccidentCount"), fromManifest("statsA1DeathCount"), fromManifest("statsA1InjuryCount"),
         fromManifest("statsTaipeiTrafficViolationCitations"), fromManifest("statsTaichungRoadNoiseMonitoringStations"),
       ] },
-      { title: "車輛與停車", layers: [
+      { title: "駕照與停車", layers: [
         fromManifest("statsOffstreetSmallCarParkingSpacesCount"), fromManifest("statsOnstreetSmallCarParkingSpacesCount"),
-        fromManifest("statsMotorcycleRegisteredCount"), fromManifest("statsAutomobileRegisteredCount"),
         fromManifest("statsAutomobileLicenseHoldersCount"), fromManifest("statsMotorcycleLicenseHoldersCount"),
       ] },
       { title: "航空運輸", layers: [
@@ -371,6 +370,30 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
     ],
   },
 ];
+
+
+// Derived metrics keep the source topic; education metrics are represented by the twelve presentation views.
+for (const recipe of COMPARISON_ENABLED_RECIPES) {
+  const id = recipe.indicator_id;
+  if (id.startsWith('education_')) continue;
+  const title = recipe.groupLabel === '醫療與長照' ? '醫療與長照'
+    : id.startsWith('housing_') ? '住宅存量與使用'
+    : /^(bus_operating_route_length|bus_approved_route)_/.test(id) ? '建置量'
+    : /^(bus_operating_vehicle|bus_accessible_vehicle|bus_electric_vehicle)_/.test(id) ? '車輛登記存量'
+    : /^(bus_|urban_bus_)/.test(id) ? '使用與營運'
+    : /^(a1_|a2_|a1_a2_)/.test(id) ? '道路安全與監測'
+    : /^(motorcycle_registered_count|automobile_registered_count)_/.test(id) ? '車輛登記存量'
+    : /^(offstreet_small_car_parking_spaces_count|onstreet_small_car_parking_spaces_count|automobile_license_holders_count|motorcycle_license_holders_count)_/.test(id) ? '駕照與停車'
+    : /^(waste_|recycling_)/.test(id) ? '廢棄物與回收'
+    : /^(road_land|rail_land|airport_land|port_land)_/.test(id) ? '交通用地'
+    : /^(conifer_forest|broadleaf_forest|bamboo_forest|mixed_forest)_/.test(id) ? '森林用地'
+    : /^(livestock_building|pasture)_/.test(id) ? '畜牧用地'
+    : id.startsWith('livestock_heads_') ? '畜牧飼養'
+    : id.startsWith('fishery_') ? '漁業生產'
+    : id.startsWith('aquaculture_') ? '水產養殖' : '農地與設施';
+  const group = STATISTICS_TAB_THEMES.flatMap(theme => theme.groups).find(group => group.title === title);
+  group?.layers.push(fromManifest(recipe.layer_key));
+}
 
 /**
  * 完整目錄保留在此，避免為了 UI 敘事分段而搬動大量 layer 定義。
@@ -1800,6 +1823,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "能源統計 Energy Statistics": "environment",
   "農業統計 Agriculture Statistics": "environment",
   "人口統計 Population Statistics": "city",
+  "統計比較": "publicLife",
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
   "住宅存量與使用": "city",
