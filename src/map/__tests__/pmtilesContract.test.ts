@@ -58,7 +58,7 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
   factory_locations: {
     count: 90652,
-    sha256: "efe9e7c543bb3905eca646a6fc121383bdc3a1095d93c5778b2ef4ce41be0630",
+    sha256: "69eb8b02945717efdc84d8eecdfecda8750011d9ee89faaa7851d79e8feca23a",
     fields: [
       "factory_id", "factory_name", "uniform_no", "factory_address", "county",
       "org_type", "registered_date", "industry_categories", "main_products", "geocode_precision",
@@ -79,12 +79,20 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
   },
   regulated_facilities: {
     count: 80732,
-    sha256: "01bd113e218efd3fd6ffbe684ed7f4236d40bae3498bbde7bbeb5e30a1428147",
+    sha256: "dc2f1e1dae80246ebffac638e238d3978e157ba34adc3e39b0f9cfcb40af2678",
     fields: [
       "emsno", "facility_name", "uniform_no", "facility_address", "county", "township",
       "industry_area_name", "industry_group", "industry_name", "isair", "iswater", "iswaste",
       "istoxic", "issoil", "coord_source", "company_joined", "company_name",
       "company_categories", "company_industry_code", "company_capital_total",
+    ],
+  },
+  manufacturing_company_points: {
+    count: 184944,
+    sha256: "4ca87ad9dd39d95139ffd033dfff1be97ec223b04f5ffeaf64c0155d61880712",
+    fields: [
+      "company_name", "capital_total", "capital_q", "is_manufacturing", "categories", "industry_mid",
+      "setup_year", "county", "addr_mismatch", "is_listed", "has_trademark",
     ],
   },
   industrial_park_comparison: {
@@ -94,6 +102,40 @@ const BUSINESS_REGISTRY_CONTRACTS: Record<string, { count?: number; fields: stri
       "park_id", "park_name", "county", "area_ha", "factory_count", "company_count",
       "company_capital_nonnull_count", "company_capital_total_sum",
     ],
+  },
+};
+
+/** 共用 `business_density_grid` layer 的每個 immutable artifact 必須各自鎖定。 */
+const BUSINESS_REGISTRY_FILE_CONTRACTS: Record<string, { count: number; fields: string[]; sha256: string }> = {
+  "factory_density_1500m_202606.pmtiles": {
+    count: 3673,
+    sha256: "990def03aae7978b913693b55866adae8e19195e49b7c785bc3d6b75f1a8764d",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
+  },
+  "factory_density_450m_202606.pmtiles": {
+    count: 14285,
+    sha256: "2a04cb1a65ecd1e4f423c5dade26df08173c2af9b0bcdcb7bc046d3a3470a797",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
+  },
+  "manufacturing_company_density_1500m_202608.pmtiles": {
+    count: 4664,
+    sha256: "26df1dd39eb0223c767172fec5a87b1f89f5ec550698241fe36a4cb72a83ee70",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
+  },
+  "manufacturing_company_density_450m_202608.pmtiles": {
+    count: 20584,
+    sha256: "b95811e6284bbf097f0607d1c712a5fd7964779a1bcd74e63443cfabf82fa03c",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
+  },
+  "regulated_facility_density_1500m_20260818.pmtiles": {
+    count: 4930,
+    sha256: "8fc9c718856c2a2a6ec2feb88c7f1e8b5f2fa7387da4ae23e8bc72138422ddc3",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
+  },
+  "regulated_facility_density_450m_20260818.pmtiles": {
+    count: 18317,
+    sha256: "1981a289f0e16f95693a0ba1c481b24f86fc1ea1af021d407af3a2146e833b6e",
+    fields: ["grid_id", "grid_size_m", "n_records", "density_per_km2"],
   },
 };
 
@@ -169,7 +211,8 @@ describe("PMTiles 契約", () => {
       if (!names.includes(e.sourceLayer)) {
         broken.push(`${e.id}: registry 寫 "${e.sourceLayer}"，檔案內實際是 [${names.join(", ")}] — ${e.file}`);
       }
-      const contract = BUSINESS_REGISTRY_CONTRACTS[e.sourceLayer];
+      const filename = e.file.split("/").at(-1)!;
+      const contract = BUSINESS_REGISTRY_FILE_CONTRACTS[filename] ?? BUSINESS_REGISTRY_CONTRACTS[e.sourceLayer];
       if (contract) {
         const vectorLayer = meta.vector_layers?.find((l) => l.id === e.sourceLayer);
         const fields = Object.keys(vectorLayer?.fields ?? {}).sort();
