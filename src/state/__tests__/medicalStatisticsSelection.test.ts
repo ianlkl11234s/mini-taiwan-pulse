@@ -30,7 +30,7 @@ describe('medical family switching', () => {
     expect(layerParamsStore.getParam(beds[1], `${beds[1]}Opacity`)).toBe(0.3);
     expect(beds.filter(key => layerVisibilityStore.getAll()[key])).toEqual([beds[1]]);
     expect(layerVisibilityStore.getAll().statsHealthHospitalCount).toBe(true);
-    expect(layerVisibilityStore.getAll().jpAccommodationCanonical).toBe(true);
+    expect(layerVisibilityStore.getAll().jpAccommodationCanonical).toBe(false);
   });
   it('respects single mode and rejects keys outside the family without mutation', () => {
     layerVisibilityStore.setAll({ ...buildDefaultVisibility(), statsHealthHospitalCount: true });
