@@ -371,6 +371,31 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
   },
 ];
 
+/** Statistics tab 的行政邊界僅供 choropleth 對照，仍屬一般 Layers 的地圖參考資料。 */
+const STATISTICS_TAB_REFERENCE_LAYER_KEYS = new Set<keyof LayerVisibility>([
+  "countyBoundary",
+  "townshipBoundary",
+]);
+
+/**
+ * 實際統計面在 Statistics tab 與一般 Layers 的共同 membership。
+ * 設施、等時圈和行政邊界不在此集合，避免它們因為同畫面出現而被誤分類為統計。
+ */
+export const STATISTICS_TAB_CHOROPLETH_LAYER_KEYS = new Set<string>(
+  STATISTICS_TAB_THEMES
+    .flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key)))
+    .filter((key) => !STATISTICS_TAB_REFERENCE_LAYER_KEYS.has(key)),
+);
+
+/** 從一般 Layers 移除統計面，同時保留同主題下的設施與其他非統計圖層。 */
+export function withoutStatisticsLayers(themes: readonly ThemeDef[]): ThemeDef[] {
+  return themes.flatMap((theme) => {
+    const groups = theme.groups
+      .map((group) => ({ ...group, layers: group.layers.filter((layer) => !STATISTICS_TAB_CHOROPLETH_LAYER_KEYS.has(layer.key)) }))
+      .filter((group) => group.layers.length > 0);
+    return groups.length > 0 ? [{ ...theme, groups }] : [];
+  });
+}
 
 // Derived metrics keep the source topic; education metrics are represented by the twelve presentation views.
 for (const recipe of COMPARISON_UI_RECIPES) {

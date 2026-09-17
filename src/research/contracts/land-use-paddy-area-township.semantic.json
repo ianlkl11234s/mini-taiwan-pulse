@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "semantic-card/0.1",
+  "semanticVersion": "0.1.0",
+  "datasetId": "land-use:paddy-area-township",
+  "datasetVersion": "2024-2025-paddy_land_area_hectare-1287362dfee3",
+  "label": "鄉鎮水田用地面積",
+  "recordGrain": "admin_statistic",
+  "geometry": { "role": "none", "spatialAnalysisEligible": false, "meaning": "values 是鄉鎮行政統計；顯示 boundary 必須以相同 boundary_version join，且不是水田 parcel geometry。" },
+  "versions": [{ "datasetVersion": "2024-2025-paddy_land_area_hectare-1287362dfee3", "sourceVersion": "TOWN_MOI_1140318", "freshness": "stale", "note": "固定 release 的 hectares 統計；STALE 與 coverage/status 必須隨數值傳遞。" }],
+  "requiredEvidence": [
+    { "evidenceId": "release_selector", "description": "精確 release_id、indicator、dimensions、period 與 source receipt。" },
+    { "evidenceId": "value_status", "description": "每筆 value 與 status/source_status/source_token，保留 observed、missing、suppressed、not_reported 與真實零。" },
+    { "evidenceId": "matched_boundary", "description": "若空間呈現，使用與 release 相符的 boundary_version/code join 證據。" }
+  ],
+  "concepts": [
+    { "conceptId": "township_paddy_area", "kind": "observed", "definition": "固定 release 中某鄉鎮的水田用地面積統計值（hectare），連同 status 解讀。", "method": { "methodId": "release_value_read", "version": "0.1.0" }, "scope": { "spatialScale": "township statistic", "timeScale": "2024-2025 release period" }, "confidence": { "level": "unknown", "rationale": "release/status receipt 必須同時存在。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts paddy descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["release_selector", "value_status"], "allowedAnalyses": ["同 release、同 dimensions 的行政統計讀取"], "prohibitedClaims": ["null、suppressed 或 not_reported 值為 0"] },
+    { "conceptId": "release_total_paddy_area", "kind": "derived", "definition": "僅由 status=observed 且 coverage 足夠的鄉鎮值聚合所得總和。", "method": { "methodId": "status_aware_sum", "version": "0.1.0" }, "scope": { "spatialScale": "release township set", "timeScale": "2024-2025 release period" }, "confidence": { "level": "unknown", "rationale": "coverage 與排除規則改變總和解讀。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts paddy descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["release_selector", "value_status"], "allowedAnalyses": ["明示排除與 coverage 的加總或比率"], "prohibitedClaims": ["在 missing 或 suppressed 未處理時宣稱全臺完整總計"] },
+    { "conceptId": "township_choropleth", "kind": "proxy", "definition": "將鄉鎮統計值 join 到相符行政 boundary 的視覺化。", "method": { "methodId": "boundary_join_display", "version": "0.1.0" }, "scope": { "spatialScale": "township boundary proxy", "timeScale": "2024-2025 release period" }, "confidence": { "level": "unknown", "rationale": "行政區不是 parcel geometry。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts paddy descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["release_selector", "value_status", "matched_boundary"], "allowedAnalyses": ["以行政區塊呈現每鄉鎮統計"], "prohibitedClaims": ["行政著色範圍就是水田實際 parcel 邊界"] },
+    { "conceptId": "paddy_land_condition", "kind": "hypothesis", "definition": "從行政統計推測的水田土地條件或農業影響。", "method": { "methodId": "land_condition_hypothesis", "version": "0.1.0" }, "scope": { "spatialScale": "township statistic", "timeScale": "2024-2025 release period" }, "confidence": { "level": "unknown", "rationale": "需要 parcel、遙測或現地驗證。" }, "evidenceStatus": "requires_validation", "references": ["Pulse researchDatasets.ts paddy descriptor"], "reviewSource": "semantic registry MVP", "requiredEvidence": ["release_selector", "value_status", "matched_boundary"], "allowedAnalyses": ["提出需由 parcel、遙測或現地資料驗證的研究假設"], "prohibitedClaims": ["僅以鄉鎮統計斷言任一地點為水田"] }
+  ],
+  "allowedAnalyses": ["exact-release administrative statistics", "status-aware aggregation", "version-matched choropleth"],
+  "prohibitedClaims": ["把 township statistic 視為 parcel geometry", "將 stale、missing、suppressed 或 not_reported 正規化成成功或零"]
+}

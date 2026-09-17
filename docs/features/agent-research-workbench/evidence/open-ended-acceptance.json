@@ -1,0 +1,79 @@
+{
+  "date": "2026-09-15",
+  "scope": "local public-data pipeline; NOT paired browser end-to-end",
+  "naturalQuestion": "我想知道台北市裡面，哪一些地區附近有最多的教育資源？",
+  "agentTools": [
+    {
+      "at": "2026-09-15T13:11:56.475Z",
+      "tool": "explore_data",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:02.056Z",
+      "tool": "describe_dataset",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:02.081Z",
+      "tool": "describe_dataset",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:06.291Z",
+      "tool": "query_records",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:06.303Z",
+      "tool": "query_records",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:16.316Z",
+      "tool": "compare_neighborhoods",
+      "status": "complete"
+    },
+    {
+      "at": "2026-09-15T13:12:23.912Z",
+      "tool": "compare_neighborhoods",
+      "status": "complete"
+    }
+  ],
+  "agentInput": "question only plus offline tool-use constraints; no dataset ids or expected answer",
+  "regression": "First run overgeneralized candidate-point ranking; final run discloses candidate domain, source filters, radius, edge effects and unknown freshness. Single prompt acceptance, not a general benchmark.",
+  "pipeline": {
+    "candidateRecords": 345,
+    "schoolSourceRecords": 4315,
+    "librarySourceRecords": 634,
+    "radiusM": 1000,
+    "topCandidate": "市立雙蓮國小",
+    "schoolRecordsNearby": 20,
+    "libraryRecordsNearby": 3
+  },
+  "sources": [
+    {
+      "path": "education/schools.geojson",
+      "sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+      "bytes": 2504719
+    },
+    {
+      "path": "culture/public_libraries_national.geojson",
+      "sha256": "80425ed85d0b5efe237d315c0109efe62d7ee556418977337db380b16e5d98a5",
+      "bytes": 120657
+    }
+  ],
+  "checks": {
+    "pulseResearch": "61 pass, 1 optional grid test skipped",
+    "mcpResearch": "23 pass; build pass",
+    "gateway": "37 pass",
+    "browserDiagnostic": "345 points rendered; legend, opacity and clear verified",
+    "pairedMainMap": "pending user sign-in and confirmation",
+    "production": "not deployed",
+    "typescript": "tsc -b passed after final code changes"
+  },
+  "commits": {
+    "pulse": "89336514",
+    "mcp": "76f16e4",
+    "gateway": "07063d1"
+  }
+}

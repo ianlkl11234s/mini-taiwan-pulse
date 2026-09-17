@@ -1,7 +1,7 @@
 import { COMPARISON_STATISTICS_KEYS } from '../../../data/comparisonStatisticsKeys';
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
-import { STATISTICS_TAB_THEMES } from "../layerCatalog";
+import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { MAIN_THEMES, getThemeLayerKeys } from "../../IconRailSidebar";
 import { MOBILE_LAYER_THEMES, MOBILE_STATISTICS_ALL_OFF_KEYS } from "../../LayerSidebar";
 import { STATISTICS_DATA_THEMES, THEMES } from "../layerCatalog";
@@ -16,6 +16,7 @@ const EXPECTED_THEME_STRUCTURE = [
   { title: "地圖參考 Map Reference", groups: ["行政邊界"] },
 ];
 const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !key.startsWith('statsComparisonEducation'));
+const layers = STATISTICS_TAB_THEMES.flatMap((theme) => theme.groups.flatMap((group) => group.layers));
 
 const EXPECTED_LAYER_KEYS = [
   "statsBirthsTownship",
@@ -41,8 +42,6 @@ const EXPECTED_LAYER_KEYS = [
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  const layers = STATISTICS_TAB_THEMES.flatMap((theme) => theme.groups.flatMap((group) => group.layers));
-
   it("以五個使用者主題與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
@@ -103,6 +102,16 @@ describe("Layers 與 Statistics 分頁", () => {
     for (const key of COMPARISON_STATISTICS_KEYS) expect(mainKeys).not.toContain(key);
     expect(mainKeys).toContain("countyBoundary");
     expect(mainKeys).toContain("townshipBoundary");
-    expect(mainKeys).toContain("crimeAreaMonthly");
+    expect(mainKeys).not.toContain("crimeAreaMonthly");
+  });
+
+  it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
+    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set(EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary")));
+    const filtered = withoutStatisticsLayers([
+      { title: "混合主題", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
+    ]);
+    expect(filtered).toEqual([
+      { title: "混合主題", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
+    ]);
   });
 });

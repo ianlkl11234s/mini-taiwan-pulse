@@ -1,0 +1,15 @@
+{
+  "datasetId": "tw-schools-grid-150m",
+  "assetId": "tw-schools-grid-150m:schools-point-count-v1:tw-real-estate-150m-epsg3826-v1:7ab34ec23180",
+  "bundleSha256": "6243c6e1c9129202157741c2ed22ab457421430dfe6fac96f9e0553de4521f2d",
+  "bytes": 3016574,
+  "methodVersion": "1",
+  "readback": {
+    "valid": true,
+    "errors": [],
+    "source_sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+    "occupied_cell_count": 4061,
+    "assigned_feature_count": 4315
+  },
+  "scope": "local research only; unknown source license/freshness; not production"
+}

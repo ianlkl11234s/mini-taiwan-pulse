@@ -2,7 +2,9 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { createReadStream } from "node:fs";
 import { rm, stat } from "node:fs/promises";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 
 // build 後把「只給腳本/文件用、不需上線」的大型靜態檔從 dist 移除。
@@ -118,10 +120,14 @@ function serveAgriStatisticsPreviewBoundaries(): Plugin {
   };
 }
 
-/** Licensed coral archive stays outside public/dist; loopback-only development access. */
-function serveLocalCoralResearch(): Plugin {
+/** Local research archives stay outside public/dist; loopback-only development access. */
+function serveLocalResearchAssets(): Plugin {
   const filename = "coral_reef_distribution_global.pmtiles";
-  const target = resolve(process.cwd(), "../taipei-gis-analytics/data/processed/marine/coral_reef_distribution", filename);
+  const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT ?? resolve(process.cwd(), "../taipei-gis-analytics");
+  const targets: Record<string, string> = {
+    [`/${filename}`]: resolve(analyticsRoot, "data/processed/marine/coral_reef_distribution", filename),
+    "/schools-grid.json": resolve(analyticsRoot, "data/intermediate/research-library/schools-grid-v3/bundle.json"),
+  };
   return {
     name: "serve-local-coral-research",
     apply: "serve",
@@ -135,13 +141,23 @@ function serveLocalCoralResearch(): Plugin {
           response.end("Local research only");
           return;
         }
-        if (request.url?.split("?", 1)[0] !== `/${filename}` ||
+        const target = targets[request.url?.split("?", 1)[0] ?? ""];
+        if (!target ||
             !["GET", "HEAD"].includes(request.method ?? "")) {
           response.statusCode = 404;
           response.end("Unknown local research asset");
           return;
         }
         void stat(target).then((info) => {
+          if (target.endsWith("/schools-grid-v3/bundle.json")) {
+            const index = new DatabaseSync(resolve(dirname(target), "library.sqlite"), { readOnly: true });
+            try {
+              const entry = index.prepare("SELECT lifecycle FROM research_assets WHERE id=? LIMIT 1").get(schoolsGridReceipt.assetId);
+              if (!entry || !["hold", "candidate", "promoted"].includes(String(entry.lifecycle))) {
+                response.statusCode = 409; response.end("Research asset stale or unavailable"); return;
+              }
+            } finally { index.close(); }
+          }
           const range = parseSingleByteRange(request.headers.range, info.size);
           response.setHeader("cache-control", "private, no-store");
           response.setHeader("accept-ranges", "bytes");
@@ -164,7 +180,7 @@ function serveLocalCoralResearch(): Plugin {
           stream.pipe(response);
         }).catch(() => {
           response.statusCode = 404;
-          response.end("Local coral archive unavailable; no coverage inference");
+          response.end("Local research archive unavailable; no coverage inference");
         });
       });
     },
@@ -174,7 +190,7 @@ function serveLocalCoralResearch(): Plugin {
 export default defineConfig({
   plugins: [
     react(),
-    serveLocalCoralResearch(),
+    serveLocalResearchAssets(),
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
@@ -216,6 +232,8 @@ export default defineConfig({
       input: {
         // 主站（mapbox-gl + Three.js）
         main: resolve(process.cwd(), "index.html"),
+        // Isolated research canvas; no ordinary App state or data loaders.
+        lab: resolve(process.cwd(), "lab/index.html"),
         // EM-06 嵌入版（MapLibre + Protomaps 底圖，不載入 mapbox-gl / Three.js）
         embed: resolve(process.cwd(), "embed.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
@@ -227,6 +245,7 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      "/api/research/v1": { target: process.env.PULSE_RESEARCH_GATEWAY_ORIGIN ?? "http://127.0.0.1:8790", changeOrigin: false },
       ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
         '/__social-statistics-cdn': {
           target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,

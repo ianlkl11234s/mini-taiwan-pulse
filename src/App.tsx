@@ -1,3 +1,5 @@
+import { MainMapConnection } from "./research/MainMapConnection";
+import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
@@ -203,7 +205,7 @@ export default function App() {
     prefetch: prefetchFlight,
   } = useAirspaceData(layerVisibility.flights);
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, availableDates: shipAvailableDates, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -405,6 +407,46 @@ export default function App() {
     dataStartTime: dataTimeRange.start,
     dataEndTime: dataTimeRange.end,
   });
+
+  // The research bridge reads this ref on demand. It never writes timeStore;
+  // useTimeline remains the sole timeStore writer through these actions.
+  const researchTimelineRef = useRef<(TimelineSnapshot & TimelineActions) | null>(null);
+  const researchHistoricalModeRef = useRef(false);
+  researchTimelineRef.current = {
+    currentTime: timeline.currentTime,
+    mode: timeline.timeMode,
+    playing: timeline.playing,
+    speed: timeline.speed,
+    windowStart: timeline.windowStart,
+    windowEnd: timeline.windowEnd,
+    setTimeMode: timeline.setTimeMode,
+    jumpToTime: timeline.jumpToTime,
+    play: timeline.play,
+    pause: timeline.pause,
+    setSpeed: timeline.setSpeed,
+  };
+  const researchShipDatesRef = useRef<ShipDateAvailability>({ state: "not_loaded", dates: [] });
+  researchShipDatesRef.current = {
+    state: !layerVisibility.ships
+      ? "not_loaded"
+      : shipsLoading
+        ? "loading"
+        : shipAvailableDates.length > 0
+          ? "available"
+          // useShipData does not expose a successful empty-date response; retain unknown.
+          : "unknown",
+    dates: shipAvailableDates.map(date => date.date),
+  };
+  const researchTimeline = useMemo(() => createTimelineControl({
+    getTimeline: () => {
+      const current = researchTimelineRef.current;
+      if (!current) throw new Error("TIMELINE_NOT_READY");
+      return current;
+    },
+    getShipDates: () => researchShipDatesRef.current,
+    getCurrentTime: () => timeStore.getTime(),
+    isHistoricalModeActive: () => researchHistoricalModeRef.current,
+  }), []);
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
@@ -613,6 +655,7 @@ export default function App() {
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
+  researchHistoricalModeRef.current = appMode === "historical";
   const [historicalYear, setHistoricalYear] = useState<number>(113); // 民國年
   const [historicalMonth, setHistoricalMonth] = useState<number>(1); // 1~12（月/日粒度時用）
   const [historicalDay, setHistoricalDay] = useState<number>(1);     // 1~31（日粒度時用）
@@ -1869,6 +1912,7 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
+              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} timeline={researchTimeline} /> : undefined}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
