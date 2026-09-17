@@ -91,3 +91,7 @@
 - 整合版 build 通過；完整測試 1595 passed / 8 skipped（掛載本地 PMTiles 前後均通過）。資料掛載後更新全 zoom SHA 與六個密度檔契約，PMTiles 契約 2/2 通過，驗到本次九個工業 artifacts。
 - 整合版 browser 確認三個雙語名稱及全台工廠密度；Factory Density、Manufacturing Registry Density、Regulated Facility Density。
 - 資料發布 gate：11 個 PMTiles＋2 個 sidecar，共 400,533,320 bytes；上傳與線上 Range/readback 尚未完成，不以 Git 合併代表 production ready。
+
+### 資料發布回條（2026-09-18）
+
+使用者明確授權後，13 檔共 400,533,320 bytes 已新增至既有 `s3://migu-gis-data-collector/deploy-assets/business_registry/`；逐檔 HEAD 大小／SHA metadata 與 S3 整檔下載 SHA 驗證通過。網站 `/data/business_registry/` 同步後 13 檔 SHA 均通過；沒有刪除或覆寫舊版本，也沒有重啟服務。完整檔案回條見 `evidence/20260918-publication.json`。上述待上傳 gate 已解除；CDN 驗證與最終 merge 狀態以 PR #260 回條為準，不以資產發布代表前端新程式已部署。

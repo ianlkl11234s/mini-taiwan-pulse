@@ -1,0 +1,99 @@
+{
+  "bucket": "migu-gis-data-collector",
+  "assets": [
+    {
+      "filename": "factory_locations_202606_allzoom.pmtiles",
+      "bytes": 123737921,
+      "sha256": "69eb8b02945717efdc84d8eecdfecda8750011d9ee89faaa7851d79e8feca23a",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "factory_density_450m_202606.pmtiles",
+      "bytes": 5441055,
+      "sha256": "2a04cb1a65ecd1e4f423c5dade26df08173c2af9b0bcdcb7bc046d3a3470a797",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "factory_density_1500m_202606.pmtiles",
+      "bytes": 2770508,
+      "sha256": "990def03aae7978b913693b55866adae8e19195e49b7c785bc3d6b75f1a8764d",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "manufacturing_company_points_202608_allzoom.pmtiles",
+      "bytes": 102718949,
+      "sha256": "4ca87ad9dd39d95139ffd033dfff1be97ec223b04f5ffeaf64c0155d61880712",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "manufacturing_company_density_450m_202608.pmtiles",
+      "bytes": 7719556,
+      "sha256": "b95811e6284bbf097f0607d1c712a5fd7964779a1bcd74e63443cfabf82fa03c",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "manufacturing_company_density_1500m_202608.pmtiles",
+      "bytes": 3557999,
+      "sha256": "26df1dd39eb0223c767172fec5a87b1f89f5ec550698241fe36a4cb72a83ee70",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "regulated_facilities_20260818_allzoom.pmtiles",
+      "bytes": 128261184,
+      "sha256": "dc2f1e1dae80246ebffac638e238d3978e157ba34adc3e39b0f9cfcb40af2678",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "regulated_facility_density_450m_20260818.pmtiles",
+      "bytes": 6983455,
+      "sha256": "1981a289f0e16f95693a0ba1c481b24f86fc1ea1af021d407af3a2146e833b6e",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "regulated_facility_density_1500m_20260818.pmtiles",
+      "bytes": 3775670,
+      "sha256": "8fc9c718856c2a2a6ec2feb88c7f1e8b5f2fa7387da4ae23e8bc72138422ddc3",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "company_demographics_grid_450m_202608.pmtiles",
+      "bytes": 12055368,
+      "sha256": "0dc3a564f4856d6bbde46aae2bbe533f2619ade8644f21369fe3f3b8fc821441",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "company_demographics_grid_1500m_202608.pmtiles",
+      "bytes": 3496171,
+      "sha256": "a5d757bcaf3dcb472327601eebc842d238c82089120a11a293100cdf12bf059c",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "industrial_allzoom_density_qa.json",
+      "bytes": 4334,
+      "sha256": "1fb7bbaf4f3c1c3989e4ecc7a563ee0006a472b459b06eec6530db9c8fa0f9b7",
+      "action": "uploaded",
+      "download_verified": true
+    },
+    {
+      "filename": "company_demographics_grid_202608_metadata.json",
+      "bytes": 11150,
+      "sha256": "04ffe155c2ed2ac09e1c8d6cd1f9b2692e642a46004c69eedb1ff056129221f4",
+      "action": "uploaded",
+      "download_verified": true
+    }
+  ],
+  "prefix": "deploy-assets/business_registry",
+  "date": "2026-09-18",
+  "volume_sha256_verified": true
+}

@@ -76,3 +76,5 @@ Screenshot：`/private/tmp/company-age-structure-20260910.png`。以上為桌機
 - 上游重現與 QA：`taipei-gis-analytics` 本次工業點位／密度匯出管線；檔名、完整性與實測結果見本 feature handoff。
 
 - PR #260：補齊三個密度圖層英文名稱，原子提交並整合最新 master；上游 PR #92 已一般合併。資料發布與前端 merge 仍受上述 handoff gate 約束。
+
+- 2026-09-18 發布回條：13 檔已沿用既有 S3／網站 CDN 路徑發布，S3 整檔下載與網站 volume SHA 均通過；詳見 `evidence/20260918-publication.json` 與 PR #260。
