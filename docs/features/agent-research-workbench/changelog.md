@@ -30,4 +30,4 @@
 
 ### 主線整合驗證
 
-保留一般 merge history（976b7981），解決 7 處探索/Statistics/Coral/代理衝突。合併後全站1543 passed /6 skipped、production build通過。PR/push目前受目的地授權自動審批阻擋，尚未遠端merge；詳 release-handoff-20260917.md。
+保留一般 merge history（976b7981），解決 7 處探索/Statistics/Coral/代理衝突。合併後全站1543 passed /6 skipped、production build通過。使用者確認目的地授權後，前端 PR #257（9550d072）與 Gateway PR #112（0ffa1abc）皆 CI 全綠並一般 merge；詳 release-handoff-20260917.md。
