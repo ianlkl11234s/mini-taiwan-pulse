@@ -1,0 +1,122 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Mini Taiwan Pulse 理想 GIS 分析運作圖",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "whole-loop",
+        "label": "完整分析循環",
+        "focus": ["source_registry", "versioned_dataset", "dataset_contract", "quality_gate", "semantic_registry", "query_executor", "gis_engine", "evidence_guard", "result_envelope", "main_map", "milestone_monitor"],
+        "note": "從可追溯資料進入分析，到主地圖呈現與持續監看的完整閉環。"
+      },
+      {
+        "id": "data-foundation",
+        "label": "資料底座",
+        "focus": ["source_registry", "versioned_dataset", "dataset_contract", "quality_gate"],
+        "note": "先確定來源、版本、grain、geometry、時間、缺值與授權，才允許分析。"
+      },
+      {
+        "id": "semantic-layer",
+        "label": "語意知識層",
+        "focus": ["dataset_contract", "semantic_registry", "domain_recipe", "evidence_guard"],
+        "note": "區分觀測、衍生、代理與假設，並明列不能直接宣稱的結論。"
+      },
+      {
+        "id": "analysis-runtime",
+        "label": "分析工具鏈",
+        "focus": ["query_executor", "gis_engine", "evidence_guard", "result_envelope", "main_map"],
+        "note": "本地 Agent 依 Skill 組合受控 MCP tools，產生可重算 resultId。"
+      },
+      {
+        "id": "governance-loop",
+        "label": "里程碑與監看",
+        "focus": ["quality_gate", "evidence_guard", "result_envelope", "milestone_monitor"],
+        "note": "每項能力都以資料、計算、瀏覽器與發布證據分開驗收。"
+      }
+    ],
+    "output": "docs/features/agent-research-workbench/gis-analysis-roadmap-interactive.html"
+  },
+  "lanes": [
+    { "id": "data", "label": "資料與版本" },
+    { "id": "semantics", "label": "語意與方法" },
+    { "id": "analysis", "label": "工具與運算" },
+    { "id": "delivery", "label": "成果與治理" }
+  ],
+  "phases": [
+    { "id": "foundation", "label": "可信資料底座", "fromCol": 0, "toCol": 1 },
+    { "id": "meaning", "label": "語意與品質", "fromCol": 2, "toCol": 2, "variant": "security" },
+    { "id": "compute", "label": "受控分析", "fromCol": 3, "toCol": 4, "variant": "emphasis" },
+    { "id": "decision", "label": "呈現與迭代", "fromCol": 5, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "semantic_core", "label": "可維護的 GIS 知識層", "lane": "semantics", "fromCol": 1, "toCol": 3, "variant": "security" },
+    { "id": "bounded_runtime", "label": "datasetId → analysis → resultId", "lane": "analysis", "fromCol": 2, "toCol": 4, "variant": "emphasis" },
+    { "id": "delivery_loop", "label": "主地圖與持續驗收", "lane": "delivery", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["source_registry", "versioned_dataset", "dataset_contract", "quality_gate", "semantic_registry", "domain_recipe", "query_executor", "gis_engine", "evidence_guard", "result_envelope", "main_map", "milestone_monitor"],
+  "semanticChecks": {
+    "allowedRoots": ["source_registry"],
+    "allowedTerminals": ["milestone_monitor"],
+    "requiredPaths": [
+      { "from": "source_registry", "to": "main_map" },
+      { "from": "semantic_registry", "to": "evidence_guard" },
+      { "from": "result_envelope", "to": "milestone_monitor" }
+    ]
+  },
+  "nodes": [
+    { "id": "source_registry", "lane": "data", "col": 0, "type": "external", "label": "資料來源與授權", "tag": "待持續擴充", "width": 150 },
+    { "id": "versioned_dataset", "lane": "data", "col": 1, "type": "cloud", "label": "版本化 Dataset", "tag": "部分完成", "width": 150 },
+    { "id": "dataset_contract", "lane": "semantics", "col": 1, "type": "database", "label": "DatasetDescriptor", "tag": "已完成基礎", "width": 150 },
+    { "id": "quality_gate", "lane": "data", "col": 2, "type": "security", "label": "資料品質閘門", "tag": "部分完成", "width": 150 },
+    { "id": "semantic_registry", "lane": "semantics", "col": 2, "type": "database", "label": "GIS Semantic Registry", "tag": "下一個核心", "width": 160 },
+    { "id": "domain_recipe", "lane": "semantics", "col": 3, "type": "backend", "label": "領域 Recipe／Skill", "tag": "待建立", "width": 155 },
+    { "id": "query_executor", "lane": "analysis", "col": 3, "type": "messagebus", "label": "共用 Query Executor", "tag": "已完成基礎", "width": 160 },
+    { "id": "gis_engine", "lane": "analysis", "col": 4, "type": "backend", "label": "GIS／時序運算", "tag": "部分完成", "width": 150 },
+    { "id": "evidence_guard", "lane": "semantics", "col": 4, "type": "security", "label": "Evidence & Guardrails", "tag": "已完成基礎", "width": 165 },
+    { "id": "result_envelope", "lane": "delivery", "col": 4, "type": "database", "label": "ResultEnvelope／resultId", "tag": "session 版完成", "width": 165 },
+    { "id": "main_map", "lane": "delivery", "col": 5, "type": "frontend", "label": "Mini Taiwan Pulse", "tag": "Point 呈現完成", "width": 155 },
+    { "id": "milestone_monitor", "lane": "data", "col": 5, "type": "frontend", "label": "里程碑與健康監看", "tag": "本輪建立", "width": 165 }
+  ],
+  "edges": [
+    { "id": "source-version", "from": "source_registry", "to": "versioned_dataset", "label": "取得並記錄版本", "variant": "default", "role": "main" },
+    { "id": "version-contract", "from": "versioned_dataset", "to": "dataset_contract", "label": "建立資料契約", "variant": "default", "role": "main" },
+    { "id": "contract-quality", "from": "dataset_contract", "to": "quality_gate", "label": "驗證可分析性", "variant": "security", "role": "main" },
+    { "id": "quality-semantics", "from": "quality_gate", "to": "semantic_registry", "label": "通過才賦予語意", "variant": "security", "role": "main" },
+    { "id": "semantics-recipe", "from": "semantic_registry", "to": "domain_recipe", "label": "可用概念與限制", "variant": "default", "role": "main" },
+    { "id": "recipe-query", "from": "domain_recipe", "to": "query_executor", "label": "組合有界工具", "variant": "emphasis", "role": "main" },
+    { "id": "query-compute", "from": "query_executor", "to": "gis_engine", "label": "datasetId＋條件", "variant": "emphasis", "role": "main" },
+    { "id": "compute-evidence", "from": "gis_engine", "to": "evidence_guard", "label": "方法與排除紀錄", "variant": "security", "role": "main" },
+    { "id": "evidence-result", "from": "evidence_guard", "to": "result_envelope", "label": "封裝可信結果", "variant": "emphasis", "role": "main" },
+    { "id": "result-map", "from": "result_envelope", "to": "main_map", "label": "選擇呈現出口", "variant": "emphasis", "role": "main" },
+    { "id": "map-monitor", "from": "main_map", "to": "milestone_monitor", "label": "browser／使用驗收", "variant": "dashed", "role": "main" },
+    { "id": "monitor-quality", "from": "milestone_monitor", "to": "quality_gate", "label": "freshness／失敗回饋", "variant": "dashed", "role": "return", "labelSegment": 1 }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "目前已站穩",
+      "items": [
+        "DatasetDescriptor、共用 executor、resultId 與主地圖 Point 呈現",
+        "學校、新聞、行政統計三類 pilot 與 37 個 MCP tools"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "下一個核心",
+      "items": [
+        "GIS Semantic Registry 與領域 recipes",
+        "行政區面 join、更多可查詢 dataset adapters、持久研究紀錄"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "不能跳過的界線",
+      "items": [
+        "學校點位不直接等於學生人流、教育品質、安全或健康",
+        "proxy、null、STALE、DENIED 與來源失敗不可被收斂成零或真值"
+      ]
+    }
+  ]
+}
