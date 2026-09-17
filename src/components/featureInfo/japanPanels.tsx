@@ -25,6 +25,64 @@ function Title({ color, children }: { color: string; children: string }) {
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
+function list(raw: unknown): string {
+  if (Array.isArray(raw)) return raw.map(String).join(" / ");
+  if (typeof raw !== "string" || !raw) return "";
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map((item) => typeof item === "object" && item && "source" in item ? String((item as { source: unknown }).source) : String(item)).join(" / ");
+  } catch { /* 原始字串直接顯示 */ }
+  return raw;
+}
+
+function objectList(raw: unknown): Record<string, unknown>[] {
+  if (Array.isArray(raw)) return raw.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null);
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      : [];
+  } catch { return []; }
+}
+
+/** 日本旅宿／自然保護／世界遺產共用的 source-aware popup。 */
+export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
+  const provenance = objectList(props._provenance);
+  const title = str(props.name) || str(props.site_name_ja) || str(props.park_name)
+    || str(props.designation_name) || str(props.area_name) || str(props.area_name_en)
+    || str(props.heritage_name_ja) || str(props.name_zh) || str(props.name_en)
+    || str(props.entity_id) || str(props.feature_id) || "日本旅宿／保護區資料";
+  const sources = list(props.sources) || list(props._provenance) || str(props.source_name)
+    || str(props.source_dataset) || str(props.source) || "見來源網址";
+  const sourceYear = str(props.source_as_of) || str(props.source_year) || str(props.source_fiscal_year)
+    || str(props.date_inscribed) || [...new Set(provenance.map((item) => str(item.source_as_of)).filter(Boolean))].join(" / ");
+  const license = list(props.license_set) || str(props.license) || str(props.license_status)
+    || str(props.license_note);
+  const status = [
+    props.dedup_version ? "PARTIAL_DEDUP_CONSERVATIVE" : null,
+    props.usage_status, props.source_status, props.freshness_status, props.dedup_status,
+    props.geom_status, props.boundary_status,
+  ].map(str).filter(Boolean).join(" / ");
+  const precision = str(props.geom_precision) || str(props.geometry_status) || str(props.geocode_quality)
+    || str(props.precision_warning) || str(props.geometry_caveat);
+  return (
+    <>
+      <Title color="#0ea5e9">{title}</Title>
+      <Row label="來源" value={sources} />
+      <Row label="年份／截至" value={sourceYear || "未提供"} />
+      <Row label="授權" value={license || "未驗證"} />
+      <Row label="狀態" value={status || "未提供"} />
+      <Row label="geometry precision" value={precision || "來源未標示"} />
+      <Row label="coverage" value={str(props.coverage_scope)} />
+      <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
+      <Row label="類型" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
+      <Row label="地址／位置" value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
+      <Row label="來源網址" value={str(props.source_url) || str(props.leaflet_url) || str(props.area_detail_url)} />
+    </>
+  );
+}
+
 /**
  * `lines` / `operators` / `railway_categories` 等陣列欄位：queryRenderedFeatures()
  * 拿到的 properties 是 vector tile 編碼後的結果，mapbox-gl-js 的 vt-pbf

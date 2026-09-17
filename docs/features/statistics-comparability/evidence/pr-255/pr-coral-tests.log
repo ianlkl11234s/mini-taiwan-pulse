@@ -1,0 +1,31 @@
+
+> test
+> node --test test/*.test.mjs
+
+✔ Range accepts exactly one bounded byte range (1.323917ms)
+✔ public coral settings only require the S3 gateway configuration (0.116667ms)
+✔ missing configuration fails closed (2.013625ms)
+✔ only the coral endpoint is served (0.371208ms)
+✔ CORS only reflects an exact configured origin (1.37725ms)
+✔ anonymous requests are allowed only through verified metadata and bounded Range reads (3.024458ms)
+✔ HEAD returns verified public metadata without fetching object bytes (0.276459ms)
+✔ GET requires Range and proxies only the verified byte window (1.600875ms)
+✔ integrity and S3 range mismatches fail closed (1.809334ms)
+✔ Allen local configuration needs Supabase auth only, never legacy S3 settings (5.446459ms)
+✔ Allen S3 configuration requires explicit origins and reuses S3 credentials (0.489084ms)
+✔ Allen S3 gateway fully verifies immutable snapshots before serving ranges (17.513916ms)
+✔ Allen S3 gateway rejects a complete read with a wrong immutable digest (16.094917ms)
+✔ Allen exact allowlist authenticates GET, HEAD, and access probe before data (10.391708ms)
+✔ Allen local file range verifies the contract asset with injected auth (254.772875ms)
+✔ Allen snapshot remains consistent after its source file is replaced (71.675125ms)
+✔ Allen revoke denylist rejects the same verified owner session for this process lifetime (1.358333ms)
+✔ Allen denylist persists across new instances with owner-only file permissions (11.739417ms)
+✔ Allen audit sink records response metadata without bearer credentials (0.287875ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1268.184959

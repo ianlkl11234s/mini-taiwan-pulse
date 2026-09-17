@@ -1,4 +1,8 @@
+import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
+import { JpMedicalStatus } from "./JpMedicalStatus";
+import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
+import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
@@ -8,7 +12,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
-import { useOverlayParams } from "../layers/layerParamsAccess";
+import { oneOfParam, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -29,7 +33,9 @@ import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
-import type { StatisticsLayerKey } from "../data/regionalStatisticsRecipes";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
+import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
@@ -327,7 +333,16 @@ export interface LegendEntry {
 export const LEGEND_REGISTRY: LegendEntry[] = [
   ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
-    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsLayerKey} />,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...COMPARISON_ENABLED_RECIPES.map(recipe => ({id: recipe.layer_key, render: () => <StatisticsLegend layerKey={recipe.layer_key} />})),
+  ...SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...EDUCATION_PRESENTATION_VIEWS.map((view) => ({
+    id: view.key,
+    render: () => <StatisticsLegend layerKey={view.key} />,
   })),
   { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
   { id: "statsCivilAeronauticsSubsidyCounty", render: () => <StatisticsLegend layerKey="statsCivilAeronauticsSubsidyCounty" /> },
@@ -357,7 +372,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
+  { id: "allenCoralAtlas", render: () => <AllenCoralAtlasLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
+  { id: "jpMedicalFacilities", render: () => <JpMedicalLegend kind="facilities" /> },
+  { id: "jpMedicalCare", render: () => <JpMedicalLegend kind="care" /> },
+  { id: "jpMedicalAreas", render: () => <JpMedicalLegend kind="areas" /> },
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
@@ -4793,6 +4812,30 @@ function CoralReefDistributionLegend() {
   </div>;
 }
 
+function AllenCoralAtlasLegend() {
+  const t = useLegendTheme();
+  const values = useLayerParams("allenCoralAtlas");
+  const view = oneOfParam(
+    paramStr(values, "allenCoralAtlas", "allenCoralAtlasView"),
+    ["coralAlgae", "benthic", "geomorphic"] as const satisfies readonly AllenCoralAtlasView[],
+    "coralAlgae",
+  );
+  const rows = allenCoralSource(view).legend.filter((item) => view !== "coralAlgae" || item.value === "Coral/Algae");
+  const title = view === "coralAlgae" ? "珊瑚／藻類棲地" : view === "benthic" ? "淺海棲地分類" : "礁體地形分區";
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 340 }}>
+    <div style={{ color: t.textStrong, fontWeight: 700, marginBottom: 4 }}>Allen Coral Atlas · {title}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "3px 8px" }}>
+      {rows.map((item) => <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+        <span style={{ width: 8, height: 8, flexShrink: 0, borderRadius: 2, background: item.color }} />
+        <span>{item.label_zh}</span>
+      </div>)}
+    </div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>{ALLEN_CORAL_WARNING}</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>取得日：{ALLEN_CORAL_ACQUIRED_AT.slice(0, 10)}（非觀測日）；來源完整要素面積未裁切，不可作研究區總面積。</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>{ALLEN_CORAL_ATTRIBUTION}</div>
+  </div>;
+}
+
 function GlobalEventsLegend() {
   const t = useLegendTheme();
   return (
@@ -6361,5 +6404,26 @@ function JpPoliceFacilitiesLegend() {
     <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
     <div>資料時點：2025-04-01</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
+  </div>;
+}
+
+
+function JpMedicalLegend({ kind }: { kind: "facilities" | "care" | "areas" }) {
+  const t = useLegendTheme();
+  const rows = kind === "facilities" ? JP_MEDICAL_CATEGORIES : kind === "care"
+    ? [{ value: "care", label: "長照服務登記", color: JP_MEDICAL_CARE_COLOR }]
+    : [{ value: "areas", label: "2020 歷史醫療圈", color: JP_MEDICAL_AREA_COLOR }];
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.5 }}>
+    <strong>{kind === "facilities" ? "日本醫療設施" : kind === "care" ? "日本長照服務" : "日本醫療圈"}</strong>
+    <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} /></div>
+    {kind === "facilities" && <div>◯ 灰色圓圈：目前分類合計（固定格網中心）</div>}
+    {rows.map(row => <div key={row.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
+    </div>)}
+    <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
+      ? "国土数値情報 A38 · 2020 歷史版。簡化邊界；小比例尺可能省略小面。人口／面積不可按 polygon part 加總。"
+      : kind === "care"
+      ? "厚生労働省 H17。圓圈為登記聚合，放大檢視來源點位；同址可有多筆服務，不代表唯一機構數。"
+      : "厚生労働省 Navii。圓圈為可繪製設施聚合，放大檢視點位；缺座標另列。助產所來源僅涵蓋 45 縣。公告時段非即時可接診。"}</div>
   </div>;
 }

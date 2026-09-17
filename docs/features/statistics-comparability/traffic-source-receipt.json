@@ -1,0 +1,10 @@
+{
+  "retrieved": "2026-09-16",
+  "sources": [
+    {"dataset_id": "177136", "url": "https://data.gov.tw/dataset/177136", "download": "ZIP", "scope": "2025 nationwide A1/A2 case-level", "status": "metadata-confirmed"},
+    {"dataset_id": "162176", "url": "https://data.gov.tw/en/datasets/162176", "download": "CSV", "scope": "2017-2022 Form 1/2 and 30-day death list", "status": "metadata-confirmed"},
+    {"dataset_id": "9066", "url": "https://data.gov.tw/en/datasets/9066", "download": "CSV", "scope": "ROC 89 onward authority aggregate; vehicles/A1/A2/rates", "status": "metadata-confirmed"},
+    {"dataset_id": "18400", "url": "https://www.motc.gov.tw/ch/app/yearbook/doc?detailNo=2&id=21&module=directory&serno=6494&type=s&year=103", "download": "registry-listed / MOTC table", "scope": "national highway MVKT annual", "status": "official-page-confirmed; local-value-validation-pending"}
+  ],
+  "pairing_decision": "No same-year, same-county, all-road VKT source was established; A1 24-hour and 30-day death remain separate metrics."
+}

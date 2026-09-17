@@ -1,5 +1,8 @@
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
+import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { COMPARISON_ENABLED_RECIPES, getComparisonRecipe, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
+import { EDUCATION_PRESENTATION_VIEW_KEYS, getEducationPresentationView, type EducationPresentationViewKey } from './statisticsPresentationViews';
 import type { StatisticsLevel } from "./regionalStatisticsLoader";
 export interface StatisticsReleaseOption {
   releaseId: string;
@@ -175,6 +178,12 @@ export const taoyuanAirportReleaseSelector: StatisticsReleaseSelector = { resolv
 } };
 
 export const STATISTICS_RECIPES = {
+  ...Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
+    dataset_id: recipe.dataset_id, indicator_id: recipe.indicator_id, label: recipe.label,
+    level: recipe.level, unit: recipe.unit, frequency: '依來源觀察期間',
+    dimensions: recipe.release_options[0]?.dimensions ?? {}, releaseId: recipe.release_options[0]?.release_id,
+    includeHealth: true, breaks: recipe.legend.breaks, colors: recipe.legend.colors,
+  }])) as Record<ComparisonStatisticsLayerKey, { dataset_id: string; indicator_id: string; label: string; level: StatisticsLevel; unit: string; frequency: string; dimensions: Record<string, string>; releaseId: string | undefined; includeHealth: boolean; breaks: number[]; colors: string[] }>,
   statsWasteCounty: {
     dataset_id: 'waste_vehicles_county', indicator_id: 'total_vehicles', level: 'county',
     label: '垃圾清運車輛總數', unit: '輛', frequency: '年度', dimensions: {},
@@ -342,13 +351,59 @@ export const STATISTICS_RECIPES = {
     dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
     dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
   }>,
+  ...Object.fromEntries(Object.entries(SOCIAL_STATISTICS_RECIPES_BY_KEY).map(([key, recipe]) => [key, {
+    dataset_id: recipe.dataset_id,
+    indicator_id: recipe.indicator_id,
+    level: recipe.level as StatisticsLevel,
+    label: recipe.label,
+    unit: recipe.unit,
+    frequency: recipe.release_options.length > 1 ? "依已公開完整選項" : `${recipe.release_options[0]?.period_start ?? "已公開"} 至 ${recipe.release_options[0]?.period_end ?? ""}`,
+    dimensions: recipe.release_options[0]?.dimensions ?? {},
+    includeHealth: true,
+    releaseOptions: recipe.release_options,
+    provenance: {
+      boundaryVersion: recipe.boundary_version,
+      boundarySemantics: recipe.boundary_semantics,
+      disclosure: recipe.disclosure,
+      relatedLayerKeys: recipe.related_layer_keys,
+      fragmentContext: recipe.fragment_context,
+      sourceFamily: recipe.source_family,
+    },
+    breaks: recipe.legend.breaks,
+    colors: recipe.legend.colors,
+  }])) as Record<SocialStatisticsLayerKey, {
+    dataset_id: string; indicator_id: string; level: StatisticsLevel; label: string; unit: string; frequency: string;
+    dimensions: Record<string, string>; includeHealth: boolean; releaseOptions: unknown; provenance: unknown; breaks: number[]; colors: string[];
+  }>,
 } as const;
 export type StatisticsLayerKey = keyof typeof STATISTICS_RECIPES;
 export const STATISTICS_KEYS = Object.keys(STATISTICS_RECIPES) as StatisticsLayerKey[];
+export type StatisticsRenderKey = StatisticsLayerKey | EducationPresentationViewKey;
+export const STATISTICS_RENDER_KEYS = [...STATISTICS_KEYS, ...EDUCATION_PRESENTATION_VIEW_KEYS] as StatisticsRenderKey[];
+export function isStatisticsRenderLayer(key: string): key is StatisticsRenderKey { return isStatisticsLayer(key) || Boolean(getEducationPresentationView(key)); }
+export function statisticsBaseKey(key: StatisticsRenderKey, selectedIndicator?: string): StatisticsLayerKey {
+  const view = getEducationPresentationView(key);
+  if (!view) return key as StatisticsLayerKey;
+  return view.metrics.find(metric => STATISTICS_RECIPES[metric.layerKey].indicator_id === selectedIndicator)?.layerKey ?? view.metrics[0]!.layerKey;
+}
+function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
+  const source = getSocialRecipe(key) ?? getComparisonRecipe(key);
+  return source?.release_options.filter(option => option.dimensions.education_stage === stage)
+    .sort((a, b) => b.period_end.localeCompare(a.period_end) || b.period_start.localeCompare(a.period_start))[0];
+}
+export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string) {
+  const baseKey = statisticsBaseKey(key, selectedIndicator);
+  const base = STATISTICS_RECIPES[baseKey];
+  const view = getEducationPresentationView(key);
+  if (!view) return base;
+  const initial = educationMetricInitial(baseKey, view.stage);
+  if (!initial) throw new Error('教育固定入口找不到對應學制的已驗證期別');
+  return { ...base, label: `${view.label}－${base.label}`, releaseId: initial.release_id, dimensions: initial.dimensions };
+}
 
 /** Optional fallback is safe only when its release identity gives exact dimensions. */
-export function statisticsReleaseFallback(key: StatisticsLayerKey) {
-  const recipe = STATISTICS_RECIPES[key];
+export function statisticsReleaseFallback(key: StatisticsRenderKey) {
+  const recipe = STATISTICS_RECIPES[statisticsBaseKey(key)];
   if (!('releaseSelector' in recipe) || !recipe.releaseSelector) return undefined;
   return (release: { release_id: string; period_start: string }) => recipe.releaseSelector.resolve(release)?.dimensions ?? null;
 }

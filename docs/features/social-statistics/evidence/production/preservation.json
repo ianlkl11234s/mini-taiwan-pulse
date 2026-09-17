@@ -1,0 +1,22 @@
+{
+  "method": "incremental merge after 414 successful DB import/readbacks; full DB re-export unavailable due SQL/REST timeout",
+  "old_counts": {
+    "geometries": 4,
+    "indicators": 66,
+    "releases": 476,
+    "selectors": 3174
+  },
+  "new_counts": {
+    "indicators": 103,
+    "releases": 890,
+    "selectors": 3590,
+    "geometries": 4
+  },
+  "missing_old": 0,
+  "changed_old_artifacts": 0,
+  "manifest": {
+    "path": "manifests/d8aefb0375568a57126283e7fbd3901ee0c46cbb25c68af2c12647a14d35165a.json",
+    "sha256": "d8aefb0375568a57126283e7fbd3901ee0c46cbb25c68af2c12647a14d35165a",
+    "bytes": 2198417
+  }
+}

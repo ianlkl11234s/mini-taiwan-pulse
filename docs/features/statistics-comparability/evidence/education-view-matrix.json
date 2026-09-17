@@ -1,0 +1,264 @@
+{
+  "status": "DESIGN_ONLY_NOT_RUNTIME",
+  "views": [
+    {
+      "label": "幼兒園－學校端",
+      "pinnedEducationStage": "preschool",
+      "side": "學校端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyInstitutionCount",
+          "label": "機構或學校數",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "幼兒園－老師端",
+      "pinnedEducationStage": "preschool",
+      "side": "老師端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyTeacherCount",
+          "label": "教師數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStaffCount",
+          "label": "職員數",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "幼兒園－學生端",
+      "pinnedEducationStage": "preschool",
+      "side": "學生端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyStudentCount",
+          "label": "學生或幼生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChange",
+          "label": "學生或幼生年增減數",
+          "exactOptionCount": 9
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChangePct",
+          "label": "學生或幼生年增減率",
+          "exactOptionCount": 9
+        }
+      ]
+    },
+    {
+      "label": "國小－學校端",
+      "pinnedEducationStage": "elementary",
+      "side": "學校端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyInstitutionCount",
+          "label": "機構或學校數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountySmallSchoolCount",
+          "label": "12班以下學校數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountySmallSchoolSharePct",
+          "label": "12班以下學校占比",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "國小－老師端",
+      "pinnedEducationStage": "elementary",
+      "side": "老師端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyTeacherCount",
+          "label": "教師數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStaffCount",
+          "label": "職員數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentTeacherRatio",
+          "label": "生師比",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "國小－學生端",
+      "pinnedEducationStage": "elementary",
+      "side": "學生端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyStudentCount",
+          "label": "學生或幼生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyClassCount",
+          "label": "班級數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentsPerClass",
+          "label": "每班學生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChange",
+          "label": "學生或幼生年增減數",
+          "exactOptionCount": 10
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChangePct",
+          "label": "學生或幼生年增減率",
+          "exactOptionCount": 10
+        }
+      ]
+    },
+    {
+      "label": "國中－學校端",
+      "pinnedEducationStage": "junior_high",
+      "side": "學校端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyInstitutionCount",
+          "label": "機構或學校數",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "國中－老師端",
+      "pinnedEducationStage": "junior_high",
+      "side": "老師端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyTeacherCount",
+          "label": "教師數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStaffCount",
+          "label": "職員數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentTeacherRatio",
+          "label": "生師比",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "國中－學生端",
+      "pinnedEducationStage": "junior_high",
+      "side": "學生端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyStudentCount",
+          "label": "學生或幼生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyClassCount",
+          "label": "班級數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentsPerClass",
+          "label": "每班學生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChange",
+          "label": "學生或幼生年增減數",
+          "exactOptionCount": 10
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChangePct",
+          "label": "學生或幼生年增減率",
+          "exactOptionCount": 10
+        }
+      ]
+    },
+    {
+      "label": "高中－學校端",
+      "pinnedEducationStage": "senior_high",
+      "side": "學校端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyInstitutionCount",
+          "label": "機構或學校數",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "高中－老師端",
+      "pinnedEducationStage": "senior_high",
+      "side": "老師端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyTeacherCount",
+          "label": "教師數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStaffCount",
+          "label": "職員數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentTeacherRatio",
+          "label": "生師比",
+          "exactOptionCount": 11
+        }
+      ]
+    },
+    {
+      "label": "高中－學生端",
+      "pinnedEducationStage": "senior_high",
+      "side": "學生端",
+      "indicators": [
+        {
+          "layerKey": "statsEducationCountyStudentCount",
+          "label": "學生或幼生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyClassCount",
+          "label": "班級數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentsPerClass",
+          "label": "每班學生數",
+          "exactOptionCount": 11
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChange",
+          "label": "學生或幼生年增減數",
+          "exactOptionCount": 10
+        },
+        {
+          "layerKey": "statsEducationCountyStudentYearChangePct",
+          "label": "學生或幼生年增減率",
+          "exactOptionCount": 10
+        }
+      ]
+    }
+  ]
+}

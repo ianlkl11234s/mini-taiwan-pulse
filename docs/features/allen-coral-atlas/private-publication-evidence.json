@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-09-16T11:45:50.429Z",
+  "bucket": "migu-gis-data-collector",
+  "results": [
+    {
+      "product": "benthic",
+      "key": "private-research/allen-coral-atlas/c877b8183253e109330c7315e1b37ddc6119d48ae710460634d36958aaaa1119/allen_coral_atlas_benthic.pmtiles",
+      "size": 94597292,
+      "sha256": "c877b8183253e109330c7315e1b37ddc6119d48ae710460634d36958aaaa1119",
+      "uploaded": true,
+      "readback": "sha256+bytes match",
+      "anonymousStatus": 403,
+      "encryption": "AES256",
+      "cacheControl": "private, no-store"
+    },
+    {
+      "product": "geomorphic",
+      "key": "private-research/allen-coral-atlas/750c28a8b7ea2eff84b18d71a1b5ef80f1065c5b47fbbf98995cda47b691bd41/allen_coral_atlas_geomorphic.pmtiles",
+      "size": 52624835,
+      "sha256": "750c28a8b7ea2eff84b18d71a1b5ef80f1065c5b47fbbf98995cda47b691bd41",
+      "uploaded": true,
+      "readback": "sha256+bytes match",
+      "anonymousStatus": 403,
+      "encryption": "AES256",
+      "cacheControl": "private, no-store"
+    }
+  ]
+}

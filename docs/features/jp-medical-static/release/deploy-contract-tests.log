@@ -1,0 +1,9 @@
+
+ RUN  v3.2.6 /private/tmp/pulse-jp-medical-release-20260915
+
+ ✓ src/map/__tests__/deployContract.test.ts (19 tests) 37ms
+
+ Test Files  1 passed (1)
+      Tests  19 passed (19)
+   Start at  15:29:25
+   Duration  6.20s (transform 1.68s, setup 0ms, collect 3.80s, tests 37ms, environment 0ms, prepare 435ms)

@@ -1,6 +1,6 @@
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
+import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
@@ -27,10 +27,12 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
@@ -40,7 +42,8 @@ const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.titl
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title)));
+const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
+export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
 
 // ── Color Config ──
 
@@ -542,7 +545,7 @@ export function IconRailSidebar({
                 search={statisticsSearch}
                 onSearchChange={setStatisticsSearch}
                 themes={STATISTICS_TAB_THEMES}
-                allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
+                allOffKeys={[...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])]}
                 title="統計 Statistics"
                 statisticsModeControl
                 visibility={visibility}
@@ -1241,8 +1244,32 @@ function LayersPanel({
               {!isCollapsed && groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label, expandable }) => {
-                    const active = visibility[key];
+                    {group.layers.map(({ key, label, expandable }) => {
+                      const medicalGroup = getMedicalStatisticsGroup(key);
+                      if (medicalGroup) {
+                        if (medicalGroup.options[0]?.key !== key) return null;
+                        return (
+                          <MedicalStatisticsGroupControls
+                            key={medicalGroup.key}
+                            groupKey={key}
+                            visibility={visibility}
+                            expandedLayer={expandedLayer}
+                            onLayerClick={onLayerClick}
+                            textColor={TEXT_STRONG}
+                            dimColor={DIM}
+                            renderControls={(selectedKey) => (
+                              <ExpandedControls
+                                layerKey={selectedKey as ExpandableLayerKey}
+                                isTransport={false}
+                                displayMode={displayMode}
+                                onDisplayModeChange={onDisplayModeChange}
+                                onHide={onHideTransport}
+                              />
+                            )}
+                          />
+                        );
+                      }
+                      const active = visibility[key];
                     const isExpanded = expandedLayer === key;
                     const isTransport = key in TRANSPORT_LABELS;
                     return (
@@ -1327,7 +1354,7 @@ function ExpandedControls({
 
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

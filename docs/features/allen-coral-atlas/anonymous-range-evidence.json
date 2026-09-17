@@ -1,0 +1,42 @@
+[
+  {
+    "product": "benthic",
+    "method": "GET",
+    "authorization": "absent",
+    "range": "bytes=0-127",
+    "status": 401,
+    "contentRange": null,
+    "cacheControl": "private, no-store",
+    "no_archive_returned": true
+  },
+  {
+    "product": "benthic",
+    "method": "HEAD",
+    "authorization": "absent",
+    "range": "bytes=0-127",
+    "status": 401,
+    "contentRange": null,
+    "cacheControl": "private, no-store",
+    "no_archive_returned": true
+  },
+  {
+    "product": "geomorphic",
+    "method": "GET",
+    "authorization": "absent",
+    "range": "bytes=0-127",
+    "status": 401,
+    "contentRange": null,
+    "cacheControl": "private, no-store",
+    "no_archive_returned": true
+  },
+  {
+    "product": "geomorphic",
+    "method": "HEAD",
+    "authorization": "absent",
+    "range": "bytes=0-127",
+    "status": 401,
+    "contentRange": null,
+    "cacheControl": "private, no-store",
+    "no_archive_returned": true
+  }
+]

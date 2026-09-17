@@ -9,15 +9,26 @@ import { useLayerParams } from "../state/layerParamsStore";
 import {
   LAYER_COLORS,
   LAYER_MACRO_GROUPS,
+  STATISTICS_DATA_THEMES,
+  STATISTICS_TAB_THEMES,
   THEMES,
   themeMacroGroup,
   TRANSPORT_LABELS,
+  type ThemeDef,
 } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
-import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
+import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
+
+const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
+/** Mobile has the same two entry points as desktop: general layers and statistics. */
+export const MOBILE_LAYER_THEMES = THEMES.filter((theme) => !statisticsDataThemeTitles.has(theme.title));
+/** Includes compatibility-only statistics render keys so a mobile all-off cannot leave an old URL active. */
+export const MOBILE_STATISTICS_ALL_OFF_KEYS = [...new Set([...STATISTICS_RENDER_KEYS, ...STATISTICS_TAB_THEMES.flatMap(theme => theme.groups.flatMap(group => group.layers.map(layer => layer.key)))])];
 
 // ── Props ──
 
@@ -25,7 +36,7 @@ import { searchLayers } from "../lib/layerSearch";
  * 統計圖層即使沒有一般參數控件，也必須可展開以讀取來源、涵蓋與資料健康狀態。
  */
 export function hasLayerDetails(key: keyof LayerVisibility, expandable?: boolean): boolean {
-  return Boolean(expandable || isStatisticsLayer(key));
+  return Boolean(expandable || isStatisticsRenderLayer(key));
 }
 
 interface LayerSidebarProps {
@@ -226,12 +237,15 @@ function SidebarContent({
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
 }) {
+  const [mobileTab, setMobileTab] = useState<"layers" | "statistics">("layers");
   const [search, setSearch] = useState("");
-  const searchResults = searchLayers(search, { favoriteKeys });
+  const activeThemes: readonly ThemeDef[] = isMobile ? (mobileTab === "statistics" ? STATISTICS_TAB_THEMES : MOBILE_LAYER_THEMES) : THEMES;
+  const activeLayerKeys = new Set(activeThemes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key))));
+  const searchResults = searchLayers(search, { favoriteKeys }).filter((result) => activeLayerKeys.has(result.key));
   const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
-    () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
+    () => new Set([...MOBILE_LAYER_THEMES, ...STATISTICS_TAB_THEMES].filter((t) => t.defaultCollapsed).map((t) => t.title)),
   );
   const toggleTheme = (title: string) => {
     setCollapsedThemes((prev) => {
@@ -259,7 +273,15 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
-      {isMobile && <StatisticsModeControl />}
+      {isMobile && <div role="tablist" aria-label="圖層分類" style={{ display: "flex", gap: 4, margin: "0 12px 6px" }}>
+        {(["layers", "statistics"] as const).map((tab) => {
+          const active = mobileTab === tab;
+          const label = tab === "layers" ? "圖層" : "統計";
+          return <button key={tab} type="button" role="tab" aria-selected={active} onClick={() => { setMobileTab(tab); setSearch(""); }} style={{ flex: 1, border: "none", borderRadius: RADIUS.lg, padding: "6px 8px", cursor: "pointer", background: active ? (isDarkTheme ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)") : "transparent", color: active ? textColor : dimColor, fontSize: baseFontSize, fontWeight: 700 }}>{label}</button>;
+        })}
+      </div>}
+      {isMobile && mobileTab === "statistics" && <StatisticsModeControl />}
+      {isMobile && mobileTab === "statistics" && onBulkSetVisibility && <button type="button" onClick={() => onBulkSetVisibility(MOBILE_STATISTICS_ALL_OFF_KEYS, false)} style={{ margin: "0 12px 6px", border: "none", borderRadius: RADIUS.lg, padding: "6px 8px", cursor: "pointer", background: "transparent", color: dimColor, fontSize: baseFontSize, textAlign: "left" }}>統計全關</button>}
       {onMemberToggle && (
         <button
           onClick={onMemberToggle}
@@ -320,9 +342,9 @@ function SidebarContent({
           </>}
         </div>
       )}
-      {!search.trim() && THEMES.map((theme, index) => {
-        const macroGroup = themeMacroGroup(theme.title);
-        const previousMacroGroup = index > 0 ? themeMacroGroup(THEMES[index - 1]!.title) : null;
+      {!search.trim() && activeThemes.map((theme, index) => {
+        const macroGroup = mobileTab === "statistics" ? null : themeMacroGroup(theme.title);
+        const previousMacroGroup = mobileTab === "statistics" || index === 0 ? null : themeMacroGroup(activeThemes[index - 1]!.title);
         const macroTitle = macroGroup
           ? LAYER_MACRO_GROUPS.find((group) => group.key === macroGroup)?.title
           : null;
@@ -443,8 +465,36 @@ function SidebarContent({
                   └ {group.title}
                 </div>
 
-                {group.layers.map(({ key, label, labelMobile, expandable }) => {
-            // 手機版優先用全稱 labelMobile，未提供則沿用桌機 label
+                  {group.layers.map(({ key, label, labelMobile, expandable }) => {
+              const medicalGroup = getMedicalStatisticsGroup(key);
+              if (medicalGroup) {
+                if (medicalGroup.options[0]?.key !== key) return null;
+                return (
+                  <MedicalStatisticsGroupControls
+                    key={medicalGroup.key}
+                    groupKey={key}
+                    visibility={visibility}
+                    expandedLayer={expandedLayer}
+                    onLayerClick={onLayerClick}
+                    textColor={textColor}
+                    dimColor={dimColor}
+                    renderControls={(selectedKey) => (
+                      <ExpandedPanel
+                        layerKey={selectedKey as ExpandableLayerKey}
+                        isTransport={false}
+                        isDarkTheme={isDarkTheme}
+                        isMobile={isMobile}
+                        viewMode={viewMode}
+                        displayMode={displayMode}
+                        onViewModeChange={onViewModeChange}
+                        onDisplayModeChange={onDisplayModeChange}
+                        onHide={onHideTransport}
+                      />
+                    )}
+                  />
+                );
+              }
+              // 手機版優先用全稱 labelMobile，未提供則沿用桌機 label
             const displayLabel = labelMobile ?? label;
             const active = visibility[key];
             const color = LAYER_COLORS[key];
@@ -623,7 +673,7 @@ function ExpandedPanel({
         overflow: "hidden",
       }}
     >
-      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

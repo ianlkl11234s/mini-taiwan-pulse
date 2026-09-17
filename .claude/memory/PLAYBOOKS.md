@@ -842,10 +842,10 @@ psql "$SUPABASE_DB_URL" -f migrations/<next>.sql  # gis-platform，先 apply 線
 git add -A && git commit -m "<type>: <subject>" && git push -u origin <branch>
 gh pr create --title "<title>" --body "<summary + 自我檢查結果 + 截圖路徑>"
 
-# 5. 等 CI + Claude review（30s-2min）
+# 5. 等 CI + Codex review（時間依 queue 而定）
 # - CI 紅 → 修 → push 重跑
-# - Claude review 有意見 → 看是否合理、修或 dismiss
-# - 兩道全綠 → merge
+# - Codex review 有意見 → 看是否合理、修或說明
+# - 確認 reviewed commit 等於 PR 最新 head；兩道全綠 → merge
 
 # 6. merge + sync
 gh pr merge <#> --squash --delete-branch
@@ -857,11 +857,11 @@ git checkout master && git pull --ff-only && git branch -d <branch>
 跨 repo 多 PR 時策略：DB 端 PR 先（先 apply 線上）→ collector PR → 前端 PR。
 這樣前端開 PR 時 RPC 已可用、本地驗收能跑。
 
-GitHub Actions 配置：
+GitHub review 配置：
 - `.github/workflows/ci.yml` 跑既有測試
-- `.github/workflows/claude-review.yml` PR 開啟時自動 review
-- `.github/workflows/claude-mention.yml` `@claude` mention 觸發回應
-- 三 repo 都需要 `CLAUDE_CODE_OAUTH_TOKEN` secret（`claude setup-token` 產出）
+- 原生 Codex GitHub review 由 Codex settings 啟用，不使用 repo workflow 或 OpenAI API key
+- 自動 review 所有 PR；需要手動重跑最新 head 時留言 `@codex review`
+- 專案 review 規則放在根目錄 `AGENTS.md` 的 `Code Review Rules`
 
 ---
 

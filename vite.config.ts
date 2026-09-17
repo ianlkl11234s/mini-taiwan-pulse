@@ -194,6 +194,8 @@ export default defineConfig({
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
+      // 日本醫療依 exact allowlist 獨立交付；不隨 app bundle 發布。
+      "jp-medical",
       // 55MB，bundle-rail-data.py 產出 → upload-rail-to-s3.ts 上傳 S3 的中間產物，app runtime 不載入
       "rail_bundle.json",
       // GFW 7-day trajectory POC 僅供 localhost bbox.html 驗收，不可跟 production bundle 部署
@@ -204,6 +206,24 @@ export default defineConfig({
       "gfw_hourly_grid_poc",
       // GFW v4 immutable releases 由獨立 pull/install 流程管理；dev 可讀，但 app build 不複製。
       "global-maritime/gfw-hourly/v4",
+      // Japan tourism production files are supplied by S3 /data/world; research-only files must fail closed.
+      "world/jp_accommodation_canonical_20260910.geojson",
+      "world/jp_accommodation_canonical_20260910.pmtiles",
+      "world/jp_accommodation_jta_20260331.geojson",
+      "world/jp_accommodation_local_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.pmtiles",
+      "world/jp_natural_parks_ksj_2010.geojson",
+      "world/jp_natural_parks_ksj_2010.pmtiles",
+      "world/jp_nature_conservation_ksj_2015.geojson",
+      "world/jp_nature_conservation_ksj_2015.pmtiles",
+      "world/jp_wildlife_protection_moe_202504.geojson",
+      "world/jp_wildlife_protection_moe_202504.pmtiles",
+      "world/jp_world_natural_heritage_ksj_2011.geojson",
+      "world/jp_world_heritage_unesco_current.geojson",
+      "world/jp_ramsar_moe_current.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
     ]),
   ],
   assetsInclude: ["**/*.vert", "**/*.frag"],
@@ -226,7 +246,15 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api/research/v1": { target: process.env.PULSE_RESEARCH_GATEWAY_ORIGIN ?? "http://127.0.0.1:8790", changeOrigin: false },
+      ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
+        '/__social-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__social-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
+      "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.
       ...(process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' ? {

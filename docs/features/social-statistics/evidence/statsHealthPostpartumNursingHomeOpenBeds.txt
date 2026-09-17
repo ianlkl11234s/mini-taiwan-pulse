@@ -1,0 +1,126 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=[REDACTED]#/121.5318/25.0464/12.5
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+  - text: 產後護理之家開放護理床數
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 找到 1 筆
+- button "產後護理之家開放護理床數 母嬰照護；不得作為高齡長照床位；床數保留官方「產後護理床-開放床數」欄位口徑，並非即時空床或使用床數。 主題：統計、醫療與長照、行政區、縣市 · 來源詳情":
+  - generic: 產後護理之家開放護理床數
+  - generic: 母嬰照護；不得作為高齡長照床位；床數保留官方「產後護理床-開放床數」欄位口徑，並非即時空床或使用床數。
+  - generic: 主題：統計、醫療與長照、行政區、縣市 · 來源詳情
+- button "收藏圖層 產後護理之家開放護理床數":
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 15:00
+- slider: "0.6255"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 25.0464, 121.5318 z12.5 pitch 0 bearing 0
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 產後護理之家開放護理床數
+- generic: 數值
+- generic: 958 床
+- generic: 資料期別
+- generic: 2025-12-01 — 2025-12-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 覆蓋狀態
+- generic: COMPLETE
+- generic: 處理版本
+- generic: mohw-115950-nursing-facility-capacity-v2-receipt-required
+- generic: 原始 SHA-256
+- generic: 1292c98a06752994ede0b7f3530349f861aefd56f96f9be86aa863f2762b5fd0
+- generic: 來源
+- generic: 衛生福利部護理及健康照護司
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 產後護理之家開放護理床數
+- generic: 2025-12-01 — 2025-12-31 · 床
+- generic: 資料可用狀態：STALE
+- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供
+- generic: 低於 0
+- generic: 0 至未滿 46
+- generic: 46 至未滿 207
+- generic: 207 至未滿 518
+- generic: 518 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":
