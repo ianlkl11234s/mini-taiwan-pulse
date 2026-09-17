@@ -25,12 +25,12 @@ beforeEach(() => {
 });
 
 describe("buildDefaultVisibility", () => {
-  it("僅 canonical 日本旅宿預設開啟，其餘圖層維持關閉", () => {
+  it("所有圖層預設關閉，前往日本不會預開旅宿", () => {
     const defaults = buildDefaultVisibility();
     const keys = Object.keys(defaults) as (keyof LayerVisibility)[];
     expect(keys.length).toBeGreaterThan(0);
-    expect(defaults.jpAccommodationCanonical).toBe(true);
-    expect(keys.filter((k) => k !== "jpAccommodationCanonical").every((k) => defaults[k] === false)).toBe(true);
+    expect(defaults.jpAccommodationCanonical).toBe(false);
+    expect(keys.every((k) => defaults[k] === false)).toBe(true);
   });
 
   it("每次呼叫回傳新物件（不共享 mutable 預設值）", () => {
@@ -253,7 +253,7 @@ describe("bridge 等價性（模擬 App 端既有寫入路徑）", () => {
     expect(store.getAll()).toEqual(afterUpdater);
   });
 
-  it("reset 回到 canonical 旅宿開啟的預設狀態", () => {
+  it("reset 回到全部圖層關閉的預設狀態", () => {
     store.setBulk({ earthquakes: true, popCount: true });
     store.reset();
     expect(store.getAll()).toEqual(buildDefaultVisibility());
