@@ -146,6 +146,23 @@ describe("overlay 表達式（Mapbox style-spec 靜態驗證）", () => {
     }
     expect(broken, `全關 filter 不合法：\n  ${broken.join("\n  ")}`).toEqual([]);
   });
+
+  it("公司人口結構在全選、全關、單中類與兩個年齡模式都產出合法 style", () => {
+    const cases: Record<string, number>[] = [
+      { companyIndustryDisplayIdx: 1, companyIndustryGroupsMask: 2047, companyIndustryDistributionMidIdx: 0, companyAgeStructureModeIdx: 0 },
+      { companyIndustryGroupsMask: 2047, companyIndustryDistributionMidIdx: 0, companyAgeStructureModeIdx: 0 },
+      { companyIndustryGroupsMask: 0, companyIndustryDistributionMidIdx: 0, companyAgeStructureModeIdx: 0 },
+      { companyIndustryGroupsMask: 0, companyIndustryDistributionMidIdx: 55, companyAgeStructureModeIdx: 1 },
+    ];
+    const configs = OVERLAY_REGISTRY.filter((config) => config.id === "companyIndustryDistribution" || config.id === "companyAgeStructure");
+    const broken: string[] = [];
+    for (const params of cases) for (const config of configs) for (const spec of config.layers) {
+      for (const message of validateLayer(buildLayer(config, spec, true, params), sourceFor(config, spec.type))) {
+        broken.push(`${config.id}/${spec.suffix}: ${message}`);
+      }
+    }
+    expect(broken).toEqual([]);
+  });
 });
 
 /**

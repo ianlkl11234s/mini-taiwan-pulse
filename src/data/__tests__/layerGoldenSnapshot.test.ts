@@ -109,7 +109,8 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 739 個 layer key", () => {
+  it("涵蓋全部 748 個 layer key", () => {
+
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -148,7 +149,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-15：+45 社會統計（教育與少子化、醫療與長照、住宅存量與使用）。
     // 2026-09-16: 12 education views + 188 comparison metric keys.
     // 2026-09-16: +3 日本醫療、+1 Allen 私人研究。
-    expect(keys.length).toBe(743);
+    expect(keys.length).toBe(748);
+
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

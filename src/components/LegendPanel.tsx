@@ -94,12 +94,18 @@ import {
   COMMON_REGISTRATION_CAPITAL_BANDS,
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
-  COMPANY_CAPITAL_Q_BANDS, COMPANY_GRID_COLORS, COMPANY_GRID_MODES,
-  COMPANY_GRID_NULL_COLOR, COMPANY_GRID_SCALES, companyGridStops,
+  COMPANY_CAPITAL_Q_BANDS, COMPANY_DENSITY_COLORS, COMPANY_GRID_COLORS, COMPANY_GRID_MODES,
+  COMPANY_DENSITY_STOPS, COMPANY_GRID_NULL_COLOR, COMPANY_GRID_SCALES, COMPANY_INDUSTRY_MID_OPTIONS, companyGridStops,
+  companyPointFiltersActive,
   FACTORY_LOCATION_COLOR, INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
   INDUSTRIAL_PARK_COMPARISON_COLORS, INDUSTRIAL_PARK_COMPARISON_MODES,
   INDUSTRIAL_PARK_COMPARISON_STOPS, INDUSTRIAL_PARK_COMPARISON_ZERO_COLOR,
 } from "../data/businessRegistryTypes";
+import {
+  COMPANY_AGE_COLORS, COMPANY_AGE_MEDIAN_STOPS, COMPANY_AGE_RECENT_STOPS,
+  COMPANY_INDUSTRY_GROUPS, COMPANY_INDUSTRY_TIE_COLOR,
+  COMPANY_INDUSTRY_MISSING_COLOR, COMPANY_INDUSTRY_ZERO_COLOR,
+} from "../data/businessDemographicsTypes";
 import {
   IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
   ooklaSpeedStops,
@@ -427,12 +433,17 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "agriPOI", render: () => <AgriPOILegend /> },
   { id: "agriRetail", render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
   { id: "commonRegistrationAddresses", render: ({ overlayParams }) => <CommonRegistrationAddressesLegend minCompanies={overlayParams.commonRegistrationAddressesMinCompanies ?? 5} /> },
-  { id: "companyPoints", render: () => <CompanyPointsLegend manufacturing={false} /> },
+  { id: "companyPoints", render: ({ overlayParams }) => <CompanyPointsLegend manufacturing={false} overlayParams={overlayParams} /> },
   { id: "manufacturingCompanyPoints", render: () => <CompanyPointsLegend manufacturing /> },
   { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} /> },
+  { id: "companyIndustryDistribution", render: ({ overlayParams }) => <CompanyIndustryDistributionLegend modeIdx={overlayParams.companyIndustryDisplayIdx ?? 0} mask={overlayParams.companyIndustryGroupsMask ?? 2047} midIdx={overlayParams.companyIndustryDistributionMidIdx ?? 0} /> },
+  { id: "companyAgeStructure", render: ({ overlayParams }) => <CompanyAgeStructureLegend modeIdx={overlayParams.companyAgeStructureModeIdx ?? 0} /> },
+  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend title="生產中工廠密度 FACTORY DENSITY" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
+  { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: () => <IndustrialParkBoundariesLegend /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
+  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend title="列管設施密度 REGULATED FACILITY DENSITY" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
   { id: "industrialParkComparison", render: ({ overlayParams }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
@@ -3068,13 +3079,26 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
   );
 }
 
-function CompanyPointsLegend({ manufacturing }: { manufacturing: boolean }) {
+function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: boolean; overlayParams?: Record<string, number> }) {
   const t = useLegendTheme();
+  const filtersActive = !manufacturing && companyPointFiltersActive(overlayParams);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
-        {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記點位 COMPANY REGISTRY"}
+        {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記分布 COMPANY REGISTRY"}
       </div>
+      {!manufacturing && !filtersActive && <>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· Viridis</div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
+          {COMPANY_DENSITY_STOPS.map((stop, i) => (
+            <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
+            </div>
+          ))}
+        </div>
+      </>}
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>個別公司：資本額分位</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
         {COMPANY_CAPITAL_Q_BANDS.map((band) => (
           <div key={band.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -3084,8 +3108,11 @@ function CompanyPointsLegend({ manufacturing }: { manufacturing: boolean }) {
         ))}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        202608 登記快照；z4–11 以聚合格呈現全部已定位 records 的數量，z12+ 顯示可點擊個別公司。
-        {manufacturing ? " 點位是公司登記地址，不是工廠位置。" : ""}
+        {manufacturing
+          ? "202608 登記快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。184,944 筆有座標；點位是公司登記地址，不是工廠實際營運地址。"
+          : filtersActive
+            ? "已設定篩選條件；未篩選概覽格已隱藏，請放大至 z12 查看篩選後的個別公司。"
+            : "202608 登記快照；z4–9 為 1.5km、z10–11 為 450m 網格密度，z12+ 顯示可點擊個別公司。"}
       </div>
     </div>
   );
@@ -3103,7 +3130,7 @@ function FactoryLocationsLegend() {
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        202606 快照；z4–10 為全已定位 records 計數概覽，z11+ 顯示個別工廠。90,652 / 100,624 筆可定位。
+        202606 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。90,652 / 100,624 筆可定位。
       </div>
     </div>
   );
@@ -3121,10 +3148,27 @@ function RegulatedFacilitiesLegend() {
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        20260818 快照，z11 起顯示。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
+        20260818 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
       </div>
     </div>
   );
+}
+
+function IndustrialDensityGridLegend({ title, unit, note }: { title: string; unit: string; note: string }) {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>{title}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· Viridis</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+      {COMPANY_DENSITY_STOPS.map((stop, i) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+      {note} z4–&lt;10 使用 1,500m、z10+ 使用 450m 網格，隨縮放自動切換。
+    </div>
+  </div>;
 }
 
 function IndustrialParkBoundariesLegend() {
@@ -3200,7 +3244,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {formatGridStop(stop, safeMode === 1)}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
           </div>
         ))}
         {safeMode === 2 && (
@@ -3211,10 +3255,57 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         )}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        {scale.label} 非空網格，202608 登記快照；資本額採各尺度非線性級距。
+        {scale.label} 非空網格，202608 登記快照；Magma 色階由暗至亮＝數值由低至高；採各尺度固定非線性級距。
       </div>
     </div>
   );
+}
+
+function CompanyIndustryDistributionLegend({ mask, midIdx, modeIdx }: { mask: number; midIdx: number; modeIdx: number }) {
+  const t = useLegendTheme();
+  const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
+  const midGroup = midCode === undefined ? undefined : COMPANY_INDUSTRY_GROUPS.find((group) => (group.codes as readonly string[]).includes(midCode));
+  const selected = COMPANY_INDUSTRY_GROUPS.filter((_, index) => (mask & (1 << index)) !== 0);
+  if (modeIdx === 1) return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>登記產業合計密度（家／km²）</div>
+    {COMPANY_DENSITY_STOPS.map((stop, index) => <div key={stop} style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}>
+      <Swatch color={COMPANY_DENSITY_COLORS[index]!} round={false} /><span>≥ {stop.toLocaleString("zh-TW")}</span>
+    </div>)}
+    <div style={{ display: "flex", gap: 5, fontSize: FONT_SIZE.xs }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} />必要欄位缺失</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>202608；所選產業合計，每家公司計一次。{midIdx > 0 ? "聚焦中類優先於群組。" : mask === 0 ? "未選分類，圖層已隱藏。" : ""}</div>
+  </div>;
+
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>登記產業分布 COMPANY INDUSTRY</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+      {midGroup ? <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <Swatch color={midGroup.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{midGroup.label}（聚焦中類）</span>
+      </div> : selected.map((group) => <div key={group.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <Swatch color={group.color} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{group.label}</span>
+      </div>)}
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_TIE_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>最多筆數同量</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_MISSING_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>必要欄位缺失</span></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_INDUSTRY_ZERO_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>選取群組皆為 0（透明）</span></div>
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>{midIdx > 0 ? "已聚焦單一行業中類，固定使用其所屬群組色；優先於群組多選。" : mask === 0 ? "未選分類，圖層已隱藏。" : "顏色＝所選群組中家數最多者，最多不一定過半；並列另標示。202608 登記快照，非實際主營產業。"}</div>
+  </div>;
+}
+
+function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
+  const t = useLegendTheme();
+  const median = modeIdx === 1;
+  const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 · {median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>Cividis 藍黃系 · 越亮＝{median ? "年齡越高" : "近期設立占比越高"}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+      {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
+      </div>)}
+      <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值／無已知設立年</span></div>
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>{median ? "202608 snapshot；設立年齡中位數約為 2026 減設立年。" : "202608 snapshot；近 5 年（2022–2026）設立占比，分母只含已知合法設立年。已知設立年少於 20 家時，占比容易極端。"}</div>
+  </div>;
 }
 
 function CommonRegistrationAddressesLegend({ minCompanies }: { minCompanies: number }) {

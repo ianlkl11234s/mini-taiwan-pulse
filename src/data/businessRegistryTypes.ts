@@ -202,10 +202,59 @@ export function resolveCompanyGridScale(scaleIdx: number): CompanyGridScale {
   return COMPANY_GRID_SCALES[safeIdx]!;
 }
 
+/** Matplotlib Magma 0.18–1；截去近黑端，避免融入深色底圖。 */
 export const COMPANY_GRID_COLORS = [
-  "#f5f3ff", "#ddd6fe", "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#5b21b6",
+  "#331067", "#6b1d81", "#a3307e", "#db476a", "#fa7d5e", "#febf84", "#fcfdbf",
 ] as const;
 export const COMPANY_GRID_NULL_COLOR = "#64748b";
+
+/**
+ * B1 低倍率概覽固定以公司密度（家／km²）分色，不能沿用 B2 各尺度的總數級距。
+ * 因此 1.5km（z4–9）和 450m（z10–11）在同一色階可直接比較。
+ */
+export const COMPANY_DENSITY_STOPS = [0, 1, 5, 20, 100, 500, 2_000] as const;
+/** Viridis 0.18–1：亮度遞增；固定密度門檻跨尺度共用，非視窗內分位數。 */
+export const COMPANY_DENSITY_COLORS = [
+  "#433e85", "#32648e", "#25858e", "#21a685", "#52c569", "#a5db36", "#fde725",
+] as const;
+
+export function companyGridAreaKm2(scale: CompanyGridScale): number {
+  // 150m 方格為 0.0225 km²；現有三尺度依邊長平方推得面積。
+  return ({ "0": 0.0225, "1": 0.2025, "2": 2.25 } as const)[scale.value];
+}
+
+export function companyGridHasValidCountExpr(): unknown[] {
+  return ["all",
+    ["==", ["typeof", ["get", "n_companies"]], "number"],
+    [">=", ["get", "n_companies"], 0],
+  ];
+}
+
+export function companyGridDensityValueExpr(scale: CompanyGridScale): unknown[] {
+  return [
+    "/", ["get", "n_companies"], companyGridAreaKm2(scale),
+  ];
+}
+
+export function companyGridDensityColorExpr(scale: CompanyGridScale): unknown[] {
+  const density = companyGridDensityValueExpr(scale);
+  const step: unknown[] = ["step", density, COMPANY_DENSITY_COLORS[0]];
+  for (let i = 1; i < COMPANY_DENSITY_STOPS.length; i++) {
+    step.push(COMPANY_DENSITY_STOPS[i], COMPANY_DENSITY_COLORS[i]);
+  }
+  return ["case", companyGridHasValidCountExpr(), step, COMPANY_GRID_NULL_COLOR];
+}
+
+/** 詳細點位篩選一旦啟用，低倍率未篩選網格必須隱藏，避免被誤讀為篩選結果。 */
+export function companyPointFiltersActive(params?: Record<string, number>): boolean {
+  return (params?.companyIndustryMidIdx ?? 0) > 0
+    || (params?.companyCountyIdx ?? 0) > 0
+    || (params?.companyCapitalQIdx ?? 0) > 0
+    || (params?.companySetupYearMin ?? COMPANY_SETUP_YEAR_MIN) > COMPANY_SETUP_YEAR_MIN
+    || (params?.companySetupYearMax ?? COMPANY_SETUP_YEAR_MAX) < COMPANY_SETUP_YEAR_MAX
+    || ["companyManufacturingIdx", "companyListedIdx", "companyTrademarkIdx", "companyAddressMismatchIdx"]
+      .some((key) => (params?.[key] ?? 0) > 0);
+}
 
 export const COMPANY_GRID_STOPS = [
   [0, 3_000_000, 14_000_000, 57_000_000, 212_000_000, 581_000_000, 5_330_000_000],
