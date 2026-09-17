@@ -1,6 +1,6 @@
 # Agent Research Workbench 文件封存（2026-09）
 
-> 狀態：`ARCHIVED_REFERENCE`  
+> 狀態：`ARCHIVED_REFERENCE`
 > 這是歷史設計與本地驗收紀錄，不是目前主線的 SSOT，也不代表現行程式仍保有相同實作。
 
 ## 這是什麼
