@@ -37,3 +37,12 @@
 - 犯罪統計仍使用獨立 renderer 的既有紅色順序色階；邊界參考層維持既有樣式。
 - 方法來源：[ColorBrewer 色階類型](https://colorbrewer2.org/learnmore/schemes_full.html)、[Matplotlib 明度與色階](https://matplotlib.org/stable/users/explain/colors/colormaps.html)。明度與模擬色覺驗證不代表所有視覺障礙使用者皆能完全辨識；圖例數字與文字仍為必要提示。
 - 驗收完成：1463 passed／4 skipped、build 通過；4 組色覺模擬檢查通過；桌面醫療與教育增減、手機住宅比例和統計全關通過。完整證據見 `evidence/ui-visuals-20260917/README.md`。
+
+## 2026-09-17 — 統計維護規則與資料來源總覽（PR #258 追加）
+
+- 新增 `docs/statistics-layer-guidelines.md`，由 development-rules 與 feature README 導引；整理統計語意、來源、分母、年份、geometry、缺值、icon、配色、toggle、手機、CDN 及驗收規則。
+- 將資料來源總覽的同步補齊列為新增／整合／修改統計圖層的必要交付。
+- 修正 feature README 仍稱比較功能未發布的歷史敘述，分開記錄 PR #256 發布與 PR #258 待合併的 UI 修改。
+- 資料來源總覽搜尋／清單／總數遵守比較功能啟用 gate，保留其他圖層搜尋；同名指標顯示縣市／鄉鎮層級。
+- 來源卡使用中文名稱與本地統計定義，即使 catalog 空白仍可閱讀；按需經既有 hash-validating loader 讀取已發布的 source、機關、授權、期間、安全連結、衍生公式與分子分母來源。固定學制入口明示為預設指標，不改變地圖 visibility。
+- 驗收：1467 passed／4 skipped；真實 browser 確認公車比例分子分母與 SEGIS 來源、教育部來源、鄉鎮住宅比例同層級名稱，來源卡手機無水平溢出。

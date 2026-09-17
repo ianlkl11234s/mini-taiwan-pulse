@@ -38,3 +38,11 @@
 - 手機尺寸：要求390×844 viewport，當前 browser 縮放下實測 innerWidth=scrollWidth=433 CSS px，無水平溢出；已恢復 viewport。非實體手機驗收。
 - 桌面 All Off 後單獨開啟醫療成功；手機統計全關後無 checked switch、數值圖例移除。
 - 預覽開發過程曾遇到 HMR 在新模組尚未寫完時報錯，並發現舊本地資料來源設定失效；重新啟動預覽明確使用正式 CDN 後完成上述驗收。
+
+## 資料來源總覽追加驗收
+
+- `source-derived.txt`：無障礙公車占比可搜尋，公式與分子／分母、交通部統計處（SEGIS）、2025 期間及開放授權可見。
+- `source-education.txt`：國小學生固定入口明示預設指標，已發布來源機關為教育部統計處，期間2025-08-01至2026-07-31。
+- `source-housing.txt`：住宅同名比例搜尋結果區分縣市與鄉鎮；鄉鎮卡分子／分母名稱亦為鄉鎮市區。
+- `source-housing-mobile.png`：實測viewport CSS width=scrollWidth=433，來源卡 clientWidth=scrollWidth=388；無水平溢出。讀取來源卡期間 URL 僅保留原來的 jpAccommodationCanonical，沒有啟用統計地圖。
+- 全測1467 passed／4 skipped。來源透過既有 loader 讀取，沿用 hash 與 exact selector；可能同時載入該指標資料和共用 geometry cache，不是另外對原始來源網站抓取全量資料。

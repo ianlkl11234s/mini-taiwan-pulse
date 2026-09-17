@@ -1,0 +1,119 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=REDACTED
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- button "◀"
+- button "9/17 (四)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 22:29
+- slider: "0.9375"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 25.0464, 121.5318 z12.5 pitch 0 bearing 0
+- button "資料來源總覽":
+- heading "資料來源總覽" [level=2]
+- button:
+- generic: 共 743 層
+- generic: ✓ 708 已橋接
+- generic: ⚙ 26 派生
+- generic: "? 9 待補"
+- textbox "搜尋資料來源圖層":
+  - /placeholder: 搜尋 layer 名稱…
+  - text: 無人經常居住住宅占總住宅比
+- generic: 找到 2 筆
+- button "無人經常居住住宅占總住宅比 依來源口徑推算；缺值不補零。 派生比較統計 · 縣市 · comparison_statistics":
+  - generic: 無人經常居住住宅占總住宅比
+  - generic: 依來源口徑推算；缺值不補零。
+  - generic: 派生比較統計 · 縣市 · comparison_statistics
+- button "開啟圖層 無人經常居住住宅占總住宅比":
+- button "無人經常居住住宅占總住宅比 依來源口徑推算；缺值不補零。 派生比較統計 · 鄉鎮市區 · comparison_statistics" [active]:
+  - generic: 無人經常居住住宅占總住宅比
+  - generic: 依來源口徑推算；缺值不補零。
+  - generic: 派生比較統計 · 鄉鎮市區 · comparison_statistics
+- button "開啟圖層 無人經常居住住宅占總住宅比":
+- heading "資料來源 — 無人經常居住住宅占總住宅比" [level=2]
+- code: statsComparisonHousingUnoccupiedSharePctTownship
+- button "關閉":
+- generic: 已橋接
+- generic: 派生統計 · 派生比較統計
+- generic: 登錄狀態：已橋接至本站資料集；不表示 catalog 已逐筆驗證原始來源。
+- generic: 無人經常居住住宅占總住宅比
+- text: datasetId：
+- code: comparison_statistics
+- generic: 期別：2020-11-08 至 2020-11-08 · 單位：% · 層級：鄉鎮市區
+- generic: 版本化統計快照；只接受 1 個已登錄選項。
+- generic: 依來源口徑推算；缺值不補零。
+- generic: 派生原始來源
+- generic: 此筆來源紀錄期間：2020-11-08 至 2020-11-08
+- generic: 公式：分子 / 分母 × 100
+- generic: 分子：無人經常居住住宅（鄉鎮市區） · 分母：住宅總數（鄉鎮市區）
+- generic: 行政院主計總處 · 未標示 dataset
+- generic: 期別：2020-11-08 至 2020-11-08 · 授權：政府資料開放授權條款-第1版
+- link "https://data.gov.tw/dataset/162052":
+  - /url: https://data.gov.tw/dataset/162052
+- generic: 行政院主計總處 · 未標示 dataset
+- generic: 期別：2020-11-08 至 2020-11-08 · 授權：政府資料開放授權條款-第1版
+- link "https://data.gov.tw/dataset/162052":
+  - /url: https://data.gov.tw/dataset/162052
+- text: comparison_statistics
+- generic: "Confidence: HIGH · 詳細資訊需 Supabase migration 269 apply"
