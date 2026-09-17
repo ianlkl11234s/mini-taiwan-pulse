@@ -151,3 +151,11 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
   zoom-dependent radius／opacity 維持可讀性，另以獨立密度網格支援集中程度判讀。
 - GFW 的現存文件證據只到 2026-08-21；完成 read-only production health check 前，狀態是
   `STALE / UNKNOWN`，不是正常。
+
+## 執行紀錄
+
+| 單元 | PR / merge | 驗收 | 狀態 |
+|---|---|---|---|
+| PR 0 計劃 | #262 / `577f87f4` | CI `test` passed | 已以一般 merge commit 合入 |
+| PR 1 日本預設層 | #263 / `b3f5dce1` | focused 30 passed；`tsc -b`；全站 1,582 passed / 8 skipped；CI passed | 已以一般 merge commit 合入 |
+| PR 2 Loading 視覺 | branch `fix/loading-indicator-neutral-panel` | focused 2 passed；`tsc -b`；全站 1,584 passed / 8 skipped；build passed；本機 browser 為黑畫面，不列為視覺驗收 | 進行中 |

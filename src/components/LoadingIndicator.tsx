@@ -1,4 +1,5 @@
 import { useLoadingTasks } from "../hooks/useLoadingTasks";
+import { BORDER, COLORS, SURFACE, WHITE_ALPHA } from "../styles/designTokens";
 
 /**
  * 全域 loading 指示器
@@ -25,13 +26,13 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
           position: absolute;
           top: 110px;
           z-index: 1000;
-          background: rgba(15, 23, 42, 0.85);
+          background: ${SURFACE.panel};
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid ${BORDER.panel};
           border-radius: 8px;
           padding: 8px 12px;
-          color: #fff;
+          color: ${COLORS.textDefault};
           font-size: 11px;
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -42,18 +43,18 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
         .lr-header {
           display: flex; align-items: center; gap: 6px;
           font-weight: 600; letter-spacing: 0.5px;
-          color: #93c5fd;
+          color: ${COLORS.textStrong};
           margin-bottom: 4px;
         }
         .lr-spinner {
           width: 12px; height: 12px;
-          border: 2px solid rgba(147, 197, 253, 0.25);
-          border-top-color: #93c5fd;
+          border: 2px solid ${WHITE_ALPHA[20]};
+          border-top-color: ${COLORS.textDefault};
           border-radius: 50%;
           animation: lr-spin 0.8s linear infinite;
         }
         .lr-task {
-          color: #e2e8f0;
+          color: ${COLORS.textDefault};
           font-size: 10px;
           padding: 1px 0 1px 18px;
           line-height: 1.4;
@@ -62,7 +63,7 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
           text-overflow: ellipsis;
         }
         .lr-extra {
-          color: #94a3b8;
+          color: ${COLORS.textMuted};
           font-size: 10px;
           padding: 1px 0 1px 18px;
           font-style: italic;
