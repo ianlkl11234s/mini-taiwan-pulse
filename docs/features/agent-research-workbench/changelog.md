@@ -27,3 +27,7 @@
 - VIEWPORT_OCCLUDED 不再阻止 map context；使用明確遮擋面板與替代可用矩形。
 - 最新全站測試 1458 passed / 5 skipped；Gateway 39 passed。完整 release 結果見 release-handoff-20260917.md。
 - 配對 TTL/輪詢、最新圖資缺失與 paired browser E2E 仍未完成；本次是程式碼整合，非 production-ready 宣告。
+
+### 主線整合驗證
+
+保留一般 merge history（976b7981），解決 7 處探索/Statistics/Coral/代理衝突。合併後全站1543 passed /6 skipped、production build通過。PR/push目前受目的地授權自動審批阻擋，尚未遠端merge；詳 release-handoff-20260917.md。
