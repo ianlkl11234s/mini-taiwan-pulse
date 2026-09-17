@@ -4,7 +4,7 @@
 
 先讀本文件、[checkpoint](checkpoint-20260917.md) 與 [connection audit](connection-audit-20260917.md)。舊 handoff.md 保留歷史分析階段，不能直接當目前探索入口規格。
 
-工作目錄 `/Users/migu/.codex/worktrees/c92d/research-recovery/` 下三個 repo；branch 均為 `codex/map-exploration`。不要從外層舊 checkout 啟動網站。使用者希望接著做單圖層基礎統計，不是立即擴張多圖層交叉分析。
+工作目錄 `/Users/migu/.codex/worktrees/c92d/research-recovery/` 下三個 repo；功能分支為 `codex/map-exploration`；release結果文件使用 `codex/exploration-release-handoff`。不要從外層舊 checkout 啟動網站。使用者希望接著做單圖層基礎統計，不是立即擴張多圖層交叉分析。
 
 ## 這次保存內容
 
@@ -31,11 +31,12 @@
 - 最新 paired browser E2E 未跑；production Gateway不隨網站容器自動啟動，8790正式代理與8791本地測試刻意不同。
 - 未上傳資料、未設定部署服務；程式碼合併不等於production可用。
 - 本次本地整合已完成：frontend merge 976b7981、Gateway merge 713c454 / CI 24438c9、MCP 5dcd5b0。前端合併後全站1543 passed /6 skipped，完整build通過；Gateway整合後39 passed；MCP33 passed與build通過。
-- **尚未建立PR、尚未合併遠端預設分支。** GitHub push遭自動審批拒絕，要求使用者確認精確目的地 `ianlkl11234s/mini-taiwan-pulse` 與 `ianlkl11234s/gis-platform`。確認前不重試。這與本地合併 origin/master/main 不同。
-- 授權後先 fetch/檢查主線是否更新→必要時merge並驗證→push codex/map-exploration→建立PR→等待CI/review→`gh pr merge --merge --match-head-commit <verified-head>`，不得 squash/rebase/admin bypass；再回寫PR URLs和merge SHA。
-- PR草稿暫存 `/tmp/pulse-pr-body.md` 與 `/tmp/gateway-pr-body.md`，重用前補最新測試結果與關聯PR；若暫存遺失可依本文件重建。
+- **已完成遠端一般 merge**：前端 [PR #257](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/257)，merge `9550d072d57332538442b86ef8bcddcd8072cc9b`；Gateway [PR #112](https://github.com/ianlkl11234s/gis-platform/pull/112)，merge `0ffa1abc0abf4dcd13513e66edfd83593e9adf11`。兩者 CI 全綠後以 match-head-commit 合併，未 squash/rebase/admin bypass。
+- 先前 push 審批要求目的地確認，使用者已明確回答「允許」，之後成功推送與合併。此阻擋已解除。
+- 本地兩個功能分支已 fast-forward 到上述 merge；下一次從最新 origin/master（前端）與 origin/main（Gateway）另開工作分支。
+- 此合併結果文件在 `codex/exploration-release-handoff` 純文件分支保存。MCP依本次範圍保留本地 `5dcd5b0`，沒有建立新repo或上傳。
 - 原public/world未追蹤檔仍留本地；新主線gitignore涵蓋它們，所以status不再列出，並非本次上傳/提交。
-- MCP目前無remote，同名GitHub repo未找到；等待使用者選擇保留本地或建立私人repo，不擅自建立。
+- MCP目前無remote，同名GitHub repo未找到；本輪保留本地，未擅自建立新repo。
 
 ## 下一步順序
 
