@@ -20,7 +20,6 @@ from collections import Counter
 from pathlib import Path
 
 
-DEFAULT_SOURCE = Path("/private/tmp/jp-medical-ready-20260913/analytics/data/processed/world/jp_medical_frontend")
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[2] / "public" / "jp-medical"
 DEFAULT_PUBLICATION_PLAN = Path(__file__).resolve().parents[2] / "docs" / "features" / "jp-medical-static" / "payload-publication-plan.json"
 NAVII_KINDS = ("hospital", "clinic", "dental", "maternity", "pharmacy")
@@ -81,10 +80,18 @@ def make_pmtiles(ndjson: Path, output: Path, source_layer: str, temp: Path):
     run([
         "tippecanoe", "--force", "--read-parallel", "--quiet", "--layer", source_layer,
         "--minimum-zoom", "0", "--maximum-zoom", "14", "--no-feature-limit",
-        "--no-tile-size-limit", "--output", str(mbtiles), str(ndjson),
+        "--no-tile-size-limit", "--drop-rate=1", "--output", str(mbtiles), str(ndjson),
     ])
     run(["pmtiles", "--quiet", "convert", str(mbtiles), str(output)])
     run(["pmtiles", "--quiet", "verify", str(output)])
+    metadata = json.loads(subprocess.check_output(["pmtiles", "show", "--metadata", str(output)], text=True))
+    if any("dropped_by_rate" in item for item in metadata.get("strategies", [])):
+        raise ValueError(f"{source_layer} contains rate-sampled points")
+    decoded = json.loads(subprocess.check_output(["tippecanoe-decode", str(output), "0", "0", "0"], text=True))
+    layers = [item for item in decoded.get("features", []) if item.get("properties", {}).get("layer") == source_layer]
+    if len(layers) != 1:
+        raise ValueError(f"{source_layer} z0 decode missing source layer")
+    return len(layers[0].get("features", []))
 
 
 def copy_details(source_release: Path, nav_index: dict, staging: Path, files: dict):
@@ -181,8 +188,10 @@ def build(source_root: Path, output_root: Path):
                     h17_out.write(json.dumps(feature({"type": "Point", "coordinates": [lon, lat]}, allow), ensure_ascii=False, separators=(",", ":")) + "\n")
 
         (staging / "points").mkdir()
-        make_pmtiles(nav_ndjson, staging / "points/navii_facilities.pmtiles", POINT_LAYER_NAMES["navii"], temp)
-        make_pmtiles(h17_ndjson, staging / "points/h17_services.pmtiles", POINT_LAYER_NAMES["h17"], temp)
+        nav_z0_count = make_pmtiles(nav_ndjson, staging / "points/navii_facilities.pmtiles", POINT_LAYER_NAMES["navii"], temp)
+        h17_z0_count = make_pmtiles(h17_ndjson, staging / "points/h17_services.pmtiles", POINT_LAYER_NAMES["h17"], temp)
+        if nav_z0_count != sum(nav_mapped.values()) or h17_z0_count != len(h17_seen):
+            raise ValueError(f"all-zoom point conservation failed: navii={nav_z0_count}, h17={h17_z0_count}")
         for rel in ("points/navii_facilities.pmtiles", "points/h17_services.pmtiles"):
             path = staging / rel
             files[rel] = {"sha256": sha256(path), "bytes": path.stat().st_size}
@@ -230,8 +239,8 @@ def build(source_root: Path, output_root: Path):
                 "a38": {"source_date": "2020", "status": "STALE", "source": areas_catalog["attribution"], "license_url": areas_catalog["license_url"], "grain": "source geometry part; do not use PMTiles feature count as medical-area count"},
             },
             "layers": [
-                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 0, "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
-                {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": POINT_LAYER_NAMES["h17"], "minimum_point_zoom": 0, "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": None},
+                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 0, "point_sampling": "none", "z0_feature_count": nav_z0_count, "geometry_provenance": "source release point geometry", "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
+                {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": POINT_LAYER_NAMES["h17"], "minimum_point_zoom": 0, "point_sampling": "none", "z0_feature_count": h17_z0_count, "geometry_provenance": "source release point geometry", "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": None},
             ] + [{"key": f"a38_{area['name'].rsplit('_', 1)[-1]}", "pmtiles_path": f"areas/{area['display_path']}", "source_layer": area["source_layer"], "status": "STALE", "source_date": "2020", "grain": "source geometry part"} for area in areas_catalog["layers"]],
             "detail_buckets": details,
             "files": dict(sorted(files.items())),
@@ -317,7 +326,7 @@ def write_publication_plan(output_root: Path, plan_path: Path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source-root", type=Path, default=DEFAULT_SOURCE)
+    parser.add_argument("--source-root", type=Path, help="persistent jp_medical_frontend processed root (required for build)")
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--write-publication-plan", action="store_true")
     parser.add_argument("--plan-path", type=Path, default=DEFAULT_PUBLICATION_PLAN)
@@ -325,6 +334,8 @@ def main():
     if args.write_publication_plan:
         write_publication_plan(args.output_root, args.plan_path)
     else:
+        if args.source_root is None:
+            parser.error("--source-root is required; retired /private/tmp staging is never used implicitly")
         build(args.source_root, args.output_root)
 
 

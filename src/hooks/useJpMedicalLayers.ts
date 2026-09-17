@@ -55,14 +55,14 @@ function usePointFamily(
   const active = definitions.some(({ key }) => visibility[key]);
   const tick = useMapReadyTick(mapRef, active);
   const revision = useSyncExternalStore(subscribeJpMedicalRuntime, getJpMedicalRuntime).revision ?? 0;
-  const [asset, setAsset] = useState<{ url: string; sourceLayer: string; revision: number } | null>(null);
+  const [asset, setAsset] = useState<{ url: string; sourceLayer: string; minzoom: number; revision: number } | null>(null);
   const mountedIdentity = useRef<string | null>(null);
 
   useEffect(() => {
     if (!active || asset?.revision === revision) return;
     let cancelled = false;
     jpMedicalLayerAsset(assetId).then(({ url, asset: item }) => {
-      if (!cancelled) setAsset({ url, sourceLayer: item.source_layer, revision });
+      if (!cancelled) setAsset({ url, sourceLayer: item.source_layer, minzoom: item.minimum_point_zoom ?? 10, revision });
     }).catch((error) => { if (!cancelled) reportJpMedicalError(error); });
     return () => { cancelled = true; };
   }, [active, asset?.revision, assetId, revision]);
@@ -89,8 +89,7 @@ function usePointFamily(
       if (added) map.addSource(sourceId, {
         type: PMTILES_SOURCE_TYPE,
         url: asset.url,
-        // Point archives are complete z0-14; the former z10 gate only hid valid features.
-        minzoom: 0,
+        minzoom: asset.minzoom,
         maxzoom: 14,
       } as any);
       definitions.forEach(({ key, layerId, color, filter }) => {
@@ -99,7 +98,7 @@ function usePointFamily(
           type: "circle",
           source: sourceId,
           "source-layer": asset.sourceLayer,
-          minzoom: 0,
+          minzoom: asset.minzoom,
           layout: { visibility: "none" },
           paint: {
             "circle-radius": pointRadius(radius),
@@ -192,7 +191,7 @@ const CARE_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CARE_GROUPS
   filter: ["in", ["get", "service_type"], ["literal", serviceTypes]] as unknown as FilterSpecification,
 }));
 
-/** 5 類設施、6 類長照與 3 級醫療圈各自獨立；點位在 z0-14 均直接顯示來源 feature。 */
+/** 5 類設施、6 類長照與 3 級醫療圈各自獨立；point minzoom 由 hash-pinned catalog 控制。 */
 export function useJpMedicalLayers(mapRef: React.RefObject<MapboxMap | null>, visibility: JpMedicalVisibility, params: JpMedicalParams) {
   usePointFamily(mapRef, visibility, params, "navii_facilities", "jp-medical-facilities", FACILITY_DEFINITIONS, 5);
   usePointFamily(mapRef, visibility, params, "h17_services", "jp-medical-care", CARE_DEFINITIONS, 4);

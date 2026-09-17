@@ -87,11 +87,15 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 - 醫療圈改成一次／二次／三次獨立 layer 與可辨識配色，popup 顯示圈層、名稱／code、
   2020 `STALE`、display geometry 與 polygon-parts 不可加總限制。
 
-資料 gate 盤點結論：既有 catalog 的 `minimum_point_zoom:10` 是舊呈現門檻，不是切片
-內容限制；產製腳本實際使用 tippecanoe `--minimum-zoom 0 --maximum-zoom 14
---no-feature-limit --no-tile-size-limit`，兩份既有不可變 PMTiles 已含 z0–14 原始點。
-因此本 PR 移除前端 z10／z6 aggregate replacement，並把後續 catalog 產製值改為 0；
-不重寫或覆蓋既有不可變資產。
+資料 gate 更正：解碼既有不可變 PMTiles 的 `0/0/0` 後，Navii 與 H17 都只有 1
+feature；雖然 header 是 z0–14，metadata 仍有 `dropped_by_rate`，不能稱為完整點位。
+analytics PR #94 已由 immutable z14 display geometry 去除 tile-buffer duplicates，使用
+`--drop-rate=1 --no-feature-limit --no-tile-size-limit` 重建；z0 分別守恆 189,800 與
+222,194，且座標衝突皆為 0。幾何是既有 display geometry 的回復值，不是新觀測或
+重新 geocode。前端只有在 catalog 同時聲明 `minimum_point_zoom:0`、
+`point_sampling:none` 與正整數 `z0_feature_count` 時才接受全縮放資產；舊 catalog
+仍維持 z10 gate。新 immutable assets、catalog 與 current pointer 尚未發布，PR 4 在此
+gate 完成前不得 merge。
 
 ### PR 5 — 日本與全球圖層命名、分組
 
@@ -164,4 +168,5 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 | PR 2 Loading 視覺 | #264 / `43d8a3f0` | focused 2 passed；`tsc -b`；全站 1,584 passed / 8 skipped；build passed；本機 browser 為黑畫面，不列為視覺驗收；CI passed | 已以一般 merge commit 合入 |
 | PR 3A 旅宿上游產物 | taipei-gis-analytics #93 / `51db5e14` | 17 focused passed；4 個 `pmtiles verify`；canonical z0=25,459、OSM z0=20,502；兩尺度網格 `sum(n_records)=25,459` | 已以一般 merge commit 合入；產物僅在永久 worktree，本輪未上傳 |
 | PR 3B 旅宿前端 | #265 / `7e011185` | focused 73 passed；`tsc -b`；合併最新 master 後全站 1,601 passed / 8 skipped；build passed；desktop browser：日本入口預設 0/5、canonical/OSM z4.7 全國點與分類色、密度 z4.7/z10、legend/popup 通過；390px viewport 不可用 | 已以一般 merge commit 合入；4 個 artifact 未上傳／部署 |
-| PR 4 醫療／長照／醫療圈 | `codex/jp-medical-care-layers-20260918` | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；`tsc -b`；全套 1,599 passed / 8 skipped；production build passed | 永久 worktree 已保存；待 commit、push、PR、browser、CI 與一般 merge |
+| PR 4A 醫療全縮放上游 | taipei-gis-analytics #94 / `bff65414` | 20 focused passed；兩個 `pmtiles verify`；Navii z0=189,800、H17 z0=222,194；無 `dropped_by_rate`；座標衝突 0 | 已以一般 merge commit 合入；約 602 MB 產物保存在永久 worktree，未上傳／部署 |
+| PR 4B 醫療／長照／醫療圈 | `codex/jp-medical-care-layers-20260918` | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；`tsc -b`；全套 1,599 passed / 8 skipped；production build passed | checkpoint `fdc812dd` 已 push；更正 artifact gate 後待再測、PR、browser、發布授權與一般 merge |
