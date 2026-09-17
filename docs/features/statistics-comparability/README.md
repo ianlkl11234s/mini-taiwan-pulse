@@ -2,6 +2,10 @@
 
 此目錄記錄 `a9d522f4` 後統計比較工作的**本地復原**。資料與程式均未發布、未上傳，也沒有變更正式 CDN pointer。
 
+## 正式環境啟用
+
+本次 PR 可先安全合併程式。正式 CDN 仍為 3,590 組，新比較選項預設關閉；完成增量資料發布及 readback 後，以 `VITE_STATISTICS_COMPARISONS_ENABLED=true` build 啟用。DEV 保留全部本地比較功能。教育 12 個視圖與原始統計不受此開關影響。
+
 ## 已重建的本地資料契約
 
 - 以本工作目錄 `recovery/statistics-comparability` 為基準，`../data/statistics-comparison-data/cdn/assembly-receipt.json` 記錄 `LOCAL_ONLY`：保留 3,590 個既有 selectors，新增 244 個 exact selectors，合計 3,834；188 個 comparison recipe keys。

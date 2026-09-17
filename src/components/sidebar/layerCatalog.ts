@@ -1,4 +1,4 @@
-import { COMPARISON_ENABLED_RECIPES } from '../../data/comparisonStatisticsRecipes';
+import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // ══════════════════════════════════════════════════════════════════
 //  Layer Catalog — Sidebar 圖層目錄「單一真實來源」
 // ══════════════════════════════════════════════════════════════════
@@ -203,7 +203,7 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
-  { title: '統計比較', groups: [...new Set(COMPARISON_ENABLED_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_ENABLED_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) },
+  ...(COMPARISON_UI_RECIPES.length > 0 ? [{ title: '統計比較', groups: [...new Set(COMPARISON_UI_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_UI_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) }] : []),
   { title: "交通統計 Transport Statistics", groups: [
     { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
     { title: "民航獎補助", layers: [fromManifest("statsCivilAeronauticsSubsidyCounty")] },
@@ -373,7 +373,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
 
 
 // Derived metrics keep the source topic; education metrics are represented by the twelve presentation views.
-for (const recipe of COMPARISON_ENABLED_RECIPES) {
+for (const recipe of COMPARISON_UI_RECIPES) {
   const id = recipe.indicator_id;
   if (id.startsWith('education_')) continue;
   const title = recipe.groupLabel === '醫療與長照' ? '醫療與長照'

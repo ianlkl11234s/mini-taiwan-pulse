@@ -1,5 +1,5 @@
 import type { SocialStatisticsLayerKey } from './socialStatisticsRecipes';
-import type { ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
+import { STATISTICS_COMPARISONS_UI_ENABLED, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 
 export type EducationStage = 'preschool' | 'elementary' | 'junior_high' | 'senior_high';
 export type EducationPresentationViewKey =
@@ -19,6 +19,10 @@ export interface EducationPresentationView {
   side: '學校端' | '老師端' | '學生端';
   metrics: readonly EducationPresentationMetric[];
 }
+
+const visibleMetrics = (metrics: EducationPresentationMetric[]) => STATISTICS_COMPARISONS_UI_ENABLED
+  ? metrics
+  : metrics.filter(metric => !metric.layerKey.startsWith('statsComparison'));
 
 const school: EducationPresentationMetric[] = [
   { layerKey: 'statsEducationCountyInstitutionCount', label: '機構或學校數' },
@@ -53,18 +57,18 @@ const teacherWithRatio: EducationPresentationMetric[] = [...teacher,
 ];
 
 export const EDUCATION_PRESENTATION_VIEWS = [
-  { key: 'statsEducationPreschoolSchool', label: '幼兒園－學校端', stage: 'preschool', side: '學校端', metrics: school },
-  { key: 'statsEducationPreschoolTeacher', label: '幼兒園－老師端', stage: 'preschool', side: '老師端', metrics: teacher },
-  { key: 'statsEducationPreschoolStudent', label: '幼兒園－學生端', stage: 'preschool', side: '學生端', metrics: [student[0]!, student[1]!, student[2]!, student[7]!, student[8]!] },
-  { key: 'statsEducationElementarySchool', label: '國小－學校端', stage: 'elementary', side: '學校端', metrics: elementarySchool },
-  { key: 'statsEducationElementaryTeacher', label: '國小－老師端', stage: 'elementary', side: '老師端', metrics: teacherWithRatio },
-  { key: 'statsEducationElementaryStudent', label: '國小－學生端', stage: 'elementary', side: '學生端', metrics: student },
-  { key: 'statsEducationJuniorHighSchool', label: '國中－學校端', stage: 'junior_high', side: '學校端', metrics: school },
-  { key: 'statsEducationJuniorHighTeacher', label: '國中－老師端', stage: 'junior_high', side: '老師端', metrics: teacherWithRatio },
-  { key: 'statsEducationJuniorHighStudent', label: '國中－學生端', stage: 'junior_high', side: '學生端', metrics: student },
-  { key: 'statsEducationSeniorHighSchool', label: '高中－學校端', stage: 'senior_high', side: '學校端', metrics: school },
-  { key: 'statsEducationSeniorHighTeacher', label: '高中－老師端', stage: 'senior_high', side: '老師端', metrics: teacherWithRatio },
-  { key: 'statsEducationSeniorHighStudent', label: '高中－學生端', stage: 'senior_high', side: '學生端', metrics: student },
+  { key: 'statsEducationPreschoolSchool', label: '幼兒園－學校端', stage: 'preschool', side: '學校端', metrics: visibleMetrics(school) },
+  { key: 'statsEducationPreschoolTeacher', label: '幼兒園－老師端', stage: 'preschool', side: '老師端', metrics: visibleMetrics(teacher) },
+  { key: 'statsEducationPreschoolStudent', label: '幼兒園－學生端', stage: 'preschool', side: '學生端', metrics: visibleMetrics([student[0]!, student[1]!, student[2]!, student[7]!, student[8]!]) },
+  { key: 'statsEducationElementarySchool', label: '國小－學校端', stage: 'elementary', side: '學校端', metrics: visibleMetrics(elementarySchool) },
+  { key: 'statsEducationElementaryTeacher', label: '國小－老師端', stage: 'elementary', side: '老師端', metrics: visibleMetrics(teacherWithRatio) },
+  { key: 'statsEducationElementaryStudent', label: '國小－學生端', stage: 'elementary', side: '學生端', metrics: visibleMetrics(student) },
+  { key: 'statsEducationJuniorHighSchool', label: '國中－學校端', stage: 'junior_high', side: '學校端', metrics: visibleMetrics(school) },
+  { key: 'statsEducationJuniorHighTeacher', label: '國中－老師端', stage: 'junior_high', side: '老師端', metrics: visibleMetrics(teacherWithRatio) },
+  { key: 'statsEducationJuniorHighStudent', label: '國中－學生端', stage: 'junior_high', side: '學生端', metrics: visibleMetrics(student) },
+  { key: 'statsEducationSeniorHighSchool', label: '高中－學校端', stage: 'senior_high', side: '學校端', metrics: visibleMetrics(school) },
+  { key: 'statsEducationSeniorHighTeacher', label: '高中－老師端', stage: 'senior_high', side: '老師端', metrics: visibleMetrics(teacherWithRatio) },
+  { key: 'statsEducationSeniorHighStudent', label: '高中－學生端', stage: 'senior_high', side: '學生端', metrics: visibleMetrics(student) },
 ] as const satisfies readonly EducationPresentationView[];
 
 export const EDUCATION_PRESENTATION_VIEW_KEYS = EDUCATION_PRESENTATION_VIEWS.map(view => view.key) as EducationPresentationViewKey[];

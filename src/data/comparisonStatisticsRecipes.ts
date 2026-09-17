@@ -10,6 +10,15 @@ export interface ComparisonRecipe {
   legend: { breaks: number[]; colors: string[] };
 }
 export const COMPARISON_ENABLED_RECIPES = raw as ComparisonRecipe[];
+/**
+ * Comparison recipes are kept locally for contract and manifest validation.
+ * They become selectable only in development or when a release explicitly opts in.
+ */
+export const STATISTICS_COMPARISONS_UI_ENABLED = import.meta.env.DEV
+  || import.meta.env.VITE_STATISTICS_COMPARISONS_ENABLED === 'true';
+export const COMPARISON_UI_RECIPES = STATISTICS_COMPARISONS_UI_ENABLED
+  ? COMPARISON_ENABLED_RECIPES
+  : [];
 const byKey = Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(r => [r.layer_key,r])) as Record<ComparisonStatisticsLayerKey,ComparisonRecipe>;
 export function getComparisonRecipe(key: string): ComparisonRecipe | undefined { return byKey[key as ComparisonStatisticsLayerKey]; }
 export function comparisonReleaseOptions(key: string, releases: StatisticsRelease[]) {
