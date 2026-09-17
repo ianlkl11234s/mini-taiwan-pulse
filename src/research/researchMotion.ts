@@ -109,4 +109,3 @@ export function clearResearchFocus(map: MapboxMap): void {
   for (const id of [FOCUS_DOT, FOCUS_LINE, FOCUS_FILL]) safely(() => { if (map.getLayer(id)) map.removeLayer(id); });
   safely(() => { if (map.getSource(FOCUS_SOURCE)) map.removeSource(FOCUS_SOURCE); });
 }
-

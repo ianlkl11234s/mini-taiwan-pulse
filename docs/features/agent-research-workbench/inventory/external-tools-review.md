@@ -29,4 +29,3 @@
 ## 對通用 GIS primitives 的建議（現有 vs 推測）
 
 **現有證據**：WorldMonitor 可重用的是受 schema/limits/freshness 約束的事件／新聞 catalog、bounded query、來源狀態、粗粒度 convergence/exposure/cascade；monolith 可重用的是 DEM tile 解碼與取樣。**推測／設計建議**：Mini Taiwan Pulse 應另建 typed `AOI + time window + source policy` primitives：`nearby(point,radius)`、`within(point/polygon)`、`aggregate(grid/admin)`、`zonalStats(DEM,polygon)`、`route/isochrone`，每一項回傳 source/version/freshness/coverage/status 與 null/missing/zero distinction。不要把 WorldMonitor 1-degree/centroid approximation 或 monolith visual height grid 升格為台灣精確空間分析；`analyze_situation` 應放在計算結果之後，且保留原始 evidence。
-
