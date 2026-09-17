@@ -32,8 +32,8 @@ const CACHE_TTL_MS = 30 * 60_000;
 
 export const JP_TOURISM_DATASETS: Record<JpTourismDataset, JpTourismDatasetConfig> = {
   "accommodation-canonical": {
-    kind: "pmtiles", file: "jp_accommodation_canonical_20260910.pmtiles", label: "日本旅宿去重總覽",
-    sourceLayer: "jp_accommodation_canonical", minzoom: 3, maxzoom: 14, production: true,
+    kind: "pmtiles", file: "jp_accommodation_canonical_allzoom_20260910.pmtiles", label: "日本旅宿去重總覽",
+    sourceLayer: "jp_accommodation_canonical", minzoom: 0, maxzoom: 14, production: true,
   },
   "accommodation-jta": {
     kind: "geojson", file: "jp_accommodation_jta_20260331.geojson", label: "日本觀光廳登錄旅宿", production: true,
@@ -42,8 +42,8 @@ export const JP_TOURISM_DATASETS: Record<JpTourismDataset, JpTourismDatasetConfi
     kind: "geojson", file: "jp_accommodation_local_20260910.geojson", label: "日本地方旅館業許可", production: true,
   },
   "accommodation-osm": {
-    kind: "pmtiles", file: "jp_accommodation_osm_20260910.pmtiles", label: "日本 OSM 住宿",
-    sourceLayer: "jp_accommodation_osm", minzoom: 3, maxzoom: 14, production: true,
+    kind: "pmtiles", file: "jp_accommodation_osm_allzoom_20260910.pmtiles", label: "日本 OSM 住宿",
+    sourceLayer: "jp_accommodation_osm", minzoom: 0, maxzoom: 14, production: true,
   },
   "natural-parks": {
     kind: "pmtiles", file: "jp_natural_parks_ksj_2010.pmtiles", label: "日本自然公園 historical",

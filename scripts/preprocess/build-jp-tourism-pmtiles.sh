@@ -1,6 +1,6 @@
 #!/bin/sh
-# Frontend packaging only: convert handoff GeoJSON already copied into public/world.
-# This does not fetch or modify the upstream analytics pipeline.
+# Frontend packaging only. Accommodation PMTiles are immutable handoff artifacts built by
+# taipei-gis-analytics; this script must not silently recreate the former sampled z3 product.
 set -eu
 
 WORLD_DIR="${1:-public/world}"
@@ -14,25 +14,11 @@ require_file() {
 }
 
 build_production() {
-  require_file "$WORLD_DIR/jp_accommodation_canonical_20260910.geojson"
-  require_file "$WORLD_DIR/jp_accommodation_osm_20260910.geojson"
+  require_file "$WORLD_DIR/jp_accommodation_canonical_allzoom_20260910.pmtiles"
+  require_file "$WORLD_DIR/jp_accommodation_osm_allzoom_20260910.pmtiles"
+  require_file "$WORLD_DIR/jp_accommodation_density_450m_20260910.pmtiles"
+  require_file "$WORLD_DIR/jp_accommodation_density_1500m_20260910.pmtiles"
   require_file "$WORLD_DIR/jp_marine_ebsa_moe_coastal_20150101.geojson"
-
-  tippecanoe --force -o "$WORLD_DIR/jp_accommodation_canonical_20260910.pmtiles" \
-    -l jp_accommodation_canonical -Z3 -z14 --drop-densest-as-needed \
-    -A 'JTA/local government sources; © OpenStreetMap contributors, ODbL 1.0' \
-    -y _provenance -y aliases -y coord_source -y coverage_scope -y dedup_status -y dedup_version \
-    -y entity_id -y facility_type -y geom_precision -y license_set -y match_confidence -y name \
-    -y review_candidate_count -y source -y source_count -y source_record_count -y source_tier -y sources \
-    "$WORLD_DIR/jp_accommodation_canonical_20260910.geojson"
-
-  tippecanoe --force -o "$WORLD_DIR/jp_accommodation_osm_20260910.pmtiles" \
-    -l jp_accommodation_osm -Z3 -z14 --drop-densest-as-needed \
-    -A '© OpenStreetMap contributors, ODbL 1.0' \
-    -y accommodation_type -y address -y brand -y coverage_scope -y geom_precision -y geom_status \
-    -y geometry_source -y license -y name -y name_en -y operator -y osm_id -y osm_type -y phone \
-    -y source_as_of -y source_id -y source_name -y source_url -y website \
-    "$WORLD_DIR/jp_accommodation_osm_20260910.geojson"
 
   tippecanoe --force -o "$WORLD_DIR/jp_marine_ebsa_moe_coastal_20150101.pmtiles" \
     -l jp_marine_ebsa_coastal -Z4 -z12 -pf -pk --no-tiny-polygon-reduction-at-maximum-zoom \
@@ -42,8 +28,10 @@ build_production() {
     -y source_area_value -y source_as_of -y source_url -y usage_status \
     "$WORLD_DIR/jp_marine_ebsa_moe_coastal_20150101.geojson"
 
-  pmtiles verify "$WORLD_DIR/jp_accommodation_canonical_20260910.pmtiles"
-  pmtiles verify "$WORLD_DIR/jp_accommodation_osm_20260910.pmtiles"
+  pmtiles verify "$WORLD_DIR/jp_accommodation_canonical_allzoom_20260910.pmtiles"
+  pmtiles verify "$WORLD_DIR/jp_accommodation_osm_allzoom_20260910.pmtiles"
+  pmtiles verify "$WORLD_DIR/jp_accommodation_density_450m_20260910.pmtiles"
+  pmtiles verify "$WORLD_DIR/jp_accommodation_density_1500m_20260910.pmtiles"
   pmtiles verify "$WORLD_DIR/jp_marine_ebsa_moe_coastal_20150101.pmtiles"
 }
 

@@ -114,7 +114,11 @@ import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
-import { JP_TOURISM_COLORS } from "./jpTourismTypes";
+import {
+  JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
+  JP_ACCOMMODATION_DENSITY_SCALES,
+  JP_TOURISM_COLORS,
+} from "./jpTourismTypes";
 import { NETWORK_STRUCTURES_COLORS } from "./networkStructuresTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
@@ -703,9 +707,24 @@ export const LAYER_MANIFEST = {
     label: "日本旅宿去重總覽 Canonical", labelMobile: "日本旅宿總覽", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationCanonical, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "27,194 source rows 保守去重為 25,961 entities；502 null geometry；82 review/conflict 未自動合併。", note: "PARTIAL_DEDUP_CONSERVATIVE；不是全國官方旅宿 SSOT，來源 badges、授權集合與 provenance 必須保留。" },
-    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z3-13 密度抽稀、z14 保留完整可渲染點；502 null geometry 只保留於來源契約", staticAssets: ["./world/jp_accommodation_canonical_20260910.pmtiles"] },
-    legend: null, popup: "jpAccommodationCanonical", params: { count: 2, kinds: ["slider", "slider"] },
+    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留 25,459 筆可繪原始點；502 null geometry 只保留於來源契約", staticAssets: ["./world/jp_accommodation_canonical_allzoom_20260910.pmtiles"] },
+    legend: "jpAccommodationCanonical", popup: "jpAccommodationCanonical", params: { count: 2, kinds: ["slider", "slider"] },
     description: "日本旅宿保守去重總覽 25,961 entities；來源不等同權威合併，缺名／缺類型／缺 geometry 仍保留 null。", topics: ["日本", "旅宿", "canonical", "來源血緣"],
+  },
+  jpAccommodationDensity: {
+    key: "jpAccommodationDensity", section: { theme: "旅宿", group: "總覽" },
+    label: "旅宿密度網格 Accommodation Density", labelMobile: "旅宿密度", expandable: true,
+    color: JP_ACCOMMODATION_DENSITY_LAYER_COLOR, icon: Grid3x3,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "25,459 筆 drawable canonical entities 以 EPSG:6933 聚合為 450m / 1.5km 網格；sum(n_records) 均守恆。", note: "只計 canonical；不叠加 OSM coverage，避免重複計數。502 筆 null geometry 未入格。" },
+    dataClass: "B",
+    source: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => ({
+      kind: "pmtiles" as const, sourceId: scale.sourceId, url: scale.sourceUrl,
+      sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom,
+    })),
+    legend: "jpAccommodationDensity", popup: "jpAccommodationDensity",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "Canonical 旅宿可繪點的 450m / 1.5km 非空網格；顏色表示格內旅宿數，不含 OSM 另一份 coverage。",
+    topics: ["日本", "旅宿", "密度", "網格"],
   },
   jpAccommodationJta: {
     key: "jpAccommodationJta", section: { theme: "旅宿", group: "來源" },
@@ -730,8 +749,8 @@ export const LAYER_MANIFEST = {
     label: "OpenStreetMap 住宿 coverage", labelMobile: "OSM 住宿", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationOsm, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_osm", confidence: "HIGH" }], processing: "2026-09-10 OSM snapshot；20,502 unique elements。", note: "© OpenStreetMap contributors, ODbL 1.0；社群繪製 coverage，不是完整或官方名冊。" },
-    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z3-13 密度抽稀、z14 保留完整 20,502 點", staticAssets: ["./world/jp_accommodation_osm_20260910.pmtiles"] },
-    legend: null, popup: "jpAccommodationOsm", params: { count: 2, kinds: ["slider", "slider"] },
+    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留完整 20,502 點", staticAssets: ["./world/jp_accommodation_osm_allzoom_20260910.pmtiles"] },
+    legend: "jpAccommodationOsm", popup: "jpAccommodationOsm", params: { count: 2, kinds: ["slider", "slider"] },
     description: "OSM 住宿 20,502 elements；native point 與 feature center 精度分開顯示，ODbL。", topics: ["日本", "旅宿", "OpenStreetMap", "ODbL"],
   },
 

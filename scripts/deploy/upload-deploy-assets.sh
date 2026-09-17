@@ -481,10 +481,12 @@ done
 # pull 端整夾 sync 已存在；nginx `/world/` 先讀 /data，再 fallback 到 git/dist 小檔。
 for f in \
   public/world/jp_population_mesh_1km.pmtiles \
-  public/world/jp_accommodation_canonical_20260910.pmtiles \
+  public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles \
+  public/world/jp_accommodation_density_450m_20260910.pmtiles \
+  public/world/jp_accommodation_density_1500m_20260910.pmtiles \
   public/world/jp_accommodation_jta_20260331.geojson \
   public/world/jp_accommodation_local_20260910.geojson \
-  public/world/jp_accommodation_osm_20260910.pmtiles \
+  public/world/jp_accommodation_osm_allzoom_20260910.pmtiles \
   public/world/jp_world_heritage_unesco_current.geojson \
   public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles; do
   [ -f "$f" ] || continue

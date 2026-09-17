@@ -5,7 +5,8 @@ import {
   jpTourismAssetUrl, type JpTourismDataset,
 } from "../data/jpTourismLoader";
 import {
-  JP_TOURISM_COLORS, JP_TOURISM_FILTER_LAYER_IDS, JP_TOURISM_LAYER_KEYS,
+  JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION, JP_TOURISM_COLORS,
+  JP_TOURISM_FILTER_LAYER_IDS, JP_TOURISM_LAYER_KEYS,
   type JpTourismLayerKey,
 } from "../data/jpTourismTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
@@ -77,6 +78,12 @@ function clampOpacity(value: number): number {
 
 function pointRadius(scale: number): ExpressionSpecification {
   return ["interpolate", ["linear"], ["zoom"], 4, 1.4 * scale, 6, 2.5 * scale, 12, 6 * scale] as ExpressionSpecification;
+}
+
+function pointColor(key: JpTourismLayerKey): string | ExpressionSpecification {
+  return key === "jpAccommodationCanonical" || key === "jpAccommodationOsm"
+    ? JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION
+    : JP_TOURISM_COLORS[key];
 }
 
 function layerFilter(config: LayerConfig, ramsarMode: RamsarGeometryMode): ExpressionSpecification | undefined {
@@ -169,7 +176,7 @@ export function useJpTourismLayers(
             layout: { visibility: "none" },
             paint: {
               "circle-radius": pointRadius(scale[config.key] ?? 1),
-              "circle-color": JP_TOURISM_COLORS[config.key],
+              "circle-color": pointColor(config.key),
               "circle-opacity": clampOpacity(opacity[config.key]),
               "circle-stroke-color": "rgba(15, 23, 42, 0.55)",
               "circle-stroke-width": 0.5,

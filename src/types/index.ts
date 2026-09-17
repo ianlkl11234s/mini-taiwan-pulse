@@ -366,7 +366,7 @@ export type ExpandableLayerKey =
   | "jpMedicalFacilities" | "jpMedicalCare" | "jpMedicalAreas"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
-  | "jpAccommodationCanonical" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+  | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
   | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
   | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
   | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
@@ -838,7 +838,7 @@ export interface FeatureInfo {
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
     // 🗾 日本旅宿、自然保護區與世界遺產（來源／historical 狀態分層）
-    | "jpAccommodationCanonical" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+    | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
     | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
     | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
     | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
@@ -1471,7 +1471,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
-  jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical；預設開啟）
+  jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
+  jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格
   jpAccommodationJta: boolean; // 觀光廳登錄旅宿法定子集
   jpAccommodationLocal: boolean; // 京都／靜岡／江東地方許可首批
   jpAccommodationOsm: boolean; // OSM 住宿 coverage（ODbL）

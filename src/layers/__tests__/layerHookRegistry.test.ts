@@ -163,12 +163,12 @@ const NO_HOOK_LEDGER = new Set<string>([
   "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
   "welfareNursingHomes", "welfareSocialWorkOrgs",
 
-  // ── OVERLAY_REGISTRY 的 PMTiles 層（64）──
+  // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
   "busStationsCity", "canopyHeight", "cemeteryOsm", "civilDefenseShelter", "contour25k",
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
-  "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid",
+  "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "jpAccommodationDensity",
   "factoryLocations", "industrialParkBoundaries", "industrialParkComparison", "regulatedFacilities",
   "contourDtm20", "countyBoundary", "courtJurisdiction", "crimeAreaMonthly", "ecoNetworkZones",
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",

@@ -75,6 +75,13 @@ import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
   jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
 } from "../data/jpPopulationMeshModes";
+import {
+  JP_ACCOMMODATION_CATEGORIES,
+  JP_ACCOMMODATION_DENSITY_COLORS,
+  JP_ACCOMMODATION_DENSITY_SCALES,
+  JP_ACCOMMODATION_DENSITY_STOPS,
+  JP_ACCOMMODATION_UNKNOWN_CATEGORY,
+} from "../data/jpTourismTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -393,6 +400,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
+  { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },
+  { id: "jpAccommodationOsm", render: () => <JpAccommodationTypesLegend source="osm" /> },
+  { id: "jpAccommodationDensity", render: ({ overlayParams }) => <JpAccommodationDensityLegend scaleIdx={overlayParams.jpAccommodationDensityScaleIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -1267,6 +1277,58 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
             : []),
         ]}
       />
+    </div>
+  );
+}
+
+function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" }) {
+  const t = useLegendTheme();
+  const categories = source === "osm"
+    ? JP_ACCOMMODATION_CATEGORIES.filter((category) => !["ryokan", "simple_lodging"].includes(category.value))
+    : JP_ACCOMMODATION_CATEGORIES;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        {source === "osm" ? "OSM 住宿類型" : "旅宿類型"}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {[...categories, JP_ACCOMMODATION_UNKNOWN_CATEGORY].map((category) => (
+          <div key={category.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={category.color} round />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              {category.label} <span style={{ color: t.textDim }}>{category.labelJa}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      {source === "osm" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 5 }}>
+          社群繪製 coverage，不是完整或官方名冊。© OpenStreetMap contributors, ODbL 1.0。
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JpAccommodationDensityLegend({ scaleIdx }: { scaleIdx: number }) {
+  const t = useLegendTheme();
+  const scale = JP_ACCOMMODATION_DENSITY_SCALES[scaleIdx]
+    ?? JP_ACCOMMODATION_DENSITY_SCALES[0]!;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        旅宿密度 · {scale.shortLabel}
+      </div>
+      <FireCatRows
+        square
+        cats={JP_ACCOMMODATION_DENSITY_STOPS.map((stop, index) => ({
+          color: JP_ACCOMMODATION_DENSITY_COLORS[index] ?? JP_ACCOMMODATION_DENSITY_COLORS[0],
+          label: index === 0 ? "1 間／格" : `≥ ${stop.toLocaleString("zh-TW")} 間／格`,
+        }))}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 5 }}>
+        只計 25,459 筆可繪 canonical 旅宿；不叠加 OSM coverage，502 筆無 geometry 未入格。
+      </div>
     </div>
   );
 }

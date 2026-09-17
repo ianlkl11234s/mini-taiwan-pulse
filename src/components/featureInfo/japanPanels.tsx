@@ -76,9 +76,26 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="geometry precision" value={precision || "來源未標示"} />
       <Row label="coverage" value={str(props.coverage_scope)} />
       <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
+      <Row label="顯示分類" value={str(props.facility_category)} />
       <Row label="類型" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
       <Row label="地址／位置" value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
       <Row label="來源網址" value={str(props.source_url) || str(props.leaflet_url) || str(props.area_detail_url)} />
+    </>
+  );
+}
+
+export function JpAccommodationDensityPanel({ props }: { props: Record<string, unknown> }) {
+  const count = Number(props.n_records);
+  const gridSize = Number(props.grid_size_m);
+  const density = Number(props.density_per_km2);
+  return (
+    <>
+      <Title color="#ea580c">旅宿密度網格</Title>
+      <Row label="網格尺度" value={Number.isFinite(gridSize) ? `${gridSize.toLocaleString("zh-TW")} m` : ""} />
+      <Row label="格內旅宿" value={Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 間` : ""} />
+      <Row label="每平方公里" value={Number.isFinite(density) ? density.toLocaleString("zh-TW", { maximumFractionDigits: 1 }) : ""} />
+      <Row label="網格 ID" value={str(props.grid_id)} />
+      <Row label="計數契約" value="只計可繪 canonical 實體；不叠加 OSM coverage，不補無 geometry 資料。" />
     </>
   );
 }

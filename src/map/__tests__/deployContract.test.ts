@@ -431,10 +431,12 @@ describe("deploy 契約（manifest 逐檔）", () => {
 
   it("Japan tourism production assets 有 S3 供應鏈，research HOLD 資產不會被上傳", () => {
     const production = [
-      "world/jp_accommodation_canonical_20260910.pmtiles",
+      "world/jp_accommodation_canonical_allzoom_20260910.pmtiles",
+      "world/jp_accommodation_density_450m_20260910.pmtiles",
+      "world/jp_accommodation_density_1500m_20260910.pmtiles",
       "world/jp_accommodation_jta_20260331.geojson",
       "world/jp_accommodation_local_20260910.geojson",
-      "world/jp_accommodation_osm_20260910.pmtiles",
+      "world/jp_accommodation_osm_allzoom_20260910.pmtiles",
       "world/jp_world_heritage_unesco_current.geojson",
       "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
     ];

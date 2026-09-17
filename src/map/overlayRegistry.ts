@@ -137,6 +137,38 @@ import {
   soundCameraFilter,
 } from "../data/noiseTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
+import {
+  JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_SCALES,
+  type JpAccommodationDensityScale,
+} from "../data/jpTourismTypes";
+
+function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): OverlayConfig {
+  return {
+    id: "jpAccommodationDensity",
+    sourceUrl: scale.sourceUrl,
+    sourceId: scale.sourceId,
+    attribution: "Derived from Japan accommodation canonical entities; source attribution retained in canonical product",
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, params) => ({
+          "fill-color": JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
+          "fill-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
+        }),
+      },
+      {
+        suffix: "outline", type: "line", minzoom: 9,
+        paint: (isDark, params) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.18)" : "rgba(124,45,18,0.28)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 9, 0.15, 14, 0.55],
+          "line-opacity": params?.jpAccommodationDensityOpacity ?? 0.72,
+        }),
+      },
+    ],
+  };
+}
 
 function industrialDensityOverlay(id: IndustrialDensityKey, source: ReturnType<typeof industrialDensitySources>[number]): OverlayConfig {
   const coarse = source.size === 1500;
@@ -3984,6 +4016,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
   ...COMPANY_GRID_SCALES.map(companyCapitalGridOverlay),
+  ...JP_ACCOMMODATION_DENSITY_SCALES.map(jpAccommodationDensityOverlay),
   ...INDUSTRIAL_DENSITY_DATASETS.flatMap(({ key }) => industrialDensitySources(key).map((source) => industrialDensityOverlay(key, source))),
   {
     id: "factoryLocations",

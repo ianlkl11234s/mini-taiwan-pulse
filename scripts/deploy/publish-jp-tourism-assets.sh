@@ -35,10 +35,12 @@ if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ] || [ -z "$BUCK
 fi
 
 FILES=(
-  "public/world/jp_accommodation_canonical_20260910.pmtiles"
+  "public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles"
+  "public/world/jp_accommodation_density_450m_20260910.pmtiles"
+  "public/world/jp_accommodation_density_1500m_20260910.pmtiles"
   "public/world/jp_accommodation_jta_20260331.geojson"
   "public/world/jp_accommodation_local_20260910.geojson"
-  "public/world/jp_accommodation_osm_20260910.pmtiles"
+  "public/world/jp_accommodation_osm_allzoom_20260910.pmtiles"
   "public/world/jp_world_heritage_unesco_current.geojson"
   "public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"
 )
