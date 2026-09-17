@@ -551,8 +551,8 @@ function SidebarContent({
                     style={{
                       flex: 1,
                       fontSize: baseFontSize,
-                      color: active ? textColor : dimColor,
-                      opacity: active ? 1 : 0.6,
+                      color: textColor,
+                      opacity: 1,
                       transition: "all 0.15s",
                     }}
                   >

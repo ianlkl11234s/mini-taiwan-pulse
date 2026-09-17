@@ -1,3 +1,4 @@
+import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import type { LayerVisibility } from '../../types';
@@ -15,11 +16,12 @@ interface Props {
   expandedLayer: string | null;
   onLayerClick: (key: keyof LayerVisibility) => void;
   renderControls: (key: keyof LayerVisibility) => ReactNode;
+  renderToggle?: (on: boolean, onChange: () => void, label: string) => ReactNode;
   textColor?: string;
   dimColor?: string;
 }
 
-export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
+export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
   const group = getMedicalStatisticsGroup(groupKey);
   const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
   const [error, setError] = useState('');
@@ -65,10 +67,10 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
   return <div style={{ color: textColor }}>
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? '2px solid #60a5fa' : '2px solid transparent' }}>
       <Layers size={14} color={active.length ? '#60a5fa' : dimColor} />
-      <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: active.length ? textColor : dimColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
+      <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: textColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
         {group.label}{expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
       </button>
-      <button type="button" role="switch" aria-label={`${group.label} 顯示`} aria-checked={active.length > 0} onClick={toggle} style={{ border: 0, borderRadius: RADIUS.full, background: active.length ? '#60a5fa' : '#4b5563', color: active.length ? '#111827' : '#fff', fontSize: FONT_SIZE.xs, cursor: 'pointer', padding: '2px 7px' }}>{active.length ? '開' : '關'}</button>
+      {renderToggle ? renderToggle(active.length > 0, toggle, `${group.label} 顯示`) : <LayerToggleSwitch on={active.length > 0} onChange={toggle} label={`${group.label} 顯示`} />}
     </div>
     {expanded && <>
       <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>

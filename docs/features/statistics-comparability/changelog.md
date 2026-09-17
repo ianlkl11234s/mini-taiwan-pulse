@@ -20,3 +20,10 @@
 - CDN 新 manifest `8e4511ef4627d6a511b8208e05ab6cd2787e2319df17252c749d01e0005f5efe` 已公開，244 新 selectors 與 256 次正式 loader 驗證通過。
 - Docker build stage 明確接收 `VITE_STATISTICS_COMPARISONS_ENABLED`，預設仍為 false；正式服務設定為 true 後重新建置。
 - 關閉時設定 false 並重建即可回復原始量顯示，CDN immutable 資料不需刪除。
+
+## 2026-09-17 — 統計清單 UI 一致性
+
+- 整合群組沿用共用滑動 toggle，取代文字開／關按鈕；桌面保留既有主題配色。
+- 桌面與手機 sidebar 的圖層名稱保持主要文字色，不再依關閉狀態變灰或降低透明度；淺色主題仍使用對應文字色。
+- 驗證：TypeScript、production build 與 git diff --check 通過；本地 browser 確認關閉的高中學生端與醫院病床文字均為 rgb(255, 255, 255)，群組 toggle 為 28×16 且保留 switch 狀態語意。
+- 資料契約、選項、年份與 CDN 資料不變。
