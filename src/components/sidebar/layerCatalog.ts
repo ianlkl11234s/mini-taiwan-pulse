@@ -594,8 +594,11 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "製造業",
         layers: [
           fromManifest("factoryLocations"),
+          fromManifest("factoryDensityGrid"),
           fromManifest("manufacturingCompanyPoints"),
+          fromManifest("manufacturingCompanyDensityGrid"),
           fromManifest("regulatedFacilities"),
+          fromManifest("regulatedFacilityDensityGrid"),
         ],
       },
       {

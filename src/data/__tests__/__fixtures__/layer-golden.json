@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 478,
+    "keyCount": 481,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1497,12 +1497,6 @@
     },
     {
       "layers": [
-        "business-registry-factory-locations-overview-circle"
-      ],
-      "type": "factoryLocations"
-    },
-    {
-      "layers": [
         "business-registry-factory-locations-circle"
       ],
       "type": "factoryLocations"
@@ -1515,9 +1509,30 @@
     },
     {
       "layers": [
-        "business-registry-company-points-manufacturing-circle"
+        "business-registry-manufacturing-company-points-manufacturing-circle"
       ],
       "type": "manufacturingCompanyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-factory-density-1500-fill",
+        "business-registry-factory-density-450-fill"
+      ],
+      "type": "factoryDensityGrid"
+    },
+    {
+      "layers": [
+        "business-registry-manufacturing-company-density-1500-fill",
+        "business-registry-manufacturing-company-density-450-fill"
+      ],
+      "type": "manufacturingCompanyDensityGrid"
+    },
+    {
+      "layers": [
+        "business-registry-regulated-facility-density-1500-fill",
+        "business-registry-regulated-facility-density-450-fill"
+      ],
+      "type": "regulatedFacilityDensityGrid"
     },
     {
       "layers": [
@@ -1545,12 +1560,6 @@
         "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill"
       ],
       "type": "companyAgeStructure"
-    },
-    {
-      "layers": [
-        "business-registry-company-points-overview-manufacturing-overview-circle"
-      ],
-      "type": "manufacturingCompanyPoints"
     },
     {
       "layers": [
@@ -23420,110 +23429,9 @@
       "id": "manufacturingCompanyPoints",
       "layers": [
         {
-          "filter": [
-            ">",
-            [
-              "to-number",
-              [
-                "get",
-                "n_manufacturing"
-              ],
-              0
-            ],
-            0
-          ],
-          "layout": null,
-          "maxzoom": 12,
-          "minzoom": 4,
-          "paint": {
-            "dark": {
-              "circle-color": "#f97316",
-              "circle-opacity": 0.82,
-              "circle-radius": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "to-number",
-                  [
-                    "get",
-                    "n_manufacturing"
-                  ],
-                  0
-                ],
-                1,
-                1.4,
-                50,
-                2.8,
-                500,
-                5.2,
-                5000,
-                9
-              ],
-              "circle-stroke-color": "#fdba74",
-              "circle-stroke-opacity": 0.82,
-              "circle-stroke-width": 0.35
-            },
-            "light": {
-              "circle-color": "#f97316",
-              "circle-opacity": 0.82,
-              "circle-radius": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "to-number",
-                  [
-                    "get",
-                    "n_manufacturing"
-                  ],
-                  0
-                ],
-                1,
-                1.4,
-                50,
-                2.8,
-                500,
-                5.2,
-                5000,
-                9
-              ],
-              "circle-stroke-color": "#7c2d12",
-              "circle-stroke-opacity": 0.82,
-              "circle-stroke-width": 0.35
-            }
-          },
-          "suffix": "manufacturing-overview-circle",
-          "type": "circle"
-        }
-      ],
-      "pmtiles": {
-        "maxzoom": 11,
-        "minzoom": 4,
-        "sourceLayer": "company_points_overview"
-      },
-      "rebuildOnParamChange": null,
-      "sourceId": "business-registry-company-points-overview",
-      "sourceUrl": "./business_registry/company_points_overview_1500m_202608_r2.pmtiles"
-    },
-    {
-      "dynamicData": null,
-      "filter": [
-        "==",
-        [
-          "get",
-          "is_manufacturing"
-        ],
-        1
-      ],
-      "id": "manufacturingCompanyPoints",
-      "layers": [
-        {
           "filter": null,
           "layout": null,
-          "minzoom": 12,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": [
@@ -23559,6 +23467,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 12,
                 2.2,
                 14,
@@ -23618,6 +23530,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 12,
                 2.2,
                 14,
@@ -23650,12 +23566,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 8,
-        "sourceLayer": "company_points"
+        "minzoom": 0,
+        "sourceLayer": "manufacturing_company_points"
       },
       "rebuildOnParamChange": null,
-      "sourceId": "business-registry-company-points",
-      "sourceUrl": "./business_registry/company_points_202608_r2.pmtiles"
+      "sourceId": "business-registry-manufacturing-company-points",
+      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -24023,85 +23939,821 @@
     {
       "dynamicData": null,
       "filter": null,
-      "id": "factoryLocations",
+      "id": "factoryDensityGrid",
       "layers": [
         {
           "filter": null,
           "layout": null,
-          "maxzoom": 11,
+          "maxzoom": 10.01,
           "minzoom": 4,
           "paint": {
             "dark": {
-              "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
-              "circle-radius": [
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
                 "interpolate",
                 [
                   "linear"
                 ],
                 [
-                  "to-number",
-                  [
-                    "get",
-                    "n_factories"
-                  ],
-                  0
+                  "zoom"
                 ],
-                1,
-                1.4,
-                25,
-                2.8,
-                250,
-                5.2,
-                2500,
-                9
-              ],
-              "circle-stroke-color": "#5eead4",
-              "circle-stroke-opacity": 0.76,
-              "circle-stroke-width": 0.35
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
             },
             "light": {
-              "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
-              "circle-radius": [
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
                 "interpolate",
                 [
                   "linear"
                 ],
                 [
-                  "to-number",
-                  [
-                    "get",
-                    "n_factories"
-                  ],
-                  0
+                  "zoom"
                 ],
-                1,
-                1.4,
-                25,
-                2.8,
-                250,
-                5.2,
-                2500,
-                9
-              ],
-              "circle-stroke-color": "#134e4a",
-              "circle-stroke-opacity": 0.76,
-              "circle-stroke-width": 0.35
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
             }
           },
-          "suffix": "circle",
-          "type": "circle"
+          "suffix": "fill",
+          "type": "fill"
         }
       ],
       "pmtiles": {
-        "maxzoom": 10,
-        "minzoom": 4,
-        "sourceLayer": "factory_locations_overview"
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
       },
       "rebuildOnParamChange": null,
-      "sourceId": "business-registry-factory-locations-overview",
-      "sourceUrl": "./business_registry/factory_locations_overview_1500m_202606.pmtiles"
+      "sourceId": "business-registry-factory-density-1500",
+      "sourceUrl": "./business_registry/factory_density_1500m_202606.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "factoryDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-factory-density-450",
+      "sourceUrl": "./business_registry/factory_density_450m_202606.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "manufacturingCompanyDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-manufacturing-company-density-1500",
+      "sourceUrl": "./business_registry/manufacturing_company_density_1500m_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "manufacturingCompanyDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-manufacturing-company-density-450",
+      "sourceUrl": "./business_registry/manufacturing_company_density_450m_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "regulatedFacilityDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-regulated-facility-density-1500",
+      "sourceUrl": "./business_registry/regulated_facility_density_1500m_20260818.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "regulatedFacilityDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-regulated-facility-density-450",
+      "sourceUrl": "./business_registry/regulated_facility_density_450m_20260818.pmtiles"
     },
     {
       "dynamicData": null,
@@ -24111,7 +24763,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 11,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": "#0d9488",
@@ -24124,6 +24776,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24160,6 +24816,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24192,12 +24852,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 5,
+        "minzoom": 0,
         "sourceLayer": "factory_locations"
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-factory-locations",
-      "sourceUrl": "./business_registry/factory_locations_202606.pmtiles"
+      "sourceUrl": "./business_registry/factory_locations_202606_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -24207,7 +24867,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 11,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": "#d97706",
@@ -24220,6 +24880,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24256,6 +24920,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24288,12 +24956,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 5,
+        "minzoom": 0,
         "sourceLayer": "regulated_facilities"
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-regulated-facilities",
-      "sourceUrl": "./business_registry/regulated_facilities_20260818.pmtiles"
+      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -62521,6 +63189,15 @@
         "value": 0.85
       }
     ],
+    "factoryDensityGrid": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
     "factoryLocations": [
       {
         "label": "透明度 0.76",
@@ -64700,6 +65377,15 @@
         "step": 0.1,
         "value": 1.1
       },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "manufacturingCompanyDensityGrid": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -67000,6 +67686,15 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "regulatedFacilityDensityGrid": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       }
     ],
     "religionAncestralHalls": [

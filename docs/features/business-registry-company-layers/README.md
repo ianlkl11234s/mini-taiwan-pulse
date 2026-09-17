@@ -13,7 +13,9 @@
 | layer key | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
 | `companyPoints` | z4–9 1.5km／z10–11 450m 密度網格，z12+ 個別 Point | 既有 grid + detail PMTiles | 本地呈現更新，未部署 |
-| `manufacturingCompanyPoints` | z4–11 製造業計數概覽，z12+ 個別 Point | 與 B1 共用兩個 sources | 🟡 uploaded / deploy pending |
+| `manufacturingCompanyPoints` | 全台尺度起完整有座標 Point | 獨立 allzoom PMTiles | 本地更新，未部署 |
+| `factoryLocations` / `regulatedFacilities` | 全台尺度起完整有座標 Point | 各自 allzoom PMTiles | 本地更新，未部署 |
+| `factoryDensityGrid` / `manufacturingCompanyDensityGrid` / `regulatedFacilityDensityGrid` | 1.5km／450m 原始記錄密度 | 各母體獨立網格 PMTiles | 本地新增，未部署 |
 | `companyCapitalGrid` | 150m / 450m / 1.5km Polygon | 三份 PMTiles，手動切換 | 🟡 uploaded / deploy pending |
 | `companyIndustryDistribution` | 1.5km / 450m Polygon | 完整行業計數 PMTiles | 本地新增，未部署 |
 | `companyAgeStructure` | 1.5km / 450m Polygon | 完整年齡結構 PMTiles | 本地新增，未部署 |

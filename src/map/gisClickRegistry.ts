@@ -337,10 +337,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["taipei-pumb-dot", "taipei-pumb-glow"], type: "taipeiPumb" },
   { layers: ["agri-pois-circle"], type: "agriPOI" },
   { layers: ["business-registry-common-registration-addresses-circle"], type: "commonRegistrationAddresses" },
-  { layers: ["business-registry-factory-locations-overview-circle"], type: "factoryLocations" },
   { layers: ["business-registry-factory-locations-circle"], type: "factoryLocations" },
   { layers: ["business-registry-regulated-facilities-circle"], type: "regulatedFacilities" },
-  { layers: ["business-registry-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
+  { layers: ["business-registry-manufacturing-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
+  { layers: ["business-registry-factory-density-1500-fill", "business-registry-factory-density-450-fill"], type: "factoryDensityGrid" },
+  { layers: ["business-registry-manufacturing-company-density-1500-fill", "business-registry-manufacturing-company-density-450-fill"], type: "manufacturingCompanyDensityGrid" },
+  { layers: ["business-registry-regulated-facility-density-1500-fill", "business-registry-regulated-facility-density-450-fill"], type: "regulatedFacilityDensityGrid" },
   { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
   { layers: [
     "business-registry-company-capital-grid-1500-company-overview-density-fill",
@@ -354,7 +356,6 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
     "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
     "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
   ], type: "companyAgeStructure" },
-  { layers: ["business-registry-company-points-overview-manufacturing-overview-circle"], type: "manufacturingCompanyPoints" },
   {
     layers: [
       "business-registry-company-capital-grid-150-fill", "business-registry-company-capital-grid-150-outline",

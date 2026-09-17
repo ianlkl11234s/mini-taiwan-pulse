@@ -37,15 +37,12 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     expect(filter[0]).toBe("all");
   });
 
-  it("A4 保持既有總覽 source，且只用 is_manufacturing=1", () => {
+  it("A4 使用完整製造業子集 archive，不影響全公司圖層", () => {
     const b1 = OVERLAY_REGISTRY.find((c) => c.id === "companyPoints" && c.pmtiles?.sourceLayer === "company_points")!;
-    const a4 = OVERLAY_REGISTRY.find((c) => c.id === "manufacturingCompanyPoints" && c.pmtiles?.sourceLayer === "company_points")!;
-    expect(a4.sourceId).toBe(b1.sourceId);
-    expect(a4.sourceUrl).toBe(b1.sourceUrl);
-    expect(a4.pmtiles?.sourceLayer).toBe("company_points");
-    expect(a4.filter).toEqual(["==", ["get", "is_manufacturing"], 1]);
-    const overview = OVERLAY_REGISTRY.filter((c) => c.id === "manufacturingCompanyPoints" && c.pmtiles?.sourceLayer === "company_points_overview");
-    expect(overview).toHaveLength(1);
+    const a4 = OVERLAY_REGISTRY.find((c) => c.id === "manufacturingCompanyPoints")!;
+    expect(a4.sourceId).not.toBe(b1.sourceId);
+    expect(a4.pmtiles?.sourceLayer).toBe("manufacturing_company_points");
+    expect(a4.sourceUrl).toContain("manufacturing_company_points_202608_allzoom");
   });
 
   it("B2 capital_median 缺值明確落 neutral case", () => {
@@ -106,15 +103,12 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     });
   });
 
-  it("A1 低倍率概覽 + z11 個別點；A5 保持 z11 gate；A2 不含科學園區", () => {
-    const a1Overview = OVERLAY_REGISTRY.find((c) => c.id === "factoryLocations" && c.pmtiles?.sourceLayer === "factory_locations_overview")!;
+  it("A1/A5 全尺度原點；A2 不含科學園區", () => {
     const a1 = OVERLAY_REGISTRY.find((c) => c.id === "factoryLocations" && c.pmtiles?.sourceLayer === "factory_locations")!;
     const a5 = OVERLAY_REGISTRY.find((c) => c.id === "regulatedFacilities")!;
     const a2 = OVERLAY_REGISTRY.find((c) => c.id === "industrialParkBoundaries")!;
-    expect(a1Overview.layers[0]?.minzoom).toBe(4);
-    expect(a1Overview.layers[0]?.maxzoom).toBe(11);
-    expect(a1.layers[0]?.minzoom).toBe(11);
-    expect(a5.layers[0]?.minzoom).toBe(11);
+    expect(a1.layers[0]?.minzoom).toBe(0);
+    expect(a5.layers[0]?.minzoom).toBe(0);
     expect(a2.sourceUrl).toBe("./industrial_zone/industrial_park_boundaries_20260818.pmtiles");
     expect(LAYER_MANIFEST.industrialParkBoundaries.description).toContain("不含科學園區");
     expect(LAYER_MANIFEST.regulatedFacilities.label).toBe("列管設施 Regulated Facilities");
@@ -138,5 +132,31 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     expect(a6.pmtiles?.sourceLayer).toBe("industrial_park_comparison");
     expect(LAYER_MANIFEST.industrialParkComparison.description).toContain("geocode coverage");
     expect(LAYER_MANIFEST.industrialParkComparison.description).toContain("不含科學園區");
+  });
+});
+
+describe("工廠／製造業／列管設施原點與密度分離", () => {
+  it.each(["factoryLocations", "manufacturingCompanyPoints", "regulatedFacilities"] as const)("%s 全台尺度沒有 cluster 概覽或 zoom 隱藏", (key) => {
+    const configs = OVERLAY_REGISTRY.filter((item) => item.id === key);
+    expect(configs).toHaveLength(1);
+    expect(configs[0]!.sourceUrl).toMatch(/_allzoom\.pmtiles$/);
+    expect(configs[0]!.pmtiles?.minzoom).toBe(0);
+    expect(configs[0]!.layers).toHaveLength(1);
+    expect(configs[0]!.layers[0]!.minzoom).toBe(0);
+    expect(configs[0]!.layers[0]!.maxzoom).toBeUndefined();
+    expect(JSON.stringify(configs)).not.toContain("overview");
+  });
+
+  it.each(["factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid"] as const)("%s 有獨立開關與跨尺度固定密度色階", (key) => {
+    const configs = OVERLAY_REGISTRY.filter((item) => item.id === key);
+    expect(configs).toHaveLength(2);
+    expect(configs.map((item) => item.layers[0]!.minzoom)).toEqual([4, 10]);
+    expect(configs[0]!.layers[0]!.maxzoom).toBe(10.01);
+    const coarse = configs[0]!.layers[0]!.paint(true, {});
+    const fine = configs[1]!.layers[0]!.paint(true, {});
+    expect(coarse["fill-color"]).toEqual(fine["fill-color"]);
+    expect(JSON.stringify(coarse["fill-color"])).toContain("density_per_km2");
+    expect(isOverlayVisible(configs[0]!, { [key]: true } as unknown as LayerVisibility)).toBe(true);
+    expect(isOverlayVisible(configs[0]!, { [key]: false } as unknown as LayerVisibility)).toBe(false);
   });
 });

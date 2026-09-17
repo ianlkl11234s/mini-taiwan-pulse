@@ -768,6 +768,7 @@ export interface FeatureInfo {
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
     | "companyPoints" | "manufacturingCompanyPoints" | "companyCapitalGrid" | "companyIndustryDistribution" | "companyAgeStructure"
     | "factoryLocations" | "industrialParkBoundaries" | "regulatedFacilities"
+    | "factoryDensityGrid" | "manufacturingCompanyDensityGrid" | "regulatedFacilityDensityGrid"
     | "industrialParkComparison"
     | "commonRegistrationAddresses"
     | "youbikeFullness"
@@ -947,10 +948,13 @@ export interface LayerVisibility {
   companyCapitalGrid: boolean; // 150m 公司資本額／家數聚合
   companyIndustryDistribution: boolean; // 202608 公司第一順位行業中類網格
   companyAgeStructure: boolean; // 202608 公司設立年齡網格
-  factoryLocations: boolean; // 202606 生產中工廠登記點位，z11+
+  factoryDensityGrid: boolean; // 生產中工廠登記密度
+  manufacturingCompanyDensityGrid: boolean; // 製造業公司登記密度
+  regulatedFacilityDensityGrid: boolean; // active 列管設施密度
+  factoryLocations: boolean; // 202606 生產中工廠登記完整有座標點位
   industrialParkBoundaries: boolean; // 20260818 產業園區邊界，不含科學園區
   industrialParkComparison: boolean; // 20260818 園區內觀測工廠/公司/公司資本額
-  regulatedFacilities: boolean; // 20260818 環境部列管設施，z11+
+  regulatedFacilities: boolean; // 20260818 環境部列管設施，完整有座標點位
   commonRegistrationAddresses: boolean; // 共同登記地址（≥5 家；大小=公司數、色=資本額中位數）
   temperatureWave: boolean;
   /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */

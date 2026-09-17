@@ -86,6 +86,39 @@ function countLabel(value: unknown): string {
   return Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 家` : "";
 }
 
+function densityValue(value: unknown, unit: string): string {
+  const density = typeof value === "number" ? value : NaN;
+  return Number.isFinite(density) && density >= 0
+    ? `${density.toLocaleString("zh-TW", { maximumFractionDigits: 1 })} ${unit}／km²`
+    : "缺值";
+}
+
+function gridMeters(value: unknown): string {
+  const meters = typeof value === "number" ? value : NaN;
+  return Number.isFinite(meters) && meters > 0 ? `${meters.toLocaleString("zh-TW")} m` : "缺值";
+}
+
+/** 三種工商密度格共用的欄位契約；快照與資料粒度由各圖層明確傳入。 */
+export function IndustrialDensityGridPanel({
+  props, snapshot, grain, recordUnit,
+}: {
+  props: Record<string, unknown>;
+  snapshot: string;
+  grain: string;
+  recordUnit: string;
+}) {
+  const records = typeof props.n_records === "number" && Number.isFinite(props.n_records) && props.n_records >= 0
+    ? `${props.n_records.toLocaleString("zh-TW")} ${recordUnit}`
+    : "缺值";
+  return <>
+    <Row label="網格 ID" value={String(props.grid_id ?? "") || "缺值"} />
+    <Row label="網格尺度" value={gridMeters(props.grid_size_m)} />
+    <Row label="格內筆數" value={records} />
+    <Row label="密度" value={densityValue(props.density_per_km2, recordUnit)} />
+    <Row label="快照與粒度" value={`${snapshot}；${grain}。`} />
+  </>;
+}
+
 export function CompanyCapitalGridPanel({ props }: { props: Record<string, unknown> }) {
   const nCompanies = Number(props.n_companies);
   const gridId = String(props.grid_id ?? "");

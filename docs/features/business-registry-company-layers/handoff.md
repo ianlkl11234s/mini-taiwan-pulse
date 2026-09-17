@@ -32,8 +32,8 @@
 
 - B1/A4 detail 十一欄白名單：`company_name, capital_total, capital_q, is_manufacturing, categories, industry_mid, setup_year, county, addr_mismatch, is_listed, has_trademark`；popup 顯示公司名稱，不發布統編、地址或代表人。
 - `capital_q=0` 是缺值；`industry_mid` 是 string，`01` 不可轉成 `1`。
-- A4 detail 必須使用 B1 同 source-layer 並套 `is_manufacturing=1`；overview 改讀 `n_manufacturing`；這是公司登記地址，不是工廠位置。
-- B1/A4 z4–11 顯示 1.5km 聚合計數，z12+ 顯示個別點；overview 納入全部已定位 records，不等於全部原始 rows。
+- 2026-09-18 起 A4 改獨立 `manufacturing_company_points_202608_allzoom.pmtiles`，由完整 company source 的 `is_manufacturing=1` 篩出，保持公司登記地址語意。舊共用 source + overview 契約已取代。
+- B1 維持密度概覽／z12 原點；A4、工廠、列管設施從全台尺度起顯示完整有座標原點，密度改由三個獨立圖層提供。
 - B2 三尺度都依賴 `grid_id, capital_sum, n_companies, capital_median`；尺度由使用者手動切換，未選中 source 用 `visibility:none` 避免下載。中位數缺值用 neutral 色。
 - 所有資本額文字明示「202608 快照」，不使用 current／目前資本額語意。
 
@@ -61,3 +61,25 @@
 ### 產業固定色比較
 
 使用者要求產業群組以不同顏色比較。新增前端顯示模式：預設固定群組色，由所選群組中家數最多者決定格色；另一模式保留合計密度。原始聚合欄位與資產未改，沒有重新發布資料。群組固定色、並列／缺欄位／零觀測色由 `businessDemographicsTypes.ts` 共用，點選摘要呈現所選群組組成；最多不等於過半。
+
+## 2026-09-18 全縮放工業點位與獨立密度（LOCAL_ONLY）
+
+上游重現：`../taipei-gis-analytics/pipelines/business_registry/08_allzoom_density.py`；契約：`../taipei-gis-analytics/docs/handoff/industrial-allzoom-density.md`。點位 z0–14 禁止抽稀與聚合，最低 zoom 實解筆數與三個有座標母體一致。缺座標記錄不推測補點。
+
+| 本地 artifact | records / cells | SHA-256 |
+|---|---:|---|
+| `public/business_registry/factory_density_1500m_202606.pmtiles` | 3,673 | `990def03aae7978b913693b55866adae8e19195e49b7c785bc3d6b75f1a8764d` |
+| `public/business_registry/factory_density_450m_202606.pmtiles` | 14,285 | `2a04cb1a65ecd1e4f423c5dade26df08173c2af9b0bcdcb7bc046d3a3470a797` |
+| `public/business_registry/factory_locations_202606_allzoom.pmtiles` | 90,652 | `69eb8b02945717efdc84d8eecdfecda8750011d9ee89faaa7851d79e8feca23a` |
+| `public/business_registry/manufacturing_company_density_1500m_202608.pmtiles` | 4,664 | `26df1dd39eb0223c767172fec5a87b1f89f5ec550698241fe36a4cb72a83ee70` |
+| `public/business_registry/manufacturing_company_density_450m_202608.pmtiles` | 20,584 | `b95811e6284bbf097f0607d1c712a5fd7964779a1bcd74e63443cfabf82fa03c` |
+| `public/business_registry/manufacturing_company_points_202608_allzoom.pmtiles` | 184,944 | `4ca87ad9dd39d95139ffd033dfff1be97ec223b04f5ffeaf64c0155d61880712` |
+| `public/business_registry/regulated_facility_density_1500m_20260818.pmtiles` | 4,930 | `8fc9c718856c2a2a6ec2feb88c7f1e8b5f2fa7387da4ae23e8bc72138422ddc3` |
+| `public/business_registry/regulated_facility_density_450m_20260818.pmtiles` | 18,317 | `1981a289f0e16f95693a0ba1c481b24f86fc1ea1af021d407af3a2146e833b6e` |
+| `public/business_registry/regulated_facilities_20260818_allzoom.pmtiles` | 80,732 | `dc2f1e1dae80246ebffac638e238d3978e157ba34adc3e39b0f9cfcb40af2678` |
+
+密度 `business_density_grid` 欄位：`grid_id`, `n_records`, `density_per_km2`, `grid_size_m`。網格為 EPSG:3826 固定 450 / 1500m 方格，密度除以完整格面積，不扣除海域。每種來源兩尺度各自加總守恆。前端只在 z4+ 顯示密度；z0 point count 驗證不延伸為 z0 polygon 全格可視的宣稱。
+
+驗收：TypeScript 通過；54 個接線／expression／圖例／資料契約測試與 15 個 golden 測試通過。Browser 已確認全台原點三層、工廠 1.5km/450m 網格與 popup（G450_176_592：2 家，9.9 家/km²）。本次無 commit、push、圖資上傳或部署。
+
+補充 browser 驗收：三種原點與三種密度層均於 z7.38 全台視野確認可見；工廠密度在 z10.5 確認 450m 格與 popup。上游小型測試 3/3 通過（canonical grid、加總守恆、無效／缺失座標拒絕）。

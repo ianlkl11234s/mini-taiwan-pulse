@@ -375,14 +375,14 @@ export function useMapInteraction(
             if (!map.getLayer(id)) return false;
             // PMTiles roundZoom bridge 令 z10 兩尺度都存在；popup 必依真實 zoom 選尺度，
             // 不能讓 opacity=0 的舊格網先命中。
-            if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid") {
               return map.getZoom() >= 10 ? id.includes("-450-") : id.includes("-1500-");
             }
             return true;
           });
           if (existingIds.length === 0) continue;
           // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
-          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" ? e.point : bbox;
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" ? e.point : bbox;
           const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：

@@ -1238,6 +1238,9 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("manufacturingCompanyPointsOpacity", 0.82),
     scaleSlider("manufacturingCompanyPointsScale", 1),
   ],
+  factoryDensityGrid: [opacitySlider("factoryDensityGridOpacity", 0.85)],
+  manufacturingCompanyDensityGrid: [opacitySlider("manufacturingCompanyDensityGridOpacity", 0.85)],
+  regulatedFacilityDensityGrid: [opacitySlider("regulatedFacilityDensityGridOpacity", 0.85)],
   factoryLocations: [
     opacitySlider("factoryLocationsOpacity", 0.76),
     scaleSlider("factoryLocationsScale", 1),

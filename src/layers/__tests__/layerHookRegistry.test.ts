@@ -165,6 +165,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
   "busStationsCity", "canopyHeight", "cemeteryOsm", "civilDefenseShelter", "contour25k",
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
+  "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid",
   "factoryLocations", "industrialParkBoundaries", "industrialParkComparison", "regulatedFacilities",
   "contourDtm20", "countyBoundary", "courtJurisdiction", "crimeAreaMonthly", "ecoNetworkZones",
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",

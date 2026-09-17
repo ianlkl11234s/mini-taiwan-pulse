@@ -25,3 +25,5 @@
 - [x] B3 r2 companion contract：89 行業、縣市、資本額分位、設立年、所有 boolean/tri-state flags，並與 B1 r2 的 `company_name` 欄位對齊。
 - [x] manifest/sidebar/params/overlay/click/popup/legend/deploy/static/PMTiles contracts。
 - [x] 新 assets 本機實檔 checksum / source-layer / feature-count ratchet，86/86 PMTiles 通過。
+
+- ✅ 2026-09-18：工廠、製造業公司、列管設施全台原點取消聚合與抽稀；各新增可獨立開關的 1.5km／450m 密度層。最低點位 zoom 實解計數、網格加總、六層 browser 可視驗證完成；LOCAL_ONLY，未部署。

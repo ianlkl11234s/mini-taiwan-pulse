@@ -72,7 +72,7 @@ import {
 } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import {
-  CommonRegistrationAddressesPanel, CompanyAgeStructurePanel, CompanyCapitalGridPanel, CompanyIndustryDistributionPanel, CompanyPointsPanel,
+  CommonRegistrationAddressesPanel, CompanyAgeStructurePanel, CompanyCapitalGridPanel, CompanyIndustryDistributionPanel, CompanyPointsPanel, IndustrialDensityGridPanel,
   FactoryLocationsPanel, IndustrialParkBoundariesPanel, RegulatedFacilitiesPanel,
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
@@ -261,10 +261,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   companyCapitalGrid: CompanyCapitalGridPanel,
   companyIndustryDistribution: CompanyIndustryDistributionPanel,
   companyAgeStructure: CompanyAgeStructurePanel,
+  factoryDensityGrid: ({ props }) => <IndustrialDensityGridPanel props={props} snapshot="202606" recordUnit="家" grain="生產中工廠登記；僅含有座標的工廠" />,
+  manufacturingCompanyDensityGrid: ({ props }) => <IndustrialDensityGridPanel props={props} snapshot="202608" recordUnit="家" grain="製造業公司登記地址，不是工廠實際營運地址" />,
   factoryLocations: FactoryLocationsPanel,
   industrialParkBoundaries: IndustrialParkBoundariesPanel,
   industrialParkComparison: IndustrialParkComparisonPanel,
   regulatedFacilities: RegulatedFacilitiesPanel,
+  regulatedFacilityDensityGrid: ({ props }) => <IndustrialDensityGridPanel props={props} snapshot="20260818" recordUnit="筆" grain="active 列管設施；列管身分不是污染風險" />,
   farmRoads: FarmRoadsPanel,
   ecoNetworkZones: EcoNetworkZonesPanel,
   forestryPolygon: ForestryGenericPanel,
@@ -594,10 +597,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   companyCapitalGrid: "公司資本額網格（202608 快照）",
   companyIndustryDistribution: "登記產業分布（202608 快照）",
   companyAgeStructure: "公司年齡結構（202608 快照）",
+  factoryDensityGrid: "生產中工廠密度（202606）",
+  manufacturingCompanyDensityGrid: "製造業公司登記地址密度（202608）",
   factoryLocations: "生產中工廠登記（202606）",
   industrialParkBoundaries: "產業園區邊界（不含科學園區）",
   industrialParkComparison: "園區商工比較（觀測值）",
   regulatedFacilities: "列管設施（20260818）",
+  regulatedFacilityDensityGrid: "列管設施密度（20260818）",
   farmRoads: "農路",
   ecoNetworkZones: "國土綠網分區",
   forestryPolygon: "林業面 (polygon)",
