@@ -74,3 +74,5 @@ Screenshot：`/private/tmp/company-age-structure-20260910.png`。以上為桌機
 - 新增 `factoryDensityGrid`、`manufacturingCompanyDensityGrid`、`regulatedFacilityDensityGrid`；各自開關、opacity、圖例與 popup，1.5km z4–<10、450m z10+。固定密度門檻與 Viridis 色帶共用，數值為每 km² 登記記錄數，不把三個母體合併或推論成產能、排放與風險。
 - 網格 popup 用精確點擊位置選格；z10 切換排除透明的另一尺度。
 - 上游重現與 QA：`taipei-gis-analytics` 本次工業點位／密度匯出管線；檔名、完整性與實測結果見本 feature handoff。
+
+- PR #260：補齊三個密度圖層英文名稱，原子提交並整合最新 master；上游 PR #92 已一般合併。資料發布與前端 merge 仍受上述 handoff gate 約束。

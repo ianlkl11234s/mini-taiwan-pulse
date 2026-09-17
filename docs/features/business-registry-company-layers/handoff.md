@@ -80,6 +80,14 @@
 
 密度 `business_density_grid` 欄位：`grid_id`, `n_records`, `density_per_km2`, `grid_size_m`。網格為 EPSG:3826 固定 450 / 1500m 方格，密度除以完整格面積，不扣除海域。每種來源兩尺度各自加總守恆。前端只在 z4+ 顯示密度；z0 point count 驗證不延伸為 z0 polygon 全格可視的宣稱。
 
-驗收：TypeScript 通過；54 個接線／expression／圖例／資料契約測試與 15 個 golden 測試通過。Browser 已確認全台原點三層、工廠 1.5km/450m 網格與 popup（G450_176_592：2 家，9.9 家/km²）。本次無 commit、push、圖資上傳或部署。
+驗收：TypeScript 通過；54 個接線／expression／圖例／資料契約測試與 15 個 golden 測試通過。Browser 已確認全台原點三層、工廠 1.5km/450m 網格與 popup（G450_176_592：2 家，9.9 家/km²）。以上為提交前本地驗收；Git 發布狀態見下方 PR 紀錄。
 
 補充 browser 驗收：三種原點與三種密度層均於 z7.38 全台視野確認可見；工廠密度在 z10.5 確認 450m 格與 popup。上游小型測試 3/3 通過（canonical grid、加總守恆、無效／缺失座標拒絕）。
+
+## 2026-09-18 PR 整合驗收
+
+- 前端 PR #260：保留產業／年齡既有 commit，分開提交標籤開關、科學色階、工業點位與密度；一般 merge 整合當前 master。
+- 上游 PR https://github.com/ianlkl11234s/taipei-gis-analytics/pull/92 已一般合併，merge `01671db4cc871138bd968dbf82f0de80fdbab2be`；pytest 5 passed。
+- 整合版 build 通過；完整測試 1595 passed / 8 skipped（掛載本地 PMTiles 前後均通過）。資料掛載後更新全 zoom SHA 與六個密度檔契約，PMTiles 契約 2/2 通過，驗到本次九個工業 artifacts。
+- 整合版 browser 確認三個雙語名稱及全台工廠密度；Factory Density、Manufacturing Registry Density、Regulated Facility Density。
+- 資料發布 gate：11 個 PMTiles＋2 個 sidecar，共 400,533,320 bytes；上傳與線上 Range/readback 尚未完成，不以 Git 合併代表 production ready。
