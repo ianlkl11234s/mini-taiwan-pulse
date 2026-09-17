@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import hashlib
 import json
 import os
@@ -126,17 +127,22 @@ def install(args) -> None:
             if local.exists() and not same_file(local, metadata["sha256"], metadata["bytes"]):
                 raise ValueError(f"existing immutable differs; refusing overwrite: {relative}")
         staged = [(remote_catalog, catalog_relative, catalog_meta), (remote_manifest, manifest_relative, assets[-1][1])]
-        for relative, metadata in assets[:778]:
+        def stage_asset(item):
+            relative, metadata = item
             local = target / relative
             if same_file(local, metadata["sha256"], metadata["bytes"]):
-                continue
+                return None
             downloaded = temporary / "objects" / relative
             downloaded.parent.mkdir(parents=True, exist_ok=True)
             if not same_file(downloaded, metadata["sha256"], metadata["bytes"]):
                 download(f"{prefix}/{relative}", downloaded)
             if digest(downloaded) != (metadata["sha256"], metadata["bytes"]):
                 raise ValueError(f"download bytes/SHA-256 mismatch: {relative}")
-            staged.append((downloaded, relative, metadata))
+            return downloaded, relative, metadata
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
+            for result in pool.map(stage_asset, assets[:778]):
+                if result is not None:
+                    staged.append(result)
         # All remote content has passed before any local pointer changes. Immutable
         # files may be installed now; old release files are retained.
         for downloaded, relative, metadata in staged:
