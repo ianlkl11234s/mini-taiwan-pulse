@@ -1,3 +1,4 @@
+import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
 import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
@@ -11405,6 +11406,13 @@ export const LAYER_MANIFEST = {
     topics: ["廢棄物", "orphan", "未實作"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
+
+/** Statistics presentation policy: normalize the manifest itself so every derived consumer agrees. */
+for (const [key, entry] of Object.entries(LAYER_MANIFEST)) {
+  if (!key.startsWith('stats') && key !== 'crimeAreaMonthly') continue;
+  const visual = getStatisticsVisual(key, 'label' in entry ? entry.label : undefined, entry.section?.group);
+  Object.assign(entry, { icon: visual.icon, color: visual.accent });
+}
 
 /** 已收進 manifest 的 key（literal union）—— 下游手寫表用它 Omit 出「還沒搬的」 */
 export type ManifestKey = keyof typeof LAYER_MANIFEST;

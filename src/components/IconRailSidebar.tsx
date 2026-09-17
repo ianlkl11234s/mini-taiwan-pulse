@@ -1,3 +1,4 @@
+import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
@@ -800,38 +801,9 @@ function PanelHeader({
 
 // ── Toggle Switch ──
 
-function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
+function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
   const { ACCENT_TOGGLE, TOGGLE_OFF, TOGGLE_KNOB_ON, TOGGLE_KNOB_OFF } = useRailTheme();
-  return (
-    <button
-      onClick={(e) => { e.stopPropagation(); onChange(); }}
-      style={{
-        width: 28,
-        height: 16,
-        borderRadius: RADIUS.xl,
-        border: "none",
-        background: on ? ACCENT_TOGGLE : TOGGLE_OFF,
-        position: "relative",
-        cursor: "pointer",
-        padding: 0,
-        flexShrink: 0,
-        transition: "background 0.15s",
-      }}
-    >
-      <div
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: RADIUS.full,
-          background: on ? TOGGLE_KNOB_ON : TOGGLE_KNOB_OFF,
-          position: "absolute",
-          top: 2,
-          left: on ? 14 : 2,
-          transition: "left 0.15s",
-        }}
-      />
-    </button>
-  );
+  return <LayerToggleSwitch on={on} onChange={onChange} label={label} ACCENT_TOGGLE={ACCENT_TOGGLE} TOGGLE_OFF={TOGGLE_OFF} TOGGLE_KNOB_ON={TOGGLE_KNOB_ON} TOGGLE_KNOB_OFF={TOGGLE_KNOB_OFF} />;
 }
 
 // ══════════════════════════════════
@@ -919,13 +891,13 @@ const LayerRow = memo(function LayerRow({
         (e.currentTarget as HTMLElement).style.background = "transparent";
       }}
     >
-      <Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />
+      <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
       <span
         style={{
           flex: 1,
           fontSize: FONT_SIZE.md,
           fontFamily: "Inter, system-ui, sans-serif",
-          color: active ? TEXT_STRONG : INACTIVE_TEXT,
+          color: TEXT_STRONG,
           transition: "color 0.15s",
         }}
       >
@@ -1257,6 +1229,7 @@ function LayersPanel({
                             onLayerClick={onLayerClick}
                             textColor={TEXT_STRONG}
                             dimColor={DIM}
+                            renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
                             renderControls={(selectedKey) => (
                               <ExpandedControls
                                 layerKey={selectedKey as ExpandableLayerKey}

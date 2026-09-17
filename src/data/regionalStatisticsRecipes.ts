@@ -1,3 +1,4 @@
+import { statisticsVisualColors } from "./statisticsVisuals";
 /** Presentation configuration only; values, periods and sources come from the public catalog. */
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "./agriStatisticsRecipes";
 import { SOCIAL_STATISTICS_RECIPES_BY_KEY, getSocialRecipe, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
@@ -393,7 +394,8 @@ function educationMetricInitial(key: StatisticsLayerKey, stage: string) {
 }
 export function statisticsRenderRecipe(key: StatisticsRenderKey, selectedIndicator?: string) {
   const baseKey = statisticsBaseKey(key, selectedIndicator);
-  const base = STATISTICS_RECIPES[baseKey];
+  const source = STATISTICS_RECIPES[baseKey];
+  const base = { ...source, colors: statisticsVisualColors(baseKey, source.label, source.breaks) };
   const view = getEducationPresentationView(key);
   if (!view) return base;
   const initial = educationMetricInitial(baseKey, view.stage);

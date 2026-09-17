@@ -10,6 +10,10 @@
 - **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
 - **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/`（由 S3 deploy-assets 管理）
 
+### 統計圖層的專項規則
+
+新增或修改 Statistics 必讀 [統計圖層維護與驗收規則](./statistics-layer-guidelines.md)：包含來源／分母／geometry 語意、icon／色階、共用 toggle、手機 UI，以及**資料來源總覽同步補齊**與驗收。
+
 ### Schema 分工
 | Schema | 用途 | 前端可讀 |
 |---|---|---|
