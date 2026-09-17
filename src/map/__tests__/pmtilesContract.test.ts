@@ -211,7 +211,7 @@ describe("PMTiles 契約", () => {
       if (!names.includes(e.sourceLayer)) {
         broken.push(`${e.id}: registry 寫 "${e.sourceLayer}"，檔案內實際是 [${names.join(", ")}] — ${e.file}`);
       }
-      const filename = e.file.split("/").at(-1)!;
+      const filename = e.file.slice(e.file.lastIndexOf("/") + 1);
       const contract = BUSINESS_REGISTRY_FILE_CONTRACTS[filename] ?? BUSINESS_REGISTRY_CONTRACTS[e.sourceLayer];
       if (contract) {
         const vectorLayer = meta.vector_layers?.find((l) => l.id === e.sourceLayer);
