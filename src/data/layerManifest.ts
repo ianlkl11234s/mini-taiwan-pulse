@@ -1,4 +1,5 @@
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
+import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
@@ -1411,8 +1412,8 @@ export const LAYER_MANIFEST = {
   coralReefDistribution: {
     key: "coralReefDistribution",
     section: { theme: "世界 World", group: "環境" },
-    label: "珊瑚礁歷史分布（私人研究）",
-    labelMobile: "珊瑚礁歷史分布（私人研究）",
+    label: "珊瑚礁歷史分布",
+    labelMobile: "珊瑚礁歷史分布",
     expandable: true,
     color: CORAL_REEF_COLOR,
     icon: Waves,
@@ -1420,18 +1421,44 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "coral_reef_distribution", confidence: "HIGH" }],
       processing: "UNEP-WCMC Global distribution of coral reefs v4.1（2021-03 發布）全球 polygon PMTiles；19 欄原始語意逐 tile 對帳。",
-      note: "本機非商業研究資料，非公開發布或再散布；空白、低 zoom 不可解讀為沒有珊瑚。",
+      note: "歷史分布資料；空白、低 zoom 不可解讀為沒有珊瑚。使用限制以原始授權為準。",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "本人帳號限定：/api/private-research/coral 逐 Range 驗證 Supabase 身分；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+      note: "公開端點：/api/private-research/coral 匿名受限 Range 讀取，逐請求驗證固定物件 checksum 與 ETag；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
     },
     legend: "coralReefDistribution",
     popup: "coralReefDistribution",
     params: { count: 1, kinds: ["slider"] },
-    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化；僅本人帳號私人研究。",
+    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化。",
     topics: ["世界", "海洋", "自然環境", "珊瑚礁", "本地研究"],
+  },
+
+  allenCoralAtlas: {
+    key: "allenCoralAtlas",
+    section: { theme: "世界 World", group: "環境" },
+    label: "Allen Coral Atlas（私人研究）",
+    labelMobile: "Allen Coral Atlas（私人研究）",
+    expandable: true,
+    color: "#ee6c83",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "allen_coral_atlas", confidence: "HIGH" }],
+      processing: "Allen Coral Atlas 棲地分類與礁體地形分區的本地 PMTiles 快照；完整相交 polygon，未作行政裁切。",
+      note: "本人限定私人非商業研究，禁止公開 CDN、分享 URL 與離線公開快取；401/403 時清除圖層。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAllenCoralAtlasLayer 以 owner-authenticated Range endpoint 自建 allen-coral-atlas-benthic／allen-coral-atlas-geomorphic source；view 一次僅顯示一種主題，fill ids 分別為 allen-coral-atlas-benthic-fill／allen-coral-atlas-geomorphic-fill；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+    },
+    legend: "allenCoralAtlas",
+    popup: "allenCoralAtlas",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。",
+    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究"],
   },
 
   globalEvents: {
@@ -1618,6 +1645,54 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "GFW SAR 偵測未與 AIS 匹配的格網中心；非暗船、違法船或確認關 AIS 認定",
     topics: ["世界", "海事", "SAR", "AIS", "GFW", "時間軸", "偵測"],
+  },
+
+  jpMedicalFacilities: {
+    key: "jpMedicalFacilities",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本醫療設施", labelMobile: "日本醫療設施", expandable: true,
+    color: JP_MEDICAL_CATEGORIES[0].color, icon: Cross,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "Navii 來源設施列；五類獨立篩選；公告時段不等於目前可接診" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalFacilities", popup: "jpMedicalFacilities",
+    params: { count: 6, kinds: ["slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
+    description: "Navii 來源設施列；五類獨立篩選；公告時段不等於目前可接診", topics: ["日本", "醫療", "靜態", "長照"],
+  },
+
+  jpMedicalCare: {
+    key: "jpMedicalCare",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本長照服務", labelMobile: "日本長照服務", expandable: true,
+    color: JP_MEDICAL_CARE_COLOR, icon: HeartHandshake,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "H17 服務登記粒度；同址可有多服務，不是唯一機構數" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalCare", popup: "jpMedicalCare",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "H17 服務登記粒度；同址可有多服務，不是唯一機構數", topics: ["日本", "醫療", "靜態", "長照"],
+  },
+
+  jpMedicalAreas: {
+    key: "jpMedicalAreas",
+    section: { theme: "醫療", group: "靜態名錄與醫療圈" },
+    label: "日本醫療圈 · 2020", labelMobile: "日本醫療圈 · 2020", expandable: true,
+    color: JP_MEDICAL_AREA_COLOR, icon: Map,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_areas", confidence: "HIGH" }],
+      processing: "第一批靜態 allowlist；廣域精確聚合、城市 PMTiles、按需詳情",
+      note: "A38 2020 歷史版；一次／二次／三次；簡化 polygon parts，人口不可按 part 加總" },
+    dataClass: "D",
+    source: { kind: "custom", note: "useJpMedicalLayers 依 current.json 載入版本化索引及 PMTiles HTTP Range",
+      staticAssets: ["./jp-medical/current.json"] },
+    legend: "jpMedicalAreas", popup: "jpMedicalAreas",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "A38 2020 歷史版；一次／二次／三次；簡化 polygon parts，人口不可按 part 加總", topics: ["日本", "醫療", "靜態", "長照"],
   },
 
   jpReligionGsi: {

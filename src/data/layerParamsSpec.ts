@@ -1,4 +1,5 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
+import { JP_MEDICAL_CARE_TYPES, JP_MEDICAL_AREA_LEVELS } from "./jpMedicalTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -1414,6 +1415,19 @@ export const LAYER_PARAMS_SPEC = {
   coralReefDistribution: [
     { kind: "slider", name: "coralReefDistributionOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0, max: 1, step: 0.05 },
   ],
+  allenCoralAtlas: [
+    { kind: "slider", name: "allenCoralAtlasOpacity", labelPrefix: "透明度", digits: 2, default: 0.65, min: 0, max: 1, step: 0.05 },
+    { kind: "select", name: "allenCoralAtlasView", label: "主題", default: "coralAlgae", options: [
+      { label: "珊瑚／藻類棲地", value: "coralAlgae" },
+      { label: "淺海棲地分類", value: "benthic" },
+      { label: "礁體地形分區", value: "geomorphic" },
+    ], out: null },
+    { kind: "select", name: "allenCoralAtlasRegion", label: "研究區域", default: "all", options: [
+      { label: "全部研究區", value: "all" },
+      { label: "臺灣研究區", value: "taiwan" },
+      { label: "沖繩研究區", value: "okinawa" },
+    ], out: null },
+  ],
   globalEvents: [
     { kind: "slider", name: "globalEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
     {
@@ -1471,6 +1485,26 @@ export const LAYER_PARAMS_SPEC = {
   ],
   gfwDarkVessels: [
     { kind: "slider", name: "gfwDarkVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.86, min: 0, max: 1, step: 0.05, out: null },
+  ],
+  jpMedicalFacilities: [
+    opacitySlider("jpMedicalFacilitiesOpacity", 0.8),
+    { kind: "toggle", name: "jpMedicalHospital", label: "醫院", default: true },
+    { kind: "toggle", name: "jpMedicalClinic", label: "診所", default: true },
+    { kind: "toggle", name: "jpMedicalDental", label: "牙科", default: true },
+    { kind: "toggle", name: "jpMedicalMidwife", label: "助產所", default: true },
+    { kind: "toggle", name: "jpMedicalPharmacy", label: "藥局", default: true },
+  ],
+  jpMedicalCare: [
+    opacitySlider("jpMedicalCareOpacity", 0.75),
+    { kind: "select", name: "jpMedicalCareType", label: "服務類別", default: "all",
+      options: [{ value: "all", label: "全部服務登記" }, ...JP_MEDICAL_CARE_TYPES],
+      out: "jpMedicalCareTypeIdx", encode: ["all", ...JP_MEDICAL_CARE_TYPES.map(t => t.value)] },
+  ],
+  jpMedicalAreas: [
+    opacitySlider("jpMedicalAreasOpacity", 0.2),
+    { kind: "select", name: "jpMedicalAreaLevel", label: "醫療圈（2020 歷史版）", default: "2",
+      options: JP_MEDICAL_AREA_LEVELS,
+      out: "jpMedicalAreaLevelIdx", encode: JP_MEDICAL_AREA_LEVELS.map(t => t.value) },
   ],
   jpReligionGsi: [
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },

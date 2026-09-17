@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { mountCoralReefDistribution, CORAL_SOURCE_ID } from "./useCoralReefDistributionLayer";
-vi.mock("../map/privateCoralPmtiles", () => ({ registerPrivateCoralSourceOnce: vi.fn(), PRIVATE_CORAL_PMTILES_SOURCE_TYPE: "private-coral-pmtile-source" }));
+vi.mock("../map/pmtilesSourceType", () => ({ registerPmtilesSourceTypeOnce: vi.fn() }));
+vi.mock("../map/pmtilesConstants", () => ({ PMTILES_SOURCE_TYPE: "pmtile-source" }));
 function mockMap() {
   const listeners = new Map<string, Set<(event: unknown) => void>>();
   const sources = new Map<string, unknown>();
@@ -26,14 +27,14 @@ function mockMap() {
     fire: (type: string, event: unknown) => listeners.get(type)?.forEach(cb => cb(event)) };
 }
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
-describe("local coral PMTiles lifecycle", () => {
+describe("public coral PMTiles lifecycle", () => {
   it("keeps z12 overzoom and releases layers, source, listeners and loading on repeated toggles", () => {
     vi.stubGlobal("window", { location: { href: "http://127.0.0.1:3724/" } });
     const m = mockMap();
     for (let i = 0; i < 5; i++) {
       const state = vi.fn();
       const dispose = mountCoralReefDistribution(m.map, 0.55, state);
-      expect(m.sources.get(CORAL_SOURCE_ID)).toMatchObject({ minzoom: 0, maxzoom: 12 });
+      expect(m.sources.get(CORAL_SOURCE_ID)).toMatchObject({ type: "pmtile-source", minzoom: 0, maxzoom: 12 });
       expect(m.layers.size).toBe(2);
       m.fire("sourcedata", { sourceId: CORAL_SOURCE_ID, isSourceLoaded: true });
       expect(state).toHaveBeenLastCalledWith("ready");

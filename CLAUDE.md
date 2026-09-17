@@ -47,6 +47,8 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 
 ## Git Workflow（GitHub Flow）
 
+- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge。此規則依使用者 2026-09-15 指示取代舊 squash 慣例，適用後續所有 PR（含 hotfix）。未經明確要求，不壓縮、合併或改寫既有 commit。
+
 - branch 命名 / PR 流程 / hotfix 判準 → [`docs/git-workflow.md`](./docs/git-workflow.md)
 - PR 描述用 `.github/pull_request_template.md`（`gh pr create` 自動帶入）
 - commit 遵循 Conventional Commits；本專案特例 `memory:` 用於 `.claude/memory` 更新

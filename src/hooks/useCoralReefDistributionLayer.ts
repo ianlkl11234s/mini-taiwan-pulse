@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR, CORAL_REEF_SOURCE_URL } from "../data/coralReefTypes";
 import { loadingRegistry } from "../lib/loadingRegistry";
-import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
-import { useCoralPrivateAccess, coralAccessToken } from "./useCoralPrivateAccess";
+import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
+import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 export const CORAL_SOURCE_ID = "coral-reef-distribution";
@@ -15,7 +15,6 @@ export type CoralLoadState = "loading" | "ready" | "error";
 /** Source-scoped listeners and resource ownership; dispose also cancels unfinished loading. */
 export function mountCoralReefDistribution(
   map: MapboxMap, opacity: number, onState: (state: CoralLoadState) => void,
-  getToken: () => Promise<string> = async () => { throw new Error("Coral access denied"); },
 ): () => void {
   let disposed = false;
   let failed = false;
@@ -39,7 +38,7 @@ export function mountCoralReefDistribution(
   const begin = () => {
     if (disposed || failed || loading) return;
     loading = true;
-    loadingRegistry.start(TASK, "珊瑚礁歷史分布（私人研究）");
+    loadingRegistry.start(TASK, "珊瑚礁歷史分布");
     onState("loading");
     timer = setTimeout(fail, 30000);
   };
@@ -60,10 +59,9 @@ export function mountCoralReefDistribution(
   map.on("error", onError);
   begin();
   try {
-    registerPrivateCoralSourceOnce();
+    registerPmtilesSourceTypeOnce();
     map.addSource(CORAL_SOURCE_ID, {
-      type: PRIVATE_CORAL_PMTILES_SOURCE_TYPE,
-      getToken,
+      type: PMTILES_SOURCE_TYPE,
       url: new URL(CORAL_REEF_SOURCE_URL, window.location.href).href,
       minzoom: 0, maxzoom: 12,
     } as unknown as Parameters<MapboxMap["addSource"]>[1]);
@@ -98,8 +96,7 @@ export function useCoralReefDistributionLayer(
   mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number,
 ) {
   const [state, setState] = useState<CoralLoadState>("loading");
-  const access = useCoralPrivateAccess();
-  const enabled = access.allowed && visible;
+  const enabled = visible;
   const mapTick = useMapReadyTick(mapRef, enabled);
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
@@ -109,13 +106,13 @@ export function useCoralReefDistributionLayer(
     let dispose: (() => void) | undefined;
     const mount = () => {
       dispose?.();
-      dispose = mountCoralReefDistribution(map, opacityRef.current, setState, () => coralAccessToken(access.userId!));
+      dispose = mountCoralReefDistribution(map, opacityRef.current, setState);
     };
     // MapReadyTick only resolves after the initial map load; style.load handles later switches.
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); dispose?.(); };
-  }, [mapRef, enabled, mapTick, access.userId]);
+  }, [mapRef, enabled, mapTick]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !enabled) return;

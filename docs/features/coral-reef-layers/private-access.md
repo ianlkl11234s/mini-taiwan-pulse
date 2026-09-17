@@ -1,4 +1,12 @@
-# 珊瑚礁私人帳號存取
+# 珊瑚礁存取設定沿革
+
+## 2026-09-16：改為公開地圖
+
+使用者明確要求本層公開，Allen仍只限本人。現行legacy固定路徑允許匿名HEAD／有界Range，沒有Bearer gate；S3 bucket仍private、不修改公開政策。前端移除私人標題並允許一般分享URL。原授權與來源限制保留；同源地圖可直接使用，跨來源仍依CORAL_PRIVATE_ORIGINS精確allowlist。以下為2026-09-08的歷史私人設計，已被本節取代，僅留作變更追溯。
+
+新驗收見[2026-09-16發布](../allen-coral-atlas/access-release-20260916.md)。
+
+## 歷史：私人帳號存取
 
 2026-09-08 使用者明確授權將全球 PMTiles 移至遠端私人研究環境，限定既有本人帳號，不開放所有會員。這不是取得公開再散布授權。UNEP-WCMC v4.1（2021-03）、geometry、coverage、null、整筆來源 feature area 等契約沿用 handoff。
 

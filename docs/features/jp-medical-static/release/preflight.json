@@ -1,0 +1,11 @@
+{
+  "s3_current": {
+    "exists": false
+  },
+  "/": {
+    "status": 403
+  },
+  "/jp-medical/current.json": {
+    "status": 403
+  }
+}

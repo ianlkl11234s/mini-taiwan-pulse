@@ -1,4 +1,5 @@
 import { CoralReefDistributionHost } from "./hosts/coralReefHost";
+import { AllenCoralAtlasHost } from "./hosts/allenCoralHost";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Hook Registry — 「哪些 hook 把圖層掛起來」的單一真實來源（AR-22 P1）
 // ══════════════════════════════════════════════════════════════════
@@ -71,7 +72,7 @@ import {
 } from "./hosts/gridHosts";
 import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost } from "./hosts/animalWelfareHosts";
 import {
-  JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
+  JpMedicalHost, JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
   JpPopulationMeshHost,
   JpTourismHost,
 } from "./hosts/japanHosts";
@@ -86,7 +87,9 @@ export interface LayerHookEntry {
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
 export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
+  { id: "useJpMedicalLayers", keys: ["jpMedicalFacilities", "jpMedicalCare", "jpMedicalAreas"], Host: JpMedicalHost },
   { id: "useCoralReefDistributionLayer", keys: ["coralReefDistribution"], Host: CoralReefDistributionHost },
+  { id: "useAllenCoralAtlasLayer", keys: ["allenCoralAtlas"], Host: AllenCoralAtlasHost },
   // ── 房地產（App.tsx 原 L719 / L732）──
   {
     id: "useRealEstateTimeline",
