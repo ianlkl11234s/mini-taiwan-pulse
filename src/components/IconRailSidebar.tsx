@@ -301,7 +301,7 @@ export function IconRailSidebar({
     <RailThemeContext.Provider value={palette}>
     <div style={{ position: "relative", height: "100%", pointerEvents: "auto" }}>
       {/* ── Icon Rail ── */}
-      <div
+      <div data-viewport-occluder="icon-rail"
         style={{
           width: RAIL_WIDTH,
           background: BG_RAIL,
@@ -470,7 +470,7 @@ export function IconRailSidebar({
               to { opacity: 1; transform: translateX(0); }
             }
           `}</style>
-          <div
+          <div data-viewport-occluder="sidebar-panel"
             style={{
               position: "absolute",
               left: RAIL_WIDTH + 8,

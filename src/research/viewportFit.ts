@@ -9,7 +9,7 @@ export type ResearchFraming = {
 
 export type ResearchCamera = { center: [number, number]; zoom: number; bearing: 0; pitch: 0; padding: 0 };
 export type ViewportRect = { left: number; top: number; right: number; bottom: number };
-export type ViewportContext = { viewport: ViewportRect; safe: ViewportRect; overlays: readonly ViewportRect[] };
+export type ViewportContext = { viewport: ViewportRect; safe: ViewportRect; overlays: readonly ViewportRect[]; fitAvailable?: boolean; fitError?: "VIEWPORT_OCCLUDED" };
 
 type ViewportMap = Pick<MapboxMap, "getContainer" | "cameraForBounds">;
 
@@ -53,22 +53,15 @@ function isFullMapSurface(element: Element, rect: ViewportRect, viewport: Viewpo
 
 /**
  * Finds edge-docked UI only. Popups in the middle deliberately do not alter a bounds overview.
- * The selector list covers stable research UI; the positioned-child pass covers the existing
- * inline Icon Rail and timeline wrappers without assuming a fixed viewport size.
+ * The selector list covers stable research UI; explicit registration covers the existing
+ * Icon Rail and timeline without treating arbitrary positioned children as panels.
  */
 function overlayRects(host: HTMLElement, containerRect: DOMRect, viewport: ViewportRect): ViewportRect[] {
   if (typeof window === "undefined") return [];
   const candidates = new Set<Element>();
-  for (const selector of ["[data-viewport-occluder]", ".research-activity-position", ".layer-sidebar-scroll", "[data-testid='historical-timeline']"]) {
+  for (const selector of ["[data-viewport-occluder]", ".research-activity-position", ".layer-sidebar-scroll", ".research-pairing", "[data-testid='historical-timeline']"]) {
     host.querySelectorAll(selector).forEach(element => candidates.add(element));
   }
-  host.querySelectorAll("*").forEach(element => {
-    if (!(element instanceof HTMLElement) || !visible(element)) return;
-    try {
-      const position = window.getComputedStyle(element).position;
-      if (position === "absolute" || position === "fixed") candidates.add(element);
-    } catch { /* a detached element cannot constrain the current camera */ }
-  });
   const rects: ViewportRect[] = [];
   for (const element of candidates) {
     if (!visible(element)) continue;
@@ -120,7 +113,30 @@ function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRec
   const safeRight = viewport.right - right;
   const safeBottom = viewport.bottom - bottom;
   // During panel animation, opposing occluders can leave no honest place to fit bounds.
-  if (safeRight - left < MIN_CONTENT_PX || safeBottom - top < MIN_CONTENT_PX) throw new Error("VIEWPORT_OCCLUDED");
+  if (safeRight - left < MIN_CONTENT_PX || safeBottom - top < MIN_CONTENT_PX) {
+    // Edge strips can overlap even though space below a corner panel is usable.
+    const obstacles = overlays.map(rect => ({ left: Math.max(16, rect.left - 16), right: Math.min(viewport.right - 16, rect.right + 16), top: Math.max(16, rect.top - 16), bottom: Math.min(viewport.bottom - 16, rect.bottom + 16) }));
+    const xs = [...new Set([16, viewport.right - 16, ...obstacles.flatMap(rect => [rect.left, rect.right])])].sort((a, b) => a - b);
+    let best: ViewportRect | null = null;
+    let area = 0;
+    for (let i = 0; i < xs.length; i++) for (let j = i + 1; j < xs.length; j++) {
+      const xLeft = xs[i]!;
+      const xRight = xs[j]!;
+      if (xRight - xLeft < MIN_CONTENT_PX) continue;
+      const blocked = obstacles.filter(rect => rect.left < xRight && rect.right > xLeft).sort((a, b) => a.top - b.top);
+      let y = 16;
+      for (const rect of [...blocked, { top: viewport.bottom - 16, bottom: viewport.bottom - 16 }]) {
+        const height = rect.top - y;
+        const candidateArea = (xRight - xLeft) * height;
+        if (height >= MIN_CONTENT_PX && candidateArea > area) {
+          best = { left: xLeft, right: xRight, top: y, bottom: rect.top }; area = candidateArea;
+        }
+        y = Math.max(y, rect.bottom);
+      }
+    }
+    if (best) return best;
+    throw new Error("VIEWPORT_OCCLUDED");
+  }
   return { left, top, right: safeRight, bottom: safeBottom };
 }
 
@@ -156,7 +172,13 @@ export function offsetCameraToSafeRect(camera: Pick<ResearchCamera, "center" | "
 export function viewportContextFromRects(width: number, height: number, overlays: readonly ViewportRect[]): ViewportContext {
   if (!finite(width) || !finite(height) || width <= 0 || height <= 0) throw new Error("INVALID_MAP_VIEWPORT");
   const viewport = { left: 0, top: 0, right: width, bottom: height };
-  return { viewport, overlays, safe: insetForOverlays(viewport, overlays) };
+  try {
+    return { viewport, overlays, safe: insetForOverlays(viewport, overlays), fitAvailable: true };
+  } catch (error) {
+    if (!(error instanceof Error) || error.message !== "VIEWPORT_OCCLUDED") throw error;
+    // Observing the map must remain possible even when moving its camera is unsafe.
+    return { viewport, overlays, safe: viewport, fitAvailable: false, fitError: "VIEWPORT_OCCLUDED" };
+  }
 }
 
 export function resolveViewportContext(map: Pick<MapboxMap, "getContainer">): ViewportContext {
@@ -176,6 +198,7 @@ export function resolveViewportContext(map: Pick<MapboxMap, "getContainer">): Vi
  * no persistent Mapbox padding: callers should easeTo it with retainPadding: false.
  */
 export function resolveViewportCameraFromContext(map: Pick<MapboxMap, "cameraForBounds">, context: ViewportContext, framing: ResearchFraming): ResearchCamera {
+  if (context.fitAvailable === false) throw new Error(context.fitError ?? "VIEWPORT_OCCLUDED");
   if (!validFraming(framing)) throw new Error("INVALID_RESEARCH_FRAMING");
   const { viewport, safe } = context;
   const padding = {

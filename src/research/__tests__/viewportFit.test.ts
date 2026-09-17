@@ -45,9 +45,23 @@ describe("research viewport fit", () => {
   });
 
   it("fails closed while opposing panels leave no usable map content", () => {
-    expect(() => viewportContextFromRects(390, 844, [
+    const context = viewportContextFromRects(390, 844, [
       { left: 0, top: 0, right: 220, bottom: 844 },
       { left: 250, top: 0, right: 390, bottom: 844 },
-    ])).toThrow("VIEWPORT_OCCLUDED");
+    ]);
+    expect(context.fitAvailable).toBe(false);
+    expect(context.fitError).toBe("VIEWPORT_OCCLUDED");
+    expect(context.viewport.right).toBe(390);
+    expect(() => resolveViewportCameraFromContext(mapStub().map, context, framing)).toThrow("VIEWPORT_OCCLUDED");
   });
+});
+
+it("uses space below corner panels when edge strips overlap", () => {
+  const context = viewportContextFromRects(800, 800, [
+    { left: 0, top: 100, right: 420, bottom: 350 },
+    { left: 400, top: 100, right: 800, bottom: 350 },
+  ]);
+  expect(context.fitAvailable).toBe(true);
+  expect(context.safe.top).toBeGreaterThanOrEqual(366);
+  expect(context.safe.right - context.safe.left).toBeGreaterThan(700);
 });
