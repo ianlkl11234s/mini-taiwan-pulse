@@ -19,3 +19,11 @@
 ## 2026-09-11 真實本地 pilot
 
 啟用localhost gateway與Codex全域MCP；PKCE獨立tab登入、server已驗證email allowlist。真Codex CLI與網站完成r1合成成果、r2清除、r3再顯示，三筆ready；網站撤銷已readback確認。修正browser fetch receiver、MCP numeric array schema與resize誤判manual。去敏證據 `/private/tmp/pulse-research-workbench/evidence/live-pilot-result.json`。正式站未部署。
+
+## 2026-09-17 — Exploration checkpoint and viewport repair
+
+- 第一階段探索介面、圖層控制、時間操作與取景修正已本地提交。
+- 新增故事 Skill、連線稽核及基礎統計下一步 checkpoint。
+- VIEWPORT_OCCLUDED 不再阻止 map context；使用明確遮擋面板與替代可用矩形。
+- 最新全站測試 1458 passed / 5 skipped；Gateway 39 passed。完整 release 結果見 release-handoff-20260917.md。
+- 配對 TTL/輪詢、最新圖資缺失與 paired browser E2E 仍未完成；本次是程式碼整合，非 production-ready 宣告。

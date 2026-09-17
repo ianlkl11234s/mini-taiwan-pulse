@@ -85,3 +85,11 @@
 
 
 驗證：frontend research suite 110 passed / 2 skipped（隨後 viewport regression 更新為 3/3）、tsc -b 通過；Gateway 39 passed；MCP 33 passed、build 與 19-tool stdio smoke 通過。真 Mapbox 獨立 layout harness（1280×720，左右 panel＋bottom timeline）safe rectangle `[368,46,1008,608]`，投影 bounds corners x550.65–825.35、y70–584，保留24px留白；初版未補償 padding 中心偏移時失敗，修正後通過。窄於最小可見區時回報 VIEWPORT_OCCLUDED。臨時 harness 已刪除。使用者帳號下 Codex→配對瀏覽器的新增時間操作 E2E 尚待驗收；沒有據此宣稱船舶或公車任意日期都有資料。
+
+## 主題故事模板（2026-09-17）
+
+使用者確認故事是探索延伸：先找主題適合的差異（區域、城鄉、系統或時間），查圖層與來源、寫好全篇，再編排場景與逐章呈現。已建立 [`pulse-map-story`](../../../.agents/skills/pulse-map-story/SKILL.md) 與故事腳本模板，並將個人 Codex skills 目錄連結至此工作樹的版本。
+
+固定故事骨架是「總覽問題 → 對照 A → 對照 B → 可選例外／時間切片 → 整體收束」；比較軸依來源與地圖可見性決定，不固定北中南，不強迫每個題目都有差異。敘事分開觀察、背景與推測，沒有動態或歷史資料時不宣稱時段變化。
+
+目前由 Codex 文字與既有 Pulse tools 呈現，手動下一章為預設。只有使用者要求且 host 有可中斷等待工具時，才能在當前回合自動停留並切章；這不是網站播放器，不提供網站倒數、故事面板或背景自動續播。每次故事稿與進度保存於執行 workspace 的 `artifacts/map-stories/`（若有檔案工具），不寫回 Skill，也不自動提交。
