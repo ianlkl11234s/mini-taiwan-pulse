@@ -78,7 +78,7 @@ function bounded(value: number, fallback: number, min: number, max: number): num
 
 /** Search uses the existing manifest-derived index; it does not grow a second catalog. */
 export function discoverLayers(query: string, offset = 0, limit = 20, context: DiscoveryContext = DEFAULT_CONTEXT): {
-  query: string; offset: number; limit: number; totalMatched: number; returned: number; truncated: boolean; layers: LayerDiscovery[];
+  query: string; offset: number; limit: number; totalMatched: number; returned: number; truncated: boolean; nextOffset: number | null; layers: LayerDiscovery[];
 } {
   const safeOffset = bounded(offset, 0, 0, 10_000);
   const safeLimit = bounded(limit, 20, 1, 20);
@@ -88,7 +88,8 @@ export function discoverLayers(query: string, offset = 0, limit = 20, context: D
     .sort((a, b) => b.score - a.score || a.item.key.localeCompare(b.item.key))
     .map(({ item }) => asDiscovery(item.key, context));
   const layers = matched.slice(safeOffset, safeOffset + safeLimit);
-  return { query, offset: safeOffset, limit: safeLimit, totalMatched: matched.length, returned: layers.length, truncated: safeOffset + layers.length < matched.length, layers };
+  const truncated = safeOffset + layers.length < matched.length;
+  return { query, offset: safeOffset, limit: safeLimit, totalMatched: matched.length, returned: layers.length, truncated, nextOffset: truncated ? safeOffset + layers.length : null, layers };
 }
 
 function sourceReference(key: ManifestKey): { kind: string; reference: string | null } {

@@ -1,6 +1,6 @@
 import type { BridgeConnectionContext, Scene, StudyState } from "./bridgeClient";
 
-type Render = (scene: Scene, revision: number) => Promise<"ready" | "error">;
+type Render = (scene: Scene, revision: number, patch?: Partial<Scene>) => Promise<"ready" | "error">;
 /** Serializes server mutations; local edits invalidate in-flight render reports immediately. */
 export class StudyController {
   private state: StudyState | null = null;
@@ -54,7 +54,7 @@ export class StudyController {
     let ackStarted = false;
     try {
       // render() synchronously applies the typed scene; its promise waits for actual idle.
-      const rendered = this.render({ ...state.scene, ...pending.patch }, state.revision + 1);
+      const rendered = this.render({ ...state.scene, ...pending.patch }, state.revision + 1, pending.patch);
       let renderFailureReported = false;
       void rendered.catch(() => {
         renderFailureReported = true;

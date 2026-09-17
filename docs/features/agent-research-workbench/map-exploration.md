@@ -36,7 +36,7 @@
 
 - MCP 僅註冊配對／連線、讀狀態、搜尋與說明圖層、地點預設、圖層開關、鏡頭與範圍定位、操作與查詢回執。
 - 地圖入口不建立 analysis session、不掛 analysis/nearby overlays、不呈現進階分析 UI。
-- Gateway 僅接受 `search_layers`、`layer_details`、`describe_layer`、`map_context`、`find_places`；拒絕分析操作與 synthetic/result presentation。保留 null 清除舊狀態的相容性。
+- Gateway 僅接受 `search_layers`、`layer_details`、`describe_layer`、`map_context`、`find_places`、`layer_controls`、`geocode_address`；拒絕分析操作與 synthetic/result presentation。保留 null 清除舊狀態的相容性。
 - 第一階段可查看現有統計圖層，但不提供新的聚合、排行或交叉計算。一般、世界、統計、日本面板繼續沿用。
 - 本機啟動改用獨立 `runtime/map-exploration.sqlite`，避免承接進階版 pending command、暫停或配對狀態。首次需重新配對；原 `gateway.sqlite` 不刪除。
 - 進階模組若仍留在 repo，不代表開放使用；判斷基準為 MCP 註冊清單、Gateway allowlist 與地圖入口 dependency graph。
@@ -51,3 +51,37 @@
 - Browser：Agent 面板只有配對與跟隨設定；搜尋「學校」得到 11 個候選，開啟 schools 後實際可見點位；未配對不出現假 Agent 動作。
 - 尚未驗收：新探索資料庫下的使用者登入、重新配對及 Codex → Gateway → browser 完整往返；需另開 Codex session 取得新工具清單。
 - 舊 `acceptance-map.html` 不再載入分析模組，改指向主地圖；evaluation harness 僅做探索工具邊界 smoke。
+
+
+## 2026-09-17 設定探索與離線定位
+
+工具新增 `pulse_get_layer_controls`、`pulse_set_layer_control`、`pulse_geocode_address`，共 17 個。搜尋的 20 是預設每頁筆數，應依 `totalMatched`、`truncated`、`nextOffset` 繼續查詢，不能把當頁当成全部資料。
+
+圖層設定沿用 `layerParamsSpec`、`buildParamControls` 與同一個 UI onChange。Agent 先讀取控制項 ID、目前值、數值範圍／步進、可用選項、條件顯示與連動設定，再以 expectedValue 和 expectedRevision 修改一項。使用者已變更、隱藏／鎖定控制、無效選項或超出範圍均拒絕；連動修改後重新讀取設定。只涵蓋既有宣告式設定，尚未接入規格的特殊 UI 不宣稱可操控。
+
+離線定位只查相機預設、經緯度與固定同源學校／公共圖書館 Point 資產，最多回 5 個候選並附來源與精度。一般住家地址並未有完整門牌資料庫。查不到為 no_match，來源無法讀取為 unavailable；多候選先請使用者選擇，不用城市中心取代未知門牌。定位後可移動鏡頭並開啟學校圖層，不代表已執行附近學校距離或數量分析。
+
+目前不提供付費查詢，也不把地址送至外部 geocoder。Google Geocoding 的地圖顯示政策與本站 Mapbox 主地圖不相容，線上方案待使用者選定；官方政策：https://developers.google.com/maps/documentation/geocoding/policies 。
+
+
+此次增量驗證：前端 tsc -b 通過；research/__tests__ 94 passed / 2 既有資料測試 skipped；bridgeClient 以真 Gateway handler 測試 7 passed。MCP build、33 tests 與 dist stdio 17-tool allowlist smoke 通過；Gateway 38 tests 通過。3732 前端與 8791 Gateway 已重新啟動，首頁 HTTP 200。新增設定／定位尚未做使用者帳號配對的 Codex→瀏覽器 E2E，不等同已驗證所有圖層參數。未部署、未付費查詢。
+
+
+本地探索網站請使用 `npm run dev:exploration`，固定 3732 前端 → 8791 Gateway。不要使用未設定 PULSE_RESEARCH_GATEWAY_ORIGIN 的通用 dev 指令：其代理預設 8790，會造成建立配對失敗。Gateway 使用 `PULSE_RESEARCH_PILOT_EMAILS=<已授權帳號> node scripts/research/start-gateway.mjs`。
+
+
+### 警察機關本地資料恢復（2026-09-17）
+
+原 public 鏡像來源沒有 `police_justice/police_stations/police_stations_20260626.geojson`；Vite 對缺檔 URL 回首頁 HTML，不能以 HTTP 200 判定資料存在。已從正式站同路徑取回公開檔案，驗證 FeatureCollection、2,065 個 Point；SHA-256 `63dadd2cf7e764138e2cca8bdd57010464b91fb5c3d90afa8a65c8349e83e2e7`。本地 HTTP readback 一致，瀏覽器 z6.93 實際顯示點位。資料為既有 20260626 版本，沒有更新來源時間；此驗收不代表全站靜態資產均已補齊。檔案僅本地，不納入程式碼提交。
+
+
+## 日期控制與取景原則（2026-09-17）
+
+新增 `pulse_get_time_context`、`pulse_set_time`，共 19 tools。Context 讀取 Asia/Taipei 的日回放時間、live/replay、播放與速度；船舶提供已載入的最近 100 個可用日期、總數、完整起訖與截斷標記。尚未開啟船舶時為 not_loaded，Agent 可先開圖層後重讀；公車日期覆蓋目前 unknown。日期變更只使用既有 useTimeline actions，不建立另一個 clock。多年度歷史統計 UI 啟用時明確拒絕日回放指令。一般同步不重放時間指令；命令完成需讀回設定，但不代表指定日期 payload 已載入。
+
+顯示原則：分布／區域概覽使用 pulse_fit_bounds，以實際地圖尺寸與可見側欄、動作卡、時間軸計算可見範圍，適量留白並將主體放在可見區中心。單一地點可使用明確中心與 zoom。禁止用固定1024px估計視窗；禁止宣稱任意 camera 就涵蓋完整地區。新面板完成 layout 後才計算，保留 reduced motion；手動拖曳後不搶回視角。多次查詢不應每次都移動鏡頭。工具描述與網站 helper 共同維護此規則。
+
+日後視覺調整以「問題原句＋實際畫面＋理想畫面」作為驗收案例，區分範圍錯誤、遮擋、留白、點位大小、圖例與疊圖辨識，避免以單一固定 zoom 修所有情境。
+
+
+驗證：frontend research suite 110 passed / 2 skipped（隨後 viewport regression 更新為 3/3）、tsc -b 通過；Gateway 39 passed；MCP 33 passed、build 與 19-tool stdio smoke 通過。真 Mapbox 獨立 layout harness（1280×720，左右 panel＋bottom timeline）safe rectangle `[368,46,1008,608]`，投影 bounds corners x550.65–825.35、y70–584，保留24px留白；初版未補償 padding 中心偏移時失敗，修正後通過。窄於最小可見區時回報 VIEWPORT_OCCLUDED。臨時 harness 已刪除。使用者帳號下 Codex→配對瀏覽器的新增時間操作 E2E 尚待驗收；沒有據此宣稱船舶或公車任意日期都有資料。

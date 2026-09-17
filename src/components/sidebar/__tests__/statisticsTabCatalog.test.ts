@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LAYER_MANIFEST } from "../../../data/layerManifest";
-import { STATISTICS_TAB_THEMES } from "../layerCatalog";
+import { STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, STATISTICS_TAB_THEMES, withoutStatisticsLayers } from "../layerCatalog";
 import { getThemeLayerKeys } from "../../IconRailSidebar";
 
 const EXPECTED_THEME_STRUCTURE = [
@@ -56,5 +56,15 @@ describe("STATISTICS_TAB_THEMES", () => {
 
   it("All Off scope 只包含統計入口的圖層", () => {
     expect(getThemeLayerKeys(STATISTICS_TAB_THEMES)).toEqual(EXPECTED_LAYER_KEYS);
+  });
+
+  it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
+    expect(STATISTICS_TAB_CHOROPLETH_LAYER_KEYS).toEqual(new Set(EXPECTED_LAYER_KEYS.filter((key) => key !== "countyBoundary" && key !== "townshipBoundary")));
+    const filtered = withoutStatisticsLayers([
+      { title: "混合主題", groups: [{ title: "資料", layers: layers.filter((layer) => ["statsBirthsTownship", "countyBoundary"].includes(layer.key)) }] },
+    ]);
+    expect(filtered).toEqual([
+      { title: "混合主題", groups: [{ title: "資料", layers: [layers.find((layer) => layer.key === "countyBoundary")] }] },
+    ]);
   });
 });

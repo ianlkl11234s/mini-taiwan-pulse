@@ -1,4 +1,4 @@
-import { JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_THEMES, THEMES, WORLD_TAB_THEME_TITLES } from "../components/sidebar/layerCatalog";
+import { JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_CHOROPLETH_LAYER_KEYS, THEMES, WORLD_TAB_THEME_TITLES } from "../components/sidebar/layerCatalog";
 
 export type ExplorationPanel = "layers" | "statistics" | "world" | "japan";
 
@@ -12,7 +12,7 @@ function keysForThemes(themes: readonly typeof THEMES[number][]): Set<string> {
   return new Set(themes.flatMap(theme => theme.groups.flatMap(group => group.layers.map(layer => layer.key))));
 }
 
-const statisticsKeys = keysForThemes(STATISTICS_TAB_THEMES);
+const statisticsKeys = STATISTICS_TAB_CHOROPLETH_LAYER_KEYS;
 const worldKeys = keysForThemes(THEMES.filter(theme => WORLD_TAB_THEME_TITLES.includes(theme.title)));
 const japanKeys = keysForThemes(THEMES.filter(theme => JAPAN_TAB_THEME_TITLES.includes(theme.title)));
 

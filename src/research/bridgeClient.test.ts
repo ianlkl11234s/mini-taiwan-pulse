@@ -47,6 +47,25 @@ describe("BridgeClient", () => {
     await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
+  it("accepts one bounded layer-control scene value and rejects malformed values", async () => {
+    const layerControl = { layerKey: "schools", controlId: "schoolsOpacity", value: 0.5, expectedValue: 0.8 };
+    const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, layerControl } })));
+    await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { layerControl } });
+    const invalid = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, layerControl: { ...layerControl, value: Number.NaN } } })));
+    await expect(invalid.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("accepts time and viewport scenes while rejecting malformed command fields", async () => {
+    const framing = { bounds: [119,21,123,26], padding: 24, maxZoom: 12 };
+    const timeline = { mode: "replay", time: 1789603200, playing: false, speed: 60 };
+    const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, framing, timeline } })));
+    await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { framing, timeline } });
+    for (const invalid of [{ framing: {...framing, bounds:[123,21,119,26]} }, { timeline: { mode:"replay" } }, { timeline: { mode:"live",playing:true } }]) {
+      const broken = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, ...invalid } })));
+      await expect(broken.sync("study-1", "tab-1")).rejects.toMatchObject({ code:"INVALID_RESPONSE" });
+    }
+  });
+
   it.skipIf(!gatewayRoot)("parses real gateway pairing status and pending command state", async () => {
     const { join } = await import("node:path");
     const { pathToFileURL } = await import("node:url");

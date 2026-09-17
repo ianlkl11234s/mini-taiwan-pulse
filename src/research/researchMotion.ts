@@ -1,7 +1,7 @@
 import type { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import type { FeatureCollection, Point, Polygon } from "geojson";
 
-type Camera = { center: [number, number]; zoom: number };
+type Camera = { center: [number, number]; zoom: number; bearing?: number; pitch?: number; padding?: number };
 type Motion = { finish: (completed: boolean) => void; listener: () => void; timer: ReturnType<typeof setTimeout> };
 
 const motions = new WeakMap<MapboxMap, Motion>();
@@ -18,7 +18,7 @@ function closeEnough(map: MapboxMap, target: Camera): boolean {
   try {
     const center = map.getCenter();
     const longitudeDifference = Math.abs(((center.lng - target.center[0] + 540) % 360) - 180);
-    return longitudeDifference <= 0.00001 && Math.abs(center.lat - target.center[1]) <= 0.00001 && Math.abs(map.getZoom() - target.zoom) <= 0.001;
+    return (target.bearing === undefined || Math.abs(map.getBearing() - target.bearing) < 0.01) && (target.pitch === undefined || Math.abs(map.getPitch() - target.pitch) < 0.01) && longitudeDifference <= 0.00001 && Math.abs(center.lat - target.center[1]) <= 0.00001 && Math.abs(map.getZoom() - target.zoom) <= 0.001;
   } catch { return false; }
 }
 
@@ -60,7 +60,7 @@ export function moveResearchCamera(map: MapboxMap, camera: Camera): Promise<bool
     motions.set(map, { finish, listener, timer });
     safely(() => map.on("moveend", listener));
     safely(() => map.on("remove", removed));
-    try { map.easeTo({ center: camera.center, zoom: camera.zoom, duration: prefersReducedMotion() ? 0 : 650 }); } catch { finish(false); }
+    try { map.easeTo({ ...camera, retainPadding: false, duration: prefersReducedMotion() ? 0 : 650 }); } catch { finish(false); }
   });
 }
 

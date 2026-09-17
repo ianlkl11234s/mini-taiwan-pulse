@@ -1,3 +1,5 @@
+import { resolveViewportCamera, resolveViewportContext } from "./viewportFit";
+import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
 import { createPortal } from "react-dom";
 import { ResearchActivity } from "./ResearchActivityCard";
@@ -7,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
+import { layerParamsStore } from "../state/layerParamsStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
 import type { BridgeConnectionContext, Scene, StudyState, BrowserQuery } from "./bridgeClient";
@@ -15,10 +18,12 @@ import { QueryResponder } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
+import { applyLayerControl, describeLayerControls, validateLayerControl } from "./layerControls";
+import { resolveOfflineLocation } from "./addressLookup";
 import "./mainMapConnection.css";
 
-type Props = { bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["search_layers", "describe_layer", "layer_details", "map_context", "find_places"]);
+type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
+const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
 /** First-stage adapter: pairing can only search, explain, select, toggle, and move the map. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -39,24 +44,36 @@ export function MainMapConnection(props: Props) {
   const generation = useRef(0);
   const capture = (): Scene => {
     const camera = latest.current.bridge.getCamera();
-    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()) };
+    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null };
   };
-  const render = useCallback(async (scene: Scene, revision: number): Promise<"ready" | "error"> => {
+  const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
     if (!map || !map.isStyleLoaded()) throw new Error("MAP_NOT_READY");
     if (scene.resultMode !== "empty" || scene.nearby != null || scene.results != null || scene.focus != null) throw new Error("MAP_EXPLORATION_ONLY");
     // Pairing must never reset the user's camera or visible layers.
     if (revision === 0) { previous.current = scene; return "ready"; }
-    const cameraChanged = JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
+    const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
+    const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
     const run = ++generation.current;
     let movement: Promise<boolean> = Promise.resolve(true);
     setActivity({ phase: "presenting", title: "正在同步地圖" });
     applying.current = true;
     try {
+      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) validateLayerControl(scene.layerControl, locked);
       const newlyEnabled = Object.entries(scene.layers ?? {}).filter(([key, on]) => on && previous.current?.layers?.[key] !== true).map(([key]) => key);
       applyMainMapLayers(scene.layers ?? {}, new Set(Object.keys(labels)), locked, bridge);
       if (newlyEnabled.length) requestLayerExploration(newlyEnabled);
-      if (cameraChanged && followingRef.current) movement = moveResearchCamera(map, scene.camera);
+      if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) applyLayerControl(scene.layerControl, locked);
+      if (scene.timeline && patch?.timeline) {
+        if (!latest.current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
+        await latest.current.timeline.apply(scene.timeline);
+      }
+      if (cameraChanged && followingRef.current) {
+        // Measure after panel selection and activity card have committed to layout.
+        await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        if (run !== generation.current || !followingRef.current) return "error";
+        movement = moveResearchCamera(map, framingChanged && scene.framing ? resolveViewportCamera(map, scene.framing) : scene.camera);
+      }
       else if (cameraChanged) movement = Promise.resolve(false);
       previous.current = scene;
     } finally { applying.current = false; }
@@ -64,9 +81,14 @@ export function MainMapConnection(props: Props) {
     // This receipt confirms switch state only. Loading/coverage remains the map's own UI.
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     if (run !== generation.current) return "error";
+    if (patch?.timeline) {
+      const observed = latest.current.timeline?.getContext();
+      const requested = patch.timeline;
+      if (!observed || observed.mode !== requested.mode || (requested.speed !== undefined && observed.speed !== requested.speed) || (requested.playing !== undefined && observed.playing !== requested.playing) || (requested.mode === "replay" && observed.playing === false && (typeof observed.currentTime !== "number" || Math.abs(observed.currentTime - requested.time) > 1))) throw new Error("TIMELINE_READBACK_MISMATCH");
+    }
     const visible = new Set(bridge.getVisibleLayerKeys());
     const matches = cameraReady && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
-    setMessage(matches ? `r${revision} 圖層開關已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
+    setMessage(matches ? `r${revision} 地圖設定已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
     return matches ? "ready" : "error";
   }, []);
@@ -82,9 +104,12 @@ export function MainMapConnection(props: Props) {
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
       let result: Record<string, unknown>;
       switch (request.operation) {
+        case "time_context":
+          if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
+          result = current.timeline.getContext(); break;
         case "map_context":
           if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility" };
+          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility" };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "describe_layer": {
@@ -94,6 +119,8 @@ export function MainMapConnection(props: Props) {
           break;
         }
         case "layer_details": result = await describeLayers(request.args.layerKeys as string[], discoveryContext); break;
+        case "layer_controls": result = describeLayerControls(String(request.args.layerKey ?? ""), current.locked); break;
+        case "geocode_address": result = { ...await resolveOfflineLocation(String(request.args.query ?? "")) }; break;
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
@@ -138,6 +165,7 @@ export function MainMapConnection(props: Props) {
       controller.current.manual(scene);
     };
     const unsubscribe = layerVisibilityStore.subscribe(manual);
+    const unsubscribeParams = layerParamsStore.subscribe(manual);
     const map = props.map;
     const started = (event: { originalEvent?: unknown }) => {
       if (!event.originalEvent || !controller.current) return;
@@ -148,7 +176,7 @@ export function MainMapConnection(props: Props) {
     };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
     map?.on("movestart", started); map?.on("moveend", moved);
-    return () => { unsubscribe(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
+    return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
   useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;

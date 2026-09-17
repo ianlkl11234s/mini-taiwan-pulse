@@ -10,7 +10,10 @@ const READBACK = new Set([
 
 /** Translates an intentional research action into calm, non-quantified UI copy. */
 export function activityForOperation(operation: string, args: Record<string, unknown>): Activity | null {
+  if (operation === "time_context") return { phase: "working", title: "正在確認資料時間", detail: "查看目前日期與已知可用資料日期。" };
   if (READBACK.has(operation)) return null;
+  if (operation === "layer_controls") return { phase: "working", title: "正在查看圖層設定", detail: "確認可調整項目、選項與目前設定。" };
+  if (operation === "geocode_address") return { phase: "working", title: "正在尋找位置", detail: "查詢本地地點與地址資料。" };
   if (operation === "present_result" || operation === "wait_scene_ready") return { phase: "presenting", title: "正在呈現研究結果", detail: "地圖會在準備完成後更新。" };
   if (operation === "research_complete") return { phase: "complete", title: "這一步已完成", detail: "可以繼續查看結果或選擇下一個地方。" };
   if (operation === "research_error") return { phase: "error", title: "這一步暫時無法完成", detail: "請確認資料範圍後再試。" };

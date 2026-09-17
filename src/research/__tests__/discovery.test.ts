@@ -20,3 +20,10 @@ it("lists bounded catalogue pages and never describes prototype properties as la
   expect(describeLayer("toString")).toBeNull();
   expect(findPlaces("臺北").candidates[0]?.id).toBe("taipei");
 });
+
+it("returns a continuation offset without silently dropping layers after the first page", () => {
+  const first = discoverLayers("", 0, 20);
+  expect(first.nextOffset).toBe(20);
+  const second = discoverLayers("", first.nextOffset!, 20);
+  expect(new Set([...first.layers, ...second.layers].map(layer => layer.key)).size).toBe(first.returned + second.returned);
+});
