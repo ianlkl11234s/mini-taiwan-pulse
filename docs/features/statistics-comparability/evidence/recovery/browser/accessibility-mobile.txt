@@ -1,0 +1,146 @@
+- main:
+  - text: MINI TAIWAN PULSE · 本地試算
+  - heading "從採樣點，到學校需要多久？" [level=1]
+  - paragraph: 81 個位置，四個學制，分別計算步行與開車。色彩表示到試算範圍內最快可達學校的模型時間；點選位置查看路徑距離與 15 分鐘內的機構點數。
+  - paragraph: 範圍：北臺灣路網擷取（121.3–121.8°E、24.8–25.3°N）；採樣集中於臺北盆地。這不是全臺覆蓋率，也沒有使用模擬人口。
+  - text: 學制
+  - combobox "學制":
+    - option "幼兒園"
+    - option "國小"
+    - option "國中"
+    - option "高中" [selected]
+  - text: 交通方式
+  - combobox "交通方式":
+    - option "步行"
+    - option "開車" [selected]
+  - status: 已載入 81 個採樣點 · 開車 · 只代表試算範圍
+  - group "81個教育可達性採樣點":
+    - generic: 121.46°E
+    - generic: 121.50°E
+    - generic: 121.54°E
+    - generic: 121.58°E
+    - generic: 121.62°E
+    - button "pilot-0 1.54分鐘"
+    - button "pilot-1 2.53分鐘"
+    - button "pilot-2 1.68分鐘"
+    - button "pilot-3 1.42分鐘"
+    - button "pilot-4 1.87分鐘"
+    - button "pilot-5 0.36分鐘"
+    - button "pilot-6 3.32分鐘"
+    - button "pilot-7 7.07分鐘"
+    - button "pilot-8 7.08分鐘"
+    - button "pilot-9 2.71分鐘"
+    - button "pilot-10 2.28分鐘"
+    - button "pilot-11 2.69分鐘"
+    - button "pilot-12 2.55分鐘"
+    - button "pilot-13 2.87分鐘"
+    - button "pilot-14 3.28分鐘"
+    - button "pilot-15 8.15分鐘"
+    - button "pilot-16 7.78分鐘"
+    - button "pilot-17 10.58分鐘"
+    - button "pilot-18 2.02分鐘"
+    - button "pilot-19 6.65分鐘"
+    - button "pilot-20 2.47分鐘"
+    - button "pilot-21 1.73分鐘"
+    - button "pilot-22 1.87分鐘"
+    - button "pilot-23 1.88分鐘"
+    - button "pilot-24 1.68分鐘"
+    - button "pilot-25 未能計算"
+    - button "pilot-26 4.25分鐘"
+    - button "pilot-27 4.1分鐘"
+    - button "pilot-28 1.67分鐘"
+    - button "pilot-29 2.82分鐘"
+    - button "pilot-30 1.08分鐘"
+    - button "pilot-31 2.78分鐘"
+    - button "pilot-32 3.36分鐘"
+    - button "pilot-33 3.7分鐘"
+    - button "pilot-34 4.22分鐘"
+    - button "pilot-35 3.94分鐘"
+    - button "pilot-36 3.35分鐘"
+    - button "pilot-37 0.77分鐘"
+    - button "pilot-38 3.81分鐘"
+    - button "pilot-39 1.75分鐘"
+    - button "pilot-40 1.31分鐘"
+    - button "pilot-41 3.81分鐘"
+    - button "pilot-42 1.27分鐘"
+    - button "pilot-43 2.5分鐘"
+    - button "pilot-44 4.38分鐘"
+    - button "pilot-45 3.92分鐘"
+    - button "pilot-46 未能計算"
+    - button "pilot-47 5.01分鐘"
+    - button "pilot-48 2.19分鐘"
+    - button "pilot-49 1.8分鐘"
+    - button "pilot-50 3.6分鐘"
+    - button "pilot-51 6.95分鐘"
+    - button "pilot-52 未能計算"
+    - button "pilot-53 未能計算"
+    - button "pilot-54 6.96分鐘"
+    - button "pilot-55 5.08分鐘"
+    - button "pilot-56 3.32分鐘"
+    - button "pilot-57 3.55分鐘"
+    - button "pilot-58 4.85分鐘"
+    - button "pilot-59 7.1分鐘"
+    - button "pilot-60 6.17分鐘"
+    - button "pilot-61 17.3分鐘"
+    - button "pilot-62 16.25分鐘"
+    - button "pilot-63 2.81分鐘"
+    - button "pilot-64 未能計算"
+    - button "pilot-65 1.54分鐘"
+    - button "pilot-66 5.78分鐘"
+    - button "pilot-67 4.15分鐘"
+    - button "pilot-68 3.95分鐘"
+    - button "pilot-69 12.75分鐘"
+    - button "pilot-70 16.73分鐘"
+    - button "pilot-71 27.53分鐘"
+    - button "pilot-72 5.38分鐘"
+    - button "pilot-73 8.39分鐘"
+    - button "pilot-74 8.56分鐘"
+    - button "pilot-75 18.94分鐘"
+    - button "pilot-76 10.42分鐘"
+    - button "pilot-77 未能計算"
+    - button "pilot-78 未能計算"
+    - button "pilot-79 未能計算"
+    - button "pilot-80 未能計算"
+  - generic: 5 分鐘內
+  - generic: 5–15 分鐘
+  - generic: 15–30 分鐘
+  - generic: 超過30分鐘
+  - generic: 無可用路徑／接路不符
+  - text: WGS84 每 0.02 度採樣；位置點不是學校、居民或等面積格網。
+  - complementary:
+    - heading "pilot-25 · 高中" [level=2]
+    - term: 模型最快時間
+    - definition: 未能計算
+    - term: 該路徑距離
+    - definition: 未能計算
+    - term: 15分鐘內機構點
+    - definition: 未能計算
+    - term: 最快可達學校
+    - definition: 未能計算
+    - term: 起點接路位移
+    - definition: 未能計算
+    - term: 學校接路位移
+    - definition: 未能計算
+    - term: 結果狀態
+    - definition: 無可用路徑／接路不符
+    - term: 候選機構點
+    - definition: 146 個
+    - term: 座標
+    - definition: 121.6, 25.04
+  - heading "怎麼理解這份結果" [level=2]
+  - list:
+    - listitem: 路網：OSM 2026-06-21；OSRM 6.0.0 的 foot.lua／car.lua 分別建圖。開車沒有即時車流，步行未加入坡度及個人步速。
+    - listitem: 學校資料：國小／國中／高中 113 學年度；幼兒園 114 學年度。資料年份與路網版本分別保留。
+    - listitem: 學校點不保證是可進出的校門；起終點接路超過 250 公尺的結果排除，接路位移未計入路徑時間。
+    - listitem: 部分機構未連通或接路不符時，15 分鐘內數量只計可驗證路徑，不解讀為完整服務範圍。
+    - listitem: 最近学校不表示學區、入學資格或名額。邊界外學校與可能繞出擷取範圍的路徑未計入。
+    - listitem: 距離是模型所選路徑的長度，不宣稱最短距離。未加入公車時刻、候車、轉乘或學齡人口。
+  - paragraph:
+    - link "步行來源與計算紀錄":
+      - /url: statistics-accessibility/education-foot-receipt.json
+    - text: ·
+    - link "開車來源與計算紀錄":
+      - /url: statistics-accessibility/education-car-receipt.json
+    - text: ·
+    - link "© OpenStreetMap contributors / ODbL":
+      - /url: https://www.openstreetmap.org/copyright

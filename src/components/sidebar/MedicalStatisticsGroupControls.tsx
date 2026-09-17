@@ -1,8 +1,8 @@
-import { useState, useSyncExternalStore, type ReactNode } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import type { LayerVisibility } from '../../types';
-import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey, type MedicalStatisticsOptionKey } from '../../data/medicalStatisticsGroups';
-import { selectMedicalStatisticsVariant } from '../../state/medicalStatisticsSelection';
+import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
+import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../../state/medicalStatisticsSelection';
 import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeStore';
@@ -14,25 +14,36 @@ interface Props {
   visibility: LayerVisibility;
   expandedLayer: string | null;
   onLayerClick: (key: keyof LayerVisibility) => void;
-  renderControls: (key: MedicalStatisticsOptionKey) => ReactNode;
+  renderControls: (key: keyof LayerVisibility) => ReactNode;
   textColor?: string;
   dimColor?: string;
 }
 
 export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
   const group = getMedicalStatisticsGroup(groupKey);
-  const [preferred, setPreferred] = useState<MedicalStatisticsOptionKey | undefined>();
+  const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
   const [error, setError] = useState('');
-  const selected = resolveMedicalStatisticsGroupKey(group, visibility, expandedLayer ?? undefined, preferred) ?? preferred ?? group?.options[0].key ?? 'statsHealthHospitalBedTotal';
+  const [switching, setSwitching] = useState(false);
+  const switchRequest = useRef(0);
+  useEffect(() => () => { switchRequest.current += 1; }, []);
+  const selected = resolveMedicalStatisticsGroupKey(group, visibility, expandedLayer ?? undefined, preferred) ?? preferred ?? group?.options[0]?.key ?? 'statsHealthHospitalBedTotal';
   const sourceState = useSyncExternalStore(callback => regionalStatisticsStore.subscribe(selected, callback), () => regionalStatisticsStore.getSnapshot(selected), () => regionalStatisticsStore.getSnapshot(selected));
   if (!group) return null;
   const members = group.options.map(option => option.key);
   const active = members.filter(key => visibility[key]);
   const expanded = members.some(key => key === expandedLayer);
-  const choose = (next: MedicalStatisticsOptionKey) => {
+  const choose = async (next: keyof LayerVisibility) => {
     if (next === selected && active.length <= 1) return;
-    if (!selectMedicalStatisticsVariant(selected, next, members)) {
-      setError('此類型沒有相同期別的資料，請先調整年份。');
+    let switched=selectMedicalStatisticsVariant(selected, next, members);
+    if (!switched) {
+      const request=++switchRequest.current;
+      setSwitching(true);
+      switched=await prepareMedicalStatisticsVariant(selected,next,members,()=>request===switchRequest.current && layerVisibilityStore.getVisibility(selected));
+      if (request!==switchRequest.current) return;
+      setSwitching(false);
+    }
+    if (!switched) {
+      setError(regionalStatisticsStore.getSnapshot(next).error ?? '此類型沒有相同期別的資料，請先調整年份。');
       return;
     }
     setPreferred(next);
@@ -40,6 +51,8 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     if (expandedLayer !== next) onLayerClick(next);
   };
   const toggle = () => {
+    switchRequest.current += 1;
+    setSwitching(false);
     if (!active.length) {
       onLayerClick(selected);
       return;
@@ -59,10 +72,11 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     </div>
     {expanded && <>
       <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
-        <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.key === 'hospitalBeds' ? '床位類型' : '人員類型'}</label>
-        <select disabled={sourceState.loading || !sourceState.selection} aria-label={`${group.label} 類型`} value={selected} onChange={event => choose(event.target.value as MedicalStatisticsOptionKey)} style={{ width: '100%', boxSizing: 'border-box', padding: '5px 8px', borderRadius: RADIUS.md, border: '1px solid #64748b', background: '#182230', color: '#f3f4f6', font: 'inherit' }}>
+        <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
+        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={{ width: '100%', boxSizing: 'border-box', padding: '5px 8px', borderRadius: RADIUS.md, border: '1px solid #64748b', background: '#182230', color: '#f3f4f6', font: 'inherit' }}>
           {group.options.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
         </select>
+        {switching && <p role="status" style={{ color: dimColor }}>正在確認目標期別…</p>}
         {active.length > 1 && <p style={{ color: dimColor }}>目前重疊顯示 {active.length} 種；選擇類型後，此主題改為單一類型。</p>}
         {error && <p role="alert">{error}</p>}
       </div>

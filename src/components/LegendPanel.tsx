@@ -1,3 +1,4 @@
+import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
 import { JpMedicalStatus } from "./JpMedicalStatus";
 import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
@@ -33,7 +34,8 @@ import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
-import type { StatisticsLayerKey } from "../data/regionalStatisticsRecipes";
+import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
@@ -331,11 +333,16 @@ export interface LegendEntry {
 export const LEGEND_REGISTRY: LegendEntry[] = [
   ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
-    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsLayerKey} />,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
   })),
+  ...COMPARISON_ENABLED_RECIPES.map(recipe => ({id: recipe.layer_key, render: () => <StatisticsLegend layerKey={recipe.layer_key} />})),
   ...SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
-    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsLayerKey} />,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...EDUCATION_PRESENTATION_VIEWS.map((view) => ({
+    id: view.key,
+    render: () => <StatisticsLegend layerKey={view.key} />,
   })),
   { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
   { id: "statsCivilAeronauticsSubsidyCounty", render: () => <StatisticsLegend layerKey="statsCivilAeronauticsSubsidyCounty" /> },

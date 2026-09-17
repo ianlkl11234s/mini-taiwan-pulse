@@ -1,3 +1,5 @@
+import { getEducationPresentationView } from './statisticsPresentationViews';
+import { getComparisonRecipe, comparisonReleaseOptions } from './comparisonStatisticsRecipes';
 import { getSocialRecipe, socialReleaseOptions, resolveSocialRelease } from './socialStatisticsRecipes';
 import { withLoading } from '../lib/loadingRegistry';
 import { cachedByKey } from '../lib/loaderCache';
@@ -8,7 +10,7 @@ export type StatisticsLevel = 'county' | 'township' | 'village' | 'statistical_m
 export interface StatisticsRecipe { datasetId: string; indicatorId: string; level: StatisticsLevel; dimensions?: Record<string, unknown>; releaseId?: string; layerKey?: string; label?: string; includeHealth?: boolean; allowReleaseFallback?: boolean; releaseFallback?: (release: StatisticsRelease) => Record<string, unknown> | null }
 export interface StatisticsCatalogItem { dataset_id: string; indicator_id: string; name: string; unit: string; levels: StatisticsLevel[] }
 export interface StatisticsRelease { release_id: string; dataset_id: string; indicator_id: string; boundary_version: string; period_start: string; period_end: string; levels?: StatisticsLevel[] }
-export interface StatisticsObservation { area_code: string; value: number | null; status: string; source_status?: string; source_token?: string }
+export interface StatisticsObservation { area_code: string; value: number | null; status: string; source_status?: string; source_token?: string; inputs?: Record<string, unknown> }
 export interface StatisticsValues { status: string; release: StatisticsRelease; area_level: StatisticsLevel; total: number; returned: number; truncated: boolean; next_offset: number | null; observations: StatisticsObservation[] }
 export type StatisticsSource = Record<string, unknown>;
 /** Sidecars describe nonnumeric source tokens; observed numbers need no invented token. */
@@ -16,7 +18,7 @@ export function assertStatisticsSourceSemantics(value: StatisticsObservation, re
   if (required && value.status !== 'observed' && (typeof value.source_status !== 'string' || typeof value.source_token !== 'string')) throw new Error('統計來源狀態或原始符號未提供，不能以一般缺值取代');
 }
 
-export interface StatisticsHealth { status: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string; coverage?: Record<string, unknown> }
+export interface StatisticsHealth { status: string; reason?: string; availability?: string; coverage_status?: string; coverage_numerator?: number; coverage_denominator?: number; mapped_total?: number; unallocated_total?: number; currency?: string; coverage?: Record<string, unknown> }
 export interface GeometryManifest { resource: string; sha256: string; code_scheme: string; code_property?: string; name_property?: string; boundary_version: string; level: StatisticsLevel }
 export interface RegionalStatisticsResult { catalog: StatisticsCatalogItem[]; releases: StatisticsRelease[]; values: StatisticsValues; sources: StatisticsSource; health?: StatisticsHealth; effectiveRecipe: StatisticsRecipe; geometryManifest: GeometryManifest; features: GeoJSON.Feature[] }
 
@@ -204,6 +206,13 @@ async function request<T>(route: string, query: Record<string, unknown>, signal?
   throw new Error(`Statistics CDN 不支援 route: ${route}`);
 }
 export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: AbortSignal): Promise<RegionalStatisticsResult> {
+  const renderKey = recipe.layerKey;
+  const view = renderKey ? getEducationPresentationView(renderKey) : undefined;
+  if (view) {
+    const base = view.metrics.find(metric => (getSocialRecipe(metric.layerKey) ?? getComparisonRecipe(metric.layerKey))?.indicator_id === recipe.indicatorId);
+    if (!base || recipe.dimensions?.education_stage !== view.stage) throw new Error('教育學制或指標不符固定入口');
+    recipe = {...recipe, layerKey: base.layerKey};
+  }
   return withLoading(`statistics:${recipe.datasetId}:${recipe.indicatorId}`, recipe.label ?? '區域統計', (async () => {
     const [catalogResponse, releasesResponse] = await Promise.all([
       request<{indicators: StatisticsCatalogItem[]}>('catalog', {}, signal, recipe),
@@ -243,6 +252,11 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
     if (!release) throw new Error('指定統計期別尚未公開或已撤回，請重新選擇');
     const indicator = catalog.find(c => c.dataset_id === recipe.datasetId && c.indicator_id === recipe.indicatorId);
     if (!indicator || !indicator.levels.includes(recipe.level)) throw new Error('此指標不提供指定地理層級');
+    const comparison = recipe.layerKey ? getComparisonRecipe(recipe.layerKey) : undefined;
+    if (comparison) {
+      const option = comparisonReleaseOptions(recipe.layerKey!, releases).find(o => o.releaseId === release!.release_id && sameDimensions(o.dimensions, effectiveRecipe.dimensions ?? {}));
+      if (!option || indicator.unit !== comparison.unit || comparison.dataset_id !== recipe.datasetId || comparison.indicator_id !== recipe.indicatorId || comparison.level !== recipe.level) throw new Error('比較統計未命中已驗證期別或單位');
+    }
     if (agri) {
       if (!agri.enabled || agri.dataset_id !== recipe.datasetId || agri.indicator_id !== recipe.indicatorId || agri.level !== recipe.level || agri.boundary_version !== release.boundary_version) throw new Error('統計 recipe 與正式發布契約不符');
       if (indicator.unit !== agri.unit) throw new Error('統計單位與已驗證 recipe 不符');
@@ -291,9 +305,11 @@ export async function loadRegionalStatistics(recipe: StatisticsRecipe, signal?: 
       if (typeof code !== 'string' || geometryCodes.has(code) || !feature.geometry || !['Polygon', 'MultiPolygon'].includes(feature.geometry.type)) throw new Error('參考邊界代碼或幾何錯誤');
       geometryCodes.add(code);
       const value = byCode.get(code);
-      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, indicator_name: social?.label ?? indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status } };
+      const derivation = sourceResponse.source.derivation as Record<string, unknown> | undefined;
+      const processing = sourceResponse.source.processing_summary as Record<string, unknown> | undefined;
+      return { ...feature, properties: { ...feature.properties, area_code: code, value: value?.value ?? null, status: value?.status ?? 'missing', source_status: value?.source_status, source_token: value?.source_token, inputs: value?.inputs, indicator_name: comparison?.label ?? social?.label ?? indicator.name, unit: indicator.unit, format: agri?.format, release_id: release.release_id, period_label: `${release.period_start} — ${release.period_end}`, boundary_version: release.boundary_version, publisher: sourceResponse.source.publisher, raw_sha256: sourceResponse.source.raw_sha256, method_version: sourceResponse.source.method_version, source_statistical_boundary_version: agri?.source_statistical_boundary_version, availability: health?.availability, coverage_status: health?.coverage_status, comparison_formula: derivation?.formula ?? processing?.formula, interpretation: derivation?.interpretation ?? processing?.interpretation ?? processing?.description, time_caveat: derivation?.time_caveat ?? processing?.time_caveat } };
     });
     if (observations.some(value => !geometryCodes.has(value.area_code))) throw new Error('統計區找不到對應邊界');
-    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe, geometryManifest, features };
+    return { catalog, releases, values: { ...first, observations, returned: observations.length, truncated: false, next_offset: null }, sources: sourceResponse.source, health, effectiveRecipe: {...effectiveRecipe, layerKey: renderKey}, geometryManifest, features };
   })());
 }

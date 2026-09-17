@@ -1,3 +1,4 @@
+import { COMPARISON_STATISTICS_KEYS } from '../../data/comparisonStatisticsKeys';
 /**
  * Layer Hook Registry 完整性閘（AR-22 P1）
  * ══════════════════════════════════════════════════════════════════
@@ -54,6 +55,7 @@ import { MANIFEST_KEYS } from "../../data/layerManifest";
 import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 import { AGRI_ENABLED_STATISTICS_KEYS } from "../../data/agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_KEYS } from "../../data/socialStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
 
 // ══════════════════════════════════════════════════════════════════
 //  桶 2：hook 留在 App.tsx（pattern E）
@@ -196,6 +198,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   // Social-statistics recipes share MapView.attachRegionalStatistics.  That
   // lifecycle adapter is neither a LayerHost hook nor an App loader hook.
   ...SOCIAL_ENABLED_STATISTICS_KEYS,
+  ...EDUCATION_PRESENTATION_VIEW_KEYS,
+  ...COMPARISON_STATISTICS_KEYS,
 ]);
 
 // ══════════════════════════════════════════════════════════════════

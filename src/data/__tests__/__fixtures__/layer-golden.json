@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 543,
+    "keyCount": 743,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2042,6 +2042,194 @@
     },
     {
       "layers": [
+        "statsComparisonBusAccessibleSharePct-fill",
+        "statsComparisonBusElectricSharePct-fill",
+        "statsComparisonHousingUnoccupiedSharePctCounty-fill",
+        "statsComparisonHousingUnoccupiedSharePctTownship-fill",
+        "statsComparisonHousingOccasionalSharePctCounty-fill",
+        "statsComparisonHousingOccasionalSharePctTownship-fill",
+        "statsComparisonHousingOtherUseSharePctCounty-fill",
+        "statsComparisonHousingOtherUseSharePctTownship-fill",
+        "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty-fill",
+        "statsComparisonAgriculturalFacilityNationalSharePct-fill",
+        "statsComparisonAgriculturalFacilityCountyTotalHectare-fill",
+        "statsComparisonAgriculturalFacilityCountyNationalSharePct-fill",
+        "statsComparisonAgriculturalFacilityTownshipOfCountySharePct-fill",
+        "statsComparisonAirportLandNationalSharePct-fill",
+        "statsComparisonAirportLandCountyTotalHectare-fill",
+        "statsComparisonAirportLandCountyNationalSharePct-fill",
+        "statsComparisonAirportLandTownshipOfCountySharePct-fill",
+        "statsComparisonAquacultureLandNationalSharePct-fill",
+        "statsComparisonAquacultureLandCountyTotalHectare-fill",
+        "statsComparisonAquacultureLandCountyNationalSharePct-fill",
+        "statsComparisonAquacultureLandTownshipOfCountySharePct-fill",
+        "statsComparisonBambooForestNationalSharePct-fill",
+        "statsComparisonBambooForestCountyTotalHectare-fill",
+        "statsComparisonBambooForestCountyNationalSharePct-fill",
+        "statsComparisonBambooForestTownshipOfCountySharePct-fill",
+        "statsComparisonBroadleafForestNationalSharePct-fill",
+        "statsComparisonBroadleafForestCountyTotalHectare-fill",
+        "statsComparisonBroadleafForestCountyNationalSharePct-fill",
+        "statsComparisonBroadleafForestTownshipOfCountySharePct-fill",
+        "statsComparisonConiferForestNationalSharePct-fill",
+        "statsComparisonConiferForestCountyTotalHectare-fill",
+        "statsComparisonConiferForestCountyNationalSharePct-fill",
+        "statsComparisonConiferForestTownshipOfCountySharePct-fill",
+        "statsComparisonDryFieldNationalSharePct-fill",
+        "statsComparisonDryFieldCountyTotalHectare-fill",
+        "statsComparisonDryFieldCountyNationalSharePct-fill",
+        "statsComparisonDryFieldTownshipOfCountySharePct-fill",
+        "statsComparisonLivestockBuildingNationalSharePct-fill",
+        "statsComparisonLivestockBuildingCountyTotalHectare-fill",
+        "statsComparisonLivestockBuildingCountyNationalSharePct-fill",
+        "statsComparisonLivestockBuildingTownshipOfCountySharePct-fill",
+        "statsComparisonMixedForestNationalSharePct-fill",
+        "statsComparisonMixedForestCountyTotalHectare-fill",
+        "statsComparisonMixedForestCountyNationalSharePct-fill",
+        "statsComparisonMixedForestTownshipOfCountySharePct-fill",
+        "statsComparisonOrchardNationalSharePct-fill",
+        "statsComparisonOrchardCountyTotalHectare-fill",
+        "statsComparisonOrchardCountyNationalSharePct-fill",
+        "statsComparisonOrchardTownshipOfCountySharePct-fill",
+        "statsComparisonPaddyLandNationalSharePct-fill",
+        "statsComparisonPaddyLandCountyTotalHectare-fill",
+        "statsComparisonPaddyLandCountyNationalSharePct-fill",
+        "statsComparisonPaddyLandTownshipOfCountySharePct-fill",
+        "statsComparisonPastureNationalSharePct-fill",
+        "statsComparisonPastureCountyTotalHectare-fill",
+        "statsComparisonPastureCountyNationalSharePct-fill",
+        "statsComparisonPastureTownshipOfCountySharePct-fill",
+        "statsComparisonPortLandNationalSharePct-fill",
+        "statsComparisonPortLandCountyTotalHectare-fill",
+        "statsComparisonPortLandCountyNationalSharePct-fill",
+        "statsComparisonPortLandTownshipOfCountySharePct-fill",
+        "statsComparisonRailLandNationalSharePct-fill",
+        "statsComparisonRailLandCountyTotalHectare-fill",
+        "statsComparisonRailLandCountyNationalSharePct-fill",
+        "statsComparisonRailLandTownshipOfCountySharePct-fill",
+        "statsComparisonRoadLandNationalSharePct-fill",
+        "statsComparisonRoadLandCountyTotalHectare-fill",
+        "statsComparisonRoadLandCountyNationalSharePct-fill",
+        "statsComparisonRoadLandTownshipOfCountySharePct-fill",
+        "statsComparisonAcuteBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospiceBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospitalBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospitalCountPer10000PopulationTownship-fill",
+        "statsComparisonIcuBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHealthProfessionalTotalPer10000PopulationTownship-fill",
+        "statsComparisonRegisteredNurseCountPer10000PopulationTownship-fill",
+        "statsComparisonWesternPhysicianCountPer10000PopulationTownship-fill",
+        "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County-fill",
+        "statsComparisonCareWorkerRegistrationCountPer65plus1000County-fill",
+        "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County-fill",
+        "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County-fill",
+        "statsComparisonA2AccidentCount-fill",
+        "statsComparisonA2InjuryCount-fill",
+        "statsComparisonA1A2AccidentCount-fill",
+        "statsComparisonAgriculturalFacilityCountyAreaSharePct-fill",
+        "statsComparisonAgriculturalFacilityCountyLq-fill",
+        "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct-fill",
+        "statsComparisonAirportLandCountyAreaSharePct-fill",
+        "statsComparisonAirportLandCountyLq-fill",
+        "statsComparisonAirportLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonAquacultureLandCountyAreaSharePct-fill",
+        "statsComparisonAquacultureLandCountyLq-fill",
+        "statsComparisonAquacultureLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonBambooForestCountyAreaSharePct-fill",
+        "statsComparisonBambooForestCountyLq-fill",
+        "statsComparisonBambooForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonBroadleafForestCountyAreaSharePct-fill",
+        "statsComparisonBroadleafForestCountyLq-fill",
+        "statsComparisonBroadleafForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonConiferForestCountyAreaSharePct-fill",
+        "statsComparisonConiferForestCountyLq-fill",
+        "statsComparisonConiferForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonDryFieldCountyAreaSharePct-fill",
+        "statsComparisonDryFieldCountyLq-fill",
+        "statsComparisonDryFieldTownshipAdminAreaSharePct-fill",
+        "statsComparisonLivestockBuildingCountyAreaSharePct-fill",
+        "statsComparisonLivestockBuildingCountyLq-fill",
+        "statsComparisonLivestockBuildingTownshipAdminAreaSharePct-fill",
+        "statsComparisonMixedForestCountyAreaSharePct-fill",
+        "statsComparisonMixedForestCountyLq-fill",
+        "statsComparisonMixedForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonOrchardCountyAreaSharePct-fill",
+        "statsComparisonOrchardCountyLq-fill",
+        "statsComparisonOrchardTownshipAdminAreaSharePct-fill",
+        "statsComparisonPaddyLandCountyAreaSharePct-fill",
+        "statsComparisonPaddyLandCountyLq-fill",
+        "statsComparisonPaddyLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonPastureCountyAreaSharePct-fill",
+        "statsComparisonPastureCountyLq-fill",
+        "statsComparisonPastureTownshipAdminAreaSharePct-fill",
+        "statsComparisonPortLandCountyAreaSharePct-fill",
+        "statsComparisonPortLandCountyLq-fill",
+        "statsComparisonPortLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonRailLandCountyAreaSharePct-fill",
+        "statsComparisonRailLandCountyLq-fill",
+        "statsComparisonRailLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonRoadLandCountyAreaSharePct-fill",
+        "statsComparisonRoadLandCountyLq-fill",
+        "statsComparisonRoadLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonAcuteBedTotalPerKm2Township-fill",
+        "statsComparisonHospiceBedTotalPerKm2Township-fill",
+        "statsComparisonHospitalBedTotalPerKm2Township-fill",
+        "statsComparisonHospitalCountPerKm2Township-fill",
+        "statsComparisonIcuBedTotalPerKm2Township-fill",
+        "statsComparisonHealthProfessionalTotalPerKm2Township-fill",
+        "statsComparisonRegisteredNurseCountPerKm2Township-fill",
+        "statsComparisonWesternPhysicianCountPerKm2Township-fill",
+        "statsComparisonLivestockHeadsPerFarmTownship-fill",
+        "statsComparisonFisheryProductionTonnesNationalSharePctCounty-fill",
+        "statsComparisonFisheryValueThousandNationalSharePctCounty-fill",
+        "statsComparisonEducationClassCountPer10000Residents-fill",
+        "statsComparisonEducationClassCountPerKm2-fill",
+        "statsComparisonEducationInstitutionCountPer10000Residents-fill",
+        "statsComparisonEducationInstitutionCountPerKm2-fill",
+        "statsComparisonEducationStaffCountPer10000Residents-fill",
+        "statsComparisonEducationStaffCountPerKm2-fill",
+        "statsComparisonEducationStudentCountPer10000Residents-fill",
+        "statsComparisonEducationStudentCountPerKm2-fill",
+        "statsComparisonEducationTeacherCountPer10000Residents-fill",
+        "statsComparisonEducationTeacherCountPerKm2-fill",
+        "statsComparisonBusOperatingRouteLengthKmPer10000Residents-fill",
+        "statsComparisonBusOperatingRouteLengthKmPerKm2-fill",
+        "statsComparisonBusApprovedRouteCountPer10000Residents-fill",
+        "statsComparisonBusApprovedRouteCountPerKm2-fill",
+        "statsComparisonUrbanBusOperatorCountPer10000Residents-fill",
+        "statsComparisonUrbanBusOperatorCountPerKm2-fill",
+        "statsComparisonBusOperatingVehicleCountPer10000Residents-fill",
+        "statsComparisonBusOperatingVehicleCountPerKm2-fill",
+        "statsComparisonBusAccessibleVehicleCountPer10000Residents-fill",
+        "statsComparisonBusAccessibleVehicleCountPerKm2-fill",
+        "statsComparisonBusElectricVehicleCountPer10000Residents-fill",
+        "statsComparisonBusElectricVehicleCountPerKm2-fill",
+        "statsComparisonBusOperatingTripCountPer10000Residents-fill",
+        "statsComparisonBusOperatingTripCountPerKm2-fill",
+        "statsComparisonBusOperatingVehicleKmPer10000Residents-fill",
+        "statsComparisonBusOperatingVehicleKmPerKm2-fill",
+        "statsComparisonAutomobileLicenseHoldersCountPer10000Residents-fill",
+        "statsComparisonAutomobileRegisteredCountPer10000Residents-fill",
+        "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents-fill",
+        "statsComparisonMotorcycleRegisteredCountPer10000Residents-fill",
+        "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents-fill",
+        "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents-fill",
+        "statsComparisonA1AccidentCountPer10000Residents-fill",
+        "statsComparisonA1AccidentCountPerKm2-fill",
+        "statsComparisonA1DeathCountPer10000Residents-fill",
+        "statsComparisonA1DeathCountPerKm2-fill",
+        "statsComparisonA1InjuryCountPer10000Residents-fill",
+        "statsComparisonA1InjuryCountPerKm2-fill",
+        "statsComparisonWasteRecyclingVehiclesPer10000Residents-fill",
+        "statsComparisonWasteRecyclingVehiclesPerKm2-fill",
+        "statsComparisonWasteTotalVehiclesPer10000Residents-fill",
+        "statsComparisonWasteTotalVehiclesPerKm2-fill",
+        "statsComparisonA2AccidentCountPer10000Residents-fill",
+        "statsComparisonA2AccidentCountPerKm2-fill",
+        "statsComparisonA2InjuryCountPer10000Residents-fill",
+        "statsComparisonA2InjuryCountPerKm2-fill",
+        "statsComparisonA1A2AccidentCountPer10000Residents-fill",
+        "statsComparisonA1A2AccidentCountPerKm2-fill",
         "statsWasteCounty-fill",
         "statsRecyclingCounty-fill",
         "statsWasteRecyclingRate-fill",
@@ -2152,7 +2340,19 @@
         "statsHousingOtherUseTownship-fill",
         "statsHousingUnusedTownship-fill",
         "statsHousingOccupiedPctTownship-fill",
-        "statsHousingUnusedPctTownship-fill"
+        "statsHousingUnusedPctTownship-fill",
+        "statsEducationPreschoolSchool-fill",
+        "statsEducationPreschoolTeacher-fill",
+        "statsEducationPreschoolStudent-fill",
+        "statsEducationElementarySchool-fill",
+        "statsEducationElementaryTeacher-fill",
+        "statsEducationElementaryStudent-fill",
+        "statsEducationJuniorHighSchool-fill",
+        "statsEducationJuniorHighTeacher-fill",
+        "statsEducationJuniorHighStudent-fill",
+        "statsEducationSeniorHighSchool-fill",
+        "statsEducationSeniorHighTeacher-fill",
+        "statsEducationSeniorHighStudent-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -59643,6 +59843,1698 @@
         "value": 0.55
       }
     ],
+    "statsComparisonA1A2AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1DeathCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1DeathCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1InjuryCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1InjuryCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAcuteBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAcuteBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAutomobileLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAutomobileRegisteredCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusApprovedRouteCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusApprovedRouteCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingRouteLengthKmPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingRouteLengthKmPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingTripCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingTripCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonCareWorkerRegistrationCountPer65plus1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationClassCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationClassCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationInstitutionCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationInstitutionCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStaffCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStaffCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStudentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStudentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationTeacherCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationTeacherCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonFisheryProductionTonnesNationalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonFisheryValueThousandNationalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospiceBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospiceBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonIcuBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonIcuBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockHeadsPerFarmTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMotorcycleRegisteredCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonUrbanBusOperatorCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonUrbanBusOperatorCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteRecyclingVehiclesPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteRecyclingVehiclesPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteTotalVehiclesPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteTotalVehiclesPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsConiferForestAreaTownship": [
       {
         "label": "透明度 0.55",
@@ -59788,6 +61680,114 @@
       }
     ],
     "statsEducationCountyTeacherCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementarySchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementaryStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementaryTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighTeacher": [
       {
         "label": "透明度 0.55",
         "max": 1,

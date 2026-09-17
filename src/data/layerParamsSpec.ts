@@ -1,3 +1,4 @@
+import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
 import { JP_MEDICAL_CARE_TYPES, JP_MEDICAL_AREA_LEVELS } from "./jpMedicalTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
@@ -876,9 +877,22 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  * ⚠️ 陣列順序 = 控件在面板上的顯示順序，也是黃金快照比對的順序。
  */
 export const LAYER_PARAMS_SPEC = {
+  ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
   // 農林漁牧 Statistics 的實質 values/filter 邏輯由 dynamic renderer 處理；登記簿只宣告共通透明度。
   // 社會統計同樣由 dynamic renderer 處理；release/filter 選項由 recipe exact whitelist 提供。
   statsEducationCountyInstitutionCount: [opacitySlider("statsEducationCountyInstitutionCountOpacity", 0.55)],
+  statsEducationPreschoolSchool: [opacitySlider("statsEducationPreschoolSchoolOpacity", 0.55)],
+  statsEducationPreschoolTeacher: [opacitySlider("statsEducationPreschoolTeacherOpacity", 0.55)],
+  statsEducationPreschoolStudent: [opacitySlider("statsEducationPreschoolStudentOpacity", 0.55)],
+  statsEducationElementarySchool: [opacitySlider("statsEducationElementarySchoolOpacity", 0.55)],
+  statsEducationElementaryTeacher: [opacitySlider("statsEducationElementaryTeacherOpacity", 0.55)],
+  statsEducationElementaryStudent: [opacitySlider("statsEducationElementaryStudentOpacity", 0.55)],
+  statsEducationJuniorHighSchool: [opacitySlider("statsEducationJuniorHighSchoolOpacity", 0.55)],
+  statsEducationJuniorHighTeacher: [opacitySlider("statsEducationJuniorHighTeacherOpacity", 0.55)],
+  statsEducationJuniorHighStudent: [opacitySlider("statsEducationJuniorHighStudentOpacity", 0.55)],
+  statsEducationSeniorHighSchool: [opacitySlider("statsEducationSeniorHighSchoolOpacity", 0.55)],
+  statsEducationSeniorHighTeacher: [opacitySlider("statsEducationSeniorHighTeacherOpacity", 0.55)],
+  statsEducationSeniorHighStudent: [opacitySlider("statsEducationSeniorHighStudentOpacity", 0.55)],
   statsEducationCountyTeacherCount: [opacitySlider("statsEducationCountyTeacherCountOpacity", 0.55)],
   statsEducationCountyStaffCount: [opacitySlider("statsEducationCountyStaffCountOpacity", 0.55)],
   statsEducationCountyStudentCount: [opacitySlider("statsEducationCountyStudentCountOpacity", 0.55)],

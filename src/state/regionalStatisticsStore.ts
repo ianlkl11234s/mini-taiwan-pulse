@@ -1,4 +1,7 @@
 import { loadRegionalStatistics, type RegionalStatisticsResult, type StatisticsRecipe } from '../data/regionalStatisticsLoader';
+import { getEducationPresentationView } from '../data/statisticsPresentationViews';
+import { getSocialRecipe } from '../data/socialStatisticsRecipes';
+import { getComparisonRecipe } from '../data/comparisonStatisticsRecipes';
 export interface RegionalStatisticsSnapshot {
   loading: boolean; error: string | null; selection: StatisticsRecipe | null;
   catalog: RegionalStatisticsResult['catalog']; releases: RegionalStatisticsResult['releases'];
@@ -42,18 +45,26 @@ export const regionalStatisticsStore = {
   },
   registerRecipe(key: string, recipe: StatisticsRecipe) {
     const current = getSnapshot(key).selection;
-    if (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId) return;
+    const view = getEducationPresentationView(key);
+    const validViewSelection = (candidate: StatisticsRecipe | null | undefined) => Boolean(view && candidate?.dimensions?.education_stage === view.stage && view.metrics.some(metric => {
+      const source = getSocialRecipe(metric.layerKey) ?? getComparisonRecipe(metric.layerKey);
+      return source?.dataset_id === candidate?.datasetId && source?.indicator_id === candidate?.indicatorId;
+    }));
+    if (validViewSelection(current) || (current?.datasetId === recipe.datasetId && current.indicatorId === recipe.indicatorId)) return;
     const saved = persisted[key];
-    const matching = saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId;
-    const selection = matching ? { ...recipe, ...saved, ...(saved.releaseId && saved.releaseId !== recipe.releaseId ? { allowReleaseFallback: false } : {}) } : recipe;
-    update(key, { selection, data: null, source: null, release: null, health: null });
+    const matching = validViewSelection(saved) || (saved?.datasetId === recipe.datasetId && saved.indicatorId === recipe.indicatorId);
+    const selection = matching && saved ? { ...recipe, ...saved, ...(saved.releaseId && saved.releaseId !== recipe.releaseId ? { allowReleaseFallback: false } : {}) } : recipe;
+    const changedMetric = current?.indicatorId !== selection.indicatorId;
+    update(key, { ...(changedMetric ? { releases: [], catalog: [] } : {}), selection, data: null, source: null, release: null, health: null });
   },
   setSelection(key: string, recipe: StatisticsRecipe | null) {
+    const previous = getSnapshot(key).selection;
     cancel(key);
     loadedFingerprints.delete(key);
     if (recipe) persisted[key] = recipe; else delete persisted[key];
     try { localStorage.setItem(STORAGE, JSON.stringify(persisted)); } catch { /* Optional browser persistence. */ }
-    update(key, { selection: recipe, data: null, source: null, release: null, health: null, loading: false, error: null });
+    const changedMetric = previous?.datasetId !== recipe?.datasetId || previous?.indicatorId !== recipe?.indicatorId;
+    update(key, { ...(changedMetric ? { releases: [], catalog: [] } : {}), selection: recipe, data: null, source: null, release: null, health: null, loading: false, error: null });
   },
   disable(key: string) {
     cancel(key);

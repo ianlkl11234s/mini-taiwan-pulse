@@ -1,0 +1,385 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=REDACTED
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 人口與社會 People & Society
+- generic: 0/75
+- button
+- generic: └ 人口動態
+- generic: 每月出生數（歷史快照）
+- button
+- generic: └ 教育與少子化
+- generic: 幼兒園－學校端
+- button
+- generic: 幼兒園－老師端
+- button
+- generic: 幼兒園－學生端
+- button
+- generic: 國小－學校端
+- button
+- generic: 國小－老師端
+- button
+- generic: 國小－學生端
+- button
+- generic: 國中－學校端
+- button
+- generic: 國中－老師端
+- button
+- generic: 國中－學生端
+- button
+- generic: 高中－學校端
+- button
+- generic: 高中－老師端
+- button
+- generic: 高中－學生端
+- button
+- generic: └ 醫療與長照
+- button "醫院家數":
+  - text: 醫院家數
+- switch "醫院家數 顯示": 關
+- button "醫院病床":
+  - text: 醫院病床
+- switch "醫院病床 顯示": 關
+- button "醫院人力":
+  - text: 醫院人力
+- switch "醫院人力 顯示": 關
+- generic: 一般護理之家列示護理人員欄位加總
+- button
+- generic: 一般護理之家列示照服員欄位加總
+- button
+- button "一般護理之家床位":
+  - text: 一般護理之家床位
+- switch "一般護理之家床位 顯示": 關
+- button "產後護理床":
+  - text: 產後護理床
+- switch "產後護理床 顯示": 關
+- button "產後護理嬰兒床":
+  - text: 產後護理嬰兒床
+- switch "產後護理嬰兒床 顯示": 關
+- button "照顧服務員登錄":
+  - text: 照顧服務員登錄
+- switch "照顧服務員登錄 顯示": 關
+- generic: 醫療院所每萬人口病床數
+- button
+- generic: 機構每萬人口執業醫事人員數
+- button
+- generic: └ 住宅存量與使用
+- button "住宅：總住宅":
+  - text: 住宅：總住宅
+- switch "住宅：總住宅 顯示": 關
+- button "住宅：有人經常居住":
+  - text: 住宅：有人經常居住
+- switch "住宅：有人經常居住 顯示": 關
+- button "住宅：無人經常居住":
+  - text: 住宅：無人經常居住
+- switch "住宅：無人經常居住 顯示": 關
+- button "住宅：偶爾自住":
+  - text: 住宅：偶爾自住
+- switch "住宅：偶爾自住 顯示": 關
+- button "住宅：其他使用":
+  - text: 住宅：其他使用
+- switch "住宅：其他使用 顯示": 關
+- button "住宅：閒置":
+  - text: 住宅：閒置
+- switch "住宅：閒置 顯示": 關
+- button "有人居住住宅用途":
+  - text: 有人居住住宅用途
+- switch "有人居住住宅用途 顯示": 關
+- generic: └ 犯罪與治安
+- generic: 鄉鎮市區犯罪統計
+- button
+- generic: 交通與運輸 Transport
+- generic: 1/105
+- button
+- generic: └ 建置量
+- button "期末營業里程":
+  - text: 期末營業里程
+- switch "期末營業里程 顯示": 關
+- button "核定路線數":
+  - text: 核定路線數
+- switch "核定路線數 顯示": 關
+- generic: └ 使用與營運
+- button "市區客運業家數":
+  - text: 市區客運業家數
+- switch "市區客運業家數 顯示": 關
+- button "營業行車次數":
+  - text: 營業行車次數
+- switch "營業行車次數 顯示": 關
+- button "營業行車里程":
+  - text: 營業行車里程
+- switch "營業行車里程 顯示": 關
+- generic: 中捷車站所在地出站人次
+- button
+- generic: └ 車輛登記存量
+- button "期末營業車輛":
+  - text: 期末營業車輛
+- switch "期末營業車輛 顯示": 關
+- button "無障礙公車":
+  - text: 無障礙公車
+- switch "無障礙公車 顯示": 關
+- button "電動公車" [expanded] [active]:
+  - text: 電動公車
+- switch "電動公車 顯示" [checked]: 開
+- generic: 口徑
+- combobox "電動公車 類型":
+  - option "原始數"
+  - option "期末電動車輛－每萬名居民"
+  - option "期末電動車輛－每平方公里"
+  - option "電動公車占營業車比" [selected]
+- generic "電動公車占營業車比 資料篩選：期間：民國 114 年；地理涵蓋：全國縣市":
+  - text: 資料篩選
+  - generic "期間：民國 114 年；地理涵蓋：全國縣市": ：期間：民國 114 年；地理涵蓋：全國縣市
+- paragraph: 地理層級：縣市 · 單位：%
+- status: 資料可用狀態：CURRENT
+- paragraph: 已載入 15／22 個區域統計值；灰色區域為缺資料，不等於 0
+- status: 覆蓋狀態：PARTIAL（15／22 縣市）；未分配 未提供
+- generic "來源與處理紀錄"
+- button "Hide"
+- generic: 透明度 0.55
+- slider "透明度 0.55": "0.55"
+- button "機車登記數":
+  - text: 機車登記數
+- switch "機車登記數 顯示": 關
+- button "汽車登記數":
+  - text: 汽車登記數
+- switch "汽車登記數 顯示": 關
+- generic: └ 自行車（臺北市，民國 110 年）
+- generic: 市區自行車租借站數
+- button
+- generic: 市區自行車年租借次數
+- button
+- generic: 河濱公園租借站數
+- button
+- generic: 河濱公園自行車數
+- button
+- generic: 河濱公園年租借次數
+- button
+- generic: └ 道路安全與監測
+- button "A1 交通事故件數":
+  - text: A1 交通事故件數
+- switch "A1 交通事故件數 顯示": 關
+- button "A1 交通事故死亡人數":
+  - text: A1 交通事故死亡人數
+- switch "A1 交通事故死亡人數 顯示": 關
+- button "A1 交通事故受傷人數":
+  - text: A1 交通事故受傷人數
+- switch "A1 交通事故受傷人數 顯示": 關
+- generic: 臺北市交通違規舉發筆數（法條）
+- button
+- generic: 臺中市道路交通噪音監測站數
+- button
+- button "A2 事故件數":
+  - text: A2 事故件數
+- switch "A2 事故件數 顯示": 關
+- button "A2 事故受傷人數":
+  - text: A2 事故受傷人數
+- switch "A2 事故受傷人數 顯示": 關
+- button "A1＋A2 事故件數":
+  - text: A1＋A2 事故件數
+- switch "A1＋A2 事故件數 顯示": 關
+- generic: └ 駕照與停車
+- button "小型汽車路外停車位":
+  - text: 小型汽車路外停車位
+- switch "小型汽車路外停車位 顯示": 關
+- button "小型汽車路邊停車位":
+  - text: 小型汽車路邊停車位
+- switch "小型汽車路邊停車位 顯示": 關
+- button "汽車駕照持有人數":
+  - text: 汽車駕照持有人數
+- switch "汽車駕照持有人數 顯示": 關
+- button "機車駕照持有人數":
+  - text: 機車駕照持有人數
+- switch "機車駕照持有人數 顯示": 關
+- generic: └ 航空運輸
+- generic: 機場所在地起降架次
+- button
+- generic: 機場所在地旅客人次
+- button
+- generic: 機場所在地貨運量
+- button
+- generic: 桃園機場所在地入境旅客人次
+- button
+- generic: 桃園機場所在地出境旅客人次
+- button
+- generic: 桃園機場所在地過境旅客人次
+- button
+- generic: 桃園機場所在地旅客人次總計
+- button
+- generic: └ 運輸補助
+- generic: 航港局獎補助金額（受補助對象所在地）
+- button
+- generic: 民航局獎補助費（受補助對象所在地）
+- button
+- generic: └ 交通用地
+- button "土地：道路用地":
+  - text: 土地：道路用地
+- switch "土地：道路用地 顯示": 關
+- button "土地：鐵路用地":
+  - text: 土地：鐵路用地
+- switch "土地：鐵路用地 顯示": 關
+- button "土地：機場用地":
+  - text: 土地：機場用地
+- switch "土地：機場用地 顯示": 關
+- button "土地：港口用地":
+  - text: 土地：港口用地
+- switch "土地：港口用地 顯示": 關
+- generic: 農林漁牧 Agriculture, Forestry & Fisheries
+- generic: 0/101
+- button
+- generic: └ 農地與設施
+- button "土地：水田用地":
+  - text: 土地：水田用地
+- switch "土地：水田用地 顯示": 關
+- button "土地：旱田用地":
+  - text: 土地：旱田用地
+- switch "土地：旱田用地 顯示": 關
+- button "土地：果園用地":
+  - text: 土地：果園用地
+- switch "土地：果園用地 顯示": 關
+- button "土地：農業生產設施用地":
+  - text: 土地：農業生產設施用地
+- switch "土地：農業生產設施用地 顯示": 關
+- generic: └ 作物生產
+- generic: 全年稻作收穫面積（複種計次）
+- button
+- generic: 作物種植面積
+- button
+- generic: 作物收穫面積
+- button
+- generic: 作物收量
+- button
+- generic: 每公頃收穫量
+- button
+- generic: └ 畜牧用地
+- button "土地：畜禽舍用地":
+  - text: 土地：畜禽舍用地
+- switch "土地：畜禽舍用地 顯示": 關
+- button "土地：牧場用地":
+  - text: 土地：牧場用地
+- switch "土地：牧場用地 顯示": 關
+- generic: └ 畜牧飼養
+- button "畜禽在養與場數":
+  - text: 畜禽在養與場數
+- switch "畜禽在養與場數 顯示": 關
+- generic: └ 漁業生產
+- button "漁業生產量":
+  - text: 漁業生產量
+- switch "漁業生產量 顯示": 關
+- button "漁業生產值":
+  - text: 漁業生產值
+- switch "漁業生產值 顯示": 關
+- generic: └ 水產養殖
+- button "土地：水產養殖用地":
+  - text: 土地：水產養殖用地
+- switch "土地：水產養殖用地 顯示": 關
+- generic: 水產養殖面積
+- button
+- generic: └ 森林用地
+- button "土地：針葉林用地":
+  - text: 土地：針葉林用地
+- switch "土地：針葉林用地 顯示": 關
+- button "土地：闊葉林用地":
+  - text: 土地：闊葉林用地
+- switch "土地：闊葉林用地 顯示": 關
+- button "土地：竹林用地":
+  - text: 土地：竹林用地
+- switch "土地：竹林用地 顯示": 關
+- button "土地：混合林用地":
+  - text: 土地：混合林用地
+- switch "土地：混合林用地 顯示": 關
+- generic: 環境與資源 Environment & Resources
+- generic: 0/10
+- button
+- generic: 地圖參考 Map Reference
+- generic: 0/2
+- button
+- button "◀"
+- button "9/17 (四)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 00:00
+- slider: "0"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 23.8, 120.8 z7 pitch 0 bearing 0
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 電動公車占營業車比
+- generic: 2025 年 · %
+- generic: 資料可用狀態：CURRENT
+- generic: 覆蓋狀態：PARTIAL（15／22 縣市）；未分配 未提供
+- generic: 低於 1
+- generic: 1 至未滿 5
+- generic: 5 至未滿 10
+- generic: 10 至未滿 25
+- generic: 25 以上
+- generic: 灰色：缺資料／未發布數值
+- button "資料來源總覽":

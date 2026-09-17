@@ -1,0 +1,289 @@
+
+> mini-taiwan-pulse@0.1.0 test
+> vitest run
+
+
+ RUN  v3.2.6 /Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse/recovery/statistics-comparability
+
+stdout | src/map/__tests__/pmtilesContract.test.ts > PMTiles 契約 > registry 的 sourceLayer 都存在於切片檔內（打錯 = 圖層永遠空白且不報錯）
+✓ 驗了 17/100 個 PMTiles（其餘本機無檔，由 S3 管理）
+
+ ✓ src/map/__tests__/pmtilesContract.test.ts (2 tests) 133ms
+ ✓ src/map/__tests__/overlayExpressions.test.ts (4 tests) 346ms
+ ✓ src/data/__tests__/statisticsComparisonReleaseGate.test.ts (3 tests) 2229ms
+   ✓ statistics comparison release gate > keeps comparisons local-only for production defaults while preserving raw selectors and education views  1816ms
+ ✓ src/data/__tests__/agriStatisticsContract.test.ts (6 tests) 519ms
+   ✓ 農林漁牧 statistics handoff contract > resolves every one of the 2,748 immutable tuples and intersects only matching public releases  492ms
+ ✓ src/hooks/__tests__/useGlobalEventsLayer.test.ts (18 tests) 833ms
+ ✓ src/data/__tests__/gfwFishingEffortLoader.test.ts (5 tests) 198ms
+ ✓ src/map/__tests__/privateCoralPmtiles.test.ts (9 tests) 238ms
+ ✓ src/data/__tests__/regionalStatisticsLoader.test.ts (18 tests) 183ms
+ ✓ src/components/__tests__/chartHoverTooltip.test.ts (11 tests) 20ms
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > attaches layers, loads current day, and redraws
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > reloads on date change and clears stale data first
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > reloads on date change and clears stale data first
+[Test] loaded day data (2026-06-08)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > discards a slow load that resolves after the date changed (race)
+[Test] loaded day data (2026-06-08)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > redraws on throttled tick with the latest time
+[Test] loaded day data (2026-06-09)
+
+stdout | src/hooks/factories/__tests__/timelineSliceLayer.test.ts > startTimelineSliceController > dispose unsubscribes and hides layers
+[Test] loaded day data (2026-06-09)
+
+ ✓ src/hooks/factories/__tests__/timelineSliceLayer.test.ts (6 tests) 37ms
+ ✓ src/state/__tests__/layerParamsControls.test.ts (23 tests) 55ms
+ ✓ src/data/__tests__/socialStatisticsContract.test.ts (3 tests) 188ms
+ ✓ src/data/__tests__/satelliteHistoryLoader.test.ts (9 tests) 5ms
+ ✓ src/hooks/__tests__/mapInteractionLayers.test.ts (3 tests) 1416ms
+   ✓ GIS 點擊註冊表的 layer id > 引用的每個 layer id 都真的被建立（否則 popup 靜默失效）  985ms
+   ✓ GIS 點擊註冊表的 layer id > statistics 動態 id 必須與 recipe key 和 renderer 成對存在  429ms
+ ✓ src/state/__tests__/layerParamsStore.test.ts (22 tests) 157ms
+ ✓ src/chat/__tests__/lazyAgent.test.ts (4 tests) 98ms
+ ✓ src/hooks/__tests__/useIntelPollingQuery.runtime.test.ts (7 tests) 296ms
+ ✓ src/data/gfwV4SpatialTracksLoader.test.ts (3 tests) 10ms
+ ✓ src/components/featureInfo/__tests__/GlobalEventPanel.test.ts (4 tests) 36ms
+ ✓ src/state/__tests__/statisticsDisplayModeStore.test.ts (11 tests) 29ms
+stdout | src/data/__tests__/classificationCoverage.test.ts > 分類表覆蓋資料實際值 > education/schools.geojson 的 school_level 沒有分類表漏掉的值
+⚠ education/schools.geojson 本機不存在，跳過
+
+stdout | src/data/__tests__/classificationCoverage.test.ts > 分類表覆蓋資料實際值 > education/kindergartens.geojson 的 公/私立 沒有分類表漏掉的值
+⚠ education/kindergartens.geojson 本機不存在，跳過
+
+stdout | src/data/__tests__/classificationCoverage.test.ts > deity_family 上下游 SSOT 一致性 > religionTypes.DEITY_FAMILIES 與上游 deity_family.py 的 family key 相同
+⚠ taipei-gis-analytics 不在 sibling 路徑；跳過跨 repo 檢查
+
+ ✓ src/data/__tests__/classificationCoverage.test.ts (13 tests) 97ms
+ ✓ src/components/intel/__tests__/GlobalEventsTab.test.ts (8 tests) 70ms
+ ✓ src/lib/__tests__/beachball.test.ts (15 tests) 21ms
+ ✓ src/components/featureInfo/__tests__/networkStructuresPanels.test.ts (3 tests) 25ms
+ ✓ src/state/__tests__/medicalStatisticsSelection.test.ts (8 tests) 21ms
+ ✓ src/components/featureInfo/__tests__/registry.test.ts (3 tests) 5ms
+stdout | src/data/__tests__/staticDataContract.test.ts > 靜態 GeoJSON 契約 > registry 引用的靜態 GeoJSON 本機都存在（缺檔 = dev 上該層直接空白）
+⚠ 本機缺 45 個 geojson（應由 S3 管理）：geo/bus_stations_intercity.geojson, geo/bike_stations.geojson, geo/cycling_routes.geojson, geo/weather_stations.geojson, geo/fire_stations.geojson, education/schools.geojson, geo/convenience_stores.geojson, geo/medical_hospitals.geojson, geo/active_faults.geojson, geo/water_basins.geojson, geo/water_protection_zones.geojson, geo/water_dams.geojson, geo/water_detention_basins.geojson, geo/water_facilities.geojson, geo/water_monitor_stations.geojson, agriculture/agri_wholesale_market_companies.geojson, business_registry/common_registration_addresses_202608_r2.geojson, agriculture/feed_factories.geojson, agriculture/livestock_markets.geojson, urban/protected_trees_national.geojson, urban/riverside_trees_taipei.geojson, urban/parks_taipei.geojson, sports/all_venues.geojson, police_justice/police_stations/police_stations_20260626.geojson, police_justice/women_child_warning/women_child_warning_20260626.geojson, police_justice/speed_cameras/speed_cameras_20260626.geojson, police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson, police_justice/courts/courts_20260626.geojson, police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson, police_justice/correctional_facilities/correctional_facilities_20260626.geojson, police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson, police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson, police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson, police_justice/investigation_bureau/investigation_bureau_20260626.geojson, police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson, police_justice/immigration_offices/immigration_offices_20260626.geojson, police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson, tourism/attractions_national.geojson, education/school_district_senior.geojson, education/kindergartens.geojson, education/afterschool_care.geojson, education/mutual_care.geojson, education/university_students.geojson, tourism/hotels_national.geojson, tourism/restaurants_national.geojson
+
+stdout | src/data/__tests__/staticDataContract.test.ts > immutable 靜態資料 checksum contract > business_registry/common_registration_addresses_202608_r2.geojson SHA-256 未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > business_registry/common_registration_addresses_202608_r2.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ business_registry/common_registration_addresses_202608_r2.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/schools.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/schools.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/school_district_senior.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/school_district_senior.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/kindergartens.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/kindergartens.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/afterschool_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/afterschool_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/mutual_care.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/mutual_care.geojson 本機不存在（S3 管理），跳過
+
+stdout | src/data/__tests__/staticDataContract.test.ts > 前端硬依賴欄位契約 > education/university_students.geojson 的關鍵欄位型別/覆蓋率未漂移
+⚠ education/university_students.geojson 本機不存在（S3 管理），跳過
+
+ ✓ src/data/__tests__/staticDataContract.test.ts (39 tests) 5076ms
+   ✓ 靜態 GeoJSON 契約 > 每個檔案都是非空的 FeatureCollection  1966ms
+   ✓ 靜態 GeoJSON 契約 > 座標都在合法經緯度範圍內（抓沒轉 WGS84 的 TWD97 TM2）  1966ms
+   ✓ Ookla 全球格網發佈資產契約 > 保留 Polygon geometry、前端欄位與 z6/z8/z10 三段解析度  725ms
+ ✓ src/lib/__tests__/supabase.test.ts (7 tests) 9ms
+ ✓ src/map/__tests__/regionalStatisticsMap.test.ts (2 tests) 9ms
+stdout | src/map/__tests__/realEstatePointsCustomLayer.test.ts > real estate point buffer lifecycle > 兩個 instance 共用同一個 inflight 讀取
+[realEstatePoints] buffer 載入 ✓ 1 點
+[realEstatePoints] buffer 載入 ✓ 1 點
+
+stdout | src/map/__tests__/realEstatePointsCustomLayer.test.ts > real estate point buffer lifecycle > HTTP 失敗不快取 rejected promise，下一次可重新讀取
+[realEstatePoints] buffer 載入 ✓ 1 點
+
+ ✓ src/map/__tests__/realEstatePointsCustomLayer.test.ts (3 tests) 97ms
+ ✓ src/state/__tests__/layerVisibilityStore.test.ts (22 tests) 45ms
+ ✓ src/components/intel/monitor/__tests__/TelecomStatusCard.test.ts (9 tests) 135ms
+ ✓ src/map/__tests__/h3LayerFactory.test.ts (6 tests) 11ms
+ ✓ src/data/__tests__/loadingRegistryContract.test.ts (2 tests) 61ms
+ ✓ src/data/__tests__/jpMedicalLoader.test.ts (8 tests) 40ms
+ ✓ src/data/__tests__/gfwHourlyTracksLoader.test.ts (17 tests) 81ms
+ ✓ src/data/__tests__/animalWelfarePointsLoader.test.ts (4 tests) 19ms
+ ✓ src/data/__tests__/layerManifest.test.ts (15 tests) 481ms
+ ✓ src/hooks/__tests__/useGfwHourlyGridLayer.test.ts (20 tests) 72ms
+ ✓ src/layers/hosts/__tests__/gridHostsStyleReload.test.ts (1 test) 100ms
+ ✓ src/data/__tests__/gfwHourlyDetailLoader.test.ts (13 tests) 48ms
+ ✓ src/lib/__tests__/layerSearch.test.ts (7 tests) 24ms
+ ✓ src/embed/__tests__/railReplayRange.test.ts (6 tests) 84ms
+ ✓ src/hooks/__tests__/useGfwDarkVesselsLayer.test.ts (4 tests) 4ms
+ ✓ src/components/featureInfo/__tests__/marinePanels.test.ts (6 tests) 16ms
+ ✓ src/data/__tests__/layerGoldenSnapshot.test.ts (15 tests) 339ms
+ ✓ src/data/__tests__/internetHealthLoader.test.ts (25 tests) 110ms
+ ✓ src/components/intel/monitor/__tests__/MonitorDataStatus.test.ts (2 tests) 112ms
+ ✓ src/data/__tests__/globalEventsLoader.test.ts (6 tests) 12ms
+ ✓ src/lib/__tests__/memberSceneAdapter.test.ts (3 tests) 5ms
+ ✓ src/components/intel/monitor/__tests__/powerCardData.test.ts (13 tests) 8ms
+stdout | src/hooks/__tests__/useCwaImageryLayer.test.ts > useCwaImageryLayer visibility lifecycle > Mapbox busy 時關閉雷達仍立即 soft-hide，不等待下一個 load
+[CWA Imagery] O-A0058-005 loaded 1 frames @ 2026-08-25
+
+stdout | src/hooks/__tests__/useCwaImageryLayer.test.ts > useCwaImageryLayer visibility lifecycle > 雲圖關閉拋錯時仍會繼續關閉雷達
+[CWA Imagery] O-C0042-004 loaded 1 frames @ 2026-08-25
+[CWA Imagery] O-A0058-005 loaded 1 frames @ 2026-08-25
+
+ ✓ src/hooks/__tests__/useCwaImageryLayer.test.ts (2 tests) 35ms
+ ✓ src/components/__tests__/CameraHud.test.ts (3 tests) 8ms
+ ✓ src/gfw-v4-bench/acceptanceInstrumentation.test.ts (5 tests) 7ms
+ ✓ src/components/featureInfo/__tests__/CoralReefPanel.test.ts (3 tests) 30ms
+ ✓ src/embed/__tests__/embedPopup.test.ts (12 tests) 52ms
+ ✓ src/map/__tests__/overlayManager.test.ts (34 tests) 10ms
+ ✓ src/components/intel/monitor/__tests__/NewsFeedPanel.test.ts (1 test) 13ms
+ ✓ src/data/__tests__/globalEventCandidates.test.ts (9 tests) 34ms
+ ✓ src/hooks/__tests__/useGfwHourlyTracksLayer.test.ts (9 tests) 33ms
+ ✓ src/components/featureInfo/__tests__/AllenCoralAtlasPanel.test.ts (3 tests) 42ms
+ ✓ src/components/intel/monitor/__tests__/PressureRing.test.ts (1 test) 58ms
+ ✓ src/components/featureInfo/__tests__/JpPoliceFacilitiesPanel.test.ts (5 tests) 67ms
+ ✓ src/hooks/__tests__/mapReadyTickCoverage.test.ts (2 tests) 56ms
+ ✓ src/state/gfwTimelineDataWindow.test.ts (3 tests) 19ms
+ ✓ src/map/__tests__/deployContract.test.ts (19 tests) 60ms
+ ✓ src/components/sidebar/__tests__/StatisticsDetails.test.ts (15 tests) 38ms
+ ✓ src/data/__tests__/globalEventsPresentation.test.ts (14 tests) 75ms
+stderr | src/data/__tests__/noiseLayersContract.test.ts > 噪音／聲響發布資產 > 五個新發布副本存在；裁處沒有第二份 noise 專屬 PMTiles
+⚠ public/environment/noise_capture_grid.pmtiles 本機不存在（deploy-assets 管理），略過內容驗證
+⚠ public/environment/noise_control_zones.pmtiles 本機不存在（deploy-assets 管理），略過內容驗證
+
+ ✓ src/embed/__tests__/replayClock.test.ts (28 tests) 72ms
+ ✓ src/data/__tests__/statisticsPresentationViews.test.ts (5 tests) 70ms
+ ✓ src/data/__tests__/noiseLayersContract.test.ts (12 tests | 2 skipped) 89ms
+ ✓ src/components/sidebar/__tests__/layerConsistency.test.ts (11 tests) 17ms
+ ✓ src/data/__tests__/statisticsGeometryCache.test.ts (7 tests) 29ms
+ ✓ src/chat/tools/__tests__/dataQuery.test.ts (24 tests) 17ms
+ ✓ src/components/intel/monitor/__tests__/monitorPacking.test.ts (15 tests) 41ms
+ ✓ src/map/gfwV4TrackCustomLayer.test.ts (4 tests) 9ms
+ ✓ src/data/__tests__/gfwDarkVesselsLoader.test.ts (5 tests) 13ms
+ ✓ src/state/__tests__/memberLibraryStore.test.ts (6 tests) 24ms
+ ✓ src/gfw-v4-bench/scrubTelemetry.test.ts (2 tests) 4ms
+ ✓ src/components/intel/monitor/__tests__/isrSatellitePassCard.test.ts (20 tests) 23ms
+ ✓ src/hooks/useAllenCoralPrivateAccess.test.ts (2 tests) 11ms
+ ✓ src/embed/__tests__/embedWhitelist.test.ts (32 tests | 1 skipped) 33ms
+ ✓ src/components/intel/monitor/__tests__/monitorResourceCards.test.ts (8 tests) 15ms
+ ✓ src/data/__tests__/isrSatellitePassesLoader.test.ts (6 tests) 13ms
+ ✓ src/data/__tests__/layerUxPolicy.test.ts (8 tests) 25ms
+ ✓ src/hooks/__tests__/useMarineObservationLayer.test.ts (5 tests) 36ms
+ ✓ src/data/__tests__/gfwHourlyGridLoader.test.ts (9 tests) 12ms
+ ✓ src/gfw-v4-bench/contract.test.ts (18 tests) 7ms
+ ✓ src/data/__tests__/marineObservationLoader.test.ts (4 tests) 26ms
+ ✓ src/map/__tests__/crimeAreaMonthlyAsset.test.ts (1 test) 18ms
+ ✓ src/lib/__tests__/loaderCache.test.ts (13 tests) 13ms
+ ✓ src/data/__tests__/hazardLoaders.test.ts (40 tests) 34ms
+ ✓ src/hooks/__tests__/useMapInteraction.test.ts (8 tests) 36ms
+ ✓ src/data/__tests__/satelliteTypes.test.ts (31 tests) 31ms
+ ✓ src/lib/__tests__/urlState.test.ts (71 tests) 31ms
+ ✓ src/state/__tests__/layerParamsSharedState.test.ts (3 tests) 10ms
+ ✓ src/data/__tests__/religionTypes.test.ts (2 tests) 2ms
+ ✓ src/bbox/gfwTrackContract.test.ts (4 tests) 5ms
+ ✓ src/data/__tests__/energyLoader.test.ts (9 tests) 5ms
+ ✓ src/lib/__tests__/allenSignOut.test.ts (6 tests) 15ms
+ ✓ src/embed/__tests__/railGeometryManifest.test.ts (22 tests) 11ms
+ ✓ src/data/__tests__/statisticsLayerRegistry.test.ts (9 tests) 6ms
+ ✓ src/gfw-v4-bench/adapters.test.ts (4 tests) 5ms
+ ✓ src/data/gfwV4SpatialViewport.test.ts (6 tests) 6ms
+ ✓ src/chat/tools/__tests__/layerDetails.test.ts (7 tests) 7ms
+ ✓ src/hooks/__tests__/useGfwFishingEffortLayer.test.ts (6 tests) 10ms
+ ✓ src/hooks/useAllenCoralAtlasLayer.test.ts (6 tests) 8ms
+ ✓ src/data/gfwV4SpatialFrame.test.ts (9 tests) 6ms
+ ✓ src/hooks/__tests__/useJpReligionLayers.test.ts (1 test) 4ms
+ ✓ src/state/__tests__/regionalStatisticsStore.test.ts (5 tests) 4ms
+ ✓ src/hooks/useCoralReefDistributionLayer.test.ts (4 tests) 12ms
+ ✓ src/data/__tests__/medicalStatisticsGroups.test.ts (8 tests) 5ms
+ ✓ src/components/intel/__tests__/globalSituationFeed.test.ts (16 tests) 54ms
+ ✓ src/three/GfwV4TrackScene.test.ts (11 tests) 16ms
+ ✓ src/data/transportHubTypes.test.ts (3 tests) 10ms
+ ✓ src/map/__tests__/gfwPmtilesSourceType.test.ts (6 tests) 13ms
+ ✓ src/data/__tests__/gfwHourlyGridPlayback.test.ts (18 tests) 15ms
+ ✓ src/data/__tests__/socialStatisticsRouting.test.ts (4 tests) 4ms
+ ✓ src/data/__tests__/shipTrails.test.ts (15 tests) 8ms
+ ✓ src/hooks/__tests__/useGlobalMaritimeLayers.test.ts (2 tests) 45ms
+ ✓ src/hooks/useGfwV4TracksLayer.test.ts (3 tests) 2ms
+ ✓ src/data/__tests__/monitorResourceLoaders.test.ts (9 tests) 5ms
+ ✓ src/gfw-v4-bench/frame.test.ts (3 tests) 3ms
+stdout | src/data/__tests__/upstreamRegistry.test.ts > UPSTREAM_REGISTRY consistency > every verified datasetId exists in catalog (skips if sibling repo absent)
+⚠ taipei-gis-analytics not at sibling path; skipping cross-repo check
+
+ ✓ src/data/__tests__/upstreamRegistry.test.ts (6 tests) 5ms
+ ✓ src/map/__tests__/mapInstanceEvents.test.ts (4 tests) 5ms
+ ✓ src/gfw-v4-bench/cache.test.ts (3 tests) 4ms
+ ✓ src/data/__tests__/memberLibraryLoader.test.ts (3 tests) 8ms
+ ✓ src/chat/tools/__tests__/mapTools.test.ts (2 tests) 16ms
+ ✓ src/data/__tests__/jpTourismLoader.test.ts (3 tests) 2ms
+ ✓ src/hooks/__tests__/useMonitorDashboardData.test.ts (2 tests) 4ms
+ ✓ src/components/__tests__/TimeseriesSparkline.test.ts (14 tests) 4ms
+ ✓ src/layers/__tests__/layerHookRegistry.test.ts (6 tests) 3ms
+ ✓ src/data/__tests__/vesselWatchFrame.test.ts (12 tests) 4ms
+ ✓ src/lib/__tests__/coralPrivateUi.test.ts (4 tests) 2ms
+ ✓ src/data/gfwV4TrackFrameProtocol.test.ts (11 tests) 3ms
+ ✓ src/data/__tests__/intelLoaders.test.ts (6 tests) 8ms
+ ✓ src/lib/__tests__/layerGates.test.ts (6 tests) 4ms
+ ✓ src/data/__tests__/networkStructuresTypes.test.ts (2 tests) 2ms
+ ✓ src/state/__tests__/layerParamRefs.test.ts (3 tests) 7ms
+ ✓ src/gfw-v4-bench/metrics.test.ts (4 tests) 6ms
+ ✓ src/data/__tests__/globalMaritimeLoader.test.ts (2 tests) 3ms
+ ✓ src/hooks/__tests__/useMonitorResource.test.ts (3 tests) 24ms
+ ✓ src/data/__tests__/animalShelterOutcomesLoader.test.ts (3 tests) 3ms
+ ✓ src/hooks/useTimeline.test.ts (6 tests) 9ms
+ ✓ src/lib/__tests__/accessDenied.test.ts (8 tests) 2ms
+ ✓ src/data/__tests__/satelliteManeuversLoader.test.ts (7 tests) 3ms
+ ✓ src/lib/__tests__/coralLocalUrl.test.ts (2 tests) 5ms
+ ✓ src/data/__tests__/multiSelectMapbox.test.ts (3 tests) 7ms
+ ✓ src/data/__tests__/statisticsColorScale.test.ts (2 tests) 7ms
+ ✓ src/data/__tests__/businessRegistryTypes.test.ts (9 tests) 23ms
+ ✓ src/hooks/__tests__/useRealEstatePointsLayer.test.ts (1 test) 10ms
+ ✓ src/gfw-v4-bench/automation.test.ts (1 test) 3ms
+ ✓ src/data/__tests__/temperatureWavePalette.test.ts (1 test) 4ms
+ ✓ src/lib/__tests__/memberSchema.test.ts (6 tests) 12ms
+ ✓ src/components/sidebar/__tests__/statisticsTabCatalog.test.ts (7 tests) 181ms
+ ✓ src/data/gfwV4SpatialMvt.test.ts (2 tests) 2ms
+ ✓ src/data/gfwV4TrackPicking.test.ts (3 tests) 4ms
+ ✓ src/state/__tests__/dateNotifier.test.ts (6 tests) 5ms
+ ✓ src/data/__tests__/gfwHourlyReleaseManifest.test.ts (3 tests) 3ms
+ ✓ src/hooks/__tests__/useIntelPollingQuery.test.ts (4 tests) 41ms
+ ✓ src/bbox/bboxSelection.test.ts (5 tests) 6ms
+ ✓ src/hooks/useJpPoliceFacilitiesLayer.test.ts (3 tests) 90ms
+ ✓ src/embed/__tests__/cameraBridge.test.ts (3 tests) 13ms
+ ✓ src/data/__tests__/climateFrames.test.ts (13 tests) 5ms
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/campus_polygon.pmtiles 的 school_level 分色表涵蓋切片內所有值
+⚠ public/education/campus_polygon.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/campus_polygon.pmtiles 的 feature 數仍是 4336
+⚠ public/education/campus_polygon.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/cram_schools.pmtiles 的 短期補習班類別 分色表涵蓋切片內所有值
+⚠ public/education/cram_schools.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/cram_schools.pmtiles 的 feature 數仍是 17137
+⚠ public/education/cram_schools.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/school_district_k12.pmtiles 的 precision 分色表涵蓋切片內所有值
+⚠ public/education/school_district_k12.pmtiles 不存在，skip
+
+stdout | src/data/__tests__/pmtilesClassificationCoverage.test.ts > PMTiles 分類覆蓋 > education/school_district_k12.pmtiles 的 feature 數仍是 860
+⚠ public/education/school_district_k12.pmtiles 不存在，skip
+
+ ✓ src/data/__tests__/pmtilesClassificationCoverage.test.ts (6 tests) 5ms
+ ✓ src/hooks/__tests__/animalWelfarePointsLayer.test.ts (2 tests) 18ms
+ ✓ src/hooks/__tests__/jpMedicalAggregates.test.ts (2 tests) 4ms
+ ✓ src/data/jpMedicalTypes.test.ts (3 tests) 2ms
+ ✓ src/data/__tests__/allenCoralAtlasTypes.test.ts (2 tests) 9ms
+ ✓ src/data/__tests__/animalAdoptionLoader.test.ts (3 tests) 4ms
+ ✓ src/lib/__tests__/smoke.test.ts (1 test) 2ms
+ ✓ src/data/gfwV4Range.test.ts (2 tests) 5ms
+ ✓ src/three/__tests__/StationPillarScene.test.ts (2 tests) 2ms
+ ↓ src/data/__tests__/socialStatisticsDelivery.test.ts (1 test | 1 skipped)
+
+ Test Files  173 passed | 1 skipped (174)
+      Tests  1426 passed | 4 skipped (1430)
+   Start at  20:40:41
+   Duration  24.37s (transform 13.04s, setup 0ms, collect 66.65s, tests 16.55s, environment 28ms, prepare 25.31s)

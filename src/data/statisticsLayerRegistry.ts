@@ -1,5 +1,7 @@
+import { COMPARISON_STATISTICS_KEYS } from './comparisonStatisticsKeys';
 import type { LayerVisibility } from "../types";
-import { STATISTICS_KEYS, type StatisticsLayerKey } from "./regionalStatisticsRecipes";
+import { STATISTICS_KEYS, STATISTICS_RENDER_KEYS, type StatisticsLayerKey } from "./regionalStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEW_KEYS } from "./statisticsPresentationViews";
 import { AGRI_ENABLED_STATISTICS_RECIPES, AGRI_EXISTING_LAYER_REFERENCES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
 
@@ -15,8 +17,10 @@ export { AGRI_EXISTING_LAYER_REFERENCES };
 
 /** Statistics tab 的圖層角色是 UI 行為契約，不從 tab 的顯示陣列推測。 */
 export const STATISTICS_TAB_LAYER_ROLES = {
+  ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, "choropleth"])),
   ...AGRI_STATISTICS_TAB_LAYER_ROLES,
   ...SOCIAL_STATISTICS_TAB_LAYER_ROLES,
+  ...Object.fromEntries(EDUCATION_PRESENTATION_VIEW_KEYS.map(key => [key, "choropleth"])),
   statsWasteCounty: "choropleth",
   statsRecyclingCounty: "choropleth",
   statsWasteRecyclingRate: "choropleth",
@@ -46,7 +50,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
 } as const satisfies Partial<Record<keyof LayerVisibility, "choropleth" | "boundary">>;
 
 export const STATISTICS_CHOROPLETH_KEYS = [
-  ...STATISTICS_KEYS,
+  ...STATISTICS_RENDER_KEYS,
   "crimeAreaMonthly",
 ] as const satisfies readonly (keyof LayerVisibility)[];
 
