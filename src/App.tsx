@@ -380,6 +380,7 @@ export default function App() {
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
   // EM-19：底圖樣式吃網址的 style=（未知 id 由 getStyleUrl 自行 fallback 到預設）
   const [mapStyleId, setMapStyleId] = useState(() => urlStateRef.current.style ?? "dark");
+  const [showBasemapLabels, setShowBasemapLabels] = useState(true);
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
@@ -1737,7 +1738,7 @@ export default function App() {
         renderMode={renderMode}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
-
+        showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
 
@@ -1892,6 +1893,24 @@ export default function App() {
               isDarkTheme={isDarkTheme}
               onChange={setMapStyleId}
             />
+            <button
+              type="button"
+              aria-pressed={showBasemapLabels}
+              title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
+              onClick={() => setShowBasemapLabels((visible) => !visible)}
+              style={{
+                background: isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+                color: isDarkTheme ? "#fff" : "#333",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                borderRadius: RADIUS.md,
+                padding: "4px 8px",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
+                cursor: "pointer",
+              }}
+            >
+              地名：{showBasemapLabels ? "開" : "關"}
+            </button>
 
             {loading && (
               <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
@@ -2580,6 +2599,14 @@ export default function App() {
                         isDarkTheme={true}
                         onChange={setMapStyleId}
                       />
+                      <button
+                        type="button"
+                        aria-pressed={showBasemapLabels}
+                        onClick={() => setShowBasemapLabels((visible) => !visible)}
+                        style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", borderRadius: RADIUS.md, padding: "4px 8px", fontSize: FONT_SIZE.md, fontFamily: FONT_DATA }}
+                      >
+                        地名：{showBasemapLabels ? "開" : "關"}
+                      </button>
                     </div>
                     <LocationJump
                       isDarkTheme={true}

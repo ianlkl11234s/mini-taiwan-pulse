@@ -1,3 +1,4 @@
+import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig } from "../types";
 import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
@@ -105,14 +106,21 @@ import {
   commonRegistrationRadiusExpr,
   companyCapitalQColorExpr,
   companyGridColorExpr,
+  companyGridDensityColorExpr,
+  COMPANY_INDUSTRY_MID_OPTIONS,
   COMPANY_GRID_SCALES,
   type CompanyGridScale,
+  companyPointFiltersActive,
   companyPointFilter,
   FACTORY_LOCATION_COLOR,
   INDUSTRIAL_PARK_COLOR,
   REGULATED_FACILITY_COLOR,
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
+import {
+  COMPANY_DEMOGRAPHICS_SCALES, COMPANY_INDUSTRY_GROUPS, companyAgeColorExpr,
+  companyIndustryDominantColorExpr, companyDemographicsDensityColorExpr, companyDemographicsSumExpr, companyIndustryFields,
+} from "../data/businessDemographicsTypes";
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 import {
@@ -162,6 +170,24 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
   };
 }
 
+function industrialDensityOverlay(id: IndustrialDensityKey, source: ReturnType<typeof industrialDensitySources>[number]): OverlayConfig {
+  const coarse = source.size === 1500;
+  return {
+    id, sourceId: source.sourceId, sourceUrl: source.url,
+    pmtiles: { sourceLayer: source.sourceLayer, minzoom: source.minzoom, maxzoom: source.maxzoom },
+    layers: [{ suffix: "fill", type: "fill", minzoom: coarse ? 4 : 10, ...(coarse ? { maxzoom: 10.01 } : {}),
+      paint: (_isDark, params) => {
+        const opacity = params?.[`${id}Opacity`] ?? 0.85;
+        return {
+          "fill-color": industrialDensityColorExpr(),
+          // roundZoom bridge 保持 source 活躍，精確 z10 切換可見尺度。
+          "fill-opacity": coarse ? ["interpolate", ["linear"], ["zoom"], 4, opacity, 9.999, opacity, 10, 0] : opacity,
+        };
+      },
+    }],
+  };
+}
+
 function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
   const scaleIdx = Number(scale.value);
   return {
@@ -174,7 +200,7 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
         suffix: "fill", type: "fill", minzoom: 4,
         paint: (_isDark, p) => ({
           "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx),
-          "fill-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+          "fill-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
       {
@@ -182,10 +208,73 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
         paint: (isDark, p) => ({
           "line-color": isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.18)",
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.15, 14, 0.55],
-          "line-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+          "line-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
     ],
+  };
+}
+
+/** B1 概覽：與 B2 共用格網 source，但 suffix 必須獨立，避免 Mapbox layer id 衝突。 */
+function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig {
+  const is1500m = scale.value === "2";
+  const overviewStartZoom = is1500m ? 4 : 10;
+  const overviewEndZoom = is1500m ? 10 : 12;
+  return {
+    id: "companyPoints",
+    sourceUrl: scale.sourceUrl,
+    sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [{
+      suffix: "company-overview-density-fill", type: "fill",
+      minzoom: is1500m ? 4 : 10,
+      // mapbox-pmtiles 的 vector source 固定 roundZoom=true：交界前會先取下一級 tile。
+      // 0.01 bridge 只維持 source 可取；paint 在精確交界 zoom 歸零，尺度不重疊。
+      maxzoom: overviewEndZoom + 0.01,
+      // 格網未套用 detail filter，filters active 時絕不可顯示為篩選後總量。
+      layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
+      paint: (_isDark, p) => ({
+        "fill-color": companyGridDensityColorExpr(scale),
+        // 依使用者 opacity 顯示；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"],
+          overviewStartZoom, (p?.companyPointsOpacity ?? 0.82),
+          overviewEndZoom - 0.001, (p?.companyPointsOpacity ?? 0.82),
+          overviewEndZoom, 0,
+        ],
+      }),
+    }],
+  };
+}
+
+function companyDemographicsOverlay(id: "companyIndustryDistribution" | "companyAgeStructure", scale: (typeof COMPANY_DEMOGRAPHICS_SCALES)[number]): OverlayConfig {
+  const is1500m = scale.value === "1500";
+  const start = is1500m ? 4 : 10;
+  const end = is1500m ? 10 : undefined;
+  return {
+    id, sourceUrl: scale.sourceUrl, sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [{
+      suffix: `${id}-demographics-fill`, type: "fill", minzoom: start, ...(end === undefined ? {} : { maxzoom: end + 0.01 }),
+      layout: (_isDark, p) => id === "companyIndustryDistribution"
+        && (p?.companyIndustryDistributionMidIdx ?? 0) === 0
+        && (p?.companyIndustryGroupsMask ?? ((1 << COMPANY_INDUSTRY_GROUPS.length) - 1)) === 0
+        ? { visibility: "none" } : { visibility: "visible" },
+      paint: (_isDark, p) => {
+        const opacity = p?.[`${id}Opacity`] ?? (id === "companyAgeStructure" ? 0.85 : 0.68);
+        const mask = p?.companyIndustryGroupsMask ?? 2047;
+        const midIdx = p?.companyIndustryDistributionMidIdx ?? 0;
+        const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
+        const color = id === "companyIndustryDistribution"
+          ? (p?.companyIndustryDisplayIdx ?? 0) === 1
+            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale)
+            : companyIndustryDominantColorExpr(mask, midCode)
+          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0);
+        const zoomOpacity: number | unknown[] = end === undefined
+          ? opacity
+          : ["interpolate", ["linear"], ["zoom"], start, opacity, end - 0.001, opacity, end, 0];
+        return { "fill-color": color, "fill-opacity": zoomOpacity };
+      },
+    }],
   };
 }
 
@@ -3873,34 +3962,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 🏢 工商登記 Business Registry ──
-  // B1/A4 共用詳細點與低倍率概覽 source。概覽格的數量納入全部可發布座標 records，
-  // z4–11 看整體分佈，z12+ 才切至可點擊的個別公司，避免低 zoom 同時傳輸 65 萬個名稱。
-  {
-    id: "companyPoints",
-    sourceUrl: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
-    sourceId: "business-registry-company-points-overview",
-    pmtiles: { sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11 },
-    layers: [
-      {
-        suffix: "company-overview-circle", type: "circle", minzoom: 4, maxzoom: 12,
-        paint: (isDark, p) => {
-          const scale = p?.companyPointsScale ?? 1;
-          const opacity = p?.companyPointsOpacity ?? 0.8;
-          return {
-            "circle-radius": [
-              "interpolate", ["linear"], ["to-number", ["get", "n_companies"], 0],
-              1, 1.3 * scale, 100, 2.6 * scale, 1_000, 5 * scale, 10_000, 9 * scale,
-            ],
-            "circle-color": "#2563eb",
-            "circle-opacity": opacity,
-            "circle-stroke-color": isDark ? "#93c5fd" : "#1e3a8a",
-            "circle-stroke-width": 0.35,
-            "circle-stroke-opacity": opacity,
-          };
-        },
-      },
-    ],
-  },
+  // B1：z4–9 為 1.5km、z10–11 為 450m 格網密度；z12+ 才是可點擊個別公司。
+  // B2 手動尺度選擇只由 id === companyCapitalGrid 的 engine gate 處理，不影響此處。
+  ...[COMPANY_GRID_SCALES[2], COMPANY_GRID_SCALES[1]].map(companyPointsDensityGridOverlay),
+  ...COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => companyDemographicsOverlay("companyIndustryDistribution", scale)),
+  ...COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => companyDemographicsOverlay("companyAgeStructure", scale)),
   {
     id: "companyPoints",
     sourceUrl: "./business_registry/company_points_202608_r2.pmtiles",
@@ -3928,45 +3994,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "manufacturingCompanyPoints",
-    sourceUrl: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
-    sourceId: "business-registry-company-points-overview",
-    pmtiles: { sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11 },
+    sourceUrl: "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles",
+    sourceId: "business-registry-manufacturing-company-points",
+    pmtiles: { sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     layers: [
       {
-        suffix: "manufacturing-overview-circle", type: "circle", minzoom: 4, maxzoom: 12,
-        filter: [">", ["to-number", ["get", "n_manufacturing"], 0], 0],
+        suffix: "manufacturing-circle", type: "circle", minzoom: 0,
         paint: (isDark, p) => {
           const scale = p?.manufacturingCompanyPointsScale ?? 1;
           const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
           return {
-            "circle-radius": [
-              "interpolate", ["linear"], ["to-number", ["get", "n_manufacturing"], 0],
-              1, 1.4 * scale, 50, 2.8 * scale, 500, 5.2 * scale, 5_000, 9 * scale,
-            ],
-            "circle-color": "#f97316",
-            "circle-opacity": opacity,
-            "circle-stroke-color": isDark ? "#fdba74" : "#7c2d12",
-            "circle-stroke-width": 0.35,
-            "circle-stroke-opacity": opacity,
-          };
-        },
-      },
-    ],
-  },
-  {
-    id: "manufacturingCompanyPoints",
-    sourceUrl: "./business_registry/company_points_202608_r2.pmtiles",
-    sourceId: "business-registry-company-points",
-    pmtiles: { sourceLayer: "company_points", minzoom: 8, maxzoom: 14 },
-    filter: ["==", ["get", "is_manufacturing"], 1],
-    layers: [
-      {
-        suffix: "manufacturing-circle", type: "circle", minzoom: 12,
-        paint: (isDark, p) => {
-          const scale = p?.manufacturingCompanyPointsScale ?? 1;
-          const opacity = p?.manufacturingCompanyPointsOpacity ?? 0.82;
-          return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 12, 2.2 * scale, 14, 3.5 * scale, 17, 6.4 * scale],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 12, 2.2 * scale, 14, 3.5 * scale, 17, 6.4 * scale],
             "circle-color": companyCapitalQColorExpr(),
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "#431407" : "#ffffff",
@@ -3979,45 +4017,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   ...COMPANY_GRID_SCALES.map(companyCapitalGridOverlay),
   ...JP_ACCOMMODATION_DENSITY_SCALES.map(jpAccommodationDensityOverlay),
+  ...INDUSTRIAL_DENSITY_DATASETS.flatMap(({ key }) => industrialDensitySources(key).map((source) => industrialDensityOverlay(key, source))),
   {
     id: "factoryLocations",
-    sourceUrl: "./business_registry/factory_locations_overview_1500m_202606.pmtiles",
-    sourceId: "business-registry-factory-locations-overview",
-    pmtiles: { sourceLayer: "factory_locations_overview", minzoom: 4, maxzoom: 10 },
-    layers: [
-      {
-        suffix: "circle", type: "circle", minzoom: 4, maxzoom: 11,
-        paint: (isDark, p) => {
-          const scale = p?.factoryLocationsScale ?? 1;
-          const opacity = p?.factoryLocationsOpacity ?? 0.76;
-          return {
-            "circle-radius": [
-              "interpolate", ["linear"], ["to-number", ["get", "n_factories"], 0],
-              1, 1.4 * scale, 25, 2.8 * scale, 250, 5.2 * scale, 2_500, 9 * scale,
-            ],
-            "circle-color": FACTORY_LOCATION_COLOR,
-            "circle-opacity": opacity,
-            "circle-stroke-color": isDark ? "#5eead4" : "#134e4a",
-            "circle-stroke-width": 0.35,
-            "circle-stroke-opacity": opacity,
-          };
-        },
-      },
-    ],
-  },
-  {
-    id: "factoryLocations",
-    sourceUrl: "./business_registry/factory_locations_202606.pmtiles",
+    sourceUrl: "./business_registry/factory_locations_202606_allzoom.pmtiles",
     sourceId: "business-registry-factory-locations",
-    pmtiles: { sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14 },
+    pmtiles: { sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     layers: [
       {
-        suffix: "circle", type: "circle", minzoom: 11,
+        suffix: "circle", type: "circle", minzoom: 0,
         paint: (isDark, p) => {
           const scale = p?.factoryLocationsScale ?? 1;
           const opacity = p?.factoryLocationsOpacity ?? 0.76;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": FACTORY_LOCATION_COLOR,
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "#042f2e" : "#ffffff",
@@ -4030,17 +4043,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "regulatedFacilities",
-    sourceUrl: "./business_registry/regulated_facilities_20260818.pmtiles",
+    sourceUrl: "./business_registry/regulated_facilities_20260818_allzoom.pmtiles",
     sourceId: "business-registry-regulated-facilities",
-    pmtiles: { sourceLayer: "regulated_facilities", minzoom: 5, maxzoom: 14 },
+    pmtiles: { sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     layers: [
       {
-        suffix: "circle", type: "circle", minzoom: 11,
+        suffix: "circle", type: "circle", minzoom: 0,
         paint: (isDark, p) => {
           const scale = p?.regulatedFacilitiesScale ?? 1;
           const opacity = p?.regulatedFacilitiesOpacity ?? 0.72;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 0.7 * scale, 7, 1 * scale, 11, 2 * scale, 14, 4.5 * scale, 17, 7 * scale],
             "circle-color": REGULATED_FACILITY_COLOR,
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "#451a03" : "#ffffff",

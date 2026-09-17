@@ -95,6 +95,8 @@ interface MapViewProps {
   renderMode: RenderMode;
   isDarkTheme?: boolean;
   showTrails?: boolean;
+  /** 是否顯示 Mapbox 底圖自身的地名文字；不影響任何業務資料圖層。 */
+  showBasemapLabels?: boolean;
   /**
    * ⚠️ AR-21：`layerVisibility` 已不是 prop —— 改直接讀 `layerVisibilityStore`。
    * overlay 的顯示/隱藏是純命令式的地圖操作，不需要先經過一次 React re-render。
@@ -177,7 +179,40 @@ function applyPureBlackTheme(map: mapboxgl.Map): void {
   }
 }
 
-export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, overlayParams: overlayParamsProp, onMapReady }: MapViewProps) {
+/**
+ * 僅控制 Mapbox composite 底圖中原本可見的文字 symbol。
+ *
+ * 不以 layer id 猜測，避免誤傷自家 overlay；也不碰 style 原本設為 none 的 layer，
+ * 因此開回標籤時不會改寫各底圖既有的顯示決策。
+ */
+function setBasemapLabelsVisible(
+  map: mapboxgl.Map,
+  visible: boolean,
+  hiddenLayerIds: Set<string>,
+): void {
+  if (visible) {
+    for (const id of hiddenLayerIds) {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
+    }
+    hiddenLayerIds.clear();
+    return;
+  }
+
+  for (const layer of map.getStyle().layers ?? []) {
+    const source = (layer as { source?: string }).source;
+    const layout = (layer as { layout?: Record<string, unknown> }).layout;
+    if (
+      layer.type !== "symbol"
+      || source !== "composite"
+      || layout?.visibility === "none"
+      || layout?.["text-field"] === undefined
+    ) continue;
+    map.setLayoutProperty(layer.id, "visibility", "none");
+    hiddenLayerIds.add(layer.id);
+  }
+}
+
+export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, showBasemapLabels = true, overlayParams: overlayParamsProp, onMapReady }: MapViewProps) {
   // AR-22 P4：主站走 store 訂閱、embed 走 prop（同 LegendPanel 的 AR-21 模式）。
   // hook 無條件呼叫；embed 情境下這份訂閱是惰性的（embed 從不寫 store）。
   const storeOverlayParams = useOverlayParams();
@@ -194,6 +229,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const isDarkThemeRef = useRef(isDarkTheme);
   const pureBlackRef = useRef(pureBlack);
   const showTrailsRef = useRef(showTrails);
+  const showBasemapLabelsRef = useRef(showBasemapLabels);
+  const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
 
   onMapReadyRef.current = onMapReady;
@@ -203,6 +240,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   isDarkThemeRef.current = isDarkTheme;
   pureBlackRef.current = pureBlack;
   showTrailsRef.current = showTrails;
+  showBasemapLabelsRef.current = showBasemapLabels;
   overlayParamsRef.current = overlayParams;
 
   useEffect(() => {
@@ -224,6 +262,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     map.on("style.load", () => {
       // Pure Black 配色：在加 overlay 前先壓 Mapbox 原生底圖層
       if (pureBlackRef.current) applyPureBlackTheme(map);
+      // style 切換後，僅重設我們曾隱藏的底圖文字標籤記錄。
+      hiddenBasemapLabelLayerIdsRef.current.clear();
+      setBasemapLabelsVisible(map, showBasemapLabelsRef.current, hiddenBasemapLabelLayerIdsRef.current);
       setupTerrain(map);
 
       // PMTiles SourceType 須在任何 pmtiles source addSource 前註冊（水利層走 overlayRegistry）
@@ -366,6 +407,13 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pureBlack]);
+
+  // 地名標籤設定不觸發 setStyle；切換底圖時由上方 style.load 以同一設定重新套用。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current) return;
+    setBasemapLabelsVisible(map, showBasemapLabels, hiddenBasemapLabelLayerIdsRef.current);
+  }, [showBasemapLabels]);
 
   // 切換機場時平滑飛行
   useEffect(() => {

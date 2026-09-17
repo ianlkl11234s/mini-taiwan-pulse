@@ -17,6 +17,7 @@ import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
+import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 
 interface TooltipInfo {
   flight: Flight;
@@ -370,9 +371,19 @@ export function useMapInteraction(
         ];
         let found = false;
         for (const { layers: layerIds, type } of GIS_LAYERS) {
-          const existingIds = layerIds.filter((id) => map.getLayer(id));
+          const existingIds = layerIds.filter((id) => {
+            if (!map.getLayer(id)) return false;
+            // PMTiles roundZoom bridge 令 z10 兩尺度都存在；popup 必依真實 zoom 選尺度，
+            // 不能讓 opacity=0 的舊格網先命中。
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid") {
+              return map.getZoom() >= 10 ? id.includes("-450-") : id.includes("-1500-");
+            }
+            return true;
+          });
           if (existingIds.length === 0) continue;
-          const queried = map.queryRenderedFeatures(bbox, { layers: existingIds });
+          // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" ? e.point : bbox;
+          const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
           // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
@@ -406,6 +417,9 @@ export function useMapInteraction(
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.
             let properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
+              properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
+            }
             // H17 同位置可能有多筆服務；保留目前篩選可見的登記，避免 first-hit 隱藏其他服務。
             if (type === "jpMedicalCare" && g?.type === "Point") {
               const origin = g.coordinates;
