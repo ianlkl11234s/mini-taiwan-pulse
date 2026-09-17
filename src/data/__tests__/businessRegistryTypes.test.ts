@@ -3,6 +3,8 @@ import {
   COMPANY_GRID_SCALES,
   COMPANY_INDUSTRY_MID_OPTIONS,
   companyGridColorExpr,
+  companyGridDensityColorExpr,
+  companyPointFiltersActive,
   companyPointFilter,
   INDUSTRIAL_PARK_COMPARISON_MODES,
   industrialParkComparisonColorExpr,
@@ -35,19 +37,15 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     expect(filter[0]).toBe("all");
   });
 
-  it("A4 與 B1 共用 source，且只用 is_manufacturing=1", () => {
+  it("A4 保持既有總覽 source，且只用 is_manufacturing=1", () => {
     const b1 = OVERLAY_REGISTRY.find((c) => c.id === "companyPoints" && c.pmtiles?.sourceLayer === "company_points")!;
     const a4 = OVERLAY_REGISTRY.find((c) => c.id === "manufacturingCompanyPoints" && c.pmtiles?.sourceLayer === "company_points")!;
     expect(a4.sourceId).toBe(b1.sourceId);
     expect(a4.sourceUrl).toBe(b1.sourceUrl);
     expect(a4.pmtiles?.sourceLayer).toBe("company_points");
     expect(a4.filter).toEqual(["==", ["get", "is_manufacturing"], 1]);
-    const overview = OVERLAY_REGISTRY.filter((c) =>
-      (c.id === "companyPoints" || c.id === "manufacturingCompanyPoints") &&
-      c.pmtiles?.sourceLayer === "company_points_overview"
-    );
-    expect(overview).toHaveLength(2);
-    expect(overview.every((c) => c.layers[0]?.minzoom === 4 && c.layers[0]?.maxzoom === 12)).toBe(true);
+    const overview = OVERLAY_REGISTRY.filter((c) => c.id === "manufacturingCompanyPoints" && c.pmtiles?.sourceLayer === "company_points_overview");
+    expect(overview).toHaveLength(1);
   });
 
   it("B2 capital_median 缺值明確落 neutral case", () => {
@@ -67,6 +65,31 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     const visibility = { companyCapitalGrid: true } as LayerVisibility;
     expect(grids.map((grid) => isOverlayVisible(grid, visibility, { companyGridScaleIdx: 1 })))
       .toEqual([false, true, false]);
+  });
+
+  it("B1 隨 zoom 切 1.5km / 450m 網格密度；其色階不隨 B2 手動尺度而變", () => {
+    const overview = OVERLAY_REGISTRY.filter((c) => c.id === "companyPoints" && c.layers[0]?.suffix === "company-overview-density-fill");
+    expect(overview.map((c) => [c.pmtiles?.sourceLayer, c.layers[0]?.minzoom, c.layers[0]?.maxzoom])).toEqual([
+      ["company_capital_grid_1500m", 4, 10.01],
+      ["company_capital_grid_450m", 10, 12.01],
+    ]);
+    expect(JSON.stringify(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1]))).toContain('"n_companies"');
+    expect(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1])[0]).toBe("case");
+    expect(isOverlayVisible(overview[0]!, { companyPoints: true } as LayerVisibility, { companyGridScaleIdx: 2 })).toBe(true);
+    const opacity = overview[1]?.layers[0]?.paint(false, {})["fill-opacity"] as unknown[];
+    expect(opacity.slice(2)).toEqual([["zoom"], 10, 0.65, 11.999, 0.65, 12, 0]);
+  });
+
+  it("B1 detail filters 啟用時不把未篩選概覽格當作結果", () => {
+    expect(companyPointFiltersActive()).toBe(false);
+    expect(companyPointFiltersActive({ companyCountyIdx: 1 })).toBe(true);
+    expect(companyPointFiltersActive({ companySetupYearMax: 2020 })).toBe(true);
+    const overview = OVERLAY_REGISTRY.find((c) => c.id === "companyPoints" && c.layers[0]?.suffix === "company-overview-density-fill")!;
+    const layout = overview.layers[0]?.layout;
+    expect(typeof layout).toBe("function");
+    if (typeof layout !== "function") throw new Error("B1 overview 必須依篩選條件隱藏");
+    expect(layout(false, { companyCountyIdx: 1 })).toEqual({ visibility: "none" });
+    expect(layout(false)).toEqual({ visibility: "visible" });
   });
 
   it("B4 共同登記門檻會重建 circle filter", () => {

@@ -17,6 +17,7 @@ import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
+import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
 
 interface TooltipInfo {
   flight: Flight;
@@ -370,9 +371,19 @@ export function useMapInteraction(
         ];
         let found = false;
         for (const { layers: layerIds, type } of GIS_LAYERS) {
-          const existingIds = layerIds.filter((id) => map.getLayer(id));
+          const existingIds = layerIds.filter((id) => {
+            if (!map.getLayer(id)) return false;
+            // PMTiles roundZoom bridge 令 z10 兩尺度都存在；popup 必依真實 zoom 選尺度，
+            // 不能讓 opacity=0 的舊格網先命中。
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
+              return map.getZoom() >= 10 ? id.includes("-450-") : id.includes("-1500-");
+            }
+            return true;
+          });
           if (existingIds.length === 0) continue;
-          const queried = map.queryRenderedFeatures(bbox, { layers: existingIds });
+          // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" ? e.point : bbox;
+          const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
           // v4 tile 沒有 observed_at，popup 一律以 dominant hour 去 hydrate，放非 dominant 的
@@ -405,7 +416,10 @@ export function useMapInteraction(
             const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.
-            const properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
+            const baseProperties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
+            const properties = type === "companyIndustryDistribution" || type === "companyAgeStructure"
+              ? { ...baseProperties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) }
+              : baseProperties;
             const needsGridDetail = type === "gfwHourlyGrid" && cellId !== null && needsGfwGridDetailHydration(properties);
             const needsTrackDetail = type === "gfwHourlyTrack" && typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
             const initialProperties = needsGridDetail || needsTrackDetail

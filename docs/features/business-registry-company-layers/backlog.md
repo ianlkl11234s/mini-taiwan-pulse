@@ -2,12 +2,16 @@
 
 ## Active work（進行中／待辦）
 
+- [x] **BR-C-DEMOGRAPHICS** · `implementation` · P1：登記產業分布與公司年齡結構；完整母體 450m / 1.5km 聚合、多選產業、年齡指標、圖例 / popup、本地桌機瀏覽器驗收完成；發布另列。
+
 - [ ] **BR-C-RELEASE** · `release` · P1 · `ready`：deploy 並做 production Range Request / 404 smoke test；Acceptance：各 immutable asset HTTP 200、Range、checksum/metadata。
 - [ ] **BR-C-BROWSER** · `verification` · P1 · `verifying`：All Off 後逐層瀏覽器驗收（z4–11 overview → z12 detail、shared sources、B2 三尺度×三指標、popup/legend/暗色底圖）；Acceptance：逐層 evidence matrix。
 
 ## Decision needed
 
 - **BR-C-CATEGORIES** · `research` · P3：產品若需要才評估 `categories` A–J/Z exact-token multi-select；不在本版自創多選架構或複製 11 層。Owner 拍板後另開實作項。
+
+- **BR-C-INDUSTRY-LQ** · `analysis` · P2：單一登記產業相對全台集中度，需整合固定版 nationwide metadata 與小母數門檻；本版先提供密度多選。
 
 ## Conditional / triggered later
 

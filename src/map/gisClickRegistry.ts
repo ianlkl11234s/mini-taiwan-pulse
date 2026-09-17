@@ -342,8 +342,19 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["business-registry-regulated-facilities-circle"], type: "regulatedFacilities" },
   { layers: ["business-registry-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
   { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
+  { layers: [
+    "business-registry-company-capital-grid-1500-company-overview-density-fill",
+    "business-registry-company-capital-grid-450-company-overview-density-fill",
+  ], type: "companyPoints" },
+  { layers: [
+    "business-registry-company-demographics-grid-1500-companyIndustryDistribution-demographics-fill",
+    "business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill",
+  ], type: "companyIndustryDistribution" },
+  { layers: [
+    "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
+    "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
+  ], type: "companyAgeStructure" },
   { layers: ["business-registry-company-points-overview-manufacturing-overview-circle"], type: "manufacturingCompanyPoints" },
-  { layers: ["business-registry-company-points-overview-company-overview-circle"], type: "companyPoints" },
   {
     layers: [
       "business-registry-company-capital-grid-150-fill", "business-registry-company-capital-grid-150-outline",

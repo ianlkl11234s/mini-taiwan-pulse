@@ -766,7 +766,7 @@ export interface FeatureInfo {
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agricultureField" | "wasteTruck" | "rasterProbe"
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
-    | "companyPoints" | "manufacturingCompanyPoints" | "companyCapitalGrid"
+    | "companyPoints" | "manufacturingCompanyPoints" | "companyCapitalGrid" | "companyIndustryDistribution" | "companyAgeStructure"
     | "factoryLocations" | "industrialParkBoundaries" | "regulatedFacilities"
     | "industrialParkComparison"
     | "commonRegistrationAddresses"
@@ -945,6 +945,8 @@ export interface LayerVisibility {
   companyPoints: boolean; // 202608 公司登記點位，z12+
   manufacturingCompanyPoints: boolean; // 與 companyPoints 共用 PMTiles，is_manufacturing=1
   companyCapitalGrid: boolean; // 150m 公司資本額／家數聚合
+  companyIndustryDistribution: boolean; // 202608 公司第一順位行業中類網格
+  companyAgeStructure: boolean; // 202608 公司設立年齡網格
   factoryLocations: boolean; // 202606 生產中工廠登記點位，z11+
   industrialParkBoundaries: boolean; // 20260818 產業園區邊界，不含科學園區
   industrialParkComparison: boolean; // 20260818 園區內觀測工廠/公司/公司資本額

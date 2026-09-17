@@ -585,6 +585,8 @@ const THEME_CATALOG: ThemeDef[] = [
         layers: [
           fromManifest("companyPoints"),
           fromManifest("companyCapitalGrid"),
+          fromManifest("companyIndustryDistribution"),
+          fromManifest("companyAgeStructure"),
           fromManifest("commonRegistrationAddresses"),
         ],
       },

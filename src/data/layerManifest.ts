@@ -117,6 +117,7 @@ import {
   INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
   INDUSTRIAL_PARK_COMPARISON_COLORS, COMPANY_GRID_SCALES,
 } from "./businessRegistryTypes";
+import { COMPANY_DEMOGRAPHICS_SCALES } from "./businessDemographicsTypes";
 import { NOISE_LAYER_COLORS } from "./noiseTypes";
 
 /**
@@ -4923,7 +4924,7 @@ export const LAYER_MANIFEST = {
   companyPoints: {
     key: "companyPoints",
     section: { theme: "工商登記 Business Registry", group: "整體公司" },
-    label: "公司登記點位 Company Registry",
+    label: "公司登記分布 Company Registry",
     expandable: true,
     color: "#2563eb",
     icon: Building2,
@@ -4931,9 +4932,14 @@ export const LAYER_MANIFEST = {
     dataClass: "B",
     source: [
       {
-        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
-        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
-        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
+        kind: "pmtiles", sourceId: COMPANY_GRID_SCALES[2].sourceId,
+        url: COMPANY_GRID_SCALES[2].sourceUrl,
+        sourceLayer: COMPANY_GRID_SCALES[2].sourceLayer, minzoom: COMPANY_GRID_SCALES[2].minzoom, maxzoom: COMPANY_GRID_SCALES[2].maxzoom,
+      },
+      {
+        kind: "pmtiles", sourceId: COMPANY_GRID_SCALES[1].sourceId,
+        url: COMPANY_GRID_SCALES[1].sourceUrl,
+        sourceLayer: COMPANY_GRID_SCALES[1].sourceLayer, minzoom: COMPANY_GRID_SCALES[1].minzoom, maxzoom: COMPANY_GRID_SCALES[1].maxzoom,
       },
       {
         kind: "pmtiles", sourceId: "business-registry-company-points",
@@ -4945,7 +4951,7 @@ export const LAYER_MANIFEST = {
     legend: "companyPoints",
     popup: "companyPoints",
     params: { count: 11, kinds: ["slider", "slider", "select", "select", "select", "slider", "slider", "select", "select", "select", "select"] },
-    description: "202608 公司登記快照；z4–11 為全已定位 records 計數概覽，z12+ 為可點擊個別公司",
+    description: "202608 公司登記快照；z4–9 為 1.5km、z10–11 為 450m 的公司密度（家／km²）概覽，z12+ 為可點擊個別公司。設定篩選條件時概覽隱藏，請放大至 z12。",
     topics: ["工商登記", "公司", "資本額", "行業"],
   },
 
@@ -4971,6 +4977,34 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["select", "select", "slider"] },
     description: "150m / 450m / 1.5km 三尺度非空網格，可切換資本額總和、公司數與資本額中位數",
     topics: ["工商登記", "公司", "網格", "資本額"],
+  },
+
+  companyIndustryDistribution: {
+    key: "companyIndustryDistribution",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "登記產業分布 Company Industry",
+    expandable: true, color: "#318ac2", icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_demographics_grid", confidence: "HIGH" }], processing: "202608 公司登記快照；第一順位行業中類聚合，不代表實際主營產業。" },
+    dataClass: "B",
+    source: COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => ({ kind: "pmtiles" as const, sourceId: scale.sourceId, url: scale.sourceUrl, sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom })),
+    legend: "companyIndustryDistribution", popup: "companyIndustryDistribution",
+    params: { count: 4, kinds: ["select", "multiSelect", "select", "slider"] },
+    description: "202608 公司登記第一順位行業中類；z4–<10 為 1.5km、z≥10 為 450m 網格，預設依所選群組中家數最多者分色，可切換每 km² 合計密度。缺失欄位不視為 0。",
+    topics: ["工商登記", "公司", "行業", "網格"],
+  },
+
+  companyAgeStructure: {
+    key: "companyAgeStructure",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "公司年齡結構 Company Age",
+    expandable: true, color: "#f97316", icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_demographics_grid", confidence: "HIGH" }], processing: "202608 snapshot；設立年缺失、無效值和已知值分開保留。" },
+    dataClass: "B",
+    source: COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => ({ kind: "pmtiles" as const, sourceId: scale.sourceId, url: scale.sourceUrl, sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom })),
+    legend: "companyAgeStructure", popup: "companyAgeStructure",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "202608 公司設立年齡網格；預設為近 5 年（2022–2026）已知設立年占比，可改看年齡中位數。",
+    topics: ["工商登記", "公司", "設立年", "網格"],
   },
 
   manufacturingCompanyPoints: {

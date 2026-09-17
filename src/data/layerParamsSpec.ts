@@ -97,6 +97,7 @@ import {
   COMPANY_SETUP_YEAR_MAX, COMPANY_SETUP_YEAR_MIN,
   INDUSTRIAL_PARK_COMPARISON_MODES,
 } from "./businessRegistryTypes";
+import { COMPANY_INDUSTRY_GROUPS } from "./businessDemographicsTypes";
 import { ANIMAL_WELFARE_POINT_TYPE_OPTIONS } from "./animalWelfarePointsTypes";
 import { OOKLA_GLOBAL_ZOOMS, OOKLA_PALETTES } from "./telecomTypes";
 import { assertMultiSelectBitmaskCapacity } from "./multiSelectMapbox";
@@ -1206,6 +1207,32 @@ export const LAYER_PARAMS_SPEC = {
       out: "companyGridModeIdx", encode: COMPANY_GRID_MODES.map((o) => o.value),
     },
     opacitySlider("companyCapitalGridOpacity", 0.68),
+  ],
+  companyIndustryDistribution: [
+    {
+      kind: "select", name: "companyIndustryDisplay", label: "顯示方式", default: "groups",
+      options: [{ label: "產業群組色", value: "groups" }, { label: "合計密度", value: "density" }],
+      out: "companyIndustryDisplayIdx", encode: ["groups", "density"],
+    },
+    {
+      kind: "multiSelect", name: "companyIndustryGroups", label: "產業群組", default: MULTI_SELECT_ALL,
+      options: COMPANY_INDUSTRY_GROUPS.map((group) => ({ label: group.label, value: group.value })),
+      out: "companyIndustryGroupsMask",
+    },
+    {
+      kind: "select", name: "companyIndustryDistributionMid", label: "聚焦行業中類", default: "all",
+      options: [{ label: "依產業群組", value: "all" }, ...COMPANY_INDUSTRY_MID_OPTIONS],
+      out: "companyIndustryDistributionMidIdx", encode: ["all", ...COMPANY_INDUSTRY_MID_OPTIONS.map((option) => option.value)],
+    },
+    opacitySlider("companyIndustryDistributionOpacity", 0.68),
+  ],
+  companyAgeStructure: [
+    {
+      kind: "select", name: "companyAgeStructureMode", label: "指標", default: "recent",
+      options: [{ label: "近 5 年設立占比", value: "recent" }, { label: "設立年齡中位數", value: "median" }],
+      out: "companyAgeStructureModeIdx", encode: ["recent", "median"],
+    },
+    opacitySlider("companyAgeStructureOpacity", 0.68),
   ],
   manufacturingCompanyPoints: [
     opacitySlider("manufacturingCompanyPointsOpacity", 0.82),

@@ -72,7 +72,7 @@ import {
 } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import {
-  CommonRegistrationAddressesPanel, CompanyCapitalGridPanel, CompanyPointsPanel,
+  CommonRegistrationAddressesPanel, CompanyAgeStructurePanel, CompanyCapitalGridPanel, CompanyIndustryDistributionPanel, CompanyPointsPanel,
   FactoryLocationsPanel, IndustrialParkBoundariesPanel, RegulatedFacilitiesPanel,
   IndustrialParkComparisonPanel,
 } from "./businessRegistryPanels";
@@ -259,6 +259,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   companyPoints: CompanyPointsPanel,
   manufacturingCompanyPoints: CompanyPointsPanel,
   companyCapitalGrid: CompanyCapitalGridPanel,
+  companyIndustryDistribution: CompanyIndustryDistributionPanel,
+  companyAgeStructure: CompanyAgeStructurePanel,
   factoryLocations: FactoryLocationsPanel,
   industrialParkBoundaries: IndustrialParkBoundariesPanel,
   industrialParkComparison: IndustrialParkComparisonPanel,
@@ -587,9 +589,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriProduceWholesale: "蔬果批發商",
   agriWholesaleMarket: "農產批發市場",
   commonRegistrationAddresses: "共同登記地址",
-  companyPoints: "公司登記點位（202608 快照）",
+  companyPoints: "公司登記分布（202608 快照）",
   manufacturingCompanyPoints: "製造業公司登記點位（202608 快照）",
   companyCapitalGrid: "公司資本額網格（202608 快照）",
+  companyIndustryDistribution: "登記產業分布（202608 快照）",
+  companyAgeStructure: "公司年齡結構（202608 快照）",
   factoryLocations: "生產中工廠登記（202606）",
   industrialParkBoundaries: "產業園區邊界（不含科學園區）",
   industrialParkComparison: "園區商工比較（觀測值）",

@@ -105,14 +105,21 @@ import {
   commonRegistrationRadiusExpr,
   companyCapitalQColorExpr,
   companyGridColorExpr,
+  companyGridDensityColorExpr,
+  COMPANY_INDUSTRY_MID_OPTIONS,
   COMPANY_GRID_SCALES,
   type CompanyGridScale,
+  companyPointFiltersActive,
   companyPointFilter,
   FACTORY_LOCATION_COLOR,
   INDUSTRIAL_PARK_COLOR,
   REGULATED_FACILITY_COLOR,
   industrialParkComparisonColorExpr,
 } from "../data/businessRegistryTypes";
+import {
+  COMPANY_DEMOGRAPHICS_SCALES, COMPANY_INDUSTRY_GROUPS, companyAgeColorExpr,
+  companyIndustryDominantColorExpr, companyDemographicsDensityColorExpr, companyDemographicsSumExpr, companyIndustryFields,
+} from "../data/businessDemographicsTypes";
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 import {
@@ -154,6 +161,69 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
         }),
       },
     ],
+  };
+}
+
+/** B1 概覽：與 B2 共用格網 source，但 suffix 必須獨立，避免 Mapbox layer id 衝突。 */
+function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig {
+  const is1500m = scale.value === "2";
+  const overviewStartZoom = is1500m ? 4 : 10;
+  const overviewEndZoom = is1500m ? 10 : 12;
+  return {
+    id: "companyPoints",
+    sourceUrl: scale.sourceUrl,
+    sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [{
+      suffix: "company-overview-density-fill", type: "fill",
+      minzoom: is1500m ? 4 : 10,
+      // mapbox-pmtiles 的 vector source 固定 roundZoom=true：交界前會先取下一級 tile。
+      // 0.01 bridge 只維持 source 可取；paint 在精確交界 zoom 歸零，尺度不重疊。
+      maxzoom: overviewEndZoom + 0.01,
+      // 格網未套用 detail filter，filters active 時絕不可顯示為篩選後總量。
+      layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
+      paint: (_isDark, p) => ({
+        "fill-color": companyGridDensityColorExpr(scale),
+        // 預設總 opacity 0.65；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
+        "fill-opacity": ["interpolate", ["linear"], ["zoom"],
+          overviewStartZoom, (p?.companyPointsOpacity ?? 0.8) * 0.8125,
+          overviewEndZoom - 0.001, (p?.companyPointsOpacity ?? 0.8) * 0.8125,
+          overviewEndZoom, 0,
+        ],
+      }),
+    }],
+  };
+}
+
+function companyDemographicsOverlay(id: "companyIndustryDistribution" | "companyAgeStructure", scale: (typeof COMPANY_DEMOGRAPHICS_SCALES)[number]): OverlayConfig {
+  const is1500m = scale.value === "1500";
+  const start = is1500m ? 4 : 10;
+  const end = is1500m ? 10 : undefined;
+  return {
+    id, sourceUrl: scale.sourceUrl, sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [{
+      suffix: `${id}-demographics-fill`, type: "fill", minzoom: start, ...(end === undefined ? {} : { maxzoom: end + 0.01 }),
+      layout: (_isDark, p) => id === "companyIndustryDistribution"
+        && (p?.companyIndustryDistributionMidIdx ?? 0) === 0
+        && (p?.companyIndustryGroupsMask ?? ((1 << COMPANY_INDUSTRY_GROUPS.length) - 1)) === 0
+        ? { visibility: "none" } : { visibility: "visible" },
+      paint: (_isDark, p) => {
+        const opacity = p?.[`${id}Opacity`] ?? 0.68;
+        const mask = p?.companyIndustryGroupsMask ?? 2047;
+        const midIdx = p?.companyIndustryDistributionMidIdx ?? 0;
+        const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;
+        const color = id === "companyIndustryDistribution"
+          ? (p?.companyIndustryDisplayIdx ?? 0) === 1
+            ? companyDemographicsDensityColorExpr(companyDemographicsSumExpr(companyIndustryFields(mask, midCode)), scale)
+            : companyIndustryDominantColorExpr(mask, midCode)
+          : companyAgeColorExpr(p?.companyAgeStructureModeIdx ?? 0);
+        const zoomOpacity: number | unknown[] = end === undefined
+          ? opacity
+          : ["interpolate", ["linear"], ["zoom"], start, opacity, end - 0.001, opacity, end, 0];
+        return { "fill-color": color, "fill-opacity": zoomOpacity };
+      },
+    }],
   };
 }
 
@@ -3841,34 +3911,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 🏢 工商登記 Business Registry ──
-  // B1/A4 共用詳細點與低倍率概覽 source。概覽格的數量納入全部可發布座標 records，
-  // z4–11 看整體分佈，z12+ 才切至可點擊的個別公司，避免低 zoom 同時傳輸 65 萬個名稱。
-  {
-    id: "companyPoints",
-    sourceUrl: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
-    sourceId: "business-registry-company-points-overview",
-    pmtiles: { sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11 },
-    layers: [
-      {
-        suffix: "company-overview-circle", type: "circle", minzoom: 4, maxzoom: 12,
-        paint: (isDark, p) => {
-          const scale = p?.companyPointsScale ?? 1;
-          const opacity = p?.companyPointsOpacity ?? 0.8;
-          return {
-            "circle-radius": [
-              "interpolate", ["linear"], ["to-number", ["get", "n_companies"], 0],
-              1, 1.3 * scale, 100, 2.6 * scale, 1_000, 5 * scale, 10_000, 9 * scale,
-            ],
-            "circle-color": "#2563eb",
-            "circle-opacity": opacity,
-            "circle-stroke-color": isDark ? "#93c5fd" : "#1e3a8a",
-            "circle-stroke-width": 0.35,
-            "circle-stroke-opacity": opacity,
-          };
-        },
-      },
-    ],
-  },
+  // B1：z4–9 為 1.5km、z10–11 為 450m 格網密度；z12+ 才是可點擊個別公司。
+  // B2 手動尺度選擇只由 id === companyCapitalGrid 的 engine gate 處理，不影響此處。
+  ...[COMPANY_GRID_SCALES[2], COMPANY_GRID_SCALES[1]].map(companyPointsDensityGridOverlay),
+  ...COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => companyDemographicsOverlay("companyIndustryDistribution", scale)),
+  ...COMPANY_DEMOGRAPHICS_SCALES.slice().reverse().map((scale) => companyDemographicsOverlay("companyAgeStructure", scale)),
   {
     id: "companyPoints",
     sourceUrl: "./business_registry/company_points_202608_r2.pmtiles",
