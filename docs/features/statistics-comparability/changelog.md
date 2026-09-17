@@ -14,3 +14,9 @@
 - Production build 通過（正式 CDN、比較開關 false），僅既有 chunk size 警告。
 - Production browser：國小學生 22/22，醫院病床 159/368 PARTIAL；未發布比較選項未出現，console errors 0。
 - 新證據：`evidence/pr-255/`；先前 DEV 全功能與手機證據仍在 recovery 目錄。
+
+## 2026-09-17 — 正式環境啟用
+
+- CDN 新 manifest `8e4511ef4627d6a511b8208e05ab6cd2787e2319df17252c749d01e0005f5efe` 已公開，244 新 selectors 與 256 次正式 loader 驗證通過。
+- Docker build stage 明確接收 `VITE_STATISTICS_COMPARISONS_ENABLED`，預設仍為 false；正式服務設定為 true 後重新建置。
+- 關閉時設定 false 並重建即可回復原始量顯示，CDN immutable 資料不需刪除。
