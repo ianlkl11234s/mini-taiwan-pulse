@@ -80,15 +80,18 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 
 - 醫療設施五類拆成獨立 layer，共用來源與 loader，使用既有類別色票。
 - 長照依 `service_type` 做可理解的分類 layer；保留 H17 一對多「服務登記」語意，
-  不冒充唯一機構數。若 35 類直接展開過多，先按官方可證明的上位分類分組，popup
-  保留原始 `service_type`。
+  不冒充唯一機構數。35 個原始類別依厚生勞動省「介護サービス情報公表システム」
+  的六個使用情境分組，popup 保留原始 `service_type`。
 - 醫療與長照點圖層改為全 zoom PMTiles，移除 z6 aggregate circle 對原始點的替代；
   每個縮放層級都保留完整可繪製原始點，各分類 z0 count 可對帳。
 - 醫療圈改成一次／二次／三次獨立 layer 與可辨識配色，popup 顯示圈層、名稱／code、
   2020 `STALE`、display geometry 與 polygon-parts 不可加總限制。
 
-資料 gate：既有點磚 `minzoom:10`，低縮放完整性需上游重瓦片為全 zoom point tiles；
-不能只改前端 visibility 假裝完成。
+資料 gate 盤點結論：既有 catalog 的 `minimum_point_zoom:10` 是舊呈現門檻，不是切片
+內容限制；產製腳本實際使用 tippecanoe `--minimum-zoom 0 --maximum-zoom 14
+--no-feature-limit --no-tile-size-limit`，兩份既有不可變 PMTiles 已含 z0–14 原始點。
+因此本 PR 移除前端 z10／z6 aggregate replacement，並把後續 catalog 產製值改為 0；
+不重寫或覆蓋既有不可變資產。
 
 ### PR 5 — 日本與全球圖層命名、分組
 
@@ -160,4 +163,5 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 | PR 1 日本預設層 | #263 / `b3f5dce1` | focused 30 passed；`tsc -b`；全站 1,582 passed / 8 skipped；CI passed | 已以一般 merge commit 合入 |
 | PR 2 Loading 視覺 | #264 / `43d8a3f0` | focused 2 passed；`tsc -b`；全站 1,584 passed / 8 skipped；build passed；本機 browser 為黑畫面，不列為視覺驗收；CI passed | 已以一般 merge commit 合入 |
 | PR 3A 旅宿上游產物 | taipei-gis-analytics #93 / `51db5e14` | 17 focused passed；4 個 `pmtiles verify`；canonical z0=25,459、OSM z0=20,502；兩尺度網格 `sum(n_records)=25,459` | 已以一般 merge commit 合入；產物僅在永久 worktree，本輪未上傳 |
-| PR 3B 旅宿前端 | #265 / `455f8c9c` | focused 73 passed；`tsc -b`；全站 1,588 passed / 8 skipped；build passed；desktop browser：日本入口預設 0/5、canonical/OSM z4.7 全國點與分類色、密度 z4.7/z10、legend/popup 通過；390px viewport 不可用 | branch 已 push；待 CI 與一般 merge；4 個 artifact 未上傳／部署 |
+| PR 3B 旅宿前端 | #265 / `7e011185` | focused 73 passed；`tsc -b`；合併最新 master 後全站 1,601 passed / 8 skipped；build passed；desktop browser：日本入口預設 0/5、canonical/OSM z4.7 全國點與分類色、密度 z4.7/z10、legend/popup 通過；390px viewport 不可用 | 已以一般 merge commit 合入；4 個 artifact 未上傳／部署 |
+| PR 4 醫療／長照／醫療圈 | `codex/jp-medical-care-layers-20260918` | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；`tsc -b`；全套 1,599 passed / 8 skipped；production build passed | 永久 worktree 已保存；待 commit、push、PR、browser、CI 與一般 merge |

@@ -171,13 +171,44 @@ export const JpTourismHost: LayerHostComponent = ({ deps }) => {
 /** 日本靜態醫療：可見時才讀 allowlist，點位與詳情均按需載入。 */
 export const JpMedicalHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpMedicalLayers");
-  const facilities = useKeyOverlayParams("jpMedicalFacilities");
-  const care = useKeyOverlayParams("jpMedicalCare");
-  const areas = useKeyOverlayParams("jpMedicalAreas");
+  const hospitals = useKeyOverlayParams("jpMedicalHospitals");
+  const clinics = useKeyOverlayParams("jpMedicalClinics");
+  const dental = useKeyOverlayParams("jpMedicalDental");
+  const maternity = useKeyOverlayParams("jpMedicalMaternity");
+  const pharmacies = useKeyOverlayParams("jpMedicalPharmacies");
+  const carePlanning = useKeyOverlayParams("jpCarePlanning");
+  const careHomeVisit = useKeyOverlayParams("jpCareHomeVisit");
+  const careDayServices = useKeyOverlayParams("jpCareDayServices");
+  const careResidential = useKeyOverlayParams("jpCareResidential");
+  const careCombined = useKeyOverlayParams("jpCareCombined");
+  const careEquipment = useKeyOverlayParams("jpCareEquipment");
+  const areasPrimary = useKeyOverlayParams("jpMedicalAreasPrimary");
+  const areasSecondary = useKeyOverlayParams("jpMedicalAreasSecondary");
+  const areasTertiary = useKeyOverlayParams("jpMedicalAreasTertiary");
+  const medicalKeys = [
+    "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
+    "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
+    "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  ] as const;
   useJpMedicalLayers(deps.mapRef, {
-    jpMedicalFacilities: deps.layerVisibility.jpMedicalFacilities,
-    jpMedicalCare: deps.layerVisibility.jpMedicalCare,
-    jpMedicalAreas: deps.layerVisibility.jpMedicalAreas,
-  }, { ...facilities, ...care, ...areas });
-  return deps.layerVisibility.jpMedicalFacilities || deps.layerVisibility.jpMedicalCare || deps.layerVisibility.jpMedicalAreas ? <JpMedicalAlert /> : null;
+    jpMedicalHospitals: deps.layerVisibility.jpMedicalHospitals,
+    jpMedicalClinics: deps.layerVisibility.jpMedicalClinics,
+    jpMedicalDental: deps.layerVisibility.jpMedicalDental,
+    jpMedicalMaternity: deps.layerVisibility.jpMedicalMaternity,
+    jpMedicalPharmacies: deps.layerVisibility.jpMedicalPharmacies,
+    jpCarePlanning: deps.layerVisibility.jpCarePlanning,
+    jpCareHomeVisit: deps.layerVisibility.jpCareHomeVisit,
+    jpCareDayServices: deps.layerVisibility.jpCareDayServices,
+    jpCareResidential: deps.layerVisibility.jpCareResidential,
+    jpCareCombined: deps.layerVisibility.jpCareCombined,
+    jpCareEquipment: deps.layerVisibility.jpCareEquipment,
+    jpMedicalAreasPrimary: deps.layerVisibility.jpMedicalAreasPrimary,
+    jpMedicalAreasSecondary: deps.layerVisibility.jpMedicalAreasSecondary,
+    jpMedicalAreasTertiary: deps.layerVisibility.jpMedicalAreasTertiary,
+  }, {
+    ...hospitals, ...clinics, ...dental, ...maternity, ...pharmacies,
+    ...carePlanning, ...careHomeVisit, ...careDayServices, ...careResidential, ...careCombined, ...careEquipment,
+    ...areasPrimary, ...areasSecondary, ...areasTertiary,
+  });
+  return medicalKeys.some((key) => deps.layerVisibility[key]) ? <JpMedicalAlert /> : null;
 };

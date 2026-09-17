@@ -230,8 +230,8 @@ def build(source_root: Path, output_root: Path):
                 "a38": {"source_date": "2020", "status": "STALE", "source": areas_catalog["attribution"], "license_url": areas_catalog["license_url"], "grain": "source geometry part; do not use PMTiles feature count as medical-area count"},
             },
             "layers": [
-                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 10, "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
-                {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": POINT_LAYER_NAMES["h17"], "minimum_point_zoom": 10, "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": None},
+                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 0, "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
+                {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": POINT_LAYER_NAMES["h17"], "minimum_point_zoom": 0, "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": None},
             ] + [{"key": f"a38_{area['name'].rsplit('_', 1)[-1]}", "pmtiles_path": f"areas/{area['display_path']}", "source_layer": area["source_layer"], "status": "STALE", "source_date": "2020", "grain": "source geometry part"} for area in areas_catalog["layers"]],
             "detail_buckets": details,
             "files": dict(sorted(files.items())),

@@ -421,7 +421,9 @@ export function useMapInteraction(
               properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
             }
             // H17 同位置可能有多筆服務；保留目前篩選可見的登記，避免 first-hit 隱藏其他服務。
-            if (type === "jpMedicalCare" && g?.type === "Point") {
+            if ((type === "jpCarePlanning" || type === "jpCareHomeVisit" || type === "jpCareDayServices"
+              || type === "jpCareResidential" || type === "jpCareCombined" || type === "jpCareEquipment")
+              && g?.type === "Point") {
               const origin = g.coordinates;
               const coLocated = features.filter(item => item.geometry.type === "Point"
                 && Math.abs(item.geometry.coordinates[0]! - origin[0]!) < 1e-7
