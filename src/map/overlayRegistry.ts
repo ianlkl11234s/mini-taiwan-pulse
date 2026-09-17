@@ -149,7 +149,7 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
         suffix: "fill", type: "fill", minzoom: 4,
         paint: (_isDark, p) => ({
           "fill-color": companyGridColorExpr(p?.companyGridModeIdx ?? 0, scaleIdx),
-          "fill-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+          "fill-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
       {
@@ -157,7 +157,7 @@ function companyCapitalGridOverlay(scale: CompanyGridScale): OverlayConfig {
         paint: (isDark, p) => ({
           "line-color": isDark ? "rgba(255,255,255,0.16)" : "rgba(15,23,42,0.18)",
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.15, 14, 0.55],
-          "line-opacity": p?.companyCapitalGridOpacity ?? 0.68,
+          "line-opacity": p?.companyCapitalGridOpacity ?? 0.85,
         }),
       },
     ],
@@ -184,10 +184,10 @@ function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig
       layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
       paint: (_isDark, p) => ({
         "fill-color": companyGridDensityColorExpr(scale),
-        // 預設總 opacity 0.65；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
+        // 依使用者 opacity 顯示；zoom gate 必須最外層，Mapbox 才會接受 zoom expression。
         "fill-opacity": ["interpolate", ["linear"], ["zoom"],
-          overviewStartZoom, (p?.companyPointsOpacity ?? 0.8) * 0.8125,
-          overviewEndZoom - 0.001, (p?.companyPointsOpacity ?? 0.8) * 0.8125,
+          overviewStartZoom, (p?.companyPointsOpacity ?? 0.82),
+          overviewEndZoom - 0.001, (p?.companyPointsOpacity ?? 0.82),
           overviewEndZoom, 0,
         ],
       }),
@@ -209,7 +209,7 @@ function companyDemographicsOverlay(id: "companyIndustryDistribution" | "company
         && (p?.companyIndustryGroupsMask ?? ((1 << COMPANY_INDUSTRY_GROUPS.length) - 1)) === 0
         ? { visibility: "none" } : { visibility: "visible" },
       paint: (_isDark, p) => {
-        const opacity = p?.[`${id}Opacity`] ?? 0.68;
+        const opacity = p?.[`${id}Opacity`] ?? (id === "companyAgeStructure" ? 0.85 : 0.68);
         const mask = p?.companyIndustryGroupsMask ?? 2047;
         const midIdx = p?.companyIndustryDistributionMidIdx ?? 0;
         const midCode = midIdx > 0 ? COMPANY_INDUSTRY_MID_OPTIONS[midIdx - 1]?.value : undefined;

@@ -3066,12 +3066,12 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
         {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記分布 COMPANY REGISTRY"}
       </div>
       {!manufacturing && !filtersActive && <>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）</div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· Viridis</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
           {COMPANY_DENSITY_STOPS.map((stop, i) => (
             <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {stop.toLocaleString("zh-TW")}</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
             </div>
           ))}
         </div>
@@ -3205,7 +3205,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {formatGridStop(stop, safeMode === 1)}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
           </div>
         ))}
         {safeMode === 2 && (
@@ -3216,7 +3216,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         )}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        {scale.label} 非空網格，202608 登記快照；資本額採各尺度非線性級距。
+        {scale.label} 非空網格，202608 登記快照；Magma 色階由暗至亮＝數值由低至高；採各尺度固定非線性級距。
       </div>
     </div>
   );
@@ -3257,10 +3257,11 @@ function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
   const median = modeIdx === 1;
   const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 COMPANY AGE</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 · {median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>Cividis 藍黃系 · 越亮＝{median ? "年齡越高" : "近期設立占比越高"}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {median ? `${stop} 年` : `${(stop * 100).toFixed(0)}%`}</span>
+        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
       </div>)}
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值／無已知設立年</span></div>
     </div>

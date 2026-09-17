@@ -77,7 +77,7 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
     expect(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1])[0]).toBe("case");
     expect(isOverlayVisible(overview[0]!, { companyPoints: true } as LayerVisibility, { companyGridScaleIdx: 2 })).toBe(true);
     const opacity = overview[1]?.layers[0]?.paint(false, {})["fill-opacity"] as unknown[];
-    expect(opacity.slice(2)).toEqual([["zoom"], 10, 0.65, 11.999, 0.65, 12, 0]);
+    expect(opacity.slice(2)).toEqual([["zoom"], 10, 0.82, 11.999, 0.82, 12, 0]);
   });
 
   it("B1 detail filters 啟用時不把未篩選概覽格當作結果", () => {

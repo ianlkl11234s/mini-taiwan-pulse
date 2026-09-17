@@ -142,7 +142,8 @@ export function companyAgeValueExpr(modeIdx: number): unknown[] {
 
 export const COMPANY_AGE_RECENT_STOPS = [0, 0.05, 0.1, 0.2, 0.35, 0.5, 0.7] as const;
 export const COMPANY_AGE_MEDIAN_STOPS = [0, 2, 5, 10, 20, 35, 55] as const;
-export const COMPANY_AGE_COLORS = ["#fef3c7", "#fde68a", "#fbbf24", "#f97316", "#ea580c", "#c2410c", "#7c2d12"] as const;
+/** Cividis 0.18–1：藍黃與亮度遞增，避免以紅綠區分年齡。 */
+export const COMPANY_AGE_COLORS = ["#2f426d", "#545a6d", "#727374", "#928d78", "#b6a96f", "#dbc75a", "#fee838"] as const;
 
 export function companyAgeColorExpr(modeIdx: number): unknown[] {
   const value = companyAgeValueExpr(modeIdx);

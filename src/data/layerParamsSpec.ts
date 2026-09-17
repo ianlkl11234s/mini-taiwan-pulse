@@ -1206,7 +1206,7 @@ export const LAYER_PARAMS_SPEC = {
       options: COMPANY_GRID_MODES.map((o) => ({ ...o })),
       out: "companyGridModeIdx", encode: COMPANY_GRID_MODES.map((o) => o.value),
     },
-    opacitySlider("companyCapitalGridOpacity", 0.68),
+    opacitySlider("companyCapitalGridOpacity", 0.85),
   ],
   companyIndustryDistribution: [
     {
@@ -1232,7 +1232,7 @@ export const LAYER_PARAMS_SPEC = {
       options: [{ label: "近 5 年設立占比", value: "recent" }, { label: "設立年齡中位數", value: "median" }],
       out: "companyAgeStructureModeIdx", encode: ["recent", "median"],
     },
-    opacitySlider("companyAgeStructureOpacity", 0.68),
+    opacitySlider("companyAgeStructureOpacity", 0.85),
   ],
   manufacturingCompanyPoints: [
     opacitySlider("manufacturingCompanyPointsOpacity", 0.82),
