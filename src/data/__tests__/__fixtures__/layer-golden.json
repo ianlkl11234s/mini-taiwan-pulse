@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 743,
+    "keyCount": 744,
     "sections": [
       "gisLayers",
       "overlays",
@@ -812,6 +812,15 @@
         "jp-population-mesh-fill"
       ],
       "type": "jpPopulationMesh1km"
+    },
+    {
+      "layers": [
+        "jp-accommodation-density-450-fill",
+        "jp-accommodation-density-450-outline",
+        "jp-accommodation-density-1500-fill",
+        "jp-accommodation-density-1500-outline"
+      ],
+      "type": "jpAccommodationDensity"
     },
     {
       "layers": [
@@ -15441,6 +15450,248 @@
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-company-capital-grid-1500",
       "sourceUrl": "./business_registry/company_capital_grid_1500m_202608_r2.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpAccommodationDensity",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.18)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(124,45,18,0.28)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "jp_accommodation_density"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-accommodation-density-450",
+      "sourceUrl": "./world/jp_accommodation_density_450m_20260910.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpAccommodationDensity",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.18)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(124,45,18,0.28)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "jp_accommodation_density"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-accommodation-density-1500",
+      "sourceUrl": "./world/jp_accommodation_density_1500m_20260910.pmtiles"
     },
     {
       "dynamicData": null,
@@ -55049,6 +55300,30 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "jpAccommodationDensity": [
+      {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "450 公尺",
+            "value": "450"
+          },
+          {
+            "label": "1.5 公里",
+            "value": "1500"
+          }
+        ],
+        "type": "select",
+        "value": "450"
+      },
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.72
       }
     ],
     "jpAccommodationJta": [

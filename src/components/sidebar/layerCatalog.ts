@@ -1746,7 +1746,10 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "旅宿",
     defaultCollapsed: false,
     groups: [
-      { title: "總覽", layers: [fromManifest("jpAccommodationCanonical")] },
+      { title: "總覽", layers: [
+        fromManifest("jpAccommodationCanonical"),
+        fromManifest("jpAccommodationDensity"),
+      ] },
       { title: "來源", layers: [
         fromManifest("jpAccommodationJta"),
         fromManifest("jpAccommodationLocal"),

@@ -14,11 +14,13 @@ docs/features/coral-reef-layers/evidence
 # Japan tourism assets are either S3-backed production files or local-only research inputs.
 # Never bake either class into the image's public dist fallback.
 public/world/jp_accommodation_canonical_20260910.geojson
-public/world/jp_accommodation_canonical_20260910.pmtiles
+public/world/jp_accommodation_canonical_allzoom_20260910.pmtiles
+public/world/jp_accommodation_density_450m_20260910.pmtiles
+public/world/jp_accommodation_density_1500m_20260910.pmtiles
 public/world/jp_accommodation_jta_20260331.geojson
 public/world/jp_accommodation_local_20260910.geojson
 public/world/jp_accommodation_osm_20260910.geojson
-public/world/jp_accommodation_osm_20260910.pmtiles
+public/world/jp_accommodation_osm_allzoom_20260910.pmtiles
 public/world/jp_natural_parks_ksj_2010.geojson
 public/world/jp_natural_parks_ksj_2010.pmtiles
 public/world/jp_nature_conservation_ksj_2015.geojson

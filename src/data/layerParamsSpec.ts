@@ -74,7 +74,7 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { JP_STATION_COLOR_MODES } from "./jpStationTypes";
 import { JP_POPULATION_MESH_MODES } from "./jpPopulationMeshModes";
-import { JP_RAMSAR_GEOMETRY_FILTERS } from "./jpTourismTypes";
+import { JP_ACCOMMODATION_DENSITY_SCALES, JP_RAMSAR_GEOMETRY_FILTERS } from "./jpTourismTypes";
 import { ISOBATH_MODES } from "./isobathTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
@@ -1521,6 +1521,16 @@ export const LAYER_PARAMS_SPEC = {
   jpAccommodationCanonical: [
     opacitySlider("jpAccommodationCanonicalOpacity", 0.85),
     scaleSlider("jpAccommodationCanonicalScale", 1),
+  ],
+  jpAccommodationDensity: [
+    {
+      kind: "select", name: "jpAccommodationDensityScale", label: "網格大小",
+      default: JP_ACCOMMODATION_DENSITY_SCALES[0]!.value,
+      options: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => ({ label: scale.label, value: scale.value })),
+      out: "jpAccommodationDensityScaleIdx",
+      encode: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => scale.value),
+    },
+    opacitySlider("jpAccommodationDensityOpacity", 0.72),
   ],
   jpAccommodationJta: [
     opacitySlider("jpAccommodationJtaOpacity", 0.85),

@@ -56,7 +56,8 @@ import {
 } from "./religionPanels";
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
-  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel, JpTourismPanel,
+  JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
+  JpTourismPanel, JpAccommodationDensityPanel,
 } from "./japanPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
 import {
@@ -359,6 +360,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
   jpAccommodationCanonical: JpTourismPanel,
+  jpAccommodationDensity: JpAccommodationDensityPanel,
   jpAccommodationJta: JpTourismPanel,
   jpAccommodationLocal: JpTourismPanel,
   jpAccommodationOsm: JpTourismPanel,
@@ -769,6 +771,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpSchools: "日本學校",
   jpPopulationMesh1km: "日本人口網格",
   jpAccommodationCanonical: "日本旅宿去重總覽",
+  jpAccommodationDensity: "旅宿密度網格",
   jpAccommodationJta: "觀光廳登錄旅宿",
   jpAccommodationLocal: "地方旅館業許可",
   jpAccommodationOsm: "OSM 住宿 coverage",
