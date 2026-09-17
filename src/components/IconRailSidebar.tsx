@@ -820,7 +820,7 @@ const LayerRow = memo(function LayerRow({
         (e.currentTarget as HTMLElement).style.background = "transparent";
       }}
     >
-      <Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />
+      <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
       <span
         style={{
           flex: 1,

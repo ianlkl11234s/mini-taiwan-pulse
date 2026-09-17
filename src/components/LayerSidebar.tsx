@@ -1,3 +1,5 @@
+import { getStatisticsVisual } from "../data/statisticsVisuals";
+import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { useState } from "react";
 import { Lock, Search, Star, User } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
@@ -498,6 +500,8 @@ function SidebarContent({
             const displayLabel = labelMobile ?? label;
             const active = visibility[key];
             const color = LAYER_COLORS[key];
+            const statisticsVisual = isStatisticsRenderLayer(key) || key === "crimeAreaMonthly" ? getStatisticsVisual(key, displayLabel) : null;
+            const StatisticsIcon = statisticsVisual?.icon;
             const count = getCount(key);
             const isExpanded = expandedLayer === key;
             const isTransport = key in TRANSPORT_LABELS;
@@ -529,6 +533,8 @@ function SidebarContent({
                     >
                       <Lock size={13} />
                     </span>
+                  ) : StatisticsIcon ? (
+                    <StatisticsIcon size={14} color={color} style={{ flexShrink: 0 }} />
                   ) : (
                     <button
                       onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
@@ -564,6 +570,7 @@ function SidebarContent({
                     )}
                   </div>
 
+                  {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} />}
                   {hasDetails && !locked && (
                     <button
                       type="button"

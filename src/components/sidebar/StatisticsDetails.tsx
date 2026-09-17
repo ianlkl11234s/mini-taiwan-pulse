@@ -350,6 +350,7 @@ export function StatisticsLegend({ layerKey }: { layerKey: StatisticsRenderKey }
     {state.health?.availability && <span>資料可用狀態：{state.health.availability}</span>}
     {state.health?.coverage_status && <span>{statisticsCoverageStatusLabel(Boolean(agri))}：{state.health.coverage_status}（{state.health.coverage_numerator ?? '—'}／{state.health.coverage_denominator ?? '—'} {statisticsCoverageAreaLabel(recipe)}）；未分配 {statisticsValueLabel(state.health.unallocated_total, state.health.currency ?? recipe.unit)}</span>}
     {state.loading && <span>載入中…</span>}{state.error && <span role="alert">{state.error}</span>}
+    <span>{recipe.breaks.some(value => value < 0) ? '棕色：負值；紫色：非負值；0 為分界，顏色不代表好壞' : '淺 → 深：數值低 → 高；請依本指標的數字區間比較'}</span>
     {statisticsLegendRows(recipe, social?.format).map(({ color, label }) => <div key={`${color}:${label}`} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ background: color, width: 14, height: 8 }} />{label}</div>)}
     <span>{social ? '灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階' : '灰色：缺資料／未發布數值'}</span>
     {agri && <><span><i style={{ display: 'inline-block', width: 16, height: 12, marginRight: 6, background: `repeating-linear-gradient(135deg, #334155 0 2px, ${agri.legend.missing_color} 2px 6px)` }} />斜線：遮蔽 suppressed（*）</span><span>{agri.legend.not_reported_label} not_reported（-）：非 0；真 0 使用數值色階</span></>}

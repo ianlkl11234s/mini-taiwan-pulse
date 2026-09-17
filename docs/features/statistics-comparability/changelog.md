@@ -27,3 +27,13 @@
 - 桌面與手機 sidebar 的圖層名稱保持主要文字色，不再依關閉狀態變灰或降低透明度；淺色主題仍使用對應文字色。
 - 驗證：TypeScript、production build 與 git diff --check 通過；本地 browser 確認關閉的高中學生端與醫院病床文字均為 rgb(255, 255, 255)，群組 toggle 為 28×16 且保留 switch 狀態語意。
 - 資料契約、選項、年份與 CDN 資料不變。
+
+## 2026-09-17 — 統計主題 icon 與數值色階（PR #258 追加）
+
+- 為統計清單建立集中視覺規則；學校／老師／學生、醫院／病床／醫事人力、住宅、交通、農林漁牧依內容選擇 icon，取代大量共用的 Recycle／Layers。
+- 主題色用於 icon 與啟用列邊框，名稱仍使用主文字色；toggle 保留一致的顯示狀態語意。手機統計清單同樣使用 icon 與滑動 toggle。
+- 地圖與圖例共用 statisticsRenderRecipe 的 ColorBrewer 順序色階（淺→深＝低→高）。教育增減採 PuOr，棕色負值、紫色非負值，0 為分界，並非好壞評分。
+- 保留所有原始分級門檻、年份、來源、單位、零值、灰色缺值與斜線遮蔽。沒有修改資料包或 CDN，也沒有按當次資料自動重算分級。
+- 犯罪統計仍使用獨立 renderer 的既有紅色順序色階；邊界參考層維持既有樣式。
+- 方法來源：[ColorBrewer 色階類型](https://colorbrewer2.org/learnmore/schemes_full.html)、[Matplotlib 明度與色階](https://matplotlib.org/stable/users/explain/colors/colormaps.html)。明度與模擬色覺驗證不代表所有視覺障礙使用者皆能完全辨識；圖例數字與文字仍為必要提示。
+- 驗收完成：1463 passed／4 skipped、build 通過；4 組色覺模擬檢查通過；桌面醫療與教育增減、手機住宅比例和統計全關通過。完整證據見 `evidence/ui-visuals-20260917/README.md`。

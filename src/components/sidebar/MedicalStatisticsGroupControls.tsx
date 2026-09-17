@@ -1,6 +1,7 @@
+import { getStatisticsVisual } from "../../data/statisticsVisuals";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight, Layers } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import type { LayerVisibility } from '../../types';
 import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
 import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../../state/medicalStatisticsSelection';
@@ -31,6 +32,8 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
   const selected = resolveMedicalStatisticsGroupKey(group, visibility, expandedLayer ?? undefined, preferred) ?? preferred ?? group?.options[0]?.key ?? 'statsHealthHospitalBedTotal';
   const sourceState = useSyncExternalStore(callback => regionalStatisticsStore.subscribe(selected, callback), () => regionalStatisticsStore.getSnapshot(selected), () => regionalStatisticsStore.getSnapshot(selected));
   if (!group) return null;
+  const visual = getStatisticsVisual(group.options[0]!.key, group.label);
+  const Icon = visual.icon;
   const members = group.options.map(option => option.key);
   const active = members.filter(key => visibility[key]);
   const expanded = members.some(key => key === expandedLayer);
@@ -65,8 +68,8 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     setPreferred(selected);
   };
   return <div style={{ color: textColor }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? '2px solid #60a5fa' : '2px solid transparent' }}>
-      <Layers size={14} color={active.length ? '#60a5fa' : dimColor} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? `2px solid ${visual.accent}` : '2px solid transparent' }}>
+      <Icon size={14} color={visual.accent} style={{ flexShrink: 0 }} />
       <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: textColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
         {group.label}{expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
       </button>
