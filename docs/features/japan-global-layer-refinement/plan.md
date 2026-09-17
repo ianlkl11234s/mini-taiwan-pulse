@@ -160,4 +160,4 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 | PR 1 日本預設層 | #263 / `b3f5dce1` | focused 30 passed；`tsc -b`；全站 1,582 passed / 8 skipped；CI passed | 已以一般 merge commit 合入 |
 | PR 2 Loading 視覺 | #264 / `43d8a3f0` | focused 2 passed；`tsc -b`；全站 1,584 passed / 8 skipped；build passed；本機 browser 為黑畫面，不列為視覺驗收；CI passed | 已以一般 merge commit 合入 |
 | PR 3A 旅宿上游產物 | taipei-gis-analytics #93 / `51db5e14` | 17 focused passed；4 個 `pmtiles verify`；canonical z0=25,459、OSM z0=20,502；兩尺度網格 `sum(n_records)=25,459` | 已以一般 merge commit 合入；產物僅在永久 worktree，本輪未上傳 |
-| PR 3B 旅宿前端 | branch `codex/jp-accommodation-allzoom-density-ui-20260918` | focused 73 passed；`tsc -b`；全站 1,588 passed / 8 skipped；build passed | 待 local browser 驗收、push、PR、CI 與一般 merge |
+| PR 3B 旅宿前端 | #265 / `455f8c9c` | focused 73 passed；`tsc -b`；全站 1,588 passed / 8 skipped；build passed；desktop browser：日本入口預設 0/5、canonical/OSM z4.7 全國點與分類色、密度 z4.7/z10、legend/popup 通過；390px viewport 不可用 | branch 已 push；待 CI 與一般 merge；4 個 artifact 未上傳／部署 |
