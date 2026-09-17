@@ -1,0 +1,126 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=[REDACTED]#/121.5318/25.0464/12.5
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+  - text: 醫療院所每萬人口病床數
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 找到 1 筆
+- button "醫療院所每萬人口病床數 此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。 主題：統計、醫療與長照、行政區、縣市 · 來源詳情":
+  - generic: 醫療院所每萬人口病床數
+  - generic: 此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。
+  - generic: 主題：統計、醫療與長照、行政區、縣市 · 來源詳情
+- button "收藏圖層 醫療院所每萬人口病床數":
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 15:00
+- slider: "0.6255"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 25.0464, 121.5318 z12.5 pitch 0 bearing 0
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 醫療院所每萬人口病床數
+- generic: 數值
+- generic: 107.07 每萬人口床
+- generic: 資料期別
+- generic: 2025-12-31 — 2025-12-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: CURRENT
+- generic: 覆蓋狀態
+- generic: COMPLETE
+- generic: 處理版本
+- generic: mohw-medical-percapita-v2-native-rate-receipt-bound
+- generic: 原始 SHA-256
+- generic: c460d9b6e7e4d28c59f1949958d3cd6803e7166b52f74ee2533b3af3826e0c89
+- generic: 來源
+- generic: 衛生福利部統計處
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 醫療院所每萬人口病床數
+- generic: 2025-12-31 — 2025-12-31 · 每萬人口床
+- generic: 資料可用狀態：CURRENT
+- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 0 每萬人口
+- generic: 低於 58.63688497827488
+- generic: 58.63688497827488 至未滿 62.645367972967044
+- generic: 62.645367972967044 至未滿 75.0618212750678
+- generic: 75.0618212750678 至未滿 80.78680287686613
+- generic: 80.78680287686613 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

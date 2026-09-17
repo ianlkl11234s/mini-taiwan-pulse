@@ -1,0 +1,18 @@
+{
+  "ID": "6aa91783d3687c7a2564b14d",
+  "projectID": "69a3b5eb07e6de1869be6e28",
+  "serviceID": "69a3b5f307e6de1869be6e2c",
+  "environmentID": "69a3b5eb8ca26dea02bd9da7",
+  "gitProvider": "GITHUB",
+  "repoOwner": "ianlkl11234s",
+  "repoName": "mini-taiwan-pulse",
+  "ref": "refs/heads/master",
+  "commitSHA": "fa4b8afbf945244728ca7b1541968547c0b1c349",
+  "commitMessage": "Merge pull request #248 from ianlkl11234s/codex/social-statistics-frontend-20260915\n\nfeat(statistics): add 45 social layers and 416 selectors",
+  "planType": "docker",
+  "createdAt": "2026-09-15T10:01:39.491Z",
+  "scheduledAt": "2026-09-15T10:02:02.792Z",
+  "startedAt": "2026-09-15T10:02:12.802Z",
+  "finishedAt": "2026-09-15T10:06:54.574Z",
+  "status": "RUNNING"
+}

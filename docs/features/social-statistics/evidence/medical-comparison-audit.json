@@ -1,0 +1,332 @@
+{
+  "medical_institution_beds_per_10000_population": {
+    "unit": "每萬人口床",
+    "period": "2025-12-31",
+    "national_rate_weighted": 72.74176565890953,
+    "formula": "sum(numerator) / sum(population) * 10000",
+    "national_rate_kind": "derived_from_22_counties_not_official_national_row",
+    "source_sha256": "c460d9b6e7e4d28c59f1949958d3cd6803e7166b52f74ee2533b3af3826e0c89",
+    "source_url": "https://www.mohw.gov.tw/dl-73289-1ae44af8-8716-4a51-9012-aeb216ea1510.html",
+    "rows": [
+      {
+        "area_code": "09007",
+        "numerator": 54,
+        "population": 13621,
+        "rate": 39.644666324058434,
+        "relative_to_weighted_national_pct": -45.4994445557527
+      },
+      {
+        "area_code": "09020",
+        "numerator": 347,
+        "population": 139313,
+        "rate": 24.90794111102338,
+        "relative_to_weighted_national_pct": -65.75840456249276
+      },
+      {
+        "area_code": "10002",
+        "numerator": 3567,
+        "population": 449336,
+        "rate": 79.38380187654673,
+        "relative_to_weighted_national_pct": 9.130980197514171
+      },
+      {
+        "area_code": "10004",
+        "numerator": 3502,
+        "population": 597235,
+        "rate": 58.63688497827488,
+        "relative_to_weighted_national_pct": -19.390346870013133
+      },
+      {
+        "area_code": "10005",
+        "numerator": 3172,
+        "population": 531172,
+        "rate": 59.717003155286804,
+        "relative_to_weighted_national_pct": -17.90548027758443
+      },
+      {
+        "area_code": "10007",
+        "numerator": 7853,
+        "population": 1210206,
+        "rate": 64.88977909545979,
+        "relative_to_weighted_national_pct": -10.79433045421
+      },
+      {
+        "area_code": "10008",
+        "numerator": 3512,
+        "population": 467881,
+        "rate": 75.0618212750678,
+        "relative_to_weighted_national_pct": 3.1894408874224345
+      },
+      {
+        "area_code": "10009",
+        "numerator": 3994,
+        "population": 650989,
+        "rate": 61.35280319636737,
+        "relative_to_weighted_national_pct": -15.656703352439482
+      },
+      {
+        "area_code": "10010",
+        "numerator": 3251,
+        "population": 473181,
+        "rate": 68.70521005703948,
+        "relative_to_weighted_national_pct": -5.549158128492094
+      },
+      {
+        "area_code": "10013",
+        "numerator": 6005,
+        "population": 782256,
+        "rate": 76.76515105029556,
+        "relative_to_weighted_national_pct": 5.531052697087291
+      },
+      {
+        "area_code": "10014",
+        "numerator": 1553,
+        "population": 208320,
+        "rate": 74.54877112135176,
+        "relative_to_weighted_national_pct": 2.4841374773818314
+      },
+      {
+        "area_code": "10015",
+        "numerator": 4323,
+        "population": 312807,
+        "rate": 138.20023209199283,
+        "relative_to_weighted_national_pct": 89.98745884176356
+      },
+      {
+        "area_code": "10016",
+        "numerator": 552,
+        "population": 106716,
+        "rate": 51.72607668953109,
+        "relative_to_weighted_national_pct": -28.89081503454598
+      },
+      {
+        "area_code": "10017",
+        "numerator": 2907,
+        "population": 359836,
+        "rate": 80.78680287686613,
+        "relative_to_weighted_national_pct": 11.05972221746756
+      },
+      {
+        "area_code": "10018",
+        "numerator": 2855,
+        "population": 455740,
+        "rate": 62.645367972967044,
+        "relative_to_weighted_national_pct": -13.879780885832627
+      },
+      {
+        "area_code": "10020",
+        "numerator": 3858,
+        "population": 261592,
+        "rate": 147.4815743600722,
+        "relative_to_weighted_national_pct": 102.74676181441906
+      },
+      {
+        "area_code": "63000",
+        "numerator": 26121,
+        "population": 2439507,
+        "rate": 107.07491308694748,
+        "relative_to_weighted_national_pct": 47.198672065547754
+      },
+      {
+        "area_code": "64000",
+        "numerator": 22481,
+        "population": 2718545,
+        "rate": 82.69497102310243,
+        "relative_to_weighted_national_pct": 13.682930671306593
+      },
+      {
+        "area_code": "65000",
+        "numerator": 19518,
+        "population": 4044831,
+        "rate": 48.254179222815495,
+        "relative_to_weighted_national_pct": -33.66372291664982
+      },
+      {
+        "area_code": "66000",
+        "numerator": 22146,
+        "population": 2868465,
+        "rate": 77.2050556656609,
+        "relative_to_weighted_national_pct": 6.135801030291188
+      },
+      {
+        "area_code": "67000",
+        "numerator": 13336,
+        "population": 1852477,
+        "rate": 71.99009758285798,
+        "relative_to_weighted_national_pct": -1.0333376833003505
+      },
+      {
+        "area_code": "68000",
+        "numerator": 14575,
+        "population": 2355106,
+        "rate": 61.88681103950311,
+        "relative_to_weighted_national_pct": -14.922588860856012
+      }
+    ]
+  },
+  "practicing_medical_personnel_per_10000_population": {
+    "unit": "每萬人口人",
+    "period": "2025-12-31",
+    "national_rate_weighted": 162.01633605921455,
+    "formula": "sum(numerator) / sum(population) * 10000",
+    "national_rate_kind": "derived_from_22_counties_not_official_national_row",
+    "source_sha256": "3e052a5454b2b39cc3c022ce9d14ca025589c35791f8dcd8fac092320ba84646",
+    "source_url": "https://www.mohw.gov.tw/dl-73291-c9f551df-f78a-41ab-a554-addf890c8369.html",
+    "rows": [
+      {
+        "area_code": "09007",
+        "numerator": 132,
+        "population": 13621,
+        "rate": 96.90918434769841,
+        "relative_to_weighted_national_pct": -40.185547516468
+      },
+      {
+        "area_code": "09020",
+        "numerator": 635,
+        "population": 139313,
+        "rate": 45.58081442507161,
+        "relative_to_weighted_national_pct": -71.8665317746647
+      },
+      {
+        "area_code": "10002",
+        "numerator": 6964,
+        "population": 449336,
+        "rate": 154.984243416953,
+        "relative_to_weighted_national_pct": -4.3403602459516355
+      },
+      {
+        "area_code": "10004",
+        "numerator": 7577,
+        "population": 597235,
+        "rate": 126.86798328965986,
+        "relative_to_weighted_national_pct": -21.694326402189766
+      },
+      {
+        "area_code": "10005",
+        "numerator": 5430,
+        "population": 531172,
+        "rate": 102.22677400164166,
+        "relative_to_weighted_national_pct": -36.90341573686786
+      },
+      {
+        "area_code": "10007",
+        "numerator": 16622,
+        "population": 1210206,
+        "rate": 137.34851752511557,
+        "relative_to_weighted_national_pct": -15.225513139047454
+      },
+      {
+        "area_code": "10008",
+        "numerator": 5659,
+        "population": 467881,
+        "rate": 120.94955768667674,
+        "relative_to_weighted_national_pct": -25.34730717372137
+      },
+      {
+        "area_code": "10009",
+        "numerator": 7792,
+        "population": 650989,
+        "rate": 119.6948028307698,
+        "relative_to_weighted_national_pct": -26.121769111589376
+      },
+      {
+        "area_code": "10010",
+        "numerator": 6139,
+        "population": 473181,
+        "rate": 129.73893710863285,
+        "relative_to_weighted_national_pct": -19.92231137654217
+      },
+      {
+        "area_code": "10013",
+        "numerator": 11159,
+        "population": 782256,
+        "rate": 142.65151050295557,
+        "relative_to_weighted_national_pct": -11.95239074483293
+      },
+      {
+        "area_code": "10014",
+        "numerator": 2963,
+        "population": 208320,
+        "rate": 142.23310291858678,
+        "relative_to_weighted_national_pct": -12.210640989558785
+      },
+      {
+        "area_code": "10015",
+        "numerator": 6558,
+        "population": 312807,
+        "rate": 209.6500398008996,
+        "relative_to_weighted_national_pct": 29.4005560798978
+      },
+      {
+        "area_code": "10016",
+        "numerator": 936,
+        "population": 106716,
+        "rate": 87.7094343865962,
+        "relative_to_weighted_national_pct": -45.863832919576886
+      },
+      {
+        "area_code": "10017",
+        "numerator": 4524,
+        "population": 359836,
+        "rate": 125.72394090641292,
+        "relative_to_weighted_national_pct": -22.40045419835769
+      },
+      {
+        "area_code": "10018",
+        "numerator": 7987,
+        "population": 455740,
+        "rate": 175.25343397551234,
+        "relative_to_weighted_national_pct": 8.170224212118837
+      },
+      {
+        "area_code": "10020",
+        "numerator": 7190,
+        "population": 261592,
+        "rate": 274.8555001682009,
+        "relative_to_weighted_national_pct": 69.64678183300312
+      },
+      {
+        "area_code": "63000",
+        "numerator": 66489,
+        "population": 2439507,
+        "rate": 272.5509703394989,
+        "relative_to_weighted_national_pct": 68.22437599124918
+      },
+      {
+        "area_code": "64000",
+        "numerator": 49362,
+        "population": 2718545,
+        "rate": 181.57507048807358,
+        "relative_to_weighted_national_pct": 12.072075510774782
+      },
+      {
+        "area_code": "65000",
+        "numerator": 46675,
+        "population": 4044831,
+        "rate": 115.39419075852612,
+        "relative_to_weighted_national_pct": -28.776200249121008
+      },
+      {
+        "area_code": "66000",
+        "numerator": 52712,
+        "population": 2868465,
+        "rate": 183.76379004101494,
+        "relative_to_weighted_national_pct": 13.423000736081336
+      },
+      {
+        "area_code": "67000",
+        "numerator": 31406,
+        "population": 1852477,
+        "rate": 169.53516831787925,
+        "relative_to_weighted_national_pct": 4.640786504341565
+      },
+      {
+        "area_code": "68000",
+        "numerator": 32573,
+        "population": 2355106,
+        "rate": 138.30799972485315,
+        "relative_to_weighted_national_pct": -14.633299894954021
+      }
+    ]
+  }
+}

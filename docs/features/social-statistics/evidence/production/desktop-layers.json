@@ -1,0 +1,272 @@
+[
+  {
+    "key": "statsEducationCountyInstitutionCount",
+    "label": "機構或學校數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyTeacherCount",
+    "label": "教師數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStaffCount",
+    "label": "職員數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStudentCount",
+    "label": "學生或幼生數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyClassCount",
+    "label": "班級數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountySmallSchoolCount",
+    "label": "12班以下學校數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountySmallSchoolSharePct",
+    "label": "12班以下學校占比",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStudentTeacherRatio",
+    "label": "生師比",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStudentsPerClass",
+    "label": "每班學生數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStudentYearChange",
+    "label": "學生或幼生年增減數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsEducationCountyStudentYearChangePct",
+    "label": "學生或幼生年增減率",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthHospitalCount",
+    "label": "醫院家數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthHospitalBedTotal",
+    "label": "醫院病床總數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthAcuteBedTotal",
+    "label": "急性病床",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthIcuBedTotal",
+    "label": "加護病床",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthHospiceBedTotal",
+    "label": "安寧病床",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthHealthProfessionalTotal",
+    "label": "醫院醫事人員總計",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthWesternPhysicianCount",
+    "label": "醫院西醫師",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthRegisteredNurseCount",
+    "label": "醫院護理師",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthNursingStaffListedAgeSexSum",
+    "label": "一般護理之家列示護理人員欄位加總",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthCareWorkerListedSexSum",
+    "label": "一般護理之家列示照服員欄位加總",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthGeneralNursingHomeOpenBeds",
+    "label": "一般護理之家開放床數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthPostpartumNursingHomeOpenBeds",
+    "label": "產後護理之家開放護理床數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthPostpartumNursingHomeOpenInfantBeds",
+    "label": "產後護理之家開放嬰兒床數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthCareWorkerRegistration",
+    "label": "照顧服務員登錄數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthMedicalInstitutionBedsPer10000Population",
+    "label": "醫療院所每萬人口病床數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHealthPracticingMedicalPersonnelPer10000Population",
+    "label": "機構每萬人口執業醫事人員數",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingTotalCounty",
+    "label": "住宅總數（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccupiedCounty",
+    "label": "有人經常居住住宅（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnoccupiedCounty",
+    "label": "無人經常居住住宅（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccasionalCounty",
+    "label": "偶爾自住住宅（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOtherUseCounty",
+    "label": "自住以外用途住宅（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnusedCounty",
+    "label": "目前沒有使用住宅（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingResidenceOnlyCounty",
+    "label": "有人居住住宅－住宅專用（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingMixedUseCounty",
+    "label": "有人居住住宅－兼農工服務業用（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccupiedPctCounty",
+    "label": "經常居住住宅占比（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnusedPctCounty",
+    "label": "目前未使用住宅占比（縣市）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingTotalTownship",
+    "label": "住宅總數（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccupiedTownship",
+    "label": "有人經常居住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnoccupiedTownship",
+    "label": "無人經常居住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccasionalTownship",
+    "label": "偶爾自住住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOtherUseTownship",
+    "label": "自住以外用途住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnusedTownship",
+    "label": "目前沒有使用住宅（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingOccupiedPctTownship",
+    "label": "經常居住住宅占比（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  },
+  {
+    "key": "statsHousingUnusedPctTownship",
+    "label": "目前未使用住宅占比（鄉鎮市區）",
+    "popup": true,
+    "legend": true
+  }
+]

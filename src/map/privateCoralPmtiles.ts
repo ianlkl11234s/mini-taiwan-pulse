@@ -16,6 +16,7 @@ export const PRIVATE_CORAL_REQUEST_TIMEOUT_MS = 30_000;
 
 export type PrivateCoralPmtilesOptions = {
   url: string;
+  onAccessDenied?: () => void;
   /** Called for every HTTP Range request, so expired credentials are never retained. */
   getToken?: () => Promise<string | null | undefined> | string | null | undefined;
 };
@@ -69,6 +70,7 @@ export class PrivateCoralFetchSource implements Source {
     readonly url: string,
     private readonly getToken: NonNullable<PrivateCoralPmtilesOptions["getToken"]>,
     private readonly fetchFn: FetchLike = (input, init) => fetch(input, init),
+    private readonly onAccessDenied?: () => void,
   ) {}
 
   getKey(): string {
@@ -116,6 +118,7 @@ export class PrivateCoralFetchSource implements Source {
       if (response.status === 401 || response.status === 403) {
         // Never read the body: no authenticated partial response is handed to Mapbox.
         cancelResponseBody(response);
+        this.onAccessDenied?.();
         throw httpError(`Private coral PMTiles access denied (${response.status})`, response.status);
       }
       if (response.status !== 206) {
@@ -157,7 +160,7 @@ class PrivateCoralPmTilesSource extends PmTilesSource {
     super(id, options, dispatcher, eventedParent);
     if (!options.getToken) throw httpError("Private coral PMTiles requires getToken", 401);
 
-    this.privateFetchSource = new PrivateCoralFetchSource(options.url, options.getToken);
+    this.privateFetchSource = new PrivateCoralFetchSource(options.url, options.getToken, undefined, options.onAccessDenied);
     const instance = new PMTiles(this.privateFetchSource);
     const protocol = new Protocol();
     protocol.add(instance);

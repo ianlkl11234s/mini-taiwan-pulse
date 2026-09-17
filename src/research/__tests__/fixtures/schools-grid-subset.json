@@ -1,0 +1,218 @@
+{
+  "schema_version": "research-schools-grid/0.1",
+  "datasetId": "tw-schools-grid-150m",
+  "availability": "HOLD",
+  "local_research_only": true,
+  "hold_reason": "source upstream licence and freshness are unverified; local artifact is not promoted",
+  "asset": {
+    "id": "tw-schools-grid-150m:7ab34ec23180",
+    "title": "Taiwan schools occupied 150 m grid (local research artifact)",
+    "lifecycle": "hold",
+    "source": {
+      "path": "public/education/schools.geojson",
+      "dataset_id": "pulse-schools-geojson-local",
+      "sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+      "license": "unknown",
+      "version": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+      "kind": "local-sibling-geojson"
+    },
+    "version": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+    "crs": "EPSG:4326",
+    "resolution": {
+      "grid_definition_id": "tw-real-estate-150m-epsg3826-v1",
+      "cell_size_m": 150,
+      "calculation_crs": "EPSG:3826"
+    },
+    "time": {
+      "observed_at": null,
+      "freshness_status": "unknown",
+      "source_modified_at": "2026-08-08T14:08:27.190486Z"
+    },
+    "geometry": {
+      "source_crs": "EPSG:4326",
+      "source_geometry_path": "public/education/schools.geojson",
+      "source_geometry_sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+      "preserved": true,
+      "derived_geometry": "occupied-cell-polygons"
+    },
+    "evidence": [
+      {
+        "type": "local_file_hash",
+        "source_dataset_id": "pulse-schools-geojson-local",
+        "sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3"
+      },
+      {
+        "type": "source_metadata",
+        "status": "missing_upstream_license_and_freshness"
+      }
+    ],
+    "outputs": [
+      {
+        "path": "data/intermediate/research-library/schools-grid/bundle.json",
+        "kind": "research_bundle",
+        "crs": "EPSG:4326"
+      }
+    ],
+    "metrics": [
+      {
+        "name": "source_place_record_count",
+        "value": 4315,
+        "unit": "source_place_records",
+        "status": "valid",
+        "coverage": "unknown",
+        "numerator": null,
+        "denominator": null
+      },
+      {
+        "name": "invalid_geometry_count",
+        "value": 0,
+        "unit": "features",
+        "status": "zero",
+        "coverage": "complete",
+        "numerator": null,
+        "denominator": null
+      },
+      {
+        "name": "proxy_geometry_count",
+        "value": 0,
+        "unit": "features",
+        "status": "zero",
+        "coverage": "complete",
+        "numerator": null,
+        "denominator": null
+      }
+    ],
+    "created_at": "2026-09-13T15:30:02.035831Z",
+    "stale_reason": null
+  },
+  "gridDefinition": {
+    "id": "tw-real-estate-150m-epsg3826-v1",
+    "crs": "EPSG:3826",
+    "output_crs": "EPSG:4326",
+    "origin_x": 144250,
+    "origin_y": 2399250,
+    "cell_size_m": 150,
+    "assignment": "floor((x-origin)/cell_size); projected half-open cells [min,max)",
+    "version": "1"
+  },
+  "metricDefinitions": [
+    {
+      "name": "source_place_record_count",
+      "unit": "source_place_records",
+      "meaning": "count of valid, non-proxy source place records in occupied cells only; it does not assert distinct school institutions",
+      "absence_semantics": "not emitted; absence is not a zero claim",
+      "coverage": "unknown"
+    }
+  ],
+  "summary": {
+    "input_features": 2,
+    "assigned_features": 2,
+    "invalid_geometry": 0,
+    "proxy_geometry": 0,
+    "occupied_cell_count": 2,
+    "count_conservation": true,
+    "input_geometry_assignment_coverage": "complete",
+    "source_spatial_coverage": "unknown"
+  },
+  "geojson": {
+    "type": "FeatureCollection",
+    "crs": {
+      "type": "name",
+      "properties": {
+        "name": "EPSG:4326"
+      }
+    },
+    "features": [
+      {
+        "type": "Feature",
+        "id": "G_-1170_2030",
+        "properties": {
+          "grid_id": "G_-1170_2030",
+          "column": -1170,
+          "row": 2030,
+          "source_place_record_count": 1,
+          "metric_status": "valid",
+          "coverage": "unknown",
+          "dataset_id": "tw-schools-grid-150m",
+          "source_asset_id": "tw-schools-grid-150m:7ab34ec23180",
+          "source_sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+          "source_version": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+          "grid_definition_id": "tw-real-estate-150m-epsg3826-v1",
+          "observed_at": null
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                118.22740508,
+                24.41456069
+              ],
+              [
+                118.22888244,
+                24.41458776
+              ],
+              [
+                118.22885288,
+                24.41594053
+              ],
+              [
+                118.2273755,
+                24.41591346
+              ],
+              [
+                118.22740508,
+                24.41456069
+              ]
+            ]
+          ]
+        }
+      },
+      {
+        "type": "Feature",
+        "id": "G_-1163_2045",
+        "properties": {
+          "grid_id": "G_-1163_2045",
+          "column": -1163,
+          "row": 2045,
+          "source_place_record_count": 1,
+          "metric_status": "valid",
+          "coverage": "unknown",
+          "dataset_id": "tw-schools-grid-150m",
+          "source_asset_id": "tw-schools-grid-150m:7ab34ec23180",
+          "source_sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+          "source_version": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+          "grid_definition_id": "tw-real-estate-150m-epsg3826-v1",
+          "observed_at": null
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                118.23730446,
+                24.43504159
+              ],
+              [
+                118.23878208,
+                24.43506859
+              ],
+              [
+                118.2387526,
+                24.43642137
+              ],
+              [
+                118.23727497,
+                24.43639437
+              ],
+              [
+                118.23730446,
+                24.43504159
+              ]
+            ]
+          ]
+        }
+      }
+    ]
+  }
+}

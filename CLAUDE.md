@@ -29,6 +29,8 @@ SessionStart hook 只提供短路由，不預載 STATUS／BACKLOG／PRINCIPLES�
 ### 2. 資料來源管理
 資料來源契約（動態走 `public.*` RPC / Statistics 一律走 R2 snapshot / 靜態走 CDN 資產 / 禁前端直打 `realtime.*`）→ [`docs/development-rules.md`](./docs/development-rules.md) §1
 
+統計新增／整合／UI 調整另見 [統計圖層規則](./docs/statistics-layer-guidelines.md)：配色與 icon 使用共用規則，保留來源語意，**同步補齊資料來源總覽**，包含原始與衍生選項。
+
 ### 3. 資料載入必須有 Loading UI ⚠️
 所有非同步載入必註冊 loadingRegistry，禁靜默 `.rpc().then()` → development-rules §2
 
@@ -46,6 +48,8 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 
 ## Git Workflow（GitHub Flow）
+
+- **保留完整 commit 歷史**：使用一般 merge commit（`gh pr merge --merge`）；禁止 squash merge 或 rebase merge。此規則依使用者 2026-09-15 指示取代舊 squash 慣例，適用後續所有 PR（含 hotfix）。未經明確要求，不壓縮、合併或改寫既有 commit。
 
 - branch 命名 / PR 流程 / hotfix 判準 → [`docs/git-workflow.md`](./docs/git-workflow.md)
 - PR 描述用 `.github/pull_request_template.md`（`gh pr create` 自動帶入）

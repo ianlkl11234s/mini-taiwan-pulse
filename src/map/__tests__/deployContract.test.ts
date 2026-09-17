@@ -46,6 +46,7 @@ const gfwV4LocalInstall = readFileSync("scripts/deploy/install-gfw-v4-local-rele
 const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
+const dockerIgnore = readFileSync(".dockerignore", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -194,6 +195,9 @@ function uploadPatterns(): { globs: string[]; syncDirs: Set<string> } {
 }
 
 const UPLOAD = uploadPatterns();
+// Versioned medical assets use a dedicated exact-plan publisher, never a glob.
+const medicalPlan = JSON.parse(readFileSync("docs/features/jp-medical-static/payload-publication-plan.json", "utf8")) as { entries: { relative_path: string }[] };
+const medicalUploadPaths = new Set(medicalPlan.entries.map(entry => `jp-medical/${entry.relative_path}`));
 
 /** glob → RegExp（`*` 不跨 `/`，其餘字元字面比對） */
 function globToRe(glob: string): RegExp {
@@ -204,6 +208,7 @@ const UPLOAD_RES = UPLOAD.globs.map(globToRe);
 
 /** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
 function uploadCovers(path: string): boolean {
+  if (medicalUploadPaths.has(path)) return true;
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
@@ -235,6 +240,12 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "gfw_hourly_grid_poc/manifest.json",
   // GFW sampled-track POC is likewise local-only, gitignored, and stripped from dist.
   "gfw_hourly_tracks_poc/manifest.json",
+  // Japan research-only assets：production catalog 隱藏，且 upload allowlist 必須持續排除。
+  "world/jp_natural_parks_ksj_2010.pmtiles",
+  "world/jp_nature_conservation_ksj_2015.pmtiles",
+  "world/jp_wildlife_protection_moe_202504.pmtiles",
+  "world/jp_world_natural_heritage_ksj_2011.geojson",
+  "world/jp_ramsar_moe_current.geojson",
 ]);
 
 /**
@@ -302,6 +313,20 @@ describe("deploy 契約（nginx + pull script）", () => {
       `這些 sourceUrl 本機不存在且不屬於任何 S3 管理目錄（dev 與容器都會 404）：` +
       `${orphans.join(", ")}\n→ 不是檔案忘了產，就是部署管線（nginx/pull）漏接`,
     ).toEqual([]);
+  });
+
+  it("Japan medical exact publisher/install/nginx are connected without broad upload", () => {
+    expect(uploadCovers("jp-medical/current.json")).toBe(true);
+    expect(uploadCovers("jp-medical/raw/private.json")).toBe(false);
+    expect(medicalPlan.entries[medicalPlan.entries.length - 1]?.relative_path).toBe("current.json");
+    expect(pullCovers("jp-medical")).toBe(true);
+    expect(locationFor("jp-medical/current.json")?.readsData).toBe(true);
+    expect(pullScript).toContain('python3 /usr/local/bin/install-jp-medical-assets.py');
+    expect(pullScript).toContain('--exclude "jp-medical/*"');
+    expect(dockerfile).toContain('COPY scripts/deploy/install-jp-medical-assets.py');
+    expect(dockerIgnore).toContain('public/jp-medical');
+    expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
+    expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
   });
 
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {
@@ -402,6 +427,35 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(pullCovers("industrial_zone")).toBe(true);
     expect(locationFor("industrial_zone/industrial_park_boundaries_20260818.pmtiles")?.readsData).toBe(true);
     expect(uploadScript).toContain("Skipping immutable industrial_zone/$name (same SHA-256)");
+  });
+
+  it("Japan tourism production assets 有 S3 供應鏈，research HOLD 資產不會被上傳", () => {
+    const production = [
+      "world/jp_accommodation_canonical_20260910.pmtiles",
+      "world/jp_accommodation_jta_20260331.geojson",
+      "world/jp_accommodation_local_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.pmtiles",
+      "world/jp_world_heritage_unesco_current.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
+    ];
+    const researchOnly = [
+      "world/jp_natural_parks_ksj_2010.pmtiles",
+      "world/jp_nature_conservation_ksj_2015.pmtiles",
+      "world/jp_wildlife_protection_moe_202504.pmtiles",
+      "world/jp_world_natural_heritage_ksj_2011.geojson",
+      "world/jp_ramsar_moe_current.geojson",
+    ];
+    for (const asset of production) expect(uploadCovers(asset), asset).toBe(true);
+    for (const asset of researchOnly) expect(uploadCovers(asset), asset).toBe(false);
+    expect(pullCovers("world")).toBe(true);
+    expect(locationFor(production[0] as string)?.distFallback).toBe(true);
+    expect(uploadScript).not.toContain("public/world/*.pmtiles");
+    expect(uploadScript).toContain("Skipping immutable world/$name (same SHA-256)");
+    expect(uploadScript).toContain("refusing to replace world/$name");
+    for (const asset of [...production, ...researchOnly]) {
+      expect(viteConfig, `Vite build strip 缺 ${asset}`).toContain(`\"${asset}\"`);
+      expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);
+    }
   });
 
   it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {

@@ -11,6 +11,10 @@ COPY . .
 ARG VITE_MAPBOX_TOKEN
 ENV VITE_MAPBOX_TOKEN=$VITE_MAPBOX_TOKEN
 
+# Statistics comparison data must be published before opting in.
+ARG VITE_STATISTICS_COMPARISONS_ENABLED=false
+ENV VITE_STATISTICS_COMPARISONS_ENABLED=$VITE_STATISTICS_COMPARISONS_ENABLED
+
 RUN npm run build
 
 FROM node:22-alpine AS coral-server
@@ -21,11 +25,12 @@ COPY server/coral-private/ ./
 
 # ── Stage 2: Serve ──
 FROM nginx:alpine
-RUN apk add --no-cache aws-cli nodejs
+RUN apk add --no-cache aws-cli nodejs python3
 COPY --from=coral-server /coral-server /opt/coral-server
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY scripts/deploy/pull-deploy-assets.sh /usr/local/bin/pull-deploy-assets.sh
+COPY scripts/deploy/install-jp-medical-assets.py /usr/local/bin/install-jp-medical-assets.py
 COPY scripts/deploy/refresh-climate.sh /usr/local/bin/refresh-climate.sh
 COPY scripts/deploy/refresh-gfw-hourly.sh /usr/local/bin/refresh-gfw-hourly.sh
 COPY scripts/deploy/entrypoint.sh /usr/local/bin/entrypoint.sh

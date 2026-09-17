@@ -1,0 +1,51 @@
+{
+  "status": "LOCAL_ROUTED_PILOT_NOT_NATIONAL",
+  "mode": "foot",
+  "router_version": "OSRM 6.0.0",
+  "profile": "foot.lua",
+  "network_extent": [
+    121.3,
+    24.8,
+    121.8,
+    25.3
+  ],
+  "sample_extent": [
+    121.46,
+    25.0,
+    121.62,
+    25.16
+  ],
+  "geometry_role": "WGS84 angular-grid sample points; not population/campus geometry",
+  "sample_step_degrees": 0.02,
+  "threshold_seconds": 900,
+  "max_snap_m": 250,
+  "sources": {
+    "schools.geojson": {
+      "sha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+      "input_features": 4315
+    },
+    "kindergartens.geojson": {
+      "sha256": "bc9749db2f80411ca176ca1873a0e9a2d8e06e01b5268e23d6d429fa803cbfce",
+      "input_features": 6689
+    }
+  },
+  "network_pbf_sha256": "f6c567cf320eacf6545d26855023d13d19ddfcbc41ce8a7f6c25321386e09892",
+  "artifact": {
+    "path": "education-foot-pilot.geojson",
+    "sha256": "33d78d5744d234723c830575524344bfd3d7879e18579757daa25fb763232dd4"
+  },
+  "counts": {
+    "preschool": 1995,
+    "elementary": 447,
+    "junior_high": 217,
+    "senior_high": 146
+  },
+  "limitations": [
+    "minimum time only among in-extent school points",
+    "distance follows fastest route, not shortest-distance optimization",
+    "school point not verified entrance; snap displacement excluded from route cost",
+    "no traffic, timetable, school district, enrollment or age-population model",
+    "finite network boundary may omit paths beyond extract",
+    "reachable count excludes unusable snaps and disconnected destinations; preserve partial status"
+  ]
+}

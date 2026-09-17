@@ -16,6 +16,7 @@ import { UPSTREAM_REGISTRY } from "../data/upstreamRegistry";
 import { THEMES, LAYER_COLORS } from "./sidebar/layerCatalog";
 import type { LayerVisibility } from "../types";
 import { searchLayers } from "../lib/layerSearch";
+import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsSourceLevelLabel } from "../data/statisticsDataSources";
 
 interface Props {
   /** 覆寫按鈕位置。預設 bottom-right。 */
@@ -45,6 +46,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
       const groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] = [];
       for (const g of theme.groups) {
         const layers = g.layers
+          .filter((l) => isDataSourceBrowserVisible(l.key))
           .filter((l) => !filter || l.label.toLowerCase().includes(filter.toLowerCase()) || l.key.toLowerCase().includes(filter.toLowerCase()))
           .map((l) => ({ key: l.key, label: l.label }));
         if (layers.length > 0) groups.push({ title: g.title, layers });
@@ -53,11 +55,15 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
     }
     return out;
   }, [filter]);
-  const searchResults = useMemo(() => searchLayers(filter), [filter]);
+  const scopedSearchResults = useMemo(
+    () => searchLayers(filter).filter((layer) => isDataSourceBrowserVisible(layer.key)),
+    [filter],
+  );
 
   const totals = useMemo(() => {
     let v = 0, po = 0, cm = 0;
-    for (const ref of Object.values(UPSTREAM_REGISTRY)) {
+    for (const [key, ref] of Object.entries(UPSTREAM_REGISTRY)) {
+      if (!isDataSourceBrowserVisible(key)) continue;
       if (ref.status === "verified") v++;
       else if (ref.status === "pulse_only") po++;
       else if (ref.status === "catalog_missing") cm++;
@@ -136,19 +142,20 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
 
             {/* 搜尋走共用 manifest 索引；空白時維持可按主題瀏覽。 */}
             <div style={{ padding: 8 }}>
-              {filter ? (searchResults.length === 0 ? (
+              {filter ? (scopedSearchResults.length === 0 ? (
                 <div style={{ padding: 12, color: "#9CA3AF", fontSize: 13 }}>找不到相符圖層</div>
               ) : <>
-                <div aria-live="polite" style={{ padding: "4px 10px", color: "#9CA3AF", fontSize: 11 }}>找到 {searchResults.length} 筆</div>
-                {searchResults.slice(0, 50).map((layer) => {
+                <div aria-live="polite" style={{ padding: "4px 10px", color: "#9CA3AF", fontSize: 11 }}>找到 {scopedSearchResults.length} 筆</div>
+                {scopedSearchResults.slice(0, 50).map((layer) => {
                 const locked = !!lockedKeys?.has(layer.key);
                 const color = LAYER_COLORS[layer.key] ?? "#666";
+                const statisticsSource = getStatisticsDataSourceDefinition(layer.key);
                 return (
                   <div key={layer.key} style={{ display: "flex", gap: 8, padding: "8px 10px", borderBottom: "1px solid #1F2937" }}>
                     <button onClick={() => setSelectedLayer(layer.key)} style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", color: "#E5E7EB", cursor: "pointer", padding: 0 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13 }}><span style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />{layer.label}{locked && <Lock size={12} color="#9CA3AF" />}</div>
                       <div style={{ marginTop: 3, color: "#9CA3AF", fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{layer.description}</div>
-                      <div style={{ marginTop: 2, color: "#6B7280", fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>主題：{layer.topics.join("、")} · {layer.source}</div>
+                      <div style={{ marginTop: 2, color: "#6B7280", fontSize: 10, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{statisticsSource ? `${statisticsSource.label} · ${statisticsSourceLevelLabel(statisticsSource.level)} · ${statisticsSource.datasetIds.join(", ")}` : `主題：${layer.topics.join("、")} · ${layer.source}`}</div>
                     </button>
                     {onActivateLayer && (
                       <button disabled={locked} aria-label={`${locked ? "需授權" : "開啟圖層"} ${layer.label}`} onClick={() => onActivateLayer(layer.key)} title={locked ? "此圖層需要授權" : "開啟圖層"} style={{ border: "none", background: "transparent", color: locked ? "#9CA3AF" : "#60A5FA", cursor: "pointer" }}>
@@ -158,7 +165,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
                   </div>
                 );
                 })}
-                {searchResults.length > 50 && <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: 11 }}>顯示前 50 筆，請增加關鍵字縮小範圍。</div>}
+                {scopedSearchResults.length > 50 && <div style={{ padding: "8px 10px", color: "#9CA3AF", fontSize: 11 }}>顯示前 50 筆，請增加關鍵字縮小範圍。</div>}
               </>) : themedLayers.map((t) => (
                 <div key={t.theme} style={{ marginBottom: 12 }}>
                   <div style={{ padding: "6px 8px", fontSize: 11, color: "#6B7280", textTransform: "uppercase", letterSpacing: 1 }}>
@@ -171,6 +178,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
                         const ref = UPSTREAM_REGISTRY[l.key];
                         const status = ref?.status ?? "catalog_missing";
                         const color = LAYER_COLORS[l.key] ?? "#666";
+                        const statisticsSource = getStatisticsDataSourceDefinition(l.key);
                         return (
                           <button
                             key={l.key}
@@ -187,6 +195,7 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
                             <div style={{ display: "flex", alignItems: "center", gap: 8, overflow: "hidden" }}>
                               <span style={{ width: 8, height: 8, borderRadius: "50%", background: color, flexShrink: 0 }} />
                               <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.label}</span>
+                              {statisticsSource && <span style={{ color: "#6B7280", fontSize: 10, whiteSpace: "nowrap" }}>{statisticsSource.kind === "derived" ? "派生" : statisticsSource.kind === "presentation" ? "固定學制" : "來源"}</span>}
                             </div>
                             <span style={{
                               fontSize: 11, color: status === "verified" ? "#10B981" : status === "pulse_only" ? "#A78BFA" : "#F59E0B",

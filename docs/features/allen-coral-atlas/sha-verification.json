@@ -1,0 +1,100 @@
+{
+  "manifest_sha256": "eb415beef4562b2b67f0844258c0b1bb5d36e4758f946c07906996aef6601c76",
+  "files": [
+    {
+      "file": "allen_coral_atlas_okinawa_benthic.geojson",
+      "sha256": "b7a1cf737e720afb6fe2b22ea067ce4c1f8a5959b47849eec833552763e443f1",
+      "size_bytes": 191772134,
+      "passed": true
+    },
+    {
+      "file": "allen_coral_atlas_okinawa_geomorphic.geojson",
+      "sha256": "1d914c045d4e487945d77eff09350f4a52e5011142b6f0c5d73044ba3a5a5c82",
+      "size_bytes": 145803135,
+      "passed": true
+    },
+    {
+      "file": "allen_coral_atlas_taiwan_benthic.geojson",
+      "sha256": "06ea7c25bc73c352d5509e643ebebabd7efd7650ad394413b3c0694633701769",
+      "size_bytes": 108608920,
+      "passed": true
+    },
+    {
+      "file": "allen_coral_atlas_taiwan_geomorphic.geojson",
+      "sha256": "968832ad62df337595da218ca91c79baa0774c4a0a82db99f44be624512837f0",
+      "size_bytes": 48523232,
+      "passed": true
+    },
+    {
+      "file": "allen_coral_atlas_benthic.pmtiles",
+      "sha256": "c877b8183253e109330c7315e1b37ddc6119d48ae710460634d36958aaaa1119",
+      "size_bytes": 94597292,
+      "passed": true
+    },
+    {
+      "file": "allen_coral_atlas_geomorphic.pmtiles",
+      "sha256": "750c28a8b7ea2eff84b18d71a1b5ef80f1065c5b47fbbf98995cda47b691bd41",
+      "size_bytes": 52624835,
+      "passed": true
+    },
+    {
+      "file": "qa_summary.json",
+      "sha256": "1012cd501b18590aea962d7d00170d8750ecf438533568f099af5c67bcf4ad7e",
+      "size_bytes": 6807,
+      "passed": true
+    },
+    {
+      "file": "frontend_contract.json",
+      "sha256": "b4a41578f473674a1c66e5a8939ea817ba9d8463266b999f38337dfa80d77ec5",
+      "size_bytes": 10111,
+      "passed": true
+    },
+    {
+      "file": "visual_qa.json",
+      "sha256": "4e8c5e1ac1f64721e4c146428e38fddef8b8d0a867089ac550d9194aef0c1e2c",
+      "size_bytes": 3891,
+      "passed": true
+    },
+    {
+      "file": "visual_qa_taiwan.png",
+      "sha256": "1fc9af8b89be8b4dfe3da30f8dbbe2a1a430efef6e35c8827e11407d5fb4af0d",
+      "size_bytes": 226703,
+      "passed": true
+    },
+    {
+      "file": "visual_qa_okinawa.png",
+      "sha256": "ff2de55da006e9627381ed51c3e1d7f1ad43d9fa48c3b0f41558006a1d5bd18e",
+      "size_bytes": 240958,
+      "passed": true
+    },
+    {
+      "file": "acceptance.json",
+      "sha256": "b10acf36d2eb18540db305825748837c63042fdb3864d409ca25be78d4da4776",
+      "size_bytes": 4348,
+      "passed": true
+    }
+  ],
+  "upstream_commit": "dd444fff",
+  "contract_commit_comparison": [
+    {
+      "file": "_manifest.json",
+      "tracked_at_dd444fff": true,
+      "matches_commit": true
+    },
+    {
+      "file": "frontend_contract.json",
+      "tracked_at_dd444fff": false,
+      "matches_commit": null
+    },
+    {
+      "file": "qa_summary.json",
+      "tracked_at_dd444fff": false,
+      "matches_commit": null
+    },
+    {
+      "file": "acceptance.json",
+      "tracked_at_dd444fff": false,
+      "matches_commit": null
+    }
+  ]
+}

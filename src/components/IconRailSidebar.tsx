@@ -1,14 +1,15 @@
+import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
-import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
+import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star,
+  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -27,10 +28,13 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
+import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -39,7 +43,8 @@ const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.titl
   .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
 const JAPAN_THEMES = THEMES.filter((t) => JAPAN_TAB_THEME_TITLES.includes(t.title))
   .sort((a, b) => JAPAN_TAB_THEME_TITLES.indexOf(a.title) - JAPAN_TAB_THEME_TITLES.indexOf(b.title));
-const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !t.title.endsWith("Statistics"));
+const statisticsDataThemeTitles = new Set(STATISTICS_DATA_THEMES.map((theme) => theme.title));
+export const MAIN_THEMES = withoutStatisticsLayers(THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title) && !JAPAN_TAB_THEME_TITLES.includes(t.title) && !statisticsDataThemeTitles.has(t.title)));
 
 // ── Color Config ──
 
@@ -111,6 +116,8 @@ interface IconRailSidebarProps {
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
+  /** DEV-only 本地研究 Agent；保持 mounted，切換其他 rail app 不會中斷配對。 */
+  agentPanel?: ReactNode;
 }
 
 // ── Shared Styles ──
@@ -150,7 +157,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "agent";
 
 // ── Main Component ──
 
@@ -176,11 +183,22 @@ export function IconRailSidebar({
   onJapanOpen,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
+  agentPanel,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
   const { BG_RAIL, BORDER, BG_PANEL } = palette;
+  const agentTheme = {
+    "--agent-text": palette.TEXT_STRONG,
+    "--agent-muted": palette.SUB_LABEL,
+    "--agent-accent": palette.ACCENT,
+    "--agent-border": palette.BORDER,
+    "--agent-control-bg": palette.CTRL_INACTIVE_BG,
+    "--agent-control-hover": palette.CTRL_ACTIVE_BG,
+    "--agent-control-border": palette.CTRL_INACTIVE_BORDER,
+  } as CSSProperties;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
+  const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
   const [statisticsSearch, setStatisticsSearch] = useState("");
@@ -203,6 +221,29 @@ export function IconRailSidebar({
     setActivePanel(null);
   }, [externalCloseEpoch]);
 
+  const closeExternalPanels = () => {
+    if (memberActive && onMemberToggle) onMemberToggle();
+    if (intelActive && onIntelToggle) onIntelToggle();
+    if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
+    if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
+  };
+
+  useEffect(() => {
+    const onExplore = (event: Event) => {
+      const detail = (event as CustomEvent<unknown>).detail;
+      const rawKeys = detail && typeof detail === "object" && Array.isArray((detail as { layerKeys?: unknown }).layerKeys)
+        ? (detail as { layerKeys: unknown[] }).layerKeys.filter((key): key is string => typeof key === "string") : [];
+      if (rawKeys.length) {
+        const panel = panelForExplorationLayers(rawKeys);
+        lastExplorationPanel.current = panel;
+        closeExternalPanels();
+        setActivePanel(panel);
+      } else setActivePanel(current => current === "agent" ? lastExplorationPanel.current : current);
+    };
+    window.addEventListener("pulse:explore-layers", onExplore);
+    return () => window.removeEventListener("pulse:explore-layers", onExplore);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, propertyValueActive, onPropertyValueToggle]);
+
   const panelOpen = activePanel !== null;
 
   // Floating panel doesn't push content — always report rail width only
@@ -221,10 +262,8 @@ export function IconRailSidebar({
     // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
     // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
     if (willOpen) {
-      if (memberActive && onMemberToggle) onMemberToggle();
-      if (intelActive && onIntelToggle) onIntelToggle();
-      if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
-      if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
+      if (panel === "layers" || panel === "statistics" || panel === "world" || panel === "japan") lastExplorationPanel.current = panel;
+      closeExternalPanels();
       // 打開「日本」tab → 自動飛日本（App 用 mapRef flyTo）
       if (panel === "japan") onJapanOpen?.();
     }
@@ -266,7 +305,7 @@ export function IconRailSidebar({
     <RailThemeContext.Provider value={palette}>
     <div style={{ position: "relative", height: "100%", pointerEvents: "auto" }}>
       {/* ── Icon Rail ── */}
-      <div
+      <div data-viewport-occluder="icon-rail"
         style={{
           width: RAIL_WIDTH,
           background: BG_RAIL,
@@ -326,6 +365,15 @@ export function IconRailSidebar({
           onClick={() => togglePanel("locations")}
           tooltip="Locations"
         />
+
+        {agentPanel && (
+          <RailIcon
+            icon={Bot}
+            active={activePanel === "agent"}
+            onClick={() => togglePanel("agent")}
+            tooltip="本地 Agent"
+          />
+        )}
 
         {/* 即時情報 Intel */}
         {onIntelToggle && (
@@ -418,7 +466,7 @@ export function IconRailSidebar({
       )}
 
       {/* ── Floating Panel ── */}
-      {panelOpen && (
+      {panelOpen && activePanel !== "agent" && (
         <>
           <style>{`
             @keyframes panelFadeIn {
@@ -426,7 +474,7 @@ export function IconRailSidebar({
               to { opacity: 1; transform: translateX(0); }
             }
           `}</style>
-          <div
+          <div data-viewport-occluder="sidebar-panel"
             style={{
               position: "absolute",
               left: RAIL_WIDTH + 8,
@@ -498,7 +546,7 @@ export function IconRailSidebar({
                 search={statisticsSearch}
                 onSearchChange={setStatisticsSearch}
                 themes={STATISTICS_TAB_THEMES}
-                allOffKeys={getThemeLayerKeys(STATISTICS_TAB_THEMES)}
+                allOffKeys={[...new Set([...getThemeLayerKeys(STATISTICS_TAB_THEMES), ...STATISTICS_RENDER_KEYS])]}
                 title="統計 Statistics"
                 statisticsModeControl
                 visibility={visibility}
@@ -556,6 +604,33 @@ export function IconRailSidebar({
             )}
           </div>
         </>
+      )}
+
+      {agentPanel && (
+        <div
+          style={{
+            ...agentTheme,
+            position: "absolute",
+            left: RAIL_WIDTH + 8,
+            top: 92,
+            width: PANEL_WIDTH,
+            maxWidth: "calc(100vw - 80px)",
+            maxHeight: "70vh",
+            background: BG_PANEL,
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderRadius: RADIUS.xl,
+            display: activePanel === "agent" ? "flex" : "none",
+            flexDirection: "column",
+            overflow: "hidden",
+            zIndex: 3,
+            pointerEvents: "auto",
+            animation: "panelFadeIn 0.25s ease-out",
+          }}
+        >
+          <PanelHeader title="本地 Agent" onClose={closePanel} />
+          {agentPanel}
+        </div>
       )}
     </div>
     </RailThemeContext.Provider>
@@ -726,38 +801,9 @@ function PanelHeader({
 
 // ── Toggle Switch ──
 
-function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
+function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
   const { ACCENT_TOGGLE, TOGGLE_OFF, TOGGLE_KNOB_ON, TOGGLE_KNOB_OFF } = useRailTheme();
-  return (
-    <button
-      onClick={(e) => { e.stopPropagation(); onChange(); }}
-      style={{
-        width: 28,
-        height: 16,
-        borderRadius: RADIUS.xl,
-        border: "none",
-        background: on ? ACCENT_TOGGLE : TOGGLE_OFF,
-        position: "relative",
-        cursor: "pointer",
-        padding: 0,
-        flexShrink: 0,
-        transition: "background 0.15s",
-      }}
-    >
-      <div
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: RADIUS.full,
-          background: on ? TOGGLE_KNOB_ON : TOGGLE_KNOB_OFF,
-          position: "absolute",
-          top: 2,
-          left: on ? 14 : 2,
-          transition: "left 0.15s",
-        }}
-      />
-    </button>
-  );
+  return <LayerToggleSwitch on={on} onChange={onChange} label={label} ACCENT_TOGGLE={ACCENT_TOGGLE} TOGGLE_OFF={TOGGLE_OFF} TOGGLE_KNOB_ON={TOGGLE_KNOB_ON} TOGGLE_KNOB_OFF={TOGGLE_KNOB_OFF} />;
 }
 
 // ══════════════════════════════════
@@ -845,13 +891,13 @@ const LayerRow = memo(function LayerRow({
         (e.currentTarget as HTMLElement).style.background = "transparent";
       }}
     >
-      <Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />
+      <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
       <span
         style={{
           flex: 1,
           fontSize: FONT_SIZE.md,
           fontFamily: "Inter, system-ui, sans-serif",
-          color: active ? TEXT_STRONG : INACTIVE_TEXT,
+          color: TEXT_STRONG,
           transition: "color 0.15s",
         }}
       >
@@ -1170,8 +1216,33 @@ function LayersPanel({
               {!isCollapsed && groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
-                  {group.layers.map(({ key, label, expandable }) => {
-                    const active = visibility[key];
+                    {group.layers.map(({ key, label, expandable }) => {
+                      const medicalGroup = getMedicalStatisticsGroup(key);
+                      if (medicalGroup) {
+                        if (medicalGroup.options[0]?.key !== key) return null;
+                        return (
+                          <MedicalStatisticsGroupControls
+                            key={medicalGroup.key}
+                            groupKey={key}
+                            visibility={visibility}
+                            expandedLayer={expandedLayer}
+                            onLayerClick={onLayerClick}
+                            textColor={TEXT_STRONG}
+                            dimColor={DIM}
+                            renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
+                            renderControls={(selectedKey) => (
+                              <ExpandedControls
+                                layerKey={selectedKey as ExpandableLayerKey}
+                                isTransport={false}
+                                displayMode={displayMode}
+                                onDisplayModeChange={onDisplayModeChange}
+                                onHide={onHideTransport}
+                              />
+                            )}
+                          />
+                        );
+                      }
+                      const active = visibility[key];
                     const isExpanded = expandedLayer === key;
                     const isTransport = key in TRANSPORT_LABELS;
                     return (
@@ -1256,7 +1327,7 @@ function ExpandedControls({
 
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

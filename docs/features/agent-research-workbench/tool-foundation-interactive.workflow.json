@@ -1,0 +1,92 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Mini Taiwan Pulse 資料分析工具地圖",
+    "quality_profile": "showcase",
+    "legend": { "mode": "hidden" },
+    "views": [
+      {
+        "id": "core_flow",
+        "label": "核心運作路徑",
+        "focus": ["question", "discover", "descriptor", "query", "result", "present"],
+        "note": "先定義 grain、scope、stop，再以 datasetId 查詢；query 與每次分析都產生新 resultId，圖層只讀取合格結果。"
+      },
+      {
+        "id": "data_types",
+        "label": "資料型態與入口",
+        "focus": ["discover", "descriptor", "adapters", "query", "quality"],
+        "note": "點資料可做距離與彙總；新聞保留 published/occurred 與 proxy geometry；行政統計保留 exact release、suppression/null；結果可轉 UTC series。"
+      },
+      {
+        "id": "analysis_stack",
+        "label": "分析工具組合",
+        "focus": ["query", "result", "present", "quality"],
+        "note": "附近設施＝query→spatial→aggregate；區域指標＝query→join→metric；新聞升溫＝query→read_series→compare_series→evidence。"
+      },
+      {
+        "id": "access_safety",
+        "label": "存取與安全界線",
+        "focus": ["access", "query", "quality", "unavailable"],
+        "note": "先 plan_data_access 檢查成本、筆數、分頁與 materialize；missing、suppressed、denied、error、stale、expired 都不改寫成 0 或空集合。"
+      },
+      {
+        "id": "map_output",
+        "label": "地圖呈現出口",
+        "focus": ["result", "quality", "present"],
+        "note": "present_result 最多選 4 組 session 內、未過期、actual Point 結果；get_result_bounds 與 fit_bounds 以 revision receipt 控制鏡位。"
+      }
+    ],
+    "output": "docs/features/agent-research-workbench/tool-foundation-interactive.html"
+  },
+  "lanes": [
+    { "id": "contract", "label": "問題、資料探索與契約" },
+    { "id": "runtime", "label": "查詢、分析與 Result graph" },
+    { "id": "governance", "label": "品質、停止條件與地圖出口", "variant": "exception" }
+  ],
+  "phases": [
+    { "id": "frame", "label": "界定問題", "fromCol": 0, "toCol": 0 },
+    { "id": "discover_phase", "label": "找資料", "fromCol": 1, "toCol": 1 },
+    { "id": "execute_phase", "label": "讀契約、查詢、驗證", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "present_phase", "label": "分析、比較與呈現", "fromCol": 4, "toCol": 4, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "dataset_boundary", "label": "DatasetDescriptor + allowlisted adapters", "lane": "contract", "fromCol": 1, "toCol": 3, "variant": "emphasis" },
+    { "id": "analysis_boundary", "label": "Browser-session result graph", "lane": "runtime", "fromCol": 2, "toCol": 4, "variant": "dashed" },
+    { "id": "safety_boundary", "label": "Fail closed", "lane": "governance", "fromCol": 2, "toCol": 4, "variant": "security" }
+  ],
+  "mainPath": ["question", "discover", "descriptor", "query", "result", "present"],
+  "semanticChecks": {
+    "allowedRoots": ["question", "access"],
+    "allowedTerminals": ["present", "unavailable"],
+    "requiredPaths": [
+      { "from": "question", "to": "present" },
+      { "from": "discover", "to": "quality" },
+      { "from": "access", "to": "result" }
+    ]
+  },
+  "nodes": [
+    { "id": "question", "lane": "contract", "col": 0, "type": "external", "label": "研究問題 + Agent", "sublabel": "grain · scope · stop", "tag": "recipe", "width": 110 },
+    { "id": "discover", "lane": "contract", "col": 1, "type": "frontend", "label": "探索工具", "sublabel": "search · describe", "tag": "datasetId", "width": 125 },
+    { "id": "descriptor", "lane": "contract", "col": 2, "type": "database", "label": "DatasetDescriptor", "sublabel": "grain · time · geometry", "tag": "source", "width": 135 },
+    { "id": "adapters", "lane": "contract", "col": 3, "type": "backend", "label": "受控 Adapter", "sublabel": "Point · event · stats", "tag": "allowlist", "width": 135 },
+    { "id": "access", "lane": "governance", "col": 1, "type": "security", "label": "存取計劃", "sublabel": "limits · materialize", "tag": "cost", "width": 125 },
+    { "id": "query", "lane": "runtime", "col": 2, "type": "messagebus", "label": "query_records", "sublabel": "filter · time · page", "tag": "receipt", "width": 130 },
+    { "id": "result", "lane": "runtime", "col": 3, "type": "database", "label": "Result Store", "sublabel": "session · TTL · refs", "tag": "resultId", "width": 130 },
+    { "id": "quality", "lane": "governance", "col": 3, "type": "security", "label": "品質與證據", "sublabel": "quality · evidence", "tag": "null ≠ 0", "width": 130 },
+    { "id": "unavailable", "lane": "governance", "col": 4, "type": "security", "label": "明確停止", "sublabel": "denied · expired", "tag": "unavailable ≠ empty", "width": 140 },
+    { "id": "present", "lane": "runtime", "col": 4, "type": "backend", "label": "分析 → 地圖出口", "sublabel": "spatial · metric · series", "tag": "resultId / 4 Point", "width": 135 }
+  ],
+  "edges": [
+    { "id": "frame_to_discover", "from": "question", "to": "discover", "label": "需要哪種證據？", "variant": "emphasis", "role": "main" },
+    { "id": "discover_to_descriptor", "from": "discover", "to": "descriptor", "label": "讀 capability", "variant": "default", "role": "main" },
+    { "id": "descriptor_to_query", "from": "descriptor", "to": "query", "label": "typed request", "variant": "emphasis", "role": "main" },
+    { "id": "descriptor_to_adapters", "from": "descriptor", "to": "adapters", "label": "選 allowlisted adapter", "variant": "default", "role": "branch" },
+    { "id": "adapters_to_query", "from": "adapters", "to": "query", "label": "raw rows + receipt", "variant": "default", "role": "return" },
+    { "id": "access_to_query", "from": "access", "to": "query", "label": "planId", "variant": "security", "role": "main" },
+    { "id": "query_to_result", "from": "query", "to": "result", "label": "materialized rows + resultId", "variant": "emphasis", "role": "main" },
+    { "id": "result_to_present", "from": "result", "to": "present", "label": "分析後選擇合格 resultId", "variant": "emphasis", "role": "main" },
+    { "id": "query_to_quality", "from": "query", "to": "quality", "label": "coverage / null / source", "variant": "security", "role": "branch" },
+    { "id": "quality_to_unavailable", "from": "quality", "to": "unavailable", "label": "不符合停止條件", "variant": "security", "role": "error", "route": "straight" }
+  ]
+}

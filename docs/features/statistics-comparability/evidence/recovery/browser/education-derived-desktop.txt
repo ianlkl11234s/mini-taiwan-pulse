@@ -1,0 +1,228 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=REDACTED
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 人口與社會 People & Society
+- generic: 1/75
+- button
+- generic: └ 人口動態
+- generic: 每月出生數（歷史快照）
+- button
+- generic: └ 教育與少子化
+- generic: 幼兒園－學校端
+- button
+- generic: 幼兒園－老師端
+- button
+- generic: 幼兒園－學生端
+- button
+- generic: 國小－學校端
+- button
+- generic: 國小－老師端
+- button
+- generic: 國小－學生端
+- button
+- generic: 國中－學校端
+- button
+- generic: 國中－老師端
+- button
+- generic: 國中－學生端
+- button
+- generic: 高中－學校端
+- button
+- generic: 高中－老師端
+- button
+- generic: 高中－學生端
+- button
+- link "教育路網可達性：開啟本地試算":
+  - /url: /statistics-accessibility-review.html
+- text: 指標
+- combobox "高中－學生端 指標":
+  - option "學生或幼生數"
+  - option "學生或幼生數（每萬名居民）"
+  - option "學生或幼生數（每平方公里）"
+  - option "班級數"
+  - option "班級數（每萬名居民）"
+  - option "班級數（每平方公里）"
+  - option "每班學生數" [selected]
+  - option "學生或幼生年增減數"
+  - option "學生或幼生年增減率"
+- generic "高中－學生端－每班學生數 資料篩選：期間：2025-08-01 — 2026-07-31；學年度：民國 114 年；學段：高級中等學校；來源 schema：104–114 v1":
+  - text: 資料篩選
+  - generic "期間：2025-08-01 — 2026-07-31；學年度：民國 114 年；學段：高級中等學校；來源 schema：104–114 v1": ：期間：2025-08-01 — 2026-07-31；學年度：民國 114 年；學段：高級中等學校；來源 schema：104–114 v1
+- option "民國 114 年" [selected]
+- option "民國 113 年"
+- option "民國 112 年"
+- option "民國 111 年"
+- option "民國 110 年"
+- option "民國 109 年"
+- option "民國 108 年"
+- option "民國 107 年"
+- option "民國 106 年"
+- option "民國 105 年"
+- option "民國 104 年"
+- paragraph: 統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 計算年增減。
+- paragraph: 參考邊界：COUNTY_MOI_1140318；reference boundary；不宣稱歷史原生界線。
+- paragraph: 地理層級：縣市 · 單位：學生/班
+- status: 資料可用狀態：STALE
+- paragraph: 已載入 22／22 個區域統計值；灰色區域為缺資料，不等於 0
+- generic "來源與處理紀錄"
+- button "Hide"
+- generic: 透明度 0.55
+- slider "透明度 0.55": "0.55"
+- generic: └ 醫療與長照
+- button "醫院家數":
+  - text: 醫院家數
+- switch "醫院家數 顯示": 關
+- button "醫院病床":
+  - text: 醫院病床
+- switch "醫院病床 顯示": 關
+- button "醫院人力":
+  - text: 醫院人力
+- switch "醫院人力 顯示": 關
+- generic: 一般護理之家列示護理人員欄位加總
+- button
+- generic: 一般護理之家列示照服員欄位加總
+- button
+- button "一般護理之家床位":
+  - text: 一般護理之家床位
+- switch "一般護理之家床位 顯示": 關
+- button "產後護理床":
+  - text: 產後護理床
+- switch "產後護理床 顯示": 關
+- button "產後護理嬰兒床":
+  - text: 產後護理嬰兒床
+- switch "產後護理嬰兒床 顯示": 關
+- button "照顧服務員登錄":
+  - text: 照顧服務員登錄
+- switch "照顧服務員登錄 顯示": 關
+- generic: 醫療院所每萬人口病床數
+- button
+- generic: 機構每萬人口執業醫事人員數
+- button
+- generic: └ 住宅存量與使用
+- button "住宅：總住宅":
+  - text: 住宅：總住宅
+- switch "住宅：總住宅 顯示": 關
+- button "住宅：有人經常居住":
+  - text: 住宅：有人經常居住
+- switch "住宅：有人經常居住 顯示": 關
+- button "住宅：無人經常居住":
+  - text: 住宅：無人經常居住
+- switch "住宅：無人經常居住 顯示": 關
+- button "住宅：偶爾自住":
+  - text: 住宅：偶爾自住
+- switch "住宅：偶爾自住 顯示": 關
+- button "住宅：其他使用":
+  - text: 住宅：其他使用
+- switch "住宅：其他使用 顯示": 關
+- button "住宅：閒置":
+  - text: 住宅：閒置
+- switch "住宅：閒置 顯示": 關
+- button "有人居住住宅用途":
+  - text: 有人居住住宅用途
+- switch "有人居住住宅用途 顯示": 關
+- generic: └ 犯罪與治安
+- generic: 鄉鎮市區犯罪統計
+- button
+- generic: 交通與運輸 Transport
+- generic: 0/105
+- button
+- generic: 農林漁牧 Agriculture, Forestry & Fisheries
+- generic: 0/101
+- button
+- generic: 環境與資源 Environment & Resources
+- generic: 0/10
+- button
+- generic: 地圖參考 Map Reference
+- generic: 0/2
+- button
+- button "◀"
+- button "9/17 (四)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 00:00
+- slider: "0"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 23.8, 120.8 z7 pitch 0 bearing 0
+- button "LEGEND" [active]:
+  - generic: LEGEND
+- strong: 高中－學生端－每班學生數
+- generic: 2025-08-01 — 2026-07-31 · 學生/班
+- generic: 資料可用狀態：STALE
+- generic: 低於 10
+- generic: 10 至未滿 20
+- generic: 20 至未滿 25
+- generic: 25 至未滿 30
+- generic: 30 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

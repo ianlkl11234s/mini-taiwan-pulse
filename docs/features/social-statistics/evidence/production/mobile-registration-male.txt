@@ -1,0 +1,77 @@
+- region "Map"
+- button "Toggle attribution"
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- generic: MTP
+- button "資訊":
+- button "分享目前畫面 / 取得嵌入碼":
+- button "截圖":
+- button "AI 助手":
+- button "3D"
+- button "會員專區":
+- button "帳號選單：[帳號名稱]"
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 17:09
+- slider: "0.7145"
+- generic: 00:00
+- generic: 23:59
+- button "展開圖層與搜尋":
+  - generic: 圖層與搜尋
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 照顧服務員登錄數
+- generic: 數值
+- generic: 1,298 登錄數
+- generic: 資料期別
+- generic: 2024-01-01 — 2024-12-31
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 覆蓋狀態
+- generic: COMPLETE
+- generic: 處理版本
+- generic: mohw-care-worker-registration-count-v2-tls-fetch-receipt-gated
+- generic: 原始 SHA-256
+- generic: 847d6fd4cf4be2f0a2c0298155cf1b79f04e50533613c488d9698877db8d946e
+- generic: 來源
+- generic: 衛生福利部
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 照顧服務員登錄數
+- generic: 2024 年 · 登錄數
+- generic: 資料可用狀態：STALE
+- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供
+- generic: 低於 273
+- generic: 273 至未滿 1,117
+- generic: 1,117 至未滿 1,993
+- generic: 1,993 至未滿 4,785
+- generic: 4,785 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

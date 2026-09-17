@@ -1,0 +1,799 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.mini-taiwan-pulse.local/research-result/0.1/result.schema.json",
+  "title": "Synthetic research result envelope",
+  "description": "Phase A only. This schema performs structural checks; result-validator.mjs is the canonical invariant validator and performs byte, geometry, bbox, freshness and cross-field checks without network access.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "title",
+    "createdAt",
+    "inputMode",
+    "inputs",
+    "method",
+    "geojson",
+    "table",
+    "metrics",
+    "quality",
+    "sourceRefs",
+    "licenseRefs",
+    "limitations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "research-result/0.1"
+    },
+    "artifactId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "title": {
+      "$ref": "#/$defs/text"
+    },
+    "createdAt": {
+      "$ref": "#/$defs/instant"
+    },
+    "inputMode": {
+      "const": "synthetic"
+    },
+    "inputs": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "method": {
+      "$ref": "#/$defs/method"
+    },
+    "geojson": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/featureCollection"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "table": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/table"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/metric"
+      },
+      "maxItems": 100
+    },
+    "quality": {
+      "$ref": "#/$defs/quality"
+    },
+    "sourceRefs": {
+      "$ref": "#/$defs/syntheticRefs"
+    },
+    "licenseRefs": {
+      "$ref": "#/$defs/syntheticRefs"
+    },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/nonEmptyText"
+      },
+      "maxItems": 100
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "geojson": {
+          "not": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "properties": {
+        "table": {
+          "not": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "text": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "nonEmptyText": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/text"
+        },
+        {
+          "minLength": 1
+        }
+      ]
+    },
+    "instant": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,3})?Z$"
+    },
+    "scalar": {
+      "type": [
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "jsonData": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/scalar"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/jsonData"
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/jsonData"
+          }
+        }
+      ],
+      "description": "Canonical validator additionally enforces maximum parameter depth 32 and 10000 nodes."
+    },
+    "method": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "parameters",
+        "scriptHash",
+        "environmentRef"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "version": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "parameters": {
+          "$ref": "#/$defs/jsonData"
+        },
+        "scriptHash": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "environmentRef": {
+          "$ref": "#/$defs/nonEmptyText"
+        }
+      }
+    },
+    "position": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        }
+      ],
+      "items": false
+    },
+    "bbox": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "number"
+        }
+      ],
+      "items": false
+    },
+    "geometry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "properties": {
+            "type": {
+              "const": "Point"
+            },
+            "coordinates": {
+              "$ref": "#/$defs/position"
+            },
+            "bbox": {
+              "$ref": "#/$defs/bbox"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "properties": {
+            "type": {
+              "const": "MultiPoint"
+            },
+            "coordinates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/position"
+              }
+            },
+            "bbox": {
+              "$ref": "#/$defs/bbox"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "properties": {
+            "type": {
+              "const": "LineString"
+            },
+            "coordinates": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "$ref": "#/$defs/position"
+              }
+            },
+            "bbox": {
+              "$ref": "#/$defs/bbox"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "properties": {
+            "type": {
+              "const": "MultiLineString"
+            },
+            "coordinates": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "$ref": "#/$defs/position"
+                }
+              }
+            },
+            "bbox": {
+              "$ref": "#/$defs/bbox"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "coordinates"
+          ],
+          "properties": {
+            "type": {
+              "const": "Polygon"
+            },
+            "coordinates": {
+              "$ref": "#/$defs/polygonCoordinates"
+            },
+            "bbox": {
+              "$ref": "#/$defs/bbox"
+            }
+          }
+        }
+      ]
+    },
+    "polygonCoordinates": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "items": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 512,
+        "items": {
+          "$ref": "#/$defs/position"
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "geometry",
+        "properties"
+      ],
+      "properties": {
+        "type": {
+          "const": "Feature"
+        },
+        "geometry": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/geometry"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/scalar"
+          },
+          "maxProperties": 100
+        },
+        "id": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "maxLength": 2048
+        },
+        "bbox": {
+          "$ref": "#/$defs/bbox"
+        }
+      }
+    },
+    "featureCollection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "features"
+      ],
+      "properties": {
+        "type": {
+          "const": "FeatureCollection"
+        },
+        "features": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "$ref": "#/$defs/feature"
+          }
+        },
+        "bbox": {
+          "$ref": "#/$defs/bbox"
+        }
+      }
+    },
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "columns",
+        "rows"
+      ],
+      "properties": {
+        "columns": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/nonEmptyText"
+          }
+        },
+        "rows": {
+          "type": "array",
+          "maxItems": 10000,
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/scalar"
+            }
+          }
+        }
+      }
+    },
+    "timeInterval": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "start": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/instant"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/instant"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spatialRef",
+        "timeInterval"
+      ],
+      "properties": {
+        "spatialRef": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "timeInterval": {
+          "$ref": "#/$defs/timeInterval"
+        }
+      }
+    },
+    "ratioComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "status",
+        "unit"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/metricStatus"
+        },
+        "unit": {
+          "$ref": "#/$defs/nonEmptyText"
+        }
+      }
+    },
+    "metricStatus": {
+      "enum": [
+        "valid",
+        "partial",
+        "unknown",
+        "suppressed",
+        "undefined",
+        "not_comparable",
+        "error"
+      ]
+    },
+    "coverageStatus": {
+      "enum": [
+        "complete",
+        "partial",
+        "none",
+        "unknown"
+      ]
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "value",
+        "unit",
+        "status",
+        "scope",
+        "coverage"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "value": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "unit": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "status": {
+          "$ref": "#/$defs/metricStatus"
+        },
+        "scope": {
+          "$ref": "#/$defs/scope"
+        },
+        "coverage": {
+          "$ref": "#/$defs/coverageStatus"
+        },
+        "reason": {
+          "$ref": "#/$defs/nonEmptyText"
+        },
+        "numerator": {
+          "$ref": "#/$defs/ratioComponent"
+        },
+        "denominator": {
+          "$ref": "#/$defs/ratioComponent"
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "requested",
+        "covered",
+        "dataVersion",
+        "validInputCount"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/coverageStatus"
+        },
+        "requested": {
+          "$ref": "#/$defs/coverageScope"
+        },
+        "covered": {
+          "$ref": "#/$defs/coverageScope"
+        },
+        "dataVersion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonEmptyText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "validInputCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "coverageScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "spatialRef",
+        "timeInterval"
+      ],
+      "properties": {
+        "spatialRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonEmptyText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "timeInterval": {
+          "$ref": "#/$defs/timeInterval"
+        }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "evaluatedAt",
+        "observedAt",
+        "sourceVersion",
+        "thresholdPolicyRef"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "fresh",
+            "stale",
+            "unknown",
+            "not_applicable"
+          ]
+        },
+        "evaluatedAt": {
+          "$ref": "#/$defs/instant"
+        },
+        "observedAt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/instant"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sourceVersion": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonEmptyText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "thresholdPolicyRef": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonEmptyText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "exclusions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "missing_geometry",
+        "invalid_geometry",
+        "missing_value",
+        "duplicate",
+        "outside_scope"
+      ],
+      "properties": {
+        "missing_geometry": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "invalid_geometry": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "missing_value": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "duplicate": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "outside_scope": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executionStatus",
+        "coverage",
+        "freshness",
+        "exclusions",
+        "analysisComplete",
+        "displayTruncated"
+      ],
+      "properties": {
+        "executionStatus": {
+          "enum": [
+            "succeeded",
+            "partial",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "coverage": {
+          "$ref": "#/$defs/coverage"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "exclusions": {
+          "$ref": "#/$defs/exclusions"
+        },
+        "analysisComplete": {
+          "type": "boolean"
+        },
+        "displayTruncated": {
+          "type": "boolean"
+        }
+      }
+    },
+    "syntheticRefs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "pattern": "^synthetic:",
+        "maxLength": 2048
+      },
+      "maxItems": 100
+    }
+  },
+  "x-invariants": [
+    "result-validator.mjs caps errors at 100, result UTF-8 at 5 MiB and total vertices at 200,000",
+    "bbox equals contained coordinate bounds; Phase A Polygon has exactly one closed, non-self-intersecting, non-zero-area exterior ring of at most 512 vertices; MultiPolygon and holes are unsupported",
+    "total polygon segment-pair comparisons are capped at 1,000,000",
+    "valid metrics have finite values and complete declared scope; valid ratios have valid finite numerator, valid positive denominator and value within relative tolerance 1e-9 of numerator/denominator",
+    "suppressed values and numerator/denominator values are null",
+    "fresh/stale have observedAt plus thresholdPolicyRef; empty synthetic inputs require not_applicable freshness",
+    "displayTruncated does not change analysisComplete"
+  ]
+}

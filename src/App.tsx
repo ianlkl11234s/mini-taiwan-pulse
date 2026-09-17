@@ -1,4 +1,6 @@
-import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
+import { MainMapConnection } from "./research/MainMapConnection";
+import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
+import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -105,7 +107,7 @@ import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } fro
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
-import { coralSafeFeatureInfo, isCoralPrivateFeature } from "./lib/coralPrivateUi";
+import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -177,7 +179,7 @@ export default function App() {
   // 動態 gating（Phase 2）：啟動拉一次公開 get_layer_gates()（fail-safe：失敗維持靜態 GATED_LAYERS）。
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
-  const coralAccess = useCoralPrivateAccess();
+  const allenCoralAccess = useAllenCoralPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -188,9 +190,9 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
-    if (!coralAccess.allowed) s.add("coralReefDistribution");
+    if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     return s;
-  }, [memberTier, layerGates, coralAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -203,7 +205,7 @@ export default function App() {
     prefetch: prefetchFlight,
   } = useAirspaceData(layerVisibility.flights);
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, availableDates: shipAvailableDates, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -406,6 +408,46 @@ export default function App() {
     dataStartTime: dataTimeRange.start,
     dataEndTime: dataTimeRange.end,
   });
+
+  // The research bridge reads this ref on demand. It never writes timeStore;
+  // useTimeline remains the sole timeStore writer through these actions.
+  const researchTimelineRef = useRef<(TimelineSnapshot & TimelineActions) | null>(null);
+  const researchHistoricalModeRef = useRef(false);
+  researchTimelineRef.current = {
+    currentTime: timeline.currentTime,
+    mode: timeline.timeMode,
+    playing: timeline.playing,
+    speed: timeline.speed,
+    windowStart: timeline.windowStart,
+    windowEnd: timeline.windowEnd,
+    setTimeMode: timeline.setTimeMode,
+    jumpToTime: timeline.jumpToTime,
+    play: timeline.play,
+    pause: timeline.pause,
+    setSpeed: timeline.setSpeed,
+  };
+  const researchShipDatesRef = useRef<ShipDateAvailability>({ state: "not_loaded", dates: [] });
+  researchShipDatesRef.current = {
+    state: !layerVisibility.ships
+      ? "not_loaded"
+      : shipsLoading
+        ? "loading"
+        : shipAvailableDates.length > 0
+          ? "available"
+          // useShipData does not expose a successful empty-date response; retain unknown.
+          : "unknown",
+    dates: shipAvailableDates.map(date => date.date),
+  };
+  const researchTimeline = useMemo(() => createTimelineControl({
+    getTimeline: () => {
+      const current = researchTimelineRef.current;
+      if (!current) throw new Error("TIMELINE_NOT_READY");
+      return current;
+    },
+    getShipDates: () => researchShipDatesRef.current,
+    getCurrentTime: () => timeStore.getTime(),
+    isHistoricalModeActive: () => researchHistoricalModeRef.current,
+  }), []);
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
@@ -614,6 +656,7 @@ export default function App() {
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
+  researchHistoricalModeRef.current = appMode === "historical";
   const [historicalYear, setHistoricalYear] = useState<number>(113); // 民國年
   const [historicalMonth, setHistoricalMonth] = useState<number>(1); // 1~12（月/日粒度時用）
   const [historicalDay, setHistoricalDay] = useState<number>(1);     // 1~31（日粒度時用）
@@ -791,22 +834,36 @@ export default function App() {
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
-  // Auth changes first remove the private source in its host. This derived state also
-  // hides a previously selected Coral feature in the same render, before its cleanup
-  // effect runs, so neither popup nor selected-feature halo can linger after logout.
+  // Allen auth changes first remove the private source in its host. This derived state also
+  // hides a previously selected Allen feature in the same render, before its cleanup effect
+  // runs, so neither popup nor selected-feature halo can linger after logout.
   const coralUiFeatureInfo = coralSafeFeatureInfo(
     featureInfo,
-    coralAccess.allowed,
-    layerVisibility.coralReefDistribution,
+    allenCoralAccess.allowed,
+    layerVisibility.allenCoralAtlas,
   );
   useEffect(() => {
-    if (!coralAccess.allowed && layerVisibility.coralReefDistribution) {
-      setLayerVisibility((prev) => ({ ...prev, coralReefDistribution: false }));
+    const onAllenAccessDenied = () => {
+      setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
+      if (isAllenCoralPrivateFeature(featureInfo)) setFeatureInfo(null);
+      showTransientNotice("Allen 私人資料存取失敗，已清除圖層；這不是沒有珊瑚或沒有製圖 coverage。");
+    };
+    const clearAllenSelection = () => setFeatureInfo(current => isAllenCoralPrivateFeature(current) ? null : current);
+    window.addEventListener("allen-coral-access-denied", onAllenAccessDenied);
+    window.addEventListener("allen-coral-selection-clear", clearAllenSelection);
+    return () => {
+      window.removeEventListener("allen-coral-access-denied", onAllenAccessDenied);
+      window.removeEventListener("allen-coral-selection-clear", clearAllenSelection);
+    };
+  }, [featureInfo, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (!allenCoralAccess.allowed && layerVisibility.allenCoralAtlas) {
+      setLayerVisibility((prev) => ({ ...prev, allenCoralAtlas: false }));
     }
-    if (featureInfo && coralUiFeatureInfo === null && isCoralPrivateFeature(featureInfo)) {
+    if (featureInfo && coralUiFeatureInfo === null && isAllenCoralPrivateFeature(featureInfo)) {
       setFeatureInfo(null);
     }
-  }, [coralAccess.allowed, layerVisibility.coralReefDistribution, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  }, [allenCoralAccess.allowed, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1312,6 +1369,8 @@ export default function App() {
 
   const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
     if (handleGatedIntercept(layer)) return;
+    // Switching statistical indicators must not retain a popup for the old indicator.
+    if (isStatisticsChoropleth(layer)) setFeatureInfo(null);
     const isVisible = layerVisibilityRef.current[layer];
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
@@ -1326,7 +1385,7 @@ export default function App() {
     // 點 layer 時自動關掉即時情報 / 衛星情報 panel（與點 location 一致）
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept]);
+  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept, setFeatureInfo]);
 
   const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
@@ -1872,6 +1931,7 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
+              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} timeline={researchTimeline} /> : undefined}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
@@ -1947,7 +2007,6 @@ export default function App() {
                   bearing: JAPAN_CAMERA.bearing,
                   speed: 1.0,
                 });
-                setLayerVisibility((prev) => (prev.jpAdminPrefecture ? prev : { ...prev, jpAdminPrefecture: true }));
               }}
             />
           </div>
