@@ -88,7 +88,7 @@ aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
 echo "[pull] sync forestry → $DATA_DIR/forestry/"
-aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress
+aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson"
 
 # 養殖漁業：鏡像子前綴 deploy-assets/fishery/ → /data/fishery/（ponds/衛星偵測 PMTiles 大檔；生產區/箱網 geojson 小檔在 dist fallback）
 echo "[pull] sync fishery → $DATA_DIR/fishery/"

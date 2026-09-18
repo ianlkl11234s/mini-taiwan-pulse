@@ -195,6 +195,7 @@ class PublicationContractTest(unittest.TestCase):
             self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
             self.assertEqual(INSTALL.digest(target / f"releases/{version}/details/t/000.json"), INSTALL.digest(root / f"releases/{version}/details/t/000.json"))
             self.assertEqual(INSTALL.digest(target / f"releases/{version}/catalog.json"), INSTALL.digest(root / f"releases/{version}/catalog.json"))
+            self.assertFalse((target / ".install-staging").exists())
 
     def test_installer_success_installs_compact_release_then_current(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -240,6 +241,64 @@ class PublicationContractTest(unittest.TestCase):
                 with self.assertRaises(ValueError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
             self.assertEqual((target / "current.json").read_text(), "old-pointer")
             self.assertFalse((target / ("releases/" + "a" * 64)).exists())
+
+    def test_installer_current_switch_failure_keeps_old_pointer_and_verified_staging(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            original_replace = INSTALL.os.replace
+            def fail_current(source, destination):
+                if Path(destination).resolve() == (target / "current.json").resolve():
+                    raise OSError("simulated current switch interruption")
+                original_replace(source, destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.os, "replace", fail_current):
+                with self.assertRaises(OSError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+            self.assertTrue((target / f".install-staging/{version}/current.json").is_file())
+
+    def test_installer_success_removes_only_known_staging_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+                if key.endswith("points/navii_facilities.pmtiles"):
+                    unknown = target / f".install-staging/{version}/keep-for-inspection.txt"
+                    unknown.parent.mkdir(parents=True, exist_ok=True)
+                    unknown.write_text("unknown")
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            staging = target / f".install-staging/{version}"
+            self.assertEqual((staging / "keep-for-inspection.txt").read_text(), "unknown")
+            self.assertFalse((staging / "objects").exists())
+            self.assertFalse((staging / "current.json").exists())
+
+    def test_installer_rerun_cleans_verified_staging_after_current_switch_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            original_replace = INSTALL.os.replace
+            def fail_current(source, destination):
+                if Path(destination).resolve() == (target / "current.json").resolve():
+                    raise OSError("simulated current switch interruption")
+                original_replace(source, destination)
+            args = SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused")
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.os, "replace", fail_current):
+                with self.assertRaises(OSError): INSTALL.install(args)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(args)
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertFalse((target / ".install-staging").exists())
 
 
 if __name__ == "__main__":
