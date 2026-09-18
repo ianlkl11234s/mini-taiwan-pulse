@@ -1,4 +1,5 @@
 import { ALL_PRESETS } from "../map/cameraPresets";
+import { withLoading } from "../lib/loadingRegistry";
 
 const MAX_QUERY_BYTES = 512;
 const MAX_ASSET_BYTES = 3 * 1024 * 1024;
@@ -68,8 +69,11 @@ function coordinateCandidate(query: string): OfflineLocationCandidate | undefine
   return { label: `${center[0]}, ${center[1]}`, center, source: "coordinate_input", precision: "user_provided", matchedOn: "coordinates" };
 }
 
-async function readAsset(asset: typeof LOCAL_ASSETS[number]): Promise<LocalPoint[]> {
+async function readAsset(asset: typeof LOCAL_ASSETS[number], signal?: AbortSignal): Promise<LocalPoint[]> {
   const controller = new AbortController();
+  const abort = () => controller.abort(signal?.reason);
+  if (signal?.aborted) abort();
+  else signal?.addEventListener("abort", abort, { once: true });
   const timer = setTimeout(() => controller.abort(), ASSET_TIMEOUT_MS);
   try {
     const response = await fetch(asset.path, { signal: controller.signal, credentials: "same-origin" });
@@ -108,6 +112,7 @@ async function readAsset(asset: typeof LOCAL_ASSETS[number]): Promise<LocalPoint
     throw new Error("LOCAL_ASSET_UNAVAILABLE");
   } finally {
     clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
     controller.abort();
   }
 }
@@ -124,7 +129,7 @@ function baseResult(query: string, status: OfflineLocationResult["status"], cand
 }
 
 /** Resolves only fixed, same-origin public assets. The query is never sent to a remote geocoder. */
-export async function resolveOfflineLocation(query: string): Promise<OfflineLocationResult> {
+export async function resolveOfflineLocation(query: string, signal?: AbortSignal): Promise<OfflineLocationResult> {
   if (typeof query !== "string" || utf8Bytes(query) > MAX_QUERY_BYTES || query.trim() === "") return baseResult(typeof query === "string" ? query : "", "invalid_input", []);
   const coordinate = coordinateCandidate(query);
   if (coordinate) return baseResult(query, "ok", [coordinate]);
@@ -136,7 +141,11 @@ export async function resolveOfflineLocation(query: string): Promise<OfflineLoca
   });
   if (presetMatches.length) return baseResult(query, "ok", presetMatches);
 
-  const loaded = await Promise.allSettled(LOCAL_ASSETS.map(readAsset));
+  const loaded = await withLoading(
+    "research:offline-location",
+    "載入本機地點資料",
+    Promise.allSettled(LOCAL_ASSETS.map(asset => readAsset(asset, signal))),
+  );
   const points = loaded.flatMap(item => item.status === "fulfilled" ? item.value : []);
   const matches = points.flatMap((point): OfflineLocationCandidate[] => {
     const isName = normalized(point.label) === needle;
