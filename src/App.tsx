@@ -37,6 +37,7 @@ import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { layerVisibilityStore } from "./state/layerVisibilityStore";
 import { isStatisticsChoropleth, type StatisticsChoroplethKey } from "./data/statisticsLayerRegistry";
+import { shouldClearFeatureInfoForLayerClick, type LayerClickIntent } from "./lib/statisticsPopupSelection";
 import { resolveStatisticsModeForUrl, statisticsDisplayModeStore } from "./state/statisticsDisplayModeStore";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -1367,10 +1368,9 @@ export default function App() {
     return true;
   }, []);
 
-  const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
+  const handleLayerClick = useCallback((layer: keyof LayerVisibility, intent?: LayerClickIntent) => {
     if (handleGatedIntercept(layer)) return;
-    // Switching statistical indicators must not retain a popup for the old indicator.
-    if (isStatisticsChoropleth(layer)) setFeatureInfo(null);
+    if (shouldClearFeatureInfoForLayerClick(layer, intent)) setFeatureInfo(null);
     const isVisible = layerVisibilityRef.current[layer];
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
