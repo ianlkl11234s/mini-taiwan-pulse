@@ -7,6 +7,7 @@ import {
   resolveSocialRelease,
   socialReleaseOptions,
 } from "../socialStatisticsRecipes";
+import type { SocialStatisticsScope } from "../socialStatisticsRecipes";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
 const asRelease = (recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], option: (typeof recipe.release_options)[number]): StatisticsRelease => ({
@@ -20,6 +21,11 @@ const asRelease = (recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], o
 });
 
 describe("social statistics adapter contract", () => {
+  it("retains the local frontend wiring handoff scope literal", () => {
+    const localHandoffScope: SocialStatisticsScope = "local_frontend_wiring_ready_not_production";
+    expect(localHandoffScope).toBe("local_frontend_wiring_ready_not_production");
+  });
+
   it("consumes the upstream hash-bound production contract", () => {
     expect(SOCIAL_STATISTICS_SCOPE).toBe("production_published");
   });

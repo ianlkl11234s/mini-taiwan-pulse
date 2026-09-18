@@ -38,8 +38,12 @@ export interface SocialRecipe {
   source_family?: string;
 }
 
+export type SocialStatisticsScope =
+  | "local_frontend_wiring_ready_not_production"
+  | "production_published";
+
 interface SocialRecipeDocument {
-  scope: "local_frontend_ready_not_production" | "production_published";
+  scope: SocialStatisticsScope;
   recipes: SocialRecipe[];
 }
 
