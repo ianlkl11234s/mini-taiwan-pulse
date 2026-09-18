@@ -65,7 +65,7 @@
 | 協定往返 | 真stdio → HTTP Gateway → QueryResponder → 真3732資產，學校、雙北警察分類、鄉鎮分頁、錯誤不回0、disconnect均通過；owner與tab為隔離測試替身 |
 | 真使用者配對 E2E | 待驗；本地Agent面板尚未Google登入，尚未提供本輪Gateway允許帳號。不能以協定替身當真人驗收 |
 | 真長時間與UI情境 | duplicate/reload/TTL/429有自動化證據；真人雙分頁、30分鐘以上導覽、全部面板配置與時間操作仍待驗 |
-| 部署 | 未commit/push/PR/merge/deploy；本輪僅啟動自己的前端3732與短暫隔離協定測試服務 |
+| Git / 部署 | 依本 session 授權完成三 repo 本地 commit（見下）；未push/PR/merge/deploy。僅啟動自己的前端3732與短暫隔離協定測試服務 |
 
 可重跑的協定入口：[`evaluation-statistics.mjs`](../../../scripts/research/evaluation-statistics.mjs)，命令 `node --import tsx scripts/research/evaluation-statistics.mjs http://127.0.0.1:3732`。前置為 sibling MCP 已build及3732網站啟動；使用隨機本地埠與MemoryPairingStore，不改真身分驗證設定、不影響其他MCP程序。持久結果見 [`statistics-acceptance-20260918.json`](statistics-acceptance-20260918.json)。
 
@@ -95,3 +95,16 @@
 2. 本地Agent登入 → 建立配對 → 新MCP claim → 使用者比對短語確認 → 搜尋學校／警察 → describe statistics → 雙北count/group → 以結果bounds取景。
 3. 驗證reload、複製分頁、手動拖曳、超過30分鐘與8小時hard期限語意，再更新本表；未觀察的不標完成。
 4. 下一批圖層依來源逐個加入統計契約。面積階段另定polygon資料、CRS、單位、boundary版本與重疊政策，不從點位推估。
+
+## 2026-09-18 本地提交與載入紀錄
+
+- 分支：三 repo 均為 `codex/exploration-counts-20260918`。
+- 前端：`48b463ce`，通用來源統計、連線恢復與驗收文件；提交前 `npx tsc -b` 通過。
+- Gateway：`0cc672d`，連線續租、錯誤／流量限制與統計 query。
+- MCP：`2ccb783`，新增統計工具與 session race 防護。
+- 本機網站 `http://127.0.0.1:3732/` 已重新在瀏覽器開啟，台北 policeStation 場景 loading 消失；沿用本輪自己的 Vite，未重啟他人的服務。
+- 提交後執行 `node scripts/research/evaluation-mcp.mjs --smoke`，新 dist 真 stdio 啟動成功、21 工具、advanced analysis 維持封鎖；測試程序正常退出。
+- 目前 Codex task 工具目錄仍為19工具；設定已指向 recovery MCP 的 dist。CLI 無 reload 子命令，CUA 明確拒絕操作 Codex app，因此未完成此 task 的 MCP 重載，也未整批停止 MCP。需使用者在 Codex 支援的管理介面重新載入此 MCP，再確認新增兩個統計工具可用。
+- 8791 真 Gateway 尚未常駐啟動：待本輪測試帳號與本地 Agent 登入；隔離測試的假 owner 不能代替真人配對。
+
+下一步優先完成「此 task 載入21工具 → 真帳號配對 → 雙北學校／警察總數、分類、行政區排名與地圖定位」驗收，接著驗證長工作階段恢復。通過後再逐層擴充來源契約；面積計算需另外確認 polygon、CRS、版本、單位與重疊語意。
