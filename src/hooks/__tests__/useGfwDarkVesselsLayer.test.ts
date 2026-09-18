@@ -96,9 +96,9 @@ describe("useGfwDarkVesselsLayer", () => {
     useGfwDarkVesselsLayer(mapRef, true);
     await Promise.resolve(); await Promise.resolve(); await Promise.resolve();
     expect(loader.manifest).toHaveBeenCalledTimes(1);
-    expect(notice.show).toHaveBeenCalledWith(
-      "GFW SAR 未匹配 AIS 資料最新完整日：2026-08-21（UTC，非即時）",
-    );
+    expect(notice.show).toHaveBeenCalledWith(expect.stringMatching(
+      /^GFW SAR 未匹配 AIS 資料最新完整日：2026-08-21 UTC（落後 \d+ 天 · STALE／已過期）（非即時）$/,
+    ));
 
     harness.rerender();
     useGfwDarkVesselsLayer(mapRef, true, 0.7);

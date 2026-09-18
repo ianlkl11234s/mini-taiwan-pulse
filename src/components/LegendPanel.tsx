@@ -28,6 +28,9 @@ import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
+import { loadGfwDarkVesselsManifest } from "../data/gfwDarkVesselsLoader";
+import { loadGfwHourlyTrackManifest } from "../data/gfwHourlyTracksLoader";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
@@ -4323,14 +4326,14 @@ function GfwVesselPresenceLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW VESSEL PRESENCE
+        GFW 舊版每日船舶 · HISTORICAL
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", border: "1px solid #451a03" }} />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>每日 / 延遲 vessel presence</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>歷史快照；不代表最新 release</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        非即時 AIS；不等於暗船或 SAR unmatched 清單
+        最新日期請以小時 Grid／Tracks／SAR 為準；本層非即時 AIS。
       </div>
     </div>
   );
@@ -4363,6 +4366,11 @@ function GfwHourlyGridLegend() {
           資料窗 {dataWindow.utcDateLabel}（UTC）
         </div>
       )}
+      {dataWindow && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(dataWindow.latestCompleteDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(dataWindow.latestCompleteDate).label}
+        </div>
+      )}
       {dataWindow?.status === "out-of-window" && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
           ⚠ 目前時間在資料窗外，圖層已淡出
@@ -4375,6 +4383,15 @@ function GfwHourlyGridLegend() {
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
   const dataWindow = useGfwV4TrackDataWindow();
+  const [fallbackLatestDate, setFallbackLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwHourlyTrackManifest().then((manifest) => {
+      if (active) setFallbackLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
+  const latestDate = dataWindow.endUtcDate ?? fallbackLatestDate;
   const palette = isDark
     ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
     : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
@@ -4401,6 +4418,11 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
       {dataWindow.status !== "unknown" && dataWindow.startUtcDate && (
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
           資料窗 {dataWindow.startUtcDate === dataWindow.endUtcDate ? dataWindow.startUtcDate : `${dataWindow.startUtcDate} ~ ${dataWindow.endUtcDate}`}（UTC）
+        </div>
+      )}
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
         </div>
       )}
       {dataWindow.status === "out-of-window" && (
@@ -4460,6 +4482,11 @@ function GfwFishingEffortLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         最新可用日期：{manifest?.latestAvailableDate ?? "未提供（GFW 未提供）"} · active：{manifest?.latestObservedActiveDate ?? "未提供"}
       </div>
+      {manifest?.selectedUtcDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(manifest.selectedUtcDate).status === "stale" ? "#f97316" : t.textMuted, fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>
+          Release 完整日：{gfwFreshness(manifest.selectedUtcDate).label}
+        </div>
+      )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         Finalization：{manifest?.finalizationStatus ?? "未提供"} · Revision：{manifest?.revisionSemantics ?? "未提供"}
       </div>
@@ -4476,6 +4503,14 @@ function GfwFishingEffortLegend() {
 
 function GfwDarkVesselsLegend() {
   const t = useLegendTheme();
+  const [latestDate, setLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwDarkVesselsManifest().then((manifest) => {
+      if (active) setLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -4488,6 +4523,11 @@ function GfwDarkVesselsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         點位是 GFW HIGH 格網中心。「未與 AIS 匹配」不等於違法、暗船，也不能確認船舶刻意關閉 AIS。
       </div>
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 4 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
+        </div>
+      )}
     </div>
   );
 }

@@ -1587,8 +1587,8 @@ export const LAYER_MANIFEST = {
   gfwVesselPresence: {
     key: "gfwVesselPresence",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },
-    label: "GFW 船舶 Presence Global Fishing Watch",
-    labelMobile: "GFW 船舶 Presence",
+    label: "GFW 舊版每日船舶 Historical Presence",
+    labelMobile: "GFW 舊版船舶（歷史）",
     expandable: true,
     color: "#f59e0b",
     icon: Fish,
@@ -1596,7 +1596,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
-      note: "GFW 存取憑證僅留在 backend collector，不進前端 bundle；本層是每日延遲 presence，不宣稱即時或可直接識別暗船",
+      note: "舊版每日 presence collector 目前不是生產 freshness 來源；本層只保留歷史快照，最新 release 應以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
     },
     dataClass: "D",
     source: {
@@ -1606,7 +1606,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwVesselPresence",
     popup: "gfwVesselPresence",
     params: { count: 1, kinds: ["slider"] },
-    description: "Global Fishing Watch 船舶 presence 每日/延遲快照（不是即時 AIS，也不是暗船清單）",
+    description: "Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單",
     topics: ["世界", "海事", "船舶", "GFW"],
   },
 
