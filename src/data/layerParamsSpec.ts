@@ -1529,6 +1529,10 @@ export const LAYER_PARAMS_SPEC = {
   jpMedicalAreasPrimary: [opacitySlider("jpMedicalAreasPrimaryOpacity", 0.2)],
   jpMedicalAreasSecondary: [opacitySlider("jpMedicalAreasSecondaryOpacity", 0.2)],
   jpMedicalAreasTertiary: [opacitySlider("jpMedicalAreasTertiaryOpacity", 0.2)],
+  jpWaterLakes: [opacitySlider("jpWaterLakesOpacity", 0.35)],
+  jpWaterLocalFacilities: [opacitySlider("jpWaterLocalFacilitiesOpacity", 0.85)],
+  jpWaterQualityStations: [opacitySlider("jpWaterQualityStationsOpacity", 0.75)],
+  jpWaterLevelStations: [opacitySlider("jpWaterLevelStationsOpacity", 0.85)],
   jpReligionGsi: [
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionGsiScale", 1),

@@ -11,6 +11,7 @@ import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLay
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
+import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
@@ -106,6 +107,26 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
   const p = useKeyOverlayParams("jpPoliceFacilities");
   useJpPoliceFacilitiesLayer(deps.mapRef, deps.layerVisibility.jpPoliceFacilities,
     p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1, p.jpPoliceFacilitiesTypeIdx ?? 0);
+  return null;
+};
+
+export const JpWaterHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpWaterLayers");
+  const lakes = useKeyOverlayParams("jpWaterLakes");
+  const facilities = useKeyOverlayParams("jpWaterLocalFacilities");
+  const quality = useKeyOverlayParams("jpWaterQualityStations");
+  const levels = useKeyOverlayParams("jpWaterLevelStations");
+  useJpWaterLayers(deps.mapRef, {
+    jpWaterLakes: deps.layerVisibility.jpWaterLakes,
+    jpWaterLocalFacilities: deps.layerVisibility.jpWaterLocalFacilities,
+    jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,
+    jpWaterLevelStations: deps.layerVisibility.jpWaterLevelStations,
+  }, {
+    jpWaterLakes: lakes.jpWaterLakesOpacity ?? 0.35,
+    jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
+    jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
+    jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
+  });
   return null;
 };
 

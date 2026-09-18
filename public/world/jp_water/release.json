@@ -1,0 +1,95 @@
+{
+  "contract_version": 1,
+  "release": "20260918-v1",
+  "publication_evidence": "local_candidate_only; no upload or deployment",
+  "assets": [
+    {
+      "key": "jpWaterLakes",
+      "format": "geojson",
+      "path": "releases/20260918-v1/jpWaterLakes.geojson",
+      "bytes": 12984998,
+      "sha256": "9ebb822e341906985cf2d638d3f2dce6316458bc6084d13c77e96113debc90a5",
+      "year": "2005",
+      "source_url": "https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-W09-v2_2.html",
+      "license": "KSJ W09 commercial-use permitted; attribution required",
+      "coverage": "日本全國・原始收錄湖沼556筆，非完整所有水體",
+      "geometry_role": "polygon",
+      "status": "published",
+      "feature_count": 556,
+      "lineage": [
+        {
+          "path": "data/processed/world/jp_water_ksj/w09.geojson.gz",
+          "sha256": "750ef3aca5fe67b3fc308d21d09e3e6ca2a1857b652ccba12aa1d2873e65a023"
+        }
+      ],
+      "attribution": "國土交通省 國土數値情報 W09"
+    },
+    {
+      "key": "jpWaterLocalFacilities",
+      "format": "geojson",
+      "path": "releases/20260918-v1/jpWaterLocalFacilities.geojson",
+      "bytes": 9821,
+      "sha256": "5fb609e746e9e3c1d5107b079d7e6950d8dbc63307376e58971e27b6bc3797c9",
+      "year": "unknown (source snapshot downloaded 2026-09-18)",
+      "source_url": "https://github.com/takamatsu-city/opendata",
+      "license": "CC BY 4.0",
+      "coverage": "高松市13處公開設施，包含舊水源地博物館；非全市營運設施清冊",
+      "geometry_role": "point",
+      "status": "published",
+      "feature_count": 13,
+      "lineage": [
+        {
+          "path": "data/processed/world/jp_water_local/takamatsu_water_supply.geojson.gz",
+          "sha256": "a09ff800ac42fcab9ebd07084aa20e6d7d55a964567cfe697b3aa8e484f19b82"
+        },
+        {
+          "path": "data/processed/world/jp_water_local/takamatsu_sewer_facility.geojson.gz",
+          "sha256": "6cce336203b94138d7fc62d3acd279b05073416ade875cb86e26840353e4f00c"
+        }
+      ],
+      "attribution": "高松市オープンデータ"
+    },
+    {
+      "key": "jpWaterLevelStations",
+      "format": "geojson",
+      "path": "releases/20260918-v1/jpWaterLevelStations.geojson",
+      "bytes": 32260,
+      "sha256": "50288f0865de51d9206d6dfc5f4c8aa6d779a0d2ea29947c408f7b36ad28763a",
+      "year": "unknown (station registry undated)",
+      "source_url": "https://data.city.yokohama.lg.jp/dataset/gesui_opendata",
+      "license": "CC Attribution (source catalog)",
+      "coverage": "橫濱市55處水位測站；台帳非即時觀測值",
+      "geometry_role": "point",
+      "status": "published",
+      "feature_count": 55,
+      "lineage": [
+        {
+          "path": "data/processed/world/jp_water_local/yokohama_station_master.geojson.gz",
+          "sha256": "8c4b3f6502ee65d51ba1366eca7a0f5be7cc391da3486718eab52879ae3fc7e2"
+        }
+      ],
+      "attribution": "横浜市 河川水位情報"
+    },
+    {
+      "key": "jpWaterQualityStations",
+      "format": "geojson",
+      "path": "releases/20260918-v1/jpWaterQualityStations.geojson",
+      "bytes": 7771427,
+      "sha256": "a07d131b2db8d707f9d75f3081018cb182aa98b692635b5ff699a766b186b642",
+      "year": "2024",
+      "source_url": "https://water-pub.env.go.jp/water-pub/mizu-site/mizu/download/download.asp",
+      "license": "PDL1.0",
+      "coverage": "日本47都道府縣・9,831個測站代碼；台帳不含水質測值",
+      "geometry_role": "point",
+      "status": "published",
+      "feature_count": 9831,
+      "lineage": [
+        {
+          "path": "data/processed/world/jp_water_quality/stations.geojson.gz",
+          "sha256": "b93e8e978231e4962ea1160f47c96af793533be464e3aaa35ccf7fda11591ccd"
+        }
+      ],
+      "attribution": "環境省 水環境総合情報サイト"
+    }
+  ]
+}

@@ -194,12 +194,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
   { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
   { layers: ["jp-schools-circle"], type: "jpSchools" },
+  { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
+  { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
+  { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
+  { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
   // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
   { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },

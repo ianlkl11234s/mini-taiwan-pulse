@@ -366,6 +366,7 @@ export type ExpandableLayerKey =
   | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
   | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+  | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -838,6 +839,7 @@ export interface FeatureInfo {
     | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
     | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+    | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1471,6 +1473,10 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   jpMedicalAreasPrimary: boolean;
   jpMedicalAreasSecondary: boolean;
   jpMedicalAreasTertiary: boolean;
+  jpWaterLakes: boolean;
+  jpWaterLocalFacilities: boolean;
+  jpWaterQualityStations: boolean;
+  jpWaterLevelStations: boolean;
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）

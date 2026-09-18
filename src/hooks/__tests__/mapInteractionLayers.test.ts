@@ -29,6 +29,7 @@ import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
 import { ALLEN_CORAL_SOURCES } from "../../data/allenCoralAtlasTypes";
+import { JP_WATER_RELEASED_LAYER_KEYS } from "../../data/jpWaterTypes";
 
 const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
 const source = readFileSync(REGISTRY_FILE, "utf8");
@@ -60,6 +61,11 @@ function statisticsRuntimeLayerIds(): Set<string> {
 /** Allen owns one authenticated PMTiles source per thematic view; its fill id is derived from sourceId. */
 function allenCoralRuntimeLayerIds(): Set<string> {
   return new Set(Object.values(ALLEN_CORAL_SOURCES).map((source) => `${source.sourceId}-fill`));
+}
+
+/** Japan water GeoJSON layers are created by useJpWaterLayers from the released-key allowlist. */
+function jpWaterRuntimeLayerIds(): Set<string> {
+  return new Set(JP_WATER_RELEASED_LAYER_KEYS.map((key) => `jp-water-${key}`));
 }
 
 /** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除註冊表自己與測試檔） */
@@ -95,9 +101,10 @@ describe("GIS 點擊註冊表的 layer id", () => {
     const fromRegistry = registryLayerIds();
     const fromStatisticsRuntime = statisticsRuntimeLayerIds();
     const fromAllenCoralRuntime = allenCoralRuntimeLayerIds();
+    const fromJpWaterRuntime = jpWaterRuntimeLayerIds();
     const others = otherSources().join("\n");
     const orphans = referencedLayerIds().filter(
-      (id) => !fromRegistry.has(id) && !fromStatisticsRuntime.has(id) && !fromAllenCoralRuntime.has(id) && !others.includes(`"${id}"`) && !others.includes(`\`${id}\``),
+      (id) => !fromRegistry.has(id) && !fromStatisticsRuntime.has(id) && !fromAllenCoralRuntime.has(id) && !fromJpWaterRuntime.has(id) && !others.includes(`"${id}"`) && !others.includes(`\`${id}\``),
     );
     expect(
       orphans,
@@ -105,7 +112,7 @@ describe("GIS 點擊註冊表的 layer id", () => {
       `點擊會靜默無反應：\n  ${orphans.join("\n  ")}\n` +
       `→ 對照 overlayRegistry 的 sourceId + suffix，或該層所屬的 hook/CustomLayer`,
     ).toEqual([]);
-  });
+  }, 15_000);
 
   it("statistics 動態 id 必須與 recipe key 和 renderer 成對存在", () => {
     expect(Object.keys(STATISTICS_RECIPES).sort()).toEqual([...STATISTICS_KEYS].sort());

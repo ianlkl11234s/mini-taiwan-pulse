@@ -73,6 +73,7 @@ import {
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_WATER_LAYER_CONTRACT } from "../data/jpWaterTypes";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
@@ -396,6 +397,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpWaterLakes", render: () => <JpWaterLegend layerKey="jpWaterLakes" /> },
+  { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
+  { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
+  { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
   { id: "osmBridgeCarriers", render: () => <NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} /> },
   { id: "osmBridgeFootprints", render: () => <NetworkStructuresLegend title="OSM 原生橋梁輪廓" rows={[{ label: "原生 outline（可能不完整）", color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
   { id: "officialBridgesNewTaipei", render: () => <NetworkStructuresLegend title="新北市轄管橋梁" rows={[{ label: "近似軸線；非登錄長度", color: NETWORK_STRUCTURES_COLORS.official }, { label: "圓點：原始重合端點，無可評估軸線", color: NETWORK_STRUCTURES_COLORS.official }]} /> },
@@ -1222,6 +1227,18 @@ function JpRailwaysLegend() {
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
   );
+}
+
+function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CONTRACT }) {
+  const contract = JP_WATER_LAYER_CONTRACT[layerKey];
+  const t = useLegendTheme();
+  const colors: Record<keyof typeof JP_WATER_LAYER_CONTRACT, string> = {
+    jpWaterDams: "#0369a1", jpWaterLakes: "#0ea5e9", jpWaterSupplyFacilities: "#0284c7", jpWaterSupplyAreas: "#38bdf8", jpWaterSewerFacilities: "#1d4ed8", jpWaterRivers: "#0284c7", jpWaterLocalPipes: "#075985", jpWaterLocalFacilities: "#0284c7", jpWaterQualityStations: "#7c3aed", jpWaterLevelStations: "#0369a1",
+  };
+  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{contract.sourceLabel}</div>
+    <FireCatRows cats={[{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }]} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
+  </div>;
 }
 
 function NetworkStructuresLegend({ title, rows }: { title: string; rows: readonly { label: string; color: string }[] }) {

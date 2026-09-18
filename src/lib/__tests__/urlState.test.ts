@@ -85,6 +85,13 @@ describe("parseUrlState — 圖層安全過濾", () => {
     expect(s.layers).toEqual(["aquaculturePonds", "aquacultureZone"]);
   });
 
+  it("保留日本水資源已發布圖層，供 share/deeplink 還原", () => {
+    const keys = ["jpWaterLakes", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"];
+    const state = parseUrlState(`?${V}&layers=${keys.join(",")}`);
+    expect(state.layers).toEqual(keys);
+    expect(buildUrl({ layers: keys as (keyof LayerVisibility)[] }, "https://example.com")).toContain(`layers=${keys.join("%2C")}`);
+  });
+
   it("未知 key 靜默 drop、不影響其他層", () => {
     const s = parseUrlState(`?${V}&layers=aquaculturePonds,notARealLayerKey`);
     expect(s.layers).toEqual(["aquaculturePonds"]);

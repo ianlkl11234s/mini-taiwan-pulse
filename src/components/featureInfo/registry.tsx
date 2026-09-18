@@ -57,7 +57,7 @@ import {
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
-  JpTourismPanel, JpAccommodationDensityPanel,
+  JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
 import {
@@ -375,6 +375,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpPoliceFacilities: JpPoliceFacilitiesPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
+  jpWaterLakes: JpWaterPanel,
+  jpWaterLocalFacilities: JpWaterPanel,
+  jpWaterQualityStations: JpWaterPanel,
+  jpWaterLevelStations: JpWaterPanel,
   jpAccommodationCanonical: JpTourismPanel,
   jpAccommodationDensity: JpAccommodationDensityPanel,
   jpAccommodationJta: JpTourismPanel,
@@ -527,6 +531,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+  jpWaterLakes: "湖沼 湖沼（W09・2005）",
+  jpWaterLocalFacilities: "高松供排水相關設施 高松市",
+  jpWaterQualityStations: "水質測定地点（2024）",
+  jpWaterLevelStations: "橫濱水位站 横浜市",
   regionalStatistic: "區域統計",
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
