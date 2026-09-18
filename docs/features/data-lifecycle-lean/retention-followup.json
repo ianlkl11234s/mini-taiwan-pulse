@@ -1,0 +1,282 @@
+{
+  "checked_at": "2026-09-18T07:57:46.771752+00:00",
+  "retention": [
+    {
+      "table_name": "iot_wra_measurements",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    },
+    {
+      "table_name": "bus_trails_daily",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    },
+    {
+      "table_name": "news_events",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    },
+    {
+      "table_name": "yt_live_history",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    },
+    {
+      "table_name": "ship_trails_daily",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    },
+    {
+      "table_name": "youbike_h3_daily",
+      "issue": "live base table > 100MB not in metadata.retention_policies (verify lifecycle)"
+    }
+  ],
+  "db_size": [
+    {
+      "bytes": 41004682387
+    }
+  ],
+  "cleanup_runs": [
+    {
+      "jobname": "cleanup-air-tickets-delivery-reports",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:15:00.169793+00:00"
+    },
+    {
+      "jobname": "cleanup-air-tickets-fare-offers",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:05:00.149040+00:00"
+    },
+    {
+      "jobname": "cleanup-animal-shelter-outcomes",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:50:00.100875+00:00"
+    },
+    {
+      "jobname": "cleanup-animal-welfare-point-snapshots",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 16:20:00.125340+00:00"
+    },
+    {
+      "jobname": "cleanup-aqi-imagery-frames",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:30:00.329777+00:00"
+    },
+    {
+      "jobname": "cleanup-border-airport-snapshot",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:00:01.787175+00:00"
+    },
+    {
+      "jobname": "cleanup-bus-intercity-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 03:07:00.510202+00:00"
+    },
+    {
+      "jobname": "cleanup-bus-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 03:02:01.061171+00:00"
+    },
+    {
+      "jobname": "cleanup-cwa-imagery-frames",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:40:01.196038+00:00"
+    },
+    {
+      "jobname": "cleanup-disaster-alerts",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:00.361309+00:00"
+    },
+    {
+      "jobname": "cleanup-er-hospital-status",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:25:00.299493+00:00"
+    },
+    {
+      "jobname": "cleanup-expired-partitions",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:00:00.891673+00:00"
+    },
+    {
+      "jobname": "cleanup-flight-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:00.585200+00:00"
+    },
+    {
+      "jobname": "cleanup-freeway-congestion",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:00.568771+00:00"
+    },
+    {
+      "jobname": "cleanup-groundwater-readings",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:10:00.651165+00:00"
+    },
+    {
+      "jobname": "cleanup-internet-health-observations",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:25:00.384499+00:00"
+    },
+    {
+      "jobname": "cleanup-internet-health-source-runs",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:35:00.253855+00:00"
+    },
+    {
+      "jobname": "cleanup-iot-wra-daily",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:10:00.237555+00:00"
+    },
+    {
+      "jobname": "cleanup-iot-wra-measurements",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:05:03.056997+00:00"
+    },
+    {
+      "jobname": "cleanup-isr-satellite-daily",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:00.293572+00:00"
+    },
+    {
+      "jobname": "cleanup-lightning-events",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:30:00.068177+00:00"
+    },
+    {
+      "jobname": "cleanup-marine-observation-readings",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 20:10:00.123752+00:00"
+    },
+    {
+      "jobname": "cleanup-nuclear-radiation",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:35:00.230897+00:00"
+    },
+    {
+      "jobname": "cleanup-parking-availability",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 03:20:00.234141+00:00"
+    },
+    {
+      "jobname": "cleanup-rain-gauge-readings",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:00:02.872574+00:00"
+    },
+    {
+      "jobname": "cleanup-river-water-level",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:05:00.688862+00:00"
+    },
+    {
+      "jobname": "cleanup-road-congestion",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 03:15:00.182868+00:00"
+    },
+    {
+      "jobname": "cleanup-road-events-current",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:10:00.533398+00:00"
+    },
+    {
+      "jobname": "cleanup-satellite-tle-history",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:30:00.858010+00:00"
+    },
+    {
+      "jobname": "cleanup-ship-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:02.279542+00:00"
+    },
+    {
+      "jobname": "cleanup-taipei-pumb-status",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:20:00.457706+00:00"
+    },
+    {
+      "jobname": "cleanup-taipei-sewer-measurements",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 22:15:00.622232+00:00"
+    },
+    {
+      "jobname": "cleanup-temperature-frames",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:00.261458+00:00"
+    },
+    {
+      "jobname": "cleanup-tourist-shuttle-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 03:12:00.175496+00:00"
+    },
+    {
+      "jobname": "cleanup-uswg-measurements",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 19:20:01.122801+00:00"
+    },
+    {
+      "jobname": "cleanup-waste-match-attempts",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 04:20:00.147083+00:00"
+    },
+    {
+      "jobname": "cleanup-waste-matched-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 04:18:00.093683+00:00"
+    },
+    {
+      "jobname": "cleanup-waste-trails",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 04:12:00.244156+00:00"
+    },
+    {
+      "jobname": "cleanup-youbike-h3",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 18:00:01.652456+00:00"
+    },
+    {
+      "jobname": "vacuum-retention-tables",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-17 21:01:32.075599+00:00"
+    },
+    {
+      "jobname": "waste-positions-cleanup-daily",
+      "runs": 2,
+      "failures": 0,
+      "last_end": "2026-09-18 04:00:01.791824+00:00"
+    }
+  ]
+}

@@ -14,6 +14,7 @@ from pathlib import Path
 
 HEX = re.compile(r"^[0-9a-f]{64}$")
 LEGACY_ASSET_COUNT = 778
+STAGING_SAFETY_BYTES = 16 * 1024 * 1024
 COMPACT_ASSET_PATHS = frozenset({
     "aggregates/h17-z6.geojson",
     "aggregates/navii-z6.geojson",
@@ -76,6 +77,18 @@ def remove_empty(paths: list[Path]) -> None:
             path.rmdir()
         except OSError:
             pass
+
+
+def required_staging_bytes(target: Path, temporary: Path, assets: list[tuple[str, dict]]) -> int:
+    """Count only payload bytes that cannot resume from a verified destination."""
+    required = 0
+    for relative, metadata in assets:
+        if same_file(target / relative, metadata["sha256"], metadata["bytes"]):
+            continue
+        if same_file(temporary / "objects" / relative, metadata["sha256"], metadata["bytes"]):
+            continue
+        required += metadata["bytes"]
+    return required
 
 
 def validate_asset_paths(paths: set[str]) -> None:
@@ -182,6 +195,13 @@ def install(args) -> None:
             local = target / relative
             if local.exists() and not same_file(local, metadata["sha256"], metadata["bytes"]):
                 raise ValueError(f"existing immutable differs; refusing overwrite: {relative}")
+        required = required_staging_bytes(target, temporary, assets[:-2])
+        available = shutil.disk_usage(staging_root).free
+        if available < required + STAGING_SAFETY_BYTES:
+            raise ValueError(
+                f"insufficient staging space: need {required + STAGING_SAFETY_BYTES} bytes "
+                f"({required} payload + {STAGING_SAFETY_BYTES} safety), have {available}"
+            )
         staged = [(remote_catalog, catalog_relative, catalog_meta), (remote_manifest, manifest_relative, assets[-1][1])]
         def stage_asset(item):
             relative, metadata = item

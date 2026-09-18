@@ -30,9 +30,11 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 
+const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
 const nginxConf = readFileSync("nginx.conf", "utf8");
 const pullScript = readFileSync("scripts/deploy/pull-deploy-assets.sh", "utf8");
@@ -484,6 +486,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const [path, keys] of [...ASSETS].sort()) {
       if (isEmptyShell(path)) continue;
       if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      if (path === forestReceipt.public_url) {
+        const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
+        expect(forestReceipt.readback).toBe("PASS");
+        expect(payload.length).toBe(forestReceipt.bytes);
+        expect(createHash("sha256").update(payload).digest("hex")).toBe(forestReceipt.sha256);
+        expect(path).toContain(`/releases/${forestReceipt.sha256}/`);
+        expect(forestReceipt.http.some((check: { headers: string[] }) => check.headers.includes("cf-cache-status: HIT"))).toBe(true);
+        continue;
+      }
       const dir = path.split("/")[0] as string;
       if (EXTERNAL_UPLOAD_LEDGER.has(dir)) {
         if (!pullCovers(dir)) broken.push(`${path}（${keys.join("/")}）: pull 沒同步 ${dir}/`);

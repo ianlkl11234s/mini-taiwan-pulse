@@ -1,0 +1,50 @@
+{
+  "checked_at": "2026-09-18T07:57:48.803935+00:00",
+  "get_bucket_lifecycle_configuration": {
+    "TransitionDefaultMinimumObjectSize": "all_storage_classes_128K",
+    "Rules": [
+      {
+        "ID": "tiered-cold-storage",
+        "Filter": {
+          "Prefix": ""
+        },
+        "Status": "Enabled",
+        "Transitions": [
+          {
+            "Days": 30,
+            "StorageClass": "STANDARD_IA"
+          },
+          {
+            "Days": 90,
+            "StorageClass": "GLACIER_IR"
+          }
+        ],
+        "AbortIncompleteMultipartUpload": {
+          "DaysAfterInitiation": 7
+        }
+      },
+      {
+        "ID": "supabase-snapshots-realtime-tiering",
+        "Filter": {
+          "Prefix": "supabase-snapshots/realtime/"
+        },
+        "Status": "Enabled",
+        "Transitions": [
+          {
+            "Days": 30,
+            "StorageClass": "STANDARD_IA"
+          },
+          {
+            "Days": 90,
+            "StorageClass": "GLACIER_IR"
+          },
+          {
+            "Days": 180,
+            "StorageClass": "DEEP_ARCHIVE"
+          }
+        ]
+      }
+    ]
+  },
+  "get_bucket_versioning": {}
+}

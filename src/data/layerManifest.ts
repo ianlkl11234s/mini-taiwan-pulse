@@ -1,3 +1,4 @@
+import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
@@ -3777,7 +3778,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "forest-reserve",
-      url: "./forestry/forest_reserve.pmtiles",
+      url: FOREST_RESERVE_PMTILES_URL,
       sourceLayer: "forest_reserve",
       minzoom: 0,
       maxzoom: 13,

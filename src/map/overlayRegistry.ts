@@ -6,7 +6,7 @@ import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
   OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
-import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
+import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
   SEVERITY_COLOR_EXPR,
@@ -5293,7 +5293,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 保安林（Polygon，按「種類」13 類配色）──
   {
     id: "forestReserve",
-    sourceUrl: "./forestry/forest_reserve.pmtiles",
+    sourceUrl: FOREST_RESERVE_PMTILES_URL,
     sourceId: "forest-reserve",
     pmtiles: { sourceLayer: "forest_reserve", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["fill", "outline"],

@@ -1,0 +1,47 @@
+{
+  "noop_deleted": 0,
+  "policies": [
+    [
+      "bus_trails_daily",
+      3,
+      "412: verified active custom cleanup cron, 3 days"
+    ],
+    [
+      "iot_wra_measurements",
+      null,
+      "412: permanent historical retention; legacy 7-day cleanup job paused and function is a no-op"
+    ],
+    [
+      "news_events",
+      null,
+      "412: HOLD; archive verification and owner retention policy are not established, so deletion is prohibited"
+    ],
+    [
+      "ship_trails_daily",
+      7,
+      "412: verified active custom cleanup cron, 7 days"
+    ],
+    [
+      "youbike_h3_daily",
+      7,
+      "412: verified active custom cleanup cron, 7 days"
+    ],
+    [
+      "yt_live_history",
+      null,
+      "412: HOLD; archive verification and owner retention policy are not established, so deletion is prohibited"
+    ]
+  ],
+  "coverage": [
+    [
+      "news_events",
+      "archive/retention decision pending; deletion blocked"
+    ],
+    [
+      "yt_live_history",
+      "archive/retention decision pending; deletion blocked"
+    ]
+  ],
+  "transaction": "COMMITTED",
+  "idempotence": "PASS"
+}

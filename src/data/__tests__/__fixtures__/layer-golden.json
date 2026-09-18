@@ -34980,7 +34980,7 @@
         "outline"
       ],
       "sourceId": "forest-reserve",
-      "sourceUrl": "./forestry/forest_reserve.pmtiles"
+      "sourceUrl": "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles"
     },
     {
       "dynamicData": null,

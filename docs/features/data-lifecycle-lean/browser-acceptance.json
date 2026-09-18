@@ -1,0 +1,26 @@
+{
+  "environment": "local candidate localhost:3748, production public medical assets via temporary proxy",
+  "observed_ui": [
+    "R2 forestReserve polygons rendered",
+    "adaptive medical z5 grid-center counts visible",
+    "full medical points z5 visible after switch",
+    "adaptive z10 Navii and H17 points visible",
+    "hospital popup preserved name/address/source date/source ID",
+    "Japan All Off removed visible points, popup and legend"
+  ],
+  "console_errors_at_verified_states": 0,
+  "medical_catalog_bytes": {
+    "aggregates/h17-z6.geojson": 151147,
+    "aggregates/navii-z6.geojson": 22900,
+    "points/h17_services.pmtiles": 293111489,
+    "points/navii_facilities.pmtiles": 308486234
+  },
+  "full_points_z5_observed_range_responses": 13,
+  "full_points_z5_observed_response_bytes": 13159430,
+  "limits": [
+    "Range response sum includes repeated requests; not unique archive bytes",
+    "Warm browser cache was used; no cold-load timing/FPS claim",
+    "Aggregate byte counts are catalog lengths, not measured compressed transfer",
+    "Temporary proxy initially timed out; successful observations were after IPv4 agent retry"
+  ]
+}
