@@ -269,18 +269,21 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
-  it("Ookla dist publication assets retain cache headers, MIME types, and Range-capable static serving", () => {
-    const match = nginxConf.match(
-      /location ~ \^\/geo\/ookla_\(fixed_global\|mobile_global\|tw_z14\|tw_z16\).*?\{([\s\S]*?)\n    \}/,
-    );
-    expect(match, "Ookla exact publication location missing").not.toBeNull();
+  it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
+    const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
+    expect(match, "public dist fallback missing").not.toBeNull();
     const body = match?.[1] ?? "";
     expect(body).toContain("root /usr/share/nginx/html;");
-    expect(body).toContain("try_files $uri =404;");
-    expect(body).toContain("application/geo+json geojson;");
-    expect(body).toContain("application/vnd.pmtiles pmtiles;");
+    expect(nginxConf).toMatch(/server \{[\s\S]*?include mime\.types;[\s\S]*?application\/geo\+json geojson;[\s\S]*?application\/vnd\.pmtiles pmtiles;/);
     expect(body).toContain("expires 1d;");
     expect(body).toContain('add_header Cache-Control "public";');
+    expect(body).not.toContain("/index.html");
+    const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
+    expect(gzipTypes).toContain("application/geo+json");
+    expect(gzipTypes).not.toContain("application/vnd.pmtiles");
+    const ookla = nginxConf.match(/location ~ \^\/geo\/ookla_[^\n]+\{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(ookla).toContain("root /usr/share/nginx/html;");
+    expect(ookla).toContain("try_files $uri =404;");
   });
 
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {

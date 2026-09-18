@@ -58,6 +58,26 @@ def same_file(target: Path, expected_sha: str, expected_bytes: int) -> bool:
     return target.is_file() and digest(target) == (expected_sha, expected_bytes)
 
 
+def move_verified(staged: Path, destination: Path, expected_sha: str, expected_bytes: int) -> None:
+    """Install one verified staged file without creating a second full copy."""
+    if destination.exists():
+        if same_file(destination, expected_sha, expected_bytes):
+            return
+        raise ValueError(f"existing immutable differs; refusing overwrite: {destination}")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    os.replace(staged, destination)
+    if not same_file(destination, expected_sha, expected_bytes):
+        raise ValueError(f"installed immutable bytes/SHA-256 mismatch: {destination}")
+
+
+def remove_empty(paths: list[Path]) -> None:
+    for path in paths:
+        try:
+            path.rmdir()
+        except OSError:
+            pass
+
+
 def validate_asset_paths(paths: set[str]) -> None:
     if len(paths) == LEGACY_ASSET_COUNT:
         if not all(path.startswith(("points/", "areas/", "aggregates/", "details/")) for path in paths):
@@ -118,6 +138,8 @@ def install(args) -> None:
             fetch(args.aws, bucket, key, destination, command_env)
     staging_root = Path(getattr(args, "staging_root", None) or target / ".install-staging").resolve()
     staging_root.mkdir(parents=True, exist_ok=True)
+    if staging_root.stat().st_dev != target.stat().st_dev:
+        raise ValueError("staging root must be on the target filesystem for safe move")
     current_probe = staging_root / "current.json"
     download(f"{prefix}/current.json", current_probe)
     current = checked_json(current_probe, "current")
@@ -181,14 +203,7 @@ def install(args) -> None:
         # files may be installed now; old release files are retained.
         for downloaded, relative, metadata in staged:
             destination = target / relative
-            if same_file(destination, metadata["sha256"], metadata["bytes"]):
-                continue
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            replacement = destination.with_name(destination.name + ".tmp")
-            shutil.copyfile(downloaded, replacement)
-            if digest(replacement) != (metadata["sha256"], metadata["bytes"]):
-                raise ValueError(f"local staging mismatch: {relative}")
-            os.replace(replacement, destination)
+            move_verified(downloaded, destination, metadata["sha256"], metadata["bytes"])
         # The already-downloaded remote pointer is the only mutable write and occurs last.
         current_tmp = target / "current.json.tmp"
         shutil.copyfile(remote_current, current_tmp)
@@ -196,6 +211,23 @@ def install(args) -> None:
     except Exception:
         print(f"install interrupted; verified downloads remain resumable at {temporary}")
         raise
+    # Remove only this run's known staging files after the pointer is atomically live.
+    # Unknown files stop rmdir and remain available for inspection.
+    known_staging_files = [staged_file for staged_file, _, _ in staged] + [remote_current, current_probe]
+    # Each installed asset was verified by stage_asset or move_verified above.
+    # Include prior-run duplicates without re-hashing the whole release again.
+    known_staging_files.extend(temporary / "objects" / relative for relative, _ in assets[:-2])
+    for staged_file in known_staging_files:
+        staged_file.unlink(missing_ok=True)
+    empty_candidates: set[Path] = set()
+    for staged_file in known_staging_files:
+        parent = staged_file.parent
+        while parent != staging_root.parent:
+            empty_candidates.add(parent)
+            if parent == staging_root:
+                break
+            parent = parent.parent
+    remove_empty(sorted(empty_candidates, key=lambda path: len(path.parts), reverse=True))
     print(f"installed jp-medical {version} into {target}")
 
 
