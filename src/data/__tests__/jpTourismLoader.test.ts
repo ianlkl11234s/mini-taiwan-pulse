@@ -6,6 +6,7 @@ import {
 } from "../jpTourismTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
 
 describe("Japan tourism delivery policy", () => {
@@ -68,6 +69,14 @@ describe("Japan tourism delivery policy", () => {
     expect(grids.map((grid) => isOverlayVisible(grid, visibility, {
       jpAccommodationDensityScaleIdx: 1,
     }))).toEqual([false, true]);
+  });
+
+  it("orders density clicks by cell size around the 1 km population mesh", () => {
+    const types = GIS_LAYERS.map((entry) => `${entry.type}:${entry.layers[0]}`);
+    expect(types.indexOf("jpAccommodationDensity:jp-accommodation-density-450-fill"))
+      .toBeLessThan(types.indexOf("jpPopulationMesh1km:jp-population-mesh-fill"));
+    expect(types.indexOf("jpPopulationMesh1km:jp-population-mesh-fill"))
+      .toBeLessThan(types.indexOf("jpAccommodationDensity:jp-accommodation-density-1500-fill"));
   });
 
   it("keeps HOLD and non-commercial datasets local-only", () => {

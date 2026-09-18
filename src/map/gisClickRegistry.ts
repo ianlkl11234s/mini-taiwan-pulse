@@ -222,17 +222,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-tourism-jp-wildlife-special-protection-designated-area-fill"], type: "jpWildlifeSpecialProtectionDesignatedArea" },
   { layers: ["jp-tourism-jp-world-natural-heritage-historical-fill"], type: "jpWorldNaturalHeritageHistorical" },
   { layers: ["jp-tourism-jp-marine-ebsa-coastal-fill"], type: "jpMarineEbsaCoastal" },
-  // 人口網格 1km 格是本組最小的面（< 市区町村 < 都道府県），依「小面 → 大面」排在兩個
-  // 行政區界之前。⚠️ 反過來排在界層之後會讓本層 popup 不可達 —— 縣界 tab 開啟時預設開、
-  // 且與網格同樣無縫鋪滿全日本，first-hit-wins 會由縣界吃掉每一次點擊。
+  // 450m 旅宿密度格比人口 1km 網格更細，必須先命中；1.5km 密度格則排在人口網格後。
+  { layers: ["jp-accommodation-density-450-fill", "jp-accommodation-density-450-outline"], type: "jpAccommodationDensity" },
+  // 人口網格 1km 格小於 1.5km 旅宿密度格、市区町村與都道府県，依「小面 → 大面」排序。
+  // ⚠️ 縣界 tab 開啟時預設開且與網格同樣無縫鋪滿全日本；若人口網格排在行政區界後，
+  // first-hit-wins 會由縣界吃掉每一次點擊。
   { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
-  {
-    layers: [
-      "jp-accommodation-density-450-fill", "jp-accommodation-density-450-outline",
-      "jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline",
-    ],
-    type: "jpAccommodationDensity",
-  },
+  { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
