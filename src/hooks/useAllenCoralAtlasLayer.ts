@@ -22,9 +22,13 @@ export function mountAllenCoralAtlas(
   let timer: ReturnType<typeof setTimeout> | undefined;
   const finish = () => { clearTimeout(timer); if (loading) loadingRegistry.end(task); loading = false; };
   const remove = () => {
-    if (!map.getStyle()) return;
-    if (map.getLayer(fill)) map.removeLayer(fill);
-    if (map.getSource(source.sourceId)) map.removeSource(source.sourceId);
+    try {
+      if (!map.getStyle()) return;
+    } catch {
+      return;
+    }
+    try { if (map.getLayer(fill)) map.removeLayer(fill); } catch { /* map style changed during cleanup */ }
+    try { if (map.getSource(source.sourceId)) map.removeSource(source.sourceId); } catch { /* map style changed during cleanup */ }
   };
   const fail = () => {
     if (disposed || failed) return;

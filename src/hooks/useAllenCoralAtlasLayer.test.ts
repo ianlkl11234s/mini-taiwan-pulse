@@ -81,6 +81,22 @@ describe("Allen private PMTiles lifecycle", () => {
     expect(dispose).not.toThrow();
     expect([...m.listeners.values()].every(s => s.size === 0)).toBe(true);
   });
+  it("releases listeners and loading when style inspection throws during cleanup", () => {
+    vi.stubGlobal("window", { location: { href: "http://localhost/" } });
+    const m = mockMap(); const dispose = mountAllenCoralAtlas(m.map, 0.55, "coralAlgae", "taiwan", vi.fn(), async () => "test-token");
+    m.map.getStyle = () => { throw new Error("style is being replaced"); };
+    expect(dispose).not.toThrow();
+    expect([...m.listeners.values()].every(s => s.size === 0)).toBe(true);
+    expect(loadingRegistry.snapshot().filter(t => t.id.startsWith("allen-coral-"))).toEqual([]);
+  });
+  it("continues source cleanup if layer removal races a style change", () => {
+    vi.stubGlobal("window", { location: { href: "http://localhost/" } });
+    const m = mockMap(); const dispose = mountAllenCoralAtlas(m.map, 0.55, "coralAlgae", "taiwan", vi.fn(), async () => "test-token");
+    m.map.removeLayer = () => { throw new Error("layer was removed with the old style"); };
+    expect(dispose).not.toThrow();
+    expect(m.sources.size).toBe(0);
+    expect([...m.listeners.values()].every(s => s.size === 0)).toBe(true);
+  });
   it("ongoing tile progress extends the stall deadline without marking partial coverage ready", () => {
     vi.useFakeTimers(); vi.stubGlobal("window", { location: { href: "http://localhost/" } });
     const m = mockMap(); const state = vi.fn();
