@@ -6,8 +6,8 @@
 
 - Analytics 上游 PR [#94](https://github.com/ianlkl11234s/taipei-gis-analytics/pull/94)
   已用一般 merge commit `bff65414` 合入。
-- Pulse draft PR [#266](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/266)
-  保持 draft；新資產發布完成前不得 merge。
+- Pulse PR [#266](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/266)
+  於 S3 發布與 readback 完成前保持 draft；現已可進入 ready／merge gate。
 - 所有程式碼、可續傳 staging 與大型產物都在 repo 內 permanent worktree；
   沒有使用會消失的 `/tmp` 作為成果保存位置。
 
@@ -53,9 +53,21 @@ PMTiles z14 display geometry 的回復值，不是新觀測或重新 geocode。
 
 這是本機 browser 證據，不等於 CDN、deployment 或 production 驗收。
 
-## Remaining publication gate
+## S3 publication
 
-尚未執行 S3 upload、immutable readback、mutable `current.json` CAS 更新、
-CDN readback、部署或 production browser。發布必須沿用 exact 781-object plan：
-immutable assets 全部成功且讀回後，依序 catalog → publication manifest →
-`current.json` last。需使用者另行明確授權。
+- 於 `2026-09-18T02:23:43Z` 完成 exact 781-object 發布。
+- 780 個 immutable 物件均為 `uploaded_and_verified`；`current.json`
+  以舊版 SHA-256 `2116f272...c649` 作 CAS 前置條件，完成
+  `updated_and_verified`。
+- 逐物件 bytes、SHA-256、Content-Type 與 Cache-Control readback 全部通過。
+- S3 `current.json` 已指向
+  `6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa`。
+- 完整回執證據：`jp-medical-s3-publication-receipt.json`。
+
+## Remaining production gate
+
+正式站 HTTP 目前仍是舊版
+`d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a`，
+證明 S3 發布尚不等於容器部署。剩餘 gate 是 PR #266 用一般 merge commit
+合併、等待正常部署拉取資產，再進行 production HTTP/CDN Range 與
+desktop／mobile browser 驗收。
