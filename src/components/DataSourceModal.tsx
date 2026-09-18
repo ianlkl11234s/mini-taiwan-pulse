@@ -13,7 +13,7 @@ import type { LayerVisibility } from "../types";
 import { getStatisticsDataSourceDefinition, statisticsSourceLevelLabel, statisticsIndicatorLabel } from "../data/statisticsDataSources";
 import { LAYER_MANIFEST } from "../data/layerManifest";
 import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../data/regionalStatisticsRecipes";
-import { loadRegionalStatistics, type StatisticsSource } from "../data/regionalStatisticsLoader";
+import { loadRegionalStatisticsValues, type StatisticsSource } from "../data/regionalStatisticsLoader";
 
 interface Props {
   layerKey: keyof LayerVisibility | null;
@@ -64,7 +64,9 @@ export function DataSourceModal({ layerKey, onClose }: Props) {
     setArtifactRelease(null);
     setArtifactSourceError(null);
     setArtifactSourceLoading(true);
-    loadRegionalStatistics({
+    // Provenance only needs the verified release receipt; do not acquire or
+    // cache administrative boundary geometry for this modal.
+    loadRegionalStatisticsValues({
       layerKey,
       datasetId: recipe.dataset_id,
       indicatorId: recipe.indicator_id,
