@@ -1,5 +1,13 @@
 # 日本醫療靜態地圖 handoff
 
+## 2026-09-18 — 使用者授權清理、commit、PR 與一般 merge
+
+已逐檔驗 SHA／bytes 並清除重複 staging，釋放 2,172,833,151 bytes；receipt 在 `release/20260918-staging-cleanup.json`。原 current 與兩個已安裝 releases 均保留。
+
+既有 processed source 不在本 checkout，本次改用 `scripts/preprocess/compact_jp_medical_release.py --source-root /data/jp-medical --output-root /data/jp-medical-compact-20260918`，從已驗證的現行 PMTiles 原封重用 7 檔，來源 grain、幾何及全縮放 counts 保留。準備好的版本為 `c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653`，payload 621,621,437 bytes，尚未切正式 current。PMTiles 既有 website／detail_bucket 屬性仍在本次重用檔內，但前端不使用；只有未來從 processed source 完整重建才會移除屬性。
+
+精確清單：`release/20260918-compact-publication-plan.json`（10 entries）；準備證據：`release/20260918-compact-preparation.json`。舊的根目錄 plan／receipt 為歷史紀錄，不用於此次精簡發布。已完成 `tsc -b`、整合最新主線後 1,644 frontend tests（8 skipped）、14 publication tests、4 compact tests。實際切換與清理結果另記 release receipt。
+
 ## 2026-09-18 — 精簡醫療 popup 與發布資料（本地，未部署）
 
 - 分支 `codex/jp-medical-popup-trim-20260918`，基底 `ce311261`。獨立 worktree 位於主 checkout 的 `.worktrees/jp-medical-popup-trim-20260918`。

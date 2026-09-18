@@ -2,7 +2,7 @@
 
 ## 2026-09-18 — 精簡醫療與長照 popup
 
-移除 Navii 網站／診療時段顯示與請求；移除 H17 指定四列，保留內部識別、來源、快照與共址服務。builder 停止攜帶 771 個時段檔並精簡 Navii 屬性；publisher／installer 支援 7-assets 精簡版及舊版。可減少單一現行發布版本 1,550,895,330 bytes（71.387%）；精簡 current 尚未切換；已逐檔驗證並清理重複 staging 781 檔／2,172,833,151 bytes，正式與回復 release 保留。清理 receipt 見 `release/20260918-staging-cleanup.json`。驗證：`tsc -b`、全套前端 1,641 passed／8 skipped、publisher／installer 14 tests、React static render、builder fixture 與實際 plan writer → publisher 串接均通過。執行接點見 [handoff.md](./handoff.md)。
+移除 Navii 網站／診療時段顯示與請求；移除 H17 指定四列，保留內部識別、來源、快照與共址服務。builder 停止攜帶 771 個時段檔並精簡 Navii 屬性；publisher／installer 支援 7-assets 精簡版及舊版。可減少單一現行發布版本 1,550,895,330 bytes（71.387%）；精簡 current 尚未切換；已逐檔驗證並清理重複 staging 781 檔／2,172,833,151 bytes，正式與回復 release 保留。清理 receipt 見 `release/20260918-staging-cleanup.json`。驗證：`tsc -b`、全套前端整合主線後 1,644 passed／8 skipped、publisher／installer 14 tests、compact release 4 tests、React static render、builder fixture 與實際 plan writer → publisher 串接均通過。執行接點見 [handoff.md](./handoff.md)。
 
 ## 2026-09-14 — 本地第一批完成
 
