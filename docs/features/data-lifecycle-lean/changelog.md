@@ -10,3 +10,7 @@
 ## Continued lifecycle implementation — 2026-09-18
 
 Medical adaptive grid counts with explicit full-points mode and source cleanup; Legend lazy loading; Global Events 5-page/1000-row budget and cancellation; CDN static RPC fails visibly instead of automatic DB fallback; immutable R2 forest pilot; installer missing-byte headroom gate. Collectors PR 92 verifies raw archive contents before cleanup; platform PR 113/migration 412 protects history and exposes unresolved retention. See completion-ledger.md for evidence and outstanding access gates.
+
+## Aggregate family label correction
+
+Production acceptance found coincident medical/care grid centers hiding one family. Split screen-space markers and explicit family labels preserve both counts without changing geometry or count grain. Recorded final CI/deployment results and existing capacity-report rollout.

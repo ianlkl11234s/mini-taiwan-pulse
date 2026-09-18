@@ -8,7 +8,7 @@
 | 4. 前端負載 | Legend lazy、Japan tourism 穩定參數、map sources All Off/unmount 回收 | bundle-budget.json、hook regression 與 browser；不宣稱零記憶體／FPS 提升 |
 | 5. 動態預算 | Global Events 5頁/1000列、partial/continuation/abort；staticRpc 不自動回DB | dynamic-budget.md、static-rpc-coverage.json；其他不同動態來源仍需各自量測，沒有宣稱全站都改成snapshot |
 | 6. 公開R2試點 | 林業完整檔 SHA回读，206/CORS/HIT，前端接線 | r2-pilot.json；原路徑可回復，未全站大量搬移 |
-| 7. 擴國准入／成本 | 本頁入口＋既有 registries，容量／請求／資料預算與操作門檻 | README；帳號真實 usage/billing 與自動容量告警尚未驗收 |
+| 7. 擴國准入／成本 | 本頁入口＋既有 registries，容量／請求／資料預算與操作門檻 | README；既有 daily report 容量警示已由 collectors PR 93 上線；帳號真實 usage/billing 尚缺權限 |
 
 ## 保留而非誤刪
 
@@ -21,4 +21,4 @@ Collector /data 69G；filesystem 共用 125G used/25G free，不能混算。GFW 
 3. GFW failed/running spool 不是本批可清理完成項；恢復 pipeline／對帳後才有精確候選，無 broad-prefix 刪除。
 4. S3 共用 bucket policy、其他大圖層視窗化與全國資料搬遷屬後續分層遷移；本次以一層實測建立基線，避免一次重構所有 consumer。
 
-正式部署与 browser 最後讀回在 release evidence 補記。未通過的格子不以本地 build 代替。
+正式部署與 browser 最後讀回已補於 README「正式整合與後續顯示修正」。未通過的格子不以本地 build 代替。

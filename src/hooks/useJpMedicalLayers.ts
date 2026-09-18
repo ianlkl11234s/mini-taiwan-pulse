@@ -233,18 +233,24 @@ function useAggregateFamily(
       const countField = assetId === "navii_facilities" ? "mapped_point_count" : "mapped_service_registration_count";
       const centers = jpMedicalAggregateCenters(data.value, definitions, visibility, countField);
       const opacity = aggregateOpacity(definitions, visibility, params);
+      const bothFamilies = JP_MEDICAL_CATEGORIES.some(({ key }) => visibility[key])
+        && JP_MEDICAL_CARE_GROUPS.some(({ key }) => visibility[key]);
+      const offsetX = bothFamilies ? (assetId === "navii_facilities" ? -28 : 28) : 0;
+      const color = assetId === "navii_facilities" ? "#fda4af" : "#fde68a";
       const source = map.getSource(sourceId) as { setData?: (value: GeoJSON.FeatureCollection<GeoJSON.Point>) => void } | undefined;
       if (!source) map.addSource(sourceId, { type: "geojson", data: centers });
       else source.setData?.(centers);
       if (!map.getLayer(layerIds[0]!)) map.addLayer({ id: layerIds[0]!, type: "circle", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
-        paint: { "circle-color": assetId === "navii_facilities" ? "#fb7185" : "#38bdf8", "circle-opacity": opacity, "circle-stroke-color": "rgba(15,23,42,.75)", "circle-stroke-width": 1,
-          "circle-radius": ["interpolate", ["linear"], ["get", "aggregate_count"], 0, 4, 100, 7, 1_000, 12, 10_000, 18, 100_000, 24] },
+        paint: { "circle-color": "#cbd5e1", "circle-opacity": opacity, "circle-stroke-color": "rgba(15,23,42,.75)", "circle-stroke-width": 1,
+          "circle-radius": 3 },
       } as CircleLayer);
       if (!map.getLayer(layerIds[1]!)) map.addLayer({ id: layerIds[1]!, type: "symbol", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
-        layout: { "text-field": ["to-string", ["get", "aggregate_count"]], "text-size": 10, "text-allow-overlap": false },
+        layout: { "text-field": ["concat", assetId === "navii_facilities" ? "醫療\n" : "長照\n", ["to-string", ["get", "aggregate_count"]]], "text-size": 12, "text-allow-overlap": false },
         paint: { "text-color": "#ffffff", "text-halo-color": "rgba(15,23,42,.8)", "text-halo-width": 1 },
       } as SymbolLayer);
       map.setPaintProperty(layerIds[0]!, "circle-opacity", opacity);
+      map.setPaintProperty(layerIds[1]!, "text-color", color);
+      map.setLayoutProperty(layerIds[1]!, "text-offset", [offsetX / 12, 0]);
       map.setPaintProperty(layerIds[1]!, "text-opacity", opacity);
       keepLoadingUntilMapIdle(map, `${sourceId}:render`, "醫療聚合格網載入中", sourceId);
     };
