@@ -649,10 +649,24 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     ? createAllenCoralAtlasS3Gateway(config)
     : createAllenCoralAtlasGateway());
   const runtimeDependencies = { ...dependencies, config, gateway };
-  // Do not accept a browser request until both local snapshots have been read
-  // and verified once. A failed warmup still starts the server; its request path
-  // retries and fails closed instead of claiming the data is available.
-  const warmup = Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+  const readiness = { ready: false, failed: false };
+  const warmupAttempts = dependencies.warmupAttempts ?? 3;
+  const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
+  // Read and verify both immutable snapshots before permitting private requests.
+  // The listener still starts immediately so a failed or slow warmup is
+  // observable as a fail-closed 503 instead of a connection refusal.
+  const warmup = (async () => {
+    for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
+      try {
+        await Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+        readiness.ready = true;
+        return;
+      } catch {
+        if (attempt + 1 < warmupAttempts) await new Promise((resolve) => setTimeout(resolve, warmupRetryDelayMs * 2 ** attempt));
+      }
+    }
+    readiness.failed = true;
+  })();
   const server = createServer(async (req, res) => {
     try {
       const controller = new AbortController();
@@ -661,7 +675,18 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const request = new Request(`http://${req.headers.host ?? host}${req.url}`, {
         method: req.method, headers: req.headers, signal: controller.signal,
       });
-      const output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
+      let output;
+      const revokeRequest = new URL(request.url).pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
+      if (readiness.ready || revokeRequest) {
+        output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
+      } else {
+        const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
+        output = !cors
+          ? json(403, new Headers(), { error: "origin forbidden" })
+          : json(503, cors, {
+            error: readiness.failed ? "private Allen sidecar unavailable" : "private Allen sidecar is warming up",
+          });
+      }
       await writeAllenAuditRecord(request, output, runtimeDependencies.config ?? getAllenCoralAtlasConfig(), runtimeDependencies.audit);
       res.writeHead(output.status, Object.fromEntries(output.headers));
       if (!output.body || req.method === "HEAD") return res.end();
@@ -671,10 +696,8 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       res.end();
     }
   });
-  void warmup.then(
-    () => server.listen(port, host),
-    () => server.listen(port, host),
-  );
+  server.listen(port, host);
+  void warmup;
   return server;
 }
 
