@@ -1370,8 +1370,8 @@ export default function App() {
 
   const handleLayerClick = useCallback((layer: keyof LayerVisibility, intent?: LayerClickIntent) => {
     if (handleGatedIntercept(layer)) return;
-    if (shouldClearFeatureInfoForLayerClick(layer, intent)) setFeatureInfo(null);
     const isVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, intent, isVisible)) setFeatureInfo(null);
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
       else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
@@ -1391,12 +1391,13 @@ export default function App() {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
     if (!layerVisibilityRef.current[layer] && handleGatedIntercept(layer)) return;
     const wasVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, undefined, wasVisible)) setFeatureInfo(null);
     if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.setVisible(layer, !wasVisible, prev));
     else toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept]);
+  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept, setFeatureInfo]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -1433,6 +1434,9 @@ export default function App() {
         : keys;
       const statisticsKeys = effectiveKeys.filter(isStatisticsChoropleth);
       const ordinaryKeys = effectiveKeys.filter((key) => !isStatisticsChoropleth(key));
+      if (value && statisticsKeys.some((key) => shouldClearFeatureInfoForLayerClick(key, undefined, layerVisibilityRef.current[key]))) {
+        setFeatureInfo(null);
+      }
       setLayerVisibility((prev) => {
         let next = statisticsKeys.length > 0
           ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
@@ -1448,7 +1452,7 @@ export default function App() {
         layerVisibilityRef.current,
       );
     },
-    [setLayerVisibility, layerVisibilityRef],
+    [setLayerVisibility, layerVisibilityRef, setFeatureInfo],
   );
 
   const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
