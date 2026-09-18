@@ -52,4 +52,23 @@ Deployment `6aace2410f50de6ff52c351a` reached RUNNING from merge `0d3d6d5786d3f9
 
 The deployed health reader queried the production RPC successfully: current release 2026-08-21, window 2026-08-15..21, source_age_days 28, state SOURCE_STALE, level critical. This is correct detection of the still-old data, not a failed deployment. HTTP /health returned healthy, DB connected and main loop alive at 2026-09-18 15:10 Asia/Taipei.
 
-Release implementation and container validation are complete. New-date publication and next-day continuity remain scheduled acceptance gates; neither is claimed here. This post-deployment receipt is preserved in the local permanent worktree.
+Release implementation and container validation are complete. New-date publication and next-day continuity remain scheduled acceptance gates; neither is claimed here. This post-deployment receipt is included in the remote closeout PR.
+
+
+## Archive checkpoint
+
+Scope: collector `codex/gfw-safe-publish-20260918` → `main` (PR #91); frontend `codex/gfw-safe-refresh-20260918` → `master` (PR #300 plus documentation closeout). Parallel work and existing worktrees are preserved. No DB migration, direct S3 publication, credential mutation or schedule mutation was performed.
+
+| Release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
+|---|---|---|---|---|---|---|---|---|---|
+| Frontend safe mirror | done: CI | done: tests | N/A | N/A | done: 3311 assets | done: installed assets verified | done: runtime SHA | done: root 200 / Range 206 | not run |
+| Collector repair | done: CI | done: 478 tests | N/A | N/A | done: runtime SHA / health RPC | N/A | done: exact merge | done: healthy | N/A |
+| Next scheduled data release | not run | not run | not run | not run | not run | not run | N/A | not run | not run |
+
+Next-session entry: use the collector permanent worktree on branch `codex/gfw-safe-publish-20260918` and read this receipt. State: waiting_external; trigger: the 2026-09-19 08:30 Asia/Taipei run has completed. First read-only action:
+
+```sh
+zeabur service exec --id 69a654b207e6de1869bf57b5 --env-id 69a654b28ca26dea02bdb5f7 -- python3 -c 'import json; from tasks.monitoring import query_gfw_hourly_publish_health; print(json.dumps(query_gfw_hourly_publish_health(),default=str))'
+```
+
+Require a new succeeded ledger, advancing source date, exact S3/HTTP root agreement, seven consecutive UTC days, verified immutable bytes/SHA/Range and matching frontend date/freshness. Repeat after the following daily run to establish continuous operation and check historical S3 release retention. If this remains stale or failed, inspect that run's error and retained spool before changing anything; do not rerun publisher, edit schedule or replace root as part of this read-only acceptance.
