@@ -60,10 +60,16 @@ describe("Japan tourism delivery policy", () => {
     expect(JP_ACCOMMODATION_DENSITY_SCALES.every((scale) => scale.minzoom === 0)).toBe(true);
   });
 
-  it("preserves canonical source and ODbL attribution on derived density tiles", () => {
-    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("Japan Tourism Agency");
-    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("OpenStreetMap contributors");
-    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("ODbL 1.0");
+  it("preserves each canonical input's date and license status on derived density tiles", () => {
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "Japan Tourism Agency (as of 2026-03-31; license/status: not provided in source record)",
+    );
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "Kyoto City, Shizuoka City, Koto City (as of 2026-09-10; license/status: not provided in source record)",
+    );
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "© OpenStreetMap contributors (as of 2026-09-10; ODbL 1.0)",
+    );
     const grids = OVERLAY_REGISTRY.filter((config) => config.id === "jpAccommodationDensity");
     expect(grids.every((config) => config.attribution === JP_ACCOMMODATION_DENSITY_ATTRIBUTION)).toBe(true);
   });

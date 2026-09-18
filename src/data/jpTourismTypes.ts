@@ -67,7 +67,9 @@ export const JP_ACCOMMODATION_DENSITY_COLORS = [
 export const JP_ACCOMMODATION_DENSITY_LAYER_COLOR = JP_ACCOMMODATION_DENSITY_COLORS[4];
 export const JP_ACCOMMODATION_DENSITY_STOPS = [1, 2, 4, 8, 16, 32, 64] as const;
 export const JP_ACCOMMODATION_DENSITY_ATTRIBUTION =
-  "Japan Tourism Agency; Kyoto City, Shizuoka City, Koto City; © OpenStreetMap contributors (ODbL 1.0)";
+  "Japan Tourism Agency (as of 2026-03-31; license/status: not provided in source record); " +
+  "Kyoto City, Shizuoka City, Koto City (as of 2026-09-10; license/status: not provided in source record); " +
+  "© OpenStreetMap contributors (as of 2026-09-10; ODbL 1.0)";
 
 export interface JpAccommodationDensityScale {
   value: "450" | "1500";
