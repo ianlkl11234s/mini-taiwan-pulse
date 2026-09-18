@@ -76,6 +76,18 @@ describe("Allen private PMTiles lifecycle", () => {
     expect(m.sources.size).toBe(1);
     dispose();
   });
+  it("removes partial resources after synchronous setup failure so later source events cannot report ready", () => {
+    vi.stubGlobal("window", { location: { href: "http://localhost/" } });
+    const m = mockMap(); const state = vi.fn();
+    m.map.addLayer = () => { throw new Error("style rebuilding"); };
+    const dispose = mountAllenCoralAtlas(m.map, 0.55, "coralAlgae", "taiwan", state, async () => "test-token");
+    expect(state).toHaveBeenLastCalledWith("error");
+    expect(m.layers.size).toBe(0);
+    expect(m.sources.size).toBe(0);
+    m.fire("sourcedata", { sourceId: CORAL_SOURCE_ID, isSourceLoaded: true });
+    expect(state).toHaveBeenCalledTimes(2);
+    dispose();
+  });
   it.each([{ status: 401 }, { status: 403 }, new Error("permission denied")])("fails closed only for explicit access denial: %j", error => {
     vi.stubGlobal("window", { location: { href: "http://localhost/" } });
     const m = mockMap(); const state = vi.fn();

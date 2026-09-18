@@ -47,6 +47,17 @@ export function mountAllenCoralAtlas(
     if (isExplicitAccessDenied(error)) failAccessDenied();
     else reportError();
   };
+  // Source events are retryable network signals, but a synchronous setup failure
+  // means this mount never became valid. Remove any source/layer that was added
+  // before the throw so a later source event cannot falsely mark it ready.
+  const failSetup = (error: unknown) => {
+    if (disposed || failed) return;
+    failed = true;
+    finish();
+    remove();
+    onState("error");
+    if (isExplicitAccessDenied(error)) window.dispatchEvent?.(new Event("allen-coral-access-denied"));
+  };
   const begin = () => {
     if (disposed || failed || loading) return;
     loading = true;
@@ -85,7 +96,7 @@ export function mountAllenCoralAtlas(
     if (mounted) (mounted as unknown as { attribution: string }).attribution = ALLEN_CORAL_ATTRIBUTION;
     map.addLayer({ id: fill, type: "fill", source: source.sourceId, "source-layer": source.sourceLayer,
       filter: allenCoralFilter(view, region), paint: { "fill-color": allenCoralColor(view), "fill-opacity": opacity } });
-  } catch (error) { handleError(error); }
+  } catch (error) { failSetup(error); }
   return () => {
     disposed = true; finish();
     map.off("sourcedataloading", onLoading); map.off("sourcedata", onData); map.off("error", onError);
