@@ -286,6 +286,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
     "property-value-grid-450-fill", "property-value-grid-450-extrusion",
     "property-value-grid-1500-fill", "property-value-grid-1500-extrusion",
   ], type: "propertyValueGrid" },
+  { layers: [
+    "property-value-admin-county-fill", "property-value-admin-county-line",
+    "property-value-admin-township-fill", "property-value-admin-township-line",
+  ], type: "propertyValueAdmin" },
   { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
   { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
   { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },

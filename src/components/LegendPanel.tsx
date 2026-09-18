@@ -135,6 +135,10 @@ import {
   PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR, PROPERTY_VALUE_PER_CAPITA_MIN_POP,
 } from "../data/propertyValueTypes";
 import {
+  PROPERTY_VALUE_ADMIN_COLORS, PROPERTY_VALUE_ADMIN_LEVELS, PROPERTY_VALUE_ADMIN_MISSING_COLOR,
+  formatPropertyValueTwd, resolvePropertyValueAdminLevel,
+} from "../data/propertyValueAdminTypes";
+import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
@@ -482,6 +486,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "treePitsTaipei", render: () => <TreePitsTaipeiLegend /> },
   { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { id: "propertyValueAdmin", render: ({ overlayParams }) => <PropertyValueAdminLegend levelIdx={overlayParams.propertyValueAdminLevelIdx ?? 0} /> },
   { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
   { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
@@ -1792,6 +1797,31 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {modeIdx === 4 ? PROPERTY_VALUE_ATTRIBUTION : BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
+function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
+  const t = useLegendTheme();
+  const level = resolvePropertyValueAdminLevel(levelIdx);
+  const config = PROPERTY_VALUE_ADMIN_LEVELS[level];
+  const bounds = [0, ...config.breaks];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        不動產總市值 · {config.label}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {PROPERTY_VALUE_ADMIN_COLORS.map((color, index) => {
+          const lower = formatPropertyValueTwd(bounds[index]!);
+          const upper = config.breaks[index];
+          return <UrbanDotRow key={color} color={color} label={upper ? `${lower} – < ${formatPropertyValueTwd(upper)}` : `${lower} 以上`} />;
+        })}
+        <UrbanDotRow color={PROPERTY_VALUE_ADMIN_MISSING_COLOR} label="來源缺值（不是 0）" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        市場交易建物模型估值聚合；{level === "township" ? "鄉鎮市區界自 z6 顯示。" : "19 / 22 縣市有數值。"}
       </div>
     </div>
   );
