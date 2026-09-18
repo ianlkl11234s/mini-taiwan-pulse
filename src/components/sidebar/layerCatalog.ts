@@ -15,7 +15,7 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 // - LAYER_COLORS：型別強制 Record<keyof LayerVisibility, string>，
 //   缺 key 會 tsc 報錯 → 新增 layer 必補色。
 // - THEMES：新 SSOT；新增 layer 把 key 放進對應 theme.groups[].layers。
-// - 命名格式：`中文 English`（例：「水資源 Water」「國道 Highway」）。
+// - 命名格式：一般圖層用 `中文 English`；日本 tab 內圖層用 `中文 日本語`。
 // - 預設開關由 useLayerVisibility 控制；動態 RPC 原則上預設關閉。
 //
 // 排序原則：
@@ -173,19 +173,20 @@ function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
 // ── THEMES（新 SSOT）──
 
 /**
- * 「世界 World」主題 title —— 獨立 rail tab「世界」的唯一來源。
- * 桌機主 Layers panel 用 WORLD_TAB_THEME_TITLES 把世界 tab 的主題濾掉（只在世界 tab 出現），
- * 世界 tab 則只渲染這批主題（陣列順序＝世界 tab 內的顯示順序）。
+ * 世界 rail tab 只放語意明確的全球主題；不再用泛稱「世界 World」包住事件與環境。
+ * 桌機主 Layers panel 用 WORLD_TAB_THEME_TITLES 把這些主題濾掉，世界 tab 則依陣列順序顯示。
  */
-export const WORLD_THEME_TITLE = "世界 World";
-export const COMMUNICATIONS_THEME_TITLE = "通訊 Communications";
+export const GLOBAL_SITUATION_THEME_TITLE = "全球情勢 Global Situation";
+export const GLOBAL_ENVIRONMENT_THEME_TITLE = "全球環境 Global Environment";
+export const COMMUNICATIONS_THEME_TITLE = "全球通訊 Global Communications";
 
 /** 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。 */
 export const WORLD_TAB_THEME_TITLES: string[] = [
-  WORLD_THEME_TITLE,
-  COMMUNICATIONS_THEME_TITLE,
-  "全球氣候 Global Climate",
+  GLOBAL_SITUATION_THEME_TITLE,
   "全球海事 Global Maritime",
+  "全球氣候 Global Climate",
+  GLOBAL_ENVIRONMENT_THEME_TITLE,
+  COMMUNICATIONS_THEME_TITLE,
 ];
 
 /**
@@ -1664,22 +1665,33 @@ const THEME_CATALOG: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // 🌍 WORLD 世界（獨立 rail tab「世界」專屬；桌機主 Layers panel 排除此主題）
+  // 🌍 GLOBAL SITUATION / ENVIRONMENT（世界 rail 專屬；不再以泛稱「世界」包組）
   // ───────────────────────────────────────────────────────────────
   {
-    title: WORLD_THEME_TITLE,
+    title: GLOBAL_SITUATION_THEME_TITLE,
     defaultCollapsed: true,
     groups: [
       {
-        title: "重要事件",
+        title: "重大事件 Major Events",
         layers: [
           fromManifest("globalEvents"),
         ],
       },
+    ],
+  },
+  {
+    title: GLOBAL_ENVIRONMENT_THEME_TITLE,
+    defaultCollapsed: true,
+    groups: [
       {
-        title: "環境",
+        title: "廢棄物觀測 Waste Observations",
         layers: [
           fromManifest("worldTrashDebris"),
+        ],
+      },
+      {
+        title: "海洋生態 Marine Ecosystems",
+        layers: [
           fromManifest("coralReefDistribution"),
           fromManifest("allenCoralAtlas"),
         ],
@@ -1855,7 +1867,7 @@ const THEME_CATALOG: ThemeDef[] = [
 
 /**
  * Layers 的第一層閱讀順序：不改 theme title、layer key 或資料契約，只提供 UI 分段。
- * 世界相關主題仍由 WORLD_TAB_THEME_TITLES 獨立顯示於桌機 World rail。
+ * 全球與日本主題在 desktop 仍由各自 rail 顯示；mobile 則併入相符的既有大分類。
  */
 export const LAYER_MACRO_GROUPS = [
   { key: "baseline", title: "基準 Baseline" },
@@ -1864,7 +1876,6 @@ export const LAYER_MACRO_GROUPS = [
   { key: "safety", title: "安全與治理 Safety & Governance" },
   { key: "environment", title: "環境與資源 Environment & Resources" },
   { key: "intelligence", title: "情報 Intelligence" },
-  { key: "world", title: "世界 World" },
 ] as const;
 
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
@@ -1915,23 +1926,24 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "林業 Forestry": "environment",
   "太空 Space": "intelligence",
   "情勢 Situation": "intelligence",
-  [WORLD_THEME_TITLE]: "world",
-  [COMMUNICATIONS_THEME_TITLE]: "world",
-  "全球氣候 Global Climate": "world",
-  "全球海事 Global Maritime": "world",
-  // 日本 tab 五主題（tab 抬頭已是「日本 Japan」，故主題直接是分類名）
-  "行政區": "world",
-  "交通": "world",
-  "旅宿": "world",
-  "自然保護": "world",
-  "世界遺產": "world",
-  "治安": "world",
-  "教育": "world",
-  "人口": "world",
-  "宗教": "world",
-  "醫療設施": "world",
-  "長照服務": "world",
-  "醫療圈": "world",
+  [GLOBAL_SITUATION_THEME_TITLE]: "intelligence",
+  [GLOBAL_ENVIRONMENT_THEME_TITLE]: "environment",
+  [COMMUNICATIONS_THEME_TITLE]: "publicLife",
+  "全球氣候 Global Climate": "environment",
+  "全球海事 Global Maritime": "intelligence",
+  // 日本 tab 在 desktop 仍獨立；mobile 依資料語意併入既有大分類，不再掛在「世界」。
+  "行政區": "baseline",
+  "交通": "city",
+  "旅宿": "publicLife",
+  "自然保護": "environment",
+  "世界遺產": "environment",
+  "治安": "safety",
+  "教育": "publicLife",
+  "人口": "city",
+  "宗教": "publicLife",
+  "醫療設施": "safety",
+  "長照服務": "publicLife",
+  "醫療圈": "safety",
 };
 
 export function themeMacroGroup(title: string): LayerMacroGroup {

@@ -1179,7 +1179,7 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
     return (
       <div>
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-          日本車站 運量（人/日）
+          車站運量 駅利用者数（人／日）
         </div>
         <FireCatRows
           cats={[
@@ -1193,7 +1193,7 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本車站 種類
+        車站類型 駅種別
       </div>
       <FireCatRows
         cats={[
@@ -1214,7 +1214,7 @@ function JpRailwaysLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本鐵道 事業者種別
+        鐵道營運者類型 鉄道事業者種別
       </div>
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
@@ -1235,7 +1235,7 @@ function JpSchoolsLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本學校 学校分類
+        學校類型 学校分類
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {JP_SCHOOL_TYPES.map((c) => (
@@ -1263,7 +1263,7 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本人口網格 {mode.label}
+        人口網格 人口メッシュ · {mode.label}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {isRatio ? "65 歲以上比率（1km 格）" : "總人口（人／1km 格）"}
@@ -1289,7 +1289,7 @@ function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" })
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        {source === "osm" ? "OSM 住宿類型" : "旅宿類型"}
+        {source === "osm" ? "OSM 住宿類型 宿泊施設タイプ" : "旅宿類型 宿泊施設タイプ"}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {[...categories, JP_ACCOMMODATION_UNKNOWN_CATEGORY].map((category) => (
@@ -4926,7 +4926,7 @@ function WorldTrashDebrisLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        全球垃圾殘骸 TRASH & DEBRIS
+        垃圾與殘骸觀測 TRASH & DEBRIS OBSERVATIONS
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div
@@ -5038,7 +5038,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本宗教設施 JAPAN RELIGION
+        宗教設施 宗教施設
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {JP_RELIGION_CATEGORIES.map((category) => (
@@ -6548,7 +6548,7 @@ function SoundCameraLocationsLegend() {
 function JpPoliceFacilitiesLegend() {
   const t = useLegendTheme();
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 320 }}>
-    <div style={{ marginBottom: 4 }}>日本警察設施</div>
+    <div style={{ marginBottom: 4 }}>警察設施 警察施設</div>
     {JP_POLICE_FACILITY_TYPES.map(c => <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
       <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color }} />{c.label}
     </div>)}

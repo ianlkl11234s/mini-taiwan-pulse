@@ -94,7 +94,7 @@ async function loadCatalogUncached(): Promise<JpMedicalCatalog> {
         throw cause;
     }
 }
-const loadCatalogCached = cachedOnce(() => withLoading("jp-medical:catalog", "日本醫療資料目錄載入中", loadCatalogUncached()), 30 * 60000);
+const loadCatalogCached = cachedOnce(() => withLoading("jp-medical:catalog", "醫療資料目錄 医療データ一覧載入中", loadCatalogUncached()), 30 * 60000);
 export function loadJpMedicalCatalog() { return loadCatalogCached(); }
 /** 清除失敗／過期目錄，下一次由使用者操作或 hook 重新讀取 current pointer。 */
 export function retryJpMedicalCatalog() { loadCatalogCached.invalidate(); setRuntime({ status: "idle", revision: (runtime.revision ?? 0) + 1 }); }
@@ -155,7 +155,7 @@ export async function loadJpMedicalHours(recordKind: string, sourceId: string, b
     const expectedBucket = (await sha256(new TextEncoder().encode(sourceId).buffer)).slice(0, 2);
     if (bucket.toLowerCase() !== expectedBucket)
         throw new Error("時段 bucket 與來源 ID 不一致");
-    const rows = await withLoading("jp-medical:hours", "日本醫療時段載入中", fetchJpMedicalJsonAsset(`details/${recordKind}_hours/${bucket}.json`));
+    const rows = await withLoading("jp-medical:hours", "醫療時段 診療時間載入中", fetchJpMedicalJsonAsset(`details/${recordKind}_hours/${bucket}.json`));
     const envelope = rows as {
         bucket?: unknown;
         record_kind?: unknown;
