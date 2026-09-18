@@ -297,6 +297,7 @@ test("Allen sidecar listens during warmup but fails closed until immutable snaps
   };
   const server = startAllenCoralAtlasServer({
     port: 0,
+    warmupAttempts: 1,
     config: allenConfig,
     authenticate: allenOwner,
     gateway,
@@ -332,6 +333,7 @@ test("Allen sidecar exposes a failed warmup as 503 without proxying private byte
   const calls = { get: 0 };
   const server = startAllenCoralAtlasServer({
     port: 0,
+    warmupAttempts: 1,
     config: allenConfig,
     authenticate: allenOwner,
     gateway: {

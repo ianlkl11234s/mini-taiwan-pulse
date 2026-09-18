@@ -650,10 +650,23 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     : createAllenCoralAtlasGateway());
   const runtimeDependencies = { ...dependencies, config, gateway };
   const readiness = { ready: false, failed: false };
+  const warmupAttempts = dependencies.warmupAttempts ?? 3;
+  const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
   // Read and verify both immutable snapshots before permitting private requests.
   // The listener still starts immediately so a failed or slow warmup is
   // observable as a fail-closed 503 instead of a connection refusal.
-  const warmup = Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+  const warmup = (async () => {
+    for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
+      try {
+        await Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+        readiness.ready = true;
+        return;
+      } catch {
+        if (attempt + 1 < warmupAttempts) await new Promise((resolve) => setTimeout(resolve, warmupRetryDelayMs * 2 ** attempt));
+      }
+    }
+    readiness.failed = true;
+  })();
   const server = createServer(async (req, res) => {
     try {
       const controller = new AbortController();
@@ -663,7 +676,8 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
         method: req.method, headers: req.headers, signal: controller.signal,
       });
       let output;
-      if (readiness.ready) {
+      const revokeRequest = new URL(request.url).pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
+      if (readiness.ready || revokeRequest) {
         output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
       } else {
         const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
@@ -683,10 +697,7 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     }
   });
   server.listen(port, host);
-  void warmup.then(
-    () => { readiness.ready = true; },
-    () => { readiness.failed = true; },
-  );
+  void warmup;
   return server;
 }
 
