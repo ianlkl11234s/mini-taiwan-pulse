@@ -1,5 +1,6 @@
 import { cachedByKey, cachedOnce } from "../lib/loaderCache";
 import { withLoading } from "../lib/loadingRegistry";
+import { JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 const ROOT = `${import.meta.env.BASE_URL ?? "/"}jp-medical/`;
 function currentUrl(): string {
     const origin = typeof window !== "undefined" && window.location.href.startsWith("http") ? window.location.href : "http://localhost/";
@@ -15,6 +16,9 @@ export interface JpMedicalLayerAsset {
     pmtiles_path: string;
     source_layer: string;
     aggregate_path?: string;
+    aggregate_grid_size_m?: number;
+    aggregate_schema?: "category_columns_v1";
+    aggregate_crs?: "EPSG:6933";
     minimum_point_zoom?: number;
     point_sampling?: "none";
     z0_feature_count?: number;
@@ -41,13 +45,11 @@ export interface JpMedicalRuntime {
     catalog?: JpMedicalCatalog;
     error?: string;
     revision?: number;
-    displayMode?: JpMedicalDisplayMode;
 }
-export type JpMedicalDisplayMode = "adaptive" | "points";
 export interface JpMedicalAggregate extends GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> {}
-let runtime: JpMedicalRuntime = { status: "idle", displayMode: "adaptive" };
+let runtime: JpMedicalRuntime = { status: "idle" };
 const listeners = new Set<() => void>();
-function setRuntime(next: JpMedicalRuntime) { runtime = { ...next, displayMode: next.displayMode ?? runtime.displayMode ?? "adaptive", revision: next.revision ?? runtime.revision ?? 0 }; listeners.forEach((listener) => listener()); }
+function setRuntime(next: JpMedicalRuntime) { runtime = { ...next, revision: next.revision ?? runtime.revision ?? 0 }; listeners.forEach((listener) => listener()); }
 export function getJpMedicalRuntime(): JpMedicalRuntime { return runtime; }
 export function subscribeJpMedicalRuntime(listener: () => void) { listeners.add(listener); return () => listeners.delete(listener); }
 function absolute(path: string, base: string): string {
@@ -101,11 +103,6 @@ const loadCatalogCached = cachedOnce(() => withLoading("jp-medical:catalog", "�
 export function loadJpMedicalCatalog() { return loadCatalogCached(); }
 /** 清除失敗／過期目錄，下一次由使用者操作或 hook 重新讀取 current pointer。 */
 export function retryJpMedicalCatalog() { loadCatalogCached.invalidate(); aggregateCache.invalidate(); setRuntime({ status: "idle", revision: (runtime.revision ?? 0) + 1 }); }
-/** 互動狀態沿既有醫療 runtime 保存；不新增全域 UI framework。 */
-export function setJpMedicalDisplayMode(displayMode: JpMedicalDisplayMode) {
-    if (runtime.displayMode === displayMode) return;
-    setRuntime({ ...runtime, displayMode, revision: (runtime.revision ?? 0) + 1 });
-}
 export function reportJpMedicalError(cause: unknown) {
     setRuntime({ ...runtime, status: "error", error: cause instanceof Error ? cause.message : String(cause) });
 }
@@ -153,11 +150,31 @@ function validateAggregate(value: unknown, key: "navii_facilities" | "h17_servic
     if (fc?.type !== "FeatureCollection" || !Array.isArray(fc.features) || fc.features.length === 0)
         throw new Error("聚合格網 schema 不相容或為空");
     const mappedByKind = new Map<string, number>();
+    const categoryFields = key === "navii_facilities"
+        ? Object.fromEntries(JP_MEDICAL_CATEGORIES.map((item) => [item.value, item.aggregateField]))
+        : Object.fromEntries(JP_MEDICAL_CARE_GROUPS.map((item) => [item.key, item.aggregateField]));
+    let schema: "legacy_z6" | "category_columns_v1" | undefined;
     for (const feature of fc.features) {
         const props = feature?.properties as Record<string, unknown> | null;
-        if (feature?.type !== "Feature" || !props || typeof props.grid_id !== "string" || props.grid_zoom !== 6
+        if (feature?.type !== "Feature" || !props || typeof props.grid_id !== "string"
             || !feature.geometry || !["Polygon", "MultiPolygon"].includes(feature.geometry.type))
             throw new Error("聚合格網 schema 不相容");
+        const featureSchema = props.aggregate_schema === "category_columns_v1" ? "category_columns_v1" : "legacy_z6";
+        if (schema && schema !== featureSchema) throw new Error("聚合格網 schema 不可混用");
+        schema = featureSchema;
+        if (featureSchema === "category_columns_v1") {
+            if (props.grid_size_m !== 10_000 || props.grid_crs !== "EPSG:6933") throw new Error("密度格網尺度／CRS 不相容");
+            let total = 0;
+            for (const [category, field] of Object.entries(categoryFields)) {
+                const count = aggregateCount(props, field);
+                mappedByKind.set(category, (mappedByKind.get(category) ?? 0) + count);
+                total += count;
+            }
+            const countField = key === "navii_facilities" ? "mapped_point_count" : "mapped_service_registration_count";
+            if (aggregateCount(props, countField) !== total) throw new Error(`密度格網 ${countField} 不守恆`);
+            continue;
+        }
+        if (props.grid_zoom !== 6) throw new Error("舊聚合格網 zoom 不相容");
         const kind = typeof props.record_kind === "string" ? props.record_kind : "";
         if (key === "navii_facilities") {
             if (!kind) throw new Error("Navii 聚合格網缺少 record_kind");
@@ -179,6 +196,10 @@ function validateAggregate(value: unknown, key: "navii_facilities" | "h17_servic
             if (!isCount(expected) || expected !== (mappedByKind.get(kind) ?? 0))
                 throw new Error(`Navii 聚合格網 ${kind} mapped count 不一致`);
         }
+    } else if (schema === "category_columns_v1") {
+        const expected = totals?.mapped_service_registration_count;
+        const grouped = [...mappedByKind.values()].reduce((sum, count) => sum + count, 0);
+        if (!isCount(expected) || expected !== grouped) throw new Error("H17 密度格網 mapped count 不一致");
     } else {
         const expected = totals?.mapped_service_registration_count;
         if (!isCount(expected) || expected !== mappedByKind.get("h17")) throw new Error("H17 聚合格網 mapped count 不一致");
@@ -192,7 +213,7 @@ const aggregateCache = cachedByKey<JpMedicalAggregate>(async (key) => {
     const data = await fetchJpMedicalJsonAsset(layer.aggregate_path);
     return validateAggregate(data, key as "navii_facilities" | "h17_services", catalog);
 }, 30 * 60000, 2);
-/** z6 格網僅在 adaptive 低縮放讀取；bytes/SHA 由 JSON loader 驗證，快取至多兩族。 */
+/** 低縮放格網由 exact catalog 讀取；bytes/SHA 由 JSON loader 驗證，快取至多兩族。 */
 export function fetchJpMedicalAggregate(key: "navii_facilities" | "h17_services") { return aggregateCache(key); }
 export async function jpMedicalLayerAsset(key: JpMedicalLayerAsset["key"]): Promise<{
     url: string;

@@ -15,9 +15,18 @@ from pathlib import Path
 HEX = re.compile(r"^[0-9a-f]{64}$")
 LEGACY_ASSET_COUNT = 778
 STAGING_SAFETY_BYTES = 16 * 1024 * 1024
-COMPACT_ASSET_PATHS = frozenset({
+PREVIOUS_COMPACT_ASSET_PATHS = frozenset({
     "aggregates/h17-z6.geojson",
     "aggregates/navii-z6.geojson",
+    "areas/A38-20_1.pmtiles",
+    "areas/A38-20_2.pmtiles",
+    "areas/A38-20_3.pmtiles",
+    "points/h17_services.pmtiles",
+    "points/navii_facilities.pmtiles",
+})
+COMPACT_ASSET_PATHS = frozenset({
+    "aggregates/h17-density-10km.geojson",
+    "aggregates/navii-density-10km.geojson",
     "areas/A38-20_1.pmtiles",
     "areas/A38-20_2.pmtiles",
     "areas/A38-20_3.pmtiles",
@@ -79,13 +88,15 @@ def remove_empty(paths: list[Path]) -> None:
             pass
 
 
-def required_staging_bytes(target: Path, temporary: Path, assets: list[tuple[str, dict]]) -> int:
+def required_staging_bytes(target: Path, temporary: Path, assets: list[tuple[str, dict, str]]) -> int:
     """Count only payload bytes that cannot resume from a verified destination."""
     required = 0
-    for relative, metadata in assets:
+    for relative, metadata, remote_relative in assets:
         if same_file(target / relative, metadata["sha256"], metadata["bytes"]):
             continue
         if same_file(temporary / "objects" / relative, metadata["sha256"], metadata["bytes"]):
+            continue
+        if same_file(target / remote_relative, metadata["sha256"], metadata["bytes"]):
             continue
         required += metadata["bytes"]
     return required
@@ -96,7 +107,7 @@ def validate_asset_paths(paths: set[str]) -> None:
         if not all(path.startswith(("points/", "areas/", "aggregates/", "details/")) for path in paths):
             raise ValueError("legacy asset outside payload allowlist")
         return
-    if paths != COMPACT_ASSET_PATHS:
+    if paths not in (PREVIOUS_COMPACT_ASSET_PATHS, COMPACT_ASSET_PATHS):
         raise ValueError("assets must be the legacy payload or the exact compact payload")
 
 
@@ -105,7 +116,7 @@ def validate_catalog_contract(catalog: object, version: str, files: dict) -> Non
             or catalog.get("status") != "LOCAL_READY_NOT_DEPLOYED"
             or catalog.get("files") != files):
         raise ValueError("catalog does not bind publication manifest")
-    if set(files) == COMPACT_ASSET_PATHS:
+    if set(files) in (PREVIOUS_COMPACT_ASSET_PATHS, COMPACT_ASSET_PATHS):
         if catalog.get("detail_buckets") != {} or not isinstance(catalog.get("layers"), list):
             raise ValueError("compact catalog must declare no detail buckets")
         if any(not isinstance(layer, dict) or layer.get("detail_reference") is not None for layer in catalog["layers"]):
@@ -118,6 +129,22 @@ def validate_manifest_catalog(meta: object) -> None:
             or not HEX.fullmatch(meta["sha256"])
             or ("path" in meta and meta["path"] != "catalog.json")):
         raise ValueError("publication manifest lacks catalog digest")
+
+
+def inherited_files(manifest: dict) -> dict[str, dict]:
+    inherited = manifest.get("inherited_files", {})
+    if not isinstance(inherited, dict):
+        raise ValueError("inherited_files must be an object")
+    output = {}
+    for relative, value in inherited.items():
+        relative = safe_relative(relative)
+        if (not isinstance(value, dict) or not isinstance(value.get("bytes"), int) or value["bytes"] < 0
+                or not isinstance(value.get("sha256"), str) or not HEX.fullmatch(value["sha256"])
+                or not isinstance(value.get("source_version"), str) or not HEX.fullmatch(value["source_version"])
+                or safe_relative(value.get("source_path")) != relative):
+            raise ValueError(f"invalid inherited asset metadata: {relative}")
+        output[relative] = value
+    return output
 
 
 def install(args) -> None:
@@ -180,43 +207,71 @@ def install(args) -> None:
         if digest(remote_catalog) != (catalog_meta["sha256"], catalog_meta["bytes"]):
             raise ValueError("catalog bytes/SHA-256 mismatch")
         catalog = checked_json(remote_catalog, "catalog")
-        validate_catalog_contract(catalog, version, manifest["files"])
+        inherited = inherited_files(manifest)
+        if set(manifest["files"]) & set(inherited):
+            raise ValueError("published and inherited assets overlap")
+        effective_files = {
+            **{relative: {"sha256": value["sha256"], "bytes": value["bytes"]} for relative, value in inherited.items()},
+            **manifest["files"],
+        }
+        validate_catalog_contract(catalog, version, effective_files)
         assets = []
         for relative, metadata in sorted(manifest["files"].items()):
             relative = safe_relative(relative)
             if not isinstance(metadata, dict) or not isinstance(metadata.get("bytes"), int) or metadata["bytes"] < 0 or not isinstance(metadata.get("sha256"), str) or not HEX.fullmatch(metadata["sha256"]):
                 raise ValueError("manifest digest metadata invalid")
-            assets.append((f"releases/{version}/{relative}", metadata))
-        validate_asset_paths({relative.removeprefix(f"releases/{version}/") for relative, _ in assets})
-        assets += [(catalog_relative, catalog_meta), (manifest_relative, {"sha256": digest(remote_manifest)[0], "bytes": remote_manifest.stat().st_size})]
+            target_relative = f"releases/{version}/{relative}"
+            assets.append((target_relative, metadata, target_relative))
+        for relative, metadata in sorted(inherited.items()):
+            assets.append((
+                f"releases/{version}/{relative}",
+                {"sha256": metadata["sha256"], "bytes": metadata["bytes"]},
+                f"releases/{metadata['source_version']}/{metadata['source_path']}",
+            ))
+        validate_asset_paths({relative.removeprefix(f"releases/{version}/") for relative, _, _ in assets})
+        metadata_entries = [
+            (catalog_relative, catalog_meta),
+            (manifest_relative, {"sha256": digest(remote_manifest)[0], "bytes": remote_manifest.stat().st_size}),
+        ]
         # Immutable names are never repairable in place. A divergent local file
         # signals a bad volume or release collision; preserve it and stop.
-        for relative, metadata in assets:
+        for relative, metadata, _ in assets:
             local = target / relative
             if local.exists() and not same_file(local, metadata["sha256"], metadata["bytes"]):
                 raise ValueError(f"existing immutable differs; refusing overwrite: {relative}")
-        required = required_staging_bytes(target, temporary, assets[:-2])
+        for relative, metadata in metadata_entries:
+            local = target / relative
+            if local.exists() and not same_file(local, metadata["sha256"], metadata["bytes"]):
+                raise ValueError(f"existing immutable differs; refusing overwrite: {relative}")
+        required = required_staging_bytes(target, temporary, assets)
         available = shutil.disk_usage(staging_root).free
         if available < required + STAGING_SAFETY_BYTES:
             raise ValueError(
                 f"insufficient staging space: need {required + STAGING_SAFETY_BYTES} bytes "
                 f"({required} payload + {STAGING_SAFETY_BYTES} safety), have {available}"
             )
-        staged = [(remote_catalog, catalog_relative, catalog_meta), (remote_manifest, manifest_relative, assets[-1][1])]
+        staged = [(remote_catalog, catalog_relative, catalog_meta), (remote_manifest, manifest_relative, metadata_entries[-1][1])]
         def stage_asset(item):
-            relative, metadata = item
+            relative, metadata, remote_relative = item
             local = target / relative
             if same_file(local, metadata["sha256"], metadata["bytes"]):
                 return None
             downloaded = temporary / "objects" / relative
             downloaded.parent.mkdir(parents=True, exist_ok=True)
             if not same_file(downloaded, metadata["sha256"], metadata["bytes"]):
-                download(f"{prefix}/{relative}", downloaded)
+                inherited_local = target / remote_relative
+                if same_file(inherited_local, metadata["sha256"], metadata["bytes"]):
+                    try:
+                        os.link(inherited_local, downloaded)
+                    except OSError:
+                        download(f"{prefix}/{remote_relative}", downloaded)
+                else:
+                    download(f"{prefix}/{remote_relative}", downloaded)
             if digest(downloaded) != (metadata["sha256"], metadata["bytes"]):
                 raise ValueError(f"download bytes/SHA-256 mismatch: {relative}")
             return downloaded, relative, metadata
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            for result in pool.map(stage_asset, assets[:-2]):
+            for result in pool.map(stage_asset, assets):
                 if result is not None:
                     staged.append(result)
         # All remote content has passed before any local pointer changes. Immutable
@@ -236,7 +291,7 @@ def install(args) -> None:
     known_staging_files = [staged_file for staged_file, _, _ in staged] + [remote_current, current_probe]
     # Each installed asset was verified by stage_asset or move_verified above.
     # Include prior-run duplicates without re-hashing the whole release again.
-    known_staging_files.extend(temporary / "objects" / relative for relative, _ in assets[:-2])
+    known_staging_files.extend(temporary / "objects" / relative for relative, _, _ in assets)
     for staged_file in known_staging_files:
         staged_file.unlink(missing_ok=True)
     empty_candidates: set[Path] = set()

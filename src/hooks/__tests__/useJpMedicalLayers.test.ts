@@ -8,7 +8,7 @@ const harness = vi.hoisted(() => {
   const cleanups: Array<() => void> = [];
   return {
     begin: () => { cursor = 0; },
-    cleanup: () => { cleanups.splice(0).reverse().forEach((fn) => fn()); },
+    cleanup: () => { cleanups.splice(0).reverse().forEach((fn) => fn()); states.length = 0; cursor = 0; },
     useState: <T,>(initial: T | (() => T)) => {
       const index = cursor++;
       states[index] ??= typeof initial === "function" ? (initial as () => T)() : initial;
@@ -19,10 +19,12 @@ const harness = vi.hoisted(() => {
     useSyncExternalStore: () => { cursor++; return runtime; },
   };
 });
-let runtime = { status: "ready", revision: 1, displayMode: "adaptive" as "adaptive" | "points" };
+let runtime = { status: "ready", revision: 1 };
 const aggregate = { type: "FeatureCollection", features: [
-  { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [2, 0], [2, 2], [0, 0]]] }, properties: { grid_id: "6/0/0", record_kind: "hospital", mapped_point_count: 2 } },
-  { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [2, 0], [2, 2], [0, 0]]] }, properties: { grid_id: "6/0/0", record_kind: "clinic", mapped_point_count: 3 } },
+  { type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [2, 0], [2, 2], [0, 0]]] }, properties: {
+    grid_id: "J10000_0_0", grid_size_m: 10_000, grid_crs: "EPSG:6933", aggregate_schema: "category_columns_v1",
+    mapped_point_count: 5, hospital_count: 2, clinic_count: 3, dental_count: 0, maternity_count: 0, pharmacy_count: 0,
+  } },
 ] } as unknown as GeoJSON.FeatureCollection;
 vi.mock("react", () => harness);
 vi.mock("../useMapReadyTick", () => ({ useMapReadyTick: () => 0 }));
@@ -37,11 +39,11 @@ import { useJpMedicalLayers } from "../useJpMedicalLayers";
 
 function mapAt(zoom: number) {
   const sources = new Map<string, { data?: unknown; setData: ReturnType<typeof vi.fn> }>();
-  const layers = new Map<string, { id: string; minzoom?: number }>();
+  const layers = new Map<string, { id: string; type?: string; minzoom?: number }>();
   const addSource = vi.fn((id: string, config: { data?: unknown }) => sources.set(id, { data: config.data, setData: vi.fn() }));
   const map = {
     getZoom: () => zoom, getSource: (id: string) => sources.get(id), addSource, removeSource: (id: string) => sources.delete(id),
-    getLayer: (id: string) => layers.get(id), addLayer: (layer: { id: string; minzoom?: number }) => layers.set(layer.id, layer), removeLayer: (id: string) => layers.delete(id),
+    getLayer: (id: string) => layers.get(id), addLayer: (layer: { id: string; type?: string; minzoom?: number }) => layers.set(layer.id, layer), removeLayer: (id: string) => layers.delete(id),
     setLayerZoomRange: vi.fn(), setLayoutProperty: vi.fn(), setPaintProperty: vi.fn(), on: vi.fn(), off: vi.fn(),
   } as unknown as MapboxMap;
   return { map, sources, layers, addSource };
@@ -50,21 +52,18 @@ const off = { jpMedicalHospitals: false, jpMedicalClinics: false, jpMedicalDenta
 const params: Record<string, number> = {};
 
 describe("useJpMedicalLayers lifecycle", () => {
-  it("uses source-specific zoom modes and removes owned sources on All Off/unmount", async () => {
+  it("renders density polygons below zoom 8 and removes owned sources on All Off/unmount", async () => {
     const view = mapAt(4); const ref = { current: view.map } as RefObject<MapboxMap | null>;
-    runtime = { ...runtime, displayMode: "points", revision: 1 };
-    harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true, jpMedicalClinics: true }, params);
-    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
-    expect(view.layers.get("jp-medical-facilities-hospital")?.minzoom).toBe(0);
-    expect((view.map.setLayerZoomRange as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith("jp-medical-facilities-hospital", 0, 24);
-    expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(false);
-
-    runtime = { ...runtime, displayMode: "adaptive", revision: 2 };
+    runtime = { ...runtime, revision: 2 };
     harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true, jpMedicalClinics: true }, params);
     await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true, jpMedicalClinics: true }, params);
     expect(view.sources.has("jp-medical-facilities")).toBe(false);
     expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(true);
-    expect((view.sources.get("jp-medical-facilities-aggregate")?.data as GeoJSON.FeatureCollection).features[0]?.properties?.aggregate_count).toBe(5);
+    const grid = view.sources.get("jp-medical-facilities-aggregate")?.data as GeoJSON.FeatureCollection;
+    expect(grid.features[0]?.geometry.type).toBe("Polygon");
+    expect(grid.features[0]?.properties).toMatchObject({ aggregate_count: 5, geometry_role: "EQUAL_AREA_GRID_CELL" });
+    expect(view.layers.get("jp-medical-facilities-aggregate-fill")?.type).toBe("fill");
+    expect(view.layers.get("jp-medical-facilities-aggregate-outline")?.type).toBe("line");
     const addCount = view.addSource.mock.calls.length;
     harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
     expect(view.addSource).toHaveBeenCalledTimes(addCount);
@@ -74,19 +73,21 @@ describe("useJpMedicalLayers lifecycle", () => {
     await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
     expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(true);
 
-    // Both families share grid centers: their family labels must not cover each other.
-    const both = { ...off, jpMedicalHospitals: true, jpCarePlanning: true };
-    harness.begin(); useJpMedicalLayers(ref, both, params);
-    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, both, params);
-    expect(view.map.setLayoutProperty).toHaveBeenCalledWith("jp-medical-facilities-aggregate-count", "text-offset", [-28 / 12, 0]);
-    expect(view.map.setLayoutProperty).toHaveBeenCalledWith("jp-medical-care-aggregate-count", "text-offset", [28 / 12, 0]);
-    harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
-    expect(view.map.setLayoutProperty).toHaveBeenLastCalledWith("jp-medical-facilities-aggregate-count", "text-offset", [0, 0]);
-    expect(view.map.setPaintProperty).toHaveBeenLastCalledWith("jp-medical-facilities-aggregate-count", "text-opacity", 0.78);
-
     harness.begin(); useJpMedicalLayers(ref, off, params);
     expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(false);
     harness.cleanup();
     expect(view.sources.size).toBe(0);
+  });
+
+  it("switches to complete categorized points at zoom 8 and above", async () => {
+    const view = mapAt(9); const ref = { current: view.map } as RefObject<MapboxMap | null>;
+    runtime = { ...runtime, revision: 4 };
+    harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
+    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
+    expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(false);
+    expect(view.sources.has("jp-medical-facilities")).toBe(true);
+    expect(view.layers.get("jp-medical-facilities-hospital")?.minzoom).toBe(8);
+    expect((view.map.setLayerZoomRange as ReturnType<typeof vi.fn>)).toHaveBeenCalledWith("jp-medical-facilities-hospital", 8, 24);
+    harness.cleanup();
   });
 });

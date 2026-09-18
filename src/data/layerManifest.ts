@@ -403,11 +403,11 @@ function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, ic
     key, section: { theme: "醫療設施", group: "Navii 設施名錄" }, label: category.label, expandable: true,
     color: category.color, icon,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
-      processing: "Navii 原始 record_kind 獨立成層；PMTiles z0-14 保留全部可繪點位",
+      processing: "Navii 原始 record_kind 獨立成層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
       note: "設施名錄不代表即時可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
     dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
     params: { count: 1, kinds: ["slider"] },
-    description: `${category.label}名錄點位；低縮放仍顯示全部可繪點位，不以聚合格網替代`, topics: ["日本", "醫療", "靜態", "設施"],
+    description: `${category.label}；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位`, topics: ["日本", "醫療", "靜態", "設施"],
   };
 }
 
@@ -417,7 +417,7 @@ function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerMani
     key, section: { theme: "長照服務", group: "服務使用情境" }, label: group.label, expandable: true,
     color: group.color, icon: HeartHandshake,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
-      processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；原始值完整保留",
+      processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
       note: "服務登記粒度；同址可有多服務，不是唯一機構數" },
     dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
     params: { count: 1, kinds: ["slider"] },

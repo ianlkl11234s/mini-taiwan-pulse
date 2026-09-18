@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "version": "eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38",
+  "local_files_sha_bytes_verified": 7,
+  "published_asset_bytes": 3201895,
+  "effective_payload_asset_bytes": 624649285,
+  "inherited_asset_count": 5,
+  "allzoom_point_contracts": {
+    "navii_facilities": 189800,
+    "h17_services": 222194
+  },
+  "catalog_bytes": 6448,
+  "http_checks": [
+    {
+      "path": "current.json",
+      "status": 200,
+      "bytes_read": 359,
+      "range": null
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/catalog.json",
+      "status": 200,
+      "bytes_read": 6448,
+      "range": null
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/points/navii_facilities.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/308486234"
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/navii-density-10km.geojson",
+      "status": 200,
+      "bytes_read": 1489098,
+      "range": null
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/points/h17_services.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/293111489"
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/h17-density-10km.geojson",
+      "status": 200,
+      "bytes_read": 1712797,
+      "range": null
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/areas/A38-20_1.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/9165621"
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/areas/A38-20_2.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/6505194"
+    },
+    {
+      "path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/areas/A38-20_3.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "range": "bytes 0-126/4178852"
+    }
+  ],
+  "production": "not run",
+  "cdn_cache_headers": "not run",
+  "pmtiles_integrity": "full local SHA-256; HTTP header Range reads only, not a browser visual assertion"
+}

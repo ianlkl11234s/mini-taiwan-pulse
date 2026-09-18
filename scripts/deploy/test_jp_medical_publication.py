@@ -68,6 +68,36 @@ class PublicationContractTest(unittest.TestCase):
         plan = directory / "plan.json"; plan.write_text(json.dumps({"version": version, "entries": entries, "total_all_publication_bytes": sum(item["bytes"] for item in entries)}))
         return root, plan
 
+    def make_inherited_payload(self, directory: Path) -> tuple[Path, Path, str]:
+        root, plan = self.make_payload(directory, sorted(PUBLISH.COMPACT_ASSET_PATHS))
+        version, source_version = "a" * 64, "b" * 64
+        release = root / "releases" / version
+        manifest = json.loads((release / "publication-manifest.json").read_text())
+        inherited_paths = PUBLISH.COMPACT_ASSET_PATHS - PUBLISH.DENSITY_ASSET_PATHS
+        inherited = {}
+        for relative in inherited_paths:
+            metadata = manifest["files"].pop(relative)
+            source = root / "releases" / source_version / relative
+            source.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(release / relative, source)
+            (release / relative).unlink()
+            inherited[relative] = {**metadata, "source_version": source_version, "source_path": relative}
+        manifest["inherited_files"] = inherited
+        (release / "publication-manifest.json").write_text(json.dumps(manifest))
+        old = json.loads(plan.read_text())
+        keep = []
+        for entry in old["entries"]:
+            relative = entry["relative_path"].removeprefix(f"releases/{version}/")
+            if relative in inherited_paths:
+                continue
+            if relative == "publication-manifest.json":
+                data = (release / relative).read_bytes(); entry.update(sha256=sha(data), bytes=len(data))
+            keep.append(entry)
+        old["entries"] = keep
+        old["total_all_publication_bytes"] = sum(item["bytes"] for item in keep)
+        plan.write_text(json.dumps(old))
+        return root, plan, source_version
+
     def test_plan_requires_current_last_and_local_hashes(self):
         with tempfile.TemporaryDirectory() as temp:
             root, plan = self.make_payload(Path(temp))
@@ -81,6 +111,15 @@ class PublicationContractTest(unittest.TestCase):
             root, plan = self.make_payload(Path(temp), sorted(PUBLISH.COMPACT_ASSET_PATHS))
             _, entries = PUBLISH.validate_plan(root, plan)
             self.assertEqual(len(entries), 10)
+
+    def test_inherited_plan_uploads_only_two_density_assets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan, _ = self.make_inherited_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            self.assertEqual(len(entries), 5)
+            self.assertEqual({item["relative_path"].split("/")[-1] for item in entries[:-3]}, {
+                "navii-density-10km.geojson", "h17-density-10km.geojson",
+            })
 
     def test_compact_plan_rejects_incomplete_or_hours_asset(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -209,6 +248,21 @@ class PublicationContractTest(unittest.TestCase):
             version = "a" * 64
             self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
             self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+
+    def test_installer_materializes_inherited_assets_without_new_s3_duplicates(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _, source_version = self.make_inherited_payload(base); target = base / "target"
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            version = "a" * 64
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+            self.assertFalse((root / f"releases/{version}/points/navii_facilities.pmtiles").exists())
+            self.assertTrue((root / f"releases/{source_version}/points/navii_facilities.pmtiles").is_file())
 
     def test_installer_rejects_compact_dangling_detail_reference(self):
         with tempfile.TemporaryDirectory() as temp:
