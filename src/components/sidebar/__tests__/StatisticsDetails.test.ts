@@ -6,7 +6,8 @@ import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
   it('keeps statistics selectors readable in either sidebar theme', () => {
-    expect(statisticsDetailControlStyle()).toMatchObject({ background: 'transparent', color: 'inherit', border: '1px solid currentColor', colorScheme: 'inherit' });
+    expect(statisticsDetailControlStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
+    expect(statisticsDetailControlStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
     expect(medicalStatisticsSelectStyle('#111827')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'inherit' });
     expect(medicalStatisticsSelectStyle('#ffffff')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'inherit' });
   });

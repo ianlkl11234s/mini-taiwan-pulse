@@ -181,10 +181,10 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
 }
 
 /** Let statistics controls inherit the light or dark sidebar palette. */
-export function statisticsDetailControlStyle(): CSSProperties {
+export function statisticsDetailControlStyle(textColor: string, colorScheme: 'light' | 'dark'): CSSProperties {
   return {
     boxSizing: 'border-box', width: '100%', minWidth: 0, maxWidth: '100%',
-    background: 'transparent', color: 'inherit', border: '1px solid currentColor', colorScheme: 'inherit',
+    background: 'transparent', color: textColor, border: '1px solid currentColor', colorScheme,
     borderRadius: RADIUS.md, padding: '3px 24px 3px 6px', font: 'inherit',
     lineHeight: 1.35, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
   };
@@ -208,7 +208,7 @@ export function statisticsLegendRows(recipe: Pick<typeof STATISTICS_RECIPES[Stat
     label: index === stops.length - 1 ? `${statisticsLegendThreshold(stop.value, format)} 以上` : `${statisticsLegendThreshold(stop.value, format)} 至未滿 ${statisticsLegendThreshold(stops[index + 1]!.value, format)}`,
   })));
 }
-export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey }) {
+export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerKey: StatisticsRenderKey; textColor: string; colorScheme: 'light' | 'dark' }) {
   const state = useStatisticsSnapshot(layerKey);
   useEffect(() => {
     regionalStatisticsStore.registerRecipe(layerKey, statisticsRecipe(layerKey));
@@ -253,10 +253,10 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
   };
-  const control = statisticsDetailControlStyle();
+  const control = statisticsDetailControlStyle(textColor, colorScheme);
   const filterLabel: CSSProperties = {
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', alignItems: 'center',
-    gap: SPACING.xs, minWidth: 0, color: 'inherit', lineHeight: 1.35,
+    gap: SPACING.xs, minWidth: 0, color: textColor, lineHeight: 1.35,
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
@@ -265,7 +265,7 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
     const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
     return selectorValues(key, filters).length > 1;
   });
-  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: 'inherit', colorScheme: 'inherit', lineHeight: 1.45 }}>
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid currentColor;outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
@@ -333,8 +333,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
         <span>原始 SHA-256：{String(source.raw_sha256 ?? '未提供')}</span>
         <span>參考邊界：{String(source.boundary_version ?? '未提供')}</span>
         <span>地圖使用已核對代碼的參考邊界；不是歷史邊界變動比較。</span>
-        {publicLink(source.source_landing_url) && <a style={{ color: 'inherit', textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
-        {publicLink(source.source_download_url) && <a style={{ color: 'inherit', textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
+        {publicLink(source.source_landing_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
+        {publicLink(source.source_download_url) && <a style={{ color: textColor, textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
       </div> : <span>載入資料後顯示來源紀錄。</span>}
     </details>
     {agri && AGRI_EXISTING_LAYER_REFERENCES.some(ref => ref.group === agri.group) && <details><summary>跨主題統計索引</summary><div style={{ display: 'grid', gap: 4 }}>{AGRI_EXISTING_LAYER_REFERENCES.filter(ref => ref.group === agri.group).map(ref => <button key={ref.layer_key} type="button" onClick={() => layerVisibilityStore.toggle(ref.layer_key as keyof LayerVisibility)}>{ref.group}／{ref.subgroup}：{(LAYER_MANIFEST[ref.layer_key as keyof LayerVisibility] as LayerManifestEntry).label ?? ref.layer_key}</button>)}</div></details>}
