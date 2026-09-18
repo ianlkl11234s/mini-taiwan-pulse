@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { JP_TOURISM_DATASETS } from "../jpTourismLoader";
 import {
   JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
   JP_ACCOMMODATION_DENSITY_SCALES,
 } from "../jpTourismTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
@@ -57,6 +58,14 @@ describe("Japan tourism delivery policy", () => {
       "./world/jp_accommodation_density_1500m_20260910.pmtiles",
     ]);
     expect(JP_ACCOMMODATION_DENSITY_SCALES.every((scale) => scale.minzoom === 0)).toBe(true);
+  });
+
+  it("preserves canonical source and ODbL attribution on derived density tiles", () => {
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("Japan Tourism Agency");
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("OpenStreetMap contributors");
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain("ODbL 1.0");
+    const grids = OVERLAY_REGISTRY.filter((config) => config.id === "jpAccommodationDensity");
+    expect(grids.every((config) => config.attribution === JP_ACCOMMODATION_DENSITY_ATTRIBUTION)).toBe(true);
   });
 
   it("only displays the selected density source", () => {
