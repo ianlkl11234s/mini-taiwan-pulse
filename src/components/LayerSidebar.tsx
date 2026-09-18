@@ -21,6 +21,7 @@ import {
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
@@ -686,6 +687,7 @@ function ExpandedPanel({
       }}
     >
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />}
+      {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

@@ -30,7 +30,7 @@ import type { ManifestKey } from "../data/layerManifest";
 import type { LayerHostComponent } from "./layerHostDeps";
 
 import {
-  RealEstateTimelineHost, RealEstatePointsHost, SelectedFeatureHaloHost,
+  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
 } from "./hosts/realEstateHosts";
 import {
   ReservoirStatusHost, RainGaugeHost, FloodSensorHost, FloodSensorIsochroneHost,
@@ -109,6 +109,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
     keys: ["realEstateRentalPoint", "realEstateSalePoint", "realEstatePresalePoint"],
     Host: RealEstatePointsHost,
   },
+  { id: "usePropertyValueAdminLayer", keys: ["propertyValueAdmin"], Host: PropertyValueAdminHost },
 
   // ── 互動裝飾（L781）：跨圖層的點選光暈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },
