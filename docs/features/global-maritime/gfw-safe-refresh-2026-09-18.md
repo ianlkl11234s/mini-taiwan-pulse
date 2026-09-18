@@ -30,3 +30,26 @@ Based on origin/master `6954dc0d`, including the already-released freshness UI h
 5. Validate the following day's automatic release, retained historical S3 release and frontend refresh. A running deployment alone is not acceptance.
 
 No deployment, schedule mutation, external data write or manual publisher run was performed for this repair's local validation. The last observed production release was still 2026-08-21. Exact release commit/deployment identifiers must be added after authorization and actual readback.
+
+
+## Authorized release evidence
+
+User authorized push, ordinary merge and deployment after local validation.
+
+- Frontend PR #300: https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/300 ; merge `8707834b26c2263a367277c8e46a1e8b78f66524`. GitHub CI passed build and the complete test workflow.
+- A parallel water-layer PR subsequently merged. Active frontend deployment `6aace0570f50de6ff52c3469`, commit `5fdde19d0af1e73492f9acdb6b52c867ac4a3a96`, reached RUNNING at 2026-09-18T07:01:08Z. Git ancestry and unchanged GFW helper verified.
+- Production helper SHA-256 `12e6fc95f9f2a8d1f7e6948fc8761301fae2adc423d681ac37af15913647d362` matches the tested source. Node v24.18.1 and flock present; effective refresh interval 3600 seconds.
+- Read-only validation inside the production frontend container passed all 3,311 current v3 assets' exact bytes and SHA-256 plus manifest time-index validation. Current release remains 2026-08-21. Public HTTP root returned 200; sampled grid PMTiles full bytes/SHA passed and Range returned 206.
+- Collector PR #91: https://github.com/ianlkl11234s/gis-data-collectors/pull/91 ; merge `0d3d6d5786d3f9ffafccfbd1ace0f3a49eef334e`. Full GitHub CI: 478 passed, 2 skipped. The initial inventory test failure was repaired by registering the dedicated success-health RPC coverage in the existing exemptions; monitoring remains independently tested.
+- Collector deployment `6aace2410f50de6ff52c351a` was triggered from that exact merge after frontend verification; final runtime acceptance is recorded below.
+
+These deployments do not establish a new data release. No publisher rerun, schedule/credential change or direct S3 root write was performed. The next normal run is 2026-09-19 08:30 Asia/Taipei; the following day is the second automatic-continuity acceptance gate.
+
+
+### Collector runtime acceptance
+
+Deployment `6aace2410f50de6ff52c351a` reached RUNNING from merge `0d3d6d5786d3f9ffafccfbd1ace0f3a49eef334e` (finishedAt 2026-09-18T07:08:17Z). Read-only runtime checks matched local SHA-256 for release publisher, task, monitoring reader and freshness policy. boto3 1.43.97 supports both IfMatch and IfNoneMatch; tippecanoe and pmtiles resolve under /usr/local/bin. Publisher remains enabled with publish_time 08:30.
+
+The deployed health reader queried the production RPC successfully: current release 2026-08-21, window 2026-08-15..21, source_age_days 28, state SOURCE_STALE, level critical. This is correct detection of the still-old data, not a failed deployment. HTTP /health returned healthy, DB connected and main loop alive at 2026-09-18 15:10 Asia/Taipei.
+
+Release implementation and container validation are complete. New-date publication and next-day continuity remain scheduled acceptance gates; neither is claimed here. This post-deployment receipt is preserved in the local permanent worktree.
