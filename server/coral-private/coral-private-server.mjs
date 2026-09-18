@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { appendFile, chmod, mkdir, readFile, rename, stat } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, rename, rm, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
@@ -527,6 +527,11 @@ function enqueueAllenAuditWrite(file, write) {
 }
 
 async function rotateAllenAuditLog(file, nextRecordBytes, maxBytes, retainedFiles) {
+  // A lower retention setting must take effect even when the active file has
+  // not reached its next rotation boundary.
+  for (let index = retainedFiles + 1; index <= MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES; index += 1) {
+    await rm(`${file}.${index}`, { force: true });
+  }
   let currentSize = 0;
   try {
     currentSize = (await stat(file)).size;

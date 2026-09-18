@@ -384,6 +384,10 @@ test("Allen audit sink rotates before append and retains bounded owner-only file
       assert.ok((await stat(file)).size <= auditConfig.auditMaxBytes);
       assert.equal((await readFile(file, "utf8")).includes("Bearer"), false);
     }
+    await writeFile(`${auditPath}.3`, "stale generation");
+    auditConfig.auditRetainedFiles = 1;
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.deepEqual((await readdir(directory)).sort(), ["audit.jsonl", "audit.jsonl.1"]);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
