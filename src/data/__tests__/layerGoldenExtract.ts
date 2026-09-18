@@ -40,7 +40,7 @@ import { readFileSync } from "node:fs";
 import type { LayerVisibility } from "../../types";
 import {
   LAYER_COLORS, THEMES, SECTIONS, LAYER_LABELS, GATED_LAYERS,
-  WORLD_THEME_TITLE, WORLD_TAB_THEME_TITLES,
+  GLOBAL_ENVIRONMENT_THEME_TITLE, GLOBAL_SITUATION_THEME_TITLE, WORLD_TAB_THEME_TITLES,
 } from "../../components/sidebar/layerCatalog";
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
@@ -407,7 +407,7 @@ export function extractGolden(): GoldenSnapshot {
     gated: sanitize([...GATED_LAYERS].slice().sort()),
     // THEMES 是巢狀有序結構（主題 → 子群 → layer），順序即 UI 顯示順序 → 保序快照
     themes: sanitize({
-      worldThemeTitle: WORLD_THEME_TITLE,
+      worldThemeTitles: [GLOBAL_SITUATION_THEME_TITLE, GLOBAL_ENVIRONMENT_THEME_TITLE],
       worldTabThemeTitles: WORLD_TAB_THEME_TITLES,
       themes: THEMES,
     }),

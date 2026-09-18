@@ -52,7 +52,7 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
   const title = str(props.name) || str(props.site_name_ja) || str(props.park_name)
     || str(props.designation_name) || str(props.area_name) || str(props.area_name_en)
     || str(props.heritage_name_ja) || str(props.name_zh) || str(props.name_en)
-    || str(props.entity_id) || str(props.feature_id) || "日本旅宿／保護區資料";
+    || str(props.entity_id) || str(props.feature_id) || "旅宿／保護區資料 宿泊・保護地域データ";
   const sources = list(props.sources) || list(props._provenance) || str(props.source_name)
     || str(props.source_dataset) || str(props.source) || "見來源網址";
   const sourceYear = str(props.source_as_of) || str(props.source_year) || str(props.source_fiscal_year)
@@ -90,7 +90,7 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
   const density = Number(props.density_per_km2);
   return (
     <>
-      <Title color="#ea580c">旅宿密度網格</Title>
+      <Title color="#ea580c">旅宿密度網格 宿泊施設密度グリッド</Title>
       <Row label="網格尺度" value={Number.isFinite(gridSize) ? `${gridSize.toLocaleString("zh-TW")} m` : ""} />
       <Row label="格內旅宿" value={Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 間` : ""} />
       <Row label="每平方公里" value={Number.isFinite(density) ? density.toLocaleString("zh-TW", { maximumFractionDigits: 1 }) : ""} />
@@ -294,7 +294,7 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
   const facilityType = JP_POLICE_FACILITY_TYPES.find(t => t.value === props.facility_type);
   const precision: Record<string, string> = { mapped_poi: "地圖設施點", mapped_label: "地圖注記", address: "地址", block: "街區", chome: "丁目", town: "町域" };
   return <>
-    <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "日本警察設施"}</Title>
+    <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "警察設施 警察施設"}</Title>
     <Row label="設施類型" value={facilityType?.label ?? "未提供"} />
     <Row label="都道府縣" value={policeText(props.prefecture) || "未提供"} />
     <Row label="地址" value={policeText(props.address) || "未提供"} />

@@ -753,7 +753,7 @@ export const LAYER_MANIFEST = {
   },
   jpAccommodationCanonical: {
     key: "jpAccommodationCanonical", section: { theme: "旅宿", group: "總覽" },
-    label: "日本旅宿去重總覽 Canonical", labelMobile: "日本旅宿總覽", expandable: true,
+    label: "旅宿去重總覽 宿泊施設の統合一覧", labelMobile: "旅宿總覽 宿泊施設一覧", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationCanonical, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "27,194 source rows 保守去重為 25,961 entities；502 null geometry；82 review/conflict 未自動合併。", note: "PARTIAL_DEDUP_CONSERVATIVE；不是全國官方旅宿 SSOT，來源 badges、授權集合與 provenance 必須保留。" },
     dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留 25,459 筆可繪原始點；502 null geometry 只保留於來源契約", staticAssets: ["./world/jp_accommodation_canonical_allzoom_20260910.pmtiles"] },
@@ -762,7 +762,7 @@ export const LAYER_MANIFEST = {
   },
   jpAccommodationDensity: {
     key: "jpAccommodationDensity", section: { theme: "旅宿", group: "總覽" },
-    label: "旅宿密度網格 Accommodation Density", labelMobile: "旅宿密度", expandable: true,
+    label: "旅宿密度網格 宿泊施設密度グリッド", labelMobile: "旅宿密度 宿泊密度", expandable: true,
     color: JP_ACCOMMODATION_DENSITY_LAYER_COLOR, icon: Grid3x3,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "25,459 筆 drawable canonical entities 以 EPSG:6933 聚合為 450m / 1.5km 網格；sum(n_records) 均守恆。", note: "只計 canonical；不叠加 OSM coverage，避免重複計數。502 筆 null geometry 未入格。" },
     dataClass: "B",
@@ -777,7 +777,7 @@ export const LAYER_MANIFEST = {
   },
   jpAccommodationJta: {
     key: "jpAccommodationJta", section: { theme: "旅宿", group: "來源" },
-    label: "觀光廳登錄飯店／旅館 JTA", labelMobile: "JTA 登錄旅宿", expandable: true,
+    label: "觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館", labelMobile: "觀光廳登錄 観光庁登録", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationJta, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_jta", confidence: "HIGH" }], processing: "2026-03-31 register 2,282 rows；GSI 地址衍生 2,242 點。", note: "法定登錄子集，不是全日本旅館業 SSOT；ryokan 表頭差 1，狀態 PARTIAL。" },
     dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load 靜態 GeoJSON point", staticAssets: ["./world/jp_accommodation_jta_20260331.geojson"] },
@@ -786,7 +786,7 @@ export const LAYER_MANIFEST = {
   },
   jpAccommodationLocal: {
     key: "jpAccommodationLocal", section: { theme: "旅宿", group: "來源" },
-    label: "地方旅館業許可（首批）", labelMobile: "地方許可旅宿", expandable: true,
+    label: "地方旅館業許可 地方自治体の旅館業許可", labelMobile: "地方旅館業許可 旅館業許可", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationLocal, icon: BedDouble,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_local", confidence: "HIGH" }], processing: "京都市、靜岡市、東京都江東區 4,410 rows；個資已排除；3,948 有 geometry。", note: "coverage 僅三個轄區；462 geometry miss，不能解讀成全日本 coverage。" },
     dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load 靜態 GeoJSON point", staticAssets: ["./world/jp_accommodation_local_20260910.geojson"] },
@@ -795,7 +795,7 @@ export const LAYER_MANIFEST = {
   },
   jpAccommodationOsm: {
     key: "jpAccommodationOsm", section: { theme: "旅宿", group: "來源" },
-    label: "OpenStreetMap 住宿 coverage", labelMobile: "OSM 住宿", expandable: true,
+    label: "OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ", labelMobile: "OSM 住宿 OSM 宿泊施設", expandable: true,
     color: JP_TOURISM_COLORS.jpAccommodationOsm, icon: MapPin,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_osm", confidence: "HIGH" }], processing: "2026-09-10 OSM snapshot；20,502 unique elements。", note: "© OpenStreetMap contributors, ODbL 1.0；社群繪製 coverage，不是完整或官方名冊。" },
     dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留完整 20,502 點", staticAssets: ["./world/jp_accommodation_osm_allzoom_20260910.pmtiles"] },
@@ -804,68 +804,68 @@ export const LAYER_MANIFEST = {
   },
 
   jpNaturalParksNational: {
-    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國立公園（A10 2010）", expandable: true,
+    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國立公園 国立公園（A10 2010）", expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksQuasiNational: {
-    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國定公園（A10 2010）", expandable: true,
+    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國定公園 国定公園（A10 2010）", expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
   jpNaturalParksPrefectural: {
-    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "都道府縣立自然公園（A10 2010）", labelMobile: "都道府縣立公園", expandable: true,
+    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "都道府縣立自然公園 都道府県立自然公園（A10 2010）", labelMobile: "都道府縣立公園 都道府県立公園", expandable: true,
     color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
     dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
   },
 
   jpNatureConservationArea: {
-    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保全地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
+    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保育地域 自然保全地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpPrimitiveNatureEnvironmentArea: {
-    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "原生自然環境地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
+    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "原生自然環境地域 原生自然環境保全地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
   jpNatureConservationSpecialDistrict: {
-    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保全特別地區（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
+    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保育特別地區 自然保全特別地区（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
   },
 
   jpWildlifeProtectionNational: {
-    key: "jpWildlifeProtectionNational", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "國指定鳥獸保護區", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
+    key: "jpWildlifeProtectionNational", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "國家指定鳥獸保護區 国指定鳥獣保護区", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDistrict: {
-    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護地區", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護地區 鳥獣保護区特別保護地区", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
   jpWildlifeSpecialProtectionDesignatedArea: {
-    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護指定地域", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
+    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護指定區域 特別保護指定区域", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
   },
 
   jpWorldHeritageCultural: {
-    key: "jpWorldHeritageCultural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 文化遺產代表點", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
+    key: "jpWorldHeritageCultural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 文化遺產代表點 UNESCO 文化遺産代表点", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_world_heritage_unesco", confidence: "HIGH" }], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_cultural。", note: "CC BY-SA 4.0；代表點不是 property boundary；22 rows 中 1 筆 null geometry。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageCultural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "文化"],
   },
   jpWorldHeritageNatural: {
-    key: "jpWorldHeritageNatural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 自然遺產代表點", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
+    key: "jpWorldHeritageNatural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 自然遺產代表點 UNESCO 自然遺産代表点", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_world_heritage_unesco", confidence: "HIGH" }], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_natural。", note: "CC BY-SA 4.0；5 個代表點不是 property boundary。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageNatural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行自然遺產 5 個代表點；非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "自然"],
   },
   jpWorldNaturalHeritageHistorical: {
-    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "Historical" }, label: "世界自然遺產面（A28 historical）", labelMobile: "A28 自然遺產 historical", expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
+    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "Historical" }, label: "世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）", labelMobile: "自然遺產歷史範圍 自然遺産歴史範囲", expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_world_natural_heritage_ksj", confidence: "HIGH" }], processing: "KSJ A28-10 2011 snapshot；3 polygons。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；只含知床、白神山地、屋久島，缺現行 2 處。" }, dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load A28 historical GeoJSON polygon", staticAssets: ["./world/jp_world_natural_heritage_ksj_2011.geojson"] }, legend: null, popup: "jpWorldNaturalHeritageHistorical", params: { count: 1, kinds: ["slider"] }, description: "A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。", topics: ["日本", "世界遺產", "historical", "A28"],
   },
   jpRamsarSites: {
-    key: "jpRamsarSites", section: { theme: "自然保護", group: "濕地與海域" }, label: "Ramsar 濕地名冊衍生點", expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
+    key: "jpRamsarSites", section: { theme: "自然保護", group: "濕地與海域" }, label: "拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点", expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_ramsar_moe", confidence: "HIGH" }], processing: "環境省名冊 54 rows；GSI 衍生 10 NAME_MATCH + 44 ADMIN_OR_OTHER_CENTROID。", note: "LICENSE_UNVERIFIED + HOLD_GEOMETRY；預設只顯示 NAME_MATCH，所有點都不是 Ramsar boundary。" }, dataClass: "D", source: { kind: "custom", note: "Ramsar GeoJSON；原始 filter_layer_id + geocode_quality filter", staticAssets: ["./world/jp_ramsar_moe_current.geojson"] }, legend: null, popup: "jpRamsarSites", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。", topics: ["日本", "Ramsar", "濕地", "HOLD_GEOMETRY"],
   },
   jpMarineEbsaCoastal: {
-    key: "jpMarineEbsaCoastal", section: { theme: "自然保護", group: "濕地與海域" }, label: "沿岸生態重要海域 EBSA（2015）", labelMobile: "沿岸 EBSA 2015", expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
+    key: "jpMarineEbsaCoastal", section: { theme: "自然保護", group: "濕地與海域" }, label: "沿岸生態重要海域 沿岸EBSA（2015）", labelMobile: "沿岸生態海域 沿岸EBSA", expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_marine_ebsa_moe", confidence: "HIGH" }], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 1, kinds: ["slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
   },
 
@@ -1455,9 +1455,9 @@ export const LAYER_MANIFEST = {
 
   worldTrashDebris: {
     key: "worldTrashDebris",
-    section: { theme: "世界 World", group: "環境" },
-    label: "全球垃圾殘骸 Trash & Debris",
-    labelMobile: "全球垃圾殘骸",
+    section: { theme: "全球環境 Global Environment", group: "廢棄物觀測 Waste Observations" },
+    label: "垃圾與殘骸觀測 Trash & Debris Observations",
+    labelMobile: "垃圾與殘骸觀測",
     expandable: true,
     color: "#f59e0b",
     icon: Trash2,
@@ -1482,8 +1482,8 @@ export const LAYER_MANIFEST = {
 
   coralReefDistribution: {
     key: "coralReefDistribution",
-    section: { theme: "世界 World", group: "環境" },
-    label: "珊瑚礁歷史分布",
+    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    label: "珊瑚礁歷史分布 Historical Coral Reefs",
     labelMobile: "珊瑚礁歷史分布",
     expandable: true,
     color: CORAL_REEF_COLOR,
@@ -1508,9 +1508,9 @@ export const LAYER_MANIFEST = {
 
   allenCoralAtlas: {
     key: "allenCoralAtlas",
-    section: { theme: "世界 World", group: "環境" },
-    label: "Allen Coral Atlas（私人研究）",
-    labelMobile: "Allen Coral Atlas（私人研究）",
+    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    label: "珊瑚礁棲地分類 Allen Coral Atlas（私人研究）",
+    labelMobile: "珊瑚礁棲地 Allen Coral Atlas",
     expandable: true,
     color: "#ee6c83",
     icon: Waves,
@@ -1534,9 +1534,9 @@ export const LAYER_MANIFEST = {
 
   globalEvents: {
     key: "globalEvents",
-    section: { theme: "世界 World", group: "重要事件" },
-    label: "全球情勢 Global Events",
-    labelMobile: "全球情勢",
+    section: { theme: "全球情勢 Global Situation", group: "重大事件 Major Events" },
+    label: "全球重大事件 Global Events",
+    labelMobile: "全球重大事件",
     expandable: true,
     color: "#f97316",
     icon: MapPinned,
@@ -1738,8 +1738,8 @@ export const LAYER_MANIFEST = {
   jpReligionGsi: {
     key: "jpReligionGsi",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 GSI",
-    labelMobile: "日本宗教 GSI",
+    label: "宗教設施 宗教施設（国土地理院）",
+    labelMobile: "宗教設施 国土地理院",
     expandable: true,
     color: JP_RELIGION_COLORS.shinto,
     icon: Landmark,
@@ -1765,8 +1765,8 @@ export const LAYER_MANIFEST = {
   jpReligionOsm: {
     key: "jpReligionOsm",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 OSM",
-    labelMobile: "日本宗教 OSM",
+    label: "宗教設施 宗教施設（OpenStreetMap）",
+    labelMobile: "宗教設施 OSM",
     expandable: true,
     color: JP_RELIGION_COLORS.buddhist,
     icon: MapPin,
@@ -1792,8 +1792,8 @@ export const LAYER_MANIFEST = {
   jpReligionWikidata: {
     key: "jpReligionWikidata",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 Wikidata",
-    labelMobile: "日本宗教 Wikidata",
+    label: "宗教設施 宗教施設（Wikidata）",
+    labelMobile: "宗教設施 Wikidata",
     expandable: true,
     color: JP_RELIGION_COLORS.christian,
     icon: Church,
@@ -1823,8 +1823,8 @@ export const LAYER_MANIFEST = {
   jpAdminPrefecture: {
     key: "jpAdminPrefecture",
     section: { theme: "行政區", group: "面" },
-    label: "日本都道府県界",
-    labelMobile: "日本縣界",
+    label: "都道府縣界 都道府県境",
+    labelMobile: "都道府縣界 都道府県境",
     expandable: true,
     color: "#f59e0b",
     icon: Map,
@@ -1849,8 +1849,8 @@ export const LAYER_MANIFEST = {
   jpAdminBoundaries: {
     key: "jpAdminBoundaries",
     section: { theme: "行政區", group: "面" },
-    label: "日本市区町村界",
-    labelMobile: "日本市界",
+    label: "市區町村界 市区町村境",
+    labelMobile: "市區町村界 市区町村境",
     expandable: true,
     color: "#fbbf24",
     icon: MapPinned,
@@ -1875,8 +1875,8 @@ export const LAYER_MANIFEST = {
   jpStations: {
     key: "jpStations",
     section: { theme: "交通", group: "點位" },
-    label: "日本車站",
-    labelMobile: "日本車站",
+    label: "車站 駅",
+    labelMobile: "車站 駅",
     expandable: true,
     color: "#38bdf8",
     icon: TrainFront,
@@ -1901,8 +1901,8 @@ export const LAYER_MANIFEST = {
   jpAirports: {
     key: "jpAirports",
     section: { theme: "交通", group: "點位" },
-    label: "日本機場",
-    labelMobile: "日本機場",
+    label: "機場 空港",
+    labelMobile: "機場 空港",
     expandable: true,
     color: "#a78bfa",
     icon: PlaneTakeoff,
@@ -1927,8 +1927,8 @@ export const LAYER_MANIFEST = {
   jpRailways: {
     key: "jpRailways",
     section: { theme: "交通", group: "線" },
-    label: "日本鐵道路線",
-    labelMobile: "日本鐵道",
+    label: "鐵道路線 鉄道路線",
+    labelMobile: "鐵道 鉄道",
     expandable: true,
     color: JP_RAILWAY_LAYER_COLOR,
     icon: RailSymbol,
@@ -2019,8 +2019,8 @@ export const LAYER_MANIFEST = {
   jpPoliceFacilities: {
     key: "jpPoliceFacilities",
     section: { theme: "治安", group: "點位" },
-    label: "日本警察設施",
-    labelMobile: "日本警察設施",
+    label: "警察設施 警察施設",
+    labelMobile: "警察設施 警察施設",
     expandable: true,
     color: JP_POLICE_LAYER_COLOR,
     icon: Shield,
@@ -2045,8 +2045,8 @@ export const LAYER_MANIFEST = {
   jpSchools: {
     key: "jpSchools",
     section: { theme: "教育", group: "點位" },
-    label: "日本學校",
-    labelMobile: "日本學校",
+    label: "學校 学校",
+    labelMobile: "學校 学校",
     expandable: true,
     color: JP_SCHOOL_LAYER_COLOR,
     icon: School,
@@ -2072,8 +2072,8 @@ export const LAYER_MANIFEST = {
   jpPopulationMesh1km: {
     key: "jpPopulationMesh1km",
     section: { theme: "人口", group: "面" },
-    label: "日本人口網格",
-    labelMobile: "日本人口",
+    label: "人口網格 人口メッシュ",
+    labelMobile: "人口網格 人口メッシュ",
     expandable: true,
     color: JP_POPULATION_MESH_LAYER_COLOR,
     icon: Grid3x3,
@@ -2183,7 +2183,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
-    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 通訊海纜 Submarine Cable",
     expandable: true,
     color: "#2196F3",
@@ -2203,7 +2203,7 @@ export const LAYER_MANIFEST = {
 
   landingStations: {
     key: "landingStations",
-    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 海纜登陸站 Landing Station",
     expandable: true,
     color: "#26c6da",
@@ -2223,7 +2223,7 @@ export const LAYER_MANIFEST = {
 
   internetExchangePoints: {
     key: "internetExchangePoints",
-    section: { theme: "通訊 Communications", group: "網路互連 Internet Exchange" },
+    section: { theme: "全球通訊 Global Communications", group: "網路互連 Internet Exchange" },
     label: "網際網路交換中心 Internet Exchange",
     expandable: true,
     color: "#22C55E",
@@ -2247,7 +2247,7 @@ export const LAYER_MANIFEST = {
 
   anfrWirelessSites: {
     key: "anfrWirelessSites",
-    section: { theme: "通訊 Communications", group: "官方無線站點 Official Wireless Sites" },
+    section: { theme: "全球通訊 Global Communications", group: "官方無線站點 Official Wireless Sites" },
     label: "法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview",
     expandable: true,
     color: "#F97316",
@@ -2267,7 +2267,7 @@ export const LAYER_MANIFEST = {
 
   osmCommunicationSites: {
     key: "osmCommunicationSites",
-    section: { theme: "通訊 Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
+    section: { theme: "全球通訊 Global Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
     label: "OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates",
     expandable: true,
     color: "#38BDF8",
@@ -2287,7 +2287,7 @@ export const LAYER_MANIFEST = {
 
   ripeAtlasProbes: {
     key: "ripeAtlasProbes",
-    section: { theme: "通訊 Communications", group: "量測節點 Measurement Nodes" },
+    section: { theme: "全球通訊 Global Communications", group: "量測節點 Measurement Nodes" },
     label: "RIPE Atlas 連線量測節點 Connected Probes",
     expandable: true,
     color: "#22D3EE",
@@ -2308,7 +2308,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobilePerformance: {
     key: "ooklaMobilePerformance",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 行動網路效能格網 Mobile Performance Grid",
     expandable: true,
     color: "#F46D43",
@@ -2329,7 +2329,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedPerformance: {
     key: "ooklaFixedPerformance",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 固定網路效能格網 Fixed Performance Grid",
     expandable: true,
     color: "#FDAE61",
@@ -2350,7 +2350,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobileTaiwan: {
     key: "ooklaMobileTaiwan",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 台灣行動細格 Taiwan Mobile Fine Grid",
     expandable: true,
     color: "#F46D43",
@@ -2374,7 +2374,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedTaiwan: {
     key: "ooklaFixedTaiwan",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 台灣固定網路細格 Taiwan Fixed Fine Grid",
     expandable: true,
     color: "#4575B4",

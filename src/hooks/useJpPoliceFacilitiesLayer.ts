@@ -118,7 +118,7 @@ export function useJpPoliceFacilitiesLayer(
         map.setFilter(LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (sourceAdded) {
-        keepLoadingUntilMapIdle(map, "jp-police-facilities:render", "日本警察設施 載入中", SOURCE_ID);
+        keepLoadingUntilMapIdle(map, "jp-police-facilities:render", "警察設施 警察施設載入中", SOURCE_ID);
       }
     };
 

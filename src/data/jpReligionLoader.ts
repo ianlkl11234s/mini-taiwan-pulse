@@ -23,12 +23,12 @@ function fetchGeoJsonUncached(
 }
 
 const fetchJpReligionOsmCached = cachedOnce(
-  () => fetchGeoJsonUncached("osm", "日本宗教設施 OpenStreetMap"),
+  () => fetchGeoJsonUncached("osm", "宗教設施 宗教施設（OpenStreetMap）"),
   CACHE_TTL_MS,
 );
 
 const fetchJpReligionWikidataCached = cachedOnce(
-  () => fetchGeoJsonUncached("wikidata", "日本宗教設施 Wikidata"),
+  () => fetchGeoJsonUncached("wikidata", "宗教設施 宗教施設（Wikidata）"),
   CACHE_TTL_MS,
 );
 
