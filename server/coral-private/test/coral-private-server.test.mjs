@@ -5,6 +5,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Readable } from "node:stream";
+import { once } from "node:events";
 import test from "node:test";
 import {
   ALLEN_CORAL_ATLAS_PORT,
@@ -19,6 +20,7 @@ import {
   handleAllenCoralAtlasRequest,
   handleCoralRequest,
   parseRange,
+  startAllenCoralAtlasServer,
   writeAllenAuditRecord,
 } from "../coral-private-server.mjs";
 
@@ -270,6 +272,90 @@ test("Allen exact allowlist authenticates GET, HEAD, and access probe before dat
   assert.equal(missingRange.status, 416);
   const unknown = await handleAllenCoralAtlasRequest(request("/api/private-research/allen-coral-atlas/extra"), { config: allenConfig, authenticate: allenOwner, gateway: localGateway, revokedSessions });
   assert.equal(unknown.status, 404);
+});
+
+test("Allen sidecar listens during warmup but fails closed until immutable snapshots are ready", async () => {
+  let releaseWarmup;
+  const warmup = new Promise((resolve) => { releaseWarmup = resolve; });
+  const calls = { head: 0, get: 0 };
+  const gateway = {
+    async head(asset) {
+      calls.head += 1;
+      await warmup;
+      return { contentLength: asset.size, contentType: "application/octet-stream", etag: `\"${asset.sha256}\"` };
+    },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: Buffer.alloc(range.length),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `\"${asset.sha256}\"`,
+      };
+    },
+  };
+  const server = startAllenCoralAtlasServer({
+    port: 0,
+    config: allenConfig,
+    authenticate: allenOwner,
+    gateway,
+    revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const url = `http://127.0.0.1:${address.port}/api/private-research/allen-coral-atlas/benthic`;
+    const warming = await fetch(url, {
+      headers: { Authorization: "Bearer owner", Origin: "https://pulse.example.test", Range: "bytes=0-3" },
+    });
+    assert.equal(warming.status, 503);
+    assert.equal(warming.headers.get("access-control-allow-origin"), "https://pulse.example.test");
+    assert.deepEqual(await warming.json(), { error: "private Allen sidecar is warming up" });
+    assert.equal(calls.get, 0);
+
+    releaseWarmup();
+    await new Promise((resolve) => setImmediate(resolve));
+    const ready = await fetch(url, { headers: { Authorization: "Bearer owner", Range: "bytes=0-3" } });
+    assert.equal(ready.status, 206);
+    assert.equal((await ready.arrayBuffer()).byteLength, 4);
+    assert.equal(calls.get, 1);
+  } finally {
+    if (server.listening) {
+      await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  }
+});
+
+test("Allen sidecar exposes a failed warmup as 503 without proxying private bytes", async () => {
+  const calls = { get: 0 };
+  const server = startAllenCoralAtlasServer({
+    port: 0,
+    config: allenConfig,
+    authenticate: allenOwner,
+    gateway: {
+      async head() { throw new Error("snapshot unavailable"); },
+      async get() { calls.get += 1; throw new Error("must not proxy before readiness"); },
+    },
+    revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setImmediate(resolve));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const unavailable = await fetch(`http://127.0.0.1:${address.port}/api/private-research/allen-coral-atlas/benthic`, {
+      headers: { Authorization: "Bearer owner", Range: "bytes=0-3" },
+    });
+    assert.equal(unavailable.status, 503);
+    assert.deepEqual(await unavailable.json(), { error: "private Allen sidecar unavailable" });
+    assert.equal(calls.get, 0);
+  } finally {
+    if (server.listening) {
+      await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
+  }
 });
 
 test("Allen local file range verifies the contract asset with injected auth", {
