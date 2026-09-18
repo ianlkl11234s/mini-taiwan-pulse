@@ -119,6 +119,7 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
     <Row label="來源年份" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
     <Row label="來源" value={str(props.source) || str(props.attribution)} />
     <Row label="授權" value={str(props.license)} />
+    <Row label="資料處理" value="本專案將原始資料整理為地圖圖層；座標轉換、欄位整理，水質台帳另去除完全重複列。" />
     <Row label="涵蓋範圍" value={str(props.coverage)} />
     <Row label="營運者" value={str(props.operator)} />
     <Row label="容量" value={str(props.capacity)} />
