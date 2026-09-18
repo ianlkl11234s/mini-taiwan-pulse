@@ -1,0 +1,9 @@
+{
+  "version": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "files": 7,
+  "payload_bytes": 621621437,
+  "source_version": "6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "preparation_root": "/data/jp-medical-compact-20260918",
+  "source_current_changed": false,
+  "method": "hash-verified hardlinks; no geometry or PMTiles rebuild"
+}

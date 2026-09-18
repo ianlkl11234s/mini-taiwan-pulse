@@ -127,6 +127,7 @@ export type ExpandableLayerKey =
   | "streetTreesNational" | "treePitsTaipei"
   | "buildingsGba"
   | "urbanFormGrid"
+  | "propertyValueAdmin"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
   | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
@@ -729,6 +730,7 @@ export interface FeatureInfo {
     | "streetTreesNational" | "treePitsTaipei"
     | "buildingsGba"
     | "urbanFormGrid"
+    | "propertyValueAdmin"
     | "propertyValueGrid"
     | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
     | "sportsVenue"
@@ -1186,6 +1188,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
+  propertyValueAdmin: boolean;    // 不動產總市值行政區統計（縣市 19/22／鄉鎮市區 352/368；缺值不當作 0）
   propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）

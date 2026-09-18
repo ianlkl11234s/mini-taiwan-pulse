@@ -204,6 +204,9 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: "房地產統計 Real Estate Statistics", groups: [
+    { title: "行政區總市值", layers: [fromManifest("propertyValueAdmin")] },
+  ] },
   ...(COMPARISON_UI_RECIPES.length > 0 ? [{ title: '統計比較', groups: [...new Set(COMPARISON_UI_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_UI_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) }] : []),
   { title: "交通統計 Transport Statistics", groups: [
     { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
@@ -283,6 +286,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "住宅存量與使用", layers: [
         fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
       ] },
+      { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
       { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
@@ -1903,6 +1907,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
   "住宅存量與使用": "city",
+  "房地產統計 Real Estate Statistics": "city",
   "資源回收統計 Recycling Statistics": "environment",
   "治安與交通 Safety & Transport": "safety",
   "行政區參考 Administrative Boundaries": "baseline",

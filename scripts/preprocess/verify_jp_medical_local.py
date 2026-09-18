@@ -41,7 +41,7 @@ def main():
         assert layer['minimum_point_zoom'] == 0
         assert layer['point_sampling'] == 'none'
         assert layer['z0_feature_count'] == expected
-        assert 'z14 display geometry' in layer['geometry_provenance']
+        assert layer['geometry_provenance'] == 'source release point geometry' or 'z14 display geometry' in layer['geometry_provenance']
     assert digest(catalog_path) == manifest['catalog']['sha256']
     assert catalog_path.stat().st_size == manifest['catalog']['bytes']
     total = 0
@@ -75,8 +75,9 @@ def main():
         if layer.get('aggregate_path'):
             get(prefix + layer['aggregate_path'], catalog['files'][layer['aggregate_path']])
     for kind in ('hospital', 'clinic', 'dental'):
-        name = next(n for n in catalog['files'] if n.startswith(f'details/{kind}_hours/') and n.endswith('.json'))
-        get(prefix + name, catalog['files'][name])
+        name = next((n for n in catalog['files'] if n.startswith(f'details/{kind}_hours/') and n.endswith('.json')), None)
+        if name is not None:
+            get(prefix + name, catalog['files'][name])
     result = {'status': 'PASS', 'version': catalog['version'], 'local_files_sha_bytes_verified': len(catalog['files']), 'payload_asset_bytes': total,
               'allzoom_point_contracts': point_contracts,
               'catalog_bytes': catalog_path.stat().st_size, 'http_checks': checks, 'production': 'not run', 'cdn_cache_headers': 'not run',

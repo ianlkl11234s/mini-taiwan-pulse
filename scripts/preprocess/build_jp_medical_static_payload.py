@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the first local-only Japan medical static payload from reviewed artifacts.
+"""Create a local-only Japan medical static payload without consultation hours from reviewed artifacts.
 
 It deliberately accepts only Navii five facility kinds, H17 care registrations, and
 the three reviewed A38 display PMTiles.  It never reads raw/private source trees or
@@ -23,7 +23,6 @@ from pathlib import Path
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[2] / "public" / "jp-medical"
 DEFAULT_PUBLICATION_PLAN = Path(__file__).resolve().parents[2] / "docs" / "features" / "jp-medical-static" / "payload-publication-plan.json"
 NAVII_KINDS = ("hospital", "clinic", "dental", "maternity", "pharmacy")
-DETAIL_KINDS = ("hospital", "clinic", "dental")
 PRIVATE_PATH_TOKENS = ("_private", "raw", "private_rows", "representative")
 POINT_LAYER_NAMES = {"navii": "navii_facilities", "h17": "h17_services"}
 NAVII_QA_KEYS = {"hospital": "hospital_facility", "clinic": "clinic_facility", "dental": "dental_facility", "maternity": "maternity", "pharmacy": "pharmacy"}
@@ -94,38 +93,6 @@ def make_pmtiles(ndjson: Path, output: Path, source_layer: str, temp: Path):
     return len(layers[0].get("features", []))
 
 
-def copy_details(source_release: Path, nav_index: dict, staging: Path, files: dict):
-    detail_index = {}
-    for kind in DETAIL_KINDS:
-        schema = read(source_release / "public-schemas" / f"{kind}_hours.json")
-        allowed_row_fields = set(schema["source_columns"])
-        schema_rel = Path("details") / "schemas" / f"{kind}_hours.json"
-        schema_destination = staging / schema_rel
-        schema_destination.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source_release / "public-schemas" / f"{kind}_hours.json", schema_destination)
-        files[str(schema_rel)] = {"sha256": sha256(schema_destination), "bytes": schema_destination.stat().st_size}
-        entries = nav_index["service_details"][f"{kind}_hours"]
-        bucket_entries = {}
-        for bucket, entry in sorted(entries.items()):
-            source = source_release / entry["path"]
-            destination_rel = Path("details") / f"{kind}_hours" / f"{bucket}.json"
-            destination = staging / destination_rel
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(source, destination)
-            actual_sha = sha256(destination)
-            if actual_sha != entry["sha256"] or destination.stat().st_size != entry["bytes"]:
-                raise ValueError(f"detail copy mismatch: {kind}/{bucket}")
-            detail = read(destination)
-            if set(detail) != {"bucket", "bucket_algorithm", "record_kind", "rows"} or detail["record_kind"] != f"{kind}_hours":
-                raise ValueError(f"detail envelope allowlist mismatch: {kind}/{bucket}")
-            if any(set(row) - allowed_row_fields for row in detail["rows"]):
-                raise ValueError(f"detail row field allowlist mismatch: {kind}/{bucket}")
-            files[str(destination_rel)] = {"sha256": actual_sha, "bytes": destination.stat().st_size}
-            bucket_entries[bucket] = {"path": str(destination_rel), "sha256": actual_sha, "bytes": destination.stat().st_size, "rows": entry["rows"]}
-        detail_index[f"{kind}_hours"] = bucket_entries
-    return detail_index
-
-
 def build(source_root: Path, output_root: Path):
     current = read(source_root / "current.json")
     source_release = source_root / current["catalog"]
@@ -169,7 +136,7 @@ def build(source_root: Path, output_root: Path):
                         cell = mercator_cell(lon, lat)
                         nav_grid[(cell, kind)] += 1
                         nav_mapped[kind] += 1
-                        allow = {key: props[key] for key in ("source_id", "name", "address", "prefecture_code", "municipality_code", "record_kind", "detail_bucket", "snapshot_date", "source", "website") if key in props}
+                        allow = {key: props[key] for key in ("source_id", "name", "address", "prefecture_code", "municipality_code", "record_kind", "snapshot_date", "source") if key in props}
                         nav_out.write(json.dumps(feature(item["geometry"], allow), ensure_ascii=False, separators=(",", ":")) + "\n")
 
         with h17_ndjson.open("w") as h17_out:
@@ -217,7 +184,6 @@ def build(source_root: Path, output_root: Path):
             path = staging / rel
             files[rel] = {"sha256": sha256(path), "bytes": path.stat().st_size}
 
-        details = copy_details(source_release / "navii", nav_index, staging, files)
         for area in areas_catalog["layers"]:
             source = source_release / "areas" / area["display_path"]
             rel = Path("areas") / area["display_path"]
@@ -239,10 +205,10 @@ def build(source_root: Path, output_root: Path):
                 "a38": {"source_date": "2020", "status": "STALE", "source": areas_catalog["attribution"], "license_url": areas_catalog["license_url"], "grain": "source geometry part; do not use PMTiles feature count as medical-area count"},
             },
             "layers": [
-                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 0, "point_sampling": "none", "z0_feature_count": nav_z0_count, "geometry_provenance": "source release point geometry", "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": {"algorithm": "sha256(source_id UTF-8)[:2]", "path_template": "details/{record_kind}_hours/{bucket}.json", "filter_field": "ID", "cardinality": "one_to_many", "unavailable_kinds": ["maternity", "pharmacy"]}},
+                {"key": "navii_facilities", "kind_codes": list(NAVII_KINDS), "pmtiles_path": "points/navii_facilities.pmtiles", "source_layer": POINT_LAYER_NAMES["navii"], "minimum_point_zoom": 0, "point_sampling": "none", "z0_feature_count": nav_z0_count, "geometry_provenance": "source release point geometry", "aggregate_path": "aggregates/navii-z6.geojson", "detail_reference": None},
                 {"key": "h17_services", "pmtiles_path": "points/h17_services.pmtiles", "source_layer": POINT_LAYER_NAMES["h17"], "minimum_point_zoom": 0, "point_sampling": "none", "z0_feature_count": h17_z0_count, "geometry_provenance": "source release point geometry", "aggregate_path": "aggregates/h17-z6.geojson", "detail_reference": None},
             ] + [{"key": f"a38_{area['name'].rsplit('_', 1)[-1]}", "pmtiles_path": f"areas/{area['display_path']}", "source_layer": area["source_layer"], "status": "STALE", "source_date": "2020", "grain": "source geometry part"} for area in areas_catalog["layers"]],
-            "detail_buckets": details,
+            "detail_buckets": {},
             "files": dict(sorted(files.items())),
             "publication": {"scope": "local-only; no upload or deployment", "cache_policy": {"immutable_assets": "public, max-age=31536000, immutable", "current_pointer": "public, max-age=60"}},
         }

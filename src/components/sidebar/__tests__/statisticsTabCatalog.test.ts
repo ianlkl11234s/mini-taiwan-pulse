@@ -9,7 +9,7 @@ import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes"
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
 
 const EXPECTED_THEME_STRUCTURE = [
-  { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "犯罪與治安"] },
+  { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "不動產總市值", "犯罪與治安"] },
   { title: "交通與運輸 Transport", groups: ["建置量", "使用與營運", "車輛登記存量", "自行車（臺北市，民國 110 年）", "道路安全與監測", "駕照與停車", "航空運輸", "運輸補助", "交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
   { title: "環境與資源 Environment & Resources", groups: ["用水與供水", "住宅用電", "廢棄物與回收"] },
@@ -23,6 +23,7 @@ const EXPECTED_LAYER_KEYS = [
   ...EDUCATION_PRESENTATION_VIEW_KEYS,
   "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
   "statsHousingTotalCounty", "statsHousingOccupiedCounty", "statsHousingUnoccupiedCounty", "statsHousingOccasionalCounty", "statsHousingOtherUseCounty", "statsHousingUnusedCounty", "statsHousingResidenceOnlyCounty", "statsHousingMixedUseCounty", "statsHousingOccupiedPctCounty", "statsHousingUnusedPctCounty", "statsHousingTotalTownship", "statsHousingOccupiedTownship", "statsHousingUnoccupiedTownship", "statsHousingOccasionalTownship", "statsHousingOtherUseTownship", "statsHousingUnusedTownship", "statsHousingOccupiedPctTownship", "statsHousingUnusedPctTownship",
+  "propertyValueAdmin",
   "crimeAreaMonthly",
   "statsBusOperatingRouteLengthKm", "statsBusApprovedRouteCount", "statsUrbanBusOperatorCount", "statsBusOperatingVehicleCount", "statsBusAccessibleVehicleCount", "statsBusElectricVehicleCount", "statsBusOperatingTripCount", "statsBusOperatingVehicleKm", "statsTmrtStationOutboundCounty",
   "statsTaipeiUrbanRentalStations", "statsTaipeiUrbanRentalTrips", "statsTaipeiRiversideRentalStations", "statsTaipeiRiversideBicycles", "statsTaipeiRiversideRentalTrips",
@@ -103,6 +104,7 @@ describe("Layers 與 Statistics 分頁", () => {
     expect(mainKeys).toContain("countyBoundary");
     expect(mainKeys).toContain("townshipBoundary");
     expect(mainKeys).not.toContain("crimeAreaMonthly");
+    expect(mainKeys).not.toContain("propertyValueAdmin");
   });
 
   it("以共享 membership 從一般 Layers 排除統計面，保留行政邊界參考", () => {
