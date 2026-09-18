@@ -15,7 +15,7 @@ describe("layerSearch", () => {
 
   it("ranks exact key and label matches before descriptive matches", () => {
     expect(searchLayers("medHospital")[0]?.key).toBe("medHospital");
-    expect(searchLayers("醫院")[0]?.key).toBe("medHospital");
+    expect(searchLayers("醫院").slice(0, 2).map(result => result.key)).toEqual(["jpMedicalHospitals", "medHospital"]);
   });
 
   it("matches aliases and exposes World and Japan layers from the same index", () => {

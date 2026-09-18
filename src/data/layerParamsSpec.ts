@@ -1,5 +1,4 @@
 import { COMPARISON_STATISTICS_KEYS, type ComparisonStatisticsLayerKey } from './comparisonStatisticsKeys';
-import { JP_MEDICAL_CARE_TYPES, JP_MEDICAL_AREA_LEVELS } from "./jpMedicalTypes";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
@@ -1516,26 +1515,20 @@ export const LAYER_PARAMS_SPEC = {
   gfwDarkVessels: [
     { kind: "slider", name: "gfwDarkVesselsOpacity", labelPrefix: "透明度", digits: 2, default: 0.86, min: 0, max: 1, step: 0.05, out: null },
   ],
-  jpMedicalFacilities: [
-    opacitySlider("jpMedicalFacilitiesOpacity", 0.8),
-    { kind: "toggle", name: "jpMedicalHospital", label: "醫院", default: true },
-    { kind: "toggle", name: "jpMedicalClinic", label: "診所", default: true },
-    { kind: "toggle", name: "jpMedicalDental", label: "牙科", default: true },
-    { kind: "toggle", name: "jpMedicalMidwife", label: "助產所", default: true },
-    { kind: "toggle", name: "jpMedicalPharmacy", label: "藥局", default: true },
-  ],
-  jpMedicalCare: [
-    opacitySlider("jpMedicalCareOpacity", 0.75),
-    { kind: "select", name: "jpMedicalCareType", label: "服務類別", default: "all",
-      options: [{ value: "all", label: "全部服務登記" }, ...JP_MEDICAL_CARE_TYPES],
-      out: "jpMedicalCareTypeIdx", encode: ["all", ...JP_MEDICAL_CARE_TYPES.map(t => t.value)] },
-  ],
-  jpMedicalAreas: [
-    opacitySlider("jpMedicalAreasOpacity", 0.2),
-    { kind: "select", name: "jpMedicalAreaLevel", label: "醫療圈（2020 歷史版）", default: "2",
-      options: JP_MEDICAL_AREA_LEVELS,
-      out: "jpMedicalAreaLevelIdx", encode: JP_MEDICAL_AREA_LEVELS.map(t => t.value) },
-  ],
+  jpMedicalHospitals: [opacitySlider("jpMedicalHospitalsOpacity", 0.8)],
+  jpMedicalClinics: [opacitySlider("jpMedicalClinicsOpacity", 0.8)],
+  jpMedicalDental: [opacitySlider("jpMedicalDentalOpacity", 0.8)],
+  jpMedicalMaternity: [opacitySlider("jpMedicalMaternityOpacity", 0.8)],
+  jpMedicalPharmacies: [opacitySlider("jpMedicalPharmaciesOpacity", 0.8)],
+  jpCarePlanning: [opacitySlider("jpCarePlanningOpacity", 0.75)],
+  jpCareHomeVisit: [opacitySlider("jpCareHomeVisitOpacity", 0.75)],
+  jpCareDayServices: [opacitySlider("jpCareDayServicesOpacity", 0.75)],
+  jpCareResidential: [opacitySlider("jpCareResidentialOpacity", 0.75)],
+  jpCareCombined: [opacitySlider("jpCareCombinedOpacity", 0.75)],
+  jpCareEquipment: [opacitySlider("jpCareEquipmentOpacity", 0.75)],
+  jpMedicalAreasPrimary: [opacitySlider("jpMedicalAreasPrimaryOpacity", 0.2)],
+  jpMedicalAreasSecondary: [opacitySlider("jpMedicalAreasSecondaryOpacity", 0.2)],
+  jpMedicalAreasTertiary: [opacitySlider("jpMedicalAreasTertiaryOpacity", 0.2)],
   jpReligionGsi: [
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionGsiScale", 1),

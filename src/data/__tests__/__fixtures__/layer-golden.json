@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 749,
+    "keyCount": 760,
     "sections": [
       "gisLayers",
       "overlays",
@@ -598,17 +598,69 @@
     },
     {
       "layers": [
-        "jp-medical-facilities-points",
-        "jp-medical-facilities-clusters"
+        "jp-medical-facilities-hospital"
       ],
-      "type": "jpMedicalFacilities"
+      "type": "jpMedicalHospitals"
     },
     {
       "layers": [
-        "jp-medical-care-points",
-        "jp-medical-care-clusters"
+        "jp-medical-facilities-clinic"
       ],
-      "type": "jpMedicalCare"
+      "type": "jpMedicalClinics"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-dental"
+      ],
+      "type": "jpMedicalDental"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-maternity"
+      ],
+      "type": "jpMedicalMaternity"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-pharmacy"
+      ],
+      "type": "jpMedicalPharmacies"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCarePlanning"
+      ],
+      "type": "jpCarePlanning"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareHomeVisit"
+      ],
+      "type": "jpCareHomeVisit"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareDayServices"
+      ],
+      "type": "jpCareDayServices"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareResidential"
+      ],
+      "type": "jpCareResidential"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareCombined"
+      ],
+      "type": "jpCareCombined"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareEquipment"
+      ],
+      "type": "jpCareEquipment"
     },
     {
       "layers": [
@@ -696,9 +748,21 @@
     },
     {
       "layers": [
-        "jp-medical-areas-fill"
+        "jp-medical-areas-1-fill"
       ],
-      "type": "jpMedicalAreas"
+      "type": "jpMedicalAreasPrimary"
+    },
+    {
+      "layers": [
+        "jp-medical-areas-2-fill"
+      ],
+      "type": "jpMedicalAreasSecondary"
+    },
+    {
+      "layers": [
+        "jp-medical-areas-3-fill"
+      ],
+      "type": "jpMedicalAreasTertiary"
     },
     {
       "layers": [
@@ -65529,6 +65593,60 @@
         "value": "point"
       }
     ],
+    "jpCareCombined": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareDayServices": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareEquipment": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareHomeVisit": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCarePlanning": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareResidential": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
     "jpMarineEbsaCoastal": [
       {
         "label": "透明度 0.22",
@@ -65538,226 +65656,76 @@
         "value": 0.22
       }
     ],
-    "jpMedicalAreas": [
+    "jpMedicalAreasPrimary": [
       {
         "label": "透明度 0.20",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
         "value": 0.2
-      },
-      {
-        "label": "醫療圈（2020 歷史版）",
-        "options": [
-          {
-            "label": "一次醫療圈",
-            "value": "1"
-          },
-          {
-            "label": "二次醫療圈",
-            "value": "2"
-          },
-          {
-            "label": "三次醫療圈",
-            "value": "3"
-          }
-        ],
-        "type": "select",
-        "value": "2"
       }
     ],
-    "jpMedicalCare": [
+    "jpMedicalAreasSecondary": [
       {
-        "label": "透明度 0.75",
+        "label": "透明度 0.20",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
-        "value": 0.75
-      },
-      {
-        "label": "服務類別",
-        "options": [
-          {
-            "label": "全部服務登記",
-            "value": "all"
-          },
-          {
-            "label": "介護医療院",
-            "value": "介護医療院"
-          },
-          {
-            "label": "介護療養型医療施設",
-            "value": "介護療養型医療施設"
-          },
-          {
-            "label": "介護老人保健施設",
-            "value": "介護老人保健施設"
-          },
-          {
-            "label": "介護老人福祉施設",
-            "value": "介護老人福祉施設"
-          },
-          {
-            "label": "地域密着型介護老人福祉施設入所者生活介護",
-            "value": "地域密着型介護老人福祉施設入所者生活介護"
-          },
-          {
-            "label": "地域密着型特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））",
-            "value": "地域密着型特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））"
-          },
-          {
-            "label": "地域密着型特定施設入居者生活介護（有料老人ホーム）",
-            "value": "地域密着型特定施設入居者生活介護（有料老人ホーム）"
-          },
-          {
-            "label": "地域密着型特定施設入居者生活介護（軽費老人ホーム）",
-            "value": "地域密着型特定施設入居者生活介護（軽費老人ホーム）"
-          },
-          {
-            "label": "地域密着型通所介護",
-            "value": "地域密着型通所介護"
-          },
-          {
-            "label": "夜間対応型訪問介護",
-            "value": "夜間対応型訪問介護"
-          },
-          {
-            "label": "定期巡回・随時対応型訪問介護看護",
-            "value": "定期巡回・随時対応型訪問介護看護"
-          },
-          {
-            "label": "小規模多機能型居宅介護",
-            "value": "小規模多機能型居宅介護"
-          },
-          {
-            "label": "居宅介護支援",
-            "value": "居宅介護支援"
-          },
-          {
-            "label": "指定療養通所介護",
-            "value": "指定療養通所介護"
-          },
-          {
-            "label": "特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅（外部サービス利用型））)",
-            "value": "特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅（外部サービス利用型））)"
-          },
-          {
-            "label": "特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））",
-            "value": "特定施設入居者生活介護（有料老人ホーム（サービス付き高齢者向け住宅））"
-          },
-          {
-            "label": "特定施設入居者生活介護（有料老人ホーム（外部サービス利用型））",
-            "value": "特定施設入居者生活介護（有料老人ホーム（外部サービス利用型））"
-          },
-          {
-            "label": "特定施設入居者生活介護（有料老人ホーム）",
-            "value": "特定施設入居者生活介護（有料老人ホーム）"
-          },
-          {
-            "label": "特定施設入居者生活介護（軽費老人ホーム（外部サービス利用型））",
-            "value": "特定施設入居者生活介護（軽費老人ホーム（外部サービス利用型））"
-          },
-          {
-            "label": "特定施設入居者生活介護（軽費老人ホーム）",
-            "value": "特定施設入居者生活介護（軽費老人ホーム）"
-          },
-          {
-            "label": "特定福祉用具販売",
-            "value": "特定福祉用具販売"
-          },
-          {
-            "label": "看護小規模多機能型居宅介護（複合型サービス）",
-            "value": "看護小規模多機能型居宅介護（複合型サービス）"
-          },
-          {
-            "label": "短期入所生活介護",
-            "value": "短期入所生活介護"
-          },
-          {
-            "label": "短期入所療養介護(療養病床を有する病院等）",
-            "value": "短期入所療養介護(療養病床を有する病院等）"
-          },
-          {
-            "label": "短期入所療養介護（介護医療院）",
-            "value": "短期入所療養介護（介護医療院）"
-          },
-          {
-            "label": "短期入所療養介護（介護老人保健施設）",
-            "value": "短期入所療養介護（介護老人保健施設）"
-          },
-          {
-            "label": "福祉用具貸与",
-            "value": "福祉用具貸与"
-          },
-          {
-            "label": "訪問リハビリテーション",
-            "value": "訪問リハビリテーション"
-          },
-          {
-            "label": "訪問介護",
-            "value": "訪問介護"
-          },
-          {
-            "label": "訪問入浴介護",
-            "value": "訪問入浴介護"
-          },
-          {
-            "label": "訪問看護",
-            "value": "訪問看護"
-          },
-          {
-            "label": "認知症対応型共同生活介護",
-            "value": "認知症対応型共同生活介護"
-          },
-          {
-            "label": "認知症対応型通所介護",
-            "value": "認知症対応型通所介護"
-          },
-          {
-            "label": "通所リハビリテーション",
-            "value": "通所リハビリテーション"
-          },
-          {
-            "label": "通所介護",
-            "value": "通所介護"
-          }
-        ],
-        "type": "select",
-        "value": "all"
+        "value": 0.2
       }
     ],
-    "jpMedicalFacilities": [
+    "jpMedicalAreasTertiary": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpMedicalClinics": [
       {
         "label": "透明度 0.80",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
-      },
+      }
+    ],
+    "jpMedicalDental": [
       {
-        "label": "醫院",
-        "type": "toggle",
-        "value": true
-      },
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalHospitals": [
       {
-        "label": "診所",
-        "type": "toggle",
-        "value": true
-      },
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalMaternity": [
       {
-        "label": "牙科",
-        "type": "toggle",
-        "value": true
-      },
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalPharmacies": [
       {
-        "label": "助產所",
-        "type": "toggle",
-        "value": true
-      },
-      {
-        "label": "藥局",
-        "type": "toggle",
-        "value": true
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "jpNaturalParksNational": [

@@ -1,6 +1,6 @@
 import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
 import { JpMedicalStatus } from "./JpMedicalStatus";
-import { JP_MEDICAL_CATEGORIES, JP_MEDICAL_CARE_COLOR, JP_MEDICAL_AREA_COLOR } from "../data/jpMedicalTypes";
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
 import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
@@ -387,9 +387,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
   { id: "allenCoralAtlas", render: () => <AllenCoralAtlasLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
-  { id: "jpMedicalFacilities", render: () => <JpMedicalLegend kind="facilities" /> },
-  { id: "jpMedicalCare", render: () => <JpMedicalLegend kind="care" /> },
-  { id: "jpMedicalAreas", render: () => <JpMedicalLegend kind="areas" /> },
+  ...JP_MEDICAL_CATEGORIES.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
+  ...JP_MEDICAL_CARE_GROUPS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
+  ...JP_MEDICAL_AREA_LEVELS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
@@ -6561,22 +6561,24 @@ function JpPoliceFacilitiesLegend() {
 }
 
 
-function JpMedicalLegend({ kind }: { kind: "facilities" | "care" | "areas" }) {
+function JpMedicalLegend({ layerKey }: { layerKey: string }) {
   const t = useLegendTheme();
-  const rows = kind === "facilities" ? JP_MEDICAL_CATEGORIES : kind === "care"
-    ? [{ value: "care", label: "長照服務登記", color: JP_MEDICAL_CARE_COLOR }]
-    : [{ value: "areas", label: "2020 歷史醫療圈", color: JP_MEDICAL_AREA_COLOR }];
+  const facility = JP_MEDICAL_CATEGORIES.find(item => item.key === layerKey);
+  const care = JP_MEDICAL_CARE_GROUPS.find(item => item.key === layerKey);
+  const area = JP_MEDICAL_AREA_LEVELS.find(item => item.key === layerKey);
+  const kind = facility ? "facilities" : care ? "care" : "areas";
+  const row = facility ?? care ?? area;
+  if (!row) return null;
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.5 }}>
-    <strong>{kind === "facilities" ? "日本醫療設施" : kind === "care" ? "日本長照服務" : "日本醫療圈"}</strong>
-    <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} /></div>
-    {kind === "facilities" && <div>◯ 灰色圓圈：目前分類合計（固定格網中心）</div>}
-    {rows.map(row => <div key={row.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+    <strong>{row.label}</strong>
+    <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} layerKey={layerKey} /></div>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
-    </div>)}
+    </div>
     <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
-      ? "国土数値情報 A38 · 2020 歷史版。簡化邊界；小比例尺可能省略小面。人口／面積不可按 polygon part 加總。"
+      ? "国土数値情報 A38 · 2020 歷史版。這是行政規劃邊界，不是設施服務範圍；人口／面積不可按 polygon part 加總。"
       : kind === "care"
-      ? "厚生労働省 H17。圓圈為登記聚合，放大檢視來源點位；同址可有多筆服務，不代表唯一機構數。"
-      : "厚生労働省 Navii。圓圈為可繪製設施聚合，放大檢視點位；缺座標另列。助產所來源僅涵蓋 45 縣。公告時段非即時可接診。"}</div>
+      ? "厚生労働省 H17。每個圓點是一筆服務登記；同址可有多筆，不代表唯一機構數。低縮放仍顯示全部登記點位。"
+      : "厚生労働省 Navii。每個圓點是一筆可繪製設施；缺座標另列。低縮放不抽樣。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
   </div>;
 }

@@ -32,6 +32,16 @@ def main():
     assert set(catalog['datasets']) == {'navii', 'h17', 'a38'}
     assert catalog['version'] == pointer['version'] == manifest['version']
     assert catalog['files'] == manifest['files']
+    point_contracts = {
+        'navii_facilities': 189800,
+        'h17_services': 222194,
+    }
+    for key, expected in point_contracts.items():
+        layer = next(item for item in catalog['layers'] if item['key'] == key)
+        assert layer['minimum_point_zoom'] == 0
+        assert layer['point_sampling'] == 'none'
+        assert layer['z0_feature_count'] == expected
+        assert 'z14 display geometry' in layer['geometry_provenance']
     assert digest(catalog_path) == manifest['catalog']['sha256']
     assert catalog_path.stat().st_size == manifest['catalog']['bytes']
     total = 0
@@ -68,6 +78,7 @@ def main():
         name = next(n for n in catalog['files'] if n.startswith(f'details/{kind}_hours/') and n.endswith('.json'))
         get(prefix + name, catalog['files'][name])
     result = {'status': 'PASS', 'version': catalog['version'], 'local_files_sha_bytes_verified': len(catalog['files']), 'payload_asset_bytes': total,
+              'allzoom_point_contracts': point_contracts,
               'catalog_bytes': catalog_path.stat().st_size, 'http_checks': checks, 'production': 'not run', 'cdn_cache_headers': 'not run',
               'pmtiles_integrity': 'full local SHA-256; HTTP header Range reads only, not a browser visual assertion'}
     Path(args.output).write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')

@@ -87,7 +87,11 @@ export interface LayerHookEntry {
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
 export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
-  { id: "useJpMedicalLayers", keys: ["jpMedicalFacilities", "jpMedicalCare", "jpMedicalAreas"], Host: JpMedicalHost },
+  { id: "useJpMedicalLayers", keys: [
+    "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
+    "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
+    "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  ], Host: JpMedicalHost },
   { id: "useCoralReefDistributionLayer", keys: ["coralReefDistribution"], Host: CoralReefDistributionHost },
   { id: "useAllenCoralAtlasLayer", keys: ["allenCoralAtlas"], Host: AllenCoralAtlasHost },
   // ── 房地產（App.tsx 原 L719 / L732）──

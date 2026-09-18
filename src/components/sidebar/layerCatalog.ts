@@ -199,7 +199,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈"];
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
@@ -1711,9 +1711,27 @@ const THEME_CATALOG: ThemeDef[] = [
   //    行政區 / 交通 / 教育 / 人口 / 宗教 直接當頂層主題並列（比照世界 tab 多主題）。
   // ───────────────────────────────────────────────────────────────
   {
-    title: "醫療",
+    title: "醫療設施",
     defaultCollapsed: false,
-    groups: [{ title: "靜態名錄與醫療圈", layers: [fromManifest("jpMedicalFacilities"), fromManifest("jpMedicalCare"), fromManifest("jpMedicalAreas")] }],
+    groups: [{ title: "Navii 設施名錄", layers: [
+      fromManifest("jpMedicalHospitals"), fromManifest("jpMedicalClinics"), fromManifest("jpMedicalDental"),
+      fromManifest("jpMedicalMaternity"), fromManifest("jpMedicalPharmacies"),
+    ] }],
+  },
+  {
+    title: "長照服務",
+    defaultCollapsed: false,
+    groups: [{ title: "服務使用情境", layers: [
+      fromManifest("jpCarePlanning"), fromManifest("jpCareHomeVisit"), fromManifest("jpCareDayServices"),
+      fromManifest("jpCareResidential"), fromManifest("jpCareCombined"), fromManifest("jpCareEquipment"),
+    ] }],
+  },
+  {
+    title: "醫療圈",
+    defaultCollapsed: true,
+    groups: [{ title: "2020 歷史邊界", layers: [
+      fromManifest("jpMedicalAreasPrimary"), fromManifest("jpMedicalAreasSecondary"), fromManifest("jpMedicalAreasTertiary"),
+    ] }],
   },
   {
     title: "行政區",
@@ -1911,7 +1929,9 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "教育": "world",
   "人口": "world",
   "宗教": "world",
-  "醫療": "world",
+  "醫療設施": "world",
+  "長照服務": "world",
+  "醫療圈": "world",
 };
 
 export function themeMacroGroup(title: string): LayerMacroGroup {

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchJpMedicalJsonAsset, loadJpMedicalHours, retryJpMedicalCatalog } from "../jpMedicalLoader";
+import { fetchJpMedicalJsonAsset, jpMedicalLayerAsset, loadJpMedicalHours, retryJpMedicalCatalog } from "../jpMedicalLoader";
 
 const encoder = new TextEncoder();
 async function digest(value: unknown) {
@@ -55,6 +55,35 @@ describe("jp medical content-addressed loader", () => {
     const catalog = { contract_version: 1, version: "catalog-v", layers: [], files: {} };
     stubCatalog(catalog, { version: "pointer-v", catalog: "releases/pointer-v/catalog.json" }, new Uint8Array());
     await expect(fetchJpMedicalJsonAsset("anything.json")).rejects.toThrow("版本不一致");
+  });
+
+  it("keeps the legacy z10 gate but rejects an unproven z0 point archive", async () => {
+    const path = "points/navii_facilities.pmtiles";
+    const files = { [path]: { sha256: "a".repeat(64), bytes: 1 } };
+    const current = { version: "v", catalog: "releases/v/catalog.json" };
+    stubCatalog({ contract_version: 1, version: "v", files, layers: [{ key: "navii_facilities", pmtiles_path: path, source_layer: "navii_facilities", minimum_point_zoom: 10 }] }, current, new Uint8Array());
+    await expect(jpMedicalLayerAsset("navii_facilities")).resolves.toMatchObject({ asset: { minimum_point_zoom: 10 } });
+
+    retryJpMedicalCatalog();
+    stubCatalog({ contract_version: 1, version: "v", files, layers: [{ key: "navii_facilities", pmtiles_path: path, source_layer: "navii_facilities", minimum_point_zoom: 0 }] }, current, new Uint8Array());
+    await expect(jpMedicalLayerAsset("navii_facilities")).rejects.toThrow("缺少全縮放守恆證據");
+  });
+
+  it("accepts a z0 point archive only with explicit no-sampling evidence", async () => {
+    const path = "points/h17_services.pmtiles";
+    const files = { [path]: { sha256: "b".repeat(64), bytes: 1 } };
+    stubCatalog({
+      contract_version: 1,
+      version: "v",
+      files,
+      layers: [{
+        key: "h17_services", pmtiles_path: path, source_layer: "h17_services",
+        minimum_point_zoom: 0, point_sampling: "none", z0_feature_count: 222_194,
+      }],
+    }, { version: "v", catalog: "releases/v/catalog.json" }, new Uint8Array());
+    await expect(jpMedicalLayerAsset("h17_services")).resolves.toMatchObject({
+      asset: { minimum_point_zoom: 0, point_sampling: "none", z0_feature_count: 222_194 },
+    });
   });
 
   it("rejects paths not explicitly present in the immutable allowlist", async () => {

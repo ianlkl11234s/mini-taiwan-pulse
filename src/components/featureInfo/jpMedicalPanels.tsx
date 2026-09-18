@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
-import { getJpMedicalRuntime, loadJpMedicalHours } from "../../data/jpMedicalLoader";
-import { jpMedicalCategory, JP_MEDICAL_AREA_COLOR, JP_MEDICAL_CARE_COLOR } from "../../data/jpMedicalTypes";
+import { loadJpMedicalHours } from "../../data/jpMedicalLoader";
+import { jpMedicalCategory, JP_MEDICAL_CARE_GROUPS } from "../../data/jpMedicalTypes";
 import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { Row } from "./shared";
 
 const text = (value: unknown) => value == null || value === "" || value === "null" ? "未提供" : String(value);
 const date = (value: unknown) => text(value).replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
-const count = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "未提供";
 
 function Title({ color, children }: { color: string; children: string }) {
   const theme = useFeatureTheme();
@@ -55,22 +54,8 @@ function Hours({ recordKind, sourceId, bucket }: { recordKind: string; sourceId:
   </div>;
 }
 
-function AggregatePanel({ props, care }: { props: Record<string, unknown>; care: boolean }) {
-  const dataset = getJpMedicalRuntime().catalog?.datasets?.[care ? "h17" : "navii"];
-  return <>
-    <Title color={care ? JP_MEDICAL_CARE_COLOR : "#64748b"}>{care ? "長照服務登記聚合" : "醫療設施聚合"}</Title>
-    <Row label="格網" value={text(props.grid_id)} />
-    <Row label="目前篩選" value={`${count(props[care ? "mapped_service_registration_count" : "mapped_point_count"])} ${care ? "筆服務登記" : "個可繪製設施"}`} />
-    <Row label="空間範圍" value="此固定 z6 格網內的完整可繪製來源列；圓心為格網中心，非設施位置" />
-    <Row label="資料日期" value={date(dataset?.source_date)} />
-    <Row label="來源" value={care ? "厚生労働省 H17" : "厚生労働省 Navii"} />
-    <Row label="檢視點位" value="放大至城市尺度可查看各點。此格網數量不是全國總數。" />
-  </>;
-}
-
 export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
-  if (props.grid_id != null) return <AggregatePanel props={props} care={false} />;
   const category = jpMedicalCategory(props.record_kind);
   const kind = typeof props.record_kind === "string" ? props.record_kind : "";
   const sourceId = typeof props.source_id === "string" ? props.source_id : "";
@@ -91,11 +76,12 @@ export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unkn
 
 export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
-  if (props.grid_id != null) return <AggregatePanel props={props} care />;
+  const group = JP_MEDICAL_CARE_GROUPS.find(item => item.serviceTypes.some(value => value === props.service_type));
   const coLocated = Array.isArray(props.coLocatedServices) ? props.coLocatedServices.filter((row): row is Record<string, unknown> => !!row && typeof row === "object") : [];
   return <>
-    <Title color={JP_MEDICAL_CARE_COLOR}>{text(props.name)}</Title>
-    <Row label="服務類型" value={text(props.service_type)} color={JP_MEDICAL_CARE_COLOR} />
+    <Title color={group?.color ?? "#94a3b8"}>{text(props.name)}</Title>
+    <Row label="上位分類" value={group?.label ?? "未分類"} color={group?.color} />
+    <Row label="原始服務類型" value={text(props.service_type)} />
     <Row label="地址" value={text(props.address)} />
     <Row label="機構 ID" value={text(props.establishment_id)} />
     <Row label="來源 ID" value={text(props.source_id)} />
@@ -118,9 +104,10 @@ export function JpMedicalCarePanel({ props }: { props: Record<string, unknown> }
 export function JpMedicalAreasPanel({ props }: { props: Record<string, unknown> }) {
   const theme = useFeatureTheme();
   return <>
-    <Title color={JP_MEDICAL_AREA_COLOR}>醫療圈 · 2020 歷史版</Title>
-    <Row label="資料狀態" value="STALE：2020 歷史版" color={JP_MEDICAL_AREA_COLOR} />
+    <Title color="#f59e0b">醫療圈 · 2020 歷史版</Title>
+    <Row label="資料狀態" value="STALE：2020 歷史版" color="#f59e0b" />
     <Row label="來源" value="国土数値情報 医療圏データ（2020）" />
+    <Row label="用途" value="行政規劃邊界；不是設施服務範圍或即時就醫可達圈" />
     <Row label="幾何粒度" value="來源 polygon part；不可依此加總人口、面積或圈數" />
     <details style={{ marginTop: 8, color: theme.textStrong }}><summary>來源欄位</summary>
       {Object.entries(props).filter(([key]) => /^A38[abc]_/.test(key)).map(([key, value]) => <Row key={key} label={key} value={text(value)} />)}

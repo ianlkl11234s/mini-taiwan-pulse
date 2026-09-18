@@ -16,6 +16,9 @@ export interface JpMedicalLayerAsset {
     source_layer: string;
     aggregate_path?: string;
     minimum_point_zoom?: number;
+    point_sampling?: "none";
+    z0_feature_count?: number;
+    geometry_provenance?: string;
 }
 export interface JpMedicalCatalog {
     contract_version: 1;
@@ -140,6 +143,9 @@ export async function jpMedicalLayerAsset(key: JpMedicalLayerAsset["key"]): Prom
     const asset = catalog.layers.find((item) => item.key === key);
     if (!asset)
         throw new Error(`catalog 缺少圖層：${key}`);
+    if ((key === "navii_facilities" || key === "h17_services") && asset.minimum_point_zoom === 0
+        && (asset.point_sampling !== "none" || !Number.isInteger(asset.z0_feature_count) || Number(asset.z0_feature_count) <= 0))
+        throw new Error(`catalog 的 ${key} 缺少全縮放守恆證據`);
     return { asset, url: await jpMedicalAssetUrl(asset.pmtiles_path) };
 }
 /** 詳情是按需 bucket fetch；沒有 detail reference 的類別不應呼叫。 */
