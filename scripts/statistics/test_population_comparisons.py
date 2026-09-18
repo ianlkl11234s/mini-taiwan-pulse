@@ -10,6 +10,19 @@ def test_observed_never_interprets_missing_as_zero():
 def test_population_input_paths_are_immutable_processed_sources():
  assert str(b.ROOT).endswith('data/processed/demographics')
 
+def test_comparison_dimensions_preserve_numerator_scope_with_denominator_period():
+ dimensions=b.comparison_dimensions(
+  {'roc_year':'114','capacity_field':'一般護理之家-開放床數','sex':'total'},
+  114,
+  '2025 annual',
+ )
+ assert dimensions == {
+  'roc_year':'114',
+  'capacity_field':'一般護理之家-開放床數',
+  'sex':'total',
+  'denominator_period':'2025 annual',
+ }
+
 def test_nonobserved_numerator_preserves_status_token_and_row():
  source={'area_code':'A','value':None,'status':'suppressed','source_status':'source_suppressed','source_token':'confidential'}
  result=b.preserved_not_computable(source, {'type':'resident_population','population':100,'year':2025})
