@@ -124,8 +124,9 @@ gate 完成前不得 merge。
 - 移除 Icon Rail 的 Property Value app 與獨立浮動面板入口。
 - 新增一般統計 layer，以縣市／鄉鎮行政界呈現 corrected market value choropleth。
 - 提供行政層級、色階、opacity、legend、popup 與來源／限制。
-- `property_value_admin.json` 目前有 19 縣市／352 鄉鎮；與 boundary join 不到的金門、
-  連江、嘉義市及其鄉鎮顯示 missing，不著色為 0。
+- `property_value_admin.json` 目前有 19 縣市／352 鄉鎮；來源未提供的金門、
+  連江、澎湖及其鄉鎮顯示 missing，不著色為 0。嘉義市（`10020`）與其兩區
+  已存在於來源，應照實 join 並顯示數值。
 - 既有逐棟估值與三尺度 property-value grid 保留，除非測試證明與新統計層衝突。
 
 驗收：側邊 rail 不再有 app；圖層面板可切縣市／鄉鎮，色彩與 popup 對同一行政單位、
