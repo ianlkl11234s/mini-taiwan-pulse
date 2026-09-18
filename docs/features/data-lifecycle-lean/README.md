@@ -69,7 +69,7 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 - 林業保留 PMTiles：2,030,870 bytes，SHA-256 `1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc`，見 [baseline.json](./baseline.json)。
 - shell 語法與 `git diff --check` 通過。
 - 本地 nginx 1.27.4：9 個 HTTP cases 通過；/data 與 dist GeoJSON MIME＋gzip＋1 日 cache、JSON／JS／PNG MIME、PMTiles 206 且不 gzip、Ookla dist 優先、missing 404、private unknown path no-store。fixture config 與候選僅替換 listen/root，SHA 見 [nginx-runtime.json](./nginx-runtime.json)。這不代表正式 CDN 命中或已驗 private 授權。
-- 部署／正式站結果另列。Cloudflare 公開 JSON cache eligibility 仍需 rules 權限／正式讀回確認。
+- 部署／正式站結果另列；後續已補 Cloudflare UI rule readback，見下方成本與容量界線。
 
 
 ## 持續完成批次（2026-09-18）
@@ -96,7 +96,9 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 - Origin 的 public Cache-Control 不等於 Cloudflare 已快取；需要實際 MISS/HIT/Age/Range 驗收。JSON 預設 eligibility 也需要 zone rule，不能只改 nginx。[官方預設快取行為](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/)
 - 共用 S3 bucket 現有全域 30 天 Standard-IA／90 天 Glacier-IR transition 未擅改；它也涵蓋其他專案。未取得各 prefix owner/讀取量前，不把整個 bucket 調整為展示層政策。新展示試點走 R2 Standard；S3 保留備份角色。
 - 日常使用既有 health/daily report 追 retention coverage；news/yt HOLD 不隱藏。容量可操作門檻：共享 filesystem >=80% 或 free < 下一次完整工作集＋安全餘量要排查；>=90% 阻擋新增大產製。收集器 PR 93 已將 80%／90% 與剩餘空間加入既有 daily report；90% 停止新增大產製仍是操作門檻，不是新排程框架。
-- 真實帳單與 Cloudflare zone 規則尚缺權限。此次沒有宣稱月費降低多少，也沒有變更私人資料的公開範圍。
+- Cloudflare UI readback（[cloudflare-console-readback.json](./cloudflare-console-readback.json)）：帳號 R2 為 8.8 GB，`mini-tw-pulse` 為 7.75 GB；本期（9/2–9/18 已觀測）UI 顯示 $0，累計儲存用量 4.5 GB-month，扣除內含額度後計費量為 0。既有 $10 budget alert 僅通知，非花費上限。此為 R2／Cloudflare 範圍，不能推論 AWS、Zeabur 或全服務費用皆為 $0。
+- 同一 readback 已確認 Static map data rule 啟用且維持 respect-origin：`/jp-medical/current.json` 兩次 HIT（60s）、versioned `catalog.json` MISS→HIT（immutable）、`/world/jp_religion_gsi.pmtiles` 206 HIT；private no-store 路徑仍為 DYNAMIC，符合 `.pmtiles` 規則的 private missing path 仍為 BYPASS（僅負向快取檢查，不代表 private 授權驗收）。規則只追加主站醫療 current 與 release JSON，未變更 private-data 權限、bucket 或物件。
+- `mini-tw-pulse` 唯一 lifecycle 為 7 天 abort 未完成 multipart upload，沒有 object expiration／刪除；歷史、source 與 rollback release 仍未清理。Cloudflare UI 已可讀，但既有 API token 仍不能管理 zone；AWS／Zeabur 發票也尚未驗證。
 
 
 ### 本批本地驗收結果
