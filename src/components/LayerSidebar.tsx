@@ -242,6 +242,9 @@ function SidebarContent({
 }) {
   const [mobileTab, setMobileTab] = useState<"layers" | "statistics">("layers");
   const [search, setSearch] = useState("");
+  const togglePalette = isDarkTheme
+    ? { ACCENT_TOGGLE: "#fff", TOGGLE_OFF: "#4b5563", TOGGLE_KNOB_ON: "#111827", TOGGLE_KNOB_OFF: "#fff" }
+    : { ACCENT_TOGGLE: "#1F2937", TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff" };
   const activeThemes: readonly ThemeDef[] = isMobile ? (mobileTab === "statistics" ? STATISTICS_TAB_THEMES : MOBILE_LAYER_THEMES) : THEMES;
   const activeLayerKeys = new Set(activeThemes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key))));
   const searchResults = searchLayers(search, { favoriteKeys }).filter((result) => activeLayerKeys.has(result.key));
@@ -481,6 +484,8 @@ function SidebarContent({
                     onLayerClick={onLayerClick}
                     textColor={textColor}
                     dimColor={dimColor}
+                    colorScheme={isDarkTheme ? 'dark' : 'light'}
+                    renderToggle={(on, onChange, label) => <LayerToggleSwitch on={on} onChange={onChange} label={label} {...togglePalette} />}
                     renderControls={(selectedKey) => (
                       <ExpandedPanel
                         layerKey={selectedKey as ExpandableLayerKey}
@@ -571,7 +576,7 @@ function SidebarContent({
                     )}
                   </div>
 
-                  {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} />}
+                  {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} {...togglePalette} />}
                   {hasDetails && !locked && (
                     <button
                       type="button"
@@ -681,7 +686,7 @@ function ExpandedPanel({
         overflow: "hidden",
       }}
     >
-      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (

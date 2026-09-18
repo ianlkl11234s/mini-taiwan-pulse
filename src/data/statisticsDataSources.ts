@@ -38,6 +38,9 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
     const baseKey = statisticsBaseKey(view.key);
     const recipe = getSocialRecipe(baseKey);
     if (!recipe) return undefined;
+    const releaseOptions = recipe.release_options.filter(
+      (option) => option.dimensions.education_stage === view.stage,
+    );
     return {
       kind: "presentation",
       datasetIds: [recipe.dataset_id],
@@ -45,7 +48,7 @@ export function getStatisticsDataSourceDefinition(key: string): StatisticsDataSo
       metricLabel: view.label,
       unit: recipe.unit,
       level: recipe.level,
-      period: periodLabel(recipe.release_options),
+      period: periodLabel(releaseOptions),
       contract: `固定 ${view.stage} 學制；此卡顯示入口預設指標來源，其他可選指標可各自查閱；不新增來源資料集。`,
       disclosure: recipe.disclosure,
     };
@@ -136,4 +139,3 @@ export function statisticsIndicatorLabel(value: unknown, level: string): string 
   if (typeof value !== "string") return "未標示";
   return Object.values(STATISTICS_RECIPES).find(recipe => recipe.indicator_id === value && recipe.level === level)?.label ?? value;
 }
-

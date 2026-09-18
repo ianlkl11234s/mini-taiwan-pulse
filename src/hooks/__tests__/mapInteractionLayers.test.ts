@@ -78,6 +78,19 @@ function otherSources(dir = "src"): string[] {
 }
 
 describe("GIS 點擊註冊表的 layer id", () => {
+  it("公司重疊格網依實際 render stack 優先命中最上層", () => {
+    const indexOf = (layerId: string) => GIS_LAYERS.findIndex((entry) => entry.layers.includes(layerId));
+    const companyPoints = indexOf("business-registry-company-points-all-circle");
+    const companyAge = indexOf("business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill");
+    const companyIndustry = indexOf("business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill");
+    const companyOverview = indexOf("business-registry-company-capital-grid-450-company-overview-density-fill");
+
+    expect(companyPoints).toBeGreaterThanOrEqual(0);
+    expect(companyPoints).toBeLessThan(companyAge);
+    expect(companyAge).toBeLessThan(companyIndustry);
+    expect(companyIndustry).toBeLessThan(companyOverview);
+  });
+
   it("引用的每個 layer id 都真的被建立（否則 popup 靜默失效）", () => {
     const fromRegistry = registryLayerIds();
     const fromStatisticsRuntime = statisticsRuntimeLayerIds();

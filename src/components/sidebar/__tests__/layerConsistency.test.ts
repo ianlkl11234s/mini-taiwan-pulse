@@ -460,11 +460,12 @@ describe("區域統計 sidebar 接線", () => {
   });
 
   it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
-    const wiring = 'isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
-    for (const file of [
-      'src/components/IconRailSidebar.tsx',
-      'src/components/LayerSidebar.tsx',
-    ]) expect(readFileSync(file, 'utf8')).toContain(wiring);
+    const railSidebar = readFileSync('src/components/IconRailSidebar.tsx', 'utf8');
+    expect(railSidebar).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
+    expect(railSidebar).toContain('textColor={TEXT_STRONG}\n                            dimColor={DIM}\n                            colorScheme={COLOR_SCHEME}');
+    const layerSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
+    expect(layerSidebar).toContain("isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />");
+    expect(layerSidebar).toContain("textColor={textColor}\n                    dimColor={dimColor}\n                    colorScheme={isDarkTheme ? 'dark' : 'light'}");
     const mobileSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
     expect(mobileSidebar).toContain('aria-label={`${displayLabel} 詳情`}');
     expect(mobileSidebar).toContain('{isExpanded && hasDetails && (');

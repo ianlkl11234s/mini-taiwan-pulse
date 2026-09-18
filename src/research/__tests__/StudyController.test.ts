@@ -103,6 +103,18 @@ describe("StudyController", () => {
     expect(onError).toHaveBeenCalledTimes(2);
   });
 
+  it("reports error after acknowledgement when the render rejects", async () => {
+    const renderGate = deferred<"ready">(); const ackGate = deferred<StudyState>();
+    const { controller, client, render, onError } = setup({ ack: vi.fn(() => ackGate.promise) });
+    render.mockReturnValueOnce(renderGate.promise);
+    controller.receive(state(0, { pendingCommand: pending() }));
+    renderGate.reject(new Error("render failed"));
+    await vi.waitFor(() => expect(onError).toHaveBeenCalledTimes(1));
+    ackGate.resolve(state(1));
+    await vi.waitFor(() => expect(client.report).toHaveBeenCalledWith("study-1", "tab-1", 1, "error"));
+    expect(client.report).toHaveBeenCalledTimes(1);
+  });
+
   it("does not repeat an acknowledgement whose result is unknown after sync", async () => {
     const command = pending();
     const { controller, client } = setup({

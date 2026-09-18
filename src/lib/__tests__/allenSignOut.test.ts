@@ -13,6 +13,7 @@ import { signOut } from "../auth";
 
 const ALLEN_MARKER = "allen-private-session-active";
 const TOKEN = "owner-token";
+const OWNER_ID = "c5c835be-fc6c-46bb-b4b7-cb5945f57e7d";
 
 function installSessionStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -24,8 +25,8 @@ function installSessionStorage(initial: Record<string, string> = {}) {
   return { values, storage };
 }
 
-function session() {
-  api.getSession.mockResolvedValue({ data: { session: { access_token: TOKEN } } });
+function session(userId = OWNER_ID) {
+  api.getSession.mockResolvedValue({ data: { session: { access_token: TOKEN, user: { id: userId } } } });
 }
 
 describe("Allen private grant sign-out", () => {
@@ -42,15 +43,16 @@ describe("Allen private grant sign-out", () => {
     vi.restoreAllMocks();
   });
 
-  it("無 Allen marker 時沿用正常 Supabase logout", async () => {
+  it("沒有 session 時不呼叫 revoke，仍會正常登出", async () => {
     const { storage } = installSessionStorage();
+    api.getSession.mockResolvedValue({ data: { session: null }, error: null });
 
     await signOut();
 
-    expect(api.getSession).not.toHaveBeenCalled();
+    expect(api.getSession).toHaveBeenCalledTimes(1);
     expect(fetch).not.toHaveBeenCalled();
     expect(api.signOut).toHaveBeenCalledTimes(1);
-    expect(storage.removeItem).not.toHaveBeenCalled();
+    expect(storage.removeItem).toHaveBeenCalledWith(ALLEN_MARKER);
   });
 
   it("revoke 成功後才登出並清除 marker", async () => {
@@ -74,6 +76,30 @@ describe("Allen private grant sign-out", () => {
     expect(order).toEqual(["revoke", "signOut"]);
     expect(storage.removeItem).toHaveBeenCalledWith(ALLEN_MARKER);
     expect(values.has(ALLEN_MARKER)).toBe(false);
+  });
+
+  it("新分頁缺少 marker 時，仍以目前 owner session 撤銷 grant", async () => {
+    const { storage } = installSessionStorage();
+    session();
+    vi.mocked(fetch).mockResolvedValue({ ok: true, status: 200 } as Response);
+
+    await signOut();
+
+    expect(fetch).toHaveBeenCalledWith("/api/private-research/allen-coral-atlas/revoke", expect.objectContaining({
+      method: "POST", headers: { Authorization: `Bearer ${TOKEN}` }, cache: "no-store",
+    }));
+    expect(api.signOut).toHaveBeenCalledTimes(1);
+    expect(storage.removeItem).toHaveBeenCalledWith(ALLEN_MARKER);
+  });
+
+  it("一般使用者不會因 optional Allen sidecar outage 被阻止登出", async () => {
+    installSessionStorage({ [ALLEN_MARKER]: "1" });
+    session("ordinary-user");
+
+    await signOut();
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(api.signOut).toHaveBeenCalledTimes(1);
   });
 
   it.each([
