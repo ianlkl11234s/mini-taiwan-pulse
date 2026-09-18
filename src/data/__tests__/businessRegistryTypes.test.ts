@@ -67,8 +67,8 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
   it("B1 隨 zoom 切 1.5km / 450m 網格密度；其色階不隨 B2 手動尺度而變", () => {
     const overview = OVERLAY_REGISTRY.filter((c) => c.id === "companyPoints" && c.layers[0]?.suffix === "company-overview-density-fill");
     expect(overview.map((c) => [c.pmtiles?.sourceLayer, c.layers[0]?.minzoom, c.layers[0]?.maxzoom])).toEqual([
-      ["company_capital_grid_1500m", 4, 10.01],
-      ["company_capital_grid_450m", 10, 12.01],
+      ["company_capital_grid_1500m", 4, 10],
+      ["company_capital_grid_450m", 10, 12],
     ]);
     expect(JSON.stringify(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1]))).toContain('"n_companies"');
     expect(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1])[0]).toBe("case");
