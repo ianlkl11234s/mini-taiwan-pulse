@@ -360,26 +360,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
   });
 
   it("GFW S3 先同步 immutable releases 再原子切 root，container 週期追新", () => {
-    const refreshSync = gfwRefreshScript.indexOf("aws s3 sync");
-    const refreshManifest = gfwRefreshScript.indexOf("manifest.json.tmp");
-    expect(refreshSync).toBeGreaterThanOrEqual(0);
-    expect(refreshManifest).toBeGreaterThan(refreshSync);
-    expect(gfwRefreshScript).toContain('--exclude "manifest.json"');
-    expect(gfwRefreshScript).toContain('mv "/data/global-maritime/gfw-hourly/manifest.json.tmp"');
-    expect(gfwRefreshScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(gfwRefreshScript).toContain('v4/manifest.json');
-    expect(gfwRefreshScript).toContain('v4/releases/');
-    expect(gfwRefreshScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript).toContain('$S3/global-maritime/gfw-hourly/');
-    expect(pullScript).toContain('--exclude "v3-shadow/manifest.json"');
-    expect(pullScript).toContain('--exclude "v4/manifest.json"');
-    expect(pullScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(pullScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript.indexOf('--exclude "manifest.json"'))
-      .toBeLessThan(pullScript.indexOf('manifest.json.tmp'));
-    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-21600");
+    expect(gfwRefreshScript).toContain('exec flock -n');
+    expect(gfwRefreshScript).toContain('/refresh-gfw-hourly.mjs');
+    expect(gfwRefreshScript).not.toContain('aws s3 sync');
+    expect(pullScript).toContain('/usr/local/bin/refresh-gfw-hourly.sh');
+    expect(pullScript).not.toContain('aws s3 sync "$S3/global-maritime/gfw-hourly/"');
+    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-3600");
     expect(entrypoint).toContain("/usr/local/bin/refresh-gfw-hourly.sh");
     expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.sh");
+    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.mjs");
   });
 
   it("GFW v4 local fixture 只接受可驗證的正式 immutable release，不偷接 /private/tmp POC", () => {
