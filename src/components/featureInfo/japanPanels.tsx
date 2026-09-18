@@ -100,6 +100,34 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
   );
 }
 
+/** Source-aware Japan water popup. Never derives a status, capacity, or observation from a missing value. */
+export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
+  const title = str(props.name) || str(props.facility_name) || str(props.station_name) || str(props.lake_name) || str(props.entity_id) || "日本水資源資料";
+  const rawRole = str(props.entity_role) || str(props.facility_category) || str(props.observation_kind);
+  const role = {
+    water_quality_station: "水質測站",
+    water_level_station: "水位測站",
+    lake_or_reservoir_water_surface: "湖泊或水庫水面",
+    water_supply_related_facility: "供水相關設施",
+    sewer_facility: "下水道設施",
+  }[rawRole] || rawRole;
+  const sourceYear = str(props.source_year);
+  const isQualityRegistry = /quality|水質/i.test(rawRole) || /quality|水質/i.test(str(props.source));
+  return <>
+    <Title color="#0ea5e9">{title}</Title>
+    <Row label="類型" value={role} />
+    <Row label="來源年份" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
+    <Row label="來源" value={str(props.source) || str(props.attribution)} />
+    <Row label="授權" value={str(props.license)} />
+    <Row label="資料處理" value="本專案將原始資料整理為地圖圖層；座標轉換、欄位整理，水質台帳另去除完全重複列。" />
+    <Row label="涵蓋範圍" value={str(props.coverage)} />
+    <Row label="營運者" value={str(props.operator)} />
+    <Row label="容量" value={str(props.capacity)} />
+    <Row label="來源網址" value={str(props.source_url)} />
+    {isQualityRegistry && <Row label="資料限制" value="此圖層是測定站名錄，不含水質濃度或趨勢。" />}
+  </>;
+}
+
 /**
  * `lines` / `operators` / `railway_categories` 等陣列欄位：queryRenderedFeatures()
  * 拿到的 properties 是 vector tile 編碼後的結果，mapbox-gl-js 的 vt-pbf
