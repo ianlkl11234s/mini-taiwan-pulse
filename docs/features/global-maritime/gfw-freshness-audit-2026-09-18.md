@@ -36,7 +36,14 @@ failed run 證明 scheduler 未停，但該孤兒狀態不能當作成功發布�
 ## Remaining gate
 
 Hotfix deployment `RUNNING` 只證明新 image 已啟動，不等於新 GFW release 已發布。
-下一個例行 08:30 Asia/Taipei 後，仍需 read-only 驗證：
+publisher 是固定時間 job，deployment 不會立即補跑。hotfix 在 2026-09-18 12:38
+Asia/Taipei 才完成部署，因此第一個有效驗證時點是 2026-09-19 08:30 例行排程後。
+
+2026-09-18 15:05 Asia/Taipei 再次 read-only 回讀：canonical 仍為 schema 2／
+`2026-08-20`、v3 shadow 仍為 schema 3 full-fidelity／`2026-08-21`、v4 仍 HTTP 404；
+這個結果符合「排程尚未執行」，不能判定 hotfix 成功或失敗。
+
+排程後仍需 read-only 驗證：
 
 1. ledger 新 run 是 `succeeded`；
 2. v3 shadow root 的 full date 往前移動；
