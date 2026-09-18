@@ -13,8 +13,21 @@ describe("QueryResponder", () => {
     expect(queryPollDelay(0, "visible")).toBe(2_000);
     expect(queryPollDelay(1, "visible")).toBe(4_000);
     expect(queryPollDelay(3, "visible")).toBe(16_000);
-    expect(queryPollDelay(8, "visible")).toBe(30_000);
+    expect(queryPollDelay(8, "visible")).toBe(16_000);
     expect(queryPollDelay(0, "hidden")).toBe(10_000);
+  });
+
+  it("schedules capped retry probes before browser queries time out", async () => {
+    const { responder, client } = setup();
+    client.query.mockRejectedValue(new BridgeError("REQUEST_TIMEOUT"));
+    await responder.tick(); await responder.tick(); await responder.tick(); await responder.tick();
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    responder.start();
+    await Promise.resolve(); await Promise.resolve();
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 16_000);
+    expect(queryPollDelay(8, "visible")).toBeLessThan(25_000);
+    responder.stop();
+    setTimeoutSpy.mockRestore();
   });
 
   it("returns tab-scoped data and retries delivery without rerunning the query", async () => {

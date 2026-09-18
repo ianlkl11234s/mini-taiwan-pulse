@@ -6,7 +6,8 @@ export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "pause
 
 const QUERY_POLL_BASE_MS = 2_000;
 const QUERY_POLL_HIDDEN_MS = 10_000;
-const QUERY_POLL_MAX_MS = 30_000;
+// Keep retry probes comfortably within the 25s browser-query wait and 30s expiry.
+const QUERY_POLL_MAX_MS = 16_000;
 
 export function queryPollDelay(failures: number, visibility: DocumentVisibilityState | "unknown" = "unknown"): number {
   const failureDelay = Math.min(QUERY_POLL_MAX_MS, QUERY_POLL_BASE_MS * (2 ** Math.max(0, failures)));
