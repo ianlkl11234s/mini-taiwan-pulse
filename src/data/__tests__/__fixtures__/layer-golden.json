@@ -873,14 +873,19 @@
     },
     {
       "layers": [
+        "jp-accommodation-density-450-fill",
+        "jp-accommodation-density-450-outline"
+      ],
+      "type": "jpAccommodationDensity"
+    },
+    {
+      "layers": [
         "jp-population-mesh-fill"
       ],
       "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
-        "jp-accommodation-density-450-fill",
-        "jp-accommodation-density-450-outline",
         "jp-accommodation-density-1500-fill",
         "jp-accommodation-density-1500-outline"
       ],
