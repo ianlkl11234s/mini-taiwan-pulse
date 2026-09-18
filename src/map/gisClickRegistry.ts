@@ -385,18 +385,20 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["business-registry-manufacturing-company-density-1500-fill", "business-registry-manufacturing-company-density-450-fill"], type: "manufacturingCompanyDensityGrid" },
   { layers: ["business-registry-regulated-facility-density-1500-fill", "business-registry-regulated-facility-density-450-fill"], type: "regulatedFacilityDensityGrid" },
   { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
+  // 公司 B1/B5 格網依 overlayRegistry 的後加在上順序查詢：點位 > 年齡 > 產業 > 總覽。
+  // 同一位置有多個可見格網時，popup 必須描述使用者實際看到的最上層。
   { layers: [
-    "business-registry-company-capital-grid-1500-company-overview-density-fill",
-    "business-registry-company-capital-grid-450-company-overview-density-fill",
-  ], type: "companyPoints" },
+    "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
+    "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
+  ], type: "companyAgeStructure" },
   { layers: [
     "business-registry-company-demographics-grid-1500-companyIndustryDistribution-demographics-fill",
     "business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill",
   ], type: "companyIndustryDistribution" },
   { layers: [
-    "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
-    "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
-  ], type: "companyAgeStructure" },
+    "business-registry-company-capital-grid-1500-company-overview-density-fill",
+    "business-registry-company-capital-grid-450-company-overview-density-fill",
+  ], type: "companyPoints" },
   {
     layers: [
       "business-registry-company-capital-grid-150-fill", "business-registry-company-capital-grid-150-outline",
