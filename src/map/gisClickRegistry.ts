@@ -381,9 +381,11 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["business-registry-factory-locations-circle"], type: "factoryLocations" },
   { layers: ["business-registry-regulated-facilities-circle"], type: "regulatedFacilities" },
   { layers: ["business-registry-manufacturing-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
-  { layers: ["business-registry-factory-density-1500-fill", "business-registry-factory-density-450-fill"], type: "factoryDensityGrid" },
-  { layers: ["business-registry-manufacturing-company-density-1500-fill", "business-registry-manufacturing-company-density-450-fill"], type: "manufacturingCompanyDensityGrid" },
+  // OVERLAY_REGISTRY 依 factory → manufacturing → regulated 建層；後建者在上。
+  // GIS_LAYERS 是 first-hit-wins，因此格網 popup 必須反向查詢以對齊視覺 stack。
   { layers: ["business-registry-regulated-facility-density-1500-fill", "business-registry-regulated-facility-density-450-fill"], type: "regulatedFacilityDensityGrid" },
+  { layers: ["business-registry-manufacturing-company-density-1500-fill", "business-registry-manufacturing-company-density-450-fill"], type: "manufacturingCompanyDensityGrid" },
+  { layers: ["business-registry-factory-density-1500-fill", "business-registry-factory-density-450-fill"], type: "factoryDensityGrid" },
   { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
   // 公司 B1/B5 格網依 overlayRegistry 的後加在上順序查詢：點位 > 年齡 > 產業 > 總覽。
   // 同一位置有多個可見格網時，popup 必須描述使用者實際看到的最上層。
