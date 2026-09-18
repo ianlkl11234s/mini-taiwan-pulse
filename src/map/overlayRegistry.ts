@@ -138,6 +138,7 @@ import {
 } from "../data/noiseTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
+  JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
   JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
@@ -148,7 +149,7 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
     id: "jpAccommodationDensity",
     sourceUrl: scale.sourceUrl,
     sourceId: scale.sourceId,
-    attribution: "Derived from Japan accommodation canonical entities; source attribution retained in canonical product",
+    attribution: JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
     pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
     layers: [
       {
