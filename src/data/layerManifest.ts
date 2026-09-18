@@ -403,7 +403,7 @@ function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, ic
     color: category.color, icon,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
       processing: "Navii 原始 record_kind 獨立成層；PMTiles z0-14 保留全部可繪點位",
-      note: "公告時段不等於目前可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
+      note: "設施名錄不代表即時可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
     dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
     params: { count: 1, kinds: ["slider"] },
     description: `${category.label}名錄點位；低縮放仍顯示全部可繪點位，不以聚合格網替代`, topics: ["日本", "醫療", "靜態", "設施"],

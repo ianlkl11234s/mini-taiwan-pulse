@@ -17,14 +17,11 @@ The immutable catalog has this shape (paths are relative to its URL):
     "kind_codes": ["hospital", "clinic", "dental", "maternity", "pharmacy"],
     "pmtiles_path": "points/navii_facilities.pmtiles",
     "source_layer": "navii_facilities",
-    "minimum_point_zoom": 10,
+    "minimum_point_zoom": 0,
+    "point_sampling": "none",
+    "z0_feature_count": 189800,
     "aggregate_path": "aggregates/navii-z6.geojson",
-    "detail_reference": {
-      "algorithm": "sha256(source_id UTF-8)[:2]",
-      "path_template": "details/{record_kind}_hours/{bucket}.json",
-      "filter_field": "ID",
-      "cardinality": "one_to_many"
-    }
+    "detail_reference": null
   }],
   "files": {"relative/path": {"sha256": "...", "bytes": 1}}
 }
@@ -48,7 +45,8 @@ an explicit asset error; it must not render as an empty result.
 `source_date` is a source snapshot/release date, never a real-time freshness
 claim.
 
-At zoom below 10, use the listed z6 aggregate GeoJSON. Each Navii cell/category
+The all-zoom point layer remains visible at zoom 0–14. The listed z6 aggregate
+GeoJSON remains available for counts; it does not replace visible points. Each Navii cell/category
 has `grid_id`, `grid_zoom`, `record_kind`, `mapped_point_count`,
 `source_record_count`, and `excluded_no_coordinate_count`. H17 rows additionally
 have `service_type`, `mapped_service_registration_count`, and
@@ -56,16 +54,21 @@ have `service_type`, `mapped_service_registration_count`, and
 rows, before PMTiles generation. They are not a count of currently rendered or
 sampled points.
 
-Navii point properties are restricted to `source_id`, `name`, `address`,
-`prefecture_code`, `municipality_code`, `record_kind`, `detail_bucket`,
-`snapshot_date`, `source`, and optional `website`. Only hospital, clinic, and
-dental have hours buckets; fetch exactly the hash bucket then filter its `ID`
-rows. A missing field or unavailable detail kind is not an empty hours result.
+Navii point properties in newly built releases are restricted to `source_id`,
+`name`, `address`, `prefecture_code`, `municipality_code`, `record_kind`,
+`snapshot_date`, and `source`. As of the 2026-09-18 local change, website and
+consultation-hour UI/loading are retired. New releases have `detail_buckets: {}`,
+`detail_reference: null`, and exactly seven payload files (two point PMTiles,
+three A38 PMTiles, two aggregate GeoJSON). They do not copy the 768 hour shards
+or three hour schemas. Existing immutable releases are unchanged and remain
+readable. Do not interpret the removal as a claim that the source has no hours.
 
 H17 point properties are restricted to `establishment_id`, `name`, `address`,
 `prefecture_code`, `prefecture_name`, `municipality_name`, `service_type`,
 `source_id`, `source_snapshot_day`, and `geometry_status`. H17 is a service
 registration dataset: multiple services may belong to one establishment.
+The care popup hides IDs, grain, and geometry-status rows; properties remain
+available for internal identity/provenance, and co-located service entries remain separate.
 
 The A38 entries have `pmtiles_path`, matching `source_layer`, `status: STALE`,
 and `source_date: 2020`. Their feature grain is a source polygon part; do not

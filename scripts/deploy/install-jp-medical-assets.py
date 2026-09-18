@@ -13,6 +13,16 @@ import subprocess
 from pathlib import Path
 
 HEX = re.compile(r"^[0-9a-f]{64}$")
+LEGACY_ASSET_COUNT = 778
+COMPACT_ASSET_PATHS = frozenset({
+    "aggregates/h17-z6.geojson",
+    "aggregates/navii-z6.geojson",
+    "areas/A38-20_1.pmtiles",
+    "areas/A38-20_2.pmtiles",
+    "areas/A38-20_3.pmtiles",
+    "points/h17_services.pmtiles",
+    "points/navii_facilities.pmtiles",
+})
 
 
 def digest(path: Path) -> tuple[str, int]:
@@ -46,6 +56,35 @@ def checked_json(path: Path, label: str) -> dict:
 
 def same_file(target: Path, expected_sha: str, expected_bytes: int) -> bool:
     return target.is_file() and digest(target) == (expected_sha, expected_bytes)
+
+
+def validate_asset_paths(paths: set[str]) -> None:
+    if len(paths) == LEGACY_ASSET_COUNT:
+        if not all(path.startswith(("points/", "areas/", "aggregates/", "details/")) for path in paths):
+            raise ValueError("legacy asset outside payload allowlist")
+        return
+    if paths != COMPACT_ASSET_PATHS:
+        raise ValueError("assets must be the legacy payload or the exact compact payload")
+
+
+def validate_catalog_contract(catalog: object, version: str, files: dict) -> None:
+    if (not isinstance(catalog, dict) or catalog.get("version") != version
+            or catalog.get("status") != "LOCAL_READY_NOT_DEPLOYED"
+            or catalog.get("files") != files):
+        raise ValueError("catalog does not bind publication manifest")
+    if set(files) == COMPACT_ASSET_PATHS:
+        if catalog.get("detail_buckets") != {} or not isinstance(catalog.get("layers"), list):
+            raise ValueError("compact catalog must declare no detail buckets")
+        if any(not isinstance(layer, dict) or layer.get("detail_reference") is not None for layer in catalog["layers"]):
+            raise ValueError("compact catalog must not reference retired detail hours")
+
+
+def validate_manifest_catalog(meta: object) -> None:
+    if (not isinstance(meta, dict) or not isinstance(meta.get("bytes"), int)
+            or meta["bytes"] < 0 or not isinstance(meta.get("sha256"), str)
+            or not HEX.fullmatch(meta["sha256"])
+            or ("path" in meta and meta["path"] != "catalog.json")):
+        raise ValueError("publication manifest lacks catalog digest")
 
 
 def install(args) -> None:
@@ -101,24 +140,19 @@ def install(args) -> None:
         if manifest.get("version") != version or not isinstance(manifest.get("files"), dict):
             raise ValueError("publication manifest version/files mismatch")
         catalog_meta = manifest.get("catalog")
-        if not isinstance(catalog_meta, dict) or not isinstance(catalog_meta.get("bytes"), int) or not isinstance(catalog_meta.get("sha256"), str):
-            raise ValueError("publication manifest lacks catalog digest")
+        validate_manifest_catalog(catalog_meta)
         download(f"{prefix}/{catalog_relative}", remote_catalog)
         if digest(remote_catalog) != (catalog_meta["sha256"], catalog_meta["bytes"]):
             raise ValueError("catalog bytes/SHA-256 mismatch")
         catalog = checked_json(remote_catalog, "catalog")
-        if catalog.get("version") != version or catalog.get("status") != "LOCAL_READY_NOT_DEPLOYED" or catalog.get("files") != manifest["files"]:
-            raise ValueError("catalog does not bind publication manifest")
+        validate_catalog_contract(catalog, version, manifest["files"])
         assets = []
         for relative, metadata in sorted(manifest["files"].items()):
             relative = safe_relative(relative)
-            if not relative.startswith(("points/", "areas/", "aggregates/", "details/")):
-                raise ValueError("manifest asset outside payload allowlist")
             if not isinstance(metadata, dict) or not isinstance(metadata.get("bytes"), int) or metadata["bytes"] < 0 or not isinstance(metadata.get("sha256"), str) or not HEX.fullmatch(metadata["sha256"]):
                 raise ValueError("manifest digest metadata invalid")
             assets.append((f"releases/{version}/{relative}", metadata))
-        if len(assets) != 778:
-            raise ValueError("expected exactly 778 immutable payload assets")
+        validate_asset_paths({relative.removeprefix(f"releases/{version}/") for relative, _ in assets})
         assets += [(catalog_relative, catalog_meta), (manifest_relative, {"sha256": digest(remote_manifest)[0], "bytes": remote_manifest.stat().st_size})]
         # Immutable names are never repairable in place. A divergent local file
         # signals a bad volume or release collision; preserve it and stop.
@@ -140,7 +174,7 @@ def install(args) -> None:
                 raise ValueError(f"download bytes/SHA-256 mismatch: {relative}")
             return downloaded, relative, metadata
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-            for result in pool.map(stage_asset, assets[:778]):
+            for result in pool.map(stage_asset, assets[:-2]):
                 if result is not None:
                     staged.append(result)
         # All remote content has passed before any local pointer changes. Immutable

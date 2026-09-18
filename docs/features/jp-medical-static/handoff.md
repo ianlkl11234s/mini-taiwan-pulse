@@ -1,5 +1,17 @@
 # 日本醫療靜態地圖 handoff
 
+## 2026-09-18 — 精簡醫療 popup 與發布資料（本地，未部署）
+
+- 分支 `codex/jp-medical-popup-trim-20260918`，基底 `ce311261`。獨立 worktree 位於主 checkout 的 `.worktrees/jp-medical-popup-trim-20260918`。
+- Navii popup 移除網站、完整診療時段區塊及 hours fetch；H17 popup 移除機構 ID、來源 ID、資料粒度、幾何狀態（含共址明細中的機構 ID）。來源、日期、原始服務類型與共址服務仍保留，內部識別欄位與幾何追溯不刪。
+- 新 builder 不再讀取／發布 hours shards 或 schemas，也不將 `website`、`detail_bucket` 寫入新的 Navii PMTiles。上游來源封存與既有 immutable releases 未修改。
+- 新版為 7 payload assets + catalog + manifest + current，共 10 entries。publisher／installer 同時相容舊 778 assets／781 entries；保留精確清單、SHA／bytes、immutable 衝突拒絕、current 最後切換。
+- 2026-09-18 live catalog（版本 `6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa`）量測：778 assets 共 2,172,516,767 bytes；其中 768 hours shards + 3 schemas 共 1,550,895,330 bytes（71.387%），保留原 PMTiles 時餘 621,621,437 bytes。catalog／manifest 本身不計入此比較；重新出 tiles 移除欄位的額外收益尚未量測。
+- 實際雲端儲存仍未下降。正式資料未重建、未上傳／切 current、未刪 S3／volume／staging／歷史 release。這是單一發布版本的可減量，不是整個 bucket 或帳單減少 71.4%。原本時段為點選後載入，移除不代表地圖初載流量減少 71.4%。
+- 驗證：TypeScript `tsc -b` 通過；medical loader 7 tests 通過；React static render 確認兩種 popup 移除指定文字且保留來源／日期／共址服務。builder 以五類 Navii、H17、A38 小型 fixture 驗證 7 assets／10 entries（mock tiler，沒有執行正式 PMTiles 重建）。發布／安裝離線契約 14 tests 通過；真實 builder 的 plan writer 搭配 compact fixture 產生 10 entries 並通過 publisher 驗證。未做正式網站 browser 驗收。
+
+後續執行順序：先部署相容的新前端及 installer，再由已保存的 processed source 用 builder 產製精簡 release，產生新的 exact publication plan，驗 SHA／bytes、全縮放點數與 localhost Range，發布 immutable assets 後最後切 current。保留可回復舊版，再按明確清單清理不再引用的舊 release／staging；不要從目前 immutable release 直接抽刪 hours。下方是歷史第一批紀錄，既有 plan／receipt 尚未由本次修改取代。
+
 ## 上游與版本
 
 上游 SSOT：`/private/tmp/jp-medical-ready-20260913/analytics/docs/handoff/jp-medical-static-plan.md` 與 `jp-medical.md`；資料仍在該獨立 worktree，未合回原 checkout。來源 current / index 為實際版本依據，不硬編碼旧整合 bundle hash。
