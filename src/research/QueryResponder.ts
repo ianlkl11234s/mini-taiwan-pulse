@@ -4,6 +4,15 @@ export type QueryActivityEvent = { request: BrowserQuery; phase: "started" | "co
 
 export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "paused" | "auth" | "cancelled"; code: string };
 
+const QUERY_POLL_BASE_MS = 2_000;
+const QUERY_POLL_HIDDEN_MS = 10_000;
+const QUERY_POLL_MAX_MS = 30_000;
+
+export function queryPollDelay(failures: number, visibility: DocumentVisibilityState | "unknown" = "unknown"): number {
+  const failureDelay = Math.min(QUERY_POLL_MAX_MS, QUERY_POLL_BASE_MS * (2 ** Math.max(0, failures)));
+  return Math.max(failureDelay, visibility === "hidden" ? QUERY_POLL_HIDDEN_MS : QUERY_POLL_BASE_MS);
+}
+
 /** Single-flight tab reader. Reads never apply a scene or run user-supplied code. */
 export class QueryResponder {
   private stopped = false;
@@ -11,11 +20,25 @@ export class QueryResponder {
   private unhealthy = false;
   private delivered: string | null = null;
   private busy = false;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private started = false;
   private last: { id: string; result: QueryResult } | null = null;
   constructor(private readonly connection: BridgeConnectionContext, private readonly execute: (query: BrowserQuery) => Promise<Record<string, unknown>>, private readonly onError: () => void, private readonly onActivity?: (event: QueryActivityEvent) => void, private readonly onHealth?: (event: QueryHealth) => void) {}
-  start(): void { void this.tick(); this.timer = setInterval(() => void this.tick(), 2_000); }
-  stop(): void { this.stopped = true; if (this.timer) clearInterval(this.timer); this.last = null; }
+  start(): void {
+    if (this.started || this.stopped) return;
+    this.started = true;
+    void this.pollLoop();
+  }
+  stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.timer = null; this.last = null; }
+  private async pollLoop(): Promise<void> {
+    await this.tick();
+    if (this.stopped) return;
+    const visibility = typeof document === "undefined" ? "unknown" : document.visibilityState;
+    this.timer = setTimeout(() => {
+      this.timer = null;
+      void this.pollLoop();
+    }, queryPollDelay(this.failures, visibility));
+  }
   async tick(): Promise<void> {
     if (this.stopped || this.busy) return;
     this.busy = true;

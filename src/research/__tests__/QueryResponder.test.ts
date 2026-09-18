@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { QueryResponder } from "../QueryResponder";
+import { QueryResponder, queryPollDelay } from "../QueryResponder";
 import { BridgeError, type BridgeConnectionContext } from "../bridgeClient";
 const request = { requestId: "query-1", operation: "map_context", args: {}, expiresAt: Date.now() + 30_000 };
 function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onActivity = vi.fn()) {
@@ -9,6 +9,14 @@ function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onAct
   return { client, responder, execute, onActivity, onHealth };
 }
 describe("QueryResponder", () => {
+  it("backs off transient failures and throttles hidden tabs", () => {
+    expect(queryPollDelay(0, "visible")).toBe(2_000);
+    expect(queryPollDelay(1, "visible")).toBe(4_000);
+    expect(queryPollDelay(3, "visible")).toBe(16_000);
+    expect(queryPollDelay(8, "visible")).toBe(30_000);
+    expect(queryPollDelay(0, "hidden")).toBe(10_000);
+  });
+
   it("returns tab-scoped data and retries delivery without rerunning the query", async () => {
     const { responder, client, execute, onActivity } = setup();
     client.queryResult.mockRejectedValueOnce(new Error("offline"));
