@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   SOCIAL_ENABLED_STATISTICS_KEYS,
   SOCIAL_ENABLED_STATISTICS_RECIPES,
+  SOCIAL_STATISTICS_SCOPE,
   getSocialRecipe,
   resolveSocialRelease,
   socialReleaseOptions,
@@ -19,6 +20,10 @@ const asRelease = (recipe: (typeof SOCIAL_ENABLED_STATISTICS_RECIPES)[number], o
 });
 
 describe("social statistics adapter contract", () => {
+  it("consumes the upstream hash-bound production contract", () => {
+    expect(SOCIAL_STATISTICS_SCOPE).toBe("production_published");
+  });
+
   it("registers exactly the 45 enabled handoff recipes and 416 immutable selectors", () => {
     expect(SOCIAL_ENABLED_STATISTICS_RECIPES).toHaveLength(45);
     expect(new Set(SOCIAL_ENABLED_STATISTICS_KEYS).size).toBe(45);
