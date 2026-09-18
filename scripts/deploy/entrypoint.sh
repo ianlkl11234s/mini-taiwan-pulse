@@ -35,12 +35,12 @@ else
   echo "[entrypoint] WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set → skip pull. Serving dist + existing /data."
 fi
 
-# GFW hourly 每日會切新 release/root manifest；預設每 6h 小範圍 re-sync，
+# GFW hourly 每日會切新 release/root manifest；預設每小時驗證候選 manifest，
 # 不用重啟 frontend container 也能在當日追上新資料。
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
   (
     while true; do
-      sleep "${GFW_HOURLY_REFRESH_SEC:-21600}"
+      sleep "${GFW_HOURLY_REFRESH_SEC:-3600}"
       if /usr/local/bin/refresh-gfw-hourly.sh; then
         echo "[entrypoint] GFW hourly refresh OK $(date -u)"
       else
