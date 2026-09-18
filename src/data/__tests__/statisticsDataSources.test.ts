@@ -15,6 +15,7 @@ describe("statistics data-source definitions", () => {
       const definition = getStatisticsDataSourceDefinition(key)!;
       expect(definition.kind).toBe("presentation");
       expect(definition.datasetIds).toEqual(["education_county_statistics"]);
+      expect(definition.period).toBe("11 個既有公開期別");
       expect(definition.contract).toContain("入口預設指標來源");
     }
   });
