@@ -37,7 +37,10 @@
 2. HOLD/local-only 資產由 deployContract 雙向 ledger 阻擋。
 3. S3 上傳後需驗證 object bytes/checksum、公開 URL `206 Range`、容器 pull、desktop/mobile browser；缺任一項只能稱 code-ready。
 
-## Release evidence
+## Superseded release evidence（2026-09-11；原始 6 assets）
+
+下列數字只適用於 2026-09-11 的原始六個 production assets；已由下方 2026-09-18
+all-zoom／density 八 assets 驗收取代，不可拿來驗證現行 canonical 或新密度網格。
 
 - PR #243：squash `59c57c7717b94556a2be4890d6a1bcc8a7ceb80a`。
 - S3：6/6 production objects bytes/SHA-256 readback 相符；沒有上傳 local-research/HOLD assets。
