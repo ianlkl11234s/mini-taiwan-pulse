@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
+const ALLEN_CORAL_OWNER_ID = "c5c835be-fc6c-46bb-b4b7-cb5945f57e7d";
+
 /**
  * 會員 Auth 薄封裝（member-byok-chat-plan §6.1）。
  * Google OAuth only；session 持久化 / 自動刷新 / URL detect 皆走 supabase.ts
@@ -33,10 +35,11 @@ async function revokeAllenPrivateSession(accessToken: string): Promise<boolean> 
 
 /** 登出：先撤銷私人 grant，再清除本地 session。 */
 export async function signOut(): Promise<void> {
-  // sessionStorage is only a UI hint. A new tab can hold an owner token without this marker.
+  // Only the one account accepted by the sidecar can hold an Allen grant. Do
+  // not let an optional sidecar outage block every other user's logout.
   const { data, error: sessionError } = await supabase.auth.getSession();
   if (sessionError) throw sessionError;
-  if (data.session && !await revokeAllenPrivateSession(data.session.access_token)) {
+  if (data.session?.user.id === ALLEN_CORAL_OWNER_ID && !await revokeAllenPrivateSession(data.session.access_token)) {
     throw new Error("私人資料服務無法確認撤銷，尚未登出；請稍後重試。");
   }
   sessionStorage.removeItem("allen-private-session-active");

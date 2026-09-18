@@ -13,6 +13,7 @@ import { signOut } from "../auth";
 
 const ALLEN_MARKER = "allen-private-session-active";
 const TOKEN = "owner-token";
+const OWNER_ID = "c5c835be-fc6c-46bb-b4b7-cb5945f57e7d";
 
 function installSessionStorage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -24,8 +25,8 @@ function installSessionStorage(initial: Record<string, string> = {}) {
   return { values, storage };
 }
 
-function session() {
-  api.getSession.mockResolvedValue({ data: { session: { access_token: TOKEN } } });
+function session(userId = OWNER_ID) {
+  api.getSession.mockResolvedValue({ data: { session: { access_token: TOKEN, user: { id: userId } } } });
 }
 
 describe("Allen private grant sign-out", () => {
@@ -89,6 +90,16 @@ describe("Allen private grant sign-out", () => {
     }));
     expect(api.signOut).toHaveBeenCalledTimes(1);
     expect(storage.removeItem).toHaveBeenCalledWith(ALLEN_MARKER);
+  });
+
+  it("一般使用者不會因 optional Allen sidecar outage 被阻止登出", async () => {
+    installSessionStorage({ [ALLEN_MARKER]: "1" });
+    session("ordinary-user");
+
+    await signOut();
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(api.signOut).toHaveBeenCalledTimes(1);
   });
 
   it.each([
