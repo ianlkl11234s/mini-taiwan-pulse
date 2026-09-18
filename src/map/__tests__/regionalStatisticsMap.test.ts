@@ -21,12 +21,15 @@ const state = vi.hoisted(() => {
 const VIEW = 'statsEducationElementarySchool';
 const DERIVED = 'education_institution_count_per_10000_residents';
 const SOCIAL = 'institution_count';
+const SHORT_PALETTE = 'short_palette';
 
 vi.mock('../../data/regionalStatisticsRecipes', () => ({
   STATISTICS_RENDER_KEYS: ['statsEducationElementarySchool'],
   statisticsBaseKey: (_key: string, indicator?: string) => indicator === 'institution_count' ? 'statsEducationCountyInstitutionCount' : 'statsComparisonEducationInstitutionCountPer10000Residents',
   statisticsRenderRecipe: (_key: string, indicator?: string) => indicator === 'institution_count'
     ? { dataset_id: 'education_statistics', indicator_id: 'institution_count', label: '機構數', level: 'county', unit: '所', dimensions: { education_stage: 'elementary' }, releaseId: 'social-114', colors: ['#200', '#201', '#202', '#203', '#204'], breaks: [10, 20, 30, 40] }
+    : indicator === 'short_palette'
+      ? { dataset_id: 'comparison_statistics', indicator_id: 'short_palette', label: '短色盤', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#300', '#301', '#302'], breaks: [1, 2] }
     : { dataset_id: 'comparison_statistics', indicator_id: 'education_institution_count_per_10000_residents', label: '每萬居民機構數', level: 'county', unit: '所／萬名居民', dimensions: { education_stage: 'elementary' }, releaseId: 'derived-114', colors: ['#100', '#101', '#102', '#103', '#104'], breaks: [1, 2, 3, 4] },
   statisticsReleaseFallback: () => undefined,
 }));
@@ -140,6 +143,21 @@ describe('attachRegionalStatistics', () => {
     for (const suffix of ['fill', 'line', 'suppressed']) {
       expect(mock.layers.get(`${VIEW}-${suffix}`)?.layout?.visibility).toBe('none');
     }
+    dispose();
+  });
+
+  it('uses the last available color for short-palette outlines', () => {
+    state.snapshots.set(VIEW, { selection: { indicatorId: SHORT_PALETTE }, data: feature(2) });
+    state.visibility[VIEW] = true;
+    const mock = mapMock();
+    const dispose = attachRegionalStatistics(mock.map as never);
+
+    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-color']).toBe('#302');
+
+    state.snapshots.set(VIEW, { selection: { indicatorId: DERIVED }, data: feature(2) });
+    state.statisticsListeners.get(VIEW)?.forEach(listener => listener());
+
+    expect(mock.layers.get(`${VIEW}-line`)?.paint?.['line-color']).toBe('#104');
     dispose();
   });
 });
