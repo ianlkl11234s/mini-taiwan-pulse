@@ -480,6 +480,7 @@ function SidebarContent({
                     onLayerClick={onLayerClick}
                     textColor={textColor}
                     dimColor={dimColor}
+                    colorScheme={isDarkTheme ? 'dark' : 'light'}
                     renderControls={(selectedKey) => (
                       <ExpandedPanel
                         layerKey={selectedKey as ExpandableLayerKey}

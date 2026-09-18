@@ -1232,6 +1232,7 @@ function LayersPanel({
                             onLayerClick={onLayerClick}
                             textColor={TEXT_STRONG}
                             dimColor={DIM}
+                            colorScheme={COLOR_SCHEME}
                             renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
                             renderControls={(selectedKey) => (
                               <ExpandedControls
