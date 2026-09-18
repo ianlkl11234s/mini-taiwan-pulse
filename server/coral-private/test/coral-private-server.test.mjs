@@ -388,6 +388,15 @@ test("Allen audit sink rotates before append and retains bounded owner-only file
     auditConfig.auditRetainedFiles = 1;
     await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
     assert.deepEqual((await readdir(directory)).sort(), ["audit.jsonl", "audit.jsonl.1"]);
+
+    // Once retention is initialized, normal appends do not rescan or remove
+    // generation names on every request. (A subsequent config change prunes.)
+    await writeFile(`${auditPath}.2`, "external stale generation");
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.equal((await readdir(directory)).includes("audit.jsonl.2"), true);
+    auditConfig.auditRetainedFiles = 2;
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.equal((await readdir(directory)).includes("audit.jsonl.2"), true);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

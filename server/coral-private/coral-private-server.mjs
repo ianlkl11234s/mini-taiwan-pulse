@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
-import { appendFile, chmod, mkdir, readFile, rename, rm, stat } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, readdir, rename, rm, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -37,6 +37,7 @@ const ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 5;
 const MIN_ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES = 64 * 1024;
 const MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 100;
 const allenSnapshotCache = new Map();
+const auditRetentionByPath = new Map();
 
 export function getConfig(env = process.env) {
   const accessKeyId = firstConfigured(env.S3_ACCESS_KEY);
@@ -527,10 +528,17 @@ function enqueueAllenAuditWrite(file, write) {
 }
 
 async function rotateAllenAuditLog(file, nextRecordBytes, maxBytes, retainedFiles) {
-  // A lower retention setting must take effect even when the active file has
-  // not reached its next rotation boundary.
-  for (let index = retainedFiles + 1; index <= MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES; index += 1) {
-    await rm(`${file}.${index}`, { force: true });
+  // Retention cleanup is an initialization/config-change task. Do not issue up
+  // to 99 failing rm calls for every private request once the configuration is
+  // already known. Rotation below only touches generations that actually exist.
+  if (auditRetentionByPath.get(file) !== retainedFiles) {
+    const prefix = `${basename(file)}.`;
+    const generations = await readdir(dirname(file));
+    for (const entry of generations) {
+      const suffix = entry.startsWith(prefix) ? entry.slice(prefix.length) : "";
+      if (/^\d+$/.test(suffix) && Number(suffix) > retainedFiles) await rm(`${file}.${suffix}`);
+    }
+    auditRetentionByPath.set(file, retainedFiles);
   }
   let currentSize = 0;
   try {
