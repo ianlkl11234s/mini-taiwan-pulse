@@ -130,6 +130,7 @@ interface RailPalette {
   ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
   CTRL_ACTIVE_BG: string; CTRL_INACTIVE_BG: string; CTRL_ACTIVE_BORDER: string; CTRL_INACTIVE_BORDER: string;
   SELECT_BG: string; OPTION_BG: string; ALLOFF_BG: string; ALLOFF_BORDER: string;
+  COLOR_SCHEME: 'light' | 'dark';
 }
 
 const DARK_PALETTE: RailPalette = {
@@ -141,6 +142,7 @@ const DARK_PALETTE: RailPalette = {
   CTRL_ACTIVE_BG: "rgba(255,255,255,0.12)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.4)",
   CTRL_ACTIVE_BORDER: "rgba(255,255,255,0.25)", CTRL_INACTIVE_BORDER: "rgba(255,255,255,0.15)",
   SELECT_BG: "rgba(0,0,0,0.5)", OPTION_BG: "#1a1a1a", ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
+  COLOR_SCHEME: 'dark',
 };
 
 const LIGHT_PALETTE: RailPalette = {
@@ -152,6 +154,7 @@ const LIGHT_PALETTE: RailPalette = {
   CTRL_ACTIVE_BG: "rgba(0,0,0,0.10)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.03)",
   CTRL_ACTIVE_BORDER: "rgba(0,0,0,0.22)", CTRL_INACTIVE_BORDER: "rgba(0,0,0,0.12)",
   SELECT_BG: "#FFFFFF", OPTION_BG: "#FFFFFF", ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
+  COLOR_SCHEME: 'light',
 };
 
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
@@ -1042,7 +1045,7 @@ function LayersPanel({
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
 }: LayersPanelProps) {
-  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
+  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
   const searchContext = useMemo(() => {
@@ -1229,6 +1232,7 @@ function LayersPanel({
                             onLayerClick={onLayerClick}
                             textColor={TEXT_STRONG}
                             dimColor={DIM}
+                            colorScheme={COLOR_SCHEME}
                             renderToggle={(on, onChange, label) => <ToggleSwitch on={on} onChange={onChange} label={label} />}
                             renderControls={(selectedKey) => (
                               <ExpandedControls
@@ -1301,7 +1305,7 @@ function ExpandedControls({
   const controls = buildParamControls(layerKey, paramValues) ?? [];
   const {
     TEXT_STRONG, CTRL_ACTIVE_BG, CTRL_INACTIVE_BG, CTRL_ACTIVE_BORDER, CTRL_INACTIVE_BORDER,
-    SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE,
+    SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE, COLOR_SCHEME,
   } = useRailTheme();
   const btnBase: CSSProperties = {
     fontSize: FONT_SIZE.xs,
@@ -1327,7 +1331,7 @@ function ExpandedControls({
 
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
-      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
