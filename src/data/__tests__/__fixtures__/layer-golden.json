@@ -14719,7 +14719,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10.01,
+          "maxzoom": 10,
           "minzoom": 4,
           "paint": {
             "dark": {
@@ -14885,7 +14885,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 12.01,
+          "maxzoom": 12,
           "minzoom": 10,
           "paint": {
             "dark": {
