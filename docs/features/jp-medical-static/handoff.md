@@ -1,5 +1,21 @@
 # 日本醫療靜態地圖 handoff
 
+## 2026-09-18 — 正式切換與清理完成
+
+程式 PR [#297](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/297) 已以一般 merge commit `6954dc0db78eee9f797037981cff27ae2b2bed4a` 合併，Zeabur deployment `6aacd5eb0f50de6ff52c31a3` 於 06:15:19 UTC 為 RUNNING。功能 commits：`58284464`、`3083313f`；中間保留一般主線 merge。
+
+目前 S3／volume／公開 current 一致為 `c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653`。保留完整 rollback release `6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa`。更舊的 `d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a` 已依精確清單從 S3 和 volume 清除；上游 raw／processed 不變。
+
+- 新版 payload：7 檔、621,621,437 bytes；Navii 189,800 點、H17 222,194 服務登記守恆。
+- S3 日本醫療 prefix：1,561 → 790 objects；3,813,223,744 → 2,794,462,039 bytes，淨減 1,018,761,705 bytes。包含新增精簡 release 與保留完整 rollback，不能宣稱 S3 總量下降 71.4%。
+- Volume 實測占用：5,992,996,864 → 2,175,127,552 bytes，約釋放 3.82 GB；包含重複 staging、較舊 release 清理及七檔 hardlink 重用。receipt 寫入本身有少量 block 差異；不是未來新 volume 的下載容量預算。
+- 完整 S3 GET 驗 SHA／bytes／headers 通過；大型 PMTiles 本機串流逾時後改由 Zeabur 完整下載至暫存、驗證、刪暫存。公開五個 PMTiles Range 206、兩份 aggregate SHA 與一年 immutable cache 通過，兩份 points 為 CDN HIT。
+- 正式 browser：醫院「宮内庁病院」無網站／時段；長照「コミュケア訪問介護ステーション」無指定四列；来源與日期保留。All Off 後僅開長照驗收。詳見 `release/20260918-browser-acceptance.json`。
+
+證據：`release/20260918-s3-compact-receipt.json`、`release/20260918-production-http.json`、`release/20260918-s3-cleanup.json`、`release/20260918-volume-cleanup.json`。完整回復版仍包含時段資料；本次沒有承諾或設置自動到期刪除。
+
+回復資料時：由保留 release 的 catalog／manifest 建立指向 `6f59...` 的 current（不得覆寫 immutable 檔），以當下 S3 current ETag 做條件更新，再執行現行 installer；新版前端相容該完整 payload。若同時回退前端至仍會載入 hours 的版本，務必先回復完整資料 pointer。以下保留各階段歷史紀錄，與上方最新狀態衝突時以上方為準。
+
 ## 2026-09-18 — 使用者授權清理、commit、PR 與一般 merge
 
 已逐檔驗 SHA／bytes 並清除重複 staging，釋放 2,172,833,151 bytes；receipt 在 `release/20260918-staging-cleanup.json`。原 current 與兩個已安裝 releases 均保留。
