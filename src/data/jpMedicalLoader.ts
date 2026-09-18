@@ -148,20 +148,3 @@ export async function jpMedicalLayerAsset(key: JpMedicalLayerAsset["key"]): Prom
         throw new Error(`catalog 的 ${key} 缺少全縮放守恆證據`);
     return { asset, url: await jpMedicalAssetUrl(asset.pmtiles_path) };
 }
-/** 詳情是按需 bucket fetch；沒有 detail reference 的類別不應呼叫。 */
-export async function loadJpMedicalHours(recordKind: string, sourceId: string, bucket: string): Promise<Record<string, unknown>[]> {
-    if (!/^(hospital|clinic|dental)$/.test(recordKind) || !/^[a-f0-9]{2}$/i.test(bucket) || !sourceId)
-        return [];
-    const expectedBucket = (await sha256(new TextEncoder().encode(sourceId).buffer)).slice(0, 2);
-    if (bucket.toLowerCase() !== expectedBucket)
-        throw new Error("時段 bucket 與來源 ID 不一致");
-    const rows = await withLoading("jp-medical:hours", "醫療時段 診療時間載入中", fetchJpMedicalJsonAsset(`details/${recordKind}_hours/${bucket}.json`));
-    const envelope = rows as {
-        bucket?: unknown;
-        record_kind?: unknown;
-        rows?: unknown;
-    };
-    if (!envelope || envelope.bucket !== expectedBucket || envelope.record_kind !== `${recordKind}_hours` || !Array.isArray(envelope.rows))
-        throw new Error("時段資料格式不正確");
-    return envelope.rows.filter((row): row is Record<string, unknown> => !!row && typeof row === "object" && String((row as Record<string, unknown>).ID) === sourceId);
-}

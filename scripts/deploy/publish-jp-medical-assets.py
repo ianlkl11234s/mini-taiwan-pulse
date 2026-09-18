@@ -16,6 +16,16 @@ HEX = re.compile(r"^[0-9a-f]{64}$")
 IMMUTABLE_CACHE = "public, max-age=31536000, immutable"
 CURRENT_CACHE = "public, max-age=60"
 PREFIX = "deploy-assets/jp-medical/"
+LEGACY_ASSET_COUNT = 778
+COMPACT_ASSET_PATHS = frozenset({
+    "aggregates/h17-z6.geojson",
+    "aggregates/navii-z6.geojson",
+    "areas/A38-20_1.pmtiles",
+    "areas/A38-20_2.pmtiles",
+    "areas/A38-20_3.pmtiles",
+    "points/h17_services.pmtiles",
+    "points/navii_facilities.pmtiles",
+})
 
 
 def sha256_path(path: Path) -> str:
@@ -56,14 +66,42 @@ def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def validate_asset_paths(paths: set[str]) -> None:
+    if len(paths) == LEGACY_ASSET_COUNT:
+        if not all(path.startswith(("points/", "areas/", "aggregates/", "details/")) for path in paths):
+            raise ValueError("legacy asset outside payload allowlist")
+        return
+    if paths != COMPACT_ASSET_PATHS:
+        raise ValueError("assets must be the legacy payload or the exact compact payload")
+
+
+def validate_catalog_contract(catalog: object, version: str, asset_files: dict) -> None:
+    if (not isinstance(catalog, dict) or catalog.get("version") != version
+            or catalog.get("status") != "LOCAL_READY_NOT_DEPLOYED"
+            or catalog.get("files") != asset_files):
+        raise ValueError("catalog does not exactly bind plan assets")
+    if set(asset_files) == COMPACT_ASSET_PATHS:
+        if catalog.get("detail_buckets") != {} or not isinstance(catalog.get("layers"), list):
+            raise ValueError("compact catalog must declare no detail buckets")
+        if any(not isinstance(layer, dict) or layer.get("detail_reference") is not None for layer in catalog["layers"]):
+            raise ValueError("compact catalog must not reference retired detail hours")
+
+
+def validate_manifest_catalog(meta: object, catalog_entry: dict) -> None:
+    if (not isinstance(meta, dict) or meta.get("sha256") != catalog_entry["sha256"]
+            or meta.get("bytes") != catalog_entry["bytes"]
+            or ("path" in meta and meta["path"] != "catalog.json")):
+        raise ValueError("publication manifest does not bind catalog digest")
+
+
 def validate_plan(root: Path, plan_path: Path) -> tuple[dict, list[dict]]:
     plan = json.loads(plan_path.read_text())
     version = plan.get("version")
     if not isinstance(version, str) or not HEX.fullmatch(version):
         raise ValueError("plan version must be SHA-256")
     entries = plan.get("entries")
-    if not isinstance(entries, list) or len(entries) != 781:
-        raise ValueError("plan must contain exactly 781 entries")
+    if not isinstance(entries, list) or len(entries) not in {10, 781}:
+        raise ValueError("plan must contain exactly 781 legacy or 10 compact entries")
     expected_prefix = PREFIX + "releases/" + version + "/"
     seen_paths, seen_keys, validated = set(), set(), []
     for position, entry in enumerate(entries):
@@ -99,6 +137,24 @@ def validate_plan(root: Path, plan_path: Path) -> tuple[dict, list[dict]]:
     publication_rel = f"releases/{version}/publication-manifest.json"
     if [item["relative_path"] for item in validated[-3:]] != [catalog_rel, publication_rel, "current.json"]:
         raise ValueError("assets must precede catalog, publication manifest, and current")
+    asset_entries = validated[:-3]
+    asset_files = {
+        item["relative_path"].removeprefix(f"releases/{version}/"): {
+            "sha256": item["sha256"], "bytes": item["bytes"],
+        }
+        for item in asset_entries
+    }
+    validate_asset_paths(set(asset_files))
+    catalog = json.loads((root / catalog_rel).read_text())
+    manifest = json.loads((root / publication_rel).read_text())
+    validate_catalog_contract(catalog, version, asset_files)
+    catalog_entry, manifest_entry = validated[-3], validated[-2]
+    if (not isinstance(manifest, dict) or manifest.get("version") != version
+            or manifest.get("files") != asset_files
+            or manifest_entry["sha256"] != sha256_path(root / publication_rel)
+            or manifest_entry["bytes"] != (root / publication_rel).stat().st_size):
+        raise ValueError("publication manifest does not exactly bind catalog and plan assets")
+    validate_manifest_catalog(manifest.get("catalog"), catalog_entry)
     current = json.loads((root / "current.json").read_text())
     if current.get("version") != version or current.get("catalog") != f"releases/{version}/catalog.json" or current.get("publication_manifest") != f"releases/{version}/publication-manifest.json":
         raise ValueError("current pointer does not bind this plan version")

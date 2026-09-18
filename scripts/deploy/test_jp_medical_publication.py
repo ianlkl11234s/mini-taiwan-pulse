@@ -35,19 +35,28 @@ def sha(data: bytes) -> str:
 
 
 class PublicationContractTest(unittest.TestCase):
-    def make_payload(self, directory: Path) -> tuple[Path, Path]:
+    def make_payload(self, directory: Path, asset_paths=None, detail_reference=None, detail_buckets=None) -> tuple[Path, Path]:
         root = directory / "public/jp-medical"; root.mkdir(parents=True)
         version = "a" * 64
         release = root / "releases" / version
         files, entries = {}, []
-        for index in range(778):
-            rel = f"details/t/{index:03d}.json"
+        asset_paths = asset_paths or [f"details/t/{index:03d}.json" for index in range(778)]
+        for index, rel in enumerate(asset_paths):
             data = f"{index}".encode(); path = release / rel; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
             files[rel] = {"sha256": sha(data), "bytes": len(data)}
-        catalog = {"version": version, "status": "LOCAL_READY_NOT_DEPLOYED", "files": files}
+        catalog = {
+            "version": version,
+            "status": "LOCAL_READY_NOT_DEPLOYED",
+            "files": files,
+            "detail_buckets": {} if detail_buckets is None else detail_buckets,
+            "layers": [
+                {"key": "navii_facilities", "detail_reference": detail_reference},
+                {"key": "h17_services", "detail_reference": None},
+            ],
+        }
         (release / "catalog.json").write_text(json.dumps(catalog))
         catalog_bytes = (release / "catalog.json").read_bytes()
-        manifest = {"version": version, "files": files, "catalog": {"sha256": sha(catalog_bytes), "bytes": len(catalog_bytes)}}
+        manifest = {"version": version, "files": files, "catalog": {"path": "catalog.json", "sha256": sha(catalog_bytes), "bytes": len(catalog_bytes)}}
         (release / "publication-manifest.json").write_text(json.dumps(manifest))
         current = {"version": version, "catalog": f"releases/{version}/catalog.json", "publication_manifest": f"releases/{version}/publication-manifest.json"}
         (root / "current.json").write_text(json.dumps(current))
@@ -65,6 +74,31 @@ class PublicationContractTest(unittest.TestCase):
             _, entries = PUBLISH.validate_plan(root, plan)
             self.assertEqual(len(entries), 781)
             broken = json.loads(plan.read_text()); broken["entries"][0], broken["entries"][-1] = broken["entries"][-1], broken["entries"][0]; plan.write_text(json.dumps(broken))
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+
+    def test_compact_plan_accepts_exact_seven_assets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp), sorted(PUBLISH.COMPACT_ASSET_PATHS))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            self.assertEqual(len(entries), 10)
+
+    def test_compact_plan_rejects_incomplete_or_hours_asset(self):
+        with tempfile.TemporaryDirectory() as temp:
+            paths = sorted(PUBLISH.COMPACT_ASSET_PATHS)
+            root, plan = self.make_payload(Path(temp), paths[:-1])
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+        with tempfile.TemporaryDirectory() as temp:
+            paths = sorted(PUBLISH.COMPACT_ASSET_PATHS)
+            paths[-1] = "details/hospital_hours/00.json"
+            root, plan = self.make_payload(Path(temp), paths)
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+
+    def test_compact_plan_rejects_dangling_detail_reference(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(
+                Path(temp), sorted(PUBLISH.COMPACT_ASSET_PATHS),
+                detail_reference={"path_template": "details/{record_kind}_hours/{bucket}.json"},
+            )
             with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
 
     def test_installer_rejects_traversal(self):
@@ -161,6 +195,35 @@ class PublicationContractTest(unittest.TestCase):
             self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
             self.assertEqual(INSTALL.digest(target / f"releases/{version}/details/t/000.json"), INSTALL.digest(root / f"releases/{version}/details/t/000.json"))
             self.assertEqual(INSTALL.digest(target / f"releases/{version}/catalog.json"), INSTALL.digest(root / f"releases/{version}/catalog.json"))
+
+    def test_installer_success_installs_compact_release_then_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            version = "a" * 64
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+
+    def test_installer_rejects_compact_dangling_detail_reference(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            root, _ = self.make_payload(
+                base, sorted(PUBLISH.COMPACT_ASSET_PATHS),
+                detail_reference={"path_template": "details/{record_kind}_hours/{bucket}.json"},
+            )
+            target = base / "target"; target.mkdir(); (target / "current.json").write_text("old-pointer")
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                with self.assertRaises(ValueError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
 
     def test_installer_bad_download_sha_keeps_old_current_and_release_absent(self):
         with tempfile.TemporaryDirectory() as temp:
