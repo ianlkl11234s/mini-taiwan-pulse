@@ -2945,6 +2945,7 @@ export default function App() {
 
       {/* ── 全域 loading 指示器 ── */}
       <LoadingIndicator
+        isDarkTheme={isDarkTheme}
         rightOffset={splitActive
           ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
           : "16px"}

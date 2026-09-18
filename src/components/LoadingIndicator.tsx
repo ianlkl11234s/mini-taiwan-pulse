@@ -10,12 +10,24 @@ import { BORDER, COLORS, SURFACE, WHITE_ALPHA } from "../styles/designTokens";
  * @param rightOffset CSS `right` 值。split 模式要讓到 Monitor dock 左邊，
  *   否則這顆 pill（z-index 1000）會直接壓在面板上閃。
  */
-export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: string }) {
+export function LoadingIndicator({
+  rightOffset = "16px",
+  isDarkTheme = true,
+}: {
+  rightOffset?: string;
+  isDarkTheme?: boolean;
+}) {
   const tasks = useLoadingTasks();
   if (tasks.length === 0) return null;
 
   const visible = tasks.slice(0, 3);
   const extra = tasks.length - visible.length;
+  const background = isDarkTheme ? SURFACE.panel : "rgba(255, 255, 255, 0.96)";
+  const border = isDarkTheme ? BORDER.panel : "rgba(15, 23, 42, 0.18)";
+  const text = isDarkTheme ? COLORS.textDefault : "#1f2937";
+  const textStrong = isDarkTheme ? COLORS.textStrong : "#111827";
+  const textMuted = isDarkTheme ? COLORS.textMuted : "#4b5563";
+  const spinnerTrack = isDarkTheme ? WHITE_ALPHA[20] : "rgba(15, 23, 42, 0.2)";
 
   return (
     <>
@@ -26,13 +38,13 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
           position: absolute;
           top: 110px;
           z-index: 1000;
-          background: ${SURFACE.panel};
+          background: ${background};
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
-          border: 1px solid ${BORDER.panel};
+          border: 1px solid ${border};
           border-radius: 8px;
           padding: 8px 12px;
-          color: ${COLORS.textDefault};
+          color: ${text};
           font-size: 11px;
           font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
           box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -43,18 +55,18 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
         .lr-header {
           display: flex; align-items: center; gap: 6px;
           font-weight: 600; letter-spacing: 0.5px;
-          color: ${COLORS.textStrong};
+          color: ${textStrong};
           margin-bottom: 4px;
         }
         .lr-spinner {
           width: 12px; height: 12px;
-          border: 2px solid ${WHITE_ALPHA[20]};
-          border-top-color: ${COLORS.textDefault};
+          border: 2px solid ${spinnerTrack};
+          border-top-color: ${text};
           border-radius: 50%;
           animation: lr-spin 0.8s linear infinite;
         }
         .lr-task {
-          color: ${COLORS.textDefault};
+          color: ${text};
           font-size: 10px;
           padding: 1px 0 1px 18px;
           line-height: 1.4;
@@ -63,7 +75,7 @@ export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: strin
           text-overflow: ellipsis;
         }
         .lr-extra {
-          color: ${COLORS.textMuted};
+          color: ${textMuted};
           font-size: 10px;
           padding: 1px 0 1px 18px;
           font-style: italic;

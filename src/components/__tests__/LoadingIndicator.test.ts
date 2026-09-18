@@ -29,4 +29,16 @@ describe("LoadingIndicator", () => {
     expect(html).not.toContain("rgba(15, 23, 42, 0.85)");
     expect(html).not.toContain("#93c5fd");
   });
+
+  it("uses an opaque light surface with dark text on light basemaps", () => {
+    mockedUseLoadingTasks.mockReturnValue([{ id: "example", label: "載入圖層" }]);
+    const html = renderToStaticMarkup(
+      createElement(LoadingIndicator, { isDarkTheme: false }),
+    );
+
+    expect(html).toContain("background: rgba(255, 255, 255, 0.96)");
+    expect(html).toContain("border: 1px solid rgba(15, 23, 42, 0.18)");
+    expect(html).toContain("color: #111827");
+    expect(html).not.toContain(`background: ${SURFACE.panel}`);
+  });
 });
