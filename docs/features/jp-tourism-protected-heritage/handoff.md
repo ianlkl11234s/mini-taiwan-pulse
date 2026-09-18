@@ -48,7 +48,7 @@ all-zoom／density 八 assets 驗收取代，不可拿來驗證現行 canonical 
 - Browser：desktop canonical/EBSA/popup 與 Japan catalog 通過；mobile 390×844 通過且無水平 overflow；console 無 warning/error。
 - CI：build、Vitest、private coral backend tests 通過；Claude Code Review OAuth infrastructure failure，無 code finding。
 
-### Accommodation all-zoom／density（2026-09-18）
+## Current acceptance — Accommodation all-zoom／density（2026-09-18；8 assets）
 
 - 上游 analytics PR #93、Pulse PR #265 均以一般 merge commit 合入；production acceptance
   另記於 PR #267 與 `docs/features/japan-global-layer-refinement/pr3-accommodation-production-acceptance.md`。
