@@ -1,5 +1,7 @@
 # 探索階段 release handoff — 2026-09-17
 
+> 2026-09-18 後續本地實作與驗收請見 [探索能力計劃](exploration-capabilities-plan.md)；下文保留2026-09-17歷史快照。
+
 ## 下次從這裡開始
 
 先讀本文件、[checkpoint](checkpoint-20260917.md) 與 [connection audit](connection-audit-20260917.md)。舊 handoff.md 保留歷史分析階段，不能直接當目前探索入口規格。

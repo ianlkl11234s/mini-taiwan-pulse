@@ -1,4 +1,5 @@
 import { BridgeError, type BridgeConnectionContext, type BrowserQuery, type QueryResult } from "./bridgeClient";
+import { classifyConnectionFailure, isBackgroundDocument, nextPollDelay } from "./connectionReliability";
 
 export type QueryActivityEvent = { request: BrowserQuery; phase: "started" | "completed"; result?: QueryResult };
 
@@ -11,15 +12,16 @@ export class QueryResponder {
   private unhealthy = false;
   private delivered: string | null = null;
   private busy = false;
-  private timer: ReturnType<typeof setInterval> | null = null;
+  private timer: ReturnType<typeof setTimeout> | null = null;
   private last: { id: string; result: QueryResult } | null = null;
   constructor(private readonly connection: BridgeConnectionContext, private readonly execute: (query: BrowserQuery) => Promise<Record<string, unknown>>, private readonly onError: () => void, private readonly onActivity?: (event: QueryActivityEvent) => void, private readonly onHealth?: (event: QueryHealth) => void) {}
-  start(): void { void this.tick(); this.timer = setInterval(() => void this.tick(), 2_000); }
-  stop(): void { this.stopped = true; if (this.timer) clearInterval(this.timer); this.last = null; }
+  start(): void { this.stopped = false; void this.tick(); }
+  stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.last = null; }
   async tick(): Promise<void> {
     if (this.stopped || this.busy) return;
     this.busy = true;
     const { client, studyId, tabId } = this.connection;
+    let failure: unknown = null;
     try {
       const { request } = await client.query(studyId, tabId);
       if (this.stopped) return;
@@ -48,17 +50,26 @@ export class QueryResponder {
         this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" });
       }
     } catch (error) {
+      failure = error;
       if (!this.stopped) {
         const code = error instanceof BridgeError ? error.code : "BRIDGE_UNAVAILABLE";
+        const classified = classifyConnectionFailure(error);
         const state = code === "SESSION_PAUSED" ? "paused"
-          : ["AUTH_REQUIRED", "SESSION_REVOKED", "STUDY_DENIED"].includes(code) ? "auth"
+          : ["auth", "expired"].includes(classified.kind) ? "auth"
           : ["QUERY_DENIED", "QUERY_EXPIRED"].includes(code) ? "cancelled"
           : ++this.failures >= 3 ? "offline" : "retrying";
         this.unhealthy = true;
         if (this.onHealth) this.onHealth({ state, code }); else this.onError();
       }
     }
-    finally { this.busy = false; }
+    finally {
+      this.busy = false;
+      if (!this.stopped) this.schedule(failure);
+    }
+  }
+  private schedule(failure: unknown): void {
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => void this.tick(), nextPollDelay(failure, this.failures, isBackgroundDocument()));
   }
   private recovered(): void {
     if (this.unhealthy) { this.unhealthy = false; this.failures = 0; this.onHealth?.({ state: "recovered", code: "OK" }); }

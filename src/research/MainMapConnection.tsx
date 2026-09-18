@@ -1,3 +1,4 @@
+import { describeLayerStatistics, summarizeLayer, type LayerSummaryInput } from "./layerStatistics";
 import { resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
@@ -23,7 +24,7 @@ import { resolveOfflineLocation } from "./addressLookup";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
+const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
 /** First-stage adapter: pairing can only search, explain, select, toggle, and move the map. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -104,6 +105,13 @@ export function MainMapConnection(props: Props) {
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
       let result: Record<string, unknown>;
       switch (request.operation) {
+        case "describe_layer_statistics":
+        case "summarize_layer": {
+          const layerKey = String(request.args.layerKey ?? "");
+          if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
+          result = request.operation === "describe_layer_statistics" ? await describeLayerStatistics({ layerKey }) : await summarizeLayer(request.args as unknown as LayerSummaryInput);
+          break;
+        }
         case "time_context":
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
@@ -132,7 +140,7 @@ export function MainMapConnection(props: Props) {
       if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: "資料可能暫時無法讀取；這不代表沒有符合的結果。" }); return; }
       const data = event.result.data;
       const count = typeof data.totalMatched === "number" ? data.totalMatched : null;
-      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
+      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : event.request.operation === "summarize_layer" ? `符合 ${count} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
     }, health => {
       const messages = {
         retrying: { phase: "complete" as const, title: "同步稍慢，正在重試", detail: "目前地圖會保留。" },

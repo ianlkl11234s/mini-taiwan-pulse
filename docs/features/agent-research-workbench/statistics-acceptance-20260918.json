@@ -1,0 +1,174 @@
+{
+  "mode": "real-stdio-http-simulated-owner-tab",
+  "toolCount": 21,
+  "passed": true,
+  "realBrowserPaired": false,
+  "productionChecked": false,
+  "evidence": [
+    {
+      "case": "school_count_and_city_reconciliation",
+      "total": 4315,
+      "duplicateExtraRecords": 269,
+      "sourceRefs": [
+        {
+          "reference": "./education/schools.geojson",
+          "version": null,
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.905Z",
+          "checksumSha256": "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+          "bytes": 2504719
+        },
+        {
+          "reference": "./statistics/county-reference-2025.geojson",
+          "version": "2025",
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.793Z",
+          "checksumSha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c",
+          "bytes": 513314
+        },
+        {
+          "reference": "./statistics/township-reference.geojson",
+          "version": null,
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.829Z",
+          "checksumSha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84",
+          "bytes": 2005865
+        }
+      ]
+    },
+    {
+      "case": "police_city_subtypes",
+      "city": "台北市",
+      "schoolSourceRecords": 345,
+      "total": 161,
+      "groups": [
+        {
+          "category": "substation",
+          "count": 92
+        },
+        {
+          "category": "specialized",
+          "count": 43
+        },
+        {
+          "category": "precinct",
+          "count": 15
+        },
+        {
+          "category": "headquarters",
+          "count": 5
+        },
+        {
+          "category": "other",
+          "count": 3
+        },
+        {
+          "category": "police_dept",
+          "count": 3
+        }
+      ],
+      "unmatchedCity": 4,
+      "sourceRefs": [
+        {
+          "reference": "./police_justice/police_stations/police_stations_20260626.geojson",
+          "version": "20260626",
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:48.097Z",
+          "checksumSha256": "63dadd2cf7e764138e2cca8bdd57010464b91fb5c3d90afa8a65c8349e83e2e7",
+          "bytes": 1698235
+        },
+        {
+          "reference": "./statistics/county-reference-2025.geojson",
+          "version": "2025",
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.793Z",
+          "checksumSha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c",
+          "bytes": 513314
+        },
+        {
+          "reference": "./statistics/township-reference.geojson",
+          "version": null,
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.829Z",
+          "checksumSha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84",
+          "bytes": 2005865
+        }
+      ]
+    },
+    {
+      "case": "police_city_subtypes",
+      "city": "新北市",
+      "schoolSourceRecords": 406,
+      "total": 212,
+      "groups": [
+        {
+          "category": "substation",
+          "count": 164
+        },
+        {
+          "category": "specialized",
+          "count": 28
+        },
+        {
+          "category": "precinct",
+          "count": 16
+        },
+        {
+          "category": "other",
+          "count": 2
+        },
+        {
+          "category": "police_dept",
+          "count": 2
+        }
+      ],
+      "unmatchedCity": 4,
+      "sourceRefs": [
+        {
+          "reference": "./police_justice/police_stations/police_stations_20260626.geojson",
+          "version": "20260626",
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:48.097Z",
+          "checksumSha256": "63dadd2cf7e764138e2cca8bdd57010464b91fb5c3d90afa8a65c8349e83e2e7",
+          "bytes": 1698235
+        },
+        {
+          "reference": "./statistics/county-reference-2025.geojson",
+          "version": "2025",
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.793Z",
+          "checksumSha256": "3feeca872210d6072c975e5e160c81926972337224b36a1573fb4b74f1a48f6c",
+          "bytes": 513314
+        },
+        {
+          "reference": "./statistics/township-reference.geojson",
+          "version": null,
+          "sourceYear": null,
+          "acquiredAt": "2026-09-18T04:44:41.829Z",
+          "checksumSha256": "dfd744a176a1387f546b1aa0fb3dbf037c68ae96999c5b6ed877799e36be4e84",
+          "bytes": 2005865
+        }
+      ]
+    },
+    {
+      "case": "taipei_police_departments_only",
+      "total": 3
+    },
+    {
+      "case": "district_pagination",
+      "groupTotal": 367,
+      "firstPositions": [
+        1,
+        2
+      ],
+      "nextPositions": [
+        3,
+        4
+      ]
+    },
+    {
+      "case": "unsupported_field_is_error_not_zero",
+      "error": "STATISTICS_FIELD_NOT_ALLOWED"
+    }
+  ]
+}
