@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-09-18 — 正式精簡版本上線與清理完成
+
+PR #297 已普通 merge（`6954dc0d`），CI 與 Zeabur 部署成功。正式 current 切 `c6070ed3...`，7 payload assets／621.6 MB。S3 淨省約 1.02 GB，volume 實測省約 3.82 GB；保留 `6f59ead2...` 完整回復版，移除更舊 `d6f57fb9...` 與重複暫存。正式醫院／長照 popup、HTTP Range、SHA／bytes、immutable cache 驗收通過。精確數字與 receipts 見 [handoff.md](./handoff.md)。
+
 ## 2026-09-18 — 精簡醫療與長照 popup
 
 移除 Navii 網站／診療時段顯示與請求；移除 H17 指定四列，保留內部識別、來源、快照與共址服務。builder 停止攜帶 771 個時段檔並精簡 Navii 屬性；publisher／installer 支援 7-assets 精簡版及舊版。可減少單一現行發布版本 1,550,895,330 bytes（71.387%）；精簡 current 尚未切換；已逐檔驗證並清理重複 staging 781 檔／2,172,833,151 bytes，正式與回復 release 保留。清理 receipt 見 `release/20260918-staging-cleanup.json`。驗證：`tsc -b`、全套前端整合主線後 1,644 passed／8 skipped、publisher／installer 14 tests、compact release 4 tests、React static render、builder fixture 與實際 plan writer → publisher 串接均通過。執行接點見 [handoff.md](./handoff.md)。
