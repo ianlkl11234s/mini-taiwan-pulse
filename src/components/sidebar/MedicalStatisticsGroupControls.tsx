@@ -22,6 +22,14 @@ interface Props {
   dimColor?: string;
 }
 
+/** Keep the native select aligned with the surrounding sidebar palette. */
+export function medicalStatisticsSelectStyle(textColor: string) {
+  return {
+    width: '100%', boxSizing: 'border-box' as const, padding: '5px 8px', borderRadius: RADIUS.md,
+    border: '1px solid currentColor', background: 'transparent', color: textColor, colorScheme: 'inherit' as const, font: 'inherit',
+  };
+}
+
 export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
   const group = getMedicalStatisticsGroup(groupKey);
   const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
@@ -78,7 +86,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     {expanded && <>
       <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
         <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
-        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={{ width: '100%', boxSizing: 'border-box', padding: '5px 8px', borderRadius: RADIUS.md, border: '1px solid #64748b', background: '#182230', color: '#f3f4f6', font: 'inherit' }}>
+        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={medicalStatisticsSelectStyle(textColor)}>
           {group.options.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
         </select>
         {switching && <p role="status" style={{ color: dimColor }}>正在確認目標期別…</p>}

@@ -10,7 +10,7 @@ import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsRenderKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
-import { FONT_SIZE, SURFACE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
+import { FONT_SIZE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -180,6 +180,16 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
 }
 
+/** Let statistics controls inherit the light or dark sidebar palette. */
+export function statisticsDetailControlStyle(): CSSProperties {
+  return {
+    boxSizing: 'border-box', width: '100%', minWidth: 0, maxWidth: '100%',
+    background: 'transparent', color: 'inherit', border: '1px solid currentColor', colorScheme: 'inherit',
+    borderRadius: RADIUS.md, padding: '3px 24px 3px 6px', font: 'inherit',
+    lineHeight: 1.35, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
+  };
+}
+
 /** Mirrors the Mapbox `step` expression: one numeric colour per interval. */
 type StatisticsDisplayFormat = { locale?: string; maximumFractionDigits?: number };
 
@@ -243,15 +253,10 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
   };
-  const control: CSSProperties = {
-    boxSizing: 'border-box', width: '100%', minWidth: 0, maxWidth: '100%',
-    background: SURFACE.strong, color: COLORS.textDefault, border: '1px solid currentColor',
-    borderRadius: RADIUS.md, padding: '3px 24px 3px 6px', font: 'inherit',
-    lineHeight: 1.35, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
-  };
+  const control = statisticsDetailControlStyle();
   const filterLabel: CSSProperties = {
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', alignItems: 'center',
-    gap: SPACING.xs, minWidth: 0, color: COLORS.textMuted, lineHeight: 1.35,
+    gap: SPACING.xs, minWidth: 0, color: 'inherit', lineHeight: 1.35,
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
@@ -260,8 +265,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
     const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
     return selectorValues(key, filters).length > 1;
   });
-  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: COLORS.textDefault, colorScheme: 'dark', lineHeight: 1.45 }}>
-    <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid ${COLORS.textDefault};outline-offset:2px}`}</style>
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: 'inherit', colorScheme: 'inherit', lineHeight: 1.45 }}>
+    <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid currentColor;outline-offset:2px}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
     {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
@@ -328,8 +333,8 @@ export function StatisticsDetails({ layerKey }: { layerKey: StatisticsRenderKey 
         <span>原始 SHA-256：{String(source.raw_sha256 ?? '未提供')}</span>
         <span>參考邊界：{String(source.boundary_version ?? '未提供')}</span>
         <span>地圖使用已核對代碼的參考邊界；不是歷史邊界變動比較。</span>
-        {publicLink(source.source_landing_url) && <a style={{ color: COLORS.textDefault, textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
-        {publicLink(source.source_download_url) && <a style={{ color: COLORS.textDefault, textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
+        {publicLink(source.source_landing_url) && <a style={{ color: 'inherit', textDecoration: 'underline' }} href={String(source.source_landing_url)} target="_blank" rel="noreferrer">官方資料頁 ↗</a>}
+        {publicLink(source.source_download_url) && <a style={{ color: 'inherit', textDecoration: 'underline' }} href={String(source.source_download_url)} target="_blank" rel="noreferrer">來源下載端點 ↗</a>}
       </div> : <span>載入資料後顯示來源紀錄。</span>}
     </details>
     {agri && AGRI_EXISTING_LAYER_REFERENCES.some(ref => ref.group === agri.group) && <details><summary>跨主題統計索引</summary><div style={{ display: 'grid', gap: 4 }}>{AGRI_EXISTING_LAYER_REFERENCES.filter(ref => ref.group === agri.group).map(ref => <button key={ref.layer_key} type="button" onClick={() => layerVisibilityStore.toggle(ref.layer_key as keyof LayerVisibility)}>{ref.group}／{ref.subgroup}：{(LAYER_MANIFEST[ref.layer_key as keyof LayerVisibility] as LayerManifestEntry).label ?? ref.layer_key}</button>)}</div></details>}

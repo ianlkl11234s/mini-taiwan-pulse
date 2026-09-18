@@ -1,9 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDetailControlStyle, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
+import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
+  it('keeps statistics selectors readable in either sidebar theme', () => {
+    expect(statisticsDetailControlStyle()).toMatchObject({ background: 'transparent', color: 'inherit', border: '1px solid currentColor', colorScheme: 'inherit' });
+    expect(medicalStatisticsSelectStyle('#111827')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'inherit' });
+    expect(medicalStatisticsSelectStyle('#ffffff')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'inherit' });
+  });
+
   it('renders the selected period and fund as a compact disclosure label', () => {
     expect(statisticsDimensionSummary({
       roc_year: '114', month: '07', agency_fund: '交通部航港局-前瞻基礎建設計畫第5期特別預算',
