@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { allenCoralColor, allenCoralFilter, allenCoralSource, ALLEN_CORAL_ATTRIBUTION, type AllenCoralAtlasRegion, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
+import { isExplicitAccessDenied } from "../lib/accessDenied";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { PRIVATE_CORAL_PMTILES_SOURCE_TYPE, registerPrivateCoralSourceOnce } from "../map/privateCoralPmtiles";
 import { useAllenCoralPrivateAccess, allenCoralAccessToken } from "./useAllenCoralPrivateAccess";
@@ -26,7 +27,7 @@ export function mountAllenCoralAtlas(
     if (map.getLayer(fill)) map.removeLayer(fill);
     if (map.getSource(source.sourceId)) map.removeSource(source.sourceId);
   };
-  const fail = () => {
+  const failAccessDenied = () => {
     if (disposed || failed) return;
     failed = true;
     finish();
@@ -34,12 +35,24 @@ export function mountAllenCoralAtlas(
     onState("error");
     window.dispatchEvent?.(new Event("allen-coral-access-denied"));
   };
+  // Mapbox emits source errors for transient network failures and malformed tile
+  // responses as well as authorization failures. Keep the mounted source in place
+  // so its own retry path (or a later source-data event) can recover.
+  const reportError = () => {
+    if (disposed || failed) return;
+    finish();
+    onState("error");
+  };
+  const handleError = (error: unknown) => {
+    if (isExplicitAccessDenied(error)) failAccessDenied();
+    else reportError();
+  };
   const begin = () => {
     if (disposed || failed || loading) return;
     loading = true;
     loadingRegistry.start(task, "Allen Coral Atlas（私人研究）");
     onState("loading");
-    timer = setTimeout(fail, 30000);
+    timer = setTimeout(reportError, 30000);
   };
   const onLoading = (event: { sourceId?: string }) => { if (event.sourceId === source.sourceId) begin(); };
   const onData = (event: { sourceId?: string; isSourceLoaded?: boolean }) => {
@@ -49,10 +62,12 @@ export function mountAllenCoralAtlas(
       // Large regional views may need several authenticated ranges; only stalled
       // loading times out. Successfully arriving tiles do not imply completion.
       clearTimeout(timer);
-      timer = setTimeout(fail, 30000);
+      timer = setTimeout(reportError, 30000);
     }
   };
-  const onError = (event: unknown) => { if ((event as { sourceId?: string }).sourceId === source.sourceId) fail(); };
+  const onError = (event: { sourceId?: string; error?: unknown }) => {
+    if (event.sourceId === source.sourceId) handleError(event.error ?? event);
+  };
   map.on("sourcedataloading", onLoading);
   map.on("sourcedata", onData);
   map.on("error", onError);
@@ -62,15 +77,15 @@ export function mountAllenCoralAtlas(
     map.addSource(source.sourceId, {
       type: PRIVATE_CORAL_PMTILES_SOURCE_TYPE,
       url: new URL(source.url, window.location.href).href,
-      getToken: async () => { try { return await getToken(); } catch (error) { fail(); throw error; } },
-      onAccessDenied: fail,
+      getToken: async () => { try { return await getToken(); } catch (error) { handleError(error); throw error; } },
+      onAccessDenied: failAccessDenied,
       minzoom: 0, maxzoom: 14, promoteId: "feature_id",
     } as unknown as Parameters<MapboxMap["addSource"]>[1]);
     const mounted = map.getSource(source.sourceId);
     if (mounted) (mounted as unknown as { attribution: string }).attribution = ALLEN_CORAL_ATTRIBUTION;
     map.addLayer({ id: fill, type: "fill", source: source.sourceId, "source-layer": source.sourceLayer,
       filter: allenCoralFilter(view, region), paint: { "fill-color": allenCoralColor(view), "fill-opacity": opacity } });
-  } catch { fail(); }
+  } catch (error) { handleError(error); }
   return () => {
     disposed = true; finish();
     map.off("sourcedataloading", onLoading); map.off("sourcedata", onData); map.off("error", onError);

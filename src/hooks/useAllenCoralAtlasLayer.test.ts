@@ -60,14 +60,27 @@ describe("Allen private PMTiles lifecycle", () => {
     expect(m.layers.size).toBe(0);
     second();
   });
-  it("source failure stays error even after source loaded; unrelated errors do not affect coral", () => {
+  it("keeps transient source errors retryable; unrelated errors do not affect coral", () => {
     vi.stubGlobal("window", { location: { href: "http://localhost/" } });
     const m = mockMap(); const state = vi.fn();
     const dispose = mountAllenCoralAtlas(m.map, 0.55, "coralAlgae", "taiwan", state, async () => "test-token");
     m.fire("error", { sourceId: "unrelated" });
     expect(state).toHaveBeenLastCalledWith("loading");
-    m.fire("error", { sourceId: CORAL_SOURCE_ID });
+    m.fire("error", { sourceId: CORAL_SOURCE_ID, error: new Error("network error") });
+    expect(state).toHaveBeenLastCalledWith("error");
+    expect(m.layers.size).toBe(1);
+    expect(m.sources.size).toBe(1);
     m.fire("sourcedata", { sourceId: CORAL_SOURCE_ID, isSourceLoaded: true });
+    expect(state).toHaveBeenLastCalledWith("ready");
+    expect(m.layers.size).toBe(1);
+    expect(m.sources.size).toBe(1);
+    dispose();
+  });
+  it.each([{ status: 401 }, { status: 403 }, new Error("permission denied")])("fails closed only for explicit access denial: %j", error => {
+    vi.stubGlobal("window", { location: { href: "http://localhost/" } });
+    const m = mockMap(); const state = vi.fn();
+    const dispose = mountAllenCoralAtlas(m.map, 0.55, "coralAlgae", "taiwan", state, async () => "test-token");
+    m.fire("error", { sourceId: CORAL_SOURCE_ID, error });
     expect(state).toHaveBeenLastCalledWith("error");
     expect(m.layers.size).toBe(0);
     expect(m.sources.size).toBe(0);
@@ -91,7 +104,7 @@ describe("Allen private PMTiles lifecycle", () => {
     expect(state).toHaveBeenLastCalledWith("loading");
     vi.advanceTimersByTime(5000);
     expect(state).toHaveBeenLastCalledWith("error");
-    expect(m.sources.size).toBe(0);
+    expect(m.sources.size).toBe(1);
     dispose();
   });
   it("times out as error and cancels pending timeout when closed during loading", () => {
