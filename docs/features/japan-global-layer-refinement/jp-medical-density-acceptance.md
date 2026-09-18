@@ -35,9 +35,20 @@
 - browser：醫院與到宅服務在 z4.7 顯示 polygon density grid；醫院在 z9
   自動切成紅色完整點位；clean tab console error 0。
 
-## 發布門檻
+## S3 發布
 
-- S3 上傳與 `current.json` CAS 更新：尚未執行，需要使用者明確授權將上述兩個
-  公開資料衍生 GeoJSON 上傳至專案既有 S3 `deploy-assets/jp-medical/`。
-- 在 S3 readback、Pulse PR 一般 merge、容器重新部署與 production browser 驗收前，
-  不宣稱正式站完成。
+- 使用者已明確授權將兩個公開資料衍生 GeoJSON 上傳至專案既有
+  S3 `deploy-assets/jp-medical/`。
+- 第一次 CAS 因遠端 `current.json` 已變更而正確停止，沒有覆蓋其他發布。
+- 唯讀確認遠端為本候選版的 direct compact base
+  `c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653`
+  後，以其 SHA-256 `cff847d4f60368fe79c42e6bbeb440b080672191de5f8bca16d7e5d3649d6117`
+  作新 CAS 前置條件。
+- 5/5 objects 的 bytes、SHA-256、Content-Type 與 Cache-Control readback PASS；
+  `current.json` 為 `updated_and_verified`，現指向 release `eed57ed3…b38`。
+- 完整回執：`jp-medical-density-s3-publication-receipt.json`。
+
+## 剩餘 production 門檻
+
+- Pulse PR 必須用一般 merge commit 合併，不得 squash，再等待容器正常部署。
+- 在 production HTTP/CDN Range 與 desktop browser 驗收完成前，不宣稱正式站完成。
