@@ -12,9 +12,23 @@ import {
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
 import { LAYER_MANIFEST } from "../layerManifest";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
 
 describe("工商登記 B1/B2/B3/A4 契約", () => {
+  it("密度格網 popup 依 render stack 由上到下命中", () => {
+    const densityTypes = GIS_LAYERS
+      .map((entry) => entry.type)
+      .filter((type) => type === "factoryDensityGrid"
+        || type === "manufacturingCompanyDensityGrid"
+        || type === "regulatedFacilityDensityGrid");
+    expect(densityTypes).toEqual([
+      "regulatedFacilityDensityGrid",
+      "manufacturingCompanyDensityGrid",
+      "factoryDensityGrid",
+    ]);
+  });
+
   it("89 個行業中類保留前導零", () => {
     expect(COMPANY_INDUSTRY_MID_OPTIONS).toHaveLength(89);
     expect(COMPANY_INDUSTRY_MID_OPTIONS[0]).toMatchObject({ value: "01" });

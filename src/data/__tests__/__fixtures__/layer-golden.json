@@ -1723,10 +1723,10 @@
     },
     {
       "layers": [
-        "business-registry-factory-density-1500-fill",
-        "business-registry-factory-density-450-fill"
+        "business-registry-regulated-facility-density-1500-fill",
+        "business-registry-regulated-facility-density-450-fill"
       ],
-      "type": "factoryDensityGrid"
+      "type": "regulatedFacilityDensityGrid"
     },
     {
       "layers": [
@@ -1737,10 +1737,10 @@
     },
     {
       "layers": [
-        "business-registry-regulated-facility-density-1500-fill",
-        "business-registry-regulated-facility-density-450-fill"
+        "business-registry-factory-density-1500-fill",
+        "business-registry-factory-density-450-fill"
       ],
-      "type": "regulatedFacilityDensityGrid"
+      "type": "factoryDensityGrid"
     },
     {
       "layers": [
