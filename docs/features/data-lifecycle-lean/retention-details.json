@@ -1,0 +1,965 @@
+{
+  "jobs": [
+    {
+      "jobname": "cleanup-ship-trails",
+      "schedule": "0 18 * * *",
+      "command": " SELECT public.cleanup_ship_trails_daily(7); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-flight-trails",
+      "schedule": "0 18 * * *",
+      "command": " SELECT public.cleanup_flight_trails_daily(7); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-youbike-h3",
+      "schedule": "0 18 * * *",
+      "command": " SELECT public.cleanup_youbike_h3_daily(7); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-bus-trails",
+      "schedule": "2 3 * * *",
+      "command": "SELECT public.cleanup_bus_trails_daily(3)",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-bus-intercity-trails",
+      "schedule": "7 3 * * *",
+      "command": "SELECT public.cleanup_bus_intercity_trails_daily(3)",
+      "active": true
+    },
+    {
+      "jobname": "refresh-iot-wra-latest",
+      "schedule": "7,17,27,37,47,57 * * * *",
+      "command": " SELECT public.refresh_iot_wra_latest(); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-iot-wra-daily",
+      "schedule": "10 20 * * *",
+      "command": " SELECT public.cleanup_iot_wra_daily(7); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-waste-trails",
+      "schedule": "12 4 * * *",
+      "command": "SELECT public.cleanup_waste_trails_daily(7);",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-waste-matched-trails",
+      "schedule": "18 4 * * *",
+      "command": "SELECT public.cleanup_waste_trails_matched_daily(7);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-bus-trails",
+      "schedule": "1,31 * * * *",
+      "command": "SELECT public.refresh_bus_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-bus-intercity-trails",
+      "schedule": "4,34 * * * *",
+      "command": "SELECT public.refresh_bus_intercity_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-waste-trails",
+      "schedule": "7,37 * * * *",
+      "command": "SELECT public.refresh_waste_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-news-events",
+      "schedule": "11,41 * * * *",
+      "command": "SELECT public.refresh_news_events_daily((now() AT TIME ZONE 'Asia/Taipei')::date);\nSELECT public.refresh_news_events_hourly((now() AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-iot-wra-measurements",
+      "schedule": "5 20 * * *",
+      "command": " SELECT live.cleanup_iot_wra_measurements(); ",
+      "active": true
+    },
+    {
+      "jobname": "cleanup-tourist-shuttle-trails",
+      "schedule": "12 3 * * *",
+      "command": "SELECT public.cleanup_tourist_shuttle_trails_daily(30)",
+      "active": true
+    },
+    {
+      "jobname": "refresh-bus-trails-yesterday",
+      "schedule": "0 17 * * *",
+      "command": "SELECT public.refresh_bus_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-bus-intercity-trails-yesterday",
+      "schedule": "4 17 * * *",
+      "command": "SELECT public.refresh_bus_intercity_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-waste-trails-yesterday",
+      "schedule": "8 17 * * *",
+      "command": "SELECT public.refresh_waste_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-news-events-yesterday",
+      "schedule": "12 17 * * *",
+      "command": "SELECT public.refresh_news_events_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);\nSELECT public.refresh_news_events_hourly((now() AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-ship-trails",
+      "schedule": "14,44 * * * *",
+      "command": "SELECT public.refresh_ship_trails_daily((now() AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-ship-trails-yesterday",
+      "schedule": "16 17 * * *",
+      "command": "SELECT public.refresh_ship_trails_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-flight-trails",
+      "schedule": "18,48 * * * *",
+      "command": "SELECT public.refresh_flight_trails_daily((now() AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-flight-trails-yesterday",
+      "schedule": "20 17 * * *",
+      "command": "SELECT public.refresh_flight_trails_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-youbike-h3",
+      "schedule": "24,54 * * * *",
+      "command": "SELECT public.refresh_youbike_h3_daily((now() AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-youbike-h3-yesterday",
+      "schedule": "28 17 * * *",
+      "command": "SELECT public.refresh_youbike_h3_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-iot-wra-daily",
+      "schedule": "2,32 * * * *",
+      "command": "SELECT public.refresh_iot_wra_daily((now() AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-iot-wra-daily-yesterday",
+      "schedule": "40 17 * * *",
+      "command": "SELECT public.refresh_iot_wra_daily((now() AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-tourist-shuttle-trails",
+      "schedule": "5,35 * * * *",
+      "command": "SELECT public.refresh_tourist_shuttle_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date);",
+      "active": true
+    },
+    {
+      "jobname": "refresh-tourist-shuttle-trails-yesterday",
+      "schedule": "44 17 * * *",
+      "command": "SELECT public.refresh_tourist_shuttle_trails_daily((CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Taipei')::date - 1);",
+      "active": true
+    }
+  ],
+  "policies": [
+    {
+      "table_name": "air_quality_observations",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "081 加入"
+    },
+    {
+      "table_name": "air_tickets.delivery_reports",
+      "kind": "delete",
+      "retention_days": 90,
+      "name_format": "YYYYMMDD",
+      "time_column": "delivered_at",
+      "note": "310 新增；Discord 價格簡報，短命，90 天後清"
+    },
+    {
+      "table_name": "air_tickets.fare_offers",
+      "kind": "delete",
+      "retention_days": 180,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "310 新增；offer 級觀測含 raw_payload JSONB，主要體積來源，180 天後清"
+    },
+    {
+      "table_name": "air_tickets.route_snapshots",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "310 新增；每航線每 run 1 筆最低價，小而精、長期趨勢資產，永久保留（明確豁免）"
+    },
+    {
+      "table_name": "air_tickets.scan_runs",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "310 新增；原規劃 365 天，但 route_snapshots.scan_id FK 為 ON DELETE RESTRICT 且 route_snapshots 永久保留 → scan_runs 母列刪不掉，且每 run 僅 1 列極小，改永久豁免。若要真砍需先把該 FK 改 CASCADE"
+    },
+    {
+      "table_name": "aisstream_archive_manifests",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "uploaded_at",
+      "note": "371: AISStream S3 manifest ledger is permanent audit metadata; each verified object is permanent cold storage."
+    },
+    {
+      "table_name": "aisstream_ingest_health",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "updated_at",
+      "note": "371: AISStream single health row; no automatic cleanup."
+    },
+    {
+      "table_name": "aisstream_ingest_runs",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "started_at",
+      "note": "371: AISStream run ledger is permanent audit metadata; no automatic DB cleanup."
+    },
+    {
+      "table_name": "aisstream_position_observations",
+      "kind": "partition",
+      "retention_days": 15,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "371: live.aisstream_position_observations UTC-date partitions; policy is 15 partitions because global cleanup uses Taipei date, guaranteeing at least 14 full UTC days. Full raw AISStream payload is verified to S3 cold storage permanently, no expiry. Dedicated creator only; do not add to live.manage_all_partitions."
+    },
+    {
+      "table_name": "aisstream_vessel_current",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "371: AISStream current projection is retained for diagnostics; worker disable stops updates, not history deletion."
+    },
+    {
+      "table_name": "animal_adoption_current",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "last_seen_at",
+      "note": "353: live.animal_adoption_current 永久保留最新投影及 not_listed 語意，不可自動清理"
+    },
+    {
+      "table_name": "animal_adoption_daily",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "snapshot_date",
+      "note": "353: analytics.animal_adoption_daily 永久保留每日存量；snapshot expiry 後仍保留時間軸"
+    },
+    {
+      "table_name": "animal_adoption_snapshot_runs",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "started_at",
+      "note": "353: live.animal_adoption_snapshot_runs 永久保留 metadata；完整性、缺值與可稽核性依據"
+    },
+    {
+      "table_name": "animal_adoption_snapshots",
+      "kind": "partition",
+      "retention_days": 400,
+      "name_format": "YYYYMMDD",
+      "time_column": "snapshot_date",
+      "note": "353: live.animal_adoption_snapshots；DB 只保留 400 台灣日，完整 raw JSON 由 collector S3 archive 永久保存；使用專屬 pre-create job，勿加入全域 manage_all_partitions（該函式 30~60 天粗清理）"
+    },
+    {
+      "table_name": "animal_shelter_crosswalk",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "reviewed_at",
+      "note": "353: reference.animal_shelter_crosswalk 永久保留人工審核的來源 shelter key 對官方 ID 關係；不可自動清理"
+    },
+    {
+      "table_name": "animal_shelter_outcome_runs",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "started_at",
+      "note": "354: collector run ledger 永久保留；failed/partial 是完整性證據，不可自動清理"
+    },
+    {
+      "table_name": "animal_shelter_outcomes",
+      "kind": "delete",
+      "retention_days": 400,
+      "name_format": "YYYYMMDD",
+      "time_column": "snapshot_date",
+      "note": "354: live collector observations 僅保留 400 日；完整 raw source 檔永久保存於 collector S3 archive，analytics canonical rows 則永久保留 source revision evidence"
+    },
+    {
+      "table_name": "animal_shelter_outcomes_monthly",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMM",
+      "time_column": "imported_at",
+      "note": "354: datagov:41236 官方收容成果永久保留；年列與月列不可相加，完整 raw 僅保存於 S3"
+    },
+    {
+      "table_name": "animal_shelter_pressure_monthly",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMM",
+      "time_column": "imported_at",
+      "note": "354: datagov:73396 官方收容壓力永久保留所有 source revisions；duplicate grain 禁止自動去重或 aggregate"
+    },
+    {
+      "table_name": "animal_welfare_point_snapshots",
+      "kind": "delete",
+      "retention_days": 400,
+      "name_format": "YYYYMMDD",
+      "time_column": "snapshot_date",
+      "note": "Source-agnostic animal welfare point snapshots; raw payload remains in collector S3 archive."
+    },
+    {
+      "table_name": "aqi_imagery_frames",
+      "kind": "delete",
+      "retention_days": 14,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "14 天，只刪 image_key IS NOT NULL（已上 R2）；未備份的永不刪。R2 雙寫=AR-11f（383 加欄 + 收集器雙寫 + backfill）。cron 由 384 排定（守衛安全，key 灌入前為 no-op）。"
+    },
+    {
+      "table_name": "border_airport_snapshot",
+      "kind": "delete",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": "collected_at",
+      "note": "2026-09-01 稽核補；get_airport_hourly_pax 前端固定回看 24h，下限 1d → 設 7d margin"
+    },
+    {
+      "table_name": "bus_intercity_positions",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "081 加入"
+    },
+    {
+      "table_name": "bus_positions",
+      "kind": "partition",
+      "retention_days": 3,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "cwa_imagery_frames",
+      "kind": "delete",
+      "retention_days": 14,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "282 新增；僅刪 image_key IS NOT NULL（已上 R2）的 frame"
+    },
+    {
+      "table_name": "er_hospital_status",
+      "kind": "delete",
+      "retention_days": 30,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "2026-09-01 稽核補；get_er_wait_total_14d 需 14d（LIMIT 336=14×24），下限 14d → 設 30d margin"
+    },
+    {
+      "table_name": "flight_positions",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "flight_trails",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "freeway_sections",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "freeway_vd_traffic",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "gfw_vessel_presence_archive_manifests",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "uploaded_at",
+      "note": "371: GFW archive manifest audit metadata; leave empty until licence/token retention gate passes."
+    },
+    {
+      "table_name": "gfw_vessel_presence_current",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "371: GFW current projection retained independently from AISStream/MPB AIS."
+    },
+    {
+      "table_name": "gfw_vessel_presence_runs",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "started_at",
+      "note": "371: GFW run ledger is permanent audit metadata; no automatic DB cleanup."
+    },
+    {
+      "table_name": "gfw_vessel_presence_snapshots",
+      "kind": "partition",
+      "retention_days": 400,
+      "name_format": "YYYYMMDD",
+      "time_column": "snapshot_date",
+      "note": "371: GFW daily vessel-presence DB snapshots retain 400 Taiwan dates. Provider raw archive is permanent cold storage only after licence/token retention approval; dedicated creator only."
+    },
+    {
+      "table_name": "global_climate_grids",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "309 新增；CMEMS/CAMS/GFS grid 切片 digest metadata，單日增量僅 ~33 筆，實體檔走 S3，永久保留"
+    },
+    {
+      "table_name": "groundwater_level_readings",
+      "kind": "delete",
+      "retention_days": 30,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "282 新增；建表(046)起無 retention"
+    },
+    {
+      "table_name": "intel.global_event_candidate_observations",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "405 新增，刻意永久保留。append-only，掛 reject_immutable_change trigger 擋 UPDATE/DELETE，物理上不可被 DELETE-based cleanup 清理；get_global_event_candidates_window()（397/399）的 31 天窗只是查詢下限，不是資料生命週期上限。"
+    },
+    {
+      "table_name": "intel.global_event_collector_batches",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "recorded_at",
+      "note": "405 新增，先設永久保留（非最終定案）。掛 reject_immutable_change trigger 擋 DELETE，且被 intel.global_event_collector_run_receipts / global_event_version_candidate_refs / global_event_versions 以 ON DELETE RESTRICT 引用；日後若要改 90 天，需先處理 trigger 與三個 FK referencer 的清理順序（同 310 air_tickets.scan_runs 曾踩過的 FK RESTRICT 坑），不是改個數字就行。"
+    },
+    {
+      "table_name": "intel.global_event_collector_run_receipts",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "recorded_at",
+      "note": "405 新增，先設永久保留（非最終定案）。掛 reject_immutable_change trigger 擋 DELETE，且被 intel.global_event_versions 以 ON DELETE RESTRICT 引用；日後若要改 90 天，同樣需先處理 trigger 與 FK referencer，不是改個數字就行。"
+    },
+    {
+      "table_name": "internet_health_current",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "379: latest pointer keys are permanent. ON DELETE SET NULL preserves explicit stale/unknown after observation retention."
+    },
+    {
+      "table_name": "internet_health_incidents",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "last_detected_at",
+      "note": "379: low-volume detector incident lifecycle is permanent; provider-family evidence remains separated."
+    },
+    {
+      "table_name": "internet_health_observations",
+      "kind": "delete",
+      "retention_days": 90,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "379: normalized provider and detector observations retain 90 days, enough for the 4-8 week comparison baseline; missing/null is never zero."
+    },
+    {
+      "table_name": "internet_health_source_runs",
+      "kind": "delete",
+      "retention_days": 90,
+      "name_format": "YYYYMMDD",
+      "time_column": "started_at",
+      "note": "379: provider/detector run ledger retains 90 days; raw provider responses are collector-owned S3 archives."
+    },
+    {
+      "table_name": "internet_health_sources",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "updated_at",
+      "note": "383: permanent migration-owned source registry; no cleanup job. Public release changes require reviewed migration."
+    },
+    {
+      "table_name": "marine_observation_current",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "378: live latest-valid serving projection is permanent until station/source retirement; not a history backup."
+    },
+    {
+      "table_name": "marine_observation_hourly",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "hour_bucket",
+      "note": "378: analytics hourly marine rollup is permanent and source-scoped; do not fuse CWA and ISOHE instruments."
+    },
+    {
+      "table_name": "marine_observation_quarantine",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "collected_at",
+      "note": "378: low-volume orphan/schema diagnostics are retained until a reviewed cleanup policy exists; never exposed publicly."
+    },
+    {
+      "table_name": "marine_observation_readings",
+      "kind": "delete",
+      "retention_days": 90,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "378: live hot long-form readings retain 90 days. Immutable raw CWA/ISOHE payloads are archived by the collector to S3 before local cleanup; analytics.marine_observation_hourly is permanent."
+    },
+    {
+      "table_name": "marine_observation_stations",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "updated_at",
+      "note": "378: reference fixed-station provenance registry is permanent; location revisions and owner/distributor lineage remain queryable."
+    },
+    {
+      "table_name": "messages",
+      "kind": "partition",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "Supabase Realtime 內建（broadcast/presence），豁免"
+    },
+    {
+      "table_name": "micro_sensor_readings",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "081 加入"
+    },
+    {
+      "table_name": "parking_lots_availability",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "221 建表時漏列，282 補"
+    },
+    {
+      "table_name": "parking_segments_availability",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "221 建表時漏列，282 補"
+    },
+    {
+      "table_name": "power_generation_unit",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "352 新增，刻意永久保留（實際位於 live.power_generation_unit）；與 power_system_status 同批供電表，213 萬列規模但為供電趨勢卡片依賴資料，一併豁免"
+    },
+    {
+      "table_name": "power_region_demand",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "352 新增，刻意永久保留（實際位於 live.power_region_demand）；與 power_system_status 同批 collector 寫入的供電姊妹表，一併豁免避免日後統一 retention 掃到"
+    },
+    {
+      "table_name": "power_system_status",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "352 新增，刻意永久保留（實際位於 live.power_system_status，312 搬遷後現況，非 realtime schema）；public.get_power_daily_trend()（351）直接讀本表算 30 天供電趨勢，全表刪除會截斷趨勢圖；2026-06-05 建表起從未有 retention（217 註解「7 days」經 351 查證從未實作）"
+    },
+    {
+      "table_name": "rain_gauge_readings",
+      "kind": "delete",
+      "retention_days": 30,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "282 新增；建表(045)起無 retention"
+    },
+    {
+      "table_name": "river_water_level",
+      "kind": "delete",
+      "retention_days": 14,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "2026-09-01 稽核補；pulse+info 共用，rangeDays 下拉 clamp 1~7d，下限 7d → 設 14d margin"
+    },
+    {
+      "table_name": "road_events",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "081 加入"
+    },
+    {
+      "table_name": "road_events_current",
+      "kind": "delete",
+      "retention_days": 3,
+      "name_format": "YYYYMMDD",
+      "time_column": "collected_at",
+      "note": "2026-09-01 稽核補；前端不直讀（用 road_events 歷史表），僅內部 compute_signal_levels 讀 24h/30min 窗；本表已有 app 端刪 expire<now，此為對「無 expire 殘留」的兜底"
+    },
+    {
+      "table_name": "road_sections_live",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "222 建表時漏列，282 補"
+    },
+    {
+      "table_name": "satellite_positions",
+      "kind": "partition",
+      "retention_days": 3,
+      "name_format": "YYYY_MM_DD",
+      "time_column": null,
+      "note": "015 原設 3 天；命名格式為歷史遺留 YYYY_MM_DD"
+    },
+    {
+      "table_name": "satellite_tle_history",
+      "kind": "delete",
+      "retention_days": 30,
+      "name_format": "YYYYMMDD",
+      "time_column": "fetched_at",
+      "note": "282 新增；satellite_maneuvers MV 只需近期 TLE"
+    },
+    {
+      "table_name": "ship_positions",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "taipei_pumb_status",
+      "kind": "delete",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "2026-09-01 稽核補；RPC 最長回看 24h，下限 1d → 設 7d margin"
+    },
+    {
+      "table_name": "taipei_sewer_measurements",
+      "kind": "delete",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "2026-09-01 稽核補；RPC 最長回看 24h，下限 1d → 設 7d margin"
+    },
+    {
+      "table_name": "temperature_grids",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "tourist_shuttle_positions",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "220 建表時漏列，282 補"
+    },
+    {
+      "table_name": "tpml_seat_status",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "290 新增；北市圖座位時序，量極小（~0.3 GB/年）永久保留。若日後嫌大改 retention_days=365 並補 cleanup cron"
+    },
+    {
+      "table_name": "train_positions",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "typhoon_positions",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "valid_at",
+      "note": "352 新增，刻意永久保留（實際位於 live.typhoon_positions，261 原建於 realtime schema，312 搬遷至 live）；public.get_typhoon_proximity_daily() / get_typhoon_proximity_nearby_detail()（349/350）直接讀本表算颱風逐日接近趨勢，全表刪除會截斷趨勢圖；建表起無 retention"
+    },
+    {
+      "table_name": "uswg_measurements",
+      "kind": "delete",
+      "retention_days": 30,
+      "name_format": "YYYYMMDD",
+      "time_column": "observed_at",
+      "note": "30 天 retention，含 2021 歷史 backfill 一併刪除（用戶已確認）"
+    },
+    {
+      "table_name": "vessel_watch_positions",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": "collected_at",
+      "note": "339：特殊船舶軌跡，用戶 2026-08-12 拍板永久保留（實測僅佔全量 AIS 0.38%，一年約 150 萬筆）"
+    },
+    {
+      "table_name": "vessel_watch_registry",
+      "kind": "delete",
+      "retention_days": null,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "339：船舶名冊，一船一列永久保留；is_excluded 的誤收列也不刪（刪了每週掃描會重複提示）"
+    },
+    {
+      "table_name": "weather_observations",
+      "kind": "partition",
+      "retention_days": 21,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    },
+    {
+      "table_name": "youbike_snapshots",
+      "kind": "partition",
+      "retention_days": 7,
+      "name_format": "YYYYMMDD",
+      "time_column": null,
+      "note": "012 原設"
+    }
+  ],
+  "cols": [
+    {
+      "table_name": "news_events",
+      "column_name": "id",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "source",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "url",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "url_norm",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "title",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "summary",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "category",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "location_name",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "county",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "admin_code",
+      "data_type": "text"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "geom",
+      "data_type": "USER-DEFINED"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "published_ts",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "confidence",
+      "data_type": "real"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "title_simhash",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "gis_relevance",
+      "data_type": "smallint"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "severity",
+      "data_type": "smallint"
+    },
+    {
+      "table_name": "news_events",
+      "column_name": "is_event",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "id",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "handle",
+      "data_type": "text"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "channel_id",
+      "data_type": "text"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "video_id",
+      "data_type": "text"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "title",
+      "data_type": "text"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "is_live",
+      "data_type": "boolean"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "view_count",
+      "data_type": "bigint"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "last_error",
+      "data_type": "text"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "observed_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "yt_live_history",
+      "column_name": "collected_at",
+      "data_type": "timestamp with time zone"
+    }
+  ],
+  "coverage_def": [
+    {
+      "definition": "CREATE OR REPLACE FUNCTION metadata.check_retention_coverage()\n RETURNS TABLE(table_name text, issue text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public'\nAS $function$\n    -- (i) realtime/live 分區母表不在 retention 註冊表\n    SELECT c.relname::text,\n           'partitioned table not in metadata.retention_policies'::text\n    FROM pg_partitioned_table pt\n    JOIN pg_class c ON c.oid = pt.partrelid\n    JOIN pg_namespace n ON n.oid = c.relnamespace\n    WHERE n.nspname IN ('realtime','live')\n      AND NOT EXISTS (SELECT 1 FROM metadata.retention_policies rp\n                      WHERE rp.kind = 'partition' AND rp.table_name = c.relname)\n    UNION ALL\n    -- (ii) delete 路線表查無對應 active cleanup cron\n    SELECT rp.table_name,\n           'no active pg_cron cleanup job references this table'::text\n    FROM metadata.retention_policies rp\n    WHERE rp.kind = 'delete' AND rp.retention_days IS NOT NULL\n      AND NOT EXISTS (SELECT 1 FROM cron.job j\n                      WHERE j.active AND j.command LIKE '%cleanup_rows_batched%'\n                        AND j.command LIKE '%' || rp.table_name || '%')\n    UNION ALL\n    -- (iii) 【新增】未登記的大 live 表（非分區/非分區子表）→ 隱形洩漏守門\n    SELECT c.relname::text,\n           'live base table > 100MB not in metadata.retention_policies (verify lifecycle)'::text\n    FROM pg_class c\n    JOIN pg_namespace n ON n.oid = c.relnamespace\n    WHERE n.nspname = 'live'\n      AND c.relkind = 'r'\n      AND c.relispartition = false\n      AND c.relname !~ '_[0-9]{8}$'\n      AND c.relname !~ '_[0-9]{4}_[0-9]{2}_[0-9]{2}$'\n      AND pg_total_relation_size(c.oid) > 100 * 1024 * 1024\n      AND NOT EXISTS (SELECT 1 FROM metadata.retention_policies rp\n                      WHERE rp.table_name = c.relname);\n$function$\n"
+    }
+  ],
+  "iot_wra_measurements": [
+    {
+      "oldest": "2020-09-01 02:40:00+00:00",
+      "newest": "2026-09-18 08:16:50+00:00"
+    }
+  ],
+  "bus_trails_daily": [
+    {
+      "oldest": "2026-09-15",
+      "newest": "2026-09-18"
+    }
+  ],
+  "ship_trails_daily": [
+    {
+      "oldest": "2026-09-10",
+      "newest": "2026-09-18"
+    }
+  ],
+  "youbike_h3_daily": [
+    {
+      "oldest": "2026-09-10",
+      "newest": "2026-09-18"
+    }
+  ],
+  "yt_live_history": [
+    {
+      "oldest": "2026-06-17 00:16:48.857752+00:00",
+      "newest": "2026-09-18 08:04:42.975429+00:00"
+    }
+  ]
+}

@@ -184,37 +184,45 @@ export function parseGlobalEventCandidate(row: JsonObject): GlobalEventCandidate
   };
 }
 
-export interface GlobalEventCandidateWindow { rows: GlobalEventCandidate[]; totalCandidates: number }
-async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string): Promise<GlobalEventCandidateWindow> {
+export interface GlobalEventCandidateWindow { rows: GlobalEventCandidate[]; totalCandidates: number; partial: boolean; continuation: { afterCandidateId: string; loadedPages: number; loadedRows: number } | null }
+const CANDIDATE_PAGE_SIZE = 200;
+const CANDIDATE_PAGE_BUDGET = 5;
+const CANDIDATE_ROW_BUDGET = CANDIDATE_PAGE_SIZE * CANDIDATE_PAGE_BUDGET;
+async function fetchGlobalEventCandidatesWindowUncached(cacheKey: string, signal?: AbortSignal): Promise<GlobalEventCandidateWindow> {
   if (!supabaseConfigured) throw new Error("Global Events Supabase is not configured");
   const [windowStart, requestedEnd] = cacheKey.split("|");
   const windowEnd = new Date(Math.min(Date.parse(requestedEnd ?? ""), Date.now())).toISOString();
-  if (!windowStart || Date.parse(windowStart) >= Date.parse(windowEnd)) return { rows: [], totalCandidates: 0 };
+  if (!windowStart || Date.parse(windowStart) >= Date.parse(windowEnd)) return { rows: [], totalCandidates: 0, partial: false, continuation: null };
   const rows: GlobalEventCandidate[] = [];
   let after: string | null = null;
   let totalCandidates = 0;
+  let loadedPages = 0;
   for (;;) {
-    const { data, error } = await withLoading(`global-events:candidates:${cacheKey}:${after ?? "first"}`, "全球情勢 AI 初判", supabase.rpc("get_global_event_candidates_window", {
-      p_window_start: windowStart, p_window_end: windowEnd, p_limit_candidates: 200, p_after_candidate_id: after,
-    }));
+    if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+    const query = supabase.rpc("get_global_event_candidates_window", { p_window_start: windowStart, p_window_end: windowEnd, p_limit_candidates: CANDIDATE_PAGE_SIZE, p_after_candidate_id: after });
+    const { data, error } = await withLoading(`global-events:candidates:${cacheKey}:${after ?? "first"}`, "全球情勢 AI 初判", signal ? query.abortSignal(signal) : query);
     if (error) throw new Error(`Supabase get_global_event_candidates_window: ${error.message}`);
     if (!data || typeof data !== "object" || Array.isArray(data) || !Array.isArray((data as JsonObject).rows)) {
       throw new Error("Global Events candidate window envelope is invalid");
     }
     const envelope = data as JsonObject;
     const page = envelope.rows as JsonObject[];
+    if (page.length > CANDIDATE_PAGE_SIZE) throw new Error("Global Events candidate page exceeds configured row limit");
     rows.push(...page.map(parseGlobalEventCandidate));
+    loadedPages += 1;
     totalCandidates = Math.max(totalCandidates, Number(envelope.total_candidates ?? 0));
-    if (envelope.has_more !== true) break;
+    if (envelope.has_more !== true) return { rows, totalCandidates, partial: false, continuation: null };
     const next = nullableString(envelope.next_after_candidate_id);
     if (!next || (after !== null && next <= after)) throw new Error("Global Events candidate pagination did not advance");
+    if (signal?.aborted) throw signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+    if (loadedPages >= CANDIDATE_PAGE_BUDGET || rows.length >= CANDIDATE_ROW_BUDGET) return { rows, totalCandidates, partial: true, continuation: { afterCandidateId: next, loadedPages, loadedRows: rows.length } };
     after = next;
   }
-  return { rows, totalCandidates };
 }
 const candidateWindowCached = cachedByKey(fetchGlobalEventCandidatesWindowUncached, 5 * 60_000, 8);
-export function fetchGlobalEventCandidatesWindow(start: string, end: string): Promise<GlobalEventCandidateWindow> {
-  return candidateWindowCached(`${start}|${end}`);
+export function fetchGlobalEventCandidatesWindow(start: string, end: string, signal?: AbortSignal): Promise<GlobalEventCandidateWindow> {
+  const key = `${start}|${end}`;
+  return signal ? fetchGlobalEventCandidatesWindowUncached(key, signal) : candidateWindowCached(key);
 }
 
 export function selectGlobalSituationEntries(

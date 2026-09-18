@@ -57,4 +57,6 @@
 
 Zeabur 沿既有 master 自動部署。Docker entrypoint 的既有 pull 流程最後執行 `install-jp-medical-assets.py`；下載 manifest allowlist，驗完整 SHA/bytes，全部成功後原子切換 `/data/jp-medical/current.json`，失敗保留舊 pointer，舊 release 不刪除。nginx 從 `/data` 提供同網域 `/jp-medical/`，PMTiles Range、JSON/GeoJSON MIME、immutable 一年、current 60 秒，missing 回 404 不走 SPA。
 
+Installer 在 payload 下載前會按尚未有 verified release／staging 的 bytes 加 16 MiB safety 檢查同檔案系統可用空間；不足時不切 current、不清理任何 release，既有 verified staging 可供下次續跑。
+
 本批不新增 Supabase RPC、R2、collector 或排程。production 證據、Git commit／PR、S3 receipt 與限制統一見 [release.md](./release.md)。catalog 的 `LOCAL_READY_NOT_DEPLOYED` 是產製時的固定狀態；不修改 immutable 產物來冒充發布證据，實際發布狀態以 release receipt／正式驗收為準。

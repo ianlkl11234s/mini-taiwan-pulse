@@ -78,14 +78,39 @@ describe("Global situation candidates are retained independently of Qwen importa
     const result = await fetchGlobalEventCandidatesWindow("2026-08-27T00:00:00Z", "2026-09-02T00:00:00Z");
     expect(result.rows).toHaveLength(2);
     expect(result.totalCandidates).toBe(1102);
+    expect(result).toMatchObject({ partial: false, continuation: null });
     expect(api.rpc).toHaveBeenNthCalledWith(2, "get_global_event_candidates_window", {
       p_window_start: "2026-08-27T00:00:00Z", p_window_end: "2026-09-02T00:00:00.000Z", p_limit_candidates: 200, p_after_candidate_id: "c1000",
     });
   });
 
+  it("stops at the five-page/1000-row budget and returns the precise continuation cursor", async () => {
+    const page = (n: number) => Array.from({ length: 200 }, (_, i) => observation({ candidate_id: `p${n}-${i}` }));
+    for (let n = 1; n <= 5; n++) api.rpc.mockResolvedValueOnce({ data: { rows: page(n), total_candidates: 1200, has_more: true, next_after_candidate_id: `after-${n}` }, error: null });
+    const result = await fetchGlobalEventCandidatesWindow("2026-08-20T00:00:00Z", "2026-09-02T00:00:00Z");
+    expect(api.rpc).toHaveBeenCalledTimes(5);
+    expect(result.rows).toHaveLength(1000);
+    expect(result).toMatchObject({ totalCandidates: 1200, partial: true, continuation: { afterCandidateId: "after-5", loadedPages: 5, loadedRows: 1000 } });
+  });
+
+  it("aborting transport rejects before a follow-up page is requested", async () => {
+    const controller = new AbortController();
+    const pending = new Promise<never>((_, reject) => controller.signal.addEventListener("abort", () => reject(controller.signal.reason)));
+    api.rpc.mockReturnValue({ abortSignal: vi.fn(() => pending) });
+    const loading = fetchGlobalEventCandidatesWindow("2026-08-19T00:00:00Z", "2026-09-02T00:00:00Z", controller.signal);
+    controller.abort(new DOMException("cancelled", "AbortError"));
+    await expect(loading).rejects.toMatchObject({ name: "AbortError" });
+    expect(api.rpc).toHaveBeenCalledTimes(1);
+  });
+
   it("fails visibly when pagination cannot advance instead of silently truncating", async () => {
     api.rpc.mockResolvedValue({ data: { rows: [observation()], has_more: true, next_after_candidate_id: "c1" }, error: null });
     await expect(fetchGlobalEventCandidatesWindow("2026-08-28T00:00:00Z", "2026-09-02T00:00:00Z")).rejects.toThrow("pagination did not advance");
+  });
+
+  it("rejects an oversized page instead of silently dropping rows behind its cursor", async () => {
+    api.rpc.mockResolvedValue({ data: { rows: Array.from({ length: 201 }, (_, i) => observation({ candidate_id: `oversized-${i}` })), has_more: false }, error: null });
+    await expect(fetchGlobalEventCandidatesWindow("2026-08-18T00:00:00Z", "2026-09-02T00:00:00Z")).rejects.toThrow("exceeds configured row limit");
   });
 
   it("does not resurrect a retracted formal event as an AI map point; history before withdrawal remains", () => {

@@ -300,6 +300,32 @@ class PublicationContractTest(unittest.TestCase):
             self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
             self.assertFalse((target / ".install-staging").exists())
 
+    def test_installer_staging_space_gate_preserves_old_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.shutil, "disk_usage", return_value=SimpleNamespace(free=0)):
+                with self.assertRaisesRegex(ValueError, "insufficient staging space"):
+                    INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+            self.assertFalse((target / ("releases/" + "a" * 64)).exists())
+
+    def test_installer_resume_needs_no_payload_headroom(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            for relative in PUBLISH.COMPACT_ASSET_PATHS:
+                staged = target / f".install-staging/{version}/objects/releases/{version}/{relative}"
+                staged.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / f"releases/{version}/{relative}", staged)
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.shutil, "disk_usage", return_value=SimpleNamespace(free=INSTALL.STAGING_SAFETY_BYTES)):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+
 
 if __name__ == "__main__":
     unittest.main()

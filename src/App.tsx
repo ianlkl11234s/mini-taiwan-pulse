@@ -1,7 +1,7 @@
 import { MainMapConnection } from "./research/MainMapConnection";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
@@ -94,7 +94,7 @@ import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
-import { LegendPanel } from "./components/LegendPanel";
+const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -2921,7 +2921,11 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          <LegendPanel isDarkTheme={isDarkTheme} />
+          {Object.values(layerVisibility).some(Boolean) && (
+            <Suspense fallback={<span role="status">圖例載入中…</span>}>
+              <LegendPanel isDarkTheme={isDarkTheme} />
+            </Suspense>
+          )}
         </div>
       </div>
 

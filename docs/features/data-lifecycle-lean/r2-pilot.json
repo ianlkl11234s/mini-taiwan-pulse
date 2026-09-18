@@ -1,0 +1,66 @@
+{
+  "checked_at": "2026-09-18T08:04:52.386030+00:00",
+  "bucket": "mini-tw-pulse",
+  "key": "forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles",
+  "sha256": "1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc",
+  "bytes": 2030870,
+  "public_url": "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles",
+  "cors": {
+    "CORSRules": [
+      {
+        "AllowedHeaders": [
+          "*"
+        ],
+        "AllowedMethods": [
+          "GET",
+          "HEAD"
+        ],
+        "AllowedOrigins": [
+          "*"
+        ],
+        "ExposeHeaders": [
+          "Content-Length",
+          "Content-Type",
+          "ETag",
+          "Content-Range",
+          "Accept-Ranges"
+        ],
+        "MaxAgeSeconds": 86400
+      }
+    ]
+  },
+  "uploaded": true,
+  "readback": "PASS",
+  "content_type": "application/vnd.pmtiles",
+  "cache_control": "public,max-age=31536000,immutable",
+  "http": [
+    {
+      "headers": [
+        "HTTP/2 206 ",
+        "content-type: application/vnd.pmtiles",
+        "access-control-expose-headers: Content-Length,Content-Type,ETag,Content-Range,Accept-Ranges",
+        "access-control-allow-origin: *",
+        "cache-control: public,max-age=31536000,immutable",
+        "etag: \"aab530d6e6e837b83f4f10cf36bf7b35\"",
+        "content-range: bytes 0-126/2030870",
+        "cf-cache-status: MISS"
+      ],
+      "range_magic": "PASS",
+      "bytes": 127
+    },
+    {
+      "headers": [
+        "HTTP/2 206 ",
+        "content-type: application/vnd.pmtiles",
+        "access-control-expose-headers: Content-Length,Content-Type,ETag,Content-Range,Accept-Ranges",
+        "access-control-allow-origin: *",
+        "cache-control: public,max-age=31536000,immutable",
+        "etag: \"aab530d6e6e837b83f4f10cf36bf7b35\"",
+        "content-range: bytes 0-126/2030870",
+        "cf-cache-status: HIT"
+      ],
+      "range_magic": "PASS",
+      "bytes": 127
+    }
+  ]
+}

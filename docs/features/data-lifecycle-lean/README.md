@@ -59,7 +59,7 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 
 前端 PMTiles bytes 應在本批保持不變。舊公開 GeoJSON URL 的外部使用者不在應用內 consumer 搜尋可證明範圍內，因此本批先停止新發布／同步，不刪既有 cloud object；若後續退役舊 URL，需先查使用紀錄及給定退役期。
 
-本批之後，優先量測日本醫療屬性／瓦片預算、waste stops 與 Ookla 視窗化。重建前列每欄 consumer，必要屬性與 geometry count 做前後比對；保留幾何來源與計數口徑。raw／history 保留、CDN Cache Rules、帳單仍按原生命周期計畫分階段治理，不建立另一套平行登記簿。
+後續大型候選為 waste stops 與 Ookla 視窗化；日本醫療預算與屬性盤點見本頁後續驗收。重建前列每欄 consumer，必要屬性與 geometry count 做前後比對；保留幾何來源與計數口徑。raw／history 保留、CDN Cache Rules、帳單仍按原生命周期計畫分階段治理，不建立另一套平行登記簿。
 
 ## 驗收
 
@@ -70,3 +70,39 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 - shell 語法與 `git diff --check` 通過。
 - 本地 nginx 1.27.4：9 個 HTTP cases 通過；/data 與 dist GeoJSON MIME＋gzip＋1 日 cache、JSON／JS／PNG MIME、PMTiles 206 且不 gzip、Ookla dist 優先、missing 404、private unknown path no-store。fixture config 與候選僅替換 listen/root，SHA 見 [nginx-runtime.json](./nginx-runtime.json)。這不代表正式 CDN 命中或已驗 private 授權。
 - 部署／正式站結果另列。Cloudflare 公開 JSON cache eligibility 仍需 rules 權限／正式讀回確認。
+
+
+## 持續完成批次（2026-09-18）
+
+本頁為本次工作唯一入口；證據與未完成條件逐項列在 [completion-ledger.md](./completion-ledger.md)，不另建快取服務或新的生命週期框架。
+
+- 公開靜態供應：PR 304 正式部署讀回已通過；林業單一 immutable R2 試點已完整 SHA/bytes 回讀、Range/CORS/第二次 CDN HIT，前端使用同一 URL 常數。
+- 前端：All Off 不載 LegendPanel；初始 JS import closure 實測 gzip 減少 41,407 bytes（不是整體流量百分比或瀏覽器耗時）。醫療預設低縮放只讀既有 z6 聚合，放大才掛完整 PMTiles；使用者仍能全縮放開完整點位。
+- 動態上限：Global Events 每次最多 5 頁／1,000 列，明示 partial 與 continuation，換查詢/unmount 取消；禁止單頁超出契約後靜默截斷。靜態 CDN 失敗回錯誤，不再讓每個訪客自動改查 DB；14/14 正式資產已讀回。
+- 收集器：串流 tar、member SHA/bytes receipt、遠端 identity 綁定、驗證後清理；有效 receipt 避免反覆壓縮及全檔 GET。磁碟滿不阻擋已有 receipt 的清理，未知本地檔案保留。
+- 發布安裝：只需未完成 payload 的空間加 16 MiB 餘量，verified staging 可續跑，空間不足不切 current。
+- Supabase：migration 412 保護水利署永久歷史、補 6 表保留登記、辨識已存在的 3/7 天 cleanup。新聞與直播歷史仍顯示 HOLD 告警，未以刪資料消除告警。
+
+### 擴展下一個國家的准入條件
+
+沿用既有 layer manifest、上游 DATA_LIFECYCLE 與平台 retention registry；每個新來源至少交付來源/授權、資料日期與更新頻率、source grain、raw 重抓成本、raw/展示/中間產物 bytes、欄位 consumer、geometry/missing 語意、負責 producer、失敗重試與保留窗口。未填 retention 的大型動態表不得默默上排程。
+
+大點位先給低縮放明示聚合，再按視窗讀完整資料；大面用 PMTiles 與必要屬性。JSON 超出現有同類圖層預算時先量測 gzip/parse/memory，不以「換 CDN」當作瀏覽器負載已解決。immutable 檔先上傳並 SHA/bytes/readback，最後切 current；current/rollback/舊 session 引用期未過不得清 release。
+
+### 成本與容量的操作界線
+
+- 費用模型分開：儲存 GB-month、PUT/GET/HEAD/Range 次數、origin egress、冷層 retrieval、Supabase compute/egress、Zeabur volume/compute、Mapbox 使用量。快取降低回源，不代表大量訪客零成本。
+- R2 Standard 官方價格目前為 $0.015/GB-month、Class A $4.50/百萬、Class B $0.36/百萬，Internet egress 不另計；free tier 為帳號共享，不能逐專案重複扣除。請以帳單當月用量、級距及 rounding 算實付，不把這次 2 MB 試點換算為已節省月費。[官方定價](https://developers.cloudflare.com/r2/pricing/)
+- Origin 的 public Cache-Control 不等於 Cloudflare 已快取；需要實際 MISS/HIT/Age/Range 驗收。JSON 預設 eligibility 也需要 zone rule，不能只改 nginx。[官方預設快取行為](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/)
+- 共用 S3 bucket 現有全域 30 天 Standard-IA／90 天 Glacier-IR transition 未擅改；它也涵蓋其他專案。未取得各 prefix owner/讀取量前，不把整個 bucket 調整為展示層政策。新展示試點走 R2 Standard；S3 保留備份角色。
+- 日常使用既有 health/daily report 追 retention coverage；news/yt HOLD 不隱藏。容量可操作門檻：共享 filesystem >=80% 或 free < 下一次完整工作集＋安全餘量要排查；>=90% 阻擋新增大產製。這是操作門檻，未宣稱已新建自動容量告警。
+- 真實帳單與 Cloudflare zone 規則尚缺權限。此次沒有宣稱月費降低多少，也沒有變更私人資料的公開範圍。
+
+
+### 本批本地驗收結果
+
+- `npx tsc -b`、Vite build 通過；仍有既存大型 chunk warning，未宣稱首包問題全解。
+- 全套 218 files 首輪：215 passed、1 skipped、2 failed；失敗僅是林業 URL 的既有 golden/部署路徑斷言。已透過官方 regen 更新唯一一行 URL，部署契約改驗精確 R2 receipt＋本地 bytes/SHA，相關 35 tests 重驗全過。其餘 1,656 tests 首輪通過；正式 CI 再驗全套。
+- installer/publication 19 tests 通過。
+- browser-acceptance.json：林業 R2 顯示、醫療 z5 聚合與完整模式、z10 醫院/長照、真實 popup、All Off 均通過；無驗收狀態 console error。
+- 醫療 aggregate catalog bytes：Navii 22,900、H17 151,147（共 174,047），避免低 zoom 預先掛兩份完整 PMTiles。完整點位 z5 實際觀察 13,159,430 bytes 的 Range responses，包含重複請求；不是完整 archive 大小，也不是冷啟動或普遍省量比率。
