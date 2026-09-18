@@ -1,0 +1,273 @@
+{
+  "format_version": 1,
+  "ordering": "Sequential table scan; PK uniqueness retained. Content SHA deduplicates byte-identical payloads, not snapshots reordered by DB maintenance.",
+  "created_at_utc": "2026-09-18T13:56:46.626457+00:00",
+  "snapshot_timestamp_utc": "2026-09-18T13:56:37.450575",
+  "postgres_snapshot": "0000004E-00000B49-1",
+  "schema_file": "schema.sql",
+  "dependencies_file": "dependencies.sql",
+  "restore_prerequisites": [
+    "PostgreSQL 17",
+    "PostGIS (required by live.news_events.geometry)",
+    "Existing spatial.township_boundaries (required before creating live.news_events_fill_geom())",
+    "Apply dependencies.sql, then schema.sql, before loading CSV files",
+    "CSV NULL is the literal unquoted token \\N"
+  ],
+  "restore_notes": [
+    "Create required schemas/PostGIS first; if exported FK parent tables are listed, load parents first. Preserve exported geometry by disabling news user triggers during restore, then re-enable them.",
+    "COPY uses explicit identity values; after loading a table with identity_sequence, run its sequence_restore_sql.",
+    "schema.sql and dependencies.sql are an export recipe, not an executed restore verification."
+  ],
+  "tables": {
+    "live.news_events": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "url",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "url_norm",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "summary",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "location_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "county",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "admin_code",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "geom",
+          "type": "geometry(Point,4326)",
+          "nullable": true
+        },
+        {
+          "name": "published_ts",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "confidence",
+          "type": "real",
+          "nullable": true
+        },
+        {
+          "name": "title_simhash",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "gis_relevance",
+          "type": "smallint",
+          "nullable": true
+        },
+        {
+          "name": "severity",
+          "type": "smallint",
+          "nullable": true
+        },
+        {
+          "name": "is_event",
+          "type": "boolean",
+          "nullable": true
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_key_targets": [],
+      "identity_sequence": "live.news_events_id_seq",
+      "pg_total_relation_size_bytes": 140337152,
+      "pg_relation_size_bytes": 88915968,
+      "pg_indexes_size_bytes": 51240960,
+      "sequence_restore_sql": "SELECT setval('live.news_events_id_seq', (SELECT max(id) FROM live.news_events), true);",
+      "file": "live.news_events.csv.gz",
+      "csv_null": "\\N",
+      "row_count": 172304,
+      "uncompressed_bytes": 88714712,
+      "gzip_bytes": 31236087,
+      "gzip_sha256": "20b6f9be4629f5868db768612866a1aee2949f8b9944efc6c54e96c36bc6f38f",
+      "copy_rowcount": 172304
+    },
+    "live.yt_live_history": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigint",
+          "nullable": false
+        },
+        {
+          "name": "handle",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "channel_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "video_id",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "is_live",
+          "type": "boolean",
+          "nullable": true
+        },
+        {
+          "name": "view_count",
+          "type": "bigint",
+          "nullable": true
+        },
+        {
+          "name": "last_error",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "collected_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "primary_key": [
+        "id"
+      ],
+      "foreign_key_targets": [],
+      "identity_sequence": "live.yt_live_history_id_seq",
+      "pg_total_relation_size_bytes": 133758976,
+      "pg_relation_size_bytes": 71041024,
+      "pg_indexes_size_bytes": 62660608,
+      "sequence_restore_sql": "SELECT setval('live.yt_live_history_id_seq', (SELECT max(id) FROM live.yt_live_history), true);",
+      "file": "live.yt_live_history.csv.gz",
+      "csv_null": "\\N",
+      "row_count": 346229,
+      "uncompressed_bytes": 69288032,
+      "gzip_bytes": 2811504,
+      "gzip_sha256": "0fff566f8b0a46a4ed348d3e50f3dafd7ff388aec90789b349554422691e2a11",
+      "copy_rowcount": 346229
+    },
+    "live.iot_wra_measurements": {
+      "columns": [
+        {
+          "name": "iow_station_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "physical_quantity_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "station_type",
+          "type": "text",
+          "nullable": false
+        },
+        {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "full_name",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "si_unit",
+          "type": "text",
+          "nullable": true
+        },
+        {
+          "name": "value",
+          "type": "double precision",
+          "nullable": true
+        },
+        {
+          "name": "collected_at",
+          "type": "timestamp with time zone",
+          "nullable": false
+        }
+      ],
+      "primary_key": [
+        "iow_station_id",
+        "physical_quantity_id",
+        "observed_at"
+      ],
+      "foreign_key_targets": [],
+      "identity_sequence": null,
+      "pg_total_relation_size_bytes": 1409687552,
+      "pg_relation_size_bytes": 526180352,
+      "pg_indexes_size_bytes": 883335168,
+      "file": "live.iot_wra_measurements.csv.gz",
+      "csv_null": "\\N",
+      "row_count": 3081386,
+      "uncompressed_bytes": 573348526,
+      "gzip_bytes": 159806889,
+      "gzip_sha256": "5169aa78e29fe7fe6693d3cb9f465594de0ec4ac77bac2c6901f8a21bd038788",
+      "copy_rowcount": 3081386
+    }
+  },
+  "schema_sha256": "6ad0802f042787c7ffc499d8b2725841d6d2335d62f2c3fbb0445875ed1ccaae",
+  "schema_bytes": 7345,
+  "dependencies_sha256": "4141d4e9e014b7d99a9fc56cc9d8aada99f83e853479b244dfab6f48ae56bc57",
+  "dependencies_bytes": 936
+}

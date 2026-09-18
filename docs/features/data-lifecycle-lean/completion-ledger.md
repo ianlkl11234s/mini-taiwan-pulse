@@ -17,7 +17,7 @@ Collector /data 69G；filesystem 共用 125G used/25G free，不能混算。GFW 
 ## 已知阻塞／後續界線
 
 1. Cloudflare authenticated UI 已補 rule／R2／billing readback，但既有 API token 仍不能管理 itsmigu.com zone；AWS／Zeabur 帳單未驗證。請勿在聊天貼 secret。
-2. news_events/yt_live_history 尚無可驗證 archive＋保留決策；保持 HOLD。資料保留與費用有取捨，不能以未定義天數自動刪除。
+2. news_events/yt_live_history/iot_wra_measurements 已完成一致快照私有 Deep Archive，共 193,854,480 bytes，見 [cold-archive.md](./cold-archive.md)。尚未實際 DB restore 或決定線上保留期限；news/yt 保持 HOLD。資料保留與費用有取捨，不能以未定義天數自動刪除。
 3. GFW failed/running spool 不是本批可清理完成項；恢復 pipeline／對帳後才有精確候選，無 broad-prefix 刪除。
 4. S3 共用 bucket policy、其他大圖層視窗化與全國資料搬遷屬後續分層遷移；本次以一層實測建立基線，避免一次重構所有 consumer。
 
