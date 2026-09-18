@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 import { JP_TOURISM_DATASETS } from "../jpTourismLoader";
 import {
   JP_ACCOMMODATION_CATEGORY_COLOR_EXPRESSION,
+  JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
   JP_ACCOMMODATION_DENSITY_SCALES,
 } from "../jpTourismTypes";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
 
 describe("Japan tourism delivery policy", () => {
@@ -59,6 +61,20 @@ describe("Japan tourism delivery policy", () => {
     expect(JP_ACCOMMODATION_DENSITY_SCALES.every((scale) => scale.minzoom === 0)).toBe(true);
   });
 
+  it("preserves each canonical input's date and license status on derived density tiles", () => {
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "Japan Tourism Agency (as of 2026-03-31; license/status: not provided in source record)",
+    );
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "Kyoto City, Shizuoka City, Koto City (as of 2026-09-10; license/status: not provided in source record)",
+    );
+    expect(JP_ACCOMMODATION_DENSITY_ATTRIBUTION).toContain(
+      "© OpenStreetMap contributors (as of 2026-09-10; ODbL 1.0)",
+    );
+    const grids = OVERLAY_REGISTRY.filter((config) => config.id === "jpAccommodationDensity");
+    expect(grids.every((config) => config.attribution === JP_ACCOMMODATION_DENSITY_ATTRIBUTION)).toBe(true);
+  });
+
   it("only displays the selected density source", () => {
     const grids = OVERLAY_REGISTRY.filter((config) => config.id === "jpAccommodationDensity");
     const visibility = { jpAccommodationDensity: true } as LayerVisibility;
@@ -68,6 +84,14 @@ describe("Japan tourism delivery policy", () => {
     expect(grids.map((grid) => isOverlayVisible(grid, visibility, {
       jpAccommodationDensityScaleIdx: 1,
     }))).toEqual([false, true]);
+  });
+
+  it("orders density clicks by cell size around the 1 km population mesh", () => {
+    const types = GIS_LAYERS.map((entry) => `${entry.type}:${entry.layers[0]}`);
+    expect(types.indexOf("jpAccommodationDensity:jp-accommodation-density-450-fill"))
+      .toBeLessThan(types.indexOf("jpPopulationMesh1km:jp-population-mesh-fill"));
+    expect(types.indexOf("jpPopulationMesh1km:jp-population-mesh-fill"))
+      .toBeLessThan(types.indexOf("jpAccommodationDensity:jp-accommodation-density-1500-fill"));
   });
 
   it("keeps HOLD and non-commercial datasets local-only", () => {

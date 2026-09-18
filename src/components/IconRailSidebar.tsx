@@ -1045,7 +1045,7 @@ function LayersPanel({
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
 }: LayersPanelProps) {
-  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
+  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
   const q = search.trim().toLowerCase();
   const themesToRender = themes ?? THEMES;
   const searchContext = useMemo(() => {

@@ -124,8 +124,9 @@ gate 完成前不得 merge。
 - 移除 Icon Rail 的 Property Value app 與獨立浮動面板入口。
 - 新增一般統計 layer，以縣市／鄉鎮行政界呈現 corrected market value choropleth。
 - 提供行政層級、色階、opacity、legend、popup 與來源／限制。
-- `property_value_admin.json` 目前有 19 縣市／352 鄉鎮；與 boundary join 不到的金門、
-  連江、嘉義市及其鄉鎮顯示 missing，不著色為 0。
+- `property_value_admin.json` 目前有 19 縣市／352 鄉鎮；來源未提供的金門、
+  連江、澎湖及其鄉鎮顯示 missing，不著色為 0。嘉義市（`10020`）與其兩區
+  已存在於來源，應照實 join 並顯示數值。
 - 既有逐棟估值與三尺度 property-value grid 保留，除非測試證明與新統計層衝突。
 
 驗收：側邊 rail 不再有 app；圖層面板可切縣市／鄉鎮，色彩與 popup 對同一行政單位、
@@ -169,4 +170,7 @@ gate 完成前不得 merge。
 | PR 3A 旅宿上游產物 | taipei-gis-analytics #93 / `51db5e14` | 17 focused passed；4 個 `pmtiles verify`；canonical z0=25,459、OSM z0=20,502；兩尺度網格 `sum(n_records)=25,459`；四檔 S3 full-body SHA/bytes readback PASS | 已以一般 merge commit 合入；四個 immutable artifacts 已上傳並驗證 |
 | PR 3B 旅宿前端 | #265 / `7e011185` | focused 73 passed；`tsc -b`；全站 1,601 passed / 8 skipped；build passed；production HTTP 206／bytes PASS；desktop：預設 0/5、canonical/OSM z4.7、density z4.7/z9、legend/popup；390x844 OSM z4.7；console warning/error 0 | 已以一般 merge commit 合入；Zeabur deployment `6aacade8` RUNNING；production 驗收完成，詳見 `pr3-accommodation-production-acceptance.md` |
 | PR 4A 醫療全縮放上游 | taipei-gis-analytics #94 / `bff65414` | 20 focused passed；兩個 `pmtiles verify`；Navii z0=189,800、H17 z0=222,194；無 `dropped_by_rate`；座標衝突 0 | 已以一般 merge commit 合入；約 602 MB 產物保存在永久 worktree，未上傳／部署 |
-| PR 4B 醫療／長照／醫療圈 | draft #266 | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；35 focused passed；全套 1,601 passed / 8 skipped；`tsc -b`／build；778 檔 SHA/bytes 與 localhost HTTP PASS；z4.7 browser 三組分類色／控制／圖例 PASS、console error 0 | 候選 release `6f59ead2…fdafa` 與 781-object dry-run 已永久保存；待發布授權、S3/CDN readback、production browser，再轉 ready 與一般 merge |
+| PR 4B 醫療／長照／醫療圈 | #266 / `9b8c1afc` | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；35 focused passed；全套 1,601 passed / 8 skipped；`tsc -b`／build；778 檔 SHA/bytes 與 localhost HTTP PASS；分類色／控制／圖例 browser PASS | 已以一般 merge commit 合入；候選 release `6f59ead2…fdafa` 已發布且 production HTTP 驗證通過，完整 production browser 紀錄仍待補齊 |
+| PR 5 日本／全球命名與分組 | #277 / `7ebbb865` | layer key、source 與 asset path 不變；35 focused passed；`tsc -b`；全套 1,603 passed / 8 skipped；build passed；desktop 全球 5 主題與日本中日文名稱 PASS；390x844 mobile 無「世界」大分組 PASS；正確 env 啟動後無新增 console error；CI passed | 已以一般 merge commit 合入 |
+| PR 6A GFW collector toolchain | gis-data-collectors #90 / `3518569e` | production ledger 定位缺少 Tippecanoe/PMTiles；17 focused passed；完整 Docker build PASS；image 內 Python resolver 找到兩個 Linux CLI；GitHub CI passed；Zeabur deployment `6aacbed4` RUNNING | 已以一般 merge commit 合入；不手動重跑 publisher，下一次 08:30 排程另行驗證新 release |
+| PR 6B GFW freshness UI | 本 PR | 完整 `YYYY-MM-DD UTC`、落後日數、DELAYED/STALE；legacy daily Presence 標成 historical；focused 52 passed；`tsc -b`；全套 1,606 passed / 8 skipped；build passed；browser Grid/Tracks/SAR 完整日期與 STALE PASS；production audit 見 `../global-maritime/gfw-freshness-audit-2026-09-18.md` | 待 CI 與一般 merge commit |

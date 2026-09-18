@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
-import { appendFile, chmod, mkdir, readFile } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, readdir, rename, rm, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
-import { dirname, resolve } from "node:path";
+import { basename, dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
 import { pathToFileURL } from "node:url";
 import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -32,7 +32,12 @@ const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
 
 export const ALLEN_CORAL_ATLAS_PORT = 8796;
 const ALLEN_CORAL_ATLAS_REVOKE_PATH = "/private/tmp/pulse-allen-private-runtime/allen-coral-atlas-revoked-sessions.jsonl";
+const ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES = 1024 * 1024;
+const ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 5;
+const MIN_ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES = 64 * 1024;
+const MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 100;
 const allenSnapshotCache = new Map();
+const auditRetentionByPath = new Map();
 
 export function getConfig(env = process.env) {
   const accessKeyId = firstConfigured(env.S3_ACCESS_KEY);
@@ -91,11 +96,23 @@ export function getAllenCoralAtlasConfig(env = process.env) {
   }
   if (origins.size === 0) return { error: "configuration unavailable" };
   const auditPath = firstConfigured(env.ALLEN_CORAL_ATLAS_AUDIT_PATH);
+  const auditMaxBytes = parseBoundedInteger(
+    env.ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    MIN_ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    Number.MAX_SAFE_INTEGER,
+  );
+  const auditRetainedFiles = parseBoundedInteger(
+    env.ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+    ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+    1,
+    MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+  );
   const revokePath = firstConfigured(env.ALLEN_CORAL_ATLAS_REVOKE_PATH)
     ?? (storage === "s3" ? ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH : ALLEN_CORAL_ATLAS_REVOKE_PATH);
-  if ((auditPath && !auditPath.startsWith("/")) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
+  if ((auditPath && (!auditPath.startsWith("/") || !auditMaxBytes || !auditRetainedFiles)) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
   return {
-    supabaseUrl, supabaseAnonKey, storage, origins, auditPath, revokePath,
+    supabaseUrl, supabaseAnonKey, storage, origins, auditPath, auditMaxBytes, auditRetainedFiles, revokePath,
     ...(storage === "s3" ? {
       accessKeyId,
       secretAccessKey,
@@ -107,6 +124,13 @@ export function getAllenCoralAtlasConfig(env = process.env) {
 
 function firstConfigured(...values) {
   return values.find((value) => typeof value === "string" && value.trim())?.trim();
+}
+
+function parseBoundedInteger(value, fallback, min, max) {
+  if (value === undefined || value === "") return fallback;
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
 
 export function parseRange(range) {
@@ -422,6 +446,7 @@ export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_
 }
 
 const persistentDenylistByPath = new Map();
+const auditWriteQueueByPath = new Map();
 
 export function createAllenSessionDenylist(file) {
   const sessions = new Set();
@@ -482,10 +507,59 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
     contentRange: output.headers.get("content-range"),
   };
   if (audit) return audit(record);
-  // appendFile creates the opt-in local evidence file with owner-only permissions.
-  await mkdir(dirname(config.auditPath), { recursive: true, mode: 0o700 });
-  await appendFile(config.auditPath, `${JSON.stringify(record)}\n`, { encoding: "utf8", mode: 0o600 });
-  await chmod(config.auditPath, 0o600);
+  const line = `${JSON.stringify(record)}\n`;
+  return enqueueAllenAuditWrite(config.auditPath, async () => {
+    // appendFile opens and closes each write. Serializing rotation and append keeps
+    // a request from writing into a file another request has just renamed.
+    await mkdir(dirname(config.auditPath), { recursive: true, mode: 0o700 });
+    await rotateAllenAuditLog(config.auditPath, Buffer.byteLength(line), config.auditMaxBytes, config.auditRetainedFiles);
+    await appendFile(config.auditPath, line, { encoding: "utf8", mode: 0o600 });
+    await chmod(config.auditPath, 0o600);
+  });
+}
+
+function enqueueAllenAuditWrite(file, write) {
+  const previous = auditWriteQueueByPath.get(file) ?? Promise.resolve();
+  const pending = previous.catch(() => undefined).then(write);
+  auditWriteQueueByPath.set(file, pending);
+  return pending.finally(() => {
+    if (auditWriteQueueByPath.get(file) === pending) auditWriteQueueByPath.delete(file);
+  });
+}
+
+async function rotateAllenAuditLog(file, nextRecordBytes, maxBytes, retainedFiles) {
+  // Retention cleanup is an initialization/config-change task. Do not issue up
+  // to 99 failing rm calls for every private request once the configuration is
+  // already known. Rotation below only touches generations that actually exist.
+  if (auditRetentionByPath.get(file) !== retainedFiles) {
+    const prefix = `${basename(file)}.`;
+    const generations = await readdir(dirname(file));
+    for (const entry of generations) {
+      const suffix = entry.startsWith(prefix) ? entry.slice(prefix.length) : "";
+      if (/^\d+$/.test(suffix) && Number(suffix) > retainedFiles) await rm(`${file}.${suffix}`);
+    }
+    auditRetentionByPath.set(file, retainedFiles);
+  }
+  let currentSize = 0;
+  try {
+    currentSize = (await stat(file)).size;
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  if (currentSize + nextRecordBytes <= maxBytes) return;
+
+  // Rename newest last, so a failed rotation never truncates the active log.
+  // rename replaces only the oldest retained file; no private record is copied.
+  for (let index = retainedFiles - 1; index >= 1; index -= 1) {
+    try {
+      await rename(`${file}.${index}`, `${file}.${index + 1}`);
+      await chmod(`${file}.${index + 1}`, 0o600);
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+  await rename(file, `${file}.1`);
+  await chmod(`${file}.1`, 0o600);
 }
 
 export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
@@ -649,10 +723,24 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
     ? createAllenCoralAtlasS3Gateway(config)
     : createAllenCoralAtlasGateway());
   const runtimeDependencies = { ...dependencies, config, gateway };
-  // Do not accept a browser request until both local snapshots have been read
-  // and verified once. A failed warmup still starts the server; its request path
-  // retries and fails closed instead of claiming the data is available.
-  const warmup = Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+  const readiness = { ready: false, failed: false };
+  const warmupAttempts = dependencies.warmupAttempts ?? 3;
+  const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
+  // Read and verify both immutable snapshots before permitting private requests.
+  // The listener still starts immediately so a failed or slow warmup is
+  // observable as a fail-closed 503 instead of a connection refusal.
+  const warmup = (async () => {
+    for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
+      try {
+        await Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
+        readiness.ready = true;
+        return;
+      } catch {
+        if (attempt + 1 < warmupAttempts) await new Promise((resolve) => setTimeout(resolve, warmupRetryDelayMs * 2 ** attempt));
+      }
+    }
+    readiness.failed = true;
+  })();
   const server = createServer(async (req, res) => {
     try {
       const controller = new AbortController();
@@ -661,7 +749,18 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       const request = new Request(`http://${req.headers.host ?? host}${req.url}`, {
         method: req.method, headers: req.headers, signal: controller.signal,
       });
-      const output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
+      let output;
+      const revokeRequest = new URL(request.url).pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
+      if (readiness.ready || revokeRequest) {
+        output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
+      } else {
+        const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
+        output = !cors
+          ? json(403, new Headers(), { error: "origin forbidden" })
+          : json(503, cors, {
+            error: readiness.failed ? "private Allen sidecar unavailable" : "private Allen sidecar is warming up",
+          });
+      }
       await writeAllenAuditRecord(request, output, runtimeDependencies.config ?? getAllenCoralAtlasConfig(), runtimeDependencies.audit);
       res.writeHead(output.status, Object.fromEntries(output.headers));
       if (!output.body || req.method === "HEAD") return res.end();
@@ -671,10 +770,8 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
       res.end();
     }
   });
-  void warmup.then(
-    () => server.listen(port, host),
-    () => server.listen(port, host),
-  );
+  server.listen(port, host);
+  void warmup;
   return server;
 }
 

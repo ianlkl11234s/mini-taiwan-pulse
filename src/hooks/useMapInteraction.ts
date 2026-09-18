@@ -381,8 +381,8 @@ export function useMapInteraction(
             return true;
           });
           if (existingIds.length === 0) continue;
-          // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
-          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" ? e.point : bbox;
+          // Small density cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" || type === "jpAccommodationDensity" ? e.point : bbox;
           const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：

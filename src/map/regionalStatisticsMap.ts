@@ -31,6 +31,9 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
       const visible = layerVisibilityStore.getVisibility(key);
       const state = regionalStatisticsStore.getSnapshot(key);
       const recipe = statisticsRenderRecipe(key, state.selection?.indicatorId);
+      // Statistics recipes may use fewer than five scale colors; use the darkest
+      // available stop for the boundary instead of assuming a five-step palette.
+      const outlineColor = recipe.colors[recipe.colors.length - 1] ?? recipe.colors[0] ?? '#64748b';
       if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       const baseKey = statisticsBaseKey(key, state.selection?.indicatorId);
       const agri = getAgriRecipe(baseKey) ?? getSocialRecipe(baseKey);
@@ -44,13 +47,13 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
           'fill-opacity': 0.55,
         } });
         map.addLayer({ id: `${key}-suppressed`, type: 'fill', source: key, filter: ['==', ['get', 'status'], 'suppressed'], layout: { visibility: 'none' }, paint: { 'fill-pattern': hatchId, 'fill-opacity': 0.55 } });
-        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { 'line-color': recipe.colors[4], 'line-width': 0.8, 'line-opacity': 0.8 } });
+        map.addLayer({ id: `${key}-line`, type: 'line', source: key, layout: { visibility: 'none' }, paint: { 'line-color': outlineColor, 'line-width': 0.8, 'line-opacity': 0.8 } });
       }
       // A presentation source survives metric switches; refresh the scale as well as values.
       const colorSteps: unknown[] = ['step', ['get', 'value'], recipe.colors[0]];
       statisticsColorStops(recipe.breaks, recipe.colors).forEach(({value, color}) => colorSteps.push(value, color));
       map.setPaintProperty(`${key}-fill`, 'fill-color', ['case', ['all', ['==', ['get', 'status'], 'observed'], ['!=', ['get', 'value'], null]], colorSteps, agri?.legend.missing_color ?? '#64748b']);
-      map.setPaintProperty(`${key}-line`, 'line-color', recipe.colors[4]);
+      map.setPaintProperty(`${key}-line`, 'line-color', outlineColor);
       const data = state.data;
       if (data && rendered.get(key) !== data) {
         rendered.set(key, data);

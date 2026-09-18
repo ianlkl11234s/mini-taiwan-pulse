@@ -55,19 +55,29 @@ export class StudyController {
     try {
       // render() synchronously applies the typed scene; its promise waits for actual idle.
       const rendered = this.render({ ...state.scene, ...pending.patch }, state.revision + 1, pending.patch);
-      let renderFailureReported = false;
+      let renderFailureNotified = false;
+      const notifyRenderFailure = () => {
+        if (renderFailureNotified || this.stopped || generation !== this.generation) return;
+        renderFailureNotified = true;
+        this.onError();
+      };
       void rendered.catch(() => {
-        renderFailureReported = true;
-        if (!this.stopped && generation === this.generation) this.onError();
+        notifyRenderFailure();
       });
       ackStarted = true;
       const applied = await client.ack(studyId, tabId, pending.commandId, state.revision);
       if (this.stopped) return;
       this.state = applied;
-      void rendered.then(async phase => {
-        if (this.stopped || generation !== this.generation || this.state?.revision !== applied.revision) return;
-        await client.report(studyId, tabId, applied.revision, phase);
-      }).catch(() => { if (!renderFailureReported && !this.stopped && generation === this.generation) this.onError(); });
+      void rendered.then(
+        async phase => {
+          if (this.stopped || generation !== this.generation || this.state?.revision !== applied.revision) return;
+          try { await client.report(studyId, tabId, applied.revision, phase); } catch { notifyRenderFailure(); }
+        },
+        async () => {
+          if (this.stopped || generation !== this.generation || this.state?.revision !== applied.revision) return;
+          try { await client.report(studyId, tabId, applied.revision, "error"); } catch { notifyRenderFailure(); }
+        },
+      );
     } catch {
       await this.recover(ackStarted ? pending.commandId : null);
     } finally {

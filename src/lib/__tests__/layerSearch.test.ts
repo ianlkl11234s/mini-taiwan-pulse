@@ -21,7 +21,7 @@ describe("layerSearch", () => {
   it("matches aliases and exposes World and Japan layers from the same index", () => {
     expect(searchLayers("急診").some((layer) => layer.key === "medHospital")).toBe(true);
     expect(searchLayers("japan airport").some((layer) => layer.key === "jpAirports")).toBe(true);
-    expect(searchLayers("global events").some((layer) => layer.theme === "世界 World")).toBe(true);
+    expect(searchLayers("global events").some((layer) => layer.theme === "全球情勢 Global Situation")).toBe(true);
   });
 
   it("requires every query term and returns no unrelated result", () => {

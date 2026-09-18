@@ -38,6 +38,7 @@ export function MainMapConnection(props: Props) {
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
+  const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
@@ -93,7 +94,7 @@ export function MainMapConnection(props: Props) {
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
+    controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
@@ -120,7 +121,13 @@ export function MainMapConnection(props: Props) {
         }
         case "layer_details": result = await describeLayers(request.args.layerKeys as string[], discoveryContext); break;
         case "layer_controls": result = describeLayerControls(String(request.args.layerKey ?? ""), current.locked); break;
-        case "geocode_address": result = { ...await resolveOfflineLocation(String(request.args.query ?? "")) }; break;
+        case "geocode_address": {
+          const lookup = new AbortController();
+          locationLookup.current = lookup;
+          try { result = { ...await resolveOfflineLocation(String(request.args.query ?? ""), lookup.signal) }; }
+          finally { if (locationLookup.current === lookup) locationLookup.current = null; }
+          break;
+        }
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
@@ -178,7 +185,7 @@ export function MainMapConnection(props: Props) {
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
-  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); ++generation.current; ++connectionEpoch.current; }, []);
+  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
   return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
     {props.map && createPortal(<div className="research-activity-position"><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}

@@ -10,12 +10,13 @@ import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeStore';
 import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
 import { FONT_SIZE, RADIUS } from '../../styles/designTokens';
+import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
 
 interface Props {
   groupKey: string;
   visibility: LayerVisibility;
   expandedLayer: string | null;
-  onLayerClick: (key: keyof LayerVisibility) => void;
+  onLayerClick: (key: keyof LayerVisibility, intent?: LayerClickIntent) => void;
   renderControls: (key: keyof LayerVisibility) => ReactNode;
   renderToggle?: (on: boolean, onChange: () => void, label: string) => ReactNode;
   textColor?: string;
@@ -62,7 +63,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     }
     setPreferred(next);
     setError('');
-    if (expandedLayer !== next) onLayerClick(next);
+    if (expandedLayer !== next) onLayerClick(next, 'statistics-variant-switch');
   };
   const toggle = () => {
     switchRequest.current += 1;

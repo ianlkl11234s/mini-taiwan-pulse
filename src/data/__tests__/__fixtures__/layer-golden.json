@@ -873,14 +873,19 @@
     },
     {
       "layers": [
+        "jp-accommodation-density-450-fill",
+        "jp-accommodation-density-450-outline"
+      ],
+      "type": "jpAccommodationDensity"
+    },
+    {
+      "layers": [
         "jp-population-mesh-fill"
       ],
       "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
-        "jp-accommodation-density-450-fill",
-        "jp-accommodation-density-450-outline",
         "jp-accommodation-density-1500-fill",
         "jp-accommodation-density-1500-outline"
       ],
@@ -1723,10 +1728,10 @@
     },
     {
       "layers": [
-        "business-registry-factory-density-1500-fill",
-        "business-registry-factory-density-450-fill"
+        "business-registry-regulated-facility-density-1500-fill",
+        "business-registry-regulated-facility-density-450-fill"
       ],
-      "type": "factoryDensityGrid"
+      "type": "regulatedFacilityDensityGrid"
     },
     {
       "layers": [
@@ -1737,10 +1742,10 @@
     },
     {
       "layers": [
-        "business-registry-regulated-facility-density-1500-fill",
-        "business-registry-regulated-facility-density-450-fill"
+        "business-registry-factory-density-1500-fill",
+        "business-registry-factory-density-450-fill"
       ],
-      "type": "regulatedFacilityDensityGrid"
+      "type": "factoryDensityGrid"
     },
     {
       "layers": [
@@ -1750,10 +1755,10 @@
     },
     {
       "layers": [
-        "business-registry-company-capital-grid-1500-company-overview-density-fill",
-        "business-registry-company-capital-grid-450-company-overview-density-fill"
+        "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
+        "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill"
       ],
-      "type": "companyPoints"
+      "type": "companyAgeStructure"
     },
     {
       "layers": [
@@ -1764,10 +1769,10 @@
     },
     {
       "layers": [
-        "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
-        "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill"
+        "business-registry-company-capital-grid-1500-company-overview-density-fill",
+        "business-registry-company-capital-grid-450-company-overview-density-fill"
       ],
-      "type": "companyAgeStructure"
+      "type": "companyPoints"
     },
     {
       "layers": [
@@ -14719,7 +14724,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10.01,
+          "maxzoom": 10,
           "minzoom": 4,
           "paint": {
             "dark": {
@@ -14885,7 +14890,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 12.01,
+          "maxzoom": 12,
           "minzoom": 10,
           "paint": {
             "dark": {

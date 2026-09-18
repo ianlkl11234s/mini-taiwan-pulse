@@ -21,7 +21,7 @@ function fetchJpStationsUncached(): Promise<GeoJSON.FeatureCollection> {
   const url = `${BASE}/jp_stations.geojson`;
   return withLoading(
     "jp-stations",
-    "日本車站",
+    "車站 駅",
     fetch(url).then((response) => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json() as Promise<GeoJSON.FeatureCollection>;

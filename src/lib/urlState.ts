@@ -22,6 +22,7 @@
  */
 import type { LayerVisibility } from "../types";
 import { LAYER_COLORS, GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { COMPARISON_STATISTICS_KEYS, STATISTICS_COMPARISONS_UI_ENABLED } from "../data/comparisonStatisticsRecipes";
 import { isRailCode } from "../constants/railLines";
 import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
 
@@ -82,6 +83,7 @@ export interface ParseOptions {
 }
 
 const ALL_LAYER_KEYS = new Set(Object.keys(LAYER_COLORS));
+const COMPARISON_STATISTICS_KEY_SET = new Set<string>(COMPARISON_STATISTICS_KEYS);
 const NON_SHAREABLE_PARAM_NAMES = new Set(["allenCoralAtlasOpacity", "allenCoralAtlasView", "allenCoralAtlasRegion"]);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -142,6 +144,9 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
       if (k === "allenCoralAtlas") return false; // private account layers are never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
+      // Comparison selectors stay in the runtime manifest for local contract validation,
+      // but production deep links must obey the same release gate as the visible catalog.
+      if (COMPARISON_STATISTICS_KEY_SET.has(k) && !STATISTICS_COMPARISONS_UI_ENABLED) return false;
       if (opts.allowedLayers && !opts.allowedLayers.has(k)) return false;
       seen.add(k);
       return true;
