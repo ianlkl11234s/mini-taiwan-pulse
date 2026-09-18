@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 760,
+    "keyCount": 761,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1198,6 +1198,15 @@
         "property-value-grid-1500-extrusion"
       ],
       "type": "propertyValueGrid"
+    },
+    {
+      "layers": [
+        "property-value-admin-county-fill",
+        "property-value-admin-county-line",
+        "property-value-admin-township-fill",
+        "property-value-admin-township-line"
+      ],
+      "type": "propertyValueAdmin"
     },
     {
       "layers": [
@@ -68535,6 +68544,30 @@
         ],
         "type": "select",
         "value": "24"
+      }
+    ],
+    "propertyValueAdmin": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "縣市（19 / 22）",
+            "value": "county"
+          },
+          {
+            "label": "鄉鎮市區（352 / 368，z6+）",
+            "value": "township"
+          }
+        ],
+        "type": "select",
+        "value": "county"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
       }
     ],
     "propertyValueGrid": [

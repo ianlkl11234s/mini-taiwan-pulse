@@ -14,6 +14,7 @@ import {
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
 import { urbanZoningCategoryLabel, urbanZoningCategoryColor } from "../../data/urbanZoningTypes";
 import { nonUrbanZoningCodeLabel, nonUrbanZoningCodeColor } from "../../data/nonUrbanZoningTypes";
+import { formatPropertyValueTwd } from "../../data/propertyValueAdminTypes";
 
 // 本檔 Title 為極簡本地版（同 fisheryPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
 function Title({ color, children }: { color: string; children: string }) {
@@ -317,6 +318,26 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
  * ⚠️ 不顯示 v_all，也不做 v_mkt − v_all：v_all 未套 GFA 校正係數，可能小於 v_mkt，
  *    相減沒有意義（上游 admin_value.json meta.field_notes 明文警告）。
  */
+export function PropertyValueAdminPanel({ props }: { props: Record<string, unknown> }) {
+  const level = props.admin_level === "township" ? "鄉鎮市區" : "縣市";
+  const value = Number(props.value_market_corrected);
+  return (
+    <>
+      <Title color="#ec7014">{String(props.admin_name ?? "不動產總市值")}</Title>
+      <Row label="行政層級" value={level} />
+      {props.county_name && props.county_name !== props.admin_name ? <Row label="所屬縣市" value={String(props.county_name)} /> : null}
+      <Row label="總市值" value={formatPropertyValueTwd(value)} color="#ec7014" />
+      <Row label="估值建物" value={numUnit(props.n_buildings, "棟")} />
+      <Row label="總樓地板面積" value={numUnit(props.gfa_m2, "m²")} />
+      <Row label="行政區代碼" value={String(props.admin_code ?? "")} />
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
+        ⓘ 市場交易建物模型估值聚合；不是公告地價、稅基或逐筆鑑價。缺值不當作 0。
+      </div>
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
 export function PropertyValueGridPanel({ props }: { props: Record<string, unknown> }) {
   const vMkt = Number(props.v_mkt);
   const scale = scaleFromGridId(props.grid_id);

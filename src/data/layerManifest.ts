@@ -4303,6 +4303,40 @@ export const LAYER_MANIFEST = {
     topics: ["房地產", "預售", "交易點"],
   },
 
+  propertyValueAdmin: {
+    key: "propertyValueAdmin",
+    section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
+    label: "不動產總市值行政區 Property Value",
+    labelMobile: "不動產總市值",
+    expandable: true,
+    color: "#ec7014",
+    icon: Coins,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["buildingsGba", "realEstateSaleGrid"],
+      derivedFromDatasets: ["property_value"],
+      derivationType: "custom",
+      processing: "每棟 GBA 建物面積 × 樓層 × 所在網格實價買賣中位單價 × 縣市 GFA 校正係數，再聚合至縣市／鄉鎮市區",
+      note: "上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；缺金門、連江、澎湖，缺值不當作 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Static property_value_admin.json joined by administrative code to independent county/township PMTiles sources via feature-state",
+      staticAssets: [
+        "./urban/property_value_admin.json",
+        "./base_map/county_boundary.pmtiles",
+        "./base_map/township_boundary.pmtiles",
+      ],
+    },
+    legend: "propertyValueAdmin",
+    popup: "propertyValueAdmin",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "不動產模型估值依縣市／鄉鎮市區聚合；市場交易建物口徑，缺值不是 0",
+    topics: ["房地產", "總市值", "統計", "行政區"],
+  },
+
   propertyValueGrid: {
     key: "propertyValueGrid",
     section: { theme: "房地產 Real Estate", group: "總市值" },

@@ -2806,6 +2806,18 @@ export const LAYER_PARAMS_SPEC = {
   // 回傳路徑逐一宣告在 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`
   // 的 `RETURN_CHANNEL`，那張表就是第二通道的文件。
 
+  propertyValueAdmin: [
+    {
+      kind: "select", name: "propertyValueAdminLevel", label: "行政層級", default: "county",
+      options: [
+        { label: "縣市（19 / 22）", value: "county" },
+        { label: "鄉鎮市區（352 / 368，z6+）", value: "township" },
+      ],
+      out: "propertyValueAdminLevelIdx", encode: ["county", "township"],
+    },
+    opacitySlider("propertyValueAdminOpacity", 0.7),
+  ],
+
   // ── NCDR 示警 5 群組：單一 source、共用一支 opacity（分開調沒有意義）──
   lifelineAlerts: [alertOpacity()],
   floodAlerts: [alertOpacity()],

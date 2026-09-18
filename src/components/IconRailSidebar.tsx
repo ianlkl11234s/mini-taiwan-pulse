@@ -1,5 +1,6 @@
 import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
@@ -14,7 +15,6 @@ import {
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   Lock,        // gated 圖層鎖頭
-  PiggyBank,   // 房地產總市值 rail panel（layer toggle 的 Coins 在 manifest）
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   type LucideIcon,
 } from "lucide-react";
@@ -99,9 +99,6 @@ interface IconRailSidebarProps {
   /** 衛星情報 Satellite Console panel toggle */
   onSatelliteToggle?: () => void;
   satelliteActive?: boolean;
-  /** 🏢 房地產總市值 PropertyValuePanel toggle（縣市長條圖，非地圖層） */
-  onPropertyValueToggle?: () => void;
-  propertyValueActive?: boolean;
   /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
   externalCloseEpoch?: number;
   /** 監測模式 Monitor split（右半邊）toggle */
@@ -176,7 +173,6 @@ export function IconRailSidebar({
   currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
-  onPropertyValueToggle, propertyValueActive,
   externalCloseEpoch,
   onMonitorSplitToggle, monitorSplitActive,
   compactLayers,
@@ -225,7 +221,6 @@ export function IconRailSidebar({
     if (memberActive && onMemberToggle) onMemberToggle();
     if (intelActive && onIntelToggle) onIntelToggle();
     if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
-    if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
   };
 
   useEffect(() => {
@@ -242,7 +237,7 @@ export function IconRailSidebar({
     };
     window.addEventListener("pulse:explore-layers", onExplore);
     return () => window.removeEventListener("pulse:explore-layers", onExplore);
-  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, propertyValueActive, onPropertyValueToggle]);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle]);
 
   const panelOpen = activePanel !== null;
 
@@ -398,19 +393,6 @@ export function IconRailSidebar({
               onSatelliteToggle();
             }}
             tooltip="衛星情報 Satellite"
-          />
-        )}
-
-        {/* 🏢 房地產總市值 Property Value（縣市長條圖面板） */}
-        {onPropertyValueToggle && (
-          <RailIcon
-            icon={PiggyBank}
-            active={!!propertyValueActive}
-            onClick={() => {
-              if (!propertyValueActive) closePanel();
-              onPropertyValueToggle();
-            }}
-            tooltip="房地產總市值 Property Value"
           />
         )}
 
@@ -1328,6 +1310,7 @@ function ExpandedControls({
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

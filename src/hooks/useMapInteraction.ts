@@ -410,7 +410,8 @@ export function useMapInteraction(
               type === "temperatureGrid" ||
               type === "earthquakeReplayTown" ||
               type === "funeralOperatorDensity" ||
-              type === "animalShelterPressure"
+              type === "animalShelterPressure" ||
+              type === "propertyValueAdmin"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
             const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
