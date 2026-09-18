@@ -14,3 +14,8 @@ Medical adaptive grid counts with explicit full-points mode and source cleanup; 
 ## Aggregate family label correction
 
 Production acceptance found coincident medical/care grid centers hiding one family. Split screen-space markers and explicit family labels preserve both counts without changing geometry or count grain. Recorded final CI/deployment results and existing capacity-report rollout.
+
+## 2026-09-18 歷史冷封存
+
+- 三表 3,599,919 列完整快照無損壓縮至 193,854,480 bytes；私有 S3 全檔 SHA 讀回及 Deep Archive HEAD checksum 驗收完成。
+- 記錄 schema／manifest／receipt、索引與重複字串體積來源、GFW 重疊窗口；未刪除來源，未完成實際 DB restore，HOLD 保持。

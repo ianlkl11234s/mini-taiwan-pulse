@@ -115,3 +115,7 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 PR 305 已一般合併為 `1c66aa24334d21d96560c643a685670b23e75ad4`，Zeabur 2026-09-18 09:02:48 UTC RUNNING；完整 CI 1,659 passed / 8 skipped。正式站 z5 醫療＋長照 aggregate、來源日期與計數口徑讀回通過；同格網雙 family 重疊另以螢幕位移＋「醫療／長照」標籤修正。
 
 Collectors PR 92 已部署，正式 weather archive 24 members、1,100,426 bytes 全內容核對 verified；未執行清理。PR 93 容量日報已一般合併為 `fdb03902bdf59cd3681608dcb0ab2b70a131d954`，09:04:03 UTC RUNNING。Platform PR 113 / migration 412 已套用，6 表登記與 HOLD 告警讀回通過。水利署目前所有 observations（含新增列）均受保護；分開永久 backfill 與已封存滾動資料以前，這張表仍有成長風險，未宣稱已節省 DB 容量。
+
+### 歷史冷封存與失敗暫存（2026-09-18）
+
+三張歷史表完整 3,599,919 列已封存私人 S3 Deep Archive，CSV 731.35 MB 無損壓縮至 193.85 MB；全檔回讀 SHA 與轉冷後 checksum 通過。未刪 DB、未切前端查詢、未清 GFW。體積原因與還原限制見 [cold-archive.md](./cold-archive.md)，失敗 run 對帳見 [retention-spool-review.md](./retention-spool-review.md)。
