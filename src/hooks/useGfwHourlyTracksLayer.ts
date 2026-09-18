@@ -19,6 +19,7 @@ import {
   type ShipTypeBucket,
 } from "../data/shipTrails";
 import { showTransientNotice } from "../components/TransientNotice";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
 
 export const GFW_HOURLY_TRACKS_SOURCE_ID = "gfw-hourly-tracks-source";
@@ -148,7 +149,7 @@ export function useGfwHourlyTracksLayer(
     const showLatestNotice = (manifest: GfwHourlyTrackManifest) => {
       if (!visible || activation !== activationRef.current || noticeActivationRef.current === activation) return;
       noticeActivationRef.current = activation;
-      showTransientNotice(`GFW 航跡資料最新完整日：${manifest.latestCompleteDate}（UTC，非即時）`);
+      showTransientNotice(`GFW 航跡資料最新完整日：${gfwFreshness(manifest.latestCompleteDate).label}（非即時）`);
     };
 
     const clearFrame = () => {

@@ -772,7 +772,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   coralReefDistribution: "珊瑚礁歷史分布 Historical Coral Reefs",
   allenCoralAtlas: "珊瑚礁棲地分類 Allen Coral Atlas（私人研究）",
   aisstreamVessel: "AISStream 船舶",
-  gfwVesselPresence: "GFW 船舶 Presence",
+  gfwVesselPresence: "GFW 舊版每日船舶（歷史）",
   gfwHourlyGrid: "GFW 小時船舶網格",
   gfwHourlyTrack: "GFW 抽樣近似航跡",
   gfwFishingEffort: "GFW 每日捕撈活動",
