@@ -47,7 +47,7 @@ npm run dev -- --host 127.0.0.1 --port 3735 --strictPort
 ALLEN_CORAL_ATLAS_AUDIT_PATH=/private/tmp/pulse-allen-private-runtime/allen-coral-atlas-access-audit.jsonl node --env-file=.env --env-file=.env.local --input-type=module -e 'import { startAllenCoralAtlasServer } from "./server/coral-private/coral-private-server.mjs"; startAllenCoralAtlasServer();'
 ```
 
-私人 session denylist 與 metadata audit 位於 worktree 外 `/private/tmp/pulse-allen-private-runtime/`，檔案0600。每次 process 開始建立已驗證快照，來源檔若更新須重啟並更新契約，不能靜默混版。服務重啟會保留現有 denylist；作業系統清除 tmp 會清除該本地紀錄，因此這個本地驗收實作不是 production revocation store。
+私人 session denylist 與 metadata audit 位於 worktree 外 `/private/tmp/pulse-allen-private-runtime/`，檔案0600。若設定 `ALLEN_CORAL_ATLAS_AUDIT_PATH`，audit JSONL 會在 append 前輪替：預設每檔 1 MiB，保留 5 份舊檔（`<path>.1` 至 `<path>.5`）；可用 `ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES`（最小 65536）與 `ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES`（1–100）調整。輪替或寫入失敗會使該請求 fail closed，不會略過 audit 繼續傳送私有資料。每次 process 開始建立已驗證快照，來源檔若更新須重啟並更新契約，不能靜默混版。服務重啟會保留現有 denylist；作業系統清除 tmp 會清除該本地紀錄，因此這個本地驗收實作不是 production revocation store。
 
 UI：登入本人 →「世界 World」→「環境」→「Allen Coral Atlas（私人研究）」。目前驗收頁停在登出狀態；重新正常登入即可使用。
 

@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { appendFile, chmod, mkdir, readFile } from "node:fs/promises";
+import { appendFile, chmod, mkdir, readFile, rename, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { dirname, resolve } from "node:path";
 import { Readable } from "node:stream";
@@ -32,6 +32,10 @@ const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
 
 export const ALLEN_CORAL_ATLAS_PORT = 8796;
 const ALLEN_CORAL_ATLAS_REVOKE_PATH = "/private/tmp/pulse-allen-private-runtime/allen-coral-atlas-revoked-sessions.jsonl";
+const ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES = 1024 * 1024;
+const ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 5;
+const MIN_ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES = 64 * 1024;
+const MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES = 100;
 const allenSnapshotCache = new Map();
 
 export function getConfig(env = process.env) {
@@ -91,11 +95,23 @@ export function getAllenCoralAtlasConfig(env = process.env) {
   }
   if (origins.size === 0) return { error: "configuration unavailable" };
   const auditPath = firstConfigured(env.ALLEN_CORAL_ATLAS_AUDIT_PATH);
+  const auditMaxBytes = parseBoundedInteger(
+    env.ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    MIN_ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
+    Number.MAX_SAFE_INTEGER,
+  );
+  const auditRetainedFiles = parseBoundedInteger(
+    env.ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+    ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+    1,
+    MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
+  );
   const revokePath = firstConfigured(env.ALLEN_CORAL_ATLAS_REVOKE_PATH)
     ?? (storage === "s3" ? ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH : ALLEN_CORAL_ATLAS_REVOKE_PATH);
-  if ((auditPath && !auditPath.startsWith("/")) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
+  if ((auditPath && (!auditPath.startsWith("/") || !auditMaxBytes || !auditRetainedFiles)) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
   return {
-    supabaseUrl, supabaseAnonKey, storage, origins, auditPath, revokePath,
+    supabaseUrl, supabaseAnonKey, storage, origins, auditPath, auditMaxBytes, auditRetainedFiles, revokePath,
     ...(storage === "s3" ? {
       accessKeyId,
       secretAccessKey,
@@ -107,6 +123,13 @@ export function getAllenCoralAtlasConfig(env = process.env) {
 
 function firstConfigured(...values) {
   return values.find((value) => typeof value === "string" && value.trim())?.trim();
+}
+
+function parseBoundedInteger(value, fallback, min, max) {
+  if (value === undefined || value === "") return fallback;
+  if (typeof value !== "string" || !/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed >= min && parsed <= max ? parsed : null;
 }
 
 export function parseRange(range) {
@@ -422,6 +445,7 @@ export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_
 }
 
 const persistentDenylistByPath = new Map();
+const auditWriteQueueByPath = new Map();
 
 export function createAllenSessionDenylist(file) {
   const sessions = new Set();
@@ -482,10 +506,47 @@ export async function writeAllenAuditRecord(request, output, config, audit = und
     contentRange: output.headers.get("content-range"),
   };
   if (audit) return audit(record);
-  // appendFile creates the opt-in local evidence file with owner-only permissions.
-  await mkdir(dirname(config.auditPath), { recursive: true, mode: 0o700 });
-  await appendFile(config.auditPath, `${JSON.stringify(record)}\n`, { encoding: "utf8", mode: 0o600 });
-  await chmod(config.auditPath, 0o600);
+  const line = `${JSON.stringify(record)}\n`;
+  return enqueueAllenAuditWrite(config.auditPath, async () => {
+    // appendFile opens and closes each write. Serializing rotation and append keeps
+    // a request from writing into a file another request has just renamed.
+    await mkdir(dirname(config.auditPath), { recursive: true, mode: 0o700 });
+    await rotateAllenAuditLog(config.auditPath, Buffer.byteLength(line), config.auditMaxBytes, config.auditRetainedFiles);
+    await appendFile(config.auditPath, line, { encoding: "utf8", mode: 0o600 });
+    await chmod(config.auditPath, 0o600);
+  });
+}
+
+function enqueueAllenAuditWrite(file, write) {
+  const previous = auditWriteQueueByPath.get(file) ?? Promise.resolve();
+  const pending = previous.catch(() => undefined).then(write);
+  auditWriteQueueByPath.set(file, pending);
+  return pending.finally(() => {
+    if (auditWriteQueueByPath.get(file) === pending) auditWriteQueueByPath.delete(file);
+  });
+}
+
+async function rotateAllenAuditLog(file, nextRecordBytes, maxBytes, retainedFiles) {
+  let currentSize = 0;
+  try {
+    currentSize = (await stat(file)).size;
+  } catch (error) {
+    if (error?.code !== "ENOENT") throw error;
+  }
+  if (currentSize + nextRecordBytes <= maxBytes) return;
+
+  // Rename newest last, so a failed rotation never truncates the active log.
+  // rename replaces only the oldest retained file; no private record is copied.
+  for (let index = retainedFiles - 1; index >= 1; index -= 1) {
+    try {
+      await rename(`${file}.${index}`, `${file}.${index + 1}`);
+      await chmod(`${file}.${index + 1}`, 0o600);
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+    }
+  }
+  await rename(file, `${file}.1`);
+  await chmod(`${file}.1`, 0o600);
 }
 
 export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
