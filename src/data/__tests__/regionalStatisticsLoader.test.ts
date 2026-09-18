@@ -93,16 +93,20 @@ beforeEach(() => {
 });
 
 describe('regional statistics R2 CDN contract', () => {
-  it('reads a release-scoped values receipt without downloading boundary geometry', async () => {
+  it('reads a provenance receipt with source, health, and null semantics without downloading boundary geometry', async () => {
     const mockedFetch = install();
     const result = await loadRegionalStatisticsValues({ ...recipe, releaseId: release.release_id, dimensions: {}, includeHealth: true, allowReleaseFallback: false });
 
     expect(result).toMatchObject({
       values: { release: { release_id: release.release_id, boundary_version: release.boundary_version }, total: 2 },
       sources: { publisher: '環境部' },
-      health: { availability: 'CURRENT' },
+      health: { availability: 'CURRENT', coverage_status: 'PARTIAL' },
       geometryManifest: { boundary_version: release.boundary_version, level: 'county' },
     });
+    expect(result.values.observations).toEqual([
+      { area_code: 'A', value: 0, status: 'observed' },
+      { area_code: 'B', value: null, status: 'suppressed' },
+    ]);
     expect(mockedFetch.mock.calls.some(([input]) => String(input).includes('/geometries/'))).toBe(false);
   });
 
