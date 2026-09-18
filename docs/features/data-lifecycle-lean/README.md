@@ -95,7 +95,7 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 - R2 Standard 官方價格目前為 $0.015/GB-month、Class A $4.50/百萬、Class B $0.36/百萬，Internet egress 不另計；free tier 為帳號共享，不能逐專案重複扣除。請以帳單當月用量、級距及 rounding 算實付，不把這次 2 MB 試點換算為已節省月費。[官方定價](https://developers.cloudflare.com/r2/pricing/)
 - Origin 的 public Cache-Control 不等於 Cloudflare 已快取；需要實際 MISS/HIT/Age/Range 驗收。JSON 預設 eligibility 也需要 zone rule，不能只改 nginx。[官方預設快取行為](https://developers.cloudflare.com/cache/concepts/default-cache-behavior/)
 - 共用 S3 bucket 現有全域 30 天 Standard-IA／90 天 Glacier-IR transition 未擅改；它也涵蓋其他專案。未取得各 prefix owner/讀取量前，不把整個 bucket 調整為展示層政策。新展示試點走 R2 Standard；S3 保留備份角色。
-- 日常使用既有 health/daily report 追 retention coverage；news/yt HOLD 不隱藏。容量可操作門檻：共享 filesystem >=80% 或 free < 下一次完整工作集＋安全餘量要排查；>=90% 阻擋新增大產製。這是操作門檻，未宣稱已新建自動容量告警。
+- 日常使用既有 health/daily report 追 retention coverage；news/yt HOLD 不隱藏。容量可操作門檻：共享 filesystem >=80% 或 free < 下一次完整工作集＋安全餘量要排查；>=90% 阻擋新增大產製。收集器 PR 93 已將 80%／90% 與剩餘空間加入既有 daily report；90% 停止新增大產製仍是操作門檻，不是新排程框架。
 - 真實帳單與 Cloudflare zone 規則尚缺權限。此次沒有宣稱月費降低多少，也沒有變更私人資料的公開範圍。
 
 
@@ -106,3 +106,10 @@ git show 08da5067:public/forestry/forest_reserve.geojson > /tmp/forest_reserve.g
 - installer/publication 19 tests 通過。
 - browser-acceptance.json：林業 R2 顯示、醫療 z5 聚合與完整模式、z10 醫院/長照、真實 popup、All Off 均通過；無驗收狀態 console error。
 - 醫療 aggregate catalog bytes：Navii 22,900、H17 151,147（共 174,047），避免低 zoom 預先掛兩份完整 PMTiles。完整點位 z5 實際觀察 13,159,430 bytes 的 Range responses，包含重複請求；不是完整 archive 大小，也不是冷啟動或普遍省量比率。
+
+
+### 正式整合與後續顯示修正
+
+PR 305 已一般合併為 `1c66aa24334d21d96560c643a685670b23e75ad4`，Zeabur 2026-09-18 09:02:48 UTC RUNNING；完整 CI 1,659 passed / 8 skipped。正式站 z5 醫療＋長照 aggregate、來源日期與計數口徑讀回通過；同格網雙 family 重疊另以螢幕位移＋「醫療／長照」標籤修正。
+
+Collectors PR 92 已部署，正式 weather archive 24 members、1,100,426 bytes 全內容核對 verified；未執行清理。PR 93 容量日報已一般合併為 `fdb03902bdf59cd3681608dcb0ab2b70a131d954`，09:04:03 UTC RUNNING。Platform PR 113 / migration 412 已套用，6 表登記與 HOLD 告警讀回通過。水利署目前所有 observations（含新增列）均受保護；分開永久 backfill 與已封存滾動資料以前，這張表仍有成長風險，未宣稱已節省 DB 容量。

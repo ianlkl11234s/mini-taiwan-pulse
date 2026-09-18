@@ -74,6 +74,16 @@ describe("useJpMedicalLayers lifecycle", () => {
     await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
     expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(true);
 
+    // Both families share grid centers: their family labels must not cover each other.
+    const both = { ...off, jpMedicalHospitals: true, jpCarePlanning: true };
+    harness.begin(); useJpMedicalLayers(ref, both, params);
+    await Promise.resolve(); harness.begin(); useJpMedicalLayers(ref, both, params);
+    expect(view.map.setLayoutProperty).toHaveBeenCalledWith("jp-medical-facilities-aggregate-count", "text-offset", [-28 / 12, 0]);
+    expect(view.map.setLayoutProperty).toHaveBeenCalledWith("jp-medical-care-aggregate-count", "text-offset", [28 / 12, 0]);
+    harness.begin(); useJpMedicalLayers(ref, { ...off, jpMedicalHospitals: true }, params);
+    expect(view.map.setLayoutProperty).toHaveBeenLastCalledWith("jp-medical-facilities-aggregate-count", "text-offset", [0, 0]);
+    expect(view.map.setPaintProperty).toHaveBeenLastCalledWith("jp-medical-facilities-aggregate-count", "text-opacity", 0.78);
+
     harness.begin(); useJpMedicalLayers(ref, off, params);
     expect(view.sources.has("jp-medical-facilities-aggregate")).toBe(false);
     harness.cleanup();
