@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -189,6 +189,23 @@ test("Allen S3 configuration requires explicit origins and reuses S3 credentials
   assert.equal(resolved.region, "ap-southeast-2");
   assert.equal(resolved.revokePath, "/data/.private-allen/revoked-sessions.jsonl");
   assert.equal(resolved.origins.has("https://pulse.example.test"), true);
+});
+
+test("Allen audit rotation settings are bounded and reject invalid values", () => {
+  const base = {
+    VITE_SUPABASE_URL: "https://example.supabase.co",
+    VITE_SUPABASE_ANON_KEY: "anon-key",
+    ALLEN_CORAL_ATLAS_AUDIT_PATH: "/tmp/allen-audit.jsonl",
+  };
+  const resolved = getAllenCoralAtlasConfig({
+    ...base,
+    ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES: "65536",
+    ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES: "2",
+  });
+  assert.equal(resolved.auditMaxBytes, 65536);
+  assert.equal(resolved.auditRetainedFiles, 2);
+  assert.equal(getAllenCoralAtlasConfig({ ...base, ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES: "65535" }).error, "configuration unavailable");
+  assert.equal(getAllenCoralAtlasConfig({ ...base, ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES: "0" }).error, "configuration unavailable");
 });
 
 test("Allen S3 gateway fully verifies immutable snapshots before serving ranges", async () => {
@@ -500,4 +517,38 @@ test("Allen audit sink records response metadata without bearer credentials", as
     contentRange: "bytes 0-3/94597292",
   }]);
   assert.equal(JSON.stringify(records).includes("do-not-log-this-token"), false);
+});
+
+test("Allen audit sink rotates before append and retains bounded owner-only files", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "allen-coral-atlas-audit-"));
+  const auditPath = join(directory, "audit.jsonl");
+  const auditConfig = { ...allenConfig, auditPath, auditMaxBytes: 65536, auditRetainedFiles: 2 };
+  const largeRange = `bytes=0-${"9".repeat(40000)}`;
+  try {
+    for (let index = 0; index < 7; index += 1) {
+      await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    }
+    assert.deepEqual((await readdir(directory)).sort(), ["audit.jsonl", "audit.jsonl.1", "audit.jsonl.2"]);
+    for (const filename of ["audit.jsonl", "audit.jsonl.1", "audit.jsonl.2"]) {
+      const file = join(directory, filename);
+      assert.equal((await stat(file)).mode & 0o777, 0o600);
+      assert.ok((await stat(file)).size <= auditConfig.auditMaxBytes);
+      assert.equal((await readFile(file, "utf8")).includes("Bearer"), false);
+    }
+    await writeFile(`${auditPath}.3`, "stale generation");
+    auditConfig.auditRetainedFiles = 1;
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.deepEqual((await readdir(directory)).sort(), ["audit.jsonl", "audit.jsonl.1"]);
+
+    // Once retention is initialized, normal appends do not rescan or remove
+    // generation names on every request. (A subsequent config change prunes.)
+    await writeFile(`${auditPath}.2`, "external stale generation");
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.equal((await readdir(directory)).includes("audit.jsonl.2"), true);
+    auditConfig.auditRetainedFiles = 2;
+    await writeAllenAuditRecord(allenRequest("benthic", { headers: { Range: largeRange } }), new Response(null, { status: 206 }), auditConfig);
+    assert.equal((await readdir(directory)).includes("audit.jsonl.2"), true);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 });
