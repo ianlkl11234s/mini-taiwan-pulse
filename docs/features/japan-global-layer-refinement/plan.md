@@ -13,12 +13,14 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 
 ### 「拉遠仍完整」的定義
 
-- 依 PR #260 Company Registry 的模式：點圖層使用全 zoom PMTiles，完整來源點不能因
-  tile thinning、viewport limit、前端抽樣或 aggregate replacement 而從低縮放消失。
-- 密度網格是獨立 layer，只協助比較集中程度；不能取代、遮蔽或冒充原始點。
-- z0 解碼點數必須對回各分類可繪製來源筆數；各尺度網格 count 加總也必須守恆。
-- 所有縮放層級都顯示原始點；point radius／opacity 可以隨 zoom 調整以控制重疊，
-  但不得用 cluster 或低縮放 aggregate circle 取代原始點。
+- 2026-09-18 晚間依使用者截圖釐清：日本醫療／長照應比照 Company Registry 的
+  自動 presentation switch，zoom &lt; 8 顯示密度 polygon grid，zoom ≥ 8 顯示完整點位；
+  不是低縮放也畫全部原始點，更不是格心圓點加數字。
+- 點位 PMTiles 仍須保留完整來源，不能因 tile thinning、viewport limit 或前端抽樣漏點；
+  z0 解碼點數須對回各分類可繪製來源筆數。
+- 低縮放格網必須由同一可繪製母體聚合，所選分類的 `aggregate_count` 加總守恆；網格
+  只表示筆數密度，不冒充病床、容量、服務人次、唯一機構或服務範圍。
+- 旅宿密度仍是獨立 layer；本次釐清只變更醫療／長照同一 toggle 的縮放切換行為。
 - `missing geometry`、隔離列、重複登記、來源缺值與錯誤必須分開記錄；不得當成 0，
   也不得為了湊數補座標。
 
@@ -82,8 +84,8 @@ GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單�
 - 長照依 `service_type` 做可理解的分類 layer；保留 H17 一對多「服務登記」語意，
   不冒充唯一機構數。35 個原始類別依厚生勞動省「介護サービス情報公表システム」
   的六個使用情境分組，popup 保留原始 `service_type`。
-- 醫療與長照點圖層改為全 zoom PMTiles，移除 z6 aggregate circle 對原始點的替代；
-  每個縮放層級都保留完整可繪製原始點，各分類 z0 count 可對帳。
+- 醫療與長照點圖層使用全量 PMTiles，zoom 8 起顯示完整可繪製原始點；zoom 8 以下
+  自動改顯示同母體守恆的 10 km 等面積 polygon density grid，各分類與格網 count 都可對帳。
 - 醫療圈改成一次／二次／三次獨立 layer 與可辨識配色，popup 顯示圈層、名稱／code、
   2020 `STALE`、display geometry 與 polygon-parts 不可加總限制。
 
@@ -156,8 +158,8 @@ plan 發布；候選 release `6f59ead2…fdafa` 完成 S3/CDN SHA、bytes、Rang
 
 - 旅宿與醫療核心 registry／manifest／catalog／legend／click files 是高衝突區；因此 PR 必須
   嚴格串行，不能在多個 branch 平行改同檔。
-- 全國視圖同時畫 20 萬級原始點會高度重疊；依 PR #260 仍保留全 zoom points，並用
-  zoom-dependent radius／opacity 維持可讀性，另以獨立密度網格支援集中程度判讀。
+- 全國視圖同時畫 20 萬級原始點會高度重疊；醫療／長照因此在 zoom 8 以下使用守恆
+  polygon density grid，zoom 8 起才顯示完整點位。全量 PMTiles 仍保留作完整性證據。
 - GFW 的現存文件證據只到 2026-08-21；完成 read-only production health check 前，狀態是
   `STALE / UNKNOWN`，不是正常。
 

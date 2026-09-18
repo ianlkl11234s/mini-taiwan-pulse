@@ -1,6 +1,6 @@
 import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
 import { JpMedicalStatus } from "./JpMedicalStatus";
-import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
 import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
@@ -6662,10 +6662,18 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
     </div>
+    {kind !== "areas" && <>
+      <div style={{ color: t.textDim, marginTop: 5 }}>zoom &lt; 8：10 km 等面積格內筆數</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 8px", marginTop: 3 }}>
+        {JP_MEDICAL_GRID_BANDS.map((band) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+          <i style={{ width: 8, height: 8, background: band.color, display: "inline-block" }} />{band.label}
+        </span>)}
+      </div>
+    </>}
     <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
       ? "国土数値情報 A38 · 2020 歷史版。這是行政規劃邊界，不是設施服務範圍；人口／面積不可按 polygon part 加總。"
       : kind === "care"
-      ? "厚生労働省 H17。完整點位模式中，每個圓點是一筆服務登記；同址可有多筆，不代表唯一機構數。預設 zoom < 8 以可見分類合計的 z6 格網中心圓點與數字呈現；中心不是設施位置或服務範圍，zoom ≥ 8 才載完整點位。"
-      : "厚生労働省 Navii。完整點位模式中，每個圓點是一筆可繪製設施；缺座標另列。預設 zoom < 8 以可見分類合計的 z6 格網中心圓點與數字呈現；中心不是設施位置或服務範圍，zoom ≥ 8 才載完整點位。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
+      ? "厚生労働省 H17。低縮放每格加總目前開啟分類的服務登記；不是容量、服務人次或唯一機構數。zoom ≥ 8 每個圓點是一筆完整服務登記；同址可有多筆。"
+      : "厚生労働省 Navii。低縮放每格加總目前開啟分類的可繪製設施；不是病床數、容量或服務範圍。zoom ≥ 8 每個圓點是一筆完整可繪製設施；缺座標另列。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
   </div>;
 }

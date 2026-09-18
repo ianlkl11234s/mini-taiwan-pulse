@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchJpMedicalAggregate, fetchJpMedicalJsonAsset, getJpMedicalRuntime, jpMedicalLayerAsset, retryJpMedicalCatalog, setJpMedicalDisplayMode } from "../jpMedicalLoader";
+import { fetchJpMedicalAggregate, fetchJpMedicalJsonAsset, jpMedicalLayerAsset, retryJpMedicalCatalog } from "../jpMedicalLoader";
 
 const encoder = new TextEncoder();
 async function digest(value: unknown) {
@@ -91,11 +91,26 @@ describe("jp medical content-addressed loader", () => {
     await expect(fetchJpMedicalAggregate("navii_facilities")).resolves.toMatchObject({ type: "FeatureCollection" });
   });
 
-  it("keeps display mode in the existing medical runtime", () => {
-    setJpMedicalDisplayMode("points");
-    expect(getJpMedicalRuntime().displayMode).toBe("points");
-    setJpMedicalDisplayMode("adaptive");
-    expect(getJpMedicalRuntime().displayMode).toBe("adaptive");
+  it("accepts a 10km equal-area category grid only when every category and total reconcile", async () => {
+    const aggregate = { type: "FeatureCollection", features: [{
+      type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+      properties: {
+        grid_id: "J10000_0_0", grid_size_m: 10_000, grid_crs: "EPSG:6933", aggregate_schema: "category_columns_v1",
+        mapped_point_count: 3, hospital_count: 2, clinic_count: 1, dental_count: 0, maternity_count: 0, pharmacy_count: 0,
+      },
+    }] };
+    const asset = await digest(aggregate);
+    const path = "aggregates/navii-density-10km.geojson";
+    const catalog = {
+      contract_version: 1, version: "v", files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } },
+      datasets: { navii: { national_totals: {
+        hospital: { mapped_point_count: 2 }, clinic: { mapped_point_count: 1 }, dental: { mapped_point_count: 0 },
+        maternity: { mapped_point_count: 0 }, pharmacy: { mapped_point_count: 0 },
+      } } },
+      layers: [{ key: "navii_facilities", pmtiles_path: "points/navii.pmtiles", source_layer: "navii", aggregate_path: path }],
+    };
+    stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, asset.bytes);
+    await expect(fetchJpMedicalAggregate("navii_facilities")).resolves.toMatchObject({ features: [{ properties: { grid_size_m: 10_000 } }] });
   });
 
   it("rejects paths not explicitly present in the immutable allowlist", async () => {

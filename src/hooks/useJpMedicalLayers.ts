@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import type { CircleLayer, ExpressionSpecification, FillLayer, FilterSpecification, Map as MapboxMap, SymbolLayer } from "mapbox-gl";
+import type { CircleLayer, ExpressionSpecification, FillLayer, FilterSpecification, LineLayer, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_MEDICAL_AREA_LEVELS,
   JP_MEDICAL_CARE_GROUPS,
   JP_MEDICAL_CATEGORIES,
+  jpMedicalGridColorExpression,
   type JpMedicalAreaKey,
   type JpMedicalCareKey,
   type JpMedicalCategoryKey,
@@ -30,8 +31,8 @@ export const JP_MEDICAL_CARE_LAYER_IDS = [
 export const JP_MEDICAL_AREA_LAYER_IDS = [
   "jp-medical-areas-1-fill", "jp-medical-areas-2-fill", "jp-medical-areas-3-fill",
 ] as const;
-const JP_MEDICAL_FACILITY_AGGREGATE_LAYER_IDS = ["jp-medical-facilities-aggregate-circle", "jp-medical-facilities-aggregate-count"] as const;
-const JP_MEDICAL_CARE_AGGREGATE_LAYER_IDS = ["jp-medical-care-aggregate-circle", "jp-medical-care-aggregate-count"] as const;
+const JP_MEDICAL_FACILITY_AGGREGATE_LAYER_IDS = ["jp-medical-facilities-aggregate-fill", "jp-medical-facilities-aggregate-outline"] as const;
+const JP_MEDICAL_CARE_AGGREGATE_LAYER_IDS = ["jp-medical-care-aggregate-fill", "jp-medical-care-aggregate-outline"] as const;
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const pointRadius = (large: number): ExpressionSpecification => [
@@ -67,40 +68,38 @@ interface PointLayerDefinition {
   key: JpMedicalCategoryKey | JpMedicalCareKey;
   layerId: string;
   color: string;
+  aggregateField: string;
   filter: FilterSpecification;
   aggregateMatches: (properties: Record<string, unknown>) => boolean;
 }
 
-function geometryCenter(geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon): [number, number] | null {
-  const flat = geometry.coordinates.flat(Infinity) as unknown[];
-  const numbers = flat.filter((value): value is number => typeof value === "number");
-  if (numbers.length < 4 || numbers.length % 2) return null;
-  let west = Infinity; let east = -Infinity; let south = Infinity; let north = -Infinity;
-  for (let i = 0; i < numbers.length; i += 2) { west = Math.min(west, numbers[i]!); east = Math.max(east, numbers[i]!); south = Math.min(south, numbers[i + 1]!); north = Math.max(north, numbers[i + 1]!); }
-  return Number.isFinite(west + east + south + north) ? [(west + east) / 2, (south + north) / 2] : null;
-}
-
-/** 將相同 z6 格網的可見分類相加，點位是 polygon bbox center，從不宣稱為設施座標。 */
-export function jpMedicalAggregateCenters(
+/** 將同一格內目前可見分類相加，保留來源 polygon 作真正密度格網。 */
+export function jpMedicalAggregateGrid(
   aggregate: JpMedicalAggregate,
   definitions: readonly PointLayerDefinition[],
   visibility: JpMedicalVisibility,
   countField: "mapped_point_count" | "mapped_service_registration_count",
-): GeoJSON.FeatureCollection<GeoJSON.Point> {
-  const cells = new Map<string, { center: [number, number]; count: number }>();
+): GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon> {
+  const cells = new Map<string, { geometry: GeoJSON.Polygon | GeoJSON.MultiPolygon; count: number }>();
   for (const feature of aggregate.features) {
     const properties = feature.properties as Record<string, unknown>;
     if (!properties || typeof properties.grid_id !== "string" || typeof properties[countField] !== "number") continue;
+    if (properties.aggregate_schema === "category_columns_v1") {
+      const count = definitions
+        .filter(({ key }) => visibility[key])
+        .reduce((sum, definition) => sum + (typeof properties[definition.aggregateField] === "number" ? Number(properties[definition.aggregateField]) : 0), 0);
+      if (count > 0) cells.set(properties.grid_id, { geometry: feature.geometry, count });
+      continue;
+    }
     const definition = definitions.find((item) => visibility[item.key] && item.aggregateMatches(properties));
-    const center = geometryCenter(feature.geometry);
-    if (!definition || !center) continue;
+    if (!definition) continue;
     const cell = cells.get(properties.grid_id);
     if (cell) cell.count += properties[countField];
-    else cells.set(properties.grid_id, { center, count: properties[countField] });
+    else cells.set(properties.grid_id, { geometry: feature.geometry, count: properties[countField] });
   }
   return { type: "FeatureCollection", features: [...cells.entries()].map(([gridId, cell]) => ({
-    type: "Feature", geometry: { type: "Point", coordinates: cell.center },
-    properties: { grid_id: gridId, grid_zoom: 6, aggregate_count: cell.count, geometry_role: "GRID_BBOX_CENTER" },
+    type: "Feature", geometry: cell.geometry,
+    properties: { grid_id: gridId, aggregate_count: cell.count, geometry_role: "EQUAL_AREA_GRID_CELL" },
   })) };
 }
 
@@ -119,7 +118,7 @@ function usePointFamily(
   const runtime = useSyncExternalStore(subscribeJpMedicalRuntime, getJpMedicalRuntime);
   const revision = runtime.revision ?? 0;
   const zoom = useMapZoom(mapRef, active);
-  const pointsEnabled = active && (runtime.displayMode === "points" || zoom >= LOW_ZOOM_CUTOFF);
+  const pointsEnabled = active && zoom >= LOW_ZOOM_CUTOFF;
   const [asset, setAsset] = useState<{ url: string; sourceLayer: string; minzoom: number; revision: number } | null>(null);
   const mountedIdentity = useRef<string | null>(null);
 
@@ -163,7 +162,7 @@ function usePointFamily(
           type: "circle",
           source: sourceId,
           "source-layer": asset.sourceLayer,
-          minzoom: runtime.displayMode === "points" ? asset.minzoom : LOW_ZOOM_CUTOFF,
+          minzoom: LOW_ZOOM_CUTOFF,
           layout: { visibility: "none" },
           paint: {
             "circle-radius": pointRadius(radius),
@@ -174,7 +173,7 @@ function usePointFamily(
           },
           filter,
         } as CircleLayer);
-        map.setLayerZoomRange(layerId, runtime.displayMode === "points" ? asset.minzoom : LOW_ZOOM_CUTOFF, MAX_MAP_ZOOM);
+        map.setLayerZoomRange(layerId, LOW_ZOOM_CUTOFF, MAX_MAP_ZOOM);
         map.setLayoutProperty(layerId, "visibility", visibility[key] ? "visible" : "none");
         map.setPaintProperty(layerId, "circle-opacity", clamp(params[`${key}Opacity`] ?? 0.78));
       });
@@ -188,7 +187,7 @@ function usePointFamily(
     map.on("style.load", mount);
     map.on("error", onError);
     return () => { map.off("style.load", mount); map.off("error", onError); };
-  }, [mapRef, asset, definitions, layerIds, params, pointsEnabled, radius, revision, runtime.displayMode, sourceId, tick, visibility]);
+  }, [mapRef, asset, definitions, layerIds, params, pointsEnabled, radius, revision, sourceId, tick, visibility]);
 }
 
 function useAggregateFamily(
@@ -204,7 +203,7 @@ function useAggregateFamily(
   const runtime = useSyncExternalStore(subscribeJpMedicalRuntime, getJpMedicalRuntime);
   const revision = runtime.revision ?? 0;
   const zoom = useMapZoom(mapRef, active);
-  const enabled = active && runtime.displayMode !== "points" && zoom < LOW_ZOOM_CUTOFF;
+  const enabled = active && zoom < LOW_ZOOM_CUTOFF;
   const tick = useMapReadyTick(mapRef, enabled);
   const [data, setData] = useState<{ value: JpMedicalAggregate; revision: number } | null>(null);
 
@@ -231,28 +230,26 @@ function useAggregateFamily(
     }
     const mount = () => {
       const countField = assetId === "navii_facilities" ? "mapped_point_count" : "mapped_service_registration_count";
-      const centers = jpMedicalAggregateCenters(data.value, definitions, visibility, countField);
+      const grid = jpMedicalAggregateGrid(data.value, definitions, visibility, countField);
       const opacity = aggregateOpacity(definitions, visibility, params);
-      const bothFamilies = JP_MEDICAL_CATEGORIES.some(({ key }) => visibility[key])
-        && JP_MEDICAL_CARE_GROUPS.some(({ key }) => visibility[key]);
-      const offsetX = bothFamilies ? (assetId === "navii_facilities" ? -28 : 28) : 0;
-      const color = assetId === "navii_facilities" ? "#fda4af" : "#fde68a";
-      const source = map.getSource(sourceId) as { setData?: (value: GeoJSON.FeatureCollection<GeoJSON.Point>) => void } | undefined;
-      if (!source) map.addSource(sourceId, { type: "geojson", data: centers });
-      else source.setData?.(centers);
-      if (!map.getLayer(layerIds[0]!)) map.addLayer({ id: layerIds[0]!, type: "circle", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
-        paint: { "circle-color": "#cbd5e1", "circle-opacity": opacity, "circle-stroke-color": "rgba(15,23,42,.75)", "circle-stroke-width": 1,
-          "circle-radius": 3 },
-      } as CircleLayer);
-      if (!map.getLayer(layerIds[1]!)) map.addLayer({ id: layerIds[1]!, type: "symbol", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
-        layout: { "text-field": ["concat", assetId === "navii_facilities" ? "醫療\n" : "長照\n", ["to-string", ["get", "aggregate_count"]]], "text-size": 12, "text-allow-overlap": false },
-        paint: { "text-color": "#ffffff", "text-halo-color": "rgba(15,23,42,.8)", "text-halo-width": 1 },
-      } as SymbolLayer);
-      map.setPaintProperty(layerIds[0]!, "circle-opacity", opacity);
-      map.setPaintProperty(layerIds[1]!, "text-color", color);
-      map.setLayoutProperty(layerIds[1]!, "text-offset", [offsetX / 12, 0]);
-      map.setPaintProperty(layerIds[1]!, "text-opacity", opacity);
-      keepLoadingUntilMapIdle(map, `${sourceId}:render`, "醫療聚合格網載入中", sourceId);
+      const source = map.getSource(sourceId) as { setData?: (value: GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>) => void } | undefined;
+      if (!source) map.addSource(sourceId, { type: "geojson", data: grid });
+      else source.setData?.(grid);
+      if (!map.getLayer(layerIds[0]!)) map.addLayer({
+        id: layerIds[0]!, type: "fill", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
+        paint: { "fill-color": jpMedicalGridColorExpression() as ExpressionSpecification, "fill-opacity": opacity },
+      } as FillLayer);
+      if (!map.getLayer(layerIds[1]!)) map.addLayer({
+        id: layerIds[1]!, type: "line", source: sourceId, maxzoom: LOW_ZOOM_CUTOFF,
+        paint: {
+          "line-color": "rgba(15,23,42,.72)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 3, 0.2, 8, 0.75],
+          "line-opacity": clamp(opacity * 0.7),
+        },
+      } as LineLayer);
+      map.setPaintProperty(layerIds[0]!, "fill-opacity", opacity);
+      map.setPaintProperty(layerIds[1]!, "line-opacity", clamp(opacity * 0.7));
+      keepLoadingUntilMapIdle(map, `${sourceId}:render`, "醫療密度網格載入中", sourceId);
     };
     mount();
     map.on("style.load", mount);
@@ -324,14 +321,14 @@ function useAreaLayer(
   }, [asset, definition, layerId, mapRef, outlineId, params, revision, sourceId, tick, visible]);
 }
 
-const FACILITY_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CATEGORIES.map(({ key, value, color }, index) => ({
-  key, layerId: JP_MEDICAL_FACILITY_LAYER_IDS[index]!, color,
+const FACILITY_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CATEGORIES.map(({ key, value, color, aggregateField }, index) => ({
+  key, layerId: JP_MEDICAL_FACILITY_LAYER_IDS[index]!, color, aggregateField,
   filter: ["==", ["get", "record_kind"], value] as unknown as FilterSpecification,
   aggregateMatches: (properties) => properties.record_kind === value,
 }));
 
-const CARE_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CARE_GROUPS.map(({ key, color, serviceTypes }, index) => ({
-  key, layerId: JP_MEDICAL_CARE_LAYER_IDS[index]!, color,
+const CARE_DEFINITIONS: readonly PointLayerDefinition[] = JP_MEDICAL_CARE_GROUPS.map(({ key, color, serviceTypes, aggregateField }, index) => ({
+  key, layerId: JP_MEDICAL_CARE_LAYER_IDS[index]!, color, aggregateField,
   filter: ["in", ["get", "service_type"], ["literal", serviceTypes]] as unknown as FilterSpecification,
   aggregateMatches: (properties) => typeof properties.service_type === "string" && serviceTypes.some((serviceType) => serviceType === properties.service_type),
 }));

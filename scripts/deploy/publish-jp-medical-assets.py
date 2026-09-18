@@ -17,7 +17,7 @@ IMMUTABLE_CACHE = "public, max-age=31536000, immutable"
 CURRENT_CACHE = "public, max-age=60"
 PREFIX = "deploy-assets/jp-medical/"
 LEGACY_ASSET_COUNT = 778
-COMPACT_ASSET_PATHS = frozenset({
+PREVIOUS_COMPACT_ASSET_PATHS = frozenset({
     "aggregates/h17-z6.geojson",
     "aggregates/navii-z6.geojson",
     "areas/A38-20_1.pmtiles",
@@ -25,6 +25,19 @@ COMPACT_ASSET_PATHS = frozenset({
     "areas/A38-20_3.pmtiles",
     "points/h17_services.pmtiles",
     "points/navii_facilities.pmtiles",
+})
+COMPACT_ASSET_PATHS = frozenset({
+    "aggregates/h17-density-10km.geojson",
+    "aggregates/navii-density-10km.geojson",
+    "areas/A38-20_1.pmtiles",
+    "areas/A38-20_2.pmtiles",
+    "areas/A38-20_3.pmtiles",
+    "points/h17_services.pmtiles",
+    "points/navii_facilities.pmtiles",
+})
+DENSITY_ASSET_PATHS = frozenset({
+    "aggregates/h17-density-10km.geojson",
+    "aggregates/navii-density-10km.geojson",
 })
 
 
@@ -71,7 +84,7 @@ def validate_asset_paths(paths: set[str]) -> None:
         if not all(path.startswith(("points/", "areas/", "aggregates/", "details/")) for path in paths):
             raise ValueError("legacy asset outside payload allowlist")
         return
-    if paths != COMPACT_ASSET_PATHS:
+    if paths not in (PREVIOUS_COMPACT_ASSET_PATHS, COMPACT_ASSET_PATHS):
         raise ValueError("assets must be the legacy payload or the exact compact payload")
 
 
@@ -80,7 +93,7 @@ def validate_catalog_contract(catalog: object, version: str, asset_files: dict) 
             or catalog.get("status") != "LOCAL_READY_NOT_DEPLOYED"
             or catalog.get("files") != asset_files):
         raise ValueError("catalog does not exactly bind plan assets")
-    if set(asset_files) == COMPACT_ASSET_PATHS:
+    if set(asset_files) in (PREVIOUS_COMPACT_ASSET_PATHS, COMPACT_ASSET_PATHS):
         if catalog.get("detail_buckets") != {} or not isinstance(catalog.get("layers"), list):
             raise ValueError("compact catalog must declare no detail buckets")
         if any(not isinstance(layer, dict) or layer.get("detail_reference") is not None for layer in catalog["layers"]):
@@ -94,14 +107,30 @@ def validate_manifest_catalog(meta: object, catalog_entry: dict) -> None:
         raise ValueError("publication manifest does not bind catalog digest")
 
 
+def inherited_files(manifest: dict) -> dict[str, dict]:
+    inherited = manifest.get("inherited_files", {})
+    if not isinstance(inherited, dict):
+        raise ValueError("inherited_files must be an object")
+    output = {}
+    for relative, value in inherited.items():
+        relative = safe_relative(relative)
+        if (not isinstance(value, dict) or not isinstance(value.get("bytes"), int) or value["bytes"] < 0
+                or not isinstance(value.get("sha256"), str) or not HEX.fullmatch(value["sha256"])
+                or not isinstance(value.get("source_version"), str) or not HEX.fullmatch(value["source_version"])
+                or safe_relative(value.get("source_path")) != relative):
+            raise ValueError(f"invalid inherited asset metadata: {relative}")
+        output[relative] = {"sha256": value["sha256"], "bytes": value["bytes"]}
+    return output
+
+
 def validate_plan(root: Path, plan_path: Path) -> tuple[dict, list[dict]]:
     plan = json.loads(plan_path.read_text())
     version = plan.get("version")
     if not isinstance(version, str) or not HEX.fullmatch(version):
         raise ValueError("plan version must be SHA-256")
     entries = plan.get("entries")
-    if not isinstance(entries, list) or len(entries) not in {10, 781}:
-        raise ValueError("plan must contain exactly 781 legacy or 10 compact entries")
+    if not isinstance(entries, list) or len(entries) not in {5, 10, 781}:
+        raise ValueError("plan must contain exactly 781 legacy, 10 compact, or 5 inherited-release entries")
     expected_prefix = PREFIX + "releases/" + version + "/"
     seen_paths, seen_keys, validated = set(), set(), []
     for position, entry in enumerate(entries):
@@ -144,10 +173,16 @@ def validate_plan(root: Path, plan_path: Path) -> tuple[dict, list[dict]]:
         }
         for item in asset_entries
     }
-    validate_asset_paths(set(asset_files))
     catalog = json.loads((root / catalog_rel).read_text())
     manifest = json.loads((root / publication_rel).read_text())
-    validate_catalog_contract(catalog, version, asset_files)
+    inherited = inherited_files(manifest) if isinstance(manifest, dict) else {}
+    if set(asset_files) & set(inherited):
+        raise ValueError("published and inherited assets overlap")
+    effective_files = {**inherited, **asset_files}
+    validate_asset_paths(set(effective_files))
+    if inherited and set(asset_files) != DENSITY_ASSET_PATHS:
+        raise ValueError("inherited density release must publish exactly two grid assets")
+    validate_catalog_contract(catalog, version, effective_files)
     catalog_entry, manifest_entry = validated[-3], validated[-2]
     if (not isinstance(manifest, dict) or manifest.get("version") != version
             or manifest.get("files") != asset_files
