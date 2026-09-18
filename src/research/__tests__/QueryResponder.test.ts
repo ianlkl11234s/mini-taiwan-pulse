@@ -12,8 +12,8 @@ describe("QueryResponder", () => {
   it("backs off transient failures and throttles hidden tabs", () => {
     expect(queryPollDelay(0, "visible")).toBe(2_000);
     expect(queryPollDelay(1, "visible")).toBe(4_000);
-    expect(queryPollDelay(3, "visible")).toBe(16_000);
-    expect(queryPollDelay(8, "visible")).toBe(16_000);
+    expect(queryPollDelay(3, "visible")).toBe(8_000);
+    expect(queryPollDelay(8, "visible")).toBe(8_000);
     expect(queryPollDelay(0, "hidden")).toBe(10_000);
   });
 
@@ -24,8 +24,8 @@ describe("QueryResponder", () => {
     const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
     responder.start();
     await Promise.resolve(); await Promise.resolve();
-    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 16_000);
-    expect(queryPollDelay(8, "visible")).toBeLessThan(25_000);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 8_000);
+    expect(queryPollDelay(8, "visible") + 8_000).toBeLessThan(25_000);
     responder.stop();
     setTimeoutSpy.mockRestore();
   });
