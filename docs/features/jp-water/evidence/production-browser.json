@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-09-18T07:04:38.699648+00:00",
+  "method": "native Chrome via CUA; AX and screenshot observed",
+  "origin": "https://mini-taiwan-pulse.itsmigu.com",
+  "layers": [
+    {
+      "key": "jpWaterLakes",
+      "feature": "琵琶湖",
+      "year": "2005"
+    },
+    {
+      "key": "jpWaterQualityStations",
+      "feature": "上野",
+      "year": "2024",
+      "limitation": "測站名錄，不含水質濃度或趨勢"
+    },
+    {
+      "key": "jpWaterLevelStations",
+      "feature": "トーヨー橋",
+      "year": "來源未註"
+    },
+    {
+      "key": "jpWaterLocalFacilities",
+      "feature": "旧御殿水源地（高松市水道資料館）",
+      "year": "來源未註"
+    }
+  ],
+  "verified": [
+    "actual geometry rendered",
+    "click popup",
+    "source attribution",
+    "license",
+    "processing disclosure",
+    "URL layer selection retained"
+  ],
+  "not_tested": [
+    "physical mobile device"
+  ]
+}

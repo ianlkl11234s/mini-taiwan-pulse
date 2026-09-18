@@ -20,7 +20,7 @@ Root pointer：`public/world/jp_water/release.json`，前端 URL 為 `/world/jp_
 
 PMTiles asset 另必填 `source_layer`。每個 asset 的 `geometry_role` 必須與 `src/data/jpWaterTypes.ts` 固定契約相同；缺 `year/source_url/license/coverage`、`bytes/SHA-256`、release 路徑，或 `HOLD/local_only`，loader 一律拒絕，不得當作空圖層成功。
 
-`status: "published"` 僅表示該 immutable artifact 被目前 release allowlist 選中，因而可供本地 preview。它不是 S3 upload、checksum readback、container pull、HTTP Range、deployment 或 browser production 證據；這些須各自記錄。
+`status: "published"` 僅表示該 immutable artifact 被目前 release allowlist 選中；單獨存在時不是 S3 upload、checksum readback、container pull、HTTP Range、deployment 或 browser production 證據，這些須各自記錄。
 
 ### License gate
 
@@ -39,3 +39,9 @@ PMTiles asset 另必填 `source_layer`。每個 asset 的 `geometry_role` 必須
 ## 2026-09-18 本地瀏覽器證據
 
 Chrome + Vite 3742：四層實際渲染及點擊popup通過，樣本為琵琶湖2005、水質站Ｎｏ．１９（2024，台帳非測值）、橫濱トーヨー橋（台帳年份未註）、高松旧御殿水源地（水道資料館）。湖泊分享網址重載保留layer並渲染；79 tests含URL round-trip。非production證據。
+
+## 2026-09-18 production evidence
+
+- Zeabur deployment `6aace0570f50de6ff52c3469` completed at `2026-09-18T07:01:08.039Z`, status `RUNNING`, from master commit `5fdde19d0af1e73492f9acdb6b52c867ac4a3a96`: [receipt](./evidence/production-deployment.json).
+- Production root and all four assets returned HTTP 200 with expected SHA-256, byte size, and feature count: [readback](./evidence/production-readback.json). This verifies the published payload rather than only the release allowlist.
+- Native Chrome via CUA verified the Japan entry point「水資源 1/4」、four toggles, and「水資源靜態資料」catalog group; it also rendered actual geometries and verified click popup, source attribution, license, processing disclosure, and URL selection for 琵琶湖、上野、トーヨー橋、旧御殿水源地: [browser receipt](./evidence/production-browser.json). Physical mobile-device evidence remains absent.
