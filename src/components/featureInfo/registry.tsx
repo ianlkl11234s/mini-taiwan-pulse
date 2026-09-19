@@ -1,5 +1,6 @@
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
+import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
@@ -198,6 +199,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
   ship: ShipPanel,
+  historicalFlightTrails: HistoricalFlightTrailPanel,
+  jpHistoricalFlightTrails: HistoricalFlightTrailPanel,
   lighthouse: LighthousePanel,
   railStation: RailStationPanel,
   port: PortPanel,
@@ -809,6 +812,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",
+  historicalFlightTrails: "歷史航班軌跡（台灣）",
+  jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "警察設施 警察施設",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",

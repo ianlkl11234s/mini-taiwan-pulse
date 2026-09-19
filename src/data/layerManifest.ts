@@ -1956,6 +1956,23 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "日本", "交通", "鐵道"],
   },
 
+  jpHistoricalFlightTrails: {
+    key: "jpHistoricalFlightTrails",
+    section: { theme: "交通", group: "線" },
+    label: "歷史航班軌跡 Japan",
+    expandable: true,
+    color: "#4d99ff",
+    icon: Plane,
+    upstream: { status: "verified", datasets: [{ datasetId: "historical_flight_trails_jp", confidence: "HIGH" }] },
+    dataClass: "D",
+    source: { kind: "custom", note: "歷史航班樣本 manifest 與 GeoJSON 資產；依機場、日期載入已保留的實測航跡。" },
+    legend: "historicalFlightTrails",
+    popup: "jpHistoricalFlightTrails",
+    params: { count: 5, kinds: ["slider", "slider", "slider", "select", "select"] },
+    description: "日本機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。",
+    topics: ["交通", "航空", "歷史", "航跡", "日本"],
+  },
+
   osmBridgeCarriers: {
     key: "osmBridgeCarriers",
     expandable: true,
@@ -9676,6 +9693,23 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
     description: "即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）",
     topics: ["交通", "航空", "即時"],
+  },
+
+  historicalFlightTrails: {
+    key: "historicalFlightTrails",
+    section: { theme: "交通 Move", group: "歷史軌跡" },
+    label: "歷史航班軌跡 Taiwan",
+    expandable: true,
+    color: "#4d99ff",
+    icon: Plane,
+    upstream: { status: "verified", datasets: [{ datasetId: "historical_flight_trails_tw", confidence: "HIGH" }] },
+    dataClass: "D",
+    source: { kind: "custom", note: "歷史航班樣本 manifest 與 GeoJSON 資產；依機場、日期載入已保留的實測航跡。" },
+    legend: "historicalFlightTrails",
+    popup: "historicalFlightTrails",
+    params: { count: 5, kinds: ["slider", "slider", "slider", "select", "select"] },
+    description: "台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。",
+    topics: ["交通", "航空", "歷史", "航跡"],
   },
 
   ships: {
