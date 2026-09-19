@@ -10,6 +10,10 @@ const READBACK = new Set([
 
 /** Translates an intentional research action into calm, non-quantified UI copy. */
 export function activityForOperation(operation: string, args: Record<string, unknown>): Activity | null {
+  if (operation === "describe_layer_statistics") return { phase: "working", title: "正在確認可統計範圍", detail: "確認來源、計數單位、可用欄位與缺值。" };
+  if (operation === "summarize_layer") return { phase: "working", title: "正在計算來源紀錄", detail: "使用完整資產，保留缺值與未匹配行政區。" };
+  if (operation === "list_layer_capabilities") return { phase: "working", title: "正在確認圖層能力", detail: "查看哪些圖層已登記統計、搜尋與完整來源摘要。" };
+  if (operation === "search_layer_records") return { phase: "working", title: "正在搜尋來源紀錄", detail: "只讀取已驗證的資料來源與欄位。" };
   if (operation === "time_context") return { phase: "working", title: "正在確認資料時間", detail: "查看目前日期與已知可用資料日期。" };
   if (READBACK.has(operation)) return null;
   if (operation === "layer_controls") return { phase: "working", title: "正在查看圖層設定", detail: "確認可調整項目、選項與目前設定。" };

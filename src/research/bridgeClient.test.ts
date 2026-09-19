@@ -31,6 +31,21 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(new Response("x".repeat(MAX_BRIDGE_RESPONSE_BYTES + 1)))).sync("study-1", "tab-1")).rejects.toMatchObject({ code: "RESPONSE_TOO_LARGE" } satisfies Partial<BridgeError>);
   });
 
+  it("keeps Retry-After for conservative client scheduling and validates safe resume metadata", async () => {
+    const limited = new Response(JSON.stringify({ error: { code: "RATE_LIMITED" } }), { status: 429, headers: { "content-type": "application/json", "retry-after": "7" } });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(limited)).sync("study-1", "tab-1")).rejects.toMatchObject({ code: "RATE_LIMITED", retryAfterMs: 7_000 });
+    const resume = { studyId: "study-1", tabId: "tab-1", session: { active: true, sessionId: "session-1", expiresAt: 123, hardExpiresAt: 456 }, snapshot: state };
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(resume))).browserStatus("study-1", "tab-1")).resolves.toMatchObject({ session: { active: true }, snapshot: { studyId: "study-1" } });
+    await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...resume, snapshot: { ...state, tabId: "other" } }))).browserStatus("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("accepts the bounded layer-statistics query operations", async () => {
+    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records"]) {
+      const query = { request: { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 } };
+      await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(query))).query("study-1", "tab-1")).resolves.toEqual(query);
+    }
+  });
+
   it("accepts unclaimed pairing null fields and rejects shallow or extra state", async () => {
     const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ pairingId: "pairing-1", claimed: false, approved: false, deviceLabel: null, phrase: null })));
     await expect(client.pairingStatus("pairing-1", "tab-1")).resolves.toMatchObject({ claimed: false, phrase: null });

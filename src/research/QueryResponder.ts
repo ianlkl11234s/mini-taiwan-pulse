@@ -1,4 +1,5 @@
 import { BridgeError, type BridgeConnectionContext, type BrowserQuery, type QueryResult } from "./bridgeClient";
+import { classifyConnectionFailure } from "./connectionReliability";
 
 export type QueryActivityEvent = { request: BrowserQuery; phase: "started" | "completed"; result?: QueryResult };
 
@@ -74,8 +75,9 @@ export class QueryResponder {
     } catch (error) {
       if (!this.stopped) {
         const code = error instanceof BridgeError ? error.code : "BRIDGE_UNAVAILABLE";
+        const classified = classifyConnectionFailure(error);
         const state = code === "SESSION_PAUSED" ? "paused"
-          : ["AUTH_REQUIRED", "SESSION_REVOKED", "STUDY_DENIED"].includes(code) ? "auth"
+          : ["auth", "expired"].includes(classified.kind) ? "auth"
           : ["QUERY_DENIED", "QUERY_EXPIRED"].includes(code) ? "cancelled"
           : ++this.failures >= 3 ? "offline" : "retrying";
         this.unhealthy = true;

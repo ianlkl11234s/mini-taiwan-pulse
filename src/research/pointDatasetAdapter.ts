@@ -9,6 +9,8 @@ export interface PointDatasetConfig {
   url: string;
   safeFields: readonly string[];
   idField: string;
+  /** Count source records even without usable points; geometry remains null. */
+  preserveUnlocatedRecords?: boolean;
 }
 
 export interface PointDatasetSnapshot {
@@ -77,13 +79,17 @@ function parse(config: PointDatasetConfig, bytes: Uint8Array, checksumSha256: st
   const rows: Record<string, unknown>[] = [];
   for (let index = 0; index < features.length; index++) {
     const feature = features[index];
-    if (!feature || typeof feature !== "object" || Array.isArray(feature) || !(feature as { geometry?: unknown }).geometry) { exclusions.missing_geometry++; continue; }
-    const geometry = (feature as { geometry: { type?: unknown; coordinates?: unknown } }).geometry;
-    if (geometry.type !== "Point") { exclusions.non_point_geometry++; continue; }
-    if (!Array.isArray(geometry.coordinates) || !validCoordinate(geometry.coordinates[0], geometry.coordinates[1])) { exclusions.invalid_geometry++; continue; }
-    const properties = (feature as { properties?: unknown }).properties;
-    const source = properties && typeof properties === "object" && !Array.isArray(properties) ? properties as Record<string, unknown> : {};
-    const row: Record<string, unknown> = { geometry: { type: "Point", coordinates: [geometry.coordinates[0], geometry.coordinates[1]] } };
+    if (!feature || typeof feature !== "object" || Array.isArray(feature) || feature.type !== "Feature"
+      || (feature.properties !== null && (typeof feature.properties !== "object" || Array.isArray(feature.properties)))) throw new Error("INVALID_DATASET");
+    const geometry = feature.geometry;
+    let point: { type: "Point"; coordinates: number[] } | null = null;
+    if (!geometry) exclusions.missing_geometry++;
+    else if (geometry.type !== "Point") exclusions.non_point_geometry++;
+    else if (!Array.isArray(geometry.coordinates) || !validCoordinate(geometry.coordinates[0], geometry.coordinates[1])) exclusions.invalid_geometry++;
+    else point = { type: "Point", coordinates: [geometry.coordinates[0], geometry.coordinates[1]] };
+    if (!point && !config.preserveUnlocatedRecords) continue;
+    const source = (feature.properties ?? {}) as Record<string, unknown>;
+    const row: Record<string, unknown> = { geometry: point };
     for (const field of config.safeFields) {
       const value = safeValue(source[field]);
       if (value !== undefined) row[field] = value;

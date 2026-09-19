@@ -76,5 +76,22 @@ describe("QueryResponder", () => {
     await responder.tick();
     expect(onHealth).toHaveBeenLastCalledWith({ state: "auth", code: "SESSION_REVOKED" });
   });
+  it("schedules the next poll after completion instead of overlapping a fixed interval", async () => {
+    vi.useFakeTimers();
+    try {
+      const { responder, client } = setup();
+      client.query.mockResolvedValue({ request: null });
+      responder.start();
+      await vi.runAllTicks();
+      await Promise.resolve();
+      expect(client.query).toHaveBeenCalledTimes(1);
+      const delay = queryPollDelay(0, "unknown");
+      await vi.advanceTimersByTimeAsync(delay - 1);
+      expect(client.query).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(client.query).toHaveBeenCalledTimes(2);
+      responder.stop();
+    } finally { vi.useRealTimers(); }
+  });
 
 });

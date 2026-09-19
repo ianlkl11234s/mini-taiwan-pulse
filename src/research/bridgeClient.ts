@@ -11,10 +11,18 @@ export type Command = { protocolVersion: "1"; sessionId: string; studyId: string
 export type StudyState = { studyId: string; tabId: string; revision: number; scene: Scene; view: { revision: number; phase: "empty" | "applied" | "ready" | "error" }; connected: boolean; paused: boolean; pendingCommand: Command | null };
 export type PairingRequest = { pairingId: string; code: string; expiresAt: string | number };
 export type PairingStatus = { pairingId: string; claimed: boolean; approved: boolean; deviceLabel: string | null; phrase: string | null };
+export type BrowserSessionStatus = {
+  studyId: string;
+  tabId: string;
+  session: { active: boolean; sessionId: string | null; expiresAt: number | null; hardExpiresAt: number | null };
+  snapshot: StudyState;
+};
 export type BridgeConnectionContext = { client: BridgeClient; studyId: string; tabId: string; pairingId: string };
 export type AccessTokenProvider = () => Promise<string | null>;
 
-export class BridgeError extends Error { constructor(public readonly code: string) { super(code); } }
+export class BridgeError extends Error {
+  constructor(public readonly code: string, public readonly retryAfterMs: number | null = null) { super(code); }
+}
 
 export class BridgeClient {
   constructor(private readonly getAccessToken: AccessTokenProvider, private readonly fetcher: typeof fetch = (input, init) => fetch(input, init)) {}
@@ -22,6 +30,7 @@ export class BridgeClient {
   async createStudy(tabId: string): Promise<{ studyId: string; tabId: string }> { return this.post("/studies", { tabId }, isStudyRef); }
   async createPairing(studyId: string, tabId: string): Promise<PairingRequest> { return this.post("/pairings", { studyId, tabId }, isPairingRequest); }
   async pairingStatus(pairingId: string, tabId: string): Promise<PairingStatus> { return this.post("/pairings/status", { pairingId, tabId }, isPairingStatus); }
+  async browserStatus(studyId: string, tabId: string): Promise<BrowserSessionStatus> { return this.post("/browser/status", { studyId, tabId }, isBrowserSessionStatus); }
   async approve(pairingId: string, tabId: string, phrase: string): Promise<void> { await this.post("/pairings/approve", { pairingId, tabId, phrase }, isAnyResponse); }
   async sync(studyId: string, tabId: string): Promise<StudyState> { return this.post("/browser/sync", { studyId, tabId }, isStudyState); }
   async manual(studyId: string, tabId: string, expectedRevision: number, scene: Scene): Promise<StudyState> { return this.post("/browser/manual", { studyId, tabId, expectedRevision, scene }, isStudyState); }
@@ -42,7 +51,7 @@ export class BridgeClient {
       const text = await boundedText(response);
       let payload: unknown;
       try { payload = text ? JSON.parse(text) : {}; } catch { throw new BridgeError("INVALID_RESPONSE"); }
-      if (!response.ok) throw new BridgeError(errorCode(payload));
+      if (!response.ok) throw new BridgeError(errorCode(payload), retryAfterMs(response));
       if (!guard(payload)) throw new BridgeError("INVALID_RESPONSE");
       return payload;
     } catch (error) {
@@ -62,6 +71,14 @@ async function boundedText(response: Response): Promise<string> {
 }
 function concat(chunks: Uint8Array[], size: number): Uint8Array { const output = new Uint8Array(size); let offset = 0; for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.byteLength; } return output; }
 function errorCode(value: unknown): string { const code = isObject(value) && isObject(value.error) && typeof value.error.code === "string" ? value.error.code : "BRIDGE_REQUEST_FAILED"; return /^[A-Z_]{1,64}$/.test(code) ? code : "BRIDGE_REQUEST_FAILED"; }
+function retryAfterMs(response: Response): number | null {
+  const value = response.headers.get("retry-after");
+  if (!value) return null;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.min(Math.round(seconds * 1_000), 60_000);
+  const date = Date.parse(value);
+  return Number.isFinite(date) ? Math.min(Math.max(0, date - Date.now()), 60_000) : null;
+}
 function isObject(value: unknown): value is Record<string, unknown> { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
 function isStudyRef(value: unknown): value is { studyId: string; tabId: string } { return isObject(value) && safeId(value.studyId) && safeId(value.tabId); }
 function isPairingRequest(value: unknown): value is PairingRequest { return isObject(value) && safeId(value.pairingId) && typeof value.code === "string" && value.code.length === 8 && (typeof value.expiresAt === "string" || typeof value.expiresAt === "number"); }
@@ -75,17 +92,22 @@ function isPatch(value: unknown): value is Partial<Scene> { return isObject(valu
 function isCommand(value: unknown): value is Command { return exactObject(value, ["protocolVersion", "sessionId", "studyId", "tabId", "commandId", "expectedRevision", "expiresAt", "patch"]) && value.protocolVersion === "1" && safeId(value.sessionId) && safeId(value.studyId) && safeId(value.tabId) && safeId(value.commandId) && isNonnegativeInteger(value.expectedRevision) && typeof value.expiresAt === "number" && Number.isFinite(value.expiresAt) && isPatch(value.patch); }
 function isNonnegativeInteger(value: unknown): value is number { return typeof value === "number" && Number.isInteger(value) && value >= 0; }
 function isStudyState(value: unknown): value is StudyState { return exactObject(value, ["studyId", "tabId", "revision", "scene", "view", "connected", "paused", "pendingCommand"]) && safeId(value.studyId) && safeId(value.tabId) && isNonnegativeInteger(value.revision) && isScene(value.scene) && exactObject(value.view, ["revision", "phase"]) && isNonnegativeInteger(value.view.revision) && (value.view.phase === "empty" || value.view.phase === "applied" || value.view.phase === "ready" || value.view.phase === "error") && typeof value.connected === "boolean" && typeof value.paused === "boolean" && (value.pendingCommand === null || isCommand(value.pendingCommand)); }
+function isBrowserSessionStatus(value: unknown): value is BrowserSessionStatus {
+  return exactObject(value, ["studyId", "tabId", "session", "snapshot"]) && safeId(value.studyId) && safeId(value.tabId) && isObject(value.session) && exactObject(value.session, ["active", "sessionId", "expiresAt", "hardExpiresAt"]) && typeof value.session.active === "boolean" && nullableSafeId(value.session.sessionId) && nullableTime(value.session.expiresAt) && nullableTime(value.session.hardExpiresAt) && (value.session.active ? safeId(value.session.sessionId) && typeof value.session.expiresAt === "number" && typeof value.session.hardExpiresAt === "number" : value.session.sessionId === null && value.session.expiresAt === null && value.session.hardExpiresAt === null) && isStudyState(value.snapshot) && value.snapshot.studyId === value.studyId && value.snapshot.tabId === value.tabId;
+}
+function nullableSafeId(value: unknown): value is string | null { return value === null || safeId(value); }
+function nullableTime(value: unknown): value is number | null { return value === null || typeof value === "number" && Number.isFinite(value) && value >= 0; }
 
 function isLayers(value: unknown): value is Record<string, boolean> { return isObject(value) && Object.keys(value).length <= 20 && Object.entries(value).every(([key, on]) => /^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(key) && !["__proto__", "constructor", "prototype"].includes(key) && typeof on === "boolean"); }
 
-export type BrowserQuery = { requestId: string; operation: "time_context" | "search_layers" | "layer_details" | "describe_layer" | "layer_controls" | "geocode_address" | "read_layer" | "map_context" | "find_places" | "nearby" | "explore_data" | "compare_neighborhoods" | "search_datasets" | "describe_dataset" | "query_records" | "plan_data_access" | "materialize_data" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result"; args: Record<string, unknown>; expiresAt: number };
+export type BrowserQuery = { requestId: string; operation: "time_context" | "search_layers" | "layer_details" | "describe_layer" | "describe_layer_statistics" | "summarize_layer" | "list_layer_capabilities" | "search_layer_records" | "layer_controls" | "geocode_address" | "read_layer" | "map_context" | "find_places" | "nearby" | "explore_data" | "compare_neighborhoods" | "search_datasets" | "describe_dataset" | "query_records" | "plan_data_access" | "materialize_data" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result"; args: Record<string, unknown>; expiresAt: number };
 export type QueryResult = { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 function isNearby(value: unknown): value is { queryId: string } | null { return value === null || exactObject(value, ["queryId"]) && safeId(value.queryId); }
 function isResults(value: unknown): value is { resultIds: string[] } | null { return value === null || exactObject(value, ["resultIds"]) && Array.isArray(value.resultIds) && value.resultIds.length >= 1 && value.resultIds.length <= 4 && new Set(value.resultIds).size === value.resultIds.length && value.resultIds.every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }
 function isQueryEnvelope(value: unknown): value is { request: BrowserQuery | null } {
   if (!exactObject(value, ["request"])) return false;
   const request = value.request;
-  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
+  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
 }
 
 function isFocus(value: unknown): boolean { return value === null || exactObject(value, ["resultId", "recordId"]) && [value.resultId, value.recordId].every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }

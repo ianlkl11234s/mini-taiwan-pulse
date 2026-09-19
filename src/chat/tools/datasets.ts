@@ -18,7 +18,7 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
     url: "./police_justice/police_stations/police_stations_20260626.geojson",
     label: "警察機關",
     description:
-      "全國警察機關點位（約 2000+）。欄位 facility_subtype（substation 派出所 / precinct 分局 / police_dept 警察局 / headquarters 總部 / specialized 專業警察 / security 保安 / other）、county（縣市）。",
+      "全國警察機關點位（約 2000+）。欄位 facility_subtype（substation 派出所 / precinct 分局 / police_dept 警察局 / headquarters 總部 / specialized 專業警察 / security 保安 / other）、address（地址；原始資料沒有 county，行政區統計需明確解析並保留未匹配）。",
   },
   courts: {
     url: "./police_justice/courts/courts_20260626.geojson",

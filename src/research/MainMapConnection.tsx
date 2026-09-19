@@ -1,3 +1,5 @@
+import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
+import { listLayerCapabilities } from "./layerCapabilities";
 import { resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
@@ -23,7 +25,7 @@ import { resolveOfflineLocation } from "./addressLookup";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
+const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
 /** First-stage adapter: pairing can only search, explain, select, toggle, and move the map. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -105,6 +107,20 @@ export function MainMapConnection(props: Props) {
       const discoveryContext = { locked: current.locked, visible: new Set(visible) };
       let result: Record<string, unknown>;
       switch (request.operation) {
+        case "describe_layer_statistics":
+        case "summarize_layer": {
+          const layerKey = String(request.args.layerKey ?? "");
+          if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
+          result = request.operation === "describe_layer_statistics" ? await describeLayerStatistics({ layerKey }) : await summarizeLayer(request.args as unknown as LayerSummaryInput);
+          break;
+        }
+        case "list_layer_capabilities": result = listLayerCapabilities(request.args); break;
+        case "search_layer_records": {
+          const layerKey = String(request.args.layerKey ?? "");
+          if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
+          result = await searchLayerRecords(request.args as unknown as LayerRecordSearchInput);
+          break;
+        }
         case "time_context":
           if (!current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
           result = current.timeline.getContext(); break;
@@ -139,7 +155,7 @@ export function MainMapConnection(props: Props) {
       if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: "資料可能暫時無法讀取；這不代表沒有符合的結果。" }); return; }
       const data = event.result.data;
       const count = typeof data.totalMatched === "number" ? data.totalMatched : null;
-      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
+      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : event.request.operation === "summarize_layer" ? `符合 ${count} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
     }, health => {
       const messages = {
         retrying: { phase: "complete" as const, title: "同步稍慢，正在重試", detail: "目前地圖會保留。" },
@@ -176,10 +192,13 @@ export function MainMapConnection(props: Props) {
     const map = props.map;
     const started = (event: { originalEvent?: unknown }) => {
       if (!event.originalEvent || !controller.current) return;
-      followingRef.current = false; setFollowing(false); ++generation.current;
+      // A gesture interrupts only the movement currently in flight. Keep the
+      // user's follow preference so the next explicit Agent command can move
+      // the map again without requiring another checkbox click.
+      ++generation.current;
       controller.current?.beginManual();
       if (map) cancelResearchMotion(map);
-      setActivity({ phase: "complete", title: "已保留你的視角", detail: "你正在查看地圖，Agent 已暫停自動帶鏡頭。" });
+      setActivity({ phase: "complete", title: "已保留目前視角", detail: followingRef.current ? "已停止這次移動；下一個 Agent 動作仍會繼續跟隨。" : "跟隨已由你關閉；下一個 Agent 動作會保留視角。" });
     };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
     map?.on("movestart", started); map?.on("moveend", moved);
@@ -192,10 +211,10 @@ export function MainMapConnection(props: Props) {
     {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" hidden={!panelOpen}>
       {!props.embedded && <h2>連接這張地圖</h2>}
-      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "到 Codex 說出你想了解的主題，圖層與地圖會隨操作同步。" }); }} />
+      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
-        <span>跟隨 Agent<small>允許 Agent 帶你移動視角；手動拖曳地圖時會暫停跟隨。</small></span>
+        <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
     </div>

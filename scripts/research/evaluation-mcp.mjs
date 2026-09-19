@@ -15,6 +15,8 @@ const require = createRequire(join(mcpRoot, 'package.json'));
 const { Client } = await import(pathToFileURL(require.resolve('@modelcontextprotocol/client')).href);
 const { StdioClientTransport } = await import(pathToFileURL(require.resolve('@modelcontextprotocol/client/stdio')).href);
 const expected = [
+  'pulse_describe_layer_statistics', 'pulse_summarize_layer',
+  'pulse_list_layer_capabilities', 'pulse_search_layer_records',
   'pulse_get_time_context', 'pulse_set_time',
   'pulse_get_layer_controls', 'pulse_set_layer_control', 'pulse_geocode_address',
   'pulse_pair_session', 'pulse_get_session', 'pulse_disconnect_session', 'pulse_get_study_state',
