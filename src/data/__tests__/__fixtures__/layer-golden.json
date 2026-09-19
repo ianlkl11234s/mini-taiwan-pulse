@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 776,
+    "keyCount": 778,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1258,6 +1258,14 @@
         "buildings-gba-extrusion"
       ],
       "type": "buildingsGba"
+    },
+    {
+      "layers": [
+        "jp-building-height-grid-fill",
+        "jp-building-height-fill",
+        "jp-building-height-extrusion"
+      ],
+      "type": "jpBuildingHeight"
     },
     {
       "layers": [
@@ -30970,6 +30978,451 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "jpBuildingHeight",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 13,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height_median"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height_median"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height_median"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height_median"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height_median"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.75,
+              "fill-outline-color": "rgba(255,255,255,0.25)"
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height_median"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height_median"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height_median"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height_median"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height_median"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.75,
+              "fill-outline-color": "rgba(255,255,255,0.25)"
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "building_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-building-height-grid",
+      "sourceUrl": "./jp-heights/building_grid.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpBuildingHeight",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.75
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-opacity": 0.75
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "height"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "height"
+              ],
+              null
+            ],
+            [
+              "==",
+              [
+                "typeof",
+                [
+                  "get",
+                  "height"
+                ]
+              ],
+              "number"
+            ],
+            [
+              ">=",
+              [
+                "get",
+                "height"
+              ],
+              0
+            ]
+          ],
+          "layout": null,
+          "minzoom": 13,
+          "paint": {
+            "dark": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-extrusion-height": [
+                "get",
+                "height"
+              ],
+              "fill-extrusion-opacity": 0
+            },
+            "light": {
+              "fill-extrusion-base": 0,
+              "fill-extrusion-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "has",
+                    "height"
+                  ],
+                  [
+                    "!=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    null
+                  ],
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "height"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "height"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "height"
+                  ],
+                  "#4575b4",
+                  10,
+                  "#91bfdb",
+                  25,
+                  "#fee090",
+                  50,
+                  "#fc8d59",
+                  100,
+                  "#d73027"
+                ],
+                "#9e9e9e"
+              ],
+              "fill-extrusion-height": [
+                "get",
+                "height"
+              ],
+              "fill-extrusion-opacity": 0
+            }
+          },
+          "suffix": "extrusion",
+          "type": "fill-extrusion"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 16,
+        "minzoom": 13,
+        "sourceLayer": "buildings"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-building-height",
+      "sourceUrl": "./jp-heights/buildings.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "propertyValueGrid",
       "layers": [
         {
@@ -35256,6 +35709,111 @@
       "rebuildOnParamChange": null,
       "sourceId": "canopy-height",
       "sourceUrl": "./forestry/canopy_height_rgb_taiwan.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpCanopyHeight",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                0,
+                "rgba(0,0,0,0)",
+                0.025,
+                "#f7fcf5",
+                0.075,
+                "#c7e9c0",
+                0.15,
+                "#a1d99b",
+                0.25,
+                "#74c476",
+                0.375,
+                "#41ab5d",
+                0.5,
+                "#238b45",
+                0.75,
+                "#006d2c",
+                1,
+                "#00441b"
+              ],
+              "raster-color-mix": [
+                6.375,
+                0,
+                0,
+                0
+              ],
+              "raster-color-range": [
+                0,
+                1
+              ],
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            },
+            "light": {
+              "raster-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "raster-value"
+                ],
+                0,
+                "rgba(0,0,0,0)",
+                0.025,
+                "#f7fcf5",
+                0.075,
+                "#c7e9c0",
+                0.15,
+                "#a1d99b",
+                0.25,
+                "#74c476",
+                0.375,
+                "#41ab5d",
+                0.5,
+                "#238b45",
+                0.75,
+                "#006d2c",
+                1,
+                "#00441b"
+              ],
+              "raster-color-mix": [
+                6.375,
+                0,
+                0,
+                0
+              ],
+              "raster-color-range": [
+                0,
+                1
+              ],
+              "raster-opacity": 0.7,
+              "raster-resampling": "nearest"
+            }
+          },
+          "suffix": "raster",
+          "type": "raster"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 9
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-canopy-height",
+      "sourceUrl": "./jp-heights/canopy.pmtiles"
     },
     {
       "dynamicData": null,
@@ -65742,6 +66300,39 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpBuildingHeight": [
+      {
+        "label": "呈現",
+        "options": [
+          {
+            "label": "2D 高度",
+            "value": "0"
+          },
+          {
+            "label": "3D 立體",
+            "value": "1"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.3,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCanopyHeight": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.3,
+        "step": 0.05,
+        "value": 0.7
       }
     ],
     "jpCareCombined": [

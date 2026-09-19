@@ -6,6 +6,7 @@ import {
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../../data/urbanOpenSpaceTypes";
 import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
+import { jpBuildingHeightBandColor } from "../../data/jpHeightTypes";
 import {
   BUILDING_VALUE_NON_MARKET_COLOR, PROPERTY_VALUE_APPROX_NOTE,
   PROPERTY_VALUE_PER_CAPITA_MIN_POP,
@@ -305,6 +306,47 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
       <SourceFooter props={props} />
     </>
   );
+}
+
+/** PLATEAU 原始 height 欄位；null 不猜測高度，亦不顯示為 3D 建物。 */
+export function JpBuildingHeightPanel({ props }: { props: Record<string, unknown> }) {
+  const numeric = (value: unknown) => typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+  const text = (value: unknown) => typeof value === "string" && value ? value : "未提供";
+  const attribution = text(props.attribution);
+  const license = text(props.license);
+  const region = text(props.jp_region_label);
+  if (props.cell_size_m != null) {
+    const median = numeric(props.height_median);
+    const p90 = numeric(props.height_p90);
+    const count = numeric(props.building_count);
+    const missing = numeric(props.missing_height_count);
+    return <>
+      <Title color={jpBuildingHeightBandColor(median)}>建物高度網格摘要</Title>
+      <Row label="區域" value={region} />
+      <Row label="網格尺度" value={`${props.cell_size_m} m`} />
+      <Row label="高度中位數" value={median == null ? "未提供" : `${median.toFixed(1)} m`} />
+      <Row label="高度 P90" value={p90 == null ? "未提供" : `${p90.toFixed(1)} m`} />
+      <Row label="已取得輪廓數" value={count == null ? "未提供" : String(count)} />
+      <Row label="有效高度筆數" value={String(props.valid_height_count ?? "未提供")} />
+      <Row label="高度缺值" value={missing == null ? "未提供" : `${missing} 筆${count ? `（${(missing / count * 100).toFixed(1)}%）` : ""}`} />
+      <Row label="來源年份" value={String(props.source_year ?? "未提供")} />
+      <Row label="授權" value={`${license} · ${attribution}`} />
+      <div style={{ fontSize: FONT_SIZE.sm, lineHeight: 1.5, marginTop: 6 }}>
+        僅統計已取得區域的建物，每棟依代表點歸格；不是整格完整建物數。放大至街區可看個別輪廓。
+      </div>
+    </>;
+  }
+  const height = numeric(props.height);
+  const roof = text(props.geometry_method).toLowerCase().includes("roof");
+  return <>
+    <Title color={jpBuildingHeightBandColor(height)}>{roof ? "PLATEAU 建物屋頂輪廓" : "PLATEAU 建物輪廓"}</Title>
+    <Row label="高度" value={height == null ? "未提供（維持 2D 平面）" : `${height.toFixed(1)} m`} />
+    <Row label="區域" value={region} />
+    <Row label="來源年份" value={String(props.source_year ?? "未提供")} />
+    <Row label="高度方法" value={text(props.height_method)} />
+    <Row label="輪廓方法" value={text(props.geometry_method)} />
+    <Row label="授權" value={`${license} · ${attribution}`} />
+  </>;
 }
 
 // ── 房地產總市值網格（150m 格，333,847 格）──

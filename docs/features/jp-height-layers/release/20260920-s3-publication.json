@@ -1,0 +1,398 @@
+{
+  "catalog_version": "national-local-2026-09-19-metro-mesh-v1",
+  "apply": true,
+  "started_at": "2026-09-19T16:21:00.983241+00:00",
+  "objects": [
+    {
+      "relative_path": "assets/0a9c5479b50e989a35cd66fa3084f3c34c511ee455b64a783bd3c7308d79b2a4.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/0a9c5479b50e989a35cd66fa3084f3c34c511ee455b64a783bd3c7308d79b2a4.pmtiles",
+      "expected_sha256": "0a9c5479b50e989a35cd66fa3084f3c34c511ee455b64a783bd3c7308d79b2a4",
+      "expected_bytes": 12416,
+      "status": "uploaded_and_verified",
+      "etag": "\"03fc72b8a95ad8d090d190b5268c404f\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/0d5c0012d3ce688527fb5ab4709171249881ca366ba237cd8fb077e314f28a2e.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/0d5c0012d3ce688527fb5ab4709171249881ca366ba237cd8fb077e314f28a2e.pmtiles",
+      "expected_sha256": "0d5c0012d3ce688527fb5ab4709171249881ca366ba237cd8fb077e314f28a2e",
+      "expected_bytes": 213194,
+      "status": "uploaded_and_verified",
+      "etag": "\"9feb00a378d28b37e4ee933d39ab17ae\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/1058505469849975d9073503205fa7901e7ea0452f13fd12ff9f45deb691cb68.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/1058505469849975d9073503205fa7901e7ea0452f13fd12ff9f45deb691cb68.pmtiles",
+      "expected_sha256": "1058505469849975d9073503205fa7901e7ea0452f13fd12ff9f45deb691cb68",
+      "expected_bytes": 2046200,
+      "status": "uploaded_and_verified",
+      "etag": "\"a7116d2b3224edf3dac4facf7b6a09b2\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/11371f83d16f8ebb649a8f494705f8e9b1d45ade053dc4ad0f68aa31c3c632d8.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/11371f83d16f8ebb649a8f494705f8e9b1d45ade053dc4ad0f68aa31c3c632d8.pmtiles",
+      "expected_sha256": "11371f83d16f8ebb649a8f494705f8e9b1d45ade053dc4ad0f68aa31c3c632d8",
+      "expected_bytes": 10398,
+      "status": "uploaded_and_verified",
+      "etag": "\"d4450ef45bc415f6c4b082c5074879d5\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/185d2964e001c5efb0ee5b549b23c9530b1d2566d3ec7b0d1cf71354446dcf5b.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/185d2964e001c5efb0ee5b549b23c9530b1d2566d3ec7b0d1cf71354446dcf5b.pmtiles",
+      "expected_sha256": "185d2964e001c5efb0ee5b549b23c9530b1d2566d3ec7b0d1cf71354446dcf5b",
+      "expected_bytes": 2568545,
+      "status": "uploaded_and_verified",
+      "etag": "\"c2b29be4a1bbf278bda8f120cc064a95\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/1f2a86b9661c7ae1810140959ebdbf9d065a347e62709938e45df8c2e0e48ac5.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/1f2a86b9661c7ae1810140959ebdbf9d065a347e62709938e45df8c2e0e48ac5.pmtiles",
+      "expected_sha256": "1f2a86b9661c7ae1810140959ebdbf9d065a347e62709938e45df8c2e0e48ac5",
+      "expected_bytes": 3156972,
+      "status": "uploaded_and_verified",
+      "etag": "\"3a4898a71b19d791ba34faac6a737316\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/23f6ccda46431729641cf58986c2fc74170335f1851bc1b87dafeb05c2605d4d.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/23f6ccda46431729641cf58986c2fc74170335f1851bc1b87dafeb05c2605d4d.pmtiles",
+      "expected_sha256": "23f6ccda46431729641cf58986c2fc74170335f1851bc1b87dafeb05c2605d4d",
+      "expected_bytes": 255647,
+      "status": "uploaded_and_verified",
+      "etag": "\"c7e2e4a6edda6791af86d1bb39c03623\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/2f186bd5db2f6d842c5b363c77b71cff9134cddbebbf256dca6b517e4f733806.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/2f186bd5db2f6d842c5b363c77b71cff9134cddbebbf256dca6b517e4f733806.pmtiles",
+      "expected_sha256": "2f186bd5db2f6d842c5b363c77b71cff9134cddbebbf256dca6b517e4f733806",
+      "expected_bytes": 202262,
+      "status": "uploaded_and_verified",
+      "etag": "\"9b1f1b03c80071f514b2d113ce4916bf\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/3186c33f0c69f3d89c3331a2c8dd9278e3aba2bf8f70e01662ef192a82e2f87f.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/3186c33f0c69f3d89c3331a2c8dd9278e3aba2bf8f70e01662ef192a82e2f87f.pmtiles",
+      "expected_sha256": "3186c33f0c69f3d89c3331a2c8dd9278e3aba2bf8f70e01662ef192a82e2f87f",
+      "expected_bytes": 56018,
+      "status": "uploaded_and_verified",
+      "etag": "\"d7138aea9973dedd6731822e4e324d03\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/337f7ab1a8fc72769f4c52d13e79926fe5c33617867a95102f71e63cca480036.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/337f7ab1a8fc72769f4c52d13e79926fe5c33617867a95102f71e63cca480036.pmtiles",
+      "expected_sha256": "337f7ab1a8fc72769f4c52d13e79926fe5c33617867a95102f71e63cca480036",
+      "expected_bytes": 72161,
+      "status": "uploaded_and_verified",
+      "etag": "\"31b392b4410a1741087799f5bf109d6f\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/384fa78d2510a7cd1f1f3f4ceedd05b9d1148349eb52266c160c84cec6c98d56.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/384fa78d2510a7cd1f1f3f4ceedd05b9d1148349eb52266c160c84cec6c98d56.pmtiles",
+      "expected_sha256": "384fa78d2510a7cd1f1f3f4ceedd05b9d1148349eb52266c160c84cec6c98d56",
+      "expected_bytes": 4715,
+      "status": "uploaded_and_verified",
+      "etag": "\"7d3b7a8778cb4d63d3e2c4f3b5ad511d\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/3981d2b023fdbe997241e34ebdf9e45f1e01456725f18a54af85b6400f42c1d6.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/3981d2b023fdbe997241e34ebdf9e45f1e01456725f18a54af85b6400f42c1d6.pmtiles",
+      "expected_sha256": "3981d2b023fdbe997241e34ebdf9e45f1e01456725f18a54af85b6400f42c1d6",
+      "expected_bytes": 4188,
+      "status": "uploaded_and_verified",
+      "etag": "\"36b0e2766bfcc168f747d6f94939fd31\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/47355731bae08852cbc022b02d7abfa0ea772f34c46a8754f0968dac6f82d9c1.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/47355731bae08852cbc022b02d7abfa0ea772f34c46a8754f0968dac6f82d9c1.pmtiles",
+      "expected_sha256": "47355731bae08852cbc022b02d7abfa0ea772f34c46a8754f0968dac6f82d9c1",
+      "expected_bytes": 143322,
+      "status": "uploaded_and_verified",
+      "etag": "\"0909fc3286365e5173fd111ed463c27d\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/4cbcd153116210fc3e61fd0cbfb11b8906306a89fdde6806f144676d5654d265.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/4cbcd153116210fc3e61fd0cbfb11b8906306a89fdde6806f144676d5654d265.pmtiles",
+      "expected_sha256": "4cbcd153116210fc3e61fd0cbfb11b8906306a89fdde6806f144676d5654d265",
+      "expected_bytes": 3502,
+      "status": "uploaded_and_verified",
+      "etag": "\"44bf58750512f73777184380c4733bf9\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/51ffefcd2331a4f1e7f66820935b184a2c856c325808c899d19ad74486bdf0b0.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/51ffefcd2331a4f1e7f66820935b184a2c856c325808c899d19ad74486bdf0b0.pmtiles",
+      "expected_sha256": "51ffefcd2331a4f1e7f66820935b184a2c856c325808c899d19ad74486bdf0b0",
+      "expected_bytes": 5448,
+      "status": "uploaded_and_verified",
+      "etag": "\"af115db7cdc34553d19490a1d89c0198\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/56a5165e465538fd7c0d517388a802d8d9f9a3b6ad12b07df96b5adb2828b5ed.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/56a5165e465538fd7c0d517388a802d8d9f9a3b6ad12b07df96b5adb2828b5ed.pmtiles",
+      "expected_sha256": "56a5165e465538fd7c0d517388a802d8d9f9a3b6ad12b07df96b5adb2828b5ed",
+      "expected_bytes": 130142,
+      "status": "uploaded_and_verified",
+      "etag": "\"c477a654a3bbf5c54062d276fda746b9\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/69a86c4725d8a5f58eb61c072b4e1d90c5de9b47208219dd8fea1bf0e8a1eb17.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/69a86c4725d8a5f58eb61c072b4e1d90c5de9b47208219dd8fea1bf0e8a1eb17.pmtiles",
+      "expected_sha256": "69a86c4725d8a5f58eb61c072b4e1d90c5de9b47208219dd8fea1bf0e8a1eb17",
+      "expected_bytes": 3988,
+      "status": "uploaded_and_verified",
+      "etag": "\"31589c30e2c65f9556d81925bea07d73\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/72734ad02a5950b6ae1dbac3d788778926d2cc870853baf5cd0f57d78894c882.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/72734ad02a5950b6ae1dbac3d788778926d2cc870853baf5cd0f57d78894c882.pmtiles",
+      "expected_sha256": "72734ad02a5950b6ae1dbac3d788778926d2cc870853baf5cd0f57d78894c882",
+      "expected_bytes": 177770,
+      "status": "uploaded_and_verified",
+      "etag": "\"3e70b1a0b648ca1b68b36dffb1affe3b\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/73298d8355f81713170808b850ccb667aa2030dc40de2812d2aa52b78c163d37.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/73298d8355f81713170808b850ccb667aa2030dc40de2812d2aa52b78c163d37.pmtiles",
+      "expected_sha256": "73298d8355f81713170808b850ccb667aa2030dc40de2812d2aa52b78c163d37",
+      "expected_bytes": 1732919,
+      "status": "uploaded_and_verified",
+      "etag": "\"d267d6b642960d51147a47606722148b\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/7b58ea1eeaddd76b455d86c84989de116570dd106c85c0d0bfa897797cd8e243.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/7b58ea1eeaddd76b455d86c84989de116570dd106c85c0d0bfa897797cd8e243.pmtiles",
+      "expected_sha256": "7b58ea1eeaddd76b455d86c84989de116570dd106c85c0d0bfa897797cd8e243",
+      "expected_bytes": 4225,
+      "status": "uploaded_and_verified",
+      "etag": "\"f303a3e8290b8a6618532aa54ce931bc\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/7d670a44e2d08f02dbb87b3e014033d54a95f0c21efa3b8122b8e8d65d646bdc.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/7d670a44e2d08f02dbb87b3e014033d54a95f0c21efa3b8122b8e8d65d646bdc.pmtiles",
+      "expected_sha256": "7d670a44e2d08f02dbb87b3e014033d54a95f0c21efa3b8122b8e8d65d646bdc",
+      "expected_bytes": 4180,
+      "status": "uploaded_and_verified",
+      "etag": "\"af21d78330b204618179b55a89a28a1c\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/82ddfa0d7d22521985020c29180cf43afa9b5dbc320d750c9baffd356c5574a1.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/82ddfa0d7d22521985020c29180cf43afa9b5dbc320d750c9baffd356c5574a1.pmtiles",
+      "expected_sha256": "82ddfa0d7d22521985020c29180cf43afa9b5dbc320d750c9baffd356c5574a1",
+      "expected_bytes": 188529,
+      "status": "uploaded_and_verified",
+      "etag": "\"28215576e37d0e1deba66b47f7860fe6\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/90289050f501026ec0202225acae18509a1d4c18a0a56dbad78a880ca0924247.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/90289050f501026ec0202225acae18509a1d4c18a0a56dbad78a880ca0924247.pmtiles",
+      "expected_sha256": "90289050f501026ec0202225acae18509a1d4c18a0a56dbad78a880ca0924247",
+      "expected_bytes": 4700,
+      "status": "uploaded_and_verified",
+      "etag": "\"98b69cf500af31c0dac838cb2f32a8c5\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/938cccd0aed98f6c3950579b22ff9053a612a562ba6a953827f8a8a78388d549.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/938cccd0aed98f6c3950579b22ff9053a612a562ba6a953827f8a8a78388d549.pmtiles",
+      "expected_sha256": "938cccd0aed98f6c3950579b22ff9053a612a562ba6a953827f8a8a78388d549",
+      "expected_bytes": 3361556,
+      "status": "uploaded_and_verified",
+      "etag": "\"21c913c9b0b54fb299acf463eb0a50b9\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/9719e9008865e66904267cdd4f0c0a169aa00c74243587ba87b621a6aea4c0f6.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/9719e9008865e66904267cdd4f0c0a169aa00c74243587ba87b621a6aea4c0f6.pmtiles",
+      "expected_sha256": "9719e9008865e66904267cdd4f0c0a169aa00c74243587ba87b621a6aea4c0f6",
+      "expected_bytes": 11272,
+      "status": "uploaded_and_verified",
+      "etag": "\"be5b8b640ea800c844ab428394460a25\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/ab22fb64771256095108a41ee3d0cd8e397900050551186743525ada33d2744c.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/ab22fb64771256095108a41ee3d0cd8e397900050551186743525ada33d2744c.pmtiles",
+      "expected_sha256": "ab22fb64771256095108a41ee3d0cd8e397900050551186743525ada33d2744c",
+      "expected_bytes": 2490651,
+      "status": "uploaded_and_verified",
+      "etag": "\"9f4ee79fbf023636f9c363d413198b1a\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/accfc8ae71c0f0f22be595dc0515a85e7b73c965d1ff74ee67af8c5f1738dc6d.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/accfc8ae71c0f0f22be595dc0515a85e7b73c965d1ff74ee67af8c5f1738dc6d.pmtiles",
+      "expected_sha256": "accfc8ae71c0f0f22be595dc0515a85e7b73c965d1ff74ee67af8c5f1738dc6d",
+      "expected_bytes": 1111609,
+      "status": "uploaded_and_verified",
+      "etag": "\"7aafcb53d148705f0f46686cdc735664\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/b0391670985afd617d4f05c6b0e1fa7437b5d0bea6c37c0a1445eeec819198e5.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/b0391670985afd617d4f05c6b0e1fa7437b5d0bea6c37c0a1445eeec819198e5.pmtiles",
+      "expected_sha256": "b0391670985afd617d4f05c6b0e1fa7437b5d0bea6c37c0a1445eeec819198e5",
+      "expected_bytes": 267571,
+      "status": "uploaded_and_verified",
+      "etag": "\"891cca096e7c2804eb26002739f3cdd8\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/c27015196433cd8bfe73507d19742c7872b88e537ea366ed87cf9c9a18dd8f0b.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/c27015196433cd8bfe73507d19742c7872b88e537ea366ed87cf9c9a18dd8f0b.pmtiles",
+      "expected_sha256": "c27015196433cd8bfe73507d19742c7872b88e537ea366ed87cf9c9a18dd8f0b",
+      "expected_bytes": 18265,
+      "status": "uploaded_and_verified",
+      "etag": "\"ab0e8ba3b5c4284fb2d5c98b70a75ca5\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/c2a3989bf95d9213173f6fd073f30f18ed3abdd218f42adc16a5ba4596afefde.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/c2a3989bf95d9213173f6fd073f30f18ed3abdd218f42adc16a5ba4596afefde.pmtiles",
+      "expected_sha256": "c2a3989bf95d9213173f6fd073f30f18ed3abdd218f42adc16a5ba4596afefde",
+      "expected_bytes": 1831713,
+      "status": "uploaded_and_verified",
+      "etag": "\"611439adaaa553c9fd8283aeed25c06f\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/c5d1c23b75f8f14bceca45a887632cc854dae1795547140c2b3299fd388373d5.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/c5d1c23b75f8f14bceca45a887632cc854dae1795547140c2b3299fd388373d5.pmtiles",
+      "expected_sha256": "c5d1c23b75f8f14bceca45a887632cc854dae1795547140c2b3299fd388373d5",
+      "expected_bytes": 3920,
+      "status": "uploaded_and_verified",
+      "etag": "\"73aed908fd74c4b7249f8c831596f4f9\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/c60f3e313e9621c11c5ea9dd2dd2201470591882b0d2950fa9614376097d431f.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/c60f3e313e9621c11c5ea9dd2dd2201470591882b0d2950fa9614376097d431f.pmtiles",
+      "expected_sha256": "c60f3e313e9621c11c5ea9dd2dd2201470591882b0d2950fa9614376097d431f",
+      "expected_bytes": 10811,
+      "status": "uploaded_and_verified",
+      "etag": "\"b252243993817f09b1887523623b76c9\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/c8a5499e4cc2fe804e98ddacfa3617b3f26593b735d1b3ac9bf2f0556e939145.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/c8a5499e4cc2fe804e98ddacfa3617b3f26593b735d1b3ac9bf2f0556e939145.pmtiles",
+      "expected_sha256": "c8a5499e4cc2fe804e98ddacfa3617b3f26593b735d1b3ac9bf2f0556e939145",
+      "expected_bytes": 239594,
+      "status": "uploaded_and_verified",
+      "etag": "\"1ce4cf9807caccf01a7fceafdd324b29\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/cda3ea4ac67177e927a50bab1ff4ba45dab37d772bf01681be08ce654c933958.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/cda3ea4ac67177e927a50bab1ff4ba45dab37d772bf01681be08ce654c933958.pmtiles",
+      "expected_sha256": "cda3ea4ac67177e927a50bab1ff4ba45dab37d772bf01681be08ce654c933958",
+      "expected_bytes": 552915,
+      "status": "uploaded_and_verified",
+      "etag": "\"ba0f13617173919853d5db8fe7774977\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/daea62ad9f82ab4b4cec998ada45c5818179a05e80d5b47283ff94839fc93243.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/daea62ad9f82ab4b4cec998ada45c5818179a05e80d5b47283ff94839fc93243.pmtiles",
+      "expected_sha256": "daea62ad9f82ab4b4cec998ada45c5818179a05e80d5b47283ff94839fc93243",
+      "expected_bytes": 4131,
+      "status": "uploaded_and_verified",
+      "etag": "\"d0750cadc35b0b4c64a012b803045bae\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/de03d10af64685d289477a0176714be535cf4415a14d11caf181373bc158e31e.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/de03d10af64685d289477a0176714be535cf4415a14d11caf181373bc158e31e.pmtiles",
+      "expected_sha256": "de03d10af64685d289477a0176714be535cf4415a14d11caf181373bc158e31e",
+      "expected_bytes": 285399,
+      "status": "uploaded_and_verified",
+      "etag": "\"d818fc7a2193e111df134366b49cbd8b\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/e3d2eb7cb29081863de951c351fb7d60c23e39762be1d5829f4a68f769a9b549.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/e3d2eb7cb29081863de951c351fb7d60c23e39762be1d5829f4a68f769a9b549.pmtiles",
+      "expected_sha256": "e3d2eb7cb29081863de951c351fb7d60c23e39762be1d5829f4a68f769a9b549",
+      "expected_bytes": 1985954,
+      "status": "uploaded_and_verified",
+      "etag": "\"771df9a1142f85f14333dbb7217a03f3\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "assets/ebeda5b8a05530ff05a35e5d1637b13680fd1c8a24e9d125f61d1f084144ad23.pmtiles",
+      "key": "deploy-assets/jp-heights/assets/ebeda5b8a05530ff05a35e5d1637b13680fd1c8a24e9d125f61d1f084144ad23.pmtiles",
+      "expected_sha256": "ebeda5b8a05530ff05a35e5d1637b13680fd1c8a24e9d125f61d1f084144ad23",
+      "expected_bytes": 4576,
+      "status": "uploaded_and_verified",
+      "etag": "\"146fa2181a5fc8d07a8fc0d89e94a20e\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "catalog.json",
+      "key": "deploy-assets/jp-heights/catalog.json",
+      "expected_sha256": "691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b",
+      "expected_bytes": 28655,
+      "status": "created_and_verified",
+      "etag": "\"72c4d50c80c219fddc115f52a1e22569\"",
+      "content_type": "application/json",
+      "cache_control": "public, max-age=60"
+    }
+  ],
+  "completed_at": "2026-09-19T16:21:52.676808+00:00"
+}

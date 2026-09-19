@@ -163,7 +163,7 @@ function fromManifest(key: ManifestKey): LayerDef {
   return def;
 }
 
-/** HOLD / non-commercial Japan research layers exist in local DEV only. */
+/** Japan research / unreleased pilot layers exist in local DEV only. */
 function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
   return import.meta.env.PROD
     ? []
@@ -200,7 +200,7 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "水資源"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "水資源", "高度與地表"];
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
@@ -1882,6 +1882,11 @@ const THEME_CATALOG: ThemeDef[] = [
       },
     ],
   },
+  {
+    title: "高度與地表",
+    defaultCollapsed: false,
+    groups: [{ title: "日本高度（分區資料）", layers: [fromManifest("jpBuildingHeight"), fromManifest("jpCanopyHeight")] }],
+  },
 
 ];
 
@@ -1965,6 +1970,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "醫療設施": "safety",
   "長照服務": "publicLife",
   "醫療圈": "safety",
+  "高度與地表": "environment",
   "水資源": "environment",
 };
 

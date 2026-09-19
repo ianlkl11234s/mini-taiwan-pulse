@@ -194,6 +194,7 @@ export default defineConfig({
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
+      "jp-heights", // Local height pilot assets are published independently.
       // Owner-local historical flight samples; publish separately only after data-rights acceptance.
       "flight-trails",
       // 日本醫療依 exact allowlist 獨立交付；不隨 app bundle 發布。

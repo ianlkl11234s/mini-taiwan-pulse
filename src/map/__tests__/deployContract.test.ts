@@ -49,6 +49,7 @@ const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
 const dockerIgnore = readFileSync(".dockerignore", "utf8");
+const jpHeightPublisher = readFileSync("scripts/deploy/publish-jp-height-assets.py", "utf8");
 const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
 
@@ -253,6 +254,12 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "world/jp_wildlife_protection_moe_202504.pmtiles",
   "world/jp_world_natural_heritage_ksj_2011.geojson",
   "world/jp_ramsar_moe_current.geojson",
+  // JP height registry entries are paint/source templates only. Runtime never
+  // fetches these pilot names: jpHeightLifecycle clones each template with a
+  // catalog-allowlisted content-addressed URL.
+  "jp-heights/building_grid.pmtiles",
+  "jp-heights/buildings.pmtiles",
+  "jp-heights/canopy.pmtiles",
   // Japan water national research assets：只可由 owner-authenticated Range API
   // 讀取 private immutable objects，不得進 public/dist/CDN upload allowlist。
   "PRIVATE_OWNER_ONLY: water.pmtiles",
@@ -359,6 +366,20 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(dockerIgnore).toContain('public/jp-medical');
     expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
     expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
+  });
+
+  it("Japan height catalog publisher/install/nginx are connected without legacy broad upload", () => {
+    expect(pullCovers("jp-heights")).toBe(true);
+    expect(pullScript).toContain("python3 /usr/local/bin/install-jp-height-assets.py");
+    expect(dockerfile).toContain("COPY scripts/deploy/install-jp-height-assets.py");
+    expect(dockerIgnore).toContain("public/jp-heights");
+    expect(jpHeightPublisher).toContain('write_order": "last"');
+    expect(jpHeightPublisher).toContain("IfNoneMatch=\"*\"");
+    expect(jpHeightPublisher).toContain("S3 readback mismatch");
+    expect(uploadScript).not.toMatch(/^\s*"public\/jp-heights\//m);
+    expect(nginxConf).toContain("location = /jp-heights/catalog.json");
+    expect(nginxConf).toContain("location ^~ /jp-heights/assets/");
+    expect(nginxConf).toContain('Cache-Control "public,max-age=31536000,immutable"');
   });
 
   it("historical flight exact publisher/pull/nginx supply immutable releases before the manifest", () => {

@@ -154,7 +154,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-18: +4 日本水資源本地靜態資料（湖泊、高松供排水設施、水質／水位測站）。
     // 2026-09-18: +2 台灣／日本歷史航班軌跡。
     // 2026-09-19: +9 LOCAL_ONLY 日本全國水資源向量／洪水背景。
-    expect(keys.length).toBe(776);
+    // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
+    expect(keys.length).toBe(778);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

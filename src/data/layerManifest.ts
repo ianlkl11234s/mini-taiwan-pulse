@@ -3902,6 +3902,27 @@ export const LAYER_MANIFEST = {
     topics: ["林業", "樹冠", "遙測"],
   },
 
+  jpCanopyHeight: {
+    key: "jpCanopyHeight",
+    section: { theme: "高度與地表", group: "日本高度（分區資料）" },
+    label: "樹冠高度 CHMv2",
+    expandable: true,
+    color: "#238b45",
+    icon: TreePine,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_canopy_height_chmv2", confidence: "HIGH" }],
+      note: "Meta/WRI CHMv2 2026 release 估計樹冠高度；底層影像日期依地點而異。實際覆蓋依分區清冊；各區僅部分處理。CC BY 4.0。",
+    },
+    dataClass: "B",
+    source: { kind: "pmtiles", sourceId: "jp-canopy-height", url: "./jp-heights/canopy.pmtiles", minzoom: 9, maxzoom: 12 },
+    legend: "jpCanopyHeight",
+    popup: "rasterProbe",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Meta/WRI CHMv2 估計樹冠高度（日本分區資料；影像日期依地點而異）",
+    topics: ["日本", "樹冠", "高度", "遙測"],
+  },
+
   canopyGiants: {
     key: "canopyGiants",
     section: { theme: "林業 Forestry", group: "分區" },
@@ -5944,6 +5965,30 @@ export const LAYER_MANIFEST = {
     //    同批 3 forestAlishanRail / 批 4 medDesert 的處理方式：就地註明，修對應是另一件事。
     description: "全台建物輪廓（高度 / 來源 / 夜光三種著色模式，z14 起 fill-extrusion）",
     topics: ["底圖", "建物", "都市"],
+  },
+
+  jpBuildingHeight: {
+    key: "jpBuildingHeight",
+    section: { theme: "高度與地表", group: "日本高度（分區資料）" },
+    label: "建物高度 PLATEAU",
+    expandable: true,
+    color: "#fc8d59",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jp_plateau_building_height", confidence: "HIGH" }],
+      note: "PLATEAU 各城市建物高度 PMTiles（CC BY 4.0）；年度與 RoofEdge / FootPrint 幾何依分區清冊，部分區域覆蓋，非日本全國完成。",
+    },
+    dataClass: "B",
+    source: [
+      { kind: "pmtiles", sourceId: "jp-building-height-grid", url: "./jp-heights/building_grid.pmtiles", sourceLayer: "building_grid", minzoom: 4, maxzoom: 12 },
+      { kind: "pmtiles", sourceId: "jp-building-height", url: "./jp-heights/buildings.pmtiles", sourceLayer: "buildings", minzoom: 13, maxzoom: 16 },
+    ],
+    legend: "jpBuildingHeight",
+    popup: "jpBuildingHeight",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "PLATEAU 日本分區建物高度（遠距格網、近距輪廓；高度缺值保留中性平面）",
+    topics: ["日本", "建物", "高度", "PLATEAU"],
   },
 
   // legend 填 `"urbanZoning"` 而非 LEGEND_REGISTRY 首個 key `"urbanZoningTaipei"` ——
