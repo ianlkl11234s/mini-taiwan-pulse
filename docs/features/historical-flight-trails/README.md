@@ -1,4 +1,4 @@
-# 歷史航班軌跡（本地實作）
+# 歷史航班軌跡
 
 台灣17場／日本78場選單，共用完整解析度靜態renderer。一般工作日及週末資料不足時如實標示，可另選既有案例。
 
@@ -9,7 +9,13 @@
 - [驗收與限制](backlog.md)
 - [本次變更](changelog.md)
 
-隔離分支：`codex/historical-flight-trails-20260918`；起點`b28e2233`。不包含主目錄其他session未提交修改。未commit、未push、未部署。
+## 發布狀態
+
+`20260918-v1` 已由 `scripts/deploy/publish_historical_flight_trails.py` 發布至 S3 `deploy-assets/flight-trails`。98 份版本化 GeoJSON 與 1 份 manifest，共 99 個物件，均已完成 bytes、SHA-256、Content-Type 與 Cache-Control readback；receipt 見 [`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
+
+前端預設從同源 `/flight-trails` 讀取，可用 `VITE_FLIGHT_TRAILS_CDN_BASE` 覆寫；沒有 DB 或 FR24 fallback。此 S3 readback 不等於 production 已可用：程式尚未 PR／merge／deploy，production HTTP／browser readback 及真機效能仍未完成，來源 `license_status=unverified`。
+
+原始圖層由 `codex/historical-flight-trails-20260918` 整合；本次供應鏈修改位於隔離分支 `codex/historical-flight-trails-publication-20260919`，不包含主目錄其他 session 未提交修改。
 
 
 2026-09-18更新：現為3D藍白高度航跡，高度倍率可調；依使用者要求直接連接同航班的觀測空白。詳見acceptance.md與changelog.md。

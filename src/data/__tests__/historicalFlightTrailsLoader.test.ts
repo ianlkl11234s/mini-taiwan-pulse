@@ -62,6 +62,12 @@ describe('historical static flight delivery', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher.mock.calls[0]).toEqual(['https://cdn.example.test/flight-trails/v1/manifest.json']);
   });
+  it('uses the same-origin flight-trails namespace when no CDN override is configured', async () => {
+    vi.stubEnv('VITE_FLIGHT_TRAILS_CDN_BASE', '');
+    const fetcher = vi.fn(async () => new Response(JSON.stringify(manifest()))); vi.stubGlobal('fetch', fetcher);
+    await expect(fetchHistoricalFlightManifest()).resolves.toMatchObject({ release_id: 'local-1' });
+    expect(fetcher).toHaveBeenCalledWith('/flight-trails/manifest.json');
+  });
   it('merges available airport assets by flight id without losing roles or higher-resolution geometry', async () => {
     const rctp = collection() as unknown as HistoricalFlightCollection;
     rctp.features[0]!.properties = { ...rctp.features[0]!.properties, roles: ['arrival'], retained_point_count: 2, callsign: 'OLD' };
@@ -80,12 +86,41 @@ describe('historical static flight delivery', () => {
       ],
     };
     const files = new Map([[rctpAsset.asset.path, rctpAsset.text], [rckhAsset.path, JSON.stringify(rckh)]]);
-    vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(files.get(String(url).split('/').slice(-3).join('/')))));
+    const fetcher = vi.fn(async (url: string) => new Response(files.get(String(url).split('/').slice(-3).join('/'))));
+    vi.stubGlobal('fetch', fetcher);
     const result = await fetchHistoricalFlightAllAirports(parseHistoricalFlightManifest(allManifest), 'TW', '2026-03-10');
     expect(result).toMatchObject({ availableAirportCount: 2, totalAirportCount: 2, data: { meta: { airport: 'ALL', timezone: 'Asia/Taipei', coverage: 'partial' } } });
     expect(result?.data.features).toHaveLength(1);
     expect(result?.data.features[0]?.properties).toMatchObject({ callsign: 'NEW', roles: ['departure', 'arrival'], retained_point_count: 3 });
     expect(result?.data.features[0]?.geometry.coordinates[0]).toHaveLength(3);
+    expect(await fetchHistoricalFlightAllAirports(parseHistoricalFlightManifest(allManifest), 'TW', '2026-03-10')).toBe(result);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+  it('bounds all-airports asset downloads to four concurrent requests', async () => {
+    const airports = Array.from({ length: 6 }, (_, index) => ({
+      country: 'TW', icao: `RC0${index}`, name: `機場 ${index}`, center: [120 + index * 0.1, 23], timezone: 'Asia/Taipei',
+    }));
+    const samples: unknown[] = [];
+    const files = new Map<string, string>();
+    for (const [index, airport] of airports.entries()) {
+      const data = collection();
+      data.meta.airport = airport.icao;
+      data.features[0]!.properties.flight_id = `flight-${index}`;
+      const encoded = await assetFor(data);
+      const path = `releases/local-1/tw_${airport.icao}_2026-03-10.geojson`;
+      samples.push({ ...manifest().samples[0]!, airport: airport.icao, asset: { ...encoded.asset, path }, flight_count: 1, point_count: 2, coverage: 'partial' });
+      files.set(path, encoded.text);
+    }
+    let active = 0, peak = 0;
+    vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+      active += 1; peak = Math.max(peak, active);
+      await new Promise(resolve => setTimeout(resolve, 5));
+      active -= 1;
+      return new Response(files.get(String(url).split('/').slice(-3).join('/')));
+    }));
+    const result = await fetchHistoricalFlightAllAirports(parseHistoricalFlightManifest({ ...manifest(), airports, samples }), 'TW', '2026-03-10');
+    expect(result?.data.features).toHaveLength(6);
+    expect(peak).toBe(4);
   });
   it('returns unavailable when no airport has a static asset for the requested date', async () => {
     expect(await fetchHistoricalFlightAllAirports(parseHistoricalFlightManifest(manifest()), 'TW', '2026-03-10')).toBeNull();

@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -139,6 +139,21 @@ aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 # 🌍 世界 World：鏡像子前綴 deploy-assets/world/ → /data/world/（Outerview 全球垃圾殘骸 GeoJSON 3.8MB）
 echo "[pull] sync world → $DATA_DIR/world/"
 aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
+
+# 歷史航班：release 資產先完整同步，再原子更新短快取 manifest。
+# 不使用 --delete，讓仍持有舊 manifest 的瀏覽器可繼續讀既有 immutable release。
+echo "[pull] sync flight-trails releases → $DATA_DIR/flight-trails/releases/"
+FLIGHT_TRAILS_MANIFEST_TMP="$DATA_DIR/flight-trails/manifest.json.tmp"
+if aws s3 sync "$S3/flight-trails/releases/" "$DATA_DIR/flight-trails/releases/" --no-progress; then
+  if aws s3 cp "$S3/flight-trails/manifest.json" "$FLIGHT_TRAILS_MANIFEST_TMP" --no-progress; then
+    mv -f "$FLIGHT_TRAILS_MANIFEST_TMP" "$DATA_DIR/flight-trails/manifest.json"
+  else
+    rm -f "$FLIGHT_TRAILS_MANIFEST_TMP"
+    echo "[pull] WARNING: flight-trails manifest unavailable; retaining previous manifest" >&2
+  fi
+else
+  echo "[pull] WARNING: flight-trails release sync failed; retaining previous manifest" >&2
+fi
 
 # GFW uses one shared manifest-bound verifier for startup and periodic refresh.
 # A failed candidate leaves the prior complete release serving.

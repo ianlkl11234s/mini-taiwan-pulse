@@ -49,6 +49,7 @@ const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
 const dockerIgnore = readFileSync(".dockerignore", "utf8");
+const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -211,6 +212,9 @@ const UPLOAD_RES = UPLOAD.globs.map(globToRe);
 /** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
 function uploadCovers(path: string): boolean {
   if (medicalUploadPaths.has(path)) return true;
+  if (path === "flight-trails/manifest.json") {
+    return historicalFlightPublisher.includes('PREFIX = "deploy-assets/flight-trails"');
+  }
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
@@ -332,6 +336,21 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(dockerIgnore).toContain('public/jp-medical');
     expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
     expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
+  });
+
+  it("historical flight exact publisher/pull/nginx supply immutable releases before the manifest", () => {
+    expect(uploadCovers("flight-trails/manifest.json")).toBe(true);
+    expect(uploadCovers("flight-trails/private.json")).toBe(false);
+    expect(pullCovers("flight-trails")).toBe(true);
+    expect(locationFor("flight-trails/releases/20260918-v1/tw_RCTP_2026-02-20.geojson")?.readsData).toBe(true);
+    expect(pullScript.indexOf('$S3/flight-trails/releases/')).toBeLessThan(pullScript.indexOf('$S3/flight-trails/manifest.json'));
+    expect(pullScript).toContain('mv -f "$FLIGHT_TRAILS_MANIFEST_TMP" "$DATA_DIR/flight-trails/manifest.json"');
+    expect(nginxConf).toContain("location = /flight-trails/manifest.json");
+    expect(nginxConf).toContain("location ^~ /flight-trails/releases/");
+    expect(nginxConf).toContain('Cache-Control "public,max-age=31536000,immutable"');
+    expect(nginxConf).toContain('Cache-Control "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
+    expect(historicalFlightPublisher).toContain('IfNoneMatch="*"');
+    expect(historicalFlightPublisher).toContain('max_workers=MAX_WORKERS');
   });
 
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {
