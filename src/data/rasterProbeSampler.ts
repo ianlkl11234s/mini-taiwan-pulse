@@ -17,6 +17,7 @@
  * ⚠️ nodata 一律靠 A 判斷：urbanHeat 的 R=0 是合法的 −30K，不是空值。
  */
 import { PMTiles } from "pmtiles";
+import { getLoadedJpHeightCatalog } from "./jpHeightCatalog";
 
 export interface UrbanHeatProbe {
   /** 熱島強度 ΔT，單位 K */
@@ -28,6 +29,12 @@ export interface UrbanHeatProbe {
 export interface CanopyHeightProbe {
   /** 樹冠高度，單位公尺 */
   height_m: number;
+}
+
+export interface JpCanopyHeightProbe extends CanopyHeightProbe {
+  source: string;
+  coverage: string;
+  resolution: string;
 }
 
 const URBAN_HEAT_URL = "./environment/urban_heat_lst_taiwan.pmtiles";
@@ -44,7 +51,11 @@ function getArchive(relUrl: string): PMTiles {
     // PMTiles 直連要絕對 URL（overlay 走的是 mapbox 的 pmtiles:// protocol，不共用）
     a = new PMTiles(new URL(relUrl, window.location.href).toString());
     archives.set(relUrl, a);
+    // Keep only the two most recently probed JP shards; TW archives are fixed.
+    const jpUrls = [...archives.keys()].filter((url) => new URL(url, window.location.href).pathname.startsWith("/jp-heights/"));
+    while (jpUrls.length > 2) { const oldest = jpUrls.shift(); if (oldest) archives.delete(oldest); }
   }
+  archives.delete(relUrl); archives.set(relUrl, a);
   return a;
 }
 
@@ -62,20 +73,22 @@ function lngLatToTile(lng: number, lat: number, z: number) {
  * 回 null＝該點沒有任何磚 / 解碼失敗。
  */
 async function samplePixel(
-  relUrl: string, zoom: { min: number; max: number }, lng: number, lat: number,
+  relUrl: string, zoom: { min: number; max: number }, lng: number, lat: number, signal?: AbortSignal,
 ): Promise<[number, number, number, number] | null> {
+  if (signal?.aborted) return null;
   const archive = getArchive(relUrl);
   for (let z = zoom.max; z >= zoom.min; z--) {
     const { tx, ty, fx, fy } = lngLatToTile(lng, lat, z);
     let buf: ArrayBuffer | undefined;
     try {
-      buf = (await archive.getZxy(z, tx, ty))?.data;
+      buf = (await archive.getZxy(z, tx, ty, signal))?.data;
     } catch {
       return null; // 檔案本身取不到（404 / range 不支援）→ 不必再退 zoom
     }
     if (!buf) continue;
     try {
       const bitmap = await createImageBitmap(new Blob([buf]));
+      if (signal?.aborted) { bitmap.close(); return null; }
       // 磚邊界的 fx/fy 可能算出 == size，夾住避免 getImageData 越界
       const px = Math.min(bitmap.width - 1, Math.floor(fx * bitmap.width));
       const py = Math.min(bitmap.height - 1, Math.floor(fy * bitmap.height));
@@ -111,9 +124,41 @@ export async function sampleCanopyHeight(lng: number, lat: number): Promise<Cano
   return { height_m: r };
 }
 
+let jpProbeController: AbortController | undefined;
+const EMPTY_SOURCE_IDS = new Set<string>();
+/** Choose only real ready coverage; cancel an older probe and bound archive cache. */
+export async function sampleJpCanopyHeight(lng: number, lat: number, mapZoom?: number, activeSourceIds: ReadonlySet<string> = EMPTY_SOURCE_IDS): Promise<JpCanopyHeightProbe | null> {
+  jpProbeController?.abort();
+  jpProbeController = new AbortController();
+  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+  const loaded = getLoadedJpHeightCatalog();
+  if (!loaded || loaded.status === "unavailable") return null;
+  const normalizedLng = ((lng + 180) % 360 + 360) % 360 - 180;
+  const region = loaded.catalog.regions.find((entry) => {
+    const asset = entry.canopy;
+    return entry.status === "ready" && asset && normalizedLng >= asset.bbox[0] && normalizedLng <= asset.bbox[2]
+      && lat >= asset.bbox[1] && lat <= asset.bbox[3] && (mapZoom === undefined || mapZoom >= asset.minzoom);
+  });
+  const detailSourceId = region ? `jp-canopy-height--${region.id}` : undefined;
+  const detailAsset = detailSourceId && activeSourceIds.has(detailSourceId) ? region?.canopy : undefined;
+  const overview = loaded.catalog.canopyOverview;
+  const overviewMatches = overview && normalizedLng >= overview.bbox[0] && normalizedLng <= overview.bbox[2]
+    && lat >= overview.bbox[1] && lat <= overview.bbox[3] && (mapZoom === undefined || mapZoom >= overview.minzoom)
+    && activeSourceIds.has("jp-canopy-height--overview");
+  const asset = detailAsset ?? (overviewMatches ? overview : undefined);
+  if (!asset) return null;
+  const px = await samplePixel(asset.url, { min: asset.minzoom, max: asset.maxzoom }, normalizedLng, lat, jpProbeController.signal);
+  if (!px || px[3] < 128) return null;
+  const scope = region?.label ?? "日本樹冠概覽";
+  const coverage = asset.coverage === "source-coverage" ? "來源涵蓋範圍" : "部分區域覆蓋";
+  const resolution = asset.pixelSizeProjectedM === undefined ? "解析度未提供" : `約 ${asset.pixelSizeProjectedM} m 投影像素`;
+  return { height_m: px[0], source: `${asset.attribution ?? "Meta/WRI CHMv2"} ${asset.sourceYear ?? ""}`.trim(), coverage: `${scope}；${coverage}`, resolution };
+}
+
 export interface RasterProbeResult {
   urbanHeat: UrbanHeatProbe | null;
   canopyHeight: CanopyHeightProbe | null;
+  jpCanopyHeight: JpCanopyHeightProbe | null;
 }
 
 /**
@@ -121,14 +166,17 @@ export interface RasterProbeResult {
  * 讓呼叫端 fallback 回既有的「清空 featureInfo」路徑（同 sampleClimateFields 的契約）。
  */
 export async function sampleRasterProbes(
-  want: { urbanHeat: boolean; canopyHeight: boolean },
+  want: { urbanHeat: boolean; canopyHeight: boolean; jpCanopyHeight: boolean },
   lng: number,
   lat: number,
+  mapZoom?: number,
+  activeJpCanopySourceIds?: ReadonlySet<string>,
 ): Promise<RasterProbeResult | null> {
-  const [urbanHeat, canopyHeight] = await Promise.all([
+  const [urbanHeat, canopyHeight, jpCanopyHeight] = await Promise.all([
     want.urbanHeat ? sampleUrbanHeat(lng, lat).catch(() => null) : Promise.resolve(null),
     want.canopyHeight ? sampleCanopyHeight(lng, lat).catch(() => null) : Promise.resolve(null),
+    want.jpCanopyHeight ? sampleJpCanopyHeight(lng, lat, mapZoom, activeJpCanopySourceIds).catch(() => null) : Promise.resolve(null),
   ]);
-  if (!urbanHeat && !canopyHeight) return null;
-  return { urbanHeat, canopyHeight };
+  if (!urbanHeat && !canopyHeight && !jpCanopyHeight) return null;
+  return { urbanHeat, canopyHeight, jpCanopyHeight };
 }

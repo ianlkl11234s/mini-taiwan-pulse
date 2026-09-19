@@ -43,6 +43,7 @@ import {
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorExpr } from "../data/buildingsGbaTypes";
+import { jpBuildingHasHeightExpr, jpBuildingHeightColorExpr } from "../data/jpHeightTypes";
 import {
   buildingValueColorExpr, propertyValueGridColorExpr, propertyValueGridOpacityExpr,
   propertyValueGridHeightExpr, PROPERTY_VALUE_SCALES, type PropertyValueScale,
@@ -4810,6 +4811,55 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // 離線摘要只統計已取得的 ROI，不能解讀成整格完整城市覆蓋。
+  {
+    id: "jpBuildingHeight",
+    sourceUrl: "./jp-heights/building_grid.pmtiles",
+    sourceId: "jp-building-height-grid",
+    pmtiles: { sourceLayer: "building_grid", minzoom: 4, maxzoom: 12 },
+    layers: [{
+      suffix: "fill", type: "fill", minzoom: 4, maxzoom: 13,
+      paint: (_isDark, p) => ({
+        "fill-color": jpBuildingHeightColorExpr("height_median"),
+        "fill-opacity": p?.jpBuildingHeightOpacity ?? 0.75,
+        "fill-outline-color": "rgba(255,255,255,0.25)",
+      }),
+    }],
+  },
+  // 日本 PLATEAU：height=null 仍保留為中性 2D polygon；只讓有數值的 feature 進 3D，
+  // 避免以任意預設高度虛構量體。Tokyo/Shinjuku pilot，非日本全國覆蓋。
+  {
+    id: "jpBuildingHeight",
+    sourceUrl: "./jp-heights/buildings.pmtiles",
+    sourceId: "jp-building-height",
+    pmtiles: { sourceLayer: "buildings", minzoom: 13, maxzoom: 16 },
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 13,
+        paint: (_isDark, p) => {
+          const opacity = p?.jpBuildingHeightOpacity ?? 0.75;
+          return {
+            "fill-color": jpBuildingHeightColorExpr(),
+            // 3D mode only hands valid numeric heights to extrusion; null/missing heights
+            // remain visible as neutral flat polygons at every zoom.
+            "fill-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1
+              ? ["step", ["zoom"], opacity, 13, ["case", jpBuildingHasHeightExpr(), 0, opacity]]
+              : opacity,
+          };
+        },
+      },
+      {
+        suffix: "extrusion", type: "fill-extrusion", minzoom: 13,
+        filter: jpBuildingHasHeightExpr(),
+        paint: (_isDark, p) => ({
+          "fill-extrusion-color": jpBuildingHeightColorExpr(),
+          "fill-extrusion-height": ["get", "height"],
+          "fill-extrusion-base": 0,
+          "fill-extrusion-opacity": (p?.jpBuildingHeightModeIdx ?? 0) === 1 ? (p?.jpBuildingHeightOpacity ?? 0.75) : 0,
+        }),
+      },
+    ],
+  },
   // 🏢 房地產總市值網格（vector PMTiles，全台 150m 格 333,847 格，z6-14；
   // v_mkt 萬元 = 市場only + per-county GFA 校正後**總市值**，全格加總 = 204.1 兆）。
   // ⚠️ 與 realEstate*Grid 是姊妹層但語意不同：房價網格是「每 m² 多貴」（單價），
@@ -5426,6 +5476,29 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
     ],
+  },
+
+  // Meta/WRI CHMv2 2026 release：R=高度公尺、G=B 同值、A 是 nodata mask；覆蓋僅 Tokyo/Shinjuku pilot。
+  {
+    id: "jpCanopyHeight",
+    sourceUrl: "./jp-heights/canopy.pmtiles",
+    sourceId: "jp-canopy-height",
+    pmtiles: { minzoom: 9, maxzoom: 12 },
+    layers: [{
+      suffix: "raster", type: "raster",
+      paint: (_isDark, p) => ({
+        "raster-opacity": p?.jpCanopyHeightOpacity ?? 0.7,
+        "raster-resampling": "nearest",
+        "raster-color-mix": [6.375, 0, 0, 0],
+        "raster-color-range": [0, 1],
+        "raster-color": [
+          "interpolate", ["linear"], ["raster-value"],
+          0.0, "rgba(0,0,0,0)", 0.025, "#f7fcf5", 0.075, "#c7e9c0",
+          0.15, "#a1d99b", 0.25, "#74c476", 0.375, "#41ab5d",
+          0.5, "#238b45", 0.75, "#006d2c", 1.0, "#00441b",
+        ],
+      }),
+    }],
   },
 
   // ── 🌲 樹冠巨木 Canopy Giants（GeoJSON 7,823 點；依 dist_access_m 離道路距離分級染色）──

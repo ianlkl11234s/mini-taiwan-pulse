@@ -1,3 +1,5 @@
+import { jpHeightCatalogStore } from "../map/jpHeightLifecycle";
+import { getLoadedJpHeightCatalog } from "../data/jpHeightCatalog";
 import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
 import { JpMedicalStatus } from "./JpMedicalStatus";
 import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
@@ -125,6 +127,7 @@ import {
 import {
   BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION, BUILDING_NIGHT_LEGEND,
 } from "../data/buildingsGbaTypes";
+import { JP_BUILDING_HEIGHT_BANDS, JP_CANOPY_HEIGHT_RAMP } from "../data/jpHeightTypes";
 import {
   BUILDING_VALUE_BANDS, BUILDING_VALUE_NON_MARKET_COLOR,
   PROPERTY_VALUE_ATTRIBUTION, resolvePropertyValueScale, formatWanTwd,
@@ -478,11 +481,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "streetTreesNational", render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
   { id: "treePitsTaipei", render: () => <TreePitsTaipeiLegend /> },
   { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
+  { id: "jpBuildingHeight", render: () => <JpBuildingHeightLegend /> },
   { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
   { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
   { id: "canopyHeight", render: () => <CanopyHeightLegend /> },
+  { id: "jpCanopyHeight", render: () => <JpCanopyHeightLegend /> },
   { id: "canopyGiants", render: () => <CanopyGiantsLegend /> },
   { id: "sportsSchool", render: () => <SportsVenueLegend /> },
   { id: "culturalFacilities", render: () => <CulturalFacilitiesLegend /> },
@@ -1950,6 +1955,62 @@ function CanopyHeightLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
         © Meta & WRI · Tolan et al. 2024 · CC-BY 4.0
       </div>
+    </div>
+  );
+}
+
+function JpHeightCoverageNote({ kind }: { kind: "buildings" | "canopy" }) {
+  const state = useSyncExternalStore(jpHeightCatalogStore.subscribe, jpHeightCatalogStore.getSnapshot);
+  const loaded = getLoadedJpHeightCatalog();
+  const regions = loaded && loaded.status !== "unavailable"
+    ? loaded.catalog.regions.filter((region) => region.status === "ready" && region[kind]) : [];
+  const active = state.activeSourceIds.filter((id) => kind === "canopy" ? id.startsWith("jp-canopy-height") : id.startsWith("jp-building-height")).length;
+  const canopyOverviewActive = kind === "canopy" && state.activeSourceIds.includes("jp-canopy-height--overview");
+  const canopyOverview = loaded && loaded.status !== "unavailable" ? loaded.catalog.canopyOverview : undefined;
+  const canopyResolution = canopyOverview?.pixelSizeProjectedM === undefined ? "解析度未提供" : `約 ${canopyOverview.pixelSizeProjectedM} m 投影像素`;
+  return <div style={{ fontSize: FONT_SIZE.xs, lineHeight: 1.5, marginTop: 5 }}>
+    {state.status === "loading" ? "正在讀取日本資料覆蓋清冊…" : state.status === "unavailable" ? `覆蓋清冊無法載入：${state.error ?? "請重試"}` : <>
+      <div>已接入 {regions.length} 個區域 · 目前顯示 {active} 個分片</div>
+      <div>{regions.length === 0 ? "尚無可用分片" : "區域清單依目前視野與點擊資訊顯示"}</div>
+      {canopyOverviewActive && <div>目前使用樹冠概覽補足無區域 detail 的視野；{canopyResolution}，{canopyOverview?.coverage === "source-coverage" ? "來源涵蓋範圍" : "部分區域覆蓋"}。</div>}
+      {state.error && <div>{state.error}</div>}
+      {state.status === "legacy" && <div>清冊尚未安裝，目前僅使用東京本地試點。</div>}
+      {state.cappedRegionIds.length > 0 && <div>目前視野還有 {state.cappedRegionIds.length} 個分片未載入；請放大地圖查看，不會把缺片當成無建物。</div>}
+      {active === 0 && <div>目前視野或縮放沒有可顯示的已處理資料。</div>}
+      <div>各區僅部分覆蓋；空白不代表沒有建物或樹木。</div>
+    </>}
+  </div>;
+}
+
+function JpBuildingHeightLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>PLATEAU 建物高度</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {JP_BUILDING_HEIGHT_BANDS.map((band) => <UrbanDotRow key={band.label} color={band.color} label={band.label} />)}
+        <UrbanDotRow color="#9e9e9e" label="高度未提供：中性 2D 平面" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        遠景：10km／1km／250m 網格的高度中位數；z13+：單棟建物輪廓。PLATEAU 各城市年度不同，詳見點擊資訊。
+      </div>
+      <JpHeightCoverageNote kind="buildings" />
+    </div>
+  );
+}
+
+function JpCanopyHeightLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>日本樹冠高度 CHMv2</div>
+      <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${JP_CANOPY_HEIGHT_RAMP.join(", ")})` }} />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}><span>0 m</span><span>40 m+</span></div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        Meta/WRI CHMv2 2026 · 模型估計值 · 約 19.1 m 投影像素（非原始單木輪廓）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>© Meta & WRI · CC BY 4.0 · 影像日期依地點而異</div>
+      <JpHeightCoverageNote kind="canopy" />
     </div>
   );
 }

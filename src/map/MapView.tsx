@@ -8,6 +8,7 @@ import { useOverlayParams } from "../layers/layerParamsAccess";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible } from "./overlayManager";
+import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
 import { ensureMedicalIsochroneLayers, updateMedicalIsochroneLayers } from "./medicalIsochroneLayerFactory";
@@ -232,6 +233,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const showBasemapLabelsRef = useRef(showBasemapLabels);
   const hiddenBasemapLabelLayerIdsRef = useRef(new Set<string>());
   const overlayParamsRef = useRef(overlayParams);
+  const jpHeightLifecycleRef = useRef<ReturnType<typeof createJpHeightLifecycle> | null>(null);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -257,9 +259,12 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       bearing: presetRef.current.bearing,
       antialias: true,
     });
+    const jpHeightLifecycle = createJpHeightLifecycle(map);
+    jpHeightLifecycleRef.current = jpHeightLifecycle;
 
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
+      jpHeightLifecycle.resume();
       // Pure Black 配色：在加 overlay 前先壓 Mapbox 原生底圖層
       if (pureBlackRef.current) applyPureBlackTheme(map);
       // style 切換後，僅重設我們曾隱藏的底圖文字標籤記錄。
@@ -285,7 +290,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         isDarkThemeRef.current,
         vis,
         overlayParamsRef.current,
+        { deferJpHeightSources: true },
       );
+      jpHeightLifecycle.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
 
       // 重建後：把目前可見的靜態 GeoJSON 圖層重新 fetch + setData（切底圖不再消失）
       for (const config of OVERLAY_REGISTRY) {
@@ -370,12 +377,15 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         setOverlayVisible(map, config, v, isDarkThemeRef.current, overlayParamsRef.current);
       }
       updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current, vis);
+      jpHeightLifecycle.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
       onMapReadyRef.current?.(map);
     });
 
     const detachStatistics = attachRegionalStatistics(map);
     return () => {
       detachStatistics();
+      jpHeightLifecycle.dispose();
+      if (jpHeightLifecycleRef.current === jpHeightLifecycle) jpHeightLifecycleRef.current = null;
       map.remove();
       mapRef.current = null;
       readyRef.current = false;
@@ -387,6 +397,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
+    jpHeightLifecycleRef.current?.suspend();
     map.setStyle(styleUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl]);
@@ -403,6 +414,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       //    增量更新 → 移除自訂 overlay 但「不觸發 style.load」→ 圖層全消失回不來。
       //    用 { diff: false } 強制完整 reload，確保 style.load 重建所有 overlay。
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      jpHeightLifecycleRef.current?.suspend();
       map.setStyle(styleUrl, { diff: false } as any);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -471,6 +483,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     if (!map || !readyRef.current) return;
     const vis = layerVisibilityStore.getAll();
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams, vis);
+    jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
     updateAllAgricultureLayers(map, vis, overlayParams);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
@@ -498,6 +511,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         if (v) void hydrateOverlayIfNeeded(map, config);
         setOverlayVisible(map, config, v, isDarkThemeRef.current, overlayParamsRef.current);
       }
+      jpHeightLifecycleRef.current?.refresh(OVERLAY_REGISTRY, vis, isDarkThemeRef.current, overlayParamsRef.current);
       // OVERLAY_REGISTRY 之外的專屬圖層
       updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
       // 等時圈開/關層

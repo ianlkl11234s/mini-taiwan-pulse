@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
+import { enrichJpHeightFeature } from "../data/jpHeightFeatureMetadata";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
 import { isGfwHourlyGridDominantHitLayer } from "./useGfwHourlyGridLayer";
 import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
@@ -371,7 +372,11 @@ export function useMapInteraction(
         ];
         let found = false;
         for (const { layers: layerIds, type } of GIS_LAYERS) {
-          const existingIds = layerIds.filter((id) => {
+          const candidates = type === "jpBuildingHeight"
+            ? [...layerIds, ...(map.getStyle?.()?.layers ?? []).map((layer) => layer.id)
+              .filter((id) => /^jp-building-height(?:-grid)?--[a-z0-9-]+-(?:fill|extrusion)$/.test(id))]
+            : layerIds;
+          const existingIds = candidates.filter((id) => {
             if (!map.getLayer(id)) return false;
             // PMTiles roundZoom bridge 令 z10 兩尺度都存在；popup 必依真實 zoom 選尺度，
             // 不能讓 opacity=0 的舊格網先命中。
@@ -412,7 +417,9 @@ export function useMapInteraction(
               type === "funeralOperatorDensity" ||
               type === "animalShelterPressure"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
-                : (f.properties ?? {});
+                : type === "jpBuildingHeight"
+                  ? enrichJpHeightFeature(f.source ?? "", f.properties ?? {})
+                  : (f.properties ?? {});
             const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.
@@ -459,18 +466,20 @@ export function useMapInteraction(
         // 沒命中任何向量 feature → 值編碼 raster 開啟時改讀像素物理值（W2）。
         // 排在氣候 UV 場之前：熱島／樹冠是台灣本島的層，風場／海流是全球場，
         // 同時開啟時使用者點台灣要的是前者（後者在台灣任一點都讀得到值，會整碗端走）。
-        if (!found && (vis?.urbanHeat || vis?.canopyHeight)) {
+        if (!found && (vis?.urbanHeat || vis?.canopyHeight || vis?.jpCanopyHeight)) {
           found = true; // 已接手本次點擊，下方 climateField 分支不再處理
           const lng = e.lngLat.lng;
           const lat = e.lngLat.lat;
           void sampleRasterProbes(
-            { urbanHeat: !!vis?.urbanHeat, canopyHeight: !!vis?.canopyHeight },
-            lng, lat,
+            { urbanHeat: !!vis?.urbanHeat, canopyHeight: !!vis?.canopyHeight, jpCanopyHeight: !!vis?.jpCanopyHeight },
+            lng, lat, map.getZoom(),
+            new Set(Object.keys(map.getStyle?.()?.sources ?? {}).filter((id) => id.startsWith("jp-canopy-height--"))),
           ).then((probe) => {
+            if (featureRequest !== featureRequestRef.current) return;
             if (probe) {
               setFeatureInfo({
                 layerType: "rasterProbe",
-                properties: { urbanHeat: probe.urbanHeat, canopyHeight: probe.canopyHeight },
+                properties: { urbanHeat: probe.urbanHeat, canopyHeight: probe.canopyHeight, jpCanopyHeight: probe.jpCanopyHeight },
                 coords: [lng, lat],
               });
               sessionTracker.log("feature_click", { layerType: "rasterProbe" });

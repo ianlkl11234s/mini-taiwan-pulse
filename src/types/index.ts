@@ -126,6 +126,7 @@ export type ExpandableLayerKey =
   | "streetTreesTaipei3epoch"
   | "streetTreesNational" | "treePitsTaipei"
   | "buildingsGba"
+  | "jpBuildingHeight"
   | "urbanFormGrid"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
@@ -245,6 +246,7 @@ export type ExpandableLayerKey =
   | "mountainHuts"
   | "hikingTrails"
   | "canopyHeight"
+  | "jpCanopyHeight"
   | "canopyGiants"
   // ENERGY MVP
   | "powerPlants"
@@ -727,6 +729,7 @@ export interface FeatureInfo {
     | "streetTreesTaipei3epoch"
     | "streetTreesNational" | "treePitsTaipei"
     | "buildingsGba"
+    | "jpBuildingHeight"
     | "urbanFormGrid"
     | "propertyValueGrid"
     | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
@@ -1183,6 +1186,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
+  jpBuildingHeight: boolean;      // 日本 PLATEAU 建物高度（Tokyo/Shinjuku pilot；height 缺值維持中性平面）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
   propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
@@ -1304,6 +1308,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   mountainHuts: boolean;           // 全台山屋與高山營地 136 點（官方玉山 30 × OSM 126 trust chain；ODbL）
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
   canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
+  jpCanopyHeight: boolean;         // 日本 Meta/WRI CHMv2 樹冠高度（Tokyo/Shinjuku pilot；A 通道 nodata mask）
   canopyGiants: boolean;           // 樹冠 45m+ 巨木 7,823 點（GeoJSON；依 dist_access_m 離道路距離分級）
   wasteTruck: boolean;
   wasteSchedule: boolean;

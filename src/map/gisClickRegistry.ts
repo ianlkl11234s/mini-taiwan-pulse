@@ -282,6 +282,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["street-trees-national-circle"], type: "streetTreesNational" },
   { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
   { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
+  { layers: ["jp-building-height-grid-fill", "jp-building-height-fill", "jp-building-height-extrusion"], type: "jpBuildingHeight" },
   // 網格背景層：細（總市值 150m/450m/1.5km）排前、粗（500m 都市紋理）排後 —— first-hit-wins。
   // 三個尺度的 layer id 都收（同時只有一個 visible，隱形的不會被 query 命中）；
   // 每尺度兩個 sublayer 都收（3D 模式看到的是 extrusion 側面，點它才要能開 popup，同 buildingsGba）

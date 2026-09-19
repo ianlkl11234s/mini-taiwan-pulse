@@ -166,7 +166,9 @@ const NO_HOOK_LEDGER = new Set<string>([
   // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
-  "busStationsCity", "canopyHeight", "cemeteryOsm", "civilDefenseShelter", "contour25k",
+  "busStationsCity", "canopyHeight",
+  "jpBuildingHeight", "jpCanopyHeight", // Static PMTiles overlays; no React data hook.
+  "cemeteryOsm", "civilDefenseShelter", "contour25k",
   "companyAgeStructure", "companyCapitalGrid", "companyIndustryDistribution", "companyPoints", "manufacturingCompanyPoints",
   "factoryDensityGrid", "manufacturingCompanyDensityGrid", "regulatedFacilityDensityGrid", "jpAccommodationDensity",
   "factoryLocations", "industrialParkBoundaries", "industrialParkComparison", "regulatedFacilities",

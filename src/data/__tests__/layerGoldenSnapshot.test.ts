@@ -151,7 +151,7 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-16: +3 日本醫療、+1 Allen 私人研究。
     // 2026-09-18: +1 jpAccommodationDensity（旅宿密度雙尺度網格）。
     // 2026-09-18: 日本醫療 3 總覽拆為 14 個獨立 layer（淨增 11）。
-    expect(keys.length).toBe(760);
+    expect(keys.length).toBe(762);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

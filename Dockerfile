@@ -31,6 +31,7 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY scripts/deploy/pull-deploy-assets.sh /usr/local/bin/pull-deploy-assets.sh
 COPY scripts/deploy/install-jp-medical-assets.py /usr/local/bin/install-jp-medical-assets.py
+COPY scripts/deploy/install-jp-height-assets.py /usr/local/bin/install-jp-height-assets.py
 COPY scripts/deploy/refresh-climate.sh /usr/local/bin/refresh-climate.sh
 COPY scripts/deploy/refresh-gfw-hourly.sh /usr/local/bin/refresh-gfw-hourly.sh
 COPY scripts/deploy/entrypoint.sh /usr/local/bin/entrypoint.sh

@@ -169,6 +169,7 @@ export function RasterProbePanel({ props }: { props: Record<string, unknown> }) 
   const t = useFeatureTheme();
   const heat = props.urbanHeat as { delta_t: number; lst_c: number } | null | undefined;
   const canopy = props.canopyHeight as { height_m: number } | null | undefined;
+  const jpCanopy = props.jpCanopyHeight as { height_m: number; source: string; coverage: string } | null | undefined;
   return (
     <div>
       {heat && (
@@ -190,6 +191,14 @@ export function RasterProbePanel({ props }: { props: Record<string, unknown> }) 
           <Row label="樹冠高度" value={`${canopy.height_m.toFixed(0)} 公尺`} color="#238b45" />
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>
             Meta / WRI 全球樹冠高度切片（R 通道即公尺高度）
+          </div>
+        </>
+      )}
+      {jpCanopy && (
+        <>
+          <Row label="日本樹冠高度" value={`${jpCanopy.height_m.toFixed(0)} 公尺`} color="#238b45" />
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>
+            {jpCanopy.source} 估計值；{jpCanopy.coverage}；影像日期依地點而異
           </div>
         </>
       )}

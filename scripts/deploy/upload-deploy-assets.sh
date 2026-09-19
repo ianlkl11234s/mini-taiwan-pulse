@@ -585,3 +585,7 @@ for f in "${TOURISM_FILES[@]}"; do
 done
 
 echo "Done!"
+
+# Japan height is deliberately excluded from this broad uploader. Use
+# publish-jp-height-assets.py so only catalog-referenced immutable files are
+# uploaded/read back and catalog.json is switched last.

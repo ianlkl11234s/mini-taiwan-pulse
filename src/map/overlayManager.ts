@@ -32,6 +32,7 @@ import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
 export interface OverlayMap {
   getSource(id: string): any;
   addSource(id: string, source: any): void;
+  removeSource(id: string): void;
   getLayer(id: string): any;
   addLayer(layer: any, before?: string): void;
   removeLayer(id: string): void;
@@ -50,6 +51,8 @@ void _mapboxSatisfies; void _maplibreSatisfies;
 export interface OverlayEngineOptions {
   /** 產生 PMTiles source 規格；預設為 mapbox-pmtiles 的自訂 source type */
   pmtilesSource?: (config: OverlayConfig) => Record<string, unknown>;
+  /** 主站 JP pilot 的 source/layer 由 jpHeightLifecycle 依 viewport 管理。 */
+  deferJpHeightSources?: boolean;
 }
 
 function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
@@ -70,6 +73,22 @@ function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
 
 function layerId(config: OverlayConfig, suffix: string) {
   return `${config.sourceId}-${suffix}`;
+}
+
+/**
+ * These local JP pilot assets have an explicit viewport lifecycle in
+ * jpHeightLifecycle.  Keeping them out of the unconditional registry mount is
+ * what prevents an off-screen Tokyo PMTiles source from surviving style loads.
+ */
+export const JP_HEIGHT_MANAGED_SOURCE_IDS = new Set([
+  "jp-building-height",
+  "jp-building-height-grid",
+  "jp-canopy-height",
+]);
+
+export function isJpHeightManagedOverlay(config: OverlayConfig): boolean {
+  return JP_HEIGHT_MANAGED_SOURCE_IDS.has(config.sourceId)
+    || /^jp-(?:building-height|building-height-grid|canopy-height)--[A-Za-z0-9-]+$/.test(config.sourceId);
 }
 
 /**
@@ -349,6 +368,15 @@ function layoutCacheOf(map: OverlayMap): Map<string, Record<string, string>> {
   return cache;
 }
 
+/** Release snapshots when a viewport-managed source is removed. */
+export function releaseOverlaySnapshots(map: OverlayMap, config: OverlayConfig) {
+  for (const spec of config.layers) {
+    const id = layerId(config, spec.suffix);
+    paintCacheByMap.get(map)?.delete(id);
+    layoutCacheByMap.get(map)?.delete(id);
+  }
+}
+
 function applyLayoutDiff(
   map: OverlayMap,
   id: string,
@@ -540,6 +568,7 @@ export function addAllOverlays(
   opts?: OverlayEngineOptions,
 ) {
   for (const config of registry) {
+    if (opts?.deferJpHeightSources && isJpHeightManagedOverlay(config)) continue;
     addOverlay(map, config, isDark, params, opts);
     if (!isOverlayVisible(config, visibility, params)) {
       setOverlayVisible(map, config, false, isDark, params);

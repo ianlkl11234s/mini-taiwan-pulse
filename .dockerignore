@@ -35,3 +35,6 @@ public/world/jp_marine_ebsa_moe_coastal_20150101.pmtiles
 
 # Japan medical is installed from the reviewed S3 release, never baked into the app image.
 public/jp-medical
+
+# Japan height is installed from its catalog allowlist, never baked into the app image.
+public/jp-heights

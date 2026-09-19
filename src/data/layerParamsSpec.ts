@@ -93,6 +93,7 @@ import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
 import { FARM_HIGHLIGHT_OPTIONS } from "./livestockTypes";
 import { BUILDINGS_GBA_MODES } from "./buildingsGbaTypes";
+import { JP_BUILDING_HEIGHT_MODES } from "./jpHeightTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "./propertyValueTypes";
 import {
   COMPANY_COUNTY_OPTIONS, COMPANY_GRID_MODES, COMPANY_GRID_SCALES, COMPANY_INDUSTRY_MID_OPTIONS,
@@ -1835,6 +1836,13 @@ export const LAYER_PARAMS_SPEC = {
   ],
   canopyHeight: [
     { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+  ],
+  jpBuildingHeight: [
+    { kind: "select", name: "jpBuildingHeightModeIdx", label: "呈現", default: "0", options: [...JP_BUILDING_HEIGHT_MODES], out: "jpBuildingHeightModeIdx", encode: JP_BUILDING_HEIGHT_MODES.map((mode) => mode.value) },
+    { kind: "slider", name: "jpBuildingHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.3, max: 1, step: 0.05 },
+  ],
+  jpCanopyHeight: [
+    { kind: "slider", name: "jpCanopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
   ],
   canopyGiants: [
     { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
