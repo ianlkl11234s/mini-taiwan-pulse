@@ -122,6 +122,41 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
   }
 }
 
+export function BasemapLabelToggle({
+  isDarkTheme,
+  visible,
+  onToggle,
+  title,
+  showPointerCursor = true,
+}: {
+  isDarkTheme: boolean;
+  visible: boolean;
+  onToggle: () => void;
+  title?: string;
+  showPointerCursor?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={visible}
+      title={title}
+      onClick={onToggle}
+      style={{
+        background: isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+        color: isDarkTheme ? "#fff" : "#333",
+        border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+        borderRadius: RADIUS.md,
+        padding: "4px 8px",
+        fontSize: FONT_SIZE.md,
+        fontFamily: FONT_DATA,
+        cursor: showPointerCursor ? "pointer" : undefined,
+      }}
+    >
+      地名：{visible ? "開" : "關"}
+    </button>
+  );
+}
+
 export default function App() {
   // dev-only render 計數（`window.__layerRenderCounts`）——
   // 第 4 階段（App 端解除全店訂閱）要證明「拖一個 slider 只有那一個 Host 重跑」。
@@ -1938,24 +1973,12 @@ export default function App() {
               isDarkTheme={isDarkTheme}
               onChange={setMapStyleId}
             />
-            <button
-              type="button"
-              aria-pressed={showBasemapLabels}
+            <BasemapLabelToggle
+              isDarkTheme={isDarkTheme}
+              visible={showBasemapLabels}
+              onToggle={() => setShowBasemapLabels((visible) => !visible)}
               title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
-              onClick={() => setShowBasemapLabels((visible) => !visible)}
-              style={{
-                background: isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
-                color: isDarkTheme ? "#fff" : "#333",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.md,
-                padding: "4px 8px",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-              }}
-            >
-              地名：{showBasemapLabels ? "開" : "關"}
-            </button>
+            />
 
             {loading && (
               <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
@@ -2625,14 +2648,12 @@ export default function App() {
                         isDarkTheme={true}
                         onChange={setMapStyleId}
                       />
-                      <button
-                        type="button"
-                        aria-pressed={showBasemapLabels}
-                        onClick={() => setShowBasemapLabels((visible) => !visible)}
-                        style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", borderRadius: RADIUS.md, padding: "4px 8px", fontSize: FONT_SIZE.md, fontFamily: FONT_DATA }}
-                      >
-                        地名：{showBasemapLabels ? "開" : "關"}
-                      </button>
+                      <BasemapLabelToggle
+                        isDarkTheme={true}
+                        visible={showBasemapLabels}
+                        onToggle={() => setShowBasemapLabels((visible) => !visible)}
+                        showPointerCursor={false}
+                      />
                     </div>
                     <LocationJump
                       isDarkTheme={true}

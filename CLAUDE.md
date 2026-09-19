@@ -73,7 +73,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 | Layer hook | `src/hooks/use*Layer.ts` |
 | Three.js scene | `src/three/*Scene.ts` |
 | Custom WebGL layer | `src/map/*CustomLayer.ts` |
-| 靜態 GeoJSON | `public/` (扁平) |
+| 靜態 GeoJSON / PMTiles | `public/<domain>/`；URL 與 manifest `source` 是契約，既有資產不可任意搬路徑 |
 | 預處理腳本 | `scripts/preprocess/` |
 | S3 部署腳本 | `scripts/deploy/` |
 | 外部 API fetch | `scripts/fetch/` |

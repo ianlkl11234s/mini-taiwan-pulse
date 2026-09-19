@@ -15,6 +15,7 @@ import {
   updateOverlayTheme,
   geojsonSourceOptions,
   applyLayerOpacity,
+  isJpHeightManagedOverlay,
 } from "../overlayManager";
 import type { OverlayConfig } from "../../types";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
@@ -92,6 +93,16 @@ describe("applyLayerOpacity", () => {
       "text-opacity": 0.25,
       "text-color": "#fff",
     });
+  });
+});
+
+describe("isJpHeightManagedOverlay", () => {
+  it("recognizes both registry templates and viewport-scoped runtime sources", () => {
+    const config = (sourceId: string) => ({ sourceId } as OverlayConfig);
+    expect(isJpHeightManagedOverlay(config("jp-building-height"))).toBe(true);
+    expect(isJpHeightManagedOverlay(config("jp-building-height-grid--r-55"))).toBe(true);
+    expect(isJpHeightManagedOverlay(config("jp-canopy-height--overview"))).toBe(true);
+    expect(isJpHeightManagedOverlay(config("canopy-height"))).toBe(false);
   });
 });
 

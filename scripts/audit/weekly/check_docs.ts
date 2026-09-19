@@ -4,8 +4,8 @@
  * 見 docs/proposal/weekly-audit-2026-08-21/README.md §2 D 組、§3.1 陷阱。
  * D6（豁免名單健康度）不在本腳本範圍——維持 🤝 人工判讀，等 v2。
  *
- *   D1 README 數字對帳：直接 `import LAYER_MANIFEST`（不 grep 硬解析）即時算出
- *      total／themed／orphan／dataClass A-D／features 資料夾數，跟 README.md 正文
+ *   D1 README 數字對帳：直接 import manifest 與 production `THEMES`（不 grep 硬解析），
+ *      分開計算 registry total、正式環境 sidebar toggle、orphan、dataClass A-D 與 features 資料夾數，
  *      用正則抽出的敘述數字逐項 diff。
  *
  *   D7 params spec 漂移：⚠️ 陷阱 1 —— `layerParamsSpec.ts` 含非文字位元組，BSD grep
@@ -36,6 +36,7 @@ import { fileURLToPath } from "node:url";
 
 import { LAYER_MANIFEST } from "../../../src/data/layerManifest";
 import { MIGRATED_PARAMS_KEYS } from "../../../src/data/layerParamsSpec";
+import { THEMES } from "../../../src/components/sidebar/layerCatalog";
 
 // ── 路徑 ──────────────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -172,6 +173,21 @@ function listFeatureFolders(): string[] {
   }
 }
 
+/** 從 linked worktree 回到主 repo 所在 workspace，避免用 ROOT/.. 誤落在 .claude/worktrees。 */
+function resolveSiblingRepo(name: string): string | null {
+  try {
+    const commonGitDir = execFileSync(
+      "git",
+      ["rev-parse", "--path-format=absolute", "--git-common-dir"],
+      { cwd: ROOT, encoding: "utf8" },
+    ).trim();
+    const mainRepoRoot = path.dirname(commonGitDir);
+    return path.resolve(mainRepoRoot, "..", name);
+  } catch {
+    return null;
+  }
+}
+
 // ── main ──────────────────────────────────────────────────────────
 async function main() {
   const startedAt = Date.now();
@@ -186,8 +202,9 @@ async function main() {
   {
     const entries = Object.entries(LAYER_MANIFEST) as [string, { section: unknown; dataClass: string }][];
     const actualTotal = entries.length;
-    const actualThemed = entries.filter(([, v]) => v.section !== null).length;
-    const actualOrphan = actualTotal - actualThemed;
+    const sidebarKeys = new Set(THEMES.flatMap((theme) => theme.groups).flatMap((group) => group.layers).map((layer) => String(layer.key)));
+    const actualThemed = sidebarKeys.size;
+    const actualOrphan = entries.filter(([, v]) => v.section === null).length;
     const actualDataClass: Record<string, number> = { A: 0, B: 0, C: 0, D: 0 };
     for (const [, v] of entries) actualDataClass[v.dataClass] = (actualDataClass[v.dataClass] ?? 0) + 1;
     const actualFeatures = listFeatureFolders().length;
@@ -207,7 +224,7 @@ async function main() {
         {
           key: "themed",
           label: "有 sidebar toggle 的 layer 數",
-          regex: /其中\s*(\d+)\s*個有\s*sidebar toggle/,
+          regex: /(?:其中|正式環境有)\s*(\d+)\s*個\s*(?:有\s*)?sidebar toggle/,
           actual: actualThemed,
           lineHint: "README §能看到什麼",
         },
@@ -315,21 +332,16 @@ async function main() {
       }
 
       // ── 擴充：6 類新增數字對帳（主題數／主題表逐列／上游 dataset／Loader／collector／nginx location／Three.js Scene）──
-      const themedEntries = Object.entries(LAYER_MANIFEST) as [
-        string,
-        { section: { theme: string; group: string } | null },
-      ][];
       const themeCounts = new Map<string, number>();
-      for (const [, v] of themedEntries) {
-        if (v.section === null) continue;
-        themeCounts.set(v.section.theme, (themeCounts.get(v.section.theme) ?? 0) + 1);
+      for (const theme of THEMES) {
+        themeCounts.set(theme.title, theme.groups.reduce((sum, group) => sum + group.layers.length, 0));
       }
       const actualThemeCount = themeCounts.size;
 
       // 1) 主題數（開場句 + <summary>完整 N 主題清單</summary> 兩處）
       {
         const themeCountRegexes = [
-          { where: "README 開場句（**N 個主題**）", regex: /\*\*(\d+)\s*個主題/ },
+          { where: "README 開場句（**N 個正式環境主題**）", regex: /\*\*(\d+)\s*個(?:正式環境)?主題/ },
           { where: "README <summary>完整 N 主題清單</summary>", regex: /<summary>完整\s*(\d+)\s*主題清單<\/summary>/ },
         ];
         const claims: { where: string; value: number }[] = [];
@@ -349,7 +361,7 @@ async function main() {
             title: allMatch ? "README「主題數」與現況一致" : "README「主題數」已過期",
             detail: allMatch
               ? `${claims[0]!.value} = ${actualThemeCount}`
-              : `README 兩處敘述 vs 實際 ${actualThemeCount} 個主題（LAYER_MANIFEST section.theme unique 數）`,
+              : `README 兩處敘述 vs 實際 ${actualThemeCount} 個正式環境主題（THEMES）`,
             evidence,
           });
         }
@@ -383,7 +395,7 @@ async function main() {
               level: "green",
               title: `README 主題表逐列層數與現況一致（${readmeThemeRows.length} 列）`,
               detail: "完整主題清單表格每一列的層數皆與 manifest 分組計數相符",
-              evidence: "README §完整主題清單 <details> vs LAYER_MANIFEST section.theme 分組計數",
+              evidence: "README §完整主題清單 <details> vs production THEMES 分組計數",
             });
           } else {
             const detailParts: string[] = [];
@@ -403,7 +415,7 @@ async function main() {
               level: "yellow",
               title: `README 主題表逐列層數已過期（${mismatched.length + missingInReadme.length + extraInReadme.length} 處落差）`,
               detail: detailParts.join("\n"),
-              evidence: "README §完整主題清單 <details> vs LAYER_MANIFEST section.theme 分組計數",
+              evidence: "README §完整主題清單 <details> vs production THEMES 分組計數",
             });
           }
         }
@@ -471,9 +483,10 @@ async function main() {
 
       // 5) collector 數（sibling repo，不存在就跳過不讓整支失敗）
       {
-        const collectorsDir = path.resolve(ROOT, "../data-collectors/collectors");
+        const siblingRoot = resolveSiblingRepo("data-collectors");
+        const collectorsDir = siblingRoot ? path.join(siblingRoot, "collectors") : "";
         if (!existsSync(collectorsDir)) {
-          errors.push({ step: "D1", message: `sibling repo 不存在（${collectorsDir}），略過 collector 數對帳` });
+          errors.push({ step: "D1", message: `sibling repo 不存在（${collectorsDir || "無法解析"}），略過 collector 數對帳` });
         } else {
           let actualCollectors = 0;
           let readOk = true;
@@ -518,7 +531,7 @@ async function main() {
           const actualLocations = (nginxContent.match(/^\s*location\s/gm) ?? []).length;
           (d1Detail.actual as Record<string, unknown>).nginxLocations = actualLocations;
 
-          const m = readme.match(/約\s*(\d+)\s*個\s*location/);
+          const m = readme.match(/(?:約\s*)?(\d+)\s*個\s*location/);
           if (!m || !m[1]) {
             errors.push({ step: "D1", message: "正則失配，抓不到「nginx location 數」的 README 敘述（README §部署），需人工核對正則是否被改寫" });
           } else {

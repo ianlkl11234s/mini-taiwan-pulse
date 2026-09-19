@@ -56,8 +56,8 @@ export function DataSourceBrowser({ position, isDarkTheme = true, onActivateLaye
     return out;
   }, [filter]);
   const scopedSearchResults = useMemo(
-    () => searchLayers(filter).filter((layer) => isDataSourceBrowserVisible(layer.key)),
-    [filter],
+    () => searchLayers(filter, { lockedKeys }).filter((layer) => isDataSourceBrowserVisible(layer.key)),
+    [filter, lockedKeys],
   );
 
   const totals = useMemo(() => {

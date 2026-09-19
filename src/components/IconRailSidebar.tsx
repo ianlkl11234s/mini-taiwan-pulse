@@ -857,7 +857,19 @@ const LayerRow = memo(function LayerRow({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      aria-expanded={expandable ? isExpanded : undefined}
+      aria-pressed={!expandable ? active : undefined}
       onClick={handleClick}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
       title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
       style={{
         display: "flex",
@@ -930,7 +942,17 @@ function ThemeBanner({
   const indicatorColor = allOn ? TEXT_STRONG : someOn ? INACTIVE_TEXT : DIM;
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={!isCollapsed}
       onClick={onToggleCollapse}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onToggleCollapse();
+        }
+      }}
       style={{
         display: "flex",
         alignItems: "center",
@@ -1044,6 +1066,7 @@ function LayersPanel({
     favoriteKeys,
     scopeKeys: new Set(searchContext.keys()),
     contextByKey: searchContext,
+    lockedKeys,
   });
   const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：defaultCollapsed=true 的主題預設收合。
@@ -1540,7 +1563,16 @@ function CollapsibleSection({
   return (
     <>
       <div
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen((v) => !v);
+          }
+        }}
         style={{
           display: "flex", alignItems: "center", gap: 4,
           padding: "6px 12px 2px", cursor: "pointer", userSelect: "none",
@@ -1652,7 +1684,18 @@ function LocationItem({
   const { ACCENT, DIM, INACTIVE_TEXT, TEXT_STRONG, ROW_HOVER, ROW_ACTIVE } = useRailTheme();
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={`${name}, ${subtitle}`}
+      aria-pressed={active}
       onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.target !== event.currentTarget) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
       style={{
         display: "flex",
         alignItems: "center",

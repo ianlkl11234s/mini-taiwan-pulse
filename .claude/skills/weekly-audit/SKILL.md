@@ -183,6 +183,13 @@ A1 能抓到**動態表**斷更，半動態／靜態資料的過期只能靠 F2 
    正確做法是比對「README 宣稱的數」與「該敘述真正對應的實際數」。
 5. **「30+」「約 N」這種開放式寫法不能當精確值比**。collector 差 2 倍才報、
    nginx location 差 30% 才報，否則每週都在報一個作者本來就沒打算寫精確的數字。
+6. **A6 期望清單只放首載後應常駐的 source**。依 viewport 動態建立的 source
+   （目前為 JP height）會把 registry entry 當 template，runtime 只建立帶 region suffix
+   的 sourceId。`window.__overlaySourceIds` 必須排除這些 template，動態 source 改由
+   lifecycle 專屬 browser acceptance 驗證；否則會把正常的延遲載入誤報成紅燈。
+7. **README 的「可開關圖層／主題」以 production `THEMES` 為準**，不是 manifest 裡
+   `section !== null` 的筆數。manifest 可保留 release-gated 或 DEV-only recipes，這些是可驗證的
+   registry entry，但不是正式站 sidebar toggle。總 key數、production toggle 與 orphan 必須分開報。
 
 ## 主動更新時機
 

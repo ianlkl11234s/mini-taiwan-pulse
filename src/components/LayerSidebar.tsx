@@ -127,7 +127,10 @@ export function LayerSidebar({
   if (collapsed) {
     const allLayers = THEMES.flatMap((t) => t.groups.flatMap((g) => g.layers));
     return (
-      <div
+      <button
+        type="button"
+        aria-label="展開圖層側欄"
+        aria-expanded={false}
         onClick={() => setCollapsed(false)}
         style={{
           display: "flex",
@@ -142,6 +145,7 @@ export function LayerSidebar({
           padding: "8px 0",
           cursor: "pointer",
           transition: "width 0.2s ease",
+          border: "none",
         }}
       >
         {/* 展開箭頭 */}
@@ -151,9 +155,10 @@ export function LayerSidebar({
           const active = visibility[key];
           const color = LAYER_COLORS[key];
           return (
-            <div
+            <span
               key={key}
               style={{
+                display: "block",
                 width: 8,
                 height: 8,
                 borderRadius: RADIUS.full,
@@ -165,7 +170,7 @@ export function LayerSidebar({
             />
           );
         })}
-      </div>
+      </button>
     );
   }
 
@@ -248,7 +253,7 @@ function SidebarContent({
     : { ACCENT_TOGGLE: "#1F2937", TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff" };
   const activeThemes: readonly ThemeDef[] = isMobile ? (mobileTab === "statistics" ? STATISTICS_TAB_THEMES : MOBILE_LAYER_THEMES) : THEMES;
   const activeLayerKeys = new Set(activeThemes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key))));
-  const searchResults = searchLayers(search, { favoriteKeys }).filter((result) => activeLayerKeys.has(result.key));
+  const searchResults = searchLayers(search, { favoriteKeys, scopeKeys: activeLayerKeys, lockedKeys });
   const visibleSearchResults = searchResults.slice(0, 50);
   // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
@@ -390,7 +395,17 @@ function SidebarContent({
             )}
             {/* ── Theme Banner（sticky：滾到該 theme 時黏頂） ── */}
             <div
+              role="button"
+              tabIndex={0}
+              aria-expanded={!isCollapsed}
               onClick={() => toggleTheme(theme.title)}
+              onKeyDown={(event) => {
+                if (event.target !== event.currentTarget) return;
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  toggleTheme(theme.title);
+                }
+              }}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -534,12 +549,14 @@ function SidebarContent({
                   }}
                 >
                   {locked ? (
-                    <span
+                    <button
+                      type="button"
+                      aria-label={`${displayLabel} 權限說明`}
                       onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
-                      style={{ display: "flex", flexShrink: 0, color: dimColor, cursor: "pointer" }}
+                      style={{ display: "flex", flexShrink: 0, color: dimColor, cursor: "pointer", border: "none", background: "transparent", padding: 0 }}
                     >
                       <Lock size={13} />
-                    </span>
+                    </button>
                   ) : StatisticsIcon ? (
                     <StatisticsIcon size={14} color={color} style={{ flexShrink: 0 }} />
                   ) : (
@@ -559,7 +576,11 @@ function SidebarContent({
                     />
                   )}
 
-                  <div
+                  <button
+                    type="button"
+                    aria-label={displayLabel}
+                    aria-expanded={hasDetails ? isExpanded : undefined}
+                    aria-pressed={!hasDetails ? active : undefined}
                     onClick={() => locked ? onToggleVisibility(key) : (hasDetails ? onLayerClick(key) : onToggleVisibility(key))}
                     style={{
                       flex: 1,
@@ -567,6 +588,11 @@ function SidebarContent({
                       color: textColor,
                       opacity: 1,
                       transition: "all 0.15s",
+                      border: "none",
+                      background: "transparent",
+                      padding: 0,
+                      textAlign: "left",
+                      cursor: "pointer",
                     }}
                   >
                     {displayLabel}
@@ -575,7 +601,7 @@ function SidebarContent({
                         {count}
                       </span>
                     )}
-                  </div>
+                  </button>
 
                   {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} {...togglePalette} />}
                   {hasDetails && !locked && (
