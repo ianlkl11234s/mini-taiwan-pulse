@@ -9,7 +9,7 @@
 - Manifest 共有 **760 個 layer key、60 個有 sidebar section 的主題、10 個 orphan key**。
 - 760 個 key 不等於 760 份獨立資料。多個 key 可能共用同一來源，或只是同資料的分類、尺度與視覺模式。
 - 所有 layer 應先具備 metadata 搜尋與能力說明；record 搜尋、count、length、area、value distribution、freshness 依來源契約逐批開放。
-- 新版 MCP dist 已驗證 **23 個工具**；目前桌面 task 需重新載入後才會取得新版。地圖探索工具可用；完整來源統計與 record search 只對 schools 與 policeStation／policeStations 宣告支援。
+- 新版 MCP dist 已驗證 **23 個工具**；此盤點當時的桌面 task 需重新載入後才會取得新版。地圖探索工具可用；完整來源統計與 record search 只對 schools 與 policeStation／policeStations 宣告支援。後續發布與載入狀態以 [exploration-capabilities-plan.md](exploration-capabilities-plan.md) 為準。
 - 已新增兩個通用工具：pulse_list_layer_capabilities 與 pulse_search_layer_records。幾何量測仍擴充既有 describe／summarize，不為點、線、面各開一套重複工具。
 
 ## 1. Manifest 與來源接線

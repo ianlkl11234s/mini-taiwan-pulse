@@ -1,3 +1,5 @@
+> **歷史 backlog（2026-09-14 起）**：保留原 Research Workbench 分階段工作，不作目前地圖探索優先順序或發布狀態。現在的能力、缺口與下一步以 [探索能力計劃](./exploration-capabilities-plan.md) 為準；新增來源應依 [分析能力 onboarding](./analysis-capability-onboarding.md) 驗收。
+
 ## 2026-09-14 本輪增量
 
 - [x] M2 語意卡 schema／validator／schools、news、paddy 與負向測試。
