@@ -177,5 +177,6 @@ Feature detail, UX matrices, popup fields, implementation subtasks and feature-l
 | PLA activity | [PLA activity](../../docs/features/pla-activity/backlog.md) | PA-1, PL-1 |
 | Funeral | [Funeral layers](../../docs/features/funeral-layers/backlog.md) | — |
 | Property value / static delivery / water | [Property value](../../docs/features/property-value/backlog.md), [Static-to-CDN](../../docs/features/static-to-cdn/backlog.md), [Water resources](../../docs/features/water-resources/backlog.md) | Release-assets, AR-12/13 |
+| Data lifecycle / storage slimming | [Data lifecycle lean](../../docs/features/data-lifecycle-lean/backlog.md) | WA-3, WA-5, WA-11 |
 
 Older completed work is intentionally discoverable through git log, feature changelogs/handoffs and release evidence—not this active index.
