@@ -58,3 +58,16 @@ Profile: research/prototype。以下證據不可推論成已部署或全日本�
 - 修復：mapbox-pmtiles roundZoom使z12.5以z13建bucket，grid layer maxzoom13提前排除資料；動態grid移除layer maxzoom並由controller在z13卸載，browser確認修復。
 - Independent Terra review：無P1；修正region ID含雙連字號的metadata join與canopy source-coverage顯示，相關測試通過。
 - 尚未：全國完整取得、最密集區與長時heap/GPU量測、手機實機、production/Embed全國接線、commit/push/upload/deploy。
+
+## 2026-09-20 小批發布 gate
+
+| Evidence cell | 結果 |
+|---|---|
+| Analytics Git | PR #100 ordinary merge；merge commit `0ee583f3f64aa9bfc6ecca3fa887c5c0abd5c075` |
+| Frontend local Git | feature `8a9ee162`；與最新 master ordinary merge `f9fde021`；尚待 push/PR |
+| Frontend regression | 230 files passed、1 skipped；1,718 tests passed、8 skipped；`npx tsc -b`、`npm run build` passed |
+| Runtime S3 | 38 immutable PMTiles + catalog，39 objects／23,210,033 bytes；full GET SHA/bytes/content type/cache readback passed |
+| Runtime catalog | version `national-local-2026-09-19-metro-mesh-v1`；28,655 bytes；SHA-256 `691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b` |
+| Production | 尚未證明；需前端 ordinary merge、CD、HTTP 200／Range 206 與 browser 驗收 |
+
+發布只包含 catalog allowlist；`public/jp-heights` 的 legacy 重複檔沒有上傳。raw PLATEAU archive 位於 S3 Deep Archive，和 browser runtime objects 分開；缺值仍為 null／未提供，不當作 0。

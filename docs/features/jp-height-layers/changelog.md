@@ -15,3 +15,12 @@
 ## 2026-09-18 日本跨區第一批
 
 五個局部ROI動態catalog、SHA-addressed原子本地安裝、單一多城市overview、近距4個建物+2個canopy cap、viewport卸載、probe cache2與取消、每城來源join／精簡建物popup／partial圖例。詳見 national-expansion.md、acceptance.md。永久worktree，本地未發布。
+
+# 2026-09-20
+
+## 日本高度小批 runtime assets 發布中
+
+- analytics PR #100 已 ordinary merge；前端功能分支已與最新 `origin/master` ordinary merge，完整測試 1,718 passed／8 skipped、TypeScript 與 build 通過。
+- runtime S3 已寫入 38 個 immutable PMTiles（23,181,378 bytes）與最後切換的 catalog（28,655 bytes），合計 39 objects／23,210,033 bytes；全部 full-GET SHA/bytes/content-type/cache readback 通過。
+- 此批仍只有 5 個舊 ROI + 11 個標準 mesh，不是完整城市或日本全國。建物全國與樹冠全國擴展維持暫停，checkpoint 留在 backlog。
+- S3 runtime publication 不等於 CD／production 驗收；前端 PR、部署 HTTP/Range 與 production browser 仍列為 verifying。
