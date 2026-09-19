@@ -263,9 +263,9 @@ def sample_specs(jp_airports: Iterable[tuple[str, str | None, str, list[float]]]
     rows = []
     for icao, _, _, _ in TW_AIRPORTS:
         rows.extend([
-            {"country": "TW", "airport": icao, "date": "2026-03-10", "sample_kind": "weekday", "label": "同週週二一般工作日候選；僅呈現已觀測軌跡"},
-            {"country": "TW", "airport": icao, "date": "2026-03-14", "sample_kind": "weekend", "label": "同週週六一般週末候選；非放假紀念日，僅呈現已觀測軌跡"},
             {"country": "TW", "airport": icao, "date": "2026-02-20", "sample_kind": "special", "label": "春節特殊假期；非一般工作日或週末"},
+            {"country": "TW", "airport": icao, "date": "2026-02-24", "sample_kind": "weekday", "label": "一般週二平日候選；僅呈現已觀測軌跡"},
+            {"country": "TW", "airport": icao, "date": "2026-02-18", "sample_kind": "special", "label": "春節特殊假期；非一般工作日或週末"},
         ])
     for icao, _, _, _ in jp_airports:
         rows.append({"country": "JP", "airport": icao, "date": "2026-02-18", "sample_kind": "weekday", "label": "既有完整機場涵蓋日（週三）；僅呈現已觀測軌跡"})

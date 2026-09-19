@@ -4,9 +4,9 @@
 
 ## 資料
 
-98 份 partial 靜態資產、31 個 unavailable 選項；共 106,217,453 bytes。來源 3,775,964 點，保留 3,775,824 點，140 個分段後孤立點無法成線，明確計入品質欄。資產無座標四捨五入、抽稀、平滑或假造觀測點；保留高度。顯示端依使用者要求把同航班缺口直接連線，並只為球面繪圖增加 render-only 頂點，不回寫來源資料。
+`20260919-v2` 有 124 份 partial 靜態資產、5 個 unavailable 選項；共 137,203,352 bytes。來源 4,862,370 點，保留 4,862,163 點，207 個分段後孤立點無法成線，明確計入品質欄。資產無座標四捨五入、抽稀、平滑或假造觀測點；保留高度。顯示端依使用者要求把同航班缺口直接連線，並只為球面繪圖增加 render-only 頂點，不回寫來源資料。
 
-台灣17場與來源清單中的日本78場均有選項。03/10、03/14台灣僅桃園／高雄有部分軌跡；台灣02/20有16/17場，日本僅保留02/18且78/78場有可繪資產。這是 `airport-points` 日本來源清單的全涵蓋，不等於日本所有登記飛行場，也不表示來源查詢完整。恆春仍缺軌跡。
+台灣17場與來源清單中的日本78場均有選項。台灣 02/20 為16/17場、02/24為16/17場，兩日皆缺恆春；02/18為14/17場，缺望安、蘭嶼、恆春。日本僅保留02/18且78/78場有可繪資產。這是 `airport-points` 日本來源清單的全涵蓋，不等於日本所有登記飛行場，也不表示來源查詢或逐航班完整。
 
 ## 驗證
 
@@ -26,6 +26,8 @@
 來源公開展示權（`license_status=unverified`）、完整日補抓與實體手機效能仍待完成。
 
 ## S3 靜態資產發布 2026-09-19
+
+- `20260919-v2` 已以目前 production manifest SHA 做 CAS 更新：124 個 immutable GeoJSON 加 manifest，共 125 個物件、137,272,025 bytes；逐物件 readback 通過。receipt：[`evidence/20260919-v2-s3-publication.json`](evidence/20260919-v2-s3-publication.json)。日期變更的 production pull／HTTP／browser 證據需在本次程式 merge/deploy 後補齊。
 
 - `scripts/deploy/publish_historical_flight_trails.py --apply` 已發布 `20260918-v1` 至 `deploy-assets/flight-trails`。receipt：[`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
 - 98 個 immutable GeoJSON 位於 `releases/20260918-v1/`，逐一 S3 readback 驗證 bytes、SHA-256、`application/geo+json` 與 `public,max-age=31536000,immutable`；manifest 亦完成 readback，為 `application/json` 與 `public,max-age=60,s-maxage=60,stale-while-revalidate=300`。共 99 個物件。

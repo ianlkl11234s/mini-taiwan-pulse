@@ -11,9 +11,9 @@
 
 ## 發布狀態
 
-`20260918-v1` 已由 `scripts/deploy/publish_historical_flight_trails.py` 發布至 S3 `deploy-assets/flight-trails`。98 份版本化 GeoJSON 與 1 份 manifest，共 99 個物件，均已完成 bytes、SHA-256、Content-Type 與 Cache-Control readback；receipt 見 [`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
+目前 S3 pointer 指向 `20260919-v2`：台灣日期為 `2026-02-20`、`2026-02-24`、`2026-02-18`，日本維持 `2026-02-18`；前端預設仍為台灣全部機場 `2026-02-20`。124 份版本化 GeoJSON 與 1 份 manifest 已完成 bytes、SHA-256、Content-Type 與 Cache-Control readback；receipt 見 [`evidence/20260919-v2-s3-publication.json`](evidence/20260919-v2-s3-publication.json)。舊 `20260918-v1` 保留為 immutable release。
 
-前端預設從同源 `/flight-trails` 讀取，可用 `VITE_FLIGHT_TRAILS_CDN_BASE` 覆寫；沒有 DB 或 FR24 fallback。PR [#313](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/313) 已以 merge commit `becb3e9e` 整合，Zeabur deployment `6aae2d9c` 為 `RUNNING`。正式站 manifest、桃園與羽田資產的 HTTP status、bytes、SHA-256、Content-Type 與 Cache-Control 均已通過，桌面瀏覽器顯示台灣全部機場 2/20 的 3D 航跡且 console 無 error／warn。證據見 [`evidence/20260919-production-deployment.json`](evidence/20260919-production-deployment.json) 與 [`evidence/20260919-production-http-readback.json`](evidence/20260919-production-http-readback.json)。真機效能仍未完成，來源 `license_status=unverified`。
+前端預設從同源 `/flight-trails` 讀取，可用 `VITE_FLIGHT_TRAILS_CDN_BASE` 覆寫；沒有 DB 或 FR24 fallback。舊 `20260918-v1` 曾隨 PR [#313](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/313) 的 merge commit `becb3e9e` 部署，Zeabur deployment `6aae2d9c` 為 `RUNNING`；該版正式站 HTTP 與桌面瀏覽器證據見 [`evidence/20260919-production-deployment.json`](evidence/20260919-production-deployment.json) 與 [`evidence/20260919-production-http-readback.json`](evidence/20260919-production-http-readback.json)。`20260919-v2` 的 production pull、HTTP 與 browser 驗收需待本次 merge/deploy 後補齊。真機效能仍未完成，來源 `license_status=unverified`。
 
 原始圖層由 `codex/historical-flight-trails-20260918` 整合；本次供應鏈修改位於隔離分支 `codex/historical-flight-trails-publication-20260919`，不包含主目錄其他 session 未提交修改。
 
