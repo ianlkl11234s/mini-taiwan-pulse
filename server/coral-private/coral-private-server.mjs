@@ -16,6 +16,10 @@ const ALLEN_CORAL_ATLAS_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_�
 const ALLEN_CORAL_ATLAS_PATH = "/api/private-research/allen-coral-atlas";
 const ALLEN_CORAL_ATLAS_S3_BUCKET = "migu-gis-data-collector";
 const ALLEN_CORAL_ATLAS_S3_REGION = "ap-southeast-2";
+const JP_WATER_ROOT = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/output/jp_water_national_local";
+const JP_WATER_PATH = "/api/private-research/jp-water";
+const JP_WATER_S3_BUCKET = "migu-private-research-ap-southeast-2";
+const JP_WATER_S3_PREFIX = "private-research/jp-water";
 const ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH = "/data/.private-allen/revoked-sessions.jsonl";
 const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
   benthic: Object.freeze({
@@ -27,6 +31,18 @@ const ALLEN_CORAL_ATLAS_ASSETS = Object.freeze({
     filename: "allen_coral_atlas_geomorphic.pmtiles",
     size: 52624835,
     sha256: "750c28a8b7ea2eff84b18d71a1b5ef80f1065c5b47fbbf98995cda47b691bd41",
+  }),
+});
+const JP_WATER_ASSETS = Object.freeze({
+  water: Object.freeze({
+    filename: "water.pmtiles",
+    size: 85597875,
+    sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da",
+  }),
+  "extra-water": Object.freeze({
+    filename: "extra-water.pmtiles",
+    size: 31656052,
+    sha256: "e41775f0ae3d33c04866896b0002002d20338937d11f124c51461017409a5bf9",
   }),
 });
 
@@ -75,14 +91,14 @@ export function getAllenCoralAtlasConfig(env = process.env) {
   const supabaseAnonKey = firstConfigured(env.SUPABASE_ANON_KEY, env.VITE_SUPABASE_ANON_KEY);
   if (!supabaseUrl || !supabaseAnonKey) return { error: "configuration unavailable" };
 
-  const storage = firstConfigured(env.ALLEN_CORAL_ATLAS_STORAGE) ?? "local";
+  const storage = firstConfigured(env.PRIVATE_RESEARCH_STORAGE, env.ALLEN_CORAL_ATLAS_STORAGE) ?? "local";
   if (storage !== "local" && storage !== "s3") return { error: "configuration unavailable" };
   const accessKeyId = firstConfigured(env.S3_ACCESS_KEY);
   const secretAccessKey = firstConfigured(env.S3_SECRET_KEY);
   if (storage === "s3" && (!accessKeyId || !secretAccessKey)) return { error: "configuration unavailable" };
 
   const origins = new Set();
-  const configuredOrigins = firstConfigured(env.ALLEN_CORAL_ATLAS_ORIGINS)
+  const configuredOrigins = firstConfigured(env.PRIVATE_RESEARCH_ORIGINS, env.ALLEN_CORAL_ATLAS_ORIGINS)
     ?? (storage === "local" ? "http://127.0.0.1:3721,http://localhost:3721,http://127.0.0.1:3735" : "");
   for (const value of configuredOrigins.split(",")) {
     const origin = value.trim();
@@ -95,7 +111,7 @@ export function getAllenCoralAtlasConfig(env = process.env) {
     }
   }
   if (origins.size === 0) return { error: "configuration unavailable" };
-  const auditPath = firstConfigured(env.ALLEN_CORAL_ATLAS_AUDIT_PATH);
+  const auditPath = firstConfigured(env.PRIVATE_RESEARCH_AUDIT_PATH, env.ALLEN_CORAL_ATLAS_AUDIT_PATH);
   const auditMaxBytes = parseBoundedInteger(
     env.ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
     ALLEN_CORAL_ATLAS_AUDIT_MAX_BYTES,
@@ -108,7 +124,7 @@ export function getAllenCoralAtlasConfig(env = process.env) {
     1,
     MAX_ALLEN_CORAL_ATLAS_AUDIT_RETAINED_FILES,
   );
-  const revokePath = firstConfigured(env.ALLEN_CORAL_ATLAS_REVOKE_PATH)
+  const revokePath = firstConfigured(env.PRIVATE_RESEARCH_REVOKE_PATH, env.ALLEN_CORAL_ATLAS_REVOKE_PATH)
     ?? (storage === "s3" ? ALLEN_CORAL_ATLAS_PRODUCTION_REVOKE_PATH : ALLEN_CORAL_ATLAS_REVOKE_PATH);
   if ((auditPath && (!auditPath.startsWith("/") || !auditMaxBytes || !auditRetainedFiles)) || !revokePath.startsWith("/")) return { error: "configuration unavailable" };
   return {
@@ -372,12 +388,21 @@ export function createAllenCoralAtlasGateway(root = ALLEN_CORAL_ATLAS_ROOT, asse
   };
 }
 
+export function createJpWaterGateway(root = firstConfigured(process.env.JP_WATER_PRIVATE_ROOT) ?? JP_WATER_ROOT, assets = JP_WATER_ASSETS) {
+  return createAllenCoralAtlasGateway(root, assets);
+}
+
 /**
  * Downloads each allowlisted immutable S3 object once, then serves only the
  * verified process-local snapshot. This cache never includes authentication:
  * handleAllenCoralAtlasRequest authenticates every request before reaching it.
  */
-export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_CORAL_ATLAS_ASSETS } = {}) {
+export function createAllenCoralAtlasS3Gateway(config, {
+  client,
+  assets = ALLEN_CORAL_ATLAS_ASSETS,
+  prefix = "private-research/allen-coral-atlas",
+  bucket = ALLEN_CORAL_ATLAS_S3_BUCKET,
+} = {}) {
   const s3 = client ?? new S3Client({
     region: config.region,
     credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
@@ -386,7 +411,7 @@ export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_
 
   async function verifiedSnapshot(asset, signal) {
     if (!Object.values(assets).includes(asset)) throw new Error("invalid S3 asset");
-    const key = `private-research/allen-coral-atlas/${asset.sha256}/${asset.filename}`;
+    const key = `${prefix}/${asset.sha256}/${asset.filename}`;
     let pending = snapshots.get(key);
     if (!pending) {
       pending = (async () => {
@@ -394,7 +419,7 @@ export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_
         let value;
         try {
           value = await s3.send(new GetObjectCommand({
-            Bucket: ALLEN_CORAL_ATLAS_S3_BUCKET,
+            Bucket: bucket,
             Key: key,
             ChecksumMode: "ENABLED",
           }), { abortSignal: timed.signal });
@@ -443,6 +468,15 @@ export function createAllenCoralAtlasS3Gateway(config, { client, assets = ALLEN_
       };
     },
   };
+}
+
+export function createJpWaterS3Gateway(config, options = {}) {
+  return createAllenCoralAtlasS3Gateway(config, {
+    assets: JP_WATER_ASSETS,
+    prefix: JP_WATER_S3_PREFIX,
+    bucket: JP_WATER_S3_BUCKET,
+    ...options,
+  });
 }
 
 const persistentDenylistByPath = new Map();
@@ -496,11 +530,15 @@ function getAllenDenylist(dependencies, config) {
 export async function writeAllenAuditRecord(request, output, config, audit = undefined) {
   if (!config.auditPath && !audit) return;
   const url = new URL(request.url);
-  const asset = ALLEN_CORAL_ATLAS_ASSETS[url.pathname.slice(ALLEN_CORAL_ATLAS_PATH.length + 1)];
+  const family = url.pathname.startsWith(`${JP_WATER_PATH}/`)
+    ? { path: JP_WATER_PATH, assets: JP_WATER_ASSETS }
+    : { path: ALLEN_CORAL_ATLAS_PATH, assets: ALLEN_CORAL_ATLAS_ASSETS };
+  const assetName = url.pathname.slice(family.path.length + 1);
+  const asset = family.assets[assetName];
   const record = {
     timestamp: new Date().toISOString(),
     endpoint: url.pathname,
-    asset: asset ? url.pathname.slice(ALLEN_CORAL_ATLAS_PATH.length + 1) : null,
+    asset: asset ? assetName : null,
     method: request.method,
     status: output.status,
     range: request.headers.get("range"),
@@ -641,6 +679,75 @@ export async function handleAllenCoralAtlasRequest(request, dependencies = {}) {
   });
 }
 
+export async function handleJpWaterRequest(request, dependencies = {}) {
+  const url = new URL(request.url);
+  const assetName = url.pathname.startsWith(`${JP_WATER_PATH}/`)
+    ? url.pathname.slice(JP_WATER_PATH.length + 1)
+    : "";
+  const asset = JP_WATER_ASSETS[assetName];
+  if (!asset || url.pathname !== `${JP_WATER_PATH}/${assetName}`) return response(404, new Headers());
+
+  const config = dependencies.config ?? getAllenCoralAtlasConfig();
+  const emptyCors = new Headers();
+  if (config.error) return json(503, emptyCors, { error: "service unavailable" });
+  const cors = corsHeaders(request, config, "GET, HEAD, OPTIONS");
+  if (!cors) return json(403, emptyCors, { error: "origin forbidden" });
+  if (request.method === "OPTIONS") return response(204, cors);
+  if (request.method !== "GET" && request.method !== "HEAD") return response(405, cors, null, { Allow: "GET, HEAD, OPTIONS" });
+
+  const authenticate = dependencies.authenticate ?? createSupabaseAuthenticator(config);
+  let identity;
+  try {
+    identity = await authenticate(request.headers.get("authorization"), request.signal);
+  } catch {
+    return json(503, cors, { error: "authentication unavailable" });
+  }
+  if (identity.status !== 200) return json(identity.status, cors, { error: identity.status === 401 ? "unauthorized" : "forbidden" });
+  const denylist = getAllenDenylist(dependencies, config);
+  let revoked;
+  try {
+    revoked = !identity.sessionId || await denylist.has(identity.sessionId);
+  } catch {
+    return json(503, cors, { error: "revocation unavailable" });
+  }
+  if (revoked) return json(401, cors, { error: "unauthorized" });
+  if (request.method === "GET" && url.searchParams.get("access") === "1") return json(200, cors, { allowed: true });
+
+  const gateway = dependencies.gateway ?? (config.storage === "s3"
+    ? createJpWaterS3Gateway(config)
+    : createJpWaterGateway());
+  let metadata;
+  try {
+    metadata = await gateway.head(asset, request.signal);
+  } catch {
+    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+  }
+  if (metadata.contentLength !== asset.size || metadata.etag !== `\"${asset.sha256}\"`) {
+    return json(502, cors, { error: "private Japan water asset integrity check failed" });
+  }
+  if (request.method === "HEAD") {
+    return response(200, cors, null, {
+      "Content-Length": String(asset.size), "Content-Type": metadata.contentType, "ETag": metadata.etag,
+    });
+  }
+  const range = parseAssetRange(request.headers.get("range"), asset);
+  if (!range) return response(416, cors, null, { "Content-Range": `bytes */${asset.size}` });
+  let object;
+  try {
+    object = await gateway.get(asset, range, request.signal);
+  } catch {
+    return json(502, cors, { error: "private Japan water asset unavailable" });
+  }
+  if (object.contentLength !== range.length || object.contentRange !== `bytes ${range.start}-${range.end}/${asset.size}` || object.etag !== metadata.etag) {
+    if (typeof object.body?.cancel === "function") await object.body.cancel().catch(() => undefined);
+    return json(502, cors, { error: "private Japan water asset range check failed" });
+  }
+  return response(206, cors, object.body, {
+    "Content-Length": String(range.length), "Content-Range": object.contentRange,
+    "Content-Type": object.contentType, "ETag": object.etag,
+  });
+}
+
 export async function handleCoralRequest(request, dependencies = {}) {
   const url = new URL(request.url);
   if (url.pathname !== "/api/private-research/coral") return response(404, new Headers());
@@ -719,27 +826,40 @@ export function startCoralPrivateServer({ port = 8789, host = "127.0.0.1", ...de
 export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host = "127.0.0.1", ...dependencies } = {}) {
   if (!["127.0.0.1", "::1", "localhost"].includes(host)) throw new Error("Allen Coral Atlas server must bind loopback only");
   const config = dependencies.config ?? getAllenCoralAtlasConfig();
-  const gateway = dependencies.gateway ?? (config.storage === "s3"
+  const allenGateway = dependencies.gateway ?? (config.storage === "s3"
     ? createAllenCoralAtlasS3Gateway(config)
     : createAllenCoralAtlasGateway());
-  const runtimeDependencies = { ...dependencies, config, gateway };
-  const readiness = { ready: false, failed: false };
+  const jpWaterGateway = dependencies.jpWaterGateway ?? (config.storage === "s3"
+    ? createJpWaterS3Gateway(config)
+    : createJpWaterGateway());
+  const allenDependencies = { ...dependencies, config, gateway: allenGateway };
+  const jpWaterDependencies = { ...dependencies, config, gateway: jpWaterGateway };
+  const readiness = {
+    allen: { ready: false, failed: false },
+    jpWater: { ready: false, failed: false },
+  };
   const warmupAttempts = dependencies.warmupAttempts ?? 3;
   const warmupRetryDelayMs = dependencies.warmupRetryDelayMs ?? 250;
-  // Read and verify both immutable snapshots before permitting private requests.
-  // The listener still starts immediately so a failed or slow warmup is
-  // observable as a fail-closed 503 instead of a connection refusal.
-  const warmup = (async () => {
+  const warmFamily = async (state, gateway, assets) => {
     for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
       try {
-        await Promise.all(Object.values(ALLEN_CORAL_ATLAS_ASSETS).map((asset) => gateway.head(asset)));
-        readiness.ready = true;
+        // S3 gateway.head() verifies and retains a complete immutable snapshot.
+        // Keep startup peak memory bounded to one archive instead of buffering
+        // every private PMTiles object concurrently.
+        for (const asset of Object.values(assets)) await gateway.head(asset);
+        state.ready = true;
         return;
       } catch {
         if (attempt + 1 < warmupAttempts) await new Promise((resolve) => setTimeout(resolve, warmupRetryDelayMs * 2 ** attempt));
       }
     }
-    readiness.failed = true;
+    state.failed = true;
+  };
+  // Each family is verified independently. A missing Japan-water object must
+  // fail closed for that endpoint without taking the existing Allen layer down.
+  const warmup = (async () => {
+    await warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS);
+    await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
   })();
   const server = createServer(async (req, res) => {
     try {
@@ -750,18 +870,28 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
         method: req.method, headers: req.headers, signal: controller.signal,
       });
       let output;
-      const revokeRequest = new URL(request.url).pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
-      if (readiness.ready || revokeRequest) {
-        output = await handleAllenCoralAtlasRequest(request, runtimeDependencies);
+      const pathname = new URL(request.url).pathname;
+      const revokeRequest = pathname === `${ALLEN_CORAL_ATLAS_PATH}/revoke` && request.method === "POST";
+      const isAllen = pathname.startsWith(`${ALLEN_CORAL_ATLAS_PATH}/`);
+      const isJpWater = pathname.startsWith(`${JP_WATER_PATH}/`);
+      const familyState = isJpWater ? readiness.jpWater : readiness.allen;
+      if (!isAllen && !isJpWater) {
+        output = response(404, new Headers());
+      } else if (familyState.ready || revokeRequest) {
+        output = isJpWater
+          ? await handleJpWaterRequest(request, jpWaterDependencies)
+          : await handleAllenCoralAtlasRequest(request, allenDependencies);
       } else {
         const cors = config.error ? new Headers() : corsHeaders(request, config, "GET, HEAD, POST, OPTIONS");
         output = !cors
           ? json(403, new Headers(), { error: "origin forbidden" })
           : json(503, cors, {
-            error: readiness.failed ? "private Allen sidecar unavailable" : "private Allen sidecar is warming up",
+            error: familyState.failed
+              ? (isJpWater ? "private Japan water sidecar unavailable" : "private Allen sidecar unavailable")
+              : (isJpWater ? "private Japan water sidecar is warming up" : "private Allen sidecar is warming up"),
           });
       }
-      await writeAllenAuditRecord(request, output, runtimeDependencies.config ?? getAllenCoralAtlasConfig(), runtimeDependencies.audit);
+      await writeAllenAuditRecord(request, output, config, dependencies.audit);
       res.writeHead(output.status, Object.fromEntries(output.headers));
       if (!output.body || req.method === "HEAD") return res.end();
       Readable.fromWeb(output.body).on("error", () => res.destroy()).pipe(res);

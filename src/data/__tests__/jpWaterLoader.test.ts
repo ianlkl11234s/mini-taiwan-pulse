@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchJpWaterGeoJsonAsset, jpWaterAssetUrl, jpWaterLocalPmtilesAsset, jpWaterPublishedAsset, retryJpWaterLocalAssets, retryJpWaterRelease } from "../jpWaterLoader";
-import { JP_WATER_FACILITY_CATEGORIES, jpWaterLocalResearchEnabled, jpWaterSelectionIdentity } from "../jpWaterTypes";
+import { fetchJpWaterGeoJsonAsset, jpWaterAssetUrl, jpWaterPrivatePmtilesAsset, jpWaterPublishedAsset, retryJpWaterPrivateAssets, retryJpWaterRelease } from "../jpWaterLoader";
+import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_PRIVATE_ENDPOINTS, JP_WATER_PRIVATE_LAYER_KEYS, jpWaterSelectionIdentity } from "../jpWaterTypes";
 
 const valid = { contract_version: 1, release: "20260918", assets: [{
   key: "jpWaterLakes", format: "geojson", path: "releases/20260918/jpWaterLakes.geojson", bytes: 1,
   sha256: "a".repeat(64), year: "2005", source_url: "https://nlftp.mlit.go.jp/", license: "terms verified", coverage: "Japan", geometry_role: "polygon", status: "published",
 }] };
 describe("jp water release gate", () => {
-  beforeEach(() => { retryJpWaterRelease(); retryJpWaterLocalAssets(); vi.unstubAllGlobals(); });
+  beforeEach(() => { retryJpWaterRelease(); retryJpWaterPrivateAssets(); vi.unstubAllGlobals(); });
   it("only resolves an asset explicitly published in the release allowlist", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => Response.json(valid)));
     await expect(jpWaterPublishedAsset("jpWaterLakes")).resolves.toMatchObject({ key: "jpWaterLakes" });
@@ -37,30 +37,25 @@ describe("jp water release gate", () => {
     vi.stubGlobal("fetch", vi.fn(async (url: string) => url.endsWith("release.json") ? Response.json(release) : new Response(body)));
     await expect(fetchJpWaterGeoJsonAsset("jpWaterLakes")).resolves.toMatchObject({ type: "FeatureCollection", features: [] });
   });
-  it("preflights local PMTiles with exact Range 206, byte total, and full SHA-256", async () => {
-    const range = new Uint8Array(127);
-    const full = new Uint8Array(85597875);
-    const contractSha = "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da";
-    const digest = vi.spyOn(crypto.subtle, "digest").mockResolvedValueOnce(Uint8Array.from(contractSha.match(/../g)!.map((value) => parseInt(value, 16))).buffer);
-    const fetchMock = vi.fn(async (_url: string, init?: RequestInit) => init?.headers ? new Response(range, { status: 206, headers: { "Content-Range": "bytes 0-126/85597875" } }) : new Response(full));
-    vi.stubGlobal("fetch", fetchMock);
-    await expect(jpWaterLocalPmtilesAsset("water")).resolves.toMatchObject({ archive: "water", bytes: 85597875, sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da" });
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("water.pmtiles"), expect.objectContaining({ headers: { Range: "bytes=0-126" } }));
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    digest.mockRestore();
+  it("returns only the fixed owner-only endpoint and immutable water receipt", () => {
+    expect(jpWaterPrivatePmtilesAsset("water")).toEqual({
+      archive: "water",
+      url: "/api/private-research/jp-water/water",
+      bytes: 85597875,
+      sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da",
+    });
   });
-  it("accepts a valid 206 range when CORS does not expose Content-Range, then relies on full bytes and SHA-256", async () => {
-    const range = new Uint8Array(127);
-    const full = new Uint8Array(85597875);
-    const contractSha = "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da";
-    const digest = vi.spyOn(crypto.subtle, "digest").mockResolvedValueOnce(Uint8Array.from(contractSha.match(/../g)!.map((value) => parseInt(value, 16))).buffer);
-    vi.stubGlobal("fetch", vi.fn(async (_url: string, init?: RequestInit) => init?.headers ? new Response(range, { status: 206 }) : new Response(full)));
-    await expect(jpWaterLocalPmtilesAsset("water")).resolves.toMatchObject({ archive: "water", bytes: 85597875, sha256: contractSha });
-    digest.mockRestore();
+  it("keeps both private archives on exact same-origin API paths", () => {
+    expect(JP_WATER_PRIVATE_ENDPOINTS).toEqual({
+      water: "/api/private-research/jp-water/water",
+      "extra-water": "/api/private-research/jp-water/extra-water",
+    });
   });
-  it("does not treat Range/size failure as an empty layer", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => new Response(new Uint8Array(127), { status: 200 })));
-    await expect(jpWaterLocalPmtilesAsset("extra-water")).rejects.toThrow("需 206");
+  it("does not expose a public asset URL or whole-archive fetch path", () => {
+    const asset = jpWaterPrivatePmtilesAsset("extra-water");
+    expect(asset.url).toBe("/api/private-research/jp-water/extra-water");
+    expect(asset.url).not.toMatch(/^https?:\/\//);
+    expect(asset.bytes).toBe(31656052);
   });
   it("builds a source-scoped selection identity instead of treating source_id as a cross-source entity id", () => {
     expect(jpWaterSelectionIdentity("jpWaterNilimDams", "42")).toEqual({
@@ -76,8 +71,9 @@ describe("jp water release gate", () => {
       "sewer_pump_station", "sewage_treatment_plant", "unclassified_sewer_facility",
     ]);
   });
-  it("fails closed for restricted research assets in production", () => {
-    expect(jpWaterLocalResearchEnabled(false)).toBe(false);
-    expect(jpWaterLocalResearchEnabled(true)).toBe(true);
+  it("keeps all eight restricted vectors in the explicit private set", () => {
+    expect(JP_WATER_PRIVATE_LAYER_KEYS).toHaveLength(8);
+    expect(JP_WATER_PRIVATE_LAYER_KEYS).toContain("jpWaterSupplyFacilities");
+    expect(JP_WATER_PRIVATE_LAYER_KEYS).toContain("jpWaterSewerFacilities");
   });
 });

@@ -26,7 +26,6 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 
 import type { LayerVisibility, TransportType } from "../../types";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
-import { jpWaterLocalResearchEnabled } from "../../data/jpWaterTypes";
 
 // ── Color Config ──
 
@@ -1758,12 +1757,12 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "水資源",
     defaultCollapsed: false,
     groups: [{ title: "水資源靜態資料", layers: [
-      ...(jpWaterLocalResearchEnabled() ? [fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities")] : []),
+      fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities"),
       fromManifest("jpWaterLakes"), fromManifest("jpWaterLocalFacilities"),
       fromManifest("jpWaterQualityStations"), fromManifest("jpWaterLevelStations"),
-    ] }, ...(jpWaterLocalResearchEnabled() ? [{ title: "補充資料（覆蓋與定位限制見圖例）", layers: [
+    ] }, { title: "補充資料（覆蓋與定位限制見圖例）", layers: [
       fromManifest("jpWaterGroundwaterSites"), fromManifest("jpWaterNilimDams"), fromManifest("jpWaterAgriculturalPonds"),
-    ] }] : []), { title: "背景", layers: [fromManifest("jpWaterFloodHazard")] }],
+    ] }, { title: "背景", layers: [fromManifest("jpWaterFloodHazard")] }],
   },
   {
     title: "行政區",
@@ -2037,6 +2036,9 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "aviationRestrictedGlow",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
+  // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
+  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
+  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);
 
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */

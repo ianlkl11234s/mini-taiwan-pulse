@@ -11,11 +11,6 @@ export type JpWaterFormat = "geojson" | "pmtiles";
 export type JpWaterGeometryRole = "point" | "line" | "polygon" | "raster";
 export type JpWaterLocalArchive = "water" | "extra-water";
 
-/** Prevent stale URL/local state from mounting restricted research assets in production. */
-export function jpWaterLocalResearchEnabled(isDev = import.meta.env.DEV): boolean {
-  return isDev;
-}
-
 /** Facility categories preserve how each label was obtained; supply fallback is intentionally explicit. */
 export const JP_WATER_FACILITY_CATEGORIES = [
   { value: "water_treatment_plant", label: "淨水場", color: "#06b6d4", group: "supply" },
@@ -37,11 +32,23 @@ export const JP_WATER_RELEASED_LAYER_KEYS = [
   "jpWaterLakes", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations",
 ] as const satisfies readonly JpWaterLayerKey[];
 
-/** DEV-only, local PMTiles. Never add them to the public release allowlist. */
+/** Owner-only PMTiles. They are never part of the public release allowlist. */
 export const JP_WATER_LOCAL_PMTILES_LAYER_KEYS = [
   "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities",
   "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ] as const satisfies readonly JpWaterLayerKey[];
+
+/** Kept as an alias while callers migrate from the former local-research name. */
+export const JP_WATER_PRIVATE_LAYER_KEYS = JP_WATER_LOCAL_PMTILES_LAYER_KEYS;
+
+export const JP_WATER_PRIVATE_ENDPOINTS: Record<JpWaterLocalArchive, string> = {
+  water: "/api/private-research/jp-water/water",
+  "extra-water": "/api/private-research/jp-water/extra-water",
+};
+
+export function isJpWaterPrivateLayer(key: string): key is typeof JP_WATER_PRIVATE_LAYER_KEYS[number] {
+  return (JP_WATER_PRIVATE_LAYER_KEYS as readonly string[]).includes(key);
+}
 
 export const JP_WATER_LOCAL_PMTILES_CONTRACT: Record<JpWaterLocalArchive, { fileName: string; bytes: number; sha256: string }> = {
   water: { fileName: "water.pmtiles", bytes: 85597875, sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da" },

@@ -1,6 +1,6 @@
 # 日本水資源圖層
 
-狀態：四個既有 GeoJSON 為 `PRODUCTION_VERIFIED`；2026-09-18 全國擴充批為 `LOCAL_ONLY`。後者只在 DEV 透過本機 PMTiles（Range 206＋精確 bytes／SHA-256 preflight）載入，未進 public/CDN、未 commit/push/deploy。
+狀態：四個既有 GeoJSON 為 `PRODUCTION_VERIFIED`；全國八個 PMTiles 圖層已改為 `OWNER_ONLY_PRIVATE_PENDING_RELEASE`。後者不進 public/CDN，只能透過同域認證 Range API 讀取；代碼、資產上傳、部署與 production 瀏覽器驗收分開記錄。
 
 | layer key | geometry | source snapshot | 語意 |
 |---|---|---|---|
@@ -30,3 +30,10 @@
 - Zeabur deployment [`6aace0570f50de6ff52c3469`](./evidence/production-deployment.json) 已在 `2026-09-18T07:01:08Z` 完成並為 `RUNNING`，對應 master merge commit `5fdde19d`。
 - 正式站 `/world/jp_water/release.json` 和四個 GeoJSON 都回應 HTTP 200；SHA-256、bytes 與 feature count 均符合 release metadata：詳見 [HTTP readback](./evidence/production-readback.json)。
 - Native Chrome 已驗 Japan 選單的「水資源 1/4」、四個 toggle 與「水資源靜態資料」分類，以及實際 geometry、popup、來源、授權與 URL layer selection：琵琶湖、上野、トーヨー橋、旧御殿水源地；已移除的資料處理欄位未恢復。詳見 [browser receipt](./evidence/production-browser.json)。實體行動裝置未驗。
+
+## 2026-09-19 owner-only 讀取邊界
+
+- 八個全國向量層會顯示在 sidebar，但非固定 owner 會維持鎖定；真正防線是 server 每個 Range 重驗 Supabase 身分與 session revoke。
+- 只允許 `/api/private-research/jp-water/{water|extra-water}`；回應 `private, no-store`，無公開物件 URL、無 nginx static fallback，也不進 share/embed/snapshot/replay。
+- 資產依然是靜態 PMTiles，不查 Supabase 地理資料；Supabase 只做身分驗證。
+- 「只有本人可讀」可把實際外流面降很低，但不會自動消除來源條款解釋的不確定性，也無法防止 owner 自己共享帳號或 token。

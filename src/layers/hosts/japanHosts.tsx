@@ -14,7 +14,6 @@ import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
-import { jpWaterLocalResearchEnabled } from "../../data/jpWaterTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -114,7 +113,6 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
 
 export const JpWaterHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpWaterLayers");
-  const localResearchEnabled = jpWaterLocalResearchEnabled();
   const lakes = useKeyOverlayParams("jpWaterLakes");
   const dams = useKeyOverlayParams("jpWaterDams");
   const rivers = useKeyOverlayParams("jpWaterRivers");
@@ -129,15 +127,15 @@ export const JpWaterHost: LayerHostComponent = ({ deps }) => {
   const quality = useKeyOverlayParams("jpWaterQualityStations");
   const levels = useKeyOverlayParams("jpWaterLevelStations");
   useJpWaterLayers(deps.mapRef, {
-    jpWaterDams: localResearchEnabled && deps.layerVisibility.jpWaterDams,
+    jpWaterDams: deps.layerVisibility.jpWaterDams,
     jpWaterLakes: deps.layerVisibility.jpWaterLakes,
-    jpWaterRivers: localResearchEnabled && deps.layerVisibility.jpWaterRivers,
-    jpWaterSupplyFacilities: localResearchEnabled && deps.layerVisibility.jpWaterSupplyFacilities,
-    jpWaterSupplyAreas: localResearchEnabled && deps.layerVisibility.jpWaterSupplyAreas,
-    jpWaterSewerFacilities: localResearchEnabled && deps.layerVisibility.jpWaterSewerFacilities,
-    jpWaterGroundwaterSites: localResearchEnabled && deps.layerVisibility.jpWaterGroundwaterSites,
-    jpWaterNilimDams: localResearchEnabled && deps.layerVisibility.jpWaterNilimDams,
-    jpWaterAgriculturalPonds: localResearchEnabled && deps.layerVisibility.jpWaterAgriculturalPonds,
+    jpWaterRivers: deps.layerVisibility.jpWaterRivers,
+    jpWaterSupplyFacilities: deps.layerVisibility.jpWaterSupplyFacilities,
+    jpWaterSupplyAreas: deps.layerVisibility.jpWaterSupplyAreas,
+    jpWaterSewerFacilities: deps.layerVisibility.jpWaterSewerFacilities,
+    jpWaterGroundwaterSites: deps.layerVisibility.jpWaterGroundwaterSites,
+    jpWaterNilimDams: deps.layerVisibility.jpWaterNilimDams,
+    jpWaterAgriculturalPonds: deps.layerVisibility.jpWaterAgriculturalPonds,
     jpWaterFloodHazard: deps.layerVisibility.jpWaterFloodHazard,
     jpWaterLocalFacilities: deps.layerVisibility.jpWaterLocalFacilities,
     jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,

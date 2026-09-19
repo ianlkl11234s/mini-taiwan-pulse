@@ -49,6 +49,7 @@ const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
 const dockerIgnore = readFileSync(".dockerignore", "utf8");
+const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
 const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
@@ -252,10 +253,10 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "world/jp_wildlife_protection_moe_202504.pmtiles",
   "world/jp_world_natural_heritage_ksj_2011.geojson",
   "world/jp_ramsar_moe_current.geojson",
-  // Japan water national research assets：來源再配布權未取得，production catalog
-  // fail-closed，且不得進 public/CDN upload allowlist。
-  "LOCAL_ONLY: water.pmtiles",
-  "LOCAL_ONLY: extra-water.pmtiles",
+  // Japan water national research assets：只可由 owner-authenticated Range API
+  // 讀取 private immutable objects，不得進 public/dist/CDN upload allowlist。
+  "PRIVATE_OWNER_ONLY: water.pmtiles",
+  "PRIVATE_OWNER_ONLY: extra-water.pmtiles",
 ]);
 
 /**
@@ -279,6 +280,24 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
+  it("Japan water 只走 owner-authenticated Range sidecar，不落入公開 static/CDN", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/jp-water\/\(water\|extra-water\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/jp-water \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/jp-water"');
+    expect(privateResearchServer).toContain('const JP_WATER_S3_PREFIX = "private-research/jp-water"');
+    expect(privateResearchServer).toContain('const JP_WATER_S3_BUCKET = "migu-private-research-ap-southeast-2"');
+    expect(privateResearchServer).toContain('sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da"');
+    expect(privateResearchServer).toContain('sha256: "e41775f0ae3d33c04866896b0002002d20338937d11f124c51461017409a5bf9"');
+    expect(uploadScript).not.toContain("jp_water_national_local");
+    expect(pullScript).not.toContain("private-research/jp-water");
+  });
+
   it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
     const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
     expect(match, "public dist fallback missing").not.toBeNull();
