@@ -1,6 +1,6 @@
-# 本地驗收 2026-09-18
+# 驗收 2026-09-18／19
 
-範圍：隔離 worktree codex/historical-flight-trails-20260918。本地實作，未整合主分支、commit、上傳或部署。
+範圍：已整合的歷史航班圖層、S3 靜態資產與 production 供應鏈。PR #313 已 merge，Zeabur deployment `6aae2d9c` 對應 commit `becb3e9e`，完成後為 `RUNNING`。
 
 ## 資料
 
@@ -21,9 +21,17 @@
 
 ## 費用與界線
 
-本次僅離線讀既有檔案，沒有付費抓取或上傳。此圖層 loader 只有manifest與版本化靜態資產GET，無資料庫或FR24 import。單元測試確認快取、in-flight合併與paint/filter不setData；未以network trace證明整個網站無資料庫請求（既有即時功能仍存在）。CDN儲存／流量仍可能有費用，不能承諾零費用。
+軌跡產製僅離線讀既有檔案，沒有付費補抓；2026-09-19 已另行上傳本節記錄的靜態資產。此圖層 loader 只有 manifest 與版本化靜態資產 GET，無資料庫或 FR24 import。單元測試確認快取、in-flight 合併與 paint/filter 不 setData；未以 network trace 證明整個網站無資料庫請求（既有即時功能仍存在）。S3 儲存與流量可能產生費用，不能承諾零費用。
 
-來源公開展示權、完整日補抓、發布headers/cache/readback、實體手機效能仍待完成。
+來源公開展示權（`license_status=unverified`）、完整日補抓與實體手機效能仍待完成。
+
+## S3 靜態資產發布 2026-09-19
+
+- `scripts/deploy/publish_historical_flight_trails.py --apply` 已發布 `20260918-v1` 至 `deploy-assets/flight-trails`。receipt：[`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
+- 98 個 immutable GeoJSON 位於 `releases/20260918-v1/`，逐一 S3 readback 驗證 bytes、SHA-256、`application/geo+json` 與 `public,max-age=31536000,immutable`；manifest 亦完成 readback，為 `application/json` 與 `public,max-age=60,s-maxage=60,stale-while-revalidate=300`。共 99 個物件。
+- publisher 使用 concurrency 4；先完成所有 immutable assets，再以 conditional write 發布 manifest。部署 pull 亦先同步 release，成功後才以暫存檔原子替換 manifest；失敗時保留舊 manifest。nginx 對 `/flight-trails` 只由 `/data` 供應、缺檔 `404`，不會回落 SPA HTML。
+- Production HTTP readback 於 `2026-09-19T06:48:11Z` 通過：manifest 為 65,642 bytes、SHA-256 `de3bb94a…`、`application/json`、短快取；桃園 2/20 與羽田 2/18 GeoJSON 分別為 7,191,304 與 19,099,243 bytes，皆與 manifest SHA 完全相符、`application/geo+json`、一年 immutable cache。見 [`evidence/20260919-production-http-readback.json`](evidence/20260919-production-http-readback.json)。
+- Production 桌面 browser 以同源 URL 開啟台灣全部機場預設 2/20，3D 藍白航跡可見，console error／warn 為 0。此證據不取代真機效能驗收。
 
 ## Flight Arc globe／細線改造驗收
 
@@ -36,7 +44,7 @@
 - 瀏覽器全球：z1.83 正面航跡貼球；旋轉至 `lng=-79.1027, lat=-42.0035` 的背面視角後航跡完全隱藏；z4.5 過渡視角未見穿球或跳線。
 - 初次 browser 驗收抓到 shader `color` 重複宣告並已修正；修正後沒有新增 WebGL error。全套162檔／1364 tests pass、3 skipped；`tsc -b` 通過。
 - 無連續repaint loop；opacity/線條強度/filter維持geometry，樣式重載復原測試通過。
-- 尚無真機效能或部署證據；本次未付費抓取、上傳或部署。
+- 尚無真機效能證據；production deployment 與 HTTP/browser 證據已完成。本次沒有付費抓取。
 
 ## 全部機場驗收
 

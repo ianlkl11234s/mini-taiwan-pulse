@@ -8,7 +8,7 @@ SSOT位於 `/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-
 
 版本為historical-flight-trails-v1，前端型別見src/data/historicalFlightTrailsTypes.ts。離線exporter保留全部有效可連線原始點，不抽稀/不round/不平滑；Mapbox tolerance=0。改用3D custom layer：藍白逐點高度漸層；高度倍率預設3、可調。依使用者指示，同航班觀測空白直接連線，原始資料與缺口計數不變；介面註明直線連接不表示有中間觀測資料。
 
-manifest.json採session固定快照，asset以releases/<release_id>分開，bytes/hash驗解碼UTF8。這是規劃的pointer發布前本地實作；正式發布前需指定不可變release及更新發布流程，尚未建current.json。
+manifest.json 採 session 固定快照，asset 以 `releases/<release_id>` 分開，bytes/hash 驗解碼 UTF-8。`20260918-v1` 已發布到 S3 `deploy-assets/flight-trails`：98 份 immutable GeoJSON 與 manifest 共 99 物件，bytes／SHA-256／Content-Type／Cache-Control readback 已成功；receipt 見 [`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。不使用 `current.json`。
 
 本地 fixtures 共129 selector：98 partial有線，31 unavailable沒可畫線；不可把 availableCount 當查詢完整度。一般03/10與03/14僅保留TW桃園／高雄少量資料；TW02/20春節有16/17場，日本只採02/18，涵蓋 `airport-points` 中 country=JP 的78/78場。這78場不等於日本所有登記飛行場，也不代表來源查詢或逐航班完整。恆春保留選項，仍無資料。
 
@@ -29,6 +29,10 @@ python3 -m unittest scripts/preprocess/test_export_historical_flight_trails.py
 ./node_modules/.bin/vite --host 127.0.0.1 --port 3737 --strictPort
 ```
 
-exporter必要引數以--help為準。現有local artifacts在public/flight-trails（gitignored），Vite dev可讀；build會移除，不會隨app發布。production只有設定VITE_FLIGHT_TRAILS_CDN_BASE才可載入，無自動Supabase/FR24 fallback；沒有任何付費補抓或上傳腳本被執行。
+exporter 必要引數以 `--help` 為準。現有 local artifacts 在 `public/flight-trails`（gitignored），Vite dev 可讀；build 會移除，不會隨 app 發布。前端預設讀同源 `/flight-trails`，可由 `VITE_FLIGHT_TRAILS_CDN_BASE` 覆寫，無自動 Supabase／FR24 fallback。
+
+發布用 `scripts/deploy/publish_historical_flight_trails.py` 固定 concurrency 4，依 manifest allowlist 發布 immutable release，所有 asset readback 成功後才以 conditional write 發布 manifest。`scripts/deploy/pull-deploy-assets.sh` 先同步 `releases/`，再下載至暫存檔並原子替換 manifest；同步或 manifest 下載失敗均保留舊 manifest。nginx 從 `/data/flight-trails` 供應，缺檔 fail-closed 為 404，不可落入 SPA HTML；release cache 為 immutable，manifest 為短快取。
+
+PR #313 已以一般 merge commit `becb3e9e` 整合；Zeabur deployment `6aae2d9c` 完成並為 `RUNNING`。Production manifest、桃園 2/20 與羽田 2/18 資產的 HTTP bytes／SHA／MIME／cache readback 通過，桌面 browser 可顯示台灣全部機場預設 2/20 的 3D 航跡且 console 無 error／warn。證據見 `evidence/20260919-production-*.json`。`license_status=unverified`，不得把現有來源視為公開展示許可；真機效能亦未驗收。
 
 前端一般日不是完整示範，後續補抓需先核對來源查詢與信用額度。原始FR24授權未核對個別合約，本地成果不能當公開發布許可。

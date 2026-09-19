@@ -1,12 +1,26 @@
 # Changelog
 
+## 2026-09-19 — Production 驗收完成
+
+- PR #313 已以一般 merge commit `becb3e9e` 整合；Zeabur deployment `6aae2d9c` 完成並為 `RUNNING`。
+- 正式站 manifest、桃園 2/20 與羽田 2/18 資產均通過 HTTP status、MIME、cache、bytes 與 SHA-256 readback；桌面 browser 顯示台灣全部機場 2/20 的 3D 藍白航跡，console 無 error／warn。
+- 證據：[`evidence/20260919-production-deployment.json`](evidence/20260919-production-deployment.json)、[`evidence/20260919-production-http-readback.json`](evidence/20260919-production-http-readback.json)。真機效能與來源公開展示授權仍未完成。
+
+## 2026-09-19 — S3 靜態資產發布，production 尚未驗收
+
+- 以 `scripts/deploy/publish_historical_flight_trails.py` 發布 `20260918-v1` 至 `deploy-assets/flight-trails`：98 個 GeoJSON 與 manifest，共 99 個物件；逐一完成 S3 bytes、SHA-256、Content-Type 與 Cache-Control readback。receipt：[`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
+- immutable release 使用一年 immutable cache；manifest 使用 60 秒 shared cache 加 stale-while-revalidate。發布器固定 concurrency 4，所有 release asset 成功後才 conditional write manifest。
+- `pull-deploy-assets.sh` 先同步 release，再以暫存檔原子替換 manifest；nginx `/flight-trails` fail-closed，缺檔為 404、不回落 SPA HTML。
+- loader 預設讀取同源 `/flight-trails`，可用 `VITE_FLIGHT_TRAILS_CDN_BASE` 覆寫，沒有 DB／FR24 fallback。
+- 此段為發布當下狀態；後續 PR／deployment／production readback 見上方 production 驗收條目。
+
 ## 2026-09-18 — 本地實作，尚未發布
 
 - 新增台灣／日本歷史航班層、機場/樣本日期、方向/跨境篩選、透明度/線寬、圖例與popup。
 - 原始有效點不抽稀，時間/日期線/無效點處切段，不補假線；本地98資產、3,775,824保留點。
 - CDN-only loader、SHA/bytes驗證、in-flight去重、LRU3份；離線與前端零FR24/DB新增查詢路徑。
 - 一般日資料缺口保留unavailable/partial，春節列特殊案例。
-- 只在獨立worktree開發，未commit/push/上傳/部署。
+- 當時只在獨立 worktree 開發，尚未發布；後續 S3 發布狀態見 2026-09-19 條目。
 
 ## 2026-09-18 3D 修正（本地）
 
