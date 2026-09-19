@@ -12,6 +12,7 @@ import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { GFW_PMTILES_SOURCE_TYPE, registerGfwPmtilesSourceTypeOnce } from "../map/gfwPmtilesSourceType";
 import { showTransientNotice } from "../components/TransientNotice";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { timeStore } from "../state/timeStore";
 import {
   getGfwHourlyGridDataWindowSnapshot,
@@ -532,6 +533,7 @@ export function useGfwHourlyGridLayer(
           utcDateLabel: manifest.dateStart === manifest.dateEndInclusive
             ? manifest.dateStart
             : `${manifest.dateStart} ~ ${manifest.dateEndInclusive}`,
+          latestCompleteDate: manifest.dateEndInclusive,
         };
         windowStates = {
           "in-window": { status: "in-window", ...shared },
@@ -872,7 +874,7 @@ export function useGfwHourlyGridLayer(
       applyGridPaint(map, isV4GridManifest(manifest));
       if (manifest && visible && activation === activationRef.current && noticeActivationRef.current !== activation) {
         noticeActivationRef.current = activation;
-        showTransientNotice(`GFW 小時網格資料最新完整日：${manifest.dateEndInclusive}（UTC，非即時）`);
+        showTransientNotice(`GFW 小時網格資料最新完整日：${gfwFreshness(manifest.dateEndInclusive).label}（非即時）`);
       }
       await loadHourPair(timeStore.getTime());
     };

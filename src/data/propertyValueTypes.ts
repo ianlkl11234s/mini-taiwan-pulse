@@ -9,7 +9,7 @@
  *   1. overlayRegistry —— buildingsGba 第 5 模式「估值」fill-color + propertyValueGrid fill-color/opacity
  *   2. LegendPanel    —— BuildingsGbaLegend(modeIdx=4) + PropertyValueGridLegend
  *   3. featureInfo    —— BuildingsGbaPanel（估值列）+ PropertyValueGridPanel
- *   4. PropertyValuePanel —— 縣市總市值長條圖（金額格式化共用）
+ *   4. propertyValueAdmin Statistics —— 行政區總市值另由 propertyValueAdminTypes 管理
  *
  * ⚠️ 金額單位：PMTiles 的 `v` / `v_mkt` / `v_all` 皆為 **萬元**（×10,000 = 元）；
  *    admin_value.json 的 `value_*` 欄位皆為 **元**。兩者用不同 formatter，別混用。
@@ -219,7 +219,7 @@ export function scaleFromGridId(gridId: unknown): PropertyValueScale {
   );
 }
 
-/** 150m 尺度的 band（PropertyValuePanel 長條圖色帶取樣用；圖例/popup 一律走 scale.bands） */
+/** 150m 尺度的 band（網格圖例/popup 一律走 scale.bands） */
 export const PROPERTY_VALUE_GRID_BANDS: GridColorBand[] = PROPERTY_VALUE_SCALES[0]!.bands;
 
 /** 總市值網格 fill-color：依該尺度 9 級 step 上色（0 值格靠 opacity 淡出，不另給色） */

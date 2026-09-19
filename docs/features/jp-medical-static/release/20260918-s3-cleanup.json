@@ -1,0 +1,13 @@
+{
+  "time": "2026-09-18T06:23:30.635871+00:00",
+  "deleted_version": "d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a",
+  "deleted_objects": 780,
+  "deleted_bytes": 1640390593,
+  "kept_current": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "kept_rollback": "6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "before_objects": 1561,
+  "before_bytes": 3813223744,
+  "after_objects": 790,
+  "after_bytes": 2794462039,
+  "net_saved_bytes": 1018761705
+}

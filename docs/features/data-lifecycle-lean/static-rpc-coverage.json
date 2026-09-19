@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-09-18",
+  "base": "https://mini-taiwan-pulse.itsmigu.com/static-rpc/",
+  "method": "GET Range bytes=0-511",
+  "scope": "all 14 staticRpc production call names matched exporter RPCS",
+  "results": [
+    {"name":"get_gas_station_layers","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_osm_wind_turbines","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_osm_solar_farms","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_renewable_permits_taipei","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_offshore_wind_zones","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_geothermal_wells","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_island_power_grid","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_ev_charging_stations","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_facility_counts","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_disposal_point_counts","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_routes","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_facilities","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_disposal_points","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["},
+    {"name":"get_waste_cleaning_squads","status":200,"content_type":"application/json","size_bytes":null,"json_start":"["}
+  ],
+  "limitations": ["Origin did not emit Content-Length for the bounded GET; size_bytes is null rather than inferred.", "This proves public asset availability and JSON start bytes, not freshness or full-body validity."]
+}

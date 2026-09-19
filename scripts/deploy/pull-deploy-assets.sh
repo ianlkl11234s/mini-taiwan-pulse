@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -88,7 +88,7 @@ aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
 echo "[pull] sync forestry → $DATA_DIR/forestry/"
-aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress
+aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson"
 
 # 養殖漁業：鏡像子前綴 deploy-assets/fishery/ → /data/fishery/（ponds/衛星偵測 PMTiles 大檔；生產區/箱網 geojson 小檔在 dist fallback）
 echo "[pull] sync fishery → $DATA_DIR/fishery/"
@@ -140,38 +140,25 @@ aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 echo "[pull] sync world → $DATA_DIR/world/"
 aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
 
-# GFW immutable daily/hourly releases 先 sync，root manifest 最後才以 tmp+mv 原子切換。
-# 不加 --delete：release retention 切換時允許容器短暫保留舊 release，
-# 避免拿到舊 manifest 的讀者遇到 404。
-echo "[pull] sync global-maritime/gfw-hourly → $DATA_DIR/global-maritime/gfw-hourly/"
-aws s3 sync "$S3/global-maritime/gfw-hourly/" "$DATA_DIR/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json" --exclude "v4/manifest.json"
-if aws s3 cp "$S3/global-maritime/gfw-hourly/manifest.json" \
-  "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" --no-progress; then
-  mv "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" \
-    "$DATA_DIR/global-maritime/gfw-hourly/manifest.json"
-fi
-# v3 shadow 與 canonical 共用 immutable release 同步順序；shadow 指標同樣最後 tmp+mv，
-# 不能讓 runtime shadow 開關讀到一半新舊 release 的 manifest。
-mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow"
-if aws s3 cp "$S3/global-maritime/gfw-hourly/v3-shadow/manifest.json" \
-  "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" --no-progress; then
-  mv "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
-    "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json"
+# 歷史航班：release 資產先完整同步，再原子更新短快取 manifest。
+# 不使用 --delete，讓仍持有舊 manifest 的瀏覽器可繼續讀既有 immutable release。
+echo "[pull] sync flight-trails releases → $DATA_DIR/flight-trails/releases/"
+FLIGHT_TRAILS_MANIFEST_TMP="$DATA_DIR/flight-trails/manifest.json.tmp"
+if aws s3 sync "$S3/flight-trails/releases/" "$DATA_DIR/flight-trails/releases/" --no-progress; then
+  if aws s3 cp "$S3/flight-trails/manifest.json" "$FLIGHT_TRAILS_MANIFEST_TMP" --no-progress; then
+    mv -f "$FLIGHT_TRAILS_MANIFEST_TMP" "$DATA_DIR/flight-trails/manifest.json"
+  else
+    rm -f "$FLIGHT_TRAILS_MANIFEST_TMP"
+    echo "[pull] WARNING: flight-trails manifest unavailable; retaining previous manifest" >&2
+  fi
+else
+  echo "[pull] WARNING: flight-trails release sync failed; retaining previous manifest" >&2
 fi
 
-# v4 正式 release 尚未發佈時完全不影響既有服務；一旦上游先放好 immutable
-# releases 與 root manifest，才同步 releases 後以 tmp+mv 原子切換指標。
-mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v4/releases"
-if aws s3 ls "$S3/global-maritime/gfw-hourly/v4/manifest.json" >/dev/null 2>&1; then
-  echo "[pull] sync global-maritime/gfw-hourly/v4 releases → $DATA_DIR/global-maritime/gfw-hourly/v4/"
-  if aws s3 sync "$S3/global-maritime/gfw-hourly/v4/releases/" \
-    "$DATA_DIR/global-maritime/gfw-hourly/v4/releases/" --no-progress && \
-    aws s3 cp "$S3/global-maritime/gfw-hourly/v4/manifest.json" \
-      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" --no-progress; then
-    mv "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" \
-      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json"
-  fi
+# GFW uses one shared manifest-bound verifier for startup and periodic refresh.
+# A failed candidate leaves the prior complete release serving.
+if ! /usr/local/bin/refresh-gfw-hourly.sh; then
+  echo "[pull] WARNING: GFW candidate rejected; retaining previous release" >&2
 fi
 
 # 觀光：鏡像子前綴 deploy-assets/tourism/ → /data/tourism/（景點/旅宿/餐飲 D 類 3 大檔；其餘 9 檔 C 類在 dist fallback）

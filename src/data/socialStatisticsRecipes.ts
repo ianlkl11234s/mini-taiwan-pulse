@@ -38,7 +38,12 @@ export interface SocialRecipe {
   source_family?: string;
 }
 
+export type SocialStatisticsScope =
+  | "local_frontend_wiring_ready_not_production"
+  | "production_published";
+
 interface SocialRecipeDocument {
+  scope: SocialStatisticsScope;
   recipes: SocialRecipe[];
 }
 
@@ -50,6 +55,7 @@ export const SOCIAL_ENABLED_STATISTICS_KEYS = [
 export type SocialStatisticsLayerKey = typeof SOCIAL_ENABLED_STATISTICS_KEYS[number];
 
 const document = JSON.parse(rawRecipes) as SocialRecipeDocument;
+export const SOCIAL_STATISTICS_SCOPE = document.scope;
 export const SOCIAL_STATISTICS_RECIPES = document.recipes;
 export const SOCIAL_ENABLED_STATISTICS_RECIPES = SOCIAL_STATISTICS_RECIPES.filter((recipe) => recipe.enabled);
 export const SOCIAL_STATISTICS_RECIPES_BY_KEY = Object.fromEntries(

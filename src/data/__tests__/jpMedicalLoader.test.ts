@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchJpMedicalJsonAsset, jpMedicalLayerAsset, loadJpMedicalHours, retryJpMedicalCatalog } from "../jpMedicalLoader";
+import { fetchJpMedicalAggregate, fetchJpMedicalJsonAsset, jpMedicalLayerAsset, retryJpMedicalCatalog } from "../jpMedicalLoader";
 
 const encoder = new TextEncoder();
 async function digest(value: unknown) {
@@ -31,17 +31,6 @@ describe("jp medical content-addressed loader", () => {
     const catalog = { contract_version: 1, version: "v", layers: [], files: { "aggregates/navii-z6.geojson": { sha256: asset.sha256, bytes: asset.bytes.byteLength + 1 } } };
     vi.stubGlobal("fetch", vi.fn(async (url: string) => url.endsWith("current.json") ? Response.json({ version: "v", catalog: "releases/v/catalog.json" }) : url.endsWith("catalog.json") ? Response.json(catalog) : response(asset.bytes)));
     await expect(fetchJpMedicalJsonAsset("aggregates/navii-z6.geojson")).rejects.toThrow("bytes");
-  });
-
-  it("keeps all original-ID hour rows from the verified bucket envelope", async () => {
-    const sourceId = "facility-9";
-    const sourceHash = await crypto.subtle.digest("SHA-256", encoder.encode(sourceId));
-    const bucket = [...new Uint8Array(sourceHash)][0]!.toString(16).padStart(2, "0");
-    const envelope = { bucket, bucket_algorithm: "sha256(source_id UTF-8)[:2]", record_kind: "hospital_hours", rows: [{ ID: sourceId, weekday: "月", hours: "09:00-12:00" }, { ID: sourceId, weekday: "火", hours: "13:00-17:00" }, { ID: "other", weekday: "月" }] };
-    const asset = await digest(envelope); const path = `details/hospital_hours/${bucket}.json`;
-    const catalog = { contract_version: 1, version: "v", layers: [], files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } } };
-    vi.stubGlobal("fetch", vi.fn(async (url: string) => url.endsWith("current.json") ? Response.json({ version: "v", catalog: "releases/v/catalog.json" }) : url.endsWith("catalog.json") ? Response.json(catalog) : response(asset.bytes)));
-    await expect(loadJpMedicalHours("hospital", sourceId, bucket)).resolves.toEqual(envelope.rows.slice(0, 2));
   });
 
   it("rejects an asset whose bytes match but SHA-256 does not", async () => {
@@ -86,31 +75,47 @@ describe("jp medical content-addressed loader", () => {
     });
   });
 
+  it("only accepts an aggregate whose mapped counts reconcile to its pinned catalog", async () => {
+    const aggregate = { type: "FeatureCollection", features: [{
+      type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+      properties: { grid_id: "6/0/0", grid_zoom: 6, record_kind: "hospital", mapped_point_count: 2, source_record_count: 2, excluded_no_coordinate_count: 0 },
+    }] };
+    const asset = await digest(aggregate);
+    const path = "aggregates/navii-z6.geojson";
+    const catalog = {
+      contract_version: 1, version: "v", files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } },
+      datasets: { navii: { national_totals: { hospital: { mapped_point_count: 2 } } } },
+      layers: [{ key: "navii_facilities", pmtiles_path: "points/navii.pmtiles", source_layer: "navii", aggregate_path: path }],
+    };
+    stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, asset.bytes);
+    await expect(fetchJpMedicalAggregate("navii_facilities")).resolves.toMatchObject({ type: "FeatureCollection" });
+  });
+
+  it("accepts a 10km equal-area category grid only when every category and total reconcile", async () => {
+    const aggregate = { type: "FeatureCollection", features: [{
+      type: "Feature", geometry: { type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 0]]] },
+      properties: {
+        grid_id: "J10000_0_0", grid_size_m: 10_000, grid_crs: "EPSG:6933", aggregate_schema: "category_columns_v1",
+        mapped_point_count: 3, hospital_count: 2, clinic_count: 1, dental_count: 0, maternity_count: 0, pharmacy_count: 0,
+      },
+    }] };
+    const asset = await digest(aggregate);
+    const path = "aggregates/navii-density-10km.geojson";
+    const catalog = {
+      contract_version: 1, version: "v", files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } },
+      datasets: { navii: { national_totals: {
+        hospital: { mapped_point_count: 2 }, clinic: { mapped_point_count: 1 }, dental: { mapped_point_count: 0 },
+        maternity: { mapped_point_count: 0 }, pharmacy: { mapped_point_count: 0 },
+      } } },
+      layers: [{ key: "navii_facilities", pmtiles_path: "points/navii.pmtiles", source_layer: "navii", aggregate_path: path }],
+    };
+    stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, asset.bytes);
+    await expect(fetchJpMedicalAggregate("navii_facilities")).resolves.toMatchObject({ features: [{ properties: { grid_size_m: 10_000 } }] });
+  });
+
   it("rejects paths not explicitly present in the immutable allowlist", async () => {
     const catalog = { contract_version: 1, version: "v", layers: [], files: {} };
     stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, new Uint8Array());
     await expect(fetchJpMedicalJsonAsset("details/hospital_hours/aa.json")).rejects.toThrow("allowlist");
-  });
-
-  it("rejects a valid-bucket hours payload with the wrong record kind", async () => {
-    const sourceId = "facility-kind";
-    const sourceHash = await crypto.subtle.digest("SHA-256", encoder.encode(sourceId));
-    const bucket = [...new Uint8Array(sourceHash)][0]!.toString(16).padStart(2, "0");
-    const envelope = { bucket, record_kind: "clinic_hours", rows: [{ ID: sourceId }] };
-    const asset = await digest(envelope); const path = `details/hospital_hours/${bucket}.json`;
-    const catalog = { contract_version: 1, version: "v", layers: [], files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } } };
-    stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, asset.bytes);
-    await expect(loadJpMedicalHours("hospital", sourceId, bucket)).rejects.toThrow("格式");
-  });
-
-  it("rejects a verified hours envelope whose declared bucket differs from source ID", async () => {
-    const sourceId = "facility-bucket";
-    const sourceHash = await crypto.subtle.digest("SHA-256", encoder.encode(sourceId));
-    const bucket = [...new Uint8Array(sourceHash)][0]!.toString(16).padStart(2, "0");
-    const envelope = { bucket: bucket === "00" ? "01" : "00", record_kind: "hospital_hours", rows: [{ ID: sourceId }] };
-    const asset = await digest(envelope); const path = `details/hospital_hours/${bucket}.json`;
-    const catalog = { contract_version: 1, version: "v", layers: [], files: { [path]: { sha256: asset.sha256, bytes: asset.bytes.byteLength } } };
-    stubCatalog(catalog, { version: "v", catalog: "releases/v/catalog.json" }, asset.bytes);
-    await expect(loadJpMedicalHours("hospital", sourceId, bucket)).rejects.toThrow("格式");
   });
 });

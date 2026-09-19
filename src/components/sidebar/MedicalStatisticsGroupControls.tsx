@@ -10,19 +10,29 @@ import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeStore';
 import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
 import { FONT_SIZE, RADIUS } from '../../styles/designTokens';
+import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
 
 interface Props {
   groupKey: string;
   visibility: LayerVisibility;
   expandedLayer: string | null;
-  onLayerClick: (key: keyof LayerVisibility) => void;
+  onLayerClick: (key: keyof LayerVisibility, intent?: LayerClickIntent) => void;
   renderControls: (key: keyof LayerVisibility) => ReactNode;
   renderToggle?: (on: boolean, onChange: () => void, label: string) => ReactNode;
   textColor?: string;
   dimColor?: string;
+  colorScheme: 'light' | 'dark';
 }
 
-export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af' }: Props) {
+/** Keep the native select aligned with the surrounding sidebar palette. */
+export function medicalStatisticsSelectStyle(textColor: string, colorScheme: 'light' | 'dark') {
+  return {
+    width: '100%', boxSizing: 'border-box' as const, padding: '5px 8px', borderRadius: RADIUS.md,
+    border: '1px solid currentColor', background: 'transparent', color: textColor, colorScheme, font: 'inherit',
+  };
+}
+
+export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af', colorScheme }: Props) {
   const group = getMedicalStatisticsGroup(groupKey);
   const [preferred, setPreferred] = useState<keyof LayerVisibility | undefined>();
   const [error, setError] = useState('');
@@ -53,7 +63,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     }
     setPreferred(next);
     setError('');
-    if (expandedLayer !== next) onLayerClick(next);
+    if (expandedLayer !== next) onLayerClick(next, 'statistics-variant-switch');
   };
   const toggle = () => {
     switchRequest.current += 1;
@@ -78,7 +88,7 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     {expanded && <>
       <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
         <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
-        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={{ width: '100%', boxSizing: 'border-box', padding: '5px 8px', borderRadius: RADIUS.md, border: '1px solid #64748b', background: '#182230', color: '#f3f4f6', font: 'inherit' }}>
+        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={medicalStatisticsSelectStyle(textColor, colorScheme)}>
           {group.options.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
         </select>
         {switching && <p role="status" style={{ color: dimColor }}>正在確認目標期別…</p>}

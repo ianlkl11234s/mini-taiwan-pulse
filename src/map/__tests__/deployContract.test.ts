@@ -30,9 +30,11 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 
+const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
 const nginxConf = readFileSync("nginx.conf", "utf8");
 const pullScript = readFileSync("scripts/deploy/pull-deploy-assets.sh", "utf8");
@@ -47,6 +49,8 @@ const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
 const dockerIgnore = readFileSync(".dockerignore", "utf8");
+const privateResearchServer = readFileSync("server/coral-private/coral-private-server.mjs", "utf8");
+const historicalFlightPublisher = readFileSync("scripts/deploy/publish_historical_flight_trails.py", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -209,6 +213,9 @@ const UPLOAD_RES = UPLOAD.globs.map(globToRe);
 /** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
 function uploadCovers(path: string): boolean {
   if (medicalUploadPaths.has(path)) return true;
+  if (path === "flight-trails/manifest.json") {
+    return historicalFlightPublisher.includes('PREFIX = "deploy-assets/flight-trails"');
+  }
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
@@ -246,6 +253,10 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "world/jp_wildlife_protection_moe_202504.pmtiles",
   "world/jp_world_natural_heritage_ksj_2011.geojson",
   "world/jp_ramsar_moe_current.geojson",
+  // Japan water national research assets：只可由 owner-authenticated Range API
+  // 讀取 private immutable objects，不得進 public/dist/CDN upload allowlist。
+  "PRIVATE_OWNER_ONLY: water.pmtiles",
+  "PRIVATE_OWNER_ONLY: extra-water.pmtiles",
 ]);
 
 /**
@@ -269,18 +280,39 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
-  it("Ookla dist publication assets retain cache headers, MIME types, and Range-capable static serving", () => {
-    const match = nginxConf.match(
-      /location ~ \^\/geo\/ookla_\(fixed_global\|mobile_global\|tw_z14\|tw_z16\).*?\{([\s\S]*?)\n    \}/,
-    );
-    expect(match, "Ookla exact publication location missing").not.toBeNull();
+  it("Japan water 只走 owner-authenticated Range sidecar，不落入公開 static/CDN", () => {
+    const location = nginxConf.match(/location ~ \^\/api\/private-research\/jp-water\/\(water\|extra-water\)\$ \{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(location).toContain("proxy_pass http://127.0.0.1:8796;");
+    expect(location).toContain("proxy_set_header Authorization $http_authorization;");
+    expect(location).toContain("proxy_set_header Range $http_range;");
+    expect(location).toContain("proxy_cache off;");
+    expect(location).toContain('Cache-Control "private, no-store"');
+    expect(location).not.toMatch(/root |alias |try_files/);
+    expect(nginxConf).toMatch(/location \/api\/private-research\/jp-water \{\s*return 404;/);
+    expect(viteConfig).toContain('"/api/private-research/jp-water"');
+    expect(privateResearchServer).toContain('const JP_WATER_S3_PREFIX = "private-research/jp-water"');
+    expect(privateResearchServer).toContain('const JP_WATER_S3_BUCKET = "migu-private-research-ap-southeast-2"');
+    expect(privateResearchServer).toContain('sha256: "dd82b5f53b95e544182c11400dc6dac17a8455bab150b0509df909c1848737da"');
+    expect(privateResearchServer).toContain('sha256: "e41775f0ae3d33c04866896b0002002d20338937d11f124c51461017409a5bf9"');
+    expect(uploadScript).not.toContain("jp_water_national_local");
+    expect(pullScript).not.toContain("private-research/jp-water");
+  });
+
+  it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
+    const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
+    expect(match, "public dist fallback missing").not.toBeNull();
     const body = match?.[1] ?? "";
     expect(body).toContain("root /usr/share/nginx/html;");
-    expect(body).toContain("try_files $uri =404;");
-    expect(body).toContain("application/geo+json geojson;");
-    expect(body).toContain("application/vnd.pmtiles pmtiles;");
+    expect(nginxConf).toMatch(/server \{[\s\S]*?include mime\.types;[\s\S]*?application\/geo\+json geojson;[\s\S]*?application\/vnd\.pmtiles pmtiles;/);
     expect(body).toContain("expires 1d;");
     expect(body).toContain('add_header Cache-Control "public";');
+    expect(body).not.toContain("/index.html");
+    const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
+    expect(gzipTypes).toContain("application/geo+json");
+    expect(gzipTypes).not.toContain("application/vnd.pmtiles");
+    const ookla = nginxConf.match(/location ~ \^\/geo\/ookla_[^\n]+\{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(ookla).toContain("root /usr/share/nginx/html;");
+    expect(ookla).toContain("try_files $uri =404;");
   });
 
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {
@@ -329,6 +361,21 @@ describe("deploy 契約（nginx + pull script）", () => {
     expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
   });
 
+  it("historical flight exact publisher/pull/nginx supply immutable releases before the manifest", () => {
+    expect(uploadCovers("flight-trails/manifest.json")).toBe(true);
+    expect(uploadCovers("flight-trails/private.json")).toBe(false);
+    expect(pullCovers("flight-trails")).toBe(true);
+    expect(locationFor("flight-trails/releases/20260918-v1/tw_RCTP_2026-02-20.geojson")?.readsData).toBe(true);
+    expect(pullScript.indexOf('$S3/flight-trails/releases/')).toBeLessThan(pullScript.indexOf('$S3/flight-trails/manifest.json'));
+    expect(pullScript).toContain('mv -f "$FLIGHT_TRAILS_MANIFEST_TMP" "$DATA_DIR/flight-trails/manifest.json"');
+    expect(nginxConf).toContain("location = /flight-trails/manifest.json");
+    expect(nginxConf).toContain("location ^~ /flight-trails/releases/");
+    expect(nginxConf).toContain('Cache-Control "public,max-age=31536000,immutable"');
+    expect(nginxConf).toContain('Cache-Control "public,max-age=60,s-maxage=60,stale-while-revalidate=300"');
+    expect(historicalFlightPublisher).toContain('IfNoneMatch="*"');
+    expect(historicalFlightPublisher).toContain('max_workers=MAX_WORKERS');
+  });
+
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {
     expect(sourceUrls.length).toBeGreaterThan(30);
     expect(referencedDirs.size).toBeGreaterThanOrEqual(3); // geo / forestry / agriculture ...
@@ -360,26 +407,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
   });
 
   it("GFW S3 先同步 immutable releases 再原子切 root，container 週期追新", () => {
-    const refreshSync = gfwRefreshScript.indexOf("aws s3 sync");
-    const refreshManifest = gfwRefreshScript.indexOf("manifest.json.tmp");
-    expect(refreshSync).toBeGreaterThanOrEqual(0);
-    expect(refreshManifest).toBeGreaterThan(refreshSync);
-    expect(gfwRefreshScript).toContain('--exclude "manifest.json"');
-    expect(gfwRefreshScript).toContain('mv "/data/global-maritime/gfw-hourly/manifest.json.tmp"');
-    expect(gfwRefreshScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(gfwRefreshScript).toContain('v4/manifest.json');
-    expect(gfwRefreshScript).toContain('v4/releases/');
-    expect(gfwRefreshScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript).toContain('$S3/global-maritime/gfw-hourly/');
-    expect(pullScript).toContain('--exclude "v3-shadow/manifest.json"');
-    expect(pullScript).toContain('--exclude "v4/manifest.json"');
-    expect(pullScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(pullScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript.indexOf('--exclude "manifest.json"'))
-      .toBeLessThan(pullScript.indexOf('manifest.json.tmp'));
-    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-21600");
+    expect(gfwRefreshScript).toContain('exec flock -n');
+    expect(gfwRefreshScript).toContain('/refresh-gfw-hourly.mjs');
+    expect(gfwRefreshScript).not.toContain('aws s3 sync');
+    expect(pullScript).toContain('/usr/local/bin/refresh-gfw-hourly.sh');
+    expect(pullScript).not.toContain('aws s3 sync "$S3/global-maritime/gfw-hourly/"');
+    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-3600");
     expect(entrypoint).toContain("/usr/local/bin/refresh-gfw-hourly.sh");
     expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.sh");
+    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.mjs");
   });
 
   it("GFW v4 local fixture 只接受可驗證的正式 immutable release，不偷接 /private/tmp POC", () => {
@@ -492,6 +528,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const [path, keys] of [...ASSETS].sort()) {
       if (isEmptyShell(path)) continue;
       if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      if (path === forestReceipt.public_url) {
+        const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
+        expect(forestReceipt.readback).toBe("PASS");
+        expect(payload.length).toBe(forestReceipt.bytes);
+        expect(createHash("sha256").update(payload).digest("hex")).toBe(forestReceipt.sha256);
+        expect(path).toContain(`/releases/${forestReceipt.sha256}/`);
+        expect(forestReceipt.http.some((check: { headers: string[] }) => check.headers.includes("cf-cache-status: HIT"))).toBe(true);
+        continue;
+      }
       const dir = path.split("/")[0] as string;
       if (EXTERNAL_UPLOAD_LEDGER.has(dir)) {
         if (!pullCovers(dir)) broken.push(`${path}（${keys.join("/")}）: pull 沒同步 ${dir}/`);

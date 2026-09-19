@@ -72,7 +72,10 @@ S3 `deploy-assets/urban/buildings_3d_taiwan.pmtiles` 已無人引用，可刪（
 人口資料」，磚換新後自動恢復，不需改前端。
 
 **`property_value_admin.json`**：`meta.total_trillion`（headline）/ `meta.limitations`（摺疊必露）/
-`meta.license_note` / `county[].value_market_corrected`（⭐ 長條圖主數字，**單位是元不是萬元**）。
+`meta.license_note` / `county[].value_market_corrected` / `township[].value_market_corrected`
+（⭐ 行政區 choropleth 主數字，**單位是元不是萬元**）。實際覆蓋為
+19 / 22 縣市、352 / 368 鄉鎮市區；缺金門、連江、澎湖，缺值不得當作 0。
+嘉義市（`10020`）與其兩區已在來源內。
 
 ## 接線點清單
 
@@ -85,12 +88,14 @@ S3 `deploy-assets/urban/buildings_3d_taiwan.pmtiles` 已無人引用，可刪（
 | `src/map/buildingsNightBloomCustomLayer.ts` | `properties.height` → `properties.h` |
 | `src/components/LegendPanel.tsx` | BuildingsGbaLegend mode 4 分支；🆕 `PropertyValueGridLegend` |
 | `src/components/featureInfo/urbanPanels.tsx` | BuildingsGbaPanel 加估值三列；🆕 `PropertyValueGridPanel` |
-| `src/components/PropertyValuePanel.tsx` | 🆕 縣市總市值長條圖面板（IconRail `PiggyBank` 開關）|
+| `src/hooks/usePropertyValueAdminLayer.ts` | 行政區 PMTiles × admin JSON code join，以 feature-state 染色（縣市可全國尺度、鄉鎮市區 z6+）|
+| `src/data/propertyValueAdminTypes.ts` | 行政層級、固定級距、缺值色、元金額 formatter 與 feature-state 契約 |
+| `src/components/sidebar/PropertyValueStatisticsDetails.tsx` | Statistics 內顯示覆蓋、缺值、產製日與模型限制 |
 | `src/map/overlayManager.ts` | 🆕 `isOverlayVisible()`：toggle × 尺度的可見性解析（多尺度圖層唯一特例）|
 | `src/map/MapView.tsx` | 三處可見性計算改走 `isOverlayVisible`；effect deps 收 `propertyValueGridScaleIdx` |
 | `src/hooks/useTransportParams.ts` | 🆕 網格大小 select + opacity / 3D / 對比 / 高度 |
 | `src/hooks/useMapInteraction.ts` | 🆕 三尺度 ×2 sublayer 共 6 個 layer id → popup（排在 500m 都市紋理前，細者優先）|
-| `layerCatalog.ts` / `IconRailSidebar.tsx` / `types/index.ts` / `upstreamRegistry.ts` / `App.tsx` | 新 layer key 標準接線 |
+| `layerCatalog.ts` / `statisticsLayerRegistry.ts` / `IconRailSidebar.tsx` / `types/index.ts` / `App.tsx` | `propertyValueAdmin` 改為 Statistics choropleth；移除獨立 Icon Rail app |
 
 ## propertyValueGrid 的網格大小（150m / 450m / 1.5km，**純手動**）
 
@@ -289,6 +294,10 @@ paint function，切模式 = param 變動 → `updateOverlayTheme` diff `setPain
 
 ## Changelog
 
+- **2026-09-18 行政區統計圖層**：移除 Icon Rail 縣市長條圖 app，新增
+  `propertyValueAdmin` Statistics choropleth。沿用已進 Git 的 admin JSON 與既有縣市／鄉鎮
+  PMTiles，不新增上傳或儲存流程。可切縣市／鄉鎮市區、調透明度，並提供
+  legend、popup、覆蓋與限制說明；缺值行政區保留灰色，不冒充 0。
 - **2026-07-29 人均市值模式**（PR #95，squash `3a55e46`；上游 pop 欄 taipei-gis-analytics#30，
   同日並改圖層名為「不動產總市值網格 Value Grid」）：新增第二種上色模式 `propertyValueGridModeIdx`
   （0=總市值 / 1=人均 `v_mkt/pop` 萬元/人，僅 450m/1.5km；150m 無 `pop` → select disabled

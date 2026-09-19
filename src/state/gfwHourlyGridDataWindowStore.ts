@@ -4,6 +4,7 @@ export interface GfwHourlyGridDataWindowState {
   readonly startIso: string;
   readonly endIsoExclusive: string;
   readonly utcDateLabel: string;
+  readonly latestCompleteDate: string;
 }
 
 let snapshot: GfwHourlyGridDataWindowState | null = null;
@@ -13,7 +14,8 @@ export function setGfwHourlyGridDataWindowState(next: GfwHourlyGridDataWindowSta
   const previous = snapshot;
   if (previous === next) return;
   if (previous && next && previous.status === next.status && previous.startIso === next.startIso
-    && previous.endIsoExclusive === next.endIsoExclusive && previous.utcDateLabel === next.utcDateLabel) return;
+    && previous.endIsoExclusive === next.endIsoExclusive && previous.utcDateLabel === next.utcDateLabel
+    && previous.latestCompleteDate === next.latestCompleteDate) return;
   snapshot = next;
   for (const listener of listeners) listener();
 }

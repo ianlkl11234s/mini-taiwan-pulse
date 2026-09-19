@@ -1,0 +1,64 @@
+{
+  "time": "2026-09-18T06:26:54.074409+00:00",
+  "status": "PASS",
+  "current": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "files": 7,
+  "payload_bytes": 621621437,
+  "points": {
+    "navii_facilities": 189800,
+    "h17_services": 222194
+  },
+  "http_checks": [
+    {
+      "path": "aggregates/h17-z6.geojson",
+      "status": 200,
+      "bytes_read": 151147,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "aggregates/navii-z6.geojson",
+      "status": 200,
+      "bytes_read": 22900,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "areas/A38-20_1.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "areas/A38-20_2.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "areas/A38-20_3.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "points/h17_services.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    },
+    {
+      "path": "points/navii_facilities.pmtiles",
+      "status": 206,
+      "bytes_read": 127,
+      "cache_control": "public,max-age=31536000,immutable",
+      "cdn_cache": "HIT"
+    }
+  ],
+  "pmtiles_evidence": "full SHA verified during preparation and S3 readback; HTTP Range verified here",
+  "browser": "separate acceptance"
+}

@@ -6,7 +6,7 @@ import {
   OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR,
   OOKLA_GRID_META, OOKLA_TESTS_ALPHA_EXPR, ooklaSpeedColorExpr,
 } from "../data/telecomTypes";
-import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
+import { FOREST_RESERVE_PMTILES_URL, FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
   SEVERITY_COLOR_EXPR,
@@ -138,6 +138,7 @@ import {
 } from "../data/noiseTypes";
 import { PORT_CLASS_COLOR_EXPRESSION } from "../data/transportHubTypes";
 import {
+  JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
   JP_ACCOMMODATION_DENSITY_COLOR_EXPRESSION,
   JP_ACCOMMODATION_DENSITY_SCALES,
   type JpAccommodationDensityScale,
@@ -148,7 +149,7 @@ function jpAccommodationDensityOverlay(scale: JpAccommodationDensityScale): Over
     id: "jpAccommodationDensity",
     sourceUrl: scale.sourceUrl,
     sourceId: scale.sourceId,
-    attribution: "Derived from Japan accommodation canonical entities; source attribution retained in canonical product",
+    attribution: JP_ACCOMMODATION_DENSITY_ATTRIBUTION,
     pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
     layers: [
       {
@@ -228,9 +229,9 @@ function companyPointsDensityGridOverlay(scale: CompanyGridScale): OverlayConfig
     layers: [{
       suffix: "company-overview-density-fill", type: "fill",
       minzoom: is1500m ? 4 : 10,
-      // mapbox-pmtiles 的 vector source 固定 roundZoom=true：交界前會先取下一級 tile。
-      // 0.01 bridge 只維持 source 可取；paint 在精確交界 zoom 歸零，尺度不重疊。
-      maxzoom: overviewEndZoom + 0.01,
+      // Mapbox 的 maxzoom 為 exclusive；在交界精確停用舊格網，避免已透明的
+      // fill 仍被 queryRenderedFeatures 命中而攔截下一尺度／z12 公司點擊。
+      maxzoom: overviewEndZoom,
       // 格網未套用 detail filter，filters active 時絕不可顯示為篩選後總量。
       layout: (_isDark, p) => ({ visibility: companyPointFiltersActive(p) ? "none" : "visible" }),
       paint: (_isDark, p) => ({
@@ -5292,7 +5293,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 保安林（Polygon，按「種類」13 類配色）──
   {
     id: "forestReserve",
-    sourceUrl: "./forestry/forest_reserve.pmtiles",
+    sourceUrl: FOREST_RESERVE_PMTILES_URL,
     sourceId: "forest-reserve",
     pmtiles: { sourceLayer: "forest_reserve", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["fill", "outline"],

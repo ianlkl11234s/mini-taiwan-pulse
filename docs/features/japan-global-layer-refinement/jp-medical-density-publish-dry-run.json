@@ -1,0 +1,44 @@
+{
+  "version": "eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38",
+  "plan": "docs/features/japan-global-layer-refinement/jp-medical-density-publication-plan.json",
+  "apply": false,
+  "started_at": "2026-09-18T13:18:29.289110+00:00",
+  "objects": [
+    {
+      "relative_path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/h17-density-10km.geojson",
+      "key": "deploy-assets/jp-medical/releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/h17-density-10km.geojson",
+      "expected_sha256": "d68a8fcb8b4d9fdf4e015983eb65feb5d4fadbc211ab0914d2f2901420e2cc76",
+      "expected_bytes": 1712797,
+      "status": "planned"
+    },
+    {
+      "relative_path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/navii-density-10km.geojson",
+      "key": "deploy-assets/jp-medical/releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/aggregates/navii-density-10km.geojson",
+      "expected_sha256": "24ad3896153d9b6da4a1852e2df00ff9c4ac080f763abc0b633d06f0bd9fe175",
+      "expected_bytes": 1489098,
+      "status": "planned"
+    },
+    {
+      "relative_path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/catalog.json",
+      "key": "deploy-assets/jp-medical/releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/catalog.json",
+      "expected_sha256": "a1c2dc7c9f5d7e1c17544a5cd13287a4add1bbe9edff13a4673dc04867ed6a66",
+      "expected_bytes": 6448,
+      "status": "planned"
+    },
+    {
+      "relative_path": "releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/publication-manifest.json",
+      "key": "deploy-assets/jp-medical/releases/eed57ed37d1f7cdc936ff87937d5d0ca1ad5f6b75d10351a34abb02cbb3c8b38/publication-manifest.json",
+      "expected_sha256": "ac1ed5a5a11e0bbbc276b2341b2da1e1683fc7e90145990c41afa55a489e5331",
+      "expected_bytes": 2049,
+      "status": "planned"
+    },
+    {
+      "relative_path": "current.json",
+      "key": "deploy-assets/jp-medical/current.json",
+      "expected_sha256": "5a4f0b4951af55d192befe53a879f92512847b29baf27f7ef462f1f96b5ec1cf",
+      "expected_bytes": 359,
+      "status": "planned"
+    }
+  ],
+  "completed_at": "2026-09-18T13:18:29.289739+00:00"
+}

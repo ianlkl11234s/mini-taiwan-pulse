@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-18",
+  "production_url": "https://mini-taiwan-pulse.itsmigu.com",
+  "browser": "Codex in-app browser",
+  "all_off": {
+    "observed": "URL layers removed; Japanese panel all groups 0 active"
+  },
+  "hospital": {
+    "name": "宮内庁病院",
+    "layer": "jpMedicalHospitals",
+    "visible": [
+      "類型",
+      "地址",
+      "快照日期 2026-06-01",
+      "來源 厚生労働省 Navii",
+      "來源 ID"
+    ],
+    "absent": [
+      "網站",
+      "診療時段"
+    ]
+  },
+  "care": {
+    "name": "コミュケア訪問介護ステーション",
+    "layer": "jpCareHomeVisit",
+    "visible": [
+      "上位分類",
+      "原始服務類型 訪問介護",
+      "地址",
+      "來源 厚生労働省 H17",
+      "來源快照 2026-07-09"
+    ],
+    "absent": [
+      "機構 ID",
+      "來源 ID",
+      "資料粒度",
+      "幾何狀態"
+    ]
+  },
+  "notes": "Desktop visible map and actual point clicks; not physical-phone or performance benchmark evidence."
+}

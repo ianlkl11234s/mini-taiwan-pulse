@@ -83,6 +83,8 @@ def population_maps():
 
 def area_count(raw): return raw['values']['area_level']
 def source(raw): return raw['sources']['source']
+def comparison_dimensions(numerator_dimensions, roc_year, denominator_period):
+ return {**numerator_dimensions, 'roc_year':str(roc_year), 'denominator_period':denominator_period}
 def emit(out,key,name,level,geometry,base_source,upstream_health,rows,formula,inputs,dimensions,unit,description):
  release={'release_id':f'derived-{key}-{hashlib.sha256(json.dumps(inputs,sort_keys=True).encode()).hexdigest()[:16]}','dataset_id':'comparison_statistics','indicator_id':key,'boundary_version':base_source['boundary_version'],'period_start':base_source['period_start'],'period_end':base_source['period_end'],'levels':[level]}
  observed_map(rows)
@@ -111,7 +113,7 @@ def main():
    rows.append({'area_code':r['area_code'],'value':float(r['value'])*10000/den,'status':'observed','inputs':{'numerator':r,'denominator':{'type':'resident_population','population':den,'period':f'{year}-12','year':year,'source_sha256':popsha,'status':'observed'}}})
   key=f"{sel['indicator_id']}_per_10000_population_township"
   native_unit=catalog[(MEDICAL,sel['indicator_id'])]['unit']
-  records.append(emit(args.out,key,f"{names.get((MEDICAL,sel['indicator_id']),sel['indicator_id'])}（每萬人口）",'township',raw['geometry'],source(raw),raw.get('health'),rows,'醫療原始數 / 同曆年12月底鄉鎮人口 * 10000',{'numerator':h,'population':popsha},{'roc_year':str(year-1911),'denominator_period':f'{year}-12'},f'{native_unit}／每萬人口',f'分子為 {year} 年原始醫療統計；分母為 {year} 年12月底戶籍人口，兩者觀察時點分別保留。'))
+  records.append(emit(args.out,key,f"{names.get((MEDICAL,sel['indicator_id']),sel['indicator_id'])}（每萬人口）",'township',raw['geometry'],source(raw),raw.get('health'),rows,'醫療原始數 / 同曆年12月底鄉鎮人口 * 10000',{'numerator':h,'population':popsha},comparison_dimensions(sel['dimensions'],year-1911,f'{year}-12'),f'{native_unit}／每萬人口',f'分子為 {year} 年原始醫療統計；分母為 {year} 年12月底戶籍人口，兩者觀察時點分別保留。'))
  # County service capacity proxies from raw county/town observations, only when denominator evidence exists.
  proxy=[('general_nursing_home_open_beds','nursing_facility_capacity','65plus_per_1000'),('care_worker_registration_count','care_worker_registration_statistics','65plus_per_1000'),('postpartum_nursing_home_open_beds','nursing_facility_capacity','births_per_1000'),('postpartum_nursing_home_open_infant_beds','nursing_facility_capacity','births_per_1000')]
  county_id={f['properties']['COUNTYCODE']:f['properties']['COUNTYNAME'] for f in geo['features']}
@@ -135,7 +137,7 @@ def main():
    label=(f'每千名65歲以上人口{source_name}' if kind=='65plus_per_1000' else f'每千名年度出生數{source_name}（床位供給比）')
    unit=('登錄數／千名65歲以上人口' if ind=='care_worker_registration_count' else '床／千名65歲以上人口') if kind=='65plus_per_1000' else '床／千名年度出生數'
    description='65歲以上人口依年齡組加總，僅取總計或男女各一次。' if kind=='65plus_per_1000' else '床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。'
-   records.append(emit(args.out,key,label,'county',raw['geometry'],source(raw),raw.get('health'),rows,formula,{'numerator':h,'age_population' if kind=='65plus_per_1000' else 'births':agesha if kind=='65plus_per_1000' else birthsha},{'roc_year':str(year-1911),'denominator_period':f'{year} annual'},unit,description))
+   records.append(emit(args.out,key,label,'county',raw['geometry'],source(raw),raw.get('health'),rows,formula,{'numerator':h,'age_population' if kind=='65plus_per_1000' else 'births':agesha if kind=='65plus_per_1000' else birthsha},comparison_dimensions(sel['dimensions'],year-1911,f'{year} annual'),unit,description))
  grouped={}
  for r in records: grouped.setdefault(r['key'],[]).append(r)
  delta={'schema_version':'regional-statistics-cdn-v1','catalog':{'status':'OK','indicators':[{'dataset_id':'comparison_statistics','indicator_id':key,'name':items[0]['name'],'unit':items[0]['unit'],'levels':[items[0]['level']]} for key,items in grouped.items()]},'indicators':[{'dataset_id':'comparison_statistics','indicator_id':key,'releases':[x['release'] for x in items]} for key,items in grouped.items()],'selectors':[{'dataset_id':'comparison_statistics','indicator_id':r['key'],'release_id':r['release']['release_id'],'area_level':r['level'],'dimensions':r['dimensions'],'artifact':r['artifact']} for r in records],'geometries':m['geometries']}

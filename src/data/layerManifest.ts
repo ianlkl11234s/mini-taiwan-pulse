@@ -1,3 +1,4 @@
+import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
 import { industrialDensitySources } from "./industrialDensityTypes";
 import { getStatisticsVisual } from "./statisticsVisuals";
 import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
@@ -402,11 +403,11 @@ function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, ic
     key, section: { theme: "醫療設施", group: "Navii 設施名錄" }, label: category.label, expandable: true,
     color: category.color, icon,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
-      processing: "Navii 原始 record_kind 獨立成層；PMTiles z0-14 保留全部可繪點位",
-      note: "公告時段不等於目前可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
+      processing: "Navii 原始 record_kind 獨立成層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
+      note: "設施名錄不代表即時可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
     dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
     params: { count: 1, kinds: ["slider"] },
-    description: `${category.label}名錄點位；低縮放仍顯示全部可繪點位，不以聚合格網替代`, topics: ["日本", "醫療", "靜態", "設施"],
+    description: `${category.label}；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位`, topics: ["日本", "醫療", "靜態", "設施"],
   };
 }
 
@@ -416,7 +417,7 @@ function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerMani
     key, section: { theme: "長照服務", group: "服務使用情境" }, label: group.label, expandable: true,
     color: group.color, icon: HeartHandshake,
     upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
-      processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；原始值完整保留",
+      processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
       note: "服務登記粒度；同址可有多服務，不是唯一機構數" },
     dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
     params: { count: 1, kinds: ["slider"] },
@@ -1587,8 +1588,8 @@ export const LAYER_MANIFEST = {
   gfwVesselPresence: {
     key: "gfwVesselPresence",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },
-    label: "GFW 船舶 Presence Global Fishing Watch",
-    labelMobile: "GFW 船舶 Presence",
+    label: "GFW 舊版每日船舶 Historical Presence",
+    labelMobile: "GFW 舊版船舶（歷史）",
     expandable: true,
     color: "#f59e0b",
     icon: Fish,
@@ -1596,7 +1597,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
-      note: "GFW 存取憑證僅留在 backend collector，不進前端 bundle；本層是每日延遲 presence，不宣稱即時或可直接識別暗船",
+      note: "舊版每日 presence collector 目前不是生產 freshness 來源；本層只保留歷史快照，最新 release 應以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
     },
     dataClass: "D",
     source: {
@@ -1606,7 +1607,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwVesselPresence",
     popup: "gfwVesselPresence",
     params: { count: 1, kinds: ["slider"] },
-    description: "Global Fishing Watch 船舶 presence 每日/延遲快照（不是即時 AIS，也不是暗船清單）",
+    description: "Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單",
     topics: ["世界", "海事", "船舶", "GFW"],
   },
 
@@ -1734,6 +1735,20 @@ export const LAYER_MANIFEST = {
   jpMedicalAreasPrimary: jpMedicalAreaManifest("jpMedicalAreasPrimary", 0),
   jpMedicalAreasSecondary: jpMedicalAreaManifest("jpMedicalAreasSecondary", 1),
   jpMedicalAreasTertiary: jpMedicalAreaManifest("jpMedicalAreasTertiary", 2),
+
+  jpWaterDams: { key: "jpWaterDams", section: { theme: "水資源", group: "水資源靜態資料" }, label: "水壩 ダム（2014）", expandable: true, color: "#0369a1", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_w01_dams", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=dams; not publicly redistributed", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterDams", popup: "jpWaterDams", params: { count: 1, kinds: ["slider"] }, description: "2014 歷史水壩點位；非即時蓄水量或全國現況。", topics: ["日本", "水資源", "水壩", "歷史", "OWNER_ONLY"] },
+  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "水資源靜態資料" }, label: "湖沼 湖沼（W09・2005）", expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_w09_lakes", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
+  jpWaterRivers: { key: "jpWaterRivers", section: { theme: "水資源", group: "水資源靜態資料" }, label: "河川流路 河川（2006–2009）", expandable: true, color: "#0284c7", icon: Route, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_w05_rivers", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=rivers; segments are not river count", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterRivers", popup: "jpWaterRivers", params: { count: 1, kinds: ["slider"] }, description: "2006–2009 歷史河川流路線段；不是河川條數，端點已排除。", topics: ["日本", "水資源", "河川", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyFacilities: { key: "jpWaterSupplyFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, label: "上水道相關設施（2010）", expandable: true, color: "#06b6d4", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_p21_supply", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply; subtypes are conservative name-pattern classifications", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyFacilities", popup: "jpWaterSupplyFacilities", params: { count: 1, kinds: ["slider"] }, description: "2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSupplyAreas: { key: "jpWaterSupplyAreas", section: { theme: "水資源", group: "水資源靜態資料" }, label: "給水區域 給水区域（2010）", expandable: true, color: "#7dd3fc", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_p21_supply_areas", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=supply_areas", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSupplyAreas", popup: "jpWaterSupplyAreas", params: { count: 1, kinds: ["slider"] }, description: "2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。", topics: ["日本", "水資源", "上水道", "歷史", "OWNER_ONLY"] },
+  jpWaterSewerFacilities: { key: "jpWaterSewerFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, label: "下水道設施（2012）", expandable: true, color: "#1d4ed8", icon: Container, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_p22_sewer", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable water.pmtiles; source-layer=sewer; subtype from P22a/P22b", staticAssets: ["PRIVATE_OWNER_ONLY: water.pmtiles"] }, legend: "jpWaterSewerFacilities", popup: "jpWaterSewerFacilities", params: { count: 1, kinds: ["slider"] }, description: "2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。", topics: ["日本", "水資源", "下水道", "歷史", "OWNER_ONLY"] },
+  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, label: "高松供排水相關設施 高松市", expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_takamatsu_water_facilities", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
+  jpWaterQualityStations: { key: "jpWaterQualityStations", section: { theme: "水資源", group: "水資源靜態資料" }, label: "水質測定地点 水質測定地点（2024）", expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_moe_water_quality_stations", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
+  jpWaterLevelStations: { key: "jpWaterLevelStations", section: { theme: "水資源", group: "水資源靜態資料" }, label: "橫濱水位站 横浜市", expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_yokohama_water_level_stations", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
+  jpWaterGroundwaterSites: { key: "jpWaterGroundwaterSites", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, label: "地下水等觀測點（24縣）", expandable: true, color: "#8b5cf6", icon: MapPin, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_gsj_groundwater", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=groundwater", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterGroundwaterSites", popup: "jpWaterGroundwaterSites", params: { count: 1, kinds: ["slider"] }, description: "GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。", topics: ["日本", "水資源", "地下水", "OWNER_ONLY"] },
+  jpWaterNilimDams: { key: "jpWaterNilimDams", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, label: "NILIM 水壩位置（46縣）", expandable: true, color: "#2563eb", icon: Dam, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_nilim_dams", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=nilim", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterNilimDams", popup: "jpWaterNilimDams", params: { count: 1, kinds: ["slider"] }, description: "NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。", topics: ["日本", "水資源", "水壩", "OWNER_ONLY"] },
+  jpWaterAgriculturalPonds: { key: "jpWaterAgriculturalPonds", section: { theme: "水資源", group: "補充資料（覆蓋與定位限制見圖例）" }, label: "農業蓄水池（2026-03）", expandable: true, color: "#65a30d", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_water_maff_agricultural_ponds", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Owner-only same-origin Range API; private immutable extra-water.pmtiles; source-layer=agri; source datum unknown", staticAssets: ["PRIVATE_OWNER_ONLY: extra-water.pmtiles"] }, legend: "jpWaterAgriculturalPonds", popup: "jpWaterAgriculturalPonds", params: { count: 1, kinds: ["slider"] }, description: "MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。", topics: ["日本", "水資源", "農業", "OWNER_ONLY"] },
+  jpWaterFloodHazard: { key: "jpWaterFloodHazard", section: { theme: "水資源", group: "背景" }, label: "洪水浸水想定（最大規模）", expandable: true, color: "#64748b", icon: CloudRain, upstream: { status: "verified", datasets: [{ datasetId: "gsi_flood_l2_shinsuishin", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "Official external GSI XYZ raster z2–17; disabled by default; source/terms: disaportal.gsi.go.jp hazard-map open-data pages; no feature attributes/popup" }, legend: "jpWaterFloodHazard", popup: null, params: { count: 1, kinds: ["slider"] }, description: "官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。", topics: ["日本", "水資源", "洪水", "背景"] },
 
   jpReligionGsi: {
     key: "jpReligionGsi",
@@ -1948,6 +1963,27 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "日本鐵道路線（21,933 段，事業者種別 5 類分色）",
     topics: ["世界", "日本", "交通", "鐵道"],
+  },
+
+  jpHistoricalFlightTrails: {
+    key: "jpHistoricalFlightTrails",
+    section: { theme: "交通", group: "線" },
+    label: "歷史航班軌跡 Japan",
+    expandable: true,
+    color: "#4d99ff",
+    icon: Plane,
+    upstream: { status: "verified", datasets: [{ datasetId: "historical_flight_trails_jp", confidence: "HIGH" }] },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "歷史航班樣本 manifest 與 GeoJSON 資產；依機場、日期載入已保留的實測航跡。",
+      staticAssets: ["./flight-trails/manifest.json"],
+    },
+    legend: "historicalFlightTrails",
+    popup: "jpHistoricalFlightTrails",
+    params: { count: 5, kinds: ["slider", "slider", "slider", "select", "select"] },
+    description: "日本機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。",
+    topics: ["交通", "航空", "歷史", "航跡", "日本"],
   },
 
   osmBridgeCarriers: {
@@ -3772,7 +3808,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "forest-reserve",
-      url: "./forestry/forest_reserve.pmtiles",
+      url: FOREST_RESERVE_PMTILES_URL,
       sourceLayer: "forest_reserve",
       minzoom: 0,
       maxzoom: 13,
@@ -4301,6 +4337,40 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "預售", "交易點"],
+  },
+
+  propertyValueAdmin: {
+    key: "propertyValueAdmin",
+    section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
+    label: "不動產總市值行政區 Property Value",
+    labelMobile: "不動產總市值",
+    expandable: true,
+    color: "#ec7014",
+    icon: Coins,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["buildingsGba", "realEstateSaleGrid"],
+      derivedFromDatasets: ["property_value"],
+      derivationType: "custom",
+      processing: "每棟 GBA 建物面積 × 樓層 × 所在網格實價買賣中位單價 × 縣市 GFA 校正係數，再聚合至縣市／鄉鎮市區",
+      note: "上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；缺金門、連江、澎湖，缺值不當作 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Static property_value_admin.json joined by administrative code to independent county/township PMTiles sources via feature-state",
+      staticAssets: [
+        "./urban/property_value_admin.json",
+        "./base_map/county_boundary.pmtiles",
+        "./base_map/township_boundary.pmtiles",
+      ],
+    },
+    legend: "propertyValueAdmin",
+    popup: "propertyValueAdmin",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "不動產模型估值依縣市／鄉鎮市區聚合；市場交易建物口徑，缺值不是 0",
+    topics: ["房地產", "總市值", "統計", "行政區"],
   },
 
   propertyValueGrid: {
@@ -9636,6 +9706,27 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
     description: "即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）",
     topics: ["交通", "航空", "即時"],
+  },
+
+  historicalFlightTrails: {
+    key: "historicalFlightTrails",
+    section: { theme: "交通 Move", group: "歷史軌跡" },
+    label: "歷史航班軌跡 Taiwan",
+    expandable: true,
+    color: "#4d99ff",
+    icon: Plane,
+    upstream: { status: "verified", datasets: [{ datasetId: "historical_flight_trails_tw", confidence: "HIGH" }] },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "歷史航班樣本 manifest 與 GeoJSON 資產；依機場、日期載入已保留的實測航跡。",
+      staticAssets: ["./flight-trails/manifest.json"],
+    },
+    legend: "historicalFlightTrails",
+    popup: "historicalFlightTrails",
+    params: { count: 5, kinds: ["slider", "slider", "slider", "select", "select"] },
+    description: "台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。",
+    topics: ["交通", "航空", "歷史", "航跡"],
   },
 
   ships: {

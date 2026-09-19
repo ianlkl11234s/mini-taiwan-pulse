@@ -1,7 +1,7 @@
 /**
  * EarthquakeReplayPanel — 地震回放事件清單 + 播放控制
  *
- * 左 docked 面板，幾何 / token 沿用 PropertyValuePanel（left:64 top:98 bottom:130）；
+ * 左 docked 面板（left:64 top:98 bottom:130）；
  * 播放控制列的排版沿用 intel/IntelReplay（play/pause + scrub + 時間標籤）。
  *
  * 分層回放（見 earthquakeReplayTypes.eventTier）：

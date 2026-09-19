@@ -1,0 +1,101 @@
+{
+  "version": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "rollback_version": "6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "objects": [
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/aggregates/h17-z6.geojson",
+      "bytes": 151147,
+      "sha256": "6f152dd4e525ea0911f69fba76b74233ab2e1f71a11e4e92cae58775fc5455c7",
+      "status": "full_get_verified_existing",
+      "etag": "\"34ac21ed28658eb68d7928067706bbe2\"",
+      "content_type": "application/geo+json",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/aggregates/navii-z6.geojson",
+      "bytes": 22900,
+      "sha256": "c78573c016967390b97252ddadc89dd827d8ab88c552a4492cd9f96724d96b8c",
+      "status": "full_get_verified_existing",
+      "etag": "\"fb1ee4f661436a9c38ee18dbd6b8de89\"",
+      "content_type": "application/geo+json",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/areas/A38-20_1.pmtiles",
+      "bytes": 9165621,
+      "sha256": "8015522b47d68090c3fd69d9dff4a57a16dc133a8e1576035fb03b342882ec3f",
+      "status": "full_get_verified_existing",
+      "etag": "\"7baeaa7f8e2cd84efdb312392d3ee98e\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/areas/A38-20_2.pmtiles",
+      "bytes": 6505194,
+      "sha256": "3ed3a770dc1ca9f76645b8bfc767ac1f1272a3d2d0c60ff335f4f6a33ae19de9",
+      "status": "full_get_verified_existing",
+      "etag": "\"104096eee59698532a85e3fd938dfb75\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/areas/A38-20_3.pmtiles",
+      "bytes": 4178852,
+      "sha256": "059c554abca1f99bafc3c673f3ebae4a5e4c72e6ab9c16c91e37f384cade6131",
+      "status": "full_get_verified_existing",
+      "etag": "\"5cbf3de3e2714378478c9d7a09ba5f0c\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/points/h17_services.pmtiles",
+      "bytes": 293111489,
+      "sha256": "98bcee768155819c20f6b93e217e770fb040876c882c23f3649f586479985022",
+      "status": "full_get_verified_existing",
+      "etag": "\"486c63290242543ad1eedf932569b42f\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable",
+      "verification_host": "Zeabur",
+      "full_sha256": "98bcee768155819c20f6b93e217e770fb040876c882c23f3649f586479985022"
+    },
+    {
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/points/navii_facilities.pmtiles",
+      "bytes": 308486234,
+      "sha256": "365cf61d1a368070fa48e6b91d56c5087ba45073affe39f2d2a24d9710e45f3d",
+      "status": "full_get_verified_existing",
+      "etag": "\"c782d722ab7649224332b5b787b3ef31\"",
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": "public, max-age=31536000, immutable",
+      "verification_host": "Zeabur",
+      "full_sha256": "365cf61d1a368070fa48e6b91d56c5087ba45073affe39f2d2a24d9710e45f3d"
+    },
+    {
+      "relative_path": "releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/catalog.json",
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/catalog.json",
+      "status": "uploaded_and_verified",
+      "etag": "\"f3705e033b82213133d0f681aa7c78d3\"",
+      "content_type": "application/json",
+      "cache_control": "public, max-age=31536000, immutable"
+    },
+    {
+      "relative_path": "releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/publication-manifest.json",
+      "key": "deploy-assets/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/publication-manifest.json",
+      "status": "uploaded_and_verified",
+      "etag": "\"8decca33295c63680c3f035311cbb95c\"",
+      "content_type": "application/json",
+      "cache_control": "public, max-age=31536000, immutable"
+    }
+  ],
+  "current_updated": true,
+  "verified_at": "2026-09-18T06:10:07.484068+00:00",
+  "method": "S3 server-side copy; complete streaming GET SHA/bytes/content-type/cache verification",
+  "current": {
+    "relative_path": "current.json",
+    "key": "deploy-assets/jp-medical/current.json",
+    "status": "updated_and_verified",
+    "etag": "\"3e6bf3e4e81c5711e4ac501839618a37\"",
+    "content_type": "application/json",
+    "cache_control": "public, max-age=60"
+  },
+  "activated_at": "2026-09-18T06:16:19.441336+00:00"
+}

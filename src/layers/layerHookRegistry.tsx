@@ -1,4 +1,5 @@
 import { CoralReefDistributionHost } from "./hosts/coralReefHost";
+import { HistoricalFlightTrailsHost } from "./hosts/historicalFlightHosts";
 import { AllenCoralAtlasHost } from "./hosts/allenCoralHost";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Hook Registry — 「哪些 hook 把圖層掛起來」的單一真實來源（AR-22 P1）
@@ -30,7 +31,7 @@ import type { ManifestKey } from "../data/layerManifest";
 import type { LayerHostComponent } from "./layerHostDeps";
 
 import {
-  RealEstateTimelineHost, RealEstatePointsHost, SelectedFeatureHaloHost,
+  RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
 } from "./hosts/realEstateHosts";
 import {
   ReservoirStatusHost, RainGaugeHost, FloodSensorHost, FloodSensorIsochroneHost,
@@ -74,7 +75,7 @@ import { AnimalAdoptionHost, AnimalShelterPressureHost, AnimalWelfarePointsHost 
 import {
   JpMedicalHost, JpAdminHost, JpStationsHost, JpAirportsHost, JpRailwaysHost, JpSchoolsHost, JpPoliceFacilitiesHost,
   JpPopulationMeshHost,
-  JpTourismHost,
+  JpTourismHost, JpWaterHost,
 } from "./hosts/japanHosts";
 
 export interface LayerHookEntry {
@@ -87,6 +88,8 @@ export interface LayerHookEntry {
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
 export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
+  { id: "useHistoricalFlightTrailsLayer", keys: ["historicalFlightTrails", "jpHistoricalFlightTrails"], Host: HistoricalFlightTrailsHost },
+  { id: "useJpWaterLayers", keys: ["jpWaterDams", "jpWaterLakes", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds", "jpWaterFloodHazard", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
   { id: "useJpMedicalLayers", keys: [
     "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
     "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
@@ -109,6 +112,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
     keys: ["realEstateRentalPoint", "realEstateSalePoint", "realEstatePresalePoint"],
     Host: RealEstatePointsHost,
   },
+  { id: "usePropertyValueAdminLayer", keys: ["propertyValueAdmin"], Host: PropertyValueAdminHost },
 
   // ── 互動裝飾（L781）：跨圖層的點選光暈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },

@@ -206,6 +206,7 @@ export function useGlobalEventsLayer(
   const mapTick = useMapReadyTick(mapRef, visible);
   const allEventsRef = useRef<GlobalEventRecord[]>([]);
   const candidatesRef = useRef<GlobalEventCandidate[]>([]);
+  const candidateAbortRef = useRef<AbortController | null>(null);
   const previousTimeRef = useRef<number | null>(null);
   const signatureRef = useRef("");
   const listSignatureRef = useRef("");
@@ -351,6 +352,9 @@ export function useGlobalEventsLayer(
     };
 
     const loadSituation = (bounds: { start: string; end: string }, current: boolean, transitionFromTime = timeStore.getTime()) => {
+      candidateAbortRef.current?.abort();
+      const candidateAbort = new AbortController();
+      candidateAbortRef.current = candidateAbort;
       const request = ++requestRef.current;
       // recent7d 的 window 定義上「永遠是同一個情境」（每 5 分鐘的 rolling 7 天，
       // bounds 字面值一定跟著 Date.now() 往前移，不能用來判斷是否為同一個 window）；
@@ -375,12 +379,14 @@ export function useGlobalEventsLayer(
       }
       Promise.allSettled([
         current ? fetchGlobalEventsCurrent() : fetchGlobalEventsWindow(bounds.start, bounds.end),
-        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end) : Promise.resolve({ rows: [], totalCandidates: 0 }),
+        includeAI ? fetchGlobalEventCandidatesWindow(bounds.start, bounds.end, candidateAbort.signal) : Promise.resolve({ rows: [], totalCandidates: 0, partial: false, continuation: null }),
       ]).then(([published, candidates]) => {
         if (cancelled || request !== requestRef.current) return;
         const errors = [published, candidates].filter((result) => result.status === "rejected");
         const status = errors.length === 2 ? "error" : errors.length ? "partial" : "ready";
         const message = errors.length ? `${published.status === "rejected" ? "研究事件" : "AI 初判"}資料載入失敗，並非零件。`
+          : candidates.status === "fulfilled" && candidates.value.partial
+            ? `AI 初判已載入 ${candidates.value.continuation?.loadedRows ?? 0}/${candidates.value.totalCandidates} 件；超過頁面預算，尚可自 ${candidates.value.continuation?.afterCandidateId ?? ""} 繼續。`
           : published.status === "fulfilled" && new Set(published.value.map((row) => row.eventId)).size >= 100
             ? "研究事件已達單次100件上限；AI初判仍完整分頁載入。" : null;
         if (published.status !== "fulfilled") {
@@ -467,6 +473,7 @@ export function useGlobalEventsLayer(
 
     return () => {
       cancelled = true;
+      candidateAbortRef.current?.abort();
       requestRef.current += 1;
       unsubscribeWindow();
       unsubscribeTime();

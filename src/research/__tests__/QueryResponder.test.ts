@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { QueryResponder } from "../QueryResponder";
+import { QueryResponder, queryPollDelay } from "../QueryResponder";
 import { BridgeError, type BridgeConnectionContext } from "../bridgeClient";
 const request = { requestId: "query-1", operation: "map_context", args: {}, expiresAt: Date.now() + 30_000 };
 function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onActivity = vi.fn()) {
@@ -9,6 +9,27 @@ function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onAct
   return { client, responder, execute, onActivity, onHealth };
 }
 describe("QueryResponder", () => {
+  it("backs off transient failures and throttles hidden tabs", () => {
+    expect(queryPollDelay(0, "visible")).toBe(2_000);
+    expect(queryPollDelay(1, "visible")).toBe(4_000);
+    expect(queryPollDelay(3, "visible")).toBe(8_000);
+    expect(queryPollDelay(8, "visible")).toBe(8_000);
+    expect(queryPollDelay(0, "hidden")).toBe(10_000);
+  });
+
+  it("schedules capped retry probes before browser queries time out", async () => {
+    const { responder, client } = setup();
+    client.query.mockRejectedValue(new BridgeError("REQUEST_TIMEOUT"));
+    await responder.tick(); await responder.tick(); await responder.tick(); await responder.tick();
+    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    responder.start();
+    await Promise.resolve(); await Promise.resolve();
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 8_000);
+    expect(queryPollDelay(8, "visible") + 8_000).toBeLessThan(25_000);
+    responder.stop();
+    setTimeoutSpy.mockRestore();
+  });
+
   it("returns tab-scoped data and retries delivery without rerunning the query", async () => {
     const { responder, client, execute, onActivity } = setup();
     client.queryResult.mockRejectedValueOnce(new Error("offline"));
@@ -64,7 +85,8 @@ describe("QueryResponder", () => {
       await vi.runAllTicks();
       await Promise.resolve();
       expect(client.query).toHaveBeenCalledTimes(1);
-      await vi.advanceTimersByTimeAsync(2_999);
+      const delay = queryPollDelay(0, "unknown");
+      await vi.advanceTimersByTimeAsync(delay - 1);
       expect(client.query).toHaveBeenCalledTimes(1);
       await vi.advanceTimersByTimeAsync(1);
       expect(client.query).toHaveBeenCalledTimes(2);
