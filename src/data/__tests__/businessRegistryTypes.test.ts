@@ -12,9 +12,23 @@ import {
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { isOverlayVisible } from "../../map/overlayManager";
 import { LAYER_MANIFEST } from "../layerManifest";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import type { LayerVisibility } from "../../types";
 
 describe("工商登記 B1/B2/B3/A4 契約", () => {
+  it("密度格網 popup 依 render stack 由上到下命中", () => {
+    const densityTypes = GIS_LAYERS
+      .map((entry) => entry.type)
+      .filter((type) => type === "factoryDensityGrid"
+        || type === "manufacturingCompanyDensityGrid"
+        || type === "regulatedFacilityDensityGrid");
+    expect(densityTypes).toEqual([
+      "regulatedFacilityDensityGrid",
+      "manufacturingCompanyDensityGrid",
+      "factoryDensityGrid",
+    ]);
+  });
+
   it("89 個行業中類保留前導零", () => {
     expect(COMPANY_INDUSTRY_MID_OPTIONS).toHaveLength(89);
     expect(COMPANY_INDUSTRY_MID_OPTIONS[0]).toMatchObject({ value: "01" });
@@ -67,8 +81,8 @@ describe("工商登記 B1/B2/B3/A4 契約", () => {
   it("B1 隨 zoom 切 1.5km / 450m 網格密度；其色階不隨 B2 手動尺度而變", () => {
     const overview = OVERLAY_REGISTRY.filter((c) => c.id === "companyPoints" && c.layers[0]?.suffix === "company-overview-density-fill");
     expect(overview.map((c) => [c.pmtiles?.sourceLayer, c.layers[0]?.minzoom, c.layers[0]?.maxzoom])).toEqual([
-      ["company_capital_grid_1500m", 4, 10.01],
-      ["company_capital_grid_450m", 10, 12.01],
+      ["company_capital_grid_1500m", 4, 10],
+      ["company_capital_grid_450m", 10, 12],
     ]);
     expect(JSON.stringify(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1]))).toContain('"n_companies"');
     expect(companyGridDensityColorExpr(COMPANY_GRID_SCALES[1])[0]).toBe("case");

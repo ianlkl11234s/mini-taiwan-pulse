@@ -1,0 +1,56 @@
+{
+  "checked_at": "2026-09-18T07:01:44.659181+00:00",
+  "base": "https://mini-taiwan-pulse.itsmigu.com/world/jp_water/",
+  "release": "20260918-v1",
+  "root": {
+    "http_status": 200,
+    "content_type": "application/json",
+    "sha256": "04c044a040c80a24e3eae400f984b8ede13f80015cabf1dd33738c288802426c"
+  },
+  "assets": [
+    {
+      "key": "jpWaterLakes",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/world/jp_water/releases/20260918-v1/jpWaterLakes.geojson",
+      "http_status": 200,
+      "content_type": "application/octet-stream",
+      "cache_control": null,
+      "bytes": 12984998,
+      "sha256": "9ebb822e341906985cf2d638d3f2dce6316458bc6084d13c77e96113debc90a5",
+      "features": 556,
+      "verified": true
+    },
+    {
+      "key": "jpWaterLocalFacilities",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/world/jp_water/releases/20260918-v1/jpWaterLocalFacilities.geojson",
+      "http_status": 200,
+      "content_type": "application/octet-stream",
+      "cache_control": null,
+      "bytes": 9821,
+      "sha256": "5fb609e746e9e3c1d5107b079d7e6950d8dbc63307376e58971e27b6bc3797c9",
+      "features": 13,
+      "verified": true
+    },
+    {
+      "key": "jpWaterLevelStations",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/world/jp_water/releases/20260918-v1/jpWaterLevelStations.geojson",
+      "http_status": 200,
+      "content_type": "application/octet-stream",
+      "cache_control": null,
+      "bytes": 32260,
+      "sha256": "50288f0865de51d9206d6dfc5f4c8aa6d779a0d2ea29947c408f7b36ad28763a",
+      "features": 55,
+      "verified": true
+    },
+    {
+      "key": "jpWaterQualityStations",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/world/jp_water/releases/20260918-v1/jpWaterQualityStations.geojson",
+      "http_status": 200,
+      "content_type": "application/octet-stream",
+      "cache_control": null,
+      "bytes": 7771427,
+      "sha256": "a07d131b2db8d707f9d75f3081018cb182aa98b692635b5ff699a766b186b642",
+      "features": 9831,
+      "verified": true
+    }
+  ]
+}

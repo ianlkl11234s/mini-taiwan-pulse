@@ -321,7 +321,7 @@ describe("useGlobalEventsLayer timeline", () => {
     useGlobalEventsLayer({ current: state.map } as RefObject<MapboxMap | null>, true, 0.9, "replay");
     await flush();
     expect(loader.window).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
-    expect(loader.candidates).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z");
+    expect(loader.candidates).toHaveBeenCalledWith("2026-08-26T16:00:00.000Z", "2026-09-03T16:00:00.000Z", expect.any(AbortSignal));
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(1);
     harness.tick(Date.parse("2026-09-03T09:59:59Z") / 1000);
     expect(globalEventsViewStore.getSnapshot().entries).toHaveLength(0);

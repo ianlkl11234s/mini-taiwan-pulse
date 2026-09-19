@@ -1,0 +1,14 @@
+{
+  "time": "2026-09-18T06:24:16.035270+00:00",
+  "deleted_release": "d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a",
+  "deleted_release_files": 780,
+  "deleted_release_bytes": 1640390593,
+  "removed_metadata_staging_bytes": 8169,
+  "kept_current": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "kept_rollback": "6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "physical_before_final_cleanup": 3817787392,
+  "physical_after": 2175127552,
+  "physical_initial_before_staging_cleanup": 5992996864,
+  "physical_net_saved_since_initial": 3817869312,
+  "candidate_hardlinks_removed": true
+}

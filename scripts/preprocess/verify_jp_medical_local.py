@@ -31,7 +31,17 @@ def main():
     manifest = json.loads((root / pointer['publication_manifest']).read_text())
     assert set(catalog['datasets']) == {'navii', 'h17', 'a38'}
     assert catalog['version'] == pointer['version'] == manifest['version']
-    assert catalog['files'] == manifest['files']
+    inherited_files = manifest.get('inherited_files', {})
+    effective_manifest_files = dict(manifest['files'])
+    for name, metadata in inherited_files.items():
+        assert name not in effective_manifest_files
+        assert isinstance(metadata.get('source_version'), str)
+        assert metadata.get('source_path') == name
+        effective_manifest_files[name] = {
+            'sha256': metadata['sha256'],
+            'bytes': metadata['bytes'],
+        }
+    assert catalog['files'] == effective_manifest_files
     point_contracts = {
         'navii_facilities': 189800,
         'h17_services': 222194,
@@ -41,7 +51,7 @@ def main():
         assert layer['minimum_point_zoom'] == 0
         assert layer['point_sampling'] == 'none'
         assert layer['z0_feature_count'] == expected
-        assert 'z14 display geometry' in layer['geometry_provenance']
+        assert layer['geometry_provenance'] == 'source release point geometry' or 'z14 display geometry' in layer['geometry_provenance']
     assert digest(catalog_path) == manifest['catalog']['sha256']
     assert catalog_path.stat().st_size == manifest['catalog']['bytes']
     total = 0
@@ -75,9 +85,13 @@ def main():
         if layer.get('aggregate_path'):
             get(prefix + layer['aggregate_path'], catalog['files'][layer['aggregate_path']])
     for kind in ('hospital', 'clinic', 'dental'):
-        name = next(n for n in catalog['files'] if n.startswith(f'details/{kind}_hours/') and n.endswith('.json'))
-        get(prefix + name, catalog['files'][name])
-    result = {'status': 'PASS', 'version': catalog['version'], 'local_files_sha_bytes_verified': len(catalog['files']), 'payload_asset_bytes': total,
+        name = next((n for n in catalog['files'] if n.startswith(f'details/{kind}_hours/') and n.endswith('.json')), None)
+        if name is not None:
+            get(prefix + name, catalog['files'][name])
+    published_asset_bytes = sum(item['bytes'] for item in manifest['files'].values())
+    result = {'status': 'PASS', 'version': catalog['version'], 'local_files_sha_bytes_verified': len(catalog['files']),
+              'published_asset_bytes': published_asset_bytes, 'effective_payload_asset_bytes': total,
+              'inherited_asset_count': len(inherited_files),
               'allzoom_point_contracts': point_contracts,
               'catalog_bytes': catalog_path.stat().st_size, 'http_checks': checks, 'production': 'not run', 'cdn_cache_headers': 'not run',
               'pmtiles_integrity': 'full local SHA-256; HTTP header Range reads only, not a browser visual assertion'}

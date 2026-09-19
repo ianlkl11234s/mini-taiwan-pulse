@@ -1,0 +1,231 @@
+{
+  "checked_at": "2026-09-18T10:39:40.863761+00:00",
+  "checks": [
+    {
+      "path": "/jp-medical/current.json",
+      "request": 1,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 200 ",
+        "content-type: application/json",
+        "cache-control: public,max-age=60",
+        "age: 29",
+        "cf-cache-status: HIT"
+      ]
+    },
+    {
+      "path": "/jp-medical/current.json",
+      "request": 2,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 200 ",
+        "content-type: application/json",
+        "cache-control: public,max-age=60",
+        "age: 29",
+        "cf-cache-status: HIT"
+      ]
+    },
+    {
+      "path": "/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/catalog.json",
+      "request": 1,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 200 ",
+        "content-type: application/json",
+        "cache-control: public,max-age=31536000,immutable",
+        "cf-cache-status: MISS"
+      ]
+    },
+    {
+      "path": "/jp-medical/releases/c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653/catalog.json",
+      "request": 2,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 200 ",
+        "content-type: application/json",
+        "cache-control: public,max-age=31536000,immutable",
+        "age: 0",
+        "cf-cache-status: HIT"
+      ]
+    },
+    {
+      "path": "/world/jp_religion_gsi.pmtiles",
+      "request": 1,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 206 ",
+        "content-type: application/vnd.pmtiles",
+        "content-length: 127",
+        "age: 208",
+        "cache-control: max-age=86400",
+        "cache-control: public",
+        "content-range: bytes 0-126/15675395",
+        "cf-cache-status: HIT"
+      ]
+    },
+    {
+      "path": "/world/jp_religion_gsi.pmtiles",
+      "request": 2,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 206 ",
+        "content-type: application/vnd.pmtiles",
+        "content-length: 127",
+        "age: 209",
+        "cache-control: max-age=86400",
+        "cache-control: public",
+        "content-range: bytes 0-126/15675395",
+        "cf-cache-status: HIT"
+      ]
+    },
+    {
+      "path": "/api/private-research/allen-coral-atlas/missing",
+      "request": 1,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 404 ",
+        "content-type: text/html",
+        "cache-control: private, no-store",
+        "cf-cache-status: DYNAMIC"
+      ]
+    },
+    {
+      "path": "/api/private-research/allen-coral-atlas/missing",
+      "request": 2,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 404 ",
+        "content-type: text/html",
+        "cache-control: private, no-store",
+        "cf-cache-status: DYNAMIC"
+      ]
+    },
+    {
+      "path": "/api/private-research/allen-coral-atlas/missing.pmtiles",
+      "request": 1,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 404 ",
+        "content-type: text/html",
+        "cache-control: private, no-store",
+        "cf-cache-status: BYPASS"
+      ]
+    },
+    {
+      "path": "/api/private-research/allen-coral-atlas/missing.pmtiles",
+      "request": 2,
+      "exit": 0,
+      "headers": [
+        "HTTP/2 404 ",
+        "content-type: text/html",
+        "cache-control: private, no-store",
+        "cf-cache-status: BYPASS"
+      ]
+    }
+  ],
+  "source": "Authenticated Cloudflare dashboard UI plus unauthenticated public HTTP readback; rounded UI values; no account credentials stored.",
+  "r2_overview": {
+    "period_label": "September 2 - October 2",
+    "billable_usage_usd": 0,
+    "account_storage_gb": 8.8,
+    "class_a_operations_display": "10.71k",
+    "class_b_operations_display": "21.6k",
+    "buckets": [
+      {
+        "name": "mini-tw-pulse",
+        "size_gb": 7.75,
+        "objects_display": "66.22k"
+      },
+      {
+        "name": "terrain-tiles",
+        "size_gb": 1.05,
+        "objects_display": "10.94k"
+      }
+    ]
+  },
+  "billing": {
+    "observed_period": "2026-09-02 to 2026-09-18",
+    "cycle_label": "Sep 2 - Oct 1, 2026; 17 of 30 cycle days observed",
+    "total_cost_usd": 0,
+    "projected_cycle_cost_usd": 0,
+    "r2_storage_gb_months": 4.5,
+    "class_a_operations_display": "10.46k",
+    "class_b_operations_display": "20.58k",
+    "billable_storage_and_operations": 0,
+    "included_storage_gb_months": 10,
+    "included_class_a": 1000000,
+    "included_class_b": 10000000,
+    "note": "Dashboard overview and billable usage totals have different reporting freshness; do not combine or subtract these counts."
+  },
+  "budget_alert": {
+    "existing": true,
+    "label": "Default budget alert (auto-created)",
+    "budget_usd": 10,
+    "recipients_count": 1,
+    "changed": false,
+    "note": "Notification delivery not tested; alert is not a spending cap."
+  },
+  "bucket_settings": {
+    "name": "mini-tw-pulse",
+    "default_storage_class": "Standard",
+    "region": "APAC",
+    "custom_domain": "data.itsmigu.com",
+    "domain_active": true,
+    "public_dev_url_enabled": true,
+    "cors_origins": [
+      "*"
+    ],
+    "cors_methods": [
+      "GET",
+      "HEAD"
+    ],
+    "cors_allowed_headers": [
+      "*"
+    ],
+    "lifecycle": [
+      {
+        "name": "Default Multipart Abort Rule",
+        "action": "Abort incomplete uploads after 7 days",
+        "enabled": true
+      }
+    ],
+    "object_expiration_rule": false,
+    "bucket_lock_rules": false,
+    "data_access_logs_enabled": false,
+    "settings_changed": false,
+    "note": "No object deletion configured or performed. Future release cleanup must retain current and rollback references."
+  },
+  "cache_rule_change": {
+    "name": "Static map data",
+    "rule_id": "4569bfd81550447399d79a07fe96143c",
+    "order": 3,
+    "old_expression": "(ends_with(http.request.uri.path, \".pmtiles\")) or (ends_with(http.request.uri.path, \".geojson\")) or (starts_with(http.request.uri.path, \"/static-rpc/\")) or (starts_with(http.request.uri.path, \"/embed-snapshots/\"))",
+    "added_expression": "(http.host eq \"mini-taiwan-pulse.itsmigu.com\" and (http.request.uri.path eq \"/jp-medical/current.json\" or (starts_with(http.request.uri.path, \"/jp-medical/releases/\") and ends_with(http.request.uri.path, \".json\"))))",
+    "cache_eligibility": "eligible",
+    "edge_ttl": "respect origin; bypass if Cache-Control absent",
+    "browser_ttl": "respect origin",
+    "saved_active": true,
+    "rollback": "Restore old_expression in the same rule. No TTL override, private-data permission, bucket setting or object content was changed.",
+    "new_expression": "(ends_with(http.request.uri.path, \".pmtiles\")) or (ends_with(http.request.uri.path, \".geojson\")) or (starts_with(http.request.uri.path, \"/static-rpc/\")) or (starts_with(http.request.uri.path, \"/embed-snapshots/\")) or (http.host eq \"mini-taiwan-pulse.itsmigu.com\" and (http.request.uri.path eq \"/jp-medical/current.json\" or (starts_with(http.request.uri.path, \"/jp-medical/releases/\") and ends_with(http.request.uri.path, \".json\"))))"
+  },
+  "other_cache_rules": [
+    {
+      "order": 1,
+      "name": "cache-static-assets",
+      "edge_ttl": "respect origin; bypass if absent"
+    },
+    {
+      "order": 2,
+      "name": "tiles-pmtiles-ships",
+      "host": "tiles.itsmigu.com",
+      "edge_ttl_override_seconds": 604800,
+      "note": "Third rule respects origin for overlapping .pmtiles; other matched tiles host paths retain existing seven-day override. Unchanged."
+    }
+  ],
+  "remaining_limits": [
+    "Cloudflare UI access verified; existing API token still cannot manage the zone.",
+    "AWS and Zeabur invoices are not established by Cloudflare billing.",
+    "No deletion of historical/source/rollback data.",
+    "R2 8.8 GB is current storage; 4.5 GB-months is time-weighted billing usage, not contradictory measurements."
+  ]
+}

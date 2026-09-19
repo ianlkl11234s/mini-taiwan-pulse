@@ -2,8 +2,9 @@ import { jpHeightCatalogStore } from "../map/jpHeightLifecycle";
 import { getLoadedJpHeightCatalog } from "../data/jpHeightCatalog";
 import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
 import { JpMedicalStatus } from "./JpMedicalStatus";
-import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
+import { HISTORICAL_FLIGHT_COLORS } from "../data/historicalFlightTrailsTypes";
 import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
@@ -30,6 +31,9 @@ import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
+import { loadGfwDarkVesselsManifest } from "../data/gfwDarkVesselsLoader";
+import { loadGfwHourlyTrackManifest } from "../data/gfwHourlyTracksLoader";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
@@ -72,6 +76,7 @@ import {
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LAYER_CONTRACT } from "../data/jpWaterTypes";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
@@ -134,6 +139,10 @@ import {
   resolvePropertyValueGridMode, PROPERTY_VALUE_PER_CAPITA_BANDS,
   PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR, PROPERTY_VALUE_PER_CAPITA_MIN_POP,
 } from "../data/propertyValueTypes";
+import {
+  PROPERTY_VALUE_ADMIN_COLORS, PROPERTY_VALUE_ADMIN_LEVELS, PROPERTY_VALUE_ADMIN_MISSING_COLOR,
+  formatPropertyValueTwd, resolvePropertyValueAdminLevel,
+} from "../data/propertyValueAdminTypes";
 import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
@@ -396,6 +405,19 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpWaterLakes", render: () => <JpWaterLegend layerKey="jpWaterLakes" /> },
+  { id: "jpWaterDams", render: () => <JpWaterLegend layerKey="jpWaterDams" /> },
+  { id: "jpWaterRivers", render: () => <JpWaterLegend layerKey="jpWaterRivers" /> },
+  { id: "jpWaterSupplyFacilities", render: () => <JpWaterLegend layerKey="jpWaterSupplyFacilities" /> },
+  { id: "jpWaterSupplyAreas", render: () => <JpWaterLegend layerKey="jpWaterSupplyAreas" /> },
+  { id: "jpWaterSewerFacilities", render: () => <JpWaterLegend layerKey="jpWaterSewerFacilities" /> },
+  { id: "jpWaterGroundwaterSites", render: () => <JpWaterLegend layerKey="jpWaterGroundwaterSites" /> },
+  { id: "jpWaterNilimDams", render: () => <JpWaterLegend layerKey="jpWaterNilimDams" /> },
+  { id: "jpWaterAgriculturalPonds", render: () => <JpWaterLegend layerKey="jpWaterAgriculturalPonds" /> },
+  { id: "jpWaterFloodHazard", render: () => <JpWaterFloodHazardLegend /> },
+  { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
+  { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
+  { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
   { id: "osmBridgeCarriers", render: () => <NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} /> },
   { id: "osmBridgeFootprints", render: () => <NetworkStructuresLegend title="OSM 原生橋梁輪廓" rows={[{ label: "原生 outline（可能不完整）", color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
   { id: "officialBridgesNewTaipei", render: () => <NetworkStructuresLegend title="新北市轄管橋梁" rows={[{ label: "近似軸線；非登錄長度", color: NETWORK_STRUCTURES_COLORS.official }, { label: "圓點：原始重合端點，無可評估軸線", color: NETWORK_STRUCTURES_COLORS.official }]} /> },
@@ -429,6 +451,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
   { id: "flights", render: () => <FlightsLegend /> },
+  { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
@@ -483,6 +506,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { id: "jpBuildingHeight", render: () => <JpBuildingHeightLegend /> },
   { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { id: "propertyValueAdmin", render: ({ overlayParams }) => <PropertyValueAdminLegend levelIdx={overlayParams.propertyValueAdminLevelIdx ?? 0} /> },
   { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
   { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
@@ -809,6 +833,18 @@ function FlightsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
         軌跡為輪替配色，不代表分類
       </div>
+    </div>
+  );
+}
+
+function HistoricalFlightTrailsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>歷史航班軌跡</div>
+      <div style={{ height: 5, borderRadius: RADIUS.full, background: `linear-gradient(90deg, ${HISTORICAL_FLIGHT_COLORS[0]}, ${HISTORICAL_FLIGHT_COLORS[1]})` }} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>3D 航跡依觀測高度呈藍白漸層；高度倍率僅放大視覺，不改動資料。</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>觀測空白以直線連接；連線不代表中間有實測資料。缺口數見點選資訊。</div>
     </div>
   );
 }
@@ -1224,6 +1260,32 @@ function JpRailwaysLegend() {
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
   );
+}
+
+function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CONTRACT }) {
+  const contract = JP_WATER_LAYER_CONTRACT[layerKey];
+  const t = useLegendTheme();
+  const colors: Record<keyof typeof JP_WATER_LAYER_CONTRACT, string> = {
+    jpWaterDams: "#0369a1", jpWaterLakes: "#0ea5e9", jpWaterSupplyFacilities: "#06b6d4", jpWaterSupplyAreas: "#7dd3fc", jpWaterSewerFacilities: "#1d4ed8", jpWaterRivers: "#0284c7", jpWaterGroundwaterSites: "#8b5cf6", jpWaterNilimDams: "#2563eb", jpWaterAgriculturalPonds: "#65a30d", jpWaterFloodHazard: "#64748b", jpWaterLocalPipes: "#075985", jpWaterLocalFacilities: "#0284c7", jpWaterQualityStations: "#7c3aed", jpWaterLevelStations: "#0369a1",
+  };
+  const facilityGroup = layerKey === "jpWaterSupplyFacilities" ? "supply" : layerKey === "jpWaterSewerFacilities" ? "sewer" : null;
+  const rows = facilityGroup
+    ? JP_WATER_FACILITY_CATEGORIES.filter((category) => category.group === facilityGroup)
+    : [{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }];
+  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{contract.sourceLabel}</div>
+    <FireCatRows cats={rows} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
+    {facilityGroup && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>{facilityGroup === "supply" ? "P21 未提供一致細類；依 2010 年設施名稱保守推定，未命中者保留未分類。" : "P22 泵場／處理場依來源子型 P22a／P22b 區分。"}</div>}
+    {["jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds"].includes(layerKey) && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>{layerKey === "jpWaterGroundwaterSites" ? "已驗證 source 1,293 筆；實際24縣，當前視窗空白不代表全國無資料。" : layerKey === "jpWaterNilimDams" ? "已驗證 source 583 筆；實際46縣、年份未提供，不與KSJ水壩相加。" : "已驗證 source 161,778 筆；datum未知的位置候選，4,284同座標列保留。"}</div>}
+  </div>;
+}
+
+function JpWaterFloodHazardLegend() {
+  const t = useLegendTheme();
+  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>國土地理院 GSI 官方 XYZ（z2–17）</div>
+    <img src="https://disaportaldata.gsi.go.jp/hazardmap/copyright/img/shinsui_legend3.png" alt="國土地理院官方洪水浸水想定深度圖例" style={{ display: "block", maxWidth: "100%", height: "auto", marginBottom: 5 }} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>最大規模浸水想定；空白不等於無風險，非即時災情或預報，覆蓋仍有部分缺口。色階直接使用官方圖例。</div>
+  </div>;
 }
 
 function NetworkStructuresLegend({ title, rows }: { title: string; rows: readonly { label: string; color: string }[] }) {
@@ -1794,6 +1856,31 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {modeIdx === 4 ? PROPERTY_VALUE_ATTRIBUTION : BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
+function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
+  const t = useLegendTheme();
+  const level = resolvePropertyValueAdminLevel(levelIdx);
+  const config = PROPERTY_VALUE_ADMIN_LEVELS[level];
+  const bounds = [0, ...config.breaks];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        不動產總市值 · {config.label}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {PROPERTY_VALUE_ADMIN_COLORS.map((color, index) => {
+          const lower = formatPropertyValueTwd(bounds[index]!);
+          const upper = config.breaks[index];
+          return <UrbanDotRow key={color} color={color} label={upper ? `${lower} – < ${formatPropertyValueTwd(upper)}` : `${lower} 以上`} />;
+        })}
+        <UrbanDotRow color={PROPERTY_VALUE_ADMIN_MISSING_COLOR} label="來源缺值（不是 0）" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        市場交易建物模型估值聚合；{level === "township" ? "鄉鎮市區界自 z6 顯示。" : "19 / 22 縣市有數值。"}
       </div>
     </div>
   );
@@ -4384,14 +4471,14 @@ function GfwVesselPresenceLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW VESSEL PRESENCE
+        GFW 舊版每日船舶 · HISTORICAL
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", border: "1px solid #451a03" }} />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>每日 / 延遲 vessel presence</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>歷史快照；不代表最新 release</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        非即時 AIS；不等於暗船或 SAR unmatched 清單
+        最新日期請以小時 Grid／Tracks／SAR 為準；本層非即時 AIS。
       </div>
     </div>
   );
@@ -4424,6 +4511,11 @@ function GfwHourlyGridLegend() {
           資料窗 {dataWindow.utcDateLabel}（UTC）
         </div>
       )}
+      {dataWindow && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(dataWindow.latestCompleteDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(dataWindow.latestCompleteDate).label}
+        </div>
+      )}
       {dataWindow?.status === "out-of-window" && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
           ⚠ 目前時間在資料窗外，圖層已淡出
@@ -4436,6 +4528,15 @@ function GfwHourlyGridLegend() {
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
   const dataWindow = useGfwV4TrackDataWindow();
+  const [fallbackLatestDate, setFallbackLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwHourlyTrackManifest().then((manifest) => {
+      if (active) setFallbackLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
+  const latestDate = dataWindow.endUtcDate ?? fallbackLatestDate;
   const palette = isDark
     ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
     : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
@@ -4462,6 +4563,11 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
       {dataWindow.status !== "unknown" && dataWindow.startUtcDate && (
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
           資料窗 {dataWindow.startUtcDate === dataWindow.endUtcDate ? dataWindow.startUtcDate : `${dataWindow.startUtcDate} ~ ${dataWindow.endUtcDate}`}（UTC）
+        </div>
+      )}
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
         </div>
       )}
       {dataWindow.status === "out-of-window" && (
@@ -4521,6 +4627,11 @@ function GfwFishingEffortLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         最新可用日期：{manifest?.latestAvailableDate ?? "未提供（GFW 未提供）"} · active：{manifest?.latestObservedActiveDate ?? "未提供"}
       </div>
+      {manifest?.selectedUtcDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(manifest.selectedUtcDate).status === "stale" ? "#f97316" : t.textMuted, fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>
+          Release 完整日：{gfwFreshness(manifest.selectedUtcDate).label}
+        </div>
+      )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         Finalization：{manifest?.finalizationStatus ?? "未提供"} · Revision：{manifest?.revisionSemantics ?? "未提供"}
       </div>
@@ -4537,6 +4648,14 @@ function GfwFishingEffortLegend() {
 
 function GfwDarkVesselsLegend() {
   const t = useLegendTheme();
+  const [latestDate, setLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwDarkVesselsManifest().then((manifest) => {
+      if (active) setLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -4549,6 +4668,11 @@ function GfwDarkVesselsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         點位是 GFW HIGH 格網中心。「未與 AIS 匹配」不等於違法、暗船，也不能確認船舶刻意關閉 AIS。
       </div>
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 4 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
+        </div>
+      )}
     </div>
   );
 }
@@ -6636,10 +6760,18 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
     </div>
+    {kind !== "areas" && <>
+      <div style={{ color: t.textDim, marginTop: 5 }}>zoom &lt; 8：10 km 等面積格內筆數</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 8px", marginTop: 3 }}>
+        {JP_MEDICAL_GRID_BANDS.map((band) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+          <i style={{ width: 8, height: 8, background: band.color, display: "inline-block" }} />{band.label}
+        </span>)}
+      </div>
+    </>}
     <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
       ? "国土数値情報 A38 · 2020 歷史版。這是行政規劃邊界，不是設施服務範圍；人口／面積不可按 polygon part 加總。"
       : kind === "care"
-      ? "厚生労働省 H17。每個圓點是一筆服務登記；同址可有多筆，不代表唯一機構數。低縮放仍顯示全部登記點位。"
-      : "厚生労働省 Navii。每個圓點是一筆可繪製設施；缺座標另列。低縮放不抽樣。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
+      ? "厚生労働省 H17。低縮放每格加總目前開啟分類的服務登記；不是容量、服務人次或唯一機構數。zoom ≥ 8 每個圓點是一筆完整服務登記；同址可有多筆。"
+      : "厚生労働省 Navii。低縮放每格加總目前開啟分類的可繪製設施；不是病床數、容量或服務範圍。zoom ≥ 8 每個圓點是一筆完整可繪製設施；缺座標另列。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
   </div>;
 }

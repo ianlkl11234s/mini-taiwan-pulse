@@ -4,6 +4,7 @@ import { JP_MEDICAL_CATEGORIES } from "../data/jpMedicalTypes";
 
 const number = (value: unknown) => typeof value === "number" && Number.isFinite(value) ? value.toLocaleString() : "未提供";
 const date = (value: unknown) => typeof value === "string" ? value.replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3") : "未提供";
+const adaptiveNote = <div style={{ marginTop: 5 }}>zoom &lt; 8 顯示目前開啟分類的 10 km 密度網格；zoom ≥ 8 自動切換完整點位。</div>;
 
 export function JpMedicalStatus({ kind, layerKey }: { kind: "facilities" | "care" | "areas"; layerKey?: string }) {
   const runtime = useSyncExternalStore(subscribeJpMedicalRuntime, getJpMedicalRuntime, getJpMedicalRuntime);
@@ -17,6 +18,7 @@ export function JpMedicalStatus({ kind, layerKey }: { kind: "facilities" | "care
     全國來源列 {number(totals?.source_record_count)}；可繪製服務登記 {number(totals?.mapped_service_registration_count)}<br />
     非空間 {number(totals?.excluded_no_coordinate_count)}；重複隔離 {number(totals?.duplicate_quarantine_count)}<br />
     35 類來源服務；不是唯一機構數。
+    {adaptiveNote}
   </div>;
   const selected = JP_MEDICAL_CATEGORIES.find(item => item.key === layerKey);
   const categoryTotals = selected ? totals?.[selected.value] as Record<string, unknown> | undefined : undefined;
@@ -25,6 +27,7 @@ export function JpMedicalStatus({ kind, layerKey }: { kind: "facilities" | "care
     {selected ? <>{selected.label}<br />
       全國來源列 {number(categoryTotals?.source_record_count)}；可繪製 {number(categoryTotals?.mapped_point_count)}；缺座標 {number(categoryTotals?.excluded_no_coordinate_count)}</>
       : <strong>分類統計未提供。</strong>}
+    {adaptiveNote}
   </div>;
 }
 

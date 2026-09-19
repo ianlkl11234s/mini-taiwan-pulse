@@ -1,0 +1,18 @@
+{
+  "ID": "6aace0570f50de6ff52c3469",
+  "projectID": "69a3b5eb07e6de1869be6e28",
+  "serviceID": "69a3b5f307e6de1869be6e2c",
+  "environmentID": "69a3b5eb8ca26dea02bd9da7",
+  "gitProvider": "GITHUB",
+  "repoOwner": "ianlkl11234s",
+  "repoName": "mini-taiwan-pulse",
+  "ref": "refs/heads/master",
+  "commitSHA": "5fdde19d0af1e73492f9acdb6b52c867ac4a3a96",
+  "commitMessage": "Merge pull request #299 from ianlkl11234s/codex/jp-water-20260918\n\nfeat(water): add Japan water resource layers",
+  "planType": "docker",
+  "createdAt": "2026-09-18T06:55:19.844Z",
+  "scheduledAt": "2026-09-18T06:55:42.684Z",
+  "startedAt": "2026-09-18T06:55:47.402Z",
+  "finishedAt": "2026-09-18T07:01:08.039Z",
+  "status": "RUNNING"
+}

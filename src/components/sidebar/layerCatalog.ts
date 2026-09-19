@@ -200,10 +200,13 @@ export const JAPAN_THEME_TITLE = "日本 Japan";
  * 桌機主 Layers panel 用它把這批主題濾掉（只在日本 tab 出現）。
  * ⚠️ 這些 title 是全域唯一字串（與台灣的「交通 Move」「宗教 Religion」不同字串、不衝突）。
  */
-export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "高度與地表"];
+export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿", "自然保護", "世界遺產", "治安", "教育", "人口", "宗教", "醫療設施", "長照服務", "醫療圈", "水資源", "高度與地表"];
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: "房地產統計 Real Estate Statistics", groups: [
+    { title: "行政區總市值", layers: [fromManifest("propertyValueAdmin")] },
+  ] },
   ...(COMPARISON_UI_RECIPES.length > 0 ? [{ title: '統計比較', groups: [...new Set(COMPARISON_UI_RECIPES.map(r => r.groupLabel))].map(title => ({title, layers: COMPARISON_UI_RECIPES.filter(r => r.groupLabel === title).map(r => fromManifest(r.layer_key))})) }] : []),
   { title: "交通統計 Transport Statistics", groups: [
     { title: "航港獎補助", layers: [fromManifest("statsMaritimeSubsidyCounty")] },
@@ -283,6 +286,7 @@ export const STATISTICS_TAB_THEMES: ThemeDef[] = [
       { title: "住宅存量與使用", layers: [
         fromManifest("statsHousingTotalCounty"), fromManifest("statsHousingOccupiedCounty"), fromManifest("statsHousingUnoccupiedCounty"), fromManifest("statsHousingOccasionalCounty"), fromManifest("statsHousingOtherUseCounty"), fromManifest("statsHousingUnusedCounty"), fromManifest("statsHousingResidenceOnlyCounty"), fromManifest("statsHousingMixedUseCounty"), fromManifest("statsHousingOccupiedPctCounty"), fromManifest("statsHousingUnusedPctCounty"), fromManifest("statsHousingTotalTownship"), fromManifest("statsHousingOccupiedTownship"), fromManifest("statsHousingUnoccupiedTownship"), fromManifest("statsHousingOccasionalTownship"), fromManifest("statsHousingOtherUseTownship"), fromManifest("statsHousingUnusedTownship"), fromManifest("statsHousingOccupiedPctTownship"), fromManifest("statsHousingUnusedPctTownship"),
       ] },
+      { title: "不動產總市值", layers: [fromManifest("propertyValueAdmin")] },
       { title: "犯罪與治安", layers: [fromManifest("crimeAreaMonthly")] },
     ],
   },
@@ -514,6 +518,10 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("busStationsIntercity"),
           fromManifest("bikeStations"),
         ],
+      },
+      {
+        title: "歷史軌跡",
+        layers: [fromManifest("historicalFlightTrails")],
       },
       {
         title: "共享運具",
@@ -1746,6 +1754,17 @@ const THEME_CATALOG: ThemeDef[] = [
     ] }],
   },
   {
+    title: "水資源",
+    defaultCollapsed: false,
+    groups: [{ title: "水資源靜態資料", layers: [
+      fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities"),
+      fromManifest("jpWaterLakes"), fromManifest("jpWaterLocalFacilities"),
+      fromManifest("jpWaterQualityStations"), fromManifest("jpWaterLevelStations"),
+    ] }, { title: "補充資料（覆蓋與定位限制見圖例）", layers: [
+      fromManifest("jpWaterGroundwaterSites"), fromManifest("jpWaterNilimDams"), fromManifest("jpWaterAgriculturalPonds"),
+    ] }, { title: "背景", layers: [fromManifest("jpWaterFloodHazard")] }],
+  },
+  {
     title: "行政區",
     defaultCollapsed: false,
     groups: [
@@ -1773,6 +1792,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "線",
         layers: [
           fromManifest("jpRailways"),
+          fromManifest("jpHistoricalFlightTrails"),
         ],
       },
     ],
@@ -1900,6 +1920,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "教育與少子化統計": "publicLife",
   "醫療與長照統計": "publicLife",
   "住宅存量與使用": "city",
+  "房地產統計 Real Estate Statistics": "city",
   "資源回收統計 Recycling Statistics": "environment",
   "治安與交通 Safety & Transport": "safety",
   "行政區參考 Administrative Boundaries": "baseline",
@@ -1950,6 +1971,7 @@ const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
   "長照服務": "publicLife",
   "醫療圈": "safety",
   "高度與地表": "environment",
+  "水資源": "environment",
 };
 
 export function themeMacroGroup(title: string): LayerMacroGroup {
@@ -2020,6 +2042,9 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "aviationRestrictedGlow",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
+  // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
+  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
+  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);
 
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */

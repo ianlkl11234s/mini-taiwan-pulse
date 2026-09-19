@@ -1,7 +1,9 @@
 import { MainMapConnection } from "./research/MainMapConnection";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
+import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
@@ -37,6 +39,7 @@ import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { layerVisibilityStore } from "./state/layerVisibilityStore";
 import { isStatisticsChoropleth, type StatisticsChoroplethKey } from "./data/statisticsLayerRegistry";
+import { shouldClearFeatureInfoForLayerClick, type LayerClickIntent } from "./lib/statisticsPopupSelection";
 import { resolveStatisticsModeForUrl, statisticsDisplayModeStore } from "./state/statisticsDisplayModeStore";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -69,7 +72,6 @@ import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
-import { PropertyValuePanel } from "./components/PropertyValuePanel";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
@@ -94,7 +96,7 @@ import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
-import { LegendPanel } from "./components/LegendPanel";
+const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -180,6 +182,7 @@ export default function App() {
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
   const allenCoralAccess = useAllenCoralPrivateAccess();
+  const jpWaterPrivateAccess = useJpWaterPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -191,8 +194,9 @@ export default function App() {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
+    if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -599,9 +603,7 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
-  // ── 房地產總市值面板（縣市長條圖，IconRail 開關；非地圖層） ──
-  const [propertyValueOpen, setPropertyValueOpen] = useState(false);
-  // 4-way panel mutex：每次 Intel/Satellite/PropertyValue 開啟時 +1，IconRailSidebar 收起 Layers/Locations
+  // 外部面板開啟時 +1，IconRailSidebar 收起 Layers/Locations
   const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
@@ -842,6 +844,10 @@ export default function App() {
     allenCoralAccess.allowed,
     layerVisibility.allenCoralAtlas,
   );
+  const privateUiFeatureInfo = coralUiFeatureInfo && isJpWaterPrivateLayer(coralUiFeatureInfo.layerType)
+    && (!jpWaterPrivateAccess.allowed || !layerVisibility[coralUiFeatureInfo.layerType])
+    ? null
+    : coralUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -864,6 +870,42 @@ export default function App() {
       setFeatureInfo(null);
     }
   }, [allenCoralAccess.allowed, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateWater = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of JP_WATER_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isJpWaterPrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateWater();
+      showTransientNotice("日本水資源私人存取失敗，已清除圖層與選取結果。");
+    };
+    const clearPrivateWaterSelection = () => setFeatureInfo((current) => current && isJpWaterPrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(JP_WATER_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener("jp-water-selection-clear", clearPrivateWaterSelection);
+    return () => {
+      window.removeEventListener(JP_WATER_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener("jp-water-selection-clear", clearPrivateWaterSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (jpWaterPrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of JP_WATER_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isJpWaterPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, jpWaterPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1230,7 +1272,7 @@ export default function App() {
   const handleMemberToggle = useCallback(() => {
     if (memberOpen) { setMemberOpen(false); return; }
     setMemberOpen(true);
-    setIntelOpen(false); setPropertyValueOpen(false); setMonitorOpen(false);
+    setIntelOpen(false); setMonitorOpen(false);
     satelliteConsoleStore.setOpen(false); setChatOpen(false);
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
@@ -1367,11 +1409,10 @@ export default function App() {
     return true;
   }, []);
 
-  const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
+  const handleLayerClick = useCallback((layer: keyof LayerVisibility, intent?: LayerClickIntent) => {
     if (handleGatedIntercept(layer)) return;
-    // Switching statistical indicators must not retain a popup for the old indicator.
-    if (isStatisticsChoropleth(layer)) setFeatureInfo(null);
     const isVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, intent, isVisible)) setFeatureInfo(null);
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
       else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
@@ -1391,12 +1432,13 @@ export default function App() {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
     if (!layerVisibilityRef.current[layer] && handleGatedIntercept(layer)) return;
     const wasVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, undefined, wasVisible)) setFeatureInfo(null);
     if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.setVisible(layer, !wasVisible, prev));
     else toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept]);
+  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept, setFeatureInfo]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -1433,6 +1475,9 @@ export default function App() {
         : keys;
       const statisticsKeys = effectiveKeys.filter(isStatisticsChoropleth);
       const ordinaryKeys = effectiveKeys.filter((key) => !isStatisticsChoropleth(key));
+      if (value && statisticsKeys.some((key) => shouldClearFeatureInfoForLayerClick(key, undefined, layerVisibilityRef.current[key]))) {
+        setFeatureInfo(null);
+      }
       setLayerVisibility((prev) => {
         let next = statisticsKeys.length > 0
           ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
@@ -1448,7 +1493,7 @@ export default function App() {
         layerVisibilityRef.current,
       );
     },
-    [setLayerVisibility, layerVisibilityRef],
+    [setLayerVisibility, layerVisibilityRef, setFeatureInfo],
   );
 
   const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
@@ -1638,7 +1683,7 @@ export default function App() {
     onReCursorChange: setReCursorTs,
     onHistoricalStop: stopHistorical,
 
-    featureInfo: coralUiFeatureInfo,
+    featureInfo: privateUiFeatureInfo,
     activeReservoirId,
     aqiProduct,
     eqReplaySelectedId,
@@ -1954,9 +1999,8 @@ export default function App() {
               onIntelToggle={() => {
                 if (!intelOpen) {
                   setMemberOpen(false);
-                  // 開啟 Intel → 同時關 Satellite / PropertyValue + 收 rail Layers/Locations panel
+                  // 開啟 Intel → 同時關 Satellite + 收 rail Layers/Locations panel
                   satelliteConsoleStore.setOpen(false);
-                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 setIntelOpen((v) => !v);
@@ -1965,25 +2009,13 @@ export default function App() {
               onSatelliteToggle={() => {
                 if (!satConsole.open) {
                   setMemberOpen(false);
-                  // 開啟 Satellite → 同時關 Intel / PropertyValue + 收 rail Layers/Locations panel
+                  // 開啟 Satellite → 同時關 Intel + 收 rail Layers/Locations panel
                   setIntelOpen(false);
-                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 satelliteConsoleStore.toggleOpen();
               }}
               satelliteActive={satConsole.open}
-              onPropertyValueToggle={() => {
-                if (!propertyValueOpen) {
-                  setMemberOpen(false);
-                  // 開啟總市值 → 同時關 Intel / Satellite + 收 rail Layers/Locations panel
-                  setIntelOpen(false);
-                  satelliteConsoleStore.setOpen(false);
-                  setRailCloseEpoch((e) => e + 1);
-                }
-                setPropertyValueOpen((v) => !v);
-              }}
-              propertyValueActive={propertyValueOpen}
               externalCloseEpoch={railCloseEpoch}
               onMonitorSplitToggle={() => {
                 if (monitorOpen && monitorMode === "split") {
@@ -2018,12 +2050,6 @@ export default function App() {
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
-          />
-
-          {/* 🏢 房地產總市值 Property Value（縣市長條圖） */}
-          <PropertyValuePanel
-            open={propertyValueOpen}
-            onClose={() => setPropertyValueOpen(false)}
           />
 
           {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}
@@ -2914,10 +2940,10 @@ export default function App() {
           pointerEvents: "none",
         }}
       >
-        {coralUiFeatureInfo && (
+        {privateUiFeatureInfo && (
           <div style={{ pointerEvents: "auto" }}>
             <FeatureInfoPanel
-              feature={coralUiFeatureInfo}
+              feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
               reservoirContext={reservoirContext}
               isDarkTheme={isDarkTheme}
@@ -2939,12 +2965,17 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          <LegendPanel isDarkTheme={isDarkTheme} />
+          {Object.values(layerVisibility).some(Boolean) && (
+            <Suspense fallback={<span role="status">圖例載入中…</span>}>
+              <LegendPanel isDarkTheme={isDarkTheme} />
+            </Suspense>
+          )}
         </div>
       </div>
 
       {/* ── 全域 loading 指示器 ── */}
       <LoadingIndicator
+        isDarkTheme={isDarkTheme}
         rightOffset={splitActive
           ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
           : "16px"}

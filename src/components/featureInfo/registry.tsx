@@ -1,5 +1,6 @@
 import { JpMedicalFacilitiesPanel, JpMedicalCarePanel, JpMedicalAreasPanel } from "./jpMedicalPanels";
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
+import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 import { AllenCoralAtlasPanel } from "./AllenCoralAtlasPanel";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
@@ -57,7 +58,7 @@ import {
 import {
   JpAdminPrefecturePanel, JpAdminBoundariesPanel, JpStationsPanel, JpAirportsPanel,
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
-  JpTourismPanel, JpAccommodationDensityPanel,
+  JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
 import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
 import {
@@ -89,7 +90,7 @@ import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
   RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
   StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel, JpBuildingHeightPanel, UrbanFormGridPanel,
-  UrbanZoningPanel, NonUrbanZoningPanel, PropertyValueGridPanel,
+  UrbanZoningPanel, NonUrbanZoningPanel, PropertyValueAdminPanel, PropertyValueGridPanel,
 } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import {
@@ -198,6 +199,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
   ship: ShipPanel,
+  historicalFlightTrails: HistoricalFlightTrailPanel,
+  jpHistoricalFlightTrails: HistoricalFlightTrailPanel,
   lighthouse: LighthousePanel,
   railStation: RailStationPanel,
   port: PortPanel,
@@ -375,6 +378,18 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   jpPoliceFacilities: JpPoliceFacilitiesPanel,
   jpSchools: JpSchoolsPanel,
   jpPopulationMesh1km: JpPopulationMeshPanel,
+  jpWaterLakes: JpWaterPanel,
+  jpWaterDams: JpWaterPanel,
+  jpWaterRivers: JpWaterPanel,
+  jpWaterSupplyFacilities: JpWaterPanel,
+  jpWaterSupplyAreas: JpWaterPanel,
+  jpWaterSewerFacilities: JpWaterPanel,
+  jpWaterGroundwaterSites: JpWaterPanel,
+  jpWaterNilimDams: JpWaterPanel,
+  jpWaterAgriculturalPonds: JpWaterPanel,
+  jpWaterLocalFacilities: JpWaterPanel,
+  jpWaterQualityStations: JpWaterPanel,
+  jpWaterLevelStations: JpWaterPanel,
   jpAccommodationCanonical: JpTourismPanel,
   jpAccommodationDensity: JpAccommodationDensityPanel,
   jpAccommodationJta: JpTourismPanel,
@@ -479,6 +494,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   buildingsGba: BuildingsGbaPanel,
   jpBuildingHeight: JpBuildingHeightPanel,
   urbanFormGrid: UrbanFormGridPanel,
+  propertyValueAdmin: PropertyValueAdminPanel,
   propertyValueGrid: PropertyValueGridPanel,
   urbanZoningTaipei: UrbanZoningPanel,
   urbanZoningNewTaipei: UrbanZoningPanel,
@@ -528,6 +544,19 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+  jpWaterLakes: "湖沼 湖沼（W09・2005）",
+  jpWaterDams: "水壩 ダム（2014）",
+  jpWaterRivers: "河川流路 河川（2006–2009）",
+  jpWaterSupplyFacilities: "上水道相關設施（2010）",
+  jpWaterSupplyAreas: "給水區域 給水区域（2010）",
+  jpWaterSewerFacilities: "下水道設施（2012）",
+  jpWaterGroundwaterSites: "地下水等觀測點（24縣）",
+  jpWaterNilimDams: "NILIM 水壩位置（46縣）",
+  jpWaterAgriculturalPonds: "農業蓄水池（2026-03）",
+  jpWaterFloodHazard: "洪水浸水想定（最大規模）",
+  jpWaterLocalFacilities: "高松供排水相關設施 高松市",
+  jpWaterQualityStations: "水質測定地点（2024）",
+  jpWaterLevelStations: "橫濱水位站 横浜市",
   regionalStatistic: "區域統計",
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -676,6 +705,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   buildingsGba: "建物",
   jpBuildingHeight: "PLATEAU 建物",
   urbanFormGrid: "都市紋理",
+  propertyValueAdmin: "不動產總市值",
   propertyValueGrid: "不動產總市值網格",
   urbanZoningTaipei: "土地使用分區",
   urbanZoningNewTaipei: "土地使用分區",
@@ -774,7 +804,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   coralReefDistribution: "珊瑚礁歷史分布 Historical Coral Reefs",
   allenCoralAtlas: "珊瑚礁棲地分類 Allen Coral Atlas（私人研究）",
   aisstreamVessel: "AISStream 船舶",
-  gfwVesselPresence: "GFW 船舶 Presence",
+  gfwVesselPresence: "GFW 舊版每日船舶（歷史）",
   gfwHourlyGrid: "GFW 小時船舶網格",
   gfwHourlyTrack: "GFW 抽樣近似航跡",
   gfwFishingEffort: "GFW 每日捕撈活動",
@@ -801,6 +831,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpStations: "車站 駅",
   jpAirports: "機場 空港",
   jpRailways: "鐵道路線 鉄道路線",
+  historicalFlightTrails: "歷史航班軌跡（台灣）",
+  jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "警察設施 警察施設",
   jpSchools: "學校 学校",
   jpPopulationMesh1km: "人口網格 人口メッシュ",

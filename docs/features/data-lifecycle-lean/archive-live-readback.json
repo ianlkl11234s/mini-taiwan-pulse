@@ -1,0 +1,15 @@
+{
+  "check": "bounded archive readback",
+  "cleanup_run": false,
+  "key": "weather/archives/2026-09-12.tar.gz",
+  "members": 24,
+  "remote_bytes": 1100426,
+  "verification": {
+    "status": "verified",
+    "identity": {
+      "ETag": "\"29de6b8f1f615d1784cf9ed6b1230b24\"",
+      "VersionId": null,
+      "ContentLength": 1100426
+    }
+  }
+}

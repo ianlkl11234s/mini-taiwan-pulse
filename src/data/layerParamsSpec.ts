@@ -1530,6 +1530,19 @@ export const LAYER_PARAMS_SPEC = {
   jpMedicalAreasPrimary: [opacitySlider("jpMedicalAreasPrimaryOpacity", 0.2)],
   jpMedicalAreasSecondary: [opacitySlider("jpMedicalAreasSecondaryOpacity", 0.2)],
   jpMedicalAreasTertiary: [opacitySlider("jpMedicalAreasTertiaryOpacity", 0.2)],
+  jpWaterLakes: [opacitySlider("jpWaterLakesOpacity", 0.35)],
+  jpWaterDams: [opacitySlider("jpWaterDamsOpacity", 0.85)],
+  jpWaterRivers: [opacitySlider("jpWaterRiversOpacity", 0.75)],
+  jpWaterSupplyFacilities: [opacitySlider("jpWaterSupplyFacilitiesOpacity", 0.85)],
+  jpWaterSupplyAreas: [opacitySlider("jpWaterSupplyAreasOpacity", 0.18)],
+  jpWaterSewerFacilities: [opacitySlider("jpWaterSewerFacilitiesOpacity", 0.82)],
+  jpWaterGroundwaterSites: [opacitySlider("jpWaterGroundwaterSitesOpacity", 0.82)],
+  jpWaterNilimDams: [opacitySlider("jpWaterNilimDamsOpacity", 0.82)],
+  jpWaterAgriculturalPonds: [opacitySlider("jpWaterAgriculturalPondsOpacity", 0.55)],
+  jpWaterFloodHazard: [opacitySlider("jpWaterFloodHazardOpacity", 0.7)],
+  jpWaterLocalFacilities: [opacitySlider("jpWaterLocalFacilitiesOpacity", 0.85)],
+  jpWaterQualityStations: [opacitySlider("jpWaterQualityStationsOpacity", 0.75)],
+  jpWaterLevelStations: [opacitySlider("jpWaterLevelStationsOpacity", 0.85)],
   jpReligionGsi: [
     { kind: "slider", name: "jpReligionGsiOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0, max: 1, step: 0.05 },
     scaleSlider("jpReligionGsiScale", 1),
@@ -1616,6 +1629,13 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   jpRailways: [opacitySlider("jpRailwaysOpacity", 0.9)],
+  jpHistoricalFlightTrails: [
+    opacitySlider("jpHistoricalFlightTrailsOpacity", 0.28),
+    { kind: "slider", name: "jpHistoricalFlightTrailsAltitudeScale", labelPrefix: "高度倍率", digits: 1, default: 3, min: 1, max: 10, step: 0.5 },
+    { kind: "slider", name: "jpHistoricalFlightTrailsWidth", labelPrefix: "線條強度", digits: 2, default: 0.75, min: 0.25, max: 1, step: 0.05 },
+    { kind: "select", name: "jpHistoricalFlightTrailsDirectionIdx", label: "方向 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "離場", value: "1" }, { label: "到場", value: "2" }], out: "jpHistoricalFlightTrailsDirectionIdx", encodeNumeric: true },
+    { kind: "select", name: "jpHistoricalFlightTrailsRouteScopeIdx", label: "航線範圍 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "國內", value: "1" }, { label: "跨境", value: "2" }, { label: "未提供", value: "3" }], out: "jpHistoricalFlightTrailsRouteScopeIdx", encodeNumeric: true },
+  ],
   osmBridgeCarriers: [
     opacitySlider("osmBridgeCarriersOpacity", 0.85),
     {
@@ -2814,6 +2834,18 @@ export const LAYER_PARAMS_SPEC = {
   // 回傳路徑逐一宣告在 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`
   // 的 `RETURN_CHANNEL`，那張表就是第二通道的文件。
 
+  propertyValueAdmin: [
+    {
+      kind: "select", name: "propertyValueAdminLevel", label: "行政層級", default: "county",
+      options: [
+        { label: "縣市（19 / 22）", value: "county" },
+        { label: "鄉鎮市區（352 / 368，z6+）", value: "township" },
+      ],
+      out: "propertyValueAdminLevelIdx", encode: ["county", "township"],
+    },
+    opacitySlider("propertyValueAdminOpacity", 0.7),
+  ],
+
   // ── NCDR 示警 5 群組：單一 source、共用一支 opacity（分開調沒有意義）──
   lifelineAlerts: [alertOpacity()],
   floodAlerts: [alertOpacity()],
@@ -3023,6 +3055,13 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "orbScale", labelPrefix: "Orb", digits: 1, displayScale: 100000,
       default: 0.000005, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+  ],
+  historicalFlightTrails: [
+    opacitySlider("historicalFlightTrailsOpacity", 0.28),
+    { kind: "slider", name: "historicalFlightTrailsAltitudeScale", labelPrefix: "高度倍率", digits: 1, default: 3, min: 1, max: 10, step: 0.5 },
+    { kind: "slider", name: "historicalFlightTrailsWidth", labelPrefix: "線條強度", digits: 2, default: 0.75, min: 0.25, max: 1, step: 0.05 },
+    { kind: "select", name: "historicalFlightTrailsDirectionIdx", label: "方向 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "離場", value: "1" }, { label: "到場", value: "2" }], out: "historicalFlightTrailsDirectionIdx", encodeNumeric: true },
+    { kind: "select", name: "historicalFlightTrailsRouteScopeIdx", label: "航線範圍 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "國內", value: "1" }, { label: "跨境", value: "2" }, { label: "未提供", value: "3" }], out: "historicalFlightTrailsRouteScopeIdx", encodeNumeric: true },
   ],
   ships: [
     {

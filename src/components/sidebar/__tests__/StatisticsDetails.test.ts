@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
+import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsDetailControlStyle, statisticsDimensionSummary, statisticsLegendRows, statisticsSelectedTupleAreaLabel, statisticsValueLabel, unparseableStatisticsReleaseCount } from '../StatisticsDetails';
+import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
+  it('keeps statistics selectors readable in either sidebar theme', () => {
+    expect(statisticsDetailControlStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
+    expect(statisticsDetailControlStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
+    expect(medicalStatisticsSelectStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
+    expect(medicalStatisticsSelectStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
+  });
+
   it('renders the selected period and fund as a compact disclosure label', () => {
     expect(statisticsDimensionSummary({
       roc_year: '114', month: '07', agency_fund: '交通部航港局-前瞻基礎建設計畫第5期特別預算',

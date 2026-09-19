@@ -1,3 +1,4 @@
+import { pickHistoricalFlightTrail } from "../map/historicalFlightTrails";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
@@ -19,6 +20,7 @@ import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
+import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -122,6 +124,22 @@ export function useMapInteraction(
       const h = container.clientHeight;
 
       const vis = layerVisibilityRef?.current;
+
+      // Pick the elevated 3D geometry, not an invisible ground projection.
+      for (const country of ["TW", "JP"] as const) {
+        const layerType = country === "TW" ? "historicalFlightTrails" : "jpHistoricalFlightTrails";
+        if (!vis?.[layerType]) continue;
+        const hit = pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h);
+        if (hit) {
+          setFeatureInfo(country === "TW"
+            ? { layerType: "historicalFlightTrails", properties: hit.properties ?? {} }
+            : { layerType: "jpHistoricalFlightTrails", properties: hit.properties ?? {} });
+          setTooltipInfo(null);
+          setTrainTooltipInfo(null);
+          setBusTooltipInfo(null);
+          return;
+        }
+      }
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
       if (vis?.rail) {
@@ -386,8 +404,8 @@ export function useMapInteraction(
             return true;
           });
           if (existingIds.length === 0) continue;
-          // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
-          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" ? e.point : bbox;
+          // Small density cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" || type === "jpAccommodationDensity" ? e.point : bbox;
           const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
@@ -415,7 +433,8 @@ export function useMapInteraction(
               type === "temperatureGrid" ||
               type === "earthquakeReplayTown" ||
               type === "funeralOperatorDensity" ||
-              type === "animalShelterPressure"
+              type === "animalShelterPressure" ||
+              type === "propertyValueAdmin"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : type === "jpBuildingHeight"
                   ? enrichJpHeightFeature(f.source ?? "", f.properties ?? {})
@@ -426,6 +445,15 @@ export function useMapInteraction(
             let properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
             if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
               properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
+            }
+            const waterIdentity = jpWaterSelectionIdentity(type, properties.source_id);
+            if (waterIdentity) {
+              properties = {
+                ...properties,
+                source_layer: waterIdentity.sourceLayer,
+                asset_sha256: waterIdentity.assetSha256,
+                selection_identity: waterIdentity.selectionId,
+              };
             }
             // H17 同位置可能有多筆服務；保留目前篩選可見的登記，避免 first-hit 隱藏其他服務。
             if ((type === "jpCarePlanning" || type === "jpCareHomeVisit" || type === "jpCareDayServices"

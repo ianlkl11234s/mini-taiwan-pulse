@@ -1,3 +1,6 @@
+/** Verified immutable R2 pilot; the original /forestry path remains a rollback asset. */
+export const FOREST_RESERVE_PMTILES_URL = "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles";
+
 // 保安林種類配色表（依林業及自然保育署 2025/1151 版「種類」欄位）
 // 522 features，含 10 個基本類型 + 3 個複合類型
 

@@ -1,0 +1,348 @@
+{
+  "spool_inventory": {
+    "checked_at": "2026-09-18T12:30:30.784984+00:00",
+    "runs": [
+      {
+        "name": "2026-08-20-cb91c8e2-29a7-42af-b2aa-fd0dd663373f",
+        "ledger": {
+          "run_id": "cb91c8e2-29a7-42af-b2aa-fd0dd663373f",
+          "release_id": "2026-08-20",
+          "status": "failed",
+          "failed_at": "2026-08-25T22:47:06.924280+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1971475171,
+        "files": 383,
+        "newest_mtime": "2026-08-25T22:47:06.921819+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json",
+          "release/2026-08-20/manifest.json",
+          "release/2026-08-20/run.json"
+        ],
+        "known_file_validation": {
+          "ok": false,
+          "reason": "failed spool contains unknown file: release/2026-08-20/grid/hours/20260820T03Z.geojson"
+        }
+      },
+      {
+        "name": "2026-08-28-11d3ee46-ebc8-49d2-b466-cbcdf9f1e197",
+        "ledger": {
+          "run_id": "11d3ee46-ebc8-49d2-b466-cbcdf9f1e197",
+          "release_id": "2026-08-28",
+          "status": "running",
+          "started_at": "2026-09-02T00:30:00.682998+00:00",
+          "retention_days_after_failure": 7
+        },
+        "bytes": 13034137,
+        "files": 7,
+        "newest_mtime": "2026-09-02T00:35:46.834585+00:00",
+        "release_manifests": [],
+        "known_file_validation": {
+          "ok": true,
+          "files": 7,
+          "dirs": 2
+        }
+      },
+      {
+        "name": "2026-09-06-a6393f80-1078-422f-b2f2-61baf7bab4f4",
+        "ledger": {
+          "run_id": "a6393f80-1078-422f-b2f2-61baf7bab4f4",
+          "release_id": "2026-09-06",
+          "status": "failed",
+          "failed_at": "2026-09-11T00:57:37.761420+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1147089168,
+        "files": 205,
+        "newest_mtime": "2026-09-11T00:57:37.756618+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-07-854da5ae-ab13-4ea9-9d32-03712f482340",
+        "ledger": {
+          "run_id": "854da5ae-ab13-4ea9-9d32-03712f482340",
+          "release_id": "2026-09-07",
+          "status": "failed",
+          "failed_at": "2026-09-12T00:43:27.086218+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1221401007,
+        "files": 205,
+        "newest_mtime": "2026-09-12T00:43:27.081070+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-08-f67da90b-6a81-4af3-95a8-f801474e609b",
+        "ledger": {
+          "run_id": "f67da90b-6a81-4af3-95a8-f801474e609b",
+          "release_id": "2026-09-08",
+          "status": "failed",
+          "failed_at": "2026-09-13T00:46:04.200795+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1283798795,
+        "files": 205,
+        "newest_mtime": "2026-09-13T00:46:04.198228+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-09-47e8638c-bb76-4920-9315-9c5f6f08b385",
+        "ledger": {
+          "run_id": "47e8638c-bb76-4920-9315-9c5f6f08b385",
+          "release_id": "2026-09-09",
+          "status": "failed",
+          "failed_at": "2026-09-14T00:42:36.351812+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1297880937,
+        "files": 205,
+        "newest_mtime": "2026-09-14T00:42:36.350735+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-10-0061470e-0ee5-4c9b-a5f8-06f4decf9174",
+        "ledger": {
+          "run_id": "0061470e-0ee5-4c9b-a5f8-06f4decf9174",
+          "release_id": "2026-09-10",
+          "status": "failed",
+          "failed_at": "2026-09-15T00:46:54.739501+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1333460564,
+        "files": 205,
+        "newest_mtime": "2026-09-15T00:46:54.737927+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-11-62742fc3-a4d0-4a84-b9f3-032663a4c089",
+        "ledger": {
+          "run_id": "62742fc3-a4d0-4a84-b9f3-032663a4c089",
+          "release_id": "2026-09-11",
+          "status": "failed",
+          "failed_at": "2026-09-16T00:43:41.511076+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1423879829,
+        "files": 205,
+        "newest_mtime": "2026-09-16T00:43:41.509753+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-12-e9561d25-03c2-4ae1-959b-1bb9e6b2949a",
+        "ledger": {
+          "run_id": "e9561d25-03c2-4ae1-959b-1bb9e6b2949a",
+          "release_id": "2026-09-12",
+          "status": "failed",
+          "failed_at": "2026-09-17T00:45:56.565456+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1488660408,
+        "files": 205,
+        "newest_mtime": "2026-09-17T00:45:56.559460+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      },
+      {
+        "name": "2026-09-13-e80691f5-3a37-4049-be94-2332cb270cf1",
+        "ledger": {
+          "run_id": "e80691f5-3a37-4049-be94-2332cb270cf1",
+          "release_id": "2026-09-13",
+          "status": "failed",
+          "failed_at": "2026-09-18T00:41:56.494081+00:00",
+          "retention_days": 7
+        },
+        "bytes": 1497303631,
+        "files": 205,
+        "newest_mtime": "2026-09-18T00:41:56.489785+00:00",
+        "release_manifests": [
+          "work/sar/sar-fetch.json",
+          "work/ais/shared-fetch.json"
+        ],
+        "known_file_validation": {
+          "ok": true,
+          "files": 205,
+          "dirs": 9
+        }
+      }
+    ],
+    "open_refs": []
+  },
+  "s3_root_references": {
+    "failures": [
+      {
+        "run": "2026-08-20-cb91c8e2-29a7-42af-b2aa-fd0dd663373f",
+        "error": "FileExistsError: immutable S3 release already recorded: 2026-08-20"
+      },
+      {
+        "run": "2026-08-28-11d3ee46-ebc8-49d2-b466-cbcdf9f1e197",
+        "error": ""
+      },
+      {
+        "run": "2026-09-06-a6393f80-1078-422f-b2f2-61baf7bab4f4",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-07-854da5ae-ab13-4ea9-9d32-03712f482340",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-08-f67da90b-6a81-4af3-95a8-f801474e609b",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-09-47e8638c-bb76-4920-9315-9c5f6f08b385",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-10-0061470e-0ee5-4c9b-a5f8-06f4decf9174",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-11-62742fc3-a4d0-4a84-b9f3-032663a4c089",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-12-e9561d25-03c2-4ae1-959b-1bb9e6b2949a",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      },
+      {
+        "run": "2026-09-13-e80691f5-3a37-4049-be94-2332cb270cf1",
+        "error": "RuntimeError: tippecanoe and pmtiles executables are required for browser assets"
+      }
+    ],
+    "remote_roots": [
+      {
+        "key": "deploy-assets/global-maritime/gfw-hourly/manifest.json",
+        "exists": true,
+        "etag": "\"404c6d55b2a35675dd56877fef7bae56\"",
+        "summary": {
+          "release_id": "2026-08-20",
+          "generated_at": "2026-08-25T15:14:29.444226+00:00",
+          "published_releases": [
+            {
+              "release_id": "2026-08-20",
+              "manifest_key": "deploy-assets/global-maritime/gfw-hourly/releases/2026-08-20/manifest.json",
+              "object_count": 345
+            }
+          ],
+          "latest_complete_date": "2026-08-20"
+        }
+      },
+      {
+        "key": "deploy-assets/global-maritime/gfw-hourly/v3-shadow/manifest.json",
+        "exists": true,
+        "etag": "\"81472344a34f281325131870ee454573\"",
+        "summary": {
+          "release_id": "2026-08-21",
+          "generated_at": "2026-08-26T06:04:56.263546+00:00",
+          "published_releases": [
+            {
+              "release_id": "2026-08-21",
+              "manifest_key": "deploy-assets/global-maritime/gfw-hourly/v3-shadow/releases/2026-08-21/manifest.json",
+              "object_count": 3313
+            }
+          ],
+          "latest_complete_date": "2026-08-21"
+        }
+      }
+    ]
+  },
+  "deployed_toolchain": {
+    "tippecanoe": "/usr/local/bin/tippecanoe",
+    "pmtiles": "/usr/local/bin/pmtiles",
+    "preflight_before_network_fetch": true,
+    "success_of_new_run_verified": false
+  },
+  "actions": {
+    "deleted_files": 0,
+    "database_mutations": 0,
+    "policy_decision": "pending user preference"
+  },
+  "note": "File whitelist validation and absent active file descriptors are point-in-time evidence, not archive verification or proof of full recoverability.",
+  "history_tables": {
+    "checked_at_utc": "2026-09-18T12:35:21Z",
+    "size_measure": "pg_total_relation_size including indexes",
+    "tables": [
+      {
+        "table": "live.news_events",
+        "bytes": 140255232,
+        "estimated_rows": 114333,
+        "min_date": "2026-06-07",
+        "max_date": "2026-09-18",
+        "current_policy": "HOLD"
+      },
+      {
+        "table": "live.yt_live_history",
+        "bytes": 133668864,
+        "estimated_rows": 248430,
+        "min_date": "2026-06-17",
+        "max_date": "2026-09-18",
+        "current_policy": "HOLD"
+      },
+      {
+        "table": "live.iot_wra_measurements",
+        "bytes": 1409687552,
+        "estimated_rows": 3027907,
+        "min_date": "2020-09-01",
+        "max_date": "2026-09-18",
+        "current_policy": "permanent; cleanup inactive/no-op"
+      }
+    ]
+  }
+}

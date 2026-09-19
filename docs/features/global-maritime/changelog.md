@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-18 — Safe GFW serving repair (local, not deployed)
+
+- Fixed-candidate asset download and SHA/bytes verification before atomic root replacement.
+- Shared startup/hourly mirror with OS locking; no whole-history S3 sync.
+- Eight-day grace for precise local serving-cache retirement; upstream S3 history remains retained.
+- Details: [repair evidence and release gates](./gfw-safe-refresh-2026-09-18.md).
+
 ## 2026-08-29 — East Asia v4 formal local root and main-map acceptance
 
 - Removed the DEV shadow selector from the consumer path. The main map now resolves the formal

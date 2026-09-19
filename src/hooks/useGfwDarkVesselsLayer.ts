@@ -7,6 +7,7 @@ import {
   type GfwDarkVesselsManifest,
 } from "../data/gfwDarkVesselsLoader";
 import { showTransientNotice } from "../components/TransientNotice";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
@@ -86,7 +87,7 @@ export function useGfwDarkVesselsLayer(
     const notifyLatest = (manifest: GfwDarkVesselsManifest) => {
       if (!visible || activation !== activationRef.current || noticeActivationRef.current === activation) return;
       noticeActivationRef.current = activation;
-      showTransientNotice(`GFW SAR 未匹配 AIS 資料最新完整日：${manifest.latestCompleteDate}（UTC，非即時）`);
+      showTransientNotice(`GFW SAR 未匹配 AIS 資料最新完整日：${gfwFreshness(manifest.latestCompleteDate).label}（非即時）`);
     };
     const loadHour = async (timeSeconds: number) => {
       if (!visible || disposed) return;

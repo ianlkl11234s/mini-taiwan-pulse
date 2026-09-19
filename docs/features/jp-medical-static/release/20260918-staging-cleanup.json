@@ -1,0 +1,10 @@
+{
+  "operation": "remove_verified_duplicate_staging",
+  "version": "6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "files": 781,
+  "bytes": 2172833151,
+  "verified": "every staged file SHA/bytes equals installed release or current; installed release payload equals manifest",
+  "removed_prefix": "/data/jp-medical/.install-staging/6f59ead2cd2381d80154b4fa9b5ac7c32acec0d315600a3e5f97282cf93fdafa",
+  "current_preserved": true,
+  "time": "2026-09-18T05:54:19.628288+00:00"
+}

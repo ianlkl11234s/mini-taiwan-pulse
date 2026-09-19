@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 762,
+    "keyCount": 778,
     "sections": [
       "gisLayers",
       "overlays",
@@ -742,9 +742,69 @@
     },
     {
       "layers": [
+        "jp-water-jpWaterDams"
+      ],
+      "type": "jpWaterDams"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSupplyFacilities"
+      ],
+      "type": "jpWaterSupplyFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSewerFacilities"
+      ],
+      "type": "jpWaterSewerFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterGroundwaterSites"
+      ],
+      "type": "jpWaterGroundwaterSites"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterNilimDams"
+      ],
+      "type": "jpWaterNilimDams"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterAgriculturalPonds"
+      ],
+      "type": "jpWaterAgriculturalPonds"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterLocalFacilities"
+      ],
+      "type": "jpWaterLocalFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterQualityStations"
+      ],
+      "type": "jpWaterQualityStations"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterLevelStations"
+      ],
+      "type": "jpWaterLevelStations"
+    },
+    {
+      "layers": [
         "jp-railways-line"
       ],
       "type": "jpRailways"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterRivers"
+      ],
+      "type": "jpWaterRivers"
     },
     {
       "layers": [
@@ -763,6 +823,12 @@
         "jp-medical-areas-3-fill"
       ],
       "type": "jpMedicalAreasTertiary"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterLakes"
+      ],
+      "type": "jpWaterLakes"
     },
     {
       "layers": [
@@ -873,14 +939,19 @@
     },
     {
       "layers": [
+        "jp-accommodation-density-450-fill",
+        "jp-accommodation-density-450-outline"
+      ],
+      "type": "jpAccommodationDensity"
+    },
+    {
+      "layers": [
         "jp-population-mesh-fill"
       ],
       "type": "jpPopulationMesh1km"
     },
     {
       "layers": [
-        "jp-accommodation-density-450-fill",
-        "jp-accommodation-density-450-outline",
         "jp-accommodation-density-1500-fill",
         "jp-accommodation-density-1500-outline"
       ],
@@ -1206,6 +1277,15 @@
         "property-value-grid-1500-extrusion"
       ],
       "type": "propertyValueGrid"
+    },
+    {
+      "layers": [
+        "property-value-admin-county-fill",
+        "property-value-admin-county-line",
+        "property-value-admin-township-fill",
+        "property-value-admin-township-line"
+      ],
+      "type": "propertyValueAdmin"
     },
     {
       "layers": [
@@ -1731,10 +1811,10 @@
     },
     {
       "layers": [
-        "business-registry-factory-density-1500-fill",
-        "business-registry-factory-density-450-fill"
+        "business-registry-regulated-facility-density-1500-fill",
+        "business-registry-regulated-facility-density-450-fill"
       ],
-      "type": "factoryDensityGrid"
+      "type": "regulatedFacilityDensityGrid"
     },
     {
       "layers": [
@@ -1745,10 +1825,10 @@
     },
     {
       "layers": [
-        "business-registry-regulated-facility-density-1500-fill",
-        "business-registry-regulated-facility-density-450-fill"
+        "business-registry-factory-density-1500-fill",
+        "business-registry-factory-density-450-fill"
       ],
-      "type": "regulatedFacilityDensityGrid"
+      "type": "factoryDensityGrid"
     },
     {
       "layers": [
@@ -1758,10 +1838,10 @@
     },
     {
       "layers": [
-        "business-registry-company-capital-grid-1500-company-overview-density-fill",
-        "business-registry-company-capital-grid-450-company-overview-density-fill"
+        "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
+        "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill"
       ],
-      "type": "companyPoints"
+      "type": "companyAgeStructure"
     },
     {
       "layers": [
@@ -1772,10 +1852,10 @@
     },
     {
       "layers": [
-        "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
-        "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill"
+        "business-registry-company-capital-grid-1500-company-overview-density-fill",
+        "business-registry-company-capital-grid-450-company-overview-density-fill"
       ],
-      "type": "companyAgeStructure"
+      "type": "companyPoints"
     },
     {
       "layers": [
@@ -2745,6 +2825,12 @@
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSupplyAreas"
+      ],
+      "type": "jpWaterSupplyAreas"
     }
   ],
   "overlays": [
@@ -14727,7 +14813,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10.01,
+          "maxzoom": 10,
           "minzoom": 4,
           "paint": {
             "dark": {
@@ -14893,7 +14979,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 12.01,
+          "maxzoom": 12,
           "minzoom": 10,
           "paint": {
             "dark": {
@@ -35395,7 +35481,7 @@
         "outline"
       ],
       "sourceId": "forest-reserve",
-      "sourceUrl": "./forestry/forest_reserve.pmtiles"
+      "sourceUrl": "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles"
     },
     {
       "dynamicData": null,
@@ -65668,6 +65754,71 @@
         "value": 0.5
       }
     ],
+    "historicalFlightTrails": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "step": 0.5,
+        "value": 3
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "方向 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "離場",
+            "value": "1"
+          },
+          {
+            "label": "到場",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "航線範圍 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "國內",
+            "value": "1"
+          },
+          {
+            "label": "跨境",
+            "value": "2"
+          },
+          {
+            "label": "未提供",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      }
+    ],
     "iPostBoxes": [
       {
         "label": "透明度 0.85",
@@ -66238,6 +66389,71 @@
         "value": 0.75
       }
     ],
+    "jpHistoricalFlightTrails": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "step": 0.5,
+        "value": 3
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "方向 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "離場",
+            "value": "1"
+          },
+          {
+            "label": "到場",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "航線範圍 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "國內",
+            "value": "1"
+          },
+          {
+            "label": "跨境",
+            "value": "2"
+          },
+          {
+            "label": "未提供",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      }
+    ],
     "jpMarineEbsaCoastal": [
       {
         "label": "透明度 0.22",
@@ -66609,6 +66825,123 @@
         ],
         "type": "select",
         "value": "type"
+      }
+    ],
+    "jpWaterAgriculturalPonds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "jpWaterDams": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterFloodHazard": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
+      }
+    ],
+    "jpWaterGroundwaterSites": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
+    "jpWaterLakes": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.35
+      }
+    ],
+    "jpWaterLevelStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterLocalFacilities": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterNilimDams": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
+    "jpWaterQualityStations": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpWaterRivers": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpWaterSewerFacilities": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
+    "jpWaterSupplyAreas": [
+      {
+        "label": "透明度 0.18",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.18
+      }
+    ],
+    "jpWaterSupplyFacilities": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       }
     ],
     "jpWildlifeProtectionNational": [
@@ -69126,6 +69459,30 @@
         ],
         "type": "select",
         "value": "24"
+      }
+    ],
+    "propertyValueAdmin": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "縣市（19 / 22）",
+            "value": "county"
+          },
+          {
+            "label": "鄉鎮市區（352 / 368，z6+）",
+            "value": "township"
+          }
+        ],
+        "type": "select",
+        "value": "county"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
       }
     ],
     "propertyValueGrid": [

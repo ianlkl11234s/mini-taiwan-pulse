@@ -45,6 +45,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
   statsAutomobileLicenseHoldersCount: "choropleth",
   statsMotorcycleLicenseHoldersCount: "choropleth",
   crimeAreaMonthly: "choropleth",
+  propertyValueAdmin: "choropleth",
   countyBoundary: "boundary",
   townshipBoundary: "boundary",
 } as const satisfies Partial<Record<keyof LayerVisibility, "choropleth" | "boundary">>;
@@ -52,6 +53,7 @@ export const STATISTICS_TAB_LAYER_ROLES = {
 export const STATISTICS_CHOROPLETH_KEYS = [
   ...STATISTICS_RENDER_KEYS,
   "crimeAreaMonthly",
+  "propertyValueAdmin",
 ] as const satisfies readonly (keyof LayerVisibility)[];
 
 export type StatisticsChoroplethKey = typeof STATISTICS_CHOROPLETH_KEYS[number];

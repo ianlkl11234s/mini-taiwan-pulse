@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CARE_TYPES, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CARE_TYPES, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS, jpMedicalGridColorExpression } from "./jpMedicalTypes";
 
 describe("日本醫療分類契約", () => {
   it("保留五種 Navii record_kind 與固定顏色", () => {
@@ -18,5 +18,10 @@ describe("日本醫療分類契約", () => {
     expect(JP_MEDICAL_AREA_LEVELS.map(item => item.value)).toEqual(["1", "2", "3"]);
     expect(new Set(JP_MEDICAL_AREA_LEVELS.map(item => item.key)).size).toBe(3);
     expect(new Set(JP_MEDICAL_AREA_LEVELS.map(item => item.color)).size).toBe(3);
+  });
+  it("低縮放格網使用固定且遞增的密度級距", () => {
+    expect(JP_MEDICAL_GRID_BANDS.map(item => item.min)).toEqual([1, 5, 20, 100, 500, 2_000, 10_000]);
+    expect(new Set(JP_MEDICAL_GRID_BANDS.map(item => item.color)).size).toBe(JP_MEDICAL_GRID_BANDS.length);
+    expect(JSON.stringify(jpMedicalGridColorExpression())).toContain("aggregate_count");
   });
 });

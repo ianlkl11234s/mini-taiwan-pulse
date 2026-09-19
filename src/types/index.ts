@@ -92,6 +92,7 @@ export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busInter
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
   TransportType | "windPlan" | "lighthouses"
+  | "historicalFlightTrails" | "jpHistoricalFlightTrails"
   | "stationsTHSR" | "stationsTRA" | "stationsMetro"
   | "busStationsCity" | "busStationsIntercity"
   | "bikeStations"
@@ -128,6 +129,7 @@ export type ExpandableLayerKey =
   | "buildingsGba"
   | "jpBuildingHeight"
   | "urbanFormGrid"
+  | "propertyValueAdmin"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
   | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
@@ -368,6 +370,7 @@ export type ExpandableLayerKey =
   | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
   | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+  | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -713,6 +716,7 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
+    | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
@@ -731,6 +735,7 @@ export interface FeatureInfo {
     | "buildingsGba"
     | "jpBuildingHeight"
     | "urbanFormGrid"
+    | "propertyValueAdmin"
     | "propertyValueGrid"
     | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
     | "sportsVenue"
@@ -841,6 +846,7 @@ export interface FeatureInfo {
     | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
     | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+    | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -998,6 +1004,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   statsWasteCounty: boolean;
   statsRecyclingCounty: boolean;
   flights: boolean;
+  historicalFlightTrails: boolean;
   ships: boolean;
   rail: boolean;
   stationsTHSR: boolean;
@@ -1188,6 +1195,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
   jpBuildingHeight: boolean;      // 日本 PLATEAU 建物高度（Tokyo/Shinjuku pilot；height 缺值維持中性平面）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
+  propertyValueAdmin: boolean;    // 不動產總市值行政區統計（縣市 19/22／鄉鎮市區 352/368；缺值不當作 0）
   propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）
@@ -1476,6 +1484,19 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   jpMedicalAreasPrimary: boolean;
   jpMedicalAreasSecondary: boolean;
   jpMedicalAreasTertiary: boolean;
+  jpWaterLakes: boolean;
+  jpWaterDams: boolean;
+  jpWaterRivers: boolean;
+  jpWaterSupplyFacilities: boolean;
+  jpWaterSupplyAreas: boolean;
+  jpWaterSewerFacilities: boolean;
+  jpWaterGroundwaterSites: boolean;
+  jpWaterNilimDams: boolean;
+  jpWaterAgriculturalPonds: boolean;
+  jpWaterFloodHazard: boolean;
+  jpWaterLocalFacilities: boolean;
+  jpWaterQualityStations: boolean;
+  jpWaterLevelStations: boolean;
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
@@ -1484,6 +1505,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
   jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
   jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
+  jpHistoricalFlightTrails: boolean;
   osmBridgeCarriers: boolean;
   osmBridgeFootprints: boolean;
   officialBridgesNewTaipei: boolean;

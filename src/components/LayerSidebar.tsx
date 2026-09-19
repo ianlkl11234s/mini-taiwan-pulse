@@ -21,6 +21,8 @@ import {
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
+import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
@@ -241,6 +243,9 @@ function SidebarContent({
 }) {
   const [mobileTab, setMobileTab] = useState<"layers" | "statistics">("layers");
   const [search, setSearch] = useState("");
+  const togglePalette = isDarkTheme
+    ? { ACCENT_TOGGLE: "#fff", TOGGLE_OFF: "#4b5563", TOGGLE_KNOB_ON: "#111827", TOGGLE_KNOB_OFF: "#fff" }
+    : { ACCENT_TOGGLE: "#1F2937", TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff" };
   const activeThemes: readonly ThemeDef[] = isMobile ? (mobileTab === "statistics" ? STATISTICS_TAB_THEMES : MOBILE_LAYER_THEMES) : THEMES;
   const activeLayerKeys = new Set(activeThemes.flatMap((theme) => theme.groups.flatMap((group) => group.layers.map((layer) => layer.key))));
   const searchResults = searchLayers(search, { favoriteKeys }).filter((result) => activeLayerKeys.has(result.key));
@@ -480,6 +485,8 @@ function SidebarContent({
                     onLayerClick={onLayerClick}
                     textColor={textColor}
                     dimColor={dimColor}
+                    colorScheme={isDarkTheme ? 'dark' : 'light'}
+                    renderToggle={(on, onChange, label) => <LayerToggleSwitch on={on} onChange={onChange} label={label} {...togglePalette} />}
                     renderControls={(selectedKey) => (
                       <ExpandedPanel
                         layerKey={selectedKey as ExpandableLayerKey}
@@ -570,7 +577,7 @@ function SidebarContent({
                     )}
                   </div>
 
-                  {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} />}
+                  {statisticsVisual && !locked && <LayerToggleSwitch on={active} onChange={() => onToggleVisibility(key)} label={`${displayLabel} 顯示`} {...togglePalette} />}
                   {hasDetails && !locked && (
                     <button
                       type="button"
@@ -645,6 +652,7 @@ function ExpandedPanel({
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   const controls = buildParamControls(layerKey, paramValues) ?? [];
+  const historicalCountry = layerKey === "historicalFlightTrails" ? "TW" : layerKey === "jpHistoricalFlightTrails" ? "JP" : null;
 
   const btnBase: React.CSSProperties = {
     fontSize: FONT_SIZE.xs,
@@ -680,7 +688,9 @@ function ExpandedPanel({
         overflow: "hidden",
       }}
     >
-      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />}
+      {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
+      {historicalCountry && <HistoricalFlightTrailControls country={historicalCountry} isDarkTheme={isDarkTheme} />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

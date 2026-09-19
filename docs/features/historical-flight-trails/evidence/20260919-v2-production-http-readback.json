@@ -1,0 +1,83 @@
+{
+  "schema": "historical-flight-trails-production-http-readback-v2",
+  "checked_at": "2026-09-19T14:45:32Z",
+  "deployment_id": "6aae9e2f94c4cdf079b8bba9",
+  "commit_sha": "9b6e9d884b8b54c3bf145dfeecc6918eb9e91859",
+  "manifest": {
+    "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/manifest.json",
+    "status": 200,
+    "content_type": "application/json",
+    "cache_control": "public,max-age=60,s-maxage=60,stale-while-revalidate=300",
+    "cf_cache_status": "DYNAMIC",
+    "bytes": 68673,
+    "sha256": "80e648b9424b43931969d0e8d6d6a0913f3a2e6702eef3cc6cc80fd561201597",
+    "release_id": "20260919-v2",
+    "tw_date_order": [
+      "2026-02-20",
+      "2026-02-24",
+      "2026-02-18"
+    ]
+  },
+  "assets": [
+    {
+      "country": "TW",
+      "airport": "RCTP",
+      "date": "2026-02-20",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260919-v2/tw_RCTP_2026-02-20.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 7191304,
+      "sha256": "9ecda4b5757450ca1febbd2ca94d46e8da2aedf3761817472d8cffb6075ce638",
+      "expected_bytes": 7191304,
+      "expected_sha256": "9ecda4b5757450ca1febbd2ca94d46e8da2aedf3761817472d8cffb6075ce638",
+      "matches": true
+    },
+    {
+      "country": "TW",
+      "airport": "RCTP",
+      "date": "2026-02-24",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260919-v2/tw_RCTP_2026-02-24.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 8068504,
+      "sha256": "11696cd7460639ebdc951cc080a1721a4a299f1f9a54e2ca83c8371677577341",
+      "expected_bytes": 8068504,
+      "expected_sha256": "11696cd7460639ebdc951cc080a1721a4a299f1f9a54e2ca83c8371677577341",
+      "matches": true
+    },
+    {
+      "country": "TW",
+      "airport": "RCTP",
+      "date": "2026-02-18",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260919-v2/tw_RCTP_2026-02-18.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 10793681,
+      "sha256": "67c97a6c48a819a15f638cb8e1c6da98c6eccdc8b4f182d0eb43b0544268f560",
+      "expected_bytes": 10793681,
+      "expected_sha256": "67c97a6c48a819a15f638cb8e1c6da98c6eccdc8b4f182d0eb43b0544268f560",
+      "matches": true
+    },
+    {
+      "country": "JP",
+      "airport": "RJTT",
+      "date": "2026-02-18",
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260919-v2/jp_RJTT_2026-02-18.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 19099243,
+      "sha256": "0c2fe8626b9800bc69a18a2f6407a1f8b6f603a7f71801589faf327123a220d5",
+      "expected_bytes": 19099243,
+      "expected_sha256": "0c2fe8626b9800bc69a18a2f6407a1f8b6f603a7f71801589faf327123a220d5",
+      "matches": true
+    }
+  ]
+}

@@ -293,7 +293,6 @@ done
 FOREST_FILES=(
   "public/forestry/national_forest_compartments.geojson"
   "public/forestry/national_forest_compartments.pmtiles"
-  "public/forestry/forest_reserve.geojson"
   "public/forestry/forest_reserve.pmtiles"
   "public/forestry/forest_roads.geojson"
   "public/forestry/forest_roads.pmtiles"

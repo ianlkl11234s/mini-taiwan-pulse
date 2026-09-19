@@ -109,8 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 760 個 layer key", () => {
-
+  it("涵蓋全部 767 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -151,7 +150,12 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-16: +3 日本醫療、+1 Allen 私人研究。
     // 2026-09-18: +1 jpAccommodationDensity（旅宿密度雙尺度網格）。
     // 2026-09-18: 日本醫療 3 總覽拆為 14 個獨立 layer（淨增 11）。
-    expect(keys.length).toBe(762);
+    // 2026-09-18: +1 propertyValueAdmin（房地產總市值行政區 Statistics）。
+    // 2026-09-18: +4 日本水資源本地靜態資料（湖泊、高松供排水設施、水質／水位測站）。
+    // 2026-09-18: +2 台灣／日本歷史航班軌跡。
+    // 2026-09-19: +9 LOCAL_ONLY 日本全國水資源向量／洪水背景。
+    // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
+    expect(keys.length).toBe(778);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

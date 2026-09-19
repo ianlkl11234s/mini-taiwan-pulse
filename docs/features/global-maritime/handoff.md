@@ -1,5 +1,9 @@
 # Global Maritime handoff
 
+## 2026-09-18 safe refresh follow-up (local repair; release pending)
+
+See [safe history and seven-day serving repair](./gfw-safe-refresh-2026-09-18.md). This follow-up adds manifest-bound byte/SHA verification, fail-closed cutover, one-hour refresh and bounded local cache retirement. It does not activate v4 or establish new production data.
+
 ## Resolution note (2026-08-29, post-review fixes landed)
 
 The two blockers recorded in [`codex-handoff-2026-08-29.md`](./codex-handoff-2026-08-29.md) are
