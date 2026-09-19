@@ -1,4 +1,5 @@
 import { RegionalStatisticsPanel } from "./regionalStatisticsPanel";
+import { HistoricalFlightTrailPanel } from "./historicalFlightPanels";
 // FeatureInfo popup 的 renderer registry — layerType → panel 元件 + 標題。
 //
 // 新增 layer 的 popup 接線只要：寫 panel 元件（放對應 domain 檔）→ 此處
@@ -195,6 +196,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
   ship: ShipPanel,
+  historicalFlightTrails: HistoricalFlightTrailPanel,
+  jpHistoricalFlightTrails: HistoricalFlightTrailPanel,
   lighthouse: LighthousePanel,
   railStation: RailStationPanel,
   port: PortPanel,
@@ -741,6 +744,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   jpStations: "日本車站",
   jpAirports: "日本機場",
   jpRailways: "日本鐵道路線",
+  historicalFlightTrails: "歷史航班軌跡（台灣）",
+  jpHistoricalFlightTrails: "歷史航班軌跡（日本）",
   jpPoliceFacilities: "日本警察設施",
   jpSchools: "日本學校",
   jpPopulationMesh1km: "日本人口網格",

@@ -1,3 +1,4 @@
+import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
@@ -1257,6 +1258,7 @@ function ExpandedControls({
   return (
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
       {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={TEXT_STRONG === DARK_PALETTE.TEXT_STRONG} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

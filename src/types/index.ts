@@ -91,6 +91,7 @@ export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busInter
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
   TransportType | "windPlan" | "lighthouses"
+  | "historicalFlightTrails" | "jpHistoricalFlightTrails"
   | "stationsTHSR" | "stationsTRA" | "stationsMetro"
   | "busStationsCity" | "busStationsIntercity"
   | "bikeStations"
@@ -700,6 +701,7 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
+    | "historicalFlightTrails" | "jpHistoricalFlightTrails"
     | "activeFault" | "newsEvent" | "globalEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "aisstreamVessel" | "gfwVesselPresence" | "gfwHourlyGrid" | "gfwHourlyTrack" | "gfwFishingEffort" | "gfwDarkVessel"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
@@ -915,6 +917,7 @@ export interface LayerVisibility {
   statsWasteCounty: boolean;
   statsRecyclingCounty: boolean;
   flights: boolean;
+  historicalFlightTrails: boolean;
   ships: boolean;
   rail: boolean;
   stationsTHSR: boolean;
@@ -1381,6 +1384,7 @@ export interface LayerVisibility {
   jpStations: boolean;          // 日本車站（GeoJSON point，9,046 筆）
   jpAirports: boolean;          // 日本機場（GeoJSON polygon，108 筆）
   jpRailways: boolean;          // 日本鐵道路線（PMTiles line，21,933 段；事業者種別 5 色）
+  jpHistoricalFlightTrails: boolean;
   osmBridgeCarriers: boolean;
   osmBridgeFootprints: boolean;
   officialBridgesNewTaipei: boolean;

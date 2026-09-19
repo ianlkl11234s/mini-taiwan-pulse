@@ -1,4 +1,5 @@
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
+import { HISTORICAL_FLIGHT_COLORS } from "../data/historicalFlightTrailsTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
@@ -397,6 +398,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { id: "ships", render: () => <ShipsLegend /> },
   { id: "flights", render: () => <FlightsLegend /> },
+  { id: "historicalFlightTrails", render: () => <HistoricalFlightTrailsLegend /> },
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "ports", render: () => <PortsLegend /> },
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
@@ -772,6 +774,18 @@ function FlightsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
         軌跡為輪替配色，不代表分類
       </div>
+    </div>
+  );
+}
+
+function HistoricalFlightTrailsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>歷史航班軌跡</div>
+      <div style={{ height: 5, borderRadius: RADIUS.full, background: `linear-gradient(90deg, ${HISTORICAL_FLIGHT_COLORS[0]}, ${HISTORICAL_FLIGHT_COLORS[1]})` }} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>3D 航跡依觀測高度呈藍白漸層；高度倍率僅放大視覺，不改動資料。</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>觀測空白以直線連接；連線不代表中間有實測資料。缺口數見點選資訊。</div>
     </div>
   );
 }

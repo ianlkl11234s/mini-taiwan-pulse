@@ -174,3 +174,5 @@ public/education/
 
 # Versioned Network Structures PMTiles are published to S3, not Git.
 public/network_structures/
+# Historical flight source-derived local previews are not code-release assets.
+/public/flight-trails/

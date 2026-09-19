@@ -16,6 +16,7 @@ import {
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
+import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { isStatisticsLayer } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
 
@@ -588,6 +589,7 @@ function ExpandedPanel({
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   const controls = buildParamControls(layerKey, paramValues) ?? [];
+  const historicalCountry = layerKey === "historicalFlightTrails" ? "TW" : layerKey === "jpHistoricalFlightTrails" ? "JP" : null;
 
   const btnBase: React.CSSProperties = {
     fontSize: FONT_SIZE.xs,
@@ -624,6 +626,7 @@ function ExpandedPanel({
       }}
     >
       {isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />}
+      {historicalCountry && <HistoricalFlightTrailControls country={historicalCountry} isDarkTheme={isDarkTheme} />}
       {/* Display mode (flights only) + Hide */}
       {hasTransportControls && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

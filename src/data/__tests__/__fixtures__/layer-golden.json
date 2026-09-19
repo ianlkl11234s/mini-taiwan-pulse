@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 478,
+    "keyCount": 480,
     "sections": [
       "gisLayers",
       "overlays",
@@ -63605,6 +63605,71 @@
         "value": 0.5
       }
     ],
+    "historicalFlightTrails": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "step": 0.5,
+        "value": 3
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "方向 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "離場",
+            "value": "1"
+          },
+          {
+            "label": "到場",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "航線範圍 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "國內",
+            "value": "1"
+          },
+          {
+            "label": "跨境",
+            "value": "2"
+          },
+          {
+            "label": "未提供",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      }
+    ],
     "iPostBoxes": [
       {
         "label": "透明度 0.85",
@@ -63998,6 +64063,71 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpHistoricalFlightTrails": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      },
+      {
+        "label": "高度倍率 3.0",
+        "max": 10,
+        "min": 1,
+        "step": 0.5,
+        "value": 3
+      },
+      {
+        "label": "線條強度 0.75",
+        "max": 1,
+        "min": 0.25,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "方向 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "離場",
+            "value": "1"
+          },
+          {
+            "label": "到場",
+            "value": "2"
+          }
+        ],
+        "type": "select",
+        "value": "0"
+      },
+      {
+        "label": "航線範圍 全部",
+        "options": [
+          {
+            "label": "全部",
+            "value": "0"
+          },
+          {
+            "label": "國內",
+            "value": "1"
+          },
+          {
+            "label": "跨境",
+            "value": "2"
+          },
+          {
+            "label": "未提供",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "0"
       }
     ],
     "jpPoliceFacilities": [
