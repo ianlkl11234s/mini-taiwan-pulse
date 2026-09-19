@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
-import { describeLayerStatistics, summarizeLayer } from "../layerStatistics";
+import { describeLayerStatistics, searchLayerRecords, summarizeLayer } from "../layerStatistics";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 const feature = (properties: Record<string, unknown>, geometry: unknown = { type: "Point", coordinates: [121.5, 25] }) => ({ type: "Feature", properties, geometry });
 const fc = (features: unknown[]) => ({ type: "FeatureCollection", features });
@@ -74,6 +74,17 @@ describe("generic full-source statistics", () => {
   it("does not enable arbitrary registered layer readers", async () => {
     setup(schools); await expect(describeLayerStatistics({ layerKey: "__proto__" })).rejects.toThrow("LAYER_STATISTICS_UNSUPPORTED");
     await expect(summarizeLayer({ layerKey: "schoolsElementary" })).rejects.toThrow("LAYER_STATISTICS_UNSUPPORTED");
+  });
+  it("searches only registered text and return fields with bounded pagination", async () => {
+    setup(fc([
+      feature({ code: "a", school_name: "臺北測試學校", address: "臺北市中正區", city: "臺北市", district: "中正區", school_level: "高中", region_type: null }),
+      feature({ code: "b", school_name: "新北測試學校", address: "新北市中正區", city: "新北市", district: "中正區", school_level: "國小", region_type: null }),
+    ]));
+    const result = await searchLayerRecords({ layerKey: "schools", query: "台北", limit: 1 });
+    expect(result).toMatchObject({ operation: "record_search", totalMatched: 1, returned: 1, returnedFields: expect.arrayContaining(["school_name", "city"]), records: [expect.objectContaining({ id: "a", fields: expect.objectContaining({ school_name: "臺北測試學校", city: "台北市" }) })] });
+    await expect(searchLayerRecords({ layerKey: "schools", query: "測試", fields: ["geometry"] } as never)).rejects.toThrow("INVALID_RECORD_SEARCH_INPUT");
+    await expect(searchLayerRecords({ layerKey: "schools", query: "" })).rejects.toThrow("RECORD_SEARCH_FIELD_NOT_ALLOWED");
+    await expect(searchLayerRecords({ layerKey: "schoolsElementary", query: "測試" })).rejects.toThrow("LAYER_STATISTICS_UNSUPPORTED");
   });
   it("counts valid GeoJSON properties:null as missing fields", async () => {
     setup(fc([{ type: "Feature", properties: null, geometry: { type: "Point", coordinates: [121,25] } }]));

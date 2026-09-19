@@ -1,4 +1,5 @@
-import { describeLayerStatistics, summarizeLayer, type LayerSummaryInput } from "./layerStatistics";
+import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
+import { listLayerCapabilities } from "./layerCapabilities";
 import { resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
@@ -24,7 +25,7 @@ import { resolveOfflineLocation } from "./addressLookup";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
+const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
 /** First-stage adapter: pairing can only search, explain, select, toggle, and move the map. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -110,6 +111,13 @@ export function MainMapConnection(props: Props) {
           const layerKey = String(request.args.layerKey ?? "");
           if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
           result = request.operation === "describe_layer_statistics" ? await describeLayerStatistics({ layerKey }) : await summarizeLayer(request.args as unknown as LayerSummaryInput);
+          break;
+        }
+        case "list_layer_capabilities": result = listLayerCapabilities(request.args); break;
+        case "search_layer_records": {
+          const layerKey = String(request.args.layerKey ?? "");
+          if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
+          result = await searchLayerRecords(request.args as unknown as LayerRecordSearchInput);
           break;
         }
         case "time_context":

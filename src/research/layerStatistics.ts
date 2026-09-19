@@ -3,13 +3,14 @@ import { loadPointDataset, type PointDatasetSnapshot } from "./pointDatasetAdapt
 
 type Value = string | null;
 type Bounds = [number, number, number, number];
-type Config = { dataset: string; label: string; id: string; fields: string[]; grain: string; version: string | null; location: "source_fields" | "address_prefix" };
+type Config = { dataset: string; label: string; id: string; fields: string[]; recordFields: string[]; textFields: string[]; grain: string; version: string | null; location: "source_fields" | "address_prefix" };
 const REGISTRY: Record<string, Config> = {
-  schools: { dataset: "schools", label: "學校", id: "code", fields: ["city", "district", "school_level", "system_type", "region_type"], grain: "來源學制／學校紀錄；同校代碼可能含附設學制，不等同唯一學校或校址", version: null, location: "source_fields" },
-  policeStation: { dataset: "policeStations", label: "警察機關", id: "entity_id", fields: ["city", "district", "facility_subtype"], grain: "警察機關據點紀錄，混合警察局、分局、派出所與專業警察等", version: "20260626", location: "address_prefix" },
+  schools: { dataset: "schools", label: "學校", id: "code", fields: ["city", "district", "school_level", "system_type", "region_type"], recordFields: ["school_name", "address"], textFields: ["school_name", "address"], grain: "來源學制／學校紀錄；同校代碼可能含附設學制，不等同唯一學校或校址", version: null, location: "source_fields" },
+  policeStation: { dataset: "policeStations", label: "警察機關", id: "entity_id", fields: ["city", "district", "facility_subtype"], recordFields: ["name", "address"], textFields: ["name", "address"], grain: "警察機關據點紀錄，混合警察局、分局、派出所與專業警察等", version: "20260626", location: "address_prefix" },
 };
 const normalize = (s: string) => s.normalize("NFKC").trim().replace(/臺/g, "台");
 const scalar = (v: unknown): Value => v === null || v === undefined || v === "" ? null : typeof v === "string" ? normalize(v) || null : null;
+const outwardValue = (v: unknown): string | number | boolean | null => v === null || v === undefined ? null : typeof v === "string" ? v.slice(0, 120) : typeof v === "number" || typeof v === "boolean" ? v : null;
 const hasOwn = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, k);
 export interface LayerSummaryInput { layerKey: string; filters?: { field: string; value: Value }[]; groupBy?: string[]; order?: "count_desc" | "count_asc" | "key_asc"; offset?: number; limit?: number }
 
@@ -42,7 +43,7 @@ async function read(key: string) {
   const { key: canonicalKey, config } = configFor(key);
   const meta = DATASET_WHITELIST[config.dataset]!;
   const [snapshot, county, town] = await Promise.all([
-    loadPointDataset({ datasetId: `statistics:${canonicalKey}`, url: meta.url, safeFields: [...config.fields, config.id, "address", "fetched_at"], idField: config.id, preserveUnlocatedRecords: true }),
+    loadPointDataset({ datasetId: `statistics:${canonicalKey}`, url: meta.url, safeFields: [...config.fields, ...config.recordFields, config.id, "fetched_at"], idField: config.id, preserveUnlocatedRecords: true }),
     loadPointDataset({ datasetId: "statistics:county-reference", url: "./statistics/county-reference-2025.geojson", safeFields: ["area_code", "area_name"], idField: "area_code", preserveUnlocatedRecords: true }),
     loadPointDataset({ datasetId: "statistics:town-reference", url: "./statistics/township-reference.geojson", safeFields: ["area_code", "area_name"], idField: "area_code", preserveUnlocatedRecords: true }),
   ]);
@@ -115,4 +116,35 @@ export async function summarizeLayer(input: LayerSummaryInput): Promise<Record<s
     nextOffset: offset + returnedGroups.length < groups.length ? offset + returnedGroups.length : null,
     matchedMissingByField: Object.fromEntries(config.fields.map(f => [f, matched.filter(r => r[f] === null).length])), bounds: bounds(matched),
     mapPresentation: { layerKey: data.canonicalKey, boundsMeaning: "符合紀錄的有效 Point 範圍；非行政區邊界，開圖層不會自動套用本查詢篩選。" } };
+}
+
+export interface LayerRecordSearchInput { layerKey: string; query?: string; filters?: { field: string; value: Value }[]; offset?: number; limit?: number }
+
+/** Bounded full-asset record search. Only registry entries with a vetted reader can enter here. */
+export async function searchLayerRecords(input: LayerRecordSearchInput): Promise<Record<string, unknown>> {
+  if (!input || Object.keys(input).some(key => !["layerKey", "query", "filters", "offset", "limit"].includes(key))) throw new Error("INVALID_RECORD_SEARCH_INPUT");
+  const { key, config } = configFor(input.layerKey);
+  const query = input.query ?? "";
+  const permitted = [...config.fields, ...config.recordFields];
+  const filters = input.filters ?? [];
+  const offset = integer(input.offset, 0, 0, 10_000);
+  const limit = integer(input.limit, 20, 1, 20);
+  if (typeof query !== "string" || query.length > 120 || (!query.trim() && filters.length === 0)
+    || !Array.isArray(filters) || filters.length > 5 || filters.some(filter => !filter || Object.keys(filter).some(name => !["field", "value"].includes(name)) || !permitted.includes(filter.field) || !(filter.value === null || typeof filter.value === "string" && filter.value.length <= 160))
+  ) throw new Error("RECORD_SEARCH_FIELD_NOT_ALLOWED");
+  const needle = normalize(query);
+  const normalizedFilters = filters.map(filter => ({ field: filter.field, value: filter.value === null ? null : normalize(filter.value) }));
+  const data = await read(key);
+  const matched = data.rows.filter(row => normalizedFilters.every(filter => row[filter.field] === filter.value)
+    && (!needle || config.textFields.some(field => typeof row[field] === "string" && normalize(row[field] as string).includes(needle))));
+  const records = matched.slice(offset, offset + limit).map(row => ({
+    id: scalar(row[config.id]) ?? (typeof row.record_id === "string" ? row.record_id : null),
+    // 20 records × bounded fields keeps this browser bridge result below its 24 KiB limit.
+    fields: Object.fromEntries(permitted.map(field => [field, outwardValue(row[field])])),
+    coordinates: row.geometry && typeof row.geometry === "object" && Array.isArray((row.geometry as { coordinates?: unknown }).coordinates)
+      ? { lng: (row.geometry as { coordinates: number[] }).coordinates[0]!, lat: (row.geometry as { coordinates: number[] }).coordinates[1]! } : null,
+  }));
+  const truncated = offset + records.length < matched.length;
+  return { ...metadata(data), operation: "record_search", layerKey: key, query, filters: normalizedFilters, returnedFields: permitted, totalMatched: matched.length, returned: records.length, offset, limit, truncated, nextOffset: truncated ? offset + records.length : null, records,
+    limitations: [...(metadata(data).limitations as string[]), "僅搜尋登記的文字欄位；不支援任意欄位、模糊 SQL、PMTiles 或畫面局部 feature。"] };
 }

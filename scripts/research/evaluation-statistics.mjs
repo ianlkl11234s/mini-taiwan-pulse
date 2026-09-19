@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /** Real stdio + HTTP protocol acceptance with a simulated owner/tab, not Google/browser E2E.
- * Run: node --import tsx scripts/research/evaluation-statistics.mjs http://127.0.0.1:3732
+ * Run: npx vite-node scripts/research/evaluation-statistics.mjs http://127.0.0.1:3732
  * No production auth settings, persistent database, or existing MCP processes are changed.
  */
 import assert from 'node:assert/strict';
@@ -10,7 +10,8 @@ import { resolve, dirname, join } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
 import { BridgeClient } from '../../src/research/bridgeClient.ts';
 import { QueryResponder } from '../../src/research/QueryResponder.ts';
-import { summarizeLayer, describeLayerStatistics } from '../../src/research/layerStatistics.ts';
+import { summarizeLayer, describeLayerStatistics, searchLayerRecords } from '../../src/research/layerStatistics.ts';
+import { listLayerCapabilities } from '../../src/research/layerCapabilities.ts';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const mcpRoot = resolve(root, '../mini-pulse-gis-mcp');
 const gatewayRoot = resolve(root, '../gis-platform/services/research-gateway');
@@ -38,6 +39,8 @@ try {
   await client.connect(new StdioClientTransport({ command: process.execPath, args: [join(mcpRoot, 'dist/research/index.js')], env: { PATH: process.env.PATH ?? '', PULSE_RESEARCH_ORIGIN: origin, PULSE_RESEARCH_ALLOW_LOOPBACK: '1' } }));
   const tools = (await client.listTools()).tools.map(t => t.name);
   assert(tools.includes('pulse_summarize_layer'));
+  assert(tools.includes('pulse_list_layer_capabilities'));
+  assert(tools.includes('pulse_search_layer_records'));
   const study = await browser.createStudy('statistics-test-tab');
   const pairing = await browser.createPairing(study.studyId, study.tabId);
   const claim = await client.callTool({ name: 'pulse_pair_session', arguments: { pairingId: pairing.pairingId, code: pairing.code, deviceLabel: 'Statistics-Test' } });
@@ -48,6 +51,8 @@ try {
   responder = new QueryResponder({ client: browser, ...study, pairingId: pairing.pairingId }, async query => {
     if (query.operation === 'describe_layer_statistics') return describeLayerStatistics(query.args);
     if (query.operation === 'summarize_layer') return summarizeLayer(query.args);
+    if (query.operation === 'list_layer_capabilities') return listLayerCapabilities(query.args);
+    if (query.operation === 'search_layer_records') return searchLayerRecords(query.args);
     throw new Error('OPERATION_UNSUPPORTED');
   }, () => { throw new Error('RESPONDER_FAILED'); });
   await browser.sync(study.studyId, study.tabId); responder.start();
@@ -60,6 +65,23 @@ try {
   }
   const description = await call('pulse_describe_layer_statistics', {layerKey:'schools'});
   assert.equal(description.capabilities.area, false);
+  const capabilities = await call('pulse_list_layer_capabilities', {});
+  assert.equal(capabilities.totalMatched, 760);
+  assert.equal(capabilities.returned, 20);
+  assert.equal(capabilities.truncated, true);
+  const schoolCapabilities = await call('pulse_list_layer_capabilities', {measure:'count',status:'ready'});
+  assert(schoolCapabilities.layers.some(layer=>layer.layerKey==='schools' && layer.recordSearch==='ready'));
+  assert.equal(schoolCapabilities.totalMatched,2);
+  evidence.push({case:'capability_catalog_is_bounded',totalMatched:capabilities.totalMatched,returned:capabilities.returned,countReady:schoolCapabilities.totalMatched});
+  const schoolRecords = await call('pulse_search_layer_records', {layerKey:'schools',query:'雙蓮',limit:2});
+  assert(schoolRecords.totalMatched > 0);
+  assert(schoolRecords.returned <= 2);
+  assert(schoolRecords.records.every(record=>record.fields && !('geometry' in record.fields)));
+  evidence.push({case:'school_record_search_is_bounded',totalMatched:schoolRecords.totalMatched,returned:schoolRecords.returned,fields:schoolRecords.returnedFields});
+  const unsupportedRecords = await client.callTool({name:'pulse_search_layer_records',arguments:{layerKey:'publicLibraries',query:'圖書館'}});
+  assert.equal(unsupportedRecords.structuredContent.status,'error');
+  assert.equal(unsupportedRecords.structuredContent.result.ok,false);
+  evidence.push({case:'unsupported_record_search_is_error_not_zero',error:unsupportedRecords.structuredContent.result.error});
   const total = await call('pulse_summarize_layer', {layerKey:'schools', groupBy:['city'], limit:50});
   assert.equal(total.totalMatched, 4315); assert.equal(total.groups.reduce((n,g)=>n+g.count,0),4315);
   evidence.push({case:'school_count_and_city_reconciliation', total:total.totalMatched, duplicateExtraRecords:total.identity.duplicateExtraRecords, sourceRefs:total.sourceRefs});
