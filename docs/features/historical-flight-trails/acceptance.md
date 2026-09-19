@@ -1,6 +1,6 @@
 # 驗收 2026-09-18／19
 
-範圍：已整合的 `codex/historical-flight-trails-20260918` 圖層，以及隔離 worktree `codex/historical-flight-trails-publication-20260919` 的 S3 靜態資產發布與供應鏈修改。程式尚未 PR／merge／deploy；production HTTP／browser readback 未完成，不能宣稱 production 已可用。
+範圍：已整合的歷史航班圖層、S3 靜態資產與 production 供應鏈。PR #313 已 merge，Zeabur deployment `6aae2d9c` 對應 commit `becb3e9e`，完成後為 `RUNNING`。
 
 ## 資料
 
@@ -30,7 +30,8 @@
 - `scripts/deploy/publish_historical_flight_trails.py --apply` 已發布 `20260918-v1` 至 `deploy-assets/flight-trails`。receipt：[`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
 - 98 個 immutable GeoJSON 位於 `releases/20260918-v1/`，逐一 S3 readback 驗證 bytes、SHA-256、`application/geo+json` 與 `public,max-age=31536000,immutable`；manifest 亦完成 readback，為 `application/json` 與 `public,max-age=60,s-maxage=60,stale-while-revalidate=300`。共 99 個物件。
 - publisher 使用 concurrency 4；先完成所有 immutable assets，再以 conditional write 發布 manifest。部署 pull 亦先同步 release，成功後才以暫存檔原子替換 manifest；失敗時保留舊 manifest。nginx 對 `/flight-trails` 只由 `/data` 供應、缺檔 `404`，不會回落 SPA HTML。
-- 以上僅證明 S3 物件與本地部署契約。仍待實際 production pull／nginx、HTTP headers 與內容、browser 載入和真機效能驗收。
+- Production HTTP readback 於 `2026-09-19T06:48:11Z` 通過：manifest 為 65,642 bytes、SHA-256 `de3bb94a…`、`application/json`、短快取；桃園 2/20 與羽田 2/18 GeoJSON 分別為 7,191,304 與 19,099,243 bytes，皆與 manifest SHA 完全相符、`application/geo+json`、一年 immutable cache。見 [`evidence/20260919-production-http-readback.json`](evidence/20260919-production-http-readback.json)。
+- Production 桌面 browser 以同源 URL 開啟台灣全部機場預設 2/20，3D 藍白航跡可見，console error／warn 為 0。此證據不取代真機效能驗收。
 
 ## Flight Arc globe／細線改造驗收
 
@@ -43,7 +44,7 @@
 - 瀏覽器全球：z1.83 正面航跡貼球；旋轉至 `lng=-79.1027, lat=-42.0035` 的背面視角後航跡完全隱藏；z4.5 過渡視角未見穿球或跳線。
 - 初次 browser 驗收抓到 shader `color` 重複宣告並已修正；修正後沒有新增 WebGL error。全套162檔／1364 tests pass、3 skipped；`tsc -b` 通過。
 - 無連續repaint loop；opacity/線條強度/filter維持geometry，樣式重載復原測試通過。
-- 尚無真機效能或 production 部署證據；本次沒有付費抓取。
+- 尚無真機效能證據；production deployment 與 HTTP/browser 證據已完成。本次沒有付費抓取。
 
 ## 全部機場驗收
 
