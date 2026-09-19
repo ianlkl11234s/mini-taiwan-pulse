@@ -7,6 +7,7 @@
 - 八層加入 `GATED_LAYERS`，排除 URL share/embed/snapshot/replay；401/403/logout 會移除 source/layer/selection。
 - 保留既有四個公開層與外部 GSI 洪水背景。私有傳輸不等於來源授權結論；發布證據另行驗收。
 - 建立獨立私人 bucket，啟用四項 Public Access Block、BucketOwnerEnforced、AES256 與 versioning；兩份 immutable object 完整 readback SHA/bytes 通過，未簽署 URL 均回傳 403。
+- 私有 archive 改為逐一驗證與預熱，避免四份完整 snapshot 同時緩衝；Allen 失敗不阻斷 Japan water。非 owner 初始 401/403 只維持鎖定，不顯示誤導性的全域錯誤。
 - 本機真實 owner 瀏覽器驗收全國上／下水道渲染、分類圖例、名稱 popup 與 logout 即時撤權；production 驗收仍須在部署後另做。
 
 ## 2026-09-19 — supply / sewer facility categories

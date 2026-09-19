@@ -843,7 +843,10 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   const warmFamily = async (state, gateway, assets) => {
     for (let attempt = 0; attempt < warmupAttempts; attempt += 1) {
       try {
-        await Promise.all(Object.values(assets).map((asset) => gateway.head(asset)));
+        // S3 gateway.head() verifies and retains a complete immutable snapshot.
+        // Keep startup peak memory bounded to one archive instead of buffering
+        // every private PMTiles object concurrently.
+        for (const asset of Object.values(assets)) await gateway.head(asset);
         state.ready = true;
         return;
       } catch {
@@ -854,10 +857,10 @@ export function startAllenCoralAtlasServer({ port = ALLEN_CORAL_ATLAS_PORT, host
   };
   // Each family is verified independently. A missing Japan-water object must
   // fail closed for that endpoint without taking the existing Allen layer down.
-  const warmup = Promise.all([
-    warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS),
-    warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS),
-  ]);
+  const warmup = (async () => {
+    await warmFamily(readiness.allen, allenGateway, ALLEN_CORAL_ATLAS_ASSETS);
+    await warmFamily(readiness.jpWater, jpWaterGateway, JP_WATER_ASSETS);
+  })();
   const server = createServer(async (req, res) => {
     try {
       const controller = new AbortController();

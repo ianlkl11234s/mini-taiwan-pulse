@@ -406,6 +406,70 @@ test("sidecar routes Japan water through the shared owner session revoke boundar
   }
 });
 
+test("private archive warmup buffers at most one immutable snapshot at a time", async () => {
+  let active = 0;
+  let maxActive = 0;
+  let completed = 0;
+  let finish;
+  const allWarm = new Promise((resolve) => { finish = resolve; });
+  const gateway = {
+    async head(asset) {
+      active += 1;
+      maxActive = Math.max(maxActive, active);
+      await new Promise((resolve) => setImmediate(resolve));
+      active -= 1;
+      completed += 1;
+      if (completed === 4) finish();
+      return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` };
+    },
+    async get() { throw new Error("not used during warmup"); },
+  };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: allenOwner, gateway, jpWaterGateway: gateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await allWarm;
+    assert.equal(completed, 4);
+    assert.equal(maxActive, 1);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
+test("failed Allen warmup does not prevent Japan water from becoming ready", async () => {
+  let jpHeads = 0;
+  let finish;
+  const japanWarm = new Promise((resolve) => { finish = resolve; });
+  const jpWaterGateway = {
+    async head(asset) {
+      jpHeads += 1;
+      if (jpHeads === 2) finish();
+      return { contentLength: asset.size, contentType: "application/octet-stream", etag: `"${asset.sha256}"` };
+    },
+    async get() { throw new Error("access probe must not read object bytes"); },
+  };
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig, authenticate: allenOwner,
+    gateway: { async head() { throw new Error("Allen unavailable"); } },
+    jpWaterGateway, revokedSessions: new Set(),
+  });
+  try {
+    await once(server, "listening");
+    await japanWarm;
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const probe = await fetch(`http://127.0.0.1:${address.port}/api/private-research/jp-water/water?access=1`, {
+      headers: { Authorization: "Bearer owner" },
+    });
+    assert.equal(probe.status, 200);
+    assert.deepEqual(await probe.json(), { allowed: true });
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
 test("Allen sidecar listens during warmup but fails closed until immutable snapshots are ready", async () => {
   let releaseWarmup;
   const warmup = new Promise((resolve) => { releaseWarmup = resolve; });
@@ -509,10 +573,11 @@ test("Allen sidecar retries warmup three times with exponential backoff", async 
   try {
     await once(server, "listening");
     await new Promise((resolve) => setTimeout(resolve, 90));
-    // Two immutable snapshots are checked in each attempt: 0ms, 20ms, then 40ms.
-    assert.equal(headAt.length, 6);
-    assert.ok(headAt[2] - headAt[0] >= 15);
-    assert.ok(headAt[4] - headAt[2] >= 35);
+    // Serial warmup stops the attempt at the first unavailable immutable
+    // snapshot, then retries at 20ms and 40ms backoff intervals.
+    assert.equal(headAt.length, 3);
+    assert.ok(headAt[1] - headAt[0] >= 15);
+    assert.ok(headAt[2] - headAt[1] >= 35);
   } finally {
     if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }

@@ -42,8 +42,9 @@ export function useJpWaterPrivateAccess() {
             signal: controller.signal,
           });
           if (response.status === 401 || response.status === 403) {
-            window.dispatchEvent(new Event(JP_WATER_ACCESS_DENIED_EVENT));
-            throw new Error(`日本水資源私人存取被拒絕（HTTP ${response.status}）`);
+            // Expected for every signed-in non-owner. Keep the catalog locked
+            // without surfacing a global failure for a layer they never opened.
+            return false;
           }
           if (!response.ok) throw new Error(`日本水資源私人服務尚未就緒（HTTP ${response.status}）`);
           const access = await response.json() as { allowed?: unknown };
