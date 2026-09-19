@@ -1,0 +1,41 @@
+{
+  "schema": "historical-flight-trails-production-http-readback-v1",
+  "checked_at": "2026-09-19T06:48:11Z",
+  "deployment_id": "6aae2d9cd6e6abeb19b6b887",
+  "commit_sha": "becb3e9e3b4db96b27edbb3730719529964a34e2",
+  "manifest": {
+    "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/manifest.json",
+    "status": 200,
+    "content_type": "application/json",
+    "cache_control": "public,max-age=60,s-maxage=60,stale-while-revalidate=300",
+    "cf_cache_status": "DYNAMIC",
+    "bytes": 65642,
+    "sha256": "de3bb94a0c0a40290ce347859003d1334ea36689d25b4c34040304968c4ab4e9"
+  },
+  "assets": [
+    {
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260918-v1/tw_RCTP_2026-02-20.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 7191304,
+      "sha256": "9ecda4b5757450ca1febbd2ca94d46e8da2aedf3761817472d8cffb6075ce638",
+      "expected_bytes": 7191304,
+      "expected_sha256": "9ecda4b5757450ca1febbd2ca94d46e8da2aedf3761817472d8cffb6075ce638",
+      "matches": true
+    },
+    {
+      "url": "https://mini-taiwan-pulse.itsmigu.com/flight-trails/releases/20260918-v1/jp_RJTT_2026-02-18.geojson",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": "public,max-age=31536000,immutable",
+      "cf_cache_status": "MISS",
+      "bytes": 19099243,
+      "sha256": "0c2fe8626b9800bc69a18a2f6407a1f8b6f603a7f71801589faf327123a220d5",
+      "expected_bytes": 19099243,
+      "expected_sha256": "0c2fe8626b9800bc69a18a2f6407a1f8b6f603a7f71801589faf327123a220d5",
+      "matches": true
+    }
+  ]
+}

@@ -11,6 +11,6 @@
 - [ ] 恆春可得軌跡查證／取得。
 - [ ] 來源查詢分頁/事件日完整對帳，現有全為partial或unavailable。
 - [ ] 個別資料合約與公開展示授權：`license_status=unverified`。
-- [ ] production pull／nginx 後 HTTP status、Content-Type、Cache-Control、bytes/SHA-256 readback，以及 browser 載入驗收；S3 readback 不等於 production 可用。
+- [x] Production deployment、HTTP status／Content-Type／Cache-Control／bytes／SHA-256 readback，以及桌面 browser 載入驗收；見 `evidence/20260919-production-*.json`。
 - [ ] 實體手機效能；桌面窄視窗不等於真機。
-- [ ] 主分支整合、commit/push/PR及部署。
+- [x] PR #313 以一般 merge commit `becb3e9e` 整合；Zeabur deployment `6aae2d9c` 完成並為 `RUNNING`。
