@@ -1,0 +1,34 @@
+{
+  "before": {
+    "entry_static_js_bytes": 8134507,
+    "entry_static_js_gzip_bytes": 1644287,
+    "static_files": [
+      "assets/main-BzxfOJSv.js",
+      "assets/crosshair-Cb9hUBgf.js",
+      "assets/RailScene-Cum-2pnE.js",
+      "assets/LegendPanel-By7To88h.js",
+      "assets/client-Dt_c-x36.js",
+      "assets/authClient-DKrgLAmt.js",
+      "assets/useLoadingTasks-CK-MOwrn.js",
+      "assets/mapbox-gl-CHJc2umx.js"
+    ],
+    "legend_static": true,
+    "scope": "build static import closure; not measured browser transfer/time"
+  },
+  "after": {
+    "entry_static_js_bytes": 7943861,
+    "entry_static_js_gzip_bytes": 1602880,
+    "static_files": [
+      "assets/RailScene-BpIcgxzg.js",
+      "assets/main-BKv9pQpn.js",
+      "assets/crosshair-Cb9hUBgf.js",
+      "assets/client-Dt_c-x36.js",
+      "assets/jpWaterTypes-DecEJ4e7.js",
+      "assets/authClient-DKrgLAmt.js",
+      "assets/useLoadingTasks-CK-MOwrn.js",
+      "assets/mapbox-gl-CHJc2umx.js"
+    ],
+    "legend_static": false,
+    "scope": "build static import closure; not measured browser transfer/time"
+  }
+}

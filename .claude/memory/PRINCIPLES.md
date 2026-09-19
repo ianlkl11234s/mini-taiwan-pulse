@@ -552,12 +552,12 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 5. **RPC 變動先 apply 至線上實測再 commit**：薄 RPC 都是 stateless 可冪等 apply，
    實測形狀正確再 git push，比 PR review 抓得更實在
 
-## 個人 PR 流程（2026-06-13）
+## 個人 PR 流程（2026-06-13，2026-09-11 更新）
 
 - **PR 是給自己看，不是給人看**：自我 review diff 抓「漏帶欄位 / 命名不一致 / 沒處理的 edge case」
-- **CI + Claude review 是補充，不替代自我驗證**：本 session 的 collector dict 漏欄、RPC smallint 兩個 bug 兩道網都沒抓到，自己端到端跑一輪才發現
-- **Claude review prompt 必明確「只看 diff、無問題單行 LGTM」**：未限制時會主動展開讀檔，跑 6-10 分鐘消耗訂閱
-- **首次 PR 修 workflow 檔本身會跳過 Claude review**：安全機制 "Action skipped due to workflow validation error"，不是 bug
+- **CI + Codex review 是補充，不替代自我驗證**：本 session 的 collector dict 漏欄、RPC smallint 兩個 bug 自動檢查都沒抓到，自己端到端跑一輪才發現
+- **原生 Codex review 的高風險規則放根目錄 `AGENTS.md`**：由 Codex settings 啟用「審查所有 PR」，不在 repo 內維護 review workflow 或 API key
+- **安全 merge 前確認 reviewed commit 等於 PR 最新 head**：每次 push 自動重審；需要手動重跑時留言 `@codex review`
 - **不開公司級嚴格 PR 流程**：個人 side project 不需要 2 approvers / 強制 staging，那是給多人團隊的；用 PR 主要為「強迫慢一拍 + 自動跑檢查 + 開放 AI review」
 
 ## Handoff doc 必含三要素（2026-06-17）

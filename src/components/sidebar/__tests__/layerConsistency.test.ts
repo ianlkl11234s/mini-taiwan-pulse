@@ -38,7 +38,15 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 
-import { LAYER_COLORS } from "../layerCatalog";
+import {
+  GLOBAL_ENVIRONMENT_THEME_TITLE,
+  GLOBAL_SITUATION_THEME_TITLE,
+  JAPAN_TAB_THEME_TITLES,
+  LAYER_COLORS,
+  LAYER_MACRO_GROUPS,
+  THEMES,
+  WORLD_TAB_THEME_TITLES,
+} from "../layerCatalog";
 import { hasLayerDetails } from "../../LayerSidebar";
 import { STATISTICS_KEYS } from "../../../data/regionalStatisticsRecipes";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../../data/layerManifest";
@@ -168,6 +176,14 @@ const NO_LEGEND_LEDGER = new Set([
   // 皆無分類分色，本輪不做（見任務書「4 層都是單一顏色」；jpStations 已接種類／運量
   // 雙模式圖例，見 LEGEND_REGISTRY）。
   "jpAdminPrefecture", "jpAdminBoundaries", "jpAirports",
+  // 日本旅宿 JTA / 地方許可仍採單一色；canonical / OSM 已依旅宿類型分色。
+  // 自然保護／世界遺產每個 toggle 採單一色；Ramsar filter 只切 geometry precision。
+  "jpAccommodationJta", "jpAccommodationLocal",
+  "jpNaturalParksNational", "jpNaturalParksQuasiNational", "jpNaturalParksPrefectural",
+  "jpNatureConservationArea", "jpPrimitiveNatureEnvironmentArea", "jpNatureConservationSpecialDistrict",
+  "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
+  "jpWorldHeritageCultural", "jpWorldHeritageNatural", "jpWorldNaturalHeritageHistorical",
+  "jpRamsarSites", "jpMarineEbsaCoastal",
 ]);
 
 /**
@@ -444,15 +460,51 @@ describe("區域統計 sidebar 接線", () => {
   });
 
   it("desktop rail 與 mobile bottom-sheet 都掛載統計詳情，mobile 使用可存取的展開按鈕", () => {
-    const wiring = 'isStatisticsLayer(layerKey) && <StatisticsDetails layerKey={layerKey} />';
-    for (const file of [
-      'src/components/IconRailSidebar.tsx',
-      'src/components/LayerSidebar.tsx',
-    ]) expect(readFileSync(file, 'utf8')).toContain(wiring);
+    const railSidebar = readFileSync('src/components/IconRailSidebar.tsx', 'utf8');
+    expect(railSidebar).toContain('isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />');
+    expect(railSidebar).toContain('textColor={TEXT_STRONG}\n                            dimColor={DIM}\n                            colorScheme={COLOR_SCHEME}');
+    const layerSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
+    expect(layerSidebar).toContain("isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />");
+    expect(layerSidebar).toContain("textColor={textColor}\n                    dimColor={dimColor}\n                    colorScheme={isDarkTheme ? 'dark' : 'light'}");
     const mobileSidebar = readFileSync('src/components/LayerSidebar.tsx', 'utf8');
     expect(mobileSidebar).toContain('aria-label={`${displayLabel} 詳情`}');
     expect(mobileSidebar).toContain('{isExpanded && hasDetails && (');
     expect(readFileSync('src/components/MobileBottomSheet.tsx', 'utf8')).toContain('zIndex: 40');
     expect(readFileSync('src/App.tsx', 'utf8')).toContain('onLayerClick={handleLayerClick}');
+  });
+});
+
+describe("日本與世界 tab 命名規則", () => {
+  it("日本圖層不重複加日本前綴，並保留中文＋日文代表名稱", () => {
+    const japanThemes = new Set(JAPAN_TAB_THEME_TITLES);
+    const japanEntries = entries.filter(([, manifest]) =>
+      manifest.section !== null && japanThemes.has(manifest.section.theme));
+
+    expect(japanEntries.length).toBeGreaterThan(0);
+    expect(japanEntries.filter(([, manifest]) => manifest.label?.startsWith("日本"))).toEqual([]);
+    expect(LAYER_MANIFEST.jpAdminPrefecture.label).toBe("都道府縣界 都道府県境");
+    expect(LAYER_MANIFEST.jpStations.label).toBe("車站 駅");
+    expect(LAYER_MANIFEST.jpAccommodationCanonical.label).toBe("旅宿去重總覽 宿泊施設の統合一覧");
+    expect(LAYER_MANIFEST.jpPopulationMesh1km.label).toBe("人口網格 人口メッシュ");
+  });
+
+  it("世界 tab 依全球主題分組，不再出現泛稱世界主題", () => {
+    expect(WORLD_TAB_THEME_TITLES).toEqual([
+      GLOBAL_SITUATION_THEME_TITLE,
+      "全球海事 Global Maritime",
+      "全球氣候 Global Climate",
+      GLOBAL_ENVIRONMENT_THEME_TITLE,
+      "全球通訊 Global Communications",
+    ]);
+    expect(THEMES.some((theme) => theme.title === "世界 World")).toBe(false);
+    expect(LAYER_MACRO_GROUPS.map((group) => group.key)).not.toContain("world");
+    expect(LAYER_MANIFEST.globalEvents.section).toEqual({
+      theme: GLOBAL_SITUATION_THEME_TITLE,
+      group: "重大事件 Major Events",
+    });
+    expect(LAYER_MANIFEST.worldTrashDebris.section).toEqual({
+      theme: GLOBAL_ENVIRONMENT_THEME_TITLE,
+      group: "廢棄物觀測 Waste Observations",
+    });
   });
 });

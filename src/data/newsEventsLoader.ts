@@ -225,3 +225,47 @@ export async function fetchNewsEventsDayClusters(
   }
   return (data ?? []) as RawCluster[];
 }
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isOptionalFiniteNumber(value: unknown): boolean {
+  return value == null || typeof value === "number" && Number.isFinite(value);
+}
+
+function isStrictResearchCluster(value: unknown): value is RawCluster {
+  if (!isRecord(value) || !Array.isArray(value.events)) return false;
+  if (!isOptionalFiniteNumber(value.lon) || !isOptionalFiniteNumber(value.lat)) return false;
+  return value.events.every(event => isRecord(event)
+    && typeof event.id === "number" && Number.isFinite(event.id)
+    && typeof event.title === "string"
+    && typeof event.published_ts === "number" && Number.isFinite(event.published_ts));
+}
+
+/**
+ * 研究查詢專用的 raw cluster reader。
+ *
+ * 展示端維持既有的未設定來源時回傳空陣列行為；研究入口則必須把「未設定」
+ * 與「有效但零筆」分開，避免來源失效被誤判為零事件。
+ */
+export async function fetchNewsEventsDayClustersStrict(
+  date: string,
+  filter: NewsFilter = DEFAULT_NEWS_FILTER,
+): Promise<RawCluster[]> {
+  if (!supabaseConfigured) throw new Error("NEWS_EVENTS_SOURCE_NOT_CONFIGURED");
+  const cacheKey = `${date}|${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  const { data, error } = await withLoading(
+    `news-events-research:${cacheKey}`,
+    `新聞事件研究查詢 ${date}`,
+    supabase.rpc("get_news_events_day_clustered_v2", {
+      p_day: date,
+      p_min_gis_relevance: filter.minRelevance,
+      p_require_event: filter.eventsOnly,
+      p_min_severity: filter.minSeverity,
+    }),
+  );
+  if (error) throw new Error(`get_news_events_day_clustered_v2(${cacheKey}): ${error.message}`);
+  if (!Array.isArray(data) || !data.every(isStrictResearchCluster)) throw new Error("NEWS_EVENTS_INVALID_RPC_RESPONSE");
+  return data as RawCluster[];
+}

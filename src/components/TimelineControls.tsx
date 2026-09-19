@@ -157,7 +157,7 @@ export function TimelineControls({
   };
 
   return (
-    <div
+    <div data-viewport-occluder="timeline"
       style={isMobile ? {} : {
         position: "absolute",
         bottom: 16,

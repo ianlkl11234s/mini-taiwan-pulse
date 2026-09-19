@@ -16,13 +16,13 @@ const area = (value: unknown): string => {
   return `${n.toLocaleString("en-US", { maximumFractionDigits: 3 })} km²`;
 };
 
-/** 本地研究 PMTiles 的 19 欄屬性；MVT 缺屬性仍視為 null。 */
+/** UNEP-WCMC PMTiles 的 19 欄屬性；MVT 缺屬性仍視為 null。 */
 export function CoralReefPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   return <>
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: CORAL_REEF_COLOR, flexShrink: 0 }} />
-      <span style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>暖水珊瑚礁歷史分布</span>
+      <span style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>珊瑚礁歷史分布 Historical Coral Reefs</span>
     </div>
     <Row label="礁名" value={text(props.reef_name)} />
     <Row label="Feature ID" value={text(props.feature_id)} />

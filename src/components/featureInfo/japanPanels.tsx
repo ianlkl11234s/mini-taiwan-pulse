@@ -25,6 +25,108 @@ function Title({ color, children }: { color: string; children: string }) {
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
+function list(raw: unknown): string {
+  if (Array.isArray(raw)) return raw.map(String).join(" / ");
+  if (typeof raw !== "string" || !raw) return "";
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (Array.isArray(parsed)) return parsed.map((item) => typeof item === "object" && item && "source" in item ? String((item as { source: unknown }).source) : String(item)).join(" / ");
+  } catch { /* 原始字串直接顯示 */ }
+  return raw;
+}
+
+function objectList(raw: unknown): Record<string, unknown>[] {
+  if (Array.isArray(raw)) return raw.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null);
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+      : [];
+  } catch { return []; }
+}
+
+/** 日本旅宿／自然保護／世界遺產共用的 source-aware popup。 */
+export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
+  const provenance = objectList(props._provenance);
+  const title = str(props.name) || str(props.site_name_ja) || str(props.park_name)
+    || str(props.designation_name) || str(props.area_name) || str(props.area_name_en)
+    || str(props.heritage_name_ja) || str(props.name_zh) || str(props.name_en)
+    || str(props.entity_id) || str(props.feature_id) || "旅宿／保護區資料 宿泊・保護地域データ";
+  const sources = list(props.sources) || list(props._provenance) || str(props.source_name)
+    || str(props.source_dataset) || str(props.source) || "見來源網址";
+  const sourceYear = str(props.source_as_of) || str(props.source_year) || str(props.source_fiscal_year)
+    || str(props.date_inscribed) || [...new Set(provenance.map((item) => str(item.source_as_of)).filter(Boolean))].join(" / ");
+  const license = list(props.license_set) || str(props.license) || str(props.license_status)
+    || str(props.license_note);
+  const status = [
+    props.dedup_version ? "PARTIAL_DEDUP_CONSERVATIVE" : null,
+    props.usage_status, props.source_status, props.freshness_status, props.dedup_status,
+    props.geom_status, props.boundary_status,
+  ].map(str).filter(Boolean).join(" / ");
+  const precision = str(props.geom_precision) || str(props.geometry_status) || str(props.geocode_quality)
+    || str(props.precision_warning) || str(props.geometry_caveat);
+  return (
+    <>
+      <Title color="#0ea5e9">{title}</Title>
+      <Row label="來源" value={sources} />
+      <Row label="年份／截至" value={sourceYear || "未提供"} />
+      <Row label="授權" value={license || "未驗證"} />
+      <Row label="狀態" value={status || "未提供"} />
+      <Row label="geometry precision" value={precision || "來源未標示"} />
+      <Row label="coverage" value={str(props.coverage_scope)} />
+      <Row label="filter_layer_id" value={str(props.filter_layer_id)} />
+      <Row label="顯示分類" value={str(props.facility_category)} />
+      <Row label="類型" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
+      <Row label="地址／位置" value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
+      <Row label="來源網址" value={str(props.source_url) || str(props.leaflet_url) || str(props.area_detail_url)} />
+    </>
+  );
+}
+
+export function JpAccommodationDensityPanel({ props }: { props: Record<string, unknown> }) {
+  const count = Number(props.n_records);
+  const gridSize = Number(props.grid_size_m);
+  const density = Number(props.density_per_km2);
+  return (
+    <>
+      <Title color="#ea580c">旅宿密度網格 宿泊施設密度グリッド</Title>
+      <Row label="網格尺度" value={Number.isFinite(gridSize) ? `${gridSize.toLocaleString("zh-TW")} m` : ""} />
+      <Row label="格內旅宿" value={Number.isFinite(count) ? `${count.toLocaleString("zh-TW")} 間` : ""} />
+      <Row label="每平方公里" value={Number.isFinite(density) ? density.toLocaleString("zh-TW", { maximumFractionDigits: 1 }) : ""} />
+      <Row label="網格 ID" value={str(props.grid_id)} />
+      <Row label="計數契約" value="只計可繪 canonical 實體；不叠加 OSM coverage，不補無 geometry 資料。" />
+    </>
+  );
+}
+
+/** Source-aware Japan water popup. Never derives a status, capacity, or observation from a missing value. */
+export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
+  const title = str(props.name) || str(props.facility_name) || str(props.station_name) || str(props.lake_name) || str(props.entity_id) || "日本水資源資料";
+  const rawRole = str(props.entity_role) || str(props.facility_category) || str(props.observation_kind);
+  const role = {
+    water_quality_station: "水質測站",
+    water_level_station: "水位測站",
+    lake_or_reservoir_water_surface: "湖泊或水庫水面",
+    water_supply_related_facility: "供水相關設施",
+    sewer_facility: "下水道設施",
+  }[rawRole] || rawRole;
+  const sourceYear = str(props.source_year);
+  const isQualityRegistry = /quality|水質/i.test(rawRole) || /quality|水質/i.test(str(props.source));
+  return <>
+    <Title color="#0ea5e9">{title}</Title>
+    <Row label="類型" value={role} />
+    <Row label="來源年份" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
+    <Row label="來源" value={str(props.source) || str(props.attribution)} />
+    <Row label="授權" value={str(props.license)} />
+    <Row label="涵蓋範圍" value={str(props.coverage)} />
+    <Row label="營運者" value={str(props.operator)} />
+    <Row label="容量" value={str(props.capacity)} />
+    <Row label="來源網址" value={str(props.source_url)} />
+    {isQualityRegistry && <Row label="資料限制" value="此圖層是測定站名錄，不含水質濃度或趨勢。" />}
+  </>;
+}
+
 /**
  * `lines` / `operators` / `railway_categories` 等陣列欄位：queryRenderedFeatures()
  * 拿到的 properties 是 vector tile 編碼後的結果，mapbox-gl-js 的 vt-pbf
@@ -219,7 +321,7 @@ export function JpPoliceFacilitiesPanel({ props }: { props: Record<string, unkno
   const facilityType = JP_POLICE_FACILITY_TYPES.find(t => t.value === props.facility_type);
   const precision: Record<string, string> = { mapped_poi: "地圖設施點", mapped_label: "地圖注記", address: "地址", block: "街區", chome: "丁目", town: "町域" };
   return <>
-    <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "日本警察設施"}</Title>
+    <Title color={facilityType?.color ?? JP_POLICE_LAYER_COLOR}>{policeText(props.name) || "警察設施 警察施設"}</Title>
     <Row label="設施類型" value={facilityType?.label ?? "未提供"} />
     <Row label="都道府縣" value={policeText(props.prefecture) || "未提供"} />
     <Row label="地址" value={policeText(props.address) || "未提供"} />

@@ -1,0 +1,10 @@
+{
+  "base_commit": "08da5067",
+  "forest_reserve_geojson_bytes": 46783425,
+  "preserved_pmtiles": {
+    "path": "public/forestry/forest_reserve.pmtiles",
+    "bytes": 2030870,
+    "sha256": "1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc"
+  },
+  "scope": "Local build asset baseline; no claim of cloud deletion or client transfer reduction"
+}

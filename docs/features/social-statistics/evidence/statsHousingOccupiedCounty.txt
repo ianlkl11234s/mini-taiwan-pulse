@@ -1,0 +1,126 @@
+- region "Map"
+- link "© Mapbox":
+  - /url: https://www.mapbox.com/about/maps
+- link "© OpenStreetMap":
+  - /url: https://www.openstreetmap.org/copyright/
+- link "Improve this map":
+  - /url: https://apps.mapbox.com/feedback/?owner=mapbox&id=dark-v11&access_token=[REDACTED]#/121.5318/25.0464/12.5
+- link "Mapbox homepage":
+  - /url: https://www.mapbox.com/
+- heading "Mini Taiwan Pulse" [level=1]
+- combobox:
+  - option "Pure Black"
+  - option "Dark" [selected]
+  - option "Light"
+  - option "Satellite"
+  - option "Satellite Streets"
+  - option "Navigation Night"
+  - option "Streets"
+- button "Mini Taiwan Pulse":
+- button "Layers":
+  - generic: "!"
+- button "統計 Statistics":
+- button "世界 World":
+- button "日本 Japan":
+  - generic: JP
+- button "Locations":
+- button "即時情報 Intel":
+- button "衛星情報 Satellite":
+- button "房地產總市值 Property Value":
+- button "監測模式 Monitor":
+- button "會員專區":
+- button "Settings":
+- generic: 統計 Statistics
+- button:
+- button "All Off"
+- textbox "搜尋圖層":
+  - /placeholder: 搜尋圖層… Search layers…
+  - text: 有人經常居住住宅（縣市）
+- group "統計圖層顯示模式":
+  - generic: 統計圖層顯示
+  - button "單一" [pressed]
+  - button "可重疊"
+- generic: 找到 1 筆
+- button "有人經常居住住宅（縣市） 109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。 主題：統計、住宅存量與使用、行政區、縣市 · 來源詳情":
+  - generic: 有人經常居住住宅（縣市）
+  - generic: 109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+  - generic: 主題：統計、住宅存量與使用、行政區、縣市 · 來源詳情
+- button "收藏圖層 有人經常居住住宅（縣市）":
+- button "◀"
+- button "9/15 (二)"
+- button "▶"
+- button "Now"
+- combobox "顯示天數":
+  - option "1d" [selected]
+  - option "2d"
+  - option "3d"
+  - option "4d"
+  - option "5d"
+  - option "6d"
+  - option "7d"
+- button "▶"
+- combobox:
+  - option "30x"
+  - option "60x" [selected]
+  - option "120x"
+  - option "300x"
+  - option "600x"
+  - option "1800x"
+  - option "3600x"
+- generic: 15:00
+- slider: "0.6255"
+- generic: 00:00
+- generic: 23:59
+- button "即時"
+- button "歷史"
+- button "Share"
+- button "Capture"
+- button "Monitor BETA":
+  - text: Monitor
+  - generic: BETA
+- button "AI":
+  - text: AI
+- button "Info"
+- button "使用 Google 登入":
+  - text: 使用 Google 登入
+- generic: Right-drag to rotate · Scroll to zoom
+- generic: 0 flights
+- generic: 25.0464, 121.5318 z12.5 pitch 0 bearing 0
+- button:
+- generic: 區域統計
+- generic: 區域
+- generic: 臺北市
+- generic: 統計指標
+- generic: 有人經常居住住宅（縣市）
+- generic: 數值
+- generic: 754,585 宅
+- generic: 資料期別
+- generic: 2020-11-08 — 2020-11-08
+- generic: 行政區代碼
+- generic: "63000"
+- generic: 參考邊界
+- generic: COUNTY_MOI_1140318
+- generic: 資料可用狀態
+- generic: STALE
+- generic: 覆蓋狀態
+- generic: COMPLETE
+- generic: 處理版本
+- generic: housing-census109-v1
+- generic: 原始 SHA-256
+- generic: cf26965fb6fc7960fd61b67641927c98bd49050580bd2858a62a82e2ee993cfd
+- generic: 來源
+- generic: 行政院主計總處
+- button "LEGEND":
+  - generic: LEGEND
+- strong: 有人經常居住住宅（縣市）
+- generic: 2020-11-08 — 2020-11-08 · 宅
+- generic: 資料可用狀態：STALE
+- generic: 覆蓋狀態：COMPLETE（22／22 縣市）；未分配 未提供
+- generic: 低於 77911
+- generic: 77911 至未滿 130056
+- generic: 130056 至未滿 165304
+- generic: 165304 至未滿 685312
+- generic: 685312 以上
+- generic: 灰色：缺資料（含來源 -），不等於 0；真 0 使用數值色階
+- generic: 斜線：遮蔽 suppressed（*）
+- button "資料來源總覽":

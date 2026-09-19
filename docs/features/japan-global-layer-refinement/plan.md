@@ -1,0 +1,180 @@
+# 日本與全球圖層微調計劃（2026-09-18）
+
+## 目標
+
+本輪改善日本與全球圖層的預設行為、低縮放完整性、分類配色、資訊架構、
+GFW freshness，以及房地產總價值的統計圖層呈現。每個工作單元獨立 commit、
+獨立 PR，前一個 PR 以一般 merge commit 合入 `master` 後，下一個才從最新
+`master` 開始；禁止 squash、rebase merge 或把既有平行 checkout 的 dirty files 帶入。
+
+使用者提供的截圖只作為房地產面板現況的視覺參考，不視為執行指令或資料契約。
+
+## 語意與驗收原則
+
+### 「拉遠仍完整」的定義
+
+- 2026-09-18 晚間依使用者截圖釐清：日本醫療／長照應比照 Company Registry 的
+  自動 presentation switch，zoom &lt; 8 顯示密度 polygon grid，zoom ≥ 8 顯示完整點位；
+  不是低縮放也畫全部原始點，更不是格心圓點加數字。
+- 點位 PMTiles 仍須保留完整來源，不能因 tile thinning、viewport limit 或前端抽樣漏點；
+  z0 解碼點數須對回各分類可繪製來源筆數。
+- 低縮放格網必須由同一可繪製母體聚合，所選分類的 `aggregate_count` 加總守恆；網格
+  只表示筆數密度，不冒充病床、容量、服務人次、唯一機構或服務範圍。
+- 旅宿密度仍是獨立 layer；本次釐清只變更醫療／長照同一 toggle 的縮放切換行為。
+- `missing geometry`、隔離列、重複登記、來源缺值與錯誤必須分開記錄；不得當成 0，
+  也不得為了湊數補座標。
+
+### 命名規則
+
+- 台灣既有圖層維持「中文 English」。
+- 日本專區改為「中文 日本語」，名稱不重複加「日本」；日本是所在專區，不是每層前綴。
+- 全球圖層依主題分組，不再使用空泛的「世界 World」大分組；名稱以中文主名搭配
+  來源或通行專名，避免把資料供應者、觀測產品與推論結果混為一層。
+- layer key、dataset id、source-layer 與公開 asset path 不因顯示名稱重整而改名。
+
+### 發布與證據邊界
+
+- code、artifact、tests、HTTP、browser、deploy、production freshness 分開回報。
+- 任何新 PMTiles／GeoJSON 先驗 source count、分類欄位、zoom、SHA-256、bytes，
+  再依 immutable assets → catalog/manifest → mutable pointer 的順序發布。
+- 本計劃授權本輪所列 Git commit／push／PR／一般 merge；不把 S3 upload、collector
+  schedule、production deploy 或 private-data movement 視為自動授權。若實作需要這些
+  外部動作，另列 gate，不用假資料繞過。
+
+## PR 序列
+
+### PR 0 — 計劃與驗收基線
+
+- 本文件。
+- 確認 dirty 主 checkout 不被修改，後續都從最新 `origin/master` 建隔離 worktree。
+
+驗收：文件涵蓋全部需求、PR 依賴、資料語意與 release gates。
+
+### PR 1 — 日本入口不自動開旅宿
+
+- 從 `DEFAULT_ON` 移除 `jpAccommodationCanonical`。
+- 日本入口只執行 fly-to，不改任何 layer visibility。
+- 補初始 visibility regression test。
+
+驗收：新 session 點日本後到日本視角，全部日本圖層仍為 off。
+
+### PR 2 — Loading 視覺一致化
+
+- `LoadingIndicator` 改用共用灰色 panel background／border／文字 token。
+- 保留 loading task、spinner、溢出計數等行為。
+
+驗收：右上角 loading pill 不再使用獨立藍底；contrast 與其他主視覺一致。
+
+### PR 3 — 旅宿分類、完整低縮放與密度網格
+
+- Canonical 旅宿依可靠的 accommodation type 欄位分色；未知／缺值有獨立顏色。
+- OSM accommodation coverage 依 OSM 類型分色；不可把 OSM coverage 說成官方完整名冊。
+- 新增獨立「旅宿密度網格」layer，視覺與 Company Capital Grid 同族，但統計語意為
+  可繪製旅宿 entity count，不是營業量、房間數或旅客數。
+- 重建全 zoom 產物：canonical 與 OSM 的完整可繪製點在 z0 起保留；不得沿用
+  z3–13 density thinning。密度網格另外產製，不取代點圖層。
+- 圖例、popup、opacity、選取與 loading 全部接線。
+
+資料 gate：若現有 PMTiles 沒有低縮放完整點／分類欄位，先在
+`taipei-gis-analytics` 產出並更新 handoff；未完成 artifact readback 前只可稱 code-ready。
+
+### PR 4 — 醫療設施、長照服務與醫療圈
+
+- 醫療設施五類拆成獨立 layer，共用來源與 loader，使用既有類別色票。
+- 長照依 `service_type` 做可理解的分類 layer；保留 H17 一對多「服務登記」語意，
+  不冒充唯一機構數。35 個原始類別依厚生勞動省「介護サービス情報公表システム」
+  的六個使用情境分組，popup 保留原始 `service_type`。
+- 醫療與長照點圖層使用全量 PMTiles，zoom 8 起顯示完整可繪製原始點；zoom 8 以下
+  自動改顯示同母體守恆的 10 km 等面積 polygon density grid，各分類與格網 count 都可對帳。
+- 醫療圈改成一次／二次／三次獨立 layer 與可辨識配色，popup 顯示圈層、名稱／code、
+  2020 `STALE`、display geometry 與 polygon-parts 不可加總限制。
+
+資料 gate 更正：解碼既有不可變 PMTiles 的 `0/0/0` 後，Navii 與 H17 都只有 1
+feature；雖然 header 是 z0–14，metadata 仍有 `dropped_by_rate`，不能稱為完整點位。
+analytics PR #94 已由 immutable z14 display geometry 去除 tile-buffer duplicates，使用
+`--drop-rate=1 --no-feature-limit --no-tile-size-limit` 重建；z0 分別守恆 189,800 與
+222,194，且座標衝突皆為 0。幾何是既有 display geometry 的回復值，不是新觀測或
+重新 geocode。前端只有在 catalog 同時聲明 `minimum_point_zoom:0`、
+`point_sampling:none` 與正整數 `z0_feature_count` 時才接受全縮放資產；舊 catalog
+仍維持 z10 gate。新 immutable assets、catalog 與 current pointer 後續已依 publication
+plan 發布；候選 release `6f59ead2…fdafa` 完成 S3/CDN SHA、bytes、Range 回讀，PR 4
+已合併並完成 production browser 驗收。幾何與計數語意仍維持上述限制。
+
+### PR 5 — 日本與全球圖層命名、分組
+
+- 日本專區全面套用「中文 日本語」，移除每層重複的「日本」前綴。
+- 將空泛的「世界 World」拆入全球情勢、海事、氣候環境、通訊基礎等既有語意群。
+- 同步 sidebar、mobile、搜尋／chat catalog、golden fixture 與 consistency tests。
+
+驗收：只改資訊架構與 display labels，不改 layer key／資料來源；desktop/mobile 都能
+從合理分組找到原圖層。
+
+### PR 6 — GFW freshness 與 legacy 邊界
+
+- Read-only 核對 production canonical/v3/v4 root manifest、immutable assets、HTTP Range，
+  以及有權限時的 publish run／legacy snapshot 日期。
+- UI 日期顯示完整 `YYYY-MM-DD UTC` 與距今天數，避免 `08/21` 被看成 `821`。
+- 已停用的 legacy daily Presence 不得繼續冒充最新資料：依驗證結果移除、隱藏，或明確
+  標成歷史／停更；hourly Grid／Tracks／Fishing／SAR 各自保留產品與 freshness。
+- 若 publisher 停滯，只修能在本輪安全修的 code/config；重新啟用 collector 或 schedule
+  必須另有 production 授權與 source health 證據。
+
+驗收：使用者能判斷看到的是哪個 GFW product、最新觀測日與是否 stale；不能用舊資料
+宣稱即時或正常。
+
+### PR 7 — 房地產總價值改為統計圖層
+
+- 移除 Icon Rail 的 Property Value app 與獨立浮動面板入口。
+- 新增一般統計 layer，以縣市／鄉鎮行政界呈現 corrected market value choropleth。
+- 提供行政層級、色階、opacity、legend、popup 與來源／限制。
+- `property_value_admin.json` 目前有 19 縣市／352 鄉鎮市區；來源未提供的金門、
+  連江、澎湖及其鄉鎮市區顯示 missing，不著色為 0。嘉義市（`10020`）與其兩區
+  已存在於來源，應照實 join 並顯示數值。
+- 既有逐棟估值與三尺度 property-value grid 保留，除非測試證明與新統計層衝突。
+
+驗收：側邊 rail 不再有 app；圖層面板可切縣市／鄉鎮，色彩與 popup 對同一行政單位、
+同一統計值，缺資料行政區仍可辨識。
+
+## 每個 PR 的固定檢查
+
+1. `npx tsc -b`
+2. 相關 focused Vitest
+3. `npm test`
+4. production build（涉及 runtime／asset contract 時）
+5. Browser：All Off → 只開本 PR 圖層；檢查日本全國、城市級、desktop、390px mobile、
+   popup、legend、loading、console/network
+6. PR 建立後確認 CI、mergeability 與 head SHA，再以 `gh pr merge --merge` 合入
+
+## 中斷與額度保護
+
+- 不在 `/tmp` 或 `/private/tmp` 保存正式工作；使用 repo 內永久 worktree。
+- 每個可獨立驗證的工作單元完成後立即 local commit；通過該單元最低檢查後即 push
+  對應遠端 branch，不等整批工作完成才保存。
+- 每個 PR 更新本文件的執行紀錄：branch、commit、測試、PR、merge commit、未完成 gate。
+- 若 session 或額度中斷，下一次從最後 pushed commit 與本文件的下一步繼續；不依賴
+  未記錄的 terminal output 或對話脈絡。
+
+## 已知風險
+
+- 旅宿與醫療核心 registry／manifest／catalog／legend／click files 是高衝突區；因此 PR 必須
+  嚴格串行，不能在多個 branch 平行改同檔。
+- 全國視圖同時畫 20 萬級原始點會高度重疊；醫療／長照因此在 zoom 8 以下使用守恆
+  polygon density grid，zoom 8 起才顯示完整點位。全量 PMTiles 仍保留作完整性證據。
+- GFW 的現存文件證據只到 2026-08-21；完成 read-only production health check 前，狀態是
+  `STALE / UNKNOWN`，不是正常。
+
+## 執行紀錄
+
+| 單元 | PR / merge | 驗收 | 狀態 |
+|---|---|---|---|
+| PR 0 計劃 | #262 / `577f87f4` | CI `test` passed | 已以一般 merge commit 合入 |
+| PR 1 日本預設層 | #263 / `b3f5dce1` | focused 30 passed；`tsc -b`；全站 1,582 passed / 8 skipped；CI passed | 已以一般 merge commit 合入 |
+| PR 2 Loading 視覺 | #264 / `43d8a3f0` | focused 2 passed；`tsc -b`；全站 1,584 passed / 8 skipped；build passed；CI passed；production 實際載入醫療點位時，右上 pill 為灰黑主視覺底、非藍底 | 已以一般 merge commit 合入；production 視覺驗收完成 |
+| PR 3A 旅宿上游產物 | taipei-gis-analytics #93 / `51db5e14` | 17 focused passed；4 個 `pmtiles verify`；canonical z0=25,459、OSM z0=20,502；兩尺度網格 `sum(n_records)=25,459`；四檔 S3 full-body SHA/bytes readback PASS | 已以一般 merge commit 合入；四個 immutable artifacts 已上傳並驗證 |
+| PR 3B 旅宿前端 | #265 / `7e011185` | focused 73 passed；`tsc -b`；全站 1,601 passed / 8 skipped；build passed；production HTTP 206／bytes PASS；desktop：預設 0/5、canonical/OSM z4.7、density z4.7/z9、legend/popup；390x844 OSM z4.7；console warning/error 0 | 已以一般 merge commit 合入；Zeabur deployment `6aacade8` RUNNING；production 驗收完成，詳見 `pr3-accommodation-production-acceptance.md` |
+| PR 4A 醫療全縮放上游 | taipei-gis-analytics #94 / `bff65414` | 20 focused passed；兩個 `pmtiles verify`；Navii z0=189,800、H17 z0=222,194；無 `dropped_by_rate`；座標衝突 0 | 已以一般 merge commit 合入；約 602 MB 產物保存在永久 worktree，未上傳／部署 |
+| PR 4B 醫療／長照／醫療圈 | #266 / `9b8c1afc` | 5 類設施、6 類長照、3 級醫療圈完成獨立接線；35 個 H17 原始類別恰好分組一次；35 focused passed；全套 1,601 passed / 8 skipped；`tsc -b`／build；778 檔 SHA/bytes 與 localhost HTTP PASS；production 日本全國／東京、分類色、legend、popup、console 皆 PASS | 已以一般 merge commit 合入；release `6f59ead2…fdafa` 已發布，production 驗收見 `production-acceptance-2026-09-18.md` |
+| PR 5 日本／全球命名與分組 | #277 / `7ebbb865` | layer key、source 與 asset path 不變；35 focused passed；`tsc -b`；全套 1,603 passed / 8 skipped；build passed；desktop 全球 5 主題與日本中日文名稱 PASS；390x844 mobile 無「世界」大分組 PASS；正確 env 啟動後無新增 console error；CI passed | 已以一般 merge commit 合入 |
+| PR 6A GFW collector toolchain | gis-data-collectors #90 / `3518569e` | production ledger 定位缺少 Tippecanoe/PMTiles；17 focused passed；完整 Docker build PASS；image 內 Python resolver 找到兩個 Linux CLI；GitHub CI passed；Zeabur deployment `6aacbed4` RUNNING | 已以一般 merge commit 合入；部署晚於當日 08:30，2026-09-19 08:30 後續驗證新 release |
+| PR 6B GFW freshness UI | #294 / `2c67aff0` | 完整 `YYYY-MM-DD UTC`、落後日數、DELAYED/STALE；legacy daily Presence 標成 historical；focused 52 passed；`tsc -b`；全套 1,606 passed / 8 skipped；build passed；browser Grid/Tracks/SAR 完整日期與 STALE PASS；production audit 見 `../global-maritime/gfw-freshness-audit-2026-09-18.md` | 已以一般 merge commit 合入 |
+| PR 7 不動產總市值統計 | #295 / `a86c854b`（功能 `52c26493`） | 合併最新 master 後 `tsc -b`；focused 54 passed；全套 1,647 passed / 8 skipped；build passed；production desktop 縣市／鄉鎮市區色階、legend、popup；390x844 Statistics 控制與說明 PASS；console warning/error 0；GitHub CI passed | 已以一般 merge commit 合入；無資料上傳或儲存流程變更；production 驗收完成 |

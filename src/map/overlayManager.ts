@@ -12,6 +12,7 @@ import { loadingRegistry } from "../lib/loadingRegistry";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import { resolvePropertyValueScale } from "../data/propertyValueTypes";
 import { resolveCompanyGridScale } from "../data/businessRegistryTypes";
+import { resolveJpAccommodationDensityScale } from "../data/jpTourismTypes";
 
 /**
  * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
@@ -95,7 +96,7 @@ export function applyLayerOpacity(
 /**
  * 該 config 當下該不該可見 = 圖層 toggle 開啟 **且**（多尺度圖層）目前選的尺度就是它。
  *
- * `propertyValueGrid` 與 `companyCapitalGrid` 都是「一個 layer key ↔ 多個
+ * `propertyValueGrid`、`companyCapitalGrid` 與 `jpAccommodationDensity` 都是「一個 layer key ↔ 多個
  * source」的圖層；尺度是**手動選擇**、不隨 zoom 自動切換。
  * 用 `layout.visibility` 而非 opacity 0 隱藏未選中的尺度 —— opacity 0 的 layer
  * 仍會下載圖磚（三尺度合計 110MB），visibility:none 才會讓 Mapbox 完全跳過該 source。
@@ -114,6 +115,11 @@ export function isOverlayVisible(
   }
   if (config.id === "companyCapitalGrid") {
     return config.sourceId === resolveCompanyGridScale(params?.companyGridScaleIdx ?? 0).sourceId;
+  }
+  if (config.id === "jpAccommodationDensity") {
+    return config.sourceId === resolveJpAccommodationDensityScale(
+      params?.jpAccommodationDensityScaleIdx ?? 0,
+    ).sourceId;
   }
   return true;
 }

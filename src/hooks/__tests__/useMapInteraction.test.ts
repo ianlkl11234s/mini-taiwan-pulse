@@ -116,6 +116,41 @@ describe("useMapInteraction GFW grid click", () => {
   });
 });
 
+describe("useMapInteraction accommodation density click", () => {
+  beforeEach(() => harness.reset());
+
+  it("queries the visible density cell at the exact click point, not the POI tolerance box", () => {
+    const densityLayer = "jp-accommodation-density-450-fill";
+    const point = { x: 40, y: 60 };
+    const map = {
+      getContainer: () => ({ clientWidth: 100, clientHeight: 100 }),
+      getLayer: (id: string) => id === densityLayer ? {} : undefined,
+      queryRenderedFeatures: vi.fn((target: unknown, options: { layers: string[] }) => {
+        if (!options.layers.includes(densityLayer)) return [];
+        expect(target).toEqual(point);
+        return [{
+          id: "density-cell",
+          layer: { id: densityLayer },
+          properties: { n_records: 3 },
+          geometry: { type: "Polygon", coordinates: [] },
+        }];
+      }),
+      on: vi.fn((event: string, ...args: unknown[]) => {
+        if (event === "click" && typeof args[0] === "function") harness.setClick(args[0] as never);
+      }),
+      getCanvas: () => ({ style: {} }),
+    };
+    const ref = { current: map } as unknown as RefObject<MapboxMap | null>;
+    useMapInteraction(ref, { current: null }, { current: [] }, { current: 0 }).bindEvents(map as never);
+
+    harness.click()?.({ point, lngLat: { lng: 139.7, lat: 35.6 } });
+    expect(harness.setFeatureInfo).toHaveBeenCalledWith(expect.objectContaining({
+      layerType: "jpAccommodationDensity",
+      properties: { n_records: 3 },
+    }));
+  });
+});
+
 function gridFeature(layerId: string, cellId: string, vesselCount: number) {
   return {
     id: cellId,

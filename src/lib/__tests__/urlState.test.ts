@@ -4,13 +4,23 @@
  * 重點不是 happy path，而是**壞輸入不能白屏**：嵌入碼散落在別人的文章裡，
  * 圖層改名/下架/上鎖之後，舊網址必須安靜降級而不是炸掉整個 iframe。
  */
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect, vi } from "vitest";
 import { parseUrlState, buildUrl, URL_STATE_VERSION } from "../urlState";
 import { RAIL_CODES, resolveRailCodes } from "../../constants/railLines";
 import { LAYER_COLORS, GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../../types";
 
 const V = `v=${URL_STATE_VERSION}`;
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.resetModules();
+});
+
+async function loadUrlStateForEnv() {
+  vi.resetModules();
+  return import("../urlState");
+}
 
 describe("parseUrlState — 版本閘門", () => {
   it("缺版本號回空物件", () => {
@@ -75,6 +85,13 @@ describe("parseUrlState — 圖層安全過濾", () => {
     expect(s.layers).toEqual(["aquaculturePonds", "aquacultureZone"]);
   });
 
+  it("保留日本水資源已發布圖層，供 share/deeplink 還原", () => {
+    const keys = ["jpWaterLakes", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"];
+    const state = parseUrlState(`?${V}&layers=${keys.join(",")}`);
+    expect(state.layers).toEqual(keys);
+    expect(buildUrl({ layers: keys as (keyof LayerVisibility)[] }, "https://example.com")).toContain(`layers=${keys.join("%2C")}`);
+  });
+
   it("未知 key 靜默 drop、不影響其他層", () => {
     const s = parseUrlState(`?${V}&layers=aquaculturePonds,notARealLayerKey`);
     expect(s.layers).toEqual(["aquaculturePonds"]);
@@ -107,6 +124,31 @@ describe("parseUrlState — 圖層安全過濾", () => {
 
   it("全部被濾掉時回 undefined 而非空陣列", () => {
     expect(parseUrlState(`?${V}&layers=nope,alsoNope`).layers).toBeUndefined();
+  });
+
+  it("production deep link 不得恢復未發布的統計比較圖層", async () => {
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_STATISTICS_COMPARISONS_ENABLED", "false");
+    const { parseUrlState: parseProductionUrlState } = await loadUrlStateForEnv();
+
+    expect(parseProductionUrlState(`?${V}&layers=statsComparisonEducationInstitutionCountPer10000Residents,statsWasteCounty`).layers)
+      .toEqual(["statsWasteCounty"]);
+    expect(parseProductionUrlState(`?${V}&layers=statsComparisonEducationInstitutionCountPer10000Residents`).layers)
+      .toBeUndefined();
+  });
+
+  it("development 與明確 production release opt-in 保留統計比較 deep link", async () => {
+    vi.stubEnv("DEV", true);
+    vi.stubEnv("VITE_STATISTICS_COMPARISONS_ENABLED", "false");
+    const { parseUrlState: parseDevelopmentUrlState } = await loadUrlStateForEnv();
+    expect(parseDevelopmentUrlState(`?${V}&layers=statsComparisonEducationInstitutionCountPer10000Residents`).layers)
+      .toEqual(["statsComparisonEducationInstitutionCountPer10000Residents"]);
+
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("VITE_STATISTICS_COMPARISONS_ENABLED", "true");
+    const { parseUrlState: parseReleasedUrlState } = await loadUrlStateForEnv();
+    expect(parseReleasedUrlState(`?${V}&layers=statsComparisonEducationInstitutionCountPer10000Residents`).layers)
+      .toEqual(["statsComparisonEducationInstitutionCountPer10000Residents"]);
   });
 
   it("測試用的 key 確實存在於 catalog（避免測試自身腐爛）", () => {
@@ -395,6 +437,7 @@ describe("網址長度（十幾個圖層會不會太長）", () => {
       },
       "https://mini-taiwan-pulse.itsmigu.com/",
     );
-    expect(url.length).toBeLessThan(1000);
+    // Derived metric keys remain below the documented 2000-character interoperability budget.
+    expect(url.length).toBeLessThan(2000);
   });
 });

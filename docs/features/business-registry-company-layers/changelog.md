@@ -58,3 +58,23 @@ Screenshot：`/private/tmp/company-age-structure-20260910.png`。以上為桌機
 - B3 用同一 B1 layer 的 params/filter 支援 89 行業中類與 production subset。
 - 新增 202608 snapshot 語意、十欄 popup 白名單、B2 三指標圖例與契約測試。
 - 當時 r1 assets 後續已 upload；已被上方 r2 契約取代，不得覆寫舊 immutable key。
+
+## 2026-09-17 — 科學色階與底圖標籤
+
+- 公司密度改用 Viridis，固定級距 0 / 1 / 5 / 20 / 100 / 500 / 2,000 家／km²；1.5km 與 450m 共用絕對門檻，不隨視窗重新分位。202608 完整格網密度 p50 / p90：1.5km 為 4 / 92，450m 為 19.75 / 261.73，故加強低中密度辨識。
+- 公司資本額網格改用 Magma，保留原尺度與數值級距；年齡改 Cividis。三色帶取 Matplotlib 原始色帶 0.18–1 的七個等距樣本，截去近黑端；亮度隨數值遞增。數值色帶不代表產業分類。
+- 資本額與年齡預設 opacity 0.85；公司分布不再額外壓低使用者 opacity。圖例同步標示區間、單位及年齡指標方向；缺值仍保留。
+- 桌面與 mobile full 的底圖選單旁加入「地名：開／關」；只處理 composite 底圖文字 symbol，切換底圖後維持本次設定，重新載入預設開啟。
+- 本地驗證：TypeScript 通過；61 項相關測試通過；browser 確認三層新色階、關閉地名保留網格、Dark → Light 仍關閉地名。未部署。
+- 配色參考：https://arxiv.org/abs/1712.01662 （Cividis 色覺友善設計）；https://matplotlib.org/stable/users/explain/colors/colormaps.html 。
+
+## 2026-09-18 — 工廠／製造業／列管設施原點與密度分離
+
+- 原 `factoryLocations`、`manufacturingCompanyPoints`、`regulatedFacilities` 改用獨立 `*_allzoom.pmtiles`，z0 起顯示每一筆有可用座標的登記點，移除低倍率聚合圓圈；小點隨 zoom 調整半徑，同址仍可能重疊。
+- 新增 `factoryDensityGrid`、`manufacturingCompanyDensityGrid`、`regulatedFacilityDensityGrid`；各自開關、opacity、圖例與 popup，1.5km z4–<10、450m z10+。固定密度門檻與 Viridis 色帶共用，數值為每 km² 登記記錄數，不把三個母體合併或推論成產能、排放與風險。
+- 網格 popup 用精確點擊位置選格；z10 切換排除透明的另一尺度。
+- 上游重現與 QA：`taipei-gis-analytics` 本次工業點位／密度匯出管線；檔名、完整性與實測結果見本 feature handoff。
+
+- PR #260：補齊三個密度圖層英文名稱，原子提交並整合最新 master；上游 PR #92 已一般合併。資料發布與前端 merge 仍受上述 handoff gate 約束。
+
+- 2026-09-18 發布回條：13 檔已沿用既有 S3／網站 CDN 路徑發布，S3 整檔下載與網站 volume SHA 均通過；詳見 `evidence/20260918-publication.json` 與 PR #260。

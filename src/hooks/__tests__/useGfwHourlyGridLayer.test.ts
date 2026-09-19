@@ -196,7 +196,9 @@ describe("useGfwHourlyGridLayer timeline", () => {
     const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
     useGfwHourlyGridLayer(mapRef, true, 0.6);
     await flushAsync();
-    expect(notice.show).toHaveBeenCalledWith("GFW 小時網格資料最新完整日：2026-08-15（UTC，非即時）");
+    expect(notice.show).toHaveBeenCalledWith(expect.stringMatching(
+      /^GFW 小時網格資料最新完整日：2026-08-15 UTC（落後 \d+ 天 · STALE／已過期）（非即時）$/,
+    ));
     harness.rerender(); useGfwHourlyGridLayer(mapRef, true, 0.8);
     expect(notice.show).toHaveBeenCalledTimes(1);
   });
@@ -330,6 +332,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
       startIso: "2026-08-15T00:00:00Z",
       endIsoExclusive: "2026-08-15T03:00:00Z",
       utcDateLabel: "2026-08-15",
+      latestCompleteDate: "2026-08-15",
     });
 
     expect(state.sources.has("gfw-hourly-grid-pmtiles-hit-source")).toBe(false);
@@ -529,6 +532,7 @@ describe("useGfwHourlyGridLayer timeline", () => {
     await flushAsync();
     expect(getGfwHourlyGridDataWindowSnapshot()).toMatchObject({
       status: "out-of-window", utcDateLabel: "2026-08-15",
+      latestCompleteDate: "2026-08-15",
     });
     expect(lastPaint(state.map, "gfw-hourly-grid-pmtiles-next-fill", "fill-opacity")).toBeCloseTo(0.3, 6);
     // 淡出是 layer-local 的 paint 行為，source 一律留著。

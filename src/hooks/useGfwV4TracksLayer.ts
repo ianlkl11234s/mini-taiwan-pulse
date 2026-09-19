@@ -8,6 +8,7 @@ import { GfwV4TrackLatestWinsQueue, decideGfwV4TrackFrame, type GfwV4TrackErrorR
 import { nearestGfwV4TrackPoint, registerGfwV4TrackPicker, type GfwV4TrackPickResult } from "../data/gfwV4TrackPicking";
 import { gfwV4TrackDataWindowStore, type GfwV4TrackDataWindowState } from "../state/gfwV4TrackDataWindowStore";
 import { setGfwHourlyTracksDetailContext } from "../data/gfwHourlyDetailLoader";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { withLoading } from "../lib/loadingRegistry";
 import { showTransientNotice } from "../components/TransientNotice";
 import { createGfwV4TrackCustomLayer, GFW_V4_TRACK_CUSTOM_LAYER_ID } from "../map/gfwV4TrackCustomLayer";
@@ -292,7 +293,7 @@ export function useGfwV4TracksLayer(mapRef: React.RefObject<MapboxMap | null>, v
       if (requestedDate !== release.selectedUtcDate) {
         setWindow("out-of-window", requestedDate);
         clearFrame();
-        if (!notifiedOutOfWindow) { notifiedOutOfWindow = true; showTransientNotice(`GFW v4 航跡最新完整日：${release.selectedUtcDate}（UTC；目前選取日期尚無正式資料）`); }
+        if (!notifiedOutOfWindow) { notifiedOutOfWindow = true; showTransientNotice(`GFW v4 航跡最新完整日：${gfwFreshness(release.selectedUtcDate).label}；目前選取日期尚無正式資料`); }
         return;
       }
       notifiedOutOfWindow = false;

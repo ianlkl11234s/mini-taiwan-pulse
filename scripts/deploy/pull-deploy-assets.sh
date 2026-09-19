@@ -54,7 +54,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
@@ -88,7 +88,7 @@ aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
 echo "[pull] sync forestry → $DATA_DIR/forestry/"
-aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress
+aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress --exclude "forest_reserve.geojson"
 
 # 養殖漁業：鏡像子前綴 deploy-assets/fishery/ → /data/fishery/（ponds/衛星偵測 PMTiles 大檔；生產區/箱網 geojson 小檔在 dist fallback）
 echo "[pull] sync fishery → $DATA_DIR/fishery/"
@@ -140,38 +140,10 @@ aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 echo "[pull] sync world → $DATA_DIR/world/"
 aws s3 sync "$S3/world/" "$DATA_DIR/world/" --no-progress
 
-# GFW immutable daily/hourly releases 先 sync，root manifest 最後才以 tmp+mv 原子切換。
-# 不加 --delete：release retention 切換時允許容器短暫保留舊 release，
-# 避免拿到舊 manifest 的讀者遇到 404。
-echo "[pull] sync global-maritime/gfw-hourly → $DATA_DIR/global-maritime/gfw-hourly/"
-aws s3 sync "$S3/global-maritime/gfw-hourly/" "$DATA_DIR/global-maritime/gfw-hourly/" \
-  --no-progress --exclude "manifest.json" --exclude "v3-shadow/manifest.json" --exclude "v4/manifest.json"
-if aws s3 cp "$S3/global-maritime/gfw-hourly/manifest.json" \
-  "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" --no-progress; then
-  mv "$DATA_DIR/global-maritime/gfw-hourly/manifest.json.tmp" \
-    "$DATA_DIR/global-maritime/gfw-hourly/manifest.json"
-fi
-# v3 shadow 與 canonical 共用 immutable release 同步順序；shadow 指標同樣最後 tmp+mv，
-# 不能讓 runtime shadow 開關讀到一半新舊 release 的 manifest。
-mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow"
-if aws s3 cp "$S3/global-maritime/gfw-hourly/v3-shadow/manifest.json" \
-  "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" --no-progress; then
-  mv "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json.tmp" \
-    "$DATA_DIR/global-maritime/gfw-hourly/v3-shadow/manifest.json"
-fi
-
-# v4 正式 release 尚未發佈時完全不影響既有服務；一旦上游先放好 immutable
-# releases 與 root manifest，才同步 releases 後以 tmp+mv 原子切換指標。
-mkdir -p "$DATA_DIR/global-maritime/gfw-hourly/v4/releases"
-if aws s3 ls "$S3/global-maritime/gfw-hourly/v4/manifest.json" >/dev/null 2>&1; then
-  echo "[pull] sync global-maritime/gfw-hourly/v4 releases → $DATA_DIR/global-maritime/gfw-hourly/v4/"
-  if aws s3 sync "$S3/global-maritime/gfw-hourly/v4/releases/" \
-    "$DATA_DIR/global-maritime/gfw-hourly/v4/releases/" --no-progress && \
-    aws s3 cp "$S3/global-maritime/gfw-hourly/v4/manifest.json" \
-      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" --no-progress; then
-    mv "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json.tmp" \
-      "$DATA_DIR/global-maritime/gfw-hourly/v4/manifest.json"
-  fi
+# GFW uses one shared manifest-bound verifier for startup and periodic refresh.
+# A failed candidate leaves the prior complete release serving.
+if ! /usr/local/bin/refresh-gfw-hourly.sh; then
+  echo "[pull] WARNING: GFW candidate rejected; retaining previous release" >&2
 fi
 
 # 觀光：鏡像子前綴 deploy-assets/tourism/ → /data/tourism/（景點/旅宿/餐飲 D 類 3 大檔；其餘 9 檔 C 類在 dist fallback）
@@ -269,5 +241,11 @@ for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_rou
     fi
   fi
 done
+
+# 日本醫療：按當前 release allowlist 驗 SHA/bytes，所有檔案成功後才原子更新 current。
+# 不做整夾 sync，不會把舊版／研究資料下載進公開路徑。
+echo "[pull] install reviewed jp-medical release → $DATA_DIR/jp-medical/"
+python3 /usr/local/bin/install-jp-medical-assets.py \
+  --bucket "$BUCKET" --prefix "$PREFIX/jp-medical" --target "$DATA_DIR/jp-medical" || exit 1
 
 echo "[pull] all assets synced to $DATA_DIR"

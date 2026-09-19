@@ -6,6 +6,7 @@
   "packageManager": "npm@11.4.2",
   "scripts": {
     "dev": "vite",
+    "dev:exploration": "PULSE_RESEARCH_GATEWAY_ORIGIN=http://127.0.0.1:8791 vite --host 127.0.0.1 --port 3732 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",

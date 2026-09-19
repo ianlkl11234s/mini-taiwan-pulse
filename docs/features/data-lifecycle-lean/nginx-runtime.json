@@ -1,0 +1,131 @@
+{
+  "checked_at": "2026-09-18T07:32:45.849651+00:00",
+  "scope": "local nginx fixture HTTP, not production or CDN hit/auth validation",
+  "nginx": "1.27.4",
+  "config_sha256": "7c4f1fd255ba125b18100b7c9dee856ca647d1d9ddf36e39a7150d6493b76a4a",
+  "checks": [
+    {
+      "path": "/geo/lean-volume.geojson",
+      "request_headers": {
+        "Accept-Encoding": "gzip"
+      },
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": [
+        "max-age=86400",
+        "public"
+      ],
+      "content_encoding": "gzip",
+      "content_range": null,
+      "bytes_read": 79
+    },
+    {
+      "path": "/world/lean-dist.geojson",
+      "request_headers": {
+        "Accept-Encoding": "gzip"
+      },
+      "status": 200,
+      "content_type": "application/geo+json",
+      "cache_control": [
+        "max-age=86400",
+        "public"
+      ],
+      "content_encoding": "gzip",
+      "content_range": null,
+      "bytes_read": 79
+    },
+    {
+      "path": "/world/lean.json",
+      "request_headers": {},
+      "status": 200,
+      "content_type": "application/json",
+      "cache_control": [
+        "max-age=86400",
+        "public"
+      ],
+      "content_encoding": null,
+      "content_range": null,
+      "bytes_read": 16
+    },
+    {
+      "path": "/world/lean.js",
+      "request_headers": {},
+      "status": 200,
+      "content_type": "application/javascript",
+      "cache_control": [
+        "max-age=604800",
+        "public, immutable"
+      ],
+      "content_encoding": null,
+      "content_range": null,
+      "bytes_read": 14
+    },
+    {
+      "path": "/world/lean.png",
+      "request_headers": {},
+      "status": 200,
+      "content_type": "image/png",
+      "cache_control": [
+        "max-age=604800",
+        "public, immutable"
+      ],
+      "content_encoding": null,
+      "content_range": null,
+      "bytes_read": 8
+    },
+    {
+      "path": "/forestry/forest_reserve.pmtiles",
+      "request_headers": {
+        "Range": "bytes=0-126",
+        "Accept-Encoding": "gzip"
+      },
+      "status": 206,
+      "content_type": "application/vnd.pmtiles",
+      "cache_control": [
+        "max-age=86400",
+        "public"
+      ],
+      "content_encoding": null,
+      "content_range": "bytes 0-126/2030870",
+      "bytes_read": 127
+    },
+    {
+      "path": "/geo/ookla_fixed_global.geojson",
+      "request_headers": {
+        "Range": "bytes=0-126"
+      },
+      "status": 206,
+      "content_type": "application/geo+json",
+      "cache_control": [
+        "max-age=86400",
+        "public"
+      ],
+      "content_encoding": null,
+      "content_range": "bytes 0-126/23024097",
+      "bytes_read": 127
+    },
+    {
+      "path": "/world/lean-missing.geojson",
+      "request_headers": {},
+      "status": 404,
+      "content_type": "text/html",
+      "cache_control": null,
+      "content_encoding": null,
+      "content_range": null,
+      "bytes_read": 153
+    },
+    {
+      "path": "/api/private-research/allen-coral-atlas/lean-missing",
+      "request_headers": {},
+      "status": 404,
+      "content_type": "text/html",
+      "cache_control": [
+        "private, no-store"
+      ],
+      "content_encoding": null,
+      "content_range": null,
+      "bytes_read": 153
+    }
+  ],
+  "result": "PASS"
+}

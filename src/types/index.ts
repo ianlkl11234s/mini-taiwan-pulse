@@ -1,3 +1,4 @@
+import type { ComparisonStatisticsLayerKey } from '../data/comparisonStatisticsKeys';
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
@@ -127,6 +128,7 @@ export type ExpandableLayerKey =
   | "streetTreesNational" | "treePitsTaipei"
   | "buildingsGba"
   | "urbanFormGrid"
+  | "propertyValueAdmin"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
   | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
@@ -362,8 +364,19 @@ export type ExpandableLayerKey =
   // 🌍 世界 World
   | "worldTrashDebris"
   | "coralReefDistribution"
+  | "allenCoralAtlas"
+  | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
+  | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
+  | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+  | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
+  | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+  | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
+  | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
+  | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
+  | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
+  | "jpRamsarSites" | "jpMarineEbsaCoastal"
   | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
 
@@ -719,6 +732,7 @@ export interface FeatureInfo {
     | "streetTreesNational" | "treePitsTaipei"
     | "buildingsGba"
     | "urbanFormGrid"
+    | "propertyValueAdmin"
     | "propertyValueGrid"
     | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
     | "sportsVenue"
@@ -770,6 +784,7 @@ export interface FeatureInfo {
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
     | "companyPoints" | "manufacturingCompanyPoints" | "companyCapitalGrid" | "companyIndustryDistribution" | "companyAgeStructure"
     | "factoryLocations" | "industrialParkBoundaries" | "regulatedFacilities"
+    | "factoryDensityGrid" | "manufacturingCompanyDensityGrid" | "regulatedFacilityDensityGrid"
     | "industrialParkComparison"
     | "commonRegistrationAddresses"
     | "youbikeFullness"
@@ -823,10 +838,22 @@ export interface FeatureInfo {
     // 🌍 世界 World（Outerview 全球垃圾殘骸點）
     | "worldTrashDebris"
     | "coralReefDistribution"
+    | "allenCoralAtlas"
     // 🌍 世界 World（日本宗教設施三個獨立來源）
-    | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
+    | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
+    | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
+    | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
+    | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
+  | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
+    // 🗾 日本旅宿、自然保護區與世界遺產（來源／historical 狀態分層）
+    | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
+    | "jpNaturalParksNational" | "jpNaturalParksQuasiNational" | "jpNaturalParksPrefectural"
+    | "jpNatureConservationArea" | "jpPrimitiveNatureEnvironmentArea" | "jpNatureConservationSpecialDistrict"
+    | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
+    | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
+    | "jpRamsarSites" | "jpMarineEbsaCoastal"
     // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
     | "jpRailways"
     | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
@@ -849,8 +876,65 @@ export interface FeatureInfo {
 
 // ── 圖層控制 ──
 
-export interface LayerVisibility {
+export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, boolean> {
   statsWasteRecyclingRate: boolean;
+  statsEducationCountyInstitutionCount: boolean;
+  statsEducationCountyTeacherCount: boolean;
+  statsEducationCountyStaffCount: boolean;
+  statsEducationCountyStudentCount: boolean;
+  statsEducationCountyClassCount: boolean;
+  statsEducationCountySmallSchoolCount: boolean;
+  statsEducationCountySmallSchoolSharePct: boolean;
+  statsEducationCountyStudentTeacherRatio: boolean;
+  statsEducationCountyStudentsPerClass: boolean;
+  statsEducationCountyStudentYearChange: boolean;
+  statsEducationCountyStudentYearChangePct: boolean;
+  statsEducationPreschoolSchool: boolean;
+  statsEducationPreschoolTeacher: boolean;
+  statsEducationPreschoolStudent: boolean;
+  statsEducationElementarySchool: boolean;
+  statsEducationElementaryTeacher: boolean;
+  statsEducationElementaryStudent: boolean;
+  statsEducationJuniorHighSchool: boolean;
+  statsEducationJuniorHighTeacher: boolean;
+  statsEducationJuniorHighStudent: boolean;
+  statsEducationSeniorHighSchool: boolean;
+  statsEducationSeniorHighTeacher: boolean;
+  statsEducationSeniorHighStudent: boolean;
+  statsHealthHospitalCount: boolean;
+  statsHealthHospitalBedTotal: boolean;
+  statsHealthAcuteBedTotal: boolean;
+  statsHealthIcuBedTotal: boolean;
+  statsHealthHospiceBedTotal: boolean;
+  statsHealthHealthProfessionalTotal: boolean;
+  statsHealthWesternPhysicianCount: boolean;
+  statsHealthRegisteredNurseCount: boolean;
+  statsHealthNursingStaffListedAgeSexSum: boolean;
+  statsHealthCareWorkerListedSexSum: boolean;
+  statsHealthGeneralNursingHomeOpenBeds: boolean;
+  statsHealthPostpartumNursingHomeOpenBeds: boolean;
+  statsHealthPostpartumNursingHomeOpenInfantBeds: boolean;
+  statsHealthCareWorkerRegistration: boolean;
+  statsHealthMedicalInstitutionBedsPer10000Population: boolean;
+  statsHealthPracticingMedicalPersonnelPer10000Population: boolean;
+  statsHousingTotalCounty: boolean;
+  statsHousingOccupiedCounty: boolean;
+  statsHousingUnoccupiedCounty: boolean;
+  statsHousingOccasionalCounty: boolean;
+  statsHousingOtherUseCounty: boolean;
+  statsHousingUnusedCounty: boolean;
+  statsHousingResidenceOnlyCounty: boolean;
+  statsHousingMixedUseCounty: boolean;
+  statsHousingOccupiedPctCounty: boolean;
+  statsHousingUnusedPctCounty: boolean;
+  statsHousingTotalTownship: boolean;
+  statsHousingOccupiedTownship: boolean;
+  statsHousingUnoccupiedTownship: boolean;
+  statsHousingOccasionalTownship: boolean;
+  statsHousingOtherUseTownship: boolean;
+  statsHousingUnusedTownship: boolean;
+  statsHousingOccupiedPctTownship: boolean;
+  statsHousingUnusedPctTownship: boolean;
   statsResidentialElectricity: boolean;
   statsRiceHarvest: boolean;
   statsPaddyLandAreaTownship: boolean;
@@ -950,10 +1034,13 @@ export interface LayerVisibility {
   companyCapitalGrid: boolean; // 150m 公司資本額／家數聚合
   companyIndustryDistribution: boolean; // 202608 公司第一順位行業中類網格
   companyAgeStructure: boolean; // 202608 公司設立年齡網格
-  factoryLocations: boolean; // 202606 生產中工廠登記點位，z11+
+  factoryDensityGrid: boolean; // 生產中工廠登記密度
+  manufacturingCompanyDensityGrid: boolean; // 製造業公司登記密度
+  regulatedFacilityDensityGrid: boolean; // active 列管設施密度
+  factoryLocations: boolean; // 202606 生產中工廠登記完整有座標點位
   industrialParkBoundaries: boolean; // 20260818 產業園區邊界，不含科學園區
   industrialParkComparison: boolean; // 20260818 園區內觀測工廠/公司/公司資本額
-  regulatedFacilities: boolean; // 20260818 環境部列管設施，z11+
+  regulatedFacilities: boolean; // 20260818 環境部列管設施，完整有座標點位
   commonRegistrationAddresses: boolean; // 共同登記地址（≥5 家；大小=公司數、色=資本額中位數）
   temperatureWave: boolean;
   /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */
@@ -1104,6 +1191,7 @@ export interface LayerVisibility {
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
+  propertyValueAdmin: boolean;    // 不動產總市值行政區統計（縣市 19/22／鄉鎮市區 352/368；缺值不當作 0）
   propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）
@@ -1376,6 +1464,25 @@ export interface LayerVisibility {
   // ── 🌍 世界 WORLD ──
   worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
   coralReefDistribution: boolean; // 全球暖水珊瑚礁歷史基線（v4.1；DEV 本地研究；非健康／白化）
+  allenCoralAtlas: boolean; // Allen Coral Atlas 淺海棲地／礁體地形（私人研究；非健康／物種）
+  jpMedicalHospitals: boolean;
+  jpMedicalClinics: boolean;
+  jpMedicalDental: boolean;
+  jpMedicalMaternity: boolean;
+  jpMedicalPharmacies: boolean;
+  jpCarePlanning: boolean;
+  jpCareHomeVisit: boolean;
+  jpCareDayServices: boolean;
+  jpCareResidential: boolean;
+  jpCareCombined: boolean;
+  jpCareEquipment: boolean;
+  jpMedicalAreasPrimary: boolean;
+  jpMedicalAreasSecondary: boolean;
+  jpMedicalAreasTertiary: boolean;
+  jpWaterLakes: boolean;
+  jpWaterLocalFacilities: boolean;
+  jpWaterQualityStations: boolean;
+  jpWaterLevelStations: boolean;
   jpReligionGsi: boolean;       // 日本宗教設施（国土地理院 PMTiles，167,037；多數無名稱）
   jpReligionOsm: boolean;       // 日本宗教設施（OpenStreetMap GeoJSON，71,040；ODbL）
   jpReligionWikidata: boolean;  // 日本宗教設施（Wikidata GeoJSON，37,154；CC0）
@@ -1392,6 +1499,25 @@ export interface LayerVisibility {
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）
+  jpAccommodationCanonical: boolean; // 日本旅宿保守去重總覽（canonical）
+  jpAccommodationDensity: boolean; // 旅宿去重實體 450m / 1.5km 密度網格
+  jpAccommodationJta: boolean; // 觀光廳登錄旅宿法定子集
+  jpAccommodationLocal: boolean; // 京都／靜岡／江東地方許可首批
+  jpAccommodationOsm: boolean; // OSM 住宿 coverage（ODbL）
+  jpNaturalParksNational: boolean; // A10 2010 國立公園 historical／非商用
+  jpNaturalParksQuasiNational: boolean; // A10 2010 國定公園 historical／非商用
+  jpNaturalParksPrefectural: boolean; // A10 2010 都道府縣立自然公園 historical／非商用
+  jpNatureConservationArea: boolean; // A11 2015 自然保全地域 historical／HOLD_LICENSE
+  jpPrimitiveNatureEnvironmentArea: boolean; // A11 2015 原生自然環境地域 historical／HOLD_LICENSE
+  jpNatureConservationSpecialDistrict: boolean; // A11 2015 自然保全特別地區 historical／HOLD_LICENSE
+  jpWildlifeProtectionNational: boolean; // 環境省國指定鳥獸保護區 2025-04
+  jpWildlifeSpecialProtectionDistrict: boolean; // 環境省鳥獸特別保護地區 2025-04
+  jpWildlifeSpecialProtectionDesignatedArea: boolean; // 環境省鳥獸特別保護指定地域 2025-04
+  jpWorldHeritageCultural: boolean; // UNESCO 現行文化遺產代表點
+  jpWorldHeritageNatural: boolean; // UNESCO 現行自然遺產代表點
+  jpWorldNaturalHeritageHistorical: boolean; // A28 2011 historical 面（僅 3 處）
+  jpRamsarSites: boolean; // Ramsar 名冊衍生點；預設只顯示 NAME_MATCH
+  jpMarineEbsaCoastal: boolean; // 2015 沿岸 EBSA；非法定保護區
 }
 
 // ── 空氣品質 ──

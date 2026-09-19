@@ -392,14 +392,14 @@ export function useMapInteraction(
             if (!map.getLayer(id)) return false;
             // PMTiles roundZoom bridge 令 z10 兩尺度都存在；popup 必依真實 zoom 選尺度，
             // 不能讓 opacity=0 的舊格網先命中。
-            if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid") {
               return map.getZoom() >= 10 ? id.includes("-450-") : id.includes("-1500-");
             }
             return true;
           });
           if (existingIds.length === 0) continue;
-          // Small demographics cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
-          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" ? e.point : bbox;
+          // Small density cells must hit the clicked polygon, not a neighboring cell inside the POI tolerance box.
+          const hitTarget = type === "companyIndustryDistribution" || type === "companyAgeStructure" || type === "factoryDensityGrid" || type === "manufacturingCompanyDensityGrid" || type === "regulatedFacilityDensityGrid" || type === "jpAccommodationDensity" ? e.point : bbox;
           const queried = map.queryRenderedFeatures(hitTarget, { layers: existingIds });
           // GFW v4 網格：三個小時 slot 的 hit layer 都恆為 visible（翻 visibility 會 reload
           // 共用 source），所以「哪個小時能回答點擊」改在查詢後決定。必須在取 [0] 之前過濾：
@@ -427,16 +427,32 @@ export function useMapInteraction(
               type === "temperatureGrid" ||
               type === "earthquakeReplayTown" ||
               type === "funeralOperatorDensity" ||
-              type === "animalShelterPressure"
+              type === "animalShelterPressure" ||
+              type === "propertyValueAdmin"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
             const cellId = type === "gfwHourlyGrid" ? canonicalGfwGridCellId(queriedProperties, f.id) : null;
             // PMTiles may expose the immutable key as `grid_id` or feature.id.  Normalise it
             // before both popup rendering and detail-bucket SHA selection.
-            const baseProperties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
-            const properties = type === "companyIndustryDistribution" || type === "companyAgeStructure"
-              ? { ...baseProperties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) }
-              : baseProperties;
+            let properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
+            if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
+              properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
+            }
+            // H17 同位置可能有多筆服務；保留目前篩選可見的登記，避免 first-hit 隱藏其他服務。
+            if ((type === "jpCarePlanning" || type === "jpCareHomeVisit" || type === "jpCareDayServices"
+              || type === "jpCareResidential" || type === "jpCareCombined" || type === "jpCareEquipment")
+              && g?.type === "Point") {
+              const origin = g.coordinates;
+              const coLocated = features.filter(item => item.geometry.type === "Point"
+                && Math.abs(item.geometry.coordinates[0]! - origin[0]!) < 1e-7
+                && Math.abs(item.geometry.coordinates[1]! - origin[1]!) < 1e-7
+                && typeof item.properties?.service_type === "string");
+              const unique = new Map(coLocated.map(item => {
+                const p = item.properties ?? {};
+                return [JSON.stringify([p.source_id, p.establishment_id, p.service_type, p.name]), p];
+              }));
+              if (unique.size) properties = { ...properties, coLocatedServices: [...unique.values()] };
+            }
             const needsGridDetail = type === "gfwHourlyGrid" && cellId !== null && needsGfwGridDetailHydration(properties);
             const needsTrackDetail = type === "gfwHourlyTrack" && typeof properties.track_id === "string" && typeof properties.vessels_json !== "string";
             const initialProperties = needsGridDetail || needsTrackDetail

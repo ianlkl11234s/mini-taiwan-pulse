@@ -35,7 +35,7 @@ psql 直連（`SUPABASE_DB_URL`）逐一呼叫 RPC，把 JSON **原樣**存檔�
 
 ### 3. 前端 helper：`src/data/staticRpc.ts`
 ```ts
-// 讀靜態化 RPC 快照；404 → fallback 回真 RPC（rollout 安全網）。回傳形狀同 supabase.rpc。
+// 讀靜態化 RPC 快照；404、壞 JSON、網路失敗都回明確 error，絕不自動 fallback 回 RPC。
 export async function staticRpc<T>(name: string): Promise<{ data: T | null; error: unknown }> {
   try {
     const res = await fetch(`/static-rpc/${name}.json`);
@@ -77,8 +77,8 @@ SSOT 靜態 5：`get_ssot_facilities_secondary_small` `get_ssot_facilities_plann
 
 ## 維護 / 風險
 - **資料刷新**：OSM 月更 collector 更新後，需重跑 export → upload → `purge-cloudflare-cache.sh`。同 `water_*.geojson` 慣例（手動）。
-- **rollback**：staticRpc 404 自動 fallback 回 RPC；最壞情況等同現況（不會壞，只是沒加速）。單層回退 = 把該 loader 的 `staticRpc(` 改回 `supabase.rpc(`。
-- **驗證陷阱**：fallback 讓「忘了部署檔」也能跑 → 驗收時要確認 Network 真的打 `/static-rpc/*.json`（非 fallback 到 rpc）。
+- **rollback**：單層明確改回 `supabase.rpc(`；`staticRpc` 不會在快照失敗時自動打 DB。
+- **驗證**：冷載入必須確認 `/static-rpc/*.json` 回 200；404/壞 JSON/網路失敗是 error，不是零筆或 RPC fallback。
 
 ## 進度
 - [x] **Pilot**（電網 3 層）：export 腳本 + staticRpc helper + 3 grid loader + deploy 接線 + **冷載驗證過**（settle ~16s→~2s、零 fallback）+ S3。commit `4c52e1c`

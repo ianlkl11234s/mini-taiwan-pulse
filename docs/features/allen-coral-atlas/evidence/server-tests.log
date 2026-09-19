@@ -1,0 +1,25 @@
+✔ Range accepts exactly one bounded byte range (0.809541ms)
+✔ Supabase server settings accept non-secret VITE fallbacks (0.09575ms)
+✔ missing configuration fails closed (1.502375ms)
+✔ only the coral endpoint is served (0.180417ms)
+✔ CORS only reflects an exact configured origin (0.440958ms)
+✔ authentication is required, and only the fixed owner is authorized (0.323ms)
+✔ access probe is authorized and does not read S3 (0.607541ms)
+✔ HEAD returns verified private metadata without fetching object bytes (0.184916ms)
+✔ GET requires Range and proxies only the verified byte window (1.168917ms)
+✔ integrity and S3 range mismatches fail closed (0.814209ms)
+✔ Allen configuration needs Supabase auth only, never legacy S3 settings (0.186ms)
+✔ Allen exact allowlist authenticates GET, HEAD, and access probe before data (0.938959ms)
+✔ Allen local file range verifies the contract asset with injected auth (89.866458ms)
+✔ Allen snapshot remains consistent after its source file is replaced (2.446625ms)
+✔ Allen revoke denylist rejects the same verified owner session for this process lifetime (0.365917ms)
+✔ Allen denylist persists across new instances with owner-only file permissions (2.495042ms)
+✔ Allen audit sink records response metadata without bearer credentials (0.2665ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 433.945125

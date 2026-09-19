@@ -1,0 +1,22 @@
+{
+  "version": "c6070ed3bba06bb1eb974638be8a6ae3db2af2439b20ae1e871218fdd649b653",
+  "assets": {
+    "aggregates/h17-z6.geojson": {
+      "sha256": "6f152dd4e525ea0911f69fba76b74233ab2e1f71a11e4e92cae58775fc5455c7",
+      "bytes": 151147
+    },
+    "aggregates/navii-z6.geojson": {
+      "sha256": "c78573c016967390b97252ddadc89dd827d8ab88c552a4492cd9f96724d96b8c",
+      "bytes": 22900
+    },
+    "points/h17_services.pmtiles": {
+      "sha256": "98bcee768155819c20f6b93e217e770fb040876c882c23f3649f586479985022",
+      "bytes": 293111489
+    },
+    "points/navii_facilities.pmtiles": {
+      "sha256": "365cf61d1a368070fa48e6b91d56c5087ba45073affe39f2d2a24d9710e45f3d",
+      "bytes": 308486234
+    }
+  },
+  "note": "Catalog bytes, not measured browser cold transfer"
+}

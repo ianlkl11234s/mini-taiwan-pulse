@@ -1,4 +1,4 @@
-import { STATISTICS_KEYS } from '../data/regionalStatisticsRecipes';
+import { STATISTICS_RENDER_KEYS } from '../data/regionalStatisticsRecipes';
 /**
  * GIS 點擊接線註冊表（AR-22 Phase 4b）
  * ══════════════════════════════════════════════════════════════════
@@ -168,7 +168,25 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 大面積 polygon 排在點層後，避免吃掉同位置的事件／船舶 popup。
   { layers: ["coral-reef-distribution-fill", "coral-reef-distribution-line"], type: "coralReefDistribution" },
   // 日本 Japan：車站點層排在所有面層之前（first-hit-wins）。
+  { layers: ["jp-medical-facilities-hospital"], type: "jpMedicalHospitals" },
+  { layers: ["jp-medical-facilities-clinic"], type: "jpMedicalClinics" },
+  { layers: ["jp-medical-facilities-dental"], type: "jpMedicalDental" },
+  { layers: ["jp-medical-facilities-maternity"], type: "jpMedicalMaternity" },
+  { layers: ["jp-medical-facilities-pharmacy"], type: "jpMedicalPharmacies" },
+  { layers: ["jp-medical-care-jpCarePlanning"], type: "jpCarePlanning" },
+  { layers: ["jp-medical-care-jpCareHomeVisit"], type: "jpCareHomeVisit" },
+  { layers: ["jp-medical-care-jpCareDayServices"], type: "jpCareDayServices" },
+  { layers: ["jp-medical-care-jpCareResidential"], type: "jpCareResidential" },
+  { layers: ["jp-medical-care-jpCareCombined"], type: "jpCareCombined" },
+  { layers: ["jp-medical-care-jpCareEquipment"], type: "jpCareEquipment" },
   { layers: ["jp-stations-circle"], type: "jpStations" },
+  { layers: ["jp-tourism-jp-accommodation-canonical-circle"], type: "jpAccommodationCanonical" },
+  { layers: ["jp-tourism-jp-accommodation-jta-circle"], type: "jpAccommodationJta" },
+  { layers: ["jp-tourism-jp-accommodation-local-circle"], type: "jpAccommodationLocal" },
+  { layers: ["jp-tourism-jp-accommodation-osm-circle"], type: "jpAccommodationOsm" },
+  { layers: ["jp-tourism-jp-world-heritage-cultural-circle"], type: "jpWorldHeritageCultural" },
+  { layers: ["jp-tourism-jp-world-heritage-natural-circle"], type: "jpWorldHeritageNatural" },
+  { layers: ["jp-tourism-jp-ramsar-sites-circle"], type: "jpRamsarSites" },
   // raw 三源之間優先命中內容最完整者，避免 GSI 無名記號點搶走 popup。
   { layers: ["jp-religion-wikidata-circle"], type: "jpReligionWikidata" },
   { layers: ["jp-religion-osm-circle"], type: "jpReligionOsm" },
@@ -176,22 +194,45 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
   { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
   { layers: ["jp-schools-circle"], type: "jpSchools" },
+  { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
+  { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
+  { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
+  { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
+  { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
+  { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
+  { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
   // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
   { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },
   { layers: ["bridge-comparison-new-taipei-line", "bridge-comparison-new-taipei-coincident-endpoints"], type: "bridgeComparisonNewTaipei" },
   { layers: ["osm-bridge-footprints-fill", "osm-bridge-footprints-outline"], type: "osmBridgeFootprints" },
+  // Allen 覆蓋面排在日本點與線之後，避免攔截細目標的 popup。
+  { layers: ["allen-coral-atlas-benthic-fill", "allen-coral-atlas-geomorphic-fill"], type: "allenCoralAtlas" },
   // 日本 Japan 面層：小面 → 大面，排在**所有點層之後**（車站 / 宗教三源 / 學校 / 鐵道線）。
   // ⚠️ 縣界 fill 覆蓋全日本且 tab 開啟時預設開，若排在點層之前會吃掉所有點擊
   // → 車站與宗教點永遠開不出 popup。機場 footprint 也是面，同理排點層後。
   { layers: ["jp-airports-circle", "jp-airports-fill"], type: "jpAirports" },
-  // 人口網格 1km 格是本組最小的面（< 市区町村 < 都道府県），依「小面 → 大面」排在兩個
-  // 行政區界之前。⚠️ 反過來排在界層之後會讓本層 popup 不可達 —— 縣界 tab 開啟時預設開、
-  // 且與網格同樣無縫鋪滿全日本，first-hit-wins 會由縣界吃掉每一次點擊。
+  { layers: ["jp-tourism-jp-natural-parks-national-fill"], type: "jpNaturalParksNational" },
+  { layers: ["jp-tourism-jp-natural-parks-quasi-national-fill"], type: "jpNaturalParksQuasiNational" },
+  { layers: ["jp-tourism-jp-natural-parks-prefectural-fill"], type: "jpNaturalParksPrefectural" },
+  { layers: ["jp-tourism-jp-nature-conservation-area-fill"], type: "jpNatureConservationArea" },
+  { layers: ["jp-tourism-jp-primitive-nature-environment-area-fill"], type: "jpPrimitiveNatureEnvironmentArea" },
+  { layers: ["jp-tourism-jp-nature-conservation-special-district-fill"], type: "jpNatureConservationSpecialDistrict" },
+  { layers: ["jp-tourism-jp-wildlife-protection-national-fill"], type: "jpWildlifeProtectionNational" },
+  { layers: ["jp-tourism-jp-wildlife-special-protection-district-fill"], type: "jpWildlifeSpecialProtectionDistrict" },
+  { layers: ["jp-tourism-jp-wildlife-special-protection-designated-area-fill"], type: "jpWildlifeSpecialProtectionDesignatedArea" },
+  { layers: ["jp-tourism-jp-world-natural-heritage-historical-fill"], type: "jpWorldNaturalHeritageHistorical" },
+  { layers: ["jp-tourism-jp-marine-ebsa-coastal-fill"], type: "jpMarineEbsaCoastal" },
+  // 450m 旅宿密度格比人口 1km 網格更細，必須先命中；1.5km 密度格則排在人口網格後。
+  { layers: ["jp-accommodation-density-450-fill", "jp-accommodation-density-450-outline"], type: "jpAccommodationDensity" },
+  // 人口網格 1km 格小於 1.5km 旅宿密度格、市区町村與都道府県，依「小面 → 大面」排序。
+  // ⚠️ 縣界 tab 開啟時預設開且與網格同樣無縫鋪滿全日本；若人口網格排在行政區界後，
+  // first-hit-wins 會由縣界吃掉每一次點擊。
   { layers: ["jp-population-mesh-fill"], type: "jpPopulationMesh1km" },
+  { layers: ["jp-accommodation-density-1500-fill", "jp-accommodation-density-1500-outline"], type: "jpAccommodationDensity" },
   { layers: ["jp-admin-municipality-fill"], type: "jpAdminBoundaries" },
   { layers: ["jp-admin-prefecture-fill"], type: "jpAdminPrefecture" },
   { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
@@ -249,6 +290,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
     "property-value-grid-450-fill", "property-value-grid-450-extrusion",
     "property-value-grid-1500-fill", "property-value-grid-1500-extrusion",
   ], type: "propertyValueGrid" },
+  { layers: [
+    "property-value-admin-county-fill", "property-value-admin-county-line",
+    "property-value-admin-township-fill", "property-value-admin-township-line",
+  ], type: "propertyValueAdmin" },
   { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
   { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
   { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },
@@ -337,24 +382,29 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["taipei-pumb-dot", "taipei-pumb-glow"], type: "taipeiPumb" },
   { layers: ["agri-pois-circle"], type: "agriPOI" },
   { layers: ["business-registry-common-registration-addresses-circle"], type: "commonRegistrationAddresses" },
-  { layers: ["business-registry-factory-locations-overview-circle"], type: "factoryLocations" },
   { layers: ["business-registry-factory-locations-circle"], type: "factoryLocations" },
   { layers: ["business-registry-regulated-facilities-circle"], type: "regulatedFacilities" },
-  { layers: ["business-registry-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
+  { layers: ["business-registry-manufacturing-company-points-manufacturing-circle"], type: "manufacturingCompanyPoints" },
+  // OVERLAY_REGISTRY 依 factory → manufacturing → regulated 建層；後建者在上。
+  // GIS_LAYERS 是 first-hit-wins，因此格網 popup 必須反向查詢以對齊視覺 stack。
+  { layers: ["business-registry-regulated-facility-density-1500-fill", "business-registry-regulated-facility-density-450-fill"], type: "regulatedFacilityDensityGrid" },
+  { layers: ["business-registry-manufacturing-company-density-1500-fill", "business-registry-manufacturing-company-density-450-fill"], type: "manufacturingCompanyDensityGrid" },
+  { layers: ["business-registry-factory-density-1500-fill", "business-registry-factory-density-450-fill"], type: "factoryDensityGrid" },
   { layers: ["business-registry-company-points-all-circle"], type: "companyPoints" },
+  // 公司 B1/B5 格網依 overlayRegistry 的後加在上順序查詢：點位 > 年齡 > 產業 > 總覽。
+  // 同一位置有多個可見格網時，popup 必須描述使用者實際看到的最上層。
   { layers: [
-    "business-registry-company-capital-grid-1500-company-overview-density-fill",
-    "business-registry-company-capital-grid-450-company-overview-density-fill",
-  ], type: "companyPoints" },
+    "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
+    "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
+  ], type: "companyAgeStructure" },
   { layers: [
     "business-registry-company-demographics-grid-1500-companyIndustryDistribution-demographics-fill",
     "business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill",
   ], type: "companyIndustryDistribution" },
   { layers: [
-    "business-registry-company-demographics-grid-1500-companyAgeStructure-demographics-fill",
-    "business-registry-company-demographics-grid-450-companyAgeStructure-demographics-fill",
-  ], type: "companyAgeStructure" },
-  { layers: ["business-registry-company-points-overview-manufacturing-overview-circle"], type: "manufacturingCompanyPoints" },
+    "business-registry-company-capital-grid-1500-company-overview-density-fill",
+    "business-registry-company-capital-grid-450-company-overview-density-fill",
+  ], type: "companyPoints" },
   {
     layers: [
       "business-registry-company-capital-grid-150-fill", "business-registry-company-capital-grid-150-outline",
@@ -459,7 +509,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["prosecutors-office-circle"], type: "prosecutorsOffice" },
   { layers: ["correctional-facility-circle"], type: "correctionalFacility" },
   { layers: ["court-jurisdiction-fill", "court-jurisdiction-line"], type: "courtJurisdiction" },
-  { layers: STATISTICS_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
+  { layers: STATISTICS_RENDER_KEYS.map(key => `${key}-fill`), type: "regionalStatistic" },
   { layers: ["crime-area-monthly-fill", "crime-area-monthly-line"], type: "crimeAreaMonthly" },
   { layers: ["theft-taoyuan-circle"], type: "theftTaoyuan" },
   { layers: ["traffic-accident-yearly-circle"], type: "trafficAccidentYearly" },

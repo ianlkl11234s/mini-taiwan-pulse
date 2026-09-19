@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mini Taiwan Pulse GIS 分析系統的淺白互動路線圖：現在能做什麼、每個元件是什麼，以及完成各里程碑後能解決哪些問題。">
+  <title>Mini Taiwan Pulse｜GIS 分析路線圖</title>
+  <style>
+    :root {
+      --bg: #0b100f;
+      --panel: #111816;
+      --panel-raised: #17211e;
+      --panel-soft: #1c2824;
+      --ink: #f2f0e8;
+      --muted: #a4afa9;
+      --faint: #727d77;
+      --line: #2c3934;
+      --line-strong: #465851;
+      --mint: #68d6b1;
+      --mint-dark: #14382c;
+      --amber: #f1b85b;
+      --amber-dark: #3b2b12;
+      --coral: #ee7d71;
+      --coral-dark: #3d211f;
+      --blue: #75b8d1;
+      --blue-dark: #19333d;
+      --paper: #e7e0cf;
+      --shadow: 0 24px 80px rgba(0, 0, 0, .3);
+      --radius: 18px;
+      color-scheme: dark;
+    }
+
+    html[data-theme="light"] {
+      --bg: #eeeade;
+      --panel: #f8f5ec;
+      --panel-raised: #fffdf6;
+      --panel-soft: #e9eee7;
+      --ink: #18221f;
+      --muted: #5d6b65;
+      --faint: #7b8882;
+      --line: #cbd2c9;
+      --line-strong: #9eaaa3;
+      --mint: #087d61;
+      --mint-dark: #d8ede4;
+      --amber: #a46409;
+      --amber-dark: #f4e3c3;
+      --coral: #b84d45;
+      --coral-dark: #f4dcd8;
+      --blue: #246d88;
+      --blue-dark: #d8e8ed;
+      --paper: #403c33;
+      --shadow: 0 24px 70px rgba(67, 61, 48, .14);
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(104, 214, 177, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(104, 214, 177, .025) 1px, transparent 1px),
+        radial-gradient(circle at 82% 8%, rgba(104, 214, 177, .1), transparent 24rem),
+        var(--bg);
+      background-size: 42px 42px, 42px 42px, auto, auto;
+      font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      line-height: 1.7;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { font: inherit; }
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--mint); outline-offset: 4px; }
+
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: -80px;
+      z-index: 100;
+      padding: 10px 14px;
+      color: #08110d;
+      background: var(--mint);
+      border-radius: 8px;
+    }
+    .skip-link:focus { top: 16px; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 64px;
+      padding: 10px clamp(18px, 4vw, 64px);
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      backdrop-filter: blur(18px);
+    }
+    .brand {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      gap: 11px;
+      margin-right: auto;
+      text-decoration: none;
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+    .brand-pulse {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--mint);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--mint) 15%, transparent);
+    }
+    .topnav { display: flex; align-items: center; gap: 18px; }
+    .topnav a {
+      color: var(--muted);
+      font-size: 12px;
+      text-decoration: none;
+    }
+    .topnav a:hover { color: var(--ink); }
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 7px 11px;
+      color: var(--ink);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .theme-toggle span:first-child { font-size: 15px; }
+
+    main { overflow: hidden; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .section { padding: clamp(72px, 9vw, 124px) 0; }
+    .section + .section { border-top: 1px solid var(--line); }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      color: var(--mint);
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: ""; width: 28px; height: 1px; background: currentColor; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, .display {
+      font-family: "Songti TC", "Noto Serif TC", Georgia, serif;
+      font-weight: 600;
+      text-wrap: balance;
+      overflow-wrap: anywhere;
+    }
+    h1 {
+      max-width: 920px;
+      margin-bottom: 28px;
+      font-size: clamp(44px, 7.2vw, 92px);
+      line-height: 1.08;
+      letter-spacing: -.045em;
+    }
+    h1 em { color: var(--mint); font-style: normal; }
+    h2 { margin-bottom: 18px; font-size: clamp(31px, 4.7vw, 58px); line-height: 1.18; letter-spacing: -.03em; }
+    h3 { font-size: 18px; line-height: 1.4; }
+    .lead { max-width: 730px; color: var(--muted); font-size: clamp(17px, 2vw, 22px); }
+
+    .hero { padding: clamp(72px, 10vw, 150px) 0 90px; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 70px; align-items: end; }
+    .hero-grid > * { min-width: 0; }
+    .hero-note {
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      padding: 28px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-note::before {
+      content: "CURRENT POSITION";
+      position: absolute;
+      top: -10px;
+      left: 22px;
+      padding: 2px 8px;
+      color: #08110d;
+      background: var(--mint);
+      font: 700 9px/1.6 "SFMono-Regular", Menlo, monospace;
+      letter-spacing: .12em;
+    }
+    .hero-note strong { display: block; margin-bottom: 9px; font-size: 24px; }
+    .hero-note p { margin: 0; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+    .status-line { display: flex; gap: 8px; margin-top: 22px; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font: 600 10px/1.4 "SFMono-Regular", Menlo, monospace;
+      letter-spacing: .04em;
+    }
+    .chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+    .chip.done::before { background: var(--mint); }
+    .chip.partial::before { background: var(--amber); }
+    .chip.hold::before { background: var(--coral); }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: 72px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .stat { padding: 24px 18px; border-right: 1px solid var(--line); }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { border-right: 0; }
+    .stat strong { display: block; font: 700 clamp(25px, 4vw, 42px)/1.1 "SFMono-Regular", Menlo, monospace; }
+    .stat span { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
+
+    .outcome-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 42px; }
+    .outcome {
+      min-height: 260px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+    .outcome:nth-child(2) { transform: translateY(24px); }
+    .outcome-number { display: block; margin-bottom: 44px; color: var(--faint); font: 12px/1 "SFMono-Regular", Menlo, monospace; }
+    .outcome h3 { font-family: "Songti TC", serif; font-size: 26px; }
+    .outcome p { color: var(--muted); font-size: 14px; }
+    .outcome .chip { margin-top: 10px; }
+
+    .question-switcher {
+      display: flex;
+      gap: 8px;
+      margin: 30px 0 22px;
+      padding-bottom: 2px;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .question-button {
+      flex: 0 0 auto;
+      padding: 10px 14px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .question-button[aria-pressed="true"] {
+      color: #07110d;
+      background: var(--mint);
+      border-color: var(--mint);
+    }
+    .scenario-question {
+      max-width: 900px;
+      margin: 0 0 38px;
+      font-family: "Songti TC", serif;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.35;
+    }
+
+    .flow-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .flow-track {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      padding: 24px;
+      background: color-mix(in srgb, var(--panel) 82%, transparent);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .flow-track::before {
+      content: "";
+      position: absolute;
+      left: 14%;
+      right: 14%;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--mint), var(--amber), var(--blue));
+      opacity: .35;
+    }
+    .flow-step {
+      position: relative;
+      z-index: 1;
+      min-height: 156px;
+      padding: 17px;
+      text-align: left;
+      color: var(--ink);
+      background: var(--panel-raised);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform .2s ease, border-color .2s ease, background .2s ease;
+    }
+    .flow-step:hover { transform: translateY(-3px); border-color: var(--line-strong); }
+    .flow-step[aria-pressed="true"] { border-color: var(--mint); background: var(--mint-dark); }
+    .step-index { color: var(--mint); font: 700 10px/1 "SFMono-Regular", Menlo, monospace; letter-spacing: .14em; }
+    .flow-step strong { display: block; margin: 30px 0 7px; font-size: 16px; }
+    .flow-step small { color: var(--muted); font-size: 12px; }
+    .step-arrow { position: absolute; right: 13px; top: 12px; color: var(--faint); }
+
+    .flow-detail {
+      display: flex;
+      flex-direction: column;
+      min-height: 492px;
+      padding: 30px;
+      border: 1px solid var(--mint);
+      border-radius: var(--radius);
+      background: var(--panel-raised);
+      box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--mint) 5%, transparent);
+    }
+    .detail-kicker { color: var(--mint); font: 700 10px/1.4 "SFMono-Regular", Menlo, monospace; letter-spacing: .15em; }
+    .flow-detail h3 { margin: 18px 0 8px; font-family: "Songti TC", serif; font-size: 31px; }
+    .detail-plain { color: var(--muted); font-size: 15px; }
+    .detail-box { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .detail-box span { color: var(--faint); font: 700 10px/1.4 "SFMono-Regular", Menlo, monospace; letter-spacing: .1em; }
+    .detail-box p { margin: 7px 0 0; font-size: 14px; }
+    .detail-status { margin-top: auto; padding-top: 24px; }
+
+    .component-list { margin-top: 48px; border-top: 1px solid var(--line-strong); }
+    .component {
+      display: grid;
+      grid-template-columns: 70px minmax(180px, .8fr) minmax(0, 1.7fr) 170px;
+      gap: 24px;
+      align-items: start;
+      padding: 25px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .component-code { color: var(--faint); font: 11px/1.6 "SFMono-Regular", Menlo, monospace; }
+    .component h3 { margin: 0; font-size: 16px; }
+    .component-copy { color: var(--muted); font-size: 14px; }
+    .component-copy strong { color: var(--ink); font-weight: 600; }
+    .component-state { justify-self: end; }
+
+    .roadmap-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 50px;
+      align-items: end;
+    }
+    .roadmap-note { color: var(--muted); font-size: 14px; }
+    .filters { display: flex; gap: 8px; margin: 35px 0 18px; flex-wrap: wrap; }
+    .filter {
+      padding: 8px 12px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .filter[aria-pressed="true"] { color: var(--ink); border-color: var(--mint); background: var(--mint-dark); }
+    .milestones { display: grid; gap: 10px; }
+    .milestone {
+      display: grid;
+      grid-template-columns: 92px 170px minmax(0, 1fr) 32px;
+      gap: 22px;
+      align-items: center;
+      width: 100%;
+      padding: 20px 22px;
+      color: var(--ink);
+      text-align: left;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    .milestone:hover { border-color: var(--line-strong); }
+    .milestone-id { color: var(--mint); font: 700 14px/1 "SFMono-Regular", Menlo, monospace; }
+    .milestone-title { font-weight: 700; }
+    .milestone-unlock { color: var(--muted); font-size: 13px; }
+    .milestone-arrow { color: var(--faint); transition: transform .2s ease; }
+    .milestone[aria-expanded="true"] .milestone-arrow { transform: rotate(90deg); }
+    .milestone-panel {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin: -11px 12px 6px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 12px 12px;
+      background: var(--panel-raised);
+    }
+    .milestone-panel.open { display: grid; }
+    .milestone-panel strong { display: block; margin-bottom: 7px; font-size: 12px; }
+    .milestone-panel p { margin: 0; color: var(--muted); font-size: 13px; }
+    .milestone-wrap[hidden] { display: none; }
+
+    .monitor-board {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 18px;
+      margin-top: 42px;
+    }
+    .monitor-intro, .monitor-list { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    .monitor-intro h3 { font-family: "Songti TC", serif; font-size: 28px; }
+    .monitor-intro p { color: var(--muted); font-size: 14px; }
+    .monitor-warning { margin-top: 26px; padding: 15px; color: var(--amber); background: var(--amber-dark); border-left: 3px solid var(--amber); font-size: 13px; }
+    .signal {
+      display: grid;
+      grid-template-columns: 14px 112px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .signal:last-child { border-bottom: 0; }
+    .signal-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 8%, transparent); }
+    .signal-dot.done { background: var(--mint); }
+    .signal-dot.partial { background: var(--amber); }
+    .signal-dot.hold { background: var(--coral); }
+    .signal-name { font-weight: 700; font-size: 13px; }
+    .signal-copy { color: var(--muted); font-size: 12px; }
+    .signal-state { color: var(--faint); font: 700 10px/1 "SFMono-Regular", Menlo, monospace; }
+
+    .principle {
+      display: grid;
+      grid-template-columns: .85fr 1.15fr;
+      gap: 70px;
+      align-items: start;
+    }
+    .principle-card {
+      padding: 30px;
+      border: 1px solid var(--coral);
+      border-radius: var(--radius);
+      background: var(--coral-dark);
+    }
+    .principle-card strong { display: block; font-family: "Songti TC", serif; font-size: 28px; }
+    .principle-card p { margin: 15px 0 0; color: color-mix(in srgb, var(--ink) 80%, var(--coral)); }
+    .plain-list { display: grid; gap: 13px; }
+    .plain-item { padding: 16px 0; border-bottom: 1px solid var(--line); }
+    .plain-item strong { display: block; margin-bottom: 3px; }
+    .plain-item span { color: var(--muted); font-size: 14px; }
+
+    .closing {
+      padding: 90px 0;
+      text-align: center;
+      background: var(--panel);
+      border-top: 1px solid var(--line);
+    }
+    .closing h2 { max-width: 780px; margin-left: auto; margin-right: auto; }
+    .closing p { max-width: 650px; margin: 0 auto 28px; color: var(--muted); }
+    .actions { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .action {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 10px 15px;
+      text-decoration: none;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      background: var(--panel-raised);
+    }
+    .action.primary { color: #07110d; background: var(--mint); border-color: var(--mint); font-weight: 700; }
+
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) {
+      .topnav { display: none; }
+      .hero-grid, .flow-shell, .roadmap-head, .monitor-board, .principle { grid-template-columns: 1fr; }
+      .hero-note { max-width: 520px; }
+      .hero-stats { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(2) { border-right: 0; }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .outcome-grid { grid-template-columns: 1fr; }
+      .outcome { min-height: 0; }
+      .outcome:nth-child(2) { transform: none; }
+      .component { grid-template-columns: 48px minmax(170px, .7fr) minmax(0, 1.3fr); }
+      .component-state { grid-column: 2 / -1; justify-self: start; }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { width: min(100% - 28px, 1180px); }
+      .topbar { padding-inline: 14px; }
+      .brand { font-size: 11px; }
+      .theme-toggle span:last-child { display: none; }
+      .hero { padding-top: 70px; }
+      h1 { font-size: clamp(38px, 11vw, 48px); }
+      .lead { overflow-wrap: anywhere; }
+      .hero-stats { grid-template-columns: 1fr; }
+      .stat, .stat:first-child { padding: 18px 0; border-right: 0; border-bottom: 1px solid var(--line); }
+      .stat:last-child { border-bottom: 0; }
+      .flow-track { grid-template-columns: 1fr 1fr; padding: 14px; }
+      .flow-track::before { display: none; }
+      .flow-step { min-height: 138px; }
+      .flow-detail { min-height: 0; }
+      .component { grid-template-columns: 42px 1fr; gap: 10px 16px; }
+      .component-copy, .component-state { grid-column: 2; }
+      .milestone { grid-template-columns: 52px minmax(0, 1fr) 24px; gap: 12px; padding: 17px 15px; }
+      .milestone-unlock { grid-column: 2; }
+      .milestone-arrow { grid-column: 3; grid-row: 1 / span 2; }
+      .milestone-panel { grid-template-columns: 1fr; }
+      .signal { grid-template-columns: 12px 92px 1fr; }
+      .signal-state { grid-column: 2 / -1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">跳到主要內容</a>
+  <header class="topbar">
+    <a class="brand" href="#top"><span class="brand-pulse" aria-hidden="true"></span>MINI TAIWAN PULSE</a>
+    <nav class="topnav" aria-label="頁面章節">
+      <a href="#journey">怎麼運作</a>
+      <a href="#components">元件</a>
+      <a href="#roadmap">里程碑</a>
+      <a href="#monitor">監看</a>
+    </nav>
+    <button class="theme-toggle" type="button" aria-label="切換明暗配色"><span aria-hidden="true">◐</span><span>切換配色</span></button>
+  </header>
+
+  <main id="content">
+    <section class="hero" id="top">
+      <div class="wrap">
+        <div class="hero-grid">
+          <div>
+            <p class="eyebrow">GIS Analysis Roadmap</p>
+            <h1>讓地圖從「看見資料」走到<em>「理解問題」</em></h1>
+            <p class="lead">這份路線圖用白話說明：Mini Taiwan Pulse 現在能做什麼、還要補哪些元件，以及每完成一個階段，你會多得到哪一種分析能力。</p>
+          </div>
+          <aside class="hero-note" aria-label="目前位置">
+            <strong>底座已建立，正在補「資料的意思」</strong>
+            <p>系統已能讀資料、執行基本分析並把點位結果送回主地圖。下一個重點，是教 Agent 分辨資料能代表什麼、不能代表什麼。</p>
+            <div class="status-line">
+              <span class="chip done">1 項完成</span>
+              <span class="chip partial">1 項進行中</span>
+              <span class="chip">6 項排隊</span>
+            </div>
+          </aside>
+        </div>
+        <div class="hero-stats" aria-label="目前已驗證成果">
+          <div class="stat"><strong>37</strong><span>項受控分析工具 schema</span></div>
+          <div class="stat"><strong>4,315</strong><span>筆學校 Point 實讀驗證</span></div>
+          <div class="stat"><strong>3</strong><span>類真實 pilot：點、事件、統計</span></div>
+          <div class="stat"><strong>0</strong><span>次正式部署；目前只證明本地</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="what-you-get">
+      <div class="wrap reveal">
+        <p class="eyebrow">先看成果</p>
+        <h2 id="what-you-get">每往前一段，你會得到什麼？</h2>
+        <div class="outcome-grid">
+          <article class="outcome">
+            <span class="outcome-number">01 / 現在</span>
+            <h3>能找、能算、能畫</h3>
+            <p>Agent 已能找到已接入的 dataset，做附近查詢、基本彙總與品質檢查，再把合格的點資料畫回原本主地圖。</p>
+            <span class="chip done">基礎可用</span>
+          </article>
+          <article class="outcome">
+            <span class="outcome-number">02 / 下一步</span>
+            <h3>知道資料「是什麼意思」</h3>
+            <p>Semantic Registry 會分清楚來源紀錄、可重算指標、替代觀察與待驗假設，避免「附近有學校」直接被說成「這裡很安全」。</p>
+            <span class="chip partial">M2 核心</span>
+          </article>
+          <article class="outcome">
+            <span class="outcome-number">03 / 理想狀態</span>
+            <h3>能做真正的交叉研究</h3>
+            <p>把人口、設施、行政統計、事件、路網與環境資料接在一起，保留證據與限制，產生可比較、可重算的研究成果。</p>
+            <span class="chip">M3–M7</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="journey" aria-labelledby="journey-title">
+      <div class="wrap reveal">
+        <p class="eyebrow">一個問題怎麼變成答案</p>
+        <h2 id="journey-title">選一個問題，看看分析會經過哪些站</h2>
+        <div class="question-switcher" role="group" aria-label="範例問題">
+          <button class="question-button" type="button" data-scenario="school" aria-pressed="true">學生通學安全</button>
+          <button class="question-button" type="button" data-scenario="medical" aria-pressed="false">醫療服務缺口</button>
+          <button class="question-button" type="button" data-scenario="disaster" aria-pressed="false">災害潛在暴露</button>
+        </div>
+        <p class="scenario-question" id="scenario-question">哪些學校周邊同時有較多交通事故，而且兒少人口較高？</p>
+
+        <div class="flow-shell">
+          <div class="flow-track" role="group" aria-label="GIS 分析六步驟">
+            <button class="flow-step" type="button" data-step="0" aria-pressed="true"><span class="step-index">STEP 01</span><span class="step-arrow">↗</span><strong>找到可信資料</strong><small>來源、版本、授權</small></button>
+            <button class="flow-step" type="button" data-step="1" aria-pressed="false"><span class="step-index">STEP 02</span><span class="step-arrow">↗</span><strong>理解資料意思</strong><small>語意、限制、假設</small></button>
+            <button class="flow-step" type="button" data-step="2" aria-pressed="false"><span class="step-index">STEP 03</span><span class="step-arrow">↗</span><strong>安排分析方法</strong><small>Recipe／Skill</small></button>
+            <button class="flow-step" type="button" data-step="3" aria-pressed="false"><span class="step-index">STEP 04</span><span class="step-arrow">↗</span><strong>執行 GIS 運算</strong><small>查詢、join、路網、時序</small></button>
+            <button class="flow-step" type="button" data-step="4" aria-pressed="false"><span class="step-index">STEP 05</span><span class="step-arrow">↗</span><strong>檢查證據邊界</strong><small>品質、缺值、禁止推論</small></button>
+            <button class="flow-step" type="button" data-step="5" aria-pressed="false"><span class="step-index">STEP 06</span><span class="step-arrow">↗</span><strong>交付與持續監看</strong><small>地圖、表格、圖表、紀錄</small></button>
+          </div>
+
+          <aside class="flow-detail" aria-live="polite">
+            <span class="detail-kicker" id="detail-kicker">STEP 01 · DATASET</span>
+            <h3 id="detail-title">找到可信資料</h3>
+            <p class="detail-plain" id="detail-plain">先確認要用哪些資料，以及每份資料的版本、時間、授權與涵蓋範圍。</p>
+            <div class="detail-box"><span>這個元件是什麼</span><p id="detail-component">Source Registry＋版本化 Dataset，像研究的資料倉庫與收據。</p></div>
+            <div class="detail-box"><span>在這個問題裡</span><p id="detail-example">需要學校位置、事故紀錄與兒少人口；年份和行政區版本要能對上。</p></div>
+            <div class="detail-status"><span class="chip partial" id="detail-status">部分完成</span></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="components" aria-labelledby="components-title">
+      <div class="wrap reveal">
+        <p class="eyebrow">八個必要元件</p>
+        <h2 id="components-title">它們各自負責什麼？</h2>
+        <p class="lead">把系統想成一間研究室：資料不是進來就能算，每個元件都在避免一種常見錯誤。</p>
+        <div class="component-list">
+          <article class="component"><span class="component-code">C01</span><h3>資料來源與版本</h3><div class="component-copy"><strong>像資料倉庫與收據。</strong> 保存來源、授權、取得時間、checksum、筆數與涵蓋範圍。完成後，結果不會變成「不知道從哪裡來的數字」。</div><span class="chip partial component-state">部分完成</span></article>
+          <article class="component"><span class="component-code">C02</span><h3>Dataset Contract</h3><div class="component-copy"><strong>像每份資料的使用說明書。</strong> 定義一筆紀錄代表什麼、時間和位置怎麼解讀、哪些欄位可能缺值。這是目前已站穩的底座。</div><span class="chip done component-state">基礎完成</span></article>
+          <article class="component"><span class="component-code">C03</span><h3>Semantic Registry</h3><div class="component-copy"><strong>像 GIS 知識字典。</strong> 分開來源紀錄、衍生指標、proxy 與 hypothesis，也寫明禁止結論。完成後，Agent 才知道資料「能不能這樣解讀」。</div><span class="chip partial component-state">三張語意卡完成</span></article>
+          <article class="component"><span class="component-code">C04</span><h3>Recipe／Skill</h3><div class="component-copy"><strong>像標準研究方法。</strong> 告訴 Agent 遇到某類問題該依什麼順序用工具、要檢查什麼、什麼情況必須停下來。</div><span class="chip component-state">待建立</span></article>
+          <article class="component"><span class="component-code">C05</span><h3>Query Executor</h3><div class="component-copy"><strong>像受控的資料領用櫃台。</strong> 控制讀取範圍、成本與權限，留下查詢收據。已能支援目前的三類 pilot。</div><span class="chip done component-state">基礎完成</span></article>
+          <article class="component"><span class="component-code">C06</span><h3>GIS／時序引擎</h3><div class="component-copy"><strong>像研究室裡的計算設備。</strong> 現在有 nearby 與基本彙總；接下來要補行政區 join、路網、raster、時間趨勢與不確定性。</div><span class="chip partial component-state">部分完成</span></article>
+          <article class="component"><span class="component-code">C07</span><h3>Evidence Guard</h3><div class="component-copy"><strong>像研究審稿人。</strong> 檢查來源、缺值、STALE、proxy、位置精度與因果跳躍，避免工具成功卻產生錯誤結論。</div><span class="chip done component-state">基礎完成</span></article>
+          <article class="component"><span class="component-code">C08</span><h3>Result＋呈現＋監看</h3><div class="component-copy"><strong>像研究檔案與展示桌。</strong> 每個成果有 resultId，可分流到主地圖、表格、圖表與說明；未來還要能跨 session 保存、比較、撤回與監看。</div><span class="chip partial component-state">session 版</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap" aria-labelledby="roadmap-title">
+      <div class="wrap reveal">
+        <div class="roadmap-head">
+          <div><p class="eyebrow">M0 → M7</p><h2 id="roadmap-title">不是百分比，而是一道道驗收門</h2></div>
+          <p class="roadmap-note">每個里程碑只有在資料、計算、Browser 與正式環境各自有證據時，才會標成完成。點開可看「要補什麼」和「完成後解鎖什麼」。</p>
+        </div>
+        <div class="filters" role="group" aria-label="篩選里程碑">
+          <button class="filter" type="button" data-filter="all" aria-pressed="true">全部</button>
+          <button class="filter" type="button" data-filter="done" aria-pressed="false">已完成</button>
+          <button class="filter" type="button" data-filter="now" aria-pressed="false">正在做／下一步</button>
+          <button class="filter" type="button" data-filter="future" aria-pressed="false">之後</button>
+        </div>
+        <div class="milestones" id="milestones"></div>
+      </div>
+    </section>
+
+    <section class="section" id="monitor" aria-labelledby="monitor-title">
+      <div class="wrap reveal">
+        <p class="eyebrow">持續監看</p>
+        <h2 id="monitor-title">永遠分開看五種健康狀態</h2>
+        <div class="monitor-board">
+          <div class="monitor-intro">
+            <h3>「網站打得開」不等於分析可信</h3>
+            <p>一份資料可能已過期；一個工具可能能執行卻用錯 grain；一個結果可能在後端成功但沒有正確畫到地圖。這五盞燈必須分開。</p>
+            <div class="monitor-warning">目前完成的是監看規格與這個視覺入口，還不是自動監控服務。</div>
+          </div>
+          <div class="monitor-list" aria-label="目前健康狀態，更新於 2026-09-13">
+            <div class="signal"><span class="signal-dot partial"></span><span class="signal-name">資料健康</span><span class="signal-copy">學校可讀；新聞非空樣本、license／freshness 尚未齊</span><span class="signal-state">PARTIAL</span></div>
+            <div class="signal"><span class="signal-dot partial"></span><span class="signal-name">分析能力</span><span class="signal-copy">基礎操作可用；交叉 join、network、raster 待補</span><span class="signal-state">PARTIAL</span></div>
+            <div class="signal"><span class="signal-dot done"></span><span class="signal-name">本地 Runtime</span><span class="signal-copy">datasetId → resultId 基礎循環已驗證</span><span class="signal-state">LOCAL PASS</span></div>
+            <div class="signal"><span class="signal-dot done"></span><span class="signal-name">Browser 呈現</span><span class="signal-copy">主地圖 Point 結果與可讀摘要已驗證</span><span class="signal-state">LOCAL PASS</span></div>
+            <div class="signal"><span class="signal-dot hold"></span><span class="signal-name">正式環境</span><span class="signal-copy">未 push、未部署，也沒有 production readback</span><span class="signal-state">NOT STARTED</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="principle-title">
+      <div class="wrap principle reveal">
+        <div class="principle-card"><strong id="principle-title">最重要的原則：資料之間不是「能疊圖」就等於「能下結論」。</strong><p>學校點位可以告訴我們學校在哪裡，但不能單獨證明學生人流、安全、健康、教育品質或環境清幽。</p></div>
+        <div class="plain-list">
+          <div class="plain-item"><strong>Observed／來源紀錄</strong><span>來源直接提供的紀錄或主張，仍受來源品質限制。</span></div>
+          <div class="plain-item"><strong>Derived／衍生指標</strong><span>有明確公式和版本、可以重新計算的結果，例如直線距離。</span></div>
+          <div class="plain-item"><strong>Proxy／替代觀察</strong><span>沒有直接資料時採用的近似值，必須揭露精度和限制。</span></div>
+          <div class="plain-item"><strong>Hypothesis／待驗假設</strong><span>合理但尚未證實的推論；缺證據時必須保留為假設或拒絕回答。</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="closing">
+    <div class="wrap">
+      <p class="eyebrow" style="justify-content:center">Next Move</p>
+      <h2>語意卡與學校格網已完成本地切片</h2>
+      <p>學校、新聞與水田語意卡已接 describe_dataset；4,315 筆校址紀錄產生 4,061 個 150m 格網。從主地圖「本地 Agent」點「呈現學校 150m 格網」，可調透明度、看圖例、點選來源或清除。來源授權與觀測時間未知，僅本地 HOLD；學區、房價與路網仍需真實資料證據。</p>
+      <div class="actions">
+        <a class="action primary" href="./gis-analysis-roadmap.md">閱讀完整總文件</a>
+        <a class="action" href="./gis-analysis-roadmap-interactive.html">查看工程版流程圖</a>
+        <a class="action" href="./tool-foundation-plan.md">查看工具實作計畫</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const scenarios = {
+      school: {
+        question: "哪些學校周邊同時有較多交通事故，而且兒少人口較高？",
+        examples: [
+          "需要學校位置、事故紀錄與兒少人口；年份和行政區版本要能對上。",
+          "學校位置是來源紀錄；『學生風險較高』仍是假設，需要事故時段、道路和人流證據。",
+          "Recipe 會要求校點 buffer、事故時間窗、人口 grain、敏感度與負向案例。",
+          "先做版本相符的行政區 join，再計算距離／密度；未來加入路網與上下課時段。",
+          "不能把直線 500 公尺說成步行可達，也不能把事故總量直接歸因於學校。",
+          "結果可分流成風險分級地圖、學校清單、比較圖表與限制說明。"
+        ]
+      },
+      medical: {
+        question: "哪些地區看似有醫院，居民卻仍無法在合理時間內取得服務？",
+        examples: [
+          "需要醫療點位與服務類型、人口、道路／運輸網路；目前醫院受管資產仍是 HOLD。",
+          "『附近有醫院』不代表容量足夠或特定科別可用；服務能力必須另外定義。",
+          "Recipe 會區分直線距離、步行、開車與公共運輸，並要求人口與容量假設。",
+          "用路網等時圈與人口格網估計 coverage，再比較候選補點帶來的改善。",
+          "檢查路網連通、旅行模式、尖峰時段、資料年份與未涵蓋人口。",
+          "交付服務缺口地圖、未覆蓋人口表與不同補點方案比較。"
+        ]
+      },
+      disaster: {
+        question: "豪雨事件發生時，哪些學校、醫院與道路可能暴露在風險中？",
+        examples: [
+          "需要事件範圍、淹水或坡度資料、設施點位與道路；不能用鄉鎮代表點代替災害範圍。",
+          "新聞位置可能只是 proxy；『事件被報導』和『設施實際受影響』必須分開。",
+          "Recipe 會先檢查事件 geometry 精度，再決定能否做 overlap、buffer 或只做行政區關聯。",
+          "合格資料可做 raster sampling、polygon intersection 與道路中斷情境。",
+          "保留 NoData、位置不確定性與資料時間差；輸出只能稱潛在暴露，不能稱實際損失。",
+          "交付潛在暴露地圖、設施清單、資料缺口與需要人工確認的區域。"
+        ]
+      }
+    };
+
+    const steps = [
+      { kicker: "STEP 01 · DATASET", title: "找到可信資料", plain: "先確認要用哪些資料，以及每份資料的版本、時間、授權與涵蓋範圍。", component: "Source Registry＋版本化 Dataset，像研究的資料倉庫與收據。", status: "部分完成", state: "partial" },
+      { kicker: "STEP 02 · MEANING", title: "理解資料意思", plain: "分辨來源紀錄、可重算指標、替代觀察和待驗假設，先知道什麼不能直接說。", component: "Dataset Contract＋Semantic Registry，像資料說明書與 GIS 知識字典。", status: "三張語意卡完成", state: "partial" },
+      { kicker: "STEP 03 · METHOD", title: "安排分析方法", plain: "按照問題選擇方法、工具順序、必要資料和停止條件，而不是讓 Agent 隨意拼接。", component: "Recipe／Skill，像標準研究方法與操作手冊。", status: "待建立", state: "future" },
+      { kicker: "STEP 04 · COMPUTE", title: "執行 GIS 運算", plain: "受控讀取資料，進行附近、彙總、交叉、路網、raster 或時間分析，每一步留下 resultId。", component: "Query Executor＋GIS／時序引擎，像資料櫃台與計算設備。", status: "部分完成", state: "partial" },
+      { kicker: "STEP 05 · EVIDENCE", title: "檢查證據邊界", plain: "確認 grain、位置精度、缺值、過期狀態與方法限制，拒絕不被證據支持的結論。", component: "Evidence Guard，像研究審稿人與安全閘門。", status: "基礎完成", state: "done" },
+      { kicker: "STEP 06 · DELIVERY", title: "交付與持續監看", plain: "把結果分流到主地圖、表格、圖表與說明，並保存 lineage、驗收狀態與更新時間。", component: "ResultEnvelope＋主地圖＋里程碑監看，像研究檔案、展示桌與健康燈號。", status: "session 版", state: "partial" }
+    ];
+
+    const milestones = [
+      { id: "M0", group: "done", title: "資料契約與共用讀取", unlock: "不同 dataset 可走同一套受控入口", build: "DatasetDescriptor、Query Executor、budget、receipt 與 result session。", gate: "型別與測試通過；真實學校資料能讀取並產生 resultId。" },
+      { id: "M1", group: "now", title: "三類 Pilot 閉環", unlock: "點、事件、統計開始共用工具", build: "學校 Point、新聞事件、行政統計三種 adapter 與負向邊界。", gate: "學校已完成；還需新聞非空真實樣本、統計 boundary join、醫院資產證據。" },
+      { id: "M2", group: "done", title: "GIS Semantic Registry", unlock: "Agent 知道資料能代表什麼", build: "machine-readable 語意卡、semantic/dataset versions、validator；describe_dataset 可查三類 pilot 的允許分析與禁用推論。", gate: "已測四類語意、版本與 prohibited claims；缺 evidence 保留假設，confidence 不會升級 kind。" },
+      { id: "M3", group: "future", title: "Vector 與行政區交叉分析", unlock: "服務缺口與事件空間關聯", build: "spatial join、buffer、nearest、cluster、版本相符 boundary join。", gate: "CRS、單位、topology、crosswalk、MAUP、null／0 與重複 join 測試通過。" },
+      { id: "M4", group: "future", title: "Network、Raster、Temporal", unlock: "步行可達、環境與災害暴露", build: "路網／等時圈、raster sampling、時序 baseline 與不確定性。", gate: "旅行模式、連通性、resolution、NoData 與時間基準明確。" },
+      { id: "M5", group: "now", title: "持久研究檔案庫", unlock: "跨 session 重算、比較與撤回", build: "本地 SQLite asset index、search／describe／promote／stale 與原始 Point archive 已建立；多人 ACL 與雲端 archive 尚未做。", gate: "研究結果可追到來源與父 resultId，跨 session 後仍可重算。" },
+      { id: "M6", group: "future", title: "完整成果 UX", unlock: "在主地圖理解複合分析", build: "Point／line／polygon／raster、表格、圖表與比較介面。", gate: "Browser 畫面與可存取摘要一致，桌面與手機皆可使用。" },
+      { id: "M7", group: "future", title: "Production 化", unlock: "可以持續對外使用", build: "正式 auth、TLS、監控、部署與真實來源 readback。", gate: "production 證據獨立通過，不沿用本地綠燈。" }
+    ];
+
+    let activeScenario = "school";
+    let activeStep = 0;
+
+    function updateDetail() {
+      const detail = steps[activeStep];
+      document.querySelectorAll(".flow-step").forEach((button, index) => button.setAttribute("aria-pressed", String(index === activeStep)));
+      document.getElementById("detail-kicker").textContent = detail.kicker;
+      document.getElementById("detail-title").textContent = detail.title;
+      document.getElementById("detail-plain").textContent = detail.plain;
+      document.getElementById("detail-component").textContent = detail.component;
+      document.getElementById("detail-example").textContent = scenarios[activeScenario].examples[activeStep];
+      const status = document.getElementById("detail-status");
+      status.textContent = detail.status;
+      status.className = `chip ${detail.state === "done" ? "done" : detail.state === "partial" ? "partial" : ""}`;
+    }
+
+    document.querySelectorAll(".flow-step").forEach(button => button.addEventListener("click", () => {
+      activeStep = Number(button.dataset.step);
+      updateDetail();
+    }));
+
+    document.querySelectorAll(".question-button").forEach(button => button.addEventListener("click", () => {
+      activeScenario = button.dataset.scenario;
+      document.querySelectorAll(".question-button").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      document.getElementById("scenario-question").textContent = scenarios[activeScenario].question;
+      updateDetail();
+    }));
+
+    const milestoneRoot = document.getElementById("milestones");
+    milestones.forEach((item, index) => {
+      const wrap = document.createElement("div");
+      wrap.className = "milestone-wrap";
+      wrap.dataset.group = item.group;
+      const buttonId = `milestone-${item.id}`;
+      const panelId = `milestone-panel-${item.id}`;
+      wrap.innerHTML = `<button class="milestone" id="${buttonId}" type="button" aria-expanded="${index < 2}" aria-controls="${panelId}">
+        <span class="milestone-id">${item.id}</span><span class="milestone-title">${item.title}</span><span class="milestone-unlock">完成後：${item.unlock}</span><span class="milestone-arrow" aria-hidden="true">›</span>
+      </button><div class="milestone-panel ${index < 2 ? "open" : ""}" id="${panelId}" role="region" aria-labelledby="${buttonId}">
+        <div><strong>要建立什麼</strong><p>${item.build}</p></div><div><strong>怎樣才算完成</strong><p>${item.gate}</p></div>
+      </div>`;
+      milestoneRoot.appendChild(wrap);
+    });
+
+    milestoneRoot.addEventListener("click", event => {
+      const button = event.target.closest(".milestone");
+      if (!button) return;
+      const open = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!open));
+      document.getElementById(button.getAttribute("aria-controls")).classList.toggle("open", !open);
+    });
+
+    document.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
+      const selected = button.dataset.filter;
+      document.querySelectorAll(".filter").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      document.querySelectorAll(".milestone-wrap").forEach(item => { item.hidden = selected !== "all" && item.dataset.group !== selected; });
+    }));
+
+    const themeButton = document.querySelector(".theme-toggle");
+    const storedTheme = localStorage.getItem("pulse-roadmap-theme");
+    if (storedTheme === "light" || storedTheme === "dark") document.documentElement.dataset.theme = storedTheme;
+    themeButton.addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("pulse-roadmap-theme", next);
+    });
+
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add("visible"); observer.unobserve(entry.target); }
+    }), { threshold: .1 });
+    document.querySelectorAll(".reveal").forEach(element => observer.observe(element));
+  </script>
+</body>
+</html>

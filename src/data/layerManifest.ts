@@ -1,6 +1,13 @@
+import { FOREST_RESERVE_PMTILES_URL } from "./forestReserveTypes";
+import { industrialDensitySources } from "./industrialDensityTypes";
+import { getStatisticsVisual } from "./statisticsVisuals";
+import { COMPARISON_ENABLED_RECIPES, type ComparisonStatisticsLayerKey } from './comparisonStatisticsRecipes';
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES } from "./jpMedicalTypes";
 import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
 // ══════════════════════════════════════════════════════════════════
@@ -108,6 +115,11 @@ import { JP_RELIGION_COLORS } from "./jpReligionTypes";
 import { JP_RAILWAY_LAYER_COLOR } from "./jpRailwayTypes";
 import { JP_SCHOOL_LAYER_COLOR } from "./jpSchoolTypes";
 import { JP_POPULATION_MESH_LAYER_COLOR } from "./jpPopulationMeshModes";
+import {
+  JP_ACCOMMODATION_DENSITY_LAYER_COLOR,
+  JP_ACCOMMODATION_DENSITY_SCALES,
+  JP_TOURISM_COLORS,
+} from "./jpTourismTypes";
 import { NETWORK_STRUCTURES_COLORS } from "./networkStructuresTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
@@ -331,6 +343,37 @@ const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATIST
   topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
 }])) as Record<AgriStatisticsLayerKey, LayerManifestEntry>;
 
+const SOCIAL_STATISTICS_COLORS: Record<string, string> = {
+  教育與少子化統計: "#2563eb", 醫療與長照統計: "#dc2626", 住宅存量與使用: "#7c3aed",
+};
+/** Social-statistics recipes use the shared dynamic Statistics renderer. */
+const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+  key: recipe.layer_key,
+  section: { theme: recipe.group, group: recipe.subgroup },
+  label: recipe.label, expandable: true, color: SOCIAL_STATISTICS_COLORS[recipe.group] ?? "#64748b", icon: Recycle,
+  upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+  source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+  legend: recipe.layer_key, popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+  description: recipe.disclosure ?? "依公開完整期別與行政區參考邊界呈現；缺值不補零。",
+  topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
+}])) as Record<SocialStatisticsLayerKey, LayerManifestEntry>;
+
+/** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
+const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
+  const metric = view.metrics[0]!;
+  const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(candidate => candidate.layer_key === metric.layerKey)!;
+  return [view.key, {
+    key: view.key,
+    section: { theme: '教育與少子化統計', group: '學校所在地縣市別' },
+    label: view.label, expandable: true, color: SOCIAL_STATISTICS_COLORS['教育與少子化統計'], icon: Recycle,
+    upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
+    source: { kind: 'custom', note: `Fixed ${view.stage} presentation view over immutable ${recipe.dataset_id} releases; regionalStatisticsMap runtime` },
+    legend: view.key, popup: 'regionalStatistic', params: { count: 1, kinds: ['slider'] },
+    description: '固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。',
+    topics: ['統計', '教育', '行政區', '縣市'],
+  }];
+})) as Record<EducationPresentationViewKey, LayerManifestEntry>;
+
 /**
  * Phase 1 試點：5 個**體質各異**的層。刻意不挑 5 個長得像的——
  * 派生機制要先撞過所有形狀（有無 overlay entry / 有無 labelMobile /
@@ -339,8 +382,68 @@ const AGRI_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(AGRI_ENABLED_STATIST
  * ⚠️ `satisfies` 而非型別標註：標註成 Partial<Record<…>> 會把 key 的 literal 型別
  *    丟掉，ManifestKey 就退化成 348 個 key 的全集，下游 Omit 的 tsc 護欄整個失效。
  */
+const COMPARISON_MANIFEST_ENTRIES = Object.fromEntries(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, {
+  key: recipe.layer_key, section: { theme: '統計比較', group: recipe.groupLabel }, label: recipe.label,
+  expandable: true, color: '#2563eb', icon: Recycle,
+  upstream: { status: 'verified', datasets: [{ datasetId: recipe.dataset_id, confidence: 'HIGH' }] }, dataClass: 'D',
+  source: { kind: 'custom', note: 'Offline derived immutable Statistics artifacts; exact release allowlist and regionalStatisticsMap runtime' },
+  legend: recipe.layer_key, popup: 'regionalStatistic', params: { count: 1, kinds: ['slider'] },
+  description: recipe.disclosure, topics: ['統計', recipe.groupLabel, recipe.level === 'county' ? '縣市' : '鄉鎮市區'],
+}])) as Record<ComparisonStatisticsLayerKey, LayerManifestEntry>;
+
+type JpFacilityManifestKey = typeof JP_MEDICAL_CATEGORIES[number]["key"];
+type JpCareManifestKey = typeof JP_MEDICAL_CARE_GROUPS[number]["key"];
+type JpAreaManifestKey = typeof JP_MEDICAL_AREA_LEVELS[number]["key"];
+
+const JP_MEDICAL_SOURCE = { kind: "custom" as const, note: "useJpMedicalLayers 依 current.json 載入不可變 PMTiles；點位封存檔為 z0-14 且未抽樣", staticAssets: ["./jp-medical/current.json"] };
+
+function jpMedicalFacilityManifest(key: JpFacilityManifestKey, index: number, icon: LucideIcon): LayerManifestEntry {
+  const category = JP_MEDICAL_CATEGORIES[index]!;
+  return {
+    key, section: { theme: "醫療設施", group: "Navii 設施名錄" }, label: category.label, expandable: true,
+    color: category.color, icon,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_navii", confidence: "HIGH" }],
+      processing: "Navii 原始 record_kind 獨立成層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
+      note: "設施名錄不代表即時可接診；缺座標另列，助產所來源僅涵蓋 45 縣" },
+    dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
+    params: { count: 1, kinds: ["slider"] },
+    description: `${category.label}；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位`, topics: ["日本", "醫療", "靜態", "設施"],
+  };
+}
+
+function jpMedicalCareManifest(key: JpCareManifestKey, index: number): LayerManifestEntry {
+  const group = JP_MEDICAL_CARE_GROUPS[index]!;
+  return {
+    key, section: { theme: "長照服務", group: "服務使用情境" }, label: group.label, expandable: true,
+    color: group.color, icon: HeartHandshake,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_reports", confidence: "HIGH" }],
+      processing: "H17 原始 service_type 依厚生勞動省介護服務公開查詢上位情境分層；10 km EPSG:6933 density polygon 低縮放概覽，zoom 8 起切換完整 PMTiles 點位",
+      note: "服務登記粒度；同址可有多服務，不是唯一機構數" },
+    dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
+    params: { count: 1, kinds: ["slider"] },
+    description: `${group.label}；同址多筆服務登記不合併成唯一機構`, topics: ["日本", "醫療", "長照", "靜態"],
+  };
+}
+
+function jpMedicalAreaManifest(key: JpAreaManifestKey, index: number): LayerManifestEntry {
+  const level = JP_MEDICAL_AREA_LEVELS[index]!;
+  return {
+    key, section: { theme: "醫療圈", group: "2020 歷史邊界" }, label: `${level.label} · 2020`, expandable: true,
+    color: level.color, icon: Map,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_medical_areas", confidence: "HIGH" }],
+      processing: "国土数値情報 A38 2020 歷史版；三個層級各自成層",
+      note: "polygon parts 不是醫療圈數；人口與面積不可跨 part 加總" },
+    dataClass: "D", source: JP_MEDICAL_SOURCE, legend: key, popup: key,
+    params: { count: 1, kinds: ["slider"] },
+    description: `${level.label}的 2020 歷史邊界；不是設施服務範圍或即時就醫可達圈`, topics: ["日本", "醫療", "醫療圈", "歷史"],
+  };
+}
+
 export const LAYER_MANIFEST = {
+  ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
+  ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
+  ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },
     label: "航港局獎補助金額（受補助對象所在地）", expandable: true, color: "#2563eb", icon: Anchor,
@@ -649,6 +752,124 @@ export const LAYER_MANIFEST = {
     description: "環境部列管污染潛勢設施 152k 點（介質 × 嚴重度分色，列管≠污染）",
     topics: ["環境", "污染", "列管"],
   },
+  jpAccommodationCanonical: {
+    key: "jpAccommodationCanonical", section: { theme: "旅宿", group: "總覽" },
+    label: "旅宿去重總覽 宿泊施設の統合一覧", labelMobile: "旅宿總覽 宿泊施設一覧", expandable: true,
+    color: JP_TOURISM_COLORS.jpAccommodationCanonical, icon: BedDouble,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "27,194 source rows 保守去重為 25,961 entities；502 null geometry；82 review/conflict 未自動合併。", note: "PARTIAL_DEDUP_CONSERVATIVE；不是全國官方旅宿 SSOT，來源 badges、授權集合與 provenance 必須保留。" },
+    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留 25,459 筆可繪原始點；502 null geometry 只保留於來源契約", staticAssets: ["./world/jp_accommodation_canonical_allzoom_20260910.pmtiles"] },
+    legend: "jpAccommodationCanonical", popup: "jpAccommodationCanonical", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "日本旅宿保守去重總覽 25,961 entities；來源不等同權威合併，缺名／缺類型／缺 geometry 仍保留 null。", topics: ["日本", "旅宿", "canonical", "來源血緣"],
+  },
+  jpAccommodationDensity: {
+    key: "jpAccommodationDensity", section: { theme: "旅宿", group: "總覽" },
+    label: "旅宿密度網格 宿泊施設密度グリッド", labelMobile: "旅宿密度 宿泊密度", expandable: true,
+    color: JP_ACCOMMODATION_DENSITY_LAYER_COLOR, icon: Grid3x3,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_canonical", confidence: "HIGH" }], processing: "25,459 筆 drawable canonical entities 以 EPSG:6933 聚合為 450m / 1.5km 網格；sum(n_records) 均守恆。", note: "只計 canonical；不叠加 OSM coverage，避免重複計數。502 筆 null geometry 未入格。" },
+    dataClass: "B",
+    source: JP_ACCOMMODATION_DENSITY_SCALES.map((scale) => ({
+      kind: "pmtiles" as const, sourceId: scale.sourceId, url: scale.sourceUrl,
+      sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom,
+    })),
+    legend: "jpAccommodationDensity", popup: "jpAccommodationDensity",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "Canonical 旅宿可繪點的 450m / 1.5km 非空網格；顏色表示格內旅宿數，不含 OSM 另一份 coverage。",
+    topics: ["日本", "旅宿", "密度", "網格"],
+  },
+  jpAccommodationJta: {
+    key: "jpAccommodationJta", section: { theme: "旅宿", group: "來源" },
+    label: "觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館", labelMobile: "觀光廳登錄 観光庁登録", expandable: true,
+    color: JP_TOURISM_COLORS.jpAccommodationJta, icon: BedDouble,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_jta", confidence: "HIGH" }], processing: "2026-03-31 register 2,282 rows；GSI 地址衍生 2,242 點。", note: "法定登錄子集，不是全日本旅館業 SSOT；ryokan 表頭差 1，狀態 PARTIAL。" },
+    dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load 靜態 GeoJSON point", staticAssets: ["./world/jp_accommodation_jta_20260331.geojson"] },
+    legend: null, popup: "jpAccommodationJta", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "觀光廳《國際觀光ホテル整備法》登錄子集；40 筆 geometry miss 不補 0,0。", topics: ["日本", "旅宿", "觀光廳", "JTA"],
+  },
+  jpAccommodationLocal: {
+    key: "jpAccommodationLocal", section: { theme: "旅宿", group: "來源" },
+    label: "地方旅館業許可 地方自治体の旅館業許可", labelMobile: "地方旅館業許可 旅館業許可", expandable: true,
+    color: JP_TOURISM_COLORS.jpAccommodationLocal, icon: BedDouble,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_local", confidence: "HIGH" }], processing: "京都市、靜岡市、東京都江東區 4,410 rows；個資已排除；3,948 有 geometry。", note: "coverage 僅三個轄區；462 geometry miss，不能解讀成全日本 coverage。" },
+    dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load 靜態 GeoJSON point", staticAssets: ["./world/jp_accommodation_local_20260910.geojson"] },
+    legend: null, popup: "jpAccommodationLocal", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "地方政府旅館業許可首批 4,410 rows；coverage 限京都市、靜岡市、江東區。", topics: ["日本", "旅宿", "地方許可"],
+  },
+  jpAccommodationOsm: {
+    key: "jpAccommodationOsm", section: { theme: "旅宿", group: "來源" },
+    label: "OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ", labelMobile: "OSM 住宿 OSM 宿泊施設", expandable: true,
+    color: JP_TOURISM_COLORS.jpAccommodationOsm, icon: MapPin,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_accommodation_osm", confidence: "HIGH" }], processing: "2026-09-10 OSM snapshot；20,502 unique elements。", note: "© OpenStreetMap contributors, ODbL 1.0；社群繪製 coverage，不是完整或官方名冊。" },
+    dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles；visible 時才建 source，z0-14 皆保留完整 20,502 點", staticAssets: ["./world/jp_accommodation_osm_allzoom_20260910.pmtiles"] },
+    legend: "jpAccommodationOsm", popup: "jpAccommodationOsm", params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 住宿 20,502 elements；native point 與 feature center 精度分開顯示，ODbL。", topics: ["日本", "旅宿", "OpenStreetMap", "ODbL"],
+  },
+
+  jpNaturalParksNational: {
+    key: "jpNaturalParksNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國立公園 国立公園（A10 2010）", expandable: true,
+    color: JP_TOURISM_COLORS.jpNaturalParksNational, icon: TreePine,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國立公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+  },
+  jpNaturalParksQuasiNational: {
+    key: "jpNaturalParksQuasiNational", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "國定公園 国定公園（A10 2010）", expandable: true,
+    color: JP_TOURISM_COLORS.jpNaturalParksQuasiNational, icon: TreePine,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_quasi_national。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksQuasiNational", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 國定公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+  },
+  jpNaturalParksPrefectural: {
+    key: "jpNaturalParksPrefectural", section: { theme: "自然保護", group: "自然公園 A10 historical" }, label: "都道府縣立自然公園 都道府県立自然公園（A10 2010）", labelMobile: "都道府縣立公園 都道府県立公園", expandable: true,
+    color: JP_TOURISM_COLORS.jpNaturalParksPrefectural, icon: TreePine,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_natural_parks_ksj", confidence: "HIGH" }], processing: "A10 2010 共用 artifact；filter_layer_id=jp_natural_parks_prefectural。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；outer polygons，不是現行法定界線或 zoning。" },
+    dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；NON_COMMERCIAL_ONLY，不進 production catalog/S3", staticAssets: ["./world/jp_natural_parks_ksj_2010.pmtiles"] }, legend: null, popup: "jpNaturalParksPrefectural", params: { count: 1, kinds: ["slider"] }, description: "A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。", topics: ["日本", "自然公園", "historical", "A10"],
+  },
+
+  jpNatureConservationArea: {
+    key: "jpNatureConservationArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保育地域 自然保全地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationArea, icon: Shield,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_area。", note: "HOLD_LICENSE；全國發布待用途別 clearance，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全地域；HOLD_LICENSE。", topics: ["日本", "自然保全", "historical", "A11"],
+  },
+  jpPrimitiveNatureEnvironmentArea: {
+    key: "jpPrimitiveNatureEnvironmentArea", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "原生自然環境地域 原生自然環境保全地域（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpPrimitiveNatureEnvironmentArea, icon: Shield,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_primitive_nature_environment_area。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpPrimitiveNatureEnvironmentArea", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
+  },
+  jpNatureConservationSpecialDistrict: {
+    key: "jpNatureConservationSpecialDistrict", section: { theme: "自然保護", group: "自然保全 A11 historical" }, label: "自然保育特別地區 自然保全特別地区（A11 2015）", expandable: true, color: JP_TOURISM_COLORS.jpNatureConservationSpecialDistrict, icon: Shield,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_nature_conservation_ksj", confidence: "HIGH" }], processing: "A11 2015 共用 artifact；filter_layer_id=jp_nature_conservation_special_district。", note: "HOLD_LICENSE；精度不保證，historical reference。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；HOLD_LICENSE，不進 production catalog/S3", staticAssets: ["./world/jp_nature_conservation_ksj_2015.pmtiles"] }, legend: null, popup: "jpNatureConservationSpecialDistrict", params: { count: 1, kinds: ["slider"] }, description: "A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。", topics: ["日本", "自然保全", "historical", "A11"],
+  },
+
+  jpWildlifeProtectionNational: {
+    key: "jpWildlifeProtectionNational", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "國家指定鳥獸保護區 国指定鳥獣保護区", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeProtectionNational, icon: PawPrint,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_protection_national。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeProtectionNational", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+  },
+  jpWildlifeSpecialProtectionDistrict: {
+    key: "jpWildlifeSpecialProtectionDistrict", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護地區 鳥獣保護区特別保護地区", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDistrict, icon: PawPrint,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_district。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDistrict", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+  },
+  jpWildlifeSpecialProtectionDesignatedArea: {
+    key: "jpWildlifeSpecialProtectionDesignatedArea", section: { theme: "自然保護", group: "鳥獸保護 2025-04" }, label: "鳥獸特別保護指定區域 特別保護指定区域", expandable: true, color: JP_TOURISM_COLORS.jpWildlifeSpecialProtectionDesignatedArea, icon: PawPrint,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_wildlife_protection_moe", confidence: "HIGH" }], processing: "環境省 2025-04 共用 artifact；filter_layer_id=jp_wildlife_special_protection_designated_area。", note: "LICENSE_UNVERIFIED；本地 research only。" }, dataClass: "D", source: { kind: "custom", note: "本地 research PMTiles，共用原始 filter_layer_id；LICENSE_UNVERIFIED，不進 production catalog/S3", staticAssets: ["./world/jp_wildlife_protection_moe_202504.pmtiles"] }, legend: null, popup: "jpWildlifeSpecialProtectionDesignatedArea", params: { count: 1, kinds: ["slider"] }, description: "環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。", topics: ["日本", "鳥獸保護", "環境省"],
+  },
+
+  jpWorldHeritageCultural: {
+    key: "jpWorldHeritageCultural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 文化遺產代表點 UNESCO 文化遺産代表点", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageCultural, icon: Castle,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_world_heritage_unesco", confidence: "HIGH" }], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_cultural。", note: "CC BY-SA 4.0；代表點不是 property boundary；22 rows 中 1 筆 null geometry。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageCultural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "文化"],
+  },
+  jpWorldHeritageNatural: {
+    key: "jpWorldHeritageNatural", section: { theme: "世界遺產", group: "UNESCO 現行名錄" }, label: "UNESCO 自然遺產代表點 UNESCO 自然遺産代表点", expandable: true, color: JP_TOURISM_COLORS.jpWorldHeritageNatural, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_world_heritage_unesco", confidence: "HIGH" }], processing: "UNESCO current catalog；filter_layer_id=jp_world_heritage_natural。", note: "CC BY-SA 4.0；5 個代表點不是 property boundary。" }, dataClass: "D", source: { kind: "custom", note: "共用 UNESCO GeoJSON，以原始 filter_layer_id 過濾", staticAssets: ["./world/jp_world_heritage_unesco_current.geojson"] }, legend: null, popup: "jpWorldHeritageNatural", params: { count: 2, kinds: ["slider", "slider"] }, description: "UNESCO 現行自然遺產 5 個代表點；非遺產界線。", topics: ["日本", "UNESCO", "世界遺產", "自然"],
+  },
+  jpWorldNaturalHeritageHistorical: {
+    key: "jpWorldNaturalHeritageHistorical", section: { theme: "世界遺產", group: "Historical" }, label: "世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）", labelMobile: "自然遺產歷史範圍 自然遺産歴史範囲", expandable: true, color: JP_TOURISM_COLORS.jpWorldNaturalHeritageHistorical, icon: Mountain,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_world_natural_heritage_ksj", confidence: "HIGH" }], processing: "KSJ A28-10 2011 snapshot；3 polygons。", note: "STALE_REFERENCE + NON_COMMERCIAL_ONLY；只含知床、白神山地、屋久島，缺現行 2 處。" }, dataClass: "D", source: { kind: "custom", note: "useJpTourismLayers lazy-load A28 historical GeoJSON polygon", staticAssets: ["./world/jp_world_natural_heritage_ksj_2011.geojson"] }, legend: null, popup: "jpWorldNaturalHeritageHistorical", params: { count: 1, kinds: ["slider"] }, description: "A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。", topics: ["日本", "世界遺產", "historical", "A28"],
+  },
+  jpRamsarSites: {
+    key: "jpRamsarSites", section: { theme: "自然保護", group: "濕地與海域" }, label: "拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点", expandable: true, color: JP_TOURISM_COLORS.jpRamsarSites, icon: Droplets,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_ramsar_moe", confidence: "HIGH" }], processing: "環境省名冊 54 rows；GSI 衍生 10 NAME_MATCH + 44 ADMIN_OR_OTHER_CENTROID。", note: "LICENSE_UNVERIFIED + HOLD_GEOMETRY；預設只顯示 NAME_MATCH，所有點都不是 Ramsar boundary。" }, dataClass: "D", source: { kind: "custom", note: "Ramsar GeoJSON；原始 filter_layer_id + geocode_quality filter", staticAssets: ["./world/jp_ramsar_moe_current.geojson"] }, legend: null, popup: "jpRamsarSites", params: { count: 3, kinds: ["select", "slider", "slider"] }, description: "Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。", topics: ["日本", "Ramsar", "濕地", "HOLD_GEOMETRY"],
+  },
+  jpMarineEbsaCoastal: {
+    key: "jpMarineEbsaCoastal", section: { theme: "自然保護", group: "濕地與海域" }, label: "沿岸生態重要海域 沿岸EBSA（2015）", labelMobile: "沿岸生態海域 沿岸EBSA", expandable: true, color: JP_TOURISM_COLORS.jpMarineEbsaCoastal, icon: Waves,
+    upstream: { status: "verified", datasets: [{ datasetId: "jp_marine_ebsa_moe", confidence: "HIGH" }], processing: "環境省 2015 ecological reference polygons；filter_layer_id=jp_marine_ebsa_coastal。", note: "STALE_REFERENCE；ATTRIBUTION_REQUIRED；不是法定保護區指定。" }, dataClass: "D", source: { kind: "custom", note: "S3-backed PMTiles polygon；visible 時才建 source，保留原始 filter_layer_id 與 attribution", staticAssets: ["./world/jp_marine_ebsa_moe_coastal_20150101.pmtiles"] }, legend: null, popup: "jpMarineEbsaCoastal", params: { count: 1, kinds: ["slider"] }, description: "2015 沿岸 EBSA ecological reference；不是法定保護區。", topics: ["日本", "EBSA", "海域", "historical"],
+  },
+
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 1 —— 宗教 Religion 6 層
   //  同構家族：一個 legend 元件涵蓋 6 個 key（id 取該 entry 首個 key
@@ -1235,9 +1456,9 @@ export const LAYER_MANIFEST = {
 
   worldTrashDebris: {
     key: "worldTrashDebris",
-    section: { theme: "世界 World", group: "環境" },
-    label: "全球垃圾殘骸 Trash & Debris",
-    labelMobile: "全球垃圾殘骸",
+    section: { theme: "全球環境 Global Environment", group: "廢棄物觀測 Waste Observations" },
+    label: "垃圾與殘骸觀測 Trash & Debris Observations",
+    labelMobile: "垃圾與殘骸觀測",
     expandable: true,
     color: "#f59e0b",
     icon: Trash2,
@@ -1262,9 +1483,9 @@ export const LAYER_MANIFEST = {
 
   coralReefDistribution: {
     key: "coralReefDistribution",
-    section: { theme: "世界 World", group: "環境" },
-    label: "珊瑚礁歷史分布（私人研究）",
-    labelMobile: "珊瑚礁歷史分布（私人研究）",
+    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    label: "珊瑚礁歷史分布 Historical Coral Reefs",
+    labelMobile: "珊瑚礁歷史分布",
     expandable: true,
     color: CORAL_REEF_COLOR,
     icon: Waves,
@@ -1272,25 +1493,51 @@ export const LAYER_MANIFEST = {
       status: "verified",
       datasets: [{ datasetId: "coral_reef_distribution", confidence: "HIGH" }],
       processing: "UNEP-WCMC Global distribution of coral reefs v4.1（2021-03 發布）全球 polygon PMTiles；19 欄原始語意逐 tile 對帳。",
-      note: "本機非商業研究資料，非公開發布或再散布；空白、低 zoom 不可解讀為沒有珊瑚。",
+      note: "歷史分布資料；空白、低 zoom 不可解讀為沒有珊瑚。使用限制以原始授權為準。",
     },
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "本人帳號限定：/api/private-research/coral 逐 Range 驗證 Supabase 身分；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+      note: "公開端點：/api/private-research/coral 匿名受限 Range 讀取，逐請求驗證固定物件 checksum 與 ETag；useCoralReefDistributionLayer 自建 sourceId=coral-reef-distribution，source-layer=coral_reef_distribution，z0–12；fill=coral-reef-distribution-fill、outline=coral-reef-distribution-line；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
     },
     legend: "coralReefDistribution",
     popup: "coralReefDistribution",
     params: { count: 1, kinds: ["slider"] },
-    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化；僅本人帳號私人研究。",
+    description: "全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化。",
     topics: ["世界", "海洋", "自然環境", "珊瑚礁", "本地研究"],
+  },
+
+  allenCoralAtlas: {
+    key: "allenCoralAtlas",
+    section: { theme: "全球環境 Global Environment", group: "海洋生態 Marine Ecosystems" },
+    label: "珊瑚礁棲地分類 Allen Coral Atlas（私人研究）",
+    labelMobile: "珊瑚礁棲地 Allen Coral Atlas",
+    expandable: true,
+    color: "#ee6c83",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "allen_coral_atlas", confidence: "HIGH" }],
+      processing: "Allen Coral Atlas 棲地分類與礁體地形分區的本地 PMTiles 快照；完整相交 polygon，未作行政裁切。",
+      note: "本人限定私人非商業研究，禁止公開 CDN、分享 URL 與離線公開快取；401/403 時清除圖層。",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAllenCoralAtlasLayer 以 owner-authenticated Range endpoint 自建 allen-coral-atlas-benthic／allen-coral-atlas-geomorphic source；view 一次僅顯示一種主題，fill ids 分別為 allen-coral-atlas-benthic-fill／allen-coral-atlas-geomorphic-fill；未走 OVERLAY_REGISTRY，也不登記 deploy asset。",
+    },
+    legend: "allenCoralAtlas",
+    popup: "allenCoralAtlas",
+    params: { count: 3, kinds: ["slider", "select", "select"] },
+    description: "Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。",
+    topics: ["世界", "海洋", "珊瑚礁", "棲地", "本地研究"],
   },
 
   globalEvents: {
     key: "globalEvents",
-    section: { theme: "世界 World", group: "重要事件" },
-    label: "全球情勢 Global Events",
-    labelMobile: "全球情勢",
+    section: { theme: "全球情勢 Global Situation", group: "重大事件 Major Events" },
+    label: "全球重大事件 Global Events",
+    labelMobile: "全球重大事件",
     expandable: true,
     color: "#f97316",
     icon: MapPinned,
@@ -1303,11 +1550,11 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useGlobalEventsLayer 自建 points/association sources；預設最近七天總覽，另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
+      note: "useGlobalEventsLayer 自建 points/association sources；預設最近一天嚴重事件，分類／最低嚴重度／天數可調；另可依 timeStore 切 immutable intervals。候選 JSON envelope 每頁 200 全頁取完；正式事件仍最多 100 件。顯示避讓不變更原座標",
     },
     legend: "globalEvents",
     popup: "globalEvent",
-    params: { count: 4, kinds: ["slider", "select", "toggle", "toggle"] },
+    params: { count: 8, kinds: ["slider", "select", "select", "select", "select", "toggle", "toggle", "toggle"] },
     description: "全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡",
     topics: ["世界", "重要事件", "情報"],
   },
@@ -1341,8 +1588,8 @@ export const LAYER_MANIFEST = {
   gfwVesselPresence: {
     key: "gfwVesselPresence",
     section: { theme: "全球海事 Global Maritime", group: "船舶" },
-    label: "GFW 船舶 Presence Global Fishing Watch",
-    labelMobile: "GFW 船舶 Presence",
+    label: "GFW 舊版每日船舶 Historical Presence",
+    labelMobile: "GFW 舊版船舶（歷史）",
     expandable: true,
     color: "#f59e0b",
     icon: Fish,
@@ -1350,7 +1597,7 @@ export const LAYER_MANIFEST = {
       status: "catalog_missing",
       datasets: [],
       processing: "Supabase RPC get_gfw_vessel_presence_current；每日快照/延遲資料依 viewport 查詢",
-      note: "GFW 存取憑證僅留在 backend collector，不進前端 bundle；本層是每日延遲 presence，不宣稱即時或可直接識別暗船",
+      note: "舊版每日 presence collector 目前不是生產 freshness 來源；本層只保留歷史快照，最新 release 應以小時 Grid／Tracks／SAR 的完整 UTC 日期為準",
     },
     dataClass: "D",
     source: {
@@ -1360,7 +1607,7 @@ export const LAYER_MANIFEST = {
     legend: "gfwVesselPresence",
     popup: "gfwVesselPresence",
     params: { count: 1, kinds: ["slider"] },
-    description: "Global Fishing Watch 船舶 presence 每日/延遲快照（不是即時 AIS，也不是暗船清單）",
+    description: "Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單",
     topics: ["世界", "海事", "船舶", "GFW"],
   },
 
@@ -1472,11 +1719,33 @@ export const LAYER_MANIFEST = {
     topics: ["世界", "海事", "SAR", "AIS", "GFW", "時間軸", "偵測"],
   },
 
+  jpMedicalHospitals: jpMedicalFacilityManifest("jpMedicalHospitals", 0, Hospital),
+  jpMedicalClinics: jpMedicalFacilityManifest("jpMedicalClinics", 1, Stethoscope),
+  jpMedicalDental: jpMedicalFacilityManifest("jpMedicalDental", 2, Cross),
+  jpMedicalMaternity: jpMedicalFacilityManifest("jpMedicalMaternity", 3, Baby),
+  jpMedicalPharmacies: jpMedicalFacilityManifest("jpMedicalPharmacies", 4, Pill),
+
+  jpCarePlanning: jpMedicalCareManifest("jpCarePlanning", 0),
+  jpCareHomeVisit: jpMedicalCareManifest("jpCareHomeVisit", 1),
+  jpCareDayServices: jpMedicalCareManifest("jpCareDayServices", 2),
+  jpCareResidential: jpMedicalCareManifest("jpCareResidential", 3),
+  jpCareCombined: jpMedicalCareManifest("jpCareCombined", 4),
+  jpCareEquipment: jpMedicalCareManifest("jpCareEquipment", 5),
+
+  jpMedicalAreasPrimary: jpMedicalAreaManifest("jpMedicalAreasPrimary", 0),
+  jpMedicalAreasSecondary: jpMedicalAreaManifest("jpMedicalAreasSecondary", 1),
+  jpMedicalAreasTertiary: jpMedicalAreaManifest("jpMedicalAreasTertiary", 2),
+
+  jpWaterLakes: { key: "jpWaterLakes", section: { theme: "水資源", group: "水資源靜態資料" }, label: "湖沼 湖沼（W09・2005）", expandable: true, color: "#0ea5e9", icon: Waves, upstream: { status: "verified", datasets: [{ datasetId: "jp_w09_lakes", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; W09 historical polygon", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLakes", popup: "jpWaterLakes", params: { count: 1, kinds: ["slider"] }, description: "W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。", topics: ["日本", "水資源", "湖沼", "歷史"] },
+  jpWaterLocalFacilities: { key: "jpWaterLocalFacilities", section: { theme: "水資源", group: "水資源靜態資料" }, label: "高松供排水相關設施 高松市", expandable: true, color: "#0284c7", icon: Droplets, upstream: { status: "verified", datasets: [{ datasetId: "jp_takamatsu_water_facilities", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Takamatsu local CC source", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLocalFacilities", popup: "jpWaterLocalFacilities", params: { count: 1, kinds: ["slider"] }, description: "高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。", topics: ["日本", "水資源", "高松", "設施"] },
+  jpWaterQualityStations: { key: "jpWaterQualityStations", section: { theme: "水資源", group: "水資源靜態資料" }, label: "水質測定地点 水質測定地点（2024）", expandable: true, color: "#7c3aed", icon: Activity, upstream: { status: "verified", datasets: [{ datasetId: "jp_moe_water_quality_stations", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; MOE 2024 station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterQualityStations", popup: "jpWaterQualityStations", params: { count: 1, kinds: ["slider"] }, description: "環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。", topics: ["日本", "水資源", "水質", "站點"] },
+  jpWaterLevelStations: { key: "jpWaterLevelStations", section: { theme: "水資源", group: "水資源靜態資料" }, label: "橫濱水位站 横浜市", expandable: true, color: "#0369a1", icon: Droplet, upstream: { status: "verified", datasets: [{ datasetId: "jp_yokohama_water_level_stations", confidence: "HIGH" }] }, dataClass: "D", source: { kind: "custom", note: "jpWater release allowlist; Yokohama undated station registry", staticAssets: ["./world/jp_water/release.json"] }, legend: "jpWaterLevelStations", popup: "jpWaterLevelStations", params: { count: 1, kinds: ["slider"] }, description: "橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。", topics: ["日本", "水資源", "水位", "橫濱"] },
+
   jpReligionGsi: {
     key: "jpReligionGsi",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 GSI",
-    labelMobile: "日本宗教 GSI",
+    label: "宗教設施 宗教施設（国土地理院）",
+    labelMobile: "宗教設施 国土地理院",
     expandable: true,
     color: JP_RELIGION_COLORS.shinto,
     icon: Landmark,
@@ -1502,8 +1771,8 @@ export const LAYER_MANIFEST = {
   jpReligionOsm: {
     key: "jpReligionOsm",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 OSM",
-    labelMobile: "日本宗教 OSM",
+    label: "宗教設施 宗教施設（OpenStreetMap）",
+    labelMobile: "宗教設施 OSM",
     expandable: true,
     color: JP_RELIGION_COLORS.buddhist,
     icon: MapPin,
@@ -1529,8 +1798,8 @@ export const LAYER_MANIFEST = {
   jpReligionWikidata: {
     key: "jpReligionWikidata",
     section: { theme: "宗教", group: "點位" },
-    label: "日本宗教設施 Wikidata",
-    labelMobile: "日本宗教 Wikidata",
+    label: "宗教設施 宗教施設（Wikidata）",
+    labelMobile: "宗教設施 Wikidata",
     expandable: true,
     color: JP_RELIGION_COLORS.christian,
     icon: Church,
@@ -1560,8 +1829,8 @@ export const LAYER_MANIFEST = {
   jpAdminPrefecture: {
     key: "jpAdminPrefecture",
     section: { theme: "行政區", group: "面" },
-    label: "日本都道府県界",
-    labelMobile: "日本縣界",
+    label: "都道府縣界 都道府県境",
+    labelMobile: "都道府縣界 都道府県境",
     expandable: true,
     color: "#f59e0b",
     icon: Map,
@@ -1586,8 +1855,8 @@ export const LAYER_MANIFEST = {
   jpAdminBoundaries: {
     key: "jpAdminBoundaries",
     section: { theme: "行政區", group: "面" },
-    label: "日本市区町村界",
-    labelMobile: "日本市界",
+    label: "市區町村界 市区町村境",
+    labelMobile: "市區町村界 市区町村境",
     expandable: true,
     color: "#fbbf24",
     icon: MapPinned,
@@ -1612,8 +1881,8 @@ export const LAYER_MANIFEST = {
   jpStations: {
     key: "jpStations",
     section: { theme: "交通", group: "點位" },
-    label: "日本車站",
-    labelMobile: "日本車站",
+    label: "車站 駅",
+    labelMobile: "車站 駅",
     expandable: true,
     color: "#38bdf8",
     icon: TrainFront,
@@ -1638,8 +1907,8 @@ export const LAYER_MANIFEST = {
   jpAirports: {
     key: "jpAirports",
     section: { theme: "交通", group: "點位" },
-    label: "日本機場",
-    labelMobile: "日本機場",
+    label: "機場 空港",
+    labelMobile: "機場 空港",
     expandable: true,
     color: "#a78bfa",
     icon: PlaneTakeoff,
@@ -1664,8 +1933,8 @@ export const LAYER_MANIFEST = {
   jpRailways: {
     key: "jpRailways",
     section: { theme: "交通", group: "線" },
-    label: "日本鐵道路線",
-    labelMobile: "日本鐵道",
+    label: "鐵道路線 鉄道路線",
+    labelMobile: "鐵道 鉄道",
     expandable: true,
     color: JP_RAILWAY_LAYER_COLOR,
     icon: RailSymbol,
@@ -1773,8 +2042,8 @@ export const LAYER_MANIFEST = {
   jpPoliceFacilities: {
     key: "jpPoliceFacilities",
     section: { theme: "治安", group: "點位" },
-    label: "日本警察設施",
-    labelMobile: "日本警察設施",
+    label: "警察設施 警察施設",
+    labelMobile: "警察設施 警察施設",
     expandable: true,
     color: JP_POLICE_LAYER_COLOR,
     icon: Shield,
@@ -1799,8 +2068,8 @@ export const LAYER_MANIFEST = {
   jpSchools: {
     key: "jpSchools",
     section: { theme: "教育", group: "點位" },
-    label: "日本學校",
-    labelMobile: "日本學校",
+    label: "學校 学校",
+    labelMobile: "學校 学校",
     expandable: true,
     color: JP_SCHOOL_LAYER_COLOR,
     icon: School,
@@ -1826,8 +2095,8 @@ export const LAYER_MANIFEST = {
   jpPopulationMesh1km: {
     key: "jpPopulationMesh1km",
     section: { theme: "人口", group: "面" },
-    label: "日本人口網格",
-    labelMobile: "日本人口",
+    label: "人口網格 人口メッシュ",
+    labelMobile: "人口網格 人口メッシュ",
     expandable: true,
     color: JP_POPULATION_MESH_LAYER_COLOR,
     icon: Grid3x3,
@@ -1937,7 +2206,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
-    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 通訊海纜 Submarine Cable",
     expandable: true,
     color: "#2196F3",
@@ -1957,7 +2226,7 @@ export const LAYER_MANIFEST = {
 
   landingStations: {
     key: "landingStations",
-    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
+    section: { theme: "全球通訊 Global Communications", group: "全球骨幹 Global Backbone" },
     label: "OSM 海纜登陸站 Landing Station",
     expandable: true,
     color: "#26c6da",
@@ -1977,7 +2246,7 @@ export const LAYER_MANIFEST = {
 
   internetExchangePoints: {
     key: "internetExchangePoints",
-    section: { theme: "通訊 Communications", group: "網路互連 Internet Exchange" },
+    section: { theme: "全球通訊 Global Communications", group: "網路互連 Internet Exchange" },
     label: "網際網路交換中心 Internet Exchange",
     expandable: true,
     color: "#22C55E",
@@ -2001,7 +2270,7 @@ export const LAYER_MANIFEST = {
 
   anfrWirelessSites: {
     key: "anfrWirelessSites",
-    section: { theme: "通訊 Communications", group: "官方無線站點 Official Wireless Sites" },
+    section: { theme: "全球通訊 Global Communications", group: "官方無線站點 Official Wireless Sites" },
     label: "法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview",
     expandable: true,
     color: "#F97316",
@@ -2021,7 +2290,7 @@ export const LAYER_MANIFEST = {
 
   osmCommunicationSites: {
     key: "osmCommunicationSites",
-    section: { theme: "通訊 Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
+    section: { theme: "全球通訊 Global Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
     label: "OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates",
     expandable: true,
     color: "#38BDF8",
@@ -2041,7 +2310,7 @@ export const LAYER_MANIFEST = {
 
   ripeAtlasProbes: {
     key: "ripeAtlasProbes",
-    section: { theme: "通訊 Communications", group: "量測節點 Measurement Nodes" },
+    section: { theme: "全球通訊 Global Communications", group: "量測節點 Measurement Nodes" },
     label: "RIPE Atlas 連線量測節點 Connected Probes",
     expandable: true,
     color: "#22D3EE",
@@ -2062,7 +2331,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobilePerformance: {
     key: "ooklaMobilePerformance",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 行動網路效能格網 Mobile Performance Grid",
     expandable: true,
     color: "#F46D43",
@@ -2083,7 +2352,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedPerformance: {
     key: "ooklaFixedPerformance",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 固定網路效能格網 Fixed Performance Grid",
     expandable: true,
     color: "#FDAE61",
@@ -2104,7 +2373,7 @@ export const LAYER_MANIFEST = {
 
   ooklaMobileTaiwan: {
     key: "ooklaMobileTaiwan",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 台灣行動細格 Taiwan Mobile Fine Grid",
     expandable: true,
     color: "#F46D43",
@@ -2128,7 +2397,7 @@ export const LAYER_MANIFEST = {
 
   ooklaFixedTaiwan: {
     key: "ooklaFixedTaiwan",
-    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    section: { theme: "全球通訊 Global Communications", group: "網路效能格網 Network Performance Grid" },
     label: "Ookla 台灣固定網路細格 Taiwan Fixed Fine Grid",
     expandable: true,
     color: "#4575B4",
@@ -3526,7 +3795,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "pmtiles",
       sourceId: "forest-reserve",
-      url: "./forestry/forest_reserve.pmtiles",
+      url: FOREST_RESERVE_PMTILES_URL,
       sourceLayer: "forest_reserve",
       minzoom: 0,
       maxzoom: 13,
@@ -4055,6 +4324,40 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "toggle"] },
     description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
     topics: ["房地產", "預售", "交易點"],
+  },
+
+  propertyValueAdmin: {
+    key: "propertyValueAdmin",
+    section: { theme: "房地產統計 Real Estate Statistics", group: "行政區總市值" },
+    label: "不動產總市值行政區 Property Value",
+    labelMobile: "不動產總市值",
+    expandable: true,
+    color: "#ec7014",
+    icon: Coins,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["buildingsGba", "realEstateSaleGrid"],
+      derivedFromDatasets: ["property_value"],
+      derivationType: "custom",
+      processing: "每棟 GBA 建物面積 × 樓層 × 所在網格實價買賣中位單價 × 縣市 GFA 校正係數，再聚合至縣市／鄉鎮市區",
+      note: "上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；缺金門、連江、澎湖，缺值不當作 0",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Static property_value_admin.json joined by administrative code to independent county/township PMTiles sources via feature-state",
+      staticAssets: [
+        "./urban/property_value_admin.json",
+        "./base_map/county_boundary.pmtiles",
+        "./base_map/township_boundary.pmtiles",
+      ],
+    },
+    legend: "propertyValueAdmin",
+    popup: "propertyValueAdmin",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "不動產模型估值依縣市／鄉鎮市區聚合；市場交易建物口徑，缺值不是 0",
+    topics: ["房地產", "總市值", "統計", "行政區"],
   },
 
   propertyValueGrid: {
@@ -5033,22 +5336,11 @@ export const LAYER_MANIFEST = {
     icon: Building2,
     upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }] },
     dataClass: "B",
-    source: [
-      {
-        kind: "pmtiles", sourceId: "business-registry-company-points-overview",
-        url: "./business_registry/company_points_overview_1500m_202608_r2.pmtiles",
-        sourceLayer: "company_points_overview", minzoom: 4, maxzoom: 11,
-      },
-      {
-        kind: "pmtiles", sourceId: "business-registry-company-points",
-        url: "./business_registry/company_points_202608_r2.pmtiles",
-        sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
-      },
-    ],
+    source: { kind: "pmtiles", sourceId: "business-registry-manufacturing-company-points", url: "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles", sourceLayer: "manufacturing_company_points", minzoom: 0, maxzoom: 14 },
     legend: "manufacturingCompanyPoints",
     popup: "manufacturingCompanyPoints",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "202608 製造業公司登記；z4–11 為全已定位 records 計數概覽，z12+ 為個別登記點；不是工廠位置",
+    description: "202608 製造業公司登記；全台尺度即顯示全部可定位登記點，不抽稀、不聚合；不是工廠位置",
     topics: ["工商登記", "製造業", "公司"],
   },
 
@@ -5061,22 +5353,11 @@ export const LAYER_MANIFEST = {
     icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }] },
     dataClass: "B",
-    source: [
-      {
-        kind: "pmtiles", sourceId: "business-registry-factory-locations-overview",
-        url: "./business_registry/factory_locations_overview_1500m_202606.pmtiles",
-        sourceLayer: "factory_locations_overview", minzoom: 4, maxzoom: 10,
-      },
-      {
-        kind: "pmtiles", sourceId: "business-registry-factory-locations",
-        url: "./business_registry/factory_locations_202606.pmtiles",
-        sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14,
-      },
-    ],
+    source: { kind: "pmtiles", sourceId: "business-registry-factory-locations", url: "./business_registry/factory_locations_202606_allzoom.pmtiles", sourceLayer: "factory_locations", minzoom: 0, maxzoom: 14 },
     legend: "factoryLocations",
     popup: "factoryLocations",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "202606 生產中工廠登記；z4–10 為全已定位 records 計數概覽，z11+ 為個別工廠；座標 coverage 90.09%",
+    description: "202606 生產中工廠登記；全台尺度即顯示全部可定位工廠，不抽稀、不聚合；座標 coverage 90.09%",
     topics: ["工商登記", "製造業", "工廠", "工廠地址"],
   },
 
@@ -5089,16 +5370,42 @@ export const LAYER_MANIFEST = {
     icon: Factory,
     upstream: { status: "verified", datasets: [{ datasetId: "regulated_facilities", confidence: "HIGH" }] },
     dataClass: "B",
-    source: {
-      kind: "pmtiles", sourceId: "business-registry-regulated-facilities",
-      url: "./business_registry/regulated_facilities_20260818.pmtiles",
-      sourceLayer: "regulated_facilities", minzoom: 5, maxzoom: 14,
-    },
+    source: { kind: "pmtiles", sourceId: "business-registry-regulated-facilities", url: "./business_registry/regulated_facilities_20260818_allzoom.pmtiles", sourceLayer: "regulated_facilities", minzoom: 0, maxzoom: 14 },
     legend: "regulatedFacilities",
     popup: "regulatedFacilities",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "環境部 20260818 active 列管設施；列管身分不代表排放、裁罰或風險等級，z11 起顯示",
+    description: "環境部 20260818 active 列管設施；列管身分不代表排放、裁罰或風險等級，全台尺度即顯示全部可定位點，不抽稀、不聚合",
     topics: ["工商登記", "列管設施", "環境部"],
+  },
+
+  factoryDensityGrid: {
+    key: "factoryDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "生產中工廠密度 Factory Density", expandable: true, color: "#21a685", icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }], processing: "202606 生產中工廠登記，有座標 records 密度；不代表產能。" },
+    dataClass: "B", source: industrialDensitySources("factoryDensityGrid"),
+    legend: "factoryDensityGrid", popup: "factoryDensityGrid", params: { count: 1, kinds: ["slider"] },
+    description: "202606 生產中工廠登記，有座標 records 密度；不代表產能。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。",
+    topics: ["工商登記", "密度", "網格"],
+  },
+
+  manufacturingCompanyDensityGrid: {
+    key: "manufacturingCompanyDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "製造業公司登記密度 Manufacturing Registry Density", expandable: true, color: "#21a685", icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }], processing: "202608 製造業公司登記地址密度，不代表實際工廠位置。" },
+    dataClass: "B", source: industrialDensitySources("manufacturingCompanyDensityGrid"),
+    legend: "manufacturingCompanyDensityGrid", popup: "manufacturingCompanyDensityGrid", params: { count: 1, kinds: ["slider"] },
+    description: "202608 製造業公司登記地址密度，不代表實際工廠位置。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。",
+    topics: ["工商登記", "密度", "網格"],
+  },
+
+  regulatedFacilityDensityGrid: {
+    key: "regulatedFacilityDensityGrid", section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "列管設施密度 Regulated Facility Density", expandable: true, color: "#21a685", icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "regulated_facilities", confidence: "HIGH" }], processing: "20260818 active 列管設施密度，不代表排放、裁罰或風險。" },
+    dataClass: "B", source: industrialDensitySources("regulatedFacilityDensityGrid"),
+    legend: "regulatedFacilityDensityGrid", popup: "regulatedFacilityDensityGrid", params: { count: 1, kinds: ["slider"] },
+    description: "20260818 active 列管設施密度，不代表排放、裁罰或風險。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。",
+    topics: ["工商登記", "密度", "網格"],
   },
 
   industrialParkBoundaries: {
@@ -11249,6 +11556,13 @@ export const LAYER_MANIFEST = {
     topics: ["廢棄物", "orphan", "未實作"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
+
+/** Statistics presentation policy: normalize the manifest itself so every derived consumer agrees. */
+for (const [key, entry] of Object.entries(LAYER_MANIFEST)) {
+  if (!key.startsWith('stats') && key !== 'crimeAreaMonthly') continue;
+  const visual = getStatisticsVisual(key, 'label' in entry ? entry.label : undefined, entry.section?.group);
+  Object.assign(entry, { icon: visual.icon, color: visual.accent });
+}
 
 /** 已收進 manifest 的 key（literal union）—— 下游手寫表用它 Omit 出「還沒搬的」 */
 export type ManifestKey = keyof typeof LAYER_MANIFEST;

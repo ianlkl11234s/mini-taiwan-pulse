@@ -15,6 +15,11 @@ set -u
 echo "[entrypoint] $(date -u) container start"
 
 # Dedicated loopback-only backend: missing configuration fails closed with 503.
+export ALLEN_CORAL_ATLAS_STORAGE=s3
+export ALLEN_CORAL_ATLAS_ORIGINS="${ALLEN_CORAL_ATLAS_ORIGINS:-https://mini-taiwan-pulse.itsmigu.com}"
+export ALLEN_CORAL_ATLAS_REVOKE_PATH=/data/.private-allen/revoked-sessions.jsonl
+# Metadata only (no bearer/session/body), outside webroot; cleared on container replacement.
+export ALLEN_CORAL_ATLAS_AUDIT_PATH=/tmp/allen-coral-access-audit.jsonl
 node /opt/coral-server/coral-private-server.mjs &
 
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
@@ -30,12 +35,12 @@ else
   echo "[entrypoint] WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set → skip pull. Serving dist + existing /data."
 fi
 
-# GFW hourly 每日會切新 release/root manifest；預設每 6h 小範圍 re-sync，
+# GFW hourly 每日會切新 release/root manifest；預設每小時驗證候選 manifest，
 # 不用重啟 frontend container 也能在當日追上新資料。
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
   (
     while true; do
-      sleep "${GFW_HOURLY_REFRESH_SEC:-21600}"
+      sleep "${GFW_HOURLY_REFRESH_SEC:-3600}"
       if /usr/local/bin/refresh-gfw-hourly.sh; then
         echo "[entrypoint] GFW hourly refresh OK $(date -u)"
       else

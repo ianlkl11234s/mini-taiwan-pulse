@@ -7,6 +7,7 @@
 import { useRealEstateTimeline } from "../../hooks/useRealEstateTimeline";
 import { useRealEstatePointsLayer } from "../../hooks/useRealEstatePointsLayer";
 import { useSelectedFeatureHalo } from "../../hooks/useSelectedFeatureHalo";
+import { usePropertyValueAdminLayer } from "../../hooks/usePropertyValueAdminLayer";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -48,6 +49,18 @@ export const RealEstatePointsHost: LayerHostComponent = ({ deps }) => {
     excludeTaipei: !!p.realEstateExcludeTaipei,
     baseOpacity: p.realEstateOpacity ?? 0.85,
   });
+  return null;
+};
+
+export const PropertyValueAdminHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("usePropertyValueAdminLayer");
+  const p = useKeyOverlayParams("propertyValueAdmin");
+  usePropertyValueAdminLayer(
+    deps.mapRef,
+    deps.layerVisibility.propertyValueAdmin,
+    p.propertyValueAdminLevelIdx ?? 0,
+    p.propertyValueAdminOpacity ?? 0.7,
+  );
   return null;
 };
 

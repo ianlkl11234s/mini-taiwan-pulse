@@ -15,13 +15,13 @@ describe("layerSearch", () => {
 
   it("ranks exact key and label matches before descriptive matches", () => {
     expect(searchLayers("medHospital")[0]?.key).toBe("medHospital");
-    expect(searchLayers("醫院")[0]?.key).toBe("medHospital");
+    expect(searchLayers("醫院").slice(0, 2).map(result => result.key)).toEqual(["jpMedicalHospitals", "medHospital"]);
   });
 
   it("matches aliases and exposes World and Japan layers from the same index", () => {
     expect(searchLayers("急診").some((layer) => layer.key === "medHospital")).toBe(true);
     expect(searchLayers("japan airport").some((layer) => layer.key === "jpAirports")).toBe(true);
-    expect(searchLayers("global events").some((layer) => layer.theme === "世界 World")).toBe(true);
+    expect(searchLayers("global events").some((layer) => layer.theme === "全球情勢 Global Situation")).toBe(true);
   });
 
   it("requires every query term and returns no unrelated result", () => {

@@ -1,0 +1,180 @@
+{
+  "scope": "news/global situation/intel/alerts loader RPC references; UI-only functions not counted as RPC",
+  "entries": [
+    {
+      "rpc": "get_news_event_dates",
+      "source_file": "src/data/newsEventsLoader.ts",
+      "source_line": 145,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_news_events_day_clustered_v2",
+      "source_file": "src/data/newsEventsLoader.ts",
+      "source_line": 174,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_news_events_day_clustered_v2",
+      "source_file": "src/data/newsEventsLoader.ts",
+      "source_line": 215,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_global_event_candidates_window",
+      "source_file": "src/data/globalEventsLoader.ts",
+      "source_line": 196,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_global_event_places_current",
+      "source_file": "src/data/globalEventsLoader.ts",
+      "source_line": 267,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_global_event_places_window",
+      "source_file": "src/data/globalEventsLoader.ts",
+      "source_line": 286,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_source_health",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 63,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_news_trending",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 91,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pressure_index_now",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 165,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_signals_timeline",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 213,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_market_index_now",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 258,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_market_index_daily",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 312,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pla_activity_latest",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 359,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pla_activity_range",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 401,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_yt_live_videos",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 484,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_public_health_weekly",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 502,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pla_severity_daily",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 609,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pla_situation_summary",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 647,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_pla_kind_summary",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 680,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_food_price_daily",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 773,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_food_price_summary",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 797,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_vessel_zone_daily",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 873,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_tra_delay_summary",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 972,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_tra_delay_trains",
+      "source_file": "src/data/intelLoaders.ts",
+      "source_line": 1013,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_alert_summary",
+      "source_file": "src/data/alertsLoader.ts",
+      "source_line": 167,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_active_alerts",
+      "source_file": "src/data/alertsLoader.ts",
+      "source_line": 215,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_alert_series_24h",
+      "source_file": "src/data/alertsLoader.ts",
+      "source_line": 267,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_disaster_alert_dates",
+      "source_file": "src/data/disasterAlertLoader.ts",
+      "source_line": 74,
+      "status": "code_reference_not_live_verification"
+    },
+    {
+      "rpc": "get_disaster_alerts_day",
+      "source_file": "src/data/disasterAlertLoader.ts",
+      "source_line": 92,
+      "status": "code_reference_not_live_verification"
+    }
+  ],
+  "unique_rpc_count": 28
+}

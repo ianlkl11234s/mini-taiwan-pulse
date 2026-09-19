@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-09-18T07:58:23.814103+00:00",
+  "zones": {
+    "http": 200,
+    "success": true,
+    "errors": [],
+    "zones": []
+  },
+  "token": {
+    "http": 401,
+    "success": false,
+    "errors": [
+      {
+        "code": 1000,
+        "message": "Invalid API Token"
+      }
+    ]
+  }
+}

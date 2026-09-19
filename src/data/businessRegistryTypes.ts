@@ -202,8 +202,9 @@ export function resolveCompanyGridScale(scaleIdx: number): CompanyGridScale {
   return COMPANY_GRID_SCALES[safeIdx]!;
 }
 
+/** Matplotlib Magma 0.18–1；截去近黑端，避免融入深色底圖。 */
 export const COMPANY_GRID_COLORS = [
-  "#f5f3ff", "#ddd6fe", "#c4b5fd", "#a78bfa", "#8b5cf6", "#7c3aed", "#5b21b6",
+  "#331067", "#6b1d81", "#a3307e", "#db476a", "#fa7d5e", "#febf84", "#fcfdbf",
 ] as const;
 export const COMPANY_GRID_NULL_COLOR = "#64748b";
 
@@ -211,10 +212,10 @@ export const COMPANY_GRID_NULL_COLOR = "#64748b";
  * B1 低倍率概覽固定以公司密度（家／km²）分色，不能沿用 B2 各尺度的總數級距。
  * 因此 1.5km（z4–9）和 450m（z10–11）在同一色階可直接比較。
  */
-export const COMPANY_DENSITY_STOPS = [0, 10, 50, 200, 1_000, 5_000, 10_000] as const;
-/** B1 分布概覽專用：低密深藍、高密亮青；不可與 B2 資本額網格的紫色色帶混用。 */
+export const COMPANY_DENSITY_STOPS = [0, 1, 5, 20, 100, 500, 2_000] as const;
+/** Viridis 0.18–1：亮度遞增；固定密度門檻跨尺度共用，非視窗內分位數。 */
 export const COMPANY_DENSITY_COLORS = [
-  "#203449", "#254f73", "#286e9e", "#318ac2", "#47a8da", "#76c8ed", "#c2eafa",
+  "#433e85", "#32648e", "#25858e", "#21a685", "#52c569", "#a5db36", "#fde725",
 ] as const;
 
 export function companyGridAreaKm2(scale: CompanyGridScale): number {

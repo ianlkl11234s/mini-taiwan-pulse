@@ -1,0 +1,65 @@
+{
+  "checked_at": "2026-09-18T14:08:56.788042+00:00",
+  "bucket": "migu-gis-data-collector",
+  "region": "ap-southeast-2",
+  "snapshot_timestamp_utc": "2026-09-18T13:56:37.450575",
+  "objects": [
+    {
+      "key": "history-cold/v1/objects/live.news_events/20b6f9be4629f5868db768612866a1aee2949f8b9944efc6c54e96c36bc6f38f.csv.gz",
+      "bytes": 31236087,
+      "sha256": "20b6f9be4629f5868db768612866a1aee2949f8b9944efc6c54e96c36bc6f38f",
+      "storage_class": "DEEP_ARCHIVE",
+      "checksum_sha256_base64": "ILb5vkYp9YaNt2hhKGahruKUn4uZRO/GxU6Ww2vG848=",
+      "etag": "\"04b5657c413c7c4f57368b519c1cc2a3\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    },
+    {
+      "key": "history-cold/v1/objects/live.yt_live_history/0fff566f8b0a46a4ed348d3e50f3dafd7ff388aec90789b349554422691e2a11.csv.gz",
+      "bytes": 2811504,
+      "sha256": "0fff566f8b0a46a4ed348d3e50f3dafd7ff388aec90789b349554422691e2a11",
+      "storage_class": "DEEP_ARCHIVE",
+      "checksum_sha256_base64": "D/9Wb4sKRqTtNI0+UPPa/X/ziK7JB4mzSVVEImkeKhE=",
+      "etag": "\"0bf7d5d532f8faec7ba8b32740ae8d20\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    },
+    {
+      "key": "history-cold/v1/objects/live.iot_wra_measurements/5169aa78e29fe7fe6693d3cb9f465594de0ec4ac77bac2c6901f8a21bd038788.csv.gz",
+      "bytes": 159806889,
+      "sha256": "5169aa78e29fe7fe6693d3cb9f465594de0ec4ac77bac2c6901f8a21bd038788",
+      "storage_class": "DEEP_ARCHIVE",
+      "checksum_sha256_base64": "UWmqeOKf5/5mk9PLn0ZVlN4OxKx3usLGkB+KIb0Dh4g=",
+      "etag": "\"38314f1b1cc91c751ac37b5ae23362b9\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    },
+    {
+      "key": "history-cold/v1/manifests/6ad0802f042787c7ffc499d8b2725841d6d2335d62f2c3fbb0445875ed1ccaae/schema.sql",
+      "bytes": 7345,
+      "sha256": "6ad0802f042787c7ffc499d8b2725841d6d2335d62f2c3fbb0445875ed1ccaae",
+      "storage_class": "STANDARD",
+      "checksum_sha256_base64": "atCALwQnh8f/xJnYsnJYQdbSM11i8sP7sERYde0cyq4=",
+      "etag": "\"f1340f01bc56cb55cfe2318d2697cbf7\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    },
+    {
+      "key": "history-cold/v1/manifests/4141d4e9e014b7d99a9fc56cc9d8aada99f83e853479b244dfab6f48ae56bc57/dependencies.sql",
+      "bytes": 936,
+      "sha256": "4141d4e9e014b7d99a9fc56cc9d8aada99f83e853479b244dfab6f48ae56bc57",
+      "storage_class": "STANDARD",
+      "checksum_sha256_base64": "QUHU6eAUt9man8Vsydiq2pn4PoU0ebJE36tvSK5WvFc=",
+      "etag": "\"ac0856f2e1cc12af7ef738d20cd796cf\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    },
+    {
+      "key": "history-cold/v1/manifests/5c8953059d3b070b7f0c7e0715bcecfe8f1a49b8648c3eb0dc81c12d0749e240/manifest.json",
+      "bytes": 7649,
+      "sha256": "5c8953059d3b070b7f0c7e0715bcecfe8f1a49b8648c3eb0dc81c12d0749e240",
+      "storage_class": "STANDARD",
+      "checksum_sha256_base64": "XIlTBZ07Bwt/DH4HFbzs/o8aSbhkjD6w3IHBLQdJ4kA=",
+      "etag": "\"f15ac2e021fff798d655260b37bfbe09\"",
+      "verification": "full authenticated GET SHA256 before cold transition"
+    }
+  ],
+  "source_deleted": false,
+  "restore_test": "CSV parsed locally; full S3 GET SHA verified before transition; no Glacier restore job or PostgreSQL data reload performed",
+  "dedup": "Content-addressed compressed table payloads; all PK-distinct records retained. Does not claim semantic deduplication against unrelated raw collector archives."
+}

@@ -1,3 +1,5 @@
+import { JpMedicalAlert } from "../../components/JpMedicalStatus";
+import { useJpMedicalLayers } from "../../hooks/useJpMedicalLayers";
 // 日本 Japan Batch 2 的 Layer Host：行政區 2 層（PMTiles polygon）＋ 交通 2 層（GeoJSON）。
 // clone hosts/climateHosts.tsx 的 JpReligionHost 慣例。
 
@@ -8,6 +10,9 @@ import { useJpRailwaysLayer } from "../../hooks/useJpRailwaysLayer";
 import { useJpPoliceFacilitiesLayer } from "../../hooks/useJpPoliceFacilitiesLayer";
 import { useJpSchoolsLayer } from "../../hooks/useJpSchoolsLayer";
 import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
+import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
+import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
+import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -104,3 +109,128 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
     p.jpPoliceFacilitiesOpacity ?? 0.75, p.jpPoliceFacilitiesScale ?? 1, p.jpPoliceFacilitiesTypeIdx ?? 0);
   return null;
 };
+
+export const JpWaterHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpWaterLayers");
+  const lakes = useKeyOverlayParams("jpWaterLakes");
+  const facilities = useKeyOverlayParams("jpWaterLocalFacilities");
+  const quality = useKeyOverlayParams("jpWaterQualityStations");
+  const levels = useKeyOverlayParams("jpWaterLevelStations");
+  useJpWaterLayers(deps.mapRef, {
+    jpWaterLakes: deps.layerVisibility.jpWaterLakes,
+    jpWaterLocalFacilities: deps.layerVisibility.jpWaterLocalFacilities,
+    jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,
+    jpWaterLevelStations: deps.layerVisibility.jpWaterLevelStations,
+  }, {
+    jpWaterLakes: lakes.jpWaterLakesOpacity ?? 0.35,
+    jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
+    jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
+    jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
+  });
+  return null;
+};
+
+/** 日本旅宿、自然保護與世界遺產：production PMTiles/GeoJSON + DEV-only research layers。 */
+export const JpTourismHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpTourismLayers");
+  const canonical = useKeyOverlayParams("jpAccommodationCanonical");
+  const jta = useKeyOverlayParams("jpAccommodationJta");
+  const local = useKeyOverlayParams("jpAccommodationLocal");
+  const osm = useKeyOverlayParams("jpAccommodationOsm");
+  const parksNational = useKeyOverlayParams("jpNaturalParksNational");
+  const parksQuasi = useKeyOverlayParams("jpNaturalParksQuasiNational");
+  const parksPrefectural = useKeyOverlayParams("jpNaturalParksPrefectural");
+  const conservation = useKeyOverlayParams("jpNatureConservationArea");
+  const primitive = useKeyOverlayParams("jpPrimitiveNatureEnvironmentArea");
+  const specialConservation = useKeyOverlayParams("jpNatureConservationSpecialDistrict");
+  const wildlife = useKeyOverlayParams("jpWildlifeProtectionNational");
+  const wildlifeSpecial = useKeyOverlayParams("jpWildlifeSpecialProtectionDistrict");
+  const wildlifeDesignated = useKeyOverlayParams("jpWildlifeSpecialProtectionDesignatedArea");
+  const unescoCultural = useKeyOverlayParams("jpWorldHeritageCultural");
+  const unescoNatural = useKeyOverlayParams("jpWorldHeritageNatural");
+  const a28 = useKeyOverlayParams("jpWorldNaturalHeritageHistorical");
+  const ramsar = useKeyOverlayParams("jpRamsarSites");
+  const ebsa = useKeyOverlayParams("jpMarineEbsaCoastal");
+
+  const visibility = useMemo(() => Object.fromEntries(
+    JP_TOURISM_LAYER_KEYS.map((key) => [key, deps.layerVisibility[key]]),
+  ) as Record<JpTourismLayerKey, boolean>, [deps.layerVisibility]);
+  const opacity = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalOpacity ?? 0.85,
+    jpAccommodationJta: jta.jpAccommodationJtaOpacity ?? 0.85,
+    jpAccommodationLocal: local.jpAccommodationLocalOpacity ?? 0.85,
+    jpAccommodationOsm: osm.jpAccommodationOsmOpacity ?? 0.72,
+    jpNaturalParksNational: parksNational.jpNaturalParksNationalOpacity ?? 0.28,
+    jpNaturalParksQuasiNational: parksQuasi.jpNaturalParksQuasiNationalOpacity ?? 0.25,
+    jpNaturalParksPrefectural: parksPrefectural.jpNaturalParksPrefecturalOpacity ?? 0.22,
+    jpNatureConservationArea: conservation.jpNatureConservationAreaOpacity ?? 0.25,
+    jpPrimitiveNatureEnvironmentArea: primitive.jpPrimitiveNatureEnvironmentAreaOpacity ?? 0.3,
+    jpNatureConservationSpecialDistrict: specialConservation.jpNatureConservationSpecialDistrictOpacity ?? 0.28,
+    jpWildlifeProtectionNational: wildlife.jpWildlifeProtectionNationalOpacity ?? 0.25,
+    jpWildlifeSpecialProtectionDistrict: wildlifeSpecial.jpWildlifeSpecialProtectionDistrictOpacity ?? 0.28,
+    jpWildlifeSpecialProtectionDesignatedArea: wildlifeDesignated.jpWildlifeSpecialProtectionDesignatedAreaOpacity ?? 0.32,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalOpacity ?? 0.9,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalOpacity ?? 0.9,
+    jpWorldNaturalHeritageHistorical: a28.jpWorldNaturalHeritageHistoricalOpacity ?? 0.25,
+    jpRamsarSites: ramsar.jpRamsarSitesOpacity ?? 0.9,
+    jpMarineEbsaCoastal: ebsa.jpMarineEbsaCoastalOpacity ?? 0.22,
+  }), [canonical, jta, local, osm, parksNational, parksQuasi, parksPrefectural, conservation, primitive, specialConservation, wildlife, wildlifeSpecial, wildlifeDesignated, unescoCultural, unescoNatural, a28, ramsar, ebsa]);
+  const scale = useMemo(() => ({
+    jpAccommodationCanonical: canonical.jpAccommodationCanonicalScale ?? 1,
+    jpAccommodationJta: jta.jpAccommodationJtaScale ?? 1,
+    jpAccommodationLocal: local.jpAccommodationLocalScale ?? 1,
+    jpAccommodationOsm: osm.jpAccommodationOsmScale ?? 1,
+    jpWorldHeritageCultural: unescoCultural.jpWorldHeritageCulturalScale ?? 1,
+    jpWorldHeritageNatural: unescoNatural.jpWorldHeritageNaturalScale ?? 1,
+    jpRamsarSites: ramsar.jpRamsarSitesScale ?? 1,
+  }), [canonical, jta, local, osm, unescoCultural, unescoNatural, ramsar]);
+  const ramsarMode = (["name_match", "degraded", "all"] as const)[ramsar.jpRamsarGeometryIdx ?? 0] ?? "name_match";
+  useJpTourismLayers(deps.mapRef, visibility, opacity, scale, ramsarMode);
+  return null;
+};
+
+/** 日本靜態醫療：可見時才讀 allowlist，點位與詳情均按需載入。 */
+export const JpMedicalHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useJpMedicalLayers");
+  const hospitals = useKeyOverlayParams("jpMedicalHospitals");
+  const clinics = useKeyOverlayParams("jpMedicalClinics");
+  const dental = useKeyOverlayParams("jpMedicalDental");
+  const maternity = useKeyOverlayParams("jpMedicalMaternity");
+  const pharmacies = useKeyOverlayParams("jpMedicalPharmacies");
+  const carePlanning = useKeyOverlayParams("jpCarePlanning");
+  const careHomeVisit = useKeyOverlayParams("jpCareHomeVisit");
+  const careDayServices = useKeyOverlayParams("jpCareDayServices");
+  const careResidential = useKeyOverlayParams("jpCareResidential");
+  const careCombined = useKeyOverlayParams("jpCareCombined");
+  const careEquipment = useKeyOverlayParams("jpCareEquipment");
+  const areasPrimary = useKeyOverlayParams("jpMedicalAreasPrimary");
+  const areasSecondary = useKeyOverlayParams("jpMedicalAreasSecondary");
+  const areasTertiary = useKeyOverlayParams("jpMedicalAreasTertiary");
+  const medicalKeys = [
+    "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
+    "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",
+    "jpMedicalAreasPrimary", "jpMedicalAreasSecondary", "jpMedicalAreasTertiary",
+  ] as const;
+  useJpMedicalLayers(deps.mapRef, {
+    jpMedicalHospitals: deps.layerVisibility.jpMedicalHospitals,
+    jpMedicalClinics: deps.layerVisibility.jpMedicalClinics,
+    jpMedicalDental: deps.layerVisibility.jpMedicalDental,
+    jpMedicalMaternity: deps.layerVisibility.jpMedicalMaternity,
+    jpMedicalPharmacies: deps.layerVisibility.jpMedicalPharmacies,
+    jpCarePlanning: deps.layerVisibility.jpCarePlanning,
+    jpCareHomeVisit: deps.layerVisibility.jpCareHomeVisit,
+    jpCareDayServices: deps.layerVisibility.jpCareDayServices,
+    jpCareResidential: deps.layerVisibility.jpCareResidential,
+    jpCareCombined: deps.layerVisibility.jpCareCombined,
+    jpCareEquipment: deps.layerVisibility.jpCareEquipment,
+    jpMedicalAreasPrimary: deps.layerVisibility.jpMedicalAreasPrimary,
+    jpMedicalAreasSecondary: deps.layerVisibility.jpMedicalAreasSecondary,
+    jpMedicalAreasTertiary: deps.layerVisibility.jpMedicalAreasTertiary,
+  }, {
+    ...hospitals, ...clinics, ...dental, ...maternity, ...pharmacies,
+    ...carePlanning, ...careHomeVisit, ...careDayServices, ...careResidential, ...careCombined, ...careEquipment,
+    ...areasPrimary, ...areasSecondary, ...areasTertiary,
+  });
+  return medicalKeys.some((key) => deps.layerVisibility[key]) ? <JpMedicalAlert /> : null;
+};
+import { useMemo } from "react";

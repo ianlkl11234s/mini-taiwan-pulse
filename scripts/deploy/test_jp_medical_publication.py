@@ -1,0 +1,385 @@
+#!/usr/bin/env python3
+"""Offline contract checks for Japan medical publisher/installer helpers."""
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import os
+import shutil
+import tempfile
+import unittest
+from io import BytesIO
+from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def load(name: str):
+    spec = importlib.util.spec_from_file_location(name, ROOT / "scripts/deploy" / f"{name}.py")
+    module = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(module)
+    return module
+
+
+PUBLISH = load("publish-jp-medical-assets")
+INSTALL = load("install-jp-medical-assets")
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+class PublicationContractTest(unittest.TestCase):
+    def make_payload(self, directory: Path, asset_paths=None, detail_reference=None, detail_buckets=None) -> tuple[Path, Path]:
+        root = directory / "public/jp-medical"; root.mkdir(parents=True)
+        version = "a" * 64
+        release = root / "releases" / version
+        files, entries = {}, []
+        asset_paths = asset_paths or [f"details/t/{index:03d}.json" for index in range(778)]
+        for index, rel in enumerate(asset_paths):
+            data = f"{index}".encode(); path = release / rel; path.parent.mkdir(parents=True, exist_ok=True); path.write_bytes(data)
+            files[rel] = {"sha256": sha(data), "bytes": len(data)}
+        catalog = {
+            "version": version,
+            "status": "LOCAL_READY_NOT_DEPLOYED",
+            "files": files,
+            "detail_buckets": {} if detail_buckets is None else detail_buckets,
+            "layers": [
+                {"key": "navii_facilities", "detail_reference": detail_reference},
+                {"key": "h17_services", "detail_reference": None},
+            ],
+        }
+        (release / "catalog.json").write_text(json.dumps(catalog))
+        catalog_bytes = (release / "catalog.json").read_bytes()
+        manifest = {"version": version, "files": files, "catalog": {"path": "catalog.json", "sha256": sha(catalog_bytes), "bytes": len(catalog_bytes)}}
+        (release / "publication-manifest.json").write_text(json.dumps(manifest))
+        current = {"version": version, "catalog": f"releases/{version}/catalog.json", "publication_manifest": f"releases/{version}/publication-manifest.json"}
+        (root / "current.json").write_text(json.dumps(current))
+        for rel, meta in files.items():
+            entries.append({"relative_path": f"releases/{version}/{rel}", "sha256": meta["sha256"], "bytes": meta["bytes"], "destination_key": f"deploy-assets/jp-medical/releases/{version}/{rel}", "content_type": "application/json", "cache_control": PUBLISH.IMMUTABLE_CACHE})
+        for name in ("catalog.json", "publication-manifest.json"):
+            data = (release / name).read_bytes(); entries.append({"relative_path": f"releases/{version}/{name}", "sha256": sha(data), "bytes": len(data), "destination_key": f"deploy-assets/jp-medical/releases/{version}/{name}", "content_type": "application/json", "cache_control": PUBLISH.IMMUTABLE_CACHE})
+        data = (root / "current.json").read_bytes(); entries.append({"relative_path": "current.json", "sha256": sha(data), "bytes": len(data), "destination_key": "deploy-assets/jp-medical/current.json", "content_type": "application/json", "cache_control": PUBLISH.CURRENT_CACHE, "write_order": "last"})
+        plan = directory / "plan.json"; plan.write_text(json.dumps({"version": version, "entries": entries, "total_all_publication_bytes": sum(item["bytes"] for item in entries)}))
+        return root, plan
+
+    def make_inherited_payload(self, directory: Path) -> tuple[Path, Path, str]:
+        root, plan = self.make_payload(directory, sorted(PUBLISH.COMPACT_ASSET_PATHS))
+        version, source_version = "a" * 64, "b" * 64
+        release = root / "releases" / version
+        manifest = json.loads((release / "publication-manifest.json").read_text())
+        inherited_paths = PUBLISH.COMPACT_ASSET_PATHS - PUBLISH.DENSITY_ASSET_PATHS
+        inherited = {}
+        for relative in inherited_paths:
+            metadata = manifest["files"].pop(relative)
+            source = root / "releases" / source_version / relative
+            source.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(release / relative, source)
+            (release / relative).unlink()
+            inherited[relative] = {**metadata, "source_version": source_version, "source_path": relative}
+        manifest["inherited_files"] = inherited
+        (release / "publication-manifest.json").write_text(json.dumps(manifest))
+        old = json.loads(plan.read_text())
+        keep = []
+        for entry in old["entries"]:
+            relative = entry["relative_path"].removeprefix(f"releases/{version}/")
+            if relative in inherited_paths:
+                continue
+            if relative == "publication-manifest.json":
+                data = (release / relative).read_bytes(); entry.update(sha256=sha(data), bytes=len(data))
+            keep.append(entry)
+        old["entries"] = keep
+        old["total_all_publication_bytes"] = sum(item["bytes"] for item in keep)
+        plan.write_text(json.dumps(old))
+        return root, plan, source_version
+
+    def test_plan_requires_current_last_and_local_hashes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            self.assertEqual(len(entries), 781)
+            broken = json.loads(plan.read_text()); broken["entries"][0], broken["entries"][-1] = broken["entries"][-1], broken["entries"][0]; plan.write_text(json.dumps(broken))
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+
+    def test_compact_plan_accepts_exact_seven_assets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp), sorted(PUBLISH.COMPACT_ASSET_PATHS))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            self.assertEqual(len(entries), 10)
+
+    def test_inherited_plan_uploads_only_two_density_assets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan, _ = self.make_inherited_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            self.assertEqual(len(entries), 5)
+            self.assertEqual({item["relative_path"].split("/")[-1] for item in entries[:-3]}, {
+                "navii-density-10km.geojson", "h17-density-10km.geojson",
+            })
+
+    def test_compact_plan_rejects_incomplete_or_hours_asset(self):
+        with tempfile.TemporaryDirectory() as temp:
+            paths = sorted(PUBLISH.COMPACT_ASSET_PATHS)
+            root, plan = self.make_payload(Path(temp), paths[:-1])
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+        with tempfile.TemporaryDirectory() as temp:
+            paths = sorted(PUBLISH.COMPACT_ASSET_PATHS)
+            paths[-1] = "details/hospital_hours/00.json"
+            root, plan = self.make_payload(Path(temp), paths)
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+
+    def test_compact_plan_rejects_dangling_detail_reference(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(
+                Path(temp), sorted(PUBLISH.COMPACT_ASSET_PATHS),
+                detail_reference={"path_template": "details/{record_kind}_hours/{bucket}.json"},
+            )
+            with self.assertRaises(ValueError): PUBLISH.validate_plan(root, plan)
+
+    def test_installer_rejects_traversal(self):
+        with self.assertRaises(ValueError):
+            INSTALL.safe_relative("releases/../current.json")
+
+    def test_immutable_conflict_never_calls_put(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            entry = entries[0]
+            class Client:
+                put_calls = 0
+                def head_object(self, **_): return {}
+                def get_object(self, **_):
+                    return {"Body": BytesIO(b"different"), "ContentType": entry["content_type"], "CacheControl": entry["cache_control"]}
+                def put_object(self, **_): self.put_calls += 1
+            client = Client()
+            with self.assertRaises(ValueError): PUBLISH.publish_immutable(client, "bucket", entry)
+            self.assertEqual(client.put_calls, 0)
+
+    def test_catalog_manifest_current_follow_all_assets(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            payload = {entry["destination_key"]: entry["local_path"].read_bytes() for entry in entries}
+            class Client:
+                def head_object(self, **_): return {}
+                def get_object(self, **kwargs):
+                    entry = next(item for item in entries if item["destination_key"] == kwargs["Key"])
+                    return {"Body": BytesIO(payload[kwargs["Key"]]), "ContentType": entry["content_type"], "CacheControl": entry["cache_control"], "ETag": '"same"'}
+            recorded = []
+            PUBLISH.publish_in_order(Client(), "bucket", entries, None, None, recorded.append)
+            self.assertEqual([item["relative_path"] for item in recorded[-3:]], [entries[-3]["relative_path"], entries[-2]["relative_path"], "current.json"])
+
+    def test_asset_failure_never_reaches_catalog_or_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root, plan = self.make_payload(Path(temp))
+            _, entries = PUBLISH.validate_plan(root, plan)
+            class Client:
+                def head_object(self, **_): return {}
+                def get_object(self, **kwargs):
+                    entry = next(item for item in entries if item["destination_key"] == kwargs["Key"])
+                    bad = b"bad" if entry is entries[0] else entry["local_path"].read_bytes()
+                    return {"Body": BytesIO(bad), "ContentType": entry["content_type"], "CacheControl": entry["cache_control"]}
+            recorded = []
+            with self.assertRaises(ValueError): PUBLISH.publish_in_order(Client(), "bucket", entries, None, None, recorded.append)
+            self.assertNotIn(entries[-3]["relative_path"], [item["relative_path"] for item in recorded])
+            self.assertNotIn("current.json", [item["relative_path"] for item in recorded])
+
+    def test_installer_bad_current_preserves_old_pointer(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            remote = base / "remote-current.json"; remote.write_text('{"version":"not-a-sha"}')
+            aws = base / "fake-aws.sh"
+            aws.write_text(f"#!/bin/sh\ncp {remote} \"$4\"\n")
+            aws.chmod(0o755)
+            args = SimpleNamespace(bucket="bucket", prefix="deploy-assets/jp-medical", target=target, aws=str(aws))
+            with self.assertRaises(ValueError): INSTALL.install(args)
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+
+    def test_installer_existing_immutable_conflict_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base)
+            version = "a" * 64
+            remote = base / "remote/deploy-assets/jp-medical"; remote.parent.mkdir(parents=True)
+            shutil.copytree(root, remote)
+            target = base / "target"; (target / f"releases/{version}/details/t").mkdir(parents=True)
+            (target / f"releases/{version}/details/t/000.json").write_bytes(b"different")
+            (target / "current.json").write_text("old-pointer")
+            aws = base / "fake-aws.sh"; aws.write_text('#!/bin/sh\ncp "$FAKE_REMOTE/${3#s3://bucket/}" "$4"\n'); aws.chmod(0o755)
+            previous = os.environ.get("FAKE_REMOTE"); os.environ["FAKE_REMOTE"] = str(base / "remote")
+            try:
+                with self.assertRaises(ValueError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix="deploy-assets/jp-medical", target=target, aws=str(aws)))
+            finally:
+                if previous is None: os.environ.pop("FAKE_REMOTE", None)
+                else: os.environ["FAKE_REMOTE"] = previous
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+
+    def test_installer_success_installs_verified_release_then_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base); target = base / "target"
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                relative = key.removeprefix(prefix)
+                self.assertNotEqual(relative, key)
+                source = root / relative
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(source, destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            version = "a" * 64
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertEqual(INSTALL.digest(target / f"releases/{version}/details/t/000.json"), INSTALL.digest(root / f"releases/{version}/details/t/000.json"))
+            self.assertEqual(INSTALL.digest(target / f"releases/{version}/catalog.json"), INSTALL.digest(root / f"releases/{version}/catalog.json"))
+            self.assertFalse((target / ".install-staging").exists())
+
+    def test_installer_success_installs_compact_release_then_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            version = "a" * 64
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+
+    def test_installer_materializes_inherited_assets_without_new_s3_duplicates(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _, source_version = self.make_inherited_payload(base); target = base / "target"
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            version = "a" * 64
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+            self.assertFalse((root / f"releases/{version}/points/navii_facilities.pmtiles").exists())
+            self.assertTrue((root / f"releases/{source_version}/points/navii_facilities.pmtiles").is_file())
+
+    def test_installer_rejects_compact_dangling_detail_reference(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp)
+            root, _ = self.make_payload(
+                base, sorted(PUBLISH.COMPACT_ASSET_PATHS),
+                detail_reference={"path_template": "details/{record_kind}_hours/{bucket}.json"},
+            )
+            target = base / "target"; target.mkdir(); (target / "current.json").write_text("old-pointer")
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                with self.assertRaises(ValueError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+
+    def test_installer_bad_download_sha_keeps_old_current_and_release_absent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix, bad_relative = "deploy-assets/jp-medical/", "releases/" + "a" * 64 + "/details/t/400.json"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                if key == prefix + bad_relative:
+                    destination.write_bytes(b"bad")
+                else:
+                    shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                with self.assertRaises(ValueError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+            self.assertFalse((target / ("releases/" + "a" * 64)).exists())
+
+    def test_installer_current_switch_failure_keeps_old_pointer_and_verified_staging(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            original_replace = INSTALL.os.replace
+            def fail_current(source, destination):
+                if Path(destination).resolve() == (target / "current.json").resolve():
+                    raise OSError("simulated current switch interruption")
+                original_replace(source, destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.os, "replace", fail_current):
+                with self.assertRaises(OSError): INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+            self.assertTrue((target / f"releases/{version}/points/navii_facilities.pmtiles").is_file())
+            self.assertTrue((target / f".install-staging/{version}/current.json").is_file())
+
+    def test_installer_success_removes_only_known_staging_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+                if key.endswith("points/navii_facilities.pmtiles"):
+                    unknown = target / f".install-staging/{version}/keep-for-inspection.txt"
+                    unknown.parent.mkdir(parents=True, exist_ok=True)
+                    unknown.write_text("unknown")
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            staging = target / f".install-staging/{version}"
+            self.assertEqual((staging / "keep-for-inspection.txt").read_text(), "unknown")
+            self.assertFalse((staging / "objects").exists())
+            self.assertFalse((staging / "current.json").exists())
+
+    def test_installer_rerun_cleans_verified_staging_after_current_switch_failure(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / key.removeprefix(prefix), destination)
+            original_replace = INSTALL.os.replace
+            def fail_current(source, destination):
+                if Path(destination).resolve() == (target / "current.json").resolve():
+                    raise OSError("simulated current switch interruption")
+                original_replace(source, destination)
+            args = SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused")
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.os, "replace", fail_current):
+                with self.assertRaises(OSError): INSTALL.install(args)
+            with patch.object(INSTALL, "fetch", fake_fetch):
+                INSTALL.install(args)
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+            self.assertFalse((target / ".install-staging").exists())
+
+    def test_installer_staging_space_gate_preserves_old_current(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"; target.mkdir()
+            (target / "current.json").write_text("old-pointer")
+            prefix = "deploy-assets/jp-medical/"
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.shutil, "disk_usage", return_value=SimpleNamespace(free=0)):
+                with self.assertRaisesRegex(ValueError, "insufficient staging space"):
+                    INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual((target / "current.json").read_text(), "old-pointer")
+            self.assertFalse((target / ("releases/" + "a" * 64)).exists())
+
+    def test_installer_resume_needs_no_payload_headroom(self):
+        with tempfile.TemporaryDirectory() as temp:
+            base = Path(temp); root, _ = self.make_payload(base, sorted(PUBLISH.COMPACT_ASSET_PATHS)); target = base / "target"
+            prefix, version = "deploy-assets/jp-medical/", "a" * 64
+            for relative in PUBLISH.COMPACT_ASSET_PATHS:
+                staged = target / f".install-staging/{version}/objects/releases/{version}/{relative}"
+                staged.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / f"releases/{version}/{relative}", staged)
+            def fake_fetch(_aws, _bucket, key, destination):
+                destination.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(root / key.removeprefix(prefix), destination)
+            with patch.object(INSTALL, "fetch", fake_fetch), patch.object(INSTALL.shutil, "disk_usage", return_value=SimpleNamespace(free=INSTALL.STAGING_SAFETY_BYTES)):
+                INSTALL.install(SimpleNamespace(bucket="bucket", prefix=prefix, target=target, aws="unused"))
+            self.assertEqual(json.loads((target / "current.json").read_text())["version"], version)
+
+
+if __name__ == "__main__":
+    unittest.main()

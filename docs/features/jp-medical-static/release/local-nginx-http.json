@@ -1,0 +1,274 @@
+{
+  "checked_at": "2026-09-15T07:38:27.115129+00:00",
+  "version": "d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a",
+  "checks": [
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/h17-z6.geojson",
+      "range": null,
+      "status": "200",
+      "bytes": 151147,
+      "sha256": "6f152dd4e525ea0911f69fba76b74233ab2e1f71a11e4e92cae58775fc5455c7",
+      "headers": {
+        "content-type": "application/geo+json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb80-24e6b\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/aggregates/navii-z6.geojson",
+      "range": null,
+      "status": "200",
+      "bytes": 22900,
+      "sha256": "c78573c016967390b97252ddadc89dd827d8ab88c552a4492cd9f96724d96b8c",
+      "headers": {
+        "content-type": "application/geo+json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb80-5974\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_1.pmtiles",
+      "range": "0-16383",
+      "status": "206",
+      "bytes": 16384,
+      "sha256": "9d4207c34c8fc489f78af05757ead68ed81afc0f2a64ed5e5f74f86ed50ee776",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 0-16383/9165621",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-8bdb35\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_1.pmtiles",
+      "range": "4582810-4586905",
+      "status": "206",
+      "bytes": 4096,
+      "sha256": "3c1cd94c0c92757df315520a1852008b7fff45cc09a3ffe2403656e2fb26e330",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 4582810-4586905/9165621",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-8bdb35\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_2.pmtiles",
+      "range": "0-16383",
+      "status": "206",
+      "bytes": 16384,
+      "sha256": "b22c85de1afa67538d0ce71df0bf9fdb2566d37519a1e5510e4c99825007bf74",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 0-16383/6505194",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-6342ea\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_2.pmtiles",
+      "range": "3252597-3256692",
+      "status": "206",
+      "bytes": 4096,
+      "sha256": "e3f473a2bc0320db18502cea0cd75e12f7cf191eeb9ded4b37e3a65bdea61ac9",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 3252597-3256692/6505194",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-6342ea\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_3.pmtiles",
+      "range": "0-16383",
+      "status": "206",
+      "bytes": 16384,
+      "sha256": "39f966fa51212f901e56fdbc7e8f16d52c96e277ebad2eb2800966a661b7be8e",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 0-16383/4178852",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-3fc3a4\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/areas/A38-20_3.pmtiles",
+      "range": "2089426-2093521",
+      "status": "206",
+      "bytes": 4096,
+      "sha256": "9035fda0188a248b032e18f3fedfc319244b9bdfccadb6fa4f2a47834914e8d9",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 2089426-2093521/4178852",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-3fc3a4\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/clinic_hours/00.json",
+      "range": null,
+      "status": "200",
+      "bytes": 3391942,
+      "sha256": "fc6efee4b69a5be81bb089e05716eeb58d5fd0e52a6a7cc5e272cb0275f35656",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb82-33c1c6\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/dental_hours/00.json",
+      "range": null,
+      "status": "200",
+      "bytes": 1955057,
+      "sha256": "71de9ddd4ddeb2d24e643fc742a7a02466ccbe8df90b15f6a67986e8950705be",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb89-1dd4f1\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/hospital_hours/6e.json",
+      "range": null,
+      "status": "200",
+      "bytes": 1174201,
+      "sha256": "ce37ef61c18af720327da844ebe53e86a37e11112e4f728b1651e85c50048484",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb81-11eab9\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/details/hospital_hours/b7.json",
+      "range": null,
+      "status": "200",
+      "bytes": 1121514,
+      "sha256": "cf4a6cae7a407fec97a9618acaf27302a611b4eff10c8cb09535fed3e1fdb37b",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb81-111cea\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/h17_services.pmtiles",
+      "range": "0-16383",
+      "status": "206",
+      "bytes": 16384,
+      "sha256": "d0112c08fa53b6ec2a802a035bedbf37b81982c34073c108671129053756226c",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 0-16383/35994205",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb80-2253a5d\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/h17_services.pmtiles",
+      "range": "17997102-18001197",
+      "status": "206",
+      "bytes": 4096,
+      "sha256": "a3d89110c3677ecb363d3b71af9245d6f428867ac37216c3220c09f70784f38f",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 17997102-18001197/35994205",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb80-2253a5d\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/navii_facilities.pmtiles",
+      "range": "0-16383",
+      "status": "206",
+      "bytes": 16384,
+      "sha256": "e4869d1b687a560cedd5e5d2b017b2e92257199f02cd1e453abe6755db7dba16",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 0-16383/33161920",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb73-1fa02c0\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/points/navii_facilities.pmtiles",
+      "range": "16580960-16585055",
+      "status": "206",
+      "bytes": 4096,
+      "sha256": "f638ec5e28e507a0c30bbd30c219773eee3c5ed1778f55ac202f25c6add5acc8",
+      "headers": {
+        "content-type": "application/vnd.pmtiles",
+        "content-range": "bytes 16580960-16585055/33161920",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb73-1fa02c0\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/catalog.json",
+      "range": null,
+      "status": "200",
+      "bytes": 217375,
+      "sha256": "3461771302a155166eda4600f2e212b8ed8b5a6a5972f45b26cd4bf6979fbb8a",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-3511f\""
+      },
+      "pass": true
+    },
+    {
+      "path": "releases/d6f57fb991d7c714950fd6f334151ca9f4e6f27a887d2a0410e75b6b2223535a/publication-manifest.json",
+      "range": null,
+      "status": "200",
+      "bytes": 98049,
+      "sha256": "1fed54a6d06caad3a80c6bfaf2ce4321e77155fca0c6acdefbc89a86eb5ecd80",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=31536000,immutable",
+        "etag": "\"6aa6bb8d-17f01\""
+      },
+      "pass": true
+    },
+    {
+      "path": "current.json",
+      "range": null,
+      "status": "200",
+      "bytes": 359,
+      "sha256": "2116f272cccae8be8e8e67fe9376adedabb4dda6d6c43482e1d5642061c2c649",
+      "headers": {
+        "content-type": "application/json",
+        "accept-ranges": "bytes",
+        "cache-control": "public,max-age=60",
+        "etag": "\"6aa6c3a1-167\""
+      },
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "base_url": "http://127.0.0.1:3740/jp-medical/"
+}

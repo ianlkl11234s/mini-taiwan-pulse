@@ -1,5 +1,7 @@
-import { useCoralPrivateAccess } from "./hooks/useCoralPrivateAccess";
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { MainMapConnection } from "./research/MainMapConnection";
+import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
+import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
@@ -35,6 +37,7 @@ import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { layerVisibilityStore } from "./state/layerVisibilityStore";
 import { isStatisticsChoropleth, type StatisticsChoroplethKey } from "./data/statisticsLayerRegistry";
+import { shouldClearFeatureInfoForLayerClick, type LayerClickIntent } from "./lib/statisticsPopupSelection";
 import { resolveStatisticsModeForUrl, statisticsDisplayModeStore } from "./state/statisticsDisplayModeStore";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -67,7 +70,6 @@ import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
-import { PropertyValuePanel } from "./components/PropertyValuePanel";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
@@ -92,7 +94,7 @@ import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
-import { LegendPanel } from "./components/LegendPanel";
+const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
@@ -105,7 +107,7 @@ import { validateScene, type MemberSceneSnapshot, type MemberPlaceGeometry } fro
 import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
-import { coralSafeFeatureInfo, isCoralPrivateFeature } from "./lib/coralPrivateUi";
+import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -177,7 +179,7 @@ export default function App() {
   // 動態 gating（Phase 2）：啟動拉一次公開 get_layer_gates()（fail-safe：失敗維持靜態 GATED_LAYERS）。
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
-  const coralAccess = useCoralPrivateAccess();
+  const allenCoralAccess = useAllenCoralPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -188,9 +190,9 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
-    if (!coralAccess.allowed) s.add("coralReefDistribution");
+    if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     return s;
-  }, [memberTier, layerGates, coralAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -203,7 +205,7 @@ export default function App() {
     prefetch: prefetchFlight,
   } = useAirspaceData(layerVisibility.flights);
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, availableDates: shipAvailableDates, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -378,6 +380,7 @@ export default function App() {
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
   // EM-19：底圖樣式吃網址的 style=（未知 id 由 getStyleUrl 自行 fallback 到預設）
   const [mapStyleId, setMapStyleId] = useState(() => urlStateRef.current.style ?? "dark");
+  const [showBasemapLabels, setShowBasemapLabels] = useState(true);
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
@@ -405,6 +408,46 @@ export default function App() {
     dataStartTime: dataTimeRange.start,
     dataEndTime: dataTimeRange.end,
   });
+
+  // The research bridge reads this ref on demand. It never writes timeStore;
+  // useTimeline remains the sole timeStore writer through these actions.
+  const researchTimelineRef = useRef<(TimelineSnapshot & TimelineActions) | null>(null);
+  const researchHistoricalModeRef = useRef(false);
+  researchTimelineRef.current = {
+    currentTime: timeline.currentTime,
+    mode: timeline.timeMode,
+    playing: timeline.playing,
+    speed: timeline.speed,
+    windowStart: timeline.windowStart,
+    windowEnd: timeline.windowEnd,
+    setTimeMode: timeline.setTimeMode,
+    jumpToTime: timeline.jumpToTime,
+    play: timeline.play,
+    pause: timeline.pause,
+    setSpeed: timeline.setSpeed,
+  };
+  const researchShipDatesRef = useRef<ShipDateAvailability>({ state: "not_loaded", dates: [] });
+  researchShipDatesRef.current = {
+    state: !layerVisibility.ships
+      ? "not_loaded"
+      : shipsLoading
+        ? "loading"
+        : shipAvailableDates.length > 0
+          ? "available"
+          // useShipData does not expose a successful empty-date response; retain unknown.
+          : "unknown",
+    dates: shipAvailableDates.map(date => date.date),
+  };
+  const researchTimeline = useMemo(() => createTimelineControl({
+    getTimeline: () => {
+      const current = researchTimelineRef.current;
+      if (!current) throw new Error("TIMELINE_NOT_READY");
+      return current;
+    },
+    getShipDates: () => researchShipDatesRef.current,
+    getCurrentTime: () => timeStore.getTime(),
+    isHistoricalModeActive: () => researchHistoricalModeRef.current,
+  }), []);
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
@@ -556,9 +599,7 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
-  // ── 房地產總市值面板（縣市長條圖，IconRail 開關；非地圖層） ──
-  const [propertyValueOpen, setPropertyValueOpen] = useState(false);
-  // 4-way panel mutex：每次 Intel/Satellite/PropertyValue 開啟時 +1，IconRailSidebar 收起 Layers/Locations
+  // 外部面板開啟時 +1，IconRailSidebar 收起 Layers/Locations
   const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
@@ -613,6 +654,7 @@ export default function App() {
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
+  researchHistoricalModeRef.current = appMode === "historical";
   const [historicalYear, setHistoricalYear] = useState<number>(113); // 民國年
   const [historicalMonth, setHistoricalMonth] = useState<number>(1); // 1~12（月/日粒度時用）
   const [historicalDay, setHistoricalDay] = useState<number>(1);     // 1~31（日粒度時用）
@@ -790,22 +832,36 @@ export default function App() {
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
-  // Auth changes first remove the private source in its host. This derived state also
-  // hides a previously selected Coral feature in the same render, before its cleanup
-  // effect runs, so neither popup nor selected-feature halo can linger after logout.
+  // Allen auth changes first remove the private source in its host. This derived state also
+  // hides a previously selected Allen feature in the same render, before its cleanup effect
+  // runs, so neither popup nor selected-feature halo can linger after logout.
   const coralUiFeatureInfo = coralSafeFeatureInfo(
     featureInfo,
-    coralAccess.allowed,
-    layerVisibility.coralReefDistribution,
+    allenCoralAccess.allowed,
+    layerVisibility.allenCoralAtlas,
   );
   useEffect(() => {
-    if (!coralAccess.allowed && layerVisibility.coralReefDistribution) {
-      setLayerVisibility((prev) => ({ ...prev, coralReefDistribution: false }));
+    const onAllenAccessDenied = () => {
+      setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
+      if (isAllenCoralPrivateFeature(featureInfo)) setFeatureInfo(null);
+      showTransientNotice("Allen 私人資料存取失敗，已清除圖層；這不是沒有珊瑚或沒有製圖 coverage。");
+    };
+    const clearAllenSelection = () => setFeatureInfo(current => isAllenCoralPrivateFeature(current) ? null : current);
+    window.addEventListener("allen-coral-access-denied", onAllenAccessDenied);
+    window.addEventListener("allen-coral-selection-clear", clearAllenSelection);
+    return () => {
+      window.removeEventListener("allen-coral-access-denied", onAllenAccessDenied);
+      window.removeEventListener("allen-coral-selection-clear", clearAllenSelection);
+    };
+  }, [featureInfo, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (!allenCoralAccess.allowed && layerVisibility.allenCoralAtlas) {
+      setLayerVisibility((prev) => ({ ...prev, allenCoralAtlas: false }));
     }
-    if (featureInfo && coralUiFeatureInfo === null && isCoralPrivateFeature(featureInfo)) {
+    if (featureInfo && coralUiFeatureInfo === null && isAllenCoralPrivateFeature(featureInfo)) {
       setFeatureInfo(null);
     }
-  }, [coralAccess.allowed, layerVisibility.coralReefDistribution, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  }, [allenCoralAccess.allowed, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1172,7 +1228,7 @@ export default function App() {
   const handleMemberToggle = useCallback(() => {
     if (memberOpen) { setMemberOpen(false); return; }
     setMemberOpen(true);
-    setIntelOpen(false); setPropertyValueOpen(false); setMonitorOpen(false);
+    setIntelOpen(false); setMonitorOpen(false);
     satelliteConsoleStore.setOpen(false); setChatOpen(false);
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
@@ -1309,9 +1365,10 @@ export default function App() {
     return true;
   }, []);
 
-  const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
+  const handleLayerClick = useCallback((layer: keyof LayerVisibility, intent?: LayerClickIntent) => {
     if (handleGatedIntercept(layer)) return;
     const isVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, intent, isVisible)) setFeatureInfo(null);
     if (!isVisible) {
       if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.enable(layer, prev));
       else setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
@@ -1325,18 +1382,19 @@ export default function App() {
     // 點 layer 時自動關掉即時情報 / 衛星情報 panel（與點 location 一致）
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept]);
+  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept, setFeatureInfo]);
 
   const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
     // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
     if (!layerVisibilityRef.current[layer] && handleGatedIntercept(layer)) return;
     const wasVisible = layerVisibilityRef.current[layer];
+    if (shouldClearFeatureInfoForLayerClick(layer, undefined, wasVisible)) setFeatureInfo(null);
     if (isStatisticsChoropleth(layer)) setLayerVisibility((prev) => statisticsDisplayModeStore.setVisible(layer, !wasVisible, prev));
     else toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept]);
+  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept, setFeatureInfo]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -1373,6 +1431,9 @@ export default function App() {
         : keys;
       const statisticsKeys = effectiveKeys.filter(isStatisticsChoropleth);
       const ordinaryKeys = effectiveKeys.filter((key) => !isStatisticsChoropleth(key));
+      if (value && statisticsKeys.some((key) => shouldClearFeatureInfoForLayerClick(key, undefined, layerVisibilityRef.current[key]))) {
+        setFeatureInfo(null);
+      }
       setLayerVisibility((prev) => {
         let next = statisticsKeys.length > 0
           ? statisticsDisplayModeStore.setBulk(statisticsKeys as StatisticsChoroplethKey[], value, prev)
@@ -1388,7 +1449,7 @@ export default function App() {
         layerVisibilityRef.current,
       );
     },
-    [setLayerVisibility, layerVisibilityRef],
+    [setLayerVisibility, layerVisibilityRef, setFeatureInfo],
   );
 
   const { seek: timelineSeek, setSelectedDate: timelineSetSelectedDate, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
@@ -1678,7 +1739,7 @@ export default function App() {
         renderMode={renderMode}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
-
+        showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
 
@@ -1833,6 +1894,24 @@ export default function App() {
               isDarkTheme={isDarkTheme}
               onChange={setMapStyleId}
             />
+            <button
+              type="button"
+              aria-pressed={showBasemapLabels}
+              title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
+              onClick={() => setShowBasemapLabels((visible) => !visible)}
+              style={{
+                background: isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+                color: isDarkTheme ? "#fff" : "#333",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                borderRadius: RADIUS.md,
+                padding: "4px 8px",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
+                cursor: "pointer",
+              }}
+            >
+              地名：{showBasemapLabels ? "開" : "關"}
+            </button>
 
             {loading && (
               <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
@@ -1853,6 +1932,7 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
+              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} timeline={researchTimeline} /> : undefined}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
@@ -1875,9 +1955,8 @@ export default function App() {
               onIntelToggle={() => {
                 if (!intelOpen) {
                   setMemberOpen(false);
-                  // 開啟 Intel → 同時關 Satellite / PropertyValue + 收 rail Layers/Locations panel
+                  // 開啟 Intel → 同時關 Satellite + 收 rail Layers/Locations panel
                   satelliteConsoleStore.setOpen(false);
-                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 setIntelOpen((v) => !v);
@@ -1886,25 +1965,13 @@ export default function App() {
               onSatelliteToggle={() => {
                 if (!satConsole.open) {
                   setMemberOpen(false);
-                  // 開啟 Satellite → 同時關 Intel / PropertyValue + 收 rail Layers/Locations panel
+                  // 開啟 Satellite → 同時關 Intel + 收 rail Layers/Locations panel
                   setIntelOpen(false);
-                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 satelliteConsoleStore.toggleOpen();
               }}
               satelliteActive={satConsole.open}
-              onPropertyValueToggle={() => {
-                if (!propertyValueOpen) {
-                  setMemberOpen(false);
-                  // 開啟總市值 → 同時關 Intel / Satellite + 收 rail Layers/Locations panel
-                  setIntelOpen(false);
-                  satelliteConsoleStore.setOpen(false);
-                  setRailCloseEpoch((e) => e + 1);
-                }
-                setPropertyValueOpen((v) => !v);
-              }}
-              propertyValueActive={propertyValueOpen}
               externalCloseEpoch={railCloseEpoch}
               onMonitorSplitToggle={() => {
                 if (monitorOpen && monitorMode === "split") {
@@ -1928,7 +1995,6 @@ export default function App() {
                   bearing: JAPAN_CAMERA.bearing,
                   speed: 1.0,
                 });
-                setLayerVisibility((prev) => (prev.jpAdminPrefecture ? prev : { ...prev, jpAdminPrefecture: true }));
               }}
             />
           </div>
@@ -1940,12 +2006,6 @@ export default function App() {
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
-          />
-
-          {/* 🏢 房地產總市值 Property Value（縣市長條圖） */}
-          <PropertyValuePanel
-            open={propertyValueOpen}
-            onClose={() => setPropertyValueOpen(false)}
           />
 
           {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}
@@ -2521,6 +2581,14 @@ export default function App() {
                         isDarkTheme={true}
                         onChange={setMapStyleId}
                       />
+                      <button
+                        type="button"
+                        aria-pressed={showBasemapLabels}
+                        onClick={() => setShowBasemapLabels((visible) => !visible)}
+                        style={{ background: "rgba(0,0,0,0.6)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", borderRadius: RADIUS.md, padding: "4px 8px", fontSize: FONT_SIZE.md, fontFamily: FONT_DATA }}
+                      >
+                        地名：{showBasemapLabels ? "開" : "關"}
+                      </button>
                     </div>
                     <LocationJump
                       isDarkTheme={true}
@@ -2853,12 +2921,17 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          <LegendPanel isDarkTheme={isDarkTheme} />
+          {Object.values(layerVisibility).some(Boolean) && (
+            <Suspense fallback={<span role="status">圖例載入中…</span>}>
+              <LegendPanel isDarkTheme={isDarkTheme} />
+            </Suspense>
+          )}
         </div>
       </div>
 
       {/* ── 全域 loading 指示器 ── */}
       <LoadingIndicator
+        isDarkTheme={isDarkTheme}
         rightOffset={splitActive
           ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
           : "16px"}

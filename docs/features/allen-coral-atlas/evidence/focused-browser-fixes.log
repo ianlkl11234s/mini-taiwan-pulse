@@ -1,0 +1,12 @@
+
+ RUN  v3.2.6 /private/tmp/pulse-allen-coral-atlas
+
+ ✓ src/lib/__tests__/allenSignOut.test.ts (6 tests) 12ms
+ ✓ src/components/featureInfo/__tests__/AllenCoralAtlasPanel.test.ts (3 tests) 26ms
+ ✓ src/hooks/useAllenCoralAtlasLayer.test.ts (6 tests) 10ms
+ ✓ src/components/sidebar/__tests__/layerConsistency.test.ts (11 tests) 14ms
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  21:20:52
+   Duration  2.09s (transform 1.12s, setup 0ms, collect 2.07s, tests 62ms, environment 0ms, prepare 434ms)

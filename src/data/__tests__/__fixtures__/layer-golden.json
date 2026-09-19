@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 480,
+    "keyCount": 767,
     "sections": [
       "gisLayers",
       "overlays",
@@ -598,9 +598,117 @@
     },
     {
       "layers": [
+        "jp-medical-facilities-hospital"
+      ],
+      "type": "jpMedicalHospitals"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-clinic"
+      ],
+      "type": "jpMedicalClinics"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-dental"
+      ],
+      "type": "jpMedicalDental"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-maternity"
+      ],
+      "type": "jpMedicalMaternity"
+    },
+    {
+      "layers": [
+        "jp-medical-facilities-pharmacy"
+      ],
+      "type": "jpMedicalPharmacies"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCarePlanning"
+      ],
+      "type": "jpCarePlanning"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareHomeVisit"
+      ],
+      "type": "jpCareHomeVisit"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareDayServices"
+      ],
+      "type": "jpCareDayServices"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareResidential"
+      ],
+      "type": "jpCareResidential"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareCombined"
+      ],
+      "type": "jpCareCombined"
+    },
+    {
+      "layers": [
+        "jp-medical-care-jpCareEquipment"
+      ],
+      "type": "jpCareEquipment"
+    },
+    {
+      "layers": [
         "jp-stations-circle"
       ],
       "type": "jpStations"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-canonical-circle"
+      ],
+      "type": "jpAccommodationCanonical"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-jta-circle"
+      ],
+      "type": "jpAccommodationJta"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-local-circle"
+      ],
+      "type": "jpAccommodationLocal"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-accommodation-osm-circle"
+      ],
+      "type": "jpAccommodationOsm"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-heritage-cultural-circle"
+      ],
+      "type": "jpWorldHeritageCultural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-heritage-natural-circle"
+      ],
+      "type": "jpWorldHeritageNatural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-ramsar-sites-circle"
+      ],
+      "type": "jpRamsarSites"
     },
     {
       "layers": [
@@ -634,9 +742,51 @@
     },
     {
       "layers": [
+        "jp-water-jpWaterLocalFacilities"
+      ],
+      "type": "jpWaterLocalFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterQualityStations"
+      ],
+      "type": "jpWaterQualityStations"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterLevelStations"
+      ],
+      "type": "jpWaterLevelStations"
+    },
+    {
+      "layers": [
         "jp-railways-line"
       ],
       "type": "jpRailways"
+    },
+    {
+      "layers": [
+        "jp-medical-areas-1-fill"
+      ],
+      "type": "jpMedicalAreasPrimary"
+    },
+    {
+      "layers": [
+        "jp-medical-areas-2-fill"
+      ],
+      "type": "jpMedicalAreasSecondary"
+    },
+    {
+      "layers": [
+        "jp-medical-areas-3-fill"
+      ],
+      "type": "jpMedicalAreasTertiary"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterLakes"
+      ],
+      "type": "jpWaterLakes"
     },
     {
       "layers": [
@@ -667,6 +817,13 @@
     },
     {
       "layers": [
+        "allen-coral-atlas-benthic-fill",
+        "allen-coral-atlas-geomorphic-fill"
+      ],
+      "type": "allenCoralAtlas"
+    },
+    {
+      "layers": [
         "jp-airports-circle",
         "jp-airports-fill"
       ],
@@ -674,9 +831,89 @@
     },
     {
       "layers": [
+        "jp-tourism-jp-natural-parks-national-fill"
+      ],
+      "type": "jpNaturalParksNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-natural-parks-quasi-national-fill"
+      ],
+      "type": "jpNaturalParksQuasiNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-natural-parks-prefectural-fill"
+      ],
+      "type": "jpNaturalParksPrefectural"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-nature-conservation-area-fill"
+      ],
+      "type": "jpNatureConservationArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-primitive-nature-environment-area-fill"
+      ],
+      "type": "jpPrimitiveNatureEnvironmentArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-nature-conservation-special-district-fill"
+      ],
+      "type": "jpNatureConservationSpecialDistrict"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-protection-national-fill"
+      ],
+      "type": "jpWildlifeProtectionNational"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-special-protection-district-fill"
+      ],
+      "type": "jpWildlifeSpecialProtectionDistrict"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-wildlife-special-protection-designated-area-fill"
+      ],
+      "type": "jpWildlifeSpecialProtectionDesignatedArea"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-world-natural-heritage-historical-fill"
+      ],
+      "type": "jpWorldNaturalHeritageHistorical"
+    },
+    {
+      "layers": [
+        "jp-tourism-jp-marine-ebsa-coastal-fill"
+      ],
+      "type": "jpMarineEbsaCoastal"
+    },
+    {
+      "layers": [
+        "jp-accommodation-density-450-fill",
+        "jp-accommodation-density-450-outline"
+      ],
+      "type": "jpAccommodationDensity"
+    },
+    {
+      "layers": [
         "jp-population-mesh-fill"
       ],
       "type": "jpPopulationMesh1km"
+    },
+    {
+      "layers": [
+        "jp-accommodation-density-1500-fill",
+        "jp-accommodation-density-1500-outline"
+      ],
+      "type": "jpAccommodationDensity"
     },
     {
       "layers": [
@@ -990,6 +1227,15 @@
         "property-value-grid-1500-extrusion"
       ],
       "type": "propertyValueGrid"
+    },
+    {
+      "layers": [
+        "property-value-admin-county-fill",
+        "property-value-admin-county-line",
+        "property-value-admin-township-fill",
+        "property-value-admin-township-line"
+      ],
+      "type": "propertyValueAdmin"
     },
     {
       "layers": [
@@ -1497,12 +1743,6 @@
     },
     {
       "layers": [
-        "business-registry-factory-locations-overview-circle"
-      ],
-      "type": "factoryLocations"
-    },
-    {
-      "layers": [
         "business-registry-factory-locations-circle"
       ],
       "type": "factoryLocations"
@@ -1515,29 +1755,36 @@
     },
     {
       "layers": [
-        "business-registry-company-points-manufacturing-circle"
+        "business-registry-manufacturing-company-points-manufacturing-circle"
       ],
       "type": "manufacturingCompanyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-regulated-facility-density-1500-fill",
+        "business-registry-regulated-facility-density-450-fill"
+      ],
+      "type": "regulatedFacilityDensityGrid"
+    },
+    {
+      "layers": [
+        "business-registry-manufacturing-company-density-1500-fill",
+        "business-registry-manufacturing-company-density-450-fill"
+      ],
+      "type": "manufacturingCompanyDensityGrid"
+    },
+    {
+      "layers": [
+        "business-registry-factory-density-1500-fill",
+        "business-registry-factory-density-450-fill"
+      ],
+      "type": "factoryDensityGrid"
     },
     {
       "layers": [
         "business-registry-company-points-all-circle"
       ],
       "type": "companyPoints"
-    },
-    {
-      "layers": [
-        "business-registry-company-capital-grid-1500-company-overview-density-fill",
-        "business-registry-company-capital-grid-450-company-overview-density-fill"
-      ],
-      "type": "companyPoints"
-    },
-    {
-      "layers": [
-        "business-registry-company-demographics-grid-1500-companyIndustryDistribution-demographics-fill",
-        "business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill"
-      ],
-      "type": "companyIndustryDistribution"
     },
     {
       "layers": [
@@ -1548,9 +1795,17 @@
     },
     {
       "layers": [
-        "business-registry-company-points-overview-manufacturing-overview-circle"
+        "business-registry-company-demographics-grid-1500-companyIndustryDistribution-demographics-fill",
+        "business-registry-company-demographics-grid-450-companyIndustryDistribution-demographics-fill"
       ],
-      "type": "manufacturingCompanyPoints"
+      "type": "companyIndustryDistribution"
+    },
+    {
+      "layers": [
+        "business-registry-company-capital-grid-1500-company-overview-density-fill",
+        "business-registry-company-capital-grid-450-company-overview-density-fill"
+      ],
+      "type": "companyPoints"
     },
     {
       "layers": [
@@ -1922,6 +2177,194 @@
     },
     {
       "layers": [
+        "statsComparisonBusAccessibleSharePct-fill",
+        "statsComparisonBusElectricSharePct-fill",
+        "statsComparisonHousingUnoccupiedSharePctCounty-fill",
+        "statsComparisonHousingUnoccupiedSharePctTownship-fill",
+        "statsComparisonHousingOccasionalSharePctCounty-fill",
+        "statsComparisonHousingOccasionalSharePctTownship-fill",
+        "statsComparisonHousingOtherUseSharePctCounty-fill",
+        "statsComparisonHousingOtherUseSharePctTownship-fill",
+        "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty-fill",
+        "statsComparisonAgriculturalFacilityNationalSharePct-fill",
+        "statsComparisonAgriculturalFacilityCountyTotalHectare-fill",
+        "statsComparisonAgriculturalFacilityCountyNationalSharePct-fill",
+        "statsComparisonAgriculturalFacilityTownshipOfCountySharePct-fill",
+        "statsComparisonAirportLandNationalSharePct-fill",
+        "statsComparisonAirportLandCountyTotalHectare-fill",
+        "statsComparisonAirportLandCountyNationalSharePct-fill",
+        "statsComparisonAirportLandTownshipOfCountySharePct-fill",
+        "statsComparisonAquacultureLandNationalSharePct-fill",
+        "statsComparisonAquacultureLandCountyTotalHectare-fill",
+        "statsComparisonAquacultureLandCountyNationalSharePct-fill",
+        "statsComparisonAquacultureLandTownshipOfCountySharePct-fill",
+        "statsComparisonBambooForestNationalSharePct-fill",
+        "statsComparisonBambooForestCountyTotalHectare-fill",
+        "statsComparisonBambooForestCountyNationalSharePct-fill",
+        "statsComparisonBambooForestTownshipOfCountySharePct-fill",
+        "statsComparisonBroadleafForestNationalSharePct-fill",
+        "statsComparisonBroadleafForestCountyTotalHectare-fill",
+        "statsComparisonBroadleafForestCountyNationalSharePct-fill",
+        "statsComparisonBroadleafForestTownshipOfCountySharePct-fill",
+        "statsComparisonConiferForestNationalSharePct-fill",
+        "statsComparisonConiferForestCountyTotalHectare-fill",
+        "statsComparisonConiferForestCountyNationalSharePct-fill",
+        "statsComparisonConiferForestTownshipOfCountySharePct-fill",
+        "statsComparisonDryFieldNationalSharePct-fill",
+        "statsComparisonDryFieldCountyTotalHectare-fill",
+        "statsComparisonDryFieldCountyNationalSharePct-fill",
+        "statsComparisonDryFieldTownshipOfCountySharePct-fill",
+        "statsComparisonLivestockBuildingNationalSharePct-fill",
+        "statsComparisonLivestockBuildingCountyTotalHectare-fill",
+        "statsComparisonLivestockBuildingCountyNationalSharePct-fill",
+        "statsComparisonLivestockBuildingTownshipOfCountySharePct-fill",
+        "statsComparisonMixedForestNationalSharePct-fill",
+        "statsComparisonMixedForestCountyTotalHectare-fill",
+        "statsComparisonMixedForestCountyNationalSharePct-fill",
+        "statsComparisonMixedForestTownshipOfCountySharePct-fill",
+        "statsComparisonOrchardNationalSharePct-fill",
+        "statsComparisonOrchardCountyTotalHectare-fill",
+        "statsComparisonOrchardCountyNationalSharePct-fill",
+        "statsComparisonOrchardTownshipOfCountySharePct-fill",
+        "statsComparisonPaddyLandNationalSharePct-fill",
+        "statsComparisonPaddyLandCountyTotalHectare-fill",
+        "statsComparisonPaddyLandCountyNationalSharePct-fill",
+        "statsComparisonPaddyLandTownshipOfCountySharePct-fill",
+        "statsComparisonPastureNationalSharePct-fill",
+        "statsComparisonPastureCountyTotalHectare-fill",
+        "statsComparisonPastureCountyNationalSharePct-fill",
+        "statsComparisonPastureTownshipOfCountySharePct-fill",
+        "statsComparisonPortLandNationalSharePct-fill",
+        "statsComparisonPortLandCountyTotalHectare-fill",
+        "statsComparisonPortLandCountyNationalSharePct-fill",
+        "statsComparisonPortLandTownshipOfCountySharePct-fill",
+        "statsComparisonRailLandNationalSharePct-fill",
+        "statsComparisonRailLandCountyTotalHectare-fill",
+        "statsComparisonRailLandCountyNationalSharePct-fill",
+        "statsComparisonRailLandTownshipOfCountySharePct-fill",
+        "statsComparisonRoadLandNationalSharePct-fill",
+        "statsComparisonRoadLandCountyTotalHectare-fill",
+        "statsComparisonRoadLandCountyNationalSharePct-fill",
+        "statsComparisonRoadLandTownshipOfCountySharePct-fill",
+        "statsComparisonAcuteBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospiceBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospitalBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHospitalCountPer10000PopulationTownship-fill",
+        "statsComparisonIcuBedTotalPer10000PopulationTownship-fill",
+        "statsComparisonHealthProfessionalTotalPer10000PopulationTownship-fill",
+        "statsComparisonRegisteredNurseCountPer10000PopulationTownship-fill",
+        "statsComparisonWesternPhysicianCountPer10000PopulationTownship-fill",
+        "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County-fill",
+        "statsComparisonCareWorkerRegistrationCountPer65plus1000County-fill",
+        "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County-fill",
+        "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County-fill",
+        "statsComparisonA2AccidentCount-fill",
+        "statsComparisonA2InjuryCount-fill",
+        "statsComparisonA1A2AccidentCount-fill",
+        "statsComparisonAgriculturalFacilityCountyAreaSharePct-fill",
+        "statsComparisonAgriculturalFacilityCountyLq-fill",
+        "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct-fill",
+        "statsComparisonAirportLandCountyAreaSharePct-fill",
+        "statsComparisonAirportLandCountyLq-fill",
+        "statsComparisonAirportLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonAquacultureLandCountyAreaSharePct-fill",
+        "statsComparisonAquacultureLandCountyLq-fill",
+        "statsComparisonAquacultureLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonBambooForestCountyAreaSharePct-fill",
+        "statsComparisonBambooForestCountyLq-fill",
+        "statsComparisonBambooForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonBroadleafForestCountyAreaSharePct-fill",
+        "statsComparisonBroadleafForestCountyLq-fill",
+        "statsComparisonBroadleafForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonConiferForestCountyAreaSharePct-fill",
+        "statsComparisonConiferForestCountyLq-fill",
+        "statsComparisonConiferForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonDryFieldCountyAreaSharePct-fill",
+        "statsComparisonDryFieldCountyLq-fill",
+        "statsComparisonDryFieldTownshipAdminAreaSharePct-fill",
+        "statsComparisonLivestockBuildingCountyAreaSharePct-fill",
+        "statsComparisonLivestockBuildingCountyLq-fill",
+        "statsComparisonLivestockBuildingTownshipAdminAreaSharePct-fill",
+        "statsComparisonMixedForestCountyAreaSharePct-fill",
+        "statsComparisonMixedForestCountyLq-fill",
+        "statsComparisonMixedForestTownshipAdminAreaSharePct-fill",
+        "statsComparisonOrchardCountyAreaSharePct-fill",
+        "statsComparisonOrchardCountyLq-fill",
+        "statsComparisonOrchardTownshipAdminAreaSharePct-fill",
+        "statsComparisonPaddyLandCountyAreaSharePct-fill",
+        "statsComparisonPaddyLandCountyLq-fill",
+        "statsComparisonPaddyLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonPastureCountyAreaSharePct-fill",
+        "statsComparisonPastureCountyLq-fill",
+        "statsComparisonPastureTownshipAdminAreaSharePct-fill",
+        "statsComparisonPortLandCountyAreaSharePct-fill",
+        "statsComparisonPortLandCountyLq-fill",
+        "statsComparisonPortLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonRailLandCountyAreaSharePct-fill",
+        "statsComparisonRailLandCountyLq-fill",
+        "statsComparisonRailLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonRoadLandCountyAreaSharePct-fill",
+        "statsComparisonRoadLandCountyLq-fill",
+        "statsComparisonRoadLandTownshipAdminAreaSharePct-fill",
+        "statsComparisonAcuteBedTotalPerKm2Township-fill",
+        "statsComparisonHospiceBedTotalPerKm2Township-fill",
+        "statsComparisonHospitalBedTotalPerKm2Township-fill",
+        "statsComparisonHospitalCountPerKm2Township-fill",
+        "statsComparisonIcuBedTotalPerKm2Township-fill",
+        "statsComparisonHealthProfessionalTotalPerKm2Township-fill",
+        "statsComparisonRegisteredNurseCountPerKm2Township-fill",
+        "statsComparisonWesternPhysicianCountPerKm2Township-fill",
+        "statsComparisonLivestockHeadsPerFarmTownship-fill",
+        "statsComparisonFisheryProductionTonnesNationalSharePctCounty-fill",
+        "statsComparisonFisheryValueThousandNationalSharePctCounty-fill",
+        "statsComparisonEducationClassCountPer10000Residents-fill",
+        "statsComparisonEducationClassCountPerKm2-fill",
+        "statsComparisonEducationInstitutionCountPer10000Residents-fill",
+        "statsComparisonEducationInstitutionCountPerKm2-fill",
+        "statsComparisonEducationStaffCountPer10000Residents-fill",
+        "statsComparisonEducationStaffCountPerKm2-fill",
+        "statsComparisonEducationStudentCountPer10000Residents-fill",
+        "statsComparisonEducationStudentCountPerKm2-fill",
+        "statsComparisonEducationTeacherCountPer10000Residents-fill",
+        "statsComparisonEducationTeacherCountPerKm2-fill",
+        "statsComparisonBusOperatingRouteLengthKmPer10000Residents-fill",
+        "statsComparisonBusOperatingRouteLengthKmPerKm2-fill",
+        "statsComparisonBusApprovedRouteCountPer10000Residents-fill",
+        "statsComparisonBusApprovedRouteCountPerKm2-fill",
+        "statsComparisonUrbanBusOperatorCountPer10000Residents-fill",
+        "statsComparisonUrbanBusOperatorCountPerKm2-fill",
+        "statsComparisonBusOperatingVehicleCountPer10000Residents-fill",
+        "statsComparisonBusOperatingVehicleCountPerKm2-fill",
+        "statsComparisonBusAccessibleVehicleCountPer10000Residents-fill",
+        "statsComparisonBusAccessibleVehicleCountPerKm2-fill",
+        "statsComparisonBusElectricVehicleCountPer10000Residents-fill",
+        "statsComparisonBusElectricVehicleCountPerKm2-fill",
+        "statsComparisonBusOperatingTripCountPer10000Residents-fill",
+        "statsComparisonBusOperatingTripCountPerKm2-fill",
+        "statsComparisonBusOperatingVehicleKmPer10000Residents-fill",
+        "statsComparisonBusOperatingVehicleKmPerKm2-fill",
+        "statsComparisonAutomobileLicenseHoldersCountPer10000Residents-fill",
+        "statsComparisonAutomobileRegisteredCountPer10000Residents-fill",
+        "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents-fill",
+        "statsComparisonMotorcycleRegisteredCountPer10000Residents-fill",
+        "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents-fill",
+        "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents-fill",
+        "statsComparisonA1AccidentCountPer10000Residents-fill",
+        "statsComparisonA1AccidentCountPerKm2-fill",
+        "statsComparisonA1DeathCountPer10000Residents-fill",
+        "statsComparisonA1DeathCountPerKm2-fill",
+        "statsComparisonA1InjuryCountPer10000Residents-fill",
+        "statsComparisonA1InjuryCountPerKm2-fill",
+        "statsComparisonWasteRecyclingVehiclesPer10000Residents-fill",
+        "statsComparisonWasteRecyclingVehiclesPerKm2-fill",
+        "statsComparisonWasteTotalVehiclesPer10000Residents-fill",
+        "statsComparisonWasteTotalVehiclesPerKm2-fill",
+        "statsComparisonA2AccidentCountPer10000Residents-fill",
+        "statsComparisonA2AccidentCountPerKm2-fill",
+        "statsComparisonA2InjuryCountPer10000Residents-fill",
+        "statsComparisonA2InjuryCountPerKm2-fill",
+        "statsComparisonA1A2AccidentCountPer10000Residents-fill",
+        "statsComparisonA1A2AccidentCountPerKm2-fill",
         "statsWasteCounty-fill",
         "statsRecyclingCounty-fill",
         "statsWasteRecyclingRate-fill",
@@ -1987,7 +2430,64 @@
         "statsFisheryProductionValueCounty-fill",
         "statsAquacultureAreaCounty-fill",
         "statsLivestockFarmCountTownship-fill",
-        "statsLivestockHeadCountTownship-fill"
+        "statsLivestockHeadCountTownship-fill",
+        "statsEducationCountyInstitutionCount-fill",
+        "statsEducationCountyTeacherCount-fill",
+        "statsEducationCountyStaffCount-fill",
+        "statsEducationCountyStudentCount-fill",
+        "statsEducationCountyClassCount-fill",
+        "statsEducationCountySmallSchoolCount-fill",
+        "statsEducationCountySmallSchoolSharePct-fill",
+        "statsEducationCountyStudentTeacherRatio-fill",
+        "statsEducationCountyStudentsPerClass-fill",
+        "statsEducationCountyStudentYearChange-fill",
+        "statsEducationCountyStudentYearChangePct-fill",
+        "statsHealthHospitalCount-fill",
+        "statsHealthHospitalBedTotal-fill",
+        "statsHealthAcuteBedTotal-fill",
+        "statsHealthIcuBedTotal-fill",
+        "statsHealthHospiceBedTotal-fill",
+        "statsHealthHealthProfessionalTotal-fill",
+        "statsHealthWesternPhysicianCount-fill",
+        "statsHealthRegisteredNurseCount-fill",
+        "statsHealthNursingStaffListedAgeSexSum-fill",
+        "statsHealthCareWorkerListedSexSum-fill",
+        "statsHealthGeneralNursingHomeOpenBeds-fill",
+        "statsHealthPostpartumNursingHomeOpenBeds-fill",
+        "statsHealthPostpartumNursingHomeOpenInfantBeds-fill",
+        "statsHealthCareWorkerRegistration-fill",
+        "statsHealthMedicalInstitutionBedsPer10000Population-fill",
+        "statsHealthPracticingMedicalPersonnelPer10000Population-fill",
+        "statsHousingTotalCounty-fill",
+        "statsHousingOccupiedCounty-fill",
+        "statsHousingUnoccupiedCounty-fill",
+        "statsHousingOccasionalCounty-fill",
+        "statsHousingOtherUseCounty-fill",
+        "statsHousingUnusedCounty-fill",
+        "statsHousingResidenceOnlyCounty-fill",
+        "statsHousingMixedUseCounty-fill",
+        "statsHousingOccupiedPctCounty-fill",
+        "statsHousingUnusedPctCounty-fill",
+        "statsHousingTotalTownship-fill",
+        "statsHousingOccupiedTownship-fill",
+        "statsHousingUnoccupiedTownship-fill",
+        "statsHousingOccasionalTownship-fill",
+        "statsHousingOtherUseTownship-fill",
+        "statsHousingUnusedTownship-fill",
+        "statsHousingOccupiedPctTownship-fill",
+        "statsHousingUnusedPctTownship-fill",
+        "statsEducationPreschoolSchool-fill",
+        "statsEducationPreschoolTeacher-fill",
+        "statsEducationPreschoolStudent-fill",
+        "statsEducationElementarySchool-fill",
+        "statsEducationElementaryTeacher-fill",
+        "statsEducationElementaryStudent-fill",
+        "statsEducationJuniorHighSchool-fill",
+        "statsEducationJuniorHighTeacher-fill",
+        "statsEducationJuniorHighStudent-fill",
+        "statsEducationSeniorHighSchool-fill",
+        "statsEducationSeniorHighTeacher-fill",
+        "statsEducationSeniorHighStudent-fill"
       ],
       "type": "regionalStatistic"
     },
@@ -14257,7 +14757,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10.01,
+          "maxzoom": 10,
           "minzoom": 4,
           "paint": {
             "dark": {
@@ -14295,19 +14795,19 @@
                     ],
                     2.25
                   ],
-                  "#203449",
-                  10,
-                  "#254f73",
-                  50,
-                  "#286e9e",
-                  200,
-                  "#318ac2",
-                  1000,
-                  "#47a8da",
-                  5000,
-                  "#76c8ed",
-                  10000,
-                  "#c2eafa"
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
                 ],
                 "#64748b"
               ],
@@ -14320,9 +14820,9 @@
                   "zoom"
                 ],
                 4,
-                0.65,
+                0.8,
                 9.999,
-                0.65,
+                0.8,
                 10,
                 0
               ]
@@ -14362,19 +14862,19 @@
                     ],
                     2.25
                   ],
-                  "#203449",
-                  10,
-                  "#254f73",
-                  50,
-                  "#286e9e",
-                  200,
-                  "#318ac2",
-                  1000,
-                  "#47a8da",
-                  5000,
-                  "#76c8ed",
-                  10000,
-                  "#c2eafa"
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
                 ],
                 "#64748b"
               ],
@@ -14387,9 +14887,9 @@
                   "zoom"
                 ],
                 4,
-                0.65,
+                0.8,
                 9.999,
-                0.65,
+                0.8,
                 10,
                 0
               ]
@@ -14423,7 +14923,7 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 12.01,
+          "maxzoom": 12,
           "minzoom": 10,
           "paint": {
             "dark": {
@@ -14461,19 +14961,19 @@
                     ],
                     0.2025
                   ],
-                  "#203449",
-                  10,
-                  "#254f73",
-                  50,
-                  "#286e9e",
-                  200,
-                  "#318ac2",
-                  1000,
-                  "#47a8da",
-                  5000,
-                  "#76c8ed",
-                  10000,
-                  "#c2eafa"
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
                 ],
                 "#64748b"
               ],
@@ -14486,9 +14986,9 @@
                   "zoom"
                 ],
                 10,
-                0.65,
+                0.8,
                 11.999,
-                0.65,
+                0.8,
                 12,
                 0
               ]
@@ -14528,19 +15028,19 @@
                     ],
                     0.2025
                   ],
-                  "#203449",
-                  10,
-                  "#254f73",
-                  50,
-                  "#286e9e",
-                  200,
-                  "#318ac2",
-                  1000,
-                  "#47a8da",
-                  5000,
-                  "#76c8ed",
-                  10000,
-                  "#c2eafa"
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
                 ],
                 "#64748b"
               ],
@@ -14553,9 +15053,9 @@
                   "zoom"
                 ],
                 10,
-                0.65,
+                0.8,
                 11.999,
-                0.65,
+                0.8,
                 12,
                 0
               ]
@@ -22808,19 +23308,19 @@
                     ],
                     -1
                   ],
-                  "#fef3c7",
+                  "#2f426d",
                   0.05,
-                  "#fde68a",
+                  "#545a6d",
                   0.1,
-                  "#fbbf24",
+                  "#727374",
                   0.2,
-                  "#f97316",
+                  "#928d78",
                   0.35,
-                  "#ea580c",
+                  "#b6a96f",
                   0.5,
-                  "#c2410c",
+                  "#dbc75a",
                   0.7,
-                  "#7c2d12"
+                  "#fee838"
                 ],
                 "#64748b"
               ],
@@ -22833,9 +23333,9 @@
                   "zoom"
                 ],
                 4,
-                0.68,
+                0.85,
                 9.999,
-                0.68,
+                0.85,
                 10,
                 0
               ]
@@ -22945,19 +23445,19 @@
                     ],
                     -1
                   ],
-                  "#fef3c7",
+                  "#2f426d",
                   0.05,
-                  "#fde68a",
+                  "#545a6d",
                   0.1,
-                  "#fbbf24",
+                  "#727374",
                   0.2,
-                  "#f97316",
+                  "#928d78",
                   0.35,
-                  "#ea580c",
+                  "#b6a96f",
                   0.5,
-                  "#c2410c",
+                  "#dbc75a",
                   0.7,
-                  "#7c2d12"
+                  "#fee838"
                 ],
                 "#64748b"
               ],
@@ -22970,9 +23470,9 @@
                   "zoom"
                 ],
                 4,
-                0.68,
+                0.85,
                 9.999,
-                0.68,
+                0.85,
                 10,
                 0
               ]
@@ -23113,23 +23613,23 @@
                     ],
                     -1
                   ],
-                  "#fef3c7",
+                  "#2f426d",
                   0.05,
-                  "#fde68a",
+                  "#545a6d",
                   0.1,
-                  "#fbbf24",
+                  "#727374",
                   0.2,
-                  "#f97316",
+                  "#928d78",
                   0.35,
-                  "#ea580c",
+                  "#b6a96f",
                   0.5,
-                  "#c2410c",
+                  "#dbc75a",
                   0.7,
-                  "#7c2d12"
+                  "#fee838"
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             },
             "light": {
               "fill-color": [
@@ -23236,23 +23736,23 @@
                     ],
                     -1
                   ],
-                  "#fef3c7",
+                  "#2f426d",
                   0.05,
-                  "#fde68a",
+                  "#545a6d",
                   0.1,
-                  "#fbbf24",
+                  "#727374",
                   0.2,
-                  "#f97316",
+                  "#928d78",
                   0.35,
-                  "#ea580c",
+                  "#b6a96f",
                   0.5,
-                  "#c2410c",
+                  "#dbc75a",
                   0.7,
-                  "#7c2d12"
+                  "#fee838"
                 ],
                 "#64748b"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             }
           },
           "suffix": "companyAgeStructure-demographics-fill",
@@ -23420,110 +23920,9 @@
       "id": "manufacturingCompanyPoints",
       "layers": [
         {
-          "filter": [
-            ">",
-            [
-              "to-number",
-              [
-                "get",
-                "n_manufacturing"
-              ],
-              0
-            ],
-            0
-          ],
-          "layout": null,
-          "maxzoom": 12,
-          "minzoom": 4,
-          "paint": {
-            "dark": {
-              "circle-color": "#f97316",
-              "circle-opacity": 0.82,
-              "circle-radius": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "to-number",
-                  [
-                    "get",
-                    "n_manufacturing"
-                  ],
-                  0
-                ],
-                1,
-                1.4,
-                50,
-                2.8,
-                500,
-                5.2,
-                5000,
-                9
-              ],
-              "circle-stroke-color": "#fdba74",
-              "circle-stroke-opacity": 0.82,
-              "circle-stroke-width": 0.35
-            },
-            "light": {
-              "circle-color": "#f97316",
-              "circle-opacity": 0.82,
-              "circle-radius": [
-                "interpolate",
-                [
-                  "linear"
-                ],
-                [
-                  "to-number",
-                  [
-                    "get",
-                    "n_manufacturing"
-                  ],
-                  0
-                ],
-                1,
-                1.4,
-                50,
-                2.8,
-                500,
-                5.2,
-                5000,
-                9
-              ],
-              "circle-stroke-color": "#7c2d12",
-              "circle-stroke-opacity": 0.82,
-              "circle-stroke-width": 0.35
-            }
-          },
-          "suffix": "manufacturing-overview-circle",
-          "type": "circle"
-        }
-      ],
-      "pmtiles": {
-        "maxzoom": 11,
-        "minzoom": 4,
-        "sourceLayer": "company_points_overview"
-      },
-      "rebuildOnParamChange": null,
-      "sourceId": "business-registry-company-points-overview",
-      "sourceUrl": "./business_registry/company_points_overview_1500m_202608_r2.pmtiles"
-    },
-    {
-      "dynamicData": null,
-      "filter": [
-        "==",
-        [
-          "get",
-          "is_manufacturing"
-        ],
-        1
-      ],
-      "id": "manufacturingCompanyPoints",
-      "layers": [
-        {
           "filter": null,
           "layout": null,
-          "minzoom": 12,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": [
@@ -23559,6 +23958,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 12,
                 2.2,
                 14,
@@ -23618,6 +24021,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 12,
                 2.2,
                 14,
@@ -23650,12 +24057,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 8,
-        "sourceLayer": "company_points"
+        "minzoom": 0,
+        "sourceLayer": "manufacturing_company_points"
       },
       "rebuildOnParamChange": null,
-      "sourceId": "business-registry-company-points",
-      "sourceUrl": "./business_registry/company_points_202608_r2.pmtiles"
+      "sourceId": "business-registry-manufacturing-company-points",
+      "sourceUrl": "./business_registry/manufacturing_company_points_202608_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -23678,21 +24085,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 3000000,
-                "#ddd6fe",
+                "#6b1d81",
                 14000000,
-                "#c4b5fd",
+                "#a3307e",
                 57000000,
-                "#a78bfa",
+                "#db476a",
                 212000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 581000000,
-                "#7c3aed",
+                "#febf84",
                 5330000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             },
             "light": {
               "fill-color": [
@@ -23705,21 +24112,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 3000000,
-                "#ddd6fe",
+                "#6b1d81",
                 14000000,
-                "#c4b5fd",
+                "#a3307e",
                 57000000,
-                "#a78bfa",
+                "#db476a",
                 212000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 581000000,
-                "#7c3aed",
+                "#febf84",
                 5330000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             }
           },
           "suffix": "fill",
@@ -23732,7 +24139,7 @@
           "paint": {
             "dark": {
               "line-color": "rgba(255,255,255,0.16)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -23749,7 +24156,7 @@
             },
             "light": {
               "line-color": "rgba(15,23,42,0.18)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -23799,21 +24206,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 27000000,
-                "#ddd6fe",
+                "#6b1d81",
                 126000000,
-                "#c4b5fd",
+                "#a3307e",
                 513000000,
-                "#a78bfa",
+                "#db476a",
                 1908000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 5229000000,
-                "#7c3aed",
+                "#febf84",
                 47970000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             },
             "light": {
               "fill-color": [
@@ -23826,21 +24233,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 27000000,
-                "#ddd6fe",
+                "#6b1d81",
                 126000000,
-                "#c4b5fd",
+                "#a3307e",
                 513000000,
-                "#a78bfa",
+                "#db476a",
                 1908000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 5229000000,
-                "#7c3aed",
+                "#febf84",
                 47970000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             }
           },
           "suffix": "fill",
@@ -23853,7 +24260,7 @@
           "paint": {
             "dark": {
               "line-color": "rgba(255,255,255,0.16)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -23870,7 +24277,7 @@
             },
             "light": {
               "line-color": "rgba(15,23,42,0.18)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -23920,21 +24327,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 300000000,
-                "#ddd6fe",
+                "#6b1d81",
                 1400000000,
-                "#c4b5fd",
+                "#a3307e",
                 5700000000,
-                "#a78bfa",
+                "#db476a",
                 21200000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 58100000000,
-                "#7c3aed",
+                "#febf84",
                 533000000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             },
             "light": {
               "fill-color": [
@@ -23947,21 +24354,21 @@
                   ],
                   -1
                 ],
-                "#f5f3ff",
+                "#331067",
                 300000000,
-                "#ddd6fe",
+                "#6b1d81",
                 1400000000,
-                "#c4b5fd",
+                "#a3307e",
                 5700000000,
-                "#a78bfa",
+                "#db476a",
                 21200000000,
-                "#8b5cf6",
+                "#fa7d5e",
                 58100000000,
-                "#7c3aed",
+                "#febf84",
                 533000000000,
-                "#5b21b6"
+                "#fcfdbf"
               ],
-              "fill-opacity": 0.68
+              "fill-opacity": 0.85
             }
           },
           "suffix": "fill",
@@ -23974,7 +24381,7 @@
           "paint": {
             "dark": {
               "line-color": "rgba(255,255,255,0.16)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -23991,7 +24398,7 @@
             },
             "light": {
               "line-color": "rgba(15,23,42,0.18)",
-              "line-opacity": 0.68,
+              "line-opacity": 0.85,
               "line-width": [
                 "interpolate",
                 [
@@ -24023,85 +24430,1063 @@
     {
       "dynamicData": null,
       "filter": null,
-      "id": "factoryLocations",
+      "id": "jpAccommodationDensity",
       "layers": [
         {
           "filter": null,
           "layout": null,
-          "maxzoom": 11,
-          "minzoom": 4,
+          "minzoom": null,
           "paint": {
             "dark": {
-              "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
-              "circle-radius": [
-                "interpolate",
-                [
-                  "linear"
-                ],
+              "fill-color": [
+                "step",
                 [
                   "to-number",
                   [
                     "get",
-                    "n_factories"
+                    "n_records"
                   ],
                   0
                 ],
-                1,
-                1.4,
-                25,
-                2.8,
-                250,
-                5.2,
-                2500,
-                9
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
               ],
-              "circle-stroke-color": "#5eead4",
-              "circle-stroke-opacity": 0.76,
-              "circle-stroke-width": 0.35
+              "fill-opacity": 0.72
             },
             "light": {
-              "circle-color": "#0d9488",
-              "circle-opacity": 0.76,
-              "circle-radius": [
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.18)",
+              "line-opacity": 0.72,
+              "line-width": [
                 "interpolate",
                 [
                   "linear"
                 ],
                 [
-                  "to-number",
-                  [
-                    "get",
-                    "n_factories"
-                  ],
-                  0
+                  "zoom"
                 ],
-                1,
-                1.4,
-                25,
-                2.8,
-                250,
-                5.2,
-                2500,
-                9
-              ],
-              "circle-stroke-color": "#134e4a",
-              "circle-stroke-opacity": 0.76,
-              "circle-stroke-width": 0.35
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(124,45,18,0.28)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
             }
           },
-          "suffix": "circle",
-          "type": "circle"
+          "suffix": "outline",
+          "type": "line"
         }
       ],
       "pmtiles": {
-        "maxzoom": 10,
-        "minzoom": 4,
-        "sourceLayer": "factory_locations_overview"
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "jp_accommodation_density"
       },
       "rebuildOnParamChange": null,
-      "sourceId": "business-registry-factory-locations-overview",
-      "sourceUrl": "./business_registry/factory_locations_overview_1500m_202606.pmtiles"
+      "sourceId": "jp-accommodation-density-450",
+      "sourceUrl": "./world/jp_accommodation_density_450m_20260910.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "jpAccommodationDensity",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "n_records"
+                  ],
+                  0
+                ],
+                "#fff7ed",
+                2,
+                "#fed7aa",
+                4,
+                "#fdba74",
+                8,
+                "#fb923c",
+                16,
+                "#f97316",
+                32,
+                "#c2410c",
+                64,
+                "#7c2d12"
+              ],
+              "fill-opacity": 0.72
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 9,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.18)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(124,45,18,0.28)",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                9,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "jp_accommodation_density"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "jp-accommodation-density-1500",
+      "sourceUrl": "./world/jp_accommodation_density_1500m_20260910.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "factoryDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-factory-density-1500",
+      "sourceUrl": "./business_registry/factory_density_1500m_202606.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "factoryDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-factory-density-450",
+      "sourceUrl": "./business_registry/factory_density_450m_202606.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "manufacturingCompanyDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-manufacturing-company-density-1500",
+      "sourceUrl": "./business_registry/manufacturing_company_density_1500m_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "manufacturingCompanyDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-manufacturing-company-density-450",
+      "sourceUrl": "./business_registry/manufacturing_company_density_450m_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "regulatedFacilityDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "maxzoom": 10.01,
+          "minzoom": 4,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.85,
+                9.999,
+                0.85,
+                10,
+                0
+              ]
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-regulated-facility-density-1500",
+      "sourceUrl": "./business_registry/regulated_facility_density_1500m_20260818.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "regulatedFacilityDensityGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "all",
+                  [
+                    "==",
+                    [
+                      "typeof",
+                      [
+                        "get",
+                        "density_per_km2"
+                      ]
+                    ],
+                    "number"
+                  ],
+                  [
+                    ">=",
+                    [
+                      "get",
+                      "density_per_km2"
+                    ],
+                    0
+                  ]
+                ],
+                [
+                  "step",
+                  [
+                    "get",
+                    "density_per_km2"
+                  ],
+                  "#433e85",
+                  1,
+                  "#32648e",
+                  5,
+                  "#25858e",
+                  20,
+                  "#21a685",
+                  100,
+                  "#52c569",
+                  500,
+                  "#a5db36",
+                  2000,
+                  "#fde725"
+                ],
+                "#64748b"
+              ],
+              "fill-opacity": 0.85
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "business_density_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-regulated-facility-density-450",
+      "sourceUrl": "./business_registry/regulated_facility_density_450m_20260818.pmtiles"
     },
     {
       "dynamicData": null,
@@ -24111,7 +25496,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 11,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": "#0d9488",
@@ -24124,6 +25509,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24160,6 +25549,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24192,12 +25585,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 5,
+        "minzoom": 0,
         "sourceLayer": "factory_locations"
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-factory-locations",
-      "sourceUrl": "./business_registry/factory_locations_202606.pmtiles"
+      "sourceUrl": "./business_registry/factory_locations_202606_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -24207,7 +25600,7 @@
         {
           "filter": null,
           "layout": null,
-          "minzoom": 11,
+          "minzoom": 0,
           "paint": {
             "dark": {
               "circle-color": "#d97706",
@@ -24220,6 +25613,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24256,6 +25653,10 @@
                 [
                   "zoom"
                 ],
+                0,
+                0.7,
+                7,
+                1,
                 11,
                 2,
                 14,
@@ -24288,12 +25689,12 @@
       ],
       "pmtiles": {
         "maxzoom": 14,
-        "minzoom": 5,
+        "minzoom": 0,
         "sourceLayer": "regulated_facilities"
       },
       "rebuildOnParamChange": null,
       "sourceId": "business-registry-regulated-facilities",
-      "sourceUrl": "./business_registry/regulated_facilities_20260818.pmtiles"
+      "sourceUrl": "./business_registry/regulated_facilities_20260818_allzoom.pmtiles"
     },
     {
       "dynamicData": null,
@@ -33579,7 +34980,7 @@
         "outline"
       ],
       "sourceId": "forest-reserve",
-      "sourceUrl": "./forestry/forest_reserve.pmtiles"
+      "sourceUrl": "https://data.itsmigu.com/forestry/releases/1f22e80b5e5e4dea9eef36f3e251d287f49d28966424d817729fbc2f251c77dc/forest_reserve.pmtiles"
     },
     {
       "dynamicData": null,
@@ -59724,6 +61125,53 @@
         "value": 0.9
       }
     ],
+    "allenCoralAtlas": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0,
+        "step": 0.05,
+        "value": 0.65
+      },
+      {
+        "label": "主題",
+        "options": [
+          {
+            "label": "珊瑚／藻類棲地",
+            "value": "coralAlgae"
+          },
+          {
+            "label": "淺海棲地分類",
+            "value": "benthic"
+          },
+          {
+            "label": "礁體地形分區",
+            "value": "geomorphic"
+          }
+        ],
+        "type": "select",
+        "value": "coralAlgae"
+      },
+      {
+        "label": "研究區域",
+        "options": [
+          {
+            "label": "全部研究區",
+            "value": "all"
+          },
+          {
+            "label": "臺灣研究區",
+            "value": "taiwan"
+          },
+          {
+            "label": "沖繩研究區",
+            "value": "okinawa"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      }
+    ],
     "anfrWirelessSites": [
       {
         "label": "透明度 0.80",
@@ -60650,11 +62098,11 @@
         "value": "recent"
       },
       {
-        "label": "透明度 0.68",
+        "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
-        "value": 0.68
+        "value": 0.85
       }
     ],
     "companyCapitalGrid": [
@@ -60697,11 +62145,11 @@
         "value": "capital_sum"
       },
       {
-        "label": "透明度 0.68",
+        "label": "透明度 0.85",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
-        "value": 0.68
+        "value": 0.85
       }
     ],
     "companyIndustryDistribution": [
@@ -62521,6 +63969,15 @@
         "value": 0.85
       }
     ],
+    "factoryDensityGrid": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
     "factoryLocations": [
       {
         "label": "透明度 0.76",
@@ -63441,10 +64898,91 @@
         "value": 0.9
       },
       {
+        "label": "分類",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "災害",
+            "value": "disaster"
+          },
+          {
+            "label": "事故",
+            "value": "accident"
+          },
+          {
+            "label": "健康",
+            "value": "health"
+          },
+          {
+            "label": "治安",
+            "value": "crime"
+          },
+          {
+            "label": "交通",
+            "value": "traffic"
+          },
+          {
+            "label": "政策",
+            "value": "policy"
+          },
+          {
+            "label": "其他",
+            "value": "other"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "最低嚴重度",
+        "options": [
+          {
+            "label": "一般",
+            "value": "0"
+          },
+          {
+            "label": "關注",
+            "value": "1"
+          },
+          {
+            "label": "重大",
+            "value": "2"
+          },
+          {
+            "label": "嚴重",
+            "value": "3"
+          }
+        ],
+        "type": "select",
+        "value": "3"
+      },
+      {
+        "label": "過去",
+        "options": [
+          {
+            "label": "1 天",
+            "value": "1"
+          },
+          {
+            "label": "3 天",
+            "value": "3"
+          },
+          {
+            "label": "7 天",
+            "value": "7"
+          }
+        ],
+        "type": "select",
+        "value": "1"
+      },
+      {
         "label": "時間範圍",
         "options": [
           {
-            "label": "最近七天總覽",
+            "label": "最近範圍",
             "value": "recent7d"
           },
           {
@@ -63458,12 +64996,17 @@
       {
         "label": "跨國關聯線（非移動軌跡）",
         "type": "toggle",
-        "value": true
+        "value": false
       },
       {
         "label": "包含 AI 初判／待判斷",
         "type": "toggle",
         "value": true
+      },
+      {
+        "label": "僅顯示臺灣相關（直接／間接）",
+        "type": "toggle",
+        "value": false
       }
     ],
     "govServiceOffices": [
@@ -64023,6 +65566,94 @@
         "value": 0.35
       }
     ],
+    "jpAccommodationCanonical": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationDensity": [
+      {
+        "label": "網格大小",
+        "options": [
+          {
+            "label": "450 公尺",
+            "value": "450"
+          },
+          {
+            "label": "1.5 公里",
+            "value": "1500"
+          }
+        ],
+        "type": "select",
+        "value": "450"
+      },
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.72
+      }
+    ],
+    "jpAccommodationJta": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationLocal": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpAccommodationOsm": [
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.72
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "jpAdminBoundaries": [
       {
         "label": "透明度 0.15",
@@ -64063,6 +65694,60 @@
         ],
         "type": "select",
         "value": "point"
+      }
+    ],
+    "jpCareCombined": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareDayServices": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareEquipment": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareHomeVisit": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCarePlanning": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpCareResidential": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
       }
     ],
     "jpHistoricalFlightTrails": [
@@ -64128,6 +65813,132 @@
         ],
         "type": "select",
         "value": "0"
+      }
+    ],
+    "jpMarineEbsaCoastal": [
+      {
+        "label": "透明度 0.22",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.22
+      }
+    ],
+    "jpMedicalAreasPrimary": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpMedicalAreasSecondary": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpMedicalAreasTertiary": [
+      {
+        "label": "透明度 0.20",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.2
+      }
+    ],
+    "jpMedicalClinics": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalDental": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalHospitals": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalMaternity": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpMedicalPharmacies": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      }
+    ],
+    "jpNaturalParksNational": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      }
+    ],
+    "jpNaturalParksPrefectural": [
+      {
+        "label": "透明度 0.22",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.22
+      }
+    ],
+    "jpNaturalParksQuasiNational": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpNatureConservationArea": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpNatureConservationSpecialDistrict": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
       }
     ],
     "jpPoliceFacilities": [
@@ -64229,6 +66040,15 @@
         "value": "pop_2020"
       }
     ],
+    "jpPrimitiveNatureEnvironmentArea": [
+      {
+        "label": "透明度 0.30",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.3
+      }
+    ],
     "jpRailways": [
       {
         "label": "透明度 0.90",
@@ -64236,6 +66056,41 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      }
+    ],
+    "jpRamsarSites": [
+      {
+        "label": "位置精度",
+        "options": [
+          {
+            "label": "名稱命中 10",
+            "value": "name_match"
+          },
+          {
+            "label": "低精度中心點 44",
+            "value": "degraded"
+          },
+          {
+            "label": "全部 54",
+            "value": "all"
+          }
+        ],
+        "type": "select",
+        "value": "name_match"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "jpReligionGsi": [
@@ -64331,6 +66186,110 @@
         ],
         "type": "select",
         "value": "type"
+      }
+    ],
+    "jpWaterLakes": [
+      {
+        "label": "透明度 0.35",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.35
+      }
+    ],
+    "jpWaterLevelStations": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterLocalFacilities": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterQualityStations": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpWildlifeProtectionNational": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
+      }
+    ],
+    "jpWildlifeSpecialProtectionDesignatedArea": [
+      {
+        "label": "透明度 0.32",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.32
+      }
+    ],
+    "jpWildlifeSpecialProtectionDistrict": [
+      {
+        "label": "透明度 0.28",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.28
+      }
+    ],
+    "jpWorldHeritageCultural": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpWorldHeritageNatural": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "jpWorldNaturalHeritageHistorical": [
+      {
+        "label": "透明度 0.25",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.25
       }
     ],
     "lakesPondsOsm": [
@@ -64830,6 +66789,15 @@
         "step": 0.1,
         "value": 1.1
       },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "manufacturingCompanyDensityGrid": [
       {
         "label": "透明度 0.85",
         "max": 1,
@@ -66773,6 +68741,30 @@
         "value": "24"
       }
     ],
+    "propertyValueAdmin": [
+      {
+        "label": "行政層級",
+        "options": [
+          {
+            "label": "縣市（19 / 22）",
+            "value": "county"
+          },
+          {
+            "label": "鄉鎮市區（352 / 368，z6+）",
+            "value": "township"
+          }
+        ],
+        "type": "select",
+        "value": "county"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
+      }
+    ],
     "propertyValueGrid": [
       {
         "label": "網格大小",
@@ -67130,6 +69122,15 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "regulatedFacilityDensityGrid": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       }
     ],
     "religionAncestralHalls": [
@@ -68444,6 +70445,1698 @@
         "value": 0.55
       }
     ],
+    "statsComparisonA1A2AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1A2AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1DeathCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1DeathCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1InjuryCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA1InjuryCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2AccidentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonA2InjuryCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAcuteBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAcuteBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAgriculturalFacilityTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAirportLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAquacultureLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAutomobileLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonAutomobileRegisteredCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBambooForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBroadleafForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusAccessibleVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusApprovedRouteCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusApprovedRouteCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusElectricVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingRouteLengthKmPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingRouteLengthKmPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingTripCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingTripCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonBusOperatingVehicleKmPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonCareWorkerRegistrationCountPer65plus1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonConiferForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonDryFieldTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationClassCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationClassCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationInstitutionCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationInstitutionCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStaffCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStaffCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStudentCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationStudentCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationTeacherCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonEducationTeacherCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonFisheryProductionTonnesNationalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonFisheryValueThousandNationalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHealthProfessionalTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospiceBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospiceBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHospitalCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOccasionalSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingOtherUseSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonHousingUnoccupiedSharePctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonIcuBedTotalPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonIcuBedTotalPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockBuildingTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonLivestockHeadsPerFarmTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMixedForestTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonMotorcycleRegisteredCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonOrchardTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPaddyLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPastureTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPortLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRailLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRegisteredNurseCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyLq": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandCountyTotalHectare": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandNationalSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandTownshipAdminAreaSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonRoadLandTownshipOfCountySharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonUrbanBusOperatorCountPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonUrbanBusOperatorCountPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteRecyclingVehiclesPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteRecyclingVehiclesPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteTotalVehiclesPer10000Residents": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWasteTotalVehiclesPerKm2": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPer10000PopulationTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsComparisonWesternPhysicianCountPerKm2Township": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsConiferForestAreaTownship": [
       {
         "label": "透明度 0.55",
@@ -68498,6 +72191,213 @@
         "value": 0.55
       }
     ],
+    "statsEducationCountyClassCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyInstitutionCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountySmallSchoolCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountySmallSchoolSharePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStaffCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentTeacherRatio": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentYearChange": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentYearChangePct": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyStudentsPerClass": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationCountyTeacherCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementarySchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementaryStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationElementaryTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationJuniorHighTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationPreschoolTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighSchool": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighStudent": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsEducationSeniorHighTeacher": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "statsFisheryProductionCounty": [
       {
         "label": "透明度 0.55",
@@ -68508,6 +72408,312 @@
       }
     ],
     "statsFisheryProductionValueCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthAcuteBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthCareWorkerListedSexSum": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthCareWorkerRegistration": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthGeneralNursingHomeOpenBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHealthProfessionalTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospiceBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospitalBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthHospitalCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthIcuBedTotal": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthMedicalInstitutionBedsPer10000Population": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthNursingStaffListedAgeSexSum": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPostpartumNursingHomeOpenInfantBeds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthPracticingMedicalPersonnelPer10000Population": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthRegisteredNurseCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHealthWesternPhysicianCount": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingMixedUseCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccasionalCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccasionalTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedPctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOccupiedTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOtherUseCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingOtherUseTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingResidenceOnlyCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingTotalCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingTotalTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnoccupiedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnoccupiedTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedPctCounty": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedPctTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsHousingUnusedTownship": [
       {
         "label": "透明度 0.55",
         "max": 1,

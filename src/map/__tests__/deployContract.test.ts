@@ -30,9 +30,11 @@
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 
+const forestReceipt = JSON.parse(readFileSync("docs/features/data-lifecycle-lean/r2-pilot.json", "utf8"));
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
 const nginxConf = readFileSync("nginx.conf", "utf8");
 const pullScript = readFileSync("scripts/deploy/pull-deploy-assets.sh", "utf8");
@@ -46,6 +48,7 @@ const gfwV4LocalInstall = readFileSync("scripts/deploy/install-gfw-v4-local-rele
 const entrypoint = readFileSync("scripts/deploy/entrypoint.sh", "utf8");
 const dockerfile = readFileSync("Dockerfile", "utf8");
 const viteConfig = readFileSync("vite.config.ts", "utf8");
+const dockerIgnore = readFileSync(".dockerignore", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -194,6 +197,9 @@ function uploadPatterns(): { globs: string[]; syncDirs: Set<string> } {
 }
 
 const UPLOAD = uploadPatterns();
+// Versioned medical assets use a dedicated exact-plan publisher, never a glob.
+const medicalPlan = JSON.parse(readFileSync("docs/features/jp-medical-static/payload-publication-plan.json", "utf8")) as { entries: { relative_path: string }[] };
+const medicalUploadPaths = new Set(medicalPlan.entries.map(entry => `jp-medical/${entry.relative_path}`));
 
 /** glob → RegExp（`*` 不跨 `/`，其餘字元字面比對） */
 function globToRe(glob: string): RegExp {
@@ -204,6 +210,7 @@ const UPLOAD_RES = UPLOAD.globs.map(globToRe);
 
 /** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
 function uploadCovers(path: string): boolean {
+  if (medicalUploadPaths.has(path)) return true;
   if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
   return UPLOAD_RES.some((re) => re.test(`public/${path}`));
 }
@@ -235,6 +242,12 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "gfw_hourly_grid_poc/manifest.json",
   // GFW sampled-track POC is likewise local-only, gitignored, and stripped from dist.
   "gfw_hourly_tracks_poc/manifest.json",
+  // Japan research-only assets：production catalog 隱藏，且 upload allowlist 必須持續排除。
+  "world/jp_natural_parks_ksj_2010.pmtiles",
+  "world/jp_nature_conservation_ksj_2015.pmtiles",
+  "world/jp_wildlife_protection_moe_202504.pmtiles",
+  "world/jp_world_natural_heritage_ksj_2011.geojson",
+  "world/jp_ramsar_moe_current.geojson",
 ]);
 
 /**
@@ -258,18 +271,21 @@ function isEmptyShell(path: string): boolean {
 // ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
-  it("Ookla dist publication assets retain cache headers, MIME types, and Range-capable static serving", () => {
-    const match = nginxConf.match(
-      /location ~ \^\/geo\/ookla_\(fixed_global\|mobile_global\|tw_z14\|tw_z16\).*?\{([\s\S]*?)\n    \}/,
-    );
-    expect(match, "Ookla exact publication location missing").not.toBeNull();
+  it("公開 @dist fallback 保留 cache、GeoJSON MIME 與壓縮契約", () => {
+    const match = nginxConf.match(/location @dist \{([\s\S]*?)\n    \}/);
+    expect(match, "public dist fallback missing").not.toBeNull();
     const body = match?.[1] ?? "";
     expect(body).toContain("root /usr/share/nginx/html;");
-    expect(body).toContain("try_files $uri =404;");
-    expect(body).toContain("application/geo+json geojson;");
-    expect(body).toContain("application/vnd.pmtiles pmtiles;");
+    expect(nginxConf).toMatch(/server \{[\s\S]*?include mime\.types;[\s\S]*?application\/geo\+json geojson;[\s\S]*?application\/vnd\.pmtiles pmtiles;/);
     expect(body).toContain("expires 1d;");
     expect(body).toContain('add_header Cache-Control "public";');
+    expect(body).not.toContain("/index.html");
+    const gzipTypes = nginxConf.match(/^\s*gzip_types\s+([^;]*);/m)?.[1] ?? "";
+    expect(gzipTypes).toContain("application/geo+json");
+    expect(gzipTypes).not.toContain("application/vnd.pmtiles");
+    const ookla = nginxConf.match(/location ~ \^\/geo\/ookla_[^\n]+\{([\s\S]*?)\n    \}/)?.[1] ?? "";
+    expect(ookla).toContain("root /usr/share/nginx/html;");
+    expect(ookla).toContain("try_files $uri =404;");
   });
 
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {
@@ -304,6 +320,20 @@ describe("deploy 契約（nginx + pull script）", () => {
     ).toEqual([]);
   });
 
+  it("Japan medical exact publisher/install/nginx are connected without broad upload", () => {
+    expect(uploadCovers("jp-medical/current.json")).toBe(true);
+    expect(uploadCovers("jp-medical/raw/private.json")).toBe(false);
+    expect(medicalPlan.entries[medicalPlan.entries.length - 1]?.relative_path).toBe("current.json");
+    expect(pullCovers("jp-medical")).toBe(true);
+    expect(locationFor("jp-medical/current.json")?.readsData).toBe(true);
+    expect(pullScript).toContain('python3 /usr/local/bin/install-jp-medical-assets.py');
+    expect(pullScript).toContain('--exclude "jp-medical/*"');
+    expect(dockerfile).toContain('COPY scripts/deploy/install-jp-medical-assets.py');
+    expect(dockerIgnore).toContain('public/jp-medical');
+    expect(nginxConf).toMatch(/location \^~ \/jp-medical\/releases\/ \{\s*types \{\s*application\/vnd\.pmtiles pmtiles;\s*application\/geo\+json geojson;\s*application\/json json;/);
+    expect(existsSync("scripts/deploy/publish-jp-medical-assets.py")).toBe(true);
+  });
+
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {
     expect(sourceUrls.length).toBeGreaterThan(30);
     expect(referencedDirs.size).toBeGreaterThanOrEqual(3); // geo / forestry / agriculture ...
@@ -335,26 +365,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
   });
 
   it("GFW S3 先同步 immutable releases 再原子切 root，container 週期追新", () => {
-    const refreshSync = gfwRefreshScript.indexOf("aws s3 sync");
-    const refreshManifest = gfwRefreshScript.indexOf("manifest.json.tmp");
-    expect(refreshSync).toBeGreaterThanOrEqual(0);
-    expect(refreshManifest).toBeGreaterThan(refreshSync);
-    expect(gfwRefreshScript).toContain('--exclude "manifest.json"');
-    expect(gfwRefreshScript).toContain('mv "/data/global-maritime/gfw-hourly/manifest.json.tmp"');
-    expect(gfwRefreshScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(gfwRefreshScript).toContain('v4/manifest.json');
-    expect(gfwRefreshScript).toContain('v4/releases/');
-    expect(gfwRefreshScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript).toContain('$S3/global-maritime/gfw-hourly/');
-    expect(pullScript).toContain('--exclude "v3-shadow/manifest.json"');
-    expect(pullScript).toContain('--exclude "v4/manifest.json"');
-    expect(pullScript).toContain('v3-shadow/manifest.json.tmp');
-    expect(pullScript).toContain('v4/manifest.json.tmp');
-    expect(pullScript.indexOf('--exclude "manifest.json"'))
-      .toBeLessThan(pullScript.indexOf('manifest.json.tmp'));
-    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-21600");
+    expect(gfwRefreshScript).toContain('exec flock -n');
+    expect(gfwRefreshScript).toContain('/refresh-gfw-hourly.mjs');
+    expect(gfwRefreshScript).not.toContain('aws s3 sync');
+    expect(pullScript).toContain('/usr/local/bin/refresh-gfw-hourly.sh');
+    expect(pullScript).not.toContain('aws s3 sync "$S3/global-maritime/gfw-hourly/"');
+    expect(entrypoint).toContain("GFW_HOURLY_REFRESH_SEC:-3600");
     expect(entrypoint).toContain("/usr/local/bin/refresh-gfw-hourly.sh");
     expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.sh");
+    expect(dockerfile).toContain("COPY scripts/deploy/refresh-gfw-hourly.mjs");
   });
 
   it("GFW v4 local fixture 只接受可驗證的正式 immutable release，不偷接 /private/tmp POC", () => {
@@ -404,6 +423,37 @@ describe("deploy 契約（manifest 逐檔）", () => {
     expect(uploadScript).toContain("Skipping immutable industrial_zone/$name (same SHA-256)");
   });
 
+  it("Japan tourism production assets 有 S3 供應鏈，research HOLD 資產不會被上傳", () => {
+    const production = [
+      "world/jp_accommodation_canonical_allzoom_20260910.pmtiles",
+      "world/jp_accommodation_density_450m_20260910.pmtiles",
+      "world/jp_accommodation_density_1500m_20260910.pmtiles",
+      "world/jp_accommodation_jta_20260331.geojson",
+      "world/jp_accommodation_local_20260910.geojson",
+      "world/jp_accommodation_osm_allzoom_20260910.pmtiles",
+      "world/jp_world_heritage_unesco_current.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
+    ];
+    const researchOnly = [
+      "world/jp_natural_parks_ksj_2010.pmtiles",
+      "world/jp_nature_conservation_ksj_2015.pmtiles",
+      "world/jp_wildlife_protection_moe_202504.pmtiles",
+      "world/jp_world_natural_heritage_ksj_2011.geojson",
+      "world/jp_ramsar_moe_current.geojson",
+    ];
+    for (const asset of production) expect(uploadCovers(asset), asset).toBe(true);
+    for (const asset of researchOnly) expect(uploadCovers(asset), asset).toBe(false);
+    expect(pullCovers("world")).toBe(true);
+    expect(locationFor(production[0] as string)?.distFallback).toBe(true);
+    expect(uploadScript).not.toContain("public/world/*.pmtiles");
+    expect(uploadScript).toContain("Skipping immutable world/$name (same SHA-256)");
+    expect(uploadScript).toContain("refusing to replace world/$name");
+    for (const asset of [...production, ...researchOnly]) {
+      expect(viteConfig, `Vite build strip 缺 ${asset}`).toContain(`\"${asset}\"`);
+      expect(dockerIgnore, `.dockerignore 缺 ${asset}`).toContain(`public/${asset}`);
+    }
+  });
+
   it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {
     expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
     expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);
@@ -436,6 +486,15 @@ describe("deploy 契約（manifest 逐檔）", () => {
     for (const [path, keys] of [...ASSETS].sort()) {
       if (isEmptyShell(path)) continue;
       if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      if (path === forestReceipt.public_url) {
+        const payload = readFileSync("public/forestry/forest_reserve.pmtiles");
+        expect(forestReceipt.readback).toBe("PASS");
+        expect(payload.length).toBe(forestReceipt.bytes);
+        expect(createHash("sha256").update(payload).digest("hex")).toBe(forestReceipt.sha256);
+        expect(path).toContain(`/releases/${forestReceipt.sha256}/`);
+        expect(forestReceipt.http.some((check: { headers: string[] }) => check.headers.includes("cf-cache-status: HIT"))).toBe(true);
+        continue;
+      }
       const dir = path.split("/")[0] as string;
       if (EXTERNAL_UPLOAD_LEDGER.has(dir)) {
         if (!pullCovers(dir)) broken.push(`${path}（${keys.join("/")}）: pull 沒同步 ${dir}/`);

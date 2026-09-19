@@ -1,0 +1,11 @@
+
+ RUN  v3.2.6 /private/tmp/pulse-jp-medical-20260913
+
+ ✓ src/data/__tests__/jpMedicalLoader.test.ts (8 tests) 30ms
+ ✓ src/data/jpMedicalTypes.test.ts (3 tests) 3ms
+ ✓ src/hooks/__tests__/jpMedicalAggregates.test.ts (2 tests) 2ms
+
+ Test Files  3 passed (3)
+      Tests  13 passed (13)
+   Start at  01:39:44
+   Duration  769ms (transform 146ms, setup 0ms, collect 519ms, tests 34ms, environment 1ms, prepare 279ms)

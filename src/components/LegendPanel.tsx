@@ -1,5 +1,9 @@
+import { COMPARISON_ENABLED_RECIPES } from '../data/comparisonStatisticsRecipes';
+import { JpMedicalStatus } from "./JpMedicalStatus";
+import { JP_MEDICAL_AREA_LEVELS, JP_MEDICAL_CARE_GROUPS, JP_MEDICAL_CATEGORIES, JP_MEDICAL_GRID_BANDS } from "../data/jpMedicalTypes";
 import { CORAL_REEF_ATTRIBUTION, CORAL_REEF_COLOR } from "../data/coralReefTypes";
 import { HISTORICAL_FLIGHT_COLORS } from "../data/historicalFlightTrailsTypes";
+import { allenCoralSource, ALLEN_CORAL_ACQUIRED_AT, ALLEN_CORAL_ATTRIBUTION, ALLEN_CORAL_WARNING, type AllenCoralAtlasView } from "../data/allenCoralAtlasTypes";
 import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
@@ -9,7 +13,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
-import { useOverlayParams } from "../layers/layerParamsAccess";
+import { oneOfParam, paramStr, useLayerParams, useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -25,12 +29,17 @@ import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
 import { getGfwHourlyGridDataWindowSnapshot, subscribeGfwHourlyGridDataWindow } from "../state/gfwHourlyGridDataWindowStore";
 import { useGfwV4TrackDataWindow } from "../state/gfwV4TrackDataWindowStore";
 import { loadGfwFishingEffortManifest, type GfwFishingEffortManifest } from "../data/gfwFishingEffortLoader";
+import { loadGfwDarkVesselsManifest } from "../data/gfwDarkVesselsLoader";
+import { loadGfwHourlyTrackManifest } from "../data/gfwHourlyTracksLoader";
+import { gfwFreshness } from "../data/gfwFreshness";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
 import { AGRI_ENABLED_STATISTICS_RECIPES } from "../data/agriStatisticsRecipes";
-import type { StatisticsLayerKey } from "../data/regionalStatisticsRecipes";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../data/socialStatisticsRecipes";
+import type { StatisticsRenderKey } from "../data/regionalStatisticsRecipes";
+import { EDUCATION_PRESENTATION_VIEWS } from "../data/statisticsPresentationViews";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
@@ -65,11 +74,19 @@ import {
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
+import { JP_WATER_LAYER_CONTRACT } from "../data/jpWaterTypes";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
   jpPopulationMeshMode, jpPopulationMeshBuckets, JP_POPULATION_MESH_MASK,
 } from "../data/jpPopulationMeshModes";
+import {
+  JP_ACCOMMODATION_CATEGORIES,
+  JP_ACCOMMODATION_DENSITY_COLORS,
+  JP_ACCOMMODATION_DENSITY_SCALES,
+  JP_ACCOMMODATION_DENSITY_STOPS,
+  JP_ACCOMMODATION_UNKNOWN_CATEGORY,
+} from "../data/jpTourismTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { ANIMAL_WELFARE_POINT_TYPES } from "../data/animalWelfarePointsTypes";
 import {
@@ -119,6 +136,10 @@ import {
   resolvePropertyValueGridMode, PROPERTY_VALUE_PER_CAPITA_BANDS,
   PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR, PROPERTY_VALUE_PER_CAPITA_MIN_POP,
 } from "../data/propertyValueTypes";
+import {
+  PROPERTY_VALUE_ADMIN_COLORS, PROPERTY_VALUE_ADMIN_LEVELS, PROPERTY_VALUE_ADMIN_MISSING_COLOR,
+  formatPropertyValueTwd, resolvePropertyValueAdminLevel,
+} from "../data/propertyValueAdminTypes";
 import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
@@ -334,7 +355,16 @@ export interface LegendEntry {
 export const LEGEND_REGISTRY: LegendEntry[] = [
   ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
-    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsLayerKey} />,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...COMPARISON_ENABLED_RECIPES.map(recipe => ({id: recipe.layer_key, render: () => <StatisticsLegend layerKey={recipe.layer_key} />})),
+  ...SOCIAL_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
+    id: recipe.layer_key,
+    render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
+  })),
+  ...EDUCATION_PRESENTATION_VIEWS.map((view) => ({
+    id: view.key,
+    render: () => <StatisticsLegend layerKey={view.key} />,
   })),
   { id: "statsMaritimeSubsidyCounty", render: () => <StatisticsLegend layerKey="statsMaritimeSubsidyCounty" /> },
   { id: "statsCivilAeronauticsSubsidyCounty", render: () => <StatisticsLegend layerKey="statsCivilAeronauticsSubsidyCounty" /> },
@@ -364,10 +394,18 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
   { id: "coralReefDistribution", render: () => <CoralReefDistributionLegend /> },
+  { id: "allenCoralAtlas", render: () => <AllenCoralAtlasLegend /> },
   { id: "globalEvents", render: () => <GlobalEventsLegend /> },
+  ...JP_MEDICAL_CATEGORIES.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
+  ...JP_MEDICAL_CARE_GROUPS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
+  ...JP_MEDICAL_AREA_LEVELS.map(({ key }) => ({ id: key, render: () => <JpMedicalLegend layerKey={key} /> })),
   { id: "jpReligion", render: ({ visibility }) => <JpReligionLegend visibility={visibility} /> },
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
+  { id: "jpWaterLakes", render: () => <JpWaterLegend layerKey="jpWaterLakes" /> },
+  { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
+  { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
+  { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
   { id: "osmBridgeCarriers", render: () => <NetworkStructuresLegend title="橋梁承載類型" rows={CARRIER_KINDS} /> },
   { id: "osmBridgeFootprints", render: () => <NetworkStructuresLegend title="OSM 原生橋梁輪廓" rows={[{ label: "原生 outline（可能不完整）", color: NETWORK_STRUCTURES_COLORS.footprint }]} /> },
   { id: "officialBridgesNewTaipei", render: () => <NetworkStructuresLegend title="新北市轄管橋梁" rows={[{ label: "近似軸線；非登錄長度", color: NETWORK_STRUCTURES_COLORS.official }, { label: "圓點：原始重合端點，無可評估軸線", color: NETWORK_STRUCTURES_COLORS.official }]} /> },
@@ -375,6 +413,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpPoliceFacilities", render: () => <JpPoliceFacilitiesLegend /> },
   { id: "jpSchools", render: () => <JpSchoolsLegend /> },
   { id: "jpPopulationMesh1km", render: ({ overlayParams }) => <JpPopulationMeshLegend modeIdx={overlayParams.jpPopulationMeshModeIdx ?? 0} /> },
+  { id: "jpAccommodationCanonical", render: () => <JpAccommodationTypesLegend source="canonical" /> },
+  { id: "jpAccommodationOsm", render: () => <JpAccommodationTypesLegend source="osm" /> },
+  { id: "jpAccommodationDensity", render: ({ overlayParams }) => <JpAccommodationDensityLegend scaleIdx={overlayParams.jpAccommodationDensityScaleIdx ?? 0} /> },
   { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
   { id: "windField", render: () => <WindFieldLegend /> },
   { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
@@ -421,9 +462,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "companyCapitalGrid", render: ({ overlayParams }) => <CompanyCapitalGridLegend modeIdx={overlayParams.companyGridModeIdx ?? 0} scaleIdx={overlayParams.companyGridScaleIdx ?? 0} /> },
   { id: "companyIndustryDistribution", render: ({ overlayParams }) => <CompanyIndustryDistributionLegend modeIdx={overlayParams.companyIndustryDisplayIdx ?? 0} mask={overlayParams.companyIndustryGroupsMask ?? 2047} midIdx={overlayParams.companyIndustryDistributionMidIdx ?? 0} /> },
   { id: "companyAgeStructure", render: ({ overlayParams }) => <CompanyAgeStructureLegend modeIdx={overlayParams.companyAgeStructureModeIdx ?? 0} /> },
+  { id: "factoryDensityGrid", render: () => <IndustrialDensityGridLegend title="生產中工廠密度 FACTORY DENSITY" unit="家" note="202606 生產中工廠登記；僅含有座標的工廠。" /> },
+  { id: "manufacturingCompanyDensityGrid", render: () => <IndustrialDensityGridLegend title="製造業公司登記地址密度" unit="家" note="202608 製造業公司登記地址；不是工廠實際營運地址。" /> },
   { id: "factoryLocations", render: () => <FactoryLocationsLegend /> },
   { id: "industrialParkBoundaries", render: () => <IndustrialParkBoundariesLegend /> },
   { id: "regulatedFacilities", render: () => <RegulatedFacilitiesLegend /> },
+  { id: "regulatedFacilityDensityGrid", render: () => <IndustrialDensityGridLegend title="列管設施密度 REGULATED FACILITY DENSITY" unit="筆" note="20260818 active 列管設施；列管身分不是污染風險。" /> },
   { id: "industrialParkComparison", render: ({ overlayParams }) => <IndustrialParkComparisonLegend modeIdx={overlayParams.industrialParkComparisonModeIdx ?? 0} /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
@@ -449,6 +493,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "treePitsTaipei", render: () => <TreePitsTaipeiLegend /> },
   { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { id: "propertyValueAdmin", render: ({ overlayParams }) => <PropertyValueAdminLegend levelIdx={overlayParams.propertyValueAdminLevelIdx ?? 0} /> },
   { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
   { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
@@ -1161,7 +1206,7 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
     return (
       <div>
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-          日本車站 運量（人/日）
+          車站運量 駅利用者数（人／日）
         </div>
         <FireCatRows
           cats={[
@@ -1175,7 +1220,7 @@ function JpStationsLegend({ modeIdx }: { modeIdx?: number }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本車站 種類
+        車站類型 駅種別
       </div>
       <FireCatRows
         cats={[
@@ -1196,11 +1241,23 @@ function JpRailwaysLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本鐵道 事業者種別
+        鐵道營運者類型 鉄道事業者種別
       </div>
       <FireCatRows cats={JP_RAILWAY_TYPES.map((r) => ({ color: r.color, label: r.label }))} />
     </div>
   );
+}
+
+function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CONTRACT }) {
+  const contract = JP_WATER_LAYER_CONTRACT[layerKey];
+  const t = useLegendTheme();
+  const colors: Record<keyof typeof JP_WATER_LAYER_CONTRACT, string> = {
+    jpWaterDams: "#0369a1", jpWaterLakes: "#0ea5e9", jpWaterSupplyFacilities: "#0284c7", jpWaterSupplyAreas: "#38bdf8", jpWaterSewerFacilities: "#1d4ed8", jpWaterRivers: "#0284c7", jpWaterLocalPipes: "#075985", jpWaterLocalFacilities: "#0284c7", jpWaterQualityStations: "#7c3aed", jpWaterLevelStations: "#0369a1",
+  };
+  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{contract.sourceLabel}</div>
+    <FireCatRows cats={[{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }]} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
+  </div>;
 }
 
 function NetworkStructuresLegend({ title, rows }: { title: string; rows: readonly { label: string; color: string }[] }) {
@@ -1217,7 +1274,7 @@ function JpSchoolsLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本學校 学校分類
+        學校類型 学校分類
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
         {JP_SCHOOL_TYPES.map((c) => (
@@ -1245,7 +1302,7 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本人口網格 {mode.label}
+        人口網格 人口メッシュ · {mode.label}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 4 }}>
         {isRatio ? "65 歲以上比率（1km 格）" : "總人口（人／1km 格）"}
@@ -1259,6 +1316,58 @@ function JpPopulationMeshLegend({ modeIdx }: { modeIdx?: number }) {
             : []),
         ]}
       />
+    </div>
+  );
+}
+
+function JpAccommodationTypesLegend({ source }: { source: "canonical" | "osm" }) {
+  const t = useLegendTheme();
+  const categories = source === "osm"
+    ? JP_ACCOMMODATION_CATEGORIES.filter((category) => !["ryokan", "simple_lodging"].includes(category.value))
+    : JP_ACCOMMODATION_CATEGORIES;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        {source === "osm" ? "OSM 住宿類型 宿泊施設タイプ" : "旅宿類型 宿泊施設タイプ"}
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {[...categories, JP_ACCOMMODATION_UNKNOWN_CATEGORY].map((category) => (
+          <div key={category.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <Swatch color={category.color} round />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              {category.label} <span style={{ color: t.textDim }}>{category.labelJa}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+      {source === "osm" && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 5 }}>
+          社群繪製 coverage，不是完整或官方名冊。© OpenStreetMap contributors, ODbL 1.0。
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JpAccommodationDensityLegend({ scaleIdx }: { scaleIdx: number }) {
+  const t = useLegendTheme();
+  const scale = JP_ACCOMMODATION_DENSITY_SCALES[scaleIdx]
+    ?? JP_ACCOMMODATION_DENSITY_SCALES[0]!;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        旅宿密度 · {scale.shortLabel}
+      </div>
+      <FireCatRows
+        square
+        cats={JP_ACCOMMODATION_DENSITY_STOPS.map((stop, index) => ({
+          color: JP_ACCOMMODATION_DENSITY_COLORS[index] ?? JP_ACCOMMODATION_DENSITY_COLORS[0],
+          label: index === 0 ? "1 間／格" : `≥ ${stop.toLocaleString("zh-TW")} 間／格`,
+        }))}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 5 }}>
+        只計 25,459 筆可繪 canonical 旅宿；不叠加 OSM coverage，502 筆無 geometry 未入格。
+      </div>
     </div>
   );
 }
@@ -1719,6 +1828,31 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {modeIdx === 4 ? PROPERTY_VALUE_ATTRIBUTION : BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
+function PropertyValueAdminLegend({ levelIdx }: { levelIdx: number }) {
+  const t = useLegendTheme();
+  const level = resolvePropertyValueAdminLevel(levelIdx);
+  const config = PROPERTY_VALUE_ADMIN_LEVELS[level];
+  const bounds = [0, ...config.breaks];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        不動產總市值 · {config.label}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {PROPERTY_VALUE_ADMIN_COLORS.map((color, index) => {
+          const lower = formatPropertyValueTwd(bounds[index]!);
+          const upper = config.breaks[index];
+          return <UrbanDotRow key={color} color={color} label={upper ? `${lower} – < ${formatPropertyValueTwd(upper)}` : `${lower} 以上`} />;
+        })}
+        <UrbanDotRow color={PROPERTY_VALUE_ADMIN_MISSING_COLOR} label="來源缺值（不是 0）" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        市場交易建物模型估值聚合；{level === "township" ? "鄉鎮市區界自 z6 顯示。" : "19 / 22 縣市有數值。"}
       </div>
     </div>
   );
@@ -3080,12 +3214,12 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
         {manufacturing ? "製造業公司登記 MANUFACTURING" : "公司登記分布 COMPANY REGISTRY"}
       </div>
       {!manufacturing && !filtersActive && <>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）</div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>概覽：公司密度（家／km²）· Viridis</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px", marginBottom: 6 }}>
           {COMPANY_DENSITY_STOPS.map((stop, i) => (
             <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
-              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {stop.toLocaleString("zh-TW")}</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
             </div>
           ))}
         </div>
@@ -3101,7 +3235,7 @@ function CompanyPointsLegend({ manufacturing, overlayParams }: { manufacturing: 
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
         {manufacturing
-          ? "202608 登記快照；z4–11 為製造業公司數的聚合圓點，z12+ 顯示個別公司。點位是公司登記地址，不是工廠位置。"
+          ? "202608 登記快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。184,944 筆有座標；點位是公司登記地址，不是工廠實際營運地址。"
           : filtersActive
             ? "已設定篩選條件；未篩選概覽格已隱藏，請放大至 z12 查看篩選後的個別公司。"
             : "202608 登記快照；z4–9 為 1.5km、z10–11 為 450m 網格密度，z12+ 顯示可點擊個別公司。"}
@@ -3122,7 +3256,7 @@ function FactoryLocationsLegend() {
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>有可發布座標的工廠登記點位</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        202606 快照；z4–10 為全已定位 records 計數概覽，z11+ 顯示個別工廠。90,652 / 100,624 筆可定位。
+        202606 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。90,652 / 100,624 筆可定位。
       </div>
     </div>
   );
@@ -3140,10 +3274,27 @@ function RegulatedFacilitiesLegend() {
         <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>環境部 active 列管設施</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        20260818 快照，z11 起顯示。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
+        20260818 快照；全台尺度起顯示完整有座標點位，未抽稀、未 cluster。80,732 / 127,795 筆有座標；列管身分不等於事件、裁罰或風險等級。
       </div>
     </div>
   );
+}
+
+function IndustrialDensityGridLegend({ title, unit, note }: { title: string; unit: string; note: string }) {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>{title}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>密度（{unit}／km²）· Viridis</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+      {COMPANY_DENSITY_STOPS.map((stop, i) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+        <Swatch color={COMPANY_DENSITY_COLORS[i]!} round={false} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.toLocaleString("zh-TW")}{i < COMPANY_DENSITY_STOPS.length - 1 ? `–<${COMPANY_DENSITY_STOPS[i + 1]!.toLocaleString("zh-TW")}` : " 以上"}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+      {note} z4–&lt;10 使用 1,500m、z10+ 使用 450m 網格，隨縮放自動切換。
+    </div>
+  </div>;
 }
 
 function IndustrialParkBoundariesLegend() {
@@ -3219,7 +3370,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         {stops.map((stop, i) => (
           <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <Swatch color={COMPANY_GRID_COLORS[i]!} round={false} />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {formatGridStop(stop, safeMode === 1)}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{formatGridStop(stop, safeMode === 1)}{i < stops.length - 1 ? `–<${formatGridStop(stops[i + 1]!, safeMode === 1)}` : " 以上"}</span>
           </div>
         ))}
         {safeMode === 2 && (
@@ -3230,7 +3381,7 @@ function CompanyCapitalGridLegend({ modeIdx, scaleIdx }: { modeIdx: number; scal
         )}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
-        {scale.label} 非空網格，202608 登記快照；資本額採各尺度非線性級距。
+        {scale.label} 非空網格，202608 登記快照；Magma 色階由暗至亮＝數值由低至高；採各尺度固定非線性級距。
       </div>
     </div>
   );
@@ -3271,10 +3422,11 @@ function CompanyAgeStructureLegend({ modeIdx }: { modeIdx: number }) {
   const median = modeIdx === 1;
   const stops = median ? COMPANY_AGE_MEDIAN_STOPS : COMPANY_AGE_RECENT_STOPS;
   return <div>
-    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 COMPANY AGE</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>公司年齡結構 · {median ? "年齡中位數（年）" : "近 5 年設立占比（%）"}</div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 5 }}>Cividis 藍黃系 · 越亮＝{median ? "年齡越高" : "近期設立占比越高"}</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
       {stops.map((stop, index) => <div key={stop} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>≥ {median ? `${stop} 年` : `${(stop * 100).toFixed(0)}%`}</span>
+        <Swatch color={COMPANY_AGE_COLORS[index]!} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{median ? `${stop}` : `${(stop * 100).toFixed(0)}`}{index < stops.length - 1 ? `–<${median ? stops[index + 1] : (stops[index + 1]! * 100).toFixed(0)}` : " 以上"}{median ? " 年" : "%"}</span>
       </div>)}
       <div style={{ display: "flex", alignItems: "center", gap: 5 }}><Swatch color={COMPANY_GRID_NULL_COLOR} round={false} /><span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>缺值／無已知設立年</span></div>
     </div>
@@ -4235,14 +4387,14 @@ function GfwVesselPresenceLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        GFW VESSEL PRESENCE
+        GFW 舊版每日船舶 · HISTORICAL
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", border: "1px solid #451a03" }} />
-        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>每日 / 延遲 vessel presence</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>歷史快照；不代表最新 release</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
-        非即時 AIS；不等於暗船或 SAR unmatched 清單
+        最新日期請以小時 Grid／Tracks／SAR 為準；本層非即時 AIS。
       </div>
     </div>
   );
@@ -4275,6 +4427,11 @@ function GfwHourlyGridLegend() {
           資料窗 {dataWindow.utcDateLabel}（UTC）
         </div>
       )}
+      {dataWindow && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(dataWindow.latestCompleteDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(dataWindow.latestCompleteDate).label}
+        </div>
+      )}
       {dataWindow?.status === "out-of-window" && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, fontWeight: 600, marginTop: 2 }}>
           ⚠ 目前時間在資料窗外，圖層已淡出
@@ -4287,6 +4444,15 @@ function GfwHourlyGridLegend() {
 function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
   const t = useLegendTheme();
   const dataWindow = useGfwV4TrackDataWindow();
+  const [fallbackLatestDate, setFallbackLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwHourlyTrackManifest().then((manifest) => {
+      if (active) setFallbackLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
+  const latestDate = dataWindow.endUtcDate ?? fallbackLatestDate;
   const palette = isDark
     ? { fishing: "#58d68d", cargo: "#39bff4", passenger: "#b3a0ff", carrier: "#ff8f43", other: "#f0cc66", unknown: "#f5f1db" }
     : { fishing: "#187c46", cargo: "#007da8", passenger: "#6552b8", carrier: "#b54c00", other: "#8a6500", unknown: "#34413e" };
@@ -4313,6 +4479,11 @@ function GfwHourlyTracksLegend({ isDark }: { isDark: boolean }) {
       {dataWindow.status !== "unknown" && dataWindow.startUtcDate && (
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
           資料窗 {dataWindow.startUtcDate === dataWindow.endUtcDate ? dataWindow.startUtcDate : `${dataWindow.startUtcDate} ~ ${dataWindow.endUtcDate}`}（UTC）
+        </div>
+      )}
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 2 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
         </div>
       )}
       {dataWindow.status === "out-of-window" && (
@@ -4372,6 +4543,11 @@ function GfwFishingEffortLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         最新可用日期：{manifest?.latestAvailableDate ?? "未提供（GFW 未提供）"} · active：{manifest?.latestObservedActiveDate ?? "未提供"}
       </div>
+      {manifest?.selectedUtcDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(manifest.selectedUtcDate).status === "stale" ? "#f97316" : t.textMuted, fontWeight: 600, marginTop: 2, lineHeight: 1.4 }}>
+          Release 完整日：{gfwFreshness(manifest.selectedUtcDate).label}
+        </div>
+      )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2, lineHeight: 1.4 }}>
         Finalization：{manifest?.finalizationStatus ?? "未提供"} · Revision：{manifest?.revisionSemantics ?? "未提供"}
       </div>
@@ -4388,6 +4564,14 @@ function GfwFishingEffortLegend() {
 
 function GfwDarkVesselsLegend() {
   const t = useLegendTheme();
+  const [latestDate, setLatestDate] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    void loadGfwDarkVesselsManifest().then((manifest) => {
+      if (active) setLatestDate(manifest?.latestCompleteDate ?? null);
+    });
+    return () => { active = false; };
+  }, []);
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -4400,6 +4584,11 @@ function GfwDarkVesselsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 5, lineHeight: 1.4 }}>
         點位是 GFW HIGH 格網中心。「未與 AIS 匹配」不等於違法、暗船，也不能確認船舶刻意關閉 AIS。
       </div>
+      {latestDate && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: gfwFreshness(latestDate).status === "stale" ? "#f97316" : COLORS.textFaint, fontWeight: 600, marginTop: 4 }}>
+          最新完整日 {gfwFreshness(latestDate).label}
+        </div>
+      )}
     </div>
   );
 }
@@ -4838,7 +5027,7 @@ function WorldTrashDebrisLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        全球垃圾殘骸 TRASH & DEBRIS
+        垃圾與殘骸觀測 TRASH & DEBRIS OBSERVATIONS
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <div
@@ -4874,6 +5063,30 @@ function CoralReefDistributionLegend() {
     <div style={{ color: t.textDim, lineHeight: 1.45 }}>低 zoom 可見性損失與無 coverage 都不等於沒有珊瑚；馬祖本版無 coverage。</div>
     <div style={{ color: t.textDim, lineHeight: 1.45 }}>臺灣僅為研究窗口，非行政邊界；面積是全球完整來源 feature，不可加總。</div>
     <div style={{ marginTop: 4, color: t.textDim, lineHeight: 1.45 }}>{CORAL_REEF_ATTRIBUTION}</div>
+  </div>;
+}
+
+function AllenCoralAtlasLegend() {
+  const t = useLegendTheme();
+  const values = useLayerParams("allenCoralAtlas");
+  const view = oneOfParam(
+    paramStr(values, "allenCoralAtlas", "allenCoralAtlasView"),
+    ["coralAlgae", "benthic", "geomorphic"] as const satisfies readonly AllenCoralAtlasView[],
+    "coralAlgae",
+  );
+  const rows = allenCoralSource(view).legend.filter((item) => view !== "coralAlgae" || item.value === "Coral/Algae");
+  const title = view === "coralAlgae" ? "珊瑚／藻類棲地" : view === "benthic" ? "淺海棲地分類" : "礁體地形分區";
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 340 }}>
+    <div style={{ color: t.textStrong, fontWeight: 700, marginBottom: 4 }}>Allen Coral Atlas · {title}</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "3px 8px" }}>
+      {rows.map((item) => <div key={item.value} style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+        <span style={{ width: 8, height: 8, flexShrink: 0, borderRadius: 2, background: item.color }} />
+        <span>{item.label_zh}</span>
+      </div>)}
+    </div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>{ALLEN_CORAL_WARNING}</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>取得日：{ALLEN_CORAL_ACQUIRED_AT.slice(0, 10)}（非觀測日）；來源完整要素面積未裁切，不可作研究區總面積。</div>
+    <div style={{ color: t.textDim, lineHeight: 1.45, marginTop: 3 }}>{ALLEN_CORAL_ATTRIBUTION}</div>
   </div>;
 }
 
@@ -4926,7 +5139,7 @@ function JpReligionLegend({ visibility }: { visibility: LayerVisibility }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        日本宗教設施 JAPAN RELIGION
+        宗教設施 宗教施設
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         {JP_RELIGION_CATEGORIES.map((category) => (
@@ -6436,7 +6649,7 @@ function SoundCameraLocationsLegend() {
 function JpPoliceFacilitiesLegend() {
   const t = useLegendTheme();
   return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, maxWidth: 320 }}>
-    <div style={{ marginBottom: 4 }}>日本警察設施</div>
+    <div style={{ marginBottom: 4 }}>警察設施 警察施設</div>
     {JP_POLICE_FACILITY_TYPES.map(c => <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
       <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: c.color }} />{c.label}
     </div>)}
@@ -6445,5 +6658,36 @@ function JpPoliceFacilitiesLegend() {
     <div>地圖可顯示：13,195 點；無座標：1 筆（原始地址缺漏）</div>
     <div>資料時點：2025-04-01</div>
     <div style={{ marginTop: 5 }}>{JP_POLICE_ATTRIBUTION}</div>
+  </div>;
+}
+
+
+function JpMedicalLegend({ layerKey }: { layerKey: string }) {
+  const t = useLegendTheme();
+  const facility = JP_MEDICAL_CATEGORIES.find(item => item.key === layerKey);
+  const care = JP_MEDICAL_CARE_GROUPS.find(item => item.key === layerKey);
+  const area = JP_MEDICAL_AREA_LEVELS.find(item => item.key === layerKey);
+  const kind = facility ? "facilities" : care ? "care" : "areas";
+  const row = facility ?? care ?? area;
+  if (!row) return null;
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.5 }}>
+    <strong>{row.label}</strong>
+    <div style={{ margin: "4px 0" }}><JpMedicalStatus kind={kind} layerKey={layerKey} /></div>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <span style={{ width: 9, height: 9, borderRadius: kind === "areas" ? 0 : "50%", background: row.color }} />{row.label}
+    </div>
+    {kind !== "areas" && <>
+      <div style={{ color: t.textDim, marginTop: 5 }}>zoom &lt; 8：10 km 等面積格內筆數</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "3px 8px", marginTop: 3 }}>
+        {JP_MEDICAL_GRID_BANDS.map((band) => <span key={band.min} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+          <i style={{ width: 8, height: 8, background: band.color, display: "inline-block" }} />{band.label}
+        </span>)}
+      </div>
+    </>}
+    <div style={{ color: t.textDim, marginTop: 5 }}>{kind === "areas"
+      ? "国土数値情報 A38 · 2020 歷史版。這是行政規劃邊界，不是設施服務範圍；人口／面積不可按 polygon part 加總。"
+      : kind === "care"
+      ? "厚生労働省 H17。低縮放每格加總目前開啟分類的服務登記；不是容量、服務人次或唯一機構數。zoom ≥ 8 每個圓點是一筆完整服務登記；同址可有多筆。"
+      : "厚生労働省 Navii。低縮放每格加總目前開啟分類的可繪製設施；不是病床數、容量或服務範圍。zoom ≥ 8 每個圓點是一筆完整可繪製設施；缺座標另列。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
   </div>;
 }

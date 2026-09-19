@@ -9,7 +9,7 @@ function fetchJpAirportsUncached(): Promise<GeoJSON.FeatureCollection> {
   const url = `${BASE}/jp_airports.geojson`;
   return withLoading(
     "jp-airports",
-    "日本機場",
+    "機場 空港",
     fetch(url).then((response) => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return response.json() as Promise<GeoJSON.FeatureCollection>;

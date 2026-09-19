@@ -2,7 +2,9 @@ import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { createReadStream } from "node:fs";
 import { rm, stat } from "node:fs/promises";
-import { resolve } from "node:path";
+import { resolve, dirname } from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 
 // build 後把「只給腳本/文件用、不需上線」的大型靜態檔從 dist 移除。
@@ -118,10 +120,14 @@ function serveAgriStatisticsPreviewBoundaries(): Plugin {
   };
 }
 
-/** Licensed coral archive stays outside public/dist; loopback-only development access. */
-function serveLocalCoralResearch(): Plugin {
+/** Local research archives stay outside public/dist; loopback-only development access. */
+function serveLocalResearchAssets(): Plugin {
   const filename = "coral_reef_distribution_global.pmtiles";
-  const target = resolve(process.cwd(), "../taipei-gis-analytics/data/processed/marine/coral_reef_distribution", filename);
+  const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT ?? resolve(process.cwd(), "../taipei-gis-analytics");
+  const targets: Record<string, string> = {
+    [`/${filename}`]: resolve(analyticsRoot, "data/processed/marine/coral_reef_distribution", filename),
+    "/schools-grid.json": resolve(analyticsRoot, "data/intermediate/research-library/schools-grid-v3/bundle.json"),
+  };
   return {
     name: "serve-local-coral-research",
     apply: "serve",
@@ -135,13 +141,23 @@ function serveLocalCoralResearch(): Plugin {
           response.end("Local research only");
           return;
         }
-        if (request.url?.split("?", 1)[0] !== `/${filename}` ||
+        const target = targets[request.url?.split("?", 1)[0] ?? ""];
+        if (!target ||
             !["GET", "HEAD"].includes(request.method ?? "")) {
           response.statusCode = 404;
           response.end("Unknown local research asset");
           return;
         }
         void stat(target).then((info) => {
+          if (target.endsWith("/schools-grid-v3/bundle.json")) {
+            const index = new DatabaseSync(resolve(dirname(target), "library.sqlite"), { readOnly: true });
+            try {
+              const entry = index.prepare("SELECT lifecycle FROM research_assets WHERE id=? LIMIT 1").get(schoolsGridReceipt.assetId);
+              if (!entry || !["hold", "candidate", "promoted"].includes(String(entry.lifecycle))) {
+                response.statusCode = 409; response.end("Research asset stale or unavailable"); return;
+              }
+            } finally { index.close(); }
+          }
           const range = parseSingleByteRange(request.headers.range, info.size);
           response.setHeader("cache-control", "private, no-store");
           response.setHeader("accept-ranges", "bytes");
@@ -164,7 +180,7 @@ function serveLocalCoralResearch(): Plugin {
           stream.pipe(response);
         }).catch(() => {
           response.statusCode = 404;
-          response.end("Local coral archive unavailable; no coverage inference");
+          response.end("Local research archive unavailable; no coverage inference");
         });
       });
     },
@@ -174,12 +190,14 @@ function serveLocalCoralResearch(): Plugin {
 export default defineConfig({
   plugins: [
     react(),
-    serveLocalCoralResearch(),
+    serveLocalResearchAssets(),
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
     stripBuildAssets([
       // Owner-local historical flight samples; publish separately only after data-rights acceptance.
       "flight-trails",
+      // 日本醫療依 exact allowlist 獨立交付；不隨 app bundle 發布。
+      "jp-medical",
       // 55MB，bundle-rail-data.py 產出 → upload-rail-to-s3.ts 上傳 S3 的中間產物，app runtime 不載入
       "rail_bundle.json",
       // GFW 7-day trajectory POC 僅供 localhost bbox.html 驗收，不可跟 production bundle 部署
@@ -190,6 +208,26 @@ export default defineConfig({
       "gfw_hourly_grid_poc",
       // GFW v4 immutable releases 由獨立 pull/install 流程管理；dev 可讀，但 app build 不複製。
       "global-maritime/gfw-hourly/v4",
+      // Japan tourism production files are supplied by S3 /data/world; research-only files must fail closed.
+      "world/jp_accommodation_canonical_20260910.geojson",
+      "world/jp_accommodation_canonical_allzoom_20260910.pmtiles",
+      "world/jp_accommodation_density_450m_20260910.pmtiles",
+      "world/jp_accommodation_density_1500m_20260910.pmtiles",
+      "world/jp_accommodation_jta_20260331.geojson",
+      "world/jp_accommodation_local_20260910.geojson",
+      "world/jp_accommodation_osm_20260910.geojson",
+      "world/jp_accommodation_osm_allzoom_20260910.pmtiles",
+      "world/jp_natural_parks_ksj_2010.geojson",
+      "world/jp_natural_parks_ksj_2010.pmtiles",
+      "world/jp_nature_conservation_ksj_2015.geojson",
+      "world/jp_nature_conservation_ksj_2015.pmtiles",
+      "world/jp_wildlife_protection_moe_202504.geojson",
+      "world/jp_wildlife_protection_moe_202504.pmtiles",
+      "world/jp_world_natural_heritage_ksj_2011.geojson",
+      "world/jp_world_heritage_unesco_current.geojson",
+      "world/jp_ramsar_moe_current.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.geojson",
+      "world/jp_marine_ebsa_moe_coastal_20150101.pmtiles",
     ]),
   ],
   assetsInclude: ["**/*.vert", "**/*.frag"],
@@ -198,6 +236,8 @@ export default defineConfig({
       input: {
         // 主站（mapbox-gl + Three.js）
         main: resolve(process.cwd(), "index.html"),
+        // Isolated research canvas; no ordinary App state or data loaders.
+        lab: resolve(process.cwd(), "lab/index.html"),
         // EM-06 嵌入版（MapLibre + Protomaps 底圖，不載入 mapbox-gl / Three.js）
         embed: resolve(process.cwd(), "embed.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
@@ -209,7 +249,16 @@ export default defineConfig({
     port: 3721,
     strictPort: true,
     proxy: {
+      "/api/research/v1": { target: process.env.PULSE_RESEARCH_GATEWAY_ORIGIN ?? "http://127.0.0.1:8790", changeOrigin: false },
+      ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
+        '/__social-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__social-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
+      "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.
       ...(process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' ? {
