@@ -1,5 +1,7 @@
 # Agent Research Workbench — v1 規格
 
+> **歷史 v1 規格（2026-09-10）**：本文件仍是當時 Research Workbench 產品方向的設計證據，不是目前 23-tool 地圖探索能力或發布狀態的 SSOT。現在請從 [探索能力計劃](./exploration-capabilities-plan.md) 進入；來源能力契約與新增圖層規則見 [分析能力 onboarding](./analysis-capability-onboarding.md)。
+
 版本：v1.0-draft · 整理日期：2026-09-10
 
 狀態：使用者已選定產品方向並授權隔離 worktree 開工；實作進度與驗收見 [handoff.md](./handoff.md)。本規格描述完整 v1 目標，不代表所有功能已實作、上線或付費額度已核准。以下「必須」是 v1 驗收要求；數值標示「初始預設」者為可調整的工程建議。

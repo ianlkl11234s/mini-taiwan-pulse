@@ -1,3 +1,5 @@
+> **歷史文件（2026-09-14～15）**：保留 Research Workbench 當時的本地驗收證據，不代表目前工具數、跟隨行為或發布狀態。現在請從 [探索能力計劃](./exploration-capabilities-plan.md) 進入；工具快照見 [全圖層能力盤點](./layer-capability-inventory-20260919.md)。
+
 ## 2026-09-15 研究動作與流暢互動
 
 - 進度卡由 QueryResponder 實際開始／完成事件驅動；重送不重播動作，斷線後不發晚到完成。純 context/result readback 不閃卡，沒有假百分比或假掃描。

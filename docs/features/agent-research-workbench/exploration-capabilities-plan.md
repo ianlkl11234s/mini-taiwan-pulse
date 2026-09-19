@@ -1,6 +1,16 @@
 # Codex 地圖探索能力計劃
 
-更新：2026-09-20。狀態：新版 MCP dist 已驗證 23 個工具；本地 3732／8791 已由本輪 recovery worktree 啟動，Gateway 已重載新 operation，學校與警察圖層有實際資料及瀏覽器顯示證據；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗，未發布。此文件維護能力範圍、使用情境與驗收結果。
+更新：2026-09-20。狀態：新版 MCP dist 已驗證 23 個工具；三個 repo 的功能 PR 已合併至 default branch，前端與 Gateway 的 merge 後 CI 通過。前端雖設定 Zeabur 綁定 `master` 自動部署，但本次 merge 尚無 production deployment receipt，正式站 bundle 也尚未包含新的 capability／record search operation，因此不可標為已上線。Gateway 與 MCP repo 沒有自動 runtime deployment workflow。本地 3732／8791、實際資料與 browser 已驗；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗。此文件是目前能力、發布狀態與下一步的入口。
+
+## 2026-09-20 合併與部署狀態
+
+| 範圍 | Git／CI | Runtime／production |
+|---|---|---|
+| Frontend | PR #319，一般 merge commit `4489fbad`；merge 後 `master` CI success | Zeabur 自動部署設定存在，但該 SHA 無 deployment receipt；正式站 bundle 未讀到 `list_layer_capabilities`／`search_layer_records`，尚未證實上線 |
+| Gateway | PR #114，一般 merge commit `44de82e`；merge 後 `main` CI success | repo 沒有自動 migration／runtime deployment；本輪只驗證 recovery worktree 的本機 8791 |
+| MCP | PR #1，一般 merge commit `cd23db5b`；本地 38/38、build 與真 stdio smoke 通過 | repo 沒有 GitHub Actions 或 deployment；Codex task 需重新載入本機 MCP dist |
+
+「合併」、「CI 通過」、「平台 deployment receipt」、「正式站 bundle／資料回讀」是四種不同證據。本文件只有在對應證據存在時才標完成；不能把 Zeabur 已設定自動部署直接寫成這次已成功上線。
 
 ## 目標
 
@@ -82,7 +92,7 @@
 | 缺欄位／不存在圖層／HTML200／載入失敗 | 明確不支援或失敗，不能假0 |
 | 30分鐘以上／雙頁／429／reload | 續租與退避、過期／撤銷不復活、同tab恢復 |
 
-## 驗收紀錄
+## 2026-09-19 合併前驗收紀錄（歷史）
 
 本輪分支（三 repo）：`codex/exploration-counts-20260918`。前端 base `7ebbb865`、Gateway base `87d3b814`、MCP base `5dcd5b0`；MCP 現已有 origin/main，取代上一輪無 remote 的快照。
 
@@ -99,7 +109,7 @@
 | 協定往返 | 真stdio → HTTP Gateway → QueryResponder → 真3732資產；760 capability entries、2個count-ready來源、學校record search、既有學校／雙北警察統計、分頁、錯誤不回0與disconnect均通過；owner與tab為隔離測試替身 |
 | 真使用者配對 E2E | 待驗；本地Agent面板尚未Google登入，尚未提供本輪Gateway允許帳號。不能以協定替身當真人驗收 |
 | 真長時間與UI情境 | duplicate/reload/TTL/429有自動化證據；真人雙分頁、30分鐘以上導覽、全部面板配置與時間操作仍待驗 |
-| Git / 部署 | 依本 session 授權完成三 repo 本地 commit（見下）；未push/PR/merge/deploy。僅啟動自己的前端3732與短暫隔離協定測試服務 |
+| Git / 部署 | 此次合併前 checkpoint 當時只完成三 repo 本地 commit（見下），尚未 push／PR／merge／deploy；後續結果見本文件最前方「2026-09-20 合併與部署狀態」 |
 
 可重跑的協定入口：[`evaluation-statistics.mjs`](../../../scripts/research/evaluation-statistics.mjs)，命令 `npx vite-node scripts/research/evaluation-statistics.mjs http://127.0.0.1:3732`。前置為 sibling MCP 已build及3732網站啟動；使用隨機本地埠與MemoryPairingStore，不改真身分驗證設定、不影響其他MCP程序。2026-09-19 實跑為23 tools、760 capability entries、2個 count-ready來源，學校「雙蓮」record search 1筆，unsupported layer 明確錯誤；既有統計案例仍全部通過。上一輪持久結果見 [`statistics-acceptance-20260918.json`](statistics-acceptance-20260918.json)。
 
@@ -153,4 +163,4 @@
 - 隔離協定 E2E 通過：真 stdio MCP → HTTP Gateway → QueryResponder → 3732真資產；這是模擬 owner/tab，不是 Google 登入後的真人配對。
 - HTTP 資產為 GeoJSON，不是 SPA fallback：學校2,504,719 bytes／4,315筆；警察1,698,235 bytes／2,065筆。browser 實看 policeStation 點位正常。
 - 本輪只重啟已確認屬於 recovery worktree 的8791 Gateway，沿用畫面已確認的測試帳號 allowlist；未停止其他 MCP 或服務。Gateway 根路徑回受控404，listener正常。
-- 未 push、PR、merge、deploy；目前桌面 task 尚未重載新版 MCP。
+- 本段驗收當時尚未 push／PR／merge／deploy；後續 Git、CI 與部署狀態見本文件最前方。當時桌面 task 尚未重載新版 MCP。
