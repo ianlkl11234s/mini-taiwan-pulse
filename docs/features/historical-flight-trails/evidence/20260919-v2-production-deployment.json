@@ -1,0 +1,13 @@
+{
+  "schema": "historical-flight-trails-production-deployment-v2",
+  "deployment_id": "6aae9e2f94c4cdf079b8bba9",
+  "project_id": "69a3b5eb07e6de1869be6e28",
+  "service_id": "69a3b5f307e6de1869be6e2c",
+  "environment_id": "69a3b5eb8ca26dea02bd9da7",
+  "commit_sha": "9b6e9d884b8b54c3bf145dfeecc6918eb9e91859",
+  "ref": "refs/heads/master",
+  "created_at": "2026-09-19T14:37:35.931Z",
+  "started_at": "2026-09-19T14:38:15.395Z",
+  "finished_at": "2026-09-19T14:41:39.034Z",
+  "status": "RUNNING"
+}

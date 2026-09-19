@@ -13,6 +13,7 @@
 - [ ] 來源查詢分頁/事件日完整對帳，現有全為partial或unavailable。
 - [ ] 個別資料合約與公開展示授權：`license_status=unverified`。
 - [x] Production deployment、HTTP status／Content-Type／Cache-Control／bytes／SHA-256 readback，以及桌面 browser 載入驗收；見 `evidence/20260919-production-*.json`。
-- [ ] `20260919-v2` 日期變更合併部署後的 production manifest／三日期 browser readback。
+- [x] `20260919-v2` 日期變更已合併部署；production manifest 與桃園三日期資產 HTTP readback 通過。
+- [ ] `20260919-v2` 桌面 browser 日期選單／三日期切換驗收。
 - [ ] 實體手機效能；桌面窄視窗不等於真機。
 - [x] PR #313 以一般 merge commit `becb3e9e` 整合；Zeabur deployment `6aae2d9c` 完成並為 `RUNNING`。
