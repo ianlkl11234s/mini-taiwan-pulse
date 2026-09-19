@@ -73,7 +73,7 @@ import {
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { JP_STATION_TYPES, JP_STATION_TYPE_OTHER, JP_STATION_PAX_BUCKETS, JP_STATION_PAX_NO_DATA } from "../data/jpStationTypes";
 import { JP_RAILWAY_TYPES } from "../data/jpRailwayTypes";
-import { JP_WATER_LAYER_CONTRACT } from "../data/jpWaterTypes";
+import { JP_WATER_FACILITY_CATEGORIES, JP_WATER_LAYER_CONTRACT } from "../data/jpWaterTypes";
 import { CARRIER_KINDS, MATCH_STATUSES, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { JP_SCHOOL_TYPES } from "../data/jpSchoolTypes";
 import {
@@ -402,6 +402,15 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "jpStations", render: ({ overlayParams }) => <JpStationsLegend modeIdx={overlayParams.jpStationsColorModeIdx ?? 0} /> },
   { id: "jpRailways", render: () => <JpRailwaysLegend /> },
   { id: "jpWaterLakes", render: () => <JpWaterLegend layerKey="jpWaterLakes" /> },
+  { id: "jpWaterDams", render: () => <JpWaterLegend layerKey="jpWaterDams" /> },
+  { id: "jpWaterRivers", render: () => <JpWaterLegend layerKey="jpWaterRivers" /> },
+  { id: "jpWaterSupplyFacilities", render: () => <JpWaterLegend layerKey="jpWaterSupplyFacilities" /> },
+  { id: "jpWaterSupplyAreas", render: () => <JpWaterLegend layerKey="jpWaterSupplyAreas" /> },
+  { id: "jpWaterSewerFacilities", render: () => <JpWaterLegend layerKey="jpWaterSewerFacilities" /> },
+  { id: "jpWaterGroundwaterSites", render: () => <JpWaterLegend layerKey="jpWaterGroundwaterSites" /> },
+  { id: "jpWaterNilimDams", render: () => <JpWaterLegend layerKey="jpWaterNilimDams" /> },
+  { id: "jpWaterAgriculturalPonds", render: () => <JpWaterLegend layerKey="jpWaterAgriculturalPonds" /> },
+  { id: "jpWaterFloodHazard", render: () => <JpWaterFloodHazardLegend /> },
   { id: "jpWaterLocalFacilities", render: () => <JpWaterLegend layerKey="jpWaterLocalFacilities" /> },
   { id: "jpWaterQualityStations", render: () => <JpWaterLegend layerKey="jpWaterQualityStations" /> },
   { id: "jpWaterLevelStations", render: () => <JpWaterLegend layerKey="jpWaterLevelStations" /> },
@@ -1238,11 +1247,25 @@ function JpWaterLegend({ layerKey }: { layerKey: keyof typeof JP_WATER_LAYER_CON
   const contract = JP_WATER_LAYER_CONTRACT[layerKey];
   const t = useLegendTheme();
   const colors: Record<keyof typeof JP_WATER_LAYER_CONTRACT, string> = {
-    jpWaterDams: "#0369a1", jpWaterLakes: "#0ea5e9", jpWaterSupplyFacilities: "#0284c7", jpWaterSupplyAreas: "#38bdf8", jpWaterSewerFacilities: "#1d4ed8", jpWaterRivers: "#0284c7", jpWaterLocalPipes: "#075985", jpWaterLocalFacilities: "#0284c7", jpWaterQualityStations: "#7c3aed", jpWaterLevelStations: "#0369a1",
+    jpWaterDams: "#0369a1", jpWaterLakes: "#0ea5e9", jpWaterSupplyFacilities: "#06b6d4", jpWaterSupplyAreas: "#7dd3fc", jpWaterSewerFacilities: "#1d4ed8", jpWaterRivers: "#0284c7", jpWaterGroundwaterSites: "#8b5cf6", jpWaterNilimDams: "#2563eb", jpWaterAgriculturalPonds: "#65a30d", jpWaterFloodHazard: "#64748b", jpWaterLocalPipes: "#075985", jpWaterLocalFacilities: "#0284c7", jpWaterQualityStations: "#7c3aed", jpWaterLevelStations: "#0369a1",
   };
+  const facilityGroup = layerKey === "jpWaterSupplyFacilities" ? "supply" : layerKey === "jpWaterSewerFacilities" ? "sewer" : null;
+  const rows = facilityGroup
+    ? JP_WATER_FACILITY_CATEGORIES.filter((category) => category.group === facilityGroup)
+    : [{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }];
   return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>{contract.sourceLabel}</div>
-    <FireCatRows cats={[{ color: colors[layerKey], label: `${contract.geometryRole} · ${contract.sourceYear}` }]} />
+    <FireCatRows cats={rows} />
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>{contract.historical ? "歷史快照；不是現況觀測。" : "以來源 metadata 為準；未知不補值。"}</div>
+    {facilityGroup && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>{facilityGroup === "supply" ? "P21 未提供一致細類；依 2010 年設施名稱保守推定，未命中者保留未分類。" : "P22 泵場／處理場依來源子型 P22a／P22b 區分。"}</div>}
+    {["jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds"].includes(layerKey) && <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>{layerKey === "jpWaterGroundwaterSites" ? "已驗證 source 1,293 筆；實際24縣，當前視窗空白不代表全國無資料。" : layerKey === "jpWaterNilimDams" ? "已驗證 source 583 筆；實際46縣、年份未提供，不與KSJ水壩相加。" : "已驗證 source 161,778 筆；datum未知的位置候選，4,284同座標列保留。"}</div>}
+  </div>;
+}
+
+function JpWaterFloodHazardLegend() {
+  const t = useLegendTheme();
+  return <div><div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>國土地理院 GSI 官方 XYZ（z2–17）</div>
+    <img src="https://disaportaldata.gsi.go.jp/hazardmap/copyright/img/shinsui_legend3.png" alt="國土地理院官方洪水浸水想定深度圖例" style={{ display: "block", maxWidth: "100%", height: "auto", marginBottom: 5 }} />
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim }}>最大規模浸水想定；空白不等於無風險，非即時災情或預報，覆蓋仍有部分缺口。色階直接使用官方圖例。</div>
   </div>;
 }
 

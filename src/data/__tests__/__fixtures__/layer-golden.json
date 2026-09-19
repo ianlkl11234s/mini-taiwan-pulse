@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 765,
+    "keyCount": 774,
     "sections": [
       "gisLayers",
       "overlays",
@@ -742,6 +742,42 @@
     },
     {
       "layers": [
+        "jp-water-jpWaterDams"
+      ],
+      "type": "jpWaterDams"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSupplyFacilities"
+      ],
+      "type": "jpWaterSupplyFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSewerFacilities"
+      ],
+      "type": "jpWaterSewerFacilities"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterGroundwaterSites"
+      ],
+      "type": "jpWaterGroundwaterSites"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterNilimDams"
+      ],
+      "type": "jpWaterNilimDams"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterAgriculturalPonds"
+      ],
+      "type": "jpWaterAgriculturalPonds"
+    },
+    {
+      "layers": [
         "jp-water-jpWaterLocalFacilities"
       ],
       "type": "jpWaterLocalFacilities"
@@ -763,6 +799,12 @@
         "jp-railways-line"
       ],
       "type": "jpRailways"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterRivers"
+      ],
+      "type": "jpWaterRivers"
     },
     {
       "layers": [
@@ -2775,6 +2817,12 @@
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"
+    },
+    {
+      "layers": [
+        "jp-water-jpWaterSupplyAreas"
+      ],
+      "type": "jpWaterSupplyAreas"
     }
   ],
   "overlays": [
@@ -66058,6 +66106,42 @@
         "value": "type"
       }
     ],
+    "jpWaterAgriculturalPonds": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "jpWaterDams": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "jpWaterFloodHazard": [
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
+      }
+    ],
+    "jpWaterGroundwaterSites": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
     "jpWaterLakes": [
       {
         "label": "透明度 0.35",
@@ -66085,6 +66169,15 @@
         "value": 0.85
       }
     ],
+    "jpWaterNilimDams": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
     "jpWaterQualityStations": [
       {
         "label": "透明度 0.75",
@@ -66092,6 +66185,42 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.75
+      }
+    ],
+    "jpWaterRivers": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      }
+    ],
+    "jpWaterSewerFacilities": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      }
+    ],
+    "jpWaterSupplyAreas": [
+      {
+        "label": "透明度 0.18",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.18
+      }
+    ],
+    "jpWaterSupplyFacilities": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       }
     ],
     "jpWildlifeProtectionNational": [

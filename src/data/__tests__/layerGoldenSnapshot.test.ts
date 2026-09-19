@@ -152,8 +152,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-18: +1 jpAccommodationDensity（旅宿密度雙尺度網格）。
     // 2026-09-18: 日本醫療 3 總覽拆為 14 個獨立 layer（淨增 11）。
     // 2026-09-18: +1 propertyValueAdmin（房地產總市值行政區 Statistics）。
-    // 2026-09-18: +4 日本水資源本地靜態資料（湖泊、高松供排水設施、水質／水位測站）。
-    expect(keys.length).toBe(765);
+    // 2026-09-18: +4 日本水資源已發布靜態資料；+9 LOCAL_ONLY 全國向量／洪水背景。
+    expect(keys.length).toBe(774);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

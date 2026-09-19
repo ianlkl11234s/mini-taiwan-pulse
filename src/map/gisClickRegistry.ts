@@ -194,12 +194,19 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 學校 56,807 點排在宗教三源之後：三源同為點層互不遮蔽，此處僅維持「點層群組」的末位。
   { layers: ["jp-police-facilities-circle"], type: "jpPoliceFacilities" },
   { layers: ["jp-schools-circle"], type: "jpSchools" },
+  { layers: ["jp-water-jpWaterDams"], type: "jpWaterDams" },
+  { layers: ["jp-water-jpWaterSupplyFacilities"], type: "jpWaterSupplyFacilities" },
+  { layers: ["jp-water-jpWaterSewerFacilities"], type: "jpWaterSewerFacilities" },
+  { layers: ["jp-water-jpWaterGroundwaterSites"], type: "jpWaterGroundwaterSites" },
+  { layers: ["jp-water-jpWaterNilimDams"], type: "jpWaterNilimDams" },
+  { layers: ["jp-water-jpWaterAgriculturalPonds"], type: "jpWaterAgriculturalPonds" },
   { layers: ["jp-water-jpWaterLocalFacilities"], type: "jpWaterLocalFacilities" },
   { layers: ["jp-water-jpWaterQualityStations"], type: "jpWaterQualityStations" },
   { layers: ["jp-water-jpWaterLevelStations"], type: "jpWaterLevelStations" },
   // 日本 Japan 線層：鐵道線是細目標，排在所有點層之後、所有面層之前
   // （面層若搶先會吃掉線上的點擊）。
   { layers: ["jp-railways-line"], type: "jpRailways" },
+  { layers: ["jp-water-jpWaterRivers"], type: "jpWaterRivers" },
   { layers: ["jp-medical-areas-1-fill"], type: "jpMedicalAreasPrimary" },
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
@@ -590,4 +597,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
   { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
+  // Transparent supply areas are intentionally the final click candidate across the map,
+  // so a coverage polygon never intercepts any detailed point, line, or other fill.
+  { layers: ["jp-water-jpWaterSupplyAreas"], type: "jpWaterSupplyAreas" },
 ];

@@ -14,6 +14,8 @@ const BASELINE_NO_PANEL = new Set([
   "groundwaterWell",
   // Base map：單色 raster，無 click feature — 無 panel 需求
   "hillshade",
+  // GSI 洪水 raster 是已上色背景，沒有可點選 feature/panel。
+  "jpWaterFloodHazard",
 ]);
 
 describe("featureInfo registry", () => {

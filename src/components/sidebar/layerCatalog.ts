@@ -26,6 +26,7 @@ import { COMPARISON_UI_RECIPES } from '../../data/comparisonStatisticsRecipes';
 
 import type { LayerVisibility, TransportType } from "../../types";
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../data/statisticsPresentationViews";
+import { jpWaterLocalResearchEnabled } from "../../data/jpWaterTypes";
 
 // ── Color Config ──
 
@@ -1753,9 +1754,12 @@ const THEME_CATALOG: ThemeDef[] = [
     title: "水資源",
     defaultCollapsed: false,
     groups: [{ title: "水資源靜態資料", layers: [
+      ...(jpWaterLocalResearchEnabled() ? [fromManifest("jpWaterDams"), fromManifest("jpWaterRivers"), fromManifest("jpWaterSupplyFacilities"), fromManifest("jpWaterSupplyAreas"), fromManifest("jpWaterSewerFacilities")] : []),
       fromManifest("jpWaterLakes"), fromManifest("jpWaterLocalFacilities"),
       fromManifest("jpWaterQualityStations"), fromManifest("jpWaterLevelStations"),
-    ] }],
+    ] }, ...(jpWaterLocalResearchEnabled() ? [{ title: "補充資料（覆蓋與定位限制見圖例）", layers: [
+      fromManifest("jpWaterGroundwaterSites"), fromManifest("jpWaterNilimDams"), fromManifest("jpWaterAgriculturalPonds"),
+    ] }] : []), { title: "背景", layers: [fromManifest("jpWaterFloodHazard")] }],
   },
   {
     title: "行政區",

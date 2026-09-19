@@ -87,7 +87,7 @@ export interface LayerHookEntry {
 
 /** ⚠️ 有序陣列。順序 = 凍結的 App.tsx 呼叫順序（見檔頭），嚴禁重排。 */
 export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
-  { id: "useJpWaterLayers", keys: ["jpWaterLakes", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
+  { id: "useJpWaterLayers", keys: ["jpWaterDams", "jpWaterLakes", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas", "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds", "jpWaterFloodHazard", "jpWaterLocalFacilities", "jpWaterQualityStations", "jpWaterLevelStations"], Host: JpWaterHost },
   { id: "useJpMedicalLayers", keys: [
     "jpMedicalHospitals", "jpMedicalClinics", "jpMedicalDental", "jpMedicalMaternity", "jpMedicalPharmacies",
     "jpCarePlanning", "jpCareHomeVisit", "jpCareDayServices", "jpCareResidential", "jpCareCombined", "jpCareEquipment",

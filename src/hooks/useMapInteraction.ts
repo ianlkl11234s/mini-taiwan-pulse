@@ -18,6 +18,7 @@ import { sessionTracker } from "../lib/sessionTracker";
 import { canonicalGfwGridCellId, hydrateGfwGridDetail, hydrateGfwTrackDetail, needsGfwGridDetailHydration } from "../data/gfwHourlyDetailLoader";
 import { beginGfwV4TrackPick } from "../data/gfwV4TrackPicking";
 import { encodeParamsToOverlay, layerParamsStore } from "../state/layerParamsStore";
+import { jpWaterSelectionIdentity } from "../data/jpWaterTypes";
 
 interface TooltipInfo {
   flight: Flight;
@@ -420,6 +421,15 @@ export function useMapInteraction(
             let properties = cellId ? { ...queriedProperties, cell_id: cellId } : queriedProperties;
             if (type === "companyIndustryDistribution" || type === "companyAgeStructure") {
               properties = { ...properties, __demographics_params: encodeParamsToOverlay(layerParamsStore.getAll()) };
+            }
+            const waterIdentity = jpWaterSelectionIdentity(type, properties.source_id);
+            if (waterIdentity) {
+              properties = {
+                ...properties,
+                source_layer: waterIdentity.sourceLayer,
+                asset_sha256: waterIdentity.assetSha256,
+                selection_identity: waterIdentity.selectionId,
+              };
             }
             // H17 同位置可能有多筆服務；保留目前篩選可見的登記，避免 first-hit 隱藏其他服務。
             if ((type === "jpCarePlanning" || type === "jpCareHomeVisit" || type === "jpCareDayServices"

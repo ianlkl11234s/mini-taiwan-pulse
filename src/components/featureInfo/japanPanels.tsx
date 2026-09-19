@@ -11,6 +11,7 @@ import { JP_SCHOOL_TYPES, JP_SCHOOL_TYPE_OTHER } from "../../data/jpSchoolTypes"
 import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
 } from "../../data/jpPopulationMeshModes";
+import { JP_WATER_FACILITY_CATEGORIES } from "../../data/jpWaterTypes";
 
 // 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
 function Title({ color, children }: { color: string; children: string }) {
@@ -103,7 +104,7 @@ export function JpAccommodationDensityPanel({ props }: { props: Record<string, u
 /** Source-aware Japan water popup. Never derives a status, capacity, or observation from a missing value. */
 export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
   const title = str(props.name) || str(props.facility_name) || str(props.station_name) || str(props.lake_name) || str(props.entity_id) || "日本水資源資料";
-  const rawRole = str(props.entity_role) || str(props.facility_category) || str(props.observation_kind);
+  const rawRole = str(props.role) || str(props.entity_role) || str(props.facility_category) || str(props.observation_kind);
   const role = {
     water_quality_station: "水質測站",
     water_level_station: "水位測站",
@@ -111,19 +112,40 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
     water_supply_related_facility: "供水相關設施",
     sewer_facility: "下水道設施",
   }[rawRole] || rawRole;
-  const sourceYear = str(props.source_year);
+  const sourceYear = str(props.year) || str(props.source_year);
   const isQualityRegistry = /quality|水質/i.test(rawRole) || /quality|水質/i.test(str(props.source));
+  const caveat = str(props.caveat);
+  const source = str(props.source) || str(props.attribution);
+  const isGroundwater = /groundwater|地下水|湧水|河川地点/i.test(`${rawRole} ${source}`);
+  const isNilim = /nilim/i.test(`${rawRole} ${source} ${caveat}`);
+  const isAgri = /maff|農業|ため池/i.test(`${rawRole} ${source} ${caveat}`);
+  const category = JP_WATER_FACILITY_CATEGORIES.find((item) => item.value === str(props.facility_category));
+  const classificationBasis = str(props.classification_basis);
+  const classification = classificationBasis === "source_subtype"
+    ? `來源資料子型 ${str(props.classification_match)}`
+    : classificationBasis === "name_pattern"
+      ? `依設施名稱「${str(props.classification_match)}」推定`
+      : classificationBasis === "unclassified" ? "來源未提供一致細類，且名稱規則未命中" : "";
   return <>
     <Title color="#0ea5e9">{title}</Title>
     <Row label="類型" value={role} />
+    <Row label="設施細類" value={str(props.facility_category_label) || category?.label || ""} />
+    <Row label="分類依據" value={classification} />
+    <Row label="事業／系統" value={str(props.water_system)} />
     <Row label="來源年份" value={!sourceYear || /^unknown\b/i.test(sourceYear) ? "來源未註" : sourceYear} />
-    <Row label="來源" value={str(props.source) || str(props.attribution)} />
+    <Row label="來源" value={source} />
     <Row label="授權" value={str(props.license)} />
     <Row label="涵蓋範圍" value={str(props.coverage)} />
-    <Row label="營運者" value={str(props.operator)} />
+    <Row label="來源欄位 operator" value={str(props.operator) ? `${str(props.operator)}（來源原值，未驗證為公司或營運者）` : ""} />
     <Row label="容量" value={str(props.capacity)} />
     <Row label="來源網址" value={str(props.source_url)} />
+    <Row label="來源識別" value={str(props.source_id) ? `${str(props.source_id)}（僅在此來源／版本內，不是跨源實體 ID）` : ""} />
+    <Row label="選取識別" value={str(props.selection_identity)} />
+    <Row label="資料限制" value={caveat} />
     {isQualityRegistry && <Row label="資料限制" value="此圖層是測定站名錄，不含水質濃度或趨勢。" />}
+    {isGroundwater && <Row label="覆蓋限制" value="實際僅24縣；年份未提供，視窗空白不代表全國無資料。" />}
+    {isNilim && <Row label="覆蓋限制" value="實際46縣；年份未提供，與KSJ水壩獨立，不可直接相加。" />}
+    {isAgri && <Row label="位置限制" value="MAFF來源 datum 未知，僅作位置候選；4,284筆同座標列保留，未自行合併。" />}
   </>;
 }
 

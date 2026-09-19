@@ -367,7 +367,7 @@ export type ExpandableLayerKey =
   | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
   | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
   | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
-  | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
+  | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
   | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports" | "jpRailways"
   | "jpAccommodationCanonical" | "jpAccommodationDensity" | "jpAccommodationJta" | "jpAccommodationLocal" | "jpAccommodationOsm"
@@ -841,7 +841,7 @@ export interface FeatureInfo {
     | "jpMedicalHospitals" | "jpMedicalClinics" | "jpMedicalDental" | "jpMedicalMaternity" | "jpMedicalPharmacies"
     | "jpCarePlanning" | "jpCareHomeVisit" | "jpCareDayServices" | "jpCareResidential" | "jpCareCombined" | "jpCareEquipment"
     | "jpMedicalAreasPrimary" | "jpMedicalAreasSecondary" | "jpMedicalAreasTertiary"
-    | "jpWaterLakes" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
+    | "jpWaterDams" | "jpWaterLakes" | "jpWaterRivers" | "jpWaterSupplyFacilities" | "jpWaterSupplyAreas" | "jpWaterSewerFacilities" | "jpWaterGroundwaterSites" | "jpWaterNilimDams" | "jpWaterAgriculturalPonds" | "jpWaterFloodHazard" | "jpWaterLocalFacilities" | "jpWaterQualityStations" | "jpWaterLevelStations"
   | "jpReligionGsi" | "jpReligionOsm" | "jpReligionWikidata"
     // 🗾 日本 Japan Batch 2（行政區 2 層 + 交通 2 層）
     | "jpAdminPrefecture" | "jpAdminBoundaries" | "jpStations" | "jpAirports"
@@ -1477,6 +1477,15 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   jpMedicalAreasSecondary: boolean;
   jpMedicalAreasTertiary: boolean;
   jpWaterLakes: boolean;
+  jpWaterDams: boolean;
+  jpWaterRivers: boolean;
+  jpWaterSupplyFacilities: boolean;
+  jpWaterSupplyAreas: boolean;
+  jpWaterSewerFacilities: boolean;
+  jpWaterGroundwaterSites: boolean;
+  jpWaterNilimDams: boolean;
+  jpWaterAgriculturalPonds: boolean;
+  jpWaterFloodHazard: boolean;
   jpWaterLocalFacilities: boolean;
   jpWaterQualityStations: boolean;
   jpWaterLevelStations: boolean;
