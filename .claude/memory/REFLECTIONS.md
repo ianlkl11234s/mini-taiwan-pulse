@@ -1914,3 +1914,40 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `INCIDENTS.md`：broad Cache Rule 凍結 `current.json` 的事件、修正與四類 URL 守門。
 - `REFLECTIONS.md`：本篇。
 - `STATUS.md`：最後重寫為三 repo merge、R2／Cloudflare／Zeabur／browser current truth 與下一棒入口。
+
+---
+
+## 2026-09-18~20 — Historical Flight Trails 靜態產品與 3D production closeout
+
+### What worked
+
+- 先以 Flight Arc 的實作與 globe 行為當視覺基準，再修正成 Three.js 3D 航跡、背面遮蔽與無點 marker；
+  render-only 球面細分沒有回寫或假造來源觀測點。
+- 日期從實際 local artifacts 盤點後決定：台灣保留 02/20、02/24、02/18，日本只留 02/18；
+  UI 同時顯示 `partial`、可用機場數與缺值，沒有把 78/78 選項涵蓋說成日本來源完整。
+- 供應鏈以 immutable release + short-cache manifest 發布，固定 concurrency 4、assets readback 完成後才 CAS 更新 pointer；
+  deployment pull 先同步 release 再原子替換 manifest，沒有增加 Supabase runtime 負擔。
+- CI、S3 readback、Zeabur、production HTTP 與 desktop browser 分格驗收；最後真的切換三日期、看見 3D 航跡並查 console，
+  沒用 HTTP 200 或 source inspection 取代 browser 證據。
+
+### Friction / limits
+
+- 第一版線條仍是平面且 globe 背面可見，表示「資料有線」不等於 renderer 符合 Flight Arc；需要近景與全球視角一起驗。
+- 可用機場數高仍不代表逐航班完整，三個台灣日期全是 `partial`；恆春三日皆無資產，02/18 另缺望安、蘭嶼。
+- Python 預設 User-Agent 的 production asset GET 被 Cloudflare 403，改用既有 `curl` probe 才完成相同 bytes/SHA/MIME/cache 驗收；
+  這是驗證工具差異，不是資產缺檔。
+- 真機效能與來源公開展示授權仍未完成，應維持獨立後續，不回頭改寫本次 production/browser 已完成的事實。
+
+### Next-time rules
+
+1. 軌跡產品先列 source geometry、render-only geometry、缺口連線與背面遮蔽四個契約，再比較視覺。
+2. 選示範日先算每機場 coverage；「全部機場有 selector」「有可繪資產」「來源完整」三者永遠分開寫。
+3. 靜態大資料固定走 immutable release → readback → pointer → pull → deploy → HTTP → browser；每格各留證據。
+4. Production browser 驗收至少切完所有樣本日、等待 loading 結束、恢復預設並檢查 console。
+
+### Memory output
+
+- `DATA_SCOPE.md`：新增 historical flight trails v2 的量體、日期、coverage、runtime 與授權邊界。
+- `BACKLOG.md`：AR-16 flight slice 結案，AR-14/15 保留 ship/bus；feature index 加 canonical backlog。
+- `REFLECTIONS.md`：本篇。
+- `STATUS.md`：重寫為 v2 全鏈完成、可安全封存與獨立後續。
