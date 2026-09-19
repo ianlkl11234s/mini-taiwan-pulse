@@ -1,16 +1,16 @@
 # Codex 地圖探索能力計劃
 
-更新：2026-09-20。狀態：新版 MCP dist 已驗證 23 個工具；三個 repo 的功能 PR 已合併至 default branch，前端與 Gateway 的 merge 後 CI 通過。前端雖設定 Zeabur 綁定 `master` 自動部署，但本次 merge 尚無 production deployment receipt，正式站 bundle 也尚未包含新的 capability／record search operation，因此不可標為已上線。Gateway 與 MCP repo 沒有自動 runtime deployment workflow。本地 3732／8791、實際資料與 browser 已驗；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗。此文件是目前能力、發布狀態與下一步的入口。
+更新：2026-09-20。狀態：新版 MCP dist 已驗證 23 個工具；三個 repo 的功能 PR 已合併至 default branch，前端與 Gateway 的 merge 後 CI 通過。包含 frontend PR #319 的 `master` commit `a15db137` 已由 Zeabur 自動部署成功；但本地 Agent 面板目前只在 `import.meta.env.DEV` 掛載，因此 production bundle 不會提供 Codex 配對查詢。Gateway 與 MCP repo 沒有自動 runtime deployment workflow。本地 3732／8791、實際資料與 browser 已驗；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗。此文件是目前能力、發布狀態與下一步的入口。
 
 ## 2026-09-20 合併與部署狀態
 
 | 範圍 | Git／CI | Runtime／production |
 |---|---|---|
-| Frontend | PR #319，一般 merge commit `4489fbad`；merge 後 `master` CI success | Zeabur 自動部署設定存在，但該 SHA 無 deployment receipt；正式站 bundle 未讀到 `list_layer_capabilities`／`search_layer_records`，尚未證實上線 |
+| Frontend | PR #319，一般 merge commit `4489fbad`；merge 後 `master` CI success | 後續 `master` commit `a15db137` 包含 #319；Zeabur deployment `6aaeb7fb94c4cdf079b8c258` success，production 首頁 HTTP 200。Agent 面板為 DEV-only，這份 receipt 不代表 production 可配對 |
 | Gateway | PR #114，一般 merge commit `44de82e`；merge 後 `main` CI success | repo 沒有自動 migration／runtime deployment；本輪只驗證 recovery worktree 的本機 8791 |
 | MCP | PR #1，一般 merge commit `cd23db5b`；本地 38/38、build 與真 stdio smoke 通過 | repo 沒有 GitHub Actions 或 deployment；Codex task 需重新載入本機 MCP dist |
 
-「合併」、「CI 通過」、「平台 deployment receipt」、「正式站 bundle／資料回讀」是四種不同證據。本文件只有在對應證據存在時才標完成；不能把 Zeabur 已設定自動部署直接寫成這次已成功上線。
+「合併」、「CI 通過」、「平台 deployment receipt」、「正式站功能／資料回讀」是四種不同證據。本文件只有在對應證據存在時才標完成；Zeabur receipt 證明 frontend container 已更新，不會把 DEV-only Agent、Gateway 或本機 MCP 一併變成 production 能力。
 
 ## 目標
 
