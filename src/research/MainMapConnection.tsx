@@ -185,10 +185,13 @@ export function MainMapConnection(props: Props) {
     const map = props.map;
     const started = (event: { originalEvent?: unknown }) => {
       if (!event.originalEvent || !controller.current) return;
-      followingRef.current = false; setFollowing(false); ++generation.current;
+      // A gesture interrupts only the movement currently in flight. Keep the
+      // user's follow preference so the next explicit Agent command can move
+      // the map again without requiring another checkbox click.
+      ++generation.current;
       controller.current?.beginManual();
       if (map) cancelResearchMotion(map);
-      setActivity({ phase: "complete", title: "已保留你的視角", detail: "你正在查看地圖，Agent 已暫停自動帶鏡頭。" });
+      setActivity({ phase: "complete", title: "已保留目前視角", detail: followingRef.current ? "已停止這次移動；下一個 Agent 動作仍會繼續跟隨。" : "跟隨已由你關閉；下一個 Agent 動作會保留視角。" });
     };
     const moved = (event: { originalEvent?: unknown }) => { if (event.originalEvent) manual(); };
     map?.on("movestart", started); map?.on("moveend", moved);
@@ -201,10 +204,10 @@ export function MainMapConnection(props: Props) {
     {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" hidden={!panelOpen}>
       {!props.embedded && <h2>連接這張地圖</h2>}
-      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "到 Codex 說出你想了解的主題，圖層與地圖會隨操作同步。" }); }} />
+      <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
-        <span>跟隨 Agent<small>允許 Agent 帶你移動視角；手動拖曳地圖時會暫停跟隨。</small></span>
+        <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
     </div>

@@ -118,6 +118,7 @@
 ### 本地連線契約與剩餘限制
 
 - 正常sync/query各3秒single-flight；背景至少15秒，錯誤指數退避，429尊重Retry-After。
+- 配對成功後預設開啟「跟隨 Agent」。手動拖曳只中止當次鏡頭動畫並回寫目前場景，不再永久關閉跟隨；下一個明確的 Agent 圖層／鏡頭命令仍可執行。只有使用者自行取消勾選或按下連線「暫停」才持續阻擋後續鏡頭操作。
 - 有效Agent活動續租30分鐘idle，8小時hard上限；idle/hard到期與撤銷均不復活。每study command/query各1024筆預算，保留有界回執與ID去重，達上限需新study。
 - 同origin使用Web Locks取得study/tab獨占權後才恢復，避免duplicate tab共用身分；不支援Web Locks則不自動恢復。sessionStorage僅四個參照ID，無token/code/claim。
 - 已驗證browser/account與agent/session分桶600/min；未驗證IP120/min與驗證inflight guard保留。browser request仍逐次遠端Auth，尚未引入驗證快取；真遠端網路抖動需配對驗收。
