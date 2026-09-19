@@ -1,5 +1,5 @@
 import { withLoading } from '../lib/loadingRegistry';
-import { cachedByKey } from '../lib/loaderCache';
+import { cachedByKey, keyedThunkCache } from '../lib/loaderCache';
 import {
   HISTORICAL_FLIGHT_ALL_AIRPORTS,
   type HistoricalFlightAsset,
@@ -11,8 +11,8 @@ import {
 function baseUrl(): string {
   const configured = String(import.meta.env.VITE_FLIGHT_TRAILS_CDN_BASE ?? '').replace(/\/$/, '');
   if (configured) return configured;
-  if (import.meta.env.DEV) return `${import.meta.env.BASE_URL ?? '/'}flight-trails`;
-  throw new Error('歷史軌跡尚未設定靜態資料來源');
+  const appBase = String(import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
+  return `${appBase}/flight-trails`;
 }
 export function historicalFlightAssetPath(path: string): string {
   if (!/^releases\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+\.geojson$/.test(path)) {
@@ -102,6 +102,24 @@ const assetCache = cachedByKey(async (key: string) => {
   return withLoading(`historical-flight:${asset.path}`, '歷史飛行軌跡',
     fetchJson(`${base}/${historicalFlightAssetPath(asset.path)}`, asset).then(parseHistoricalFlightCollection));
 }, Infinity, 3);
+const allAirportsCache = keyedThunkCache<HistoricalFlightAllAirportsResult | null>(Infinity, 4);
+
+async function mapWithConcurrency<T, R>(
+  values: readonly T[],
+  limit: number,
+  mapper: (value: T, index: number) => Promise<R>,
+): Promise<R[]> {
+  const results = new Array<R>(values.length);
+  let cursor = 0;
+  const worker = async () => {
+    while (cursor < values.length) {
+      const index = cursor++;
+      results[index] = await mapper(values[index]!, index);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, values.length) }, worker));
+  return results;
+}
 export function fetchHistoricalFlightManifest(): Promise<HistoricalFlightManifest> { return manifestCache(baseUrl()); }
 export function fetchHistoricalFlightAsset(asset: HistoricalFlightAsset): Promise<HistoricalFlightCollection> {
   return assetCache(JSON.stringify({ base: baseUrl(), asset }));
@@ -122,51 +140,54 @@ export async function fetchHistoricalFlightAllAirports(
   country: HistoricalFlightCountry,
   date: string,
 ): Promise<HistoricalFlightAllAirportsResult | null> {
-  const samples = manifest.samples.filter(sample => sample.country === country && sample.date === date && sample.asset);
-  const totalAirportCount = manifest.airports.filter(airport => airport.country === country).length;
-  if (!samples.length) return null;
+  const cacheKey = JSON.stringify({ base: baseUrl(), release: manifest.release_id, country, date });
+  return allAirportsCache(cacheKey, async () => {
+    const samples = manifest.samples.filter(sample => sample.country === country && sample.date === date && sample.asset);
+    const totalAirportCount = manifest.airports.filter(airport => airport.country === country).length;
+    if (!samples.length) return null;
 
-  const collections = await Promise.all(samples.map(async sample => {
-    const data = await fetchHistoricalFlightAsset(sample.asset!);
-    if (data.meta.country !== country || data.meta.airport !== sample.airport || data.meta.date !== date
-      || data.features.length !== sample.flight_count) throw new Error('歷史軌跡樣本與目錄不一致');
-    return data;
-  }));
+    const collections = await mapWithConcurrency(samples, 4, async sample => {
+      const data = await fetchHistoricalFlightAsset(sample.asset!);
+      if (data.meta.country !== country || data.meta.airport !== sample.airport || data.meta.date !== date
+        || data.features.length !== sample.flight_count) throw new Error('歷史軌跡樣本與目錄不一致');
+      return data;
+    });
 
-  const byFlightId = new Map<string, { feature: HistoricalFlightCollection['features'][number]; roles: Set<'departure' | 'arrival'> }>();
-  for (const data of collections) {
-    for (const feature of data.features) {
-      const previous = byFlightId.get(feature.properties.flight_id);
-      if (!previous) {
-        byFlightId.set(feature.properties.flight_id, { feature, roles: new Set(feature.properties.roles) });
-        continue;
+    const byFlightId = new Map<string, { feature: HistoricalFlightCollection['features'][number]; roles: Set<'departure' | 'arrival'> }>();
+    for (const data of collections) {
+      for (const feature of data.features) {
+        const previous = byFlightId.get(feature.properties.flight_id);
+        if (!previous) {
+          byFlightId.set(feature.properties.flight_id, { feature, roles: new Set(feature.properties.roles) });
+          continue;
+        }
+        for (const role of feature.properties.roles) previous.roles.add(role);
+        if (feature.properties.retained_point_count > previous.feature.properties.retained_point_count) previous.feature = feature;
       }
-      for (const role of feature.properties.roles) previous.roles.add(role);
-      if (feature.properties.retained_point_count > previous.feature.properties.retained_point_count) previous.feature = feature;
     }
-  }
-  const features = [...byFlightId.values()].map(({ feature, roles }) => ({
-    ...feature,
-    properties: {
-      ...feature.properties,
-      roles: (['departure', 'arrival'] as const).filter(role => roles.has(role)),
-    },
-  }));
-  return {
-    data: {
-      type: 'FeatureCollection',
-      meta: {
-        country,
-        airport: HISTORICAL_FLIGHT_ALL_AIRPORTS,
-        date,
-        timezone: country === 'TW' ? 'Asia/Taipei' : 'Asia/Tokyo',
-        coverage: 'partial',
-        note: `同一日期可用機場 ${samples.length}/${totalAirportCount}；靜態軌跡為部分涵蓋。`,
+    const features = [...byFlightId.values()].map(({ feature, roles }) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        roles: (['departure', 'arrival'] as const).filter(role => roles.has(role)),
       },
-      features,
-    },
-    availableAirportCount: samples.length,
-    totalAirportCount,
-  };
+    }));
+    return {
+      data: {
+        type: 'FeatureCollection',
+        meta: {
+          country,
+          airport: HISTORICAL_FLIGHT_ALL_AIRPORTS,
+          date,
+          timezone: country === 'TW' ? 'Asia/Taipei' : 'Asia/Tokyo',
+          coverage: 'partial',
+          note: `同一日期可用機場 ${samples.length}/${totalAirportCount}；靜態軌跡為部分涵蓋。`,
+        },
+        features,
+      },
+      availableAirportCount: samples.length,
+      totalAirportCount,
+    };
+  });
 }
-export function clearHistoricalFlightCache() { manifestCache.invalidate(); assetCache.invalidate(); }
+export function clearHistoricalFlightCache() { manifestCache.invalidate(); assetCache.invalidate(); allAirportsCache.invalidate(); }
