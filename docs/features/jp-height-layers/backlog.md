@@ -11,4 +11,3 @@
 - [x] source 100回合調度測試、真實browser離區返回、安裝預算拒絕測試
 - [ ] `conditional` 建物全國擴展：目前 11 complete／37,993 pending；owner=下次 JP height session；trigger=使用者重新授權小批處理；first action=檢查 15 GiB reserve 與 jobplan checkpoint，每批最多依當時預算處理。
 - [ ] `conditional` 樹冠全國擴展：overview 17 complete／1 empty_checked／108 pending，detail 5,026 pending；owner=下次 JP height session；trigger=使用者重新授權小批處理；first action=重新檢查磁碟與 merge runner，overview 每批最多 2 shards。
-- [ ] `verifying` 小批發布：S3 upload/full-readback 已完成，限 catalog 引用的 38 個 immutable PMTiles／23,181,378 bytes，catalog 已最後切換；尚待前端 ordinary PR merge、CD、production HTTP/Range 與 browser 驗收，完成後移入 changelog。

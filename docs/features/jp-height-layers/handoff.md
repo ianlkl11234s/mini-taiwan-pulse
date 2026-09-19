@@ -1,12 +1,12 @@
 > **Terra 執行指南：[terra-runbook.md](terra-runbook.md)**。下列快照是實際狀態；全國大量下載已依使用者要求停止。
 
-> **2026-09-20 發布 checkpoint**：上游 analytics 已由 PR #100 ordinary merge；前端仍在本分支等待 PR。已用有界 publisher 將 catalog 實際引用的 38 個 content-addressed PMTiles（23,181,378 bytes）與最後切換的 catalog（28,655 bytes）寫入 runtime S3，合計 23,210,033 bytes／39 objects；每個 immutable object 均以完整 GET 重算 SHA/bytes 並驗證 content type/cache，catalog SHA-256 為 `691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b`。證據見 `release/20260920-s3-publication.json`。這一步只證明 S3 runtime assets 已就緒；前端 merge、CD 部署、production HTTP/Range 與 browser 驗收仍待完成。原始 PLATEAU archives 是另一組已驗證的 S3 Deep Archive，不會由一般 browser 載入。
+> **2026-09-20 發布完成 checkpoint**：上游 analytics PR #100 與前端 PR #320 均已 ordinary merge；前端 merge commit `a15db13726fc4743472286662bdf8ef81ef13c50` 的 CI 與 Zeabur CD 成功。已用有界 publisher 將 catalog 實際引用的 38 個 content-addressed PMTiles（23,181,378 bytes）與最後切換的 catalog（28,655 bytes）寫入 runtime S3，合計 23,210,033 bytes／39 objects；每個 immutable object 均以完整 GET 重算 SHA/bytes 並驗證 content type/cache。正式站 catalog 回 200 JSON 且 SHA-256 為 `691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b`；抽樣 immutable PMTiles 回 Range 206、127 bytes、正確 `PMTiles` header 與一年 immutable cache。production browser 已驗證名古屋 z15 單棟、z10 摘要 grid，以及東京樹冠取值。證據見 `release/20260920-s3-publication.json` 與 `release/20260920-production-acceptance.json`。原始 PLATEAU archives 是另一組已驗證的 S3 Deep Archive，不會由一般 browser 載入。全國擴展維持暫停，剩餘工作只留 backlog。
 
 > **2026-09-19 本地前端安裝與 browser checkpoint（E 的小批驗證）**：`install-jp-height-national.py` 已改為自動發現標準 mesh manifest，只接受 `complete` + S3 `DEEP_ARCHIVE` + raw/GeoJSON 已刪除的分片；不調高 25 MiB/5 MiB/150 MB/2 MB 預算。本地 catalog 現有 16 區（5 個舊 ROI + 11 個標準 mesh）、38 個內容尋址 PMTiles，catalog 28,655 bytes，被 catalog 引用的資產合計 23,181,378 bytes（約 22.1 MiB）；無 raw/GeoJSON/observations 進入 runtime bundle。38 個 PMTiles 均重算 SHA 並通過 `pmtiles verify`。`public/jp-heights` 整體仍約 67 MB，因尚保留既有 legacy 路徑的重複檔；本輪未破壞性刪除這些未提交資產，也不把 67 MB 當成未來 CDN 必須上傳的 manifest 範圍。
 >
 > 遠景驗收曾發現舊 overview 只包 5 ROI，會讓新 mesh 在 z10 無內容。現已在 overview asset 明記 `regionIds`；runtime 僅對這 5 區以 overview 取代分區 grid，新 mesh 則同視野按需掛載自己的 grid。名古屋 z10 實際同時掛 overview + `mesh-23100-52366700` grid 且看得到摘要；z15 看得到單棟輪廓。京都、仙台 z15 亦分別掛載正確 mesh；移到無覆蓋海域 active source 回到0。全日本 z5 時建物 source 維持4個（overview + 3 mesh），其他8個未掛載分片在圖例明示要求放大，不把缺片當無建物。popup 已精簡保留高度、區域/mesh、來源年、高度方法、輪廓方法、授權與來源；高度缺值仍顯示 2D 未提供，不當 0。
 >
-> 驗證：installer pytest 3 passed；publisher unit tests 3 passed；frontend full suite 230 files passed／1 skipped、1,718 tests passed／8 skipped；`npx tsc -b` 與 `npm run build` passed；本地 HTTP catalog 200 JSON，PMTiles Range 206；browser 如上通過。前端 feature commit `8a9ee162` 已建立並 ordinary merge 最新 `origin/master`（`f9fde021`）；runtime S3 upload/readback 已完成。前端尚未 push/PR/merge、CD 部署或完成 production 驗收。
+> 驗證：installer pytest 3 passed；publisher unit tests 3 passed；frontend full suite 230 files passed／1 skipped、1,718 tests passed／8 skipped；`npx tsc -b` 與 `npm run build` passed；本地 HTTP catalog 200 JSON，PMTiles Range 206；browser 如上通過。前端 feature commit `8a9ee162` 已建立並 ordinary merge 最新 `origin/master`（`f9fde021`）；runtime S3 upload/readback、PR #320 ordinary merge、CD 與 production 驗收均已完成。
 
 > **2026-09-19 大都會小批增量**：另完成名古屋 `52366700`（2022，1,748 棟）、京都 `52353680`（2025，2,634 棟）、仙台 `57403710`（2024，1,186 棟）三個市中心完整 mesh。新增 detail + grid 為 545,948 bytes，稽核 observations zstd 249,523 bytes；178,400,203 raw bytes 封存為 16,009,205 bytes S3 `DEEP_ARCHIVE`，逐物件驗證後已刪本機 raw/GeoJSON。6 個 PMTiles 均通過 `pmtiles verify`。全國建物 plan 現為 11 complete／37,993 pending。這些新 PMTiles 仍是本機上游成品，尚未上傳 runtime CDN、安裝分層 catalog 或做 browser 驗收。
 
@@ -20,7 +20,7 @@
 
 ## 全國擴展暫停接手點
 
-- 永久 worktree：本 repo 與 `taipei-gis-analytics` 各自 `.worktrees/jp-height-layers-20260918`；branch `codex/jp-height-layers-20260918`。勿 reset/clean/stash。analytics 已由 PR #100 merged；前端已有本地 commit 且 runtime S3 上傳完成，尚待前端 push/PR/CD 與 production 驗收。
+- 永久 worktree：本 repo 與 `taipei-gis-analytics` 各自 `.worktrees/jp-height-layers-20260918`；branch `codex/jp-height-layers-20260918`。勿 reset/clean/stash。analytics PR #100、前端 PR #320、runtime S3、Zeabur CD 與 production 驗收均完成；後續全國擴展須重新授權才恢復。
 - 全國大量下載仍停止；本輪驗收用 3747 預覽已關閉。恢復前另行確認是否還有舊 3746 preview，不要重複啟動同 port。
 - 本地已安裝並驗證 5 個舊 ROI + 11 個標準 mesh，catalog 引用 38 個 PMTiles／23,181,378 bytes；仍只是部分 mesh，不代表城市全域或日本全國。
 - 上游 `data/jp-heights/national/canopy-v2/jobplan.json`：最新已記錄 overview 17 complete、1 empty_checked、108 pending；detail 5,026 pending。尚未完成全國 canopy overview 合併與發布驗收。

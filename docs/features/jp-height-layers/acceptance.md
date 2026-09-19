@@ -64,10 +64,12 @@ Profile: research/prototype。以下證據不可推論成已部署或全日本�
 | Evidence cell | 結果 |
 |---|---|
 | Analytics Git | PR #100 ordinary merge；merge commit `0ee583f3f64aa9bfc6ecca3fa887c5c0abd5c075` |
-| Frontend local Git | feature `8a9ee162`；與最新 master ordinary merge `f9fde021`；尚待 push/PR |
+| Frontend Git | PR #320 ordinary merge；merge commit `a15db13726fc4743472286662bdf8ef81ef13c50` |
 | Frontend regression | 230 files passed、1 skipped；1,718 tests passed、8 skipped；`npx tsc -b`、`npm run build` passed |
 | Runtime S3 | 38 immutable PMTiles + catalog，39 objects／23,210,033 bytes；full GET SHA/bytes/content type/cache readback passed |
 | Runtime catalog | version `national-local-2026-09-19-metro-mesh-v1`；28,655 bytes；SHA-256 `691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b` |
-| Production | 尚未證明；需前端 ordinary merge、CD、HTTP 200／Range 206 與 browser 驗收 |
+| Production CD | merge commit 的 master CI 與 Zeabur deployment `6aaeb7fb94c4cdf079b8c258` success |
+| Production HTTP | catalog 200 JSON／28,655 bytes／SHA match／`max-age=60`；抽樣 PMTiles Range 206／127 bytes／正確 header／一年 immutable cache |
+| Production browser | 名古屋 z15 單棟輪廓與 37.1m popup；z10 1km grid 與 median/P90/count/missing popup；東京樹冠可見且取值 18m；無 page error log |
 
 發布只包含 catalog allowlist；`public/jp-heights` 的 legacy 重複檔沒有上傳。raw PLATEAU archive 位於 S3 Deep Archive，和 browser runtime objects 分開；缺值仍為 null／未提供，不當作 0。
