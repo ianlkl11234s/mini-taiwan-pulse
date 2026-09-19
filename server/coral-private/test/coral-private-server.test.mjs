@@ -14,11 +14,13 @@ import {
   MAX_RANGE_BYTES,
   createAllenCoralAtlasGateway,
   createAllenCoralAtlasS3Gateway,
+  createJpWaterS3Gateway,
   createAllenSessionDenylist,
   getAllenCoralAtlasConfig,
   getConfig,
   handleAllenCoralAtlasRequest,
   handleCoralRequest,
+  handleJpWaterRequest,
   parseRange,
   startAllenCoralAtlasServer,
   writeAllenAuditRecord,
@@ -73,6 +75,10 @@ const allenRoot = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/
 
 function allenRequest(asset = "benthic", options = {}) {
   return request(`/api/private-research/allen-coral-atlas/${asset}`, options);
+}
+
+function jpWaterRequest(asset = "water", options = {}) {
+  return request(`/api/private-research/jp-water/${asset}`, options);
 }
 
 test("Range accepts exactly one bounded byte range", () => {
@@ -289,6 +295,115 @@ test("Allen exact allowlist authenticates GET, HEAD, and access probe before dat
   assert.equal(missingRange.status, 416);
   const unknown = await handleAllenCoralAtlasRequest(request("/api/private-research/allen-coral-atlas/extra"), { config: allenConfig, authenticate: allenOwner, gateway: localGateway, revokedSessions });
   assert.equal(unknown.status, 404);
+});
+
+test("Japan water exact allowlist requires owner auth and returns only bounded verified ranges", async () => {
+  const calls = { head: 0, get: 0 };
+  const privateGateway = {
+    async head(asset) {
+      calls.head += 1;
+      return { contentLength: asset.size, contentType: "application/octet-stream", etag: `\"${asset.sha256}\"` };
+    },
+    async get(asset, range) {
+      calls.get += 1;
+      return {
+        body: new ReadableStream({ start(controller) { controller.enqueue(new Uint8Array(range.length)); controller.close(); } }),
+        contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream",
+        etag: `\"${asset.sha256}\"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const anonymous = await handleJpWaterRequest(jpWaterRequest(), {
+    config: allenConfig, authenticate: async () => ({ status: 401 }), gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(anonymous.status, 401);
+  const otherUser = await handleJpWaterRequest(jpWaterRequest(), {
+    config: allenConfig, authenticate: async () => ({ status: 403 }), gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(otherUser.status, 403);
+  const probe = await handleJpWaterRequest(request("/api/private-research/jp-water/water?access=1"), {
+    config: allenConfig, authenticate: allenOwner, gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(probe.status, 200);
+  assert.deepEqual(await probe.json(), { allowed: true });
+  assert.equal(calls.head, 0);
+  const range = await handleJpWaterRequest(jpWaterRequest("extra-water", { headers: { Range: "bytes=0-3" } }), {
+    config: allenConfig, authenticate: allenOwner, gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(range.status, 206);
+  assert.equal(range.headers.get("content-range"), "bytes 0-3/31656052");
+  assert.equal(range.headers.get("cache-control"), "private, no-store");
+  assert.equal((await range.arrayBuffer()).byteLength, 4);
+  assert.equal(calls.get, 1);
+  const noRange = await handleJpWaterRequest(jpWaterRequest(), {
+    config: allenConfig, authenticate: allenOwner, gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(noRange.status, 416);
+  const unknown = await handleJpWaterRequest(jpWaterRequest("unknown"), {
+    config: allenConfig, authenticate: allenOwner, gateway: privateGateway, revokedSessions,
+  });
+  assert.equal(unknown.status, 404);
+});
+
+test("Japan water S3 gateway uses immutable private keys", async () => {
+  const bytes = Buffer.from("jp-water");
+  const asset = Object.freeze({
+    filename: "water.pmtiles",
+    size: bytes.length,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  });
+  const calls = [];
+  const gateway = createJpWaterS3Gateway({ accessKeyId: "test", secretAccessKey: "test", region: "ap-southeast-2" }, {
+    client: { async send(command) { calls.push(command.input); return { ContentLength: bytes.length, Body: Readable.from([bytes]) }; } },
+    assets: { water: asset },
+  });
+  await gateway.head(asset);
+  assert.deepEqual(calls, [{
+    Bucket: "migu-private-research-ap-southeast-2",
+    Key: `private-research/jp-water/${asset.sha256}/water.pmtiles`,
+    ChecksumMode: "ENABLED",
+  }]);
+});
+
+test("sidecar routes Japan water through the shared owner session revoke boundary", async () => {
+  const privateGateway = {
+    async head(asset) { return { contentLength: asset.size, contentType: "application/octet-stream", etag: `\"${asset.sha256}\"` }; },
+    async get(asset, range) {
+      return {
+        body: Buffer.alloc(range.length), contentLength: range.length,
+        contentRange: `bytes ${range.start}-${range.end}/${asset.size}`,
+        contentType: "application/octet-stream", etag: `\"${asset.sha256}\"`,
+      };
+    },
+  };
+  const revokedSessions = new Set();
+  const server = startAllenCoralAtlasServer({
+    port: 0, warmupAttempts: 1, config: allenConfig,
+    authenticate: async (authorization) => authorization === "Bearer owner" ? allenOwner() : { status: 401 },
+    gateway: privateGateway, jpWaterGateway: privateGateway, revokedSessions,
+  });
+  try {
+    await once(server, "listening");
+    await new Promise((resolve) => setImmediate(resolve));
+    const address = server.address();
+    assert.ok(address && typeof address !== "string");
+    const root = `http://127.0.0.1:${address.port}/api/private-research`;
+    const headers = { Authorization: "Bearer owner", Range: "bytes=0-3" };
+    const water = await fetch(`${root}/jp-water/water`, { headers });
+    assert.equal(water.status, 206);
+    assert.equal(water.headers.get("content-range"), "bytes 0-3/85597875");
+    const revoke = await fetch(`${root}/allen-coral-atlas/revoke`, {
+      method: "POST", headers: { Authorization: "Bearer owner" },
+    });
+    assert.equal(revoke.status, 200);
+    const denied = await fetch(`${root}/jp-water/extra-water`, { headers });
+    assert.equal(denied.status, 401);
+  } finally {
+    if (server.listening) await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
 });
 
 test("Allen sidecar listens during warmup but fails closed until immutable snapshots are ready", async () => {

@@ -1,6 +1,8 @@
 import { MainMapConnection } from "./research/MainMapConnection";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
+import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
+import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
@@ -180,6 +182,7 @@ export default function App() {
   useEffect(() => { void loadLayerGates(); }, []);
   const layerGates = useLayerGates();
   const allenCoralAccess = useAllenCoralPrivateAccess();
+  const jpWaterPrivateAccess = useJpWaterPrivateAccess();
   // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
   const lockedKeys = useMemo(() => {
     const s = new Set<keyof LayerVisibility>();
@@ -191,8 +194,9 @@ export default function App() {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
+    if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
-  }, [memberTier, layerGates, allenCoralAccess.allowed]);
+  }, [memberTier, layerGates, allenCoralAccess.allowed, jpWaterPrivateAccess.allowed]);
   const lockedKeysRef = useRef(lockedKeys);
   lockedKeysRef.current = lockedKeys;
 
@@ -840,6 +844,10 @@ export default function App() {
     allenCoralAccess.allowed,
     layerVisibility.allenCoralAtlas,
   );
+  const privateUiFeatureInfo = coralUiFeatureInfo && isJpWaterPrivateLayer(coralUiFeatureInfo.layerType)
+    && (!jpWaterPrivateAccess.allowed || !layerVisibility[coralUiFeatureInfo.layerType])
+    ? null
+    : coralUiFeatureInfo;
   useEffect(() => {
     const onAllenAccessDenied = () => {
       setLayerVisibility((prev) => prev.allenCoralAtlas ? { ...prev, allenCoralAtlas: false } : prev);
@@ -862,6 +870,42 @@ export default function App() {
       setFeatureInfo(null);
     }
   }, [allenCoralAccess.allowed, layerVisibility.allenCoralAtlas, featureInfo, coralUiFeatureInfo, setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    const clearPrivateWater = () => {
+      setLayerVisibility((current) => {
+        let changed = false;
+        const next = { ...current };
+        for (const key of JP_WATER_PRIVATE_LAYER_KEYS) {
+          if (next[key]) { next[key] = false; changed = true; }
+        }
+        return changed ? next : current;
+      });
+      setFeatureInfo((current) => current && isJpWaterPrivateLayer(current.layerType) ? null : current);
+    };
+    const onAccessDenied = () => {
+      clearPrivateWater();
+      showTransientNotice("日本水資源私人存取失敗，已清除圖層與選取結果。");
+    };
+    const clearPrivateWaterSelection = () => setFeatureInfo((current) => current && isJpWaterPrivateLayer(current.layerType) ? null : current);
+    window.addEventListener(JP_WATER_ACCESS_DENIED_EVENT, onAccessDenied);
+    window.addEventListener("jp-water-selection-clear", clearPrivateWaterSelection);
+    return () => {
+      window.removeEventListener(JP_WATER_ACCESS_DENIED_EVENT, onAccessDenied);
+      window.removeEventListener("jp-water-selection-clear", clearPrivateWaterSelection);
+    };
+  }, [setFeatureInfo, setLayerVisibility]);
+  useEffect(() => {
+    if (jpWaterPrivateAccess.allowed) return;
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of JP_WATER_PRIVATE_LAYER_KEYS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && isJpWaterPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
+  }, [featureInfo, jpWaterPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1639,7 +1683,7 @@ export default function App() {
     onReCursorChange: setReCursorTs,
     onHistoricalStop: stopHistorical,
 
-    featureInfo: coralUiFeatureInfo,
+    featureInfo: privateUiFeatureInfo,
     activeReservoirId,
     aqiProduct,
     eqReplaySelectedId,
@@ -2896,10 +2940,10 @@ export default function App() {
           pointerEvents: "none",
         }}
       >
-        {coralUiFeatureInfo && (
+        {privateUiFeatureInfo && (
           <div style={{ pointerEvents: "auto" }}>
             <FeatureInfoPanel
-              feature={coralUiFeatureInfo}
+              feature={privateUiFeatureInfo}
               onClose={() => setFeatureInfo(null)}
               reservoirContext={reservoirContext}
               isDarkTheme={isDarkTheme}

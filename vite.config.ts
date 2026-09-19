@@ -259,6 +259,7 @@ export default defineConfig({
       } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
+      "/api/private-research/jp-water": { target: "http://127.0.0.1:8796", changeOrigin: false },
       // Python preview deliberately binds localhost and has no CORS headers.
       // Expose it through Vite only under the explicit local preview opt-in.
       ...(process.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' ? {

@@ -20,6 +20,12 @@ export ALLEN_CORAL_ATLAS_ORIGINS="${ALLEN_CORAL_ATLAS_ORIGINS:-https://mini-taiw
 export ALLEN_CORAL_ATLAS_REVOKE_PATH=/data/.private-allen/revoked-sessions.jsonl
 # Metadata only (no bearer/session/body), outside webroot; cleared on container replacement.
 export ALLEN_CORAL_ATLAS_AUDIT_PATH=/tmp/allen-coral-access-audit.jsonl
+# The same loopback sidecar protects Allen and Japan-water assets. These
+# generic aliases make the shared auth/revocation boundary explicit.
+export PRIVATE_RESEARCH_STORAGE="$ALLEN_CORAL_ATLAS_STORAGE"
+export PRIVATE_RESEARCH_ORIGINS="$ALLEN_CORAL_ATLAS_ORIGINS"
+export PRIVATE_RESEARCH_REVOKE_PATH="$ALLEN_CORAL_ATLAS_REVOKE_PATH"
+export PRIVATE_RESEARCH_AUDIT_PATH="$ALLEN_CORAL_ATLAS_AUDIT_PATH"
 node /opt/coral-server/coral-private-server.mjs &
 
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
