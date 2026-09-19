@@ -18,9 +18,9 @@
 
 # 2026-09-20
 
-## 日本高度小批 runtime assets 發布中
+## 日本高度小批 runtime assets 發布完成
 
-- analytics PR #100 已 ordinary merge；前端功能分支已與最新 `origin/master` ordinary merge，完整測試 1,718 passed／8 skipped、TypeScript 與 build 通過。
+- analytics PR #100、前端 PR #320 均 ordinary merge；前端 merge commit `a15db13726fc4743472286662bdf8ef81ef13c50` 的 CI 與 Zeabur CD 成功。完整測試 1,718 passed／8 skipped、TypeScript 與 build 通過。
 - runtime S3 已寫入 38 個 immutable PMTiles（23,181,378 bytes）與最後切換的 catalog（28,655 bytes），合計 39 objects／23,210,033 bytes；全部 full-GET SHA/bytes/content-type/cache readback 通過。
 - 此批仍只有 5 個舊 ROI + 11 個標準 mesh，不是完整城市或日本全國。建物全國與樹冠全國擴展維持暫停，checkpoint 留在 backlog。
-- S3 runtime publication 不等於 CD／production 驗收；前端 PR、部署 HTTP/Range 與 production browser 仍列為 verifying。
+- 正式 catalog 200 JSON／SHA match／短快取；immutable PMTiles 抽樣 Range 206／PMTiles header／一年 immutable cache。production browser 驗證名古屋 z15 單棟 popup、z10 摘要 grid popup 及東京樹冠 18m 取值，頁面沒有 error log。

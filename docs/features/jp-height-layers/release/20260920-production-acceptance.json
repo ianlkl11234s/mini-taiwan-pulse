@@ -1,0 +1,68 @@
+{
+  "accepted_at": "2026-09-20T00:41:00+08:00",
+  "frontend_pr": 320,
+  "frontend_merge_commit": "a15db13726fc4743472286662bdf8ef81ef13c50",
+  "analytics_pr": 100,
+  "analytics_merge_commit": "0ee583f3f64aa9bfc6ecca3fa887c5c0abd5c075",
+  "ci": {
+    "pull_request": "success",
+    "master": "success"
+  },
+  "deployment": {
+    "provider": "Zeabur",
+    "deployment_id": "6aaeb7fb94c4cdf079b8c258",
+    "status": "success"
+  },
+  "catalog": {
+    "url": "https://mini-taiwan-pulse.itsmigu.com/jp-heights/catalog.json",
+    "status": 200,
+    "content_type": "application/json",
+    "cache_control": "public,max-age=60",
+    "bytes": 28655,
+    "sha256": "691006268a7de079eed3f607390dcb5c5f8bf71ab43abbd6cbc4d3cd84199a8b",
+    "version": "national-local-2026-09-19-metro-mesh-v1",
+    "regions": 16
+  },
+  "range_probe": {
+    "asset": "assets/0a9c5479b50e989a35cd66fa3084f3c34c511ee455b64a783bd3c7308d79b2a4.pmtiles",
+    "status": 206,
+    "content_type": "application/vnd.pmtiles",
+    "cache_control": "public,max-age=31536000,immutable",
+    "content_range": "bytes 0-126/12416",
+    "response_bytes": 127,
+    "magic": "PMTiles"
+  },
+  "browser": {
+    "building_detail": {
+      "region": "名古屋市 ・ 52366700",
+      "zoom": 15,
+      "visible": true,
+      "popup_height_m": 37.1,
+      "source_year": 2022,
+      "height_method": "bldg:measuredHeight",
+      "geometry_method": "bldg:lod0FootPrint",
+      "license": "CC BY 4.0"
+    },
+    "building_overview": {
+      "region": "名古屋市 ・ 52366700",
+      "zoom": 10,
+      "grid_m": 1000,
+      "height_median_m": 14.9,
+      "height_p90_m": 42.1,
+      "building_count": 835,
+      "missing_height_count": 2,
+      "partial_coverage_note_visible": true
+    },
+    "canopy": {
+      "region": "東京・新宿",
+      "zoom": 14,
+      "visible": true,
+      "popup_height_m": 18,
+      "source_year": 2026,
+      "partial_coverage_note_visible": true
+    },
+    "page_error_logs": 0
+  },
+  "scope": "5 legacy ROIs plus 11 standard meshes; not complete cities or national coverage",
+  "expansion_status": "paused; remaining work recorded in backlog"
+}
