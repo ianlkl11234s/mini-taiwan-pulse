@@ -1,6 +1,6 @@
 # Codex 地圖探索能力計劃
 
-更新：2026-09-19。狀態：新版 MCP dist 已驗證 23 個工具；本地 3732 已啟動，學校與警察圖層有實際資料及瀏覽器顯示證據；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗，未發布。此文件維護能力範圍、使用情境與驗收結果。
+更新：2026-09-20。狀態：新版 MCP dist 已驗證 23 個工具；本地 3732／8791 已由本輪 recovery worktree 啟動，Gateway 已重載新 operation，學校與警察圖層有實際資料及瀏覽器顯示證據；目前桌面 task 仍需重新載入 MCP，真使用者配對待驗，未發布。此文件維護能力範圍、使用情境與驗收結果。
 
 ## 目標
 
@@ -151,4 +151,5 @@
 - Gateway 47/47；MCP 38/38 與 build 通過；真 dist stdio smoke 為23 tools，既有 advanced analysis tools 仍封鎖。
 - 隔離協定 E2E 通過：真 stdio MCP → HTTP Gateway → QueryResponder → 3732真資產；這是模擬 owner/tab，不是 Google 登入後的真人配對。
 - HTTP 資產為 GeoJSON，不是 SPA fallback：學校2,504,719 bytes／4,315筆；警察1,698,235 bytes／2,065筆。browser 實看 policeStation 點位正常。
+- 本輪只重啟已確認屬於 recovery worktree 的8791 Gateway，沿用畫面已確認的測試帳號 allowlist；未停止其他 MCP 或服務。Gateway 根路徑回受控404，listener正常。
 - 未 push、PR、merge、deploy；目前桌面 task 尚未重載新版 MCP。
