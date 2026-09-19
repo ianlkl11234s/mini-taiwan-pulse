@@ -29,7 +29,7 @@ import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { STATISTICS_KEYS, STATISTICS_RECIPES, STATISTICS_RENDER_KEYS } from "../../data/regionalStatisticsRecipes";
 import { ALLEN_CORAL_SOURCES } from "../../data/allenCoralAtlasTypes";
-import { JP_WATER_RELEASED_LAYER_KEYS } from "../../data/jpWaterTypes";
+import { JP_WATER_LOCAL_PMTILES_LAYER_KEYS, JP_WATER_RELEASED_LAYER_KEYS } from "../../data/jpWaterTypes";
 
 const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
 const source = readFileSync(REGISTRY_FILE, "utf8");
@@ -63,9 +63,9 @@ function allenCoralRuntimeLayerIds(): Set<string> {
   return new Set(Object.values(ALLEN_CORAL_SOURCES).map((source) => `${source.sourceId}-fill`));
 }
 
-/** Japan water GeoJSON layers are created by useJpWaterLayers from the released-key allowlist. */
+/** Japan water GeoJSON and DEV-only PMTiles layers are created by useJpWaterLayers. */
 function jpWaterRuntimeLayerIds(): Set<string> {
-  return new Set(JP_WATER_RELEASED_LAYER_KEYS.map((key) => `jp-water-${key}`));
+  return new Set([...JP_WATER_RELEASED_LAYER_KEYS, ...JP_WATER_LOCAL_PMTILES_LAYER_KEYS].map((key) => `jp-water-${key}`));
 }
 
 /** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除註冊表自己與測試檔） */

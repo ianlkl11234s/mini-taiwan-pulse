@@ -252,6 +252,10 @@ const DEPLOY_EXEMPT_LEDGER = new Set<string>([
   "world/jp_wildlife_protection_moe_202504.pmtiles",
   "world/jp_world_natural_heritage_ksj_2011.geojson",
   "world/jp_ramsar_moe_current.geojson",
+  // Japan water national research assets：來源再配布權未取得，production catalog
+  // fail-closed，且不得進 public/CDN upload allowlist。
+  "LOCAL_ONLY: water.pmtiles",
+  "LOCAL_ONLY: extra-water.pmtiles",
 ]);
 
 /**

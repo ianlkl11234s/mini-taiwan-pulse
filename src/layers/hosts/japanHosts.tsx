@@ -1,4 +1,5 @@
 import { JpMedicalAlert } from "../../components/JpMedicalStatus";
+import { JpWaterAlert } from "../../components/JpWaterStatus";
 import { useJpMedicalLayers } from "../../hooks/useJpMedicalLayers";
 // 日本 Japan Batch 2 的 Layer Host：行政區 2 層（PMTiles polygon）＋ 交通 2 層（GeoJSON）。
 // clone hosts/climateHosts.tsx 的 JpReligionHost 慣例。
@@ -13,6 +14,7 @@ import { useJpPopulationMeshLayer } from "../../hooks/useJpPopulationMeshLayer";
 import { useJpTourismLayers } from "../../hooks/useJpTourismLayers";
 import { useJpWaterLayers } from "../../hooks/useJpWaterLayers";
 import { JP_TOURISM_LAYER_KEYS, type JpTourismLayerKey } from "../../data/jpTourismTypes";
+import { jpWaterLocalResearchEnabled } from "../../data/jpWaterTypes";
 import { bumpHostRender, type LayerHostComponent } from "../layerHostDeps";
 import { useKeyOverlayParams } from "../layerParamsAccess";
 
@@ -112,22 +114,50 @@ export const JpPoliceFacilitiesHost: LayerHostComponent = ({ deps }) => {
 
 export const JpWaterHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useJpWaterLayers");
+  const localResearchEnabled = jpWaterLocalResearchEnabled();
   const lakes = useKeyOverlayParams("jpWaterLakes");
+  const dams = useKeyOverlayParams("jpWaterDams");
+  const rivers = useKeyOverlayParams("jpWaterRivers");
+  const supply = useKeyOverlayParams("jpWaterSupplyFacilities");
+  const supplyAreas = useKeyOverlayParams("jpWaterSupplyAreas");
+  const sewer = useKeyOverlayParams("jpWaterSewerFacilities");
+  const groundwater = useKeyOverlayParams("jpWaterGroundwaterSites");
+  const nilim = useKeyOverlayParams("jpWaterNilimDams");
+  const agri = useKeyOverlayParams("jpWaterAgriculturalPonds");
+  const flood = useKeyOverlayParams("jpWaterFloodHazard");
   const facilities = useKeyOverlayParams("jpWaterLocalFacilities");
   const quality = useKeyOverlayParams("jpWaterQualityStations");
   const levels = useKeyOverlayParams("jpWaterLevelStations");
   useJpWaterLayers(deps.mapRef, {
+    jpWaterDams: localResearchEnabled && deps.layerVisibility.jpWaterDams,
     jpWaterLakes: deps.layerVisibility.jpWaterLakes,
+    jpWaterRivers: localResearchEnabled && deps.layerVisibility.jpWaterRivers,
+    jpWaterSupplyFacilities: localResearchEnabled && deps.layerVisibility.jpWaterSupplyFacilities,
+    jpWaterSupplyAreas: localResearchEnabled && deps.layerVisibility.jpWaterSupplyAreas,
+    jpWaterSewerFacilities: localResearchEnabled && deps.layerVisibility.jpWaterSewerFacilities,
+    jpWaterGroundwaterSites: localResearchEnabled && deps.layerVisibility.jpWaterGroundwaterSites,
+    jpWaterNilimDams: localResearchEnabled && deps.layerVisibility.jpWaterNilimDams,
+    jpWaterAgriculturalPonds: localResearchEnabled && deps.layerVisibility.jpWaterAgriculturalPonds,
+    jpWaterFloodHazard: deps.layerVisibility.jpWaterFloodHazard,
     jpWaterLocalFacilities: deps.layerVisibility.jpWaterLocalFacilities,
     jpWaterQualityStations: deps.layerVisibility.jpWaterQualityStations,
     jpWaterLevelStations: deps.layerVisibility.jpWaterLevelStations,
   }, {
+    jpWaterDams: dams.jpWaterDamsOpacity ?? 0.85,
     jpWaterLakes: lakes.jpWaterLakesOpacity ?? 0.35,
+    jpWaterRivers: rivers.jpWaterRiversOpacity ?? 0.75,
+    jpWaterSupplyFacilities: supply.jpWaterSupplyFacilitiesOpacity ?? 0.85,
+    jpWaterSupplyAreas: supplyAreas.jpWaterSupplyAreasOpacity ?? 0.18,
+    jpWaterSewerFacilities: sewer.jpWaterSewerFacilitiesOpacity ?? 0.82,
+    jpWaterGroundwaterSites: groundwater.jpWaterGroundwaterSitesOpacity ?? 0.82,
+    jpWaterNilimDams: nilim.jpWaterNilimDamsOpacity ?? 0.82,
+    jpWaterAgriculturalPonds: agri.jpWaterAgriculturalPondsOpacity ?? 0.55,
+    jpWaterFloodHazard: flood.jpWaterFloodHazardOpacity ?? 0.7,
     jpWaterLocalFacilities: facilities.jpWaterLocalFacilitiesOpacity ?? 0.85,
     jpWaterQualityStations: quality.jpWaterQualityStationsOpacity ?? 0.75,
     jpWaterLevelStations: levels.jpWaterLevelStationsOpacity ?? 0.85,
   });
-  return null;
+  return <JpWaterAlert />;
 };
 
 /** 日本旅宿、自然保護與世界遺產：production PMTiles/GeoJSON + DEV-only research layers。 */
