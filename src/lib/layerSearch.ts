@@ -10,6 +10,8 @@ export const LAYER_SEARCH_ALIASES: Partial<Record<ManifestKey, readonly string[]
   floodAlerts: ["淹水", "防汛", "flood"],
   airports: ["航空", "airport"],
   jpAirports: ["日本機場", "japan airport"],
+  historicalFlightTrails: ["歷史航班", "歷史飛行", "飛行軌跡", "flight trail", "RCTP"],
+  jpHistoricalFlightTrails: ["日本歷史航班", "歷史飛行", "飛行軌跡", "flight trail", "RJTT"],
 };
 
 export interface LayerSearchResult {

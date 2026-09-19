@@ -521,6 +521,10 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "歷史軌跡",
+        layers: [fromManifest("historicalFlightTrails")],
+      },
+      {
         title: "共享運具",
         layers: [
           fromManifest("youbikeFullness"),
@@ -1789,6 +1793,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "線",
         layers: [
           fromManifest("jpRailways"),
+          fromManifest("jpHistoricalFlightTrails"),
         ],
       },
     ],

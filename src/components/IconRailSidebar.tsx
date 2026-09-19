@@ -1,3 +1,4 @@
+import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
@@ -1315,6 +1316,7 @@ function ExpandedControls({
     <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
+      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={TEXT_STRONG === DARK_PALETTE.TEXT_STRONG} />}
       {/* Display mode (flights only) + Hide */}
       {isTransport && (
         <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>

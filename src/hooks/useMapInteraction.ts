@@ -1,3 +1,4 @@
+import { pickHistoricalFlightTrail } from "../map/historicalFlightTrails";
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
@@ -122,6 +123,22 @@ export function useMapInteraction(
       const h = container.clientHeight;
 
       const vis = layerVisibilityRef?.current;
+
+      // Pick the elevated 3D geometry, not an invisible ground projection.
+      for (const country of ["TW", "JP"] as const) {
+        const layerType = country === "TW" ? "historicalFlightTrails" : "jpHistoricalFlightTrails";
+        if (!vis?.[layerType]) continue;
+        const hit = pickHistoricalFlightTrail(map, country, e.point.x, e.point.y, w, h);
+        if (hit) {
+          setFeatureInfo(country === "TW"
+            ? { layerType: "historicalFlightTrails", properties: hit.properties ?? {} }
+            : { layerType: "jpHistoricalFlightTrails", properties: hit.properties ?? {} });
+          setTooltipInfo(null);
+          setTrainTooltipInfo(null);
+          setBusTooltipInfo(null);
+          return;
+        }
+      }
 
       // 先嘗試拾取列車（僅在 rail 圖層開啟時）
       if (vis?.rail) {

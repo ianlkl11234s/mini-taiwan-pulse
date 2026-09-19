@@ -1628,6 +1628,13 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
   jpRailways: [opacitySlider("jpRailwaysOpacity", 0.9)],
+  jpHistoricalFlightTrails: [
+    opacitySlider("jpHistoricalFlightTrailsOpacity", 0.28),
+    { kind: "slider", name: "jpHistoricalFlightTrailsAltitudeScale", labelPrefix: "高度倍率", digits: 1, default: 3, min: 1, max: 10, step: 0.5 },
+    { kind: "slider", name: "jpHistoricalFlightTrailsWidth", labelPrefix: "線條強度", digits: 2, default: 0.75, min: 0.25, max: 1, step: 0.05 },
+    { kind: "select", name: "jpHistoricalFlightTrailsDirectionIdx", label: "方向 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "離場", value: "1" }, { label: "到場", value: "2" }], out: "jpHistoricalFlightTrailsDirectionIdx", encodeNumeric: true },
+    { kind: "select", name: "jpHistoricalFlightTrailsRouteScopeIdx", label: "航線範圍 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "國內", value: "1" }, { label: "跨境", value: "2" }, { label: "未提供", value: "3" }], out: "jpHistoricalFlightTrailsRouteScopeIdx", encodeNumeric: true },
+  ],
   osmBridgeCarriers: [
     opacitySlider("osmBridgeCarriersOpacity", 0.85),
     {
@@ -3040,6 +3047,13 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "orbScale", labelPrefix: "Orb", digits: 1, displayScale: 100000,
       default: 0.000005, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
+  ],
+  historicalFlightTrails: [
+    opacitySlider("historicalFlightTrailsOpacity", 0.28),
+    { kind: "slider", name: "historicalFlightTrailsAltitudeScale", labelPrefix: "高度倍率", digits: 1, default: 3, min: 1, max: 10, step: 0.5 },
+    { kind: "slider", name: "historicalFlightTrailsWidth", labelPrefix: "線條強度", digits: 2, default: 0.75, min: 0.25, max: 1, step: 0.05 },
+    { kind: "select", name: "historicalFlightTrailsDirectionIdx", label: "方向 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "離場", value: "1" }, { label: "到場", value: "2" }], out: "historicalFlightTrailsDirectionIdx", encodeNumeric: true },
+    { kind: "select", name: "historicalFlightTrailsRouteScopeIdx", label: "航線範圍 全部", default: "0", options: [{ label: "全部", value: "0" }, { label: "國內", value: "1" }, { label: "跨境", value: "2" }, { label: "未提供", value: "3" }], out: "historicalFlightTrailsRouteScopeIdx", encodeNumeric: true },
   ],
   ships: [
     {
