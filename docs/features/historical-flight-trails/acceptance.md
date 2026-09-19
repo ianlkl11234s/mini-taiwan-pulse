@@ -27,7 +27,8 @@
 
 ## S3 靜態資產發布 2026-09-19
 
-- `20260919-v2` 已以目前 production manifest SHA 做 CAS 更新：124 個 immutable GeoJSON 加 manifest，共 125 個物件、137,272,025 bytes；逐物件 readback 通過。receipt：[`evidence/20260919-v2-s3-publication.json`](evidence/20260919-v2-s3-publication.json)。日期變更的 production pull／HTTP／browser 證據需在本次程式 merge/deploy 後補齊。
+- `20260919-v2` 已以目前 production manifest SHA 做 CAS 更新：124 個 immutable GeoJSON 加 manifest，共 125 個物件、137,272,025 bytes；逐物件 readback 通過。receipt：[`evidence/20260919-v2-s3-publication.json`](evidence/20260919-v2-s3-publication.json)。
+- PR #316 以一般 merge commit `9b6e9d88` 整合，Zeabur deployment `6aae9e2f` 為 `RUNNING`。Production manifest 為 68,673 bytes、SHA-256 `80e648b9…`、`application/json`、短快取；桃園 02/20、02/24、02/18 與羽田 02/18 資產皆與 manifest bytes／SHA 完全相符，為 `application/geo+json` 與一年 immutable cache。見 [`evidence/20260919-v2-production-deployment.json`](evidence/20260919-v2-production-deployment.json) 與 [`evidence/20260919-v2-production-http-readback.json`](evidence/20260919-v2-production-http-readback.json)。新版桌面 browser 尚未驗收。
 
 - `scripts/deploy/publish_historical_flight_trails.py --apply` 已發布 `20260918-v1` 至 `deploy-assets/flight-trails`。receipt：[`evidence/20260919-s3-publication.json`](evidence/20260919-s3-publication.json)。
 - 98 個 immutable GeoJSON 位於 `releases/20260918-v1/`，逐一 S3 readback 驗證 bytes、SHA-256、`application/geo+json` 與 `public,max-age=31536000,immutable`；manifest 亦完成 readback，為 `application/json` 與 `public,max-age=60,s-maxage=60,stale-while-revalidate=300`。共 99 個物件。
