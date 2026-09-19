@@ -33,6 +33,6 @@ exporter 必要引數以 `--help` 為準。現有 local artifacts 在 `public/fl
 
 發布用 `scripts/deploy/publish_historical_flight_trails.py` 固定 concurrency 4，依 manifest allowlist 發布 immutable release，所有 asset readback 成功後才以 conditional write 發布 manifest。`scripts/deploy/pull-deploy-assets.sh` 先同步 `releases/`，再下載至暫存檔並原子替換 manifest；同步或 manifest 下載失敗均保留舊 manifest。nginx 從 `/data/flight-trails` 供應，缺檔 fail-closed 為 404，不可落入 SPA HTML；release cache 為 immutable，manifest 為短快取。
 
-`20260919-v2` 已隨 PR #316 的一般 merge commit `9b6e9d88` 整合；Zeabur deployment `6aae9e2f` 為 `RUNNING`。Production manifest 與桃園三日期、羽田02/18資產的 HTTP bytes／SHA／MIME／cache readback 通過；證據見 `evidence/20260919-v2-production-*.json`。新版桌面 browser 與真機效能尚未驗收。`license_status=unverified`，不得把現有來源視為公開展示許可。
+`20260919-v2` 已隨 PR #316 的一般 merge commit `9b6e9d88` 整合；Zeabur deployment `6aae9e2f` 為 `RUNNING`。Production manifest 與桃園三日期、羽田02/18資產的 HTTP bytes／SHA／MIME／cache readback 通過；production desktop browser 亦通過全部機場預設02/20、三日期載入、3D航跡與 console 驗收。證據見 `evidence/20260919-v2-production-*.json` 與 `evidence/20260920-v2-production-browser.json`。真機效能尚未驗收；`license_status=unverified`，不得把現有來源視為公開展示許可。
 
 前端一般日不是完整示範，後續補抓需先核對來源查詢與信用額度。原始FR24授權未核對個別合約，本地成果不能當公開發布許可。

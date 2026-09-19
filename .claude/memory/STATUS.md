@@ -1,42 +1,42 @@
 # Status
 
-**最後更新**：2026-09-10（Statistics browser runtime 去 Supabase：R2 snapshot、Cloudflare immutable cache、Zeabur production 全鏈完成）
+**最後更新**：2026-09-20（Historical Flight Trails `20260919-v2` production 全鏈完成，可安全封存）
 
-> 本檔只保留目前主線、release truth、blockers 與下一棒；歷史過程留在 git、feature 文件與 `REFLECTIONS.md`。
+> 本檔只保留目前 touched scope、release truth、邊界與下一棒；歷史過程在 git、feature 文件與 `REFLECTIONS.md`。
 
 ## Scope ledger
 
 | repo / system | current truth |
 |---|---|
-| **taipei-gis-analytics** | `master == origin/master` `02dbb218`；PR **#87 merged**，Statistics exact-selector contract 與 snapshot input 完成。|
-| **gis-platform** | `main == origin/main` `09494f14`；PR **#106** publisher code／docs merged，docs correction PR **#107** merged。|
-| **mini-taiwan-pulse** | remote `master` `1f992a3e`；PR **#239** R2 frontend merged，docs correction PR **#240** merged。收尾記憶在本機 `docs/statistics-r2-wrap-up-memory`，四個 atomic commits，未 push。|
-| **R2** | `regional-statistics-cdn-v1`；current manifest `83e3c063…6278`，66 indicators／476 releases／3,174 selectors／4 geometries；3,177 immutable objects readback，pointer last。|
-| **Cloudflare** | `current.json`：60 秒、DYNAMIC；僅 `manifests/`、`artifacts/`、`geometries/` 三個 content-hashed prefix 為一年 immutable，代表 artifact 與 45 MB geometry 已 HIT。|
-| **Zeabur** | core deployment `6aa196d3…82a7`（`7b473eb2`）完成；docs-only deployment `6aa23b93…2838`（`1f992a3e`）2026-09-10 05:14Z 完成且為 RUNNING。|
+| **mini-taiwan-pulse** | Runtime/date release PR **#316** merged（`9b6e9d88`）；production evidence PR **#317** merged（`092caec4`）。本收尾由 PR **#318** 承載，分支 `docs/historical-flight-trails-v2-wrap-up`；主 checkout 的平行 dirty files 未碰。 |
+| **plan-art** | 只讀來源 `dist/tracks/airports` 與 `public/airport-points.geojson`；沒有新的 FR24 抓取或付費 API 呼叫。 |
+| **S3 deploy-assets** | `flight-trails/manifest.json` 指向 immutable `20260919-v2`；124 GeoJSON + manifest 共 125 objects／137,272,025 bytes，逐物件 readback 通過。 |
+| **Zeabur** | Runtime deployment `6aae9e2f`（`9b6e9d88`）完成；docs/evidence deployment `6aaea179`（`092caec4`）為 `RUNNING`。 |
+| **Production browser** | 台灣全部機場預設 02/20；02/20、02/24、02/18 都完成載入，3D 藍白航跡可見、無點 marker，console error／warning 為 0，最後恢復 02/20。 |
 
 ## Release truth matrix
 
-| release unit | build | contract-wire | stage | upload | readback | pull | deploy | HTTP | browser |
+| release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Analytics Statistics contract | done | done：PR#87 | N/A | N/A | done：exact selectors／geometry refs | N/A | N/A | N/A | N/A |
-| Platform R2 publisher | done：4 tests + py_compile | done：PR#106 | done | done：3,177 immutable + pointer last | done：hash／size／manifest counts | N/A | N/A | done：custom-domain objects | N/A |
-| Cloudflare cache scopes | N/A | done：3 immutable prefixes | N/A | N/A | done：pointer DYNAMIC；artifact／geometry HIT | N/A | N/A | done：CORS + Cache-Control + CF status | N/A |
-| Pulse Statistics frontend | done：47 focused tests + tsc | done：PR#239；no Supabase fallback | N/A | N/A | done：production lazy chunk | done：R2 fetch | done：`6aa196d3…82a7` | done | done：selector／日期／單位／STALE／COMPLETE 368/368／缺值語意 |
-| docs cache evidence | done：platform sql-lint + Pulse test | done：#107／#240 | N/A | N/A | done：merge SHA | N/A | done：docs-only `6aa23b93…2838` | done：正式站 200；pointer 60 秒 | no rerun：runtime code unchanged；沿用 #239 production browser evidence |
+| Historical Flight Trails `20260919-v2` | done：tsc、build、223 test files／1,690 tests + exporter 12 tests | done：manifest／loader／3D custom layer；PR#316 | done：129 selectors、124 partial assets、5 unavailable | done：124 immutable assets + pointer-last manifest | done：125 objects bytes／SHA／MIME／cache | done：release-first、manifest atomic replace | done：`6aae9e2f`；後續 docs deployment `6aaea179` RUNNING | done：manifest SHA `80e648b9…` + 桃園三日期／羽田02/18 | done：三日期、預設、3D、無點 marker、console 0/0 |
 
 ## Blockers / next-session entry
 
-- **runtime／資料發布／docs 無 blocker**；Statistics production 已完成，可正常封存功能工作。
-- 唯一未遠端化項目是本機 memory branch `docs/statistics-r2-wrap-up-memory`：
-  - commits：`fec1f7bf` DATA_SCOPE、`2ef03437` INCIDENTS、`1fc1062e` REFLECTIONS、STATUS（本 commit）。
-  - 原因：wrap-up memory commits 不沿用先前 push 授權，需使用者另行明確允許。
-  - 下一棒第一步：取得授權後 `git push -u origin docs/statistics-r2-wrap-up-memory`；若要 PR／merge，再依明確授權執行。
-  - 驗收：remote branch 含四個 path-scoped commits；四個 target memory paths clean；不夾帶其他檔案。
+- **本 release 無 blocker，可安全封存。**
+- 不阻擋封存的獨立後續：
+  - 實體手機效能尚未驗收；桌面 production browser 不取代真機。
+  - 來源 `license_status=unverified`；不得把已發布技術事實解讀成公開展示授權已確認。
+  - 現有樣本皆為 `partial` 或 `unavailable`；恆春三日皆缺，02/18 另缺望安、蘭嶼。
+  - AR-14/15 只剩 ship／bus 靜態成品包，與已完成的 flight slice 分開。
+- 若未來重開本 feature：
+  - repo／入口：`mini-taiwan-pulse/docs/features/historical-flight-trails/handoff.md`
+  - 第一個步驟：先讀 production manifest 與 feature backlog，再確認需求是資料補抓、授權或真機效能。
+  - 驗收：保留 source／render geometry、日期、coverage、missingness 與 S3→deploy→HTTP→browser 證據分格。
 
 ## Verification boundaries
 
-- 「不打 Supabase」只指 Statistics browser runtime。整個應用仍因 auth／其他功能保留 Supabase host，不能宣稱全站去 Supabase。
-- `current.json` 的 `CF-Cache-Status: DYNAMIC` 是刻意設計，不是 cache miss；只有 content-hashed objects 可 immutable。
-- docs PR 的 Claude review job 因外部組織 access／runtime `is_error:true` 失敗；必要 `sql-lint`／`test` 已通過，失敗不屬 code evidence。
-- docs-only deployment 未重跑 browser；因 runtime code 未變，browser evidence來自 core PR #239 的 production acceptance，另以 docs-only deployment HTTP 200 證明 cutover。
+- 台灣有 17 個 selector，不代表每個日期 17 場都有可繪資產：02/20 與 02/24 為 16/17，02/18 為 14/17。
+- 日本 02/18 的 78/78 只指 `airport-points` 來源清單，不等於日本所有登記飛行場或逐航班完整。
+- 同航班觀測缺口依使用者指定直接連線；球面細分是 render-only geometry，不是新增觀測點。
+- 「不增加資料庫負擔」只指本 historical layer runtime：browser 讀同源靜態資產，沒有 Supabase／FR24 fallback；不代表整站不使用 Supabase。
+- 舊 `20260918-v1` 保留為 immutable rollback release，沒有覆寫或刪除。

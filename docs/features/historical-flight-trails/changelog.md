@@ -5,7 +5,7 @@
 - 依使用者指定，台灣 selector 順序改為 `2026-02-20`、`2026-02-24`、`2026-02-18`，預設仍為全部機場 `2026-02-20`；日本維持 `2026-02-18`。
 - 02/20 與 02/18 保留春節特殊日期語意；02/24 標為一般週二平日候選。三日都維持 `partial`，不宣稱來源或逐航班完整。
 - 新 `20260919-v2` 包含124個 GeoJSON：台灣02/20 16/17場、02/24 16/17場、02/18 14/17場，日本02/18 78/78場；S3 125個物件完整 readback 通過。舊 `20260918-v1` 不覆寫、不刪除。
-- PR #316 以一般 merge commit `9b6e9d88` 整合；Zeabur deployment `6aae9e2f` 為 `RUNNING`。正式 manifest 與桃園三日期、羽田02/18資產 HTTP readback 通過；新版桌面 browser 尚待驗收。
+- PR #316 以一般 merge commit `9b6e9d88` 整合；Zeabur deployment `6aae9e2f` 為 `RUNNING`。正式 manifest 與桃園三日期、羽田02/18資產 HTTP readback 通過；production desktop browser 三日期載入、預設02/20、3D航跡與 console 驗收亦通過。
 
 ## 2026-09-19 — Production 驗收完成
 

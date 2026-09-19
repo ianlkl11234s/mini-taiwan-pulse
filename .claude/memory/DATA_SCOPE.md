@@ -758,6 +758,26 @@ bus 系 **3 天**（08-05~08-07）。
 🔴 **已永久救不回**：`bus` / `bus_intercity` 的 **08-04**、`ships` / `flights` 的 **07-30**。
 ⚠️ 漏跑的一晚**不會自動補**（`backfill=1`）→ 偵測靠 Telegram 🧊/🚨、恢復靠手動 `--backfill N`。
 
+## 歷史航班軌跡靜態成品包（2026-09-19 v2 production）
+
+這是供 Mini Taiwan Pulse 展示的 processed delivery product，來源為 `plan-art/dist/tracks/airports`
+既有歷史成果；**不是**上方 nightly `trails/flights` 保存層，也不讓 browser 直讀原始 archive。
+
+| 項目 | `20260919-v2` current truth |
+|---|---|
+| 發布路徑 | S3 `deploy-assets/flight-trails/releases/20260919-v2/` + `flight-trails/manifest.json`；前端同源 `/flight-trails` |
+| 物件 | 124 個 immutable GeoJSON + 1 manifest，共 125 objects／137,272,025 bytes |
+| 點位 | 來源 4,862,370 點；保留 4,862,163 點；207 個分段後孤立點無法成線 |
+| 台灣日期 | 02/20：16/17 場、561,190 點；02/24：16/17 場、543,778 點；02/18：14/17 場、669,560 點 |
+| 日本日期 | 02/18：`airport-points` 來源清單 78/78 場有可繪資產；不等於日本所有登記飛行場 |
+| selector | 129；124 `partial`、5 `unavailable`；不可把 availableCount 當來源查詢或逐航班完整度 |
+| runtime | manifest session snapshot + immutable asset；沒有 Supabase DB 或 FR24 runtime fallback |
+
+顯示端保留原始高度與可連線點，不 round／抽稀／平滑；同航班觀測缺口依使用者指定直接連線，
+球面細分僅是 render-only geometry。Production S3、deploy、HTTP 與 desktop browser 均已驗收；
+真機效能未驗，來源 `license_status=unverified`。Canonical：
+[`docs/features/historical-flight-trails/`](../../docs/features/historical-flight-trails/)。
+
 ## Embed 回放快照（成品包，2026-08-06 凍結日；**已上生產並驗證**）
 
 供 `/embed` 在**零 Supabase 請求**下播完整天。檔名含日期 → `/embed-snapshots/` 走 1y immutable。

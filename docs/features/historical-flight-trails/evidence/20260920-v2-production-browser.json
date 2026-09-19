@@ -1,0 +1,59 @@
+{
+  "schema": "historical-flight-trails-production-browser-v2",
+  "checked_at": "2026-09-19T16:12:34Z",
+  "url": "https://mini-taiwan-pulse.itsmigu.com/?v=1&lng=120.9&lat=23.7&z=5.5&pitch=45&bearing=25&layers=historicalFlightTrails&sm=single&date=2026-09-19&h=22&style=dark",
+  "deployment_id": "6aaea17994c4cdf079b8bcb1",
+  "commit_sha": "092caec4725d1416b18c6c540c552e62374a3005",
+  "layer": "historicalFlightTrails",
+  "selection": {
+    "country": "TW",
+    "airport": "ALL",
+    "default_date": "2026-02-20",
+    "date_options": [
+      "2026-02-20",
+      "2026-02-24",
+      "2026-02-18"
+    ],
+    "restored_default": true
+  },
+  "samples": [
+    {
+      "date": "2026-02-20",
+      "available_airports": 16,
+      "total_airports": 17,
+      "point_count": 561190,
+      "displayed_flight_count": 898,
+      "load_completed": true
+    },
+    {
+      "date": "2026-02-24",
+      "available_airports": 16,
+      "total_airports": 17,
+      "point_count": 543778,
+      "displayed_flight_count": 839,
+      "load_completed": true
+    },
+    {
+      "date": "2026-02-18",
+      "available_airports": 14,
+      "total_airports": 17,
+      "point_count": 669560,
+      "displayed_flight_count": 1078,
+      "load_completed": true
+    }
+  ],
+  "visual": {
+    "three_dimensional_blue_white_trails_visible": true,
+    "trajectory_point_markers_visible": false,
+    "observation": "Desktop production screenshot showed the blue-white 3D trail layer over Taiwan and surrounding routes."
+  },
+  "console": {
+    "error_count": 0,
+    "warning_count": 0
+  },
+  "evidence_methods": [
+    "accessibility_tree",
+    "production_screenshot",
+    "browser_console"
+  ]
+}
