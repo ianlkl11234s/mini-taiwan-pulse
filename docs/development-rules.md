@@ -6,9 +6,9 @@
 
 ### 依更新語意選 runtime 路徑
 - **動態時序資料**（船舶、航班、溫度、壅塞、地震、災害示警 等）→ Supabase RPC
-- **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/*.geojson`
+- **靜態 GeoJSON**（機場、港口、燈塔、路網 等）→ `public/<domain>/*.geojson`；既有 URL 視為契約，不因整理目錄任意搬動
 - **Statistics 行政區統計**（包含未來新增指標）→ `regional-statistics-cdn-v1` R2 snapshot；資料庫保留為發布來源，瀏覽器不得 fallback 到 Supabase。發布順序固定為 immutable artifact → immutable manifest → `current.json`，任一 SHA／完整度／來源語意檢查失敗即顯示錯誤。
-- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/`（由 S3 deploy-assets 管理）
+- **大型預聚合 JSON**（H3、rail_bundle、station_pillars）→ `public/<domain>/`（由 S3 deploy-assets 管理；路徑須與 manifest、nginx、deploy scripts 同步）
 
 ### 統計圖層的專項規則
 
@@ -112,11 +112,11 @@ useEffect(() => {
 - ❌ 前端自己做 N+1 query 拼資料
 - ❌ 假設 Supabase pooler statement_timeout 可以繞過
 
-## 4. 新增 Layer 流程（完整觸點表）
+## 4. 新增 Layer 流程（manifest-first 觸點表）
 
-> 2026-08-10 稽核（`docs/research/architecture-audit-2026-08-10.md` C-2）用 3 個真實 commit 實測
-> （落雷單層 11 檔 29 hunk／殯葬 5 層 14 檔／教育 16 層同 14 檔＝規模經濟），發現舊版「7 步」漏了
-> 7 個觸點——新人照舊表做必漏。下表是完整版，🔒 = tsc 或測試強制擋漏接，⚠️ = 只能靠人工 review。
+> 現行 SSOT 是 `layerManifest.ts`；顏色、icon、sidebar section 與 upstream registry 都由 manifest
+> 派生，不得再手改下游登記簿。下表保留實質接線觸點，🔒 = tsc 或測試強制擋漏接，
+> ⚠️ = 需人工 review。完整驗收使用 `layer-onboarding` skill。
 
 | # | 檔案 | 動作 | 守門 |
 |---|---|---|---|
@@ -126,8 +126,8 @@ useEffect(() => {
 | 4 | `src/data/xxxTypes.ts` | 若分類 ≥2 種：色/標籤 SSOT，供 factory / featureInfo / legend 三邊 import | ⚠️ 人工（漏建會導致三邊各自 inline hex，見 PRINCIPLES 三邊色彩一致性段） |
 | 5 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup | ⚠️ 人工 |
 | 6 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry entry；動態 → CustomLayer | ⚠️ 人工 |
-| 7 | `src/components/sidebar/layerCatalog.ts` | `LAYER_COLORS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,string>`，漏了 TS2739） |
-| 8 | `src/components/sidebar/layerCatalog.ts` | `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用；UI toggle 渲染在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`） | 🔒 `layerConsistency.test.ts`（manifest `section` ⇔ `ORPHAN_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`section` 宣告 ⇔ THEMES 實際位置） |
+| 7 | `src/data/layerManifest.ts` | 宣告 key、label、color、icon、section、source、legend、popup；下游登記簿由此派生 | 🔒 `layerConsistency.test.ts` + `layerManifest.test.ts` |
+| 8 | `src/components/sidebar/layerCatalog.ts` | **不手改登記值**；只確認 manifest 的 section 能正確派生至桌機/手機共用 `THEMES` | 🔒 `layerManifest.test.ts`（`section` 宣告 ⇔ THEMES 實際位置） |
 | 9 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView | ⚠️ 人工 |
 | 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
 | 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`NO_PARAMS_LEDGER` 雙向凍結，判準走 manifest 的 `params: null`）+ `layerManifest.test.ts`（`params` 是否為 null ⇔ spec 有無宣告）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影 / switch 維持清空）+ 黃金快照 `params` section |
@@ -137,8 +137,8 @@ useEffect(() => {
 | 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
 | 15 | `src/components/featureInfo/registry.tsx` | `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 | 🔒 `registry.test.ts`（ratchet，`HEADER_LABELS` 是 Record 定全集） |
 | 16 | `src/map/gisClickRegistry.ts`（4b 起自 useMapInteraction 升格模組級） | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
-| 17 | `src/components/IconRailSidebar.tsx` | `LAYER_ICONS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,LucideIcon>`） |
-| 18 | `src/data/upstreamRegistry.ts` | 加資料血緣條目（對應 taipei-gis-analytics catalog dataset） | 🔒 `upstreamRegistry.test.ts`（涵蓋所有 `LAYER_COLORS` keys） |
+| 17 | `src/components/IconRailSidebar.tsx` | **不手改 `LAYER_ICONS`**；icon 由 manifest 派生，只驗證兩側欄顯示一致 | 🔒 tsc + manifest 契約測試 |
+| 18 | `src/data/upstreamRegistry.ts` | **不手改 registry**；資料血緣由 manifest `source` 派生，另核對 taipei-gis-analytics catalog dataset | 🔒 `upstreamRegistry.test.ts` |
 | 19 | `src/chat/tools/datasets.ts` | 選配：若是點狀＋有分類欄位的靜態 GeoJSON，想讓 BYOK 對話查詢，加進 `DATASET_WHITELIST` | ⚠️ 人工（非強制） |
 | 20 | `nginx.conf` + `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` | 僅 PMTiles／大型靜態檔層：nginx location 對應 + deploy 腳本清單加檔名 | ⚠️ 人工——PT-1 曾因漏此步，13 層全站 404 |
 
@@ -316,7 +316,7 @@ LegendPanel）共用。
 | Mapbox overlay config | `src/map/overlayRegistry.ts` | 加一筆 `OverlayConfig` |
 | Three.js scene | `src/three/` | `XxxScene.ts` |
 | Custom WebGL layer | `src/map/` | `xxxCustomLayer.ts` |
-| 靜態 GeoJSON | `public/` | `xxx.geojson`（扁平，S3 deploy-assets 契約） |
+| 靜態 GeoJSON / PMTiles | `public/<domain>/` | 檔名與 URL 是 deploy 契約；既有資產不可只為整理而搬動 |
 | 預處理腳本 | `scripts/preprocess/` | `preprocess-xxx.py` 或 `generate-xxx.py` |
 | S3 上傳腳本 | `scripts/deploy/` | `upload-xxx-to-s3.ts` |
 | 外部 API fetch | `scripts/fetch/` | `fetch-xxx.ts` / `.py` |
@@ -329,7 +329,7 @@ npx tsc -b   # project references，不要用 tsc --noEmit
 Commit 前必跑。
 
 ## 7. 部署 Checklist
-見 CLAUDE.md 或 deploy-checklist memory。改 `public/*` 檔案要注意 S3 deploy-assets 契約（扁平檔名）。
+見 CLAUDE.md 或 deploy-checklist memory。改 `public/**` 資產時，manifest URL、nginx 與 deploy scripts 必須一起對帳；目錄整理不得破壞既有 URL。
 
 ## 8. 動態圖層時間訂閱（External Time Store）
 

@@ -54,7 +54,9 @@ export const SOCIAL_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type SocialStatisticsLayerKey = typeof SOCIAL_ENABLED_STATISTICS_KEYS[number];
 
-const document = JSON.parse(rawRecipes) as SocialRecipeDocument;
+// Vite/Vitest return a string for `?raw`; Node/tsx audit scripts can expose
+// the already-parsed JSON object.  Supporting both keeps manifest audits usable.
+const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as SocialRecipeDocument;
 export const SOCIAL_STATISTICS_SCOPE = document.scope;
 export const SOCIAL_STATISTICS_RECIPES = document.recipes;
 export const SOCIAL_ENABLED_STATISTICS_RECIPES = SOCIAL_STATISTICS_RECIPES.filter((recipe) => recipe.enabled);

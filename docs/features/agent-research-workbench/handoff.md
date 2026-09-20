@@ -1,4 +1,4 @@
-> **歷史文件（2026-09-14～15）**：保留 Research Workbench 當時的接手與驗收證據，其中工具數、worktree、部署及「拖動會關閉跟隨」不代表目前行為。現在請從 [探索能力計劃](./exploration-capabilities-plan.md) 進入；工具快照見 [全圖層能力盤點](./layer-capability-inventory-20260919.md)，新增圖層規則見 [分析能力 onboarding](./analysis-capability-onboarding.md)。
+> **歷史文件（2026-09-14～15）**：保留 Research Workbench 當時的接手與驗收證據，其中工具數、worktree、部署及「拖動會關閉跟隨」不代表目前行為。2026-09-20 cleanup 後的搜尋／UI／MCP 下一棒先讀 [layer discovery／MCP handoff](./layer-discovery-mcp-handoff-20260920.md)；產品方向再從 [探索能力計劃](./exploration-capabilities-plan.md) 進入。工具快照見 [全圖層能力盤點](./layer-capability-inventory-20260919.md)，新增圖層規則見 [分析能力 onboarding](./analysis-capability-onboarding.md)。
 
 ## 2026-09-15 研究動作與流暢互動
 

@@ -1,51 +1,40 @@
-# docs/features/
+# Feature 文件索引
 
-**每個 feature 一個資料夾，作為該功能的文件歸屬地。**
+每個資料夾對應一個可獨立理解、驗收或交接的 feature／working area。這裡保存長期契約；
+全站短期進度與 backlog 仍由 `.claude/memory` 的索引管理，不在 feature 文件複製流水帳。
 
-## 為什麼要這樣分
+## 最小文件契約
 
-過去 STATUS.md 是全站流水帳，難追某個 feature 的完整脈絡。這裡讓每個 feature：
-- 有自己的 README（是什麼、誰做、怎麼跑）
-- 有自己的 backlog（從全站 BACKLOG.md 抽出來的相關項）
-- 有自己的 changelog（逐 PR 記錄）
-- 有自己的 handoff（反向引用 taipei-gis-analytics 的上游 handoff）
+- `README.md`：active/shipped feature 必備，說明用途、runtime 路徑、資料來源與驗收方式。
+- `handoff.md`：有跨 repo 資料契約或需要接手時必備。
+- `backlog.md`：有未完成工作時才建立；完成後可保留決策與明確的 done/closed 狀態。
+- `changelog.md`：需要逐 PR 保存設計脈絡時使用，不強制每個 feature 建空檔。
 
-## 結構
+舊資料夾可能只有 handoff/backlog；巡檢會列為文件債，但不得為了湊模板建立空文件或刪除歷史。
 
-```
-docs/features/
-├── README.md              ← 這份
-├── _TEMPLATE/             ← 開新 feature 就 cp -r 這個
-│   ├── README.md
-│   ├── backlog.md
-│   ├── changelog.md
-│   └── handoff.md
-└── <feature-slug>/
-    ├── README.md          ← 功能簡介 + owner + 資料源摘要
-    ├── backlog.md         ← 該 feature 待辦（BACKLOG.md 的子集）
-    ├── changelog.md       ← 逐 PR 變更（date + PR# + what）
-    └── handoff.md         ← 資料契約 + 上游 handoff 反向引用
-```
+## 命名與生命週期
 
-## Feature slug 命名
+- folder 使用 kebab-case，盡量與上游 dataset/handoff slug 一致。
+- 文件開頭標示 `active`、`shipped`、`paused` 或 `historical`，避免舊計畫被誤認為現行規格。
+- 現行規則與歷史紀錄衝突時，以 `CLAUDE.md`、`docs/development-rules.md`、manifest 契約測試為準。
+- 需要封存時移到 `docs/archive/`，並保留原路徑的索引或導向；不要直接刪除。
 
-用 kebab-case，與 upstream 一致：
-- `real-estate`（對應 `taipei-gis-analytics/docs/handoff/real-estate.md`）
-- `fire-rescue`
-- `waste-collection`
+## 建立新 feature
 
-## 現有 features
+從 [`_TEMPLATE`](./_TEMPLATE/) 取用需要的檔案，不必機械式複製全部。至少補齊：
 
-| Feature | 狀態 | Owner | 上游 handoff |
-|---|---|---|---|
-| [real-estate](./real-estate/) | ✅ shipped | migu | [handoff](../../../taipei-gis-analytics/docs/handoff/real-estate.md) |
+1. source / snapshot time / coverage / missingness / geometry semantics
+2. runtime access（RPC、R2/CDN、GeoJSON、PMTiles 或 custom）
+3. frontend wiring（manifest key、loader、hook、overlay、legend、popup）
+4. local test、browser/network、deployment/production 的分開驗收證據
 
-## 全站文件和這裡的分工
+目前資料夾清單與缺件由 `scripts/audit/weekly/check_docs.ts` 掃描，避免在本頁維護容易漂移的
+手寫總表。重要入口：
 
-| 文件 | 職責 |
-|---|---|
-| `.claude/memory/STATUS.md` | 全站當週動態（只留最新段） |
-| `.claude/memory/BACKLOG.md` | 全站 backlog 分類索引 |
-| `.claude/memory/PRINCIPLES.md` | 全站 P0 規則、跨 feature |
-| **`docs/features/<x>/`** | **單一 feature 的完整脈絡** |
-| `docs/development-rules.md` | 開發通則（不分 feature） |
+- [Layer Manifest](./layer-manifest/)
+- [Japan core layers](./jp-core-layers/)
+- [Japan height layers](./jp-height-layers/)
+- [Taiwan statistics](./taiwan-statistics/)
+- [Social statistics](./social-statistics/)
+- [Global events](./global-events/)
+- [Research workbench](./agent-research-workbench/)

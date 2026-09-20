@@ -164,8 +164,9 @@ function fromManifest(key: ManifestKey): LayerDef {
 }
 
 /** Japan research / unreleased pilot layers exist in local DEV only. */
+const IS_PRODUCTION = import.meta.env?.PROD ?? true;
 function localResearchGroup(title: string, keys: ManifestKey[]): SubGroupDef[] {
-  return import.meta.env.PROD
+  return IS_PRODUCTION
     ? []
     : [{ title, layers: keys.map((key) => fromManifest(key)) }];
 }
@@ -1826,7 +1827,7 @@ const THEME_CATALOG: ThemeDef[] = [
         "jpWildlifeProtectionNational", "jpWildlifeSpecialProtectionDistrict", "jpWildlifeSpecialProtectionDesignatedArea",
       ]),
       { title: "濕地與海域", layers: [
-        ...(import.meta.env.PROD ? [] : [fromManifest("jpRamsarSites")]),
+        ...(IS_PRODUCTION ? [] : [fromManifest("jpRamsarSites")]),
         fromManifest("jpMarineEbsaCoastal"),
       ] },
     ],

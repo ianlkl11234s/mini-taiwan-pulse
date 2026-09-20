@@ -6,9 +6,9 @@
 
 天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
 後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星……
-**31 個主題、366 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
+**62 個正式環境主題、569 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
 
-> 統計時點 2026-08。數字會隨圖層增加而變動，以 `src/data/layerManifest.ts` 為準。
+> 統計時點 2026-09-20。registry 以 `src/data/layerManifest.ts` 為準；正式站可見主題與 toggle 以 `src/components/sidebar/layerCatalog.ts` 的 production `THEMES` 為準。
 
 ---
 
@@ -26,18 +26,18 @@
 
 ## 能看到什麼
 
-圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**376 個 layer key**，
-其中 366 個有 sidebar toggle，10 個是沒有 toggle 的內部 key。
+圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**778 個 layer key**。
+正式環境有 569 個 sidebar toggle，10 個是沒有 toggle 的內部 key；其餘 199 個是可驗證但未對正式站開放的 release-gated／DEV-only 登記，不得當成已上線圖層。
 
 主題前段班：
 
 | 主題 | 層數 | 舉例 |
 |---|---:|---|
 | 能源 Energy | 41 | 發電廠、機組即時出力、變電所、輸電線與鐵塔、加油站、離岸風場 |
-| 交通 Move | 33 | 航班、船舶、6 個軌道系統、公車即時、國道壅塞 |
+| 交通 Move | 39 | 航班、船舶、6 個軌道系統、公車即時、國道壅塞 |
 | 農業 Agriculture | 29 | 農田範圍 FTW、畜禽飼養場、養殖魚塭、土壤肥力、作物適栽 |
-| 水資源 Water | 23 | 水庫、河川、堤防、即時雨量、河川水位、淹水潛勢 |
-| 環境氣候 Environment | 20 | 氣象站、溫度場、衛星雲圖、空品、都市熱島、行道樹 |
+| 水資源 Water | 25 | 水庫、河川、堤防、即時雨量、河川水位、淹水潛勢 |
+| 環境氣候 Environment | 26 | 氣象站、溫度場、衛星雲圖、空品、都市熱島、行道樹 |
 | 執法治安 Law & Order | 20 | 警察機關、測速照相、法院、鄉鎮犯罪統計、海巡 |
 | 廢棄物 Waste | 18 | 垃圾車即時位置與路線、清運點、焚化爐、掩埋場 |
 | 教育 Education | 17 | 各級學校、校地範圍、學區、幼兒園、補習班 |
@@ -45,43 +45,74 @@
 | 太空 Space | 16 | 衛星即時軌跡（SGP4 推算）、未來軌跡、覆蓋足跡 |
 
 <details>
-<summary>完整 31 主題清單</summary>
+<summary>完整 62 主題清單</summary>
 
 | 主題 | 層數 |
 |---|---:|
-| 能源 Energy | 41 |
-| 交通 Move | 33 |
-| 農業 Agriculture | 29 |
-| 水資源 Water | 23 |
-| 執法治安 Law & Order | 20 |
-| 環境氣候 Environment | 20 |
-| 廢棄物 Waste | 18 |
-| 教育 Education | 17 |
-| 太空 Space | 16 |
-| 林業 Forestry | 16 |
-| 底圖 Base Map | 14 |
-| 災害 Hazard | 12 |
-| 觀光 Tourism | 11 |
-| 社福長照 Welfare | 9 |
-| 基礎建設 Infrastructure | 9 |
-| 工商登記 Business Registry | 8 |
-| 通訊 Communications | 8 |
-| 醫療 Medical | 8 |
+| 底圖 Base Map | 15 |
+| 行政區 | 2 |
+| 房地產統計 Real Estate Statistics | 1 |
+| 交通統計 Transport Statistics | 38 |
+| 人口統計 Population Statistics | 1 |
+| 住宅存量與使用 | 18 |
+| 交通 Move | 39 |
+| 人口社經 People | 5 |
+| 都市分析 Urban Analysis | 1 |
 | 房地產 Real Estate | 7 |
-| 人口社經 People | 6 |
-| 宗教 Religion | 6 |
+| 工商登記 Business Registry | 13 |
+| 交通 | 4 |
+| 人口 | 1 |
+| 教育與少子化統計 | 23 |
+| 醫療與長照統計 | 16 |
+| 基礎建設 Infrastructure | 9 |
+| 教育 Education | 17 |
+| 社福長照 Welfare | 9 |
 | 運動休閒 Sports & Leisure | 6 |
 | 文化 Culture | 5 |
-| 全球氣候 Global Climate | 5 |
-| 消防 Fire & Rescue | 5 |
+| 宗教 Religion | 6 |
 | 殯葬 Funeral | 5 |
-| 動物福利 Animal Welfare | 3 |
-| 情勢 Situation | 3 |
-| 世界 World | 1 |
+| 觀光 Tourism | 11 |
+| 全球通訊 Global Communications | 10 |
+| 長照服務 | 6 |
+| 旅宿 | 5 |
+| 教育 | 1 |
+| 宗教 | 3 |
+| 醫療 Medical | 8 |
+| 消防 Fire & Rescue | 5 |
+| 災害 Hazard | 12 |
 | 民防避難 Civil Defense | 1 |
-| 都市分析 Urban Analysis | 1 |
+| 執法治安 Law & Order | 20 |
+| 醫療設施 | 5 |
+| 醫療圈 | 3 |
+| 治安 | 1 |
+| 水資源統計 Water Statistics | 2 |
+| 廢棄物統計 Waste Statistics | 2 |
+| 資源回收統計 Recycling Statistics | 1 |
+| 能源統計 Energy Statistics | 1 |
+| 農業統計 Agriculture Statistics | 1 |
+| 農業統計 | 8 |
+| 畜牧統計 | 4 |
+| 漁業統計 | 4 |
+| 林業統計 | 4 |
+| 能源 Energy | 41 |
+| 廢棄物 Waste | 18 |
+| 環境氣候 Environment | 26 |
+| 水資源 Water | 25 |
+| 全球氣候 Global Climate | 5 |
+| 農業 Agriculture | 29 |
+| 動物福利 Animal Welfare | 3 |
+| 林業 Forestry | 16 |
+| 全球環境 Global Environment | 3 |
+| 水資源 | 13 |
+| 自然保護 | 1 |
+| 世界遺產 | 2 |
+| 高度與地表 | 2 |
+| 太空 Space | 16 |
+| 情勢 Situation | 3 |
+| 全球情勢 Global Situation | 1 |
+| 全球海事 Global Maritime | 6 |
 
-（不含 10 個無 sidebar toggle 的 key）
+（不含 10 個內部 key，也不含 199 個 release-gated／DEV-only 登記。）
 
 </details>
 
@@ -121,7 +152,7 @@
 
 全球級的則有：衛星、全球氣候場、USGS 地震、颱風路徑。
 
-其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 47 個資料夾裡。
+其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 74 個資料夾裡。
 
 ---
 
@@ -164,7 +195,6 @@
 | `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION` | 部署／腳本 | 大型資產的上傳與容器啟動時拉取 |
 | `FR24_API_TOKEN` | 選填 | 航班軌跡抓取腳本 |
 
-> ⚠️ `.env.example` 目前缺 `VITE_SUPABASE_*` 兩項，以本表為準。
 > `SUPABASE_SERVICE_ROLE_KEY` 只給後端腳本用，**絕不可進 bundle**。
 
 ### 安裝與啟動
@@ -175,8 +205,8 @@ cp .env.example .env      # 依上表填入
 npm run dev               # http://localhost:3721
 ```
 
-大型靜態資產（PMTiles、路網 GeoJSON、軌道時刻表）不進 git。本機若沒有這些檔案，
-對應圖層會靜默沒東西——那是預期行為，不是壞掉。要完整體驗請看 [部署](#部署) 一節的資產同步機制。
+大型靜態資產（PMTiles、路網 GeoJSON、軌道時刻表）不進 git。本機若未同步這些檔案，
+對應圖層在本機開發環境可能無資料；正式環境則必須通過部署契約與 runtime 驗收，不得把缺資產當成正常。完整體驗見 [部署](#部署) 一節。
 
 ```bash
 npm run build             # tsc -b && vite build
@@ -193,7 +223,7 @@ npx tsc -b                # 型別檢查（commit 前必跑，禁用 --noEmit）
 本專案是一個 GIS 生態系的**消費端**，自己不做資料收集：
 
 ```
-data-collectors/           30+ 收集器，24hr 運行，抓即時資料
+data-collectors/           80+ 收集器，24hr 運行，抓即時資料
         │
 taipei-gis-analytics/      資料引擎：開放資料目錄 + 清理 pipeline + 產 PMTiles
         │
@@ -211,10 +241,10 @@ mini-taiwan-pulse          ← 你在這裡（只讀，負責渲染）
 
 | 級別 | 路徑 | 層數 | 說明 |
 |---|---|---:|---|
-| **A** | `public/*.geojson` 全量 fetch | 126 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
-| **B** | PMTiles + HTTP Range | 80 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
+| **A** | `public/<domain>/*.geojson` 全量 fetch | 129 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
+| **B** | PMTiles + HTTP Range | 98 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
 | **C** | Supabase RPC / 即時 API | 52 | 動態資料。必須註冊 loadingRegistry，時間相依一律走 timeStore 訂閱 |
-| **D** | 自行接線 | 118 | Three.js / WebGL CustomLayer，或 hook 自己 addSource/addLayer |
+| **D** | 自行接線 | 499 | Three.js / WebGL CustomLayer、統計 recipes，或 hook 自己 addSource/addLayer；含未對正式站開放的登記 |
 
 ### 前端怎麼渲染
 
@@ -225,7 +255,7 @@ Mapbox GL JS（底圖 + 3D terrain + 相機）
   └── PMTiles source                大面積靜態切片
 ```
 
-Three.js 場景在 `src/three/`（17 個 `*Scene.ts` + 5 個支援檔），與 Mapbox 的橋接在 `src/map/*CustomLayer.ts`。
+Three.js 場景在 `src/three/`（19 個 `*Scene.ts` + 7 個支援檔／子目錄），與 Mapbox 的橋接在 `src/map/*CustomLayer.ts`。
 
 ### 時間軸
 
@@ -240,7 +270,7 @@ Replay 模式下時間每秒更新約 60 次。若 `currentTime` 進了 React de
 
 ### 資料庫契約
 
-Supabase 分五個 schema，前端**只能**打 `public.*` RPC 或直讀 `reference.*` / `spatial.*`；
+Supabase 的前端讀取契約以 `public.*` RPC 為主，或限定的 `reference.*` / `spatial.*` 讀取；
 高頻時序的 `realtime.*` 一律不對前端開放，要用就包一層 RPC。
 
 RPC 超過 1s 或 10k rows 一律套 pre-aggregate pattern（普通 table + per-day refresh function +
@@ -304,24 +334,24 @@ src/data/layerParamsSpec.ts   一筆規格    ─┴→ 派生 6 張登記表
 ```
 mini-taiwan-pulse/
 ├── src/
-│   ├── data/            資料載入器（60 個 *Loader.ts）+ layerManifest / layerParamsSpec
+│   ├── data/            資料載入器（83 個 *Loader.ts）+ layerManifest / layerParamsSpec
 │   ├── hooks/           圖層 hook（use*Layer.ts）與共用 hook
 │   ├── layers/          layerHookRegistry —— 圖層掛載總表
 │   ├── map/             Mapbox 容器、overlayRegistry、gisClickRegistry、*CustomLayer.ts
-│   ├── three/           Three.js 場景（17 個 Scene + 5 個支援檔）
+│   ├── three/           Three.js 場景（19 個 Scene + 7 個支援檔／子目錄）
 │   ├── engines/         列車運動插值引擎
 │   ├── components/      UI（IconRailSidebar 桌機 / LayerSidebar 手機 / 時間軸 / 圖例 / popup）
 │   ├── chat/            BYOK 地圖 agent（AI SDK + tools）
 │   ├── embed/           /embed 嵌入版（MapLibre + PMTiles）
 │   ├── state/           timeStore 等外部 store
 │   └── lib/             loadingRegistry 等基礎設施
-├── public/              靜態 GeoJSON（扁平）+ PMTiles 目錄
+├── public/              按資料域分類的靜態 GeoJSON / PMTiles 資產
 ├── scripts/
 │   ├── fetch/           外部 API 抓取
 │   ├── preprocess/      預處理
 │   ├── export/          DB 匯出
 │   └── deploy/          S3 上傳 / 容器啟動拉取 / entrypoint
-└── docs/                規則、架構、47 個 feature 資料夾
+└── docs/                規則、架構、74 個 feature 資料夾
 ```
 
 目錄規則（什麼東西該放哪）以 [`CLAUDE.md`](CLAUDE.md) 為準。
@@ -331,7 +361,7 @@ mini-taiwan-pulse/
 ## 測試
 
 ```bash
-npm test        # vitest run —— 43 檔 588 tests
+npm test        # vitest run；2026-09-20 基準：234 files，1,746 passed / 10 skipped
 npx tsc -b      # project references；禁用 --noEmit
 ```
 
@@ -362,7 +392,7 @@ nginx:alpine      dist → /usr/share/nginx/html，監聽 8080
 資產拉取刻意放背景：nginx 立刻綁 port，健康檢查不必等首次同步（首拉數百 MB）跑完。
 之後每次重啟走 `aws s3 sync`，未變更的物件會跳過。
 
-nginx 用 `root /data` 覆寫約 40 個 location，其中一部分再 `try_files` 回退到 build 產物，
+nginx 用 `root /data` 覆寫 66 個 location，其中一部分再 `try_files` 回退到 build 產物，
 所以本機沒同步資產時仍跑得起來。PMTiles **刻意不進 `gzip_types`**——
 它內部已壓縮，再走一次 gzip 會破壞 Range 請求。
 
@@ -383,8 +413,8 @@ docker compose up -d      # http://localhost:3721 （host 3721 → container 808
 中央氣象署、農業部、環境部、衛生福利部、教育部、各縣市政府開放資料平台，
 以及 OpenStreetMap、AIS 船舶訊號、FlightRadar24、Space-Track TLE 與 UCS 衛星資料庫。
 
-每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**225 個不同的上游 dataset**，
-其中 322 層已與上游目錄對帳驗證），可在站上的「資料來源」面板逐層查看。
+每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**326 個不同的上游 dataset**），
+並保留對帳狀態與 confidence；可在站上的「資料來源」面板逐層查看。
 
 感謝所有開放資料的維護者——沒有這些，這張地圖不會存在。
 
@@ -403,4 +433,4 @@ docker compose up -d      # http://localhost:3721 （host 3721 → container 808
 | [`docs/TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md) | 時間軸 UI 的三層結構設計提案 |
 | [`docs/supabase-optimization.md`](docs/supabase-optimization.md) | pre-aggregate pattern 完整指南 |
 | [`docs/known-issues.md`](docs/known-issues.md) | 歷史 bug + 診斷指令 |
-| [`docs/features/`](docs/features/) | 47 個功能領域各自的脈絡與交接文件 |
+| [`docs/features/`](docs/features/) | 74 個功能領域各自的脈絡與交接文件 |

@@ -65,7 +65,10 @@ export const AGRI_ENABLED_STATISTICS_KEYS = [
 ] as const;
 export type AgriStatisticsLayerKey = typeof AGRI_ENABLED_STATISTICS_KEYS[number];
 
-const document = JSON.parse(rawRecipes) as AgriRecipeDocument;
+// Vite/Vitest load `?raw` as a string, while the Node/tsx runtime used by
+// weekly-audit scripts can expose the already-parsed JSON object.  Accept both
+// so importing layerManifest stays deterministic in either environment.
+const document = (typeof rawRecipes === "string" ? JSON.parse(rawRecipes) : rawRecipes) as AgriRecipeDocument;
 export const AGRI_STATISTICS_RECIPES = document.recipes;
 /** Existing recipes are index-only cross-topic links, never duplicate sidebar toggles or releases. */
 export const AGRI_EXISTING_LAYER_REFERENCES: readonly AgriExistingLayerReference[] = document.existing_layer_references;

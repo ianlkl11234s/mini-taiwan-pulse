@@ -7,7 +7,7 @@ import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { useOverlayParams } from "../layers/layerParamsAccess";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible, isJpHeightManagedOverlay } from "./overlayManager";
 import { createJpHeightLifecycle } from "./jpHeightLifecycle";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
@@ -341,7 +341,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // （給 E2E / 線上排障直接操作相機、查 source/layer 狀態用）
       if (import.meta.env.DEV || window.location.search.includes("debug")) {
         (window as unknown as { __map?: mapboxgl.Map }).__map = map;
-        // 週巡檢 A6 用：這個版本的 registry 宣告了哪些 sourceId。
+        // 週巡檢 A6 用：這個版本在首載後應常駐的 sourceId。
         // 巡檢腳本拿它跟 `map.getStyle().sources` 對帳，就能精確指出
         // 「哪幾個 overlay 的 source 在執行期沒建起來」。
         //
@@ -350,9 +350,12 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         // 在 Node 下跑不起來；靜態 grep 又會漏掉 factory 產生的
         // （`scale.sourceId`、`EDU_SCHOOLS_SOURCE` 那些）。
         // 從執行期的 registry 直接算才是唯一不會漏、也不會鏽掉的來源。
+        // JP height 的三個 registry entry 只是 paint/source template；runtime
+        // 會依 viewport 產生帶 region suffix 的 source，不會建立 template id。
+        // 把 template 排除，避免將預期的 lifecycle 行為誤報成正式站故障。
         // OVERLAY_REGISTRY 本來就在 bundle 裡，這行不增加傳輸量。
         (window as unknown as { __overlaySourceIds?: string[] }).__overlaySourceIds = [
-          ...new Set(OVERLAY_REGISTRY.map((c) => c.sourceId)),
+          ...new Set(OVERLAY_REGISTRY.filter((c) => !isJpHeightManagedOverlay(c)).map((c) => c.sourceId)),
         ];
       }
       ensureH3Layers(map);
