@@ -10,7 +10,7 @@ import {
 } from "../agriStatisticsRecipes";
 import { STATISTICS_RECIPES } from "../regionalStatisticsRecipes";
 import { AGRI_EXISTING_LAYER_REFERENCES, STATISTICS_TAB_LAYER_ROLES } from "../statisticsLayerRegistry";
-import { LAYER_MANIFEST } from "../layerManifest";
+import { AGRI_CATALOG_DATASET_ALIASES, LAYER_MANIFEST } from "../layerManifest";
 import { STATISTICS_DATA_THEMES } from "../../components/sidebar/layerCatalog";
 import type { StatisticsRelease } from "../regionalStatisticsLoader";
 
@@ -93,9 +93,13 @@ describe("農林漁牧 statistics handoff contract", () => {
         label: recipe.label,
         // 交通統計沿用既有英文 theme title；其他新農林漁牧主題保留 handoff 中文 group。
         section: { theme: recipe.group === "交通統計" ? "交通統計 Transport Statistics" : recipe.group, group: recipe.subgroup },
-        upstream: { datasets: [{ datasetId: recipe.dataset_id }] },
+        upstream: { datasets: [{ datasetId: AGRI_CATALOG_DATASET_ALIASES[recipe.dataset_id] ?? recipe.dataset_id }] },
         legend: recipe.layer_key,
         popup: "regionalStatistic",
+      });
+      expect(manifest.source).toMatchObject({
+        kind: "custom",
+        note: expect.stringContaining(recipe.dataset_id),
       });
       expect(catalogKeys).toContain(key);
     }
