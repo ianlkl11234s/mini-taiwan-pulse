@@ -119,3 +119,5 @@ Collectors PR 92 已部署，正式 weather archive 24 members、1,100,426 bytes
 ### 歷史冷封存與失敗暫存（2026-09-18）
 
 三張歷史表完整 3,599,919 列已封存私人 S3 Deep Archive，CSV 731.35 MB 無損壓縮至 193.85 MB；全檔回讀 SHA 與轉冷後 checksum 通過。未刪 DB、未切前端查詢、未清 GFW。體積原因與還原限制見 [cold-archive.md](./cold-archive.md)，失敗 run 對帳見 [retention-spool-review.md](./retention-spool-review.md)。
+
+2026-09-20 已完成一次真實 Deep Archive Standard restore 與隔離 PostgreSQL 17/PostGIS reload：三份下載 SHA、3,599,919 列、schema/PK/unique/12 indexes/RLS/policy/trigger/sequence/NULL/時間範圍及無序 row multiset 全部通過。列順序未由封存契約定義，因此 COPY 回出的 order-sensitive SHA 不同但完整內容 multiset 一致。這解除「是否可還原」的 gate，不自動授權刪除線上資料。
