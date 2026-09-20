@@ -413,7 +413,7 @@ docker compose up -d      # http://localhost:3721 （host 3721 → container 808
 中央氣象署、農業部、環境部、衛生福利部、教育部、各縣市政府開放資料平台，
 以及 OpenStreetMap、AIS 船舶訊號、FlightRadar24、Space-Track TLE 與 UCS 衛星資料庫。
 
-每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**326 個不同的上游 dataset**），
+每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**301 個不同的上游 dataset**，此處指已橋接 catalog），
 並保留對帳狀態與 confidence；可在站上的「資料來源」面板逐層查看。
 
 感謝所有開放資料的維護者——沒有這些，這張地圖不會存在。
