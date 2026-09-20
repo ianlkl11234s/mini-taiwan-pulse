@@ -7,7 +7,8 @@
 // This file is the bridge: layer_key → catalog dataset_id.
 //
 // Status values:
-//   verified         — bridged to one or more catalog datasets
+//   verified         — bridged to one or more catalog datasets (catalog bridge only;
+//                      not a claim about license, quality, or publication status)
 //   pulse_only       — pure-frontend layer (derived / animated / no upstream)
 //   catalog_missing  — needs new entry in catalog before bridging
 

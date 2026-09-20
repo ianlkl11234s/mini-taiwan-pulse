@@ -17,7 +17,10 @@ import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry"
 
 // 解析 catalog 所有 dataset_id（從 frontmatter + 檔名 fallback）
 function loadCatalogDatasetIds(): Set<string> {
-  const catalogRoot = resolve(__dirname, "../../../../taipei-gis-analytics/docs/data-catalog");
+  const analyticsRoot = process.env.TAIPEI_GIS_ANALYTICS_ROOT;
+  const catalogRoot = analyticsRoot
+    ? resolve(analyticsRoot, "docs/data-catalog")
+    : resolve(__dirname, "../../../../taipei-gis-analytics/docs/data-catalog");
   if (!existsSync(catalogRoot)) {
     // CI 沒 sibling repo 時 graceful skip — 只擋本 repo 內部一致性
     return new Set<string>();
@@ -115,7 +118,7 @@ describe("UPSTREAM_REGISTRY consistency", () => {
   it("every verified datasetId exists in catalog (skips if sibling repo absent)", () => {
     const catalogIds = loadCatalogDatasetIds();
     if (catalogIds.size === 0) {
-      console.log("⚠ taipei-gis-analytics not at sibling path; skipping cross-repo check");
+      console.log("⚠ taipei-gis-analytics catalog unavailable; skipping cross-repo check");
       return;
     }
     const broken: string[] = [];
