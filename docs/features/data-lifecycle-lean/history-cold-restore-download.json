@@ -1,0 +1,43 @@
+{
+  "checked_at": "2026-09-20T01:01:42.100062+00:00",
+  "ready": true,
+  "retrieval_tier": "Standard",
+  "temporary_copy_days": 1,
+  "downloaded": [
+    {
+      "file": "live.news_events.csv.gz",
+      "bytes": 31236087,
+      "sha256": "20b6f9be4629f5868db768612866a1aee2949f8b9944efc6c54e96c36bc6f38f",
+      "reused": true
+    },
+    {
+      "file": "live.yt_live_history.csv.gz",
+      "bytes": 2811504,
+      "sha256": "0fff566f8b0a46a4ed348d3e50f3dafd7ff388aec90789b349554422691e2a11",
+      "reused": true
+    },
+    {
+      "file": "live.iot_wra_measurements.csv.gz",
+      "bytes": 159806889,
+      "sha256": "5169aa78e29fe7fe6693d3cb9f465594de0ec4ac77bac2c6901f8a21bd038788",
+      "reused": true
+    }
+  ],
+  "objects": [
+    {
+      "key": "history-cold/v1/objects/live.news_events/20b6f9be4629f5868db768612866a1aee2949f8b9944efc6c54e96c36bc6f38f.csv.gz",
+      "available": true,
+      "restore": "ongoing-request=\"false\", expiry-date=\"Tue, 22 Sep 2026 00:00:00 GMT\""
+    },
+    {
+      "key": "history-cold/v1/objects/live.yt_live_history/0fff566f8b0a46a4ed348d3e50f3dafd7ff388aec90789b349554422691e2a11.csv.gz",
+      "available": true,
+      "restore": "ongoing-request=\"false\", expiry-date=\"Tue, 22 Sep 2026 00:00:00 GMT\""
+    },
+    {
+      "key": "history-cold/v1/objects/live.iot_wra_measurements/5169aa78e29fe7fe6693d3cb9f465594de0ec4ac77bac2c6901f8a21bd038788.csv.gz",
+      "available": true,
+      "restore": "ongoing-request=\"false\", expiry-date=\"Tue, 22 Sep 2026 00:00:00 GMT\""
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "checked_at": "2026-09-20T01:00:51.787118+00:00",
+  "tables": {
+    "live.news_events": {
+      "row_count": 172304,
+      "row_count_ok": true,
+      "columns_ok": true,
+      "primary_key_ok": true,
+      "roundtrip_byte_length_ok": true,
+      "roundtrip_order_sensitive_sha256_equal": false,
+      "roundtrip_row_multiset_hash_ok": true,
+      "roundtrip_order_preserved": false,
+      "source_null_cells": 426250,
+      "null_counts_ok": true,
+      "null_by_column": {
+        "id": 0,
+        "source": 0,
+        "url": 0,
+        "url_norm": 0,
+        "title": 0,
+        "summary": 0,
+        "category": 0,
+        "location_name": 90994,
+        "county": 90994,
+        "admin_code": 90994,
+        "geom": 90994,
+        "published_ts": 0,
+        "confidence": 0,
+        "title_simhash": 0,
+        "created_at": 0,
+        "gis_relevance": 20758,
+        "severity": 20758,
+        "is_event": 20758
+      },
+      "time_bounds": {
+        "published_ts": {
+          "min": "2026-06-07 09:26:21+00",
+          "max": "2026-09-18 13:38:05+00"
+        },
+        "created_at": {
+          "min": "2026-06-12 15:43:12.80904+00",
+          "max": "2026-09-18 13:49:06.186451+00"
+        }
+      },
+      "uncompressed_sha256": "7a5755839bfa9e577dcaf98e23bc6ff0a0e5fac68084d2294a5f5b1d57a9d738"
+    },
+    "live.yt_live_history": {
+      "row_count": 346229,
+      "row_count_ok": true,
+      "columns_ok": true,
+      "primary_key_ok": true,
+      "roundtrip_byte_length_ok": true,
+      "roundtrip_order_sensitive_sha256_equal": false,
+      "roundtrip_row_multiset_hash_ok": true,
+      "roundtrip_order_preserved": false,
+      "source_null_cells": 757911,
+      "null_counts_ok": true,
+      "null_by_column": {
+        "id": 0,
+        "handle": 0,
+        "channel_id": 44579,
+        "video_id": 191191,
+        "title": 191220,
+        "is_live": 0,
+        "view_count": 175901,
+        "last_error": 155020,
+        "observed_at": 0,
+        "collected_at": 0
+      },
+      "time_bounds": {
+        "observed_at": {
+          "min": "2026-06-17 00:16:48.857752+00",
+          "max": "2026-09-18 13:52:58.396187+00"
+        },
+        "collected_at": {
+          "min": "2026-06-17 00:16:48.857752+00",
+          "max": "2026-09-18 13:52:58.396187+00"
+        }
+      },
+      "uncompressed_sha256": "ed4c67277be37c9035ded782047439973f18dba4a2f76798c6b8b6b6713c9766"
+    },
+    "live.iot_wra_measurements": {
+      "row_count": 3081386,
+      "row_count_ok": true,
+      "columns_ok": true,
+      "primary_key_ok": true,
+      "roundtrip_byte_length_ok": true,
+      "roundtrip_order_sensitive_sha256_equal": false,
+      "roundtrip_row_multiset_hash_ok": true,
+      "roundtrip_order_preserved": false,
+      "source_null_cells": 0,
+      "null_counts_ok": true,
+      "null_by_column": {
+        "iow_station_id": 0,
+        "physical_quantity_id": 0,
+        "station_type": 0,
+        "observed_at": 0,
+        "name": 0,
+        "full_name": 0,
+        "si_unit": 0,
+        "value": 0,
+        "collected_at": 0
+      },
+      "time_bounds": {
+        "observed_at": {
+          "min": "2020-09-01 02:40:00+00",
+          "max": "2026-09-18 13:56:51+00"
+        },
+        "collected_at": {
+          "min": "2026-09-10 23:59:11.483889+00",
+          "max": "2026-09-18 13:50:43.360568+00"
+        }
+      },
+      "uncompressed_sha256": "a87177148797d45aa59bcbd378a39ec07b0729f0d1fa828af90ac8c408150345"
+    }
+  },
+  "expected_indexes": [
+    "idx_iot_wra_m_observed",
+    "idx_iot_wra_m_station_obs",
+    "idx_iot_wra_m_type",
+    "idx_news_events_created_at",
+    "idx_news_events_published_ts",
+    "idx_news_events_relevance",
+    "idx_news_events_url_norm",
+    "idx_ylh_handle_obs",
+    "iot_wra_measurements_pkey",
+    "news_events_pkey",
+    "yt_live_history_handle_video_id_observed_at_key",
+    "yt_live_history_pkey"
+  ],
+  "actual_indexes": [
+    "idx_iot_wra_m_observed",
+    "idx_iot_wra_m_station_obs",
+    "idx_iot_wra_m_type",
+    "idx_news_events_created_at",
+    "idx_news_events_published_ts",
+    "idx_news_events_relevance",
+    "idx_news_events_url_norm",
+    "idx_ylh_handle_obs",
+    "iot_wra_measurements_pkey",
+    "news_events_pkey",
+    "yt_live_history_handle_video_id_observed_at_key",
+    "yt_live_history_pkey"
+  ],
+  "indexes_ok": true,
+  "yt_rls_ok": true,
+  "yt_policy_ok": true,
+  "news_trigger_enabled_ok": true,
+  "sequences_ok": true,
+  "schema_compatibility_adjustment": "Removed pg_dump 17.7 \\restrict/\\unrestrict client control lines from the drill copy because container psql is 17.5; original archived schema.sql unchanged.",
+  "roundtrip_interpretation": "The archive contract intentionally has no row ordering. COPY-back byte lengths match, while order-sensitive SHA differs. Independent CSV parsing plus SHA-256 row digests compared as an order-independent multiset (count, header, modular sum, sum-of-squares, XOR) and matched for all rows in all tables.",
+  "all_ok": true
+}

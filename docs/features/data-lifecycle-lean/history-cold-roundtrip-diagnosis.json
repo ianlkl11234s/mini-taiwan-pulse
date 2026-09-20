@@ -1,0 +1,184 @@
+{
+  "live.news_events": {
+    "source": {
+      "header": [
+        "id",
+        "source",
+        "url",
+        "url_norm",
+        "title",
+        "summary",
+        "category",
+        "location_name",
+        "county",
+        "admin_code",
+        "geom",
+        "published_ts",
+        "confidence",
+        "title_simhash",
+        "created_at",
+        "gis_relevance",
+        "severity",
+        "is_event"
+      ],
+      "rows": 172304,
+      "ordered_row_hash_sha256": "2f4e93b71b333fe282729ff7646a1a4327f6b54ce1bd44f9a06cd3d7e270d2f3",
+      "unordered_sum": "18ddde8a85d9b5f2696f647e092e1cdf5c7ba02cc8d729fc7114aceb43959a27",
+      "unordered_sum_square": "89ced3623c21bfab2388e6ed1b968c9b148e16c020263a162fe747401d7bca53",
+      "unordered_xor": "aff7e6a40ff769d57127d5f3a23f656506187bd89693818401f0f13e928153b5",
+      "first_keys": [
+        "2405",
+        "2406",
+        "2407",
+        "2408",
+        "2409"
+      ]
+    },
+    "restored": {
+      "header": [
+        "id",
+        "source",
+        "url",
+        "url_norm",
+        "title",
+        "summary",
+        "category",
+        "location_name",
+        "county",
+        "admin_code",
+        "geom",
+        "published_ts",
+        "confidence",
+        "title_simhash",
+        "created_at",
+        "gis_relevance",
+        "severity",
+        "is_event"
+      ],
+      "rows": 172304,
+      "ordered_row_hash_sha256": "eeeafef2b8e96533e7ed48edeabdfa25232eb948757153056079f5a3e891ffa1",
+      "unordered_sum": "18ddde8a85d9b5f2696f647e092e1cdf5c7ba02cc8d729fc7114aceb43959a27",
+      "unordered_sum_square": "89ced3623c21bfab2388e6ed1b968c9b148e16c020263a162fe747401d7bca53",
+      "unordered_xor": "aff7e6a40ff769d57127d5f3a23f656506187bd89693818401f0f13e928153b5",
+      "first_keys": [
+        "2405",
+        "2406",
+        "2407",
+        "2408",
+        "2409"
+      ]
+    },
+    "ordered_match": false,
+    "unordered_exact_profile_match": true
+  },
+  "live.yt_live_history": {
+    "source": {
+      "header": [
+        "id",
+        "handle",
+        "channel_id",
+        "video_id",
+        "title",
+        "is_live",
+        "view_count",
+        "last_error",
+        "observed_at",
+        "collected_at"
+      ],
+      "rows": 346229,
+      "ordered_row_hash_sha256": "107cd56edb292b8260c22275dbff5d809f0935b7cc45e96f7da779cc83b511ef",
+      "unordered_sum": "e6f9d7c5fa9f49617bf6bc874b0749205026b657f8415d58293d25ff1beb1927",
+      "unordered_sum_square": "1898baac3bb51734578a2c3b89cfd1d0e7fb839ca84d7166a89065e3f318116f",
+      "unordered_xor": "e661d532718bc2ae429bdd87417af27ee363642aa55d171c5b05e170b23ef2f5",
+      "first_keys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    "restored": {
+      "header": [
+        "id",
+        "handle",
+        "channel_id",
+        "video_id",
+        "title",
+        "is_live",
+        "view_count",
+        "last_error",
+        "observed_at",
+        "collected_at"
+      ],
+      "rows": 346229,
+      "ordered_row_hash_sha256": "78cd34306dcd6f8514cd830c7fc5a8af02a7d1260406b66c80c8640012816bc7",
+      "unordered_sum": "e6f9d7c5fa9f49617bf6bc874b0749205026b657f8415d58293d25ff1beb1927",
+      "unordered_sum_square": "1898baac3bb51734578a2c3b89cfd1d0e7fb839ca84d7166a89065e3f318116f",
+      "unordered_xor": "e661d532718bc2ae429bdd87417af27ee363642aa55d171c5b05e170b23ef2f5",
+      "first_keys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    "ordered_match": false,
+    "unordered_exact_profile_match": true
+  },
+  "live.iot_wra_measurements": {
+    "source": {
+      "header": [
+        "iow_station_id",
+        "physical_quantity_id",
+        "station_type",
+        "observed_at",
+        "name",
+        "full_name",
+        "si_unit",
+        "value",
+        "collected_at"
+      ],
+      "rows": 3081386,
+      "ordered_row_hash_sha256": "70de92c3f1afbe4879459c4b5693c1235ea7166f1b65aaf847097a690101b5a8",
+      "unordered_sum": "dd3a098d07523a72956fb34bffaa8022a3a1c0f75096c64b3536354b387e3d64",
+      "unordered_sum_square": "c23ab80b3f62417584b1a41ac7d5722ea5dc1f88b707039808123790fad97a5e",
+      "unordered_xor": "42872b375f12bfcf038884193204b6c184e029f6a732c083aa32d7ecbae7e392",
+      "first_keys": [
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "45b6a4c3-8127-4f02-9565-a0ba1eda9bae"
+      ]
+    },
+    "restored": {
+      "header": [
+        "iow_station_id",
+        "physical_quantity_id",
+        "station_type",
+        "observed_at",
+        "name",
+        "full_name",
+        "si_unit",
+        "value",
+        "collected_at"
+      ],
+      "rows": 3081386,
+      "ordered_row_hash_sha256": "b0b5fd199a331b720ec34da7878c2fc6910530c937d3e19accc265e1d5e24a14",
+      "unordered_sum": "dd3a098d07523a72956fb34bffaa8022a3a1c0f75096c64b3536354b387e3d64",
+      "unordered_sum_square": "c23ab80b3f62417584b1a41ac7d5722ea5dc1f88b707039808123790fad97a5e",
+      "unordered_xor": "42872b375f12bfcf038884193204b6c184e029f6a732c083aa32d7ecbae7e392",
+      "first_keys": [
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "27fada6c-de68-4179-b61f-5a5ef7473194",
+        "45b6a4c3-8127-4f02-9565-a0ba1eda9bae"
+      ]
+    },
+    "ordered_match": false,
+    "unordered_exact_profile_match": true
+  }
+}

@@ -20,7 +20,7 @@
 
 ## 還原前置與限制
 
-以相容的 PostgreSQL 17、PostGIS、`live` schema 與 extensions 還原；補回 `anon`、`authenticated` 角色及 schema SQL 所列權限。依 `dependencies.sql` 與 `schema.sql` 為準，匯入 `news_events` 時暫停 user triggers，避免重算 geom。CSV 保留 `CSV_NULL='\N'`、timezone、PK、型別 metadata；匯入 identity 值後執行序列 `setval`。尚未做實際 DB restore 測試。實際 DB 的 IoT FK 數為 0，與 repo 舊假設不同；沒有 parent export，`pg_dump` 實測結果優先。
+以相容的 PostgreSQL 17、PostGIS、`live` schema 與 extensions 還原；補回 `anon`、`authenticated` 角色及 schema SQL 所列權限。依 `dependencies.sql` 與 `schema.sql` 為準，匯入 `news_events` 時暫停 user triggers，避免重算 geom。CSV 保留 `CSV_NULL='\N'`、timezone、PK、型別 metadata；匯入 identity 值後執行序列 `setval`。2026-09-20 已完成實際 Deep Archive restore 與隔離 PostgreSQL reload，結果見下節。實際 DB 的 IoT FK 數為 0，與 repo 舊假設不同；沒有 parent export，`pg_dump` 實測結果優先。
 
 ## GFW spool 不是本次刪除範圍
 
@@ -46,3 +46,19 @@ READ ONLY snapshot：`2026-09-18T13:56:37.450575Z`。全部欄位、NULL 與主�
 2. IoT 約 62.7% DB 體積是索引；封存不搬索引頁面，還原時依 schema 重建。線上索引須另查真實查詢與使用率，不能直接刪除。
 3. GFW 八個失敗窗口合計含 SQLite 3,423,789,056 bytes、NDJSON 2,456,829,518 bytes。優先驗證 SQLite 可重建，再將按日／來源版本相同的 normalized 資料共用；來源修訂或衝突需保留 provenance。樣本重疊率不能換算可回收全量 bytes。
 4. 刪除 DB 歷史前仍需實際還原演練、前端歷史查詢邊界與明確線上保留政策；本次不因有冷副本就啟動 cleanup。
+
+## 實際還原演練（2026-09-20）
+
+三個 `DEEP_ARCHIVE` 物件以 Standard tier 正式取回，建立 1 天暫存可讀副本；S3 回報完成後，三份 gzip 再次完整下載並核對原始 bytes／SHA-256。資料載入專用 Docker volume 中的 PostgreSQL 17／PostGIS 3.5.2，沒有連線正式 DB。
+
+| 表 | 還原列數 | 結果 |
+|---|---:|---|
+| `live.news_events` | 172,304 | schema、PK、NULL、時間範圍、row multiset 通過 |
+| `live.yt_live_history` | 346,229 | schema、PK/unique、RLS/policy、sequence、row multiset 通過 |
+| `live.iot_wra_measurements` | 3,081,386 | schema、複合 PK、NULL、時間範圍、row multiset 通過 |
+
+共 3,599,919 列；12 個預期索引、新聞 trigger、兩個 identity sequence 均通過。原始 CSV 與 DB COPY 回出的 byte length 相同，但 order-sensitive SHA 不同；這符合 manifest 已明示的「無排序 sequential scan」契約。為排除資料遺失或改值，兩端均以 CSV parser 解出完整資料列，再用每列 length-prefixed SHA-256 組成無序 multiset，逐表比較 row count、header、digest sum、sum-of-squares 與 XOR，三表全數相符。這證明內容等價，不宣稱未定義的列順序被保留。
+
+演練另發現 `pg_dump 17.7` 輸出的 `\restrict`／`\unrestrict` 不被容器 `psql 17.5` 接受；只在演練副本移除兩個 client control lines，原始封存 `schema.sql` 未變。正式 runbook 應優先使用 psql 17.7+，或在較舊 17.x client 做同一個有記錄的相容處理。
+
+證據：[restore download](./history-cold-restore-download.json)、[restore validation](./history-cold-restore-validation.json)、[roundtrip diagnosis](./history-cold-roundtrip-diagnosis.json)。還原通過不等於已授權刪除線上資料；前端歷史查詢邊界、逐表 retention、預估回收量與 rollback 窗口仍須另行決定。
