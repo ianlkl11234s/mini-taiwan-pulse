@@ -26,6 +26,7 @@
 - Walking：`pulse_route_distance`／`pulse_walking_isochrone` 已通過三端 strict schema；browser 回 `HOLD/VALHALLA_GRAPH_NOT_REGISTERED`，不以直線距離或合成圓替代。
 - 驗證：Mini 聚焦 55 pass／1 integration skip、跨 Mini↔Gateway 11/11、`tsc -b` pass；MCP full 48/48、typecheck/build pass；真 built stdio 列出 46 tools 並驗 local geocoder、Google disabled／Valhalla HOLD 與負向 schema；Gateway 50/50 pass。Mini 排除已知 sibling catalog gate 後全套 1,785 pass／8 skip；含該 gate 的完整結果為 1,790 pass／8 skip／1 fail，唯一 failure 是 sibling catalog 缺 19 個既有日本 dataset IDs。
 - 尚未取得本 checkpoint 的真人 paired-browser live readback；現有 camera/result overlay live 證據仍沿用前一 checkpoint，不能拿本輪 unit/contract tests 冒充新 browser 證據。
+- 本地 commits：Mini code `0dd45e2f`、Mini docs/Skill `4ea8df60`、MCP `4f0a3e5`、Gateway `3f84d7a`。均未 push／PR／merge／deploy。
 
 ## 2. Repo／branch／基線
 
@@ -388,9 +389,9 @@ Result overlay 完成進度：
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：descriptor、analysis、Skill、transient result overlay、Gateway contract | done：camera baseline＋overlay `7888f37a` | N/A | done：camera／bounds；result overlay focused＋cross-repo contract | not run | not run | local only | done：camera／bounds／highlight readback；live clear／expiry／revoke pending |
-| Research Gateway | N/A | done：bounded results refs、clear、revision/session relay | done：local commit `05f6ecb` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | highlight readback done；live clear pending |
-| pulse-research MCP | done：tsc／dist | done：42 tools | done：camera baseline＋present tool `ffe1d25` | N/A | done：real stdio／47 tests；Gateway command contract pass | not run | not run | N/A | paired highlight readback done |
+| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：45-recipe compiler、Point→Polygon/MultiPolygon kernel、8-result renderer、provider HOLD handlers | done：baseline＋overlay `7888f37a`；本 checkpoint `0dd45e2f`、docs/Skill `4ea8df60` | N/A | done：focused／cross-repo／built-stdio；full suite only known sibling catalog gate red | not run | not run | local only | prior camera／bounds／highlight readback done；本 checkpoint live readback 未跑 |
+| Research Gateway | N/A | done：8 result refs、spatial／aggregate-by-area、Valhalla strict relay | done：baseline `05f6ecb`；本 checkpoint `3f84d7a` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | prior highlight readback done；本 checkpoint live readback 未跑 |
+| pulse-research MCP | done：typecheck／dist | done：46 tools、provider capability、spatial／walking schemas | done：baseline `ffe1d25`；本 checkpoint `4f0a3e5` | N/A | done：full 48/48＋real built stdio 46 tools | not run | not run | N/A | prior paired highlight readback done；本 checkpoint live readback 未跑 |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
 | Offline geocoder | done | done：local worker | local commit only | N/A | done：address E2E | N/A | not run | no external geocoder | used in paired local E2E |
 
