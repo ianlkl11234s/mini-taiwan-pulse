@@ -19,6 +19,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 | 統計、距離、join、metric、series | 先取得 `resultId`，再呼叫對應 typed analysis tool |
 | 檢查可信度 | `pulse_get_data_quality`、`pulse_get_record_evidence` |
 | 讀結果、範圍與生命週期 | `pulse_get_analysis_result`、`pulse_get_result_bounds`、`pulse_list_results` |
+| 把可呈現的分析結果高亮到地圖 | `pulse_present_result` → `pulse_wait_scene_ready` → `pulse_get_map_context` |
 | 地名、地址或明確座標 | 已知鏡位用 `pulse_find_places`；一般地址用 `pulse_geocode_address`，並保留來源與精度 |
 | 操作既有地圖 | 先讀 context/revision，再用 typed map tools 並等待 ready |
 | 配對或 pending receipt | session tools／`pulse_get_query_result` |
@@ -60,8 +61,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 - tool accepted/applied 不等於 scene ready；需要畫面結論時等待 ready 並做 browser readback。
 - 問題以地址、地名或明確座標作為空間分析中心時，完成查詢後預設同步取景：讀最新 map context/revision，優先以分析 result bounds `fit_bounds`；只有單一中心且沒有可用 bounds 時才 `set_camera`。等待 scene ready 並讀回中心／範圍；使用者明確說不要動地圖時例外。
-- 完整圖層已開啟，不等於分析結果已成為獨立結果圖層。
-- 暫時沒有 result presentation tool 時，明說地圖顯示的是完整來源圖層，不假稱只顯示篩選結果。
+- 完整圖層已開啟，不等於分析結果已成為獨立結果圖層。必須有 `pulse_present_result` 的 ready 及 `map_context.resultPresentation` 讀回才可說已高亮。
+- result presentation 不可用時，明說地圖顯示的是完整來源圖層或僅完成取景，不假稱只顯示篩選結果。
 
 配對、revision、pending query、取景與 readback 的細節見 [地圖與 session](references/map-session.md)。
 

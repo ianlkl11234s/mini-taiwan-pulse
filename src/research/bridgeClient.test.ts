@@ -62,6 +62,17 @@ describe("BridgeClient", () => {
     await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
+  it("accepts only bounded unique session result references for presentation", async () => {
+    for (const results of [null, { resultIds: ["analysis-nearest-1"] }, { resultIds: ["result-1", "result-2", "result-3", "result-4"] }]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
+      await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { results } });
+    }
+    for (const results of [{ resultIds: [] }, { resultIds: ["same", "same"] }, { resultIds: ["1", "2", "3", "4", "5"] }]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
+      await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
+  });
+
   it("accepts one bounded layer-control scene value and rejects malformed values", async () => {
     const layerControl = { layerKey: "schools", controlId: "schoolsOpacity", value: 0.5, expectedValue: 0.8 };
     const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, layerControl } })));
@@ -103,8 +114,8 @@ describe("BridgeClient", () => {
     const manuallyMoved = await client.manual(study.studyId, study.tabId, 0, { camera: { center: [120.63, 24.16], zoom: 11 }, resultMode: "empty", focus: null });
     expect(manuallyMoved).toMatchObject({ revision: 1, paused: false, scene: { focus: null } });
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ scene: { focus: null }, paused: false });
-    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null } }, exchanged.credential);
+    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null, results: { resultIds: ["analysis-nearest-1"] } } }, exchanged.credential);
     expect(commandResponse.status).toBe(200);
-    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null } } });
-  });
+    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null, results: { resultIds: ["analysis-nearest-1"] } } } });
+  }, 15_000);
 });

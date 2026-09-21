@@ -5,12 +5,12 @@
 ## 必測情境
 
 1. **行政區統計**：「臺北市各區學校紀錄數」應走 dataset describe/query/aggregate/quality/result paging，不以 rendered points 或舊 layer summary 代替；清楚區分紀錄與獨立學校。
-2. **附近設施**：「台北車站附近學校」只能對 actual、eligible Point 做 Haversine；步行或道路問題要說目前不能做。完成後應以 result bounds 或已驗證中心移動鏡頭、等待 ready 並讀回；不可因缺 result overlay 就完全不取景。
+2. **附近設施**：「台北車站附近學校」只能對 actual、eligible Point 做 Haversine；步行或道路問題要說目前不能做。完成後應呈現 result overlay、以 result bounds 取景、分別等待 ready，並讀回 result IDs、feature count、source/layer IDs 與 viewport。
 3. **跨資料比較**：缺共同 district key 時停止 join；不得用中文名稱或臨時 point-in-polygon 補洞。
 4. **Jev fallback**：對開放式問題可呼叫一次 route；provider unavailable／review 時仍以 deterministic routing 完成可做部分，且不重複呼叫。
 5. **權限與撤銷**：guest/private、owner 無實際 grant、revoked session 均 fail closed，且不洩漏未授權 metadata。
 6. **分頁與 pending**：pending 用 receipt 接續；要求全部才讀完 next cursor/offset；超限案例被 schema/Gateway 拒絕。
-7. **結果呈現**：可用 bounds 取景，但在缺 present_result 時不得宣稱 filtered result 已成為地圖 overlay。
+7. **結果呈現**：`pulse_present_result` 僅接受 session result IDs，不接受任意 GeoJSON/style；ready 後 `map_context.resultPresentation` 必須讀回一致。空陣列清除、result 過期、移除、撤銷或超限都要 fail closed 並移除舊 overlay。
 8. **時間與比率**：missing/suppressed/zero/stale 分開；零或 null 分母不產生一般比率；不同 frequency/version 不強比。
 
 ## 完成證據

@@ -8,7 +8,7 @@ import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
 import { cancelResearchMotion, moveResearchCamera } from "./researchMotion";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { Map as MapboxMap } from "mapbox-gl";
+import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
@@ -27,9 +27,10 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForSceneRender } from "./sceneReadiness";
+import { analysisResultLayerIds, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import "./mainMapConnection.css";
 
-type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
+type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
@@ -42,6 +43,10 @@ export function MainMapConnection(props: Props) {
   }, []);
   const [following, setFollowing] = useState(true);
   const followingRef = useRef(true);
+  const [analysisOpacity, setAnalysisOpacityValue] = useState(0.85);
+  const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
+  const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
+  const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
@@ -52,16 +57,32 @@ export function MainMapConnection(props: Props) {
   const applying = useRef(false);
   const previous = useRef<Scene | null>(null);
   const generation = useRef(0);
-  const capture = (): Scene => {
+  const resultPopup = useRef<mapboxgl.Popup | null>(null);
+  const capture = useCallback((): Scene => {
     const camera = latest.current.bridge.getCamera();
-    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null };
-  };
+    return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null, results: previous.current?.results ?? null };
+  }, []);
+  const clearAnalysisPresentation = useCallback((syncScene: boolean) => {
+    ++generation.current;
+    resultPopup.current?.remove(); resultPopup.current = null;
+    if (latest.current.map) removeAnalysisResults(latest.current.map);
+    presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+    if (syncScene && controller.current) {
+      const scene = { ...capture(), results: null };
+      previous.current = scene; controller.current.manual(scene);
+    }
+  }, [capture]);
   const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
     if (!map || !map.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-    if (scene.resultMode !== "empty" || scene.nearby != null || scene.results != null || scene.focus != null) throw new Error("MAP_EXPLORATION_ONLY");
+    if (scene.resultMode !== "empty" || scene.nearby != null || scene.focus != null) throw new Error("MAP_EXPLORATION_ONLY");
     // Pairing must never reset the user's camera or visible layers.
-    if (revision === 0) { previous.current = scene; return "ready"; }
+    if (revision === 0) {
+      if (scene.results != null) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
+      previous.current = scene; return "ready";
+    }
+    if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+    const analysisResults = scene.results ? analysis.current!.presentable(scene.results.resultIds) : [];
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
     const run = ++generation.current;
@@ -78,6 +99,13 @@ export function MainMapConnection(props: Props) {
         if (!latest.current.timeline) throw new Error("TIMELINE_UNAVAILABLE");
         await latest.current.timeline.apply(scene.timeline);
       }
+      const previousResultIds = presentedAnalysisRef.current.map(result => result.resultId);
+      const nextResultIds = analysisResults.map(result => result.resultId);
+      if (JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds)) {
+        resultPopup.current?.remove(); resultPopup.current = null;
+      }
+      const installed = analysisResults.length ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : (removeAnalysisResults(map), []);
+      presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
         await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
@@ -103,13 +131,20 @@ export function MainMapConnection(props: Props) {
       if (!observed || observed.mode !== requested.mode || (requested.speed !== undefined && observed.speed !== requested.speed) || (requested.playing !== undefined && observed.playing !== requested.playing) || (requested.mode === "replay" && observed.playing === false && (typeof observed.currentTime !== "number" || Math.abs(observed.currentTime - requested.time) > 1))) throw new Error("TIMELINE_READBACK_MISMATCH");
     }
     const visible = new Set(bridge.getVisibleLayerKeys());
-    const matches = cameraReady && renderReady === "ready" && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
-    setMessage(matches ? `r${revision} 地圖設定已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
-    setActivity({ phase: matches ? "ready" : "error", title: matches ? "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
+    let resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current);
+    const resultDeadline = Date.now() + 5_000;
+    while (!resultReadback.ready && run === generation.current && Date.now() < resultDeadline) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current);
+    }
+    const matches = cameraReady && renderReady === "ready" && resultReadback.ready && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
+    setMessage(matches ? `r${revision} ${resultMessage ?? "地圖設定已同步；資料載入狀態請看原本地圖提示。"}` : "圖層或分析結果狀態有衝突，請重新確認。");
+    setActivity({ phase: matches ? "ready" : "error", title: matches ? resultMessage ? "分析結果已呈現" : "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: matches && resultMessage ? resultMessage : !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
+    controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
@@ -146,7 +181,7 @@ export function MainMapConnection(props: Props) {
           result = current.timeline.getContext(); break;
         case "map_context":
           if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility" };
+          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current) };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
@@ -216,7 +251,7 @@ export function MainMapConnection(props: Props) {
       setActivity(messages[health.state]);
     }) : null;
     responder.current?.start();
-  }, [render]);
+  }, [clearAnalysisPresentation, render]);
   const disconnect = useCallback(() => connect(null), [connect]);
   const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
   const changeFollowing = (value: boolean) => {
@@ -251,7 +286,61 @@ export function MainMapConnection(props: Props) {
     map?.on("movestart", started); map?.on("moveend", moved);
     return () => { unsubscribe(); unsubscribeParams(); map?.off("movestart", started); map?.off("moveend", moved); if (map) cancelResearchMotion(map); };
   }, [props.map]);
-  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; }, []);
+  useEffect(() => {
+    const map = props.map;
+    if (!map) return;
+    const redraw = () => {
+      if (!map.isStyleLoaded()) return;
+      const resultIds = previous.current?.results?.resultIds;
+      if (resultIds?.length && analysis.current && resultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+        const installed = installAnalysisResults(map, analysis.current.presentable(resultIds), analysisOpacityRef.current);
+        presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+      } else {
+        removeAnalysisResults(map);
+        presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+      }
+    };
+    const click = (event: mapboxgl.MapMouseEvent) => {
+      const layers = analysisResultLayerIds(presentedAnalysisRef.current.length).filter(id => map.getLayer(id));
+      const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers })[0] : undefined;
+      if (!feature) return;
+      const properties = feature.properties ?? {};
+      const titleKey = ["school_name", "facility_name", "hospital_name", "name", "title", "grid_id", "record_id"].find(key => properties[key] != null);
+      const content = document.createElement("article"); content.className = "research-result-popup";
+      const eyebrow = document.createElement("span"); eyebrow.className = "research-result-popup__eyebrow"; eyebrow.textContent = "ANALYSIS RESULT";
+      const title = document.createElement("strong"); title.className = "research-result-popup__title"; title.textContent = titleKey ? String(properties[titleKey]) : "分析結果";
+      const distance = Number(properties.distanceM);
+      const facts = document.createElement("dl"); facts.className = "research-result-popup__facts";
+      const appendFact = (label: string, value: string) => {
+        const row = document.createElement("div");
+        const term = document.createElement("dt"); term.textContent = label;
+        const detail = document.createElement("dd"); detail.textContent = value;
+        row.append(term, detail); facts.append(row);
+      };
+      if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
+      if (Number.isFinite(distance)) appendFact("DISTANCE", `${Math.round(distance).toLocaleString("zh-TW")} 公尺 · 直線`);
+      if (properties.source_version) appendFact("VERSION", String(properties.source_version));
+      if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
+      const note = document.createElement("p"); note.className = "research-result-popup__note"; note.textContent = "暫時分析結果 · 非完整來源圖層";
+      content.append(eyebrow, title, facts, note);
+      resultPopup.current?.remove();
+      resultPopup.current = new mapboxgl.Popup({ className: `research-result-map-popup research-result-map-popup--${latest.current.isDarkTheme === false ? "light" : "dark"}`, closeButton: true, maxWidth: "300px", offset: 12 }).setLngLat(event.lngLat).setDOMContent(content).addTo(map);
+    };
+    redraw(); map.on("style.load", redraw); map.on("click", click);
+    return () => { map.off("style.load", redraw); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
+  }, [props.map]);
+  useEffect(() => {
+    if (!presentedAnalysis.length) return;
+    const timer = window.setInterval(() => {
+      if (!analysis.current || presentedAnalysisRef.current.some(result => !analysis.current!.hasResult(result.resultId))) {
+        clearAnalysisPresentation(true);
+        setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
+        setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });
+      }
+    }, 1_000);
+    return () => window.clearInterval(timer);
+  }, [clearAnalysisPresentation, presentedAnalysis, setActivity]);
+  useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; resultPopup.current?.remove(); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
   return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
     {props.map && createPortal(<div className="research-activity-position"><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
@@ -264,6 +353,15 @@ export function MainMapConnection(props: Props) {
         <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
+      {presentedAnalysis.length > 0 && <section className="agent-analysis-results" aria-label="已呈現的分析結果">
+        <h3>已呈現的分析結果</h3>
+        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；這不是完整來源圖層。</p>
+        <label>分析結果透明度
+          <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis.length, value); }} />
+        </label>
+        <ul>{presentedAnalysis.map(result => <li key={result.resultId}><span><code>{result.datasetId}</code>{result.featureCount} 筆／{result.geometryType}</span></li>)}</ul>
+        <button onClick={() => clearAnalysisPresentation(true)}>清除分析結果</button>
+      </section>}
     </div>
   </div>;
 }

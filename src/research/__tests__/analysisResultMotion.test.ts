@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { installAnalysisResults, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
@@ -16,6 +16,7 @@ function stubMap() {
     addLayer: (layer: Layer) => layers.set(layer.id, structuredClone(layer)),
     removeLayer: (id: string) => layers.delete(id),
     removeSource: (id: string) => sources.delete(id),
+    isSourceLoaded: (id: string) => sources.has(id),
     setPaintProperty: (id: string, property: string, value: unknown) => { layers.get(id)?.paint && (layers.get(id)!.paint[property] = value); paintWrites.push({ id, property, value }); },
     on: (event: string, listener: () => void) => { if (event === "render") listeners.add(listener); },
     off: (event: string, listener: () => void) => { if (event === "render") listeners.delete(listener); },
@@ -71,5 +72,32 @@ describe("analysis result reveal lifecycle", () => {
     installAnalysisResults(map, [result], 0.61);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.61);
     expect(listeners.size).toBe(0);
+  });
+
+  it("reads back installed result ids, feature count, sources and layers before claiming ready", () => {
+    const { map } = stubMap();
+    const installed = installAnalysisResults(map, [result]);
+    expect(readAnalysisResultPresentation(map, installed)).toMatchObject({
+      mode: "analysis_result",
+      resultIds: ["result-1"],
+      datasets: ["fixture"],
+      featureCount: 1,
+      sourcesReady: true,
+      layersReady: true,
+      ready: true,
+    });
+    removeAnalysisResults(map);
+    expect(readAnalysisResultPresentation(map, [])).toMatchObject({ mode: "none", featureCount: 0, ready: true });
+  });
+
+  it("validates every result before changing an existing source", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [result]);
+    const original = sources.get("research-analysis-result-0")!.data;
+    const replacement = { ...result, resultId: "result-2", rows: [{ geometry: { type: "Point", coordinates: [121.6, 25.1] } }] } satisfies PresentableResult;
+    const invalid = { ...result, resultId: "result-3", rows: [{ geometry: { type: "Point", coordinates: [121.7] } }] } satisfies PresentableResult;
+    expect(() => installAnalysisResults(map, [replacement, invalid])).toThrow("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
+    expect(sources.get("research-analysis-result-0")!.data).toBe(original);
+    expect(sources.has("research-analysis-result-1")).toBe(false);
   });
 });

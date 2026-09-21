@@ -10,6 +10,25 @@ const sourceId = (index: number) => `research-analysis-result-${index}`;
 const layerId = (index: number) => `research-analysis-result-points-${index}`;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
 
+export type AnalysisResultPresentation = {
+  resultId: string;
+  datasetId: string;
+  geometryType: PresentableResult["geometry"]["type"];
+  featureCount: number;
+};
+
+export type AnalysisResultReadback = {
+  mode: "none" | "analysis_result";
+  resultIds: string[];
+  datasets: string[];
+  featureCount: number;
+  sourceIds: string[];
+  layerIds: string[];
+  sourcesReady: boolean;
+  layersReady: boolean;
+  ready: boolean;
+};
+
 function cancelReveal(map: Map, index: number): void {
   const listener = reveals.get(map)?.get(index);
   if (listener) map.off("render", listener);
@@ -32,12 +51,18 @@ function collection(result: PresentableResult): FeatureCollection<Point | Polygo
 }
 
 /** Transient result layers are independent of the permanent layer catalogue. */
-export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity = 0.55): void {
+export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity = 0.55): AnalysisResultPresentation[] {
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
-  results.forEach((result, index) => {
+  // Validate every result before mutating Mapbox so a bad later result cannot
+  // leave an earlier source partially updated.
+  const prepared = results.map(result => {
+    const data = collection(result);
+    if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
+    return { result, data };
+  });
+  const installed = prepared.map(({ result, data }, index) => {
     cancelReveal(map, index);
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
-    const data = collection(result);
     if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data });
     const polygon = result.geometry.type === "Polygon";
     const existing = map.getLayer(layerId(index));
@@ -69,8 +94,10 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
+    return { resultId: result.resultId, datasetId: result.datasetId, geometryType: result.geometry.type, featureCount: data.features.length };
   });
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
+  return installed;
 }
 
 export function removeAnalysisResults(map: Map): void { for (let index = 0; index < MAX_RESULTS; index += 1) removeIndex(map, index); }
@@ -84,6 +111,27 @@ function removeIndex(map: Map, index: number): void {
 export function analysisResultSourceIds(count: number): string[] { return Array.from({ length: Math.min(MAX_RESULTS, count) }, (_, index) => sourceId(index)); }
 
 export function analysisResultLayerIds(count: number): string[] { return Array.from({ length: Math.min(MAX_RESULTS, count) }, (_, index) => layerId(index)); }
+export function readAnalysisResultPresentation(map: Map, results: readonly AnalysisResultPresentation[]): AnalysisResultReadback {
+  const sourceIds = analysisResultSourceIds(results.length);
+  const layerIds = analysisResultLayerIds(results.length);
+  const sourcesReady = sourceIds.every(id => Boolean(map.getSource(id)) && map.isSourceLoaded(id));
+  const layersReady = layerIds.every(id => Boolean(map.getLayer(id)));
+  const cleared = results.length > 0 || (
+    analysisResultSourceIds(MAX_RESULTS).every(id => !map.getSource(id)) &&
+    analysisResultLayerIds(MAX_RESULTS).every(id => !map.getLayer(id))
+  );
+  return {
+    mode: results.length ? "analysis_result" : "none",
+    resultIds: results.map(result => result.resultId),
+    datasets: results.map(result => result.datasetId),
+    featureCount: results.reduce((sum, result) => sum + result.featureCount, 0),
+    sourceIds,
+    layerIds,
+    sourcesReady,
+    layersReady,
+    ready: sourcesReady && layersReady && cleared,
+  };
+}
 export function setAnalysisOpacity(map: Map, count: number, opacity: number): void {
   for (const id of analysisResultLayerIds(count)) {
     const layer = map.getLayer(id);

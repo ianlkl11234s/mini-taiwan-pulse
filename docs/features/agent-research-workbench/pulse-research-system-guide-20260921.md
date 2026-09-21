@@ -33,7 +33,7 @@ flowchart TB
     U[使用者] --> C[Codex / Agent]
     C --> K[pulse-gis-analyst Skill<br/>像資深 GIS 分析師的工作方法]
     K -.候選加速.-> J[Jev via OpenRouter<br/>只分類與排序，不執行]
-    K --> MCP[pulse-research MCP<br/>41 個 typed tools]
+    K --> MCP[pulse-research MCP<br/>42 個 typed tools]
     MCP --> G[Research Gateway<br/>配對、revision、queue、receipt]
     G <--> W[Mini Taiwan Pulse 網站<br/>圖層、相機、時間、readback]
     MCP --> L[本機地址索引<br/>TGOS + OSM + interpolation]
@@ -53,9 +53,9 @@ flowchart TB
 | Mini Taiwan Pulse | 研究畫布 | 顯示圖層、時間、相機並保存 session 結果 | catalog 有項目不代表資料可讀 |
 | Dataset / Access 契約 | 資料使用說明書 | 定義來源、geometry、時間、缺值、權限與限制 | 不用預設值猜未知資訊 |
 
-## 41 個 tools 到底在做什麼？
+## 42 個 tools 到底在做什麼？
 
-重點不是把 41 個名字全部塞給模型，而是先依工作階段分成六組。Skill 會依問題挑最短、最安全的鏈。
+重點不是把 42 個名字全部塞給模型，而是先依工作階段分成六組。Skill 會依問題挑最短、最安全的鏈。
 
 ```mermaid
 flowchart LR
@@ -113,7 +113,7 @@ flowchart LR
 | `pulse_get_analysis_result`、`pulse_get_result_bounds` | 分頁讀分析結果、取得取景範圍 |
 | `pulse_list_results`、`pulse_remove_result` | 管理目前 session 的暫存分析結果 |
 
-### 6. 地址、地圖與時間（9 個）
+### 6. 地址、地圖與時間（10 個）
 
 | Tools | 白話用途 |
 |---|---|
@@ -122,6 +122,7 @@ flowchart LR
 | `pulse_get_map_context` | 讀目前地圖中心、zoom、已開圖層與時間 |
 | `pulse_set_layers` | 開關已授權圖層 |
 | `pulse_set_camera`、`pulse_fit_bounds` | 移到指定中心／zoom，或依結果範圍取景 |
+| `pulse_present_result` | 只以目前 session 的 result IDs 建立暫時 overlay；空陣列清除，不接受任意 GeoJSON／style |
 | `pulse_get_time_context`、`pulse_set_time` | 讀取或設定時間狀態 |
 | `pulse_wait_scene_ready` | 等待瀏覽器完成命令；accepted 不等於畫面已 ready |
 
@@ -270,7 +271,7 @@ flowchart LR
 | 狀態 | 能力 |
 |---|---|
 | ✅ 可用 | 圖層／dataset 搜尋與描述、來源與權限檢查、有界分頁查詢、基本統計、Point 最近點／直線距離、key join、比率／差值、時間序列、品質與證據、離線地址定位、圖層與相機控制 |
-| 🟡 可算但呈現仍有限 | 可用 `result bounds` 取景；目前沒有通用 `present_result`，所以分析後的篩選結果尚不能保證成為獨立 map overlay |
+| ✅ 可算且可暫時呈現 | Mini／MCP／Gateway 已有 bounded `present_result`、transient overlay 與 readback contract；paired browser 已驗證 10 筆結果 highlight 與 `ready:true` readback |
 | 🟡 需擴充 adapter | 更多現有圖層要逐一補齊 dataset／access 契約，不能因「全站有圖層」就宣稱「全圖層都可分析」 |
 | ❌ 尚未支援 | point-in-polygon、行政界面積與密度、任意 spatial predicate、raster／zonal statistics、路網距離、步行／車行等時圈、完整 suitability model |
 | 🚫 刻意禁止 | 任意 SQL、任意 URL、任意檔案路徑、全量 GeoJSON context、用未知 license／geometry／coverage 猜答案、繞過 owner／release gate |
@@ -279,13 +280,13 @@ flowchart LR
 
 ### 已有證據
 
-- MCP 暴露 41 個 typed tools，並由真正的 stdio MCP client 驗證 schema 與 structured output。
-- MCP focused tests：46/46 通過。
+- MCP working tree 暴露 42 個 typed tools，並由真正的 stdio MCP client 驗證 schema 與 structured output；Gateway command contract 與 paired-browser result presentation 已通過。
+- MCP focused tests：47/47 通過。
 - TypeScript 與 build 通過。
 - Jev live routing 與 fallback 已驗證；Jev 不自動執行。
 - 本機地址查詢已能命中 TGOS／OSM 衍生索引，並保留定位精度。
 - 實際流程已完成「地址 → 臺北學校 query → 最近 10 筆直線距離 → receipt」。
-- `npm test` 大部分通過（1763 passed）；剩 1 個既有 Japan dataset catalog／upstream registry 對照失敗，與本輪核心流程不同，但正式整合前仍需處理。
+- `npm test` 大部分通過（1,767 passed）；剩 1 個既有 Japan dataset catalog／upstream registry 對照失敗，與本輪核心流程不同，但正式整合前仍需處理。
 
 ### 尚待收斂
 
@@ -293,12 +294,12 @@ flowchart LR
 flowchart LR
     A[分析結果已算出] --> B[相機命令已套用]
     B --> C{scene ready + browser readback？}
-    C -->|目前曾出現 error| D[不能宣稱畫面完成]
-    C -->|修復後| E[確認中心、zoom 與圖層]
-    E --> F[下一步：結果 overlay]
+    C -->|否| D[不能宣稱畫面完成]
+    C -->|是| E[確認中心、zoom 與 resultPresentation]
+    E --> F[下一步：origin + scope overlay]
 ```
 
-最近一次 live E2E 中，地址與最近 10 所學校成功；後續相機 state 有更新，但 `pulse_wait_scene_ready` 曾以 error 結束，因此只能說「命令已套用」，不能說「畫面已驗證完成」。這是下一個 session 最應先修的最後一哩路。
+最近一次 live E2E 已完成「地址 → 最近 10 所學校 → result overlay → fit bounds → ready → browser readback」。地圖讀回 10 features、source/layer IDs 與 `ready:true`，popup 的 dark/light theme 也已目視驗證；live clear／expiry／revoke 仍需補回歸。
 
 ## Roadmap：從堪用走向真正 GIS 分析
 
@@ -311,9 +312,9 @@ flowchart LR
 
 ### 階段 0：先把現在的能力變穩
 
-1. 修正 `wait_scene_ready`／browser readback，讓相機與圖層命令能確認真的呈現完成。
-2. 新增受控的 `present_result` 或等價機制，把分析結果畫成 session-local overlay，而不只是移動相機。
-3. 將目前兩個 dirty worktree 拆成可 review 的變更；經授權後才 commit，並用普通 merge commit 整合。
+1. ✅ 修正 `wait_scene_ready`／browser readback，讓相機與圖層命令能確認真的呈現完成。
+2. ✅ Mini／MCP／Gateway 已新增受控 `present_result`，並完成 paired browser highlight／readback。
+3. 補 live clear／expiry／revoke；新增地址 origin 與分析 scope 的獨立 overlay/readback。
 4. 解決或明確隔離既有 Japan dataset catalog 測試失敗。
 
 ### 階段 1：最有感的真正空間分析
@@ -334,7 +335,8 @@ flowchart TD
 
 ### 階段 2：可達性與複雜分析
 
-- 導入版本化路網，區分直線距離、路網距離與旅行時間。
+- 導入版本化 OSM 路網與 routing engine，區分直線距離、路網距離與旅行時間；OSM 資料本身不等於可查詢的步行服務。
+- 先做單一地址 5／10／15 分鐘 walking isochrone vertical slice，再擴大來源與地區。
 - 建立步行／開車等時圈、服務覆蓋、服務沙漠與補點分析。
 - 支援多圖層 suitability／trade-off，但每個指標的標準化、權重與不確定性必須可見。
 - 增加 raster／zonal statistics，並保留 resolution、NoData、時間與 coverage 語意。
@@ -361,13 +363,13 @@ HEAD: cd23db5b25f06856f85e73b91fc72d434ba61b7f
 第一步：重現並定位 pulse_wait_scene_ready 在 set_camera / fit_bounds 後的 error。
 驗收：命令 accepted → applied → ready，並由 browser readback 確認中心、zoom 與目標圖層；
       不以 camera state 更新冒充視覺完成。
-後續：設計 bounded、session-local、可撤銷的 result overlay。
+後續：新增 origin／scope overlay，並驗證清除與過期撤銷；再做外部 geocode fallback 與 walking isochrone pilot。
 ```
 
 ## 本次收尾的 Git 與發布邊界
 
-- 兩個 repo 都仍是 dirty worktree；本次沒有 reset、clean、stash，也沒有替其他 session 提交改動。
-- 本次沒有 commit、push、PR、部署、production 啟用或 Supabase 寫入。
+- 三個 repo 的本輪改動依 ownership 分開提交；沒有 reset、clean、stash、squash 或 rebase，也不納入其他 session 的 Japan water 改動。
+- 本次沒有 push、PR、merge、部署、production 啟用或 Supabase 寫入。
 - 目前證據只支持 local build、stdio MCP、local gateway／browser 測試；不能宣稱已發布到 production。
 - 若要把本輪正式整合，應先依檔案 ownership review，再做精確 staging 與普通 merge commit；禁止 squash、rebase merge 或改寫歷史。
 

@@ -208,7 +208,7 @@ npm run research:jev-shadow -- --query "比較台中各區醫院數量"
 
 - `pulse-research` 已指向本機 MCP worktree 的 build output，並只透過
   `PULSE_OPENROUTER_ENV_FILE` 指定 env 檔路徑；驗收過程未讀取或輸出 key 內容。
-- 最初真 stdio MCP client 列出 27 個 tools；第三階段擴充後為 41 個。兩者均成功呼叫 `pulse_route_request`；測試查詢被分到
+- 最初真 stdio MCP client 列出 27 個 tools；第三階段擴充後為 41 個，result presentation working tree 為 42 個。既有 live 階段均成功呼叫 `pulse_route_request`；測試查詢被分到
   `analysis -> mcp`，回傳 structured candidate tools、confidence、latency 與 `executed:false`。
 - MCP 39 tests、Gateway 49 tests、主站 production build 通過。主站完整測試只剩與本輪無關的
   upstream registry 既有 19 筆 JP catalog reference 差異。

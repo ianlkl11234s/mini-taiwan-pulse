@@ -18,7 +18,7 @@
     { "id": "user", "type": "external", "label": "使用者", "sublabel": "自然語言問題", "pos": [25, 255], "size": [120, 68] },
     { "id": "codex", "type": "backend", "label": "Codex + GIS Skill", "sublabel": "路由／語意守門／組合工具", "pos": [185, 240], "size": [165, 98], "tag": "pulse-gis-analyst" },
     { "id": "jev", "type": "external", "label": "Jev", "sublabel": "OpenRouter choice accelerator", "pos": [190, 45], "size": [155, 76], "tag": "不執行、不授權" },
-    { "id": "mcp", "type": "backend", "label": "pulse-research MCP", "sublabel": "41 個 typed tools", "pos": [420, 230], "size": [170, 110], "tag": "stdio / fail-closed" },
+    { "id": "mcp", "type": "backend", "label": "pulse-research MCP", "sublabel": "42 個 typed tools", "pos": [420, 230], "size": [170, 110], "tag": "stdio / fail-closed" },
     { "id": "geocoder", "type": "database", "label": "離線地址庫", "sublabel": "TGOS + OSM + interpolation", "pos": [415, 445], "size": [180, 88], "tag": "local only" },
     { "id": "gateway", "type": "messagebus", "label": "Research Gateway", "sublabel": "配對／queue／receipt／revision", "pos": [655, 230], "size": [175, 110], "tag": "127.0.0.1" },
     { "id": "browser", "type": "frontend", "label": "Mini Taiwan Pulse", "sublabel": "圖層、相機、時間、readback", "pos": [895, 230], "size": [180, 110], "tag": "paired browser" },

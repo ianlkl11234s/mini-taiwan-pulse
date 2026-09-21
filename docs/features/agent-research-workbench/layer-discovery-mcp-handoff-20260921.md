@@ -1,7 +1,7 @@
 # Layer Discovery／MCP／GIS 分析完整接手文件
 
 > 日期：2026-09-21
-> 狀態：P0 scene-ready 本機閉環已完成並分 repo commit；尚未 push、merge、deploy 或 production 啟用
+> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；clear／expiry／revoke 的 live browser 回歸仍待補
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
@@ -12,10 +12,10 @@
 目前真正的下一個 blocker 不是再增加 tools，而是把分析結果與畫面做成完整閉環：
 
 1. `set_camera`／`fit_bounds` 已完成 accepted → applied → ready → browser readback 本機驗收。
-2. 有分析 `resultId` 與 bounds，但沒有通用 `pulse_present_result`；只能移動相機，不能宣稱 filtered result 已成為地圖 overlay。
+2. Mini、MCP 與 Gateway 已接通 bounded `pulse_present_result`，並由 paired browser 讀回 10 筆結果、source/layer IDs 與 `ready:true`；dark/light popup 視覺也已實測。
 3. 行政區 point-in-polygon、面積密度、路網、等時圈、raster 仍明確不支援。
 
-下一個 session 的第一步應是重現並修復 scene-ready readback，不要先繼續擴充大量 adapters。
+下一步應先補分析 origin／scope 呈現，再做可選外部 geocoder 與單一地址的步行 isochrone pilot；在路網契約綠燈前，不要先繼續擴充大量 adapters。
 
 ## 2. Repo／branch／基線
 
@@ -33,6 +33,13 @@
 - branch：`feat/layer-discovery-mcp-contract`
 - intended base／upstream：`origin/main` at `cd23db5b25f06856f85e73b91fc72d434ba61b7f`
 - 這是獨立 Git repo，必須有自己的 commit；不能由主 repo commit 代替。
+
+### Research Gateway
+
+- 路徑：`/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/gis-platform-layer-discovery`
+- branch：`feat/layer-discovery-gateway-contract`
+- 本輪只修改既有 dirty working tree 中的 `services/research-gateway/relay-service.mjs` 與對應測試；不得覆蓋原有 dataset/query contract 變更。
+- Gateway 不是 MCP：它負責 auth、pairing、session、revision、receipt 與 bounded command relay，不讀取或渲染分析資料。
 
 ## 3. 本輪完成的核心架構
 
@@ -68,7 +75,9 @@ LayerDescriptor
 - guest 不得搜尋、描述或查詢未授權資料；owner 也只能讀實際被授權的資料。
 - catalog entry 不得解鎖 private loader、visibility 或 release gate。
 
-## 4. 41 個 MCP tools
+產品主流程固定以「地址作為探索起點」：地址定位後，應能依使用者問題搜尋多種周邊資料、執行目前支援的有界分析、將結果高亮並讀回畫面狀態。若分析成功但畫面沒有呈現，先查 MCP → Gateway → browser 的 operation／patch allowlist、HTTP 400／`INVALID_INPUT` 與 accepted／applied／ready receipt，再查 renderer 與 dataset；不要直接把問題歸因為資料不存在。Gateway 應以允許有界、declarative、可撤銷、可 readback 的呈現為主，同時保留 auth、session、revision、size 與 executable-input 邊界。
+
+## 4. 42 個 MCP tools
 
 ### 路由
 
@@ -124,6 +133,7 @@ LayerDescriptor
 - `pulse_get_map_context`
 - `pulse_set_layers`
 - `pulse_set_camera`
+- `pulse_present_result`
 - `pulse_fit_bounds`
 - `pulse_get_time_context`
 - `pulse_set_time`
@@ -216,7 +226,7 @@ LayerDescriptor
 - 路網距離、步行／車行 routing、isochrone
 - raster／zonal statistics
 - 任意 SQL、URL、檔案路徑、expression 或 code
-- 通用 result overlay
+- 任意 GeoJSON／style overlay；只允許 session-local result IDs
 
 ## 10. 本機地址定位
 
@@ -256,11 +266,20 @@ npm run research:local:stop
 
 runtime state／log 不寫入 repo；Email 與 secret 只存在 process environment。
 
+本機 persistent 設定可放在 Mini repo 根目錄的 `.env.local`（已 gitignore）；`local-stack.mjs` 只額外載入 `PULSE_RESEARCH_*` prefix，且 shell environment 優先。至少設定：
+
+```dotenv
+PULSE_RESEARCH_PILOT_EMAILS=已授權的測試帳號 email
+PULSE_RESEARCH_GATEWAY_ENTRY=/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/gis-platform-layer-discovery/services/research-gateway/server.mjs
+```
+
+不得提交實際 email、token 或 credential；`VITE_SUPABASE_URL`／`VITE_SUPABASE_ANON_KEY` 仍沿用網站既有 development env。
+
 ## 12. 實際 E2E 與已知缺口
 
 已成功：
 
-- 真 stdio MCP client 讀取 41-tool catalog 與 structured schemas。
+- 真 stdio MCP client 讀取原 41-tool catalog 與 structured schemas；working tree 新增 `pulse_present_result` 後為 42 tools。
 - guest／owner／revocation／超限與錯誤參數負向案例。
 - Jev live routing，receipt `executed:false`。
 - 地址查詢與最近 10 所學校分析。
@@ -273,9 +292,15 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 - `fit_bounds` 不再比對 implementation-dependent camera，改驗證四個 bounds 角點是否落在扣除側欄、timeline 與 padding 後的 safe viewport。
 - live receipts：`set_camera` command `728a9d82-c4ad-4747-80fb-714c9b34927e` ready at revision 2；`fit_bounds` command `1c5d1cc7-7cc8-4616-a75c-7bde429b6c77` ready at revision 4。Browser DOM 最終讀回 `25.0231, 121.5646 z11.1`，console 無 error／warn。
 
-剩餘缺口：
+Result overlay working-tree 進度：
 
-- 沒有 `pulse_present_result`／`pulse_apply_scene`；目前只能取景，不可宣稱 filtered points 已顯示。
+- Mini 已用 session-local `resultId` 產生 bounded transient GeoJSON source/layer，支援 Point 與已註冊的學校格網 Polygon、opacity、popup、style reload、過期／撤銷／清除。
+- MCP 已新增 `pulse_present_result`；只接受 0–4 個唯一 session result IDs，不接受任意 GeoJSON 或 style。
+- `map_context.resultPresentation` 會讀回 result IDs、dataset、feature count、source/layer IDs 與 ready；安裝前先驗證全部 geometry，避免部分更新。
+- Gateway 已允許 `results: { resultIds }`：限 1–4 個唯一、安全格式的 session reference；`results: null` 清除。任意 GeoJSON、URL、style、code、額外欄位、空／重複／超量 IDs 仍拒絕。
+- Gateway 完整測試 50/50 通過；Mini 對實際 Gateway 的 pairing／pending-command contract test 11/11 通過。
+- paired browser 已完成 highlight E2E：`analysis-nearest-mubavd3z-1` 的 10 個學校點位進入 `analysis_result` mode，`resultPresentation` 讀回 result ID、10 features、source/layer IDs 與 `ready:true`；相機最後讀回約 `121.5647, 25.0330, z14.51`。
+- popup 已改為網站同系統的近黑不透明玻璃，dark/light theme 與 theme switch 後 overlay 保留均已目視驗證；持續 HMR session 曾保留歷史 dev warning，因此這不是 fresh-load clean-console 證據。
 
 ## 13. 提交前驗收
 
@@ -307,7 +332,8 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 2. ✅ 查明 gateway command revision、browser applied／ready 與 render completion 的差異。
 3. ✅ 加 focused regression：`set_camera`／`fit_bounds` 後 accepted → applied → ready。
 4. ✅ browser readback 確認中心、zoom 與 bounds safe viewport，不以 state 更新冒充視覺完成。
-5. 設計 bounded、session-local、可撤銷的 result overlay。
+5. ✅ bounded、session-local result overlay：Mini／MCP／Gateway 實作、contract tests、paired browser highlight 與 readback 已完成。
+6. 🟡 補 live browser clear／expiry／revoke 回歸，並將地址 origin 與分析 scope 作為獨立、可讀回的視覺物件。
 
 ### P1：行政區 GIS
 
@@ -318,7 +344,8 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 
 ### P2：可達性與複雜分析
 
-- 版本化路網、network distance、travel time、isochrone。
+- 先做單一地址 5／10／15 分鐘 walking isochrone vertical slice；固定 OSM extract、engine、pedestrian profile、snap／unreachable 與 checksum。
+- 版本化路網、network distance、travel time、isochrone；OSM 是來源資料，不等於 routing engine。
 - accessibility／service coverage／service desert。
 - 多圖層 suitability，權重與標準化必須可見。
 - raster／zonal statistics，保留 resolution、NoData、time、coverage。
@@ -341,14 +368,15 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 2. query／spatial result 有 source、version、coverage、missingness、access、limits receipt。
 3. camera command 到 ready。
 4. browser readback 與目標範圍一致。
-5. 在 result overlay 尚未完成前，明說只是取景，不宣稱 10 筆結果已高亮。
+5. 只有 Gateway 接受 command、browser 回報 ready，且 `map_context.resultPresentation` 讀回一致後，才可宣稱 10 筆結果已高亮；本輪已取得這份 paired-browser 證據。
 
 ## 16. Release truth
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：Gateway、descriptor、analysis、Skill | local commit only | N/A | done：local stdio／gateway；camera／bounds scene-ready 閉環 | not run | not run | local only | done：camera／bounds browser readback；result overlay 仍未實作 |
-| pulse-research MCP | done：tsc／dist | done：41 tools | local commit only | N/A | done：real stdio／47 tests | not run | not run | N/A | paired local session only |
+| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：descriptor、analysis、Skill、transient result overlay、Gateway contract | done：camera baseline＋overlay local commits | N/A | done：camera／bounds；result overlay focused＋cross-repo contract | not run | not run | local only | done：camera／bounds／highlight readback；live clear／expiry／revoke pending |
+| Research Gateway | N/A | done：bounded results refs、clear、revision/session relay | done：local commit `05f6ecb` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | highlight readback done；live clear pending |
+| pulse-research MCP | done：tsc／dist | done：42 tools | done：camera baseline＋present tool `ffe1d25` | N/A | done：real stdio／47 tests；Gateway command contract pass | not run | not run | N/A | paired highlight readback done |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
 | Offline geocoder | done | done：local worker | local commit only | N/A | done：address E2E | N/A | not run | no external geocoder | used in paired local E2E |
 

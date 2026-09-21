@@ -25,7 +25,7 @@ const expected = [
   'pulse_plan_data_access', 'pulse_materialize_data', 'pulse_spatial_query', 'pulse_aggregate_records', 'pulse_join_records', 'pulse_calculate_metric',
   'pulse_read_series', 'pulse_compare_series', 'pulse_get_data_quality', 'pulse_get_record_evidence', 'pulse_get_analysis_result', 'pulse_get_result_bounds', 'pulse_list_results', 'pulse_remove_result',
   'pulse_get_layer_details', 'pulse_describe_layer', 'pulse_get_map_context', 'pulse_find_places',
-  'pulse_set_layers', 'pulse_set_camera', 'pulse_fit_bounds', 'pulse_wait_scene_ready', 'pulse_get_query_result',
+  'pulse_set_layers', 'pulse_set_camera', 'pulse_present_result', 'pulse_fit_bounds', 'pulse_wait_scene_ready', 'pulse_get_query_result',
 ].sort();
 const client = new Client({ name: 'pulse-exploration-smoke', version: '1.0.0' });
 try {
@@ -44,7 +44,7 @@ try {
   const geocode = await client.callTool({ name: 'pulse_geocode_address', arguments: { query: '臺北市信義區市府路45號' } });
   const geocodeData = geocode.structuredContent?.result?.data;
   if (geocode.isError || geocode.structuredContent?.status !== 'complete' || geocodeData?.status !== 'matched' || geocodeData?.candidates?.[0]?.precision !== 'exact_cache') throw new Error('LOCAL_GEOCODER_MISMATCH');
-  for (const name of ['pulse_apply_scene', 'pulse_present_result', 'pulse_query_nearby']) {
+  for (const name of ['pulse_apply_scene', 'pulse_query_nearby']) {
     let rejected = false;
     try { const result = await client.callTool({ name, arguments: {} }); rejected = result.isError === true; }
     catch { rejected = true; }
