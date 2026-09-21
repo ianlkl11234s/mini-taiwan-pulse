@@ -1951,3 +1951,38 @@ DATA_SCOPE（12 assets＋coverage＋privacy boundary）／PRINCIPLES（wrap-up v
 - `BACKLOG.md`：AR-16 flight slice 結案，AR-14/15 保留 ship/bus；feature index 加 canonical backlog。
 - `REFLECTIONS.md`：本篇。
 - `STATUS.md`：重寫為 v2 全鏈完成、可安全封存與獨立後續。
+
+---
+
+## 2026-09-20~21 — Layer Discovery、41-tool MCP 與 GIS 分析基礎
+
+### What worked
+
+- 將 layer discovery、dataset discovery、access、query、analysis 與 presentation 拆成不同契約；不再把 catalog entry、資料可讀、分析完成與畫面 ready 混成一件事。
+- Dataset／Access schema 與 query receipt 保留 source、version、coverage、license、missingness、limits 與實際驗證狀態；guest／owner／release gate 維持 fail-closed。
+- MCP 擴充到 41 個 typed tools，支援 bounded query、Point distance、aggregate、join、metric、series、quality／evidence 與 result paging；真 stdio schema 驗證補足單元測試看不到的邊界。
+- Jev 被限制為 non-executing accelerator：只替開放式問題縮小候選，一次呼叫、低信心 fallback，不授權也不執行。
+- 新增本機地址 adapter，重用 TGOS／OSM 衍生索引並明確區分 exact、interpolated、no match 與 unavailable。
+- 以 `pulse-gis-analyst` Skill 把分析鏈、停止條件、Jev 路由與地圖呈現邊界寫成可重複使用的工作方法。
+
+### Friction / limits
+
+- 第一次 live 分析完成最近 10 所學校後，agent 沒有主動做 presentation；表示有 tools 不等於自然語言流程會穩定使用，必須把鏈寫進 Skill。
+- 後續 camera state 已更新，但 `wait_scene_ready` 回 error；applied state 仍不能替代 browser visual readback。
+- 缺少通用 result overlay，現階段只能依 bounds 取景；若把相機移動描述成「結果已顯示」會形成錯誤證據。
+- 全站 layer 數很多，但只有通過 geometry、source、bytes／rows 與 access validation 的資料才能分析；不得以大量批次 adapter 換取表面覆蓋率。
+
+### Next-time rules
+
+1. 下一輪先完成 command accepted → applied → ready → browser readback 閉環，再新增分析種類。
+2. 分析回覆固定區分 dataset search、authorization、readback、analysis result 與 map presentation 五種狀態。
+3. Jev 只負責候選分類；schema、allowlist、權限、資料健康與實際執行永遠由 deterministic code 決定。
+4. 地址內插點不得稱為精確門牌；Haversine 不得稱為步行／車行距離。
+5. 進階 GIS 的順序是 boundary／point-in-polygon／area-density → network accessibility → raster；每層先有版本化來源與負向測試。
+
+### Memory output
+
+- `STATUS.md`：重寫為 Layer Discovery／MCP current truth 與 scene-ready 下一棒。
+- `BACKLOG.md`：feature index 加入 agent research／GIS analysis 入口。
+- `REFLECTIONS.md`：本篇。
+- 完整 handoff：`docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md`。
