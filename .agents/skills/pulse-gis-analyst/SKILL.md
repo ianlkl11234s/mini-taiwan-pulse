@@ -19,7 +19,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 | 統計、距離、join、metric、series | 先取得 `resultId`，再呼叫對應 typed analysis tool |
 | 檢查可信度 | `pulse_get_data_quality`、`pulse_get_record_evidence` |
 | 讀結果、範圍與生命週期 | `pulse_get_analysis_result`、`pulse_get_result_bounds`、`pulse_list_results` |
-| 把可呈現的分析結果高亮到地圖 | `pulse_present_result` → `pulse_wait_scene_ready` → `pulse_get_map_context` |
+| 把可呈現的分析結果高亮到地圖 | 單純清單用 `pulse_present_result`；需要逐層開關、排序或分組用 `pulse_set_result_collection`；之後 `pulse_wait_scene_ready` → `pulse_get_map_context` |
 | 地名、地址或明確座標 | 已知鏡位用 `pulse_find_places`；一般地址用 `pulse_geocode_address`，並保留來源與精度 |
 | 操作既有地圖 | 先讀 context/revision，再用 typed map tools 並等待 ready |
 | 配對或 pending receipt | session tools／`pulse_get_query_result` |
@@ -37,6 +37,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 使用已宣告的 typed chain，不用舊 layer summary 代替 dataset analysis 驗收：
 
 - 分組統計：`query_records → aggregate_records → get_data_quality → get_analysis_result`
+- 行政統計面圖：查詢 `regional-statistics:<layer_key>` 的 exact release；確認 values receipt 與同版 boundary receipt，再 `present_result`／`set_result_collection`
 - 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
 - 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
 - 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
@@ -51,6 +52,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。未註冊的 buffer／clip／area／length、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
 
+行政統計只有在 values 的 `boundary_version`、level 與 immutable boundary manifest 完全相符，且 `area_code` join 通過時才是可分析的面資料。每個結果同時保留 values 與 boundary 兩份 receipt；boundary 有但 observation 缺席的行政區仍保留為 `missing`，不可從地圖消失或補零。
+
 所有 EPSG:4326 center 都必須是數字 tuple `[longitude, latitude]`；不得把 URL、DOM 或 JSON 中讀到的座標字串直接傳給 spatial/map tools。
 
 完整檢查表與 prohibited claims 見 [語意與安全守門](references/semantic-guardrails.md)。
@@ -63,7 +66,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 - tool accepted/applied 不等於 scene ready；需要畫面結論時等待 ready 並做 browser readback。
 - 問題以地址、地名或明確座標作為空間分析中心時，完成查詢後預設同步取景：讀最新 map context/revision，優先以分析 result bounds `fit_bounds`；只有單一中心且沒有可用 bounds 時才 `set_camera`。等待 scene ready 並讀回中心／範圍；使用者明確說不要動地圖時例外。
-- 完整圖層已開啟，不等於分析結果已成為獨立結果圖層。必須有 `pulse_present_result` 的 ready 及 `map_context.resultPresentation` 讀回才可說已高亮。
+- 完整圖層已開啟，不等於分析結果已成為獨立結果圖層。必須有 `pulse_present_result`／`pulse_set_result_collection` 的 ready 及 `map_context.resultPresentation` 讀回才可說已高亮。
+- collection 的 items 陣列就是圖層順序；單層 `visible` 與所屬 group 的 `visible` 必須同時為 true 才會實際呈現。回答時以 readback 的 effective visible result IDs 為準，不把 collection 中隱藏的結果說成已顯示。
 - result presentation 不可用時，明說地圖顯示的是完整來源圖層或僅完成取景，不假稱只顯示篩選結果。
 
 配對、revision、pending query、取景與 readback 的細節見 [地圖與 session](references/map-session.md)。

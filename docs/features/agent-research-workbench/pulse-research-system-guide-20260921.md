@@ -10,7 +10,7 @@
 
 這套系統現在可以把自然語言問題，轉成「找圖層／找資料 → 確認來源與權限 → 有界查詢 → 基礎 GIS 分析 → 控制地圖呈現」的可驗證流程。
 
-它已經不只是開關圖層，但也還不是完整的桌面 GIS。現在最成熟的是資料探索、基本統計、點位距離、結果證據與地圖控制；行政區套疊、面積密度、路網可達性、raster 分析與通用結果 overlay，仍是後續 roadmap。
+它已經不只是開關圖層，但也還不是完整的桌面 GIS。現在最成熟的是資料探索、基本統計、點位距離、同版行政統計面、結果證據與地圖控制；路網可達性、raster 分析與未登記的任意幾何運算，仍是後續 roadmap。
 
 ```mermaid
 flowchart LR
@@ -122,7 +122,8 @@ flowchart LR
 | `pulse_get_map_context` | 讀目前地圖中心、zoom、已開圖層與時間 |
 | `pulse_set_layers` | 開關已授權圖層 |
 | `pulse_set_camera`、`pulse_fit_bounds` | 移到指定中心／zoom，或依結果範圍取景 |
-| `pulse_present_result` | 只以目前 session 的 result IDs 建立暫時 overlay；空陣列清除，不接受任意 GeoJSON／style |
+| `pulse_present_result` | 以目前 session 的 result IDs 建立簡單、有序的暫時 overlay；空陣列清除，不接受任意 GeoJSON／style |
+| `pulse_set_result_collection` | 設定最多 8 個 session results 的順序、逐層 visibility 與群組 visibility；仍不接受任意 GeoJSON／style |
 | `pulse_get_time_context`、`pulse_set_time` | 讀取或設定時間狀態 |
 | `pulse_wait_scene_ready` | 等待瀏覽器完成命令；accepted 不等於畫面已 ready |
 
@@ -271,7 +272,7 @@ flowchart LR
 | 狀態 | 能力 |
 |---|---|
 | ✅ 可用 | 圖層／dataset 搜尋與描述、來源與權限檢查、有界分頁查詢、基本統計、Point 最近點／直線距離、key join、比率／差值、時間序列、品質與證據、離線地址定位、圖層與相機控制 |
-| ✅ 可算且可暫時呈現 | Mini／MCP／Gateway 已有 bounded `present_result`、transient overlay 與 readback contract；paired browser 已驗證 10 筆結果 highlight 與 `ready:true` readback |
+| ✅ 可算且可暫時呈現 | Mini／MCP／Gateway 已有 bounded result collection、Point／Polygon／MultiPolygon transient overlay 與 readback contract；45 組 social statistics recipes 會用 exact release 的同版 boundary join 成 MultiPolygon，並保留 values／boundary receipts |
 | 🟡 需擴充 adapter | 更多現有圖層要逐一補齊 dataset／access 契約，不能因「全站有圖層」就宣稱「全圖層都可分析」 |
 | ❌ 尚未支援 | point-in-polygon、行政界面積與密度、任意 spatial predicate、raster／zonal statistics、路網距離、步行／車行等時圈、完整 suitability model |
 | 🚫 刻意禁止 | 任意 SQL、任意 URL、任意檔案路徑、全量 GeoJSON context、用未知 license／geometry／coverage 猜答案、繞過 owner／release gate |

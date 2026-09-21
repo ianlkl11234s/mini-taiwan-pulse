@@ -1,7 +1,7 @@
 # Layer Discovery／MCP／GIS 分析完整接手文件
 
 > 日期：2026-09-21
-> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；45 組統計 values contract、Point→Polygon/MultiPolygon 空間 kernel、8-result collection 與 provider gates 已完成；同版 boundary、live Google／Valhalla graph、origin/scope 與 clear／expiry／revoke live 回歸仍待補
+> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；45 組統計已接同版 boundary 成可呈現 MultiPolygon；8-result collection 已支援逐層／逐組開關與排序；live Google／Valhalla graph、origin/scope 與新版 collection 的 paired-browser 回歸仍待補
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
@@ -13,9 +13,19 @@
 
 1. `set_camera`／`fit_bounds` 已完成 accepted → applied → ready → browser readback 本機驗收。
 2. Mini、MCP 與 Gateway 已接通 bounded `pulse_present_result`，並由 paired browser 讀回 10 筆結果、source/layer IDs 與 `ready:true`；dark/light popup 視覺也已實測。
-3. 小型、actual geometry 的 Point→Polygon／MultiPolygon `within`／`intersects`／`aggregate_by_area` 已支援；但行政統計尚無同版 boundary geometry，所以不能把 values-only recipe 直接升格成面分析。路網／等時圈目前只有 Valhalla HOLD contract，raster 仍不支援。
+3. 小型、actual geometry 的 Point→Polygon／MultiPolygon `within`／`intersects`／`aggregate_by_area` 已支援；45 組 social statistics recipe 也已用 exact `boundary_version + level + area_code` 接成 MultiPolygon。路網／等時圈目前只有 Valhalla HOLD contract，raster 仍不支援。
 
-下一步應先補行政區同版 boundary adapter 與分析 origin／scope 呈現，再 build 一份版本化 Taiwan Valhalla graph；Google 需先完成目前 Mapbox 底圖的 display/storage policy review 與 server runtime。不要先繼續手寫大量 dataset adapters。
+下一步先做新版統計面與 result collection 的真人 paired-browser 回歸，再補分析 origin／scope 呈現並 build 一份版本化 Taiwan Valhalla graph；Google 需先完成目前 Mapbox 底圖的 display/storage policy review 與 server runtime。不要先繼續手寫大量 dataset adapters。
+
+### 2026-09-22 boundary／collection checkpoint
+
+- Statistics boundary adapter：45 個 `regional-statistics:<layer_key>` dataset 改用正式 `loadRegionalStatistics`，values 與 immutable boundary 必須同 release boundary version／level，並依 `area_code` join；Polygon 統一正規化為 EPSG:4326 MultiPolygon、actual、spatial-analysis eligible。
+- Coverage／semantics：以同版 boundary 全體為 rows；沒有 observation 的行政區仍保留 `status=missing`，suppressed／zero／source token 不變。每個結果分別帶 values receipt 與 boundary SHA/version/resource receipt。
+- Result collection：canonical scene 為 ordered `items[{resultId,visible,groupId}] + groups[{groupId,label,visible}]`；effective visibility 為 item 與 group 同時可見。Mini 面板可逐層／逐組開關與上下排序，Gateway 保留舊 `{resultIds}` 入站相容並正規化。
+- Browser readback：`resultPresentation` 除既有 rendered result IDs、datasets、features、sources/layers readiness，另回傳完整 collection 與 effective rendered IDs；hidden result 也會在 ready 前驗 session access／expiry。
+- 驗證：Mini 核心／跨 Gateway 47/47、`tsc -b`、production build、排除既有 sibling catalog gate 的全套 1,787 pass／8 skip；MCP 48/48、typecheck／build，real built stdio 47 tools 且含 `pulse_set_result_collection`；Gateway 50/50。
+- commits：Mini `658b20fa`、MCP `4cd3aa3`、Gateway `128e5a0`；均 local only，未 push／PR／merge／deploy。
+- 尚未取得此 checkpoint 的真人 paired-browser readback；下一步登入／配對後要用真統計 recipe 與至少兩個分組 results 驗證 accepted → applied → ready → `map_context.resultPresentation`。
 
 ### 2026-09-21 過夜實作 checkpoint
 
@@ -309,10 +319,10 @@ PULSE_RESEARCH_GATEWAY_ENTRY=/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工�
 
 Result overlay 完成進度：
 
-- Mini 已用 session-local `resultId` 產生 bounded transient GeoJSON source/layer，支援 Point 與已註冊的學校格網 Polygon、opacity、popup、style reload、過期／撤銷／清除。
-- MCP 已新增 `pulse_present_result`；只接受 0–4 個唯一 session result IDs，不接受任意 GeoJSON 或 style。
-- `map_context.resultPresentation` 會讀回 result IDs、dataset、feature count、source/layer IDs 與 ready；安裝前先驗證全部 geometry，避免部分更新。
-- Gateway 已允許 `results: { resultIds }`：限 1–4 個唯一、安全格式的 session reference；`results: null` 清除。任意 GeoJSON、URL、style、code、額外欄位、空／重複／超量 IDs 仍拒絕。
+- Mini 已用 session-local `resultId` 產生 bounded transient GeoJSON source/layer，支援 Point／Polygon／MultiPolygon、opacity、popup、style reload、過期／撤銷／清除，以及 ordered items／groups 的逐層與逐組 visibility。
+- MCP 保留簡單 `pulse_present_result`，另新增 `pulse_set_result_collection`；最多 8 個唯一 session result IDs 與 8 groups，不接受任意 GeoJSON 或 style。
+- `map_context.resultPresentation` 會讀回完整 collection、effective rendered result IDs、dataset、feature count、source/layer IDs 與 ready；安裝前先驗證所有（含 hidden）result 與 geometry，避免部分更新或用 hidden 繞過 expiry。
+- Gateway canonical scene 使用 `results: { items, groups }`，並把舊 `{ resultIds }` 正規化；`results: null` 清除。任意 GeoJSON、URL、style、code、孤兒 group、重複／超量 IDs 仍拒絕。
 - Gateway 完整測試 50/50 通過；Mini 對實際 Gateway 的 pairing／pending-command contract test 11/11 通過。
 - paired browser 已完成 highlight E2E：`analysis-nearest-mubavd3z-1` 的 10 個學校點位進入 `analysis_result` mode，`resultPresentation` 讀回 result ID、10 features、source/layer IDs 與 `ready:true`；相機最後讀回約 `121.5647, 25.0330, z14.51`。
 - popup 已改為網站同系統的近黑不透明玻璃，dark/light theme 與 theme switch 後 overlay 保留均已目視驗證；持續 HMR session 曾保留歷史 dev warning，因此這不是 fresh-load clean-console 證據。
@@ -389,9 +399,9 @@ Result overlay 完成進度：
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：45-recipe compiler、Point→Polygon/MultiPolygon kernel、8-result renderer、provider HOLD handlers | done：baseline＋overlay `7888f37a`；本 checkpoint `0dd45e2f`、docs/Skill `4ea8df60` | N/A | done：focused／cross-repo／built-stdio；full suite only known sibling catalog gate red | not run | not run | local only | prior camera／bounds／highlight readback done；本 checkpoint live readback 未跑 |
-| Research Gateway | N/A | done：8 result refs、spatial／aggregate-by-area、Valhalla strict relay | done：baseline `05f6ecb`；本 checkpoint `3f84d7a` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | prior highlight readback done；本 checkpoint live readback 未跑 |
-| pulse-research MCP | done：typecheck／dist | done：46 tools、provider capability、spatial／walking schemas | done：baseline `ffe1d25`；本 checkpoint `4f0a3e5` | N/A | done：full 48/48＋real built stdio 46 tools | not run | not run | N/A | prior paired highlight readback done；本 checkpoint live readback 未跑 |
+| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：45-recipe same-version MultiPolygon adapters、Point→Polygon/MultiPolygon kernel、ordered/grouped 8-result renderer、provider HOLD handlers | done：`0dd45e2f`；boundary／collection `658b20fa` | N/A | done：focused 47/47、full 1,787 pass／8 skip（排除既有 sibling gate） | not run | not run | local only | prior camera／bounds／highlight readback done；新版 boundary／collection live readback 未跑 |
+| Research Gateway | N/A | done：canonical ordered/grouped collection、legacy normalize、spatial／aggregate-by-area、Valhalla strict relay | done：`3f84d7a`；collection `128e5a0` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | prior highlight readback done；新版 collection live readback 未跑 |
+| pulse-research MCP | done：typecheck／dist | done：47 tools、`pulse_set_result_collection`、provider capability、spatial／walking schemas | done：`4f0a3e5`；collection `4cd3aa3` | N/A | done：full 48/48＋real built stdio 47 tools | not run | not run | N/A | prior paired highlight readback done；新版 collection live readback 未跑 |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
 | Offline geocoder | done | done：local worker | local commit only | N/A | done：address E2E | N/A | not run | no external geocoder | used in paired local E2E |
 
