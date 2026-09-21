@@ -16,6 +16,12 @@
 
 使用者用自然語言透過 Codex 找圖層、理解來源與限制、計算可驗證的數量、比較不同地區與圖層，再回地圖探索。工具介面通用；每個資料來源需明確宣告支援欄位、計數粒度與完整性。不能因某層可展示就推定所有計算均可用。
 
+### 2026-09-21 優先級修正：從單題 POC 改為通用原子能力
+
+下一階段不再以逐層手寫 adapter 或固定問句作為主軸，改為：由 manifest／statistics recipes 自動產生 capability，以少量 source-family adapters 取得完整資料，以 typed spatial kernel 組合點線面運算，並將多個結果放入可獨立開關與讀回的 result layer collection。「任意圖層／數量」表示不被領域或固定層數寫死，仍受 source contract、ACL、rows／bytes／vertices／GPU 預算約束。
+
+本輪今晚 P0 同時包含 provider-neutral Google Geocoder fallback、版本化 OSM／Valhalla walking route 與 isochrone、以及不綁問句的通用空間運算契約。完整工作項、邊界與驗收順序見 [backlog 的「2026-09-21 今晚 P0」](./backlog.md#2026-09-21-今晚-p0通用-dataset-與空間分析底座)。
+
 ## 路線與能力
 
 | 階段 | 能力 | 狀態與邊界 |

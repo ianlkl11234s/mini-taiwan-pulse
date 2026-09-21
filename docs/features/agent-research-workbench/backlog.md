@@ -30,6 +30,65 @@
 - [ ] 「分析成功但地圖沒顯示」的排查順序固定為：Gateway HTTP status／`INVALID_INPUT` → command 是否 accepted → browser 是否 applied → renderer 是否 ready → `map_context.resultPresentation` → dataset geometry/count/source；不得一開始就判定資料不存在。
 - [ ] 周邊資料只對已支援、語意合格的 dataset 計算；未註冊、geometry role 不明、資料契約不足或需要路網／point-in-polygon 的問題，先說明目前不能做並提供可開啟的相關圖層。
 
+## 2026-09-21 今晚 P0：通用 dataset 與空間分析底座
+
+> 目標不是完成某個「地址附近教育資源」固定問句，而是讓 Agent 能把任意問題組合成可驗證的原子操作。任意圖層先能被搜尋、說明與回報 capability；只有 source contract、權限、geometry 與時間語意齊全的來源才開放對應計算。不建立每題、每 layer 各自一套工具。
+
+### 2026-09-21 過夜實作 checkpoint
+
+- [x] 45 個既有 social/regional statistics recipes 全部由同一個 compiler 產生 values-only dataset adapter；可搜尋、說明、以 exact release selector 查詢，並以 property/contract tests 保留 grain、period、unit、boundary version 與 missing／suppressed／zero。
+- [x] 小型 session result 已有通用 Point → Polygon／MultiPolygon `within`、`intersects`、`spatial_join`、`aggregate_by_area`；holes、multipart、boundary rule、未匹配、多重匹配與 10,000,000 comparisons 上限都有測試。
+- [x] transient result renderer 改為 geometry-driven Point／Polygon／MultiPolygon，移除學校 dataset 特例；MCP → Gateway → browser 同步支援最多 8 個 result IDs，並有 10,000 features／100,000 vertices／8 MiB 全局預算。
+- [x] Google geocoder 已有 provider-neutral consent／policy capability gate；目前回 `disabled`、`sent=false`，因尚未完成 Mapbox 顯示／儲存政策與 server runtime，不因 `.env` 有 key 就冒充 live。
+- [x] Valhalla `route_distance`／`walking_isochrone` typed contract 已接通 MCP → Gateway → browser；目前回 `HOLD`，graph version／checksum 為 null，且明確禁止 Haversine／synthetic isochrone fallback。
+- [ ] 行政區 statistics 目前只有 values，仍缺同版 boundary geometry adapter／join；因此可以回答來源統計值，尚不能把 45 組統計全部畫成可分析面圖層。
+- [ ] result collection 尚缺逐層開關／重排／分組；origin marker、typed scope、line／raster kernel、Valhalla Taiwan graph 與 Google live provider 仍待後續。
+
+### P0-A：capability compiler 與 source-family adapters
+
+- [ ] 建立 `layerManifest`／statistics recipes → `DatasetDescriptor`／capability 的自動派生層，狀態至少分為 `searchable`、`describable`、`queryable`、`spatially_analyzable`、`presentable`，並附不支援理由。
+- [ ] 以 source family 建 adapter，而不是以問句或 layer key 建 adapter：小型靜態 GeoJSON／GeoParquet、PMTiles＋sidecar index、regional-statistics recipe、Supabase／RPC、dynamic snapshot／event stream、raster／COG、network routing。
+- [ ] 所有 manifest layers 都能做 metadata search／describe；記錄搜尋、全來源統計、空間分析與地圖顯示分別宣告，不用「地圖看得到」代替「完整資料可讀」。
+- [ ] 對現有 45 個 regional statistics recipes 自動產生 searchable／describable／queryable dataset contract，保留 selector tuple、縣市／鄉鎮 grain、period、unit、分子／分母、missing／suppressed／zero；以 schema/property tests 驗全體，以各 source family 代表項驗 live readback，不再手寫少數範例。
+- [ ] 產出 runtime capability coverage report：各 source family 可搜尋、可讀、可計算、可呈現與 HOLD 數量及原因，讓新圖層能批次晉級，而不是每次重做 POC。
+
+### P0-B：typed spatial kernel
+
+- [ ] 定義少量通用原子運算：`nearest`、`within_distance`、`buffer`、`contains`、`within`、`intersects`、`clip`、`spatial_join`、`aggregate_by_area`、`area`、`length`、`route_distance`、`isochrone`；不提供任意 SQL／JavaScript／URL 執行。
+- [ ] geometry contract 覆蓋 Point／MultiPoint／LineString／MultiLineString／Polygon／MultiPolygon，保留 holes、multipart、CRS、geometry role、precision、validity repair 與排除紀錄。
+- [ ] 分成兩個執行 tier：小型、有界資料可在 browser／worker 執行；大型 PMTiles／RPC／raster／network 交給可重現的 server-side engine／sidecar index，不在瀏覽器下載全量再計算。
+- [ ] 每個 result envelope 保留 input result IDs、operation／method version、filters、bbox／time、source versions、rows／bytes／vertices budgets、truncation、missing／unmatched／disconnected／warnings 與 provenance。
+
+### P0-C：通用 result layer collection
+
+- [ ] 將目前只允許少數特例與最多 4 個 result 的設計，改為 session-local result layer collection；每層可單獨新增、開關、重排、分組、清除、取得 bounds 與 readback。
+- [ ] 「任意數量」指不被問句或固定四層寫死，仍需全局 features／bytes／vertices／GPU／visible-layer budgets；超限時分頁、cluster／sample、降階或要求縮小範圍，不讓 Gateway 無限載入。
+- [ ] renderer 由 geometry type 選樣式，不由 dataset name 寫死；點、線、面、行政區統計、時序快照與 walking scope 都使用同一組 collection／legend／popup／readback 契約。
+- [ ] 單層失敗不終止整個分析 plan；Agent 回報已完成、降階、HOLD 與失敗層，地圖保留其他可用結果。
+
+### P0-D：Google Geocoder 原子 provider
+
+- [ ] `pulse_geocode_address` 保持 provider-neutral，依序嘗試本機 exact／OSM／interpolation；Google 只作明示同意後的 fallback，不產生 `geocode_for_education` 之類領域工具。
+- [ ] Google Geocoding v4 由 Gateway／backend server-to-server 呼叫，key 只放 server secret；加入 field mask、timeout、quota／cost ledger、rate limit、circuit breaker 與 provider receipt。
+- [ ] 回傳統一 `GeocodeCandidate`：provider、coordinates、precision／granularity、partial match、viewport、place ID、attribution、request time、consent receipt；分析只依賴統一結果，不綁 Google schema。
+- [ ] Google 內容儲存、attribution 與 map-display 政策 review 為啟用條件；目前 Mapbox 底圖不假定可直接呈現 Google geocode result，可長期保存的 identifier 與不可快取內容分開。
+
+### P0-E：OSM walking 原子 network provider
+
+- [ ] 以 Valhalla 為第一個自管 provider，因其原生支援 pedestrian route／matrix／isochrone GeoJSON；保留 provider interface，日後可換 engine，不建立「學校步行圈」專用工具。
+- [ ] 建立可重現 network build：Taiwan OSM extract 取得時間，extract／graph checksum，Valhalla version，pedestrian costing/profile 與 access／barrier／ferry 規則。
+- [ ] 實作 `route_distance`／`walking_isochrone` 統一結果：origin、destinations 或 cutoff、snap distance、travel time／distance、unreachable／disconnected、warnings、network version 與 exclusions；不把直線半徑稱為步行範圍。
+- [ ] isochrone 當成一般 Polygon result 進 result layer collection，可與任意合格 Point／Line／Polygon dataset 做 `within`／`intersects`／`aggregate_by_area`，不限於學校。
+
+### 今晚的驗收順序
+
+1. 先鎖定 capability compiler、source-family adapter interface、spatial operation schema 與 result collection budgets；用 contract tests 防止 MCP → Gateway → browser 漂移。
+2. 讓 45 個既有統計 recipes 自動可搜尋、可說明、可用 exact selector 查詢，並用行政區 boundary 的版本化 join 接成可呈現面圖層。
+3. 完成小型資料的 Point／Polygon `within`、`intersects`、`spatial_join`、`aggregate_by_area` vertical slice，但契約不寫死教育資料。
+4. 完成 Google provider adapter 與 consent／policy gate；若 key／billing／map-display 條款未齊，保持可測的 disabled capability，不冒充 live 已啟用。
+5. 完成 Valhalla local provider contract 與一個已版本化路網 vertical slice；若 Taiwan graph 尚未 build，以 HOLD receipt 明示缺少 graph/profile 證據，不用 Haversine 代替。
+6. 最後從至少三種不同問題（教育、生活機能、交通）驗證同一組原子工具能重組，並完成各 result layer 的 `accepted → applied → ready → browser readback`；驗收看 primitive 是否通用，不比對固定文案。
+
 ### 下一個可見成果：分析中心與範圍
 
 - [ ] 將地址／選點中心作為獨立 origin marker 呈現，不混入分析結果筆數；popup 顯示輸入位置、geocode provider、precision 與是否為估算。

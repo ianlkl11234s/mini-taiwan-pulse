@@ -1,7 +1,7 @@
 # Layer Discovery／MCP／GIS 分析完整接手文件
 
 > 日期：2026-09-21
-> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；clear／expiry／revoke 的 live browser 回歸仍待補
+> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；45 組統計 values contract、Point→Polygon/MultiPolygon 空間 kernel、8-result collection 與 provider gates 已完成；同版 boundary、live Google／Valhalla graph、origin/scope 與 clear／expiry／revoke live 回歸仍待補
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
@@ -13,9 +13,19 @@
 
 1. `set_camera`／`fit_bounds` 已完成 accepted → applied → ready → browser readback 本機驗收。
 2. Mini、MCP 與 Gateway 已接通 bounded `pulse_present_result`，並由 paired browser 讀回 10 筆結果、source/layer IDs 與 `ready:true`；dark/light popup 視覺也已實測。
-3. 行政區 point-in-polygon、面積密度、路網、等時圈、raster 仍明確不支援。
+3. 小型、actual geometry 的 Point→Polygon／MultiPolygon `within`／`intersects`／`aggregate_by_area` 已支援；但行政統計尚無同版 boundary geometry，所以不能把 values-only recipe 直接升格成面分析。路網／等時圈目前只有 Valhalla HOLD contract，raster 仍不支援。
 
-下一步應先補分析 origin／scope 呈現，再做可選外部 geocoder 與單一地址的步行 isochrone pilot；在路網契約綠燈前，不要先繼續擴充大量 adapters。
+下一步應先補行政區同版 boundary adapter 與分析 origin／scope 呈現，再 build 一份版本化 Taiwan Valhalla graph；Google 需先完成目前 Mapbox 底圖的 display/storage policy review 與 server runtime。不要先繼續手寫大量 dataset adapters。
+
+### 2026-09-21 過夜實作 checkpoint
+
+- Statistics compiler：`SOCIAL_ENABLED_STATISTICS_RECIPES` 的 45 個 recipe 全部派生成 `regional-statistics:<layer_key>` dataset；目前是 values-only，exact release whitelist、dimensions、boundary version、period、unit、missing／suppressed／zero 都保留。
+- Spatial kernel：支援 actual Point 對 actual Polygon／MultiPolygon 的 `within`／`intersects`，另有 `aggregate_by_area`；holes、multipart、boundary excluded/included、unmatched／multiple matches 與 comparison/output budgets fail closed。
+- Result collection：renderer 依 geometry type 處理 Point／Polygon／MultiPolygon，不再綁 `tw-schools-grid-150m`；三端上限一致為 8 logical results，總量上限 10,000 features／100,000 vertices／8 MiB。
+- Google：`pulse_get_provider_capabilities` 與 `pulse_geocode_address(provider=google, externalConsent=true)` 有可測 receipt；目前固定 `disabled`、`sent=false`，沒有讀出或傳送 key／地址。
+- Walking：`pulse_route_distance`／`pulse_walking_isochrone` 已通過三端 strict schema；browser 回 `HOLD/VALHALLA_GRAPH_NOT_REGISTERED`，不以直線距離或合成圓替代。
+- 驗證：Mini 聚焦 55 pass／1 integration skip、跨 Mini↔Gateway 11/11、`tsc -b` pass；MCP full 48/48、typecheck/build pass；真 built stdio 列出 46 tools 並驗 local geocoder、Google disabled／Valhalla HOLD 與負向 schema；Gateway 50/50 pass。Mini 排除已知 sibling catalog gate 後全套 1,785 pass／8 skip；含該 gate 的完整結果為 1,790 pass／8 skip／1 fail，唯一 failure 是 sibling catalog 缺 19 個既有日本 dataset IDs。
+- 尚未取得本 checkpoint 的真人 paired-browser live readback；現有 camera/result overlay live 證據仍沿用前一 checkpoint，不能拿本輪 unit/contract tests 冒充新 browser 證據。
 
 ## 2. Repo／branch／基線
 
@@ -77,7 +87,7 @@ LayerDescriptor
 
 產品主流程固定以「地址作為探索起點」：地址定位後，應能依使用者問題搜尋多種周邊資料、執行目前支援的有界分析、將結果高亮並讀回畫面狀態。若分析成功但畫面沒有呈現，先查 MCP → Gateway → browser 的 operation／patch allowlist、HTTP 400／`INVALID_INPUT` 與 accepted／applied／ready receipt，再查 renderer 與 dataset；不要直接把問題歸因為資料不存在。Gateway 應以允許有界、declarative、可撤銷、可 readback 的呈現為主，同時保留 auth、session、revision、size 與 executable-input 邊界。
 
-## 4. 42 個 MCP tools
+## 4. 46 個 MCP tools
 
 ### 路由
 
@@ -114,6 +124,7 @@ LayerDescriptor
 ### 分析與證據
 
 - `pulse_spatial_query`
+- `pulse_aggregate_by_area`
 - `pulse_aggregate_records`
 - `pulse_join_records`
 - `pulse_calculate_metric`
@@ -129,6 +140,9 @@ LayerDescriptor
 ### 地址／地圖／時間
 
 - `pulse_geocode_address`
+- `pulse_get_provider_capabilities`
+- `pulse_route_distance`
+- `pulse_walking_isochrone`
 - `pulse_find_places`
 - `pulse_get_map_context`
 - `pulse_set_layers`
@@ -338,13 +352,13 @@ Result overlay 完成進度：
 ### P1：行政區 GIS
 
 1. 建立版本固定、來源明確的行政區 boundary adapter。
-2. point-in-polygon 與行政區 aggregation。
+2. 將已完成的 generic point-in-polygon／aggregate-by-area kernel 接到同版行政區 boundary，保留 boundary mismatch／unmatched 證據。
 3. 正確投影、面積與 density，明示 CRS／unit。
 4. 擴充教育、醫療、Statistics snapshot 與 owner-only adapters；逐一驗證，不批次開放。
 
 ### P2：可達性與複雜分析
 
-- 先做單一地址 5／10／15 分鐘 walking isochrone vertical slice；固定 OSM extract、engine、pedestrian profile、snap／unreachable 與 checksum。
+- 先 build／登記一份版本化 Taiwan Valhalla graph，再做單一地址 5／10／15 分鐘 walking isochrone vertical slice；固定 OSM extract、engine、pedestrian profile、snap／unreachable 與 checksum。目前只有 HOLD contract。
 - 版本化路網、network distance、travel time、isochrone；OSM 是來源資料，不等於 routing engine。
 - accessibility／service coverage／service desert。
 - 多圖層 suitability，權重與標準化必須可見。

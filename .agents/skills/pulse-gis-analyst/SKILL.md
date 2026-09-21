@@ -26,7 +26,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。**若問題是開放式且跨 discovery/query/analysis/presentation，第一個 Pulse tool 必須是一次 `pulse_route_request`。** Jev 只提供 capability 與候選，不執行、不授權；低信心、provider error 或候選不合法時，立即退回上述 deterministic 路由，同一題不得再次呼叫 Jev。
 
-地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
+地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。預設 local-first；只有使用者明示選擇外部 provider、同意外傳，且 `pulse_get_provider_capabilities` 回報 provider ready 時才可送出地址。`disabled`／`hold` receipt 表示沒有外部請求或替代結果，不得當成 `no_match`。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
 
 需要理解 Jev 的自適應層級、fallback 與 receipt 時，讀 [Jev 加速器](references/jev-accelerator.md)。
 
@@ -38,6 +38,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 - 分組統計：`query_records → aggregate_records → get_data_quality → get_analysis_result`
 - 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
+- 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
+- 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
 - 跨資料比較：`describe A/B → query A/B → 相容性檢查 → join_records → calculate_metric`
 - 時序比較：`read_series → get_data_quality → compare_series`
 
@@ -47,7 +49,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 每次計算前確認：分析單位是否一致、join key 是否唯一、geometry role 是否合格、時間與 coverage 是否相容。`missing`、`suppressed`、`zero`、`stale`、`closed` 不互換；來源紀錄數不自動等於獨立設施、人數或服務能力。
 
-只有 Point 且標示可做空間分析時才能做目前的直線距離分析。不得把它稱為步行／道路可達性；不得自行做未註冊的 point-in-polygon、面積密度、raster 疊合、network analysis、任意 SQL／URL／檔案讀取。
+直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。未註冊的 buffer／clip／area／length、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
 
 所有 EPSG:4326 center 都必須是數字 tuple `[longitude, latitude]`；不得把 URL、DOM 或 JSON 中讀到的座標字串直接傳給 spatial/map tools。
 
