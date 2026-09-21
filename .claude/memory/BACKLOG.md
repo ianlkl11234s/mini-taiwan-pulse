@@ -178,5 +178,6 @@ Feature detail, UX matrices, popup fields, implementation subtasks and feature-l
 | Funeral | [Funeral layers](../../docs/features/funeral-layers/backlog.md) | — |
 | Property value / static delivery / water | [Property value](../../docs/features/property-value/backlog.md), [Static-to-CDN](../../docs/features/static-to-cdn/backlog.md), [Water resources](../../docs/features/water-resources/backlog.md) | Release-assets, AR-12/13 |
 | Data lifecycle / storage slimming | [Data lifecycle lean](../../docs/features/data-lifecycle-lean/backlog.md) | WA-3, WA-5, WA-11 |
+| Agent research / GIS analysis | [Layer Discovery／MCP handoff](../../docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md) | P0 scene-ready readback + result overlay；P1 boundary／point-in-polygon／density |
 
 Older completed work is intentionally discoverable through git log, feature changelogs/handoffs and release evidence—not this active index.
