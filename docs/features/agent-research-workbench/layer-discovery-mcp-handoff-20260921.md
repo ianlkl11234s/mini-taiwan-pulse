@@ -1,7 +1,7 @@
 # Layer Discovery／MCP／GIS 分析完整接手文件
 
 > 日期：2026-09-21
-> 狀態：本輪實作完成並準備 commit；尚未 push、merge、deploy 或 production 啟用
+> 狀態：P0 scene-ready 本機閉環已完成並分 repo commit；尚未 push、merge、deploy 或 production 啟用
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
@@ -11,7 +11,7 @@
 
 目前真正的下一個 blocker 不是再增加 tools，而是把分析結果與畫面做成完整閉環：
 
-1. `set_camera`／`fit_bounds` 命令可套用，但最近一次 live E2E 的 `pulse_wait_scene_ready` 曾回 error。
+1. `set_camera`／`fit_bounds` 已完成 accepted → applied → ready → browser readback 本機驗收。
 2. 有分析 `resultId` 與 bounds，但沒有通用 `pulse_present_result`；只能移動相機，不能宣稱 filtered result 已成為地圖 overlay。
 3. 行政區 point-in-polygon、面積密度、路網、等時圈、raster 仍明確不支援。
 
@@ -266,10 +266,15 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 - 地址查詢與最近 10 所學校分析。
 - result paging、quality、evidence、bounds 與 receipt。
 
-已知缺口：
+已完成 P0 follow-up：
 
 - 首次 live 回答算出最近學校後沒有主動移動地圖；Skill 已補強，要求有 presentation intent 時必須走 camera／bounds。
-- 後續 `set_camera` 確認 camera state 已更新，但 `pulse_wait_scene_ready` 曾回 error；尚未完成 browser visual ready 證據。
+- `set_camera` 假 error 的根因是 Mapbox 可能錯過 `moveend`、主地圖持續 render 而不進入全域 `idle`，以及實際 zoom 會有約 `0.003` 的正規化差異。現以最終 camera readback、下一個 render frame 與 `0.01` zoom 容差驗證。
+- `fit_bounds` 不再比對 implementation-dependent camera，改驗證四個 bounds 角點是否落在扣除側欄、timeline 與 padding 後的 safe viewport。
+- live receipts：`set_camera` command `728a9d82-c4ad-4747-80fb-714c9b34927e` ready at revision 2；`fit_bounds` command `1c5d1cc7-7cc8-4616-a75c-7bde429b6c77` ready at revision 4。Browser DOM 最終讀回 `25.0231, 121.5646 z11.1`，console 無 error／warn。
+
+剩餘缺口：
+
 - 沒有 `pulse_present_result`／`pulse_apply_scene`；目前只能取景，不可宣稱 filtered points 已顯示。
 
 ## 13. 提交前驗收
@@ -278,14 +283,14 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 
 - `npm run typecheck`：通過。
 - `npm run build`：通過。
-- `npm test`：5 files、46 tests 全通過。
+- `npm test`：5 files、47 tests 全通過。
 
 ### Mini Taiwan Pulse
 
 - `npx tsc -b`：通過。
 - `npm run build`：通過；只有既有 chunk-size warning。
-- `npm test`：235 files／1,763 tests 通過、1 file／1 test 失敗、8 tests skipped。唯一失敗是既有 `upstreamRegistry.test.ts` 缺 19 筆 Japan accommodation／medical catalog refs；與本輪 research 變更無直接關係，但正式整合前仍須修正或由其 owning workstream 補齊。
-- research、layer search／gate 與 popup registry focused tests：12 files、55 tests 全通過。
+- `npm test`：235 files／1,767 tests 通過、1 file／1 test 失敗、8 tests skipped。唯一失敗是既有 `upstreamRegistry.test.ts` 缺 19 筆 Japan accommodation／medical catalog refs；與本輪 research 變更無直接關係，但正式整合前仍須修正或由其 owning workstream 補齊。
+- scene-ready focused tests：4 files、24 tests 全通過。
 - `git diff --check`：提交前必跑。
 
 ### 架構文件
@@ -298,10 +303,10 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 
 ### P0：畫面閉環
 
-1. 重現 `pulse_wait_scene_ready` error。
-2. 查明 gateway command revision、browser applied／ready 與 render completion 的差異。
-3. 加 focused regression：`set_camera`／`fit_bounds` 後 accepted → applied → ready。
-4. browser readback 確認中心、zoom、目標圖層，不以 state 更新冒充視覺完成。
+1. ✅ 重現 `pulse_wait_scene_ready` error。
+2. ✅ 查明 gateway command revision、browser applied／ready 與 render completion 的差異。
+3. ✅ 加 focused regression：`set_camera`／`fit_bounds` 後 accepted → applied → ready。
+4. ✅ browser readback 確認中心、zoom 與 bounds safe viewport，不以 state 更新冒充視覺完成。
 5. 設計 bounded、session-local、可撤銷的 result overlay。
 
 ### P1：行政區 GIS
@@ -342,8 +347,8 @@ runtime state／log 不寫入 repo；Email 與 secret 只存在 process environm
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：Gateway、descriptor、analysis、Skill | local commit only | N/A | done：local stdio／gateway；scene-ready 有缺口 | not run | not run | local only | partial：分析成功；視覺 ready 未完成 |
-| pulse-research MCP | done：tsc／dist | done：41 tools | local commit only | N/A | done：real stdio／46 tests | not run | not run | N/A | paired local session only |
+| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：Gateway、descriptor、analysis、Skill | local commit only | N/A | done：local stdio／gateway；camera／bounds scene-ready 閉環 | not run | not run | local only | done：camera／bounds browser readback；result overlay 仍未實作 |
+| pulse-research MCP | done：tsc／dist | done：41 tools | local commit only | N/A | done：real stdio／47 tests | not run | not run | N/A | paired local session only |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
 | Offline geocoder | done | done：local worker | local commit only | N/A | done：address E2E | N/A | not run | no external geocoder | used in paired local E2E |
 

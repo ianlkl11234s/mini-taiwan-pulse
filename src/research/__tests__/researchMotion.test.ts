@@ -14,7 +14,8 @@ function mapStub() {
     getLayer: vi.fn((id: string) => layers.get(id)), addLayer: vi.fn((layer: LayerSpecification) => layers.set(layer.id, layer)),
     removeLayer: vi.fn((id: string) => layers.delete(id)), removeSource: vi.fn((id: string) => sources.delete(id)),
   };
-  return { map: api as unknown as MapboxMap, api, sources, layers, arrive(next: [number, number], nextZoom: number) { center = { lng: next[0], lat: next[1] }; zoom = nextZoom; for (const handler of listeners.get("moveend") ?? []) handler(); } };
+  const updateCamera = (next: [number, number], nextZoom: number) => { center = { lng: next[0], lat: next[1] }; zoom = nextZoom; };
+  return { map: api as unknown as MapboxMap, api, sources, layers, updateCamera, arrive(next: [number, number], nextZoom: number) { updateCamera(next, nextZoom); for (const handler of listeners.get("moveend") ?? []) handler(); } };
 }
 
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
@@ -43,6 +44,22 @@ describe("research motion", () => {
     state.arrive([121.6, 25.1], 12); await expect(pending).resolves.toBe(true);
     vi.useFakeTimers(); const timedOut = moveResearchCamera(state.map, { center: [121.7, 25.2], zoom: 13 }); await vi.advanceTimersByTimeAsync(1_500); await expect(timedOut).resolves.toBe(false);
     await expect(moveResearchCamera(state.map, { center: [999, 25], zoom: 12 })).resolves.toBe(false);
+  });
+
+  it("accepts the final browser camera readback when moveend is missed", async () => {
+    vi.useFakeTimers();
+    const state = mapStub();
+    const pending = moveResearchCamera(state.map, { center: [121.6, 25.1], zoom: 12 });
+    state.updateCamera([121.6, 25.1], 12);
+    await vi.advanceTimersByTimeAsync(1_500);
+    await expect(pending).resolves.toBe(true);
+  });
+
+  it("accepts Mapbox's small zoom normalization after camera movement", async () => {
+    const state = mapStub();
+    const pending = moveResearchCamera(state.map, { center: [121.565, 25.033], zoom: 14 });
+    state.arrive([121.565, 25.033], 13.9972);
+    await expect(pending).resolves.toBe(true);
   });
 
   it("draws only a supplied straight-line radius and tears down safely", () => {

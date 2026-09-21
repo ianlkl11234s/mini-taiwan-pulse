@@ -1,6 +1,6 @@
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
 import { listLayerCapabilities } from "./layerCapabilities";
-import { resolveViewportCamera, resolveViewportContext } from "./viewportFit";
+import { framingFitsViewport, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
 import { createPortal } from "react-dom";
@@ -26,6 +26,7 @@ import { describeDataset, ensureDataset, searchDatasets } from "./researchDatase
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
+import { waitForSceneRender } from "./sceneReadiness";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
@@ -86,8 +87,14 @@ export function MainMapConnection(props: Props) {
       else if (cameraChanged) movement = Promise.resolve(false);
       previous.current = scene;
     } finally { applying.current = false; }
-    const cameraReady = await movement;
-    // This receipt confirms switch state only. Loading/coverage remains the map's own UI.
+    const cameraMoved = await movement;
+    const cameraReady = framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved;
+    // Camera readback is necessary but not sufficient: wait for the next browser
+    // render frame before reporting the command ready. The main map may render
+    // continuously and never become globally idle; source/data health remains in
+    // its own loading UI and is not part of a camera receipt.
+    const rendered = waitForSceneRender(map, revision);
+    const renderReady = await rendered.promise;
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     if (run !== generation.current) return "error";
     if (patch?.timeline) {
@@ -96,7 +103,7 @@ export function MainMapConnection(props: Props) {
       if (!observed || observed.mode !== requested.mode || (requested.speed !== undefined && observed.speed !== requested.speed) || (requested.playing !== undefined && observed.playing !== requested.playing) || (requested.mode === "replay" && observed.playing === false && (typeof observed.currentTime !== "number" || Math.abs(observed.currentTime - requested.time) > 1))) throw new Error("TIMELINE_READBACK_MISMATCH");
     }
     const visible = new Set(bridge.getVisibleLayerKeys());
-    const matches = cameraReady && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
+    const matches = cameraReady && renderReady === "ready" && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     setMessage(matches ? `r${revision} 地圖設定已同步；資料載入狀態請看原本地圖提示。` : "圖層狀態有衝突，請重新確認。");
     setActivity({ phase: matches ? "ready" : "error", title: matches ? "地圖已更新" : !cameraReady && !followingRef.current ? "已保留你的視角" : "呈現尚未完成", detail: !cameraReady && !followingRef.current ? "自動帶鏡頭已暫停；開啟「跟隨 Agent」可恢復後續動作。" : undefined });
     return matches ? "ready" : "error";

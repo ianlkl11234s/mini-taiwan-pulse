@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, waitForSceneRender, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -31,6 +31,18 @@ describe("research readiness", () => {
     map.emit("idle");
     expect(old.mock.calls.map(c => c[0])).toEqual(["loading"]);
     expect(latest.mock.calls.map(c => c[0])).toEqual(["loading", "ready"]);
+    expect(loadingRegistry.snapshot()).toEqual([]);
+  });
+  it("resolves a camera command only after the next rendered frame", async () => {
+    const map = new MapEvents();
+    const wait = waitForSceneRender(map, 3, 100);
+    map.emit("error");
+    let settled = false;
+    void wait.promise.then(() => { settled = true; });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    map.emit("render");
+    await expect(wait.promise).resolves.toBe("ready");
     expect(loadingRegistry.snapshot()).toEqual([]);
   });
 });
