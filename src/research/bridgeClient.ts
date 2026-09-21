@@ -6,7 +6,11 @@ export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlScene = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
 export type ViewportFraming = { bounds: [number, number, number, number]; padding: number; maxZoom: number };
-export type Scene = { framing?: ViewportFraming | null; timeline?: TimelineChange | null; camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; layerControl?: LayerControlScene | null; nearby?: { queryId: string } | null; results?: { resultIds: string[] } | null; focus?: { resultId: string; recordId: string } | null };
+export type ResultCollectionItem = { resultId: string; visible: boolean; groupId: string | null };
+export type ResultCollectionGroup = { groupId: string; label: string; visible: boolean };
+/** Ordered transient result stack. An item is rendered only when it and its group are visible. */
+export type ResultCollection = { items: ResultCollectionItem[]; groups: ResultCollectionGroup[] };
+export type Scene = { framing?: ViewportFraming | null; timeline?: TimelineChange | null; camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; layerControl?: LayerControlScene | null; nearby?: { queryId: string } | null; results?: ResultCollection | null; focus?: { resultId: string; recordId: string } | null };
 export type Command = { protocolVersion: "1"; sessionId: string; studyId: string; tabId: string; commandId: string; expectedRevision: number; expiresAt: number; patch: Partial<Scene> };
 export type StudyState = { studyId: string; tabId: string; revision: number; scene: Scene; view: { revision: number; phase: "empty" | "applied" | "ready" | "error" }; connected: boolean; paused: boolean; pendingCommand: Command | null };
 export type PairingRequest = { pairingId: string; code: string; expiresAt: string | number };
@@ -30,13 +34,13 @@ export class BridgeClient {
   async createStudy(tabId: string): Promise<{ studyId: string; tabId: string }> { return this.post("/studies", { tabId }, isStudyRef); }
   async createPairing(studyId: string, tabId: string): Promise<PairingRequest> { return this.post("/pairings", { studyId, tabId }, isPairingRequest); }
   async pairingStatus(pairingId: string, tabId: string): Promise<PairingStatus> { return this.post("/pairings/status", { pairingId, tabId }, isPairingStatus); }
-  async browserStatus(studyId: string, tabId: string): Promise<BrowserSessionStatus> { return this.post("/browser/status", { studyId, tabId }, isBrowserSessionStatus); }
+  async browserStatus(studyId: string, tabId: string): Promise<BrowserSessionStatus> { return normalizeBrowserSessionStatus(await this.post("/browser/status", { studyId, tabId }, isBrowserSessionStatus)); }
   async approve(pairingId: string, tabId: string, phrase: string): Promise<void> { await this.post("/pairings/approve", { pairingId, tabId, phrase }, isAnyResponse); }
-  async sync(studyId: string, tabId: string): Promise<StudyState> { return this.post("/browser/sync", { studyId, tabId }, isStudyState); }
-  async manual(studyId: string, tabId: string, expectedRevision: number, scene: Scene): Promise<StudyState> { return this.post("/browser/manual", { studyId, tabId, expectedRevision, scene }, isStudyState); }
-  async ack(studyId: string, tabId: string, commandId: string, expectedRevision: number): Promise<StudyState> { return this.post("/browser/ack", { studyId, tabId, commandId, expectedRevision }, isStudyState); }
-  async report(studyId: string, tabId: string, revision: number, phase: "ready" | "error"): Promise<StudyState> { return this.post("/browser/report", { studyId, tabId, revision, phase }, isStudyState); }
-  async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return this.post("/browser/pause", { studyId, tabId, paused }, isStudyState); }
+  async sync(studyId: string, tabId: string): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/sync", { studyId, tabId }, isStudyState)); }
+  async manual(studyId: string, tabId: string, expectedRevision: number, scene: Scene): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/manual", { studyId, tabId, expectedRevision, scene }, isStudyState)); }
+  async ack(studyId: string, tabId: string, commandId: string, expectedRevision: number): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/ack", { studyId, tabId, commandId, expectedRevision }, isStudyState)); }
+  async report(studyId: string, tabId: string, revision: number, phase: "ready" | "error"): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/report", { studyId, tabId, revision, phase }, isStudyState)); }
+  async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/pause", { studyId, tabId, paused }, isStudyState)); }
   async query(studyId: string, tabId: string): Promise<{ request: BrowserQuery | null }> { return this.post("/browser/query", { studyId, tabId }, isQueryEnvelope); }
   async queryResult(studyId: string, tabId: string, requestId: string, result: QueryResult): Promise<void> { await this.post("/browser/query-result", { studyId, tabId, requestId, result }, isAnyResponse); }
   async revoke(studyId: string): Promise<void> { await this.post("/studies/revoke", { studyId }, isAnyResponse); }
@@ -103,7 +107,33 @@ function isLayers(value: unknown): value is Record<string, boolean> { return isO
 export type BrowserQuery = { requestId: string; operation: "time_context" | "search_layers" | "layer_details" | "describe_layer" | "describe_layer_statistics" | "summarize_layer" | "list_layer_capabilities" | "search_layer_records" | "layer_controls" | "geocode_address" | "read_layer" | "map_context" | "find_places" | "nearby" | "explore_data" | "compare_neighborhoods" | "search_datasets" | "describe_dataset" | "query_records" | "plan_data_access" | "materialize_data" | "spatial_query" | "aggregate_by_area" | "route_distance" | "walking_isochrone" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result"; args: Record<string, unknown>; expiresAt: number };
 export type QueryResult = { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 function isNearby(value: unknown): value is { queryId: string } | null { return value === null || exactObject(value, ["queryId"]) && safeId(value.queryId); }
-function isResults(value: unknown): value is { resultIds: string[] } | null { return value === null || exactObject(value, ["resultIds"]) && Array.isArray(value.resultIds) && value.resultIds.length >= 1 && value.resultIds.length <= 8 && new Set(value.resultIds).size === value.resultIds.length && value.resultIds.every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }
+type LegacyResultCollection = { resultIds: string[] };
+type ResultCollectionInput = ResultCollection | LegacyResultCollection | null;
+const RESULT_ID = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/;
+function isResultCollectionItem(value: unknown): value is ResultCollectionItem { return exactObject(value, ["resultId", "visible", "groupId"]) && typeof value.resultId === "string" && RESULT_ID.test(value.resultId) && typeof value.visible === "boolean" && (value.groupId === null || safeId(value.groupId)); }
+function isResultCollectionGroup(value: unknown): value is ResultCollectionGroup { return exactObject(value, ["groupId", "label", "visible"]) && safeId(value.groupId) && typeof value.label === "string" && value.label.length >= 1 && value.label.length <= 120 && typeof value.visible === "boolean"; }
+function isLegacyResultCollection(value: unknown): value is LegacyResultCollection { return exactObject(value, ["resultIds"]) && Array.isArray(value.resultIds) && value.resultIds.length >= 1 && value.resultIds.length <= 8 && new Set(value.resultIds).size === value.resultIds.length && value.resultIds.every(item => typeof item === "string" && RESULT_ID.test(item)); }
+function isCanonicalResultCollection(value: unknown): value is ResultCollection {
+  if (!exactObject(value, ["items", "groups"]) || !Array.isArray(value.items) || !Array.isArray(value.groups) || value.items.length < 1 || value.items.length > 8 || value.groups.length > 8 || !value.items.every(isResultCollectionItem) || !value.groups.every(isResultCollectionGroup)) return false;
+  const resultIds = new Set(value.items.map(item => item.resultId));
+  const groupIds = new Set(value.groups.map(group => group.groupId));
+  return resultIds.size === value.items.length && groupIds.size === value.groups.length && value.items.every(item => item.groupId === null || groupIds.has(item.groupId));
+}
+function isResults(value: unknown): value is ResultCollectionInput { return value === null || isLegacyResultCollection(value) || isCanonicalResultCollection(value); }
+/** Converts older `{resultIds}` scenes at the browser boundary; all locally emitted scenes are canonical. */
+export function normalizeResultCollection(value: ResultCollectionInput | undefined): ResultCollection | null | undefined {
+  if (value === undefined || value === null || isCanonicalResultCollection(value)) return value;
+  return { items: value.resultIds.map(resultId => ({ resultId, visible: true, groupId: null })), groups: [] };
+}
+export function visibleResultIds(collection: ResultCollection | null | undefined): string[] {
+  if (!collection) return [];
+  const groups = new Map(collection.groups.map(group => [group.groupId, group]));
+  return collection.items.filter(item => item.visible && (item.groupId === null || groups.get(item.groupId)?.visible === true)).map(item => item.resultId);
+}
+function normalizeScene(scene: Scene): Scene { return { ...scene, results: normalizeResultCollection(scene.results as ResultCollectionInput | undefined) }; }
+function normalizeCommand(command: Command): Command { return { ...command, patch: "results" in command.patch ? { ...command.patch, results: normalizeResultCollection(command.patch.results as ResultCollectionInput | undefined) } : command.patch }; }
+function normalizeStudyState(state: StudyState): StudyState { return { ...state, scene: normalizeScene(state.scene), pendingCommand: state.pendingCommand ? normalizeCommand(state.pendingCommand) : null }; }
+function normalizeBrowserSessionStatus(status: BrowserSessionStatus): BrowserSessionStatus { return { ...status, snapshot: normalizeStudyState(status.snapshot) }; }
 function isQueryEnvelope(value: unknown): value is { request: BrowserQuery | null } {
   if (!exactObject(value, ["request"])) return false;
   const request = value.request;

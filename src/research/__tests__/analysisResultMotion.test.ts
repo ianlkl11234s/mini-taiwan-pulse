@@ -118,9 +118,12 @@ describe("analysis result reveal lifecycle", () => {
   it("reads back installed result ids, feature count, sources and layers before claiming ready", () => {
     const { map } = stubMap();
     const installed = installAnalysisResults(map, [result]);
-    expect(readAnalysisResultPresentation(map, installed)).toMatchObject({
+    const collection = { items: [{ resultId: "result-1", visible: true, groupId: "education" }], groups: [{ groupId: "education", label: "教育", visible: true }] };
+    expect(readAnalysisResultPresentation(map, installed, collection)).toMatchObject({
       mode: "analysis_result",
       resultIds: ["result-1"],
+      renderedResultIds: ["result-1"],
+      collection,
       datasets: ["fixture"],
       featureCount: 1,
       sourcesReady: true,
@@ -129,6 +132,19 @@ describe("analysis result reveal lifecycle", () => {
     });
     removeAnalysisResults(map);
     expect(readAnalysisResultPresentation(map, [])).toMatchObject({ mode: "none", featureCount: 0, ready: true });
+  });
+
+  it("keeps a fully hidden collection in readback while correctly reporting no rendered layers", () => {
+    const { map } = stubMap();
+    const collection = { items: [{ resultId: "result-1", visible: false, groupId: "education" }], groups: [{ groupId: "education", label: "教育", visible: false }] };
+    expect(readAnalysisResultPresentation(map, [], collection)).toMatchObject({
+      mode: "none",
+      collection,
+      renderedResultIds: [],
+      sourceIds: [],
+      layerIds: [],
+      ready: true,
+    });
   });
 
   it("validates every result before changing an existing source", () => {

@@ -14,7 +14,7 @@ import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { layerParamsStore } from "../state/layerParamsStore";
 import { ResearchConnection } from "./ResearchConnection";
 import { StudyController } from "./StudyController";
-import type { BridgeConnectionContext, Scene, StudyState, BrowserQuery } from "./bridgeClient";
+import { visibleResultIds, type BridgeConnectionContext, type ResultCollection, type Scene, type StudyState, type BrowserQuery } from "./bridgeClient";
 import { applyMainMapLayers, captureLayerOverrides } from "./mainMapLayers";
 import { QueryResponder } from "./QueryResponder";
 import { loadingRegistry } from "../lib/loadingRegistry";
@@ -48,6 +48,8 @@ export function MainMapConnection(props: Props) {
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
+  const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
+  const resultCollectionRef = useRef<ResultCollection | null>(null);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
@@ -68,10 +70,20 @@ export function MainMapConnection(props: Props) {
     resultPopup.current?.remove(); resultPopup.current = null;
     if (latest.current.map) removeAnalysisResults(latest.current.map);
     presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+    resultCollectionRef.current = null; setResultCollection(null);
     if (syncScene && controller.current) {
       const scene = { ...capture(), results: null };
       previous.current = scene; controller.current.manual(scene);
     }
+  }, [capture]);
+  const updateResultCollection = useCallback((update: (collection: ResultCollection) => ResultCollection) => {
+    const current = resultCollectionRef.current;
+    if (!current || !controller.current) return;
+    const results = update(current);
+    resultCollectionRef.current = results; setResultCollection(results);
+    const scene = { ...capture(), results };
+    previous.current = scene;
+    controller.current.manual(scene);
   }, [capture]);
   const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
@@ -83,7 +95,12 @@ export function MainMapConnection(props: Props) {
       previous.current = scene; return "ready";
     }
     if (scene.results && !analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
-    const analysisResults = scene.results ? analysis.current!.presentable(scene.results.resultIds) : [];
+    // Validate every declared ID, including hidden collection entries, before
+    // acknowledging the scene. Hidden must not become a way to retain an
+    // expired or unauthorized result beyond the normal session boundary.
+    const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
+    const visibleAnalysisIds = new Set(visibleResultIds(scene.results));
+    const analysisResults = allAnalysisResults.filter(result => visibleAnalysisIds.has(result.resultId));
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
     const run = ++generation.current;
@@ -107,6 +124,7 @@ export function MainMapConnection(props: Props) {
       }
       const installed = analysisResults.length ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+      resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
         await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
@@ -132,11 +150,11 @@ export function MainMapConnection(props: Props) {
       if (!observed || observed.mode !== requested.mode || (requested.speed !== undefined && observed.speed !== requested.speed) || (requested.playing !== undefined && observed.playing !== requested.playing) || (requested.mode === "replay" && observed.playing === false && (typeof observed.currentTime !== "number" || Math.abs(observed.currentTime - requested.time) > 1))) throw new Error("TIMELINE_READBACK_MISMATCH");
     }
     const visible = new Set(bridge.getVisibleLayerKeys());
-    let resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current);
+    let resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     const resultDeadline = Date.now() + 5_000;
     while (!resultReadback.ready && run === generation.current && Date.now() < resultDeadline) {
       await new Promise(resolve => setTimeout(resolve, 50));
-      resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current);
+      resultReadback = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
     }
     const matches = cameraReady && renderReady === "ready" && resultReadback.ready && Object.entries(scene.layers ?? {}).every(([key, on]) => visible.has(key) === on);
     const resultMessage = resultReadback.featureCount > 0 ? `${resultReadback.featureCount} 筆分析結果已高亮。` : patch?.results === null ? "分析結果已清除。" : null;
@@ -182,7 +200,7 @@ export function MainMapConnection(props: Props) {
           result = current.timeline.getContext(); break;
         case "map_context":
           if (!current.map?.isStyleLoaded()) throw new Error("MAP_NOT_READY");
-          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current) };
+          result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility", resultPresentation: readAnalysisResultPresentation(current.map, presentedAnalysisRef.current, resultCollectionRef.current) };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
         case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
@@ -294,9 +312,11 @@ export function MainMapConnection(props: Props) {
     if (!map) return;
     const redraw = () => {
       if (!map.isStyleLoaded()) return;
-      const resultIds = previous.current?.results?.resultIds;
-      if (resultIds?.length && analysis.current && resultIds.every(resultId => analysis.current!.hasResult(resultId))) {
-        const installed = installAnalysisResults(map, analysis.current.presentable(resultIds), analysisOpacityRef.current);
+      const resultIds = visibleResultIds(previous.current?.results);
+      const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
+      if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+        const visibleIds = new Set(resultIds);
+        const installed = installAnalysisResults(map, analysis.current.presentable(allResultIds).filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current);
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
       } else {
         removeAnalysisResults(map);
@@ -308,7 +328,7 @@ export function MainMapConnection(props: Props) {
       const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers })[0] : undefined;
       if (!feature) return;
       const properties = feature.properties ?? {};
-      const titleKey = ["school_name", "facility_name", "hospital_name", "name", "title", "grid_id", "record_id"].find(key => properties[key] != null);
+      const titleKey = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "grid_id", "record_id"].find(key => properties[key] != null);
       const content = document.createElement("article"); content.className = "research-result-popup";
       const eyebrow = document.createElement("span"); eyebrow.className = "research-result-popup__eyebrow"; eyebrow.textContent = "ANALYSIS RESULT";
       const title = document.createElement("strong"); title.className = "research-result-popup__title"; title.textContent = titleKey ? String(properties[titleKey]) : "分析結果";
@@ -321,8 +341,12 @@ export function MainMapConnection(props: Props) {
         row.append(term, detail); facts.append(row);
       };
       if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
+      const observedValue = properties.value;
+      if (typeof observedValue === "number" && Number.isFinite(observedValue)) appendFact("VALUE", `${observedValue.toLocaleString("zh-TW")}${properties.unit ? ` ${String(properties.unit)}` : ""}`);
+      else if (properties.status != null) appendFact("STATUS", String(properties.status));
       if (Number.isFinite(distance)) appendFact("DISTANCE", `${Math.round(distance).toLocaleString("zh-TW")} 公尺 · 直線`);
       if (properties.source_version) appendFact("VERSION", String(properties.source_version));
+      if (properties.boundary_version) appendFact("BOUNDARY", String(properties.boundary_version));
       if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
       const note = document.createElement("p"); note.className = "research-result-popup__note"; note.textContent = "暫時分析結果 · 非完整來源圖層";
       content.append(eyebrow, title, facts, note);
@@ -333,16 +357,17 @@ export function MainMapConnection(props: Props) {
     return () => { map.off("style.load", redraw); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
   }, [props.map]);
   useEffect(() => {
-    if (!presentedAnalysis.length) return;
+    const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];
+    if (!resultIds.length) return;
     const timer = window.setInterval(() => {
-      if (!analysis.current || presentedAnalysisRef.current.some(result => !analysis.current!.hasResult(result.resultId))) {
+      if (!analysis.current || resultIds.some(resultId => !analysis.current!.hasResult(resultId))) {
         clearAnalysisPresentation(true);
         setMessage("分析結果已過期、移除或失去授權；舊 overlay 已清除。");
         setActivity({ phase: "complete", title: "已清除過期結果", detail: "可重新執行分析以取得目前版本。" });
       }
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [clearAnalysisPresentation, presentedAnalysis, setActivity]);
+  }, [clearAnalysisPresentation, resultCollection, setActivity]);
   useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; resultPopup.current?.remove(); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
   return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
@@ -356,13 +381,33 @@ export function MainMapConnection(props: Props) {
         <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
-      {presentedAnalysis.length > 0 && <section className="agent-analysis-results" aria-label="已呈現的分析結果">
+      {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>已呈現的分析結果</h3>
-        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；這不是完整來源圖層。</p>
+        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；可逐層開關與排序，這不是完整來源圖層。</p>
         <label>分析結果透明度
           <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis.length, value); }} />
         </label>
-        <ul>{presentedAnalysis.map(result => <li key={result.resultId}><span><code>{result.datasetId}</code>{result.featureCount} 筆／{result.geometryType}</span></li>)}</ul>
+        {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
+          <legend>群組</legend>
+          {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
+            <input type="checkbox" checked={group.visible} onChange={event => updateResultCollection(collection => ({ ...collection, groups: collection.groups.map(candidate => candidate.groupId === group.groupId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
+            <span>{group.label}</span>
+          </label>)}
+        </fieldset>}
+        <ul>{resultCollection.items.map((item, index) => {
+          const result = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
+          return <li key={item.resultId} className="agent-analysis-result-item">
+            <label className="agent-analysis-toggle">
+              <input type="checkbox" checked={item.visible} onChange={event => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
+              <span><code>{result?.datasetId ?? item.resultId}</code>{result ? `${result.featureCount} 筆／${result.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
+            </label>
+            <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
+              <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
+              <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
+            </span>
+          </li>;
+        })}</ul>
         <button onClick={() => clearAnalysisPresentation(true)}>清除分析結果</button>
       </section>}
     </div>

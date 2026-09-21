@@ -40,6 +40,15 @@
 .main-map-agent .agent-analysis-results h3 { margin: 0 0 4px; font-size: 12px; }
 .main-map-agent .agent-analysis-results p { color: #c5d8d2; }
 .main-map-agent .agent-analysis-results li { display: block; padding: 5px 0; }
+.main-map-agent .agent-analysis-groups { margin: 8px 0; padding: 6px 0; border: 0; border-top: 1px solid #ffffff1a; }
+.main-map-agent .agent-analysis-groups legend { padding: 0; color: #9ca3af; font-size: 10px; }
+.main-map-agent .agent-analysis-toggle { display: flex; align-items: flex-start; gap: 7px; min-width: 0; cursor: pointer; }
+.main-map-agent .agent-analysis-toggle input { flex: 0 0 auto; width: 14px; min-height: 0; height: 14px; margin: 3px 0 0; padding: 0; accent-color: #d4d4d4; }
+.main-map-agent .agent-analysis-toggle span { min-width: 0; overflow-wrap: anywhere; }
+.main-map-agent .agent-analysis-toggle small { margin: 1px 0 0; color: #9ca3af; }
+.main-map-agent .agent-analysis-result-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.main-map-agent .agent-analysis-order { display: flex; gap: 3px; }
+.main-map-agent .agent-analysis-order button { min-width: 26px; padding: 3px 6px; }
 .research-result-map-popup {
   --result-popup-bg: rgba(13, 14, 16, .96);
   --result-popup-border: #2a2d32;

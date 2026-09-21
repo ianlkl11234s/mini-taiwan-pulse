@@ -2,6 +2,7 @@ import type { Feature, FeatureCollection, MultiPolygon, Point, Polygon } from "g
 import type { GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
+import type { ResultCollection } from "./bridgeClient";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
 const COLORS = ["#00b8d9", "#ff8f00", "#d81b60", "#7e57c2", "#43a047", "#5c6bc0", "#e53935", "#00897b"];
@@ -18,6 +19,10 @@ export type AnalysisResultPresentation = {
 
 export type AnalysisResultReadback = {
   mode: "none" | "analysis_result";
+  /** Canonical collection requested by the scene, including hidden entries/groups. */
+  collection: ResultCollection | null;
+  /** Ordered result IDs actually rendered after item/group visibility is applied. */
+  renderedResultIds: string[];
   resultIds: string[];
   datasets: string[];
   featureCount: number;
@@ -114,7 +119,7 @@ function removeIndex(map: Map, index: number): void {
 export function analysisResultSourceIds(count: number): string[] { return Array.from({ length: Math.min(MAX_RESULTS, count) }, (_, index) => sourceId(index)); }
 
 export function analysisResultLayerIds(count: number): string[] { return Array.from({ length: Math.min(MAX_RESULTS, count) }, (_, index) => layerId(index)); }
-export function readAnalysisResultPresentation(map: Map, results: readonly AnalysisResultPresentation[]): AnalysisResultReadback {
+export function readAnalysisResultPresentation(map: Map, results: readonly AnalysisResultPresentation[], collection: ResultCollection | null = null): AnalysisResultReadback {
   const sourceIds = analysisResultSourceIds(results.length);
   const layerIds = analysisResultLayerIds(results.length);
   const sourcesReady = sourceIds.every(id => Boolean(map.getSource(id)) && map.isSourceLoaded(id));
@@ -125,6 +130,8 @@ export function readAnalysisResultPresentation(map: Map, results: readonly Analy
   );
   return {
     mode: results.length ? "analysis_result" : "none",
+    collection,
+    renderedResultIds: results.map(result => result.resultId),
     resultIds: results.map(result => result.resultId),
     datasets: results.map(result => result.datasetId),
     featureCount: results.reduce((sum, result) => sum + result.featureCount, 0),

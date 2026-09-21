@@ -4,6 +4,12 @@ import type { AdapterReadResult, QueryAdapter } from "./queryExecutor";
 export interface AdapterSnapshot {
   rows: readonly Record<string, unknown>[];
   source: SourceReceipt;
+  /**
+   * Additional immutable inputs used to materialize the rows (for example an
+   * administrative-boundary artifact joined to a statistics release).  Keep
+   * `source` for backwards compatibility with existing adapter families.
+   */
+  sourceRefs?: readonly SourceReceipt[];
   coverage: string;
   freshness?: "current" | "stale" | "unknown";
   exclusions?: Record<string, number>;
@@ -24,7 +30,14 @@ function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter[
     async read(parameters, signal): Promise<AdapterReadResult> {
       const snapshot = await reader(parameters, signal);
       return {
-        rows: snapshot.rows, sourceRefs: [snapshot.source], coverage: snapshot.coverage,
+        rows: snapshot.rows,
+        sourceRefs: [snapshot.source, ...(snapshot.sourceRefs ?? [])].filter((source, index, sources) =>
+          sources.findIndex(candidate => candidate.sourceId === source.sourceId
+            && candidate.version === source.version
+            && candidate.checksumSha256 === source.checksumSha256
+            && candidate.reference === source.reference) === index,
+        ),
+        coverage: snapshot.coverage,
         freshness: snapshot.freshness ?? "unknown", exclusions: { ...(snapshot.exclusions ?? {}) },
         rowsScanned: snapshot.rowsScanned ?? snapshot.rows.length, bytesScanned: snapshot.bytesScanned ?? null, downloadedBytes: snapshot.downloadedBytes ?? null,
         requests: snapshot.requests ?? null, cacheHit: snapshot.cacheHit ?? null, expiresAt: snapshot.expiresAt ?? null,
