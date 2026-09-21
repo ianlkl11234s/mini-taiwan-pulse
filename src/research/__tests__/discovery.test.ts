@@ -2,15 +2,18 @@ import { describe, expect, it } from "vitest";
 import { describeLayer, discoverLayers, findPlaces } from "../discovery";
 
 describe("research discovery", () => {
-  it("derives searchable layers from the manifest and keeps access separate from read support", () => {
+  it("derives searchable layers from the manifest and hides unauthorized metadata", () => {
     const context = { locked: new Set(["schools"]), visible: new Set<string>() };
     const result = discoverLayers("學校", 0, 20, context);
-    expect(result.layers.some(layer => layer.key === "schools" && layer.locked && layer.dataReadSupport === "not_provided_in_first_phase")).toBe(true);
+    expect(result.layers.some(layer => layer.key === "schools")).toBe(false);
+    expect(describeLayer("schools", context)).toBeNull();
     expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("not_provided_in_first_phase");
   });
   it("returns local camera candidates without claiming a geocoder result", () => {
     const result = findPlaces("台北");
     expect(result.candidates.some(place => place.id === "taipei" && place.coordinates.lng === 121.53)).toBe(true);
+    expect(findPlaces("臺北 101").candidates).toEqual(expect.arrayContaining([expect.objectContaining({ id: "taipei-101", coordinates: { lng: 121.564781, lat: 25.033651 } })]));
+    expect(findPlaces("台北車站").candidates).toEqual(expect.arrayContaining([expect.objectContaining({ id: "taipei-main-station", coordinates: { lng: 121.51436, lat: 25.04874 } })]));
   });
 });
 

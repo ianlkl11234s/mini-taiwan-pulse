@@ -55,15 +55,16 @@ export function dataReadSupport(layerKey: string): DataReadSupport {
 
 function asDiscovery(key: ManifestKey, context: DiscoveryContext): LayerDiscovery {
   const entry = LAYER_MANIFEST[key];
+  const locked = context.locked.has(key);
   return {
     key,
     label: entry.section === null ? key : entry.label,
     description: entry.description,
     topics: [...entry.topics],
-    locked: context.locked.has(key),
+    locked,
     visible: context.visible.has(key),
     dataReadSupport: dataReadSupport(key),
-    displayCapability: { canOpen: entry.section !== null && !context.locked.has(key), basis: "manifest_registration" },
+    displayCapability: { canOpen: entry.section !== null && !locked, basis: "manifest_registration" },
     datasetIds: [],
   };
 }
@@ -83,6 +84,7 @@ export function discoverLayers(query: string, offset = 0, limit = 20, context: D
   const safeOffset = bounded(offset, 0, 0, 10_000);
   const safeLimit = bounded(limit, 20, 1, 20);
   const matched = LAYER_SEARCH_INDEX
+    .filter(item => !context.locked.has(item.key))
     .map(item => ({ item, score: searchScore(query, `${item.key} ${item.label}`) * 3 + searchScore(query, `${item.description} ${item.topics.join(" ")} ${item.aliases.join(" ")} ${item.source}`) }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score || a.item.key.localeCompare(b.item.key))
@@ -110,6 +112,7 @@ function allSources(key: ManifestKey): { kind: string; reference: string | null 
 export function describeLayer(layerKey: string, context: DiscoveryContext = DEFAULT_CONTEXT): LayerDescription | null {
   if (!Object.prototype.hasOwnProperty.call(LAYER_MANIFEST, layerKey)) return null;
   const key = layerKey as ManifestKey;
+  if (context.locked.has(key)) return null;
   const entry = LAYER_MANIFEST[key];
   const upstream = entry.upstream as { status: string; datasets?: readonly { datasetId: string; confidence: string }[]; note?: string; processing?: string; derivedFromLayers?: readonly string[] };
   return {
@@ -123,9 +126,13 @@ export function describeLayer(layerKey: string, context: DiscoveryContext = DEFA
 /** Camera presets are local named viewpoints only; no geocoder is consulted. */
 export function findPlaces(query: string, limit = 10): { query: string; totalMatched: number; returned: number; candidates: PlaceCandidate[] } {
   const needle = normalize(query);
+  const compactNeedle = needle.replace(/ /g, "");
   const safeLimit = bounded(limit, 10, 1, 10);
   const candidates = needle === "" ? [] : ALL_PRESETS
-    .filter(preset => normalize(`${preset.id} ${preset.name} ${preset.description ?? ""}`).includes(needle))
+    .filter((preset) => {
+      const haystack = normalize(`${preset.id} ${preset.name} ${preset.description ?? ""}`);
+      return haystack.includes(needle) || haystack.replace(/ /g, "").includes(compactNeedle);
+    })
     .filter((preset): preset is typeof preset & { center: [number, number] } => Array.isArray(preset.center) && preset.center.length === 2)
     .map(preset => ({ id: preset.id, name: preset.name, category: preset.category, coordinates: { lng: preset.center[0], lat: preset.center[1] }, zoom: preset.zoom ?? null }))
     .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id));

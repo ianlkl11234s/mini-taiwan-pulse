@@ -9,6 +9,9 @@ export interface QueryRecordsInput {
   select?: readonly string[];
   filters?: readonly QueryFilter[];
   time?: { field: string; start?: string; end?: string };
+  bbox?: readonly [number, number, number, number];
+  cursor?: string;
+  /** Legacy local callers only. MCP callers should use cursor. */
   offset?: number;
   limit?: number;
   parameters?: Readonly<Record<string, Scalar>>;
@@ -87,8 +90,24 @@ function validPoint(value: unknown): boolean {
     && Math.abs(geometry.coordinates[0] as number) <= 180 && Math.abs(geometry.coordinates[1] as number) <= 90;
 }
 
+function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, number, number, number]): boolean {
+  const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | null | undefined;
+  if (!geometry || geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
+  const [lng, lat] = geometry.coordinates;
+  return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+}
+
+function parseCursor(cursor: string | undefined): { prefix: string; offset: number } | null {
+  if (cursor === undefined) return null;
+  const match = /^cursor-([a-f0-9]{16})-(\d{1,5})$/.exec(cursor);
+  if (!match) throw new Error("INVALID_CURSOR");
+  const offset = Number(match[2]);
+  if (!Number.isInteger(offset) || offset < 0 || offset > 10_000) throw new Error("INVALID_CURSOR");
+  return { prefix: match[1]!, offset };
+}
+
 function validateAdapterRead(descriptor: DatasetDescriptor, read: AdapterReadResult): void {
-  if (!Array.isArray(read.rows) || read.rows.length > descriptor.accessPolicy.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
+  if (!Array.isArray(read.rows) || read.rows.length > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
   if (!read.sourceRefs.length || read.sourceRefs.length > 10 || read.sourceRefs.some(source => !source.sourceId || !source.version || !source.reference
     || !Number.isFinite(Date.parse(source.acquiredAt)) || source.checksumSha256 !== null && !/^[0-9a-f]{64}$/.test(source.checksumSha256))) throw new Error("INVALID_SOURCE_RECEIPT");
   if (Object.entries(read.exclusions).some(([reason, count]) => !/^[a-z][a-z0-9_]{0,79}$/.test(reason) || !Number.isInteger(count) || count < 0)) throw new Error("INVALID_EXCLUSIONS");
@@ -149,13 +168,18 @@ export class QueryExecutor {
     const adapter = this.adapters.get(input.datasetId);
     if (!adapter) throw new Error("DATASET_NOT_FOUND");
     const { descriptor } = adapter;
-    const offset = integer(input.offset, 0, 0, 10_000, "INVALID_OFFSET");
-    const limit = integer(input.limit, Math.min(20, descriptor.accessPolicy.maxRowsPerQuery), 1, descriptor.accessPolicy.maxRowsPerQuery, "INVALID_LIMIT");
+    if (!descriptor.access.query.enabled) throw new Error("DATASET_QUERY_UNAVAILABLE");
+    if (input.cursor !== undefined && input.offset !== undefined) throw new Error("INVALID_PAGINATION");
+    const parsedCursor = parseCursor(input.cursor);
+    const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 10_000, "INVALID_OFFSET");
+    const limit = integer(input.limit, Math.min(20, descriptor.access.limits.maxRowsPerQuery), 1, descriptor.access.limits.maxRowsPerQuery, "INVALID_LIMIT");
     const fieldMap = new Map(descriptor.fields.map(field => [field.name, field]));
     const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name);
-    if (select.length > 50 || new Set(select).size !== select.length || select.some(field => !fieldMap.has(field))) throw new Error("FIELD_NOT_ALLOWED");
+    const allowedFields = new Set(descriptor.access.query.fields);
+    if (select.length > 50 || new Set(select).size !== select.length || select.some(field => !fieldMap.has(field) || !allowedFields.has(field))) throw new Error("FIELD_NOT_ALLOWED");
     const filters = input.filters ?? [];
-    if (filters.length > 10 || filters.some(filter => !fieldMap.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
+    const allowedFilters = new Set(descriptor.access.query.filters);
+    if (filters.length > 10 || filters.some(filter => !fieldMap.has(filter.field) || !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
     for (const filter of filters) {
       const field = fieldMap.get(filter.field)!;
       if (filter.op === "contains" && field.type !== "string") throw new Error("FILTER_NOT_ALLOWED");
@@ -166,6 +190,11 @@ export class QueryExecutor {
         || time.start !== undefined && !Number.isFinite(Date.parse(time.start)) || time.end !== undefined && !Number.isFinite(Date.parse(time.end))
         || time.start !== undefined && time.end !== undefined && Date.parse(time.start) >= Date.parse(time.end)) throw new Error("INVALID_TIME_WINDOW");
     }
+    const bbox = input.bbox;
+    if (bbox) {
+      if (!descriptor.access.query.supportsBbox || bbox.length !== 4 || bbox.some(value => typeof value !== "number" || !Number.isFinite(value))
+        || bbox[0] < -180 || bbox[2] > 180 || bbox[1] < -90 || bbox[3] > 90 || bbox[0] > bbox[2] || bbox[1] > bbox[3]) throw new Error("BBOX_NOT_SUPPORTED");
+    }
     const parameters = { ...(input.parameters ?? {}) };
     if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
     for (const [name, value] of Object.entries(parameters)) {
@@ -174,20 +203,29 @@ export class QueryExecutor {
     }
     const read = await adapter.read(parameters, signal);
     validateAdapterRead(descriptor, read);
-    if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.accessPolicy.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
-    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)));
+    if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
+    if (read.bytesScanned !== null && descriptor.access.limits.maxSourceBytes !== null && read.bytesScanned > descriptor.access.limits.maxSourceBytes) throw new Error("SOURCE_BYTE_BUDGET_EXCEEDED");
+    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)) && (!bbox || bboxMatches(row, bbox)));
     const rows = matched.slice(offset, offset + limit).map(row => Object.fromEntries(select.map(field => [field, row[field] ?? null])));
-    const normalized = { datasetId: input.datasetId, select, filters, ...(time ? { time } : {}), offset, limit, parameters };
-    const queryHash = await sha256({ query: normalized, sources: read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 })) });
+    const scope = { datasetId: input.datasetId, select, filters, ...(time ? { time } : {}), ...(bbox ? { bbox } : {}), parameters };
+    const sources = read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 }));
+    const scopeHash = await sha256({ query: scope, sources });
+    if (parsedCursor && parsedCursor.prefix !== scopeHash.slice(0, 16)) throw new Error("CURSOR_SOURCE_MISMATCH");
+    const normalized = { ...scope, offset, limit };
+    const queryHash = await sha256({ query: normalized, sources });
+    const nextCursor = offset + rows.length < matched.length ? `cursor-${scopeHash.slice(0, 16)}-${offset + rows.length}` : null;
     const envelope: ResultEnvelope = {
       schemaVersion: "pulse-query-result/0.1", resultId: `result-${queryHash.slice(0, 24)}`, queryHash, datasetId: input.datasetId,
       executionStatus: "complete", method: { operation: "query_records", version: "0.1", parameters: normalized }, sourceRefs: read.sourceRefs, ...(read.lineage ? { lineage: read.lineage } : {}),
       recordGrain: descriptor.recordGrain, countGrain: descriptor.recordGrain,
-      units: Object.fromEntries(select.map(name => [name, fieldMap.get(name)!.unit])), coverage: read.coverage, freshness: read.freshness,
+      units: Object.fromEntries(select.map(name => [name, fieldMap.get(name)!.unit])), coverage: read.coverage, freshness: read.freshness, semantics: descriptor.valueSemantics,
       totalMatched: matched.length, returned: rows.length, displayTruncated: offset + rows.length < matched.length, analysisComplete: true,
       excludedByReason: { ...read.exclusions }, rows,
       cost: { rowsScanned: read.rowsScanned, bytesScanned: read.bytesScanned, downloadedBytes: read.downloadedBytes, requests: read.requests, cacheHit: read.cacheHit }, expiresAt: read.expiresAt,
+      access: { mode: descriptor.access.mode, method: descriptor.access.method, authorized: true },
+      limits: { maxRows: descriptor.access.limits.maxRowsPerQuery, maxScanRows: descriptor.access.limits.maxScanRows, maxResponseBytes: descriptor.access.limits.maxResponseBytes, nextCursor },
     };
+    if (new TextEncoder().encode(JSON.stringify(envelope)).byteLength > descriptor.access.limits.maxResponseBytes) throw new Error("RESULT_BYTE_BUDGET_EXCEEDED");
     return { envelope, materializedRows: matched, descriptor };
   }
 }

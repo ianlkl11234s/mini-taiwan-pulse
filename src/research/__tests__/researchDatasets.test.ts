@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearNearbyDataCache } from "../nearbyData";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { describeDataset, queryRecords, searchDatasets } from "../researchDatasets";
+import { LAYER_MANIFEST } from "../../data/layerManifest";
 
 afterEach(() => {
   clearNearbyDataCache();
@@ -22,10 +23,32 @@ async function queryNewsWithSupabasePayload(configured: boolean, data: unknown) 
 }
 
 describe("built-in research datasets", () => {
+  it("keeps every dataset layer reference anchored to the manifest SSOT", () => {
+    for (const descriptor of searchDatasets("").datasets) {
+      for (const layerKey of descriptor.layerRefs) expect(LAYER_MANIFEST).toHaveProperty(layerKey);
+    }
+  });
+
   it("discovers the three pilot families with explicit geometry and null semantics", () => {
-    expect(searchDatasets("").datasets.map(item => item.datasetId)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
+    expect(searchDatasets("").datasets.map(item => item.datasetId)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries", "urban_zoning_taipei", "allen_coral_atlas"]);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
+  });
+
+  it("does not let a guest search or describe an owner-only dataset", () => {
+    const guestLocks = new Set(["newsEvents", "allenCoralAtlas"]);
+    expect(searchDatasets("news", 0, 20, guestLocks).datasets.some(item => item.datasetId === "tw-news-events")).toBe(false);
+    expect(() => describeDataset("tw-news-events", guestLocks)).toThrow("DATASET_NOT_FOUND");
+    expect(describeDataset("tw-news-events", new Set()).access.mode).toBe("owner_only");
+    expect(searchDatasets("coral", 0, 20, guestLocks).datasets).toEqual([]);
+    expect(() => describeDataset("allen_coral_atlas", guestLocks)).toThrow("DATASET_NOT_FOUND");
+    expect(describeDataset("allen_coral_atlas", new Set()).access).toMatchObject({ mode: "owner_only", query: { enabled: false } });
+  });
+
+  it("describes a public PMTiles pilot without claiming record access", async () => {
+    const zoning = describeDataset("urban_zoning_taipei");
+    expect(zoning).toMatchObject({ geometry: { type: "Polygon", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: false } } });
+    await expect(queryRecords({ datasetId: "urban_zoning_taipei" })).rejects.toThrow("DATASET_NOT_FOUND");
   });
 
   it("queries two real point adapters without consulting layer visibility", async () => {

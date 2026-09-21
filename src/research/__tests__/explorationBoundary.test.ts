@@ -35,11 +35,15 @@ function dependencies(entry: string): string[] {
   return [...seen].map(file => relative(process.cwd(), file));
 }
 
-describe("map exploration runtime boundary", () => {
-  it("does not load analysis sessions, record readers, calculations or result overlays from the map entry", () => {
+describe("paired research runtime boundary", () => {
+  it("loads bounded dataset readers and typed analysis, but not presentation overlays", () => {
     const reached = dependencies(resolve("src/research/MainMapConnection.tsx"));
     expect(reached).toContain("src/research/layerExploration.ts");
-    const advanced = /\/research\/(researchAnalysisSession|researchDatasets|queryExecutor|analysisOperations|dataExploration|nearbyData|nearbyOverlay|analysisResultOverlay|NearbyResults)\.[jt]sx?$/;
-    expect(reached.filter(file => advanced.test(file))).toEqual([]);
+    expect(reached).toContain("src/research/researchDatasets.ts");
+    expect(reached).toContain("src/research/queryExecutor.ts");
+    expect(reached).toContain("src/research/researchAnalysisSession.ts");
+    expect(reached).toContain("src/research/analysisOperations.ts");
+    const presentation = /\/research\/(nearbyData|nearbyOverlay|analysisResultOverlay|NearbyResults)\.[jt]sx?$/;
+    expect(reached.filter(file => presentation.test(file))).toEqual([]);
   });
 });

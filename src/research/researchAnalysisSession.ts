@@ -70,11 +70,11 @@ export class ResearchAnalysisSession {
     this.plans.set(planId, { input: structuredClone(input), expiresAt });
     while (this.plans.size > 8) this.plans.delete(this.plans.keys().next().value!);
     return {
-      planId, datasetId: descriptor.datasetId, adapterId: descriptor.adapterId, accessMode: descriptor.accessPolicy.mode,
-      sourceVersions: descriptor.versions, estimatedScanRows: descriptor.accessPolicy.maxScanRows,
+      planId, datasetId: descriptor.datasetId, adapterId: descriptor.adapterId, accessMode: descriptor.access.mode,
+      sourceVersions: descriptor.versions, estimatedScanRows: descriptor.access.limits.maxScanRows,
       estimatedScanBytes: null, estimatedDownloadBytes: null, estimatedRequests: 1,
       cacheReuse: "source_version_and_query_hash", cacheHit: null, costKnown: false, estimatedMonetaryCost: null,
-      requiresApproval: false, hardLimits: { rowsPerPage: descriptor.accessPolicy.maxRowsPerQuery, scanRows: descriptor.accessPolicy.maxScanRows },
+      requiresApproval: false, hardLimits: { rowsPerPage: descriptor.access.limits.maxRowsPerQuery, scanRows: descriptor.access.limits.maxScanRows, responseBytes: descriptor.access.limits.maxResponseBytes, sourceBytes: descriptor.access.limits.maxSourceBytes },
       expiresAt: new Date(expiresAt).toISOString(), limitations: ["Byte and monetary cost remain unknown until the allowlisted adapter returns a source receipt; unknown is not zero."],
     };
   }
@@ -126,7 +126,7 @@ export class ResearchAnalysisSession {
     } else if (operation === "join_records") {
       result = this.operations.keyJoin({ leftResultId: id(args.leftResultId), rightResultId: id(args.rightResultId), leftKey: String(args.leftKey ?? ""), rightKey: String(args.rightKey ?? ""), cardinality: args.cardinality as "one_to_one" | "one_to_many" });
     } else if (operation === "calculate_metric") {
-      result = this.operations.calculateMetric({ resultId: id(args.resultId), operation: args.operation as "ratio" | "difference", numeratorField: String(args.numeratorField ?? ""), ...(typeof args.denominatorField === "string" ? { denominatorField: args.denominatorField } : {}), ...(typeof args.outputField === "string" ? { outputField: args.outputField } : {}), ...(typeof args.unit === "string" || args.unit === null ? { unit: args.unit } : {}) });
+      result = this.operations.calculateMetric({ resultId: id(args.resultId), operation: args.operation as "ratio" | "difference", numeratorField: String(args.numeratorField ?? ""), denominatorField: String(args.denominatorField ?? ""), ...(typeof args.outputField === "string" ? { outputField: args.outputField } : {}), ...(typeof args.unit === "string" || args.unit === null ? { unit: args.unit } : {}) });
     } else if (operation === "read_series") {
       result = this.operations.readSeries({ resultId: id(args.resultId), timeField: String(args.timeField ?? ""), resolution: args.resolution as "day" | "week", operation: args.operation as "count" | "sum" | "mean", ...(typeof args.valueField === "string" ? { valueField: args.valueField } : {}) });
     } else {

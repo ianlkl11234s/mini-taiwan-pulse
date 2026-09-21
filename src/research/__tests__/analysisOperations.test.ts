@@ -52,6 +52,7 @@ describe("AnalysisOperations", () => {
     expect(() => operations.keyJoin({ leftResultId: "left", rightResultId: "right", leftKey: "code", rightKey: "code", cardinality: "one_to_one" })).toThrow("JOIN_CARDINALITY_VIOLATION");
     const joined = operations.keyJoin({ leftResultId: "left", rightResultId: "right", leftKey: "code", rightKey: "code", cardinality: "one_to_many" });
     expect(joined.rows).toHaveLength(2); expect(joined.summary).toMatchObject({ unmatchedLeft: 2, unmatchedRight: 1, duplicatedRightKeys: 1 });
+    expect(joined.rows[0]).toMatchObject({ left_code: "A", right_code: "A", right_label: "one" });
     const nullableLeft = { ...pointResult("nullable-left"), rows: [{ code: null }, { code: "A" }] };
     const nullableRight = { ...pointResult("nullable-right"), rows: [{ code: null }, { code: "A" }] };
     const nullableOps = setup(nullableLeft, nullableRight).operations;

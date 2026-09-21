@@ -22,11 +22,16 @@ import { describeLayers } from "./layerExploration";
 import { describeLayer, discoverLayers, findPlaces } from "./discovery";
 import { applyLayerControl, describeLayerControls, validateLayerControl } from "./layerControls";
 import { resolveOfflineLocation } from "./addressLookup";
+import { describeDataset, ensureDataset, searchDatasets } from "./researchDatasets";
+import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
+import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
+import type { QueryRecordsInput } from "./queryExecutor";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean };
-const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context"]);
-/** First-stage adapter: pairing can only search, explain, select, toggle, and move the map. */
+const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
+/** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
   const [activityHistory, setActivityHistory] = useState<Activity[]>([]);
@@ -40,6 +45,7 @@ export function MainMapConnection(props: Props) {
   const latest = useRef(props); latest.current = props;
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
+  const analysis = useRef<ResearchAnalysisSession | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
   const applying = useRef(false);
@@ -96,7 +102,7 @@ export function MainMapConnection(props: Props) {
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
+    controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
@@ -111,7 +117,14 @@ export function MainMapConnection(props: Props) {
         case "summarize_layer": {
           const layerKey = String(request.args.layerKey ?? "");
           if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");
-          result = request.operation === "describe_layer_statistics" ? await describeLayerStatistics({ layerKey }) : await summarizeLayer(request.args as unknown as LayerSummaryInput);
+          try {
+            result = request.operation === "describe_layer_statistics" ? await describeLayerStatistics({ layerKey }) : await summarizeLayer(request.args as unknown as LayerSummaryInput);
+          } catch (error) {
+            if (!(error instanceof Error) || error.message !== "LAYER_STATISTICS_UNSUPPORTED") throw error;
+            result = request.operation === "describe_layer_statistics"
+              ? await describeDatasetLayerStatistics(layerKey, current.locked)
+              : await summarizeDatasetLayer(request.args as unknown as LayerSummaryInput, current.locked);
+          }
           break;
         }
         case "list_layer_capabilities": result = listLayerCapabilities(request.args); break;
@@ -129,6 +142,29 @@ export function MainMapConnection(props: Props) {
           result = { observedAt: new Date().toISOString(), camera: current.bridge.getCamera(), viewport: resolveViewportContext(current.map), time: current.timeline?.getContext() ?? null, following: followingRef.current, selection: current.selection ?? null, selectionSource: current.selection ? "feature" : null, visibleLayerKeys: visible.slice(0, 100), totalVisible: visible.length, truncated: visible.length > 100, loading: loadingRegistry.snapshot().slice(0, 20).map(task => task.label), totalLoading: loadingRegistry.snapshot().length, loadingTruncated: loadingRegistry.snapshot().length > 20, dataReadiness: "not_inferred_from_visibility" };
           break;
         case "search_layers": result = discoverLayers(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), discoveryContext); break;
+        case "search_datasets": result = searchDatasets(String(request.args.query ?? ""), Number(request.args.offset ?? 0), Number(request.args.limit ?? 20), current.locked); break;
+        case "describe_dataset": {
+          const datasetId = String(request.args.datasetId ?? "");
+          await ensureDataset(datasetId, current.locked);
+          result = describeDataset(datasetId, current.locked) as unknown as Record<string, unknown>;
+          break;
+        }
+        case "query_records": {
+          const input = request.args as unknown as QueryRecordsInput;
+          if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+          result = await analysis.current.queryRecords(input);
+          break;
+        }
+        case "plan_data_access": {
+          if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+          result = await analysis.current.planDataAccess(request.args as unknown as Parameters<ResearchAnalysisSession["planDataAccess"]>[0]);
+          break;
+        }
+        case "materialize_data": {
+          if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+          result = await analysis.current.materializeData(request.args.planId);
+          break;
+        }
         case "describe_layer": {
           const layer = describeLayer(String(request.args.layerKey ?? ""), discoveryContext);
           if (!layer) throw new Error("LAYER_NOT_FOUND");
@@ -145,6 +181,10 @@ export function MainMapConnection(props: Props) {
           break;
         }
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
+        default: {
+          if (!analysis.current || !ANALYSIS_OPERATIONS.has(request.operation as AnalysisQueryOperation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
+          result = analysis.current.execute(request.operation as AnalysisQueryOperation, request.args);
+        }
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
       return result!;

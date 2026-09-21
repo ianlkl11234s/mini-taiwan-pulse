@@ -11,13 +11,15 @@ describe("layer capability registry", () => {
     expect((schools.layers as { layerKey: string }[]).some(layer => layer.layerKey === "schools")).toBe(true);
   });
 
-  it("declares the two complete-source readers and refuses to infer PMTiles records", () => {
+  it("declares complete-source readers, on-demand GeoJSON candidates, and refuses to infer PMTiles records", () => {
     const schools = listLayerCapabilities({ query: "schools" });
     expect(schools.layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "point", supportedMeasures: ["count"], timeModel: "static_version", freshness: "unknown" })]));
     const pmtiles = listLayerCapabilities({ query: "pmtiles" });
     expect(pmtiles.layers).toEqual(expect.arrayContaining([expect.objectContaining({ sourceKinds: expect.arrayContaining(["pmtiles"]), recordSearch: "not_registered", aggregate: "not_registered", dataRole: "unknown", supportedMeasures: [], timeModel: "unknown", freshness: "unsupported" })]));
     const countReady = listLayerCapabilities({ measure: "count", status: "ready" });
-    expect(countReady).toMatchObject({ totalMatched: 2, returned: 2 });
-    expect((countReady.layers as { layerKey: string }[]).map(layer => layer.layerKey).sort()).toEqual(["policeStation", "schools"]);
+    expect(countReady).toMatchObject({ totalMatched: 4, returned: 4 });
+    expect((countReady.layers as { layerKey: string }[]).map(layer => layer.layerKey).sort()).toEqual(["medHospital", "policeStation", "publicLibraries", "schools"]);
+    const candidates = listLayerCapabilities({ status: "on_demand_validation", sourceKind: "geojson", limit: 20 });
+    expect(candidates.totalMatched).toBeGreaterThan(0);
   });
 });

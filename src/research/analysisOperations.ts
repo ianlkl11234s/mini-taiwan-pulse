@@ -37,7 +37,7 @@ export interface WithinDistanceInput { resultId: string; center: { lng: number; 
 export interface NearestInput { resultId: string; center: { lng: number; lat: number }; limit?: number; }
 export interface AggregateInput { resultId: string; operation: AggregateOperation; field?: string; groupBy?: readonly string[]; }
 export interface KeyJoinInput { leftResultId: string; rightResultId: string; leftKey: string; rightKey: string; cardinality: "one_to_one" | "one_to_many"; }
-export interface MetricInput { resultId: string; operation: "ratio" | "difference"; numeratorField: string; denominatorField?: string; outputField?: string; unit?: string | null; }
+export interface MetricInput { resultId: string; operation: "ratio" | "difference"; numeratorField: string; denominatorField: string; outputField?: string; unit?: string | null; }
 export interface ReadSeriesInput { resultId: string; timeField: string; resolution: "day" | "week"; operation: "count" | "sum" | "mean"; valueField?: string; }
 export interface CompareSeriesInput { currentResultId: string; baselineResultId: string; operation: "ratio" | "difference"; }
 
@@ -165,7 +165,10 @@ export class AnalysisOperations {
     for (const [key, leftRows] of leftIndex) {
       const rightRows = rightIndex.get(key);
       if (!rightRows) { unmatchedLeft += leftRows.length; continue; }
-      for (const leftRow of leftRows) for (const rightRow of rightRows) rows.push({ left: leftRow, right: rightRow });
+      for (const leftRow of leftRows) for (const rightRow of rightRows) rows.push({
+        ...Object.fromEntries(Object.entries(leftRow).map(([field, value]) => [`left_${field}`, value])),
+        ...Object.fromEntries(Object.entries(rightRow).map(([field, value]) => [`right_${field}`, value])),
+      });
     }
     let unmatchedRight = missingRightKeys;
     for (const [key, rightRows] of rightIndex) if (!leftIndex.has(key)) unmatchedRight += rightRows.length;
@@ -173,12 +176,12 @@ export class AnalysisOperations {
   }
 
   calculateMetric(input: MetricInput): AnalysisResult {
-    if (!validField(input.numeratorField) || (input.operation === "ratio" && (!input.denominatorField || !validField(input.denominatorField)))) throw new Error("INVALID_METRIC_FIELD");
+    if (!validField(input.numeratorField) || !validField(input.denominatorField)) throw new Error("INVALID_METRIC_FIELD");
     const source = this.data(input.resultId); const outputField = input.outputField ?? input.operation;
     if (!validField(outputField)) throw new Error("INVALID_METRIC_FIELD");
     const rows = source.rows.map(row => {
       const numerator = numeric(row[input.numeratorField]);
-      const denominator = input.denominatorField ? numeric(row[input.denominatorField]) : null;
+      const denominator = numeric(row[input.denominatorField]);
       if (input.operation === "ratio" && denominator === 0) throw new Error("ZERO_DENOMINATOR");
       const value = input.operation === "ratio" ? numerator === null || denominator === null ? null : numerator / denominator
         : numerator === null || denominator === null ? null : numerator - denominator;

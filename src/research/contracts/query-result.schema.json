@@ -4,7 +4,7 @@
   "title": "Pulse bounded query result envelope",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "resultId", "queryHash", "datasetId", "executionStatus", "method", "sourceRefs", "recordGrain", "countGrain", "units", "coverage", "freshness", "totalMatched", "returned", "displayTruncated", "analysisComplete", "excludedByReason", "rows", "cost", "expiresAt"],
+  "required": ["schemaVersion", "resultId", "queryHash", "datasetId", "executionStatus", "method", "sourceRefs", "recordGrain", "countGrain", "units", "coverage", "freshness", "semantics", "totalMatched", "returned", "displayTruncated", "analysisComplete", "excludedByReason", "rows", "cost", "access", "limits", "expiresAt"],
   "properties": {
     "lineage": { "type": "object" },
     "schemaVersion": { "const": "pulse-query-result/0.1" },
@@ -22,6 +22,10 @@
     "units": { "type": "object", "maxProperties": 50, "additionalProperties": { "type": ["string", "null"], "maxLength": 160 } },
     "coverage": { "type": "string", "minLength": 1, "maxLength": 4000 },
     "freshness": { "enum": ["current", "stale", "unknown"] },
+    "semantics": {
+      "type": "object", "additionalProperties": false, "required": ["missing", "null", "suppressed", "zero", "stale", "closed"],
+      "properties": { "missing": { "type": "string", "minLength": 1 }, "null": { "type": "string", "minLength": 1 }, "suppressed": { "type": "string", "minLength": 1 }, "zero": { "type": "string", "minLength": 1 }, "stale": { "type": "string", "minLength": 1 }, "closed": { "type": "string", "minLength": 1 } }
+    },
     "totalMatched": { "type": "integer", "minimum": 0 },
     "returned": { "type": "integer", "minimum": 0, "maximum": 1000 },
     "displayTruncated": { "type": "boolean" },
@@ -32,11 +36,19 @@
       "type": "object", "additionalProperties": false, "required": ["rowsScanned", "bytesScanned", "downloadedBytes", "requests", "cacheHit"],
       "properties": { "rowsScanned": { "type": "integer", "minimum": 0, "maximum": 100000 }, "bytesScanned": { "type": ["integer", "null"], "minimum": 0 }, "downloadedBytes": { "type": ["integer", "null"], "minimum": 0 }, "requests": { "type": ["integer", "null"], "minimum": 0 }, "cacheHit": { "type": ["boolean", "null"] } }
     },
+    "access": {
+      "type": "object", "additionalProperties": false, "required": ["mode", "method", "authorized"],
+      "properties": { "mode": { "enum": ["public", "owner_only"] }, "method": { "enum": ["static_asset", "pmtiles_sidecar", "rpc", "statistics_snapshot", "owner_range", "local_asset"] }, "authorized": { "const": true } }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false, "required": ["maxRows", "maxScanRows", "maxResponseBytes", "nextCursor"],
+      "properties": { "maxRows": { "type": "integer", "minimum": 1, "maximum": 1000 }, "maxScanRows": { "type": "integer", "minimum": 1, "maximum": 100000 }, "maxResponseBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 }, "nextCursor": { "type": ["string", "null"], "pattern": "^cursor-[a-f0-9]{16}-[0-9]{1,5}$" } }
+    },
     "expiresAt": { "anyOf": [{ "$ref": "#/$defs/instant" }, { "type": "null" }] }
   },
   "$defs": {
-    "sourceGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell"] },
-    "resultGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell", "aggregate", "joined", "metric", "series"] },
+    "sourceGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell", "feature"] },
+    "resultGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell", "feature", "aggregate", "joined", "metric", "series"] },
     "instant": { "type": "string", "format": "date-time" },
     "sourceReceipt": {
       "type": "object", "additionalProperties": false, "required": ["sourceId", "version", "acquiredAt", "checksumSha256", "reference"],

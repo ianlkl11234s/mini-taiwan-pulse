@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Mini Taiwan Pulse 研究與 GIS 分析系統",
+    "output": "pulse-research-system-map.html",
+    "quality_profile": "showcase",
+    "viewBox": [1240, 650],
+    "views": [
+      { "id": "question-route", "label": "從問題到工具", "focus": ["user", "codex", "jev", "mcp"], "note": "Skill 先守語意，Jev 只在開放式問題中縮小候選。" },
+      { "id": "analysis-chain", "label": "資料分析主鏈", "focus": ["mcp", "gateway", "browser", "catalog", "analysis"], "note": "搜尋、描述、查詢與分析是分離的 bounded operations。" },
+      { "id": "map-presentation", "label": "地圖呈現", "focus": ["mcp", "gateway", "browser"], "note": "相機與圖層可控制；分析結果 overlay 尚待下一階段。" },
+      { "id": "local-address", "label": "本機地址定位", "focus": ["mcp", "geocoder"], "note": "TGOS cache、OSM exact 與內插在本機完成，不外送地址。" },
+      { "id": "data-evidence", "label": "來源與證據", "focus": ["sources", "catalog", "analysis"], "note": "source、version、coverage、missingness、access 與 limits 留在 receipt。" }
+    ]
+  },
+  "components": [
+    { "id": "user", "type": "external", "label": "使用者", "sublabel": "自然語言問題", "pos": [25, 255], "size": [120, 68] },
+    { "id": "codex", "type": "backend", "label": "Codex + GIS Skill", "sublabel": "路由／語意守門／組合工具", "pos": [185, 240], "size": [165, 98], "tag": "pulse-gis-analyst" },
+    { "id": "jev", "type": "external", "label": "Jev", "sublabel": "OpenRouter choice accelerator", "pos": [190, 45], "size": [155, 76], "tag": "不執行、不授權" },
+    { "id": "mcp", "type": "backend", "label": "pulse-research MCP", "sublabel": "41 個 typed tools", "pos": [420, 230], "size": [170, 110], "tag": "stdio / fail-closed" },
+    { "id": "geocoder", "type": "database", "label": "離線地址庫", "sublabel": "TGOS + OSM + interpolation", "pos": [415, 445], "size": [180, 88], "tag": "local only" },
+    { "id": "gateway", "type": "messagebus", "label": "Research Gateway", "sublabel": "配對／queue／receipt／revision", "pos": [655, 230], "size": [175, 110], "tag": "127.0.0.1" },
+    { "id": "browser", "type": "frontend", "label": "Mini Taiwan Pulse", "sublabel": "圖層、相機、時間、readback", "pos": [895, 230], "size": [180, 110], "tag": "paired browser" },
+    { "id": "catalog", "type": "database", "label": "Dataset / Layer 契約", "sublabel": "descriptor、access、schema、limits", "pos": [745, 35], "size": [200, 96], "tag": "SSOT" },
+    { "id": "analysis", "type": "backend", "label": "Analysis Session", "sublabel": "aggregate、spatial、join、series", "pos": [825, 440], "size": [205, 102], "tag": "resultId / session-local" },
+    { "id": "sources", "type": "cloud", "label": "資料來源", "sublabel": "GeoJSON／PMTiles／RPC／snapshot", "pos": [1015, 35], "size": [190, 90], "tag": "public + owner-only" }
+  ],
+  "connections": [
+    { "id": "ask", "from": "user", "to": "codex", "label": "問題／意圖", "variant": "emphasis", "labelAt": [165, 222] },
+    { "id": "route", "from": "codex", "to": "jev", "label": "開放式問題最多一次", "variant": "dashed", "labelDx": -80 },
+    { "id": "candidate", "from": "jev", "to": "mcp", "label": "候選 capability", "variant": "dashed", "labelAt": [385, 140] },
+    { "id": "typed-tools", "from": "codex", "to": "mcp", "label": "typed tools", "variant": "emphasis", "labelAt": [385, 368] },
+    { "id": "local-geocode", "from": "mcp", "to": "geocoder", "label": "地址留在本機", "variant": "security", "labelAt": [520, 400] },
+    { "id": "relay", "from": "mcp", "to": "gateway", "label": "bounded request + receipt", "variant": "emphasis", "labelAt": [622, 212] },
+    { "id": "paired", "from": "gateway", "to": "browser", "label": "paired session + revision", "variant": "security", "labelAt": [862, 368] },
+    { "id": "contracts", "from": "browser", "to": "catalog", "label": "search / describe / access", "fromSide": "top", "toSide": "bottom", "labelAt": [930, 185] },
+    { "id": "calculate", "from": "browser", "to": "analysis", "label": "resultId", "fromSide": "bottom", "toSide": "top", "labelAt": [985, 392] },
+    { "id": "read-source", "from": "catalog", "to": "sources", "label": "授權與版本守門", "variant": "dashed", "labelAt": [980, 18] },
+    { "id": "receipt", "from": "sources", "to": "analysis", "label": "source receipt", "fromSide": "bottom", "toSide": "right", "labelAt": [1120, 390] }
+  ]
+}

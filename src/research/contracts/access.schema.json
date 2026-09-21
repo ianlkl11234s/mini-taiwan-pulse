@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts.mini-taiwan-pulse.local/pulse-access/0.1/access.schema.json",
+  "title": "Pulse dataset access descriptor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mode", "method", "discovery", "query", "limits", "authorization"],
+  "properties": {
+    "mode": { "enum": ["public", "owner_only"] },
+    "method": { "enum": ["static_asset", "pmtiles_sidecar", "rpc", "statistics_snapshot", "owner_range", "local_asset"] },
+    "discovery": {
+      "type": "object", "additionalProperties": false, "required": ["search", "describe"],
+      "properties": { "search": { "type": "boolean" }, "describe": { "type": "boolean" } }
+    },
+    "query": {
+      "type": "object", "additionalProperties": false, "required": ["enabled", "fields", "filters", "supportsCursor", "supportsBbox", "timeFields"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "fields": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,79}$" } },
+        "filters": { "type": "array", "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,79}$" } },
+        "supportsCursor": { "type": "boolean" },
+        "supportsBbox": { "type": "boolean" },
+        "timeFields": { "type": "array", "maxItems": 10, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]{0,79}$" } }
+      }
+    },
+    "limits": {
+      "type": "object", "additionalProperties": false, "required": ["maxRowsPerQuery", "maxScanRows", "maxResponseBytes", "maxSourceBytes", "timeoutMs"],
+      "properties": {
+        "maxRowsPerQuery": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "maxScanRows": { "type": "integer", "minimum": 1, "maximum": 100000 },
+        "maxResponseBytes": { "type": "integer", "minimum": 1, "maximum": 1048576 },
+        "maxSourceBytes": { "type": ["integer", "null"], "minimum": 1 },
+        "timeoutMs": { "type": "integer", "minimum": 100, "maximum": 60000 }
+      }
+    },
+    "authorization": {
+      "type": "object", "additionalProperties": false, "required": ["recheckOnEachOperation", "revokeImmediately"],
+      "properties": { "recheckOnEachOperation": { "const": true }, "revokeImmediately": { "const": true } }
+    }
+  }
+}

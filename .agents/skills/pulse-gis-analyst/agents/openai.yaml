@@ -1,0 +1,7 @@
+interface:
+  display_name: "Pulse GIS 分析師"
+  short_description: "路由 Pulse 工具並執行有來源、有邊界的 GIS 分析"
+  default_prompt: "請使用 $pulse-gis-analyst，找出能回答問題的資料，完成最小可驗證分析並保留來源與限制。"
+
+policy:
+  allow_implicit_invocation: true
