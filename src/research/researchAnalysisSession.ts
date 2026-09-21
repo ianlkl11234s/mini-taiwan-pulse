@@ -6,8 +6,81 @@ import { queryRecordsDetailed } from "./researchDatasets";
 import { describeDataset, ensureDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
-export type AnalysisQueryOperation = "compare_neighborhoods" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
+export type AnalysisQueryOperation = "compare_neighborhoods" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation">;
+
+/**
+ * Presentation is a collection, rather than a domain-specific single result.
+ * These are deliberately finite browser budgets, not a statement about how
+ * many results an analysis session can retain or how many records exist at the
+ * source.
+ */
+export const RESULT_COLLECTION_LIMITS = {
+  // BrowserMemoryResultStore keeps at most eight session-local results.
+  maxLogicalResults: 8,
+  maxFeatures: 10_000,
+  maxVertices: 100_000,
+  maxBytes: 8 * 1024 * 1024,
+} as const;
+
+type Position = [number, number];
+type SupportedPresentationGeometry = "Point" | "Polygon" | "MultiPolygon";
+
+function isPosition(value: unknown): value is Position {
+  return Array.isArray(value) && value.length === 2 && value.every(part => typeof part === "number" && Number.isFinite(part));
+}
+
+function samePosition(left: Position, right: Position): boolean { return left[0] === right[0] && left[1] === right[1]; }
+
+function polygonPositions(value: unknown): Position[] | null {
+  if (!Array.isArray(value) || !value.length) return null;
+  const positions: Position[] = [];
+  for (const ring of value) {
+    if (!Array.isArray(ring) || ring.length < 4 || !ring.every(isPosition) || !samePosition(ring[0]!, ring[ring.length - 1]!)) return null;
+    positions.push(...ring);
+  }
+  return positions;
+}
+
+function geometryPositions(value: unknown, expectedType: SupportedPresentationGeometry): Position[] | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const geometry = value as { type?: unknown; coordinates?: unknown };
+  if (geometry.type !== expectedType) return null;
+  if (expectedType === "Point") return isPosition(geometry.coordinates) ? [geometry.coordinates] : null;
+  if (expectedType === "Polygon") return polygonPositions(geometry.coordinates);
+  if (!Array.isArray(geometry.coordinates) || !geometry.coordinates.length) return null;
+  const positions: Position[] = [];
+  for (const polygon of geometry.coordinates) {
+    const polygonVertices = polygonPositions(polygon);
+    if (!polygonVertices) return null;
+    positions.push(...polygonVertices);
+  }
+  return positions;
+}
+
+export function presentationMetrics(rows: readonly Record<string, unknown>[], type: SupportedPresentationGeometry): { featureCount: number; vertexCount: number; bytes: number; positions: Position[] } {
+  const positions: Position[] = [];
+  for (const row of rows) {
+    const vertices = geometryPositions(row.geometry, type);
+    if (!vertices) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
+    positions.push(...vertices);
+  }
+  return { featureCount: rows.length, vertexCount: positions.length, bytes: new TextEncoder().encode(JSON.stringify(rows)).byteLength, positions };
+}
+
+export function assertResultCollectionBudget(metrics: readonly Pick<ReturnType<typeof presentationMetrics>, "featureCount" | "vertexCount" | "bytes">[]): void {
+  const featureCount = metrics.reduce((count, metric) => count + metric.featureCount, 0);
+  const vertexCount = metrics.reduce((count, metric) => count + metric.vertexCount, 0);
+  const bytes = metrics.reduce((count, metric) => count + metric.bytes, 0);
+  if (featureCount > RESULT_COLLECTION_LIMITS.maxFeatures) throw new Error("RESULT_COLLECTION_FEATURE_LIMIT");
+  if (vertexCount > RESULT_COLLECTION_LIMITS.maxVertices) throw new Error("RESULT_COLLECTION_VERTEX_LIMIT");
+  if (bytes > RESULT_COLLECTION_LIMITS.maxBytes) throw new Error("RESULT_COLLECTION_BYTE_LIMIT");
+}
+
+function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
+  if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible;
+  return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "generalized");
+}
 
 function integer(value: unknown, fallback: number, min: number, max: number): number {
   const result = value === undefined ? fallback : value;
@@ -113,14 +186,20 @@ export class ResearchAnalysisSession {
     if (operation === "get_record_evidence") return this.operations.recordEvidence(id(args.resultId), integer(args.recordIndex, 0, 0, 100_000)) as unknown as Record<string, unknown>;
     let result: AnalysisResult;
     if (operation === "spatial_query") {
-      const center = args.center;
-      if (!Array.isArray(center) || center.length !== 2 || !center.every(part => typeof part === "number" && Number.isFinite(part))) throw new Error("INVALID_INPUT");
-      const point = { lng: center[0] as number, lat: center[1] as number };
-      result = args.predicate === "nearest"
-        ? this.operations.nearest({ resultId: id(args.resultId), center: point, limit: integer(args.limit, 20, 1, 50) })
-        : args.predicate === "within_distance" && typeof args.radiusM === "number"
-          ? this.operations.withinDistance({ resultId: id(args.resultId), center: point, radiusM: args.radiusM })
-          : (() => { throw new Error("INVALID_INPUT"); })();
+      if (args.predicate === "within" || args.predicate === "intersects") {
+        result = this.operations.spatialJoin({ pointResultId: id(args.pointResultId), areaResultId: id(args.areaResultId), predicate: args.predicate });
+      } else {
+        const center = args.center;
+        if (!Array.isArray(center) || center.length !== 2 || !center.every(part => typeof part === "number" && Number.isFinite(part))) throw new Error("INVALID_INPUT");
+        const point = { lng: center[0] as number, lat: center[1] as number };
+        result = args.predicate === "nearest"
+          ? this.operations.nearest({ resultId: id(args.resultId), center: point, limit: integer(args.limit, 20, 1, 50) })
+          : args.predicate === "within_distance" && typeof args.radiusM === "number"
+            ? this.operations.withinDistance({ resultId: id(args.resultId), center: point, radiusM: args.radiusM })
+            : (() => { throw new Error("INVALID_INPUT"); })();
+      }
+    } else if (operation === "aggregate_by_area") {
+      result = this.operations.aggregateByArea({ pointResultId: id(args.pointResultId), areaResultId: id(args.areaResultId), predicate: args.predicate === "intersects" ? "intersects" : "within", ...(typeof args.outputField === "string" ? { outputField: args.outputField } : {}) });
     } else if (operation === "aggregate_records") {
       result = this.operations.aggregate({ resultId: id(args.resultId), operation: args.operation as Parameters<AnalysisOperations["aggregate"]>[0]["operation"], ...(typeof args.field === "string" ? { field: args.field } : {}), ...(Array.isArray(args.groupBy) ? { groupBy: args.groupBy as string[] } : {}) });
     } else if (operation === "join_records") {
@@ -147,30 +226,27 @@ export class ResearchAnalysisSession {
   hasResult(resultId: string): boolean { return this.store.has(resultId); }
 
   presentable(resultIds: readonly string[]): PresentableResult[] {
-    if (!resultIds.length || resultIds.length > 4 || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
-    return resultIds.map(resultId => {
+    if (!resultIds.length || new Set(resultIds).size !== resultIds.length) throw new Error("INVALID_PRESENTATION_RESULTS");
+    if (resultIds.length > RESULT_COLLECTION_LIMITS.maxLogicalResults) throw new Error("RESULT_COLLECTION_LOGICAL_LIMIT");
+    const prepared = resultIds.map(resultId => {
       this.assertResultAccess(resultId);
       const result = this.store.get(id(resultId)) as StoredDataResult | null;
       if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
-      if (!(result.geometry.type === "Point" && result.geometry.role === "actual" && result.geometry.spatialAnalysisEligible) && !(result.datasetId === "tw-schools-grid-150m" && result.geometry.type === "Polygon" && result.geometry.role === "generalized")) throw new Error("RESULT_NOT_MAP_ELIGIBLE");
-      if (result.rows.length > (result.geometry.type === "Polygon" ? 10_000 : 2_000)) throw new Error("RESULT_PRESENTATION_TOO_LARGE");
-      return { resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry, presentation: result.presentation };
+      if (!isMapEligibleGeometry(result.geometry)) throw new Error("RESULT_NOT_MAP_ELIGIBLE");
+      const metrics = presentationMetrics(result.rows, result.geometry.type);
+      return { result, metrics };
     });
+    assertResultCollectionBudget(prepared.map(item => item.metrics));
+    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry, presentation: result.presentation }));
   }
 
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
     const results = this.presentable(resultIds);
-    const points = results.flatMap(result => result.rows.flatMap(row => {
-      const geometry = row.geometry as { type?: string; coordinates?: number[][][] };
-      return geometry?.type === "Polygon" ? (geometry.coordinates?.[0] ?? []).map(coordinates => ({ type: "Point", coordinates })) : [row.geometry];
-    })).filter((geometry): geometry is { type: "Point"; coordinates: [number, number] } => {
-      if (!geometry || typeof geometry !== "object" || Array.isArray(geometry)) return false;
-      const candidate = geometry as { type?: unknown; coordinates?: unknown };
-      return candidate.type === "Point" && Array.isArray(candidate.coordinates) && candidate.coordinates.length === 2 && candidate.coordinates.every(value => typeof value === "number" && Number.isFinite(value));
-    });
-    if (!points.length) throw new Error("RESULT_HAS_NO_MAP_GEOMETRY");
-    const lngs = points.map(point => point.coordinates[0]); const lats = points.map(point => point.coordinates[1]);
-    return { bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)], pointCount: results.filter(result => result.geometry.type === "Point").reduce((n, result) => n + result.rows.length, 0), featureCount: results.reduce((n, result) => n + result.rows.length, 0), vertexCount: points.length };
+    const metrics = results.map(result => presentationMetrics(result.rows, result.geometry.type as SupportedPresentationGeometry));
+    const positions = metrics.flatMap(metric => metric.positions);
+    if (!positions.length) throw new Error("RESULT_HAS_NO_MAP_GEOMETRY");
+    const lngs = positions.map(position => position[0]); const lats = positions.map(position => position[1]);
+    return { bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)], pointCount: results.filter(result => result.geometry.type === "Point").reduce((n, result) => n + result.rows.length, 0), featureCount: metrics.reduce((n, metric) => n + metric.featureCount, 0), vertexCount: metrics.reduce((n, metric) => n + metric.vertexCount, 0) };
   }
 
   private getPage(resultId: string, offset?: unknown, limit?: unknown): Record<string, unknown> {

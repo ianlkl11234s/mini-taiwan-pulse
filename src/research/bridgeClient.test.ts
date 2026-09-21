@@ -39,8 +39,8 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...resume, snapshot: { ...state, tabId: "other" } }))).browserStatus("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
-  it("accepts the bounded layer-statistics query operations", async () => {
-    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records"]) {
+  it("accepts bounded layer, spatial, and network query operations", async () => {
+    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone"]) {
       const query = { request: { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 } };
       await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(query))).query("study-1", "tab-1")).resolves.toEqual(query);
     }
@@ -63,11 +63,11 @@ describe("BridgeClient", () => {
   });
 
   it("accepts only bounded unique session result references for presentation", async () => {
-    for (const results of [null, { resultIds: ["analysis-nearest-1"] }, { resultIds: ["result-1", "result-2", "result-3", "result-4"] }]) {
+    for (const results of [null, { resultIds: ["analysis-nearest-1"] }, { resultIds: Array.from({ length: 8 }, (_, index) => `result-${index + 1}`) }]) {
       const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
       await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { results } });
     }
-    for (const results of [{ resultIds: [] }, { resultIds: ["same", "same"] }, { resultIds: ["1", "2", "3", "4", "5"] }]) {
+    for (const results of [{ resultIds: [] }, { resultIds: ["same", "same"] }, { resultIds: Array.from({ length: 9 }, (_, index) => String(index + 1)) }]) {
       const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
       await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
     }

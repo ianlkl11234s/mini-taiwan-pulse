@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearNearbyDataCache } from "../nearbyData";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
-import { describeDataset, queryRecords, searchDatasets } from "../researchDatasets";
+import { describeDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
+import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 
 afterEach(() => {
@@ -29,8 +30,9 @@ describe("built-in research datasets", () => {
     }
   });
 
-  it("discovers the three pilot families with explicit geometry and null semantics", () => {
-    expect(searchDatasets("").datasets.map(item => item.datasetId)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries", "urban_zoning_taipei", "allen_coral_atlas"]);
+  it("discovers the pilot families and compiled statistics with explicit geometry and null semantics", () => {
+    expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 6)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
+    expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
   });

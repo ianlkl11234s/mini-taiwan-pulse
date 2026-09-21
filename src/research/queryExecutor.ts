@@ -145,7 +145,10 @@ export class QueryExecutor {
   register(adapter: QueryAdapter): void {
     assertDatasetDescriptor(adapter.descriptor);
     if (this.adapters.has(adapter.descriptor.datasetId)) throw new Error("DUPLICATE_DATASET_ID");
-    if (this.adapters.size >= 14) {
+    // Built-in adapter families may be numerous (for example one descriptor
+    // per statistics recipe).  Only transient manifest-derived readers are
+    // bounded and evicted; fixed compiled adapters remain registered.
+    if ([...this.adapters.keys()].filter(key => key.startsWith("layer:")).length >= 8) {
       const oldest = [...this.adapters.keys()].find(key => key.startsWith("layer:"));
       if (!oldest) throw new Error("DATASET_REGISTRY_LIMIT");
       this.adapters.delete(oldest); // Stored results retain their own rows and receipts.

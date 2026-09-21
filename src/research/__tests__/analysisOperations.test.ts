@@ -10,6 +10,13 @@ function pointResult(id = "points"): StoredDataResult {
     { code: "C", population: 30, city: "K", geometry: { type: "Point", coordinates: [120.3, 22.6] } },
   ] };
 }
+function areaResult(id = "areas"): StoredDataResult {
+  return { resultId: id, datasetId: "tw-admin-boundaries", recordGrain: "feature", geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true }, sourceRefs: source, coverage: "fixture boundaries v1", freshness: "current", units: {}, rows: [
+    { area_code: "A", geometry: { type: "Polygon", coordinates: [[[121.4, 24.9], [121.55, 24.9], [121.55, 25.05], [121.4, 25.05], [121.4, 24.9]]] } },
+    { area_code: "B", geometry: { type: "MultiPolygon", coordinates: [[[[121.55, 25.05], [121.7, 25.05], [121.7, 25.2], [121.55, 25.2], [121.55, 25.05]]]] } },
+    { area_code: "EMPTY", geometry: { type: "Polygon", coordinates: [[[120, 24], [120.1, 24], [120.1, 24.1], [120, 24.1], [120, 24]]] } },
+  ] };
+}
 function setup(...results: StoredDataResult[]) {
   const store = new BrowserMemoryResultStore<StoredDataResult>();
   results.forEach(result => store.put(result));
@@ -34,6 +41,39 @@ describe("AnalysisOperations", () => {
     expect(operations.nearest({ resultId: "points", center: { lng: 121.5, lat: 25 }, limit: 2 }).rows.map(row => row.code)).toEqual(["A", "B"]);
     const { operations: proxyOps } = setup({ ...pointResult("proxy"), geometry: { type: "Point", role: "proxy", spatialAnalysisEligible: false } });
     expect(() => proxyOps.nearest({ resultId: "proxy", center: { lng: 121.5, lat: 25 } })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+  });
+
+  it("spatially joins actual points to versioned polygon results", () => {
+    const { operations } = setup(pointResult(), areaResult());
+    const joined = operations.spatialJoin({ pointResultId: "points", areaResultId: "areas", predicate: "within" });
+    expect(joined.rows).toEqual([
+      expect.objectContaining({ code: "A", matched_area: expect.objectContaining({ area_code: "A" }) }),
+      expect.objectContaining({ code: "B", matched_area: expect.objectContaining({ area_code: "B" }) }),
+    ]);
+    expect(joined.geometry).toMatchObject({ type: "Point", role: "actual" });
+    expect(joined.summary).toMatchObject({ matchedPoints: 2, unmatchedPoints: 1, multipleMatches: 0, outputRows: 2 });
+    expect(joined.method).toMatchObject({ predicate: "within", boundaryRule: "boundary_excluded" });
+  });
+
+  it("aggregates point records by area without turning source absence into real-world zero", () => {
+    const { operations } = setup(pointResult(), areaResult());
+    const aggregate = operations.aggregateByArea({ pointResultId: "points", areaResultId: "areas", predicate: "within", outputField: "places" });
+    expect(aggregate.rows).toEqual([
+      expect.objectContaining({ area_code: "A", places: 1 }),
+      expect.objectContaining({ area_code: "B", places: 1 }),
+      expect.objectContaining({ area_code: "EMPTY", places: 0 }),
+    ]);
+    expect(aggregate.geometry).toMatchObject({ type: "MultiPolygon", role: "actual" });
+    expect(aggregate.summary).toMatchObject({ zeroAreas: 1, comparisons: 9 });
+    expect(String(aggregate.summary.zeroMeaning)).toContain("not proof");
+  });
+
+  it("fails closed for ineligible boundaries and excessive spatial comparisons", () => {
+    const ineligible = { ...areaResult("proxy-areas"), geometry: { type: "MultiPolygon" as const, role: "generalized" as const, spatialAnalysisEligible: false } };
+    expect(() => setup(pointResult(), ineligible).operations.spatialJoin({ pointResultId: "points", areaResultId: "proxy-areas", predicate: "within" })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+    const manyPoints = { ...pointResult("many-points"), rows: Array.from({ length: 10_001 }, (_, index) => ({ geometry: { type: "Point", coordinates: [121.5, 25] }, index })) };
+    const manyAreas = { ...areaResult("many-areas"), rows: Array.from({ length: 1_000 }, () => areaResult().rows[0]!) };
+    expect(() => setup(manyPoints, manyAreas).operations.aggregateByArea({ pointResultId: "many-points", areaResultId: "many-areas", predicate: "within" })).toThrow("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
   });
 
   it("aggregates without converting nulls into zero", () => {

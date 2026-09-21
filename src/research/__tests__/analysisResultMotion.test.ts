@@ -32,6 +32,47 @@ const result: PresentableResult = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("analysis result reveal lifecycle", () => {
+  it("presents more than four independent result layers and reads them all back", () => {
+    const { map, layers } = stubMap();
+    const results = Array.from({ length: 5 }, (_, index) => ({
+      ...result,
+      resultId: `result-${index + 1}`,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5 + index * 0.001, 25] } }],
+    } satisfies PresentableResult));
+    const installed = installAnalysisResults(map, results);
+    expect(installed).toHaveLength(5);
+    expect(layers.size).toBe(5);
+    expect(readAnalysisResultPresentation(map, installed)).toMatchObject({ resultIds: results.map(item => item.resultId), featureCount: 5, ready: true });
+  });
+
+  it("uses geometry rather than dataset id for Polygon and MultiPolygon results", () => {
+    const { map, sources, layers } = stubMap();
+    const polygon = {
+      resultId: "generic-polygon", datasetId: "any-polygon-dataset", geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    const multiPolygon = {
+      resultId: "generic-multipolygon", datasetId: "another-dataset", geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "MultiPolygon", coordinates: [
+        [[[121.7, 25], [121.71, 25], [121.71, 25.01], [121.7, 25.01], [121.7, 25]]],
+        [[[121.72, 25], [121.73, 25], [121.73, 25.01], [121.72, 25.01], [121.72, 25]]],
+      ] } }],
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [polygon, multiPolygon]);
+    expect(layers.get("research-analysis-result-points-0")?.type).toBe("fill");
+    expect(layers.get("research-analysis-result-points-1")?.type).toBe("fill");
+    expect((sources.get("research-analysis-result-1")!.data as { features: Array<{ geometry: { type: string } }> }).features[0]!.geometry.type).toBe("MultiPolygon");
+  });
+
+  it("rejects a collection over its visible-result budget before changing the map", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [result]);
+    const original = sources.get("research-analysis-result-0")!.data;
+    const overBudget = Array.from({ length: 9 }, (_, index) => ({ ...result, resultId: `over-${index}` }));
+    expect(() => installAnalysisResults(map, overBudget)).toThrow("TOO_MANY_PRESENTED_RESULTS");
+    expect(sources.get("research-analysis-result-0")!.data).toBe(original);
+  });
+
   it("starts a new layer transparent, reveals on render, then removes its render listener", () => {
     const { map, layers, listeners, render } = stubMap();
     installAnalysisResults(map, [result], 0.42);

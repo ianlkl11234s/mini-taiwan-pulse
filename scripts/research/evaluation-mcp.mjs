@@ -19,10 +19,10 @@ const expected = [
   'pulse_describe_layer_statistics', 'pulse_summarize_layer',
   'pulse_list_layer_capabilities', 'pulse_search_layer_records',
   'pulse_get_time_context', 'pulse_set_time',
-  'pulse_get_layer_controls', 'pulse_set_layer_control', 'pulse_geocode_address',
+  'pulse_get_layer_controls', 'pulse_set_layer_control', 'pulse_geocode_address', 'pulse_get_provider_capabilities', 'pulse_route_distance', 'pulse_walking_isochrone',
   'pulse_pair_session', 'pulse_get_session', 'pulse_disconnect_session', 'pulse_get_study_state',
   'pulse_search_layers', 'pulse_search_datasets', 'pulse_describe_dataset', 'pulse_query_records',
-  'pulse_plan_data_access', 'pulse_materialize_data', 'pulse_spatial_query', 'pulse_aggregate_records', 'pulse_join_records', 'pulse_calculate_metric',
+  'pulse_plan_data_access', 'pulse_materialize_data', 'pulse_spatial_query', 'pulse_aggregate_by_area', 'pulse_aggregate_records', 'pulse_join_records', 'pulse_calculate_metric',
   'pulse_read_series', 'pulse_compare_series', 'pulse_get_data_quality', 'pulse_get_record_evidence', 'pulse_get_analysis_result', 'pulse_get_result_bounds', 'pulse_list_results', 'pulse_remove_result',
   'pulse_get_layer_details', 'pulse_describe_layer', 'pulse_get_map_context', 'pulse_find_places',
   'pulse_set_layers', 'pulse_set_camera', 'pulse_present_result', 'pulse_fit_bounds', 'pulse_wait_scene_ready', 'pulse_get_query_result',
@@ -44,6 +44,10 @@ try {
   const geocode = await client.callTool({ name: 'pulse_geocode_address', arguments: { query: '臺北市信義區市府路45號' } });
   const geocodeData = geocode.structuredContent?.result?.data;
   if (geocode.isError || geocode.structuredContent?.status !== 'complete' || geocodeData?.status !== 'matched' || geocodeData?.candidates?.[0]?.precision !== 'exact_cache') throw new Error('LOCAL_GEOCODER_MISMATCH');
+  const providerCapabilities = await client.callTool({ name: 'pulse_get_provider_capabilities', arguments: {} });
+  if (providerCapabilities.isError || providerCapabilities.structuredContent?.geocoding?.google?.status !== 'disabled' || providerCapabilities.structuredContent?.walking?.valhalla?.status !== 'hold') throw new Error('PROVIDER_CAPABILITY_MISMATCH');
+  const googleGate = await client.callTool({ name: 'pulse_geocode_address', arguments: { query: '臺北市信義區市府路45號', provider: 'google', externalConsent: true } });
+  if (googleGate.isError || googleGate.structuredContent?.result?.data?.external?.sent !== false || googleGate.structuredContent?.result?.data?.external?.status !== 'disabled') throw new Error('GOOGLE_DISABLED_GATE_MISMATCH');
   for (const name of ['pulse_apply_scene', 'pulse_query_nearby']) {
     let rejected = false;
     try { const result = await client.callTool({ name, arguments: {} }); rejected = result.isError === true; }
@@ -53,10 +57,12 @@ try {
   for (const [name, arguments_] of [
     ['pulse_aggregate_records', { resultId: 'result-1', operation: 'sum' }],
     ['pulse_spatial_query', { resultId: 'result-1', predicate: 'nearest', center: [121.5, 25], radiusM: 10 }],
+    ['pulse_spatial_query', { pointResultId: 'points-1', areaResultId: 'areas-1', predicate: 'contains' }],
+    ['pulse_aggregate_by_area', { pointResultId: 'points-1', areaResultId: 'areas-1', predicate: 'within', sql: 'select *' }],
     ['pulse_calculate_metric', { resultId: 'result-1', operation: 'eval', numeratorField: 'value', denominatorField: 'baseline' }],
   ]) {
     const result = await client.callTool({ name, arguments: arguments_ });
     if (result.isError !== true) throw new Error(`ANALYSIS_NEGATIVE_SCHEMA_MISMATCH ${name}`);
   }
-  console.log(JSON.stringify({ mode: 'typed-analysis', toolCount: names.length, tools: names, jevRouting: route.isError ? 'provider_unavailable' : route.structuredContent, localGeocoder: { status: geocodeData.status, precision: geocodeData.candidates[0].precision, source: geocodeData.candidates[0].source }, negativeSchemasChecked: true, pairedBrowserChecked: false }, null, 2));
+  console.log(JSON.stringify({ mode: 'typed-analysis', toolCount: names.length, tools: names, jevRouting: route.isError ? 'provider_unavailable' : route.structuredContent, localGeocoder: { status: geocodeData.status, precision: geocodeData.candidates[0].precision, source: geocodeData.candidates[0].source }, providerGates: { google: 'disabled_sent_false', valhalla: 'hold' }, negativeSchemasChecked: true, pairedBrowserChecked: false }, null, 2));
 } finally { await client.close(); }

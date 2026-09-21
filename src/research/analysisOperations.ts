@@ -1,5 +1,6 @@
 import type { GeometryRole, RecordGrain, SourceReceipt } from "./dataContracts";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
+import { geometriesIntersect, geometryWithin, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
 
 type Row = Record<string, unknown>;
 type Point = { type: "Point"; coordinates: [number, number] };
@@ -27,7 +28,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series";
+  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;
@@ -40,6 +41,8 @@ export interface KeyJoinInput { leftResultId: string; rightResultId: string; lef
 export interface MetricInput { resultId: string; operation: "ratio" | "difference"; numeratorField: string; denominatorField: string; outputField?: string; unit?: string | null; }
 export interface ReadSeriesInput { resultId: string; timeField: string; resolution: "day" | "week"; operation: "count" | "sum" | "mean"; valueField?: string; }
 export interface CompareSeriesInput { currentResultId: string; baselineResultId: string; operation: "ratio" | "difference"; }
+export interface SpatialJoinInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; }
+export interface AggregateByAreaInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; outputField?: string; }
 
 export interface QualitySummary {
   resultId: string;
@@ -122,6 +125,55 @@ export class AnalysisOperations {
       return { ...row, distanceM: distanceMeters(input.center, geometry) };
     }).sort((a, b) => (a.distanceM as number) - (b.distanceM as number)).slice(0, limit);
     return this.save("nearest", [source], rows, source.recordGrain, source.geometry, { ...source.units, distanceM: "m" }, { center: input.center, limit }, { matched: rows.length, limit });
+  }
+
+  spatialJoin(input: SpatialJoinInput): AnalysisResult {
+    const points = this.data(input.pointResultId); const areas = this.data(input.areaResultId);
+    this.assertActualPoints(points); this.assertActualSurfaces(areas);
+    const pairs = points.rows.length * areas.rows.length;
+    if (pairs > 10_000_000) throw new Error("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
+    const areaRows = areas.rows.map((row, areaIndex) => ({ row, areaIndex, geometry: this.surface(row.geometry) }));
+    const rows: Row[] = []; let unmatchedPoints = 0; let multipleMatches = 0;
+    for (const pointRow of points.rows) {
+      const pointGeometry = this.spatialPoint(pointRow.geometry);
+      const matches = areaRows.filter(area => input.predicate === "within"
+        ? geometryWithin(pointGeometry, area.geometry)
+        : geometriesIntersect(pointGeometry, area.geometry));
+      if (!matches.length) { unmatchedPoints += 1; continue; }
+      if (matches.length > 1) multipleMatches += 1;
+      for (const match of matches) {
+        if (rows.length >= 20_000) throw new Error("SPATIAL_RESULT_BUDGET_EXCEEDED");
+        const { geometry: _areaGeometry, ...areaProperties } = match.row;
+        rows.push({ ...pointRow, matched_area_index: match.areaIndex, matched_area: areaProperties });
+      }
+    }
+    return this.save("spatial_join", [points, areas], rows, points.recordGrain, points.geometry, points.units,
+      { predicate: input.predicate, pointGeometryRole: points.geometry.role, areaGeometryRole: areas.geometry.role, boundaryRule: input.predicate === "within" ? "boundary_excluded" : "boundary_included", maxComparisons: 10_000_000 },
+      { pointRows: points.rows.length, areaRows: areas.rows.length, comparisons: pairs, matchedPoints: points.rows.length - unmatchedPoints, unmatchedPoints, multipleMatches, outputRows: rows.length });
+  }
+
+  aggregateByArea(input: AggregateByAreaInput): AnalysisResult {
+    const points = this.data(input.pointResultId); const areas = this.data(input.areaResultId);
+    this.assertActualPoints(points); this.assertActualSurfaces(areas);
+    const outputField = input.outputField ?? "point_count";
+    if (!validField(outputField)) throw new Error("INVALID_AGGREGATE_FIELD");
+    const pairs = points.rows.length * areas.rows.length;
+    if (pairs > 10_000_000) throw new Error("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
+    const pointRows = points.rows.map(row => this.spatialPoint(row.geometry));
+    let boundaryMatches = 0;
+    const rows = areas.rows.map(areaRow => {
+      const areaGeometry = this.surface(areaRow.geometry);
+      let count = 0;
+      for (const pointGeometry of pointRows) {
+        const matched = input.predicate === "within" ? geometryWithin(pointGeometry, areaGeometry) : geometriesIntersect(pointGeometry, areaGeometry);
+        if (matched) count += 1;
+        if (input.predicate === "intersects" && matched && !geometryWithin(pointGeometry, areaGeometry)) boundaryMatches += 1;
+      }
+      return { ...areaRow, [outputField]: count };
+    });
+    return this.save("aggregate_by_area", [points, areas], rows, areas.recordGrain, areas.geometry, { ...areas.units, [outputField]: "records" },
+      { predicate: input.predicate, outputField, pointGeometryRole: points.geometry.role, areaGeometryRole: areas.geometry.role, boundaryRule: input.predicate === "within" ? "boundary_excluded" : "boundary_included", maxComparisons: 10_000_000 },
+      { pointRows: points.rows.length, areaRows: areas.rows.length, comparisons: pairs, boundaryMatches, zeroAreas: rows.filter(row => row[outputField] === 0).length, zeroMeaning: "No point records from the declared point result matched this boundary; not proof that the real-world service count is zero." });
   }
 
   aggregate(input: AggregateInput): AnalysisResult {
@@ -245,6 +297,19 @@ export class AnalysisOperations {
   }
   private assertActualPoints(result: StoredDataResult): void {
     if (result.geometry.type !== "Point" || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+  }
+  private assertActualSurfaces(result: StoredDataResult): void {
+    if (!["Polygon", "MultiPolygon"].includes(result.geometry.type) || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+  }
+  private spatialPoint(value: unknown): PointGeometry {
+    const geometry = parseSpatialGeometry(value);
+    if (geometry.type !== "Point") throw new Error("INVALID_POINT_GEOMETRY");
+    return geometry;
+  }
+  private surface(value: unknown): SurfaceGeometry {
+    const geometry = parseSpatialGeometry(value);
+    if (geometry.type === "Point") throw new Error("INVALID_SURFACE_GEOMETRY");
+    return geometry;
   }
   private index(rows: readonly Row[], field: string): { index: Map<string, Row[]>; missingKeys: number } {
     const index = new Map<string, Row[]>();

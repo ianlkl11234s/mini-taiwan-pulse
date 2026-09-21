@@ -10,6 +10,7 @@ import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type D
 import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
+import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 
@@ -224,7 +225,15 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
   };
 });
 
-export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter, schoolsGridAdapter, librariesAdapter]);
+export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
+  schoolsAdapter,
+  medicalHospitalsAdapter,
+  newsAdapter,
+  statisticsAdapter,
+  schoolsGridAdapter,
+  librariesAdapter,
+  ...createSocialStatisticsAdapters(),
+]);
 
 function allDescriptors(): DatasetDescriptor[] {
   const descriptors = [...RESEARCH_QUERY_EXECUTOR.descriptors(), ...discoveryOnlyDescriptors];
