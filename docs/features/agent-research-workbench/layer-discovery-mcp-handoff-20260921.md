@@ -292,7 +292,7 @@ PULSE_RESEARCH_GATEWAY_ENTRY=/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工�
 - `fit_bounds` 不再比對 implementation-dependent camera，改驗證四個 bounds 角點是否落在扣除側欄、timeline 與 padding 後的 safe viewport。
 - live receipts：`set_camera` command `728a9d82-c4ad-4747-80fb-714c9b34927e` ready at revision 2；`fit_bounds` command `1c5d1cc7-7cc8-4616-a75c-7bde429b6c77` ready at revision 4。Browser DOM 最終讀回 `25.0231, 121.5646 z11.1`，console 無 error／warn。
 
-Result overlay working-tree 進度：
+Result overlay 完成進度：
 
 - Mini 已用 session-local `resultId` 產生 bounded transient GeoJSON source/layer，支援 Point 與已註冊的學校格網 Polygon、opacity、popup、style reload、過期／撤銷／清除。
 - MCP 已新增 `pulse_present_result`；只接受 0–4 個唯一 session result IDs，不接受任意 GeoJSON 或 style。
@@ -374,7 +374,7 @@ Result overlay working-tree 進度：
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：descriptor、analysis、Skill、transient result overlay、Gateway contract | done：camera baseline＋overlay local commits | N/A | done：camera／bounds；result overlay focused＋cross-repo contract | not run | not run | local only | done：camera／bounds／highlight readback；live clear／expiry／revoke pending |
+| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：descriptor、analysis、Skill、transient result overlay、Gateway contract | done：camera baseline＋overlay `7888f37a` | N/A | done：camera／bounds；result overlay focused＋cross-repo contract | not run | not run | local only | done：camera／bounds／highlight readback；live clear／expiry／revoke pending |
 | Research Gateway | N/A | done：bounded results refs、clear、revision/session relay | done：local commit `05f6ecb` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | highlight readback done；live clear pending |
 | pulse-research MCP | done：tsc／dist | done：42 tools | done：camera baseline＋present tool `ffe1d25` | N/A | done：real stdio／47 tests；Gateway command contract pass | not run | not run | N/A | paired highlight readback done |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
@@ -386,7 +386,7 @@ Result overlay working-tree 進度：
 
 - 不得 reset、clean、stash 或 amend。
 - 不得代為提交其他 worktree／session 的改動。
-- 兩個 repo 分開 commit，使用 exact-path staging。
+- 三個 repo 分開 commit，使用 exact-path staging。
 - 後續整合只能使用普通 merge commit；禁止 squash、rebase merge 或改寫歷史。
 - push、PR、merge、deploy 仍需另外授權。
 
