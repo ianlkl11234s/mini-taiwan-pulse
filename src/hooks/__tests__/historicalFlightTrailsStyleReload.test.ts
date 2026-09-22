@@ -182,6 +182,28 @@ describe("useHistoricalFlightTrailsLayer style diff recovery", () => {
     expect(state.setLayoutProperty).toHaveBeenCalledWith(lineId, "visibility", "none");
     expect(state.layers.has(lineId)).toBe(true);
 
+    state.setStyleLoaded(true);
+    state.emit("idle");
+    expect(state.layers.has(lineId)).toBe(false);
+  });
+
+  it("restores a hidden custom layer when re-enabled after the style becomes idle", async () => {
+    loader.manifest.mockResolvedValue(manifest);
+    loader.asset.mockResolvedValue(collection);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    const render = (visible: boolean) => {
+      reactHarness.beginRender();
+      useHistoricalFlightTrailsLayer(mapRef, visible, "TW", {
+        airport: "RCTP", date: "2026-03-10", opacity: 0.8, width: 1.5, direction: "arrival", routeScope: "cross_border",
+      });
+    };
+
+    render(true);
+    await flush();
+    render(true);
+    state.setStyleLoaded(false);
+    render(false);
     render(true);
     expect(state.setLayoutProperty).not.toHaveBeenLastCalledWith(lineId, "visibility", "visible");
 
