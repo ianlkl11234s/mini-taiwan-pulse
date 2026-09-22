@@ -152,7 +152,11 @@ export function compareRegions(source: StoredDataResult, input: CompareRegionsIn
     compatibleDenominator(numerator.contract, denominator.contract);
     if ([...denominator.rows.values()].some(row => row.status === "observed" && row.value! < 0)) throw new Error("REGION_COMPARISON_INVALID_POPULATION_VALUE");
   }
-  const allGeometryEligible = source.geometry.role === "actual" && source.geometry.spatialAnalysisEligible && selected.every(row => row.geometry !== null);
+  // Administrative value comparisons do not run topology. Retain display
+  // polygons without upgrading generalized geometry to analytical eligibility.
+  const allGeometryRetained = ["Polygon", "MultiPolygon"].includes(source.geometry.type)
+    && (source.geometry.role === "generalized" || source.geometry.role === "actual" && source.geometry.spatialAnalysisEligible)
+    && selected.every(row => row.geometry !== null);
   const rows = selected.map(row => {
     const comparison = compareStatus(row, baseline);
     const denominatorRow = denominator?.rows.get(row.areaCode);
@@ -173,15 +177,15 @@ export function compareRegions(source: StoredDataResult, input: CompareRegionsIn
       absoluteDifference: row.status === "observed" && baseline.status === "observed" ? row.value! - baseline.value! : null,
       ratio: comparison === "valid" ? row.value! / baseline.value! : null,
       comparison_status: comparison, normalizedValue, normalization_status: normalizationStatus,
-      ...(allGeometryEligible ? { geometry: row.geometry! } : {}),
+      ...(allGeometryRetained ? { geometry: row.geometry! } : {}),
     };
   });
   const byStatus = (status: string, field: "status" | "comparison_status" | "normalization_status") => rows.filter(row => row[field] === status).length;
   return {
     rows,
     method: { operation: "compare_regions", sourceContract: numerator.contract, baselineAreaCode: input.baselineAreaCode, areaCodes: codes, comparison: "absolute_difference_and_ratio_to_baseline", normalization: denominator ? { denominatorContract: denominator.contract, per, formula: "value / population * per" } : null, noAggregation: true, noAreaInterpolation: true },
-    summary: { areasRequested: codes.length, observed: byStatus("observed", "status"), missing: byStatus("missing", "status"), suppressed: byStatus("suppressed", "status"), comparable: byStatus("valid", "comparison_status"), normalized: byStatus("valid", "normalization_status"), geometriesRetained: allGeometryEligible ? rows.length : 0 },
+    summary: { areasRequested: codes.length, observed: byStatus("observed", "status"), missing: byStatus("missing", "status"), suppressed: byStatus("suppressed", "status"), comparable: byStatus("valid", "comparison_status"), normalized: byStatus("valid", "normalization_status"), geometriesRetained: allGeometryRetained ? rows.length : 0 },
     units: { value: numerator.contract.unit, absoluteDifference: numerator.contract.unit, ratio: "ratio", normalizedValue: denominator ? `${numerator.contract.unit} per ${per} persons` : null },
-    geometry: allGeometryEligible ? source.geometry : { type: "none", role: "none", spatialAnalysisEligible: false },
+    geometry: allGeometryRetained ? source.geometry : { type: "none", role: "none", spatialAnalysisEligible: false },
   };
 }

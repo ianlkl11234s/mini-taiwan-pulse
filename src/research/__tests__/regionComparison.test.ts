@@ -30,6 +30,14 @@ describe("compareRegions", () => {
     expect(output.geometry).toMatchObject({ role: "actual", spatialAnalysisEligible: true });
   });
 
+  it("compares values and retains display polygons without granting topology eligibility", () => {
+    const source = result(rows({ A04: 20, A05: 10 }), { geometry: { type: "MultiPolygon", role: "generalized", spatialAnalysisEligible: false } });
+    const output = compareRegions(source, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05" });
+    expect(output.rows[0]).toMatchObject({ value: 20, absoluteDifference: 10, geometry: expect.any(Object) });
+    expect(output.geometry).toEqual(source.geometry);
+    expect(output.summary.geometriesRetained).toBe(2);
+  });
+
   it("A05 calculates per-10,000 only from an explicitly allowlisted population denominator", () => {
     const numerator = result(rows({ A04: 20, A05: 10 }));
     const denominator = result(rows({ A04: 10_000, A05: 5_000 }, {

@@ -48,7 +48,7 @@ describe("social statistics dataset compiler", () => {
     const descriptors = executor.descriptors();
     expect(descriptors).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
     expect(new Set(descriptors.map(item => item.datasetId)).size).toBe(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
-    expect(descriptors.every(item => item.datasetId.startsWith("regional-statistics:") && item.access.query.enabled && item.geometry.type === "MultiPolygon" && item.geometry.crs === "EPSG:4326" && item.geometry.role === "actual" && item.geometry.spatialAnalysisEligible)).toBe(true);
+    expect(descriptors.every(item => item.datasetId.startsWith("regional-statistics:") && item.access.query.enabled && item.geometry.type === "MultiPolygon" && item.geometry.crs === "EPSG:4326" && item.geometry.role === "generalized" && !item.geometry.spatialAnalysisEligible)).toBe(true);
     expect(descriptors.every(item => item.access.limits.maxResponseBytes === 1024 * 1024)).toBe(true);
     expect(descriptors.every(item => item.versions.length > 0 && item.fields.find(field => field.name === "value")?.unit)).toBe(true);
     expect(descriptors.every(item => item.parameters?.[0]?.name === "releaseId" && item.parameters[0].required && item.parameters[0].options?.length === item.versions.length)).toBe(true);

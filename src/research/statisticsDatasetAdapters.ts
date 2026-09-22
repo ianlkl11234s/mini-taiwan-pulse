@@ -56,9 +56,9 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       { name: "inputs", type: "json", nullable: true, nullMeaning: "來源未提供組成輸入或衍生值明細。", unit: null },
     ],
     geometry: {
-      type: "MultiPolygon", crs: "EPSG:4326", role: "actual",
-      precision: recipe.boundary_semantics ?? "同版 immutable 行政邊界，依 area_code 精確 join；Polygon 正規化為單一 part 的 MultiPolygon。",
-      spatialAnalysisEligible: true,
+      type: "MultiPolygon", crs: "EPSG:4326", role: "generalized",
+      precision: `Published display/reference boundary joined by exact area_code, not a raw-precision analysis boundary. County snapshot is generalized relative to the raw MOI geometry; other levels require analytical precision verification. ${recipe.boundary_semantics ?? ""}`,
+      spatialAnalysisEligible: false,
     },
     timeFields: [
       { name: "period_start", role: "period_start", timezone: "Asia/Taipei" },
