@@ -92,3 +92,31 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 既有公開統計 manifest 未提供 standalone population release。醫院每萬人口衍生檔僅涵蓋 159/368 鄉鎮；教育縣市率雖有 22/22，分母依附學年衍生結果，均不能替代獨立人口來源。analytics 本地 population parquet 存在，不等於 R2 發布完成。文件的「現住人口」與「戶籍人口」用詞須回到原始來源 receipt 確認。
 
 下一切片可驗收交付：① canonical 縣市人口快照，含 22 縣市 coverage/status、人口口徑、觀測日期、immutable boundary SHA 與來源；② local preview 與公開發布狀態分列；③ reader 只接已符合契約的 snapshot；④ 明確測試年度分子搭年底人口的對齊規則，不放寬成只比較年份。現有 strict period/boundary 守門保留，尚未宣告任意 per-capita 分析完成。
+
+## 已啟動的過夜執行：2026-09-22 至 2026-09-23
+
+使用者明確授權將原估 1–2 週範圍排入今晚依序推進，完整驗證及原子 commit；不承諾以時間取代品質。目標截止 2026-09-23 08:00 Asia/Taipei：停止新增範圍，完成在手安全檢查，產出晨間報告並停用本次 heartbeat。若晚於截止才恢復，先交接並停用，不補開全天工作。
+
+### 順序與驗收
+
+| Gate | 工作 | 放行條件 | 初始狀態 |
+|---|---|---|---|
+| N01 | 全圖層能力清單；人口／設施／統計／事件優先 | 可重跑生成；區分 discovery、reader、operation、unknown；不固定宣稱728 | 執行中：Luna overnight_inventory |
+| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 執行中：Terra population_slice |
+| N03 | 補一項共用線面操作，接現有typed分析入口 | 穿越/holes/multipart/邊界/無效幾何正反例；獨立預期值；完整transport/browser | 執行中：Terra overnight_geometry 負責純函式與tests，主agent接線 |
+| N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | 待N01盤點後選已可讀來源 |
+| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 待N02/N03穩定後執行 |
+| N06 | 依量測做一項資料量/重複工作優化 | 數值/幾何/缺值語意等價；下載bytes/耗時前後對照 | 待N05；無明確瓶頸不亂改 |
+| N07 | 整套回歸、網站驗收、skill/文件與commit | unit/typecheck/build、fresh stdio、Gateway、ready/browser readback分列；原子commit與晨間表 | 每切片執行，最後彙總 |
+
+### 執行與恢復規則
+
+- 工作根 `mini-taiwan-pulse/.worktrees/research-streamline/{mini,mcp,gateway}`；原checkout dirty files禁止改動。跨repo新工作先讀適用規則且隔離，不能直接commit他人的改動。
+- 主agent統一plan與驗收，worker最多3個、Terra/Luna、有界ownership，不同時修改同檔。重啟先查agent/進程/最新commit與本節；不重跑已通過且程式未變的測試。
+- 每關更新狀態、證據檔、測試及commit；需完整鏈的關卡未跑browser就標partial，不能用fixture替代真實來源。
+- 缺來源契約可做本地準備與拒絕測試，但不繞過語意guard、不冒稱發布；同類外部錯誤最多重試2次後轉其他獨立工作。
+- 只允許已授權本地修改與精確path commit；禁止push/merge/deploy、遠端DB/Storage寫入、變更API權限或購買額度。Google只用公開測試地標且逐call consent，不批次付費抓資料；不另啟付費模型API批量工作。
+- 不做全國大型下載或整夜無界壓測。新增下載/產物合计以1GB為上限，超限縮樣本並記錄；單次測試10分鐘無進度先診斷，不盲目堆進程。
+- 最終報告 `docs/features/general-analysis/morning-report-20260923.md`：完成/partial/blocked，固定考題，完整來源能力數，效能與限制，commit清單，下一步3項。未有實測不填時間承諾。
+- 暫存收據 `../runtime/`；不可提交.env、密鑰、私人TGOS cache或Google原始candidate。Google配置由明確 PULSE_RESEARCH_ENV_FILE 載入。
+- 截止後保留用戶預覽與必要服務，不停止其他專案進程；本次heartbeat自動停用。
