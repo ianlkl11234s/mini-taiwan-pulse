@@ -70,6 +70,14 @@ describe("point dataset spatial partitions", () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
+  it("permits the fixed local partition mount while rejecting encoded path escapes", async () => {
+    const data = await fixture(false);
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(data.responses.get(url === "/__local-research-point-partitions/schools/manifest.json" ? "/education/partitions/manifest.json" : url), { headers: { "content-type": "application/geo+json" } })));
+    const config = { datasetId: "schools", url: "/education/schools.geojson", idField: "code", safeFields: ["code"], spatialPartition: { manifestUrl: "/__local-research-point-partitions/schools/manifest.json", manifestSha256: data.manifestSha256, sourceSha256 } };
+    await expect(loadPointDataset(config, { bbox: [130, 30, 131, 31] })).resolves.toMatchObject({ rows: [] });
+    await expect(loadPointDataset({ ...config, spatialPartition: { ...config.spatialPartition, manifestUrl: "/__local-research-point-partitions/%2e%2e/manifest.json" } }, { bbox: [130, 30, 131, 31] })).rejects.toThrow("INVALID_PARTITION_CONFIG");
+  });
+
   it("does not begin a partition request when its signal is already aborted", async () => {
     const data = await fixture(); const fetcher = vi.fn(); vi.stubGlobal("fetch", fetcher);
     const controller = new AbortController(); controller.abort();

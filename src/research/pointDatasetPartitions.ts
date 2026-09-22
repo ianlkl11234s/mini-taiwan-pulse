@@ -40,7 +40,7 @@ function byteLike(value: unknown): value is number { return typeof value === "nu
 function rootPath(value: unknown): value is string {
   if (typeof value !== "string" || !value.startsWith("/") || value.includes("//") || value.includes("?") || value.includes("#")) return false;
   const segments = value.slice(1).split("/");
-  return segments.length > 0 && segments.every(segment => /^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(segment) && segment !== "." && segment !== "..");
+  return segments.length > 0 && segments.every(segment => /^[A-Za-z0-9_][A-Za-z0-9._-]*$/.test(segment) && segment !== "." && segment !== "..");
 }
 
 function validBbox(value: unknown): value is PointBbox {
