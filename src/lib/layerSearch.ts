@@ -117,10 +117,14 @@ function sourceSearchText(key: ManifestKey): string {
 }
 
 /** 建立一次即可重用的 deterministic manifest 搜尋索引。 */
-export function buildLayerSearchIndex(): readonly SearchDocument[] {
+export function buildLayerSearchIndex(options: { includeLocalComparisonRecipes?: boolean } = {}): readonly SearchDocument[] {
+  const includeLocalComparisonRecipes = options.includeLocalComparisonRecipes ?? false;
   // Orphans have no supported sidebar action. Local-only comparison recipes stay out of production.
   // Gated entries remain here; callers with an authorized empty lockedKeys set may search them.
-  return MANIFEST_KEYS.filter((key) => LAYER_MANIFEST[key].section !== null && isDataSourceBrowserVisible(key)).map((key) => {
+  return MANIFEST_KEYS.filter((key) =>
+    LAYER_MANIFEST[key].section !== null
+    && (includeLocalComparisonRecipes || isDataSourceBrowserVisible(key)),
+  ).map((key) => {
     const entry = LAYER_MANIFEST[key];
     const aliases = LAYER_SEARCH_ALIASES[key] ?? [];
     const theme = entry.section?.theme ?? null;
@@ -154,7 +158,9 @@ export function buildLayerSearchIndex(): readonly SearchDocument[] {
   });
 }
 
-export const LAYER_SEARCH_INDEX = buildLayerSearchIndex();
+export const LAYER_SEARCH_INDEX = buildLayerSearchIndex({
+  includeLocalComparisonRecipes: Boolean(import.meta.env?.DEV),
+});
 
 function scoreTerm(doc: SearchDocument, term: string): number {
   if (doc.normalized.key === term || doc.normalized.label === term) return 1000;

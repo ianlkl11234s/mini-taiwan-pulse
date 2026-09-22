@@ -1,11 +1,16 @@
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { createReadStream } from "node:fs";
-import { rm, stat } from "node:fs/promises";
+import { readFile, rm, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
+import { buildLayerSearchIndex } from "./src/lib/layerSearch";
+import {
+  parseLayerScreeningRunPayload,
+  runLayerScreening,
+} from "./scripts/research/jev-layer-screening-run";
 
 // build 後把「只給腳本/文件用、不需上線」的大型靜態檔從 dist 移除。
 // 這些檔放在 public/ 只是被 preprocess/deploy 腳本當輸入或輸出，
@@ -84,6 +89,110 @@ function serveGfwV4CandidateStage(): Plugin {
           response.setHeader("content-type", target.endsWith(".pmtiles") ? "application/octet-stream" : "application/json");
           createReadStream(target, { start, end }).pipe(response);
         }).catch(() => next());
+      });
+    },
+  };
+}
+
+const JEV_RUN_BODY_LIMIT_BYTES = 2_048;
+const LOOPBACK_ADDRESSES = new Set(["127.0.0.1", "::1", "::ffff:127.0.0.1"]);
+
+function isLoopbackRequest(request: { socket: { remoteAddress?: string } }): boolean {
+  return LOOPBACK_ADDRESSES.has(request.socket.remoteAddress ?? "");
+}
+
+function sendJson(response: { statusCode: number; setHeader(name: string, value: string): void; end(body?: string): void }, status: number, body: unknown): void {
+  response.statusCode = status;
+  response.setHeader("content-type", "application/json; charset=utf-8");
+  response.setHeader("cache-control", "private, no-store");
+  response.end(JSON.stringify(body));
+}
+
+async function readBoundedJsonBody(request: AsyncIterable<Uint8Array> & { headers: { [key: string]: string | string[] | undefined } }): Promise<unknown> {
+  const declaredLength = Number(request.headers["content-length"] ?? 0);
+  if (Number.isFinite(declaredLength) && declaredLength > JEV_RUN_BODY_LIMIT_BYTES) throw new Error("REQUEST_TOO_LARGE");
+  const chunks: Buffer[] = [];
+  let total = 0;
+  for await (const chunk of request) {
+    total += chunk.byteLength;
+    if (total > JEV_RUN_BODY_LIMIT_BYTES) throw new Error("REQUEST_TOO_LARGE");
+    chunks.push(Buffer.from(chunk));
+  }
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch {
+    throw new Error("INVALID_JSON");
+  }
+}
+
+/** Dev-only loopback readback and real Jev query bridge. API credentials stay server-side. */
+function serveJevLayerScreeningReceipt(): Plugin {
+  const configuredPath = process.env.PULSE_JEV_SCREENING_RECEIPT;
+  const receiptPath = configuredPath ? resolve(configuredPath) : null;
+  let latestReceipt: unknown = null;
+  let activeRun: Promise<unknown> | null = null;
+  const devScreeningIndex = buildLayerSearchIndex({ includeLocalComparisonRecipes: true });
+  return {
+    name: "serve-jev-layer-screening-receipt",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/api/research/v1/jev/layer-screening/latest", (request, response, next) => {
+        if (!isLoopbackRequest(request) || request.method !== "GET") {
+          response.statusCode = 403;
+          response.end("Local receipt readback only");
+          return;
+        }
+        if (latestReceipt) {
+          sendJson(response, 200, latestReceipt);
+          return;
+        }
+        if (!receiptPath) return next();
+        void readFile(receiptPath, "utf8").then((body) => {
+          response.statusCode = 200;
+          response.setHeader("content-type", "application/json; charset=utf-8");
+          response.setHeader("cache-control", "private, no-store");
+          response.end(body);
+        }).catch(() => {
+          response.statusCode = 404;
+          response.end("Jev screening receipt unavailable");
+        });
+      });
+
+      server.middlewares.use("/api/research/v1/jev/layer-screening/run", (request, response) => {
+        if (!isLoopbackRequest(request)) {
+          sendJson(response, 403, { error: "LOCAL_ONLY" });
+          return;
+        }
+        if (request.method !== "POST") {
+          response.setHeader("allow", "POST");
+          sendJson(response, 405, { error: "METHOD_NOT_ALLOWED" });
+          return;
+        }
+        if (!String(request.headers["content-type"] ?? "").toLowerCase().startsWith("application/json")) {
+          sendJson(response, 415, { error: "JSON_REQUIRED" });
+          return;
+        }
+        if (activeRun) {
+          sendJson(response, 409, { error: "RUN_IN_PROGRESS" });
+          return;
+        }
+
+        const run = readBoundedJsonBody(request)
+          .then(parseLayerScreeningRunPayload)
+          .then(({ query }) => runLayerScreening({ query, index: devScreeningIndex }));
+        activeRun = run;
+        void run.then((receipt) => {
+          latestReceipt = receipt;
+          sendJson(response, 200, receipt);
+        }).catch((error: unknown) => {
+          const message = error instanceof Error ? error.message : "UNKNOWN_ERROR";
+          if (message === "REQUEST_TOO_LARGE") sendJson(response, 413, { error: message });
+          else if (message === "INVALID_JSON" || /query/i.test(message)) sendJson(response, 400, { error: message });
+          else if (message === "OPENROUTER_API_KEY is not configured") sendJson(response, 503, { error: "PROVIDER_NOT_CONFIGURED" });
+          else sendJson(response, 502, { error: "SCREENING_RUN_FAILED" });
+        }).finally(() => {
+          activeRun = null;
+        });
       });
     },
   };
@@ -193,6 +302,7 @@ export default defineConfig({
     serveLocalResearchAssets(),
     serveGfwV4CandidateStage(),
     serveAgriStatisticsPreviewBoundaries(),
+    serveJevLayerScreeningReceipt(),
     stripBuildAssets([
       "jp-heights", // Local height pilot assets are published independently.
       // Owner-local historical flight samples; publish separately only after data-rights acceptance.
@@ -243,6 +353,8 @@ export default defineConfig({
         embed: resolve(process.cwd(), "embed.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
         bbox: resolve(process.cwd(), "bbox.html"),
+        // Isolated metadata-only layer relevance replay; does not mount the main map.
+        "jev-layer-screening": resolve(process.cwd(), "jev-layer-screening.html"),
       },
     },
   },
