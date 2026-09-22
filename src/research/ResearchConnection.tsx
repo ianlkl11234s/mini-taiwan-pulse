@@ -44,6 +44,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const [paused, setPaused] = useState(false);
   const [creating, setCreating] = useState(false);
   const [study, setStudy] = useState<{ studyId: string; tabId: string } | null>(null);
+  const [resumeRevision, setResumeRevision] = useState(0);
   const [message, setMessage] = useState(supabaseConfigured ? "先登入以建立配對。" : "連線服務尚未啟用，可先試用研究畫布。");
   const client = useMemo(() => new BridgeClient(async () => {
     if (!supabaseConfigured) return null;
@@ -87,6 +88,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     const stored = readStoredConnection();
     if (!stored || stored.userId !== session.user.id) { if (stored) clearStoredConnection(); return; }
     let cancelled = false;
+    let retryTimer: number | null = null;
     void (async () => {
       let lease: ConnectionLease | null = null;
       try {
@@ -110,12 +112,17 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         releaseLease(lease);
         if (cancelled || !active.current) return;
         const failure = classifyConnectionFailure(error);
-        if (failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE") clearStoredConnection();
+        const terminal = failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE";
+        if (terminal) clearStoredConnection();
+        else {
+          resumeForUser.current = null;
+          retryTimer = window.setTimeout(() => setResumeRevision(value => value + 1), nextPollDelay(error, 1, isBackgroundDocument()));
+        }
         setOnline(false); setMessage(errorMessage(error));
       }
     })();
-    return () => { cancelled = true; };
-  }, [client, session, study]);
+    return () => { cancelled = true; if (retryTimer !== null) window.clearTimeout(retryTimer); };
+  }, [client, resumeRevision, session, study]);
 
   useEffect(() => {
     if (!pairing || !study || !session) return;
