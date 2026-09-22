@@ -102,10 +102,10 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 | Gate | 工作 | 放行條件 | 初始狀態 |
 |---|---|---|---|
 | N01 | 全圖層能力清單；人口／設施／統計／事件優先 | 可重跑生成；區分 discovery、reader、operation、unknown；不固定宣稱728 | 執行中：Luna overnight_inventory |
-| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 執行中：Terra population_slice |
+| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 來源/22縣市local preview通過，commit f501e3b9；reader與alignment待接 |
 | N03 | 補一項共用線面操作，接現有typed分析入口 | 穿越/holes/multipart/邊界/無效幾何正反例；獨立預期值；完整transport/browser | 執行中：Terra overnight_geometry 負責純函式與tests，主agent接線 |
-| N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | 待N01盤點後選已可讀來源 |
-| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 待N02/N03穩定後執行 |
+| N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | CWA bounded RPC10筆已讀回，選115064；typed context待接 |
+| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 20次診斷成功；因同時改code，正式基線待穩定後重跑 |
 | N06 | 依量測做一項資料量/重複工作優化 | 數值/幾何/缺值語意等價；下載bytes/耗時前後對照 | 待N05；無明確瓶頸不亂改 |
 | N07 | 整套回歸、網站驗收、skill/文件與commit | unit/typecheck/build、fresh stdio、Gateway、ready/browser readback分列；原子commit與晨間表 | 每切片執行，最後彙總 |
 
