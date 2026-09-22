@@ -36,6 +36,26 @@ import "./mainMapConnection.css";
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
+
+export function completedActivityForOperation(operation: string, data: Record<string, unknown>): Activity {
+  const totalMatched = typeof data.totalMatched === "number" ? data.totalMatched : null;
+  const returned = typeof data.returned === "number" ? data.returned : null;
+  if (operation === "search_layers") {
+    if (totalMatched === 0) return { phase: "complete", title: "這次搜尋沒有找到圖層", detail: "可換關鍵字或查看其他主題。" };
+    return { phase: "complete", title: "已找到相關圖層", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `共找到 ${totalMatched} 個候選圖層；本次回傳 ${returned ?? totalMatched} 個。` };
+  }
+  if (operation === "search_datasets") {
+    if (totalMatched === 0) return { phase: "complete", title: "這次搜尋沒有找到資料集", detail: "可換關鍵字或查看其他主題。" };
+    return { phase: "complete", title: "已找到相關資料集", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `共找到 ${totalMatched} 個候選資料集；本次回傳 ${returned ?? totalMatched} 個。` };
+  }
+  if (operation === "query_records") {
+    return { phase: "complete", title: "資料紀錄已回傳", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `完整符合 ${totalMatched} 筆資料紀錄；本次回傳 ${returned ?? totalMatched} 筆。` };
+  }
+  if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: "圖層說明已備妥", detail: "資料已回傳給 Agent，可繼續探索。" };
+  if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: "這一步已完成", detail: `符合 ${totalMatched} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` };
+  return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
+}
+
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -287,9 +307,7 @@ export function MainMapConnection(props: Props) {
       if (!EXPLORATION_OPERATIONS.has(event.request.operation) || !next) return;
       if (event.phase === "started") { setActivity(next); return; }
       if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: analysisErrorMessage(event.result && !event.result.ok ? event.result.error : "UNKNOWN") }); return; }
-      const data = event.result.data;
-      const count = typeof data.totalMatched === "number" ? data.totalMatched : null;
-      setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : event.request.operation === "summarize_layer" ? `符合 ${count} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
+      setActivity(completedActivityForOperation(event.request.operation, event.result.data));
     }, health => {
       const messages = {
         retrying: { phase: "complete" as const, title: "同步稍慢，正在重試", detail: "目前地圖會保留。" },
