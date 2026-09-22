@@ -24,7 +24,7 @@
 | S1b 共用研究範圍 | 回答前列出位置/區域、時間、比較對象、距離定義、指標與分母；資料缺口可讀 | 三類需求共用 scope 契約，經 typed MCP/Gateway/browser；不可比較原因可讀回 | nearby／comparison／walking 證據面板通過；event scope 與完整 budget 契約待補 |
 | S2 周邊交叉分析 | 指定點＋半徑，至少兩種來源＋行政統計；地圖與來源表一致 | A01–A03；人工/獨立 reference 數字吻合；不是 rendered-points count | 固定周邊案例通過；完整失敗情境仍按 A03 補驗 |
 | S3 地區與縣市比較 | 相同指標比較兩區、兩縣市；總數/密度/人口分母明示 | A04–A07；比較前守門、數值及分母 oracle；拒絕把區域統計任意分攤到圓內 | 核心兩區／兩縣市比較通過；A05 自行人口標準化待接線 |
-| S4 事件與背景 | 事件位置/時間交叉人口、設施、環境，區分觀測與推論 | A08–A10；先固定歷史 replay，再 fresh feed；過期/延遲顯示且不推因果 | 待開始 |
+| S4 事件與背景 | 事件位置/時間交叉人口、設施、環境，區分觀測與推論 | A08–A10；先固定歷史 replay，再 fresh feed；過期/延遲顯示且不推因果 | 固定CWA歷史事件＋學校／縣市背景通過；事件時點人口與fresh feed待補 |
 | S5 資料與計算加速 | 同一答案下載更少、計算更少；先處理 S2–S4 量到的瓶頸 | 精確分片＋bbox/index、同版快取；優化前後結果等價、傳輸量及時間對照 | 待開始，可與 S2/S3 量測並行 |
 | S6 Jev 與整題驗收 | 找相關資料、選操作、必要時升級強模型；不再反覆描述全目錄 | A11–A12；已授權候選、未知保留、召回率/誤選/成本/整題時間 A/B | 待開始 |
 
@@ -72,7 +72,7 @@ S1a 不將日/週 event series 當成年統計跨期比較；年度/學年與行
 
 ## 本輪交接
 
-2026-09-22 使用者追加授權執行到 S3，並自行出題驗收；包含現有 local/Google geocoding、Valhalla 步行與淡白操作光暈。沿用既有 provider 與 consent，不新增外部服務或購買額度。語意底座見 [S1a 驗收單](./acceptance-S1a.md)，本輪實作與逐題證據見 [S1b–S3 驗收單](./acceptance-S1b-S3.md)。已做到核心區域比較；下一個切片先補 A05 人口分母的上游獨立快照與口徑契約（目前 HOLD，不能從衍生率反推），再做 reader 接線並量測完整 warm workflow，之後依量測做資料分片。S4 事件分析尚未開始。
+2026-09-22 使用者追加授權執行到 S3，並自行出題驗收；包含現有 local/Google geocoding、Valhalla 步行與淡白操作光暈。沿用既有 provider 與 consent，不新增外部服務或購買額度。語意底座見 [S1a 驗收單](./acceptance-S1a.md)，本輪實作與逐題證據見 [S1b–S3 驗收單](./acceptance-S1b-S3.md)。已做到核心區域比較；下一個切片先補 A05 人口分母的上游獨立快照與口徑契約（目前 HOLD，不能從衍生率反推），再做 reader 接線並量測完整 warm workflow，之後依量測做資料分片。S4已完成固定CWA歷史事件＋周邊學校／縣市背景第一片；人口與fresh feed仍待補。
 
 
 ## S1b–S3 本輪固定考題
@@ -101,11 +101,11 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 
 | Gate | 工作 | 放行條件 | 初始狀態 |
 |---|---|---|---|
-| N01 | 全圖層能力清單；人口／設施／統計／事件優先 | 可重跑生成；區分 discovery、reader、operation、unknown；不固定宣稱728 | 執行中：Luna overnight_inventory |
-| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 來源/22縣市local preview通過，commit f501e3b9；reader與alignment待接 |
-| N03 | 補一項共用線面操作，接現有typed分析入口 | 穿越/holes/multipart/邊界/無效幾何正反例；獨立預期值；完整transport/browser | 執行中：Terra overnight_geometry 負責純函式與tests，主agent接線 |
-| N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | CWA bounded RPC10筆已讀回，選115064；typed context待接 |
-| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 20次診斷成功；因同時改code，正式基線待穩定後重跑 |
+| N01 | 全圖層能力清單；人口／設施／統計／事件優先 | 可重跑生成；區分 discovery、reader、operation、unknown；不固定宣稱728 | 登記盤點完成：778 layers／56 datasets／53 queryable layerrefs；來源健康另驗 |
+| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 來源/22縣市local preview及materializer通過，fb876e87；實測雙北人口比較，browser/分母alignment待接 |
+| N03 | 補一項共用線面操作，接現有typed分析入口 | 穿越/holes/multipart/邊界/無效幾何正反例；獨立預期值；完整transport/browser | bounded TDX線×嘉義市全鏈通過；獨立Shapely一致，見acceptance-N03-N04 |
+| N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | 115064＋10km學校＋臺南市背景全鏈通過；事件時點人口/fresh feed仍partial |
+| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 固定版本20 warm通過，median4399.5ms／p955625ms／max5740ms；不含模型與呈現 |
 | N06 | 依量測做一項資料量/重複工作優化 | 數值/幾何/缺值語意等價；下載bytes/耗時前後對照 | 待N05；無明確瓶頸不亂改 |
 | N07 | 整套回歸、網站驗收、skill/文件與commit | unit/typecheck/build、fresh stdio、Gateway、ready/browser readback分列；原子commit與晨間表 | 每切片執行，最後彙總 |
 

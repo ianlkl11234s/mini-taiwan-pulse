@@ -45,6 +45,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 - 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
 - 地圖中心行政區：讀取同版行政統計面後，用 `spatial_query(predicate="contains_center", areaResultId, center)`；display scope 不能當作 actual Point。邊界線上的點要保留未唯一匹配，不猜行政區。
 - 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
+- 完整線與面相交：`query line/area → spatial_query(predicate="line_intersects", lineResultId, areaResultId)`；只使用 declared actual EPSG:4326 LineString/MultiLineString，保留完整路徑、holes、multipart與邊界接觸。遇計算預算上限先縮小已知source範圍，不可改用端點、中心點或擅自簡化。
+- 固定地震背景：`cwa-earthquake-replay-events` 必填 `parameters.eventId`，震央為實際事件點；周邊設施與行政背景另查。發生時間、資料取得時間與背景年份分開，不把相近設施稱為受災設施；unknown freshness不可宣稱即時。
 - 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
 - 跨資料比較：`describe A/B → query A/B → 相容性檢查 → join_records → calculate_metric`
 - 行政區／縣市同期比較：`query_records → compare_regions(areaCodes, baselineAreaCode)`；工具只比較相同指標、維度、期間、單位、層級與邊界版本。使用原生比率時不要加總；可選人口分母必須有明確人口指標證據，不能以教師/學生等人數冒充人口。缺值、抑制、零分母各自保留，不製造排名。
