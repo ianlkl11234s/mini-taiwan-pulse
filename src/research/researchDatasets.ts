@@ -267,7 +267,31 @@ function datasetAuthorized(descriptor: DatasetDescriptor, locked: ReadonlySet<st
 export function searchDatasets(query: string, offset = 0, limit = 20, locked: ReadonlySet<string> = new Set()) {
   if (!Number.isInteger(offset) || offset < 0 || offset > 10_000 || !Number.isInteger(limit) || limit < 1 || limit > 20) throw new Error("INVALID_INPUT");
   const matched = allDescriptors().filter(descriptor => descriptor.access.discovery.search && datasetAuthorized(descriptor, locked)).map(descriptor => ({ descriptor, score: searchScore(query, `${descriptor.datasetId} ${descriptor.label} ${descriptor.description} ${descriptor.layerRefs.join(" ")}`) })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.descriptor);
-  const datasets = matched.slice(offset, offset + limit);
+  // Discovery is intentionally compact. Full fields, versions, coverage,
+  // provenance and value semantics belong to describe_dataset; returning them
+  // here makes common topic searches exceed the browser relay's bounded result.
+  const datasets = matched.slice(offset, offset + limit).map(descriptor => ({
+    schemaVersion: descriptor.schemaVersion,
+    datasetId: descriptor.datasetId,
+    label: descriptor.label,
+    description: descriptor.description.slice(0, 240),
+    descriptionTruncated: descriptor.description.length > 240,
+    layerRefs: descriptor.layerRefs,
+    kind: descriptor.kind,
+    recordGrain: descriptor.recordGrain,
+    geometry: {
+      type: descriptor.geometry.type,
+      role: descriptor.geometry.role,
+      spatialAnalysisEligible: descriptor.geometry.spatialAnalysisEligible,
+    },
+    access: {
+      mode: descriptor.access.mode,
+      method: descriptor.access.method,
+      queryEnabled: descriptor.access.query.enabled,
+    },
+    supportedOperations: descriptor.supportedOperations,
+    versionCount: descriptor.versions.length,
+  }));
   return { query, offset, limit, totalMatched: matched.length, returned: datasets.length, truncated: offset + datasets.length < matched.length, datasets };
 }
 

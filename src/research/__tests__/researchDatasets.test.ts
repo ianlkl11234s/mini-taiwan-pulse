@@ -32,6 +32,11 @@ describe("built-in research datasets", () => {
 
   it("discovers the pilot families and compiled statistics with explicit geometry and null semantics", () => {
     expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 6)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
+    const schoolSearch = searchDatasets("學校", 0, 20);
+    expect(new TextEncoder().encode(JSON.stringify(schoolSearch)).byteLength).toBeLessThanOrEqual(16 * 1024);
+    expect(schoolSearch.datasets[0]).toMatchObject({ datasetId: expect.any(String), access: { queryEnabled: expect.any(Boolean) }, versionCount: expect.any(Number) });
+    expect(schoolSearch.datasets[0]).not.toHaveProperty("fields");
+    expect(schoolSearch.datasets[0]).not.toHaveProperty("versions");
     expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
