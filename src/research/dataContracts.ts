@@ -1,7 +1,7 @@
 export type DatasetKind = "point" | "event" | "admin_statistic" | "grid" | "polygon";
 export type RecordGrain = "place" | "event" | "admin_statistic" | "grid_cell" | "feature";
 export type ResultGrain = RecordGrain | "aggregate" | "joined" | "metric" | "series";
-export type GeometryRole = "actual" | "proxy" | "centroid" | "generalized" | "none";
+export type GeometryRole = "actual" | "derived" | "proxy" | "centroid" | "generalized" | "none";
 export type FieldType = "string" | "number" | "boolean" | "datetime" | "json";
 export type Scalar = string | number | boolean | null;
 

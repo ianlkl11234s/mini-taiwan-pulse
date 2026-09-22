@@ -76,6 +76,36 @@ describe("research analysis session", () => {
     expect(() => session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 0 })).toThrow("INVALID_DISTANCE_RADIUS");
   });
 
+  it("stores walking contours as independently presentable and spatially eligible derived boundaries", () => {
+    const session = new ResearchAnalysisSession();
+    const receipt = session.storeWalkingIsochrone({
+      status: "READY", operation: "walking_isochrone", provider: "valhalla", mode: "pedestrian", endpointClass: "public_demo", sendsCoordinatesExternally: true,
+      externalConsent: true,
+      request: { center: [121.5, 25], contoursMinutes: [5, 10] },
+      graph: { engineVersion: "3.5.1", tilesetLastModified: "2026-09-20T00:00:00.000Z", osmChangeset: 123, checksumSha256: null, provenanceCompleteness: "provider_status_without_checksum", observedAt: "2026-09-22T00:00:00.000Z" },
+      contours: [
+        { minutes: 10, vertexCount: 5, geometry: { type: "MultiPolygon", coordinates: [[[[121.4, 24.9], [121.6, 24.9], [121.6, 25.1], [121.4, 25.1], [121.4, 24.9]]]] } },
+        { minutes: 5, vertexCount: 5, geometry: { type: "MultiPolygon", coordinates: [[[[121.45, 24.95], [121.55, 24.95], [121.55, 25.05], [121.45, 25.05], [121.45, 24.95]]]] } },
+      ],
+      snapDistanceM: null, unreachable: false, disconnected: null, warnings: ["fixture"], limitations: ["fixture"], guarantees: ["no_haversine_fallback"],
+    });
+    const resultIds = (receipt.result as { resultIds: string[] }).resultIds;
+    expect(resultIds).toHaveLength(2);
+    expect(session.presentable(resultIds)).toEqual([
+      expect.objectContaining({ displayLabel: "步行 10 分鐘", geometry: { type: "MultiPolygon", role: "derived", spatialAnalysisEligible: true } }),
+      expect.objectContaining({ displayLabel: "步行 5 分鐘", geometry: { type: "MultiPolygon", role: "derived", spatialAnalysisEligible: true } }),
+    ]);
+
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    store.put({
+      resultId: "points-for-walk", datasetId: "fixture-points", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ name: "inside", geometry: { type: "Point", coordinates: [121.5, 25] } }, { name: "outside", geometry: { type: "Point", coordinates: [122, 25] } }],
+      sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+    });
+    expect(session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "within", limit: 20 }))
+      .toMatchObject({ totalRows: 1, rows: [expect.objectContaining({ name: "inside" })] });
+  });
+
   it("composes query, spatial, aggregate, quality, paging and removal by resultId", async () => {
     const body = JSON.stringify({ type: "FeatureCollection", features: [
       { type: "Feature", geometry: { type: "Point", coordinates: [121.5, 25] }, properties: { code: "A", school_name: "甲", city: "臺北市" } },

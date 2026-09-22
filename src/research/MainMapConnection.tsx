@@ -28,12 +28,13 @@ import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./research
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForSceneRender } from "./sceneReadiness";
 import { analysisResultLayerIds, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
-import { networkProviderHold } from "./networkProvider";
+import { ValhallaNetworkProvider } from "./networkProvider";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
+const NETWORK_PROVIDER = new ValhallaNetworkProvider();
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -241,8 +242,15 @@ export function MainMapConnection(props: Props) {
           finally { if (locationLookup.current === lookup) locationLookup.current = null; }
           break;
         }
-        case "route_distance": result = networkProviderHold("route_distance", request.args); break;
-        case "walking_isochrone": result = networkProviderHold("walking_isochrone", request.args); break;
+        case "route_distance": result = await NETWORK_PROVIDER.routeDistance(request.args) as unknown as Record<string, unknown>; break;
+        case "walking_isochrone": {
+          const outcome = await NETWORK_PROVIDER.walkingIsochrone(request.args);
+          if (outcome.status === "READY" && "contours" in outcome) {
+            if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+            result = analysis.current.storeWalkingIsochrone(outcome);
+          } else result = outcome as unknown as Record<string, unknown>;
+          break;
+        }
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
         default: {
           if (!analysis.current || !ANALYSIS_OPERATIONS.has(request.operation as AnalysisQueryOperation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");

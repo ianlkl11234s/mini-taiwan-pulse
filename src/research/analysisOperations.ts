@@ -28,7 +28,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "analysis_scope";
+  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "analysis_scope" | "walking_isochrone";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;
@@ -280,7 +280,7 @@ export class AnalysisOperations {
   qualitySummary(resultId: string): QualitySummary {
     const source = this.data(resultId); const nullByField: Record<string, number> = {};
     for (const row of source.rows) for (const [field, value] of Object.entries(row)) if (value === null || value === undefined) nullByField[field] = (nullByField[field] ?? 0) + 1;
-    return { resultId, lineage: source.lineage, rows: source.rows.length, nullByField, geometry: { ...source.geometry }, spatialAnalysisEligible: source.geometry.role === "actual" && source.geometry.spatialAnalysisEligible, freshness: source.freshness, coverage: source.coverage, excludedByReason: { ...(source.excludedByReason ?? {}) }, sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })) };
+    return { resultId, lineage: source.lineage, rows: source.rows.length, nullByField, geometry: { ...source.geometry }, spatialAnalysisEligible: ["actual", "derived"].includes(source.geometry.role) && source.geometry.spatialAnalysisEligible, freshness: source.freshness, coverage: source.coverage, excludedByReason: { ...(source.excludedByReason ?? {}) }, sourceRefs: source.sourceRefs.map(sourceRef => ({ ...sourceRef })) };
   }
 
   recordEvidence(resultId: string, recordIndex: number): RecordEvidence {
@@ -299,7 +299,7 @@ export class AnalysisOperations {
     if (result.geometry.type !== "Point" || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
   private assertActualSurfaces(result: StoredDataResult): void {
-    if (!["Polygon", "MultiPolygon"].includes(result.geometry.type) || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+    if (!["Polygon", "MultiPolygon"].includes(result.geometry.type) || !["actual", "derived"].includes(result.geometry.role) || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
   private spatialPoint(value: unknown): PointGeometry {
     const geometry = parseSpatialGeometry(value);

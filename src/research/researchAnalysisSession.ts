@@ -5,6 +5,7 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { queryRecordsDetailed } from "./researchDatasets";
 import { describeDataset, ensureDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
+import type { WalkingIsochroneExecution } from "./networkProvider";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string };
@@ -79,7 +80,7 @@ export function assertResultCollectionBudget(metrics: readonly Pick<ReturnType<t
 
 function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
   if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible || geometry.role === "generalized" && !geometry.spatialAnalysisEligible;
-  return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "generalized");
+  return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "derived" || geometry.role === "generalized");
 }
 
 function analysisCenter(value: unknown): Position {
@@ -180,6 +181,77 @@ export class ResearchAnalysisSession {
     this.plans.delete(planId);
     const result = await this.queryRecords(plan.input);
     return { planId, materialized: true, result };
+  }
+
+  storeWalkingIsochrone(execution: WalkingIsochroneExecution): Record<string, unknown> {
+    const acquiredAt = execution.graph.observedAt;
+    const sourceRef = {
+      sourceId: "valhalla-public-demo-osm-pedestrian-graph",
+      version: `${execution.graph.engineVersion}@${execution.graph.tilesetLastModified}`,
+      acquiredAt,
+      checksumSha256: execution.graph.checksumSha256,
+      reference: "https://valhalla1.openstreetmap.de/status",
+    } as const;
+    const suffix = Date.now().toString(36);
+    const stored = execution.contours.map((contour, index) => {
+      const result: AnalysisResult = {
+        resultId: `analysis-walking-${contour.minutes}m-${suffix}-${index}`,
+        datasetId: `derived:valhalla-walking-${contour.minutes}m`,
+        rows: [{
+          record_id: `walking-${contour.minutes}m-${suffix}`,
+          label: `步行 ${contour.minutes} 分鐘`,
+          contourMinutes: contour.minutes,
+          geometry: structuredClone(contour.geometry),
+        }],
+        recordGrain: "feature",
+        geometry: { type: "MultiPolygon", role: "derived", spatialAnalysisEligible: true },
+        sourceRefs: [sourceRef],
+        coverage: `Valhalla pedestrian ${contour.minutes}-minute modeled isochrone around ${execution.request.center[0]},${execution.request.center[1]}; only returned routable graph coverage is represented.`,
+        freshness: "unknown",
+        units: { contourMinutes: "min" },
+        excludedByReason: {},
+        lineage: {
+          origin: "external_valhalla_isochrone",
+          provider: execution.provider,
+          endpointClass: execution.endpointClass,
+          sendsCoordinatesExternally: execution.sendsCoordinatesExternally,
+          graph: structuredClone(execution.graph),
+          center: [...execution.request.center],
+          contourMinutes: contour.minutes,
+        },
+        operation: "walking_isochrone",
+        inputResultIds: [],
+        method: {
+          operation: "walking_isochrone",
+          version: "0.1",
+          costing: "pedestrian",
+          graph: structuredClone(execution.graph),
+          providerGeometryType: "MultiPolygon",
+          vertexCount: contour.vertexCount,
+          noHaversineFallback: true,
+        },
+        summary: {
+          featureCount: 1,
+          contourMinutes: contour.minutes,
+          vertexCount: contour.vertexCount,
+          boundaryMeaning: "Modeled pedestrian travel-time boundary from Valhalla over an OpenStreetMap-derived graph.",
+        },
+      };
+      presentationMetrics(result.rows, "MultiPolygon");
+      this.store.put(result);
+      return result;
+    });
+    const { contours: _contours, ...receipt } = execution;
+    return {
+      ...receipt,
+      result: {
+        resultIds: stored.map(result => result.resultId),
+        contours: stored.map((result, index) => ({ resultId: result.resultId, minutes: execution.contours[index]!.minutes, featureCount: 1 })),
+        geometryType: "MultiPolygon",
+        spatialAnalysisEligible: true,
+        persistence: "paired_browser_session_only",
+      },
+    };
   }
 
   execute(operation: AnalysisQueryOperation, args: Record<string, unknown>): Record<string, unknown> {
@@ -328,5 +400,6 @@ function resultDisplayLabel(result: StoredDataResult): string {
   const rowLabel = typeof result.rows[0]?.label === "string" && result.rows[0].label.trim() ? result.rows[0].label.trim() : "分析範圍";
   if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
+  if (result.datasetId.startsWith("derived:valhalla-walking-")) return rowLabel;
   try { return describeDataset(result.datasetId).label; } catch { return result.datasetId; }
 }
