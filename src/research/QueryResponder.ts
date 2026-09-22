@@ -7,6 +7,7 @@ export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "pause
 
 const QUERY_POLL_BASE_MS = 2_000;
 const QUERY_POLL_HIDDEN_MS = 10_000;
+export const MAX_QUERY_RESULT_BYTES = 256 * 1024;
 // 8s retry + the BridgeClient's worst-case 8s request leaves 9s before its 25s wait.
 const QUERY_POLL_MAX_MS = 8_000;
 
@@ -61,7 +62,7 @@ export class QueryResponder {
           const message = error instanceof Error ? error.message : "QUERY_FAILED";
           result = { ok: false, error: /^[A-Z_]{1,64}$/.test(message) ? message : "QUERY_FAILED" };
         }
-        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > 24 * 1024) result = { ok: false, error: "RESULT_TOO_LARGE" };
+        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > MAX_QUERY_RESULT_BYTES) result = { ok: false, error: "RESULT_TOO_LARGE" };
         if (!this.stopped) this.last = { id: request.requestId, result };
       }
       if (!this.stopped && request.expiresAt > Date.now()) {

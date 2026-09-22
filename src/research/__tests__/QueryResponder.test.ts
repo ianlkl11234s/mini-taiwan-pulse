@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { QueryResponder, queryPollDelay } from "../QueryResponder";
+import { MAX_QUERY_RESULT_BYTES, QueryResponder, queryPollDelay } from "../QueryResponder";
 import { BridgeError, type BridgeConnectionContext } from "../bridgeClient";
 const request = { requestId: "query-1", operation: "map_context", args: {}, expiresAt: Date.now() + 30_000 };
 function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onActivity = vi.fn()) {
@@ -53,7 +53,10 @@ describe("QueryResponder", () => {
     execute.mockRejectedValueOnce(new Error("private data in exception"));
     await responder.tick();
     expect(client.queryResult.mock.calls[0]?.[3]).toEqual({ ok: false, error: "QUERY_FAILED" });
-    const second = setup(vi.fn().mockResolvedValue({ large: "x".repeat(25 * 1024) }));
+    const accepted = setup(vi.fn().mockResolvedValue({ large: "x".repeat(64 * 1024) }));
+    await accepted.responder.tick();
+    expect(accepted.client.queryResult.mock.calls[0]?.[3]).toMatchObject({ ok: true });
+    const second = setup(vi.fn().mockResolvedValue({ large: "x".repeat(MAX_QUERY_RESULT_BYTES + 1) }));
     await second.responder.tick();
     expect(second.client.queryResult.mock.calls[0]?.[3]).toEqual({ ok: false, error: "RESULT_TOO_LARGE" });
   });

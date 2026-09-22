@@ -56,6 +56,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 所有 EPSG:4326 center 都必須是數字 tuple `[longitude, latitude]`；不得把 URL、DOM 或 JSON 中讀到的座標字串直接傳給 spatial/map tools。
 
+面資料的 `query_records` 預設應在 `select` 排除 `geometry`，除非使用者明確需要讀取原始座標。瀏覽器儲存的 `resultId` 仍保留完整 materialized geometry，可繼續做 spatial analysis 與地圖呈現；`select` 只縮小傳回 Agent 的 rows。空間 join 的 readback 使用小 `limit`，但計算仍以儲存內的完整 result 為準。點與行政面並用時，優先查詢不內嵌 geometry 的全部面值、將點 spatial join 到面，再依命中的 `area_code` 查一筆可呈現邊界。
+
 完整檢查表與 prohibited claims 見 [語意與安全守門](references/semantic-guardrails.md)。
 
 ## 4. 證據與呈現
@@ -76,6 +78,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 - 同一問題中所有會穿過 Gateway 的 Pulse query tools 必須依序呼叫，禁止平行 dispatch；MCP client queue 是第二層保護。
 - receipt 為 pending 時用 `pulse_get_query_result`，不要重送原查詢。
+- 遇到 `RESULT_TOO_LARGE` 時，先縮小 `select`／readback `limit`，不要只改 display limit 反覆重送；查詢可能已產生並儲存 result，無意義重試會浪費 session 容量。
 - 不為例行 Pulse 分析讀整份專案文件、memory 或通用資料分析 Skill；只有出現具體語意缺口才讀對應 reference。
 - 不為已回答的單一步驟追加圖表或 artifact；但地址／地名空間分析仍依上節完成必要取景。
 - 先回第一個有用且有界的結果；只有使用者要求「全部」才循 cursor/offset 讀完。
