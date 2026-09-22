@@ -53,6 +53,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   }), []);
   const active = useRef(true);
   const resumeForUser = useRef<string | null>(null);
+  const resumeFailures = useRef(0);
   const connectionLease = useRef<ConnectionLease | null>(null);
   const activeSessionStudy = useRef<string | null>(null);
   const callbacks = useRef({ onState, onDisconnect, onConnection, onReady });
@@ -86,7 +87,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     if (!session || resumeForUser.current === session.user.id || study) return;
     resumeForUser.current = session.user.id;
     const stored = readStoredConnection();
-    if (!stored || stored.userId !== session.user.id) { if (stored) clearStoredConnection(); return; }
+    if (!stored || stored.userId !== session.user.id) { resumeFailures.current = 0; if (stored) clearStoredConnection(); return; }
     let cancelled = false;
     let retryTimer: number | null = null;
     void (async () => {
@@ -102,6 +103,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         if (cancelled || !active.current) { releaseLease(lease); return; }
         if (mustClearStoredConnection(result.session)) { releaseLease(lease); clearStoredConnection(); setMessage("本地 Agent 工作階段已到期，請重新建立配對。"); return; }
         activeSessionStudy.current = result.studyId;
+        resumeFailures.current = 0;
         setStudy({ studyId: result.studyId, tabId: result.tabId });
         setPairing({ pairingId: stored.pairingId, code: "", expiresAt: result.session.expiresAt ?? Date.now() });
         setStatus({ pairingId: stored.pairingId, claimed: true, approved: true, deviceLabel: null, phrase: null });
@@ -113,10 +115,11 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         if (cancelled || !active.current) return;
         const failure = classifyConnectionFailure(error);
         const terminal = failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE";
-        if (terminal) clearStoredConnection();
+        if (terminal) { resumeFailures.current = 0; clearStoredConnection(); }
         else {
+          resumeFailures.current += 1;
           resumeForUser.current = null;
-          retryTimer = window.setTimeout(() => setResumeRevision(value => value + 1), nextPollDelay(error, 1, isBackgroundDocument()));
+          retryTimer = window.setTimeout(() => setResumeRevision(value => value + 1), nextPollDelay(error, resumeFailures.current, isBackgroundDocument()));
         }
         setOnline(false); setMessage(errorMessage(error));
       }
