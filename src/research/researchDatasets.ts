@@ -2,6 +2,7 @@ import { describeRegisteredLayer, readRegisteredLayer } from "./registeredLayerR
 import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
+import { createAdministrativeBoundaryAdapter } from "./administrativeBoundaryAdapter";
 import { chiayiBusRouteAdapter } from "./busRouteDatasetAdapter";
 import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
@@ -13,6 +14,16 @@ import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
+
+// Raw geometry remains a local, opt-in source until an immutable public release exists.
+const localRawBoundaries = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_RAW_BOUNDARIES === "1"
+  ? [createAdministrativeBoundaryAdapter({
+    datasetId: "tw-county-boundaries-raw", sourceUrl: "/__local-research-boundaries/county.geojson",
+    sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6",
+    version: "COUNTY_MOI_1140318", publisher: "內政部國土測繪中心；SEGIS existing local snapshot",
+    license: "Local source receipt; verify upstream terms before redistribution",
+    codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024,
+  })] : [];
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 
@@ -186,12 +197,18 @@ function requireDate(value: Scalar | undefined): string {
   return value;
 }
 
-const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async () => {
-  const snapshot = await loadPointDataset({ datasetId: schoolsDescriptor.datasetId, url: schoolsDescriptor.source.reference, idField: "code", safeFields: schoolsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)) });
+// Opt-in local acceptance only; production keeps the existing canonical source.
+const schoolsPartition = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POINT_PARTITIONS === "1" ? {
+  manifestUrl: "/__local-research-point-partitions/schools/manifest.json",
+  manifestSha256: "a531452a19ddb104634096baf99f13065479630bf6443063602eb9e7999da09b",
+  sourceSha256: "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+} : undefined;
+const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async (_parameters, signal, context) => {
+  const snapshot = await loadPointDataset({ datasetId: schoolsDescriptor.datasetId, url: schoolsDescriptor.source.reference, idField: "code", safeFields: schoolsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)), spatialPartition: schoolsPartition }, { bbox: context?.bbox, signal });
   return {
     rows: snapshot.rows, source: receipt("tw-schools", snapshot.checksumSha256, schoolsDescriptor.source.reference, snapshot.checksumSha256),
     coverage: schoolsDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
-    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.downloadedBytes, requests: snapshot.requests, cacheHit: snapshot.cacheHit,
   };
 });
 
@@ -258,6 +275,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   convenienceStoresAdapter,
   earthquakeReplayAdapter,
   chiayiBusRouteAdapter,
+  ...localRawBoundaries,
   ...createSocialStatisticsAdapters(),
 ]);
 
