@@ -1,7 +1,7 @@
 # Layer Discovery／MCP／GIS 分析完整接手文件
 
 > 日期：2026-09-21
-> 狀態：P0 camera scene-ready 與 result overlay paired-browser highlight/readback 已完成；45 組統計已接同版 boundary 成可呈現 MultiPolygon；8-result collection 已支援逐層／逐組開關與排序；live Google／Valhalla graph、origin/scope 與新版 collection 的 paired-browser 回歸仍待補
+> 狀態：P0 camera scene-ready、analysis scope、result overlay 與 5-layer grouped collection 的 paired-browser readback 已完成；45 組統計已接同版 boundary 成可呈現 MultiPolygon。Google 真實 geocode、Valhalla 真實外部 routing，以及 production／持久化仍未驗證
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
@@ -13,9 +13,21 @@
 
 1. `set_camera`／`fit_bounds` 已完成 accepted → applied → ready → browser readback 本機驗收。
 2. Mini、MCP 與 Gateway 已接通 bounded `pulse_present_result`，並由 paired browser 讀回 10 筆結果、source/layer IDs 與 `ready:true`；dark/light popup 視覺也已實測。
-3. 小型、actual geometry 的 Point→Polygon／MultiPolygon `within`／`intersects`／`aggregate_by_area` 已支援；45 組 social statistics recipe 也已用 exact `boundary_version + level + area_code` 接成 MultiPolygon。路網／等時圈目前只有 Valhalla HOLD contract，raster 仍不支援。
+3. 小型、actual geometry 的 Point→Polygon／MultiPolygon `within`／`intersects`／`aggregate_by_area` 已支援；45 組 social statistics recipe 也已用 exact `boundary_version + level + area_code` 接成 MultiPolygon。路網／等時圈已有逐次同意的公共 Valhalla demo POC adapter，但真實外部 E2E、自管 graph 與 raster 分析仍未完成。
 
-下一步先做新版統計面與 result collection 的真人 paired-browser 回歸，再補分析 origin／scope 呈現並 build 一份版本化 Taiwan Valhalla graph；Google 需先完成目前 Mapbox 底圖的 display/storage policy review 與 server runtime。不要先繼續手寫大量 dataset adapters。
+下一步先在新 Codex process 載入最新 48-tool schema，重跑一題「目前中心 2 公里教育資源」的完整 agent workflow；之後才在逐次明示同意下，分別測 Google geocode 與公共 Valhalla demo。Production 若要穩定路網，仍需 build／登記版本化 Taiwan Valhalla graph；Google 仍需完成目前 Mapbox 底圖的 display/storage policy review。不要先繼續手寫大量 dataset adapters。
+
+### 2026-09-22 session close checkpoint
+
+- Paired browser 已完成真資料的 5-layer collection：臺北市師生比行政區面、便利商店、學校、圖書館、醫院，共 428 features；關閉 healthcare group 後 readback 為 413 features，逐層／逐組 visibility、排序、dataset IDs 與 `ready:true` 一致。
+- 同一 bbox 的來源結果為 schools 54、public libraries 12、hospitals 15、convenience stores 346；54 個學校點對 22 個縣市面完成 1,188 次比較，54 matched、0 unmatched、0 multiple。這是該次有界 result，不是全台總量。
+- 臺北市 `area_code=63000` 的教育統計值為 `12.053068333162585` students/teacher，period `2025-08-01`–`2026-07-31`，boundary `COUNTY_MOI_1140318`；來源 freshness 為 stale，回答不可稱為即時或最新現況。
+- Result session store capacity 由 8 提升到 16；畫面 collection 仍最多 8 層。加入 3 個分析中介結果後，既有 5 層仍保持 ready，證明工作結果不再過早逐出畫面結果。
+- `pulse_create_analysis_scope`、origin marker 與 straight-line geodesic radius 已接通；它是顯示用範圍，不是行政邊界或 walking isochrone，也不能冒充 authoritative analysis geometry。
+- Google adapter 已支援 `GOOGLE_MAPS_API_KEY`、逐次 `externalConsent:true`、bounded normalized receipt 與不持久化政策；Valhalla 已改為固定公共 demo 的 consented POC proxy。兩者都只有 local/mock contract 證據，本輪未把使用者地址或座標送往外部 provider。
+- Transport 修正允許 browser result 256 KiB、agent query-status 288 KiB、單字串 32 KiB；其餘一般 endpoint 仍為 32 KiB。真 fresh stdio client 已成功讀回 17,495-byte、33-version 的 statistics descriptor；不能把舊 Codex process 的 schema 當成最新 schema。
+- 最新驗證：Mini research slice 40 files，197 passed／5 skipped（202），`npx tsc -b` 通過；Gateway 55/55；MCP 54/54、typecheck、build 通過。這些是 local tests，不是 production 證據。
+- 最新 commits：Mini `03a6bf59`、`1ecdefb7`、`a1fabc65`、`47382e90`、`93e70b1a`、`df9d9a6c`；Gateway `dca622e`、`3756ba1`、`5f5b236`、`68b3408`、`cc3e824`；MCP `6678d0e`、`1093ad0`、`c0d0bf2`、`44efc6e`。均 local only，未 push／PR／merge／deploy。
 
 ### 2026-09-22 boundary／collection checkpoint
 
@@ -98,7 +110,7 @@ LayerDescriptor
 
 產品主流程固定以「地址作為探索起點」：地址定位後，應能依使用者問題搜尋多種周邊資料、執行目前支援的有界分析、將結果高亮並讀回畫面狀態。若分析成功但畫面沒有呈現，先查 MCP → Gateway → browser 的 operation／patch allowlist、HTTP 400／`INVALID_INPUT` 與 accepted／applied／ready receipt，再查 renderer 與 dataset；不要直接把問題歸因為資料不存在。Gateway 應以允許有界、declarative、可撤銷、可 readback 的呈現為主，同時保留 auth、session、revision、size 與 executable-input 邊界。
 
-## 4. 46 個 MCP tools
+## 4. 48 個 MCP tools
 
 ### 路由
 
@@ -135,6 +147,7 @@ LayerDescriptor
 ### 分析與證據
 
 - `pulse_spatial_query`
+- `pulse_create_analysis_scope`
 - `pulse_aggregate_by_area`
 - `pulse_aggregate_records`
 - `pulse_join_records`
@@ -159,6 +172,7 @@ LayerDescriptor
 - `pulse_set_layers`
 - `pulse_set_camera`
 - `pulse_present_result`
+- `pulse_set_result_collection`
 - `pulse_fit_bounds`
 - `pulse_get_time_context`
 - `pulse_set_time`
@@ -237,25 +251,28 @@ LayerDescriptor
 
 - bounded query：limit、cursor、bbox、time、field projection、rows／bytes limits
 - Point nearest／within-distance，距離是 Haversine 直線距離
+- actual Point 對 actual／derived Polygon 或 MultiPolygon 的 `within`／`intersects` 與 `aggregate_by_area`，保留 unmatched／multiple matches
+- 顯示用 origin marker 與 straight-line radius scope；scope 不可當 authoritative boundary 或 walking result
 - group count、sum、average、min、max
 - result-to-result key join，含 cardinality 檢查
 - ratio／difference，保留 null 與除零語意
 - UTC day／week time series 與比較
 - data quality、record evidence、paged result readback
 - result bounds、result listing／removal
+- ordered／grouped result collection，逐層與逐組 visibility；最多 8 個畫面 results，session store 最多 16 個工作 results
+- consented Google geocode adapter 與公共 Valhalla pedestrian route／isochrone POC adapter；真實外部 E2E 仍未跑
 
 未支援：
 
-- point-in-polygon、面積與密度
-- 任意 spatial predicate
-- 路網距離、步行／車行 routing、isochrone
+- 面積、密度、clip、任意 spatial predicate 與 geometry repair
+- production-grade／自管版本化路網；車行 routing 尚未提供，公共 Valhalla demo 沒有 SLA 或 graph checksum
 - raster／zonal statistics
 - 任意 SQL、URL、檔案路徑、expression 或 code
 - 任意 GeoJSON／style overlay；只允許 session-local result IDs
 
 ## 10. 本機地址定位
 
-MCP 新增 `pulse_geocode_address`，透過本機 worker 查詢既有 TGOS／OSM 衍生索引，不把地址送往外部 geocoder。
+MCP 的 `pulse_geocode_address` 預設透過本機 worker 查詢既有 TGOS／OSM 衍生索引，不把地址送往外部 geocoder。只有明確指定 `provider=google` 且該次帶 `externalConsent=true`，才會從 MCP server 將地址送到固定 Google Geocoding endpoint；raw response 不落盤，normalized receipt 也不寫 Supabase／R2。
 
 重要檔案：
 
@@ -270,7 +287,7 @@ MCP 新增 `pulse_geocode_address`，透過本機 worker 查詢既有 TGOS／OSM
 - `no_match`：目前本機索引未命中，不代表地址不存在。
 - `unavailable`：adapter 或本機資料不可用，不代表 no match。
 
-實際 live E2E 已完成：地址定位 → 教育 dataset query → 最近 10 所學校直線距離 → receipt。
+本機地址 live E2E 已完成：地址定位 → 教育 dataset query → 最近 10 所學校直線距離 → receipt。Google 真實 provider call 尚未執行。
 
 ## 11. Gateway／網站接線
 
@@ -304,11 +321,13 @@ PULSE_RESEARCH_GATEWAY_ENTRY=/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工�
 
 已成功：
 
-- 真 stdio MCP client 讀取原 41-tool catalog 與 structured schemas；working tree 新增 `pulse_present_result` 後為 42 tools。
+- fresh built stdio MCP client 讀取 48-tool catalog 與 structured schemas；舊 Codex process 必須重啟才能載入新增 schema。
 - guest／owner／revocation／超限與錯誤參數負向案例。
 - Jev live routing，receipt `executed:false`。
 - 地址查詢與最近 10 所學校分析。
 - result paging、quality、evidence、bounds 與 receipt。
+- 5-layer collection paired-browser readback、group hide/show、排序與 428→413 feature readback。
+- 大型 statistics descriptor 經 Mini → Gateway → MCP fresh stdio 完整回傳，不再因 4,000-char string limit 逾時。
 
 已完成 P0 follow-up：
 
@@ -333,14 +352,13 @@ Result overlay 完成進度：
 
 - `npm run typecheck`：通過。
 - `npm run build`：通過。
-- `npm test`：5 files、47 tests 全通過。
+- `npm test`：54/54 tests 通過。
 
 ### Mini Taiwan Pulse
 
 - `npx tsc -b`：通過。
-- `npm run build`：通過；只有既有 chunk-size warning。
-- `npm test`：235 files／1,767 tests 通過、1 file／1 test 失敗、8 tests skipped。唯一失敗是既有 `upstreamRegistry.test.ts` 缺 19 筆 Japan accommodation／medical catalog refs；與本輪 research 變更無直接關係，但正式整合前仍須修正或由其 owning workstream 補齊。
-- scene-ready focused tests：4 files、24 tests 全通過。
+- 最新 research slice：40 files，197 passed／5 skipped（202）。
+- 更早 boundary／collection checkpoint 的 production build 與排除 sibling catalog gate 全套測試通過；不要把不同 commit 時點的結果合併成一個最新全套驗收。
 - `git diff --check`：提交前必跑。
 
 ### 架構文件
@@ -358,18 +376,19 @@ Result overlay 完成進度：
 3. ✅ 加 focused regression：`set_camera`／`fit_bounds` 後 accepted → applied → ready。
 4. ✅ browser readback 確認中心、zoom 與 bounds safe viewport，不以 state 更新冒充視覺完成。
 5. ✅ bounded、session-local result overlay：Mini／MCP／Gateway 實作、contract tests、paired browser highlight 與 readback 已完成。
-6. 🟡 補 live browser clear／expiry／revoke 回歸，並將地址 origin 與分析 scope 作為獨立、可讀回的視覺物件。
+6. ✅ 地址 origin 與 straight-line analysis scope 已成為獨立 result，可分組／排序／開關。
+7. 🟡 補 live browser clear／expiry／revoke 回歸，以及 origin/scope 與 5-layer collection 同場的 fresh-session readback。
 
 ### P1：行政區 GIS
 
-1. 建立版本固定、來源明確的行政區 boundary adapter。
-2. 將已完成的 generic point-in-polygon／aggregate-by-area kernel 接到同版行政區 boundary，保留 boundary mismatch／unmatched 證據。
+1. ✅ 建立版本固定、來源明確的行政區 boundary adapter。
+2. ✅ 將 generic point-in-polygon／aggregate-by-area kernel 接到同版行政區 boundary，保留 boundary mismatch／unmatched 證據。
 3. 正確投影、面積與 density，明示 CRS／unit。
 4. 擴充教育、醫療、Statistics snapshot 與 owner-only adapters；逐一驗證，不批次開放。
 
 ### P2：可達性與複雜分析
 
-- 先 build／登記一份版本化 Taiwan Valhalla graph，再做單一地址 5／10／15 分鐘 walking isochrone vertical slice；固定 OSM extract、engine、pedestrian profile、snap／unreachable 與 checksum。目前只有 HOLD contract。
+- 目前已有固定公共 Valhalla demo 的 consented POC adapter，但尚未做真實外部 E2E；production 仍應先 build／登記版本化 Taiwan graph，再做單一地址 5／10／15 分鐘 walking isochrone vertical slice。
 - 版本化路網、network distance、travel time、isochrone；OSM 是來源資料，不等於 routing engine。
 - accessibility／service coverage／service desert。
 - 多圖層 suitability，權重與標準化必須可見。
@@ -383,25 +402,33 @@ Result overlay 完成進度：
 
 ## 15. 下一個 session 的第一個驗收題
 
-建議仍用已跑過的基準題，方便比較：
+先用不需外傳地址／座標的題目驗證最新 schema 與通用循環：
 
-> 請定位「臺北市信義區市府路45號」，列出最近 10 所學校，說明地址定位精度、資料來源、直線距離與限制，並把地圖移到能看清這批結果的範圍。等畫面 ready 後，再讀回中心、zoom 與已開圖層。
+> 請以目前地圖中心為準，分析周圍 2 公里內的教育資源分布。列出附近的學校與圖書館數量及類型，判斷它位於哪個行政區，加入該區可用的教育統計資料。請把分析範圍、學校、圖書館與行政區統計各自呈現在地圖上，分成可獨立開關的結果圖層，最後用白話整理這一帶的教育資源概況，並註明資料時間與限制。
 
 驗收必須同時滿足：
 
-1. 地址來源與 exact／interpolated 語意正確。
+1. 使用目前 map center，不呼叫外部 geocoder；中心與 2 公里 straight-line scope 分開呈現。
 2. query／spatial result 有 source、version、coverage、missingness、access、limits receipt。
 3. camera command 到 ready。
 4. browser readback 與目標範圍一致。
-5. 只有 Gateway 接受 command、browser 回報 ready，且 `map_context.resultPresentation` 讀回一致後，才可宣稱 10 筆結果已高亮；本輪已取得這份 paired-browser 證據。
+5. 只有 Gateway 接受 command、browser 回報 ready，且 `map_context.resultPresentation` 讀回 collection、effective IDs、feature count、sources 與 layers 一致後，才可宣稱結果已高亮。
+
+### Next-session entry
+
+- Repos／branches：Mini 與 MCP `feat/layer-discovery-mcp-contract`；Gateway `feat/layer-discovery-gateway-contract`。
+- 第一個動作：重啟 Codex 讓最新 48-tool MCP schema 生效，重新配對，執行上面的 2 公里教育資源題。
+- 驗收：query／join／statistics／scope／collection 全部有 receipt，結果可逐層／逐組開關，accepted → applied → ready，最後由 browser readback 對上。
+- 外部 provider gate：Google 地址與 Valhalla 座標各自需要當下明示同意；沒有同意就不送出，也不以直線圓冒充步行圈。
+- 暫緩：Supabase／R2 result persistence、PMTiles／raster／RPC 大量 adapters、production deployment。
 
 ## 16. Release truth
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Mini Taiwan Pulse research runtime | done：tsc／Vite | done：45-recipe same-version MultiPolygon adapters、Point→Polygon/MultiPolygon kernel、ordered/grouped 8-result renderer、provider HOLD handlers | done：`0dd45e2f`；boundary／collection `658b20fa` | N/A | done：focused 47/47、full 1,787 pass／8 skip（排除既有 sibling gate） | not run | not run | local only | prior camera／bounds／highlight readback done；新版 boundary／collection live readback 未跑 |
-| Research Gateway | N/A | done：canonical ordered/grouped collection、legacy normalize、spatial／aggregate-by-area、Valhalla strict relay | done：`3f84d7a`；collection `128e5a0` | N/A | done：50/50 tests；Mini cross-repo 11/11 | not run | not run | local only | prior highlight readback done；新版 collection live readback 未跑 |
-| pulse-research MCP | done：typecheck／dist | done：47 tools、`pulse_set_result_collection`、provider capability、spatial／walking schemas | done：`4f0a3e5`；collection `4cd3aa3` | N/A | done：full 48/48＋real built stdio 47 tools | not run | not run | N/A | prior paired highlight readback done；新版 collection live readback 未跑 |
+| Mini Taiwan Pulse research runtime | done：tsc；較早 checkpoint Vite build | done：45-recipe same-version MultiPolygon、Point→Polygon/MultiPolygon、origin/scope、ordered/grouped 8-result renderer、16-result work store | done：latest through `df9d9a6c` | N/A | done：latest research slice 197 pass／5 skip | not run | not run | local only | done：5-layer 428 features，group hide 413，ready/readback |
+| Research Gateway | N/A | done：collection normalize、spatial、analysis scope、public Valhalla consent proxy、bounded rich result relay | done：latest `cc3e824` | N/A | done：55/55 tests | not run | not run | local only | done via paired Mini collection；真外部 Valhalla 未跑 |
+| pulse-research MCP | done：typecheck／dist | done：48 tools、scope、collection、Google consent adapter、walking schemas、288 KiB query readback | done：latest `44efc6e` | N/A | done：54/54＋fresh built stdio descriptor readback | not run | not run | N/A | done via paired Mini collection；真 Google／Valhalla 未跑 |
 | Jev routing | done | done：non-executing route + fallback | local commit only | N/A | done：OpenRouter live receipt | N/A | not run | external provider call only | N/A |
 | Offline geocoder | done | done：local worker | local commit only | N/A | done：address E2E | N/A | not run | no external geocoder | used in paired local E2E |
 
