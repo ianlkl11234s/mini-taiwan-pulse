@@ -20,7 +20,7 @@ export const JEV_MODEL = "typesafe/jev-1.13";
 export const DEFAULT_CONCURRENCY = 3;
 /** Conservative UTF-8 byte ceiling beneath Jev's 32K-token input context. */
 export const DEFAULT_REQUEST_BYTE_BUDGET = 96_000;
-export const RELEVANCE_THRESHOLD = 0.5;
+export const RELEVANCE_THRESHOLD = 0.7;
 const TIMEOUT_MS = 15_000;
 const RECEIPT_VERSION = "jev-layer-screening-receipt/v1";
 
@@ -95,7 +95,7 @@ export interface ScreeningReceipt {
   startedAt: string;
   endedAt: string;
   wallDurationMs: number;
-  relevanceThreshold: typeof RELEVANCE_THRESHOLD;
+  relevanceThreshold: number;
   manifestFingerprint: string;
   indexFingerprint: string;
   candidateCount: number;
@@ -117,6 +117,7 @@ export interface RunOptions {
   requestByteBudget?: number;
   fetcher?: typeof fetch;
   apiKey?: string;
+  relevanceThreshold?: number;
   /** Explicit caller index; the DEV bridge uses this to match browser-only comparison recipes. */
   index?: readonly LayerSearchResult[];
 }
@@ -136,11 +137,22 @@ function normalizeQuery(query: string): string {
 }
 
 /** Strict browser-to-local-runner payload contract. */
-export function parseLayerScreeningRunPayload(value: unknown): { query: string } {
+function normalizeRelevanceThreshold(value: number): number {
+  if (!Number.isFinite(value) || value < 0 || value > 1) throw new Error("relevanceThreshold must be a number from 0 to 1");
+  return value;
+}
+
+export function parseLayerScreeningRunPayload(value: unknown): { query: string; relevanceThreshold: number } {
   if (!isRecord(value) || typeof value.query !== "string") {
     throw new Error("request body must contain a query string");
   }
-  return { query: normalizeQuery(value.query) };
+  if (value.relevanceThreshold !== undefined && typeof value.relevanceThreshold !== "number") {
+    throw new Error("relevanceThreshold must be a number from 0 to 1");
+  }
+  return {
+    query: normalizeQuery(value.query),
+    relevanceThreshold: normalizeRelevanceThreshold(value.relevanceThreshold ?? RELEVANCE_THRESHOLD),
+  };
 }
 
 function boundedText(value: string, maxLength: number): string {
@@ -287,8 +299,8 @@ function unknownDecision(): LayerDecision {
   return { status: "unknown", relevant: null, probability: null, answerType: null, confidence: null };
 }
 
-function knownDecision(probability: number): LayerDecision {
-  return { status: "decided", relevant: probability >= RELEVANCE_THRESHOLD, probability, answerType: "noul", confidence: null };
+function knownDecision(probability: number, relevanceThreshold: number): LayerDecision {
+  return { status: "decided", relevant: probability >= relevanceThreshold, probability, answerType: "noul", confidence: null };
 }
 
 function fingerprints(index: readonly LayerSearchResult[]): { manifestFingerprint: string; indexFingerprint: string } {
@@ -329,6 +341,7 @@ function safeBatchErrorCode(error: unknown): string {
 async function runOneBatch(
   batch: BatchPlan,
   query: string,
+  relevanceThreshold: number,
   fetcher: typeof fetch,
   apiKey: string,
 ): Promise<{ batch: BatchReceipt; decisions: Map<string, LayerDecision> }> {
@@ -350,7 +363,7 @@ async function runOneBatch(
     const body: unknown = await response.json().catch(() => null);
     if (!response.ok) throw new Error(safeProviderError(response.status));
     const probabilities = parseNoulAnswers(body, batch.questionIds);
-    for (const candidate of batch.candidates) decisions.set(candidate.key, knownDecision(probabilities.get(questionIdForLayer(candidate.key))!));
+    for (const candidate of batch.candidates) decisions.set(candidate.key, knownDecision(probabilities.get(questionIdForLayer(candidate.key))!, relevanceThreshold));
     const requestId = isRecord(body) && typeof body.id === "string" ? body.id : null;
     return {
       batch: { batchId: batch.batchId, requestId, requestBytes: batch.requestBytes, candidateCount: batch.candidates.length, startedAt: startedAt.toISOString(), endedAt: new Date().toISOString(), durationMs: Math.round(performance.now() - started), status: "completed", error: null },
@@ -366,6 +379,7 @@ async function runOneBatch(
 
 export async function runLayerScreening(options: RunOptions): Promise<ScreeningReceipt> {
   const query = normalizeQuery(options.query);
+  const relevanceThreshold = normalizeRelevanceThreshold(options.relevanceThreshold ?? RELEVANCE_THRESHOLD);
   const dryRun = options.dryRun ?? false;
   const concurrency = options.concurrency ?? DEFAULT_CONCURRENCY;
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 8) throw new Error("concurrency must be an integer from 1 to 8");
@@ -389,7 +403,7 @@ export async function runLayerScreening(options: RunOptions): Promise<ScreeningR
       while (nextBatch < plans.length) {
         const current = plans[nextBatch++];
         if (!current) return;
-        const result = await runOneBatch(current, query, fetcher, apiKey);
+        const result = await runOneBatch(current, query, relevanceThreshold, fetcher, apiKey);
         batches.push(result.batch);
         for (const [key, decision] of result.decisions) allDecisions.set(key, decision);
       }
@@ -409,7 +423,7 @@ export async function runLayerScreening(options: RunOptions): Promise<ScreeningR
     startedAt: startedAt.toISOString(),
     endedAt: endedAt.toISOString(),
     wallDurationMs: Math.round(performance.now() - started),
-    relevanceThreshold: RELEVANCE_THRESHOLD,
+    relevanceThreshold,
     manifestFingerprint,
     indexFingerprint,
     candidateCount: candidates.length,

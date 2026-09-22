@@ -12,6 +12,7 @@ import {
 const RECEIPT_ENDPOINT = "/api/research/v1/jev/layer-screening/latest";
 const RUN_ENDPOINT = "/api/research/v1/jev/layer-screening/run";
 const PLAYBACK_DURATION_MS = 15_000;
+const DEFAULT_RELEVANCE_THRESHOLD = 0.7;
 type DisplayLayer = ScreeningLayer & { candidate: { key: string } };
 
 const formatProbability = (value: number | null) => value === null ? "—" : value.toFixed(2);
@@ -24,16 +25,21 @@ export function LayerScreeningApp() {
   const [replaying, setReplaying] = useState(false);
   const [querying, setQuerying] = useState(false);
   const [demoQuery, setDemoQuery] = useState("");
+  const [relevanceThreshold, setRelevanceThreshold] = useState(DEFAULT_RELEVANCE_THRESHOLD);
   const [currentIndexFingerprint, setCurrentIndexFingerprint] = useState<string | null>(null);
 
   const candidates = useMemo(
     () => LAYER_SEARCH_INDEX.filter((item) => !GATED_LAYERS.has(item.key)),
     [],
   );
-  const layers = useMemo(
-    () => receipt ? receiptLayersForCandidates(receipt, candidates) : [],
-    [receipt, candidates],
-  );
+  const layers = useMemo(() => receipt
+    ? receiptLayersForCandidates(receipt, candidates).map((layer) => ({
+        ...layer,
+        decision: layer.decision.probability === null
+          ? layer.decision
+          : { ...layer.decision, relevant: layer.decision.probability >= relevanceThreshold },
+      }))
+    : [], [receipt, candidates, relevanceThreshold]);
   const displayed = layers.slice(0, played);
   const related = displayed.filter((layer) => layer.decision.relevant === true);
   const excluded = displayed.filter((layer) => layer.decision.relevant === false);
@@ -98,7 +104,7 @@ export function LayerScreeningApp() {
       const response = await fetch(RUN_ENDPOINT, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, relevanceThreshold }),
       });
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
@@ -160,14 +166,14 @@ export function LayerScreeningApp() {
 
       <section className="jev-metrics">
         <Metric label="已分類 CLASSIFIED" value={`${played} / ${layers.length || "—"}`} progress={progress} />
-        <Metric label="相關 RELEVANT" value={`${related.length}`} tone="green" note={`機率 ≥ ${receipt?.relevanceThreshold ?? "—"}`} />
+        <Metric label="相關 RELEVANT" value={`${related.length}`} tone="green" note={`機率 ≥ ${relevanceThreshold.toFixed(2)}`} />
         <Metric label="不相關 DISCARDED" value={`${excluded.length}`} tone="red" note="已排除 filtered out" />
         <Metric
           label="真實耗時 ELAPSED"
           value={isComplete && receipt ? `${(receipt.wallDurationMs / 1000).toFixed(2)} s` : "—"}
           note={isComplete && decisionsPerSecond ? `${decisionsPerSecond.toFixed(1)} 層/秒` : "等待完成"}
         />
-        <Metric label="判定門檻 THRESHOLD" value={receipt ? receipt.relevanceThreshold.toFixed(2) : "—"} tone="amber" note={`${unknown.length} unknown · ${completedBatches}/${receipt?.batches.length ?? "—"} batches`} />
+        <Metric label="判定門檻 THRESHOLD" value={relevanceThreshold.toFixed(2)} tone="amber" note={`${unknown.length} unknown · ${completedBatches}/${receipt?.batches.length ?? "—"} batches`} />
       </section>
 
       <section className="jev-workspace">
@@ -196,13 +202,27 @@ export function LayerScreeningApp() {
               />
               <button type="submit" disabled={querying || replaying || !demoQuery.trim()}>{querying ? "查詢中" : replaying ? "播放中" : "查詢"}</button>
             </div>
+            <div className="jev-threshold-control">
+              <label htmlFor="jev-threshold">判定門檻 <span>THRESHOLD</span></label>
+              <input
+                id="jev-threshold"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={relevanceThreshold}
+                onChange={(event) => setRelevanceThreshold(Number(event.target.value))}
+                aria-valuetext={relevanceThreshold.toFixed(2)}
+              />
+              <output htmlFor="jev-threshold">{relevanceThreshold.toFixed(2)}</output>
+            </div>
             <div className="jev-run-meta">
               <span>RUN {receipt?.runId.slice(0, 8) ?? "—"}</span>
               <span>RECEIPT V1</span>
               <span>{receipt?.candidateCount ?? "—"} LAYERS</span>
             </div>
             <div className="jev-query-foot">
-              <span>Jev probability · receipt decision</span>
+              <span>Jev probability · live threshold</span>
               <span>{completedBatches}/{receipt?.batches.length ?? "—"} batches</span>
             </div>
           </form>

@@ -20,7 +20,9 @@ const candidates: readonly ScreeningCandidate[] = [
 
 describe("jev layer screening runner", () => {
   it("accepts only a bounded non-empty local run query", () => {
-    expect(parseLayerScreeningRunPayload({ query: "  教育資源分佈  " })).toEqual({ query: "教育資源分佈" });
+    expect(parseLayerScreeningRunPayload({ query: "  教育資源分佈  " })).toEqual({ query: "教育資源分佈", relevanceThreshold: 0.7 });
+    expect(parseLayerScreeningRunPayload({ query: "教育", relevanceThreshold: 0.85 })).toEqual({ query: "教育", relevanceThreshold: 0.85 });
+    expect(() => parseLayerScreeningRunPayload({ query: "教育", relevanceThreshold: 1.1 })).toThrow(/0 to 1/);
     expect(() => parseLayerScreeningRunPayload({ query: "" })).toThrow(/1-500/);
     expect(() => parseLayerScreeningRunPayload({ query: "x".repeat(501) })).toThrow(/1-500/);
     expect(() => parseLayerScreeningRunPayload({ prompt: "教育" })).toThrow(/query string/);
@@ -67,7 +69,7 @@ describe("jev layer screening runner", () => {
     expect(receipt.layers.every((layer) => layer.decision.status === "unknown" && layer.decision.probability === null && layer.decision.confidence === null)).toBe(true);
     expect(receipt.batches.every((batch) => batch.status === "planned" && batch.requestId === null)).toBe(true);
     expect(receipt.websiteReady).toBe(false);
-    expect(RELEVANCE_THRESHOLD).toBe(0.5);
+    expect(RELEVANCE_THRESHOLD).toBe(0.7);
   });
 
   it("marks a malformed provider batch unknown with a safe diagnostic code", async () => {

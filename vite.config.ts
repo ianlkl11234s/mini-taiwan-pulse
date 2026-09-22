@@ -179,7 +179,7 @@ function serveJevLayerScreeningReceipt(): Plugin {
 
         const run = readBoundedJsonBody(request)
           .then(parseLayerScreeningRunPayload)
-          .then(({ query }) => runLayerScreening({ query, index: devScreeningIndex }));
+          .then(({ query, relevanceThreshold }) => runLayerScreening({ query, relevanceThreshold, index: devScreeningIndex }));
         activeRun = run;
         void run.then((receipt) => {
           latestReceipt = receipt;
