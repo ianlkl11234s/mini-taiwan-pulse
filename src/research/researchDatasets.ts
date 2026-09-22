@@ -93,6 +93,27 @@ const librariesAdapter = createPointDatasetAdapter(librariesDescriptor, async ()
     rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((a, b) => a + b, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit };
 });
 
+const convenienceStoresDescriptor: DatasetDescriptor = {
+  schemaVersion: "pulse-dataset/0.1", datasetId: "tw-convenience-stores", label: "全國便利商店", description: "既有 convenienceStores 圖層的來源門市點位；可做來源座標的探索性鄰近查詢，但不代表即時營業、完整門市母體或步行可達性。",
+  layerRefs: ["convenienceStores"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供門市名稱", unit: null },
+    { name: "brand", type: "string", nullable: true, nullMeaning: "來源未提供品牌", unit: null },
+    { name: "addr", type: "string", nullable: true, nullMeaning: "來源未提供地址；不得由空字串推論無地址", unit: null },
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source-provided store coordinate; upstream acquisition and positional accuracy are not recorded in this artifact", spatialAnalysisEligible: true }, timeFields: [],
+  coverage: "Existing 13,223-feature nationwide layer snapshot; upstream completeness, acquisition date, closures and current operating status are unknown.", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS, versions: [],
+  source: { publisher: "unknown; existing convenienceStores layer asset", reference: "/geo/convenience_stores.geojson", lineage: "existing registered GeoJSON -> validated Point records; no live opening-status or walking-network inference" },
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["record_id", "name", "brand", "addr", "geometry"], filters: ["name", "brand", "addr"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 20_000, maxSourceBytes: 8 * 1024 * 1024 }), supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+};
+const convenienceStoresAdapter = createPointDatasetAdapter(convenienceStoresDescriptor, async () => {
+  const snapshot = await loadPointDataset({ datasetId: convenienceStoresDescriptor.datasetId, url: convenienceStoresDescriptor.source.reference, idField: "record_id", safeFields: ["name", "brand", "addr"] });
+  return { rows: snapshot.rows, source: receipt(convenienceStoresDescriptor.datasetId, snapshot.checksumSha256, convenienceStoresDescriptor.source.reference, snapshot.checksumSha256), coverage: convenienceStoresDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((a, b) => a + b, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit };
+});
+
 const newsDescriptor: DatasetDescriptor = {
   schemaVersion: "pulse-dataset/0.1", datasetId: "tw-news-events", label: "國內新聞事件", description: "按發布日取得的 raw event records；報導、事件與地圖 cluster 不混為同一 grain。",
   layerRefs: ["newsEvents"], kind: "event", recordGrain: "event", primaryKey: ["event_id"],
@@ -232,6 +253,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   statisticsAdapter,
   schoolsGridAdapter,
   librariesAdapter,
+  convenienceStoresAdapter,
   ...createSocialStatisticsAdapters(),
 ]);
 

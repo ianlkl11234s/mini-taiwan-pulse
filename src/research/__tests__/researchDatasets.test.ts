@@ -77,6 +77,19 @@ describe("built-in research datasets", () => {
     expect(hospitals).toMatchObject({ datasetId: "tw-medical-hospitals", totalMatched: 1, returned: 1 });
   });
 
+  it("queries the bounded convenience-store adapter while keeping source limits explicit", async () => {
+    const body = JSON.stringify({ type: "FeatureCollection", features: [
+      { type: "Feature", geometry: { type: "Point", coordinates: [121.5638, 25.0375] }, properties: { name: "甲門市", brand: "甲牌", addr: "台北市" } },
+      { type: "Feature", geometry: { type: "Point", coordinates: [121.6, 25.1] }, properties: { name: "乙門市", brand: "乙牌", addr: "" } },
+    ] });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body, { headers: { "content-length": String(body.length) } })));
+    const descriptor = describeDataset("tw-convenience-stores");
+    expect(descriptor).toMatchObject({ geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, license: "unknown", access: { limits: { maxScanRows: 20_000 } } });
+    expect(descriptor.coverage).toContain("status are unknown");
+    const result = await queryRecords({ datasetId: "tw-convenience-stores", bbox: [121.55, 25.03, 121.57, 25.05], limit: 20 });
+    expect(result).toMatchObject({ datasetId: "tw-convenience-stores", totalMatched: 1, returned: 1, freshness: "unknown" });
+  });
+
   it("fails closed when the news source is not configured", async () => {
     await expect(queryNewsWithSupabasePayload(false, [])).rejects.toThrow("NEWS_EVENTS_SOURCE_NOT_CONFIGURED");
   });
