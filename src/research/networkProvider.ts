@@ -47,11 +47,6 @@ export type NetworkProviderReceipt = NetworkReceiptBase & {
   guarantees: string[];
 };
 
-const DEFAULT_BASE_URL = "https://valhalla1.openstreetmap.de";
-const CLIENT_ID = "mini-taiwan-pulse-local-poc";
-const MAX_STATUS_BYTES = 32 * 1024;
-const MAX_ROUTE_BYTES = 256 * 1024;
-const MAX_ISOCHRONE_BYTES = 2 * 1024 * 1024;
 const MAX_ISOCHRONE_VERTICES = 100_000;
 const LIMITATIONS = [
   "Coordinates are sent to the public FOSSGIS Valhalla demo only when this operation is explicitly requested.",
@@ -62,19 +57,15 @@ const LIMITATIONS = [
 const GUARANTEES = ["no_haversine_fallback", "no_synthetic_isochrone", "fixed_provider_endpoint", "bounded_provider_response"];
 
 export class ValhallaNetworkProvider {
-  private readonly baseUrl: string;
-  private readonly fetcher: typeof fetch;
-  private readonly timeoutMs: number;
+  private readonly requester: ((operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>) => Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> }>) | undefined;
 
-  constructor(options: { baseUrl?: string; fetcher?: typeof fetch; timeoutMs?: number } = {}) {
-    this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
-    this.fetcher = options.fetcher ?? fetch;
-    this.timeoutMs = options.timeoutMs ?? 15_000;
+  constructor(options: { requester?: (operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>) => Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> }> } = {}) {
+    this.requester = options.requester;
   }
 
   capability(): Record<string, unknown> {
     return {
-      status: "configured_external_demo",
+      status: "configured_gateway_proxy",
       provider: "valhalla",
       mode: "pedestrian",
       endpointClass: "public_demo",
@@ -92,15 +83,10 @@ export class ValhallaNetworkProvider {
     const origin = center(args.origin);
     const destination = center(args.destination);
     const request = { origin, destination };
-    const graph = await this.status();
-    if (!graph) return unavailable("route_distance", request, "VALHALLA_STATUS_UNAVAILABLE");
-    const payload = await this.json("/route", {
-      method: "POST",
-      body: JSON.stringify({
-        locations: [{ lat: origin[1], lon: origin[0], type: "break" }, { lat: destination[1], lon: destination[0], type: "break" }],
-        costing: "pedestrian", units: "kilometers", directions_type: "none",
-      }),
-    }, MAX_ROUTE_BYTES);
+    const upstream = await this.request("route_distance", args);
+    const graph = graphReceipt(upstream?.graph);
+    const payload = upstream?.payload ?? null;
+    if (!graph || !payload) return unavailable("route_distance", request, "VALHALLA_GATEWAY_PROXY_UNAVAILABLE");
     if (!payload || !record(payload.trip) || !record(payload.trip.summary)) return unavailable("route_distance", request, "VALHALLA_ROUTE_UNAVAILABLE", graph);
     const lengthKm = payload.trip.summary.length;
     const durationSeconds = payload.trip.summary.time;
@@ -119,15 +105,10 @@ export class ValhallaNetworkProvider {
     const requestedCenter = center(args.center);
     const contoursMinutes = contours(args.contoursMinutes);
     const request = { center: requestedCenter, contoursMinutes };
-    const graph = await this.status();
-    if (!graph) return unavailable("walking_isochrone", request, "VALHALLA_STATUS_UNAVAILABLE");
-    const payload = await this.json("/isochrone", {
-      method: "POST",
-      body: JSON.stringify({
-        locations: [{ lat: requestedCenter[1], lon: requestedCenter[0] }], costing: "pedestrian",
-        contours: contoursMinutes.map(time => ({ time })), polygons: true, denoise: 0.5, generalize: 25, show_locations: false,
-      }),
-    }, MAX_ISOCHRONE_BYTES);
+    const upstream = await this.request("walking_isochrone", args);
+    const graph = graphReceipt(upstream?.graph);
+    const payload = upstream?.payload ?? null;
+    if (!graph || !payload) return unavailable("walking_isochrone", request, "VALHALLA_GATEWAY_PROXY_UNAVAILABLE");
     const normalized = normalizeIsochrones(payload, contoursMinutes);
     if (!normalized) return unavailable("walking_isochrone", request, "VALHALLA_INVALID_ISOCHRONE_RESPONSE", graph);
     return {
@@ -137,40 +118,10 @@ export class ValhallaNetworkProvider {
     };
   }
 
-  private async status(): Promise<ValhallaGraphReceipt | null> {
-    const payload = await this.json("/status", { method: "GET" }, MAX_STATUS_BYTES);
-    if (!payload || typeof payload.version !== "string" || !payload.version.trim() || !Number.isSafeInteger(payload.tileset_last_modified) || (payload.tileset_last_modified as number) <= 0 || payload.has_tiles === false) return null;
-    const tilesetSeconds = payload.tileset_last_modified as number;
-    return {
-      engineVersion: payload.version.slice(0, 100),
-      tilesetLastModified: new Date(tilesetSeconds * 1000).toISOString(),
-      osmChangeset: Number.isSafeInteger(payload.osm_changeset) ? payload.osm_changeset as number : null,
-      checksumSha256: null,
-      provenanceCompleteness: "provider_status_without_checksum",
-      observedAt: new Date().toISOString(),
-    };
-  }
-
-  private async json(path: "/status" | "/route" | "/isochrone", init: { method: "GET" | "POST"; body?: string }, maxBytes: number): Promise<Record<string, unknown> | null> {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
-    try {
-      const response = await this.fetcher(`${this.baseUrl}${path}`, {
-        method: init.method,
-        ...(init.body !== undefined ? { body: init.body } : {}),
-        signal: controller.signal,
-        headers: { accept: "application/json", ...(init.body !== undefined ? { "content-type": "application/json" } : {}), "x-client-id": CLIENT_ID },
-      });
-      if (!response.ok) return null;
-      const text = await response.text();
-      if (new TextEncoder().encode(text).byteLength > maxBytes) return null;
-      const parsed = JSON.parse(text) as unknown;
-      return record(parsed) ? parsed : null;
-    } catch {
-      return null;
-    } finally {
-      clearTimeout(timer);
-    }
+  private async request(operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>): Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> } | null> {
+    if (!this.requester) return null;
+    try { return await this.requester(operation, args); }
+    catch { return null; }
   }
 }
 
@@ -201,6 +152,24 @@ function base(consent: boolean): NetworkReceiptBase {
 
 function emptyGraph(): NetworkProviderReceipt["graph"] {
   return { engineVersion: null, tilesetLastModified: null, osmChangeset: null, checksumSha256: null, provenanceCompleteness: "unavailable", observedAt: new Date().toISOString() };
+}
+
+function graphReceipt(value: unknown): ValhallaGraphReceipt | null {
+  if (!record(value)
+    || typeof value.engineVersion !== "string" || value.engineVersion.length < 1 || value.engineVersion.length > 100
+    || typeof value.tilesetLastModified !== "string" || !Number.isFinite(Date.parse(value.tilesetLastModified))
+    || !(value.osmChangeset === null || Number.isSafeInteger(value.osmChangeset))
+    || value.checksumSha256 !== null
+    || value.provenanceCompleteness !== "provider_status_without_checksum"
+    || typeof value.observedAt !== "string" || !Number.isFinite(Date.parse(value.observedAt))) return null;
+  return {
+    engineVersion: value.engineVersion,
+    tilesetLastModified: value.tilesetLastModified,
+    osmChangeset: value.osmChangeset as number | null,
+    checksumSha256: null,
+    provenanceCompleteness: "provider_status_without_checksum",
+    observedAt: value.observedAt,
+  };
 }
 
 function center(value: unknown): Center {

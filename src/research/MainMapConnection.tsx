@@ -34,7 +34,6 @@ import "./mainMapConnection.css";
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
-const NETWORK_PROVIDER = new ValhallaNetworkProvider();
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -56,6 +55,7 @@ export function MainMapConnection(props: Props) {
   const controller = useRef<StudyController | null>(null);
   const responder = useRef<QueryResponder | null>(null);
   const analysis = useRef<ResearchAnalysisSession | null>(null);
+  const networkProvider = useRef<ValhallaNetworkProvider | null>(null);
   const locationLookup = useRef<AbortController | null>(null);
   const connectionEpoch = useRef(0);
   const applying = useRef(false);
@@ -164,7 +164,7 @@ export function MainMapConnection(props: Props) {
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
-    controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
+    controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
     responder.current = context ? new QueryResponder(context, async (request: BrowserQuery) => {
@@ -242,9 +242,14 @@ export function MainMapConnection(props: Props) {
           finally { if (locationLookup.current === lookup) locationLookup.current = null; }
           break;
         }
-        case "route_distance": result = await NETWORK_PROVIDER.routeDistance(request.args) as unknown as Record<string, unknown>; break;
+        case "route_distance": {
+          if (!networkProvider.current) throw new Error("NETWORK_PROVIDER_UNAVAILABLE");
+          result = await networkProvider.current.routeDistance(request.args) as unknown as Record<string, unknown>;
+          break;
+        }
         case "walking_isochrone": {
-          const outcome = await NETWORK_PROVIDER.walkingIsochrone(request.args);
+          if (!networkProvider.current) throw new Error("NETWORK_PROVIDER_UNAVAILABLE");
+          const outcome = await networkProvider.current.walkingIsochrone(request.args);
           if (outcome.status === "READY" && "contours" in outcome) {
             if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
             result = analysis.current.storeWalkingIsochrone(outcome);

@@ -2,6 +2,7 @@ import type { TimelineChange } from "./timelineControl";
 export const RESEARCH_API_PREFIX = "/api/research/v1";
 export const BRIDGE_TIMEOUT_MS = 8_000;
 export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
+export const MAX_NETWORK_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024;
 
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlScene = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
@@ -43,16 +44,19 @@ export class BridgeClient {
   async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/pause", { studyId, tabId, paused }, isStudyState)); }
   async query(studyId: string, tabId: string): Promise<{ request: BrowserQuery | null }> { return this.post("/browser/query", { studyId, tabId }, isQueryEnvelope); }
   async queryResult(studyId: string, tabId: string, requestId: string, result: QueryResult): Promise<void> { await this.post("/browser/query-result", { studyId, tabId, requestId, result }, isAnyResponse); }
+  async networkProvider(studyId: string, tabId: string, operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>): Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> }> {
+    return this.post("/browser/network-provider", { studyId, tabId, operation, args }, isNetworkProviderResponse, MAX_NETWORK_PROVIDER_RESPONSE_BYTES);
+  }
   async revoke(studyId: string): Promise<void> { await this.post("/studies/revoke", { studyId }, isAnyResponse); }
 
-  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T): Promise<T> {
+  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T, maxResponseBytes = MAX_BRIDGE_RESPONSE_BYTES): Promise<T> {
     const token = await this.getAccessToken();
     if (!token) throw new BridgeError("AUTH_REQUIRED");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), BRIDGE_TIMEOUT_MS);
     try {
       const response = await this.fetcher(`${RESEARCH_API_PREFIX}${path}`, { method: "POST", redirect: "error", cache: "no-store", signal: controller.signal, headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
-      const text = await boundedText(response);
+      const text = await boundedText(response, maxResponseBytes);
       let payload: unknown;
       try { payload = text ? JSON.parse(text) : {}; } catch { throw new BridgeError("INVALID_RESPONSE"); }
       if (!response.ok) throw new BridgeError(errorCode(payload), retryAfterMs(response));
@@ -66,11 +70,11 @@ export class BridgeClient {
   }
 }
 
-async function boundedText(response: Response): Promise<string> {
+async function boundedText(response: Response, maxBytes: number): Promise<string> {
   const reader = response.body?.getReader();
   if (!reader) return response.text();
   const chunks: Uint8Array[] = []; let size = 0;
-  while (true) { const next = await reader.read(); if (next.done) break; size += next.value.byteLength; if (size > MAX_BRIDGE_RESPONSE_BYTES) { await reader.cancel(); throw new BridgeError("RESPONSE_TOO_LARGE"); } chunks.push(next.value); }
+  while (true) { const next = await reader.read(); if (next.done) break; size += next.value.byteLength; if (size > maxBytes) { await reader.cancel(); throw new BridgeError("RESPONSE_TOO_LARGE"); } chunks.push(next.value); }
   return new TextDecoder().decode(concat(chunks, size));
 }
 function concat(chunks: Uint8Array[], size: number): Uint8Array { const output = new Uint8Array(size); let offset = 0; for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.byteLength; } return output; }
@@ -89,6 +93,7 @@ function isPairingRequest(value: unknown): value is PairingRequest { return isOb
 function isPairingStatus(value: unknown): value is PairingStatus { return exactObject(value, ["pairingId", "claimed", "approved", "deviceLabel", "phrase"]) && safeId(value.pairingId) && typeof value.claimed === "boolean" && typeof value.approved === "boolean" && nullableText(value.deviceLabel) && nullableText(value.phrase); }
 function safeId(value: unknown): value is string { return typeof value === "string" && /^[A-Za-z0-9._-]{1,128}$/.test(value); }
 function isAnyResponse(_value: unknown): _value is unknown { return true; }
+function isNetworkProviderResponse(value: unknown): value is { graph: Record<string, unknown>; payload: Record<string, unknown> } { return exactObject(value, ["graph", "payload"]) && isObject(value.graph) && isObject(value.payload); }
 function nullableText(value: unknown): value is string | null { return value === null || typeof value === "string"; }
 function exactObject(value: unknown, keys: string[]): value is Record<string, unknown> { return isObject(value) && Object.keys(value).length === keys.length && keys.every((key) => key in value); }
 function isScene(value: unknown): value is Scene { return isObject(value) && Object.keys(value).every(key => ["camera", "resultMode", "layers", "layerControl", "framing", "timeline", "nearby", "results", "focus"].includes(key)) && (value.layers === undefined || isLayers(value.layers)) && (value.framing === undefined || isFraming(value.framing)) && (value.timeline === undefined || isTimeline(value.timeline)) && (value.layerControl === undefined || isLayerControl(value.layerControl)) && (value.nearby === undefined || isNearby(value.nearby)) && (value.results === undefined || isResults(value.results)) && (value.focus === undefined || isFocus(value.focus)) && exactObject(value.camera, ["center", "zoom"]) && Array.isArray(value.camera.center) && value.camera.center.length === 2 && value.camera.center.every((part) => typeof part === "number" && Number.isFinite(part)) && value.camera.center[0] >= -180 && value.camera.center[0] <= 180 && value.camera.center[1] >= -85 && value.camera.center[1] <= 85 && typeof value.camera.zoom === "number" && Number.isFinite(value.camera.zoom) && value.camera.zoom >= 0 && value.camera.zoom <= 18 && (value.resultMode === "empty" || value.resultMode === "synthetic"); }

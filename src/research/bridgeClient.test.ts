@@ -14,6 +14,18 @@ describe("BridgeClient", () => {
     expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/sync`, expect.objectContaining({ method: "POST", redirect: "error", cache: "no-store", headers: { "content-type": "application/json", authorization: "Bearer secret-token" }, body: JSON.stringify({ studyId: "study-1", tabId: "tab-1" }) }));
   });
 
+  it("relays consented network operations through the authenticated same-origin gateway", async () => {
+    const providerResponse = { graph: { engineVersion: "3.5.1" }, payload: { type: "FeatureCollection", features: [] } };
+    const fetcher = vi.fn().mockResolvedValue(response(providerResponse));
+    const client = new BridgeClient(async () => "secret-token", fetcher);
+    const args = { center: [121.5, 25], contoursMinutes: [5], provider: "valhalla", externalConsent: true };
+    await expect(client.networkProvider("study-1", "tab-1", "walking_isochrone", args)).resolves.toEqual(providerResponse);
+    expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/network-provider`, expect.objectContaining({
+      method: "POST", headers: { "content-type": "application/json", authorization: "Bearer secret-token" },
+      body: JSON.stringify({ studyId: "study-1", tabId: "tab-1", operation: "walking_isochrone", args }),
+    }));
+  });
+
   it("calls the default browser fetch without BridgeClient as this", async () => {
     let receiver: unknown = "not-called";
     vi.stubGlobal("fetch", function (this: unknown) { receiver = this; return Promise.resolve(response(state)); });
