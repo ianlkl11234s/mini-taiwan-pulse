@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
 import type { RegionalStatisticsResult } from "../../data/regionalStatisticsLoader";
 import { QueryExecutor } from "../queryExecutor";
+import { MAX_QUERY_RESULT_BYTES } from "../QueryResponder";
+import { describeDataset } from "../researchDatasets";
 import { createSocialStatisticsAdapters, socialStatisticsDatasetId } from "../statisticsDatasetAdapters";
 
 const checksum = "a".repeat(64);
@@ -49,6 +51,12 @@ describe("social statistics dataset compiler", () => {
     expect(descriptors.every(item => item.datasetId.startsWith("regional-statistics:") && item.access.query.enabled && item.geometry.type === "MultiPolygon" && item.geometry.crs === "EPSG:4326" && item.geometry.role === "actual" && item.geometry.spatialAnalysisEligible)).toBe(true);
     expect(descriptors.every(item => item.access.limits.maxResponseBytes === 1024 * 1024)).toBe(true);
     expect(descriptors.every(item => item.versions.length > 0 && item.fields.find(field => field.name === "value")?.unit)).toBe(true);
+  });
+
+  it("keeps a release-rich descriptor inside the paired query transport budget", () => {
+    const descriptor = describeDataset("regional-statistics:statsEducationCountyStudentTeacherRatio");
+    const bytes = new TextEncoder().encode(JSON.stringify({ ok: true, data: descriptor })).byteLength;
+    expect(bytes).toBeLessThanOrEqual(MAX_QUERY_RESULT_BYTES);
   });
 
   it("uses the exact recipe selector and preserves county status semantics", async () => {
