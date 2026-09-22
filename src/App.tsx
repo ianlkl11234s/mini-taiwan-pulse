@@ -88,7 +88,7 @@ import { InfoModal } from "./components/InfoModal";
 import { UserAvatar } from "./components/auth/UserAvatar";
 import { AdminPanel } from "./components/admin/AdminPanel";
 import { useMemberGate, signInWithGoogle } from "./lib/auth";
-import { GATED_LAYERS } from "./components/sidebar/layerCatalog";
+import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "./components/sidebar/layerCatalog";
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
@@ -205,11 +205,11 @@ export default function App() {
   }, [memberAuthLoading]);
   const memberUserRef = useRef(memberUser);
   memberUserRef.current = memberUser;
-  const [gatedNotice, setGatedNotice] = useState(false);
+  const [gatedNotice, setGatedNotice] = useState<string | null>(null);
   const [adminOpen, setAdminOpen] = useState(false);
   useEffect(() => {
     if (!gatedNotice) return;
-    const t = setTimeout(() => setGatedNotice(false), 2600);
+    const t = setTimeout(() => setGatedNotice(null), 2600);
     return () => clearTimeout(t);
   }, [gatedNotice]);
 
@@ -228,6 +228,7 @@ export default function App() {
     for (const key of candidates) {
       if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
     }
+    for (const key of RELEASE_HOLD_LAYERS) s.add(key);
     if (!allenCoralAccess.allowed) s.add("allenCoralAtlas");
     if (!jpWaterPrivateAccess.allowed) for (const key of JP_WATER_PRIVATE_LAYER_KEYS) s.add(key);
     return s;
@@ -942,6 +943,19 @@ export default function App() {
     if (featureInfo && isJpWaterPrivateLayer(featureInfo.layerType)) setFeatureInfo(null);
   }, [featureInfo, jpWaterPrivateAccess.allowed, setFeatureInfo, setLayerVisibility]);
 
+  // 授權 HOLD 是全體使用者的 release gate，不能因 owner 或儲存的 scene/URL 繞過。
+  useEffect(() => {
+    setLayerVisibility((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const key of RELEASE_HOLD_LAYERS) {
+        if (next[key]) { next[key] = false; changed = true; }
+      }
+      return changed ? next : current;
+    });
+    if (featureInfo && RELEASE_HOLD_LAYERS.has(featureInfo.layerType as keyof LayerVisibility)) setFeatureInfo(null);
+  }, [featureInfo, setFeatureInfo, setLayerVisibility]);
+
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
   const activeReservoirId: number | null = (() => {
@@ -1436,10 +1450,14 @@ export default function App() {
   const handleGatedIntercept = useCallback((layer: keyof LayerVisibility): boolean => {
     // lockedKeys 已內含 tier 判定（owner / 授權 tier → 不在集合）
     if (!lockedKeysRef.current.has(layer)) return false;
+    if (RELEASE_HOLD_LAYERS.has(layer)) {
+      setGatedNotice("圖層授權或再散布條件尚未驗證，目前暫停啟用");
+      return true;
+    }
     if (!memberUserRef.current) {
       void signInWithGoogle().catch((err) => console.error("[owner-gate] signIn failed", err));
     } else {
-      setGatedNotice(true);
+      setGatedNotice("私人圖層，僅擁有者可檢視");
     }
     return true;
   }, []);
@@ -1773,7 +1791,7 @@ export default function App() {
             boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
           }}
         >
-          私人圖層，僅擁有者可檢視
+          {gatedNotice}
         </div>
       )}
       {/* Day-loading overlay — 半透明遮罩 */}

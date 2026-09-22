@@ -13,7 +13,7 @@ describe("layer capability registry", () => {
 
   it("declares complete-source readers, on-demand GeoJSON candidates, and refuses to infer PMTiles records", () => {
     const schools = listLayerCapabilities({ query: "schools" });
-    expect(schools.layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "point", supportedMeasures: ["count"], timeModel: "static_version", freshness: "unknown" })]));
+    expect(schools.layers).toEqual(expect.arrayContaining([expect.objectContaining({ layerKey: "schools", recordSearch: "ready", aggregate: "complete_source_asset", dataRole: "point", supportedMeasures: ["count"], timeModel: "static_version", freshness: "unknown", sourceContract: { licenseStatus: "not_recorded", publicationStatus: "existing_public_asset_not_a_license_verification" } })]));
     const pmtiles = listLayerCapabilities({ query: "pmtiles" });
     expect(pmtiles.layers).toEqual(expect.arrayContaining([expect.objectContaining({ sourceKinds: expect.arrayContaining(["pmtiles"]), recordSearch: "not_registered", aggregate: "not_registered", dataRole: "unknown", supportedMeasures: [], timeModel: "unknown", freshness: "unsupported" })]));
     const countReady = listLayerCapabilities({ measure: "count", status: "ready" });

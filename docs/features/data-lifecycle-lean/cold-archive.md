@@ -20,7 +20,7 @@
 
 ## 還原前置與限制
 
-以相容的 PostgreSQL 17、PostGIS、`live` schema 與 extensions 還原；補回 `anon`、`authenticated` 角色及 schema SQL 所列權限。依 `dependencies.sql` 與 `schema.sql` 為準，匯入 `news_events` 時暫停 user triggers，避免重算 geom。CSV 保留 `CSV_NULL='\N'`、timezone、PK、型別 metadata；匯入 identity 值後執行序列 `setval`。2026-09-20 已完成實際 Deep Archive restore 與隔離 PostgreSQL reload，結果見下節。實際 DB 的 IoT FK 數為 0，與 repo 舊假設不同；沒有 parent export，`pg_dump` 實測結果優先。
+以相容的 PostgreSQL 17、PostGIS、`live` schema 與 extensions 還原；補回 `anon`、`authenticated` 角色及 schema SQL 所列權限。依 `dependencies.sql` 與 `schema.sql` 為準，匯入 `news_events` 時暫停 user triggers，避免重算 geom。CSV 保留 `CSV_NULL='\N'`、timezone、PK、型別 metadata；匯入 identity 值後執行序列 `setval`。2026-09-20 已完成 Deep Archive restore request 與隔離 PostgreSQL reload；但 download receipt 中三份檔案皆為 `reused: true`，只證明現有本地 exact-byte 檔案可完成 reload，不證明本次有從 S3 重新下載。隔離 reload 結果見下節。實際 DB 的 IoT FK 數為 0，與 repo 舊假設不同；沒有 parent export，`pg_dump` 實測結果優先。
 
 ## GFW spool 不是本次刪除範圍
 
@@ -45,11 +45,11 @@ READ ONLY snapshot：`2026-09-18T13:56:37.450575Z`。全部欄位、NULL 與主�
 1. 已先完成無損壓縮，沒有裁掉歷史欄位。YouTube 重複頻道／標題非常適合壓縮；不同觀測時間的相同影片仍是不同歷史。
 2. IoT 約 62.7% DB 體積是索引；封存不搬索引頁面，還原時依 schema 重建。線上索引須另查真實查詢與使用率，不能直接刪除。
 3. GFW 八個失敗窗口合計含 SQLite 3,423,789,056 bytes、NDJSON 2,456,829,518 bytes。優先驗證 SQLite 可重建，再將按日／來源版本相同的 normalized 資料共用；來源修訂或衝突需保留 provenance。樣本重疊率不能換算可回收全量 bytes。
-4. 刪除 DB 歷史前仍需實際還原演練、前端歷史查詢邊界與明確線上保留政策；本次不因有冷副本就啟動 cleanup。
+4. 刪除 DB 歷史前仍需完成一次不重用本地檔案的 authenticated S3 GET，逐檔核對 bytes/SHA-256，並確認前端歷史查詢邊界、線上保留政策與 rollback 窗口；本次不因有冷副本就啟動 cleanup。
 
-## 實際還原演練（2026-09-20）
+## 隔離 reload 演練（2026-09-20）
 
-三個 `DEEP_ARCHIVE` 物件以 Standard tier 正式取回，建立 1 天暫存可讀副本；S3 回報完成後，三份 gzip 再次完整下載並核對原始 bytes／SHA-256。資料載入專用 Docker volume 中的 PostgreSQL 17／PostGIS 3.5.2，沒有連線正式 DB。
+三個 `DEEP_ARCHIVE` 物件以 Standard tier 提出取回，S3 回報已建立 1 天暫存可讀副本。後續 reload 使用三份已存在且 bytes／SHA-256 相符的本地 gzip（receipt 皆為 `reused: true`），因此本節可證明 schema/data reload 與內容等價性，不能當作新鮮 S3 GET 的證據。資料載入專用 Docker volume 中的 PostgreSQL 17／PostGIS 3.5.2，沒有連線正式 DB。
 
 | 表 | 還原列數 | 結果 |
 |---|---:|---|

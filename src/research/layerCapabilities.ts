@@ -17,6 +17,7 @@ export interface LayerCapability {
   supportedMeasures: readonly string[];
   timeModel: "static_version" | "unknown";
   freshness: "unknown" | "unsupported";
+  sourceContract: { licenseStatus: "not_recorded"; publicationStatus: "existing_public_asset_not_a_license_verification" } | null;
   reason: string;
   onboarding: { required: readonly string[]; nextStep: string };
 }
@@ -46,8 +47,9 @@ function capabilityFor(key: ManifestKey): LayerCapability {
     supportedMeasures: ready || onDemand ? ["count"] : [],
     timeModel: ready || onDemand ? "static_version" : "unknown",
     freshness: ready || onDemand ? "unknown" : "unsupported",
+    sourceContract: ready ? { licenseStatus: "not_recorded", publicationStatus: "existing_public_asset_not_a_license_verification" } : null,
     reason: ready
-      ? "已驗證完整 GeoJSON 資產、欄位白名單與來源紀錄粒度。"
+      ? "已驗證完整 GeoJSON 資產、欄位白名單與來源紀錄粒度；ready 僅代表分析 reader 就緒，不代表授權已驗證。"
       : onDemand
         ? "單一 same-origin GeoJSON 候選；只有實際 readback 通過 bytes/rows/Point geometry/receipt 驗證後，才可對該快照計數。"
       : kinds.includes("pmtiles")

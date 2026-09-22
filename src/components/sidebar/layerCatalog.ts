@@ -2048,6 +2048,13 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);
 
+/** 授權或再散布條件尚未驗證：所有帳號均 fail-closed，不可用 owner gate 取代授權。 */
+export const RELEASE_HOLD_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
+  "historicalFlightTrails", "jpHistoricalFlightTrails",
+  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
+  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
+]);
+
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */
 export function isLayerLockedFor(key: keyof LayerVisibility, isOwner: boolean): boolean {
   return !isOwner && GATED_LAYERS.has(key);

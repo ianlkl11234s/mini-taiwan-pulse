@@ -22,6 +22,7 @@ function loadCatalogDatasetIds(): Set<string> {
     ? resolve(analyticsRoot, "docs/data-catalog")
     : resolve(__dirname, "../../../../taipei-gis-analytics/docs/data-catalog");
   if (!existsSync(catalogRoot)) {
+    if (analyticsRoot) throw new Error(`TAIPEI_GIS_ANALYTICS_ROOT does not contain docs/data-catalog: ${catalogRoot}`);
     // CI 沒 sibling repo 時 graceful skip — 只擋本 repo 內部一致性
     return new Set<string>();
   }

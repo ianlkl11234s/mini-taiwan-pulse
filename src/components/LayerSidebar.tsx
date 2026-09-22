@@ -534,7 +534,7 @@ function SidebarContent({
             return (
               <div key={key}>
                 <div
-                  title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
+                  title={locked ? "此圖層目前不可用" : undefined}
                   style={{
                     display: "flex",
                     alignItems: "center",

@@ -857,28 +857,10 @@ const LayerRow = memo(function LayerRow({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      aria-expanded={expandable ? isExpanded : undefined}
-      aria-pressed={!expandable ? active : undefined}
-      onClick={handleClick}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleClick();
-        }
-      }}
-      title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 8,
-        padding: "5px 12px 5px 0",
-        cursor: "pointer",
         borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
-        paddingLeft: 10,
         opacity: locked ? 0.5 : 1,
         transition: "background 0.1s",
       }}
@@ -889,38 +871,42 @@ const LayerRow = memo(function LayerRow({
         (e.currentTarget as HTMLElement).style.background = "transparent";
       }}
     >
-      <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
-      <span
-        style={{
-          flex: 1,
-          fontSize: FONT_SIZE.md,
-          fontFamily: "Inter, system-ui, sans-serif",
-          color: TEXT_STRONG,
-          transition: "color 0.15s",
-        }}
+      <button
+        type="button"
+        aria-label={label}
+        aria-expanded={expandable ? isExpanded : undefined}
+        aria-pressed={!expandable ? active : undefined}
+        onClick={handleClick}
+        title={locked ? "此圖層目前不可用" : undefined}
+        style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, padding: "5px 8px 5px 10px", border: 0, background: "transparent", cursor: "pointer", color: "inherit", textAlign: "left" }}
       >
-        {label}
-      </span>
-      {count != null && count > 0 && !locked && (
+        <Icon size={14} color={active || isStatisticsRenderLayer(layerKey) || layerKey === "crimeAreaMonthly" ? color : DIM} style={{ flexShrink: 0 }} />
         <span
           style={{
-            fontFamily: FONT_DATA,
-            fontSize: FONT_SIZE.base,
-            color: active ? color : INACTIVE_TEXT,
-            marginRight: 4,
+            flex: 1,
+            fontSize: FONT_SIZE.md,
+            fontFamily: "Inter, system-ui, sans-serif",
+            color: TEXT_STRONG,
+            transition: "color 0.15s",
           }}
         >
-          {count.toLocaleString()}
+          {label}
         </span>
-      )}
-      {expandable && !locked && (
-        <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-          {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-        </span>
-      )}
+        {count != null && count > 0 && !locked && (
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: active ? color : INACTIVE_TEXT, marginRight: 4 }}>
+            {count.toLocaleString()}
+          </span>
+        )}
+        {expandable && !locked && (
+          <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
+            {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          </span>
+        )}
+        {locked && <Lock size={13} color={DIM} style={{ flexShrink: 0 }} />}
+      </button>
       {locked
-        ? <Lock size={13} color={DIM} style={{ flexShrink: 0 }} />
-        : <ToggleSwitch on={active} onChange={handleToggle} />}
+        ? null
+        : <span style={{ paddingRight: 12, display: "flex" }}><ToggleSwitch on={active} onChange={handleToggle} /></span>}
     </div>
   );
 });
@@ -942,22 +928,9 @@ function ThemeBanner({
   const indicatorColor = allOn ? TEXT_STRONG : someOn ? INACTIVE_TEXT : DIM;
   return (
     <div
-      role="button"
-      tabIndex={0}
-      aria-expanded={!isCollapsed}
-      onClick={onToggleCollapse}
-      onKeyDown={(event) => {
-        if (event.target !== event.currentTarget) return;
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onToggleCollapse();
-        }
-      }}
       style={{
         display: "flex",
         alignItems: "center",
-        gap: 6,
-        padding: "8px 12px",
         // sticky：滾到該 theme 內容時 banner 黏在頂部，直到下一個 theme banner 把它推出
         position: "sticky",
         top: 0,
@@ -967,37 +940,26 @@ function ThemeBanner({
         WebkitBackdropFilter: "blur(8px)",
         borderTop: `1px solid ${BORDER}`,
         borderBottom: isCollapsed ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
-        cursor: "pointer",
         userSelect: "none",
       }}
     >
-      <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
-      </span>
-      <span
-        style={{
-          flex: 1,
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.md,
-          fontWeight: 700,
-          letterSpacing: 1.5,
-          color: TEXT_STRONG,
-          textTransform: "uppercase",
-        }}
+      <button
+        type="button"
+        aria-expanded={!isCollapsed}
+        onClick={onToggleCollapse}
+        style={{ display: "flex", alignItems: "center", gap: 6, flex: 1, minWidth: 0, padding: "8px 4px 8px 12px", border: 0, background: "transparent", cursor: "pointer", color: "inherit", textAlign: "left" }}
       >
-        {title}
-      </span>
-      <span
-        style={{
-          fontFamily: FONT_DATA,
-          fontSize: FONT_SIZE.xs,
-          color: indicatorColor,
-          marginRight: 4,
-        }}
-      >
-        {onCount}/{totalCount}
-      </span>
-      <ToggleSwitch on={someOn} onChange={onBulkToggle} />
+        <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
+          {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+        </span>
+        <span style={{ flex: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, letterSpacing: 1.5, color: TEXT_STRONG, textTransform: "uppercase" }}>
+          {title}
+        </span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: indicatorColor, marginRight: 4 }}>
+          {onCount}/{totalCount}
+        </span>
+      </button>
+      <span style={{ paddingRight: 12, display: "flex" }}><ToggleSwitch on={someOn} onChange={onBulkToggle} /></span>
     </div>
   );
 }
