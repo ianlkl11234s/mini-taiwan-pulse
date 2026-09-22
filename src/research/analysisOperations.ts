@@ -1,6 +1,6 @@
 import type { GeometryRole, RecordGrain, SourceReceipt } from "./dataContracts";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
-import { geometriesIntersect, geometryWithin, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
+import { geometriesIntersect, geometryWithin, locatePointInSurface, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
 
 type Row = Record<string, unknown>;
 type Point = { type: "Point"; coordinates: [number, number] };
@@ -43,6 +43,7 @@ export interface ReadSeriesInput { resultId: string; timeField: string; resoluti
 export interface CompareSeriesInput { currentResultId: string; baselineResultId: string; operation: "ratio" | "difference"; }
 export interface SpatialJoinInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; }
 export interface AggregateByAreaInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; outputField?: string; }
+export interface AreasContainingCenterInput { areaResultId: string; center: { lng: number; lat: number }; }
 
 export interface QualitySummary {
   resultId: string;
@@ -174,6 +175,20 @@ export class AnalysisOperations {
     return this.save("aggregate_by_area", [points, areas], rows, areas.recordGrain, areas.geometry, { ...areas.units, [outputField]: "records" },
       { predicate: input.predicate, outputField, pointGeometryRole: points.geometry.role, areaGeometryRole: areas.geometry.role, boundaryRule: input.predicate === "within" ? "boundary_excluded" : "boundary_included", maxComparisons: 10_000_000 },
       { pointRows: points.rows.length, areaRows: areas.rows.length, comparisons: pairs, boundaryMatches, zeroAreas: rows.filter(row => row[outputField] === 0).length, zeroMeaning: "No point records from the declared point result matched this boundary; not proof that the real-world service count is zero." });
+  }
+
+  /** Resolves a supplied map/user coordinate against source-observed area geometry. */
+  areasContainingCenter(input: AreasContainingCenterInput): AnalysisResult {
+    assertCenter(input.center);
+    const areas = this.data(input.areaResultId);
+    if (!['Polygon', 'MultiPolygon'].includes(areas.geometry.type) || areas.geometry.role !== "actual" || !areas.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+    const center: PointGeometry = { type: "Point", coordinates: [input.center.lng, input.center.lat] };
+    const rows = areas.rows.filter(row => locatePointInSurface(center, this.surface(row.geometry)) === "inside");
+    return this.save("spatial_join", [areas], rows, areas.recordGrain, areas.geometry, areas.units, {
+      predicate: "contains_center", center: [input.center.lng, input.center.lat], centerSource: "map_or_user_coordinate", boundaryRule: "boundary_excluded",
+    }, {
+      matchedAreas: rows.length, centerMeaning: "The supplied map or user coordinate, not a source-observed POI.",
+    });
   }
 
   aggregate(input: AggregateInput): AnalysisResult {

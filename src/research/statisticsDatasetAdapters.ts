@@ -79,6 +79,7 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       filters: ["release_id", "dataset_id", "indicator_id", "layer_key", "level", "area_code", "status", "source_status", "boundary_version"],
       timeFields: ["period_start", "period_end"], maxRowsPerQuery: 100, maxScanRows: 10_000, maxResponseBytes: 1024 * 1024,
     }),
+    parameters: [{ name: "releaseId", type: "string", required: true, options: recipe.release_options.map(option => option.release_id) }],
     supportedOperations: ["query_records", "aggregate"],
     adapterId: "regional-statistics-recipe-v1",
   };

@@ -160,7 +160,7 @@ const statisticsDescriptor: DatasetDescriptor = {
   coverage: JSON.stringify(PADDY.release_options[0]?.coverage ?? { status: "unknown" }), license: String(PADDY.source.license ?? "unknown"), valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "status/source_token distinguishes missing, suppressed and not_reported; null is never zero", suppressed: "suppressed status requires value=null and may retain only the source token", zero: "value=0 is valid only with status=observed" },
   versions: PADDY.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
   source: { publisher: String(PADDY.source.publisher ?? "unknown"), reference: String(PADDY.source.source_landing_url ?? "unknown"), lineage: "immutable current pointer -> hashed manifest -> exact release artifact; geometry is not returned by query_records" },
-  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
+  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), parameters: [{ name: "releaseId", type: "string", required: true, options: PADDY.release_options.map(option => option.release_id) }], supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
 };
 
 function receipt(sourceId: string, version: string, reference: string, checksumSha256: string | null = null): SourceReceipt {
@@ -265,7 +265,12 @@ function allDescriptors(): DatasetDescriptor[] {
 
 /** Read-only descriptor lookup for manifest-derived capability reporting; never hydrates a source. */
 export function registeredDatasetForLayer(layerKey: string): DatasetDescriptor | null {
-  return allDescriptors().find(descriptor => descriptor.layerRefs.includes(layerKey)) ?? null;
+  return registeredDatasetsForLayer(layerKey)[0] ?? null;
+}
+
+/** Registry-derived layer mapping used by discovery and capability reporting; it never loads a source. */
+export function registeredDatasetsForLayer(layerKey: string): readonly DatasetDescriptor[] {
+  return allDescriptors().filter(descriptor => descriptor.layerRefs.includes(layerKey));
 }
 
 /** Temporary projection for the legacy browser-chat tools; metadata stays owned by the dataset descriptor. */
@@ -325,6 +330,11 @@ export function describeDataset(datasetId: string, locked: ReadonlySet<string> =
 
 export async function queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
   return await RESEARCH_QUERY_EXECUTOR.execute(input) as unknown as Record<string, unknown>;
+}
+
+/** Use before persisting a query plan so required selectors fail before materialization. */
+export function validateQueryRecordsInput(input: QueryRecordsInput): QueryRecordsInput {
+  return RESEARCH_QUERY_EXECUTOR.validateParameters(input);
 }
 
 export async function queryRecordsDetailed(input: QueryRecordsInput): Promise<QueryExecution> {

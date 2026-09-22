@@ -23,10 +23,11 @@ export interface AdapterSnapshot {
 
 export type SnapshotReader = (parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal) => Promise<AdapterSnapshot>;
 
-function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter["allowedParameters"], reader: SnapshotReader): QueryAdapter {
+function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter["allowedParameters"], reader: SnapshotReader, requiredParameters?: readonly string[]): QueryAdapter {
   return {
     descriptor,
     allowedParameters,
+    ...(requiredParameters ? { requiredParameters } : {}),
     async read(parameters, signal): Promise<AdapterReadResult> {
       const snapshot = await reader(parameters, signal);
       return {
@@ -66,5 +67,5 @@ export function createAdminStatisticsAdapter(descriptor: DatasetDescriptor, read
       } else if (typeof row.status !== "string" || row.value !== null) throw new Error("INVALID_STATISTICS_VALUE");
     }
     return snapshot;
-  });
+  }, ["releaseId"]);
 }

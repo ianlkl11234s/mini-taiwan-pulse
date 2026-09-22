@@ -6,6 +6,27 @@ export interface IdleMap {
   off(type: "idle" | "render" | "error", callback: () => void): unknown;
   triggerRepaint(): void;
 }
+
+/**
+ * Lets React commit panel layout before camera measurement without relying on
+ * an unbounded rAF chain. A hidden document has no reliable animation frame;
+ * callers must still obtain a real Mapbox render receipt before success.
+ */
+export function waitForLayoutFrame(timeoutMs = 500): Promise<boolean> {
+  if (typeof document !== "undefined" && document.visibilityState === "hidden") return Promise.resolve(false);
+  if (typeof requestAnimationFrame !== "function") return Promise.resolve(false);
+  return new Promise(resolve => {
+    let done = false;
+    const finish = (ready: boolean) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      resolve(ready);
+    };
+    const timer = setTimeout(() => finish(false), timeoutMs);
+    requestAnimationFrame(() => requestAnimationFrame(() => finish(true)));
+  });
+}
 /** Timeout is a failure, never a successful render acknowledgement. */
 export function awaitSceneIdle(map: IdleMap, revision: number, report: (phase: ScenePhase) => void, timeoutMs = 10_000, failOnMapError = true): () => void {
   const task = `research:render:${revision}`;

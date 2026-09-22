@@ -5,6 +5,10 @@
 > 白話導覽：[pulse-research-system-guide-20260921.md](./pulse-research-system-guide-20260921.md)
 > 互動架構圖：[pulse-research-system-map.html](./pulse-research-system-map.html)
 
+### 2026-09-22 optimization worktree checkpoint
+
+本機隔離修正與最新驗收見 [research-streamline-acceptance-20260922.md](./research-streamline-acceptance-20260922.md)。49-tool built stdio、14-step warm analysis 約 9.0–9.3 秒、六結果 paired-browser readback 已驗證；未 commit／整合／發布，不能把本節當成原分支或 production 已更新。
+
 ## 1. 新 session 先讀這裡
 
 這輪已把 Mini Taiwan Pulse 從「能搜尋／開關圖層」推進到「有 Dataset／Access 契約、可做有界查詢與基礎 GIS 分析、可保留 receipt、可控制配對網站」的階段。

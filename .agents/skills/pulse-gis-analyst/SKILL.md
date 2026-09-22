@@ -9,7 +9,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 1. 先路由，再動工具
 
-先辨識當下的**下一個需要**，不要一次規劃或呼叫全部工具：
+先辨識問題所需的資料與方法；已知的有界相依步驟可一次交給 `pulse_run_analysis_plan`，不用每步重新決策：
 
 | 需要 | 首選入口 |
 |---|---|
@@ -24,7 +24,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 | 操作既有地圖 | 先讀 context/revision，再用 typed map tools 並等待 ready |
 | 配對或 pending receipt | session tools／`pulse_get_query_result` |
 
-精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。**若問題是開放式且跨 discovery/query/analysis/presentation，第一個 Pulse tool 必須是一次 `pulse_route_request`。** Jev 只提供 capability 與候選，不執行、不授權；低信心、provider error 或候選不合法時，立即退回上述 deterministic 路由，同一題不得再次呼叫 Jev。
+精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。只有問題含糊、無法判斷資料家族時，才選用一次 `pulse_route_request`；已知附近設施／行政統計等方法時可直接執行。 Jev 只提供 capability 與候選，不執行、不授權；低信心、provider error 或候選不合法時，立即退回上述 deterministic 路由，同一題不得再次呼叫 Jev。
 
 地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。預設 local-first；只有使用者明示選擇外部 provider、同意外傳，且 `pulse_get_provider_capabilities` 回報 provider ready 時才可送出地址。`disabled`／`hold` receipt 表示沒有外部請求或替代結果，不得當成 `no_match`。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
 
@@ -32,13 +32,18 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 2. 選最小可回答的分析鏈
 
-先 `describe_dataset` 確認 grain、欄位、geometry、CRS、coverage、version/time、license、missingness、access 與 supported operations。描述可以搜尋到，不代表有權讀、適合分析、最新或 production healthy。
+每個 dataset/version 首次使用時以 `describe_dataset` 確認 grain、欄位、geometry、CRS、coverage、version/time、license、missingness、access 與 supported operations。同題可重用已讀過的 descriptor，不必重複 describe。描述可以搜尋到，不代表有權讀、適合分析、最新或 production healthy。
+
+統計選版使用 `parameters: {releaseId: descriptor 中的合法 release_id}`；缺必填參數是可修正的輸入錯誤，不代表資料無權讀取。`plan_data_access` 不用作查詢失敗後的盲目重試。
+
+工具清單含 `pulse_run_analysis_plan` 時，把已知查詢、距離篩選、分類計數、品質檢查與 bounds 合成最多 16 步。每步的 args 沿用原工具 schema；相依 resultId 寫成 `{step: "前一步id", output: "resultId"}`。計劃回 partial 時保留已完成 resultIds，pending 用 requestId 接續，僅提交尚未執行步驟。sample rows 不是完整母體；以 total/summary/receipt 判讀，已有充分摘要時不用再 get_analysis_result。
 
 使用已宣告的 typed chain，不用舊 layer summary 代替 dataset analysis 驗收：
 
 - 分組統計：`query_records → aggregate_records → get_data_quality → get_analysis_result`
 - 行政統計面圖：查詢 `regional-statistics:<layer_key>` 的 exact release；確認 values receipt 與同版 boundary receipt，再 `present_result`／`set_result_collection`
 - 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
+- 地圖中心行政區：讀取同版行政統計面後，用 `spatial_query(predicate="contains_center", areaResultId, center)`；display scope 不能當作 actual Point。邊界線上的點要保留未唯一匹配，不猜行政區。
 - 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
 - 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
 - 跨資料比較：`describe A/B → query A/B → 相容性檢查 → join_records → calculate_metric`
@@ -67,7 +72,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 區分：
 
 - tool accepted/applied 不等於 scene ready；需要畫面結論時等待 ready 並做 browser readback。
-- 問題以地址、地名或明確座標作為空間分析中心時，完成查詢後預設同步取景：讀最新 map context/revision，優先以分析 result bounds `fit_bounds`；只有單一中心且沒有可用 bounds 時才 `set_camera`。等待 scene ready 並讀回中心／範圍；使用者明確說不要動地圖時例外。
+- 問題以地址、地名或明確座標作為空間分析中心時，完成查詢後預設同步取景：讀最新 map context/revision，優先將分析 bounds 作為 `set_result_collection.framing` 一次呈現及取景；單獨取景才用 `fit_bounds`；只有單一中心且沒有可用 bounds 時才 `set_camera`。等待 scene ready 並讀回中心／範圍；使用者明確說不要動地圖時例外。
 - 完整圖層已開啟，不等於分析結果已成為獨立結果圖層。必須有 `pulse_present_result`／`pulse_set_result_collection` 的 ready 及 `map_context.resultPresentation` 讀回才可說已高亮。
 - collection 的 items 陣列就是圖層順序；單層 `visible` 與所屬 group 的 `visible` 必須同時為 true 才會實際呈現。回答時以 readback 的 effective visible result IDs 為準，不把 collection 中隱藏的結果說成已顯示。
 - result presentation 不可用時，明說地圖顯示的是完整來源圖層或僅完成取景，不假稱只顯示篩選結果。
@@ -76,7 +81,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 5. 效率規則
 
-- 同一問題中所有會穿過 Gateway 的 Pulse query tools 必須依序呼叫，禁止平行 dispatch；MCP client queue 是第二層保護。
+- 優先用 bounded plan 減少 Agent 往返；plan 內由 MCP 依序 query，同 study 不平行 dispatch。用 collection + framing 後只等一次 ready，再做一次 map_context 完整 readback。
+- 圖層 search/describe 的 datasetIds 與 readCapabilities 可直接引導分析；不要因 renderer 類型猜測 reader 能力。
 - receipt 為 pending 時用 `pulse_get_query_result`，不要重送原查詢。
 - 遇到 `RESULT_TOO_LARGE` 時，先縮小 `select`／readback `limit`，不要只改 display limit 反覆重送；查詢可能已產生並儲存 result，無意義重試會浪費 session 容量。
 - 不為例行 Pulse 分析讀整份專案文件、memory 或通用資料分析 Skill；只有出現具體語意缺口才讀對應 reference。

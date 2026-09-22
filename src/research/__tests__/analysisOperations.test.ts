@@ -31,6 +31,16 @@ describe("BrowserMemoryResultStore", () => {
     expect(store.list().map(item => item.resultId)).toEqual(Array.from({ length: 16 }, (_, index) => `result-${index + 1}`));
   });
 
+  it("keeps the active collection pinned while evicting older unpinned results", () => {
+    const store = new BrowserMemoryResultStore<{ resultId: string }>({ maxResults: 3 });
+    store.put({ resultId: "active-a" }); store.put({ resultId: "active-b" }); store.put({ resultId: "older" });
+    store.setPinned(["active-a", "active-b"]);
+    store.put({ resultId: "next" });
+    expect(store.list().map(item => item.resultId)).toEqual(["active-a", "active-b", "next"]);
+    store.setPinned(["active-a", "active-b", "next"]);
+    expect(() => store.put({ resultId: "overflow" })).toThrow("RESULT_STORE_CAPACITY_PINNED");
+  });
+
   it("expires, evicts, and does not leak mutations", () => {
     let now = 0; const store = new BrowserMemoryResultStore<{ resultId: string; nested: { value: number } }>({ maxResults: 2, ttlMs: 10, now: () => now });
     store.put({ resultId: "a", nested: { value: 1 } }); store.put({ resultId: "b", nested: { value: 2 } }); store.put({ resultId: "c", nested: { value: 3 } });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, waitForSceneRender, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -9,7 +9,7 @@ class MapEvents implements IdleMap {
   triggerRepaint() {}
   emit(type: string) { for (const callback of this.listeners.get(type) ?? []) callback(); }
 }
-afterEach(() => vi.useRealTimers());
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 describe("research readiness", () => {
   it("times out as an error and releases all listeners and loading registrations", () => {
     vi.useFakeTimers();
@@ -44,5 +44,9 @@ describe("research readiness", () => {
     map.emit("render");
     await expect(wait.promise).resolves.toBe("ready");
     expect(loadingRegistry.snapshot()).toEqual([]);
+  });
+  it("does not wait forever for hidden-document layout frames", async () => {
+    vi.stubGlobal("document", { visibilityState: "hidden" });
+    await expect(waitForLayoutFrame()).resolves.toBe(false);
   });
 });

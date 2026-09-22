@@ -26,7 +26,7 @@ import { describeDataset, ensureDataset, searchDatasets } from "./researchDatase
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { waitForSceneRender } from "./sceneReadiness";
+import { waitForLayoutFrame, waitForSceneRender } from "./sceneReadiness";
 import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import "./mainMapConnection.css";
@@ -73,6 +73,7 @@ export function MainMapConnection(props: Props) {
     if (latest.current.map) removeAnalysisResults(latest.current.map);
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]);
     resultCollectionRef.current = null; setResultCollection(null);
+    analysis.current?.setActiveResultCollection([]);
     if (syncScene && controller.current) {
       const scene = { ...capture(), results: null };
       previous.current = scene; controller.current.manual(scene);
@@ -125,13 +126,19 @@ export function MainMapConnection(props: Props) {
       if (JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds)) {
         resultPopup.current?.remove(); resultPopup.current = null;
       }
-      const installed = analysisResults.length ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : (removeAnalysisResults(map), []);
+      // Camera-only commands keep the same immutable result rows. Calling
+      // GeoJSONSource#setData for those commands needlessly reloads sources.
+      const presentationChanged = JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds);
+      const installed = analysisResults.length
+        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : presentedAnalysisRef.current
+        : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
       setAvailableAnalysis(availableResults);
       resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
+      analysis.current?.setActiveResultCollection(scene.results?.items.map(item => item.resultId) ?? []);
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
-        await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        await waitForLayoutFrame();
         if (run !== generation.current || !followingRef.current) return "error";
         movement = moveResearchCamera(map, framingChanged && scene.framing ? resolveViewportCamera(map, scene.framing) : scene.camera);
       }
@@ -146,7 +153,6 @@ export function MainMapConnection(props: Props) {
     // its own loading UI and is not part of a camera receipt.
     const rendered = waitForSceneRender(map, revision);
     const renderReady = await rendered.promise;
-    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     if (run !== generation.current) return "error";
     if (patch?.timeline) {
       const observed = latest.current.timeline?.getContext();
@@ -192,7 +198,7 @@ export function MainMapConnection(props: Props) {
           }
           break;
         }
-        case "list_layer_capabilities": result = listLayerCapabilities(request.args); break;
+        case "list_layer_capabilities": result = listLayerCapabilities(request.args, current.locked); break;
         case "search_layer_records": {
           const layerKey = String(request.args.layerKey ?? "");
           if (current.locked.has(layerKey === "policeStations" ? "policeStation" : layerKey)) throw new Error("LAYER_LOCKED");

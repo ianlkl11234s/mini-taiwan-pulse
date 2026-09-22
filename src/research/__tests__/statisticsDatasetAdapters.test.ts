@@ -51,6 +51,7 @@ describe("social statistics dataset compiler", () => {
     expect(descriptors.every(item => item.datasetId.startsWith("regional-statistics:") && item.access.query.enabled && item.geometry.type === "MultiPolygon" && item.geometry.crs === "EPSG:4326" && item.geometry.role === "actual" && item.geometry.spatialAnalysisEligible)).toBe(true);
     expect(descriptors.every(item => item.access.limits.maxResponseBytes === 1024 * 1024)).toBe(true);
     expect(descriptors.every(item => item.versions.length > 0 && item.fields.find(field => field.name === "value")?.unit)).toBe(true);
+    expect(descriptors.every(item => item.parameters?.[0]?.name === "releaseId" && item.parameters[0].required && item.parameters[0].options?.length === item.versions.length)).toBe(true);
   });
 
   it("keeps a release-rich descriptor inside the paired query transport budget", () => {
@@ -83,6 +84,18 @@ describe("social statistics dataset compiler", () => {
     expect(result.rows.find(row => row.area_code === "63000010")).toMatchObject({ value: 0, status: "observed", level: "township", period_end: release.period_end, geometry: { type: "MultiPolygon" } });
     expect(result.rows.find(row => row.area_code === "68000010")).toMatchObject({ value: null, status: "missing", geometry: { type: "MultiPolygon" } });
     await expect(executor.execute({ datasetId: socialStatisticsDatasetId(recipe), parameters: { releaseId: "unregistered-release" } })).rejects.toThrow("RELEASE_NOT_ALLOWED");
+  });
+
+  it("normalizes one exact release_id filter into the required selector and rejects ambiguity before loading", async () => {
+    const recipe = SOCIAL_ENABLED_STATISTICS_RECIPES.find(item => item.level === "county")!;
+    const release = recipe.release_options[0]!;
+    const load = vi.fn(async (input: Parameters<typeof import("../../data/regionalStatisticsLoader").loadRegionalStatistics>[0]) => fixture(recipe, input.releaseId!));
+    const executor = new QueryExecutor(createSocialStatisticsAdapters([recipe], load));
+    await expect(executor.execute({ datasetId: socialStatisticsDatasetId(recipe), filters: [{ field: "release_id", op: "eq", value: release.release_id }] })).resolves.toMatchObject({ datasetId: socialStatisticsDatasetId(recipe) });
+    expect(load).toHaveBeenCalledWith(expect.objectContaining({ releaseId: release.release_id }), undefined);
+    await expect(executor.execute({ datasetId: socialStatisticsDatasetId(recipe), filters: [{ field: "release_id", op: "eq", value: release.release_id }], parameters: { releaseId: "different-release" } })).rejects.toThrow("RELEASE_SELECTOR_CONFLICT");
+    await expect(executor.execute({ datasetId: socialStatisticsDatasetId(recipe) })).rejects.toThrow("REQUIRED_PARAMETER_MISSING");
+    expect(executor.validateParameters({ datasetId: socialStatisticsDatasetId(recipe), filters: [{ field: "release_id", op: "eq", value: release.release_id }] })).toMatchObject({ filters: [], parameters: { releaseId: release.release_id } });
   });
 
   it("rejects a returned release whose boundary manifest is not the recipe boundary", async () => {

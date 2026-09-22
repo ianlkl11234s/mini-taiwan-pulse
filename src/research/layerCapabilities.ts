@@ -1,5 +1,5 @@
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerSource, type ManifestKey } from "../data/layerManifest";
-import { registeredDatasetForLayer } from "./researchDatasets";
+import { registeredDatasetsForLayer } from "./researchDatasets";
 
 type CapabilityState = "ready" | "on_demand_validation" | "not_registered";
 type AggregateState = "complete_source_asset" | "validated_on_read" | "not_registered";
@@ -13,15 +13,15 @@ export interface LayerCapability {
   recordSearch: CapabilityState;
   aggregate: AggregateState;
   /** Source semantic role only; never inferred from the Mapbox render primitive. */
-  dataRole: "point" | "unknown";
+  dataRole: "point" | "admin_statistic" | "unknown";
+  datasetIds: readonly string[];
+  access: { mode: "public" | "owner_only" | "unknown"; queryEnabled: boolean; requiredParameters: readonly string[] };
   supportedMeasures: readonly string[];
   timeModel: "static_version" | "unknown";
   freshness: "unknown" | "unsupported";
   reason: string;
   onboarding: { required: readonly string[]; nextStep: string };
 }
-
-const FULL_SOURCE_STATISTICS = new Set(["schools", "policeStation"]);
 
 function sourceKinds(source: LayerSource | readonly LayerSource[]): string[] {
   return [...new Set((Array.isArray(source) ? source : [source]).map(item => item.kind))].sort();
@@ -30,10 +30,12 @@ function sourceKinds(source: LayerSource | readonly LayerSource[]): string[] {
 function capabilityFor(key: ManifestKey): LayerCapability {
   const entry = LAYER_MANIFEST[key];
   const kinds = sourceKinds(entry.source);
-  const descriptor = registeredDatasetForLayer(key);
-  const ready = FULL_SOURCE_STATISTICS.has(key) || Boolean(descriptor?.supportedOperations.includes("aggregate") && descriptor.access.query.enabled && descriptor.access.method === "static_asset");
+  const descriptors = registeredDatasetsForLayer(key);
+  const queryDescriptor = descriptors.find(descriptor => descriptor.access.query.enabled && descriptor.supportedOperations.includes("aggregate"));
+  const ready = Boolean(queryDescriptor);
   const onDemand = !ready && !Array.isArray(entry.source) && entry.source.kind === "geojson";
   const state: CapabilityState = ready ? "ready" : onDemand ? "on_demand_validation" : "not_registered";
+  const requiredParameters = [...new Set(descriptors.flatMap(descriptor => descriptor.parameters?.filter(parameter => parameter.required).map(parameter => parameter.name) ?? []))].sort();
   return {
     layerKey: key,
     label: entry.section === null ? key : entry.label,
@@ -42,12 +44,16 @@ function capabilityFor(key: ManifestKey): LayerCapability {
     statistics: state,
     recordSearch: state,
     aggregate: ready ? "complete_source_asset" : onDemand ? "validated_on_read" : "not_registered",
-    dataRole: ready ? "point" : "unknown",
+    dataRole: queryDescriptor?.kind === "point" ? "point" : queryDescriptor?.kind === "admin_statistic" ? "admin_statistic" : "unknown",
+    datasetIds: descriptors.map(descriptor => descriptor.datasetId),
+    access: { mode: descriptors.some(descriptor => descriptor.access.mode === "owner_only") ? "owner_only" : descriptors.length ? "public" : "unknown", queryEnabled: descriptors.some(descriptor => descriptor.access.query.enabled), requiredParameters },
     supportedMeasures: ready || onDemand ? ["count"] : [],
     timeModel: ready || onDemand ? "static_version" : "unknown",
     freshness: ready || onDemand ? "unknown" : "unsupported",
     reason: ready
-      ? "已驗證完整 GeoJSON 資產、欄位白名單與來源紀錄粒度。"
+      ? queryDescriptor?.kind === "admin_statistic"
+        ? "已登記 immutable 統計 release reader；必填 selector 與來源／邊界語意由 descriptor 明示。"
+        : "已驗證完整來源 reader、欄位白名單與來源紀錄粒度。"
       : onDemand
         ? "單一 same-origin GeoJSON 候選；只有實際 readback 通過 bytes/rows/Point geometry/receipt 驗證後，才可對該快照計數。"
       : kinds.includes("pmtiles")
@@ -70,10 +76,10 @@ function bounded(value: unknown, fallback: number, min: number, max: number): nu
 }
 
 /** Manifest-derived capability index. It describes registration, never guesses a reader from rendering. */
-export function listLayerCapabilities(input: { query?: unknown; dataRole?: unknown; measure?: unknown; sourceKind?: unknown; status?: unknown; timeModel?: unknown; offset?: unknown; limit?: unknown } = {}): Record<string, unknown> {
+export function listLayerCapabilities(input: { query?: unknown; dataRole?: unknown; measure?: unknown; sourceKind?: unknown; status?: unknown; timeModel?: unknown; offset?: unknown; limit?: unknown } = {}, locked: ReadonlySet<string> = new Set()): Record<string, unknown> {
   if (!input || Object.keys(input).some(key => !["query", "dataRole", "measure", "sourceKind", "status", "timeModel", "offset", "limit"].includes(key))) throw new Error("INVALID_CAPABILITY_INPUT");
   if (input.query !== undefined && (typeof input.query !== "string" || input.query.length > 120)) throw new Error("INVALID_CAPABILITY_INPUT");
-  if (input.dataRole !== undefined && !["point", "unknown"].includes(String(input.dataRole))) throw new Error("INVALID_CAPABILITY_INPUT");
+  if (input.dataRole !== undefined && !["point", "admin_statistic", "unknown"].includes(String(input.dataRole))) throw new Error("INVALID_CAPABILITY_INPUT");
   if (input.measure !== undefined && input.measure !== "count") throw new Error("INVALID_CAPABILITY_INPUT");
   if (input.sourceKind !== undefined && !["custom", "geojson", "pmtiles", "supabase"].includes(String(input.sourceKind))) throw new Error("INVALID_CAPABILITY_INPUT");
   if (input.status !== undefined && !["ready", "on_demand_validation", "not_registered"].includes(String(input.status))) throw new Error("INVALID_CAPABILITY_INPUT");
@@ -81,7 +87,7 @@ export function listLayerCapabilities(input: { query?: unknown; dataRole?: unkno
   const query = (input.query ?? "").normalize("NFKC").trim().toLocaleLowerCase().replace(/臺/g, "台");
   const offset = bounded(input.offset, 0, 0, 10_000);
   const limit = bounded(input.limit, 20, 1, 20);
-  const all = MANIFEST_KEYS.map(capabilityFor).filter(item =>
+  const all = MANIFEST_KEYS.filter(key => !locked.has(key)).map(capabilityFor).filter(item =>
     (query === "" || `${item.layerKey} ${item.label} ${item.sourceKinds.join(" ")}`.normalize("NFKC").toLocaleLowerCase().replace(/臺/g, "台").includes(query))
     && (input.dataRole === undefined || item.dataRole === input.dataRole)
     && (input.measure === undefined || item.supportedMeasures.includes(String(input.measure)))

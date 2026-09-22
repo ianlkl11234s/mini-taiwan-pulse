@@ -21,6 +21,7 @@ function copy<T>(value: T): T {
 /** A per-browser-session memory store.  Do not share an instance between studies. */
 export class BrowserMemoryResultStore<T extends ResultReference = ResultReference> {
   private readonly entries = new Map<string, Entry<T>>();
+  private readonly pinned = new Set<string>();
   private readonly maxResults: number;
   private readonly ttlMs: number;
   private readonly now: () => number;
@@ -37,9 +38,19 @@ export class BrowserMemoryResultStore<T extends ResultReference = ResultReferenc
   put(value: T): T {
     if (!value || typeof value.resultId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(value.resultId)) throw new Error("INVALID_RESULT_ID");
     this.purgeExpired();
+    // Replacing an existing result does not need capacity and keeps its pin.
+    if (!this.entries.has(value.resultId)) this.makeRoom();
     this.entries.set(value.resultId, { value: copy(value), expiresAt: this.now() + this.ttlMs, sequence: ++this.sequence });
-    while (this.entries.size > this.maxResults) this.removeOldest();
     return copy(value);
+  }
+
+  /** Pins the active presentation only. Pins neither extend TTL nor add storage. */
+  setPinned(resultIds: readonly string[]): void {
+    this.purgeExpired();
+    if (new Set(resultIds).size !== resultIds.length || resultIds.length > this.maxResults) throw new Error("INVALID_RESULT_STORE_PIN_SET");
+    for (const resultId of resultIds) if (!this.entries.has(resultId)) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
+    this.pinned.clear();
+    for (const resultId of resultIds) this.pinned.add(resultId);
   }
 
   get(resultId: string): T | null {
@@ -55,16 +66,18 @@ export class BrowserMemoryResultStore<T extends ResultReference = ResultReferenc
     return [...this.entries.values()].sort((a, b) => a.sequence - b.sequence).map(entry => copy(entry.value));
   }
 
-  remove(resultId: string): boolean { return this.entries.delete(resultId); }
+  remove(resultId: string): boolean { this.pinned.delete(resultId); return this.entries.delete(resultId); }
 
   private purgeExpired(): void {
     const current = this.now();
-    for (const [id, entry] of this.entries) if (entry.expiresAt <= current) this.entries.delete(id);
+    for (const [id, entry] of this.entries) if (entry.expiresAt <= current) { this.entries.delete(id); this.pinned.delete(id); }
   }
 
-  private removeOldest(): void {
+  private makeRoom(): void {
+    if (this.entries.size < this.maxResults) return;
     let oldest: [string, Entry<T>] | null = null;
-    for (const pair of this.entries) if (!oldest || pair[1].sequence < oldest[1].sequence) oldest = pair;
-    if (oldest) this.entries.delete(oldest[0]);
+    for (const pair of this.entries) if (!this.pinned.has(pair[0]) && (!oldest || pair[1].sequence < oldest[1].sequence)) oldest = pair;
+    if (!oldest) throw new Error("RESULT_STORE_CAPACITY_PINNED");
+    this.entries.delete(oldest[0]);
   }
 }

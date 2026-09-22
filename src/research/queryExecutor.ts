@@ -35,6 +35,7 @@ export interface AdapterReadResult {
 export interface QueryAdapter {
   descriptor: DatasetDescriptor;
   allowedParameters: Readonly<Record<string, "string" | "number" | "boolean">>;
+  requiredParameters?: readonly string[];
   read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal): Promise<AdapterReadResult>;
 }
 
@@ -131,6 +132,17 @@ function validateAdapterRead(descriptor: DatasetDescriptor, read: AdapterReadRes
   }
 }
 
+function normalizeStatisticsReleaseSelector(descriptor: DatasetDescriptor, filters: readonly QueryFilter[], parameters: Readonly<Record<string, Scalar>>): { filters: readonly QueryFilter[]; parameters: Record<string, Scalar> } {
+  if (descriptor.kind !== "admin_statistic") return { filters, parameters: { ...parameters } };
+  const releaseFilters = filters.filter(filter => filter.field === "release_id");
+  if (releaseFilters.length === 0) return { filters, parameters: { ...parameters } };
+  if (releaseFilters.length !== 1 || releaseFilters[0]!.op !== "eq" || typeof releaseFilters[0]!.value !== "string") throw new Error("INVALID_RELEASE_SELECTOR");
+  const releaseId = releaseFilters[0]!.value;
+  const requested = parameters.releaseId;
+  if (requested !== undefined && requested !== releaseId) throw new Error("RELEASE_SELECTOR_CONFLICT");
+  return { filters: filters.filter(filter => filter !== releaseFilters[0]), parameters: { ...parameters, releaseId } };
+}
+
 export class QueryExecutor {
   private readonly adapters = new Map<string, QueryAdapter>();
 
@@ -163,11 +175,32 @@ export class QueryExecutor {
     return adapter?.descriptor ?? null;
   }
 
+  /** Validates and canonicalizes adapter selectors before a plan is persisted or a source is read. */
+  validateParameters(input: QueryRecordsInput): QueryRecordsInput {
+    const adapter = this.adapters.get(input.datasetId);
+    if (!adapter) throw new Error("DATASET_NOT_FOUND");
+    const { descriptor } = adapter;
+    if (!descriptor.access.query.enabled) throw new Error("DATASET_QUERY_UNAVAILABLE");
+    const inputFilters = input.filters ?? [];
+    const allowedFilters = new Set(descriptor.access.query.filters);
+    if (inputFilters.length > 10 || inputFilters.some(filter => !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
+    const normalizedSelectors = normalizeStatisticsReleaseSelector(descriptor, inputFilters, input.parameters ?? {});
+    const parameters = normalizedSelectors.parameters;
+    if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
+    for (const [name, value] of Object.entries(parameters)) {
+      const expected = adapter.allowedParameters[name];
+      if (!expected || value === null || typeof value !== expected) throw new Error("PARAMETER_NOT_ALLOWED");
+    }
+    if (adapter.requiredParameters?.some(name => parameters[name] === undefined)) throw new Error("REQUIRED_PARAMETER_MISSING");
+    return { ...input, filters: normalizedSelectors.filters, parameters };
+  }
+
   async execute(input: QueryRecordsInput, signal?: AbortSignal): Promise<ResultEnvelope> {
     return (await this.executeDetailed(input, signal)).envelope;
   }
 
   async executeDetailed(input: QueryRecordsInput, signal?: AbortSignal): Promise<QueryExecution> {
+    input = this.validateParameters(input);
     const adapter = this.adapters.get(input.datasetId);
     if (!adapter) throw new Error("DATASET_NOT_FOUND");
     const { descriptor } = adapter;
@@ -180,10 +213,10 @@ export class QueryExecutor {
     const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name);
     const allowedFields = new Set(descriptor.access.query.fields);
     if (select.length > 50 || new Set(select).size !== select.length || select.some(field => !fieldMap.has(field) || !allowedFields.has(field))) throw new Error("FIELD_NOT_ALLOWED");
-    const filters = input.filters ?? [];
+    const inputFilters = input.filters ?? [];
     const allowedFilters = new Set(descriptor.access.query.filters);
-    if (filters.length > 10 || filters.some(filter => !fieldMap.has(filter.field) || !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
-    for (const filter of filters) {
+    if (inputFilters.length > 10 || inputFilters.some(filter => !fieldMap.has(filter.field) || !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
+    for (const filter of inputFilters) {
       const field = fieldMap.get(filter.field)!;
       if (filter.op === "contains" && field.type !== "string") throw new Error("FILTER_NOT_ALLOWED");
     }
@@ -198,6 +231,7 @@ export class QueryExecutor {
       if (!descriptor.access.query.supportsBbox || bbox.length !== 4 || bbox.some(value => typeof value !== "number" || !Number.isFinite(value))
         || bbox[0] < -180 || bbox[2] > 180 || bbox[1] < -90 || bbox[3] > 90 || bbox[0] > bbox[2] || bbox[1] > bbox[3]) throw new Error("BBOX_NOT_SUPPORTED");
     }
+    const filters = inputFilters;
     const parameters = { ...(input.parameters ?? {}) };
     if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
     for (const [name, value] of Object.entries(parameters)) {

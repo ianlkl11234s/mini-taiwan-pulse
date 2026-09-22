@@ -2,8 +2,7 @@ import { neighborhoodCount, type NeighborhoodCountResult } from "./neighborhoodA
 import { assertDatasetAccess, assertLayerSourceAccess } from "./dataExploration";
 import { AnalysisOperations, type AnalysisResult, type StoredDataResult } from "./analysisOperations";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { queryRecordsDetailed } from "./researchDatasets";
-import { describeDataset, ensureDataset } from "./researchDatasets";
+import { describeDataset, ensureDataset, queryRecordsDetailed, validateQueryRecordsInput } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import type { WalkingIsochroneExecution } from "./networkProvider";
 
@@ -159,12 +158,13 @@ export class ResearchAnalysisSession {
   async planDataAccess(input: QueryRecordsInput): Promise<Record<string, unknown>> {
     await ensureDataset(input.datasetId, this.locked());
     assertDatasetAccess(input.datasetId, this.locked());
-    const descriptor = describeDataset(input.datasetId);
-    const encoded = new TextEncoder().encode(stable({ input, versions: descriptor.versions, adapterId: descriptor.adapterId }));
+    const validatedInput = validateQueryRecordsInput(input);
+    const descriptor = describeDataset(validatedInput.datasetId);
+    const encoded = new TextEncoder().encode(stable({ input: validatedInput, versions: descriptor.versions, adapterId: descriptor.adapterId }));
     const digest = await crypto.subtle.digest("SHA-256", encoded);
     const hash = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join("");
     const planId = `plan-${hash.slice(0, 24)}`; const expiresAt = Date.now() + 5 * 60_000;
-    this.plans.set(planId, { input: structuredClone(input), expiresAt });
+    this.plans.set(planId, { input: structuredClone(validatedInput), expiresAt });
     while (this.plans.size > 8) this.plans.delete(this.plans.keys().next().value!);
     return {
       planId, datasetId: descriptor.datasetId, adapterId: descriptor.adapterId, accessMode: descriptor.access.mode,
@@ -282,7 +282,10 @@ export class ResearchAnalysisSession {
     if (operation === "get_record_evidence") return this.operations.recordEvidence(id(args.resultId), integer(args.recordIndex, 0, 0, 100_000)) as unknown as Record<string, unknown>;
     let result: AnalysisResult;
     if (operation === "spatial_query") {
-      if (args.predicate === "within" || args.predicate === "intersects") {
+      if (args.predicate === "contains_center") {
+        const center = analysisCenter(args.center);
+        result = this.operations.areasContainingCenter({ areaResultId: id(args.areaResultId), center: { lng: center[0], lat: center[1] } });
+      } else if (args.predicate === "within" || args.predicate === "intersects") {
         result = this.operations.spatialJoin({ pointResultId: id(args.pointResultId), areaResultId: id(args.areaResultId), predicate: args.predicate });
       } else {
         const center = args.center;
@@ -311,6 +314,16 @@ export class ResearchAnalysisSession {
   }
 
   clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
+
+  /**
+   * Keep the current scene's finite collection resident. Derived inputs remain
+   * evictable, so the active eight-layer display cannot consume the whole
+   * sixteen-result session budget through transitive dependencies.
+   */
+  setActiveResultCollection(resultIds: readonly string[]): void {
+    if (resultIds.length > RESULT_COLLECTION_LIMITS.maxLogicalResults) throw new Error("RESULT_COLLECTION_LOGICAL_LIMIT");
+    this.store.setPinned(resultIds);
+  }
 
   private assertResultAccess(resultId: string): void {
     const result = this.store.get(resultId) as StoredDataResult | null;
@@ -382,7 +395,14 @@ export class ResearchAnalysisSession {
     this.store.put(anchor);
     return {
       scopeId, label: label.trim(), center, radiusM, distanceModel: "WGS84_spherical_geodesic", networkAccessibility: false,
-      resultIds: [area.resultId, anchor.resultId], area: page(area, 0, 1), centerResult: page(anchor, 0, 1),
+      // Geometry remains in the result store and is fetched by resultId. A
+      // polygon ring can exceed the Gateway's nested-container contract, so
+      // never embed it in the command receipt.
+      resultIds: [area.resultId, anchor.resultId],
+      // Preserve the established response names so existing MCP plans can read
+      // result IDs without carrying an unbounded GeoJSON page.
+      area: { resultId: area.resultId, datasetId: area.datasetId, geometryType: area.geometry.type, geometryRole: area.geometry.role, spatialAnalysisEligible: area.geometry.spatialAnalysisEligible, featureCount: 1, radiusM },
+      centerResult: { resultId: anchor.resultId, datasetId: anchor.datasetId, geometryType: anchor.geometry.type, geometryRole: anchor.geometry.role, spatialAnalysisEligible: anchor.geometry.spatialAnalysisEligible, featureCount: 1, center },
       limitations: ["This is a straight-line geodesic display scope, not a walking route or isochrone.", "The polygon is derived geometry and is not an authoritative administrative boundary."],
     };
   }

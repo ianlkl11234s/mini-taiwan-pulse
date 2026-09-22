@@ -7,6 +7,7 @@ import {
   loadRegionalStatistics,
   loadRegionalStatisticsValues,
   normalizeAgriPreviewHealth,
+  STATISTICS_CDN_FETCH_TIMEOUT_MS,
   statisticsBoundaryFetchUrl,
 } from '../regionalStatisticsLoader';
 import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
@@ -94,6 +95,41 @@ beforeEach(() => {
 });
 
 describe('regional statistics R2 CDN contract', () => {
+  it('bounds a shared CDN fetch without attaching an individual caller signal', async () => {
+    vi.useFakeTimers();
+    try {
+      const caller = new AbortController();
+      let sharedSignal: AbortSignal | undefined;
+      const fetcher = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => new Promise<Response>((_, reject) => {
+        sharedSignal = init?.signal ?? undefined;
+        init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')), { once: true });
+      }));
+      vi.stubGlobal('fetch', fetcher);
+      const first = loadRegionalStatisticsValues({ ...recipe, releaseId: release.release_id, dimensions: {} }, caller.signal);
+      const firstFailure = first.then(() => undefined, error => error);
+      await Promise.resolve();
+      const second = loadRegionalStatisticsValues({ ...recipe, releaseId: release.release_id, dimensions: {} });
+      const secondFailure = second.then(() => undefined, error => error);
+      caller.abort();
+      expect(await firstFailure).toBeInstanceOf(Error);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      expect(sharedSignal).toBeDefined();
+      expect(sharedSignal).not.toBe(caller.signal);
+      expect(sharedSignal?.aborted).toBe(false);
+      await vi.advanceTimersByTimeAsync(STATISTICS_CDN_FETCH_TIMEOUT_MS);
+      expect(await secondFailure).toMatchObject({ message: 'Statistics CDN 載入逾時' });
+      expect(sharedSignal?.aborted).toBe(true);
+      const retried = loadRegionalStatisticsValues({ ...recipe, releaseId: release.release_id, dimensions: {} });
+      const retryFailure = retried.then(() => undefined, error => error);
+      await Promise.resolve();
+      expect(fetcher).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(STATISTICS_CDN_FETCH_TIMEOUT_MS);
+      expect(await retryFailure).toMatchObject({ message: 'Statistics CDN 載入逾時' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('routes only the canonical public boundary through the fixed DEV proxy', () => {
     vi.stubEnv('DEV', true);
     vi.stubEnv('VITE_STATISTICS_CDN_BASE', '');

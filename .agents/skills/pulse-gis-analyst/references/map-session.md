@@ -21,14 +21,14 @@
 
 ## 結果呈現與取景
 
-`pulse_present_result` 只接受目前 paired browser session 的 0–4 個 `resultId`；空陣列清除 overlay。Browser 會重新檢查權限、TTL、geometry role 與筆數上限，再將結果轉成暫時 GeoJSON source/layer。它不會開啟完整來源圖層，也不會寫入 Supabase。
+`pulse_present_result` 只接受目前 paired browser session 的 0–8 個 `resultId`；空陣列清除 overlay。Browser 會重新檢查權限、TTL、geometry role 與筆數上限，再將結果轉成暫時 GeoJSON source/layer。它不會開啟完整來源圖層，也不會寫入 Supabase。
 
 有 map-eligible result 時的最短閉環：
 
 1. `pulse_get_result_bounds(resultIds)` 取得有界範圍，不解讀為來源 coverage。
 2. 讀最新 study revision，以 `pulse_present_result(resultIds, expectedRevision)` 呈現。
-3. `pulse_wait_scene_ready(commandId)`；accepted/applied 均不是可視完成。
-4. 如需取景，用新 revision 呼叫 `pulse_fit_bounds`，並再次等待 ready。
+3. 已知 bounds 時優先使用 `pulse_set_result_collection` 的 `framing` 與 collection 一起送出；只需一次 `pulse_wait_scene_ready(commandId)`，accepted/applied 均不是可視完成。
+4. 未使用 framing 且仍需取景時，才用新 revision 呼叫 `pulse_fit_bounds` 並等待 ready。
 5. `pulse_get_map_context` 讀回 `resultPresentation.resultIds`、`featureCount`、`sourceIds`、`layerIds` 與 `ready:true`，才可說分析結果已高亮。
 
 `set_layers` 仍開啟完整來源圖層，不可與 result overlay 混為一談。若 `present_result` 失敗或讀回不一致，只能說分析已完成或鏡頭已移動。

@@ -115,6 +115,13 @@ export interface DatasetDescriptor {
   versions: readonly { versionId: string; observedAt: string | null; availableAt: string | null; checksumSha256: string | null; mutable: boolean }[];
   source: { publisher: string; reference: string; lineage: string };
   access: AccessDescriptor;
+  /** Caller-controlled selectors. Options are descriptor metadata, never an invitation to infer new source tuples. */
+  parameters?: readonly {
+    name: string;
+    type: "string" | "number" | "boolean";
+    required: boolean;
+    options?: readonly Scalar[];
+  }[];
   supportedOperations: readonly ("query_records" | "nearest" | "aggregate")[];
   adapterId: string;
 }
@@ -180,5 +187,14 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
   if (value.geometry.role !== "actual" && value.geometry.spatialAnalysisEligible) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if (value.timeFields.some(field => !names.has(field.name))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if ([...access.query.fields, ...access.query.filters, ...access.query.timeFields].some(field => !names.has(field))) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  if (value.parameters) {
+    const parameterNames = new Set<string>();
+    for (const parameter of value.parameters) {
+      if (!/^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(parameter.name) || parameterNames.has(parameter.name)
+        || !["string", "number", "boolean"].includes(parameter.type)
+        || parameter.options?.some(option => option === null || typeof option !== parameter.type)) throw new Error("INVALID_DATASET_DESCRIPTOR");
+      parameterNames.add(parameter.name);
+    }
+  }
   if (access.query.supportsBbox && !(value.geometry.type === "Point" && value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible)) throw new Error("INVALID_DATASET_DESCRIPTOR");
 }

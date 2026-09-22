@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { assertResultCollectionBudget, presentationMetrics, ResearchAnalysisSession } from "../researchAnalysisSession";
+import { validQueryResultData } from "../QueryResponder";
 
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 
@@ -62,6 +63,19 @@ describe("research analysis session", () => {
     expect(session.presentable([String(aggregate.resultId)])).toHaveLength(1);
   });
 
+  it("finds the source-observed administrative area containing an explicit map coordinate", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    store.put({
+      resultId: "admin-areas", datasetId: "fixture-admin", recordGrain: "feature", geometry: { type: "Polygon", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ district: "甲區", geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }], sourceRefs: [], coverage: "fixture boundary", freshness: "current", units: {}, lineage: { source: "fixture" },
+    });
+    const found = session.execute("spatial_query", { predicate: "contains_center", areaResultId: "admin-areas", center: [121.55, 25.05] });
+    expect(found).toMatchObject({ totalRows: 1, rows: [expect.objectContaining({ district: "甲區" })], method: { predicate: "contains_center", centerSource: "map_or_user_coordinate" }, sourceRefs: [], lineage: { inputs: [expect.objectContaining({ resultId: "admin-areas" })] } });
+    expect(session.presentable([String(found.resultId)])).toEqual([expect.objectContaining({ geometry: { type: "Polygon", role: "actual", spatialAnalysisEligible: true }, rows: [expect.objectContaining({ district: "甲區" })] })]);
+    expect(session.execute("spatial_query", { predicate: "contains_center", areaResultId: "admin-areas", center: [121.5, 25.05] })).toMatchObject({ totalRows: 0, summary: { matchedAreas: 0 } });
+  });
+
   it("creates a derived center and straight-line scope without making either spatial-analysis eligible", () => {
     const session = new ResearchAnalysisSession();
     const scope = session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 1000, label: "市府周邊" });
@@ -72,6 +86,8 @@ describe("research analysis session", () => {
     expect(area).toMatchObject({ displayLabel: "市府周邊・範圍", geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false } });
     expect(center).toMatchObject({ displayLabel: "市府周邊・中心點", geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false } });
     expect((area!.rows[0]!.geometry as { coordinates: unknown[][] }).coordinates[0]).toHaveLength(65);
+    expect(scope).toMatchObject({ area: { resultId: resultIds[0], geometryType: "Polygon", spatialAnalysisEligible: false }, centerResult: { resultId: resultIds[1], geometryType: "Point", spatialAnalysisEligible: false } });
+    expect(validQueryResultData(scope)).toBe(true);
     expect(() => session.execute("spatial_query", { resultId: resultIds[1], predicate: "within_distance", center: [121.5638, 25.0375], radiusM: 1000 })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
     expect(() => session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 0 })).toThrow("INVALID_DISTANCE_RADIUS");
   });
@@ -134,5 +150,10 @@ describe("research analysis session", () => {
     expect(session.execute("get_analysis_result", { resultId, offset: 2, limit: 1 })).toMatchObject({ returned: 1, nextOffset: null });
     expect(session.execute("remove_result", { resultId })).toEqual({ resultId, removed: true });
     expect(() => session.execute("get_analysis_result", { resultId })).toThrow("RESULT_NOT_FOUND_OR_EXPIRED");
+  });
+
+  it("validates required plan selectors before materialization", async () => {
+    const session = new ResearchAnalysisSession();
+    await expect(session.planDataAccess({ datasetId: "regional-statistics:statsEducationCountyStudentTeacherRatio" })).rejects.toThrow("REQUIRED_PARAMETER_MISSING");
   });
 });
