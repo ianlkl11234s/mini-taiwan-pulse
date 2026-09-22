@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AnalysisOperations, type StoredDataResult } from "../analysisOperations";
-import { BrowserMemoryResultStore } from "../resultStore";
+import { BrowserMemoryResultStore, DEFAULT_RESULT_STORE_CAPACITY } from "../resultStore";
 
 const source = [{ sourceId: "fixture", version: "v1", acquiredAt: "2026-09-12T00:00:00.000Z", checksumSha256: null, reference: "fixture://source" }];
 function pointResult(id = "points"): StoredDataResult {
@@ -24,6 +24,13 @@ function setup(...results: StoredDataResult[]) {
 }
 
 describe("BrowserMemoryResultStore", () => {
+  it("retains sixteen session results before evicting the oldest", () => {
+    const store = new BrowserMemoryResultStore<{ resultId: string }>();
+    for (let index = 0; index < DEFAULT_RESULT_STORE_CAPACITY + 1; index += 1) store.put({ resultId: `result-${index}` });
+    expect(DEFAULT_RESULT_STORE_CAPACITY).toBe(16);
+    expect(store.list().map(item => item.resultId)).toEqual(Array.from({ length: 16 }, (_, index) => `result-${index + 1}`));
+  });
+
   it("expires, evicts, and does not leak mutations", () => {
     let now = 0; const store = new BrowserMemoryResultStore<{ resultId: string; nested: { value: number } }>({ maxResults: 2, ttlMs: 10, now: () => now });
     store.put({ resultId: "a", nested: { value: 1 } }); store.put({ resultId: "b", nested: { value: 2 } }); store.put({ resultId: "c", nested: { value: 3 } });

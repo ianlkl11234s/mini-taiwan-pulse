@@ -1,7 +1,7 @@
 /** Browser-session, bounded result references.  This module deliberately has no
  * module-level store: a caller's single instance is its session boundary. */
 export const DEFAULT_RESULT_TTL_MS = 30 * 60 * 1000;
-export const DEFAULT_RESULT_STORE_CAPACITY = 8;
+export const DEFAULT_RESULT_STORE_CAPACITY = 16;
 
 export interface ResultReference { resultId: string; }
 export interface ResultStoreOptions {

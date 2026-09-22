@@ -17,7 +17,8 @@ export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" 
  * source.
  */
 export const RESULT_COLLECTION_LIMITS = {
-  // BrowserMemoryResultStore keeps at most eight session-local results.
+  // Presentation stays smaller than the session store so analysis can retain
+  // bounded intermediate results without evicting an eight-layer collection.
   maxLogicalResults: 8,
   maxFeatures: 10_000,
   maxVertices: 100_000,
