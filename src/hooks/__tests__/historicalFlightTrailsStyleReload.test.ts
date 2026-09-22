@@ -72,24 +72,27 @@ const manifest = {
   samples: [{ country: "TW", airport: "RCTP", date: "2026-03-10", asset, flight_count: 1 }],
 } as unknown as HistoricalFlightManifest;
 
-function createMap() {
+function createMap(initialStyleLoaded = true) {
+  let styleLoaded = initialStyleLoaded;
   const sources = new Map<string, { setData: ReturnType<typeof vi.fn> }>();
   const layers = new Map<string, unknown>();
   const handlers = new Map<string, Set<() => void>>();
   const addSource = vi.fn((id: string) => { sources.set(id, { setData: vi.fn() }); });
   const addLayer = vi.fn((layer: { id: string }) => { layers.set(layer.id, layer); });
+  const setLayoutProperty = vi.fn();
   const setPaintProperty = vi.fn();
   const setFilter = vi.fn();
   const map = {
     triggerRepaint: vi.fn(),
     getStyle: () => ({}),
-    isStyleLoaded: () => true,
+    isStyleLoaded: () => styleLoaded,
     getSource: (id: string) => sources.get(id),
     addSource,
     getLayer: (id: string) => layers.get(id),
     addLayer,
     removeSource: (id: string) => { sources.delete(id); },
     removeLayer: (id: string) => { layers.delete(id); },
+    setLayoutProperty,
     setPaintProperty,
     setFilter,
     on: (event: string, handler: () => void) => {
@@ -100,7 +103,8 @@ function createMap() {
     off: (event: string, handler: () => void) => { handlers.get(event)?.delete(handler); },
   } as unknown as MapboxMap;
   return {
-    map, sources, layers, addSource, addLayer, setPaintProperty, setFilter,
+    map, sources, layers, addSource, addLayer, setLayoutProperty, setPaintProperty, setFilter,
+    setStyleLoaded: (value: boolean) => { styleLoaded = value; },
     emit: (event: string) => handlers.get(event)?.forEach((handler) => handler()),
   };
 }
@@ -142,5 +146,32 @@ describe("useHistoricalFlightTrailsLayer style diff recovery", () => {
     expect(loader.manifest).toHaveBeenCalledTimes(1);
     expect(loader.asset).toHaveBeenCalledTimes(1);
 
+  });
+
+  it("All Off immediately hides an existing custom layer while the style is busy", async () => {
+    loader.manifest.mockResolvedValue(manifest);
+    loader.asset.mockResolvedValue(collection);
+    const state = createMap();
+    const mapRef = { current: state.map } as RefObject<MapboxMap | null>;
+    const render = (visible: boolean) => {
+      reactHarness.beginRender();
+      useHistoricalFlightTrailsLayer(mapRef, visible, "TW", {
+        airport: "RCTP", date: "2026-03-10", opacity: 0.8, width: 1.5, direction: "arrival", routeScope: "cross_border",
+      });
+    };
+
+    render(true);
+    await flush();
+    render(true);
+    expect(state.layers.has(lineId)).toBe(true);
+
+    state.setStyleLoaded(false);
+    render(false);
+    expect(state.setLayoutProperty).toHaveBeenCalledWith(lineId, "visibility", "none");
+    expect(state.layers.has(lineId)).toBe(true);
+
+    state.setStyleLoaded(true);
+    state.emit("style.load");
+    expect(state.layers.has(lineId)).toBe(false);
   });
 });
