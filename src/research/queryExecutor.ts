@@ -32,11 +32,16 @@ export interface AdapterReadResult {
   expiresAt: string | null;
 }
 
+/** Validated query scope supplied to readers without widening dataset parameters. */
+export interface QueryReadContext {
+  bbox?: readonly [number, number, number, number];
+}
+
 export interface QueryAdapter {
   descriptor: DatasetDescriptor;
   allowedParameters: Readonly<Record<string, "string" | "number" | "boolean">>;
   requiredParameters?: readonly string[];
-  read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal): Promise<AdapterReadResult>;
+  read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal, context?: QueryReadContext): Promise<AdapterReadResult>;
 }
 
 export interface QueryExecution {
@@ -238,7 +243,7 @@ export class QueryExecutor {
       const expected = adapter.allowedParameters[name];
       if (!expected || value === null || typeof value !== expected) throw new Error("PARAMETER_NOT_ALLOWED");
     }
-    const read = await adapter.read(parameters, signal);
+    const read = await adapter.read(parameters, signal, bbox ? { bbox } : undefined);
     validateAdapterRead(descriptor, read);
     if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
     if (read.bytesScanned !== null && descriptor.access.limits.maxSourceBytes !== null && read.bytesScanned > descriptor.access.limits.maxSourceBytes) throw new Error("SOURCE_BYTE_BUDGET_EXCEEDED");

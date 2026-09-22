@@ -1,5 +1,5 @@
 import type { DatasetDescriptor, Scalar, SourceReceipt } from "./dataContracts";
-import type { AdapterReadResult, QueryAdapter } from "./queryExecutor";
+import type { AdapterReadResult, QueryAdapter, QueryReadContext } from "./queryExecutor";
 
 export interface AdapterSnapshot {
   rows: readonly Record<string, unknown>[];
@@ -21,15 +21,15 @@ export interface AdapterSnapshot {
   expiresAt?: string | null;
 }
 
-export type SnapshotReader = (parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal) => Promise<AdapterSnapshot>;
+export type SnapshotReader = (parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal, context?: QueryReadContext) => Promise<AdapterSnapshot>;
 
 function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter["allowedParameters"], reader: SnapshotReader, requiredParameters?: readonly string[]): QueryAdapter {
   return {
     descriptor,
     allowedParameters,
     ...(requiredParameters ? { requiredParameters } : {}),
-    async read(parameters, signal): Promise<AdapterReadResult> {
-      const snapshot = await reader(parameters, signal);
+    async read(parameters, signal, context): Promise<AdapterReadResult> {
+      const snapshot = await reader(parameters, signal, context);
       return {
         rows: snapshot.rows,
         sourceRefs: [snapshot.source, ...(snapshot.sourceRefs ?? [])].filter((source, index, sources) =>

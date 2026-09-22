@@ -140,6 +140,15 @@ describe("shared research query executor", () => {
     await expect(executor.execute({ datasetId: "agri-crop-production", bbox: [121, 24, 122, 25], parameters: { releaseId: "release-2025" } })).rejects.toThrow("BBOX_NOT_SUPPORTED");
   });
 
+  it("passes only a validated bbox through the third reader argument", async () => {
+    const reader = vi.fn().mockResolvedValue({ rows: [], source: source("schools", "v1"), coverage: "fixture" });
+    const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader)]);
+    await executor.execute({ datasetId: "tw-schools", bbox: [121.4, 24.9, 121.7, 25.2] });
+    expect(reader).toHaveBeenCalledWith({}, undefined, { bbox: [121.4, 24.9, 121.7, 25.2] });
+    await expect(executor.execute({ datasetId: "tw-schools", bbox: [122, 24, 121, 25] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
+    expect(reader).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects adapter rows that violate required fields, geometry, or statistic null semantics", async () => {
     const missingId = new QueryExecutor([createPointDatasetAdapter(schools, async () => ({ rows: [{ name: "無代碼", city: null, geometry: { type: "Point", coordinates: [121, 25] } }], source: source("schools", "v1"), coverage: "unknown" }))]);
     await expect(missingId.execute({ datasetId: "tw-schools" })).rejects.toThrow("INVALID_ADAPTER_ROW");
