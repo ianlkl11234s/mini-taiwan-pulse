@@ -86,6 +86,39 @@ describe("point dataset spatial partitions", () => {
     expect(fetcher).not.toHaveBeenCalled();
   });
 
+  it("aborts the underlying fetch when its last subscriber cancels", async () => {
+    const data = await fixture(false); let requestSignal: AbortSignal | undefined;
+    vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => { requestSignal = init?.signal ?? undefined; requestSignal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true }); })));
+    const controller = new AbortController(); const config = { datasetId: "schools", url: "/education/schools.geojson", idField: "code", safeFields: ["code"], spatialPartition: { manifestUrl: "/education/partitions/manifest.json", manifestSha256: data.manifestSha256, sourceSha256 } };
+    const pending = loadPointDataset(config, { bbox: [130, 30, 131, 31], signal: controller.signal });
+    await Promise.resolve(); controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" }); expect(requestSignal?.aborted).toBe(true);
+  });
+
+  it("keeps a shared fetch alive while another subscriber remains", async () => {
+    const data = await fixture(false); let resolveFetch: ((response: Response) => void) | undefined; let requestSignal: AbortSignal | undefined;
+    vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) => new Promise<Response>(resolve => { requestSignal = init?.signal ?? undefined; resolveFetch = resolve; })));
+    const first = new AbortController(), second = new AbortController(); const config = { datasetId: "schools", url: "/education/schools.geojson", idField: "code", safeFields: ["code"], spatialPartition: { manifestUrl: "/education/partitions/manifest.json", manifestSha256: data.manifestSha256, sourceSha256 } };
+    const one = loadPointDataset(config, { bbox: [130, 30, 131, 31], signal: first.signal }); const two = loadPointDataset(config, { bbox: [130, 30, 131, 31], signal: second.signal });
+    await Promise.resolve(); first.abort(); await expect(one).rejects.toMatchObject({ name: "AbortError" }); expect(requestSignal?.aborted).toBe(false);
+    resolveFetch!(new Response(data.responses.get("/education/partitions/manifest.json"), { headers: { "content-type": "application/geo+json" } }));
+    await expect(two).resolves.toMatchObject({ rows: [] }); expect(requestSignal?.aborted).toBe(false);
+  });
+
+  it("starts a fresh fetch when retrying before an aborted request settles", async () => {
+    const data = await fixture(false); let calls = 0;
+    vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) => {
+      calls++;
+      if (calls === 1) return new Promise<Response>(() => { void init; });
+      return Promise.resolve(new Response(data.responses.get("/education/partitions/manifest.json"), { headers: { "content-type": "application/geo+json" } }));
+    }));
+    const controller = new AbortController(); const config = { datasetId: "schools", url: "/education/schools.geojson", idField: "code", safeFields: ["code"], spatialPartition: { manifestUrl: "/education/partitions/manifest.json", manifestSha256: data.manifestSha256, sourceSha256 } };
+    const cancelled = loadPointDataset(config, { bbox: [130, 30, 131, 31], signal: controller.signal });
+    await Promise.resolve(); controller.abort(); await expect(cancelled).rejects.toMatchObject({ name: "AbortError" });
+    await expect(loadPointDataset(config, { bbox: [130, 30, 131, 31] })).resolves.toMatchObject({ rows: [] });
+    expect(calls).toBe(2);
+  });
+
   it("applies one timeout to manifest and shard work together", async () => {
     vi.useFakeTimers(); const data = await fixture();
     vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), { once: true }))));

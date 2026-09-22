@@ -28,8 +28,9 @@ export interface PointPartitionRows {
 }
 
 interface CachedAsset { bytes: Uint8Array; }
+interface PendingAsset { promise: Promise<CachedAsset>; controller: AbortController; subscribers: number; settled: boolean; }
 const assets = new Map<string, CachedAsset>();
-const inFlight = new Map<string, Promise<CachedAsset>>();
+const inFlight = new Map<string, PendingAsset>();
 let cachedBytes = 0;
 
 function fail(code: string): never { throw new Error(code); }
@@ -97,10 +98,13 @@ async function fetchAsset(url: string, expectedSha256: string, signal?: AbortSig
   const cached = assets.get(key);
   if (cached) { assets.delete(key); assets.set(key, cached); return cached; }
   const pending = inFlight.get(key);
-  if (pending) return waitForAsset(pending, signal);
-  const request = (async () => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  if (pending && !pending.controller.signal.aborted) return waitForAsset(pending, signal);
+  if (pending) inFlight.delete(key);
+  const controller = new AbortController();
+  const created = { controller, subscribers: 0, settled: false } as PendingAsset;
+  created.promise = (async () => {
+    let timedOut = false;
+    const timeout = setTimeout(() => { timedOut = true; controller.abort(); }, TIMEOUT_MS);
     try {
       const response = await fetch(url, { signal: controller.signal, credentials: "same-origin", redirect: "error" });
       if (response.status === 404 || response.headers.get("content-type")?.includes("text/html")) fail("DATASET_ASSET_MISSING");
@@ -108,26 +112,34 @@ async function fetchAsset(url: string, expectedSha256: string, signal?: AbortSig
       const bytes = await boundedBytes(response);
       if (await sha256(bytes) !== expectedSha256) fail("PARTITION_SHA_MISMATCH");
       const asset = { bytes };
+      if (controller.signal.aborted) throw new DOMException("aborted", "AbortError");
       cacheAsset(key, asset);
       return asset;
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") fail("REQUEST_TIMEOUT");
+      if (timedOut && error instanceof Error && error.name === "AbortError") fail("REQUEST_TIMEOUT");
       throw error;
     } finally {
       clearTimeout(timeout);
     }
   })();
-  inFlight.set(key, request);
-  try { return await waitForAsset(request, signal); } finally { request.finally(() => inFlight.delete(key)).catch(() => undefined); }
+  inFlight.set(key, created);
+  created.promise.finally(() => { created.settled = true; if (inFlight.get(key) === created) inFlight.delete(key); }).catch(() => undefined);
+  return waitForAsset(created, signal);
 }
 
-function waitForAsset(asset: Promise<CachedAsset>, signal?: AbortSignal): Promise<CachedAsset> {
-  if (!signal) return asset;
-  if (signal.aborted) return Promise.reject(new DOMException("aborted", "AbortError"));
+function waitForAsset(asset: PendingAsset, signal?: AbortSignal): Promise<CachedAsset> {
+  if (signal?.aborted) return Promise.reject(new DOMException("aborted", "AbortError"));
+  asset.subscribers++;
   return new Promise((resolve, reject) => {
-    const onAbort = () => reject(new DOMException("aborted", "AbortError"));
-    signal.addEventListener("abort", onAbort, { once: true });
-    asset.then(value => { signal.removeEventListener("abort", onAbort); resolve(value); }, error => { signal.removeEventListener("abort", onAbort); reject(error); });
+    let released = false;
+    const release = (cancelled: boolean) => {
+      if (released) return; released = true; asset.subscribers--;
+      signal?.removeEventListener("abort", onAbort);
+      if (cancelled && asset.subscribers === 0 && !asset.settled) asset.controller.abort();
+    };
+    const onAbort = () => { release(true); reject(new DOMException("aborted", "AbortError")); };
+    signal?.addEventListener("abort", onAbort, { once: true });
+    asset.promise.then(value => { release(false); resolve(value); }, error => { release(false); reject(error); });
   });
 }
 
