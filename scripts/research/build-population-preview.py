@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 from pathlib import Path
@@ -71,7 +72,38 @@ def county_codes(boundary_path: Path) -> tuple[set[str], dict[str, str]]:
     return set(pairs), pairs
 
 
-def canonical_rows(gate: dict[str, Any], names: dict[str, str]) -> list[dict[str, Any]]:
+def source_county_rows(csv_path: Path) -> dict[str, dict[str, Any]]:
+    values: dict[str, dict[str, Any]] = {}
+    with csv_path.open(encoding="utf-8-sig", newline="") as handle:
+        for source_row in csv.DictReader(handle):
+            if source_row.get("COUNTY_ID") == "縣市代碼":
+                continue
+            code, name, population = source_row.get("COUNTY_ID"), source_row.get("COUNTY"), source_row.get("P_CNT")
+            require(isinstance(code, str) and code and isinstance(name, str) and name and isinstance(population, str), "SEGIS_COUNTY_ROW_REQUIRED")
+            try:
+                value = int(population)
+            except ValueError as error:
+                raise ValueError(f"SEGIS_COUNTY_POPULATION_INVALID: {code}") from error
+            require(value >= 0, f"SEGIS_COUNTY_POPULATION_NEGATIVE: {code}")
+            existing = values.get(code)
+            if existing is None:
+                values[code] = {"area_code": code, "area_name": name, "value": value, "status": "observed"}
+            else:
+                require(existing["area_name"] == name, f"SEGIS_COUNTY_NAME_MISMATCH: {code}")
+                existing["value"] += value
+    require(values, "SEGIS_COUNTY_ROWS_REQUIRED")
+    return values
+
+
+def require_gate_rows_match_source(gate_rows: dict[str, dict[str, Any]], source_rows: dict[str, dict[str, Any]]) -> None:
+    require(set(gate_rows) == set(source_rows), "COUNTY_ROW_SOURCE_CODE_SET_MISMATCH")
+    for code, source_row in source_rows.items():
+        gate_row = gate_rows[code]
+        require(gate_row["area_name"] == source_row["area_name"], f"COUNTY_ROW_SOURCE_NAME_MISMATCH: {code}")
+        require(gate_row["value"] == source_row["value"], f"COUNTY_ROW_SOURCE_VALUE_MISMATCH: {code}")
+
+
+def canonical_rows(gate: dict[str, Any], names: dict[str, str], segis_csv_path: Path) -> list[dict[str, Any]]:
     rows = gate.get("county_rows")
     require(isinstance(rows, list), "SOURCE_GATE_COUNTY_ROWS_REQUIRED")
     values: dict[str, dict[str, Any]] = {}
@@ -85,6 +117,10 @@ def canonical_rows(gate: dict[str, Any], names: dict[str, str]) -> list[dict[str
         values[code] = {"area_code": code, "area_name": name, "value": value, "status": status}
     require(len(values) == EXPECTED_COUNTIES, "COUNTY_ROW_COUNT_MISMATCH")
     require(sum(row["value"] for row in values.values()) == EXPECTED_TOTAL, "COUNTY_TOTAL_MISMATCH")
+    source_rows = source_county_rows(segis_csv_path)
+    require(len(source_rows) == EXPECTED_COUNTIES, "SEGIS_COUNTY_COUNT_MISMATCH")
+    require(sum(row["value"] for row in source_rows.values()) == EXPECTED_TOTAL, "SEGIS_COUNTY_TOTAL_MISMATCH")
+    require_gate_rows_match_source(values, source_rows)
     return [values[code] for code in sorted(values)]
 
 
@@ -168,7 +204,7 @@ def main() -> None:
     input_hashes = verify_input_receipts(gate)
     boundary_path = Path(gate["receipts"]["county_boundary"]["path"])
     expected_codes, names = county_codes(boundary_path)
-    rows = canonical_rows(gate, names)
+    rows = canonical_rows(gate, names, Path(gate["receipts"]["segis_csv"]["path"]))
     require({row["area_code"] for row in rows} == expected_codes, "COUNTY_CODE_SET_MISMATCH")
 
     artifact = build_artifact(gate, rows, input_hashes)
