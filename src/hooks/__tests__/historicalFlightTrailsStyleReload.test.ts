@@ -2,6 +2,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { RefObject } from "react";
 import type { HistoricalFlightCollection, HistoricalFlightManifest } from "../../data/historicalFlightTrailsTypes";
+import { setMercatorEngine } from "../../utils/coordinates";
+
+setMercatorEngine({
+  fromLngLat: ([, lat], altitude = 0) => ({
+    x: 0, y: lat / 180, z: altitude / 1_000_000,
+    meterInMercatorCoordinateUnits: () => 1 / 1_000_000,
+  }),
+});
 
 const reactHarness = vi.hoisted(() => {
   type EffectSlot = { deps?: readonly unknown[]; cleanup?: void | (() => void) };
@@ -79,7 +87,10 @@ function createMap(initialStyleLoaded = true) {
   const handlers = new Map<string, Set<() => void>>();
   const addSource = vi.fn((id: string) => { sources.set(id, { setData: vi.fn() }); });
   const addLayer = vi.fn((layer: { id: string }) => { layers.set(layer.id, layer); });
-  const setLayoutProperty = vi.fn();
+  const layoutProperties = new Map<string, unknown>();
+  const setLayoutProperty = vi.fn((id: string, name: string, value: unknown) => {
+    layoutProperties.set(`${id}:${name}`, value);
+  });
   const setPaintProperty = vi.fn();
   const setFilter = vi.fn();
   const map = {
@@ -92,6 +103,7 @@ function createMap(initialStyleLoaded = true) {
     addLayer,
     removeSource: (id: string) => { sources.delete(id); },
     removeLayer: (id: string) => { layers.delete(id); },
+    getLayoutProperty: (id: string, name: string) => layoutProperties.get(`${id}:${name}`),
     setLayoutProperty,
     setPaintProperty,
     setFilter,
@@ -170,8 +182,12 @@ describe("useHistoricalFlightTrailsLayer style diff recovery", () => {
     expect(state.setLayoutProperty).toHaveBeenCalledWith(lineId, "visibility", "none");
     expect(state.layers.has(lineId)).toBe(true);
 
+    render(true);
+    expect(state.setLayoutProperty).not.toHaveBeenLastCalledWith(lineId, "visibility", "visible");
+
     state.setStyleLoaded(true);
-    state.emit("style.load");
-    expect(state.layers.has(lineId)).toBe(false);
+    state.emit("idle");
+    expect(state.setLayoutProperty).toHaveBeenLastCalledWith(lineId, "visibility", "visible");
+    expect(state.layers.has(lineId)).toBe(true);
   });
 });

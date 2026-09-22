@@ -78,8 +78,10 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
         renderHistoricalFlightTrails(map, country, loaded.data, { airport, date, opacity, width, direction, routeScope, altitudeScale });
       } finally { drawing = false; }
     };
+    const layerId = `historical-flight-trails-${country.toLowerCase()}-3d`;
     const restore = () => {
-      if (!drawing && visible && loaded && !map.getLayer(`historical-flight-trails-${country.toLowerCase()}-3d`)) draw();
+      if (!drawing && visible && loaded
+        && (!map.getLayer(layerId) || map.getLayoutProperty(layerId, 'visibility') === 'none')) draw();
     };
     draw();
     // setStyle's diff path can remove custom sources without a style.load event.
