@@ -4,6 +4,11 @@ import { createHistoricalFlightTrailsLayer } from './historicalFlightTrailsCusto
 
 export function historicalFlightSourceId(country: HistoricalFlightCountry) { return `historical-flight-trails-${country.toLowerCase()}`; }
 const active = new WeakMap<MapboxMap, Map<HistoricalFlightCountry, ReturnType<typeof createHistoricalFlightTrailsLayer>>>();
+export function hideHistoricalFlightTrails(map: MapboxMap, country: HistoricalFlightCountry) {
+  const id = `${historicalFlightSourceId(country)}-3d`;
+  if (!map.getLayer(id)) return;
+  try { map.setLayoutProperty(id, 'visibility', 'none'); } catch { /* style transition retries removal */ }
+}
 export function removeHistoricalFlightTrails(map: MapboxMap, country: HistoricalFlightCountry) {
   const id = `${historicalFlightSourceId(country)}-3d`;
   if (map.getStyle() && map.getLayer(id)) map.removeLayer(id);
@@ -20,6 +25,7 @@ export function renderHistoricalFlightTrails(map: MapboxMap, country: Historical
     layers.set(country, layer);
     map.addLayer(layer);
   } else {
+    map.setLayoutProperty(id, 'visibility', 'visible');
     layer.setData(data);
     layer.setParams(params);
   }
