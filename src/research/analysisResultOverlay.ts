@@ -1,4 +1,4 @@
-import type { Feature, FeatureCollection, MultiPolygon, Point, Polygon } from "geojson";
+import type { Feature, FeatureCollection, LineString, MultiLineString, MultiPolygon, Point, Polygon } from "geojson";
 import type { GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
@@ -40,12 +40,15 @@ function cancelReveal(map: Map, index: number): void {
   reveals.get(map)?.delete(index);
 }
 
-function collection(result: PresentableResult): FeatureCollection<Point | Polygon | MultiPolygon> {
-  const features: Feature<Point | Polygon | MultiPolygon>[] = result.rows.flatMap<Feature<Point | Polygon | MultiPolygon>>((row, rowIndex) => {
+function collection(result: PresentableResult): FeatureCollection<Point | LineString | MultiLineString | Polygon | MultiPolygon> {
+  const features: Feature<Point | LineString | MultiLineString | Polygon | MultiPolygon>[] = result.rows.flatMap<Feature<Point | LineString | MultiLineString | Polygon | MultiPolygon>>((row, rowIndex) => {
     const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | undefined;
     if (geometry?.type !== result.geometry.type) return [];
     if (geometry.type === "Polygon" || geometry.type === "MultiPolygon") {
       return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: propertiesFor(row, result), geometry: geometry as Polygon | MultiPolygon }];
+    }
+    if (geometry.type === "LineString" || geometry.type === "MultiLineString") {
+      return [{ type: "Feature", id: `${result.resultId}:${rowIndex}`, properties: propertiesFor(row, result), geometry: geometry as LineString | MultiLineString }];
     }
     if (geometry.type !== "Point" || !Array.isArray(geometry.coordinates) || geometry.coordinates.length !== 2) return [];
     const [lng, lat] = geometry.coordinates;
@@ -88,14 +91,17 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
     if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data });
     const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
+    const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
     const existing = map.getLayer(layerId(index));
     const reveal = !existing && !prefersReducedMotion();
     const duration = prefersReducedMotion() ? 0 : 380;
-    if (existing && existing.type !== (polygon ? "fill" : "circle")) map.removeLayer(layerId(index));
+    if (existing && existing.type !== (polygon ? "fill" : line ? "line" : "circle")) map.removeLayer(layerId(index));
     if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), paint: {
         "fill-color": COLORS[index]!, "fill-opacity": reveal ? 0 : opacity * 0.45, "fill-opacity-transition": { duration }, "fill-outline-color": "#e2e8f0",
       } });
+    } else if (line) {
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": COLORS[index]!, "line-width": 3, "line-opacity": reveal ? 0 : opacity, "line-opacity-transition": { duration } } });
     } else if (!map.getLayer(layerId(index))) map.addLayer({
       id: layerId(index), type: "circle", source: sourceId(index),
       paint: {
@@ -104,12 +110,12 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
         "circle-opacity": reveal ? 0 : opacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : opacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1,
       },
     });
-    if (!polygon) map.setPaintProperty(layerId(index), "circle-color", result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : COLORS[index]!);
+    if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-color", result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : COLORS[index]!);
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
-      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : "circle-opacity", polygon ? opacity * 0.45 : opacity);
-      if (!polygon) map.setPaintProperty(layerId(index), "circle-stroke-opacity", opacity);
+      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : "circle-opacity", polygon ? opacity * 0.45 : opacity);
+      if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-stroke-opacity", opacity);
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());

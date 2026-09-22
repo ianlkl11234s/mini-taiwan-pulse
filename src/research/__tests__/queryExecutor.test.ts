@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
 import { QueryExecutor } from "../queryExecutor";
-import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
+import { createAdminStatisticsAdapter, createLineDatasetAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
 
 const source = (sourceId: string, version: string): SourceReceipt => ({
   sourceId, version, acquiredAt: "2026-09-12T00:00:00.000Z", checksumSha256: "a".repeat(64), reference: `https://data.example/${sourceId}`,
@@ -63,6 +63,11 @@ const statistics = base({
 });
 
 describe("shared research query executor", () => {
+  it("requires actual EPSG:4326 geometry before constructing a line adapter", () => {
+    const line = base({ kind: "line", recordGrain: "feature", geometry: { type: "LineString", crs: "EPSG:4326", role: "actual", precision: "source line", spatialAnalysisEligible: true } });
+    expect(() => createLineDatasetAdapter(line, async () => ({ rows: [], source: source("line", "v1"), coverage: "fixture" }))).not.toThrow();
+    expect(() => createLineDatasetAdapter({ ...line, geometry: { ...line.geometry, crs: null } }, async () => ({ rows: [], source: source("line", "v1"), coverage: "fixture" }))).toThrow("INVALID_LINE_ADAPTER");
+  });
   it("uses one result contract for point, raw event, and exact-release statistics", async () => {
     const pointRead = vi.fn().mockResolvedValue({ rows: [
       { code: "A", name: "甲校", city: "臺北市", geometry: { type: "Point", coordinates: [121.5, 25] } },

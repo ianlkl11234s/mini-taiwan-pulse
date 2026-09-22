@@ -1,4 +1,4 @@
-export type DatasetKind = "point" | "event" | "admin_statistic" | "grid" | "polygon";
+export type DatasetKind = "point" | "line" | "event" | "admin_statistic" | "grid" | "polygon";
 export type RecordGrain = "place" | "event" | "admin_statistic" | "grid_cell" | "feature";
 export type ResultGrain = RecordGrain | "aggregate" | "joined" | "metric" | "series";
 export type GeometryRole = "actual" | "derived" | "proxy" | "centroid" | "generalized" | "none";
@@ -102,7 +102,7 @@ export interface DatasetDescriptor {
   primaryKey: readonly string[];
   fields: readonly DatasetField[];
   geometry: {
-    type: "Point" | "Polygon" | "MultiPolygon" | "none";
+    type: "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "none";
     crs: "EPSG:4326" | null;
     role: GeometryRole;
     precision: string;
@@ -122,7 +122,7 @@ export interface DatasetDescriptor {
     required: boolean;
     options?: readonly Scalar[];
   }[];
-  supportedOperations: readonly ("query_records" | "nearest" | "aggregate" | "compare_regions")[];
+  supportedOperations: readonly ("query_records" | "nearest" | "line_intersects" | "aggregate" | "compare_regions")[];
   adapterId: string;
 }
 

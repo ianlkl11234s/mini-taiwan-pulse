@@ -2,13 +2,14 @@ import { compareRegions } from "./regionComparison";
 import type { GeometryRole, RecordGrain, SourceReceipt } from "./dataContracts";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import { geometriesIntersect, geometryWithin, locatePointInSurface, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
+import { DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET, estimateSurfaceTopologyComparisons, lineIntersectsParsedSurface, linePolygonSegmentComparisons, parseLineGeometry, parseLinePolygonSurface } from "./linePolygonAnalysis";
 
 type Row = Record<string, unknown>;
 type Point = { type: "Point"; coordinates: [number, number] };
 export type AggregateOperation = "count" | "distinct" | "sum" | "mean" | "min" | "max";
 
 export interface ResultGeometry {
-  type: "Point" | "Polygon" | "MultiPolygon" | "none";
+  type: "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "none";
   role: GeometryRole;
   spatialAnalysisEligible: boolean;
 }
@@ -29,7 +30,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "compare_regions" | "analysis_scope" | "walking_isochrone";
+  operation: "within_distance" | "nearest" | "spatial_join" | "line_intersects" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "compare_regions" | "analysis_scope" | "walking_isochrone";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;
@@ -43,6 +44,7 @@ export interface MetricInput { resultId: string; operation: "ratio" | "differenc
 export interface ReadSeriesInput { resultId: string; timeField: string; resolution: "day" | "week"; operation: "count" | "sum" | "mean"; valueField?: string; }
 export interface CompareSeriesInput { currentResultId: string; baselineResultId: string; operation: "ratio" | "difference"; }
 export interface SpatialJoinInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; }
+export interface LineIntersectsInput { lineResultId: string; areaResultId: string; }
 export interface AggregateByAreaInput { pointResultId: string; areaResultId: string; predicate: "within" | "intersects"; outputField?: string; }
 export interface AreasContainingCenterInput { areaResultId: string; center: { lng: number; lat: number }; }
 
@@ -276,6 +278,36 @@ export class AnalysisOperations {
       { pointRows: points.rows.length, areaRows: areas.rows.length, comparisons: pairs, matchedPoints: points.rows.length - unmatchedPoints, unmatchedPoints, multipleMatches, outputRows: rows.length });
   }
 
+  lineIntersects(input: LineIntersectsInput): AnalysisResult {
+    const lines = this.data(input.lineResultId); const areas = this.data(input.areaResultId);
+    this.assertActualLines(lines); this.assertActualSurfaces(areas);
+    const comparisons = lines.rows.length * areas.rows.length;
+    if (comparisons > 10_000_000) throw new Error("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
+    let topologyComparisons = 0;
+    const areaRows = areas.rows.map((row, areaIndex) => {
+      topologyComparisons += estimateSurfaceTopologyComparisons(row.geometry);
+      if (topologyComparisons > DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET.maxTopologyComparisons) throw new Error("SPATIAL_TOPOLOGY_BUDGET_EXCEEDED");
+      return { row, areaIndex, geometry: parseLinePolygonSurface(row.geometry, DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET) };
+    });
+    const lineRows = lines.rows.map(row => ({ row, geometry: parseLineGeometry(row.geometry) }));
+    const segmentComparisons = lineRows.reduce((total, line) => total + areaRows.reduce((sum, area) => sum + linePolygonSegmentComparisons(line.geometry, area.geometry), 0), 0);
+    if (segmentComparisons > DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET.maxSegmentComparisons) throw new Error("SPATIAL_SEGMENT_COMPARISON_BUDGET_EXCEEDED");
+    const rows: Row[] = []; let unmatchedLines = 0; let multipleMatches = 0;
+    for (const lineRow of lineRows) {
+      const matches = areaRows.filter(area => lineIntersectsParsedSurface(lineRow.geometry, area.geometry));
+      if (!matches.length) { unmatchedLines += 1; continue; }
+      if (matches.length > 1) multipleMatches += 1;
+      for (const match of matches) {
+        if (rows.length >= 20_000) throw new Error("SPATIAL_RESULT_BUDGET_EXCEEDED");
+        const { geometry: _areaGeometry, ...areaProperties } = match.row;
+        rows.push({ ...lineRow.row, matched_area_index: match.areaIndex, matched_area: areaProperties });
+      }
+    }
+    return this.save("line_intersects", [lines, areas], rows, lines.recordGrain, lines.geometry, lines.units,
+      { predicate: "line_intersects", geometryModel: "planar_epsg4326_no_antimeridian", lineGeometryRole: lines.geometry.role, areaGeometryRole: areas.geometry.role, boundaryRule: "boundary_included", maxComparisons: 10_000_000, maxSegmentComparisons: DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET.maxSegmentComparisons, maxTopologyComparisons: DEFAULT_LINE_POLYGON_ANALYSIS_BUDGET.maxTopologyComparisons },
+      { lineRows: lines.rows.length, areaRows: areas.rows.length, comparisons, segmentComparisons, topologyComparisons, matchedLines: lines.rows.length - unmatchedLines, unmatchedLines, multipleMatches, outputRows: rows.length });
+  }
+
   aggregateByArea(input: AggregateByAreaInput): AnalysisResult {
     const points = this.data(input.pointResultId); const areas = this.data(input.areaResultId);
     this.assertActualPoints(points); this.assertActualSurfaces(areas);
@@ -444,6 +476,9 @@ export class AnalysisOperations {
   }
   private assertActualPoints(result: StoredDataResult): void {
     if (result.geometry.type !== "Point" || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+  }
+  private assertActualLines(result: StoredDataResult): void {
+    if (!['LineString', 'MultiLineString'].includes(result.geometry.type) || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
   private assertActualSurfaces(result: StoredDataResult): void {
     if (!["Polygon", "MultiPolygon"].includes(result.geometry.type) || !["actual", "derived"].includes(result.geometry.role) || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");

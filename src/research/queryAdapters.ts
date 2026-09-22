@@ -52,6 +52,13 @@ export function createPointDatasetAdapter(descriptor: DatasetDescriptor, reader:
   return adapter(descriptor, {}, reader);
 }
 
+/** A line reader is only eligible when its source coordinates are actual EPSG:4326 geometry. */
+export function createLineDatasetAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
+  if (descriptor.kind !== "line" || descriptor.recordGrain !== "feature" || !["LineString", "MultiLineString"].includes(descriptor.geometry.type) || descriptor.geometry.crs !== "EPSG:4326"
+    || descriptor.geometry.role !== "actual" || !descriptor.geometry.spatialAnalysisEligible) throw new Error("INVALID_LINE_ADAPTER");
+  return adapter(descriptor, {}, reader);
+}
+
 export function createNewsEventAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
   if (descriptor.kind !== "event" || descriptor.recordGrain !== "event") throw new Error("INVALID_EVENT_ADAPTER");
   return adapter(descriptor, { date: "string", minRelevance: "number", eventsOnly: "boolean", minSeverity: "number" }, reader);

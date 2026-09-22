@@ -25,7 +25,7 @@ export const RESULT_COLLECTION_LIMITS = {
 } as const;
 
 type Position = [number, number];
-type SupportedPresentationGeometry = "Point" | "Polygon" | "MultiPolygon";
+type SupportedPresentationGeometry = "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon";
 
 function isPosition(value: unknown): value is Position {
   return Array.isArray(value) && value.length === 2 && value.every(part => typeof part === "number" && Number.isFinite(part));
@@ -43,11 +43,20 @@ function polygonPositions(value: unknown): Position[] | null {
   return positions;
 }
 
+function linePositions(value: unknown): Position[] | null {
+  return Array.isArray(value) && value.length >= 2 && value.every(isPosition) ? value : null;
+}
+
 function geometryPositions(value: unknown, expectedType: SupportedPresentationGeometry): Position[] | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const geometry = value as { type?: unknown; coordinates?: unknown };
   if (geometry.type !== expectedType) return null;
   if (expectedType === "Point") return isPosition(geometry.coordinates) ? [geometry.coordinates] : null;
+  if (expectedType === "LineString") return linePositions(geometry.coordinates);
+  if (expectedType === "MultiLineString") {
+    if (!Array.isArray(geometry.coordinates) || !geometry.coordinates.length) return null;
+    const lines = geometry.coordinates.map(linePositions); return lines.some(line => !line) ? null : lines.flat() as Position[];
+  }
   if (expectedType === "Polygon") return polygonPositions(geometry.coordinates);
   if (!Array.isArray(geometry.coordinates) || !geometry.coordinates.length) return null;
   const positions: Position[] = [];
@@ -80,6 +89,7 @@ export function assertResultCollectionBudget(metrics: readonly Pick<ReturnType<t
 
 function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
   if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible || geometry.role === "generalized" && !geometry.spatialAnalysisEligible;
+  if (geometry.type === "LineString" || geometry.type === "MultiLineString") return geometry.role === "actual" && geometry.spatialAnalysisEligible;
   return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "derived" || geometry.role === "generalized");
 }
 
@@ -300,6 +310,8 @@ export class ResearchAnalysisSession {
         result = this.operations.areasContainingCenter({ areaResultId: id(args.areaResultId), center: { lng: center[0], lat: center[1] } });
       } else if (args.predicate === "within" || args.predicate === "intersects") {
         result = this.operations.spatialJoin({ pointResultId: id(args.pointResultId), areaResultId: id(args.areaResultId), predicate: args.predicate });
+      } else if (args.predicate === "line_intersects") {
+        result = this.operations.lineIntersects({ lineResultId: id(args.lineResultId), areaResultId: id(args.areaResultId) });
       } else {
         const center = args.center;
         if (!Array.isArray(center) || center.length !== 2 || !center.every(part => typeof part === "number" && Number.isFinite(part))) throw new Error("INVALID_INPUT");

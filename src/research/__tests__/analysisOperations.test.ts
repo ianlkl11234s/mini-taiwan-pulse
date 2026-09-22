@@ -17,6 +17,12 @@ function areaResult(id = "areas"): StoredDataResult {
     { area_code: "EMPTY", geometry: { type: "Polygon", coordinates: [[[120, 24], [120.1, 24], [120.1, 24.1], [120, 24.1], [120, 24]]] } },
   ] };
 }
+function lineResult(id = "lines"): StoredDataResult {
+  return { resultId: id, datasetId: "fixture-rivers", recordGrain: "feature", geometry: { type: "MultiLineString", role: "actual", spatialAnalysisEligible: true }, sourceRefs: source, coverage: "fixture line source", freshness: "current", units: {}, rows: [
+    { line_id: "crosses", geometry: { type: "LineString", coordinates: [[121.45, 25], [121.65, 25]] } },
+    { line_id: "outside", geometry: { type: "MultiLineString", coordinates: [[[120, 20], [120.1, 20.1]], [[122, 26], [122.1, 26.1]]] } },
+  ] };
+}
 function setup(...results: StoredDataResult[]) {
   const store = new BrowserMemoryResultStore<StoredDataResult>();
   results.forEach(result => store.put(result));
@@ -70,6 +76,20 @@ describe("AnalysisOperations", () => {
     expect(joined.geometry).toMatchObject({ type: "Point", role: "actual" });
     expect(joined.summary).toMatchObject({ matchedPoints: 2, unmatchedPoints: 1, multipleMatches: 0, outputRows: 2 });
     expect(joined.method).toMatchObject({ predicate: "within", boundaryRule: "boundary_excluded" });
+  });
+
+  it("matches complete actual lines to areas with explicit boundary inclusion", () => {
+    const { operations } = setup(lineResult(), areaResult());
+    const joined = operations.lineIntersects({ lineResultId: "lines", areaResultId: "areas" });
+    expect(joined.rows).toEqual(expect.arrayContaining([expect.objectContaining({ line_id: "crosses", matched_area: expect.objectContaining({ area_code: "A" }) })]));
+    expect(joined.summary).toMatchObject({ lineRows: 2, areaRows: 3, matchedLines: 1, unmatchedLines: 1 });
+    expect(joined.method).toMatchObject({ predicate: "line_intersects", boundaryRule: "boundary_included" });
+  });
+
+  it("rejects aggregate segment work before iterating row pairs", () => {
+    const lines = { ...lineResult("many-lines"), rows: Array.from({ length: 1_001 }, (_, index) => ({ line_id: index, geometry: { type: "LineString", coordinates: [[121.45, 25], [121.65, 25]] } })) };
+    const areas = { ...areaResult("many-areas"), rows: Array.from({ length: 1_000 }, (_, index) => ({ area_code: index, geometry: areaResult().rows[0]!.geometry })) };
+    expect(() => setup(lines, areas).operations.lineIntersects({ lineResultId: "many-lines", areaResultId: "many-areas" })).toThrow("SPATIAL_SEGMENT_COMPARISON_BUDGET_EXCEEDED");
   });
 
   it("aggregates point records by area without turning source absence into real-world zero", () => {
