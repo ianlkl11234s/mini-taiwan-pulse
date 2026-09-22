@@ -17,8 +17,8 @@ describe("layer capability registry", () => {
     const pmtiles = listLayerCapabilities({ query: "pmtiles" });
     expect(pmtiles.layers).toEqual(expect.arrayContaining([expect.objectContaining({ sourceKinds: expect.arrayContaining(["pmtiles"]), recordSearch: "not_registered", aggregate: "not_registered", dataRole: "unknown", supportedMeasures: [], timeModel: "unknown", freshness: "unsupported" })]));
     const countReady = listLayerCapabilities({ measure: "count", status: "ready" });
-    expect(countReady).toMatchObject({ totalMatched: 4, returned: 4 });
-    expect((countReady.layers as { layerKey: string }[]).map(layer => layer.layerKey).sort()).toEqual(["medHospital", "policeStation", "publicLibraries", "schools"]);
+    expect(countReady).toMatchObject({ totalMatched: 5, returned: 5 });
+    expect((countReady.layers as { layerKey: string }[]).map(layer => layer.layerKey).sort()).toEqual(["convenienceStores", "medHospital", "policeStation", "publicLibraries", "schools"]);
     const candidates = listLayerCapabilities({ status: "on_demand_validation", sourceKind: "geojson", limit: 20 });
     expect(candidates.totalMatched).toBeGreaterThan(0);
   });
