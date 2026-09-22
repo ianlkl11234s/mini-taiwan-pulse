@@ -45,10 +45,10 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const [creating, setCreating] = useState(false);
   const [study, setStudy] = useState<{ studyId: string; tabId: string } | null>(null);
   const [message, setMessage] = useState(supabaseConfigured ? "先登入以建立配對。" : "連線服務尚未啟用，可先試用研究畫布。");
+  const accessToken = useRef<string | null>(null);
   const client = useMemo(() => new BridgeClient(async () => {
     if (!supabaseConfigured) return null;
-    const { data } = await supabase!.auth.getSession();
-    return data.session?.access_token ?? null;
+    return accessToken.current;
   }), []);
   const active = useRef(true);
   const resumeForUser = useRef<string | null>(null);
@@ -76,9 +76,18 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   useEffect(() => {
     active.current = true;
     if (!supabaseConfigured) return () => { active.current = false; };
-    void supabase!.auth.getSession().then(({ data }) => { if (active.current) setSession(data.session); });
-    const { data: subscription } = supabase!.auth.onAuthStateChange((_event, next) => { if (!active.current) return; setSession(next); if (!next) { releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); } });
-    return () => { active.current = false; subscription.subscription.unsubscribe(); releaseLease(); };
+    void supabase!.auth.getSession().then(({ data }) => {
+      if (!active.current) return;
+      accessToken.current = data.session?.access_token ?? null;
+      setSession(data.session);
+    });
+    const { data: subscription } = supabase!.auth.onAuthStateChange((_event, next) => {
+      if (!active.current) return;
+      accessToken.current = next?.access_token ?? null;
+      setSession(next);
+      if (!next) { releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }
+    });
+    return () => { active.current = false; accessToken.current = null; subscription.subscription.unsubscribe(); releaseLease(); };
   }, []);
 
   useEffect(() => {

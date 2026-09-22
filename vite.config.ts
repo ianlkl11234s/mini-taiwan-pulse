@@ -251,6 +251,11 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api/research/v1": { target: process.env.PULSE_RESEARCH_GATEWAY_ORIGIN ?? "http://127.0.0.1:8790", changeOrigin: false },
+      "/__statistics-cdn": {
+        target: "https://data.itsmigu.com",
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/__statistics-cdn/, "/statistics/v1"),
+      },
       ...(process.env.VITE_SOCIAL_STATISTICS_PREVIEW === 'true' ? {
         '/__social-statistics-cdn': {
           target: `http://127.0.0.1:${Number(process.env.SOCIAL_STATISTICS_PREVIEW_PORT || 3757)}`,

@@ -33,22 +33,25 @@ export class QueryResponder {
   }
   stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.timer = null; this.last = null; }
   private async pollLoop(): Promise<void> {
-    await this.tick();
+    const healthy = await this.tick();
     if (this.stopped) return;
+    // The gateway holds an idle browser query briefly, so a healthy loop can
+    // continue without a background-tab timer that Chromium may throttle.
+    if (healthy) { void this.pollLoop(); return; }
     const visibility = typeof document === "undefined" ? "unknown" : document.visibilityState;
     this.timer = setTimeout(() => {
       this.timer = null;
       void this.pollLoop();
     }, queryPollDelay(this.failures, visibility));
   }
-  async tick(): Promise<void> {
-    if (this.stopped || this.busy) return;
+  async tick(): Promise<boolean> {
+    if (this.stopped || this.busy) return false;
     this.busy = true;
     const { client, studyId, tabId } = this.connection;
     try {
       const { request } = await client.query(studyId, tabId);
-      if (this.stopped) return;
-      if (!request || request.expiresAt <= Date.now()) { this.recovered(); return; }
+      if (this.stopped) return true;
+      if (!request || request.expiresAt <= Date.now()) { this.recovered(); return true; }
       let result: QueryResult;
       if (this.last?.id === request.requestId) result = this.last.result;
       else {
@@ -63,7 +66,7 @@ export class QueryResponder {
       }
       if (!this.stopped && request.expiresAt > Date.now()) {
         await client.queryResult(studyId, tabId, request.requestId, result);
-        if (this.stopped) return;
+        if (this.stopped) return true;
         this.recovered();
         if (this.delivered !== request.requestId) {
           this.delivered = request.requestId;
@@ -72,6 +75,7 @@ export class QueryResponder {
       } else if (!this.stopped) {
         this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" });
       }
+      return true;
     } catch (error) {
       if (!this.stopped) {
         const code = error instanceof BridgeError ? error.code : "BRIDGE_UNAVAILABLE";
@@ -83,6 +87,7 @@ export class QueryResponder {
         this.unhealthy = true;
         if (this.onHealth) this.onHealth({ state, code }); else this.onError();
       }
+      return false;
     }
     finally { this.busy = false; }
   }
