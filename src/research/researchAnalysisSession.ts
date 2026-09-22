@@ -6,7 +6,7 @@ import { queryRecordsDetailed } from "./researchDatasets";
 import { describeDataset, ensureDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
-export type AnalysisQueryOperation = "compare_neighborhoods" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
+export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation">;
 
 /**
@@ -78,8 +78,30 @@ export function assertResultCollectionBudget(metrics: readonly Pick<ReturnType<t
 }
 
 function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
-  if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible;
+  if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible || geometry.role === "generalized" && !geometry.spatialAnalysisEligible;
   return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "generalized");
+}
+
+function analysisCenter(value: unknown): Position {
+  if (!isPosition(value) || Math.abs(value[0]) > 180 || Math.abs(value[1]) > 85) throw new Error("INVALID_SPATIAL_CENTER");
+  return value;
+}
+
+function geodesicCircle(center: Position, radiusM: number, segments = 64): Position[] {
+  const radians = Math.PI / 180;
+  const degrees = 180 / Math.PI;
+  const angularDistance = radiusM / 6_371_008.8;
+  const longitude = center[0] * radians;
+  const latitude = center[1] * radians;
+  const ring: Position[] = [];
+  for (let index = 0; index < segments; index += 1) {
+    const bearing = index / segments * Math.PI * 2;
+    const targetLatitude = Math.asin(Math.sin(latitude) * Math.cos(angularDistance) + Math.cos(latitude) * Math.sin(angularDistance) * Math.cos(bearing));
+    const targetLongitude = longitude + Math.atan2(Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(latitude), Math.cos(angularDistance) - Math.sin(latitude) * Math.sin(targetLatitude));
+    ring.push([((targetLongitude * degrees + 540) % 360) - 180, targetLatitude * degrees]);
+  }
+  ring.push([...ring[0]!] as Position);
+  return ring;
 }
 
 function integer(value: unknown, fallback: number, min: number, max: number): number {
@@ -178,6 +200,7 @@ export class ResearchAnalysisSession {
       this.store.put(result);
       return page(result, 0, args.limit);
     }
+    if (operation === "create_analysis_scope") return this.createAnalysisScope(args);
     if (operation === "list_results") return { results: this.store.list().map(item => page(item as StoredDataResult, 0, 1)).map(({ rows: _rows, ...summary }) => summary) };
     if (operation === "remove_result") return { resultId: id(args.resultId), removed: this.store.remove(id(args.resultId)) };
     if (operation === "get_analysis_result") return this.getPage(id(args.resultId), args.offset, args.limit);
@@ -253,6 +276,42 @@ export class ResearchAnalysisSession {
     const result = this.store.get(resultId) as StoredDataResult | null;
     if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
     return page(result, offset, limit);
+  }
+
+  private createAnalysisScope(args: Record<string, unknown>): Record<string, unknown> {
+    const center = analysisCenter(args.center);
+    const radiusM = args.radiusM;
+    if (typeof radiusM !== "number" || !Number.isFinite(radiusM) || radiusM < 1 || radiusM > 500_000) throw new Error("INVALID_DISTANCE_RADIUS");
+    const label = args.label === undefined ? "分析範圍" : args.label;
+    if (typeof label !== "string" || !label.trim() || label.length > 120) throw new Error("INVALID_INPUT");
+    const createdAt = new Date().toISOString();
+    const scopeId = `scope-${Date.now().toString(36)}`;
+    const common = {
+      operation: "analysis_scope" as const, inputResultIds: [] as const,
+      sourceRefs: [] as const, coverage: `Geodesic circle centered at ${center[0]},${center[1]} with radius ${radiusM} m.`, freshness: "current" as const,
+      units: { radiusM: "m" }, excludedByReason: {},
+      lineage: { origin: "agent_supplied_center", createdAt, scopeId, authoritativeBoundary: false, networkAccessibility: false },
+      method: { operation: "create_analysis_scope", version: "0.1", distanceModel: "WGS84_spherical_geodesic", earthRadiusM: 6_371_008.8, radiusM, polygonSegments: 64, notWalkingIsochrone: true },
+    };
+    const area: AnalysisResult = {
+      ...common, resultId: `analysis-scope-area-${scopeId}`, datasetId: "derived:analysis-scope-area", recordGrain: "feature",
+      rows: [{ record_id: `${scopeId}:area`, label: label.trim(), radiusM, geometry: { type: "Polygon", coordinates: [geodesicCircle(center, radiusM)] } }],
+      geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false },
+      summary: { featureCount: 1, geometryPart: "area", radiusM, boundaryMeaning: "Derived display scope; not an administrative boundary or walking isochrone." },
+    };
+    const anchor: AnalysisResult = {
+      ...common, resultId: `analysis-scope-center-${scopeId}`, datasetId: "derived:analysis-scope-center", recordGrain: "feature",
+      rows: [{ record_id: `${scopeId}:center`, label: label.trim(), radiusM, geometry: { type: "Point", coordinates: center } }],
+      geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false },
+      summary: { featureCount: 1, geometryPart: "center", center, pointMeaning: "Derived analysis anchor; not a source-observed place record." },
+    };
+    this.store.put(area);
+    this.store.put(anchor);
+    return {
+      scopeId, label: label.trim(), center, radiusM, distanceModel: "WGS84_spherical_geodesic", networkAccessibility: false,
+      resultIds: [area.resultId, anchor.resultId], area: page(area, 0, 1), centerResult: page(anchor, 0, 1),
+      limitations: ["This is a straight-line geodesic display scope, not a walking route or isochrone.", "The polygon is derived geometry and is not an authoritative administrative boundary."],
+    };
   }
 }
 

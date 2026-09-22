@@ -25,6 +25,7 @@ export function activityForOperation(operation: string, args: Record<string, unk
   if (operation === "layer_details" || operation === "describe_layer" || operation === "describe_dataset" || operation === "plan_data_access") return { phase: "working", title: "正在查看資料說明", detail: "整理資料來源與可用欄位。" };
   if (operation === "read_layer" || operation === "query_records" || operation === "materialize_data") return { phase: "working", title: "正在讀取資料", detail: "只處理這次指定的資料範圍。" };
   if (operation === "nearby") return { phase: "working", title: "正在查看附近資料", detail: "依目前位置與條件整理。" };
+  if (operation === "create_analysis_scope") return { phase: "working", title: "正在建立分析範圍", detail: "顯示中心與直線幾何範圍；不會冒充步行等時圈。" };
   if (operation === "spatial_query") return { phase: "working", title: "正在比對空間關係", detail: args.predicate === "nearest" ? "正在找出接近的紀錄。" : "正在依指定範圍整理紀錄。" };
   if (operation === "aggregate_by_area") return { phase: "working", title: "正在依區域彙總", detail: "邊界版本、未匹配與零值會分開保留。" };
   if (operation === "route_distance" || operation === "walking_isochrone") return { phase: "working", title: "正在檢查步行路網", detail: "只會使用已登記版本的 pedestrian graph，不用直線距離代替。" };

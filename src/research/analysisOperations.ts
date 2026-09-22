@@ -28,7 +28,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series";
+  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "analysis_scope";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;

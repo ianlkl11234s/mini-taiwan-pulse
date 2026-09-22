@@ -40,7 +40,7 @@ describe("BridgeClient", () => {
   });
 
   it("accepts bounded layer, spatial, and network query operations", async () => {
-    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone"]) {
+    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone"]) {
       const query = { request: { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 } };
       await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(query))).query("study-1", "tab-1")).resolves.toEqual(query);
     }

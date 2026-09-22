@@ -62,6 +62,20 @@ describe("research analysis session", () => {
     expect(session.presentable([String(aggregate.resultId)])).toHaveLength(1);
   });
 
+  it("creates a derived center and straight-line scope without making either spatial-analysis eligible", () => {
+    const session = new ResearchAnalysisSession();
+    const scope = session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 1000, label: "市府周邊" });
+    expect(scope).toMatchObject({ center: [121.5638, 25.0375], radiusM: 1000, distanceModel: "WGS84_spherical_geodesic", networkAccessibility: false });
+    const resultIds = scope.resultIds as string[];
+    expect(resultIds).toHaveLength(2);
+    const [area, center] = session.presentable(resultIds);
+    expect(area).toMatchObject({ geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false } });
+    expect(center).toMatchObject({ geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false } });
+    expect((area!.rows[0]!.geometry as { coordinates: unknown[][] }).coordinates[0]).toHaveLength(65);
+    expect(() => session.execute("spatial_query", { resultId: resultIds[1], predicate: "within_distance", center: [121.5638, 25.0375], radiusM: 1000 })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+    expect(() => session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 0 })).toThrow("INVALID_DISTANCE_RADIUS");
+  });
+
   it("composes query, spatial, aggregate, quality, paging and removal by resultId", async () => {
     const body = JSON.stringify({ type: "FeatureCollection", features: [
       { type: "Feature", geometry: { type: "Point", coordinates: [121.5, 25] }, properties: { code: "A", school_name: "甲", city: "臺北市" } },
