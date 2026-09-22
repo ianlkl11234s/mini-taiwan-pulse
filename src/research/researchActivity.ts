@@ -4,6 +4,11 @@ export type Activity = {
   detail?: string;
 };
 
+/** Only an in-flight, observable map action may light the map viewport. */
+export function isActivityBusy(activity: Activity | null): boolean {
+  return activity?.phase === "working" || activity?.phase === "presenting";
+}
+
 const READBACK = new Set([
   "map_context", "get_analysis_result", "get_result_bounds", "get_record_evidence", "get_data_quality", "list_results",
 ]);
@@ -32,7 +37,7 @@ export function activityForOperation(operation: string, args: Record<string, unk
   if (operation === "compare_neighborhoods") return { phase: "working", title: "正在比較周邊資料", detail: "各來源會分開保留，方便對照。" };
   if (operation === "aggregate_records") return { phase: "working", title: "正在彙整已取得的資料", detail: "不會將缺漏值改成零。" };
   if (operation === "join_records") return { phase: "working", title: "正在對照資料紀錄", detail: "正在保留可追溯的對照關係。" };
-  if (operation === "calculate_metric" || operation === "compare_series") return { phase: "working", title: "正在計算比較結果", detail: "會保留無法計算的值。" };
+  if (operation === "calculate_metric" || operation === "compare_series" || operation === "compare_regions") return { phase: "working", title: "正在計算比較結果", detail: "會保留無法計算的值。" };
   if (operation === "read_series") return { phase: "working", title: "正在整理時間變化", detail: "依指定時間範圍呈現。" };
   return null;
 }
