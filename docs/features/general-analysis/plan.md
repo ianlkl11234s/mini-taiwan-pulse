@@ -1,0 +1,94 @@
+# 通用地方分析計畫與驗收關卡
+
+更新：2026-09-22。計畫 SSOT；後續 session 先讀本檔，不另起競爭 roadmap。
+
+## 不變的目標
+
+以使用者蒐集的開放資料回答：①這個點周圍的情形；②這個地區與其他地區比較；③這個縣市與其他縣市比較；④即時事件與周邊背景的交叉解讀。以分析正確性、來源可追溯與完整問題回應速度驗收。通用性來自可組合操作與資料契約，不是為每題寫專用 adapter。
+
+任何工作必須指向上述至少一類問題及下表驗收編號。新增模型、工具、圖層數或漂亮視覺本身不算完成。未授權資料不可進候選；無資料不等於零；相關不等於因果；統計期間不能冒充即時。顯示 geometry 與分析 geometry 分開。
+
+## 基線與執行邊界
+
+- 原已提交：Mini `da7b08cc`、MCP `326fb10`、Gateway `cc484a3`。
+- 延續 `mini-taiwan-pulse/.worktrees/research-streamline/{mini,mcp,gateway}`，保護原工作區；本計畫不包含 push、merge、deployment 。
+- 既有 14-step paired-browser warm analysis 約 9.0–9.3 秒；不含模型思考、配對，不代表整題 90 秒 SLA。
+- 主 agent 負責契約、語意及整合；Terra 有界實作，Luna 有界盤點。明確 file ownership，不同時改同檔。
+- 每張驗收單記錄：固定輸入、資料版本、預期行為、實際結果、測試/網站證據、耗時、已知限制。工程自驗與使用者驗收分列；未檢查不標通過。
+
+## 分階段交付
+
+| 階段 | 交付與使用者可驗收的行為 | 工程通過條件 | 狀態 |
+|---|---|---|---|
+| S1a 語意底座第一片 | 同指標的 series 可比較；已知不相容或缺證據時阻擋；query 範圍不遺失 | 對正確/錯誤/未知輸入的回歸測試、跨區不可被 datasetId 一刀切、tsc | 本地工程通過；使用者待驗收 |
+| S1b 共用研究範圍 | 回答前列出位置/區域、時間、比較對象、距離定義、指標與分母；資料缺口可讀 | 三類需求共用 scope 契約，經 typed MCP/Gateway/browser；不可比較原因可讀回 | nearby／comparison／walking 證據面板通過；event scope 與完整 budget 契約待補 |
+| S2 周邊交叉分析 | 指定點＋半徑，至少兩種來源＋行政統計；地圖與來源表一致 | A01–A03；人工/獨立 reference 數字吻合；不是 rendered-points count | 固定周邊案例通過；完整失敗情境仍按 A03 補驗 |
+| S3 地區與縣市比較 | 相同指標比較兩區、兩縣市；總數/密度/人口分母明示 | A04–A07；比較前守門、數值及分母 oracle；拒絕把區域統計任意分攤到圓內 | 核心兩區／兩縣市比較通過；A05 自行人口標準化待接線 |
+| S4 事件與背景 | 事件位置/時間交叉人口、設施、環境，區分觀測與推論 | A08–A10；先固定歷史 replay，再 fresh feed；過期/延遲顯示且不推因果 | 待開始 |
+| S5 資料與計算加速 | 同一答案下載更少、計算更少；先處理 S2–S4 量到的瓶頸 | 精確分片＋bbox/index、同版快取；優化前後結果等價、傳輸量及時間對照 | 待開始，可與 S2/S3 量測並行 |
+| S6 Jev 與整題驗收 | 找相關資料、選操作、必要時升級強模型；不再反覆描述全目錄 | A11–A12；已授權候選、未知保留、召回率/誤選/成本/整題時間 A/B | 待開始 |
+
+不等全計畫完成才交付。每階段交一張可重跑驗收單；如該階段只完成部分，明列子階段與欠項，不用測試 fixture 冒充網站實測。使用者驗收不自動授權發布；下一階段設計可繼續，但不可繞過依賴的正確性關卡。
+
+## 共同研究範圍（目標契約；目前以 evidence panel 實作部分欄位）
+
+- questionKind：nearby / region_comparison / event_context。
+- geography：明示中心＋radiusM、行政區 codes＋boundary version，或明示 bbox；原始請求與實際執行範圍均保留。
+- time：事件發生、資料觀測、發布、取得時間分列；比較期、timezone、resolution 明示。
+- measures：指標定義、source grain、單位、aggregation、分母及 population scope。
+- comparison：比較對象允許不同地區與 release；須有共同定義及明示 period alignment，不以「datasetId相同」替代語意檢查。
+- evidence：dataset/release/source refs、precision、coverage、missing/suppressed、完整或有界子集、選擇/排除原因。
+- budget：候選數、資料量、計算量、模型/工具等待期限；partial 回覆可續跑且不冒稱完成。
+
+S1a 不將日/週 event series 當成年統計跨期比較；年度/學年與行政 snapshot 的可比性在 S1b/S3 明確建模。
+
+## 使用者驗收題庫（預期是行為，不預先捏造答案）
+
+| ID | 固定問題/條件 | 你要看到什麼 |
+|---|---|---|
+| A01 | 中心 [121.5318,25.0464]，直線 2km，學校＋圖書館 | 同一範圍多來源、分類數量、完整來源 grain、地圖高亮；資料版本可查 |
+| A02 | A01 加所屬區與縣市統計 | 正確行政區；統計期間與單位明示；不把全區住宅數稱為 2km 內住宅數 |
+| A03 | 明確無覆蓋或來源失敗 | unknown/unavailable 與 observed zero 不混淆；成功部分仍可讀 |
+| A04 | 兩個同層級行政區、同一統計 release | 數量/差值/比例、來源與分母；不因區域不同拒絕 |
+| A05 | 兩縣市服務數量及每萬人口數 | 服務及人口來源期間對齊；分母缺漏/零時不製造排名 |
+| A06 | 故意混用不同單位或日/週解析度 | 明確拒絕比較並列出需要對齊的項目 |
+| A07 | 邊界改版、學年與曆年、不同指標名稱但同單位 | 要求定義/對照；不能只因單位相同便說可比較 |
+| A08 | 固定事件 replay＋事件時點附近設施/人口 | 可重現 affected context；背景資料年份、事件時間、估計性質分開 |
+| A09 | 延遲/過期事件、撤稿或缺座標 | 顯示 stale/缺口；不能以最後快取當作最新事件 |
+| A10 | 河川/道路線與行政區交叉 | 已支援才執行；未支援明確回報，不能以端點或中心點偷代替整條線 |
+| A11 | 繁中同義、跨主題、不明確問題 | Jev 縮候選但保留無匹配/未知；與人工標注比較 recall、錯選 |
+| A12 | 同題 cold/warm、Jev 開/關 | 同一結果與來源，逐段耗時可比較；模型錯誤、缺資料、服務失敗分開 |
+
+首輪 A01/A02 沿用已登記教育/文化/統計資料。事件來源先盤點 current adapters/access/freshness 後選取，不假設每個顯示圖層已有 reader。fixture、歷史 replay、live feed 三種證據分開。
+
+## 速度與準確度的量測
+
+- 計時從 Agent 收到固定問題到來源說明及 ready/readback 完成；配對前置成本另列。
+- 分段：候選檢索、Jev、強模型、MCP queue/transport、下載/parse、計算、呈現/readback；記錄 bytes、cache hit、工具呼叫次數。
+- 90 秒是完整 warm workflow 目標，不以 9 秒工具鏈冒充；先至少 20 次固定樣本報 median/p95/max，cold 另列。timeout/失敗不能從分母刪除。
+- 計數、join、區域匹配須與獨立 oracle 一致；連續值採按指標預先聲明的數值容差，不能只驗自己重算自己。
+- 快取/分片優化須驗資料版本、code 集合、幾何與輸出等價；未知、缺值、suppressed 不得變零。
+- Jev 用已標注繁中樣本校準門檻；分類信心不等於答案正確率。精確名稱已命中可直接走程式。
+
+## 本輪交接
+
+2026-09-22 使用者追加授權執行到 S3，並自行出題驗收；包含現有 local/Google geocoding、Valhalla 步行與淡白操作光暈。沿用既有 provider 與 consent，不新增外部服務或購買額度。語意底座見 [S1a 驗收單](./acceptance-S1a.md)，本輪實作與逐題證據見 [S1b–S3 驗收單](./acceptance-S1b-S3.md)。已做到核心區域比較；下一個切片先補 A05 人口分母的上游獨立快照與口徑契約（目前 HOLD，不能從衍生率反推），再做 reader 接線並量測完整 warm workflow，之後依量測做資料分片。S4 事件分析尚未開始。
+
+
+## S1b–S3 本輪固定考題
+
+- T01：121.5318,25.0464，直線 2km 的學校／圖書館數量，與獨立原始檔計算一致；行政區背景不稱為圓內統計。
+- T02：2020 住宅總數，中山區 vs 大安區，原值/差值/相對基準可核對且地圖呈現 2 區。
+- T03：114 學年國小師生比，臺北市 vs 新北市；相同維度與期間，不將比率再次加總。
+- T04：官方同年度每萬人口率兩縣市比較；原生率與自行計算率分開。額外人口分母未接妥時拒絕自算，不以教師或學生人數替代人口。
+- T05：錯單位、錯期間、錯邊界、duplicate、missing/suppressed/zero；確認安全拒絕或保留缺值。
+- T06：公開地標本地地址定位；Google key 未設定須明確 disabled。公開座標步行距離與等時圈實測，有版本/時間/單位；失敗不可回直線替代。
+- T07：真實查詢中光暈出現，完成/失敗消失；pointer-events none 與 reduced-motion 驗證。
+
+Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位置。網站能力、mock/fixture 與 provider live 證據分列。
+
+### A05 來源關卡（2026-09-22 補查）
+
+既有公開統計 manifest 未提供 standalone population release。醫院每萬人口衍生檔僅涵蓋 159/368 鄉鎮；教育縣市率雖有 22/22，分母依附學年衍生結果，均不能替代獨立人口來源。analytics 本地 population parquet 存在，不等於 R2 發布完成。文件的「現住人口」與「戶籍人口」用詞須回到原始來源 receipt 確認。
+
+下一切片可驗收交付：① canonical 縣市人口快照，含 22 縣市 coverage/status、人口口徑、觀測日期、immutable boundary SHA 與來源；② local preview 與公開發布狀態分列；③ reader 只接已符合契約的 snapshot；④ 明確測試年度分子搭年底人口的對齊規則，不放寬成只比較年份。現有 strict period/boundary 守門保留，尚未宣告任意 per-capita 分析完成。
