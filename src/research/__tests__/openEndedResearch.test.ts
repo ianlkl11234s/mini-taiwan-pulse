@@ -11,14 +11,16 @@ const body = (kind: string) => JSON.stringify({ type: "FeatureCollection", featu
   { type: "Feature", properties: kind === "school" ? { code: "same", school_name: "甲校", city: "臺北市" } : { name: "甲館", county: "臺北市" }, geometry: { type: "Point", coordinates: [121.5, 25] } },
   { type: "Feature", properties: kind === "school" ? { code: "same", school_name: "乙校", city: "臺北市" } : { name: "乙館", county: null }, geometry: { type: "Point", coordinates: [121.6, 25] } },
 ] });
-it("discovers related existing layers, probes independent sources and composes a map result without full-page rows", async () => {
+it("discovers point and regional-statistics capabilities, then composes a map result without full-page rows", async () => {
   vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(body(url.includes("schools") ? "school" : "library"), { headers: { "content-type": "application/geo+json" } })));
   const session = new ResearchAnalysisSession();
   const discovery = await exploreData({ query: "教育資源", probe: true, limit: 2 }, context, datasetId => session.queryRecords({ datasetId, limit: 2 }));
   const readers = discovery.candidates.flatMap(candidate => candidate.readers);
-  expect(readers.map(reader => reader.datasetId)).toEqual(expect.arrayContaining(["tw-schools", "tw-public-libraries"]));
-  expect(discovery.probes).toBe(2);
-  expect(readers.every(reader => reader.payload.status === "readable")).toBe(true);
+  expect(readers.map(reader => reader.datasetId)).toContain("tw-schools");
+  expect(readers.some(reader => reader.datasetId.startsWith("regional-statistics:"))).toBe(true);
+  expect(discovery.probes).toBe(1);
+  expect(readers.find(reader => reader.datasetId === "tw-schools")?.payload.status).toBe("readable");
+  expect(readers.filter(reader => reader.datasetId.startsWith("regional-statistics:")).every(reader => reader.payload.status === "parameters_or_specialized_reader_required")).toBe(true);
   const candidates = await session.queryRecords({ datasetId: "tw-schools", filters: [{ field: "city", op: "eq", value: "台北市" }], limit: 1 });
   expect(candidates.totalMatched).toBe(2); // 臺/台 spelling is not a missing-data claim.
   const libraries = await session.queryRecords({ datasetId: "tw-public-libraries", limit: 1 });
@@ -50,11 +52,15 @@ it.runIf(Boolean(process.env.PULSE_RESEARCH_REAL_ASSETS))("real local school+lib
   const candidates = await session.queryRecords({ datasetId: "tw-schools", filters: [{ field: "city", op: "eq", value: "台北市" }], limit: 1 });
   const schools = await session.queryRecords({ datasetId: "tw-schools", limit: 1 });
   const libraries = await session.queryRecords({ datasetId: "tw-public-libraries", limit: 1 });
-  expect(schools.totalMatched).toBe(4315); expect(libraries.totalMatched).toBe(634);
+  const stores = await session.queryRecords({ datasetId: "tw-convenience-stores", limit: 1 });
+  expect(schools.totalMatched).toBe(4315); expect(libraries.totalMatched).toBe(634); expect(stores.totalMatched).toBe(13223);
+  const nearbyStores = session.execute("spatial_query", { resultId: stores.resultId, predicate: "within_distance", center: [121.56378381950438, 25.037523004565163], radiusM: 1000, limit: 5 });
+  expect(nearbyStores).toMatchObject({ freshness: "unknown", method: { radiusM: 1000 }, summary: { radiusM: 1000 } });
+  expect(Number(nearbyStores.totalRows)).toBeGreaterThan(0);
   const result = session.execute("compare_neighborhoods", { candidateResultId: candidates.resultId, sourceResultIds: [schools.resultId, libraries.resultId], radiusM: 1000, rankBySource: 0, limit: 5 });
   expect(result.totalRows).toBe(candidates.totalMatched);
   const full = session.presentable([String(result.resultId)])[0]!;
   expect(full.rows.length).toBeGreaterThan(100); expect(full.rows.length).toBeLessThan(500);
   expect(result.freshness).toBe("unknown");
-  console.log(JSON.stringify({ acceptance: "real-neighborhood", candidateRecords: candidates.totalMatched, schoolRecords: schools.totalMatched, libraryRecords: libraries.totalMatched, method: result.method, sourceRefs: result.sourceRefs, top: result.rows }));
+  console.log(JSON.stringify({ acceptance: "real-neighborhood", candidateRecords: candidates.totalMatched, schoolRecords: schools.totalMatched, libraryRecords: libraries.totalMatched, convenienceStoreRecords: stores.totalMatched, nearbyConvenienceStores: nearbyStores.totalRows, method: result.method, sourceRefs: result.sourceRefs, top: result.rows }));
 });

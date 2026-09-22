@@ -39,6 +39,7 @@ export interface RegionalStatisticsValuesResult {
 
 const STATISTICS_CDN_SCHEMA = 'regional-statistics-cdn-v1';
 const DEFAULT_STATISTICS_CDN_BASE = 'https://data.itsmigu.com/statistics/v1';
+const LOCAL_STATISTICS_CDN_ROUTE = '/__statistics-cdn';
 interface StatisticsCdnAsset { path: string; sha256: string; bytes: number }
 interface StatisticsCdnPointer { schema_version: string; manifest: StatisticsCdnAsset }
 interface StatisticsCdnSelector {
@@ -61,6 +62,22 @@ interface StatisticsCdnArtifact {
   geometry: { status: string; geometry: GeometryManifest };
 }
 
+function configuredStatisticsCdnBase(): string {
+  return String(import.meta.env.VITE_STATISTICS_CDN_BASE || DEFAULT_STATISTICS_CDN_BASE).replace(/\/+$/, '');
+}
+
+/** Local DEV fetches the fixed public CDN through Vite; receipts stay canonical. */
+export function statisticsBoundaryFetchUrl(manifest: GeometryManifest, origin?: string): string {
+  const canonicalBase = configuredStatisticsCdnBase();
+  if (!import.meta.env.DEV || canonicalBase !== DEFAULT_STATISTICS_CDN_BASE) return manifest.resource;
+  const root = new URL(`${canonicalBase}/`);
+  const resource = new URL(manifest.resource, root);
+  if (resource.origin !== root.origin || !resource.pathname.startsWith(root.pathname)) return manifest.resource;
+  if (!origin) throw new Error('本地 statistics CDN proxy 需要 browser origin');
+  const relative = resource.pathname.slice(root.pathname.length);
+  return new URL(`${LOCAL_STATISTICS_CDN_ROUTE}/${relative}`, origin).href;
+}
+
 function statisticsCdnBase(recipe?: StatisticsRecipe): string {
   // This delivery is incremental. Only its exact registered datasets use the opt-in local origin.
   const social = recipe?.layerKey ? getSocialRecipe(recipe.layerKey) : undefined;
@@ -68,7 +85,17 @@ function statisticsCdnBase(recipe?: StatisticsRecipe): string {
     && social?.enabled && social.dataset_id === recipe?.datasetId) {
     return new URL('/__social-statistics-cdn', window.location.origin).href;
   }
-  return String(import.meta.env.VITE_STATISTICS_CDN_BASE || DEFAULT_STATISTICS_CDN_BASE).replace(/\/+$/, '');
+  const configured = configuredStatisticsCdnBase();
+  if (import.meta.env.DEV && configured === DEFAULT_STATISTICS_CDN_BASE) {
+    return new URL(LOCAL_STATISTICS_CDN_ROUTE, window.location.origin).href;
+  }
+  return configured;
+}
+
+function statisticsCdnReferenceBase(fetchBase: string): string {
+  if (!import.meta.env.DEV || configuredStatisticsCdnBase() !== DEFAULT_STATISTICS_CDN_BASE) return fetchBase;
+  const local = new URL(LOCAL_STATISTICS_CDN_ROUTE, window.location.origin).href;
+  return fetchBase === local ? DEFAULT_STATISTICS_CDN_BASE : fetchBase;
 }
 
 function assetUrl(base: string, path: string): string {
@@ -208,7 +235,7 @@ async function request<T>(route: string, query: Record<string, unknown>, signal?
   }
   if (route === 'geometry-manifest') {
     const geometry = manifest.geometries.find(item => item.boundary_version === query.boundary_version && item.level === query.level);
-    return (geometry ? { status: 'OK', geometry: { ...geometry, resource: assetUrl(base, geometry.resource) } } : { status: 'NOT_FOUND' }) as T;
+    return (geometry ? { status: 'OK', geometry: { ...geometry, resource: assetUrl(statisticsCdnReferenceBase(base), geometry.resource) } } : { status: 'NOT_FOUND' }) as T;
   }
   const selector = manifest.selectors.find(item => item.dataset_id === query.dataset_id
     && item.indicator_id === query.indicator_id && item.release_id === query.release_id
@@ -313,7 +340,7 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
         if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
         if (!includeBoundary) return { geometryManifest };
         const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
-          const response = await fetch(geometryManifest.resource);
+          const response = await fetch(statisticsBoundaryFetchUrl(geometryManifest, globalThis.location?.origin));
           if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
           return response.arrayBuffer();
         }), signal);

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { installAnalysisResults, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
@@ -16,6 +16,7 @@ function stubMap() {
     addLayer: (layer: Layer) => layers.set(layer.id, structuredClone(layer)),
     removeLayer: (id: string) => layers.delete(id),
     removeSource: (id: string) => sources.delete(id),
+    isSourceLoaded: (id: string) => sources.has(id),
     setPaintProperty: (id: string, property: string, value: unknown) => { layers.get(id)?.paint && (layers.get(id)!.paint[property] = value); paintWrites.push({ id, property, value }); },
     on: (event: string, listener: () => void) => { if (event === "render") listeners.add(listener); },
     off: (event: string, listener: () => void) => { if (event === "render") listeners.delete(listener); },
@@ -31,6 +32,53 @@ const result: PresentableResult = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("analysis result reveal lifecycle", () => {
+  it("retains authorized metadata for a result even when it is not installed", () => {
+    expect(describeAnalysisResults([{ ...result, displayLabel: "全國醫院" }])).toEqual([{
+      resultId: "result-1", datasetId: "fixture", displayLabel: "全國醫院", geometryType: "Point", featureCount: 1,
+    }]);
+  });
+
+  it("presents more than four independent result layers and reads them all back", () => {
+    const { map, layers } = stubMap();
+    const results = Array.from({ length: 5 }, (_, index) => ({
+      ...result,
+      resultId: `result-${index + 1}`,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5 + index * 0.001, 25] } }],
+    } satisfies PresentableResult));
+    const installed = installAnalysisResults(map, results);
+    expect(installed).toHaveLength(5);
+    expect(layers.size).toBe(5);
+    expect(readAnalysisResultPresentation(map, installed)).toMatchObject({ resultIds: results.map(item => item.resultId), featureCount: 5, ready: true });
+  });
+
+  it("uses geometry rather than dataset id for Polygon and MultiPolygon results", () => {
+    const { map, sources, layers } = stubMap();
+    const polygon = {
+      resultId: "generic-polygon", datasetId: "any-polygon-dataset", geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    const multiPolygon = {
+      resultId: "generic-multipolygon", datasetId: "another-dataset", geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "MultiPolygon", coordinates: [
+        [[[121.7, 25], [121.71, 25], [121.71, 25.01], [121.7, 25.01], [121.7, 25]]],
+        [[[121.72, 25], [121.73, 25], [121.73, 25.01], [121.72, 25.01], [121.72, 25]]],
+      ] } }],
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [polygon, multiPolygon]);
+    expect(layers.get("research-analysis-result-points-0")?.type).toBe("fill");
+    expect(layers.get("research-analysis-result-points-1")?.type).toBe("fill");
+    expect((sources.get("research-analysis-result-1")!.data as { features: Array<{ geometry: { type: string } }> }).features[0]!.geometry.type).toBe("MultiPolygon");
+  });
+
+  it("rejects a collection over its visible-result budget before changing the map", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [result]);
+    const original = sources.get("research-analysis-result-0")!.data;
+    const overBudget = Array.from({ length: 9 }, (_, index) => ({ ...result, resultId: `over-${index}` }));
+    expect(() => installAnalysisResults(map, overBudget)).toThrow("TOO_MANY_PRESENTED_RESULTS");
+    expect(sources.get("research-analysis-result-0")!.data).toBe(original);
+  });
+
   it("starts a new layer transparent, reveals on render, then removes its render listener", () => {
     const { map, layers, listeners, render } = stubMap();
     installAnalysisResults(map, [result], 0.42);
@@ -71,5 +119,48 @@ describe("analysis result reveal lifecycle", () => {
     installAnalysisResults(map, [result], 0.61);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.61);
     expect(listeners.size).toBe(0);
+  });
+
+  it("reads back installed result ids, feature count, sources and layers before claiming ready", () => {
+    const { map } = stubMap();
+    const installed = installAnalysisResults(map, [result]);
+    const collection = { items: [{ resultId: "result-1", visible: true, groupId: "education" }], groups: [{ groupId: "education", label: "教育", visible: true }] };
+    expect(readAnalysisResultPresentation(map, installed, collection)).toMatchObject({
+      mode: "analysis_result",
+      resultIds: ["result-1"],
+      renderedResultIds: ["result-1"],
+      collection,
+      datasets: ["fixture"],
+      featureCount: 1,
+      sourcesReady: true,
+      layersReady: true,
+      ready: true,
+    });
+    removeAnalysisResults(map);
+    expect(readAnalysisResultPresentation(map, [])).toMatchObject({ mode: "none", featureCount: 0, ready: true });
+  });
+
+  it("keeps a fully hidden collection in readback while correctly reporting no rendered layers", () => {
+    const { map } = stubMap();
+    const collection = { items: [{ resultId: "result-1", visible: false, groupId: "education" }], groups: [{ groupId: "education", label: "教育", visible: false }] };
+    expect(readAnalysisResultPresentation(map, [], collection)).toMatchObject({
+      mode: "none",
+      collection,
+      renderedResultIds: [],
+      sourceIds: [],
+      layerIds: [],
+      ready: true,
+    });
+  });
+
+  it("validates every result before changing an existing source", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [result]);
+    const original = sources.get("research-analysis-result-0")!.data;
+    const replacement = { ...result, resultId: "result-2", rows: [{ geometry: { type: "Point", coordinates: [121.6, 25.1] } }] } satisfies PresentableResult;
+    const invalid = { ...result, resultId: "result-3", rows: [{ geometry: { type: "Point", coordinates: [121.7] } }] } satisfies PresentableResult;
+    expect(() => installAnalysisResults(map, [replacement, invalid])).toThrow("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
+    expect(sources.get("research-analysis-result-0")!.data).toBe(original);
+    expect(sources.has("research-analysis-result-1")).toBe(false);
   });
 });

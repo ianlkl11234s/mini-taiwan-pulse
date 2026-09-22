@@ -1,4 +1,4 @@
-import { readRegisteredLayer } from "./registeredLayerReader";
+import { describeRegisteredLayer, readRegisteredLayer } from "./registeredLayerReader";
 import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
@@ -6,12 +6,32 @@ import { schoolsGridAdapter } from "./gridDatasetAdapter";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
 import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
 import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
-import type { DatasetDescriptor, Scalar, SourceReceipt } from "./dataContracts";
+import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type Scalar, type SourceReceipt } from "./dataContracts";
 import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
+import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
+
+const discoveryOnlyDescriptors: readonly DatasetDescriptor[] = [
+  {
+    schemaVersion: "pulse-dataset/0.1", datasetId: "urban_zoning_taipei", label: "臺北市土地使用分區", description: "公開 PMTiles 土地使用分區形狀；目前僅開放探索說明，未有同版 sidecar 前不開放紀錄查詢。",
+    layerRefs: ["urbanZoningTaipei"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
+    geometry: { type: "Polygon", crs: null, role: "generalized", precision: "PMTiles display geometry; source CRS, simplification and analysis precision require a version-matched sidecar", spatialAnalysisEligible: false },
+    timeFields: [], coverage: "臺北市都市計畫土地使用分區；完整性待同版 sidecar 驗證", license: "registered upstream license not yet copied into this runtime descriptor", valueSemantics: DEFAULT_VALUE_SEMANTICS,
+    versions: [], source: { publisher: "臺北市政府資料開放平台", reference: "/urban/urban_zoning_taipei.pmtiles", lineage: "data.taipei SHP -> PMTiles display asset; catalog registration is not payload health proof" },
+    access: boundedAccess({ mode: "public", method: "pmtiles_sidecar", fields: [], maxRowsPerQuery: 1, maxScanRows: 1, queryEnabled: false }), supportedOperations: [], adapterId: "pmtiles-sidecar-required",
+  },
+  {
+    schemaVersion: "pulse-dataset/0.1", datasetId: "allen_coral_atlas", label: "Allen Coral Atlas 淺海棲地分類", description: "僅 owner 私人非商業研究；搜尋、說明與查詢都必須每次重新驗權。目前未建立 query adapter。",
+    layerRefs: ["allenCoralAtlas"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
+    geometry: { type: "MultiPolygon", crs: null, role: "generalized", precision: "5m nominal classification source rendered through owner-only PMTiles; analytical geometry contract is not registered", spatialAnalysisEligible: false },
+    timeFields: [], coverage: "本地 owner-only 快照內的完整相交 polygon；不代表全球珊瑚健康或活珊瑚覆蓋", license: "owner-only private non-commercial research; no public redistribution", valueSemantics: DEFAULT_VALUE_SEMANTICS,
+    versions: [], source: { publisher: "Allen Coral Atlas Partnership and Arizona State University", reference: "owner-authenticated fixed Range endpoint", lineage: "private classified habitat snapshot -> owner-authenticated PMTiles Range reads; no public cache" },
+    access: boundedAccess({ mode: "owner_only", method: "owner_range", fields: [], maxRowsPerQuery: 1, maxScanRows: 1, queryEnabled: false }), supportedOperations: [], adapterId: "owner-range-query-unavailable",
+  },
+];
 
 const schoolsDescriptor: DatasetDescriptor = {
   schemaVersion: "pulse-dataset/0.1", datasetId: "tw-schools", label: "全國各級學校", description: "教育部學校校址點位；機構與校區語意沿用來源。",
@@ -28,15 +48,15 @@ const schoolsDescriptor: DatasetDescriptor = {
     { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
   ],
   geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source geocoded school coordinate", spatialAnalysisEligible: true }, timeFields: [],
-  coverage: "全臺；實際完整度須由來源 receipt 驗證", license: "unknown",
+  coverage: "全臺；實際完整度須由來源 receipt 驗證", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS,
   versions: [],
   source: { publisher: "教育部", reference: "/education/schools.geojson", lineage: "public GeoJSON -> validated Point records" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 10_000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["record_id", "code", "school_name", "school_level", "city", "district", "address", "region_type", "geometry"], filters: ["code", "school_name", "school_level", "city", "district", "region_type"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 10_000, maxSourceBytes: 8 * 1024 * 1024 }), supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
 };
 
 const medicalHospitalsDescriptor: DatasetDescriptor = {
   schemaVersion: "pulse-dataset/0.1", datasetId: "tw-medical-hospitals", label: "全國醫院", description: "健保特約醫院院區點位；設施數不代表醫療量能或服務覆蓋。",
-  layerRefs: ["medHospitals"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
+  layerRefs: ["medHospital"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
   fields: [
     { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
     { name: "facility_id", type: "string", nullable: true, nullMeaning: "來源未提供院區識別碼", unit: null },
@@ -49,9 +69,9 @@ const medicalHospitalsDescriptor: DatasetDescriptor = {
     { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
   ],
   geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source facility coordinate", spatialAnalysisEligible: true }, timeFields: [],
-  coverage: "全臺健保特約醫院；實際完整度須由來源 receipt 驗證", license: "unknown", versions: [],
+  coverage: "全臺健保特約醫院；實際完整度須由來源 receipt 驗證", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS, versions: [],
   source: { publisher: "衛生福利部中央健康保險署", reference: "/geo/medical_hospitals.geojson", lineage: "public GeoJSON -> validated Point records" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 20_000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["record_id", "facility_id", "name", "facility_name", "hospital_name", "county", "city", "address", "geometry"], filters: ["facility_id", "name", "facility_name", "hospital_name", "county", "city"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 20_000, maxSourceBytes: 8 * 1024 * 1024 }), supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
 };
 
 const librariesDescriptor: DatasetDescriptor = {
@@ -63,13 +83,34 @@ const librariesDescriptor: DatasetDescriptor = {
     { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
   ],
   geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source library coordinate", spatialAnalysisEligible: true }, timeFields: [],
-  coverage: "來源快照內全國公共圖書館含分館；現況完整性 unknown", license: "unknown", versions: [],
+  coverage: "來源快照內全國公共圖書館含分館；現況完整性 unknown", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS, versions: [],
   source: { publisher: "unknown; existing publicLibraries layer asset", reference: "/culture/public_libraries_national.geojson", lineage: "existing layer GeoJSON -> validated source records; no seat/capacity inference" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 10000 }, supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["record_id", "name", "type", "county", "geometry"], filters: ["name", "type", "county"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 10_000, maxSourceBytes: 8 * 1024 * 1024 }), supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
 };
 const librariesAdapter = createPointDatasetAdapter(librariesDescriptor, async () => {
   const snapshot = await loadPointDataset({ datasetId: librariesDescriptor.datasetId, url: librariesDescriptor.source.reference, idField: "record_id", safeFields: ["name", "type", "county"] });
   return { rows: snapshot.rows, source: receipt(librariesDescriptor.datasetId, snapshot.checksumSha256, librariesDescriptor.source.reference, snapshot.checksumSha256), coverage: librariesDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((a, b) => a + b, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit };
+});
+
+const convenienceStoresDescriptor: DatasetDescriptor = {
+  schemaVersion: "pulse-dataset/0.1", datasetId: "tw-convenience-stores", label: "全國便利商店", description: "既有 convenienceStores 圖層的來源門市點位；可做來源座標的探索性鄰近查詢，但不代表即時營業、完整門市母體或步行可達性。",
+  layerRefs: ["convenienceStores"], kind: "point", recordGrain: "place", primaryKey: ["record_id"],
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供門市名稱", unit: null },
+    { name: "brand", type: "string", nullable: true, nullMeaning: "來源未提供品牌", unit: null },
+    { name: "addr", type: "string", nullable: true, nullMeaning: "來源未提供地址；不得由空字串推論無地址", unit: null },
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source-provided store coordinate; upstream acquisition and positional accuracy are not recorded in this artifact", spatialAnalysisEligible: true }, timeFields: [],
+  coverage: "Existing 13,223-feature nationwide layer snapshot; upstream completeness, acquisition date, closures and current operating status are unknown.", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS, versions: [],
+  source: { publisher: "unknown; existing convenienceStores layer asset", reference: "/geo/convenience_stores.geojson", lineage: "existing registered GeoJSON -> validated Point records; no live opening-status or walking-network inference" },
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["record_id", "name", "brand", "addr", "geometry"], filters: ["name", "brand", "addr"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 20_000, maxSourceBytes: 8 * 1024 * 1024 }), supportedOperations: ["query_records", "nearest", "aggregate"], adapterId: "geojson-point-v1",
+};
+const convenienceStoresAdapter = createPointDatasetAdapter(convenienceStoresDescriptor, async () => {
+  const snapshot = await loadPointDataset({ datasetId: convenienceStoresDescriptor.datasetId, url: convenienceStoresDescriptor.source.reference, idField: "record_id", safeFields: ["name", "brand", "addr"] });
+  return { rows: snapshot.rows, source: receipt(convenienceStoresDescriptor.datasetId, snapshot.checksumSha256, convenienceStoresDescriptor.source.reference, snapshot.checksumSha256), coverage: convenienceStoresDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
     rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((a, b) => a + b, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit };
 });
 
@@ -94,10 +135,10 @@ const newsDescriptor: DatasetDescriptor = {
   ],
   geometry: { type: "Point", crs: "EPSG:4326", role: "proxy", precision: "township cluster proxy or none", spatialAnalysisEligible: false },
   timeFields: [{ name: "published_at", role: "published", timezone: "UTC" }, { name: "occurred_at", role: "occurred", timezone: "UTC" }],
-  coverage: "selected publication day and explicit relevance/event/severity filters", license: "unknown",
+  coverage: "selected publication day and explicit relevance/event/severity filters", license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS,
   versions: [],
   source: { publisher: "registered news feeds", reference: "supabase:public.get_news_events_day_clustered_v2", lineage: "source articles -> classified events -> township clusters -> raw events extracted without display defaults" },
-  accessPolicy: { mode: "authenticated", maxRowsPerQuery: 50, maxScanRows: 10_000 }, supportedOperations: ["query_records", "aggregate"], adapterId: "news-event-rpc-v1",
+  access: boundedAccess({ mode: "owner_only", method: "rpc", fields: ["event_id", "title", "summary", "category", "source", "url", "published_at", "occurred_at", "confidence", "gis_relevance", "severity", "is_event", "geometry", "geometry_precision"], filters: ["event_id", "title", "category", "source", "gis_relevance", "severity", "is_event"], timeFields: ["published_at", "occurred_at"], maxRowsPerQuery: 50, maxScanRows: 10_000 }), supportedOperations: ["query_records", "aggregate"], adapterId: "news-event-rpc-v1",
 };
 
 const statisticsDescriptor: DatasetDescriptor = {
@@ -116,10 +157,10 @@ const statisticsDescriptor: DatasetDescriptor = {
   ],
   geometry: { type: "none", crs: null, role: "none", precision: "records require an explicit version-matched boundary join", spatialAnalysisEligible: false },
   timeFields: [{ name: "period_start", role: "period_start", timezone: "Asia/Taipei" }, { name: "period_end", role: "period_end", timezone: "Asia/Taipei" }],
-  coverage: JSON.stringify(PADDY.release_options[0]?.coverage ?? { status: "unknown" }), license: String(PADDY.source.license ?? "unknown"),
+  coverage: JSON.stringify(PADDY.release_options[0]?.coverage ?? { status: "unknown" }), license: String(PADDY.source.license ?? "unknown"), valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "status/source_token distinguishes missing, suppressed and not_reported; null is never zero", suppressed: "suppressed status requires value=null and may retain only the source token", zero: "value=0 is valid only with status=observed" },
   versions: PADDY.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
   source: { publisher: String(PADDY.source.publisher ?? "unknown"), reference: String(PADDY.source.source_landing_url ?? "unknown"), lineage: "immutable current pointer -> hashed manifest -> exact release artifact; geometry is not returned by query_records" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 1000 }, supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
+  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
 };
 
 function receipt(sourceId: string, version: string, reference: string, checksumSha256: string | null = null): SourceReceipt {
@@ -205,18 +246,80 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
   };
 });
 
-export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([schoolsAdapter, medicalHospitalsAdapter, newsAdapter, statisticsAdapter, schoolsGridAdapter, librariesAdapter]);
+export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
+  schoolsAdapter,
+  medicalHospitalsAdapter,
+  newsAdapter,
+  statisticsAdapter,
+  schoolsGridAdapter,
+  librariesAdapter,
+  convenienceStoresAdapter,
+  ...createSocialStatisticsAdapters(),
+]);
 
-export function searchDatasets(query: string, offset = 0, limit = 20) {
+function allDescriptors(): DatasetDescriptor[] {
+  const descriptors = [...RESEARCH_QUERY_EXECUTOR.descriptors(), ...discoveryOnlyDescriptors];
+  descriptors.forEach(assertDatasetDescriptor);
+  return descriptors;
+}
+
+/** Read-only descriptor lookup for manifest-derived capability reporting; never hydrates a source. */
+export function registeredDatasetForLayer(layerKey: string): DatasetDescriptor | null {
+  return allDescriptors().find(descriptor => descriptor.layerRefs.includes(layerKey)) ?? null;
+}
+
+/** Temporary projection for the legacy browser-chat tools; metadata stays owned by the dataset descriptor. */
+export function legacyDatasetMeta(datasetId: string): { url: string; label: string; description: string } {
+  const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId);
+  if (!descriptor || descriptor.access.mode !== "public" || descriptor.access.method !== "static_asset") throw new Error("LEGACY_DATASET_NOT_AVAILABLE");
+  const filterFields = descriptor.access.query.filters.join(" / ");
+  const url = descriptor.source.reference.startsWith("/") ? `.${descriptor.source.reference}` : descriptor.source.reference;
+  return { url, label: descriptor.label, description: `${descriptor.description} 可篩選欄位：${filterFields}。` };
+}
+
+function datasetAuthorized(descriptor: DatasetDescriptor, locked: ReadonlySet<string>): boolean {
+  if (descriptor.layerRefs.some(key => locked.has(key))) return false;
+  const references = new Set(descriptor.layerRefs.map(key => describeRegisteredLayer(key)?.url.replace(/^\.\//, "/")).filter(Boolean));
+  return ![...locked].some(key => {
+    const source = describeRegisteredLayer(key)?.url.replace(/^\.\//, "/");
+    return source !== undefined && references.has(source);
+  });
+}
+
+export function searchDatasets(query: string, offset = 0, limit = 20, locked: ReadonlySet<string> = new Set()) {
   if (!Number.isInteger(offset) || offset < 0 || offset > 10_000 || !Number.isInteger(limit) || limit < 1 || limit > 20) throw new Error("INVALID_INPUT");
-  const matched = RESEARCH_QUERY_EXECUTOR.descriptors().map(descriptor => ({ descriptor, score: searchScore(query, `${descriptor.datasetId} ${descriptor.label} ${descriptor.description} ${descriptor.layerRefs.join(" ")}`) })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.descriptor);
-  const datasets = matched.slice(offset, offset + limit);
+  const matched = allDescriptors().filter(descriptor => descriptor.access.discovery.search && datasetAuthorized(descriptor, locked)).map(descriptor => ({ descriptor, score: searchScore(query, `${descriptor.datasetId} ${descriptor.label} ${descriptor.description} ${descriptor.layerRefs.join(" ")}`) })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).map(item => item.descriptor);
+  // Discovery is intentionally compact. Full fields, versions, coverage,
+  // provenance and value semantics belong to describe_dataset; returning them
+  // here makes common topic searches exceed the browser relay's bounded result.
+  const datasets = matched.slice(offset, offset + limit).map(descriptor => ({
+    schemaVersion: descriptor.schemaVersion,
+    datasetId: descriptor.datasetId,
+    label: descriptor.label,
+    description: descriptor.description.slice(0, 240),
+    descriptionTruncated: descriptor.description.length > 240,
+    layerRefs: descriptor.layerRefs,
+    kind: descriptor.kind,
+    recordGrain: descriptor.recordGrain,
+    geometry: {
+      type: descriptor.geometry.type,
+      role: descriptor.geometry.role,
+      spatialAnalysisEligible: descriptor.geometry.spatialAnalysisEligible,
+    },
+    access: {
+      mode: descriptor.access.mode,
+      method: descriptor.access.method,
+      queryEnabled: descriptor.access.query.enabled,
+    },
+    supportedOperations: descriptor.supportedOperations,
+    versionCount: descriptor.versions.length,
+  }));
   return { query, offset, limit, totalMatched: matched.length, returned: datasets.length, truncated: offset + datasets.length < matched.length, datasets };
 }
 
-export function describeDataset(datasetId: string): DatasetDescriptor & { semantics: SemanticCard | null } {
-  const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId);
-  if (!descriptor) throw new Error("DATASET_NOT_FOUND");
+export function describeDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): DatasetDescriptor & { semantics: SemanticCard | null } {
+  const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId) ?? discoveryOnlyDescriptors.find(item => item.datasetId === datasetId) ?? null;
+  if (!descriptor || !descriptor.access.discovery.describe || !datasetAuthorized(descriptor, locked)) throw new Error("DATASET_NOT_FOUND");
   return { ...descriptor, semantics: describeDatasetSemantics(datasetId) };
 }
 
@@ -226,6 +329,18 @@ export async function queryRecords(input: QueryRecordsInput): Promise<Record<str
 
 export async function queryRecordsDetailed(input: QueryRecordsInput): Promise<QueryExecution> {
   return await RESEARCH_QUERY_EXECUTOR.executeDetailed(input);
+}
+
+/** Resolve an analysis dataset from its manifest layer without inventing a second registry. */
+export async function datasetForLayer(layerKey: string, locked: ReadonlySet<string> = new Set()): Promise<DatasetDescriptor> {
+  const registered = allDescriptors().find(descriptor => descriptor.layerRefs.includes(layerKey));
+  if (registered) {
+    if (!datasetAuthorized(registered, locked)) throw new Error("LAYER_DENIED");
+    return registered;
+  }
+  const datasetId = `layer:${layerKey}`;
+  await ensureDataset(datasetId, locked);
+  return describeDataset(datasetId, locked);
 }
 
 const hydrating = new Map<string, Promise<void>>();

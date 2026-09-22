@@ -2,3 +2,6 @@ interface:
   display_name: "地圖故事導覽"
   short_description: "依主題找出值得比較的差異，查證來源並編排逐章地圖導覽與講解"
   default_prompt: "請使用 $pulse-map-story，以台灣軌道系統為主題，先查資料與編排故事，再開始逐章地圖導覽。"
+
+policy:
+  allow_implicit_invocation: false

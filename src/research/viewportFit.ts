@@ -12,6 +12,7 @@ export type ViewportRect = { left: number; top: number; right: number; bottom: n
 export type ViewportContext = { viewport: ViewportRect; safe: ViewportRect; overlays: readonly ViewportRect[]; fitAvailable?: boolean; fitError?: "VIEWPORT_OCCLUDED" };
 
 type ViewportMap = Pick<MapboxMap, "getContainer" | "cameraForBounds">;
+type ViewportReadbackMap = Pick<MapboxMap, "getContainer" | "project">;
 
 // The App's flyout starts after the 56px Icon Rail, so it is still left-docked at 58px.
 const EDGE_ATTACH_PX = 80;
@@ -222,4 +223,30 @@ export function resolveViewportCameraFromContext(map: Pick<MapboxMap, "cameraFor
 
 export function resolveViewportCamera(map: ViewportMap, framing: ResearchFraming): ResearchCamera {
   return resolveViewportCameraFromContext(map, resolveViewportContext(map), framing);
+}
+
+/** Confirms the requested bounds, not an implementation-dependent fitted camera. */
+export function framingFitsViewportFromContext(map: Pick<MapboxMap, "project">, context: ViewportContext, framing: ResearchFraming, tolerancePx = 2): boolean {
+  if (context.fitAvailable === false || !validFraming(framing) || !finite(tolerancePx) || tolerancePx < 0) return false;
+  const { safe } = context;
+  const visible = {
+    left: safe.left + framing.padding,
+    top: safe.top + framing.padding,
+    right: safe.right - framing.padding,
+    bottom: safe.bottom - framing.padding,
+  };
+  if (visible.right <= visible.left || visible.bottom <= visible.top) return false;
+  const [west, south, east, north] = framing.bounds;
+  try {
+    return [[west, south], [west, north], [east, south], [east, north]].every(([lng, lat]) => {
+      const point = map.project([lng!, lat!]);
+      return finite(point.x) && finite(point.y)
+        && point.x >= visible.left - tolerancePx && point.x <= visible.right + tolerancePx
+        && point.y >= visible.top - tolerancePx && point.y <= visible.bottom + tolerancePx;
+    });
+  } catch { return false; }
+}
+
+export function framingFitsViewport(map: ViewportReadbackMap, framing: ResearchFraming): boolean {
+  return framingFitsViewportFromContext(map, resolveViewportContext(map), framing);
 }

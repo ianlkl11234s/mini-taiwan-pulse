@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { Map as MapboxMap } from "mapbox-gl";
-import { offsetCameraToSafeRect, resolveViewportCameraFromContext, viewportContextFromRects, type ResearchFraming } from "../viewportFit";
+import { framingFitsViewportFromContext, offsetCameraToSafeRect, resolveViewportCameraFromContext, viewportContextFromRects, type ResearchFraming } from "../viewportFit";
 
 const framing: ResearchFraming = { bounds: [118, 21.5, 123, 26.5], padding: 24, maxZoom: 9 };
 
@@ -53,6 +53,15 @@ describe("research viewport fit", () => {
     expect(context.fitError).toBe("VIEWPORT_OCCLUDED");
     expect(context.viewport.right).toBe(390);
     expect(() => resolveViewportCameraFromContext(mapStub().map, context, framing)).toThrow("VIEWPORT_OCCLUDED");
+  });
+
+  it("reads fit_bounds back from projected corners inside the padded safe viewport", () => {
+    const context = viewportContextFromRects(1000, 800, [{ left: 0, top: 0, right: 300, bottom: 800 }]);
+    const fit: ResearchFraming = { bounds: [121.54, 25.02, 121.6, 25.06], padding: 60, maxZoom: 14 };
+    const project = vi.fn(([lng, lat]: [number, number]) => ({ x: 376 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
+    expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(true);
+    project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 360 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
+    expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(false);
   });
 });
 

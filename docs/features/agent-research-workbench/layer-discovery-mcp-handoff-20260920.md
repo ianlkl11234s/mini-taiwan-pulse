@@ -1,8 +1,60 @@
 # Layer discovery／UI debt／MCP follow-up handoff
 
 > 日期：2026-09-20
-> 狀態：cleanup 後下一輪工作；本輪不擴張 MCP runtime
+> 狀態：Pulse／Gateway／stdio MCP 契約已接通；待使用者重啟 MCP 並以實際 owner browser pairing 驗收
 > 證據邊界：repository contract 與本地 tests 不等於 paired MCP、browser、deployment 或 production acceptance。
+
+## 2026-09-20 typed analysis 第三階段 checkpoint
+
+- 將已有但原本被主地圖邊界關閉的 `ResearchAnalysisSession` 接回 paired browser。Dataset query 會建立 session-local `resultId`，後續分析只接受該 result reference，斷線／重新配對會清除記憶結果。
+- 新 MCP surface：`pulse_plan_data_access`、`pulse_materialize_data`、`pulse_spatial_query`、`pulse_aggregate_records`、`pulse_join_records`、`pulse_calculate_metric`、`pulse_read_series`、`pulse_compare_series`、`pulse_get_data_quality`、`pulse_get_record_evidence`、`pulse_get_analysis_result`、`pulse_get_result_bounds`、`pulse_list_results`、`pulse_remove_result`。
+- 現階段 spatial 只允許 actual EPSG:4326 Point 的 Haversine `nearest` / `within_distance`；join 只允許顯式 key 與 cardinality policy。結果保留 source receipts、coverage、freshness、units、nulls、exclusions 與 lineage。
+- 尚未完成真正 point-in-polygon、行政區 polygon 分級設色、每面積／每人標準化、raster/zonal statistics 與 network accessibility；未有同版 boundary/population/network descriptor 前繼續 fail-closed。
+- 本階段先驗 local frontend/Gateway/MCP schema 與 stdio，再另開獨立 Codex task 進行真 owner pairing 複驗；其結果應追加在本節，不用單元測試代替 browser evidence。
+
+## 2026-09-20 實作 checkpoint
+
+- `src/research/dataContracts.ts` 與 `src/research/contracts/` 現為 Dataset／Access／Query Result
+  machine-readable contract；權限只有 `public`、`owner_only`，每次操作重新驗權。
+- `src/research/researchDatasets.ts` 是 dataset definition SSOT；舊 chat whitelist 只做相容投影，不再重複
+  手寫相同 dataset metadata。
+- `search_datasets`、`describe_dataset`、`query_records` 已分離。可搜尋的 PMTiles／owner pilot 可以維持
+  describe-only；不會因 catalog entry 自動宣稱可查詢、健康或最新。
+- 唯一新 query surface 是既有 adapter 共用的 bounded executor：limit、version-bound cursor、bbox、time、
+  field projection、filter allowlist、rows／scan rows／source bytes／response bytes 均 fail-closed；receipt 保留
+  source/version/coverage/freshness/missing semantics/access/limits。
+- pilots：公開 PMTiles `urban_zoning_taipei`（describe-only）、公開 Statistics snapshot
+  `land-use:paddy-area-township`（bounded query）、owner-only `allen_coral_atlas`（describe-only）。
+- 6 個 popup EDGE 已逐層在 browser 啟用檢查，維持既有決策：房地產 Grid ×3 使用 hover tooltip；
+  `temperatureWave` 是無 raycast 的 3D mesh，值查詢由 2D `temperatureGrid` 提供；
+  `waterFloodExtreme` 的 `depth_class` 已由 legend 表達；`powerPoles` 是 296 萬點 overview。
+  這些理由已由 `NO_POPUP_LEDGER` 凍結，不批次新增 FeatureInfo。
+
+驗收：focused contract tests、`npx tsc -b`、`npm run build`、browser keyboard smoke 已通過。
+完整 `npm test` 為 1755 passed／8 skipped／1 unrelated failure；failure 是 sibling analytics catalog
+缺少既有 19 筆日本住宿／醫療 dataset IDs，未在本工作改寫。
+
+MCP 與 Gateway 已在隔離 worktree 恢復現行 relay，加入 `pulse_search_datasets`、
+`pulse_describe_dataset`、`pulse_query_records`，並將本機 `pulse-research` 設定指向新 build。
+真 stdio client 已驗證 27-tool catalog（含 `pulse_route_request`）、三個新資料工具的 input/output schema 與
+URL／SQL／超限／壞 cursor 負向案例；MCP 39 tests、Gateway 49 tests 通過。routing 實際經
+OpenRouter `typesafe/jev-1.13` 回傳 structured output，且 receipt 保持 `executed:false`。尚未宣稱實際
+owner browser pairing 完成：8791 Gateway
+需要既有 Supabase 設定與明確 pilot allowlist，應由使用者重啟 MCP 後以本人登入畫面完成最後 readback。
+
+### 2026-09-20 簡單分析擴充檢查點
+
+- `tw-medical-hospitals.layerRefs` 已從錯誤的 `medHospitals` 修正為 manifest SSOT 的
+  `medHospital`，並新增所有 dataset layer reference 必須存在於 manifest 的測試。
+- `pulse_summarize_layer` 不再只能走 schools/police legacy registry；會先保留原有已驗證契約，
+  不支援時才轉到 DatasetDescriptor -> QueryExecutor 的既有 SSOT。
+- 立即 `ready` 為 schools、policeStation、medHospital、publicLibraries。其他單一
+  same-origin static GeoJSON 只標示 `on_demand_validation`；實際通過 8 MiB、20,000 rows、
+  Point geometry、same-source lock 與 receipt 驗證後才能計數。
+- PMTiles、raster、RPC、scene、mixed/custom 來源維持 `not_registered`，需同版 sidecar 或專用
+  adapter；不以 viewport/rendered feature count 冒充完整來源。
+- 新增 detached local stack runner：`npm run research:local:start|status|stop`。Email 只存於
+  process environment，runtime state/log 不寫入 repo 且不記錄憑證。
 
 ## 為什麼另立本文件
 

@@ -7,6 +7,7 @@ import {
   loadRegionalStatistics,
   loadRegionalStatisticsValues,
   normalizeAgriPreviewHealth,
+  statisticsBoundaryFetchUrl,
 } from '../regionalStatisticsLoader';
 import { agriReleaseOptions, getAgriRecipe, resolveAgriRelease } from '../agriStatisticsRecipes';
 import { statisticsGeometryCache } from '../statisticsGeometryCache';
@@ -93,6 +94,20 @@ beforeEach(() => {
 });
 
 describe('regional statistics R2 CDN contract', () => {
+  it('routes only the canonical public boundary through the fixed DEV proxy', () => {
+    vi.stubEnv('DEV', true);
+    vi.stubEnv('VITE_STATISTICS_CDN_BASE', '');
+    expect(statisticsBoundaryFetchUrl({
+      resource: 'https://data.itsmigu.com/statistics/v1/geometries/county.geojson',
+      sha256: '5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6',
+      code_scheme: 'MOI_COUNTY', boundary_version: 'COUNTY_MOI_1140318', level: 'county',
+    }, 'http://127.0.0.1:3732')).toBe('http://127.0.0.1:3732/__statistics-cdn/geometries/county.geojson');
+    expect(statisticsBoundaryFetchUrl({
+      resource: 'https://cdn.test/unknown.geojson', sha256: '0'.repeat(64),
+      code_scheme: 'unknown', boundary_version: 'unknown', level: 'county',
+    }, 'http://127.0.0.1:3732')).toBe('https://cdn.test/unknown.geojson');
+  });
+
   it('reads a provenance receipt with source, health, and null semantics without downloading boundary geometry', async () => {
     const mockedFetch = install();
     const result = await loadRegionalStatisticsValues({ ...recipe, releaseId: release.release_id, dimensions: {}, includeHealth: true, allowReleaseFallback: false });

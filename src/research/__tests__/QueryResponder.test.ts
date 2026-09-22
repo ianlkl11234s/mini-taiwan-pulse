@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { QueryResponder, queryPollDelay } from "../QueryResponder";
+import { MAX_QUERY_RESULT_BYTES, QueryResponder, queryPollDelay } from "../QueryResponder";
 import { BridgeError, type BridgeConnectionContext } from "../bridgeClient";
 const request = { requestId: "query-1", operation: "map_context", args: {}, expiresAt: Date.now() + 30_000 };
 function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onActivity = vi.fn()) {
@@ -9,7 +9,7 @@ function setup(execute = vi.fn().mockResolvedValue({ camera: [121, 25] }), onAct
   return { client, responder, execute, onActivity, onHealth };
 }
 describe("QueryResponder", () => {
-  it("backs off transient failures and throttles hidden tabs", () => {
+  it("backs off transient failures", () => {
     expect(queryPollDelay(0, "visible")).toBe(2_000);
     expect(queryPollDelay(1, "visible")).toBe(4_000);
     expect(queryPollDelay(3, "visible")).toBe(8_000);
@@ -53,7 +53,10 @@ describe("QueryResponder", () => {
     execute.mockRejectedValueOnce(new Error("private data in exception"));
     await responder.tick();
     expect(client.queryResult.mock.calls[0]?.[3]).toEqual({ ok: false, error: "QUERY_FAILED" });
-    const second = setup(vi.fn().mockResolvedValue({ large: "x".repeat(25 * 1024) }));
+    const accepted = setup(vi.fn().mockResolvedValue({ large: "x".repeat(64 * 1024) }));
+    await accepted.responder.tick();
+    expect(accepted.client.queryResult.mock.calls[0]?.[3]).toMatchObject({ ok: true });
+    const second = setup(vi.fn().mockResolvedValue({ large: "x".repeat(MAX_QUERY_RESULT_BYTES + 1) }));
     await second.responder.tick();
     expect(second.client.queryResult.mock.calls[0]?.[3]).toEqual({ ok: false, error: "RESULT_TOO_LARGE" });
   });
@@ -76,22 +79,14 @@ describe("QueryResponder", () => {
     await responder.tick();
     expect(onHealth).toHaveBeenLastCalledWith({ state: "auth", code: "SESSION_REVOKED" });
   });
-  it("schedules the next poll after completion instead of overlapping a fixed interval", async () => {
-    vi.useFakeTimers();
-    try {
-      const { responder, client } = setup();
-      client.query.mockResolvedValue({ request: null });
-      responder.start();
-      await vi.runAllTicks();
-      await Promise.resolve();
-      expect(client.query).toHaveBeenCalledTimes(1);
-      const delay = queryPollDelay(0, "unknown");
-      await vi.advanceTimersByTimeAsync(delay - 1);
-      expect(client.query).toHaveBeenCalledTimes(1);
-      await vi.advanceTimersByTimeAsync(1);
-      expect(client.query).toHaveBeenCalledTimes(2);
-      responder.stop();
-    } finally { vi.useRealTimers(); }
+  it("continues a healthy long-poll without a background-tab timer", async () => {
+    const { responder, client } = setup();
+    let hold!: () => void;
+    client.query.mockResolvedValueOnce({ request: null }).mockImplementationOnce(() => new Promise(resolve => { hold = () => resolve({ request: null }); }));
+    responder.start();
+    await vi.waitFor(() => expect(client.query).toHaveBeenCalledTimes(2));
+    expect((responder as unknown as { timer: ReturnType<typeof setTimeout> | null }).timer).toBeNull();
+    responder.stop(); hold();
   });
 
 });

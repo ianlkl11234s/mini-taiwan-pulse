@@ -1,6 +1,6 @@
 import { LAYER_MANIFEST, type ManifestKey } from "../data/layerManifest";
 import { withLoading } from "../lib/loadingRegistry";
-import type { DatasetDescriptor, DatasetField, FieldType, SourceReceipt } from "./dataContracts";
+import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type DatasetField, type FieldType, type SourceReceipt } from "./dataContracts";
 import type { AdapterSnapshot } from "./queryAdapters";
 
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -142,10 +142,10 @@ function descriptor(layerKey: string, source: GeojsonSource, fields: DatasetFiel
     schemaVersion: "pulse-dataset/0.1", datasetId: `layer:${layerKey}`, label: `${label}來源資料`, description: `${description} 已驗證 Point 子集，未套用圖層顯示 filter；請用 fields 明確 filter。`,
     layerRefs: [layerKey], kind: "point", recordGrain: "place", primaryKey: ["record_id"], fields,
     geometry: { type: "Point", crs: "EPSG:4326", role: "proxy", precision: "unreviewed registered GeoJSON coordinates", spatialAnalysisEligible: false },
-    timeFields: [], coverage: `unknown; ${notes}`, license: "unknown",
+    timeFields: [], coverage: `unknown; ${notes}`, license: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS,
     versions: [{ versionId: `sha256:${checksumSha256}`, observedAt: null, availableAt: null, checksumSha256, mutable: true }],
     source: { publisher: "unknown", reference: source.url, lineage: notes },
-    accessPolicy: { mode: "public", maxRowsPerQuery: 1_000, maxScanRows: MAX_FEATURES },
+    access: boundedAccess({ mode: "public", method: "static_asset", fields: fields.map(field => field.name), filters: fields.filter(field => field.name !== "geometry").map(field => field.name), maxRowsPerQuery: 1_000, maxScanRows: MAX_FEATURES, maxSourceBytes: MAX_BYTES }),
     supportedOperations: ["query_records", "aggregate"], adapterId: "registered-layer-geojson-v1",
   };
 }

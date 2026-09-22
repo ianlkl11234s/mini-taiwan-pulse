@@ -2,6 +2,15 @@
 
 新增三份語意卡與 evidence validator、本地 ResearchAsset／GridDefinition／GridMetric 和 SQLite lifecycle；真實 schools assign／aggregate／materialize 產生固定 receipt，以 session resultId 在主地圖呈現 Polygon、popup、圖例、透明度及清除。補齊 hash／版本／geometry／缺值負向檢查、更新 roadmap 與互動說明。驗收與明確 HOLD 見 acceptance；僅本地提交。
 
+## 2026-09-22 — 通用分析與地圖呈現閉環
+
+- 修復 `set_camera`／`fit_bounds` 後 scene-ready 假 error，完成 accepted → applied → ready → browser readback。
+- 新增 session-local Point／Polygon／MultiPolygon results、analysis origin／scope、45 組統計同版 boundary join，以及最多 8 層的 ordered／grouped collection。
+- Paired browser 以學校、圖書館、醫院、便利商店與臺北市教育統計面驗收：5 layers／428 features；關閉 healthcare group 後 413 features，readback 一致。
+- 新增 consented Google geocode adapter 與公共 Valhalla pedestrian POC adapter；本輪未送出真實地址或座標，production graph、政策 review 與 provider E2E 仍待完成。
+- 修正 browser→Gateway→MCP bounded rich-result transport，fresh stdio 可讀回完整 33-version statistics descriptor。
+- 最新 local checks：Mini research slice 197 pass／5 skip、tsc；Gateway 55/55；MCP 54/54、typecheck、build。未 push／PR／merge／deploy，未寫入 Supabase／R2。
+
 # Changelog
 
 ## 2026-09-11 — local implementation, uncommitted

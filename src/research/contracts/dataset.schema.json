@@ -4,7 +4,7 @@
   "title": "Pulse analysis dataset descriptor",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "datasetId", "label", "description", "layerRefs", "kind", "recordGrain", "primaryKey", "fields", "geometry", "timeFields", "coverage", "license", "versions", "source", "accessPolicy", "supportedOperations", "adapterId"],
+  "required": ["schemaVersion", "datasetId", "label", "description", "layerRefs", "kind", "recordGrain", "primaryKey", "fields", "geometry", "timeFields", "coverage", "license", "valueSemantics", "versions", "source", "access", "supportedOperations", "adapterId"],
   "properties": {
     "semantics": { "anyOf": [{ "$ref": "semantic-card.schema.json" }, { "type": "null" }] },
     "schemaVersion": { "const": "pulse-dataset/0.1" },
@@ -12,14 +12,18 @@
     "label": { "$ref": "#/$defs/text" },
     "description": { "$ref": "#/$defs/text" },
     "layerRefs": { "type": "array", "maxItems": 100, "items": { "type": "string", "maxLength": 160 }, "uniqueItems": true },
-    "kind": { "enum": ["point", "event", "admin_statistic", "grid"] },
-    "recordGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell"] },
-    "primaryKey": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "$ref": "#/$defs/fieldName" }, "uniqueItems": true },
-    "fields": { "type": "array", "minItems": 1, "maxItems": 100, "items": { "$ref": "#/$defs/field" } },
+    "kind": { "enum": ["point", "event", "admin_statistic", "grid", "polygon"] },
+    "recordGrain": { "enum": ["place", "event", "admin_statistic", "grid_cell", "feature"] },
+    "primaryKey": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/fieldName" }, "uniqueItems": true },
+    "fields": { "type": "array", "maxItems": 100, "items": { "$ref": "#/$defs/field" } },
     "geometry": { "$ref": "#/$defs/geometry" },
     "timeFields": { "type": "array", "maxItems": 10, "items": { "$ref": "#/$defs/timeField" } },
     "coverage": { "$ref": "#/$defs/text" },
     "license": { "$ref": "#/$defs/text" },
+    "valueSemantics": {
+      "type": "object", "additionalProperties": false, "required": ["missing", "null", "suppressed", "zero", "stale", "closed"],
+      "properties": { "missing": { "$ref": "#/$defs/text" }, "null": { "$ref": "#/$defs/text" }, "suppressed": { "$ref": "#/$defs/text" }, "zero": { "$ref": "#/$defs/text" }, "stale": { "$ref": "#/$defs/text" }, "closed": { "$ref": "#/$defs/text" } }
+    },
     "versions": {
       "type": "array", "maxItems": 100, "items": {
         "type": "object", "additionalProperties": false, "required": ["versionId", "observedAt", "availableAt", "checksumSha256", "mutable"],
@@ -30,11 +34,8 @@
       "type": "object", "additionalProperties": false, "required": ["publisher", "reference", "lineage"],
       "properties": { "publisher": { "$ref": "#/$defs/text" }, "reference": { "$ref": "#/$defs/text" }, "lineage": { "$ref": "#/$defs/text" } }
     },
-    "accessPolicy": {
-      "type": "object", "additionalProperties": false, "required": ["mode", "maxRowsPerQuery", "maxScanRows"],
-      "properties": { "mode": { "enum": ["public", "authenticated"] }, "maxRowsPerQuery": { "type": "integer", "minimum": 1, "maximum": 1000 }, "maxScanRows": { "type": "integer", "minimum": 1, "maximum": 100000 } }
-    },
-    "supportedOperations": { "type": "array", "minItems": 1, "items": { "enum": ["query_records", "nearest", "aggregate"] }, "uniqueItems": true },
+    "access": { "$ref": "access.schema.json" },
+    "supportedOperations": { "type": "array", "items": { "enum": ["query_records", "nearest", "aggregate"] }, "uniqueItems": true },
     "adapterId": { "$ref": "#/$defs/id" }
   },
   "$defs": {

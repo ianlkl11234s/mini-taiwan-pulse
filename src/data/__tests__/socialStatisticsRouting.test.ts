@@ -26,6 +26,13 @@ it("routes only an exact enabled social recipe to the DEV preview origin", async
   await expect(firstRequest({ layerKey: social.layer_key, datasetId: social.dataset_id, indicatorId: social.indicator_id, level: social.level, includeHealth: true })).resolves.toContain("/__social-statistics-cdn/current.json");
 });
 
+it("routes the fixed public CDN through the same-origin DEV proxy by default", async () => {
+  vi.stubEnv("VITE_SOCIAL_STATISTICS_PREVIEW", "false");
+  vi.stubEnv("VITE_STATISTICS_CDN_BASE", "");
+  const social = SOCIAL_STATISTICS_RECIPES_BY_KEY.statsHousingTotalCounty;
+  await expect(firstRequest({ layerKey: social.layer_key, datasetId: social.dataset_id, indicatorId: social.indicator_id, level: social.level, includeHealth: true })).resolves.toBe("http://localhost:3721/__statistics-cdn/current.json");
+});
+
 it("keeps existing recipes on VITE_STATISTICS_CDN_BASE when preview is enabled", async () => {
   vi.stubEnv("VITE_SOCIAL_STATISTICS_PREVIEW", "true");
   vi.stubEnv("VITE_STATISTICS_CDN_BASE", "https://existing-cdn.test/statistics");

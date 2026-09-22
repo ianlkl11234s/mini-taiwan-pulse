@@ -2,11 +2,16 @@ import type { TimelineChange } from "./timelineControl";
 export const RESEARCH_API_PREFIX = "/api/research/v1";
 export const BRIDGE_TIMEOUT_MS = 8_000;
 export const MAX_BRIDGE_RESPONSE_BYTES = 32 * 1024;
+export const MAX_NETWORK_PROVIDER_RESPONSE_BYTES = 2 * 1024 * 1024;
 
 export type LayerControlValue = number | boolean | string | string[];
 export type LayerControlScene = { layerKey: string; controlId: string; value: LayerControlValue; expectedValue: LayerControlValue };
 export type ViewportFraming = { bounds: [number, number, number, number]; padding: number; maxZoom: number };
-export type Scene = { framing?: ViewportFraming | null; timeline?: TimelineChange | null; camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; layerControl?: LayerControlScene | null; nearby?: { queryId: string } | null; results?: { resultIds: string[] } | null; focus?: { resultId: string; recordId: string } | null };
+export type ResultCollectionItem = { resultId: string; visible: boolean; groupId: string | null };
+export type ResultCollectionGroup = { groupId: string; label: string; visible: boolean };
+/** Ordered transient result stack. An item is rendered only when it and its group are visible. */
+export type ResultCollection = { items: ResultCollectionItem[]; groups: ResultCollectionGroup[] };
+export type Scene = { framing?: ViewportFraming | null; timeline?: TimelineChange | null; camera: { center: [number, number]; zoom: number }; resultMode: "empty" | "synthetic"; layers?: Record<string, boolean>; layerControl?: LayerControlScene | null; nearby?: { queryId: string } | null; results?: ResultCollection | null; focus?: { resultId: string; recordId: string } | null };
 export type Command = { protocolVersion: "1"; sessionId: string; studyId: string; tabId: string; commandId: string; expectedRevision: number; expiresAt: number; patch: Partial<Scene> };
 export type StudyState = { studyId: string; tabId: string; revision: number; scene: Scene; view: { revision: number; phase: "empty" | "applied" | "ready" | "error" }; connected: boolean; paused: boolean; pendingCommand: Command | null };
 export type PairingRequest = { pairingId: string; code: string; expiresAt: string | number };
@@ -30,25 +35,28 @@ export class BridgeClient {
   async createStudy(tabId: string): Promise<{ studyId: string; tabId: string }> { return this.post("/studies", { tabId }, isStudyRef); }
   async createPairing(studyId: string, tabId: string): Promise<PairingRequest> { return this.post("/pairings", { studyId, tabId }, isPairingRequest); }
   async pairingStatus(pairingId: string, tabId: string): Promise<PairingStatus> { return this.post("/pairings/status", { pairingId, tabId }, isPairingStatus); }
-  async browserStatus(studyId: string, tabId: string): Promise<BrowserSessionStatus> { return this.post("/browser/status", { studyId, tabId }, isBrowserSessionStatus); }
+  async browserStatus(studyId: string, tabId: string): Promise<BrowserSessionStatus> { return normalizeBrowserSessionStatus(await this.post("/browser/status", { studyId, tabId }, isBrowserSessionStatus)); }
   async approve(pairingId: string, tabId: string, phrase: string): Promise<void> { await this.post("/pairings/approve", { pairingId, tabId, phrase }, isAnyResponse); }
-  async sync(studyId: string, tabId: string): Promise<StudyState> { return this.post("/browser/sync", { studyId, tabId }, isStudyState); }
-  async manual(studyId: string, tabId: string, expectedRevision: number, scene: Scene): Promise<StudyState> { return this.post("/browser/manual", { studyId, tabId, expectedRevision, scene }, isStudyState); }
-  async ack(studyId: string, tabId: string, commandId: string, expectedRevision: number): Promise<StudyState> { return this.post("/browser/ack", { studyId, tabId, commandId, expectedRevision }, isStudyState); }
-  async report(studyId: string, tabId: string, revision: number, phase: "ready" | "error"): Promise<StudyState> { return this.post("/browser/report", { studyId, tabId, revision, phase }, isStudyState); }
-  async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return this.post("/browser/pause", { studyId, tabId, paused }, isStudyState); }
+  async sync(studyId: string, tabId: string): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/sync", { studyId, tabId }, isStudyState)); }
+  async manual(studyId: string, tabId: string, expectedRevision: number, scene: Scene): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/manual", { studyId, tabId, expectedRevision, scene }, isStudyState)); }
+  async ack(studyId: string, tabId: string, commandId: string, expectedRevision: number): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/ack", { studyId, tabId, commandId, expectedRevision }, isStudyState)); }
+  async report(studyId: string, tabId: string, revision: number, phase: "ready" | "error"): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/report", { studyId, tabId, revision, phase }, isStudyState)); }
+  async pause(studyId: string, tabId: string, paused: boolean): Promise<StudyState> { return normalizeStudyState(await this.post("/browser/pause", { studyId, tabId, paused }, isStudyState)); }
   async query(studyId: string, tabId: string): Promise<{ request: BrowserQuery | null }> { return this.post("/browser/query", { studyId, tabId }, isQueryEnvelope); }
   async queryResult(studyId: string, tabId: string, requestId: string, result: QueryResult): Promise<void> { await this.post("/browser/query-result", { studyId, tabId, requestId, result }, isAnyResponse); }
+  async networkProvider(studyId: string, tabId: string, operation: "route_distance" | "walking_isochrone", args: Record<string, unknown>): Promise<{ graph: Record<string, unknown>; payload: Record<string, unknown> }> {
+    return this.post("/browser/network-provider", { studyId, tabId, operation, args }, isNetworkProviderResponse, MAX_NETWORK_PROVIDER_RESPONSE_BYTES);
+  }
   async revoke(studyId: string): Promise<void> { await this.post("/studies/revoke", { studyId }, isAnyResponse); }
 
-  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T): Promise<T> {
+  private async post<T>(path: string, body: Record<string, unknown>, guard: (value: unknown) => value is T, maxResponseBytes = MAX_BRIDGE_RESPONSE_BYTES): Promise<T> {
     const token = await this.getAccessToken();
     if (!token) throw new BridgeError("AUTH_REQUIRED");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), BRIDGE_TIMEOUT_MS);
     try {
       const response = await this.fetcher(`${RESEARCH_API_PREFIX}${path}`, { method: "POST", redirect: "error", cache: "no-store", signal: controller.signal, headers: { "content-type": "application/json", authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
-      const text = await boundedText(response);
+      const text = await boundedText(response, maxResponseBytes);
       let payload: unknown;
       try { payload = text ? JSON.parse(text) : {}; } catch { throw new BridgeError("INVALID_RESPONSE"); }
       if (!response.ok) throw new BridgeError(errorCode(payload), retryAfterMs(response));
@@ -62,11 +70,11 @@ export class BridgeClient {
   }
 }
 
-async function boundedText(response: Response): Promise<string> {
+async function boundedText(response: Response, maxBytes: number): Promise<string> {
   const reader = response.body?.getReader();
   if (!reader) return response.text();
   const chunks: Uint8Array[] = []; let size = 0;
-  while (true) { const next = await reader.read(); if (next.done) break; size += next.value.byteLength; if (size > MAX_BRIDGE_RESPONSE_BYTES) { await reader.cancel(); throw new BridgeError("RESPONSE_TOO_LARGE"); } chunks.push(next.value); }
+  while (true) { const next = await reader.read(); if (next.done) break; size += next.value.byteLength; if (size > maxBytes) { await reader.cancel(); throw new BridgeError("RESPONSE_TOO_LARGE"); } chunks.push(next.value); }
   return new TextDecoder().decode(concat(chunks, size));
 }
 function concat(chunks: Uint8Array[], size: number): Uint8Array { const output = new Uint8Array(size); let offset = 0; for (const chunk of chunks) { output.set(chunk, offset); offset += chunk.byteLength; } return output; }
@@ -85,6 +93,7 @@ function isPairingRequest(value: unknown): value is PairingRequest { return isOb
 function isPairingStatus(value: unknown): value is PairingStatus { return exactObject(value, ["pairingId", "claimed", "approved", "deviceLabel", "phrase"]) && safeId(value.pairingId) && typeof value.claimed === "boolean" && typeof value.approved === "boolean" && nullableText(value.deviceLabel) && nullableText(value.phrase); }
 function safeId(value: unknown): value is string { return typeof value === "string" && /^[A-Za-z0-9._-]{1,128}$/.test(value); }
 function isAnyResponse(_value: unknown): _value is unknown { return true; }
+function isNetworkProviderResponse(value: unknown): value is { graph: Record<string, unknown>; payload: Record<string, unknown> } { return exactObject(value, ["graph", "payload"]) && isObject(value.graph) && isObject(value.payload); }
 function nullableText(value: unknown): value is string | null { return value === null || typeof value === "string"; }
 function exactObject(value: unknown, keys: string[]): value is Record<string, unknown> { return isObject(value) && Object.keys(value).length === keys.length && keys.every((key) => key in value); }
 function isScene(value: unknown): value is Scene { return isObject(value) && Object.keys(value).every(key => ["camera", "resultMode", "layers", "layerControl", "framing", "timeline", "nearby", "results", "focus"].includes(key)) && (value.layers === undefined || isLayers(value.layers)) && (value.framing === undefined || isFraming(value.framing)) && (value.timeline === undefined || isTimeline(value.timeline)) && (value.layerControl === undefined || isLayerControl(value.layerControl)) && (value.nearby === undefined || isNearby(value.nearby)) && (value.results === undefined || isResults(value.results)) && (value.focus === undefined || isFocus(value.focus)) && exactObject(value.camera, ["center", "zoom"]) && Array.isArray(value.camera.center) && value.camera.center.length === 2 && value.camera.center.every((part) => typeof part === "number" && Number.isFinite(part)) && value.camera.center[0] >= -180 && value.camera.center[0] <= 180 && value.camera.center[1] >= -85 && value.camera.center[1] <= 85 && typeof value.camera.zoom === "number" && Number.isFinite(value.camera.zoom) && value.camera.zoom >= 0 && value.camera.zoom <= 18 && (value.resultMode === "empty" || value.resultMode === "synthetic"); }
@@ -100,14 +109,40 @@ function nullableTime(value: unknown): value is number | null { return value ===
 
 function isLayers(value: unknown): value is Record<string, boolean> { return isObject(value) && Object.keys(value).length <= 20 && Object.entries(value).every(([key, on]) => /^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(key) && !["__proto__", "constructor", "prototype"].includes(key) && typeof on === "boolean"); }
 
-export type BrowserQuery = { requestId: string; operation: "time_context" | "search_layers" | "layer_details" | "describe_layer" | "describe_layer_statistics" | "summarize_layer" | "list_layer_capabilities" | "search_layer_records" | "layer_controls" | "geocode_address" | "read_layer" | "map_context" | "find_places" | "nearby" | "explore_data" | "compare_neighborhoods" | "search_datasets" | "describe_dataset" | "query_records" | "plan_data_access" | "materialize_data" | "spatial_query" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result"; args: Record<string, unknown>; expiresAt: number };
+export type BrowserQuery = { requestId: string; operation: "time_context" | "search_layers" | "layer_details" | "describe_layer" | "describe_layer_statistics" | "summarize_layer" | "list_layer_capabilities" | "search_layer_records" | "layer_controls" | "geocode_address" | "read_layer" | "map_context" | "find_places" | "nearby" | "explore_data" | "compare_neighborhoods" | "search_datasets" | "describe_dataset" | "query_records" | "plan_data_access" | "materialize_data" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "route_distance" | "walking_isochrone" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result"; args: Record<string, unknown>; expiresAt: number };
 export type QueryResult = { ok: true; data: Record<string, unknown> } | { ok: false; error: string };
 function isNearby(value: unknown): value is { queryId: string } | null { return value === null || exactObject(value, ["queryId"]) && safeId(value.queryId); }
-function isResults(value: unknown): value is { resultIds: string[] } | null { return value === null || exactObject(value, ["resultIds"]) && Array.isArray(value.resultIds) && value.resultIds.length >= 1 && value.resultIds.length <= 4 && new Set(value.resultIds).size === value.resultIds.length && value.resultIds.every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }
+type LegacyResultCollection = { resultIds: string[] };
+type ResultCollectionInput = ResultCollection | LegacyResultCollection | null;
+const RESULT_ID = /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/;
+function isResultCollectionItem(value: unknown): value is ResultCollectionItem { return exactObject(value, ["resultId", "visible", "groupId"]) && typeof value.resultId === "string" && RESULT_ID.test(value.resultId) && typeof value.visible === "boolean" && (value.groupId === null || safeId(value.groupId)); }
+function isResultCollectionGroup(value: unknown): value is ResultCollectionGroup { return exactObject(value, ["groupId", "label", "visible"]) && safeId(value.groupId) && typeof value.label === "string" && value.label.length >= 1 && value.label.length <= 120 && typeof value.visible === "boolean"; }
+function isLegacyResultCollection(value: unknown): value is LegacyResultCollection { return exactObject(value, ["resultIds"]) && Array.isArray(value.resultIds) && value.resultIds.length >= 1 && value.resultIds.length <= 8 && new Set(value.resultIds).size === value.resultIds.length && value.resultIds.every(item => typeof item === "string" && RESULT_ID.test(item)); }
+function isCanonicalResultCollection(value: unknown): value is ResultCollection {
+  if (!exactObject(value, ["items", "groups"]) || !Array.isArray(value.items) || !Array.isArray(value.groups) || value.items.length < 1 || value.items.length > 8 || value.groups.length > 8 || !value.items.every(isResultCollectionItem) || !value.groups.every(isResultCollectionGroup)) return false;
+  const resultIds = new Set(value.items.map(item => item.resultId));
+  const groupIds = new Set(value.groups.map(group => group.groupId));
+  return resultIds.size === value.items.length && groupIds.size === value.groups.length && value.items.every(item => item.groupId === null || groupIds.has(item.groupId));
+}
+function isResults(value: unknown): value is ResultCollectionInput { return value === null || isLegacyResultCollection(value) || isCanonicalResultCollection(value); }
+/** Converts older `{resultIds}` scenes at the browser boundary; all locally emitted scenes are canonical. */
+export function normalizeResultCollection(value: ResultCollectionInput | undefined): ResultCollection | null | undefined {
+  if (value === undefined || value === null || isCanonicalResultCollection(value)) return value;
+  return { items: value.resultIds.map(resultId => ({ resultId, visible: true, groupId: null })), groups: [] };
+}
+export function visibleResultIds(collection: ResultCollection | null | undefined): string[] {
+  if (!collection) return [];
+  const groups = new Map(collection.groups.map(group => [group.groupId, group]));
+  return collection.items.filter(item => item.visible && (item.groupId === null || groups.get(item.groupId)?.visible === true)).map(item => item.resultId);
+}
+function normalizeScene(scene: Scene): Scene { return { ...scene, results: normalizeResultCollection(scene.results as ResultCollectionInput | undefined) }; }
+function normalizeCommand(command: Command): Command { return { ...command, patch: "results" in command.patch ? { ...command.patch, results: normalizeResultCollection(command.patch.results as ResultCollectionInput | undefined) } : command.patch }; }
+function normalizeStudyState(state: StudyState): StudyState { return { ...state, scene: normalizeScene(state.scene), pendingCommand: state.pendingCommand ? normalizeCommand(state.pendingCommand) : null }; }
+function normalizeBrowserSessionStatus(status: BrowserSessionStatus): BrowserSessionStatus { return { ...status, snapshot: normalizeStudyState(status.snapshot) }; }
 function isQueryEnvelope(value: unknown): value is { request: BrowserQuery | null } {
   if (!exactObject(value, ["request"])) return false;
   const request = value.request;
-  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "spatial_query", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
+  return request === null || exactObject(request, ["requestId", "operation", "args", "expiresAt"]) && safeId(request.requestId) && typeof request.operation === "string" && ["time_context", "layer_details", "layer_controls", "geocode_address", "explore_data", "compare_neighborhoods", "search_layers", "describe_layer", "describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "read_layer", "map_context", "find_places", "nearby", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"].includes(request.operation) && isObject(request.args) && typeof request.expiresAt === "number" && Number.isFinite(request.expiresAt);
 }
 
 function isFocus(value: unknown): boolean { return value === null || exactObject(value, ["resultId", "recordId"]) && [value.resultId, value.recordId].every(item => typeof item === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(item)); }

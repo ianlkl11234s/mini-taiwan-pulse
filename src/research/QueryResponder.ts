@@ -7,6 +7,7 @@ export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "pause
 
 const QUERY_POLL_BASE_MS = 2_000;
 const QUERY_POLL_HIDDEN_MS = 10_000;
+export const MAX_QUERY_RESULT_BYTES = 256 * 1024;
 // 8s retry + the BridgeClient's worst-case 8s request leaves 9s before its 25s wait.
 const QUERY_POLL_MAX_MS = 8_000;
 
@@ -33,22 +34,25 @@ export class QueryResponder {
   }
   stop(): void { this.stopped = true; if (this.timer) clearTimeout(this.timer); this.timer = null; this.last = null; }
   private async pollLoop(): Promise<void> {
-    await this.tick();
+    const healthy = await this.tick();
     if (this.stopped) return;
+    // The gateway holds an idle browser query briefly, so a healthy loop can
+    // continue without a background-tab timer that Chromium may throttle.
+    if (healthy) { void this.pollLoop(); return; }
     const visibility = typeof document === "undefined" ? "unknown" : document.visibilityState;
     this.timer = setTimeout(() => {
       this.timer = null;
       void this.pollLoop();
     }, queryPollDelay(this.failures, visibility));
   }
-  async tick(): Promise<void> {
-    if (this.stopped || this.busy) return;
+  async tick(): Promise<boolean> {
+    if (this.stopped || this.busy) return false;
     this.busy = true;
     const { client, studyId, tabId } = this.connection;
     try {
       const { request } = await client.query(studyId, tabId);
-      if (this.stopped) return;
-      if (!request || request.expiresAt <= Date.now()) { this.recovered(); return; }
+      if (this.stopped) return true;
+      if (!request || request.expiresAt <= Date.now()) { this.recovered(); return true; }
       let result: QueryResult;
       if (this.last?.id === request.requestId) result = this.last.result;
       else {
@@ -58,12 +62,12 @@ export class QueryResponder {
           const message = error instanceof Error ? error.message : "QUERY_FAILED";
           result = { ok: false, error: /^[A-Z_]{1,64}$/.test(message) ? message : "QUERY_FAILED" };
         }
-        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > 24 * 1024) result = { ok: false, error: "RESULT_TOO_LARGE" };
+        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > MAX_QUERY_RESULT_BYTES) result = { ok: false, error: "RESULT_TOO_LARGE" };
         if (!this.stopped) this.last = { id: request.requestId, result };
       }
       if (!this.stopped && request.expiresAt > Date.now()) {
         await client.queryResult(studyId, tabId, request.requestId, result);
-        if (this.stopped) return;
+        if (this.stopped) return true;
         this.recovered();
         if (this.delivered !== request.requestId) {
           this.delivered = request.requestId;
@@ -72,6 +76,7 @@ export class QueryResponder {
       } else if (!this.stopped) {
         this.onHealth?.({ state: "cancelled", code: "QUERY_EXPIRED" });
       }
+      return true;
     } catch (error) {
       if (!this.stopped) {
         const code = error instanceof BridgeError ? error.code : "BRIDGE_UNAVAILABLE";
@@ -83,6 +88,7 @@ export class QueryResponder {
         this.unhealthy = true;
         if (this.onHealth) this.onHealth({ state, code }); else this.onError();
       }
+      return false;
     }
     finally { this.busy = false; }
   }

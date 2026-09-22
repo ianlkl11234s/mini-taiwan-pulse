@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, RESEARCH_API_PREFIX } from "./bridgeClient";
+import { BridgeClient, BridgeError, MAX_BRIDGE_RESPONSE_BYTES, RESEARCH_API_PREFIX, visibleResultIds } from "./bridgeClient";
 
 const gatewayRoot = process.env.PULSE_RESEARCH_GATEWAY_ROOT;
 
@@ -12,6 +12,18 @@ describe("BridgeClient", () => {
     const client = new BridgeClient(async () => "secret-token", fetcher);
     await client.sync("study-1", "tab-1");
     expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/sync`, expect.objectContaining({ method: "POST", redirect: "error", cache: "no-store", headers: { "content-type": "application/json", authorization: "Bearer secret-token" }, body: JSON.stringify({ studyId: "study-1", tabId: "tab-1" }) }));
+  });
+
+  it("relays consented network operations through the authenticated same-origin gateway", async () => {
+    const providerResponse = { graph: { engineVersion: "3.5.1" }, payload: { type: "FeatureCollection", features: [] } };
+    const fetcher = vi.fn().mockResolvedValue(response(providerResponse));
+    const client = new BridgeClient(async () => "secret-token", fetcher);
+    const args = { center: [121.5, 25], contoursMinutes: [5], provider: "valhalla", externalConsent: true };
+    await expect(client.networkProvider("study-1", "tab-1", "walking_isochrone", args)).resolves.toEqual(providerResponse);
+    expect(fetcher).toHaveBeenCalledWith(`${RESEARCH_API_PREFIX}/browser/network-provider`, expect.objectContaining({
+      method: "POST", headers: { "content-type": "application/json", authorization: "Bearer secret-token" },
+      body: JSON.stringify({ studyId: "study-1", tabId: "tab-1", operation: "walking_isochrone", args }),
+    }));
   });
 
   it("calls the default browser fetch without BridgeClient as this", async () => {
@@ -39,8 +51,8 @@ describe("BridgeClient", () => {
     await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...resume, snapshot: { ...state, tabId: "other" } }))).browserStatus("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
-  it("accepts the bounded layer-statistics query operations", async () => {
-    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records"]) {
+  it("accepts bounded layer, spatial, and network query operations", async () => {
+    for (const operation of ["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "create_analysis_scope", "spatial_query", "aggregate_by_area", "route_distance", "walking_isochrone"]) {
       const query = { request: { requestId: "query-1", operation, args: { layerKey: "schools" }, expiresAt: Date.now() + 30_000 } };
       await expect(new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response(query))).query("study-1", "tab-1")).resolves.toEqual(query);
     }
@@ -60,6 +72,30 @@ describe("BridgeClient", () => {
     }
     const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, focus: { resultId: "r" } } })));
     await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("normalizes legacy result references and accepts canonical ordered visibility groups", async () => {
+    for (const results of [null, { resultIds: ["analysis-nearest-1"] }, { resultIds: Array.from({ length: 8 }, (_, index) => `result-${index + 1}`) }]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
+      const synced = await client.sync("study-1", "tab-1");
+      expect(synced.scene.results).toEqual(results === null ? null : { items: results.resultIds.map(resultId => ({ resultId, visible: true, groupId: null })), groups: [] });
+    }
+    const canonical = { items: [{ resultId: "school-result", visible: true, groupId: "education" }, { resultId: "hidden-result", visible: false, groupId: null }, { resultId: "group-hidden", visible: true, groupId: "hidden" }], groups: [{ groupId: "education", label: "教育", visible: true }, { groupId: "hidden", label: "不顯示", visible: false }] };
+    const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results: canonical } })));
+    await expect(client.sync("study-1", "tab-1")).resolves.toMatchObject({ scene: { results: canonical } });
+    expect(visibleResultIds(canonical)).toEqual(["school-result"]);
+    for (const results of [{ resultIds: [] }, { resultIds: ["same", "same"] }, { resultIds: Array.from({ length: 9 }, (_, index) => String(index + 1)) }]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
+      await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
+    for (const results of [
+      { items: [{ resultId: "same", visible: true, groupId: null }, { resultId: "same", visible: true, groupId: null }], groups: [] },
+      { items: [{ resultId: "orphan", visible: true, groupId: "none" }], groups: [] },
+      { items: [{ resultId: "ok", visible: true, groupId: null }], groups: [{ groupId: "bad", label: "", visible: true }] },
+    ]) {
+      const client = new BridgeClient(async () => "t", vi.fn().mockResolvedValue(response({ ...state, scene: { ...state.scene, results } })));
+      await expect(client.sync("study-1", "tab-1")).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+    }
   });
 
   it("accepts one bounded layer-control scene value and rejects malformed values", async () => {
@@ -103,8 +139,9 @@ describe("BridgeClient", () => {
     const manuallyMoved = await client.manual(study.studyId, study.tabId, 0, { camera: { center: [120.63, 24.16], zoom: 11 }, resultMode: "empty", focus: null });
     expect(manuallyMoved).toMatchObject({ revision: 1, paused: false, scene: { focus: null } });
     await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ scene: { focus: null }, paused: false });
-    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null } }, exchanged.credential);
+    const canonicalResults = { items: [{ resultId: "analysis-nearest-1", visible: true, groupId: null }], groups: [] };
+    const commandResponse = await publicPost("/commands", { protocolVersion: "1", sessionId: exchanged.sessionId, studyId: study.studyId, tabId: study.tabId, commandId: "command-1", expectedRevision: 1, expiresAt: Date.now() + 10_000, patch: { layers: { schools: true }, focus: null, results: canonicalResults } }, exchanged.credential);
     expect(commandResponse.status).toBe(200);
-    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null } } });
-  });
+    await expect(client.sync(study.studyId, study.tabId)).resolves.toMatchObject({ studyId: study.studyId, pendingCommand: { commandId: "command-1", patch: { layers: { schools: true }, focus: null, results: canonicalResults } } });
+  }, 15_000);
 });

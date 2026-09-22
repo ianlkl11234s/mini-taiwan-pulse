@@ -4,6 +4,7 @@ import { LAYER_SEARCH_INDEX } from "../lib/layerSearch";
 import { RESEARCH_QUERY_EXECUTOR, describeDataset } from "./researchDatasets";
 import { searchScore } from "./researchSearch";
 import type { DiscoveryContext } from "./discovery";
+import { boundedAccess, DEFAULT_VALUE_SEMANTICS } from "./dataContracts";
 
 export function datasetIdsForLayer(layerKey: string): string[] {
   const known = RESEARCH_QUERY_EXECUTOR.descriptors().filter(d => d.layerRefs.includes(layerKey)).map(d => d.datasetId);
@@ -14,7 +15,9 @@ export function assertLayerSourceAccess(layerKey: string, locked: ReadonlySet<st
   if (locked.has(layerKey) || source && [...locked].some(key => describeRegisteredLayer(key)?.url.replace(/^\.\//, "/") === source)) throw new Error("LAYER_DENIED");
 }
 export function assertDatasetAccess(datasetId: string, locked: ReadonlySet<string>): void {
-  const descriptor = describeDataset(datasetId);
+  let descriptor;
+  try { descriptor = describeDataset(datasetId, locked); }
+  catch { throw new Error("LAYER_DENIED"); }
   const refs = descriptor.layerRefs;
   refs.forEach(key => assertLayerSourceAccess(key, locked));
   const sourceRefs = refs.map(key => describeRegisteredLayer(key)?.url.replace(/^\.\//, "/")).filter(Boolean);
@@ -40,9 +43,14 @@ export async function exploreData(args: { query: string; offset?: number; limit?
     .filter(item => item.score > 0).sort((a, b) => b.score - a.score || a.item.key.localeCompare(b.item.key));
   // Group physical sources so six display variants cannot crowd out independent data.
   const grouped = new Map<string, { keys: ManifestKey[]; score: number }>();
+  const lockedSources = new Set([...context.locked].flatMap(key => {
+    if (!Object.prototype.hasOwnProperty.call(LAYER_MANIFEST, key)) return [];
+    return [JSON.stringify(LAYER_MANIFEST[key as ManifestKey].source)];
+  }));
   for (const { item, score } of scored) {
     const source = LAYER_MANIFEST[item.key].source;
     const identity = JSON.stringify(source) ?? item.key;
+    if (context.locked.has(item.key) || lockedSources.has(identity)) continue;
     const group = grouped.get(identity);
     if (group) group.keys.push(item.key); else grouped.set(identity, { keys: [item.key], score });
   }
@@ -60,8 +68,8 @@ export async function exploreData(args: { query: string; offset?: number; limit?
     if (generic) {
       // Before payload read the field schema and coordinate meaning are deliberately unknown.
       datasets.push({ schemaVersion: "pulse-dataset/0.1", datasetId: `layer:${key}`, label: (entry.section === null ? key : entry.label), description: entry.description, layerRefs: group.keys,
-        fields: [], kind: "point", recordGrain: "place", primaryKey: ["record_id"], geometry: { type: "Point", role: "proxy", crs: "EPSG:4326", precision: "unreviewed; candidate reader must validate payload", spatialAnalysisEligible: false }, timeFields: [], license: "unknown", coverage: "unknown", versions: [],
-        source: { publisher: "unknown", reference: generic.url, lineage: "manifest registration; not yet read" }, accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 20000 }, supportedOperations: ["query_records", "aggregate"], adapterId: "registered-local-geojson-v1" });
+        fields: [], kind: "point", recordGrain: "place", primaryKey: [], geometry: { type: "Point", role: "proxy", crs: "EPSG:4326", precision: "unreviewed; candidate reader must validate payload", spatialAnalysisEligible: false }, timeFields: [], license: "unknown", coverage: "unknown", valueSemantics: DEFAULT_VALUE_SEMANTICS, versions: [],
+        source: { publisher: "unknown", reference: generic.url, lineage: "manifest registration; not yet read" }, access: boundedAccess({ mode: "public", method: "static_asset", fields: [], maxRowsPerQuery: 50, maxScanRows: 20000, maxSourceBytes: 8 * 1024 * 1024, queryEnabled: false }), supportedOperations: ["query_records", "aggregate"], adapterId: "registered-local-geojson-v1" });
     }
     const readers = [];
     for (const descriptor of datasets) {

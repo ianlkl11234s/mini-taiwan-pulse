@@ -189,7 +189,7 @@ S3／Supabase／Twinkle Hub／其他來源
 |query_records|datasetId、select、typed filters、time field/window、spatial constraint、cursor → resultRef、page、total/exclusions/truncation|P1；read_layer兼容入口|✅ typed filter、time window、offset page、完整session resultId；空間條件由後續spatial_query組合|
 |spatial_query|dataset/result refs、nearest/within_distance/intersects/within、distance model → matching rows + distances/relationships|P1點；P2線面；nearby為alias|✅ actual Point的nearest/within_distance；⏳線面predicate待真實adapter|
 |aggregate_records|inputRef、groupBy、count/distinct/sum/mean/min/max、明確grain → tableRef|P1基本；P2跨資料|✅ null-safe基本彙總；無有效數值的sum為null|
-|join_records|left/right refs、key或spatial predicate、cardinality policy → resultRef+unmatched/duplicated counts|P2|✅ key join、one-to-one/one-to-many與null key排除；⏳spatial join|
+|join_records|left/right refs、key或spatial predicate、cardinality policy → resultRef+unmatched/duplicated counts|P2|✅ key join、one-to-one/one-to-many與null key排除，輸出 `left_`/`right_` typed fields 供後續 metric；⏳spatial join|
 |calculate_metric|inputRef、allowlisted arithmetic expression、unit、denominator/coverage policy → metric/tableRef|P2；禁止eval/任意code|✅ ratio/difference；缺值保留、零分母拒絕|
 |read_series / compare_series|dataset/entity、time interval、resolution、baseline、aggregation → seriesRef + missing windows|P2|✅ stored result的UTC日／週count/sum/mean與baseline比較；缺period／baseline=0明示|
 |get_data_quality|dataset/resultRef → freshness、coverage、geometry eligibility、source lag、known limits|P1；unknown保留|✅ result品質、null、exclusions、source receipt；未宣稱不存在的source lag|
@@ -201,6 +201,20 @@ S3／Supabase／Twinkle Hub／其他來源
 |run_analysis / get_analysis_result / cancel_analysis|allowlisted registered operation+input refs+budget → jobRef/status/artifacts|P2長任務；P3專業分析|🟡 get_analysis_result已完成；尚無需背景執行的registered long operation，因此不建立假job/cancel|
 
 未來專業 operations：cluster（DBSCAN等與單位）、spatial_autocorrelation（明確鄰接／空間權重）、raster_sample/zonal_statistics、terrain_profile/slope、network_reachability、track_dwell/crossing。按真實資料與驗收需求逐步註冊，初期不需要為每種演算法增加一個獨立 MCP 名稱。
+
+### 2026-09-20 typed analysis 接通檢查點
+
+- 既有 `ResearchAnalysisSession` 正式接入主地圖 paired browser；`query_records` 產生的完整有界快照存於該 session，page limit 不會縮小後續分析母體。
+- Gateway 只轉送 strict typed operations：`plan/materialize`、Point `nearest/within_distance`、aggregate、key join、ratio/difference、UTC series、quality/evidence/result paging。任意 SQL、URL、path、expression與未登記 predicate 仍拒絕。
+- MCP 將上述能力暴露為獨立 tool schema 與 structured query receipt；Jev 只導航到分析候選，不執行、不授權。
+- 本檢查點不宣稱 point-in-polygon、行政區面積密度、raster/zonal statistics 或路網可達性已完成；這些仍需版本鎖定的 boundary/network adapter。
+
+### 2026-09-20 本機地址 adapter 檢查點
+
+- 不增加新的地址 tool；既有 `pulse_geocode_address` 由本機 MCP 優先查 sibling `tw-address-geocoder`，再以 browser 既有地標／學校／圖書館查詢作 fallback。
+- L1 TGOS cache、L2 OSM exact address 與 L1.5 同路段內插分別回傳 `exact_cache`、`exact_osm`、`interpolated`；WGS84 座標、來源、精度與限制留在 structured result。
+- 大型 parquet 與自有 cache 不進 browser bundle、不接受任意 path，也不自動把 miss 外送 TGOS、NLSC 或其他 API。L1 授權未釐清前僅作本機能力；OSM 若發布另需 ODbL attribution 驗收。
+- `no_match`、adapter `unavailable`、parcel unsupported 與真正地址不存在不是同一件事；附近分析仍需以 dataset geometry/access contract 另行授權與驗證。
 
 新聞文字搜尋先採可證明的關鍵字與結構欄位查詢。語意搜尋是後續獨立能力，需先有索引、embedding版本、召回驗收與成本方案；不能僅在 tool 名稱上宣稱 semantic。
 

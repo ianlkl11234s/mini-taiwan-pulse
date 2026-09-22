@@ -1,42 +1,46 @@
 # Status
 
-**最後更新**：2026-09-20（Historical Flight Trails `20260919-v2` production 全鏈完成，可安全封存）
+**最後更新**：2026-09-21（Layer Discovery／MCP／GIS 分析基礎完成，下一棒處理畫面閉環）
 
-> 本檔只保留目前 touched scope、release truth、邊界與下一棒；歷史過程在 git、feature 文件與 `REFLECTIONS.md`。
+> 本檔只保留目前 touched scope、release truth、邊界與下一棒；完整脈絡見 [`layer-discovery-mcp-handoff-20260921.md`](../../docs/features/agent-research-workbench/layer-discovery-mcp-handoff-20260921.md)。
 
 ## Scope ledger
 
 | repo / system | current truth |
 |---|---|
-| **mini-taiwan-pulse** | Runtime/date release PR **#316** merged（`9b6e9d88`）；production evidence PR **#317** merged（`092caec4`）。本收尾由 PR **#318** 承載，分支 `docs/historical-flight-trails-v2-wrap-up`；主 checkout 的平行 dirty files 未碰。 |
-| **plan-art** | 只讀來源 `dist/tracks/airports` 與 `public/airport-points.geojson`；沒有新的 FR24 抓取或付費 API 呼叫。 |
-| **S3 deploy-assets** | `flight-trails/manifest.json` 指向 immutable `20260919-v2`；124 GeoJSON + manifest 共 125 objects／137,272,025 bytes，逐物件 readback 通過。 |
-| **Zeabur** | Runtime deployment `6aae9e2f`（`9b6e9d88`）完成；docs/evidence deployment `6aaea179`（`092caec4`）為 `RUNNING`。 |
-| **Production browser** | 台灣全部機場預設 02/20；02/20、02/24、02/18 都完成載入，3D 藍白航跡可見、無點 marker，console error／warning 為 0，最後恢復 02/20。 |
+| **mini-taiwan-pulse** | branch `feat/layer-discovery-mcp-contract`，base `6464004ad3c55b805de817fd51810dd49844467b`；Dataset／Access schemas、bounded query、analysis session、Gateway、GIS Skill、Jev shadow、local stack、文件與架構圖已完成。 |
+| **mini-pulse-gis-mcp-layer-discovery** | branch `feat/layer-discovery-mcp-contract`，base／upstream `origin/main` at `cd23db5b25f06856f85e73b91fc72d434ba61b7f`；41 typed tools、Jev router、offline geocoder、relay metadata 已完成。 |
+| **OpenRouter Jev** | `typesafe/jev-1.13` 只做一次候選分類；`executed:false`，低信心／錯誤退 deterministic fallback。沒有在 repo 保存 key。 |
+| **Paired local browser** | 地址 → 臺北學校 query → 最近 10 筆直線距離 → receipt 已成功；camera state 套用後 `wait_scene_ready` 曾 error，尚未取得完整 visual-ready 證據。 |
+
+## Current capability
+
+- 41 個 MCP tools：routing、session、layer／dataset discovery、bounded access、typed analysis、evidence、address、map／time control。
+- DatasetDescriptor → AccessDescriptor → Query Result／Receipt 契約已落地；保留 source、version、coverage、missingness、access、limits。
+- 支援 bounded query、Point nearest／within-distance、aggregate、key join、ratio／difference、time series、quality／evidence、result paging／bounds。
+- 本機地址索引支援 `exact_cache`／`exact_osm`／`interpolated`／`no_match`／`unavailable`，不將地址送往外部 geocoder。
+- guest／owner／release gate fail-closed；catalog entry 不等於可讀、最新、授權或 production healthy。
 
 ## Release truth matrix
 
 | release unit | build | contract/wire | stage | upload | readback | pull | deploy | HTTP | browser |
 |---|---|---|---|---|---|---|---|---|---|
-| Historical Flight Trails `20260919-v2` | done：tsc、build、223 test files／1,690 tests + exporter 12 tests | done：manifest／loader／3D custom layer；PR#316 | done：129 selectors、124 partial assets、5 unavailable | done：124 immutable assets + pointer-last manifest | done：125 objects bytes／SHA／MIME／cache | done：release-first、manifest atomic replace | done：`6aae9e2f`；後續 docs deployment `6aaea179` RUNNING | done：manifest SHA `80e648b9…` + 桃園三日期／羽田02/18 | done：三日期、預設、3D、無點 marker、console 0/0 |
+| Research runtime | done：tsc／Vite | done | local commit | N/A | local stdio／gateway done；scene-ready partial | not run | not run | local only | partial |
+| MCP server | done：tsc／dist | done：41 tools | local commit | N/A | done：46 tests／real stdio | not run | not run | N/A | paired local only |
+| Jev／offline geocoder | done | done | local commit | N/A | live route／address E2E done | N/A | not run | external Jev only | local paired E2E |
 
 ## Blockers / next-session entry
 
-- **本 release 無 blocker，可安全封存。**
-- 不阻擋封存的獨立後續：
-  - 實體手機效能尚未驗收；桌面 production browser 不取代真機。
-  - 來源 `license_status=unverified`；不得把已發布技術事實解讀成公開展示授權已確認。
-  - 現有樣本皆為 `partial` 或 `unavailable`；恆春三日皆缺，02/18 另缺望安、蘭嶼。
-  - AR-14/15 只剩 ship／bus 靜態成品包，與已完成的 flight slice 分開。
-- 若未來重開本 feature：
-  - repo／入口：`mini-taiwan-pulse/docs/features/historical-flight-trails/handoff.md`
-  - 第一個步驟：先讀 production manifest 與 feature backlog，再確認需求是資料補抓、授權或真機效能。
-  - 驗收：保留 source／render geometry、日期、coverage、missingness 與 S3→deploy→HTTP→browser 證據分格。
+- repo／branch：上述兩個 `feat/layer-discovery-mcp-contract` branches。
+- 第一個步驟：重現 `set_camera`／`fit_bounds` 後的 `pulse_wait_scene_ready` error，追 command revision、applied、ready 與 render completion。
+- 驗收：accepted → applied → ready，並以 browser readback 確認中心、zoom、目標圖層；state 更新不可冒充視覺完成。
+- 第二步：設計 bounded、session-local、可撤銷的 result overlay。
+- 之後才進入 boundary adapter、point-in-polygon、面積／密度；路網、isochrone、raster 放後續階段。
 
 ## Verification boundaries
 
-- 台灣有 17 個 selector，不代表每個日期 17 場都有可繪資產：02/20 與 02/24 為 16/17，02/18 為 14/17。
-- 日本 02/18 的 78/78 只指 `airport-points` 來源清單，不等於日本所有登記飛行場或逐航班完整。
-- 同航班觀測缺口依使用者指定直接連線；球面細分是 render-only geometry，不是新增觀測點。
-- 「不增加資料庫負擔」只指本 historical layer runtime：browser 讀同源靜態資產，沒有 Supabase／FR24 fallback；不代表整站不使用 Supabase。
-- 舊 `20260918-v1` 保留為 immutable rollback release，沒有覆寫或刪除。
+- 現有 result bounds 只能取景，沒有 `present_result`；不得宣稱 filtered result 已成為 overlay。
+- Haversine 是直線距離，不是步行／車行距離或服務可達性。
+- PMTiles、raster、RPC、scene、mixed／custom source 無 sidecar／專用 adapter 時維持 fail-closed。
+- 本輪沒有 push、PR、merge、deploy、production 啟用或 Supabase 寫入。
+- 後續整合使用普通 merge commit；禁止 squash、rebase merge 或改寫歷史。

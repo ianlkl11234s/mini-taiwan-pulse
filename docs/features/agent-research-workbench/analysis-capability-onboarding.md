@@ -87,6 +87,16 @@ Sidecar／aggregate 指的是「和主資料同版本、體積很小、已先算
 
 跨層比較前先比對單位、期間、粒度、範圍與定義；不相容時並列展示，不計算差值或比率。
 
+## Typed analysis 上線門檻
+
+圖層要進入可組合分析，除上述 reader/aggregate 外，還必須通過：
+
+1. `query_records` 回傳的 `resultId` 綁定實際 source version/receipt，分析不使用 catalog metadata 當 payload。
+2. aggregate 必須保留 null/non-numeric 排除數；metric 只允許白名單 ratio/difference，零分母拒絕。
+3. join 必須宣告 cardinality，回傳 missing/unmatched/duplicate key 數；不得因 join 成功就宣稱兩資料語意可比。
+4. spatial 必須同時通過 geometry role、CRS、precision 與 operation-specific eligibility。Point 直線距離不得改稱步行距離；polygon/network/raster 未登記 adapter 即拒絕。
+5. result page 只影響回傳列數，不可縮小 session 中的分析母體；撤銷或斷線後必須重新驗權與查詢。
+
 ## 驗收清單
 
 ### 契約與資料

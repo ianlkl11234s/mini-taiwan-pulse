@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import type { DatasetDescriptor, SourceReceipt } from "../dataContracts";
+import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
 import { QueryExecutor } from "../queryExecutor";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
 
@@ -12,10 +12,10 @@ const base = (overrides: Partial<DatasetDescriptor>): DatasetDescriptor => ({
   layerRefs: [], kind: "point", recordGrain: "place", primaryKey: ["id"],
   fields: [{ name: "id", type: "string", nullable: false, nullMeaning: null, unit: null }],
   geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: "source coordinate", spatialAnalysisEligible: true },
-  timeFields: [], coverage: "fixture", license: "fixture-only",
+  timeFields: [], coverage: "fixture", license: "fixture-only", valueSemantics: DEFAULT_VALUE_SEMANTICS,
   versions: [{ versionId: "v1", observedAt: null, availableAt: "2026-09-12T00:00:00Z", checksumSha256: "a".repeat(64), mutable: false }],
   source: { publisher: "fixture", reference: "https://data.example", lineage: "source fixture -> normalized record" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 100 }, supportedOperations: ["query_records"], adapterId: "fixture-adapter",
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id"], filters: ["id"], maxRowsPerQuery: 50, maxScanRows: 100 }), supportedOperations: ["query_records"], adapterId: "fixture-adapter",
   ...overrides,
 });
 
@@ -27,6 +27,7 @@ const schools = base({
     { name: "city", type: "string", nullable: true, nullMeaning: "來源未提供縣市", unit: null },
     { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
   ],
+  access: boundedAccess({ mode: "public", method: "static_asset", fields: ["code", "name", "city", "geometry"], filters: ["code", "name", "city"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 100 }),
 });
 
 const news = base({
@@ -43,6 +44,7 @@ const news = base({
     { name: "published_at", role: "published", timezone: "UTC" },
     { name: "occurred_at", role: "occurred", timezone: "UTC" },
   ],
+  access: boundedAccess({ mode: "owner_only", method: "rpc", fields: ["event_id", "title", "published_at", "occurred_at", "geometry"], filters: ["event_id", "title"], timeFields: ["published_at", "occurred_at"], maxRowsPerQuery: 50, maxScanRows: 100 }),
 });
 
 const statistics = base({
@@ -57,6 +59,7 @@ const statistics = base({
   ],
   geometry: { type: "none", crs: null, role: "none", precision: "requires explicit boundary join", spatialAnalysisEligible: false },
   timeFields: [],
+  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_token"], filters: ["release_id", "area_code", "status"], maxRowsPerQuery: 50, maxScanRows: 100 }),
 });
 
 describe("shared research query executor", () => {
@@ -100,7 +103,7 @@ describe("shared research query executor", () => {
 
   it("makes result ids reproducible from query plus source version and enforces allowlists and budgets", async () => {
     const reader = vi.fn().mockResolvedValue({ rows: [{ code: "A", name: "甲校", city: null, geometry: { type: "Point", coordinates: [121.5, 25] } }], source: source("schools", "v1"), coverage: "Taiwan" });
-    const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader)]);
+    const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader), createAdminStatisticsAdapter(statistics, async () => ({ rows: [], source: source("statistics", "release-2025"), coverage: "fixture" }))]);
     const first = await executor.execute({ datasetId: "tw-schools", select: ["code", "city"] });
     const second = await executor.execute({ datasetId: "tw-schools", select: ["code", "city"] });
     expect(second.resultId).toBe(first.resultId);
@@ -111,6 +114,25 @@ describe("shared research query executor", () => {
 
     const overBudget = new QueryExecutor([createPointDatasetAdapter(schools, async () => ({ rows: [], source: source("schools", "v1"), coverage: "unknown", rowsScanned: 101 }))]);
     await expect(overBudget.execute({ datasetId: "tw-schools" })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");
+  });
+
+  it("uses version-bound cursors, bbox and projections while returning access and limit receipts", async () => {
+    const reader = vi.fn().mockResolvedValue({ rows: [
+      { code: "A", name: "甲校", city: "臺北市", geometry: { type: "Point", coordinates: [121.5, 25] } },
+      { code: "B", name: "乙校", city: "臺北市", geometry: { type: "Point", coordinates: [121.6, 25.1] } },
+      { code: "C", name: "界外校", city: "新北市", geometry: { type: "Point", coordinates: [122, 25] } },
+    ], source: source("schools", "v1"), coverage: "Taiwan", bytesScanned: 300 });
+    const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader), createAdminStatisticsAdapter(statistics, async () => ({ rows: [], source: source("statistics", "release-2025"), coverage: "fixture" }))]);
+    const first = await executor.execute({ datasetId: "tw-schools", select: ["code", "name"], bbox: [121.4, 24.9, 121.7, 25.2], limit: 1 });
+    expect(first).toMatchObject({ totalMatched: 2, returned: 1, access: { mode: "public", method: "static_asset", authorized: true }, limits: { maxRows: 50, maxScanRows: 100, maxResponseBytes: 24576 } });
+    expect(first.rows[0]).toEqual({ code: "A", name: "甲校" });
+    const second = await executor.execute({ datasetId: "tw-schools", select: ["code", "name"], bbox: [121.4, 24.9, 121.7, 25.2], cursor: first.limits.nextCursor!, limit: 1 });
+    expect(second.rows[0]).toEqual({ code: "B", name: "乙校" });
+    expect(second.limits.nextCursor).toBeNull();
+    await expect(executor.execute({ datasetId: "tw-schools", select: ["code"], cursor: first.limits.nextCursor!, limit: 1 })).rejects.toThrow("CURSOR_SOURCE_MISMATCH");
+    await expect(executor.execute({ datasetId: "tw-schools", cursor: "not-a-cursor" })).rejects.toThrow("INVALID_CURSOR");
+    await expect(executor.execute({ datasetId: "tw-schools", cursor: first.limits.nextCursor!, offset: 1 })).rejects.toThrow("INVALID_PAGINATION");
+    await expect(executor.execute({ datasetId: "agri-crop-production", bbox: [121, 24, 122, 25], parameters: { releaseId: "release-2025" } })).rejects.toThrow("BBOX_NOT_SUPPORTED");
   });
 
   it("rejects adapter rows that violate required fields, geometry, or statistic null semantics", async () => {

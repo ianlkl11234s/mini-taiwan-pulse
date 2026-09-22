@@ -64,3 +64,9 @@ scene/patch 可選 `layers: Record<string, boolean>`，最多20鍵，key 為 `[A
 30秒requestTTL、45秒browser heartbeat、一次1pending、每study32次request，最多4筆完成資料、24KiB/depth6/array100邊界。淘汰回expired但保留ID tombstone。配對撤銷／pause不再交付；session/tab隔離。回覆receipt即使complete也不是地圖變更；scene.nearby可設 `{queryId}` 或null。queryId為成功nearby requestId，browser記憶體保存相應衍生資料；show由expectedRevision決定，禁止跨session呈現。
 
 map_context回真正camera、selection、visibleLayerKeys及截斷旗標、loading清單及totalLoading/loadingTruncated，不能把visible當資料已載齊。find_places只搜尋既有camera presets，不是地址geocoder。
+
+### 本機地址解析（2026-09-20）
+
+`pulse_geocode_address` 是既有單一入口，不另增重複 tool。MCP 本機 adapter 優先查 `tw-address-geocoder` 的 L1 TGOS cache、L2 OSM 門牌與 L1.5 同路段內插；命中分別標為 `exact_cache`、`exact_osm`、`interpolated`，輸出為 WGS84 `[longitude, latitude]`。MCP 不把 query 傳給 OpenRouter、外部 geocoder 或 browser bundle，也不回傳本機 path、normalized cache key 或私有上游欄位。未命中或 adapter 不可用時，才退回既有 browser-side camera preset／公開學校／圖書館完整名稱與完整地址比對。
+
+這是 local paired-session capability，不是公開網站地址服務。`no_match`、`unavailable` 與地號需專用 parcel geocoder 的狀態保持不同；內插位置不得宣稱為精確門牌。完整 TGOS cache 不得打包進公開前端，OSM 衍生資料若未來發布須另行完成 ODbL attribution 與發布驗收。

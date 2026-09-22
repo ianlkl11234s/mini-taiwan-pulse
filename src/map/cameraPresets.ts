@@ -46,6 +46,28 @@ export const ALL_PRESETS: CameraPreset[] = [
     bearing: 0,
   },
   {
+    name: "台北101",
+    id: "taipei-101",
+    category: "scene",
+    // Public landmark point; Wikidata Q83101 / OpenStreetMap relation 1159328965.
+    center: [121.564781, 25.033651],
+    zoom: 16,
+    pitch: 0,
+    bearing: 0,
+    description: "台北101大樓公開地標點；代表建物參考點，不是建物範圍。",
+  },
+  {
+    name: "台北車站",
+    id: "taipei-main-station",
+    category: "scene",
+    // Public railway stop point; OpenStreetMap node 4653351590.
+    center: [121.51436, 25.04874],
+    zoom: 16,
+    pitch: 0,
+    bearing: 0,
+    description: "台北車站公開鐵路站點；代表車站參考點，不是站體範圍。",
+  },
+  {
     name: "桃園",
     id: "taoyuan",
     category: "city",

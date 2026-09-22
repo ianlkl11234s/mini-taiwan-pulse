@@ -18,7 +18,7 @@ function closeEnough(map: MapboxMap, target: Camera): boolean {
   try {
     const center = map.getCenter();
     const longitudeDifference = Math.abs(((center.lng - target.center[0] + 540) % 360) - 180);
-    return (target.bearing === undefined || Math.abs(map.getBearing() - target.bearing) < 0.01) && (target.pitch === undefined || Math.abs(map.getPitch() - target.pitch) < 0.01) && longitudeDifference <= 0.00001 && Math.abs(center.lat - target.center[1]) <= 0.00001 && Math.abs(map.getZoom() - target.zoom) <= 0.001;
+    return (target.bearing === undefined || Math.abs(map.getBearing() - target.bearing) < 0.01) && (target.pitch === undefined || Math.abs(map.getPitch() - target.pitch) < 0.01) && longitudeDifference <= 0.00001 && Math.abs(center.lat - target.center[1]) <= 0.00001 && Math.abs(map.getZoom() - target.zoom) <= 0.01;
   } catch { return false; }
 }
 
@@ -56,7 +56,10 @@ export function moveResearchCamera(map: MapboxMap, camera: Camera): Promise<bool
       if (motions.get(map)?.finish === finish) motions.delete(map);
       resolve(completed);
     };
-    const timer = setTimeout(() => finish(false), 1_500);
+    // Mapbox can complete a zero-duration or throttled/background transition
+    // without delivering the moveend callback in time. The browser camera is
+    // still the source of truth, so perform one final readback before failing.
+    const timer = setTimeout(() => finish(closeEnough(map, camera)), 1_500);
     motions.set(map, { finish, listener, timer });
     safely(() => map.on("moveend", listener));
     safely(() => map.on("remove", removed));

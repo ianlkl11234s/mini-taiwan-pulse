@@ -1,3 +1,5 @@
+import { legacyDatasetMeta } from "../../research/researchDatasets";
+
 // 靜態 GeoJSON 資料集白名單 — query_dataset / rank_by_population 只能查這裡列的資料集。
 // url 沿用 overlayRegistry.ts 的 sourceUrl（同一份生產路徑；相對路徑會相對於站台 base）。
 // description 給 LLM 看：說明有哪些欄位可 groupBy / filterEq（county 幾乎每個都有，適合縣市統計）。
@@ -58,19 +60,12 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
 
   // ── 教育 ──
   schools: {
-    url: "./education/schools.geojson",
-    label: "學校",
-    description:
-      "全國各級學校點位 4,315 筆。欄位 school_level（9 種：國民小學 / 附設國民小學 / 國民中學 / " +
-      "附設國民中學 / 高級中等學校 / 大專校院 / 空大及大專校院附設進修學校 / 宗教研修學院 / 特殊教育學校）、" +
-      "city、district、region_type（偏遠 / 特偏 / 極偏，共 1,152 校，其餘為 null）。",
+    ...legacyDatasetMeta("tw-schools"),
   },
 
   // ── 醫療 ──
   medHospitals: {
-    url: "./geo/medical_hospitals.geojson",
-    label: "醫院",
-    description: "全國醫院點位（健保特約）。欄位 county（縣市），適合依縣市統計醫院數。",
+    ...legacyDatasetMeta("tw-medical-hospitals"),
   },
 
   // ── 交通 / 監視 ──
@@ -124,10 +119,7 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
       "全國機關便民據點（約 702）。欄位 type（district_office 公所 / household_registration 戶政事務所 / land_office 地政事務所）、county（縣市）、jurisdiction（轄區）。",
   },
   publicLibraries: {
-    url: "./culture/public_libraries_national.geojson",
-    label: "公共圖書館",
-    description:
-      "全國公共圖書館點位（約 634）。欄位 name / county（縣市）/ type（類型）。",
+    ...legacyDatasetMeta("tw-public-libraries"),
   },
   welfareCenters: {
     url: "./civic_facilities/welfare_centers_national.geojson",

@@ -1,5 +1,5 @@
 import gridReceipt from "./contracts/schools-grid-receipt.json";
-import type { DatasetDescriptor } from "./dataContracts";
+import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor } from "./dataContracts";
 import type { QueryAdapter, AdapterReadResult } from "./queryExecutor";
 import { withLoading } from "../lib/loadingRegistry";
 
@@ -12,9 +12,9 @@ export const gridDescriptor: DatasetDescriptor = {
   layerRefs: [], kind: "grid", recordGrain: "grid_cell", primaryKey: ["grid_id"],
   fields: [field("grid_id", "string"), field("source_place_record_count", "number"), field("metric_status", "string"), field("source_sha256", "string"), field("source_version", "string"), field("grid_definition_id", "string"), field("observed_at", "datetime", true), field("geometry", "json")],
   geometry: { type: "Polygon", crs: "EPSG:4326", role: "generalized", precision: "150m EPSG:3826 grid, origin 144250/2399250; occupied cells only", spatialAnalysisEligible: false },
-  timeFields: [{ name: "observed_at", role: "observed", timezone: "UTC" }], coverage: "input snapshot occupied cells only; source coverage unknown", license: "unknown", versions: [{ versionId: gridReceipt.bundleSha256, checksumSha256: gridReceipt.bundleSha256, mutable: false, observedAt: null, availableAt: null }],
+  timeFields: [{ name: "observed_at", role: "observed", timezone: "UTC" }], coverage: "input snapshot occupied cells only; source coverage unknown", license: "unknown", valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, missing: "An omitted cell is unobserved/empty in this occupied-only output and does not establish a true zero." }, versions: [{ versionId: gridReceipt.bundleSha256, checksumSha256: gridReceipt.bundleSha256, mutable: false, observedAt: null, availableAt: null }],
   source: { publisher: "local research from 教育部 school site records", reference: URL, lineage: "original Point snapshot -> EPSG:3826 assign -> count -> EPSG:4326 Polygon; original geometry retained upstream" },
-  accessPolicy: { mode: "public", maxRowsPerQuery: 50, maxScanRows: 10_000 }, supportedOperations: ["query_records", "aggregate"], adapterId: "schools-grid-local-v1",
+  access: boundedAccess({ mode: "public", method: "local_asset", fields: ["grid_id", "source_place_record_count", "metric_status", "source_sha256", "source_version", "grid_definition_id", "observed_at", "geometry"], filters: ["grid_id", "metric_status"], timeFields: ["observed_at"], maxRowsPerQuery: 50, maxScanRows: 10_000, maxSourceBytes: MAX_BYTES }), supportedOperations: ["query_records", "aggregate"], adapterId: "schools-grid-local-v1",
 };
 
 type ObjectValue = Record<string, any>; // Boundary values are checked before they enter the typed executor.

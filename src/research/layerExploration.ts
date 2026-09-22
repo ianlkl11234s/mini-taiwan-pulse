@@ -69,7 +69,7 @@ function fieldSummary(_key: ManifestKey) {
 export async function describeLayers(keys: string[], context: DiscoveryContext, dependencies: LayerExplorationDependencies = {}) {
   if (!Array.isArray(keys) || keys.length < 1 || keys.length > MAX_KEYS || keys.some(key => typeof key !== "string")) throw new Error("INVALID_LAYER_DETAILS_INPUT");
   const unique = [...new Set(keys)].slice(0, MAX_KEYS);
-  const valid = unique.filter(key => Object.prototype.hasOwnProperty.call(LAYER_MANIFEST, key)) as ManifestKey[];
+  const valid = unique.filter(key => Object.prototype.hasOwnProperty.call(LAYER_MANIFEST, key) && !context.locked.has(key)) as ManifestKey[];
   const fetchCatalog = dependencies.fetchCatalog ?? fetchDataCatalogForLayer;
   const details = await withLoading("research:layer-details", "整理圖層資料來源", Promise.all(valid.map(async key => {
     const description = describeLayer(key, context)!;
