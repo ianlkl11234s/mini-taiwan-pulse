@@ -2,6 +2,7 @@ import { describeRegisteredLayer, readRegisteredLayer } from "./registeredLayerR
 import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
+import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
 import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
@@ -254,6 +255,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   schoolsGridAdapter,
   librariesAdapter,
   convenienceStoresAdapter,
+  earthquakeReplayAdapter,
   ...createSocialStatisticsAdapters(),
 ]);
 
