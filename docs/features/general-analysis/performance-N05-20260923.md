@@ -41,3 +41,10 @@
 - ignored runtime：`n05-stable-window.json`、`n05-stable-benchmark.json`、`n05-warm-window.json`、`n05-warm-benchmark.json`、`n05-step-breakdown.json`、`stdio-receipts.jsonl`。
 - `python3 scripts/research/summarize-plan-benchmark.py --receipts ../runtime/stdio-receipts.jsonl --window ../runtime/n05-warm-window.json --output ../runtime/n05-warm-benchmark.json`
 - 原始baseline在同時修改程式期間取得，僅診斷，不與本輪硬稱優化A/B。
+
+
+## N07 修正後固定版本重測
+
+Mini `2c0553a1`（raw boundary／partition local接線）；MCP `d0f79e5`、Gateway `3f269ef`未變。2026-09-23 00:28起完成20次，07:46重新彙總收據。20/20成功、數值oracle及row fingerprints全部一致；median **4186ms**、p95 **6534ms**、max **7864ms**。首次prewarm6882ms另列，不稱完全cold。這組包含所有20次結果，不排除較慢樣本；不可與舊版宣稱受控速度提升，因時間窗及cache背景不同。
+
+`runtime/n07-warm-window.json`／`n07-warm-benchmark.json`；以同一summarize-plan-benchmark.py重現。來源統計query與比較仍正確，generalized面僅供展示。仍未量完整模型→最終答覆90秒SLA。

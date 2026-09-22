@@ -61,7 +61,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；已驗證 Valhalla receipt 的 derived 等時圈可作面輸入；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。未註冊的 buffer／clip／area／length、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
 
-行政統計只有在 values 的 `boundary_version`、level 與 immutable boundary manifest 完全相符，且 `area_code` join 通過時才是可分析的面資料。每個結果同時保留 values 與 boundary 兩份 receipt；boundary 有但 observation 缺席的行政區仍保留為 `missing`，不可從地圖消失或補零。
+行政統計須先核對 values 的 `boundary_version`、level、immutable boundary manifest 與 `area_code` join；這只證明行政代碼可連接，不證明 geometry 是原始精度。公開統計邊界目前標為 generalized，只能呈現及按代碼做數值比較，不能用於點歸屬或線面交叉。空間分析須另外使用已驗證原始 bytes、CRS 與精度的 eligible 邊界；即使 boundary_version 同名也不可略過 SHA 與 geometry gate。每個結果同時保留 values 與 boundary 兩份 receipt；boundary 有但 observation 缺席的行政區仍保留為 `missing`，不可從地圖消失或補零。
 
 所有 EPSG:4326 center 都必須是數字 tuple `[longitude, latitude]`；不得把 URL、DOM 或 JSON 中讀到的座標字串直接傳給 spatial/map tools。
 

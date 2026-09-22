@@ -1,6 +1,6 @@
 # N03 線面與 N04 事件交叉驗收
 
-2026-09-22 本地隔離工作樹，未發布。計畫見 [plan.md](./plan.md)。
+2026-09-23 更新：下方原驗收保留歷史；**00:25 原始邊界重驗取代舊版空間精度結論**。本地隔離工作樹，未發布。計畫見 [plan.md](./plan.md)。
 
 ## 固定輸入與獨立答案
 
@@ -33,3 +33,17 @@
 ## 原子提交
 
 Mini `3d51e9a7`（共用線面kernel與呈現）、`272ef3b1`（CWA bounded reader）、`f4eda599`（TDX線reader）；Gateway `3f269ef`（typed relay）；MCP `8d74d49`（line契約）、`d0f79e5`（多結果plan修復）。所有提交均留在隔離branch。
+
+
+## 00:25 原始邊界重驗：取代上方公開邊界的空間分析資格
+
+P1：同名 COUNTY_MOI_1140318 不代表相同 geometry。公開統計檔 12,986 vertices，原始檔 332,091；22/22 面不相等，最大平面 Hausdorff 約 0.001142 度（不能當公尺誤差上限）。公開統計現標 generalized/ineligible，仍可按行政代碼比較數值及呈現；不能拿它判斷點歸屬／路線跨界。Skill 同步修正。
+
+改用原始 SHA `5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6`，14,719,725 bytes、22 縣市、CRS84。來源比例尺分母 5000，並非地籍／法定界址精度。DEV-only mount，未發布新資料。
+
+- N03 真實 4-step plan **2170ms**：原始嘉義市 1940 vertices，line_intersects matched 1；572005 segment / 1876952 topology comparisons。獨立 Shapely 對 22 縣市僅匹配嘉義市。accepted → ready → readback 2 features，實際截圖見完整橘色路線與原始藍色市界。
+- N04 真實 7-step plan **3814ms**：CWA 115064、12 候選學校 → 10km 3 所（國中1／國小2），原始縣界 contains_center 僅臺南市，獨立 Shapely covers 一致。accepted → ready → readback 4 features，截圖見1震央與3學校。這一輪只重驗地理歸屬；上方114學年背景的來源限制仍適用，不把它說成事件時點統計。
+- 學校首次分片下載 123196 bytes／5 requests，261 rows scanned；warm 0 downloaded bytes／0 requests。對整包原始來源逐列 Python bbox filter，12 筆 stable IDs **順序完全相同**。詳見 N06。
+- 分片首次端到端驗收抓到 `INVALID_PARTITION_CONFIG`：本地 mount 首字 `_` 被過嚴路徑驗證拒絕。修正並增加實際 mount 負正例後重新載入及配對；失敗收據保留，不計入成功耗時。
+
+重跑收據：`n03-raw-line-plan.json`、`n03-raw-line-result.json`、`n03-raw-browser-readback.json`、`n04-raw-event-plan.json`、`n04-raw-event-result.json`、`n04-raw-browser-readback.json`、`n03-n04-raw-independent-oracle.json`、`n06-partition-browser-oracle.json`。皆在 ignored runtime；IDs 不能跨配對重用。

@@ -10,7 +10,7 @@
 | N03 線面 | bounded真實網站案例通過 | 嘉義TDX完整路線×市界，Shapely oracle一致；ready＋readback＋截圖通過，見acceptance-N03-N04.md |
 | N04 事件 | 歷史背景案例通過，完整S4仍partial | CWA115064＋10km學校3所（國中1/國小2）＋臺南市背景，全鏈4704ms；人口／fresh feed待補 |
 | N05 效能 | 固定版本20 warm通過 | 6-step regional plan，20/20成功且row fingerprint一致；median4399.5ms/p955625ms/max5740ms。首次housing來源load12285ms另列；不含模型思考／呈現 |
-| N06 優化 | 待N05 | 先量測再選瓶頸 |
+| N06 優化 | schools local全鏈通過 | 首次bytes2504719→123196（-95.08%）；warm0下載；12IDs與原始來源逐列完全一致，見acceptance-N06-20260923 |
 | N07 整套驗收 | 逐關進行 | 本輪工具程序重启后須重新配對，已透過網站UI恢復；單輪regional plan成功6.518秒 |
 
 ## 恢復入口
@@ -47,3 +47,24 @@
 - Mini全套1850pass/10skip（人口最後負例及activity修正另有focused通過）；MCP64pass；Gateway59pass。MCP初次sandbox loopback EPERM，允許本機網路後64/64通過，非程式回歸。
 - 當前driver83031，新session fbb1389fa62138e8919f426b370e1b19；frontend3734、gateway8794。配對及results隨session/TTL過期，續測先get_session，不硬用舊resultIds。
 - 下一片N06：既有學校來源首次2,504,719 bytes整包；Terra正評估generic spatial partition pushdown，尚未改runtime。原始checkout dirty files未動。
+
+
+## 00:30 檢查點（優先於上方歷史狀態）
+
+- P1：公開統計邊界與同版本名 raw geometry 不同，22/22不相等。公開統計現在 generalized/ineligible，數值比較與展示保留；精確點歸屬／線面交叉改用已驗SHA原始縣界。26c68718、1d47968f，Skill同步。原始面比例尺1:5000，不冒稱地籍精度。
+- N03 raw重新實測2170ms，Shapely22縣僅嘉義市；2 features ready/readback＋截圖。N04 raw＋分片7-step3814ms，事件位臺南市、3學校，4 features ready/readback＋截圖。新證據取代舊簡化面空間資格，不取代時間／來源限制。
+- N06：82 content-addressed shards，4 shards+manifest實下載123196 bytes／261候選，再精篩12筆；原始2,504,719 bytes／4315 rows。Python逐列12 IDs完全一致。warm query577ms、0 downloadedBytes、0 requests。完整鏈曾抓到本地底線路徑拒絕，dcdf8306修正後重新配對通過。
+- 新原子commit：26c68718 boundary role、1d47968f raw reader、653e6a2c partition builder、441336ec bounded loader、dcdf8306 localpath regression、2c0553a1 opt-in DEV接線。
+- Mini目前全套1868 passed／11 skipped；補最後localpathfocused16 passed；npx tsc -b通過；npm run build通過（既有大chunk警告）。MCP64／Gateway59前輪通過且此片未變，未無故重跑。
+- 前端PID59293，3734；Gateway8794沿用。DEV flags VITE_RESEARCH_POINT_PARTITIONS=1、VITE_RESEARCH_RAW_BOUNDARIES=1。重啟工具 /private/tmp/pulse-streamline-restart-vite.mjs 只重啟本輪Vite。driver83031仍存活，get_session後再用；reload/HMR可能需重新pair，禁止重用舊結果。
+- 下一片：N02 standalone人口DEV-only browser接線仍未做；每萬人口A05因無合格同期分子保持HOLD。N07新20次warm與數值比較展示待完成；N01 metadata候選不得稱來源已驗證。8am截止與heartbeat停用規則不變。
+
+
+## 07:46 恢復檢查點
+
+- 00:30後subagent曾因用量限制中斷；不把heartbeat訊息視為有完成工作。人口browser接線仍未完成，A05同期分子仍HOLD。
+- N07已完成的20-run收據現確認20/20通過、fingerprint一致：median4186ms／p956534ms／max7864ms。不是完整問答時間。版本與窗口見performance-N05。
+- 原checkout仍只有既有5個dirty paths，未混入commit；本地Vite59293、Gateway93890皆存活。driver83031仍可get_session；結果TTL需重新查。
+- 新待修查核：partition取消只終止caller等待，底層共享fetch可繼續至自身timeout。正在以subscriber reference counting補最後caller離開即abort，同時保留其他caller；未測完前不宣稱完整取消驗收。
+
+- 07:48 fresh regional 6-step7923ms，兩區住宅／雙北生師比數值oracle一致；雙北比較result accepted→ready→browser readback2 features，DOM與截圖確認面仍可展示。這不重新授予generalized面空間運算資格。收據 n07-regional-live-result.json / n07-regional-browser-readback.json。
