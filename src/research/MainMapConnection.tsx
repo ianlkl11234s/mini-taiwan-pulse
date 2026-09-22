@@ -27,7 +27,7 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForSceneRender } from "./sceneReadiness";
-import { analysisResultLayerIds, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import "./mainMapConnection.css";
 
@@ -48,6 +48,7 @@ export function MainMapConnection(props: Props) {
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
+  const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
@@ -70,7 +71,7 @@ export function MainMapConnection(props: Props) {
     ++generation.current;
     resultPopup.current?.remove(); resultPopup.current = null;
     if (latest.current.map) removeAnalysisResults(latest.current.map);
-    presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+    presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]);
     resultCollectionRef.current = null; setResultCollection(null);
     if (syncScene && controller.current) {
       const scene = { ...capture(), results: null };
@@ -102,6 +103,7 @@ export function MainMapConnection(props: Props) {
     const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
     const visibleAnalysisIds = new Set(visibleResultIds(scene.results));
     const analysisResults = allAnalysisResults.filter(result => visibleAnalysisIds.has(result.resultId));
+    const availableResults = describeAnalysisResults(allAnalysisResults);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
     const run = ++generation.current;
@@ -125,6 +127,7 @@ export function MainMapConnection(props: Props) {
       }
       const installed = analysisResults.length ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+      setAvailableAnalysis(availableResults);
       resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
       if (cameraChanged && followingRef.current) {
         // Measure after panel selection and activity card have committed to layout.
@@ -329,11 +332,14 @@ export function MainMapConnection(props: Props) {
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
       if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
         const visibleIds = new Set(resultIds);
-        const installed = installAnalysisResults(map, analysis.current.presentable(allResultIds).filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current);
+        const available = analysis.current.presentable(allResultIds);
+        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current);
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+        setAvailableAnalysis(describeAnalysisResults(available));
       } else {
         removeAnalysisResults(map);
         presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+        setAvailableAnalysis([]);
       }
     };
     const click = (event: mapboxgl.MapMouseEvent) => {
@@ -408,7 +414,7 @@ export function MainMapConnection(props: Props) {
           </label>)}
         </fieldset>}
         <ul>{resultCollection.items.map((item, index) => {
-          const result = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           return <li key={item.resultId} className="agent-analysis-result-item">
             <label className="agent-analysis-toggle">

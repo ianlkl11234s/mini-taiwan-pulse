@@ -60,6 +60,19 @@ function propertiesFor(row: Record<string, unknown>, result: PresentableResult):
   return { ...properties, resultId: result.resultId, datasetId: result.datasetId };
 }
 
+function presentation(result: PresentableResult, featureCount: number): AnalysisResultPresentation {
+  return { resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId, geometryType: result.geometry.type, featureCount };
+}
+
+/** Metadata for the whole authorized collection, including effectively hidden items. */
+export function describeAnalysisResults(results: readonly PresentableResult[]): AnalysisResultPresentation[] {
+  return results.map(result => {
+    const data = collection(result);
+    if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
+    return presentation(result, data.features.length);
+  });
+}
+
 /** Transient result layers are independent of the permanent layer catalogue. */
 export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity = 0.55): AnalysisResultPresentation[] {
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
@@ -103,7 +116,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
-    return { resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId, geometryType: result.geometry.type, featureCount: data.features.length };
+    return presentation(result, data.features.length);
   });
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
   return installed;

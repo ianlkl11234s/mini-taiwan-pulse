@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
@@ -32,6 +32,12 @@ const result: PresentableResult = {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("analysis result reveal lifecycle", () => {
+  it("retains authorized metadata for a result even when it is not installed", () => {
+    expect(describeAnalysisResults([{ ...result, displayLabel: "全國醫院" }])).toEqual([{
+      resultId: "result-1", datasetId: "fixture", displayLabel: "全國醫院", geometryType: "Point", featureCount: 1,
+    }]);
+  });
+
   it("presents more than four independent result layers and reads them all back", () => {
     const { map, layers } = stubMap();
     const results = Array.from({ length: 5 }, (_, index) => ({
