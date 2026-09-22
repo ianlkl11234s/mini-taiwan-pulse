@@ -122,7 +122,7 @@ export interface DatasetDescriptor {
     required: boolean;
     options?: readonly Scalar[];
   }[];
-  supportedOperations: readonly ("query_records" | "nearest" | "aggregate")[];
+  supportedOperations: readonly ("query_records" | "nearest" | "aggregate" | "compare_regions")[];
   adapterId: string;
 }
 

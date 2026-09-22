@@ -133,10 +133,11 @@ describe("AnalysisOperations", () => {
   });
 
   it("builds and compares UTC series without inventing missing or zero-baseline values", () => {
-    const current = { ...pointResult("current-events"), units: { amount: "items" }, rows: [
+    const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    const current = { ...pointResult("current-events"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [
       { published_at: "2026-09-01T01:00:00Z", amount: 4 }, { published_at: "2026-09-01T20:00:00Z", amount: null }, { published_at: null, amount: 8 },
     ] };
-    const baseline = { ...pointResult("baseline-events"), units: { amount: "items" }, rows: [
+    const baseline = { ...pointResult("baseline-events"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [
       { published_at: "2026-09-01T02:00:00Z", amount: 0 }, { published_at: "2026-09-02T02:00:00Z", amount: 2 },
     ] };
     const { operations } = setup(current, baseline);
@@ -150,5 +151,70 @@ describe("AnalysisOperations", () => {
       expect.objectContaining({ period_start: "2026-09-02T00:00:00.000Z", value: null, status: "missing_current" }),
     ]);
     expect(compared.summary).toMatchObject({ zeroBaseline: 1, missingCurrent: 1 });
+  });
+
+  it("fails closed when a series has insufficient evidence or a known incompatible unit", () => {
+    const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    const incomplete = { ...pointResult("incomplete"), units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const compatible = { ...pointResult("items"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const incompatible = { ...pointResult("people"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "people" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const mixedRowUnits = { ...pointResult("mixed-units"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1, unit: "items" }, { published_at: "2026-01-02T00:00:00Z", amount: 1, unit: "people" }] };
+    const { operations } = setup(incomplete, compatible, incompatible, mixedRowUnits);
+    const incompleteSeries = operations.readSeries({ resultId: "incomplete", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const itemSeries = operations.readSeries({ resultId: "items", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const peopleSeries = operations.readSeries({ resultId: "people", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const mixedUnitSeries = operations.readSeries({ resultId: "mixed-units", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    expect(() => operations.compareSeries({ currentResultId: incompleteSeries.resultId, baselineResultId: itemSeries.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+    expect(() => operations.compareSeries({ currentResultId: mixedUnitSeries.resultId, baselineResultId: itemSeries.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+    expect(() => operations.compareSeries({ currentResultId: itemSeries.resultId, baselineResultId: peopleSeries.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
+  });
+
+  it("compares administrative daily series across releases only with matching declared boundary and indicator contracts", () => {
+    const statisticsLineage = { sourceContract: { timeFields: [{ name: "period_end", role: "period_end" }] } };
+    const statistic = (id: string, releaseId: string, value: number, boundaryVersion = "township-2026a"): StoredDataResult => ({
+      ...pointResult(id), datasetId: `regional-statistics:${releaseId}`, recordGrain: "admin_statistic",
+      sourceRefs: [{ sourceId: `regional-statistics-${releaseId}`, version: releaseId, acquiredAt: "2026-09-22T00:00:00.000Z", checksumSha256: null, reference: `fixture://${releaseId}` }],
+      lineage: statisticsLineage, units: { value: "people" }, rows: [{
+        release_id: releaseId, area_code: releaseId === "release-current" ? "A" : "B", indicator_id: "housing_total", level: "township",
+        unit: "people", value, period_start: "2026-01-01T00:00:00.000Z", period_end: "2026-09-01T00:00:00.000Z",
+        boundary_version: boundaryVersion, boundary_sha256: "a".repeat(64), dimensions: { sex: "all", age: "all" },
+      }, {
+        release_id: releaseId, area_code: releaseId === "release-current" ? "C" : "D", indicator_id: "housing_total", level: "township",
+        unit: "people", value, period_start: "2026-01-01T00:00:00.000Z", period_end: "2026-09-01T00:00:00.000Z",
+        boundary_version: boundaryVersion, boundary_sha256: "a".repeat(64), dimensions: { age: "all", sex: "all" },
+      }],
+    });
+    const current = statistic("current-admin", "release-current", 10);
+    const baseline = statistic("baseline-admin", "release-baseline", 8);
+    const changedBoundary = statistic("changed-boundary", "release-other", 9, "township-2026b");
+    const { operations } = setup(current, baseline, changedBoundary);
+    const currentSeries = operations.readSeries({ resultId: current.resultId, timeField: "period_end", resolution: "day", operation: "sum", valueField: "value" });
+    const baselineSeries = operations.readSeries({ resultId: baseline.resultId, timeField: "period_end", resolution: "day", operation: "sum", valueField: "value" });
+    const changedBoundarySeries = operations.readSeries({ resultId: changedBoundary.resultId, timeField: "period_end", resolution: "day", operation: "sum", valueField: "value" });
+    const compared = operations.compareSeries({ currentResultId: currentSeries.resultId, baselineResultId: baselineSeries.resultId, operation: "difference" });
+    expect(compared.summary).toMatchObject({ comparisonEvidence: "contract_verified" });
+    expect(compared.rows).toEqual([expect.objectContaining({ current_value: 20, baseline_value: 16, value: 4, status: "valid" })]);
+    expect(() => operations.compareSeries({ currentResultId: currentSeries.resultId, baselineResultId: changedBoundarySeries.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
+  });
+
+  it("rejects non-administrative series from different datasets without a shared indicator contract", () => {
+    const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    const left = { ...pointResult("events-a"), datasetId: "fixture-events-a", lineage: eventLineage, units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const right = { ...pointResult("events-b"), datasetId: "fixture-events-b", lineage: eventLineage, units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const { operations } = setup(left, right);
+    const leftSeries = operations.readSeries({ resultId: left.resultId, timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const rightSeries = operations.readSeries({ resultId: right.resultId, timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    expect(() => operations.compareSeries({ currentResultId: leftSeries.resultId, baselineResultId: rightSeries.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
+  });
+
+  it("rejects a different daily or weekly resolution before comparing values", () => {
+    const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    const events = { ...pointResult("events"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [{ published_at: "2026-01-01T00:00:00Z", amount: 1 }] };
+    const { operations } = setup(events);
+    const daily = operations.readSeries({ resultId: events.resultId, timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    const weekly = operations.readSeries({ resultId: events.resultId, timeField: "published_at", resolution: "week", operation: "sum", valueField: "amount" });
+    const counted = operations.readSeries({ resultId: events.resultId, timeField: "published_at", resolution: "day", operation: "count", valueField: "amount" });
+    expect(counted.method).toMatchObject({ comparisonContract: { valueField: null, unit: "records" } });
+    expect(() => operations.compareSeries({ currentResultId: daily.resultId, baselineResultId: weekly.resultId, operation: "difference" })).toThrow("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
   });
 });

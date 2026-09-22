@@ -135,6 +135,13 @@ describe("research analysis session", () => {
     const plannedResult = await session.materializeData(plan.planId);
     expect(plannedResult).toMatchObject({ planId: plan.planId, materialized: true, result: { totalMatched: 3 } });
     await expect(session.materializeData(plan.planId)).rejects.toThrow("PLAN_NOT_FOUND_OR_EXPIRED");
+    const scoped = await session.queryRecords({ datasetId: "tw-schools", bbox: [121.4, 24.9, 121.6, 25.1], limit: 1 });
+    const scopedEvidence = session.execute("get_data_quality", { resultId: scoped.resultId });
+    expect(scopedEvidence).toMatchObject({ rows: 2, lineage: {
+      queryScope: { datasetId: "tw-schools", bbox: [121.4, 24.9, 121.6, 25.1], parameters: {}, filters: [], time: null, totalMatched: 2 },
+      sourceContract: { datasetId: "tw-schools", recordGrain: "place", geometry: { type: "Point", role: "actual" } },
+    } });
+    session.execute("remove_result", { resultId: scoped.resultId });
     const queried = await session.queryRecords({ datasetId: "tw-schools", limit: 2 });
     expect(queried).toMatchObject({ totalMatched: 3, returned: 2, displayTruncated: true });
     const resultId = String(queried.resultId);

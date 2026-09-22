@@ -1,3 +1,5 @@
+import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
+import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
 import { listLayerCapabilities } from "./layerCapabilities";
 import { framingFitsViewport, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
@@ -32,11 +34,12 @@ import { ValhallaNetworkProvider } from "./networkProvider";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
-const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
+const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
+  const [evidence, setEvidence] = useState<ResearchEvidence[]>([]);
   const [activityHistory, setActivityHistory] = useState<Activity[]>([]);
   const activity = activityHistory[0] ?? null;
   const setActivity = useCallback((next: Activity | null | ((current: Activity | null) => Activity | null)) => {
@@ -173,6 +176,7 @@ export function MainMapConnection(props: Props) {
     return matches ? "ready" : "error";
   }, []);
   const connect = useCallback((context: BridgeConnectionContext | null) => {
+    setEvidence([]);
     controller.current?.stop(); responder.current?.stop(); analysis.current?.clear(); clearAnalysisPresentation(false); analysis.current = context ? new ResearchAnalysisSession(() => latest.current.locked) : null; networkProvider.current = context ? new ValhallaNetworkProvider({ requester: (operation, args) => context.client.networkProvider(context.studyId, context.tabId, operation, args) }) : null; locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; ++generation.current; ++connectionEpoch.current; previous.current = null; setActivity(null);
     if (latest.current.map) cancelResearchMotion(latest.current.map);
     controller.current = context ? new StudyController(context, render, () => { setMessage("操作未完成，請確認圖層權限或連線狀態。"); setActivity({ phase: "error", title: "地圖動作未完成", detail: "目前視角會保留，請確認連線或重新選擇地點。" }); }) : null;
@@ -272,12 +276,17 @@ export function MainMapConnection(props: Props) {
         }
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");
+      if (result && ["query_records", "spatial_query", "aggregate_by_area", "compare_regions", "create_analysis_scope", "route_distance", "walking_isochrone"].includes(request.operation)) {
+        const evidenceItem = researchEvidence(request.operation, request.args, result);
+        setEvidence(items => [evidenceItem, ...items].slice(0, 6));
+        result = { ...result, researchScope: { operation: evidenceItem.operation, scope: evidenceItem.scope, sources: evidenceItem.sources } };
+      }
       return result!;
     }, () => { setMessage("讀取服務暫時無法同步，請檢查連線。"); setActivity({ phase: "error", title: "連線暫時中斷", detail: "目前地圖會保留，請確認連線後繼續。" }); }, event => {
       const next = activityForOperation(event.request.operation, event.request.args);
       if (!EXPLORATION_OPERATIONS.has(event.request.operation) || !next) return;
       if (event.phase === "started") { setActivity(next); return; }
-      if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: "資料可能暫時無法讀取；這不代表沒有符合的結果。" }); return; }
+      if (!event.result?.ok) { setActivity({ phase: "error", title: "這一步沒有完成", detail: analysisErrorMessage(event.result && !event.result.ok ? event.result.error : "UNKNOWN") }); return; }
       const data = event.result.data;
       const count = typeof data.totalMatched === "number" ? data.totalMatched : null;
       setActivity({ phase: "complete", title: event.request.operation === "search_layers" ? count === 0 ? "這次搜尋沒有找到圖層" : "已找到相關圖層" : event.request.operation === "layer_details" || event.request.operation === "describe_layer" ? "圖層說明已備妥" : "這一步已完成", detail: count === null ? "資料已回傳給 Agent，可繼續探索。" : event.request.operation === "summarize_layer" ? `符合 ${count} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` : `找到 ${count} 個候選圖層，Agent 正在整理適合的選項。` });
@@ -295,7 +304,7 @@ export function MainMapConnection(props: Props) {
     }) : null;
     responder.current?.start();
   }, [clearAnalysisPresentation, render]);
-  const disconnect = useCallback(() => connect(null), [connect]);
+  const disconnect = useCallback(() => { setEvidence([]); connect(null); }, [connect]);
   const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
   const changeFollowing = (value: boolean) => {
     followingRef.current = value; setFollowing(value);
@@ -406,6 +415,7 @@ export function MainMapConnection(props: Props) {
         <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
+      <ResearchEvidencePanel evidence={evidence} />
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>已呈現的分析結果</h3>
         <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；可逐層開關與排序，這不是完整來源圖層。</p>

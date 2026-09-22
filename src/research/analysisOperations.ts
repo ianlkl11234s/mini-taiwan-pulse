@@ -1,3 +1,4 @@
+import { compareRegions } from "./regionComparison";
 import type { GeometryRole, RecordGrain, SourceReceipt } from "./dataContracts";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import { geometriesIntersect, geometryWithin, locatePointInSurface, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
@@ -28,7 +29,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "analysis_scope" | "walking_isochrone";
+  operation: "within_distance" | "nearest" | "spatial_join" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "compare_regions" | "analysis_scope" | "walking_isochrone";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;
@@ -68,6 +69,26 @@ export interface RecordEvidence {
   freshness: StoredDataResult["freshness"];
 }
 
+type SeriesComparisonContract = {
+  timeField: string;
+  resolution: "day" | "week";
+  aggregation: "count" | "sum" | "mean";
+  valueField: string | null;
+  sourceGrain: StoredDataResult["recordGrain"];
+  scopeKind: "admin_boundary" | "dataset";
+  datasetId: string | null;
+  timeRole: string | null;
+  unit: string | null;
+  indicatorId: string | null;
+  areaLevel: string | null;
+  boundaryVersion: string | null;
+  boundarySha256: string | null;
+  dimensions: string | null;
+  sourcePeriodStart: string | null;
+  sourcePeriodEnd: string | null;
+  evidenceComplete: boolean;
+};
+
 function point(value: unknown): Point | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const geometry = value as { type?: unknown; coordinates?: unknown };
@@ -97,6 +118,108 @@ function keyOf(value: unknown): string {
 
 function numeric(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function uniformString(rows: readonly Row[], field: string): string | null {
+  let found: string | null = null;
+  for (const row of rows) {
+    const value = row[field];
+    if (typeof value !== "string" || !value) return null;
+    if (found !== null && found !== value) return null;
+    found = value;
+  }
+  return found;
+}
+
+function canonicalJson(value: unknown): string | null {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return JSON.stringify(value);
+  if (typeof value === "number") return Number.isFinite(value) ? JSON.stringify(value) : null;
+  if (Array.isArray(value)) {
+    const entries = value.map(canonicalJson);
+    return entries.some(entry => entry === null) ? null : `[${entries.join(",")}]`;
+  }
+  if (!value || typeof value !== "object") return null;
+  const entries = Object.entries(value as Record<string, unknown>).sort(([left], [right]) => left.localeCompare(right)).map(([key, entry]) => {
+    const encoded = canonicalJson(entry);
+    return encoded === null ? null : `${JSON.stringify(key)}:${encoded}`;
+  });
+  return entries.some(entry => entry === null) ? null : `{${entries.join(",")}}`;
+}
+
+function uniformJson(rows: readonly Row[], field: string): string | null {
+  let found: string | null = null;
+  for (const row of rows) {
+    const value = row[field];
+    if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+    const encoded = canonicalJson(value); if (encoded === null) return null;
+    if (found !== null && found !== encoded) return null;
+    found = encoded;
+  }
+  return found;
+}
+
+function sourceTimeRole(source: StoredDataResult, timeField: string): string | null {
+  const contract = source.lineage?.sourceContract;
+  if (!contract || typeof contract !== "object" || Array.isArray(contract)) return null;
+  const fields = (contract as Record<string, unknown>).timeFields;
+  if (!Array.isArray(fields)) return null;
+  const field = fields.find(candidate => candidate && typeof candidate === "object" && !Array.isArray(candidate) && (candidate as Record<string, unknown>).name === timeField);
+  const role = field && (field as Record<string, unknown>).role;
+  return typeof role === "string" && role ? role : null;
+}
+
+function optionalUniformString(rows: readonly Row[], field: string): { state: "absent" | "valid" | "invalid"; value: string | null } {
+  let found: string | null = null;
+  for (const row of rows) {
+    const value = row[field];
+    if (value === undefined || value === null) continue;
+    if (typeof value !== "string" || !value || found !== null && found !== value) return { state: "invalid", value: null };
+    found = value;
+  }
+  return found === null ? { state: "absent", value: null } : { state: "valid", value: found };
+}
+
+function seriesComparisonContract(source: StoredDataResult, input: ReadSeriesInput): SeriesComparisonContract {
+  const valueField = input.operation === "count" ? null : input.valueField ?? null;
+  const rowUnit = valueField ? optionalUniformString(source.rows, "unit") : { state: "valid" as const, value: "records" };
+  const declaredUnit = valueField ? source.units[valueField] : "records";
+  const unit = typeof declaredUnit === "string" && declaredUnit && rowUnit.state !== "invalid" && (rowUnit.state !== "valid" || rowUnit.value === declaredUnit) ? declaredUnit : null;
+  const isAdmin = source.recordGrain === "admin_statistic";
+  const contract: SeriesComparisonContract = {
+    timeField: input.timeField, resolution: input.resolution, aggregation: input.operation, valueField,
+    sourceGrain: source.recordGrain, scopeKind: isAdmin ? "admin_boundary" : "dataset", datasetId: isAdmin ? null : source.datasetId, timeRole: sourceTimeRole(source, input.timeField), unit,
+    indicatorId: isAdmin ? uniformString(source.rows, "indicator_id") : null, areaLevel: isAdmin ? uniformString(source.rows, "level") : null,
+    boundaryVersion: isAdmin ? uniformString(source.rows, "boundary_version") : null, boundarySha256: isAdmin ? uniformString(source.rows, "boundary_sha256") : null,
+    dimensions: isAdmin ? uniformJson(source.rows, "dimensions") : null, sourcePeriodStart: isAdmin ? uniformString(source.rows, "period_start") : null, sourcePeriodEnd: isAdmin ? uniformString(source.rows, "period_end") : null,
+    evidenceComplete: false,
+  };
+  contract.evidenceComplete = isAdmin
+    ? Boolean(contract.unit && contract.timeRole && contract.indicatorId && contract.areaLevel && contract.boundaryVersion && contract.boundarySha256 && contract.dimensions && contract.sourcePeriodStart && contract.sourcePeriodEnd)
+    : Boolean(contract.unit && contract.datasetId && contract.timeRole);
+  return contract;
+}
+
+function readSeriesContract(result: StoredDataResult): SeriesComparisonContract {
+  const method = "method" in result ? result.method : null;
+  const contract = method && typeof method === "object" ? (method as Record<string, unknown>).comparisonContract : null;
+  if (!contract || typeof contract !== "object" || Array.isArray(contract)) throw new Error("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+  const value = contract as Partial<SeriesComparisonContract>;
+  if (value.evidenceComplete !== true || typeof value.timeField !== "string" || (value.resolution !== "day" && value.resolution !== "week") || !["count", "sum", "mean"].includes(String(value.aggregation)) || (typeof value.valueField !== "string" && value.valueField !== null) || typeof value.sourceGrain !== "string" || (value.scopeKind !== "admin_boundary" && value.scopeKind !== "dataset") || typeof value.timeRole !== "string" || typeof value.unit !== "string") throw new Error("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+  if (value.scopeKind === "admin_boundary" && (typeof value.indicatorId !== "string" || typeof value.areaLevel !== "string" || typeof value.boundaryVersion !== "string" || typeof value.boundarySha256 !== "string" || typeof value.dimensions !== "string")) throw new Error("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+  if (value.scopeKind === "dataset" && typeof value.datasetId !== "string") throw new Error("SERIES_COMPARISON_EVIDENCE_INSUFFICIENT");
+  return value as SeriesComparisonContract;
+}
+
+function assertComparableSeries(current: StoredDataResult, baseline: StoredDataResult): { current: SeriesComparisonContract; baseline: SeriesComparisonContract } {
+  const currentContract = readSeriesContract(current); const baselineContract = readSeriesContract(baseline);
+  for (const key of ["timeField", "timeRole", "resolution", "aggregation", "valueField", "sourceGrain", "scopeKind", "unit"] as const) {
+    if (currentContract[key] !== baselineContract[key]) throw new Error("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
+  }
+  const scopeKeys = currentContract.scopeKind === "admin_boundary"
+    ? ["indicatorId", "areaLevel", "boundaryVersion", "boundarySha256", "dimensions", "sourcePeriodStart", "sourcePeriodEnd"] as const
+    : ["datasetId"] as const;
+  for (const key of scopeKeys) if (currentContract[key] !== baselineContract[key]) throw new Error("SERIES_COMPARISON_INCOMPATIBLE_CONTRACT");
+  return { current: currentContract, baseline: baselineContract };
 }
 
 /** Allowlisted, in-memory operations over complete materialized result rows. */
@@ -257,6 +380,13 @@ export class AnalysisOperations {
     return this.save(input.operation, [source], rows, "metric", source.geometry, { ...source.units, [outputField]: input.unit ?? null }, { ...input, outputField }, { nullMetrics: rows.filter(row => row[outputField] === null).length, nullsPreserved: true });
   }
 
+  compareRegions(input: { resultId: string; areaCodes: readonly string[]; baselineAreaCode: string; denominatorResultId?: string; per?: number }): AnalysisResult {
+    const source = this.data(input.resultId);
+    const denominator = input.denominatorResultId ? this.data(input.denominatorResultId) : undefined;
+    const comparison = compareRegions(source, { areaCodes: input.areaCodes, baselineAreaCode: input.baselineAreaCode, denominatorResult: denominator, per: input.per });
+    return this.save("compare_regions", denominator ? [source, denominator] : [source], comparison.rows, "metric", comparison.geometry, comparison.units, comparison.method, comparison.summary);
+  }
+
   readSeries(input: ReadSeriesInput): AnalysisResult {
     if (!validField(input.timeField) || input.operation !== "count" && (!input.valueField || !validField(input.valueField))) throw new Error("INVALID_SERIES_FIELD");
     const source = this.data(input.resultId); const groups = new Map<string, { rows: number; values: number[] }>(); let invalidTime = 0;
@@ -272,12 +402,14 @@ export class AnalysisOperations {
       const value = input.operation === "count" ? group.rows : group.values.length ? input.operation === "sum" ? group.values.reduce((sum, item) => sum + item, 0) : group.values.reduce((sum, item) => sum + item, 0) / group.values.length : null;
       return { period_start: periodStart, value, records: group.rows, missing_value: input.operation === "count" ? 0 : group.rows - group.values.length };
     });
-    return this.save("read_series", [source], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: input.operation === "count" ? "records" : source.units[input.valueField ?? ""] ?? null }, { ...input, timezone: "UTC" }, { periods: rows.length, invalidTime, missingPeriodsFilled: false });
+    const comparisonContract = seriesComparisonContract(source, input);
+    return this.save("read_series", [source], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: comparisonContract.unit }, { ...input, timezone: "UTC", comparisonContract }, { periods: rows.length, invalidTime, missingPeriodsFilled: false, comparisonEvidence: comparisonContract.evidenceComplete ? "complete" : "insufficient" });
   }
 
   compareSeries(input: CompareSeriesInput): AnalysisResult {
     const current = this.data(input.currentResultId); const baseline = this.data(input.baselineResultId);
     if (current.recordGrain !== "series" || baseline.recordGrain !== "series") throw new Error("SERIES_RESULT_REQUIRED");
+    const contracts = assertComparableSeries(current, baseline);
     const currentRows = new Map(current.rows.map(row => [String(row.period_start), row])); const baselineRows = new Map(baseline.rows.map(row => [String(row.period_start), row]));
     const keys = [...new Set([...currentRows.keys(), ...baselineRows.keys()])].sort(); let missingCurrent = 0; let missingBaseline = 0; let zeroBaseline = 0;
     const rows = keys.map(periodStart => {
@@ -289,7 +421,7 @@ export class AnalysisOperations {
       else value = input.operation === "ratio" ? currentValue / baselineValue : currentValue - baselineValue;
       return { period_start: periodStart, current_value: currentValue, baseline_value: baselineValue, value, status };
     });
-    return this.save("compare_series", [current, baseline], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: input.operation === "ratio" ? "ratio" : current.units.value ?? null }, { operation: input.operation, keyField: "period_start", valueField: "value" }, { periods: rows.length, missingCurrent, missingBaseline, zeroBaseline, nullsPreserved: true });
+    return this.save("compare_series", [current, baseline], rows, "series", { type: "none", role: "none", spatialAnalysisEligible: false }, { value: input.operation === "ratio" ? "ratio" : current.units.value ?? null }, { operation: input.operation, keyField: "period_start", valueField: "value", comparisonContract: contracts.current, baselineSourcePeriod: { start: contracts.baseline.sourcePeriodStart, end: contracts.baseline.sourcePeriodEnd } }, { periods: rows.length, missingCurrent, missingBaseline, zeroBaseline, nullsPreserved: true, comparisonEvidence: "contract_verified" });
   }
 
   qualitySummary(resultId: string): QualitySummary {

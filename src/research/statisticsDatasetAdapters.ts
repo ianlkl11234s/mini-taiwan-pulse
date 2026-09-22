@@ -80,7 +80,7 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       timeFields: ["period_start", "period_end"], maxRowsPerQuery: 100, maxScanRows: 10_000, maxResponseBytes: 1024 * 1024,
     }),
     parameters: [{ name: "releaseId", type: "string", required: true, options: recipe.release_options.map(option => option.release_id) }],
-    supportedOperations: ["query_records", "aggregate"],
+    supportedOperations: ["query_records", "aggregate", "compare_regions"],
     adapterId: "regional-statistics-recipe-v1",
   };
 }

@@ -6,7 +6,7 @@ import { describeDataset, ensureDataset, queryRecordsDetailed, validateQueryReco
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import type { WalkingIsochroneExecution } from "./networkProvider";
 
-export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
+export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string };
 
 /**
@@ -143,13 +143,26 @@ export class ResearchAnalysisSession {
     assertDatasetAccess(input.datasetId, this.locked());
     const execution = await queryRecordsDetailed(input);
     assertDatasetAccess(input.datasetId, this.locked());
+    const normalizedScope = execution.envelope.method.parameters;
     const stored: StoredDataResult = {
       resultId: execution.envelope.resultId, datasetId: execution.envelope.datasetId, rows: execution.materializedRows,
       recordGrain: execution.envelope.recordGrain, geometry: {
         type: execution.descriptor.geometry.type, role: execution.descriptor.geometry.role,
         spatialAnalysisEligible: execution.descriptor.geometry.spatialAnalysisEligible,
-      }, lineage: { ...execution.envelope.lineage, queryScope: { datasetId: input.datasetId, filters: input.filters ?? [], time: input.time ?? null, totalMatched: execution.envelope.totalMatched } }, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
-      units: execution.envelope.units, excludedByReason: execution.envelope.excludedByReason,
+      }, lineage: {
+        ...execution.envelope.lineage,
+        queryScope: {
+          datasetId: execution.envelope.datasetId,
+          filters: normalizedScope.filters ?? [], bbox: normalizedScope.bbox ?? null,
+          time: normalizedScope.time ?? null, parameters: normalizedScope.parameters ?? {},
+          totalMatched: execution.envelope.totalMatched,
+        },
+        sourceContract: {
+          datasetId: execution.descriptor.datasetId, recordGrain: execution.descriptor.recordGrain,
+          timeFields: execution.descriptor.timeFields, geometry: execution.descriptor.geometry,
+        },
+      }, sourceRefs: execution.envelope.sourceRefs, coverage: execution.envelope.coverage, freshness: execution.envelope.freshness,
+      units: Object.fromEntries(execution.descriptor.fields.map(field => [field.name, field.unit])), excludedByReason: execution.envelope.excludedByReason,
     };
     this.store.put(stored);
     return execution.envelope as unknown as Record<string, unknown>;
@@ -305,6 +318,8 @@ export class ResearchAnalysisSession {
       result = this.operations.keyJoin({ leftResultId: id(args.leftResultId), rightResultId: id(args.rightResultId), leftKey: String(args.leftKey ?? ""), rightKey: String(args.rightKey ?? ""), cardinality: args.cardinality as "one_to_one" | "one_to_many" });
     } else if (operation === "calculate_metric") {
       result = this.operations.calculateMetric({ resultId: id(args.resultId), operation: args.operation as "ratio" | "difference", numeratorField: String(args.numeratorField ?? ""), denominatorField: String(args.denominatorField ?? ""), ...(typeof args.outputField === "string" ? { outputField: args.outputField } : {}), ...(typeof args.unit === "string" || args.unit === null ? { unit: args.unit } : {}) });
+    } else if (operation === "compare_regions") {
+      result = this.operations.compareRegions({ resultId: id(args.resultId), areaCodes: Array.isArray(args.areaCodes) ? args.areaCodes as string[] : [], baselineAreaCode: String(args.baselineAreaCode ?? ""), ...(args.denominatorResultId ? { denominatorResultId: id(args.denominatorResultId) } : {}), ...(typeof args.per === "number" ? { per: args.per } : {}) });
     } else if (operation === "read_series") {
       result = this.operations.readSeries({ resultId: id(args.resultId), timeField: String(args.timeField ?? ""), resolution: args.resolution as "day" | "week", operation: args.operation as "count" | "sum" | "mean", ...(typeof args.valueField === "string" ? { valueField: args.valueField } : {}) });
     } else {

@@ -35,7 +35,7 @@
       "properties": { "publisher": { "$ref": "#/$defs/text" }, "reference": { "$ref": "#/$defs/text" }, "lineage": { "$ref": "#/$defs/text" } }
     },
     "access": { "$ref": "access.schema.json" },
-    "supportedOperations": { "type": "array", "items": { "enum": ["query_records", "nearest", "aggregate"] }, "uniqueItems": true },
+    "supportedOperations": { "type": "array", "items": { "enum": ["query_records", "nearest", "aggregate", "compare_regions"] }, "uniqueItems": true },
     "adapterId": { "$ref": "#/$defs/id" }
   },
   "$defs": {
