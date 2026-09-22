@@ -400,7 +400,7 @@ export function MainMapConnection(props: Props) {
           return <li key={item.resultId} className="agent-analysis-result-item">
             <label className="agent-analysis-toggle">
               <input type="checkbox" checked={item.visible} onChange={event => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-              <span><code>{result?.datasetId ?? item.resultId}</code>{result ? `${result.featureCount} 筆／${result.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
+              <span><strong>{result?.displayLabel ?? item.resultId}</strong>{result ? `${result.featureCount} 筆／${result.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
             </label>
             <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
               <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>

@@ -7,7 +7,7 @@ import { describeDataset, ensureDataset } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
-export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation">;
+export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string };
 
 /**
  * Presentation is a collection, rather than a domain-specific single result.
@@ -260,7 +260,7 @@ export class ResearchAnalysisSession {
       return { result, metrics };
     });
     assertResultCollectionBudget(prepared.map(item => item.metrics));
-    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, rows: result.rows, geometry: result.geometry, presentation: result.presentation }));
+    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation }));
   }
 
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
@@ -323,3 +323,10 @@ function stable(value: unknown): string {
 }
 
 function describeDatasetSafe(datasetId: string): boolean { try { describeDataset(datasetId); return true; } catch { return false; } }
+
+function resultDisplayLabel(result: StoredDataResult): string {
+  const rowLabel = typeof result.rows[0]?.label === "string" && result.rows[0].label.trim() ? result.rows[0].label.trim() : "分析範圍";
+  if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
+  if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
+  try { return describeDataset(result.datasetId).label; } catch { return result.datasetId; }
+}

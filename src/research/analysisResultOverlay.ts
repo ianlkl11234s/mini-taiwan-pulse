@@ -13,6 +13,7 @@ const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
 export type AnalysisResultPresentation = {
   resultId: string;
   datasetId: string;
+  displayLabel: string;
   geometryType: PresentableResult["geometry"]["type"];
   featureCount: number;
 };
@@ -102,7 +103,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
-    return { resultId: result.resultId, datasetId: result.datasetId, geometryType: result.geometry.type, featureCount: data.features.length };
+    return { resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId, geometryType: result.geometry.type, featureCount: data.features.length };
   });
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
   return installed;

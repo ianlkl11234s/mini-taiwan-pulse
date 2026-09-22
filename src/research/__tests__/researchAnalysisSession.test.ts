@@ -69,8 +69,8 @@ describe("research analysis session", () => {
     const resultIds = scope.resultIds as string[];
     expect(resultIds).toHaveLength(2);
     const [area, center] = session.presentable(resultIds);
-    expect(area).toMatchObject({ geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false } });
-    expect(center).toMatchObject({ geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false } });
+    expect(area).toMatchObject({ displayLabel: "市府周邊・範圍", geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false } });
+    expect(center).toMatchObject({ displayLabel: "市府周邊・中心點", geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false } });
     expect((area!.rows[0]!.geometry as { coordinates: unknown[][] }).coordinates[0]).toHaveLength(65);
     expect(() => session.execute("spatial_query", { resultId: resultIds[1], predicate: "within_distance", center: [121.5638, 25.0375], radiusM: 1000 })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
     expect(() => session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 0 })).toThrow("INVALID_DISTANCE_RADIUS");
