@@ -1,7 +1,7 @@
 {
   "release_id": "public-life-20260923-v2",
-  "status": "local_verified_cdn_ready_not_published",
-  "generated_at": "2026-09-23T09:05:00+08:00",
+  "status": "production_published_and_browser_verified",
+  "generated_at": "2026-09-23T12:56:08+08:00",
   "transport": {
     "browser_prefix": "/public_life/",
     "cdn_mirror_prefix": "deploy-assets/public_life/",

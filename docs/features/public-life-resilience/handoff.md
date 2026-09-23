@@ -1,7 +1,7 @@
 # Handoff — 公共生活與韌性資料系統（下游視角）
 
 > **上游 SSOT**：`../../../taipei-gis-analytics/docs/handoff/public-life-resilience.md`
-> **狀態**：local frontend ready / CDN-ready assets / not published
+> **狀態**：production published / browser verified
 > **最後更新**：2026-09-23
 > **Pulse worktree**：`codex/public-life-systems-20260922`
 
@@ -43,14 +43,15 @@
 
 ## 資產與傳輸
 
-- 追蹤契約：`public/public_life/manifest.json`，狀態 `local_verified_cdn_ready_not_published`。
+- 追蹤契約：`public/public_life/manifest.json`，狀態 `production_published_and_browser_verified`。
 - 10 份 GeoJSON／PMTiles 已安裝到 `public/public_life/`；build 後出現於 `dist/public_life/`。
 - 飲水、單車補給、無障礙與預定收容 PMTiles 為 z0–z14 full-density：不用 density drop／feature cluster，逐 zoom 的唯一 `entity_id` 均等於可定位來源筆數。垃圾桶、回收、遊戲場與遊客中心 GeoJSON 也維持一來源實體一顯示點。原始 OSM 線／面仍在 analytics canonical GeoJSON；前端只用帶有 `source_geometry_type`／`display_geometry_method` 的代表點顯示。
 - deploy scripts 將目錄鏡像到 `deploy-assets/public_life/`；nginx `/public_life/` 優先讀 `/data`，再 fallback 到 dist。
 - nginx 已定義 `application/vnd.pmtiles` 與 `application/geo+json`，PMTiles 支援 HTTP Range。
-- 本次沒有執行 S3 upload、deploy 或 production activation。
+- 10 份 payload 已發佈至 `deploy-assets/public_life/`，S3 與 production 全數 bytes／SHA-256 readback 符合 manifest。PR #331 以一般 merge commit `ca253255` 接入圖層；PR #332 以一般 merge commit `7f70624e` 修正 PMTiles label placement crash 與 fire sync 重複路徑。
+- Zeabur production deployment `6ab358f3e92e928954ac7c85` 已於 2026-09-23T04:47:11Z 完成並進入 `RUNNING`，commit SHA 為 `7f70624e0e1ea42ce4bdc58efa6057ce72bb071b`。現有 persistent volume 仍留有前一版產生的 `/data/fire/public_life/` 重複檔，不在服務路徑上；新 pull 已排除 `public_life/*`，不再產生新重複。
 
-## 本機驗收紀錄
+## 驗收紀錄
 
 - 契約：10 份資產的 bytes、SHA-256、source feature count 驗證通過。
 - full-density：飲水 3,369、單車補給 11,989、無障礙 20,870、預定收容 5,946 的唯一 `entity_id`，均已在 z0–z14 逐級守恆；垃圾桶 662、回收 640、遊戲場 2,580、遊客中心 15 的 GeoJSON 全數為 Point 且 ID 守恆。收容來源另有 27 列缺 geometry，保留缺值且不製造座標。
@@ -58,8 +59,9 @@
 - browser：z7.2 全臺視圖同時顯示飲水、垃圾桶、回收、預定收容、遊戲場、無障礙、單車補給、遊客中心八個點圖層；z11.6 點選飲水點與 z17 點選原始 MultiPolygon 的回收設施，皆可讀回來源、原始幾何、顯示位置、快照與授權，console 無 warning/error。H3 映射密度、國家公園邊界也已分別載入；點位大小／透明度即時變更、可展開 row、attribution、legend 與國家公園 popup 已讀回。
 - popup：公共生活 POI、預定收容所、國家公園與既有公廁統一使用色點標題、資料角色、來源 footer；保留 snapshot coverage、geometry precision、license、fetched_at 與 `unknown` 語意。
 - 本輪自動驗收：`npx tsc -b`、`npm run build`、全量 Vitest 243 files passed / 1 skipped，1,819 tests passed / 10 skipped。瀏覽器驗證公廁「場所類別」11 選項可全關後單選公園（1/11），z16 顯示點位標籤；點擊 circle 可讀回同址聚合、等級、類別、來源、授權與抓取日。symbol label 曾造成 Mapbox query error，移出 click registry 後 popup 恢復，reload 後未新增 console warning/error。
-- PMTiles 本機 Vite Range 請求回 `206` 及正確 `Content-Range`；生產 nginx 設定已登記 `application/vnd.pmtiles` 與 `/public_life/` data→dist fallback，但尚未取得 CDN/production readback。
-- 尚未取得生產 CDN 讀回、部署與 production browser 證據。
+- Production PMTiles Range 請求回 `206`、`application/vnd.pmtiles`、`Content-Range: bytes 0-15/2400402` 與 `PMTiles` magic；GeoJSON 回 `application/geo+json`，回收點讀回為 `FeatureCollection` 640 features。
+- Production browser：公廁、飲水、垃圾桶、回收點、預定收容、無障礙、單車補給同開時底圖與點位正常，console 無 warn/error。飲水 PMTiles popup 可讀回 source、snapshot、geometry、unknown 與 ODbL；公廁 popup 可讀回同址聚合、等級、類別、來源、授權與抓取日，且正式側邊欄顯示「場所類別（11/11）」、透明度與大小控制。
+- Hotfix 驗收：focused Vitest 18 passed、deploy contract pytest 1 passed、production build passed；PR #332 GitHub CI passed。本機全套並行跑取得 1,818 passed / 10 skipped，當時黃金快照尚未更新與 2 個 statistics tests 逾時；fixture 更新後黃金快照通過，這 2 個逾時測試單獨重跑通過。
 
 ## 前端資料契約
 
