@@ -1,11 +1,20 @@
-import { describe, expect, it, vi } from "vitest";
-import { createRoadEventCurrentAdapter, roadEventCurrentDescriptor, type RoadEventCurrentRawRow } from "../roadEventDatasetAdapter";
+import { afterEach, describe, expect, it, vi } from "vitest";
+const source = vi.hoisted(() => ({ configured: true, rpc: vi.fn() }));
+
+vi.mock("../../lib/supabase", () => ({ get supabaseConfigured() { return source.configured; }, supabase: { rpc: source.rpc } }));
+
+import { createRoadEventCurrentAdapter, fetchRoadEventsCurrent, roadEventCurrentDescriptor, type RoadEventCurrentRawRow } from "../roadEventDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 
 const raw = (overrides: Partial<RoadEventCurrentRawRow> = {}): RoadEventCurrentRawRow => ({ event_id: "E1", source: "live_freeway", event_type: 3, severity: 2, road_name: "國道一號", direction: "北向", start_km: null, end_km: null, title: "事故", description: null, location_other: null, blocked_lanes: null, geom: '{"type":"Point","coordinates":[121,25]}', matched_section_id: null, enrich_status: null, effective_time: "2026-09-23T00:00:00Z", expire_time: "2099-09-23T00:00:00Z", last_updated: "2026-09-23T00:01:00Z", ...overrides });
 const NOW = new Date("2026-09-23T12:00:00Z");
 function query(rows: readonly RoadEventCurrentRawRow[]) { const fetcher = vi.fn(async () => rows); return { fetcher, executor: new QueryExecutor([createRoadEventCurrentAdapter(fetcher, () => NOW)]) }; }
 const input = (parameters: Record<string, string | number> = { source: "live_freeway" }) => ({ datasetId: roadEventCurrentDescriptor.datasetId, parameters });
+
+afterEach(() => {
+  source.configured = true;
+  source.rpc.mockReset();
+});
 
 describe("TDX current road-event research adapter", () => {
   it("requires an allowlisted source and uses a 51-row RPC sentinel while retaining mixed source geometry outside analysis geometry", async () => {
@@ -37,11 +46,32 @@ describe("TDX current road-event research adapter", () => {
     expect(result.coverage).toContain("not retractions");
   });
 
-  it("rejects 51 rows, wrong source/type, duplicate composite keys, and preserves invalid geometry as a declared exclusion", async () => {
+  it("validates source/type/identity before rejecting an otherwise dense 51-row response", async () => {
     await expect(query(Array.from({ length: 51 }, (_, index) => raw({ event_id: `E${index}` }))).executor.execute(input())).rejects.toThrow("ROAD_EVENT_WINDOW_TOO_DENSE");
+    await expect(query(Array.from({ length: 51 }, (_, index) => raw({ event_id: `E${index}`, source: index === 50 ? "live_city" : "live_freeway" }))).executor.execute(input())).rejects.toThrow("ROAD_EVENT_SOURCE_FILTER_CONTRACT_MISMATCH");
+    await expect(query(Array.from({ length: 51 }, (_, index) => raw({ event_id: `E${index}`, event_type: index === 50 ? 2 : 3 }))).executor.execute(input({ source: "live_freeway", eventType: 3 }))).rejects.toThrow("ROAD_EVENT_TYPE_FILTER_CONTRACT_MISMATCH");
     await expect(query([raw({ source: "live_city" })]).executor.execute(input())).rejects.toThrow("ROAD_EVENT_SOURCE_FILTER_CONTRACT_MISMATCH");
     await expect(query([raw({ event_type: 2 })]).executor.execute(input({ source: "live_freeway", eventType: 3 }))).rejects.toThrow("ROAD_EVENT_TYPE_FILTER_CONTRACT_MISMATCH");
     await expect(query([raw(), raw()]).executor.execute(input())).rejects.toThrow("DUPLICATE_ROAD_EVENT_ID");
     await expect(query([raw({ geom: "not-json" })]).executor.execute(input())).resolves.toMatchObject({ rows: [expect.objectContaining({ source_geometry_raw: "not-json", source_geometry: null, source_geometry_status: "unparseable" })], excludedByReason: {} });
+  });
+
+  it("pushes bounded selectors and caller abort signal into the RPC transport, and propagates its error", async () => {
+    const signal = new AbortController().signal;
+    const request = { abortSignal: vi.fn() };
+    request.abortSignal.mockResolvedValueOnce({ data: [raw()], error: null });
+    source.rpc.mockReturnValueOnce(request);
+    await expect(fetchRoadEventsCurrent({ source: "live_highway", eventType: 3, unexpiredOnly: false, limit: 51 }, signal)).resolves.toEqual([raw()]);
+    expect(source.rpc).toHaveBeenCalledWith("get_road_events_current", { p_source: "live_highway", p_event_type: 3, p_only_active: false, p_limit: 51 });
+    expect(request.abortSignal).toHaveBeenCalledWith(signal);
+
+    const failedRequest = { data: null, error: { message: "denied" }, abortSignal: vi.fn() };
+    source.rpc.mockReturnValueOnce(failedRequest);
+    await expect(fetchRoadEventsCurrent({ source: "live_freeway", eventType: null, unexpiredOnly: true, limit: 51 })).rejects.toThrow("Supabase get_road_events_current (live_freeway): denied");
+    expect(failedRequest.abortSignal).not.toHaveBeenCalled();
+
+    source.configured = false;
+    await expect(fetchRoadEventsCurrent({ source: "live_freeway", eventType: null, unexpiredOnly: true, limit: 51 }, signal)).rejects.toThrow("Supabase not configured");
+    expect(source.rpc).toHaveBeenCalledTimes(2);
   });
 });
