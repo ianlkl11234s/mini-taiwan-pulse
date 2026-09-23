@@ -197,4 +197,8 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 - 互動：結果可點選查看名稱、數值/距離、來源、時間與限制；分析結果與原圖層的click契約分開驗。
 - 驗收：附近多來源、兩區/兩縣市、事件背景三類；短/長名稱、重疊點、手機/窄窗/桌面、側欄開關、light/dark、手動移圖。來源與運算幾何不得為美化被改寫。工程截圖/readback與使用者主觀可讀性分列，未經使用者確認不標視覺完成。
 
-2026-09-23 第一切片已完成輸入契約、人口 required releaseId 與結果級圖例／scope 樣式修正；見 [G01/G02 驗收](./acceptance-G01-G02-20260923.md)。新中心 1300m、1750m、200m 零筆及不同縣市人口占比已經 native／獨立來源核對。仍未通過 20 題整體 SLA、三類完整視覺矩陣、新版 MCP host reload 與使用者主觀驗收；G01/G02 保持進行中。發布仍需獨立授權。
+2026-09-23 第一切片已完成輸入契約、人口 required releaseId 與結果級圖例／scope 樣式修正；見 [G01/G02 驗收](./acceptance-G01-G02-20260923.md)。新中心 1300m、1750m、200m 零筆及不同縣市人口占比已經 native／獨立來源核對。新版 MCP host reload 已驗證，底圖切換遺失 overlay 已修復（`1bb2e2e3`）。仍未通過 20 題整體 SLA、三類完整視覺矩陣與使用者主觀驗收；G01/G02 保持進行中。發布仍需獨立授權。
+
+2026-09-23 獨立 Agent 問答補測：A01數值核對通過但無有效整題計時，A02於分析前遇到BROWSER_DISCONNECTED，均不納入成功SLA；詳見 [native Agent驗收](./acceptance-G01-native-agent-20260923.md)。先修responsive連線生命週期再續測，不能用oracle或資料時間戳補成問答通過。
+
+2026-09-23 後續：Mini `d86cc66d` 修responsive持續連線並通過native切換回讀；A03新中心7/12數值一致，獨立Agent107.011秒仍有1次錯誤ID且未batch。整頁reload恢復仍失敗、safe viewport偏窄；G01/G02持續進行，詳見上述native Agent驗收。
