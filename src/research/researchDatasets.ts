@@ -318,6 +318,11 @@ function allDescriptors(): DatasetDescriptor[] {
   return descriptors;
 }
 
+/** Current registry snapshot for one caller operation; never hydrates a source or caches across calls. */
+export function registeredDatasetSnapshot(): readonly DatasetDescriptor[] {
+  return allDescriptors();
+}
+
 /** Read-only descriptor lookup for manifest-derived capability reporting; never hydrates a source. */
 export function registeredDatasetForLayer(layerKey: string): DatasetDescriptor | null {
   return registeredDatasetsForLayer(layerKey)[0] ?? null;

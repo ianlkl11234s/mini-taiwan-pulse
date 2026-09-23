@@ -1,6 +1,7 @@
 import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerSource, type ManifestKey } from "../data/layerManifest";
 import { describeRegisteredLayer } from "./registeredLayerReader";
-import { registeredDatasetsForLayer } from "./researchDatasets";
+import { registeredDatasetSnapshot } from "./researchDatasets";
+import type { DatasetDescriptor } from "./dataContracts";
 
 type CapabilityState = "ready" | "on_demand_validation" | "not_registered";
 type AggregateState = "complete_source_asset" | "validated_on_read" | "not_registered";
@@ -29,10 +30,10 @@ function sourceKinds(source: LayerSource | readonly LayerSource[]): string[] {
   return [...new Set((Array.isArray(source) ? source : [source]).map(item => item.kind))].sort();
 }
 
-function capabilityFor(key: ManifestKey): LayerCapability {
+function capabilityFor(key: ManifestKey, datasetsByLayer: ReadonlyMap<string, readonly DatasetDescriptor[]>): LayerCapability {
   const entry = LAYER_MANIFEST[key];
   const kinds = sourceKinds(entry.source);
-  const descriptors = registeredDatasetsForLayer(key);
+  const descriptors = datasetsByLayer.get(key) ?? [];
   const queryDescriptor = descriptors.find(descriptor => descriptor.access.query.enabled);
   const ready = Boolean(queryDescriptor);
   const aggregateReady = descriptors.some(descriptor => descriptor.access.query.enabled && descriptor.supportedOperations.includes("aggregate"));
@@ -91,7 +92,14 @@ export function listLayerCapabilities(input: { query?: unknown; dataRole?: unkno
   const query = (input.query ?? "").normalize("NFKC").trim().toLocaleLowerCase().replace(/臺/g, "台");
   const offset = bounded(input.offset, 0, 0, 10_000);
   const limit = bounded(input.limit, 20, 1, 20);
-  const all = MANIFEST_KEYS.filter(key => !locked.has(key)).map(capabilityFor).filter(item =>
+  const datasetsByLayer = new Map<string, DatasetDescriptor[]>();
+  for (const descriptor of registeredDatasetSnapshot()) {
+    for (const layerKey of descriptor.layerRefs) {
+      const group = datasetsByLayer.get(layerKey);
+      if (group) group.push(descriptor); else datasetsByLayer.set(layerKey, [descriptor]);
+    }
+  }
+  const all = MANIFEST_KEYS.filter(key => !locked.has(key)).map(key => capabilityFor(key, datasetsByLayer)).filter(item =>
     (query === "" || `${item.layerKey} ${item.label} ${item.sourceKinds.join(" ")}`.normalize("NFKC").toLocaleLowerCase().replace(/臺/g, "台").includes(query))
     && (input.dataRole === undefined || item.dataRole === input.dataRole)
     && (input.measure === undefined || item.supportedMeasures.includes(String(input.measure)))
