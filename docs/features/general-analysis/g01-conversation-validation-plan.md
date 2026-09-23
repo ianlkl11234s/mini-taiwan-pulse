@@ -42,3 +42,7 @@
 ## 本輪啟動檢查
 
 2026-09-23：native `pulse_query_records` 仍宣告 `bbox?: Array<string>`、`limit?: number`，未通過新版載入門檻。本任務 native session 為 unpaired。設定已指向隔離 mcp/dist/research/index.js；前端3734與Gateway8794均有listener，未重啟。現有工具和CLI沒有MCP restart能力；CUA明確禁止控制Codex App，不能自行操作Settings的Restart。須由使用者操作重載後，再驗工具宣告與配對，不能僅憑重載按鈕宣稱成功。
+
+### 重載後更新
+
+同日使用者重載後，native已顯示bbox number array、必填limit及plan guidance；本門檻通過。臺中／彰化比較與刻意漏limit的契約負向測試已執行，收據見acceptance-G01-G02-20260923.md下方；仍不是20題完整warm對話樣本。穩定版本切Light後發現分析source/layer消失，先修復並驗證後再累積效能樣本。
