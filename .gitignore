@@ -1,4 +1,8 @@
 node_modules
+
+# Public Life & Resilience 大型靜態產物：本機驗收放 public/，正式供應走 S3 volume。
+public/public_life/*.geojson
+public/public_life/*.pmtiles
 dist
 .env
 .env.local
