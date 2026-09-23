@@ -156,3 +156,41 @@
   font-size: 9px;
   line-height: 1.45;
 }
+
+/* The connection shell is App-root mounted. Breakpoint and capture changes hide the panel
+   without unmounting ResearchConnection, so a paired browser session stays alive. */
+.main-map-agent.main-map-agent--light {
+  --agent-text: #111827;
+  --agent-muted: #4b5563;
+  --agent-border: rgba(0, 0, 0, .16);
+  --agent-control-bg: rgba(0, 0, 0, .035);
+  --agent-control-hover: rgba(0, 0, 0, .08);
+  --agent-control-border: rgba(0, 0, 0, .14);
+}
+.main-map-agent--light .main-map-agent-panel { background: rgba(255, 255, 255, .96); border-color: rgba(0, 0, 0, .16); box-shadow: 0 8px 30px rgba(0, 0, 0, .16); }
+.main-map-agent--light button { color: var(--agent-text); background: var(--agent-control-bg); border-color: var(--agent-control-border); }
+.main-map-agent--light input { color: var(--agent-text); background: #fff; border-color: var(--agent-control-border); }
+.main-map-agent--light code { color: #0f766e; }
+.main-map-agent--light li { border-color: var(--agent-border); }
+.main-map-agent--light .research-pairing { background: #f8fafc; border-color: var(--agent-border); }
+.main-map-agent--light .research-pairing small { color: var(--agent-muted); }
+
+@media (max-width: 767px) {
+  .main-map-agent { top: 52px; right: 8px; left: 8px; z-index: 1500; }
+  .main-map-agent-panel { width: auto; max-width: none; max-height: min(68dvh, 560px); margin-top: 0; padding: 12px; }
+}
+.main-map-agent-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.main-map-agent-heading h2 { margin: 0 0 12px; }
+.main-map-agent-heading button { flex: 0 0 auto; margin: -4px 0 8px; padding: 1px 7px; font-size: 18px; line-height: 1.2; }
+
+/* Keep the single App-root shell where the rail previously placed its compact panel. */
+.main-map-agent--persistent { left: 64px; right: auto; top: 92px; font-size: 11px; line-height: 1.5; }
+.main-map-agent--persistent .main-map-agent-panel { width: min(288px, calc(100vw - 80px)); max-height: 70vh; margin-top: 0; padding: 10px 12px 12px; }
+.main-map-agent--persistent .main-map-agent-panel h2 { font-size: 12px; }
+.main-map-agent--persistent .main-map-agent-panel p { font-size: 11px; }
+.main-map-agent--persistent .main-map-agent-panel h3 { font-size: 12px; }
+
+@media (max-width: 767px) {
+  .main-map-agent--persistent { top: 52px; right: 8px; left: 8px; }
+  .main-map-agent--persistent .main-map-agent-panel { width: auto; max-width: none; max-height: min(68dvh, 560px); padding: 12px; }
+}

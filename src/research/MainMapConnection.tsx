@@ -33,7 +33,7 @@ import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults
 import { ValhallaNetworkProvider } from "./networkProvider";
 import "./mainMapConnection.css";
 
-type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean };
+type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
 const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", ...ANALYSIS_OPERATIONS]);
 
@@ -56,9 +56,15 @@ export function completedActivityForOperation(operation: string, data: Record<st
   return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
 }
 
+type StyleRestoreMap = {
+  once(event: "idle", listener: () => void): unknown;
+  off(event: "idle", listener: () => void): unknown;
+  isStyleLoaded(): boolean;
+};
+
 /** One style-cycle fallback: it restores only a result overlay that remains absent after Mapbox settles. */
 export function scheduleAnalysisResultStyleRestore(
-  map: Pick<MapboxMap, "once" | "off" | "isStyleLoaded">,
+  map: StyleRestoreMap,
   redraw: () => void,
   isReady: () => boolean,
 ): () => void {
@@ -73,7 +79,13 @@ export function scheduleAnalysisResultStyleRestore(
 
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = props.open ?? uncontrolledOpen;
+  const setOpen = useCallback((next: boolean | ((current: boolean) => boolean)) => {
+    const resolved = typeof next === "function" ? next(open) : next;
+    if (props.open === undefined) setUncontrolledOpen(resolved);
+    props.onOpenChange?.(resolved);
+  }, [open, props.onOpenChange, props.open]);
   const [evidence, setEvidence] = useState<ResearchEvidence[]>([]);
   const [activityHistory, setActivityHistory] = useState<Activity[]>([]);
   const activity = activityHistory[0] ?? null;
@@ -449,11 +461,12 @@ export function MainMapConnection(props: Props) {
   }, [clearAnalysisPresentation, resultCollection, setActivity]);
   useEffect(() => () => { controller.current?.stop(); responder.current?.stop(); locationLookup.current?.abort("SESSION_REVOKED"); locationLookup.current = null; resultPopup.current?.remove(); if (latest.current.map) removeAnalysisResults(latest.current.map); ++generation.current; ++connectionEpoch.current; }, []);
   const panelOpen = props.embedded || open;
-  return <div className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}`}>
-    {props.map && createPortal(<div className="research-activity-position"><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
-    {!props.embedded && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
-    <div className="main-map-agent-panel" hidden={!panelOpen}>
-      {!props.embedded && <h2>連接這張地圖</h2>}
+  const showToggle = props.showToggle ?? !props.embedded;
+  return <div hidden={props.uiHidden} className={`main-map-agent${props.embedded ? " main-map-agent--embedded" : ""}${showToggle ? "" : " main-map-agent--persistent"}${props.isDarkTheme === false ? " main-map-agent--light" : ""}`}>
+    {props.map && createPortal(<div className="research-activity-position" style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
+    {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
+    <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
+      {!props.embedded && <div className="main-map-agent-heading"><h2>連接這張地圖</h2><button type="button" onClick={() => setOpen(false)} aria-label="關閉本地 Agent">×</button></div>}
       <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />

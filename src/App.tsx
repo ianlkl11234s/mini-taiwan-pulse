@@ -95,7 +95,7 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { Bot, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -426,6 +426,8 @@ export default function App() {
   const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  // 常駐於 App 根層：viewport/capture UI 切換只隱藏面板，不能卸載配對連線。
+  const [agentOpen, setAgentOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
 
@@ -1821,6 +1823,19 @@ export default function App() {
         showBasemapLabels={showBasemapLabels}
         onMapReady={handleMapReady}
       />
+      {import.meta.env.DEV && <MainMapConnection
+        bridge={chatBridge}
+        map={mapPrepared ? mapRef.current : null}
+        labels={memberLabels}
+        locked={lockedKeysRef.current}
+        selection={featureInfo?.coords ?? null}
+        timeline={researchTimeline}
+        isDarkTheme={isDarkTheme}
+        open={agentOpen && !captureMode}
+        onOpenChange={setAgentOpen}
+        showToggle={false}
+        uiHidden={captureMode}
+      />}
 
       {/* ── 拍攝模式 vignette + 標題 ── */}
       {captureMode && (
@@ -1999,7 +2014,9 @@ export default function App() {
               memberActive={memberOpen}
               favoriteKeys={favoriteKeys}
               onToggleFavorite={handleToggleFavorite}
-              agentPanel={import.meta.env.DEV ? <MainMapConnection embedded bridge={chatBridge} map={mapPrepared ? mapRef.current : null} labels={memberLabels} locked={lockedKeysRef.current} selection={featureInfo?.coords ?? null} timeline={researchTimeline} isDarkTheme={isDarkTheme} /> : undefined}
+              agentAvailable={import.meta.env.DEV}
+              agentActive={agentOpen}
+              onAgentToggle={() => setAgentOpen(value => !value)}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
@@ -2493,6 +2510,25 @@ export default function App() {
             >
               <Camera size={17} />
             </button>
+
+            {import.meta.env.DEV && <button
+              onClick={() => setAgentOpen(value => !value)}
+              title="本地 Agent"
+              aria-label="本地 Agent"
+              aria-pressed={agentOpen}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: RADIUS.xl,
+                background: agentOpen ? "#75d6c5" : "rgba(117,214,197,0.22)",
+                border: "1px solid " + (agentOpen ? "#75d6c5" : "rgba(117,214,197,0.55)"),
+                color: agentOpen ? "#06211c" : "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            ><Bot size={16} /></button>}
 
             <button
               onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
