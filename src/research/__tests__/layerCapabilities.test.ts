@@ -36,4 +36,15 @@ describe("layer capability registry", () => {
     expect(listLayerCapabilities({ query: "allen", limit: 20 }, locked)).toMatchObject({ totalMatched: 0, layers: [] });
     expect((listLayerCapabilities({ query: "schools", limit: 20 }, locked).layers as { layerKey: string }[]).some(layer => layer.layerKey === "schools")).toBe(false);
   });
+
+  it("keeps event and line readers discoverable without inventing event aggregates", () => {
+    const event = listLayerCapabilities({ query: "earthquakeReplay", status: "ready" });
+    expect(event.layers).toEqual(expect.arrayContaining([expect.objectContaining({
+      layerKey: "earthquakeReplay", recordSearch: "ready", statistics: "not_registered", aggregate: "not_registered",
+      datasetKinds: ["event"], supportedMeasures: [], timeModel: "unknown",
+    })]));
+    const lines = listLayerCapabilities({ query: "busLive", status: "ready" });
+    expect((lines.layers as { datasetKinds: string[] }[]).some(layer => layer.datasetKinds.includes("line"))).toBe(true);
+  });
+
 });
