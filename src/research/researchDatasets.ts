@@ -4,6 +4,7 @@ import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
 import { createAdministrativeBoundaryAdapter } from "./administrativeBoundaryAdapter";
 import { localPopulationPreviewAdapters } from "./localPopulationPreview";
+import { createRoadEventCurrentAdapter } from "./roadEventDatasetAdapter";
 import { chiayiBusRouteAdapter } from "./busRouteDatasetAdapter";
 import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
@@ -307,6 +308,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   convenienceStoresAdapter,
   earthquakeReplayAdapter,
   chiayiBusRouteAdapter,
+  createRoadEventCurrentAdapter(),
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
