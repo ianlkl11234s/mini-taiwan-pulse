@@ -37,7 +37,7 @@
 
 - 公共生活色票集中於 `src/data/publicLifePalette.ts`，manifest、overlay、legend 與 popup 共用；公共垃圾桶由過暗的 `#a16207` 調亮為 `#d97706`，其餘維持水務青、回收綠、避難橘、遊戲粉、遊客中心靛色與狀態／服務語意色。
 - 有真實分類欄位的 layer 使用既有可展開 multi-select：公廁場所類別、回收材質、預定收容適用災害、無障礙設施類型＋狀態、單車補給服務。全選保留所有資料；部分選取只顯示來源明列的分類；全關不退回全顯示。
-- 名稱標籤只在適合閱讀的 zoom 顯示：遊客中心 z10、飲水 z13、回收／遊戲場／單車 z14、垃圾桶／預定收容 z15、公廁／無障礙 z16。碰撞排版由 Mapbox 控制，低縮放仍只顯示點位。
+- 名稱標籤目前只保留在已驗證穩定的 GeoJSON 點層與既有公廁：遊客中心 z10、回收／遊戲場 z14、垃圾桶 z15、公廁 z16。四個 PMTiles 點層（飲水、預定收容、無障礙、單車補給）的 symbol label 會觸發 production Mapbox placement crash，故先停用標籤；點位、分類、大小／透明度與 popup 仍全數保留。
 - symbol label 不加入 `queryRenderedFeatures`，避免 Mapbox symbol query 破壞 popup；popup 仍由既有 circle／glow 命中。
 - 公廁 popup 已補「環境部列管公廁（同址聚合）」、來源機關、FAC_P_07 端點、OGDL-Taiwan-1.0 與 2026-07-17 抓取日。無障礙 popup 的標題色改以 accessibility status 為準，不再被 playground 等 `feature_type` 色覆蓋。
 
@@ -54,7 +54,7 @@
 
 - 契約：10 份資產的 bytes、SHA-256、source feature count 驗證通過。
 - full-density：飲水 3,369、單車補給 11,989、無障礙 20,870、預定收容 5,946 的唯一 `entity_id`，均已在 z0–z14 逐級守恆；垃圾桶 662、回收 640、遊戲場 2,580、遊客中心 15 的 GeoJSON 全數為 Point 且 ID 守恆。收容來源另有 27 列缺 geometry，保留缺值且不製造座標。
-- 前端：10 層已納入 type、manifest、catalog、overlay、click registry、legend、popup 與 params；golden snapshot 為 788 layers。所有點位層都有透明度／大小控制，國家公園只保留 fill + outline 與透明度控制，不產生邊界 circle。公廁／回收／預定收容／無障礙／單車補給另有分類 multi-select；命名點位依 zoom 顯示標籤。
+- 前端：10 層已納入 type、manifest、catalog、overlay、click registry、legend、popup 與 params；golden snapshot 為 788 layers。所有點位層都有透明度／大小控制，國家公園只保留 fill + outline 與透明度控制，不產生邊界 circle。公廁／回收／預定收容／無障礙／單車補給另有分類 multi-select；GeoJSON 命名點位依 zoom 顯示標籤，PMTiles 點層依上述 production crash 證據先不顯示標籤。
 - browser：z7.2 全臺視圖同時顯示飲水、垃圾桶、回收、預定收容、遊戲場、無障礙、單車補給、遊客中心八個點圖層；z11.6 點選飲水點與 z17 點選原始 MultiPolygon 的回收設施，皆可讀回來源、原始幾何、顯示位置、快照與授權，console 無 warning/error。H3 映射密度、國家公園邊界也已分別載入；點位大小／透明度即時變更、可展開 row、attribution、legend 與國家公園 popup 已讀回。
 - popup：公共生活 POI、預定收容所、國家公園與既有公廁統一使用色點標題、資料角色、來源 footer；保留 snapshot coverage、geometry precision、license、fetched_at 與 `unknown` 語意。
 - 本輪自動驗收：`npx tsc -b`、`npm run build`、全量 Vitest 243 files passed / 1 skipped，1,819 tests passed / 10 skipped。瀏覽器驗證公廁「場所類別」11 選項可全關後單選公園（1/11），z16 顯示點位標籤；點擊 circle 可讀回同址聚合、等級、類別、來源、授權與抓取日。symbol label 曾造成 Mapbox query error，移出 click registry 後 popup 恢復，reload 後未新增 console warning/error。

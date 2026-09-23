@@ -61215,72 +61215,6 @@
           },
           "suffix": "circle",
           "type": "circle"
-        },
-        {
-          "filter": [
-            "all",
-            [
-              "has",
-              "name"
-            ],
-            [
-              "!=",
-              [
-                "get",
-                "name"
-              ],
-              ""
-            ]
-          ],
-          "layout": {
-            "text-field": [
-              "get",
-              "name"
-            ],
-            "text-font": [
-              "DIN Pro Medium",
-              "Arial Unicode MS Regular"
-            ],
-            "text-max-width": 14,
-            "text-optional": true,
-            "text-radial-offset": 0.8,
-            "text-size": [
-              "interpolate",
-              [
-                "linear"
-              ],
-              [
-                "zoom"
-              ],
-              12,
-              10,
-              16,
-              13
-            ],
-            "text-variable-anchor": [
-              "top",
-              "bottom",
-              "left",
-              "right"
-            ]
-          },
-          "minzoom": 13,
-          "paint": {
-            "dark": {
-              "text-color": "#f8fafc",
-              "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            },
-            "light": {
-              "text-color": "#0f172a",
-              "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            }
-          },
-          "suffix": "label",
-          "type": "symbol"
         }
       ],
       "pmtiles": {
@@ -61290,8 +61224,7 @@
       },
       "rebuildOnParamChange": [
         "glow",
-        "circle",
-        "label"
+        "circle"
       ],
       "sourceId": "drinking-water-points",
       "sourceUrl": "./public_life/drinking_water_points.pmtiles"
@@ -61868,76 +61801,6 @@
           },
           "suffix": "circle",
           "type": "circle"
-        },
-        {
-          "filter": [
-            "all",
-            [
-              "has",
-              "name"
-            ],
-            [
-              "has",
-              "name"
-            ],
-            [
-              "!=",
-              [
-                "get",
-                "name"
-              ],
-              ""
-            ]
-          ],
-          "layout": {
-            "text-field": [
-              "get",
-              "name"
-            ],
-            "text-font": [
-              "DIN Pro Medium",
-              "Arial Unicode MS Regular"
-            ],
-            "text-max-width": 14,
-            "text-optional": true,
-            "text-radial-offset": 0.8,
-            "text-size": [
-              "interpolate",
-              [
-                "linear"
-              ],
-              [
-                "zoom"
-              ],
-              12,
-              10,
-              16,
-              13
-            ],
-            "text-variable-anchor": [
-              "top",
-              "bottom",
-              "left",
-              "right"
-            ]
-          },
-          "minzoom": 15,
-          "paint": {
-            "dark": {
-              "text-color": "#f8fafc",
-              "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            },
-            "light": {
-              "text-color": "#0f172a",
-              "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            }
-          },
-          "suffix": "label",
-          "type": "symbol"
         }
       ],
       "pmtiles": {
@@ -61947,8 +61810,7 @@
       },
       "rebuildOnParamChange": [
         "glow",
-        "circle",
-        "label"
+        "circle"
       ],
       "sourceId": "disaster-shelters",
       "sourceUrl": "./public_life/disaster_shelters.pmtiles"
@@ -62370,83 +62232,6 @@
           },
           "suffix": "circle",
           "type": "circle"
-        },
-        {
-          "filter": [
-            "all",
-            [
-              "all",
-              [
-                "has",
-                "feature_type"
-              ],
-              [
-                "has",
-                "accessibility_status"
-              ]
-            ],
-            [
-              "has",
-              "name"
-            ],
-            [
-              "!=",
-              [
-                "get",
-                "name"
-              ],
-              ""
-            ]
-          ],
-          "layout": {
-            "text-field": [
-              "get",
-              "name"
-            ],
-            "text-font": [
-              "DIN Pro Medium",
-              "Arial Unicode MS Regular"
-            ],
-            "text-max-width": 14,
-            "text-optional": true,
-            "text-radial-offset": 0.8,
-            "text-size": [
-              "interpolate",
-              [
-                "linear"
-              ],
-              [
-                "zoom"
-              ],
-              12,
-              10,
-              16,
-              13
-            ],
-            "text-variable-anchor": [
-              "top",
-              "bottom",
-              "left",
-              "right"
-            ]
-          },
-          "minzoom": 16,
-          "paint": {
-            "dark": {
-              "text-color": "#f8fafc",
-              "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.8
-            },
-            "light": {
-              "text-color": "#0f172a",
-              "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.8
-            }
-          },
-          "suffix": "label",
-          "type": "symbol"
         }
       ],
       "pmtiles": {
@@ -62456,8 +62241,7 @@
       },
       "rebuildOnParamChange": [
         "glow",
-        "circle",
-        "label"
+        "circle"
       ],
       "sourceId": "accessible-park-facilities",
       "sourceUrl": "./public_life/accessible_park_facilities.pmtiles"
@@ -62794,76 +62578,6 @@
           },
           "suffix": "circle",
           "type": "circle"
-        },
-        {
-          "filter": [
-            "all",
-            [
-              "has",
-              "feature_type"
-            ],
-            [
-              "has",
-              "name"
-            ],
-            [
-              "!=",
-              [
-                "get",
-                "name"
-              ],
-              ""
-            ]
-          ],
-          "layout": {
-            "text-field": [
-              "get",
-              "name"
-            ],
-            "text-font": [
-              "DIN Pro Medium",
-              "Arial Unicode MS Regular"
-            ],
-            "text-max-width": 14,
-            "text-optional": true,
-            "text-radial-offset": 0.8,
-            "text-size": [
-              "interpolate",
-              [
-                "linear"
-              ],
-              [
-                "zoom"
-              ],
-              12,
-              10,
-              16,
-              13
-            ],
-            "text-variable-anchor": [
-              "top",
-              "bottom",
-              "left",
-              "right"
-            ]
-          },
-          "minzoom": 14,
-          "paint": {
-            "dark": {
-              "text-color": "#f8fafc",
-              "text-halo-color": "rgba(15,23,42,0.92)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            },
-            "light": {
-              "text-color": "#0f172a",
-              "text-halo-color": "rgba(255,255,255,0.94)",
-              "text-halo-width": 1.25,
-              "text-opacity": 0.85
-            }
-          },
-          "suffix": "label",
-          "type": "symbol"
         }
       ],
       "pmtiles": {
@@ -62873,8 +62587,7 @@
       },
       "rebuildOnParamChange": [
         "glow",
-        "circle",
-        "label"
+        "circle"
       ],
       "sourceId": "bicycle-support",
       "sourceUrl": "./public_life/bicycle_support.pmtiles"
