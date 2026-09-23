@@ -19,3 +19,13 @@
 @keyframes research-activity-aurora { from { opacity: .64; } to { opacity: 1; } }
 @media(max-width: 640px) { .research-activity-position { top: 92px; right: 10px; max-height: 45%; } .research-activity { width: min(260px, calc(100vw - 80px)); } .research-activity__history { max-height: 100px; } }
 @media(prefers-reduced-motion: reduce) { .research-activity, .research-activity--working .research-activity__dot, .research-activity--presenting .research-activity__dot, .research-activity__viewport-glow { animation: none; } }
+
+/* This card is portaled into the map, outside the connection panel theme. */
+.research-activity-position--light .research-activity { color: #17212b; background: rgba(255,255,255,.95); border-color: rgba(23,33,43,.16); box-shadow: 0 8px 28px #17212b24; }
+.research-activity-position--light .research-activity__dot { background: #52616d; }
+.research-activity-position--light .research-activity--error .research-activity__dot { background: #b42318; }
+.research-activity-position--light .research-activity__eyebrow,
+.research-activity-position--light .research-activity__history li,
+.research-activity-position--light .research-activity__history small { color: #52616d; }
+.research-activity-position--light .research-activity__detail { color: #364552; }
+.research-activity-position--light .research-activity__history { border-left-color: #17212b26; }
