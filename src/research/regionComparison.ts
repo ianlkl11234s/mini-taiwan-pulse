@@ -131,9 +131,7 @@ function compatibleDenominator(numerator: Contract, denominator: Contract): void
 }
 
 function totalPopulationDimensions(encoded: string): boolean {
-  const value: unknown = JSON.parse(encoded);
-  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
-  return Object.values(value as Row).every(item => item === "all" || item === "total" || item === null);
+  return encoded === '{"population_scope":"total"}';
 }
 
 /** Compare selected canonical administrative statistics without aggregating, interpolating, or coercing statuses. */

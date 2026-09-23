@@ -41,7 +41,7 @@ describe("compareRegions", () => {
   it("A05 calculates per-10,000 only from an explicitly allowlisted population denominator", () => {
     const numerator = result(rows({ A04: 20, A05: 10 }));
     const denominator = result(rows({ A04: 10_000, A05: 5_000 }, {
-      A04: { dataset_id: "stats:population", indicator_id: "population", unit: "persons" }, A05: { dataset_id: "stats:population", indicator_id: "population", unit: "persons" },
+      A04: { dataset_id: "stats:population", indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" } }, A05: { dataset_id: "stats:population", indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" } },
     }), { resultId: "population", datasetId: "stats:population", units: { value: "persons" } });
     const output = compareRegions(numerator, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05", denominatorResult: denominator, per: 10_000 });
     expect(output.rows.map(row => row.normalizedValue)).toEqual([20, 20]);
@@ -55,7 +55,7 @@ describe("compareRegions", () => {
   it("A06 preserves zero, missing, suppressed, not-reported and zero-denominator states", () => {
     const numerator = result(rows({ A04: 0, A05: 10, A06: null, A07: null, A08: null }, { A07: { status: "suppressed" }, A08: { status: "not_reported" } }));
     const denominator = result(rows({ A04: 1_000, A05: 0, A06: null, A07: null, A08: null }, {
-      A04: { indicator_id: "population", unit: "persons" }, A05: { indicator_id: "population", unit: "persons" }, A06: { indicator_id: "population", unit: "persons" }, A07: { indicator_id: "population", unit: "persons", status: "suppressed" }, A08: { indicator_id: "population", unit: "persons", status: "not_reported" },
+      A04: { indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" } }, A05: { indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" } }, A06: { indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" } }, A07: { indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" }, status: "suppressed" }, A08: { indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" }, status: "not_reported" },
     }), { units: { value: "persons" } });
     const output = compareRegions(numerator, { areaCodes: ["A04", "A05", "A06", "A07", "A08"], baselineAreaCode: "A04", denominatorResult: denominator });
     expect(output.rows).toEqual(expect.arrayContaining([
@@ -73,5 +73,17 @@ describe("compareRegions", () => {
       expect(() => compareRegions(altered, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05" })).toThrow("REGION_COMPARISON_AMBIGUOUS_CONTRACT");
     }
     expect(() => compareRegions(result([...rows({ A04: 20, A05: 10 }), rows({ A04: 20 })[0]!]), { areaCodes: ["A04", "A05"], baselineAreaCode: "A05" })).toThrow("REGION_COMPARISON_DUPLICATE_AREA_OBSERVATION");
+  });
+
+  it("accepts only the verified total-population dimensions contract", () => {
+    const numerator = result(rows({ A04: 20, A05: 10 }));
+    const denominator = (dimensions: Record<string, unknown>) => result(rows({ A04: 10_000, A05: 5_000 }, {
+      A04: { dataset_id: "population_statistics", indicator_id: "total_population", unit: "人", dimensions },
+      A05: { dataset_id: "population_statistics", indicator_id: "total_population", unit: "人", dimensions },
+    }), { resultId: "population-preview", datasetId: "population_statistics", units: { value: "人" } });
+    expect(compareRegions(numerator, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05", denominatorResult: denominator({ population_scope: "total" }) }).rows.map(row => row.normalizedValue)).toEqual([20, 20]);
+    for (const dimensions of [{}, { population_scope: null }, { population_scope: "total", sex: "all" }, { population_scope: "resident" }]) {
+      expect(() => compareRegions(numerator, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05", denominatorResult: denominator(dimensions) })).toThrow("REGION_COMPARISON_DENOMINATOR_NOT_POPULATION");
+    }
   });
 });
