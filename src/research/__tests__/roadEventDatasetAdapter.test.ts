@@ -11,12 +11,22 @@ describe("TDX current road-event research adapter", () => {
   it("requires an allowlisted source and uses a 51-row RPC sentinel while retaining mixed source geometry outside analysis geometry", async () => {
     const current = query([raw({ geom: '{"type":"LineString","coordinates":[[121,25],[121.1,25.1]]}' })]);
     const result = await current.executor.execute(input());
-    expect(current.fetcher).toHaveBeenCalledWith({ source: "live_freeway", eventType: null, limit: 51 }, undefined);
+    expect(current.fetcher).toHaveBeenCalledWith({ source: "live_freeway", eventType: null, unexpiredOnly: true, limit: 51 }, undefined);
     expect(roadEventCurrentDescriptor.geometry).toMatchObject({ type: "none", spatialAnalysisEligible: false });
     expect(result.freshness).toBe("unknown");
     expect(result.rows[0]).toMatchObject({ source_geometry: { type: "LineString" }, source_geometry_status: "parsed", lifecycle_status: "active", assessed_at: "2026-09-23T12:00:00.000Z" });
     await expect(current.executor.execute(input({ source: "unknown" }))).rejects.toThrow("ROAD_EVENT_SOURCE_NOT_ALLOWED");
     await expect(current.executor.execute(input({ source: "live_freeway", eventType: 99 }))).rejects.toThrow("ROAD_EVENT_TYPE_NOT_ALLOWED");
+    await expect(current.executor.execute({ ...input(), parameters: { source: "live_freeway", unexpiredOnly: "true" as unknown as boolean } })).rejects.toThrow("PARAMETER_NOT_ALLOWED");
+  });
+
+  it("defaults to server-side unexpired filtering but permits an explicit false scope without local expiry filtering", async () => {
+    const current = query([raw({ event_id: "expired-but-requested", effective_time: "2000-01-01T00:00:00Z", expire_time: "2000-01-02T00:00:00Z" })]);
+    const result = await current.executor.execute({ ...input(), parameters: { source: "live_freeway", unexpiredOnly: false } });
+    expect(current.fetcher).toHaveBeenCalledWith({ source: "live_freeway", eventType: null, unexpiredOnly: false, limit: 51 }, undefined);
+    expect(result.rows[0]).toMatchObject({ lifecycle_status: "expired" });
+    expect(result.coverage).toContain("unexpiredOnly=false");
+    expect(result.sourceRefs[0]?.version).toContain("unexpiredOnly=false");
   });
 
   it("classifies only complete valid source intervals and never infers retraction from snapshot absence", async () => {

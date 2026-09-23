@@ -30,7 +30,7 @@ export interface RoadEventCurrentRawRow {
   expire_time: string | null;
   last_updated: string | null;
 }
-export type RoadEventCurrentQuery = Readonly<{ source: RoadEventSource; eventType: number | null; limit: 51 }>;
+export type RoadEventCurrentQuery = Readonly<{ source: RoadEventSource; eventType: number | null; unexpiredOnly: boolean; limit: 51 }>;
 export type RoadEventCurrentFetcher = (query: RoadEventCurrentQuery, signal?: AbortSignal) => Promise<readonly RoadEventCurrentRawRow[]>;
 
 export const roadEventCurrentDescriptor: DatasetDescriptor = {
@@ -50,23 +50,24 @@ export const roadEventCurrentDescriptor: DatasetDescriptor = {
   geometry: { type: "none", crs: null, role: "none", precision: "TDX source geometry is mixed and lacks a registered analytical precision contract; retained only as source_geometry.", spatialAnalysisEligible: false }, timeFields: [
     { name: "effective_time", role: "available", timezone: "Asia/Taipei" }, { name: "expire_time", role: "available", timezone: "Asia/Taipei" }, { name: "last_updated", role: "available", timezone: "Asia/Taipei" },
   ],
-  coverage: "One allowlisted source current snapshot, returned only when at most 50 rows; a 51st source row rejects the query instead of truncating. Missing current rows are not retractions.",
+  coverage: "One allowlisted source current snapshot, returned only when at most 50 rows; a 51st source row rejects the query instead of truncating. unexpiredOnly=true asks the server to exclude expire_time <= server now, but retains null expiry and future-effective rows; it is not an active-only assertion. Missing current rows are not retractions.",
   license: "TDX terms and attribution apply; verify source terms before redistribution.", valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "Source null stays null; never converted to a lifecycle or geometry value.", missing: "Absent from this current source snapshot is not cancellation, retraction, or proof of no event." }, versions: [],
   source: { publisher: "交通部運輸資料流通服務平臺（TDX）", reference: "supabase:public.get_road_events_current", lineage: "TDX RoadEvent fields -> collector current snapshot -> bounded RPC -> lifecycle assessed at receipt acquiredAt" },
   access: boundedAccess({ mode: "public", method: "rpc", fields: ["source", "event_id", "event_type", "severity", "road_name", "direction", "title", "description", "effective_time_raw", "expire_time_raw", "last_updated_raw", "effective_time", "expire_time", "last_updated", "assessed_at", "lifecycle_status", "source_geometry_raw", "source_geometry", "source_geometry_status"], filters: ["event_type"], timeFields: ["effective_time", "expire_time", "last_updated", "assessed_at"], maxRowsPerQuery: MAX_ROWS, maxScanRows: SOURCE_LIMIT }),
-  parameters: [{ name: "source", type: "string", required: true, options: SOURCES }, { name: "eventType", type: "number", required: false }], supportedOperations: ["query_records", "aggregate"], adapterId: "tdx-road-events-current-v1",
+  parameters: [{ name: "source", type: "string", required: true, options: SOURCES }, { name: "eventType", type: "number", required: false }, { name: "unexpiredOnly", type: "boolean", required: false }], supportedOperations: ["query_records", "aggregate"], adapterId: "tdx-road-events-current-v1",
 };
 
 function stable(value: unknown): string { if (value === null || typeof value !== "object") return JSON.stringify(value); if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`; const object = value as Record<string, unknown>; return `{${Object.keys(object).sort().map(key => `${JSON.stringify(key)}:${stable(object[key])}`).join(",")}}`; }
 async function snapshotHash(value: unknown): Promise<string> { const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(stable(value))); return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, "0")).join(""); }
 function source(value: Scalar): RoadEventSource { if (typeof value !== "string" || !(SOURCES as readonly string[]).includes(value)) throw new Error("ROAD_EVENT_SOURCE_NOT_ALLOWED"); return value as RoadEventSource; }
 function eventType(value: Scalar | undefined): number | null { if (value === undefined) return null; if (typeof value !== "number" || !Number.isInteger(value) || !EVENT_TYPES.has(value)) throw new Error("ROAD_EVENT_TYPE_NOT_ALLOWED"); return value; }
+function unexpiredOnly(value: Scalar | undefined): boolean { if (value === undefined) return true; if (typeof value !== "boolean") throw new Error("ROAD_EVENT_UNEXPIRED_ONLY_INVALID"); return value; }
 function timestamp(value: string | null): number | null { return typeof value === "string" && Number.isFinite(Date.parse(value)) ? Date.parse(value) : null; }
 function lifecycle(row: RoadEventCurrentRawRow, assessedAt: number): Lifecycle { const effective = timestamp(row.effective_time), expire = timestamp(row.expire_time); if (effective === null || expire === null || effective >= expire) return "unknown"; if (assessedAt < effective) return "scheduled"; if (assessedAt >= expire) return "expired"; return "active"; }
 function geometry(value: string | null): { value: Record<string, unknown> | null; status: "missing" | "parsed" | "unparseable" } { if (value === null) return { value: null, status: "missing" }; try { const parsed: unknown = JSON.parse(value); return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? { value: parsed as Record<string, unknown>, status: "parsed" } : { value: null, status: "unparseable" }; } catch { return { value: null, status: "unparseable" }; } }
 
 export const fetchRoadEventsCurrent: RoadEventCurrentFetcher = async (query, signal) => {
-  let request = supabase.rpc("get_road_events_current", { p_source: query.source, p_event_type: query.eventType, p_only_active: false, p_limit: query.limit });
+  let request = supabase.rpc("get_road_events_current", { p_source: query.source, p_event_type: query.eventType, p_only_active: query.unexpiredOnly, p_limit: query.limit });
   if (signal) request = request.abortSignal(signal);
   const { data, error } = await request;
   if (error) throw new Error(`Supabase get_road_events_current (${query.source}): ${error.message}`);
@@ -75,10 +76,10 @@ export const fetchRoadEventsCurrent: RoadEventCurrentFetcher = async (query, sig
 
 export function createRoadEventCurrentAdapter(fetcher: RoadEventCurrentFetcher = fetchRoadEventsCurrent, now: () => Date = () => new Date()): QueryAdapter {
   return {
-    descriptor: roadEventCurrentDescriptor, allowedParameters: { source: "string", eventType: "number" }, requiredParameters: ["source"],
+    descriptor: roadEventCurrentDescriptor, allowedParameters: { source: "string", eventType: "number", unexpiredOnly: "boolean" }, requiredParameters: ["source"],
     async read(parameters, signal): Promise<AdapterReadResult> {
-      const requestedSource = source(parameters.source ?? null); const requestedType = eventType(parameters.eventType);
-      const rawRows = await withLoading(`research:road-events:${requestedSource}`, `讀取 TDX 道路事件 ${requestedSource}`, fetcher({ source: requestedSource, eventType: requestedType, limit: SOURCE_LIMIT }, signal));
+      const requestedSource = source(parameters.source ?? null); const requestedType = eventType(parameters.eventType); const requestedUnexpiredOnly = unexpiredOnly(parameters.unexpiredOnly);
+      const rawRows = await withLoading(`research:road-events:${requestedSource}`, `讀取 TDX 道路事件 ${requestedSource}`, fetcher({ source: requestedSource, eventType: requestedType, unexpiredOnly: requestedUnexpiredOnly, limit: SOURCE_LIMIT }, signal));
       if (rawRows.length > SOURCE_LIMIT) throw new Error("ROAD_EVENT_SCAN_BUDGET_EXCEEDED");
       if (rawRows.length === SOURCE_LIMIT) throw new Error("ROAD_EVENT_WINDOW_TOO_DENSE");
       const acquiredAt = now().toISOString(); const assessedAt = Date.parse(acquiredAt); const ids = new Set<string>();
@@ -90,8 +91,8 @@ export function createRoadEventCurrentAdapter(fetcher: RoadEventCurrentFetcher =
         const sourceGeometry = geometry(raw.geom);
         rows.push({ source: raw.source, event_id: raw.event_id, event_type: raw.event_type, severity: raw.severity, road_name: raw.road_name, direction: raw.direction, title: raw.title, description: raw.description, effective_time_raw: raw.effective_time, expire_time_raw: raw.expire_time, last_updated_raw: raw.last_updated, effective_time: timestamp(raw.effective_time) === null ? null : raw.effective_time, expire_time: timestamp(raw.expire_time) === null ? null : raw.expire_time, last_updated: timestamp(raw.last_updated) === null ? null : raw.last_updated, assessed_at: acquiredAt, lifecycle_status: lifecycle(raw, assessedAt), source_geometry_raw: raw.geom, source_geometry: sourceGeometry.value, source_geometry_status: sourceGeometry.status });
       }
-      const checksumSha256 = await snapshotHash(rawRows); const receipt: SourceReceipt = { sourceId: `tdx-road-events-current:${requestedSource}`, version: `current:${requestedSource}:snapshot:${checksumSha256}`, acquiredAt, checksumSha256, reference: roadEventCurrentDescriptor.source.reference };
-      return { rows, sourceRefs: [receipt], coverage: roadEventCurrentDescriptor.coverage, freshness: "unknown", exclusions: {}, rowsScanned: rawRows.length, bytesScanned: null, downloadedBytes: null, requests: 1, cacheHit: false, expiresAt: null };
+      const checksumSha256 = await snapshotHash(rawRows); const scope = `source=${requestedSource};eventType=${requestedType ?? "all"};unexpiredOnly=${requestedUnexpiredOnly}`; const receipt: SourceReceipt = { sourceId: `tdx-road-events-current:${requestedSource}`, version: `current:${scope}:snapshot:${checksumSha256}`, acquiredAt, checksumSha256, reference: roadEventCurrentDescriptor.source.reference };
+      return { rows, sourceRefs: [receipt], coverage: `${roadEventCurrentDescriptor.coverage} Requested ${scope}.`, freshness: "unknown", exclusions: {}, rowsScanned: rawRows.length, bytesScanned: null, downloadedBytes: null, requests: 1, cacheHit: false, expiresAt: null };
     },
   };
 }
