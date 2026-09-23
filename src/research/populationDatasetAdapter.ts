@@ -93,6 +93,7 @@ function descriptor(contract: PopulationSnapshotContract, receipt: PopulationSna
     valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "Declared non-observed value only; never inferred as zero.", missing: "Missing means no observation in this verified snapshot, not no population." }, versions: [{ versionId: contract.releaseId, observedAt: contract.periodEnd, availableAt: null, checksumSha256: receipt.artifact.sha256, mutable: false }],
     source: { publisher: "verified snapshot caller", reference: "snapshot://injected", lineage: "verified artifact bytes + receipt + same-version verified boundary injected by caller" },
     access: boundedAccess({ mode: "owner_only", method: "statistics_snapshot", fields: ["release_id", "dataset_id", "indicator_id", "level", "area_code", "area_name", "indicator_name", "unit", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version", "boundary_sha256", "boundary_resource", "geometry", "dimensions", "source_population_scope_note"], filters: ["release_id", "area_code", "status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: contract.expectedAreas, maxScanRows: contract.expectedAreas, maxSourceBytes: receipt.artifact.bytes }),
+    parameters: [{ name: "releaseId", type: "string", required: true, options: [contract.releaseId] }],
     supportedOperations: ["query_records", "aggregate", "compare_regions"], adapterId: "verified-population-snapshot-v1",
   };
 }

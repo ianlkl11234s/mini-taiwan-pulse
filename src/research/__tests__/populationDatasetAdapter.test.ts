@@ -34,6 +34,18 @@ async function config(mutate?: (artifact: Record<string, unknown>) => void): Pro
 }
 
 describe("verified population snapshot materializer", () => {
+  it("describes the required release selector before any source read", async () => {
+    const input = await config();
+    const executor = new QueryExecutor([createPopulationSnapshotAdapter(input)]);
+    const descriptor = executor.describe(input.contract.datasetId)!;
+    expect(descriptor.parameters).toEqual([{ name: "releaseId", type: "string", required: true, options: [input.contract.releaseId] }]);
+    expect(input.readArtifact).not.toHaveBeenCalled();
+    expect(() => executor.validateParameters({ datasetId: descriptor.datasetId, limit: 1 })).toThrow("REQUIRED_PARAMETER_MISSING");
+    const releaseId = descriptor.parameters![0]!.options![0]!;
+    const result = await executor.execute({ datasetId: descriptor.datasetId, parameters: { releaseId }, select: ["area_code", "value"], limit: 1 });
+    expect(result.totalMatched).toBe(22);
+  });
+
   it("joins only the injected same-version verified boundary and retains local-preview provenance", async () => {
     const input = await config();
     const result = await new QueryExecutor([createPopulationSnapshotAdapter(input)]).execute({ datasetId: "population_statistics", parameters: { releaseId: "2025-12-total_population-county-local-preview" }, limit: 1 });
