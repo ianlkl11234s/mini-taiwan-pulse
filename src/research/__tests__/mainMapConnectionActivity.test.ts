@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { completedActivityForOperation } from "../MainMapConnection";
+import { completedActivityForOperation, scheduleAnalysisResultStyleRestore } from "../MainMapConnection";
 
 describe("completedActivityForOperation", () => {
   it("keeps layer and dataset search candidates distinct from returned records", () => {
@@ -19,5 +19,28 @@ describe("completedActivityForOperation", () => {
     const activity = completedActivityForOperation("query_records", { totalMatched: 1, returned: 1 });
     expect(activity.detail).toBe("完整符合 1 筆資料紀錄；本次回傳 1 筆。");
     expect(activity.detail).not.toContain("候選圖層");
+  });
+
+  it("retries a missing style-reset overlay once at idle, but not a ready or cancelled retry", () => {
+    let idle: (() => void) | undefined;
+    const map = {
+      once: (_event: "idle", listener: () => void) => { idle = listener; },
+      off: (_event: "idle", listener: () => void) => { if (idle === listener) idle = undefined; },
+      isStyleLoaded: () => true,
+    };
+    let redraws = 0;
+    const cancel = scheduleAnalysisResultStyleRestore(map, () => { redraws += 1; }, () => false);
+    idle?.();
+    expect(redraws).toBe(1);
+    const cancelled = scheduleAnalysisResultStyleRestore(map, () => { redraws += 1; }, () => false);
+    const queuedBeforeCancel = idle!;
+    cancelled();
+    queuedBeforeCancel();
+    expect(redraws).toBe(1);
+    cancel();
+    expect(idle).toBeUndefined();
+    scheduleAnalysisResultStyleRestore(map, () => { redraws += 1; }, () => true);
+    idle?.();
+    expect(redraws).toBe(1);
   });
 });

@@ -71,6 +71,15 @@ describe("analysis result reveal lifecycle", () => {
     expect(readAnalysisResultPresentation(map, installed)).toMatchObject({ resultIds: results.map(item => item.resultId), featureCount: 5, ready: true });
   });
 
+  it("restores retained result rows after a style reset removes transient sources and layers", () => {
+    const { map } = stubMap();
+    const first = installAnalysisResults(map, [result]);
+    removeAnalysisResults(map);
+    const restored = installAnalysisResults(map, [result]);
+    expect(restored).toEqual(first);
+    expect(readAnalysisResultPresentation(map, restored)).toMatchObject({ sourcesReady: true, layersReady: true, ready: true });
+  });
+
   it("uses geometry rather than dataset id for Polygon and MultiPolygon results", () => {
     const { map, sources, layers } = stubMap();
     const polygon = {

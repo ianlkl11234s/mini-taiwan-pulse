@@ -56,6 +56,21 @@ export function completedActivityForOperation(operation: string, data: Record<st
   return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
 }
 
+/** One style-cycle fallback: it restores only a result overlay that remains absent after Mapbox settles. */
+export function scheduleAnalysisResultStyleRestore(
+  map: Pick<MapboxMap, "once" | "off" | "isStyleLoaded">,
+  redraw: () => void,
+  isReady: () => boolean,
+): () => void {
+  let active = true;
+  const afterIdle = () => {
+    if (!active || !map.isStyleLoaded() || isReady()) return;
+    redraw();
+  };
+  map.once("idle", afterIdle);
+  return () => { active = false; map.off("idle", afterIdle); };
+}
+
 /** Paired adapter: map exploration plus bounded, session-local analysis over authorized dataset results. */
 export function MainMapConnection(props: Props) {
   const [open, setOpen] = useState(false);
@@ -405,8 +420,20 @@ export function MainMapConnection(props: Props) {
       resultPopup.current?.remove();
       resultPopup.current = new mapboxgl.Popup({ className: `research-result-map-popup research-result-map-popup--${latest.current.isDarkTheme === false ? "light" : "dark"}`, closeButton: true, maxWidth: "300px", offset: 12 }).setLngLat(event.lngLat).setDOMContent(content).addTo(map);
     };
-    redraw(); map.on("style.load", redraw); map.on("click", click);
-    return () => { map.off("style.load", redraw); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
+    let cancelStyleRestore: (() => void) | null = null;
+    const redrawAfterStyleLoad = () => {
+      redraw();
+      // MapView rebuilds its own overlays in the same style cycle. Check again
+      // once that work has settled, but only reinstall if the transient result
+      // layers really did not survive; do not issue a new analysis query.
+      cancelStyleRestore?.();
+      cancelStyleRestore = scheduleAnalysisResultStyleRestore(map, redraw, () => {
+        const presentation = readAnalysisResultPresentation(map, presentedAnalysisRef.current, resultCollectionRef.current);
+        return presentation.sourcesReady && presentation.layersReady;
+      });
+    };
+    redraw(); map.on("style.load", redrawAfterStyleLoad); map.on("click", click);
+    return () => { cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click); resultPopup.current?.remove(); resultPopup.current = null; removeAnalysisResults(map); };
   }, [props.map]);
   useEffect(() => {
     const resultIds = resultCollection?.items.map(item => item.resultId) ?? [];

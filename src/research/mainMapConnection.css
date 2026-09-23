@@ -1,4 +1,5 @@
-.main-map-agent { position: fixed; right: 16px; top: 68px; z-index: 1500; font: 13px/1.5 system-ui, sans-serif; color: #e8eeee; }
+.main-map-agent { position: fixed; right: 16px; top: 68px; z-index: 1500; font: 13px/1.5 system-ui, sans-serif; color: var(--agent-text, #e8eeee); }
+.main-map-agent:not(.main-map-agent--embedded) { --agent-text: #e8eeee; --agent-muted: #c5d8d2; --agent-border: #586b63; }
 .main-map-agent button { color: inherit; background: #243432; border: 1px solid #64716e; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 .main-map-agent-toggle { float: right; }
 .main-map-agent-panel { clear: both; margin-top: 40px; width: min(360px, calc(100vw - 32px)); max-height: calc(100dvh - 130px); overflow: auto; padding: 16px; background: #172421f5; border: 1px solid #586b63; border-radius: 10px; box-shadow: 0 8px 30px #0005; }
@@ -36,30 +37,30 @@
 .main-map-agent .agent-follow-setting small { margin: 3px 0 0; color: #999; font-size: 11px; }
 .main-map-agent .agent-place-actions { display: flex; flex-wrap: wrap; gap: 6px; }
 .main-map-agent .agent-follow-setting input:focus-visible { outline: 2px solid #ddd; outline-offset: 3px; }
-.main-map-agent .agent-analysis-results { margin-top: 12px; padding-top: 10px; border-top: 1px solid #ffffff1a; }
+.main-map-agent .agent-analysis-results { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--agent-border, #ffffff1a); }
 .main-map-agent .agent-analysis-results h3 { margin: 0 0 4px; font-size: 12px; }
-.main-map-agent .agent-analysis-results p { color: #c5d8d2; }
-.main-map-agent .agent-analysis-legend { margin: 10px 0; padding: 8px 0; border-top: 1px solid #ffffff1a; border-bottom: 1px solid #ffffff1a; }
-.main-map-agent .agent-analysis-legend h4 { margin: 0 0 7px; color: #dce8e4; font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
+.main-map-agent .agent-analysis-results p { color: var(--agent-muted, #c5d8d2); }
+.main-map-agent .agent-analysis-legend { margin: 10px 0; padding: 8px 0; border-top: 1px solid var(--agent-border, #ffffff1a); border-bottom: 1px solid var(--agent-border, #ffffff1a); }
+.main-map-agent .agent-analysis-legend h4 { margin: 0 0 7px; color: var(--agent-text, #dce8e4); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; }
 .main-map-agent .agent-analysis-legend__result { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 7px; align-items: start; padding: 5px 0; }
-.main-map-agent .agent-analysis-legend__result strong { display: block; overflow-wrap: anywhere; color: #f2f7f5; font-size: 11px; line-height: 1.35; }
-.main-map-agent .agent-analysis-legend__result small { margin: 1px 0 0; color: #aebfba; font-size: 10px; }
-.main-map-agent .agent-analysis-swatch { display: block; width: 15px; height: 15px; margin-top: 2px; border: 2px solid #fff; background: var(--analysis-result-color); box-shadow: 0 0 0 1px #07100e, 0 1px 3px #0009; }
+.main-map-agent .agent-analysis-legend__result strong { display: block; overflow-wrap: anywhere; color: var(--agent-text, #f2f7f5); font-size: 11px; line-height: 1.35; }
+.main-map-agent .agent-analysis-legend__result small { margin: 1px 0 0; color: var(--agent-muted, #aebfba); font-size: 10px; }
+.main-map-agent .agent-analysis-swatch { display: block; width: 15px; height: 15px; margin-top: 2px; border: 2px solid var(--agent-text, #fff); background: var(--analysis-result-color); box-shadow: 0 0 0 1px var(--agent-border, #07100e), 0 1px 3px #0009; }
 .main-map-agent .agent-analysis-swatch--point { border-radius: 50%; }
 .main-map-agent .agent-analysis-swatch--count { background: linear-gradient(135deg, #bae6fd 0 33%, #0284c7 33% 66%, #075985 66%); }
 .main-map-agent .agent-analysis-swatch--linestring, .main-map-agent .agent-analysis-swatch--multilinestring { height: 4px; margin-top: 7px; border-width: 0; border-radius: 2px; }
 .main-map-agent .agent-analysis-swatch--polygon, .main-map-agent .agent-analysis-swatch--multipolygon { border-radius: 2px; opacity: .88; }
-.main-map-agent .agent-analysis-count-legend { margin-top: 4px; color: #c5d8d2; font-size: 10px; line-height: 1.45; }
+.main-map-agent .agent-analysis-count-legend { margin-top: 4px; color: var(--agent-muted, #c5d8d2); font-size: 10px; line-height: 1.45; }
 .main-map-agent .agent-analysis-count-legend > div { display: flex; flex-wrap: wrap; gap: 3px 7px; margin-top: 2px; }
 .main-map-agent .agent-analysis-count-legend > div span { display: inline-flex; align-items: center; gap: 3px; }
-.main-map-agent .agent-analysis-count-legend i { width: 8px; height: 8px; border: 1px solid #fff; border-radius: 50%; box-shadow: 0 0 0 1px #07100e; }
+.main-map-agent .agent-analysis-count-legend i { width: 8px; height: 8px; border: 1px solid var(--agent-text, #fff); border-radius: 50%; box-shadow: 0 0 0 1px var(--agent-border, #07100e); }
 .main-map-agent .agent-analysis-results li { display: block; padding: 5px 0; }
-.main-map-agent .agent-analysis-groups { margin: 8px 0; padding: 6px 0; border: 0; border-top: 1px solid #ffffff1a; }
-.main-map-agent .agent-analysis-groups legend { padding: 0; color: #9ca3af; font-size: 10px; }
+.main-map-agent .agent-analysis-groups { margin: 8px 0; padding: 6px 0; border: 0; border-top: 1px solid var(--agent-border, #ffffff1a); }
+.main-map-agent .agent-analysis-groups legend { padding: 0; color: var(--agent-muted, #9ca3af); font-size: 10px; }
 .main-map-agent .agent-analysis-toggle { display: flex; align-items: flex-start; gap: 7px; min-width: 0; cursor: pointer; }
 .main-map-agent .agent-analysis-toggle input { flex: 0 0 auto; width: 14px; min-height: 0; height: 14px; margin: 3px 0 0; padding: 0; accent-color: #d4d4d4; }
 .main-map-agent .agent-analysis-toggle span { min-width: 0; overflow-wrap: anywhere; }
-.main-map-agent .agent-analysis-toggle small { margin: 1px 0 0; color: #9ca3af; }
+.main-map-agent .agent-analysis-toggle small { margin: 1px 0 0; color: var(--agent-muted, #9ca3af); }
 .main-map-agent .agent-analysis-result-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .main-map-agent .agent-analysis-order { display: flex; gap: 3px; }
 .main-map-agent .agent-analysis-order button { min-width: 26px; padding: 3px 6px; }
