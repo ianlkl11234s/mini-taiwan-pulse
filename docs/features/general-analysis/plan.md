@@ -202,3 +202,18 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 2026-09-23 獨立 Agent 問答補測：A01數值核對通過但無有效整題計時，A02於分析前遇到BROWSER_DISCONNECTED，均不納入成功SLA；詳見 [native Agent驗收](./acceptance-G01-native-agent-20260923.md)。先修responsive連線生命週期再續測，不能用oracle或資料時間戳補成問答通過。
 
 2026-09-23 後續：Mini `d86cc66d` 修responsive持續連線並通過native切換回讀；A03新中心7/12數值一致，獨立Agent107.011秒仍有1次錯誤ID且未batch。整頁reload恢復仍失敗、safe viewport偏窄；G01/G02持續進行，詳見上述native Agent驗收。
+
+
+## V01–V05 下一階段提案（2026-09-24，尚未開始實作）
+
+使用者要求評估資料拓展、疊圖／環域／可及性、Agent引導與地圖品質。詳細理由、能力限制、驗收題型與說明書結構見 [下一階段評估](./next-campaign-assessment-20260924.md)。本節仍為計畫SSOT；評估書是範圍說明，不另建競爭roadmap。
+
+| Gate | 範圍 | 依賴／完成關卡 | 狀態 |
+|---|---|---|---|
+| V01 | reload恢復、plan refs與精簡摘要、pending/partial | 正常對話全鏈、無錯誤ID／原樣重試、G01整題量測 | proposed |
+| V02 | 跨主題Point與合格Line/Polygon讀取契約 | 8–12候選qualification；至少三條代表資料路徑；不合格保留HOLD | proposed |
+| V03 | 有界line buffer、clip/intersection與measure | V02合格幾何＋精度/CRS/預算；獨立oracle＋native地圖 | proposed |
+| V04 | 單一起點步行等時圈＋設施coverage | V02設施；既有provider資格／consent／版本；未連通與no-data分列 | proposed |
+| V05 | 好讀說明書、按需skill配方與產品驗收 | 四工作流；深淺／寬窄／取景／legend/popup；工程與使用者驗收分列 | proposed |
+
+V01/V02可並行；V05文稿與視覺從首片納入；G01/G02未完成門檻不被新編號掩蓋。Raster、全臺H3缺口、多起點OD及選址最佳化另期規劃。本次僅評估與文稿，不表示已授權啟動後端、remote migration、發布或擴大付費呼叫。
