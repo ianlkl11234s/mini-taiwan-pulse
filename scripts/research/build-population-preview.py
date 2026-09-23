@@ -15,6 +15,10 @@ EXPECTED_TOTAL = 23_299_132
 SCHEMA_VERSION = "regional-statistics-cdn-v1"
 RELEASE_ID = "2025-12-total_population-county-local-preview"
 OBSERVATION_DATE = "2025-12-31"
+POPULATION_GROUPS = {
+    "male": ("M_CNT", "男性人口數", 11_462_401),
+    "female": ("F_CNT", "女性人口數", 11_836_731),
+}
 
 
 def canonical_bytes(value: Any) -> bytes:
@@ -101,6 +105,27 @@ def require_gate_rows_match_source(gate_rows: dict[str, dict[str, Any]], source_
         gate_row = gate_rows[code]
         require(gate_row["area_name"] == source_row["area_name"], f"COUNTY_ROW_SOURCE_NAME_MISMATCH: {code}")
         require(gate_row["value"] == source_row["value"], f"COUNTY_ROW_SOURCE_VALUE_MISMATCH: {code}")
+
+
+def population_group_rows(csv_path: Path, names: dict[str, str], group: str) -> list[dict[str, Any]]:
+    field, _, expected_total = POPULATION_GROUPS[group]
+    values = {code: {"area_code": code, "area_name": name, "value": 0, "status": "observed"} for code, name in names.items()}
+    seen: set[str] = set()
+    with csv_path.open(encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("COUNTY_ID") == "縣市代碼":
+                continue
+            town, code = row.get("TOWN_ID"), row.get("COUNTY_ID")
+            require(bool(town) and town not in seen, "POPULATION_GROUP_DUPLICATE_TOWN")
+            seen.add(town)
+            require(row.get("INFO_TIME") == "114Y12M", "POPULATION_GROUP_PERIOD_MISMATCH")
+            require(code in values and row.get("COUNTY") == names[code], "POPULATION_GROUP_BOUNDARY_MISMATCH")
+            counts = {key: int(row[key]) for key in ("P_CNT", "M_CNT", "F_CNT")}
+            require(all(value >= 0 for value in counts.values()) and counts["P_CNT"] == counts["M_CNT"] + counts["F_CNT"], "POPULATION_GROUP_COUNTS_MISMATCH")
+            values[code]["value"] += counts[field]
+    require(len(seen) == 368 and len(values) == EXPECTED_COUNTIES, "POPULATION_GROUP_COVERAGE_MISMATCH")
+    require(sum(row["value"] for row in values.values()) == expected_total, "POPULATION_GROUP_TOTAL_MISMATCH")
+    return [values[code] for code in sorted(values)]
 
 
 def canonical_rows(gate: dict[str, Any], names: dict[str, str], segis_csv_path: Path) -> list[dict[str, Any]]:
@@ -197,6 +222,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source-gate", type=Path, default=Path("../runtime/population-source-gate-20260923.json"))
     parser.add_argument("--output-dir", type=Path, default=Path("../runtime/population-preview"))
+    parser.add_argument("--population-group", choices=["total", *POPULATION_GROUPS], default="total")
     args = parser.parse_args()
 
     gate = read_json(args.source_gate)
@@ -208,6 +234,16 @@ def main() -> None:
     require({row["area_code"] for row in rows} == expected_codes, "COUNTY_CODE_SET_MISMATCH")
 
     artifact = build_artifact(gate, rows, input_hashes)
+    if args.population_group != "total":
+        group = args.population_group
+        field, label, _ = POPULATION_GROUPS[group]
+        rows = population_group_rows(Path(gate["receipts"]["segis_csv"]["path"]), names, group)
+        indicator = f"{group}_population"
+        artifact["values"]["observations"] = rows
+        artifact["values"]["release"].update(dataset_id=f"population_statistics:{group}", indicator_id=indicator, release_id=f"2025-12-{indicator}-county-local-preview")
+        artifact["sources"]["source"].update(dataset_id=f"population_statistics:{group}", indicator_id=indicator, population_label=label,
+            processing_summary=f"2025-12 township {field} aggregated by exact COUNTY_ID; P_CNT=M_CNT+F_CNT verified for all 368 townships; no observation period inferred from export time.")
+        artifact["local_preview_contract"]["dimensions"] = {"population_scope": group}
     artifact_bytes = canonical_bytes(artifact)
     artifact_sha = sha256_bytes(artifact_bytes)
     rows_sha = sha256_bytes(canonical_bytes(rows))
@@ -235,8 +271,16 @@ def main() -> None:
         },
         "reproduction": "python3 scripts/research/build-population-preview.py --source-gate ../runtime/population-source-gate-20260923.json --output-dir ../runtime/population-preview",
     }
-    (args.output_dir / "local-preview-receipt.json").write_bytes(canonical_bytes(receipt))
-    print(json.dumps({"artifact": str(artifact_path), "receipt": str(args.output_dir / "local-preview-receipt.json"), "sha256": artifact_sha}, ensure_ascii=False))
+    receipt_name = "local-preview-receipt.json"
+    if args.population_group != "total":
+        receipt_name = f"{args.population_group}-preview-receipt.json"
+        receipt["canonical_county_rows"]["total_value"] = receipt["canonical_county_rows"].pop("total_population")
+        receipt["checks"].pop("total_population_equals_23299132")
+        receipt["checks"]["population_group"] = args.population_group
+        receipt["checks"]["source_group_total_verified"] = True
+        receipt["reproduction"] += f" --population-group {args.population_group}"
+    (args.output_dir / receipt_name).write_bytes(canonical_bytes(receipt))
+    print(json.dumps({"artifact": str(artifact_path), "receipt": str(args.output_dir / receipt_name), "sha256": artifact_sha}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

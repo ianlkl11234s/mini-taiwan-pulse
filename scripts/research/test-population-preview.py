@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import csv
 import tempfile
 from pathlib import Path
 
@@ -42,7 +43,32 @@ def main() -> None:
     else:
         raise AssertionError("tampered county values must fail even when their total is unchanged")
 
-    print("population preview source-row tamper check passed")
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "groups.csv"
+        names = {f"C{i:02}": f"縣{i}" for i in range(22)}
+        rows = [{"COUNTY_ID": f"C{i % 22:02}", "COUNTY": names[f"C{i % 22:02}"], "TOWN_ID": f"T{i}", "INFO_TIME": "114Y12M", "P_CNT": "3", "M_CNT": "1", "F_CNT": "2"} for i in range(368)]
+        def write_rows():
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+                writer.writeheader(); writer.writerows(rows)
+        old = BUILDER.POPULATION_GROUPS["male"]
+        BUILDER.POPULATION_GROUPS["male"] = ("M_CNT", "男性人口數", 368)
+        try:
+            write_rows()
+            result = BUILDER.population_group_rows(path, names, "male")
+            assert len(result) == 22 and sum(row["value"] for row in result) == 368
+            for field, value, expected in [("INFO_TIME", "114Y11M", "PERIOD_MISMATCH"), ("P_CNT", "4", "COUNTS_MISMATCH"), ("TOWN_ID", "T1", "DUPLICATE_TOWN")]:
+                original = rows[0][field]; rows[0][field] = value; write_rows()
+                try:
+                    BUILDER.population_group_rows(path, names, "male")
+                except ValueError as error:
+                    assert expected in str(error)
+                else:
+                    raise AssertionError(f"must reject {field}")
+                rows[0][field] = original
+        finally:
+            BUILDER.POPULATION_GROUPS["male"] = old
+    print("population preview source-row and group/period tamper checks passed")
 
 
 if __name__ == "__main__":

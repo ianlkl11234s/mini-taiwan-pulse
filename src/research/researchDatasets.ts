@@ -3,7 +3,7 @@ import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
 import { createAdministrativeBoundaryAdapter } from "./administrativeBoundaryAdapter";
-import { localPopulationPreviewAdapter } from "./localPopulationPreview";
+import { localPopulationPreviewAdapters } from "./localPopulationPreview";
 import { chiayiBusRouteAdapter } from "./busRouteDatasetAdapter";
 import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
@@ -27,9 +27,9 @@ const localRawBoundaries = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_
     codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024,
   })] : [];
 
-// Immutable localhost-only preview; it deliberately has no map layer or per-capita wiring.
+// Immutable localhost-only previews; they deliberately have no permanent map layers.
 const localPopulationPreview = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POPULATION_PREVIEW === "1"
-  ? [localPopulationPreviewAdapter] : [];
+  ? localPopulationPreviewAdapters : [];
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 

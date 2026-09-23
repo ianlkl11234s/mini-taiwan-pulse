@@ -346,17 +346,22 @@ function serveResearchPointPartitions(): Plugin {
 
 /** Fixed local-only population artifact; the app verifies its SHA and raw-boundary SHA. */
 function serveLocalPopulationPreview(): Plugin {
-  const artifact = "dceed8b079fb7949c63b368b52b062fdf622bcfbadca7265bc41a2bba72973f5.json";
+  const artifacts: Record<string, number> = {
+    "dceed8b079fb7949c63b368b52b062fdf622bcfbadca7265bc41a2bba72973f5.json": 4_733,
+    "92cf23066a18a71ec1b80e863ffaee53d6e24186a59a5d77fe7923ed6d86d2db.json": 4_758,
+    "8d1ff350007932ac57fa5a70fbec60238ca6b2b70f4459e616d387dd99100165.json": 4_770,
+  };
   return {
     name: "serve-local-population-preview", apply: "serve",
     configureServer(server) {
       server.middlewares.use("/__local-research-population-preview", (request, response) => {
-        if (process.env.VITE_RESEARCH_POPULATION_PREVIEW !== "1" || !isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || (request.url ?? "").split("?", 1)[0] !== `/${artifact}`) {
+        const artifact = (request.url ?? "").split("?", 1)[0]?.slice(1) ?? "";
+        if (process.env.VITE_RESEARCH_POPULATION_PREVIEW !== "1" || !isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !Object.hasOwn(artifacts, artifact)) {
           response.statusCode = 404; response.end("Local population preview unavailable"); return;
         }
         const target = resolve(process.cwd(), "../runtime/population-preview", artifact);
         void stat(target).then(info => {
-          if (!info.isFile() || info.size !== 4_733) throw new Error("POPULATION_PREVIEW_SIZE");
+          if (!info.isFile() || info.size !== artifacts[artifact]) throw new Error("POPULATION_PREVIEW_SIZE");
           response.statusCode = 200; response.setHeader("content-type", "application/json; charset=utf-8"); response.setHeader("content-length", info.size);
           response.setHeader("cache-control", "private, no-store"); response.setHeader("x-content-type-options", "nosniff");
           if (request.method === "HEAD") { response.end(); return; }
