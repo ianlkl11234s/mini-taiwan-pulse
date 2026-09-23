@@ -13,6 +13,7 @@ import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
 import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type Scalar, type SourceReceipt } from "./dataContracts";
 import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
+import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -217,6 +218,31 @@ const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async (_para
   };
 });
 
+const nursingHomesUpstreamAdapter = createVerifiedPointDatasetAdapter({
+  datasetId: "tw-nursing-homes-upstream", label: "護理機構來源自帶座標子集",
+  description: "護理機構來源紀錄中僅保留 coord_source=upstream_wgs84 且 coord_precision=upstream 的來源自帶座標子集。1,499 筆為原始 1,611 筆來源紀錄的固定子集，計數不是唯一機構數；觀測期間 unknown。",
+  sourceUrl: "/welfare/nursing_homes_national.geojson",
+  expectedSha256: "775bc1a88a5e8675e48ed7930645a5e7df505968c0821ed080843e7e75bef3d9",
+  expectedSourceRows: 1611, expectedSelectedRows: 1499,
+  selection: { coord_source: "upstream_wgs84", coord_precision: "upstream" },
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "uid", type: "string", nullable: true, nullMeaning: "來源未提供識別碼", unit: null },
+    { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供機構名稱", unit: null },
+    { name: "city", type: "string", nullable: true, nullMeaning: "來源未提供縣市", unit: null },
+    { name: "inst_code", type: "string", nullable: true, nullMeaning: "來源未提供機構代碼", unit: null },
+    { name: "nh_type", type: "string", nullable: true, nullMeaning: "來源未提供機構類型", unit: null },
+    { name: "coord_source", type: "string", nullable: true, nullMeaning: "來源未標示座標來源", unit: null },
+    { name: "coord_precision", type: "string", nullable: true, nullMeaning: "來源未標示座標精度", unit: null },
+    { name: "src_datasets", type: "string", nullable: true, nullMeaning: "來源未提供資料集來源", unit: null },
+    { name: "n_src", type: "number", nullable: true, nullMeaning: "來源未提供來源數量", unit: null },
+    { name: "beds_nh", type: "string", nullable: true, nullMeaning: "來源未提供床數文字", unit: null },
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  publisher: "衛生福利部；existing nursing-home source artifact", license: "政府資料開放授權條款（OGDL）; source provenance receipt",
+  precision: "來源標示 upstream_wgs84 且 upstream；未另行驗證位置精度",
+});
+
 const medicalHospitalsAdapter = createPointDatasetAdapter(medicalHospitalsDescriptor, async () => {
   const snapshot = await loadPointDataset({ datasetId: medicalHospitalsDescriptor.datasetId, url: medicalHospitalsDescriptor.source.reference, idField: "facility_id", safeFields: medicalHospitalsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)) });
   return {
@@ -273,6 +299,7 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
 export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   schoolsAdapter,
   medicalHospitalsAdapter,
+  nursingHomesUpstreamAdapter,
   newsAdapter,
   statisticsAdapter,
   schoolsGridAdapter,
