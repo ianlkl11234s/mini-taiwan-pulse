@@ -1,6 +1,8 @@
 # A05 人口來源關卡：2025-12 SEGIS
 
-狀態：`PASS_FOR_LOCAL_PREVIEW_ONLY`。本文件準備人口來源與 22 縣市 oracle；未建立 R2 artifact、selector、reader 或發布，因此 A05 尚未通過。
+> 2026-09-23 現況校正：本文件為早期來源gate。最新local reader及browser證據見 acceptance-N02-browser-20260923.md；下方建議新增population_measure的段落是未採用提案，不是現行契約。現行原始口徑以source_population_scope_note保留。
+
+目前狀態：22 縣市 local preview、reader、selector 與 browser 比較已通過；未發布到 R2。跨來源人口分母的期間對齊仍 HOLD。下文保留早期來源準備紀錄。
 
 ## 已核對來源
 
@@ -34,10 +36,14 @@ python3 scripts/research/build-population-preview.py \
 
 builder 自行重新雜湊 CSV、兩份 metadata、parquet、兩份 boundary，並檢查 county boundary 的 22 個 `行政區域代碼` 與輸出 22 個 `area_code` 完全相等、各列 observed/正值、加總 23,299,132、artifact readback SHA 等於檔名。來源標準名固定為「行政區人口數」、觀察日 `2025-12-31`、boundary `COUNTY_MOI_1140318`／SHA `5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6`。
 
-## `compareRegions` 契約缺口（不在本切片修改）
+## 早期 `compareRegions` 契約提案（已由 D01 取代）
 
 目前 `src/research/regionComparison.ts` 的 indicator allowlist 已接受 `total_population`，unit allowlist 已接受「人」，且唯一 `{ "population_scope": "total" }` 會通過 `totalPopulationDimensions`。但該函式把任意 value 為 `all`／`total`／`null` 的 object 都當人口分母，因此無法攜帶而且驗證「行政區人口」口徑。
 
 上游接線時應把 generic predicate 改成嚴格 object schema：keys 必須且只能是 `population_scope` 與 `population_measure`，值固定為 `total` 與 `administrative_population`；缺 key、多 key 或其他值皆拒絕。這保留 raw receipt 能支持的「行政區人口」而不臆測戶籍／現住。同步加入測試：上述 exact object 接受；`{population_scope:"total"}`、任意 `all`、未知 key，以及 `population_measure:"registered_population"` 皆拒絕。
 
 期間／boundary 的 strict equality 不應放寬。本 preview 只可和 `2025-12-31` 至 `2025-12-31`、相同 `COUNTY_MOI_1140318` SHA 的分子 join；日後若要使用年度服務統計，須另建明確 allowlisted alignment recipe，保存兩方 period 與 boundary fingerprint，並測試年度 period 不會因同年而自動接受。
+
+### D01 現行實作（2026-09-23 日間）
+
+`8f2990be` 已把 dimensions 限定為精確 `{population_scope:"total"}`，空 object、null、多 key、非 total 均拒絕；未採用下游自行創造 population_measure 的提案。6 項 region comparison 測試通過。分子／分母期間與 boundary SHA 仍必須相等；學年學校資料及缺原始期間證據的醫療彙總均不能與 2025-12-31 人口硬接。沒有新增通過的真實 per-capita 案例。

@@ -1,6 +1,8 @@
 # N04 事件背景來源關卡（2026-09-23）
 
-狀態：**PARTIAL：bounded live readback 已通過；完整 N04 event-context acceptance 仍 HOLD**。目前沒有固定歷史 fixture/static snapshot，且尚未完成同一事件的背景 join／typed analysis／browser readback。
+> 2026-09-23 現況校正：本文件為早期候選gate；歷史115064背景join及browser已完成，最新見 acceptance-N03-N04.md 的原始邊界重驗。未完成的是fresh feed與完整生命週期，不能沿用下方早期未接線狀態作為現況。
+
+目前狀態：固定歷史事件 115064 的背景分析與 browser 已通過；近期 occurrence window 已接線。來源更新／撤回狀態與即時完整性仍 unknown，生命週期驗收 PARTIAL。下文為早期候選紀錄，最新證據見 acceptance-D01-D03-20260923.md。
 
 ## 唯一推薦候選：CWA 國內地震回放
 

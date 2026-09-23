@@ -120,3 +120,26 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 - 最終報告 `docs/features/general-analysis/morning-report-20260923.md`：完成/partial/blocked，固定考題，完整來源能力數，效能與限制，commit清單，下一步3項。未有實測不填時間承諾。
 - 暫存收據 `../runtime/`；不可提交.env、密鑰、私人TGOS cache或Google原始candidate。Google配置由明確 PULSE_RESEARCH_ENV_FILE 載入。
 - 截止後保留用戶預覽與必要服務，不停止其他專案進程；本次heartbeat自動停用。
+
+
+## 2026-09-23 日間續作：三項剩餘目標
+
+使用者於過夜交接後再次授權繼續。沿既有隔離工作樹、原子commit與驗收規則執行；過夜08:00截止只適用已結束排程，不阻止本次主動續作。不重新啟用heartbeat，不push/merge/deploy。
+
+| Gate | 本次可驗收交付 | 完成判準 |
+|---|---|---|
+| D01 人口分母交叉 | 嚴格人口口徑／期間對齊規則與真實同期間案例 | 核實分子原始來源、兩方期間/邊界/單位；獨立數字oracle與browser；沒有來源則明列HOLD，不用fixture冒充實際案例 |
+| D02 事件生命週期 | 歷史與目前資料分開、明示取得/更新/撤回/缺值 | 只使用來源真正提供的欄位；固定負例與bounded live讀回；ready/readback；來源不支持撤回時明示unknown |
+| D03 通用來源覆蓋 | 全manifest能力/缺口可讀、首批候選由metadata走到驗證來源 | 現有generic reader優先，逐來源hash/schema/geometry/coverage守門；unsupported有具體原因與下一契約，不宣稱任意資料互相可比 |
+
+三項由主agent整合，Luna盤點候選，Terra人口與事件有界review/實作。先建立實際來源證據才做資格提升。來源的時間、授權或geometry不足時不因使用者要求通用性而猜測。
+
+### D01–D03 本次已驗收進度
+
+- D01：`8f2990be` 人口 dimensions guard 完成；22縣市local preview可用。沒有足以證明同期的設施分子，真實 per-capita 仍HOLD。
+- D02：`b79c6807` 有界七天/50筆事件窗；source第51筆即拒絕；live window與exact事件一致。歷史事件＋3所學校＋臺南背景全鏈、4features ready/readback通過；更新/撤回仍來源unknown。
+- D03：`19972847` 共用SHA/count/selection驗證；護理1499/1611子集，2km28筆、bbox60、最近5逐值oracle一致，28features ready/readback。10個既有候選完整source SHA/count皆核對。正式registry 778layers/57datasets/53queryable layerrefs，非778都可交叉。
+- 補修：`1e0a4c2e` recordSearch與aggregate能力分列；`78df1508` 窄viewport framing padding對齊。
+- 完整證據與剩餘關卡見 [日間驗收](./acceptance-D01-D03-20260923.md)。原dirty checkout保留，僅本地隔離commit，排程不重新啟動。
+
+- `87f17f05`：能力清單單次registry snapshot，去除每層重複schema validation；維持transient即時性與存取限制。
