@@ -371,7 +371,29 @@ function publicLifePointOverlay(
     ["has", "name"],
     ["!=", ["get", "name"], ""],
   ];
-  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: ["glow", "circle", "label"], layers: [
+  // Mapbox GL production 會在 PMTiles/vector source 的 symbol placement 路徑
+  // 拋出 continuePlacement undefined-length，進而中止整張地圖 render。
+  // PMTiles 保留 circle/popup；名稱 label 只加在已驗證穩定的 GeoJSON source。
+  const labelLayers: OverlayConfig["layers"] = pmtiles ? [] : [{
+    suffix: "label", type: "symbol", minzoom: options?.labelMinzoom ?? 14,
+    layout: {
+      "text-field": ["get", "name"],
+      "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
+      "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+      "text-variable-anchor": ["top", "bottom", "left", "right"],
+      "text-radial-offset": .8,
+      "text-max-width": 14,
+      "text-optional": true,
+    },
+    filter: labelFilter,
+    paint: (dark, p) => ({
+      "text-color": dark ? "#f8fafc" : "#0f172a",
+      "text-halo-color": dark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
+      "text-halo-width": 1.25,
+      "text-opacity": p?.[`${id}Opacity`] ?? .85,
+    }),
+  }];
+  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: ["glow", "circle", ...(pmtiles ? [] : ["label"])], layers: [
     { suffix: "glow", type: "circle", paint: (_dark, p) => {
       const scale = p?.[`${id}Scale`] ?? 1;
       const opacity = p?.[`${id}Opacity`] ?? .85;
@@ -382,25 +404,7 @@ function publicLifePointOverlay(
       const opacity = p?.[`${id}Opacity`] ?? .85;
       return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
     }, ...filterProps },
-    {
-      suffix: "label", type: "symbol", minzoom: options?.labelMinzoom ?? 14,
-      layout: {
-        "text-field": ["get", "name"],
-        "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
-        "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
-        "text-variable-anchor": ["top", "bottom", "left", "right"],
-        "text-radial-offset": 0.8,
-        "text-max-width": 14,
-        "text-optional": true,
-      },
-      filter: labelFilter,
-      paint: (dark, p) => ({
-        "text-color": dark ? "#f8fafc" : "#0f172a",
-        "text-halo-color": dark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
-        "text-halo-width": 1.25,
-        "text-opacity": p?.[`${id}Opacity`] ?? .85,
-      }),
-    },
+    ...labelLayers,
   ] };
 }
 const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [

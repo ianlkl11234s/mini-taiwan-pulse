@@ -3,13 +3,9 @@ import { GIS_LAYERS } from "../gisClickRegistry";
 import { OVERLAY_REGISTRY } from "../overlayRegistry";
 
 const LABEL_MINZOOM: Record<string, number> = {
-  drinkingWaterPoints: 13,
   publicWasteBaskets: 15,
   materialRecyclingPoints: 14,
-  disasterShelters: 15,
   playgrounds: 14,
-  accessibleParkFacilities: 16,
-  bicycleSupport: 14,
   visitorCentres: 10,
   publicToilets: 16,
 };
@@ -32,14 +28,34 @@ describe("public life overlay UX", () => {
   });
 
   it("有分類控制的點、光暈與標籤共用動態 filter", () => {
-    for (const id of [
-      "publicToilets", "materialRecyclingPoints", "disasterShelters",
-      "accessibleParkFacilities", "bicycleSupport",
-    ]) {
+    for (const id of ["publicToilets", "materialRecyclingPoints"]) {
       const overlay = OVERLAY_REGISTRY.find((config) => config.id === id)!;
       for (const suffix of ["glow", "circle", "label"]) {
         expect(typeof overlay.layers.find((layer) => layer.suffix === suffix)?.filter, `${id}/${suffix}`).toBe("function");
       }
     }
+
+    for (const id of ["disasterShelters", "accessibleParkFacilities", "bicycleSupport"]) {
+      const overlay = OVERLAY_REGISTRY.find((config) => config.id === id)!;
+      for (const suffix of ["glow", "circle"]) {
+        expect(typeof overlay.layers.find((layer) => layer.suffix === suffix)?.filter, `${id}/${suffix}`).toBe("function");
+      }
+    }
+  });
+
+  it("PMTiles 點層不建立 symbol label，避開 production Mapbox placement crash", () => {
+    const pmtilesLabels = [
+      "drinkingWaterPoints", "disasterShelters", "accessibleParkFacilities", "bicycleSupport",
+    ];
+    for (const id of pmtilesLabels) {
+      const overlay = OVERLAY_REGISTRY.find((config) => config.id === id)!;
+      expect(overlay.layers.find((layer) => layer.suffix === "label"), id).toBeUndefined();
+      expect(overlay.rebuildOnParamChange, id).not.toContain("label");
+    }
+
+    const geojsonLabel = OVERLAY_REGISTRY.find((config) => config.id === "publicWasteBaskets")!
+      .layers.find((layer) => layer.suffix === "label")!;
+    const geojsonLayout = geojsonLabel.layout as Record<string, unknown>;
+    expect(geojsonLayout["text-variable-anchor"]).toEqual(["top", "bottom", "left", "right"]);
   });
 });
