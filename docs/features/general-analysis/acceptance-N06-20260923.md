@@ -23,3 +23,6 @@
 重現：`python3 scripts/research/test-point-partitions.py`；`npx vitest run src/research/__tests__/pointDatasetAdapter.test.ts src/research/__tests__/queryExecutor.test.ts`；runtime `n06-partition-browser-oracle.json` 保留來源hash、逐筆ID與cold/warm成本。builder `--help` 列出實際輸入輸出參數；runtime fixtures不提交、不自動發布。
 
 原子提交：653e6a2c builder、441336ec bounded loader、dcdf8306 local path修正、2c0553a1 local接線。
+
+
+07:50 取消生命週期補驗（fbca8862）：共享下載採subscriber計數，最後caller取消會abort底層fetch，取消請求不得寫cache；另一caller仍等待時保留下載。已abort但尚未settle的entry不供新caller重用，identity cleanup不會刪新請求。focused12/12、tsc通過；本項為fetch signal回歸測試，沒有冒稱瀏覽器人工取消驗收。

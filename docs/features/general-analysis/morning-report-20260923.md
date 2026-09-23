@@ -1,17 +1,17 @@
 # 過夜通用分析進度與晨間驗收
 
-狀態：執行中，非完成報告。截止 2026-09-23 08:00 Asia/Taipei。
+狀態：過夜里程碑交接；各項完成與 partial 分列，未完成整份1–2週範圍。截止 2026-09-23 08:00 Asia/Taipei。
 計畫 SSOT：[plan.md](./plan.md) 的 N01–N07；本表隨實測更新，不以測試數取代產品完成。
 
 | 關卡 | 狀態 | 證據／下一步 |
 |---|---|---|
 | N01 圖層能力 | 登記盤點完成 | 778 manifest layers、56 descriptors、53 layers queryable；121 GeoJSON metadata candidates仍需來源驗證，723缺descriptor不可宣稱可分析 |
-| N02 人口 | 原始gate、local preview及materializer通過；未公開接線 | 368 township、22 county、23,299,132，code/hash核對；只稱來源『行政區人口數』，不自行改稱戶籍/現住 |
+| N02 人口 | 原始gate、local preview、materializer及browser通過；未公開發布 | 368 township、22 county、23,299,132，code/hash核對；只稱來源『行政區人口數』，不自行改稱戶籍/現住 |
 | N03 線面 | bounded真實網站案例通過 | 嘉義TDX完整路線×市界，Shapely oracle一致；ready＋readback＋截圖通過，見acceptance-N03-N04.md |
 | N04 事件 | 歷史背景案例通過，完整S4仍partial | CWA115064＋10km學校3所（國中1/國小2）＋臺南市背景，全鏈4704ms；人口／fresh feed待補 |
-| N05 效能 | 固定版本20 warm通過 | 6-step regional plan，20/20成功且row fingerprint一致；median4399.5ms/p955625ms/max5740ms。首次housing來源load12285ms另列；不含模型思考／呈現 |
+| N05 效能 | 固定版本20 warm通過 | 6-step regional plan，20/20成功且row fingerprint一致；修正後median4186ms/p956534ms/max7864ms。首次housing來源load12285ms另列；不含模型思考／呈現 |
 | N06 優化 | schools local全鏈通過 | 首次bytes2504719→123196（-95.08%）；warm0下載；12IDs與原始來源逐列完全一致，見acceptance-N06-20260923 |
-| N07 整套驗收 | 逐關進行 | 本輪工具程序重启后須重新配對，已透過網站UI恢復；單輪regional plan成功6.518秒 |
+| N07 整套驗收 | 固定案例通過；廣泛能力仍partial | 最新population 22縣逐筆oracle、3-step/ready/readback通過；全套1868pass後的新增修改各跑focused與tsc/build，詳見08:00結論 |
 
 ## 恢復入口
 
@@ -68,3 +68,20 @@
 - 新待修查核：partition取消只終止caller等待，底層共享fetch可繼續至自身timeout。正在以subscriber reference counting補最後caller離開即abort，同時保留其他caller；未測完前不宣稱完整取消驗收。
 
 - 07:48 fresh regional 6-step7923ms，兩區住宅／雙北生師比數值oracle一致；雙北比較result accepted→ready→browser readback2 features，DOM與截圖確認面仍可展示。這不重新授予generalized面空間運算資格。收據 n07-regional-live-result.json / n07-regional-browser-readback.json。
+
+- 07:50取消P1已修並提交fbca8862：最後subscriber離開abort／共享caller隔離／立即retry三種回歸，focused12/12及tsc通過。
+
+
+## 08:00 交接結論（以本節及頂部表為準）
+
+- N02 本地人口最後接線通過：22縣市，雙北2,439,507／4,044,831、差-1,605,324，3-step1770ms；ready/readback2面與browser截圖通過。見acceptance-N02-browser-20260923。這取代07:46「尚未browser」狀態；未公開發布、A05仍HOLD。
+- N03/N04/N06固定案例已取得原始來源、獨立oracle、真stdio/Gateway、ready及browserreadback；不代表所有同類資料通用驗收完成。
+- N01公開registry778layers／56datasets／53queryable layerrefs；121候選未全驗。DEV-only新增rawboundary與population不算正式發布能力。
+- N05修正後20warm全部成功，中位4.186秒／p956.534秒；完整問答90秒SLA仍未測。
+- 未完成：任意人口分母／事件時點人口／fresh feed與retraction全鏈／121候選實際來源驗證／Jev端到端A/B／全778圖層交叉分析。
+- 優先下一步：①同期間設施分子＋人口alignment驗收；②候選資料分批轉成具來源/geometry契約的可分析來源；③測完整問題延遲並將分片擴展到下一個實測大來源。
+- 最後前端PID41271、port3734；Gateway93890、8794；driver83031。網站保留雙北人口比較。原dirty checkout未動，未push/merge/deploy。
+
+- 08:00已將heartbeat `pulse` 設為PAUSED；僅完成在手驗證與commit，不新增範圍。人口browser全22縣逐筆oracle相同，總數23,299,132。
+
+- 最後提交：`18403c36` 人口DEV-only接線與transport3負例；`fbca8862` 分片取消race；`02916d62` 驗收/Skill/能力清單文件。人口3負例及最後tsc通過，build通過。

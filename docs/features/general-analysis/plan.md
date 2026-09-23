@@ -102,10 +102,10 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 | Gate | 工作 | 放行條件 | 初始狀態 |
 |---|---|---|---|
 | N01 | 全圖層能力清單；人口／設施／統計／事件優先 | 可重跑生成；區分 discovery、reader、operation、unknown；不固定宣稱728 | 登記盤點完成：778 layers／56 datasets／53 queryable layerrefs；來源健康另驗 |
-| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 來源/22縣市local preview及materializer通過，fb876e87；實測雙北人口比較，browser/分母alignment待接 |
+| N02 | 既有人口來源、22縣市快照本地準備與analysis接線 | 原始口徑/觀測時間/coverage/邊界核對；本地preview與發布分列；不從衍生率逆推 | 來源/22縣市local preview、materializer與browser雙北比較通過；分母alignment仍HOLD，見acceptance-N02-browser-20260923 |
 | N03 | 補一項共用線面操作，接現有typed分析入口 | 穿越/holes/multipart/邊界/無效幾何正反例；獨立預期值；完整transport/browser | raw縣界重新驗收通過；公開統計generalized邊界已取消空間分析資格，見acceptance-N03-N04 |
 | N04 | 固定歷史事件＋周邊設施／行政背景案例 | 明示事件時間/資料年期/觀測與推估；stale/缺座標不冒充即時 | 115064＋10km學校＋臺南市背景全鏈通過；事件時點人口/fresh feed仍partial |
-| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 固定版本20 warm通過，median4399.5ms／p955625ms／max5740ms；不含模型與呈現 |
+| N05 | 20次warm工具鏈＋cold與瓶頸分段 | 成功與失敗均記錄；p50/p95/max、輸出一致性；避免結果store汰換破壞地圖 | 修正後固定版本20 warm通過，median4186ms／p956534ms／max7864ms；舊窗口另保留，不含模型與呈現 |
 | N06 | 依量測做一項資料量/重複工作優化 | 數值/幾何/缺值語意等價；下載bytes/耗時前後對照 | schools 82 shards local DEV全鏈通過，2504719→123196 bytes；warm下載0，見acceptance-N06-20260923 |
 | N07 | 整套回歸、網站驗收、skill/文件與commit | unit/typecheck/build、fresh stdio、Gateway、ready/browser readback分列；原子commit與晨間表 | 每切片執行，最後彙總 |
 
