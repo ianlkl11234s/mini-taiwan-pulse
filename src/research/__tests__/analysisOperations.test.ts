@@ -58,6 +58,18 @@ describe("BrowserMemoryResultStore", () => {
 });
 
 describe("AnalysisOperations", () => {
+  it("preserves distinct source receipts with the same source ID and version", () => {
+    const first = { ...source[0]!, checksumSha256: "a".repeat(64) };
+    const changed = { ...first, checksumSha256: "b".repeat(64) };
+    const reacquired = { ...first, acquiredAt: "2026-09-13T00:00:00.000Z" };
+    const { operations } = setup(
+      { ...pointResult("left"), sourceRefs: [first] },
+      { ...pointResult("right"), sourceRefs: [first, changed, reacquired] },
+    );
+    const joined = operations.keyJoin({ leftResultId: "left", rightResultId: "right", leftKey: "code", rightKey: "code", cardinality: "one_to_one" });
+    expect(joined.sourceRefs).toEqual([first, changed, reacquired]);
+  });
+
   it("runs spatial operations only against actual point geometry", () => {
     const { operations } = setup(pointResult());
     expect(operations.withinDistance({ resultId: "points", center: { lng: 121.5, lat: 25 }, radiusM: 1000 }).rows.map(row => row.code)).toEqual(["A"]);
