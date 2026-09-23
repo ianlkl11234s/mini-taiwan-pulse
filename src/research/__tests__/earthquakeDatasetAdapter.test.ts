@@ -16,9 +16,41 @@ function executor(fetcher = vi.fn(async () => [event()])) {
 describe("CWA earthquake replay research adapter", () => {
   it("requires an eventId and only invokes its injected bounded fetcher with that id", async () => {
     const { fetcher, query } = executor();
-    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId })).rejects.toThrow("REQUIRED_PARAMETER_MISSING");
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId })).rejects.toThrow("EARTHQUAKE_QUERY_SELECTOR_REQUIRED");
     await query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { eventId: "115064" }, limit: 2 });
     expect(fetcher).toHaveBeenCalledWith("115064", undefined);
+  });
+
+  it("requires an explicit bounded ISO window, keeps exact and window selectors exclusive, and orders the 50-row source window deterministically", async () => {
+    const exact = vi.fn(async () => [event()]);
+    const window = vi.fn(async () => [event({ event_id: "b", occurred_at: "2026-09-21T12:00:00Z" }), event({ event_id: "a", occurred_at: "2026-09-21T12:00:00Z" })]);
+    const query = new QueryExecutor([createEarthquakeReplayAdapter(exact, window)]);
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_WINDOW_REQUIRED");
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-29T00:00:00Z" } })).rejects.toThrow("INVALID_EARTHQUAKE_WINDOW");
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { eventId: "115064", occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_QUERY_SELECTOR_CONFLICT");
+    const result = await query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" }, limit: 50 });
+    expect(window).toHaveBeenCalledWith({ occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z", limit: 51 }, undefined);
+    expect(result.rows.map(row => row.event_id)).toEqual(["a", "b"]);
+    expect(result).toMatchObject({ freshness: "unknown", sourceRefs: [expect.objectContaining({ acquiredAt: expect.any(String), version: expect.stringContaining("window:") })] });
+  });
+
+  it("accepts exactly 50 rows but rejects the 51st sentinel row instead of silently truncating", async () => {
+    const rows50 = Array.from({ length: 50 }, (_, index) => event({ event_id: `E${index}`, occurred_at: `2026-09-21T00:${String(index % 60).padStart(2, "0")}:00Z` }));
+    const accepted = new QueryExecutor([createEarthquakeReplayAdapter(vi.fn(async () => [event()]), vi.fn(async () => rows50))]);
+    await expect(accepted.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" }, limit: 50 })).resolves.toMatchObject({ totalMatched: 50, freshness: "unknown" });
+    const rows = Array.from({ length: 51 }, (_, index) => event({ event_id: `E${index}`, occurred_at: `2026-09-21T00:${String(index % 60).padStart(2, "0")}:00Z` }));
+    const query = new QueryExecutor([createEarthquakeReplayAdapter(vi.fn(async () => [event()]), vi.fn(async () => rows))]);
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_WINDOW_TOO_DENSE");
+  });
+
+  it("rejects local-time windows and window rows that violate source filter, timestamp, or event-id contracts", async () => {
+    const exact = vi.fn(async () => [event()]);
+    const window = vi.fn(async () => [event({ event_id: "", occurred_at: "2026-09-21T12:00:00Z" })]);
+    const query = new QueryExecutor([createEarthquakeReplayAdapter(exact, window)]);
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00", occurredBefore: "2026-09-22T00:00:00" } })).rejects.toThrow("INVALID_EARTHQUAKE_WINDOW");
+    await expect(query.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_EVENT_ID_FILTER_CONTRACT_MISMATCH");
+    const outOfWindow = new QueryExecutor([createEarthquakeReplayAdapter(exact, vi.fn(async () => [event({ event_id: "outside", occurred_at: "2026-09-22T00:00:00Z" })]))]);
+    await expect(outOfWindow.execute({ datasetId: earthquakeReplayDescriptor.datasetId, parameters: { occurredAfter: "2026-09-21T00:00:00Z", occurredBefore: "2026-09-22T00:00:00Z" } })).rejects.toThrow("EARTHQUAKE_WINDOW_FILTER_CONTRACT_MISMATCH");
   });
 
   it("preserves CWA null magnitude/depth and the two-decimal actual epicenter receipt", async () => {
