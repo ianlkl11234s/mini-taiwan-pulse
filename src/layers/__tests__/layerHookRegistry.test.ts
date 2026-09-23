@@ -162,6 +162,10 @@ const NO_HOOK_LEDGER = new Set<string>([
   "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes",
   "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
   "welfareNursingHomes", "welfareSocialWorkOrgs",
+  // 公共生活 OSM snapshot：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "drinkingWaterPoints", "publicWasteBaskets", "materialRecyclingPoints", "disasterShelters",
+  "playgrounds", "accessibleParkFacilities", "bicycleSupport", "nationalParks", "visitorCentres",
+  "publicLifeOsmCoverage",
 
   // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",

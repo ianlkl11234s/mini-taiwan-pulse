@@ -528,6 +528,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "共享運具",
         layers: [
           fromManifest("youbikeFullness"),
+          fromManifest("bicycleSupport"),
         ],
       },
       {
@@ -720,6 +721,17 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("welfareCenters"),
           fromManifest("retailMarkets"),
           fromManifest("publicToilets"),
+          fromManifest("drinkingWaterPoints"),
+          fromManifest("publicWasteBaskets"),
+          fromManifest("materialRecyclingPoints"),
+          fromManifest("disasterShelters"),
+          fromManifest("publicLifeOsmCoverage"),
+        ],
+      },
+      {
+        title: "無障礙 Accessibility",
+        layers: [
+          fromManifest("accessibleParkFacilities"),
         ],
       },
     ],
@@ -931,6 +943,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "公園 Parks",
         layers: [
           fromManifest("parksTaipei"),
+          fromManifest("playgrounds"),
         ],
       },
     ],
@@ -1040,6 +1053,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourHotSprings"),
           fromManifest("tourHotSpringZones"),
           fromManifest("tourScenicAreas"),
+          fromManifest("nationalParks"),
+          fromManifest("visitorCentres"),
         ],
       },
       {

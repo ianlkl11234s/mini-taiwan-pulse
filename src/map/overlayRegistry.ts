@@ -125,6 +125,13 @@ import {
 import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 import { allMultiSelectBitmask, multiSelectFilter, multiSelectOpacityExpression } from "../data/multiSelectMapbox";
 import {
+  accessibleFacilityFilter, bicycleSupportServiceFilter, disasterShelterTypeFilter,
+  publicToiletTypeFilter, recyclingMaterialFilter,
+} from "../data/publicLifeTypes";
+import {
+  ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
+} from "../data/publicLifePalette";
+import {
   AVIATION_NOISE_ZONE_COLOR_EXPR,
   NOISE_CAPTURE_ATTRIBUTION,
   NOISE_CAPTURE_COLOR_EXPR,
@@ -342,6 +349,77 @@ const TOUR_ATTRACTIONS_HEAT_COLOR: unknown[] = [
     ["log10", ["max", ["get", "annual_visitors_2024"], 1]],
     4, "#ffe082", 5, "#ffb300", 6, "#f4511e", 7.5, "#b71c1c"],
   "#616161",
+];
+
+function publicLifePointOverlay(
+  id: keyof import("../types").LayerVisibility,
+  sourceUrl: string,
+  sourceId: string,
+  color: unknown,
+  pmtiles?: { sourceLayer: string; minzoom: number; maxzoom: number },
+  attribution = "© OpenStreetMap contributors (ODbL) · snapshot exploration，非完整官方清冊",
+  radius: readonly [number, number] = [3, 6],
+  options?: {
+    filter?: (params?: Record<string, number>) => unknown[];
+    labelMinzoom?: number;
+  },
+): OverlayConfig {
+  const paramFilter = options?.filter;
+  const filterProps = paramFilter ? { filter: paramFilter } : {};
+  const labelFilter = (params?: Record<string, number>): unknown[] => ["all",
+    ...(paramFilter ? [paramFilter(params)] : []),
+    ["has", "name"],
+    ["!=", ["get", "name"], ""],
+  ];
+  return { id, sourceUrl, sourceId, ...(pmtiles ? { pmtiles } : {}), attribution, rebuildOnParamChange: ["glow", "circle", "label"], layers: [
+    { suffix: "glow", type: "circle", paint: (_dark, p) => {
+      const scale = p?.[`${id}Scale`] ?? 1;
+      const opacity = p?.[`${id}Opacity`] ?? .85;
+      return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.9, radius[0] * .5) * scale, 5, radius[0] * 1.8 * scale, 12, radius[1] * 1.8 * scale], "circle-blur": .8, "circle-opacity": opacity * .28 };
+    }, ...filterProps },
+    { suffix: "circle", type: "circle", paint: (dark, p) => {
+      const scale = p?.[`${id}Scale`] ?? 1;
+      const opacity = p?.[`${id}Opacity`] ?? .85;
+      return { "circle-color": color, "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, Math.max(.7, radius[0] * .35) * scale, 5, radius[0] * scale, 12, radius[1] * scale], "circle-opacity": opacity, "circle-stroke-color": dark ? "#0f172a" : "#fff", "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, .25, 5, .6, 12, 1.2], "circle-stroke-opacity": opacity };
+    }, ...filterProps },
+    {
+      suffix: "label", type: "symbol", minzoom: options?.labelMinzoom ?? 14,
+      layout: {
+        "text-field": ["get", "name"],
+        "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
+        "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+        "text-variable-anchor": ["top", "bottom", "left", "right"],
+        "text-radial-offset": 0.8,
+        "text-max-width": 14,
+        "text-optional": true,
+      },
+      filter: labelFilter,
+      paint: (dark, p) => ({
+        "text-color": dark ? "#f8fafc" : "#0f172a",
+        "text-halo-color": dark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
+        "text-halo-width": 1.25,
+        "text-opacity": p?.[`${id}Opacity`] ?? .85,
+      }),
+    },
+  ] };
+}
+const PUBLIC_LIFE_OVERLAYS: OverlayConfig[] = [
+  publicLifePointOverlay("drinkingWaterPoints", "./public_life/drinking_water_points.pmtiles", "drinking-water-points", PUBLIC_LIFE_COLORS.drinkingWaterPoints, { sourceLayer: "drinking_water_points", minzoom: 0, maxzoom: 14 }, undefined, undefined, { labelMinzoom: 13 }),
+  publicLifePointOverlay("publicWasteBaskets", "./public_life/public_waste_baskets.geojson", "public-waste-baskets", PUBLIC_LIFE_COLORS.publicWasteBaskets, undefined, undefined, undefined, { labelMinzoom: 15 }),
+  publicLifePointOverlay("materialRecyclingPoints", "./public_life/material_recycling_points.geojson", "material-recycling-points", PUBLIC_LIFE_COLORS.materialRecyclingPoints, undefined, undefined, undefined, { labelMinzoom: 14, filter: (p) => recyclingMaterialFilter(p?.materialRecyclingPointsMaterialMask) }),
+  publicLifePointOverlay("disasterShelters", "./public_life/disaster_shelters.pmtiles", "disaster-shelters", PUBLIC_LIFE_COLORS.disasterShelters, { sourceLayer: "disaster_shelters", minzoom: 0, maxzoom: 14 }, "內政部消防署 data.gov.tw 73242 · 政府資料開放授權條款第1版", undefined, { labelMinzoom: 15, filter: (p) => disasterShelterTypeFilter(p?.disasterSheltersTypeMask) }),
+  publicLifePointOverlay("playgrounds", "./public_life/playgrounds.geojson", "playgrounds", PUBLIC_LIFE_COLORS.playgrounds, undefined, undefined, undefined, { labelMinzoom: 14 }),
+  publicLifePointOverlay("accessibleParkFacilities", "./public_life/accessible_park_facilities.pmtiles", "accessible-park-facilities", ["match", ["get", "accessibility_status"], "yes", ACCESSIBILITY_STATUS_COLORS.yes, "limited", ACCESSIBILITY_STATUS_COLORS.limited, "no", ACCESSIBILITY_STATUS_COLORS.no, ACCESSIBILITY_STATUS_COLORS.unknown], { sourceLayer: "accessible_park_facilities", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 16, filter: (p) => accessibleFacilityFilter(p?.accessibleParkFacilitiesTypeMask, p?.accessibleParkFacilitiesStatusMask) }),
+  publicLifePointOverlay("bicycleSupport", "./public_life/bicycle_support.pmtiles", "bicycle-support", ["case", ["==", ["get", "has_repair"], true], BICYCLE_SUPPORT_COLORS.repair, ["==", ["get", "has_air"], true], BICYCLE_SUPPORT_COLORS.air, ["==", ["get", "has_parking"], true], BICYCLE_SUPPORT_COLORS.parking, ["==", ["get", "has_water"], true], BICYCLE_SUPPORT_COLORS.water, ["==", ["get", "has_toilet"], true], BICYCLE_SUPPORT_COLORS.toilet, BICYCLE_SUPPORT_COLORS.other], { sourceLayer: "bicycle_support", minzoom: 0, maxzoom: 14 }, undefined, [2, 5], { labelMinzoom: 14, filter: (p) => bicycleSupportServiceFilter(p?.bicycleSupportServiceMask) }),
+  { id: "nationalParks", sourceUrl: "./public_life/national_parks.pmtiles", sourceId: "national-parks", pmtiles: { sourceLayer: "national_parks", minzoom: 4, maxzoom: 12 }, attribution: "國家公園署 / 海洋國家公園管理處 / TGOS · 政府資料開放授權條款第1版", rebuildOnParamChange: ["fill", "outline"], layers: [
+    { suffix: "fill", type: "fill", paint: (_dark, p) => ({ "fill-color": "#15803d", "fill-opacity": (p?.nationalParksOpacity ?? .5) * .55 }) },
+    { suffix: "outline", type: "line", paint: (_dark, p) => ({ "line-color": "#22c55e", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .8, 12, 2.2], "line-opacity": p?.nationalParksOpacity ?? .5 }) },
+  ] },
+  publicLifePointOverlay("visitorCentres", "./public_life/visitor_centres.geojson", "visitor-centres", PUBLIC_LIFE_COLORS.visitorCentres, undefined, undefined, undefined, { labelMinzoom: 10 }),
+  { id: "publicLifeOsmCoverage", sourceUrl: "./public_life/public_life_osm_coverage.pmtiles", sourceId: "public-life-osm-coverage", pmtiles: { sourceLayer: "public_life_osm_coverage", minzoom: 5, maxzoom: 11 }, attribution: "© OpenStreetMap contributors (ODbL) · 映射密度，不是服務品質、人口覆蓋或道路可達性", rebuildOnParamChange: ["fill", "outline"], layers: [
+    { suffix: "fill", type: "fill", paint: (_d, p) => ({ "fill-color": ["step", ["coalesce", ["to-number", ["get", "observed_count"]], 0], "#e2e8f0", 1, "#bfdbfe", 5, "#60a5fa", 15, "#1d4ed8"], "fill-opacity": p?.publicLifeOsmCoverageOpacity ?? .55 }) },
+    { suffix: "outline", type: "line", paint: (_d, p) => ({ "line-color": "#2563eb", "line-width": ["interpolate", ["linear"], ["zoom"], 4, .2, 12, .8], "line-opacity": (p?.publicLifeOsmCoverageOpacity ?? .55) * .8 }) },
+  ] },
 ];
 
 /**
@@ -2781,12 +2859,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "publicToilets",
     sourceUrl: "./environment/public_toilets_national.geojson",
     sourceId: "public-toilets",
-    rebuildOnParamChange: ["glow", "circle"],
+    rebuildOnParamChange: ["glow", "circle", "label"],
     layers: [
       {
         suffix: "glow",
         type: "circle",
         minzoom: 11,
+        filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
           return {
@@ -2811,6 +2890,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         minzoom: 11,
+        filter: (params) => publicToiletTypeFilter(params?.publicToiletsTypeMask),
         paint: (_isDark, params) => {
           const scale = params?.publicToiletsScale ?? 1;
           const opacity = params?.publicToiletsOpacity ?? 0.75;
@@ -2835,6 +2915,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": opacity,
           };
         },
+      },
+      {
+        suffix: "label",
+        type: "symbol",
+        minzoom: 16,
+        layout: {
+          "text-field": ["get", "name"],
+          "text-size": ["interpolate", ["linear"], ["zoom"], 14, 10, 17, 13],
+          "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+          "text-variable-anchor": ["top", "bottom", "left", "right"],
+          "text-radial-offset": 0.8,
+          "text-max-width": 14,
+          "text-optional": true,
+        },
+        filter: (params) => ["all",
+          publicToiletTypeFilter(params?.publicToiletsTypeMask),
+          ["has", "name"],
+          ["!=", ["get", "name"], ""],
+        ],
+        paint: (isDark, params) => ({
+          "text-color": isDark ? "#f8fafc" : "#0f172a",
+          "text-halo-color": isDark ? "rgba(15,23,42,0.92)" : "rgba(255,255,255,0.94)",
+          "text-halo-width": 1.25,
+          "text-opacity": params?.publicToiletsOpacity ?? 0.75,
+        }),
       },
     ],
   },
@@ -10693,3 +10798,5 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
 ];
+
+OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);

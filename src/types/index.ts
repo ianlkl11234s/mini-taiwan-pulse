@@ -105,6 +105,8 @@ export type ExpandableLayerKey =
   | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
+  | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
+  | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
   | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites" | "osmCommunicationSites" | "ripeAtlasProbes"
   | "ooklaMobilePerformance" | "ooklaFixedPerformance"
   | "ooklaMobileTaiwan" | "ooklaFixedTaiwan"
@@ -714,6 +716,8 @@ export interface FeatureInfo {
   layerType: "regionalStatistic" | "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "osmCommunicationSite" | "ripeAtlasProbe" | "ooklaMobileGrid" | "ooklaFixedGrid" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
+    | "drinkingWaterPoints" | "publicWasteBaskets" | "materialRecyclingPoints" | "disasterShelters"
+    | "playgrounds" | "accessibleParkFacilities" | "bicycleSupport" | "nationalParks" | "visitorCentres" | "publicLifeOsmCoverage"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "historicalFlightTrails" | "jpHistoricalFlightTrails"
@@ -1065,6 +1069,17 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   animalWelfarePoints: boolean;
   retailMarkets: boolean;
   publicToilets: boolean;
+  // 公共生活 OSM snapshot（非完整官方清冊；unknown 不等於 false）
+  drinkingWaterPoints: boolean;
+  publicWasteBaskets: boolean;
+  materialRecyclingPoints: boolean;
+  disasterShelters: boolean;
+  playgrounds: boolean;
+  accessibleParkFacilities: boolean;
+  bicycleSupport: boolean;
+  nationalParks: boolean;
+  visitorCentres: boolean;
+  publicLifeOsmCoverage: boolean;
   submarineCables: boolean;
   landingStations: boolean;
   internetExchangePoints: boolean;

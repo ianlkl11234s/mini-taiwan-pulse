@@ -25,6 +25,9 @@ import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "../data/globalEventsTypes";
+import {
+  ACCESSIBILITY_STATUS_COLORS, BICYCLE_SUPPORT_COLORS, PUBLIC_LIFE_COLORS,
+} from "../data/publicLifePalette";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { GFW_HOURLY_GRID_V4_COLOR_BANDS } from "../data/gfwHourlyGridTypes";
@@ -356,6 +359,16 @@ export interface LegendEntry {
  * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
+  { id: "drinkingWaterPoints", render: () => <PublicLifeOsmLegend label="飲水點" color={PUBLIC_LIFE_COLORS.drinkingWaterPoints} /> },
+  { id: "publicWasteBaskets", render: () => <PublicLifeOsmLegend label="公共垃圾桶" color={PUBLIC_LIFE_COLORS.publicWasteBaskets} /> },
+  { id: "materialRecyclingPoints", render: () => <PublicLifeOsmLegend label="資源回收點" color={PUBLIC_LIFE_COLORS.materialRecyclingPoints} extra="僅代表來源明列的材料；未標註不推論可回收材料。" /> },
+  { id: "disasterShelters", render: () => <GovernmentLifeLegend label="預定收容處所" color={PUBLIC_LIFE_COLORS.disasterShelters} source="內政部消防署 data.gov.tw 73242" extra="預定收容處所，不代表目前已開設。" /> },
+  { id: "playgrounds", render: () => <PublicLifeOsmLegend label="遊戲場" color={PUBLIC_LIFE_COLORS.playgrounds} /> },
+  { id: "accessibleParkFacilities", render: () => <AccessibleParkLegend /> },
+  { id: "bicycleSupport", render: () => <BicycleSupportLegend /> },
+  { id: "nationalParks", render: () => <GovernmentLifeLegend label="國家（自然）公園" color="#15803d" source="國家公園署 / 海洋國家公園管理處 / TGOS" extra="各園計畫版次不同；不代表即時開放或管制狀態。" /> },
+  { id: "visitorCentres", render: () => <PublicLifeOsmLegend label="遊客中心" color={PUBLIC_LIFE_COLORS.visitorCentres} /> },
+  { id: "publicLifeOsmCoverage", render: () => <PublicLifeCoverageLegend /> },
   ...AGRI_ENABLED_STATISTICS_RECIPES.map((recipe) => ({
     id: recipe.layer_key,
     render: () => <StatisticsLegend layerKey={recipe.layer_key as StatisticsRenderKey} />,
@@ -6773,5 +6786,48 @@ function JpMedicalLegend({ layerKey }: { layerKey: string }) {
       : kind === "care"
       ? "厚生労働省 H17。低縮放每格加總目前開啟分類的服務登記；不是容量、服務人次或唯一機構數。zoom ≥ 8 每個圓點是一筆完整服務登記；同址可有多筆。"
       : "厚生労働省 Navii。低縮放每格加總目前開啟分類的可繪製設施；不是病床數、容量或服務範圍。zoom ≥ 8 每個圓點是一筆完整可繪製設施；缺座標另列。助產所來源僅涵蓋 45 縣；公告時段非即時可接診。"}</div>
+  </div>;
+}
+
+function PublicLifeOsmLegend({ label, color, extra }: { label: string; color: string; extra?: string }) {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><i style={{ width: 9, height: 9, borderRadius: "50%", background: color }} />{label}</div>
+    <div style={{ marginTop: 5 }}>© OpenStreetMap contributors (ODbL) · snapshot exploration，非完整官方清冊。</div>
+    {extra && <div style={{ marginTop: 3 }}>{extra}</div>}
+  </div>;
+}
+
+function GovernmentLifeLegend({ label, color, source, extra }: { label: string; color: string; source: string; extra: string }) {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}><i style={{ width: 9, height: 9, borderRadius: "50%", background: color }} />{label}</div>
+    <div style={{ marginTop: 5 }}>{source} · 政府資料開放授權條款第1版。</div>
+    <div style={{ marginTop: 3 }}>{extra}</div>
+  </div>;
+}
+
+function BicycleSupportLegend() {
+  const t = useLegendTheme();
+  const items = [[BICYCLE_SUPPORT_COLORS.repair, "維修"], [BICYCLE_SUPPORT_COLORS.air, "打氣"], [BICYCLE_SUPPORT_COLORS.parking, "停車"], [BICYCLE_SUPPORT_COLORS.water, "飲水"], [BICYCLE_SUPPORT_COLORS.toilet, "公廁"], [BICYCLE_SUPPORT_COLORS.other, "其他"]];
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    {items.map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><i style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />{l}</div>)}
+    <div style={{ marginTop: 5 }}>OSM snapshot exploration；同點多類時依維修、打氣、停車、飲水、公廁順序著色，非完整官方清冊。</div>
+  </div>;
+}
+
+function AccessibleParkLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    {[[ACCESSIBILITY_STATUS_COLORS.yes, 'yes'], [ACCESSIBILITY_STATUS_COLORS.limited, 'limited'], [ACCESSIBILITY_STATUS_COLORS.no, 'no'], [ACCESSIBILITY_STATUS_COLORS.unknown, 'unknown']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><i style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />{l}</div>)}
+    <div style={{ marginTop: 5 }}>OSM snapshot exploration；unknown 不等於 false，非完整官方清冊。</div>
+  </div>;
+}
+
+function PublicLifeCoverageLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    {[['#e2e8f0', '0'], ['#bfdbfe', '1–4'], ['#60a5fa', '5–14'], ['#1d4ed8', '15+']].map(([c, l]) => <div key={l} style={{ display: "flex", gap: 6, alignItems: "center" }}><i style={{ width: 10, height: 10, background: c }} />觀測數 {l}</div>)}
+    <div style={{ marginTop: 5 }}>OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。</div>
   </div>;
 }
