@@ -63,6 +63,25 @@ describe("research viewport fit", () => {
     project.mockImplementation(([lng, lat]: [number, number]) => ({ x: 360 + (lng - 121.54) / 0.06 * 548, y: 76 + (25.06 - lat) / 0.04 * 648 }));
     expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(false);
   });
+
+  it("clamps framing padding consistently for a 117px narrow safe viewport", () => {
+    const context = {
+      viewport: { left: 0, top: 0, right: 800, bottom: 1000 }, overlays: [], fitAvailable: true,
+      safe: { left: 367.9965, top: 16, right: 485.4649, bottom: 971.3047 },
+    } as const;
+    const fit: ResearchFraming = { bounds: [121.517065, 25.028962, 121.551561, 25.063451], padding: 60, maxZoom: 13 };
+    const state = mapStub();
+    resolveViewportCameraFromContext(state.map, context, fit);
+    const padding = state.cameraForBounds.mock.calls[0]![1].padding;
+    // (117.4684 - 80) / 2 leaves the shared 80px minimum content width.
+    expect(padding.left).toBeCloseTo(386.7307, 4);
+    expect(padding.right).toBeCloseTo(333.2693, 4);
+    const project = vi.fn(([lng, lat]: [number, number]) => ({
+      x: lng < 121.54 ? 390 : 460,
+      y: lat < 25.04 ? 900 : 60,
+    }));
+    expect(framingFitsViewportFromContext({ project } as unknown as MapboxMap, context, fit)).toBe(true);
+  });
 });
 
 it("uses space below corner panels when edge strips overlap", () => {

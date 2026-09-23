@@ -30,6 +30,13 @@ function validFraming(framing: ResearchFraming): boolean {
     && finite(framing.padding) && framing.padding >= 0 && finite(framing.maxZoom) && framing.maxZoom >= 0 && framing.maxZoom <= 24;
 }
 
+/** Preserve a usable rectangle when a narrow safe viewport cannot honor the requested inset. */
+function effectivePadding(safe: ViewportRect, requested: number): number {
+  const width = safe.right - safe.left;
+  const height = safe.bottom - safe.top;
+  return Math.min(requested, Math.max(0, (Math.min(width, height) - MIN_CONTENT_PX) / 2));
+}
+
 function visible(element: Element): boolean {
   if (!(element instanceof HTMLElement)) return false;
   try {
@@ -202,11 +209,12 @@ export function resolveViewportCameraFromContext(map: Pick<MapboxMap, "cameraFor
   if (context.fitAvailable === false) throw new Error(context.fitError ?? "VIEWPORT_OCCLUDED");
   if (!validFraming(framing)) throw new Error("INVALID_RESEARCH_FRAMING");
   const { viewport, safe } = context;
+  const framingPadding = effectivePadding(safe, framing.padding);
   const padding = {
-    left: Math.max(0, safe.left + framing.padding),
-    top: Math.max(0, safe.top + framing.padding),
-    right: Math.max(0, viewport.right - safe.right + framing.padding),
-    bottom: Math.max(0, viewport.bottom - safe.bottom + framing.padding),
+    left: Math.max(0, safe.left + framingPadding),
+    top: Math.max(0, safe.top + framingPadding),
+    right: Math.max(0, viewport.right - safe.right + framingPadding),
+    bottom: Math.max(0, viewport.bottom - safe.bottom + framingPadding),
   };
   const [west, south, east, north] = framing.bounds;
   const camera = map.cameraForBounds([[west, south], [east, north]], { padding, maxZoom: framing.maxZoom, bearing: 0, pitch: 0 });
@@ -229,11 +237,12 @@ export function resolveViewportCamera(map: ViewportMap, framing: ResearchFraming
 export function framingFitsViewportFromContext(map: Pick<MapboxMap, "project">, context: ViewportContext, framing: ResearchFraming, tolerancePx = 2): boolean {
   if (context.fitAvailable === false || !validFraming(framing) || !finite(tolerancePx) || tolerancePx < 0) return false;
   const { safe } = context;
+  const framingPadding = effectivePadding(safe, framing.padding);
   const visible = {
-    left: safe.left + framing.padding,
-    top: safe.top + framing.padding,
-    right: safe.right - framing.padding,
-    bottom: safe.bottom - framing.padding,
+    left: safe.left + framingPadding,
+    top: safe.top + framingPadding,
+    right: safe.right - framingPadding,
+    bottom: safe.bottom - framingPadding,
   };
   if (visible.right <= visible.left || visible.bottom <= visible.top) return false;
   const [west, south, east, north] = framing.bounds;
