@@ -38,6 +38,26 @@ describe("analysis result reveal lifecycle", () => {
     }]);
   });
 
+  it("returns the actual rendered palette position and count thresholds for the legend", () => {
+    const { map } = stubMap();
+    const neighborhood = {
+      ...result,
+      presentation: { kind: "neighborhood" as const, countField: "source_0_count", label: "護理中心", radiusM: 500, sourceLabels: [{ field: "source_0_count", label: "護理中心" }] },
+    } satisfies PresentableResult;
+    const installed = installAnalysisResults(map, [result, neighborhood]);
+    expect(installed[0]).toMatchObject({ color: "#00b8d9" });
+    expect(installed[1]).toMatchObject({ countLegend: { label: "護理中心", radiusM: 500, entries: [
+      { label: "0–4 筆", color: "#bae6fd" }, { label: "5–9 筆", color: "#0284c7" }, { label: "≥10 筆", color: "#075985" },
+    ] } });
+  });
+
+  it("reassigns the palette when a hidden result changes the rendered order", () => {
+    const { map } = stubMap();
+    const second = { ...result, resultId: "result-2" } satisfies PresentableResult;
+    expect(installAnalysisResults(map, [result, second])[1]).toMatchObject({ color: "#ff8f00" });
+    expect(installAnalysisResults(map, [second])[0]).toMatchObject({ resultId: "result-2", color: "#00b8d9" });
+  });
+
   it("presents more than four independent result layers and reads them all back", () => {
     const { map, layers } = stubMap();
     const results = Array.from({ length: 5 }, (_, index) => ({
@@ -68,6 +88,33 @@ describe("analysis result reveal lifecycle", () => {
     expect(layers.get("research-analysis-result-points-0")?.type).toBe("fill");
     expect(layers.get("research-analysis-result-points-1")?.type).toBe("fill");
     expect((sources.get("research-analysis-result-1")!.data as { features: Array<{ geometry: { type: string } }> }).features[0]!.geometry.type).toBe("MultiPolygon");
+  });
+
+  it("keeps authoritative polygon opacity while making the derived analysis scope a light context fill", () => {
+    const { map, layers, render } = stubMap();
+    const scope = {
+      resultId: "scope", datasetId: "derived:analysis-scope-area", geometry: { type: "Polygon", role: "derived", spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    const area = { ...scope, resultId: "area", datasetId: "authoritative-area", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true } } satisfies PresentableResult;
+    installAnalysisResults(map, [scope, area], 0.85); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.153);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.3825);
+    setAnalysisOpacity(map, installAnalysisResults(map, [scope, area], 0.85), 0.6);
+    expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.108);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.27);
+  });
+
+  it("reapplies center paint semantics when it reuses a prior POI layer slot", () => {
+    const { map, layers } = stubMap();
+    const center = { ...result, resultId: "center", datasetId: "derived:analysis-scope-center" } satisfies PresentableResult;
+    installAnalysisResults(map, [result, center]);
+    const installed = installAnalysisResults(map, [center]);
+    expect(installed[0]).toMatchObject({ color: "#fef3c7" });
+    expect(layers.get("research-analysis-result-points-0")!.paint).toMatchObject({
+      "circle-color": "#fef3c7", "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12],
+      "circle-stroke-color": "#0f172a", "circle-stroke-width": 3,
+    });
   });
 
   it("rejects a collection over its visible-result budget before changing the map", () => {
@@ -106,7 +153,7 @@ describe("analysis result reveal lifecycle", () => {
   it("lets the opacity slider cancel a pending reveal so an old callback cannot overwrite it", () => {
     const { map, layers, listeners, render } = stubMap();
     installAnalysisResults(map, [result], 0.2);
-    setAnalysisOpacity(map, 1, 0.83);
+    setAnalysisOpacity(map, installAnalysisResults(map, [result], 0.2), 0.83);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.83);
     expect(listeners.size).toBe(0);
     render();

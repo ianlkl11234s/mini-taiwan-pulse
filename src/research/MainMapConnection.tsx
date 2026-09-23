@@ -9,7 +9,7 @@ import { createPortal } from "react-dom";
 import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
 import { cancelResearchMotion, moveResearchCamera } from "./researchMotion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import mapboxgl, { type Map as MapboxMap } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
@@ -433,13 +433,24 @@ export function MainMapConnection(props: Props) {
         <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
       </label>
       <p role="status">{message}</p>
-      <ResearchEvidencePanel evidence={evidence} />
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>已呈現的分析結果</h3>
         <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；可逐層開關與排序，這不是完整來源圖層。</p>
         <label>分析結果透明度
-          <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis.length, value); }} />
+          <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, value); }} />
         </label>
+        {presentedAnalysis.length > 0 && <section className="agent-analysis-legend" aria-label="已呈現結果圖例">
+          <h4>地圖圖例</h4>
+          {presentedAnalysis.map(result => <div key={result.resultId} className="agent-analysis-legend__result">
+            <span className={`agent-analysis-swatch agent-analysis-swatch--${result.geometryType.toLowerCase()}${result.countLegend ? " agent-analysis-swatch--count" : ""}`} style={{ "--analysis-result-color": result.color } as CSSProperties} aria-hidden="true" />
+            <div><strong>{result.displayLabel}</strong><small>{result.featureCount} 筆 · {result.geometryType}</small>
+              {result.countLegend && <div className="agent-analysis-count-legend" aria-label={`${result.displayLabel} ${result.countLegend.label}計數分級`}>
+                <span>{result.countLegend.label} · {result.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span>
+                <div>{result.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div>
+              </div>}
+            </div>
+          </div>)}
+        </section>}
         {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
           <legend>群組</legend>
           {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
@@ -449,11 +460,12 @@ export function MainMapConnection(props: Props) {
         </fieldset>}
         <ul>{resultCollection.items.map((item, index) => {
           const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
+          const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           return <li key={item.resultId} className="agent-analysis-result-item">
             <label className="agent-analysis-toggle">
               <input type="checkbox" checked={item.visible} onChange={event => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-              <span><strong>{result?.displayLabel ?? item.resultId}</strong>{result ? `${result.featureCount} 筆／${result.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
+              <span><strong>{result?.displayLabel ?? item.resultId}</strong>{rendered ? `${rendered.featureCount} 筆／${rendered.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
             </label>
             <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
               <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
@@ -463,6 +475,7 @@ export function MainMapConnection(props: Props) {
         })}</ul>
         <button onClick={() => clearAnalysisPresentation(true)}>清除分析結果</button>
       </section>}
+      <ResearchEvidencePanel evidence={evidence} />
     </div>
   </div>;
 }

@@ -1,14 +1,19 @@
 import type { Feature, FeatureCollection, LineString, MultiLineString, MultiPolygon, Point, Polygon } from "geojson";
-import type { GeoJSONSource, Map } from "mapbox-gl";
+import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
 const COLORS = ["#00b8d9", "#ff8f00", "#d81b60", "#7e57c2", "#43a047", "#5c6bc0", "#e53935", "#00897b"];
+const COUNT_STOPS = [5, 10] as const;
+const COUNT_COLORS = ["#bae6fd", "#0284c7", "#075985"] as const;
 const sourceId = (index: number) => `research-analysis-result-${index}`;
 const layerId = (index: number) => `research-analysis-result-points-${index}`;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
+
+function isAnalysisScopeArea(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-area"; }
+function isAnalysisScopeCenter(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-center"; }
 
 export type AnalysisResultPresentation = {
   resultId: string;
@@ -16,6 +21,12 @@ export type AnalysisResultPresentation = {
   displayLabel: string;
   geometryType: PresentableResult["geometry"]["type"];
   featureCount: number;
+  /** Exact paint color for this rendered result; absent before it is installed. */
+  color?: string;
+  /** Derived display scope uses a lighter fill than authoritative polygon results. */
+  scopeArea?: true;
+  /** Only emitted for the existing neighborhood count presentation. */
+  countLegend?: { label: string; radiusM: number; entries: readonly { label: string; color: string }[] };
 };
 
 export type AnalysisResultReadback = {
@@ -63,8 +74,22 @@ function propertiesFor(row: Record<string, unknown>, result: PresentableResult):
   return { ...properties, resultId: result.resultId, datasetId: result.datasetId };
 }
 
-function presentation(result: PresentableResult, featureCount: number): AnalysisResultPresentation {
-  return { resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId, geometryType: result.geometry.type, featureCount };
+function presentation(result: PresentableResult, featureCount: number, index?: number): AnalysisResultPresentation {
+  const countLegend = result.presentation && result.geometry.type === "Point" ? {
+    label: result.presentation.label,
+    radiusM: result.presentation.radiusM,
+    entries: [
+      { label: `0–${COUNT_STOPS[0] - 1} 筆`, color: COUNT_COLORS[0] },
+      { label: `${COUNT_STOPS[0]}–${COUNT_STOPS[1] - 1} 筆`, color: COUNT_COLORS[1] },
+      { label: `≥${COUNT_STOPS[1]} 筆`, color: COUNT_COLORS[2] },
+    ],
+  } : undefined;
+  return {
+    resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
+    geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]! }),
+    ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
+    ...(countLegend ? { countLegend } : {}),
+  };
 }
 
 /** Metadata for the whole authorized collection, including effectively hidden items. */
@@ -92,29 +117,45 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data });
     const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
     const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
+    const scopeArea = isAnalysisScopeArea(result);
+    const scopeCenter = isAnalysisScopeCenter(result);
+    const circleColor: string | ExpressionSpecification = scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
+    const circleRadius: ExpressionSpecification = (scopeCenter ? ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12] : ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9]) as unknown as ExpressionSpecification;
+    const circleStrokeColor = scopeCenter ? "#0f172a" : "#ffffff";
+    const circleStrokeWidth = scopeCenter ? 3 : 2;
     const existing = map.getLayer(layerId(index));
     const reveal = !existing && !prefersReducedMotion();
     const duration = prefersReducedMotion() ? 0 : 380;
     if (existing && existing.type !== (polygon ? "fill" : line ? "line" : "circle")) map.removeLayer(layerId(index));
     if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), paint: {
-        "fill-color": COLORS[index]!, "fill-opacity": reveal ? 0 : opacity * 0.45, "fill-opacity-transition": { duration }, "fill-outline-color": "#e2e8f0",
+        "fill-color": COLORS[index]!, "fill-opacity": reveal ? 0 : opacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": COLORS[index]!,
       } });
     } else if (line) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": COLORS[index]!, "line-width": 3, "line-opacity": reveal ? 0 : opacity, "line-opacity-transition": { duration } } });
     } else if (!map.getLayer(layerId(index))) map.addLayer({
       id: layerId(index), type: "circle", source: sourceId(index),
       paint: {
-        "circle-color": result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : COLORS[index]!,
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9],
-        "circle-opacity": reveal ? 0 : opacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : opacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1,
+        "circle-color": circleColor, "circle-radius": circleRadius,
+        "circle-opacity": reveal ? 0 : opacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : opacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": circleStrokeColor, "circle-stroke-width": circleStrokeWidth,
       },
     });
-    if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-color", result.presentation ? ["step", ["get", result.presentation.countField], "#bae6fd", 5, "#0284c7", 10, "#075985"] : COLORS[index]!);
+    if (polygon) {
+      map.setPaintProperty(layerId(index), "fill-color", COLORS[index]!);
+      map.setPaintProperty(layerId(index), "fill-outline-color", COLORS[index]!);
+    } else if (line) {
+      map.setPaintProperty(layerId(index), "line-color", COLORS[index]!);
+      map.setPaintProperty(layerId(index), "line-width", 3);
+    } else {
+      map.setPaintProperty(layerId(index), "circle-color", circleColor);
+      map.setPaintProperty(layerId(index), "circle-radius", circleRadius);
+      map.setPaintProperty(layerId(index), "circle-stroke-color", circleStrokeColor);
+      map.setPaintProperty(layerId(index), "circle-stroke-width", circleStrokeWidth);
+    }
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
-      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : "circle-opacity", polygon ? opacity * 0.45 : opacity);
+      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : "circle-opacity", polygon ? opacity * (scopeArea ? 0.18 : 0.45) : opacity);
       if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-stroke-opacity", opacity);
     };
     if (reveal) {
@@ -122,7 +163,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
-    return presentation(result, data.features.length);
+    return presentation(result, data.features.length, index);
   });
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
   return installed;
@@ -162,13 +203,14 @@ export function readAnalysisResultPresentation(map: Map, results: readonly Analy
     ready: sourcesReady && layersReady && cleared,
   };
 }
-export function setAnalysisOpacity(map: Map, count: number, opacity: number): void {
-  for (const id of analysisResultLayerIds(count)) {
+export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPresentation[], opacity: number): void {
+  for (const [index, result] of results.entries()) {
+    const id = layerId(index);
     const layer = map.getLayer(id);
     if (layer) {
-      cancelReveal(map, analysisResultLayerIds(count).indexOf(id));
-      map.setPaintProperty(id, layer.type === "fill" ? "fill-opacity" : "circle-opacity", opacity);
-      if (layer.type !== "fill") map.setPaintProperty(id, "circle-stroke-opacity", opacity);
+      cancelReveal(map, index);
+      map.setPaintProperty(id, layer.type === "fill" ? "fill-opacity" : layer.type === "line" ? "line-opacity" : "circle-opacity", layer.type === "fill" ? opacity * (result.scopeArea ? 0.18 : 0.45) : opacity);
+      if (layer.type === "circle") map.setPaintProperty(id, "circle-stroke-opacity", opacity);
     }
   }
 }
