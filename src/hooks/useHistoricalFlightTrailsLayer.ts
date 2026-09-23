@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Map as MapboxMap } from 'mapbox-gl';
 import { fetchHistoricalFlightAllAirports, fetchHistoricalFlightAsset, fetchHistoricalFlightManifest } from '../data/historicalFlightTrailsLoader';
 import { HISTORICAL_FLIGHT_ALL_AIRPORTS, type HistoricalFlightCollection, type HistoricalFlightCountry, type HistoricalFlightParams } from '../data/historicalFlightTrailsTypes';
-import { renderHistoricalFlightTrails, removeHistoricalFlightTrails } from '../map/historicalFlightTrails';
+import { hideHistoricalFlightTrails, renderHistoricalFlightTrails, removeHistoricalFlightTrails } from '../map/historicalFlightTrails';
 import { setHistoricalFlightStatus, useHistoricalFlightRetryRevision } from '../state/historicalFlightTrailsStore';
 import { useMapReadyTick } from './useMapReadyTick';
 
@@ -63,15 +63,29 @@ export function useHistoricalFlightTrailsLayer(mapRef: React.RefObject<MapboxMap
     if (!map) return;
     let drawing = false;
     const draw = () => {
-      if (drawing || !map.isStyleLoaded()) return;
+      if (drawing) return;
+      if (!visible) {
+        // All Off must hide the existing custom layer immediately, even while
+        // a basemap style transition prevents safe removal/disposal.
+        hideHistoricalFlightTrails(map, country);
+        if (map.isStyleLoaded()) removeHistoricalFlightTrails(map, country);
+        return;
+      }
+      if (!map.isStyleLoaded()) return;
       drawing = true;
       try {
-        if (!visible || !loaded || loaded.selector !== selector) { removeHistoricalFlightTrails(map, country); return; }
+        if (!loaded || loaded.selector !== selector) { removeHistoricalFlightTrails(map, country); return; }
         renderHistoricalFlightTrails(map, country, loaded.data, { airport, date, opacity, width, direction, routeScope, altitudeScale });
       } finally { drawing = false; }
     };
+    const layerId = `historical-flight-trails-${country.toLowerCase()}-3d`;
     const restore = () => {
-      if (!drawing && visible && loaded && !map.getLayer(`historical-flight-trails-${country.toLowerCase()}-3d`)) draw();
+      if (drawing) return;
+      if (!visible) {
+        if (map.getLayer(layerId)) draw();
+        return;
+      }
+      if (loaded && (!map.getLayer(layerId) || map.getLayoutProperty(layerId, 'visibility') === 'none')) draw();
     };
     draw();
     // setStyle's diff path can remove custom sources without a style.load event.
