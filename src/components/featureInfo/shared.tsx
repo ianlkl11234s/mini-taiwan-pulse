@@ -97,7 +97,7 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const org = String(props.source_org ?? "");
+  const org = String(props.source_org ?? props.source ?? "");
   const url = String(props.source_url ?? "");
   const license = String(props.license ?? "");
   const tier = props.source_tier;
@@ -115,7 +115,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
       }}
     >
       <div style={{ marginBottom: 4, letterSpacing: 1.2 }}>
-        資料來源 (Tier {String(tier ?? "?")})
+        資料來源{tier == null ? "" : ` (Tier ${String(tier)})`}
       </div>
       {org && <div>{org}</div>}
       {url && (

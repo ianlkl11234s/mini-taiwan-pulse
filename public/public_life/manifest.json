@@ -1,0 +1,28 @@
+{
+  "release_id": "public-life-20260923-v2",
+  "status": "local_verified_cdn_ready_not_published",
+  "generated_at": "2026-09-23T09:05:00+08:00",
+  "transport": {
+    "browser_prefix": "/public_life/",
+    "cdn_mirror_prefix": "deploy-assets/public_life/",
+    "range_required_for_pmtiles": true
+  },
+  "sources": {
+    "osm_snapshot_at": "2026-06-21T20:21:58Z",
+    "osm_license": "ODbL-1.0",
+    "shelter_snapshot_date": "2026-09-22",
+    "national_park_build_date": "2026-09-22"
+  },
+  "assets": [
+    {"path":"accessible_park_facilities.pmtiles","format":"pmtiles","source_layer":"accessible_park_facilities","bytes":11024492,"sha256":"7960f3ac67c657e10dac5bfbc361c8c7fa7a0a15425f1e5f046942d0d0873310","source_feature_count":20870,"minzoom":0,"maxzoom":14,"point_sampling":"none","z0_entity_count":20870,"display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"OSM accessibility-tag observations; unknown is not false"},
+    {"path":"bicycle_support.pmtiles","format":"pmtiles","source_layer":"bicycle_support","bytes":6969002,"sha256":"b593a0d2d4efc48300fa0d6fe3d23d0e277efc8129d947bb54f4577aa301cfb4","source_feature_count":11989,"minzoom":0,"maxzoom":14,"point_sampling":"none","z0_entity_count":11989,"display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"OSM support observations; augments, not replaces, station and route layers"},
+    {"path":"disaster_shelters.pmtiles","format":"pmtiles","source_layer":"disaster_shelters","bytes":8862241,"sha256":"c4e341a896a9ac19afa5bbf68cbf2bf497c87792e34de802ad1e268ea4d20db3","source_feature_count":5946,"source_rows":5973,"missing_geometry_rows":27,"minzoom":0,"maxzoom":14,"point_sampling":"none","z0_entity_count":5946,"display_geometry":"source points unchanged","semantic_status":"planned shelters; does not mean currently open"},
+    {"path":"drinking_water_points.pmtiles","format":"pmtiles","source_layer":"drinking_water_points","bytes":2400402,"sha256":"eb52c10486e2b5f887371403dc0353aa6600305164dd4d7096b5de158aed8f7b","source_feature_count":3369,"minzoom":0,"maxzoom":14,"point_sampling":"none","z0_entity_count":3369,"display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"OSM snapshot observations; incomplete mapping coverage"},
+    {"path":"material_recycling_points.geojson","format":"geojson","bytes":501076,"sha256":"403aa8449840974ef682bcfe92a298b3bc540c737377f90e28415c577df59d96","source_feature_count":640,"point_sampling":"none","display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"materials are shown only when explicitly tagged"},
+    {"path":"national_parks.pmtiles","format":"pmtiles","source_layer":"national_parks","bytes":237018,"sha256":"478e61de3bffcd8ccb06448ea47db6cfe9d1e95cebbd501b38b66adf6132e6f8","source_feature_count":10,"semantic_status":"9 national parks plus 1 national nature park; mixed official plan revisions"},
+    {"path":"playgrounds.geojson","format":"geojson","bytes":1812577,"sha256":"8f95d3445830921b2755ac07c4dfafccdc24a9e2bfc5bc13fd1c4c03b1313113","source_feature_count":2580,"point_sampling":"none","display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"OSM snapshot observations; not an authoritative playground registry"},
+    {"path":"public_life_osm_coverage.pmtiles","format":"pmtiles","source_layer":"public_life_osm_coverage","bytes":465559,"sha256":"43f035c292da03d5aae006ba078917dfe60a895e32b882707ee32dde08b4f312","source_feature_count":1617,"semantic_status":"H3 mapping density; not service quality, population coverage, or road-network accessibility"},
+    {"path":"public_waste_baskets.geojson","format":"geojson","bytes":453831,"sha256":"b3ea39d412850c0124cb8a87bb6745425d14249a2a2e4c5471cf458b4c625482","source_feature_count":662,"point_sampling":"none","display_geometry":"source points unchanged","semantic_status":"OSM snapshot observations; incomplete mapping coverage"},
+    {"path":"visitor_centres.geojson","format":"geojson","bytes":11509,"sha256":"0aa3813421a66d7014d6089ed8b79be0d1984a4411025e69923b734d3f103347","source_feature_count":15,"point_sampling":"none","display_geometry":"source points unchanged; line and area features use representative_point_for_point_layer without mutating canonical geometry","semantic_status":"OSM visitor-centre tag observations; national park visitor facilities remain source-limited"}
+  ]
+}

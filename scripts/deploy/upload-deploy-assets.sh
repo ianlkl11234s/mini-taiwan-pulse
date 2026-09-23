@@ -97,6 +97,15 @@ for f in public/geo/*.pmtiles; do
   echo "Uploading geo/$name (pmtiles mirror)..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/geo/$name" --region ap-southeast-2
 done
+
+# 公共生活與韌性系統：鏡像子前綴。GeoJSON 與 PMTiles 同一契約，
+# 小檔仍可在 dist fallback；上傳後生產環境優先讀 /data/public_life/。
+for f in public/public_life/*.geojson public/public_life/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading public_life/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/public_life/$name" --region ap-southeast-2
+done
 # agriculture / forestry 的 PMTiles 改由下方 AGRI_FILES / FOREST_FILES 明確清單上傳到各自鏡像子前綴
 
 # 消防圖層：glob 動態上傳 public/geo/fire_*.geojson（同 water 慣例）
