@@ -47,7 +47,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 - 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
 - 完整線與面相交：`query line/area → spatial_query(predicate="line_intersects", lineResultId, areaResultId)`；只使用 declared actual EPSG:4326 LineString/MultiLineString，保留完整路徑、holes、multipart與邊界接觸。遇計算預算上限先縮小已知source範圍，不可改用端點、中心點或擅自簡化。
 - 地震背景：`cwa-earthquake-replay-events` 使用 `parameters.eventId`，或互斥的 `occurredAfter`＋`occurredBefore`（含時區 ISO、左閉右開、最長七天）。時間窗最多接受 50 筆；來源第 51 筆是密度 sentinel，超過即縮小時間窗，不靜默截斷。震央與周邊設施另查，不把相近設施稱為受災設施。發生時間、取得時間與背景年份分開；來源未提供更新／撤回狀態，unknown freshness 不可宣稱即時。
-- 道路事件：`tdx-road-events-current` 必填 allowlisted `source`；用 `parameters.eventType` 與 `unexpiredOnly`（預設 true）在既有 RPC 縮小資料。未到期不等於正在發生：空到期與未來生效仍可能返回；以 `lifecycle_status` 區分 active/scheduled/expired/unknown。`filters.event_type` 與時間 filters 是取得後篩選，不能避開來源 51 筆密度拒絕；遇 dense 不可只調小 limit 或反覆重試。取得時間不等於來源更新，current 缺席不等於撤回；source geometry 尚不可做距離/相交。
+- 道路事件：`tdx-road-events-current` 必填 allowlisted `source`；用 `parameters.eventType` 與 `unexpiredOnly`（預設 true）在既有 RPC 縮小資料。未到期不等於正在發生：空到期與未來生效仍可能返回；以 `lifecycle_status` 區分 active/scheduled/expired/unknown。`filters.event_type` 與時間 filters 是取得後篩選，不能避開來源 51 筆密度拒絕；遇 dense 不可只調小 limit 或反覆重試；既有 RPC 先 LIMIT，不能在外層新增 filter 後宣稱完整。exact-ID/updated-window SQL 草案尚未上線，不可呼叫假定可用的新 RPC。取得時間不等於來源更新，current 缺席不等於撤回；source geometry 尚不可做距離/相交。
 - 經驗證的 Point 子集：`tw-nursing-homes-upstream` 僅含固定來源 SHA 中自帶 WGS84 座標的 1,499/1,611 筆紀錄；排除的 112 筆與原始全圖層仍分開，不推論唯一機構數、營運現況或建物精度。觀測日期未知，不搭人口直接算同期密度。
 - 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
 - 跨資料比較：`describe A/B → query A/B → 相容性檢查 → join_records → calculate_metric`

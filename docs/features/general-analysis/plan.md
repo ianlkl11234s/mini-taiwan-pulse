@@ -161,3 +161,11 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 - E02 partial：reader與四項測試、資料端unexpiredOnly已完成；最新兩個live scope皆51 sentinel拒絕，沒有真實生命週期正例，不宣稱完整道路分析。
 - E03 HOLD：五項福利來源沒有本輪固定upstream WGS84子集；保留generic探索，不升格精度。正常registry更新為778layers/58datasets/53queryable layerrefs。
 - 原子commit：704be1bf、805ad2e9、715b314b、9fba8a10。完整證據與後續三項見 [E01–E03驗收](./acceptance-E01-E03-20260923.md)。
+
+## F01–F03 查明來源限制並準備下一契約（2026-09-23）
+
+- F01：實際唯讀RPC 51筆全部source/type符合且expire_time全NULL，未到期篩選無法縮小的原因已證實。前端先核契約再報dense、transport/config錯誤測試通過（5fe3c99d）。既有RPC無更細selector，外層filter會造成假完整，禁止採用。
+- F01 SQL草案：既有gateway隔離worktree新增source+exact-ID/有界last_updated selector提案，在本地PG17.7合成67筆資料通過，含第60筆後精確查詢、51 sentinel、時間界限、十個錯誤guard與ACL；交易rollback且本地PG已停止（2a8ded5）。未成migration、未remote apply、前端不依賴草案。
+- F02：115950找到2025年12月護理床數，是容量不是設施數，未證明12/31當日存量；精確同期人均率HOLD，可規劃明示期間差異的月度參考比率契約。
+- F03：確認TGOS座標来自官方來源CSV，沒有逐筆match level/精度碼；維持探索可讀與精度待核，不僅靠來源名稱提升exact距離資格。
+- fresh MCP/browser道路scope在本輪仍正確拒絕，SQL草案的local通過不可當成live正例。詳見 [F01–F03驗收](./acceptance-F01-F03-20260923.md)。
