@@ -52,6 +52,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   }), []);
   const active = useRef(true);
   const resumeForUser = useRef<string | null>(null);
+  const sessionUserId = session?.user.id ?? null;
   const connectionLease = useRef<ConnectionLease | null>(null);
   const activeSessionStudy = useRef<string | null>(null);
   const callbacks = useRef({ onState, onDisconnect, onConnection, onReady });
@@ -75,27 +76,29 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
 
   useEffect(() => {
     active.current = true;
+    let disposed = false;
     if (!supabaseConfigured) return () => { active.current = false; };
     void supabase!.auth.getSession().then(({ data }) => {
-      if (!active.current) return;
+      if (disposed) return;
       accessToken.current = data.session?.access_token ?? null;
       setSession(data.session);
     });
     const { data: subscription } = supabase!.auth.onAuthStateChange((_event, next) => {
-      if (!active.current) return;
+      if (disposed) return;
       accessToken.current = next?.access_token ?? null;
       setSession(next);
-      if (!next) { releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }
+      if (!next) { resumeForUser.current = null; releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); }
     });
-    return () => { active.current = false; accessToken.current = null; subscription.subscription.unsubscribe(); releaseLease(); };
+    return () => { disposed = true; active.current = false; accessToken.current = null; subscription.subscription.unsubscribe(); releaseLease(); };
   }, []);
 
   useEffect(() => {
-    if (!session || resumeForUser.current === session.user.id || study) return;
-    resumeForUser.current = session.user.id;
+    if (!sessionUserId || resumeForUser.current === sessionUserId || study) return;
+    resumeForUser.current = sessionUserId;
     const stored = readStoredConnection();
-    if (!stored || stored.userId !== session.user.id) { if (stored) clearStoredConnection(); return; }
+    if (!stored || stored.userId !== sessionUserId) { if (stored) clearStoredConnection(); return; }
     let cancelled = false;
+    let settled = false;
     void (async () => {
       let lease: ConnectionLease | null = null;
       try {
@@ -121,10 +124,16 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         const failure = classifyConnectionFailure(error);
         if (failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE") clearStoredConnection();
         setOnline(false); setMessage(errorMessage(error));
+      } finally {
+        if (!cancelled) settled = true;
       }
     })();
-    return () => { cancelled = true; };
-  }, [client, session, study]);
+    return () => {
+      cancelled = true;
+      // A cancelled attempt did not restore anything; StrictMode may start it again.
+      if (!settled && resumeForUser.current === sessionUserId) resumeForUser.current = null;
+    };
+  }, [client, sessionUserId, study]);
 
   useEffect(() => {
     if (!pairing || !study || !session) return;
