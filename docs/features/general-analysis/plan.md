@@ -143,3 +143,21 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 - 完整證據與剩餘關卡見 [日間驗收](./acceptance-D01-D03-20260923.md)。原dirty checkout保留，僅本地隔離commit，排程不重新啟動。
 
 - `87f17f05`：能力清單單次registry snapshot，去除每層重複schema validation；維持transient即時性與存取限制。
+
+
+## E01–E03 接續切片（2026-09-23）
+
+使用者再次授權繼續；沿同一隔離branch，commit而不發布。
+
+- E01：同SEGIS 2025-12 CSV已有 M_CNT/F_CNT/P_CNT，可驗證男女占比與縣市比較。新增固定local preview profiles，保留22縣市raw boundary/來源SHA；設施人均率仍HOLD，不把同來源占比說成跨來源設施驗收。
+- E02：TDX current RPC已提供生效/到期/LastUpdateTime，接有界51筆sentinel reader，以acquiredAt判生命週期；mixed source geometry只保留原資料，不授予空間分析資格。不因缺席推論撤回、不提供假的歷史asOf。
+- E03：逐一查托嬰／老人福利／長照／身障／心理衛生來源，皆無本輪upstream_wgs84/upstream子集；維持來源可探索及座標精度待核，不能只為增加數量升為eligible。後續需TDX/TGOS來源精度證據或其他已驗證座標profile。
+
+驗收順序：builder與independent22縣市oracle → unit/tsc → fresh stdio及Gateway → 人口比較ready/readback；道路current分列live讀取、生命週期計算與不適用的地圖呈現證據。
+
+### E01–E03 驗收結果
+
+- E01 本地通過：22縣市總/男/女來源核對、雙北占比與錯誤分母拒絕，fresh工具鏈4648ms、2features ready/readback。設施同期人均率仍HOLD。
+- E02 partial：reader與四項測試、資料端unexpiredOnly已完成；最新兩個live scope皆51 sentinel拒絕，沒有真實生命週期正例，不宣稱完整道路分析。
+- E03 HOLD：五項福利來源沒有本輪固定upstream WGS84子集；保留generic探索，不升格精度。正常registry更新為778layers/58datasets/53queryable layerrefs。
+- 原子commit：704be1bf、805ad2e9、715b314b、9fba8a10。完整證據與後續三項見 [E01–E03驗收](./acceptance-E01-E03-20260923.md)。
