@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
@@ -130,6 +130,61 @@ describe("analysis result reveal lifecycle", () => {
     expect(layers.get("research-analysis-result-points-0")?.type).toBe("fill");
     expect(layers.get("research-analysis-result-points-1")?.type).toBe("fill");
     expect((sources.get("research-analysis-result-1")!.data as { features: Array<{ geometry: { type: string } }> }).features[0]!.geometry.type).toBe("MultiPolygon");
+  });
+
+  it("colors only contract-shaped region comparisons from the normalized measurement and keeps invalid states out of the scale", () => {
+    const { map, layers } = stubMap();
+    const comparison = {
+      resultId: "regional-comparison", datasetId: "stats:fixture", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+      rows: [
+        { area_code: "A01", area_name: "甲", status: "observed", comparison_status: "valid", normalization_status: "valid", value: 20, normalizedValue: 10, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } },
+        { area_code: "A02", area_name: "乙", status: "observed", comparison_status: "valid", normalization_status: "valid", value: 0, normalizedValue: 0, geometry: { type: "Polygon", coordinates: [[[121.6, 25], [121.7, 25], [121.7, 25.1], [121.6, 25.1], [121.6, 25]]] } },
+        { area_code: "A03", area_name: "丙", status: "suppressed", comparison_status: "suppressed", normalization_status: "denominator_suppressed", value: null, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.7, 25], [121.8, 25], [121.8, 25.1], [121.7, 25.1], [121.7, 25]]] } },
+        { area_code: "A04", area_name: "丁", status: "observed", comparison_status: "valid", normalization_status: "zero_denominator", value: 3, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.8, 25], [121.9, 25], [121.9, 25.1], [121.8, 25.1], [121.8, 25]]] } },
+      ],
+    } satisfies PresentableResult;
+    const legend = numericResultLegend(comparison)!;
+    expect(legend).toMatchObject({ field: "normalizedValue", unit: "cases per 10000 persons", method: "equal_interval" });
+    expect(legend.entries.filter(entry => entry.min !== undefined)).toHaveLength(2);
+    expect(legend.entries.slice(0, 2)).toMatchObject([
+      { color: "#e0f2fe", label: "0–<5 cases per 10000 persons" },
+      { color: "#075985", label: "5–10 cases per 10000 persons" },
+    ]);
+    expect(legend.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ status: "suppressed", color: "#64748b" }),
+      expect.objectContaining({ status: "missing", color: "#cbd5e1" }),
+    ]));
+    const installed = installAnalysisResults(map, [comparison]);
+    expect(installed[0]!.numericLegend).toEqual(legend);
+    const paint = layers.get("research-analysis-result-points-0")!.paint["fill-color"] as unknown[];
+    expect(paint[0]).toBe("case");
+    expect(JSON.stringify(paint)).toContain('"typeof"');
+    expect(paint).toContain("#64748b");
+    expect(paint).toContain("#cbd5e1");
+  });
+
+  it("uses a constant valid color for a single numeric value", () => {
+    const { map, layers } = stubMap();
+    const comparison = {
+      resultId: "single-regional-comparison", datasetId: "stats:fixture", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "cases" },
+      rows: [{ area_code: "A01", status: "observed", comparison_status: "baseline_zero", normalization_status: "not_requested", value: 0, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    expect(numericResultLegend(comparison)).toMatchObject({ method: "single_value" });
+    expect(numericResultLegend(comparison)!.entries).toEqual(expect.arrayContaining([expect.objectContaining({ color: "#0369a1", min: 0, max: 0 })]));
+    installAnalysisResults(map, [comparison]);
+    const paint = layers.get("research-analysis-result-points-0")!.paint["fill-color"];
+    expect(JSON.stringify(paint)).not.toContain('"step"');
+    expect(JSON.stringify(paint)).toContain("#0369a1");
+  });
+
+  it("does not turn arbitrary polygon source values into a numeric choropleth", () => {
+    const polygon = {
+      resultId: "ordinary-polygon", datasetId: "any-polygon-dataset", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "people" }, rows: [{ value: 42, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    expect(numericResultLegend(polygon)).toBeUndefined();
   });
 
   it("keeps authoritative polygon opacity while making the derived analysis scope a light context fill", () => {
