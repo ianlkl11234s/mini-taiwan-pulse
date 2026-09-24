@@ -109,7 +109,7 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 767 個 layer key", () => {
+  it("涵蓋全部 794 個 layer key", () => {
     const keys = allLayerKeys();
     // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
     // 2026-08-13：+1 = maritimeBoundary（領海界線）。
@@ -156,7 +156,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-19: +9 LOCAL_ONLY 日本全國水資源向量／洪水背景。
     // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
     // 2026-09-22: +10 公共生活與韌性圖層。
-    expect(keys.length).toBe(788);
+    // 2026-09-23/24: +6 交通設施與橋梁雨量圖層。
+    expect(keys.length).toBe(794);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

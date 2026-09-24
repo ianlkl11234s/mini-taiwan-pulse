@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 788,
+    "keyCount": 794,
     "sections": [
       "gisLayers",
       "overlays",
@@ -902,6 +902,37 @@
     },
     {
       "layers": [
+        "tainan-bridge-inspections-circle"
+      ],
+      "type": "tainanBridgeInspections"
+    },
+    {
+      "layers": [
+        "changhua-traffic-signals-circle"
+      ],
+      "type": "changhuaTrafficSignals"
+    },
+    {
+      "layers": [
+        "taipei-road-tunnels-circle"
+      ],
+      "type": "taipeiRoadTunnels"
+    },
+    {
+      "layers": [
+        "tainan-road-tunnels-circle"
+      ],
+      "type": "tainanRoadTunnels"
+    },
+    {
+      "layers": [
+        "official-bridges-hsinchu-line",
+        "official-bridges-hsinchu-coincident-endpoints"
+      ],
+      "type": "officialBridgesHsinchu"
+    },
+    {
+      "layers": [
         "osm-bridge-carriers-line"
       ],
       "type": "osmBridgeCarriers"
@@ -1784,6 +1815,12 @@
         "rain-gauge-glow"
       ],
       "type": "rainGauge"
+    },
+    {
+      "layers": [
+        "bridge-rain-circle"
+      ],
+      "type": "bridgeRainThresholds"
     },
     {
       "layers": [
@@ -61084,6 +61121,389 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "tainanBridgeInspections",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#a855f7",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                2.5,
+                12,
+                5,
+                16,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#a855f7",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                2.5,
+                12,
+                5,
+                16,
+                8
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "tainan_bridge_inspections"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "tainan-bridge-inspections",
+      "sourceUrl": "./network_structures/tainan_bridge_inspections_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "officialBridgesHsinchu",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#22d3ee",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            },
+            "light": {
+              "line-color": "#22d3ee",
+              "line-opacity": 0.85,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                1,
+                12,
+                2.5,
+                16,
+                4
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "geometry_role"
+            ],
+            "coincident_endpoints"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#22d3ee",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#22d3ee",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                14,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "coincident-endpoints",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 8,
+        "sourceLayer": "official_bridges_hsinchu"
+      },
+      "rebuildOnParamChange": [
+        "line",
+        "coincident-endpoints"
+      ],
+      "sourceId": "official-bridges-hsinchu",
+      "sourceUrl": "./network_structures/official_bridges_hsinchu_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "taipeiRoadTunnels",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f59e0b",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                6,
+                16,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#f59e0b",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                6,
+                16,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "taipei_road_tunnels"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "taipei-road-tunnels",
+      "sourceUrl": "./network_structures/taipei_road_tunnels_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "tainanRoadTunnels",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#fb923c",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                6,
+                16,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": "#fb923c",
+              "circle-opacity": 0.9,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                3,
+                12,
+                6,
+                16,
+                9
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 1
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "tainan_road_tunnels"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "tainan-road-tunnels",
+      "sourceUrl": "./network_structures/tainan_road_tunnels_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "changhuaTrafficSignals",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#84cc16",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                2,
+                12,
+                4.5,
+                16,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 0.8
+            },
+            "light": {
+              "circle-color": "#84cc16",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                7,
+                2,
+                12,
+                4.5,
+                16,
+                7
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-width": 0.8
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 15,
+        "minzoom": 7,
+        "sourceLayer": "changhua_traffic_signals"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "changhua-traffic-signals",
+      "sourceUrl": "./network_structures/changhua_traffic_signals_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "drinkingWaterPoints",
       "layers": [
         {
@@ -64530,6 +64950,15 @@
         "value": "all"
       }
     ],
+    "bridgeRainThresholds": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
     "buildingsGba": [
       {
         "label": "顯示模式",
@@ -64794,6 +65223,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.55
+      }
+    ],
+    "changhuaTrafficSignals": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "civilDefenseShelter": [
@@ -70293,6 +70738,22 @@
         "min": 0.5,
         "step": 0.05,
         "value": 1.05
+      }
+    ],
+    "officialBridgesHsinchu": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "officialBridgesNewTaipei": [
@@ -76398,6 +76859,38 @@
         "value": 1
       }
     ],
+    "tainanBridgeInspections": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "tainanRoadTunnels": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "taipeiEvacuate": [
       {
         "label": "大小 1.00",
@@ -76428,6 +76921,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      }
+    ],
+    "taipeiRoadTunnels": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "taipeiSewer": [

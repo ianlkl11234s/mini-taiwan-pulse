@@ -10801,6 +10801,53 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     attribution: "新北市政府橋梁清冊；© OpenStreetMap contributors (ODbL)",
     layers: [{ suffix: "line", type: "line", filter: comparisonStatusFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "line-color": comparisonColorExpression as unknown as string, "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1.4 * scale, 12, 3 * scale, 16, 4.5 * scale], "line-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9 }; } }, { suffix: "coincident-endpoints", type: "circle", filter: comparisonGeometryFilter, paint: (_d, p) => { const scale = p?.bridgeComparisonNewTaipeiScale ?? 1; return { "circle-color": comparisonColorExpression as unknown as string, "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * scale, 14, 7 * scale], "circle-opacity": p?.bridgeComparisonNewTaipeiOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 * scale }; } }],
   },
+  {
+    id: "tainanBridgeInspections",
+    sourceUrl: "./network_structures/tainan_bridge_inspections_20260924.pmtiles",
+    sourceId: "tainan-bridge-inspections",
+    pmtiles: { sourceLayer: "tainan_bridge_inspections", minzoom: 7, maxzoom: 15 },
+    attribution: "臺南市政府工務局橋梁檢測資料（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => {
+      const scale = p?.tainanBridgeInspectionsScale ?? 1;
+      return {
+        "circle-color": "#a855f7",
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2.5 * scale, 12, 5 * scale, 16, 8 * scale],
+        "circle-opacity": p?.tainanBridgeInspectionsOpacity ?? 0.9,
+        "circle-stroke-color": "#fff",
+        "circle-stroke-width": 1 * scale,
+      };
+    } }],
+  },
+  {
+    id: "officialBridgesHsinchu",
+    rebuildOnParamChange: ["line", "coincident-endpoints"],
+    sourceUrl: "./network_structures/official_bridges_hsinchu_20260924.pmtiles",
+    sourceId: "official-bridges-hsinchu",
+    pmtiles: { sourceLayer: "official_bridges_hsinchu", minzoom: 8, maxzoom: 15 },
+    attribution: "新竹市政府橋梁清冊（政府資料開放授權條款第 1 版）",
+    layers: [
+      { suffix: "line", type: "line", paint: (_d, p) => ({ "line-color": "#22d3ee", "line-width": ["interpolate", ["linear"], ["zoom"], 7, 1 * (p?.officialBridgesHsinchuScale ?? 1), 12, 2.5 * (p?.officialBridgesHsinchuScale ?? 1), 16, 4 * (p?.officialBridgesHsinchuScale ?? 1)], "line-opacity": p?.officialBridgesHsinchuOpacity ?? 0.85 }) },
+      { suffix: "coincident-endpoints", type: "circle", filter: ["==", ["get", "geometry_role"], "coincident_endpoints"], paint: (_d, p) => ({ "circle-color": "#22d3ee", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.officialBridgesHsinchuScale ?? 1), 14, 7 * (p?.officialBridgesHsinchuScale ?? 1)], "circle-opacity": p?.officialBridgesHsinchuOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) },
+    ],
+  },
+  {
+    id: "taipeiRoadTunnels", sourceUrl: "./network_structures/taipei_road_tunnels_20260924.pmtiles", sourceId: "taipei-road-tunnels",
+    pmtiles: { sourceLayer: "taipei_road_tunnels", minzoom: 7, maxzoom: 15 },
+    attribution: "臺北市政府隧道資訊（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#f59e0b", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.taipeiRoadTunnelsScale ?? 1), 12, 6 * (p?.taipeiRoadTunnelsScale ?? 1), 16, 9 * (p?.taipeiRoadTunnelsScale ?? 1)], "circle-opacity": p?.taipeiRoadTunnelsOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) }],
+  },
+  {
+    id: "tainanRoadTunnels", sourceUrl: "./network_structures/tainan_road_tunnels_20260924.pmtiles", sourceId: "tainan-road-tunnels",
+    pmtiles: { sourceLayer: "tainan_road_tunnels", minzoom: 7, maxzoom: 15 },
+    attribution: "臺南市隧道明細（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#fb923c", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 3 * (p?.tainanRoadTunnelsScale ?? 1), 12, 6 * (p?.tainanRoadTunnelsScale ?? 1), 16, 9 * (p?.tainanRoadTunnelsScale ?? 1)], "circle-opacity": p?.tainanRoadTunnelsOpacity ?? 0.9, "circle-stroke-color": "#fff", "circle-stroke-width": 1 }) }],
+  },
+  {
+    id: "changhuaTrafficSignals", sourceUrl: "./network_structures/changhua_traffic_signals_20260924.pmtiles", sourceId: "changhua-traffic-signals",
+    pmtiles: { sourceLayer: "changhua_traffic_signals", minzoom: 7, maxzoom: 15 },
+    attribution: "彰化縣政府號誌清冊（政府資料開放授權條款第 1 版）",
+    layers: [{ suffix: "circle", type: "circle", paint: (_d, p) => ({ "circle-color": "#84cc16", "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 2 * (p?.changhuaTrafficSignalsScale ?? 1), 12, 4.5 * (p?.changhuaTrafficSignalsScale ?? 1), 16, 7 * (p?.changhuaTrafficSignalsScale ?? 1)], "circle-opacity": p?.changhuaTrafficSignalsOpacity ?? 0.85, "circle-stroke-color": "#fff", "circle-stroke-width": 0.8 }) }],
+  },
 ];
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);

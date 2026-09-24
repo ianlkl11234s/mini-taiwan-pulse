@@ -564,6 +564,12 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("osmBridgeFootprints"),
           fromManifest("officialBridgesNewTaipei"),
           fromManifest("bridgeComparisonNewTaipei"),
+          fromManifest("tainanBridgeInspections"),
+          fromManifest("officialBridgesHsinchu"),
+          fromManifest("taipeiRoadTunnels"),
+          fromManifest("tainanRoadTunnels"),
+          fromManifest("changhuaTrafficSignals"),
+          fromManifest("bridgeRainThresholds"),
         ],
       },
       {

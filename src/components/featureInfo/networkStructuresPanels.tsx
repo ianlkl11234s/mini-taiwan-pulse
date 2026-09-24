@@ -13,6 +13,9 @@ function numberText(value: unknown, unit = "", fallback = "未提供") {
 }
 
 const GEOMETRY_LABELS: Record<string, string> = {
+  inspection_location_point: "原始檢測紀錄座標點；非橋軸或橋面",
+  official_registered_point: "官方登錄點；非隧道線形或洞口",
+  source_signal_location_point: "來源號誌位置點；非路口中心",
   carrier_segment: "OSM 承載路段",
   native_footprint: "OSM 原生橋梁外框",
   approximate_axis: "官方端點連線（近似軸線）",
@@ -58,7 +61,9 @@ function SourceRows({ props }: { props: Record<string, unknown> }) {
   } catch { /* Missing or unsafe URLs remain plain source labels. */ }
   const dateMeaning = props.osm_type
     ? "OSM 快照截止時間"
-    : "官方詮釋資料更新時間，非實測日期";
+    : props.geometry_role === "source_signal_location_point"
+      ? "HTTP Last-Modified 檔案時間，非逐點巡檢日期"
+      : "官方詮釋資料更新時間，非實測日期";
   return <>
     <Row label="來源" value={text(props.source_name)} />
     <Row label="資料日期" value={text(props.source_date)} />
@@ -129,6 +134,76 @@ export function BridgeComparisonNewTaipeiPanel({ props }: { props: Record<string
     <Row label="候選評分" value={numberText(props.match_confidence, "", scoreMissing)} />
     <GeometryRow role={props.geometry_role} />
     <Row label="注意" value="候選比對，非權威配對；僅 OSM 表示此官方清冊未找到候選，不代表官方漏報。" />
+    <SourceRows props={props} />
+  </>;
+}
+
+export function TainanBridgeInspectionsPanel({ props }: { props: Record<string, unknown> }) {
+  return <>
+    <Title color="#a855f7">{text(props.name, "臺南橋梁檢測紀錄")}</Title>
+    <Row label="檢測年度" value={isMissing(props.inspection_year_roc) ? "未提供" : `民國 ${text(props.inspection_year_roc)} 年（未提供確切日期）`} />
+    <Row label="檢測員意見" value={text(props.inspection_comment)} />
+    <Row label="行政區" value={text(props.town)} />
+    <Row label="主管機關" value={text(props.competent_authority)} />
+    <Row label="管理維護機關" value={text(props.maintenance_authority)} />
+    <Row label="登錄總長" value={numberText(props.bridge_total_length_m, " m")} />
+    <Row label="登錄淨寬" value={numberText(props.bridge_clear_width_m, " m")} />
+    <GeometryRow role={props.geometry_role} />
+    <Row label="資料限制" value="這是歷史檢測紀錄，來源無橋梁系統 ID、分數或即時通行狀態；無法直接與其他橋梁清冊合併。" />
+    <SourceRows props={props} />
+  </>;
+}
+
+export function OfficialBridgeHsinchuPanel({ props }: { props: Record<string, unknown> }) {
+  return <>
+    <Title color="#22d3ee">{text(props.name, "新竹市橋梁")}</Title>
+    <Row label="路線" value={text(props.route)} />
+    <Row label="登錄長度" value={numberText(props.official_length_m, " m")} />
+    <Row label="清冊 ID" value="來源未提供；地圖識別碼僅供本次資料重現" />
+    <GeometryRow role={props.geometry_role} />
+    <Row label="資料限制" value="橋頭尾連線是近似位置，非實際橋身；未與檢測紀錄建立權威配對，也不表示結構安全狀態。" />
+    <SourceRows props={props} />
+  </>;
+}
+
+export function TaipeiRoadTunnelPanel({ props }: { props: Record<string, unknown> }) {
+  return <>
+    <Title color="#f59e0b">{text(props.name, "臺北市道路隧道")}</Title>
+    <Row label="官方隧道 ID" value={text(props.official_tunnel_id)} />
+    <Row label="隧道類型" value={text(props.tunnel_kind)} />
+    <Row label="管理單位" value={text(props.manager)} />
+    <Row label="路線" value={text(props.route_description)} />
+    <Row label="方向明細" value={numberText(props.direction_count, " 筆")} />
+    <Row label="方向登錄長度合計" value={numberText(props.directional_length_sum_m, " m")} />
+    <GeometryRow role={props.geometry_role} />
+    <Row label="資料限制" value="僅顯示官方登錄點；方向長度為各方向合計，非隧道總長。部分端點距離與登錄長度不一致，未繪製假定隧道線。來源未提供資料日期或即時通行狀態。" />
+    <SourceRows props={props} />
+  </>;
+}
+
+export function TainanRoadTunnelPanel({ props }: { props: Record<string, unknown> }) {
+  return <>
+    <Title color="#fb923c">{text(props.name, "臺南市道路隧道")}</Title>
+    <Row label="道路編號" value={text(props.route_ref)} />
+    <Row label="方向" value={text(props.directionality)} />
+    <Row label="登錄長度" value={numberText(props.official_length_m, " m")} />
+    <Row label="登錄寬度" value={numberText(props.official_width_m, " m")} />
+    <Row label="車道數" value={numberText(props.lane_count)} />
+    <GeometryRow role={props.geometry_role} />
+    <Row label="座標與時間限制" value="來源未宣告 CRS，WGS84 僅依數值範圍推定；未提供資料日期或即時通行狀態。" />
+    <SourceRows props={props} />
+  </>;
+}
+
+export function ChanghuaTrafficSignalPanel({ props }: { props: Record<string, unknown> }) {
+  return <>
+    <Title color="#84cc16">{text(props.name, "彰化縣道路號誌")}</Title>
+    <Row label="來源編號" value={text(props.source_record_id)} />
+    <Row label="號誌種類" value={text(props.signal_kind)} />
+    <Row label="權責單位" value={text(props.responsible_authority)} />
+    <Row label="地區" value={text(props.district)} />
+    <GeometryRow role={props.geometry_role} />
+    <Row label="資料限制" value="一筆是號誌清冊點，不等於獨立路口；無即時燈態、秒數或故障資訊。" />
     <SourceRows props={props} />
   </>;
 }

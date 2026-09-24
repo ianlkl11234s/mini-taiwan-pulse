@@ -53,6 +53,11 @@ NETWORK_STRUCTURE_FILES=(
   "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
   "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
   "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
+  "public/network_structures/tainan_bridge_inspections_20260924.pmtiles"
+  "public/network_structures/official_bridges_hsinchu_20260924.pmtiles"
+  "public/network_structures/taipei_road_tunnels_20260924.pmtiles"
+  "public/network_structures/tainan_road_tunnels_20260924.pmtiles"
+  "public/network_structures/changhua_traffic_signals_20260924.pmtiles"
 )
 for f in "${NETWORK_STRUCTURE_FILES[@]}"; do
   [ -f "$f" ] || continue

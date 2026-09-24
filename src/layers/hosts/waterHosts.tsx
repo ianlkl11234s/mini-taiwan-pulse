@@ -2,6 +2,7 @@
 
 import { useReservoirStatusLayer } from "../../hooks/useReservoirStatusLayer";
 import { useRainGaugeLayer } from "../../hooks/useRainGaugeLayer";
+import { useBridgeRainLayer } from "../../hooks/useBridgeRainLayer";
 import { useFloodSensorLayer } from "../../hooks/useFloodSensorLayer";
 import { useFloodSensorIsochroneLayer } from "../../hooks/useFloodSensorIsochroneLayer";
 import { useTaipeiSewerLayer } from "../../hooks/useTaipeiSewerLayer";
@@ -45,6 +46,13 @@ export const RainGaugeHost: LayerHostComponent = ({ deps }) => {
     p.rainGaugeScale ?? 1,
     p.rainGaugeOpacity ?? 1,
   );
+  return null;
+};
+
+export const BridgeRainHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useBridgeRainLayer");
+  const p = useKeyOverlayParams("bridgeRainThresholds");
+  useBridgeRainLayer(deps.mapRef, deps.layerVisibility.bridgeRainThresholds, p.bridgeRainThresholdsOpacity ?? 0.9);
   return null;
 };
 

@@ -221,7 +221,12 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["jp-medical-areas-2-fill"], type: "jpMedicalAreasSecondary" },
   { layers: ["jp-medical-areas-3-fill"], type: "jpMedicalAreasTertiary" },
   { layers: ["jp-water-jpWaterLakes"], type: "jpWaterLakes" },
-  // 橋梁輪廓是面，排在三條細線之後，避免先吃掉同位置的承載／官方／比對點擊。
+  // 檢測點優先於承載線；橋梁輪廓是面，排在細線之後，避免先吃掉同位置點擊。
+  { layers: ["tainan-bridge-inspections-circle"], type: "tainanBridgeInspections" },
+  { layers: ["changhua-traffic-signals-circle"], type: "changhuaTrafficSignals" },
+  { layers: ["taipei-road-tunnels-circle"], type: "taipeiRoadTunnels" },
+  { layers: ["tainan-road-tunnels-circle"], type: "tainanRoadTunnels" },
+  { layers: ["official-bridges-hsinchu-line", "official-bridges-hsinchu-coincident-endpoints"], type: "officialBridgesHsinchu" },
   { layers: ["osm-bridge-carriers-line"], type: "osmBridgeCarriers" },
   { layers: ["official-bridges-new-taipei-line", "official-bridges-new-taipei-coincident-endpoints"], type: "officialBridgesNewTaipei" },
   { layers: ["bridge-comparison-new-taipei-line", "bridge-comparison-new-taipei-coincident-endpoints"], type: "bridgeComparisonNewTaipei" },
@@ -383,6 +388,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: [...MARINE_OBSERVATION_CLICK_LAYERS], type: "marineObservation" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
+  { layers: ["bridge-rain-circle"], type: "bridgeRainThresholds" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
   // 💧 IoT 感測站兩層：properties 早已逐欄烤好（見 useIotWraRiverLayer / …Structure 的
   //    buildFC），W2 前只缺本表一行。iotWraRiver 1,634 站與 riverLevel 831 站僅重疊
