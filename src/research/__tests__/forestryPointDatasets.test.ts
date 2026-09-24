@@ -22,7 +22,7 @@ it("registers the three fixed, source-coordinate forestry Point snapshots", asyn
   expect(results.map(result => result.rows.length)).toEqual([32, 1416, 3407]);
   expect(results[0]!.rows[0]).toMatchObject({ lake_name: "士文溪堰塞湖", found_date: "098-08-13" });
   expect(results[1]!.rows[0]).toMatchObject({ name: "鐵杉林自然步道", forest_district: "宜蘭" });
-  expect(results[2]!.rows[0]).toMatchObject({ route_name: "巴博庫魯山徑", installed_roc_year: 105 });
+  expect(results[2]!.rows[0]).toMatchObject({ route_name: "巴博庫魯山徑", source_year: 105 });
   for (const adapter of forestryPointAdapters) {
     expect(adapter.descriptor).toMatchObject({
       geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
