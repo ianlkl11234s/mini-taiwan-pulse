@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearNearbyDataCache } from "../nearbyData";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
-import { describeDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
+import { describeDataset, ensureDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 
@@ -57,9 +57,15 @@ describe("built-in research datasets", () => {
   });
 
   it("describes a public PMTiles pilot without claiming record access", async () => {
+    expect(searchDatasets("臺北市土地使用分區").datasets).toContainEqual(expect.objectContaining({ datasetId: "urban_zoning_taipei", access: expect.objectContaining({ queryEnabled: false }) }));
+    await expect(ensureDataset("urban_zoning_taipei")).resolves.toBeUndefined();
     const zoning = describeDataset("urban_zoning_taipei");
     expect(zoning).toMatchObject({ geometry: { type: "Polygon", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: false } } });
     await expect(queryRecords({ datasetId: "urban_zoning_taipei" })).rejects.toThrow("DATASET_NOT_FOUND");
+    await expect(ensureDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(() => describeDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).toThrow("DATASET_NOT_FOUND");
+    await expect(ensureDataset("unknown-dataset")).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(() => describeDataset("unknown-dataset")).toThrow("DATASET_NOT_FOUND");
   });
 
   it("queries two real point adapters without consulting layer visibility", async () => {

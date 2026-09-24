@@ -6,6 +6,8 @@ import { createAdministrativeBoundaryAdapter } from "./administrativeBoundaryAda
 import { localPopulationPreviewAdapters } from "./localPopulationPreview";
 import { createRoadEventCurrentAdapter } from "./roadEventDatasetAdapter";
 import { chiayiBusRouteAdapter } from "./busRouteDatasetAdapter";
+import { yushanHutsAdapter } from "./yushanHutsDataset";
+import { createCemeteryZoningDatasetAdapter } from "./cemeteryZoningDatasetAdapter";
 import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
@@ -308,6 +310,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   convenienceStoresAdapter,
   earthquakeReplayAdapter,
   chiayiBusRouteAdapter,
+  yushanHutsAdapter,
+  createCemeteryZoningDatasetAdapter(),
   createRoadEventCurrentAdapter(),
   ...localRawBoundaries,
   ...localPopulationPreview,
@@ -385,7 +389,7 @@ export function searchDatasets(query: string, offset = 0, limit = 20, locked: Re
 }
 
 export function describeDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): DatasetDescriptor & { semantics: SemanticCard | null } {
-  const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId) ?? discoveryOnlyDescriptors.find(item => item.datasetId === datasetId) ?? null;
+  const descriptor = allDescriptors().find(item => item.datasetId === datasetId) ?? null;
   if (!descriptor || !descriptor.access.discovery.describe || !datasetAuthorized(descriptor, locked)) throw new Error("DATASET_NOT_FOUND");
   return { ...descriptor, semantics: describeDatasetSemantics(datasetId) };
 }
@@ -418,6 +422,11 @@ export async function datasetForLayer(layerKey: string, locked: ReadonlySet<stri
 const hydrating = new Map<string, Promise<void>>();
 /** Hydrate only a manifest-owned local Point asset, never a user-supplied URL. */
 export async function ensureDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): Promise<void> {
+  const discoveryOnly = discoveryOnlyDescriptors.find(descriptor => descriptor.datasetId === datasetId);
+  if (discoveryOnly) {
+    if (!datasetAuthorized(discoveryOnly, locked)) throw new Error("DATASET_NOT_FOUND");
+    return;
+  }
   if (RESEARCH_QUERY_EXECUTOR.describe(datasetId)) return;
   if (!datasetId.startsWith("layer:")) throw new Error("DATASET_NOT_FOUND");
   const layerKey = datasetId.slice(6);

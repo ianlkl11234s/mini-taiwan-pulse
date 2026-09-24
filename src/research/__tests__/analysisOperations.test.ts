@@ -125,6 +125,13 @@ describe("AnalysisOperations", () => {
     expect(() => setup(manyPoints, manyAreas).operations.aggregateByArea({ pointResultId: "many-points", areaResultId: "many-areas", predicate: "within" })).toThrow("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
   });
 
+  it("uses the same qualified area guard for derived contains-center results", () => {
+    const derived = { ...areaResult("derived-areas"), geometry: { type: "MultiPolygon" as const, role: "derived" as const, spatialAnalysisEligible: true } };
+    expect(setup(derived).operations.areasContainingCenter({ areaResultId: "derived-areas", center: { lng: 121.5, lat: 25 } })).toMatchObject({ summary: { matchedAreas: 1 }, method: { predicate: "contains_center" } });
+    const generalized = { ...derived, resultId: "generalized-areas", geometry: { type: "MultiPolygon" as const, role: "generalized" as const, spatialAnalysisEligible: false } };
+    expect(() => setup(generalized).operations.areasContainingCenter({ areaResultId: "generalized-areas", center: { lng: 121.5, lat: 25 } })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+  });
+
   it("aggregates without converting nulls into zero", () => {
     const { operations } = setup(pointResult());
     const mean = operations.aggregate({ resultId: "points", operation: "mean", field: "population", groupBy: ["city"] });

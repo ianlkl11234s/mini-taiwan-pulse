@@ -255,7 +255,7 @@ export class AnalysisOperations {
 
   spatialJoin(input: SpatialJoinInput): AnalysisResult {
     const points = this.data(input.pointResultId); const areas = this.data(input.areaResultId);
-    this.assertActualPoints(points); this.assertActualSurfaces(areas);
+    this.assertActualPoints(points); this.assertAreas(areas);
     const pairs = points.rows.length * areas.rows.length;
     if (pairs > 10_000_000) throw new Error("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
     const areaRows = areas.rows.map((row, areaIndex) => ({ row, areaIndex, geometry: this.surface(row.geometry) }));
@@ -280,7 +280,7 @@ export class AnalysisOperations {
 
   lineIntersects(input: LineIntersectsInput): AnalysisResult {
     const lines = this.data(input.lineResultId); const areas = this.data(input.areaResultId);
-    this.assertActualLines(lines); this.assertActualSurfaces(areas);
+    this.assertActualLines(lines); this.assertAreas(areas);
     const comparisons = lines.rows.length * areas.rows.length;
     if (comparisons > 10_000_000) throw new Error("SPATIAL_COMPARISON_BUDGET_EXCEEDED");
     let topologyComparisons = 0;
@@ -310,7 +310,7 @@ export class AnalysisOperations {
 
   aggregateByArea(input: AggregateByAreaInput): AnalysisResult {
     const points = this.data(input.pointResultId); const areas = this.data(input.areaResultId);
-    this.assertActualPoints(points); this.assertActualSurfaces(areas);
+    this.assertActualPoints(points); this.assertAreas(areas);
     const outputField = input.outputField ?? "point_count";
     if (!validField(outputField)) throw new Error("INVALID_AGGREGATE_FIELD");
     const pairs = points.rows.length * areas.rows.length;
@@ -336,7 +336,7 @@ export class AnalysisOperations {
   areasContainingCenter(input: AreasContainingCenterInput): AnalysisResult {
     assertCenter(input.center);
     const areas = this.data(input.areaResultId);
-    if (!['Polygon', 'MultiPolygon'].includes(areas.geometry.type) || areas.geometry.role !== "actual" || !areas.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+    this.assertAreas(areas);
     const center: PointGeometry = { type: "Point", coordinates: [input.center.lng, input.center.lat] };
     const rows = areas.rows.filter(row => locatePointInSurface(center, this.surface(row.geometry)) === "inside");
     return this.save("spatial_join", [areas], rows, areas.recordGrain, areas.geometry, areas.units, {
@@ -480,7 +480,7 @@ export class AnalysisOperations {
   private assertActualLines(result: StoredDataResult): void {
     if (!['LineString', 'MultiLineString'].includes(result.geometry.type) || result.geometry.role !== "actual" || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
-  private assertActualSurfaces(result: StoredDataResult): void {
+  private assertAreas(result: StoredDataResult): void {
     if (!["Polygon", "MultiPolygon"].includes(result.geometry.type) || !["actual", "derived"].includes(result.geometry.role) || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
   }
   private spatialPoint(value: unknown): PointGeometry {

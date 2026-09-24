@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
+import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
 import { QueryExecutor } from "../queryExecutor";
 import { createAdminStatisticsAdapter, createLineDatasetAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
 
@@ -63,6 +63,19 @@ const statistics = base({
 });
 
 describe("shared research query executor", () => {
+  it("permits only checksum-bound immutable derived Polygon surfaces for spatial eligibility", () => {
+    const derivedSurface = base({ kind: "polygon", recordGrain: "feature", geometry: { type: "MultiPolygon", crs: "EPSG:4326", role: "derived", precision: "fixed upstream 1e-6 grid", spatialAnalysisEligible: true } });
+    expect(() => assertDatasetDescriptor(derivedSurface)).not.toThrow();
+    expect(() => assertDatasetDescriptor({ ...derivedSurface, versions: [{ ...derivedSurface.versions[0]!, checksumSha256: null }] })).toThrow("INVALID_DATASET_DESCRIPTOR");
+    expect(() => assertDatasetDescriptor({ ...derivedSurface, versions: [{ ...derivedSurface.versions[0]!, mutable: true }] })).toThrow("INVALID_DATASET_DESCRIPTOR");
+    for (const geometry of [
+      { ...derivedSurface.geometry, type: "Polygon" as const, role: "generalized" as const },
+      { ...derivedSurface.geometry, type: "Polygon" as const, role: "proxy" as const },
+      { ...derivedSurface.geometry, type: "Point" as const, role: "derived" as const },
+      { ...derivedSurface.geometry, type: "LineString" as const, role: "derived" as const },
+    ]) expect(() => assertDatasetDescriptor({ ...derivedSurface, geometry })).toThrow("INVALID_DATASET_DESCRIPTOR");
+  });
+
   it("requires actual EPSG:4326 geometry before constructing a line adapter", () => {
     const line = base({ kind: "line", recordGrain: "feature", geometry: { type: "LineString", crs: "EPSG:4326", role: "actual", precision: "source line", spatialAnalysisEligible: true } });
     expect(() => createLineDatasetAdapter(line, async () => ({ rows: [], source: source("line", "v1"), coverage: "fixture" }))).not.toThrow();

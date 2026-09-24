@@ -27,3 +27,17 @@
 公車asset SHA `ea6ccd99b9e6a181654323f7d7a800569f1c2a86891fea245bbbed007b79f2a7`；raw界線SHA `5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6`；圖書館SHA `80425ed85d0b5efe237d315c0109efe62d7ee556418977337db380b16e5d98a5`。raw界線維持owner-only、DEV、本地驗證；公開license與distribution仍HOLD。公車sourceVersion/freshness unknown與5位座標量化不變。
 
 V03本地可從合格公車線產生derived buffer並做面交集，但它們同屬公車主題；第二個獨立主題actual Polygon尚未資格化。不能因此宣稱跨主題面疊圖或服務可及性完成。
+# R03 第二主題來源資格（2026-09-24）
+
+本節補充既有表格，不把固定 GeoJSON 的資格外推到同主題全部資料。
+
+| Dataset | 固定產物與範圍 | 可用語意／限制 |
+|---|---|---|
+| `tw-urban-cemetery-zones` | `/funeral/cemetery_zoning.geojson`，601318 bytes、114 MultiPolygon、SHA256 `55302cbf68ab98cf5608b6c5ac626eaef4eaa0dc3f80c46814f8b86f5d1a844e` | 雙北都市計畫墓葬分區衍生快照；保留 `zoning_id/zone_label/county/area_ha`。upstream `make_valid`、轉WGS84、標籤萃取，再經 `set_precision(1e-6)`。runtime不再改座標；球面度量與来源EPSG:3826 `area_ha`分列，不當作法律或地籍判定。非都市土地與其他縣市不在涵蓋內。 |
+| `tw-yushan-huts-official-coordinates` | `/forestry/mountain_huts.geojson`，119620 bytes、136筆混合來源、SHA256 `5e9f4a1017089dd02540720f1da34b191048e1638dcacf0e29f5aec77f6212e4`；固定三欄選取30筆 | `coord_source=yushan_np_shp`、`source_tier=1`、`in_yushan_official=true`。30筆名稱與座標皆與各筆內嵌官方 provenance 完全一致。106筆OSM座標排除；不暴露混入的容量、高程、OSM ID。不代表目前開放、安全、床位或全臺供給。 |
+
+官方授權現場查核：[臺北156197](https://data.gov.tw/dataset/156197)、[新北166182](https://data.gov.tw/dataset/166182)、[玉山7449](https://data.gov.tw/dataset/7449)皆標政府資料開放授權條款第1版。新北明示以發布實施都市計畫書圖為準。臺北頁面說明更新至114年1月，玉山檔案名114年修；不能把下載或網站metadata日期當觀測日期。山屋載入原檔含OpenStreetMap資料，因此保留混合檔OGDL／ODbL聲明，不宣称全檔純官方。
+
+Lineage程式：analytics `pipelines/urban_composite/urban_zoning/02_normalize_validate.py`、`pipelines/funeral/cemetery_zoning_urban/01_extract.py`、`pipelines/funeral/_shared/build_web_assets.py`；山屋 `pipelines/forestry/mountain_huts/{01_download,06_enrich,07_export}.py`。本地raw/processed歷史檔案缺席，未補成原始檔SHA链完整；此次資格僅針對上述可重現固定衍生bytes與其已知處理語意。2026-08-01是既有記錄的上游落地／山屋取得日，不是墓葬衍生產物發布日。
+
+未採用：全國零售市場點位混TGOS、Google、離線地址匹配，且pulse縮減檔已刪除逐筆 `coord_method`，不能升格為來源原生精確座標。森林遊樂區尚未完成同版來源／處理資格核對，保持候選。

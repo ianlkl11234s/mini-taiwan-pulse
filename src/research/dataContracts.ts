@@ -184,7 +184,16 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
     || version.availableAt !== null && !Number.isFinite(Date.parse(version.availableAt))
     || version.checksumSha256 !== null && !/^[0-9a-f]{64}$/.test(version.checksumSha256))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if (value.geometry.type === "none" && (value.geometry.crs !== null || value.geometry.role !== "none" || value.geometry.spatialAnalysisEligible)) throw new Error("INVALID_DATASET_DESCRIPTOR");
-  if (value.geometry.role !== "actual" && value.geometry.spatialAnalysisEligible) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  if (value.geometry.spatialAnalysisEligible && value.geometry.role !== "actual") {
+    const isQualifiedDerivedSurface = value.geometry.role === "derived"
+      && ["Polygon", "MultiPolygon"].includes(value.geometry.type)
+      && value.geometry.crs === "EPSG:4326"
+      && value.versions.length > 0
+      && value.versions.every(version => version.checksumSha256 !== null && !version.mutable)
+      && value.geometry.precision.trim().length > 0
+      && value.source.lineage.trim().length > 0;
+    if (!isQualifiedDerivedSurface) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  }
   if (value.timeFields.some(field => !names.has(field.name))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if ([...access.query.fields, ...access.query.filters, ...access.query.timeFields].some(field => !names.has(field))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if (value.parameters) {
