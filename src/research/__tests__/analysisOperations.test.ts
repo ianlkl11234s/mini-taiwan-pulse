@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AnalysisOperations, type StoredDataResult } from "../analysisOperations";
-import { BrowserMemoryResultStore, DEFAULT_RESULT_STORE_CAPACITY } from "../resultStore";
+import { BrowserMemoryResultStore, DEFAULT_RESULT_STORE_CAPACITY, DEFAULT_RESULT_STORE_MAX_BYTES, DEFAULT_RESULT_STORE_MAX_ENTRY_BYTES } from "../resultStore";
 
 const source = [{ sourceId: "fixture", version: "v1", acquiredAt: "2026-09-12T00:00:00.000Z", checksumSha256: null, reference: "fixture://source" }];
 function pointResult(id = "points"): StoredDataResult {
@@ -30,11 +30,43 @@ function setup(...results: StoredDataResult[]) {
 }
 
 describe("BrowserMemoryResultStore", () => {
-  it("retains sixteen session results before evicting the oldest", () => {
+  it("retains a bounded route-analysis batch before evicting the oldest", () => {
     const store = new BrowserMemoryResultStore<{ resultId: string }>();
     for (let index = 0; index < DEFAULT_RESULT_STORE_CAPACITY + 1; index += 1) store.put({ resultId: `result-${index}` });
-    expect(DEFAULT_RESULT_STORE_CAPACITY).toBe(16);
-    expect(store.list().map(item => item.resultId)).toEqual(Array.from({ length: 16 }, (_, index) => `result-${index + 1}`));
+    expect(DEFAULT_RESULT_STORE_CAPACITY).toBe(128);
+    expect(store.list().map(item => item.resultId)).toEqual(Array.from({ length: 128 }, (_, index) => `result-${index + 1}`));
+  });
+
+  it("retains 31 three-step route results alongside eight active pins within the byte budget", () => {
+    const store = new BrowserMemoryResultStore<{ resultId: string; payload: string }>();
+    const active = Array.from({ length: 8 }, (_, index) => `route-${index}-source`);
+    for (let route = 0; route < 31; route += 1) {
+      for (const stage of ["source", "buffer", "measure"]) store.put({ resultId: `route-${route}-${stage}`, payload: "x".repeat(2_000) });
+    }
+    store.setPinned(active);
+    expect(store.list()).toHaveLength(93);
+    expect(active.every(resultId => store.has(resultId))).toBe(true);
+    expect(DEFAULT_RESULT_STORE_MAX_BYTES).toBe(96 * 1024 * 1024);
+  });
+
+  it("evicts only unpinned entries to enforce byte and per-entry budgets", () => {
+    const store = new BrowserMemoryResultStore<{ resultId: string; payload: string }>({ maxResults: 8, maxBytes: 400, maxEntryBytes: 300 });
+    store.put({ resultId: "pinned", payload: "x".repeat(150) });
+    store.put({ resultId: "older", payload: "x".repeat(150) });
+    store.setPinned(["pinned"]);
+    store.put({ resultId: "next", payload: "x".repeat(150) });
+    expect(store.has("pinned")).toBe(true); expect(store.has("older")).toBe(false); expect(store.has("next")).toBe(true);
+    expect(() => store.put({ resultId: "oversize", payload: "x".repeat(301) })).toThrow("RESULT_STORE_ENTRY_BYTES_EXCEEDED");
+    store.setPinned(["pinned", "next"]);
+    expect(() => store.put({ resultId: "blocked", payload: "x".repeat(150) })).toThrow("RESULT_STORE_BYTE_BUDGET_PINNED");
+    expect(store.list().map(item => item.resultId)).toEqual(["pinned", "next"]);
+  });
+
+  it("allows a bounded raw 22-county boundary result without raising the entry limit indefinitely", () => {
+    expect(DEFAULT_RESULT_STORE_MAX_ENTRY_BYTES).toBe(24 * 1024 * 1024);
+    const store = new BrowserMemoryResultStore<{ resultId: string; payload: string }>();
+    expect(() => store.put({ resultId: "county-boundaries", payload: "x".repeat(14_700_000) })).not.toThrow();
+    expect(() => store.put({ resultId: "too-large", payload: "x".repeat(24 * 1024 * 1024) })).toThrow("RESULT_STORE_ENTRY_BYTES_EXCEEDED");
   });
 
   it("keeps the active collection pinned while evicting older unpinned results", () => {
