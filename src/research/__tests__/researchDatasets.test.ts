@@ -58,12 +58,11 @@ describe("built-in research datasets", () => {
     expect(describeDataset("allen_coral_atlas", new Set()).access).toMatchObject({ mode: "owner_only", query: { enabled: false } });
   });
 
-  it("describes a public PMTiles pilot without claiming record access", async () => {
-    expect(searchDatasets("臺北市土地使用分區").datasets).toContainEqual(expect.objectContaining({ datasetId: "urban_zoning_taipei", access: expect.objectContaining({ queryEnabled: false }) }));
+  it("describes a same-version PMTiles attribute sidecar without claiming geometry access", async () => {
+    expect(searchDatasets("臺北市土地使用分區").datasets).toContainEqual(expect.objectContaining({ datasetId: "urban_zoning_taipei", access: expect.objectContaining({ queryEnabled: true }) }));
     await expect(ensureDataset("urban_zoning_taipei")).resolves.toBeUndefined();
     const zoning = describeDataset("urban_zoning_taipei");
-    expect(zoning).toMatchObject({ geometry: { type: "Polygon", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: false } } });
-    await expect(queryRecords({ datasetId: "urban_zoning_taipei" })).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(zoning).toMatchObject({ geometry: { type: "none", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: true, supportsBbox: false } } });
     await expect(ensureDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).rejects.toThrow("DATASET_NOT_FOUND");
     expect(() => describeDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).toThrow("DATASET_NOT_FOUND");
     await expect(ensureDataset("unknown-dataset")).rejects.toThrow("DATASET_NOT_FOUND");

@@ -105,10 +105,10 @@ function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, numbe
 
 function parseCursor(cursor: string | undefined): { prefix: string; offset: number } | null {
   if (cursor === undefined) return null;
-  const match = /^cursor-([a-f0-9]{16})-(\d{1,5})$/.exec(cursor);
+  const match = /^cursor-([a-f0-9]{16})-(\d{1,6})$/.exec(cursor);
   if (!match) throw new Error("INVALID_CURSOR");
   const offset = Number(match[2]);
-  if (!Number.isInteger(offset) || offset < 0 || offset > 10_000) throw new Error("INVALID_CURSOR");
+  if (!Number.isInteger(offset) || offset < 0 || offset > 100_000) throw new Error("INVALID_CURSOR");
   return { prefix: match[1]!, offset };
 }
 
@@ -212,7 +212,7 @@ export class QueryExecutor {
     if (!descriptor.access.query.enabled) throw new Error("DATASET_QUERY_UNAVAILABLE");
     if (input.cursor !== undefined && input.offset !== undefined) throw new Error("INVALID_PAGINATION");
     const parsedCursor = parseCursor(input.cursor);
-    const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 10_000, "INVALID_OFFSET");
+    const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 100_000, "INVALID_OFFSET");
     const limit = integer(input.limit, Math.min(20, descriptor.access.limits.maxRowsPerQuery), 1, descriptor.access.limits.maxRowsPerQuery, "INVALID_LIMIT");
     const fieldMap = new Map(descriptor.fields.map(field => [field.name, field]));
     // Surface coordinates stay in the complete materialized result. Default tool

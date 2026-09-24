@@ -21,6 +21,7 @@ import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinate
 import { forestryPointAdapters } from "./forestryPointDatasets";
 import { forestryProxyAdapters } from "./forestryProxyDatasets";
 import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
+import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -41,14 +42,6 @@ const localPopulationPreview = import.meta.env.DEV && import.meta.env.VITE_RESEA
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 
 const discoveryOnlyDescriptors: readonly DatasetDescriptor[] = [
-  {
-    schemaVersion: "pulse-dataset/0.1", datasetId: "urban_zoning_taipei", label: "臺北市土地使用分區", description: "公開 PMTiles 土地使用分區形狀；目前僅開放探索說明，未有同版 sidecar 前不開放紀錄查詢。",
-    layerRefs: ["urbanZoningTaipei"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
-    geometry: { type: "Polygon", crs: null, role: "generalized", precision: "PMTiles display geometry; source CRS, simplification and analysis precision require a version-matched sidecar", spatialAnalysisEligible: false },
-    timeFields: [], coverage: "臺北市都市計畫土地使用分區；完整性待同版 sidecar 驗證", license: "registered upstream license not yet copied into this runtime descriptor", valueSemantics: DEFAULT_VALUE_SEMANTICS,
-    versions: [], source: { publisher: "臺北市政府資料開放平台", reference: "/urban/urban_zoning_taipei.pmtiles", lineage: "data.taipei SHP -> PMTiles display asset; catalog registration is not payload health proof" },
-    access: boundedAccess({ mode: "public", method: "pmtiles_sidecar", fields: [], maxRowsPerQuery: 1, maxScanRows: 1, queryEnabled: false }), supportedOperations: [], adapterId: "pmtiles-sidecar-required",
-  },
   {
     schemaVersion: "pulse-dataset/0.1", datasetId: "allen_coral_atlas", label: "Allen Coral Atlas 淺海棲地分類", description: "僅 owner 私人非商業研究；搜尋、說明與查詢都必須每次重新驗權。目前未建立 query adapter。",
     layerRefs: ["allenCoralAtlas"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
@@ -322,6 +315,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   ...forestryPointAdapters,
   ...forestryProxyAdapters,
   lighthousesSourceCoordinatesAdapter,
+  taipeiZoningAttributeAdapter,
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
@@ -436,7 +430,11 @@ export async function ensureDataset(datasetId: string, locked: ReadonlySet<strin
     if (!datasetAuthorized(discoveryOnly, locked)) throw new Error("DATASET_NOT_FOUND");
     return;
   }
-  if (RESEARCH_QUERY_EXECUTOR.describe(datasetId)) return;
+  const registered = RESEARCH_QUERY_EXECUTOR.describe(datasetId);
+  if (registered) {
+    if (!datasetAuthorized(registered, locked)) throw new Error("DATASET_NOT_FOUND");
+    return;
+  }
   if (!datasetId.startsWith("layer:")) throw new Error("DATASET_NOT_FOUND");
   const layerKey = datasetId.slice(6);
   if (locked.has(layerKey)) throw new Error("LAYER_DENIED");
