@@ -2,7 +2,7 @@
 
 本輪從 `analysis-coverage-20260925.json` 的 118 個 `metadata_candidate_requires_readback` 候選出發，依 `src/data/layerManifest.ts` 的 `source.url` 去重，只讀已存在的 `public/` GeoJSON；沒有下載、沒有掃描超過必要檔案。JSON 以 `features` 的 geometry type 做實讀，不能把副檔名當成 geometry 證據。以下 15 個是較可行的純 Point 試點（bytes／feature 數為本地檔案當下值）。
 
-接入前基線為 118 個 metadata 候選；首批接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳為 115 個。再接入海纜登陸站 11 個 node 與 47 個 center 的同源雙 descriptor（見 [專用紀錄](./n2-landing-stations-20260925.md)）後為 114 個；心理衛生機構只接 63 筆來源自帶座標（見 [專用紀錄](./n2-mental-health-20260925.md)）後，最新台帳為 113 候選、78 registered datasets／69 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
+接入前基線為 118 個 metadata 候選；首批接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳為 115 個。再接入海纜登陸站 11 個 node 與 47 個 center 的同源雙 descriptor（見 [專用紀錄](./n2-landing-stations-20260925.md)）後為 114 個；心理衛生機構只接 63 筆來源自帶座標（見 [專用紀錄](./n2-mental-health-20260925.md)）後為 113 個；溫泉露頭 150 筆接入後，最新台帳為 112 候選、79 registered datasets／70 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
 
 | layer key | asset（manifest source URL） | bytes / features | geometry | source／時間／授權證據 | 既有 reader | 阻擋項 |
 |---|---|---:|---|---|---|---|
@@ -12,7 +12,7 @@
 | `landingStations` | `public/geo/landing_stations.geojson` | 60,304 / 58 | 58 Point | 上游 OSM/Overpass、ODbL；詳見專用紀錄 | 已接 11 actual node＋47 proxy center 雙 descriptor | 來源不完整；center 不可做近鄰／環域 |
 | `welfareMentalHealth` | `public/welfare/mental_health_facilities_national.geojson` | 33,873 / 70 | 70 Point | 上游 165355、OGDL；70 筆中 63 upstream/7 Google-derived | 已接 63 筆固定 SHA 來源自帶座標 reader | 7 筆 Google 派生座標 HOLD；`permit_status` 不代表目前有效 |
 | `religionTop100` | `public/religion/top100.geojson` | 48,306 / 100 | 100 Point | manifest entry 1012；上游 `taipei-gis-analytics/docs/data-catalog/religion/top100.md` | 同上 | 固定精選 100 筆非寺廟總數；部分節慶代表點，須確認語意；尚無 descriptor |
-| `tourHotSprings` | `public/tourism/hot_springs_national.geojson` | 34,397 / 150 | 150 Point | manifest entry 2882；上游 `taipei-gis-analytics/docs/data-catalog/tourism/hot_spring.md` | 同上 | 露頭語意與時點需保留；尚無 descriptor |
+| `tourHotSprings` | `public/tourism/hot_springs_national.geojson` | 34,397 / 150 | 150 Point | manifest entry 2882；上游 `taipei-gis-analytics/docs/data-catalog/tourism/hot_spring.md` | 已接固定 SHA／150 筆 actual reader | 10 筆泉質空白；無上游穩定 ID，record ID 只在固定版本內有效；不是營業或水質現況 |
 | `welfareGovOffices` | `public/welfare/welfare_gov_offices_national.geojson` | 73,967 / 151 | 151 Point | manifest entry 3701；明列 151／母體 307 與排他過濾；upstream `verified` | 同上 | 不是完整母體；需保留排除語意、license/date |
 | `welfareCenters` | `public/civic_facilities/welfare_centers_national.geojson` | 32,222 / 157 | 157 Point | manifest entry 2576；upstream `verified` | 同上 | 需確認資料版次與授權；尚無 descriptor |
 | `tourFactories` | `public/tourism/tourism_factories_national.geojson` | 60,770 / 158 | 158 Point | manifest entry 2993；上游 `taipei-gis-analytics/docs/data-catalog/tourism/tourism_factory.md` | 同上 | 混有 Google geocode 座標，非 Google 底圖使用政策待審；尚無 descriptor |
