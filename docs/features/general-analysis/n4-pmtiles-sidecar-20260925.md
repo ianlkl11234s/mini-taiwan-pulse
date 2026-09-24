@@ -14,6 +14,6 @@ python3 scripts/research/build-zoning-attribute-sidecar.py \
   --expected-count 15518 --data-date 2026-04-01
 ```
 
-驗證：生成器拒絕錯誤總筆數、非 MultiPolygon、空屬性及重複 ID；runtime 驗固定 sidecar SHA、同版來源／tile SHA、筆數、唯一 ID、類型與大小上限。測試查 `residential` 7,811 筆、`R3` 代碼變體、15,500 offset 的最後 18 筆、bbox 拒絕與 SHA 篡改拒絕。這是資料與本地程式驗收；仍須正常配對工具鏈與瀏覽器 readback 才能宣稱產品可用。
+驗證：生成器拒絕錯誤總筆數、非 MultiPolygon、空屬性及重複 ID；runtime 驗固定 sidecar SHA、同版來源／tile SHA、筆數、唯一 ID、類型與大小上限。測試查 `residential` 7,811 筆、`R3` 代碼變體、15,500 offset 的最後 18 筆、bbox 拒絕與 SHA 篡改拒絕。2026-09-25 正常配對的 MCP → Gateway → browser 查詢 `residential` 回傳 7,811 筆，實讀 15,518 列／1,921,082 bytes 與固定 SHA。該配對 Vite 使用另一 checkout 的 `publicDir`，故 `vite.config.ts` 以固定路徑從本 worktree 提供此 sidecar；HTTP HEAD 已確認 `application/json`。這證明屬性查詢，不代表已驗證面 geometry 的地圖呈現。
 
 下一段：用 Parquet/GeoJSON 建 geometry 分片索引，保留官方面精度與多面/洞/無效幾何驗證，再開放相交／環域；新北 34,190 面、約 461 MiB GeoJSON，不能直接載入前台，須按 feature ID 分片並驗其 PMTiles SHA（目前原 checkout SHA 與上游檔不同）。兩者不得由 tile 抽稀形狀推回完整來源數。
