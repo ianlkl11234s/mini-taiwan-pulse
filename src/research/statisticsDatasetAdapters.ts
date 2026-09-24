@@ -65,11 +65,11 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       { name: "period_end", role: "period_end", timezone: "Asia/Taipei" },
     ],
     coverage: JSON.stringify(recipe.release_options.map(option => ({ release_id: option.release_id, coverage: option.coverage }))),
-    license: "unknown; consult the exact regional-statistics release provenance before redistribution",
+    license: recipe.license ?? "unknown; consult the exact regional-statistics release provenance before redistribution",
     valueSemantics: valueSemantics(recipe),
     versions: recipe.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
     source: {
-      publisher: "regional-statistics-cdn-v1 registered publisher(s)",
+      publisher: recipe.publisher ?? "regional-statistics-cdn-v1 registered publisher(s)",
       reference: `regional-statistics://${recipe.dataset_id}/${recipe.indicator_id}/${recipe.layer_key}`,
       lineage: `exact recipe whitelist (${recipe.layer_key}) -> immutable release artifact -> status-aware administrative values -> immutable ${recipe.boundary_version} boundary joined by area_code`,
     },

@@ -22,6 +22,7 @@ import { forestryPointAdapters } from "./forestryPointDatasets";
 import { forestryProxyAdapters } from "./forestryProxyDatasets";
 import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
+import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -316,6 +317,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   ...forestryProxyAdapters,
   lighthousesSourceCoordinatesAdapter,
   taipeiZoningAttributeAdapter,
+  ...createBusOperationStatisticsAdapters(),
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),

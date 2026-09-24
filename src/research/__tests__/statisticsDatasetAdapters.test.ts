@@ -65,7 +65,7 @@ describe("social statistics dataset compiler", () => {
     const load = vi.fn(async (input: Parameters<typeof import("../../data/regionalStatisticsLoader").loadRegionalStatistics>[0]) => fixture(recipe, input.releaseId!));
     const executor = new QueryExecutor(createSocialStatisticsAdapters([recipe], load));
     const release = recipe.release_options[0]!;
-    const result = await executor.execute({ datasetId: socialStatisticsDatasetId(recipe), parameters: { releaseId: release.release_id }, filters: [{ field: "status", op: "eq", value: "suppressed" }] });
+    const result = await executor.execute({ datasetId: socialStatisticsDatasetId(recipe), parameters: { releaseId: release.release_id }, filters: [{ field: "status", op: "eq", value: "suppressed" }], select: ["value", "status", "boundary_version", "boundary_sha256", "dimensions", "geometry"] });
     expect(load).toHaveBeenCalledWith(expect.objectContaining({ datasetId: recipe.dataset_id, indicatorId: recipe.indicator_id, level: "county", dimensions: release.dimensions, releaseId: release.release_id, layerKey: recipe.layer_key, allowReleaseFallback: false }), undefined);
     expect(result.freshness).toBe(release.health === "STALE" ? "stale" : "unknown");
     expect(result.rows[0]).toMatchObject({ value: null, status: "suppressed", boundary_version: recipe.boundary_version, boundary_sha256: checksum, dimensions: release.dimensions, geometry: { type: "MultiPolygon" } });

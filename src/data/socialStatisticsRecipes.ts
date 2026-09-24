@@ -36,6 +36,8 @@ export interface SocialRecipe {
   disclosure?: string;
   fragment_context?: Record<string, unknown>;
   source_family?: string;
+  publisher?: string;
+  license?: string;
 }
 
 export type SocialStatisticsScope =

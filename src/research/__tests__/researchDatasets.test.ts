@@ -37,7 +37,7 @@ describe("built-in research datasets", () => {
     expect(schoolSearch.datasets[0]).toMatchObject({ datasetId: expect.any(String), access: { queryEnabled: expect.any(Boolean) }, versionCount: expect.any(Number) });
     expect(schoolSearch.datasets[0]).not.toHaveProperty("fields");
     expect(schoolSearch.datasets[0]).not.toHaveProperty("versions");
-    expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
+    expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length + 7);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
     const nursing = describeDataset("tw-nursing-homes-upstream");
