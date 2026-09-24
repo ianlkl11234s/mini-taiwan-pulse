@@ -196,13 +196,13 @@ export function MainMapConnection(props: Props) {
       previous.current = scene;
     } finally { applying.current = false; }
     const cameraMoved = await movement;
-    const cameraReady = framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved;
-    // Camera readback is necessary but not sufficient: wait for the next browser
-    // render frame before reporting the command ready. The main map may render
-    // continuously and never become globally idle; source/data health remains in
-    // its own loading UI and is not part of a camera receipt.
-    const rendered = waitForSceneRender(map, revision);
+    // The strict bounds readback must observe the next rendered frame. The Agent
+    // panel can grow after result state commits, changing the usable viewport.
+    const rendered = waitForSceneRender(map, revision, 5_000, () =>
+      framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved,
+    );
     const renderReady = await rendered.promise;
+    const cameraReady = renderReady === "ready";
     if (run !== generation.current) return "error";
     if (patch?.timeline) {
       const observed = latest.current.timeline?.getContext();

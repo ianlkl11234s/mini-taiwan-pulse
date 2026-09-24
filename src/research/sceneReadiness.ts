@@ -51,8 +51,17 @@ export function awaitSceneIdle(map: IdleMap, revision: number, report: (phase: S
   return () => finish();
 }
 
-/** A camera command is ready after browser readback and one rendered frame. */
-export function waitForSceneRender(map: IdleMap, revision: number, timeoutMs = 5_000): { promise: Promise<"ready" | "error">; cancel: () => void } {
+/**
+ * A camera command is ready only after the next rendered frame and its live
+ * readback. The check deliberately runs from the render receipt: panels may
+ * have changed size between initiating a move and this frame.
+ */
+export function waitForSceneRender(
+  map: IdleMap,
+  revision: number,
+  timeoutMs = 5_000,
+  afterRender: () => boolean = () => true,
+): { promise: Promise<"ready" | "error">; cancel: () => void } {
   const task = `research:command-render:${revision}`;
   let settled = false;
   let finish!: (phase: "ready" | "error") => void;
@@ -67,7 +76,11 @@ export function waitForSceneRender(map: IdleMap, revision: number, timeoutMs = 5
       resolve(phase);
     };
   });
-  const rendered = () => finish("ready");
+  const rendered = () => {
+    let ready = false;
+    try { ready = afterRender(); } catch { ready = false; }
+    finish(ready ? "ready" : "error");
+  };
   const timer = setTimeout(() => finish("error"), timeoutMs);
   map.on("render", rendered);
   map.triggerRepaint();

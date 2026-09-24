@@ -45,6 +45,16 @@ describe("research readiness", () => {
     await expect(wait.promise).resolves.toBe("ready");
     expect(loadingRegistry.snapshot()).toEqual([]);
   });
+  it("checks framing only from the rendered frame, so it sees committed panel layout", async () => {
+    const map = new MapEvents();
+    const readback = vi.fn(() => false);
+    const wait = waitForSceneRender(map, 4, 100, readback);
+    expect(readback).not.toHaveBeenCalled();
+    map.emit("render");
+    await expect(wait.promise).resolves.toBe("error");
+    expect(readback).toHaveBeenCalledTimes(1);
+    expect(loadingRegistry.snapshot()).toEqual([]);
+  });
   it("does not wait forever for hidden-document layout frames", async () => {
     vi.stubGlobal("document", { visibilityState: "hidden" });
     await expect(waitForLayoutFrame()).resolves.toBe(false);
