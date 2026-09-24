@@ -232,8 +232,22 @@ V01/V02可並行；V05文稿與視覺從首片納入；G01/G02未完成門檻不
 | Gate | 本片／下一步 | 完成判準 | 狀態 |
 |---|---|---|---|
 | R01 | V03拒絕根因、legend來源名、配對文案、skill/Jev一致性與文件收斂 | 有界修復、獨立拓樸證據、unit/typecheck、正常native＋browser；精確commit | 本輪有界修補通過；Jev僅mock/build，全面驗收留R02 |
-| R02 | G01 20題完整問答與G02三類視覺矩陣 | 換地點/措辭/半徑，cold另列、失敗與重試記錄；寬窄/深淺/面板/互動/手動鏡頭，normalized popup | 下一優先；既有9步工具链不是20題SLA |
-| R03 | V02第二獨立主題Polygon與合格設施來源 | 從11候選補source契約，oracle與native；不符資格保留HOLD | 待來源資格，不承諾任意資料 |
+| R02 | G01 20題完整問答與G02三類視覺矩陣 | 換地點/措辭/半徑，cold另列、失敗與重試記錄；寬窄/深淺/面板/互動/手動鏡頭，normalized popup | 本輪20題主task控制樣本與代表UI驗收完成；真實使用者20輪SLA、主觀品質與快速切換提示仍開放 |
+| R03 | V02第二獨立主題Polygon與合格設施來源 | 從11候選補source契約，oracle與native；不符資格保留HOLD | 本輪114筆墓葬用地衍生面＋30筆玉山官方座標子集通過本地oracle/native；不承諾任意資料 |
 | R04 | V04單起點步行coverage＋V05四工作流說明 | graph/provider/consent、設施分母與no-data、完整地圖證據 | 尚未實作完整流程；不得擴大付費呼叫 |
 
 整合順序：先各隔離repo原子commit與本地build → 比對原checkout的平行skill/local-stack改動 → 檢查MCP/Gateway/frontend契約相容 → 使用者另授權後才整合或發布。本輪不push/PR/merge/部署。非變更檔案不重跑整包測試。
+
+
+## 2026-09-24 授權連續完成第1–3項
+
+使用者要求一路完成再檢查：R02正常問答效率＋協作UI驗收，接著R03新主題Polygon及設施。主agent主持/原生驗收，Terra有界popup實作，Luna來源資格盤點。先完成產品修正再固定版本跑完整問題變體；期間不混HMR樣本。20題需保留自然語言問題、工具決策、完整收據、答案、時鐘；工具driver/子agent觀測/主task控制題與真實20輪使用者對話分列，不能冒充。若90秒目標未達，繼續定位，不以改口徑達標。
+
+UI涵蓋附近多來源、區域比較、事件背景，深淺/寬窄/側欄、長label、重疊選取、popup、opacity、群組/開關/排序及手動camera。R03先source qualification，再reader/獨立oracle/native；第二主題不能以同bus的derived buffer充數。所有結果本地隔離commit，未授權發布或擴大paid provider。
+
+
+### 三片本地交付結果（2026-09-24）
+
+本輪1問答可靠性、2協作UI/取景、3第二主題Polygon/新Point已完成有界實作與驗收，等使用者檢查；詳見[驗收單](./acceptance-R02-R03-20260924.md)及[能力審查](./capability-review-20260924.md)。20題控制樣本median25.66秒、p9545.77秒；Q20原始describe失敗保留、修復另驗。110項focused tests及tsc -b通過。
+
+保留開放：真實20轮使用者SLA（控制題不代替）、數值choropleth與離島等更廣視覺情境、快速theme/resize中斷後提示收斂、使用者主觀UI驗收、R04/V04完整步行coverage、V05四工作流手冊。新来源已保留derived與日期unknown，不以接線完成推定權威現況；市場來源仍HOLD。原checkout／配對保留，無push/PR/merge/部署或擴大付費呼叫。
