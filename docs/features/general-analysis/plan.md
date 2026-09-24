@@ -1,5 +1,7 @@
 # 通用地方分析計畫與驗收關卡
 
+> 最新狀態：六片有界本地交付已完成，見[六片驗收與剩餘缺口](./acceptance-six-20260924.md)及[四工作流手冊](./analyst-guide.md)。下方較早的未完成描述保留為歷史，不覆蓋本次驗收。
+
 更新：2026-09-24。計畫 SSOT；後續 session 先讀本檔，不另起競爭 roadmap。
 
 ## 不變的目標
@@ -251,3 +253,19 @@ UI涵蓋附近多來源、區域比較、事件背景，深淺/寬窄/側欄、�
 本輪1問答可靠性、2協作UI/取景、3第二主題Polygon/新Point已完成有界實作與驗收，等使用者檢查；詳見[驗收單](./acceptance-R02-R03-20260924.md)及[能力審查](./capability-review-20260924.md)。20題控制樣本median25.66秒、p9545.77秒；Q20原始describe失敗保留、修復另驗。110項focused tests及tsc -b通過。
 
 保留開放：真實20轮使用者SLA（控制題不代替）、數值choropleth與離島等更廣視覺情境、快速theme/resize中斷後提示收斂、使用者主觀UI驗收、R04/V04完整步行coverage、V05四工作流手冊。新来源已保留derived與日期unknown，不以接線完成推定權威現況；市場來源仍HOLD。原checkout／配對保留，無push/PR/merge/部署或擴大付費呼叫。
+
+
+## 六片續作（2026-09-24，使用者授權至第6片、本地原子commit）
+
+沿既有隔離worktrees，主agent整合、Terra/Luna有界工作；不另建工具入口或重複registry。
+
+| 片 | 交付 | 驗收 |
+|---|---|---|
+| 1 | theme/resize/中斷與恢復 | 有界style等待、舊命令取消、native/browser |
+| 2 | 批次來源資格與共用reader | 6–10候選逐筆資格，合格才接；來源/時間/缺值/排除保留 |
+| 3 | 數值分級設色 | paint/legend同契約，normalized/raw units分開，缺值不造0 |
+| 4 | 單起點步行coverage | 真實既有路網，明確分母scope，no-data/unreachable分開 |
+| 5 | 四工作流手冊/skill | 重用tool schema與契約，禁止記答案，精簡按需入口 |
+| 6 | 效能與整合審查 | 分段cold/warm證據、變體回歸、結構/重複呼叫審查 |
+
+真實20輪使用者SLA不以代理控制題替代；未取得的上游契約/路網證據如實保留HOLD。無push/PR/merge/部署/遠端migration或擴大付費呼叫。
