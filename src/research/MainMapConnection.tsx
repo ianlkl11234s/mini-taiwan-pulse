@@ -319,7 +319,9 @@ export function MainMapConnection(props: Props) {
         case "find_places": result = findPlaces(String(request.args.query ?? ""), Number(request.args.limit ?? 10)); break;
         default: {
           if (!analysis.current || !ANALYSIS_OPERATIONS.has(request.operation as AnalysisQueryOperation)) throw new Error("MAP_EXPLORATION_OPERATION_UNSUPPORTED");
-          result = analysis.current.execute(request.operation as AnalysisQueryOperation, request.args);
+          result = request.operation === "spatial_query" && ["line_buffer", "surface_intersection", "measure_geometry"].includes(String(request.args.predicate))
+            ? await analysis.current.executeGeometry(request.args)
+            : analysis.current.execute(request.operation as AnalysisQueryOperation, request.args);
         }
       }
       if (epoch !== connectionEpoch.current) throw new Error("SESSION_REVOKED");

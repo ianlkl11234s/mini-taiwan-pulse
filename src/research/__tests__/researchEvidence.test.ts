@@ -17,4 +17,13 @@ describe("executed research evidence", () => {
     expect(analysisErrorMessage("REGION_PERIOD_MISMATCH")).toContain("比較未執行");
     expect(analysisErrorMessage("UNAVAILABLE")).toContain("不會以零代替");
   });
+  it("keeps flat geometry lineage filters and method through later result readback", () => {
+    const evidence = researchEvidence("get_analysis_result", {}, {
+      lineage: { sourceInputs: [{ resultId: "source", lineage: { queryScope: { datasetId: "routes", totalMatched: 1, filters: [{ field: "route_id", op: "eq", value: "variant" }], time: { start: "2026-01-01" } } } }], operationTrail: [{ operation: "line_buffer", method: { radiusM: 125.5 } }, { operation: "surface_intersection", method: { area_only: true } }] },
+    });
+    expect(evidence.scope.join(" ")).toContain("variant");
+    expect(evidence.scope.join(" ")).toContain("2026-01-01");
+    expect(evidence.scope.join(" ")).toContain("125.5 公尺");
+    expect(evidence.scope.join(" ")).toContain("邊界接觸不計覆蓋面積");
+  });
 });

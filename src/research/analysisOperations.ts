@@ -30,7 +30,7 @@ export interface StoredDataResult extends ResultReference {
 }
 
 export interface AnalysisResult extends StoredDataResult {
-  operation: "within_distance" | "nearest" | "spatial_join" | "line_intersects" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "compare_regions" | "analysis_scope" | "walking_isochrone";
+  operation: "line_buffer" | "surface_intersection" | "measure_geometry" | "within_distance" | "nearest" | "spatial_join" | "line_intersects" | "aggregate_by_area" | "aggregate" | "key_join" | "ratio" | "difference" | "read_series" | "compare_series" | "compare_regions" | "analysis_scope" | "walking_isochrone";
   inputResultIds: readonly string[];
   method: Readonly<Record<string, unknown>>;
   summary: Readonly<Record<string, unknown>>;

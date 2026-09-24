@@ -17,6 +17,13 @@ export function researchEvidence(operation: string, args: Record<string, unknown
       const parameters = object(query.parameters); if (parameters.releaseId) scopes.add(`發布版本：${String(parameters.releaseId)}`);
     }
     if (Array.isArray(entry.inputs)) entry.inputs.forEach(input => visit(object(input).lineage, depth + 1));
+    if (Array.isArray(entry.sourceInputs)) entry.sourceInputs.forEach(input => visit(object(input).lineage, depth + 1));
+    if (Array.isArray(entry.operationTrail)) entry.operationTrail.forEach(value => {
+      const step = object(value); const method = object(step.method);
+      if (step.operation === "line_buffer") scopes.add(`線形環域：${method.radiusM} 公尺；衍生邊界，不是服務可及範圍`);
+      if (step.operation === "surface_intersection") scopes.add("面交集僅保留有面積的部分；邊界接觸不計覆蓋面積。");
+      if (step.operation === "measure_geometry") scopes.add("球面面積／長度估算；不是地籍或工程測量。");
+    });
   };
   visit(data.lineage);
   if (operation === "query_records") visit({ queryScope: { ...object(object(data.method).parameters), totalMatched: data.totalMatched } });
@@ -25,7 +32,9 @@ export function researchEvidence(operation: string, args: Record<string, unknown
   const graph = object(data.graph);
   if (graph.engineVersion) sources.add(`Valhalla ${String(graph.engineVersion)}；路網更新 ${String(graph.tilesetLastModified)}；未提供 graph checksum`);
   if (args.center) scopes.add(`中心：${JSON.stringify(args.center)}`);
-  if (args.radiusM) scopes.add(`直線距離：${args.radiusM} 公尺；不是步行距離`);
+  if (args.radiusM) scopes.add(args.predicate === "line_buffer" ? `線形環域：${args.radiusM} 公尺；衍生邊界，不是服務可及範圍` : `直線距離：${args.radiusM} 公尺；不是步行距離`);
+  if (args.predicate === "surface_intersection") scopes.add("面交集僅保留有面積的部分；邊界接觸不計覆蓋面積。");
+  if (args.predicate === "measure_geometry") scopes.add("球面面積／長度估算；不是地籍或工程測量。");
   if (args.areaCodes) scopes.add(`比較區域：${JSON.stringify(args.areaCodes)}；基準：${String(args.baselineAreaCode)}`);
   if (args.denominatorResultId) scopes.add(`分母結果：${String(args.denominatorResultId)}；標準化基數：${args.per ?? 10000}`);
   if (operation === "route_distance" || operation === "walking_isochrone") scopes.add(`步行路網模型：Valhalla pedestrian；狀態 ${String(data.status ?? "未知")}；不是實測旅行時間`);

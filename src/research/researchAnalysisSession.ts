@@ -1,3 +1,4 @@
+import { withLoading } from "../lib/loadingRegistry";
 import { neighborhoodCount, type NeighborhoodCountResult } from "./neighborhoodAnalysis";
 import { assertDatasetAccess, assertLayerSourceAccess } from "./dataExploration";
 import { AnalysisOperations, type AnalysisResult, type StoredDataResult } from "./analysisOperations";
@@ -126,6 +127,60 @@ function id(value: unknown): string {
   return value;
 }
 
+function object(value: unknown): Record<string, unknown> { return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {}; }
+
+function stringArray(value: unknown): string[] { return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []; }
+
+const MAX_BOUNDED_LINEAGE_ITEMS = 64;
+const MAX_BOUNDED_LINEAGE_BYTES = 32 * 1024;
+
+function geometrySourceInputsFromLineage(resultId: string, lineage: Record<string, unknown>, fallbackDatasetId: string, depth = 0): Record<string, unknown>[] {
+  if (depth >= MAX_BOUNDED_LINEAGE_ITEMS) throw new Error("LINEAGE_BUDGET_EXCEEDED");
+  const sourceInputs = Array.isArray(lineage.sourceInputs) ? lineage.sourceInputs : [];
+  if (sourceInputs.length) return sourceInputs.flatMap(value => {
+    const item = object(value); const sourceResultId = item.resultId;
+    return typeof sourceResultId === "string" ? geometrySourceInputsFromLineage(sourceResultId, object(item.lineage), fallbackDatasetId, depth + 1) : [];
+  });
+  const nestedInputs = Array.isArray(lineage.inputs) ? lineage.inputs : [];
+  if (nestedInputs.length) return nestedInputs.flatMap(value => {
+    const item = object(value); const sourceResultId = item.resultId;
+    return typeof sourceResultId === "string" ? geometrySourceInputsFromLineage(sourceResultId, object(item.lineage), fallbackDatasetId, depth + 1) : [];
+  });
+  const sourceLineage: Record<string, unknown> = {};
+  for (const key of ["queryScope", "sourceContract", "datasets", "authorizedDatasetIds"]) if (lineage[key] !== undefined) sourceLineage[key] = structuredClone(lineage[key]);
+  const sourceDatasetId = typeof object(lineage.queryScope).datasetId === "string" ? object(lineage.queryScope).datasetId
+    : typeof object(lineage.sourceContract).datasetId === "string" ? object(lineage.sourceContract).datasetId : fallbackDatasetId;
+  if (!sourceLineage.datasets) sourceLineage.datasets = [sourceDatasetId];
+  if (!sourceLineage.authorizedDatasetIds) sourceLineage.authorizedDatasetIds = [sourceDatasetId];
+  return [{ resultId, lineage: sourceLineage }];
+}
+
+function geometrySourceInputs(input: StoredDataResult): Record<string, unknown>[] {
+  return geometrySourceInputsFromLineage(input.resultId, object(input.lineage), input.datasetId);
+}
+
+function geometryOperationTrail(input: StoredDataResult): Record<string, unknown>[] {
+  const lineage = object(input.lineage);
+  const inherited = Array.isArray(lineage.operationTrail) ? lineage.operationTrail.filter(value => {
+    const item = object(value);
+    return typeof item.resultId === "string" && typeof item.operation === "string" && Array.isArray(item.inputResultIds) && Object.keys(object(item.method)).length > 0;
+  }).map(value => structuredClone(value as Record<string, unknown>)) : [];
+  return isAnalysis(input) ? [...inherited, { resultId: input.resultId, operation: input.operation, inputResultIds: [...input.inputResultIds], method: structuredClone(input.method) }] : inherited;
+}
+
+function uniqueByResultId(values: Record<string, unknown>[]): Record<string, unknown>[] {
+  return [...new Map(values.filter(value => typeof value.resultId === "string").map(value => [value.resultId as string, value])).values()];
+}
+
+function uniqueSourceRefs(inputs: readonly StoredDataResult[]): StoredDataResult["sourceRefs"] {
+  return inputs.flatMap(input => input.sourceRefs).filter((source, index, all) => all.findIndex(other => other.sourceId === source.sourceId && other.version === source.version && other.checksumSha256 === source.checksumSha256 && other.reference === source.reference && other.acquiredAt === source.acquiredAt) === index);
+}
+
+function assertBoundedLineage(sourceInputs: Record<string, unknown>[], operationTrail: Record<string, unknown>[]): void {
+  if (sourceInputs.length > MAX_BOUNDED_LINEAGE_ITEMS || operationTrail.length > MAX_BOUNDED_LINEAGE_ITEMS) throw new Error("LINEAGE_BUDGET_EXCEEDED");
+  if (new TextEncoder().encode(JSON.stringify({ sourceInputs, operationTrail })).byteLength > MAX_BOUNDED_LINEAGE_BYTES) throw new Error("LINEAGE_BUDGET_EXCEEDED");
+}
+
 function page(result: StoredDataResult, offsetInput?: unknown, limitInput?: unknown): Record<string, unknown> {
   const offset = integer(offsetInput, 0, 0, 10_000);
   const limit = integer(limitInput, 20, 1, 50);
@@ -146,6 +201,7 @@ export class ResearchAnalysisSession {
   private readonly store = new BrowserMemoryResultStore<ResultReference>();
   private readonly operations = new AnalysisOperations(this.store);
   constructor(private readonly locked: () => ReadonlySet<string> = () => new Set()) {}
+  private generation = 0;
   private readonly plans = new Map<string, { input: QueryRecordsInput; expiresAt: number }>();
 
   async queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
@@ -278,6 +334,53 @@ export class ResearchAnalysisSession {
     };
   }
 
+  /** Load the bounded topology engine only for explicit geometry operations. */
+  async executeGeometry(args: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const predicate = args.predicate;
+    if (!["line_buffer", "surface_intersection", "measure_geometry"].includes(String(predicate))) throw new Error("INVALID_INPUT");
+    const allowed = predicate === "surface_intersection" ? ["predicate", "leftResultId", "rightResultId", "limit"] : predicate === "line_buffer" ? ["predicate", "resultId", "radiusM", "limit"] : ["predicate", "resultId", "limit"];
+    if (Object.keys(args).some(key => !allowed.includes(key))) throw new Error("INVALID_INPUT");
+    const limit = integer(args.limit, 20, 1, 50);
+    const ids = predicate === "surface_intersection" ? [id(args.leftResultId), id(args.rightResultId)] : [id(args.resultId)];
+    const read = (resultId: string): StoredDataResult => {
+      this.assertResultAccess(resultId);
+      const result = this.store.get(resultId) as StoredDataResult | null;
+      if (!result) throw new Error("RESULT_NOT_FOUND_OR_EXPIRED");
+      if (!["actual", "derived"].includes(result.geometry.role) || !result.geometry.spatialAnalysisEligible) throw new Error("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
+      // One complete feature per input; selecting a display page does not narrow analysis.
+      if (result.rows.length !== 1) throw new Error("GEOMETRY_REQUIRES_SINGLE_FEATURE");
+      return result;
+    };
+    if (predicate === "line_buffer" && (typeof args.radiusM !== "number" || !Number.isFinite(args.radiusM))) throw new Error("INVALID_INPUT");
+    const inputs = ids.map(read);
+    const generation = this.generation;
+    const engine = await withLoading("research:geometry-engine", "載入有界幾何分析", import("./boundedGeometry"));
+    if (generation !== this.generation) throw new Error("SESSION_REVOKED");
+    ids.forEach(read); // Recheck access/expiry after asynchronous module loading.
+    const outcome = predicate === "line_buffer" ? engine.boundedLineBuffer(inputs[0]!.rows[0]!.geometry, Number(args.radiusM))
+      : predicate === "surface_intersection" ? engine.boundedSurfaceIntersection(inputs[0]!.rows[0]!.geometry, inputs[1]!.rows[0]!.geometry)
+      : engine.boundedMeasure(inputs[0]!.rows[0]!.geometry);
+    const label = predicate === "line_buffer" ? `${args.radiusM} 公尺線形環域` : predicate === "surface_intersection" ? "面交集（僅面積部分）" : "幾何度量";
+    const rows = outcome.geometry ? [{ label, ...outcome.summary, geometry: outcome.geometry }] : predicate === "measure_geometry" ? [{ label, ...outcome.summary }] : [];
+    const datasets = [...new Set(inputs.flatMap(input => [...input.datasetId.split("+"), ...stringArray(input.lineage?.datasets)]))];
+    const resultId = `analysis-${predicate}-${crypto.randomUUID()}`;
+    const sourceInputs = uniqueByResultId(inputs.flatMap(geometrySourceInputs));
+    const operationTrail = uniqueByResultId(inputs.flatMap(geometryOperationTrail));
+    const nextOperationTrail = [...operationTrail, { resultId, operation: predicate, inputResultIds: ids, method: outcome.method }];
+    assertBoundedLineage(sourceInputs, nextOperationTrail);
+    const result: AnalysisResult = {
+      resultId, datasetId: datasets.join("+"), rows, recordGrain: "feature",
+      geometry: { type: outcome.geometry?.type ?? (predicate === "measure_geometry" ? "none" : "MultiPolygon"), role: predicate === "measure_geometry" ? "none" : "derived", spatialAnalysisEligible: predicate !== "measure_geometry" },
+      sourceRefs: uniqueSourceRefs(inputs),
+      lineage: { format: "bounded_geometry_v03_flat", datasets, authorizedDatasetIds: datasets, inputResultIds: ids, sourceInputs, operationTrail: nextOperationTrail },
+      coverage: [...new Set(inputs.map(input => input.coverage))].join(" | "), freshness: inputs.some(input => input.freshness === "stale") ? "stale" : inputs.some(input => input.freshness === "unknown") ? "unknown" : "current",
+      units: { areaM2: "m²", lengthM: "m", boundaryLengthM: "m" }, operation: predicate as AnalysisResult["operation"], inputResultIds: ids,
+      method: outcome.method, summary: outcome.summary,
+    };
+    this.store.put(result);
+    return page(result, 0, limit);
+  }
+
   execute(operation: AnalysisQueryOperation, args: Record<string, unknown>): Record<string, unknown> {
     // Access can change after a query; recheck the result lineage before reuse or presentation.
     for (const [key, value] of Object.entries(args)) {
@@ -340,7 +443,7 @@ export class ResearchAnalysisSession {
     return page(result, 0, args.limit);
   }
 
-  clear(): void { for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
+  clear(): void { ++this.generation; for (const result of this.store.list()) this.store.remove(result.resultId); this.plans.clear(); }
 
   /**
    * Keep the current scene's finite collection resident. Derived inputs remain
@@ -445,6 +548,7 @@ function stable(value: unknown): string {
 function describeDatasetSafe(datasetId: string): boolean { try { describeDataset(datasetId); return true; } catch { return false; } }
 
 function resultDisplayLabel(result: StoredDataResult): string {
+  if (isAnalysis(result) && ["line_buffer", "surface_intersection"].includes(result.operation)) return String(result.rows[0]?.label ?? "面交集（空結果）");
   const rowLabel = typeof result.rows[0]?.label === "string" && result.rows[0].label.trim() ? result.rows[0].label.trim() : "分析範圍";
   if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
