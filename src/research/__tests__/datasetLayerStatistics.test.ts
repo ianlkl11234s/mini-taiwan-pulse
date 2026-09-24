@@ -24,8 +24,8 @@ it("onboards a bounded manifest-owned Point GeoJSON without claiming analytical 
   vi.stubGlobal("fetch", vi.fn(async () => new Response(body, { headers: { "content-length": String(body.length) } })));
   const description = await describeDatasetLayerStatistics("religionChurches", new Set());
   const result = await summarizeDatasetLayer({ layerKey: "religionChurches", groupBy: ["denomination"] }, new Set());
-  expect(description).toMatchObject({ datasetId: "layer:religionChurches", geometry: { role: "proxy", spatialAnalysisEligible: false } });
-  expect(result).toMatchObject({ totalMatched: 2, excludedByReason: { non_point_geometry: 1 } });
+  expect(description).toMatchObject({ datasetId: "layer:religionChurches", geometry: { role: "proxy", spatialAnalysisEligible: false }, scope: expect.stringContaining("非 Point 與無效 geometry 另列排除"), capabilities: { bounds: false } });
+  expect(result).toMatchObject({ totalMatched: 2, bounds: null, excludedByReason: { non_point_geometry: 1 } });
   expect(result.groups).toEqual(expect.arrayContaining([{ denomination: "A", count: 1 }, { denomination: null, count: 1 }]));
 });
 

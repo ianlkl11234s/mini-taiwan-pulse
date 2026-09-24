@@ -21,6 +21,8 @@ describe("verified point source contract", () => {
     const adapter = createVerifiedPointDatasetAdapter(await setup()); const result = await new QueryExecutor([adapter]).execute({ datasetId: "nursing-actual", limit: 3 });
     expect(result).toMatchObject({ totalMatched: 2, excludedByReason: { excluded_by_selection: 1 }, sourceRefs: [expect.objectContaining({ checksumSha256: expect.stringMatching(/^[a-f0-9]{64}$/) })] });
     expect(result.rows.map(row => row.code)).toEqual(["a", "c"]); expect(adapter.descriptor.layerRefs).toEqual([]); expect(adapter.descriptor.recordGrain).toBe("place"); expect(adapter.descriptor.geometry).toMatchObject({ role: "actual", spatialAnalysisEligible: true });
+    expect(adapter.descriptor.access.query.supportsBbox).toBe(true); expect(adapter.descriptor.supportedOperations).toContain("nearest");
+    await expect(new QueryExecutor([adapter]).execute({ datasetId: "nursing-actual", bbox: [120, 24, 122, 26] })).resolves.toMatchObject({ totalMatched: 2 });
   });
   it("fails closed for a changed source, source count, or selection count", async () => {
     const config = await setup(); const badHash = { ...config, expectedSha256: "a".repeat(64) };
@@ -40,5 +42,16 @@ describe("verified point source contract", () => {
     expect(createVerifiedPointDatasetAdapter(full).descriptor.coverage).toContain("fullSource=true");
     expect(() => createVerifiedPointDatasetAdapter({ ...full, expectedSelectedRows: 2 })).toThrow("INVALID_VERIFIED_POINT_CONFIG");
     expect(() => createVerifiedPointDatasetAdapter({ ...config, selection: {} })).toThrow("INVALID_VERIFIED_POINT_CONFIG");
+  });
+
+  it("keeps verified proxy points queryable but excludes spatial filtering and nearest", async () => {
+    const config = { ...await setup(), datasetId: "nursing-proxy", geometryRole: "proxy" as const, precision: "address matched to county centroid; not a facility coordinate" };
+    const adapter = createVerifiedPointDatasetAdapter(config); const executor = new QueryExecutor([adapter]);
+    const result = await executor.execute({ datasetId: config.datasetId, limit: 3 });
+    expect(result).toMatchObject({ totalMatched: 2, sourceRefs: [expect.objectContaining({ checksumSha256: config.expectedSha256 })] });
+    expect(adapter.descriptor.geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
+    expect(adapter.descriptor.access.query.supportsBbox).toBe(false); expect(adapter.descriptor.supportedOperations).toEqual(["query_records", "aggregate"]);
+    expect(adapter.descriptor.coverage).toContain("proxy Point"); expect(adapter.descriptor.source.lineage).toContain("ineligible for spatial filtering or nearest analysis");
+    await expect(executor.execute({ datasetId: config.datasetId, bbox: [120, 24, 122, 26] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
   });
 });
