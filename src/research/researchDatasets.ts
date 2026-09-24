@@ -19,6 +19,7 @@ import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatase
 import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
 import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "./civicCultureDatasets";
 import { forestryPointAdapters } from "./forestryPointDatasets";
+import { forestryProxyAdapters } from "./forestryProxyDatasets";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -318,6 +319,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   postOfficesSourceCoordinatesAdapter,
   culturalFacilitiesSourceCoordinatesAdapter,
   ...forestryPointAdapters,
+  ...forestryProxyAdapters,
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
