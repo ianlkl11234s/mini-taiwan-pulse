@@ -50,7 +50,8 @@ describe("verified population snapshot materializer", () => {
     const input = await config();
     const result = await new QueryExecutor([createPopulationSnapshotAdapter(input)]).execute({ datasetId: "population_statistics", parameters: { releaseId: "2025-12-total_population-county-local-preview" }, limit: 1 });
     expect(result.totalMatched).toBe(22);
-    expect(result.rows[0]).toMatchObject({ area_code: "C01", value: 1000, status: "observed", dimensions: { population_scope: "total", population_measure: "administrative_population" }, source_population_scope_note: "原始 receipt 未限定戶籍或現住。", geometry: { type: "MultiPolygon" } });
+    expect(result.rows[0]).toMatchObject({ area_code: "C01", value: 1000, status: "observed", dimensions: { population_scope: "total", population_measure: "administrative_population" }, source_population_scope_note: "原始 receipt 未限定戶籍或現住。" });
+    expect(result.rows[0]).not.toHaveProperty("geometry"); // Full surfaces stay in the materialized result, not the default receipt.
     expect(result.sourceRefs).toEqual(expect.arrayContaining([expect.objectContaining({ sourceId: "segis-114y12m-administrative-population", reference: "snapshot://injected" }), expect.objectContaining({ sourceId: "county-boundary", reference: "local-preview://county-boundary" })]));
     expect(input.readArtifact).toHaveBeenCalledOnce();
     expect(input.loadBoundary).toHaveBeenCalledOnce();

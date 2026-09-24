@@ -42,7 +42,7 @@ it("reports HTML fallback as missing asset, not zero; locks block probe and resu
   vi.stubGlobal("fetch", vi.fn(async () => new Response(body("school"))));
   const result = await session.queryRecords({ datasetId: "tw-schools", limit: 1 });
   locked.add("eduSchoolElementary"); // shared source lock cannot be bypassed via another layer/dataset.
-  await expect(session.queryRecords({ datasetId: "tw-schools" })).rejects.toThrow("LAYER_DENIED");
+  await expect(session.queryRecords({ datasetId: "tw-schools" })).rejects.toThrow("DATASET_NOT_FOUND");
   expect(() => session.presentable([String(result.resultId)])).toThrow("LAYER_DENIED");
 });
 it.runIf(Boolean(process.env.PULSE_RESEARCH_REAL_ASSETS))("real local school+library exploratory analysis preserves versions and complete candidate scope", async () => {
