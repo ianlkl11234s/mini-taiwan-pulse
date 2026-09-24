@@ -18,6 +18,7 @@ import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
 import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "./civicCultureDatasets";
+import { iPostBoxesSourceCoordinatesAdapter } from "./iPostBoxesDataset";
 import { forestryPointAdapters } from "./forestryPointDatasets";
 import { forestryProxyAdapters } from "./forestryProxyDatasets";
 import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
@@ -320,6 +321,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   createRoadEventCurrentAdapter(),
   postOfficesSourceCoordinatesAdapter,
   culturalFacilitiesSourceCoordinatesAdapter,
+  iPostBoxesSourceCoordinatesAdapter,
   ...forestryPointAdapters,
   ...forestryProxyAdapters,
   lighthousesSourceCoordinatesAdapter,
