@@ -195,7 +195,7 @@ function presentation(result: PresentableResult, featureCount: number, index?: n
   const numericLegend = numericResultLegend(result);
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
-    geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]! }),
+    geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]! }),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
