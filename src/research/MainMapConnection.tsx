@@ -1,3 +1,4 @@
+import { LayerToggleSwitch } from "../components/sidebar/LayerToggleSwitch";
 import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
 import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
@@ -114,7 +115,11 @@ export function MainMapConnection(props: Props) {
   const generation = useRef(0);
   const resultPopup = useRef<mapboxgl.Popup | null>(null);
   const capture = useCallback((): Scene => {
-    const camera = latest.current.bridge.getCamera();
+    // Result switches must preserve the rendered camera, including Agent fitBounds
+    // movements that have not propagated into the application's bridge snapshot.
+    const map = latest.current.map;
+    const center = map?.getCenter();
+    const camera = center && map ? { lng: center.lng, lat: center.lat, zoom: map.getZoom() } : latest.current.bridge.getCamera();
     return { camera: { center: [((camera.lng + 180) % 360 + 360) % 360 - 180, Math.max(-85, Math.min(85, camera.lat))], zoom: Math.max(0, Math.min(18, camera.zoom)) }, resultMode: "empty", layers: captureLayerOverrides(previous.current?.layers, latest.current.bridge.getVisibleLayerKeys()), layerControl: null, framing: null, timeline: null, results: previous.current?.results ?? null };
   }, []);
   const clearAnalysisPresentation = useCallback((syncScene: boolean) => {
@@ -468,31 +473,20 @@ export function MainMapConnection(props: Props) {
     {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
-      {!props.embedded && <div className="main-map-agent-heading"><h2>連接這張地圖</h2><button type="button" onClick={() => setOpen(false)} aria-label="關閉本地 Agent">×</button></div>}
+      {!props.embedded && <div className="main-map-agent-heading"><h2>與 Agent 協作</h2><button type="button" onClick={() => setOpen(false)} aria-label="關閉本地 Agent">×</button></div>}
       <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
+      <div className="agent-panel-body">
       <label className="agent-follow-setting">
         <input type="checkbox" checked={following} onChange={event => changeFollowing(event.target.checked)} />
-        <span>跟隨 Agent<small>配對後預設開啟；手動拖曳只停止當次移動，下一個 Agent 動作仍會繼續跟隨。</small></span>
+        <span>跟隨 Agent 視角<small>可隨時拖曳地圖，停止這次移動。</small></span>
       </label>
-      <p role="status">{message}</p>
+      <p className="agent-session-status" role="status">{message.replace(/^r\d+\s+/, "")}</p>
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
-        <h3>已呈現的分析結果</h3>
-        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆空間紀錄已高亮；可逐層開關與排序，這不是完整來源圖層。</p>
+        <h3>本次分析圖層 <span className="agent-section-count">{resultCollection.items.length}</span></h3>
+        <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆紀錄已顯示 · 僅含本次分析結果</p>
         <label>分析結果透明度
           <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, value); }} />
         </label>
-        {presentedAnalysis.length > 0 && <section className="agent-analysis-legend" aria-label="已呈現結果圖例">
-          <h4>地圖圖例</h4>
-          {presentedAnalysis.map(result => <div key={result.resultId} className="agent-analysis-legend__result">
-            <span className={`agent-analysis-swatch agent-analysis-swatch--${result.geometryType.toLowerCase()}${result.countLegend ? " agent-analysis-swatch--count" : ""}`} style={{ "--analysis-result-color": result.color } as CSSProperties} aria-hidden="true" />
-            <div><strong>{result.displayLabel}</strong><small>{result.featureCount} 筆 · {result.geometryType}</small>
-              {result.countLegend && <div className="agent-analysis-count-legend" aria-label={`${result.displayLabel} ${result.countLegend.label}計數分級`}>
-                <span>{result.countLegend.label} · {result.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span>
-                <div>{result.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div>
-              </div>}
-            </div>
-          </div>)}
-        </section>}
         {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
           <legend>群組</legend>
           {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
@@ -505,19 +499,24 @@ export function MainMapConnection(props: Props) {
           const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
           const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           return <li key={item.resultId} className="agent-analysis-result-item">
-            <label className="agent-analysis-toggle">
-              <input type="checkbox" checked={item.visible} onChange={event => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: event.target.checked } : candidate) }))} />
-              <span><strong>{result?.displayLabel ?? item.resultId}</strong>{rendered ? `${rendered.featureCount} 筆／${rendered.geometryType}` : "目前未顯示"}{group && <small>{group.label}</small>}</span>
-            </label>
+            <div className="agent-analysis-row-main">
+              <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
+              <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
+                {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
+              </div>
+              <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
+            </div>
             <span className="agent-analysis-order" aria-label={`${item.resultId} 排序`}>
               <button aria-label="往上移動" disabled={index === 0} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index - 1 ? items[index]! : candidateIndex === index ? items[index - 1]! : candidate) }))}>↑</button>
               <button aria-label="往下移動" disabled={index === resultCollection.items.length - 1} onClick={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map((candidate, candidateIndex, items) => candidateIndex === index ? items[index + 1]! : candidateIndex === index + 1 ? items[index]! : candidate) }))}>↓</button>
             </span>
           </li>;
         })}</ul>
-        <button onClick={() => clearAnalysisPresentation(true)}>清除分析結果</button>
+        <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>清除本次圖層</button>
       </section>}
-      <ResearchEvidencePanel evidence={evidence} />
+      {!resultCollection && <section className="agent-empty-results"><h3>本次分析圖層</h3><p>在 Codex 提出想了解的地點或主題。<br />Agent 產生的分析圖層會顯示在這裡。</p></section>}
+      {evidence.length > 0 && <details className="agent-evidence-disclosure"><summary>分析依據與來源 <span>{evidence.length}</span></summary><ResearchEvidencePanel evidence={evidence} /></details>}
+      </div>
     </div>
   </div>;
 }

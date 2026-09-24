@@ -61,3 +61,16 @@ V05說明書先用本頁與按需配方提供入口；四工作流教學與完�
 本輪未完：G01正常20題warm/cold、G02完整矩陣/normalized popup/主觀驗收、V02第二主題Polygon、V04完整coverage、V05四工作流教學。source bus兩個不同query receipt各回downloadedBytes=530765/cacheHit=false；這提示共用snapshot重用需量測，不足以推定實際網路重傳或立即加永不過期cache。列入R02。
 
 整合限制：以上code及skill都在隔離worktree，原checkout的平行修改保留；隔離skill更新不等於所有新agent已載入。下次整合須比較根目錄skill差異並保留雙方有效規則，再依live schema使用。無push/PR/merge/部署，無擴大付費呼叫。
+
+
+## 協作側欄 UI（2026-09-24 午後）
+
+依使用者要求回查版型：d86cc66d之前，App將MainMapConnection以embedded注入IconRailSidebar，繼承288px/70vh共用面板與agent色彩變數；d86為保護responsive配對生命週期改為App-root常駐，脫離embedded樣式。此次保留常駐模型，不退回會卸載連線的舊架構。
+
+定位改為「與 Agent 協作」：Layers相同尺寸、標題分隔、字體節奏與8px圓角，深色中性灰／淺色白底；直接使用既有LayerToggleSwitch。每筆分析圖層將色塊、名稱、筆數、幾何型別與開關合併，保留排序、透明度、群組與清除。刪除重複的獨立圖例清單；計數分級保留在對應圖層列。帳號／登出／撤銷放入連線設定，來源與篩選證據預設收合。沒有分析结果時顯示提問引導。
+
+互動補修：capture改讀Mapbox實際camera，避免Agent fitBounds後，手動圖層開關用舊bridge快照把視角帶回臺北。正常native呈現路線＋173.25m環域2features ready；CUA關閉線結果後native回讀1feature，恢復2features。修復後前後camera完全相同：120.4560435157,23.4657710341,z11.1404066941。
+
+CUA已檢查Dark/Light、實際青色面／橙色線圖例、Layers與Agent互斥；390×844 viewport override下panel無水平溢出（clientWidth=scrollWidth），已reset。原session 9b67be6bb3cfc574bca25164c314c942保持active，最終2features/sources/layers ready、Dark。未測登入/撤銷的破壞流程，也未宣稱完整G02矩陣或使用者主觀驗收完成。
+
+本地tsc -b、連線恢復/可靠性7tests及diff check通過。三個source檔MainMapConnection.tsx、ResearchConnection.tsx、mainMapConnection.css；本輪未改MCP/Gateway/來源資料。

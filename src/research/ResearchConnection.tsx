@@ -225,14 +225,15 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const revoke = async () => { if (!study) return; try { await client.revoke(study.studyId); } catch { setMessage("撤銷未確認，保留配對資訊以便重試。 "); return; } releaseLease(); clearStoredConnection(); setOnline(false); setPairing(null); setStudy(null); setStatus(null); callbacks.current.onConnection(null); callbacks.current.onDisconnect(); setMessage("已撤銷研究連線。離頁時無法保證請求送達。 "); };
 
   return <section aria-label="圖層探索連線" className="research-pairing">
-    <strong>本地 Agent 連線</strong>{session && <><small>登入帳號：{session.user.email}</small><button onClick={() => void signOut()}>登出這次探索登入</button></>}<p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
+    <strong>協作連線</strong><p>{status?.approved ? (paused ? "操作已暫停" : online ? "已連線，可以開始探索圖層。" : "等待本地 Agent 連線；請保持此頁開啟。") : session && message === "先登入以建立配對。" ? "已登入，可建立配對。" : message}</p>{status?.approved && !online && <small>{message}</small>}
     {!supabaseConfigured ? <small>未啟用：缺少網站登入設定。</small> : !session ? <button onClick={() => void signIn()}>使用 Google 登入</button> : !pairing ? <button disabled={creating} onClick={() => void begin()}>{creating ? "正在建立…" : "建立配對"}</button> : <>
       {!status?.approved && <>
       <p>配對碼：<code>{pairing.code}</code></p><small>有效至 {new Date(pairing.expiresAt).toLocaleTimeString("zh-TW")}，請比對兩端短語再確認。</small><p>配對 ID：<code>{pairing.pairingId}</code></p><button onClick={() => void copyPairing()}>複製配對指令</button>
       {status?.deviceLabel && <p>裝置：{status.deviceLabel}</p>}{status?.phrase && <p>比對短語：{status.phrase}</p>}
       <button disabled={!status?.claimed || !status?.phrase || status.approved} onClick={() => void approve()}>確認配對</button></>}
-      {status?.approved && <button onClick={() => void pause()}>{paused ? "恢復" : "暫停"}</button>}{" "}<button onClick={() => void revoke()}>撤銷</button>
+      {status?.approved && <button onClick={() => void pause()}>{paused ? "恢復" : "暫停"}</button>}
     </>}
-    <small>{surface === "map" ? "配對後，在 Codex 說出想了解的主題，就能搜尋、解釋與開啟圖層。你也可以隨時手動操作地圖。" : "此頁只供獨立驗證連線與呈現；實際使用請回到 Mini Taiwan Pulse 主地圖。正式連線尚待部署驗收。"}</small>
+    {session && <details className="agent-connection-settings"><summary>連線設定</summary><small>登入帳號：{session.user.email}</small><div className="agent-connection-actions">{pairing && <button onClick={() => void revoke()}>撤銷配對</button>}<button onClick={() => void signOut()}>登出這次探索登入</button></div></details>}
+    <small className="agent-connection-help">{surface === "map" ? "在 Codex 提問，在這張地圖一起查看結果。" : "此頁只供獨立驗證連線與呈現；實際使用請回到 Mini Taiwan Pulse 主地圖。正式連線尚待部署驗收。"}</small>
   </section>;
 }
