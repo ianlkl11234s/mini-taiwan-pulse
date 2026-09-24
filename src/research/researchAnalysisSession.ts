@@ -8,7 +8,7 @@ import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import type { WalkingIsochroneExecution } from "./networkProvider";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
-export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string };
+export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string; units?: StoredDataResult["units"] };
 
 /**
  * Presentation is a collection, rather than a domain-specific single result.
@@ -476,7 +476,7 @@ export class ResearchAnalysisSession {
       return { result, metrics };
     });
     assertResultCollectionBudget(prepared.map(item => item.metrics));
-    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation }));
+    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation, units: result.units }));
   }
 
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
@@ -553,6 +553,12 @@ function resultDisplayLabel(result: StoredDataResult): string {
   if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
   if (result.datasetId.startsWith("derived:valhalla-walking-")) return rowLabel;
+  if (isAnalysis(result) && ["compare_regions", "compare_series"].includes(result.operation)) {
+    const datasetIds = [...new Set(result.datasetId.split("+").filter(Boolean))];
+    if (datasetIds.length > 1) return `${datasetIds.map(datasetId => {
+      try { return describeDataset(datasetId).label; } catch { return datasetId; }
+    }).join("＋")} 比較`;
+  }
   try { return describeDataset(result.datasetId).label; } catch { return result.datasetId; }
 }
 

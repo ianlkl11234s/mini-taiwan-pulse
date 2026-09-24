@@ -3,7 +3,7 @@ import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from ".
 import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
 import { listLayerCapabilities } from "./layerCapabilities";
-import { framingFitsViewport, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
+import { framingFitsViewport, refineViewportCamera, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
 import { requestLayerExploration } from "./explorationNavigation";
 import { createPortal } from "react-dom";
@@ -32,6 +32,7 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForSceneRender } from "./sceneReadiness";
 import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
+import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean };
@@ -200,9 +201,17 @@ export function MainMapConnection(props: Props) {
       else if (cameraChanged) movement = Promise.resolve(false);
       previous.current = scene;
     } finally { applying.current = false; }
-    const cameraMoved = await movement;
-    // The strict bounds readback must observe the next rendered frame. The Agent
-    // panel can grow after result state commits, changing the usable viewport.
+    let cameraMoved = await movement;
+    // Correct against Mapbox's actual projection after layout settles. Keep this
+    // bounded and never resume a camera move the user interrupted.
+    for (let attempt = 0; attempt < 2 && framingChanged && scene.framing; attempt++) {
+      await waitForLayoutFrame();
+      if (run !== generation.current || !followingRef.current) break;
+      const correction = refineViewportCamera(map, scene.framing);
+      if (!correction) break;
+      cameraMoved = await moveResearchCamera(map, correction);
+    }
+    // Require a real rendered frame and strict live bounds readback.
     const rendered = waitForSceneRender(map, revision, 5_000, () =>
       framingChanged && scene.framing ? framingFitsViewport(map, scene.framing) : cameraMoved,
     );
@@ -411,14 +420,11 @@ export function MainMapConnection(props: Props) {
     };
     const click = (event: mapboxgl.MapMouseEvent) => {
       const layers = analysisResultLayerIds(presentedAnalysisRef.current.length).filter(id => map.getLayer(id));
-      const feature = layers.length ? map.queryRenderedFeatures(event.point, { layers })[0] : undefined;
-      if (!feature) return;
-      const properties = feature.properties ?? {};
-      const titleKey = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "grid_id", "record_id"].find(key => properties[key] != null);
+      const overlaps = researchResultPopupOverlaps(layers.length ? map.queryRenderedFeatures(event.point, { layers }) : []);
+      if (!overlaps.features.length) return;
       const content = document.createElement("article"); content.className = "research-result-popup";
       const eyebrow = document.createElement("span"); eyebrow.className = "research-result-popup__eyebrow"; eyebrow.textContent = "ANALYSIS RESULT";
-      const title = document.createElement("strong"); title.className = "research-result-popup__title"; title.textContent = titleKey ? String(properties[titleKey]) : "分析結果";
-      const distance = Number(properties.distanceM);
+      const title = document.createElement("strong"); title.className = "research-result-popup__title";
       const facts = document.createElement("dl"); facts.className = "research-result-popup__facts";
       const appendFact = (label: string, value: string) => {
         const row = document.createElement("div");
@@ -426,16 +432,33 @@ export function MainMapConnection(props: Props) {
         const detail = document.createElement("dd"); detail.textContent = value;
         row.append(term, detail); facts.append(row);
       };
-      if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
-      const observedValue = properties.value;
-      if (typeof observedValue === "number" && Number.isFinite(observedValue)) appendFact("VALUE", `${observedValue.toLocaleString("zh-TW")}${properties.unit ? ` ${String(properties.unit)}` : ""}`);
-      else if (properties.status != null) appendFact("STATUS", String(properties.status));
-      if (Number.isFinite(distance)) appendFact("DISTANCE", `${Math.round(distance).toLocaleString("zh-TW")} 公尺 · 直線`);
-      if (properties.source_version) appendFact("VERSION", String(properties.source_version));
-      if (properties.boundary_version) appendFact("BOUNDARY", String(properties.boundary_version));
-      if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
+      const render = (feature: (typeof overlaps.features)[number]) => {
+        const properties = feature.properties ?? {};
+        title.textContent = researchResultPopupTitle(properties);
+        facts.replaceChildren();
+        if (properties.datasetId) appendFact("DATASET", String(properties.datasetId));
+        for (const fact of researchResultPopupFacts(properties)) appendFact(fact.label, fact.value);
+        const distance = researchResultPopupDistance(properties.distanceM);
+        if (distance) appendFact("DISTANCE", distance);
+        if (properties.source_version) appendFact("VERSION", String(properties.source_version));
+        if (properties.boundary_version) appendFact("BOUNDARY", String(properties.boundary_version));
+        if (!facts.childElementCount) appendFact("RECORD", "本次分析命中的空間紀錄");
+      };
+      let selector: HTMLLabelElement | null = null;
+      if (overlaps.features.length > 1) {
+        selector = document.createElement("label"); selector.className = "research-result-popup__overlaps";
+        const label = document.createElement("span"); label.textContent = `本位置 ${overlaps.total} 筆紀錄`;
+        const select = document.createElement("select"); select.setAttribute("aria-label", "選擇重疊分析紀錄");
+        overlaps.features.forEach((feature, index) => {
+          const option = document.createElement("option"); option.value = String(index); option.textContent = `${index + 1}. ${researchResultPopupTitle(feature.properties ?? {})}`; select.append(option);
+        });
+        select.addEventListener("change", () => render(overlaps.features[Number(select.value)] ?? overlaps.features[0]!));
+        selector.append(label, select);
+      }
+      render(overlaps.features[0]!);
       const note = document.createElement("p"); note.className = "research-result-popup__note"; note.textContent = "暫時分析結果 · 非完整來源圖層";
-      content.append(eyebrow, title, facts, note);
+      if (overlaps.omitted) note.textContent += ` · 另有 ${overlaps.omitted} 筆重疊紀錄未列出`;
+      content.append(eyebrow, ...(selector ? [selector] : []), title, facts, note);
       resultPopup.current?.remove();
       resultPopup.current = new mapboxgl.Popup({ className: `research-result-map-popup research-result-map-popup--${latest.current.isDarkTheme === false ? "light" : "dark"}`, closeButton: true, maxWidth: "300px", offset: 12 }).setLngLat(event.lngLat).setDOMContent(content).addTo(map);
     };

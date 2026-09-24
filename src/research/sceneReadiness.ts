@@ -79,7 +79,7 @@ export function waitForSceneRender(
   const rendered = () => {
     let ready = false;
     try { ready = afterRender(); } catch { ready = false; }
-    finish(ready ? "ready" : "error");
+    if (ready) finish("ready");
   };
   const timer = setTimeout(() => finish("error"), timeoutMs);
   map.on("render", rendered);

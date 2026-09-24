@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { RADIUS } from "../styles/designTokens";
 
 type SheetLevel = "collapsed" | "half" | "full";
@@ -7,6 +7,9 @@ const LEVELS: SheetLevel[] = ["collapsed", "half", "full"];
 
 interface Props {
   isLandscape: boolean;
+  /** Another mobile surface opened; keep the map controls mutually exclusive. */
+  forceCollapsed?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   children: (level: SheetLevel) => React.ReactNode;
 }
 
@@ -25,15 +28,19 @@ function getHeight(level: SheetLevel, isLandscape: boolean): number {
   }
 }
 
-export function MobileBottomSheet({ isLandscape, children }: Props) {
+export function MobileBottomSheet({ isLandscape, forceCollapsed = false, onExpandedChange, children }: Props) {
   const [level, setLevel] = useState<SheetLevel>("collapsed");
 
+  useEffect(() => {
+    if (forceCollapsed) setLevel("collapsed");
+  }, [forceCollapsed]);
+
   const cycleLevel = useCallback(() => {
-    setLevel((prev) => {
-      const idx = LEVELS.indexOf(prev);
-      return LEVELS[(idx + 1) % LEVELS.length]!;
-    });
-  }, []);
+    const idx = LEVELS.indexOf(level);
+    const next = LEVELS[(idx + 1) % LEVELS.length]!;
+    setLevel(next);
+    onExpandedChange?.(next !== "collapsed");
+  }, [level, onExpandedChange]);
 
   const height = getHeight(level, isLandscape);
 

@@ -71,7 +71,23 @@ function collection(result: PresentableResult): FeatureCollection<Point | LineSt
 
 function propertiesFor(row: Record<string, unknown>, result: PresentableResult): Record<string, string | number | boolean | null> {
   const properties = Object.fromEntries(Object.entries(row).filter(([key, value]) => key !== "geometry" && (value === null || ["string", "number", "boolean"].includes(typeof value))));
-  return { ...properties, resultId: result.resultId, datasetId: result.datasetId };
+  const valueUnit = result.units?.value;
+  const differenceUnit = result.units?.absoluteDifference;
+  const normalizedUnit = result.units?.normalizedValue;
+  const sourceAreaUnit = result.units?.area_ha;
+  const magnitudeUnit = result.units?.magnitude;
+  const depthUnit = result.units?.depth_km;
+  return {
+    ...properties,
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "value") ? { unit: valueUnit ?? null } : {}),
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "absoluteDifference") ? { differenceUnit: differenceUnit ?? null } : {}),
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "normalizedValue") ? { normalizedUnit: normalizedUnit ?? null } : {}),
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "area_ha") ? { sourceAreaUnit: sourceAreaUnit ?? null } : {}),
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "magnitude") ? { magnitudeUnit: magnitudeUnit ?? null } : {}),
+    ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "depth_km") ? { depthUnit: depthUnit ?? null } : {}),
+    resultId: result.resultId,
+    datasetId: result.datasetId,
+  };
 }
 
 function presentation(result: PresentableResult, featureCount: number, index?: number): AnalysisResultPresentation {

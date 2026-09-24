@@ -26,6 +26,7 @@ describe("compareRegions", () => {
       expect.objectContaining({ area_code: "A04", value: 20, absoluteDifference: 10, ratio: 2, normalizedValue: null, status: "observed" }),
       expect.objectContaining({ area_code: "A05", value: 10, absoluteDifference: 0, ratio: 1, geometry: expect.objectContaining({ type: "Polygon" }) }),
     ]);
+    expect(output.units).toMatchObject({ value: "cases", absoluteDifference: "cases", normalizedValue: null });
     expect(output.method).toMatchObject({ noAggregation: true, noAreaInterpolation: true });
     expect(output.geometry).toMatchObject({ role: "actual", spatialAnalysisEligible: true });
   });

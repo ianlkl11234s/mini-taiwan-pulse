@@ -38,6 +38,39 @@ describe("analysis result reveal lifecycle", () => {
     }]);
   });
 
+  it("passes result-contract raw and normalized units to each rendered feature", () => {
+    const { map, sources } = stubMap();
+    const comparison = {
+      ...result,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] }, status: "observed", value: 20, absoluteDifference: 10, normalizedValue: 12.5, normalization_status: "valid", area_ha: 0 }],
+      units: { value: "cases", absoluteDifference: "cases", normalizedValue: "cases per 10000 persons", area_ha: "hectares (source EPSG:3826 planar area)" },
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [comparison]);
+    expect((sources.get("research-analysis-result-0")!.data as { features: Array<{ properties: Record<string, unknown> }> }).features[0]!.properties).toMatchObject({
+      value: 20,
+      unit: "cases",
+      absoluteDifference: 10,
+      differenceUnit: "cases",
+      area_ha: 0,
+      sourceAreaUnit: "hectares (source EPSG:3826 planar area)",
+      normalizedValue: 12.5,
+      normalizedUnit: "cases per 10000 persons",
+    });
+  });
+
+  it("passes event measurement units from the result contract to the rendered feature", () => {
+    const { map, sources } = stubMap();
+    const event = {
+      ...result,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] }, event_id: "E-1", magnitude: 4.2, depth_km: 12 }],
+      units: { magnitude: "M", depth_km: "km" },
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [event]);
+    expect((sources.get("research-analysis-result-0")!.data as { features: Array<{ properties: Record<string, unknown> }> }).features[0]!.properties).toMatchObject({
+      event_id: "E-1", magnitude: 4.2, magnitudeUnit: "M", depth_km: 12, depthUnit: "km",
+    });
+  });
+
   it("returns the actual rendered palette position and count thresholds for the legend", () => {
     const { map } = stubMap();
     const neighborhood = {

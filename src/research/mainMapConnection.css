@@ -124,6 +124,9 @@
   font-weight: 650;
   line-height: 1.45;
 }
+.research-result-popup__overlaps { display: flex; align-items: center; gap: 8px; margin-top: 9px; color: var(--result-popup-dim); font: 700 8px/1.3 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .06em; }
+.research-result-popup__overlaps span { flex: 1 1 auto; }
+.research-result-popup__overlaps select { min-width: 0; max-width: 146px; border: 1px solid var(--result-popup-line); border-radius: 3px; background: transparent; color: var(--result-popup-ink); font: 11px/1.3 Inter, "Noto Sans TC", system-ui, sans-serif; }
 .research-result-popup__facts { margin: 12px 0 0; border-top: 1px solid var(--result-popup-line); }
 .research-result-popup__facts > div {
   display: grid;

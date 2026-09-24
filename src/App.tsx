@@ -2635,7 +2635,11 @@ export default function App() {
           </div>
 
           {/* Bottom Sheet */}
-          <MobileBottomSheet isLandscape={isLandscape}>
+          <MobileBottomSheet
+            isLandscape={isLandscape}
+            forceCollapsed={agentOpen}
+            onExpandedChange={(expanded) => { if (expanded) setAgentOpen(false); }}
+          >
             {(level) => (
               <>
                 {(level === "half" || level === "full") && (

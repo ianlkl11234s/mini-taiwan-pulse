@@ -6,6 +6,28 @@ import { validQueryResultData } from "../QueryResponder";
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 
 describe("research analysis session", () => {
+  it("labels multi-source comparison results with descriptor labels while preserving unknown ids", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    const common = { recordGrain: "metric", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] } }], sourceRefs: [], coverage: "fixture", freshness: "current", units: {}, operation: "compare_regions", inputResultIds: ["left", "right"], method: {}, summary: {} };
+    store.put({ ...common, resultId: "known-comparison", datasetId: "tw-schools+tw-public-libraries" });
+    store.put({ ...common, resultId: "unknown-comparison", datasetId: "fixture-left+fixture-right" });
+    expect(session.presentable(["known-comparison"])[0]?.displayLabel).toBe("全國各級學校＋公共圖書館 比較");
+    expect(session.presentable(["unknown-comparison"])[0]?.displayLabel).toBe("fixture-left＋fixture-right 比較");
+  });
+
+  it("keeps raw and normalized units on the session presentation contract", () => {
+    const session = new ResearchAnalysisSession();
+    (session as unknown as { store: { put: (value: object) => void } }).store.put({
+      resultId: "comparison", datasetId: "fixture-comparison", recordGrain: "metric", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ status: "observed", value: 20, normalizedValue: 12.5, geometry: { type: "Point", coordinates: [121.5, 25] } }],
+      sourceRefs: [], coverage: "fixture", freshness: "current", units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+    });
+    expect(session.presentable(["comparison"])).toEqual([expect.objectContaining({
+      units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+    })]);
+  });
+
   it("counts polygon holes and multipolygon parts in generic map bounds", () => {
     const polygon = presentationMetrics([{ geometry: {
       type: "Polygon", coordinates: [

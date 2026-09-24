@@ -13,12 +13,14 @@ export type ViewportContext = { viewport: ViewportRect; safe: ViewportRect; over
 
 type ViewportMap = Pick<MapboxMap, "getContainer" | "cameraForBounds">;
 type ViewportReadbackMap = Pick<MapboxMap, "getContainer" | "project">;
+type ViewportRefinementMap = Pick<MapboxMap, "project" | "unproject" | "getZoom">;
 
 // The App's flyout starts after the 56px Icon Rail, so it is still left-docked at 58px.
 const EDGE_ATTACH_PX = 80;
 const MIN_EDGE_SPACE_PX = 16;
 const OVERLAY_GAP_PX = 16;
 const MIN_CONTENT_PX = 80;
+const REFINEMENT_INSET_PX = 2;
 const EXCLUDED_OVERLAY_CLASSES = ["mapboxgl-canvas-container", "mapboxgl-canvas", "mapboxgl-map"];
 
 function finite(value: number): boolean { return Number.isFinite(value); }
@@ -120,13 +122,16 @@ function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRec
   }
   const safeRight = viewport.right - right;
   const safeBottom = viewport.bottom - bottom;
-  // During panel animation, opposing occluders can leave no honest place to fit bounds.
-  if (safeRight - left < MIN_CONTENT_PX || safeBottom - top < MIN_CONTENT_PX) {
+  // Compare edge strips with open space around corner panels; reject fully occluded layouts.
+  {
     // Edge strips can overlap even though space below a corner panel is usable.
     const obstacles = overlays.map(rect => ({ left: Math.max(16, rect.left - 16), right: Math.min(viewport.right - 16, rect.right + 16), top: Math.max(16, rect.top - 16), bottom: Math.min(viewport.bottom - 16, rect.bottom + 16) }));
     const xs = [...new Set([16, viewport.right - 16, ...obstacles.flatMap(rect => [rect.left, rect.right])])].sort((a, b) => a - b);
-    let best: ViewportRect | null = null;
-    let area = 0;
+    // Compare the conservative edge-strip fit with genuinely open space below
+    // corner panels; a technically valid thin strip is often not readable.
+    let best: ViewportRect | null = safeRight - left >= MIN_CONTENT_PX && safeBottom - top >= MIN_CONTENT_PX
+      ? { left, top, right: safeRight, bottom: safeBottom } : null;
+    let area = best ? (best.right - best.left) * (best.bottom - best.top) : 0;
     for (let i = 0; i < xs.length; i++) for (let j = i + 1; j < xs.length; j++) {
       const xLeft = xs[i]!;
       const xRight = xs[j]!;
@@ -145,7 +150,6 @@ function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRec
     if (best) return best;
     throw new Error("VIEWPORT_OCCLUDED");
   }
-  return { left, top, right: safeRight, bottom: safeBottom };
 }
 
 function mercatorY(lat: number): number {
@@ -258,4 +262,56 @@ export function framingFitsViewportFromContext(map: Pick<MapboxMap, "project">, 
 
 export function framingFitsViewport(map: ViewportReadbackMap, framing: ResearchFraming): boolean {
   return framingFitsViewportFromContext(map, resolveViewportContext(map), framing);
+}
+
+/**
+ * Corrects a Mapbox camera only when its live projected bounds exceed the padded safe rectangle.
+ * This compensates for small cameraForBounds/project rounding differences without changing source geometry.
+ */
+export function refineViewportCameraFromContext(map: ViewportRefinementMap, context: ViewportContext, framing: ResearchFraming): ResearchCamera | null {
+  if (context.fitAvailable === false || !validFraming(framing)) return null;
+  const { safe, viewport } = context;
+  const padding = effectivePadding(safe, framing.padding);
+  const visible = {
+    left: safe.left + padding + REFINEMENT_INSET_PX,
+    top: safe.top + padding + REFINEMENT_INSET_PX,
+    right: safe.right - padding - REFINEMENT_INSET_PX,
+    bottom: safe.bottom - padding - REFINEMENT_INSET_PX,
+  };
+  if (visible.right <= visible.left || visible.bottom <= visible.top) return null;
+  const [west, south, east, north] = framing.bounds;
+  let corners: Array<{ x: number; y: number }>;
+  try {
+    corners = [[west, south], [west, north], [east, south], [east, north]].map(([lng, lat]) => map.project([lng!, lat!]));
+  } catch { return null; }
+  if (corners.some(point => !finite(point.x) || !finite(point.y))) return null;
+  const left = Math.min(...corners.map(point => point.x)); const right = Math.max(...corners.map(point => point.x));
+  const top = Math.min(...corners.map(point => point.y)); const bottom = Math.max(...corners.map(point => point.y));
+  if (left >= visible.left && right <= visible.right && top >= visible.top && bottom <= visible.bottom) return null;
+  const measuredWidth = right - left; const measuredHeight = bottom - top;
+  const availableWidth = visible.right - visible.left; const availableHeight = visible.bottom - visible.top;
+  if (!(measuredWidth > 0) || !(measuredHeight > 0) || !(availableWidth > 0) || !(availableHeight > 0)) return null;
+  const zoom = map.getZoom();
+  if (!finite(zoom) || zoom < 0 || zoom > 24) return null;
+  const fitScale = Math.min(1, availableWidth / measuredWidth, availableHeight / measuredHeight);
+  if (!finite(fitScale) || fitScale <= 0) return null;
+  const nextZoom = Math.max(0, Math.min(zoom, framing.maxZoom, zoom + Math.log2(fitScale)));
+  const actualScale = 2 ** (nextZoom - zoom);
+  if (!finite(nextZoom) || !finite(actualScale) || actualScale <= 0) return null;
+  const boundsCenterX = (left + right) / 2; const boundsCenterY = (top + bottom) / 2;
+  const viewportCenterX = (viewport.left + viewport.right) / 2; const viewportCenterY = (viewport.top + viewport.bottom) / 2;
+  const visibleCenterX = (visible.left + visible.right) / 2; const visibleCenterY = (visible.top + visible.bottom) / 2;
+  let center: { lng: number; lat: number };
+  try {
+    center = map.unproject([
+      boundsCenterX - (visibleCenterX - viewportCenterX) / actualScale,
+      boundsCenterY - (visibleCenterY - viewportCenterY) / actualScale,
+    ]);
+  } catch { return null; }
+  if (!finite(center.lng) || !finite(center.lat) || Math.abs(center.lng) > 180 || Math.abs(center.lat) > 85) return null;
+  return { center: [center.lng, center.lat], zoom: nextZoom, bearing: 0, pitch: 0, padding: 0 };
+}
+
+export function refineViewportCamera(map: ViewportRefinementMap & Pick<MapboxMap, "getContainer">, framing: ResearchFraming): ResearchCamera | null {
+  return refineViewportCameraFromContext(map, resolveViewportContext(map), framing);
 }
