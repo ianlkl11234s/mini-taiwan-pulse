@@ -63,7 +63,7 @@ export function moveResearchCamera(map: MapboxMap, camera: Camera): Promise<bool
     motions.set(map, { finish, listener, timer });
     safely(() => map.on("moveend", listener));
     safely(() => map.on("remove", removed));
-    try { map.easeTo({ ...camera, retainPadding: false, duration: prefersReducedMotion() ? 0 : 650 }); } catch { finish(false); }
+    try { map.flyTo({ ...camera, retainPadding: false, duration: prefersReducedMotion() ? 0 : 1_100, curve: 1.25 }); } catch { finish(false); }
   });
 }
 

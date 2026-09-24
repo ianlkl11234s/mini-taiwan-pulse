@@ -7,7 +7,7 @@ function mapStub() {
   const listeners = new Map<string, Set<() => void>>(); const sources = new Map<string, { data: unknown; setData: (data: unknown) => void }>(); const layers = new Map<string, LayerSpecification>();
   const api = {
     getCenter: () => center, getZoom: () => zoom,
-    easeTo: vi.fn(), stop: vi.fn(),
+    flyTo: vi.fn(), stop: vi.fn(),
     on: vi.fn((event: string, handler: () => void) => { (listeners.get(event) ?? listeners.set(event, new Set()).get(event)!).add(handler); }),
     off: vi.fn((event: string, handler: () => void) => listeners.get(event)?.delete(handler)),
     getSource: vi.fn((id: string) => sources.get(id)), addSource: vi.fn((id: string, data: { data: unknown }) => { const source = { data: data.data, setData(next: unknown) { source.data = next; } }; sources.set(id, source); }),
@@ -21,9 +21,9 @@ function mapStub() {
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe("research motion", () => {
-  it("uses a bounded ease and accepts only an actual moveend camera readback", async () => {
+  it("uses a bounded flight and accepts only an actual moveend camera readback", async () => {
     const state = mapStub(); const pending = moveResearchCamera(state.map, { center: [121.6, 25.1], zoom: 12 });
-    expect(state.api.easeTo).toHaveBeenCalledWith(expect.objectContaining({ duration: 650 }));
+    expect(state.api.flyTo).toHaveBeenCalledWith(expect.objectContaining({ duration: 1_100 }));
     state.arrive([121.6, 25.1], 12); await expect(pending).resolves.toBe(true);
   });
 
@@ -40,9 +40,9 @@ describe("research motion", () => {
     vi.stubGlobal("window", { matchMedia: vi.fn(() => ({ matches: true })) });
     const state = mapStub(); expect(prefersReducedMotion()).toBe(true);
     const pending = moveResearchCamera(state.map, { center: [121.6, 25.1], zoom: 12 });
-    expect(state.api.easeTo).toHaveBeenCalledWith(expect.objectContaining({ duration: 0 }));
+    expect(state.api.flyTo).toHaveBeenCalledWith(expect.objectContaining({ duration: 0 }));
     state.arrive([121.6, 25.1], 12); await expect(pending).resolves.toBe(true);
-    vi.useFakeTimers(); const timedOut = moveResearchCamera(state.map, { center: [121.7, 25.2], zoom: 13 }); await vi.advanceTimersByTimeAsync(1_500); await expect(timedOut).resolves.toBe(false);
+    vi.useFakeTimers(); const timedOut = moveResearchCamera(state.map, { center: [121.7, 25.2], zoom: 13 }); await vi.advanceTimersByTimeAsync(2_500); await expect(timedOut).resolves.toBe(false);
     await expect(moveResearchCamera(state.map, { center: [999, 25], zoom: 12 })).resolves.toBe(false);
   });
 
@@ -51,7 +51,7 @@ describe("research motion", () => {
     const state = mapStub();
     const pending = moveResearchCamera(state.map, { center: [121.6, 25.1], zoom: 12 });
     state.updateCamera([121.6, 25.1], 12);
-    await vi.advanceTimersByTimeAsync(1_500);
+    await vi.advanceTimersByTimeAsync(2_500);
     await expect(pending).resolves.toBe(true);
   });
 

@@ -9,9 +9,9 @@ describe("activityForOperation", () => {
   });
 
   it("uses bounded natural copy for exploration, spatial work, and aggregation", () => {
-    expect(activityForOperation("explore_data", {})).toMatchObject({ phase: "working", title: "正在探索可用資料" });
+    expect(activityForOperation("explore_data", {})).toMatchObject({ phase: "working", title: "Agent 正在找相關資料" });
     expect(activityForOperation("spatial_query", { predicate: "nearest" })).toMatchObject({ detail: "正在找出接近的紀錄。" });
-    expect(activityForOperation("aggregate_records", {})).toMatchObject({ title: "正在彙整已取得的資料" });
+    expect(activityForOperation("aggregate_records", {})).toMatchObject({ title: "Agent 正在彙整資料" });
   });
 
   it("marks presentation and explicit terminal signals without invented percentages", () => {
