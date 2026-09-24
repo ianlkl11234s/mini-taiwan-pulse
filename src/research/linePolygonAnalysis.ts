@@ -30,6 +30,15 @@ function samePosition(left: Position, right: Position): boolean {
   return left[0] === right[0] && left[1] === right[1];
 }
 
+// Turf buffers can emit a connector shorter than the topology predicate's own
+// 1e-12 on-segment tolerance. Treat it as topology-neutral without changing
+// the returned coordinates or accepting a materially distinct edge.
+const TOPOLOGY_POSITION_EPSILON = 1e-12;
+function topologicallySamePosition(left: Position, right: Position): boolean {
+  return Math.abs(left[0] - right[0]) <= TOPOLOGY_POSITION_EPSILON
+    && Math.abs(left[1] - right[1]) <= TOPOLOGY_POSITION_EPSILON;
+}
+
 /** This planar EPSG:4326 predicate deliberately has no antimeridian handling. */
 function crossesAntimeridian(a: Position, b: Position): boolean { return Math.abs(a[0] - b[0]) > 180; }
 
@@ -84,7 +93,7 @@ function ringArea(ring: Ring): number {
   return area / 2;
 }
 
-type RingSegment = readonly [Position, Position];
+type RingSegment = readonly [Position, Position, sourceIndex: number];
 
 /**
  * Zero-length edges do not change a ring boundary. Keep their source positions
@@ -95,7 +104,7 @@ function nonDegenerateRingSegments(ring: Ring): readonly RingSegment[] {
   const segments: RingSegment[] = [];
   for (let index = 1; index < ring.length; index += 1) {
     const start = ring[index - 1]!; const end = ring[index]!;
-    if (!samePosition(start, end)) segments.push([start, end]);
+    if (!topologicallySamePosition(start, end)) segments.push([start, end, index - 1]);
   }
   return segments;
 }
@@ -111,6 +120,27 @@ function ringsIntersect(left: Ring, right: Ring): boolean {
   return false;
 }
 
+function sourceAdjacent(left: RingSegment, right: RingSegment): boolean {
+  return right[2] === left[2] + 1;
+}
+
+/** A connector removed only for topology must not hide a spike or overlap. */
+function collapsedConnectorIsSafe(left: RingSegment, right: RingSegment): boolean {
+  if (!segmentsIntersect(left[0], left[1], right[0], right[1])) return true;
+  const forward = topologicallySamePosition(left[1], right[0]);
+  const closure = topologicallySamePosition(right[1], left[0]);
+  if (!forward && !closure) return false;
+  const [before, shared, after] = forward
+    ? [left[0], left[1], right[1]]
+    : [right[0], right[1], left[1]];
+  const previousVector: Position = [shared[0] - before[0], shared[1] - before[1]];
+  const nextVector: Position = [after[0] - shared[0], after[1] - shared[1]];
+  // With one shared endpoint, non-collinear edges meet only there. Collinear
+  // continuation is also valid; only a reversing pair is a spike/overlap.
+  return previousVector[0] * nextVector[0] + previousVector[1] * nextVector[1] > 0
+    || orientation(before, shared, after) !== 0;
+}
+
 function validateRing(value: unknown, budget: LinePolygonAnalysisBudget): value is Ring {
   if (!Array.isArray(value) || value.length < 4 || !value.every(isPosition) || !samePosition(value[0]!, value[value.length - 1]!)) return false;
   if (Math.abs(ringArea(value)) <= 1e-12) return false;
@@ -120,8 +150,13 @@ function validateRing(value: unknown, budget: LinePolygonAnalysisBudget): value 
   const nonDegenerateSegments = nonDegenerateRingSegments(value);
   for (let left = 0; left < nonDegenerateSegments.length; left += 1) {
     for (let right = left + 1; right < nonDegenerateSegments.length; right += 1) {
-      const adjacent = right === left + 1 || left === 0 && right === nonDegenerateSegments.length - 1;
-      if (!adjacent && segmentsIntersect(...nonDegenerateSegments[left]!, ...nonDegenerateSegments[right]!)) return false;
+      const leftSegment = nonDegenerateSegments[left]!;
+      const rightSegment = nonDegenerateSegments[right]!;
+      // Preserve the existing rule for an exact closed ring. A merely-near
+      // closure, like a collapsed Turf connector, goes through the safety
+      // check below instead of receiving this unconditional skip.
+      if (sourceAdjacent(leftSegment, rightSegment) || left === 0 && samePosition(rightSegment[1], leftSegment[0])) continue;
+      if (!collapsedConnectorIsSafe(leftSegment, rightSegment)) return false;
     }
   }
   return true;

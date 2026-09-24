@@ -54,6 +54,20 @@ describe("linePolygonAnalysis", () => {
     ] })).toThrow("INVALID_SURFACE_GEOMETRY");
   });
 
+  it("accepts a topology-neutral floating connector without altering the supplied ring", () => {
+    const floatingConnector = { type: "Polygon", coordinates: [[
+      [0, 0], [3, 0], [3, 5e-13], [3, 3], [0, 3], [0, 0],
+    ]] } as const;
+    expect(parseLinePolygonSurface(floatingConnector)).toBe(floatingConnector);
+  });
+
+  it("does not let a collapsed floating connector hide an overlap or spike", () => {
+    const overlappingSpike = { type: "Polygon", coordinates: [[
+      [0, 0], [3, 0], [3, 5e-13], [1, 0], [3, 3], [0, 3], [0, 0],
+    ]] } as const;
+    expect(() => parseLinePolygonSurface(overlappingSpike)).toThrow("INVALID_SURFACE_GEOMETRY");
+  });
+
   it("bounds segment-pair work instead of relying on a vertex total", () => {
     expect(() => lineIntersectsSurface(
       { type: "LineString", coordinates: [[-1, 1], [11, 1], [-1, 2]] },
