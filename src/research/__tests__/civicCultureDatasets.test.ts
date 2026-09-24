@@ -2,6 +2,8 @@ import { afterEach, expect, it, vi } from "vitest";
 import { readFile } from "node:fs/promises";
 import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "../civicCultureDatasets";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
+import { QueryExecutor } from "../queryExecutor";
+import { registeredDatasetForLayer } from "../researchDatasets";
 
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
@@ -20,4 +22,16 @@ it("registers pinned source-coordinate postal and cultural facility datasets", a
   expect(culture.exclusions).not.toHaveProperty("excluded_by_selection");
   expect(culturalFacilitiesSourceCoordinatesAdapter.descriptor.coverage).toContain("383 筆缺座標已在產物前排除");
   expect(culturalFacilitiesSourceCoordinatesAdapter.descriptor.fields.map(field => field.name)).not.toContain("coord_status");
+});
+
+it("maps the verified cultural layer and answers new-place and 台/臺 variants", async () => {
+  const bytes = await readFile("public/culture/cultural_facilities_national.geojson");
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(bytes, { headers: { "content-type": "application/geo+json" } })));
+  const executor = new QueryExecutor([culturalFacilitiesSourceCoordinatesAdapter]);
+  const matsu = await executor.execute({ datasetId: "tw-cultural-facilities-source-coordinates", filters: [{ field: "city", op: "eq", value: "連江縣" }] });
+  const taipei = await executor.execute({ datasetId: "tw-cultural-facilities-source-coordinates", filters: [{ field: "city", op: "eq", value: "台北市" }], limit: 2 });
+  expect(registeredDatasetForLayer("culturalFacilities")?.datasetId).toBe("tw-cultural-facilities-source-coordinates");
+  expect(matsu).toMatchObject({ totalMatched: 1, rows: [{ name: "連江縣政府文化處", city: "連江縣", geometry: { type: "Point", coordinates: [119.927222, 26.151111] } }] });
+  expect(taipei.totalMatched).toBe(221);
+  expect(taipei.rows).toHaveLength(2);
 });

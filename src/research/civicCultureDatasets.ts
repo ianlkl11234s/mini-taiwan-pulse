@@ -32,7 +32,7 @@ export const culturalFacilitiesSourceCoordinatesAdapter = createVerifiedPointDat
   description: "文化部 emap 六系列合併的 787 筆來源座標文化設施快照；原始 1,170 筆中 383 筆缺座標已在產物前排除，並未作 runtime selector 或 exclusion。city 由來源地址萃取，可能為空。",
   sourceUrl: "/culture/cultural_facilities_national.geojson",
   expectedSha256: "0f7d0d93b9695c2beb45f5916fb0185f1aac30c9e333669ebe31bc55f506591d",
-  expectedSourceRows: 787, expectedSelectedRows: 787, fullSource: true, selection: {},
+  expectedSourceRows: 787, expectedSelectedRows: 787, fullSource: true, selection: {}, layerRefs: ["culturalFacilities"],
   fields: [
     { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
     { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供設施名稱", unit: null },
