@@ -24,6 +24,7 @@ import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
 import { hotSpringsSourceCoordinatesAdapter } from "./hotSpringDataset";
 import { mentalHealthFacilitiesUpstreamCoordinatesAdapter } from "./mentalHealthFacilitiesDataset";
 import { govWelfareOfficesUpstreamCoordinatesAdapter } from "./govWelfareOfficesDataset";
+import { retailMarketsTgosAdapter } from "./retailMarketsDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
@@ -323,6 +324,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   hotSpringsSourceCoordinatesAdapter,
   mentalHealthFacilitiesUpstreamCoordinatesAdapter,
   govWelfareOfficesUpstreamCoordinatesAdapter,
+  retailMarketsTgosAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
   taipeiZoningAttributeAdapter,

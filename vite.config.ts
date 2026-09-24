@@ -296,24 +296,28 @@ function serveLocalResearchAssets(): Plugin {
   };
 }
 
-/** The paired dev server may inherit another checkout's publicDir; serve this pinned sidecar from this worktree. */
-function serveZoningAttributeSidecar(): Plugin {
+/** The paired dev server may inherit another checkout's publicDir; serve pinned sidecars from this worktree. */
+function serveResearchAnalysisSidecars(): Plugin {
   return {
-    name: "serve-zoning-attribute-sidecar", apply: "serve",
+    name: "serve-research-analysis-sidecars", apply: "serve",
     configureServer(server) {
-      const target = resolve(process.cwd(), "public/urban/urban_zoning_taipei.analysis.json");
+      const assets = new Map([
+        ["/urban/urban_zoning_taipei.analysis.json", { target: resolve(process.cwd(), "public/urban/urban_zoning_taipei.analysis.json"), contentType: "application/json; charset=utf-8" }],
+        ["/research/retail_markets_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/retail_markets_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+      ]);
       server.middlewares.use((request, response, next) => {
-        if ((request.url ?? "").split("?", 1)[0] !== "/urban/urban_zoning_taipei.analysis.json") return next();
+        const asset = assets.get((request.url ?? "").split("?", 1)[0]);
+        if (!asset) return next();
         if (!["GET", "HEAD"].includes(request.method ?? "")) { response.statusCode = 405; response.end(); return; }
-        void stat(target).then(info => {
+        void stat(asset.target).then(info => {
           if (!info.isFile()) { response.statusCode = 404; response.end(); return; }
           response.statusCode = 200;
-          response.setHeader("content-type", "application/json; charset=utf-8");
+          response.setHeader("content-type", asset.contentType);
           response.setHeader("content-length", info.size);
           response.setHeader("cache-control", "no-cache");
           response.setHeader("x-content-type-options", "nosniff");
           if (request.method === "HEAD") { response.end(); return; }
-          createReadStream(target).pipe(response);
+          createReadStream(asset.target).pipe(response);
         }).catch(() => { response.statusCode = 404; response.end(); });
       });
     },
@@ -400,7 +404,7 @@ export default defineConfig({
   plugins: [
     react(),
     serveLocalResearchAssets(),
-    serveZoningAttributeSidecar(),
+    serveResearchAnalysisSidecars(),
     serveResearchPointPartitions(),
     serveLocalPopulationPreview(),
     serveGfwV4CandidateStage(),
