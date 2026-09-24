@@ -304,6 +304,7 @@ function serveResearchAnalysisSidecars(): Plugin {
       const assets = new Map([
         ["/urban/urban_zoning_taipei.analysis.json", { target: resolve(process.cwd(), "public/urban/urban_zoning_taipei.analysis.json"), contentType: "application/json; charset=utf-8" }],
         ["/research/retail_markets_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/retail_markets_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/research/gov_service_offices_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/gov_service_offices_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
       ]);
       server.middlewares.use((request, response, next) => {
         const asset = assets.get((request.url ?? "").split("?", 1)[0]);
