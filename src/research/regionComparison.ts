@@ -54,6 +54,9 @@ type CanonicalRow = {
 
 const POPULATION_UNITS = new Set(["person", "persons", "人", "人口"]);
 const POPULATION_INDICATORS = new Set(["population", "resident_population", "total_population", "registered_population"]);
+/** Taiwan has 22 county/city-level administrative units.  This is a request
+ * bound, not a claim that every source has complete national coverage. */
+export const MAX_REGION_COMPARISON_AREAS = 22;
 
 function canonicalJson(value: unknown): string | null {
   if (value === null || typeof value === "string" || typeof value === "boolean") return JSON.stringify(value);
@@ -110,7 +113,7 @@ function materialize(source: StoredDataResult): { contract: Contract; rows: Map<
 }
 
 function assertInput(input: CompareRegionsInput): string[] {
-  if (!Array.isArray(input.areaCodes) || input.areaCodes.length < 2 || input.areaCodes.length > 8 || !input.areaCodes.every(code => typeof code === "string" && code)) throw new Error("INVALID_REGION_COMPARISON_AREAS");
+  if (!Array.isArray(input.areaCodes) || input.areaCodes.length < 2 || input.areaCodes.length > MAX_REGION_COMPARISON_AREAS || !input.areaCodes.every(code => typeof code === "string" && code)) throw new Error("INVALID_REGION_COMPARISON_AREAS");
   const codes = [...input.areaCodes];
   if (new Set(codes).size !== codes.length || !codes.includes(input.baselineAreaCode)) throw new Error("INVALID_REGION_COMPARISON_AREAS");
   if (input.per !== undefined && (!Number.isFinite(input.per) || input.per <= 0)) throw new Error("INVALID_NORMALIZATION_SCALE");

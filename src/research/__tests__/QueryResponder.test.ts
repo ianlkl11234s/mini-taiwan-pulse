@@ -82,6 +82,25 @@ describe("QueryResponder", () => {
       rows: [{ name: "行政區", value: 7, geometry: { type: "Polygon", coordinatesOmitted: true } }],
     } });
   });
+  it("keeps every semantic row for a 22-area comparison when wire geometry is compacted", async () => {
+    const ring = Array.from({ length: 2_000 }, (_, index) => [121.5 + index / 1_000_000, 25]);
+    ring.push(ring[0]!);
+    const rows = Array.from({ length: 22 }, (_, index) => ({
+      area_code: `C${String(index + 1).padStart(2, "0")}`, status: "observed", comparison_status: "valid", normalization_status: "valid",
+      value: index + 1, normalizedValue: 10, geometry: { type: "Polygon", coordinates: [ring] },
+    }));
+    const delivered = setup(vi.fn().mockResolvedValue({
+      resultId: "analysis-compare_regions-national", operation: "compare_regions", units: { value: "cases", normalizedValue: "cases per 10000 persons" }, rows,
+    }));
+    await delivered.responder.tick();
+    const result = delivered.client.queryResult.mock.calls[0]?.[3];
+    expect(result).toMatchObject({ ok: true, data: { resultId: "analysis-compare_regions-national", operation: "compare_regions", units: { normalizedValue: "cases per 10000 persons" } } });
+    expect((result as { data: { rows: unknown[] } }).data.rows).toHaveLength(22);
+    expect((result as { data: { rows: Array<Record<string, unknown>> } }).data.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({ area_code: "C01", value: 1, normalizedValue: 10, geometry: { type: "Polygon", coordinatesOmitted: true } }),
+      expect.objectContaining({ area_code: "C22", value: 22, normalizedValue: 10, geometry: { type: "Polygon", coordinatesOmitted: true } }),
+    ]));
+  });
   it("sends real spatial and aggregate result pages after JSON omits undefined presentation fields", async () => {
     const session = new ResearchAnalysisSession();
     const store = (session as unknown as { store: { put: (value: object) => void } }).store;

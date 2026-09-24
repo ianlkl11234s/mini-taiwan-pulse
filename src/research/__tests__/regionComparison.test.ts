@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { StoredDataResult } from "../analysisOperations";
-import { compareRegions } from "../regionComparison";
+import { compareRegions, MAX_REGION_COMPARISON_AREAS } from "../regionComparison";
 
 const sha = "a".repeat(64);
 const polygon = (x: number): GeoJSON.Polygon => ({ type: "Polygon", coordinates: [[[x, 25], [x + .01, 25], [x + .01, 25.01], [x, 25.01], [x, 25]]] });
@@ -86,5 +86,34 @@ describe("compareRegions", () => {
     for (const dimensions of [{}, { population_scope: null }, { population_scope: "total", sex: "all" }, { population_scope: "resident" }]) {
       expect(() => compareRegions(numerator, { areaCodes: ["A04", "A05"], baselineAreaCode: "A05", denominatorResult: denominator(dimensions) })).toThrow("REGION_COMPARISON_DENOMINATOR_NOT_POPULATION");
     }
+  });
+
+  it("supports all 22 county/city values with one same-version denominator and retained display polygons", () => {
+    const areaCodes = Array.from({ length: MAX_REGION_COMPARISON_AREAS }, (_, index) => `C${String(index + 1).padStart(2, "0")}`);
+    const numeratorValues = Object.fromEntries(areaCodes.map((code, index) => [code, index + 1]));
+    const populationValues = Object.fromEntries(areaCodes.map((code, index) => [code, (index + 1) * 1_000]));
+    const numerator = result(rows(numeratorValues));
+    const denominator = result(rows(populationValues, Object.fromEntries(areaCodes.map(code => [code, {
+      dataset_id: "stats:population", indicator_id: "population", unit: "persons", dimensions: { population_scope: "total" },
+    }]))), { resultId: "population", datasetId: "stats:population", units: { value: "persons" } });
+
+    const output = compareRegions(numerator, {
+      areaCodes, baselineAreaCode: areaCodes[0]!, denominatorResult: denominator, per: 10_000,
+    });
+
+    expect(output.rows).toHaveLength(22);
+    expect(output.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({ area_code: "C01", value: 1, normalizedValue: 10, ratio: 1, geometry: expect.objectContaining({ type: "Polygon" }) }),
+      expect.objectContaining({ area_code: "C22", value: 22, normalizedValue: 10, ratio: 22, geometry: expect.objectContaining({ type: "Polygon" }) }),
+    ]));
+    expect(output.summary).toMatchObject({ areasRequested: 22, observed: 22, comparable: 22, normalized: 22, geometriesRetained: 22 });
+    expect(output.method).toMatchObject({ areaCodes, normalization: expect.objectContaining({ per: 10_000 }) });
+  });
+
+  it("rejects a request larger than the Taiwan county/city comparison bound", () => {
+    const areaCodes = Array.from({ length: MAX_REGION_COMPARISON_AREAS + 1 }, (_, index) => `C${String(index + 1).padStart(2, "0")}`);
+    expect(() => compareRegions(result(rows(Object.fromEntries(areaCodes.map((code, index) => [code, index])))), {
+      areaCodes, baselineAreaCode: areaCodes[0]!,
+    })).toThrow("INVALID_REGION_COMPARISON_AREAS");
   });
 });
