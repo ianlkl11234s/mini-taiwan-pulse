@@ -8,7 +8,7 @@
 
 使用者已授權自行確認本地配對、測試、隔離 worktree 實作與原子 commit。目標為每個圖層可查到分析能力與缺口，所有具備合法完整來源的資料逐步接入合適運算；**全量盤點完成不等於全量可分析**。PMTiles 不是一概豁免，也不從視窗中繪出的 tile features 當完整資料。
 
-當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、65 個 descriptor datasets；56 個圖層已有 queryable mapping、118 個 GeoJSON 待載入驗證候選、604 個未提供可用查詢映射（含2個明確禁止查詢的descriptor）。58 個圖層有 descriptor，其中2個不可query。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md)。這些數字不是778份來源都通過live驗證。
+當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、77 個 descriptor datasets；68 個圖層已有 queryable mapping、114 個 GeoJSON 待載入驗證候選、596 個未提供可用查詢映射（含1個明確禁止查詢的descriptor）。69 個圖層有 descriptor。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md) 與 [本夜分片驗收](./overnight-coverage-20260925.md)。這些數字不是778份來源都通過live驗證。
 
 | 順序 | 交付與工作 | 完成判準 |
 |---|---|---|
@@ -22,9 +22,9 @@
 
 過夜排程：沿用既有 Pulse heartbeat，2026-09-25 每30分鐘接續一片，08:00 Asia/Taipei 停止新增工作並在本節留晨間交接、停用排程。原始分析session可能到期，不能將排程啟用當成未來已完成。
 
-執行方式：本夜先依N0→N1→N2推進，再挑N3–N5有現成契約的來源；缺上游artifact時記錄可執行補料工作，轉做可用家族。不得為達數量放寬授權/geometry gate、任意掃資料庫、下載全國巨型檔或增加付費provider。主agent負責整合與語意；Luna唯讀分類，Terra限owned檔實作，最多3worker、不遞迴。
+執行方式：本夜先依N0→N1→N2推進，再挑N3–N5有現成契約的來源；缺上游artifact時記錄可執行補料工作，轉做可用家族。不得為達數量放寬授權/geometry gate、任意掃資料庫、下載全國巨型檔或增加付費provider。主agent負責整合與語意；Luna 做有界分類／簡單文件，Terra 限 owned 檔實作，最多3 worker、不遞迴。
 
-本夜可交付全量分類、可重跑台帳、合格來源批次擴充與各特殊家族路徑；**不承諾今晚讓缺來源契約的604層全部通過分析**。阻礙是原始資料/權限/粒度/缺值/幾何版本/時序，不只是加工具。技術核心收尾門檻是每種已支援家族都有代表性真來源驗收與fail-closed，資料接入覆蓋則持續按台帳清理。
+本夜已交付全量分類、可重跑台帳、合格 Point／統計／PMTiles 屬性試點及 RPC／raster gate；**沒有讓缺來源契約的596層全部通過分析**。阻礙是原始資料/權限/粒度/缺值/幾何版本/時序，不只是加工具。技術核心收尾門檻是每種已支援家族都有代表性真來源驗收與 fail-closed，資料接入覆蓋則持續按台帳清理。
 
 恢復入口：只讀本節、最新台帳及[六片驗收](./acceptance-feedback-six-20260925.md)，先git status與runtime port/session檢查；不重做已完成查詢、不清storage、不停止其他服務。沿用research-streamline三個隔離checkout；不push/PR/merge/deploy。每片必要測試及 `npx tsc -b` 通過才exact-path commit。遇付費、大量下載或來源權限缺口先保留阻擋證據，繼續獨立工作。
 

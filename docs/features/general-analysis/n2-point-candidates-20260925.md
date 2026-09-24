@@ -2,14 +2,14 @@
 
 本輪從 `analysis-coverage-20260925.json` 的 118 個 `metadata_candidate_requires_readback` 候選出發，依 `src/data/layerManifest.ts` 的 `source.url` 去重，只讀已存在的 `public/` GeoJSON；沒有下載、沒有掃描超過必要檔案。JSON 以 `features` 的 geometry type 做實讀，不能把副檔名當成 geometry 證據。以下 15 個是較可行的純 Point 試點（bytes／feature 數為本地檔案當下值）。
 
-接入前基線為 118 個 metadata 候選；本片接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳重跑為 115 個、68 registered datasets／59 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
+接入前基線為 118 個 metadata 候選；首批接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳為 115 個。再接入海纜登陸站 11 個 node 與 47 個 center 的同源雙 descriptor（見 [專用紀錄](./n2-landing-stations-20260925.md)）後，最新台帳為 114 候選、77 registered datasets／68 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
 
 | layer key | asset（manifest source URL） | bytes / features | geometry | source／時間／授權證據 | 既有 reader | 阻擋項 |
 |---|---|---:|---|---|---|---|
 | `forestFlatParks` | `public/forestry/flat_forest_parks.geojson` | 4,155 / 3 | 3 Point | 上游 `taipei-gis-analytics/docs/data-catalog/forestry/flat_forest_parks.md`；地址→county centroid、OGDL | 已接 SHA/筆數固定的 proxy adapter | 來源實際更新日與現場營運狀態 unknown；不得最近距離／環域 |
 | `forestEducationCenters` | `public/forestry/forest_education_centers.geojson` | 3,460 / 8 | 8 Point | 上游 `taipei-gis-analytics/docs/data-catalog/forestry/forest_education_centers.md`；地址→county centroid、OGDL | 已接 SHA/筆數固定的 proxy adapter | 來源實際更新日與現場營運狀態 unknown；不得最近距離／環域 |
 | `lighthouses` | `public/geo/lighthouse.geojson` | 7,638 / 36 | 36 Point | 上游 `taipei-gis-analytics/docs/data-catalog/transportation/light_house.md`；航港局 SHP 轉 WGS84、OGDL | 已接 SHA/筆數固定的 actual adapter | 來源／pipeline 日期 unknown；不可當作目前開放或航安狀態 |
-| `landingStations` | `public/geo/landing_stations.geojson` | 60,304 / 58 | 58 Point | manifest entry 2261；upstream `verified` | 同上 | 同上；尚無 descriptor |
+| `landingStations` | `public/geo/landing_stations.geojson` | 60,304 / 58 | 58 Point | 上游 OSM/Overpass、ODbL；詳見專用紀錄 | 已接 11 actual node＋47 proxy center 雙 descriptor | 來源不完整；center 不可做近鄰／環域 |
 | `welfareMentalHealth` | `public/welfare/mental_health_facilities_national.geojson` | 33,873 / 70 | 70 Point | manifest entry 3723；明列 70 點、類別分解；upstream `verified` | 同上 | 授權／snapshot date 仍需 source readback |
 | `religionTop100` | `public/religion/top100.geojson` | 48,306 / 100 | 100 Point | manifest entry 1012；上游 `taipei-gis-analytics/docs/data-catalog/religion/top100.md` | 同上 | 固定精選 100 筆非寺廟總數；部分節慶代表點，須確認語意；尚無 descriptor |
 | `tourHotSprings` | `public/tourism/hot_springs_national.geojson` | 34,397 / 150 | 150 Point | manifest entry 2882；上游 `taipei-gis-analytics/docs/data-catalog/tourism/hot_spring.md` | 同上 | 露頭語意與時點需保留；尚無 descriptor |

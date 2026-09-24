@@ -2,7 +2,7 @@
 
 ## 盤點結論
 
-`analysis-coverage-20260925.json` 的 manifest source-kind 計數為 52 個 `supabase`、98 個 `pmtiles`、499 個 `custom`。這是 manifest 類型計數，不是可查詢能力計數：目前 778 層中有 67 層具可查詢 descriptor mapping，研究 registry 登記 75 個 dataset；未註冊 descriptor 的 Supabase／custom layer 必須停在 HOLD，不能由畫面已顯示推論 RPC 已接線。
+`analysis-coverage-20260925.json` 的 manifest source-kind 計數為 52 個 `supabase`、98 個 `pmtiles`、499 個 `custom`。這是 manifest 類型計數，不是可查詢能力計數：目前 778 層中有 68 層具可查詢 descriptor mapping，研究 registry 登記 77 個 dataset；未註冊 descriptor 的 Supabase／custom layer 必須停在 HOLD，不能由畫面已顯示推論 RPC 已接線。
 
 目前可作 verified query pilot 的家族是 regional statistics：
 
