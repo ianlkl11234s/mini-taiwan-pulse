@@ -59,7 +59,7 @@ function sameSelection(row: Record<string, unknown>, selection: Readonly<Record<
   return Object.entries(selection).every(([field, value]) => row[field] === value);
 }
 
-/** Materializes a pre-verified actual-geometry subset without altering its source record IDs or loader receipts. */
+/** Materializes a pre-verified actual-geometry subset with version-bound SHA/row-index record IDs and unchanged loader receipts. */
 export function createVerifiedPointDatasetAdapter(config: VerifiedPointDatasetConfig): QueryAdapter {
   const dataDescriptor = descriptor(config);
   const safeFields = config.fields.map(field => field.name).filter(name => name !== "record_id" && name !== "geometry");

@@ -40,17 +40,17 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 使用已宣告的 typed chain，不用舊 layer summary 代替 dataset analysis 驗收：
 
-- 分組統計：`query_records → aggregate_records → get_data_quality → get_analysis_result`
+- 分組統計：`query_records → aggregate_records`
 - 行政統計面圖：查詢 `regional-statistics:<layer_key>` 的 exact release；確認 values receipt 與同版 boundary receipt，再 `present_result`／`set_result_collection`
-- 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
+- 附近／距離：`query_records → spatial_query`
 - 地圖中心行政區：讀取同版行政統計面後，用 `spatial_query(predicate="contains_center", areaResultId, center)`；display scope 不能當作 actual Point。邊界線上的點要保留未唯一匹配，不猜行政區。
-- 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
+- 點落在哪些面：`query point/area → spatial_query(within|intersects)`
 - 有界環域／面交集／度量：live schema 提供時使用 `spatial_query` 的 `line_buffer`、`surface_intersection`、`measure_geometry`；完整單一 eligible feature、半徑 1–500m，方法與預算見 [分析配方](references/analysis-recipes.md#有界幾何分析)。新 derived 面可接點位 within/intersects；環域不是可及性。
 - 完整線與面相交：`query line/area → spatial_query(predicate="line_intersects", lineResultId, areaResultId)`；只使用 declared actual EPSG:4326 LineString/MultiLineString，保留完整路徑、holes、multipart與邊界接觸。遇計算預算上限先縮小已知source範圍，不可改用端點、中心點或擅自簡化。
 - 地震背景：`cwa-earthquake-replay-events` 使用 `parameters.eventId`，或互斥的 `occurredAfter`＋`occurredBefore`（含時區 ISO、左閉右開、最長七天）。時間窗最多接受 50 筆；來源第 51 筆是密度 sentinel，超過即縮小時間窗，不靜默截斷。震央與周邊設施另查，不把相近設施稱為受災設施。發生時間、取得時間與背景年份分開；來源未提供更新／撤回狀態，unknown freshness 不可宣稱即時。
 - 道路事件：`tdx-road-events-current` 必填 allowlisted `source`；用 `parameters.eventType` 與 `unexpiredOnly`（預設 true）在既有 RPC 縮小資料。未到期不等於正在發生：空到期與未來生效仍可能返回；以 `lifecycle_status` 區分 active/scheduled/expired/unknown。`filters.event_type` 與時間 filters 是取得後篩選，不能避開來源 51 筆密度拒絕；遇 dense 不可只調小 limit 或反覆重試；既有 RPC 先 LIMIT，不能在外層新增 filter 後宣稱完整。exact-ID/updated-window SQL 草案尚未上線，不可呼叫假定可用的新 RPC。取得時間不等於來源更新，current 缺席不等於撤回；source geometry 尚不可做距離/相交。
 - 經驗證的 Point 子集：`tw-nursing-homes-upstream` 僅含固定來源 SHA 中自帶 WGS84 座標的 1,499/1,611 筆紀錄；排除的 112 筆與原始全圖層仍分開，不推論唯一機構數、營運現況或建物精度。觀測日期未知，不搭人口直接算同期密度。
-- 各區點位數：`query point/area → aggregate_by_area → get_data_quality → get_analysis_result`
+- 各區點位數：`query point/area → aggregate_by_area`
 - 跨資料比較：`describe A/B → query A/B → 相容性檢查 → join_records → calculate_metric`
 - 行政區／縣市同期比較：`query_records → compare_regions(areaCodes, baselineAreaCode)`；工具只比較相同指標、維度、期間、單位、層級與邊界版本。使用原生比率時不要加總；可選人口分母必須有明確人口指標證據，不能以教師/學生等人數冒充人口。缺值、抑制、零分母各自保留，不製造排名。
 - 本地人口占比：DEV owner preview 的 `population_statistics`、`:male`、`:female` 使用 descriptor 固定 release；同 SEGIS 2025-12 男/女數可除以 total，再用 `compare_regions` 的 per=100 得到占比。只有 total 口徑可作人口分母；`normalizedValue` 是占比，`absoluteDifference`/`ratio` 仍比較原始人數。這證明同來源同期比較，不證明設施觀測時間已對齊，也不代表已公開發布。
@@ -100,3 +100,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 - 先回第一個有用且有界的結果；只有使用者要求「全部」才循 cursor/offset 讀完。
 
 修改本 Skill 或 MCP surface 後，用 [行為驗收](references/acceptance.md) 的情境檢查實際工具決策，不以固定回答文字作驗收。
+
+
+## 四工作流入口
+
+首次選方法可讀[通用分析手冊](../../../docs/features/general-analysis/analyst-guide.md)。已知descriptor與完整receipt直接重用；quality/result readback只補真正缺少的欄位，不是每題必經。呈現用一次collection＋必要framing，pending只接續未完成request。共用流程與schema可重用，地點、數值、來源、期間與限制必須由本次查詢計算。
