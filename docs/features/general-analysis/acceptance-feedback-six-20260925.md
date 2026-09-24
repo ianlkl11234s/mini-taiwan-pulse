@@ -59,3 +59,13 @@ Mini：`a6708f6e` 22區核心、`0ef11c53` store預算、`5ceacd1d`面板與搜�
 原始county asset的完整bounds為 `[114.35928247200002,10.371347663000051,124.56115802500004,26.38527526200005]`，包含遠方離島；完整fit會很廣。未悄悄刪除離島或改來源幾何。後續若設計本島主視圖＋離島提示，必須明示取景與分析coverage不同。40萬頂點提高單scene工作量，並未減少14.7MB原始載入；generalized display sidecar仍可另做優化，不能冒充actual分析geometry。
 
 起始配對等待過期不是授權拒絕；新一輪驗收仍需有效pair與網站本人確認。六片本地改動已提交，整體使用者驗收仍開放。
+
+
+## 2026-09-25 重啟後正常全鏈追加驗收
+
+- 使用者明確授權代按配對確認；比對兩端短語後網站確認，native get_session=active。同一測試scope延續，未擴權或重用其他任務憑證。專用start首次實啟成功，3734/8794服務恢復；瀏覽器舊錯誤頁失效，另開同源分頁正常登入。
+- 全22縣市男性占比變體：先查同2025-12男性/總人口，兩步plan 1,410ms；compare_regions 1,515ms，22 normalized、22幾何保留。set collection→wait ready revision1→context 22features sources/layers ready；browser見分級與圖例。此為工具執行時間，不是整題對話耗時。完整bounds含遠方離島，台灣本島在畫面過小，取景美觀仍待改善；未刪除離島。
+- 嘉義變體使用過往失敗的樂活5路方向0、樂活7路方向1，125.5m線形環域＋市內圖書館：五步plan 2,149ms全完成。兩條路線、兩個環域、3筆圖書館，共5results/7features；ready revision2及context確認5sources/5layers，browser目視線、環域、點皆呈現。環域為幾何直線緩衝，不是步行可達範圍。
+- browser將樂活5路環域opacity改0.15，其餘4層保持0.85；切Light後5results/7features仍ready，目視第一環域變淡、第二保持。再切Dark，5個slider值保留。圖層名稱仍有兩個相同「嘉義市公車路線形」，需提升單筆路線命名；未將此當失敗的資料運算。
+- 尚未完成：自然首次探索提示的多題泛化、手動中止飛行、移動中的動畫品質及多層reorder目視。static screenshot不證明動畫通過。三個forestry reader既有本地證據仍有效但本輪未重新live抽查。
+- 下一輪以plan.md N0–N6資料家族覆蓋為主；新台帳區分registered/candidate/unknown，不以已發現圖層稱為已可分析。
