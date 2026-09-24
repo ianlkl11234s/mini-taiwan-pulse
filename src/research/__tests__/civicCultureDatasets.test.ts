@@ -35,3 +35,15 @@ it("maps the verified cultural layer and answers new-place and 台/臺 variants"
   expect(taipei.totalMatched).toBe(221);
   expect(taipei.rows).toHaveLength(2);
 });
+
+it("maps the postal layer and reads a new island location with 台/臺 normalization", async () => {
+  const bytes = await readFile("public/civic_facilities/post_offices_national.geojson");
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(bytes, { headers: { "content-type": "application/geo+json" } })));
+  const executor = new QueryExecutor([postOfficesSourceCoordinatesAdapter]);
+  const westJu = await executor.execute({ datasetId: "tw-post-offices-source-coordinates", filters: [{ field: "name", op: "eq", value: "馬祖西莒郵局" }] });
+  const taipei = await executor.execute({ datasetId: "tw-post-offices-source-coordinates", filters: [{ field: "city", op: "eq", value: "台北市" }], limit: 2 });
+  expect(registeredDatasetForLayer("postOffices")?.datasetId).toBe("tw-post-offices-source-coordinates");
+  expect(westJu).toMatchObject({ totalMatched: 1, rows: [{ name: "馬祖西莒郵局", city: "連江縣", district: "莒光鄉", geometry: { type: "Point", coordinates: [119.93339, 25.97175] } }] });
+  expect(taipei.totalMatched).toBe(152);
+  expect(taipei.rows).toHaveLength(2);
+});

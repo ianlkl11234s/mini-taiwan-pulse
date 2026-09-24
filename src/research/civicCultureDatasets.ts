@@ -5,7 +5,7 @@ export const postOfficesSourceCoordinatesAdapter = createVerifiedPointDatasetAda
   description: "中華郵政 2026-07-17 取得的 1,278 筆郵局來源座標快照；服務旗標是來源欄位，不代表此刻開門、受理特定業務或可達性。",
   sourceUrl: "/civic_facilities/post_offices_national.geojson",
   expectedSha256: "ee8b89fc042fa891a0924f5d069dbed45591ad64eef8daecb9a1d6ffa1684770",
-  expectedSourceRows: 1278, expectedSelectedRows: 1278, fullSource: true, selection: {},
+  expectedSourceRows: 1278, expectedSelectedRows: 1278, fullSource: true, selection: {}, layerRefs: ["postOffices"],
   fields: [
     { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
     { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供郵局名稱", unit: null },
