@@ -41,6 +41,19 @@ describe("linePolygonAnalysis", () => {
     ] })).toThrow("INVALID_SURFACE_GEOMETRY");
   });
 
+  it("treats a zero-length ring edge as boundary-neutral without repairing the ring", () => {
+    const repeatedVertexSurface = { type: "Polygon", coordinates: [[[0, 0], [3, 0], [3, 0], [3, 3], [0, 3], [0, 0]]] } as const;
+    const repeatedClosureSurface = { type: "Polygon", coordinates: [[[0, 0], [3, 0], [3, 3], [0, 3], [0, 0], [0, 0]]] } as const;
+    expect(parseLinePolygonSurface(repeatedVertexSurface)).toBe(repeatedVertexSurface);
+    expect(parseLinePolygonSurface(repeatedClosureSurface)).toBe(repeatedClosureSurface);
+    expect(lineIntersectsSurface({ type: "LineString", coordinates: [[-1, 1], [4, 1]] }, repeatedVertexSurface)).toBe(true);
+    expect(() => parseLinePolygonSurface({ type: "Polygon", coordinates: [[[0, 0], [2, 2], [2, 2], [0, 2], [2, 0], [0, 0]]] })).toThrow("INVALID_SURFACE_GEOMETRY");
+    expect(() => parseLinePolygonSurface({ type: "Polygon", coordinates: [
+      [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]],
+      [[1, 1], [0, 2], [1, 3], [2, 2], [1, 1]],
+    ] })).toThrow("INVALID_SURFACE_GEOMETRY");
+  });
+
   it("bounds segment-pair work instead of relying on a vertex total", () => {
     expect(() => lineIntersectsSurface(
       { type: "LineString", coordinates: [[-1, 1], [11, 1], [-1, 2]] },

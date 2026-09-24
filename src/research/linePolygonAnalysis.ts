@@ -84,10 +84,28 @@ function ringArea(ring: Ring): number {
   return area / 2;
 }
 
+type RingSegment = readonly [Position, Position];
+
+/**
+ * Zero-length edges do not change a ring boundary. Keep their source positions
+ * intact, but exclude them from topology predicates so a valid Turf result is
+ * not misclassified as self-intersecting through its own repeated vertex.
+ */
+function nonDegenerateRingSegments(ring: Ring): readonly RingSegment[] {
+  const segments: RingSegment[] = [];
+  for (let index = 1; index < ring.length; index += 1) {
+    const start = ring[index - 1]!; const end = ring[index]!;
+    if (!samePosition(start, end)) segments.push([start, end]);
+  }
+  return segments;
+}
+
 function ringsIntersect(left: Ring, right: Ring): boolean {
-  for (let leftIndex = 1; leftIndex < left.length; leftIndex += 1) {
-    for (let rightIndex = 1; rightIndex < right.length; rightIndex += 1) {
-      if (segmentsIntersect(left[leftIndex - 1]!, left[leftIndex]!, right[rightIndex - 1]!, right[rightIndex]!)) return true;
+  const leftSegments = nonDegenerateRingSegments(left);
+  const rightSegments = nonDegenerateRingSegments(right);
+  for (const [leftStart, leftEnd] of leftSegments) {
+    for (const [rightStart, rightEnd] of rightSegments) {
+      if (segmentsIntersect(leftStart, leftEnd, rightStart, rightEnd)) return true;
     }
   }
   return false;
@@ -96,14 +114,14 @@ function ringsIntersect(left: Ring, right: Ring): boolean {
 function validateRing(value: unknown, budget: LinePolygonAnalysisBudget): value is Ring {
   if (!Array.isArray(value) || value.length < 4 || !value.every(isPosition) || !samePosition(value[0]!, value[value.length - 1]!)) return false;
   if (Math.abs(ringArea(value)) <= 1e-12) return false;
-  for (let index = 1; index < value.length; index += 1) if (samePosition(value[index - 1]!, value[index]!)) return false;
   if (hasAntimeridianSegment(value)) throw new Error("UNSUPPORTED_ANTIMERIDIAN_GEOMETRY");
   const segments = value.length - 1;
   if ((segments * (segments - 3)) / 2 > budget.maxTopologyComparisons) throw new Error("SPATIAL_TOPOLOGY_BUDGET_EXCEEDED");
-  for (let left = 1; left < value.length; left += 1) {
-    for (let right = left + 1; right < value.length; right += 1) {
-      const adjacent = right === left + 1 || left === 1 && right === value.length - 1;
-      if (!adjacent && segmentsIntersect(value[left - 1]!, value[left]!, value[right - 1]!, value[right]!)) return false;
+  const nonDegenerateSegments = nonDegenerateRingSegments(value);
+  for (let left = 0; left < nonDegenerateSegments.length; left += 1) {
+    for (let right = left + 1; right < nonDegenerateSegments.length; right += 1) {
+      const adjacent = right === left + 1 || left === 0 && right === nonDegenerateSegments.length - 1;
+      if (!adjacent && segmentsIntersect(...nonDegenerateSegments[left]!, ...nonDegenerateSegments[right]!)) return false;
     }
   }
   return true;

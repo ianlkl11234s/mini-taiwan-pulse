@@ -22,6 +22,14 @@ describe("boundedGeometry", () => {
     expect(result.summary).toMatchObject({ inputVertices: 3, duplicateAdjacentVertices: 1 });
   });
 
+  it("accepts a valid source buffer whose boundary retains a zero-length edge", () => {
+    const result = boundedLineBuffer({ type: "LineString", coordinates: routes["CYI0119_樂活3路_0"]!.coords }, 125.5);
+    expect(result).toMatchObject({
+      geometry: { type: "Polygon" },
+      summary: { inputVertices: 660, duplicateAdjacentVertices: 54, outputVertices: 1291 },
+    });
+  });
+
   it("accepts a self-crossing line but rejects invalid surface topology", () => {
     expect(boundedLineBuffer({ type: "LineString", coordinates: [[120.1, 23.1], [120.2, 23.2], [120.1, 23.2], [120.2, 23.1]] }, 10).geometry).not.toBeNull();
     expect(() => boundedSurfaceIntersection(
