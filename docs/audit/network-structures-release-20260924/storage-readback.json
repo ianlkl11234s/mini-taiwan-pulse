@@ -1,0 +1,35 @@
+{
+  "release": "transport-facilities-20260924",
+  "objects": [
+    {
+      "key": "deploy-assets/network_structures/tainan_bridge_inspections_20260924.pmtiles",
+      "size_bytes": 1682846,
+      "sha256": "a1e1eee288ae2bf955baf91c56fb241b29c63d8dae3c51913074d2c9634f37b4",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/official_bridges_hsinchu_20260924.pmtiles",
+      "size_bytes": 128442,
+      "sha256": "63c6c7d092deb87b4b614efe2eed7c89b9b4a0323f584b7ef611613f800e82fb",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/taipei_road_tunnels_20260924.pmtiles",
+      "size_bytes": 46254,
+      "sha256": "01e444524605158a89fda0fa1cbc0864c2ae39f28c6cd105125b67e1719eb5f2",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/tainan_road_tunnels_20260924.pmtiles",
+      "size_bytes": 18768,
+      "sha256": "9b9840d1b60fea67ec3e97b1d98e84766754457e5922600514bf4b21de7862bf",
+      "status": "uploaded_and_verified"
+    },
+    {
+      "key": "deploy-assets/network_structures/changhua_traffic_signals_20260924.pmtiles",
+      "size_bytes": 2074023,
+      "sha256": "5df464248100551cc8a38cdb18153cd5ae6af7aa9eb251a3a6b24be91f25009c",
+      "status": "uploaded_and_verified"
+    }
+  ]
+}

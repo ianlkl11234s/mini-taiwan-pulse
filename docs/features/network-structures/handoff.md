@@ -55,8 +55,8 @@
 
 圖磚在隔離 worktree 的 `public/network_structures/`，該目錄依 `.gitignore` 留待 S3 發布，
 **不隨 Git commit 轉移**。五層已在本機 `127.0.0.1:4179` 實際繪製並點選 popup；
-截至 2026-09-25，五份正式站圖磚 URL 都是 HTTP 404；圖磚尚未上傳或部署，
-前端分支合併前須依本表 SHA-256 對五個 `deploy-assets/network_structures/` 物件做完整 readback；
-部署後再確認正式站 Range 206。其他 checkout 與正式站目前不能據此宣稱有這五層資料。
+2026-09-25 已將五份圖磚發布至 `deploy-assets/network_structures/`，逐檔從 S3 完整讀回並
+與本表 SHA-256 比對通過，見 [storage receipt](../../audit/network-structures-release-20260924/storage-readback.json)。
+發布前正式站五個 URL 均為 HTTP 404；合併及部署後仍須確認正式站 Range 206 和瀏覽器實際顯示。
 臺南檢測列數不是橋座數，新竹兩端是近似軸線，隧道只畫官方登錄點，彰化號誌沒有即時燈態。
 `bridgeRainThresholds` 是既有測站資料的環境條件試點，不能解讀為橋梁檢測或安全判斷。
