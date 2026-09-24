@@ -19,3 +19,11 @@
 依據：candidate 範圍與驗收門檻見 [next-campaign-assessment-20260924.md:35-48,114-128](./next-campaign-assessment-20260924.md)；Point registry/來源見 [researchDatasets.ts:56-108,116-134,213-254](../../../src/research/researchDatasets.ts)；事件、統計、格網見 [researchDatasets.ts:137-183](../../../src/research/researchDatasets.ts)、[earthquakeDatasetAdapter.ts:29-80](../../../src/research/earthquakeDatasetAdapter.ts)、[roadEventDatasetAdapter.ts:36-57](../../../src/research/roadEventDatasetAdapter.ts)、[statisticsDatasetAdapters.ts:25-84](../../../src/research/statisticsDatasetAdapters.ts)、[gridDatasetAdapter.ts:9-17](../../../src/research/gridDatasetAdapter.ts)。
 
 缺口：至少三條路徑已有程式正例（static Point、local Line、statistics/RPC），但尚缺本片的真實 native/browser 正例；Polygon 面面交集、buffer、raster 均不列入本片資格。不得以 renderer、tile 數、proxy geometry 或缺席推論完整度、零值、撤回或可達性。
+
+## 第二／三片追加驗證
+
+2026-09-24 native Codex→MCP→Gateway→browser：嘉義公車 `CYI0123_樂活1路_0` 1筆、raw嘉義市界 `10020` 1筆、bbox `[120.4,23.44,120.49,23.52]` 圖書館3筆；line_intersects=1、point within=3，與獨立Shapely一致。三者同圖5features、source/layer及command ready已回讀；見 [驗收](./acceptance-V02-V03-20260924.md)。這補足三條代表讀取路徑，並未新增來源或宣稱11候選全部live通過。
+
+公車asset SHA `ea6ccd99b9e6a181654323f7d7a800569f1c2a86891fea245bbbed007b79f2a7`；raw界線SHA `5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6`；圖書館SHA `80425ed85d0b5efe237d315c0109efe62d7ee556418977337db380b16e5d98a5`。raw界線維持owner-only、DEV、本地驗證；公開license與distribution仍HOLD。公車sourceVersion/freshness unknown與5位座標量化不變。
+
+V03本地可從合格公車線產生derived buffer並做面交集，但它們同屬公車主題；第二個獨立主題actual Polygon尚未資格化。不能因此宣稱跨主題面疊圖或服務可及性完成。
