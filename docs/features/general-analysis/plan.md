@@ -212,7 +212,7 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 |---|---|---|---|
 | V01 | reload恢復、plan refs與精簡摘要、pending/partial | 正常對話全鏈、無錯誤ID／原樣重試、G01整題量測 | in_progress |
 | V02 | 跨主題Point與合格Line/Polygon讀取契約 | 8–12候選qualification；至少三條代表資料路徑；不合格保留HOLD | in_progress |
-| V03 | 有界line buffer、clip/intersection與measure | V02合格幾何＋精度/CRS/預算；獨立oracle＋native地圖 | in_progress；本地核心／transport完成，native MCP待重載 |
+| V03 | 有界line buffer、clip/intersection與measure | V02合格幾何＋精度/CRS/預算；獨立oracle＋native地圖 | in_progress；native核心正例通過，125.5m特定路線拒絕／圖例待修 |
 | V04 | 單一起點步行等時圈＋設施coverage | V02設施；既有provider資格／consent／版本；未連通與no-data分列 | proposed |
 | V05 | 好讀說明書、按需skill配方與產品驗收 | 四工作流；深淺／寬窄／取景／legend/popup；工程與使用者驗收分列 | proposed |
 
