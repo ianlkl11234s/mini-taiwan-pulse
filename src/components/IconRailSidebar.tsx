@@ -1,5 +1,6 @@
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
+import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
@@ -11,7 +12,7 @@ import {
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star, Bot,
+  Activity, Layers, ChartColumn, MapPin, Settings, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -33,6 +34,7 @@ import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_T
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { searchLocationPresets } from "../lib/locationSearch";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
@@ -283,15 +285,11 @@ export function IconRailSidebar({
   const cityPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "city"), []);
 
   const filteredCities = useMemo(() => {
-    if (!locationSearch) return cityPresets;
-    const q = locationSearch.toLowerCase();
-    return cityPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(cityPresets, locationSearch);
   }, [cityPresets, locationSearch]);
 
   const filteredOverviews = useMemo(() => {
-    if (!locationSearch) return overviewPresets;
-    const q = locationSearch.toLowerCase();
-    return overviewPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(overviewPresets, locationSearch);
   }, [overviewPresets, locationSearch]);
 
   return (
@@ -715,41 +713,7 @@ function PanelHeader({
   title: string; onClose: () => void;
 }) {
   const { BORDER, DIM, TEXT_STRONG } = useRailTheme();
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "12px 12px 10px",
-        borderBottom: `1px solid ${BORDER}`,
-        flexShrink: 0,
-      }}
-    >
-      <span style={{ color: TEXT_STRONG, fontSize: FONT_SIZE.lg, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
-        {title}
-      </span>
-      <div style={{ flex: 1 }} />
-      <button
-        onClick={onClose}
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: RADIUS.md,
-          border: "none",
-          background: "transparent",
-          color: DIM,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          padding: 0,
-        }}
-      >
-        <X size={14} />
-      </button>
-    </div>
-  );
+  return <SharedPanelHeader title={title} onClose={onClose} borderColor={BORDER} mutedColor={DIM} textColor={TEXT_STRONG} titleSize={FONT_SIZE.lg} />;
 }
 
 

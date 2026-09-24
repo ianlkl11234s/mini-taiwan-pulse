@@ -1,4 +1,5 @@
 import { LayerToggleSwitch } from "../components/sidebar/LayerToggleSwitch";
+import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
 import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
 import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type LayerRecordSearchInput, type LayerSummaryInput } from "./layerStatistics";
@@ -30,7 +31,7 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
-import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
 import "./mainMapConnection.css";
@@ -96,7 +97,7 @@ export function MainMapConnection(props: Props) {
   }, []);
   const [following, setFollowing] = useState(true);
   const followingRef = useRef(true);
-  const [analysisOpacity, setAnalysisOpacityValue] = useState(0.85);
+  const [analysisOpacity, setAnalysisOpacityValue] = useState<AnalysisResultOpacity>({ defaultOpacity: 0.85, byResult: {} });
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
@@ -127,7 +128,7 @@ export function MainMapConnection(props: Props) {
     ++generation.current;
     resultPopup.current?.remove(); resultPopup.current = null;
     if (latest.current.map) removeAnalysisResults(latest.current.map);
-    presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]);
+    presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
     analysis.current?.setActiveResultCollection([]);
     if (syncScene && controller.current) {
@@ -500,7 +501,7 @@ export function MainMapConnection(props: Props) {
     {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
-      {!props.embedded && <div className="main-map-agent-heading"><h2>與 Agent 協作</h2><button type="button" onClick={() => setOpen(false)} aria-label="關閉本地 Agent">×</button></div>}
+      {!props.embedded && <PanelHeader className="main-map-agent-heading" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
       <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <div className="agent-panel-body">
       <label className="agent-follow-setting">
@@ -511,9 +512,6 @@ export function MainMapConnection(props: Props) {
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>本次分析圖層 <span className="agent-section-count">{resultCollection.items.length}</span></h3>
         <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆紀錄已顯示 · 僅含本次分析結果</p>
-        <label>分析結果透明度
-          <input aria-label="分析結果透明度" type="range" min="0.15" max="1" step="0.05" value={analysisOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(value); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, value); }} />
-        </label>
         {resultCollection.groups.length > 0 && <fieldset className="agent-analysis-groups">
           <legend>群組</legend>
           {resultCollection.groups.map(group => <label key={group.groupId} className="agent-analysis-toggle">
@@ -529,6 +527,9 @@ export function MainMapConnection(props: Props) {
             <div className="agent-analysis-row-main">
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
               <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
+                <label className="agent-analysis-opacity">透明度
+                  <input aria-label={`${result?.displayLabel ?? "分析結果"}透明度`} type="range" min="0.15" max="1" step="0.05" value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                </label>
                 {rendered?.numericLegend && <div className="agent-analysis-count-legend"><span>{rendered.numericLegend.label} · {rendered.numericLegend.method === "single_value" ? "單一數值" : "本次結果等距分級"}</span><div>{rendered.numericLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
                 {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
               </div>

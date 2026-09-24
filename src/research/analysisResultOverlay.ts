@@ -35,6 +35,9 @@ export type AnalysisResultPresentation = {
   numericLegend?: NumericResultLegend;
 };
 
+/** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
+export type AnalysisResultOpacity = { defaultOpacity: number; byResult: Readonly<Record<string, number>> };
+
 export type NumericResultLegend = {
   field: "normalizedValue" | "value";
   unit: string;
@@ -212,7 +215,7 @@ export function describeAnalysisResults(results: readonly PresentableResult[]): 
 }
 
 /** Transient result layers are independent of the permanent layer catalogue. */
-export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity = 0.55): AnalysisResultPresentation[] {
+export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55): AnalysisResultPresentation[] {
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
   // Validate every result before mutating Mapbox so a bad later result cannot
   // leave an earlier source partially updated.
@@ -222,6 +225,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     return { result, data };
   });
   const installed = prepared.map(({ result, data }, index) => {
+    const resultOpacity = typeof opacity === "number" ? opacity : opacity.byResult[result.resultId] ?? opacity.defaultOpacity;
     cancelReveal(map, index);
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
     if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data });
@@ -240,15 +244,15 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (existing && existing.type !== (polygon ? "fill" : line ? "line" : "circle")) map.removeLayer(layerId(index));
     if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), paint: {
-        "fill-color": numericLegend ? numericFillColor(numericLegend) : COLORS[index]!, "fill-opacity": reveal ? 0 : opacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": numericLegend ? "#075985" : COLORS[index]!,
+        "fill-color": numericLegend ? numericFillColor(numericLegend) : COLORS[index]!, "fill-opacity": reveal ? 0 : resultOpacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": numericLegend ? "#075985" : COLORS[index]!,
       } });
     } else if (line) {
-      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": COLORS[index]!, "line-width": 3, "line-opacity": reveal ? 0 : opacity, "line-opacity-transition": { duration } } });
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": COLORS[index]!, "line-width": 3, "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration } } });
     } else if (!map.getLayer(layerId(index))) map.addLayer({
       id: layerId(index), type: "circle", source: sourceId(index),
       paint: {
         "circle-color": circleColor, "circle-radius": circleRadius,
-        "circle-opacity": reveal ? 0 : opacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : opacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": circleStrokeColor, "circle-stroke-width": circleStrokeWidth,
+        "circle-opacity": reveal ? 0 : resultOpacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : resultOpacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": circleStrokeColor, "circle-stroke-width": circleStrokeWidth,
       },
     });
     if (polygon) {
@@ -266,8 +270,8 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
-      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : "circle-opacity", polygon ? opacity * (scopeArea ? 0.18 : 0.45) : opacity);
-      if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-stroke-opacity", opacity);
+      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : "circle-opacity", polygon ? resultOpacity * (scopeArea ? 0.18 : 0.45) : resultOpacity);
+      if (!polygon && !line) map.setPaintProperty(layerId(index), "circle-stroke-opacity", resultOpacity);
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
@@ -314,8 +318,9 @@ export function readAnalysisResultPresentation(map: Map, results: readonly Analy
     ready: sourcesReady && layersReady && cleared,
   };
 }
-export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPresentation[], opacity: number): void {
+export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPresentation[], resultId: string, opacity: number): void {
   for (const [index, result] of results.entries()) {
+    if (result.resultId !== resultId) continue;
     const id = layerId(index);
     const layer = map.getLayer(id);
     if (layer) {

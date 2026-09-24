@@ -91,6 +91,18 @@ describe("analysis result reveal lifecycle", () => {
     expect(installAnalysisResults(map, [second])[0]).toMatchObject({ resultId: "result-2", color: "#00b8d9" });
   });
 
+  it("keeps opacity with its resultId when visible order changes", () => {
+    const { map, layers, render } = stubMap();
+    const second = { ...result, resultId: "result-2" } satisfies PresentableResult;
+    const opacity = { defaultOpacity: 0.85, byResult: { "result-1": 0.25, "result-2": 0.7 } };
+    installAnalysisResults(map, [result, second], opacity); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.25);
+    expect(layers.get("research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.7);
+    installAnalysisResults(map, [second, result], opacity); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.7);
+    expect(layers.get("research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.25);
+  });
+
   it("presents more than four independent result layers and reads them all back", () => {
     const { map, layers } = stubMap();
     const results = Array.from({ length: 5 }, (_, index) => ({
@@ -197,7 +209,10 @@ describe("analysis result reveal lifecycle", () => {
     installAnalysisResults(map, [scope, area], 0.85); render();
     expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.153);
     expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.3825);
-    setAnalysisOpacity(map, installAnalysisResults(map, [scope, area], 0.85), 0.6);
+    const installed = installAnalysisResults(map, [scope, area], 0.85);
+    setAnalysisOpacity(map, installed, "scope", 0.6);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.3825);
+    setAnalysisOpacity(map, installed, "area", 0.6);
     expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.108);
     expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.27);
   });
@@ -250,7 +265,7 @@ describe("analysis result reveal lifecycle", () => {
   it("lets the opacity slider cancel a pending reveal so an old callback cannot overwrite it", () => {
     const { map, layers, listeners, render } = stubMap();
     installAnalysisResults(map, [result], 0.2);
-    setAnalysisOpacity(map, installAnalysisResults(map, [result], 0.2), 0.83);
+    setAnalysisOpacity(map, installAnalysisResults(map, [result], 0.2), "result-1", 0.83);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.83);
     expect(listeners.size).toBe(0);
     render();

@@ -195,11 +195,9 @@
 
 /* Collaboration panel: same geometry and control rhythm as the Layers rail. */
 .main-map-agent { --agent-text: #eeeeee; --agent-muted: #9ca3af; --agent-border: #2a2d32; --agent-control-bg: rgba(255,255,255,.06); --agent-control-border: rgba(255,255,255,.12); --agent-control-hover: rgba(255,255,255,.1); font-family: Inter, system-ui, sans-serif; }
-.main-map-agent .main-map-agent-panel { padding: 0; border-radius: 8px; background: rgba(24,25,28,.96); border: 1px solid var(--agent-border); backdrop-filter: blur(12px); box-shadow: 0 8px 24px #0003; }
+.main-map-agent .main-map-agent-panel { padding: 0; border-radius: 8px; background: rgba(24,25,28,.96); border: 0; backdrop-filter: blur(12px); box-shadow: none; }
 .main-map-agent--light .main-map-agent-panel { background: rgba(255,255,255,.92); }
-.main-map-agent .main-map-agent-heading { position: sticky; top: 0; z-index: 1; padding: 12px 12px 10px; border-bottom: 1px solid var(--agent-border); background: inherit; }
-.main-map-agent .main-map-agent-heading h2 { margin: 0; font-size: 13px; font-weight: 600; }
-.main-map-agent .main-map-agent-heading button { margin: 0; width: 24px; height: 24px; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--agent-muted); }
+.main-map-agent .main-map-agent-heading { position: sticky; top: 0; z-index: 1; background: inherit; }
 .main-map-agent button { font: inherit; background: var(--agent-control-bg); border-color: var(--agent-control-border); }
 .main-map-agent button:hover:not(:disabled) { background: var(--agent-control-hover); }
 .main-map-agent button:focus-visible, .main-map-agent summary:focus-visible { outline: 2px solid var(--agent-text); outline-offset: 2px; }
@@ -218,7 +216,7 @@
 .main-map-agent .agent-analysis-results h3, .main-map-agent .agent-empty-results h3 { display: flex; justify-content: space-between; margin: 0 0 6px; font-size: 12px; }
 .main-map-agent .agent-section-count { color: var(--agent-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
 .main-map-agent .agent-analysis-results > p { font-size: 10px; margin: 0 0 10px; }
-.main-map-agent .agent-analysis-results > label { display: block; color: var(--agent-muted); font-size: 10px; }
+.main-map-agent .agent-analysis-opacity { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; margin-top: 4px; color: var(--agent-muted); font-size: 10px; }
 .main-map-agent input[type=range] { padding: 0; height: 16px; accent-color: var(--agent-text); border: 0; background: transparent; }
 .main-map-agent .agent-analysis-result-item { padding: 10px 0; }
 .main-map-agent .agent-analysis-row-main { display: flex; align-items: center; gap: 8px; }
