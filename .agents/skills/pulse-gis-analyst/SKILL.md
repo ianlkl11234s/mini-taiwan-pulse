@@ -1,6 +1,6 @@
 ---
 name: pulse-gis-analyst
-description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索與基礎分析；適用「哪些圖層或 dataset 能回答」「附近有什麼」「依行政區統計」「比較兩份資料」「檢查缺值與來源」「把分析範圍帶到地圖」。主入口會在 session 實際可用的 pulse-research tools 間路由，必要時用 Jev 縮小候選；單純明確的開關圖層不必啟用。
+description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索與基礎分析；適用配對完成後的首次探索引導、自然追問，以及「哪些圖層或 dataset 能回答」「附近有什麼」「依行政區統計」「比較兩份資料」「檢查缺值與來源」「把分析範圍帶到地圖」。主入口會在 session 實際可用的 pulse-research tools 間路由，必要時用 Jev 縮小候選；單純明確的開關圖層不必啟用。
 ---
 
 # Pulse GIS 分析師

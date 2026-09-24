@@ -22,7 +22,7 @@
 - 使用者提供座標、或前一結果已有合格 geometry，直接重用。一般新地址走通用定位；不可靠擴寫固定地名或逐個猜中英別名。
 - 默認離線定位。使用者已明確授權指定外部 provider 與付費測試時，在授權範圍內每次工具呼叫帶 externalConsent:true，不再反覆問相同授權。明確 provider 應直接查該 provider，不先等待離線冷啟動。
 - 依 live capability 選用，不猜 key 已開通服務；disabled/request_denied/quota 不自動重試。一次 no_match 不等於地址不存在。候選模糊、站體與出入口不同時說明精度並請選擇；不得偷偷用同名公車站冒充火車站入口。
-- Google 結果不能直接接到目前 Mapbox 地圖；Google 官方顯示政策要求其地圖結果使用 Google 地圖。保留來源與 attribution，未完成適用政策與顯示方案前僅作 provider 測試，不升格成自由可重用 POI 資料。
+- Google 結果不能直接接到目前 Mapbox 地圖；[Google 官方顯示政策](https://developers.google.com/maps/documentation/geocoding/policies)要求其地圖結果使用 Google 地圖。保留來源與 attribution，未完成適用政策與顯示方案前僅作 provider 測試，不升格成自由可重用 POI 資料。
 - 不用 shell 掃 public 資料夾補地名；使用已註冊 reader 搜尋已知資料，或清楚說明定位缺口。相同參數失敗不重送；pending 接原 requestId。
 
 ## 驗收
