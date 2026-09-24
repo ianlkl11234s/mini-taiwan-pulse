@@ -553,6 +553,12 @@ function resultDisplayLabel(result: StoredDataResult): string {
   if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
   if (result.datasetId.startsWith("derived:valhalla-walking-")) return rowLabel;
+  if (isAnalysis(result) && result.operation === "spatial_join") {
+    const pointDatasetId = result.datasetId.split("+")[0]!;
+    let sourceLabel = pointDatasetId;
+    try { sourceLabel = describeDataset(pointDatasetId).label; } catch { /* retain source identity */ }
+    return `${sourceLabel}・範圍篩選`;
+  }
   if (isAnalysis(result) && ["compare_regions", "compare_series"].includes(result.operation)) {
     const datasetIds = [...new Set(result.datasetId.split("+").filter(Boolean))];
     if (datasetIds.length > 1) return `${datasetIds.map(datasetId => {

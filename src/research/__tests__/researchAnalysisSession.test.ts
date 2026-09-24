@@ -137,11 +137,31 @@ describe("research analysis session", () => {
     const store = (session as unknown as { store: { put: (value: object) => void } }).store;
     store.put({
       resultId: "points-for-walk", datasetId: "fixture-points", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
-      rows: [{ name: "inside", geometry: { type: "Point", coordinates: [121.5, 25] } }, { name: "outside", geometry: { type: "Point", coordinates: [122, 25] } }],
-      sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+      rows: [
+        { name: "inside", geometry: { type: "Point", coordinates: [121.5, 25] } },
+        { name: "boundary", geometry: { type: "Point", coordinates: [121.45, 25] } },
+        { name: "outside", geometry: { type: "Point", coordinates: [122, 25] } },
+      ],
+      sourceRefs: [], coverage: "fixture candidate scope", freshness: "current", units: {},
+      excludedByReason: { missing_geometry: 2 },
+      lineage: { queryScope: { datasetId: "fixture-points", bbox: [121.4, 24.9, 121.6, 25.1], totalMatched: 3 } },
     });
-    expect(session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "within", limit: 20 }))
-      .toMatchObject({ totalRows: 1, rows: [expect.objectContaining({ name: "inside" })] });
+    const coverage = session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "within", limit: 20 });
+    expect(session.presentable([coverage.resultId as string])[0]?.displayLabel).toBe("fixture-points・範圍篩選");
+    expect(coverage).toMatchObject({
+      totalRows: 1,
+      rows: [expect.objectContaining({ name: "inside" })],
+      method: { predicate: "within", boundaryRule: "boundary_excluded" },
+      summary: { pointRows: 3, matchedPoints: 1, unmatchedPoints: 2 },
+    });
+    expect((coverage.lineage as { inputs: unknown[] }).inputs).toEqual(expect.arrayContaining([
+      expect.objectContaining({ resultId: "points-for-walk", lineage: expect.objectContaining({ queryScope: expect.objectContaining({ totalMatched: 3 }) }) }),
+    ]));
+    expect(session.execute("get_data_quality", { resultId: coverage.resultId })).toMatchObject({
+      rows: 1, excludedByReason: { missing_geometry: 2 }, coverage: expect.stringContaining("fixture candidate scope"),
+    });
+    expect(session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "intersects", limit: 20 }))
+      .toMatchObject({ totalRows: 2, summary: { matchedPoints: 2, unmatchedPoints: 1 } });
   });
 
   it("composes query, spatial, aggregate, quality, paging and removal by resultId", async () => {
