@@ -30,4 +30,15 @@ describe("verified point source contract", () => {
     clearPointDatasetCache(); const selectionCountConfig = { ...config, expectedSelectedRows: 1 };
     await expect(new QueryExecutor([createVerifiedPointDatasetAdapter(selectionCountConfig)]).execute({ datasetId: selectionCountConfig.datasetId })).rejects.toThrow("VERIFIED_POINT_SELECTION_COUNT_MISMATCH");
   });
+
+  it("allows a pinned full source only when selection is empty and counts agree", async () => {
+    const config = await setup();
+    const full = { ...config, fullSource: true as const, selection: {}, expectedSelectedRows: config.expectedSourceRows };
+    const result = await new QueryExecutor([createVerifiedPointDatasetAdapter(full)]).execute({ datasetId: full.datasetId });
+    expect(result).toMatchObject({ totalMatched: 3, excludedByReason: { missing_geometry: 0, non_point_geometry: 0, invalid_geometry: 0 } });
+    expect(result.excludedByReason).not.toHaveProperty("excluded_by_selection");
+    expect(createVerifiedPointDatasetAdapter(full).descriptor.coverage).toContain("fullSource=true");
+    expect(() => createVerifiedPointDatasetAdapter({ ...full, expectedSelectedRows: 2 })).toThrow("INVALID_VERIFIED_POINT_CONFIG");
+    expect(() => createVerifiedPointDatasetAdapter({ ...config, selection: {} })).toThrow("INVALID_VERIFIED_POINT_CONFIG");
+  });
 });

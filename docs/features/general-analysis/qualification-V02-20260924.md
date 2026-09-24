@@ -41,3 +41,20 @@ V03本地可從合格公車線產生derived buffer並做面交集，但它們同
 Lineage程式：analytics `pipelines/urban_composite/urban_zoning/02_normalize_validate.py`、`pipelines/funeral/cemetery_zoning_urban/01_extract.py`、`pipelines/funeral/_shared/build_web_assets.py`；山屋 `pipelines/forestry/mountain_huts/{01_download,06_enrich,07_export}.py`。本地raw/processed歷史檔案缺席，未補成原始檔SHA链完整；此次資格僅針對上述可重現固定衍生bytes與其已知處理語意。2026-08-01是既有記錄的上游落地／山屋取得日，不是墓葬衍生產物發布日。
 
 未採用：全國零售市場點位混TGOS、Google、離線地址匹配，且pulse縮減檔已刪除逐筆 `coord_method`，不能升格為來源原生精確座標。森林遊樂區尚未完成同版來源／處理資格核對，保持候選。
+
+## 本輪批次來源資格補充（2026-09-24）
+
+本輪以 analytics pipeline、raw provenance 與 pulse 固定 bytes 交叉核對；`SHA` 是 pulse public artifact 固定快照，非上游原始檔 SHA。郵局與文化精簡檔缺 `coord_status`，因此採固定 SHA 全量同來源座標 contract，交由 full-source reader；childcare/elderly 的 TGOS 座標不升 `actual`。
+
+| 候選 | 固定產物／筆數／SHA | 資格 | 原因與日期邊界 |
+|---|---|---|---|
+| 郵局 | `/civic_facilities/post_offices_national.geojson`；1,278；`ee8b89fc042fa891a0924f5d069dbed45591ad64eef8daecb9a1d6ffa1684770` | **可接 full-source reader** | 中華郵政官方開放資料，CSV 已含 WGS84，pipeline 僅 bbox/swap sanity；來源 data.gov.tw/5950，OGDL-1。上游原始座標日期/來源更新不定期；本地快照 2026-07-17，不能把本地 quarterly 排程當官方頻率。 |
+| 文化設施 | `/culture/cultural_facilities_national.geojson`；787；`0f7d0d93b9695c2beb45f5916fb0185f1aac30c9e333669ebe31bc55f506591d` | **可接 full-source reader** | 文化部 emap data.gov.tw/10046，OGDL-1；六系列 raw 均以 API latitude/longitude 讀取，合計 787 筆有座標。保留 `source_type_id` 與 `coord_status` 語意；本地快照 2026-07-16，官方更新日期仍以來源 metadata 為準。 |
+| 托嬰中心 | `/welfare/childcare_centers_national.geojson`；1,578；`34511cde4fd56b742623c54df7e807c135289c72efd90db1578d18c407423786` | **HOLD／補 contract** | 165355 官方名冊，OGDL-1；`coord_source=tgos_upstream && coord_precision=upstream` 僅 1,354 筆，屬官方名冊地址經 TGOS 估位，不是 source-native actual。原始 Last-Modified 2024-11-12；catalog/pipeline 2026-08-12，freshness unknown。 |
+| 老人住宿機構 | `/welfare/elderly_care_homes_national.geojson`；1,160；`0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f` | **HOLD／補逐筆 provenance** | 混合 8572/165355/161606，OGDL-1；`tgos_upstream/upstream` 1,043 筆，但現有輸出無法證明每筆座標提供源，不能直接升 verified actual。catalog/pipeline 2026-08-12；165355 freshness unknown。 |
+| 公廁 | `/environment/public_toilets_national.geojson`；13,281；`3f8f9e75b6f05e3697a0af90224bed792e435b1605678ce8182f6045e5d2bc5b` | **HOLD／derived contract** | 環境部 FAC_P_07、OGDL-Taiwan-1.0；45,718 raw rows 依 address 聚合成 13,281，代表列取座標，含 48 swap、11 濾除，非 raw record grain。來源標稱 monthly；本地 pipeline quarterly 只是排程。 |
+| 社區活動中心 | `/civic_facilities/community_centers_national.geojson`；1,794；`673c56098634d8174d32c3d02471133219ee107c3182a44fea413f66fe97bfb2` | **HOLD** | 只涵蓋 8 縣市；TGOS/data.taipei 混合 `coord_method`，不是全國 source-native contract。 |
+| 公務服務處 | `/civic_facilities/gov_service_offices_national.geojson`；702；`a66a88cd844fb98a97680dc5b95a124caa4dc84a7aed78dd986757eef9c8d28a` | **HOLD／補 contract** | Point 幾何有效但本 repo 尚缺可核對 source/license/date receipt；不能僅以 WGS84 升資格。 |
+| 殯葬設施 | `/funeral/funeral_facilities.geojson`；3,707；`e92b0dd215b862c975dcb42038bdd661c7f9b28594275c2df85852026786dc94` | **HOLD／補 precision contract** | 官方名冊經本地處理，`precision` 混合且來源座標/估位界線未在本輪完成逐筆 selector；不可把有效 Point 當 actual。 |
+
+郵局與文化 raw-source 近點 oracle（輸入非 pulse native 結果）另存 `../runtime/six-source-oracle.json`；中心 `[120.6815,24.1373]`/1350m：郵局 3 筆，最近臺中民權路郵局 334.91m、臺中臺中路郵局 487.39m、臺中法院郵局 668.81m。中心 `[121.747,24.755]`/950m：文化 3 筆，最近宜蘭設治紀念館 259.15m、宜蘭美術館 497.38m、台灣戲劇館 666.12m。

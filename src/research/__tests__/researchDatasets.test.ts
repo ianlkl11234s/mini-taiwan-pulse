@@ -44,6 +44,8 @@ describe("built-in research datasets", () => {
     expect(nursing).toMatchObject({ label: "護理機構來源自帶座標子集", layerRefs: [], recordGrain: "place", geometry: { role: "actual", spatialAnalysisEligible: true }, versions: [{ checksumSha256: "775bc1a88a5e8675e48ed7930645a5e7df505968c0821ed080843e7e75bef3d9", observedAt: null }] });
     expect(nursing.coverage).toContain("1611 verified source records");
     expect(nursing.fields.find(field => field.name === "beds_nh")).toMatchObject({ type: "string", unit: null });
+    expect(describeDataset("tw-post-offices-source-coordinates")).toMatchObject({ recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, coverage: expect.stringContaining("current status unknown") });
+    expect(describeDataset("tw-cultural-facilities-source-coordinates")).toMatchObject({ recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, coverage: expect.stringContaining("383 筆缺座標已在產物前排除") });
   });
 
   it("does not let a guest search or describe an owner-only dataset", () => {

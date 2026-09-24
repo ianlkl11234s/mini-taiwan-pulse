@@ -17,6 +17,7 @@ import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type D
 import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
+import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "./civicCultureDatasets";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -313,6 +314,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   yushanHutsAdapter,
   createCemeteryZoningDatasetAdapter(),
   createRoadEventCurrentAdapter(),
+  postOfficesSourceCoordinatesAdapter,
+  culturalFacilitiesSourceCoordinatesAdapter,
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
