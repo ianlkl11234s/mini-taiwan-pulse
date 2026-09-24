@@ -193,6 +193,7 @@ export type ExpandableLayerKey =
   | "waterFloodExtreme"
   | "waterDetentionBasins"
   | "rainGauge"
+  | "bridgeRainThresholds"
   | "riverLevel"
   | "groundwater"
   | "groundwaterWells"
@@ -379,7 +380,7 @@ export type ExpandableLayerKey =
   | "jpWildlifeProtectionNational" | "jpWildlifeSpecialProtectionDistrict" | "jpWildlifeSpecialProtectionDesignatedArea"
   | "jpWorldHeritageCultural" | "jpWorldHeritageNatural" | "jpWorldNaturalHeritageHistorical"
   | "jpRamsarSites" | "jpMarineEbsaCoastal"
-  | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
+  | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
   | "jpPoliceFacilities" | "jpSchools" | "jpPopulationMesh1km";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
@@ -770,7 +771,7 @@ export interface FeatureInfo {
     | "parkingOnstreet" | "parkingOffstreet"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
-    | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
+    | "rainGauge" | "bridgeRainThresholds" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "marineObservation"
     | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
     // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
@@ -859,7 +860,7 @@ export interface FeatureInfo {
     | "jpRamsarSites" | "jpMarineEbsaCoastal"
     // 🗾 日本 Japan 遞延層（鐵道路線，事業者種別分色）
     | "jpRailways"
-    | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei"
+    | "osmBridgeCarriers" | "osmBridgeFootprints" | "officialBridgesNewTaipei" | "bridgeComparisonNewTaipei" | "tainanBridgeInspections" | "officialBridgesHsinchu" | "taipeiRoadTunnels" | "tainanRoadTunnels" | "changhuaTrafficSignals"
     // 🗾 日本 Japan 遞延層（學校，学校分類 13 色）
     | "jpPoliceFacilities" | "jpSchools"
     // 🗾 日本 Japan 遞延層（1km 人口網格 choropleth，人口 5 年＋高齡比 4 年）
@@ -1144,6 +1145,7 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   waterFloodExtreme: boolean;
   waterDetentionBasins: boolean;
   rainGauge: boolean;
+  bridgeRainThresholds: boolean;
   riverLevel: boolean;
   groundwater: boolean;
   groundwaterWells: boolean;
@@ -1510,6 +1512,11 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   osmBridgeFootprints: boolean;
   officialBridgesNewTaipei: boolean;
   bridgeComparisonNewTaipei: boolean;
+  tainanBridgeInspections: boolean;
+  officialBridgesHsinchu: boolean;
+  taipeiRoadTunnels: boolean;
+  tainanRoadTunnels: boolean;
+  changhuaTrafficSignals: boolean;
   jpPoliceFacilities: boolean;
   jpSchools: boolean;           // 日本學校（PMTiles point，56,807 筆；学校分類 13 色）
   jpPopulationMesh1km: boolean; // 日本 1km 人口網格（PMTiles polygon，176,896 格；人口 5 年＋高齡比 4 年）

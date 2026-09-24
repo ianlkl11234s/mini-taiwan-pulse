@@ -155,7 +155,9 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-18: +2 台灣／日本歷史航班軌跡。
     // 2026-09-19: +9 LOCAL_ONLY 日本全國水資源向量／洪水背景。
     // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
-    expect(keys.length).toBe(778);
+    // 2026-09-23: +1 一級監控橋梁參考雨量。
+    // 2026-09-24: +1 臺南橋梁定期檢測紀錄。
+    expect(keys.length).toBe(784);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

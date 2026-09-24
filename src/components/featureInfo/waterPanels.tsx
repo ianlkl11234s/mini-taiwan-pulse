@@ -5,6 +5,7 @@ import { fetchFloodSensorTimeseries } from "../../data/floodSensorLoader";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
 import { fetchRainGaugeTimeseries } from "../../data/rainGaugeLoader";
+import { BRIDGE_TABLE_URL } from "../../data/bridgeRainThresholds";
 import type { ReservoirContext } from "../../data/reservoirContextLoader";
 import { Row, formatTaiwanTime } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
@@ -412,6 +413,40 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
       )}
     </>
   );
+}
+
+interface BridgeRainReading {
+  id: string; name: string | null; observed_at: string;
+  p1: number | null; p3: number | null; p6: number | null; p24: number | null;
+}
+
+export function BridgeRainPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  let readings: BridgeRainReading[] = [];
+  try { readings = JSON.parse(String(props.readings_json ?? "[]")) as BridgeRainReading[]; } catch { /* unknown data stays empty */ }
+  const mm = (value: number | null) => value == null ? "缺測" : `${value} mm`;
+  const status = String(props.status ?? "unknown");
+  const color = status === "triggered" ? "#ef4444" : status === "below" ? "#3b82f6" : "#94a3b8";
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>{String(props.bridge_name ?? "監控橋梁")}</div>
+    <Row label="路段" value={String(props.route ?? "")} />
+    <Row label="雨量判讀" value={String(props.status_label ?? "未知")} color={color} />
+    <Row label="限制" value={String(props.status_reason ?? "")} />
+    <Row label="參考站號" value={String(props.station_ids ?? "")} />
+    {readings.map((r) => <div key={r.id} style={{ marginTop: 8, padding: 8, border: `1px solid ${t.textMuted}`, borderRadius: 6, color: t.textStrong, fontSize: FONT_SIZE.sm }}>
+      <div>{r.name ?? r.id}（{r.id}）</div>
+      <div>1h {mm(r.p1)}｜3h {mm(r.p3)}｜6h {mm(r.p6)}｜24h {mm(r.p24)}</div>
+      <div>觀測：{formatTaiwanTime(r.observed_at)}</div>
+    </div>)}
+    <Row label="表版本" value={String(props.table_version ?? "")} />
+    <Row label="橋位" value={String(props.location_source ?? "")} />
+    <Row label="備註" value={String(props.note ?? "")} />
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm }}>
+      <a href={BRIDGE_TABLE_URL} target="_blank" rel="noopener noreferrer">公路局監控橋梁表</a>
+      {" · "}<a href={String(props.location_url ?? "#")} target="_blank" rel="noopener noreferrer">OSM 候選橋位</a>
+    </div>
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>這是雨量條件資訊，沒有判定橋梁通行、封閉或結構安全。</div>
+  </div>;
 }
 
 export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {

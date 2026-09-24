@@ -1672,6 +1672,14 @@ export const LAYER_PARAMS_SPEC = {
       encode: ["all", ...MATCH_STATUSES.map((item) => item.value)],
     },
   ],
+  tainanBridgeInspections: [
+    opacitySlider("tainanBridgeInspectionsOpacity", 0.9),
+    scaleSlider("tainanBridgeInspectionsScale", 1),
+  ],
+  officialBridgesHsinchu: [opacitySlider("officialBridgesHsinchuOpacity", 0.85), scaleSlider("officialBridgesHsinchuScale", 1)],
+  taipeiRoadTunnels: [opacitySlider("taipeiRoadTunnelsOpacity", 0.9), scaleSlider("taipeiRoadTunnelsScale", 1)],
+  tainanRoadTunnels: [opacitySlider("tainanRoadTunnelsOpacity", 0.9), scaleSlider("tainanRoadTunnelsScale", 1)],
+  changhuaTrafficSignals: [opacitySlider("changhuaTrafficSignalsOpacity", 0.85), scaleSlider("changhuaTrafficSignalsScale", 1)],
   jpPoliceFacilities: [
     opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),
     { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
