@@ -20,6 +20,9 @@ export type VerifiedPointDatasetConfig = Readonly<{
   publisher: string;
   license: string;
   precision: string;
+  layerRefs?: readonly string[];
+  /** Maps a safe descriptor field to the immutable source property name. */
+  sourceFieldMap?: Readonly<Record<string, string>>;
   coverageDescription?: string;
   sourceLineage?: string;
 }> & (FixedSelection | FullSourceSelection);
@@ -34,17 +37,20 @@ function descriptor(config: VerifiedPointDatasetConfig): DatasetDescriptor {
   const names = new Set(fields.map(field => field.name));
   const fullSource = config.fullSource === true;
   const selectionKeys = Object.keys(config.selection);
+  const sourceNames = Object.entries(config.sourceFieldMap ?? {});
   if (!rootAssetUrl(config.sourceUrl) || !hash(config.expectedSha256) || !positive(config.expectedSourceRows) || !positive(config.expectedSelectedRows)
     || config.expectedSelectedRows > config.expectedSourceRows || !config.datasetId || !config.label || !config.description || !config.publisher || !config.license || !config.precision
     || !names.has("record_id") || !names.has("geometry") || fields.some(field => field.name === "record_id" && (field.type !== "string" || field.nullable) || field.name === "geometry" && (field.type !== "json" || field.nullable))
     || (!fullSource && selectionKeys.length === 0) || (fullSource && (selectionKeys.length !== 0 || config.expectedSelectedRows !== config.expectedSourceRows))
-    || selectionKeys.some(field => !names.has(field)) || config.coverageDescription !== undefined && !config.coverageDescription.trim() || config.sourceLineage !== undefined && !config.sourceLineage.trim()) fail("INVALID_VERIFIED_POINT_CONFIG");
+    || selectionKeys.some(field => !names.has(field)) || sourceNames.some(([field, source]) => !names.has(field) || field === "record_id" || field === "geometry" || !source.trim())
+    || new Set(sourceNames.map(([, source]) => source)).size !== sourceNames.length
+    || config.coverageDescription !== undefined && !config.coverageDescription.trim() || config.sourceLineage !== undefined && !config.sourceLineage.trim()) fail("INVALID_VERIFIED_POINT_CONFIG");
   const coverage = config.coverageDescription ?? (fullSource
     ? `${config.expectedSourceRows} verified source-coordinate actual Point records; fullSource=true; observed period unknown.`
     : `${config.expectedSelectedRows} selected actual Point records from ${config.expectedSourceRows} verified source records; selection=${JSON.stringify(config.selection)}; observed period unknown.`);
   return {
     schemaVersion: "pulse-dataset/0.1", datasetId: config.datasetId, label: config.label, description: config.description,
-    layerRefs: [], kind: "point", recordGrain: "place", primaryKey: ["record_id"], fields,
+    layerRefs: config.layerRefs ?? [], kind: "point", recordGrain: "place", primaryKey: ["record_id"], fields,
     geometry: { type: "Point", crs: "EPSG:4326", role: "actual", precision: config.precision, spatialAnalysisEligible: true }, timeFields: [],
     coverage,
     license: config.license, valueSemantics: DEFAULT_VALUE_SEMANTICS,
@@ -62,13 +68,18 @@ function sameSelection(row: Record<string, unknown>, selection: Readonly<Record<
 /** Materializes a pre-verified actual-geometry subset with version-bound SHA/row-index record IDs and unchanged loader receipts. */
 export function createVerifiedPointDatasetAdapter(config: VerifiedPointDatasetConfig): QueryAdapter {
   const dataDescriptor = descriptor(config);
-  const safeFields = config.fields.map(field => field.name).filter(name => name !== "record_id" && name !== "geometry");
+  const sourceName = (field: string) => config.sourceFieldMap?.[field] ?? field;
+  const safeFields = config.fields.map(field => field.name).filter(name => name !== "record_id" && name !== "geometry").map(sourceName);
   return createPointDatasetAdapter(dataDescriptor, async (_parameters, signal): Promise<AdapterSnapshot> => {
     const snapshot = await loadPointDataset({ datasetId: config.datasetId, url: config.sourceUrl, idField: "record_id", safeFields }, { signal });
     if (snapshot.checksumSha256 !== config.expectedSha256) fail("VERIFIED_POINT_SOURCE_SHA_MISMATCH");
     const sourceRows = snapshot.rows.length + Object.values(snapshot.exclusions).reduce((total, count) => total + count, 0);
     if (sourceRows !== config.expectedSourceRows) fail("VERIFIED_POINT_SOURCE_COUNT_MISMATCH");
-    const rows = config.fullSource === true ? snapshot.rows : snapshot.rows.filter(row => sameSelection(row, config.selection));
+    const mappedRows = snapshot.rows.map(row => Object.fromEntries(Object.entries(row).map(([field, value]) => [
+      Object.entries(config.sourceFieldMap ?? {}).find(([, source]) => source === field)?.[0] ?? field,
+      value,
+    ])));
+    const rows = config.fullSource === true ? mappedRows : mappedRows.filter(row => sameSelection(row, config.selection));
     if (rows.length !== config.expectedSelectedRows) fail("VERIFIED_POINT_SELECTION_COUNT_MISMATCH");
     const exclusions = config.fullSource === true ? snapshot.exclusions : { ...snapshot.exclusions, excluded_by_selection: snapshot.rows.length - rows.length };
     const source: SourceReceipt = { sourceId: config.datasetId, version: `sha256:${config.expectedSha256}`, acquiredAt: snapshot.acquiredAt, checksumSha256: snapshot.checksumSha256, reference: config.sourceUrl };

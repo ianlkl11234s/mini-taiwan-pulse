@@ -18,6 +18,7 @@ import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
 import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
 import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "./civicCultureDatasets";
+import { forestryPointAdapters } from "./forestryPointDatasets";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
@@ -316,6 +317,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   createRoadEventCurrentAdapter(),
   postOfficesSourceCoordinatesAdapter,
   culturalFacilitiesSourceCoordinatesAdapter,
+  ...forestryPointAdapters,
   ...localRawBoundaries,
   ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
