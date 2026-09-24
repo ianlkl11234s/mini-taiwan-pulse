@@ -174,3 +174,21 @@ it("evicts only least-recent dynamic readers while stored snapshots remain indep
   executor.register(adapterFor("layer:source-1"));
   await expect(executor.execute({ datasetId: "layer:source-1" })).resolves.toMatchObject({ totalMatched: 1 });
 });
+
+
+it("keeps complete surface geometry for analysis without returning it in default pages", async () => {
+  const descriptor = base({ datasetId: "surface", kind: "polygon",
+    fields: [...base({}).fields, { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null }],
+    geometry: { type: "Polygon", crs: "EPSG:4326", role: "actual", precision: "fixture", spatialAnalysisEligible: true },
+    access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id", "geometry"], filters: ["id"], maxRowsPerQuery: 50, maxScanRows: 100 }),
+  });
+  const coordinates = Array.from({ length: 4000 }, (_, i) => [121 + 0.01 * Math.cos(i * 2 * Math.PI / 3999), 24 + 0.01 * Math.sin(i * 2 * Math.PI / 3999)]);
+  coordinates[3999] = coordinates[0]!;
+  const geometry = { type: "Polygon", coordinates: [coordinates] };
+  const executor = new QueryExecutor([{ descriptor, allowedParameters: {}, read: async () => ({ rows: [{ id: "area", geometry }], sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown", exclusions: {}, rowsScanned: 1, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null }) }]);
+  const result = await executor.executeDetailed({ datasetId: "surface" });
+  expect(result.envelope.rows).toEqual([{ id: "area" }]);
+  expect(result.envelope.method.parameters.select).toEqual(["id"]);
+  expect(result.materializedRows[0]!.geometry).toEqual(geometry);
+  await expect(executor.executeDetailed({ datasetId: "surface", select: ["id", "geometry"] })).rejects.toThrow("RESULT_BYTE_BUDGET_EXCEEDED");
+});

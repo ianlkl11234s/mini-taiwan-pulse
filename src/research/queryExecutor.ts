@@ -215,7 +215,10 @@ export class QueryExecutor {
     const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 10_000, "INVALID_OFFSET");
     const limit = integer(input.limit, Math.min(20, descriptor.access.limits.maxRowsPerQuery), 1, descriptor.access.limits.maxRowsPerQuery, "INVALID_LIMIT");
     const fieldMap = new Map(descriptor.fields.map(field => [field.name, field]));
-    const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name);
+    // Surface coordinates stay in the complete materialized result. Default tool
+    // pages return attributes, so one large polygon does not exhaust the receipt.
+    const surface = ["Polygon", "MultiPolygon"].includes(descriptor.geometry.type);
+    const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name).filter(name => !surface || name !== "geometry");
     const allowedFields = new Set(descriptor.access.query.fields);
     if (select.length > 50 || new Set(select).size !== select.length || select.some(field => !fieldMap.has(field) || !allowedFields.has(field))) throw new Error("FIELD_NOT_ALLOWED");
     const inputFilters = input.filters ?? [];

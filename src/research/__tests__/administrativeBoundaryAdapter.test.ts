@@ -18,7 +18,7 @@ describe("verified administrative boundary adapter", () => {
   it("keeps source properties/id out of the row contract while preserving raw actual MultiPolygon geometry", async () => {
     const bytes = encoder.encode(JSON.stringify(source)); const input = await contract(bytes);
     const fetcher = vi.fn(async () => new Response(bytes, { status: 200, headers: { "content-type": "application/geo+json" } }));
-    const result = await new QueryExecutor([createAdministrativeBoundaryAdapter(input, fetcher)]).execute({ datasetId: input.datasetId, filters: [{ field: "area_code", op: "eq", value: "B" }] });
+    const result = await new QueryExecutor([createAdministrativeBoundaryAdapter(input, fetcher)]).execute({ datasetId: input.datasetId, filters: [{ field: "area_code", op: "eq", value: "B" }], select: ["area_code", "area_name", "boundary_version", "boundary_sha256", "geometry"] });
     expect(fetcher).toHaveBeenCalledWith(input.sourceUrl, expect.objectContaining({ credentials: "same-origin", redirect: "error" }));
     expect(result.rows).toMatchObject([{ area_code: "B", area_name: "乙", boundary_version: "COUNTY_TEST", boundary_sha256: input.sourceSha256, geometry: { type: "MultiPolygon" } }]);
     expect(result.sourceRefs).toEqual([expect.objectContaining({ sourceId: "administrative-boundary:COUNTY_TEST", checksumSha256: input.sourceSha256, reference: input.sourceUrl })]);
