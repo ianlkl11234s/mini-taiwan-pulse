@@ -8,7 +8,7 @@
 
 使用者已授權自行確認本地配對、測試、隔離 worktree 實作與原子 commit。目標為每個圖層可查到分析能力與缺口，所有具備合法完整來源的資料逐步接入合適運算；**全量盤點完成不等於全量可分析**。PMTiles 不是一概豁免，也不從視窗中繪出的 tile features 當完整資料。
 
-當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、82 個 descriptor datasets；74 個圖層已有 queryable mapping、108 個 GeoJSON 待載入驗證候選、596 個未提供可用查詢映射（含1個明確禁止查詢的descriptor）。75 個圖層有 descriptor。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md) 與 [本夜分片驗收](./overnight-coverage-20260925.md)。這些數字不是778份來源都通過live驗證。
+當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、83 個 descriptor datasets；75 個圖層已有 queryable mapping、107 個 GeoJSON 待載入驗證候選、596 個未提供可用查詢映射（含1個明確禁止查詢的descriptor）。76 個圖層有 descriptor。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md) 與 [本夜分片驗收](./overnight-coverage-20260925.md)。這些數字不是778份來源都通過live驗證。
 
 | 順序 | 交付與工作 | 完成判準 |
 |---|---|---|
