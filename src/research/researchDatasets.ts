@@ -21,6 +21,7 @@ import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinate
 import { forestryPointAdapters } from "./forestryPointDatasets";
 import { forestryProxyAdapters } from "./forestryProxyDatasets";
 import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
+import { mentalHealthFacilitiesUpstreamCoordinatesAdapter } from "./mentalHealthFacilitiesDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
@@ -317,6 +318,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   ...forestryPointAdapters,
   ...forestryProxyAdapters,
   lighthousesSourceCoordinatesAdapter,
+  mentalHealthFacilitiesUpstreamCoordinatesAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
   taipeiZoningAttributeAdapter,
