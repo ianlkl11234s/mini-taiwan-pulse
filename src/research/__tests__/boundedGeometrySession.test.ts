@@ -5,7 +5,7 @@ import { ResearchAnalysisSession } from "../researchAnalysisSession";
 function sessionWithLine(role = "actual") {
   const session = new ResearchAnalysisSession();
   const store = (session as unknown as { store: { put(value: object): void } }).store;
-  store.put({ resultId: "line", datasetId: "fixture-line", rows: [{ geometry: { type: "LineString", coordinates: [[120.44, 23.48], [120.445, 23.48]] } }], recordGrain: "feature", geometry: { type: "LineString", role, spatialAnalysisEligible: role === "actual" }, sourceRefs: [{ sourceId: "fixture", version: "v1", checksumSha256: "a".repeat(64), acquiredAt: "2026-09-24T00:00:00Z", reference: "/fixture" }], coverage: "fixture only", freshness: "unknown", units: {}, lineage: { datasets: ["fixture-line"], queryScope: { datasetId: "fixture-line", filters: [{ field: "route", op: "eq", value: "fixture" }], bbox: [120.4, 23.4, 120.5, 23.5], time: { start: "2026-09-01", end: "2026-09-24" }, parameters: { sourceVersion: "v1" }, totalMatched: 1 }, sourceContract: { datasetId: "fixture-line", recordGrain: "feature", timeFields: ["observed_at"], geometry: { type: "LineString", role: "actual", spatialAnalysisEligible: true } } } });
+  store.put({ resultId: "line", datasetId: "fixture-line", rows: [{ name: "測試支線", geometry: { type: "LineString", coordinates: [[120.44, 23.48], [120.445, 23.48]] } }], recordGrain: "feature", geometry: { type: "LineString", role, spatialAnalysisEligible: role === "actual" }, sourceRefs: [{ sourceId: "fixture", version: "v1", checksumSha256: "a".repeat(64), acquiredAt: "2026-09-24T00:00:00Z", reference: "/fixture" }], coverage: "fixture only", freshness: "unknown", units: {}, lineage: { datasets: ["fixture-line"], queryScope: { datasetId: "fixture-line", filters: [{ field: "route", op: "eq", value: "fixture" }], bbox: [120.4, 23.4, 120.5, 23.5], time: { start: "2026-09-01", end: "2026-09-24" }, parameters: { sourceVersion: "v1" }, totalMatched: 1 }, sourceContract: { datasetId: "fixture-line", recordGrain: "feature", timeFields: ["observed_at"], geometry: { type: "LineString", role: "actual", spatialAnalysisEligible: true } } } });
   return session;
 }
 
@@ -13,6 +13,7 @@ describe("bounded geometry session integration", () => {
   it("preserves lineage, units and eligible derived surface through buffer, intersection and measurement", async () => {
     const session = sessionWithLine();
     const buffer = await session.executeGeometry({ predicate: "line_buffer", resultId: "line", radiusM: 200 });
+    expect(session.presentable([String(buffer.resultId)])[0]?.displayLabel).toBe("測試支線・200 公尺線形環域");
     expect(buffer).toMatchObject({ operation: "line_buffer", geometry: { role: "derived", spatialAnalysisEligible: true }, sourceRefs: [expect.objectContaining({ version: "v1" })], inputResultIds: ["line"], freshness: "unknown" });
     const overlap = await session.executeGeometry({ predicate: "surface_intersection", leftResultId: buffer.resultId, rightResultId: buffer.resultId });
     expect(overlap).toMatchObject({ totalRows: 1, geometry: { role: "derived" } });

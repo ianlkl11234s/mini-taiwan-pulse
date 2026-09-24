@@ -25,6 +25,7 @@ function clearStoredConnection(): void { window.sessionStorage.removeItem(SESSIO
 function expiryMs(value: string | number): number { return typeof value === "number" ? value : Date.parse(value); }
 function errorMessage(error: unknown): string {
   const failure = classifyConnectionFailure(error);
+  if (failure.code === "PAIRING_REJECTED") return "配對無法使用，可能已過期、失效或不屬於目前帳號；請確認帳號後重新建立配對。";
   if (failure.kind === "auth") return "登入驗證已失效，請重新登入後再建立配對。";
   if (failure.kind === "expired") return "本地 Agent 工作階段已到期或撤銷，請重新建立配對。";
   if (failure.kind === "rate") return "連線請求過多，正在依服務要求放慢重試。";

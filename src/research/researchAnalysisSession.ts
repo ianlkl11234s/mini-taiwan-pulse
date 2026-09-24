@@ -360,7 +360,7 @@ export class ResearchAnalysisSession {
     const outcome = predicate === "line_buffer" ? engine.boundedLineBuffer(inputs[0]!.rows[0]!.geometry, Number(args.radiusM))
       : predicate === "surface_intersection" ? engine.boundedSurfaceIntersection(inputs[0]!.rows[0]!.geometry, inputs[1]!.rows[0]!.geometry)
       : engine.boundedMeasure(inputs[0]!.rows[0]!.geometry);
-    const label = predicate === "line_buffer" ? `${args.radiusM} 公尺線形環域` : predicate === "surface_intersection" ? "面交集（僅面積部分）" : "幾何度量";
+    const label = predicate === "line_buffer" ? `${geometryInputLabel(inputs[0]!)}・${args.radiusM} 公尺線形環域` : predicate === "surface_intersection" ? "面交集（僅面積部分）" : "幾何度量";
     const rows = outcome.geometry ? [{ label, ...outcome.summary, geometry: outcome.geometry }] : predicate === "measure_geometry" ? [{ label, ...outcome.summary }] : [];
     const datasets = [...new Set(inputs.flatMap(input => [...input.datasetId.split("+"), ...stringArray(input.lineage?.datasets)]))];
     const resultId = `analysis-${predicate}-${crypto.randomUUID()}`;
@@ -554,4 +554,14 @@ function resultDisplayLabel(result: StoredDataResult): string {
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
   if (result.datasetId.startsWith("derived:valhalla-walking-")) return rowLabel;
   try { return describeDataset(result.datasetId).label; } catch { return result.datasetId; }
+}
+
+/** Prefer a source feature name, retaining a bounded identifier when none is declared. */
+function geometryInputLabel(result: StoredDataResult): string {
+  const row = result.rows[0];
+  for (const key of ["label", "name", "route_label", "area_name", "route_id", "id"]) {
+    const value = row?.[key];
+    if ((typeof value === "string" && value.trim()) || typeof value === "number") return String(value).trim().slice(0, 100);
+  }
+  return `${resultDisplayLabel(result).slice(0, 80)}（${result.resultId.slice(-12)}）`;
 }
