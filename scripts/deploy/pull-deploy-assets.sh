@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/business_registry" "$DATA_DIR/industrial_zone" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/public_life" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$DATA_DIR/flight-trails/releases" "$DATA_DIR/global-maritime/gfw-hourly" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -54,7 +54,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "business_registry/*" --exclude "industrial_zone/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "fishery/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "road/*" --exclude "urban/*" --exclude "network_structures/*" --exclude "jp-medical/*" --exclude "jp-heights/*" --exclude "public_life/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
@@ -131,6 +131,10 @@ aws s3 sync "$S3/civic_facilities/" "$DATA_DIR/civic_facilities/" --no-progress
 # 環境：鏡像子前綴 deploy-assets/environment/ → /data/environment/（public_toilets geojson git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync environment → $DATA_DIR/environment/"
 aws s3 sync "$S3/environment/" "$DATA_DIR/environment/" --no-progress
+
+# 公共生活與韌性：新檔自動隨鏡像子前綴同步，無須逐檔白名單。
+echo "[pull] sync public_life → $DATA_DIR/public_life/"
+aws s3 sync "$S3/public_life/" "$DATA_DIR/public_life/" --no-progress
 
 # POI：鏡像子前綴 deploy-assets/poi/ → /data/poi/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync poi → $DATA_DIR/poi/"

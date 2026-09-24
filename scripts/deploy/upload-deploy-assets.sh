@@ -53,6 +53,11 @@ NETWORK_STRUCTURE_FILES=(
   "public/network_structures/osm_bridge_footprints_20260906.pmtiles"
   "public/network_structures/official_bridges_new_taipei_20260906.pmtiles"
   "public/network_structures/bridge_comparison_new_taipei_20260906.pmtiles"
+  "public/network_structures/tainan_bridge_inspections_20260924.pmtiles"
+  "public/network_structures/official_bridges_hsinchu_20260924.pmtiles"
+  "public/network_structures/taipei_road_tunnels_20260924.pmtiles"
+  "public/network_structures/tainan_road_tunnels_20260924.pmtiles"
+  "public/network_structures/changhua_traffic_signals_20260924.pmtiles"
 )
 for f in "${NETWORK_STRUCTURE_FILES[@]}"; do
   [ -f "$f" ] || continue
@@ -96,6 +101,15 @@ for f in public/geo/*.pmtiles; do
   name=$(basename "$f")
   echo "Uploading geo/$name (pmtiles mirror)..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/geo/$name" --region ap-southeast-2
+done
+
+# 公共生活與韌性系統：鏡像子前綴。GeoJSON 與 PMTiles 同一契約，
+# 小檔仍可在 dist fallback；上傳後生產環境優先讀 /data/public_life/。
+for f in public/public_life/*.geojson public/public_life/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading public_life/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/public_life/$name" --region ap-southeast-2
 done
 # agriculture / forestry 的 PMTiles 改由下方 AGRI_FILES / FOREST_FILES 明確清單上傳到各自鏡像子前綴
 

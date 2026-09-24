@@ -61,7 +61,7 @@ function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: bo
 }
 
 /** 一級監控橋梁的參考雨量；固定 10 分鐘重抓 latest，過期後自然轉灰。 */
-export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean) {
+export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const rowsRef = useRef<RainGaugeLatestRow[]>([]);
   useEffect(() => {
@@ -89,4 +89,10 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
     }
     return () => { cancelled = true; };
   }, [mapRef, visible, mapTick]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map?.getLayer(BRIDGE_RAIN_CLICK_LAYER)) {
+      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-opacity", 0.95 * Math.max(0, Math.min(1, opacity)));
+    }
+  }, [mapRef, mapTick, opacity]);
 }

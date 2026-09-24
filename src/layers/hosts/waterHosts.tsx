@@ -51,7 +51,8 @@ export const RainGaugeHost: LayerHostComponent = ({ deps }) => {
 
 export const BridgeRainHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useBridgeRainLayer");
-  useBridgeRainLayer(deps.mapRef, deps.layerVisibility.bridgeRainThresholds);
+  const p = useKeyOverlayParams("bridgeRainThresholds");
+  useBridgeRainLayer(deps.mapRef, deps.layerVisibility.bridgeRainThresholds, p.bridgeRainThresholdsOpacity ?? 0.9);
   return null;
 };
 

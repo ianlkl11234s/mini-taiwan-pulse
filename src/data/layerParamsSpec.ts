@@ -108,6 +108,11 @@ import { OFFICIAL_NOISE_PERIODS, SOUND_CAMERA_PRECISIONS } from "./noiseTypes";
 import { TRANSPORT_HUB_DISPLAY_MODES } from "./transportHubTypes";
 import { CARRIER_KINDS, MATCH_STATUSES } from "./networkStructuresTypes";
 import { GLOBAL_EVENT_CATEGORIES, GLOBAL_EVENT_SEVERITIES } from "./globalEventsTypes";
+import {
+  ACCESSIBILITY_STATUS_OPTIONS, ACCESSIBLE_FACILITY_TYPE_OPTIONS,
+  BICYCLE_SUPPORT_SERVICE_OPTIONS, DISASTER_SHELTER_TYPE_OPTIONS,
+  PUBLIC_TOILET_TYPE_OPTIONS, RECYCLING_MATERIAL_OPTIONS,
+} from "./publicLifeTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -1417,6 +1422,10 @@ export const LAYER_PARAMS_SPEC = {
   ],
   retailMarkets: [opacitySlider("retailMarketsOpacity", 0.9), scaleSlider("retailMarketsScale", 1)],
   publicToilets: [
+    {
+      kind: "multiSelect", name: "publicToiletsType", label: "場所類別", default: MULTI_SELECT_ALL,
+      options: [...PUBLIC_TOILET_TYPE_OPTIONS], out: "publicToiletsTypeMask",
+    },
     opacitySlider("publicToiletsOpacity", 0.75),
     scaleSlider("publicToiletsScale", 1),
   ],
@@ -1680,6 +1689,7 @@ export const LAYER_PARAMS_SPEC = {
   taipeiRoadTunnels: [opacitySlider("taipeiRoadTunnelsOpacity", 0.9), scaleSlider("taipeiRoadTunnelsScale", 1)],
   tainanRoadTunnels: [opacitySlider("tainanRoadTunnelsOpacity", 0.9), scaleSlider("tainanRoadTunnelsScale", 1)],
   changhuaTrafficSignals: [opacitySlider("changhuaTrafficSignalsOpacity", 0.85), scaleSlider("changhuaTrafficSignalsScale", 1)],
+  bridgeRainThresholds: [opacitySlider("bridgeRainThresholdsOpacity", 0.9)],
   jpPoliceFacilities: [
     opacitySlider("jpPoliceFacilitiesOpacity", 0.75), scaleSlider("jpPoliceFacilitiesScale", 1),
     { kind: "select", name: "jpPoliceFacilitiesType", label: "設施類型", default: "all",
@@ -2181,6 +2191,44 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("tourRestaurantsOpacity", 0.85),
     scaleSlider("tourRestaurantsScale", 1),
   ],
+  drinkingWaterPoints: [opacitySlider("drinkingWaterPointsOpacity", 0.85), scaleSlider("drinkingWaterPointsScale", 1)],
+  publicWasteBaskets: [opacitySlider("publicWasteBasketsOpacity", 0.85), scaleSlider("publicWasteBasketsScale", 1)],
+  materialRecyclingPoints: [
+    {
+      kind: "multiSelect", name: "materialRecyclingPointsMaterial", label: "回收材質", default: MULTI_SELECT_ALL,
+      options: [...RECYCLING_MATERIAL_OPTIONS], out: "materialRecyclingPointsMaterialMask",
+    },
+    opacitySlider("materialRecyclingPointsOpacity", 0.85), scaleSlider("materialRecyclingPointsScale", 1),
+  ],
+  disasterShelters: [
+    {
+      kind: "multiSelect", name: "disasterSheltersType", label: "適用災害", default: MULTI_SELECT_ALL,
+      options: [...DISASTER_SHELTER_TYPE_OPTIONS], out: "disasterSheltersTypeMask",
+    },
+    opacitySlider("disasterSheltersOpacity", 0.85), scaleSlider("disasterSheltersScale", 1),
+  ],
+  playgrounds: [opacitySlider("playgroundsOpacity", 0.85), scaleSlider("playgroundsScale", 1)],
+  accessibleParkFacilities: [
+    {
+      kind: "multiSelect", name: "accessibleParkFacilitiesType", label: "設施類型", default: MULTI_SELECT_ALL,
+      options: [...ACCESSIBLE_FACILITY_TYPE_OPTIONS], out: "accessibleParkFacilitiesTypeMask",
+    },
+    {
+      kind: "multiSelect", name: "accessibleParkFacilitiesStatus", label: "無障礙狀態", default: MULTI_SELECT_ALL,
+      options: [...ACCESSIBILITY_STATUS_OPTIONS], out: "accessibleParkFacilitiesStatusMask",
+    },
+    opacitySlider("accessibleParkFacilitiesOpacity", 0.8), scaleSlider("accessibleParkFacilitiesScale", 1),
+  ],
+  bicycleSupport: [
+    {
+      kind: "multiSelect", name: "bicycleSupportService", label: "補給服務", default: MULTI_SELECT_ALL,
+      options: [...BICYCLE_SUPPORT_SERVICE_OPTIONS], out: "bicycleSupportServiceMask",
+    },
+    opacitySlider("bicycleSupportOpacity", 0.85), scaleSlider("bicycleSupportScale", 1),
+  ],
+  nationalParks: [opacitySlider("nationalParksOpacity", 0.5)],
+  visitorCentres: [opacitySlider("visitorCentresOpacity", 0.85), scaleSlider("visitorCentresScale", 1)],
+  publicLifeOsmCoverage: [opacitySlider("publicLifeOsmCoverageOpacity", 0.55)],
 
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [

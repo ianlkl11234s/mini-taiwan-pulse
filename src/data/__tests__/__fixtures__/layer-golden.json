@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 784,
+    "keyCount": 794,
     "sections": [
       "gisLayers",
       "overlays",
@@ -8,6 +8,76 @@
     ]
   },
   "gisLayers": [
+    {
+      "layers": [
+        "drinking-water-points-circle",
+        "drinking-water-points-glow"
+      ],
+      "type": "drinkingWaterPoints"
+    },
+    {
+      "layers": [
+        "public-waste-baskets-circle",
+        "public-waste-baskets-glow"
+      ],
+      "type": "publicWasteBaskets"
+    },
+    {
+      "layers": [
+        "material-recycling-points-circle",
+        "material-recycling-points-glow"
+      ],
+      "type": "materialRecyclingPoints"
+    },
+    {
+      "layers": [
+        "disaster-shelters-circle",
+        "disaster-shelters-glow"
+      ],
+      "type": "disasterShelters"
+    },
+    {
+      "layers": [
+        "playgrounds-circle",
+        "playgrounds-glow"
+      ],
+      "type": "playgrounds"
+    },
+    {
+      "layers": [
+        "accessible-park-facilities-circle",
+        "accessible-park-facilities-glow"
+      ],
+      "type": "accessibleParkFacilities"
+    },
+    {
+      "layers": [
+        "bicycle-support-circle",
+        "bicycle-support-glow"
+      ],
+      "type": "bicycleSupport"
+    },
+    {
+      "layers": [
+        "visitor-centres-circle",
+        "visitor-centres-glow"
+      ],
+      "type": "visitorCentres"
+    },
+    {
+      "layers": [
+        "national-parks-fill",
+        "national-parks-outline"
+      ],
+      "type": "nationalParks"
+    },
+    {
+      "layers": [
+        "public-life-osm-coverage-fill",
+        "public-life-osm-coverage-outline"
+      ],
+      "type": "publicLifeOsmCoverage"
+    },
     {
       "layers": [
         "road-congestion-hit"
@@ -11203,7 +11273,10 @@
       "id": "publicToilets",
       "layers": [
         {
-          "filter": null,
+          "filter": [
+            "has",
+            "type2"
+          ],
           "layout": null,
           "minzoom": 11,
           "paint": {
@@ -11278,7 +11351,10 @@
           "type": "circle"
         },
         {
-          "filter": null,
+          "filter": [
+            "has",
+            "type2"
+          ],
           "layout": null,
           "minzoom": 11,
           "paint": {
@@ -11381,12 +11457,83 @@
           },
           "suffix": "circle",
           "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "type2"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              14,
+              10,
+              17,
+              13
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 16,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.75
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.75
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
         }
       ],
       "pmtiles": null,
       "rebuildOnParamChange": [
         "glow",
-        "circle"
+        "circle",
+        "label"
       ],
       "sourceId": "public-toilets",
       "sourceUrl": "./environment/public_toilets_national.geojson"
@@ -61146,7 +61293,7 @@
       ],
       "pmtiles": {
         "maxzoom": 15,
-        "minzoom": 7,
+        "minzoom": 8,
         "sourceLayer": "official_bridges_hsinchu"
       },
       "rebuildOnParamChange": [
@@ -61353,6 +61500,1924 @@
       "rebuildOnParamChange": null,
       "sourceId": "changhua-traffic-signals",
       "sourceUrl": "./network_structures/changhua_traffic_signals_20260924.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "drinkingWaterPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#06b6d4",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "drinking_water_points"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "drinking-water-points",
+      "sourceUrl": "./public_life/drinking_water_points.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "publicWasteBaskets",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#d97706",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#d97706",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              12,
+              10,
+              16,
+              13
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 15,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "public-waste-baskets",
+      "sourceUrl": "./public_life/public_waste_baskets.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "materialRecyclingPoints",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#22c55e",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              12,
+              10,
+              16,
+              13
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "material-recycling-points",
+      "sourceUrl": "./public_life/material_recycling_points.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "disasterShelters",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#f97316",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "name"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#f97316",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "disaster_shelters"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "disaster-shelters",
+      "sourceUrl": "./public_life/disaster_shelters.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "playgrounds",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#ec4899",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              12,
+              10,
+              16,
+              13
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 14,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "playgrounds",
+      "sourceUrl": "./public_life/playgrounds.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "accessibleParkFacilities",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.22400000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.22400000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "feature_type"
+            ],
+            [
+              "has",
+              "accessibility_status"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "accessibility_status"
+                ],
+                "yes",
+                "#22c55e",
+                "limited",
+                "#f59e0b",
+                "no",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "accessible_park_facilities"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "accessible-park-facilities",
+      "sourceUrl": "./public_life/accessible_park_facilities.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "bicycleSupport",
+      "layers": [
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_repair"
+                  ],
+                  true
+                ],
+                "#f97316",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_air"
+                  ],
+                  true
+                ],
+                "#06b6d4",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_parking"
+                  ],
+                  true
+                ],
+                "#3b82f6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_water"
+                  ],
+                  true
+                ],
+                "#14b8a6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_toilet"
+                  ],
+                  true
+                ],
+                "#8b5cf6",
+                "#84cc16"
+              ],
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_repair"
+                  ],
+                  true
+                ],
+                "#f97316",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_air"
+                  ],
+                  true
+                ],
+                "#06b6d4",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_parking"
+                  ],
+                  true
+                ],
+                "#3b82f6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_water"
+                  ],
+                  true
+                ],
+                "#14b8a6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_toilet"
+                  ],
+                  true
+                ],
+                "#8b5cf6",
+                "#84cc16"
+              ],
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1,
+                5,
+                3.6,
+                12,
+                9
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "has",
+            "feature_type"
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_repair"
+                  ],
+                  true
+                ],
+                "#f97316",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_air"
+                  ],
+                  true
+                ],
+                "#06b6d4",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_parking"
+                  ],
+                  true
+                ],
+                "#3b82f6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_water"
+                  ],
+                  true
+                ],
+                "#14b8a6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_toilet"
+                  ],
+                  true
+                ],
+                "#8b5cf6",
+                "#84cc16"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_repair"
+                  ],
+                  true
+                ],
+                "#f97316",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_air"
+                  ],
+                  true
+                ],
+                "#06b6d4",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_parking"
+                  ],
+                  true
+                ],
+                "#3b82f6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_water"
+                  ],
+                  true
+                ],
+                "#14b8a6",
+                [
+                  "==",
+                  [
+                    "get",
+                    "has_toilet"
+                  ],
+                  true
+                ],
+                "#8b5cf6",
+                "#84cc16"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.7,
+                5,
+                2,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 0,
+        "sourceLayer": "bicycle_support"
+      },
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "bicycle-support",
+      "sourceUrl": "./public_life/bicycle_support.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "nationalParks",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": "#15803d",
+              "fill-opacity": 0.275
+            },
+            "light": {
+              "fill-color": "#15803d",
+              "fill-opacity": 0.275
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#22c55e",
+              "line-opacity": 0.5,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                12,
+                2.2
+              ]
+            },
+            "light": {
+              "line-color": "#22c55e",
+              "line-opacity": 0.5,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                12,
+                2.2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 4,
+        "sourceLayer": "national_parks"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "national-parks",
+      "sourceUrl": "./public_life/national_parks.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "visitorCentres",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#6366f1",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#6366f1",
+              "circle-opacity": 0.23800000000000002,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                5,
+                5.4,
+                12,
+                10.8
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#6366f1",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            },
+            "light": {
+              "circle-color": "#6366f1",
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.0499999999999998,
+                5,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.85,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                5,
+                0.6,
+                12,
+                1.2
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        },
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "name"
+            ],
+            [
+              "!=",
+              [
+                "get",
+                "name"
+              ],
+              ""
+            ]
+          ],
+          "layout": {
+            "text-field": [
+              "get",
+              "name"
+            ],
+            "text-font": [
+              "DIN Pro Medium",
+              "Arial Unicode MS Regular"
+            ],
+            "text-max-width": 14,
+            "text-optional": true,
+            "text-radial-offset": 0.8,
+            "text-size": [
+              "interpolate",
+              [
+                "linear"
+              ],
+              [
+                "zoom"
+              ],
+              12,
+              10,
+              16,
+              13
+            ],
+            "text-variable-anchor": [
+              "top",
+              "bottom",
+              "left",
+              "right"
+            ]
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "text-color": "#f8fafc",
+              "text-halo-color": "rgba(15,23,42,0.92)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            },
+            "light": {
+              "text-color": "#0f172a",
+              "text-halo-color": "rgba(255,255,255,0.94)",
+              "text-halo-width": 1.25,
+              "text-opacity": 0.85
+            }
+          },
+          "suffix": "label",
+          "type": "symbol"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle",
+        "label"
+      ],
+      "sourceId": "visitor-centres",
+      "sourceUrl": "./public_life/visitor_centres.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "publicLifeOsmCoverage",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "observed_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#e2e8f0",
+                1,
+                "#bfdbfe",
+                5,
+                "#60a5fa",
+                15,
+                "#1d4ed8"
+              ],
+              "fill-opacity": 0.55
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "coalesce",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "observed_count"
+                    ]
+                  ],
+                  0
+                ],
+                "#e2e8f0",
+                1,
+                "#bfdbfe",
+                5,
+                "#60a5fa",
+                15,
+                "#1d4ed8"
+              ],
+              "fill-opacity": 0.55
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "#2563eb",
+              "line-opacity": 0.44000000000000006,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.2,
+                12,
+                0.8
+              ]
+            },
+            "light": {
+              "line-color": "#2563eb",
+              "line-opacity": 0.44000000000000006,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.2,
+                12,
+                0.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 11,
+        "minzoom": 5,
+        "sourceLayer": "public_life_osm_coverage"
+      },
+      "rebuildOnParamChange": [
+        "fill",
+        "outline"
+      ],
+      "sourceId": "public-life-osm-coverage",
+      "sourceUrl": "./public_life/public_life_osm_coverage.pmtiles"
     }
   ],
   "params": {
@@ -61370,6 +63435,88 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.95
+      }
+    ],
+    "accessibleParkFacilities": [
+      {
+        "label": "設施類型",
+        "options": [
+          {
+            "label": "其他無障礙 POI",
+            "value": "accessible_poi"
+          },
+          {
+            "label": "路徑",
+            "value": "path"
+          },
+          {
+            "label": "公廁",
+            "value": "toilet"
+          },
+          {
+            "label": "公園",
+            "value": "park"
+          },
+          {
+            "label": "出入口",
+            "value": "entrance"
+          },
+          {
+            "label": "遊戲場",
+            "value": "playground"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "accessible_poi",
+          "path",
+          "toilet",
+          "park",
+          "entrance",
+          "playground"
+        ]
+      },
+      {
+        "label": "無障礙狀態",
+        "options": [
+          {
+            "label": "可無障礙使用",
+            "value": "yes"
+          },
+          {
+            "label": "部分可使用",
+            "value": "limited"
+          },
+          {
+            "label": "不可無障礙使用",
+            "value": "no"
+          },
+          {
+            "label": "未標註／未知",
+            "value": "unknown"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "yes",
+          "limited",
+          "no",
+          "unknown"
+        ]
+      },
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "accidentTaipei": [
@@ -62687,6 +64834,55 @@
         "value": 0.85
       }
     ],
+    "bicycleSupport": [
+      {
+        "label": "補給服務",
+        "options": [
+          {
+            "label": "維修",
+            "value": "repair"
+          },
+          {
+            "label": "打氣",
+            "value": "air"
+          },
+          {
+            "label": "停車",
+            "value": "parking"
+          },
+          {
+            "label": "飲水",
+            "value": "water"
+          },
+          {
+            "label": "公廁",
+            "value": "toilet"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "repair",
+          "air",
+          "parking",
+          "water",
+          "toilet"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "bikeStations": [
       {
         "label": "Bike 1.0",
@@ -62754,7 +64950,15 @@
         "value": "all"
       }
     ],
-    "bridgeRainThresholds": [],
+    "bridgeRainThresholds": [
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      }
+    ],
     "buildingsGba": [
       {
         "label": "顯示模式",
@@ -64509,6 +66713,81 @@
         "max": 1,
         "min": 0.1,
         "step": 0.05,
+        "value": 1
+      }
+    ],
+    "disasterShelters": [
+      {
+        "label": "適用災害",
+        "options": [
+          {
+            "label": "水災",
+            "value": "水災"
+          },
+          {
+            "label": "震災",
+            "value": "震災"
+          },
+          {
+            "label": "土石流",
+            "value": "土石流"
+          },
+          {
+            "label": "海嘯",
+            "value": "海嘯"
+          },
+          {
+            "label": "核子事故",
+            "value": "核子事故"
+          },
+          {
+            "label": "坡地災害",
+            "value": "坡地災害"
+          },
+          {
+            "label": "未註明",
+            "value": "__unspecified__"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "水災",
+          "震災",
+          "土石流",
+          "海嘯",
+          "核子事故",
+          "坡地災害",
+          "__unspecified__"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "drinkingWaterPoints": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
         "value": 1
       }
     ],
@@ -68013,6 +70292,65 @@
         "value": 0.65
       }
     ],
+    "materialRecyclingPoints": [
+      {
+        "label": "回收材質",
+        "options": [
+          {
+            "label": "紙類／紙容器",
+            "value": "paper"
+          },
+          {
+            "label": "塑膠／寶特瓶",
+            "value": "plastic"
+          },
+          {
+            "label": "玻璃",
+            "value": "glass"
+          },
+          {
+            "label": "金屬／鐵鋁罐",
+            "value": "metal"
+          },
+          {
+            "label": "衣物／鞋類",
+            "value": "clothing"
+          },
+          {
+            "label": "電池／電子電器",
+            "value": "electronics"
+          },
+          {
+            "label": "廢油／綠色廢棄物",
+            "value": "organic"
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "paper",
+          "plastic",
+          "glass",
+          "metal",
+          "clothing",
+          "electronics",
+          "organic"
+        ]
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
     "medAED": [
       {
         "label": "透明度 0.90",
@@ -68177,6 +70515,15 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "nationalParks": [
+      {
+        "label": "透明度 0.50",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.5
       }
     ],
     "newsEvents": [
@@ -69003,6 +71350,22 @@
         "label": "待核實",
         "type": "toggle",
         "value": false
+      }
+    ],
+    "playgrounds": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "policeIsoCityDept": [
@@ -70122,13 +72485,101 @@
         "value": 1
       }
     ],
+    "publicLifeOsmCoverage": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
     "publicToilets": [
+      {
+        "label": "場所類別",
+        "options": [
+          {
+            "label": "商業營業場所",
+            "value": "商業營業場所"
+          },
+          {
+            "label": "民眾洽公場所",
+            "value": "民眾洽公場所"
+          },
+          {
+            "label": "社福／集會場所",
+            "value": "社福機構、集會場所"
+          },
+          {
+            "label": "公園",
+            "value": "公園"
+          },
+          {
+            "label": "交通場站",
+            "value": "交通"
+          },
+          {
+            "label": "文化育樂場所",
+            "value": "文化育樂活動場所"
+          },
+          {
+            "label": "宗教禮儀場所",
+            "value": "宗教禮儀場所"
+          },
+          {
+            "label": "觀光／風景區",
+            "value": "觀光地區及風景區"
+          },
+          {
+            "label": "休閒娛樂場所",
+            "value": "休閒娛樂場所"
+          },
+          {
+            "label": "其他",
+            "value": "其他"
+          },
+          {
+            "label": "未分類",
+            "value": ""
+          }
+        ],
+        "type": "multiSelect",
+        "value": [
+          "商業營業場所",
+          "民眾洽公場所",
+          "社福機構、集會場所",
+          "公園",
+          "交通",
+          "文化育樂活動場所",
+          "宗教禮儀場所",
+          "觀光地區及風景區",
+          "休閒娛樂場所",
+          "其他",
+          ""
+        ]
+      },
       {
         "label": "透明度 0.75",
         "max": 1,
         "min": 0.1,
         "step": 0.05,
         "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "publicWasteBaskets": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       },
       {
         "label": "大小 1.0",
@@ -75364,6 +77815,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.65
+      }
+    ],
+    "visitorCentres": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "wasteCleaningSquads": [],

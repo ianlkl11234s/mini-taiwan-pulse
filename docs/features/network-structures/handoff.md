@@ -36,7 +36,9 @@
 
 ## 2026-09-24 本地交通設施擴充
 
-上游 `taipei-gis-analytics` 隔離分支 `codex/transport-facilities-data-20260923`：橋梁資料
+上游 [Analytics PR #102](https://github.com/ianlkl11234s/taipei-gis-analytics/pull/102)
+已以一般 merge commit `a96ae0267cb7eadd5719e6a6bf1ddeb25557ae22` 合併；隔離分支
+`codex/transport-facilities-data-20260923`：橋梁資料
 `f70ce086`、隧道 `b9029812`、彰化號誌 `b60308fc`、盤點與瀏覽器驗收紀錄 `5b295bac`。
 資料契約分見上游 `docs/handoff/network-structures.md`、
 `docs/data-catalog/transportation/tunnels.md`、
@@ -53,6 +55,8 @@
 
 圖磚在隔離 worktree 的 `public/network_structures/`，該目錄依 `.gitignore` 留待 S3 發布，
 **不隨 Git commit 轉移**。五層已在本機 `127.0.0.1:4179` 實際繪製並點選 popup；
-尚未上傳圖磚、push、merge 或部署，其他 checkout 與正式站不能據此宣稱有這五層資料。
+截至 2026-09-25，五份正式站圖磚 URL 都是 HTTP 404；圖磚尚未上傳或部署，
+前端分支合併前須依本表 SHA-256 對五個 `deploy-assets/network_structures/` 物件做完整 readback；
+部署後再確認正式站 Range 206。其他 checkout 與正式站目前不能據此宣稱有這五層資料。
 臺南檢測列數不是橋座數，新竹兩端是近似軸線，隧道只畫官方登錄點，彰化號誌沒有即時燈態。
 `bridgeRainThresholds` 是既有測站資料的環境條件試點，不能解讀為橋梁檢測或安全判斷。

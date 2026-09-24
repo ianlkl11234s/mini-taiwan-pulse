@@ -528,6 +528,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "共享運具",
         layers: [
           fromManifest("youbikeFullness"),
+          fromManifest("bicycleSupport"),
         ],
       },
       {
@@ -726,6 +727,17 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("welfareCenters"),
           fromManifest("retailMarkets"),
           fromManifest("publicToilets"),
+          fromManifest("drinkingWaterPoints"),
+          fromManifest("publicWasteBaskets"),
+          fromManifest("materialRecyclingPoints"),
+          fromManifest("disasterShelters"),
+          fromManifest("publicLifeOsmCoverage"),
+        ],
+      },
+      {
+        title: "無障礙 Accessibility",
+        layers: [
+          fromManifest("accessibleParkFacilities"),
         ],
       },
     ],
@@ -937,6 +949,7 @@ const THEME_CATALOG: ThemeDef[] = [
         title: "公園 Parks",
         layers: [
           fromManifest("parksTaipei"),
+          fromManifest("playgrounds"),
         ],
       },
     ],
@@ -1046,6 +1059,8 @@ const THEME_CATALOG: ThemeDef[] = [
           fromManifest("tourHotSprings"),
           fromManifest("tourHotSpringZones"),
           fromManifest("tourScenicAreas"),
+          fromManifest("nationalParks"),
+          fromManifest("visitorCentres"),
         ],
       },
       {
@@ -2050,6 +2065,13 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
   "facOffshore", "osmPowerPlantsStatic", "powerPlants",
   // 日本水資源：靜態 PMTiles 只經 owner-authenticated Range API，不存在公開資產 URL。
+  "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
+  "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
+]);
+
+/** 授權或再散布條件尚未驗證：所有帳號均 fail-closed，不可用 owner gate 取代授權。 */
+export const RELEASE_HOLD_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
+  "historicalFlightTrails", "jpHistoricalFlightTrails",
   "jpWaterDams", "jpWaterRivers", "jpWaterSupplyFacilities", "jpWaterSupplyAreas",
   "jpWaterSewerFacilities", "jpWaterGroundwaterSites", "jpWaterNilimDams", "jpWaterAgriculturalPonds",
 ]);

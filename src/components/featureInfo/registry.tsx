@@ -149,6 +149,7 @@ import {
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
+import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -195,6 +196,16 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
+  drinkingWaterPoints: PublicLifeOsmPanel,
+  publicWasteBaskets: PublicLifeOsmPanel,
+  materialRecyclingPoints: PublicLifeOsmPanel,
+  disasterShelters: DisasterShelterPanel,
+  playgrounds: PublicLifeOsmPanel,
+  accessibleParkFacilities: AccessibleParkFacilitiesPanel,
+  bicycleSupport: PublicLifeOsmPanel,
+  nationalParks: NationalParkPanel,
+  visitorCentres: PublicLifeOsmPanel,
+  publicLifeOsmCoverage: PublicLifeOsmCoveragePanel,
   weatherStation: WeatherStationPanel,
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
@@ -593,6 +604,16 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
+  drinkingWaterPoints: "飲水點",
+  publicWasteBaskets: "公共垃圾桶",
+  materialRecyclingPoints: "資源回收點",
+  disasterShelters: "預定收容處所",
+  playgrounds: "遊戲場",
+  accessibleParkFacilities: "無障礙設施探索",
+  bicycleSupport: "自行車支援設施",
+  nationalParks: "國家公園",
+  visitorCentres: "遊客中心",
+  publicLifeOsmCoverage: "公共生活 OSM 映射密度",
   weatherStation: "氣象站",
   bikeStation: "公共自行車站",
   busStation: "公車站",

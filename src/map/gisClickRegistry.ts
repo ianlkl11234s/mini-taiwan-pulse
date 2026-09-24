@@ -45,6 +45,16 @@ import { MARINE_OBSERVATION_CLICK_LAYERS } from "../hooks/useMarineObservationLa
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+  { layers: ["drinking-water-points-circle", "drinking-water-points-glow"], type: "drinkingWaterPoints" },
+  { layers: ["public-waste-baskets-circle", "public-waste-baskets-glow"], type: "publicWasteBaskets" },
+  { layers: ["material-recycling-points-circle", "material-recycling-points-glow"], type: "materialRecyclingPoints" },
+  { layers: ["disaster-shelters-circle", "disaster-shelters-glow"], type: "disasterShelters" },
+  { layers: ["playgrounds-circle", "playgrounds-glow"], type: "playgrounds" },
+  { layers: ["accessible-park-facilities-circle", "accessible-park-facilities-glow"], type: "accessibleParkFacilities" },
+  { layers: ["bicycle-support-circle", "bicycle-support-glow"], type: "bicycleSupport" },
+  { layers: ["visitor-centres-circle", "visitor-centres-glow"], type: "visitorCentres" },
+  { layers: ["national-parks-fill", "national-parks-outline"], type: "nationalParks" },
+  { layers: ["public-life-osm-coverage-fill", "public-life-osm-coverage-outline"], type: "publicLifeOsmCoverage" },
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
   // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
   //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
