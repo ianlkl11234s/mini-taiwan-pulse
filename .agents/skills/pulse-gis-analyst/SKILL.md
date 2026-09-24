@@ -45,6 +45,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 - 附近／距離：`query_records → spatial_query → get_data_quality → get_analysis_result`
 - 地圖中心行政區：讀取同版行政統計面後，用 `spatial_query(predicate="contains_center", areaResultId, center)`；display scope 不能當作 actual Point。邊界線上的點要保留未唯一匹配，不猜行政區。
 - 點落在哪些面：`query point/area → spatial_query(within|intersects) → get_data_quality → get_analysis_result`
+- 有界環域／面交集／度量：live schema 提供時使用 `spatial_query` 的 `line_buffer`、`surface_intersection`、`measure_geometry`；完整單一 eligible feature、半徑 1–500m，方法與預算見 [分析配方](references/analysis-recipes.md#有界幾何分析)。新 derived 面可接點位 within/intersects；環域不是可及性。
 - 完整線與面相交：`query line/area → spatial_query(predicate="line_intersects", lineResultId, areaResultId)`；只使用 declared actual EPSG:4326 LineString/MultiLineString，保留完整路徑、holes、multipart與邊界接觸。遇計算預算上限先縮小已知source範圍，不可改用端點、中心點或擅自簡化。
 - 地震背景：`cwa-earthquake-replay-events` 使用 `parameters.eventId`，或互斥的 `occurredAfter`＋`occurredBefore`（含時區 ISO、左閉右開、最長七天）。時間窗最多接受 50 筆；來源第 51 筆是密度 sentinel，超過即縮小時間窗，不靜默截斷。震央與周邊設施另查，不把相近設施稱為受災設施。發生時間、取得時間與背景年份分開；來源未提供更新／撤回狀態，unknown freshness 不可宣稱即時。
 - 道路事件：`tdx-road-events-current` 必填 allowlisted `source`；用 `parameters.eventType` 與 `unexpiredOnly`（預設 true）在既有 RPC 縮小資料。未到期不等於正在發生：空到期與未來生效仍可能返回；以 `lifecycle_status` 區分 active/scheduled/expired/unknown。`filters.event_type` 與時間 filters 是取得後篩選，不能避開來源 51 筆密度拒絕；遇 dense 不可只調小 limit 或反覆重試；既有 RPC 先 LIMIT，不能在外層新增 filter 後宣稱完整。exact-ID/updated-window SQL 草案尚未上線，不可呼叫假定可用的新 RPC。取得時間不等於來源更新，current 缺席不等於撤回；source geometry 尚不可做距離/相交。
@@ -62,7 +63,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 每次計算前確認：分析單位是否一致、join key 是否唯一、geometry role 是否合格、時間與 coverage 是否相容。`missing`、`suppressed`、`zero`、`stale`、`closed` 不互換；來源紀錄數不自動等於獨立設施、人數或服務能力。
 
-直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；已驗證 Valhalla receipt 的 derived 等時圈可作面輸入；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。未註冊的 buffer／clip／area／length、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
+直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；已驗證 Valhalla receipt 的 derived 等時圈及有界幾何工具產生的 eligible derived 面可作面輸入；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。僅能使用 live schema 宣告的有界 buffer／intersection／measure；任意批次 clip、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
 
 行政統計須先核對 values 的 `boundary_version`、level、immutable boundary manifest 與 `area_code` join；這只證明行政代碼可連接，不證明 geometry 是原始精度。公開統計邊界目前標為 generalized，只能呈現及按代碼做數值比較，不能用於點歸屬或線面交叉。空間分析須另外使用已驗證原始 bytes、CRS 與精度的 eligible 邊界；即使 boundary_version 同名也不可略過 SHA 與 geometry gate。每個結果同時保留 values 與 boundary 兩份 receipt；boundary 有但 observation 缺席的行政區仍保留為 `missing`，不可從地圖消失或補零。
 

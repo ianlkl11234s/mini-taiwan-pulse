@@ -1,5 +1,7 @@
 # V01／V02 首片實作與驗收
 
+> 最新狀態入口：[能力與邊界審查](./capability-review-20260924.md)。MCP 新 predicate/bindings 已於 2026-09-24 native 確認；下列舊 host gate 是歷史紀錄，不需據此再次重載。
+
 2026-09-24。使用者已授權首片；沿 research-streamline 隔離 mini/mcp/gateway。本片本地提交，未 push、PR、merge、部署或擴大 provider 呼叫。V01/V02 仍 in_progress。
 
 ## 已完成

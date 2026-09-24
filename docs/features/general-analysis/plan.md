@@ -1,6 +1,6 @@
 # 通用地方分析計畫與驗收關卡
 
-更新：2026-09-23。計畫 SSOT；後續 session 先讀本檔，不另起競爭 roadmap。
+更新：2026-09-24。計畫 SSOT；後續 session 先讀本檔，不另起競爭 roadmap。
 
 ## 不變的目標
 
@@ -212,7 +212,7 @@ Google/Valhalla 只傳送本輪公開測試地標；不使用使用者私人位�
 |---|---|---|---|
 | V01 | reload恢復、plan refs與精簡摘要、pending/partial | 正常對話全鏈、無錯誤ID／原樣重試、G01整題量測 | in_progress |
 | V02 | 跨主題Point與合格Line/Polygon讀取契約 | 8–12候選qualification；至少三條代表資料路徑；不合格保留HOLD | in_progress |
-| V03 | 有界line buffer、clip/intersection與measure | V02合格幾何＋精度/CRS/預算；獨立oracle＋native地圖 | in_progress；native核心正例通過，125.5m特定路線拒絕／圖例待修 |
+| V03 | 有界line buffer、clip/intersection與measure | V02合格幾何＋精度/CRS/預算；獨立oracle＋native地圖 | in_progress；native核心及125.5m修復／173.25m變體通過，完整視覺與泛化仍open |
 | V04 | 單一起點步行等時圈＋設施coverage | V02設施；既有provider資格／consent／版本；未連通與no-data分列 | proposed |
 | V05 | 好讀說明書、按需skill配方與產品驗收 | 四工作流；深淺／寬窄／取景／legend/popup；工程與使用者驗收分列 | proposed |
 
@@ -223,3 +223,17 @@ V01/V02可並行；V05文稿與視覺從首片納入；G01/G02未完成門檻不
 首片實作與native證據見 [V01/V02首片驗收](./acceptance-V01-V02-slice1-20260924.md)：reload同session恢復通過，兩個新地點數字oracle一致；MCP新binding僅本地通過、host待載入；面板展開取景error與20warm仍未解。V02完成11候選qualification，尚無新增reader。
 
 2026-09-24 第二／三片見 [驗收與接續步驟](./acceptance-V02-V03-20260924.md)：V02既有Point／Line／raw Polygon三路已在正常native鏈查詢、空間分析、同圖呈現5features，獨立oracle一致。修正面查詢預設receipt超限，完整幾何仍留browser。V03新增有界線環域、面交集與度量，使用lazy browser engine、來源與預算守門；獨立GEOS比較通過。當前Codex host實測仍拒絕新predicate，故V03 native／新地點變體／完整可讀性未過，不得標done。G01的20warm/cold及G02完整視覺矩陣仍未完成。
+
+
+## R01–R04 能力審查後收斂（2026-09-24）
+
+使用者授權補缺口、盤點完成能力／邊界／重複操作，並更新下一步。閱讀入口：[能力審查](./capability-review-20260924.md)。本節為最新狀態，取代上方歷史host待重載敘述；V01–V03未全驗收不改done。
+
+| Gate | 本片／下一步 | 完成判準 | 狀態 |
+|---|---|---|---|
+| R01 | V03拒絕根因、legend來源名、配對文案、skill/Jev一致性與文件收斂 | 有界修復、獨立拓樸證據、unit/typecheck、正常native＋browser；精確commit | 本輪有界修補通過；Jev僅mock/build，全面驗收留R02 |
+| R02 | G01 20題完整問答與G02三類視覺矩陣 | 換地點/措辭/半徑，cold另列、失敗與重試記錄；寬窄/深淺/面板/互動/手動鏡頭，normalized popup | 下一優先；既有9步工具链不是20題SLA |
+| R03 | V02第二獨立主題Polygon與合格設施來源 | 從11候選補source契約，oracle與native；不符資格保留HOLD | 待來源資格，不承諾任意資料 |
+| R04 | V04單起點步行coverage＋V05四工作流說明 | graph/provider/consent、設施分母與no-data、完整地圖證據 | 尚未實作完整流程；不得擴大付費呼叫 |
+
+整合順序：先各隔離repo原子commit與本地build → 比對原checkout的平行skill/local-stack改動 → 檢查MCP/Gateway/frontend契約相容 → 使用者另授權後才整合或發布。本輪不push/PR/merge/部署。非變更檔案不重跑整包測試。

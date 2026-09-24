@@ -25,7 +25,7 @@
 
 1. 分別 describe，確認 grain、coverage、time/version、key type 與 null semantics。
 2. 分別 query 並取得 resultId；不要先用中文 label 猜 join。
-3. 確認 key cardinality。缺 key、版本不相容、many-to-many 不明或需未支援 point-in-polygon 時停止。
+3. 確認 key cardinality。缺 key、版本不相容、many-to-many 不明或需尚未通過資格的空間匹配 時停止。
 4. `join_records` 使用已驗證 key；檢查 unmatched 與 row expansion。
 5. `calculate_metric` 明確 numerator/denominator；分母為零或 null 不得產生普通數字。
 6. quality/result paging/receipt。
@@ -45,3 +45,17 @@
 2. 若有正式 result presentation tool，呈現後等待 ready 並 readback。
 3. 若只有 `set_layers`，只能說完整來源圖層已開啟；不可聲稱只顯示 resultId 的篩選結果。
 4. fit bounds 是取景，不是過濾或資料完整性證據。
+
+
+## 有界幾何分析
+
+以 live schema 為準：`query_records → line_buffer → surface_intersection → measure_geometry → get_result_bounds` 可合成一個 plan。只執行問題需要的步驟，不為取得已存在的 summary 再做 measure/get_analysis_result；品質資訊不足時才另查 quality/evidence。
+
+- 每個輸入必須是完整單一 actual/derived、spatialAnalysisEligible feature；`limit=1` 不會把多筆材料截成單筆。
+- `line_buffer(resultId, radiusM)` 接 LineString/MultiLineString，半徑 1–500m 可小數。Turf local AEQD、round 16 arc steps；不是路網或步行服務區。
+- `surface_intersection(leftResultId, rightResultId)` 接面；只輸出有面積部分，線／點接觸回空面不能解讀為完全不接觸。
+- `measure_geometry(resultId)` 接線或面，球面估計 m／m²，無可顯示 geometry，不具工程測量精度。
+- 本島 envelope [119.5,21.8,122.1,25.5]、合計輸入最多 1600 頂點／0.5° span、輸出最多 8000 頂點／1MiB；拓樸與來源追蹤另有預算。以實際錯誤停止，不自行簡化或修補。
+- 用 descriptor/來源 feature 名稱辨識輸入，回報來源精度、時間未知、完整覆蓋與排除；derived 不提升原始資料精度。面可續接既有點位 within/intersects。
+- partial plan 只續未完成步驟；geometry/budget 錯誤不得原樣重試。重新載入導致 result 遺失時才重取必要來源。
+- 有結果才 collection+framing、wait、map_context；空交集據實報告，不把 measure 的無 geometry 當地圖失敗。
