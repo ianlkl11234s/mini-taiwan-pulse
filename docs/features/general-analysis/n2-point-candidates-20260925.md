@@ -2,7 +2,7 @@
 
 本輪從 `analysis-coverage-20260925.json` 的 118 個 `metadata_candidate_requires_readback` 候選出發，依 `src/data/layerManifest.ts` 的 `source.url` 去重，只讀已存在的 `public/` GeoJSON；沒有下載、沒有掃描超過必要檔案。JSON 以 `features` 的 geometry type 做實讀，不能把副檔名當成 geometry 證據。以下 15 個是較可行的純 Point 試點（bytes／feature 數為本地檔案當下值）。
 
-接入前基線為 118 個 metadata 候選；首批接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳為 115 個。再接入海纜登陸站 11 個 node 與 47 個 center 的同源雙 descriptor（見 [專用紀錄](./n2-landing-stations-20260925.md)）後為 114 個；心理衛生機構只接 63 筆來源自帶座標（見 [專用紀錄](./n2-mental-health-20260925.md)）後為 113 個；溫泉露頭 150 筆接入後為 112 個；公部門社福據點只接 133 筆來源自帶座標後為 111 個；公有市場自上游處理檔另建 TGOS-only sidecar 後為 110 個；政府服務機關同版 TGOS-only sidecar 後為 109 個；既有文化設施來源座標 dataset 綁定圖層後為 108 個；福利中心同版處理檔建來源 TGOS-only sidecar 後最新台帳為 107 候選、83 registered datasets／75 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
+接入前基線為 118 個 metadata 候選；首批接入 2 份 proxy 資料及 1 份燈塔來源座標後，當日台帳為 115 個。再接入海纜登陸站 11 個 node 與 47 個 center 的同源雙 descriptor（見 [專用紀錄](./n2-landing-stations-20260925.md)）後為 114 個；心理衛生機構只接 63 筆來源自帶座標（見 [專用紀錄](./n2-mental-health-20260925.md)）後為 113 個；溫泉露頭 150 筆接入後為 112 個；公部門社福據點只接 133 筆來源自帶座標後為 111 個；公有市場自上游處理檔另建 TGOS-only sidecar 後為 110 個；政府服務機關同版 TGOS-only sidecar 後為 109 個；既有文化設施來源座標 dataset 綁定圖層後為 108 個；福利中心同版處理檔建來源 TGOS-only sidecar 後為 107 個；既有郵局來源座標 dataset 綁圖層後最新台帳為 106 候選、83 registered datasets／76 queryable layer refs。這是本地 descriptor 與固定資產 readback，不代表遠端資料新鮮或網站已驗收。
 
 | layer key | asset（manifest source URL） | bytes / features | geometry | source／時間／授權證據 | 既有 reader | 阻擋項 |
 |---|---|---:|---|---|---|---|
@@ -21,6 +21,8 @@
 | `govServiceOffices` | `public/civic_facilities/gov_service_offices_national.geojson` | 145,656 / 702 | 702 Point | manifest entry 2536；[官方 38403](https://data.gov.tw/dataset/38403) 明列 OGDL；上游原始 707／processed 702 | 已從同版 processed 建 462 筆 TGOS-only sidecar 與 actual reader | 239 Google L1＋1 offline 未接；另 5 無座標。地址級非入口、2026-07-17 非現況；另一來源 `jurisdiction` 已排除 |
 | `retailMarkets` | `public/poi/public_retail_markets_national.geojson` | 132,357 / 731 | 731 Point | manifest entry 2662；[官方 59855](https://data.gov.tw/dataset/59855) 明列 OGDL；上游 processed 731／原始 789 | 已從同版 processed 建 653 筆 TGOS-only sidecar 與 actual reader | 70 筆 Google L1＋8 筆 offline 未接，另 58 筆無座標；來源鄉鎮 48 筆空字串；不代表目前開市 |
 | `culturalFacilities` | `public/culture/cultural_facilities_national.geojson` | 204,963 / 787 | 787 Point | manifest entry 1169；文化部 10046／OGDL；原始 1,170 另有 383 無座標 | 已有固定 SHA／787 筆來源座標 dataset，已綁 `culturalFacilities` | 來源座標未另驗證入口／測量精度；與 `culturalMuseums` 名稱有 8 筆重疊，不能逕合併 |
+
+表外另有 `postOffices`：既有 `tw-post-offices-source-coordinates` reader 的 1,278 筆資產 SHA 與 manifest 展示檔相同；本輪補上 layer mapping，沒有另造資料。來源 CSV 自帶經緯度，[官方 5950](https://data.gov.tw/dataset/5950) 明列 OGDL，官方更新頻率為不定期；2026-07-17 是本地取得日，服務旗標不能推論此刻營業。
 
 共同結論：這些檔案都能通過本地 JSON／geometry readback，但副檔名與 Point 型別都不能證明座標是實際位置。前兩份已完成 proxy descriptor 接線，依來源文字欄位查詢與計數，距離／bbox 明確拒絕；燈塔依直接來源座標接 actual adapter，可用 bbox／nearest，但不代表設施即時狀態。表內尚未完成 layer mapping 的項目仍依各列阻擋項處理，不可宣稱 production-ready。`officialNoiseMonitoring`（415 Point + 11 null）與 `soundCameraLocations`（267 Point + 66 null）刻意排除；混合 geometry 不列入純 Point 候選。
 
