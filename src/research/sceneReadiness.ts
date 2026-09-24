@@ -89,3 +89,28 @@ export function waitForSceneRender(
     cancel: () => finish("error"),
   };
 }
+
+/** Wait through a style replacement without retrying analysis or accepting stale work. */
+export function waitForMapStyle(map: {
+  isStyleLoaded(): boolean;
+  on(type: "style.load" | "remove", callback: () => void): unknown;
+  off(type: "style.load" | "remove", callback: () => void): unknown;
+}, isCurrent: () => boolean, timeoutMs = 5_000): Promise<boolean> {
+  if (!isCurrent()) return Promise.resolve(false);
+  if (map.isStyleLoaded()) return Promise.resolve(true);
+  return new Promise(resolve => {
+    let settled = false;
+    const finish = (ready: boolean) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      map.off("style.load", loaded); map.off("remove", removed);
+      resolve(ready && isCurrent());
+    };
+    const loaded = () => { if (map.isStyleLoaded()) finish(true); };
+    const removed = () => finish(false);
+    const timer = setTimeout(() => finish(false), timeoutMs);
+    map.on("style.load", loaded); map.on("remove", removed);
+    loaded();
+  });
+}

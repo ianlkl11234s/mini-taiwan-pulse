@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { awaitSceneIdle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
+import { awaitSceneIdle, waitForMapStyle, waitForLayoutFrame, waitForSceneRender, type IdleMap } from "../sceneReadiness";
 import { loadingRegistry } from "../../lib/loadingRegistry";
 
 class MapEvents implements IdleMap {
@@ -71,5 +71,34 @@ describe("research readiness", () => {
   it("does not wait forever for hidden-document layout frames", async () => {
     vi.stubGlobal("document", { visibilityState: "hidden" });
     await expect(waitForLayoutFrame()).resolves.toBe(false);
+  });
+});
+
+
+describe("style replacement", () => {
+  it("waits for the new style and removes listeners", async () => {
+    const events = new MapEvents(); let loaded = false;
+    const map = Object.assign(events, { isStyleLoaded: () => loaded });
+    const wait = waitForMapStyle(map, () => true);
+    events.emit("style.load");
+    loaded = true; events.emit("style.load");
+    await expect(wait).resolves.toBe(true);
+    expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+  });
+  it("does not revive work superseded while loading", async () => {
+    const events = new MapEvents(); let current = true; let loaded = false;
+    const wait = waitForMapStyle(Object.assign(events, { isStyleLoaded: () => loaded }), () => current);
+    current = false; loaded = true; events.emit("style.load");
+    await expect(wait).resolves.toBe(false);
+  });
+  it("ends on timeout or map removal without reporting success", async () => {
+    vi.useFakeTimers();
+    for (const removed of [false, true]) {
+      const events = new MapEvents();
+      const wait = waitForMapStyle(Object.assign(events, { isStyleLoaded: () => false }), () => true, 100);
+      if (removed) events.emit("remove"); else await vi.advanceTimersByTimeAsync(100);
+      await expect(wait).resolves.toBe(false);
+      expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
+    }
   });
 });

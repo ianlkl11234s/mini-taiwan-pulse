@@ -29,7 +29,7 @@ import { describeDataset, ensureDataset, searchDatasets } from "./researchDatase
 import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./datasetLayerStatistics";
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
-import { waitForLayoutFrame, waitForSceneRender } from "./sceneReadiness";
+import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
 import { analysisResultLayerIds, describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
@@ -146,7 +146,12 @@ export function MainMapConnection(props: Props) {
   }, [capture]);
   const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
     const { bridge, map, labels, locked } = latest.current;
-    if (!map || !map.isStyleLoaded()) throw new Error("MAP_NOT_READY");
+    if (!map) throw new Error("MAP_NOT_READY");
+    const run = ++generation.current;
+    if (!await waitForMapStyle(map, () => run === generation.current && latest.current.map === map)) {
+      if (run !== generation.current) return "error";
+      throw new Error("MAP_NOT_READY");
+    }
     if (scene.resultMode !== "empty" || scene.nearby != null || scene.focus != null) throw new Error("MAP_EXPLORATION_ONLY");
     // Pairing must never reset the user's camera or visible layers.
     if (revision === 0) {
@@ -163,7 +168,6 @@ export function MainMapConnection(props: Props) {
     const availableResults = describeAnalysisResults(allAnalysisResults);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
-    const run = ++generation.current;
     let movement: Promise<boolean> = Promise.resolve(true);
     setActivity({ phase: "presenting", title: "正在同步地圖" });
     applying.current = true;
@@ -525,6 +529,7 @@ export function MainMapConnection(props: Props) {
             <div className="agent-analysis-row-main">
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
               <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
+                {rendered?.numericLegend && <div className="agent-analysis-count-legend"><span>{rendered.numericLegend.label} · {rendered.numericLegend.method === "single_value" ? "單一數值" : "本次結果等距分級"}</span><div>{rendered.numericLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
                 {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
