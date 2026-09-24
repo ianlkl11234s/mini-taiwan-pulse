@@ -44,6 +44,14 @@ function sourceKinds(source) {
   return [...new Set((Array.isArray(source) ? source : [source]).map(item => item.kind))].sort();
 }
 
+function declaredAssets(source) {
+  return (Array.isArray(source) ? source : [source]).flatMap(item => {
+    if (item.kind === "custom") return (item.staticAssets ?? []).map(path => ({ kind: item.kind, path }));
+    if (item.kind === "supabase") return item.fallbackUrl ? [{ kind: item.kind, path: item.fallbackUrl }] : [];
+    return [{ kind: item.kind, path: item.url }];
+  });
+}
+
 function descriptorSummary(descriptor) {
   return {
     datasetId: descriptor.datasetId,
@@ -73,11 +81,15 @@ function layerCapability(key) {
   const queryable = descriptors.filter(item => item.access.query.enabled);
   const analyzable = descriptors.filter(item => item.access.query.enabled && item.supportedOperations.length > 0);
   const onDemandGeojson = descriptors.length === 0 && describeRegisteredLayer(key) !== null;
+  const analysisPath = queryable.length > 0 ? "registered_adapter" : onDemandGeojson ? "bounded_geojson_point_readback" : "source_family_contract_required";
   return {
     layerKey: key,
     label: entry.section === null ? key : entry.label,
     dataClass: entry.dataClass,
     sourceKinds: sourceKinds(entry.source),
+    declaredAssets: declaredAssets(entry.source),
+    analysisPath,
+    blocker: queryable.length > 0 ? null : onDemandGeojson ? "SOURCE_READBACK_AND_POINT_SEMANTICS_UNVERIFIED" : descriptors.length > 0 ? "QUERY_ACCESS_DISABLED" : "NO_QUERY_DESCRIPTOR_OR_READER",
     discoverable: true,
     datasetIds: descriptors.map(item => item.datasetId).sort(),
     readable: queryable.length > 0 ? "registered" : onDemandGeojson ? "metadata_candidate_requires_readback" : "unknown_or_unavailable",
