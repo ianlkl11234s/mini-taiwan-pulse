@@ -93,8 +93,8 @@ export function waitForSceneRender(
 /** Wait through a style replacement without retrying analysis or accepting stale work. */
 export function waitForMapStyle(map: {
   isStyleLoaded(): boolean;
-  on(type: "style.load" | "remove", callback: () => void): unknown;
-  off(type: "style.load" | "remove", callback: () => void): unknown;
+  on(type: "style.load" | "render" | "remove", callback: () => void): unknown;
+  off(type: "style.load" | "render" | "remove", callback: () => void): unknown;
 }, isCurrent: () => boolean, timeoutMs = 5_000): Promise<boolean> {
   if (!isCurrent()) return Promise.resolve(false);
   if (map.isStyleLoaded()) return Promise.resolve(true);
@@ -104,13 +104,13 @@ export function waitForMapStyle(map: {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      map.off("style.load", loaded); map.off("remove", removed);
+      map.off("style.load", loaded); map.off("render", loaded); map.off("remove", removed);
       resolve(ready && isCurrent());
     };
     const loaded = () => { if (map.isStyleLoaded()) finish(true); };
     const removed = () => finish(false);
     const timer = setTimeout(() => finish(false), timeoutMs);
-    map.on("style.load", loaded); map.on("remove", removed);
+    map.on("style.load", loaded); map.on("render", loaded); map.on("remove", removed);
     loaded();
   });
 }

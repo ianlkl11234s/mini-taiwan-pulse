@@ -81,7 +81,7 @@ describe("style replacement", () => {
     const map = Object.assign(events, { isStyleLoaded: () => loaded });
     const wait = waitForMapStyle(map, () => true);
     events.emit("style.load");
-    loaded = true; events.emit("style.load");
+    loaded = true; events.emit("render");
     await expect(wait).resolves.toBe(true);
     expect([...events.listeners.values()].every(set => set.size === 0)).toBe(true);
   });
