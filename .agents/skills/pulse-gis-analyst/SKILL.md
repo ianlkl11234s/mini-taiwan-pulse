@@ -7,6 +7,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 把使用者問題轉成最短、可驗證的 Pulse 分析鏈。先回答「資料能否支持這個問題」，再計算；搜尋結果、資料可讀性、分析資格、資料新鮮度與地圖 ready 是不同證據。
 
+配對後首次引導、自然追問、追加圖層與定位選擇，按需讀 [對話與探索](references/conversation-guide.md)。使用者已指定問題就直接執行，不先列固定示範題。
+
 ## 1. 先路由，再動工具
 
 先辨識問題所需的資料與方法；已知的有界相依步驟可一次交給 `pulse_run_analysis_plan`，不用每步重新決策：
@@ -26,7 +28,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。只有問題含糊、無法判斷資料家族時，才選用一次 `pulse_route_request`；已知附近設施／行政統計等方法時可直接執行。 Jev 只提供 capability 與候選，不執行、不授權；低信心、provider error 或候選不合法時，立即退回上述 deterministic 路由，同一題不得再次呼叫 Jev。
 
-地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。預設 local-first；只有使用者明示選擇外部 provider、同意外傳，且 `pulse_get_provider_capabilities` 回報 provider ready 時才可送出地址。`disabled`／`hold` receipt 表示沒有外部請求或替代結果，不得當成 `no_match`。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
+地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。預設 local-first；已明示選擇外部 provider 並同意外傳時，依 capability 直接使用指定 provider，避免先等待離線查詢。相同範圍授權持續有效，每次外部呼叫仍帶 externalConsent:true。Google 的 configured 不等於已通過 Mapbox 顯示政策；政策與候選精度見對話 reference。`disabled`／`hold` receipt 表示沒有外部請求或替代結果，不得當成 `no_match`。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
 
 需要理解 Jev 的自適應層級、fallback 與 receipt 時，讀 [Jev 加速器](references/jev-accelerator.md)。
 
