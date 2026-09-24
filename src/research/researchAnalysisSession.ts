@@ -17,12 +17,14 @@ export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" 
  * source.
  */
 export const RESULT_COLLECTION_LIMITS = {
-  // Presentation stays smaller than the session store so analysis can retain
-  // bounded intermediate results without evicting an eight-layer collection.
+  // This shared scene budget admits the measured 22-county raw boundary
+  // (332,091 vertices / 14,719,725 serialized source bytes). It raises the
+  // browser work and memory possible for one scene; it neither simplifies the
+  // source geometry nor reduces result-store/cache bytes.
   maxLogicalResults: 8,
   maxFeatures: 10_000,
-  maxVertices: 100_000,
-  maxBytes: 8 * 1024 * 1024,
+  maxVertices: 400_000,
+  maxBytes: 24 * 1024 * 1024,
 } as const;
 
 type Position = [number, number];
@@ -34,12 +36,16 @@ function isPosition(value: unknown): value is Position {
 
 function samePosition(left: Position, right: Position): boolean { return left[0] === right[0] && left[1] === right[1]; }
 
+function appendPositions(target: Position[], source: readonly Position[]): void {
+  for (const position of source) target.push(position);
+}
+
 function polygonPositions(value: unknown): Position[] | null {
   if (!Array.isArray(value) || !value.length) return null;
   const positions: Position[] = [];
   for (const ring of value) {
     if (!Array.isArray(ring) || ring.length < 4 || !ring.every(isPosition) || !samePosition(ring[0]!, ring[ring.length - 1]!)) return null;
-    positions.push(...ring);
+    appendPositions(positions, ring);
   }
   return positions;
 }
@@ -64,7 +70,7 @@ function geometryPositions(value: unknown, expectedType: SupportedPresentationGe
   for (const polygon of geometry.coordinates) {
     const polygonVertices = polygonPositions(polygon);
     if (!polygonVertices) return null;
-    positions.push(...polygonVertices);
+    appendPositions(positions, polygonVertices);
   }
   return positions;
 }
@@ -74,7 +80,7 @@ export function presentationMetrics(rows: readonly Record<string, unknown>[], ty
   for (const row of rows) {
     const vertices = geometryPositions(row.geometry, type);
     if (!vertices) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
-    positions.push(...vertices);
+    appendPositions(positions, vertices);
   }
   return { featureCount: rows.length, vertexCount: positions.length, bytes: new TextEncoder().encode(JSON.stringify(rows)).byteLength, positions };
 }
@@ -482,10 +488,13 @@ export class ResearchAnalysisSession {
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
     const results = this.presentable(resultIds);
     const metrics = results.map(result => presentationMetrics(result.rows, result.geometry.type as SupportedPresentationGeometry));
-    const positions = metrics.flatMap(metric => metric.positions);
-    if (!positions.length) throw new Error("RESULT_HAS_NO_MAP_GEOMETRY");
-    const lngs = positions.map(position => position[0]); const lats = positions.map(position => position[1]);
-    return { bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)], pointCount: results.filter(result => result.geometry.type === "Point").reduce((n, result) => n + result.rows.length, 0), featureCount: metrics.reduce((n, metric) => n + metric.featureCount, 0), vertexCount: metrics.reduce((n, metric) => n + metric.vertexCount, 0) };
+    let minLongitude = Infinity; let minLatitude = Infinity; let maxLongitude = -Infinity; let maxLatitude = -Infinity;
+    for (const metric of metrics) for (const [longitude, latitude] of metric.positions) {
+      minLongitude = Math.min(minLongitude, longitude); minLatitude = Math.min(minLatitude, latitude);
+      maxLongitude = Math.max(maxLongitude, longitude); maxLatitude = Math.max(maxLatitude, latitude);
+    }
+    if (minLongitude === Infinity) throw new Error("RESULT_HAS_NO_MAP_GEOMETRY");
+    return { bounds: [minLongitude, minLatitude, maxLongitude, maxLatitude], pointCount: results.filter(result => result.geometry.type === "Point").reduce((n, result) => n + result.rows.length, 0), featureCount: metrics.reduce((n, metric) => n + metric.featureCount, 0), vertexCount: metrics.reduce((n, metric) => n + metric.vertexCount, 0) };
   }
 
   private getPage(resultId: string, offset?: unknown, limit?: unknown): Record<string, unknown> {

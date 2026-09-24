@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { assertResultCollectionBudget, presentationMetrics, ResearchAnalysisSession } from "../researchAnalysisSession";
@@ -60,6 +61,32 @@ describe("research analysis session", () => {
   it("rejects a result collection above its feature budget", () => {
     const metrics = presentationMetrics(Array.from({ length: 10_001 }, (_, index) => ({ geometry: { type: "Point", coordinates: [121.5 + index / 1_000_000, 25] } })), "Point");
     expect(() => assertResultCollectionBudget([metrics])).toThrow("RESULT_COLLECTION_FEATURE_LIMIT");
+  });
+
+  it.runIf(process.env.RUN_RAW_BOUNDARY_INTEGRATION === "1")("presents all 22 raw counties with source and comparison values intact", async () => {
+    const raw = new URL("../../../../../../../taipei-gis-analytics/data/processed/demographics/county_boundary/county_boundary_20260626.geojson", import.meta.url);
+    const sourceBytes = await readFile(raw);
+    const source = JSON.parse(new TextDecoder().decode(sourceBytes)) as { features: Array<{ properties: { 行政區域代碼: string }; geometry: Record<string, unknown> }> };
+    const vertexCount = (value: unknown): number => Array.isArray(value) ? (typeof value[0] === "number" ? 1 : value.reduce((sum, item) => sum + vertexCount(item), 0)) : 0;
+    expect(source.features).toHaveLength(22);
+    expect(sourceBytes.byteLength).toBe(14_719_725);
+    expect(source.features.reduce((sum, feature) => sum + vertexCount(feature.geometry.coordinates), 0)).toBe(332_091);
+
+    const session = new ResearchAnalysisSession();
+    const resultId = "raw-county-22-comparison";
+    const sourceRef = { sourceId: "county-boundary", version: "COUNTY_MOI_1140318", acquiredAt: "2026-09-23T00:00:00Z", checksumSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6", reference: "local-preview://county-boundary" };
+    const rows = source.features.map((feature, index) => ({ area_code: feature.properties.行政區域代碼, status: "observed", comparison_status: "valid", value: 1_000 + index, normalizedValue: 10 + index / 10, geometry: feature.geometry }));
+    (session as unknown as { store: { put: (value: object) => void } }).store.put({
+      resultId, datasetId: "statistics:county-comparison", recordGrain: "metric", geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true }, rows,
+      sourceRefs: [sourceRef], coverage: "22 county-level observations; raw COUNTY_MOI_1140318 boundaries.", freshness: "current", units: { value: "persons", normalizedValue: "persons per 1000 persons" },
+      lineage: { sourceContract: { datasetId: "statistics:county-comparison", boundaryVersion: "COUNTY_MOI_1140318" } },
+    });
+
+    const presented = session.presentable([resultId]);
+    expect(presented[0]?.rows).toHaveLength(22);
+    expect(presented[0]?.rows.map(row => row.value)).toEqual(rows.map(row => row.value));
+    expect(session.bounds([resultId])).toMatchObject({ featureCount: 22, vertexCount: 332_091, bounds: [114.35928247200002, 10.371347663000051, 124.56115802500004, 26.38527526200005] });
+    expect(session.execute("get_analysis_result", { resultId, limit: 50 })).toMatchObject({ totalRows: 22, sourceRefs: [sourceRef], rows: expect.arrayContaining([expect.objectContaining({ area_code: rows[0]?.area_code, value: 1_000, normalizedValue: 10 })]) });
   });
 
   it("dispatches generic point-to-area joins and area aggregation by result id", () => {
