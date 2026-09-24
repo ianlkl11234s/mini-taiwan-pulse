@@ -50,4 +50,6 @@
 
 10. **玉山山屋圖層映射**：獨立 reader 已固定 136 筆混合資產中 30 筆 `yushan_np_shp` 官方座標、排除 106 筆 OSM；`mountainHuts` 展示層仍顯示 136 筆。先不把 30 筆 reader 直接綁至混合圖層，否則圖層開關與分析集合不一致。manifest 的 OSM 126 是跨源去重前輸入，20 筆跨源命中後剩 106 筆獨立 OSM；需在文字上講清 136 筆實體的計數口徑；如要映射先做官方子集專用顯示／filter 及 map readback。
 
+11. **下一個 Point 候選 gate**：`stationsTRA`／`stationsMetro` 共用 503 筆 Point 展示檔，不能把 TRA 212 筆、捷運／輕軌 291 筆混成一個分析族；本地 SHA `a705b15f…ca802` 已查，但上游來源版本、授權與擷取日尚未對齊，維持 HOLD。其他就地可核對的未知 GeoJSON 候選 `airports`、`ports`、`stationsTHSR`、`waterReservoirs` 是面或混合資料，不可套 Point reader；`bikeStations` 本地宣告檔缺失，須先取回具 SHA 的資產與來源契約。105 個 metadata candidates 不等於 105 個本地可讀 Point 檔。此輪沒有下一個可安全接入的 Point 小片，先保留來源補料入口。
+
 下一輪按台帳逐批接來源，不為數字降低 gate；每批保留 exact source/version、缺值與 geometry role、可重跑的反例、新地點工具鏈與原子 commit。
