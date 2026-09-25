@@ -9,10 +9,169 @@ import { describeRegisteredLayer } from "../../src/research/registeredLayerReade
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const DEFAULT_AUDIT_DATE = "2026-09-23";
 const DEFAULT_OUTPUT_BASE = "docs/features/general-analysis/capability-audit-20260923";
+const VERIFIED_RAW_FAMILIES = {
+  "business_registry:company_stock:202608": {
+    sourceArtifact: "taipei-gis-analytics/data/processed/business_registry/company_stock/company_stock_202608.csv",
+    sourceArtifactRole: "canonical processed assembly; upstream raw is a 118-file regional CSV matrix, not one company_stock raw CSV",
+    evidence: [
+      "taipei-gis-analytics/data/processed/business_registry/company_points/company_points_202608_r2_qa.json",
+      "taipei-gis-analytics/data/processed/business_registry/company_capital_grid/company_capital_grid_202608_r2_qa.json",
+      "taipei-gis-analytics/data/processed/business_registry/manufacturing_company_points/manufacturing_company_points_202608_r2_qa.json",
+    ],
+    sourceVersion: "202608",
+    publisher: "經濟部商業發展署 GCIS",
+    license: "OGDL-Taiwan-1.0",
+    observedAt: "2026-08 snapshot",
+    acquiredAt: null,
+    acquiredAtAvailability: "not recorded in the inspected QA receipts; 2026-08-18 is processed release date, not asserted raw acquisition time",
+    coverageAndMissingness: "657,882 source rows; 1,152 dead_or_abnormal and 2,565 invalid-coordinate rows excluded; 654,165 published. capital_total missing 2,435; setup_year missing 16. Manufacturing exact-C: 186,054 source, 1,110 invalid-coordinate, 184,944 published.",
+    geometry: "company_points is EPSG:4326 Point; company_capital_grid is EPSG:4326 Polygon at 150m/450m/1500m; manufacturing is an exact-C filter view over company_points.",
+    sourceSha256: "c3a191b234e718dc7b5ca4a9b5c599c279b1fefc9e2d1d606e5722c3eb4e900c",
+  },
+  "nlsc:county_boundary:COUNTY_MOI_1140318": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/demographics/county_boundary/COUNTY_MOI_1140318.zip",
+    evidence: [
+      "taipei-gis-analytics/docs/data-catalog/demographics/county_boundary.md",
+      "taipei-gis-analytics/data/processed/demographics/county_boundary/_manifest.json",
+    ],
+    sourceVersion: "COUNTY_MOI_1140318",
+    publisher: "內政部國土測繪中心 (NLSC)",
+    license: "政府資料開放授權條款-第1版",
+    observedAt: "2025-03-18 snapshot",
+    acquiredAt: null,
+    acquiredAtAvailability: "not recorded in inspected manifest/catalog; 2026-06-26 is catalog update date, not asserted raw acquisition time",
+    coverageAndMissingness: "22 county MultiPolygon features; null-field and null-geometry rates were not recorded in the inspected manifest.",
+    geometry: "MultiPolygon, EPSG:4326; source GML lacked CRS metadata and pipeline assigns EPSG:4326.",
+    sourceSha256: null,
+  },
+  "moa:forest_roads:datagov-38213": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/forestry/forest_roads/",
+    evidence: [
+      "taipei-gis-analytics/docs/data-catalog/forestry/forest_roads.md",
+      "taipei-gis-analytics/data/processed/forestry/forest_roads/_manifest.json",
+      "taipei-gis-analytics/data/processed/forestry/forest_roads/_verification.json",
+    ],
+    sourceVersion: "not supplied by the inspected local receipt",
+    publisher: "林業及自然保育署",
+    license: "政府資料開放授權條款-第1版",
+    observedAt: null,
+    acquiredAt: null,
+    acquiredAtAvailability: "not recorded; catalog says 2026-06-07 night ingest while processed manifest says last_updated 2026-05-19, so neither is asserted as source observation/acquisition time",
+    coverageAndMissingness: "107 records; verification reports all 107 as LineString. Field-level null rates were not recorded in the inspected receipt.",
+    geometry: "LineString, EPSG:4326 in processed GeoJSON; source wrapper to SHP UTF-8.",
+    sourceSha256: null,
+    localDisplayReceipt: "P2 2026-09-25 rebuild: analytics raw SHA-256 68f261…1f16 rebuilt with exact metadata/tippecanoe options and exactly matched original-checkout forest_roads.pmtiles SHA-256 68bfbdb3…67cc. This proves local raw-to-display identity only; runtime release was not read.",
+  },
+};
+const VERIFIED_RAW_FAMILY_BY_LAYER = {
+  companyPoints: "business_registry:company_stock:202608",
+  manufacturingCompanyPoints: "business_registry:company_stock:202608",
+  companyCapitalGrid: "business_registry:company_stock:202608",
+  countyBoundary: "nlsc:county_boundary:COUNTY_MOI_1140318",
+  forestRoads: "moa:forest_roads:datagov-38213",
+};
+const DISPLAY_RAW_ALIGNMENT_BY_LAYER = {
+  companyPoints: {
+    status: "LINEAGE_VERIFIED_LOCAL_RELEASE",
+    evidence: "company_points and both declared company_capital_grid r2 artifacts have matching 202608 processed QA/manifest lineage to company_stock_202608.csv; mini remote release is not read in this audit.",
+  },
+  companyCapitalGrid: {
+    status: "LINEAGE_VERIFIED_LOCAL_RELEASE",
+    evidence: "all three declared r2 grid artifacts are recorded in the 202608 processed manifest/QA and reconcile to company_stock_202608.csv; mini remote release is not read in this audit.",
+  },
+  manufacturingCompanyPoints: {
+    status: "DISPLAY_ARTIFACT_RECEIPT_MISSING",
+    evidence: "analytics r2 receipt names shared company_points detail/overview artifacts, while this manifest declares manufacturing_company_points_202608_allzoom.pmtiles; no inspected receipt proves that display artifact is the same release.",
+  },
+  countyBoundary: {
+    status: "DISPLAY_ARTIFACT_RECEIPT_MISSING",
+    evidence: "analytics catalog/processed lineage proves COUNTY_MOI_1140318 raw-to-local output, but the inspected local manifest records no SHA tying mini base_map/county_boundary.pmtiles to that output.",
+  },
+  forestRoads: {
+    status: "LOCAL_RAW_TO_DISPLAY_PROVEN",
+    evidence: "P2 2026-09-25 rebuilt from analytics raw SHA-256 68f261…1f16 using exact metadata/tippecanoe options and matched original-checkout forest_roads.pmtiles SHA-256 68bfbdb3…67cc. Runtime release was not read.",
+  },
+};
+const VERIFIED_RAW_FAMILY_BY_DATASET = {
+  gas_stations: "taiwan:gas_stations:20260615",
+  dgbas_county_transport_supply_10935: "dgbas:county_transport_supply:2023-2024",
+  jp_water_ksj: "mlit:ksj_water:inspected-20260918",
+  network_performance_grid: "ookla:network_performance:2026q1",
+  all_venues: "sports:all_venues:20260704",
+  segis_taipei_bicycle_usage_township_110: "segis:3792EA_1D2:2021",
+  schools: "moe:schools:113-academic-year",
+};
+Object.assign(VERIFIED_RAW_FAMILIES, {
+  "taiwan:gas_stations:20260615": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/energy/gas_stations/", evidence: ["taipei-gis-analytics/data/processed/energy/gas_stations/_manifest.json", "taipei-gis-analytics/docs/data-catalog/energy/gas_stations.md"],
+    sourceVersion: "20260615", publisher: "台灣中油與臺中市政府 data.gov.tw sources", license: "OGDL-Taiwan-1.0",
+    observedAt: null, acquiredAt: null, acquiredAtAvailability: "not recorded in inspected manifest/catalog",
+    coverageAndMissingness: "660 government source records deduplicated to 573 coordinate-valid Point features; not a full national all-brand census.", geometry: "Point, EPSG:4326; records lacking coordinates are omitted.", sourceSha256: null,
+  },
+  "dgbas:county_transport_supply:2023-2024": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/transportation/dgbas_county_transport_supply/", evidence: ["taipei-gis-analytics/data/processed/transportation/dgbas_county_transport_supply/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/dgbas_county_transport_supply_10935.md"],
+    sourceVersion: "2023-2024", publisher: "行政院主計總處", license: "政府資料開放授權條款-第1版",
+    observedAt: "annual source periods", acquiredAt: null, acquiredAtAvailability: "not recorded in inspected manifest/catalog",
+    coverageAndMissingness: "12 immutable releases, six indicators and 22 county values per release; missing is not zero.", geometry: "None; COUNTY_MOI_1140318 is identity reference, not historical native geometry.", sourceSha256: null,
+  },
+  "mlit:ksj_water:inspected-20260918": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/world/jp_water_ksj/receipt.csv", evidence: ["taipei-gis-analytics/data/processed/world/jp_water_ksj/_manifest.json", "taipei-gis-analytics/docs/data-catalog/world/jp_water_ksj.md"],
+    sourceVersion: "per W01/W05/W09/P21/P22 shard", publisher: "日本國土數值情報 (MLIT)", license: "W09 commercial candidate; other inspected old terms are non-commercial/re-distribution hold",
+    observedAt: "W09 2005; W01 2014; other shards per source file", acquiredAt: null, acquiredAtAvailability: "receipt.csv has per-file retrieval time; no single family acquisition time",
+    coverageAndMissingness: "47 W05 shards; 286,437 stream records include 1 null geometry and 15 invalid non-null geometries retained locally; source roles remain separate.", geometry: "mixed/Point/Polygon by source; geometry_role retained.", sourceSha256: null,
+  },
+  "ookla:network_performance:2026q1": {
+    sourceArtifact: ["taipei-gis-analytics/data/raw/infrastructure/network_performance_grid/2026Q1_fixed_tiles.parquet", "taipei-gis-analytics/data/raw/infrastructure/network_performance_grid/2026Q1_mobile_tiles.parquet"], evidence: ["taipei-gis-analytics/data/processed/infrastructure/network_performance_grid/_manifest.json", "taipei-gis-analytics/docs/data-catalog/infrastructure/network_performance_grid.md"],
+    sourceVersion: "2026-Q1", publisher: "Ookla Open Data", license: "CC BY-NC-SA 4.0",
+    observedAt: "2026-Q1", acquiredAt: "2026-08-25T12:00:00Z",
+    acquiredAtAvailability: "recorded in catalog", coverageAndMissingness: "measured tests only; empty cells are not coverage absence and Taiwan bbox includes Fujian coast cells.", geometry: "Web Mercator source z16 tiles aggregated to EPSG:4326 Polygon grids.", sourceSha256: null,
+  },
+  "sports:all_venues:20260704": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/sports/all_venues/22849_all_venues_20260704.csv", evidence: ["taipei-gis-analytics/docs/data-catalog/sports/all_venues.md", "taipei-gis-analytics/data/processed/sports/all_venues/_manifest.json"],
+    sourceVersion: "20260704", publisher: "運動部", license: "OGDL-Taiwan-1.0",
+    observedAt: "current snapshot", acquiredAt: null, acquiredAtAvailability: "not recorded in inspected manifest/catalog",
+    coverageAndMissingness: "15,001 raw rows; one bad coordinate excluded, 15,000 Point features across 22 counties.", geometry: "Point, EPSG:4326.", sourceSha256: null,
+  },
+  "segis:3792EA_1D2:2021": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/transportation/segis_taipei_bicycle_usage_township_110/", evidence: ["taipei-gis-analytics/data/processed/transportation/segis_taipei_bicycle_usage_township_110/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/segis_taipei_bicycle_usage_township_110.md"],
+    sourceVersion: "ROC 110 (2021)", publisher: "臺北市政府主計處 via SEGIS", license: "not recorded in inspected manifest/catalog",
+    observedAt: "2021", acquiredAt: "2026-09-06T16:04:52Z", acquiredAtAvailability: "recorded in catalog",
+    coverageAndMissingness: "12 Taipei townships, five retained fields; C2/C4 all-zero questionable fields and C8 ratio excluded, Taipei-external areas out of coverage.", geometry: "None; township_reference_20260626_v1 used for identity only.", sourceSha256: "ad18a1819e69e53a070b63def2d49cdd633fad5e8aaff16eb165bd3baee2dd68",
+  },
+  "moe:schools:113-academic-year": {
+    sourceArtifact: "taipei-gis-analytics/data/raw/education/schools/113學年度各級學校名錄(含經緯度) 20250814.xlsx", evidence: ["taipei-gis-analytics/docs/data-catalog/education/schools.md", "taipei-gis-analytics/data/processed/education/schools/_manifest.json"],
+    sourceVersion: "113 academic year / 20250814 export", publisher: "教育部統計處 EduGis", license: "unverified; do not assume OGDL",
+    observedAt: "113 academic year", acquiredAt: null, acquiredAtAvailability: "not recorded in inspected manifest/catalog",
+    coverageAndMissingness: "4,315 raw and processed rows, direct mapping; historic iChef output had 4,268 filtered rows and is not equivalent.", geometry: "Point from source longitude/latitude; invalid/missing geometry rates not recorded in inspected manifest.", sourceSha256: null,
+  },
+});
+const INSPECTED_UPSTREAM_DATASETS = {
+  celestrak_satellites: { status: "EVIDENCE_GAP", reason: "catalog describes live TLE feed, but no immutable raw snapshot/release receipt was found in this pass" },
+  land_use_township_statistics: { status: "EVIDENCE_GAP", reason: "processed manifest exists but this checkout has no immutable raw/release receipt and no recorded license" },
+  education_county_statistics: { status: "EVIDENCE_GAP", reason: "processed releases exist but the claimed raw receipt directory is absent from this checkout" },
+  waste_facilities: { status: "EVIDENCE_GAP", reason: "catalog states processed 66-row file may be out of sync with Supabase; no authoritative same-version receipt" },
+  gas_stations: { status: "VERIFIED_RAW_LINEAGE", familyKey: "taiwan:gas_stations:20260615" },
+  livestock_farms: { status: "EVIDENCE_GAP", reason: "mixed ARIS/NLSC/EMS/Google geometry provenance and no inspected processed manifest/immutable receipt in this pass" },
+  dgbas_county_transport_supply_10935: { status: "VERIFIED_RAW_LINEAGE", familyKey: "dgbas:county_transport_supply:2023-2024" },
+  jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
+  jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
+  osm_power: { status: "EVIDENCE_GAP", reason: "catalog found but no inspected immutable raw/release receipt in this pass" },
+  pollution_source: { status: "EVIDENCE_GAP", reason: "catalog staging path exists but no inspected immutable raw/release receipt in this pass" },
+  real_estate: { status: "EVIDENCE_GAP", reason: "multiple partial quarterly sources; no single release identity maps this generic dataset ID" },
+  schools: { status: "RIGHTS_HOLD", familyKey: "moe:schools:113-academic-year", reason: "raw lineage is verified but catalog explicitly leaves EduGis license unconfirmed" },
+  all_venues: { status: "VERIFIED_RAW_LINEAGE", familyKey: "sports:all_venues:20260704" },
+  jp_medical_navii: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
+  ncdr_alerts: { status: "EVIDENCE_GAP", reason: "realtime DB collector has no bounded immutable raw/release receipt" },
+  segis_taipei_bicycle_usage_township_110: { status: "RIGHTS_HOLD", familyKey: "segis:3792EA_1D2:2021", reason: "raw lineage/version is verified but inspected catalog/manifest does not record a license" },
+  crop_township_statistics: { status: "EVIDENCE_GAP", reason: "catalog names a per-page raw receipt, but it is absent from this checkout" },
+  network_performance_grid: { status: "RIGHTS_HOLD", familyKey: "ookla:network_performance:2026q1", reason: "raw lineage is verified but CC BY-NC-SA 4.0 requires non-commercial/attribution clearance" },
+  network_structures: { status: "EVIDENCE_GAP", reason: "processed bundle mixes distinct Geofabrik OSM PBF, NTPC official CSV, and NLSC boundary inputs; no single raw-family receipt is present in this checkout" },
+};
 
 function options(argv) {
   let date = DEFAULT_AUDIT_DATE;
   let outputBase = null;
+  let familyLedgerBase = null;
   for (let index = 0; index < argv.length; index += 1) {
     const option = argv[index];
     const value = argv[index + 1];
@@ -24,8 +183,12 @@ function options(argv) {
       if (!value) throw new Error("MISSING_OUTPUT_BASE");
       outputBase = value;
       index += 1;
+    } else if (option === "--family-ledger-base") {
+      if (!value) throw new Error("MISSING_FAMILY_LEDGER_BASE");
+      familyLedgerBase = value;
+      index += 1;
     } else if (option === "--help") {
-      console.log("Usage: npx vite-node --script scripts/research/capability-audit.mjs [--date YYYY-MM-DD] [--output-base path-without-extension]");
+      console.log("Usage: npx vite-node --script scripts/research/capability-audit.mjs [--date YYYY-MM-DD] [--output-base path-without-extension] [--family-ledger-base path-without-extension]");
       process.exit(0);
     } else {
       throw new Error(`UNKNOWN_OPTION:${option}`);
@@ -34,6 +197,7 @@ function options(argv) {
   return {
     date,
     outputBase: resolve(root, outputBase ?? DEFAULT_OUTPUT_BASE),
+    familyLedgerBase: familyLedgerBase === null ? null : resolve(root, familyLedgerBase),
   };
 }
 
@@ -75,6 +239,16 @@ function descriptorSummary(descriptor) {
   };
 }
 
+function manifestSourceContract(source) {
+  return (Array.isArray(source) ? source : [source]).map(item => ({
+    kind: item.kind,
+    sourceId: item.sourceId ?? null,
+    declaredAssets: item.kind === "custom"
+      ? [...(item.staticAssets ?? [])]
+      : [item.kind === "supabase" ? item.fallbackUrl : item.url].filter(Boolean),
+  }));
+}
+
 function layerCapability(key) {
   const entry = LAYER_MANIFEST[key];
   const descriptors = registeredDatasetsForLayer(key);
@@ -88,6 +262,13 @@ function layerCapability(key) {
     dataClass: entry.dataClass,
     sourceKinds: sourceKinds(entry.source),
     declaredAssets: declaredAssets(entry.source),
+    manifestSourceContract: manifestSourceContract(entry.source),
+    upstream: entry.upstream === undefined ? null : {
+      status: entry.upstream.status,
+      datasetIds: (entry.upstream.datasets ?? []).map(item => item.datasetId).sort(),
+      processing: entry.upstream.processing ?? null,
+      note: entry.upstream.note ?? null,
+    },
     analysisPath,
     blocker: queryable.length > 0 ? null : onDemandGeojson ? "SOURCE_READBACK_AND_POINT_SEMANTICS_UNVERIFIED" : descriptors.length > 0 ? "QUERY_ACCESS_DISABLED" : "NO_QUERY_DESCRIPTOR_OR_READER",
     discoverable: true,
@@ -162,6 +343,172 @@ const report = {
   layers,
 };
 
+function explicitRightsHold(layer) {
+  const text = [layer.upstream?.status, layer.upstream?.processing, layer.upstream?.note]
+    .filter(Boolean)
+    .join(" ");
+  return /(?:NON_COMMERCIAL|LICENSE_UNVERIFIED|HOLD_LICENSE|RIGHTS_HOLD|owner-only)/i.test(text);
+}
+
+function familyEvidence(layer) {
+  const contracts = layer.manifestSourceContract;
+  const hasRuntimeOnlySource = contracts.some(item => item.kind === "supabase");
+  const assets = contracts.flatMap(item => item.declaredAssets.map(path => ({ kind: item.kind, path })))
+    .filter(item => item.path.startsWith("./"))
+    .sort((a, b) => `${a.kind}:${a.path}`.localeCompare(`${b.kind}:${b.path}`));
+  if (hasRuntimeOnlySource || assets.length === 0) {
+    return {
+      familyKey: `unresolved:no-declared-artifact:${layer.layerKey}`,
+      sourceArtifact: null,
+      evidence: hasRuntimeOnlySource
+        ? "manifest supplies only a Supabase loader fallback; it names neither the bounded RPC nor an immutable raw/release receipt"
+        : "manifest has no concrete asset, RPC name, or immutable release receipt for this layer",
+    };
+  }
+  const sourceIds = contracts.map(item => item.sourceId).filter(Boolean).sort();
+  const assetKey = assets.map(item => `${item.kind}:${item.path}`).join("|");
+  return {
+    familyKey: `manifest-asset:${assetKey}`,
+    sourceArtifact: assets,
+    evidence: `exact manifest asset declaration${sourceIds.length > 0 ? `; sourceId ${sourceIds.join(", ")}` : ""}; this is display-contract evidence, not a raw-table or release receipt`,
+  };
+}
+
+function p0Blocker(layer, family) {
+  if (layer.readable === "metadata_candidate_requires_readback") return {
+    status: "READER_PENDING",
+    primaryBlocker: "SOURCE_READBACK_AND_POINT_SEMANTICS_UNVERIFIED",
+    nextStep: "Read the declared GeoJSON once; record SHA, publisher/license, observed/obtained time, schema nulls, and geometry before deciding reader eligibility.",
+  };
+  if (layer.blocker === "QUERY_ACCESS_DISABLED") return {
+    status: "READER_PENDING",
+    primaryBlocker: "QUERY_ACCESS_DISABLED",
+    nextStep: "Locate the owning descriptor contract and its source/release receipt; enable only after bounded access and geometry semantics are verified.",
+  };
+  if (explicitRightsHold(layer)) return {
+    status: "RIGHTS_HOLD",
+    primaryBlocker: "RIGHTS_OR_USE_CLEARANCE_UNVERIFIED",
+    nextStep: "Obtain publisher license/use clearance and an immutable raw-artifact or release receipt before reader work.",
+  };
+  if (family.sourceArtifact === null) return {
+    status: "SOURCE_MISSING",
+    primaryBlocker: "NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT",
+    nextStep: "Find the owning raw artifact/RPC and its version, license, freshness, null policy, and geometry contract; keep this layer ungrouped until then.",
+  };
+  return {
+    status: "READER_PENDING",
+    primaryBlocker: "DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE",
+    nextStep: "Match this declared display asset to a versioned raw artifact or bounded RPC; verify license, observed/obtained time, nulls, coverage, and geometry before creating a shared reader.",
+  };
+}
+
+function p0FamilyLedger() {
+  const candidates = layers.filter(layer => layer.readable === "unknown_or_unavailable" || layer.readable === "metadata_candidate_requires_readback");
+  const entries = candidates.map(layer => {
+    const family = familyEvidence(layer);
+    const datasetInspections = (layer.upstream?.datasetIds ?? []).map(datasetId => ({ datasetId, ...(INSPECTED_UPSTREAM_DATASETS[datasetId] ?? { status: "NOT_INSPECTED" }) }));
+    const datasetFamilyKeys = [...new Set(datasetInspections.map(item => item.familyKey).filter(Boolean))];
+    const verifiedRawFamilyKey = VERIFIED_RAW_FAMILY_BY_LAYER[layer.layerKey] ?? (datasetFamilyKeys.length === 1 ? datasetFamilyKeys[0] : null);
+    const alignment = DISPLAY_RAW_ALIGNMENT_BY_LAYER[layer.layerKey] ?? null;
+    const defaultBlocker = p0Blocker(layer, family);
+    const inspectionRightsHold = datasetInspections.some(item => item.status === "RIGHTS_HOLD");
+    const blocker = inspectionRightsHold
+      ? {
+        status: "RIGHTS_HOLD",
+        primaryBlocker: "SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD",
+        nextStep: "Retain raw lineage but obtain the stated use/license clearance before reader or public-release work.",
+      }
+      : alignment?.status === "DISPLAY_ARTIFACT_RECEIPT_MISSING"
+      ? {
+        status: "VERSION_MISMATCH",
+        primaryBlocker: "DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_MISSING",
+        nextStep: "Record a matching immutable receipt (SHA/version) from the mini display asset to the verified local raw lineage before reader work.",
+      }
+      : alignment?.status === "LOCAL_RAW_TO_DISPLAY_PROVEN"
+        ? {
+          status: "READER_PENDING",
+          primaryBlocker: "READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING",
+          nextStep: "Use the proven local raw/display version to build the bounded line reader, then read the runtime release receipt before calling it spatial-ready.",
+        }
+        : alignment?.status === "LINEAGE_VERIFIED_LOCAL_RELEASE"
+          ? {
+            status: "READER_PENDING",
+            primaryBlocker: "READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING",
+            nextStep: "Use the verified local raw lineage to build the bounded reader; verify the runtime release receipt before calling this spatial-ready.",
+          }
+          : verifiedRawFamilyKey !== null
+            ? {
+              status: "VERSION_MISMATCH",
+              primaryBlocker: "DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED",
+              nextStep: "Read a matching immutable receipt for this display asset before reader work; verified raw lineage alone does not prove its mini display version.",
+            }
+      : defaultBlocker;
+    return {
+      layerKey: layer.layerKey,
+      label: layer.label,
+      candidateClass: layer.readable === "metadata_candidate_requires_readback" ? "metadata_geojson_candidate" : "unknown_or_unavailable",
+      familyKey: family.familyKey,
+      sourceArtifact: family.sourceArtifact,
+      sourceEvidence: family.evidence,
+      verifiedRawFamilyKey,
+      displayRawAlignment: alignment,
+      upstreamDatasetInspections: datasetInspections,
+      upstream: layer.upstream,
+      geometry: {
+        declared: layer.geometryKinds.length > 0 ? layer.geometryKinds : null,
+        role: layer.geometryRoles.length > 0 ? layer.geometryRoles : null,
+        verification: "unverified from source payload",
+      },
+      status: blocker.status,
+      primaryBlocker: blocker.primaryBlocker,
+      nextStep: blocker.nextStep,
+    };
+  });
+  const familyCounts = new Map();
+  for (const entry of entries) familyCounts.set(entry.familyKey, (familyCounts.get(entry.familyKey) ?? 0) + 1);
+  const verifiedRawFamilyKeys = [...new Set(entries.map(entry => entry.verifiedRawFamilyKey).filter(Boolean))].sort();
+  const inspectedDatasetEntries = Object.entries(INSPECTED_UPSTREAM_DATASETS).sort(([a], [b]) => a.localeCompare(b));
+  const csvQueueSampleLayerKeys = [
+    "a1AccidentRealtime", "agriCropSuitability", "agriculture", "agriLeisureFarmZones", "agriProduceWholesale",
+    "agriRetail", "agriRuralRegen", "agriSoil", "agriSoilFertility", "airports",
+  ];
+  const csvQueueSamples = csvQueueSampleLayerKeys.map(layerKey => {
+    const entry = entries.find(item => item.layerKey === layerKey);
+    if (entry === undefined) throw new Error(`P0_CSV_SAMPLE_MISSING:${layerKey}`);
+    return {
+      layerKey,
+      familyKey: entry.familyKey,
+      verifiedRawFamilyKey: entry.verifiedRawFamilyKey,
+      primaryBlocker: entry.primaryBlocker,
+      sourceArtifact: entry.sourceArtifact,
+    };
+  });
+  return {
+    schemaVersion: `pulse-research-p0-source-family-ledger/${auditOptions.date}`,
+    auditDate: auditOptions.date,
+    generatedBy: "scripts/research/capability-audit.mjs",
+    evidenceBoundary: "familyKey groups only exact manifest-declared display asset tuples. verifiedRawFamilyKey is separate and appears only for analytics lineage inspected in this P0 slice; it does not prove mini display-asset version alignment, remote release presence, or analysis eligibility.",
+    counts: {
+      candidateLayers: entries.length,
+      unknownOrUnavailable: entries.filter(item => item.candidateClass === "unknown_or_unavailable").length,
+      metadataGeojsonCandidates: entries.filter(item => item.candidateClass === "metadata_geojson_candidate").length,
+      sourceFamilyKeys: familyCounts.size,
+      sharedSourceFamilyKeys: [...familyCounts.values()].filter(count => count > 1).length,
+      singletonOrUnresolvedFamilyKeys: [...familyCounts.values()].filter(count => count === 1).length,
+      verifiedRawFamilyKeys: verifiedRawFamilyKeys.length,
+      entriesWithVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey !== null).length,
+      entriesWithoutVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey === null).length,
+      inspectedUpstreamDatasetIds: inspectedDatasetEntries.length,
+      inspectedUpstreamDatasetEvidenceGaps: inspectedDatasetEntries.filter(([, item]) => item.status === "EVIDENCE_GAP").length,
+    },
+    families: [...familyCounts.entries()].map(([familyKey, layerCount]) => ({ familyKey, layerCount })).sort((a, b) => a.familyKey.localeCompare(b.familyKey)),
+    verifiedRawFamilies: Object.fromEntries(verifiedRawFamilyKeys.map(key => [key, VERIFIED_RAW_FAMILIES[key]])),
+    inspectedUpstreamDatasets: Object.fromEntries(inspectedDatasetEntries),
+    csvQueueSamples,
+    entries,
+  };
+}
+
 function markdown() {
   const c = report.counts;
   const lines = [
@@ -202,4 +549,13 @@ function markdown() {
 await mkdir(dirname(outputBase), { recursive: true });
 await writeFile(`${outputBase}.json`, `${JSON.stringify(report, null, 2)}\n`);
 await writeFile(`${outputBase}.md`, markdown());
-console.log(JSON.stringify({ output: [`${outputBase}.json`, `${outputBase}.md`], counts: report.counts }, null, 2));
+const outputs = [`${outputBase}.json`, `${outputBase}.md`];
+let ledgerCounts = null;
+if (auditOptions.familyLedgerBase !== null) {
+  const ledger = p0FamilyLedger();
+  await mkdir(dirname(auditOptions.familyLedgerBase), { recursive: true });
+  await writeFile(`${auditOptions.familyLedgerBase}.json`, `${JSON.stringify(ledger, null, 2)}\n`);
+  outputs.push(`${auditOptions.familyLedgerBase}.json`);
+  ledgerCounts = ledger.counts;
+}
+console.log(JSON.stringify({ output: outputs, counts: report.counts, familyLedgerCounts: ledgerCounts }, null, 2));
