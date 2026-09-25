@@ -86,6 +86,8 @@ import { lpgSubpackagingOwnerAdapter, lpgRetailersOwnerAdapter } from "./lpgOwne
 import { wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter } from "./wasteFacilitiesOwnerDatasets";
 import { evChargingOwnerAdapter } from "./evChargingOwnerDataset";
 import { geothermalWellsOwnerAdapter } from "./geothermalWellsOwnerDataset";
+import { accidentTaipeiOwnerAdapter } from "./accidentTaipeiOwnerDataset";
+import { regulatedFacilitiesOwnerAdapter } from "./regulatedFacilitiesOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -491,6 +493,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   wasteFacilitiesScrapYardOwnerAdapter,
   evChargingOwnerAdapter,
   geothermalWellsOwnerAdapter,
+  accidentTaipeiOwnerAdapter,
+  regulatedFacilitiesOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

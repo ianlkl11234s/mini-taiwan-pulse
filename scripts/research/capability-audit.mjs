@@ -624,6 +624,24 @@ VERIFIED_RAW_FAMILIES["cpc:geothermal_wells:20260615"] = {
   geometry: "Source DMS converted to WGS84 Point and independently checked; historical well reference, not bore path or reservoir.", sourceSha256: "c5f1d58c04ba14250053aab0de7f5a30cb19bc3963db6fdf1a14bf6ba23abe15",
   localDisplayReceipt: "Owner-only safe-field sidecar SHA 39f0330f0e0971ba81d42e9014d50a0df05c866f287d4fe37d2139dc7aca1a7e, 10,888 bytes; public display version not checked.",
 };
+VERIFIED_RAW_FAMILIES["taipei:accident_a1_a2:2019-20260626"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/police_justice/accident_taipei_dots/_manifest.json", "taipei-gis-analytics/docs/data-catalog/police_justice/accident_taipei_dots.md", "mini:scripts/research/build-accident-taipei-owner-only.mjs"],
+  sourceVersion: "2019 occurrence, 2026-06-26 fixed processed snapshot", publisher: "臺北市政府資料開放平台", license: "OGDL-Taiwan-1.0; sensitive coordinates owner-only",
+  observedAt: "2019-01-01..2019-12-31", acquiredAt: null, acquiredAtAvailability: "Historic A1/A2 reported event subset, not present safety or crash rate.",
+  coverageAndMissingness: "22,918 Point; A1 83, A2 22,835; raw source completeness not established.",
+  geometry: "Historical reported crash reference Point; bbox/attribute only, no nearest or risk claim.", sourceSha256: "0640e94d1f16d857e502946e67eae2c7c40636ab160b7f8c9f433600cd206507",
+  localDisplayReceipt: "Owner-only safe-field 20 gzip shards, manifest SHA 3e934509ba2ef24a07162955f580c9cf7502677fdad0a10f3af8e6cce4f94f3f; public display version not checked.",
+};
+VERIFIED_RAW_FAMILIES["moenv:regulated_facilities:20260818"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/business_registry/regulated_facilities/regulated_facilities_20260818.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/business_registry/regulated_facilities/_manifest.json", "taipei-gis-analytics/docs/data-catalog/business_registry/regulated_facilities.md", "mini:scripts/research/build-regulated-facilities-owner-only.mjs"],
+  sourceVersion: "2026-08-18 active EMS_S_01 fixed snapshot", publisher: "環境部環境資料開放平臺", license: "OGDL-Taiwan-1.0; owner-only local sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Active at source processing time, not current regulation status.",
+  coverageAndMissingness: "451,434 raw -> 127,795 active -> 80,732 located Point (63.17%); 47,063 coordinate miss. Company join coverage 50.01% is a different denominator.",
+  geometry: "EMS source reference Point; bbox/attribute only, no nearest or pollution claim.", sourceSha256: "2cfa4bd59e050f7784d0dfcd1f571ca5d62c5cad78dd5073029363f31d45178f",
+  localDisplayReceipt: "Owner-only safe-field 325 gzip shards, manifest SHA 82dda3a0e592e9a7ac087b9153ceaa2a7a61b651246e53f8564b289f460bd811; public display version not checked.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -702,6 +720,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   wfScrapYard: "waste:facilities_osm:20260519",
   evChargingStations: "tdx:ev_charging:20260615",
   geothermalWells: "cpc:geothermal_wells:20260615",
+  accidentTaipei: "taipei:accident_a1_a2:2019-20260626",
+  regulatedFacilities: "moenv:regulated_facilities:20260818",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
