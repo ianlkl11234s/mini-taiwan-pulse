@@ -14,6 +14,7 @@
 - geometry 是營業地址（財政資訊中心）經 offline/TGOS 地理編碼的 WGS84 Point；不是工廠、入口或道路可達性。座標精度包含 cached、exact、interpolated；發佈 sidecar 未逐筆帶回精度欄。
 - 只保留公開 11 欄：公司名稱、資本額／分位、製造 flag、分類、行業、設立年、縣市與三個公開 flag。統編、地址、負責人未寫入任何 shard。
 - 118 個「區域×大類」來源家族不含金門／馬祖約 1,868 家。analytics catalog 記錄 OGDL-Taiwan-1.0 與實際 matrix IDs，但此片未逐一重驗 raw dataset license receipt；`data.gov.tw/dataset/166152` 僅是六都製造業 subset，不能當完整 657,882 母體的唯一 provenance。因此維持 `RIGHTS_HOLD`／公開接線停用。
+- analytics 原始目錄有 118 份帶 dataset ID、metadata/license、下載 SHA/bytes/rows 的 `*_202609.source.json`，但沒有 `*_202608.source.json`。這些 202609 receipt 不可倒推為本片 202608 的授權與版本證據；須找回或重建對應 118 份 202608 receipt，並對照合併 input 與發布 QA。
 
 ## 有界讀取與 oracle
 
@@ -24,4 +25,4 @@
 
 - `python3 scripts/research/test-company-point-partitions.py`：2 passed。
 - `npx vitest run src/research/__tests__/companyPointsDataset.test.ts src/research/__tests__/pointDatasetAdapter.test.ts`：15 passed（含上述 full-source oracle）。
-- `npx tsc -b`：passed。`npm run build` 尚在 Vite bundle 階段；本收據不把它當成 completed build evidence。
+- `npx tsc -b`、`npm run build`：passed。此為本機 build 證據；因 `RIGHTS_HOLD` 未接入公開 `researchDatasets`，沒有 MCP/Gateway/browser 查詢或 readback 聲稱。
