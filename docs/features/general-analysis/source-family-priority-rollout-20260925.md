@@ -483,3 +483,8 @@
 ### 第七十一批：未接 GeoJSON 候選的來源門檻
 
 - 當前逐層 ledger 尚有 12 個 metadata GeoJSON 候選，metadata 只證明圖層宣告，不能當作查詢 reader。`ripeAtlasProbes` 的 Mini 展示約 3,000 Point（SHA `651e6298…d4230f`）與 analytics manifest 13,534 processed rows 尚無原始 raw SHA／同版截取收據；RIPE Atlas 條款為 research use，座標刻意偏移約 80–400m。G1/G2 `SOURCE_VERSION_AND_RIGHTS_HOLD`，不能作實址、精確附近或完整母體。`internetExchangePoints` 同樣只有 catalog／processed manifest 與展示，沒有可核 raw bytes／rows／SHA；PCH CC BY-NC-SA 3.0 限制需另核公開與再散布。兩者維持待查，不增加查詢映射；下一步尋回 raw 取得檔與版本、建立逐層來源與權利收據，再決定 owner-only 或公開 reader。
+
+### 第七十二批：全臺六來源登山步道完整線
+
+- `hikingTrails` 原 manifest 把來源誤指向 `mountain_trail_signs`（步道路標點，供另一份 `trail_profiles` 使用），已更正為 analytics `hiking_trails`。六來源 2026-06-08 固定合併檔與 Mini 現有 GeoJSON byte-identical，7,339 條／20,659,963 bytes／SHA `0c0263b33f7561bc0b06432f6fdd1b5494c2b2978169a16f53616e68305aea9c`；林業署 345、OSM 6,563、雪霸 93、金門 20、臺北大縱走 11、新北觀光 307。各列保留 source 與 license：官方 OGDL，OSM ODbL 須標 © OpenStreetMap contributors。`name=null` 1,107、`region=null` 6,563、`main_sys=null` 6,562、`overlap_ratio_A=null` 345、`in_national_park=null` 6,218，均不補值。來源抓取時間不一，合併日非今日開放或安全狀態。
+- 7,324 LineString 包成單段 MultiLineString、15 個原 MultiLineString 保持多段，水平頂點不簡化；另存 `source_geometry_type`。本機 owner-only 265 個 gzip 分片 manifest SHA `e1506ec71627c3eff5c5ad7a2d4c8e92af0a5d617b83e4cad97043bba0badbb4`，bbox 必填且只讀命中分片，8 MiB 解壓／20,000 列預算，過寬拒絕。builder 先完整建 temporary 再替換 runtime；不新增公開檔或 Supabase/S3 負擔。獨立原面 oracle 南澳古道 `A_forest/002` 與象山永春崗步道 `B_osm/way/25214129`，正常 MCP 兩個新 bbox 各回 1；前者較長的線在工具輸出 geometry 摘要省略，後者完整多段座標回傳。象山結果 revision 24 ready/readback 1 feature／1 source／1 layer，截圖可見藍色步道線。focused/registry 11/11、tsc/build 通過。現有 PMTiles 是否同版生成仍 HOLD，不以此承諾登山導航、入口、步行距離或現場可走。Audit 778 層／238 datasets／230 可查映射／548 待處理；臺灣 GIS 381 層已登記 176、待 205。未 push、PR、merge、部署或排程重啟。

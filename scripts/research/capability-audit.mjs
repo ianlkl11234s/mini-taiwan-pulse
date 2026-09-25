@@ -926,6 +926,16 @@ VERIFIED_RAW_FAMILIES["moe:school_district_senior:115-school-year"] = {
   sourceSha256: "c8d541dc97d294717ae4d82dd29f5329e5e47fc975908f443499d6b5fdf84449",
   localDisplayReceipt: "Full owner reader asset SHA c3b4df7dee7639dfe18e89134e2dd418b1a552639e0cad51b2579071c996e339, byte-identical analytics processed; web display/Mini existing display SHA 8df98c6b47f9cc93c677e63d05e87edc506305bc5ac77d18e3eef9a83b61d287.",
 };
+VERIFIED_RAW_FAMILIES["forestry:hiking_trails:20260608-six-source"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/forestry/hiking_trails/hiking_trails.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/forestry/hiking_trails/", "taipei-gis-analytics/data/processed/forestry/hiking_trails/_manifest.json", "taipei-gis-analytics/docs/data-catalog/forestry/hiking_trails.md", "mini:public/forestry/hiking_trails.geojson", "mini:scripts/research/build-hiking-trails-owner-only.mjs", "mini:src/research/hikingTrailsOwnerDataset.ts"],
+  sourceVersion: "2026-06-08 static six-source pruned snapshot; fixed SHA", publisher: "林業及自然保育署、雪霸/金門國家公園、臺北/新北市政府、OpenStreetMap contributors", license: "A/C/D source rows OGDL-Taiwan-1.0; B_osm rows ODbL-1.0 with © OpenStreetMap contributors attribution; owner-only query",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Six upstream acquisition times vary; 2026-06-08 is fixed merge snapshot, not trail opening, safety, access or last inspection time.",
+  coverageAndMissingness: "7,339 pruned trails: A_forest 345, B_osm 6,563, C_np_sheipa 93, C_np_kinmen 20, D_taipei_grand 11, D_newtaipei 307. name null 1,107; region null 6,563; main_sys null 6,562; overlap_ratio_A null 345; in_national_park null 6,218. Non-hit is not no trail.",
+  geometry: "7,324 source LineString and 15 MultiLineString EPSG:4326 actual path vertices; single lines wrapped as one-part MultiLineString without coordinate simplification. Not navigation, access route, walking distance or current passability.",
+  sourceSha256: "0c0263b33f7561bc0b06432f6fdd1b5494c2b2978169a16f53616e68305aea9c",
+  localDisplayReceipt: "Analytics processed and Mini existing GeoJSON byte-identical 20,659,963 bytes. 265 owner-only gzip shards manifest SHA e1506ec71627c3eff5c5ad7a2d4c8e92af0a5d617b83e4cad97043bba0badbb4; PMTiles exact build receipt remains HOLD.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -1000,6 +1010,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   aquacultureCageNet: "moa:aquaculture_cage_net:local-fixed",
   speedZoneSegment: "newtaipei:speed_zone_segments:20260626",
   eduDistrictSenior: "moe:school_district_senior:115-school-year",
+  hikingTrails: "forestry:hiking_trails:20260608-six-source",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

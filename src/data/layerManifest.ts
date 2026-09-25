@@ -4178,7 +4178,7 @@ export const LAYER_MANIFEST = {
     icon: Footprints,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "mountain_trail_signs", confidence: "MED" }],
+      datasets: [{ datasetId: "hiking_trails", confidence: "HIGH" }],
     },
     dataClass: "B",
     source: {
