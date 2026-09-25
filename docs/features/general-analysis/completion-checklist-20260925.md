@@ -137,7 +137,7 @@
 
 第五十五批 [x] `medLTC`：衛福部 2026-08-11 長照特約單位，raw 24,409 筆，扣無座標 332、臺灣範圍外 183，owner-only 查詢 23,894 Point。正常 MCP 臺北 A 類 51、臺中 C 類 1，與完整原表 oracle 一致；focused/registry 12/12、`tsc -b`、build、localhost 200／外來 Host 404 通過。這與 `welfareLtcInstitutions` 3,117 筆是不同來源；即時特約、床位、附近距離、縣市比較及地圖 ready/readback [ ] HOLD。詳見[第五十五批](./source-family-priority-rollout-20260925.md)。目前 220 datasets、213 查詢映射、565 待映射層。
 
-第五十六批 [ ] HOLD：`treePitsTaipei` 是 56,720 個 MultiPolygon，非 Point。已核 raw／processed SHA 與面積、類別；原始下載端點及授權未見收據，現有通用 Point 分片器無完整 Polygon bbox 相交與跨片去重契約。不得把樹穴改成中心點假裝可查；需先補來源權利及 Polygon reader 的真實幾何測試。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。
+第五十六批 [ ] 待做：`treePitsTaipei` 是 56,720 個 MultiPolygon，非 Point。官方 data.gov.tw:134908／臺北資料大平臺資源已核 OGDL 第 1 版；2026-09-26 唯讀下載的 27,304,373 bytes 與本地 raw SHA 完全相同，來源與權利缺口已解。仍待完成 Polygon 有界 reader、跨片去重及原面相交驗收；不得把樹穴改成中心點假裝可查。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。
 
 
 第五十七批 [ ] 待做：`powerPoles` 上游 manifest 記 22 縣市、2,959,326 Point，台電 2026-06-15 快照；Mini 現有 PMTiles 是 cluster/drop 展示，不是逐筆查詢。已找到本地 22 個 raw CSV 與處理表，但缺全檔 SHA／缺值對帳及 PMTiles 同版收據；金門、連江、澎湖來源端點另有缺口。先在本機完成版本封存與分縣市有界 reader，再做新地點驗收；目前不可把展示點數當原表。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。

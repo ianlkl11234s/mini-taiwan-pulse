@@ -399,10 +399,10 @@
 - 完整原表 oracle 和正常 Codex→MCP→Gateway→既有 3734 配對 browser：臺北 `[121.50,25.02,121.58,25.10]` A 類 51（全類 1,604），臺中 `[120.62,24.12,120.75,24.22]` C 類 1（全類 1,539）；分頁顯示 50 不影響完整匹配數。focused/registry Vitest 12/12、`npx tsc -b`、`npm run build`、localhost manifest 200／99,347 bytes、外來 Host 404 通過。全臺過量 bbox 拒絕。
 - OGDL catalog 及本機 owner-only 固定版；`medLTC` 特約單位與既有 `welfareLtcInstitutions` 立案機構不同原表。Point 只供 bbox／屬性查詢，無當前契約、床位、可達性、最近距離、縣市比較或研究地圖同版 ready/readback 證據；這些 [ ] HOLD。Audit 778 層／220 datasets／213 查詢映射／565 待映射；臺灣 GIS 主 Layers 381 中已註冊 159、待接 222。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
 
-### 第五十六批：臺北樹穴 Polygon 來源盤點（HOLD）
+### 第五十六批：臺北樹穴 Polygon 來源與授權解鎖（reader 待做）
 
 - `treePitsTaipei` 原始 `tree_pit_taipei.json` 56,720 個 MultiPolygon，EPSG:3826，SHA `9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03`；2026-07-14 processed WGS84 GeoJSON 同數，SHA `72197a37c4446a456effa722eb1e6a96e4c200e1c71343322857f7455c13000e`。樹穴 50,904／花圃 5,816，面積總和 246,062.19 m²；零面積 1、空面積 0、負面積 0。Mini 既有展示 PMTiles SHA `a8dca8ef855072af4052d1ef0ffa4d538d70115657bed760bb5d5f1472584647`，僅證明本地資產存在。
-- Gate G1/G3 [ ] HOLD：目前沒有原始下載端點與授權收據；現有共用 Point 分片讀取器不實作 Polygon 完整相交與跨片去重。可用 0.01° 分格的初算仍不是可交付 reader。需由來源維護者補端點、授權、取得時間與 SHA；再建立 Polygon 原幾何 bbox reader，以跨格、邊界相交與重複計數 oracle 驗證，方能接入。不能把 MultiPolygon 轉成中心 Point 冒充空間查詢。本批映射計數不變。
+- Gate G1 [x] 來源與授權已於 2026-09-26 補證：官方 [政府資料開放平臺資料集 134908](https://data.gov.tw/dataset/134908) 與 [臺北市資料大平臺](https://data.taipei/dataset/detail?id=693705fa-4604-4207-bd50-8a9ce9fcfbc6) 指向同一臺北市工務局新工處樹穴 JSON，授權政府資料開放授權條款第 1 版。官方下載資源 `rid=3e2b359b-8dae-46e4-a747-5912d8743d0e` 唯讀取得 27,304,373 bytes，SHA `9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03`，與本地 raw byte-identical；不以官方詮釋資料更新日冒充每筆觀測日。Gate G3 [ ] 待做：現有共用 Point 分片器不實作 Polygon 完整相交與跨片去重。需建立原幾何 bbox reader，以跨格、孔洞、邊界相交與重複計數 oracle 驗證；不得轉中心 Point。本批映射計數不變。
 
 ### 第五十七批：台電電桿大來源盤點（待做）
 
