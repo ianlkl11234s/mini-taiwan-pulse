@@ -127,7 +127,17 @@ const VERIFIED_RAW_FAMILIES = {
     localDisplayReceipt: "P2 2026-09-25 rebuild: analytics raw SHA-256 68f261…1f16 rebuilt with exact metadata/tippecanoe options and exactly matched original-checkout forest_roads.pmtiles SHA-256 68bfbdb3…67cc. This proves local raw-to-display identity only; runtime release was not read.",
   },
 };
+VERIFIED_RAW_FAMILIES["moenv:pollution_sites:EMS_S_07:20260706"] = {
+  sourceArtifact: "taipei-gis-analytics/docs/topic-research/water-drinking-source/data-staged/processed/soil_gw_pollution_sites_20260704.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/environment/pollution_source/frontend/pollution_sites_20260706.geojsonseq", "taipei-gis-analytics/docs/data-catalog/environment/pollution_source.md"],
+  sourceVersion: "EMS_S_07 / frontend 20260706", publisher: "環境部環境資料開放平臺", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "No source observation or acquisition timestamp in inspected receipt; 20260706 is fixed processing snapshot.",
+  coverageAndMissingness: "8,253 distinct site IDs and valid Points; 365 active at snapshot, 7,888 deannounced. Staged sitearea decimals restored for 1,568 rows truncated in frontend contract; no area nulls. Status is historical, not current.",
+  geometry: "WGS84 Point reference coordinate, not site boundary or pollution extent; all staged records _geocode=wgs84.",
+  sourceSha256: "9139e65862c7206fefcb298e94299e9ed5e28b9b6c072edf1fd83a9a628bd394",
+};
 const VERIFIED_RAW_FAMILY_BY_LAYER = {
+  pollutionSite: "moenv:pollution_sites:EMS_S_07:20260706",
   gasStationCanonical: "energy:gas_stations_canonical:20260620",
   gasStationCpc: "energy:gas_stations_canonical:20260620",
   gasStationFpcc: "energy:gas_stations_canonical:20260620",
@@ -141,6 +151,10 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   forestRoads: "moa:forest_roads:datagov-38213",
 };
 const DISPLAY_RAW_ALIGNMENT_BY_LAYER = {
+  pollutionSite: {
+    status: "DISPLAY_ARTIFACT_RECEIPT_MISSING",
+    evidence: "8,253 site IDs and Points match staged original and frontend GeoJSONSeq; the fixed research sidecar restores 1,568 truncated decimal sitearea values. Existing PMTiles display release has no inspected same-version receipt.",
+  },
   gasStationCanonical: {
     status: "POINT_IDENTITY_MATCH_ATTRIBUTE_CONFLICT",
     evidence: "Original-checkout static RPC SHA c3f6c231…53ca has 3,053 canonical rows matching processed 20260620 names, brand membership and Point coordinates to 6 decimals; 443 ODbL source rows are mislabeled OGDL in static RPC. The fixed research sidecar retains correct per-row mixed license; display attributes need repair before claiming full alignment.",
@@ -264,7 +278,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
   jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
   osm_power: { status: "EVIDENCE_GAP", reason: "catalog found but no inspected immutable raw/release receipt in this pass" },
-  pollution_source: { status: "EVIDENCE_GAP", reason: "catalog staging path exists but no inspected immutable raw/release receipt in this pass" },
+  pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. pollutionSite has its own verified 20260706 receipt; the facility and penalty sources require separate raw/release audits." },
   real_estate: { status: "EVIDENCE_GAP", reason: "multiple partial quarterly sources; no single release identity maps this generic dataset ID" },
   schools: { status: "RIGHTS_HOLD", familyKey: "moe:schools:113-academic-year", reason: "raw lineage is verified but catalog explicitly leaves EduGis license unconfirmed" },
   all_venues: { status: "VERIFIED_RAW_LINEAGE", familyKey: "sports:all_venues:20260704" },

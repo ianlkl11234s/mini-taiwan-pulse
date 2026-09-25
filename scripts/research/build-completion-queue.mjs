@@ -21,6 +21,9 @@ function groupOf(key, manifest) {
 }
 
 function clusterOf(entry) {
+  if (entry.layerKey === "pollutionFacility") return { key: "candidate:moenv:EMS_S_01:facilities", proof: "separate_facility_source_declared_raw_release_pending" };
+  if (["noiseEnforcementEvents", "pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"].includes(entry.layerKey))
+    return { key: "candidate:moenv:EMS_P_46:penalties", proof: "shared_penalty_event_display_raw_release_pending" };
   if (entry.layerKey.startsWith("gasCoverage")) return { key: `derived:gas_coverage:${entry.layerKey}`, proof: "derived_distance_surface_not_raw_gas_station_points" };
   if (entry.verifiedRawFamilyKey) return { key: entry.verifiedRawFamilyKey, proof: "raw_lineage_inspected_display_alignment_pending" };
   if (entry.declaredContract?.key) return { key: entry.declaredContract.key, proof: "declared_contract_only_raw_family_unverified" };
