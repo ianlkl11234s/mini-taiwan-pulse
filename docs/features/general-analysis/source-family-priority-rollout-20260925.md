@@ -407,7 +407,7 @@
 ### 第五十七批：台電電桿大來源盤點（待做）
 
 - `powerPoles` analytics `_manifest.json` 宣稱 22 個縣市檔、2,959,326 Point、EPSG:3826→4326、2026-06-15 年度快照，來源台電 d077010；catalog 記 OGDL-Taiwan-1.0，也明列金門／連江／澎湖端點需由 `island_power_grid` 補。已找到本地 22 個 raw CSV；僅抽查新竹市處理檔 20,596 feature，其中桿號空 5,932，不能外推全國缺值率。Mini 展示 PMTiles SHA `7e74c1a757357e7cee0a4f65e97fa170d15c8966d00c369b6ef79bc499ed282e`，僅有 heatmap/circle 展示，tippecanoe 有 cluster/drop；不是原表計數或查詢證據。
-- Gate G1/G2/G3 [ ] 待做：目前 22 檔 manifest 沒有逐檔 SHA，缺完整欄位／空值／geometry 對帳與展示資產同版建置收據。這些是可在本機施工的工作，非永久外部 HOLD。先固定 raw、processed、PMTiles 各自 SHA／bytes／rows 及來源層 metadata，釐清離島覆蓋；再以縣市加空間分片建立有界 Point reader，兩個新地點加類別變體對原表 oracle 與正常 MCP 驗證。現有共用分片上限 1,024 shards／來源 1 GiB，不可直接假設適合此 2,959,326 點母表。部署 404 歷史問題未在本批驗證。本批映射計數不變。
+- Gate G1/G2 [x] 本機逐檔對帳收據見 [22 檔完整稽核](./power-poles-source-audit-20260926.json)：raw 315,389,236 bytes、processed 1,069,885,871 bytes，22 組各自 SHA／bytes／筆數均固定，raw／processed／manifest 合計 2,959,326。raw 空桿號 615,971、processed 616,007，多 36 需找轉換原因。所有 processed 均為語法有效 WGS84 Point，但屏東最大經度 139.99、臺東最小緯度 14.35、桃園最大經度 140.36，地理正確性未過。澎湖 9,840、金門 17,482、連江 1,093 本地檔實存，與 catalog「離島端點缺口」衝突，不能擅稱官方涵蓋完整。Gate G3 [ ] 待做：PMTiles SHA 已固定但沒有綁定這 22 檔的建置收據；先逐筆找出地理離群與空桿號差異、核 raw 端點，再以縣市／空間分片設有界 reader，兩個新地點＋變體對原表 oracle 和正常 MCP 驗收。現有共用上限 1,024 shards／1 GiB 不可直接假設可裝下此母表；不把 cluster/drop 顯示計數當查詢。部署 404 歷史問題未驗。本批映射數不變。
 
 ### 第五十八批：活動斷層地質敏感區原面查詢
 
