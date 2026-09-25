@@ -687,6 +687,15 @@ VERIFIED_RAW_FAMILIES["ourairports-tdx:airports:20260519"] = {
   geometry: "Airport reference proxy Point, distinct from 16 Polygon/MultiPolygon display asset; bbox/attribute only.", sourceSha256: "d82e9fff2cd6f7eb6417f22a2155cd9958815961731c1be073b4232f5629d6c2",
   localDisplayReceipt: "Owner-only point sidecar SHA 44e9cec00cbf0ed86272409ac5a15bc24e63745936153bf47d69a9f9a18dd40f; display polygon SHA 3b68ec72035281856ece48f4e564a75c591e0275d3627fbbc7890485ab931524 is not equivalent.",
 };
+VERIFIED_RAW_FAMILIES["kh-education:cram_schools:20260807"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/education/cram_schools/cram_schools_20260807.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/education/cram_schools/city_02.json", "mini:scripts/research/build-cram-schools-owner-only.mjs"],
+  sourceVersion: "2026-08-07 fixed processed roster", publisher: "高雄市教育局代管全國短期補習班系統", license: "Catalog OGDL-Taiwan-1.0; geocoded-coordinate redistribution RIGHTS_HOLD, localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Daily source cadence does not establish current registration or operation.",
+  coverageAndMissingness: "17,772 raw -> 17,137 Point; 635 unlocated. Precision exact 10,100, cached 2,831, TGOS 4,129, interpolated 77.",
+  geometry: "Address-geocoded proxy Point; bbox/category only, no nearest or accessibility.", sourceSha256: "adf0dddc81dc6ba30ff71c72242b4263b5a3896b7faffd40cead7ee24711af4e",
+  localDisplayReceipt: "Owner-only safe-field 165 gzip shards manifest SHA 0a419219ce202574d43048eb6cb5ca7acd802e4eac0aa399fc7c4c0b46bb53fa; public display PMTiles same-version not checked.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -774,6 +783,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   medClinic: "nhi:medical_geocoded:20260602",
   medPharmacy: "nhi:medical_geocoded:20260602",
   airports: "ourairports-tdx:airports:20260519",
+  eduCramSchool: "kh-education:cram_schools:20260807",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
