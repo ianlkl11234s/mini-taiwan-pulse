@@ -479,3 +479,7 @@
 
 - `eduDistrictSenior` 原始教育部國教署 115 學年度 CSV 34 列／SHA `c8d541dc97d294717ae4d82dd29f5329e5e47fc975908f443499d6b5fdf84449`，授權 OGDL-Taiwan-1.0；analytics 2026-08-07 processed 15 面／12,238,327 bytes／SHA `c3b4df7dee7639dfe18e89134e2dd418b1a552639e0cad51b2579071c996e339`，完整 Mini reader asset 與之 byte-identical。既有網頁顯示為另份降精度檔 SHA `8df98c6b47f9cc93c677e63d05e87edc506305bc5ac77d18e3eef9a83b61d287`；不能冒稱同幾何版。15 區覆蓋 22 縣市，保留來源的跨區規則文字、學年度與面積；processed 無空欄。manifest 宣告 Polygon，但來源實際混合 Polygon/MultiPolygon，reader 統一為完整 MultiPolygon。
 - 面是縣市邊界 dissolve 的**就學區代理範圍**，不是招生資格、跨區條款或個別學校學區界；`role=proxy`、`spatialAnalysisEligible=false`。bbox 只篩固定代理面，不能據此自動判斷某學生可就讀哪所學校。獨立原面內點 oracle 臺北基北區與臺中中投區，正常 MCP 兩地各回 1；基北區來源文字保留，新資料點 variant 篩選中投區回 1。單筆完整 geometry 在工具回答中因大小以 `coordinatesOmitted` 摘要，但 session 內保留完整面；revision 23 ready/readback 1 feature／1 source／1 layer，截圖可見基北區藍色代理面。focused/registry 12/12、tsc/build 通過；錯 SHA、欄位與筆數拒絕。首次本地下載 12.2 MB，後續同 session 使用已驗證快取；不增加 Supabase/S3 讀寫。Audit 778 層／237 datasets／229 可查映射／549 待處理；臺灣 GIS 381 層已登記 175、待 206。未 push、PR、merge、部署或重啟排程。
+
+### 第七十一批：未接 GeoJSON 候選的來源門檻
+
+- 當前逐層 ledger 尚有 12 個 metadata GeoJSON 候選，metadata 只證明圖層宣告，不能當作查詢 reader。`ripeAtlasProbes` 的 Mini 展示約 3,000 Point（SHA `651e6298…d4230f`）與 analytics manifest 13,534 processed rows 尚無原始 raw SHA／同版截取收據；RIPE Atlas 條款為 research use，座標刻意偏移約 80–400m。G1/G2 `SOURCE_VERSION_AND_RIGHTS_HOLD`，不能作實址、精確附近或完整母體。`internetExchangePoints` 同樣只有 catalog／processed manifest 與展示，沒有可核 raw bytes／rows／SHA；PCH CC BY-NC-SA 3.0 限制需另核公開與再散布。兩者維持待查，不增加查詢映射；下一步尋回 raw 取得檔與版本、建立逐層來源與權利收據，再決定 owner-only 或公開 reader。
