@@ -205,10 +205,14 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
       parameterNames.add(parameter.name);
     }
   }
-  // A bbox may bound reads of reference Points without making those Points
-  // eligible for exact distance analysis.
-  if (access.query.supportsBbox && !(value.geometry.type === "Point" && (
+  // Bbox is a bounded read selector. It does not grant distance, containment,
+  // or other spatial-analysis eligibility to a reference Point or surface.
+  const bboxQueryablePoint = value.geometry.type === "Point" && (
     value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
     || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible
-  ))) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  );
+  const bboxQueryableSurface = ["Polygon", "MultiPolygon"].includes(value.geometry.type)
+    && value.geometry.crs === "EPSG:4326"
+    && ["actual", "generalized", "proxy"].includes(value.geometry.role);
+  if (access.query.supportsBbox && !(bboxQueryablePoint || bboxQueryableSurface)) throw new Error("INVALID_DATASET_DESCRIPTOR");
 }

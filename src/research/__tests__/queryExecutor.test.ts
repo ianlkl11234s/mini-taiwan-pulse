@@ -162,6 +162,53 @@ describe("shared research query executor", () => {
     expect(reader).toHaveBeenCalledTimes(1);
   });
 
+  it("uses complete Polygon and MultiPolygon geometry for bbox reads while keeping query-only surfaces spatial-ineligible", async () => {
+    const surface = (datasetId: string, type: "Polygon" | "MultiPolygon", role: "actual" | "generalized" | "proxy" = "actual", spatialAnalysisEligible = role === "actual"): DatasetDescriptor => base({
+      datasetId, kind: "polygon", recordGrain: "feature", primaryKey: ["id"],
+      fields: [
+        { name: "id", type: "string", nullable: false, nullMeaning: null, unit: null },
+        { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+      ],
+      geometry: { type, crs: "EPSG:4326", role, precision: "fixture complete surface", spatialAnalysisEligible },
+      access: boundedAccess({ mode: "owner_only", method: "local_asset", fields: ["id", "geometry"], filters: ["id"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 100 }),
+    });
+    const read = (rows: readonly Record<string, unknown>[]) => async () => ({ rows, sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown" as const, exclusions: {}, rowsScanned: rows.length, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null });
+    const polygonRows = [
+      { id: "crosses", geometry: { type: "Polygon", coordinates: [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]] } },
+      { id: "donut", geometry: { type: "Polygon", coordinates: [
+        [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+        [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]],
+      ] } },
+      { id: "touches", geometry: { type: "Polygon", coordinates: [[[10, 1], [11, 1], [11, 2], [10, 2], [10, 1]]] } },
+    ];
+    const polygonExecutor = new QueryExecutor([{ descriptor: surface("polygon-surface", "Polygon"), allowedParameters: {}, read: read(polygonRows) }]);
+    expect((await polygonExecutor.execute({ datasetId: "polygon-surface", bbox: [4.5, 4.5, 5.5, 5.5] })).rows.map(row => row.id)).toEqual(["crosses"]);
+    expect((await polygonExecutor.execute({ datasetId: "polygon-surface", bbox: [9, 1, 10, 2] })).rows.map(row => row.id)).toEqual(["crosses", "donut", "touches"]);
+
+    const multiExecutor = new QueryExecutor([{ descriptor: surface("multipolygon-surface", "MultiPolygon", "generalized", false), allowedParameters: {}, read: read([
+      { id: "second-part", geometry: { type: "MultiPolygon", coordinates: [
+        [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        [[[8, 8], [9, 8], [9, 9], [8, 9], [8, 8]]],
+      ] } },
+    ]) }]);
+    expect((await multiExecutor.execute({ datasetId: "multipolygon-surface", bbox: [8.2, 8.2, 8.8, 8.8] })).rows.map(row => row.id)).toEqual(["second-part"]);
+    expect(multiExecutor.describe("multipolygon-surface")!.geometry.spatialAnalysisEligible).toBe(false);
+    expect(() => assertDatasetDescriptor(surface("proxy-surface", "Polygon", "proxy", false))).not.toThrow();
+  });
+
+  it("fails closed when a bbox-enabled surface row is malformed or exceeds the geometry budget", async () => {
+    const surface = base({
+      datasetId: "invalid-surface", kind: "polygon", recordGrain: "feature", primaryKey: ["id"],
+      fields: [{ name: "id", type: "string", nullable: false, nullMeaning: null, unit: null }, { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null }],
+      geometry: { type: "Polygon", crs: "EPSG:4326", role: "actual", precision: "fixture", spatialAnalysisEligible: true },
+      access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id", "geometry"], filters: ["id"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 100 }),
+    });
+    const result = (geometry: unknown) => new QueryExecutor([{ descriptor: surface, allowedParameters: {}, read: async () => ({ rows: [{ id: "surface", geometry }], sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown" as const, exclusions: {}, rowsScanned: 1, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null }) }]);
+    await expect(result({ type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1]]] }).execute({ datasetId: "invalid-surface", bbox: [0, 0, 1, 1] })).rejects.toThrow("UNSUPPORTED_OR_INVALID_SPATIAL_GEOMETRY");
+    const vertices = Array.from({ length: 200_001 }, () => [0, 0] as [number, number]);
+    await expect(result({ type: "Polygon", coordinates: [vertices] }).execute({ datasetId: "invalid-surface", bbox: [0, 0, 1, 1] })).rejects.toThrow("SPATIAL_VERTEX_BUDGET_EXCEEDED");
+  });
+
   it("rejects adapter rows that violate required fields, geometry, or statistic null semantics", async () => {
     const missingId = new QueryExecutor([createPointDatasetAdapter(schools, async () => ({ rows: [{ name: "無代碼", city: null, geometry: { type: "Point", coordinates: [121, 25] } }], source: source("schools", "v1"), coverage: "unknown" }))]);
     await expect(missingId.execute({ datasetId: "tw-schools" })).rejects.toThrow("INVALID_ADAPTER_ROW");

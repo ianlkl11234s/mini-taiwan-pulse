@@ -1,4 +1,5 @@
 import { assertDatasetDescriptor, type DatasetDescriptor, type ResultEnvelope, type Scalar, type SourceReceipt } from "./dataContracts";
+import { geometriesIntersect, parseSpatialGeometry, type PolygonGeometry } from "./spatialKernel";
 
 export type QueryFilter =
   | { field: string; op: "eq"; value: Scalar }
@@ -96,11 +97,23 @@ function validPoint(value: unknown): boolean {
     && Math.abs(geometry.coordinates[0] as number) <= 180 && Math.abs(geometry.coordinates[1] as number) <= 90;
 }
 
-function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, number, number, number]): boolean {
+function bboxSurface(bbox: readonly [number, number, number, number]): PolygonGeometry {
+  const [west, south, east, north] = bbox;
+  return { type: "Polygon", coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]] };
+}
+
+function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, number, number, number], geometryType: DatasetDescriptor["geometry"]["type"]): boolean {
   const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | null | undefined;
-  if (!geometry || geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
-  const [lng, lat] = geometry.coordinates;
-  return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+  if (!geometry) return false;
+  if (geometryType === "Point") {
+    if (geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
+    const [lng, lat] = geometry.coordinates;
+    return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+  }
+  if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") return false;
+  const surface = parseSpatialGeometry(geometry);
+  if (surface.type !== geometryType) throw new Error("INVALID_ADAPTER_GEOMETRY");
+  return geometriesIntersect(surface, bboxSurface(bbox));
 }
 
 function parseCursor(cursor: string | undefined): { prefix: string; offset: number } | null {
@@ -133,7 +146,13 @@ function validateAdapterRead(descriptor: DatasetDescriptor, read: AdapterReadRes
         : typeof value === "object";
       if (!valid) throw new Error("INVALID_ADAPTER_ROW");
     }
-    if (geometryField && row.geometry !== null && row.geometry !== undefined && descriptor.geometry.type === "Point" && !validPoint(row.geometry)) throw new Error("INVALID_ADAPTER_GEOMETRY");
+    if (geometryField && row.geometry !== null && row.geometry !== undefined) {
+      if (descriptor.geometry.type === "Point" && !validPoint(row.geometry)) throw new Error("INVALID_ADAPTER_GEOMETRY");
+      if (descriptor.geometry.type === "Polygon" || descriptor.geometry.type === "MultiPolygon") {
+        const geometry = parseSpatialGeometry(row.geometry);
+        if (geometry.type !== descriptor.geometry.type) throw new Error("INVALID_ADAPTER_GEOMETRY");
+      }
+    }
   }
 }
 
@@ -250,7 +269,7 @@ export class QueryExecutor {
     validateAdapterRead(descriptor, read);
     if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
     if (read.bytesScanned !== null && descriptor.access.limits.maxSourceBytes !== null && read.bytesScanned > descriptor.access.limits.maxSourceBytes) throw new Error("SOURCE_BYTE_BUDGET_EXCEEDED");
-    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)) && (!bbox || bboxMatches(row, bbox)));
+    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)) && (!bbox || bboxMatches(row, bbox, descriptor.geometry.type)));
     const rows = matched.slice(offset, offset + limit).map(row => Object.fromEntries(select.map(field => [field, row[field] ?? null])));
     const scope = { datasetId: input.datasetId, select, filters, ...(time ? { time } : {}), ...(bbox ? { bbox } : {}), parameters };
     const sources = read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 }));
