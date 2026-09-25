@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前基線：778 層 = 121 個已有查詢映射的層 + 75 個 metadata 候選 + 582 個尚無可用映射的層；共 124 datasets。121 不等於 121 層全部驗收完成。目前 657 個待處理層分為待 reader／稽核 412、來源證據不足 201、權限或座標使用疑慮 36、版本待對齊 8；188 個比較 recipe 已包含在 412 內，不另加總。六個學校層雖已本機 owner-only 可查，公開座標權仍 HOLD，故不在待映射 36 中；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前基線：778 層 = 133 個已有查詢映射的層 + 66 個 metadata 候選 + 579 個尚無可用映射的層；共 136 datasets。133 不等於 133 層全部驗收完成。目前 645 個待處理層分為待 reader／稽核 400、來源證據不足 201、權限或座標使用疑慮 36、版本待對齊 8；188 個比較 recipe 已包含在 400 內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -25,8 +25,8 @@
 ## A．把盤點變成可施工的完整佇列
 
 - [x] A00：778 個 layer key 全部納入同一台帳，保留 local asset／remote version／query／displayed 分離證據。收據：`81a8f838` 及 current ledger；僅代表列冊完成。
-- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 67／待處理 314）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／121／657。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
-- [x] A02：657 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
+- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 79／待處理 302）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／133／645。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
+- [x] A02：645 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
 - [ ] A03：逐家族核對真正共用的 raw/RPC/release 契約；從宣告 upstream ID 的高覆蓋家族優先，補原檔／SHA、授權、時間、筆數、缺值及 geometry。全部待處理層均有已核 family 或具體待解證據，才勾選。
 - [ ] A04：對現有 121 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
 
@@ -58,11 +58,13 @@
 
 `welfareChildServices` [x] 有 1,425 列 owner-only 名冊：1,396 Point、29 筆結構性無地址可查屬性但不進 bbox。台北 bbox 28、台南 Google 來源變體 4，與 sidecar 全檔核對。Point 是 TGOS／Google／離線參考位置；公開座標權、精確距離、目前服務量能 [ ] HOLD。
 
+`artsEvents` [x] 有 7,482 場次 owner-only 查詢；6,121 Point、1,361 無座標仍可按屬性查。這是 2026-07-16 當時未結束活動的滾動窗，不是今日或歷史全集。`stationsTHSR`／`stationsTRA`／`stationsMetro` [x] 共用 535 站的 20260529 本機來源，但正式 catalog／舊展示仍為 503 站；查詢已接、正式同版 [ ] HOLD。六個司法機關點位層 [x] 各自從不同原表接 owner-only bbox／屬性 reader，共 235 Point；5 類 Google geocode、移民署 25 點為原始 TgosWGS，公開座標授權及精確最近 [ ] HOLD。`busStationsCity`／`busStationsIntercity` [x] 分別接 49,830／15,383 筆 TDX StationPosition 的本機分片 reader；兩個端點與快照時間不同，不把兩者加總為某日全臺站牌數。高雄客運 bbox 18 筆已 scene ready／map readback 18；站位不是路邊 Stop、即時 ETA 或步行可達性。各片 SHA、範圍與限制見[第十五批](./source-family-priority-rollout-20260925.md)。
+
 `pollutionSite` 已完成 2026-07-06 固定 8,253 Point 名冊 reader，台中 3 公里獨立 oracle／MCP 均為 3 筆，其中列管 2 筆、歷史解除 1 筆；地圖 3 點 `ready`、readback 與瀏覽器目視通過。`pollution_source` 這個宣告 ID 實際含 EMS_S_07 場址、EMS_S_01 列管事業與 EMS_P_46 裁罰事件三份原始資料，三家族已有分開的本機 reader，但後兩家族的 proxy 點不能算精確空間分析。場址本機舊 PMTiles 與 analytics 20260706 輸出 SHA 完全相同，但 1,568 筆 sitearea 顯示整數化與查詢原值不同，remote runtime release 未讀。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
-75 個 metadata 候選與 582 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
+66 個 metadata 候選與 579 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
 
 - [ ] B01：完成臺灣靜態 Point 家族：原表可讀、完整列數核對、固定版本 reader、安全欄位與分頁；同一家族所有可接的圖層一次映射。原表無座標列仍可查屬性，代理座標與原生座標分開。
 - [ ] B02：追查臺灣「來源證據不足」家族：先找現有原表／collector／RPC 與發布紀錄，再做可逆本地重建。每個家族產出可接資料或具體外部阻擋；不能只重複舊台帳結論。
@@ -123,7 +125,7 @@ HOLD 記錄格式：`family / layer keys / 卡在哪個 gate / 已查路徑與�
 
 ## 當前游標與每次回報
 
-**下一項：A03 污染設施 EMS_S_01 與裁罰事件 EMS_P_46 分別核來源、分片和公開欄位；另查畜牧附屬三層座標權利，再沿 B→C→D→E→F 執行。** 個別家族遇阻不得阻塞其他可做家族。E 可在支援條件具備時穿插實作，但不取代 B/C/D 全表施工。
+**下一項：A03 按[逐層佇列](./completion-queue-20260925.csv)追查下一個可證原表的臺灣 Point 家族，先核 raw 版本／筆數／授權與座標方法，能本機接入就做；畜牧附屬三層的權利缺口維持 HOLD，再沿 B→C→D→E→F 執行。** 個別家族遇阻不得阻塞其他可做家族。E 可在支援條件具備時穿插實作，但不取代 B/C/D 全表施工。
 
 每次回報只需：本次勾選哪些 ID、四組各有多少層真正通過／待做／HOLD、新增家族及映射、驗收證據、尚未解鎖的具體需求、下一個游標。登記數／來源查詢通過數／空間通過數分開。不要求使用者每批重新說「繼續」。
 
