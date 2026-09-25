@@ -75,6 +75,8 @@ import { serviceAreaFixedPointAdapter } from "./serviceAreaFixedDataset";
 import { parksFixedPointAdapter } from "./parksFixedDataset";
 import { tourHeritageFixedAdapter } from "./tourHeritageFixedDataset";
 import { tourEventsFixedPointAdapter } from "./tourEventsFixedDataset";
+import { protectedTreesOwnerAdapter } from "./protectedTreesOwnerDataset";
+import { riversideTreesTaipeiOwnerAdapter } from "./riversideTreesOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -461,6 +463,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   parksFixedPointAdapter,
   tourHeritageFixedAdapter,
   tourEventsFixedPointAdapter,
+  protectedTreesOwnerAdapter,
+  riversideTreesTaipeiOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

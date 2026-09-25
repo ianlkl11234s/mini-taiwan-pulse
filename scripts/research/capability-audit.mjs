@@ -498,6 +498,24 @@ VERIFIED_RAW_FAMILIES["mota:activity:20260722"] = {
   geometry: "Source event PositionLon/Lat Point, not venue extent or entrance.", sourceSha256: "a30dab62f49891cc31caa9d1eeb01653f677c1e4b06cbcb88f8ecf5f0d028ac4",
   localDisplayReceipt: "Raw ZIP SHA 99791d95f089757dec509aa2a029cededc0625480567e55bb6a206aa82ec2bf6; Mini SHA 0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c differs from processed only by removal of duplicated lat/lon properties. Remote release not read.",
 };
+VERIFIED_RAW_FAMILIES["cities:protected_trees:20260714"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/protected_trees_national/protected_trees_national_20260714.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/urban_open_space/protected_trees_national/_manifest.json", "taipei-gis-analytics/docs/data-catalog/urban_open_space/protected_trees_national.md", "mini:public/urban/protected_trees_national.geojson"],
+  sourceVersion: "2026-07-14 fixed eight-city merge", publisher: "八縣市政府來源", license: "HOLD_LICENSE: eight raw source URLs/licenses not individually verified; owner-only local",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processing date does not establish current tree registration, survival or condition.",
+  coverageAndMissingness: "6,670 source rows -> 6,544 Point; 126 invalid coordinates excluded. Eight cities only; many age, height and status values null.",
+  geometry: "Mixed WGS84/TWD97 normalized reference Point; original precision per-city not proven; bbox/attribute only.", sourceSha256: "197651e6bc1db78ae1fc6e87d8e3ce698fb5f25bfbccbb516b2e47ff2c340549",
+  localDisplayReceipt: "Mini static byte-identical with analytics processed; safe owner-only sidecar SHA 27ee4336fac481b1bba5ff95db5e1699db11de97d40bc597a06e7643bcd88597 removes address and duplicated lat/lon. Remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["taipei:riverside_trees:20260714"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/riverside_trees_taipei/riverside_trees_taipei_20260714.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/urban_open_space/riverside_trees_taipei/_manifest.json", "mini:scripts/research/build-riverside-trees-owner-only.mjs", "mini:public/urban/riverside_trees_taipei.geojson"],
+  sourceVersion: "2026-07-14 fixed historical survey processing", publisher: "臺北市政府工務局水利工程處（本機來源註記）", license: "RIGHTS_HOLD: raw download URL and license receipt missing; owner-only local",
+  observedAt: "2016-11 to 2017-06 for most survey rows", acquiredAt: null, acquiredAtAvailability: "Processing date is not current inventory, survival, maintenance or access.",
+  coverageAndMissingness: "10,921 raw rows -> 10,917 Point; four missing/out-of-range coordinates excluded. notes null 4,538; survey_date 1230 in two rows is incomplete and not a time filter.",
+  geometry: "Source WGS84 Point, not crown extent or field-verified current position; historical straight-line reference only.", sourceSha256: "5c7f87775bb978a80fa07411480919e3af38055cdc54b6b14f92b2ab7495fa94",
+  localDisplayReceipt: "Mini static byte-identical with analytics processed; safe owner-only sidecar SHA 2bc603414206c8b302754ac1d958916f505f2f3752ae08c640892c86e3ea4dbe. Remote release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -557,6 +575,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   parksTaipei: "city:parks:20260705",
   tourHeritage: "boch:heritage:20260524",
   tourEvents: "mota:activity:20260722",
+  protectedTreesNational: "cities:protected_trees:20260714",
+  riversideTreesTaipei: "taipei:riverside_trees:20260714",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
