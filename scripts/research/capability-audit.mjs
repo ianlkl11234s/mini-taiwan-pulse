@@ -916,6 +916,16 @@ VERIFIED_RAW_FAMILIES["newtaipei:speed_zone_segments:20260626"] = {
   sourceSha256: "4e3741f27b79982e775c95dbbd1eaff59040ec48bc6db6b53a7882d28602c511",
   localDisplayReceipt: "Processed and Mini static asset byte-identical 10,957 bytes SHA 287b76c66affa9857721dfdff6d89f34f540a0955ea773c232c0497d9cd27af4.",
 };
+VERIFIED_RAW_FAMILIES["moe:school_district_senior:115-school-year"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/education/school_district_senior/115.csv",
+  evidence: ["taipei-gis-analytics/data/processed/education/school_district_senior/school_district_senior_20260807.geojson", "taipei-gis-analytics/data/processed/education/school_district_senior/_manifest.json", "mini:public/education/school_district_senior_full.geojson", "mini:src/research/seniorSchoolDistrictDataset.ts"],
+  sourceVersion: "115 school year raw CSV, 2026-08-07 fixed local processing snapshot", publisher: "教育部國民及學前教育署 data.gov.tw:46721", license: "OGDL-Taiwan-1.0",
+  observedAt: "115 school year", acquiredAt: null, acquiredAtAvailability: "Raw download date not separately receipted; pipeline date is not an admissions effective date.",
+  coverageAndMissingness: "34 raw CSV rows summarize to 15 school districts covering 22 counties; processed properties/geometry have no null. Cross-district rules are text only, not turned into spatial membership.",
+  geometry: "Full 12,238,327-byte Polygon/MultiPolygon county-boundary dissolve converted to MultiPolygon; role=proxy, spatialAnalysisEligible=false. Mini web display is a separate simplified geometry version. Bbox selects fixed proxy surfaces, not exact school eligibility or actual catchment.",
+  sourceSha256: "c8d541dc97d294717ae4d82dd29f5329e5e47fc975908f443499d6b5fdf84449",
+  localDisplayReceipt: "Full owner reader asset SHA c3b4df7dee7639dfe18e89134e2dd418b1a552639e0cad51b2579071c996e339, byte-identical analytics processed; web display/Mini existing display SHA 8df98c6b47f9cc93c677e63d05e87edc506305bc5ac77d18e3eef9a83b61d287.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -989,6 +999,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   tourHotSpringZones: "taipei:hot_spring_outcrops:FY114",
   aquacultureCageNet: "moa:aquaculture_cage_net:local-fixed",
   speedZoneSegment: "newtaipei:speed_zone_segments:20260626",
+  eduDistrictSenior: "moe:school_district_senior:115-school-year",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
