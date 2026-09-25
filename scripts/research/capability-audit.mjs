@@ -814,6 +814,15 @@ VERIFIED_RAW_FAMILIES["gsmma:active_fault_sensitive_zones:local-fixed"] = {
   geometry: "Full horizontal Polygon/MultiPolygon rings retained as MultiPolygon; zero third ordinate removed. Actual surface intersection, not distance or risk analysis.", sourceSha256: "a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e",
   localDisplayReceipt: "Mini static GeoJSON and analytics raw are byte-identical 2,632,866 bytes, SHA a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e; browser readback separately required.",
 };
+VERIFIED_RAW_FAMILIES["taipei:tree_pits:20260714"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/tree_pits_taipei/tree_pits_taipei_20260714.geojson",
+  evidence: ["mini:scripts/research/build-tree-pits-taipei-owner-only.mjs", "mini:src/research/treePitsTaipeiOwnerDataset.ts"],
+  sourceVersion: "2026-07-14 fixed processed snapshot; live official raw resource byte-identical on 2026-09-26", publisher: "臺北市政府工務局公園路燈工程管理處", license: "OGDL-Taiwan-1.0; localhost owner-only reader",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-07-14 is processed snapshot date, not confirmed source observation time.",
+  coverageAndMissingness: "56,720 MultiPolygon features: 50,904 tree pits, 5,816 flower beds, one zero-area record. Absence is not zero trees.",
+  geometry: "Full WGS84 MultiPolygon, including multipart and holes; actual surface intersection, not centroid or single-tree locations.", sourceSha256: "72197a37c4446a456effa722eb1e6a96e4c200e1c71343322857f7455c13000e",
+  localDisplayReceipt: "Official raw SHA 9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03; owner-only manifest SHA 84abb47a9ee0a05b1a5d76aa6540e50044502e9ab8c2666d0545b1396fa6351c. Browser map readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -875,6 +884,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   tourEvents: "mota:activity:20260722",
   protectedTreesNational: "cities:protected_trees:20260714",
   riversideTreesTaipei: "taipei:riverside_trees:20260714",
+  treePitsTaipei: "taipei:tree_pits:20260714",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

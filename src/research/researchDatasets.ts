@@ -77,6 +77,7 @@ import { tourHeritageFixedAdapter } from "./tourHeritageFixedDataset";
 import { tourEventsFixedPointAdapter } from "./tourEventsFixedDataset";
 import { protectedTreesOwnerAdapter } from "./protectedTreesOwnerDataset";
 import { riversideTreesTaipeiOwnerAdapter } from "./riversideTreesOwnerDataset";
+import { treePitsTaipeiOwnerAdapter } from "./treePitsTaipeiOwnerDataset";
 import { forestTreatmentWorksOwnerAdapter } from "./forestTreatmentWorksDataset";
 import { forestWildlifeReferenceAdapter } from "./forestWildlifeReferenceDataset";
 import { universityStudentsOwnerAdapter } from "./universityStudentsOwnerDataset";
@@ -499,6 +500,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   tourEventsFixedPointAdapter,
   protectedTreesOwnerAdapter,
   riversideTreesTaipeiOwnerAdapter,
+  treePitsTaipeiOwnerAdapter,
   forestTreatmentWorksOwnerAdapter,
   forestWildlifeReferenceAdapter,
   universityStudentsOwnerAdapter,
