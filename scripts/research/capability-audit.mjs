@@ -805,6 +805,15 @@ VERIFIED_RAW_FAMILIES["mohw:ltc_contract_units:20260811"] = {
   geometry: "Official WGS84 reference Point, proxy; bbox/attribute only. No nearest, current service, capacity or county comparison.", sourceSha256: "950efd652c8d504ff593e48fc5119835349150cca8d58a7546447e637acd37ac",
   localDisplayReceipt: "Owner-only partition manifest SHA 93cbd6a1986e8cfa2711e1fce86a3950e06d57122520fc9c2e26db4431434c42; displayed-layer equivalence and research map readback unverified.",
 };
+VERIFIED_RAW_FAMILIES["gsmma:active_fault_sensitive_zones:local-fixed"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/geo/active_faults.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/environment/earthquake/active_faults_sensitive_zones.geojson", "mini:src/research/activeFaultsDataset.ts"],
+  sourceVersion: "Byte-identical local raw and display snapshot imported 2026-03-06; source observation date unknown", publisher: "經濟部地質調查及礦業管理中心 data.gov.tw:27744", license: "OGDL-Taiwan-1.0; official announced documents prevail over reference boundaries",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Local import date is not observation or official revision date.",
+  coverageAndMissingness: "22 fixed Polygon/MultiPolygon features; official catalog 23 includes superseded F0011. Absence does not prove no hazard or legal restriction.",
+  geometry: "Full horizontal Polygon/MultiPolygon rings retained as MultiPolygon; zero third ordinate removed. Actual surface intersection, not distance or risk analysis.", sourceSha256: "a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e",
+  localDisplayReceipt: "Mini static GeoJSON and analytics raw are byte-identical 2,632,866 bytes, SHA a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e; browser readback separately required.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -912,6 +921,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   religionTemples: "moi:religion_temples:20260801-trust-chain",
   streetTreesNational: "taipei-taichung:street_trees:20260714",
   medLTC: "mohw:ltc_contract_units:20260811",
+  activeFaults: "gsmma:active_fault_sensitive_zones:local-fixed",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",

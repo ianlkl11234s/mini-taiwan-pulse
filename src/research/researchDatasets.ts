@@ -110,6 +110,7 @@ import { agriProduceWholesaleOwnerAdapter } from "./agriProduceWholesaleOwnerDat
 import { religionTemplesOwnerAdapter } from "./religionTemplesOwnerDataset";
 import { streetTreesNationalOwnerAdapter } from "./streetTreesNationalOwnerDataset";
 import { medLtcOwnerAdapter } from "./medLtcOwnerDataset";
+import { activeFaultsAdapter } from "./activeFaultsDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -543,6 +544,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   religionTemplesOwnerAdapter,
   streetTreesNationalOwnerAdapter,
   medLtcOwnerAdapter,
+  activeFaultsAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
