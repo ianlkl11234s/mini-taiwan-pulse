@@ -642,6 +642,24 @@ VERIFIED_RAW_FAMILIES["moenv:regulated_facilities:20260818"] = {
   geometry: "EMS source reference Point; bbox/attribute only, no nearest or pollution claim.", sourceSha256: "2cfa4bd59e050f7784d0dfcd1f571ca5d62c5cad78dd5073029363f31d45178f",
   localDisplayReceipt: "Owner-only safe-field 325 gzip shards, manifest SHA 82dda3a0e592e9a7ac087b9153ceaa2a7a61b651246e53f8564b289f460bd811; public display version not checked.",
 };
+VERIFIED_RAW_FAMILIES["taipei:street_trees_diff:2024-20260712"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/street_trees_taipei_diff/street_trees_taipei_diff_20260712.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/urban_open_space/street_trees_taipei_diff/_manifest.json", "taipei-gis-analytics/docs/data-catalog/urban_open_space/street_trees_taipei_diff.md", "mini:scripts/research/build-street-trees-diff-owner-only.mjs"],
+  sourceVersion: "2024-11-21 Wayback baseline versus 2026-07-12 list", publisher: "臺北市政府工務局公園路燈工程管理處", license: "OGDL-Taiwan-1.0; Wayback baseline and owner-only derivation",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Wayback baseline is not official versioned history; disappeared is ID absence, not tree removal.",
+  coverageAndMissingness: "99,527 Point: persisted 88,004, disappeared 7,494, appeared 4,029; 447 renumber_suspect retained.",
+  geometry: "Inventory reference Point, bbox/attribute only; no current survival or tree removal inference.", sourceSha256: "95dd7c6e1cabfac3662cd3ada3a5880bd2e122208fd55224c1aaecd6ccf7d3ce",
+  localDisplayReceipt: "Owner-only safe-field 32 gzip shards, manifest SHA 4d0cb1c23c040bb7b2cae3f3601d9d64e1a2f94a7cc85d431b39d6bcac792288; public display version not checked.",
+};
+VERIFIED_RAW_FAMILIES["mohw:aed:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/emergency_response/aed/aed_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/emergency_response/aed/_manifest.json", "taipei-gis-analytics/docs/data-catalog/emergency_response/aed.md", "mini:scripts/research/build-med-aed-owner-only.mjs"],
+  sourceVersion: "2026-05-24 fixed AED roster", publisher: "衛生福利部醫事司 AED 急救資訊網", license: "OGDL-Taiwan-1.0; owner-only local sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed snapshot does not establish current function, hours, or emergency access.",
+  coverageAndMissingness: "15,494 raw CSV rows -> 15,490 Taiwan-range Point; 0 missing coordinates, 4 outside existing Taiwan bbox.",
+  geometry: "Official WGS84 AED reference Point, bbox/attribute only until precision and operational access verified.", sourceSha256: "b4de010d5620cb52110b520d9a9980532ea9be00c755f1254e4a5a16a84bb9e6",
+  localDisplayReceipt: "Owner-only safe-field 338 gzip shards, manifest SHA 325a6c959dcf4e5f00dab13aa87a646579acdefcb55f425e70cdd368c39f178c; PMTiles equivalence not checked.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -722,6 +740,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   geothermalWells: "cpc:geothermal_wells:20260615",
   accidentTaipei: "taipei:accident_a1_a2:2019-20260626",
   regulatedFacilities: "moenv:regulated_facilities:20260818",
+  streetTreesTaipeiDiff: "taipei:street_trees_diff:2024-20260712",
+  medAED: "mohw:aed:20260524",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
