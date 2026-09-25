@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 214 個已有查詢映射的層 + 22 個 metadata 候選 + 542 個尚無可用映射的層；共 221 datasets。214 不等於 214 層全部驗收完成。目前 564 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 215 個已有查詢映射的層 + 22 個 metadata 候選 + 541 個尚無可用映射的層；共 222 datasets。215 不等於 215 層全部驗收完成。目前 563 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -137,7 +137,7 @@
 
 第五十五批 [x] `medLTC`：衛福部 2026-08-11 長照特約單位，raw 24,409 筆，扣無座標 332、臺灣範圍外 183，owner-only 查詢 23,894 Point。正常 MCP 臺北 A 類 51、臺中 C 類 1，與完整原表 oracle 一致；focused/registry 12/12、`tsc -b`、build、localhost 200／外來 Host 404 通過。這與 `welfareLtcInstitutions` 3,117 筆是不同來源；即時特約、床位、附近距離、縣市比較及地圖 ready/readback [ ] HOLD。詳見[第五十五批](./source-family-priority-rollout-20260925.md)。目前 220 datasets、213 查詢映射、565 待映射層。
 
-第五十六批 [ ] 待做：`treePitsTaipei` 是 56,720 個 MultiPolygon，非 Point。官方 data.gov.tw:134908／臺北資料大平臺資源已核 OGDL 第 1 版；2026-09-26 唯讀下載的 27,304,373 bytes 與本地 raw SHA 完全相同，來源與權利缺口已解。仍待完成 Polygon 有界 reader、跨片去重及原面相交驗收；不得把樹穴改成中心點假裝可查。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。
+第五十六批 [x] `treePitsTaipei`：56,720 個原面 MultiPolygon，官方 data.gov.tw:134908／臺北資料大平臺 OGDL 第 1 版；2026-09-26 官方 raw 與本地 SHA 完全相同。有界 Polygon reader 保留孔洞與 multipart，跨片去重，兩個臺北 bbox／類別變體與完整原表 oracle 相符；正常 MCP 查詢、配對地圖 15 features ready/readback、focused 4/4、`tsc -b`、build 通過。畫面高亮因樹穴面積很小，單一面目視辨識 [ ] 待改善；公開部署及目前現況 [ ] HOLD。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。目前 222 datasets、215 查詢映射、563 待映射層。
 
 
 第五十七批 [ ] 待做：`powerPoles` 上游 22 縣市、2,959,326 Point，台電 2026-06-15 快照。已逐檔核完 22 raw CSV／22 processed GeoJSON 的 SHA、bytes、筆數、空桿號與幾何；raw／processed／manifest 筆數相同，但空桿號差 36，屏東、臺東、桃園有地理離群座標。澎湖／金門／連江本地檔共 28,415 筆，與 catalog 的端點缺口說法衝突；Mini PMTiles 仍缺同版建置收據。先解決來源與座標差異，再做有界 reader 和新地點驗收。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。
