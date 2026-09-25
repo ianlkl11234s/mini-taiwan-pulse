@@ -473,7 +473,7 @@ function p0FamilyLedger() {
     const ids = layer.upstream?.datasetIds ?? [];
     if (ids.length === 1) singleDatasetCounts.set(ids[0], (singleDatasetCounts.get(ids[0]) ?? 0) + 1);
   }
-  const entries = candidates.map(layer => {
+  const entries = layers.map(layer => {
     const family = familyEvidence(layer);
     const comparisonRecipe = comparisonRecipeByLayer.get(layer.layerKey);
     const singleDatasetId = layer.upstream?.datasetIds?.length === 1 ? layer.upstream.datasetIds[0] : null;
@@ -492,7 +492,13 @@ function p0FamilyLedger() {
     const alignment = DISPLAY_RAW_ALIGNMENT_BY_LAYER[layer.layerKey] ?? null;
     const defaultBlocker = p0Blocker(layer, family);
     const inspectionRightsHold = datasetInspections.some(item => item.status === "RIGHTS_HOLD");
-    const blocker = comparisonRecipe !== undefined
+    const blocker = layer.readable === "registered"
+      ? {
+        status: "QUERYABLE_REGISTERED",
+        primaryBlocker: "FULL_SOURCE_TO_DISPLAY_RUNTIME_EVIDENCE_NOT_AUDITED",
+        nextStep: "Retain the registered query contract, then audit source/version, coverage, nulls, geometry and displayed runtime receipt before calling this layer spatial-ready.",
+      }
+      : comparisonRecipe !== undefined
       ? {
         status: "READER_PENDING", primaryBlocker: "DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING",
         nextStep: "Inspect each exact releaseId artifact's numerator/denominator source receipts, units, null rules, period, and boundary version; reconcile publication status and register a bounded query reader. The common comparison runtime is not one raw source.",
@@ -528,17 +534,55 @@ function p0FamilyLedger() {
               nextStep: "Read a matching immutable receipt for this display asset before reader work; verified raw lineage alone does not prove its mini display version.",
             }
       : defaultBlocker;
+    const localAsset = {
+      status: family.sourceArtifact === null ? "NO_DECLARED_LOCAL_ASSET" : "DECLARED_LOCAL_ASSET_CHECKED",
+      evidence: family.sourceArtifact === null
+        ? "No declared local display artifact was available for an existence check."
+        : "Declared local display assets were checked only for worktree/original-checkout presence and bytes; this does not establish raw lineage or display success.",
+      assets: localDisplayAssetEvidence(family.sourceArtifact),
+    };
+    const remoteVersion = {
+      status: "REMOTE_VERSION_NOT_READ",
+      evidence: "No remote release/version receipt was read by this local-only audit.",
+      localAlignment: alignment,
+    };
+    const query = {
+      status: layer.readable === "registered"
+        ? "QUERYABLE_REGISTERED"
+        : layer.blocker === "QUERY_ACCESS_DISABLED"
+          ? "QUERY_DISABLED"
+          : layer.readable === "metadata_candidate_requires_readback"
+            ? "NO_REGISTERED_QUERY_METADATA_READBACK_CANDIDATE"
+            : "NO_REGISTERED_QUERY",
+      evidence: layer.evidenceBasis,
+      datasetIds: layer.datasetIds,
+      descriptors: layer.descriptors,
+    };
+    const displayed = {
+      status: family.sourceArtifact === null ? "NO_DECLARED_DISPLAY_ASSET" : "DISPLAY_CONTRACT_DECLARED_NOT_OBSERVED",
+      evidence: family.sourceArtifact === null
+        ? "The manifest declares no concrete display asset for this layer."
+        : "Manifest display asset declaration and local file presence are not browser/runtime display readback.",
+      manifestSourceContract: layer.manifestSourceContract,
+    };
     return {
       layerKey: layer.layerKey,
       label: layer.label,
-      candidateClass: layer.readable === "metadata_candidate_requires_readback" ? "metadata_geojson_candidate" : "unknown_or_unavailable",
+      candidateClass: layer.readable === "metadata_candidate_requires_readback"
+        ? "metadata_geojson_candidate"
+        : layer.readable === "unknown_or_unavailable"
+          ? "unknown_or_unavailable"
+          : layer.readable === "registered"
+            ? "registered_queryable"
+            : "registered_query_disabled",
       familyKey: family.familyKey,
       sourceArtifact: family.sourceArtifact,
-      localDisplayAssetEvidence: localDisplayAssetEvidence(family.sourceArtifact),
+      localDisplayAssetEvidence: localAsset.assets,
       sourceEvidence: family.evidence,
       declaredContract,
       verifiedRawFamilyKey,
       displayRawAlignment: alignment,
+      evidence: { localAsset, remoteVersion, query, displayed },
       upstreamDatasetInspections: datasetInspections,
       analyticsNavigation: analyticsNavigation(layer.upstream?.datasetIds ?? []),
       upstream: layer.upstream,
@@ -552,10 +596,14 @@ function p0FamilyLedger() {
       nextStep: blocker.nextStep,
     };
   });
+  const candidateEntries = entries.filter(entry => entry.candidateClass === "unknown_or_unavailable" || entry.candidateClass === "metadata_geojson_candidate");
   const familyCounts = new Map();
-  for (const entry of entries) familyCounts.set(entry.familyKey, (familyCounts.get(entry.familyKey) ?? 0) + 1);
-  const verifiedRawFamilyKeys = [...new Set(entries.map(entry => entry.verifiedRawFamilyKey).filter(Boolean))].sort();
-  const contractKeys = [...new Set(entries.map(entry => entry.declaredContract?.key).filter(Boolean))];
+  const allLayerFamilyCounts = new Map();
+  for (const entry of candidateEntries) familyCounts.set(entry.familyKey, (familyCounts.get(entry.familyKey) ?? 0) + 1);
+  for (const entry of entries) allLayerFamilyCounts.set(entry.familyKey, (allLayerFamilyCounts.get(entry.familyKey) ?? 0) + 1);
+  const verifiedRawFamilyKeys = [...new Set(candidateEntries.map(entry => entry.verifiedRawFamilyKey).filter(Boolean))].sort();
+  const allLayerVerifiedRawFamilyKeys = [...new Set(entries.map(entry => entry.verifiedRawFamilyKey).filter(Boolean))].sort();
+  const contractKeys = [...new Set(candidateEntries.map(entry => entry.declaredContract?.key).filter(Boolean))];
   const inspectedDatasetEntries = Object.entries(INSPECTED_UPSTREAM_DATASETS).sort(([a], [b]) => a.localeCompare(b));
   const csvQueueSampleLayerKeys = [
     "a1AccidentRealtime", "agriCropSuitability", "agriculture", "agriLeisureFarmZones", "agriProduceWholesale",
@@ -576,32 +624,37 @@ function p0FamilyLedger() {
     schemaVersion: `pulse-research-p0-source-family-ledger/${auditOptions.date}`,
     auditDate: auditOptions.date,
     generatedBy: "scripts/research/capability-audit.mjs",
-    evidenceBoundary: "familyKey groups only exact manifest-declared display asset tuples. verifiedRawFamilyKey is separate and appears only for analytics lineage inspected in this P0 slice; it does not prove mini display-asset version alignment, remote release presence, or analysis eligibility.",
+    evidenceBoundary: "familyKey groups only exact manifest-declared display asset tuples and remains navigation evidence. verifiedRawFamilyKey is separate and appears only for analytics lineage inspected in this P0 slice; it does not prove mini display-asset version alignment, remote release presence, query success, displayed runtime, or analysis eligibility. Per-entry evidence keeps local asset, remote version, query, and displayed claims distinct.",
     counts: {
-      candidateLayers: entries.length,
-      unknownOrUnavailable: entries.filter(item => item.candidateClass === "unknown_or_unavailable").length,
-      metadataGeojsonCandidates: entries.filter(item => item.candidateClass === "metadata_geojson_candidate").length,
+      allLayers: entries.length,
+      candidateLayers: candidateEntries.length,
+      unknownOrUnavailable: candidateEntries.filter(item => item.candidateClass === "unknown_or_unavailable").length,
+      metadataGeojsonCandidates: candidateEntries.filter(item => item.candidateClass === "metadata_geojson_candidate").length,
+      queryableLayers: entries.filter(item => item.candidateClass === "registered_queryable").length,
+      queryDisabledLayers: entries.filter(item => item.primaryBlocker === "QUERY_ACCESS_DISABLED").length,
       sourceFamilyKeys: familyCounts.size,
       sharedSourceFamilyKeys: [...familyCounts.values()].filter(count => count > 1).length,
       singletonOrUnresolvedFamilyKeys: [...familyCounts.values()].filter(count => count === 1).length,
       verifiedRawFamilyKeys: verifiedRawFamilyKeys.length,
-      entriesWithVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey !== null).length,
-      entriesWithoutVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey === null).length,
+      allLayerVerifiedRawFamilyKeys: allLayerVerifiedRawFamilyKeys.length,
+      entriesWithVerifiedRawFamily: candidateEntries.filter(entry => entry.verifiedRawFamilyKey !== null).length,
+      entriesWithoutVerifiedRawFamily: candidateEntries.filter(entry => entry.verifiedRawFamilyKey === null).length,
       declaredContractFamilyKeys: contractKeys.length,
-      entriesWithDeclaredContractFamily: entries.filter(entry => entry.declaredContract !== null).length,
-      derivedComparisonLayers: entries.filter(entry => entry.declaredContract?.kind === "derived_statistics_recipe").length,
-      repeatedUpstreamDatasetLayers: entries.filter(entry => entry.declaredContract?.kind === "declared_upstream_dataset").length,
-      entriesWithDeclaredDisplayAsset: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0).length,
-      displayAssetEntriesPresentInWorktree: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.worktree?.exists)).length,
-      displayAssetEntriesPresentInOriginalCheckout: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.originalCheckout?.exists)).length,
+      entriesWithDeclaredContractFamily: candidateEntries.filter(entry => entry.declaredContract !== null).length,
+      derivedComparisonLayers: candidateEntries.filter(entry => entry.declaredContract?.kind === "derived_statistics_recipe").length,
+      repeatedUpstreamDatasetLayers: candidateEntries.filter(entry => entry.declaredContract?.kind === "declared_upstream_dataset").length,
+      entriesWithDeclaredDisplayAsset: candidateEntries.filter(entry => entry.localDisplayAssetEvidence.length > 0).length,
+      displayAssetEntriesPresentInWorktree: candidateEntries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.worktree?.exists)).length,
+      displayAssetEntriesPresentInOriginalCheckout: candidateEntries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.originalCheckout?.exists)).length,
       inspectedUpstreamDatasetIds: inspectedDatasetEntries.length,
       inspectedUpstreamDatasetEvidenceGaps: inspectedDatasetEntries.filter(([, item]) => item.status === "EVIDENCE_GAP").length,
-      sourceMissingWithProcessedManifest: entries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.processedManifests.length > 0)).length,
-      sourceMissingWithCatalog: entries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.catalogDocs.length > 0)).length,
+      sourceMissingWithProcessedManifest: candidateEntries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.processedManifests.length > 0)).length,
+      sourceMissingWithCatalog: candidateEntries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.catalogDocs.length > 0)).length,
     },
     families: [...familyCounts.entries()].map(([familyKey, layerCount]) => ({ familyKey, layerCount })).sort((a, b) => a.familyKey.localeCompare(b.familyKey)),
-    verifiedRawFamilies: Object.fromEntries(verifiedRawFamilyKeys.map(key => [key, VERIFIED_RAW_FAMILIES[key]])),
-    declaredContractFamilies: contractKeys.map(key => ({ key, layerCount: entries.filter(entry => entry.declaredContract?.key === key).length })).sort((a, b) => b.layerCount - a.layerCount || a.key.localeCompare(b.key)),
+    allLayerFamilies: [...allLayerFamilyCounts.entries()].map(([familyKey, layerCount]) => ({ familyKey, layerCount })).sort((a, b) => a.familyKey.localeCompare(b.familyKey)),
+    verifiedRawFamilies: Object.fromEntries(allLayerVerifiedRawFamilyKeys.map(key => [key, VERIFIED_RAW_FAMILIES[key]])),
+    declaredContractFamilies: contractKeys.map(key => ({ key, layerCount: candidateEntries.filter(entry => entry.declaredContract?.key === key).length })).sort((a, b) => b.layerCount - a.layerCount || a.key.localeCompare(b.key)),
     inspectedUpstreamDatasets: Object.fromEntries(inspectedDatasetEntries),
     csvQueueSamples,
     entries,
@@ -680,7 +733,8 @@ function familyLedgerMarkdown(ledger) {
   const hasCatalog = entry => entry.analyticsNavigation.some(item => item.catalogDocs.length > 0);
   const lines = [
     `# ${unknown.length} 個尚無可用查詢映射的圖層：逐層處置（${auditOptions.date}）`, "",
-    "由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留 699 個候選的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。", "",
+    "由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。", "",
+    `全部 ${ledger.counts.allLayers} 層中，${ledger.counts.candidateLayers} 層維持候選處置、${ledger.counts.queryableLayers} 層為已註冊 queryable、${ledger.counts.queryDisabledLayers} 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。`, "",
     `778 個 manifest layer 中，${report.counts.layersWithQueryableDatasets} 個有查詢映射、${report.counts.lazyGeojsonCandidates} 個是待讀回的 GeoJSON metadata candidates、${unknown.length} 個尚無可用映射；三者合計 ${report.counts.manifestLayers}。`, "",
     "## 主要狀態", "", "| 狀態 | 層數 |", "|---|---:|",
     ...[...statuses].sort((a, b) => b[1] - a[1]).map(([status, count]) => `| ${status} | ${count} |`), "",

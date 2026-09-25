@@ -31,10 +31,12 @@ import { retailMarketsTgosAdapter } from "./retailMarketsDataset";
 import { agriPoiSourceCoordinatesAdapter } from "./agriPoiDataset";
 import { publicToiletsSourceCoordinatesAdapter } from "./publicToiletsDataset";
 import { communityCentersNativeCoordinatesAdapter } from "./communityCentersDataset";
+import { communityCentersListedAdapter } from "./communityCentersListedDataset";
 import { sportsVenuesSourceCoordinatesAdapter } from "./sportsVenuesDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
+import { campingSourceCoordinatesAdapter } from "./campingDataset";
 import { forestRoadsAdapter } from "./forestRoadsDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
@@ -343,11 +345,13 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   agriPoiSourceCoordinatesAdapter,
   publicToiletsSourceCoordinatesAdapter,
   communityCentersNativeCoordinatesAdapter,
+  communityCentersListedAdapter,
   sportsVenuesSourceCoordinatesAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
   amusementParksListedAdapter,
+  campingSourceCoordinatesAdapter,
   forestRoadsAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
