@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 197 個已有查詢映射的層 + 25 個 metadata 候選 + 556 個尚無可用映射的層；共 203 datasets。197 不等於 197 層全部驗收完成。目前 581 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 199 個已有查詢映射的層 + 23 個 metadata 候選 + 556 個尚無可用映射的層；共 205 datasets。199 不等於 199 層全部驗收完成。目前 579 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -25,8 +25,8 @@
 ## A．把盤點變成可施工的完整佇列
 
 - [x] A00：778 個 layer key 全部納入同一台帳，保留 local asset／remote version／query／displayed 分離證據。收據：`81a8f838` 及 current ledger；僅代表列冊完成。
-- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 143／待處理 238）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／197／581。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
-- [x] A02：581 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
+- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 145／待處理 236）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／199／579。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
+- [x] A02：579 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
 - [ ] A03：逐家族核對真正共用的 raw/RPC/release 契約；從宣告 upstream ID 的高覆蓋家族優先，補原檔／SHA、授權、時間、筆數、缺值及 geometry。全部待處理層均有已核 family 或具體待解證據，才勾選。
 - [ ] A04：對現有 188 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
 
@@ -114,9 +114,11 @@
 
 第四十三批 [x] 只完成 `waterReservoirs` 相關 WRA GIC 壩堰 98 Point 的獨立 owner-only reader：北部 5、南部 8 與原表 oracle、正常 MCP 相符。這是部分來源接線，非整層完成；現有 111 點混合展示的 37 個水庫代表點缺版次／原表收據，129 個水庫 MultiPolygon 最大單面超過 8 MiB 限額，均 [ ] HOLD。`waterReservoirs` 雖進入查詢映射統計，不可說 111 點與 129 面都保證可查。詳見[第四十三批](./source-family-priority-rollout-20260925.md)。目前 203 datasets、197 個查詢映射、581 個待映射層。
 
+第四十四、四十五批 [x] `trafficAccidentYearly` 1,600 個 A1 事故與 `theftTaoyuan` 1,423 個竊盜歷史 Point，各以原始與處理檔固定 SHA 建 owner-only 安全欄位 reader。正常 MCP 埔里事故 11、臺北事故 36、桃園住宅竊盜 138，與全表 oracle 一致；focused 11/11、localhost 兩端點 200／外來 Host 404 通過。竊盜 `district_raw` 全空、年度混用，已禁止年月比較；兩層展示 GeoJSON 缺檔、精確最近／公開地圖／現在風險 [ ] HOLD。詳見[第四十四至四十五批](./source-family-priority-rollout-20260925.md)。目前 205 datasets、199 個查詢映射、579 個待映射層。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
-25 個 metadata 候選與 556 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
+23 個 metadata 候選與 556 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
 
 - [ ] B01：完成臺灣靜態 Point 家族：原表可讀、完整列數核對、固定版本 reader、安全欄位與分頁；同一家族所有可接的圖層一次映射。原表無座標列仍可查屬性，代理座標與原生座標分開。
 - [ ] B02：追查臺灣「來源證據不足」家族：先找現有原表／collector／RPC 與發布紀錄，再做可逆本地重建。每個家族產出可接資料或具體外部阻擋；不能只重複舊台帳結論。
