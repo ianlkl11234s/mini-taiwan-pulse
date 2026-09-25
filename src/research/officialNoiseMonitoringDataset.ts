@@ -1,0 +1,37 @@
+import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
+
+/** Official station points and source-specific measured windows, retaining unlocated records. */
+export const officialNoiseMonitoringAdapter = createVerifiedPointDatasetAdapter({
+  datasetId: "tw-official-noise-monitoring-fixed-source", label: "官方噪音監測站與來源視窗摘要",
+  description: "環境部與地方政府固定快照 426 筆。站點座標與 30 日視窗音量摘要分開看；只有 159 筆有地方音量值，且各來源視窗終點不同。freshness_status 是建置時計算，不是查詢當下的新鮮度。",
+  sourceUrl: "/environment/official_noise_monitoring.geojson",
+  expectedSha256: "8f88b0192d0a874ee0a42da322c0ba1390ae69b40e5b90345fbe00b3088ff162",
+  expectedSourceRows: 426, expectedSelectedRows: 426, fullSource: true, selection: {},
+  preserveUnlocatedRecords: true, layerRefs: ["officialNoiseMonitoring"],
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "feature_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "station_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "station_name", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "county", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "station_status", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "period_type", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "laeq_window_db", type: "number", nullable: true, nullMeaning: "此站沒有可驗證的地方視窗音量，不能當成 0 dB", unit: "dB" },
+    { name: "window_start", type: "string", nullable: true, nullMeaning: "沒有地方量測視窗", unit: null },
+    { name: "window_end", type: "string", nullable: true, nullMeaning: "沒有地方量測視窗", unit: null },
+    { name: "latest_observation_date", type: "string", nullable: true, nullMeaning: "沒有地方觀測日期", unit: null },
+    { name: "sample_count", type: "number", nullable: false, nullMeaning: null, unit: "samples" },
+    { name: "active_days", type: "number", nullable: false, nullMeaning: null, unit: "days" },
+    { name: "window_days", type: "number", nullable: false, nullMeaning: null, unit: "days" },
+    { name: "active_day_ratio", type: "number", nullable: false, nullMeaning: null, unit: null },
+    { name: "freshness_status", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "spatial_precision", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "source_dataset_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "geometry", type: "json", nullable: true, nullMeaning: "官方站點缺可信座標；不以行政區中心代替", unit: null },
+  ],
+  publisher: "環境部 NOS_P_08 與臺中、嘉義市、苗栗、新竹市、臺南地方政府",
+  license: "政府資料開放授權條款-第1版（OGDL-Taiwan-1.0）",
+  precision: "415 個來源官方站點 WGS84 Point；11 筆缺座標保留 null。Point 是測站位置，不表示噪音暴露區域。",
+  coverageDescription: "2026-08-27 本地固定快照 426 筆：415 有官方 Point，11 無座標；159 有地方視窗 LAeq，267 僅站點名冊且 laeq_window_db=null。地方視窗各以來源最新實際觀測日回溯 29 日，只聚合有回報樣本；建置時標 15 fresh、144 historical、267 unavailable，標籤不會隨今天日期更新。sample_count=0／active_days=0 對 unavailable 代表無地方樣本，不是 0 dB。dB 不可算術平均；此值是來源 pipeline 的聲能域加權結果，不能跨不同期間直接比較，也不能當即時監測或法規達標率。",
+  sourceLineage: "環境部 data.gov.tw 28185 與六組地方政府來源的 2026-08-27 raw snapshot（15 resources 均 TLS verified）-> analytics official_noise_monitoring GeoJSON、summary 與 manifest -> Mini public asset 同 SHA -> 426 列固定 SHA/count 驗證；record_id 為發布 SHA 加列索引。各來源實際觀測時點與 active_day_ratio 保留在列內。",
+});

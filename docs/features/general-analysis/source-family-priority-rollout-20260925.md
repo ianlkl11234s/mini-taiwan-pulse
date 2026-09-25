@@ -33,3 +33,13 @@
 - 獨立 Python Haversine oracle：花蓮 `[121.606,23.98]` 2,000m 得 35 筆。正常配對 `pulse_query_records` 以完整包含圓的 bbox `[121.585,23.960,121.627,24.000]` 得 44 個候選，SHA receipt 同上；`pulse_spatial_query(within_distance)` 得 35，`pulse_present_result`→`pulse_wait_scene_ready` revision 10 `ready`；`pulse_get_map_context` readback 為 35 features／1 source／1 layer、`sourcesReady=true`、`layersReady=true`，IAB 地圖目視有 35 個藍色點。這是來源座標的地表直線距離，不是步行距離或目前可用公廁數。
 - 另一問法／較小範圍：同中心 500m 查得 5 筆，revision 8 `ready`／map readback 5 features；focused test 2/2、`npx tsc -b`、`npm run build` 通過。初次呈現 35 筆時原分頁熱更新後回 error；重新載入**同一已配對分頁**後重新取結果，35 筆正常 ready/readback。未切換或清除既有配對。
 - 本片是本機 3734→8794→MCP→browser 驗收；未證遠端 CDN/S3 或 production 同版，沒有寫 Supabase、S3、push、PR、merge 或部署。
+
+## 第二批：臺灣 GIS 固定來源擴充（本機）
+
+- 運動場館：同一 15,000 筆固定來源衍生 5 個 queryable layer mapping；sidecar SHA `28da39f158143c8dfd75ea8dd3755d9e91a3c56bd9fbabfa07e953a410c0dccb`。臺東 `[121.15,22.76]` 1 公里，bbox 44 筆、直線距離 29 筆，與獨立 Haversine oracle 相同；配對地圖 29 features／1 source／1 layer `ready` 與 browser readback 通過。380 筆面積 null 不補零；`open_status` 僅為來源快照。既有展示資產 `sports/all_venues.geojson` 在此 worktree 缺失，故此證據只保證分析讀取與 transient overlay。
+- 社區活動中心：原本 1,794 個展示 Point 中僅 592 筆為來源原生座標，已建立單獨可做附近查詢的 reader；其餘 1,202 筆代理座標排除。臺北 `[121.55,25.05]` 1 公里，bbox 15、直線距離 9，獨立 oracle 與配對地圖 9 features `ready`／readback 均通過。原處理表另有 18 筆無座標；仍不稱全國完整。
+- 聲音照相設備：固定名冊 333 筆全可查屬性，267 筆代理點、66 筆 null geometry；查詢 `spatial_precision=unlocated` 得 66。所有代理點均禁止附近運算；這不是當前設備運作狀態。
+- 官方噪音測站：固定原表 426 筆全可查，415 筆來源 Point、11 筆 null；159 筆有 LAeq、267 筆 null。`fresh/historical/unavailable` 15／144／267 是來源建檔日 2026-08-27 的分類，不能當今日新鮮度。嘉義 `[120.44,23.48]` 2 公里 bbox 14、距離 13，獨立 oracle 與配對地圖 13 features `ready`／readback 均通過；LAeq 只代表實際取得樣本的能量平均，不代表完整 30 天或法規符合。
+- 遊樂園：交通部觀光署固定名冊 27 筆全可按屬性查；24 筆園區來源地址座標可做附近分析，2 筆停車場代理點及 1 筆無座標排除。sidecar SHA `65e70b6312204b5b40b974e382e328f88d872d139a845e435c6e70e3b1b0c4ea`。屏東 `[120.557,22.549]` 3 公里查得 1 筆「8大森林樂園」，49.6 公尺；MCP `ready` revision 7，map readback 1 feature／1 source／1 layer。現有 manifest 文案稱 26 家，與固定名冊 27 筆不一致，顯示資產與分析來源同版尚待核對。
+- 本批新增 5 個來源家族、6 個 query datasets、9 個 queryable layer mappings，其中運動場館 5、活動中心 1、聲音照相 1、噪音測站 1、遊樂園 1；可做附近運算的 mapping 為 8，聲音照相代理名冊不可。capability audit：778 manifest layers、93 registered datasets、89 queryable mappings、95 metadata candidates、594 unknown/unavailable。unknown 數量不降，是因本批把既有 metadata candidates 轉為正式 reader；這個數字不能當完成率。來源快照、授權、缺值和幾何排除逐家族寫在對應 dataset descriptor。
+- 本批 focused test、`npx tsc -b` 與 `npm run build` 通過；驗收範圍為本機 3734→8794→MCP→browser，未寫 Supabase/S3，也未證遠端或 production。

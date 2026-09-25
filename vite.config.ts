@@ -308,6 +308,11 @@ function serveResearchAnalysisSidecars(): Plugin {
         ["/research/welfare_centers_upstream_20260812.geojson", { target: resolve(process.cwd(), "public/research/welfare_centers_upstream_20260812.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/research/forest-roads/forest-roads-2d.geojson", { target: resolve(process.cwd(), "public/research/forest-roads/forest-roads-2d.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/environment/public_toilets_national.geojson", { target: resolve(process.cwd(), "public/environment/public_toilets_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/research/sports-venues-source-20260704.geojson", { target: resolve(process.cwd(), "public/research/sports-venues-source-20260704.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/civic_facilities/community_centers_national.geojson", { target: resolve(process.cwd(), "public/civic_facilities/community_centers_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/environment/sound_camera_locations.geojson", { target: resolve(process.cwd(), "public/environment/sound_camera_locations.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/environment/official_noise_monitoring.geojson", { target: resolve(process.cwd(), "public/environment/official_noise_monitoring.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/research/amusement-parks-source-20260723.geojson", { target: resolve(process.cwd(), "public/research/amusement-parks-source-20260723.geojson"), contentType: "application/geo+json; charset=utf-8" }],
       ]);
       server.middlewares.use((request, response, next) => {
         const asset = assets.get((request.url ?? "").split("?", 1)[0]);

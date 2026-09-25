@@ -22,6 +22,8 @@ export type VerifiedPointDatasetConfig = Readonly<{
   precision: string;
   /** Coordinate meaning from the verified source; proxy points are display/query-only. Defaults to actual. */
   geometryRole?: "actual" | "proxy";
+  /** Keep source records without usable Point geometry for attribute queries. */
+  preserveUnlocatedRecords?: boolean;
   layerRefs?: readonly string[];
   /** Maps a safe descriptor field to the immutable source property name. */
   sourceFieldMap?: Readonly<Record<string, string>>;
@@ -43,7 +45,7 @@ function descriptor(config: VerifiedPointDatasetConfig): DatasetDescriptor {
   const sourceNames = Object.entries(config.sourceFieldMap ?? {});
   if (!rootAssetUrl(config.sourceUrl) || !hash(config.expectedSha256) || !positive(config.expectedSourceRows) || !positive(config.expectedSelectedRows)
     || config.expectedSelectedRows > config.expectedSourceRows || !config.datasetId || !config.label || !config.description || !config.publisher || !config.license || !config.precision
-    || !names.has("record_id") || !names.has("geometry") || fields.some(field => field.name === "record_id" && (field.type !== "string" || field.nullable) || field.name === "geometry" && (field.type !== "json" || field.nullable))
+    || !names.has("record_id") || !names.has("geometry") || fields.some(field => field.name === "record_id" && (field.type !== "string" || field.nullable) || field.name === "geometry" && (field.type !== "json" || field.nullable !== (config.preserveUnlocatedRecords === true)))
     || (!fullSource && selectionKeys.length === 0) || (fullSource && (selectionKeys.length !== 0 || config.expectedSelectedRows !== config.expectedSourceRows))
     || selectionKeys.some(field => !names.has(field)) || sourceNames.some(([field, source]) => !names.has(field) || field === "record_id" || field === "geometry" || !source.trim())
     || new Set(sourceNames.map(([, source]) => source)).size !== sourceNames.length
@@ -75,9 +77,9 @@ export function createVerifiedPointDatasetAdapter(config: VerifiedPointDatasetCo
   const sourceName = (field: string) => config.sourceFieldMap?.[field] ?? field;
   const safeFields = config.fields.map(field => field.name).filter(name => name !== "record_id" && name !== "geometry").map(sourceName);
   const readSnapshot = async (_parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal): Promise<AdapterSnapshot> => {
-    const snapshot = await loadPointDataset({ datasetId: config.datasetId, url: config.sourceUrl, idField: "record_id", safeFields }, { signal });
+    const snapshot = await loadPointDataset({ datasetId: config.datasetId, url: config.sourceUrl, idField: "record_id", safeFields, preserveUnlocatedRecords: config.preserveUnlocatedRecords }, { signal });
     if (snapshot.checksumSha256 !== config.expectedSha256) fail("VERIFIED_POINT_SOURCE_SHA_MISMATCH");
-    const sourceRows = snapshot.rows.length + Object.values(snapshot.exclusions).reduce((total, count) => total + count, 0);
+    const sourceRows = snapshot.rows.length + (config.preserveUnlocatedRecords ? 0 : Object.values(snapshot.exclusions).reduce((total, count) => total + count, 0));
     if (sourceRows !== config.expectedSourceRows) fail("VERIFIED_POINT_SOURCE_COUNT_MISMATCH");
     const mappedRows = snapshot.rows.map(row => Object.fromEntries(Object.entries(row).map(([field, value]) => [
       Object.entries(config.sourceFieldMap ?? {}).find(([, source]) => source === field)?.[0] ?? field,
