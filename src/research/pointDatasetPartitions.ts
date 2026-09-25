@@ -3,6 +3,9 @@ const MAX_FEATURES = 20_000;
 const TIMEOUT_MS = 15_000;
 const MAX_CACHE_BYTES = 32 * 1024 * 1024;
 const MAX_PARALLEL_FETCHES = 4;
+// A partition manifest may attest to a large offline source. The browser never
+// downloads that source; every fetched manifest/shard still uses MAX_BYTES.
+const MAX_DECLARED_SOURCE_BYTES = 1024 * 1024 * 1024;
 
 export type PointBbox = readonly [number, number, number, number];
 
@@ -13,10 +16,10 @@ export interface PointSpatialPartitionConfig {
 }
 
 interface PartitionManifest {
-  schemaVersion: "pulse-point-partitions/1";
+  schemaVersion: "pulse-point-partitions/1" | "pulse-point-partitions/2";
   source: { sha256: string; bytes: number; featureCount: number; reference: string };
   cellDegrees: number;
-  shards: readonly { path: string; sha256: string; bytes: number; featureCount: number; bbox: PointBbox | null }[];
+  shards: readonly { path: string; sha256: string; bytes: number; featureCount: number; bbox: PointBbox | null; encoding?: "gzip"; uncompressedSha256?: string; uncompressedBytes?: number }[];
 }
 
 export interface PointPartitionRows {
@@ -36,7 +39,9 @@ let cachedBytes = 0;
 function fail(code: string): never { throw new Error(code); }
 function hashLike(value: unknown): value is string { return typeof value === "string" && /^[a-f0-9]{64}$/.test(value); }
 function countLike(value: unknown): value is number { return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= MAX_FEATURES; }
+function sourceCountLike(value: unknown): value is number { return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= 100_000_000; }
 function byteLike(value: unknown): value is number { return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= MAX_BYTES; }
+function sourceByteLike(value: unknown): value is number { return typeof value === "number" && Number.isSafeInteger(value) && value >= 0 && value <= MAX_DECLARED_SOURCE_BYTES; }
 
 function rootPath(value: unknown): value is string {
   if (typeof value !== "string" || !value.startsWith("/") || value.includes("//") || value.includes("?") || value.includes("#")) return false;
@@ -79,6 +84,17 @@ async function boundedBytes(response: Response): Promise<Uint8Array> {
   const bytes = new Uint8Array(size); let offset = 0;
   for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
   return bytes;
+}
+
+async function gunzip(bytes: Uint8Array, expectedSha256: string, expectedBytes: number): Promise<Uint8Array> {
+  if (typeof DecompressionStream === "undefined") fail("COMPRESSION_UNSUPPORTED");
+  if (!hashLike(expectedSha256) || !byteLike(expectedBytes)) fail("INVALID_PARTITION_MANIFEST");
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+  const response = new Response(stream);
+  const output = await boundedBytes(response);
+  if (output.byteLength !== expectedBytes) fail("PARTITION_UNCOMPRESSED_BYTE_MISMATCH");
+  if (await sha256(output) !== expectedSha256) fail("PARTITION_UNCOMPRESSED_SHA_MISMATCH");
+  return output;
 }
 
 function cacheAsset(key: string, asset: CachedAsset): void {
@@ -151,15 +167,18 @@ function parseJson(bytes: Uint8Array): unknown {
 function manifestFor(value: unknown, config: PointSpatialPartitionConfig, sourceReference: string): PartitionManifest {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("INVALID_PARTITION_MANIFEST");
   const manifest = value as Partial<PartitionManifest>;
-  if (manifest.schemaVersion !== "pulse-point-partitions/1" || !manifest.source || !Array.isArray(manifest.shards)
-    || !hashLike(manifest.source.sha256) || manifest.source.sha256 !== config.sourceSha256 || !byteLike(manifest.source.bytes)
-    || !countLike(manifest.source.featureCount) || manifest.source.reference !== sourceReference
+  if (!(["pulse-point-partitions/1", "pulse-point-partitions/2"] as const).includes(manifest.schemaVersion as "pulse-point-partitions/1" | "pulse-point-partitions/2") || !manifest.source || !Array.isArray(manifest.shards)
+    || !hashLike(manifest.source.sha256) || manifest.source.sha256 !== config.sourceSha256 || !sourceByteLike(manifest.source.bytes)
+    || !sourceCountLike(manifest.source.featureCount) || manifest.source.reference !== sourceReference
     || typeof manifest.cellDegrees !== "number" || !Number.isFinite(manifest.cellDegrees) || manifest.cellDegrees <= 0 || manifest.cellDegrees > 180
     || manifest.shards.length === 0 || manifest.shards.length > 1024) fail("INVALID_PARTITION_MANIFEST");
   const paths = new Set<string>(); let featureCount = 0; let nullShards = 0;
   for (const shard of manifest.shards) {
-    if (!shard || typeof shard !== "object" || !hashLike(shard.sha256) || shard.path !== `${shard.sha256}.geojson` || !byteLike(shard.bytes)
+    if (!shard || typeof shard !== "object" || !hashLike(shard.sha256) || typeof shard.path !== "string" || !byteLike(shard.bytes)
       || !countLike(shard.featureCount) || paths.has(shard.path) || !(shard.bbox === null || validBbox(shard.bbox))) fail("INVALID_PARTITION_MANIFEST");
+    const compressed = manifest.schemaVersion === "pulse-point-partitions/2";
+    if (compressed && (shard.path !== `${shard.sha256}.geojson.gz` || shard.encoding !== "gzip" || !hashLike(shard.uncompressedSha256) || !byteLike(shard.uncompressedBytes))) fail("INVALID_PARTITION_MANIFEST");
+    if (!compressed && (shard.path !== `${shard.sha256}.geojson` || shard.encoding !== undefined || shard.uncompressedSha256 !== undefined || shard.uncompressedBytes !== undefined)) fail("INVALID_PARTITION_MANIFEST");
     paths.add(shard.path); featureCount += shard.featureCount;
     if (shard.bbox === null) nullShards++;
   }
@@ -198,7 +217,7 @@ async function loadPointPartitionsWithinDeadline(config: PointSpatialPartitionCo
   const manifestAsset = await fetchAsset(config.manifestUrl, config.manifestSha256, signal);
   const manifest = manifestFor(parseJson(manifestAsset.bytes), config, sourceReference);
   const selected = manifest.shards.filter(shard => shard.bbox === null || intersects(shard.bbox, bbox));
-  if (manifestAsset.bytes.byteLength + selected.reduce((total, shard) => total + shard.bytes, 0) > MAX_BYTES) fail("DATASET_TOO_LARGE");
+  if (manifestAsset.bytes.byteLength + selected.reduce((total, shard) => total + (shard.uncompressedBytes ?? shard.bytes), 0) > MAX_BYTES) fail("DATASET_TOO_LARGE");
   const shardCached = selected.map(shard => assets.has(`${base}${shard.path}#${shard.sha256}`));
   const assetsForShard: CachedAsset[] = [];
   for (let index = 0; index < selected.length; index += MAX_PARALLEL_FETCHES) {
@@ -212,9 +231,10 @@ async function loadPointPartitionsWithinDeadline(config: PointSpatialPartitionCo
   for (let index = 0; index < selected.length; index++) {
     const shard = selected[index]!; const asset = assetsForShard[index]!;
     if (asset.bytes.byteLength !== shard.bytes) fail("PARTITION_BYTE_MISMATCH");
-    bytes += asset.bytes.byteLength;
+    const decoded = shard.encoding === "gzip" ? await gunzip(asset.bytes, shard.uncompressedSha256!, shard.uncompressedBytes!) : asset.bytes;
+    bytes += decoded.byteLength;
     if (!shardCached[index]) { downloadedBytes += asset.bytes.byteLength; requests++; }
-    for (const feature of collectionFeatures(parseJson(asset.bytes), shard)) {
+    for (const feature of collectionFeatures(parseJson(decoded), shard)) {
       if (!feature || typeof feature !== "object" || Array.isArray(feature) || !Number.isSafeInteger((feature as { sourceOrdinal?: unknown }).sourceOrdinal)
         || (feature as { sourceOrdinal: number }).sourceOrdinal < 0 || (feature as { sourceOrdinal: number }).sourceOrdinal >= manifest.source.featureCount || ordinals.has((feature as { sourceOrdinal: number }).sourceOrdinal)) fail("INVALID_PARTITION_ORDINAL");
       if (shard.bbox !== null && !pointWithinShard(feature, shard.bbox)) fail("INVALID_PARTITION_SHARD_SCOPE");
