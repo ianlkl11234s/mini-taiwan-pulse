@@ -147,9 +147,23 @@ VERIFIED_RAW_FAMILIES["moenv:pollution_facilities:EMS_S_01:20260706"] = {
   sourceSha256: "7aa3c25b9907bf2e557116af8a60fcce3c1e7ecac20ea6898b81e7309f4985f9",
   localDisplayReceipt: "Original-mini pollution_facilities.pmtiles and analytics 20260706 output both SHA cec5cda2a0ccff4dcdab829f4719903ffe111728278792bbcd2089282778599b. Remote runtime release not read.",
 };
+VERIFIED_RAW_FAMILIES["moenv:pollution_penalties:EMS_P_46:20260706"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/environment/pollution_source/frontend/pollution_penalties_events_20260706.geojsonseq",
+  evidence: ["mini:scripts/research/build-pollution-penalty-partitions.py", "mini:../runtime/point-partitions/pollution-penalties/manifest-receipt.json"],
+  sourceVersion: "EMS_P_46 / frontend 20260706", publisher: "環境部環境資料開放平臺", license: "OGDL-Taiwan-1.0 source; address_osm coordinate redistribution rights under review; owner-only local query",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Frontend manifest generated 2026-07-07; source observation/acquisition timestamp unavailable.",
+  coverageAndMissingness: "414,904 historical event Points (critical 55,281; high/normal 248,556; mobile 111,067). Noise 29,661 overlaps those categories. Four geocode methods include 108,276 address_osm. Reference coordinates are not violation sites.",
+  geometry: "WGS84 geocoded reference Point; bbox and attribute query only. No exact nearest or current-violation claim.",
+  sourceSha256: "247d6a759942f37b17b12f12558b9d2fce2e9a80e73503b1cc52c1c9b251c937",
+  localDisplayReceipt: "Original-mini PMTiles SHA d54284589ab48e4083fb428b3c65f465ba8de4be5fd5892c0787d1e85f4a1483 matches analytics 20260706, but display excludes mobile category; not full-event equivalence. Local sidecar manifest SHA 5d403a5d36a57d1ef6b78976d0ce5072136559641c72993eaceabce86f7cce2b; no public deployment.",
+};
 const VERIFIED_RAW_FAMILY_BY_LAYER = {
   pollutionSite: "moenv:pollution_sites:EMS_S_07:20260706",
   pollutionFacility: "moenv:pollution_facilities:EMS_S_01:20260706",
+  pollutionPenaltyCritical: "moenv:pollution_penalties:EMS_P_46:20260706",
+  pollutionPenaltyGeneral: "moenv:pollution_penalties:EMS_P_46:20260706",
+  pollutionPenaltyMobile: "moenv:pollution_penalties:EMS_P_46:20260706",
+  noiseEnforcementEvents: "moenv:pollution_penalties:EMS_P_46:20260706",
   gasStationCanonical: "energy:gas_stations_canonical:20260620",
   gasStationCpc: "energy:gas_stations_canonical:20260620",
   gasStationFpcc: "energy:gas_stations_canonical:20260620",
@@ -297,7 +311,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
   jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
   osm_power: { status: "EVIDENCE_GAP", reason: "catalog found but no inspected immutable raw/release receipt in this pass" },
-  pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. Site and facility have separate verified 20260706 local readers; penalty events require spatial-shard and OSM-coordinate-rights review." },
+  pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. All three have separate verified 20260706 local readers; penalty events are owner-only local bbox/attribute queries because address_osm coordinate redistribution rights remain under review. Proxy coordinates do not support exact-nearest claims." },
   real_estate: { status: "EVIDENCE_GAP", reason: "multiple partial quarterly sources; no single release identity maps this generic dataset ID" },
   schools: { status: "RIGHTS_HOLD", familyKey: "moe:schools:113-academic-year", reason: "raw lineage is verified but catalog explicitly leaves EduGis license unconfirmed" },
   all_venues: { status: "VERIFIED_RAW_LINEAGE", familyKey: "sports:all_venues:20260704" },

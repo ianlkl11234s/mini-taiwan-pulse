@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前基線：778 層 = 99 個已有查詢映射的層 + 92 個 metadata 候選 + 587 個尚無可用映射的層；共 100 datasets。99 不等於 99 層全部驗收完成。目前 679 個待處理層分為待 reader／稽核 428、來源證據不足 201、權限或座標使用疑慮 42、版本待對齊 8；188 個比較 recipe 已包含在 431 內，不另加總。這是讀取器登記狀態，不是 778 層可分析完成率。
+目前基線：778 層 = 104 個已有查詢映射的層 + 91 個 metadata 候選 + 583 個尚無可用映射的層；共 104 datasets。104 不等於 104 層全部驗收完成。目前 674 個待處理層分為待 reader／稽核 423、來源證據不足 201、權限或座標使用疑慮 42、版本待對齊 8；188 個比較 recipe 已包含在 423 內，不另加總。這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -40,7 +40,11 @@
 
 `pollutionFacility` 已接 2026-07-06 固定 152,246 Point 快照，台中指定 bbox 查 373 筆；嚴重度 2／3 分別 3／2 筆，與全表獨立計數相符。它代表列管潛勢而非確認污染，逐筆座標精度未提供，因此只保證依參考座標的 bbox 與屬性查詢；精確最近距離和空間分析 [ ] HOLD。分片讀取在正常 MCP 通過；這是資料查詢通過，地圖呈現不硬說已通過。
 
-`pollutionSite` 已完成 2026-07-06 固定 8,253 Point 名冊 reader，台中 3 公里獨立 oracle／MCP 均為 3 筆，其中列管 2 筆、歷史解除 1 筆；地圖 3 點 `ready`、readback 與瀏覽器目視通過。`pollution_source` 這個宣告 ID 實際含 EMS_S_07 場址、EMS_S_01 列管事業與 EMS_P_46 裁罰事件三份原始資料，後兩家族仍 [ ] 待查／接入；本機舊 PMTiles 與 analytics 20260706 輸出 SHA 完全相同，但 1,568 筆 sitearea 顯示整數化與查詢原值不同，remote runtime release 未讀；不能用場址這一層替代六層全部完成。
+`pollutionPenaltyCritical`、`pollutionPenaltyGeneral`、`pollutionPenaltyMobile`、`noiseEnforcementEvents` 共用同一份 414,904 筆 EMS_P_46 歷史事件原表，已 [x] 完成 owner-only 本機 bbox／屬性 reader。台中 bbox 1,770 筆、noise 篩選 72 筆；台北 bbox 3,795 筆，均與全原表獨立 oracle 相同。四層是四個查詢映射，不是四份母體；noise 與嚴重度群組重疊。座標含 108,276 筆 address_osm，公開再散布權仍 [ ] HOLD；這些點是地理編碼參考位置，精確最近距離、違規現場與地圖呈現均未通過。424 個分片留在本機 runtime，由 loopback 開發服務讀取，不進 production 靜態資產；重建方式及 SHA 見來源家族施工紀錄。
+
+`publicLibraries` 已 [x] 接 644 筆官方名冊屬性 reader（含 10 筆無座標），另有 570 筆 TGOS 地址級 Point 子集可做有界直線附近查詢；L1 62、offline_exact 2 保留於名冊但不進附近。台北 bbox 查得 9 筆，revision 19 `ready`、地圖 readback 9 點及瀏覽器目視通過。`coastGuardStation` 已 [x] 接 269 筆來源 Point reader（252 巡防、17 海洋驛站），東南部 bbox 查得 27 筆；一個重複 entity_id 以逐列 record_id 保留。海巡地圖 ready/readback 及既有展示資產同版仍 [ ] 待驗。
+
+`pollutionSite` 已完成 2026-07-06 固定 8,253 Point 名冊 reader，台中 3 公里獨立 oracle／MCP 均為 3 筆，其中列管 2 筆、歷史解除 1 筆；地圖 3 點 `ready`、readback 與瀏覽器目視通過。`pollution_source` 這個宣告 ID 實際含 EMS_S_07 場址、EMS_S_01 列管事業與 EMS_P_46 裁罰事件三份原始資料，三家族已有分開的本機 reader，但後兩家族的 proxy 點不能算精確空間分析。場址本機舊 PMTiles 與 analytics 20260706 輸出 SHA 完全相同，但 1,568 筆 sitearea 顯示整數化與查詢原值不同，remote runtime release 未讀。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
