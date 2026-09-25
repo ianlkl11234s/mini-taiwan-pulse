@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前基線：778 層 = 108 個已有查詢映射的層 + 88 個 metadata 候選 + 582 個尚無可用映射的層；共 109 datasets。108 不等於 108 層全部驗收完成。目前 670 個待處理層分為待 reader／稽核 419、來源證據不足 201、權限或座標使用疑慮 42、版本待對齊 8；188 個比較 recipe 已包含在 419 內，不另加總。這是讀取器登記狀態，不是 778 層可分析完成率。
+目前基線：778 層 = 121 個已有查詢映射的層 + 75 個 metadata 候選 + 582 個尚無可用映射的層；共 124 datasets。121 不等於 121 層全部驗收完成。目前 657 個待處理層分為待 reader／稽核 412、來源證據不足 201、權限或座標使用疑慮 36、版本待對齊 8；188 個比較 recipe 已包含在 412 內，不另加總。六個學校層雖已本機 owner-only 可查，公開座標權仍 HOLD，故不在待映射 36 中；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -25,10 +25,10 @@
 ## A．把盤點變成可施工的完整佇列
 
 - [x] A00：778 個 layer key 全部納入同一台帳，保留 local asset／remote version／query／displayed 分離證據。收據：`81a8f838` 及 current ledger；僅代表列冊完成。
-- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 45／待處理 336）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／99／679。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
-- [x] A02：679 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
+- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 67／待處理 314）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／121／657。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
+- [x] A02：657 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
 - [ ] A03：逐家族核對真正共用的 raw/RPC/release 契約；從宣告 upstream ID 的高覆蓋家族優先，補原檔／SHA、授權、時間、筆數、缺值及 geometry。全部待處理層均有已核 family 或具體待解證據，才勾選。
-- [ ] A04：對現有 97 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
+- [ ] A04：對現有 121 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
 
 本輪首個新家族收據：加油站 canonical 五個站點層共用 3,053 筆 Point 的固定版 reader。高雄 2 公里 18 筆的獨立 oracle、MCP 查詢、scene `ready`、18 features map readback 與瀏覽器目視均通過；來源檔 SHA、授權混合及 34 筆空名稱詳見[第五批](./source-family-priority-rollout-20260925.md)。這五層的**新查詢空間鏈**已通過；舊 static RPC 展示檔把 443 筆 ODbL 誤標 OGDL，故「既有展示與來源授權完全同版」仍 [ ] 待修。四個 `gasCoverage*` 衍生距離面仍 [ ] 待核產製與路網版本，不算在五層內。
 
@@ -50,11 +50,19 @@
 
 `bikeStations` [ ] HOLD：manifest 宣告的 `./geo/bike_stations.geojson` 在本 worktree 不存在，也未找到可驗的固定 TDX 站點快照／時間／授權收據。須先取得可重現的站點名冊；即時可租車數另有 TTL 與觀測時間契約，不能拿缺少的站點檔或即時畫面猜零。
 
+`fireStations` [x] 本機 717 筆完整名冊可按 bbox／屬性查詢：304 官方、413 Google 參考座標，台中 6／花蓮 Google 4 與全 sidecar 核對。舊地圖檔只有 716 且屏東 38 筆座標不同；公開座標權、正式同版展示、精確最近及救援時間 [ ] HOLD。
+
+社福五層 `welfareLtcInstitutions`、`welfareElderlyHomes`、`welfareChildcare`、`welfareDisability`、`welfareSocialWorkOrgs` [x] 有本機查詢：完整固定名冊 3,117／1,160／1,578／334／587 個 Point，TGOS／Google／離線來源逐列保留。長照與老人住宿另有只含 TGOS 的 3,053／1,043 筆子集；台中長照完整 bbox 113、台北老人住宿完整 bbox 17，與全 sidecar 獨立計數相符。社福團體是組織地址，不等於可服務設施。混合座標完整名冊一律 owner-only、proxy，只作 bbox／屬性，不提供精確最近與服務量能；公開再散布權 [ ] HOLD。TGOS 老人住宿子集台北 bbox 16 已由正常 MCP→scene ready→map readback 16→瀏覽器目視通過；其餘家族地圖 gate 依各筆來源與展示版本另驗。
+
+六個 `eduSchool*`／`eduRemoteSchools` [x] 有同一 113 學年度 4,315 Point 原表的分類 owner-only reader：小學 2,656、國中 964、高中職 508、大專 159、特教 28、偏遠 1,152（與前五類重疊）。台中小學 26／高中職 7、花蓮國中 7／偏遠 0、台北大專 6／特教 4，與完整 sidecar 獨立分類一致。原表座標再散布授權未核，公開與精確最近 [ ] HOLD；名冊不是今日招生或學區。
+
+`welfareChildServices` [x] 有 1,425 列 owner-only 名冊：1,396 Point、29 筆結構性無地址可查屬性但不進 bbox。台北 bbox 28、台南 Google 來源變體 4，與 sidecar 全檔核對。Point 是 TGOS／Google／離線參考位置；公開座標權、精確距離、目前服務量能 [ ] HOLD。
+
 `pollutionSite` 已完成 2026-07-06 固定 8,253 Point 名冊 reader，台中 3 公里獨立 oracle／MCP 均為 3 筆，其中列管 2 筆、歷史解除 1 筆；地圖 3 點 `ready`、readback 與瀏覽器目視通過。`pollution_source` 這個宣告 ID 實際含 EMS_S_07 場址、EMS_S_01 列管事業與 EMS_P_46 裁罰事件三份原始資料，三家族已有分開的本機 reader，但後兩家族的 proxy 點不能算精確空間分析。場址本機舊 PMTiles 與 analytics 20260706 輸出 SHA 完全相同，但 1,568 筆 sitearea 顯示整數化與查詢原值不同，remote runtime release 未讀。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
-92 個 metadata 候選與 587 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
+75 個 metadata 候選與 582 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
 
 - [ ] B01：完成臺灣靜態 Point 家族：原表可讀、完整列數核對、固定版本 reader、安全欄位與分頁；同一家族所有可接的圖層一次映射。原表無座標列仍可查屬性，代理座標與原生座標分開。
 - [ ] B02：追查臺灣「來源證據不足」家族：先找現有原表／collector／RPC 與發布紀錄，再做可逆本地重建。每個家族產出可接資料或具體外部阻擋；不能只重複舊台帳結論。

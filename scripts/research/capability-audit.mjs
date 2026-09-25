@@ -157,6 +157,92 @@ VERIFIED_RAW_FAMILIES["moenv:pollution_penalties:EMS_P_46:20260706"] = {
   sourceSha256: "247d6a759942f37b17b12f12558b9d2fce2e9a80e73503b1cc52c1c9b251c937",
   localDisplayReceipt: "Original-mini PMTiles SHA d54284589ab48e4083fb428b3c65f465ba8de4be5fd5892c0787d1e85f4a1483 matches analytics 20260706, but display excludes mobile category; not full-event equivalence. Local sidecar manifest SHA 5d403a5d36a57d1ef6b78976d0ce5072136559641c72993eaceabce86f7cce2b; no public deployment.",
 };
+VERIFIED_RAW_FAMILIES["ncl:public_libraries:20260717"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/culture/public_libraries/public_libraries_20260717.csv",
+  evidence: ["mini:scripts/research/build-public-libraries-source.mjs", "mini:public/research/public-libraries-source-20260717.geojson"],
+  sourceVersion: "2026-07-17 fixed directory snapshot", publisher: "國家圖書館", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-07-17 is the fixed local snapshot date, not a current opening-status observation.",
+  coverageAndMissingness: "644 public libraries from 5,254 original directory rows; 634 Point and 10 null geometry. TGOS 570 only is spatial eligible; L1 62 and offline_exact 2 remain attribute-only in this reader.",
+  geometry: "Address-level reference Point; not building entrance, walking access or service area.",
+  sourceSha256: "09762ba750e9da4a392481507fd20a462cdcd05037ef5e35b7b29ac84a7173b3",
+  localDisplayReceipt: "Existing mini 634 points and sidecar geocoded subset align by name/type/county/rounded coordinates. Local query map 9 points ready/readback in Taipei; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["coast_guard:stations:20260626"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson",
+  evidence: ["mini:scripts/research/build-coast-guard-stations-source.mjs", "mini:public/research/coast-guard-stations-20260626.geojson"],
+  sourceVersion: "2026-06-26 fixed assembly of data.gov.tw 7089/160068/166260", publisher: "海洋委員會海巡署", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Pipeline fetched_at is not current station operation status.",
+  coverageAndMissingness: "269 Point records, 252 patrol and 17 ocean piers. One repeated entity_id remains two source rows; patrol confidence/n_sources are null, not zero.",
+  geometry: "WGS84 source Point, not entrance or service reachability.", sourceSha256: "8a4624f2d3d821b24052203a28af06808c174d2cee161cb4c199e8bf6fa78183",
+  localDisplayReceipt: "Existing coastGuardStation display asset missing; query-side source verified only.",
+};
+VERIFIED_RAW_FAMILIES["moc:local_cultural_museums:20260716"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/culture/local_cultural_museums_moc/local_cultural_museums_moc_20260716.geojson",
+  evidence: ["mini:scripts/research/build-cultural-museums-owner-source.mjs", "mini:../runtime/owner-only/cultural-museums/cultural-museums-owner-20260716.geojson"],
+  sourceVersion: "2026-07-16 fixed emap snapshot", publisher: "文化部", license: "OGDL source; 80 Google geocoded coordinate redistribution rights unverified, owner-only local query",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Snapshot date does not establish current museum operation.",
+  coverageAndMissingness: "266 raw rows; 252 Point and 14 null geometry. Source raw coordinates blank; processed Points use Google 80 and offline methods 172.",
+  geometry: "Mixed geocoded reference Point; bbox only, no exact-nearest claim.", sourceSha256: "33d38a6ea41a4d04882f67a57cb32a537c1cdf1cbf98d84bdc287da7a36a932d",
+  localDisplayReceipt: "252 display Points match processed geocoded rows; 14 unlocated remain queryable only in owner-only source reader.",
+};
+VERIFIED_RAW_FAMILIES["moc:performing_venues:20260716"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/culture/performing_venues_moc/performing_venues_moc_20260716.geojson",
+  evidence: ["mini:scripts/research/build-performing-venues-owner-only.mjs", "mini:../runtime/owner-only/performing-venues/performing-venues-source-20260716.geojson"],
+  sourceVersion: "2026-07-16 fixed derived venue snapshot", publisher: "文化部藝文活動", license: "OGDL event source; 471 geocoded coordinates include Google, owner-only local query",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Rolling event-window extraction, not complete or current venue inventory.",
+  coverageAndMissingness: "861 rows; 857 Point, 4 null geometry. 386 api_mode and 471 geocoded Points; city blank in 56 records.",
+  geometry: "Mixed source/geocoded reference Point; bbox only, no exact-nearest claim.", sourceSha256: "546aee41200a5aa76eac3e6cf8f5faa3feba43f5fd2a02c34086a1ea67b403e2",
+  localDisplayReceipt: "Owner-only safe-field sidecar row count and geometry align with fixed processed source; public rights remain HOLD.",
+};
+VERIFIED_RAW_FAMILIES["traffic:speed_cameras:20260824"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/speed_cameras/speed_cameras_20260824.geojson",
+  evidence: ["mini:scripts/research/build-speed-cameras-source.mjs", "mini:public/research/speed-cameras-source-20260824.geojson"],
+  sourceVersion: "2026-08-24 fixed assembled sources", publisher: "警政署／交通主管機關", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed listing date does not establish current enforcement state.",
+  coverageAndMissingness: "2,805 Point listing rows; 62 coord_suspect remain attribute-only, 2,743 pass Taiwan coordinate subset. 25 suspect rows lack fetched_at.",
+  geometry: "Source WGS84 Point; no enforcement direction or active-status claim.", sourceSha256: "ce46f68a1ae617a0ae6a14ecaf470613b5a7587cb5b2c5f57709a80c596bb740",
+  localDisplayReceipt: "Current display is 20260626 while query source is 20260824; no same-version alignment. Taipei query map 15 Points ready/readback.",
+};
+VERIFIED_RAW_FAMILIES["fire:stations:20260710"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/fire/fire_stations/fire_stations_20260710.geojson",
+  evidence: ["mini:scripts/research/build-fire-stations-owner-only.mjs", "mini:../runtime/owner-only/fire-stations/fire-stations-source-20260710.geojson"],
+  sourceVersion: "2026-07-10 mixed official/Google fixed snapshot", publisher: "各縣市消防局與消防署", license: "Public directory sources claim OGDL; 413 Google coordinates RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed processing date is not current staffing or service status.",
+  coverageAndMissingness: "717 Point rows in 22 counties: official 304, Google 413. Existing display has 716 and 38 Pingtung coordinate mismatches.",
+  geometry: "Mixed reference Point, proxy bbox/attribute only; no nearest or rescue-time claim.", sourceSha256: "b57b4b725b92b71e8b5244c953f06244ffec0cf641594ecaab97d91a6bdf18ec",
+  localDisplayReceipt: "Owner-only reader tested in Taichung 6 and Hualien Google-filtered 4; display version differs.",
+};
+VERIFIED_RAW_FAMILIES["moe:schools:113-academic-year"] = {
+  ...VERIFIED_RAW_FAMILIES["moe:schools:113-academic-year"],
+  sourceSha256: "bfc1b452507c0df9a5d3051a53b3687b7cbb19b96f0a5f65ffcc6c74a3970cbf",
+  coverageAndMissingness: "Raw XLSX 4,315 rows; processed 4,315 Point. Five school-level categories sum to 4,315; remote 1,152 is an overlapping subset. system_type null 9, region_type null 3,163 retained.",
+  geometry: "Source numeric WGS84 Point, but public coordinate redistribution rights unverified; owner-only bbox/attribute reference, no nearest/accessibility claim.",
+  localDisplayReceipt: "Six owner-only filtered readers share one 4,315-Point safe sidecar SHA 9e44e6c92cd2335bec90e9e5946139422343f3ca7505b3ac07c9d61bb1194667; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["welfare:child_services:20260812"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/welfare/child_services/child_services_20260812.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/welfare/child_services/_manifest.json", "mini:scripts/research/build-welfare-child-services-owner-only.mjs"],
+  sourceVersion: "2026-08-12 fixed mixed-source assembly", publisher: "衛福部社家署與逐列登記來源", license: "Raw directory OGDL; Google/offline coordinate redistribution RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Snapshot is not current operation, capacity or service area.",
+  coverageAndMissingness: "1,425 records, 1,396 Point and 29 structural null geometry; 11 blank city. Source IDs 130229/160907/161606/165355/161604 are mixed, not a single 165355 table.",
+  geometry: "Mixed geocoded reference Point; 29 nulls remain attribute-queryable and cannot enter bbox. No nearest or service-accessibility claim.", sourceSha256: "ac0c94e29487b56589d25bd301ff4369f931dc166a27b446591ac405fe1d7e2a",
+  localDisplayReceipt: "Owner-only safe sidecar SHA 55926bb2c37bfe6143201f19d9b303b423cc8ab3a3ec6b9f8ea6e7b3280332f9; current display release not proven same-version.",
+};
+const welfareFamilies = [
+  ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
+  ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
+  ["welfare:childcare:20260812", "welfareChildcare", "childcare_centers", "childcare_centers_national.geojson", "34511cde4fd56b742623c54df7e807c135289c72efd90db1578d18c407423786", "1,578 Point; TGOS 1,354, Google 221, offline 3"],
+  ["welfare:disability:20260812", "welfareDisability", "disability_facilities", "disability_facilities_national.geojson", "1317b144b57c19f8a580ee617b23f1e88adaee81ff271c0e3c9d405e21b001f6", "334 Point; TGOS 306, Google 7, offline 21; mixed raw source IDs 12061/130229/161606/165355"],
+  ["welfare:social_work:20260812", "welfareSocialWorkOrgs", "social_work_orgs", "social_work_orgs_national.geojson", "697c1eced0ae73e04768606cc2b326b08bd1d76050d8aa4320c539e5c97a1e19", "587 Point; TGOS 551, Google 26, offline 10; organization addresses are not service sites"],
+];
+for (const [key, , folder, file, sha, coverage] of welfareFamilies) VERIFIED_RAW_FAMILIES[key] = {
+  sourceArtifact: `mini-taiwan-pulse/public/welfare/${file}`,
+  evidence: [`taipei-gis-analytics/data/processed/welfare/${folder}/_manifest.json`, "mini:scripts/research/build-welfare-geocoded-owner-only.mjs", "mini:scripts/research/build-welfare-care-points-sidecars.mjs"],
+  sourceVersion: "2026-08-12 fixed mixed-coordinate assembly", publisher: "衛福部與逐列登記來源", license: "Raw source license varies by src_datasets; Google/offline coordinate redistribution RIGHTS_HOLD, owner-only full reader",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed assembly is not current licensing, operation, capacity or availability.",
+  coverageAndMissingness: coverage, geometry: "Mixed TGOS/Google/offline reference Point; full owner-only reader bbox/attribute only. TGOS-only public subset is distinct.",
+  sourceSha256: sha, localDisplayReceipt: "Research reader query receipt exists; current display is not proven same-version.",
+};
 const VERIFIED_RAW_FAMILY_BY_LAYER = {
   pollutionSite: "moenv:pollution_sites:EMS_S_07:20260706",
   pollutionFacility: "moenv:pollution_facilities:EMS_S_01:20260706",
@@ -164,6 +250,20 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   pollutionPenaltyGeneral: "moenv:pollution_penalties:EMS_P_46:20260706",
   pollutionPenaltyMobile: "moenv:pollution_penalties:EMS_P_46:20260706",
   noiseEnforcementEvents: "moenv:pollution_penalties:EMS_P_46:20260706",
+  publicLibraries: "ncl:public_libraries:20260717",
+  coastGuardStation: "coast_guard:stations:20260626",
+  culturalMuseums: "moc:local_cultural_museums:20260716",
+  performingVenues: "moc:performing_venues:20260716",
+  speedCamera: "traffic:speed_cameras:20260824",
+  fireStations: "fire:stations:20260710",
+  ...Object.fromEntries(welfareFamilies.map(([key, layer]) => [layer, key])),
+  welfareChildServices: "welfare:child_services:20260812",
+  eduSchoolElementary: "moe:schools:113-academic-year",
+  eduSchoolJunior: "moe:schools:113-academic-year",
+  eduSchoolSenior: "moe:schools:113-academic-year",
+  eduSchoolUniversity: "moe:schools:113-academic-year",
+  eduSchoolSpecial: "moe:schools:113-academic-year",
+  eduRemoteSchools: "moe:schools:113-academic-year",
   gasStationCanonical: "energy:gas_stations_canonical:20260620",
   gasStationCpc: "energy:gas_stations_canonical:20260620",
   gasStationFpcc: "energy:gas_stations_canonical:20260620",

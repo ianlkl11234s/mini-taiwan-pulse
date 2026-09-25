@@ -2,9 +2,9 @@
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，670 層維持候選處置、108 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，657 層維持候選處置、121 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，108 個有查詢映射、88 個是待讀回的 GeoJSON metadata candidates、582 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，121 個有查詢映射、75 個是待讀回的 GeoJSON metadata candidates、582 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 
@@ -51,7 +51,6 @@
 | declared-upstream:jp_water_ksj | 6 | manifest/recipe only |
 | declared-upstream:osm_power | 6 | manifest/recipe only |
 | declared-upstream:real_estate | 6 | manifest/recipe only |
-| declared-upstream:schools | 6 | manifest/recipe only |
 | declared-upstream:jp_medical_navii | 5 | manifest/recipe only |
 | declared-upstream:ncdr_alerts | 5 | manifest/recipe only |
 | declared-upstream:segis_taipei_bicycle_usage_township_110 | 5 | manifest/recipe only |
@@ -65,6 +64,7 @@
 | declared-upstream:caa_airport_activity_county_33238 | 3 | manifest/recipe only |
 | declared-upstream:fishery_stats | 3 | manifest/recipe only |
 | declared-upstream:gas_stations | 3 | manifest/recipe only |
+| declared-upstream:jp_medical_areas | 3 | manifest/recipe only |
 
 真正已核對的 raw family 另見 JSON `verifiedRawFamilies`，且仍需逐層檢查 display 同版、權限、時間、缺值與 geometry。不得把宣告 family 或 PMTiles 視為完整可分析原表。
 
