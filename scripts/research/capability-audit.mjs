@@ -715,6 +715,15 @@ VERIFIED_RAW_FAMILIES["osm-wra:water_facilities:20260519"] = {
   geometry: "OSM node or way center; WRA GIC station Point transformed from EPSG:3826, mixed reference precision; bbox/attribute only.", sourceSha256: "e8174fcc90650280842c8f8b550cfd59b5ed95c63db40fb7db3a8382e034fa97",
   localDisplayReceipt: "Mini display SHA e8174fcc90650280842c8f8b550cfd59b5ed95c63db40fb7db3a8382e034fa97 matches union ID/type/source/geometry at display precision from OSM processed SHA a37739bb35a422f99169ba8fb3361508c782e9824d8128046e49b75d4527b742 (526) and WRA processed SHA edb65b22c115c303a4a4597faaa55212a77f7a4e8aedb97faada98a4c68bd99a (83). Owner sidecar SHA f00e4e3288cac3bd55d921699083a0cabf61000a2070932602f7147d06768ca3.",
 };
+VERIFIED_RAW_FAMILIES["wra:water_monitor_stations:20260519"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/geo/water_monitor_stations.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/water_resources/rain_gauge_stations/rain_gauge_stations.geojson", "taipei-gis-analytics/data/processed/water_resources/river_level_stations_wra/river_level_stations_wra.geojson", "taipei-gis-analytics/data/processed/water_resources/groundwater_wells/groundwater_wells.geojson", "mini:scripts/research/build-water-monitor-stations-owner-only.mjs"],
+  sourceVersion: "2026-05-19 fixed Mini display union", publisher: "WRA", license: "Catalog says OGDL-Taiwan-1.0; immutable raw API and download/license receipts unverified; localhost owner-only RIGHTS_HOLD",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Three processed manifests date 2026-05-19; immutable raw payload acquisition unavailable.",
+  coverageAndMissingness: "2032 Point: rain 242, river 831, groundwater 959; is_active is historical snapshot. County QA versus fixed county-reference-2025: match 1647, mismatch 360, unknown 15, outside 10.",
+  geometry: "WRA EPSG:3826 transformed to EPSG:4326 reference Point; bbox/type/active only; reported_county excluded from filters and aggregate because it often conflicts with point location.", sourceSha256: "4f6ab8edb69b68e17ea15be500b117581869d1af71a0196b4ee72870326a2baf",
+  localDisplayReceipt: "Mini display SHA 4f6ab8edb69b68e17ea15be500b117581869d1af71a0196b4ee72870326a2baf matches union id/type/rounded Point from rain SHA 5a4203f5914c1d325b5f5ccd89f2b953be279b88a40d50a397d3d3a4063eb34b (242), river SHA 9698f7dbb4ef3d4b4831de5f23765c6f17d9102c0f25d334a644d9cdd1ac48bb (831), groundwater SHA f15549b80767b604d90b9e5a9c0c3a42e9ff5ce6fcc4183ee6ec800e09d68db2 (959); owner-only sidecar SHA 73a653674aeddeffd0f3ad697930ff65351fea861ce545f895547a4896a341b3.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -805,6 +814,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   eduCramSchool: "kh-education:cram_schools:20260807",
   waterDetentionBasins: "tainan-taoyuan:detention_basins:20260511",
   waterFacilities: "osm-wra:water_facilities:20260519",
+  waterMonitorStations: "wra:water_monitor_stations:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
