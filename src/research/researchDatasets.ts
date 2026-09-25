@@ -114,6 +114,7 @@ import { streetTreesNationalOwnerAdapter } from "./streetTreesNationalOwnerDatas
 import { medLtcOwnerAdapter } from "./medLtcOwnerDataset";
 import { activeFaultsAdapter } from "./activeFaultsDataset";
 import { cyclingRoutesAdapter } from "./cyclingRoutesDataset";
+import { forestRecreationOwnerAdapter } from "./forestRecreationOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -554,6 +555,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   medLtcOwnerAdapter,
   activeFaultsAdapter,
   cyclingRoutesAdapter,
+  forestRecreationOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

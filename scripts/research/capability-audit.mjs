@@ -834,6 +834,15 @@ VERIFIED_RAW_FAMILIES["tdx:cycling_shapes:20260301"] = {
   geometry: "Complete WGS84 MultiLineString with 97,275 numeric 2D vertices; bbox intersects actual line, not centroid or road-network accessibility.", sourceSha256: "d190b049ef2c9f46134c230d043b090edb84e64bf56cc393d2fa282edf896d19",
   localDisplayReceipt: "Mini cycling_routes.geojson is byte-identical to analytics cycling_shapes_all.geojson: 4,384,551 bytes, SHA 690190820456105ac3aa92133c4fc7e222703e365a36c726fec20c5b2060bcba. Browser result ready/readback pending.",
 };
+VERIFIED_RAW_FAMILIES["moa:forest_recreation_areas:1151"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/forestry/forest_recreation_areas/forest_recreation_areas.geojson",
+  evidence: ["mini:scripts/research/build-forest-recreation-owner-only.mjs", "mini:src/research/forestRecreationOwnerDataset.ts"],
+  sourceVersion: "1151 fixed local processed snapshot, 2026-05-19", publisher: "農業部林業及自然保育署 data.gov.tw:9931", license: "OGDL-Taiwan-1.0; localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Edition and processing date do not establish current park opening or access.",
+  coverageAndMissingness: "23 designated area features, 19 Polygon and 4 MultiPolygon; park and district_code source nulls retained. No result does not prove no forest or recreation.",
+  geometry: "Full WGS84 polygon surfaces normalized to MultiPolygon; true bbox intersection, not entrance, trail or accessibility.", sourceSha256: "bb7e1604918d3329e554c44788f9c376985f4c4707ae37d19cb0aedb0dd49c05",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 815448720c3c12d2ae41898a445f6f4c42fb86e9f1f4a9c9cc0dea8d9580cacc; browser Hehuanshan ready/readback 1 actual surface, source display-layer version not independently matched.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -897,6 +906,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   riversideTreesTaipei: "taipei:riverside_trees:20260714",
   treePitsTaipei: "taipei:tree_pits:20260714",
   cyclingRoutes: "tdx:cycling_shapes:20260301",
+  forestRecreation: "moa:forest_recreation_areas:1151",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
