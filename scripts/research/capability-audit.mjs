@@ -742,6 +742,15 @@ VERIFIED_RAW_FAMILIES["taoyuan:theft_points:20260626"] = {
   geometry: "Native source coordinates downgraded to historical sensitive proxy Point; bbox/attribute only, no nearest/map.", sourceSha256: "3e60392a46a65efd06bbc4b9803713908bab44b98b3930e5ac4709d461e69572",
   localDisplayReceipt: "Mini declared display GeoJSON missing; DISPLAY_HOLD. Raw CSV SHA 20ff5ed3f07afd711ef2b0586c3127b17503c36403959163626b05ac527ba657; owner-only sidecar SHA fc30d85d930c2c4e93bbbebb0ef94dbcd8d2afdbfe268ae98341482601e9c6e3.",
 };
+VERIFIED_RAW_FAMILIES["local-ae:fire_hydrants:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/fire/hydrants/hydrants.csv",
+  evidence: ["taipei-gis-analytics/data/processed/fire/hydrants/_manifest.json", "mini:scripts/research/build-fire-hydrants-owner-only.mjs"],
+  sourceVersion: "2026-05-19 A/E processed CSV snapshot", publisher: "data.gov.tw 128639 and five Kaohsiung sources", license: "Catalog OGDL-Taiwan-1.0; localhost owner-only fixed snapshot, remote/public release not verified",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed manifest fixed 2026-05-19; original acquisition timestamp and remote release not independently verified.",
+  coverageAndMissingness: "69839 unique Point: A 30444 plus E 39395; source address empty 52173 and district empty 69839, both excluded from safe sidecar. Taipei XML 21852 is alternative source, not additive; DB 69815 is different deduplicated version.",
+  geometry: "Processed CSV WGS84 reference Point, proxy; bbox/attribute only; no nearest or fire service coverage.", sourceSha256: "ca71db6e0c927368d1480ce11dca9919a4c46f3b7e252548adfe05850fa941ea",
+  localDisplayReceipt: "Local dist fire_hydrants.geojson 69839 rows SHA d683c309…7b53 byte-for-byte regenerates from fixed CSV; PMTiles/remote source-SHA receipt unverified. Immutable owner-only manifest SHA 668101cade6c8f0f86e76089855df0af43e9de9a232a4428ee87090199b65bdf.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -835,6 +844,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   waterMonitorStations: "wra:water_monitor_stations:20260519",
   trafficAccidentYearly: "npa:traffic_a1:20260626",
   theftTaoyuan: "taoyuan:theft_points:20260626",
+  fireHydrants: "local-ae:fire_hydrants:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
