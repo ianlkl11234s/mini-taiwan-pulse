@@ -542,3 +542,10 @@
 - 正常配對 MCP 查 `area_code=63000` 得臺北市 1 面、`64000` 得高雄市 1 面，均掃 22 列並帶同一 source SHA。臺北結果 revision 34 `ready`，map readback 1 feature／1 source／1 layer、sourcesReady/layersReady 均 true，既有 3734 browser 目視藍色完整臺北面。既有 focused/registry Vitest 15/15、`tsc -b`、build 通過。B03 大項尚需洞、多面邊緣、邊界點和非臺灣點完整回歸，先不勾選整項。
 - `real_estate` 六層本次追查為獨立 HOLD：內政部買賣、預售、租賃季度原表混用 TGOS/cache/NLSC 定位；現有 2025Q3 合併點與格網未證能對上 Mini `real_estate_points_buffer.bin`／`real_estate_grid.pmtiles` 的完整不可變同版，且定位精度、授權欄位仍待逐來源核。不可把有經緯度的部分直接稱六層全可查；可先在 owner-only 範圍另立固定季度查詢契約，再分層驗收。
 - Audit 778 層／251 datasets／243 可查映射／535 待處理；臺灣 GIS 381 層已登記 183、待 198。只讀本機固定檔，未寫 Supabase/S3、push、PR、merge、部署或重啟排程。
+
+### 第八十二批：國中小學區四縣市村里代理面
+
+- `eduDistrictElementary`、`eduDistrictJunior` 共用 analytics `school_district_k12_20260809.geojson` 固定處理版 21,710,315 bytes／SHA `b461e2ec305880a579874068ef955e11734acb4567718916e20be09c969584b4`。由四縣市七個上游 dataset 的八份 raw 檔公告文字 join 村里界再 dissolve；本機原表與處理 pipeline／未命中報告仍在 analytics。860 筆唯一 `district_id`，國小 621、國中 239；原處理面 779 Polygon、81 MultiPolygon、null geometry 0。`village_full` 206、`village_partial` 654；後者把只有部分鄰屬學區的整個里畫入面。共同學區允許重疊，不能用面判定特定地址入學分發。臺北公告 110 學年度、臺中 112、其他 114；2026-08-09 是處理日期，非現行招生狀態。
+- 本機 owner-only 腳本核固定 bytes／SHA／學制／精度／幾何分布，複製到忽略版控的 runtime；兩個 reader 共用一個快照、固定 SHA、860 掃描列和 24 MiB 來源上限，結果只含公告與聚合所需欄位，將單 Polygon 包成未簡化的 MultiPolygon。bbox 僅供面相交與地圖參考；geometry 標 `proxy`、`spatialAnalysisEligible=false`，不支援最近、點入學區確定判斷或路網可達性。七個上游 dataset 的逐來源公開授權 receipt、20260809 處理檔與既有 PMTiles 同版產製 receipt 仍 HOLD；未公開資產。
+- 獨立 shapely 掃完整處理檔：臺北 bbox `[121.53,25.03,121.55,25.05]` 國小 13／國中 11；新竹市 `[120.96,24.8,121.02,24.84]` 國小 17／國中 12。正常配對 MCP 四問與上述計數一致，均回固定 SHA。`district_id=臺北市_elementary_中正` 回 1 筆 `village_partial` MultiPolygon；配對 scene revision 1 `ready`、map readback 1 feature／1 source／1 layer 且 sourcesReady/layersReady true，既有 3734 browser 目視青色學區面。focused Vitest 3/3、`tsc -b`、Vite 程式 bundle（暫停複製 public 資產）通過；完整 `npm run build` 因本機磁碟不足在複製 PMTiles 時 ENOSPC，待有足夠空間再完成完整資產 build。原始公告 join 未命中及 93 個未涵蓋村里不當作零；只保證此四縣市固定來源快照可查。
+- Audit 778 層／253 datasets／245 可查映射／533 待處理；臺灣 GIS 381 層已登記 185、待 196。只讀本機固定檔，無 Supabase/S3 寫入、push、PR、merge、部署或過夜排程重啟。

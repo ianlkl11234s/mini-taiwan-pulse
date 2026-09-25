@@ -528,6 +528,25 @@ function serveResearchPointPartitions(): Plugin {
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
+      server.middlewares.use("/__local-research-owner-only/school-district-k12", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "school_district_k12_20260809.geojson") {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/school-district-k12", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== 21_710_315) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
       server.middlewares.use("/__local-research-owner-only/edu-schools", (request, response) => {
         const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
         if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "taiwan-schools-2024-owner.geojson") {
