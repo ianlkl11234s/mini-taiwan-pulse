@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 211 個已有查詢映射的層 + 23 個 metadata 候選 + 544 個尚無可用映射的層；共 218 datasets。211 不等於 211 層全部驗收完成。目前 567 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 212 個已有查詢映射的層 + 23 個 metadata 候選 + 543 個尚無可用映射的層；共 219 datasets。212 不等於 212 層全部驗收完成。目前 566 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -129,6 +129,8 @@
 第五十一批 [x] `agriProduceWholesale` 接蔬果批發公司 2026-05 固定快照 22,843 個 TGOS 地址定位 Point，原始 35,218、核准設立 23,046、定位失敗 203。正常 MCP 臺北 3,446、臺中 2,296，臺北加解散狀態為 0，均與完整原表 oracle 相同；focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。公開座標再散布、現今營業、精確最近與研究地圖 ready/readback [ ] HOLD。詳見[第五十一批](./source-family-priority-rollout-20260925.md)。目前 217 datasets、210 查詢映射、568 待映射層。
 
 第五十二批 [x] `religionTemples` 接 MOI／文資／百景／OSM 合併 19,201 個寺廟實體固定 Point；其中 6,702 為 OSM-only，不能稱全部已登記。正常 MCP 臺南 MOI 補辦登記 109、高雄 OSM 99，與完整原表 oracle 相同；focused 13/13、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。OSM 授權標示、Google 補點公開再散布、精確附近、現行登記及研究地圖 ready/readback [ ] HOLD。詳見[第五十二批](./source-family-priority-rollout-20260925.md)。目前 218 datasets、211 查詢映射、567 待映射層。
+
+第五十三批 [x] `streetTreesNational` 接臺北 92,033 加臺中 118,403 株的固定樹籍 Point，共 210,436；名稱「全國」不代表涵蓋其他縣市。正常 MCP 臺北框 1,187、臺中框 701，其中臺中公園廣場 316，與完整原表 oracle 相同；focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。兩市時間不同、臺中公園樹不全是路旁樹；縣市同時點比較、精確最近與研究地圖 ready/readback [ ] HOLD。詳見[第五十三批](./source-family-priority-rollout-20260925.md)。目前 219 datasets、212 查詢映射、566 待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 

@@ -1,16 +1,16 @@
-# 544 個尚無可用查詢映射的圖層：逐層處置（2026-09-26）
+# 543 個尚無可用查詢映射的圖層：逐層處置（2026-09-26）
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，567 層維持候選處置、211 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，566 層維持候選處置、212 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，211 個有查詢映射、23 個是待讀回的 GeoJSON metadata candidates、544 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，212 個有查詢映射、23 個是待讀回的 GeoJSON metadata candidates、543 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 
 | 狀態 | 層數 |
 |---|---:|
-| READER_PENDING | 322 |
+| READER_PENDING | 321 |
 | SOURCE_MISSING | 190 |
 | RIGHTS_HOLD | 24 |
 | VERSION_MISMATCH | 8 |
@@ -21,7 +21,7 @@
 |---|---:|
 | DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING | 188 |
 | NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT | 187 |
-| DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE | 129 |
+| DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE | 128 |
 | SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD | 13 |
 | RIGHTS_OR_USE_CLEARANCE_UNVERIFIED | 11 |
 | DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED | 6 |
