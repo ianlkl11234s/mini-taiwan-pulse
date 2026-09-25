@@ -861,6 +861,15 @@ VERIFIED_RAW_FAMILIES["osm:service_area_surfaces:20260524"] = {
   geometry: "Full OSM-drawn WGS84 Polygon/MultiPolygon normalized to MultiPolygon; true bbox intersection, not entrance or road-network reachability.", sourceSha256: "9047b532d2ac1425735d278a7ed91dff573264a488be8c0f8c869882f29df863",
   localDisplayReceipt: "Mini public GeoJSON byte-identical to analytics processed 24,463 bytes SHA c9f2a462c30ecbfd99fec7f15cd55371112add6ece074a76a881db4186fd84a8; paired browser Dongshan revision 15 ready/readback 1 and visible.",
 };
+VERIFIED_RAW_FAMILIES["tgos:campus_polygon:20260807"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/education/campus_polygon/campus_121.zip",
+  evidence: ["taipei-gis-analytics/data/processed/education/campus_polygon/campus_polygon_20260807.geojson", "mini:public/education/campus_polygon.pmtiles", "mini:scripts/research/build-campus-polygon-owner-only.mjs", "mini:src/research/campusPolygonOwnerDataset.ts"],
+  sourceVersion: "2026-08-07 fixed TGOS campus polygon pipeline snapshot", publisher: "內政部國土測繪中心 TGOS", license: "Source catalog OGDL-Taiwan-1.0; localhost owner-only research sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Source YYYYMM varies per record and is distinct from pipeline date; not current school operation.",
+  coverageAndMissingness: "4,336 source Polygon: 12 non_school remain queryable but display excludes them; school_level_zh null 12 experimental. 20 counties; Penghu and Kinmen source gaps.",
+  geometry: "Full WGS84 TGOS school campus reference Polygon, true bbox intersection; not entrance, catchment or walking route.", sourceSha256: "14fdbec063543c260059f662c380be80ae6f1285c6967e5d35896b11c514eb48",
+  localDisplayReceipt: "Processed GeoJSON SHA 950c1913b47a7da36838fc2d8c743ce766207ca312fe624f71bf55fde00305ff; Mini PMTiles SHA 3735e97933bef4f93d163a607d902607c1c008f1481ad3f674ca4120d74e3f15 byte-identical to analytics tile artifact, but tile is not analytical source. Owner-only manifest SHA 3e7158e6013dd72e33a3dd6f0b51d5f0078054c46b604c4c12b8f5ed07af4232; browser readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -927,6 +936,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   forestRecreation: "moa:forest_recreation_areas:1151",
   aquacultureZone: "moa:aquaculture_production_zone:20260519",
   serviceAreaPolygon: "osm:service_area_surfaces:20260524",
+  eduCampusPolygon: "tgos:campus_polygon:20260807",
+  eduCampusArea: "tgos:campus_polygon:20260807",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

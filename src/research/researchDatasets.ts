@@ -117,6 +117,7 @@ import { cyclingRoutesAdapter } from "./cyclingRoutesDataset";
 import { forestRecreationOwnerAdapter } from "./forestRecreationOwnerDataset";
 import { aquacultureZoneOwnerAdapter } from "./aquacultureZoneOwnerDataset";
 import { serviceAreaPolygonAdapter } from "./serviceAreaPolygonDataset";
+import { campusPolygonOwnerAdapter } from "./campusPolygonOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -560,6 +561,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   forestRecreationOwnerAdapter,
   aquacultureZoneOwnerAdapter,
   serviceAreaPolygonAdapter,
+  campusPolygonOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
