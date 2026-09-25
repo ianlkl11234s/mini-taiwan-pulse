@@ -56,3 +56,26 @@ async function readCompanyPoints(_parameters: Readonly<Record<string, Scalar>>, 
 }
 
 export const companyPointsAdapter = createPointDatasetAdapter(companyPointsDescriptor, readCompanyPoints);
+
+export const manufacturingCompanyPointsDescriptor: DatasetDescriptor = {
+  ...companyPointsDescriptor,
+  datasetId: "tw-manufacturing-company-registration-points-202608",
+  label: "製造業公司登記點位（202608 快照）",
+  description: "company_points 202608 固定母表中 categories 含精確 C 類的 184,944 筆已定位登記地址；不是生產中工廠或營業現況。只供 owner 本機查詢。",
+  layerRefs: ["manufacturingCompanyPoints"],
+  coverage: "同一份 657,882 筆 company_stock 202608 母表；精確 C 類來源 186,054 筆，排除無效座標 1,110 筆，owner-only 分片內保留 184,944 Point。金門／馬祖及後續變動不在此版；bbox 無結果不表示無工廠或製造業。",
+  source: { ...companyPointsDescriptor.source, lineage: `${companyPointsDescriptor.source.lineage} Manufacturing is the exact semicolon category C filter (is_manufacturing=1), checked against manufacturing_company_points_202608_r2_qa.json; the declared manufacturing PMTiles display asset has no same-version receipt.` },
+  supportedOperations: ["query_records", "nearest", "aggregate"],
+  adapterId: "manufacturing-company-point-partitions-v1",
+};
+
+export const manufacturingCompanyPointsAdapter = createPointDatasetAdapter(manufacturingCompanyPointsDescriptor, async (parameters, signal, context) => {
+  const snapshot = await readCompanyPoints(parameters, signal, context);
+  return {
+    ...snapshot,
+    rows: snapshot.rows.filter(row => row.is_manufacturing === 1),
+    source: { ...snapshot.source, sourceId: manufacturingCompanyPointsDescriptor.datasetId },
+    coverage: manufacturingCompanyPointsDescriptor.coverage,
+    exclusions: { ...snapshot.exclusions, manufacturing_invalid_coordinate: 1_110 },
+  };
+});

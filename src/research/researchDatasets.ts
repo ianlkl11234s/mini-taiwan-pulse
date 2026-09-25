@@ -40,7 +40,7 @@ import { pollutionFacilitiesAdapter } from "./pollutionFacilitiesDataset";
 import { pollutionPenaltyEventsAdapter } from "./pollutionPenaltiesDataset";
 import { publicLibrariesListedAdapter, publicLibrariesTgosCoordinatesAdapter } from "./publicLibrariesDataset";
 import { coastGuardStationsSourceCoordinatesAdapter } from "./coastGuardStationsDataset";
-import { companyPointsAdapter } from "./companyPointsDataset";
+import { companyPointsAdapter, manufacturingCompanyPointsAdapter } from "./companyPointsDataset";
 import { culturalMuseumsOwnerAdapter } from "./culturalMuseumsDataset";
 import { performingVenuesAdapter } from "./performingVenuesDataset";
 import { speedCameraListedAdapter, speedCameraTaiwanCoordinatesAdapter } from "./speedCameraDataset";
@@ -453,6 +453,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   publicLibrariesTgosCoordinatesAdapter,
   coastGuardStationsSourceCoordinatesAdapter,
   companyPointsAdapter,
+  manufacturingCompanyPointsAdapter,
   culturalMuseumsOwnerAdapter,
   performingVenuesAdapter,
   speedCameraListedAdapter,

@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { createInterface } from "node:readline";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
-import { companyPointsAdapter, companyPointsDescriptor } from "../companyPointsDataset";
+import { companyPointsAdapter, companyPointsDescriptor, manufacturingCompanyPointsAdapter, manufacturingCompanyPointsDescriptor } from "../companyPointsDataset";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
@@ -93,3 +93,20 @@ it("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
   expect(result.cost.rowsScanned).toBeLessThanOrEqual(20_000);
   expect(result.cost.bytesScanned).toBeLessThan(8 * 1024 * 1024);
 });
+
+it.skipIf(!existsSync(sourcePath))("keeps the exact-C manufacturing subset in two independent places", async () => {
+  const executor = new QueryExecutor([manufacturingCompanyPointsAdapter]);
+  for (const item of [
+    { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62, 24.008] as const, manufacturing: 190 },
+    { center: [121.15, 22.76] as const, bbox: [121.13, 22.742, 121.17, 22.778] as const, manufacturing: 163 },
+  ]) {
+    const oracle = await rawOracle(item.center, 2_000);
+    const result = await executor.executeDetailed({ datasetId: manufacturingCompanyPointsDescriptor.datasetId, bbox: item.bbox, select: ["record_id", "is_manufacturing", "geometry"], limit: 100 });
+    const within = result.materializedRows.filter(row => haversineMeters(item.center, (row.geometry as { coordinates: [number, number] }).coordinates) <= 2_000);
+    expect(oracle.manufacturing).toBe(item.manufacturing);
+    expect(within.length).toBe(item.manufacturing);
+    expect(result.materializedRows.every(row => row.is_manufacturing === 1)).toBe(true);
+    expect(result.envelope.sourceRefs[0]?.checksumSha256).toBe("d099446600d98c26330b9193102d00fead822eb9ae6e3be1cf3eae24c605272b");
+  }
+  await expect(executor.execute({ datasetId: manufacturingCompanyPointsDescriptor.datasetId, limit: 1 })).rejects.toThrow("BBOX_REQUIRED");
+}, 30_000);
