@@ -966,6 +966,26 @@ VERIFIED_RAW_FAMILIES["osm:cemetery:20260805"] = {
   sourceSha256: "98a6871dc7efb4c3445be2453d46240dc9aeb9963a25337d7bd5c00ead5ceffa",
   localDisplayReceipt: "Full owner-only GeoJSON 3,602,036 bytes SHA 615a9adc23ac112aa56e0cc84bf106556f8acea13fadbe2436218ea530a58b23; Mini PMTiles visual asset is not claimed as the same full analytical geometry.",
 };
+VERIFIED_RAW_FAMILIES["osm:power_lines:20260615"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/energy/osm_power_lines/osm_power_lines_20260615.json",
+  evidence: ["taipei-gis-analytics/data/processed/energy/osm_power_lines/osm_power_lines_20260615.geojson", "mini:scripts/research/build-osm-power-network-owner-only.py", "mini:src/research/osmPowerNetworkOwnerDataset.ts"],
+  sourceVersion: "Overpass fixed 2026-06-15 snapshot", publisher: "OpenStreetMap contributors", license: "ODbL 1.0; © OpenStreetMap contributors; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-06-15 is a local snapshot label, not a per-feature observation or current operations date.",
+  coverageAndMissingness: "2,305 Way LineStrings; raw-to-processed IDs, exact vertices and selected nullable tags verified. Missing OSM tags are unknown, not zero. Community coverage is incomplete.",
+  geometry: "Full WGS84 OSM Way LineStrings, bounded bbox intersection; no network connectivity, legal corridor, safe distance or live power claim.",
+  sourceSha256: "c6cc21e8607cac1cf02a69a5b6ba764703d43aad174e01ab671eb78950f49217",
+  localDisplayReceipt: "Owner-only sidecar 1,815,545 bytes SHA 538411022f39cb51d3e928c36a33fafde82aec9a8d8cdb8554ee75e9d0678267; existing display release identity remains unverified.",
+};
+VERIFIED_RAW_FAMILIES["osm:power_towers:20260615"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/energy/osm_power_towers/osm_power_towers_20260615.json",
+  evidence: ["taipei-gis-analytics/data/processed/energy/osm_power_towers/osm_power_towers_20260615.geojson", "mini:scripts/research/build-osm-power-network-owner-only.py", "mini:src/research/osmPowerNetworkOwnerDataset.ts"],
+  sourceVersion: "Overpass fixed 2026-06-15 snapshot", publisher: "OpenStreetMap contributors", license: "ODbL 1.0; © OpenStreetMap contributors; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-06-15 is a local snapshot label, not a per-feature observation or current operations date.",
+  coverageAndMissingness: "26,589 Node Points; raw-to-processed IDs, exact coordinates and selected nullable tags verified. Missing OSM tags are unknown, not zero. Community coverage is incomplete.",
+  geometry: "WGS84 OSM Node points; bounded bbox reference lookup, not tower footprint, entrance or safe distance.",
+  sourceSha256: "4dc1f3f22f63f1d1d9030b66a941d3e72a0037e28d1592ac1d75853fa4bbd545",
+  localDisplayReceipt: "Owner-only sidecar 6,622,466 bytes SHA 1e7813105955e53f8cdc98dde900b0b7e8f537d3121645bb1bfef1c6af70ff49; existing display release identity remains unverified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -1044,6 +1064,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   agriLeisureFarmZones: "moa:leisure_farm_zones:FY114",
   cemeteryZoning: "taipei-newtaipei:cemetery_zoning_urban:20260805",
   cemeteryOsm: "osm:cemetery:20260805",
+  osmPowerLines: "osm:power_lines:20260615",
+  osmPowerTowers: "osm:power_towers:20260615",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
@@ -1246,7 +1268,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   dgbas_county_transport_supply_10935: { status: "VERIFIED_RAW_LINEAGE", familyKey: "dgbas:county_transport_supply:2023-2024" },
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
   jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
-  osm_power: { status: "EVIDENCE_GAP", reason: "catalog found but no inspected immutable raw/release receipt in this pass" },
+  osm_power: { status: "MIXED_UPSTREAM_FAMILIES", reason: "Two independently verified 20260615 Overpass raw files support osmPowerLines and osmPowerTowers owner-only readers. The four remaining declared osm_power layers lack inspected raw/release evidence or their exact filter/join derivation, and remain HOLD." },
   pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. All three have separate verified 20260706 local readers; penalty events are owner-only local bbox/attribute queries because address_osm coordinate redistribution rights remain under review. Proxy coordinates do not support exact-nearest claims." },
   real_estate: { status: "EVIDENCE_GAP", reason: "multiple partial quarterly sources; no single release identity maps this generic dataset ID" },
   schools: { status: "RIGHTS_HOLD", familyKey: "moe:schools:113-academic-year", reason: "raw lineage is verified but catalog explicitly leaves EduGis license unconfirmed" },

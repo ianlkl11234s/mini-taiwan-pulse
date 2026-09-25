@@ -985,6 +985,8 @@ function serveResearchPointPartitions(): Plugin {
         "agri-leisure-farm-zones/agri-leisure-farm-zones.geojson": { folder: "agri-leisure-farm-zones", size: 9_855_193 },
         "cemetery-zoning/cemetery-zoning.geojson": { folder: "cemetery-zoning", size: 1_113_258 },
         "cemetery-osm/cemetery-osm.geojson": { folder: "cemetery-osm", size: 3_602_036 },
+        "osm-power-network/osm_power_lines_20260615.geojson": { folder: "osm-power-network", size: 1_815_545 },
+        "osm-power-network/osm_power_towers_20260615.geojson": { folder: "osm-power-network", size: 6_622_466 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

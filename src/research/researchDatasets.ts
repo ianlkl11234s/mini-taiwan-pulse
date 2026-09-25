@@ -134,6 +134,7 @@ import { hikingTrailsOwnerAdapter } from "./hikingTrailsOwnerDataset";
 import { agriLeisureFarmZonesOwnerAdapter } from "./agriLeisureFarmZonesOwnerDataset";
 import { cemeteryZoningOwnerAdapter } from "./cemeteryZoningOwnerDataset";
 import { cemeteryOsmAdapter } from "./cemeteryOsmDataset";
+import { osmPowerLinesOwnerAdapter, osmPowerTowersOwnerAdapter } from "./osmPowerNetworkOwnerDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
@@ -589,6 +590,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   agriLeisureFarmZonesOwnerAdapter,
   cemeteryZoningOwnerAdapter,
   cemeteryOsmAdapter,
+  osmPowerLinesOwnerAdapter,
+  osmPowerTowersOwnerAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
   taipeiZoningAttributeAdapter,
