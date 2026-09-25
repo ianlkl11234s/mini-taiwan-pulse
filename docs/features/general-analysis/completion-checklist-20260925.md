@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前基線：778 層 = 133 個已有查詢映射的層 + 66 個 metadata 候選 + 579 個尚無可用映射的層；共 136 datasets。133 不等於 133 層全部驗收完成。目前 645 個待處理層分為待 reader／稽核 400、來源證據不足 201、權限或座標使用疑慮 36、版本待對齊 8；188 個比較 recipe 已包含在 400 內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 145 個已有查詢映射的層 + 56 個 metadata 候選 + 577 個尚無可用映射的層；共 148 datasets。145 不等於 145 層全部驗收完成。目前 633 個待處理層分為待 reader／稽核 388、來源證據不足 201、權限或座標使用疑慮 36、版本待對齊 8；188 個比較 recipe 已包含在 388 內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -25,8 +25,8 @@
 ## A．把盤點變成可施工的完整佇列
 
 - [x] A00：778 個 layer key 全部納入同一台帳，保留 local asset／remote version／query／displayed 分離證據。收據：`81a8f838` 及 current ledger；僅代表列冊完成。
-- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 79／待處理 302）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／133／645。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
-- [x] A02：645 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
+- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 91／待處理 290）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／145／633。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
+- [x] A02：633 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
 - [ ] A03：逐家族核對真正共用的 raw/RPC/release 契約；從宣告 upstream ID 的高覆蓋家族優先，補原檔／SHA、授權、時間、筆數、缺值及 geometry。全部待處理層均有已核 family 或具體待解證據，才勾選。
 - [ ] A04：對現有 121 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
 
@@ -48,7 +48,7 @@
 
 `culturalMuseums` 已 [x] 接 266 列 owner-only 本機名冊（252 Point、14 無座標），其中 80 筆 Google 座標只限本機；`performingVenues` 已 [x] 接 861 列（857 Point、4 無座標），其中 471 筆 geocode 需公開授權再查。兩份均為參考座標 bbox／屬性 reader，不提供精確最近距離。台北 bbox 分別 10／79，台南新 bbox 與來源篩選分別 1 Google 文化館／10 api_mode 場館，與本機原表核對；公開發布和地圖呈現 [ ] HOLD。`speedCamera` 已 [x] 接 2,805 列名冊及 2,743 筆無可疑標記的 Point 子集；62 筆可疑座標保留在名冊但排除附近。台北 bbox 15、台南 subtype 變體 8，均與 sidecar 獨立計數相同；台北 15 點 revision 21 `ready`、readback 與瀏覽器目視通過。現行展示檔 20260626 與 reader 20260824 版本不同，正式圖層同版 [ ] HOLD。
 
-`bikeStations` [ ] HOLD：manifest 宣告的 `./geo/bike_stations.geojson` 在本 worktree 不存在，也未找到可驗的固定 TDX 站點快照／時間／授權收據。須先取得可重現的站點名冊；即時可租車數另有 TTL 與觀測時間契約，不能拿缺少的站點檔或即時畫面猜零。
+`bikeStations` [x] 固定 9,408 Point 站點快照已用完整原表 SHA 接查詢：高雄 bbox 878 筆與獨立掃描一致。`weatherStations` [x] 838 筆當時運作中的 CWA 測站：台中 bbox 2 筆，正常 MCP→scene revision 30/31 ready→map readback 2→瀏覽器目視 2 點。兩者 Mini static 與 analytics processed SHA 相同；即時可借車數、今日站點營運、即時氣象值、正式遠端 release 仍未驗。水資源 `waterMonitorStations` 的 analytics rain gauge 242 Point 與 Mini display 2,032 Point 不是同版／同母體，暫列 [ ] HOLD：先核其原始組成與版本，不能直接用 242 筆覆蓋 2,032 筆。
 
 `fireStations` [x] 本機 717 筆完整名冊可按 bbox／屬性查詢：304 官方、413 Google 參考座標，台中 6／花蓮 Google 4 與全 sidecar 核對。舊地圖檔只有 716 且屏東 38 筆座標不同；公開座標權、正式同版展示、精確最近及救援時間 [ ] HOLD。
 
@@ -61,6 +61,8 @@
 `artsEvents` [x] 有 7,482 場次 owner-only 查詢；6,121 Point、1,361 無座標仍可按屬性查。這是 2026-07-16 當時未結束活動的滾動窗，不是今日或歷史全集。`stationsTHSR`／`stationsTRA`／`stationsMetro` [x] 共用 535 站的 20260529 本機來源，但正式 catalog／舊展示仍為 503 站；查詢已接、正式同版 [ ] HOLD。六個司法機關點位層 [x] 各自從不同原表接 owner-only bbox／屬性 reader，共 235 Point；5 類 Google geocode、移民署 25 點為原始 TgosWGS，公開座標授權及精確最近 [ ] HOLD。`busStationsCity`／`busStationsIntercity` [x] 分別接 49,830／15,383 筆 TDX StationPosition 的本機分片 reader；兩個端點與快照時間不同，不把兩者加總為某日全臺站牌數。高雄客運 bbox 18 筆已 scene ready／map readback 18；站位不是路邊 Stop、即時 ETA 或步行可達性。各片 SHA、範圍與限制見[第十五批](./source-family-priority-rollout-20260925.md)。
 
 `pollutionSite` 已完成 2026-07-06 固定 8,253 Point 名冊 reader，台中 3 公里獨立 oracle／MCP 均為 3 筆，其中列管 2 筆、歷史解除 1 筆；地圖 3 點 `ready`、readback 與瀏覽器目視通過。`pollution_source` 這個宣告 ID 實際含 EMS_S_07 場址、EMS_S_01 列管事業與 EMS_P_46 裁罰事件三份原始資料，三家族已有分開的本機 reader，但後兩家族的 proxy 點不能算精確空間分析。場址本機舊 PMTiles 與 analytics 20260706 輸出 SHA 完全相同，但 1,568 筆 sitearea 顯示整數化與查詢原值不同，remote runtime release 未讀。
+
+第十六批 [x] 已接 `taxiStand`、`etcGantry`、`factoryLocations`、`eduKindergarten`、`eduAfterschoolCare`、`eduMutualCare`、`tourHotels`、`tourRestaurants`、`civilDefenseShelter`、`tourFactories`、`bikeStations`、`weatherStations` 十二個固定資料查詢映射；逐份原表、缺值、獨立 oracle、正常 MCP 和地圖收據見[第十六批](./source-family-priority-rollout-20260925.md)。其中工廠、教育、民防、觀光工廠為代理地址點或混合精度，公開座標權／同版展示仍 [ ] HOLD；自行車與氣象站查的是固定站位，並非即時車位或即時氣象。此批完成的是資料可查，不能把其餘 633 個待映射層一起勾選。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
