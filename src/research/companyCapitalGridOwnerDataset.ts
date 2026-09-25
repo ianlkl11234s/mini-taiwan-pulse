@@ -19,7 +19,7 @@ const fields: readonly DatasetField[] = [
 
 export const companyCapitalGridOwnerDescriptor: DatasetDescriptor = {
   schemaVersion: "pulse-dataset/0.1", datasetId: "tw-company-capital-grid-1500m-owner-202608", label: "公司資本額 1.5km 格網（202608 owner-only）",
-  description: "5,745 個 occupied-only 1.5km 格網的公司登記資本額聚合。格網可查公司數、資本額總和與非空資本中位數；不是公司點位、店家、工廠、行政區統計、目前公司狀態或可達性。150m／450m 原檔分別 33MB／9.9MB，現有查詢核心尚未能以 Polygon bbox 精篩，故本 reader 只提供完整且在 8MB 上限內的 1.5km 尺度。",
+  description: "5,745 個 occupied-only 1.5km 格網的公司登記資本額聚合。可用 bbox 查相交格網，或以 grid_id 查公司數、資本額總和與非空資本中位數；不是公司點位、店家、工廠、行政區統計、目前公司狀態或可達性。150m／450m 原檔分別 33MB／9.9MB，仍需安全分片，故本 reader 只提供完整且在 8MB 上限內的 1.5km 尺度。",
   layerRefs: ["companyCapitalGrid"], kind: "grid", recordGrain: "grid_cell", primaryKey: ["grid_id"], fields,
   geometry: { type: "Polygon", crs: "EPSG:4326", role: "generalized", precision: "EPSG:3826 canonical 1.5km (10×10 of 150m) occupied-only grid transformed to WGS84; boundaries are analytical cells, not company premises or administrative boundaries.", spatialAnalysisEligible: false },
   timeFields: [], coverage: "202608 657,882 source rows: excluded dead_or_abnormal 1,152 and invalid_coordinate 2,565, then 654,165 released companies aggregated into 5,745 nonempty 1.5km cells. Omitted cells are outside the occupied-only output and do not establish zero companies or zero capital.",
@@ -27,7 +27,7 @@ export const companyCapitalGridOwnerDescriptor: DatasetDescriptor = {
   valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, missing: "capital_median=null with capital_sum=0 occurs in three occupied cells where all capital values are missing; it is not a zero amount. A missing cell is not a zero-company observation.", stale: "202608 is a fixed monthly snapshot and does not prove a company is current, active at the address, or operating in the cell." },
   versions: [{ versionId: `202608-grid1500-source-sha256:${SOURCE_SHA256}`, observedAt: null, availableAt: "2026-08-18", checksumSha256: SOURCE_SHA256, mutable: false }],
   source: { publisher: "經濟部商業發展署 GCIS", reference: `/research/company-capital-grid/source-identity/sha256-${SOURCE_SHA256}`, lineage: `118 regional×industry company_stock source matrix -> 202608 company_stock SHA c3a191b2…e900c -> status/coordinate exclusions -> EPSG:3826 150m grid -> nested 1.5km aggregation -> source GeoJSON SHA ecf593…6d330 -> safe-field localhost owner-only sidecar SHA ${SIDECAR_SHA256}.` },
-  access: boundedAccess({ mode: "owner_only", method: "local_asset", fields: fields.map(field => field.name), filters: ["grid_id"], maxRowsPerQuery: 100, maxScanRows: SOURCE_COUNT, maxSourceBytes: MAX_BYTES }),
+  access: boundedAccess({ mode: "owner_only", method: "local_asset", fields: fields.map(field => field.name), filters: ["grid_id"], supportsBbox: true, maxRowsPerQuery: 100, maxScanRows: SOURCE_COUNT, maxSourceBytes: MAX_BYTES }),
   supportedOperations: ["query_records", "aggregate"], adapterId: "company-capital-grid-owner-1500m-v1",
 };
 

@@ -29,7 +29,15 @@ it("matches independent Taipei and Kaohsiung grid-cell oracles", async () => {
   }
 });
 
-it("does not offer polygon bbox filtering before the executor has polygon bbox semantics", async () => {
+it("filters the complete 1.5km Polygon against a tiny bbox in two regions", async () => {
   useAsset(); const executor = new QueryExecutor([companyCapitalGridOwnerAdapter]);
-  await expect(executor.execute({ datasetId: companyCapitalGridOwnerDescriptor.datasetId, bbox: [121.4, 25, 121.6, 25.2], limit: 1 })).rejects.toThrow("BBOX_NOT_SUPPORTED");
+  for (const gridId of ["G1500_100_245", "G1500_18_77"]) {
+    const feature = source.features.find((item: { properties: { grid_id: string } }) => item.properties.grid_id === gridId)!;
+    const ring = feature.geometry.coordinates[0] as number[][];
+    const center = [ring.slice(0, 4).reduce((sum, point) => sum + point[0]!, 0) / 4, ring.slice(0, 4).reduce((sum, point) => sum + point[1]!, 0) / 4];
+    const bbox = [center[0]! - 0.0001, center[1]! - 0.0001, center[0]! + 0.0001, center[1]! + 0.0001] as const;
+    const result = await executor.execute({ datasetId: companyCapitalGridOwnerDescriptor.datasetId, bbox, select: ["grid_id", "n_companies"], limit: 50 });
+    expect(result.rows).toEqual([{ grid_id: gridId, n_companies: feature.properties.n_companies }]);
+  }
+  expect(companyCapitalGridOwnerDescriptor.geometry.spatialAnalysisEligible).toBe(false);
 });
