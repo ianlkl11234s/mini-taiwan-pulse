@@ -142,16 +142,16 @@ import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDa
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
 
-// Raw geometry remains a local, opt-in source until an immutable public release exists.
-const localRawBoundaries = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_RAW_BOUNDARIES === "1"
-  ? [createAdministrativeBoundaryAdapter({
+// Full MOI geometry is pinned as a localhost owner-only source; the display PMTiles release is separate.
+const localRawBoundaries = [createAdministrativeBoundaryAdapter({
     datasetId: "tw-county-boundaries-raw", sourceUrl: "/__local-research-boundaries/county.geojson",
+    layerRefs: ["countyBoundary"],
     sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6",
     version: "COUNTY_MOI_1140318", observedAt: "2025-03-18", rawAcquiredAt: null,
     publisher: "內政部國土測繪中心；SEGIS existing local snapshot",
     license: "政府資料開放授權條款-第1版（data.gov.tw dataset 7442）；本地 preview 資產尚未發布",
     codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024,
-  })] : [];
+  })];
 
 // Immutable localhost-only previews; they deliberately have no permanent map layers.
 const localPopulationPreview = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POPULATION_PREVIEW === "1"

@@ -9,6 +9,7 @@ type Row = Record<string, unknown>;
 export type AdministrativeBoundaryFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 export type AdministrativeBoundaryContract = Readonly<{
   datasetId: string;
+  layerRefs?: readonly string[];
   sourceUrl: string;
   sourceSha256: string;
   version: string;
@@ -95,7 +96,7 @@ function descriptor(contract: AdministrativeBoundaryContract): DatasetDescriptor
   const rawAcquiredAt = contract.rawAcquiredAt ?? null;
   return {
     schemaVersion: "pulse-dataset/0.1", datasetId: contract.datasetId, label: `${contract.version} 行政界線`, description: `已驗證 ${contract.publisher} 原始行政界線；同源 immutable bytes 依 code property 保留實際 Polygon/MultiPolygon。`,
-    layerRefs: [], kind: "polygon", recordGrain: "feature", primaryKey: ["area_code"],
+    layerRefs: contract.layerRefs ?? [], kind: "polygon", recordGrain: "feature", primaryKey: ["area_code"],
     fields: [
       { name: "area_code", type: "string", nullable: false, nullMeaning: null, unit: null }, { name: "area_name", type: "string", nullable: false, nullMeaning: null, unit: null },
       { name: "boundary_version", type: "string", nullable: false, nullMeaning: null, unit: null }, { name: "boundary_sha256", type: "string", nullable: false, nullMeaning: null, unit: null },

@@ -350,13 +350,12 @@ function serveResearchPointPartitions(): Plugin {
       const penaltyRoot = resolve(process.cwd(), "../runtime/point-partitions/pollution-penalties");
       const companyRoot = resolve(process.cwd(), "../runtime/point-partitions/company-points");
       server.middlewares.use("/__local-research-boundaries", (request, response) => {
-        const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT;
-        if (!isLoopbackRequest(request) || !analyticsRoot || !["GET", "HEAD"].includes(request.method ?? "") || (request.url ?? "").split("?", 1)[0] !== "/county.geojson") {
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || (request.url ?? "").split("?", 1)[0] !== "/county.geojson") {
           response.statusCode = 404; response.end("Local boundary unavailable"); return;
         }
-        const target = resolve(analyticsRoot, "data/processed/demographics/county_boundary/county_boundary_20260626.geojson");
+        const target = resolve(process.cwd(), "../runtime/owner-only/county-boundary/county_boundary_20260626.geojson");
         void stat(target).then(info => {
-          if (!info.isFile() || info.size > 16 * 1024 * 1024) throw new Error("BOUNDARY_SIZE_LIMIT");
+          if (!info.isFile() || info.size !== 14_719_725) throw new Error("BOUNDARY_SIZE_LIMIT");
           response.setHeader("content-type", "application/geo+json; charset=utf-8");
           response.setHeader("content-length", info.size);
           response.setHeader("x-content-type-options", "nosniff");
