@@ -615,6 +615,15 @@ VERIFIED_RAW_FAMILIES["tdx:ev_charging:20260615"] = {
   geometry: "TDX published WGS84 reference Point with precision receipt missing; bbox/attribute only.", sourceSha256: "fa5ee9640717cc0cac3ed60f00b2a244c41afa2523b27d1d0ebe9fb3f826c218",
   localDisplayReceipt: "Owner-only safe-field sidecar SHA 151204d74b32e0e1a1dfa2c095fe1e806b86cae7eff7718d92964a9208a8f87f, 814,273 bytes; live Supabase release not read.",
 };
+VERIFIED_RAW_FAMILIES["cpc:geothermal_wells:20260615"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/energy/geothermal_wells/geothermal_wells_20260615.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/energy/geothermal_wells/86147.csv", "mini:scripts/research/build-geothermal-wells-owner-only.mjs"],
+  sourceVersion: "2026-06-15 fixed CPC 86147 snapshot", publisher: "台灣中油股份有限公司", license: "OGDL-Taiwan-1.0; owner-only until public display version checked",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Historical fixed list; does not describe current drilling or operation.",
+  coverageAndMissingness: "36 original DMS rows -> 36 WGS84 Point; 3 blank figure URLs excluded from safe sidecar.",
+  geometry: "Source DMS converted to WGS84 Point and independently checked; historical well reference, not bore path or reservoir.", sourceSha256: "c5f1d58c04ba14250053aab0de7f5a30cb19bc3963db6fdf1a14bf6ba23abe15",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 39f0330f0e0971ba81d42e9014d50a0df05c866f287d4fe37d2139dc7aca1a7e, 10,888 bytes; public display version not checked.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -692,6 +701,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   wfRecycling: "waste:facilities_osm:20260519",
   wfScrapYard: "waste:facilities_osm:20260519",
   evChargingStations: "tdx:ev_charging:20260615",
+  geothermalWells: "cpc:geothermal_wells:20260615",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",

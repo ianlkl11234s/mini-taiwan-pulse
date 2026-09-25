@@ -85,6 +85,7 @@ import { wasteStopsOwnerAdapter } from "./wasteStopsOwnerDataset";
 import { lpgSubpackagingOwnerAdapter, lpgRetailersOwnerAdapter } from "./lpgOwnerDatasets";
 import { wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter } from "./wasteFacilitiesOwnerDatasets";
 import { evChargingOwnerAdapter } from "./evChargingOwnerDataset";
+import { geothermalWellsOwnerAdapter } from "./geothermalWellsOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -489,6 +490,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   wasteFacilitiesRecyclingOwnerAdapter,
   wasteFacilitiesScrapYardOwnerAdapter,
   evChargingOwnerAdapter,
+  geothermalWellsOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
