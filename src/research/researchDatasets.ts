@@ -51,6 +51,10 @@ import { welfareChildcareOwnerAdapter, welfareDisabilityOwnerAdapter, welfareSoc
 import { welfareLtcInstitutionsOwnerAdapter, welfareElderlyHomesOwnerAdapter } from "./welfareCarePointsOwnerDatasets";
 import { eduSchoolElementaryOwnerAdapter, eduSchoolJuniorOwnerAdapter, eduSchoolSeniorOwnerAdapter, eduSchoolUniversityOwnerAdapter, eduSchoolSpecialOwnerAdapter, eduRemoteSchoolsOwnerAdapter } from "./eduSchoolsOwnerDatasets";
 import { welfareChildServicesOwnerAdapter } from "./welfareChildServicesOwnerDataset";
+import { artsEventsOwnerAdapter } from "./artsEventsOwnerDataset";
+import { railStationsTHSROwnerAdapter, railStationsTRAOwnerAdapter, railStationsMetroOwnerAdapter } from "./railStationsOwnerDatasets";
+import { antiCorruptionOfficeOwnerAdapter, correctionalFacilityOwnerAdapter, courtOwnerAdapter, immigrationOfficeOwnerAdapter, investigationBureauOwnerAdapter, prosecutorsOfficeOwnerAdapter } from "./justiceFacilitiesOwnerDatasets";
+import { busStationsCityOwnerAdapter, busStationsIntercityOwnerAdapter } from "./busStationsOwnerDatasets";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -394,6 +398,18 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   eduSchoolSpecialOwnerAdapter,
   eduRemoteSchoolsOwnerAdapter,
   welfareChildServicesOwnerAdapter,
+  artsEventsOwnerAdapter,
+  railStationsTHSROwnerAdapter,
+  railStationsTRAOwnerAdapter,
+  railStationsMetroOwnerAdapter,
+  antiCorruptionOfficeOwnerAdapter,
+  correctionalFacilityOwnerAdapter,
+  courtOwnerAdapter,
+  immigrationOfficeOwnerAdapter,
+  investigationBureauOwnerAdapter,
+  prosecutorsOfficeOwnerAdapter,
+  busStationsCityOwnerAdapter,
+  busStationsIntercityOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

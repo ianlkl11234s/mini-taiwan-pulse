@@ -228,6 +228,54 @@ VERIFIED_RAW_FAMILIES["welfare:child_services:20260812"] = {
   geometry: "Mixed geocoded reference Point; 29 nulls remain attribute-queryable and cannot enter bbox. No nearest or service-accessibility claim.", sourceSha256: "ac0c94e29487b56589d25bd301ff4369f931dc166a27b446591ac405fe1d7e2a",
   localDisplayReceipt: "Owner-only safe sidecar SHA 55926bb2c37bfe6143201f19d9b303b423cc8ab3a3ec6b9f8ea6e7b3280332f9; current display release not proven same-version.",
 };
+VERIFIED_RAW_FAMILIES["moc:arts_events:20260716"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/culture/arts_events_moc/arts_events_20260716.json",
+  evidence: ["taipei-gis-analytics/data/processed/culture/arts_events_moc/_manifest.json", "mini:scripts/research/build-arts-events-owner-only.mjs"],
+  sourceVersion: "2026-07-16 doFindTypeJ rolling window", publisher: "文化部", license: "OGDL-Taiwan-1.0 raw directory; owner-only local reader until display release aligned",
+  observedAt: null, acquiredAt: "2026-07-16", acquiredAtAvailability: "Capture date is not current event availability; response contains then-unended shows only.",
+  coverageAndMissingness: "Raw 2,836 activities expand to 7,482 showInfo records, 6,121 Point and 1,361 structural null geometry. Same UID may repeat across shows; category is untranslated raw code.",
+  geometry: "Source show-location WGS84 Point when present; no entrance/precision receipt, so proxy bbox and attribute only.", sourceSha256: "7a9c2e98244c0f8e3350be575c686a16d3a49c1cfec1236e14e4ee7bc4dce2f9",
+  localDisplayReceipt: "Owner-only safe sidecar SHA 58519dc08d834f9b7b8a8463ddb826dd4456d6346853b105a5eb13dd5e1b5836; current display version not aligned.",
+};
+VERIFIED_RAW_FAMILIES["rail:stations:20260529-local"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/rail_stations/rail_stations_20260529.geojson",
+  evidence: ["mini:scripts/research/build-rail-stations-owner-only.mjs", "taipei-gis-analytics/data/processed/transportation/rail_stations/_manifest.json"],
+  sourceVersion: "2026-05-29 unmanifested local assembly", publisher: "TDX／各軌道營運單位 via analytics", license: "503-row 20260527 catalog claims OGDL; 535-row 20260529 source receipts and public redistribution HOLD",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed date does not establish current service or station operation.",
+  coverageAndMissingness: "535 Point: THSR 12, TRA 244, metro/light rail 279. Formal 20260527 manifest covers 503; newer file adds 32 TRA and changes TRA:7120. Existing display 503.",
+  geometry: "WGS84 station Points; not entrance, walking path or real-time service.", sourceSha256: "2e334441261600b2b5541982705f9cdf11182f94df5a507f45572441b8a33637",
+  localDisplayReceipt: "Owner-only 535 safe sidecar SHA 6192eb7b1f5e570a298f438f5bec09a316d39e321cde688805c587fd777b0bf8; existing station_points asset has 503 and is not same-version.",
+};
+const justiceFamilies = [
+  ["anti_corruption_offices", "antiCorruptionOffice", "367a849aa628a16d8c9c7a63f0447209e222026671c6faa8df34dea5e4e8de4c", "66 Google-geocoded Point from two distinct 43+23 raw directories"],
+  ["correctional_facilities", "correctionalFacility", "de96d699fd75452aa144ec326d320245b7dcf1e4ed1c7b2cd85625e88ea94478", "51 Google-geocoded Point"],
+  ["courts", "court", "b0024292a0346f8fb15fb9f87152e0faa59680e949f458da722fabea42640a24", "35 Google-geocoded Point; court-level offices only"],
+  ["immigration_offices", "immigrationOffice", "4dc884eda6ab1039e7f84cf3d9d3c21d3df266d4c561b9f8cea4a07458dc9f74", "25 native TgosWGS Point; excludes unlocated overseas offices"],
+  ["investigation_bureau", "investigationBureau", "bf8c9cebf887abf93d2e39d0207992dd0eed245e8e1db5c8fc5c552cdb200769", "29 Google-geocoded Point"],
+  ["prosecutors_offices", "prosecutorsOffice", "84426ec9ebd8008d48a778e3233c48abe83f4106aab31f0a9479e58b338a2063", "29 Google-geocoded Point"],
+];
+for (const [folder, , sha, coverage] of justiceFamilies) VERIFIED_RAW_FAMILIES[`police_justice:${folder}:20260626`] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/police_justice/${folder}/${folder}_20260626.geojson`,
+  evidence: [`taipei-gis-analytics/data/processed/police_justice/${folder}/_manifest.json`, "mini:scripts/research/build-justice-facilities-owner-only.mjs"],
+  sourceVersion: "2026-06-26 fixed processed snapshot", publisher: "Separate official justice or immigration source directory", license: "RIGHTS_HOLD: processed manifest lacks independently checked coordinate redistribution receipt; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Pipeline date is not current office or service status.",
+  coverageAndMissingness: `${coverage}; no null or non-Point geometry in inspected processed source.`,
+  geometry: "Reference Point; bbox and attribute count only. No nearest, entrance, jurisdiction or accessibility claim.", sourceSha256: sha,
+  localDisplayReceipt: "Safe owner-only sidecar and bounded reader verified; current display release and runtime same-version alignment not proven.",
+};
+const busStationFamilies = [
+  ["tdx:bus_stations_city:2025-11-to-2026-02-28", "busStationsCity", "bus_stations_city", "a585bab7d2fc98cb63e48eff461c43e5f16cf35b1fae9acd7845a5d4d7e7ac8b", "d936b193c72bb2456e85535aa7569893e448aef3265075f7f949e72b72ee7471", "49,830 Point; mixed city snapshots 2025-11 to 2026-02-28"],
+  ["tdx:bus_stations_intercity:2026-02-28", "busStationsIntercity", "bus_stations_intercity", "9012db171215104773a758c0a8c3d9ddba72f2e979f2195647721510ca7d558f", "471b7bc5a1cdab3d1d7f99d5917dfa9e216a10b9b0d9c8855fe1e7481d46c1dc", "15,383 Point; 2026-02-28 InterCity product"],
+];
+for (const [key, , folder, sha, manifestSha, coverage] of busStationFamilies) VERIFIED_RAW_FAMILIES[key] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/transportation/bus/${folder}.geojson`,
+  evidence: ["mini:scripts/research/build-bus-stations-owner-only.mjs", `mini:../runtime/owner-only/bus-stations/${folder === "bus_stations_city" ? "city" : "intercity"}/manifest.json`],
+  sourceVersion: "TDX fixed source product", publisher: "TDX /v2/Bus/Station", license: "OGDL-Taiwan-1.0; owner-only local sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed source snapshots do not establish current stops, routes, vehicles or ETA.",
+  coverageAndMissingness: `${coverage}; no null or non-Point geometry. City and InterCity are distinct products and dates.`,
+  geometry: "Actual StationPosition Point, not roadside Stop, entrance, walking access or live service.", sourceSha256: sha,
+  localDisplayReceipt: `Immutable gzip spatial partitions manifest SHA ${manifestSha}; current display release and runtime same-version alignment not proven.`,
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -258,6 +306,12 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   fireStations: "fire:stations:20260710",
   ...Object.fromEntries(welfareFamilies.map(([key, layer]) => [layer, key])),
   welfareChildServices: "welfare:child_services:20260812",
+  artsEvents: "moc:arts_events:20260716",
+  stationsTHSR: "rail:stations:20260529-local",
+  stationsTRA: "rail:stations:20260529-local",
+  stationsMetro: "rail:stations:20260529-local",
+  ...Object.fromEntries(justiceFamilies.map(([folder, layer]) => [layer, `police_justice:${folder}:20260626`])),
+  ...Object.fromEntries(busStationFamilies.map(([key, layer]) => [layer, key])),
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
