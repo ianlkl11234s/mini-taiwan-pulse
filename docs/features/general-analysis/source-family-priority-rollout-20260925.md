@@ -408,3 +408,9 @@
 
 - `powerPoles` analytics `_manifest.json` 宣稱 22 個縣市檔、2,959,326 Point、EPSG:3826→4326、2026-06-15 年度快照，來源台電 d077010；catalog 記 OGDL-Taiwan-1.0，也明列金門／連江／澎湖端點需由 `island_power_grid` 補。已找到本地 22 個 raw CSV；僅抽查新竹市處理檔 20,596 feature，其中桿號空 5,932，不能外推全國缺值率。Mini 展示 PMTiles SHA `7e74c1a757357e7cee0a4f65e97fa170d15c8966d00c369b6ef79bc499ed282e`，僅有 heatmap/circle 展示，tippecanoe 有 cluster/drop；不是原表計數或查詢證據。
 - Gate G1/G2/G3 [ ] 待做：目前 22 檔 manifest 沒有逐檔 SHA，缺完整欄位／空值／geometry 對帳與展示資產同版建置收據。這些是可在本機施工的工作，非永久外部 HOLD。先固定 raw、processed、PMTiles 各自 SHA／bytes／rows 及來源層 metadata，釐清離島覆蓋；再以縣市加空間分片建立有界 Point reader，兩個新地點加類別變體對原表 oracle 與正常 MCP 驗證。現有共用分片上限 1,024 shards／來源 1 GiB，不可直接假設適合此 2,959,326 點母表。部署 404 歷史問題未在本批驗證。本批映射計數不變。
+
+### 第五十八批：活動斷層地質敏感區原面查詢
+
+- `activeFaults` 現有 `public/geo/active_faults.geojson` 與 analytics raw `data/raw/environment/earthquake/active_faults_sensitive_zones.geojson` byte-identical，2,632,866 bytes／SHA `a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e`，22 個 Polygon／MultiPolygon。可追溯 GSMMA／data.gov.tw:27744；官方目錄 23 項含已變更 F0011，本固定檔為 22 項。來源觀測日未證，2026-03-06 僅本地匯入日期。OGDL-Taiwan-1.0；來源註記敏感區只作土地位置參考，公告與正式圖資為準。
+- Reader 對 2.5 MiB 本地資產做 SHA、長度、22 代碼與 geometry 驗證，15 秒 timeout、3 MiB 上限；僅輸出 `fault_code` 與完整水平 MultiPolygon。原 Polygon 包成單部分 MultiPolygon、`[lng,lat,0]` 去除零第三座標；保留水平頂點、孔洞與多部分。非零第三座標、錯版、重複代碼及非法幾何 fail closed。bbox 使用實際面相交；不提供風險分級、地籍判定或現況保證。
+- 獨立原面 oracle 與正常 Codex→MCP→Gateway→配對 3734 browser：大甲框 `[120.60,24.28,120.64,24.34]` 得 `F0012` 1，米崙框 `[121.61,23.99,121.63,24.03]` 得 `F1011` 1；空框 0 僅表示此固定檔未相交。大甲結果含 geometry 後 `pulse_present_result` → `pulse_wait_scene_ready` revision 3 ready；`pulse_get_map_context` 1 feature／1 source／1 layer、ready，fit bounds revision 4 ready，地圖目視有高亮。focused/registry Vitest 12/12、`npx tsc -b`、`npm run build` 通過。Audit 778 層／221 datasets／214 查詢映射／564 待映射；臺灣 GIS 主 Layers 381 中已註冊 160、待接 221。無 Supabase/S3 寫入，未 push、PR、merge、部署或重啟排程。

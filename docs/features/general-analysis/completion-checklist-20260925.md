@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 213 個已有查詢映射的層 + 23 個 metadata 候選 + 542 個尚無可用映射的層；共 220 datasets。213 不等於 213 層全部驗收完成。目前 565 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 214 個已有查詢映射的層 + 22 個 metadata 候選 + 542 個尚無可用映射的層；共 221 datasets。214 不等於 214 層全部驗收完成。目前 564 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -141,6 +141,9 @@
 
 
 第五十七批 [ ] 待做：`powerPoles` 上游 manifest 記 22 縣市、2,959,326 Point，台電 2026-06-15 快照；Mini 現有 PMTiles 是 cluster/drop 展示，不是逐筆查詢。已找到本地 22 個 raw CSV 與處理表，但缺全檔 SHA／缺值對帳及 PMTiles 同版收據；金門、連江、澎湖來源端點另有缺口。先在本機完成版本封存與分縣市有界 reader，再做新地點驗收；目前不可把展示點數當原表。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。
+
+
+第五十八批 [x] `activeFaults`：活動斷層地質敏感區本地原始檔與現有 GeoJSON byte-identical，22 個 Polygon／MultiPolygon、SHA `a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e`。新 reader 只供官方代碼與完整水平面幾何；大甲 F0012、米崙 F1011 的新 bbox oracle 與正常 MCP 一致，配對地圖結果 1 feature／1 source／1 layer ready/readback。focused/registry 12/12、`tsc -b`、build 通過；正式法定圖、現況與風險判定 [ ] HOLD。詳見[第五十八批](./source-family-priority-rollout-20260925.md)。目前 221 datasets、214 查詢映射、564 待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
