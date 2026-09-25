@@ -292,10 +292,22 @@
 
 - `companyCapitalGrid` 所屬 GCIS 202608 r2 同源格網中的 1.5km GeoJSON 有 5,745 個 occupied-only Polygon，SHA `ecf59329d4812d55bf3f8b1cc296ab94b3cfc994dcc9da5cea866f9af496d330`。657,882 來源列排除 dead/abnormal 1,152 和 invalid coordinate 2,565 後，654,165 家公司匯總到格網；`sum(n_companies)=654,165`，`sum(capital_sum)=40,627,610,824,468 TWD`。3 格 `capital_median=null` 且資本額總和為 0，null 不能改成觀測零；輸出只含有公司的格網，缺格不能推論零公司。安全 sidecar 2,242,079 bytes／SHA `70b06d90b13bf46d35fa13864b1f5fa7ecc9e829cce5c6757929b35b0369320c`，本機 owner-only。
 - 原表獨立對帳、focused test 3/3；正常配對 MCP 用 `grid_id=G1500_100_245` 得臺北格公司數 384／資本總額 1,607,718,088 TWD，`G1500_18_77` 得高雄格 14／1,246,090,000 TWD，均與原檔一致。整合 focused 40/40（含 registry、manifest、sidebar）、`tsc -b`、`npm run build` 通過；owner 路由 HTTP 200／2,242,079 bytes、外來 Host 404。
-- QueryExecutor 目前未提供 Polygon bbox 精篩，此 reader 只按 `grid_id` 查 1.5km 全量安全檔，不宣稱點落在哪格、bbox 查詢或地圖結果呈現。150m 89,754 格／33MB、450m 26,834 格／9.9MB 必須先有 bounded Polygon 分片／精篩才可接，標 `READER_PENDING`；118 份原始來源授權／取得 receipt 未逐份核，公開再散布 `RIGHTS_HOLD`。公司點、格網與工廠點不是同一粒度。
+- 本片初次接線時 QueryExecutor 尚未提供 Polygon bbox，第三十八批已補完整面相交後，1.5km reader 可用 bbox 查**相交格網**；這仍不代表格內每家公司位置或地圖結果呈現。150m 89,754 格／33MB、450m 26,834 格／9.9MB 仍須 bounded Polygon 分片，標 `READER_PENDING`；118 份原始來源授權／取得 receipt 未逐份核，公開再散布 `RIGHTS_HOLD`。公司點、格網與工廠點不是同一粒度。
 
 ## 第三十七批：無人機空域歷史資料稽核與標示修正
 
 - `droneNoFlyZone` 和 `droneRestrictedZone` 共享民航局 dronegis 2026-06-30 union 快照，處理 GeoJSON SHA `f6abe82cd4a3bad5e05647a46f726e2a2d620801b31aba4e439800458b6e8813`、本機 PMTiles SHA `a6cf67ee9cbef933254debbe77b02fcf19bf9bb53be0e860ad1e70d3264d5a0e`。原 NFZ 5,095、UAV_fs_ryg 4,424，合併 5,743 features：紅 4,311、黃 108、無色 1,324（5,741 Polygon＋2 MultiPolygon）。原 manifest 錯寫無色 1,322／紅加無色 5,633，並錯指已廢棄、0 面的 `airport_safety_zones`；前端 manifest、legend、popup 與註解已改成 1,324／5,635，正確指向 `drone_restricted_zones`，明示歷史快照不判定現行規則。
 - **目前兩層均未接研究 Polygon reader。** 4,757 面起迄有效日期都缺，另有 12 面明確到期；PMTiles 未保留日期欄。catalog 只寫「OGDL-style」，原始授權未核；processed manifest 無 SHA 欄（本片自行算出上述 SHA）。幾何 bbox `[12.089547,10.215898,124.699825,27.332917]`，5 個紅區有臺灣 envelope 外頂點，不能直接說全臺完整覆蓋或用來回答「現在可飛嗎」。後續若做 owner-only 歷史 contains/bbox reader，須保留完整面、缺期／到期狀態及跨域 geometry 異常，並先實作 bounded Polygon 範圍讀取；任何現行法律結論仍 HOLD。
 - 本批完成的是**來源稽核與既有 UI 資料語意修正**，不是新增可查映射。Audit 778 層／197 datasets／193 queryable mappings／585 待映射；臺灣 GIS 主 Layers 381 中已註冊 139、待接 242。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+## 第三十八批：共用 Polygon/MultiPolygon bbox 查詢
+
+- QueryExecutor 現在以完整 EPSG:4326 Polygon/MultiPolygon 與閉合 bbox Polygon 的相交判斷過濾結果；Point 的原路徑不變。洞內小 bbox 不誤命中、多面只碰第二塊仍命中、邊界接觸依 intersects 命中；畸形或超過 200,000 頂點 fail closed，不退成質心近似。`supportsBbox` 只授權有界讀取，**不**把 generalized/proxy 面升格成精確空間分析資格。原本的 rows／source bytes／response 上限保留。
+- `companyCapitalGrid` 1.5km 用新的 bbox 契約，正常配對 MCP：臺北小 bbox `[121.4457,25.0147,121.446,25.015]` 得 `G1500_100_245` 1 格（384 公司／1,607,718,088 TWD）；高雄 `[120.2404,22.738,120.2408,22.7385]` 得 `G1500_18_77` 1 格（14 公司／1,246,090,000 TWD），與原表兩格相符。第一次 MCP 回 `BBOX_NOT_SUPPORTED` 是既有 3734 browser 模組尚未重載；在既有本機瀏覽器 reload 後 descriptor 變 `supportsBbox:true`，正常查詢通過，配對保持可用。focused Vitest 23/23、`tsc -b` 通過；結果地圖呈現仍未通過，因這是 generalized grid。
+
+## 第三十九批：臺南、桃園滯洪池參考點
+
+- `waterDetentionBasins` 本機既有展示 GeoJSON 56 Point／SHA `6dd46deca47a13b479ad8dede339eb1c4e14c0540b08b5b3472e1d6fc250686a`，可追到臺南 data.gov.tw 108523 原始 45 列／SHA `df2521430f8a76f204361e9c5300cfa83d1f5c0efa010c4f9ef7ff41333f2aab`（TM97 經既有 pipeline 轉 WGS84）與桃園 152950 原始 11 列／SHA `7644ebf0dcec99ffcfb9621c612540874ae43237eceb4a72db5d8188a721a132`（原生 WGS84）。安全 owner-only sidecar 13,922 bytes／SHA `c2e6713f17b24cc3c792704b486508a6c34ba2c826da8fa50bcc686fd3dad01c`，只留 ID、名稱、縣市、類別、面積、來源 ID、Point。臺南 45 筆有面積，桃園 11 筆 `area_m2=null`；56 筆全都缺 township/status/設計與目前容量/深度，不補零。
+- 原表兩縣市 bbox 與縣市變體 oracle、focused 2/2；正常配對 MCP 臺南 `[120.24,23.08,120.29,23.14]` 得 11、桃園 `[121.35,25.03,121.41,25.06]` 加 `county=taoyuan` 得 8，桃園面積維持 null。整合 focused Vitest 25/25、`npx tsc -b`、`npm run build` 通過；3734 owner route 200／13,922 bytes，外來 Host 404。此 Point 不是池界、入口、容量或現況防洪服務，不做最近距離或結果地圖呈現；其他縣市不在此固定來源。
+- 同批查 `waterFacilities`：Mini 展示 609 Point，內含 OSM 526＋WRA GIC 83，但 analytics catalog／manifest只描述 OSM 526，WRA 83 的原始版次／授權／同版收據待補，保持 `VERSION_MISMATCH_HOLD`。`waterMonitorStations` 展示 2,032 Point（地下水井 959、河川水位 831、雨量 242）卻宣告 rain_gauge_stations 上游；樣本一筆標連江縣的地下水井座標在 `[120.598709078,22.376124941]`，縣市與位置明顯不合，維持 `DATA_QUALITY_HOLD`。兩者不因檔案存在而接成保證可查。
+- Audit：778 層／198 datasets／194 queryable mappings／27 metadata 候選／584 待映射；臺灣 GIS 主 Layers 381 中已註冊 140、待接 241。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
