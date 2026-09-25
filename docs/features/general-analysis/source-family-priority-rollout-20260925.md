@@ -287,3 +287,15 @@
 - `eduCramSchool` 的來源為高雄市教育局代管全國系統 city=2 原始 JSON 17,772 列／SHA `dc74fd5b0ccce06461b993b3b8e4de0fcf37ec0e6ebf1b1864d13636dba43c73`，2026-08-07 處理檔 17,137 Point／SHA `adf0dddc81dc6ba30ff71c72242b4263b5a3896b7faffd40cead7ee24711af4e`；635 筆未定位，不補行政區中心。定位精度 exact 10,100／cached 2,831／TGOS 4,129／interpolated 77；所謂 exact 仍是地理編碼階段，不是場址測量精度。owner-only 安全欄位 165 gzip shards／manifest SHA `0a419219ce202574d43048eb6cb5ca7acd802e4eac0aa399fc7c4c0b46bb53fa`，不帶名稱、地址、email 或機關代碼。
 - 原表兩城市及類別變體 oracle、focused tests 3/3；正常 MCP 臺北 `[121.48,25.02,121.58,25.10]` 加 `category=文理類` 得 1,349，高雄 `[120.28,22.56,120.38,22.67]` 得 1,140，兩者回 50 且截斷明示。整合 Vitest 12/12、`npx tsc -b`、`npm run build` 通過，3734 manifest HTTP 200／62,431 bytes、外來 Host 404。
 - catalog 記 OGDL，但 TGOS／cache／offline／interpolated 坐標的公開再散布證據未逐筆核實，維持 localhost owner-only `RIGHTS_HOLD`。proxy Point 只保證固定快照 bbox／屬性，不宣稱最近、距離、可達性、現今立案／營運或研究結果地圖呈現；PMTiles 同版未驗。Audit 778 層／196 datasets／192 queryable mappings／586 待映射；臺灣 GIS 主 Layers 381 中已註冊 138、待接 243。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+## 第三十六批：公司資本額 1.5 公里格網
+
+- `companyCapitalGrid` 所屬 GCIS 202608 r2 同源格網中的 1.5km GeoJSON 有 5,745 個 occupied-only Polygon，SHA `ecf59329d4812d55bf3f8b1cc296ab94b3cfc994dcc9da5cea866f9af496d330`。657,882 來源列排除 dead/abnormal 1,152 和 invalid coordinate 2,565 後，654,165 家公司匯總到格網；`sum(n_companies)=654,165`，`sum(capital_sum)=40,627,610,824,468 TWD`。3 格 `capital_median=null` 且資本額總和為 0，null 不能改成觀測零；輸出只含有公司的格網，缺格不能推論零公司。安全 sidecar 2,242,079 bytes／SHA `70b06d90b13bf46d35fa13864b1f5fa7ecc9e829cce5c6757929b35b0369320c`，本機 owner-only。
+- 原表獨立對帳、focused test 3/3；正常配對 MCP 用 `grid_id=G1500_100_245` 得臺北格公司數 384／資本總額 1,607,718,088 TWD，`G1500_18_77` 得高雄格 14／1,246,090,000 TWD，均與原檔一致。整合 focused 40/40（含 registry、manifest、sidebar）、`tsc -b`、`npm run build` 通過；owner 路由 HTTP 200／2,242,079 bytes、外來 Host 404。
+- QueryExecutor 目前未提供 Polygon bbox 精篩，此 reader 只按 `grid_id` 查 1.5km 全量安全檔，不宣稱點落在哪格、bbox 查詢或地圖結果呈現。150m 89,754 格／33MB、450m 26,834 格／9.9MB 必須先有 bounded Polygon 分片／精篩才可接，標 `READER_PENDING`；118 份原始來源授權／取得 receipt 未逐份核，公開再散布 `RIGHTS_HOLD`。公司點、格網與工廠點不是同一粒度。
+
+## 第三十七批：無人機空域歷史資料稽核與標示修正
+
+- `droneNoFlyZone` 和 `droneRestrictedZone` 共享民航局 dronegis 2026-06-30 union 快照，處理 GeoJSON SHA `f6abe82cd4a3bad5e05647a46f726e2a2d620801b31aba4e439800458b6e8813`、本機 PMTiles SHA `a6cf67ee9cbef933254debbe77b02fcf19bf9bb53be0e860ad1e70d3264d5a0e`。原 NFZ 5,095、UAV_fs_ryg 4,424，合併 5,743 features：紅 4,311、黃 108、無色 1,324（5,741 Polygon＋2 MultiPolygon）。原 manifest 錯寫無色 1,322／紅加無色 5,633，並錯指已廢棄、0 面的 `airport_safety_zones`；前端 manifest、legend、popup 與註解已改成 1,324／5,635，正確指向 `drone_restricted_zones`，明示歷史快照不判定現行規則。
+- **目前兩層均未接研究 Polygon reader。** 4,757 面起迄有效日期都缺，另有 12 面明確到期；PMTiles 未保留日期欄。catalog 只寫「OGDL-style」，原始授權未核；processed manifest 無 SHA 欄（本片自行算出上述 SHA）。幾何 bbox `[12.089547,10.215898,124.699825,27.332917]`，5 個紅區有臺灣 envelope 外頂點，不能直接說全臺完整覆蓋或用來回答「現在可飛嗎」。後續若做 owner-only 歷史 contains/bbox reader，須保留完整面、缺期／到期狀態及跨域 geometry 異常，並先實作 bounded Polygon 範圍讀取；任何現行法律結論仍 HOLD。
+- 本批完成的是**來源稽核與既有 UI 資料語意修正**，不是新增可查映射。Audit 778 層／197 datasets／193 queryable mappings／585 待映射；臺灣 GIS 主 Layers 381 中已註冊 139、待接 242。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
