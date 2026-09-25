@@ -1003,7 +1003,7 @@ function serveResearchPointPartitions(): Plugin {
       });
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
-        const match = /^(accident-taipei|regulated-facilities|street-trees-diff|med-aed|pollution-penalties-v2|nhi-medical|cram-schools|fire-hydrants|groundwater-wells|agri-retail|livestock-farms|agri-produce-wholesale)\/(manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.exec(path);
+        const match = /^(accident-taipei|regulated-facilities|street-trees-diff|med-aed|pollution-penalties-v2|nhi-medical|cram-schools|fire-hydrants|groundwater-wells|agri-retail|livestock-farms|agri-produce-wholesale|religion-temples)\/(manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.exec(path);
         if (!match) return next();
         if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "")) { response.statusCode = 404; response.end("Local source unavailable"); return; }
         const target = resolve(process.cwd(), "../runtime/owner-only", match[1]!, match[2]!);

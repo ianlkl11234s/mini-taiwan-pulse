@@ -778,6 +778,15 @@ VERIFIED_RAW_FAMILIES["moea:produce_wholesale_companies:20260525"] = {
   geometry: "TGOS address-geocoded reference Point, proxy; bbox/attribute only, no nearest or current-business claim.", sourceSha256: "95891f3dfef06431bdb49b04e72503c1de865ffb5704da50179bad6564e25008",
   localDisplayReceipt: "Mini local GeoJSON symlink points to original checkout same processed SHA; PMTiles and remote release not independently checked. Owner partition manifest SHA 357a881d906ea0c8f734677117e1fc007d1bb4b98cccd1039fa73948f577cb89.",
 };
+VERIFIED_RAW_FAMILIES["moi:religion_temples:20260801-trust-chain"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/religion/temples/temples_20260801.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/religion/temples/_manifest.json", "mini:scripts/research/build-religion-temples-owner-only.mjs", "mini:src/research/religionTemplesOwnerDataset.ts"],
+  sourceVersion: "2026-08-01 mixed-source trust-chain snapshot", publisher: "MOI religion registry, BOCH, MOI Top 100, OSM contributors", license: "OGDL official inputs; OSM ODbL attribution and Google geocode redistribution HOLD, localhost owner-only",
+  observedAt: null, acquiredAt: "2026-08-01", acquiredAtAvailability: "MOI/OSM raw snapshots fixed SHA; BOCH/Top100 fixed local inputs, present operation not verified.",
+  coverageAndMissingness: "19,201 Point merged entities: MOI-family 12,499 plus OSM-only 6,702. MOI original 507 missing coordinates, 503 backfilled; 2 unresolved absent. Source/bbox absence is not no temple.",
+  geometry: "Mixed original/OSM/geocoded reference Point, proxy; no nearest, entrance, current registration or national-completeness claim.", sourceSha256: "ee6c5549b35bc76dbf4ac22ee0ce5dd6a4684b5269af416cf43cfc6736f2207e",
+  localDisplayReceipt: "Owner-only partition manifest SHA c6eece8825ee30e241762dea9db2a662860e97f5e6201e98ed1791bf210451ac. PMTiles source equivalence and research map readback unverified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -882,6 +891,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   groundwaterWells: "wra:groundwater_wells_static:20260519",
   agriRetail: "moea:agri_retail_companies:20260525",
   agriProduceWholesale: "moea:produce_wholesale_companies:20260525",
+  religionTemples: "moi:religion_temples:20260801-trust-chain",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
