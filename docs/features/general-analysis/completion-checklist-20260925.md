@@ -132,6 +132,8 @@
 
 第五十三批 [x] `streetTreesNational` 接臺北 92,033 加臺中 118,403 株的固定樹籍 Point，共 210,436；名稱「全國」不代表涵蓋其他縣市。正常 MCP 臺北框 1,187、臺中框 701，其中臺中公園廣場 316，與完整原表 oracle 相同；focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。兩市時間不同、臺中公園樹不全是路旁樹；縣市同時點比較、精確最近與研究地圖 ready/readback [ ] HOLD。詳見[第五十三批](./source-family-priority-rollout-20260925.md)。目前 219 datasets、212 查詢映射、566 待映射層。
 
+第五十四批 [x] 去重盤點：`religionChurches`、`religionAncestralHalls`、`religionFoundations`、`religionOtherWorship`、`religionTop100` 都已在第十七批具 owner-only reader 與正常 MCP 收據；本批試做的四份重複 sidecar 未接入且已撤回，既有 registry tests 12/12 通過。宗教百景的 2021 精選現況仍 [ ] HOLD，但查詢入口不是待接。映射數維持 212，下一游標是 `medLTC` 2026-08-11 固定來源；詳見[第五十四批](./source-family-priority-rollout-20260925.md)。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
 23 個 metadata 候選與 554 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。

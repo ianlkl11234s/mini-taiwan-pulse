@@ -387,3 +387,8 @@
 - `streetTreesNational` 的真實涵蓋是臺北 92,033 加臺中 118,403，合計 210,436 Point；merged GeoJSON SHA `a9b2e18ec60e2444bc263bb0bf1c9ee804b66a7a62064a38affb6a7890f6de99`。臺北 2026-07-12 raw JSON SHA `80c8c567d3e80d9e5ddeb186b8d41844160a71fea6eb58d72cd39a5daa98949e`，臺中 processed GeoJSON SHA `7743407091c35e0a110c6a478a0aaa77caf54dc6484993d2e06af4004e1d4ca3`；各上游 catalog 記 OGDL。93 個 gzip 分片 manifest SHA `b1fc01a0908d8b18169b5cd774da4d1f3824d7f7c81671f09615108f3c1b99e3`，sidecar 排除地址與重複原始經緯度。
 - 原表與正常 Codex→MCP→Gateway→既有 3734 配對 browser：臺北 `[121.50,25.03,121.51,25.04]` 1,187；臺中 `[120.65,24.16,120.66,24.17]` 701，依 `location_type=公園廣場` 為 316（同框人行道 385）。focused tests 12/12、`npx tsc -b`、`npm run build`、localhost manifest 200／36,110 bytes、外來 Host 404 通過；全臺大 bbox 以 `DATASET_TOO_LARGE` 拒絕。
 - 臺北是 2026-07-12 快照，臺中為 2016–2019 調查／2020 製圖，不能當同時點比較。臺中原表 `公園廣場` 共 61,321，不宜統稱路旁行道樹；`location_type` 空字串 13,121、`survey_date` 空字串 1 筆保留。兩市以外無資料是未涵蓋，不是零樹。Point 僅作固定清冊 bbox／屬性查詢；精確最近、現況、全國統計、PMTiles 同版及研究地圖 ready/readback [ ] HOLD。Audit：778 層／219 datasets／212 查詢映射／566 待映射；臺灣 GIS 主 Layers 381 中已註冊 158、待接 223。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+### 第五十四批：宗教五層去重核對
+
+- 教會 2,116、宗祠 173、其他宗教場所 1,319、宗教基金會 165、宗教百景精選 100，五層均已於第十七批用 `religionPointsOwnerDatasets.ts` 接成 owner-only 查詢，有正常 MCP／Host guard 收據；無須重做 reader。既有基金會 reader 將 41 個原始無座標列保留 `geometry=null`，比直接沿用後補 Point 更忠於原始資料。
+- 本批曾產四份新的安全分片候選；整合測試以 `DUPLICATE_DATASET_ID` 擋下後，已把候選檔、分片及接線精確撤回，既有 registry／宗教測試 12/12 通過，未提交重複 reader。宗教百景仍是 2021 年 100 處精選、非當前完整場所名冊；屬來源時間與涵蓋 HOLD，不是沒有 owner-only reader。Audit 計數不變：778 層／219 datasets／212 查詢映射／566 待映射。下一個新家族 `medLTC` 的衛福部 88270 快照與已有的福利長照機構層不是同一原表。
