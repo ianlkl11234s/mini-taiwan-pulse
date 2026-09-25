@@ -40,8 +40,9 @@ const localRawBoundaries = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_
   ? [createAdministrativeBoundaryAdapter({
     datasetId: "tw-county-boundaries-raw", sourceUrl: "/__local-research-boundaries/county.geojson",
     sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6",
-    version: "COUNTY_MOI_1140318", publisher: "內政部國土測繪中心；SEGIS existing local snapshot",
-    license: "Local source receipt; verify upstream terms before redistribution",
+    version: "COUNTY_MOI_1140318", observedAt: "2025-03-18", rawAcquiredAt: null,
+    publisher: "內政部國土測繪中心；SEGIS existing local snapshot",
+    license: "政府資料開放授權條款-第1版（data.gov.tw dataset 7442）；本地 preview 資產尚未發布",
     codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024,
   })] : [];
 

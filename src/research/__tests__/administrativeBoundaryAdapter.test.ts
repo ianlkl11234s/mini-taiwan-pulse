@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import { createAdministrativeBoundaryAdapter, type AdministrativeBoundaryContract } from "../administrativeBoundaryAdapter";
 import { QueryExecutor } from "../queryExecutor";
+import { geometriesIntersect, geometryWithin, locatePointInSurface, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "../spatialKernel";
 
 const encoder = new TextEncoder();
 const digest = async (bytes: Uint8Array) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map(value => value.toString(16).padStart(2, "0")).join("");
@@ -11,18 +12,20 @@ const source: { type: string; features: Array<Record<string, any>> } = { type: "
 ] };
 
 async function contract(bytes: Uint8Array, overrides: Partial<AdministrativeBoundaryContract> = {}): Promise<AdministrativeBoundaryContract> {
-  return { datasetId: "boundary:fixture", sourceUrl: "/__dev/raw-county.geojson", sourceSha256: await digest(bytes), version: "COUNTY_TEST", publisher: "fixture publisher", license: "test", codeProperty: "code", nameProperty: "name", expectedAreas: 2, maxBytes: 16 * 1024 * 1024, ...overrides };
+  return { datasetId: "boundary:fixture", sourceUrl: "/__dev/raw-county.geojson", sourceSha256: await digest(bytes), version: "COUNTY_TEST", observedAt: null, rawAcquiredAt: null, publisher: "fixture publisher", license: "test", codeProperty: "code", nameProperty: "name", expectedAreas: 2, maxBytes: 16 * 1024 * 1024, ...overrides };
 }
 
 describe("verified administrative boundary adapter", () => {
   it("keeps source properties/id out of the row contract while preserving raw actual MultiPolygon geometry", async () => {
-    const bytes = encoder.encode(JSON.stringify(source)); const input = await contract(bytes);
+    const bytes = encoder.encode(JSON.stringify(source)); const input = await contract(bytes, { observedAt: "2025-03-18", rawAcquiredAt: null });
     const fetcher = vi.fn(async () => new Response(bytes, { status: 200, headers: { "content-type": "application/geo+json" } }));
     const result = await new QueryExecutor([createAdministrativeBoundaryAdapter(input, fetcher)]).execute({ datasetId: input.datasetId, filters: [{ field: "area_code", op: "eq", value: "B" }], select: ["area_code", "area_name", "boundary_version", "boundary_sha256", "geometry"] });
     expect(fetcher).toHaveBeenCalledWith(input.sourceUrl, expect.objectContaining({ credentials: "same-origin", redirect: "error" }));
     expect(result.rows).toMatchObject([{ area_code: "B", area_name: "乙", boundary_version: "COUNTY_TEST", boundary_sha256: input.sourceSha256, geometry: { type: "MultiPolygon" } }]);
     expect(result.sourceRefs).toEqual([expect.objectContaining({ sourceId: "administrative-boundary:COUNTY_TEST", checksumSha256: input.sourceSha256, reference: input.sourceUrl })]);
+    expect(result.lineage).toEqual({ sourceContract: { observedAt: "2025-03-18", rawAcquiredAt: null } });
     expect(result.access.method).toBe("local_asset");
+    expect(createAdministrativeBoundaryAdapter(input).descriptor.versions).toEqual([expect.objectContaining({ observedAt: "2025-03-18", availableAt: null, checksumSha256: input.sourceSha256, mutable: false })]);
   });
 
   it("rejects hash, duplicate codes, non-surfaces, external URLs, and streamed sizes over the configured cap", async () => {
@@ -40,6 +43,7 @@ describe("verified administrative boundary adapter", () => {
     for (const sourceUrl of ["https://example.test/raw.geojson", "/raw/../county.geojson", "/raw/%2e%2e/county.geojson", "/raw/county.geojson?version=1", "/raw/county.geojson#part", "/raw//county.geojson"]) {
       expect(() => createAdministrativeBoundaryAdapter({ ...input, sourceUrl })).toThrow("INVALID_ADMINISTRATIVE_BOUNDARY_CONTRACT");
     }
+    expect(() => createAdministrativeBoundaryAdapter({ ...input, observedAt: "not-a-date" })).toThrow("INVALID_ADMINISTRATIVE_BOUNDARY_CONTRACT");
     const small = await contract(bytes, { maxBytes: 64 }); const stream = new ReadableStream<Uint8Array>({ start(controller) { controller.enqueue(new Uint8Array(65)); controller.close(); } });
     await expect(new QueryExecutor([createAdministrativeBoundaryAdapter(small, vi.fn(async () => new Response(stream)))]).execute({ datasetId: small.datasetId })).rejects.toThrow("BOUNDARY_TOO_LARGE");
   });
@@ -60,13 +64,46 @@ describe("verified administrative boundary adapter", () => {
     }
   });
 
+  it("distinguishes hole, multipolygon, and boundary predicates independently of the boundary adapter", () => {
+    const surface = {
+      type: "MultiPolygon",
+      coordinates: [
+        [
+          [[120, 23], [120.2, 23], [120.2, 23.2], [120, 23.2], [120, 23]],
+          [[120.05, 23.05], [120.15, 23.05], [120.15, 23.15], [120.05, 23.15], [120.05, 23.05]],
+        ],
+        [[[120.3, 23], [120.4, 23], [120.4, 23.1], [120.3, 23.1], [120.3, 23]]],
+      ],
+    } as const satisfies SurfaceGeometry;
+    const inside: PointGeometry = { type: "Point", coordinates: [120.02, 23.02] };
+    const inHole: PointGeometry = { type: "Point", coordinates: [120.1, 23.1] };
+    const secondPart: PointGeometry = { type: "Point", coordinates: [120.35, 23.05] };
+    const boundary: PointGeometry = { type: "Point", coordinates: [120, 23.1] };
+
+    expect(locatePointInSurface(inside, surface)).toBe("inside");
+    expect(locatePointInSurface(inHole, surface)).toBe("outside");
+    expect(locatePointInSurface(secondPart, surface)).toBe("inside");
+    expect(locatePointInSurface(boundary, surface)).toBe("boundary");
+    expect(geometryWithin(inside, surface)).toBe(true);
+    expect(geometryWithin(inHole, surface)).toBe(false);
+    expect(geometryWithin(boundary, surface)).toBe(false);
+    expect(geometriesIntersect(boundary, surface)).toBe(true);
+  });
+
   it.runIf(process.env.RUN_RAW_BOUNDARY_INTEGRATION === "1")("optionally materializes the verified raw county artifact through an injected file reader", async () => {
     const raw = new URL("../../../../../../../taipei-gis-analytics/data/processed/demographics/county_boundary/county_boundary_20260626.geojson", import.meta.url);
     const bytes = await readFile(raw);
-    const input: AdministrativeBoundaryContract = { datasetId: "boundary:raw-county-integration", sourceUrl: "/__dev/raw-county.geojson", sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6", version: "COUNTY_MOI_1140318", publisher: "data.gov.tw dataset 7442", license: "政府資料開放授權條款-第1版", codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024 };
+    const input: AdministrativeBoundaryContract = { datasetId: "boundary:raw-county-integration", sourceUrl: "/__dev/raw-county.geojson", sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6", version: "COUNTY_MOI_1140318", observedAt: "2025-03-18", rawAcquiredAt: null, publisher: "data.gov.tw dataset 7442", license: "政府資料開放授權條款-第1版", codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024 };
     const adapter = createAdministrativeBoundaryAdapter(input, vi.fn(async () => new Response(bytes, { headers: { "content-type": "application/geo+json" } })));
     const materialized = await adapter.read({});
     expect(materialized.rows).toHaveLength(22); expect(materialized.rows[0]?.geometry).toMatchObject({ type: "MultiPolygon" });
+    expect(adapter.descriptor.versions).toEqual([expect.objectContaining({ observedAt: "2025-03-18", availableAt: null, checksumSha256: input.sourceSha256 })]);
+    expect(materialized.lineage).toEqual({ sourceContract: { observedAt: "2025-03-18", rawAcquiredAt: null } });
     await expect(new QueryExecutor([adapter]).execute({ datasetId: input.datasetId, select: ["area_code"], limit: 1 })).resolves.toMatchObject({ totalMatched: 22 });
+    const taipei = materialized.rows.find(row => row.area_code === "63000");
+    expect(taipei?.area_name).toBe("臺北市");
+    const taipeiGeometry = parseSpatialGeometry(taipei?.geometry);
+    if (taipeiGeometry.type === "Point") throw new Error("TAIPEI_BOUNDARY_NOT_SURFACE");
+    expect(locatePointInSurface({ type: "Point", coordinates: [121.5654, 25.033] }, taipeiGeometry)).toBe("inside");
   });
 });

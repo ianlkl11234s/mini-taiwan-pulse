@@ -12,6 +12,10 @@ export type AdministrativeBoundaryContract = Readonly<{
   sourceUrl: string;
   sourceSha256: string;
   version: string;
+  /** Date represented by this administrative snapshot; null when the publisher does not declare one. */
+  observedAt?: string | null;
+  /** When the immutable raw artifact was obtained; null must remain explicit rather than inferred from a local read. */
+  rawAcquiredAt?: string | null;
   publisher: string;
   license: string;
   codeProperty: string;
@@ -22,6 +26,7 @@ export type AdministrativeBoundaryContract = Readonly<{
 
 function object(value: unknown): value is Row { return Boolean(value) && typeof value === "object" && !Array.isArray(value); }
 function validSha(value: string): boolean { return /^[a-f0-9]{64}$/.test(value); }
+function validDateOrNull(value: string | null | undefined): boolean { return value === undefined || value === null || Number.isFinite(Date.parse(value)); }
 function validGeoCrs(value: unknown): boolean {
   if (value === undefined) return true; // RFC 7946 GeoJSON defaults to WGS84 longitude/latitude.
   if (!object(value) || value.type !== "name" || !object(value.properties) || typeof value.properties.name !== "string") return false;
@@ -86,6 +91,8 @@ function asMultiPolygon(value: unknown): GeoJSON.MultiPolygon {
 }
 
 function descriptor(contract: AdministrativeBoundaryContract): DatasetDescriptor {
+  const observedAt = contract.observedAt ?? null;
+  const rawAcquiredAt = contract.rawAcquiredAt ?? null;
   return {
     schemaVersion: "pulse-dataset/0.1", datasetId: contract.datasetId, label: `${contract.version} 行政界線`, description: `已驗證 ${contract.publisher} 原始行政界線；同源 immutable bytes 依 code property 保留實際 Polygon/MultiPolygon。`,
     layerRefs: [], kind: "polygon", recordGrain: "feature", primaryKey: ["area_code"],
@@ -97,15 +104,15 @@ function descriptor(contract: AdministrativeBoundaryContract): DatasetDescriptor
     geometry: { type: "MultiPolygon", crs: "EPSG:4326", role: "actual", precision: "Verified raw administrative-boundary artifact; no simplification or area interpolation by this adapter.", spatialAnalysisEligible: true },
     timeFields: [], coverage: `${contract.expectedAreas} expected administrative areas from verified raw boundary bytes.`, license: contract.license,
     valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "Boundary code, name, and geometry are required; null is rejected.", missing: "An absent code is outside this immutable boundary snapshot, not proof that no administrative area exists." },
-    versions: [{ versionId: contract.version, observedAt: null, availableAt: null, checksumSha256: contract.sourceSha256, mutable: false }],
-    source: { publisher: contract.publisher, reference: contract.sourceUrl, lineage: "fixed same-origin raw boundary bytes -> SHA-256 verification -> code/name-preserving MultiPolygon rows" },
+    versions: [{ versionId: contract.version, observedAt, availableAt: null, checksumSha256: contract.sourceSha256, mutable: false }],
+    source: { publisher: contract.publisher, reference: contract.sourceUrl, lineage: `fixed same-origin raw boundary bytes -> SHA-256 verification -> code/name-preserving MultiPolygon rows; snapshot observedAt=${observedAt ?? "unknown"}; raw acquiredAt=${rawAcquiredAt ?? "unknown"}` },
     access: boundedAccess({ mode: "owner_only", method: "local_asset", fields: ["area_code", "area_name", "boundary_version", "boundary_sha256", "geometry"], filters: ["area_code"], maxRowsPerQuery: contract.expectedAreas, maxScanRows: contract.expectedAreas, maxSourceBytes: contract.maxBytes, timeoutMs: TIMEOUT_MS }),
     supportedOperations: ["query_records", "line_intersects", "aggregate"], adapterId: "verified-administrative-boundary-v1",
   };
 }
 
 function validateContract(contract: AdministrativeBoundaryContract): void {
-  if (!/^[A-Za-z][A-Za-z0-9._:-]{0,159}$/.test(contract.datasetId) || !sameOriginPath(contract.sourceUrl) || !validSha(contract.sourceSha256) || !contract.version || !contract.publisher || !contract.license || !contract.codeProperty || !contract.nameProperty || !Number.isInteger(contract.expectedAreas) || contract.expectedAreas < 1 || contract.expectedAreas > 2_000 || !Number.isInteger(contract.maxBytes) || contract.maxBytes < 2 || contract.maxBytes > HARD_MAX_BYTES) throw new Error("INVALID_ADMINISTRATIVE_BOUNDARY_CONTRACT");
+  if (!/^[A-Za-z][A-Za-z0-9._:-]{0,159}$/.test(contract.datasetId) || !sameOriginPath(contract.sourceUrl) || !validSha(contract.sourceSha256) || !validDateOrNull(contract.observedAt) || !validDateOrNull(contract.rawAcquiredAt) || !contract.version || !contract.publisher || !contract.license || !contract.codeProperty || !contract.nameProperty || !Number.isInteger(contract.expectedAreas) || contract.expectedAreas < 1 || contract.expectedAreas > 2_000 || !Number.isInteger(contract.maxBytes) || contract.maxBytes < 2 || contract.maxBytes > HARD_MAX_BYTES) throw new Error("INVALID_ADMINISTRATIVE_BOUNDARY_CONTRACT");
 }
 
 export function createAdministrativeBoundaryAdapter(contract: AdministrativeBoundaryContract, fetcher: AdministrativeBoundaryFetch = fetch): QueryAdapter {
@@ -134,7 +141,11 @@ export function createAdministrativeBoundaryAdapter(contract: AdministrativeBoun
             codes.add(code); rows.push({ area_code: code, area_name: name, boundary_version: contract.version, boundary_sha256: contract.sourceSha256, geometry: asMultiPolygon(feature.geometry) });
           }
           const acquiredAt = new Date().toISOString(); const receipt: SourceReceipt = { sourceId: `administrative-boundary:${contract.version}`, version: contract.version, acquiredAt, checksumSha256: contract.sourceSha256, reference: contract.sourceUrl };
-          return { rows, sourceRefs: [receipt], coverage: dataDescriptor.coverage, freshness: "unknown", exclusions: {}, rowsScanned: rows.length, bytesScanned: bytes.byteLength, downloadedBytes: bytes.byteLength, requests: 1, cacheHit: false, expiresAt: null };
+          return {
+            rows, sourceRefs: [receipt],
+            lineage: { sourceContract: { observedAt: contract.observedAt ?? null, rawAcquiredAt: contract.rawAcquiredAt ?? null } },
+            coverage: dataDescriptor.coverage, freshness: "unknown", exclusions: {}, rowsScanned: rows.length, bytesScanned: bytes.byteLength, downloadedBytes: bytes.byteLength, requests: 1, cacheHit: false, expiresAt: null,
+          };
         } catch (error) {
           if (signal?.aborted) throw abortReason(signal);
           if (controller.signal.aborted) throw new Error("REQUEST_TIMEOUT");
