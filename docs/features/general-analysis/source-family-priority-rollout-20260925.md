@@ -1,5 +1,7 @@
 # 來源家族優先施工：先保證可查，再擴大分析
 
+後續執行入口：[全圖層查詢完成清單](./completion-checklist-20260925.md)。依其中工作 ID 與 gate 勾選；本頁保留來源判定及逐批驗收歷史，早期 HOLD 必須依後續證據重新判定。
+
 2026-09-25。依使用者指定順序執行，沿用 [P0–P7 施工計畫](./all-layer-spatial-coverage-execution-plan-20260925.md) 的來源、runtime、地圖與 commit gate。以下「保證」只指固定版本、已核對範圍與欄位；不表示資料來源涵蓋所有真實世界物件、即時有效或已部署。
 
 ## 優先順序與交付定義
@@ -62,3 +64,11 @@
 ## 多家族「附近有什麼」現有流程驗收
 
 臺北 `[121.55,25.05]` 750 公尺，三個已通過的 Point 家族依完整來源分別查詢，Python 獨立 Haversine oracle 為公廁 36 個代表點、運動場館 27 筆來源紀錄、原生座標活動中心 4 筆，共 67 筆；MCP `pulse_run_analysis_plan` 的三份 `within_distance` 分別為 36／27／4。`pulse_set_result_collection` 分三組且三組可見，revision 14 `ready`；`pulse_get_map_context` readback 為 67 features／3 sources／3 layers，browser 目視見三色點。此為現有 typed plan 的實際組合驗收，還沒有依 descriptor 自動挑選所有合法家族的 router；Point 以外的線／面仍須分別過 P1／P2 關卡。初試 1 公里 56／38／9 時曾因頁面熱更新後 result-store 失效而無法呈現，隨即重建同版輸入，在 750 公尺新範圍完成本輪驗收；不拿失敗的 1 公里呈現當已通過。
+
+## 第五批：加油站來源更正與五層共用 reader（本機查詢與地圖已驗）
+
+- 舊 `gas_stations` upstream ID 將 2026-06-15 的 573 筆 curated 點與 2026-06-20 的 3,053 筆 canonical 合併名冊混稱。五個 `gasStation*` 展示層實際來自後者；四個 `gasCoverage*` 是站點與路網計算的衍生距離面，分開待核 OSRM/產製收據。`waste_facilities` 的九層也保留待核：processed 66 筆政府 Point + 237 筆 OSM 對照 Point，catalog 自承與後來的 Supabase 數百筆可能不同步，部分 Google geocode 座標的公開使用權未核。
+- 加油站 canonical analytics processed SHA `00ee5b007a680788c25d1c4e1abf2da2628b776aec1a4644904f49a7dff15c80`；3,053/3,053 為 Point。安全欄位 sidecar SHA `326b81ef20deef1dc3f9ced16c4e124b2db0bda97c4b86422dee8c5c5b9c3da3`、1,110,359 bytes；不發布地址、電話或 `_provenance`。3,022 個不同 `entity_id` 對應 3,053 列，查詢以固定版本列 ID 避免重複識別。來源名稱有 34 個空字串；最高 tier 授權欄位為 OGDL 2,610／ODbL 443，整份衍生集合保留混合授權與 ODbL attribution 義務。`fetched_at=2026-06-20` 不是今日營業觀測。
+- 原 checkout static RPC SHA `c3f6c2319966f8ba487ba77d84a6c17f9c9f3b519cd6d076b695198b5c4a53ca` 的 canonical 3,053 列與來源名稱、品牌 membership、座標（小數六位）逐筆 multiset 對齊；**443 筆 ODbL 在舊 static RPC 被誤標 OGDL**。因此資料身分對齊、授權屬性沒有對齊；展示／正式發布驗收仍是 `DISPLAY_SOURCE_LICENSE_ATTRIBUTE_CONFLICT`，不能把五層稱為全鏈已通過。
+- 本地 `tw-gas-stations-canonical` 一個 descriptor 映射五個 `gasStation*`；品牌標籤可重疊，中油／台塑／台糖／unknown membership 2,023／350／86／698，不能相加當 3,053 個互斥站。新問法的獨立 Python Haversine oracle：高雄 `[120.30,22.63]` 2 公里 18 筆，其中 17 筆含中油標籤、1 筆 unknown。focused Vitest 12/12、`npx tsc -b`、`npm run build` 通過。
+- 舊 active session 的瀏覽器已斷線；在既有 3734 前端重新配對後，正常 `pulse_query_records` 以 `[120.28,22.611,120.32,22.649]` bbox 得 24 個候選，`pulse_spatial_query(within_distance, 2000m)` 得 18，與獨立 oracle 相同；`pulse_spatial_query(nearest)` 得中華三路站 460.314389m，也與 oracle 一致。`pulse_present_result`→`pulse_wait_scene_ready` revision 1 `ready`；`pulse_fit_bounds`→revision 2 `ready`，`pulse_get_map_context` readback 18 features／1 source／1 layer，瀏覽器目視 18 個點及高亮數字。這證實新查詢來源到暫態地圖結果的本機空間鏈；既有底圖 static RPC 的 443 筆授權標示衝突仍未修，五個展示層的同版授權驗收不得勾完成。隔離 Vite profile 現讀 mini worktree 的 `public/`，新 sidecar 可由既有 3734 正常提供；沒有重啟服務。當前 audit 778／97 datasets／96 queryable mappings／93 metadata candidates／589 unknown-unavailable。

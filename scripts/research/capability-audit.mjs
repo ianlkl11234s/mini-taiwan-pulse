@@ -128,6 +128,11 @@ const VERIFIED_RAW_FAMILIES = {
   },
 };
 const VERIFIED_RAW_FAMILY_BY_LAYER = {
+  gasStationCanonical: "energy:gas_stations_canonical:20260620",
+  gasStationCpc: "energy:gas_stations_canonical:20260620",
+  gasStationFpcc: "energy:gas_stations_canonical:20260620",
+  gasStationOther: "energy:gas_stations_canonical:20260620",
+  gasStationTaisugar: "energy:gas_stations_canonical:20260620",
   companyPoints: "business_registry:company_stock:202608",
   manufacturingCompanyPoints: "business_registry:company_stock:202608",
   companyCapitalGrid: "business_registry:company_stock:202608",
@@ -135,6 +140,10 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   forestRoads: "moa:forest_roads:datagov-38213",
 };
 const DISPLAY_RAW_ALIGNMENT_BY_LAYER = {
+  gasStationCanonical: {
+    status: "POINT_IDENTITY_MATCH_ATTRIBUTE_CONFLICT",
+    evidence: "Original-checkout static RPC SHA c3f6c231…53ca has 3,053 canonical rows matching processed 20260620 names, brand membership and Point coordinates to 6 decimals; 443 ODbL source rows are mislabeled OGDL in static RPC. The fixed research sidecar retains correct per-row mixed license; display attributes need repair before claiming full alignment.",
+  },
   companyPoints: {
     status: "LINEAGE_VERIFIED_LOCAL_RELEASE",
     evidence: "company_points and both declared company_capital_grid r2 artifacts have matching 202608 processed QA/manifest lineage to company_stock_202608.csv; mini remote release is not read in this audit.",
@@ -156,8 +165,10 @@ const DISPLAY_RAW_ALIGNMENT_BY_LAYER = {
     evidence: "P2 2026-09-25 rebuilt from analytics raw SHA-256 68f261…1f16 using exact metadata/tippecanoe options and matched original-checkout forest_roads.pmtiles SHA-256 68bfbdb3…67cc. Runtime release was not read.",
   },
 };
+for (const key of ["gasStationCpc", "gasStationFpcc", "gasStationOther", "gasStationTaisugar"]) {
+  DISPLAY_RAW_ALIGNMENT_BY_LAYER[key] = DISPLAY_RAW_ALIGNMENT_BY_LAYER.gasStationCanonical;
+}
 const VERIFIED_RAW_FAMILY_BY_DATASET = {
-  gas_stations: "taiwan:gas_stations:20260615",
   dgbas_county_transport_supply_10935: "dgbas:county_transport_supply:2023-2024",
   jp_water_ksj: "mlit:ksj_water:inspected-20260918",
   network_performance_grid: "ookla:network_performance:2026q1",
@@ -166,6 +177,17 @@ const VERIFIED_RAW_FAMILY_BY_DATASET = {
   schools: "moe:schools:113-academic-year",
 };
 Object.assign(VERIFIED_RAW_FAMILIES, {
+  "energy:gas_stations_canonical:20260620": {
+    sourceArtifact: "taipei-gis-analytics/data/processed/energy/gas_stations_canonical/gas_stations_canonical_20260620.geojson",
+    sourceArtifactRole: "canonical derived assembly serving five station map layers; six upstream processed inputs, not one raw original",
+    evidence: ["taipei-gis-analytics/docs/data-catalog/energy/gas_stations_canonical.md", "mini-taiwan-pulse/public/static-rpc/get_fossil_fuel_layers.json"],
+    sourceVersion: "20260620", publisher: "中油、台糖、經濟部商業司與 OSM 貢獻者的 trust-chain 合併",
+    license: "mixed OGDL-Taiwan-1.0 / ODbL 1.0; attribution and ODbL obligations apply",
+    observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-06-20 is the assembly/fetched_at snapshot, not an independently verified observation time",
+    coverageAndMissingness: "3,053 canonical Point entities from 6,342 upstream records after 80m spatial deduplication; 2,610 highest-tier records OGDL, 443 ODbL; brand guesses can overlap and unknown is not absence.",
+    geometry: "EPSG:4326 Point, 3,053/3,053 present; highest-tier contributing coordinate, not an entrance or surveyed facility boundary.",
+    sourceSha256: "00ee5b007a680788c25d1c4e1abf2da2628b776aec1a4644904f49a7dff15c80",
+  },
   "taiwan:gas_stations:20260615": {
     sourceArtifact: "taipei-gis-analytics/data/raw/energy/gas_stations/", evidence: ["taipei-gis-analytics/data/processed/energy/gas_stations/_manifest.json", "taipei-gis-analytics/docs/data-catalog/energy/gas_stations.md"],
     sourceVersion: "20260615", publisher: "台灣中油與臺中市政府 data.gov.tw sources", license: "OGDL-Taiwan-1.0",
@@ -213,8 +235,8 @@ const INSPECTED_UPSTREAM_DATASETS = {
   celestrak_satellites: { status: "EVIDENCE_GAP", reason: "catalog describes live TLE feed, but no immutable raw snapshot/release receipt was found in this pass" },
   land_use_township_statistics: { status: "EVIDENCE_GAP", reason: "processed manifest exists but this checkout has no immutable raw/release receipt and no recorded license" },
   education_county_statistics: { status: "EVIDENCE_GAP", reason: "processed releases exist but the claimed raw receipt directory is absent from this checkout" },
-  waste_facilities: { status: "EVIDENCE_GAP", reason: "catalog states processed 66-row file may be out of sync with Supabase; no authoritative same-version receipt" },
-  gas_stations: { status: "VERIFIED_RAW_LINEAGE", familyKey: "taiwan:gas_stations:20260615" },
+  waste_facilities: { status: "EVIDENCE_GAP", reason: "2026-05-19 processed files contain 66 government Points plus 237 OSM comparison Points, while catalog says Supabase later held hundreds more; some coordinates came from Google geocoding. No complete same-version table receipt, public coordinate-use clearance, or nine-filter reconciliation was found." },
+  gas_stations: { status: "EVIDENCE_GAP", reason: "legacy manifest datasetId conflates 573 curated points (20260615) with 3,053 canonical entities (20260620) and four road-distance coverage surfaces; exact layer-level lineage overrides this navigation ID" },
   livestock_farms: { status: "EVIDENCE_GAP", reason: "mixed ARIS/NLSC/EMS/Google geometry provenance and no inspected processed manifest/immutable receipt in this pass" },
   dgbas_county_transport_supply_10935: { status: "VERIFIED_RAW_LINEAGE", familyKey: "dgbas:county_transport_supply:2023-2024" },
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
@@ -488,7 +510,11 @@ function p0FamilyLedger() {
         : null;
     const datasetInspections = (layer.upstream?.datasetIds ?? []).map(datasetId => ({ datasetId, ...(INSPECTED_UPSTREAM_DATASETS[datasetId] ?? { status: "NOT_INSPECTED" }) }));
     const datasetFamilyKeys = [...new Set(datasetInspections.map(item => item.familyKey).filter(Boolean))];
-    const verifiedRawFamilyKey = VERIFIED_RAW_FAMILY_BY_LAYER[layer.layerKey] ?? (datasetFamilyKeys.length === 1 ? datasetFamilyKeys[0] : null);
+    // Gas coverage surfaces use station points as an input plus a road-distance build.
+    // Sharing that input does not make their output the station-point raw family.
+    const derivedGasCoverage = layer.layerKey.startsWith("gasCoverage");
+    const verifiedRawFamilyKey = derivedGasCoverage ? null
+      : VERIFIED_RAW_FAMILY_BY_LAYER[layer.layerKey] ?? (datasetFamilyKeys.length === 1 ? datasetFamilyKeys[0] : null);
     const alignment = DISPLAY_RAW_ALIGNMENT_BY_LAYER[layer.layerKey] ?? null;
     const defaultBlocker = p0Blocker(layer, family);
     const inspectionRightsHold = datasetInspections.some(item => item.status === "RIGHTS_HOLD");
@@ -503,11 +529,27 @@ function p0FamilyLedger() {
         status: "READER_PENDING", primaryBlocker: "DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING",
         nextStep: "Inspect each exact releaseId artifact's numerator/denominator source receipts, units, null rules, period, and boundary version; reconcile publication status and register a bounded query reader. The common comparison runtime is not one raw source.",
       }
+      : derivedGasCoverage
+      ? {
+        status: "READER_PENDING", primaryBlocker: "DERIVED_ROAD_DISTANCE_RELEASE_UNVERIFIED",
+        nextStep: "Verify the exact station input, OSRM road-network/version, distance-grid build receipt and cell values for this derived coverage surface; station-point queryability cannot substitute for grid sampling.",
+      }
+      : singleDatasetId === "waste_facilities"
+      ? {
+        status: "SOURCE_MISSING", primaryBlocker: "WASTE_FACILITIES_COMPLETE_RELEASE_AND_COORDINATE_RIGHTS_MISSING",
+        nextStep: "Reconcile the nine layer filters against a fixed complete Supabase/raw release, 66 government plus 237 OSM processed rows, and later geocoded records; isolate Google-derived coordinates until public-use rights are verified.",
+      }
       : inspectionRightsHold
       ? {
         status: "RIGHTS_HOLD",
         primaryBlocker: "SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD",
         nextStep: "Retain raw lineage but obtain the stated use/license clearance before reader or public-release work.",
+      }
+      : alignment?.status === "POINT_IDENTITY_MATCH_ATTRIBUTE_CONFLICT"
+      ? {
+        status: "VERSION_MISMATCH",
+        primaryBlocker: "DISPLAY_SOURCE_LICENSE_ATTRIBUTE_CONFLICT",
+        nextStep: "Retain the verified research source but repair and verify the five-layer display/static RPC license attributes and ODbL attribution before claiming source-to-display alignment or public-release acceptance.",
       }
       : alignment?.status === "DISPLAY_ARTIFACT_RECEIPT_MISSING"
       ? {

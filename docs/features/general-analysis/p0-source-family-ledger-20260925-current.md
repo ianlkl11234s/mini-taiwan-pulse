@@ -1,30 +1,32 @@
-# 594 個尚無可用查詢映射的圖層：逐層處置（2026-09-25）
+# 589 個尚無可用查詢映射的圖層：逐層處置（2026-09-25）
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，687 層維持候選處置、91 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，682 層維持候選處置、96 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，91 個有查詢映射、93 個是待讀回的 GeoJSON metadata candidates、594 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，96 個有查詢映射、93 個是待讀回的 GeoJSON metadata candidates、589 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 
 | 狀態 | 層數 |
 |---|---:|
-| READER_PENDING | 345 |
+| READER_PENDING | 348 |
 | SOURCE_MISSING | 209 |
 | RIGHTS_HOLD | 24 |
-| VERSION_MISMATCH | 16 |
+| VERSION_MISMATCH | 8 |
 
 ## 具體阻擋
 
 | 阻擋 | 層數 |
 |---|---:|
-| NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT | 209 |
+| NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT | 200 |
 | DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING | 188 |
-| DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE | 154 |
-| DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED | 14 |
+| DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE | 153 |
 | SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD | 13 |
 | RIGHTS_OR_USE_CLEARANCE_UNVERIFIED | 11 |
+| WASTE_FACILITIES_COMPLETE_RELEASE_AND_COORDINATE_RIGHTS_MISSING | 9 |
+| DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED | 6 |
+| DERIVED_ROAD_DISTANCE_RELEASE_UNVERIFIED | 4 |
 | READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING | 2 |
 | DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_MISSING | 2 |
 | QUERY_ACCESS_DISABLED | 1 |
@@ -42,7 +44,6 @@
 | declared-upstream:land_use_township_statistics | 14 | manifest/recipe only |
 | declared-upstream:education_county_statistics | 12 | manifest/recipe only |
 | declared-upstream:waste_facilities | 9 | manifest/recipe only |
-| declared-upstream:gas_stations | 8 | manifest/recipe only |
 | declared-upstream:livestock_farms | 7 | manifest/recipe only |
 | declared-upstream:dgbas_county_transport_supply_10935 | 6 | manifest/recipe only |
 | declared-upstream:jp_medical_reports | 6 | manifest/recipe only |
@@ -62,6 +63,7 @@
 | declared-upstream:taoyuan_airport_passengers_county_32997 | 4 | manifest/recipe only |
 | declared-upstream:waste_positions_realtime | 4 | manifest/recipe only |
 | declared-upstream:air_quality | 3 | manifest/recipe only |
+| declared-upstream:caa_airport_activity_county_33238 | 3 | manifest/recipe only |
 
 真正已核對的 raw family 另見 JSON `verifiedRawFamilies`，且仍需逐層檢查 display 同版、權限、時間、缺值與 geometry。不得把宣告 family 或 PMTiles 視為完整可分析原表。
 
