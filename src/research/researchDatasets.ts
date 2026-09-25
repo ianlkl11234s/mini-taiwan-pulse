@@ -99,6 +99,7 @@ import { companyCapitalGrid150mOwnerAdapter, companyCapitalGrid450mOwnerAdapter 
 import { waterDetentionBasinsAdapter } from "./waterDetentionBasinsDataset";
 import { waterFacilitiesOwnerAdapter } from "./waterFacilitiesOwnerDataset";
 import { waterMonitorStationsOwnerAdapter } from "./waterMonitorStationsOwnerDataset";
+import { wraDamWeirsOwnerAdapter } from "./wraWaterSystemsOwnerDatasets";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -520,6 +521,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   waterDetentionBasinsAdapter,
   waterFacilitiesOwnerAdapter,
   waterMonitorStationsOwnerAdapter,
+  wraDamWeirsOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
