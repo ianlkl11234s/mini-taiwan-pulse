@@ -135,6 +135,7 @@ import { agriLeisureFarmZonesOwnerAdapter } from "./agriLeisureFarmZonesOwnerDat
 import { cemeteryZoningOwnerAdapter } from "./cemeteryZoningOwnerDataset";
 import { cemeteryOsmAdapter } from "./cemeteryOsmDataset";
 import { osmPowerLinesOwnerAdapter, osmPowerTowersOwnerAdapter } from "./osmPowerNetworkOwnerDataset";
+import { dgbasCountyTransportOwnerAdapters } from "./dgbasCountyTransportOwnerDatasets";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
@@ -593,6 +594,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   cemeteryOsmAdapter,
   osmPowerLinesOwnerAdapter,
   osmPowerTowersOwnerAdapter,
+  ...dgbasCountyTransportOwnerAdapters,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
   taipeiZoningAttributeAdapter,

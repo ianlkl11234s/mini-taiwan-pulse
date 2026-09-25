@@ -987,6 +987,7 @@ function serveResearchPointPartitions(): Plugin {
         "cemetery-osm/cemetery-osm.geojson": { folder: "cemetery-osm", size: 3_602_036 },
         "osm-power-network/osm_power_lines_20260615.geojson": { folder: "osm-power-network", size: 1_815_545 },
         "osm-power-network/osm_power_towers_20260615.geojson": { folder: "osm-power-network", size: 6_622_466 },
+        "dgbas-county-transport/dgbas-county-transport-owner-only.json": { folder: "dgbas-county-transport", size: 545_750 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
