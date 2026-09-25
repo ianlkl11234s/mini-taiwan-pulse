@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 202 個已有查詢映射的層 + 23 個 metadata 候選 + 553 個尚無可用映射的層；共 209 datasets。202 不等於 202 層全部驗收完成。目前 576 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 209 個已有查詢映射的層 + 23 個 metadata 候選 + 546 個尚無可用映射的層；共 216 datasets。209 不等於 209 層全部驗收完成。目前 569 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -123,6 +123,8 @@
 第四十八批 [x] `groundwaterWells` 只接 WRA 959 個固定觀測井站位 owner-only 分片 reader，嘉義 32、宜蘭 39 與完整原表 oracle、正常 MCP 相同；另外兩個 bbox 回 26／53，可重新計數。`elevation_m` 全 null、`is_active` 全 false 且與來源文件矛盾，縣市欄亦可能錯置，均不提供篩選或比較。focused 13/13、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。`groundwater` 動態讀值、精確最近和研究地圖 ready/readback [ ] HOLD。詳見[第四十八批](./source-family-priority-rollout-20260925.md)。目前 208 datasets、201 個查詢映射、577 個待映射層。
 
 第四十九批 [x] `agriRetail` 接 2026-05 經濟部農產品零售公司固定快照 37,430 個 TGOS 地址定位 Point 的 owner-only 有界 reader；原始 58,613 列中核准 37,789、定位失敗 359。正常 MCP 臺北框 6,082、臺中框 3,987，均與完整原表 oracle 相同；focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。統編、公司名、負責人、地址與資本未進 sidecar；公開座標再散布、今日營業、精確最近和研究地圖 ready/readback [ ] HOLD。詳見[第四十九批](./source-family-priority-rollout-20260925.md)。目前 209 datasets、202 個查詢映射、576 個待映射層。
+
+第五十批 [x] `livestockFarmCattle/Chicken/Duck/Goose/Other/Pig/Sheep` 七層共用同一版 13,087 Point 原檔，各自只回對應畜種；嘉義七類共 648、屏東七類共 1,944 與完整原表 oracle 相同，正常 MCP 嘉義雞 331、屏東豬 916、嘉義其他 13。focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。定位混含低精度段中心、Google 與其他來源，公開授權、全國完整性、現行 RPC、精確附近與研究地圖 ready/readback [ ] HOLD。詳見[第五十批](./source-family-priority-rollout-20260925.md)。目前 216 datasets、209 個查詢映射、569 個待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
