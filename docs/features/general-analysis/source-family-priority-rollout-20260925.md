@@ -403,3 +403,8 @@
 
 - `treePitsTaipei` 原始 `tree_pit_taipei.json` 56,720 個 MultiPolygon，EPSG:3826，SHA `9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03`；2026-07-14 processed WGS84 GeoJSON 同數，SHA `72197a37c4446a456effa722eb1e6a96e4c200e1c71343322857f7455c13000e`。樹穴 50,904／花圃 5,816，面積總和 246,062.19 m²；零面積 1、空面積 0、負面積 0。Mini 既有展示 PMTiles SHA `a8dca8ef855072af4052d1ef0ffa4d538d70115657bed760bb5d5f1472584647`，僅證明本地資產存在。
 - Gate G1/G3 [ ] HOLD：目前沒有原始下載端點與授權收據；現有共用 Point 分片讀取器不實作 Polygon 完整相交與跨片去重。可用 0.01° 分格的初算仍不是可交付 reader。需由來源維護者補端點、授權、取得時間與 SHA；再建立 Polygon 原幾何 bbox reader，以跨格、邊界相交與重複計數 oracle 驗證，方能接入。不能把 MultiPolygon 轉成中心 Point 冒充空間查詢。本批映射計數不變。
+
+### 第五十七批：台電電桿大來源盤點（待做）
+
+- `powerPoles` analytics `_manifest.json` 宣稱 22 個縣市檔、2,959,326 Point、EPSG:3826→4326、2026-06-15 年度快照，來源台電 d077010；catalog 記 OGDL-Taiwan-1.0，也明列金門／連江／澎湖端點需由 `island_power_grid` 補。已找到本地 22 個 raw CSV；僅抽查新竹市處理檔 20,596 feature，其中桿號空 5,932，不能外推全國缺值率。Mini 展示 PMTiles SHA `7e74c1a757357e7cee0a4f65e97fa170d15c8966d00c369b6ef79bc499ed282e`，僅有 heatmap/circle 展示，tippecanoe 有 cluster/drop；不是原表計數或查詢證據。
+- Gate G1/G2/G3 [ ] 待做：目前 22 檔 manifest 沒有逐檔 SHA，缺完整欄位／空值／geometry 對帳與展示資產同版建置收據。這些是可在本機施工的工作，非永久外部 HOLD。先固定 raw、processed、PMTiles 各自 SHA／bytes／rows 及來源層 metadata，釐清離島覆蓋；再以縣市加空間分片建立有界 Point reader，兩個新地點加類別變體對原表 oracle 與正常 MCP 驗證。現有共用分片上限 1,024 shards／來源 1 GiB，不可直接假設適合此 2,959,326 點母表。部署 404 歷史問題未在本批驗證。本批映射計數不變。

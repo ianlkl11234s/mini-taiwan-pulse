@@ -139,6 +139,9 @@
 
 第五十六批 [ ] HOLD：`treePitsTaipei` 是 56,720 個 MultiPolygon，非 Point。已核 raw／processed SHA 與面積、類別；原始下載端點及授權未見收據，現有通用 Point 分片器無完整 Polygon bbox 相交與跨片去重契約。不得把樹穴改成中心點假裝可查；需先補來源權利及 Polygon reader 的真實幾何測試。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。
 
+
+第五十七批 [ ] 待做：`powerPoles` 上游 manifest 記 22 縣市、2,959,326 Point，台電 2026-06-15 快照；Mini 現有 PMTiles 是 cluster/drop 展示，不是逐筆查詢。已找到本地 22 個 raw CSV 與處理表，但缺全檔 SHA／缺值對帳及 PMTiles 同版收據；金門、連江、澎湖來源端點另有缺口。先在本機完成版本封存與分縣市有界 reader，再做新地點驗收；目前不可把展示點數當原表。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
 23 個 metadata 候選與 554 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
