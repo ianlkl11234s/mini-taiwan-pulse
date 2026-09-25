@@ -832,7 +832,7 @@ VERIFIED_RAW_FAMILIES["tdx:cycling_shapes:20260301"] = {
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Raw file date is local snapshot naming, not every route's observation or completion date.",
   coverageAndMissingness: "1,749 MultiLineString in 20 cities; Town blank 536 and literal NULL 1; CyclingType literal NULL in all 1,749; AuthorityName literal NULL in 1,748; FinishedTime processing has known ROC conversion errors and is withheld.",
   geometry: "Complete WGS84 MultiLineString with 97,275 numeric 2D vertices; bbox intersects actual line, not centroid or road-network accessibility.", sourceSha256: "d190b049ef2c9f46134c230d043b090edb84e64bf56cc393d2fa282edf896d19",
-  localDisplayReceipt: "Mini cycling_routes.geojson is byte-identical to analytics cycling_shapes_all.geojson: 4,384,551 bytes, SHA 690190820456105ac3aa92133c4fc7e222703e365a36c726fec20c5b2060bcba. Browser result ready/readback pending.",
+  localDisplayReceipt: "Mini cycling_routes.geojson is byte-identical to analytics cycling_shapes_all.geojson: 4,384,551 bytes, SHA 690190820456105ac3aa92133c4fc7e222703e365a36c726fec20c5b2060bcba. Paired browser Taipei line result revision 11 ready/readback 4 and visible.",
 };
 VERIFIED_RAW_FAMILIES["moa:forest_recreation_areas:1151"] = {
   sourceArtifact: "taipei-gis-analytics/data/processed/forestry/forest_recreation_areas/forest_recreation_areas.geojson",
@@ -850,7 +850,7 @@ VERIFIED_RAW_FAMILIES["moa:aquaculture_production_zone:20260519"] = {
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed snapshot date is not zone legal effective date or current operation.",
   coverageAndMissingness: "62 designated production-zone features across 11 counties, source area 18,676.7 ha; absent geometry is not zero aquaculture.",
   geometry: "Full WGS84 Polygon/MultiPolygon normalized to MultiPolygon for true bbox intersection; not a production, operation or access measure.", sourceSha256: "3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e",
-  localDisplayReceipt: "Owner-only safe-field sidecar SHA 6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a; source display-layer version and browser readback separately required.",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a; paired browser Mailiao result revision 14 ready/readback 1 and visible. Existing source display-layer version remains unverified.",
 };
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],

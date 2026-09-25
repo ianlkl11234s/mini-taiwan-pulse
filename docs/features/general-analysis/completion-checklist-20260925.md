@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 217 個已有查詢映射的層 + 22 個 metadata 候選 + 539 個尚無可用映射的層；共 226 datasets。217 不等於 217 層全部驗收完成。目前 561 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 220 個已有查詢映射的層 + 19 個 metadata 候選 + 539 個尚無可用映射的層；共 229 datasets。220 不等於 220 層全部驗收完成。目前 558 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -147,9 +147,15 @@
 
 第五十九批 [x] `companyAgeStructure`／`companyIndustryDistribution` 共用 202608 company_points 654,165 筆的 grid 母表，接 450m／1500m 兩尺度 occupied-only Polygon owner-only 查詢。產業 89 類與未知類、設立年 known/missing/invalid 分別保留；臺中與臺北兩地原表 Polygon oracle、正常 MCP、地圖 ready/readback 且目視格網高亮完成。focused/registry 13/13、`tsc -b`、build、localhost 200／外來 Host 404 通過。118 份上游權利收據、即時公司現況、空白格為零、縣市比較及公開發布 [ ] HOLD。詳見[第五十九批](./source-family-priority-rollout-20260925.md)。目前 226 datasets、217 查詢映射、561 待映射層。
 
+第六十批 [x] `cyclingRoutes` 已接 2026-03-01 TDX 固定 1,749 條 MultiLineString；Mini GeoJSON 與 analytics processed byte-identical。臺北 bbox 的真正線相交 4 條與獨立原檔 oracle 相符，跨框／邊界反例、focused 4/4、tsc/build 通過；正常配對地圖 revision 11 ready/readback 4 條、目視有線。完工日期處理錯誤欄位已隱藏，不能推論現時可騎乘或路網可達。[第六十批收據](./source-family-priority-rollout-20260925.md)。
+
+第六十一批 [x] `forestRecreation` 已接 1151 版 23 個完整 Polygon/MultiPolygon，僅 localhost owner-only；合歡山、惠蓀、阿里山與棲蘭子園區變體對原表，focused 2/2、tsc/build 通過；合歡山面 revision 13 ready/readback 1、目視高亮。缺值不是零，公告範圍不等於入口、步道或開放現況；既有展示同版 [ ] HOLD。[第六十一批收據](./source-family-priority-rollout-20260925.md)。
+
+第六十二批 [x] `aquacultureZone` 已接 62 個法定養殖生產區，保留完整面並以真實相交查詢；臺南與宜蘭原表變體、空框與改版拒絕 focused 3/3，tsc/build 通過。雲林麥寮結果 revision 14 ready/readback 1、目視高亮；不能當現況、產量或空框零養殖，既有展示同版 [ ] HOLD。[第六十二批收據](./source-family-priority-rollout-20260925.md)。合計 229 datasets、220 查詢映射、558 待映射；臺灣主 Layers 381 已註冊 166、待 215。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
-23 個 metadata 候選與 554 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
+19 個 metadata 候選與 539 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
 
 - [ ] B01：完成臺灣靜態 Point 家族：原表可讀、完整列數核對、固定版本 reader、安全欄位與分頁；同一家族所有可接的圖層一次映射。原表無座標列仍可查屬性，代理座標與原生座標分開。
 - [ ] B02：追查臺灣「來源證據不足」家族：先找現有原表／collector／RPC 與發布紀錄，再做可逆本地重建。每個家族產出可接資料或具體外部阻擋；不能只重複舊台帳結論。
@@ -210,7 +216,7 @@ HOLD 記錄格式：`family / layer keys / 卡在哪個 gate / 已查路徑與�
 
 ## 當前游標與每次回報
 
-**下一項：A03 按[逐層佇列](./completion-queue-20260925.csv)追查下一個可證原表的臺灣 Point 家族，先核 raw 版本／筆數／授權與座標方法，能本機接入就做；畜牧附屬三層的權利缺口維持 HOLD，再沿 B→C→D→E→F 執行。** 個別家族遇阻不得阻塞其他可做家族。E 可在支援條件具備時穿插實作，但不取代 B/C/D 全表施工。
+**下一項：A03 先查 `aquacultureCageNet`、`eduCampusArea`／`eduCampusPolygon` 與下一個可證原表的臺灣 GIS 家族，核 raw 版本／筆數／授權、缺值和完整 geometry；可安全本機接入即做，遇缺證據標 HOLD 後續行。** `powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點的權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
 
 每次回報只需：本次勾選哪些 ID、四組各有多少層真正通過／待做／HOLD、新增家族及映射、驗收證據、尚未解鎖的具體需求、下一個游標。登記數／來源查詢通過數／空間通過數分開。不要求使用者每批重新說「繼續」。
 

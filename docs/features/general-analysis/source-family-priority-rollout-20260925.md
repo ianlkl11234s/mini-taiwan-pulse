@@ -421,3 +421,18 @@
 - `companyAgeStructure` 與 `companyIndustryDistribution` 共用 GCIS 202608 公司點 654,165 的固定來源 SHA `d099446600d98c26330b9193102d00fead822eb9ae6e3be1cf3eae24c605272b`。450m occupied-only 26,834 個 Polygon，原表 SHA `9f97d9d0e6747af17493109a43c1c42a64bae55c47b90e519ad8045c0c2918cd`；1500m 5,745 個 Polygon，原表 SHA `cc71991553954c95085476508c3ec64c989f47d195b2bccc25ed084bdd33b429`。兩尺度各加總 654,165；89 個兩碼行業、未知行業、設立年已知 654,149／缺 16／無效 0 分開保留。格網是地址定位點聚合、只列非空格，不是實際營業地或行政區，缺格不能補零。
 - 有界 builder 保留完整 Polygon，以面與分片格真相交收錄，450m 304 個 gzip shards／manifest SHA `7fe4ed971dd4a7bcc34ce6954567a260459e5f74b5fe366fc6d2370f5276b071`，1500m 315 個 shards／manifest SHA `b67714c49531774daad010a490fc05e6368cf4ea3af5c5c8e70db06f69d8d4b6`。僅 localhost owner-only，bbox 必填、20,000 掃描列與 8 MiB 解壓預算，分片重複來源序號去重；過寬台灣框 fail closed。`age_median=null` 表示該格無有效設立年，不是零；`age_recent` 是來源對 2022–2026 近五年設立年統計，不聲稱目前還在營業。來源矩陣 118 份原始授權收據未全數複核，公開重分發 `RIGHTS_HOLD`。
 - 完整原表獨立 Polygon oracle：臺北 450m 框 `[121.50,25.03,121.52,25.05]` 年齡資料 28 格；臺中 1500m 框 `[120.63,24.13,120.67,24.17]` 產業資料 16 格，MCP 同數。另以臺北小框 `[121.50,25.03,121.505,25.035]` 命中 4 年齡格、含 geometry；配對地圖 revision 10 `ready`、4 features／1 source／1 layer，截圖可見藍色格網。臺中 16 產業格 revision 9 `ready`、截圖可見藍色格網。focused/registry Vitest 13/13、`npx tsc -b`、`npm run build`、localhost manifest 200／142,012 bytes、外來 Host 404 通過。Audit 778 層／226 datasets／217 查詢映射／561 待映射；臺灣 GIS 主 Layers 381 已註冊 163、待接 218。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+### 第六十批：TDX 自行車道路線完整線查詢
+
+- `cyclingRoutes` 採 TDX Cycling Shape 2026-03-01 本地 raw 1,749 筆，SHA `d190b049ef2c9f46134c230d043b090edb84e64bf56cc393d2fa282edf896d19`；analytics processed 與 Mini 靜態展示 GeoJSON byte-identical，4,384,551 bytes／SHA `690190820456105ac3aa92133c4fc7e222703e365a36c726fec20c5b2060bcba`，20 市、1,749 MultiLineString。`town` 空 536／字面 NULL 1、`CyclingType` 全部字面 NULL、`AuthorityName` 1,748 字面 NULL。`FinishedTime` 約 24.4% 受民國轉換錯誤影響，整欄暫不輸出。TDX catalog 記 OGDL；raw 檔名日期不代表逐條路線完工日。
+- 共用 `QueryExecutor` 新增線段對 bbox 真相交，包含跨框與邊界反例；臺北 `[121.5,25.03,121.505,25.035]` 與完整來源 oracle／正常 MCP 均 4 條。focused 4/4、`npx tsc -b`、`npm run build` 通過；配對 browser revision 11 ready/readback 4 features／1 source／1 layer，目視有藍色路線。不得從路線幾何推論今日安全、可騎乘、連通或導航距離。程式碼 commit `dbd27d01`。
+
+### 第六十一批：國家森林遊樂區公告範圍
+
+- `forestRecreation` 官方 data.gov.tw:9931、1151 版來源 KML／ZIP／SHP／DBF 的 SHA 見 `../runtime/owner-only/forest-recreation/manifest-receipt.json`；2026-05-19 processed 23 面 SHA `bb7e1604918d3329e554c44788f9c376985f4c4707ae37d19cb0aedb0dd49c05`。19 Polygon／4 MultiPolygon 統一回傳完整 MultiPolygon；`park=null` 21、`district_code=null` 1。安全欄位 sidecar 1,997,643 bytes／SHA `815448720c3c12d2ae41898a445f6f4c42fb86e9f1f4a9c9cc0dea8d9580cacc`，僅 localhost owner-only，OGDL catalog 不等於已公開發布。
+- 惠蓀／阿里山兩地與棲蘭子園區篩選對原表，focused 2/2、tsc/build 通過；合歡山完整面正常 MCP 1 筆、revision 13 ready/readback 1、目視藍色面。較大遊樂區面在回應傳輸上可能被 `coordinatesOmitted`，那次結果不可當地圖驗收；選完整可傳的合歡山面驗證。既有圖層 display 同版與今日開放、入口、步道仍 HOLD。程式碼 commit `d6985af0`。
+
+### 第六十二批：養殖漁業生產區公告範圍
+
+- `aquacultureZone` 使用 2026-05-19 processed WGS84 62 面／11 縣市，來源 SHA `3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e`；安全欄位 sidecar 522,406 bytes／SHA `6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a`。Polygon/MultiPolygon 統一查完整 MultiPolygon，面與 bbox 真相交；空框不補零，處理日期不冒充法律生效或現在營運時間。官方授權目錄為 OGDL，本地 owner-only。
+- 臺南與宜蘭來源點框／名稱變體、空框、錯 SHA 拒絕 focused 3/3，tsc/build 通過；雲林麥寮小框正常 MCP 1 面、revision 14 ready/readback 1 且目視高亮。來源面積合計 18,676.7 ha 不能作本次 bbox 內面積，也不是養殖產量。舊圖層 display 同版仍 HOLD。程式碼 commit `92eeae7c`。本批後 Audit 778 層／229 datasets／220 查詢映射／558 待映射；臺灣主 Layers 381 已註冊 166、待 215。三片都未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
