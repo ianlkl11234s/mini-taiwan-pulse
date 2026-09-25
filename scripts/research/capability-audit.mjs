@@ -1,12 +1,76 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { basename, dirname, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
 import { RESEARCH_QUERY_EXECUTOR, registeredDatasetsForLayer } from "../../src/research/researchDatasets.ts";
 import { describeRegisteredLayer } from "../../src/research/registeredLayerReader.ts";
+import { COMPARISON_ENABLED_RECIPES } from "../../src/data/comparisonStatisticsRecipes.ts";
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+const worktreeMarker = `${sep}.worktrees${sep}`;
+const originalCheckoutRoot = root.includes(worktreeMarker) ? root.slice(0, root.indexOf(worktreeMarker)) : null;
+const analyticsRoot = resolve(originalCheckoutRoot ?? root, "../taipei-gis-analytics");
+const comparisonRecipeByLayer = new Map(COMPARISON_ENABLED_RECIPES.map(recipe => [recipe.layer_key, recipe]));
+
+function walkFiles(start) {
+  if (!existsSync(start)) return [];
+  const files = [];
+  const pending = [start];
+  while (pending.length > 0) {
+    const dir = pending.pop();
+    for (const item of readdirSync(dir, { withFileTypes: true })) {
+      const path = resolve(dir, item.name);
+      if (item.isDirectory()) pending.push(path);
+      else if (item.isFile()) files.push(path);
+    }
+  }
+  return files;
+}
+
+const analyticsProcessedManifests = new Map();
+for (const path of walkFiles(resolve(analyticsRoot, "data/processed")).filter(path => basename(path) === "_manifest.json")) {
+  try {
+    const manifest = JSON.parse(readFileSync(path, "utf8"));
+    if (typeof manifest.dataset_id !== "string" || basename(dirname(path)) !== manifest.dataset_id) continue;
+    const list = analyticsProcessedManifests.get(manifest.dataset_id) ?? [];
+    list.push({ path: path.slice(analyticsRoot.length + 1), fileCount: Array.isArray(manifest.files) ? manifest.files.length : null,
+      filesWithSha256: Array.isArray(manifest.files) ? manifest.files.filter(file => typeof file.sha256 === "string").length : null,
+      lifecycle: manifest.lifecycle ?? null, lastUpdated: manifest.last_updated ?? null });
+    analyticsProcessedManifests.set(manifest.dataset_id, list);
+  } catch { /* An invalid local manifest cannot serve as evidence. */ }
+}
+const analyticsCatalogDocs = new Map();
+for (const path of walkFiles(resolve(analyticsRoot, "docs/data-catalog")).filter(path => path.endsWith(".md"))) {
+  const id = basename(path, ".md");
+  const list = analyticsCatalogDocs.get(id) ?? [];
+  list.push(path.slice(analyticsRoot.length + 1));
+  analyticsCatalogDocs.set(id, list);
+}
+
+function analyticsNavigation(datasetIds) {
+  return datasetIds.map(datasetId => ({ datasetId,
+    processedManifests: analyticsProcessedManifests.get(datasetId) ?? [],
+    catalogDocs: analyticsCatalogDocs.get(datasetId) ?? [],
+    evidenceBoundary: "Exact dataset_id manifest and exact-name catalog navigation only; not an immutable raw input, license, source date, or display-version receipt",
+  }));
+}
+
+function localDisplayAssetEvidence(sourceArtifact) {
+  return (sourceArtifact ?? []).map(item => {
+    const relative = item.path.startsWith("./") ? item.path.slice(2) : null;
+    if (relative === null || relative.split("/").includes("..")) return { ...item, worktree: null, originalCheckout: null };
+    const inspect = base => {
+      if (base === null) return null;
+      try {
+        const info = statSync(resolve(base, "public", relative));
+        return info.isFile() ? { exists: true, bytes: info.size } : { exists: false, bytes: null };
+      } catch { return { exists: false, bytes: null }; }
+    };
+    return { ...item, worktree: inspect(root), originalCheckout: inspect(originalCheckoutRoot) };
+  });
+}
 const DEFAULT_AUDIT_DATE = "2026-09-23";
 const DEFAULT_OUTPUT_BASE = "docs/features/general-analysis/capability-audit-20260923";
 const VERIFIED_RAW_FAMILIES = {
@@ -404,15 +468,36 @@ function p0Blocker(layer, family) {
 
 function p0FamilyLedger() {
   const candidates = layers.filter(layer => layer.readable === "unknown_or_unavailable" || layer.readable === "metadata_candidate_requires_readback");
+  const singleDatasetCounts = new Map();
+  for (const layer of candidates) {
+    const ids = layer.upstream?.datasetIds ?? [];
+    if (ids.length === 1) singleDatasetCounts.set(ids[0], (singleDatasetCounts.get(ids[0]) ?? 0) + 1);
+  }
   const entries = candidates.map(layer => {
     const family = familyEvidence(layer);
+    const comparisonRecipe = comparisonRecipeByLayer.get(layer.layerKey);
+    const singleDatasetId = layer.upstream?.datasetIds?.length === 1 ? layer.upstream.datasetIds[0] : null;
+    const declaredContract = comparisonRecipe !== undefined
+      ? {
+        kind: "derived_statistics_recipe", key: "derived:comparison_statistics", evidence: "Exact layer_key in comparisonStatisticsRecipes.json; common runtime recipe contract, not a common raw source or verified release",
+        datasetId: comparisonRecipe.dataset_id, indicatorId: comparisonRecipe.indicator_id, level: comparisonRecipe.level,
+        boundaryVersion: comparisonRecipe.boundary_version, releaseIds: comparisonRecipe.release_options.map(option => option.release_id),
+      }
+      : singleDatasetId !== null && (singleDatasetCounts.get(singleDatasetId) ?? 0) > 1
+        ? { kind: "declared_upstream_dataset", key: `declared-upstream:${singleDatasetId}`, evidence: "Same manifest upstream datasetId across candidate layers; raw bytes/RPC schema and release identity are not implied", datasetId: singleDatasetId }
+        : null;
     const datasetInspections = (layer.upstream?.datasetIds ?? []).map(datasetId => ({ datasetId, ...(INSPECTED_UPSTREAM_DATASETS[datasetId] ?? { status: "NOT_INSPECTED" }) }));
     const datasetFamilyKeys = [...new Set(datasetInspections.map(item => item.familyKey).filter(Boolean))];
     const verifiedRawFamilyKey = VERIFIED_RAW_FAMILY_BY_LAYER[layer.layerKey] ?? (datasetFamilyKeys.length === 1 ? datasetFamilyKeys[0] : null);
     const alignment = DISPLAY_RAW_ALIGNMENT_BY_LAYER[layer.layerKey] ?? null;
     const defaultBlocker = p0Blocker(layer, family);
     const inspectionRightsHold = datasetInspections.some(item => item.status === "RIGHTS_HOLD");
-    const blocker = inspectionRightsHold
+    const blocker = comparisonRecipe !== undefined
+      ? {
+        status: "READER_PENDING", primaryBlocker: "DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING",
+        nextStep: "Inspect each exact releaseId artifact's numerator/denominator source receipts, units, null rules, period, and boundary version; reconcile publication status and register a bounded query reader. The common comparison runtime is not one raw source.",
+      }
+      : inspectionRightsHold
       ? {
         status: "RIGHTS_HOLD",
         primaryBlocker: "SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD",
@@ -449,10 +534,13 @@ function p0FamilyLedger() {
       candidateClass: layer.readable === "metadata_candidate_requires_readback" ? "metadata_geojson_candidate" : "unknown_or_unavailable",
       familyKey: family.familyKey,
       sourceArtifact: family.sourceArtifact,
+      localDisplayAssetEvidence: localDisplayAssetEvidence(family.sourceArtifact),
       sourceEvidence: family.evidence,
+      declaredContract,
       verifiedRawFamilyKey,
       displayRawAlignment: alignment,
       upstreamDatasetInspections: datasetInspections,
+      analyticsNavigation: analyticsNavigation(layer.upstream?.datasetIds ?? []),
       upstream: layer.upstream,
       geometry: {
         declared: layer.geometryKinds.length > 0 ? layer.geometryKinds : null,
@@ -467,6 +555,7 @@ function p0FamilyLedger() {
   const familyCounts = new Map();
   for (const entry of entries) familyCounts.set(entry.familyKey, (familyCounts.get(entry.familyKey) ?? 0) + 1);
   const verifiedRawFamilyKeys = [...new Set(entries.map(entry => entry.verifiedRawFamilyKey).filter(Boolean))].sort();
+  const contractKeys = [...new Set(entries.map(entry => entry.declaredContract?.key).filter(Boolean))];
   const inspectedDatasetEntries = Object.entries(INSPECTED_UPSTREAM_DATASETS).sort(([a], [b]) => a.localeCompare(b));
   const csvQueueSampleLayerKeys = [
     "a1AccidentRealtime", "agriCropSuitability", "agriculture", "agriLeisureFarmZones", "agriProduceWholesale",
@@ -498,11 +587,21 @@ function p0FamilyLedger() {
       verifiedRawFamilyKeys: verifiedRawFamilyKeys.length,
       entriesWithVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey !== null).length,
       entriesWithoutVerifiedRawFamily: entries.filter(entry => entry.verifiedRawFamilyKey === null).length,
+      declaredContractFamilyKeys: contractKeys.length,
+      entriesWithDeclaredContractFamily: entries.filter(entry => entry.declaredContract !== null).length,
+      derivedComparisonLayers: entries.filter(entry => entry.declaredContract?.kind === "derived_statistics_recipe").length,
+      repeatedUpstreamDatasetLayers: entries.filter(entry => entry.declaredContract?.kind === "declared_upstream_dataset").length,
+      entriesWithDeclaredDisplayAsset: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0).length,
+      displayAssetEntriesPresentInWorktree: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.worktree?.exists)).length,
+      displayAssetEntriesPresentInOriginalCheckout: entries.filter(entry => entry.localDisplayAssetEvidence.length > 0 && entry.localDisplayAssetEvidence.every(item => item.originalCheckout?.exists)).length,
       inspectedUpstreamDatasetIds: inspectedDatasetEntries.length,
       inspectedUpstreamDatasetEvidenceGaps: inspectedDatasetEntries.filter(([, item]) => item.status === "EVIDENCE_GAP").length,
+      sourceMissingWithProcessedManifest: entries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.processedManifests.length > 0)).length,
+      sourceMissingWithCatalog: entries.filter(entry => entry.status === "SOURCE_MISSING" && entry.analyticsNavigation.some(item => item.catalogDocs.length > 0)).length,
     },
     families: [...familyCounts.entries()].map(([familyKey, layerCount]) => ({ familyKey, layerCount })).sort((a, b) => a.familyKey.localeCompare(b.familyKey)),
     verifiedRawFamilies: Object.fromEntries(verifiedRawFamilyKeys.map(key => [key, VERIFIED_RAW_FAMILIES[key]])),
+    declaredContractFamilies: contractKeys.map(key => ({ key, layerCount: entries.filter(entry => entry.declaredContract?.key === key).length })).sort((a, b) => b.layerCount - a.layerCount || a.key.localeCompare(b.key)),
     inspectedUpstreamDatasets: Object.fromEntries(inspectedDatasetEntries),
     csvQueueSamples,
     entries,
@@ -546,6 +645,57 @@ function markdown() {
   return lines.join("\n");
 }
 
+function classifiedUnknownCsv(ledger) {
+  const unknown = ledger.entries.filter(entry => entry.candidateClass === "unknown_or_unavailable");
+  if (unknown.length !== report.counts.layersUnknownOrUnavailable || new Set(unknown.map(entry => entry.layerKey)).size !== unknown.length) {
+    throw new Error("P0_UNKNOWN_LAYER_RECONCILIATION_FAILED");
+  }
+  const columns = ["layerKey", "label", "status", "primaryBlocker", "declaredContractFamilyKey", "verifiedRawFamilyKey", "upstreamDatasetIds", "analyticsProcessedManifests", "analyticsCatalogDocs", "displayAssets", "displayAssetWorktreePresence", "displayAssetOriginalCheckoutPresence", "rawSourceArtifact", "geometryVerification", "nextStep"];
+  const quote = value => `"${String(value ?? "").replaceAll('"', '""')}"`;
+  const rows = unknown.map(entry => [
+    entry.layerKey, entry.label, entry.status, entry.primaryBlocker,
+    entry.declaredContract?.key, entry.verifiedRawFamilyKey,
+    (entry.upstream?.datasetIds ?? []).join(";"),
+    entry.analyticsNavigation.flatMap(item => item.processedManifests.map(manifest => manifest.path)).join(";"),
+    entry.analyticsNavigation.flatMap(item => item.catalogDocs).join(";"),
+    (entry.sourceArtifact ?? []).map(item => `${item.kind}:${item.path}`).join(";"),
+    entry.localDisplayAssetEvidence.map(item => item.worktree?.exists ? "present" : "absent").join(";"),
+    entry.localDisplayAssetEvidence.map(item => item.originalCheckout?.exists ? "present" : "absent_or_unchecked").join(";"),
+    entry.verifiedRawFamilyKey ? JSON.stringify(ledger.verifiedRawFamilies[entry.verifiedRawFamilyKey]?.sourceArtifact ?? null) : null,
+    entry.geometry.verification, entry.nextStep,
+  ]);
+  return `${[columns, ...rows].map(row => row.map(quote).join(",")).join("\n")}\n`;
+}
+
+function familyLedgerMarkdown(ledger) {
+  const unknown = ledger.entries.filter(entry => entry.candidateClass === "unknown_or_unavailable");
+  const statuses = new Map();
+  const blockers = new Map();
+  for (const entry of unknown) {
+    statuses.set(entry.status, (statuses.get(entry.status) ?? 0) + 1);
+    blockers.set(entry.primaryBlocker, (blockers.get(entry.primaryBlocker) ?? 0) + 1);
+  }
+  const missing = unknown.filter(entry => entry.status === "SOURCE_MISSING");
+  const hasProcessed = entry => entry.analyticsNavigation.some(item => item.processedManifests.length > 0);
+  const hasCatalog = entry => entry.analyticsNavigation.some(item => item.catalogDocs.length > 0);
+  const lines = [
+    `# ${unknown.length} 個尚無可用查詢映射的圖層：逐層處置（${auditOptions.date}）`, "",
+    "由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留 699 個候選的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。", "",
+    `778 個 manifest layer 中，${report.counts.layersWithQueryableDatasets} 個有查詢映射、${report.counts.lazyGeojsonCandidates} 個是待讀回的 GeoJSON metadata candidates、${unknown.length} 個尚無可用映射；三者合計 ${report.counts.manifestLayers}。`, "",
+    "## 主要狀態", "", "| 狀態 | 層數 |", "|---|---:|",
+    ...[...statuses].sort((a, b) => b[1] - a[1]).map(([status, count]) => `| ${status} | ${count} |`), "",
+    "## 具體阻擋", "", "| 阻擋 | 層數 |", "|---|---:|",
+    ...[...blockers].sort((a, b) => b[1] - a[1]).map(([blocker, count]) => `| ${blocker} | ${count} |`), "",
+    "`comparisonStatisticsRecipes.json` 明列 188 個比較統計圖層、indicator 與 releaseId；共同的是派生 runtime 契約，並非一份原始資料。逐 release 的分子／分母來源尚未全量稽核，也未註冊有界 research reader，逐層維持 `READER_PENDING`。同一 `upstream.datasetId` 的圖層另列 declared contract family；這只證明 manifest 宣告相同，不證明同一 raw SHA、RPC schema 或 release。", "",
+    `209 個 SOURCE_MISSING 中，${missing.filter(entry => hasProcessed(entry) && hasCatalog(entry)).length} 個可找到 analytics processed manifest 與 catalog、${missing.filter(entry => !hasProcessed(entry) && hasCatalog(entry)).length} 個只有 catalog、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && entry.upstream?.datasetIds?.length).length} 個有上游 ID 卻未找到同名本機證據、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && !entry.upstream?.datasetIds?.length).length} 個連上游 ID 也未宣告。這些是**導航線索**，沒有一項自動證明 raw input、授權或 release 同版。`, "",
+    "## 宣告的共用契約（前 25 個）", "", "| 契約 | 層數 | 證據等級 |", "|---|---:|---|",
+    ...ledger.declaredContractFamilies.slice(0, 25).map(item => `| ${item.key} | ${item.layerCount} | manifest/recipe only |`), "",
+    "真正已核對的 raw family 另見 JSON `verifiedRawFamilies`，且仍需逐層檢查 display 同版、權限、時間、缺值與 geometry。不得把宣告 family 或 PMTiles 視為完整可分析原表。",
+    "", "本機資產欄位只查工作樹與原 checkout 的檔案存在及大小；缺少本機檔不等於遠端缺檔，存在亦不證明 raw→display 同版或查詢可用。",
+  ];
+  return `${lines.join("\n")}\n`;
+}
+
 await mkdir(dirname(outputBase), { recursive: true });
 await writeFile(`${outputBase}.json`, `${JSON.stringify(report, null, 2)}\n`);
 await writeFile(`${outputBase}.md`, markdown());
@@ -555,7 +705,9 @@ if (auditOptions.familyLedgerBase !== null) {
   const ledger = p0FamilyLedger();
   await mkdir(dirname(auditOptions.familyLedgerBase), { recursive: true });
   await writeFile(`${auditOptions.familyLedgerBase}.json`, `${JSON.stringify(ledger, null, 2)}\n`);
-  outputs.push(`${auditOptions.familyLedgerBase}.json`);
+  await writeFile(`${auditOptions.familyLedgerBase}.unknown.csv`, classifiedUnknownCsv(ledger));
+  await writeFile(`${auditOptions.familyLedgerBase}.md`, familyLedgerMarkdown(ledger));
+  outputs.push(`${auditOptions.familyLedgerBase}.json`, `${auditOptions.familyLedgerBase}.unknown.csv`, `${auditOptions.familyLedgerBase}.md`);
   ledgerCounts = ledger.counts;
 }
 console.log(JSON.stringify({ output: outputs, counts: report.counts, familyLedgerCounts: ledgerCounts }, null, 2));
