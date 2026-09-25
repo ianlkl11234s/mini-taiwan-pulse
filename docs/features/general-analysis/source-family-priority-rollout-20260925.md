@@ -350,4 +350,10 @@
 
 - `culturalFacilities` 原已有 787 個展示 Point 的 source-coordinate reader；本批補完整 2026-07-16 MOC 六類名冊。六份 raw JSON 與 processed 1,170 列／SHA `5b018ab1615c4fb818f8b147cbb77df51f4ae8fb42abec231f792a615781a89b` 固定核對，當中 787 Point 逐筆對上 Mini display SHA `0f7d0d93b9695c2beb45f5916fb0185f1aac30c9e333669ebe31bc55f506591d`；另外 383 筆 geometry=null 保留可屬性查詢。owner-only 安全 sidecar 365,985 bytes／SHA `3390db215e3d505ff44b6a99f5de37988c1b5f0053766d8254596381071e96f1`，`facility_id` 1,170 個唯一值。city 25 筆、address 9 筆空字串原樣保留。
 - 正常 Codex→MCP→Gateway→既有 3734 browser 配對：臺北 `[121.5,25.02,121.58,25.1]` 命中 184，實體書店變體 135；高雄 `[120.25,22.58,120.35,22.68]` 命中 47；無 bbox 加 `no_coord` 查得完整 383。全部與 processed 全表 oracle 一致。focused test、`tsc -b`、build、localhost sidecar 200／外來 Host 404 通過。新 reader 對 Point 採 proxy，只保證固定來源 bbox／屬性；今日營運、精確最近、公開地圖及研究地圖 ready/readback仍 [ ] HOLD。這是既有查詢映射的補全，沒有增加已映射 layer 數。
+
+### 第四十八批：地下水觀測井靜態站位
+
+- `groundwaterWells` 僅接 WRA 固定 processed `groundwater_wells.geojson` 959 Point／779,348 bytes／SHA `f15549b80767b604d90b9e5a9c0c3a42e9ff5ce6fcc4183ee6ec800e09d68db2`；同 959 筆 ID／名稱／座標與前述 `waterMonitorStations` 2,032 點聯集的地下水子集核對一致，但 reader 直綁這份 959 來源。21 個 gzip 分片、manifest SHA `2cd44a610c1c284d9de2fee054c95bb26a8eeba5bac3757af0754f6f3a0b3967`，本機 owner-only。WRA 原始 API 快照未保存，不能聲稱可重演原始下載。
+- `elevation_m` 959 筆全 null，`is_active` 959 筆全 false 且與來源文件「僅廢止才 false」敘述矛盾；兩者原樣可讀、不能篩選或解釋為全部已廢。`reported_county` 因固定縣界檢核曾發現錯置，只作來源欄，不可用於縣市比較。地址與鄉鎮欄排除。只提供 bbox／ID 屬性查詢；Point 是參考站位 proxy，精確最近、入口、目前站況和水位觀測均未驗。
+- 正常 Codex→MCP→Gateway→既有 3734 browser 配對：嘉義 `[120.30,23.35,120.55,23.60]` 命中 32，宜蘭 `[121.55,24.55,121.85,24.85]` 命中 39，與完整 959 原表 oracle 一致；另兩個不同 bbox 得 26／53，顯示範圍改變會重新計數。focused test、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。`groundwater` 動態水位層仍 HOLD，不能用靜態井位代替即時水位；研究地圖 ready/readback 未通過。
 - Audit：778 層／198 datasets／194 queryable mappings／27 metadata 候選／584 待映射；臺灣 GIS 主 Layers 381 中已註冊 140、待接 241。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
