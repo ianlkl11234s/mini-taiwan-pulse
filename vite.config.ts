@@ -968,6 +968,7 @@ function serveResearchPointPartitions(): Plugin {
         "lpg/lpg-retailers-owner-20260620.geojson": { folder: "lpg", size: 243_267 },
         "waste-facilities/waste-facilities-government-owner-20260519.geojson": { folder: "waste-facilities", size: 23_415 },
         "waste-facilities/waste-facilities-osm-owner-20260519.geojson": { folder: "waste-facilities", size: 79_833 },
+        "ev-charging/ev-charging-owner-20260615.geojson": { folder: "ev-charging", size: 814_273 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

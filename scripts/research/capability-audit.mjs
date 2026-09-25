@@ -606,6 +606,15 @@ VERIFIED_RAW_FAMILIES["waste:facilities_osm:20260519"] = {
   geometry: "Crowd-edited reference Point; bbox/attribute only.", sourceSha256: "66bbb1f6a6fdde0a133c93905842665a5a1b55f776f7156b5f68a24b5c1a7e06",
   localDisplayReceipt: "Address-free owner-only sidecar SHA add89d5a1f0f1cdd1791c29e527726a6173ea3f77e887177cb006208e792edc3; no live OSM or Supabase read.",
 };
+VERIFIED_RAW_FAMILIES["tdx:ev_charging:20260615"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/energy/ev_charging_stations/ev_charging_stations_20260615.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/energy/ev_charging_stations/_manifest.json", "taipei-gis-analytics/docs/data-catalog/energy/ev_charging_stations.md", "mini:scripts/research/build-ev-charging-owner-only.mjs"],
+  sourceVersion: "2026-06-15 fixed TDX EV/Station processed snapshot", publisher: "交通部 TDX", license: "TDX_RIGHTS_HOLD: coordinate redistribution receipt not verified; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed file date and catalog update are not live charging status or availability.",
+  coverageAndMissingness: "3,099 TDX raw -> 3,088 normalized -> 3,060 deduplicated Point, unique station_id; city 2,947/rail 44/tourism 40/freeway 23/ship 4/airport 2. Lienchiang H400 skipped; data.gov/CPC final contribution 0.",
+  geometry: "TDX published WGS84 reference Point with precision receipt missing; bbox/attribute only.", sourceSha256: "fa5ee9640717cc0cac3ed60f00b2a244c41afa2523b27d1d0ebe9fb3f826c218",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 151204d74b32e0e1a1dfa2c095fe1e806b86cae7eff7718d92964a9208a8f87f, 814,273 bytes; live Supabase release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -682,6 +691,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   wfTransfer: "waste:facilities_osm:20260519",
   wfRecycling: "waste:facilities_osm:20260519",
   wfScrapYard: "waste:facilities_osm:20260519",
+  evChargingStations: "tdx:ev_charging:20260615",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
