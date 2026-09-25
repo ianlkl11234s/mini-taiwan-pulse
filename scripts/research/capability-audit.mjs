@@ -796,6 +796,15 @@ VERIFIED_RAW_FAMILIES["taipei-taichung:street_trees:20260714"] = {
   geometry: "Merged municipal tree-register reference Point, proxy; bbox/attribute only, no nearest, service area or national comparison.", sourceSha256: "a9b2e18ec60e2444bc263bb0bf1c9ee804b66a7a62064a38affb6a7890f6de99",
   localDisplayReceipt: "Owner-only partition manifest SHA b1fc01a0908d8b18169b5cd774da4d1f3824d7f7c81671f09615108f3c1b99e3; PMTiles and research map readback unverified.",
 };
+VERIFIED_RAW_FAMILIES["mohw:ltc_contract_units:20260811"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/poi/long_term_care/long_term_care_20260811.geojson",
+  evidence: ["mini:scripts/research/build-med-ltc-owner-only.mjs", "mini:src/research/medLtcOwnerDataset.ts"],
+  sourceVersion: "2026-08-11 fixed contract-unit snapshot", publisher: "衛生福利部 data.gov.tw:88270", license: "OGDL-Taiwan-1.0 catalog; localhost owner-only fixed sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-08 source release; current contracts and capacity not independently verified.",
+  coverageAndMissingness: "24,409 raw rows: 332 no coordinates, 183 outside Taiwan; 23,894 Point. Processed A 824, B 22,510, C 559, empty ABCType 1. Distinct from 3,117 welfareLtcInstitutions.",
+  geometry: "Official WGS84 reference Point, proxy; bbox/attribute only. No nearest, current service, capacity or county comparison.", sourceSha256: "950efd652c8d504ff593e48fc5119835349150cca8d58a7546447e637acd37ac",
+  localDisplayReceipt: "Owner-only partition manifest SHA 93cbd6a1986e8cfa2711e1fce86a3950e06d57122520fc9c2e26db4431434c42; displayed-layer equivalence and research map readback unverified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -902,6 +911,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   agriProduceWholesale: "moea:produce_wholesale_companies:20260525",
   religionTemples: "moi:religion_temples:20260801-trust-chain",
   streetTreesNational: "taipei-taichung:street_trees:20260714",
+  medLTC: "mohw:ltc_contract_units:20260811",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
