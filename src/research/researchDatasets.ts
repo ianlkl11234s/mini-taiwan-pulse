@@ -116,6 +116,7 @@ import { activeFaultsAdapter } from "./activeFaultsDataset";
 import { cyclingRoutesAdapter } from "./cyclingRoutesDataset";
 import { forestRecreationOwnerAdapter } from "./forestRecreationOwnerDataset";
 import { aquacultureZoneOwnerAdapter } from "./aquacultureZoneOwnerDataset";
+import { serviceAreaPolygonAdapter } from "./serviceAreaPolygonDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -558,6 +559,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   cyclingRoutesAdapter,
   forestRecreationOwnerAdapter,
   aquacultureZoneOwnerAdapter,
+  serviceAreaPolygonAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

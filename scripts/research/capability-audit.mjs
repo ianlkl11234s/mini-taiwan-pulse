@@ -852,6 +852,15 @@ VERIFIED_RAW_FAMILIES["moa:aquaculture_production_zone:20260519"] = {
   geometry: "Full WGS84 Polygon/MultiPolygon normalized to MultiPolygon for true bbox intersection; not a production, operation or access measure.", sourceSha256: "3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e",
   localDisplayReceipt: "Owner-only safe-field sidecar SHA 6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a; paired browser Mailiao result revision 14 ready/readback 1 and visible. Existing source display-layer version remains unverified.",
 };
+VERIFIED_RAW_FAMILIES["osm:service_area_surfaces:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/transportation/service_area/osm_services_raw.json",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/service_area_polygon/service_area_polygon_20260524.geojson", "mini:public/geo/service_area_polygon.geojson", "mini:src/research/serviceAreaPolygonDataset.ts"],
+  sourceVersion: "2026-05-24 fixed OSM Overpass and Highway Bureau join", publisher: "© OpenStreetMap contributors; 交通部高速公路局", license: "OSM ODbL 1.0 geometry plus OGDL-Taiwan-1.0 attributes; attribution required",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processing date is not each OSM edit date or current service status.",
+  coverageAndMissingness: "19 OSM service-area surfaces (18 Polygon, 1 MultiPolygon), not identical to 22 official Point records; no match is not zero service areas.",
+  geometry: "Full OSM-drawn WGS84 Polygon/MultiPolygon normalized to MultiPolygon; true bbox intersection, not entrance or road-network reachability.", sourceSha256: "9047b532d2ac1425735d278a7ed91dff573264a488be8c0f8c869882f29df863",
+  localDisplayReceipt: "Mini public GeoJSON byte-identical to analytics processed 24,463 bytes SHA c9f2a462c30ecbfd99fec7f15cd55371112add6ece074a76a881db4186fd84a8; browser readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -917,6 +926,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   cyclingRoutes: "tdx:cycling_shapes:20260301",
   forestRecreation: "moa:forest_recreation_areas:1151",
   aquacultureZone: "moa:aquaculture_production_zone:20260519",
+  serviceAreaPolygon: "osm:service_area_surfaces:20260524",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
