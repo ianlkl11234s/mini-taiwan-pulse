@@ -2,9 +2,9 @@
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，552 層維持候選處置、226 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，551 層維持候選處置、227 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，226 個有查詢映射、15 個是待讀回的 GeoJSON metadata candidates、537 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，227 個有查詢映射、14 個是待讀回的 GeoJSON metadata candidates、537 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 

@@ -226,7 +226,7 @@ HOLD 記錄格式：`family / layer keys / 卡在哪個 gate / 已查路徑與�
 
 ## 當前游標與每次回報
 
-**下一項：A03 接 `aquacultureCageNet` 的已釐清固定本機快照：raw ZIP SHA、42 個原面與處理檔 SHA 已核，2026-06-07 僅本機處理日；接著查下一個可證臺灣 GIS 家族。** `waterBasins` 原表缺失、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
+**下一項：A03 繼續查下一個可證臺灣 GIS 原始家族。** `aquacultureCageNet` 的 42 原面已查詢、配對地圖驗收並記於第六十八批；`waterBasins` 原表缺失、`waterProtectionZones` 128／107 版本不明、`cemeteryZoning` 原始到處理 SHA 鏈缺收據、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。當前 778 層中 227 個有可查映射、551 個待處理；臺灣 GIS 381 層中 173 個已登記、208 個待處理。
 
 每次回報只需：本次勾選哪些 ID、四組各有多少層真正通過／待做／HOLD、新增家族及映射、驗收證據、尚未解鎖的具體需求、下一個游標。登記數／來源查詢通過數／空間通過數分開。不要求使用者每批重新說「繼續」。
 
