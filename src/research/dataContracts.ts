@@ -205,5 +205,10 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
       parameterNames.add(parameter.name);
     }
   }
-  if (access.query.supportsBbox && !(value.geometry.type === "Point" && value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible)) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  // A bbox may bound reads of reference Points without making those Points
+  // eligible for exact distance analysis.
+  if (access.query.supportsBbox && !(value.geometry.type === "Point" && (
+    value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
+    || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible
+  ))) throw new Error("INVALID_DATASET_DESCRIPTOR");
 }

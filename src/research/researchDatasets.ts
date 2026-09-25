@@ -36,6 +36,7 @@ import { sportsVenuesSourceCoordinatesAdapter } from "./sportsVenuesDataset";
 import { gasStationsCanonicalAdapter } from "./gasStationsDataset";
 import { policeStationsSourceCoordinatesAdapter } from "./policeStationsDataset";
 import { pollutionSitesSourceCoordinatesAdapter } from "./pollutionSitesDataset";
+import { pollutionFacilitiesAdapter } from "./pollutionFacilitiesDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -354,6 +355,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   gasStationsCanonicalAdapter,
   policeStationsSourceCoordinatesAdapter,
   pollutionSitesSourceCoordinatesAdapter,
+  pollutionFacilitiesAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

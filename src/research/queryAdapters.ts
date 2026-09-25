@@ -52,6 +52,13 @@ export function createPointDatasetAdapter(descriptor: DatasetDescriptor, reader:
   return adapter(descriptor, {}, reader);
 }
 
+/** Reference coordinates can support bounded record lookup without claiming exact distance. */
+export function createReferencePointDatasetAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
+  if (descriptor.kind !== "point" || !["place", "event"].includes(descriptor.recordGrain) || descriptor.geometry.type !== "Point"
+    || descriptor.geometry.role !== "proxy" || descriptor.geometry.spatialAnalysisEligible) throw new Error("INVALID_REFERENCE_POINT_ADAPTER");
+  return adapter(descriptor, {}, reader);
+}
+
 /** A line reader is only eligible when its source coordinates are actual EPSG:4326 geometry. */
 export function createLineDatasetAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
   if (descriptor.kind !== "line" || descriptor.recordGrain !== "feature" || !["LineString", "MultiLineString"].includes(descriptor.geometry.type) || descriptor.geometry.crs !== "EPSG:4326"

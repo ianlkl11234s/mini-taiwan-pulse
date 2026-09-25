@@ -30,7 +30,7 @@ export interface PointPartitionRows {
   cacheHit: boolean;
 }
 
-interface CachedAsset { bytes: Uint8Array; }
+interface CachedAsset { bytes: Uint8Array; decoded: boolean; transferBytes: number; }
 interface PendingAsset { promise: Promise<CachedAsset>; controller: AbortController; subscribers: number; settled: boolean; }
 const assets = new Map<string, CachedAsset>();
 const inFlight = new Map<string, PendingAsset>();
@@ -108,7 +108,7 @@ function cacheAsset(key: string, asset: CachedAsset): void {
   }
 }
 
-async function fetchAsset(url: string, expectedSha256: string, signal?: AbortSignal): Promise<CachedAsset> {
+async function fetchAsset(url: string, expectedSha256: string, signal?: AbortSignal, decodedIdentity?: { sha256: string; bytes: number }): Promise<CachedAsset> {
   if (signal?.aborted) throw new DOMException("aborted", "AbortError");
   const key = `${url}#${expectedSha256}`;
   const cached = assets.get(key);
@@ -126,8 +126,12 @@ async function fetchAsset(url: string, expectedSha256: string, signal?: AbortSig
       if (response.status === 404 || response.headers.get("content-type")?.includes("text/html")) fail("DATASET_ASSET_MISSING");
       if (!response.ok) fail("DATASET_UNAVAILABLE");
       const bytes = await boundedBytes(response);
-      if (await sha256(bytes) !== expectedSha256) fail("PARTITION_SHA_MISMATCH");
-      const asset = { bytes };
+      const digest = await sha256(bytes);
+      const decoded = digest !== expectedSha256 && decodedIdentity !== undefined
+        && bytes.byteLength === decodedIdentity.bytes && digest === decodedIdentity.sha256;
+      if (digest !== expectedSha256 && !decoded) fail("PARTITION_SHA_MISMATCH");
+      const declaredLength = Number(response.headers.get("content-length"));
+      const asset = { bytes, decoded, transferBytes: Number.isSafeInteger(declaredLength) && declaredLength > 0 ? declaredLength : bytes.byteLength };
       if (controller.signal.aborted) throw new DOMException("aborted", "AbortError");
       cacheAsset(key, asset);
       return asset;
@@ -221,7 +225,8 @@ async function loadPointPartitionsWithinDeadline(config: PointSpatialPartitionCo
   const shardCached = selected.map(shard => assets.has(`${base}${shard.path}#${shard.sha256}`));
   const assetsForShard: CachedAsset[] = [];
   for (let index = 0; index < selected.length; index += MAX_PARALLEL_FETCHES) {
-    assetsForShard.push(...await Promise.all(selected.slice(index, index + MAX_PARALLEL_FETCHES).map(shard => fetchAsset(`${base}${shard.path}`, shard.sha256, signal))));
+    assetsForShard.push(...await Promise.all(selected.slice(index, index + MAX_PARALLEL_FETCHES).map(shard => fetchAsset(`${base}${shard.path}`, shard.sha256, signal,
+      shard.encoding === "gzip" ? { sha256: shard.uncompressedSha256!, bytes: shard.uncompressedBytes! } : undefined))));
   }
   let bytes = manifestAsset.bytes.byteLength;
   let downloadedBytes = manifestCached ? 0 : manifestAsset.bytes.byteLength;
@@ -230,10 +235,10 @@ async function loadPointPartitionsWithinDeadline(config: PointSpatialPartitionCo
   const features: unknown[] = [];
   for (let index = 0; index < selected.length; index++) {
     const shard = selected[index]!; const asset = assetsForShard[index]!;
-    if (asset.bytes.byteLength !== shard.bytes) fail("PARTITION_BYTE_MISMATCH");
-    const decoded = shard.encoding === "gzip" ? await gunzip(asset.bytes, shard.uncompressedSha256!, shard.uncompressedBytes!) : asset.bytes;
+    if (asset.bytes.byteLength !== (asset.decoded ? shard.uncompressedBytes : shard.bytes)) fail("PARTITION_BYTE_MISMATCH");
+    const decoded = shard.encoding === "gzip" && !asset.decoded ? await gunzip(asset.bytes, shard.uncompressedSha256!, shard.uncompressedBytes!) : asset.bytes;
     bytes += decoded.byteLength;
-    if (!shardCached[index]) { downloadedBytes += asset.bytes.byteLength; requests++; }
+    if (!shardCached[index]) { downloadedBytes += asset.transferBytes; requests++; }
     for (const feature of collectionFeatures(parseJson(decoded), shard)) {
       if (!feature || typeof feature !== "object" || Array.isArray(feature) || !Number.isSafeInteger((feature as { sourceOrdinal?: unknown }).sourceOrdinal)
         || (feature as { sourceOrdinal: number }).sourceOrdinal < 0 || (feature as { sourceOrdinal: number }).sourceOrdinal >= manifest.source.featureCount || ordinals.has((feature as { sourceOrdinal: number }).sourceOrdinal)) fail("INVALID_PARTITION_ORDINAL");
