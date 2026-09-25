@@ -879,6 +879,15 @@ VERIFIED_RAW_FAMILIES["tycg_kcg:aviation_noise_legal_villages:20260827"] = {
   geometry: "NLSC WGS84 village Polygon boundary joined to legal village membership: admin_join proxy, not a measured DNL contour or point exposure; spatial analysis ineligible.", sourceSha256: "d17515936bc357ce3602473c2768ebd2e1647d39f8660c8e32133dbbb661bb51",
   localDisplayReceipt: "Raw SHA Taoyuan 28dbe5367c5fc456aa03bc033ad4fc8c83e0defdbee6ce47b597b623711d17fe; Kaohsiung fcadf3fbadcfac912ba96223a4140c085e134fd38fd66bd4bd6e3b3c7affb1ee; NLSC boundary 4b5832c1fdf066945fa121c9a31c20e858d8deb4198dae2afab4db9889231d99. Mini and analytics processed GeoJSON byte-identical 1,072,567 bytes SHA d17515936bc357ce3602473c2768ebd2e1647d39f8660c8e32133dbbb661bb51; paired browser readback pending.",
 };
+VERIFIED_RAW_FAMILIES["mota:national_scenic_areas:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/tourism/scenic_area/scenic_area_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/tourism/scenic_area/nsa_gist_00.zip", "taipei-gis-analytics/data/processed/tourism/scenic_area/_manifest.json", "mini:public/tourism/national_scenic_areas_national.geojson", "mini:src/research/scenicAreasDataset.ts"],
+  sourceVersion: "2026-05-24 fixed pipeline snapshot; 12 national scenic-area surfaces selected from 34 processed records", publisher: "交通部觀光署; Gist backup of official SHP", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Pipeline date is not individual boundary observation or current legal designation date.",
+  coverageAndMissingness: "12 national scenic areas and 22 forest recreation areas in processed source; Mini national display selects the 12 by category and independently matches names, geometry and source attributes. 雲嘉南濱海國家風景區 is absent from upstream backup. Display-only visitors/yoy fields lack a source receipt and are withheld.",
+  geometry: "Full WGS84 Polygon/MultiPolygon source surface normalized to 2D MultiPolygon; only zero Z values removed. True bbox intersection, not entrance or walking accessibility.", sourceSha256: "d1fbd0b12f7e5cbea4f5c3e059f8c0638c9d1a936bb6036d89896c6fe54cc544",
+  localDisplayReceipt: "Mini national_scenic_areas_national.geojson 12 rows, 200,445 bytes SHA 9910b7329a361247989b91f50ebda63762e557411eae13dda6f1ead997384e38; browser readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -948,6 +957,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   eduCampusPolygon: "tgos:campus_polygon:20260807",
   eduCampusArea: "tgos:campus_polygon:20260807",
   aviationNoiseZones: "tycg_kcg:aviation_noise_legal_villages:20260827",
+  tourScenicAreas: "mota:national_scenic_areas:20260524",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

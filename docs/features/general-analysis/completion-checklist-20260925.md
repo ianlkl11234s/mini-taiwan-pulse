@@ -159,6 +159,8 @@
 
 第六十五批 [x] `aviationNoiseZones` 桃園／高雄 76 個法定里別代理面固定版已可查；桃園山東里及高雄仁愛里兩個地點與分級變體對原表，`effective_date=null` 不補日期。代理面只供 bbox／屬性查詢與地圖高亮，非噪音等值線或點位曝露。focused/registry、tsc/build；高雄正常配對 revision 18 ready/readback 1、目視藍色面。[第六十五批收據](./source-family-priority-rollout-20260925.md)。合計 232 datasets、224 查詢映射、554 待映射；臺灣主 Layers 381 已註冊 170、待 211。`waterBasins` 缺 raw/processed 同版與舊面積單位問題，G1/G2 HOLD。
 
+第六十六批 [x] `tourScenicAreas` 只接觀光署來源 34 面中的 12 個國家風景區面，逐名與完整幾何對來源；雲嘉南濱海缺於備援源，展示增補的訪客數／年增率缺收據而不輸出。大鵬灣、馬祖兩地與名稱變體有獨立原面對帳，focused/registry 13/13、tsc/build；大鵬灣正常配對 revision 19 ready/readback 1、目視藍色面。[第六十六批收據](./source-family-priority-rollout-20260925.md)。合計 233 datasets、225 查詢映射、553 待映射；臺灣主 Layers 381 已註冊 171、待 210。`aquacultureCageNet` 來源日期與 raw SHA 缺口先列 G1 HOLD。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
 18 個 metadata 候選與 537 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
@@ -222,7 +224,7 @@ HOLD 記錄格式：`family / layer keys / 卡在哪個 gate / 已查路徑與�
 
 ## 當前游標與每次回報
 
-**下一項：A03 先完成 `tourScenicAreas` 12 個國家風景區面與上游 34 面（含 22 森林遊樂區）的範圍對帳，再查 `aquacultureCageNet` 等臺灣 GIS 家族；核 raw 版本／筆數／授權、缺值和完整 geometry，可安全本機接入即做，遇缺證據標 HOLD 後續行。** `waterBasins` 原表缺失、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
+**下一項：A03 先解 `aquacultureCageNet` 的 raw SHP/DBF 版本與 2026-05-19／2026-06-07 日期差，再查 `tourHotSpringZones` 等臺灣 GIS 家族；核 raw 版本／筆數／授權、缺值和完整 geometry，可安全本機接入即做，遇缺證據標 HOLD 後續行。** `waterBasins` 原表缺失、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
 
 每次回報只需：本次勾選哪些 ID、四組各有多少層真正通過／待做／HOLD、新增家族及映射、驗收證據、尚未解鎖的具體需求、下一個游標。登記數／來源查詢通過數／空間通過數分開。不要求使用者每批重新說「繼續」。
 
