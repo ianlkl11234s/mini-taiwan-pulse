@@ -246,3 +246,14 @@
 - `regulatedFacilities` 使用與既有 `pollutionFacility` **不同版本** 的 EMS_S_01 家族：analytics processed 80,732 Point SHA `2cfa4bd59e050f7784d0dfcd1f571ca5d62c5cad78dd5073029363f31d45178f`。451,434 raw → 127,795 active → 80,732 有座標（63.17%），47,063 active 座標缺值仍無 Point；catalog 的 50.01% 是 company join 覆蓋，不能誤當座標覆蓋。OGDL-Taiwan-1.0 記錄完整；安全 sidecar 325 個 gzip shards／manifest SHA `82dda3a0e592e9a7ac087b9153ceaa2a7a61b651246e53f8564b289f460bd811`，移除 emsno、設施名、地址、統編和公司欄位，只能做 owner-only bbox／屬性查詢。列管不表示污染、排放、裁罰或當前營運。
 - 兩組不同 bbox／屬性變體的完整來源 oracle 與 focused test 4/4 通過，安全分片重建得到相同 manifest SHA。正常 MCP 臺中 `[120.66,24.12,120.70,24.16]` 加 `isair=1` 得 72 筆、回傳上限 50 明示截斷；獨立原檔重算也是 72，掃 5,151 列／2,012,616 bytes、下載 222,900 bytes／3 requests。proxy Point 地圖呈現、精確最近及正式圖層同版均 HOLD。
 - 兩批整合後 focused Vitest 16/16（含 registry）、`npx tsc -b`、`npm run build` 通過；3734 owner manifest 路由 HTTP 200（7,507／122,856 bytes），外來 Host 404。Audit 778 layers、188 datasets、185 queryable mappings、28 metadata candidates、565 unknown/unavailable；593 待映射（reader 361、來源缺證 191、權利 HOLD 33、版本 8），臺灣 GIS 主 Layers 381 中已註冊 131、待接 250。沒有 Supabase/S3 寫入，沒有 push、PR、merge、部署或重啟排程。
+
+## 第二十九批：臺北行道樹清冊差異
+
+- `streetTreesTaipeiDiff` 使用 2024-11-21 Wayback 基準與 2026-07-12 現行清冊推得的 analytics processed 99,527 Point，SHA `95dd7c6e1cabfac3662cd3ada3a5880bd2e122208fd55224c1aaecd6ccf7d3ce`。persisted 88,004／disappeared 7,494／appeared 4,029；447 筆 `renumber_suspect` **保留在母體**，不是排除數。`disappeared` 只代表 TreeID 未再出現，可能是編號或清冊調整，不是砍除；Wayback 不是官方版本化歷史，約 10% Region 是公園／綠地名。OGDL 記錄完整，但衍生比較只建立 owner-only bbox／屬性 reader。安全 sidecar 移除 TreeID、樹種、路段、行政區文字和測量值，32 gzip shards／manifest SHA `4d0cb1c23c040bb7b2cae3f3601d9d64e1a2f94a7cc85d431b39d6bcac792288`。
+- 兩個不同 bbox／status 的全來源 oracle 與 focused 3/3 通過；正常 MCP 臺北 `[121.502,25.027,121.510,25.040]` 加 `status=disappeared` 命中 135、回傳 50 且明示截斷，掃 7,478 列／1,462,340 bytes、下載 88,843 bytes／2 requests。全台北大 bbox 超上限會 fail closed；不能把這個 reader 當全市清冊一次下載，也無精確最近或地圖呈現驗收。
+
+## 第三十批：衛福部 AED 固定設置名冊
+
+- `medAED` 原始 AED CSV 15,494 列 SHA `bb25209d…f3318debe`；0 缺座標，4 筆在既有臺灣 bbox 外，處理後 15,490 Point SHA `b4de010d5620cb52110b520d9a9980532ea9be00c755f1254e4a5a16a84bb9e6`。資料記錄 OGDL-Taiwan-1.0；安全 sidecar 338 gzip shards／manifest SHA `325a6c959dcf4e5f00dab13aa87a646579acdefcb55f425e70cdd368c39f178c`，排除地址、設備擺放細節、電話與重複 lat/lng，空字串轉 null 並保留缺值語意。只保證 2026-05-24 固定名冊的 bbox／屬性查詢，不能表示設備今日可用、功能正常、現場開放或緊急可進入；PMTiles 同版未驗。
+- 兩個不同縣市 bbox 與場所類別的完整原檔 oracle：臺北類別 453、高雄 666，focused 3/3 通過；正常 MCP 高雄 `[120.28,22.56,120.38,22.67]` 命中 666、回傳 50 明示截斷，掃 874 列／485,241 bytes、下載 173,940 bytes／5 requests。全國大 bbox 逾掃描額度 fail closed。
+- 兩批整合後 focused Vitest 15/15（含 registry）、`npx tsc -b`、`npm run build` 通過；3734 owner manifest route 200（12,639／127,368 bytes）、外來 Host 404。Audit 778 layers、190 datasets、187 queryable mappings、28 metadata candidates、563 unknown/unavailable；591 待映射（reader 359、來源缺證 191、權利 HOLD 33、版本 8），臺灣 GIS 主 Layers 381 中已註冊 133、待接 248。兩批都是 proxy Point，研究地圖結果呈現與精確最近 HOLD；未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
