@@ -90,4 +90,17 @@
 - `pollution_source` 宣告涵蓋不同原表，不是一個完整來源家族：`pollutionSite` 使用環境部 EMS_S_07 場址，`pollutionFacility` 使用 EMS_S_01 列管事業，四個裁罰／噪音事件層使用 EMS_P_46。此批僅完成場址一層；設施與裁罰各自保留待查。
 - 場址 staged 原表 SHA `9139e65862c7206fefcb298e94299e9ed5e28b9b6c072edf1fd83a9a628bd394`，frontend GeoJSONSeq SHA `095079a9717b647a3b4ab1c5ae95d0d8ac8750c2ac8379e957b3c7b7e3ff5682`；以 8,253 個唯一 site_id、Point、名稱、列管狀態及面積逐筆對齊。8,253 筆均有來源 WGS84 Point；快照時 365 筆列管、7,888 筆已解除公告。frontend 曾截斷 1,568 筆小數 sitearea，安全 sidecar 從 staged 原值復原，SHA `a9a948ff18112a4ccf82517fc6927a6249ed86f4ebf73d9f27f7f4ed8bfdcab2`、4,290,716 bytes。授權為 OGDL-Taiwan-1.0；不發布地址、地號。Point 不是污染範圍或當前暴露風險，處理日也不是今天的列管狀態。
 - 台中 `[120.68,24.15]` 3,000m 新地點：全表獨立 Haversine oracle 得 3 筆（B12241 2,430.055m、B11338 2,685.565m、B12095 2,894.727m），其中前二者列管，末者已解除；正常 MCP bbox `[120.64,24.12,120.72,24.18]` 得 7 個候選，`within_distance` 得 3。變體加 `is_active=1` 得 bbox 3、半徑內 2。`pulse_present_result` revision 6、`pulse_fit_bounds` revision 7 均 `ready`；`pulse_get_map_context` readback 3 features／1 source／1 layer，瀏覽器目視 3 點與高亮數字。冷讀量 8,253 筆／4,290,716 bytes／1 request；本地 sidecar，無 Supabase 或 S3 寫入。
-- 新增 1 個來源家族、1 個 query dataset、1 個 queryable／spatial-ready mapping。台帳現為 778 層、99 datasets、98 queryable mappings、92 metadata candidates、588 unknown/unavailable。舊 `pollution_sites.pmtiles` 的 same-version 顯示收據仍待核；不可把六個宣告層或今日列管狀態當完成。
+- 新增 1 個來源家族、1 個 query dataset、1 個 queryable／spatial-ready mapping。台帳現為 778 層、99 datasets、98 queryable mappings、92 metadata candidates、588 unknown/unavailable。原 checkout 的 `pollution_sites.pmtiles` 與 analytics 20260706 output SHA 都是 `dca3c37cf0a05a85b3c08d96310caa22aca01472b31a55f0a2c22a8992d7f9ba`，本機展示產物版本一致；但展示 `sitearea` 截斷 1,568 筆小數，研究 sidecar 保留 staged 原值，remote runtime release 未讀。不可把六個宣告層或今日列管狀態當完成。
+
+## 待解權利家族：畜牧附屬設施三層
+
+- `livestockFeed` 258、`livestockMarket` 21、`livestockSlaughter` 185 個處理 Point；analytics catalog 記錄農業部／防檢署等 OGDL 名冊與 2026-07-04 取用日，原始清冊 receipt 在本機檢查範圍內未齊。現有點位均由 Google 地址 geocode，catalog 未證明座標可公開重發布；屠宰場現行路徑另有 owner-only 限制。
+- 三層改列 `RIGHTS_HOLD`，不得從 processed GeoJSON 直接推出可公開附近查詢。解鎖：原始名冊／版本／欄位核對，加上 geocode 座標公開使用權；若只允許屬性，可另做不含地址、BAN、geometry 的名冊 reader，並明示不能算距離。這是三個不同來源家族，不能合算一份 464 筆原表。
+- 改列後待處理仍 680 層；其中 `READER_PENDING` 429、`SOURCE_MISSING` 201、`RIGHTS_HOLD` 42、`VERSION_MISMATCH` 8。分類改變不是三層完成。
+
+## 第九批：EMS_S_01 列管設施有界查詢
+
+- 來源 staged `pollution_potential_20260705.geojson` SHA `0121da253ad62da9796165967685fa5cbc022fb0f33fad24961edc4069e684a8`／143,743 Point；frontend `pollution_facilities_20260706.geojsonseq` SHA `7aa3c25b9907bf2e557116af8a60fcce3c1e7ecac20ea6898b81e7309f4985f9`／152,246 個唯一 emsno Point。143,743 個前身 ID 的座標與核心欄位逐筆對照；另有 8,503 筆只在新版 frontend，因此以新版作查詢母體，不能用前身假稱完整。環境部 EMS_S_01、OGDL 1.0；來源取得與實際觀測日未有可驗時間，2026-07-07T04:51:39Z 為 frontend manifest 產製時間。
+- 安全欄位分成 324 個 SHA 固定 bbox gzip shards，總約 5.9 MB；manifest SHA `1c97e6d93c03fdddead91963f5a6a688ebd2368ec2029688d0e23b19ddf94a88`。強制 bbox，查詢不載入 49 MB 原始 GeoJSONSeq；不帶 facility_address 或 industry_name。原 checkout `pollution_facilities.pmtiles` 與 analytics 20260706 output SHA 均為 `cec5cda2a0ccff4dcdab829f4719903ffe111728278792bbcd2089282778599b`，僅證本機 display 檔身份，remote release 未讀。
+- 台中 bbox `[120.67,24.13,120.69,24.15]` 全原表獨立 oracle 373 筆，正常 MCP `query_records` 373；篩 `max_sev=2` 為 3、`max_sev=3` 為 2，亦與 oracle 相同。首輪 HTTP 由 Vite 對 `.gz` 設 Content-Encoding，瀏覽器透明解壓造成壓縮 bytes SHA 檢查失敗；loader 已加固定解壓 SHA/size 雙路徑驗證，修後正常 MCP 通過，focused test 含該傳輸變體通過。`sev_*` 的 null 表示沒有該介質旗標，不是 0；列管潛勢不是確認污染。逐筆 geocode precision 未提供，讀取器 geometry 設為 proxy，只開 bbox/屬性與聚合，不提供精確最近距離。`pulse_present_result` 對 proxy 地圖結果回 error，故這一片的地圖 gate 未通過，不把查詢成功冒充空間呈現。未寫 Supabase/S3。
+- 此片增加 1 dataset、1 queryable mapping；台帳目前 778／100 datasets／99 queryable mappings／92 metadata candidates／587 unknown-unavailable。`pollution_source` 的四個 EMS_P_46 裁罰 layerRefs 仍須另做分片、座標權利及正常 runtime 驗收。

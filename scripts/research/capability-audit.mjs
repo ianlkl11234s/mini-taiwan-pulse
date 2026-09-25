@@ -135,9 +135,21 @@ VERIFIED_RAW_FAMILIES["moenv:pollution_sites:EMS_S_07:20260706"] = {
   coverageAndMissingness: "8,253 distinct site IDs and valid Points; 365 active at snapshot, 7,888 deannounced. Staged sitearea decimals restored for 1,568 rows truncated in frontend contract; no area nulls. Status is historical, not current.",
   geometry: "WGS84 Point reference coordinate, not site boundary or pollution extent; all staged records _geocode=wgs84.",
   sourceSha256: "9139e65862c7206fefcb298e94299e9ed5e28b9b6c072edf1fd83a9a628bd394",
+  localDisplayReceipt: "Original-mini and analytics 20260706 pollution_sites.pmtiles bytes match at SHA dca3c37cf0a05a85b3c08d96310caa22aca01472b31a55f0a2c22a8992d7f9ba; remote runtime unread. Frontend truncates 1,568 decimal sitearea values, while research query restores staged original numbers.",
+};
+VERIFIED_RAW_FAMILIES["moenv:pollution_facilities:EMS_S_01:20260706"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/environment/pollution_source/frontend/pollution_facilities_20260706.geojsonseq",
+  evidence: ["taipei-gis-analytics/docs/topic-research/water-drinking-source/data-staged/processed/pollution_potential_20260705.geojson", "taipei-gis-analytics/data/processed/environment/pollution_source/frontend/pollution_frontend_manifest_20260706.json", "taipei-gis-analytics/docs/data-catalog/environment/pollution_source.md"],
+  sourceVersion: "EMS_S_01 / frontend 20260706", publisher: "環境部環境資料開放平臺", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Frontend manifest generated 2026-07-07T04:51:39Z; source observation/acquisition timestamp not recorded.",
+  coverageAndMissingness: "152,246 unique emsno Point features; 143,743 staged predecessor IDs align, 8,503 frontend-only. sev_* null denotes absent medium flag, not severity zero. Facility registration does not prove pollution or current violation.",
+  geometry: "WGS84 reference Point. Per-record geocode precision is not supplied; bounded bbox lookup only, no exact-nearest claim.",
+  sourceSha256: "7aa3c25b9907bf2e557116af8a60fcce3c1e7ecac20ea6898b81e7309f4985f9",
+  localDisplayReceipt: "Original-mini pollution_facilities.pmtiles and analytics 20260706 output both SHA cec5cda2a0ccff4dcdab829f4719903ffe111728278792bbcd2089282778599b. Remote runtime release not read.",
 };
 const VERIFIED_RAW_FAMILY_BY_LAYER = {
   pollutionSite: "moenv:pollution_sites:EMS_S_07:20260706",
+  pollutionFacility: "moenv:pollution_facilities:EMS_S_01:20260706",
   gasStationCanonical: "energy:gas_stations_canonical:20260620",
   gasStationCpc: "energy:gas_stations_canonical:20260620",
   gasStationFpcc: "energy:gas_stations_canonical:20260620",
@@ -152,8 +164,12 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
 };
 const DISPLAY_RAW_ALIGNMENT_BY_LAYER = {
   pollutionSite: {
-    status: "DISPLAY_ARTIFACT_RECEIPT_MISSING",
-    evidence: "8,253 site IDs and Points match staged original and frontend GeoJSONSeq; the fixed research sidecar restores 1,568 truncated decimal sitearea values. Existing PMTiles display release has no inspected same-version receipt.",
+    status: "LOCAL_DISPLAY_RELEASE_MATCH_WITH_ATTRIBUTE_CONFLICT",
+    evidence: "Original-mini pollution_sites.pmtiles and analytics pollution_sites_20260706.pmtiles both SHA dca3c37cf0a05a85b3c08d96310caa22aca01472b31a55f0a2c22a8992d7f9ba. 8,253 site IDs and Points match staged original and frontend GeoJSONSeq; research sidecar restores 1,568 decimal sitearea values truncated in frontend/display contract. Remote runtime release was not read.",
+  },
+  pollutionFacility: {
+    status: "LOCAL_RAW_TO_DISPLAY_PROVEN",
+    evidence: "Original-mini pollution_facilities.pmtiles and analytics pollution_facilities_20260706.pmtiles both SHA cec5cda2a0ccff4dcdab829f4719903ffe111728278792bbcd2089282778599b. Fixed frontend GeoJSONSeq SHA 7aa3c25b…985f9; remote runtime release unread and per-record geocode precision unavailable.",
   },
   gasStationCanonical: {
     status: "POINT_IDENTITY_MATCH_ATTRIBUTE_CONFLICT",
@@ -274,11 +290,14 @@ const INSPECTED_UPSTREAM_DATASETS = {
   waste_facilities: { status: "EVIDENCE_GAP", reason: "2026-05-19 processed files contain 66 government Points plus 237 OSM comparison Points, while catalog says Supabase later held hundreds more; some coordinates came from Google geocoding. No complete same-version table receipt, public coordinate-use clearance, or nine-filter reconciliation was found." },
   gas_stations: { status: "EVIDENCE_GAP", reason: "legacy manifest datasetId conflates 573 curated points (20260615) with 3,053 canonical entities (20260620) and four road-distance coverage surfaces; exact layer-level lineage overrides this navigation ID" },
   livestock_farms: { status: "RIGHTS_HOLD", familyKey: "moa:livestock_farms:20260705-enriched-v3", reason: "local SHA-identified enriched fallback exists, but current route is owner-only RPC with unread release; EMS/Google coordinate rights and partial ARIS coverage prevent public research reader" },
+  feed_factories: { status: "RIGHTS_HOLD", reason: "258 processed Points from MOA 47859 (2026-07-04); all coordinates use Google address geocoding, with no inspected public coordinate-use clearance or preserved source CSV in this checkout. Attribute-only public fields may be considered after source receipt audit." },
+  livestock_markets: { status: "RIGHTS_HOLD", reason: "21 processed Points from APHIA slaughter list (2026-07-04); coordinates use Google address geocoding, with no inspected public coordinate-use clearance or original list receipt in this checkout." },
+  slaughterhouses: { status: "RIGHTS_HOLD", reason: "185 processed Points from APHIA plus county lists (2026-07-04); coordinates use Google address geocoding, with no inspected public coordinate-use clearance or original list receipts in this checkout. Current UI route is owner-only." },
   dgbas_county_transport_supply_10935: { status: "VERIFIED_RAW_LINEAGE", familyKey: "dgbas:county_transport_supply:2023-2024" },
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
   jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
   osm_power: { status: "EVIDENCE_GAP", reason: "catalog found but no inspected immutable raw/release receipt in this pass" },
-  pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. pollutionSite has its own verified 20260706 receipt; the facility and penalty sources require separate raw/release audits." },
+  pollution_source: { status: "MIXED_UPSTREAM_FAMILIES", reason: "This navigation ID combines EMS_S_07 contaminated sites, EMS_S_01 regulated facilities, and EMS_P_46 penalty events. Site and facility have separate verified 20260706 local readers; penalty events require spatial-shard and OSM-coordinate-rights review." },
   real_estate: { status: "EVIDENCE_GAP", reason: "multiple partial quarterly sources; no single release identity maps this generic dataset ID" },
   schools: { status: "RIGHTS_HOLD", familyKey: "moe:schools:113-academic-year", reason: "raw lineage is verified but catalog explicitly leaves EduGis license unconfirmed" },
   all_venues: { status: "VERIFIED_RAW_LINEAGE", familyKey: "sports:all_venues:20260704" },
@@ -584,7 +603,7 @@ function p0FamilyLedger() {
       ? {
         status: "RIGHTS_HOLD",
         primaryBlocker: "SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD",
-        nextStep: "Retain raw lineage but obtain the stated use/license clearance before reader or public-release work.",
+        nextStep: `Obtain source and coordinate-use clearance before public spatial reader work; inspect missing original/raw receipts. ${datasetInspections.filter(item => item.status === "RIGHTS_HOLD").map(item => item.reason ?? "").join(" ")}`,
       }
       : alignment?.status === "POINT_IDENTITY_MATCH_ATTRIBUTE_CONFLICT"
       ? {
