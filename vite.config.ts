@@ -971,6 +971,7 @@ function serveResearchPointPartitions(): Plugin {
         "ev-charging/ev-charging-owner-20260615.geojson": { folder: "ev-charging", size: 814_273 },
         "geothermal-wells/geothermal-wells-owner-20260615.geojson": { folder: "geothermal-wells", size: 10_888 },
         "ports/ports-owner-20260527.geojson": { folder: "ports", size: 65_191 },
+        "airports/airports-owner-20260519.geojson": { folder: "airports", size: 39_377 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
@@ -994,7 +995,7 @@ function serveResearchPointPartitions(): Plugin {
       });
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
-        const match = /^(accident-taipei|regulated-facilities|street-trees-diff|med-aed|pollution-penalties-v2)\/(manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.exec(path);
+        const match = /^(accident-taipei|regulated-facilities|street-trees-diff|med-aed|pollution-penalties-v2|nhi-medical)\/(manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.exec(path);
         if (!match) return next();
         if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "")) { response.statusCode = 404; response.end("Local source unavailable"); return; }
         const target = resolve(process.cwd(), "../runtime/owner-only", match[1]!, match[2]!);

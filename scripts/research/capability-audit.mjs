@@ -669,6 +669,24 @@ VERIFIED_RAW_FAMILIES["moa-tdx:ports:20260527"] = {
   geometry: "Representative port Point; separate from 277 Polygon display asset, bbox/attribute only.", sourceSha256: "80c46fd597679cbe717e2b24ac011b44b42a3514420ff4d6508fccab2c65479c",
   localDisplayReceipt: "Owner-only safe-field sidecar SHA 2c64fa271b2c48b741a268ce21f4e9a96f0a79ad7882e0a34d730cac079b864c; polygon display SHA b6163441f470f392ca94b0ee29f422fe0529eeb8c473e22c1934bf5d62a10518 is not the same source.",
 };
+VERIFIED_RAW_FAMILIES["nhi:medical_geocoded:20260602"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/poi/medical/nhi_institutions_geocoded.geojson",
+  evidence: ["mini:scripts/research/build-nhi-medical-owner-only.mjs"],
+  sourceVersion: "2026-06-02 fixed processed NHI snapshot", publisher: "中央健康保險署", license: "RIGHTS_HOLD: NHI raw license/download receipt and geocoder redistribution not verified; localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed date is not current contract or operation status.",
+  coverageAndMissingness: "31,603 Point: hospital 451, clinic and other 23,472, pharmacy 7,680; TGOS 29,621, Google 1,603, Google retry 379.",
+  geometry: "Address-geocoded proxy Point; bounded bbox/attribute only, no nearest or accessibility claim.", sourceSha256: "d94164d2de2cd78f3ab777e13d93288e1d9956493329951a09c5a710038ca50d",
+  localDisplayReceipt: "Owner-only 248-shard manifest SHA 35f59c0e4d6fc125a5b31e60ed5894c481494b4a54b853b294842b15283a8576; legacy hospital dataset/display version not equated.",
+};
+VERIFIED_RAW_FAMILIES["ourairports-tdx:airports:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/airport/airports_merged_latest.geojson",
+  evidence: ["mini:scripts/research/build-airports-owner-only.mjs"],
+  sourceVersion: "2026-05-19 fixed merged Point snapshot", publisher: "OurAirports and TDX", license: "RIGHTS_HOLD: raw download/merge receipt and 16-polygon display equivalence unverified; localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed merge does not establish current airport operations.",
+  coverageAndMissingness: "125 Point; elevation null 56, TDX airport ID null 108.",
+  geometry: "Airport reference proxy Point, distinct from 16 Polygon/MultiPolygon display asset; bbox/attribute only.", sourceSha256: "d82e9fff2cd6f7eb6417f22a2155cd9958815961731c1be073b4232f5629d6c2",
+  localDisplayReceipt: "Owner-only point sidecar SHA 44e9cec00cbf0ed86272409ac5a15bc24e63745936153bf47d69a9f9a18dd40f; display polygon SHA 3b68ec72035281856ece48f4e564a75c591e0275d3627fbbc7890485ab931524 is not equivalent.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -752,6 +770,10 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   streetTreesTaipeiDiff: "taipei:street_trees_diff:2024-20260712",
   medAED: "mohw:aed:20260524",
   ports: "moa-tdx:ports:20260527",
+  medHospital: "nhi:medical_geocoded:20260602",
+  medClinic: "nhi:medical_geocoded:20260602",
+  medPharmacy: "nhi:medical_geocoded:20260602",
+  airports: "ourairports-tdx:airports:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
