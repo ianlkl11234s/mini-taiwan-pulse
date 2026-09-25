@@ -97,6 +97,7 @@ import { airportsOwnerAdapter } from "./airportsOwnerDataset";
 import { cramSchoolsOwnerAdapter } from "./cramSchoolsOwnerDataset";
 import { companyCapitalGridOwnerAdapter } from "./companyCapitalGridOwnerDataset";
 import { companyCapitalGrid150mOwnerAdapter, companyCapitalGrid450mOwnerAdapter } from "./companyCapitalGridFineOwnerDatasets";
+import { companyAgeStructure450mOwnerAdapter, companyAgeStructure1500mOwnerAdapter, companyIndustryDistribution450mOwnerAdapter, companyIndustryDistribution1500mOwnerAdapter } from "./companyDemographicsOwnerDataset";
 import { waterDetentionBasinsAdapter } from "./waterDetentionBasinsDataset";
 import { waterFacilitiesOwnerAdapter } from "./waterFacilitiesOwnerDataset";
 import { waterMonitorStationsOwnerAdapter } from "./waterMonitorStationsOwnerDataset";
@@ -531,6 +532,10 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   companyCapitalGridOwnerAdapter,
   companyCapitalGrid150mOwnerAdapter,
   companyCapitalGrid450mOwnerAdapter,
+  companyAgeStructure450mOwnerAdapter,
+  companyAgeStructure1500mOwnerAdapter,
+  companyIndustryDistribution450mOwnerAdapter,
+  companyIndustryDistribution1500mOwnerAdapter,
   waterDetentionBasinsAdapter,
   waterFacilitiesOwnerAdapter,
   waterMonitorStationsOwnerAdapter,

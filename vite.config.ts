@@ -1020,6 +1020,24 @@ function serveResearchPointPartitions(): Plugin {
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
+      server.middlewares.use("/__local-research-owner-only/company-demographics", (request, response, next) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!/^(manifest-(450|1500)m\.json|[a-f0-9]{64}-[a-f0-9]+\.geojson\.gz)$/.test(name)) return next();
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "")) { response.statusCode = 404; response.end("Local source unavailable"); return; }
+        const target = resolve(process.cwd(), "../runtime/owner-only/company-demographics", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", name.endsWith(".json") ? "application/json; charset=utf-8" : "application/octet-stream");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
       server.middlewares.use("/__local-research-owner-only/company-capital-grid-fine", (request, response) => {
         const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
         if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !/^(?:manifest-(?:150|450)m\.json|[a-f0-9]{64}\.geojson\.gz)$/.test(name)) {
