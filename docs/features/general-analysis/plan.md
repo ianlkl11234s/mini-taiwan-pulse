@@ -34,6 +34,8 @@
 
 本次使用者另行要求從當時 596 unknown/unavailable 中挑十層走讀來源與運算路徑。結果見 [十層來源試跑](./ten-layer-spatial-trial-20260925.md)：`agriPOI` 固定 839 Point reader 已通過埔里 10 km、正常配對呈現及 browser readback，其餘九層各有明確來源／權限／幾何／時序阻礙與下一步。重跑台帳更新為 85 datasets、79 descriptor layer mappings、78 queryable、105 metadata candidates、595 unknown/unavailable（594 缺 reader，1 query disabled）。此片沒有把未接的九層當成可用分析，也未重跑前夜完整回歸。
 
+後續施工依 [全圖層空間分析覆蓋執行計畫](./all-layer-spatial-coverage-execution-plan-20260925.md) 的 P0–P7：先按原始來源歸併 595 層，再驗縣界 Polygon、林道 Line、公司點大量資料，將合格結果組成「點附近」多類別地圖，最後按來源家族批次擴充與分類 HOLD。此文件是本節的可執行子計畫，不更改前夜 N0–N6 的歷史驗收。
+
 下一步先按 [晨間待決與來源 gate](./overnight-coverage-20260925.md) 處理同版來源及授權。`stationsTRA/Metro` 需對齊混合資產的 212/291 子集和來源契約；`bikeStations` 缺本地宣告資產。另一個具體入口 `jpAirports` 已核對上游／展示同版 108 Polygon，官方 C28-21 資料基準日 2021-12-31、商用可；應先核對完整欄位、缺值、座標轉換與來源條款，再開 bounded Polygon reader。PMTiles 完整幾何、未登記 RPC 與物理值 raster 仍未完成，不從顯示 tile／彩色像元推算。恢復時先查此節與最新台帳及 git/runtime 狀態，不重做既有收據。
 
 執行方式：本夜先依N0→N1→N2推進，再挑N3–N5有現成契約的來源；缺上游artifact時記錄可執行補料工作，轉做可用家族。不得為達數量放寬授權/geometry gate、任意掃資料庫、下載全國巨型檔或增加付費provider。主agent負責整合與語意；Luna 做有界分類／簡單文件，Terra 限 owned 檔實作，最多3 worker、不遞迴。
