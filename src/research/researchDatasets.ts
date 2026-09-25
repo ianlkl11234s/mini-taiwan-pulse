@@ -94,6 +94,7 @@ import { portsOwnerAdapter } from "./portsOwnerDataset";
 import { nhiMedicalHospitalOwnerAdapter, nhiMedicalClinicOwnerAdapter, nhiMedicalPharmacyOwnerAdapter } from "./nhiMedicalOwnerDatasets";
 import { airportsOwnerAdapter } from "./airportsOwnerDataset";
 import { cramSchoolsOwnerAdapter } from "./cramSchoolsOwnerDataset";
+import { companyCapitalGridOwnerAdapter } from "./companyCapitalGridOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -509,6 +510,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   nhiMedicalPharmacyOwnerAdapter,
   airportsOwnerAdapter,
   cramSchoolsOwnerAdapter,
+  companyCapitalGridOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

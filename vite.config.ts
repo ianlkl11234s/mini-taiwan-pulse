@@ -972,6 +972,7 @@ function serveResearchPointPartitions(): Plugin {
         "geothermal-wells/geothermal-wells-owner-20260615.geojson": { folder: "geothermal-wells", size: 10_888 },
         "ports/ports-owner-20260527.geojson": { folder: "ports", size: 65_191 },
         "airports/airports-owner-20260519.geojson": { folder: "airports", size: 39_377 },
+        "company-capital-grid/company-capital-grid-1500m-owner-202608.geojson": { folder: "company-capital-grid", size: 2_242_079 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

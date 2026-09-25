@@ -89,8 +89,9 @@ const VERIFIED_RAW_FAMILIES = {
     acquiredAt: null,
     acquiredAtAvailability: "not recorded in the inspected QA receipts; 2026-08-18 is processed release date, not asserted raw acquisition time",
     coverageAndMissingness: "657,882 source rows; 1,152 dead_or_abnormal and 2,565 invalid-coordinate rows excluded; 654,165 published. capital_total missing 2,435; setup_year missing 16. Manufacturing exact-C: 186,054 source, 1,110 invalid-coordinate, 184,944 published.",
-    geometry: "company_points is EPSG:4326 Point; company_capital_grid is EPSG:4326 Polygon at 150m/450m/1500m; manufacturing is an exact-C filter view over company_points.",
+    geometry: "company_points is EPSG:4326 Point; company_capital_grid is EPSG:4326 Polygon at 150m/450m/1500m, but only 1500m has a bounded owner-only attribute reader; manufacturing is an exact-C filter view over company_points.",
     sourceSha256: "c3a191b234e718dc7b5ca4a9b5c599c279b1fefc9e2d1d606e5722c3eb4e900c",
+    localDisplayReceipt: "1500m source GeoJSON SHA ecf59329d4812d55bf3f8b1cc296ab94b3cfc994dcc9da5cea866f9af496d330; owner-only safe sidecar SHA 70b06d90b13bf46d35fa13864b1f5fa7ecc9e829cce5c6757929b35b0369320c. 150m/450m bounded Polygon reader and remote release remain HOLD.",
   },
   "nlsc:county_boundary:COUNTY_MOI_1140318": {
     sourceArtifact: "taipei-gis-analytics/data/raw/demographics/county_boundary/COUNTY_MOI_1140318.zip",
