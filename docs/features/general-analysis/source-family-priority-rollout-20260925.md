@@ -357,3 +357,9 @@
 - `elevation_m` 959 筆全 null，`is_active` 959 筆全 false 且與來源文件「僅廢止才 false」敘述矛盾；兩者原樣可讀、不能篩選或解釋為全部已廢。`reported_county` 因固定縣界檢核曾發現錯置，只作來源欄，不可用於縣市比較。地址與鄉鎮欄排除。只提供 bbox／ID 屬性查詢；Point 是參考站位 proxy，精確最近、入口、目前站況和水位觀測均未驗。
 - 正常 Codex→MCP→Gateway→既有 3734 browser 配對：嘉義 `[120.30,23.35,120.55,23.60]` 命中 32，宜蘭 `[121.55,24.55,121.85,24.85]` 命中 39，與完整 959 原表 oracle 一致；另兩個不同 bbox 得 26／53，顯示範圍改變會重新計數。focused test、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。`groundwater` 動態水位層仍 HOLD，不能用靜態井位代替即時水位；研究地圖 ready/readback 未通過。
 - Audit：778 層／198 datasets／194 queryable mappings／27 metadata 候選／584 待映射；臺灣 GIS 主 Layers 381 中已註冊 140、待接 241。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+### 第四十九批：農產品零售公司固定定位快照
+
+- `agriRetail` 的 source 是經濟部商業發展署 data.gov.tw:45618 2026-05 原始 CSV 58,613 列／SHA `74ff3edad2badf5af0916c5cd552ee7c4a49c20cb5562e5c1b1fb4a597623f85`；核准設立 37,789，其中 TGOS 未定位 359。2026-05-25 processed GeoJSON 37,430 Point／SHA `9e1e02a0678b66b30a69496325c4afb74624c28dced16aa1990d4b79c1b5ec37`。276 個 SHA-bound gzip 分片 manifest SHA `b5c9d4cc5f480bd616f3c9788c5a9c89b90b8f444b3fcc4927e833c9dfe45a60`；統編、公司名、負責人、地址、資本與原始座標未進安全欄位 sidecar。
+- 全原表 oracle 與正常 Codex→MCP→Gateway→既有 3734 配對 browser 查詢：臺北 `[121.50,25.02,121.58,25.10]` 加 `company_status=核准設立` 命中 6,082；臺中 `[120.62,24.12,120.75,24.22]` 命中 3,987，兩者回 50 並明示截斷。focused tests 12/12、`npx tsc -b`、`npm run build` 通過；localhost manifest HTTP 200／104,180 bytes、外來 Host 404。全臺大 bbox 以 `DATASET_TOO_LARGE` 拒絕。
+- TGOS 衍生座標的公開再散布收據未逐筆核對，僅 localhost owner-only；Point 是地址地理編碼的 proxy，不保證商店入口、今日仍營業、精確最近、服務範圍、供貨或研究地圖 ready/readback。Audit：778 層／209 datasets／202 個查詢映射／576 待映射；臺灣 GIS 主 Layers 381 中已註冊 148、待接 233。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
