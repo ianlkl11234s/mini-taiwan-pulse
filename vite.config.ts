@@ -343,6 +343,7 @@ function serveResearchPointPartitions(): Plugin {
     configureServer(server) {
       const root = resolve(process.cwd(), "../runtime/point-partitions/schools");
       const penaltyRoot = resolve(process.cwd(), "../runtime/point-partitions/pollution-penalties");
+      const companyRoot = resolve(process.cwd(), "../runtime/point-partitions/company-points");
       server.middlewares.use("/__local-research-boundaries", (request, response) => {
         const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT;
         if (!isLoopbackRequest(request) || !analyticsRoot || !["GET", "HEAD"].includes(request.method ?? "") || (request.url ?? "").split("?", 1)[0] !== "/county.geojson") {
@@ -399,6 +400,63 @@ function serveResearchPointPartitions(): Plugin {
           stream.on("error", () => response.destroy());
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local partition not built"); });
+      });
+      server.middlewares.use("/__local-research-point-partitions/company-points", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !/^(?:manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.test(name)) {
+          response.statusCode = 404; response.end("Partition unavailable"); return;
+        }
+        const target = resolve(companyRoot, name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("PARTITION_SIZE_LIMIT");
+          response.setHeader("content-type", name.endsWith(".gz") ? "application/octet-stream" : "application/json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local partition not built"); });
+      });
+      server.middlewares.use("/__local-research-owner-only/cultural-museums", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "cultural-museums-owner-20260716.geojson") {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/cultural-museums", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== 82_332) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+      server.middlewares.use("/__local-research-owner-only/performing-venues", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "performing-venues-source-20260716.geojson") {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/performing-venues", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== 246_916) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
     },
   };

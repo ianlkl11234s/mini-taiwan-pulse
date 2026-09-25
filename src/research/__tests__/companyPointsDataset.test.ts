@@ -8,7 +8,8 @@ import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
 
-const root = "public/research/company-points/";
+const root = "../runtime/point-partitions/company-points/";
+const prefix = "/__local-research-point-partitions/company-points/";
 const sourcePath = "/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/taipei-gis-analytics/data/intermediate/business_registry/company_points/company_points.geojsonseq";
 
 function haversineMeters([lng1, lat1]: readonly [number, number], [lng2, lat2]: readonly [number, number]): number {
@@ -30,7 +31,7 @@ async function rawOracle(center: readonly [number, number], radiusMeters: number
 beforeEach(() => {
   clearPointDatasetCache(); clearPointPartitionCache();
   vi.stubGlobal("fetch", vi.fn(async (url: string) => {
-    const bytes = new Uint8Array(await readFile(`${root}${url.slice("/research/company-points/".length)}`));
+    const bytes = new Uint8Array(await readFile(`${root}${url.slice(prefix.length)}`));
     return new Response(bytes, { headers: { "content-type": "application/geo+json" } });
   }));
 });
@@ -79,4 +80,16 @@ it.skipIf(!existsSync(sourcePath))("matches the full-source 2 km and manufacturi
     expect(warm.envelope.cost).toMatchObject({ downloadedBytes: 0, requests: 0, cacheHit: true });
     expect(cold.envelope.displayTruncated).toBe(true);
   }
+}, 15_000);
+
+it("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
+  // Independent one-pass count from the fixed full GeoJSONSeq: 5,299 points.
+  const result = await new QueryExecutor([companyPointsAdapter]).execute({
+    datasetId: companyPointsDescriptor.datasetId,
+    bbox: [120.29, 22.61, 120.31, 22.63],
+    select: ["is_manufacturing", "geometry"], limit: 100,
+  });
+  expect(result.totalMatched).toBe(5_299);
+  expect(result.cost.rowsScanned).toBeLessThanOrEqual(20_000);
+  expect(result.cost.bytesScanned).toBeLessThan(8 * 1024 * 1024);
 });

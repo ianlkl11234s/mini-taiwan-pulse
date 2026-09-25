@@ -17,6 +17,8 @@ EXPECTED_SOURCE_SHA256 = "d099446600d98c26330b9193102d00fead822eb9ae6e3be1cf3eae
 EXPECTED_PUBLISHED_POINTS = 654_165
 SOURCE_REFERENCE = "/research/company-points/source-identity/sha256-d099446600d98c26330b9193102d00fead822eb9ae6e3be1cf3eae24c605272b"
 CELL_DEGREES = 0.1
+MIN_CELL_DEGREES = 0.0125
+TARGET_UNCOMPRESSED_SHARD_BYTES = 1_500_000
 MAX_FEATURES_PER_SHARD = 8_000
 MAX_SHARD_BYTES = 6 * 1024 * 1024
 PUBLIC_FIELDS = (
@@ -33,13 +35,13 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
-def cell_for(lng: float, lat: float) -> tuple[int, int]:
-    return math.floor(lng / CELL_DEGREES), math.floor(lat / CELL_DEGREES)
+def cell_for(lng: float, lat: float, degrees: float = CELL_DEGREES) -> tuple[int, int]:
+    return math.floor(lng / degrees), math.floor(lat / degrees)
 
 
-def cell_bbox(cell: tuple[int, int]) -> list[float]:
-    west, south = cell[0] * CELL_DEGREES, cell[1] * CELL_DEGREES
-    return [west, south, west + CELL_DEGREES, south + CELL_DEGREES]
+def cell_bbox(cell: tuple[int, int], degrees: float = CELL_DEGREES) -> list[float]:
+    west, south = cell[0] * degrees, cell[1] * degrees
+    return [west, south, west + degrees, south + degrees]
 
 
 def scalar(value: Any) -> bool:
@@ -77,6 +79,20 @@ def write_shard(output_dir: Path, features: list[dict[str, Any]], bbox: list[flo
     name = f"{digest}.geojson.gz"
     (output_dir / name).write_bytes(compressed)
     return {"path": name, "sha256": digest, "bytes": len(compressed), "encoding": "gzip", "uncompressedSha256": sha256_bytes(payload), "uncompressedBytes": len(payload), "featureCount": len(features), "bbox": bbox}
+
+
+def write_adaptive_shards(output_dir: Path, features: list[dict[str, Any]], bbox: list[float], degrees: float) -> list[dict[str, Any]]:
+    payload_bytes = len(canonical_bytes({"type": "FeatureCollection", "features": features}))
+    if len(features) <= MAX_FEATURES_PER_SHARD and payload_bytes <= TARGET_UNCOMPRESSED_SHARD_BYTES:
+        return [write_shard(output_dir, features, bbox)]
+    if degrees <= MIN_CELL_DEGREES:
+        return [write_shard(output_dir, features[index:index + MAX_FEATURES_PER_SHARD], bbox) for index in range(0, len(features), MAX_FEATURES_PER_SHARD)]
+    child_degrees = degrees / 2
+    children: dict[tuple[int, int], list[dict[str, Any]]] = {}
+    for feature in features:
+        lng, lat = feature["geometry"]["coordinates"]
+        children.setdefault(cell_for(lng, lat, child_degrees), []).append(feature)
+    return [shard for cell in sorted(children) for shard in write_adaptive_shards(output_dir, children[cell], cell_bbox(cell, child_degrees), child_degrees)]
 
 
 def build(source: Path, output_dir: Path, expected_sha256: str = EXPECTED_SOURCE_SHA256) -> dict[str, Any]:
@@ -119,15 +135,10 @@ def build(source: Path, output_dir: Path, expected_sha256: str = EXPECTED_SOURCE
         for bucket in sorted(buckets.iterdir(), key=lambda path: tuple(map(int, path.stem.split("_")))):
             x, y = map(int, bucket.stem.split("_"))
             with bucket.open("rb") as stream:
-                chunk: list[dict[str, Any]] = []
-                for raw_line in stream:
-                    chunk.append(json.loads(raw_line))
-                    if len(chunk) == MAX_FEATURES_PER_SHARD:
-                        shards.append(write_shard(built, chunk, cell_bbox((x, y))))
-                        chunk = []
-                if chunk:
-                    shards.append(write_shard(built, chunk, cell_bbox((x, y))))
-        if not shards or len(shards) > 1024 or sum(shard["featureCount"] for shard in shards) != count:
+                features = [json.loads(raw_line) for raw_line in stream]
+                if features:
+                    shards.extend(write_adaptive_shards(built, features, cell_bbox((x, y)), CELL_DEGREES))
+        if not shards or len(shards) > 4096 or sum(shard["featureCount"] for shard in shards) != count:
             raise ValueError("PARTITION_MANIFEST_LIMIT_MISMATCH")
         manifest = {
             "schemaVersion": "pulse-point-partitions/2",
