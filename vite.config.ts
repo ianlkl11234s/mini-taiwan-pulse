@@ -307,6 +307,7 @@ function serveResearchAnalysisSidecars(): Plugin {
         ["/research/gov_service_offices_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/gov_service_offices_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/research/welfare_centers_upstream_20260812.geojson", { target: resolve(process.cwd(), "public/research/welfare_centers_upstream_20260812.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/research/forest-roads/forest-roads-2d.geojson", { target: resolve(process.cwd(), "public/research/forest-roads/forest-roads-2d.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/environment/public_toilets_national.geojson", { target: resolve(process.cwd(), "public/environment/public_toilets_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
       ]);
       server.middlewares.use((request, response, next) => {
         const asset = assets.get((request.url ?? "").split("?", 1)[0]);

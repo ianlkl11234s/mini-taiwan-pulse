@@ -29,6 +29,7 @@ import { welfareCentersUpstreamCoordinatesAdapter } from "./welfareCentersDatase
 import { govServiceOfficesTgosAdapter } from "./govServiceOfficesDataset";
 import { retailMarketsTgosAdapter } from "./retailMarketsDataset";
 import { agriPoiSourceCoordinatesAdapter } from "./agriPoiDataset";
+import { publicToiletsSourceCoordinatesAdapter } from "./publicToiletsDataset";
 import { forestRoadsAdapter } from "./forestRoadsDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
@@ -335,6 +336,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   govServiceOfficesTgosAdapter,
   retailMarketsTgosAdapter,
   agriPoiSourceCoordinatesAdapter,
+  publicToiletsSourceCoordinatesAdapter,
   forestRoadsAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
