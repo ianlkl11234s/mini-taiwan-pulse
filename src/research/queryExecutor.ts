@@ -1,5 +1,6 @@
 import { assertDatasetDescriptor, type DatasetDescriptor, type ResultEnvelope, type Scalar, type SourceReceipt } from "./dataContracts";
 import { geometriesIntersect, parseSpatialGeometry, type PolygonGeometry } from "./spatialKernel";
+import { lineIntersectsBbox, parseLineGeometry } from "./lineGeometry";
 
 export type QueryFilter =
   | { field: string; op: "eq"; value: Scalar }
@@ -109,6 +110,10 @@ function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, numbe
     if (geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
     const [lng, lat] = geometry.coordinates;
     return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+  }
+  if (geometryType === "LineString" || geometryType === "MultiLineString") {
+    if (geometry.type !== geometryType) throw new Error("INVALID_ADAPTER_GEOMETRY");
+    return lineIntersectsBbox(parseLineGeometry(geometry), bbox);
   }
   if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") return false;
   const surface = parseSpatialGeometry(geometry);

@@ -825,6 +825,15 @@ VERIFIED_RAW_FAMILIES["taipei:tree_pits:20260714"] = {
   geometry: "Full WGS84 MultiPolygon, including multipart and holes; actual surface intersection, not centroid or single-tree locations.", sourceSha256: "72197a37c4446a456effa722eb1e6a96e4c200e1c71343322857f7455c13000e",
   localDisplayReceipt: "Official raw SHA 9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03; owner-only manifest SHA 84abb47a9ee0a05b1a5d76aa6540e50044502e9ab8c2666d0545b1396fa6351c. Browser map readback pending.",
 };
+VERIFIED_RAW_FAMILIES["tdx:cycling_shapes:20260301"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/transportation/cycling_shapes/cycling_shapes_raw_20260301.json",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/bike/cycling_shapes_all.geojson", "mini:public/geo/cycling_routes.geojson", "mini:src/research/cyclingRoutesDataset.ts"],
+  sourceVersion: "TDX Cycling Shape fixed local raw 2026-03-01", publisher: "交通部 TDX and city contributors", license: "TDX catalog OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Raw file date is local snapshot naming, not every route's observation or completion date.",
+  coverageAndMissingness: "1,749 MultiLineString in 20 cities; Town blank 536 and literal NULL 1; CyclingType literal NULL in all 1,749; AuthorityName literal NULL in 1,748; FinishedTime processing has known ROC conversion errors and is withheld.",
+  geometry: "Complete WGS84 MultiLineString with 97,275 numeric 2D vertices; bbox intersects actual line, not centroid or road-network accessibility.", sourceSha256: "d190b049ef2c9f46134c230d043b090edb84e64bf56cc393d2fa282edf896d19",
+  localDisplayReceipt: "Mini cycling_routes.geojson is byte-identical to analytics cycling_shapes_all.geojson: 4,384,551 bytes, SHA 690190820456105ac3aa92133c4fc7e222703e365a36c726fec20c5b2060bcba. Browser result ready/readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -887,6 +896,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   protectedTreesNational: "cities:protected_trees:20260714",
   riversideTreesTaipei: "taipei:riverside_trees:20260714",
   treePitsTaipei: "taipei:tree_pits:20260714",
+  cyclingRoutes: "tdx:cycling_shapes:20260301",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
