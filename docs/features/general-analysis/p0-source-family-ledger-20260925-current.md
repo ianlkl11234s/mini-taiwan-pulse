@@ -1,16 +1,16 @@
-# 583 個尚無可用查詢映射的圖層：逐層處置（2026-09-25）
+# 582 個尚無可用查詢映射的圖層：逐層處置（2026-09-25）
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，674 層維持候選處置、104 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，670 層維持候選處置、108 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，104 個有查詢映射、91 個是待讀回的 GeoJSON metadata candidates、583 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，108 個有查詢映射、88 個是待讀回的 GeoJSON metadata candidates、582 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 
 | 狀態 | 層數 |
 |---|---:|
-| READER_PENDING | 342 |
+| READER_PENDING | 341 |
 | SOURCE_MISSING | 201 |
 | RIGHTS_HOLD | 32 |
 | VERSION_MISMATCH | 8 |
@@ -28,9 +28,9 @@
 | OWNER_ONLY_RPC_AND_MIXED_COORDINATE_USE_HOLD | 7 |
 | DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED | 6 |
 | DERIVED_ROAD_DISTANCE_RELEASE_UNVERIFIED | 4 |
-| READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING | 2 |
 | DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_MISSING | 2 |
 | QUERY_ACCESS_DISABLED | 1 |
+| READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING | 1 |
 
 `comparisonStatisticsRecipes.json` 明列 188 個比較統計圖層、indicator 與 releaseId；共同的是派生 runtime 契約，並非一份原始資料。逐 release 的分子／分母來源尚未全量稽核，也未註冊有界 research reader，逐層維持 `READER_PENDING`。同一 `upstream.datasetId` 的圖層另列 declared contract family；這只證明 manifest 宣告相同，不證明同一 raw SHA、RPC schema 或 release。
 
