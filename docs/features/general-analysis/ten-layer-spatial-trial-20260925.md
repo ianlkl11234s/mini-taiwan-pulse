@@ -2,6 +2,8 @@
 
 2026-09-25，隔離 `research-streamline/mini`。抽樣依 2026-09-25 原台帳的 `readable=unknown_or_unavailable`，不是從另列的 105 個 metadata candidate 挑選。原台帳 778 層、596 unknown/unavailable；這個計數表示研究工具缺 reader 或權限，**不表示原表不存在**。十層涵蓋 Point、Line、Polygon、PMTiles、即時 RPC、色階影像與 owner-only；此為有意分層抽樣，不是對剩餘 586 層的統計推估。
 
+[596 層完整名單 CSV](./unknown-layer-queue-20260925.csv) 列出 `layer_key`、顯示名稱、manifest 來源類型／宣告資產、原 blocker 與本片後狀態；原來 595 層缺 descriptor／reader、1 層禁止查詢。來源類型欄是非互斥：custom 444、PMTiles 97、Supabase 51、GeoJSON 5，共 597 次分類，因一層混合來源。CSV 是原始 596 層的隊列快照，其中 `agriPOI` 現已可查；最新總數仍以 [可重跑台帳](./analysis-coverage-20260925.md) 的 595 為準。
+
 判定分成四關：①原表／同版 artifact 與授權、時間；②geometry role／缺值；③有界 query reader；④正常 Codex→MCP→Gateway→browser 呈現。下表的「試跑」只寫實際做過的關卡，不能把本地原檔讀取當成產品已可查。
 
 | Layer（原屬 596） | 實際來源與試跑 | 現階段障礙／下一個可執行動作 |
