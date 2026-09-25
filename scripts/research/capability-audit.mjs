@@ -787,6 +787,15 @@ VERIFIED_RAW_FAMILIES["moi:religion_temples:20260801-trust-chain"] = {
   geometry: "Mixed original/OSM/geocoded reference Point, proxy; no nearest, entrance, current registration or national-completeness claim.", sourceSha256: "ee6c5549b35bc76dbf4ac22ee0ce5dd6a4684b5269af416cf43cfc6736f2207e",
   localDisplayReceipt: "Owner-only partition manifest SHA c6eece8825ee30e241762dea9db2a662860e97f5e6201e98ed1791bf210451ac. PMTiles source equivalence and research map readback unverified.",
 };
+VERIFIED_RAW_FAMILIES["taipei-taichung:street_trees:20260714"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/street_trees_national/street_trees_national_20260714.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/urban_open_space/street_trees_national/_manifest.json", "mini:scripts/research/build-street-trees-national-owner-only.mjs", "mini:src/research/streetTreesNationalOwnerDataset.ts"],
+  sourceVersion: "2026-07-14 mixed Taipei/Taichung merged snapshot", publisher: "Taipei and Taichung open data", license: "Upstream catalogs OGDL-Taiwan-1.0; localhost owner-only fixed sidecar",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Taipei 2026-07-12 source snapshot; Taichung 2016-2019 survey and 2020 map. Not a simultaneous nationwide release.",
+  coverageAndMissingness: "210,436 Point: Taipei 92,033, Taichung 118,403 only. Taichung 61,321 park/plaza records; empty location_type 13,121, empty survey_date 1; absence elsewhere is no coverage, not zero trees.",
+  geometry: "Merged municipal tree-register reference Point, proxy; bbox/attribute only, no nearest, service area or national comparison.", sourceSha256: "a9b2e18ec60e2444bc263bb0bf1c9ee804b66a7a62064a38affb6a7890f6de99",
+  localDisplayReceipt: "Owner-only partition manifest SHA b1fc01a0908d8b18169b5cd774da4d1f3824d7f7c81671f09615108f3c1b99e3; PMTiles and research map readback unverified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -892,6 +901,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   agriRetail: "moea:agri_retail_companies:20260525",
   agriProduceWholesale: "moea:produce_wholesale_companies:20260525",
   religionTemples: "moi:religion_temples:20260801-trust-chain",
+  streetTreesNational: "taipei-taichung:street_trees:20260714",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
