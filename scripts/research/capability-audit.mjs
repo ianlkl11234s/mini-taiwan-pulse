@@ -480,6 +480,24 @@ VERIFIED_RAW_FAMILIES["city:parks:20260705"] = {
   geometry: "Park/facility reference Point, not park polygon or entrance; Taipei source records can represent duplicate real parks.", sourceSha256: "2f015b8f1f5cccc33db3abb1dae6d8bc9918c937288dbfb0a5c2aa43e9acf38a",
   localDisplayReceipt: "Mini static and analytics processed byte-identical SHA; remote release not read.",
 };
+VERIFIED_RAW_FAMILIES["boch:heritage:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/tourism/heritage/heritage_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/tourism/heritage/_manifest.json", "taipei-gis-analytics/docs/data-catalog/tourism/heritage.md", "mini:public/tourism/heritage_national.geojson"],
+  sourceVersion: "2026-05-24 fixed three-endpoint BOCH assembly", publisher: "文化部文化資產局", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Yearly snapshot does not establish current registration, opening or preservation state.",
+  coverageAndMissingness: "2,894 Point: monuments 1,056, historical buildings 1,759, cultural landscapes 79. Historical building grade is 1,759 empty strings in source, not numeric zero.",
+  geometry: "Source representative Point, not protected building, parcel or landscape extent.", sourceSha256: "6946a719b30a606250228d97890eed323f58a0cba10238e8290c0099a5b163e4",
+  localDisplayReceipt: "Mini SHA 7bc0ccae1aea7367ceab79cc95d778a9884cfb5069a0ec902e97bf9edaa2f7b7 differs by removing duplicated longitude/latitude properties; ordered feature geometry and remaining properties canonically match processed source. Original API JSON unavailable locally; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["mota:activity:20260722"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/tourism/activity/activity_20260722.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/tourism/activity/Event-json_v2.1.zip", "taipei-gis-analytics/data/processed/tourism/activity/_manifest.json", "taipei-gis-analytics/docs/data-catalog/tourism/activity.md", "mini:public/tourism/activities_national.geojson"],
+  sourceVersion: "2026-07-22 fixed Tourism Administration Event V2.1 snapshot", publisher: "交通部觀光署", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: "2026-07-22", acquiredAtAvailability: "Raw UpdateTime and processing date do not establish current event schedule or cancellation.",
+  coverageAndMissingness: "830 raw Events -> 828 Taiwan-scope Point, 2 out-of-bounds excluded; 827 EventScheduled, 1 EventCancelled. start/end present; organizer empty string 685 is missing.",
+  geometry: "Source event PositionLon/Lat Point, not venue extent or entrance.", sourceSha256: "a30dab62f49891cc31caa9d1eeb01653f677c1e4b06cbcb88f8ecf5f0d028ac4",
+  localDisplayReceipt: "Raw ZIP SHA 99791d95f089757dec509aa2a029cededc0625480567e55bb6a206aa82ec2bf6; Mini SHA 0e51aea0298b1eb60c60990f2ff326efa30e0367925e2405271ba94e7de1ea3c differs from processed only by removal of duplicated lat/lon properties. Remote release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -537,6 +555,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   canopyGiants: "meta_wri:canopy_height:20260724",
   serviceArea: "highway_bureau:service_area:20260524",
   parksTaipei: "city:parks:20260705",
+  tourHeritage: "boch:heritage:20260524",
+  tourEvents: "mota:activity:20260722",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",

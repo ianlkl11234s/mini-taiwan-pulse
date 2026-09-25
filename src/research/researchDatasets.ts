@@ -73,6 +73,8 @@ import { commonRegistrationAddressesAdapter } from "./commonRegistrationAddresse
 import { canopyGiantsAdapter } from "./canopyGiantsDataset";
 import { serviceAreaFixedPointAdapter } from "./serviceAreaFixedDataset";
 import { parksFixedPointAdapter } from "./parksFixedDataset";
+import { tourHeritageFixedAdapter } from "./tourHeritageFixedDataset";
+import { tourEventsFixedPointAdapter } from "./tourEventsFixedDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -457,6 +459,8 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   canopyGiantsAdapter,
   serviceAreaFixedPointAdapter,
   parksFixedPointAdapter,
+  tourHeritageFixedAdapter,
+  tourEventsFixedPointAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
