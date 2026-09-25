@@ -215,6 +215,7 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
     && value.geometry.crs === "EPSG:4326"
     && ["actual", "generalized", "proxy"].includes(value.geometry.role);
   const bboxQueryableLine = ["LineString", "MultiLineString"].includes(value.geometry.type)
-    && value.geometry.crs === "EPSG:4326" && value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible;
+    && value.geometry.crs === "EPSG:4326" && (value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
+      || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible);
   if (access.query.supportsBbox && !(bboxQueryablePoint || bboxQueryableSurface || bboxQueryableLine)) throw new Error("INVALID_DATASET_DESCRIPTOR");
 }

@@ -906,6 +906,16 @@ VERIFIED_RAW_FAMILIES["moa:aquaculture_cage_net:local-fixed"] = {
   geometry: "Full EPSG:4326 source Polygon surfaces, true bbox intersection; not cage activity, access, ownership or navigational safety.", sourceSha256: "6363a8a585bc7ed12a344b687e6918c8b354d963ba932b87b808d84163f1838b",
   localDisplayReceipt: "Processed and Mini display GeoJSON byte-identical 20,001 bytes SHA 56966411c994bf60de060e4d828d5e21226f4080d72047a939703320f21e108e; browser readback pending.",
 };
+VERIFIED_RAW_FAMILIES["newtaipei:speed_zone_segments:20260626"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/police_justice/speed_zone_segments/newtaipei_zone_126156.csv",
+  evidence: ["taipei-gis-analytics/data/processed/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson", "taipei-gis-analytics/data/processed/police_justice/speed_zone_segments/_manifest.json", "mini:public/police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson", "mini:src/research/speedZoneSegmentsDataset.ts"],
+  sourceVersion: "2026-06-26 fixed local fetch and processing snapshot", publisher: "新北市政府警察局 data.gov.tw:126156", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "fetched_at is local fetch time, not enforcement or speed-limit effective date; current operation unverified.",
+  coverageAndMissingness: "25 New Taipei rows, all retained source fields non-null; Kaohsiung four point-device sources are separate and excluded. Empty result only means no matching reference line in this fixed snapshot.",
+  geometry: "Each LineString joins source start/end WGS84 coordinates by a straight segment. This is proxy geometry, not road alignment; bbox is a record selector, exact line intersection/distance is ineligible.",
+  sourceSha256: "4e3741f27b79982e775c95dbbd1eaff59040ec48bc6db6b53a7882d28602c511",
+  localDisplayReceipt: "Processed and Mini static asset byte-identical 10,957 bytes SHA 287b76c66affa9857721dfdff6d89f34f540a0955ea773c232c0497d9cd27af4.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -978,6 +988,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   tourScenicAreas: "mota:national_scenic_areas:20260524",
   tourHotSpringZones: "taipei:hot_spring_outcrops:FY114",
   aquacultureCageNet: "moa:aquaculture_cage_net:local-fixed",
+  speedZoneSegment: "newtaipei:speed_zone_segments:20260626",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
