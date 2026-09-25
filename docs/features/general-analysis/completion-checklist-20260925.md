@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 191 個已有查詢映射的層 + 28 個 metadata 候選 + 559 個尚無可用映射的層；共 195 datasets。191 不等於 191 層全部驗收完成。目前 587 個待處理層分為待 reader／稽核 355、來源證據不足 191、權限或座標使用疑慮 33、版本待對齊 8；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 192 個已有查詢映射的層 + 28 個 metadata 候選 + 558 個尚無可用映射的層；共 196 datasets。192 不等於 192 層全部驗收完成。目前 586 個待處理層分為待 reader／稽核 354、來源證據不足 191、權限或座標使用疑慮 33、版本待對齊 8；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -25,8 +25,8 @@
 ## A．把盤點變成可施工的完整佇列
 
 - [x] A00：778 個 layer key 全部納入同一台帳，保留 local asset／remote version／query／displayed 分離證據。收據：`81a8f838` 及 current ledger；僅代表列冊完成。
-- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 137／待處理 244）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／191／587。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
-- [x] A02：587 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
+- [x] A01：以 manifest key 一層一次歸入施工主組：臺灣主 Layers 381（已註冊 138／待處理 243）、統計 312（53／259）、世界 tab 25（1／24）、日本 60（0／60），合計 778／192／586。日本隱藏研究層仍依 `jp*` 歸日本；10 個沒有 UI section 的 orphan 暫歸臺灣主 Layers。這是 UI 主施工組，不等於每層實際資料只涵蓋該地區；例如主 Layers 的太空資料可跨國，「情勢 Situation」的三層仍位於主 Layers。統計跨入口重複顯示仍只計同一 manifest key。收據：[分類與數字](./completion-queue-20260925-summary.json)、可重跑 generator `scripts/research/build-completion-queue.mjs`。
+- [x] A02：586 個待處理 key 已有[逐層佇列](./completion-queue-20260925.csv)，含主組、當前狀態、施工步驟、來源簇及其證據等級、已核版次／原檔、阻擋、下一步與收據欄；未核來源明寫 `NOT_VERIFIED`／`NONE_YET`。同名上游僅是導航簇，不算已證實共用原表；加油站覆蓋衍生面分開列。順序先臺灣、統計、全球、日本；各組內按已知來源簇排列，具體 GO/HOLD 仍由 A03 查證。
 - [ ] A03：逐家族核對真正共用的 raw/RPC/release 契約；從宣告 upstream ID 的高覆蓋家族優先，補原檔／SHA、授權、時間、筆數、缺值及 geometry。全部待處理層均有已核 family 或具體待解證據，才勾選。
 - [ ] A04：對現有 188 個可查映射連回驗收收據，分清「只註冊」「屬性通過」「空間通過」；只補缺項。產出四組實際通過數，避免把 registry 數當完成率。
 
@@ -95,6 +95,8 @@
 第三十三批 [x] NHI 31,603 個地理編碼 Point 共用一份分片原表，接 `medHospital` 451、`medClinic` 診所及其他 23,472、`medPharmacy` 7,680 三個 owner-only bbox／屬性 reader。臺北固定 bbox 正常 MCP 分別命中 28／2,895／692，`clinic` 變體 2,780；全來源 oracle 與 focused test 通過。原 NHI 授權／Google 地理編碼公開再散布及目前營運狀態 [ ] HOLD；proxy 不做最近距離或研究地圖呈現。舊醫院 public reader 保持獨立，未混為同版。
 
 第三十四批 [x] `airports` 接 125 個 OurAirports／TDX 合併參考 Point 的 owner-only bbox／屬性 reader；高雄國際機場、臺北松山機場各以不同 bbox 加 `large_airport` 查得 1，與全原表 oracle 相同。舊地圖資產是 16 個機場面，不等同 125 點；原始下載／TDX 合併時間／同版與公開權利 [ ] HOLD。兩批整合 focused 14/14、`tsc -b`、build、localhost 路由 200／外來 Host 404；詳見[第三十三至三十四批](./source-family-priority-rollout-20260925.md)。目前 195 datasets、191 個查詢映射、587 個待映射層；能查不代表地圖 ready。
+
+第三十五批 [x] `eduCramSchool` 接 17,137 個已定位補習班參考 Point 的 owner-only bbox／類別 reader；原名冊 17,772 筆、635 未定位，精度四類原樣保留。臺北文理類 1,349、高雄 1,140 與完整原表 oracle、正常 MCP 相符；整合 focused 12/12、`tsc -b`、build、localhost 路由／Host guard 通過。座標公開再散布、精確附近、當前立案與研究地圖呈現 [ ] HOLD。詳見[第三十五批](./source-family-priority-rollout-20260925.md)。目前 586 個待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
