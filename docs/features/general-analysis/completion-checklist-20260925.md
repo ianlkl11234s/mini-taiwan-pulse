@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 200 個已有查詢映射的層 + 23 個 metadata 候選 + 555 個尚無可用映射的層；共 206 datasets。200 不等於 200 層全部驗收完成。目前 578 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 200 個已有查詢映射的層 + 23 個 metadata 候選 + 555 個尚無可用映射的層；共 207 datasets。200 不等於 200 層全部驗收完成。目前 578 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -117,6 +117,8 @@
 第四十四、四十五批 [x] `trafficAccidentYearly` 1,600 個 A1 事故與 `theftTaoyuan` 1,423 個竊盜歷史 Point，各以原始與處理檔固定 SHA 建 owner-only 安全欄位 reader。正常 MCP 埔里事故 11、臺北事故 36、桃園住宅竊盜 138，與全表 oracle 一致；focused 11/11、localhost 兩端點 200／外來 Host 404 通過。竊盜 `district_raw` 全空、年度混用，已禁止年月比較；兩層展示 GeoJSON 缺檔、精確最近／公開地圖／現在風險 [ ] HOLD。詳見[第四十四至四十五批](./source-family-priority-rollout-20260925.md)。目前 205 datasets、199 個查詢映射、579 個待映射層。
 
 第四十六批 [x] `fireHydrants` 接 69,839 筆 A/E processed CSV 固定快照的 owner-only 分片 reader，臺北 bbox 2,179、高雄 bbox 5,275 與全 CSV oracle、正常 MCP 相符；全臺過大範圍安全拒絕。臺北 XML 21,852 是替代來源，資料庫去重 69,815 是另一版本，均未混入；僅安全 ID／縣市代碼／型式／來源／geometry，地址排除。focused 12/12、localhost manifest 200／外來 Host 404 通過；現在可用性、精確最近、remote 同版和地圖 ready/readback [ ] HOLD。詳見[第四十六批](./source-family-priority-rollout-20260925.md)。目前 206 datasets、200 個查詢映射、578 個待映射層。
+
+第四十七批 [x] `culturalFacilities` 原有 787 個展示 Point reader，本批補其完整 1,170 列來源的 owner-only reader，其中 383 無座標列保留屬性可查。正常 MCP 臺北 184、實體書店變體 135、高雄 47、全名冊無座標 383，皆對上原表；focused 11/11、`tsc -b`、build、localhost 200／外來 Host 404 通過。精確最近、今日營運和研究地圖 ready/readback [ ] HOLD。這是已映射層的資料完整性補強，映射數仍 200；目前 207 datasets、578 個待映射層。詳見[第四十七批](./source-family-priority-rollout-20260925.md)。
 
 ## B．優先完成臺灣 GIS 資料查詢
 

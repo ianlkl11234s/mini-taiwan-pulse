@@ -1,4 +1,4 @@
-# 555 個尚無可用查詢映射的圖層：逐層處置（2026-09-25）
+# 555 個尚無可用查詢映射的圖層：逐層處置（2026-09-26）
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
