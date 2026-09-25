@@ -315,6 +315,7 @@ function serveResearchAnalysisSidecars(): Plugin {
         ["/environment/official_noise_monitoring.geojson", { target: resolve(process.cwd(), "public/environment/official_noise_monitoring.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/research/amusement-parks-source-20260723.geojson", { target: resolve(process.cwd(), "public/research/amusement-parks-source-20260723.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/tourism/camping_national.geojson", { target: resolve(process.cwd(), "public/tourism/camping_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
+        ["/research/tour-attractions-source-20260722.geojson", { target: resolve(process.cwd(), "public/research/tour-attractions-source-20260722.geojson"), contentType: "application/geo+json; charset=utf-8" }],
       ]);
       server.middlewares.use((request, response, next) => {
         const asset = assets.get((request.url ?? "").split("?", 1)[0]);
