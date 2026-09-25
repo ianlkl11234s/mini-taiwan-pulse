@@ -103,6 +103,7 @@ import { wraDamWeirsOwnerAdapter } from "./wraWaterSystemsOwnerDatasets";
 import { trafficAccidentYearlyOwnerAdapter, theftTaoyuanOwnerAdapter } from "./policeJusticeHistoricalOwnerDatasets";
 import { fireHydrantsOwnerAdapter } from "./fireHydrantsOwnerDataset";
 import { culturalFacilitiesOwnerAdapter } from "./culturalFacilitiesOwnerDataset";
+import { groundwaterWellsOwnerAdapter } from "./groundwaterWellsOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -529,6 +530,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   theftTaoyuanOwnerAdapter,
   fireHydrantsOwnerAdapter,
   culturalFacilitiesOwnerAdapter,
+  groundwaterWellsOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

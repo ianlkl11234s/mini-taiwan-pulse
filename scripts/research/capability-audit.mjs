@@ -751,6 +751,15 @@ VERIFIED_RAW_FAMILIES["local-ae:fire_hydrants:20260519"] = {
   geometry: "Processed CSV WGS84 reference Point, proxy; bbox/attribute only; no nearest or fire service coverage.", sourceSha256: "ca71db6e0c927368d1480ce11dca9919a4c46f3b7e252548adfe05850fa941ea",
   localDisplayReceipt: "Local dist fire_hydrants.geojson 69839 rows SHA d683c309…7b53 byte-for-byte regenerates from fixed CSV; PMTiles/remote source-SHA receipt unverified. Immutable owner-only manifest SHA 668101cade6c8f0f86e76089855df0af43e9de9a232a4428ee87090199b65bdf.",
 };
+VERIFIED_RAW_FAMILIES["wra:groundwater_wells_static:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/water_resources/groundwater/groundwater_wells.geojson",
+  evidence: ["mini:scripts/research/build-groundwater-wells-owner-only.mjs", "mini:src/research/groundwaterWellsOwnerDataset.ts"],
+  sourceVersion: "2026-05-19 processed static station snapshot", publisher: "WRA OpenData", license: "Catalog OGDL-Taiwan-1.0; localhost owner-only, no public release claim",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed snapshot fixed SHA; immutable raw API payload and acquisition receipt unavailable.",
+  coverageAndMissingness: "959 Point stations, elevation_m null 959 and is_active false 959; dynamic water-level observations are outside this source.",
+  geometry: "WRA processed reference Point, proxy; bbox/attribute only. reported_county not eligible for geographic filtering or county comparison.", sourceSha256: "f15549b80767b604d90b9e5a9c0c3a42e9ff5ce6fcc4183ee6ec800e09d68db2",
+  localDisplayReceipt: "Source 959 Point ID/name/geometry matches the groundwater subset of fixed Mini water_monitor_stations display; owner-only partition manifest SHA 2cd44a610c1c284d9de2fee054c95bb26a8eeba5bac3757af0754f6f3a0b3967. groundwaterWells dynamic display or readings not independently verified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -845,6 +854,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   trafficAccidentYearly: "npa:traffic_a1:20260626",
   theftTaoyuan: "taoyuan:theft_points:20260626",
   fireHydrants: "local-ae:fire_hydrants:20260519",
+  groundwaterWells: "wra:groundwater_wells_static:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
