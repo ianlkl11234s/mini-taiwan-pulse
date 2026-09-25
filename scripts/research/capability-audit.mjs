@@ -364,6 +364,122 @@ VERIFIED_RAW_FAMILIES["cwa:weather_stations:20251129-fixed"] = {
   geometry: "Station Point, not observation representativeness or weather surface.", sourceSha256: "08088afb391e63970fe979895b8f76cc9b7c9a427dc09a90dd38939a784e8222",
   localDisplayReceipt: "Mini static GeoJSON SHA equals processed source; remote release not read.",
 };
+VERIFIED_RAW_FAMILIES["moea:agri_wholesale_market_companies:20260522"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/agri_wholesale_market_companies/agri_wholesale_market_companies.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/agriculture/agri_wholesale_market_companies/_manifest.json", "taipei-gis-analytics/data/processed/agriculture/agri_wholesale_market_companies/_verification.json", "mini:scripts/research/build-agri-wholesale-market-owner-only.mjs"],
+  sourceVersion: "2026-05-22 raw, 2026-05-25 processed", publisher: "經濟部商業發展署", license: "OGDL-Taiwan-1.0 raw; TGOS coordinates owner-only until public rights checked",
+  observedAt: null, acquiredAt: "2026-05-22", acquiredAtAvailability: "Fixed company registration subset does not establish current operation or a physical wholesale-market facility.",
+  coverageAndMissingness: "115 raw company rows; 53 approved subset all geocoded Point; 37 dissolved, 24 revoked, 1 rescinded excluded.",
+  geometry: "TGOS geocoded registration-address proxy Point; bbox/attribute only.", sourceSha256: "cb53e333f57dfe1cefa8d17b606da37ff8315c6ccc85b5150b9eb8adf3764e4f",
+  localDisplayReceipt: "Mini static SHA equals analytics processed; safe owner-only sidecar SHA 4f86b5385bbc6fe755dd5e277f53d40bda5fb95b21044d0a2b4ad0535990ba4e; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["npa:women_child_warning:20260626"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/women_child_warning/women_child_warning_20260626.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/police_justice/women_child_warning/_manifest.json", "mini:scripts/research/build-justice-event-points-owner-only.mjs"],
+  sourceVersion: "2026-06-26 fixed two-roster assembly", publisher: "警政署／桃園市警察局鏡像", license: "OGDL raw; Google geocoded coordinates RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: "2026-06-26", acquiredAtAvailability: "Fixed warning roster does not establish current safety, event occurrence or police deployment.",
+  coverageAndMissingness: "188 valid raw warning rows; 185 reference Point and 3 upstream geocode failure rows absent from Point sidecar.",
+  geometry: "Google geocoded reference Point; bbox/attribute only, no nearest or safety inference.", sourceSha256: "29a48e8e229802f0f78e1c57c550aca3f5e02e3ac67e682cad8dbdf016f58e89",
+  localDisplayReceipt: "Safe owner-only sidecar SHA bbd5a338f632783cdb338ad8f086002fc91ca1e2bde6d5044e88f13b14fc75c4; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["tdx:road_cctv:20260524-fixed"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/cctv/cctv_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/cctv/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/cctv.md", "mini:public/geo/cctv.geojson"],
+  sourceVersion: "2026-05-24 fixed TDX snapshot", publisher: "TDX／高公局／公路局／縣市道路機關", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-07-07 manifest update does not establish current camera operation or stream availability.",
+  coverageAndMissingness: "6,129 unique CCTVID Point across Freeway, Highway and City products; distinct from Taoyuan police CCTV 4,840 Point source.",
+  geometry: "TDX camera location Point, not field of view, traffic volume or road safety.", sourceSha256: "aaa461000f16837a03d81fb67133f6503a7f0bc04cf5c8604f5021e725c145aa",
+  localDisplayReceipt: "Mini static and analytics processed bytes have identical SHA; remote release and live video URL not read.",
+};
+const funeralFamilies = [
+  ["funeral_facilities_moi", "funeralFacilities", "f358f04697fa477cdf99a033f4488be476c12948162d974010cc57fdbb899223", "fa8f04689e549dec2b1ec412b5c42ebf4aec4664e306be36a5a5b3f6a8220f49", "3,707 Point; 438 source records unlocated; 574 Google-derived coordinates"],
+  ["funeral_operators_biz", "funeralOperators", "aa16c2de7b159068f276ef81d8a3dac1fd88d3334b0d20f521fd7a3f821b6c20", "8f15496515e649b16784ba12db0cbe0bb9b835fb1510f3654acfcb77393f6d77", "6,233 Point; 1,664 inactive registrations retained; 48 Google-derived coordinates"],
+];
+for (const [folder, , sha, manifestSha, coverage] of funeralFamilies) VERIFIED_RAW_FAMILIES[`moi:${folder}:20260805`] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/funeral/${folder}/${folder}_20260805.geojson`,
+  evidence: [`taipei-gis-analytics/data/processed/funeral/${folder}/_manifest.json`, "mini:scripts/research/build-funeral-points-owner-only.mjs"],
+  sourceVersion: "2026-08-05 fixed official roster", publisher: folder === "funeral_facilities_moi" ? "內政部宗教及禮制司" : "經濟部商業發展署", license: "OGDL raw; Google-derived coordinate redistribution RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: "2026-08-05", acquiredAtAvailability: "Snapshot does not establish current opening, capacity, activity or service area.",
+  coverageAndMissingness: coverage, geometry: "Mixed reference Point incl parcel centroids/geocoding; bbox/attribute only, no nearest/accessibility.", sourceSha256: sha,
+  localDisplayReceipt: `Safe owner-only partition manifest SHA ${manifestSha}; current display release not proven same-version.`,
+};
+const religionFamilies = [
+  ["ancestral_halls", "religionAncestralHalls", "20260801", "70852726d331315f674d963f1199c9527916d7dde0acf8136a094e094aceb21d", "173 Point; 16 geocoded fallback"],
+  ["churches", "religionChurches", "20260801", "9aabe70fc2215069c35e9e16bd30d75588b0883f3652a592623e0719bd79c127", "2,116 Point; mixed OGDL/ODbL, 1,066 OSM-only"],
+  ["other_worship", "religionOtherWorship", "20260801", "22cc3273a6b6bbf1cc3bea344eacfa95fe1914072b55d51dec7ca8c3a0d18fe3", "1,319 OSM-only Point, 859 unnamed"],
+  ["foundations", "religionFoundations", "20260801", "3e1e531bbf9b29c671661571f5e34cf4901a64fd772d10db1e88abcd3e4c8430", "165 source rows; 124 original Point, 40 (0,0) and 1 blank restored to null"],
+  ["top100", "religionTop100", "20260122", "fc5056083e7b263fdc3c1b56f89cd7e5c33c121d5dd50fdc9e478b19e4c98347", "100 selected religious landscapes from 2021 source, not census"],
+];
+for (const [folder, , date, sha, coverage] of religionFamilies) VERIFIED_RAW_FAMILIES[`moi:religion:${folder}:${date}`] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/religion/${folder}/${folder}_${date}.geojson`,
+  evidence: [`taipei-gis-analytics/data/processed/religion/${folder}/_manifest.json`, "mini:scripts/research/build-religion-points-owner-only.mjs"],
+  sourceVersion: `${date} fixed processed snapshot`, publisher: folder === "other_worship" ? "OpenStreetMap contributors" : "內政部／文化部／OpenStreetMap contributors", license: folder === "other_worship" ? "ODbL 1.0; © OpenStreetMap contributors; owner-only" : "OGDL/ODbL per-record mixed or source-specific; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed source or processing date does not establish current registration, opening or representativeness.",
+  coverageAndMissingness: coverage, geometry: "Safe owner-only reference Point/attribute reader; foundations original null restored, no nearest/accessibility.", sourceSha256: sha,
+  localDisplayReceipt: "Source-verified owner-only safe sidecar; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["mountain:huts:20260801"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/forestry/mountain_huts/mountain_huts_20260801.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/forestry/mountain_huts/_manifest.json", "mini:scripts/research/build-mountain-points-owner-only.mjs"],
+  sourceVersion: "2026-08-01 fixed official/OSM assembly", publisher: "玉山國家公園／OpenStreetMap contributors", license: "OGDL/ODbL mixed; © OpenStreetMap contributors; owner-only",
+  observedAt: null, acquiredAt: "2026-08-01", acquiredAtAvailability: "Snapshot does not establish current hut availability or trail access.",
+  coverageAndMissingness: "136 Point: 30 Yushan official and 106 OSM-only; 12 unnamed OSM shelters; other park official coverage incomplete.",
+  geometry: "Reference Point, not entrance, route, shelter capacity or current access.", sourceSha256: "5e9f4a1017089dd02540720f1da34b191048e1638dcacf0e29f5aec77f6212e4",
+  localDisplayReceipt: "Safe owner-only sidecar SHA ae47329221a44a2931fbe53c73d1cb79af8e72eee1c530e3bbbc47e4dcecd77b; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["nfa:mountain_rescue:2019-2024"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/hazards/mountain_rescue_incidents/mountain_rescue_incidents_20260801.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/hazards/mountain_rescue_incidents/_manifest.json", "mini:scripts/research/build-mountain-points-owner-only.mjs"],
+  sourceVersion: "2019–2024 historical incidents; processed 2026-08-01", publisher: "內政部消防署", license: "OGDL-Taiwan-1.0; de-identified safe fields owner-only",
+  observedAt: "2019–2024", acquiredAt: null, acquiredAtAvailability: "Historical cases do not establish current incident or future risk.",
+  coverageAndMissingness: "2,465 Point after duplicate source rows and 5 invalid/out-of-Taiwan coordinates excluded; precise times and case IDs withheld.",
+  geometry: "Historical incident reference Point, not risk surface or emergency access.", sourceSha256: "b1301673d2575e18acc59e9204dfffbf2810fc13c2a755dc2003ef02c4dba2dd",
+  localDisplayReceipt: "Safe owner-only sidecar SHA da0d3a1ab4e08a67bb819e795ebefabd355aa0ba78b776d72d937d7b9163c058; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["mohw:nursing_homes:20260812"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/welfare/nursing_homes/nursing_homes_20260812.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/welfare/nursing_homes/_manifest.json", "mini:scripts/research/build-nursing-homes-owner-only.mjs"],
+  sourceVersion: "2026-08-12 fixed two-roster assembly", publisher: "衛生福利部護理及健康照護司", license: "OGDL raw; Google-derived coordinates RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: "2026-08-12", acquiredAtAvailability: "Fixed roster does not establish current operation, permission, capacity or available beds.",
+  coverageAndMissingness: "1,611 reference Point from raw 115950 and 165355; no address, phone, beds or license details in query sidecar.",
+  geometry: "Mixed WGS84/TGOS/Google/offline reference Point; bbox/attribute only, no nearest or accessibility.", sourceSha256: "d0f9ee7f7314d4fd0d69fbcd7a8ce257bcfd8ada643f58f656b68875de766914",
+  localDisplayReceipt: "Safe owner-only sidecar SHA 782e951370c44890578147d864562c0a55c125297eedd290e0f84f47267eeeec; Mini display SHA 775bc1a88a5e8675e48ed7930645a5e7df505968c0821ed080843e7e75bef3d9 mismatches processed source, so same-version display HOLD.",
+};
+VERIFIED_RAW_FAMILIES["moea:common_registration_addresses:202608-r2"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/business_registry/common_registration_addresses/common_registration_addresses_202608_r2.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/business_registry/common_registration_addresses/_manifest.json", "taipei-gis-analytics/docs/data-catalog/business_registry/common_registration_addresses.md", "mini:public/business_registry/common_registration_addresses_202608_r2.geojson"],
+  sourceVersion: "202608 r2 fixed derived address grouping", publisher: "經濟部商業發展署 GCIS", license: "OGDL-Taiwan-1.0; owner-only research query",
+  observedAt: null, acquiredAt: "2026-08-18", acquiredAtAvailability: "Monthly company-stock source does not establish current registration or actual place of operation.",
+  coverageAndMissingness: "657,882 company-stock rows -> 654,165 eligible geocoded members -> 11,121 address groups with at least 5 companies; membership sum 198,606; all groups have Point and four published attributes.",
+  geometry: "Member-coordinate mode proxy for normalized registration address; bbox/attribute only, not entrance, company site or precise nearest.", sourceSha256: "bf78dc3cdd7524a038c2b73ea0c72b4511314e552397c65a763821d0e876d6c1",
+  localDisplayReceipt: "Analytics processed, Mini static and owner-only sidecar are byte-identical SHA bf78dc3cdd7524a038c2b73ea0c72b4511314e552397c65a763821d0e876d6c1; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["meta_wri:canopy_height:20260724"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/forestry/canopy_giants_taiwan.geojson",
+  evidence: ["taipei-gis-analytics/docs/systems/forestry_tic.md", "mini:public/forestry/canopy_giants_taiwan.geojson"],
+  sourceVersion: "Meta/WRI Canopy Height Map v2, 2026-07-24 fixed Taiwan-main-island derivation", publisher: "Meta AI (Data for Good) × World Resources Institute", license: "CC BY 4.0 with Meta/WRI attribution",
+  observedAt: null, acquiredAt: "2026-07-24", acquiredAtAvailability: "Derivation date is not current tree height or trail availability.",
+  coverageAndMissingness: "7,823 Point representing supported 45–85m 10m raster cells on Taiwan main island; height_m, dist_access_m, elev_m have no null.",
+  geometry: "EPSG:3857 10m raster cell centers converted to WGS84, rounded to 5 decimal places; proxy Point, not individual tree or entrance.", sourceSha256: "2b050b7c7d1ccb0391dd867a9c3398f7d4bafbe2a8f863f5f4d4df03bcc01e4d",
+  localDisplayReceipt: "Reader and Mini display use same fixed GeoJSON SHA; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["highway_bureau:service_area:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/service_area/service_area_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/service_area/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/service_area.md", "mini:public/geo/service_area.geojson"],
+  sourceVersion: "2026-05-24 fixed Highway Bureau CSV", publisher: "交通部高速公路局", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed snapshot does not establish current service area operation or road access.",
+  coverageAndMissingness: "22 original CSV rows and 22 WGS84 Point; no null among eight published attributes.", geometry: "Source service area Point, not service area extent or roadway entrance.", sourceSha256: "68fc87e6859530aa0ccf8ecaf61a23a3a95307c23d3a7a0f5461b1448d241b65",
+  localDisplayReceipt: "Mini static and analytics processed byte-identical SHA; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["city:parks:20260705"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/urban_open_space/parks/parks_20260705.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/urban_open_space/parks/_manifest.json", "taipei-gis-analytics/docs/data-catalog/urban_open_space/parks.md", "mini:public/urban/parks_taipei.geojson"],
+  sourceVersion: "2026-07-05 fixed four-roster three-city assembly", publisher: "臺北市／臺中市／臺南市政府", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processing date does not establish current park opening or facility status.",
+  coverageAndMissingness: "2,917 Point: Taipei 1,350, Taichung 1,081, Tainan 486. district 1,316 null; has_playground 1,240 null; area_sqm 521 null; address 520 null.",
+  geometry: "Park/facility reference Point, not park polygon or entrance; Taipei source records can represent duplicate real parks.", sourceSha256: "2f015b8f1f5cccc33db3abb1dae6d8bc9918c937288dbfb0a5c2aa43e9acf38a",
+  localDisplayReceipt: "Mini static and analytics processed byte-identical SHA; remote release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -409,6 +525,18 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   tourFactories: "moi:tourism_factory:20260723",
   bikeStations: "tdx:bike_stations:20260301-fixed",
   weatherStations: "cwa:weather_stations:20251129-fixed",
+  agriWholesaleMarket: "moea:agri_wholesale_market_companies:20260522",
+  womenChildWarning: "npa:women_child_warning:20260626",
+  cctv: "tdx:road_cctv:20260524-fixed",
+  ...Object.fromEntries(funeralFamilies.map(([folder, layer]) => [layer, `moi:${folder}:20260805`])),
+  ...Object.fromEntries(religionFamilies.map(([folder, layer, date]) => [layer, `moi:religion:${folder}:${date}`])),
+  mountainHuts: "mountain:huts:20260801",
+  mountainRescueIncidents: "nfa:mountain_rescue:2019-2024",
+  welfareNursingHomes: "mohw:nursing_homes:20260812",
+  commonRegistrationAddresses: "moea:common_registration_addresses:202608-r2",
+  canopyGiants: "meta_wri:canopy_height:20260724",
+  serviceArea: "highway_bureau:service_area:20260524",
+  parksTaipei: "city:parks:20260705",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
