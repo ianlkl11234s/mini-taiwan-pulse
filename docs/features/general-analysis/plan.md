@@ -8,7 +8,7 @@
 
 使用者已授權自行確認本地配對、測試、隔離 worktree 實作與原子 commit。目標為每個圖層可查到分析能力與缺口，所有具備合法完整來源的資料逐步接入合適運算；**全量盤點完成不等於全量可分析**。PMTiles 不是一概豁免，也不從視窗中繪出的 tile features 當完整資料。
 
-當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、84 個 descriptor datasets；77 個圖層已有 queryable mapping、105 個 GeoJSON 待載入驗證候選、596 個未提供可用查詢映射（含1個明確禁止查詢的descriptor）。78 個圖層有 descriptor。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md) 與 [本夜分片驗收](./overnight-coverage-20260925.md)。這些數字不是778份來源都通過live驗證。
+當前程式預設 registry 重算（不含DEV注入的本地人口preview）：778 個 manifest 圖層、85 個 descriptor datasets；78 個圖層已有 queryable mapping、105 個 GeoJSON 待載入驗證候選、595 個未提供可用查詢映射（含1個明確禁止查詢的descriptor）。79 個圖層有 descriptor。圖層開關、來源檔、dataset、指標不是同一粒度。詳見 [可重跑覆蓋台帳](./analysis-coverage-20260925.md)、[本夜分片驗收](./overnight-coverage-20260925.md) 與 [十層來源試跑](./ten-layer-spatial-trial-20260925.md)。這些數字不是778份來源都通過live驗證。
 
 | 順序 | 交付與工作 | 完成判準 |
 |---|---|---|
@@ -24,9 +24,15 @@
 
 ### 08:00 晨間交接（2026-09-25）
 
+> 08:00 交接數字保留為當時快照；其後使用者另行授權的十層試跑見下節。
+
 已停止新增分片，`mini-taiwan-pulse` heartbeat 已更新為 `PAUSED`。隔離 `research-streamline/mini` worktree 的程式與台帳分片均已原子 commit；原 checkout 未清理，沒有 push、PR、merge、部署或擴大付費 provider 呼叫。08:00 前再次確認配對 session active、前端 3734 與 Gateway 8794 正常監聽；這是本地 runtime 證據，不是日後仍連線的保證。
 
 最新可重跑台帳：778 manifest layers、84 datasets、78 層有 descriptor、77 層有 queryable mapping、105 個 GeoJSON metadata candidates、596 層 unknown/unavailable。最後一片 i郵箱 `510dfeaa`／`befb3b06` 已以 2,345 筆固定 Point 來源通過 focused tests 3/3、`tsc -b`／build、馬祖新地點及台／臺變體、正常 MCP→Gateway→browser `ready` revision 52 與 map readback／目視。完整 1,974 tests 回歸屬較早切片收據，**未在最後一片重跑**；不得稱整個 778 層完成 runtime 驗收。
+
+### 08:00 後：596 中十層來源試跑
+
+本次使用者另行要求從當時 596 unknown/unavailable 中挑十層走讀來源與運算路徑。結果見 [十層來源試跑](./ten-layer-spatial-trial-20260925.md)：`agriPOI` 固定 839 Point reader 已通過埔里 10 km、正常配對呈現及 browser readback，其餘九層各有明確來源／權限／幾何／時序阻礙與下一步。重跑台帳更新為 85 datasets、79 descriptor layer mappings、78 queryable、105 metadata candidates、595 unknown/unavailable（594 缺 reader，1 query disabled）。此片沒有把未接的九層當成可用分析，也未重跑前夜完整回歸。
 
 下一步先按 [晨間待決與來源 gate](./overnight-coverage-20260925.md) 處理同版來源及授權。`stationsTRA/Metro` 需對齊混合資產的 212/291 子集和來源契約；`bikeStations` 缺本地宣告資產。另一個具體入口 `jpAirports` 已核對上游／展示同版 108 Polygon，官方 C28-21 資料基準日 2021-12-31、商用可；應先核對完整欄位、缺值、座標轉換與來源條款，再開 bounded Polygon reader。PMTiles 完整幾何、未登記 RPC 與物理值 raster 仍未完成，不從顯示 tile／彩色像元推算。恢復時先查此節與最新台帳及 git/runtime 狀態，不重做既有收據。
 
