@@ -492,3 +492,8 @@
 ### 第七十三批：國有林林班面來源品質 HOLD
 
 - `forestCompartments` 林業署 MOA E30／1141 版原 SHP/DBF/SHX/PRJ 在 analytics 本機可見；processed 為 3,700 面，Parquet 75,814,373 bytes／SHA `f4417a4bb475a1428b2064aa70b7a09136e369c1f6d0d511491bb77e79d0fcf0`，GeoJSON 229,521,975 bytes／SHA `588fdd071bae965e24748b962b3aa7829eb1e945c65bcd3eb372478e7186ee3b`。Mini PMTiles 展示 SHA `9afea554664adcc208238308c939609a92a5f6dc7d7605a95fa95a605165dd3c`，僅是渲染資產，尚無同版建置收據。處理表 3,700 列無 geometry null/empty、屬性無 null，但 67 面無效；不把 3,700 全數標可做精確空間相交。G1 尚缺原 SHP 取得日／官方下載 receipt，G2/G4 需逐筆記錄 67 面修復、保留或屬性限定的策略及獨立原面比對。暫列 HOLD，先不建立全量 Polygon reader；有界本機 Parquet/FGB 可行性不等於驗收完成。未增加查詢映射。
+
+### 第七十四批：臺灣多層共源候選復核
+
+- 當前臺灣 GIS 主組 381 層中 205 待處理；逐層佇列的 shared source 只是導航線索。對這 205 層復核後，尚無「兩層以上、真共用同版 raw 且授權／幾何可接」的下一個 GO 家族。`manufacturingCompanyPoints` 與 `countyBoundary` 各有已核 raw 家族但各自是 singleton，現有展示／查詢版不一致，維持 `VERSION_MISMATCH`，不能因相近母表或名稱直接映射。
+- 高覆蓋宣告簇的具體解鎖：`celestrak_satellites` 16 層缺可讀 raw/RPC 版本與欄位收據；`osm_power` 6 層缺原表版本、license 與各類別實際筆數；`real_estate` 6 層只有 PMTiles/BIN 展示，缺完整原表與同版、缺值、geometry 收據；`ncdr_alerts` 5 層缺原表/RPC；`network_structures` 4 層與 `power_plants` 4 層尚未證明展示檔等於完整原表。下一步逐簇找回本機／上游原始檔或有界 RPC、記 SHA/版次／授權／時間／排除，再按真來源家族接 reader。這是 P0 已查缺口，不能替代後續施工；本批映射數不變。
