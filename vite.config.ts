@@ -977,6 +977,8 @@ function serveResearchPointPartitions(): Plugin {
         "water-facilities/water-facilities-owner-20260519.geojson": { folder: "water-facilities", size: 145_437 },
         "water-monitor-stations/water-monitor-stations-owner-20260519.geojson": { folder: "water-monitor-stations", size: 664_353 },
         "wra-water-systems/wra-dam-weirs-owner-20260519.geojson": { folder: "wra-water-systems", size: 25_406 },
+        "police-justice-historical/traffic-accident-yearly-owner-20260626.geojson": { folder: "police-justice-historical", size: 602_145 },
+        "police-justice-historical/theft-taoyuan-owner-20260626.geojson": { folder: "police-justice-historical", size: 394_123 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
