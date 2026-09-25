@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 215 個已有查詢映射的層 + 22 個 metadata 候選 + 541 個尚無可用映射的層；共 222 datasets。215 不等於 215 層全部驗收完成。目前 563 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 217 個已有查詢映射的層 + 22 個 metadata 候選 + 539 個尚無可用映射的層；共 226 datasets。217 不等於 217 層全部驗收完成。目前 561 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -144,6 +144,8 @@
 
 
 第五十八批 [x] `activeFaults`：活動斷層地質敏感區本地原始檔與現有 GeoJSON byte-identical，22 個 Polygon／MultiPolygon、SHA `a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e`。新 reader 只供官方代碼與完整水平面幾何；大甲 F0012、米崙 F1011 的新 bbox oracle 與正常 MCP 一致，配對地圖結果 1 feature／1 source／1 layer ready/readback。focused/registry 12/12、`tsc -b`、build 通過；正式法定圖、現況與風險判定 [ ] HOLD。詳見[第五十八批](./source-family-priority-rollout-20260925.md)。目前 221 datasets、214 查詢映射、564 待映射層。
+
+第五十九批 [x] `companyAgeStructure`／`companyIndustryDistribution` 共用 202608 company_points 654,165 筆的 grid 母表，接 450m／1500m 兩尺度 occupied-only Polygon owner-only 查詢。產業 89 類與未知類、設立年 known/missing/invalid 分別保留；臺中與臺北兩地原表 Polygon oracle、正常 MCP、地圖 ready/readback 且目視格網高亮完成。focused/registry 13/13、`tsc -b`、build、localhost 200／外來 Host 404 通過。118 份上游權利收據、即時公司現況、空白格為零、縣市比較及公開發布 [ ] HOLD。詳見[第五十九批](./source-family-priority-rollout-20260925.md)。目前 226 datasets、217 查詢映射、561 待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
