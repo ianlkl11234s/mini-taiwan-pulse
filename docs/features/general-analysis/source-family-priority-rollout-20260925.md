@@ -230,3 +230,19 @@
 - `geothermalWells` 接 CPC data.gov.tw 86147 原始 CSV 36 列 SHA `596bdfb2070d6d9a5c1485341a15da45b5ca7be4ec7d6ade1e7299cd5e304d9b`。DMS 經緯度逐筆重算後與 analytics processed 36 Point SHA `c5f1d58c04ba14250053aab0de7f5a30cb19bc3963db6fdf1a14bf6ba23abe15` 對齊；3 筆附圖 URL 空白不帶進 sidecar。安全 owner-only sidecar 10,888 bytes／SHA `39f0330f0e0971ba81d42e9014d50a0df05c866f287d4fe37d2139dc7aca1a7e` 只留井 ID、縣市代碼、地熱區、報告名稱與資料集 ID，不帶外部 URL 或原 DMS 欄。OGDL-Taiwan-1.0 記錄完整；歷史固定位置可做 bbox、直線距離與計數，不能當現況、井筒、儲層、深度、溫壓、安全或可進入的證據。公開展示同版仍待核。
 - 宜蘭清水 bbox `[121.60,24.60,121.65,24.63]` 原表 oracle 11；臺東 `[120.90,22.50,121.05,22.75]` 原表 oracle 6，`清水` 屬性變體 11。focused Vitest 11/11（含 registry）、`npx tsc -b`、`npm run build` 通過。原 3734 browser 已斷線，記錄舊 session ID 後改用目前仍開的 3734 地圖重新配對；兩端短語一致後 session active。正常 Codex→MCP→Gateway→browser 查兩地回 11／6、`analysisComplete:true`、無 geometry 排除，來源 SHA 與 sidecar 一致；宜蘭 collection `ready` revision 1，map readback 11 features／1 source／1 layer，瀏覽器 Agent 動作紀錄顯示高亮 11 筆。沒有把新配對當作以前其他批次的追溯性驗收。
 - Audit：778 layers、186 datasets、183 queryable mappings、29 metadata candidates、566 unknown/unavailable；595 待映射（reader 363、來源缺證 191、權利 HOLD 33、版本 8），臺灣 GIS 主 Layers 381 中已註冊 129、待接 252。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+## 新配對補驗：充電站與裁罰密集區邊界
+
+- `evChargingStations` 在新配對正常查詢：`scope=AirCAA` 得 2 筆，臺北松山附近 bbox `[121.545,25.055,121.56,25.07]` 得 9 筆；`scope=airport` 得 0 是錯誤 filter 值，原始 scope 代碼須沿用 `AirCAA`。上述來源 SHA 均為 owner sidecar `151204d7…f87f`，查詢資料可讀。將 9 筆交給結果圖層時 command revision 2 `error`，原 11 筆地熱井仍顯示；原因是研究呈現契約 `isMapEligibleGeometry` 排除 `role=proxy` 的 Point。這批只有 owner-only bbox／屬性查詢通過，**地圖結果呈現 HOLD**，不得將查詢成功寫成地圖高亮成功。
+- `pollutionPenaltyCritical`／`General`／`Mobile`／`noiseEnforcementEvents` 共用 `tw-pollution-penalty-events-20260706`。臺中 bbox `[120.67,24.13,120.69,24.15]` 正常 MCP 命中 1,770 歷史事件、回傳 50 且 `displayTruncated:true`，掃 4,350 列／1,683,489 bytes、下載 53,814 bytes／2 requests；臺北 `[121.525,25.04,121.535,25.05]` 回 `DATASET_TOO_LARGE`。manifest 的交叉分片共 6 個、33,919 列、未壓縮 11,832,036 bytes，超過 point partition 20,000 列／8 MiB 固定上限，故密集區查詢仍 **HOLD**。要保證該區需重建更細且 SHA 固定的空間分片，或明定更小 bbox 並重新做獨立 oracle／browser 驗收；不得放寬成無界全表或把失敗解讀為零事件。代理點也不可拿來做精確距離或地圖呈現宣稱。
+
+## 第二十七批：臺北市 2019 年事故參考點
+
+- `accidentTaipei` 來源為臺北市 data.gov.tw 136123 的 analytics processed 22,918 Point，SHA `0640e94d1f16d857e502946e67eae2c7c40636ab160b7f8c9f433600cd206507`；發生日期 2019-01-01 至 2019-12-31，A1 83／A2 22,835。來源標 OGDL-Taiwan-1.0，但事件精確座標具敏感性，僅建立本機 owner-only bbox／屬性 reader；安全 sidecar 移除 entity_id、事故時間與地點文字，20 個 gzip shards 的 manifest SHA `3e934509ba2ef24a07162955f580c9cf7502677fdad0a10f3af8e6cce4f94f3f`。不表示目前事故、路口風險、事故率或安全。
+- 來源全檔 oracle：臺北 bbox `[121.50,25.04,121.54,25.08]` A2 4,943；另一 bbox `[121.54,25.02,121.58,25.06]` A1 16，focused test 3/3。正常 MCP 後者回完整 16、掃 16,731 列／4,689,107 bytes、下載 265,008 bytes／5 requests，來源 SHA 一致。proxy Point 的研究地圖呈現與最近距離均 HOLD；正式圖層展示同版未驗。
+
+## 第二十八批：2026-08-18 active 列管設施
+
+- `regulatedFacilities` 使用與既有 `pollutionFacility` **不同版本** 的 EMS_S_01 家族：analytics processed 80,732 Point SHA `2cfa4bd59e050f7784d0dfcd1f571ca5d62c5cad78dd5073029363f31d45178f`。451,434 raw → 127,795 active → 80,732 有座標（63.17%），47,063 active 座標缺值仍無 Point；catalog 的 50.01% 是 company join 覆蓋，不能誤當座標覆蓋。OGDL-Taiwan-1.0 記錄完整；安全 sidecar 325 個 gzip shards／manifest SHA `82dda3a0e592e9a7ac087b9153ceaa2a7a61b651246e53f8564b289f460bd811`，移除 emsno、設施名、地址、統編和公司欄位，只能做 owner-only bbox／屬性查詢。列管不表示污染、排放、裁罰或當前營運。
+- 兩組不同 bbox／屬性變體的完整來源 oracle 與 focused test 4/4 通過，安全分片重建得到相同 manifest SHA。正常 MCP 臺中 `[120.66,24.12,120.70,24.16]` 加 `isair=1` 得 72 筆、回傳上限 50 明示截斷；獨立原檔重算也是 72，掃 5,151 列／2,012,616 bytes、下載 222,900 bytes／3 requests。proxy Point 地圖呈現、精確最近及正式圖層同版均 HOLD。
+- 兩批整合後 focused Vitest 16/16（含 registry）、`npx tsc -b`、`npm run build` 通過；3734 owner manifest 路由 HTTP 200（7,507／122,856 bytes），外來 Host 404。Audit 778 layers、188 datasets、185 queryable mappings、28 metadata candidates、565 unknown/unavailable；593 待映射（reader 361、來源缺證 191、權利 HOLD 33、版本 8），臺灣 GIS 主 Layers 381 中已註冊 131、待接 250。沒有 Supabase/S3 寫入，沒有 push、PR、merge、部署或重啟排程。
