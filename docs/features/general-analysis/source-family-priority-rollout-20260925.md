@@ -269,3 +269,15 @@
 - `ports` 查詢來源是 analytics 2026-05-27 港口 **Point** 277 筆，SHA `80c46fd597679cbe717e2b24ac011b44b42a3514420ff4d6508fccab2c65479c`；農業部 204、TDX 38、合流 35。漁港 239、渡輪觀光碼頭 18、國際商港 7、國內商港 7，另有 6 個對岸港口的臺灣 `county_id` 與四桶分類 null，保留不歸入任何臺灣縣市。安全 owner-only sidecar 65,191 bytes／SHA `2c64fa271b2c48b741a268ce21f4e9a96f0a79ad7882e0a34d730cac079b864c`，不帶電話、英文名、原始 properties 與重複 lng/lat。analytics catalog 記 OGDL，但 TDX 合流坐標的公開再散布 receipt 未獨立核；既有 `ports` 地圖是另一份 277 Polygon SHA `b6163441f470f392ca94b0ee29f422fe0529eeb8c473e22c1934bf5d62a10518`，非同一原表，正式 polygon／point 同版 HOLD。
 - Point 全原檔 oracle：宜蘭 bbox `[121.8,24.5,121.95,24.7]` 2（南方澳漁港、蘇澳港）；高雄 bbox `[120.2,22.55,120.4,22.75]` 的渡輪分類 7。focused tests 2/2、正常 MCP 兩地回 2／7，皆掃 277 列／65,191 bytes；owner route HTTP 200、外來 Host 404。這只保證固定版 Point 的 bbox／屬性查詢，不表示港區面、碼頭入口、今日航班、可通航性或精確最近。
 - 本批與裁罰修復整合 focused Vitest 14/14（含 registry）、`npx tsc -b`、`npm run build` 通過。Audit 778 layers、191 datasets、188 queryable mappings、28 metadata candidates、562 unknown/unavailable；590 待映射（reader 358、來源缺證 191、權利 HOLD 33、版本 8），臺灣 GIS 主 Layers 381 中已註冊 134、待接 247。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+## 第三十三批：NHI 醫療三類共用原表
+
+- `medHospital`、`medClinic`、`medPharmacy` 共用 2026-06-02 已處理 NHI 31,603 Point／SHA `d94164d2de2cd78f3ab777e13d93288e1d9956493329951a09c5a710038ca50d`。三類互斥：醫院 451、診所與其他醫療 23,472（其中 clinic 21,765、其他 1,707）、藥局 7,680。TGOS 地理編碼 29,621、Google 1,603、Google retry 379；不是設施原生精確座標。owner-only 安全欄位 248 個 gzip shards／manifest SHA `35f59c0e4d6fc125a5b31e60ed5894c481494b4a54b853b294842b15283a8576`，不帶名稱、地址、電話、機構 ID 或服務欄位。
+- 來源全表獨立 bbox 與 category oracle、focused tests 3/3；正常配對 MCP 臺北 bbox `[121.5,25,121.6,25.1]`：醫院 28、診所與其他 2,895、藥局 692；只篩 `clinic` 為 2,780，不能把 2,895 全稱診所。50 筆回傳上限與完整命中數分列。舊 `tw-medical-hospitals` public reader 是不同來源契約，保留而未覆蓋。
+- NHI 原授權／下載 receipt 與 Google 衍生座標再散布權未核實，僅限 localhost owner-only `RIGHTS_HOLD`。proxy Point 不做最近距離、可達性、服務／營業／特約現況或研究結果地圖呈現；正式展示資產同版也未證。
+
+## 第三十四批：機場參考點
+
+- analytics `airports_merged_latest.geojson` 125 Point／2026-05-19／SHA `d82e9fff2cd6f7eb6417f22a2155cd9958815961731c1be073b4232f5629d6c2`；OurAirports 108、OurAirports+TDX 17。海拔 null 56、TDX ID null 108，未補零。安全 owner-only sidecar 39,377 bytes／SHA `44e9cec00cbf0ed86272409ac5a15bc24e63745936153bf47d69a9f9a18dd40f`。既有地圖資產是 16 Polygon/MultiPolygon／SHA `3b68ec72035281856ece48f4e564a75c591e0275d3627fbbc7890485ab931524`，Point 與 Polygon 不作同版宣稱。
+- 完整原表兩地 bbox/category oracle、focused tests 2/2；正常配對 MCP 高雄 `[120.3,22.55,120.38,22.61]` 加 `large_airport` 得高雄國際機場 1，臺北 `[121.5,25.02,121.6,25.08]` 同篩得松山國際機場 1。較早高雄 bbox `[120.58,22.57,120.72,22.68]` 得 0 是查錯範圍，不是無機場。此點僅作機場名冊參考，不能代表入口、跑道、航班或營運。
+- OurAirports/TDX 原始下載、合併時間與展示同版 receipt 未核，限 localhost owner-only。兩批整合 focused Vitest 14/14、`npx tsc -b`、`npm run build` 通過；3734 owner 路由 200（醫療 manifest 93,553、機場 39,377 bytes），外來 Host 404。Audit 778 層／195 datasets／191 queryable mappings／587 待映射；臺灣 GIS 主 Layers 381 中已註冊 137、待接 244。這 191 是入口登記數，proxy 結果不具地圖 ready/readback。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
