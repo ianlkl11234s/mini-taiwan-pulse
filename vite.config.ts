@@ -973,6 +973,7 @@ function serveResearchPointPartitions(): Plugin {
         "ports/ports-owner-20260527.geojson": { folder: "ports", size: 65_191 },
         "airports/airports-owner-20260519.geojson": { folder: "airports", size: 39_377 },
         "company-capital-grid/company-capital-grid-1500m-owner-202608.geojson": { folder: "company-capital-grid", size: 2_242_079 },
+        "water-detention-basins/water-detention-basins-owner-20260511.geojson": { folder: "water-detention-basins", size: 13_922 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

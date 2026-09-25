@@ -697,6 +697,15 @@ VERIFIED_RAW_FAMILIES["kh-education:cram_schools:20260807"] = {
   geometry: "Address-geocoded proxy Point; bbox/category only, no nearest or accessibility.", sourceSha256: "adf0dddc81dc6ba30ff71c72242b4263b5a3896b7faffd40cead7ee24711af4e",
   localDisplayReceipt: "Owner-only safe-field 165 gzip shards manifest SHA 0a419219ce202574d43048eb6cb5ca7acd802e4eac0aa399fc7c4c0b46bb53fa; public display PMTiles same-version not checked.",
 };
+VERIFIED_RAW_FAMILIES["tainan-taoyuan:detention_basins:20260511"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/geo/water_detention_basins.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/water_resources/flood_minor/108523_tainan_detention.csv", "taipei-gis-analytics/data/raw/water_resources/flood_minor/152950_taoyuan_detention.csv", "mini:scripts/research/build-water-detention-basins-owner-only.mjs"],
+  sourceVersion: "2026-05-11 fixed two-county point display snapshot", publisher: "臺南市政府水利局、桃園市政府水務局", license: "Catalog OGDL-Taiwan-1.0; localhost owner-only until public release receipt checked",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed display snapshot is not current storage or flood condition.",
+  coverageAndMissingness: "56 Point: Tainan 45, Taoyuan 11; Taoyuan area_m2 null 11, township/status/capacity/depth missing 56; other counties not in this point source.",
+  geometry: "Tainan TM97 transformed to WGS84, Taoyuan supplied WGS84; reference Point, not basin boundary or entrance; bbox/attribute only.", sourceSha256: "6dd46deca47a13b479ad8dede339eb1c4e14c0540b08b5b3472e1d6fc250686a",
+  localDisplayReceipt: "Fixed display SHA 6dd46deca47a13b479ad8dede339eb1c4e14c0540b08b5b3472e1d6fc250686a; safe owner-only sidecar SHA c2e6713f17b24cc3c792704b486508a6c34ba2c826da8fa50bcc686fd3dad01c; raw Tainan SHA df2521430f8a76f204361e9c5300cfa83d1f5c0efa010c4f9ef7ff41333f2aab and Taoyuan SHA 7644ebf0dcec99ffcfb9621c612540874ae43237eceb4a72db5d8188a721a132.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -785,6 +794,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   medPharmacy: "nhi:medical_geocoded:20260602",
   airports: "ourairports-tdx:airports:20260519",
   eduCramSchool: "kh-education:cram_schools:20260807",
+  waterDetentionBasins: "tainan-taoyuan:detention_basins:20260511",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
