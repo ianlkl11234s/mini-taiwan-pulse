@@ -140,7 +140,7 @@
 第五十六批 [x] `treePitsTaipei`：56,720 個原面 MultiPolygon，官方 data.gov.tw:134908／臺北資料大平臺 OGDL 第 1 版；2026-09-26 官方 raw 與本地 SHA 完全相同。有界 Polygon reader 保留孔洞與 multipart，跨片去重，兩個臺北 bbox／類別變體與完整原表 oracle 相符；正常 MCP 查詢、配對地圖 15 features ready/readback、focused 4/4、`tsc -b`、build 通過。畫面高亮因樹穴面積很小，單一面目視辨識 [ ] 待改善；公開部署及目前現況 [ ] HOLD。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。目前 222 datasets、215 查詢映射、563 待映射層。
 
 
-第五十七批 [ ] 待做：`powerPoles` 上游 22 縣市、2,959,326 Point，台電 2026-06-15 快照。已逐檔核完 22 raw CSV／22 processed GeoJSON 的 SHA、bytes、筆數、空桿號與幾何；raw／processed／manifest 筆數相同，但空桿號差 36，屏東、臺東、桃園有地理離群座標。澎湖／金門／連江本地檔共 28,415 筆，與 catalog 的端點缺口說法衝突；Mini PMTiles 仍缺同版建置收據。先解決來源與座標差異，再做有界 reader 和新地點驗收。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。
+第五十七批 [ ] 待做：`powerPoles` 上游 22 縣市、2,959,326 Point，台電 2026-06-15 快照。已逐檔核完 22 raw CSV／22 processed GeoJSON 的 SHA、bytes、筆數、空桿號與幾何；raw／processed／manifest 筆數相同，同 pipeline 的 pandas 讀法核得空桿號 616,007；原差 36 是彰化 CSV parser 定義差異，屏東、臺東、桃園各有 1 筆地理離群座標。澎湖／金門／連江本地檔共 28,415 筆，與 catalog 的端點缺口說法衝突；Mini PMTiles 仍缺同版建置收據。先解決來源與座標差異，再做有界 reader 和新地點驗收。詳見[第五十七批](./source-family-priority-rollout-20260925.md)。
 
 
 第五十八批 [x] `activeFaults`：活動斷層地質敏感區本地原始檔與現有 GeoJSON byte-identical，22 個 Polygon／MultiPolygon、SHA `a05a2afaf1f17b6be9e3cb7ed605fbbe35e3ea72ee0d654bf1fea97b89543b1e`。新 reader 只供官方代碼與完整水平面幾何；大甲 F0012、米崙 F1011 的新 bbox oracle 與正常 MCP 一致，配對地圖結果 1 feature／1 source／1 layer ready/readback。focused/registry 12/12、`tsc -b`、build 通過；正式法定圖、現況與風險判定 [ ] HOLD。詳見[第五十八批](./source-family-priority-rollout-20260925.md)。目前 221 datasets、214 查詢映射、564 待映射層。
