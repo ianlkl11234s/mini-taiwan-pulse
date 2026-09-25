@@ -888,6 +888,15 @@ VERIFIED_RAW_FAMILIES["mota:national_scenic_areas:20260524"] = {
   geometry: "Full WGS84 Polygon/MultiPolygon source surface normalized to 2D MultiPolygon; only zero Z values removed. True bbox intersection, not entrance or walking accessibility.", sourceSha256: "d1fbd0b12f7e5cbea4f5c3e059f8c0638c9d1a936bb6036d89896c6fe54cc544",
   localDisplayReceipt: "Mini national_scenic_areas_national.geojson 12 rows, 200,445 bytes SHA 9910b7329a361247989b91f50ebda63762e557411eae13dda6f1ead997384e38; browser readback pending.",
 };
+VERIFIED_RAW_FAMILIES["taipei:hot_spring_outcrops:FY114"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/tourism/hot_spring_zone/hot_spring_zone_taipei_121214.zip",
+  evidence: ["taipei-gis-analytics/data/processed/tourism/hot_spring_zone/hot_spring_zone_20260722.geojson", "taipei-gis-analytics/docs/data-catalog/tourism/hot_spring_zone.md", "mini:public/tourism/hot_spring_zones_national.geojson", "mini:src/research/hotSpringZonesDataset.ts"],
+  sourceVersion: "FY114 official source ZIP; 2026-07-22 fixed local processing snapshot", publisher: "臺北市政府產業發展局 data.gov.tw:121214", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "FY114 denotes source edition; processed date is not current legal effective date.",
+  coverageAndMissingness: "16 Taipei declared outcrop zones, nine names, source area 121,678 m²; 13 remarks null. No national coverage despite display asset name; no result outside Taipei does not mean no hot spring.",
+  geometry: "Source 16 closed LineStrings without .prj; EPSG:3826 inferred and cross-validated with DBF AREA within 5.8 m², polygonized then transformed to WGS84. Full Polygon surface, not spring outlet Point or access route.", sourceSha256: "420fd654b373995e309404a9719c1ba414876c8bf93a62862956e8a8ece97c74",
+  localDisplayReceipt: "Processed 16 Polygon, 9,427 bytes SHA c05b9e9115188f5e5605736606efad99d6c9cf4cb3f70a8fcdc1fd9b404076f7; Mini 16 Polygon 8,109 bytes SHA 1a5208c2f2f43e0659103a492a6eff812c9a9ced3e4845583a685ad0aee3305d. All 16 zone IDs, properties and full 2D surfaces independently equal. Browser readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -958,6 +967,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   eduCampusArea: "tgos:campus_polygon:20260807",
   aviationNoiseZones: "tycg_kcg:aviation_noise_legal_villages:20260827",
   tourScenicAreas: "mota:national_scenic_areas:20260524",
+  tourHotSpringZones: "taipei:hot_spring_outcrops:FY114",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

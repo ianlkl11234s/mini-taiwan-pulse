@@ -161,6 +161,8 @@
 
 第六十六批 [x] `tourScenicAreas` 只接觀光署來源 34 面中的 12 個國家風景區面，逐名與完整幾何對來源；雲嘉南濱海缺於備援源，展示增補的訪客數／年增率缺收據而不輸出。大鵬灣、馬祖兩地與名稱變體有獨立原面對帳，focused/registry 13/13、tsc/build；大鵬灣正常配對 revision 19 ready/readback 1、目視藍色面。[第六十六批收據](./source-family-priority-rollout-20260925.md)。合計 233 datasets、225 查詢映射、553 待映射；臺灣主 Layers 381 已註冊 171、待 210。`aquacultureCageNet` 來源日期與 raw SHA 缺口先列 G1 HOLD。
 
+第六十七批 [x] `tourHotSpringZones` 16 個臺北市公告面已與 FY114 原 ZIP、處理檔和 Mini 展示逐筆對齊；來源閉合線經 CRS/面積檢查才轉面，13 個空備註保留，資產名雖有 national 仍僅臺北覆蓋。硫磺谷、地熱谷、馬槽同名變體及錯版拒絕 focused/registry 12/12、tsc/build；硫磺谷正常配對 revision 20 ready/readback 1、目視藍色面。[第六十七批收據](./source-family-priority-rollout-20260925.md)。合計 234 datasets、226 查詢映射、552 待映射；臺灣主 Layers 381 已註冊 172、待 209。
+
 ## B．優先完成臺灣 GIS 資料查詢
 
 18 個 metadata 候選與 537 個尚無可用映射的層是同一施工佇列的不同來源狀態；本階段兩邊都處理，不能只接容易的候選。
@@ -224,7 +226,7 @@ HOLD 記錄格式：`family / layer keys / 卡在哪個 gate / 已查路徑與�
 
 ## 當前游標與每次回報
 
-**下一項：A03 先解 `aquacultureCageNet` 的 raw SHP/DBF 版本與 2026-05-19／2026-06-07 日期差，再查 `tourHotSpringZones` 等臺灣 GIS 家族；核 raw 版本／筆數／授權、缺值和完整 geometry，可安全本機接入即做，遇缺證據標 HOLD 後續行。** `waterBasins` 原表缺失、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
+**下一項：A03 接 `aquacultureCageNet` 的已釐清固定本機快照：raw ZIP SHA、42 個原面與處理檔 SHA 已核，2026-06-07 僅本機處理日；接著查下一個可證臺灣 GIS 家族。** `waterBasins` 原表缺失、`powerPoles` 離群／離島／PMTiles 同版、畜牧附屬點權利缺口維持 HOLD；E 可穿插但不取代 B/C/D 全表施工。
 
 每次回報只需：本次勾選哪些 ID、四組各有多少層真正通過／待做／HOLD、新增家族及映射、驗收證據、尚未解鎖的具體需求、下一個游標。登記數／來源查詢通過數／空間通過數分開。不要求使用者每批重新說「繼續」。
 
