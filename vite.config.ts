@@ -964,6 +964,10 @@ function serveResearchPointPartitions(): Plugin {
         "livestock-aux/feed-factories-owner-20260704.geojson": { folder: "livestock-aux", size: 46_816 },
         "livestock-aux/livestock-markets-owner-20260704.geojson": { folder: "livestock-aux", size: 5_254 },
         "livestock-aux/slaughterhouses-owner-20260704.geojson": { folder: "livestock-aux", size: 43_455 },
+        "lpg/lpg-subpackaging-owner-20260620.geojson": { folder: "lpg", size: 48_231 },
+        "lpg/lpg-retailers-owner-20260620.geojson": { folder: "lpg", size: 243_267 },
+        "waste-facilities/waste-facilities-government-owner-20260519.geojson": { folder: "waste-facilities", size: 23_415 },
+        "waste-facilities/waste-facilities-osm-owner-20260519.geojson": { folder: "waste-facilities", size: 79_833 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

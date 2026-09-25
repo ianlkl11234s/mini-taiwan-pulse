@@ -82,6 +82,8 @@ import { forestWildlifeReferenceAdapter } from "./forestWildlifeReferenceDataset
 import { universityStudentsOwnerAdapter } from "./universityStudentsOwnerDataset";
 import { livestockFeedOwnerAdapter, livestockMarketOwnerAdapter, livestockSlaughterOwnerAdapter } from "./livestockAuxOwnerDatasets";
 import { wasteStopsOwnerAdapter } from "./wasteStopsOwnerDataset";
+import { lpgSubpackagingOwnerAdapter, lpgRetailersOwnerAdapter } from "./lpgOwnerDatasets";
+import { wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter } from "./wasteFacilitiesOwnerDatasets";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -477,6 +479,14 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   livestockMarketOwnerAdapter,
   livestockSlaughterOwnerAdapter,
   wasteStopsOwnerAdapter,
+  lpgSubpackagingOwnerAdapter,
+  lpgRetailersOwnerAdapter,
+  wasteFacilitiesIncineratorOwnerAdapter,
+  wasteFacilitiesLandfillOwnerAdapter,
+  wasteFacilitiesMonitoringOwnerAdapter,
+  wasteFacilitiesTransferOwnerAdapter,
+  wasteFacilitiesRecyclingOwnerAdapter,
+  wasteFacilitiesScrapYardOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

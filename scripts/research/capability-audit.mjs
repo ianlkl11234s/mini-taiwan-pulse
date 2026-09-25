@@ -579,6 +579,33 @@ VERIFIED_RAW_FAMILIES["local:waste_stops:static"] = {
   geometry: "Mixed-source proxy Point, bbox/attribute only; no nearest or real-time claims.", sourceSha256: "88951e69b0f6a146c88fdee8392940fce515e36b3cbaeff6a5ce8527dc47a26f",
   localDisplayReceipt: "315 owner-only gzip shards plus manifest SHA 6f1cff79722edfc4ec9a3d6c84bd01e727ed53972e3e4a6d13654e2e25cf2d16; remote release not read.",
 };
+VERIFIED_RAW_FAMILIES["energy:lpg_canonical:20260620"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/energy/lpg_facilities_canonical/lpg_facilities_canonical_20260620.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/energy/lpg_facilities_canonical.md", "taipei-gis-analytics/data/processed/energy/lpg_facilities_canonical/_manifest.json", "mini:scripts/research/build-lpg-owner-only.mjs"],
+  sourceVersion: "2026-06-20 fixed 13-source processed snapshot", publisher: "經濟部能源署、中油與縣市政府", license: "RIGHTS_HOLD: catalog says mixed OGDL/CC BY but every processed row says OGDL; owner-only",
+  observedAt: null, acquiredAt: "2026-06-20 processing date", acquiredAtAvailability: "Processing date does not establish current licensing, registration or operation.",
+  coverageAndMissingness: "1,743 source rows -> 1,292 processed Point rows; only 1,201 distinct entity_id. Subpackaging 107; retailer/cstation/dealer union 567; facility_mixed-only 624 excluded from these categories.",
+  geometry: "150m fuzzy-deduplicated reference Point, bbox/attribute only; no entrance or nearest claim.", sourceSha256: "a22841339ec56843b14effec9564461228c42e9c58a2df48659fa34c83a26afa",
+  localDisplayReceipt: "Safe owner-only sidecars subpackaging SHA f7a4af144803aa787a47f9df9b66cdef413f4a7e4638e86338ccb8062620f7ba and retailer SHA dd13ad470858c06d6d449b683ac2ac4d596c9c105434e4ed7106be50308235ee; live Supabase display/release not read.",
+};
+VERIFIED_RAW_FAMILIES["waste:facilities_government:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/waste_management/waste_facilities/waste_facilities.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/waste_management/waste_facilities.md", "taipei-gis-analytics/data/processed/waste_management/waste_facilities/_manifest.json", "mini:scripts/research/build-waste-facilities-owner-only.mjs"],
+  sourceVersion: "2026-05-19 fixed processed subset", publisher: "桃園、高雄、臺北等縣市及環境部政府資料", license: "RIGHTS_HOLD: mixed original/NLSC/Google coordinates and raw versions not individually verified; owner-only",
+  observedAt: null, acquiredAt: "2026-05-19 processed date", acquiredAtAvailability: "Processed 66 rows may differ from later hundreds-row Supabase state; no current-operation claim.",
+  coverageAndMissingness: "66 Point: incinerator 31, landfill 12, monitoring_well 17, unknown 6. Three defined categories mapped; unknown 6 not treated as wfOther. Missing later rows remain HOLD.",
+  geometry: "Mixed coordinate-method proxy Point; bbox/attribute only.", sourceSha256: "2d642d9986a4d0fc22012262a655b9b024804f2f0e4d9dac3f85394d7ad25ef2",
+  localDisplayReceipt: "Address-free owner-only sidecar SHA d15cba86ef1fc58c8a58553c24a22bf07327c96a481036c71d92a4ad83a7d3f9; Supabase/current display not read.",
+};
+VERIFIED_RAW_FAMILIES["waste:facilities_osm:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/waste_management/waste_facilities/waste_facilities_osm.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/waste_management/waste_facilities.md", "mini:scripts/research/build-waste-facilities-owner-only.mjs"],
+  sourceVersion: "2026-05-19 fixed OSM comparison snapshot", publisher: "OpenStreetMap contributors", license: "ODbL 1.0; owner-only historical reference",
+  observedAt: null, acquiredAt: "2026-05-19 processed date", acquiredAtAvailability: "Historical OSM extraction does not establish current status, capacity or completeness.",
+  coverageAndMissingness: "237 Point: transfer_station 38, recycling_plant 184, scrap_yard 15; OSM comparison set, not all facilities.",
+  geometry: "Crowd-edited reference Point; bbox/attribute only.", sourceSha256: "66bbb1f6a6fdde0a133c93905842665a5a1b55f776f7156b5f68a24b5c1a7e06",
+  localDisplayReceipt: "Address-free owner-only sidecar SHA add89d5a1f0f1cdd1791c29e527726a6173ea3f77e887177cb006208e792edc3; no live OSM or Supabase read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -647,6 +674,14 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   livestockMarket: "aphia:livestock_market:20260704",
   livestockSlaughter: "aphia:livestock_slaughter:20260704",
   wasteStopsStatic: "local:waste_stops:static",
+  lpgSubpackaging: "energy:lpg_canonical:20260620",
+  lpgRetailers: "energy:lpg_canonical:20260620",
+  wfIncinerator: "waste:facilities_government:20260519",
+  wfLandfill: "waste:facilities_government:20260519",
+  wfMonitoring: "waste:facilities_government:20260519",
+  wfTransfer: "waste:facilities_osm:20260519",
+  wfRecycling: "waste:facilities_osm:20260519",
+  wfScrapYard: "waste:facilities_osm:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
