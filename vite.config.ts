@@ -940,6 +940,25 @@ function serveResearchPointPartitions(): Plugin {
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
+      server.middlewares.use("/__local-research-owner-only/forest-treatment-works", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "forest-treatment-works-owner-20260802.geojson") {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/forest-treatment-works", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== 1_584_066) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
     },
   };
 }

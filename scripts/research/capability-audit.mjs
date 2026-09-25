@@ -516,6 +516,24 @@ VERIFIED_RAW_FAMILIES["taipei:riverside_trees:20260714"] = {
   geometry: "Source WGS84 Point, not crown extent or field-verified current position; historical straight-line reference only.", sourceSha256: "5c7f87775bb978a80fa07411480919e3af38055cdc54b6b14f92b2ab7495fa94",
   localDisplayReceipt: "Mini static byte-identical with analytics processed; safe owner-only sidecar SHA 2bc603414206c8b302754ac1d958916f505f2f3752ae08c640892c86e3ea4dbe. Remote release not read.",
 };
+VERIFIED_RAW_FAMILIES["moa:forest_treatment_works:20260802"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/forestry/forestry_treatment_works/forestry_treatment_works.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/forestry/forestry_treatment_works.md", "mini:scripts/research/build-forest-treatment-works-owner-only.mjs", "mini:public/forestry/forestry_treatment_works.geojson"],
+  sourceVersion: "2026-08-02 coordinate-repair processed snapshot", publisher: "農業部林業及自然保育署 data.gov.tw 47601", license: "OGDL-Taiwan-1.0; RAW_VERSION_MISMATCH_HOLD owner-only",
+  observedAt: "ROC plan years 92–113", acquiredAt: "2026-06-07 catalog ingest", acquiredAtAvailability: "Plan year and processing date do not establish construction or maintenance status.",
+  coverageAndMissingness: "Processed 6,213 Point from documented 6,275 source rows minus 62 unlocated; current local raw.json has 9,999 rows and does not match that predecessor. city/country blank string 77 each.",
+  geometry: "Coordinate repair via tm2/tm2_swapped/wgs84/wgs84_swapped; proxy reference Point, bbox/attribute only.", sourceSha256: "266a981d42ec5c601b1fdf6b79097cadb96724a13eb815dc7b3680960efe8e2b",
+  localDisplayReceipt: "Mini static and analytics processed byte-identical; safe owner-only sidecar SHA 9b0288a63d668541fce810a42af1f157cd5ecb176fca4da5859e41097f0b48db. Raw lineage HOLD.",
+};
+VERIFIED_RAW_FAMILIES["moa:forest_wildlife_grid:20260607"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/forestry/wildlife_distribution_3rd.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/forestry/wildlife_distribution_3rd.md", "mini:public/forestry/wildlife_distribution_3rd.geojson"],
+  sourceVersion: "2026-06-07 fixed local processed snapshot; raw immutable revision unavailable", publisher: "農業部林業及自然保育署 data.gov.tw 38126", license: "OGDL-Taiwan-1.0; SOURCE_LINEAGE_HOLD owner-only reference",
+  observedAt: null, acquiredAt: "2026-06-07 catalog ingest", acquiredAtAvailability: "Ingest date is not animal observation time or current distribution.",
+  coverageAndMissingness: "1,241 Point; no null in published columns; 176 repeated TM2 coordinate pairs. WILDLIFE_ is an opaque source field, not species/count; PERIMETER all zero with undefined semantics.",
+  geometry: "TWD97 TM2 grid/representative positions rendered as WGS84 proxy Points; no immutable raw transform or grid-boundary receipt; bbox/attribute only.", sourceSha256: "57f6cc342ab104804899af83b5c023e5b5555babd12c281479fd99b8ef01af48",
+  localDisplayReceipt: "Reader and Mini static use same fixed asset SHA; source raw lineage and remote release HOLD.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -577,6 +595,8 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   tourEvents: "mota:activity:20260722",
   protectedTreesNational: "cities:protected_trees:20260714",
   riversideTreesTaipei: "taipei:riverside_trees:20260714",
+  forestTreatmentWorks: "moa:forest_treatment_works:20260802",
+  forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
