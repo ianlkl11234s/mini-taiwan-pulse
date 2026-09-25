@@ -653,6 +653,108 @@ function serveResearchPointPartitions(): Plugin {
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
+      server.middlewares.use("/__local-research-owner-only/factory-locations", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !/^(?:manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.test(name)) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/factory-locations", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", name === "manifest.json" ? "application/json; charset=utf-8" : "application/octet-stream");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+      const educationChildcareFiles: Record<string, number> = {
+        "kindergartens-20260807-owner.geojson": 2_499_964,
+        "afterschool-care-20260807-owner.geojson": 249_665,
+        "mutual-care-20260807-owner.geojson": 70_734,
+      };
+      server.middlewares.use("/__local-research-owner-only/education-childcare", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        const expectedSize = educationChildcareFiles[name];
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || expectedSize === undefined) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/education-childcare", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== expectedSize) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+      server.middlewares.use("/__local-research-owner-only/tourism-hospitality", (request, response) => {
+        const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        const match = /^(hotels|restaurants)\/(manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.exec(path);
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !match) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/tourism-hospitality", match[1]!, match[2]!);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", match[2] === "manifest.json" ? "application/json; charset=utf-8" : "application/octet-stream");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+      server.middlewares.use("/__local-research-owner-only/civil-defense-shelters", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !/^(?:manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.test(name)) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/civil-defense-shelters", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", name === "manifest.json" ? "application/json; charset=utf-8" : "application/octet-stream");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+      server.middlewares.use("/__local-research-owner-only/tourism-factories", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "tourism-factories-owner-20260723.geojson") {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/tourism-factories", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== 42_279) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
     },
   };
 }

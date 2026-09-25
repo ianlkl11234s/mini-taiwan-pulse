@@ -276,6 +276,94 @@ for (const [key, , folder, sha, manifestSha, coverage] of busStationFamilies) VE
   geometry: "Actual StationPosition Point, not roadside Stop, entrance, walking access or live service.", sourceSha256: sha,
   localDisplayReceipt: `Immutable gzip spatial partitions manifest SHA ${manifestSha}; current display release and runtime same-version alignment not proven.`,
 };
+VERIFIED_RAW_FAMILIES["transport:taxi_stands:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/taxi_stand/taxi_stand_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/taxi_stand/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/taxi_stand.md", "mini:public/geo/taxi_stand.geojson"],
+  sourceVersion: "2026-05-24 fixed two-city assembly", publisher: "臺北市交通局／嘉義市交通處", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processing date does not establish present stand operation or free taxi capacity.",
+  coverageAndMissingness: "224 Point only in Taipei and Chiayi. Raw Taipei SHA 6216d6b19ac63e03d18b54d029f26ef1d9b0e2634230c2dbde3ced16b12defe0 and Chiayi SHA 3cd82370a2aefa589016d9cbfbd12772e09f85e850b570b1a96ecb6e2fcbc879; other raw city files not included. Chiayi District/Slots/Schedule null means not provided.",
+  geometry: "Source WGS84 stand Point; not pickup boundary or travel-network access.", sourceSha256: "ac4b83e60768754276e142d3c0b41626ed50ec41a58581edf7d64bd340c5c532",
+  localDisplayReceipt: "Mini static GeoJSON and analytics processed bytes have identical SHA; remote release not read. Chiayi bbox 21 normal MCP and scene ready/readback.",
+};
+VERIFIED_RAW_FAMILIES["transport:etc_gantry:20260524"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/etc_gantry/etc_gantry_20260524.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/etc_gantry/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/etc_gantry.md", "mini:public/geo/etc_gantry.geojson"],
+  sourceVersion: "2026-05-24 fixed snapshot", publisher: "交通部高速公路局", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processing date does not establish current gantry inventory or fare rules.",
+  coverageAndMissingness: "341 Point; source CSV SHA a4f678236be3307a078c5308d65d226a542ec9eb00b663b02f616bf83ffe38b7.",
+  geometry: "Source WGS84 gantry Point; not freeway LineString, interchange area or driving distance.", sourceSha256: "f3e1b2433fec26b506482846a56027f8bc986c1ecbaec21f731ebc635d3ed5f1",
+  localDisplayReceipt: "Mini static GeoJSON and analytics processed bytes have identical SHA; remote release not read. Kaohsiung bbox 8, northbound 3 normal MCP.",
+};
+VERIFIED_RAW_FAMILIES["business_registry:factory_locations:202606"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/business_registry/factory_locations/factory_locations_202606.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/business_registry/factory_locations/_manifest.json", "taipei-gis-analytics/docs/data-catalog/business_registry/factory_locations.md", "mini:scripts/research/build-factory-locations-owner-only.mjs"],
+  sourceVersion: "202606 official active-factory source; processed 2026-08-16", publisher: "經濟部產業發展署 data.gov.tw 6569", license: "OGDL-Taiwan-1.0 raw directory; owner-only geocoded reference Point reader",
+  observedAt: null, acquiredAt: "2026-08-16", acquiredAtAvailability: "Raw vintage and pipeline time do not establish current production activity.",
+  coverageAndMissingness: "Raw 100,634 rows -> exact dedupe 100,633 -> active 100,624 -> 90,652 Point, 9,972 geocode miss. Misses are not zero factories. Other status rows excluded from published source.",
+  geometry: "Independent offline address geocode Point, not factory entrance, parcel or building extent; proxy bbox/attribute only.", sourceSha256: "efea0882b55273f0ae8eb3a965a206a4e01a07d8ca9f219e78af1954794e6acc",
+  localDisplayReceipt: "Owner-only 228-shard manifest SHA 77e3399bd1368671837e32c99c304c36dc1985b88409eb46fcb73515e8fd69fd; current display release not proven same-version.",
+};
+const educationChildcareFamilies = [
+  ["kindergartens", "eduKindergarten", "bc9749db2f80411ca176ca1873a0e9a2d8e06e01b5268e23d6d429fa803cbfce", "6,747 raw; 6,689 Point; 58 geocode miss retained with null geometry"],
+  ["afterschool_care", "eduAfterschoolCare", "85004118188dc7496af8202931254f44106e51151a81b299fc2a4c429bcfd99d", "787 raw; 782 Point; 5 geocode miss retained with null geometry"],
+  ["mutual_care", "eduMutualCare", "3bc18d4d426a6e6e1bfa575d2e29f4e316ecfa581dd2efadcabf80138fcfc932", "148 raw; 148 Point; 0 geocode miss"],
+];
+for (const [folder, , sha, coverage] of educationChildcareFamilies) VERIFIED_RAW_FAMILIES[`moe:${folder}:20260807`] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/education/${folder}/${folder}_20260807.geojson`,
+  evidence: [`taipei-gis-analytics/data/processed/education/${folder}/_manifest.json`, "mini:scripts/research/build-education-childcare-owner-only.mjs"],
+  sourceVersion: "2026-08-07 fixed education directory", publisher: "教育部來源名冊", license: "OGDL raw directory; geocoded coordinate redistribution RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Academic year or processed date does not establish current registration or intake.",
+  coverageAndMissingness: coverage, geometry: "Mixed offline/TGOS/interpolated reference Point; null geometry preserved; bbox/attribute only, no nearest.", sourceSha256: sha,
+  localDisplayReceipt: "Safe owner-only full-raw sidecar includes miss rows; current display release not proven same-version.",
+};
+const tourismHospitalityFamilies = [
+  ["hotel", "tourHotels", "hotel_20260722.geojson", "6eb9e3dd6ccc9ea9a6b7746231001e70e7d753ecc5794c7e1fb31fe56e82d9e0", "8b70d194e402e1026a6789a2fb56d3ebd2dc46572cf7f873439485037fde30d3", "15,656 raw; 15,654 Point; 2 invalid geometry"],
+  ["restaurant", "tourRestaurants", "restaurant_20260723.geojson", "f78dcd2d99aacdc3607c2230d8280945ab67e17948b6e237e3a01b1abffd19f9", "1b855a0198ffe0a53cc339972dec2a037dd1f313814ae76fd1f8ccfb0d25eeb9", "3,690 raw; 3,688 Point; 2 invalid geometry"],
+];
+for (const [folder, , file, sha, manifestSha, coverage] of tourismHospitalityFamilies) VERIFIED_RAW_FAMILIES[`mota:${folder}:202607`] = {
+  sourceArtifact: `taipei-gis-analytics/data/processed/tourism/${folder}/${file}`,
+  evidence: [`taipei-gis-analytics/data/processed/tourism/${folder}/_manifest.json`, `taipei-gis-analytics/docs/data-catalog/tourism/${folder}.md`, "mini:scripts/research/build-tourism-hospitality-owner-only.mjs"],
+  sourceVersion: `2026-07 fixed V2.1 ${folder} ZIP`, publisher: "交通部觀光署", license: "OGDL-Taiwan-1.0; owner-only safe-field reader",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed source snapshot does not establish current operation, price or booking availability.",
+  coverageAndMissingness: coverage, geometry: "Source WGS84 Point for bounded straight-line reference distance; no entrance, walking or transit claim.", sourceSha256: sha,
+  localDisplayReceipt: `Safe owner-only partition manifest SHA ${manifestSha}; current display release not proven same-version.`,
+};
+VERIFIED_RAW_FAMILIES["police_justice:civil_defense_shelters:20260824"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/civil_defense_shelters/civil_defense_shelters_20260824.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/police_justice/civil_defense_shelters/_manifest.json", "mini:scripts/research/build-civil-defense-shelters-owner-only.mjs"],
+  sourceVersion: "2026-08-24 fixed 15-source rebuild", publisher: "警政署／data.gov.tw／TGOS", license: "OGDL raw rosters; TGOS coordinate redistribution RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: "2026-08-24", acquiredAtAvailability: "Snapshot does not establish current opening, capacity or safety.",
+  coverageAndMissingness: "110,291 Point; exact 102,577, street_block 1,843, approximate 5,871; coord_suspect 1,753. Supersedes old 62,695 six-city snapshot.",
+  geometry: "Mixed exact and approximate reference Point; bbox/attribute only, no nearest or accessibility.", sourceSha256: "a3abf5e8a19737ffd3cd226bddb24f0413c89b2979b812d2e223eb8fb2ca2aae",
+  localDisplayReceipt: "Owner-only 282-shard manifest SHA 0cb6cf2ae37fb514c4f2f01200a240277d301296a17668ba4e940da0ac3dcd6c; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["moi:tourism_factory:20260723"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/tourism/tourism_factory/tourism_factory_20260723.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/tourism/tourism_factory/_manifest.json", "mini:scripts/research/build-tourism-factories-owner-only.mjs"],
+  sourceVersion: "2026-07-23 fixed official roster", publisher: "經濟部產業發展署", license: "OGDL raw; 34 Google-geocoded coordinates RIGHTS_HOLD, owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Roster snapshot does not establish current operating or visit eligibility.",
+  coverageAndMissingness: "158 raw rows, 158 Point; Google 34, offline L1 52, L1.5 17, L2 55.",
+  geometry: "Fallback geocoded proxy Point; bbox/attribute only, no nearest/accessibility.", sourceSha256: "a47d7ba0ff6e1221a4f94cac1aeeff75308d2779aed57d26a2f65895d7ee4014",
+  localDisplayReceipt: "Safe owner-only sidecar SHA d61535fc102dbcea8b6fa813fd36d25c4ba5099239dabe845669315276691196; current display release not proven same-version.",
+};
+VERIFIED_RAW_FAMILIES["tdx:bike_stations:20260301-fixed"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/bike/bike_stations_all.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/bike/_manifest.json", "mini:public/geo/bike_stations.geojson"],
+  sourceVersion: "TDX fixed local 2026-03-01 raw filename; processed manifest 2026-05-19", publisher: "TDX／各縣市公共自行車業者", license: "OGDL-Taiwan-1.0",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Neither filename nor manifest update proves current station or bike availability.",
+  coverageAndMissingness: "9,408 source WGS84 Point; no real-time available-bike or empty-slot values.",
+  geometry: "StationPosition Point, not station footprint or road access.", sourceSha256: "dbbd70b3912b8739c98c75d14a41bd0aa668bbca82f16d3012c20c48fff34b24",
+  localDisplayReceipt: "Mini static GeoJSON SHA equals processed source; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["cwa:weather_stations:20251129-fixed"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/weather/main/stations.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/weather/main/_manifest.json", "mini:public/geo/weather_stations.geojson"],
+  sourceVersion: "2025-11-29 operating station CSV; processed manifest 2026-07-07", publisher: "中央氣象署", license: "OGDL-Taiwan-1.0 and CWA terms",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed manifest date is not a live observation or current station operating receipt.",
+  coverageAndMissingness: "838 selected active-at-snapshot Point; 351 closed stations are only in stations_all and excluded from this reader.",
+  geometry: "Station Point, not observation representativeness or weather surface.", sourceSha256: "08088afb391e63970fe979895b8f76cc9b7c9a427dc09a90dd38939a784e8222",
+  localDisplayReceipt: "Mini static GeoJSON SHA equals processed source; remote release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -312,6 +400,15 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   stationsMetro: "rail:stations:20260529-local",
   ...Object.fromEntries(justiceFamilies.map(([folder, layer]) => [layer, `police_justice:${folder}:20260626`])),
   ...Object.fromEntries(busStationFamilies.map(([key, layer]) => [layer, key])),
+  taxiStand: "transport:taxi_stands:20260524",
+  etcGantry: "transport:etc_gantry:20260524",
+  factoryLocations: "business_registry:factory_locations:202606",
+  ...Object.fromEntries(educationChildcareFamilies.map(([folder, layer]) => [layer, `moe:${folder}:20260807`])),
+  ...Object.fromEntries(tourismHospitalityFamilies.map(([folder, layer]) => [layer, `mota:${folder}:202607`])),
+  civilDefenseShelter: "police_justice:civil_defense_shelters:20260824",
+  tourFactories: "moi:tourism_factory:20260723",
+  bikeStations: "tdx:bike_stations:20260301-fixed",
+  weatherStations: "cwa:weather_stations:20251129-fixed",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",

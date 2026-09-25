@@ -55,6 +55,13 @@ import { artsEventsOwnerAdapter } from "./artsEventsOwnerDataset";
 import { railStationsTHSROwnerAdapter, railStationsTRAOwnerAdapter, railStationsMetroOwnerAdapter } from "./railStationsOwnerDatasets";
 import { antiCorruptionOfficeOwnerAdapter, correctionalFacilityOwnerAdapter, courtOwnerAdapter, immigrationOfficeOwnerAdapter, investigationBureauOwnerAdapter, prosecutorsOfficeOwnerAdapter } from "./justiceFacilitiesOwnerDatasets";
 import { busStationsCityOwnerAdapter, busStationsIntercityOwnerAdapter } from "./busStationsOwnerDatasets";
+import { taxiStandsSourceCoordinatesAdapter, etcGantrySourceCoordinatesAdapter } from "./transportFixedPointDatasets";
+import { factoryLocationsOwnerAdapter } from "./factoryLocationsOwnerDataset";
+import { educationKindergartenOwnerAdapter, educationAfterschoolCareOwnerAdapter, educationMutualCareOwnerAdapter } from "./educationChildcareOwnerDatasets";
+import { tourismHotelOwnerAdapter, tourismRestaurantOwnerAdapter } from "./tourismHospitalityOwnerDatasets";
+import { civilDefenseSheltersOwnerAdapter } from "./civilDefenseSheltersOwnerDataset";
+import { tourismFactoriesOwnerAdapter } from "./tourismFactoriesOwnerDataset";
+import { bikeStationsFixedPointAdapter, weatherStationsFixedPointAdapter } from "./bikeWeatherFixedPointDatasets";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -410,6 +417,18 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   prosecutorsOfficeOwnerAdapter,
   busStationsCityOwnerAdapter,
   busStationsIntercityOwnerAdapter,
+  taxiStandsSourceCoordinatesAdapter,
+  etcGantrySourceCoordinatesAdapter,
+  factoryLocationsOwnerAdapter,
+  educationKindergartenOwnerAdapter,
+  educationAfterschoolCareOwnerAdapter,
+  educationMutualCareOwnerAdapter,
+  tourismHotelOwnerAdapter,
+  tourismRestaurantOwnerAdapter,
+  civilDefenseSheltersOwnerAdapter,
+  tourismFactoriesOwnerAdapter,
+  bikeStationsFixedPointAdapter,
+  weatherStationsFixedPointAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
