@@ -22,6 +22,14 @@
 
 過夜排程：沿用既有 Pulse heartbeat，2026-09-25 每30分鐘接續一片，08:00 Asia/Taipei 停止新增工作並在本節留晨間交接、停用排程。原始分析session可能到期，不能將排程啟用當成未來已完成。
 
+### 08:00 晨間交接（2026-09-25）
+
+已停止新增分片，`mini-taiwan-pulse` heartbeat 已更新為 `PAUSED`。隔離 `research-streamline/mini` worktree 的程式與台帳分片均已原子 commit；原 checkout 未清理，沒有 push、PR、merge、部署或擴大付費 provider 呼叫。08:00 前再次確認配對 session active、前端 3734 與 Gateway 8794 正常監聽；這是本地 runtime 證據，不是日後仍連線的保證。
+
+最新可重跑台帳：778 manifest layers、84 datasets、78 層有 descriptor、77 層有 queryable mapping、105 個 GeoJSON metadata candidates、596 層 unknown/unavailable。最後一片 i郵箱 `510dfeaa`／`befb3b06` 已以 2,345 筆固定 Point 來源通過 focused tests 3/3、`tsc -b`／build、馬祖新地點及台／臺變體、正常 MCP→Gateway→browser `ready` revision 52 與 map readback／目視。完整 1,974 tests 回歸屬較早切片收據，**未在最後一片重跑**；不得稱整個 778 層完成 runtime 驗收。
+
+下一步先按 [晨間待決與來源 gate](./overnight-coverage-20260925.md) 處理同版來源及授權。`stationsTRA/Metro` 需對齊混合資產的 212/291 子集和來源契約；`bikeStations` 缺本地宣告資產。另一個具體入口 `jpAirports` 已核對上游／展示同版 108 Polygon，官方 C28-21 資料基準日 2021-12-31、商用可；應先核對完整欄位、缺值、座標轉換與來源條款，再開 bounded Polygon reader。PMTiles 完整幾何、未登記 RPC 與物理值 raster 仍未完成，不從顯示 tile／彩色像元推算。恢復時先查此節與最新台帳及 git/runtime 狀態，不重做既有收據。
+
 執行方式：本夜先依N0→N1→N2推進，再挑N3–N5有現成契約的來源；缺上游artifact時記錄可執行補料工作，轉做可用家族。不得為達數量放寬授權/geometry gate、任意掃資料庫、下載全國巨型檔或增加付費provider。主agent負責整合與語意；Luna 做有界分類／簡單文件，Terra 限 owned 檔實作，最多3 worker、不遞迴。
 
 本夜已交付全量分類、可重跑台帳、合格 Point／統計／PMTiles 屬性試點及 RPC／raster gate；**沒有讓缺來源契約的596層全部通過分析**。阻礙是原始資料/權限/粒度/缺值/幾何版本/時序，不只是加工具。技術核心收尾門檻是每種已支援家族都有代表性真來源驗收與 fail-closed，資料接入覆蓋則持續按台帳清理。
