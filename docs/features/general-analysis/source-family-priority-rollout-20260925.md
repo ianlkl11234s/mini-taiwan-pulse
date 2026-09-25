@@ -436,3 +436,8 @@
 
 - `aquacultureZone` 使用 2026-05-19 processed WGS84 62 面／11 縣市，來源 SHA `3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e`；安全欄位 sidecar 522,406 bytes／SHA `6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a`。Polygon/MultiPolygon 統一查完整 MultiPolygon，面與 bbox 真相交；空框不補零，處理日期不冒充法律生效或現在營運時間。官方授權目錄為 OGDL，本地 owner-only。
 - 臺南與宜蘭來源點框／名稱變體、空框、錯 SHA 拒絕 focused 3/3，tsc/build 通過；雲林麥寮小框正常 MCP 1 面、revision 14 ready/readback 1 且目視高亮。來源面積合計 18,676.7 ha 不能作本次 bbox 內面積，也不是養殖產量。舊圖層 display 同版仍 HOLD。程式碼 commit `92eeae7c`。本批後 Audit 778 層／229 datasets／220 查詢映射／558 待映射；臺灣主 Layers 381 已註冊 166、待 215。三片都未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+### 第六十三批：國道服務區 OSM 原面
+
+- `serviceAreaPolygon` 對照 analytics OSM Overpass raw SHA `9047b532d2ac1425735d278a7ed91dff573264a488be8c0f8c869882f29df863`、2026-05-24 processed GeoJSON 與 Mini display byte-identical 24,463 bytes／SHA `c9f2a462c30ecbfd99fec7f15cd55371112add6ece074a76a881db4186fd84a8`。19 個 OSM highway=services 面（18 Polygon、1 MultiPolygon）與官方 22 個 Point 不等母體，沒有面不等於沒有服務區。幾何 © OpenStreetMap contributors／ODbL 1.0；從高速公路局 data.gov.tw:8161 連結的屬性為 OGDL-Taiwan-1.0，應分別署名。固定處理日不是逐筆 OSM 編修時間或營運現況。
+- Reader 只給名稱、國道、方向、來源面積、OSM ID/type 及完整 MultiPolygon；bbox 為真面相交。東山與泰安北上原表兩地／方向變體、空框、改版拒絕 focused 3/3，tsc/build 通過。東山正常 MCP 小框 1 面、revision 15 ready/readback 1、截圖可見藍色面；不能以此推入口、可達性或目前設施。程式碼 commit `a50241f5`。Audit：778 層／230 datasets／221 查詢映射／557 待映射；臺灣主 Layers 381 已註冊 167、待 214。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
