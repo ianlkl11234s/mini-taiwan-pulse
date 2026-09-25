@@ -94,10 +94,10 @@ export function assertResultCollectionBudget(metrics: readonly Pick<ReturnType<t
   if (bytes > RESULT_COLLECTION_LIMITS.maxBytes) throw new Error("RESULT_COLLECTION_BYTE_LIMIT");
 }
 
-function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
+export function isMapEligibleGeometry(geometry: PresentableResult["geometry"]): geometry is PresentableResult["geometry"] & { type: SupportedPresentationGeometry } {
   if (geometry.type === "Point") return geometry.role === "actual" && geometry.spatialAnalysisEligible || geometry.role === "generalized" && !geometry.spatialAnalysisEligible;
   if (geometry.type === "LineString" || geometry.type === "MultiLineString") return geometry.role === "actual" && geometry.spatialAnalysisEligible;
-  return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "derived" || geometry.role === "generalized");
+  return (geometry.type === "Polygon" || geometry.type === "MultiPolygon") && (geometry.role === "actual" || geometry.role === "derived" || geometry.role === "generalized" || geometry.role === "proxy" && !geometry.spatialAnalysisEligible);
 }
 
 function analysisCenter(value: unknown): Position {

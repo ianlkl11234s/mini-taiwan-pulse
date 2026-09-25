@@ -870,6 +870,15 @@ VERIFIED_RAW_FAMILIES["tgos:campus_polygon:20260807"] = {
   geometry: "Full WGS84 TGOS school campus reference Polygon, true bbox intersection; not entrance, catchment or walking route.", sourceSha256: "14fdbec063543c260059f662c380be80ae6f1285c6967e5d35896b11c514eb48",
   localDisplayReceipt: "Processed GeoJSON SHA 950c1913b47a7da36838fc2d8c743ce766207ca312fe624f71bf55fde00305ff; Mini PMTiles SHA 3735e97933bef4f93d163a607d902607c1c008f1481ad3f674ca4120d74e3f15 byte-identical to analytics tile artifact, but tile is not analytical source. Owner-only manifest SHA 3e7158e6013dd72e33a3dd6f0b51d5f0078054c46b604c4c12b8f5ed07af4232; paired browser Taipei Tatung surface revision 16 ready/readback 1 and visible.",
 };
+VERIFIED_RAW_FAMILIES["tycg_kcg:aviation_noise_legal_villages:20260827"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/environment/aviation_noise_zones/aviation_noise_zones.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/environment/aviation_noise_zones/taoyuan_26115.csv", "taipei-gis-analytics/data/raw/environment/aviation_noise_zones/kaohsiung_107165.json", "taipei-gis-analytics/data/processed/demographics/village_boundary/village_boundary_20260626.geojson", "mini:public/environment/aviation_noise_zones.geojson", "mini:src/research/aviationNoiseZonesDataset.ts"],
+  sourceVersion: "Taoyuan source metadata 2026-05-07, Kaohsiung 2025-09-24, NLSC village boundary 2026-06-26; processed fixed snapshot 2026-08-27", publisher: "桃園市政府環境保護局、高雄市政府民政局；geometry from NLSC", license: "OGDL-Taiwan-1.0; static local read",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Source metadata updates and build date do not establish legal effective date; all 76 effective_date values are null.",
+  coverageAndMissingness: "103 legal village-level memberships collapsed to 76 unique village features: Taoyuan 31 (58 memberships), Kaohsiung 45 (45); 4 explicit aliases, 0 unmatched. Outside these two city lists is unverified, not no aircraft noise.",
+  geometry: "NLSC WGS84 village Polygon boundary joined to legal village membership: admin_join proxy, not a measured DNL contour or point exposure; spatial analysis ineligible.", sourceSha256: "d17515936bc357ce3602473c2768ebd2e1647d39f8660c8e32133dbbb661bb51",
+  localDisplayReceipt: "Raw SHA Taoyuan 28dbe5367c5fc456aa03bc033ad4fc8c83e0defdbee6ce47b597b623711d17fe; Kaohsiung fcadf3fbadcfac912ba96223a4140c085e134fd38fd66bd4bd6e3b3c7affb1ee; NLSC boundary 4b5832c1fdf066945fa121c9a31c20e858d8deb4198dae2afab4db9889231d99. Mini and analytics processed GeoJSON byte-identical 1,072,567 bytes SHA d17515936bc357ce3602473c2768ebd2e1647d39f8660c8e32133dbbb661bb51; paired browser readback pending.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -938,6 +947,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   serviceAreaPolygon: "osm:service_area_surfaces:20260524",
   eduCampusPolygon: "tgos:campus_polygon:20260807",
   eduCampusArea: "tgos:campus_polygon:20260807",
+  aviationNoiseZones: "tycg_kcg:aviation_noise_legal_villages:20260827",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
