@@ -79,6 +79,9 @@ import { protectedTreesOwnerAdapter } from "./protectedTreesOwnerDataset";
 import { riversideTreesTaipeiOwnerAdapter } from "./riversideTreesOwnerDataset";
 import { forestTreatmentWorksOwnerAdapter } from "./forestTreatmentWorksDataset";
 import { forestWildlifeReferenceAdapter } from "./forestWildlifeReferenceDataset";
+import { universityStudentsOwnerAdapter } from "./universityStudentsOwnerDataset";
+import { livestockFeedOwnerAdapter, livestockMarketOwnerAdapter, livestockSlaughterOwnerAdapter } from "./livestockAuxOwnerDatasets";
+import { wasteStopsOwnerAdapter } from "./wasteStopsOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -469,6 +472,11 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   riversideTreesTaipeiOwnerAdapter,
   forestTreatmentWorksOwnerAdapter,
   forestWildlifeReferenceAdapter,
+  universityStudentsOwnerAdapter,
+  livestockFeedOwnerAdapter,
+  livestockMarketOwnerAdapter,
+  livestockSlaughterOwnerAdapter,
+  wasteStopsOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

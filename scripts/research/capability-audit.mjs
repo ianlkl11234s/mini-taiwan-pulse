@@ -534,6 +534,51 @@ VERIFIED_RAW_FAMILIES["moa:forest_wildlife_grid:20260607"] = {
   geometry: "TWD97 TM2 grid/representative positions rendered as WGS84 proxy Points; no immutable raw transform or grid-boundary receipt; bbox/attribute only.", sourceSha256: "57f6cc342ab104804899af83b5c023e5b5555babd12c281479fd99b8ef01af48",
   localDisplayReceipt: "Reader and Mini static use same fixed asset SHA; source raw lineage and remote release HOLD.",
 };
+VERIFIED_RAW_FAMILIES["moe:university_students:114"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/education/university_students/university_students_20260807.geojson",
+  evidence: ["taipei-gis-analytics/docs/data-catalog/education/university_students.md", "mini:scripts/research/build-university-students-owner-only.mjs", "mini:public/education/university_students.geojson"],
+  sourceVersion: "114 academic-year student statistics joined to 113 academic-year school points", publisher: "教育部統計處 data.gov.tw 6231／113 學年度學校名錄", license: "Statistic OGDL-Taiwan-1.0; school-coordinate COORDINATE_RIGHTS_HOLD owner-only",
+  observedAt: "ROC academic year 114", acquiredAt: null, acquiredAtAvailability: "2026-08-07 processed date does not establish current enrollment or school status.",
+  coverageAndMissingness: "139 statistical schools / 1,056,844 students; 159 mapped school Point, 21 null student values; one statistical school 1,054 students lacks a 113-year school point. Mapped point sum 1,055,790.",
+  geometry: "113 academic-year school reference Point, bbox/attribute only; school entrance and coordinate redistribution rights not verified.", sourceSha256: "1e32c1b7bec888108b40697a1b07f88da00cd45ee42d00b2761f91989e9e4b64",
+  localDisplayReceipt: "Mini and analytics processed assets byte-identical; owner-only address-free sidecar SHA a3f5d6e49294aa2ae01da43aad7dde3200c41eeb5dda05a6c228c9ed1bc57e1f. Remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["moa:livestock_feed:20260704"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/feed_factory_points.geojson",
+  evidence: ["mini:scripts/research/build-livestock-aux-owner-only.mjs", "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/feed_factory_points.geojson"],
+  sourceVersion: "2026-07-04 fixed processed snapshot", publisher: "農業部 data.gov.tw 47859", license: "RIGHTS_HOLD: raw receipt and Google-derived coordinate rights unavailable; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed date is not current registration or operation status.",
+  coverageAndMissingness: "258 Point deduplicated by BAN from 3,968 source product rows; source raw revision and row-level geocoding receipt unavailable.",
+  geometry: "Google address geocoded proxy Point, bbox/attribute only.", sourceSha256: "b56ce8e43fa840ec7056bfe0634b810cf3415751a061bc5983af33b62e2c11ca",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA cc3c6ce7f53697586f944418f7fa75a5642f8ed5a99d682a4d08d28a1bb7483f; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["aphia:livestock_market:20260704"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/market_points.geojson",
+  evidence: ["mini:scripts/research/build-livestock-aux-owner-only.mjs", "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/market_points.geojson"],
+  sourceVersion: "2026-07-04 fixed processed snapshot", publisher: "農業部動植物防疫檢疫署", license: "RIGHTS_HOLD: raw receipt and Google-derived coordinate rights unavailable; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed date is not current market operation status.",
+  coverageAndMissingness: "21 Point extracted as slaughter/auction markets; not all trading or retail facilities. Raw roster receipt unavailable.",
+  geometry: "Google address geocoded proxy Point, bbox/attribute only.", sourceSha256: "ab7c4271e71aae3013750ed87109b86ceaef085f463f0667e9d36ad1e3fceb43",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA a02fba74aea449f691a6fc376f7544636c0a26db9e926918774dd60b7791bcee; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["aphia:livestock_slaughter:20260704"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/slaughterhouse_points.geojson",
+  evidence: ["mini:scripts/research/build-livestock-aux-owner-only.mjs", "taipei-gis-analytics/data/processed/agriculture/livestock_ranch/slaughterhouse_points.geojson"],
+  sourceVersion: "2026-07-04 fixed processed snapshot", publisher: "農業部動植物防疫檢疫署及縣市來源", license: "RIGHTS_HOLD: raw receipt and Google-derived coordinate rights unavailable; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed date is not current slaughterhouse operation status.",
+  coverageAndMissingness: "185 Point from animal/poultry rosters plus county additions; exact raw revision and dedup receipt unavailable.",
+  geometry: "Google address geocoded proxy Point, bbox/attribute only.", sourceSha256: "68dcbf1aff4323f8122e81cfe235aff4511f75dd7712eca9ca69eb2ff7dadb72",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 16dbc25b21ea640ee4aa0dca9c43416755fdfedd227430afdc441284fe06aadd; remote release not read.",
+};
+VERIFIED_RAW_FAMILIES["local:waste_stops:static"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/geo/waste_stops_static.geojson",
+  evidence: ["mini:scripts/research/build-waste-stops-owner-only.mjs", "mini:public/geo/waste_stops_static.geojson"],
+  sourceVersion: "fixed local static asset SHA-256", publisher: "混合縣市政府開放資料、TGOS、POI fallback 與 legacy 來源", license: "RIGHTS_HOLD: coordinate redistribution and per-source lineage not individually verified; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Static asset does not establish current collection schedule or vehicle location.",
+  coverageAndMissingness: "73,060 Point; government 38,312, TGOS 30,938, POI fallback 1,135, legacy 2,675; 21 counties, merged/deduped from analytics 77,125 processed rows.",
+  geometry: "Mixed-source proxy Point, bbox/attribute only; no nearest or real-time claims.", sourceSha256: "88951e69b0f6a146c88fdee8392940fce515e36b3cbaeff6a5ce8527dc47a26f",
+  localDisplayReceipt: "315 owner-only gzip shards plus manifest SHA 6f1cff79722edfc4ec9a3d6c84bd01e727ed53972e3e4a6d13654e2e25cf2d16; remote release not read.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -597,6 +642,11 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   riversideTreesTaipei: "taipei:riverside_trees:20260714",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
+  eduUniversityStudents: "moe:university_students:114",
+  livestockFeed: "moa:livestock_feed:20260704",
+  livestockMarket: "aphia:livestock_market:20260704",
+  livestockSlaughter: "aphia:livestock_slaughter:20260704",
+  wasteStopsStatic: "local:waste_stops:static",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
