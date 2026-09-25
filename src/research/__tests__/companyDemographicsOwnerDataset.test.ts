@@ -18,16 +18,21 @@ it("requires bbox and exposes separate owner-only industry and age semantics", a
   await expect(new QueryExecutor([companyIndustryDistribution1500mOwnerAdapter]).execute({ datasetId: companyIndustryDistribution1500mOwnerDescriptor.datasetId, select: ["grid_id"] })).rejects.toThrow("BBOX_REQUIRED");
   expect(companyIndustryDistribution1500mOwnerDescriptor.license).toContain("RIGHTS_HOLD");
   expect(companyAgeStructure450mOwnerDescriptor.valueSemantics.missing).toContain("age_median=null");
+  expect(companyAgeStructure450mOwnerDescriptor.coverage).toContain("occupied-only");
+  expect(companyAgeStructure450mOwnerDescriptor.coverage).toContain("setup_year missing=16");
+  expect(companyAgeStructure450mOwnerDescriptor.valueSemantics.missing).toContain("1911..2026");
   expect(companyIndustryDistribution1500mOwnerDescriptor.geometry).toMatchObject({ type: "Polygon", spatialAnalysisEligible: false });
 });
 
 it("reads exact Polygon-intersecting cells at both required grains and preserves category conservation", async () => {
   const source1500 = JSON.parse(await readFile(`${analytics}/company_demographics_grid_1500m_202608.geojson`, "utf8")) as { features: { properties: Record<string, number | string | null>; geometry: { coordinates: number[][][] } }[] };
+  expect(new Set(source1500.features.map(feature => feature.properties.grid_id)).size).toBe(source1500.features.length);
   const industryFeature = source1500.features.find(feature => feature.properties.grid_id === "G1500_100_245")!;
   const industry = await new QueryExecutor([companyIndustryDistribution1500mOwnerAdapter]).execute({ datasetId: companyIndustryDistribution1500mOwnerDescriptor.datasetId, bbox: center(industryFeature), select: ["grid_id", "n_companies", "i_45", "i_unknown"], limit: 10 });
   expect(industry.rows).toEqual([{ grid_id: industryFeature.properties.grid_id, n_companies: industryFeature.properties.n_companies, i_45: industryFeature.properties.i_45, i_unknown: industryFeature.properties.i_unknown }]);
   expect(industry.cost.rowsScanned).toBeLessThanOrEqual(20_000);
   const source450 = JSON.parse(await readFile(`${analytics}/company_demographics_grid_450m_202608.geojson`, "utf8")) as { features: { properties: Record<string, number | string | null>; geometry: { coordinates: number[][][] } }[] };
+  expect(new Set(source450.features.map(feature => feature.properties.grid_id)).size).toBe(source450.features.length);
   const ageFeature = source450.features.find(feature => feature.properties.age_missing === 1)!;
   const age = await new QueryExecutor([companyAgeStructure450mOwnerAdapter]).execute({ datasetId: companyAgeStructure450mOwnerDescriptor.datasetId, bbox: center(ageFeature), select: ["grid_id", "n_companies", "age_known", "age_missing", "age_invalid", "age_median"], limit: 10 });
   expect(age.rows).toEqual([{ grid_id: ageFeature.properties.grid_id, n_companies: ageFeature.properties.n_companies, age_known: ageFeature.properties.age_known, age_missing: ageFeature.properties.age_missing, age_invalid: ageFeature.properties.age_invalid, age_median: ageFeature.properties.age_median }]);
