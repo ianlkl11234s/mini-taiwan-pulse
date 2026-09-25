@@ -6,7 +6,7 @@
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 182 個已有查詢映射的層 + 29 個 metadata 候選 + 567 個尚無可用映射的層；共 185 datasets。182 不等於 182 層全部驗收完成。目前 596 個待處理層分為待 reader／稽核 363、來源證據不足 192、權限或座標使用疑慮 33、版本待對齊 8；188 個比較 recipe 已包含在 363 內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 183 個已有查詢映射的層 + 29 個 metadata 候選 + 566 個尚無可用映射的層；共 186 datasets。183 不等於 183 層全部驗收完成。目前 595 個待處理層分為待 reader／稽核 363、來源證據不足 191、權限或座標使用疑慮 33、版本待對齊 8；188 個比較 recipe 已包含在 363 內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -78,7 +78,11 @@
 
 第二十三批 [x] 新接 LPG 同源兩類：`lpgSubpackaging` 107 點、`lpgRetailers` 567 點；廢棄物處理設施 66 政府點與 237 OSM 對照點按真正 `facility_type` 分成六個 layer 專用 reader，避免類別混回。`wfLandfillCoastal`、`wfMedical`、`wfOther` 缺對應類別仍 [ ] HOLD。兩家族都只保證固定本地快照中明定的 bbox／屬性結果；LPG 1,292 列有重複 entity_id，權利標示矛盾；政府廢棄物檔 66 筆與後續 Supabase 數百筆不一致。focused test 14/14、build、owner route/Host guard 通過；正常 MCP／地圖因 `BROWSER_DISCONNECTED` [ ] 待補。詳見[第二十三批](./source-family-priority-rollout-20260925.md)。剩餘 597 個待映射層。
 
-第二十四批 [x] 新接 `evChargingStations` 的 2026-06-15 固定 TDX 充電站 3,060 Point owner-only reader。台北、高雄兩地 bbox 與機場來源變體通過原檔 oracle；TDX 座標再散布權／精度仍 [ ] HOLD，不能回答即時可用、最近站或目前費率。雨量站與地下水井的本地資料另發現縣市欄位與經緯度顯著衝突，先列資料品質 [ ] HOLD，不把錯誤縣市帶入比較。正常 MCP／地圖因 `BROWSER_DISCONNECTED` [ ] 待補；詳見[第二十四批](./source-family-priority-rollout-20260925.md)。剩餘 596 個待映射層。
+第二十四批 [x] 新接 `evChargingStations` 的 2026-06-15 固定 TDX 充電站 3,060 Point owner-only reader。台北、高雄兩地 bbox 與機場來源變體通過原檔 oracle；TDX 座標再散布權／精度仍 [ ] HOLD，不能回答即時可用、最近站或目前費率。雨量站與地下水井的本地資料另發現縣市欄位與經緯度顯著衝突，先列資料品質 [ ] HOLD，不把錯誤縣市帶入比較。當批正常 MCP／地圖因 `BROWSER_DISCONNECTED` [ ] 待補；詳見[第二十四批](./source-family-priority-rollout-20260925.md)。當批剩餘 596 個待映射層。
+
+第二十五批 [ ] HOLD：`animalWelfarePoints` 的 catalog 聲稱 8,525 個 canonical 已定位點，但本機缺 processed GeoJSON 與 SHA，無法核筆數或固定 reader；`facHistorical`／`facPlanned`／`facPrimary`／`facSecondary` 共用電廠檔只有 22 Point，缺四層所需狀態欄及逐筆 geocoder 來源，不能依名稱猜分類。已轉處其他家族，詳見[第二十五批](./source-family-priority-rollout-20260925.md)。
+
+第二十六批 [x] `geothermalWells` 接中油 86147 的 36 口固定歷史井位 owner-only 查詢；宜蘭清水 bbox 11、臺東 bbox 6 與原表獨立 oracle 相符，focused 11/11、`tsc -b`、build 通過。新配對已完成，正常 MCP 兩地回 11／6；宜蘭 11 點 `ready` revision 1，map readback 為 11 features／1 source／1 layer。它只保證這版已列井位，不代表目前井況、可進入或地熱潛力；公開展示同版尚 [ ] 待驗。詳見[第二十六批](./source-family-priority-rollout-20260925.md)。剩餘 595 個待映射層。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
