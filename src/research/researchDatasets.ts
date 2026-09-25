@@ -95,7 +95,9 @@ import { nhiMedicalHospitalOwnerAdapter, nhiMedicalClinicOwnerAdapter, nhiMedica
 import { airportsOwnerAdapter } from "./airportsOwnerDataset";
 import { cramSchoolsOwnerAdapter } from "./cramSchoolsOwnerDataset";
 import { companyCapitalGridOwnerAdapter } from "./companyCapitalGridOwnerDataset";
+import { companyCapitalGrid150mOwnerAdapter, companyCapitalGrid450mOwnerAdapter } from "./companyCapitalGridFineOwnerDatasets";
 import { waterDetentionBasinsAdapter } from "./waterDetentionBasinsDataset";
+import { waterFacilitiesOwnerAdapter } from "./waterFacilitiesOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -512,7 +514,10 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   airportsOwnerAdapter,
   cramSchoolsOwnerAdapter,
   companyCapitalGridOwnerAdapter,
+  companyCapitalGrid150mOwnerAdapter,
+  companyCapitalGrid450mOwnerAdapter,
   waterDetentionBasinsAdapter,
+  waterFacilitiesOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

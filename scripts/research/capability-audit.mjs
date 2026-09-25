@@ -706,6 +706,15 @@ VERIFIED_RAW_FAMILIES["tainan-taoyuan:detention_basins:20260511"] = {
   geometry: "Tainan TM97 transformed to WGS84, Taoyuan supplied WGS84; reference Point, not basin boundary or entrance; bbox/attribute only.", sourceSha256: "6dd46deca47a13b479ad8dede339eb1c4e14c0540b08b5b3472e1d6fc250686a",
   localDisplayReceipt: "Fixed display SHA 6dd46deca47a13b479ad8dede339eb1c4e14c0540b08b5b3472e1d6fc250686a; safe owner-only sidecar SHA c2e6713f17b24cc3c792704b486508a6c34ba2c826da8fa50bcc686fd3dad01c; raw Tainan SHA df2521430f8a76f204361e9c5300cfa83d1f5c0efa010c4f9ef7ff41333f2aab and Taoyuan SHA 7644ebf0dcec99ffcfb9621c612540874ae43237eceb4a72db5d8188a721a132.",
 };
+VERIFIED_RAW_FAMILIES["osm-wra:water_facilities:20260519"] = {
+  sourceArtifact: "mini-taiwan-pulse/public/geo/water_facilities.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/water_resources/water_facilities_osm/water_facilities_osm.geojson", "taipei-gis-analytics/data/processed/water_resources/pump_stations_wra/pump_stations_wra.geojson", "mini:scripts/research/build-water-facilities-owner-only.mjs"],
+  sourceVersion: "2026-05-19 fixed Mini display union", publisher: "OpenStreetMap contributors and WRA GIC", license: "OSM ODbL 1.0; WRA raw redistribution receipt unverified; localhost owner-only RIGHTS_HOLD",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "OSM fetch date and WRA raw acquisition are not in the inspected immutable receipts.",
+  coverageAndMissingness: "609 Point: OSM 526 + WRA GIC 83; name empty 172, county empty 490, operator empty 458 and null 83.",
+  geometry: "OSM node or way center; WRA GIC station Point transformed from EPSG:3826, mixed reference precision; bbox/attribute only.", sourceSha256: "e8174fcc90650280842c8f8b550cfd59b5ed95c63db40fb7db3a8382e034fa97",
+  localDisplayReceipt: "Mini display SHA e8174fcc90650280842c8f8b550cfd59b5ed95c63db40fb7db3a8382e034fa97 matches union ID/type/source/geometry at display precision from OSM processed SHA a37739bb35a422f99169ba8fb3361508c782e9824d8128046e49b75d4527b742 (526) and WRA processed SHA edb65b22c115c303a4a4597faaa55212a77f7a4e8aedb97faada98a4c68bd99a (83). Owner sidecar SHA f00e4e3288cac3bd55d921699083a0cabf61000a2070932602f7147d06768ca3.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -795,6 +804,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   airports: "ourairports-tdx:airports:20260519",
   eduCramSchool: "kh-education:cram_schools:20260807",
   waterDetentionBasins: "tainan-taoyuan:detention_basins:20260511",
+  waterFacilities: "osm-wra:water_facilities:20260519",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
