@@ -936,6 +936,16 @@ VERIFIED_RAW_FAMILIES["forestry:hiking_trails:20260608-six-source"] = {
   sourceSha256: "0c0263b33f7561bc0b06432f6fdd1b5494c2b2978169a16f53616e68305aea9c",
   localDisplayReceipt: "Analytics processed and Mini existing GeoJSON byte-identical 20,659,963 bytes. 265 owner-only gzip shards manifest SHA e1506ec71627c3eff5c5ad7a2d4c8e92af0a5d617b83e4cad97043bba0badbb4; PMTiles exact build receipt remains HOLD.",
 };
+VERIFIED_RAW_FAMILIES["moa:leisure_farm_zones:FY114"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/agriculture/leisure_farm_zones_2025/leisure_farm_zones_2025_20260522.zip",
+  evidence: ["taipei-gis-analytics/data/processed/agriculture/leisure_farm_zones_2025/", "mini:scripts/research/build-agri-leisure-farm-zones-owner-only.py", "mini:src/research/agriLeisureFarmZonesOwnerDataset.ts"],
+  sourceVersion: "FY114/2025 source 109 polygons, locally processed 2026-05-23 fixed snapshot", publisher: "農業部農村發展及水土保持署 data.gov.tw:9809", license: "OGDL-Taiwan-1.0; localhost owner-only reader",
+  observedAt: "FY114/2025", acquiredAt: null, acquiredAtAvailability: "Raw ZIP local file date is not a per-feature legal effective date.",
+  coverageAndMissingness: "109 areas; source attributes complete, geometry non-null. Seven raw self-intersections repaired with make_valid and labeled per row; bbox non-hit is not proof that no farm or service exists.",
+  geometry: "Raw EPSG:3826 Polygon/MultiPolygon converted to WGS84 full MultiPolygon. Seven invalid raw surfaces repaired in the processing pipeline; official source remains legal authority. Bbox matches the verified fixed surface, not entrances or access.",
+  sourceSha256: "9b4d1f00952a0ba1b8f794203fdbb7e469eab30deb8dfb0ce1251f5627916172",
+  localDisplayReceipt: "Raw ZIP 2,521,887 bytes; processed WGS84 Parquet 3,869,061 bytes SHA e80031b5bc50644f9da5e41d388f1a67c2acb7d85b95370cf471ae96a57eb0d0; owner-only sidecar 9,855,193 bytes SHA 80f19d00ae63fe3b86544bb086a454730280ae33e9bb9672684e92f3baf1a02d.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -1011,6 +1021,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   speedZoneSegment: "newtaipei:speed_zone_segments:20260626",
   eduDistrictSenior: "moe:school_district_senior:115-school-year",
   hikingTrails: "forestry:hiking_trails:20260608-six-source",
+  agriLeisureFarmZones: "moa:leisure_farm_zones:FY114",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",

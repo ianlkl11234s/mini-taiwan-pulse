@@ -131,6 +131,7 @@ import { forestRoadsAdapter } from "./forestRoadsDataset";
 import { speedZoneSegmentsAdapter } from "./speedZoneSegmentsDataset";
 import { seniorSchoolDistrictAdapter } from "./seniorSchoolDistrictDataset";
 import { hikingTrailsOwnerAdapter } from "./hikingTrailsOwnerDataset";
+import { agriLeisureFarmZonesOwnerAdapter } from "./agriLeisureFarmZonesOwnerDataset";
 import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
 import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
 import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
@@ -583,6 +584,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   speedZoneSegmentsAdapter,
   seniorSchoolDistrictAdapter,
   hikingTrailsOwnerAdapter,
+  agriLeisureFarmZonesOwnerAdapter,
   landingStationsNodeCoordinatesAdapter,
   landingStationsOverpassCenterAdapter,
   taipeiZoningAttributeAdapter,

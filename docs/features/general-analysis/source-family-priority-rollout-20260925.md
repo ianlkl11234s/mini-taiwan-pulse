@@ -497,3 +497,9 @@
 
 - 當前臺灣 GIS 主組 381 層中 205 待處理；逐層佇列的 shared source 只是導航線索。對這 205 層復核後，尚無「兩層以上、真共用同版 raw 且授權／幾何可接」的下一個 GO 家族。`manufacturingCompanyPoints` 與 `countyBoundary` 各有已核 raw 家族但各自是 singleton，現有展示／查詢版不一致，維持 `VERSION_MISMATCH`，不能因相近母表或名稱直接映射。
 - 高覆蓋宣告簇的具體解鎖：`celestrak_satellites` 16 層缺可讀 raw/RPC 版本與欄位收據；`osm_power` 6 層缺原表版本、license 與各類別實際筆數；`real_estate` 6 層只有 PMTiles/BIN 展示，缺完整原表與同版、缺值、geometry 收據；`ncdr_alerts` 5 層缺原表/RPC；`network_structures` 4 層與 `power_plants` 4 層尚未證明展示檔等於完整原表。下一步逐簇找回本機／上游原始檔或有界 RPC、記 SHA/版次／授權／時間／排除，再按真來源家族接 reader。這是 P0 已查缺口，不能替代後續施工；本批映射數不變。
+
+### 第七十五批：114 年休閒農業區固定完整面
+
+- `agriLeisureFarmZones` 對應農業部農村發展及水土保持署 data.gov.tw:9809、OGDL-Taiwan-1.0、FY114 固定版。原始 EPSG:3826 ZIP 2,521,887 bytes／SHA `9b4d1f00952a0ba1b8f794203fdbb7e469eab30deb8dfb0ce1251f5627916172`，109 筆（106 Polygon、3 MultiPolygon），欄位及 geometry 無 null。7 個原面自交（A83、E74、G72、K29、K78、M42、U14）；上游 `03_clean_all.py` 對 invalid geometry 執行 `make_valid()`，處理後 WGS84 Parquet 3,869,061 bytes／SHA `e80031b5bc50644f9da5e41d388f1a67c2acb7d85b95370cf471ae96a57eb0d0`，109 面皆有效。每筆保留原面是否有效及修復狀態；原始官方檔仍是法定界線依據。FY114 不是逐筆核定生效、入口、農場營業或服務時間。
+- 本機 `owner-only` sidecar 9,855,193 bytes／SHA `80f19d00ae63fe3b86544bb086a454730280ae33e9bb9672684e92f3baf1a02d`；reader 綁定 SHA、bytes、109 列、欄位與修復集合，錯版 fail closed。SourceReceipt 指向實際讀取的 sidecar URL/SHA，原 ZIP 與 Parquet SHAs 只留 lineage。保留完整面，不把區域轉成中心點；bbox 依處理後有效面相交。無結果只代表此 FY114 版未相交。
+- 獨立原面核對貓空修復面 A83 與白石湖原有效面 A80；正常配對 MCP 在 `[121.580,24.960,121.596,24.980]` 查 A83=1，在 `[121.588,25.096,121.604,25.112]` 查 A80=1。貓空結果 revision 25 `ready`，map readback 1 feature／1 source／1 layer、`sourcesReady=true`、`layersReady=true`，既有 3734 browser 目視有藍色完整面。完整 geometry 在 MCP 文字回傳超過 byte budget，故查詢選摘要欄位；session 地圖仍顯示面。focused/registry Vitest 12/12、tsc/build 通過。Audit 778 層／239 datasets／231 可查映射／547 待處理；臺灣 GIS 381 層已登記 177、待 204。只讀本地固定檔，無 Supabase/S3 寫入、push、PR、merge、部署或排程重啟。
