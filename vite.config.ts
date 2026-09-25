@@ -981,6 +981,7 @@ function serveResearchPointPartitions(): Plugin {
         "police-justice-historical/theft-taoyuan-owner-20260626.geojson": { folder: "police-justice-historical", size: 394_123 },
         "cultural-facilities/cultural-facilities-owner-20260716.geojson": { folder: "cultural-facilities", size: 365_985 },
         "forest-recreation/forest-recreation-owner-1151.geojson": { folder: "forest-recreation", size: 1_997_643 },
+        "aquaculture-zone/aquaculture-zone.geojson": { folder: "aquaculture-zone", size: 522_406 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

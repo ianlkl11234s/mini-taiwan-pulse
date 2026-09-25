@@ -843,6 +843,15 @@ VERIFIED_RAW_FAMILIES["moa:forest_recreation_areas:1151"] = {
   geometry: "Full WGS84 polygon surfaces normalized to MultiPolygon; true bbox intersection, not entrance, trail or accessibility.", sourceSha256: "bb7e1604918d3329e554c44788f9c376985f4c4707ae37d19cb0aedb0dd49c05",
   localDisplayReceipt: "Owner-only safe-field sidecar SHA 815448720c3c12d2ae41898a445f6f4c42fb86e9f1f4a9c9cc0dea8d9580cacc; browser Hehuanshan ready/readback 1 actual surface, source display-layer version not independently matched.",
 };
+VERIFIED_RAW_FAMILIES["moa:aquaculture_production_zone:20260519"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/aquaculture_production_zone/aquaculture_production_zone.geojson",
+  evidence: ["mini:scripts/research/build-aquaculture-zone-owner-only.mjs", "mini:src/research/aquacultureZoneOwnerDataset.ts"],
+  sourceVersion: "2026-05-19 fixed local processed snapshot", publisher: "農業部漁業署", license: "OGDL-Taiwan-1.0; localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Processed snapshot date is not zone legal effective date or current operation.",
+  coverageAndMissingness: "62 designated production-zone features across 11 counties, source area 18,676.7 ha; absent geometry is not zero aquaculture.",
+  geometry: "Full WGS84 Polygon/MultiPolygon normalized to MultiPolygon for true bbox intersection; not a production, operation or access measure.", sourceSha256: "3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 6290797c86b1403334e6a3bcc8ae01dce7337e5706135178636cbd01eae9a42a; source display-layer version and browser readback separately required.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -907,6 +916,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   treePitsTaipei: "taipei:tree_pits:20260714",
   cyclingRoutes: "tdx:cycling_shapes:20260301",
   forestRecreation: "moa:forest_recreation_areas:1151",
+  aquacultureZone: "moa:aquaculture_production_zone:20260519",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
