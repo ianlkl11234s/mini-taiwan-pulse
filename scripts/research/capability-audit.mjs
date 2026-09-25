@@ -660,6 +660,15 @@ VERIFIED_RAW_FAMILIES["mohw:aed:20260524"] = {
   geometry: "Official WGS84 AED reference Point, bbox/attribute only until precision and operational access verified.", sourceSha256: "b4de010d5620cb52110b520d9a9980532ea9be00c755f1254e4a5a16a84bb9e6",
   localDisplayReceipt: "Owner-only safe-field 338 gzip shards, manifest SHA 325a6c959dcf4e5f00dab13aa87a646579acdefcb55f425e70cdd368c39f178c; PMTiles equivalence not checked.",
 };
+VERIFIED_RAW_FAMILIES["moa-tdx:ports:20260527"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/transportation/ports/ports_20260527.geojson",
+  evidence: ["taipei-gis-analytics/data/processed/transportation/ports/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/ports.md", "mini:scripts/research/build-ports-owner-only.mjs"],
+  sourceVersion: "2026-05-27 fixed port point list", publisher: "農業部漁業署與交通部 TDX", license: "Catalog OGDL-Taiwan-1.0; TDX redistribution and polygon display equivalence HOLD; owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed point list does not establish current berth, route or operational status.",
+  coverageAndMissingness: "277 Point: 239 fishing, 18 ferry/tourism, 7 international, 7 domestic, 6 cross-strait without Taiwan county_id or four-bucket category.",
+  geometry: "Representative port Point; separate from 277 Polygon display asset, bbox/attribute only.", sourceSha256: "80c46fd597679cbe717e2b24ac011b44b42a3514420ff4d6508fccab2c65479c",
+  localDisplayReceipt: "Owner-only safe-field sidecar SHA 2c64fa271b2c48b741a268ce21f4e9a96f0a79ad7882e0a34d730cac079b864c; polygon display SHA b6163441f470f392ca94b0ee29f422fe0529eeb8c473e22c1934bf5d62a10518 is not the same source.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -742,6 +751,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   regulatedFacilities: "moenv:regulated_facilities:20260818",
   streetTreesTaipeiDiff: "taipei:street_trees_diff:2024-20260712",
   medAED: "mohw:aed:20260524",
+  ports: "moa-tdx:ports:20260527",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",

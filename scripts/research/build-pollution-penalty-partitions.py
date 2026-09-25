@@ -15,11 +15,12 @@ from typing import Any
 EXPECTED_SOURCE_SHA256 = "247d6a759942f37b17b12f12558b9d2fce2e9a80e73503b1cc52c1c9b251c937"
 EXPECTED_EVENT_COUNT = 414_904
 SOURCE_REFERENCE = "/research/pollution-penalties/source-identity/sha256-247d6a759942f37b17b12f12558b9d2fce2e9a80e73503b1cc52c1c9b251c937"
-# Start coarse to keep the manifest small. Dense cells are deterministically
-# split to 0.025 degrees, which keeps ordinary urban bbox reads under 8 MiB.
+# Start coarse to keep the manifest small.  Dense cells keep splitting to a
+# deterministic 0.003125-degree grid.  This makes a 0.01-degree urban query
+# select only its local leaves instead of entire 0.025-degree neighbourhoods.
 CELL_DEGREES = 0.1
-MIN_CELL_DEGREES = 0.025
-TARGET_UNCOMPRESSED_SHARD_BYTES = 1_500_000
+MIN_CELL_DEGREES = 0.003125
+TARGET_UNCOMPRESSED_SHARD_BYTES = 1_000_000
 MAX_FEATURES_PER_SHARD = 8_000
 MAX_SHARD_BYTES = 6 * 1024 * 1024
 # Do not materialize free-text violation facts, addresses, facility/document IDs,
@@ -45,6 +46,18 @@ def cell_for(lng: float, lat: float, degrees: float = CELL_DEGREES) -> tuple[int
 def cell_bbox(cell: tuple[int, int], degrees: float = CELL_DEGREES) -> list[float]:
     west, south = cell[0] * degrees, cell[1] * degrees
     return [west, south, west + degrees, south + degrees]
+
+
+def feature_bbox(features: list[dict[str, Any]]) -> list[float]:
+    if not features:
+        raise ValueError("EMPTY_SHARD")
+    coordinates = [feature["geometry"]["coordinates"] for feature in features]
+    return [
+        min(coordinate[0] for coordinate in coordinates),
+        min(coordinate[1] for coordinate in coordinates),
+        max(coordinate[0] for coordinate in coordinates),
+        max(coordinate[1] for coordinate in coordinates),
+    ]
 
 
 def scalar(value: Any) -> bool:
@@ -87,20 +100,28 @@ def write_shard(output_dir: Path, features: list[dict[str, Any]], bbox: list[flo
     return {"path": path, "sha256": digest, "bytes": len(compressed), "encoding": "gzip", "uncompressedSha256": sha256_bytes(payload), "uncompressedBytes": len(payload), "featureCount": len(features), "bbox": bbox}
 
 
-def write_adaptive_shards(output_dir: Path, features: list[dict[str, Any]], bbox: list[float], degrees: float) -> list[dict[str, Any]]:
+def write_adaptive_shards(output_dir: Path, features: list[dict[str, Any]], degrees: float) -> list[dict[str, Any]]:
     payload_bytes = len(canonical_bytes({"type": "FeatureCollection", "features": features}))
     if len(features) <= MAX_FEATURES_PER_SHARD and payload_bytes <= TARGET_UNCOMPRESSED_SHARD_BYTES:
-        return [write_shard(output_dir, features, bbox)]
+        return [write_shard(output_dir, features, feature_bbox(features))]
     if degrees <= MIN_CELL_DEGREES:
-        # An exceptionally dense identical 0.025-degree cell remains bounded
-        # by the loader's 8 MiB hard limit and is split only by source order.
-        return [write_shard(output_dir, features[index:index + MAX_FEATURES_PER_SHARD], bbox) for index in range(0, len(features), MAX_FEATURES_PER_SHARD)]
+        # A spatially indistinguishable concentration cannot be made cheaper
+        # for a bbox query.  Split on its widest coordinate (then ordinal) so
+        # the manifest remains deterministic; the runtime's 8 MiB/20k limits
+        # still fail a truly coincident concentration closed.
+        if len(features) == 1:
+            return [write_shard(output_dir, features, feature_bbox(features))]
+        bounds = feature_bbox(features)
+        axis = 0 if bounds[2] - bounds[0] >= bounds[3] - bounds[1] else 1
+        ordered = sorted(features, key=lambda feature: (feature["geometry"]["coordinates"][axis], feature["sourceOrdinal"]))
+        midpoint = len(ordered) // 2
+        return write_adaptive_shards(output_dir, ordered[:midpoint], degrees) + write_adaptive_shards(output_dir, ordered[midpoint:], degrees)
     child_degrees = degrees / 2
     children: dict[tuple[int, int], list[dict[str, Any]]] = {}
     for feature in features:
         lng, lat = feature["geometry"]["coordinates"]
         children.setdefault(cell_for(lng, lat, child_degrees), []).append(feature)
-    return [shard for cell in sorted(children) for shard in write_adaptive_shards(output_dir, children[cell], cell_bbox(cell, child_degrees), child_degrees)]
+    return [shard for cell in sorted(children) for shard in write_adaptive_shards(output_dir, children[cell], child_degrees)]
 
 
 def build(source: Path, output_dir: Path, expected_sha256: str = EXPECTED_SOURCE_SHA256) -> dict[str, Any]:
@@ -137,7 +158,7 @@ def build(source: Path, output_dir: Path, expected_sha256: str = EXPECTED_SOURCE
             with bucket.open("rb") as stream:
                 for raw_line in stream:
                     chunk.append(json.loads(raw_line))
-            if chunk: shards.extend(write_adaptive_shards(built, chunk, cell_bbox((x, y)), CELL_DEGREES))
+            if chunk: shards.extend(write_adaptive_shards(built, chunk, CELL_DEGREES))
         if not shards or len(shards) > 1024 or sum(shard["featureCount"] for shard in shards) != count:
             raise ValueError("PARTITION_MANIFEST_LIMIT_MISMATCH")
         manifest = {"schemaVersion": "pulse-point-partitions/2", "source": {"sha256": expected_sha256, "bytes": source.stat().st_size, "featureCount": count, "reference": SOURCE_REFERENCE}, "cellDegrees": CELL_DEGREES, "shards": shards}

@@ -90,6 +90,7 @@ import { accidentTaipeiOwnerAdapter } from "./accidentTaipeiOwnerDataset";
 import { regulatedFacilitiesOwnerAdapter } from "./regulatedFacilitiesOwnerDataset";
 import { streetTreesDiffOwnerAdapter } from "./streetTreesDiffOwnerDataset";
 import { medAedOwnerAdapter } from "./medAedOwnerDataset";
+import { portsOwnerAdapter } from "./portsOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -499,6 +500,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   regulatedFacilitiesOwnerAdapter,
   streetTreesDiffOwnerAdapter,
   medAedOwnerAdapter,
+  portsOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
