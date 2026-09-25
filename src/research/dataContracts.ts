@@ -213,7 +213,7 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
   );
   const bboxQueryableSurface = ["Polygon", "MultiPolygon"].includes(value.geometry.type)
     && value.geometry.crs === "EPSG:4326"
-    && ["actual", "generalized", "proxy"].includes(value.geometry.role);
+    && ["actual", "derived", "generalized", "proxy"].includes(value.geometry.role);
   const bboxQueryableLine = ["LineString", "MultiLineString"].includes(value.geometry.type)
     && value.geometry.crs === "EPSG:4326" && (value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
       || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible);

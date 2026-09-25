@@ -946,6 +946,16 @@ VERIFIED_RAW_FAMILIES["moa:leisure_farm_zones:FY114"] = {
   sourceSha256: "9b4d1f00952a0ba1b8f794203fdbb7e469eab30deb8dfb0ce1251f5627916172",
   localDisplayReceipt: "Raw ZIP 2,521,887 bytes; processed WGS84 Parquet 3,869,061 bytes SHA e80031b5bc50644f9da5e41d388f1a67c2acb7d85b95370cf471ae96a57eb0d0; owner-only sidecar 9,855,193 bytes SHA 80f19d00ae63fe3b86544bb086a454730280ae33e9bb9672684e92f3baf1a02d.",
 };
+VERIFIED_RAW_FAMILIES["taipei-newtaipei:cemetery_zoning_urban:20260805"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/funeral/cemetery_zoning_urban/cemetery_zoning_urban_20260805.geojson",
+  evidence: ["taipei-gis-analytics/data/raw/urban_composite/urban_zoning/taipei/taipei_detail.zip", "taipei-gis-analytics/data/raw/urban_composite/urban_zoning/newtaipei/newtaipei_detail.zip", "taipei-gis-analytics/data/processed/urban_composite/urban_zoning_taipei/urban_zoning_taipei.parquet", "taipei-gis-analytics/data/processed/urban_composite/urban_zoning_newtaipei/urban_zoning_newtaipei.parquet", "taipei-gis-analytics/pipelines/funeral/cemetery_zoning_urban/01_extract.py", "mini:src/research/cemeteryZoningOwnerDataset.ts"],
+  sourceVersion: "2026-08-05 fixed two-city extract from local urban zoning", publisher: "臺北市政府都市發展局、新北市政府城鄉發展局", license: "OGDL-Taiwan-1.0 in source catalog; localhost owner-only reader",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Local extraction date is not the legal effective date of each planning zone.",
+  coverageAndMissingness: "114 areas: Taipei 12, New Taipei 102; source labels and geometry non-null. Only urban planning burial-related names, not non-urban cemetery designation or cemetery operation.",
+  geometry: "The 12+102 processed city polygons selected by 墓|殯葬|殯儀 match all 114 derived labels and geometries topologically; WGS84 actual source surfaces selected as a derived dataset. Mini display is a separate precision-reduced version, not the analytical source.",
+  sourceSha256: "f469e494a476194614b91d9abe71ed55a5f296699361d834b57f9eb2e4404df3",
+  localDisplayReceipt: "Full derived GeoJSON 1,113,258 bytes SHA f469e494a476194614b91d9abe71ed55a5f296699361d834b57f9eb2e4404df3; Mini display SHA 55302cbf68ab98cf5608b6c5ac626eaef4eaa0dc3f80c46814f8b86f5d1a844e, so display and analysis versions are kept distinct.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -1022,6 +1032,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   eduDistrictSenior: "moe:school_district_senior:115-school-year",
   hikingTrails: "forestry:hiking_trails:20260608-six-source",
   agriLeisureFarmZones: "moa:leisure_farm_zones:FY114",
+  cemeteryZoning: "taipei-newtaipei:cemetery_zoning_urban:20260805",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
