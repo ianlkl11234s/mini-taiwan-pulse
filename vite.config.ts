@@ -342,6 +342,7 @@ function serveResearchPointPartitions(): Plugin {
     name: "serve-research-point-partitions", apply: "serve",
     configureServer(server) {
       const root = resolve(process.cwd(), "../runtime/point-partitions/schools");
+      const penaltyRoot = resolve(process.cwd(), "../runtime/point-partitions/pollution-penalties");
       server.middlewares.use("/__local-research-boundaries", (request, response) => {
         const analyticsRoot = process.env.PULSE_RESEARCH_ANALYTICS_ROOT;
         if (!isLoopbackRequest(request) || !analyticsRoot || !["GET", "HEAD"].includes(request.method ?? "") || (request.url ?? "").split("?", 1)[0] !== "/county.geojson") {
@@ -370,6 +371,25 @@ function serveResearchPointPartitions(): Plugin {
         void stat(target).then(info => {
           if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("PARTITION_SIZE_LIMIT");
           response.setHeader("content-type", "application/json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local partition not built"); });
+      });
+      server.middlewares.use("/__local-research-point-partitions/pollution-penalties", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !/^(?:manifest\.json|[a-f0-9]{64}\.geojson\.gz)$/.test(name)) {
+          response.statusCode = 404; response.end("Partition unavailable"); return;
+        }
+        const target = resolve(penaltyRoot, name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size > 8 * 1024 * 1024) throw new Error("PARTITION_SIZE_LIMIT");
+          response.setHeader("content-type", name.endsWith(".gz") ? "application/octet-stream" : "application/json; charset=utf-8");
           response.setHeader("content-length", info.size);
           response.setHeader("x-content-type-options", "nosniff");
           response.setHeader("cache-control", "no-store");
