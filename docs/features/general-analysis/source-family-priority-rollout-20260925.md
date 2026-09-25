@@ -392,3 +392,14 @@
 
 - 教會 2,116、宗祠 173、其他宗教場所 1,319、宗教基金會 165、宗教百景精選 100，五層均已於第十七批用 `religionPointsOwnerDatasets.ts` 接成 owner-only 查詢，有正常 MCP／Host guard 收據；無須重做 reader。既有基金會 reader 將 41 個原始無座標列保留 `geometry=null`，比直接沿用後補 Point 更忠於原始資料。
 - 本批曾產四份新的安全分片候選；整合測試以 `DUPLICATE_DATASET_ID` 擋下後，已把候選檔、分片及接線精確撤回，既有 registry／宗教測試 12/12 通過，未提交重複 reader。宗教百景仍是 2021 年 100 處精選、非當前完整場所名冊；屬來源時間與涵蓋 HOLD，不是沒有 owner-only reader。Audit 計數不變：778 層／219 datasets／212 查詢映射／566 待映射。下一個新家族 `medLTC` 的衛福部 88270 快照與已有的福利長照機構層不是同一原表。
+
+### 第五十五批：長照特約單位固定快照
+
+- `medLTC` 使用衛福部 data.gov.tw:88270 raw `abc.csv` 24,409 列／SHA `137bae990ebd897a92777aa65b7730f713ee29813bfb95b011990eee0bc9680a`；2026-08-11 processed GeoJSON 23,894 Point／SHA `950efd652c8d504ff593e48fc5119835349150cca8d58a7546447e637acd37ac`。無座標 332、臺灣範圍外 183；raw A/B/C/空白為 824/23,024/560/1，processed 為 824/22,510/559/1。不能把減少解讀成服務關閉。263 個 SHA-bound gzip 分片，manifest SHA `93cbd6a1986e8cfa2711e1fce86a3950e06d57122520fc9c2e26db4431434c42`；只留類別、代碼、服務字串及來源日期，不供姓名、機構代碼、地址、電話、床位或住民數。
+- 完整原表 oracle 和正常 Codex→MCP→Gateway→既有 3734 配對 browser：臺北 `[121.50,25.02,121.58,25.10]` A 類 51（全類 1,604），臺中 `[120.62,24.12,120.75,24.22]` C 類 1（全類 1,539）；分頁顯示 50 不影響完整匹配數。focused/registry Vitest 12/12、`npx tsc -b`、`npm run build`、localhost manifest 200／99,347 bytes、外來 Host 404 通過。全臺過量 bbox 拒絕。
+- OGDL catalog 及本機 owner-only 固定版；`medLTC` 特約單位與既有 `welfareLtcInstitutions` 立案機構不同原表。Point 只供 bbox／屬性查詢，無當前契約、床位、可達性、最近距離、縣市比較或研究地圖同版 ready/readback 證據；這些 [ ] HOLD。Audit 778 層／220 datasets／213 查詢映射／565 待映射；臺灣 GIS 主 Layers 381 中已註冊 159、待接 222。未寫 Supabase/S3，未 push、PR、merge、部署或重啟排程。
+
+### 第五十六批：臺北樹穴 Polygon 來源盤點（HOLD）
+
+- `treePitsTaipei` 原始 `tree_pit_taipei.json` 56,720 個 MultiPolygon，EPSG:3826，SHA `9ed8de03c1ba61720bc3bc27903128831023f7590a9c38961a8382c7c9d80f03`；2026-07-14 processed WGS84 GeoJSON 同數，SHA `72197a37c4446a456effa722eb1e6a96e4c200e1c71343322857f7455c13000e`。樹穴 50,904／花圃 5,816，面積總和 246,062.19 m²；零面積 1、空面積 0、負面積 0。Mini 既有展示 PMTiles SHA `a8dca8ef855072af4052d1ef0ffa4d538d70115657bed760bb5d5f1472584647`，僅證明本地資產存在。
+- Gate G1/G3 [ ] HOLD：目前沒有原始下載端點與授權收據；現有共用 Point 分片讀取器不實作 Polygon 完整相交與跨片去重。可用 0.01° 分格的初算仍不是可交付 reader。需由來源維護者補端點、授權、取得時間與 SHA；再建立 Polygon 原幾何 bbox reader，以跨格、邊界相交與重複計數 oracle 驗證，方能接入。不能把 MultiPolygon 轉成中心 Point 冒充空間查詢。本批映射計數不變。

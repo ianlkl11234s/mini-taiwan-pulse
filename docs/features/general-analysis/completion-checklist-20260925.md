@@ -1,12 +1,12 @@
 # 全圖層查詢完成清單
 
-更新：2026-09-25。這是後續施工的執行入口；來源與驗收收據沿用 [來源家族施工紀錄](./source-family-priority-rollout-20260925.md)，逐層身份沿用 [778 層台帳](./p0-source-family-ledger-20260925-current.json)。本文件把既有 P0–P7 拆成可勾選的工作，不替換歷史證據。
+更新：2026-09-26。這是後續施工的執行入口；來源與驗收收據沿用 [來源家族施工紀錄](./source-family-priority-rollout-20260925.md)，逐層身份沿用 [778 層台帳](./p0-source-family-ledger-20260925-current.json)。本文件把既有 P0–P7 拆成可勾選的工作，不替換歷史證據。
 
 ## 目標、計數與打勾規則
 
 目標：先讓資料在明確版本、範圍與欄位下可靠可查，再讓具合格幾何的來源支援附近分析，讓同口徑統計支援縣市比較。順序是臺灣 GIS → 縣市統計及其衍生比較 → 全球 GIS → 日本 GIS。
 
-目前登記狀態：778 層 = 212 個已有查詢映射的層 + 23 個 metadata 候選 + 543 個尚無可用映射的層；共 219 datasets。212 不等於 212 層全部驗收完成。目前 566 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
+目前登記狀態：778 層 = 213 個已有查詢映射的層 + 23 個 metadata 候選 + 542 個尚無可用映射的層；共 220 datasets。213 不等於 213 層全部驗收完成。目前 565 個待處理層的逐層狀態見當前佇列；188 個比較 recipe 已包含在統計待辦內，不另加總。owner-only 已可查的層仍有公開授權、精度及展示同版 HOLD；這是讀取器登記狀態，不是 778 層可分析完成率。
 
 - `[x]`：該項明定的交付與驗收已完成，附證據。
 - `[ ] 待做`：尚未完成；已登記 adapter、已分類或已做單一範例均不足以勾選整批。
@@ -133,6 +133,11 @@
 第五十三批 [x] `streetTreesNational` 接臺北 92,033 加臺中 118,403 株的固定樹籍 Point，共 210,436；名稱「全國」不代表涵蓋其他縣市。正常 MCP 臺北框 1,187、臺中框 701，其中臺中公園廣場 316，與完整原表 oracle 相同；focused 12/12、`tsc -b`、build、localhost manifest 200／外來 Host 404 通過。兩市時間不同、臺中公園樹不全是路旁樹；縣市同時點比較、精確最近與研究地圖 ready/readback [ ] HOLD。詳見[第五十三批](./source-family-priority-rollout-20260925.md)。目前 219 datasets、212 查詢映射、566 待映射層。
 
 第五十四批 [x] 去重盤點：`religionChurches`、`religionAncestralHalls`、`religionFoundations`、`religionOtherWorship`、`religionTop100` 都已在第十七批具 owner-only reader 與正常 MCP 收據；本批試做的四份重複 sidecar 未接入且已撤回，既有 registry tests 12/12 通過。宗教百景的 2021 精選現況仍 [ ] HOLD，但查詢入口不是待接。映射數維持 212，下一游標是 `medLTC` 2026-08-11 固定來源；詳見[第五十四批](./source-family-priority-rollout-20260925.md)。
+
+
+第五十五批 [x] `medLTC`：衛福部 2026-08-11 長照特約單位，raw 24,409 筆，扣無座標 332、臺灣範圍外 183，owner-only 查詢 23,894 Point。正常 MCP 臺北 A 類 51、臺中 C 類 1，與完整原表 oracle 一致；focused/registry 12/12、`tsc -b`、build、localhost 200／外來 Host 404 通過。這與 `welfareLtcInstitutions` 3,117 筆是不同來源；即時特約、床位、附近距離、縣市比較及地圖 ready/readback [ ] HOLD。詳見[第五十五批](./source-family-priority-rollout-20260925.md)。目前 220 datasets、213 查詢映射、565 待映射層。
+
+第五十六批 [ ] HOLD：`treePitsTaipei` 是 56,720 個 MultiPolygon，非 Point。已核 raw／processed SHA 與面積、類別；原始下載端點及授權未見收據，現有通用 Point 分片器無完整 Polygon bbox 相交與跨片去重契約。不得把樹穴改成中心點假裝可查；需先補來源權利及 Polygon reader 的真實幾何測試。詳見[第五十六批](./source-family-priority-rollout-20260925.md)。
 
 ## B．優先完成臺灣 GIS 資料查詢
 
