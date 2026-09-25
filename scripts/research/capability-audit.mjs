@@ -868,7 +868,7 @@ VERIFIED_RAW_FAMILIES["tgos:campus_polygon:20260807"] = {
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Source YYYYMM varies per record and is distinct from pipeline date; not current school operation.",
   coverageAndMissingness: "4,336 source Polygon: 12 non_school remain queryable but display excludes them; school_level_zh null 12 experimental. 20 counties; Penghu and Kinmen source gaps.",
   geometry: "Full WGS84 TGOS school campus reference Polygon, true bbox intersection; not entrance, catchment or walking route.", sourceSha256: "14fdbec063543c260059f662c380be80ae6f1285c6967e5d35896b11c514eb48",
-  localDisplayReceipt: "Processed GeoJSON SHA 950c1913b47a7da36838fc2d8c743ce766207ca312fe624f71bf55fde00305ff; Mini PMTiles SHA 3735e97933bef4f93d163a607d902607c1c008f1481ad3f674ca4120d74e3f15 byte-identical to analytics tile artifact, but tile is not analytical source. Owner-only manifest SHA 3e7158e6013dd72e33a3dd6f0b51d5f0078054c46b604c4c12b8f5ed07af4232; browser readback pending.",
+  localDisplayReceipt: "Processed GeoJSON SHA 950c1913b47a7da36838fc2d8c743ce766207ca312fe624f71bf55fde00305ff; Mini PMTiles SHA 3735e97933bef4f93d163a607d902607c1c008f1481ad3f674ca4120d74e3f15 byte-identical to analytics tile artifact, but tile is not analytical source. Owner-only manifest SHA 3e7158e6013dd72e33a3dd6f0b51d5f0078054c46b604c4c12b8f5ed07af4232; paired browser Taipei Tatung surface revision 16 ready/readback 1 and visible.",
 };
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
