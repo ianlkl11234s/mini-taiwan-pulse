@@ -104,6 +104,7 @@ import { trafficAccidentYearlyOwnerAdapter, theftTaoyuanOwnerAdapter } from "./p
 import { fireHydrantsOwnerAdapter } from "./fireHydrantsOwnerDataset";
 import { culturalFacilitiesOwnerAdapter } from "./culturalFacilitiesOwnerDataset";
 import { groundwaterWellsOwnerAdapter } from "./groundwaterWellsOwnerDataset";
+import { agriRetailOwnerAdapter } from "./agriRetailOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -531,6 +532,7 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   fireHydrantsOwnerAdapter,
   culturalFacilitiesOwnerAdapter,
   groundwaterWellsOwnerAdapter,
+  agriRetailOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,

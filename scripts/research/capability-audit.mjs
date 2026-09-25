@@ -760,6 +760,15 @@ VERIFIED_RAW_FAMILIES["wra:groundwater_wells_static:20260519"] = {
   geometry: "WRA processed reference Point, proxy; bbox/attribute only. reported_county not eligible for geographic filtering or county comparison.", sourceSha256: "f15549b80767b604d90b9e5a9c0c3a42e9ff5ce6fcc4183ee6ec800e09d68db2",
   localDisplayReceipt: "Source 959 Point ID/name/geometry matches the groundwater subset of fixed Mini water_monitor_stations display; owner-only partition manifest SHA 2cd44a610c1c284d9de2fee054c95bb26a8eeba5bac3757af0754f6f3a0b3967. groundwaterWells dynamic display or readings not independently verified.",
 };
+VERIFIED_RAW_FAMILIES["moea:agri_retail_companies:20260525"] = {
+  sourceArtifact: "taipei-gis-analytics/data/processed/agriculture/agri_retail_companies/agri_retail_companies.geojson",
+  evidence: ["mini:scripts/research/build-agri-retail-owner-only.mjs", "mini:src/research/agriRetailOwnerDataset.ts"],
+  sourceVersion: "2026-05-25 processed fixed snapshot", publisher: "經濟部商業發展署 data.gov.tw:45618", license: "OGDL-Taiwan-1.0 catalog; TGOS derived coordinate redistribution not verified, localhost owner-only",
+  observedAt: null, acquiredAt: null, acquiredAtAvailability: "Raw and processed checksums fixed; original acquisition timestamp and remote release not independently verified.",
+  coverageAndMissingness: "58,613 raw; 37,789 approved; 359 TGOS misses; 37,430 Point. Missing geocodes are absent from the spatial sidecar.",
+  geometry: "TGOS address-geocoded reference Point, proxy; bbox/attribute only, no nearest or current-business claims.", sourceSha256: "9e1e02a0678b66b30a69496325c4afb74624c28dced16aa1990d4b79c1b5ec37",
+  localDisplayReceipt: "Owner-only partition manifest SHA b5c9d4cc5f480bd616f3c9788c5a9c89b90b8f444b3fcc4927e833c9dfe45a60; displayed layer equivalence and map readback unverified.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -855,6 +864,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   theftTaoyuan: "taoyuan:theft_points:20260626",
   fireHydrants: "local-ae:fire_hydrants:20260519",
   groundwaterWells: "wra:groundwater_wells_static:20260519",
+  agriRetail: "moea:agri_retail_companies:20260525",
   eduSchoolElementary: "moe:schools:113-academic-year",
   eduSchoolJunior: "moe:schools:113-academic-year",
   eduSchoolSenior: "moe:schools:113-academic-year",
