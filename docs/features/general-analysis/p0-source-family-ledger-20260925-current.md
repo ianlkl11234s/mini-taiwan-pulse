@@ -2,29 +2,30 @@
 
 由 runtime manifest、research registry 與已檢查的來源收據產生。JSON 保留全部 manifest layer 的完整欄位；`.unknown.csv` 只列本次 594 個 unknown/unavailable，一層一列。狀態是目前證據下的處置，不是線上來源健康或發布驗收。
 
-全部 778 層中，682 層維持候選處置、96 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
+全部 778 層中，681 層維持候選處置、97 層為已註冊 queryable、1 層有 descriptor 但 query disabled。每層的 local asset、remote version、query、displayed 證據分列；其中 QUERYABLE_REGISTERED 不等於 SPATIAL_READY。
 
-778 個 manifest layer 中，96 個有查詢映射、93 個是待讀回的 GeoJSON metadata candidates、589 個尚無可用映射；三者合計 778。
+778 個 manifest layer 中，97 個有查詢映射、92 個是待讀回的 GeoJSON metadata candidates、589 個尚無可用映射；三者合計 778。
 
 ## 主要狀態
 
 | 狀態 | 層數 |
 |---|---:|
 | READER_PENDING | 348 |
-| SOURCE_MISSING | 209 |
-| RIGHTS_HOLD | 24 |
+| SOURCE_MISSING | 202 |
+| RIGHTS_HOLD | 31 |
 | VERSION_MISMATCH | 8 |
 
 ## 具體阻擋
 
 | 阻擋 | 層數 |
 |---|---:|
-| NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT | 200 |
+| NO_DECLARED_RAW_ARTIFACT_OR_RPC_RECEIPT | 193 |
 | DERIVED_RELEASE_SOURCE_AUDIT_AND_READER_PENDING | 188 |
 | DECLARED_DISPLAY_ASSET_NOT_VERIFIED_AS_COMPLETE_RAW_SOURCE | 153 |
 | SOURCE_LICENSE_OR_USE_CLEARANCE_HOLD | 13 |
 | RIGHTS_OR_USE_CLEARANCE_UNVERIFIED | 11 |
 | WASTE_FACILITIES_COMPLETE_RELEASE_AND_COORDINATE_RIGHTS_MISSING | 9 |
+| OWNER_ONLY_RPC_AND_MIXED_COORDINATE_USE_HOLD | 7 |
 | DISPLAY_TO_VERIFIED_RAW_RELEASE_ALIGNMENT_NOT_INSPECTED | 6 |
 | DERIVED_ROAD_DISTANCE_RELEASE_UNVERIFIED | 4 |
 | READER_AND_RUNTIME_RELEASE_RECEIPT_MISSING | 2 |
@@ -33,7 +34,7 @@
 
 `comparisonStatisticsRecipes.json` 明列 188 個比較統計圖層、indicator 與 releaseId；共同的是派生 runtime 契約，並非一份原始資料。逐 release 的分子／分母來源尚未全量稽核，也未註冊有界 research reader，逐層維持 `READER_PENDING`。同一 `upstream.datasetId` 的圖層另列 declared contract family；這只證明 manifest 宣告相同，不證明同一 raw SHA、RPC schema 或 release。
 
-209 個 SOURCE_MISSING 中，115 個可找到 analytics processed manifest 與 catalog、67 個只有 catalog、2 個有上游 ID 卻未找到同名本機證據、25 個連上游 ID 也未宣告。這些是**導航線索**，沒有一項自動證明 raw input、授權或 release 同版。
+202 個 SOURCE_MISSING 中，115 個可找到 analytics processed manifest 與 catalog、60 個只有 catalog、2 個有上游 ID 卻未找到同名本機證據、25 個連上游 ID 也未宣告。這些是**導航線索**，沒有一項自動證明 raw input、授權或 release 同版。
 
 ## 宣告的共用契約（前 25 個）
 
@@ -58,12 +59,12 @@
 | declared-upstream:crop_township_statistics | 4 | manifest/recipe only |
 | declared-upstream:network_performance_grid | 4 | manifest/recipe only |
 | declared-upstream:network_structures | 4 | manifest/recipe only |
-| declared-upstream:police_stations | 4 | manifest/recipe only |
 | declared-upstream:power_plants | 4 | manifest/recipe only |
 | declared-upstream:taoyuan_airport_passengers_county_32997 | 4 | manifest/recipe only |
 | declared-upstream:waste_positions_realtime | 4 | manifest/recipe only |
 | declared-upstream:air_quality | 3 | manifest/recipe only |
 | declared-upstream:caa_airport_activity_county_33238 | 3 | manifest/recipe only |
+| declared-upstream:fishery_stats | 3 | manifest/recipe only |
 
 真正已核對的 raw family 另見 JSON `verifiedRawFamilies`，且仍需逐層檢查 display 同版、權限、時間、缺值與 geometry。不得把宣告 family 或 PMTiles 視為完整可分析原表。
 

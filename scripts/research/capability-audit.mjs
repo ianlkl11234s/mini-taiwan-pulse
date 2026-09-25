@@ -133,6 +133,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   gasStationFpcc: "energy:gas_stations_canonical:20260620",
   gasStationOther: "energy:gas_stations_canonical:20260620",
   gasStationTaisugar: "energy:gas_stations_canonical:20260620",
+  policeStation: "police_justice:police_stations:20260626",
   companyPoints: "business_registry:company_stock:202608",
   manufacturingCompanyPoints: "business_registry:company_stock:202608",
   companyCapitalGrid: "business_registry:company_stock:202608",
@@ -177,6 +178,16 @@ const VERIFIED_RAW_FAMILY_BY_DATASET = {
   schools: "moe:schools:113-academic-year",
 };
 Object.assign(VERIFIED_RAW_FAMILIES, {
+  "police_justice:police_stations:20260626": {
+    sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/police_stations/police_stations_20260626.geojson",
+    sourceArtifactRole: "canonical processed trust-chain assembly from data.gov.tw 5958, 24419 and 168315; three raw ZIP/CSV files, not one original raw table",
+    evidence: ["taipei-gis-analytics/data/processed/police_justice/police_stations/_manifest.json", "taipei-gis-analytics/docs/data-catalog/police_justice/police_stations.md"],
+    sourceVersion: "20260626", publisher: "內政部警政署與嘉義市政府", license: "OGDL-Taiwan-1.0",
+    observedAt: null, acquiredAt: null, acquiredAtAvailability: "fetched_at=2026-06-26 in all processed rows is pipeline retrieval, not today's facility status",
+    coverageAndMissingness: "2,065 Point rows, 1,860 distinct entity_id values; 205 repeated ID rows retained. Six inferred facility subtypes; name, subtype, source and geometry have no nulls in inspected processed artifact.",
+    geometry: "EPSG:4326 Point from transformed TWD97 TM2 and WGS84 source; coordinates are facility reference points, not service areas or access entrances.",
+    sourceSha256: "63dadd2cf7e764138e2cca8bdd57010464b91fb5c3d90afa8a65c8349e83e2e7",
+  },
   "energy:gas_stations_canonical:20260620": {
     sourceArtifact: "taipei-gis-analytics/data/processed/energy/gas_stations_canonical/gas_stations_canonical_20260620.geojson",
     sourceArtifactRole: "canonical derived assembly serving five station map layers; six upstream processed inputs, not one raw original",
@@ -193,6 +204,17 @@ Object.assign(VERIFIED_RAW_FAMILIES, {
     sourceVersion: "20260615", publisher: "台灣中油與臺中市政府 data.gov.tw sources", license: "OGDL-Taiwan-1.0",
     observedAt: null, acquiredAt: null, acquiredAtAvailability: "not recorded in inspected manifest/catalog",
     coverageAndMissingness: "660 government source records deduplicated to 573 coordinate-valid Point features; not a full national all-brand census.", geometry: "Point, EPSG:4326; records lacking coordinates are omitted.", sourceSha256: null,
+  },
+  "moa:livestock_farms:20260705-enriched-v3": {
+    sourceArtifact: "mini-taiwan-pulse/public/agriculture/livestock_farms.geojson",
+    sourceArtifactRole: "local enriched fallback; current display route is an owner-only get_livestock_farms RPC whose release has not been read",
+    evidence: ["mini-taiwan-pulse/docs/features/livestock/handoff.md", "mini-taiwan-pulse/docs/features/owner-gated-layers/README.md", "taipei-gis-analytics/docs/data-catalog/agriculture/livestock_farms.md"],
+    sourceVersion: "enriched v3 / 2026-07-05 batch01+02+03", publisher: "農業部 ARIS with NLSC/twland and EMS/Google coordinate enrichment",
+    license: "catalog claims OGDL-Taiwan-1.0; EMS/Google-derived coordinate public-use clearance still needs per-record verification; product route owner-only",
+    observedAt: null, acquiredAt: "2026-07-05", acquiredAtAvailability: "catalog records acquisition date, not current farm operation",
+    coverageAndMissingness: "13,087 local Point rows; 12,271 high, 47 medium, 769 low-precision coordinates. ARIS batch coverage is partial; missing farms are not zero. Seven livestock species filters share this source.",
+    geometry: "EPSG:4326 Point; low precision may be village/section centroid rather than a farm location.",
+    sourceSha256: "41c3244b7eff050697fd746282d79b5c75c688960fa38c3c644b80e241819e13",
   },
   "dgbas:county_transport_supply:2023-2024": {
     sourceArtifact: "taipei-gis-analytics/data/raw/transportation/dgbas_county_transport_supply/", evidence: ["taipei-gis-analytics/data/processed/transportation/dgbas_county_transport_supply/_manifest.json", "taipei-gis-analytics/docs/data-catalog/transportation/dgbas_county_transport_supply_10935.md"],
@@ -237,7 +259,7 @@ const INSPECTED_UPSTREAM_DATASETS = {
   education_county_statistics: { status: "EVIDENCE_GAP", reason: "processed releases exist but the claimed raw receipt directory is absent from this checkout" },
   waste_facilities: { status: "EVIDENCE_GAP", reason: "2026-05-19 processed files contain 66 government Points plus 237 OSM comparison Points, while catalog says Supabase later held hundreds more; some coordinates came from Google geocoding. No complete same-version table receipt, public coordinate-use clearance, or nine-filter reconciliation was found." },
   gas_stations: { status: "EVIDENCE_GAP", reason: "legacy manifest datasetId conflates 573 curated points (20260615) with 3,053 canonical entities (20260620) and four road-distance coverage surfaces; exact layer-level lineage overrides this navigation ID" },
-  livestock_farms: { status: "EVIDENCE_GAP", reason: "mixed ARIS/NLSC/EMS/Google geometry provenance and no inspected processed manifest/immutable receipt in this pass" },
+  livestock_farms: { status: "RIGHTS_HOLD", familyKey: "moa:livestock_farms:20260705-enriched-v3", reason: "local SHA-identified enriched fallback exists, but current route is owner-only RPC with unread release; EMS/Google coordinate rights and partial ARIS coverage prevent public research reader" },
   dgbas_county_transport_supply_10935: { status: "VERIFIED_RAW_LINEAGE", familyKey: "dgbas:county_transport_supply:2023-2024" },
   jp_medical_reports: { status: "EVIDENCE_GAP", reason: "no analytics catalog/processed manifest found in this pass" },
   jp_water_ksj: { status: "RIGHTS_HOLD", familyKey: "mlit:ksj_water:inspected-20260918", reason: "only W09 is a commercial/public candidate; other source shards retain non-commercial/re-distribution holds" },
@@ -539,6 +561,11 @@ function p0FamilyLedger() {
         status: "SOURCE_MISSING", primaryBlocker: "WASTE_FACILITIES_COMPLETE_RELEASE_AND_COORDINATE_RIGHTS_MISSING",
         nextStep: "Reconcile the nine layer filters against a fixed complete Supabase/raw release, 66 government plus 237 OSM processed rows, and later geocoded records; isolate Google-derived coordinates until public-use rights are verified.",
       }
+      : singleDatasetId === "livestock_farms"
+      ? {
+        status: "RIGHTS_HOLD", primaryBlocker: "OWNER_ONLY_RPC_AND_MIXED_COORDINATE_USE_HOLD",
+        nextStep: "Keep seven farm filters owner-only. Reconcile the fixed local 13,087 Point fallback with the actual get_livestock_farms RPC release, verify EMS/Google coordinate-use rights per record, and retain partial ARIS coverage and low-precision centroid labels before any public research reader.",
+      }
       : inspectionRightsHold
       ? {
         status: "RIGHTS_HOLD",
@@ -783,7 +810,7 @@ function familyLedgerMarkdown(ledger) {
     "## 具體阻擋", "", "| 阻擋 | 層數 |", "|---|---:|",
     ...[...blockers].sort((a, b) => b[1] - a[1]).map(([blocker, count]) => `| ${blocker} | ${count} |`), "",
     "`comparisonStatisticsRecipes.json` 明列 188 個比較統計圖層、indicator 與 releaseId；共同的是派生 runtime 契約，並非一份原始資料。逐 release 的分子／分母來源尚未全量稽核，也未註冊有界 research reader，逐層維持 `READER_PENDING`。同一 `upstream.datasetId` 的圖層另列 declared contract family；這只證明 manifest 宣告相同，不證明同一 raw SHA、RPC schema 或 release。", "",
-    `209 個 SOURCE_MISSING 中，${missing.filter(entry => hasProcessed(entry) && hasCatalog(entry)).length} 個可找到 analytics processed manifest 與 catalog、${missing.filter(entry => !hasProcessed(entry) && hasCatalog(entry)).length} 個只有 catalog、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && entry.upstream?.datasetIds?.length).length} 個有上游 ID 卻未找到同名本機證據、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && !entry.upstream?.datasetIds?.length).length} 個連上游 ID 也未宣告。這些是**導航線索**，沒有一項自動證明 raw input、授權或 release 同版。`, "",
+    `${missing.length} 個 SOURCE_MISSING 中，${missing.filter(entry => hasProcessed(entry) && hasCatalog(entry)).length} 個可找到 analytics processed manifest 與 catalog、${missing.filter(entry => !hasProcessed(entry) && hasCatalog(entry)).length} 個只有 catalog、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && entry.upstream?.datasetIds?.length).length} 個有上游 ID 卻未找到同名本機證據、${missing.filter(entry => !hasProcessed(entry) && !hasCatalog(entry) && !entry.upstream?.datasetIds?.length).length} 個連上游 ID 也未宣告。這些是**導航線索**，沒有一項自動證明 raw input、授權或 release 同版。`, "",
     "## 宣告的共用契約（前 25 個）", "", "| 契約 | 層數 | 證據等級 |", "|---|---:|---|",
     ...ledger.declaredContractFamilies.slice(0, 25).map(item => `| ${item.key} | ${item.layerCount} | manifest/recipe only |`), "",
     "真正已核對的 raw family 另見 JSON `verifiedRawFamilies`，且仍需逐層檢查 display 同版、權限、時間、缺值與 geometry。不得把宣告 family 或 PMTiles 視為完整可分析原表。",

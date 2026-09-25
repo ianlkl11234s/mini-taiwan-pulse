@@ -72,3 +72,15 @@
 - 原 checkout static RPC SHA `c3f6c2319966f8ba487ba77d84a6c17f9c9f3b519cd6d076b695198b5c4a53ca` 的 canonical 3,053 列與來源名稱、品牌 membership、座標（小數六位）逐筆 multiset 對齊；**443 筆 ODbL 在舊 static RPC 被誤標 OGDL**。因此資料身分對齊、授權屬性沒有對齊；展示／正式發布驗收仍是 `DISPLAY_SOURCE_LICENSE_ATTRIBUTE_CONFLICT`，不能把五層稱為全鏈已通過。
 - 本地 `tw-gas-stations-canonical` 一個 descriptor 映射五個 `gasStation*`；品牌標籤可重疊，中油／台塑／台糖／unknown membership 2,023／350／86／698，不能相加當 3,053 個互斥站。新問法的獨立 Python Haversine oracle：高雄 `[120.30,22.63]` 2 公里 18 筆，其中 17 筆含中油標籤、1 筆 unknown。focused Vitest 12/12、`npx tsc -b`、`npm run build` 通過。
 - 舊 active session 的瀏覽器已斷線；在既有 3734 前端重新配對後，正常 `pulse_query_records` 以 `[120.28,22.611,120.32,22.649]` bbox 得 24 個候選，`pulse_spatial_query(within_distance, 2000m)` 得 18，與獨立 oracle 相同；`pulse_spatial_query(nearest)` 得中華三路站 460.314389m，也與 oracle 一致。`pulse_present_result`→`pulse_wait_scene_ready` revision 1 `ready`；`pulse_fit_bounds`→revision 2 `ready`，`pulse_get_map_context` readback 18 features／1 source／1 layer，瀏覽器目視 18 個點及高亮數字。這證實新查詢來源到暫態地圖結果的本機空間鏈；既有底圖 static RPC 的 443 筆授權標示衝突仍未修，五個展示層的同版授權驗收不得勾完成。隔離 Vite profile 現讀 mini worktree 的 `public/`，新 sidecar 可由既有 3734 正常提供；沒有重啟服務。當前 audit 778／97 datasets／96 queryable mappings／93 metadata candidates／589 unknown-unavailable。
+
+## 第六批：畜牧場七層共用來源，公開查詢 HOLD
+
+- 七個 `livestockFarm*` manifest key 宣告同一 `livestock_farms` 來源與 `主畜種` filter。現行 `useLivestockLayers` 只呼叫一次 `get_livestock_farms` RPC，sidebar 七層均在 `GATED_LAYERS`；舊靜態 GeoJSON 是本機 fallback，不能把它的存在當成目前公開查詢授權。
+- 本機 `public/agriculture/livestock_farms.geojson` SHA `41c3244b7eff050697fd746282d79b5c75c688960fa38c3c644b80e241819e13`，13,087/13,087 為 Point；上游 handoff 記 enriched v3、2026-07-05 batch01+02+03，高／中／低精度 12,271／47／769。低精度可能是段或村里質心；ARIS 批次覆蓋並非全國所有場。catalog 的 OGDL 聲明不足以單獨解決 EMS／Google 補位座標的公開使用權。`get_livestock_farms` RPC 實際 release／ACL 尚未實讀，並無同版展示證據。
+- 因此七層由 `SOURCE_MISSING` 改為 `RIGHTS_HOLD`：保留本地來源 lineage 與查找入口，待資料擁有者核准可公開的座標子集及其標示，核對 RPC release／ACL，才能決定是否接研究 reader；不擅自把 owner-only 圖層公開。
+
+## 第七批：警察機關來源 Point reader（本機查詢與地圖已驗）
+
+- `policeStation` 來源是警政署 data.gov.tw 5958／24419 加嘉義市 168315 的 trust-chain 處理檔，2026-06-26 analytics processed SHA `63dadd2cf7e764138e2cca8bdd57010464b91fb5c3d90afa8a65c8349e83e2e7`，2,065/2,065 為 WGS84 Point；OGDL-Taiwan-1.0。來源 `entity_id` 僅 1,860 個不同值，重複 205 列（含同址不同機關），故保留全部列並以版本 SHA＋列序作 `record_id`。六類 subtype 分別為派出所 1,541、分局 163、警察局 27、專業警察 298、總部 5、其他 31；擷取日不代表今日編制或服務。
+- 最小安全欄位 sidecar SHA `5d2bcc9d34d5f293b70255fbbdf70d7499a701137bd384df42bb60f477b66a16`、728,233 bytes，不帶地址、電話或 `_provenance`。只映射原始站點 `policeStation`；三個 `policeIso*` 是站點＋路網衍生面，仍待獨立來源／版本／數值驗證。既有站點展示 asset 的 same-version 收據尚未核對。
+- 嘉義 `[120.45,23.48]` 1,500m 新題：獨立 Python Haversine oracle 對全檔算出 10 筆，最近的專業警察單位 135.684850m；正常 MCP bbox `[120.43,23.46,120.47,23.50]` 得 18 個候選，`within_distance` 得 10，`nearest` 得同一最近點與距離。`pulse_present_result` revision 3、`pulse_fit_bounds` revision 4 均 `ready`；map readback 10 features／1 source／1 layer、瀏覽器目視 10 點及「10 筆分析結果已高亮」。focused Vitest 3/3、`npx tsc -b` 與 `npm run build` 通過。這是本機新查詢來源的空間驗收，未驗證原有底圖同版或正式發布。
