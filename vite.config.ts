@@ -984,6 +984,7 @@ function serveResearchPointPartitions(): Plugin {
         "aquaculture-zone/aquaculture-zone.geojson": { folder: "aquaculture-zone", size: 522_406 },
         "agri-leisure-farm-zones/agri-leisure-farm-zones.geojson": { folder: "agri-leisure-farm-zones", size: 9_855_193 },
         "cemetery-zoning/cemetery-zoning.geojson": { folder: "cemetery-zoning", size: 1_113_258 },
+        "cemetery-osm/cemetery-osm.geojson": { folder: "cemetery-osm", size: 3_602_036 },
       };
       server.middlewares.use("/__local-research-owner-only", (request, response, next) => {
         const path = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";

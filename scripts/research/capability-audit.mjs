@@ -956,6 +956,16 @@ VERIFIED_RAW_FAMILIES["taipei-newtaipei:cemetery_zoning_urban:20260805"] = {
   sourceSha256: "f469e494a476194614b91d9abe71ed55a5f296699361d834b57f9eb2e4404df3",
   localDisplayReceipt: "Full derived GeoJSON 1,113,258 bytes SHA f469e494a476194614b91d9abe71ed55a5f296699361d834b57f9eb2e4404df3; Mini display SHA 55302cbf68ab98cf5608b6c5ac626eaef4eaa0dc3f80c46814f8b86f5d1a844e, so display and analysis versions are kept distinct.",
 };
+VERIFIED_RAW_FAMILIES["osm:cemetery:20260805"] = {
+  sourceArtifact: "taipei-gis-analytics/data/raw/funeral/osm/osm_cemetery_raw_20260805.json",
+  evidence: ["taipei-gis-analytics/data/processed/funeral/cemetery_osm/cemetery_osm_20260805.geojson", "taipei-gis-analytics/docs/data-catalog/funeral/cemetery_osm.md", "mini:scripts/research/build-cemetery-osm-owner-only.py", "mini:src/research/cemeteryOsmDataset.ts"],
+  sourceVersion: "Overpass timestamp_osm_base 2026-08-04T17:36:31Z; processed 2026-08-05", publisher: "OpenStreetMap contributors via Overpass API", license: "ODbL; attribution © OpenStreetMap contributors; localhost owner-only reader",
+  observedAt: "2026-08-04T17:36:31Z", acquiredAt: null, acquiredAtAvailability: "OSM base timestamp is a snapshot marker, not current land use or operation.",
+  coverageAndMissingness: "3,229 features, 3,008 ways and 221 relations; ID set identical between local raw and processed. Name tag missing on most rows. OSM coverage is community dependent, so bbox non-hit is not absence of cemeteries.",
+  geometry: "3,099 Polygon and 130 MultiPolygon; all nonempty and valid in local processed WGS84 snapshot. Reader preserves rings, holes and vertices, wrapping single polygons as one-part MultiPolygon.",
+  sourceSha256: "98a6871dc7efb4c3445be2453d46240dc9aeb9963a25337d7bd5c00ead5ceffa",
+  localDisplayReceipt: "Full owner-only GeoJSON 3,602,036 bytes SHA 615a9adc23ac112aa56e0cc84bf106556f8acea13fadbe2436218ea530a58b23; Mini PMTiles visual asset is not claimed as the same full analytical geometry.",
+};
 const welfareFamilies = [
   ["welfare:ltc:20260812", "welfareLtcInstitutions", "ltc_institutions", "ltc_institutions_national.geojson", "876b771afdb69676a342750f215fbfdaffd4cdfeaf4b73704d4297a2591c72cb", "3,117 Point; TGOS subset 3,053, Google 29, offline 35"],
   ["welfare:elderly:20260812", "welfareElderlyHomes", "elderly_care_homes", "elderly_care_homes_national.geojson", "0b7ce3243c8a0d735c978bff05b0a5031e8f702a31691ca2c32d9816715a120f", "1,160 Point; TGOS subset 1,043, Google 33, offline 84"],
@@ -1033,6 +1043,7 @@ const VERIFIED_RAW_FAMILY_BY_LAYER = {
   hikingTrails: "forestry:hiking_trails:20260608-six-source",
   agriLeisureFarmZones: "moa:leisure_farm_zones:FY114",
   cemeteryZoning: "taipei-newtaipei:cemetery_zoning_urban:20260805",
+  cemeteryOsm: "osm:cemetery:20260805",
   forestTreatmentWorks: "moa:forest_treatment_works:20260802",
   forestWildlife: "moa:forest_wildlife_grid:20260607",
   eduUniversityStudents: "moe:university_students:114",
