@@ -528,6 +528,30 @@ function serveResearchPointPartitions(): Plugin {
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
+      server.middlewares.use("/__local-research-owner-only/police-iso", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
+        const sizes: Record<string, number> = {
+          "police_iso_substation_combined.geojson": 18_440_196,
+          "police_iso_precinct_combined.geojson": 1_625_842,
+          "police_iso_police_dept_combined.geojson": 227_369,
+        };
+        if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !Object.hasOwn(sizes, name)) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(process.cwd(), "../runtime/owner-only/police-iso", name);
+        void stat(target).then(info => {
+          if (!info.isFile() || info.size !== sizes[name]) throw new Error("LOCAL_SOURCE_SIZE");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
       server.middlewares.use("/__local-research-owner-only/school-district-k12", (request, response) => {
         const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\//, "") ?? "";
         if (!isOwnerLocalRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || name !== "school_district_k12_20260809.geojson") {
