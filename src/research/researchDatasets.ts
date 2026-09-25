@@ -44,6 +44,13 @@ import { companyPointsAdapter } from "./companyPointsDataset";
 import { culturalMuseumsOwnerAdapter } from "./culturalMuseumsDataset";
 import { performingVenuesAdapter } from "./performingVenuesDataset";
 import { speedCameraListedAdapter, speedCameraTaiwanCoordinatesAdapter } from "./speedCameraDataset";
+import { fireStationsOwnerAdapter } from "./fireStationsDataset";
+import { ltcInstitutionsTgosUpstreamAdapter } from "./ltcInstitutionsDataset";
+import { elderlyCareHomesTgosUpstreamAdapter } from "./elderlyCareHomesDataset";
+import { welfareChildcareOwnerAdapter, welfareDisabilityOwnerAdapter, welfareSocialWorkOrgsOwnerAdapter } from "./welfareGeocodedOwnerDatasets";
+import { welfareLtcInstitutionsOwnerAdapter, welfareElderlyHomesOwnerAdapter } from "./welfareCarePointsOwnerDatasets";
+import { eduSchoolElementaryOwnerAdapter, eduSchoolJuniorOwnerAdapter, eduSchoolSeniorOwnerAdapter, eduSchoolUniversityOwnerAdapter, eduSchoolSpecialOwnerAdapter, eduRemoteSchoolsOwnerAdapter } from "./eduSchoolsOwnerDatasets";
+import { welfareChildServicesOwnerAdapter } from "./welfareChildServicesOwnerDataset";
 import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
 import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
@@ -372,6 +379,21 @@ export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   performingVenuesAdapter,
   speedCameraListedAdapter,
   speedCameraTaiwanCoordinatesAdapter,
+  fireStationsOwnerAdapter,
+  ltcInstitutionsTgosUpstreamAdapter,
+  elderlyCareHomesTgosUpstreamAdapter,
+  welfareChildcareOwnerAdapter,
+  welfareDisabilityOwnerAdapter,
+  welfareSocialWorkOrgsOwnerAdapter,
+  welfareLtcInstitutionsOwnerAdapter,
+  welfareElderlyHomesOwnerAdapter,
+  eduSchoolElementaryOwnerAdapter,
+  eduSchoolJuniorOwnerAdapter,
+  eduSchoolSeniorOwnerAdapter,
+  eduSchoolUniversityOwnerAdapter,
+  eduSchoolSpecialOwnerAdapter,
+  eduRemoteSchoolsOwnerAdapter,
+  welfareChildServicesOwnerAdapter,
   soundCameraListedLocationsAdapter,
   officialNoiseMonitoringAdapter,
   amusementParksSourceCoordinatesAdapter,
