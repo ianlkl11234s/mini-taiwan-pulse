@@ -13,7 +13,13 @@
 | 台北 vs 新北、全國排名第幾 | [region-rank](region-rank.md) | 關聯 |
 | 畫出環域／疊合範圍 | [buffer-overlay](buffer-overlay.md) | 空間 |
 | 哪裡特別集中、熱點在哪 | [hotspot-density](hotspot-density.md) | 空間＋關聯 |
+| 哪裡是統計顯著熱點（不只是密度高） | [hotspot-gi-star](hotspot-gi-star.md) | 空間＋關聯 |
 | 變多了嗎、前後差多少、為什麼變了 | [change-over-time](change-over-time.md) | 因果 |
+| 同一個地方連續好幾週／月都出現 | [news-persistence](news-persistence.md) | 因果前置 |
+| 某類設施周邊有哪些關鍵設施、同時靠近多個來源 | [infrastructure-proximity](infrastructure-proximity.md) | 空間 |
+| 把多個指標合成一個分數排名、排名穩不穩 | [composite-index](composite-index.md) | 關聯 |
+| 河川穿越幾個鄉鎮、淹水面積占比前幾名 | [boundary-overlay](boundary-overlay.md) | 空間 |
+| 這些點是集中還是分散、群聚程度多顯著 | [clustering-ann](clustering-ann.md) | 關聯 |
 
 ## 新增配方
 
