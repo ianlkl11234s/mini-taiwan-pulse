@@ -91,6 +91,7 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
   const features = normalizeWarehouseFeatures(parsed);
   const types = [...new Set(features.map(feature => feature.type))];
   if (args.style?.kind === "heatmap" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
+  if (args.style?.kind === "compare" && (types.some(type => type !== "Point") || features.length !== args.style.columns.length)) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   const createdAt = new Date().toISOString();
   return types.map(type => {
     const group = features.filter(feature => feature.type === type);

@@ -35,6 +35,7 @@ import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnal
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
+import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean };
@@ -538,6 +539,13 @@ export function MainMapConnection(props: Props) {
                 </label>
                 {rendered?.numericLegend && <div className="agent-analysis-count-legend"><span>{rendered.numericLegend.label} · {rendered.numericLegend.method === "single_value" ? "單一數值" : "本次結果等距分級"}</span><div>{rendered.numericLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
                 {rendered?.styleLegend && <WarehouseStyleLegendView legend={rendered.styleLegend} />}
+                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
+                  if (!props.map) return;
+                  let point: Record<string, unknown> | undefined;
+                  try { point = analysis.current?.presentable([item.resultId])[0]?.rows.find(row => row._compare_index === column.index); } catch { point = undefined; }
+                  const geometry = point?.geometry as { type?: string; coordinates?: [number, number] } | undefined;
+                  if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
+                }} />}
                 {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />

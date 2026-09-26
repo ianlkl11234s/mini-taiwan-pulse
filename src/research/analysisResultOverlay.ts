@@ -3,7 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
-import { warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseStyleLegend } from "./warehouseResultStyle";
+import { warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle, type WarehouseStyleLegend } from "./warehouseResultStyle";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
 const COLORS = ["#00b8d9", "#ff8f00", "#d81b60", "#7e57c2", "#43a047", "#5c6bc0", "#e53935", "#00897b"];
@@ -17,6 +17,8 @@ const sourceId = (index: number) => `research-analysis-result-${index}`;
 const layerId = (index: number) => `research-analysis-result-points-${index}`;
 /** Heatmaps are not pickable, so a styled heatmap keeps a close-zoom circle layer for popup/select. */
 const heatPointsLayerId = (index: number) => `research-analysis-result-heat-points-${index}`;
+/** Numbered marker labels (1..N) for a compare-styled point result; decorative only, not pickable. */
+const compareLabelLayerId = (index: number) => `research-analysis-result-compare-label-${index}`;
 const HEAT_POINTS_MINZOOM = 13;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
 
@@ -39,6 +41,8 @@ export type AnalysisResultPresentation = {
   numericLegend?: NumericResultLegend;
   /** Server-computed warehouse style legend (choropleth / bivariate / heatmap). */
   styleLegend?: WarehouseStyleLegend;
+  /** Server-computed field x point comparison table; rendered as a table, never a colour legend. */
+  compareTable?: Extract<WarehouseResultStyle, { kind: "compare" }>;
 };
 
 /** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
@@ -205,11 +209,12 @@ function presentation(result: PresentableResult, featureCount: number, index?: n
   } : undefined;
   const numericLegend = numericResultLegend(result);
   const style = result.resultStyle;
-  const styleSwatch = style ? style.colors[style.colors.length - 1]! : undefined;
+  const styleSwatch = style && style.kind !== "compare" ? style.colors[style.colors.length - 1]! : undefined;
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
-    ...(style ? { styleLegend: warehouseStyleLegend(style) } : {}),
+    ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style) } : {}),
+    ...(style?.kind === "compare" ? { compareTable: style } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
@@ -247,7 +252,8 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const numericLegend = numericResultLegend(result);
     const style = result.resultStyle;
     const heatmap = style?.kind === "heatmap" && result.geometry.type === "Point" ? style : null;
-    const styleColor = style && style.kind !== "heatmap" ? warehouseStyleColor(style) : null;
+    const compare = style?.kind === "compare" && result.geometry.type === "Point" ? style : null;
+    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" ? warehouseStyleColor(style) : null;
     const fillColor: string | ExpressionSpecification = styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
     const outlineColor = styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
@@ -260,6 +266,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const duration = prefersReducedMotion() ? 0 : 380;
     if (existing && existing.type !== (polygon ? "fill" : line ? "line" : heatmap ? "heatmap" : "circle")) map.removeLayer(layerId(index));
     if (!heatmap && map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
+    if (!compare && map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
     if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), paint: {
         "fill-color": fillColor, "fill-opacity": reveal ? 0 : resultOpacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": outlineColor,
@@ -295,11 +302,18 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "circle-stroke-color", circleStrokeColor);
       map.setPaintProperty(layerId(index), "circle-stroke-width", circleStrokeWidth);
     }
+    if (compare) {
+      if (!map.getLayer(compareLabelLayerId(index))) map.addLayer({ id: compareLabelLayerId(index), type: "symbol", source: sourceId(index), layout: {
+        "text-field": ["get", compare.pointProperty], "text-size": 12, "text-allow-overlap": true, "text-ignore-placement": true,
+      }, paint: { "text-color": "#ffffff", "text-halo-color": "#0f172a", "text-halo-width": 1.4, "text-opacity": resultOpacity } });
+      else map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
+    }
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
       map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity", polygon ? resultOpacity * (scopeArea ? 0.18 : 0.45) : resultOpacity);
       if (!polygon && !line && !heatmap) map.setPaintProperty(layerId(index), "circle-stroke-opacity", resultOpacity);
+      if (compare && map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
@@ -317,6 +331,7 @@ export function removeAnalysisResults(map: Map): void { for (let index = 0; inde
 function removeIndex(map: Map, index: number): void {
   cancelReveal(map, index);
   if (map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
+  if (map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
   if (map.getLayer(layerId(index))) map.removeLayer(layerId(index));
   if (map.getSource(sourceId(index))) map.removeSource(sourceId(index));
 }
@@ -365,5 +380,6 @@ export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPre
       map.setPaintProperty(heatPointsLayerId(index), "circle-opacity", opacity);
       map.setPaintProperty(heatPointsLayerId(index), "circle-stroke-opacity", opacity);
     }
+    if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
   }
 }
