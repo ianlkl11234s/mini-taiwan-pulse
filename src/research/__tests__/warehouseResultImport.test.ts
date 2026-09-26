@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
+import { EXPLORATION_OPERATIONS } from "../MainMapConnection";
 import { ResearchAnalysisSession } from "../researchAnalysisSession";
 import { loadWarehouseResult, validateWarehouseImportArgs, warehouseResultFileName } from "../warehouseResultImport";
 
@@ -59,5 +60,11 @@ describe("warehouse result import", () => {
     const second = await session.importWarehouseResult({ resultId: "wh-8", sha256: singleSha, label: "只剩學校", featureCount: 1 }, okFetch(single));
     expect(second.resultIds).toEqual(["wh-8"]);
     expect(session.hasResult("wh-8:polygon")).toBe(false);
+  });
+
+  it("is accepted by the paired map's operation gate, not only by the session", () => {
+    // Regression: the session handled the import but the map-level allowlist rejected it
+    // (MAP_EXPLORATION_OPERATION_UNSUPPORTED) in the first real MCP → Gateway → browser run.
+    expect(EXPLORATION_OPERATIONS.has("import_warehouse_result")).toBe(true);
   });
 });
