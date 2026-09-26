@@ -54,11 +54,16 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
 1. **瀏覽器全鏈驗收**（需本人登入）：服務已在 3734／8794 啟動。瀏覽器開 `http://127.0.0.1:3734` 登入並配對 Codex（`pulse-research` MCP 已指向重建後的 dist），請 Agent 跑「台北 671 路 200 公尺內的學校，畫在地圖上」→ 應見環域面＋學校點，`map_context` 讀回 `wh-N:polygon`／`wh-N:point`。
 2. **合併前的歷史問題**：mini 分支歷史仍含 `public/research` 等 765 個已刪檔案版本與大型台帳；依「一般 merge commit」規則合併會永久進入 public repo 歷史。選項：(a) 改寫這條未 push 分支的歷史移除這些檔案；(b) 本次例外改用 squash；(c) 接受。未決前不 push。
 3. **資料缺口入倉**（路線 E 優先）：房價（`real_estate` 缺 `_manifest.json`）、新聞事件、污染裁罰（EMS_P_46）、全國公司點；`rail_stations` 缺臺鐵站屬上游資料問題。
-4. 磁碟剩約 12 GB，倉庫本身 15 GB；再建置前請先清出空間。
+4. 磁碟：舊單檔已刪、store 3.3 GB；重建時仍需暫時 15 GB 空間。
+5. **Claude Code 也可分析**（2026-09-26）：已用 `claude mcp add --scope user pulse-research` 接上同一個 MCP（dist 路徑同 Codex），`pulse-gis-analyst` skill 以 symlink 提供給 Claude Code（repo `.claude/skills/` 與使用者層 `~/.claude-migu/skills/`；合併後可移除使用者層 symlink，並把 MCP 路徑改指主 checkout）。
 
 ## 儲存與部署路線（2026-09-26 決定）
 
 - **現在**：R2 存 GeoParquet 正本（私有 bucket）＋本機按需快取（LRU 上限），引擎仍在本機 MCP。生活機能 36 表原始約 0.31 GB，263 個 dataset 各小於 50 MB；日常快取預估 0.5–2 GB。
+  - 已完成（2026-09-26）：`mcp/warehouse/export_store.py` 匯出 315 檔共 3.3 GB（原單檔 15 GB；`geom_3826` 改在 view 內即時計算）；引擎 store 模式（記憶體 DuckDB，只能讀快取目錄）；`store.ts` 的本機目錄／私有 R2 來源、SHA 驗證、LRU 淘汰、離線沿用上一版 manifest；`pulse_wh_status` 工具。問題庫 store 與舊單檔模式 8 題答案一致（Q3 僅浮點末位差），耗時略增（Q2 0.8→1.9s）。舊 15 GB 單檔已刪（可由 `build_warehouse.py` 重建）。
+  - 模式選擇：`PULSE_WAREHOUSE_SOURCE=r2://<bucket>/<prefix>`（用 mini `.env` 的 R2_* 金鑰）→ 從 R2 下載到 `runtime/warehouse-cache`（`PULSE_WAREHOUSE_CACHE_GB`，預設 3）；未設定時使用本機 `runtime/warehouse-store`（直接讀、不複製）。
+  - 上傳：`npm run warehouse:upload -- plan --bucket <私有 bucket>` 先看計畫，確認後 `execute`；上傳順序為資料→manifest→`latest.json`。**待使用者建立私有 bucket 並批准上傳**；既有 `mini-tw-pulse`、`terrain-tiles` 可能公開，不可放 owner-only 資料。
+  - 重建流程：`build_warehouse.py`（暫時需 ~15 GB）→ `export_store.py` → 可刪單檔 → 上傳。磁碟不足時先清空間。
 - **之後**：分析引擎搬上 Zeabur，現況盤點、限制與切換步驟見 [zeabur-cloud-engine-option.md](./zeabur-cloud-engine-option.md)。
 - 不採用：Supabase PostGIS（9 月 Disk IO 事故，分析負載會與正式站搶 IO）、AWS S3（每次查詢計流出費）。
 
