@@ -12,7 +12,7 @@
  * 要開放某個動態圖層時，是「逐案評估 egress 後加例外」，不是放寬這裡的規則。
  */
 import { OVERLAY_REGISTRY } from "../map/overlayRegistry";
-import { GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../components/sidebar/layerCatalog";
 import { EMBED_CDN_LAYERS } from "./dynamicCdnLayers";
 import { SNAPSHOT_KEYS } from "./snapshotLayers";
 import { REPLAY_KEYS } from "./replayLayers";
@@ -27,11 +27,14 @@ function hasCdnSnapshot(id: keyof LayerVisibility): boolean {
   return id in EMBED_CDN_LAYERS;
 }
 
+// 主站由 catalog 指向 content-addressed asset；embed 尚未具備同一套 catalog lifecycle。
+const CATALOG_MANAGED_ONLY = new Set<keyof LayerVisibility>(["jpBuildingHeight", "jpCanopyHeight"]);
+
 export const EMBED_ALLOWED_CONFIGS: OverlayConfig[] = [
   ...OVERLAY_REGISTRY.filter(
-    (o) => (!o.dynamicData || hasCdnSnapshot(o.id)) && !GATED_LAYERS.has(o.id),
+    (o) => (!o.dynamicData || hasCdnSnapshot(o.id)) && !GATED_LAYERS.has(o.id) && !RELEASE_HOLD_LAYERS.has(o.id) && !CATALOG_MANAGED_ONLY.has(o.id),
   ),
-  ...EMBED_FACTORY_OVERLAY_CONFIGS.filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id)),
+  ...EMBED_FACTORY_OVERLAY_CONFIGS.filter((o) => !o.dynamicData && !GATED_LAYERS.has(o.id) && !RELEASE_HOLD_LAYERS.has(o.id)),
 ];
 
 export const EMBED_ALLOWED: ReadonlySet<string> = new Set([

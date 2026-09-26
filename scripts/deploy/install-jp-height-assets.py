@@ -16,6 +16,12 @@ HEX = re.compile(r"^[0-9a-f]{64}$")
 ASSET_PATH = re.compile(r"^assets/([0-9a-f]{64})\.pmtiles$")
 MAX_ASSETS = 500
 MAX_CATALOG_BYTES = 2 * 1024 * 1024
+MAX_ASSET_BYTES = 25 * 1024 * 1024
+MAX_BUILDING_GRID_BYTES = 5 * 1024 * 1024
+
+
+def asset_byte_budget(value: dict) -> int:
+    return MAX_BUILDING_GRID_BYTES if value.get("sourceLayer") == "building_grid" else MAX_ASSET_BYTES
 
 
 def digest(path: Path) -> tuple[str, int]:
@@ -46,7 +52,7 @@ def asset_records(catalog: dict) -> list[dict]:
         relative = value["url"].removeprefix("./jp-heights/") if value["url"].startswith("./jp-heights/") else ""
         match = ASSET_PATH.fullmatch(relative)
         sha, size = value.get("sha256"), value.get("bytes")
-        if not match or not isinstance(sha, str) or not HEX.fullmatch(sha) or match.group(1) != sha or not isinstance(size, int) or size <= 0 or size > 25 * 1024 * 1024:
+        if not match or not isinstance(sha, str) or not HEX.fullmatch(sha) or match.group(1) != sha or not isinstance(size, int) or size <= 0 or size > asset_byte_budget(value):
             raise ValueError(f"catalog asset contract invalid: {relative}")
         record = {"relative_path": relative, "sha256": sha, "bytes": size}
         if relative in records and records[relative] != record:

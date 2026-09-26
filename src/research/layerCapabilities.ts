@@ -22,6 +22,7 @@ export interface LayerCapability {
   supportedMeasures: readonly string[];
   timeModel: "static_version" | "unknown";
   freshness: "unknown" | "unsupported";
+  sourceContract: { licenseStatus: "not_recorded"; publicationStatus: "existing_public_asset_not_a_license_verification" } | null;
   reason: string;
   onboarding: { required: readonly string[]; nextStep: string };
 }
@@ -55,10 +56,13 @@ function capabilityFor(key: ManifestKey, datasetsByLayer: ReadonlyMap<string, re
     supportedMeasures: aggregateReady || onDemand ? ["count"] : [],
     timeModel: queryDescriptor?.kind === "event" ? "unknown" : ready || onDemand ? "static_version" : "unknown",
     freshness: ready || onDemand ? "unknown" : "unsupported",
+    sourceContract: ready ? { licenseStatus: "not_recorded", publicationStatus: "existing_public_asset_not_a_license_verification" } : null,
     reason: ready
       ? queryDescriptor?.kind === "admin_statistic"
-        ? "已登記 immutable 統計 release reader；必填 selector 與來源／邊界語意由 descriptor 明示。"
-        : aggregateReady ? "已登記有界來源 reader、欄位白名單與 aggregate；來源完整度仍以 receipt 為準。" : "已登記有界 record reader；未宣告 aggregate，不能因此當成無法讀取。"
+        ? "已登記 immutable 統計 release reader；必填 selector 與來源／邊界語意由 descriptor 明示；ready 僅代表分析 reader 就緒，不代表授權已驗證。"
+        : aggregateReady
+          ? "已登記有界來源 reader、欄位白名單與 aggregate；來源完整度仍以 receipt 為準；ready 僅代表分析 reader 就緒，不代表授權已驗證。"
+          : "已登記有界 record reader；未宣告 aggregate，不能因此當成無法讀取；ready 僅代表分析 reader 就緒，不代表授權已驗證。"
       : onDemand
         ? "單一 same-origin GeoJSON 候選；只有實際 readback 通過 bytes/rows/Point geometry/receipt 驗證後，才可對該快照計數。"
       : kinds.includes("pmtiles")

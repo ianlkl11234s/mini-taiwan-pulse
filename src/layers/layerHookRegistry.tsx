@@ -34,7 +34,7 @@ import {
   RealEstateTimelineHost, RealEstatePointsHost, PropertyValueAdminHost, SelectedFeatureHaloHost,
 } from "./hosts/realEstateHosts";
 import {
-  ReservoirStatusHost, RainGaugeHost, FloodSensorHost, FloodSensorIsochroneHost,
+  ReservoirStatusHost, RainGaugeHost, BridgeRainHost, FloodSensorHost, FloodSensorIsochroneHost,
   TaipeiSewerHost, TaipeiEvacuateHost, TaipeiPumbHost, PrecipRasterHost,
   RiverLevelHost, MarineObservationHost, GroundwaterWellsHost, GroundwaterHost,
   IotWraRiverHost, IotWraStructureHost,
@@ -120,6 +120,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   // ── 水資源 / 水利（L784-897）──
   { id: "useReservoirStatusLayer", keys: ["waterReservoirs"], Host: ReservoirStatusHost },
   { id: "useRainGaugeLayer", keys: ["rainGauge"], Host: RainGaugeHost },
+  { id: "useBridgeRainLayer", keys: ["bridgeRainThresholds"], Host: BridgeRainHost },
   { id: "useFloodSensorLayer", keys: ["floodSensor"], Host: FloodSensorHost },
   { id: "useFloodSensorIsochroneLayer", keys: ["floodSensorIsochrone"], Host: FloodSensorIsochroneHost },
   { id: "useTaipeiSewerLayer", keys: ["taipeiSewer"], Host: TaipeiSewerHost },

@@ -7,7 +7,7 @@
 import { afterEach, describe, it, expect, vi } from "vitest";
 import { parseUrlState, buildUrl, URL_STATE_VERSION } from "../urlState";
 import { RAIL_CODES, resolveRailCodes } from "../../constants/railLines";
-import { LAYER_COLORS, GATED_LAYERS } from "../../components/sidebar/layerCatalog";
+import { LAYER_COLORS, GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../../types";
 
 const V = `v=${URL_STATE_VERSION}`;
@@ -107,6 +107,12 @@ describe("parseUrlState — 圖層安全過濾", () => {
     for (const key of GATED_LAYERS) {
       const s = parseUrlState(`?${V}&layers=${key}`);
       expect(s.layers, `${key} 不該通過`).toBeUndefined();
+    }
+  });
+
+  it("授權 HOLD 圖層不可從 URL 還原", () => {
+    for (const key of RELEASE_HOLD_LAYERS) {
+      expect(parseUrlState(`?${V}&layers=${key}`).layers, `${key} 不該通過`).toBeUndefined();
     }
   });
 

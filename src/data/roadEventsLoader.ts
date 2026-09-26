@@ -43,6 +43,43 @@ export interface RoadEvent {
   last_updated_ts: number;
 }
 
+/**
+ * TDX live sources are polled every 5 minutes; planned city events every
+ * 12 hours.  These limits apply only when TDX omitted ExpireTime: a supplied
+ * effective/expire interval remains authoritative, including long-running
+ * construction.
+ */
+const SOURCE_FRESHNESS_SECONDS: Readonly<Record<string, number>> = {
+  live_freeway: 20 * 60,
+  live_highway: 20 * 60,
+  live_city: 20 * 60,
+  event_city: 36 * 60 * 60,
+};
+
+/**
+ * Whether an event has a source-supported lifecycle at `currentTime`.
+ *
+ * Unknown effective times are deliberately not treated as epoch 0.  Events
+ * without an ExpireTime require a recent observation from a known TDX source;
+ * otherwise a stale historical row would look indefinitely active.
+ */
+export function isRoadEventActive(event: RoadEvent, currentTime: number): boolean {
+  if (!Number.isFinite(currentTime) || event.start_ts <= 0 || !Number.isFinite(event.start_ts)) {
+    return false;
+  }
+  if (currentTime < event.start_ts) return false;
+
+  if (event.end_ts != null) {
+    return Number.isFinite(event.end_ts) && event.end_ts > event.start_ts && currentTime < event.end_ts;
+  }
+
+  const freshness = SOURCE_FRESHNESS_SECONDS[event.source];
+  if (!freshness || event.last_updated_ts <= 0 || !Number.isFinite(event.last_updated_ts)) {
+    return false;
+  }
+  return currentTime <= event.last_updated_ts + freshness;
+}
+
 interface RawRow {
   event_id: string;
   source: string;
@@ -119,6 +156,9 @@ async function fetchRoadEventsDayUncached(date: string): Promise<RoadEvent[]> {
       geometry,
       matched_section_id: r.matched_section_id,
       enrich_status: r.enrich_status,
+      // Keep missing/invalid source times distinct from a real timestamp.
+      // isRoadEventActive rejects the 0 sentinel instead of treating it as
+      // "active since epoch".
       start_ts: Number(r.effective_ts) || 0,
       end_ts: r.expire_ts != null ? Number(r.expire_ts) : null,
       last_updated_ts: Number(r.last_updated_ts) || 0,
@@ -173,10 +213,7 @@ export function roadEventsToGeoJSON(
   const features: GeoJSON.Feature[] = [];
   for (const e of events) {
     if (!e.geometry) continue;
-    // end_ts null = 無限期（長駐 event_city 預告）
-    const active =
-      (e.start_ts === 0 || currentTime >= e.start_ts) &&
-      (e.end_ts == null || currentTime < e.end_ts);
+    const active = isRoadEventActive(e, currentTime);
     features.push({
       type: "Feature",
       geometry: e.geometry,

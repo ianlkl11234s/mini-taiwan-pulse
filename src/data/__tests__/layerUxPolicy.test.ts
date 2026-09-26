@@ -134,6 +134,14 @@ describe("Layer UX policy baseline", () => {
       industrialRefinery: "industrialRefineryScale",
       industrialStorageTank: "industrialStorageTankScale",
       industrialPowerPlant: "industrialPowerPlantScale",
+      drinkingWaterPoints: "drinkingWaterPointsScale",
+      publicWasteBaskets: "publicWasteBasketsScale",
+      materialRecyclingPoints: "materialRecyclingPointsScale",
+      disasterShelters: "disasterSheltersScale",
+      playgrounds: "playgroundsScale",
+      accessibleParkFacilities: "accessibleParkFacilitiesScale",
+      bicycleSupport: "bicycleSupportScale",
+      visitorCentres: "visitorCentresScale",
     } as const;
 
     for (const [id, param] of Object.entries(pointSizeParams)) {
@@ -147,6 +155,16 @@ describe("Layer UX policy baseline", () => {
         expect(radiusAtTwo, `${id}/${layer.suffix} 大小控件必須影響半徑`).not.toEqual(radiusAtOne);
       }
     }
+  });
+
+  it("國家公園只畫官方計畫範圍，不產生邊界點位", () => {
+    const overlay = OVERLAY_REGISTRY.find((entry) => entry.id === "nationalParks");
+    expect(overlay).toBeDefined();
+    expect(overlay!.layers.map((layer) => [layer.suffix, layer.type])).toEqual([
+      ["fill", "fill"],
+      ["outline", "line"],
+    ]);
+    expect(hasPointSizeControl(LAYER_PARAMS_SPEC.nationalParks)).toBe(false);
   });
 
   it("海事邊界以單一寬度控制同步縮放線與 basepoint", () => {

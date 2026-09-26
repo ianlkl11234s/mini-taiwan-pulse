@@ -9,6 +9,11 @@ const REGISTRY: Record<string, Config> = {
   policeStation: { dataset: "policeStations", label: "警察機關", id: "entity_id", fields: ["city", "district", "facility_subtype"], recordFields: ["name", "address"], textFields: ["name", "address"], grain: "警察機關據點紀錄，混合警察局、分局、派出所與專業警察等", version: "20260626", location: "address_prefix" },
 };
 const normalize = (s: string) => s.normalize("NFKC").trim().replace(/臺/g, "台");
+const matchesFilter = (row: Record<string, unknown>, filter: { field: string; value: Value }): boolean => {
+  const value = row[filter.field];
+  if (filter.value === null) return value === null;
+  return typeof value === "string" && normalize(value) === filter.value;
+};
 const scalar = (v: unknown): Value => v === null || v === undefined || v === "" ? null : typeof v === "string" ? normalize(v) || null : null;
 const outwardValue = (v: unknown): string | number | boolean | null => v === null || v === undefined ? null : typeof v === "string" ? v.slice(0, 120) : typeof v === "number" || typeof v === "boolean" ? v : null;
 const hasOwn = (o: object, k: string) => Object.prototype.hasOwnProperty.call(o, k);
@@ -99,7 +104,7 @@ export async function summarizeLayer(input: LayerSummaryInput): Promise<Record<s
   const effectiveGroups = groupBy.includes("district") && !groupBy.includes("city") ? ["city", ...groupBy] : [...groupBy];
   const data = await read(input.layerKey);
   const normalizedFilters = filters.map(f => ({ field: f.field, value: f.value === null ? null : normalize(f.value) }));
-  const matched = data.rows.filter(r => normalizedFilters.every(f => r[f.field] === f.value));
+  const matched = data.rows.filter(row => normalizedFilters.every(filter => matchesFilter(row, filter)));
   const buckets = new Map<string, Record<string, unknown>[]>();
   if (effectiveGroups.length) for (const row of matched) {
     const key = JSON.stringify(effectiveGroups.map(f => row[f]));
@@ -135,7 +140,7 @@ export async function searchLayerRecords(input: LayerRecordSearchInput): Promise
   const needle = normalize(query);
   const normalizedFilters = filters.map(filter => ({ field: filter.field, value: filter.value === null ? null : normalize(filter.value) }));
   const data = await read(key);
-  const matched = data.rows.filter(row => normalizedFilters.every(filter => row[filter.field] === filter.value)
+  const matched = data.rows.filter(row => normalizedFilters.every(filter => matchesFilter(row, filter))
     && (!needle || config.textFields.some(field => typeof row[field] === "string" && normalize(row[field] as string).includes(needle))));
   const records = matched.slice(offset, offset + limit).map(row => ({
     id: scalar(row[config.id]) ?? (typeof row.record_id === "string" ? row.record_id : null),

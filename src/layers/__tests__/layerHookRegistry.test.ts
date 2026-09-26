@@ -126,7 +126,7 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
  * 有 hook 的 key 塞進來會紅。
  */
 const NO_HOOK_LEDGER = new Set<string>([
-  "osmBridgeCarriers", "osmBridgeFootprints", "officialBridgesNewTaipei", "bridgeComparisonNewTaipei", // 純 PMTiles overlayRegistry，無 hook。
+  "osmBridgeCarriers", "osmBridgeFootprints", "officialBridgesNewTaipei", "bridgeComparisonNewTaipei", "tainanBridgeInspections", "officialBridgesHsinchu", "taipeiRoadTunnels", "tainanRoadTunnels", "changhuaTrafficSignals", // 純 PMTiles overlayRegistry，無 hook。
   // ── OVERLAY_REGISTRY 的靜態 GeoJSON 層（104）──
   "accidentTaipei", "activeFaults", "agriWholesaleMarket", "antiCorruptionOffice",
   "aquacultureCageNet", "aquacultureZone", "artsEvents", "bikeStations",
@@ -162,6 +162,10 @@ const NO_HOOK_LEDGER = new Set<string>([
   "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes",
   "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
   "welfareNursingHomes", "welfareSocialWorkOrgs",
+  // 公共生活 OSM snapshot：純 OVERLAY_REGISTRY 靜態 GeoJSON／PMTiles，無 React data hook。
+  "drinkingWaterPoints", "publicWasteBaskets", "materialRecyclingPoints", "disasterShelters",
+  "playgrounds", "accessibleParkFacilities", "bicycleSupport", "nationalParks", "visitorCentres",
+  "publicLifeOsmCoverage",
 
   // ── OVERLAY_REGISTRY 的 PMTiles 層（65）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",

@@ -1,6 +1,7 @@
 {
   "checked_at": "2026-09-20T01:01:42.100062+00:00",
-  "ready": true,
+  "restore_state_ready": true,
+  "download_evidence": "local exact-byte files reused; this receipt does not prove a fresh S3 GET",
   "retrieval_tier": "Standard",
   "temporary_copy_days": 1,
   "downloaded": [

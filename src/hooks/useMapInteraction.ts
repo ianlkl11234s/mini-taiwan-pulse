@@ -491,6 +491,25 @@ export function useMapInteraction(
             break;
           }
         }
+        const sampleClimateFallback = (lng: number, lat: number) => {
+          if (!vis?.windField && !vis?.oceanCurrents) { setFeatureInfo(null); return; }
+          void sampleClimateFields(
+            { wind: !!vis.windField, currents: !!vis.oceanCurrents },
+            lng, lat,
+          ).then((sample) => {
+            if (featureRequest !== featureRequestRef.current) return;
+            if (sample) {
+              setFeatureInfo({
+                layerType: "climateField",
+                properties: { wind: sample.wind, currents: sample.currents },
+                coords: [lng, lat],
+              });
+              sessionTracker.log("feature_click", { layerType: "climateField" });
+            } else {
+              setFeatureInfo(null);
+            }
+          });
+        };
         // 沒命中任何向量 feature → 值編碼 raster 開啟時改讀像素物理值（W2）。
         // 排在氣候 UV 場之前：熱島／樹冠是台灣本島的層，風場／海流是全球場，
         // 同時開啟時使用者點台灣要的是前者（後者在台灣任一點都讀得到值，會整碗端走）。
@@ -512,33 +531,13 @@ export function useMapInteraction(
               });
               sessionTracker.log("feature_click", { layerType: "rasterProbe" });
             } else {
-              setFeatureInfo(null);
+              sampleClimateFallback(lng, lat);
             }
           });
         }
         // 沒命中任何向量 feature → 風場/海流開啟時改讀氣候 UV 場（nullschool 式點擊讀值）
         if (!found) {
-          if (vis?.windField || vis?.oceanCurrents) {
-            const lng = e.lngLat.lng;
-            const lat = e.lngLat.lat;
-            void sampleClimateFields(
-              { wind: !!vis?.windField, currents: !!vis?.oceanCurrents },
-              lng, lat,
-            ).then((sample) => {
-              if (sample) {
-                setFeatureInfo({
-                  layerType: "climateField",
-                  properties: { wind: sample.wind, currents: sample.currents },
-                  coords: [lng, lat],
-                });
-                sessionTracker.log("feature_click", { layerType: "climateField" });
-              } else {
-                setFeatureInfo(null);
-              }
-            });
-          } else {
-            setFeatureInfo(null);
-          }
+          sampleClimateFallback(e.lngLat.lng, e.lngLat.lat);
         }
       }
     });

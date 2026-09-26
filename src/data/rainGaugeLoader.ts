@@ -35,6 +35,27 @@ export interface RainGaugeDayRow {
   precipitation_24hr: number | null;
 }
 
+/** latest RPC 保留 null；橋梁門檻不能把缺測當作 0 mm。 */
+export interface RainGaugeLatestRow {
+  station_id: string;
+  station_name: string | null;
+  observed_at: string;
+  precipitation_1hr: number | null;
+  precipitation_3hr: number | null;
+  precipitation_6hr: number | null;
+  precipitation_24hr: number | null;
+}
+
+export async function fetchRainGaugeLatest(): Promise<RainGaugeLatestRow[]> {
+  const { data, error } = await withLoading(
+    "rain-gauge-latest-bridge",
+    "橋梁參考雨量",
+    supabase.rpc("get_rain_gauge_latest"),
+  );
+  if (error) throw new Error(`get_rain_gauge_latest: ${error.message}`);
+  return (data ?? []) as RainGaugeLatestRow[];
+}
+
 async function fetchRainGaugeDayUncached(dateKey: string): Promise<RainGaugeDayRow[]> {
   const { data, error } = await withLoading(
     `rain-gauge-day-${dateKey}`,

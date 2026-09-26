@@ -21,7 +21,7 @@
  *    別人的文章裡出現白屏是最糟的失敗模式，寧可少一層。
  */
 import type { LayerVisibility } from "../types";
-import { LAYER_COLORS, GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { LAYER_COLORS, GATED_LAYERS, RELEASE_HOLD_LAYERS } from "../components/sidebar/layerCatalog";
 import { COMPARISON_STATISTICS_KEYS, STATISTICS_COMPARISONS_UI_ENABLED } from "../data/comparisonStatisticsRecipes";
 import { isRailCode } from "../constants/railLines";
 import type { StatisticsDisplayMode } from "../state/statisticsDisplayModeStore";
@@ -144,6 +144,7 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
       if (k === "allenCoralAtlas") return false; // private account layers are never shareable
       if (!ALL_LAYER_KEYS.has(k)) return false;          // 未知 key（含已下架圖層）
       if (GATED_LAYERS.has(k as keyof LayerVisibility)) return false; // owner-only 私人圖層
+      if (RELEASE_HOLD_LAYERS.has(k as keyof LayerVisibility)) return false; // 授權/再散布尚未驗證
       // Comparison selectors stay in the runtime manifest for local contract validation,
       // but production deep links must obey the same release gate as the visible catalog.
       if (COMPARISON_STATISTICS_KEY_SET.has(k) && !STATISTICS_COMPARISONS_UI_ENABLED) return false;

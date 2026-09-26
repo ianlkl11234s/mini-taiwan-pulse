@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { CctvStreamView } from "../CctvStreamView";
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
@@ -411,12 +411,20 @@ export function PublicToiletPanel({ props }: { props: Record<string, unknown> })
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: gradeColor, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.name ?? "Unknown Toilet")}
+          {String(props.name ?? "未命名公廁")}
         </div>
       </div>
+      <Row label="資料角色" value="環境部列管公廁（同址聚合）" color={gradeColor} />
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="等級" value={grade} color={gradeColor} />
       <Row label="類別" value={String(props.type2 ?? "")} />
+      <SourceFooter props={{
+        ...props,
+        source_org: "環境部環境資料開放平台",
+        source_url: "https://data.moenv.gov.tw/api/v2/fac_p_07",
+        license: "政府資料開放授權條款 OGDL-Taiwan-1.0",
+        fetched_at: props.fetched_at ?? "2026-07-17",
+      }} />
     </>
   );
 }

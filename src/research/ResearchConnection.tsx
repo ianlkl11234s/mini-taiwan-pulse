@@ -45,6 +45,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const [paused, setPaused] = useState(false);
   const [creating, setCreating] = useState(false);
   const [study, setStudy] = useState<{ studyId: string; tabId: string } | null>(null);
+  const [resumeRevision, setResumeRevision] = useState(0);
   const [message, setMessage] = useState(supabaseConfigured ? "先登入以建立配對。" : "連線服務尚未啟用，可先試用研究畫布。");
   const accessToken = useRef<string | null>(null);
   const client = useMemo(() => new BridgeClient(async () => {
@@ -54,6 +55,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const active = useRef(true);
   const resumeForUser = useRef<string | null>(null);
   const sessionUserId = session?.user.id ?? null;
+  const resumeFailures = useRef(0);
   const connectionLease = useRef<ConnectionLease | null>(null);
   const activeSessionStudy = useRef<string | null>(null);
   const callbacks = useRef({ onState, onDisconnect, onConnection, onReady });
@@ -97,9 +99,10 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     if (!sessionUserId || resumeForUser.current === sessionUserId || study) return;
     resumeForUser.current = sessionUserId;
     const stored = readStoredConnection();
-    if (!stored || stored.userId !== sessionUserId) { if (stored) clearStoredConnection(); return; }
+    if (!stored || stored.userId !== sessionUserId) { resumeFailures.current = 0; if (stored) clearStoredConnection(); return; }
     let cancelled = false;
     let settled = false;
+    let retryTimer: number | null = null;
     void (async () => {
       let lease: ConnectionLease | null = null;
       try {
@@ -113,6 +116,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         if (cancelled || !active.current) { releaseLease(lease); return; }
         if (mustClearStoredConnection(result.session)) { releaseLease(lease); clearStoredConnection(); setMessage("本地 Agent 工作階段已到期，請重新建立配對。"); return; }
         activeSessionStudy.current = result.studyId;
+        resumeFailures.current = 0;
         setStudy({ studyId: result.studyId, tabId: result.tabId });
         setPairing({ pairingId: stored.pairingId, code: "", expiresAt: result.session.expiresAt ?? Date.now() });
         setStatus({ pairingId: stored.pairingId, claimed: true, approved: true, deviceLabel: null, phrase: null });
@@ -123,7 +127,13 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
         releaseLease(lease);
         if (cancelled || !active.current) return;
         const failure = classifyConnectionFailure(error);
-        if (failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE") clearStoredConnection();
+        const terminal = failure.kind === "auth" || failure.kind === "expired" || failure.code === "NOT_FOUND" || failure.code === "CONNECTION_LOCK_UNAVAILABLE";
+        if (terminal) { resumeFailures.current = 0; clearStoredConnection(); }
+        else {
+          resumeFailures.current += 1;
+          resumeForUser.current = null;
+          retryTimer = window.setTimeout(() => setResumeRevision(value => value + 1), nextPollDelay(error, resumeFailures.current, isBackgroundDocument()));
+        }
         setOnline(false); setMessage(errorMessage(error));
       } finally {
         if (!cancelled) settled = true;
@@ -131,10 +141,11 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
     })();
     return () => {
       cancelled = true;
+      if (retryTimer !== null) window.clearTimeout(retryTimer);
       // A cancelled attempt did not restore anything; StrictMode may start it again.
       if (!settled && resumeForUser.current === sessionUserId) resumeForUser.current = null;
     };
-  }, [client, sessionUserId, study]);
+  }, [client, resumeRevision, sessionUserId, study]);
 
   useEffect(() => {
     if (!pairing || !study || !session) return;

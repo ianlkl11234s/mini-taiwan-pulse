@@ -20,7 +20,7 @@ import {
 } from "./transportPanels";
 import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
-  RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel,
+  RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel, BridgeRainPanel,
   WaterReservoirPolyPanel, LakesPondsPanel,
   IotWraRiverPanel, IotWraStructurePanel,
   WaterBasinsPanel, WaterRiversPanel, WaterLeveesPanel, WaterCanalsPanel,
@@ -60,7 +60,7 @@ import {
   JpRailwaysPanel, JpSchoolsPanel, JpPoliceFacilitiesPanel, JpPopulationMeshPanel,
   JpTourismPanel, JpAccommodationDensityPanel, JpWaterPanel,
 } from "./japanPanels";
-import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel } from "./networkStructuresPanels";
+import { OsmBridgeCarrierPanel, OsmBridgeFootprintPanel, OfficialBridgeNewTaipeiPanel, BridgeComparisonNewTaipeiPanel, TainanBridgeInspectionsPanel, OfficialBridgeHsinchuPanel, TaipeiRoadTunnelPanel, TainanRoadTunnelPanel, ChanghuaTrafficSignalPanel } from "./networkStructuresPanels";
 import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
@@ -149,6 +149,7 @@ import {
 import { AnimalAdoptionPanel, AnimalShelterPressurePanel, AnimalWelfarePointsPanel } from "./animalWelfarePanels";
 import { MarineObservationPanel } from "./marinePanels";
 import { CoralReefPanel } from "./CoralReefPanel";
+import { AccessibleParkFacilitiesPanel, PublicLifeOsmPanel, DisasterShelterPanel, NationalParkPanel, PublicLifeOsmCoveragePanel } from "./publicLifePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -195,6 +196,16 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   animalWelfarePoints: AnimalWelfarePointsPanel,
   retailMarket: RetailMarketPanel,
   publicToilet: PublicToiletPanel,
+  drinkingWaterPoints: PublicLifeOsmPanel,
+  publicWasteBaskets: PublicLifeOsmPanel,
+  materialRecyclingPoints: PublicLifeOsmPanel,
+  disasterShelters: DisasterShelterPanel,
+  playgrounds: PublicLifeOsmPanel,
+  accessibleParkFacilities: AccessibleParkFacilitiesPanel,
+  bicycleSupport: PublicLifeOsmPanel,
+  nationalParks: NationalParkPanel,
+  visitorCentres: PublicLifeOsmPanel,
+  publicLifeOsmCoverage: PublicLifeOsmCoveragePanel,
   weatherStation: WeatherStationPanel,
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
@@ -236,6 +247,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   waterDetentionBasin: WaterDetentionBasinPanel,
   lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
+  bridgeRainThresholds: BridgeRainPanel,
   riverLevel: RiverLevelPanel,
   marineObservation: MarineObservationPanel,
   // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
@@ -413,6 +425,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   osmBridgeFootprints: OsmBridgeFootprintPanel,
   officialBridgesNewTaipei: OfficialBridgeNewTaipeiPanel,
   bridgeComparisonNewTaipei: BridgeComparisonNewTaipeiPanel,
+  tainanBridgeInspections: TainanBridgeInspectionsPanel,
+  officialBridgesHsinchu: OfficialBridgeHsinchuPanel,
+  taipeiRoadTunnels: TaipeiRoadTunnelPanel,
+  tainanRoadTunnels: TainanRoadTunnelPanel,
+  changhuaTrafficSignals: ChanghuaTrafficSignalPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -587,6 +604,16 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   animalWelfarePoints: "動物福利服務據點",
   retailMarket: "公有市場",
   publicToilet: "公廁",
+  drinkingWaterPoints: "飲水點",
+  publicWasteBaskets: "公共垃圾桶",
+  materialRecyclingPoints: "資源回收點",
+  disasterShelters: "預定收容處所",
+  playgrounds: "遊戲場",
+  accessibleParkFacilities: "無障礙設施探索",
+  bicycleSupport: "自行車支援設施",
+  nationalParks: "國家公園",
+  visitorCentres: "遊客中心",
+  publicLifeOsmCoverage: "公共生活 OSM 映射密度",
   weatherStation: "氣象站",
   bikeStation: "公共自行車站",
   busStation: "公車站",
@@ -621,6 +648,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterDetentionBasin: "滯洪池",
   lakesPondsOsm: "湖泊/埤塘",
   rainGauge: "即時雨量站",
+  bridgeRainThresholds: "一級監控橋梁參考雨量",
   riverLevel: "河川水位站",
   marineObservation: "海洋固定站觀測",
   groundwater: "地下水井",
@@ -859,6 +887,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   osmBridgeFootprints: "OSM 橋梁輪廓",
   officialBridgesNewTaipei: "新北市轄管橋梁",
   bridgeComparisonNewTaipei: "新北橋梁 OSM 比對",
+  tainanBridgeInspections: "臺南橋梁定期檢測紀錄",
+  officialBridgesHsinchu: "新竹市橋梁清冊",
+  taipeiRoadTunnels: "臺北市道路隧道",
+  tainanRoadTunnels: "臺南市道路隧道",
+  changhuaTrafficSignals: "彰化縣道路號誌",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

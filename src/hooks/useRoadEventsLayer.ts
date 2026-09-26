@@ -9,6 +9,7 @@ import type {
 } from "mapbox-gl";
 import {
   fetchRoadEventsDay,
+  isRoadEventActive,
   roadEventsToGeoJSON,
   type RoadEvent,
 } from "../data/roadEventsLoader";
@@ -36,6 +37,14 @@ const CACHE_MAX = 7;
 interface CachedDay {
   data: RoadEvent[];
   accessedAt: number;
+}
+
+function activeSetKey(events: RoadEvent[], currentTime: number): string {
+  let key = "";
+  for (const event of events) {
+    if (isRoadEventActive(event, currentTime)) key += event.event_id + event.source + "|";
+  }
+  return key;
 }
 
 function buildLayers(map: MapboxMap): boolean {
@@ -169,9 +178,10 @@ export function useRoadEventsLayer(
         cached.accessedAt = Date.now();
         activeDayRef.current = cached.data;
         activeDateRef.current = dateStr;
-        lastActiveSetRef.current = "";
         const map = mapRef.current;
-        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+        const currentTime = timeStore.getTime();
+        lastActiveSetRef.current = activeSetKey(cached.data, currentTime);
+        if (map && visibleRef.current && ensureLayers(map)) refreshSource(map, currentTime);
         return;
       }
 
@@ -182,10 +192,11 @@ export function useRoadEventsLayer(
           if (fetchingRef.current !== dateStr) return;
           activeDayRef.current = events;
           activeDateRef.current = dateStr;
-          lastActiveSetRef.current = "";
           const map = mapRef.current;
+          const currentTime = timeStore.getTime();
+          lastActiveSetRef.current = activeSetKey(events, currentTime);
           if (map && visibleRef.current && ensureLayers(map)) {
-            refreshSource(map, timeStore.getTime());
+            refreshSource(map, currentTime);
             keepLoadingUntilMapIdle(map, `road-events-render:${dateStr}`, "即時路況 渲染中", SOURCE_ID);
           }
         })
@@ -231,13 +242,7 @@ export function useRoadEventsLayer(
       const day = activeDayRef.current;
       if (!day) return;
 
-      let key = "";
-      for (const e of day) {
-        const isActive =
-          (e.start_ts === 0 || currentTime >= e.start_ts) &&
-          (e.end_ts == null || currentTime < e.end_ts);
-        if (isActive) key += e.event_id + e.source + "|";
-      }
+      const key = activeSetKey(day, currentTime);
       if (key !== lastActiveSetRef.current) {
         lastActiveSetRef.current = key;
         refreshSource(m, currentTime);
