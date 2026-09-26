@@ -11,7 +11,7 @@ WITH x AS (SELECT v.area_code, count(*) AS n
 SELECT count(*) AS areas, corr(coalesce(x.n, 0), y.value) AS r, corr(ln(1 + coalesce(x.n, 0)), y.value) AS r_log
 FROM y LEFT JOIN x USING (area_code)
 ```
-點資料要先除以面積或人口再比（密度），否則只是在畫「大村里」。房價用 `ds_real_estate_merged_points` 且 **只取 `type = 'sale'`**（`rental` 的單價是租金）；公司用 `ds_business_registry_company_points_analysis`。
+點資料要先除以面積或人口再比（密度），否則只是在畫「大村里」。房價用 `ds_real_estate_merged_points` 且 **只取 `type = 'sale'`**（`rental` 的單價是租金）；公司用 `ds_business_registry_company_points_analysis`。房價的 `city` 是英文代碼（`taipei`、`newtaipei`、`taichung`…），要篩縣市時優先用 `boundaries_county` 空間篩選，不用中文比對。
 
 **必做兩個檢查**（2026-09-26 實例：全國合併時公車站密度 vs 房價 r = −0.29，但縣市內中位數是 +0.12）：
 1. **縣市內再算一次**：在 SELECT 加 `substr(area_code, 1, 5) AS county` 後 `GROUP BY county` 算 `corr`；全國與縣市內方向相反時，以縣市內為準並說明（辛普森悖論）。
