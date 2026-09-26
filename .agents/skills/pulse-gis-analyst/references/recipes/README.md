@@ -20,6 +20,9 @@
 | 把多個指標合成一個分數排名、排名穩不穩 | [composite-index](composite-index.md) | 關聯 |
 | 河川穿越幾個鄉鎮、淹水面積占比前幾名 | [boundary-overlay](boundary-overlay.md) | 空間 |
 | 這些點是集中還是分散、群聚程度多顯著 | [clustering-ann](clustering-ann.md) | 關聯 |
+| 哪些村里／人群在特定機構（長照、醫療等）一定距離內沒有覆蓋、影響多少人 | [elderly-care-access](elderly-care-access.md) | 空間 |
+| 台北市哪些村里買不到超商、食物可及性缺口 | [food-access](food-access.md) | 空間 |
+| 哪個鄉鎮某產業／設施特別集中，超出全國平均比例 | [location-quotient](location-quotient.md) | 關聯 |
 
 ## 新增配方
 
