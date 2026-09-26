@@ -7,7 +7,9 @@ describe("research discovery", () => {
     const result = discoverLayers("學校", 0, 20, context);
     expect(result.layers.some(layer => layer.key === "schools")).toBe(false);
     expect(describeLayer("schools", context)).toBeNull();
-    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toMatchObject({ status: "not_registered", queryEnabled: false, authorization: "unknown" });
+    // playgrounds has no bespoke research dataset registered (unlike eduSchoolElementary, which later
+    // gained one in src/research/eduSchoolsOwnerDatasets.ts and became "readable" instead of "not_registered").
+    expect(describeLayer("playgrounds", context)?.dataReadSupport).toMatchObject({ status: "not_registered", queryEnabled: false, authorization: "unknown" });
   });
   it("returns local camera candidates without claiming a geocoder result", () => {
     const result = findPlaces("台北");

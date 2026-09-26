@@ -18,7 +18,9 @@ it("discovers point and regional-statistics capabilities, then composes a map re
   const readers = discovery.candidates.flatMap(candidate => candidate.readers);
   expect(readers.map(reader => reader.datasetId)).toContain("tw-schools");
   expect(readers.some(reader => reader.datasetId.startsWith("regional-statistics:"))).toBe(true);
-  expect(discovery.probes).toBe(1);
+  // "教育資源" now matches >=3 readable point datasets since eduSchoolsOwnerDatasets.ts and
+  // educationChildcareOwnerDatasets.ts registered more education sources; exploreData caps probes at 3.
+  expect(discovery.probes).toBe(3);
   expect(readers.find(reader => reader.datasetId === "tw-schools")?.payload.status).toBe("readable");
   expect(readers.filter(reader => reader.datasetId.startsWith("regional-statistics:")).every(reader => reader.payload.status === "parameters_or_specialized_reader_required")).toBe(true);
   const candidates = await session.queryRecords({ datasetId: "tw-schools", filters: [{ field: "city", op: "eq", value: "台北市" }], limit: 1 });
