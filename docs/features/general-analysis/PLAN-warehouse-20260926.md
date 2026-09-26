@@ -49,6 +49,20 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
 
 語意修正（本輪發現並修好）：統計排名不再混排不同教育階段；鄉鎮層級 `township` 可查；生活機能改用精選表（原字串比對誤把工業「園區」、停車格算進綠地）；區域性資料集（餐廳僅雙北基隆、公園僅三市、YouBike 僅臺北）改標「未涵蓋」不算 0；投影座標不得直接上地圖。
 
+## 第二輪（2026-09-26 晚）：資料缺口、增量更新、統計、skill、歷史預覽
+
+| 項目 | 結果 |
+|---|---|
+| 增量更新 | `mcp/warehouse/update_store.py --only <ids> [--stats-cdn]`：只重建指定 dataset，未變檔 hard link（新版本幾乎不占磁碟）；`upload-store.mts` 對未變檔做 R2 server-side copy；本機快取換版時沿用同 SHA 檔。單一 dataset 更新約 1 秒。 |
+| 補資料 | analytics 新增 manifest（commit `6a5d7d38`，只含 6 個 manifest）：房價點 387,067／網格 167,013、公司點 654,165、污染裁罰 414,904、新聞事件 81,310（自 `live.news_events` 唯讀匯出；座標為鄉鎮或縣市代理點，precision=`proxy`）、臺鐵站改指 20260529（535 站，補回花蓮等東部站）。 |
+| 統計 | `stats_cdn.py` 匯入公開統計 CDN（3,817 artifacts，SHA 全驗）：stats_observations 30,473 → **1,068,039** 筆、78 → **300** 指標、32 dataset（含原本缺 release 實體檔的農地／作物／畜牧／漁業／住宅）。 |
+| 圖層總表 | 可分析 326 → **377 / 794**（統計面板 70 → 105 / 114）；新增 `layer-dataset-aliases.json` 對照改名的 dataset。 |
+| 問題庫 | **8 / 8 PASS**，皆用真實資料回答原題。Q3 實例：全國合併公車站密度 vs 房價 r = −0.29，但縣市內中位數 +0.12（辛普森悖論），且 `bus_by_city` 在臺北、新北過半村里無站牌（資料缺漏，已自動標出）。 |
+| Skill | `pulse-gis-analyst/references/recipes/` 一題型一檔（10 份，SQL 皆對倉庫實跑過）；新增 `geo-reasoning` 方法 skill（空間／關聯／因果三軸、陷阱、信心詞彙、語氣與追問，附來源）；分析師 SKILL.md 正文 9.8k → 4.8k 字元（細節逐字搬到 references）。 |
+| 歷史預覽 | 新分支 `codex/research-streamline-20260922-clean-a`（移除資料檔）與 `-clean-b`（再移除台帳逐版歷史）；兩者檔案樹與 HEAD 完全相同、275 commits 全保留（變空也保留）、歷史中 `public/research` 物件為 0、與 origin/master 無衝突。分支歷史 blob：原 432 MB、A 360 MB、**B 51 MB**。原分支未動；mcp／gateway 無大檔。 |
+
+已知資料問題（上游）：`bus_by_city` 雙北站牌大量缺漏；`bus_stations` 只涵蓋北部；房價點含 `rental`（單價為租金）需過濾；新聞約六成只到縣市層級。
+
 ## 待使用者決定／執行
 
 1. **瀏覽器全鏈驗收**（需本人登入；2026-09-26 嘗試代驗：agent-browser 保存的 Google 登入已失效、本 session 無 Claude in Chrome，停在 Google 帳號輸入頁，未代輸帳密）：服務已在 3734／8794 啟動。瀏覽器開 `http://127.0.0.1:3734` 登入並配對 Codex（`pulse-research` MCP 已指向重建後的 dist），請 Agent 跑「台北 671 路 200 公尺內的學校，畫在地圖上」→ 應見環域面＋學校點，`map_context` 讀回 `wh-N:polygon`／`wh-N:point`。
