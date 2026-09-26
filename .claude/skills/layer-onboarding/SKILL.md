@@ -25,6 +25,7 @@ Step 3  UX baseline 套用 (radius / opacity / cluster / min-zoom)
 Step 4  四鐵則自檢 (slider / legend / popup / dropdown)
 Step 5  跨 repo 對齊 (handoff 反向引用 + commit hash)
 Step 6  驗收 (tsc / test / browser All Off 單測)
+Step 6a Agent 查詢關卡 (來源契約 / 有界 reader / 實問 / 可分析範圍)
 Step 7  收尾 (changelog + backlog 標 ✅)
 ```
 
@@ -181,6 +182,10 @@ npm run dev
   去該測試檔的 `NO_LEGEND_LEDGER` / `NO_POPUP_LEDGER` / `NO_PARAMS_LEDGER` 補一行 + 理由
 - layerManifest「legend 宣告了但 LEGEND_REGISTRY 沒覆蓋」→ LegendPanel 沒加
 - Browser 打不出 popup → useMapInteraction 的 GIS_LAYERS 沒 register
+
+## Step 6a — Agent 查詢關卡
+
+每個新資料層上線時，依[新圖層查詢關卡](../../../docs/features/general-analysis/new-layer-queryability-gate.md)留下 Q0–Q6 收據：先核來源、授權、版次、筆數／缺值與 geometry，再接 `DatasetDescriptor` 和有界 reader，以新地點、問題變體、原表獨立 oracle 及正常 MCP 實問。需要地圖的結果再驗 `ready`／readback／目視。預設至少 Q0–Q3 通過才稱「Agent 可查」；僅有 PMTiles／地圖展示不得當作查詢已通。來源本質不能查或授權不明時標具體 `DISPLAY_ONLY`／HOLD，記解鎖條件，不編造分析能力。
 
 ## Step 7 — 收尾
 
