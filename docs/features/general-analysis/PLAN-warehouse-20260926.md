@@ -65,6 +65,7 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
   - 上傳：`npm run warehouse:upload -- plan --bucket <私有 bucket>` 先看計畫，確認後 `execute`；上傳順序為資料→manifest→`latest.json`。既有 `mini-tw-pulse`、`terrain-tiles` 可能公開，不可放 owner-only 資料。
   - **已上線（2026-09-26，使用者授權）**：新建私有 bucket `pulse-warehouse`（Cloudflare API 查得 r2.dev `enabled:false`、無自訂網域），版本 `20260926T0752Z` 共 316 物件 3.48 GB 在 `r2://pulse-warehouse/warehouse`。從 R2 跑問題庫：冷快取 33.8s（首題 19s 含下載）、熱快取 10.5s（與本機相同），8 題只需 44 檔 170 MB 快取。
   - Codex（`~/.codex/config.toml` `[mcp_servers.pulse-research.env]` 新增 `PULSE_WAREHOUSE_SOURCE = "r2://pulse-warehouse/warehouse"`）與 Claude Code（user scope `pulse-research` 同樣加此變數）都已改讀 R2；快取在 `runtime/warehouse-cache`（上限 3 GB）。本機 `runtime/warehouse-store`（3.3 GB）暫留作重新上傳來源，確認穩定後可刪。
+  - 已知限制：Codex 與 Claude Code 兩個 MCP 程序共用 `runtime/warehouse-cache`；若一方因超過上限淘汰了另一方已建 view 的檔案，另一方下次查該表會出現檔案不存在。目前整套問題庫只需 170 MB，不會觸發；需要時改為各程序獨立快取目錄，或在 `ensureTables` 重查檔案是否存在。
   - 重建流程：`build_warehouse.py`（暫時需 ~15 GB）→ `export_store.py` → 可刪單檔 → 上傳。磁碟不足時先清空間。
 - **之後**：分析引擎搬上 Zeabur，現況盤點、限制與切換步驟見 [zeabur-cloud-engine-option.md](./zeabur-cloud-engine-option.md)。
 - 不採用：Supabase PostGIS（9 月 Disk IO 事故，分析負載會與正式站搶 IO）、AWS S3（每次查詢計流出費）。
