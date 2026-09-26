@@ -23,6 +23,10 @@
     "renewable": ["renewable_permits", "renewable_permits_taipei"]
   },
   "byLayer": {
-    "newsEvents": ["news_events"]
+    "newsEvents": ["news_events"],
+    "earthquakes": ["earthquake_events_cwa"],
+    "earthquakeReplay": ["earthquake_events_cwa"],
+    "waterProtectionZones": ["water_source_protection_areas"],
+    "vesselWatch": ["ccg_vessel_positions_sampled", "ccg_vessel_zone_daily"]
   }
 }

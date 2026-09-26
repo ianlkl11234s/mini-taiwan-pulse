@@ -417,7 +417,7 @@ jpPoliceFacilities,警察設施 警察施設,日本,治安,custom,verified,jp_po
 jpSchools,學校 学校,日本,教育,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 日本全国学校一覧 PMTiles（56,807 點，含校名／所在地／学校分類／設置者），大型教育設施點資料，適合可及性與涵蓋率分析。","日本學校（56,807 點，学校分類 13 類分色）"
 jpPopulationMesh1km,人口網格 人口メッシュ,日本,人口,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 国土数値情報 1km 網格未來推計人口（176,896 格，pop 2020/2030/2040/2050/2070、ratio65 2030起），統計網格資料，是人口/高齡化空間分析的核心素材；注意 ratio65_* 是 0~1 比例、0 值多為隱私遮罩非真 0%。","日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）"
 plaActivity,共機活動區 PLA Activity,臺灣圖層,情勢 Situation,custom,verified,pla_activity,,,,,yes,none,,,,dataset_not_in_warehouse,國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）
-vesselWatch,特殊船舶 Vessel Watch,臺灣圖層,情勢 Situation,custom,verified,ship,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）
+vesselWatch,特殊船舶 Vessel Watch,臺灣圖層,情勢 Situation,custom,verified,ship ccg_vessel_positions_sampled ccg_vessel_zone_daily,ds_transportation_ship ds_maritime_ccg_vessel_positions_sampled ds_maritime_ccg_vessel_zone_daily,POINT,2026-09-27,14 counties,yes,spatial,warehouse,unknown+official,,,台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）
 submarineCables,OSM 通訊海纜 Submarine Cable,世界,全球通訊 Global Communications,geojson,verified,submarine_cable,,,,,yes,none,,,,warehouse_FAILED,OSM crowd 海纜世界概覽 104 條；OpenInfraMap z2 概化線位，非完整清冊或工程圖
 landingStations,OSM 海纜登陸站 Landing Station,世界,全球通訊 Global Communications,geojson,verified,submarine_cable,,,,,yes,browser_reader,browser,,,warehouse_FAILED,OSM crowd 海纜登陸站 58 處；標註不完整，空白區域不代表沒有設施
 internetExchangePoints,網際網路交換中心 Internet Exchange,世界,全球通訊 Global Communications,geojson,verified,internet_exchange_points,,,,,yes,none,,,,warehouse_FAILED,PCH Active IXP Directory 全球網際網路交換中心點位；顏色為洲區、大小為參與者數
@@ -580,8 +580,8 @@ floodAlerts,水文防汛 Flood Alerts,臺灣圖層,災害 Hazard,custom,verified
 weatherAlerts,氣象特報 Weather Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 氣象特報（豪雨/強風/低溫等大面積警戒範圍）
 transitAlerts,交通阻斷 Transit Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 交通阻斷示警（道路封閉/鐵路中斷/航班異常）
 safetyAlerts,安全環境 Safety Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 安全環境示警（毒災/輻射/公共安全事件）
-earthquakes,地震 Earthquake,臺灣圖層,災害 Hazard,custom,verified,earthquake,,,,,yes,none,,,,dataset_not_in_warehouse,CWA 國內地震事件（依 timeline 分 pre/post/ripple 三態，圓徑依規模、色依深度）
-earthquakeReplay,地震回放 EQ Replay,臺灣圖層,災害 Hazard,custom,verified,earthquake,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,單一地震事件回放（震央→P/S 波前→逐站 PGA→鄉鎮震度面→沙灘球）
+earthquakes,地震 Earthquake,臺灣圖層,災害 Hazard,custom,verified,earthquake earthquake_events_cwa,ds_hazards_earthquake_events_cwa,POINT,2026-09-27,17 counties,yes,spatial,warehouse,official,,,CWA 國內地震事件（依 timeline 分 pre/post/ripple 三態，圓徑依規模、色依深度）
+earthquakeReplay,地震回放 EQ Replay,臺灣圖層,災害 Hazard,custom,verified,earthquake earthquake_events_cwa,ds_hazards_earthquake_events_cwa,POINT,2026-09-27,17 counties,yes,spatial,warehouse+browser,official,,,單一地震事件回放（震央→P/S 波前→逐站 PGA→鄉鎮震度面→沙灘球）
 activeFaults,活動斷層 Fault Zone,臺灣圖層,災害 Hazard,geojson,verified,earthquake,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,經濟部地調所活動斷層帶（glow + fill + line 三層）
 lightning,落雷 Lightning 60min（台電）,臺灣圖層,災害 Hazard,supabase,verified,lightning_taipower,,,,,yes,none,,,,dataset_not_in_warehouse,台電落雷偵測（滾動 60 分鐘視窗，halo + core 雙層，含電流強度）
 lightningCwa,落雷 Lightning 60min（氣象署）,臺灣圖層,災害 Hazard,supabase,verified,lightning_cwa,,,,,yes,none,,,,dataset_not_in_warehouse,氣象署落雷偵測（滾動 60 分鐘視窗，台電源枯竭後的替代兼交叉驗證）
@@ -646,7 +646,7 @@ waterBasins,流域 Basin,臺灣圖層,水資源 Water,geojson,verified,river_bas
 waterRivers,河川 River,臺灣圖層,水資源 Water,pmtiles,verified,river_polygons_wra river_infrastructure_wra,ds_water_resources_river_infrastructure_wra,MULTILINESTRING+MULTIPOLYGON,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,河川水域面 + 中心線（同一個 toggle 疊兩份切片）
 waterLevees,堤防 Levee,臺灣圖層,水資源 Water,pmtiles,verified,river_levees_wra river_infrastructure_wra,ds_water_resources_river_infrastructure_wra,MULTILINESTRING+MULTIPOLYGON,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,水利署堤防線（單色，無分類維度故無圖例）
 waterCanals,灌排渠道 Canal,臺灣圖層,水資源 Water,pmtiles,verified,irrigation_canals irrigation_canal,ds_infrastructure_irrigation_canal,LINESTRING,2026-07-07,18 counties,yes,spatial,warehouse,official,,,農田水利署灌溉排水渠道（依引灌需求屬性 3 類分色）
-waterProtectionZones,管制區 Protection,臺灣圖層,水資源 Water,geojson,verified,water_zones_wra,ds_water_resources_water_zones_wra,MULTIPOLYGON,2026-05-19,17 counties,yes,spatial,warehouse,unknown,,,水質水量保護區與河川管制區範圍（依管制類別分色）
+waterProtectionZones,管制區 Protection,臺灣圖層,水資源 Water,geojson,verified,water_zones_wra water_source_protection_areas,ds_water_resources_water_zones_wra ds_water_resources_water_source_protection_areas,MULTIPOLYGON,2026-09-27,17 counties,yes,spatial,warehouse,unknown+official,,,水質水量保護區與河川管制區範圍（依管制類別分色）
 waterDetentionBasins,滯洪池 Detention,臺灣圖層,水資源 Water,geojson,verified,detention_basins,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,滯洪池點位與容量（點擊看設計滯洪量）
 groundwater,地下水井 Groundwater,臺灣圖層,水資源 Water,custom,verified,groundwater_wells groundwater,ds_water_resources_groundwater,MULTIPOLYGON+POINT,2026-05-19,18 counties,yes,spatial,warehouse,official,,,地下水井日內水位變化（紅降藍升，半徑＝變化強度）
 lakesPondsOsm,湖泊 / 埤塘 Lakes & Ponds,臺灣圖層,水資源 Water,pmtiles,verified,lakes_ponds_osm,ds_water_resources_lakes_ponds_osm,MULTIPOLYGON+POLYGON,2026-07-11,national,yes,spatial,warehouse,unknown,,,全台湖泊與埤塘水體面（OSM，含桃園埤塘群）
