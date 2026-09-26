@@ -1,6 +1,6 @@
 ---
 name: pulse-gis-analyst
-description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索與基礎分析；適用配對完成後的首次探索引導、自然追問，以及「哪些圖層或 dataset 能回答」「附近有什麼」「依行政區統計」「比較兩份資料」「檢查缺值與來源」「把分析範圍帶到地圖」。主入口會在 session 實際可用的 pulse-research tools 間路由，必要時用 Jev 縮小候選；單純明確的開關圖層不必啟用。
+description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索與空間分析（周邊生活機能、多點比較、環域疊合、縣市排名、跨資料相關）；適用配對完成後的首次探索引導、自然追問，以及「哪些圖層或 dataset 能回答」「附近有什麼」「依行政區統計」「比較兩份資料」「檢查缺值與來源」「把分析範圍帶到地圖」。主入口會在 session 實際可用的 pulse-research tools 間路由，必要時用 Jev 縮小候選；單純明確的開關圖層不必啟用。
 ---
 
 # Pulse GIS 分析師
@@ -8,6 +8,25 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 把使用者問題轉成最短、可驗證的 Pulse 分析鏈。先回答「資料能否支持這個問題」，再計算；搜尋結果、資料可讀性、分析資格、資料新鮮度與地圖 ready 是不同證據。
 
 配對後首次引導、自然追問、追加圖層與定位選擇，按需讀 [對話與探索](references/conversation-guide.md)。使用者已指定問題就直接執行，不先列固定示範題。
+
+## 0. 複雜分析優先走分析倉庫（ADR-0014）
+
+MCP server 端有一個由 analytics 資料建成的 DuckDB 分析倉庫（300+ dataset、縣市／鄉鎮／村里界、統計長表）。周邊摘要、多點比較、跨資料疊合、環域、相關分析與縣市排名，**先用倉庫工具**，速度快、可自由組合；下方瀏覽器 typed chain 保留給已驗證的單一 dataset 查詢與既有流程。
+
+| 需要 | 倉庫工具 |
+|---|---|
+| 找可分析資料、看欄位與涵蓋 | `pulse_wh_search` → `pulse_wh_describe` |
+| 一點或多點（≤5）周邊生活機能 | `pulse_nearby_profile`（預設掃精選生活機能分類；敏感設施用 `categories:["sensitive_facility"]`） |
+| 縣市／鄉鎮同指標排名與比較 | `pulse_region_rank`（依指標語意選 `order`；不同維度如教育階段會分組排名，用 `dimensions` 指定） |
+| 任意組合：環域、疊合、村里彙總、相關 | `pulse_sql`（唯讀 SELECT；公尺運算用 `geom_3826`，要上地圖的幾何必須回 EPSG:4326 `geom` 或 `ST_Transform(..., 'EPSG:3826','EPSG:4326', always_xy := true)`） |
+| 把倉庫結果畫到地圖 | `pulse_wh_present` → 用回條裡的 resultIds 呼叫 `pulse_set_result_collection` → `pulse_wait_scene_ready` → `pulse_get_map_context` |
+
+倉庫答案的語意：
+
+- `notCovered` 代表該資料集在這個縣市**沒有資料**（區域性資料集，例如餐廳只有雙北＋基隆），要說「未涵蓋」，不可當 0 或拿來說當地較少。`zeroWithinRadius` 才是有涵蓋但半徑內沒有。
+- 結果的 `caveats` 必須帶進回答：地址／Google 地理編碼點是「到參考點的直線距離」，村里質心不可做細部距離判斷。
+- 表名與欄位以 `pulse_wh_describe` 為準；`wh_catalog`、`wh_coverage`、`stats_observations`、`boundaries_county|town|village` 可直接查。
+- 缺資料時直說缺什麼（例如房價、新聞事件、污染裁罰尚未入倉），可用替代資料時標明是替代。
 
 ## 1. 先路由，再動工具
 
