@@ -56,6 +56,12 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
 3. **資料缺口入倉**（路線 E 優先）：房價（`real_estate` 缺 `_manifest.json`）、新聞事件、污染裁罰（EMS_P_46）、全國公司點；`rail_stations` 缺臺鐵站屬上游資料問題。
 4. 磁碟剩約 12 GB，倉庫本身 15 GB；再建置前請先清出空間。
 
+## 儲存與部署路線（2026-09-26 決定）
+
+- **現在**：R2 存 GeoParquet 正本（私有 bucket）＋本機按需快取（LRU 上限），引擎仍在本機 MCP。生活機能 36 表原始約 0.31 GB，263 個 dataset 各小於 50 MB；日常快取預估 0.5–2 GB。
+- **之後**：分析引擎搬上 Zeabur，現況盤點、限制與切換步驟見 [zeabur-cloud-engine-option.md](./zeabur-cloud-engine-option.md)。
+- 不採用：Supabase PostGIS（9 月 Disk IO 事故，分析負載會與正式站搶 IO）、AWS S3（每次查詢計流出費）。
+
 ## 倉庫契約（C）
 
 - 位置：`research-streamline/runtime/warehouse/`（環境變數 `PULSE_WAREHOUSE_DIR` 可覆寫）。
