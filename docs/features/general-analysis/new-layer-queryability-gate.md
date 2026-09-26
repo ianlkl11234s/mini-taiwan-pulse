@@ -2,15 +2,17 @@
 
 本頁補在 [`layer-onboarding` 的資料完整性及瀏覽器驗收之間](../../../.claude/skills/layer-onboarding/SKILL.md)。適用往後新加入或更新原始資料的圖層；既有 778 層的回補另依[完成清單](./completion-checklist-20260925.md)分批進行。目標是上線時就知道 Agent **能查哪份資料、問哪些問題、不能保證什麼**，不要等展示完成後才發現沒有原表 reader。
 
+**兩種正確性分開驗**：本系統要保證查詢、篩選、距離與地圖忠實使用「已收下的固定版本中的座標」，不漏列、不換點、不把有值當缺值。來源點位是否等於真實世界事件／入口的精確位置，屬既有資料品質與定位語意；上游已接受的資料不因這項一般不確定性反覆退回重查。保留已知誤差、定位方法與使用限制，只有來源更新、資料契約改變或出現具體異常時才重開來源品質調查。數學上可精確算到**資料點位**的距離；回答應稱「到資料點位／參考座標的直線距離」，不改稱「到實際現場／入口的精確距離」。授權、來源版本及資料處理完整性仍須驗證。
+
 ## 上線門檻
 
 | Gate | 必留證據 | 未過時 |
 |---|---|---|
 | Q0 來源身份 | publisher、原始檔／RPC／release、版本／SHA、授權與 access、觀測／取得時間；多 layer refs 指向真正同一原表時才共用 reader | `SOURCE_MISSING`／`RIGHTS_HOLD`／`VERSION_MISMATCH`；不把 PMTiles 或相似名稱當分析原表 |
-| Q1 資料格式 | record grain、欄位型別與單位、母體／排除筆數、主鍵與重複、`missing`／suppressed／observed zero；WGS84／CRS、Point／Line／Polygon／格網、geometry role／precision、無效幾何 | 修來源或只保留合格子集；不能把無座標或 proxy 偷換成精確點 |
+| Q1 資料格式 | record grain、欄位型別與單位、母體／排除筆數、主鍵與重複、`missing`／suppressed／observed zero；WGS84／CRS、Point／Line／Polygon／格網、定位方法與已知精度、無效幾何 | 修轉檔或只保留合格子集；來源已接受的參考點保留原座標及標籤，不要求重新證明其真實世界落點 |
 | Q2 可查契約 | 一個 `DatasetDescriptor` 與有界 reader：合法欄位／filters、範圍／期間、max rows／bytes／timeout、分頁及截斷；權限依來源設 `owner_only` 或公開；來源改版能拒絕或重建 | `READER_PENDING`；僅地圖顯示不算 Agent 可查 |
 | Q3 實際查詢 | 以兩個不同地點或一地點加有效反例、分類／期間變體實讀；與 reader 之外的原表 oracle 核筆數、排除及一筆明細；測錯版本／超限 | 保留查詢失敗與修復動作，不勾 `QUERY_READY` |
-| Q4 分析語意 | Point 直線距離、Line 點到完整線、Polygon 包含／相交、格網原值或縣市同期同口徑比較，只驗來源真正合格的運算；時間窗與不確定性入答案 | 可標 `ATTRIBUTE_ONLY`；不能把有經緯度直接等同可精確分析 |
+| Q4 分析語意 | Point 到**來源座標**的直線距離、Line 點到來源完整線、Polygon 包含／相交、格網原值或縣市同期同口徑比較；核計算與來源一致，時間窗及已知定位限制入答案 | 算法或幾何不合格才暫停該運算；參考點可算「到參考點」距離，但不宣稱到實際現場／入口、步行路程或可達性 |
 | Q5 Agent 與地圖 | 正常配對的 Codex→MCP→Gateway→browser 查詢；合格幾何呈現回 `ready`、讀回 result IDs／features／sources／layers 並目視；純屬性結果不強畫圖；同版展示另核 | 只稱本地 reader／MCP 通過，不稱地圖全鏈通過 |
 | Q6 固化 | focused tests、`npx tsc -b`、適用的 build／layerConsistency、來源與查詢收據、逐層台帳／queue 更新、exact-path 原子 commit | 不以口頭成功取代可重建交付 |
 
@@ -22,7 +24,7 @@
 layer key / 真正共用的 source family / datasetId：
 來源機關、原檔或 release、版本 SHA、license/access、觀測／取得時間：
 原始筆數 → 有效筆數 → 排除原因；主鍵／重複；null／suppressed／zero：
-幾何 CRS/type/role/precision；允許與禁止的查詢、分析與距離口徑：
+幾何 CRS/type/定位方法／已知精度；到來源座標可算什麼、不可推論的真實世界位置：
 reader 路徑、filters、bbox/time/limit/bytes/timeout、查詢欄位白名單：
 新地點＋問題變體與原表獨立 oracle；focused tests、tsc、build：
 正常 MCP 查詢證據；若有地圖，ready/readback/目視；舊展示同版：

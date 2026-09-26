@@ -45,7 +45,7 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 圖層 UX 四鐵則（opacity / 圖例 / popup / select）→ development-rules §4a + layer-onboarding Step 3-4
 
 ### 5b. 新資料層 Agent 查詢關卡
-新資料層上線前依 [新圖層查詢關卡](./docs/features/general-analysis/new-layer-queryability-gate.md)核來源、格式與有界查詢；正常 MCP 實問通過才稱「Agent 可查」。地圖可見不等於分析可用；純展示、權利或幾何受限者明標 `DISPLAY_ONLY`／HOLD 與解鎖條件。既有 778 層回補進度見 [Agent 查詢入口](./docs/features/general-analysis/README.md)。
+新資料層上線前依 [新圖層查詢關卡](./docs/features/general-analysis/new-layer-queryability-gate.md)核來源、格式與有界查詢；正常 MCP 實問通過才稱「Agent 可查」。系統驗收以已接受來源版本為基準，確認查詢與計算忠實使用原座標；來源定位的真實世界限制要標示，但不因一般不確定性反覆重審既有資料。地圖可見不等於分析可用；純展示、權利或幾何受限者明標 `DISPLAY_ONLY`／HOLD 與解鎖條件。既有 778 層回補進度見 [Agent 查詢入口](./docs/features/general-analysis/README.md)。
 
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
