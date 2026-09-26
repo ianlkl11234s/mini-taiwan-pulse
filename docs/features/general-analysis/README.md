@@ -1,5 +1,7 @@
 # AI Agent 資料查詢與分析倉庫入口
 
+**目前施工中：[`PLAN-round3-20260927.md`](./PLAN-round3-20260927.md)**（覆蓋度、問題庫、視覺化、收尾）；題目清單見 [`question-bank-backlog-20260927.md`](./question-bank-backlog-20260927.md)。
+
 現況與下一步規劃看 [`PLAN-warehouse-20260926.md`](./PLAN-warehouse-20260926.md)；架構決策依據是
 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)
 （GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
