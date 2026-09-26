@@ -1,192 +1,192 @@
 layer_key,label,panel,theme,source_kind,upstream_status,dataset_ids,warehouse_tables,geometry,updated,coverage,l1_operable,l2_analysis,l2_via,l3_precision,owner_only,blocker,description
-statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBusElectricSharePct,電動公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingUnoccupiedSharePctCounty,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingUnoccupiedSharePctTownship,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingOccasionalSharePctCounty,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingOccasionalSharePctTownship,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingOtherUseSharePctCounty,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingOtherUseSharePctTownship,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty,有人居住住宅中的混合用途占比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAgriculturalFacilityNationalSharePct,農業生產設施用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAgriculturalFacilityCountyTotalHectare,農業生產設施用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAgriculturalFacilityCountyNationalSharePct,農業生產設施用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAgriculturalFacilityTownshipOfCountySharePct,農業生產設施用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAirportLandNationalSharePct,機場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAirportLandCountyTotalHectare,機場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAirportLandCountyNationalSharePct,機場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAirportLandTownshipOfCountySharePct,機場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAquacultureLandNationalSharePct,水產養殖用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAquacultureLandCountyTotalHectare,水產養殖用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAquacultureLandCountyNationalSharePct,水產養殖用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAquacultureLandTownshipOfCountySharePct,水產養殖用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBambooForestNationalSharePct,竹林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBambooForestCountyTotalHectare,竹林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBambooForestCountyNationalSharePct,竹林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBambooForestTownshipOfCountySharePct,竹林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBroadleafForestNationalSharePct,闊葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBroadleafForestCountyTotalHectare,闊葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBroadleafForestCountyNationalSharePct,闊葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonBroadleafForestTownshipOfCountySharePct,闊葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonConiferForestNationalSharePct,針葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonConiferForestCountyTotalHectare,針葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonConiferForestCountyNationalSharePct,針葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonConiferForestTownshipOfCountySharePct,針葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonDryFieldNationalSharePct,旱田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonDryFieldCountyTotalHectare,旱田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonDryFieldCountyNationalSharePct,旱田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonDryFieldTownshipOfCountySharePct,旱田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonLivestockBuildingNationalSharePct,畜禽舍用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonLivestockBuildingCountyTotalHectare,畜禽舍用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonLivestockBuildingCountyNationalSharePct,畜禽舍用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonLivestockBuildingTownshipOfCountySharePct,畜禽舍用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonMixedForestNationalSharePct,混合林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonMixedForestCountyTotalHectare,混合林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonMixedForestCountyNationalSharePct,混合林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonMixedForestTownshipOfCountySharePct,混合林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonOrchardNationalSharePct,果園用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonOrchardCountyTotalHectare,果園用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonOrchardCountyNationalSharePct,果園用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonOrchardTownshipOfCountySharePct,果園用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPaddyLandNationalSharePct,水田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPaddyLandCountyTotalHectare,水田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPaddyLandCountyNationalSharePct,水田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPaddyLandTownshipOfCountySharePct,水田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPastureNationalSharePct,牧場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPastureCountyTotalHectare,牧場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPastureCountyNationalSharePct,牧場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPastureTownshipOfCountySharePct,牧場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPortLandNationalSharePct,港口用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPortLandCountyTotalHectare,港口用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPortLandCountyNationalSharePct,港口用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonPortLandTownshipOfCountySharePct,港口用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRailLandNationalSharePct,鐵路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRailLandCountyTotalHectare,鐵路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRailLandCountyNationalSharePct,鐵路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRailLandTownshipOfCountySharePct,鐵路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRoadLandNationalSharePct,道路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRoadLandCountyTotalHectare,道路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRoadLandCountyNationalSharePct,道路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonRoadLandTownshipOfCountySharePct,道路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAcuteBedTotalPer10000PopulationTownship,急性病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonHospiceBedTotalPer10000PopulationTownship,安寧病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonHospitalBedTotalPer10000PopulationTownship,醫院病床總數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonHospitalCountPer10000PopulationTownship,醫院家數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonIcuBedTotalPer10000PopulationTownship,加護病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonHealthProfessionalTotalPer10000PopulationTownship,醫院醫事人員總計（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonRegisteredNurseCountPer10000PopulationTownship,醫院護理師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonWesternPhysicianCountPer10000PopulationTownship,醫院西醫師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
-statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County,一般護理之家開放床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,65歲以上人口依年齡組加總，僅取總計或男女各一次。
-statsComparisonCareWorkerRegistrationCountPer65plus1000County,照顧服務員登錄數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,65歲以上人口依年齡組加總，僅取總計或男女各一次。
-statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County,產後護理之家開放護理床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
-statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County,產後護理之家開放嬰兒床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
-statsComparisonA2AccidentCount,A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonA2InjuryCount,A2 事故受傷人數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonA1A2AccidentCount,A1＋A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
-statsComparisonAgriculturalFacilityCountyAreaSharePct,農業生產設施用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAgriculturalFacilityCountyLq,農業生產設施用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct,農業生產設施用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAirportLandCountyAreaSharePct,機場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAirportLandCountyLq,機場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAirportLandTownshipAdminAreaSharePct,機場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAquacultureLandCountyAreaSharePct,水產養殖用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAquacultureLandCountyLq,水產養殖用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAquacultureLandTownshipAdminAreaSharePct,水產養殖用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBambooForestCountyAreaSharePct,竹林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBambooForestCountyLq,竹林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBambooForestTownshipAdminAreaSharePct,竹林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBroadleafForestCountyAreaSharePct,闊葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBroadleafForestCountyLq,闊葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonBroadleafForestTownshipAdminAreaSharePct,闊葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonConiferForestCountyAreaSharePct,針葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonConiferForestCountyLq,針葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonConiferForestTownshipAdminAreaSharePct,針葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonDryFieldCountyAreaSharePct,旱田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonDryFieldCountyLq,旱田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonDryFieldTownshipAdminAreaSharePct,旱田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonLivestockBuildingCountyAreaSharePct,畜禽舍用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonLivestockBuildingCountyLq,畜禽舍用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonLivestockBuildingTownshipAdminAreaSharePct,畜禽舍用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonMixedForestCountyAreaSharePct,混合林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonMixedForestCountyLq,混合林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonMixedForestTownshipAdminAreaSharePct,混合林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonOrchardCountyAreaSharePct,果園用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonOrchardCountyLq,果園用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonOrchardTownshipAdminAreaSharePct,果園用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPaddyLandCountyAreaSharePct,水田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPaddyLandCountyLq,水田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPaddyLandTownshipAdminAreaSharePct,水田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPastureCountyAreaSharePct,牧場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPastureCountyLq,牧場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPastureTownshipAdminAreaSharePct,牧場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPortLandCountyAreaSharePct,港口用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPortLandCountyLq,港口用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonPortLandTownshipAdminAreaSharePct,港口用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRailLandCountyAreaSharePct,鐵路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRailLandCountyLq,鐵路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRailLandTownshipAdminAreaSharePct,鐵路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRoadLandCountyAreaSharePct,道路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRoadLandCountyLq,道路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonRoadLandTownshipAdminAreaSharePct,道路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
-statsComparisonAcuteBedTotalPerKm2Township,急性病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonHospiceBedTotalPerKm2Township,安寧病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonHospitalBedTotalPerKm2Township,醫院病床總數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonHospitalCountPerKm2Township,醫院家數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonIcuBedTotalPerKm2Township,加護病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonHealthProfessionalTotalPerKm2Township,醫院醫事人員總計（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonRegisteredNurseCountPerKm2Township,醫院護理師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonWesternPhysicianCountPerKm2Township,醫院西醫師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
-statsComparisonLivestockHeadsPerFarmTownship,畜禽每場在養數量,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,同畜種同季在養數除以有報告場數；遮蔽、未報告與零場數不可計算，僅代表可配對鄉鎮。
-statsComparisonFisheryProductionTonnesNationalSharePctCounty,漁業生產量－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
-statsComparisonFisheryValueThousandNationalSharePctCounty,漁業生產值－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
-statsComparisonEducationClassCountPer10000Residents,班級數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationClassCountPerKm2,班級數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationInstitutionCountPer10000Residents,機構或學校數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationInstitutionCountPerKm2,機構或學校數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationStaffCountPer10000Residents,職員數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationStaffCountPerKm2,職員數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationStudentCountPer10000Residents,學生或幼生數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationStudentCountPerKm2,學生或幼生數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationTeacherCountPer10000Residents,教師數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonEducationTeacherCountPerKm2,教師數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
-statsComparisonBusOperatingRouteLengthKmPer10000Residents,期末營業里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingRouteLengthKmPerKm2,期末營業里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusApprovedRouteCountPer10000Residents,核定路線數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusApprovedRouteCountPerKm2,核定路線數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonUrbanBusOperatorCountPer10000Residents,市區客運業家數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonUrbanBusOperatorCountPerKm2,市區客運業家數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingVehicleCountPer10000Residents,期末營業車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingVehicleCountPerKm2,期末營業車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusAccessibleVehicleCountPer10000Residents,期末無障礙車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusAccessibleVehicleCountPerKm2,期末無障礙車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusElectricVehicleCountPer10000Residents,期末電動車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusElectricVehicleCountPerKm2,期末電動車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingTripCountPer10000Residents,營業行車次數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingTripCountPerKm2,營業行車次數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingVehicleKmPer10000Residents,營業行車里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonBusOperatingVehicleKmPerKm2,營業行車里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
-statsComparisonAutomobileLicenseHoldersCountPer10000Residents,領有汽車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonAutomobileRegisteredCountPer10000Residents,汽車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonMotorcycleLicenseHoldersCountPer10000Residents,領有機車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonMotorcycleRegisteredCountPer10000Residents,機車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路外停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路邊停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1AccidentCountPer10000Residents,A1交通事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1AccidentCountPerKm2,A1交通事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1DeathCountPer10000Residents,A1交通事故死亡人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1DeathCountPerKm2,A1交通事故死亡人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1InjuryCountPer10000Residents,A1交通事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1InjuryCountPerKm2,A1交通事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonWasteRecyclingVehiclesPer10000Residents,資源（含廚餘）回收車輛數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonWasteRecyclingVehiclesPerKm2,資源（含廚餘）回收車輛數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonWasteTotalVehiclesPer10000Residents,垃圾清運車輛總數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonWasteTotalVehiclesPerKm2,垃圾清運車輛總數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA2AccidentCountPer10000Residents,A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA2AccidentCountPerKm2,A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA2InjuryCountPer10000Residents,A2 事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA2InjuryCountPerKm2,A2 事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1A2AccidentCountPer10000Residents,A1＋A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
-statsComparisonA1A2AccidentCountPerKm2,A1＋A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBusElectricSharePct,電動公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingUnoccupiedSharePctCounty,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingUnoccupiedSharePctTownship,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingOccasionalSharePctCounty,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingOccasionalSharePctTownship,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingOtherUseSharePctCounty,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingOtherUseSharePctTownship,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty,有人居住住宅中的混合用途占比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityNationalSharePct,農業生產設施用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyTotalHectare,農業生產設施用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyNationalSharePct,農業生產設施用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityTownshipOfCountySharePct,農業生產設施用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandNationalSharePct,機場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandCountyTotalHectare,機場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandCountyNationalSharePct,機場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandTownshipOfCountySharePct,機場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandNationalSharePct,水產養殖用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandCountyTotalHectare,水產養殖用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandCountyNationalSharePct,水產養殖用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandTownshipOfCountySharePct,水產養殖用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestNationalSharePct,竹林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestCountyTotalHectare,竹林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestCountyNationalSharePct,竹林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestTownshipOfCountySharePct,竹林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestNationalSharePct,闊葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestCountyTotalHectare,闊葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestCountyNationalSharePct,闊葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestTownshipOfCountySharePct,闊葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestNationalSharePct,針葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestCountyTotalHectare,針葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestCountyNationalSharePct,針葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestTownshipOfCountySharePct,針葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldNationalSharePct,旱田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldCountyTotalHectare,旱田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldCountyNationalSharePct,旱田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldTownshipOfCountySharePct,旱田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingNationalSharePct,畜禽舍用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingCountyTotalHectare,畜禽舍用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingCountyNationalSharePct,畜禽舍用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingTownshipOfCountySharePct,畜禽舍用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestNationalSharePct,混合林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestCountyTotalHectare,混合林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestCountyNationalSharePct,混合林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestTownshipOfCountySharePct,混合林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonOrchardNationalSharePct,果園用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonOrchardCountyTotalHectare,果園用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonOrchardCountyNationalSharePct,果園用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonOrchardTownshipOfCountySharePct,果園用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandNationalSharePct,水田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandCountyTotalHectare,水田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandCountyNationalSharePct,水田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandTownshipOfCountySharePct,水田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPastureNationalSharePct,牧場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPastureCountyTotalHectare,牧場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPastureCountyNationalSharePct,牧場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPastureTownshipOfCountySharePct,牧場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPortLandNationalSharePct,港口用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPortLandCountyTotalHectare,港口用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPortLandCountyNationalSharePct,港口用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonPortLandTownshipOfCountySharePct,港口用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRailLandNationalSharePct,鐵路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRailLandCountyTotalHectare,鐵路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRailLandCountyNationalSharePct,鐵路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRailLandTownshipOfCountySharePct,鐵路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandNationalSharePct,道路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandCountyTotalHectare,道路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandCountyNationalSharePct,道路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandTownshipOfCountySharePct,道路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAcuteBedTotalPer10000PopulationTownship,急性病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospiceBedTotalPer10000PopulationTownship,安寧病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospitalBedTotalPer10000PopulationTownship,醫院病床總數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospitalCountPer10000PopulationTownship,醫院家數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonIcuBedTotalPer10000PopulationTownship,加護病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHealthProfessionalTotalPer10000PopulationTownship,醫院醫事人員總計（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonRegisteredNurseCountPer10000PopulationTownship,醫院護理師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonWesternPhysicianCountPer10000PopulationTownship,醫院西醫師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County,一般護理之家開放床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,65歲以上人口依年齡組加總，僅取總計或男女各一次。
+statsComparisonCareWorkerRegistrationCountPer65plus1000County,照顧服務員登錄數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,65歲以上人口依年齡組加總，僅取總計或男女各一次。
+statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County,產後護理之家開放護理床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
+statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County,產後護理之家開放嬰兒床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
+statsComparisonA2AccidentCount,A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonA2InjuryCount,A2 事故受傷人數,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonA1A2AccidentCount,A1＋A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyAreaSharePct,農業生產設施用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAgriculturalFacilityCountyLq,農業生產設施用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct,農業生產設施用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandCountyAreaSharePct,機場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandCountyLq,機場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandTownshipAdminAreaSharePct,機場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandCountyAreaSharePct,水產養殖用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandCountyLq,水產養殖用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandTownshipAdminAreaSharePct,水產養殖用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestCountyAreaSharePct,竹林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestCountyLq,竹林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestTownshipAdminAreaSharePct,竹林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestCountyAreaSharePct,闊葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestCountyLq,闊葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestTownshipAdminAreaSharePct,闊葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestCountyAreaSharePct,針葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestCountyLq,針葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestTownshipAdminAreaSharePct,針葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldCountyAreaSharePct,旱田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldCountyLq,旱田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldTownshipAdminAreaSharePct,旱田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingCountyAreaSharePct,畜禽舍用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingCountyLq,畜禽舍用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingTownshipAdminAreaSharePct,畜禽舍用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestCountyAreaSharePct,混合林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestCountyLq,混合林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestTownshipAdminAreaSharePct,混合林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardCountyAreaSharePct,果園用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardCountyLq,果園用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardTownshipAdminAreaSharePct,果園用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandCountyAreaSharePct,水田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandCountyLq,水田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandTownshipAdminAreaSharePct,水田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureCountyAreaSharePct,牧場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureCountyLq,牧場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureTownshipAdminAreaSharePct,牧場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandCountyAreaSharePct,港口用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandCountyLq,港口用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandTownshipAdminAreaSharePct,港口用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandCountyAreaSharePct,鐵路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandCountyLq,鐵路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandTownshipAdminAreaSharePct,鐵路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandCountyAreaSharePct,道路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandCountyLq,道路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandTownshipAdminAreaSharePct,道路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAcuteBedTotalPerKm2Township,急性病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospiceBedTotalPerKm2Township,安寧病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospitalBedTotalPerKm2Township,醫院病床總數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospitalCountPerKm2Township,醫院家數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonIcuBedTotalPerKm2Township,加護病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHealthProfessionalTotalPerKm2Township,醫院醫事人員總計（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonRegisteredNurseCountPerKm2Township,醫院護理師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonWesternPhysicianCountPerKm2Township,醫院西醫師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonLivestockHeadsPerFarmTownship,畜禽每場在養數量,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,同畜種同季在養數除以有報告場數；遮蔽、未報告與零場數不可計算，僅代表可配對鄉鎮。
+statsComparisonFisheryProductionTonnesNationalSharePctCounty,漁業生產量－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
+statsComparisonFisheryValueThousandNationalSharePctCounty,漁業生產值－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
+statsComparisonEducationClassCountPer10000Residents,班級數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationClassCountPerKm2,班級數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationInstitutionCountPer10000Residents,機構或學校數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationInstitutionCountPerKm2,機構或學校數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStaffCountPer10000Residents,職員數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStaffCountPerKm2,職員數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStudentCountPer10000Residents,學生或幼生數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStudentCountPerKm2,學生或幼生數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationTeacherCountPer10000Residents,教師數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationTeacherCountPerKm2,教師數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonBusOperatingRouteLengthKmPer10000Residents,期末營業里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingRouteLengthKmPerKm2,期末營業里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusApprovedRouteCountPer10000Residents,核定路線數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusApprovedRouteCountPerKm2,核定路線數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonUrbanBusOperatorCountPer10000Residents,市區客運業家數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonUrbanBusOperatorCountPerKm2,市區客運業家數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleCountPer10000Residents,期末營業車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleCountPerKm2,期末營業車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusAccessibleVehicleCountPer10000Residents,期末無障礙車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusAccessibleVehicleCountPerKm2,期末無障礙車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusElectricVehicleCountPer10000Residents,期末電動車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusElectricVehicleCountPerKm2,期末電動車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingTripCountPer10000Residents,營業行車次數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingTripCountPerKm2,營業行車次數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleKmPer10000Residents,營業行車里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleKmPerKm2,營業行車里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonAutomobileLicenseHoldersCountPer10000Residents,領有汽車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonAutomobileRegisteredCountPer10000Residents,汽車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonMotorcycleLicenseHoldersCountPer10000Residents,領有機車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonMotorcycleRegisteredCountPer10000Residents,機車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路外停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路邊停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1AccidentCountPer10000Residents,A1交通事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1AccidentCountPerKm2,A1交通事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1DeathCountPer10000Residents,A1交通事故死亡人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1DeathCountPerKm2,A1交通事故死亡人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1InjuryCountPer10000Residents,A1交通事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1InjuryCountPerKm2,A1交通事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteRecyclingVehiclesPer10000Residents,資源（含廚餘）回收車輛數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteRecyclingVehiclesPerKm2,資源（含廚餘）回收車輛數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteTotalVehiclesPer10000Residents,垃圾清運車輛總數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteTotalVehiclesPerKm2,垃圾清運車輛總數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2AccidentCountPer10000Residents,A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2AccidentCountPerKm2,A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2InjuryCountPer10000Residents,A2 事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2InjuryCountPerKm2,A2 事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1A2AccidentCountPer10000Residents,A1＋A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1A2AccidentCountPerKm2,A1＋A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,2026-01-01,,yes,statistics,warehouse,,,,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
 statsPaddyLandAreaTownship,水田用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse+browser,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
 statsDryFieldAreaTownship,旱田用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
 statsOrchardAreaTownship,果園用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
@@ -320,20 +320,20 @@ jpAccommodationDensity,旅宿密度網格 宿泊施設密度グリッド,日本,
 jpAccommodationJta,觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館,日本,旅宿,custom,verified,jp_accommodation_jta,,,,,yes,none,,,,dataset_not_in_warehouse,"觀光廳《國際觀光ホテル整備法》登錄子集；40 筆 geometry miss 不補 0,0。"
 jpAccommodationLocal,地方旅館業許可 地方自治体の旅館業許可,日本,旅宿,custom,verified,jp_accommodation_local,,,,,yes,none,,,,dataset_not_in_warehouse,"地方政府旅館業許可首批 4,410 rows；coverage 限京都市、靜岡市、江東區。"
 jpAccommodationOsm,OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ,日本,旅宿,custom,verified,jp_accommodation_osm,,,,,yes,none,,,,dataset_not_in_warehouse,"OSM 住宿 20,502 elements；native point 與 feature center 精度分開顯示，ODbL。"
-jpNaturalParksNational,國立公園 国立公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 國立公園 outer polygons；非商用限制。
-jpNaturalParksQuasiNational,國定公園 国定公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 國定公園 outer polygons；非商用限制。
-jpNaturalParksPrefectural,都道府縣立自然公園 都道府県立自然公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。
-jpNatureConservationArea,自然保育地域 自然保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 自然保全地域；HOLD_LICENSE。
-jpPrimitiveNatureEnvironmentArea,原生自然環境地域 原生自然環境保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。
-jpNatureConservationSpecialDistrict,自然保育特別地區 自然保全特別地区（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。
-jpWildlifeProtectionNational,國家指定鳥獸保護區 国指定鳥獣保護区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。
-jpWildlifeSpecialProtectionDistrict,鳥獸特別保護地區 鳥獣保護区特別保護地区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。
-jpWildlifeSpecialProtectionDesignatedArea,鳥獸特別保護指定區域 特別保護指定区域,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。
-jpWorldHeritageCultural,UNESCO 文化遺產代表點 UNESCO 文化遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。
-jpWorldHeritageNatural,UNESCO 自然遺產代表點 UNESCO 自然遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,UNESCO 現行自然遺產 5 個代表點；非遺產界線。
-jpWorldNaturalHeritageHistorical,世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。
-jpRamsarSites,拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。
-jpMarineEbsaCoastal,沿岸生態重要海域 沿岸EBSA（2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,2015 沿岸 EBSA ecological reference；不是法定保護區。
+jpNaturalParksNational,國立公園 国立公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 本地 research PMTiles 靜態界線（A10 2010 historical outer polygon），非現行法定界線／zoning；可入倉做面積、與其他保護區重疊分析；NON_COMMERCIAL_ONLY 限制需保留於 metadata。,A10 2010 historical 國立公園 outer polygons；非商用限制。
+jpNaturalParksQuasiNational,國定公園 国定公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同 jpNaturalParksNational，共用同一份 A10 2010 PMTiles artifact 換 filter_layer_id；outer polygon、非商用限制。,A10 2010 historical 國定公園 outer polygons；非商用限制。
+jpNaturalParksPrefectural,都道府縣立自然公園 都道府県立自然公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同上 A10 2010 PMTiles 共用 artifact；都道府縣立自然公園 outer polygon。,A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。
+jpNatureConservationArea,自然保育地域 自然保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: A11 2015 PMTiles 靜態界線；HOLD_LICENSE（全國發布待用途別 clearance），historical reference，仍可入倉做空間分析但需標註授權未清。,A11 2015 historical 自然保全地域；HOLD_LICENSE。
+jpPrimitiveNatureEnvironmentArea,原生自然環境地域 原生自然環境保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同一 A11 2015 PMTiles artifact；HOLD_LICENSE、精度不保證，historical reference。,A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。
+jpNatureConservationSpecialDistrict,自然保育特別地區 自然保全特別地区（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同一 A11 2015 PMTiles artifact；HOLD_LICENSE、精度不保證。,A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。
+jpWildlifeProtectionNational,國家指定鳥獸保護區 国指定鳥獣保護区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 環境省 2025-04 PMTiles 鳥獸保護區界線；LICENSE_UNVERIFIED、本地 research only，可入倉做面積/重疊分析但授權未確認。,環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。
+jpWildlifeSpecialProtectionDistrict,鳥獸特別保護地區 鳥獣保護区特別保護地区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。,環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。
+jpWildlifeSpecialProtectionDesignatedArea,鳥獸特別保護指定區域 特別保護指定区域,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 同一 2025-04 PMTiles artifact 換 filter；LICENSE_UNVERIFIED。,環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。
+jpWorldHeritageCultural,UNESCO 文化遺產代表點 UNESCO 文化遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: UNESCO 現行名錄 GeoJSON 代表點（22 rows，1 筆 null geometry）；CC BY-SA 4.0，代表點非 property boundary，適合做文化景點可及性分析。,UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。
+jpWorldHeritageNatural,UNESCO 自然遺產代表點 UNESCO 自然遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: UNESCO 現行自然遺產代表點（5 個）；CC BY-SA 4.0，代表點非 property boundary。,UNESCO 現行自然遺產 5 個代表點；非遺產界線。
+jpWorldNaturalHeritageHistorical,世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: KSJ A28-10 2011 historical 面（僅知床／白神山地／屋久島 3 處，缺現行 2 處）；NON_COMMERCIAL_ONLY，資料量小但仍是可入倉的靜態 polygon。,A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。
+jpRamsarSites,拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 環境省 Ramsar 名冊衍生點（54 rows：10 個 NAME_MATCH 精確、44 個 ADMIN_OR_OTHER_CENTROID 低精度）；LICENSE_UNVERIFIED + HOLD_GEOMETRY，所有點都非 Ramsar 官方界線，入倉需保留 geocode_quality 欄位。,Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。
+jpMarineEbsaCoastal,沿岸生態重要海域 沿岸EBSA（2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 環境省 2015 沿岸生態重要海域 PMTiles polygon；STALE_REFERENCE、ATTRIBUTION_REQUIRED，非法定保護區指定，僅生態參考面。,2015 沿岸 EBSA ecological reference；不是法定保護區。
 religionTemples,寺廟 Temples,臺灣圖層,宗教 Religion,pmtiles,verified,temples,ds_religion_temples,POINT,2026-08-21,national,yes,spatial,warehouse+browser,google_geocode,,,"全台登記寺廟 19,201 座（主祀神 deity_family 9 族分色）"
 religionChurches,教會 Churches,臺灣圖層,宗教 Religion,geojson,verified,churches,ds_religion_churches,POINT,2026-08-21,national,yes,spatial,warehouse+browser,google_geocode,,,"全台教會 2,116 處（含 OSM 補入的聚會點）"
 religionAncestralHalls,宗祠 Ancestral Halls,臺灣圖層,宗教 Religion,geojson,verified,ancestral_halls,ds_religion_ancestral_halls,POINT,2026-08-21,18 counties,yes,spatial,warehouse+browser,google_geocode,,,宗祠家廟 173 處（登記宗祠 / 宗親基金會 / 文資祠堂三類）
@@ -349,7 +349,7 @@ culturalFacilities,文化設施 Cultural Facilities,臺灣圖層,文化 Culture,
 culturalMuseums,地方文化館 Local Museums,臺灣圖層,文化 Culture,geojson,verified,local_cultural_museums_moc,ds_culture_local_cultural_museums_moc,POINT,2026-07-16,national,yes,spatial,warehouse+browser,google_geocode,,,地方文化館全國 252 點（社區型小型館舍，與文化設施分開計）
 artsEvents,藝文活動 Arts Events,臺灣圖層,文化 Culture,geojson,verified,arts_events_moc,ds_culture_arts_events_moc,POINT,2026-07-16,19 counties,yes,spatial,warehouse+browser,address_geocode,,,"文化部藝文活動全國 6,121 場（含展演期間，overlay filter 依當日篩選）"
 performingVenues,表演場館 Performing Venues,臺灣圖層,文化 Culture,geojson,verified,performing_venues_moc,ds_culture_performing_venues_moc,POINT,2026-07-16,national,yes,spatial,warehouse+browser,google_geocode,,,表演場館全國 857 點（劇場／音樂廳／展演空間）
-librarySeats,圖書館即時座位 Library Seats,臺灣圖層,文化 Culture,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,北市圖 6 分館即時空位率（29 閱覽區聚合，10 分鐘資料／5 分鐘輪詢）
+librarySeats,圖書館即時座位 Library Seats,臺灣圖層,文化 Culture,supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: 北市圖 6 分館即時座位為 realtime 指標（10 分鐘資料／5 分鐘輪詢），本身屬 live_only；但 6 分館座標是穩定設施點，可只快照分館位置（不含即時空位率）供可及性分析用。,北市圖 6 分館即時空位率（29 閱覽區聚合，10 分鐘資料／5 分鐘輪詢）
 fireStations,消防分隊 Fire Station,臺灣圖層,消防 Fire & Rescue,geojson,verified,fire_stations,ds_fire_fire_stations,POINT,2026-07-10,national,yes,spatial,warehouse+browser,unknown,,,全台消防分隊據點（fireIsochrone 等時圈的計算起點）
 fireHydrants,消防栓 Hydrant,臺灣圖層,消防 Fire & Rescue,pmtiles,verified,hydrants,,,,,yes,browser_reader,browser,,,warehouse_SKIPPED_FORMAT,全台消防栓點位（量體大走 PMTiles 按需載入）
 fireEvents,火災歷史 Fire History,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,address_geocode,,,歷史火災點位（需進歷史模式選年／月／日）
@@ -360,13 +360,13 @@ civilDefenseShelter,防空避難 Civil Defense Shelters,臺灣圖層,民防避�
 worldTrashDebris,垃圾與殘骸觀測 Trash & Debris Observations,世界,全球環境 Global Environment,custom,verified,trash_debris_outerview,ds_world_trash_debris_outerview,POINT,2026-07-19,unknown,yes,spatial,warehouse,unknown,,,Outerview 全球垃圾殘骸 ~25k 點（⚠️ 點密度是街景覆蓋度，不是垃圾分佈）
 coralReefDistribution,珊瑚礁歷史分布 Historical Coral Reefs,世界,全球環境 Global Environment,custom,verified,coral_reef_distribution,ds_marine_coral_reef_distribution,MULTIPOLYGON+POLYGON,2026-09-08,3 counties,yes,spatial,warehouse,unknown,,,全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化。
 allenCoralAtlas,珊瑚礁棲地分類 Allen Coral Atlas（私人研究）,世界,全球環境 Global Environment,custom,verified,allen_coral_atlas,ds_marine_allen_coral_atlas,MULTIPOLYGON,2026-09-15,8 counties,yes,spatial,warehouse+browser,unknown,,,Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。
-globalEvents,全球重大事件 Global Events,世界,全球情勢 Global Situation,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡
-aisstreamVessels,AISStream 船舶 AISStream Vessels,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,AISStream 最近 30 分鐘回報的船舶位置（視窗查詢；非全量船舶）
-gfwVesselPresence,GFW 舊版每日船舶 Historical Presence,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單
-gfwHourlyGrid,GFW 小時船舶網格 Hourly Grid,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,0.1° GFW 小時 vessel presence 格網；色階與透明度依船舶數連續插值，點擊列出格內完整船舶
-gfwHourlyTracks,GFW 小時近似航跡 Hourly Tracks,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW schema-4 小時船舶近似航跡；跟隨時間軸載入 H-1/H/H+1，六船種獨立選取、同座標完整聚合
-gfwFishingEffort,GFW 每日捕撈活動 Fishing Effort,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW 每日 apparent fishing effort sample；面積色階代表捕撈活動小時，不代表漁獲量、船數或違法性
-gfwDarkVessels,GFW SAR 未匹配 AIS Unmatched Detections,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW SAR 偵測未與 AIS 匹配的格網中心；非暗船、違法船或確認關 AIS 認定
+globalEvents,全球重大事件 Global Events,世界,全球情勢 Global Situation,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: 價值在最近 7 天事件時間軸與嚴重度變化（AI 初判＋正式事件混合，候選事件分頁 200/頁），需依時間窗匯出才有意義，不適合單點快照；跨國弧線僅表事件關聯非真實座標移動。,全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡
+aisstreamVessels,AISStream 船舶 AISStream Vessels,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: AISStream 最近 30 分鐘船位，依目前 viewport 查詢，價值在即時位置更新，需時間窗匯出（例如每小時抓一次做軌跡）而非單次快照。,AISStream 最近 30 分鐘回報的船舶位置（視窗查詢；非全量船舶）
+gfwVesselPresence,GFW 舊版每日船舶 Historical Presence,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: GFW 舊版每日 vessel presence 快照，本質是逐日變動的歷史時間序列（非最新 release 標準來源），適合按日期範圍匯出而非單一時點快照。,Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單
+gfwHourlyGrid,GFW 小時船舶網格 Hourly Grid,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: GFW 小時船舶密度網格，依 UTC 小時變化、隨 timeStore crossfade 呈現，核心價值是時間序列變化而非某一時刻的靜態面。,0.1° GFW 小時 vessel presence 格網；色階與透明度依船舶數連續插值，點擊列出格內完整船舶
+gfwHourlyTracks,GFW 小時近似航跡 Hourly Tracks,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: GFW schema-4 小時近似航跡，跟隨時間軸載入 H-1/H/H+1，本質是移動軌跡時間序列。,GFW schema-4 小時船舶近似航跡；跟隨時間軸載入 H-1/H/H+1，六船種獨立選取、同座標完整聚合
+gfwFishingEffort,GFW 每日捕撈活動 Fishing Effort,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: GFW 每日 apparent fishing effort，以 UTC 日獨立彙整，用於比較不同日期的捕撈活動變化，單一時點快照會失去時間序列比較的分析價值。,GFW 每日 apparent fishing effort sample；面積色階代表捕撈活動小時，不代表漁獲量、船數或違法性
+gfwDarkVessels,GFW SAR 未匹配 AIS Unmatched Detections,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,override: live_only: GFW SAR 未匹配 AIS 偵測，依 UTC 小時切分，空時段仍會產生 0-feature，本質是時間序列監測而非靜態設施。,GFW SAR 偵測未與 AIS 匹配的格網中心；非暗船、違法船或確認關 AIS 認定
 jpMedicalHospitals,醫院 病院,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,醫院 病院；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
 jpMedicalClinics,診所 診療所,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,診所 診療所；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
 jpMedicalDental,牙科 歯科,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,牙科 歯科；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
@@ -397,12 +397,12 @@ jpWaterFloodHazard,洪水浸水想定（最大規模）,日本,水資源,custom,
 jpReligionGsi,宗教設施 宗教施設（国土地理院）,日本,宗教,custom,verified,jp_religion_gsi,ds_world_jp_religion_gsi,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"国土地理院寺院／神社地圖記號 167,037 點（96.7% 無名稱）"
 jpReligionOsm,宗教設施 宗教施設（OpenStreetMap）,日本,宗教,custom,verified,jp_religion_osm,ds_world_jp_religion_osm,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"OpenStreetMap 日本宗教設施 71,040 點（唯一含基督教；ODbL）"
 jpReligionWikidata,宗教設施 宗教施設（Wikidata）,日本,宗教,custom,verified,jp_religion_wikidata,ds_world_jp_religion_wikidata,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）"
-jpAdminPrefecture,都道府縣界 都道府県境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本都道府県界（47 筆）
-jpAdminBoundaries,市區町村界 市区町村境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本市区町村界（1,905 筆）"
-jpStations,車站 駅,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本車站（9,046 點，含路線／營運者／運量）"
-jpAirports,機場 空港,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本機場（108 面，含空港種別／跑道規格）
-jpRailways,鐵道路線 鉄道路線,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本鐵道路線（21,933 段，事業者種別 5 類分色）"
-jpHistoricalFlightTrails,歷史航班軌跡 Japan,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
+jpAdminPrefecture,都道府縣界 都道府県境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 日本都道府県界 PMTiles（47 筆），純行政邊界，是縣市級空間聚合分析的基礎底圖。,日本都道府県界（47 筆）
+jpAdminBoundaries,市區町村界 市区町村境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 日本市区町村界 PMTiles（1,905 筆），鄉鎮級行政邊界，可作跨圖層行政區聚合的 join key。","日本市区町村界（1,905 筆）"
+jpStations,車站 駅,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 日本車站靜態 GeoJSON（9,046 點，含路線／營運者／運量 2022-2024），高價值設施點，適合做交通可及性分析。","日本車站（9,046 點，含路線／營運者／運量）"
+jpAirports,機場 空港,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 日本機場靜態 GeoJSON（108 面，含空港種別／供用狀態／跑道規格），設施類資料，可做機場服務範圍分析。,日本機場（108 面，含空港種別／跑道規格）
+jpRailways,鐵道路線 鉄道路線,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 日本鐵道路線 PMTiles（21,933 段，含路線名／運営会社／事業者種別），可做路網連通性與可及性分析。","日本鐵道路線（21,933 段，事業者種別 5 類分色）"
+jpHistoricalFlightTrails,歷史航班軌跡 Japan,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 歷史航班樣本軌跡，已是靜態 manifest+GeoJSON 資產（依機場/日期載入已保留的實測航跡），非持續更新的即時追蹤，可入倉做航線廊道分析；coverage 以 manifest 為準、非完整航班。,日本機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
 osmBridgeCarriers,OSM 橋梁承載線,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,OSM 橋梁的道路、鐵道與其他承載線。
 osmBridgeFootprints,OSM 橋梁輪廓,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,OSM 原生橋梁輪廓，資料可能不完整。
 officialBridgesNewTaipei,新北市轄管橋梁,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,新北市轄管橋梁，不代表全市所有橋梁。
@@ -414,8 +414,8 @@ tainanRoadTunnels,臺南市道路隧道,臺灣圖層,交通 Move,pmtiles,verifie
 changhuaTrafficSignals,彰化縣道路號誌,臺灣圖層,交通 Move,pmtiles,verified,roadside_facilities,,,,,yes,none,,,,dataset_not_in_warehouse,"彰化縣 3,448 個可定位號誌清冊點；非獨立路口數，也沒有即時燈態。"
 bridgeRainThresholds,一級監控橋梁參考雨量,臺灣圖層,交通 Move,custom,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,10 座公路局一級監控橋梁的參考雨量試點；表版次待覆核，缺測與未覆核條件顯示未知，位置為 OSM 同名候選。
 jpPoliceFacilities,警察設施 警察施設,日本,治安,custom,verified,jp_police_facilities,ds_world_jp_police_facilities,POINT,2026-09-07,unknown,yes,spatial,warehouse,address_geocode,,,日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊
-jpSchools,學校 学校,日本,教育,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本學校（56,807 點，学校分類 13 類分色）"
-jpPopulationMesh1km,人口網格 人口メッシュ,日本,人口,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）"
+jpSchools,學校 学校,日本,教育,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 日本全国学校一覧 PMTiles（56,807 點，含校名／所在地／学校分類／設置者），大型教育設施點資料，適合可及性與涵蓋率分析。","日本學校（56,807 點，学校分類 13 類分色）"
+jpPopulationMesh1km,人口網格 人口メッシュ,日本,人口,custom,catalog_missing,,,,,,yes,none,,,,"override: snapshot_candidate: 国土数値情報 1km 網格未來推計人口（176,896 格，pop 2020/2030/2040/2050/2070、ratio65 2030起），統計網格資料，是人口/高齡化空間分析的核心素材；注意 ratio65_* 是 0~1 比例、0 值多為隱私遮罩非真 0%。","日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）"
 plaActivity,共機活動區 PLA Activity,臺灣圖層,情勢 Situation,custom,verified,pla_activity,,,,,yes,none,,,,dataset_not_in_warehouse,國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）
 vesselWatch,特殊船舶 Vessel Watch,臺灣圖層,情勢 Situation,custom,verified,ship,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）
 submarineCables,OSM 通訊海纜 Submarine Cable,世界,全球通訊 Global Communications,geojson,verified,submarine_cable,,,,,yes,none,,,,warehouse_FAILED,OSM crowd 海纜世界概覽 104 條；OpenInfraMap z2 概化線位，非完整清冊或工程圖
@@ -488,7 +488,7 @@ forestReserve,保安林 Reserve,臺灣圖層,林業 Forestry,pmtiles,verified,fo
 forestRecreation,森林遊樂區 Recreation,臺灣圖層,林業 Forestry,geojson,verified,forest_recreation_areas,ds_forestry_forest_recreation_areas,MULTIPOLYGON+POLYGON,2026-05-19,11 counties,yes,spatial,warehouse+browser,unknown,,,國家森林遊樂區範圍（面層）
 forestFlatParks,平地森林 Flat Parks,臺灣圖層,林業 Forestry,geojson,verified,flat_forest_parks,ds_forestry_flat_forest_parks,POINT,2026-05-19,3 counties,yes,spatial,warehouse+browser,address_geocode,,,平地森林園區點位
 canopyHeight,樹冠高度 Canopy Height,臺灣圖層,林業 Forestry,pmtiles,verified,canopy_height_meta,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）
-jpCanopyHeight,樹冠高度 CHMv2,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Meta/WRI CHMv2 估計樹冠高度（日本分區資料；影像日期依地點而異）
+jpCanopyHeight,樹冠高度 CHMv2,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,display_only,,,,override: display_only: Meta/WRI CHMv2 樹冠高度為連續 raster 瓦片（source.kind=pmtiles 但走 rasterProbe popup，逐像素查詢無屬性表），非向量/表格資料，不適合入倉做空間統計分析。,Meta/WRI CHMv2 估計樹冠高度（日本分區資料；影像日期依地點而異）
 canopyGiants,樹冠巨木 Canopy Giants,臺灣圖層,林業 Forestry,geojson,pulse_only,,,,,,yes,browser_reader,browser,,,derived_layer,樹冠 45m 以上巨木點位（依離步道距離帶分色，見 canopyGiantsTypes.ts）
 forestTreatmentWorks,治理工程 Treatment Works,臺灣圖層,林業 Forestry,geojson,verified,forestry_treatment_works,ds_forestry_forestry_treatment_works,POINT,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,林業治理工程點位（崩塌地治理／野溪整治等）
 forestTrailSigns,步道路標 Trail Signs,臺灣圖層,林業 Forestry,geojson,verified,mountain_trail_signs,ds_forestry_mountain_trail_signs,POINT,2026-05-19,11 counties,yes,spatial,warehouse+browser,unknown,,,山區步道路標點位（與山屋／通訊點疊圖 = 登山安全敘事）
@@ -513,7 +513,7 @@ medClinic,診所 / 其他醫療 Clinic,臺灣圖層,醫療 Medical,pmtiles,verif
 medPharmacy,藥局 Pharmacy,臺灣圖層,醫療 Medical,pmtiles,verified,medical,ds_poi_medical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,全台健保特約藥局點位
 medAED,AED 點位 AED,臺灣圖層,醫療 Medical,pmtiles,verified,aed,ds_emergency_response_aed,POINT,2026-05-24,national,yes,spatial,warehouse+browser,unknown,,,全台公共 AED 設置點位
 medLTC,長照機構 LTC,臺灣圖層,醫療 Medical,pmtiles,verified,long_term_care,ds_poi_long_term_care,POINT,2026-08-11,national,yes,spatial,warehouse+browser,unknown,,,全台長期照顧服務機構點位
-erHospital,急診壅塞 ER,臺灣圖層,醫療 Medical,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,急診壅塞即時狀態（等待推床／滯留人數，座標 join 醫院 POI）
+erHospital,急診壅塞 ER,臺灣圖層,醫療 Medical,supabase,pulse_only,,,,,,yes,none,,,,override: live_only: 即時急診壅塞狀態（等待推床／滯留人數，realtime.er_hospital_status，RPC get_er_hospital_latest），核心分析價值是隨時間變動的壅塞指標，需時間窗匯出；座標是 join 自另一份醫療 GeoJSON（非本層自有的設施表），故不比照『快照站點』處理。,急診壅塞即時狀態（等待推床／滯留人數，座標 join 醫院 POI）
 medIsochrone,醫療等時圈 Isochrone,臺灣圖層,醫療 Medical,custom,pulse_only,,,,,,yes,none,,,,derived_layer,醫療設施 OSRM 路網等時圈（駕車 5/10/15/30 分鐘分級）
 medDesert,醫療沙漠 Desert,臺灣圖層,醫療 Medical,custom,pulse_only,,,,,,yes,none,,,,derived_layer,醫療沙漠：距任一醫療設施駕車 > 15 分鐘的網格（等時圈同層 filter 收窄）
 policeStation,警察機關 Police,臺灣圖層,執法治安 Law & Order,geojson,verified,police_stations,ds_police_justice_police_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,全台警察機關點位（警局／分局／派出所）
@@ -571,7 +571,7 @@ slopeVector,坡度分級 Slope 6級,臺灣圖層,底圖 Base Map,custom,verified
 aspectVector,坡向分級 Aspect 8向,臺灣圖層,底圖 Base Map,custom,verified,aspect,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,坡向八方位分級面（N/NE/E/…/NW 分色）
 isobath,海底等深線 Isobath,臺灣圖層,底圖 Base Map,pmtiles,verified,gebco_isobath,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,全球海底等深線（GEBCO，等深線 11 級 + 深度分帶 12 級，3 種配色模式）
 buildingsGba,建物輪廓 Buildings,臺灣圖層,底圖 Base Map,pmtiles,verified,buildings_3d_gba,ds_urban_composite_buildings_3d_gba,POLYGON,2026-07-27,1 counties,yes,spatial,warehouse,unknown,,,全台建物輪廓（高度 / 來源 / 夜光三種著色模式，z14 起 fill-extrusion）
-jpBuildingHeight,建物高度 PLATEAU,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,PLATEAU 日本分區建物高度（遠距格網、近距輪廓；高度缺值保留中性平面）
+jpBuildingHeight,建物高度 PLATEAU,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: PLATEAU 建物高度（遠距 building_grid 網格＋近距 buildings 輪廓兩組 PMTiles，含高度屬性），為向量設施/建物資料，可做都市紋理與天際線分析；部分區域覆蓋、非全日本完成。,PLATEAU 日本分區建物高度（遠距格網、近距輪廓；高度缺值保留中性平面）
 urbanZoningNewTaipei,新北土地使用分區 New Taipei Zoning,臺灣圖層,底圖 Base Map,pmtiles,verified,urban_zoning_newtaipei,ds_urban_composite_urban_zoning_newtaipei,MULTIPOLYGON,2026-07-27,5 counties,yes,spatial,warehouse,unknown,,,新北市都市計畫土地使用分區（與北市同一組 zone_category 分色）
 nonUrbanZoning,非都市土地使用分區 Non-Urban Zoning,臺灣圖層,底圖 Base Map,pmtiles,verified,non_urban_zoning,ds_urban_composite_non_urban_zoning,GEOMETRYCOLLECTION+MULTIPOLYGON+POLYGON,2026-08-01,national,yes,spatial,warehouse,unknown,,,非都市土地使用分區（與北市/新北兩層互補，合起來是全國拼圖）
 osmRoadDrive,OSM 道路 OSM Roads,臺灣圖層,底圖 Base Map,pmtiles,verified,osm_road_drive,ds_transportation_osm_road_drive,MULTILINESTRING,2026-07-07,national,yes,spatial,warehouse,unknown,,,OSM 可行車道路網（依 highway 分級著色，含 z5 揭露門檻）
@@ -631,8 +631,8 @@ treePitsTaipei,人行道樹穴 Tree Pits,臺灣圖層,環境氣候 Environment,p
 waterFacilities,水利設施 Facility,臺灣圖層,水資源 Water,geojson,verified,water_facilities_osm,ds_water_resources_water_facilities_osm,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,水利設施點位（OSM 取水口 / 水處理 / 閘門等）
 waterMonitorStations,監測站 Monitor,臺灣圖層,水資源 Water,geojson,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,水利署各類監測站靜態點位（雨量 / 水位 / 水質）
 waterReservoirs,水庫 Reservoir,臺灣圖層,水資源 Water,pmtiles+geojson,verified,reservoir_storage_wra,ds_water_resources_reservoir_storage_wra,MULTIPOLYGON,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）
-marineObservationCwa,CWA 海洋觀測站 CWA Marine,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,中央氣象署固定式海洋觀測站；點色表示 freshness／source status，各指標保留 depth、quality 與 vertical datum。
-marineObservationIsohe,ISOHE 港區海氣象 ISOHE Port,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,ISOHE 港區海氣象固定站；採自身更新頻率判讀 freshness，不與 CWA 同名指標平均或直接比較不同 vertical datum。
+marineObservationCwa,CWA 海洋觀測站 CWA Marine,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 中央氣象署固定式海洋觀測站，本質是即時觀測值（freshness 隨資料更新），但測站位置（station_uid／經緯度／depth／vertical datum）是穩定設施，可只快照站點中繼資料、不含即時觀測值。,中央氣象署固定式海洋觀測站；點色表示 freshness／source status，各指標保留 depth、quality 與 vertical datum。
+marineObservationIsohe,ISOHE 港區海氣象 ISOHE Port,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 港灣環境資訊網 ISOHE 港區海氣象固定站，同 CWA：測站位置穩定，可只快照站點中繼資料。,ISOHE 港區海氣象固定站；採自身更新頻率判讀 freshness，不與 CWA 同名指標平均或直接比較不同 vertical datum。
 groundwaterWells,水井點位 Wells,臺灣圖層,水資源 Water,custom,verified,groundwater_wells,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,地下水井監測網站位 backdrop（灰點，呈現監測密度）
 rainGauge,即時雨量 Rain Gauge,臺灣圖層,水資源 Water,custom,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,全台雨量站 10 分鐘 / 1 小時累積雨量（CWA 分級色階 + 熱區）
 riverLevel,河川水位 River Level,臺灣圖層,水資源 Water,custom,verified,river_level_stations_wra,,,,,yes,none,,,,dataset_not_in_warehouse,水利署河川水位站即時水位（對警戒水位的相對高度）
@@ -714,7 +714,7 @@ busStationsCity,市區公車站 City Bus,臺灣圖層,交通 Move,pmtiles,verifi
 busStationsIntercity,公路客運站 Intercity,臺灣圖層,交通 Move,geojson,verified,bus,ds_transportation_bus,LINESTRING+POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,公路客運站牌點位（雙圓 glow）
 bikeStations,公共自行車 Bike Station,臺灣圖層,交通 Move,geojson,verified,bike,ds_transportation_bike,MULTILINESTRING+POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,YouBike／公共自行車站點位（雙圓 glow）
 flights,航班 Flight,臺灣圖層,交通 Move,custom,verified,opensky_flights,,,,,yes,none,,,,dataset_not_in_warehouse,即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）
-historicalFlightTrails,歷史航班軌跡 Taiwan,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
+historicalFlightTrails,歷史航班軌跡 Taiwan,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,yes,none,,,,override: snapshot_candidate: 台灣機場歷史航班樣本軌跡，已是靜態 manifest+GeoJSON 資產（同 jpHistoricalFlightTrails 模式），可入倉做航線廊道分析；coverage 以 manifest 為準、非完整航班或即時軌跡。,台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
 ships,船舶 Ship,臺灣圖層,交通 Move,custom,verified,ship,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）
 busLive,公車 Bus,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,市區公車即時／回放位置（八大區域可多選，依路線 progress 插值）
 busIntercityLive,公路客運 Intercity,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,公路客運即時／回放位置（全國單一資料源）
@@ -730,23 +730,23 @@ taxiStand,計程車招呼站 Taxi Stand,臺灣圖層,交通 Move,geojson,verifie
 freewayCongestion,國道壅塞 Congestion,臺灣圖層,交通 Move,custom,verified,road_congestion,,,,,yes,none,,,,dataset_not_in_warehouse,國道路段壅塞等級（依時間軸逐快照染色）
 roadCongestion,省道路況 Provincial v1,臺灣圖層,交通 Move,custom,verified,road_congestion,,,,,yes,none,,,,dataset_not_in_warehouse,省道 TDX live_highway 路況（5 分鐘槽，feature-state 染色）
 roadEvents,即時路況 Road Events,臺灣圖層,交通 Move,custom,verified,road_event,,,,,yes,none,,,,dataset_not_in_warehouse,TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）
-parkingOnstreet,路邊停車 On-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,路邊停車格（台北面／新北・台中點含空位率）
-parkingOffstreet,場外停車場 Off-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）
+parkingOnstreet,路邊停車 On-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: 停車 hybrid v1 路邊 RPC；台北為 POLYGON 幾何但『無即時空位』本身就是純靜態設施面，新北/台中為點位含即時空位率——可快照全部路邊停車格 geometry，僅排除即時空位率欄位。,路邊停車格（台北面／新北・台中點含空位率）
+parkingOffstreet,場外停車場 Off-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: 停車場外 RPC（市區／觀光／國道服務區三源）；停車場點位是穩定設施，可快照位置與類別，排除即時空位率。,場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）
 facPrimary,發電廠 主要・運轉中 Primary,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）
 facSecondary,發電廠 小型分散 Secondary,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 小型分散式發電設施
 facPlanned,發電廠 未來規劃 Planned,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 規劃中／興建中發電廠
 facHistorical,發電廠 歷史・退役 Historical,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 已除役／停機發電廠
 facOsmSupplement,發電廠 OSM 補充 Supplement,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 補充的發電設施（SSOT 未收錄的 IPP／小型廠）
 powerGenerationUnit,機組即時出力 Live Output,臺灣圖層,能源 Energy,supabase,verified,power_generation,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）
-powerPlantGlow,發電廠 Bloom 測試 ✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）
-aviationRestrictedGlow,機場管制/限航 Rim Glow 測試 ⛔✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）
+powerPlantGlow,發電廠 Bloom 測試 ✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,display_only,,,,override: display_only: 純視覺 bloom 特效實驗層（additive WebGL CustomLayer），source.note 明載『無自己的資料來源、無靜態檔』，僅借用 facPrimary 資料做視覺疊加，無 legend/popup。,發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）
+aviationRestrictedGlow,機場管制/限航 Rim Glow 測試 ⛔✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,display_only,,,,override: display_only: 純 Mapbox line-blur 霓虹邊框視覺實驗層，source.note 明載『純視覺實驗，無自己的資料來源』，共用 aviationRestricted 既有 PMTiles 做疊層，無 legend/popup。,機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）
 osmSubstations,變電所 區域 Substation,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 區域變電所（migration 235 電網層級分色）
 osmSubstationsEhv,變電所 超高壓 EHV,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 超高壓變電所（345kV 級，halo ＋ core 兩層）
 osmPowerLines,高壓輸電線 Power Lines,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）
 osmPowerTowers,高壓鐵塔 Power Towers,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,OSM 高壓鐵塔點位
 powerPoles,電桿 Power Poles (2.96M),臺灣圖層,能源 Energy,custom,verified,power_poles,ds_energy_power_poles,POINT,2026-06-15,19 counties,yes,spatial,warehouse,unknown,,,台電全國電桿 296 萬點（pole_type 5 類分色，熱區與全台顯示可切）
-powerLinesGlow,高壓輸電線 Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）
-substationEhvGlow,變電所 EHV Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）
+powerLinesGlow,高壓輸電線 Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,display_only,,,,override: display_only: 高壓輸電線 bloom 視覺實驗層，借用 energyLoader.fetchOsmPowerLines 資料做 4-pass line-blur 特效，無自有資料來源、無 legend/popup。,輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）
+substationEhvGlow,變電所 EHV Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,display_only,,,,override: display_only: 變電所 EHV bloom 視覺實驗層，借用 energyLoader.fetchOsmSubstations 資料，純視覺疊加、無自有資料來源、無 legend/popup。,EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）
 gasStationCpc,加油站 中油 CPC,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台灣中油直營／加盟加油站
 gasStationFpcc,加油站 台塑 FPCC,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台塑石化加油站
 gasStationTaisugar,加油站 台糖 Taisugar,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台糖加油站
@@ -773,13 +773,13 @@ gasCoverageCpc,中油 最近距離 Coverage CPC,臺灣圖層,能源 Energy,pmtil
 gasCoverageFpcc,台塑 最近距離 Coverage FPCC,臺灣圖層,能源 Energy,pmtiles,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse,google_geocode,,,全台各處到最近台塑加油站的路網距離分級
 gasCoverageTaisugar,台糖 最近距離 Coverage Taisugar,臺灣圖層,能源 Energy,pmtiles,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse,google_geocode,,,全台各處到最近台糖加油站的路網距離分級
 evIsland,充電站 最近距離 EV Island,臺灣圖層,能源 Energy,pmtiles,pulse_only,,,,,,yes,none,,,,derived_layer,充電站服務孤島（距任一充電站超過門檻的區域）
-facOffshore,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留
-islandPowerGrid,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,離島電網設施 14 處（澎湖／金門／馬祖／蘭嶼／綠島／琉球）—— facPrimary 的 is_island 已涵蓋後移出 sidebar
-osmSolarFarms,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,OSM 光電廠 734 處（POI centroid）—— 與 SSOT facilities 重疊後移出 sidebar
-osmPowerPlantsStatic,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar
-powerPlants,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,"legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar"
-powerStatusHud,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,供電燈號 KPI HUD（備轉容量率燈號，top-left 卡片；非地圖圖層）
-powerRegionDemand,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,北中南東 4 區用電 3D bars（高 ∝ 用電量、色 = 備轉指標）
+facOffshore,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: SSOT 離岸風電場址 polygon（8 處：大彰化／Formosa／Hai Long），已被 OSM offshoreWindZones（36 面）取代移出 sidebar，但底層 Supabase 表資料仍是真實設施 polygon，可入倉分析。,SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留
+islandPowerGrid,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: 離島電網設施（14 處：澎湖／金門／馬祖／蘭嶼／綠島／琉球），facPrimary 的 is_island 已涵蓋而移出 sidebar，但仍是真實設施點資料。,離島電網設施 14 處（澎湖／金門／馬祖／蘭嶼／綠島／琉球）—— facPrimary 的 is_island 已涵蓋後移出 sidebar
+osmSolarFarms,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: OSM 光電廠 POI centroid（734 處），與 SSOT facilities 重疊移出 sidebar，仍是真實設施點，適合能源設施分布分析。,OSM 光電廠 734 處（POI centroid）—— 與 SSOT facilities 重疊後移出 sidebar
+osmPowerPlantsStatic,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,override: snapshot_candidate: OSM 電廠（513 處，補 IPP／小型電廠），與 SSOT facilities 可能重疊移出 sidebar，仍是真實設施點資料。,OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar
+powerPlants,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,"override: snapshot_candidate: legacy 單一發電廠層 all_power_plants_v（10,665 設施，含 fuel_type／capacity_mw），已被 facPrimary 等 6 層取代移出 sidebar，但資料量大、屬性完整，仍是高價值能源設施資料。","legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar"
+powerStatusHud,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,override: live_only: 非地圖圖層，是 top-left 供電燈號 KPI 卡片（usePowerDashboard RPC 5 分鐘 poll，cron 10 分鐘寫入），無 geometry、無 legend/popup，價值在備轉容量率隨時間變化，需時間序列匯出而非空間快照。,供電燈號 KPI HUD（備轉容量率燈號，top-left 卡片；非地圖圖層）
+powerRegionDemand,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,override: live_only: 北中南東 4 區用電 3D bars，與 powerStatusHud 共用同一份 usePowerDashboard RPC（不重複拉取），4 區僅為粗略聚合質心非真實設施點，核心價值是用電量/備轉指標隨時間變化，需時間序列匯出。,北中南東 4 區用電 3D bars（高 ∝ 用電量、色 = 備轉指標）
 drinkingWaterPoints,飲水點 Drinking Water,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。
 publicWasteBaskets,公共垃圾桶 Waste Baskets,臺灣圖層,基礎建設 Infrastructure,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。
 materialRecyclingPoints,資源回收點 Recycling,臺灣圖層,基礎建設 Infrastructure,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記資源回收點；僅顯示來源明列的材料。
@@ -790,6 +790,6 @@ bicycleSupport,自行車支援 Bicycle Support,臺灣圖層,交通 Move,pmtiles,
 nationalParks,國家（自然）公園 National Parks,臺灣圖層,觀光 Tourism,pmtiles,verified,tourism.national_park_boundaries,,,,,yes,none,,,,dataset_not_in_warehouse,9 座國家公園 + 1 座國家自然公園的官方計畫邊界。
 visitorCentres,遊客中心 Visitor Centres,臺灣圖層,觀光 Tourism,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 遊客中心 snapshot exploration，非完整官方清冊。
 publicLifeOsmCoverage,公共生活 OSM 映射密度,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。
-medICUBeds,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,急重症床位壓力（規劃中，尚未實作渲染）
-wasteRoute,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）
-wasteStop,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）
+medICUBeds,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,override: unclear: 全 repo 僅有 type 宣告與三張全量表的值，layerConsistency 僅記載 baseline，無任何 loader/hook/RPC 實作（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）；沒有可查的資料來源，無法判斷屬於哪一類。,急重症床位壓力（規劃中，尚未實作渲染）
+wasteRoute,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,override: unclear: 逐檔 grep 全 repo 找不到任何實際讀取端（僅 type 宣告＋三張全量表），layerConsistency 註解稱『由 wasteTruck 子 UI 控制』但該 UI 不存在；沒有可查的資料來源，無法判斷屬於哪一類。廢棄物主題真正在用的是另一 key `wasteStopsStatic`（不在此清單）。,清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）
+wasteStop,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,override: unclear: 同 wasteRoute，無任何 consumer（僅 type 宣告＋三張全量表），無法判斷資料形態；注意與已上線、有 OVERLAY_REGISTRY entry 的 `wasteStopsStatic`（不同 key，不在此清單）不可混淆。,清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）
