@@ -31,6 +31,22 @@
 3. 若要畫路段或建模，先人工核對攝影機視角、車道與道路 LinkID，再用既有 VD 流量及其他交通資料校準。僅靠點位或鏡頭數量無法推路網流量；隧道內外也要分開校正。
 4. 跨鏡頭個車追蹤需要穩定外觀／車牌、時間同步、道路候選路徑與持續影像；這些條件目前未證實，且可識別車輛資料涉及個資與影像再利用權限。現階段只規劃匿名、聚合車流；若未來確有合法目的，先做來源授權與資料保護評估。
 
+## 跨 session 接手與重跑
+
+- **現況**：本研究與 popup 修正已在隔離分支 `codex/cctv-traffic-poc-20260924` 的 commit `e1622640`；工作樹路徑為 `/Users/migu/.codex/worktrees/cctv-traffic-poc/mini-taiwan-pulse`。截至 2026-09-27，沒有 push、PR、merge、部署或正式車流資料表。主 checkout 的其他工作不屬於本次修改。
+- **保留**：本文件、`scripts/research/cctv_traffic_yolo_poc.py`、CCTV popup 修改與測試，以及兩段舊片的 SHA-256 和彙總結果。**未保留**：當天原始短片、逐幀截圖、車牌、車輛特徵與跨鏡頭 ID。`/private/tmp/cctv-traffic-venv` 與 `/private/tmp/yolo26n.pt` 目前存在，但屬暫存，換主機或清理後會消失。重新擷取直播會是**新樣本**，不能與上表逐幀數字當作同片重現。
+- **環境**：Python 3.11.11、`ultralytics==8.4.160`、`lap==0.5.13`；模型 `yolo26n.pt` 的預期 SHA-256 見上文。若暫存環境消失，先用 `python3 -m venv /private/tmp/cctv-traffic-venv`，再用 `/private/tmp/cctv-traffic-venv/bin/python3 -m pip install 'ultralytics==8.4.160' 'lap==0.5.13'`。接著在 `/private/tmp` 執行 `YOLO_CONFIG_DIR=/private/tmp/cctv-yolo-settings /private/tmp/cctv-traffic-venv/bin/python3 -c 'from ultralytics import YOLO; YOLO("yolo26n.pt")'` 取得官方模型，並用 `shasum -a 256 /private/tmp/yolo26n.pt` 比對上文雜湊。若模型雜湊不同，視為新模型版本，勿與舊片數字直接比較。正式服務需另評估模型授權。
+- **新樣本試跑**：下列命令直接讀直播、最多 45 秒，不存畫面或車輛 ID。兩支鏡頭分開執行，輸出為本次擷取的彙總；`--sample-fps 5` 是上限，實際取樣幀數由來源速度決定。
+
+```bash
+cd /Users/migu/.codex/worktrees/cctv-traffic-poc/mini-taiwan-pulse
+YOLO_CONFIG_DIR=/private/tmp/cctv-yolo-settings /private/tmp/cctv-traffic-venv/bin/python3 scripts/research/cctv_traffic_yolo_poc.py --camera-id C010020 --model /private/tmp/yolo26n.pt --seconds 45 --sample-fps 5 --line-axis y --line-at 0.42 --roi-x-min 0.05 --roi-x-max 0.55
+YOLO_CONFIG_DIR=/private/tmp/cctv-yolo-settings /private/tmp/cctv-traffic-venv/bin/python3 scripts/research/cctv_traffic_yolo_poc.py --camera-id 64000C000014 --model /private/tmp/yolo26n.pt --seconds 45 --sample-fps 5 --line-axis y --line-at 0.60 --roi-x-min 0.03 --roi-x-max 0.45
+```
+
+- **下一個驗收動作**：若要量化準確率，先確認所選影像來源允許短時保存與再利用；兩支鏡頭各保存新的短片和逐幀擷取 UTC 時間於私人暫存，對同一片用 `--video-file` 重播，再由兩名標註者獨立記錄車中心跨線的影格、車種及方向。對齊後計算漏計、重複計數、車種誤判和不同時段的可用畫面比例；完成後依保存政策清除短片。未完成雙人標註前，上表只是單次目視 POC。
+- **停損與邊界**：來源 404、無影格或 TLS 不通應記為無資料，不得輸出「0 輛」。國道夜間低解析度、基平隧道口及跨鏡頭個車追蹤仍未通過驗證。桃園 `T913240` 去除 URL 單引號後仍回 404；2026-09-24 查 TDX 新網址時現有憑證與未認證查詢均回 401，尚無官方替代 URL。下次可先確認 TDX 憑證是否有效，再查單支 ID，不要用第三方網址直接覆蓋資料契約。
+
 ## 參考
 
 - [TDX CCTV 資料集與授權資訊](https://data.gov.tw/dataset/37665)、[TDX API 說明](https://tdx.transportdata.tw/api-service/swagger)
