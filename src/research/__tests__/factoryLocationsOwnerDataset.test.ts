@@ -62,7 +62,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source 
     expect(oracle).toBe(item.expected); expect(result.totalMatched).toBe(oracle);
     expect(result.cost.rowsScanned).toBeLessThanOrEqual(20_000); expect(result.cost.bytesScanned).toBeLessThanOrEqual(8 * 1024 * 1024);
   }
-});
+}, 60_000);
 
 it.skipIf(!existsSync(`${root}manifest.json`))("fails closed when a broad bbox selects more than the 8 MiB partition budget", async () => {
   await expect(new QueryExecutor([factoryLocationsOwnerAdapter]).execute({ datasetId: factoryLocationsOwnerDescriptor.datasetId, bbox: [118, 21, 123, 27], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");

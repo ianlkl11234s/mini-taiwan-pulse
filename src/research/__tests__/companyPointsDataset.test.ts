@@ -61,7 +61,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("reads only immutable shards for 
   expect(result.cost.downloadedBytes).toBeLessThan(8 * 1024 * 1024);
 });
 
-it.skipIf(!existsSync(sourcePath))("matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads", async () => {
+it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json`))("matches the full-source 2 km and manufacturing oracles in Hualien and Taitung with bounded cold/warm reads", async () => {
   const cases = [
     { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62, 24.008] as const, expected: { total: 1257, manufacturing: 190 } },
     { center: [121.15, 22.76] as const, bbox: [121.13, 22.742, 121.17, 22.778] as const, expected: { total: 658, manufacturing: 163 } },
@@ -94,7 +94,7 @@ it.skipIf(!existsSync(`${root}manifest.json`))("keeps a dense Kaohsiung bbox bel
   expect(result.cost.bytesScanned).toBeLessThan(8 * 1024 * 1024);
 });
 
-it.skipIf(!existsSync(sourcePath))("keeps the exact-C manufacturing subset in two independent places", async () => {
+it.skipIf(!existsSync(sourcePath) || !existsSync(`${root}manifest.json`))("keeps the exact-C manufacturing subset in two independent places", async () => {
   const executor = new QueryExecutor([manufacturingCompanyPointsAdapter]);
   for (const item of [
     { center: [121.60, 23.99] as const, bbox: [121.58, 23.972, 121.62, 24.008] as const, manufacturing: 190 },
