@@ -4,14 +4,14 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
 - 圖層總數：**794**；L1 可操作：**794/794**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**565/794**（71.2%）
-- 只有舊瀏覽器 reader：22；尚不可分析：202
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**596/794**（75.1%）
+- 只有舊瀏覽器 reader：8；尚不可分析：185
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none | display_only |
 |---|---|---|---|---|---|---|---|
-| 臺灣圖層 | 595 | 248 | 199 | 1 | 21 | 122 | 4 |
+| 臺灣圖層 | 595 | 279 | 199 | 1 | 7 | 105 | 4 |
 | 統計 | 114 | 1 | 105 | 0 | 0 | 8 | 0 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 | 0 |
 | 日本 | 60 | 4 | 0 | 0 | 0 | 55 | 1 |
@@ -20,7 +20,7 @@
 
 | 原因 | 圖層數 |
 |---|---|
-| dataset_not_in_warehouse | 118 |
+| dataset_not_in_warehouse | 87 |
 | warehouse_SKIPPED_FORMAT | 33 |
 | warehouse_SKIPPED_DISPLAY_ONLY | 10 |
 | derived_layer | 9 |
@@ -86,7 +86,7 @@
 
 | precision_class | 圖層數 |
 |---|---|
-| unknown | 153 |
+| unknown | 184 |
 | address_geocode | 73 |
 | google_geocode | 27 |
 | address_geocode+unknown | 6 |
@@ -96,12 +96,12 @@
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 155 |
-| 19 counties | 20 |
-| 2 counties | 12 |
+| national | 172 |
+| 19 counties | 28 |
+| 2 counties | 14 |
+| 18 counties | 10 |
 | unknown | 8 |
 | 13 counties | 8 |
-| 18 counties | 7 |
 | 3 counties | 7 |
 | 17 counties | 7 |
 

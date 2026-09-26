@@ -4,7 +4,23 @@
     "real_estate": ["real_estate_points", "real_estate_grids"],
     "company_points": ["company_points_analysis"],
     "manufacturing_company_points": ["company_points_analysis"],
-    "pollution_source": ["pollution_penalties"]
+    "pollution_source": ["pollution_penalties"],
+    "groundwater_wells": ["groundwater"],
+    "river_level_stations_wra": ["river_water_level_realtime"],
+    "road": ["road_network"],
+    "airspace_aip": ["airspace"],
+    "ftw_fields": ["ftw_fields_2025"],
+    "irrigation_canals": ["irrigation_canal"],
+    "river_basins_wra": ["river_infrastructure_wra"],
+    "river_levees_wra": ["river_infrastructure_wra"],
+    "river_polygons_wra": ["river_infrastructure_wra"],
+    "livestock_farms": ["livestock_ranch"],
+    "slaughterhouses": ["livestock_ranch"],
+    "feed_factories": ["livestock_ranch"],
+    "livestock_markets": ["livestock_ranch"],
+    "weather": ["temperature"],
+    "osm_power": ["osm_substations", "osm_power_plants", "osm_wind_turbines", "osm_solar_farms", "osm_power_towers", "osm_power_lines", "osm_charging_stations", "osm_transformers"],
+    "renewable": ["renewable_permits", "renewable_permits_taipei"]
   },
   "byLayer": {
     "newsEvents": ["news_events"]
