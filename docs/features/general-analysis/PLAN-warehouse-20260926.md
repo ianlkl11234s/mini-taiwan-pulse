@@ -59,7 +59,9 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
 | 圖層總表 | 可分析 326 → **377 / 794**（統計面板 70 → 105 / 114）；新增 `layer-dataset-aliases.json` 對照改名的 dataset。 |
 | 問題庫 | **8 / 8 PASS**，皆用真實資料回答原題。Q3 實例：全國合併公車站密度 vs 房價 r = −0.29，但縣市內中位數 +0.12（辛普森悖論），且 `bus_by_city` 在臺北、新北過半村里無站牌（資料缺漏，已自動標出）。 |
 | Skill | `pulse-gis-analyst/references/recipes/` 一題型一檔（10 份，SQL 皆對倉庫實跑過）；新增 `geo-reasoning` 方法 skill（空間／關聯／因果三軸、陷阱、信心詞彙、語氣與追問，附來源）；分析師 SKILL.md 正文 9.8k → 4.8k 字元（細節逐字搬到 references）。 |
-| 歷史預覽 | 新分支 `codex/research-streamline-20260922-clean-a`（移除資料檔）與 `-clean-b`（再移除台帳逐版歷史）；兩者檔案樹與 HEAD 完全相同、275 commits 全保留（變空也保留）、歷史中 `public/research` 物件為 0、與 origin/master 無衝突。分支歷史 blob：原 432 MB、A 360 MB、**B 51 MB**。原分支未動；mcp／gateway 無大檔。 |
+| 歷史預覽 | 新分支 `codex/research-streamline-20260922-clean-a`（移除資料檔）與 `-clean-b`（再移除台帳逐版歷史）；兩者在產生當時（基於 `dfc65657`）檔案樹與 HEAD 完全相同、275 commits 全保留（變空也保留）、歷史中 `public/research` 物件為 0、與 origin/master 無衝突。分支歷史 blob：原 432 MB、A 360 MB、**B 51 MB**。原分支未動；mcp／gateway 無大檔。⚠️ **預覽分支不含之後的 commit（skill、配方、總表別名、文件）**；使用者選定 A 或 B 後，用同一流程（獨立 bare clone → `git filter-repo --force --refs base..branch` → fetch 成新分支）重新產生再合併，約 2 分鐘。 |
+
+其他：R2 目前保存 3 個完整版本（約 10.5 GB，略超 10 GB 免費額度，每月約美金幾分）；之後加「只保留最近 N 版」的清理步驟。快取換版沿用機制以真實兩版模擬驗證（換版只重下 3 個變動檔）；實際快取的舊版目錄在驗證前已被清掉，推測是另一個以舊 dist 啟動的 MCP（例如 Codex）執行了舊版清理邏輯。統計 CDN artifact 皆無分頁截斷（`next_offset` 全為 null）。未完成：`data-registry.yaml` 登記與 data-catalog-audit（該檔正被其他 session 修改，未動）。
 
 已知資料問題（上游）：`bus_by_city` 雙北站牌大量缺漏；`bus_stations` 只涵蓋北部；房價點含 `rental`（單價為租金）需過濾；新聞約六成只到縣市層級。
 
