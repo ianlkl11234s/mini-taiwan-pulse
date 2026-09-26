@@ -1,6 +1,6 @@
 # 全圖層查詢完成清單
 
-更新：2026-09-26。這是後續施工的執行入口；來源與驗收收據沿用 [來源家族施工紀錄](./source-family-priority-rollout-20260925.md)，逐層身份沿用 [778 層台帳](./p0-source-family-ledger-20260925-current.json)。本文件把既有 P0–P7 拆成可勾選的工作，不替換歷史證據。
+更新：2026-09-26。這是後續施工的執行入口；[AI Agent 查詢系統檢查點](./agent-query-system-checkpoint-20260926.md)整理目前可用性與冷啟動界線，來源與驗收收據沿用 [來源家族施工紀錄](./source-family-priority-rollout-20260925.md)，逐層身份沿用 [778 層台帳](./p0-source-family-ledger-20260925-current.json)。本文件把既有 P0–P7 拆成可勾選的工作，不替換歷史證據。
 
 ## 目標、計數與打勾規則
 
