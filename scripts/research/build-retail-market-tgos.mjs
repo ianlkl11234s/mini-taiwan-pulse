@@ -29,7 +29,7 @@ const [inputArgument, outputArgument] = process.argv.slice(2);
 if (!inputArgument) usage();
 else {
   const inputPath = resolve(inputArgument);
-  const outputPath = resolve(outputArgument ?? "public/research/retail_markets_tgos_20260717.geojson");
+  const outputPath = resolve(outputArgument ?? "../runtime/research-public/retail_markets_tgos_20260717.geojson");
   const inputBytes = await readFile(inputPath);
   const inputSha256 = createHash("sha256").update(inputBytes).digest("hex");
   if (inputSha256 !== EXPECTED_INPUT_SHA256) fail("RETAIL_MARKETS_INPUT_SHA_MISMATCH");

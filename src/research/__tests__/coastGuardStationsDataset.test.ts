@@ -6,7 +6,7 @@ import { QueryExecutor } from "../queryExecutor";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/coast-guard-stations-20260626.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/coast-guard-stations-20260626.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

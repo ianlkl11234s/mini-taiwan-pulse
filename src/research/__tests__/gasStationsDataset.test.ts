@@ -6,7 +6,7 @@ import { gasStationsCanonicalAdapter } from "../gasStationsDataset";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/gas-stations-canonical-20260620.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/gas-stations-canonical-20260620.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

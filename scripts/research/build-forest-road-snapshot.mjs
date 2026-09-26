@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const inputPath = resolve(root, "public/forestry/forest_roads.geojson");
-const outputDir = resolve(root, "public/research/forest-roads");
+const outputDir = resolve(root, "../runtime/research-public/forest-roads");
 const outputName = "forest-roads-2d.geojson";
 const expectedInputSha256 = "68f26143a39beba971fa1517bda91334d378241de9c320fc52c68e8c1a551f16";
 const sha256 = value => createHash("sha256").update(value).digest("hex");

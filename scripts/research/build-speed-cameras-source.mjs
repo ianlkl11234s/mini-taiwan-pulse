@@ -15,7 +15,7 @@ const fail = code => { throw new Error(code); };
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-speed-cameras-source.mjs <analytics-processed.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/speed-cameras-source-20260824.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/speed-cameras-source-20260824.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("SPEED_CAMERAS_SOURCE_SHA_MISMATCH");
 

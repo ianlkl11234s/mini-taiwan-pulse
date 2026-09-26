@@ -162,7 +162,7 @@ VERIFIED_RAW_FAMILIES["moenv:pollution_penalties:EMS_P_46:20260706"] = {
 };
 VERIFIED_RAW_FAMILIES["ncl:public_libraries:20260717"] = {
   sourceArtifact: "taipei-gis-analytics/data/raw/culture/public_libraries/public_libraries_20260717.csv",
-  evidence: ["mini:scripts/research/build-public-libraries-source.mjs", "mini:public/research/public-libraries-source-20260717.geojson"],
+  evidence: ["mini:scripts/research/build-public-libraries-source.mjs", "mini:../runtime/research-public/public-libraries-source-20260717.geojson"],
   sourceVersion: "2026-07-17 fixed directory snapshot", publisher: "國家圖書館", license: "OGDL-Taiwan-1.0",
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "2026-07-17 is the fixed local snapshot date, not a current opening-status observation.",
   coverageAndMissingness: "644 public libraries from 5,254 original directory rows; 634 Point and 10 null geometry. TGOS 570 only is spatial eligible; L1 62 and offline_exact 2 remain attribute-only in this reader.",
@@ -172,7 +172,7 @@ VERIFIED_RAW_FAMILIES["ncl:public_libraries:20260717"] = {
 };
 VERIFIED_RAW_FAMILIES["coast_guard:stations:20260626"] = {
   sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson",
-  evidence: ["mini:scripts/research/build-coast-guard-stations-source.mjs", "mini:public/research/coast-guard-stations-20260626.geojson"],
+  evidence: ["mini:scripts/research/build-coast-guard-stations-source.mjs", "mini:../runtime/research-public/coast-guard-stations-20260626.geojson"],
   sourceVersion: "2026-06-26 fixed assembly of data.gov.tw 7089/160068/166260", publisher: "海洋委員會海巡署", license: "OGDL-Taiwan-1.0",
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Pipeline fetched_at is not current station operation status.",
   coverageAndMissingness: "269 Point records, 252 patrol and 17 ocean piers. One repeated entity_id remains two source rows; patrol confidence/n_sources are null, not zero.",
@@ -199,7 +199,7 @@ VERIFIED_RAW_FAMILIES["moc:performing_venues:20260716"] = {
 };
 VERIFIED_RAW_FAMILIES["traffic:speed_cameras:20260824"] = {
   sourceArtifact: "taipei-gis-analytics/data/processed/police_justice/speed_cameras/speed_cameras_20260824.geojson",
-  evidence: ["mini:scripts/research/build-speed-cameras-source.mjs", "mini:public/research/speed-cameras-source-20260824.geojson"],
+  evidence: ["mini:scripts/research/build-speed-cameras-source.mjs", "mini:../runtime/research-public/speed-cameras-source-20260824.geojson"],
   sourceVersion: "2026-08-24 fixed assembled sources", publisher: "警政署／交通主管機關", license: "OGDL-Taiwan-1.0",
   observedAt: null, acquiredAt: null, acquiredAtAvailability: "Fixed listing date does not establish current enforcement state.",
   coverageAndMissingness: "2,805 Point listing rows; 62 coord_suspect remain attribute-only, 2,743 pass Taiwan coordinate subset. 25 suspect rows lack fetched_at.",

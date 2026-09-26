@@ -34,7 +34,7 @@ function parseCsv(text) {
 const [rawArg, processedArg, outputArg] = process.argv.slice(2);
 if (!rawArg || !processedArg) fail("Usage: node scripts/research/build-public-libraries-source.mjs <raw.csv> <processed.geojson> [output.geojson]");
 const rawPath = resolve(rawArg); const processedPath = resolve(processedArg);
-const output = resolve(outputArg ?? "public/research/public-libraries-source-20260717.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/public-libraries-source-20260717.geojson");
 const rawBytes = await readFile(rawPath); const processedBytes = await readFile(processedPath);
 if (sha(rawBytes) !== rawSha) fail("PUBLIC_LIBRARIES_RAW_SHA_MISMATCH");
 if (sha(processedBytes) !== processedSha) fail("PUBLIC_LIBRARIES_PROCESSED_SHA_MISMATCH");

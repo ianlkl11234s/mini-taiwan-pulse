@@ -9,7 +9,7 @@ const fail = code => { throw new Error(code); };
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-tour-attractions-source.mjs <mini-display.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/tour-attractions-source-20260722.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/tour-attractions-source-20260722.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("ATTRACTIONS_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));

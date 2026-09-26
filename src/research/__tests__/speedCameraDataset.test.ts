@@ -6,7 +6,7 @@ import { speedCameraListedAdapter, speedCameraTaiwanCoordinatesAdapter } from ".
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/speed-cameras-source-20260824.geojson"), { headers: { "content-type": "application/geo+json" } })));
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/speed-cameras-source-20260824.geojson"), { headers: { "content-type": "application/geo+json" } })));
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 

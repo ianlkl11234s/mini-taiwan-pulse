@@ -6,7 +6,7 @@ import { publicLibrariesListedAdapter, publicLibrariesTgosCoordinatesAdapter } f
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/public-libraries-source-20260717.geojson"), { headers: { "content-type": "application/geo+json" } })));
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/public-libraries-source-20260717.geojson"), { headers: { "content-type": "application/geo+json" } })));
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 

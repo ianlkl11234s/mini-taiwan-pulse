@@ -7,7 +7,7 @@ import { registeredDatasetsForLayer } from "../researchDatasets";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/pollution-sites-20260706.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/pollution-sites-20260706.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

@@ -6,7 +6,7 @@ import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { clearPointPartitionCache } from "../pointDatasetPartitions";
 import { QueryExecutor } from "../queryExecutor";
 
-const root = "public/research/pollution-facilities/";
+const root = "../runtime/research-public/pollution-facilities/";
 
 beforeEach(() => {
   clearPointDatasetCache(); clearPointPartitionCache();

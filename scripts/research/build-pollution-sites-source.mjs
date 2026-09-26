@@ -47,7 +47,7 @@ const features = rows.map(feature => {
   return { type: "Feature", geometry: feature.geometry, properties: Object.fromEntries(fields.map(field => [field, safe[field]])) };
 });
 if (active !== 365 || seen.size !== 8253) fail("POLLUTION_SITES_STATUS_COUNT_MISMATCH");
-const output = resolve(outputArg ?? "public/research/pollution-sites-20260706.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/pollution-sites-20260706.geojson");
 const bytes = Buffer.from(`${JSON.stringify({ type: "FeatureCollection", features })}\n`);
 await mkdir(dirname(output), { recursive: true });
 await writeFile(output, bytes);

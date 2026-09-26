@@ -7,7 +7,7 @@ import { registeredDatasetsForLayer } from "../researchDatasets";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/police-stations-20260626.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/police-stations-20260626.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

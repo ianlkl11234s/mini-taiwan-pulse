@@ -6,8 +6,8 @@ import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { QueryExecutor } from "../queryExecutor";
 
 const assets = {
-  ltc: "public/research/ltc_institutions_tgos_upstream.geojson",
-  elderly: "public/research/elderly_care_homes_tgos_upstream.geojson",
+  ltc: "../runtime/research-public/ltc_institutions_tgos_upstream.geojson",
+  elderly: "../runtime/research-public/elderly_care_homes_tgos_upstream.geojson",
 } as const;
 
 beforeEach(() => {

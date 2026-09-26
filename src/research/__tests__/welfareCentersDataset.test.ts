@@ -7,7 +7,7 @@ import { welfareCentersUpstreamCoordinatesAdapter } from "../welfareCentersDatas
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/welfare_centers_upstream_20260812.geojson"), { headers: { "content-type": "application/geo+json" } })));
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/welfare_centers_upstream_20260812.geojson"), { headers: { "content-type": "application/geo+json" } })));
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 

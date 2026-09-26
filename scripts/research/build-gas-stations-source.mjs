@@ -12,7 +12,7 @@ const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const [inputArg, outputArg, displayArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-gas-stations-source.mjs <analytics-processed.geojson> [output.geojson] [existing-static-rpc.json]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/gas-stations-canonical-20260620.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/gas-stations-canonical-20260620.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("GAS_STATIONS_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));

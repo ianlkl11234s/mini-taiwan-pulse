@@ -306,21 +306,14 @@ function serveResearchAnalysisSidecars(): Plugin {
   return {
     name: "serve-research-analysis-sidecars", apply: "serve",
     configureServer(server) {
+      // /research/... 已改由 serveResearchPublicSidecars() 從 ../runtime/research-public 提供，這裡不再重複釘選。
       const assets = new Map([
         ["/urban/urban_zoning_taipei.analysis.json", { target: resolve(process.cwd(), "public/urban/urban_zoning_taipei.analysis.json"), contentType: "application/json; charset=utf-8" }],
-        ["/research/retail_markets_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/retail_markets_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/gov_service_offices_tgos_20260717.geojson", { target: resolve(process.cwd(), "public/research/gov_service_offices_tgos_20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/welfare_centers_upstream_20260812.geojson", { target: resolve(process.cwd(), "public/research/welfare_centers_upstream_20260812.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/forest-roads/forest-roads-2d.geojson", { target: resolve(process.cwd(), "public/research/forest-roads/forest-roads-2d.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/environment/public_toilets_national.geojson", { target: resolve(process.cwd(), "public/environment/public_toilets_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/sports-venues-source-20260704.geojson", { target: resolve(process.cwd(), "public/research/sports-venues-source-20260704.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/civic_facilities/community_centers_national.geojson", { target: resolve(process.cwd(), "public/civic_facilities/community_centers_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/community-centers-listed-source-20260717.geojson", { target: resolve(process.cwd(), "public/research/community-centers-listed-source-20260717.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/environment/sound_camera_locations.geojson", { target: resolve(process.cwd(), "public/environment/sound_camera_locations.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/environment/official_noise_monitoring.geojson", { target: resolve(process.cwd(), "public/environment/official_noise_monitoring.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/amusement-parks-source-20260723.geojson", { target: resolve(process.cwd(), "public/research/amusement-parks-source-20260723.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/tourism/camping_national.geojson", { target: resolve(process.cwd(), "public/tourism/camping_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
-        ["/research/tour-attractions-source-20260722.geojson", { target: resolve(process.cwd(), "public/research/tour-attractions-source-20260722.geojson"), contentType: "application/geo+json; charset=utf-8" }],
       ]);
       server.middlewares.use((request, response, next) => {
         const asset = assets.get((request.url ?? "").split("?", 1)[0]);
@@ -336,6 +329,47 @@ function serveResearchAnalysisSidecars(): Plugin {
           if (request.method === "HEAD") { response.end(); return; }
           createReadStream(asset.target).pipe(response);
         }).catch(() => { response.statusCode = 404; response.end(); });
+      });
+    },
+  };
+}
+
+/**
+ * 研究 sidecar（agent 查詢用固定快照，含 pollution-facilities/forest-roads 等子目錄與 sha256 分片）
+ * 已移出 git，DEV 從此 worktree 旁的 ../runtime/research-public 讀取，
+ * 以原 URL /research/... 供應，讓 src/research/* adapter 的 sourceUrl 不用改。
+ * Production build 不含這些檔（見 stripBuildAssets 之外——本來就不在 public/，dist 天然不會有）。
+ */
+function serveResearchPublicSidecars(): Plugin {
+  const root = resolve(process.cwd(), "../runtime/research-public");
+  return {
+    name: "serve-research-public-sidecars", apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/research", (request, response) => {
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "")) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const relative = decodeURIComponent((request.url ?? "").split("?", 1)[0] ?? "").replace(/^\/+/, "");
+        const segments = relative.split("/");
+        if (!relative || segments.some(segment => segment === "" || segment === "." || segment === "..")) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        const target = resolve(root, relative);
+        if (target !== root && !target.startsWith(`${root}/`)) {
+          response.statusCode = 404; response.end("Local source unavailable"); return;
+        }
+        void stat(target).then(info => {
+          if (!info.isFile()) throw new Error("NOT_FOUND");
+          response.setHeader("content-type", target.endsWith(".geojson") ? "application/geo+json; charset=utf-8" : target.endsWith(".json") ? "application/json; charset=utf-8" : "application/octet-stream");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
       });
     },
   };
@@ -1162,6 +1196,7 @@ export default defineConfig({
     react(),
     serveLocalResearchAssets(),
     serveResearchAnalysisSidecars(),
+    serveResearchPublicSidecars(),
     serveResearchPointPartitions(),
     serveLocalPopulationPreview(),
     serveGfwV4CandidateStage(),

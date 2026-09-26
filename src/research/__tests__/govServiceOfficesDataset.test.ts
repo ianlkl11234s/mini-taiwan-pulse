@@ -7,7 +7,7 @@ import { registeredDatasetForLayer } from "../researchDatasets";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/gov_service_offices_tgos_20260717.geojson"), { headers: { "content-type": "application/geo+json" } })));
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/gov_service_offices_tgos_20260717.geojson"), { headers: { "content-type": "application/geo+json" } })));
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 

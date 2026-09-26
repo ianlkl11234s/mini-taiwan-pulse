@@ -9,7 +9,7 @@ const fail = code => { throw new Error(code); };
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-amusement-park-source.mjs <analytics-processed.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/amusement-parks-source-20260723.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/amusement-parks-source-20260723.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("AMUSEMENT_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));

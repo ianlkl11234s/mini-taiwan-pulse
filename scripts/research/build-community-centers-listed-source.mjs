@@ -10,7 +10,7 @@ const fail = code => { throw new Error(code); };
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-community-centers-listed-source.mjs <analytics-processed.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/community-centers-listed-source-20260717.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/community-centers-listed-source-20260717.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("COMMUNITY_CENTERS_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));

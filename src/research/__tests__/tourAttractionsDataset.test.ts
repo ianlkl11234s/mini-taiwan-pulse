@@ -6,7 +6,7 @@ import { tourAttractionsSourceCoordinatesAdapter } from "../tourAttractionsDatas
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/tour-attractions-source-20260722.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/tour-attractions-source-20260722.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

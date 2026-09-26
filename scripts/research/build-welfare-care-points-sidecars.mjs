@@ -32,7 +32,7 @@ function project(feature, family) {
   return { type: "Feature", geometry: feature.geometry, properties };
 }
 
-const [inputDir = "public/welfare", outputDir = "public/research"] = process.argv.slice(2);
+const [inputDir = "public/welfare", outputDir = "../runtime/research-public"] = process.argv.slice(2);
 const receipts = [];
 for (const family of FAMILIES) {
   const inputPath = resolve(inputDir, family.input);

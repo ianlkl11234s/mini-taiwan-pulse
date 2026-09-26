@@ -6,7 +6,7 @@ import { sportsVenuesSourceCoordinatesAdapter } from "../sportsVenuesDataset";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/sports-venues-source-20260704.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/sports-venues-source-20260704.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

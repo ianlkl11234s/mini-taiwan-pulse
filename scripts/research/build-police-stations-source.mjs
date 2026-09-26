@@ -12,7 +12,7 @@ const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-police-stations-source.mjs <analytics-processed.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/police-stations-20260626.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/police-stations-20260626.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("POLICE_STATIONS_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));

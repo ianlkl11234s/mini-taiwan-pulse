@@ -7,7 +7,7 @@ const ANALYTICS_SHA256 = "8a4624f2d3d821b24052203a28af06808c174d2cee161cb4c199e8
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, "../..");
 const analyticsSource = resolve(projectRoot, "../../../../taipei-gis-analytics/data/processed/police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson");
-const output = resolve(projectRoot, "public/research/coast-guard-stations-20260626.geojson");
+const output = resolve(projectRoot, "../runtime/research-public/coast-guard-stations-20260626.geojson");
 const safeProperties = ["entity_id", "name", "area", "facility_subtype", "source", "source_tier", "fetched_at", "confidence", "n_sources"];
 
 const bytes = await readFile(analyticsSource);

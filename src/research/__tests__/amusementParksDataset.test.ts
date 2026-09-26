@@ -6,7 +6,7 @@ import { QueryExecutor } from "../queryExecutor";
 
 beforeEach(() => {
   clearPointDatasetCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/research/amusement-parks-source-20260723.geojson"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/amusement-parks-source-20260723.geojson"), {
     headers: { "content-type": "application/geo+json" },
   })));
 });

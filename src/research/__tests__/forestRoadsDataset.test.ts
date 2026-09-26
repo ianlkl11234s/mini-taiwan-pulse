@@ -4,7 +4,7 @@ import { parseLineGeometry } from "../linePolygonAnalysis";
 import { clearForestRoadSnapshotCache, createForestRoadsAdapter, forestRoadsDescriptor } from "../forestRoadsDataset";
 import { QueryExecutor } from "../queryExecutor";
 
-const root = "public/research/forest-roads/";
+const root = "../runtime/research-public/forest-roads/";
 const fetchSnapshot = async () => new Response(await readFile(`${root}forest-roads-2d.geojson`), { headers: { "content-type": "application/geo+json" } });
 
 it("reads the SHA-bound 107-line snapshot with complete, explicitly 2D geometry", async () => {

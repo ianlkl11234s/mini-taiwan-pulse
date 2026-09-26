@@ -11,7 +11,7 @@ const sha = bytes => createHash("sha256").update(bytes).digest("hex");
 const [inputArg, outputArg] = process.argv.slice(2);
 if (!inputArg) fail("Usage: node scripts/research/build-sports-venues-source.mjs <analytics-processed.geojson> [output.geojson]");
 const input = resolve(inputArg);
-const output = resolve(outputArg ?? "public/research/sports-venues-source-20260704.geojson");
+const output = resolve(outputArg ?? "../runtime/research-public/sports-venues-source-20260704.geojson");
 const bytes = await readFile(input);
 if (sha(bytes) !== inputSha) fail("SPORTS_SOURCE_SHA_MISMATCH");
 const collection = JSON.parse(bytes.toString("utf8"));
