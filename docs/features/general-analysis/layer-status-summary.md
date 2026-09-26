@@ -4,15 +4,15 @@
 > 依據 [ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)：L1 可操作、L2 可分析、L3 位置精度（屬性，不是關卡）。
 
 - 圖層總數：**794**；L1 可操作：**794/794**
-- L2 倉庫可分析（spatial＋statistics＋attribute）：**326/794**（41.1%）
-- 只有舊瀏覽器 reader：50；尚不可分析：418
+- L2 倉庫可分析（spatial＋statistics＋attribute）：**377/794**（47.5%）
+- 只有舊瀏覽器 reader：22；尚不可分析：395
 
 ## 各面板 L2 狀態
 
 | 面板 | 圖層數 | spatial | statistics | attribute | browser_reader | none |
 |---|---|---|---|---|---|---|
-| 臺灣圖層 | 595 | 232 | 11 | 1 | 30 | 321 |
-| 統計 | 114 | 1 | 70 | 0 | 19 | 24 |
+| 臺灣圖層 | 595 | 248 | 11 | 1 | 21 | 314 |
+| 統計 | 114 | 1 | 105 | 0 | 0 | 8 |
 | 世界 | 25 | 7 | 0 | 0 | 1 | 17 |
 | 日本 | 60 | 4 | 0 | 0 | 0 | 56 |
 
@@ -21,10 +21,10 @@
 | 原因 | 圖層數 |
 |---|---|
 | upstream_catalog_missing | 222 |
-| dataset_not_in_warehouse | 131 |
-| warehouse_SKIPPED_FORMAT | 70 |
+| dataset_not_in_warehouse | 118 |
+| warehouse_SKIPPED_FORMAT | 33 |
 | pulse_only | 18 |
-| warehouse_SKIPPED_DISPLAY_ONLY | 11 |
+| warehouse_SKIPPED_DISPLAY_ONLY | 10 |
 | derived_layer | 9 |
 | warehouse_FAILED | 7 |
 
@@ -38,14 +38,16 @@
 | precision_class | 圖層數 |
 |---|---|
 | unknown | 153 |
-| address_geocode | 64 |
+| address_geocode | 73 |
 | google_geocode | 27 |
+| address_geocode+unknown | 6 |
+| proxy | 1 |
 
 ## 空間涵蓋（spatial 圖層）
 
 | 涵蓋 | 圖層數 |
 |---|---|
-| national | 139 |
+| national | 155 |
 | 19 counties | 20 |
 | 2 counties | 12 |
 | unknown | 8 |

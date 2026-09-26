@@ -10,7 +10,8 @@
  *
  * 輸入：layer manifest（upstream.datasets）、舊瀏覽器 reader 註冊、
  *       ../runtime/warehouse/{catalog.json,warehouse-extras.json}（PULSE_WAREHOUSE_DIR 可覆寫）、
- *       docs/features/general-analysis/layer-status-overrides.json（少量人工判斷）。
+ *       docs/features/general-analysis/layer-status-overrides.json（少量人工判斷）、
+ *       layer-dataset-aliases.json（manifest upstream id 與倉庫 dataset 名稱不同時的對照）。
  * 輸出：docs/features/general-analysis/layer-status.csv 與 layer-status-summary.md。
  *
  * Run: npx vite-node --script scripts/research/build-layer-status.mjs
@@ -38,6 +39,7 @@ if (!catalogRaw) {
 const catalog = Array.isArray(catalogRaw) ? catalogRaw : catalogRaw.datasets ?? [];
 const extras = readJson(resolve(warehouseDir, "warehouse-extras.json"), { countyCoverage: {}, statsDatasets: {} });
 const overrides = readJson(resolve(docsDir, "layer-status-overrides.json"), {});
+const aliases = readJson(resolve(docsDir, "layer-dataset-aliases.json"), { byUpstream: {}, byLayer: {} });
 
 const byDatasetId = new Map();
 for (const entry of catalog) {
@@ -63,7 +65,8 @@ function coverageLabel(tables) {
 
 function classify(key) {
   const entry = LAYER_MANIFEST[key];
-  const upstreamIds = (entry.upstream?.datasets ?? []).map(dataset => dataset.datasetId);
+  const declaredIds = (entry.upstream?.datasets ?? []).map(dataset => dataset.datasetId);
+  const upstreamIds = [...new Set([...declaredIds, ...declaredIds.flatMap(id => aliases.byUpstream?.[id] ?? []), ...(aliases.byLayer?.[key] ?? [])])];
   const derivedIds = entry.upstream?.derivedFromDatasets ?? [];
   const warehouseEntries = upstreamIds.flatMap(id => byDatasetId.get(id) ?? []);
   const usable = warehouseEntries.filter(item => USABLE.has(item.status));
