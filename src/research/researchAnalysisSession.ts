@@ -6,6 +6,7 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { describeDataset, ensureDataset, queryRecordsDetailed, validateQueryRecordsInput } from "./researchDatasets";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import type { WalkingIsochroneExecution } from "./networkProvider";
+import { loadWarehouseResult, validateWarehouseImportArgs } from "./warehouseResultImport";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
 export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string; units?: StoredDataResult["units"] };
@@ -503,6 +504,23 @@ export class ResearchAnalysisSession {
     return page(result, offset, limit);
   }
 
+  /** Register a verified server-side warehouse result; one session result per geometry type. Re-importing an id replaces it. */
+  async importWarehouseResult(args: Record<string, unknown>, fetchImpl?: typeof fetch): Promise<Record<string, unknown>> {
+    const input = validateWarehouseImportArgs(args);
+    const generation = this.generation;
+    const results = await withLoading("research:warehouse-result", "載入分析倉庫結果", loadWarehouseResult(input, fetchImpl));
+    if (generation !== this.generation) throw new Error("SESSION_REVOKED");
+    for (const stale of [input.resultId, ...["point", "linestring", "multilinestring", "polygon", "multipolygon"].map(type => `${input.resultId}:${type}`)]) this.store.remove(stale);
+    for (const result of results) this.store.put(result);
+    const resultIds = results.map(result => result.resultId);
+    return {
+      resultId: input.resultId, resultIds, featureCount: input.featureCount,
+      geometryTypes: results.map(result => result.geometry.type),
+      ...(resultIds.length ? { bounds: this.bounds(resultIds).bounds } : {}),
+      next: "Present with pulse_set_result_collection using these resultIds, then wait for scene ready and read map context.",
+    };
+  }
+
   private createAnalysisScope(args: Record<string, unknown>): Record<string, unknown> {
     const center = analysisCenter(args.center);
     const radiusM = args.radiusM;
@@ -559,6 +577,7 @@ function describeDatasetSafe(datasetId: string): boolean { try { describeDataset
 function resultDisplayLabel(result: StoredDataResult): string {
   if (isAnalysis(result) && ["line_buffer", "surface_intersection"].includes(result.operation)) return String(result.rows[0]?.label ?? "面交集（空結果）");
   const rowLabel = typeof result.rows[0]?.label === "string" && result.rows[0].label.trim() ? result.rows[0].label.trim() : "分析範圍";
+  if (result.datasetId.startsWith("warehouse:")) return String(isAnalysis(result) ? (result.summary as Record<string, unknown>).label ?? result.datasetId : result.datasetId);
   if (result.datasetId === "derived:analysis-scope-area") return `${rowLabel}・範圍`;
   if (result.datasetId === "derived:analysis-scope-center") return `${rowLabel}・中心點`;
   if (result.datasetId.startsWith("derived:valhalla-walking-")) return rowLabel;

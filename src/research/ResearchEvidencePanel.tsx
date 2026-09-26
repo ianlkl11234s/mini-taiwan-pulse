@@ -1,7 +1,7 @@
 import type { ResearchEvidence } from "./researchEvidence";
 const number = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
 const labels: Record<string, string> = { observed: "有觀測值", valid: "可比較", missing: "缺資料", suppressed: "數值受抑制", not_reported: "未報告", baseline_missing: "基準缺資料", baseline_suppressed: "基準受抑制", baseline_not_reported: "基準未報告", baseline_zero: "基準為零，無法計算比值", not_requested: "未要求標準化", denominator_missing: "分母缺資料", denominator_suppressed: "分母受抑制", denominator_not_reported: "分母未報告", zero_denominator: "分母為零" };
-const operations: Record<string, string> = { compare_regions: "區域比較", query_records: "來源資料", spatial_query: "空間篩選", aggregate_by_area: "依區域計數", create_analysis_scope: "直線分析範圍", walking_isochrone: "步行可達範圍", route_distance: "步行距離" };
+const operations: Record<string, string> = { compare_regions: "區域比較", query_records: "來源資料", spatial_query: "空間篩選", aggregate_by_area: "依區域計數", create_analysis_scope: "直線分析範圍", import_warehouse_result: "分析倉庫結果", walking_isochrone: "步行可達範圍", route_distance: "步行距離" };
 const valueText = (value: unknown): string => value === null || value === undefined ? "—" : typeof value === "number" ? number.format(value) : String(value);
 export function ResearchEvidencePanel({ evidence }: { evidence: readonly ResearchEvidence[] }) {
   if (!evidence.length) return null;

@@ -5,6 +5,7 @@ import { readFile, rm, stat } from "node:fs/promises";
 import { resolve, dirname } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import schoolsGridReceipt from "./src/research/contracts/schools-grid-receipt.json";
+import { warehouseResultFileName } from "./src/research/warehouseResultImport";
 import { parseSingleByteRange } from "./src/data/gfwV4Range";
 import { buildLayerSearchIndex } from "./src/lib/layerSearch";
 import {
@@ -370,6 +371,35 @@ function serveResearchPublicSidecars(): Plugin {
           stream.on("error", () => response.destroy());
           stream.pipe(response);
         }).catch(() => { response.statusCode = 404; response.end("Local source unavailable"); });
+      });
+    },
+  };
+}
+
+/** Server-side analysis warehouse results (ADR-0014): DEV loopback only, fixed wh-N.geojson names. */
+function serveWarehouseResults(): Plugin {
+  const root = resolve(process.env.PULSE_WAREHOUSE_RESULTS_DIR ?? resolve(process.cwd(), "../runtime/warehouse-results"));
+  return {
+    name: "serve-warehouse-results", apply: "serve",
+    configureServer(server) {
+      server.middlewares.use("/__warehouse-results", (request, response) => {
+        const name = (request.url ?? "").split("?", 1)[0]?.replace(/^\/+/, "") ?? "";
+        if (!isLoopbackRequest(request) || !["GET", "HEAD"].includes(request.method ?? "") || !warehouseResultFileName(name.replace(/\.geojson$/, ""))) {
+          response.statusCode = 404; response.end("Warehouse result unavailable"); return;
+        }
+        const target = resolve(root, name);
+        void stat(target).then(info => {
+          if (!info.isFile()) throw new Error("NOT_FOUND");
+          response.setHeader("content-type", "application/geo+json; charset=utf-8");
+          response.setHeader("content-length", info.size);
+          response.setHeader("x-content-type-options", "nosniff");
+          response.setHeader("cache-control", "private, no-store");
+          if (request.method === "HEAD") { response.end(); return; }
+          const stream = createReadStream(target);
+          response.on("close", () => stream.destroy());
+          stream.on("error", () => response.destroy());
+          stream.pipe(response);
+        }).catch(() => { response.statusCode = 404; response.end("Warehouse result unavailable"); });
       });
     },
   };
@@ -1197,6 +1227,7 @@ export default defineConfig({
     serveLocalResearchAssets(),
     serveResearchAnalysisSidecars(),
     serveResearchPublicSidecars(),
+    serveWarehouseResults(),
     serveResearchPointPartitions(),
     serveLocalPopulationPreview(),
     serveGfwV4CandidateStage(),

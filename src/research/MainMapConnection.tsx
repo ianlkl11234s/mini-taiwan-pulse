@@ -306,6 +306,11 @@ export function MainMapConnection(props: Props) {
           result = await analysis.current.materializeData(request.args.planId);
           break;
         }
+        case "import_warehouse_result": {
+          if (!analysis.current) throw new Error("ANALYSIS_SESSION_UNAVAILABLE");
+          result = await analysis.current.importWarehouseResult(request.args);
+          break;
+        }
         case "describe_layer": {
           const layer = describeLayer(String(request.args.layerKey ?? ""), discoveryContext);
           if (!layer) throw new Error("LAYER_NOT_FOUND");
