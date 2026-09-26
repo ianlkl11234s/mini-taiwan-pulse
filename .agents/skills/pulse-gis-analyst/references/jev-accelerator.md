@@ -4,11 +4,27 @@ Jev 是 routing accelerator，不是 agent、執行器、授權層或資料真�
 
 ## 何時呼叫
 
-- **零次**：已知精確 tool、dataset ID、layer key，或 deterministic search 只剩一個明確候選。
-- **最多一次**：自然語言問題同時可能落在 discovery、query、analysis、presentation 或 session；或仍有多個合理 capability。
+- **零次**：已知精確 tool、dataset ID、layer key，deterministic search 只剩一個明確候選，或題目落在下方「題型對照」表中任一格（速度優先，直接查表用配方，不呼叫 Jev）。
+- **最多一次**：自然語言問題同時可能落在 discovery、query、analysis、presentation 或 session；或仍有多個合理 capability，且不在題型對照表內。
 - **不呼叫**：只是在延續上一個 resultId、翻頁、等待 receipt、重試已知 schema 錯誤或執行使用者已明確指定的操作。
 
 多階段 capability → candidate ranking 是未來能力。現行一次 Jev 後只用 deterministic search／describe 縮小候選，不再呼叫第二次 Jev。
+
+## 題型對照（round 3，七大類 → capability → 倉庫工具 → 配方）
+
+出處：`mini/docs/features/general-analysis/question-bank-backlog-20260927.md`。capability 定義／候選工具在 `jevRouter.ts`（`CAPABILITY_CRITERIA`／`MCP_CANDIDATES`），與此表手動同步。
+
+| 題型（七大類） | capability | 倉庫工具 | 配方 |
+|---|---|---|---|
+| 1. 基礎設施周邊關聯 | `analysis` | `pulse_sql`／`pulse_wh_present` | infrastructure-proximity.md |
+| 2. 生活品質面向拆解／複合指數 | `index` | `pulse_sql`／`pulse_region_rank`／`pulse_wh_present`(choropleth) | composite-index.md |
+| 3. 教育／運動可及性、服務缺口 | `accessibility` | `pulse_nearby_profile`／`pulse_sql`／`pulse_region_rank`／`pulse_wh_present` | nearby-profile.md（等時圈版見 `accessibility-analysis` skill，🔴 待接倉庫） |
+| 4. 災害／環境／產業疊合 | `analysis` | `pulse_sql`／`pulse_wh_present` | area-correlation.md／clustering-ann.md／hotspot-gi-star.md |
+| 5. 新聞情勢與空間事件 | `event_context` | `pulse_nearby_profile`／`pulse_sql`／`pulse_wh_present` | event-screening.md／news-persistence.md |
+| 6. 視覺化與跨區比較 | `analysis` | `pulse_region_rank`／`pulse_sql`／`pulse_wh_present` | region-rank.md／compare-places.md |
+| 7. 擴充面向（宗教／高齡／韌性／能源／觀光／交安／食物可及／產業群聚） | 高齡照護、食物可及走 `accessibility`；其餘 `analysis` | 同上 | 依主題挑最近的配方 |
+
+⚠️ 「指數」中文歧義：ANN／Gi\* 等**空間統計量**（clustering-ann.md、hotspot-gi-star.md）不算 `index`，仍是 `analysis`；`index` 只限「多指標合成一個分數或跨區百分位」（composite-index.md）。抽測實測見 `/private/tmp/claude-501/jev-eval.md`（Q16 曾被離線 proxy 誤判為 index）。
 
 ## 呼叫與判讀
 
@@ -21,7 +37,7 @@ Jev 是 routing accelerator，不是 agent、執行器、授權層或資料真�
 1. 以本 session 實際 tool catalog 移除不存在的工具。
 2. 在 describe/read/execute 前重新檢查 access 與 schema。
 3. 由主 agent選擇最小工具鏈，不照單全收 candidateTools。
-4. provider unavailable、timeout、confidence 低、空候選或未知 tool 時，回到 SKILL.md 的 deterministic table；Jev 失敗不得阻擋明確可做的查詢。
+4. provider unavailable、timeout、confidence 低、空候選或未知 tool 時，退回本檔「題型對照」表或 `recipes/README.md` 配方索引（deterministic fallback）；Jev 失敗不得阻擋明確可做的查詢。
 
 ## 不可交給 Jev 的判斷
 
