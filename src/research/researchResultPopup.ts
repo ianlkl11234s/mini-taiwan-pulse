@@ -83,6 +83,9 @@ export function researchResultPopupOverlaps<T extends ResearchResultPopupOverlap
 /** Popup facts deliberately separate source values, normalized values, and comparison calculations. */
 export function researchResultPopupFacts(properties: Record<string, unknown>): ResearchResultPopupFact[] {
   const facts: ResearchResultPopupFact[] = [];
+  const styleLabel = text(properties.styleFactLabel);
+  const styleValue = text(properties.styleFactValue);
+  if (styleLabel && styleValue) facts.push({ label: styleLabel, value: styleValue });
   const sourceStatus = text(properties.status);
   const observedValue = finiteNumber(properties.value);
   const unit = text(properties.unit);

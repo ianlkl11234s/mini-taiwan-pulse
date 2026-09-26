@@ -1,4 +1,5 @@
 import { compareRegions } from "./regionComparison";
+import type { WarehouseResultStyle } from "./warehouseResultStyle";
 import type { GeometryRole, RecordGrain, SourceReceipt } from "./dataContracts";
 import { BrowserMemoryResultStore, type ResultReference } from "./resultStore";
 import { geometriesIntersect, geometryWithin, locatePointInSurface, parseSpatialGeometry, type PointGeometry, type SurfaceGeometry } from "./spatialKernel";
@@ -22,6 +23,8 @@ export interface StoredDataResult extends ResultReference {
   geometry: ResultGeometry;
   sourceRefs: readonly SourceReceipt[];
   presentation?: { kind: "neighborhood"; countField: string; label: string; radiusM: number; sourceLabels: { field: string; label: string }[] };
+  /** Server-computed warehouse styling (choropleth / bivariate / heatmap); applied verbatim by the overlay. */
+  resultStyle?: WarehouseResultStyle;
   lineage?: Readonly<Record<string, unknown>>;
   coverage: string;
   freshness: "current" | "stale" | "unknown";
