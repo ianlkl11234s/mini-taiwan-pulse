@@ -3,7 +3,7 @@ import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type Da
 import type { AdapterReadResult, QueryAdapter } from "./queryExecutor";
 import { parseSpatialGeometry, type MultiPolygonGeometry } from "./spatialKernel";
 
-const ASSET_URL = "/education/school_district_senior_full.geojson";
+const ASSET_URL = "/research/education/school_district_senior_full.geojson";
 const RAW_SHA256 = "c8d541dc97d294717ae4d82dd29f5329e5e47fc975908f443499d6b5fdf84449";
 const PROCESSED_SHA256 = "c3b4df7dee7639dfe18e89134e2dd418b1a552639e0cad51b2579071c996e339";
 const DISPLAY_SHA256 = "8df98c6b47f9cc93c677e63d05e87edc506305bc5ac77d18e3eef9a83b61d287";

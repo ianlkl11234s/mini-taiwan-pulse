@@ -2,7 +2,7 @@ import { withLoading } from "../lib/loadingRegistry";
 import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor } from "./dataContracts";
 import type { AdapterReadResult, QueryAdapter } from "./queryExecutor";
 
-const URL = "/urban/urban_zoning_taipei.analysis.json";
+const URL = "/research/urban/urban_zoning_taipei.analysis.json";
 const SIDECAR_SHA = "497bc0abf3fcf81457c867a6439c8131204a3ec5de37c02b35d0ecff94d0b646";
 const SOURCE_SHA = "5d7eb9ae65f6ac83bc77236b9551383156664bf7f85bdb53acd5b0529fd42e12";
 const PMTILES_SHA = "319a15cf95d07a2e68bf43f627d209fd173e7a4cb22c98dbd91c61d31e389eae";

@@ -6,7 +6,7 @@ import { registeredDatasetForLayer } from "../researchDatasets";
 
 beforeEach(() => {
   clearTaipeiZoningSidecarCache();
-  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("public/urban/urban_zoning_taipei.analysis.json"), {
+  vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile("../runtime/research-public/urban/urban_zoning_taipei.analysis.json"), {
     headers: { "content-type": "application/json" },
   })));
 });

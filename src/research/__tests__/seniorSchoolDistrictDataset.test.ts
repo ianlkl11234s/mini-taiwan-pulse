@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { clearSeniorSchoolDistrictSnapshotCache, createSeniorSchoolDistrictDatasetAdapter, seniorSchoolDistrictDescriptor, validateSeniorSchoolDistrictSnapshot } from "../seniorSchoolDistrictDataset";
 import { QueryExecutor } from "../queryExecutor";
 
-const asset = new URL("../../../public/education/school_district_senior_full.geojson", import.meta.url);
+const asset = new URL("../../../../runtime/research-public/education/school_district_senior_full.geojson", import.meta.url);
 
 describe("115-school-year senior school district full-surface reader", () => {
   it("SHA-binds all 15 full county-boundary proxy surfaces", async () => {
@@ -11,7 +11,7 @@ describe("115-school-year senior school district full-surface reader", () => {
     const bytes = await readFile(asset);
     const fetcher = vi.fn(async () => new Response(bytes, { headers: { "content-length": String(bytes.byteLength) } }));
     const result = await new QueryExecutor([createSeniorSchoolDistrictDatasetAdapter(fetcher)]).execute({ datasetId: "eduDistrictSenior", filters: [{ field: "district", op: "eq", value: "中投區" }], select: ["district", "district_no", "county_count", "rule_row_count", "area_km2", "geometry"], limit: 1 });
-    expect(fetcher).toHaveBeenCalledWith("/education/school_district_senior_full.geojson", expect.objectContaining({ credentials: "same-origin", redirect: "error" }));
+    expect(fetcher).toHaveBeenCalledWith("/research/education/school_district_senior_full.geojson", expect.objectContaining({ credentials: "same-origin", redirect: "error" }));
     expect(result.totalMatched).toBe(1); expect(result.cost).toMatchObject({ rowsScanned: 15, bytesScanned: 12_238_327 });
     expect(result.rows[0]).toMatchObject({ district: "中投區", district_no: "9", county_count: 2, rule_row_count: 6, area_km2: 6337.41 });
     expect((result.rows[0]!.geometry as { type: string }).type).toBe("MultiPolygon");

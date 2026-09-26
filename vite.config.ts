@@ -309,7 +309,6 @@ function serveResearchAnalysisSidecars(): Plugin {
     configureServer(server) {
       // /research/... 已改由 serveResearchPublicSidecars() 從 ../runtime/research-public 提供，這裡不再重複釘選。
       const assets = new Map([
-        ["/urban/urban_zoning_taipei.analysis.json", { target: resolve(process.cwd(), "public/urban/urban_zoning_taipei.analysis.json"), contentType: "application/json; charset=utf-8" }],
         ["/environment/public_toilets_national.geojson", { target: resolve(process.cwd(), "public/environment/public_toilets_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/civic_facilities/community_centers_national.geojson", { target: resolve(process.cwd(), "public/civic_facilities/community_centers_national.geojson"), contentType: "application/geo+json; charset=utf-8" }],
         ["/environment/sound_camera_locations.geojson", { target: resolve(process.cwd(), "public/environment/sound_camera_locations.geojson"), contentType: "application/geo+json; charset=utf-8" }],
