@@ -40,6 +40,10 @@ const catalog = Array.isArray(catalogRaw) ? catalogRaw : catalogRaw.datasets ?? 
 const extras = readJson(resolve(warehouseDir, "warehouse-extras.json"), { countyCoverage: {}, statsDatasets: {} });
 const overrides = readJson(resolve(docsDir, "layer-status-overrides.json"), {});
 const aliases = readJson(resolve(docsDir, "layer-dataset-aliases.json"), { byUpstream: {}, byLayer: {} });
+// 比較統計（statsComparison*）不在 manifest upstream，而是 recipe 指到倉庫統計長表的 dataset＋indicator。
+const comparisonRecipes = new Map(
+  readJson(resolve(root, "src/data/comparisonStatisticsRecipes.json"), []).map(recipe => [recipe.layer_key, recipe]),
+);
 
 const byDatasetId = new Map();
 for (const entry of catalog) {
@@ -72,6 +76,8 @@ function classify(key) {
   const usable = warehouseEntries.filter(item => USABLE.has(item.status));
   const spatial = usable.filter(item => item.geometry_type && item.geometry_type !== "None" && Number(item.rows) > 0);
   const stats = upstreamIds.filter(id => extras.statsDatasets?.[id]);
+  const recipe = comparisonRecipes.get(key);
+  if (recipe && extras.statsDatasets?.[recipe.dataset_id]?.indicators?.includes(recipe.indicator_id)) stats.push(recipe.dataset_id);
   const browser = registeredDatasetsForLayer(key);
   const override = overrides[key] ?? {};
 
