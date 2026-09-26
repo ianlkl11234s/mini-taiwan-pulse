@@ -13,6 +13,8 @@ SELECT s.school_name AS name, s.geom FROM ds_education_schools s, corridor WHERE
 ```
 面積重疊：`ST_Area(ST_Intersection(a.geom_3826, b.geom_3826))`（平方公尺）。
 
+**涵蓋率變體**（例如「國小 800m 環域涵蓋多少比例的村里」）：用中心點而非整個面判斷是否落在環域內，`count(DISTINCT covered.area_code) * 100.0 / count(DISTINCT all.area_code)`；環域一律是直線距離的代理，不是路網等時圈，答案要標 PARTIAL 並註明。
+
 **呈現**：`pulse_wh_present(resultId)` → 回條內的 `wh-N:polygon`／`wh-N:point` → `pulse_set_result_collection`（面在下、點在上，framing 用結果範圍）→ `pulse_wait_scene_ready` → `pulse_get_map_context` 讀回 effective visible IDs 才說「已顯示」。
 
 **必帶但書**：環域是直線；結果超過 5,000 個 feature 要先縮小；`RESULT_NOT_WGS84` 代表忘了轉座標。
