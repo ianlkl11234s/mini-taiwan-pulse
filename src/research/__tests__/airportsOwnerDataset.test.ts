@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ type Bbox = readonly [number, number, number, number];
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches independent Point oracles in Taipei and Kaohsiung, including airport-type filtering", async () => {
+it.skipIf(!existsSync(sidecar))("matches independent Point oracles in Taipei and Kaohsiung, including airport-type filtering", async () => {
   const features = (JSON.parse(await readFile(source, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { airport_type: string } }[] }).features;
   const cases: { bbox: Bbox; airportType?: string }[] = [
     { bbox: [121.45, 25.0, 121.7, 25.2] },
@@ -29,7 +30,7 @@ it("matches independent Point oracles in Taipei and Kaohsiung, including airport
   }
 });
 
-it("preserves source missingness and keeps Point reference distinct from airport boundary display geometry", async () => {
+it.skipIf(!existsSync(sidecar))("preserves source missingness and keeps Point reference distinct from airport boundary display geometry", async () => {
   const executor = new QueryExecutor([airportsOwnerAdapter]);
   const result = await executor.execute({ datasetId: airportsOwnerDescriptor.datasetId, filters: [{ field: "tdx_airport_id", op: "eq", value: null }], select: ["name", "tdx_airport_id"], limit: 100 });
   expect(result.totalMatched).toBe(108);

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -15,7 +16,7 @@ function sourceFetch(files: Map<string, Uint8Array>) {
   });
 }
 
-describe("fixed police model fragments", () => {
+describe.skipIf(!existsSync(root))("fixed police model fragments", () => {
   it("reads three pinned outputs and preserves model-only semantics and two-city variant counts", async () => {
     const files = new Map(await Promise.all(paths.map(async name => [name, new Uint8Array(await readFile(new URL(name, root)))] as const)));
     clearPoliceIsochroneOwnerCache();

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -30,7 +31,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("reads six distinct source families as owner-only reference points", async () => {
+it.skipIf(!existsSync(assets["anti-corruption-offices-owner-20260626.geojson"]!))("reads six distinct source families as owner-only reference points", async () => {
   const executor = new QueryExecutor(adapters);
   const results = await Promise.all(descriptors.map(descriptor => executor.execute({ datasetId: descriptor.datasetId, limit: 1 })));
   expect(results.map(result => result.totalMatched)).toEqual([66, 51, 35, 25, 29, 29]);
@@ -40,7 +41,7 @@ it("reads six distinct source families as owner-only reference points", async ()
   }
 });
 
-it("keeps bbox reads and facility-type variants bounded", async () => {
+it.skipIf(!existsSync(assets["courts-owner-20260626.geojson"]!))("keeps bbox reads and facility-type variants bounded", async () => {
   const executor = new QueryExecutor(adapters);
   const taipeiCourts = await executor.execute({ datasetId: courtOwnerDescriptor.datasetId, bbox: [121.48, 25.02, 121.57, 25.08], select: ["name", "court_type", "geometry"], limit: 50 });
   const prisons = await executor.execute({ datasetId: correctionalFacilityOwnerDescriptor.datasetId, filters: [{ field: "facility_type", op: "eq", value: "prison" }], select: ["name", "facility_type"], limit: 50 });

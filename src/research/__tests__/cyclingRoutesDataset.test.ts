@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -25,7 +26,7 @@ it("requires bbox and preserves fixed line source semantics", async () => {
   expect(cyclingRoutesDescriptor.valueSemantics.stale).toContain("FinishedTime");
 });
 
-it("matches complete source at two places and a city variant", async () => {
+it.skipIf(!existsSync(path))("matches complete source at two places and a city variant", async () => {
   const cases: readonly [Bbox, string | undefined][] = [
     [[121.50, 25.03, 121.51, 25.04], undefined],
     [[121.50, 25.03, 121.51, 25.04], "臺北市"],
@@ -40,7 +41,7 @@ it("matches complete source at two places and a city variant", async () => {
   }
 });
 
-it("rejects mutated source bytes", async () => {
+it.skipIf(!existsSync(path))("rejects mutated source bytes", async () => {
   const bytes = await readFile(path); const altered = new Uint8Array(bytes); altered[100] = altered[100] === 65 ? 66 : 65;
   vi.stubGlobal("fetch", vi.fn(async () => new Response(altered, { headers: { "content-length": String(altered.byteLength) } })));
   await expect(new QueryExecutor([cyclingRoutesAdapter]).execute({ datasetId: cyclingRoutesDescriptor.datasetId, bbox: [121.50, 25.03, 121.51, 25.04], limit: 1 })).rejects.toThrow("CYCLING_SHAPES_SOURCE_MISMATCH");

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("registers only upstream TGOS welfare centers and answers a new location plus 台/臺 variants", async () => {
+it.skipIf(!existsSync("../runtime/research-public/welfare_centers_upstream_20260812.geojson"))("registers only upstream TGOS welfare centers and answers a new location plus 台/臺 variants", async () => {
   const executor = new QueryExecutor([welfareCentersUpstreamCoordinatesAdapter]);
   const matsu = await executor.execute({ datasetId: "tw-welfare-centers-upstream-coordinates", filters: [{ field: "county", op: "eq", value: "連江縣" }] });
   const taipei = await executor.execute({ datasetId: "tw-welfare-centers-upstream-coordinates", filters: [{ field: "county", op: "eq", value: "台北市" }] });
@@ -21,7 +22,7 @@ it("registers only upstream TGOS welfare centers and answers a new location plus
   expect(welfareCentersUpstreamCoordinatesAdapter.descriptor.fields.map(field => field.name)).not.toContain("service_area");
 });
 
-it("permits bbox reads for the selected address coordinates", async () => {
+it.skipIf(!existsSync("../runtime/research-public/welfare_centers_upstream_20260812.geojson"))("permits bbox reads for the selected address coordinates", async () => {
   const result = await new QueryExecutor([welfareCentersUpstreamCoordinatesAdapter]).execute({ datasetId: "tw-welfare-centers-upstream-coordinates", bbox: [119.94, 26.15, 119.96, 26.16] });
   expect(result).toMatchObject({ totalMatched: 1, rows: [{ name: "連江縣社會福利服務中心" }] });
 });

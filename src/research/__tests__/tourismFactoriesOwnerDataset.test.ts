@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -15,7 +16,7 @@ async function oracle(id: string) {
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("retains two source-oracle places and distinct geocode provenance without contact fields", async () => {
+it.skipIf(!existsSync(sidecar))("retains two source-oracle places and distinct geocode provenance without contact fields", async () => {
   const executor = new QueryExecutor([tourismFactoriesOwnerAdapter]);
   const keelung = await executor.execute({ datasetId: tourismFactoriesOwnerDescriptor.datasetId, bbox: bboxes.keelung, select: ["id", "name", "geocode_source", "geocode_precision", "geometry"], limit: 100 });
   const linkou = await executor.execute({ datasetId: tourismFactoriesOwnerDescriptor.datasetId, bbox: bboxes.linkou, select: ["id", "name", "geocode_source", "geocode_precision", "geometry"], limit: 100 });

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import { activeFaultsDescriptor, createActiveFaultsDatasetAdapter, validateActiveFaultsSnapshot } from "../activeFaultsDataset";
@@ -10,7 +11,7 @@ function executor(bytes: Uint8Array) {
   return { fetcher, query: new QueryExecutor([createActiveFaultsDatasetAdapter(fetcher)]) };
 }
 
-describe("active-fault geological-sensitive-zone adapter", () => {
+describe.skipIf(!existsSync(asset))("active-fault geological-sensitive-zone adapter", () => {
   it("SHA-binds the 22-feature source, retains only official codes, and normalizes mixed 2D/zero-Z surfaces without changing horizontal topology", async () => {
     const bytes = await readFile(asset); const raw = JSON.parse(new TextDecoder().decode(bytes));
     const { fetcher, query } = executor(bytes);

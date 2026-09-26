@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -35,7 +36,7 @@ it("requires bbox and keeps only safe fields with reference-point semantics", as
   expect(factoryLocationsOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["uniform_no", "factory_address", "responsible_person"]));
 });
 
-it("reads immutable safe shards and preserves the active geocode-miss exclusion", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("reads immutable safe shards and preserves the active geocode-miss exclusion", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { factory_id: string; factory_name: string } }[] };
   const target = shard.features[0]!; const [lng, lat] = target.geometry.coordinates;
@@ -45,7 +46,7 @@ it("reads immutable safe shards and preserves the active geocode-miss exclusion"
   expect(result.cost.downloadedBytes).toBeLessThan(8 * 1024 * 1024);
 });
 
-it("matches independent full-source location and category oracles within bounded reads", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source location and category oracles within bounded reads", async () => {
   const cases: { bbox: Bbox; filters: { county?: string; industryIncludes?: string }; expected: number }[] = [
     { bbox: [121.45, 24.98, 121.50, 25.03], filters: { county: "新北市", industryIncludes: "26電子" }, expected: 420 },
     { bbox: [120.25, 22.55, 120.30, 22.60], filters: { county: "高雄市", industryIncludes: "25金屬製品製造業" }, expected: 9 },
@@ -63,6 +64,6 @@ it("matches independent full-source location and category oracles within bounded
   }
 });
 
-it("fails closed when a broad bbox selects more than the 8 MiB partition budget", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("fails closed when a broad bbox selects more than the 8 MiB partition budget", async () => {
   await expect(new QueryExecutor([factoryLocationsOwnerAdapter]).execute({ datasetId: factoryLocationsOwnerDescriptor.datasetId, bbox: [118, 21, 123, 27], limit: 1 })).rejects.toThrow("DATASET_TOO_LARGE");
 });

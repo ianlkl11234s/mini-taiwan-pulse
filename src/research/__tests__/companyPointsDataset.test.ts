@@ -47,7 +47,7 @@ it("requires a bounded read and keeps the company public-field and registered-ad
   await expect(executor.execute({ datasetId: companyPointsDescriptor.datasetId })).rejects.toThrow("BBOX_REQUIRED");
 });
 
-it("reads only immutable shards for an exact bounded point and retains source exclusions", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("reads only immutable shards for an exact bounded point and retains source exclusions", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { company_name: string } }[] };
   const target = shard.features[0]!;
@@ -82,7 +82,7 @@ it.skipIf(!existsSync(sourcePath))("matches the full-source 2 km and manufacturi
   }
 }, 15_000);
 
-it("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("keeps a dense Kaohsiung bbox below the scan and byte limits", async () => {
   // Independent one-pass count from the fixed full GeoJSONSeq: 5,299 points.
   const result = await new QueryExecutor([companyPointsAdapter]).execute({
     datasetId: companyPointsDescriptor.datasetId,

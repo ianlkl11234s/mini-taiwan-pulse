@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "../amusementParksDataset";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps 27 listed parks while excluding parking proxies from spatial eligibility", async () => {
+it.skipIf(!existsSync("../runtime/research-public/amusement-parks-source-20260723.geojson"))("keeps 27 listed parks while excluding parking proxies from spatial eligibility", async () => {
   const executor = new QueryExecutor([amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter]);
   const listed = await executor.execute({ datasetId: "tw-amusement-parks-listed", select: ["name", "coord_source", "geometry"], limit: 1 });
   const missing = await executor.execute({ datasetId: "tw-amusement-parks-listed", filters: [{ field: "coord_source", op: "eq", value: "none" }], select: ["name", "geometry"], limit: 5 });

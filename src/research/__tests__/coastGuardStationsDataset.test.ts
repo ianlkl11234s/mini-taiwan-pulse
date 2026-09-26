@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { coastGuardStationsSourceCoordinatesAdapter } from "../coastGuardStationsDataset";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps the verified coast-guard snapshot without publishing contact, service, or provenance fields", async () => {
+it.skipIf(!existsSync("../runtime/research-public/coast-guard-stations-20260626.geojson"))("keeps the verified coast-guard snapshot without publishing contact, service, or provenance fields", async () => {
   const result = await new QueryExecutor([coastGuardStationsSourceCoordinatesAdapter]).execute({ datasetId: "tw-coast-guard-stations-source-coordinates", select: ["entity_id", "facility_subtype", "geometry"], limit: 1 });
   expect(result).toMatchObject({ totalMatched: 269, analysisComplete: true });
   expect(coastGuardStationsSourceCoordinatesAdapter.descriptor.layerRefs).toEqual(["coastGuardStation"]);
@@ -22,7 +23,7 @@ it("keeps the verified coast-guard snapshot without publishing contact, service,
   expect(coastGuardStationsSourceCoordinatesAdapter.descriptor.coverage).toContain("17");
 });
 
-it("preserves duplicate entity_id rows, subtype, and actual Point queries", async () => {
+it.skipIf(!existsSync("../runtime/research-public/coast-guard-stations-20260626.geojson"))("preserves duplicate entity_id rows, subtype, and actual Point queries", async () => {
   const executor = new QueryExecutor([coastGuardStationsSourceCoordinatesAdapter]);
   const repeated = await executor.execute({ datasetId: "tw-coast-guard-stations-source-coordinates", filters: [{ field: "entity_id", op: "eq", value: "pj_cga_pier_1" }], select: ["record_id", "entity_id", "facility_subtype"], limit: 50 });
   const nearby = await executor.execute({ datasetId: "tw-coast-guard-stations-source-coordinates", bbox: [120.18, 22.60, 120.29, 22.89], select: ["name", "facility_subtype", "geometry"], limit: 50 });

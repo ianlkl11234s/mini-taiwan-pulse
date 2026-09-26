@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -19,7 +20,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); clearPointPartitionCache(); });
 
-it("requires bounded hospitality reads and removes address, phone, and descriptions", async () => {
+it.skipIf(!existsSync(`${sidecars}hotels/manifest.json`))("requires bounded hospitality reads and removes address, phone, and descriptions", async () => {
   const executor = new QueryExecutor([tourismHotelOwnerAdapter, tourismRestaurantOwnerAdapter]);
   await expect(executor.execute({ datasetId: tourismHospitalityOwnerDescriptors[0]!.datasetId })).rejects.toThrow("BBOX_REQUIRED");
   const hotels = await executor.execute({ datasetId: tourismHospitalityOwnerDescriptors[0]!.datasetId, bbox: bboxes.taipei, select: ["HotelID", "HotelStars", "LowestPrice", "geometry"], limit: 100 });
@@ -30,7 +31,7 @@ it("requires bounded hospitality reads and removes address, phone, and descripti
   expect(hotels.cost.bytesScanned).toBeLessThanOrEqual(8 * 1024 * 1024);
 });
 
-it("matches fixed processed-source bbox oracles and keeps official Point semantics", async () => {
+it.skipIf(!existsSync(`${sidecars}hotels/manifest.json`))("matches fixed processed-source bbox oracles and keeps official Point semantics", async () => {
   const executor = new QueryExecutor([tourismHotelOwnerAdapter, tourismRestaurantOwnerAdapter]);
   const cases = [
     { datasetId: tourismHospitalityOwnerDescriptors[0]!.datasetId, file: "hotel/hotel_20260722.geojson", bbox: bboxes.taipei, expected: 522 },

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { commonRegistrationAddressesAdapter, commonRegistrationAddressesDescriptor } from "../commonRegistrationAddressesDataset";
@@ -14,7 +15,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("reads the full immutable common-registration source with its published field contract", async () => {
+it.skipIf(!existsSync(sidecar))("reads the full immutable common-registration source with its published field contract", async () => {
   const result = await new QueryExecutor([commonRegistrationAddressesAdapter]).execute({ datasetId: commonRegistrationAddressesDescriptor.datasetId, limit: 1 });
   expect(result).toMatchObject({ totalMatched: 11_121, freshness: "stale", excludedByReason: { missing_geometry: 0, non_point_geometry: 0, invalid_geometry: 0 } });
   expect(commonRegistrationAddressesDescriptor).toMatchObject({
@@ -25,7 +26,7 @@ it("reads the full immutable common-registration source with its published field
   expect(commonRegistrationAddressesDescriptor.fields.map(field => field.name)).toEqual(["record_id", "address", "n_companies", "capital_sum", "capital_median", "geometry"]);
 });
 
-it("matches the genuine r2 source for a Taipei bbox", async () => {
+it.skipIf(!existsSync(sidecar))("matches the genuine r2 source for a Taipei bbox", async () => {
   const source = JSON.parse(await readFile(upstream, "utf8")) as { features: Array<{ geometry: { coordinates: [number, number] } }> };
   const expected = source.features.filter(({ geometry }) => geometry.coordinates[0] >= taipeiBbox[0] && geometry.coordinates[0] <= taipeiBbox[2] && geometry.coordinates[1] >= taipeiBbox[1] && geometry.coordinates[1] <= taipeiBbox[3]).length;
   const result = await new QueryExecutor([commonRegistrationAddressesAdapter]).execute({ datasetId: commonRegistrationAddressesDescriptor.datasetId, bbox: taipeiBbox, select: ["address", "n_companies", "geometry"], limit: 1 });

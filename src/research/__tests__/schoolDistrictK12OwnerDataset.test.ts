@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearSchoolDistrictK12SnapshotCache, schoolDistrictElementaryOwnerAdapter, schoolDistrictElementaryOwnerDescriptor, schoolDistrictJuniorOwnerAdapter, schoolDistrictJuniorOwnerDescriptor, validateSchoolDistrictK12Snapshot } from "../schoolDistrictK12OwnerDataset";
@@ -8,7 +9,7 @@ const asset = new URL("../../../../runtime/owner-only/school-district-k12/school
 beforeEach(() => { clearSchoolDistrictK12SnapshotCache(); vi.stubGlobal("fetch", vi.fn(async () => { const bytes = await readFile(asset); return new Response(bytes, { headers: { "content-length": String(bytes.byteLength), "content-type": "application/geo+json" } }); })); });
 afterEach(() => vi.unstubAllGlobals());
 
-it("pins the fixed processed receipt and preserves partial-village proxy semantics", async () => {
+it.skipIf(!existsSync(asset))("pins the fixed processed receipt and preserves partial-village proxy semantics", async () => {
   const result = await new QueryExecutor([schoolDistrictElementaryOwnerAdapter]).execute({ datasetId: "eduDistrictElementary", filters: [{ field: "precision", op: "eq", value: "village_partial" }], select: ["district_id", "precision", "lin_specs"], limit: 1 });
   expect(result.totalMatched).toBe(474);
   expect(result.cost).toMatchObject({ rowsScanned: 860, bytesScanned: 21_710_315, downloadedBytes: 21_710_315 });
@@ -17,7 +18,7 @@ it("pins the fixed processed receipt and preserves partial-village proxy semanti
   expect(schoolDistrictElementaryOwnerDescriptor.license).toContain("HOLD");
 });
 
-it("returns the independently checked Taipei and Hsinchu bbox counts without asserting address assignment", async () => {
+it.skipIf(!existsSync(asset))("returns the independently checked Taipei and Hsinchu bbox counts without asserting address assignment", async () => {
   const executor = new QueryExecutor([schoolDistrictElementaryOwnerAdapter, schoolDistrictJuniorOwnerAdapter]);
   const cases = [
     ["eduDistrictElementary", [121.53, 25.03, 121.55, 25.05], 13], ["eduDistrictJunior", [121.53, 25.03, 121.55, 25.05], 11],

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { govServiceOfficesTgosAdapter } from "../govServiceOfficesDataset";
@@ -11,7 +12,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("registers the 462 TGOS address-level offices with 台/臺 matching and no jurisdiction", async () => {
+it.skipIf(!existsSync("../runtime/research-public/gov_service_offices_tgos_20260717.geojson"))("registers the 462 TGOS address-level offices with 台/臺 matching and no jurisdiction", async () => {
   const executor = new QueryExecutor([govServiceOfficesTgosAdapter]);
   const taipei = await executor.execute({ datasetId: "tw-gov-service-offices-tgos", filters: [{ field: "county", op: "eq", value: "台北市" }] });
   const dongyin = await executor.execute({ datasetId: "tw-gov-service-offices-tgos", filters: [{ field: "name", op: "eq", value: "連江縣東引鄉戶政事務所" }] });
@@ -26,7 +27,7 @@ it("registers the 462 TGOS address-level offices with 台/臺 matching and no ju
   expect(govServiceOfficesTgosAdapter.descriptor.coverage).toContain("707 筆");
 });
 
-it("allows bbox reads for unchanged TGOS WGS84 Point geometry", async () => {
+it.skipIf(!existsSync("../runtime/research-public/gov_service_offices_tgos_20260717.geojson"))("allows bbox reads for unchanged TGOS WGS84 Point geometry", async () => {
   const result = await new QueryExecutor([govServiceOfficesTgosAdapter]).execute({ datasetId: "tw-gov-service-offices-tgos", bbox: [120.48, 26.36, 120.50, 26.38] });
   expect(result).toMatchObject({ totalMatched: 1, rows: [{ name: "連江縣東引鄉戶政事務所", geometry: { type: "Point", coordinates: [120.49011046764997, 26.367265453907926] } }] });
 });

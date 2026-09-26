@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { cramSchoolsOwnerAdapter, cramSchoolsOwnerDescriptor } from "../cramSchoolsOwnerDataset";
@@ -18,7 +19,7 @@ async function oracle(bbox: Bbox, category?: string): Promise<number> {
 beforeEach(() => { clearPointDatasetCache(); clearPointPartitionCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(await readFile(`${root}${url.slice(prefix.length)}`), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); clearPointPartitionCache(); });
 
-it("keeps only safe fields and records source, missingness, precision, and proxy limits", async () => {
+it.skipIf(!existsSync(`${root}manifest-receipt.json`))("keeps only safe fields and records source, missingness, precision, and proxy limits", async () => {
   const receipt = JSON.parse(await readFile(`${root}manifest-receipt.json`, "utf8"));
   expect(receipt).toMatchObject({ source: { sha256: "adf0dddc81dc6ba30ff71c72242b4263b5a3896b7faffd40cead7ee24711af4e", featureCount: 17137 }, raw: { rows: 17772 }, geocodeMissing: 635, precisionCounts: { exact: 10100, cached: 2831, tgos: 4129, interpolated: 77 } });
   expect(receipt.excludedFields).toEqual(expect.arrayContaining(["短期補習班名稱", "地址", "電子郵件"]));
@@ -26,7 +27,7 @@ it("keeps only safe fields and records source, missingness, precision, and proxy
   expect(cramSchoolsOwnerDescriptor.supportedOperations).not.toContain("nearest");
 });
 
-it("matches two independent city bbox oracles and a category variant within bounds", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent city bbox oracles and a category variant within bounds", async () => {
   const executor = new QueryExecutor([cramSchoolsOwnerAdapter]);
   const cases = [
     { bbox: [121.48, 25.02, 121.58, 25.10] as const, category: "文理類" },

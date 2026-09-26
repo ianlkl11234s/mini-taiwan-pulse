@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -19,7 +20,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("uses the owner-only sidecar for a bounded historical tree query while retaining null notes", async () => {
+it.skipIf(!existsSync(sidecar))("uses the owner-only sidecar for a bounded historical tree query while retaining null notes", async () => {
   const executor = new QueryExecutor([riversideTreesTaipeiOwnerAdapter]);
   const nearby = await executor.execute({ datasetId: riversideTreesTaipeiOwnerDescriptor.datasetId, bbox, select: ["tree_id", "species", "survey_date", "notes", "geometry"], limit: 100 });
   const celtis = await executor.execute({ datasetId: riversideTreesTaipeiOwnerDescriptor.datasetId, bbox, filters: [{ field: "species", op: "eq", value: "茄苳" }], select: ["tree_id", "species", "notes", "geometry"], limit: 100 });

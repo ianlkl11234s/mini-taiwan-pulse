@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -18,7 +19,7 @@ function smallBbox(point: number[]): [number, number, number, number] {
   return [point[0]! - 0.00001, point[1]! - 0.00001, point[0]! + 0.00001, point[1]! + 0.00001];
 }
 
-it("pins the source, normalizes full surfaces and keeps empty-bbox meaning", async () => {
+it.skipIf(!existsSync(path))("pins the source, normalizes full surfaces and keeps empty-bbox meaning", async () => {
   expect(aquacultureZoneOwnerDescriptor.geometry).toMatchObject({ type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true });
   expect(aquacultureZoneOwnerDescriptor.versions[0]?.checksumSha256).toBe("3096bf94ac94a98b642bd011e846ab7b886807b0bfe8c01fd8cb4aae05fcdb8e");
   const executor = new QueryExecutor([aquacultureZoneOwnerAdapter]);
@@ -28,7 +29,7 @@ it("pins the source, normalizes full surfaces and keeps empty-bbox meaning", asy
   expect(absent.coverage).toContain("不代表沒有養殖");
 });
 
-it("matches independent processed-source geometry at two counties and a name variant", async () => {
+it.skipIf(!existsSync(path))("matches independent processed-source geometry at two counties and a name variant", async () => {
   const source = JSON.parse(await readFile(sourcePath, "utf8")) as { features: { properties: { zone_name: string; county: string }; geometry: { type: string; coordinates: unknown } }[] };
   const executor = new QueryExecutor([aquacultureZoneOwnerAdapter]);
   for (const county of ["臺南市", "宜蘭縣"]) {

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { treePitsTaipeiOwnerAdapter, treePitsTaipeiOwnerDescriptor } from "../treePitsTaipeiOwnerDataset";
@@ -24,7 +25,7 @@ it("requires a bbox and describes the fixed owner-only actual MultiPolygon snaps
   expect(treePitsTaipeiOwnerDescriptor.valueSemantics.stale).toContain("不聲稱目前現況");
 });
 
-it("matches independent full-source oracles for two Taipei bboxes and a pit-type selector", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source oracles for two Taipei bboxes and a pit-type selector", async () => {
   const executor = new QueryExecutor([treePitsTaipeiOwnerAdapter]);
   const cases: readonly [Bbox, string | undefined][] = [
     [[121.500, 25.029, 121.510, 25.039], undefined],
@@ -40,7 +41,7 @@ it("matches independent full-source oracles for two Taipei bboxes and a pit-type
   }
 });
 
-it("deduplicates a cross-cell source feature and includes a boundary touch while preserving hole exclusion semantics", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("deduplicates a cross-cell source feature and includes a boundary touch while preserving hole exclusion semantics", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const ordinalCounts = new Map<number, number>();
   for (const shard of manifest.shards) {
@@ -57,6 +58,6 @@ it("deduplicates a cross-cell source feature and includes a boundary touch while
   expect(geometriesIntersect(holed, surface([0, 2, 0, 2]))).toBe(true);
 });
 
-it("fails closed before a broad bbox can exceed source scan budgets", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("fails closed before a broad bbox can exceed source scan budgets", async () => {
   await expect(new QueryExecutor([treePitsTaipeiOwnerAdapter]).execute({ datasetId: treePitsTaipeiOwnerDescriptor.datasetId, bbox: [121.45, 24.95, 121.65, 25.20], limit: 1 })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");
 });

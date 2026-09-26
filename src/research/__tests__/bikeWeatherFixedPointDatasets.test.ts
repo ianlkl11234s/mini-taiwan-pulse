@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { bikeStationsFixedPointAdapter, weatherStationsFixedPointAdapter } from "../bikeWeatherFixedPointDatasets";
@@ -17,7 +18,7 @@ beforeEach(async () => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("reads the verified fixed bike-station snapshot without claiming availability", async () => {
+it.skipIf(!existsSync("public/geo/bike_stations.geojson"))("reads the verified fixed bike-station snapshot without claiming availability", async () => {
   const result = await new QueryExecutor([bikeStationsFixedPointAdapter]).execute({
     datasetId: "tw-bike-stations-fixed-20260301", select: ["StationUID", "BikesCapacity", "geometry"], limit: 1,
   });
@@ -28,7 +29,7 @@ it("reads the verified fixed bike-station snapshot without claiming availability
   expect(bikeStationsFixedPointAdapter.descriptor.coverage).toContain("不含即時 Availability");
 });
 
-it("reads only the fixed active-weather-station list and retains source nulls", async () => {
+it.skipIf(!existsSync("public/geo/weather_stations.geojson"))("reads only the fixed active-weather-station list and retains source nulls", async () => {
   const result = await new QueryExecutor([weatherStationsFixedPointAdapter]).execute({
     datasetId: "tw-weather-stations-active-fixed-20251129", select: ["station_id", "end_date", "new_station_id", "is_active", "geometry"], limit: 1,
   });

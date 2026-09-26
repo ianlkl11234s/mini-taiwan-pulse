@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -18,7 +19,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("splits all six manifest meanings from one owner-only 4,315-Point source", async () => {
+it.skipIf(!existsSync(asset))("splits all six manifest meanings from one owner-only 4,315-Point source", async () => {
   const executor = new QueryExecutor(adapters);
   const [elementary, junior, senior, university, special, remote] = await Promise.all([
     executor.execute({ datasetId: eduSchoolElementaryOwnerDescriptor.datasetId, limit: 1 }),
@@ -38,7 +39,7 @@ it("splits all six manifest meanings from one owner-only 4,315-Point source", as
   }
 });
 
-it("keeps the manifest grouping under two locations and a classification variant", async () => {
+it.skipIf(!existsSync(asset))("keeps the manifest grouping under two locations and a classification variant", async () => {
   const executor = new QueryExecutor(adapters);
   const taipeiElementary = await executor.execute({ datasetId: eduSchoolElementaryOwnerDescriptor.datasetId, bbox: [121.50, 25.02, 121.56, 25.08], select: ["school_name", "school_level", "geometry"], limit: 50 });
   const nanAoRemote = await executor.execute({ datasetId: eduRemoteSchoolsOwnerDescriptor.datasetId, bbox: [121.76, 24.42, 121.84, 24.50], select: ["school_name", "region_type", "geometry"], limit: 50 });

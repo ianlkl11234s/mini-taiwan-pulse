@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ type Bbox = readonly [number, number, number, number];
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches independent port point oracles in two coastal regions and a category variant", async () => {
+it.skipIf(!existsSync(sidecar))("matches independent port point oracles in two coastal regions and a category variant", async () => {
   const features = (JSON.parse(await readFile(source, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { port_class_group: string | null } }[] }).features;
   const cases: { bbox: Bbox; group?: string }[] = [
     { bbox: [121.8, 24.5, 121.95, 24.7] },
@@ -29,7 +30,7 @@ it("matches independent port point oracles in two coastal regions and a category
   }
 });
 
-it("keeps separate point and polygon source semantics and nullable cross-strait codes", async () => {
+it.skipIf(!existsSync(sidecar))("keeps separate point and polygon source semantics and nullable cross-strait codes", async () => {
   const executor = new QueryExecutor([portsOwnerAdapter]);
   const result = await executor.execute({ datasetId: portsOwnerDescriptor.datasetId, filters: [{ field: "county_id", op: "eq", value: null }], select: ["name", "county", "county_id"], limit: 100 });
   expect(result.totalMatched).toBe(6);

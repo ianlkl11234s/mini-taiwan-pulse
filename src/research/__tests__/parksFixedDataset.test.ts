@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { parksFixedPointAdapter } from "../parksFixedDataset";
@@ -16,7 +17,7 @@ beforeEach(() => {
 
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches the Mini static city bbox oracle and retains source null variants", async () => {
+it.skipIf(!existsSync(sourcePath))("matches the Mini static city bbox oracle and retains source null variants", async () => {
   const source = JSON.parse(await readFile(sourcePath, "utf8")) as {
     features: { geometry: { coordinates: [number, number] }; properties: Record<string, unknown> }[];
   };

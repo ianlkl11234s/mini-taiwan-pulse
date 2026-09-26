@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ const bboxes = { taipei: [121.50, 25.02, 121.56, 25.08] as const, kaohsiung: [12
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches two independent processed-source bbox oracles and source filter", async () => {
+it.skipIf(!existsSync(sidecar))("matches two independent processed-source bbox oracles and source filter", async () => {
   const raw = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { source: string } }[] };
   const executor = new QueryExecutor([evChargingOwnerAdapter]);
   for (const bbox of Object.values(bboxes)) {

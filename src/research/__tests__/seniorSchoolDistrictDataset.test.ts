@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it, vi } from "vitest";
 import { clearSeniorSchoolDistrictSnapshotCache, createSeniorSchoolDistrictDatasetAdapter, seniorSchoolDistrictDescriptor, validateSeniorSchoolDistrictSnapshot } from "../seniorSchoolDistrictDataset";
@@ -6,7 +7,7 @@ import { QueryExecutor } from "../queryExecutor";
 const asset = new URL("../../../../runtime/research-public/education/school_district_senior_full.geojson", import.meta.url);
 
 describe("115-school-year senior school district full-surface reader", () => {
-  it("SHA-binds all 15 full county-boundary proxy surfaces", async () => {
+  it.skipIf(!existsSync(asset))("SHA-binds all 15 full county-boundary proxy surfaces", async () => {
     clearSeniorSchoolDistrictSnapshotCache();
     const bytes = await readFile(asset);
     const fetcher = vi.fn(async () => new Response(bytes, { headers: { "content-length": String(bytes.byteLength) } }));
@@ -18,7 +19,7 @@ describe("115-school-year senior school district full-surface reader", () => {
     expect(result.sourceRefs.map(source => source.checksumSha256)).toEqual(["c3b4df7dee7639dfe18e89134e2dd418b1a552639e0cad51b2579071c996e339"]);
   });
 
-  it("matches independent Taipei and Taichung interior bboxes while remaining a proxy", async () => {
+  it.skipIf(!existsSync(asset))("matches independent Taipei and Taichung interior bboxes while remaining a proxy", async () => {
     clearSeniorSchoolDistrictSnapshotCache();
     const bytes = await readFile(asset); const executor = new QueryExecutor([createSeniorSchoolDistrictDatasetAdapter(vi.fn(async () => new Response(bytes)))]);
     for (const [index, [bbox, expected]] of ([[ [121.5599, 25.0320, 121.5601, 25.0322], "基北區" ], [[120.6799, 24.1420, 120.6801, 24.1422], "中投區" ]] as const).entries()) {

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { funeralFacilitiesOwnerAdapter, funeralFacilitiesOwnerDescriptor, funeralOperatorsOwnerAdapter, funeralOperatorsOwnerDescriptor } from "../funeralPointsOwnerDatasets";
@@ -40,7 +41,7 @@ it("requires bbox, exposes only safe fields, and holds exact spatial claims", as
   expect(funeralOperatorsOwnerDescriptor.supportedOperations).not.toContain("nearest");
 });
 
-it("matches independent Taipei and Kaohsiung source oracles through bounded safe reads", async () => {
+it.skipIf(!existsSync(`${root}facilities/manifest.json`))("matches independent Taipei and Kaohsiung source oracles through bounded safe reads", async () => {
   const cases = [
     { adapter: funeralFacilitiesOwnerAdapter, descriptor: funeralFacilitiesOwnerDescriptor, source: sources.facilities, bbox: [121.48, 25.02, 121.58, 25.10] as const, field: "facility_type", value: "cemetery", expected: 15 },
     { adapter: funeralFacilitiesOwnerAdapter, descriptor: funeralFacilitiesOwnerDescriptor, source: sources.facilities, bbox: [120.25, 22.58, 120.35, 22.68] as const, field: "facility_type", value: "funeral_home", expected: 2 },
@@ -55,7 +56,7 @@ it("matches independent Taipei and Kaohsiung source oracles through bounded safe
   }
 });
 
-it("preserves explicit coverage, inactive, unlocated, and coordinate-right exclusions", async () => {
+it.skipIf(!existsSync(`${root}facilities/manifest.json`))("preserves explicit coverage, inactive, unlocated, and coordinate-right exclusions", async () => {
   const facilities = await new QueryExecutor([funeralFacilitiesOwnerAdapter]).execute({ datasetId: funeralFacilitiesOwnerDescriptor.datasetId, bbox: [121.48, 25.02, 121.58, 25.10], limit: 1 });
   const operators = await new QueryExecutor([funeralOperatorsOwnerAdapter]).execute({ datasetId: funeralOperatorsOwnerDescriptor.datasetId, bbox: [120.25, 22.58, 120.35, 22.68], limit: 1 });
   expect(facilities.excludedByReason).toMatchObject({ unlocated_source_records: 438, parcel_centroid_proxy: 1576, approximate_proxy: 429, google_coordinate_rights_unverified: 574 });
@@ -63,7 +64,7 @@ it("preserves explicit coverage, inactive, unlocated, and coordinate-right exclu
   expect(funeralFacilitiesOwnerDescriptor.license).toContain("unverified"); expect(funeralOperatorsOwnerDescriptor.license).toContain("unverified");
 });
 
-it("keeps nationwide reads within the declared partition scan and byte budgets", async () => {
+it.skipIf(!existsSync(`${root}operators/manifest.json`))("keeps nationwide reads within the declared partition scan and byte budgets", async () => {
   const result = await new QueryExecutor([funeralOperatorsOwnerAdapter]).execute({ datasetId: funeralOperatorsOwnerDescriptor.datasetId, bbox: [118, 21, 123, 27], limit: 1 });
   expect(result.totalMatched).toBe(6233); expect(result.cost.rowsScanned).toBeLessThanOrEqual(20_000); expect(result.cost.bytesScanned).toBeLessThanOrEqual(8 * 1024 * 1024);
 });

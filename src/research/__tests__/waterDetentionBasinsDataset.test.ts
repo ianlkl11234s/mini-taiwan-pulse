@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ type Bbox = readonly [number, number, number, number];
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches independent display bboxes in Tainan and Taoyuan plus a county variant", async () => {
+it.skipIf(!existsSync(sidecar))("matches independent display bboxes in Tainan and Taoyuan plus a county variant", async () => {
   const source = JSON.parse(await readFile(display, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { county: string } }[] };
   const executor = new QueryExecutor([waterDetentionBasinsAdapter]);
   const cases: { bbox: Bbox; county?: string }[] = [

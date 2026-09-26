@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { agriLeisureFarmZonesOwnerAdapter, agriLeisureFarmZonesOwnerDescriptor } from "../agriLeisureFarmZonesOwnerDataset";
@@ -7,7 +8,7 @@ const asset = `${process.cwd()}/../runtime/owner-only/agri-leisure-farm-zones/ag
 beforeEach(() => { vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(asset)))); });
 afterEach(() => vi.unstubAllGlobals());
 
-it("returns all 109 source attributes and records the seven bounded make_valid repairs", async () => {
+it.skipIf(!existsSync(asset))("returns all 109 source attributes and records the seven bounded make_valid repairs", async () => {
   const result = await new QueryExecutor([agriLeisureFarmZonesOwnerAdapter]).execute({ datasetId: agriLeisureFarmZonesOwnerDescriptor.datasetId, select: ["record_id", "la_name", "zone_name", "area_source_ha", "area_ha", "geometry_status", "raw_geometry_valid"], limit: 109 });
   expect(result.totalMatched).toBe(109);
   expect(result.excludedByReason).toMatchObject({ raw_self_intersection_repaired: 7 });
@@ -17,7 +18,7 @@ it("returns all 109 source attributes and records the seven bounded make_valid r
   expect(agriLeisureFarmZonesOwnerDescriptor.geometry).toMatchObject({ type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true });
 });
 
-it("matches two independent WGS84 bbox oracles, including one repaired source surface", async () => {
+it.skipIf(!existsSync(asset))("matches two independent WGS84 bbox oracles, including one repaired source surface", async () => {
   const executor = new QueryExecutor([agriLeisureFarmZonesOwnerAdapter]);
   const maokong = await executor.execute({ datasetId: agriLeisureFarmZonesOwnerDescriptor.datasetId, bbox: [121.580, 24.960, 121.596, 24.980], filters: [{ field: "record_id", op: "eq", value: "A83" }], select: ["record_id", "zone_name", "geometry_status"], limit: 10 });
   const baishihu = await executor.execute({ datasetId: agriLeisureFarmZonesOwnerDescriptor.datasetId, bbox: [121.588, 25.096, 121.604, 25.112], filters: [{ field: "record_id", op: "eq", value: "A80" }], select: ["record_id", "zone_name", "geometry_status", "raw_geometry_valid"], limit: 10 });

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -11,7 +12,7 @@ afterEach(() => { vi.unstubAllGlobals(); clearHikingTrailsOwnerCache(); });
 
 function firstPosition(geometry: { type: string; coordinates: unknown }): [number, number] { return geometry.type === "LineString" ? (geometry.coordinates as [number, number][])[0]! : (geometry.coordinates as [number, number][][])[0]![0]!; }
 
-it("matches two independent source-place oracles while preserving source, license, and path geometry", async () => {
+it.skipIf(!existsSync(`${runtime}manifest.json`))("matches two independent source-place oracles while preserving source, license, and path geometry", async () => {
   const collection = JSON.parse(await readFile(source, "utf8")) as { features: { properties: { source: string; source_id: string; name: string | null }; geometry: { type: string; coordinates: unknown } }[] };
   const targets = [
     collection.features.find(feature => feature.properties.source === "A_forest" && feature.properties.source_id === "002")!,

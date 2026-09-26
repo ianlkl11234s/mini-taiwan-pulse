@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -35,7 +36,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps three separate owner-only livestock families aligned with new-place processed oracles", async () => {
+it.skipIf(!existsSync(`${runtime}/feed-factories-owner-20260704.geojson`))("keeps three separate owner-only livestock families aligned with new-place processed oracles", async () => {
   const [feed, market, slaughter] = await Promise.all([
     readFile(`${processed}/feed_factory_points.geojson`, "utf8").then(value => JSON.parse(value) as { features: SourceFeature[] }),
     readFile(`${processed}/market_points.geojson`, "utf8").then(value => JSON.parse(value) as { features: SourceFeature[] }),

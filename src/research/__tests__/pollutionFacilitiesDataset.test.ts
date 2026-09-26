@@ -1,4 +1,5 @@
 import { gunzipSync } from "node:zlib";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { pollutionFacilitiesAdapter, pollutionFacilitiesDescriptor } from "../pollutionFacilitiesDataset";
@@ -23,7 +24,7 @@ it("requires a bbox and keeps potential-regulation, null severity, and privacy s
   await expect(executor.execute({ datasetId: pollutionFacilitiesDescriptor.datasetId })).rejects.toThrow("BBOX_REQUIRED");
 });
 
-it("reads only immutable bbox shards and keeps per-medium absence separate from zero", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("reads only immutable bbox shards and keeps per-medium absence separate from zero", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { emsno: string; mediums: string; sev_air: number | null } }[] };
   const target = shard.features.find(feature => feature.properties.sev_air === null) ?? shard.features[0]!;
@@ -36,7 +37,7 @@ it("reads only immutable bbox shards and keeps per-medium absence separate from 
   if (target.properties.sev_air === null) expect(result.rows[0]?.sev_air).toBeNull();
 });
 
-it("accepts Vite's transparent gzip response only when decoded bytes match the immutable shard receipt", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("accepts Vite's transparent gzip response only when decoded bytes match the immutable shard receipt", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const compressed = await readFile(`${root}${manifest.shards[0]!.path}`);
   const shard = JSON.parse(gunzipSync(compressed).toString("utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { emsno: string } }[] };

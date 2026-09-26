@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { culturalMuseumsOwnerAdapter } from "../culturalMuseumsDataset";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps the 266-row list, its 14 unlocated records, and per-row coordinate provenance", async () => {
+it.skipIf(!existsSync(asset))("keeps the 266-row list, its 14 unlocated records, and per-row coordinate provenance", async () => {
   const executor = new QueryExecutor([culturalMuseumsOwnerAdapter]);
   const all = await executor.execute({ datasetId: "tw-local-cultural-museums-owner-20260716", limit: 1 });
   const google = await executor.execute({ datasetId: "tw-local-cultural-museums-owner-20260716", filters: [{ field: "source", op: "eq", value: "google" }], select: ["museum_id", "source", "precision", "geometry"], limit: 1 });
@@ -25,7 +26,7 @@ it("keeps the 266-row list, its 14 unlocated records, and per-row coordinate pro
   expect(culturalMuseumsOwnerAdapter.descriptor.supportedOperations).not.toContain("nearest");
 });
 
-it("allows bbox reference-position filtering without claiming nearest analysis", async () => {
+it.skipIf(!existsSync(asset))("allows bbox reference-position filtering without claiming nearest analysis", async () => {
   const executor = new QueryExecutor([culturalMuseumsOwnerAdapter]);
   const result = await executor.execute({ datasetId: "tw-local-cultural-museums-owner-20260716", bbox: [121.50, 25.03, 121.54, 25.05], select: ["name", "source", "precision", "geometry"], limit: 50 });
   expect(result.totalMatched).toBeGreaterThan(0);

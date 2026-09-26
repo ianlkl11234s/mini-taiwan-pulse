@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { clearTaipeiZoningSidecarCache(); vi.unstubAllGlobals(); });
 
-it("answers category and source-code variants from all 15,518 records with a pinned receipt", async () => {
+it.skipIf(!existsSync("../runtime/research-public/urban/urban_zoning_taipei.analysis.json"))("answers category and source-code variants from all 15,518 records with a pinned receipt", async () => {
   const executor = new QueryExecutor([taipeiZoningAttributeAdapter]);
   const residential = await executor.execute({ datasetId: "urban_zoning_taipei", filters: [{ field: "zone_category", op: "eq", value: "residential" }], limit: 2 });
   const r3 = await executor.execute({ datasetId: "urban_zoning_taipei", filters: [{ field: "zone_code", op: "eq", value: "R3" }], limit: 2 });
@@ -25,7 +26,7 @@ it("answers category and source-code variants from all 15,518 records with a pin
   await expect(executor.execute({ datasetId: "urban_zoning_taipei", bbox: [121.4, 24.9, 121.7, 25.3] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
 });
 
-it("pages beyond ten thousand features without truncating the source", async () => {
+it.skipIf(!existsSync("../runtime/research-public/urban/urban_zoning_taipei.analysis.json"))("pages beyond ten thousand features without truncating the source", async () => {
   const executor = new QueryExecutor([taipeiZoningAttributeAdapter]);
   const page = await executor.execute({ datasetId: "urban_zoning_taipei", offset: 15_500, limit: 20 });
   expect(page).toMatchObject({ totalMatched: 15_518, returned: 18, displayTruncated: false, analysisComplete: true });

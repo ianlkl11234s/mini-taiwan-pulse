@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -19,7 +20,7 @@ async function oracle(bbox: Bbox, categories: readonly string[]): Promise<number
 beforeEach(() => { clearPointDatasetCache(); clearPointPartitionCache(); vi.stubGlobal("fetch", vi.fn(async (url: string) => new Response(await readFile(`${root}${url.slice(prefix.length)}`), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); clearPointPartitionCache(); });
 
-it("uses the SHA-bound safe-field partition and preserves category plus geocode-source receipts", async () => {
+it.skipIf(!existsSync(`${root}manifest-receipt.json`))("uses the SHA-bound safe-field partition and preserves category plus geocode-source receipts", async () => {
   const receipt = JSON.parse(await readFile(`${root}manifest-receipt.json`, "utf8"));
   expect(receipt).toMatchObject({ source: { sha256: "d94164d2de2cd78f3ab777e13d93288e1d9956493329951a09c5a710038ca50d", featureCount: 31603 }, retainedFields: ["category", "geocode_source"], nullCounts: { category: 0, geocode_source: 0 }, categoryCounts: { hospital_district: 337, hospital_medical_center: 29, hospital_regional: 85, clinic: 21765, pharmacy: 7680 }, geocodeSourceCounts: { tgos: 29621, google: 1603, google_retry: 379 } });
   expect(receipt.excludedFields).toEqual(expect.arrayContaining(["facility_id", "name", "address", "phone"]));
@@ -31,7 +32,7 @@ it("uses the SHA-bound safe-field partition and preserves category plus geocode-
   expect(nhiMedicalClinicOwnerDescriptor.label).toContain("其他醫療");
 });
 
-it("matches two independent source bbox oracles and a categorical variant", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches two independent source bbox oracles and a categorical variant", async () => {
   const executor = new QueryExecutor([nhiMedicalHospitalOwnerAdapter, nhiMedicalClinicOwnerAdapter, nhiMedicalPharmacyOwnerAdapter]);
   const cases = [
     { adapter: nhiMedicalHospitalOwnerDescriptor, bbox: [121.48, 25.02, 121.58, 25.10] as const, categories: ["hospital_district", "hospital_medical_center", "hospital_regional"] },

@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ const bbox = [120.43, 23.47, 120.46, 23.5] as const;
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps the owner-only processed receipt, a new-place bbox oracle, and year/blank-city variants", async () => {
+it.skipIf(!existsSync(sidecar))("keeps the owner-only processed receipt, a new-place bbox oracle, and year/blank-city variants", async () => {
   const source = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { planyear: number; city: string } }[] };
   const oracle = source.features.filter(({ geometry: { coordinates: [lng, lat] } }) => lng >= bbox[0] && lng <= bbox[2] && lat >= bbox[1] && lat <= bbox[3]);
   const executor = new QueryExecutor([forestTreatmentWorksOwnerAdapter]);

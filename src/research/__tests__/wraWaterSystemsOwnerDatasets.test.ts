@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -15,7 +16,7 @@ afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 it("keeps WRA dam points distinct from the 111-point display composite and omits corrupted Chinese names", async () => {
   const descriptor = wraDamWeirsOwnerDescriptor; expect(descriptor.layerRefs).toEqual(["waterReservoirs"]); expect(descriptor.coverage).toContain("98 Point"); expect(descriptor.source.lineage).toContain("not version-equivalent"); expect(descriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["name", "status", "basin_name", "river_name"])); expect(descriptor.geometry).toMatchObject({ type: "Point", role: "proxy", spatialAnalysisEligible: false });
 });
-it("matches independent north and south WRA source bboxes, preserving null engineering measures", async () => {
+it.skipIf(!existsSync(`${root}wra-dam-weirs-owner-20260519.geojson`))("matches independent north and south WRA source bboxes, preserving null engineering measures", async () => {
   const executor = new QueryExecutor([wraDamWeirsOwnerAdapter]); for (const bbox of [[121.45, 24.85, 121.65, 25.1], [120.3, 22.7, 120.6, 23.1]] as const) { const result = await executor.execute({ datasetId: wraDamWeirsOwnerDescriptor.datasetId, bbox, select: ["source_dam_id", "name_en", "dam_height_m", "capacity_m3"], limit: 98 }); expect(result.totalMatched).toBe(await oracle(bbox)); expect(result.cost.rowsScanned).toBe(98); }
   const missing = await executor.execute({ datasetId: wraDamWeirsOwnerDescriptor.datasetId, bbox: [120.36, 23.10, 120.37, 23.11], select: ["source_dam_id", "name_en", "dam_height_m", "capacity_m3"], limit: 1 }); expect(missing.rows).toEqual([{ source_dam_id: "wra:0", name_en: null, dam_height_m: null, capacity_m3: null }]);
 });

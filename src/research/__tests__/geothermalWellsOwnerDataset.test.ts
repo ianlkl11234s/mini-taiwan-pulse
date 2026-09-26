@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -11,7 +12,7 @@ const bboxes = { yilan: [121.60, 24.60, 121.65, 24.63] as const, taitung: [120.9
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches two independent historical source bbox oracles and an area filter", async () => {
+it.skipIf(!existsSync(sidecar))("matches two independent historical source bbox oracles and an area filter", async () => {
   const source = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { geothermal_area: string } }[] };
   const executor = new QueryExecutor([geothermalWellsOwnerAdapter]);
   for (const bbox of Object.values(bboxes)) {

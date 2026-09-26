@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -28,7 +29,7 @@ afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 const adapters = [wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter];
 const descriptors = [wasteFacilitiesIncineratorOwnerDescriptor, wasteFacilitiesLandfillOwnerDescriptor, wasteFacilitiesMonitoringOwnerDescriptor, wasteFacilitiesTransferOwnerDescriptor, wasteFacilitiesRecyclingOwnerDescriptor, wasteFacilitiesScrapYardOwnerDescriptor];
 
-it("returns only its own facility category and fails closed on each source-category count", async () => {
+it.skipIf(!existsSync(sidecarRoot))("returns only its own facility category and fails closed on each source-category count", async () => {
   const executor = new QueryExecutor(adapters);
   const expected = [31, 12, 17, 38, 184, 15];
   for (const [index, descriptor] of descriptors.entries()) {
@@ -40,7 +41,7 @@ it("returns only its own facility category and fails closed on each source-categ
   }
 });
 
-it("matches independent Taipei government and Kaohsiung OSM bbox oracles", async () => {
+it.skipIf(!existsSync(sidecarRoot))("matches independent Taipei government and Kaohsiung OSM bbox oracles", async () => {
   const executor = new QueryExecutor(adapters);
   const government = await executor.execute({ datasetId: wasteFacilitiesIncineratorOwnerDescriptor.datasetId, bbox: taipei, select: ["facility_name", "facility_type", "geometry"], limit: 31 });
   const osm = await executor.execute({ datasetId: wasteFacilitiesRecyclingOwnerDescriptor.datasetId, bbox: kaohsiung, select: ["facility_name", "facility_type", "status", "geometry"], limit: 100 });

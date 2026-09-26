@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -14,7 +15,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps the owner-only eight-city receipt, new-place bbox oracle, and source null variant", async () => {
+it.skipIf(!existsSync(sidecar))("keeps the owner-only eight-city receipt, new-place bbox oracle, and source null variant", async () => {
   const source = JSON.parse(await readFile(processed, "utf8")) as { features: { geometry: { coordinates: [number, number] }; properties: { city: string; tree_id: string; species: string; estimated_age_years: number | null } }[] };
   const oracle = source.features.filter(({ geometry: { coordinates: [lng, lat] } }) => lng >= chiayiBbox[0] && lng <= chiayiBbox[2] && lat >= chiayiBbox[1] && lat <= chiayiBbox[3]).length;
   const executor = new QueryExecutor([protectedTreesOwnerAdapter]);

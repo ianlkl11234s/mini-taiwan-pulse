@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { railStationsMetroOwnerAdapter, railStationsMetroOwnerDescriptor, railStationsTHSROwnerAdapter, railStationsTHSROwnerDescriptor, railStationsTRAOwnerAdapter, railStationsTRAOwnerDescriptor } from "../railStationsOwnerDatasets";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps the 12 THSR, 244 TRA, and 279 metro or light-rail records separate", async () => {
+it.skipIf(!existsSync(asset))("keeps the 12 THSR, 244 TRA, and 279 metro or light-rail records separate", async () => {
   const executor = new QueryExecutor([railStationsTHSROwnerAdapter, railStationsTRAOwnerAdapter, railStationsMetroOwnerAdapter]);
   const thsr = await executor.execute({ datasetId: railStationsTHSROwnerDescriptor.datasetId, limit: 1 });
   const tra = await executor.execute({ datasetId: railStationsTRAOwnerDescriptor.datasetId, filters: [{ field: "station_class", op: "eq", value: "0" }], select: ["system_id", "station_id", "name", "geometry"], limit: 20 });
@@ -24,7 +25,7 @@ it("keeps the 12 THSR, 244 TRA, and 279 metro or light-rail records separate", a
   expect(metro.rows.every(row => row.system_id === "krtc")).toBe(true);
 });
 
-it("uses actual point geometry for bounded station lookup and does not expose source address fields", async () => {
+it.skipIf(!existsSync(asset))("uses actual point geometry for bounded station lookup and does not expose source address fields", async () => {
   const executor = new QueryExecutor([railStationsTRAOwnerAdapter]);
   const result = await executor.execute({ datasetId: railStationsTRAOwnerDescriptor.datasetId, bbox: [121.50, 25.03, 121.61, 25.06], select: ["name", "geometry"], limit: 50 });
   expect(result.totalMatched).toBeGreaterThan(0);

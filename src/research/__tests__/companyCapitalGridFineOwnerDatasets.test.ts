@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { companyCapitalGrid150mOwnerAdapter, companyCapitalGrid150mOwnerDescriptor, companyCapitalGrid450mOwnerAdapter, companyCapitalGrid450mOwnerDescriptor } from "../companyCapitalGridFineOwnerDatasets";
@@ -25,7 +26,7 @@ it("requires a bbox and keeps polygon cells as an owner-only, non-point surface"
   }
 });
 
-it("matches Taipei and Kaohsiung full-source grid oracles at both scales within bounds", async () => {
+it.skipIf(!existsSync(`${root}manifest-150m.json`))("matches Taipei and Kaohsiung full-source grid oracles at both scales within bounds", async () => {
   const cases: readonly Bbox[] = [[121.48, 25.02, 121.50, 25.04], [120.28, 22.56, 120.30, 22.58]];
   for (const [scale, adapter, descriptor] of [[150, companyCapitalGrid150mOwnerAdapter, companyCapitalGrid150mOwnerDescriptor], [450, companyCapitalGrid450mOwnerAdapter, companyCapitalGrid450mOwnerDescriptor]] as const) {
     const executor = new QueryExecutor([adapter]);
@@ -36,7 +37,7 @@ it("matches Taipei and Kaohsiung full-source grid oracles at both scales within 
   }
 });
 
-it("preserves all-missing capital as null and fails closed for a broad Taiwan bbox", async () => {
+it.skipIf(!existsSync(`${root}manifest-150m.json`))("preserves all-missing capital as null and fails closed for a broad Taiwan bbox", async () => {
   for (const [adapter, descriptor] of [[companyCapitalGrid150mOwnerAdapter, companyCapitalGrid150mOwnerDescriptor], [companyCapitalGrid450mOwnerAdapter, companyCapitalGrid450mOwnerDescriptor]] as const) {
     await expect(new QueryExecutor([adapter]).execute({ datasetId: descriptor.datasetId, bbox: [118, 21.5, 122.5, 26.5], limit: 1 })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");
   }

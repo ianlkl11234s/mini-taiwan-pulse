@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { accidentTaipeiOwnerAdapter, accidentTaipeiOwnerDescriptor } from "../accidentTaipeiOwnerDataset";
@@ -25,7 +26,7 @@ it("requires a bbox and does not expose incident text or precise time", async ()
   expect(accidentTaipeiOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["entity_id", "occurred_at", "location"]));
 });
 
-it("matches independent full-source bbox and case-class oracles with bounded shard reads", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches independent full-source bbox and case-class oracles with bounded shard reads", async () => {
   const cases: { bbox: Bbox; caseClass: string; expected: number }[] = [
     { bbox: [121.50, 25.04, 121.54, 25.08], caseClass: "2", expected: 4943 },
     { bbox: [121.54, 25.02, 121.58, 25.06], caseClass: "1", expected: 16 },

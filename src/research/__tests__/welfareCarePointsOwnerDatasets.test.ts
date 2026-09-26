@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -15,7 +16,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps both mixed-coordinate welfare snapshots owner-only with source and null receipts", async () => {
+it.skipIf(!existsSync(`${root}/welfare-ltc-institutions-owner-20260925.geojson`))("keeps both mixed-coordinate welfare snapshots owner-only with source and null receipts", async () => {
   const executor = new QueryExecutor([welfareLtcInstitutionsOwnerAdapter, welfareElderlyHomesOwnerAdapter]);
   const ltc = await executor.execute({ datasetId: welfareLtcInstitutionsOwnerDescriptor.datasetId, filters: [{ field: "coord_source", op: "eq", value: "google" }], limit: 1 });
   const elderly = await executor.execute({ datasetId: welfareElderlyHomesOwnerDescriptor.datasetId, filters: [{ field: "uni_no", op: "eq", value: null }], limit: 1 });
@@ -27,7 +28,7 @@ it("keeps both mixed-coordinate welfare snapshots owner-only with source and nul
   }
 });
 
-it("permits bounded reference lookup and fails closed if owner-only bytes change", async () => {
+it.skipIf(!existsSync(`${root}/welfare-ltc-institutions-owner-20260925.geojson`))("permits bounded reference lookup and fails closed if owner-only bytes change", async () => {
   const executor = new QueryExecutor([welfareLtcInstitutionsOwnerAdapter]);
   await expect(executor.execute({ datasetId: welfareLtcInstitutionsOwnerDescriptor.datasetId, bbox: [121.5, 25.02, 121.56, 25.06], limit: 10 })).resolves.toMatchObject({ totalMatched: expect.any(Number) });
   vi.stubGlobal("fetch", vi.fn(async () => new Response('{"type":"FeatureCollection","features":[]}')));

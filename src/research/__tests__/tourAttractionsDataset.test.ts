@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("reads the fixed V2.1 attraction snapshot without converting unreported visitor values to zero", async () => {
+it.skipIf(!existsSync("../runtime/research-public/tour-attractions-source-20260722.geojson"))("reads the fixed V2.1 attraction snapshot without converting unreported visitor values to zero", async () => {
   const executor = new QueryExecutor([tourAttractionsSourceCoordinatesAdapter]);
   const all = await executor.execute({ datasetId: "tw-tour-attractions-source-coordinates", select: ["id", "name", "annual_visitors_2024", "geometry"], limit: 1 });
   const missingVisitors = await executor.execute({ datasetId: "tw-tour-attractions-source-coordinates", filters: [{ field: "category", op: "eq", value: "Nature" }], select: ["id", "name", "category", "geometry"], limit: 1 });

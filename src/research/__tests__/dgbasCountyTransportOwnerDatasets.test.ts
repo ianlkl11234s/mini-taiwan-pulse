@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 import { createDgbasCountyTransportOwnerAdapters } from "../dgbasCountyTransportOwnerDatasets";
@@ -19,7 +20,7 @@ describe("DGBAS county transport owner-only releases", () => {
     expect(descriptors.every(item => item.geometry.type === "MultiPolygon" && item.geometry.role === "generalized" && !item.geometry.spatialAnalysisEligible && item.versions.length === 2 && item.access.mode === "owner_only")).toBe(true);
   });
 
-  it("reads two counties from each requested year without mixing releases", async () => {
+  it.skipIf(!existsSync(assetPath))("reads two counties from each requested year without mixing releases", async () => {
     const executor = new QueryExecutor(adapters());
     const descriptor = executor.descriptors().find(item => item.layerRefs[0] === "statsAutomobileLicenseHoldersCount")!;
     const [release2023, release2024] = descriptor.parameters![0]!.options as [string, string];
@@ -32,7 +33,7 @@ describe("DGBAS county transport owner-only releases", () => {
     expect(year2023.sourceRefs).toEqual(expect.arrayContaining([expect.objectContaining({ version: release2023, checksumSha256: "7c54c4949270aa4c40789832320ee8052a4db4247b7de5df7bfd802e0f7ae518" })]));
   });
 
-  it("rejects undeclared release selectors and changed owner-only bytes", async () => {
+  it.skipIf(!existsSync(assetPath))("rejects undeclared release selectors and changed owner-only bytes", async () => {
     const descriptor = new QueryExecutor(adapters()).descriptors()[0]!;
     await expect(new QueryExecutor(adapters()).execute({ datasetId: descriptor.datasetId, parameters: { releaseId: "2025-unpublished" } })).rejects.toThrow("RELEASE_NOT_ALLOWED");
     const modified = async () => new Uint8Array([...(await bytes()), 0]);

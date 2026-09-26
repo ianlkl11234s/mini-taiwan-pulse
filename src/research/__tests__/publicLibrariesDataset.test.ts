@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -10,7 +11,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps all 644 official records and their ten unlocated rows", async () => {
+it.skipIf(!existsSync("../runtime/research-public/public-libraries-source-20260717.geojson"))("keeps all 644 official records and their ten unlocated rows", async () => {
   const executor = new QueryExecutor([publicLibrariesListedAdapter, publicLibrariesTgosCoordinatesAdapter]);
   const listed = await executor.execute({ datasetId: "tw-public-libraries-listed", select: ["uid", "county", "coord_method", "geometry"], limit: 1 });
   const unlocated = await executor.execute({ datasetId: "tw-public-libraries-listed", filters: [{ field: "coord_method", op: "eq", value: "none" }], select: ["geometry"], limit: 20 });
@@ -20,7 +21,7 @@ it("keeps all 644 official records and their ten unlocated rows", async () => {
   await expect(executor.execute({ datasetId: "tw-public-libraries-listed", bbox: [121.5, 25, 121.6, 25.1] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
 });
 
-it("allows bounded spatial reads only for the 570 TGOS address coordinates", async () => {
+it.skipIf(!existsSync("../runtime/research-public/public-libraries-source-20260717.geojson"))("allows bounded spatial reads only for the 570 TGOS address coordinates", async () => {
   const executor = new QueryExecutor([publicLibrariesTgosCoordinatesAdapter]);
   const tgos = await executor.execute({ datasetId: "tw-public-libraries-tgos-coordinates", filters: [{ field: "coord_method", op: "eq", value: "TGOS" }], select: ["coord_method", "geometry"], limit: 1 });
   const nearby = await executor.execute({ datasetId: "tw-public-libraries-tgos-coordinates", bbox: [121.50, 24.99, 121.53, 25.02], select: ["name", "geometry"], limit: 50 });

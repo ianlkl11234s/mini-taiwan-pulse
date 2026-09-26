@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { expect, it, vi, afterEach, beforeEach } from "vitest";
 import { QueryExecutor } from "../queryExecutor";
@@ -24,7 +25,7 @@ it("requires bbox and exposes separate owner-only industry and age semantics", a
   expect(companyIndustryDistribution1500mOwnerDescriptor.geometry).toMatchObject({ type: "Polygon", spatialAnalysisEligible: false });
 });
 
-it("reads exact Polygon-intersecting cells at both required grains and preserves category conservation", async () => {
+it.skipIf(!existsSync(`${runtime}manifest-1500m.json`))("reads exact Polygon-intersecting cells at both required grains and preserves category conservation", async () => {
   const source1500 = JSON.parse(await readFile(`${analytics}/company_demographics_grid_1500m_202608.geojson`, "utf8")) as { features: { properties: Record<string, number | string | null>; geometry: { coordinates: number[][][] } }[] };
   expect(new Set(source1500.features.map(feature => feature.properties.grid_id)).size).toBe(source1500.features.length);
   const industryFeature = source1500.features.find(feature => feature.properties.grid_id === "G1500_100_245")!;
@@ -39,11 +40,11 @@ it("reads exact Polygon-intersecting cells at both required grains and preserves
   expect(Number(age.rows[0]!.age_known) + Number(age.rows[0]!.age_missing) + Number(age.rows[0]!.age_invalid)).toBe(age.rows[0]!.n_companies);
 });
 
-it("fails closed when a Taiwan-wide query exceeds the shard scan budget", async () => {
+it.skipIf(!existsSync(`${runtime}manifest-450m.json`))("fails closed when a Taiwan-wide query exceeds the shard scan budget", async () => {
   await expect(new QueryExecutor([companyAgeStructure450mOwnerAdapter]).execute({ datasetId: companyAgeStructure450mOwnerDescriptor.datasetId, bbox: [118, 21.5, 122.5, 26.5], limit: 1 })).rejects.toThrow("SCAN_BUDGET_EXCEEDED");
 });
 
-it("matches full-source Polygon intersections at two places, including cross-cell matches", async () => {
+it.skipIf(!existsSync(`${runtime}manifest-450m.json`))("matches full-source Polygon intersections at two places, including cross-cell matches", async () => {
   const cases = [
     { path: "company_demographics_grid_450m_202608.geojson", adapter: companyAgeStructure450mOwnerAdapter, descriptor: companyAgeStructure450mOwnerDescriptor, bbox: [121.50, 25.03, 121.52, 25.05] as Bbox },
     { path: "company_demographics_grid_1500m_202608.geojson", adapter: companyIndustryDistribution1500mOwnerAdapter, descriptor: companyIndustryDistribution1500mOwnerDescriptor, bbox: [120.63, 24.13, 120.67, 24.17] as Bbox },

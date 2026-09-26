@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
@@ -26,7 +27,7 @@ it("requires a bbox and exposes only safe owner-only proxy fields", async () => 
   expect(wasteStopsOwnerDescriptor.fields.map(field => field.name)).not.toEqual(expect.arrayContaining(["id", "stop_name", "route_id", "route_name"]));
 });
 
-it("matches an independent Chiayi bbox and source-method variant oracle with bounded reads", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("matches an independent Chiayi bbox and source-method variant oracle with bounded reads", async () => {
   const executor = new QueryExecutor([wasteStopsOwnerAdapter]);
   const all = await executor.execute({ datasetId: wasteStopsOwnerDescriptor.datasetId, bbox: chiayi, select: ["city", "via", "geometry"], limit: 100 });
   const tgosRound4 = await executor.execute({ datasetId: wasteStopsOwnerDescriptor.datasetId, bbox: chiayi, filters: [{ field: "via", op: "eq", value: "tgos_batch_v2_round4" }], select: ["via", "geometry"], limit: 100 });
@@ -36,7 +37,7 @@ it("matches an independent Chiayi bbox and source-method variant oracle with bou
   expect(all.excludedByReason).toMatchObject({ government_open_data: 38_312, tgos: 30_938, poi_fallback: 1_135, legacy: 2_675 });
 });
 
-it("has only safe properties in the immutable partitions and fails closed for a nationwide scan", async () => {
+it.skipIf(!existsSync(`${root}manifest.json`))("has only safe properties in the immutable partitions and fails closed for a nationwide scan", async () => {
   const manifest = JSON.parse(await readFile(`${root}manifest.json`, "utf8")) as { shards: { path: string }[] };
   const shard = JSON.parse(gunzipSync(await readFile(`${root}${manifest.shards[0]!.path}`)).toString("utf8")) as { features: { properties: Record<string, unknown> }[] };
   expect(Object.keys(shard.features[0]!.properties).sort()).toEqual(["city", "district", "routes_count", "vehicle_type", "via"]);

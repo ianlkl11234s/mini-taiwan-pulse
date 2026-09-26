@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -22,7 +23,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps all three mixed-coordinate snapshots owner-only with provenance and null receipts", async () => {
+it.skipIf([...files.values()].some(path => !existsSync(path)))("keeps all three mixed-coordinate snapshots owner-only with provenance and null receipts", async () => {
   const executor = new QueryExecutor([welfareChildcareOwnerAdapter, welfareDisabilityOwnerAdapter, welfareSocialWorkOrgsOwnerAdapter]);
   const childcare = await executor.execute({ datasetId: welfareChildcareOwnerDescriptor.datasetId, filters: [{ field: "coord_source", op: "eq", value: "google" }], limit: 1 });
   const disability = await executor.execute({ datasetId: welfareDisabilityOwnerDescriptor.datasetId, filters: [{ field: "uni_no", op: "eq", value: null }], limit: 1 });
@@ -37,7 +38,7 @@ it("keeps all three mixed-coordinate snapshots owner-only with provenance and nu
   }
 });
 
-it("permits bounded reference-position lookup but fails closed when sidecar bytes change", async () => {
+it.skipIf(!existsSync(`${root}/welfare-childcare-owner-20260925.geojson`))("permits bounded reference-position lookup but fails closed when sidecar bytes change", async () => {
   const executor = new QueryExecutor([welfareChildcareOwnerAdapter]);
   await expect(executor.execute({ datasetId: welfareChildcareOwnerDescriptor.datasetId, bbox: [121.5, 25.02, 121.56, 25.06], limit: 10 })).resolves.toMatchObject({ totalMatched: expect.any(Number) });
   vi.stubGlobal("fetch", vi.fn(async () => new Response('{"type":"FeatureCollection","features":[]}')));

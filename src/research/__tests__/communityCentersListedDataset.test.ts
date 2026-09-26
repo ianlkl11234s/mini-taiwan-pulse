@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { communityCentersListedAdapter } from "../communityCentersListedDataset";
@@ -12,7 +13,7 @@ beforeEach(() => {
 });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("keeps every source listing, including proxies and unlocated centers, outside spatial analysis", async () => {
+it.skipIf(!existsSync("../runtime/research-public/community-centers-listed-source-20260717.geojson"))("keeps every source listing, including proxies and unlocated centers, outside spatial analysis", async () => {
   const executor = new QueryExecutor([communityCentersListedAdapter]);
   const all = await executor.execute({ datasetId: "tw-community-centers-listed", limit: 1 });
   const listed = await executor.execute({ datasetId: "tw-community-centers-listed", filters: [{ field: "county", op: "eq", value: "台北市" }], limit: 1 });

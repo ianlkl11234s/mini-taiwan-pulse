@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
@@ -16,7 +17,7 @@ async function sourceFeatures() { return (await Promise.all(inputs.map(async pat
 beforeEach(() => { clearPointDatasetCache(); vi.stubGlobal("fetch", vi.fn(async () => new Response(await readFile(sidecar), { headers: { "content-type": "application/geo+json" } }))); });
 afterEach(() => { vi.unstubAllGlobals(); clearPointDatasetCache(); });
 
-it("matches independent source oracles in two places and a status/type variant", async () => {
+it.skipIf(!existsSync(sidecar))("matches independent source oracles in two places and a status/type variant", async () => {
   const features = await sourceFeatures();
   const cases: { bbox: Bbox; type?: string; active?: boolean }[] = [
     { bbox: [121.45, 25, 121.62, 25.12] },
@@ -33,7 +34,7 @@ it("matches independent source oracles in two places and a status/type variant",
   }
 });
 
-it("keeps county QA visible but never exposes reported_county as a filter", async () => {
+it.skipIf(!existsSync(sidecar))("keeps county QA visible but never exposes reported_county as a filter", async () => {
   const executor = new QueryExecutor([waterMonitorStationsOwnerAdapter]);
   const mismatch = await executor.execute({ datasetId: waterMonitorStationsOwnerDescriptor.datasetId, filters: [{ field: "county_spatial_check", op: "eq", value: "mismatch" }], select: ["station_id", "reported_county", "county_spatial_check"], limit: 100 });
   expect(mismatch.totalMatched).toBe(360);
