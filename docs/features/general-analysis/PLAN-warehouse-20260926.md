@@ -1,6 +1,6 @@
 # Agent 分析倉庫計劃（2026-09-26 起的唯一施工入口）
 
-決策依據：[ADR-0014](../../../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)（GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
+決策依據：[ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)（GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
 舊的 P0–P7、Q0–Q6、778 層回補清單已移到 [`archive/2026-09-pre-warehouse/`](./archive/2026-09-pre-warehouse/)，**只作歷史，不再作施工依據**。
 
 ## 全貌
@@ -26,11 +26,35 @@ pulse-research MCP 新工具（路線 D）──結果 GeoJSON──► runtime/
 
 | 路線 | 內容 | 驗收（自動優先） | 狀態 |
 |---|---|---|---|
-| **A 清場合併** | `public/research/` → `../runtime/research-public/`＋gitignore＋DEV loopback 以原 URL 提供；舊文件歸檔；mini／gateway 合入最新 origin 並解衝突 | mini `npx tsc -b`、`npm test`；gateway `node --test`；`git ls-files public/research` 為空；DEV 下原 URL 仍可取檔 | 進行中 |
-| **B 圖層總表** | `scripts/research/build-layer-status.mjs` 產生 `layer-status.csv`＋摘要；layer→dataset 對照與人工 override 各一個小檔 | 778 列、無空白 L1/L2/L3；重跑結果穩定 | 待 C 產出 catalog |
-| **C 分析倉庫＋引擎** | `mcp/warehouse/build_warehouse.py`；MCP `src/warehouse/` DuckDB 引擎 | build-report：每個 dataset OK/WARN/FAILED 與原因；引擎單元測試（唯讀、SQL 守門、距離正確） | 進行中 |
-| **D 分析能力** | 工具：`pulse_wh_search`、`pulse_wh_describe`、`pulse_nearby_profile`、`pulse_sql`、`pulse_region_rank`、`pulse_wh_present`；生活機能分類表、敏感設施集合；問題庫 | 問題庫 8 類題目的自動測試（引擎層）；點／線／面各一次正常 MCP→Gateway→browser | 待 C |
-| **E 覆蓋與視覺化** | 全部 manifest 批次入倉、layer→dataset 對照補齊；環域／疊合結果面、雙變量圖、多點比較面板 | L2 覆蓋率上升且問題庫不退步 | 長期 |
+| **A 清場合併** | `public/research/`（343 檔）＋2 個 public 大檔 → `../runtime/research-public/`＋gitignore＋DEV loopback 提供；71 份舊文件歸檔；mini／gateway 合入最新 origin 並解衝突 | mini `tsc -b` 綠、`npm test` 2303 過／5 敗（5 敗在 904da89c 已存在，已實測）；gateway 62 過；DEV 原 URL 200、路徑穿越 404 | ✅ 完成（合併前待決：分支歷史，見下） |
+| **B 圖層總表** | `scripts/research/build-layer-status.mjs` → [`layer-status.csv`](./layer-status.csv)＋[摘要](./layer-status-summary.md)；override 檔 `layer-status-overrides.json` | 794 層（合併 master 後）全數有 L1/L2/L3；**倉庫可分析 326 層（41%）**，舊手工映射為 248 | ✅ v1 |
+| **C 分析倉庫＋引擎** | `mcp/warehouse/build_warehouse.py`＋`build_coverage.py`；MCP `src/warehouse/engine.ts` | 432 dataset：OK 202／WARN 107／略過 113／失敗 10；統計 30,473 筆 78 指標；縣市／鄉鎮／村里界齊；`wh_coverage` 309 表；python 11、MCP 121 測試綠 | ✅ v1 |
+| **D 分析能力** | 7 個倉庫工具＋精選生活機能分類＋敏感設施集合＋瀏覽器匯入 `import_warehouse_result`；問題庫 `npm run question-bank` | 問題庫 PASS 4／PARTIAL 3／GAP 1（見下）；MCP stdio 實呼叫通過；瀏覽器匯入單元測試 4 綠 | 🟡 待瀏覽器配對全鏈 |
+| **E 覆蓋與視覺化** | 補入倉缺口、layer→dataset 對照、雙變量圖、多點比較面板 | L2 覆蓋率上升且問題庫不退步 | 長期 |
+
+## 驗收紀錄（2026-09-26）
+
+問題庫（真實倉庫，runtime `question-bank-report.json`）：
+
+| 題 | 狀態 | 耗時 | 結果／缺口 |
+|---|---|---|---|
+| Q1 點周邊 | PASS | 0.6s | 台北車站 800m 八類皆有結果 |
+| Q2 三地比較 | PARTIAL | 1.0s | 可比較；東部臺鐵站缺（`rail_stations` 缺花蓮等站）；區域性資料集以 `notCovered` 標出 |
+| Q3 相關 | PARTIAL | 0.7s | 7,602 村里：公車站數 vs 綜合所得中位數 r≈0.02；**房價、全國公司點尚未入倉** |
+| Q4 新聞×敏感設施 | GAP | 0.1s | 敏感設施掃描可用；**新聞事件未入倉** |
+| Q5 污染盤點 | PARTIAL | 5.6s | 以毒化物列管 7,045 處替代：500m 內有學校 2,280、300m 內有河道線 1,899、兩者皆 513；**污染裁罰未入倉** |
+| Q6 路線×學校 | PASS | 0.1s | 台北 671 路 200m 內 42 校居首 |
+| Q7 縣市排名 | PASS | 0.01s | 國小師生比（少→多）台北第 15、新北第 20；國中 19／22；高中 16／12 |
+| Q8 環域疊合＋呈現 | PASS | 0.1s | 671 路 200m 環域＋43 features 寫出並驗 SHA；地圖 ready 待配對 |
+
+語意修正（本輪發現並修好）：統計排名不再混排不同教育階段；鄉鎮層級 `township` 可查；生活機能改用精選表（原字串比對誤把工業「園區」、停車格算進綠地）；區域性資料集（餐廳僅雙北基隆、公園僅三市、YouBike 僅臺北）改標「未涵蓋」不算 0；投影座標不得直接上地圖。
+
+## 待使用者決定／執行
+
+1. **瀏覽器全鏈驗收**（需本人登入）：服務已在 3734／8794 啟動。瀏覽器開 `http://127.0.0.1:3734` 登入並配對 Codex（`pulse-research` MCP 已指向重建後的 dist），請 Agent 跑「台北 671 路 200 公尺內的學校，畫在地圖上」→ 應見環域面＋學校點，`map_context` 讀回 `wh-N:polygon`／`wh-N:point`。
+2. **合併前的歷史問題**：mini 分支歷史仍含 `public/research` 等 765 個已刪檔案版本與大型台帳；依「一般 merge commit」規則合併會永久進入 public repo 歷史。選項：(a) 改寫這條未 push 分支的歷史移除這些檔案；(b) 本次例外改用 squash；(c) 接受。未決前不 push。
+3. **資料缺口入倉**（路線 E 優先）：房價（`real_estate` 缺 `_manifest.json`）、新聞事件、污染裁罰（EMS_P_46）、全國公司點；`rail_stations` 缺臺鐵站屬上游資料問題。
+4. 磁碟剩約 12 GB，倉庫本身 15 GB；再建置前請先清出空間。
 
 ## 倉庫契約（C）
 
