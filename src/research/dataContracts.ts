@@ -1,4 +1,4 @@
-export type DatasetKind = "point" | "event" | "admin_statistic" | "grid" | "polygon";
+export type DatasetKind = "point" | "line" | "event" | "admin_statistic" | "grid" | "polygon";
 export type RecordGrain = "place" | "event" | "admin_statistic" | "grid_cell" | "feature";
 export type ResultGrain = RecordGrain | "aggregate" | "joined" | "metric" | "series";
 export type GeometryRole = "actual" | "derived" | "proxy" | "centroid" | "generalized" | "none";
@@ -102,7 +102,7 @@ export interface DatasetDescriptor {
   primaryKey: readonly string[];
   fields: readonly DatasetField[];
   geometry: {
-    type: "Point" | "Polygon" | "MultiPolygon" | "none";
+    type: "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon" | "none";
     crs: "EPSG:4326" | null;
     role: GeometryRole;
     precision: string;
@@ -115,7 +115,14 @@ export interface DatasetDescriptor {
   versions: readonly { versionId: string; observedAt: string | null; availableAt: string | null; checksumSha256: string | null; mutable: boolean }[];
   source: { publisher: string; reference: string; lineage: string };
   access: AccessDescriptor;
-  supportedOperations: readonly ("query_records" | "nearest" | "aggregate")[];
+  /** Caller-controlled selectors. Options are descriptor metadata, never an invitation to infer new source tuples. */
+  parameters?: readonly {
+    name: string;
+    type: "string" | "number" | "boolean";
+    required: boolean;
+    options?: readonly Scalar[];
+  }[];
+  supportedOperations: readonly ("query_records" | "nearest" | "line_intersects" | "aggregate" | "compare_regions")[];
   adapterId: string;
 }
 
@@ -177,8 +184,38 @@ export function assertDatasetDescriptor(value: DatasetDescriptor): void {
     || version.availableAt !== null && !Number.isFinite(Date.parse(version.availableAt))
     || version.checksumSha256 !== null && !/^[0-9a-f]{64}$/.test(version.checksumSha256))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if (value.geometry.type === "none" && (value.geometry.crs !== null || value.geometry.role !== "none" || value.geometry.spatialAnalysisEligible)) throw new Error("INVALID_DATASET_DESCRIPTOR");
-  if (value.geometry.role !== "actual" && value.geometry.spatialAnalysisEligible) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  if (value.geometry.spatialAnalysisEligible && value.geometry.role !== "actual") {
+    const isQualifiedDerivedSurface = value.geometry.role === "derived"
+      && ["Polygon", "MultiPolygon"].includes(value.geometry.type)
+      && value.geometry.crs === "EPSG:4326"
+      && value.versions.length > 0
+      && value.versions.every(version => version.checksumSha256 !== null && !version.mutable)
+      && value.geometry.precision.trim().length > 0
+      && value.source.lineage.trim().length > 0;
+    if (!isQualifiedDerivedSurface) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  }
   if (value.timeFields.some(field => !names.has(field.name))) throw new Error("INVALID_DATASET_DESCRIPTOR");
   if ([...access.query.fields, ...access.query.filters, ...access.query.timeFields].some(field => !names.has(field))) throw new Error("INVALID_DATASET_DESCRIPTOR");
-  if (access.query.supportsBbox && !(value.geometry.type === "Point" && value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible)) throw new Error("INVALID_DATASET_DESCRIPTOR");
+  if (value.parameters) {
+    const parameterNames = new Set<string>();
+    for (const parameter of value.parameters) {
+      if (!/^[A-Za-z][A-Za-z0-9_]{0,79}$/.test(parameter.name) || parameterNames.has(parameter.name)
+        || !["string", "number", "boolean"].includes(parameter.type)
+        || parameter.options?.some(option => option === null || typeof option !== parameter.type)) throw new Error("INVALID_DATASET_DESCRIPTOR");
+      parameterNames.add(parameter.name);
+    }
+  }
+  // Bbox is a bounded read selector. It does not grant distance, containment,
+  // or other spatial-analysis eligibility to a reference Point or surface.
+  const bboxQueryablePoint = value.geometry.type === "Point" && (
+    value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
+    || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible
+  );
+  const bboxQueryableSurface = ["Polygon", "MultiPolygon"].includes(value.geometry.type)
+    && value.geometry.crs === "EPSG:4326"
+    && ["actual", "derived", "generalized", "proxy"].includes(value.geometry.role);
+  const bboxQueryableLine = ["LineString", "MultiLineString"].includes(value.geometry.type)
+    && value.geometry.crs === "EPSG:4326" && (value.geometry.role === "actual" && value.geometry.spatialAnalysisEligible
+      || value.geometry.role === "proxy" && !value.geometry.spatialAnalysisEligible);
+  if (access.query.supportsBbox && !(bboxQueryablePoint || bboxQueryableSurface || bboxQueryableLine)) throw new Error("INVALID_DATASET_DESCRIPTOR");
 }

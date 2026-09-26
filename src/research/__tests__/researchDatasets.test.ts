@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearNearbyDataCache } from "../nearbyData";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
-import { describeDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
+import { describeDataset, ensureDataset, queryRecords, RESEARCH_QUERY_EXECUTOR, searchDatasets } from "../researchDatasets";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES } from "../../data/socialStatisticsRecipes";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 
@@ -31,15 +31,21 @@ describe("built-in research datasets", () => {
   });
 
   it("discovers the pilot families and compiled statistics with explicit geometry and null semantics", () => {
-    expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 6)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
+    expect(searchDatasets("").datasets.map(item => item.datasetId).slice(0, 7)).toEqual(["tw-schools", "tw-medical-hospitals", "tw-nursing-homes-upstream", "tw-news-events", "land-use:paddy-area-township", "tw-schools-grid-150m", "tw-public-libraries"]);
     const schoolSearch = searchDatasets("學校", 0, 20);
     expect(new TextEncoder().encode(JSON.stringify(schoolSearch)).byteLength).toBeLessThanOrEqual(16 * 1024);
     expect(schoolSearch.datasets[0]).toMatchObject({ datasetId: expect.any(String), access: { queryEnabled: expect.any(Boolean) }, versionCount: expect.any(Number) });
     expect(schoolSearch.datasets[0]).not.toHaveProperty("fields");
     expect(schoolSearch.datasets[0]).not.toHaveProperty("versions");
-    expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length);
+    expect(RESEARCH_QUERY_EXECUTOR.descriptors().filter(item => item.datasetId.startsWith("regional-statistics:")).map(item => item.datasetId)).toHaveLength(SOCIAL_ENABLED_STATISTICS_RECIPES.length + 7);
     expect(describeDataset("tw-news-events").geometry).toMatchObject({ role: "proxy", spatialAnalysisEligible: false });
     expect(describeDataset("land-use:paddy-area-township").fields.find(field => field.name === "value")?.nullMeaning).toContain("suppressed");
+    const nursing = describeDataset("tw-nursing-homes-upstream");
+    expect(nursing).toMatchObject({ label: "護理機構來源自帶座標子集", layerRefs: [], recordGrain: "place", geometry: { role: "actual", spatialAnalysisEligible: true }, versions: [{ checksumSha256: "775bc1a88a5e8675e48ed7930645a5e7df505968c0821ed080843e7e75bef3d9", observedAt: null }] });
+    expect(nursing.coverage).toContain("1611 verified source records");
+    expect(nursing.fields.find(field => field.name === "beds_nh")).toMatchObject({ type: "string", unit: null });
+    expect(describeDataset("tw-post-offices-source-coordinates")).toMatchObject({ recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, coverage: expect.stringContaining("current status unknown") });
+    expect(describeDataset("tw-cultural-facilities-source-coordinates")).toMatchObject({ recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, coverage: expect.stringContaining("383 筆缺座標已在產物前排除") });
   });
 
   it("does not let a guest search or describe an owner-only dataset", () => {
@@ -52,10 +58,15 @@ describe("built-in research datasets", () => {
     expect(describeDataset("allen_coral_atlas", new Set()).access).toMatchObject({ mode: "owner_only", query: { enabled: false } });
   });
 
-  it("describes a public PMTiles pilot without claiming record access", async () => {
+  it("describes a same-version PMTiles attribute sidecar without claiming geometry access", async () => {
+    expect(searchDatasets("臺北市土地使用分區").datasets).toContainEqual(expect.objectContaining({ datasetId: "urban_zoning_taipei", access: expect.objectContaining({ queryEnabled: true }) }));
+    await expect(ensureDataset("urban_zoning_taipei")).resolves.toBeUndefined();
     const zoning = describeDataset("urban_zoning_taipei");
-    expect(zoning).toMatchObject({ geometry: { type: "Polygon", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: false } } });
-    await expect(queryRecords({ datasetId: "urban_zoning_taipei" })).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(zoning).toMatchObject({ geometry: { type: "none", spatialAnalysisEligible: false }, access: { mode: "public", method: "pmtiles_sidecar", query: { enabled: true, supportsBbox: false } } });
+    await expect(ensureDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(() => describeDataset("urban_zoning_taipei", new Set(["urbanZoningTaipei"]))).toThrow("DATASET_NOT_FOUND");
+    await expect(ensureDataset("unknown-dataset")).rejects.toThrow("DATASET_NOT_FOUND");
+    expect(() => describeDataset("unknown-dataset")).toThrow("DATASET_NOT_FOUND");
   });
 
   it("queries two real point adapters without consulting layer visibility", async () => {

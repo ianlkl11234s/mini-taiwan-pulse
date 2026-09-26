@@ -4252,7 +4252,7 @@ export const LAYER_MANIFEST = {
     icon: Footprints,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "mountain_trail_signs", confidence: "MED" }],
+      datasets: [{ datasetId: "hiking_trails", confidence: "HIGH" }],
     },
     dataClass: "B",
     source: {
@@ -9605,7 +9605,7 @@ export const LAYER_MANIFEST = {
     icon: Hexagon,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "airport_safety_zones", confidence: "LOW" }],
+      datasets: [{ datasetId: "drone_restricted_zones", confidence: "HIGH" }],
     },
     dataClass: "D",
     source: {
@@ -9624,7 +9624,7 @@ export const LAYER_MANIFEST = {
   droneNoFlyZone: {
     key: "droneNoFlyZone",
     section: { theme: "交通 Move", group: "樞紐節點" },
-    label: "無人機禁航區 🚫 Drone NFZ",
+    label: "無人機紅區／未分類快照 🚫 Drone NFZ",
     expandable: true,
     color: "#DC3545",
     icon: Ban,
@@ -9635,20 +9635,20 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useDroneRestrictedZonesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/drone_restricted_zones.pmtiles（11MB，z5-14，source-layer drone_restricted_zones）—— 與 droneRestrictedZone **共用同一份切片**，以「空域顏色」欄位 filter 拆兩個 toggle（本層 = 紅區 4,311 ＋ 無該欄位的未分類 1,322，保守視為禁飛）",
+      note: "useDroneRestrictedZonesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/drone_restricted_zones.pmtiles（11MB，z5-14，source-layer drone_restricted_zones）—— 與 droneRestrictedZone 共用 2026-06-30 快照切片，以「空域顏色」欄位拆兩個 toggle（本層 = 紅區 4,311 ＋ 未分類 1,324）；未分類或歷史顏色不能判定當前飛行規則",
       staticAssets: ["./coverage/drone_restricted_zones.pmtiles"],
     },
     legend: "droneNoFlyZone",
     popup: "droneNoFlyZone",
     params: { count: 1, kinds: ["slider"] },
-    description: "民航局 dronegis 無人機禁航區（紅區＋未分類，共 5,633 面）",
+    description: "民航局 dronegis 2026-06-30 歷史紅區及未分類參考範圍（5,635 面）；有效日期多數缺值，不作當前飛行判定",
     topics: ["交通", "航空", "無人機", "管制"],
   },
 
   droneRestrictedZone: {
     key: "droneRestrictedZone",
     section: { theme: "交通 Move", group: "樞紐節點" },
-    label: "無人機限航區 ⚠️ Drone Restricted",
+    label: "無人機黃區快照 ⚠️ Drone Restricted",
     expandable: true,
     color: "#FFC107",
     icon: AlertTriangle,
@@ -9666,7 +9666,7 @@ export const LAYER_MANIFEST = {
     legend: "droneNoFlyZone",
     popup: "droneRestrictedZone",
     params: { count: 1, kinds: ["slider"] },
-    description: "縣市政府公告的無人機限航區（需申請，黃區 108 面）",
+    description: "民航局 dronegis 2026-06-30 歷史黃區參考範圍（108 面）；不作當前飛行或申請判定",
     topics: ["交通", "航空", "無人機", "管制"],
   },
 

@@ -44,6 +44,9 @@ RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`]
 ### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
 圖層 UX 四鐵則（opacity / 圖例 / popup / select）→ development-rules §4a + layer-onboarding Step 3-4
 
+### 5b. 新資料層 Agent 查詢關卡
+新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析，詳見 [PLAN-warehouse-20260926](./docs/features/general-analysis/PLAN-warehouse-20260926.md)。系統驗收以已接受來源版本為基準，確認查詢與計算忠實使用原座標；來源定位的真實世界限制要標示，但不因一般不確定性反覆重審既有資料。地圖可見不等於分析可用；純展示、權利或幾何受限者明標 `DISPLAY_ONLY`／HOLD 與解鎖條件。
+
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態圖層**禁止**把 `currentTime` 放進 deps，一律走 timeStore 訂閱 → development-rules §8 + [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md)
 

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
+import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type SourceReceipt } from "../dataContracts";
 import { QueryExecutor } from "../queryExecutor";
-import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
+import { createAdminStatisticsAdapter, createLineDatasetAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "../queryAdapters";
 
 const source = (sourceId: string, version: string): SourceReceipt => ({
   sourceId, version, acquiredAt: "2026-09-12T00:00:00.000Z", checksumSha256: "a".repeat(64), reference: `https://data.example/${sourceId}`,
@@ -63,6 +63,24 @@ const statistics = base({
 });
 
 describe("shared research query executor", () => {
+  it("permits only checksum-bound immutable derived Polygon surfaces for spatial eligibility", () => {
+    const derivedSurface = base({ kind: "polygon", recordGrain: "feature", geometry: { type: "MultiPolygon", crs: "EPSG:4326", role: "derived", precision: "fixed upstream 1e-6 grid", spatialAnalysisEligible: true } });
+    expect(() => assertDatasetDescriptor(derivedSurface)).not.toThrow();
+    expect(() => assertDatasetDescriptor({ ...derivedSurface, versions: [{ ...derivedSurface.versions[0]!, checksumSha256: null }] })).toThrow("INVALID_DATASET_DESCRIPTOR");
+    expect(() => assertDatasetDescriptor({ ...derivedSurface, versions: [{ ...derivedSurface.versions[0]!, mutable: true }] })).toThrow("INVALID_DATASET_DESCRIPTOR");
+    for (const geometry of [
+      { ...derivedSurface.geometry, type: "Polygon" as const, role: "generalized" as const },
+      { ...derivedSurface.geometry, type: "Polygon" as const, role: "proxy" as const },
+      { ...derivedSurface.geometry, type: "Point" as const, role: "derived" as const },
+      { ...derivedSurface.geometry, type: "LineString" as const, role: "derived" as const },
+    ]) expect(() => assertDatasetDescriptor({ ...derivedSurface, geometry })).toThrow("INVALID_DATASET_DESCRIPTOR");
+  });
+
+  it("requires actual EPSG:4326 geometry before constructing a line adapter", () => {
+    const line = base({ kind: "line", recordGrain: "feature", geometry: { type: "LineString", crs: "EPSG:4326", role: "actual", precision: "source line", spatialAnalysisEligible: true } });
+    expect(() => createLineDatasetAdapter(line, async () => ({ rows: [], source: source("line", "v1"), coverage: "fixture" }))).not.toThrow();
+    expect(() => createLineDatasetAdapter({ ...line, geometry: { ...line.geometry, crs: null } }, async () => ({ rows: [], source: source("line", "v1"), coverage: "fixture" }))).toThrow("INVALID_LINE_ADAPTER");
+  });
   it("uses one result contract for point, raw event, and exact-release statistics", async () => {
     const pointRead = vi.fn().mockResolvedValue({ rows: [
       { code: "A", name: "甲校", city: "臺北市", geometry: { type: "Point", coordinates: [121.5, 25] } },
@@ -135,6 +153,62 @@ describe("shared research query executor", () => {
     await expect(executor.execute({ datasetId: "agri-crop-production", bbox: [121, 24, 122, 25], parameters: { releaseId: "release-2025" } })).rejects.toThrow("BBOX_NOT_SUPPORTED");
   });
 
+  it("passes only a validated bbox through the third reader argument", async () => {
+    const reader = vi.fn().mockResolvedValue({ rows: [], source: source("schools", "v1"), coverage: "fixture" });
+    const executor = new QueryExecutor([createPointDatasetAdapter(schools, reader)]);
+    await executor.execute({ datasetId: "tw-schools", bbox: [121.4, 24.9, 121.7, 25.2] });
+    expect(reader).toHaveBeenCalledWith({}, undefined, { bbox: [121.4, 24.9, 121.7, 25.2] });
+    await expect(executor.execute({ datasetId: "tw-schools", bbox: [122, 24, 121, 25] })).rejects.toThrow("BBOX_NOT_SUPPORTED");
+    expect(reader).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses complete Polygon and MultiPolygon geometry for bbox reads while keeping query-only surfaces spatial-ineligible", async () => {
+    const surface = (datasetId: string, type: "Polygon" | "MultiPolygon", role: "actual" | "generalized" | "proxy" = "actual", spatialAnalysisEligible = role === "actual"): DatasetDescriptor => base({
+      datasetId, kind: "polygon", recordGrain: "feature", primaryKey: ["id"],
+      fields: [
+        { name: "id", type: "string", nullable: false, nullMeaning: null, unit: null },
+        { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+      ],
+      geometry: { type, crs: "EPSG:4326", role, precision: "fixture complete surface", spatialAnalysisEligible },
+      access: boundedAccess({ mode: "owner_only", method: "local_asset", fields: ["id", "geometry"], filters: ["id"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 100 }),
+    });
+    const read = (rows: readonly Record<string, unknown>[]) => async () => ({ rows, sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown" as const, exclusions: {}, rowsScanned: rows.length, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null });
+    const polygonRows = [
+      { id: "crosses", geometry: { type: "Polygon", coordinates: [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]] } },
+      { id: "donut", geometry: { type: "Polygon", coordinates: [
+        [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+        [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]],
+      ] } },
+      { id: "touches", geometry: { type: "Polygon", coordinates: [[[10, 1], [11, 1], [11, 2], [10, 2], [10, 1]]] } },
+    ];
+    const polygonExecutor = new QueryExecutor([{ descriptor: surface("polygon-surface", "Polygon"), allowedParameters: {}, read: read(polygonRows) }]);
+    expect((await polygonExecutor.execute({ datasetId: "polygon-surface", bbox: [4.5, 4.5, 5.5, 5.5] })).rows.map(row => row.id)).toEqual(["crosses"]);
+    expect((await polygonExecutor.execute({ datasetId: "polygon-surface", bbox: [9, 1, 10, 2] })).rows.map(row => row.id)).toEqual(["crosses", "donut", "touches"]);
+
+    const multiExecutor = new QueryExecutor([{ descriptor: surface("multipolygon-surface", "MultiPolygon", "generalized", false), allowedParameters: {}, read: read([
+      { id: "second-part", geometry: { type: "MultiPolygon", coordinates: [
+        [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
+        [[[8, 8], [9, 8], [9, 9], [8, 9], [8, 8]]],
+      ] } },
+    ]) }]);
+    expect((await multiExecutor.execute({ datasetId: "multipolygon-surface", bbox: [8.2, 8.2, 8.8, 8.8] })).rows.map(row => row.id)).toEqual(["second-part"]);
+    expect(multiExecutor.describe("multipolygon-surface")!.geometry.spatialAnalysisEligible).toBe(false);
+    expect(() => assertDatasetDescriptor(surface("proxy-surface", "Polygon", "proxy", false))).not.toThrow();
+  });
+
+  it("fails closed when a bbox-enabled surface row is malformed or exceeds the geometry budget", async () => {
+    const surface = base({
+      datasetId: "invalid-surface", kind: "polygon", recordGrain: "feature", primaryKey: ["id"],
+      fields: [{ name: "id", type: "string", nullable: false, nullMeaning: null, unit: null }, { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null }],
+      geometry: { type: "Polygon", crs: "EPSG:4326", role: "actual", precision: "fixture", spatialAnalysisEligible: true },
+      access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id", "geometry"], filters: ["id"], supportsBbox: true, maxRowsPerQuery: 50, maxScanRows: 100 }),
+    });
+    const result = (geometry: unknown) => new QueryExecutor([{ descriptor: surface, allowedParameters: {}, read: async () => ({ rows: [{ id: "surface", geometry }], sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown" as const, exclusions: {}, rowsScanned: 1, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null }) }]);
+    await expect(result({ type: "Polygon", coordinates: [[[0, 0], [1, 0], [1, 1], [0, 1]]] }).execute({ datasetId: "invalid-surface", bbox: [0, 0, 1, 1] })).rejects.toThrow("UNSUPPORTED_OR_INVALID_SPATIAL_GEOMETRY");
+    const vertices = Array.from({ length: 200_001 }, () => [0, 0] as [number, number]);
+    await expect(result({ type: "Polygon", coordinates: [vertices] }).execute({ datasetId: "invalid-surface", bbox: [0, 0, 1, 1] })).rejects.toThrow("SPATIAL_VERTEX_BUDGET_EXCEEDED");
+  });
+
   it("rejects adapter rows that violate required fields, geometry, or statistic null semantics", async () => {
     const missingId = new QueryExecutor([createPointDatasetAdapter(schools, async () => ({ rows: [{ name: "無代碼", city: null, geometry: { type: "Point", coordinates: [121, 25] } }], source: source("schools", "v1"), coverage: "unknown" }))]);
     await expect(missingId.execute({ datasetId: "tw-schools" })).rejects.toThrow("INVALID_ADAPTER_ROW");
@@ -159,4 +233,22 @@ it("evicts only least-recent dynamic readers while stored snapshots remain indep
   expect(captured.materializedRows).toEqual([{ id: "one" }]);
   executor.register(adapterFor("layer:source-1"));
   await expect(executor.execute({ datasetId: "layer:source-1" })).resolves.toMatchObject({ totalMatched: 1 });
+});
+
+
+it("keeps complete surface geometry for analysis without returning it in default pages", async () => {
+  const descriptor = base({ datasetId: "surface", kind: "polygon",
+    fields: [...base({}).fields, { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null }],
+    geometry: { type: "Polygon", crs: "EPSG:4326", role: "actual", precision: "fixture", spatialAnalysisEligible: true },
+    access: boundedAccess({ mode: "public", method: "static_asset", fields: ["id", "geometry"], filters: ["id"], maxRowsPerQuery: 50, maxScanRows: 100 }),
+  });
+  const coordinates = Array.from({ length: 4000 }, (_, i) => [121 + 0.01 * Math.cos(i * 2 * Math.PI / 3999), 24 + 0.01 * Math.sin(i * 2 * Math.PI / 3999)]);
+  coordinates[3999] = coordinates[0]!;
+  const geometry = { type: "Polygon", coordinates: [coordinates] };
+  const executor = new QueryExecutor([{ descriptor, allowedParameters: {}, read: async () => ({ rows: [{ id: "area", geometry }], sourceRefs: [source("surface", "v1")], coverage: "fixture", freshness: "unknown", exclusions: {}, rowsScanned: 1, bytesScanned: null, downloadedBytes: null, requests: null, cacheHit: null, expiresAt: null }) }]);
+  const result = await executor.executeDetailed({ datasetId: "surface" });
+  expect(result.envelope.rows).toEqual([{ id: "area" }]);
+  expect(result.envelope.method.parameters.select).toEqual(["id"]);
+  expect(result.materializedRows[0]!.geometry).toEqual(geometry);
+  await expect(executor.executeDetailed({ datasetId: "surface", select: ["id", "geometry"] })).rejects.toThrow("RESULT_BYTE_BUDGET_EXCEEDED");
 });

@@ -7,7 +7,9 @@ describe("research discovery", () => {
     const result = discoverLayers("學校", 0, 20, context);
     expect(result.layers.some(layer => layer.key === "schools")).toBe(false);
     expect(describeLayer("schools", context)).toBeNull();
-    expect(describeLayer("eduSchoolElementary", context)?.dataReadSupport).toBe("not_provided_in_first_phase");
+    // playgrounds has no bespoke research dataset registered (unlike eduSchoolElementary, which later
+    // gained one in src/research/eduSchoolsOwnerDatasets.ts and became "readable" instead of "not_registered").
+    expect(describeLayer("playgrounds", context)?.dataReadSupport).toMatchObject({ status: "not_registered", queryEnabled: false, authorization: "unknown" });
   });
   it("returns local camera candidates without claiming a geocoder result", () => {
     const result = findPlaces("台北");
@@ -15,6 +17,14 @@ describe("research discovery", () => {
     expect(findPlaces("臺北 101").candidates).toEqual(expect.arrayContaining([expect.objectContaining({ id: "taipei-101", coordinates: { lng: 121.564781, lat: 25.033651 } })]));
     expect(findPlaces("台北車站").candidates).toEqual(expect.arrayContaining([expect.objectContaining({ id: "taipei-main-station", coordinates: { lng: 121.51436, lat: 25.04874 } })]));
   });
+});
+
+it("derives dataset IDs and release-selector requirements from the registered dataset contracts", () => {
+  expect(describeLayer("schools")?.datasetIds).toContain("tw-schools");
+  const statistics = describeLayer("statsEducationCountyStudentTeacherRatio");
+  expect(statistics?.datasetIds).toContain("regional-statistics:statsEducationCountyStudentTeacherRatio");
+  expect(statistics?.dataReadSupport).toMatchObject({ status: "parameters_required", queryEnabled: true, requiredParameters: ["releaseId"], authorization: "public" });
+  expect(describeLayer("statsEducationCountyStudentTeacherRatio", { locked: new Set(["statsEducationCountyStudentTeacherRatio"]), visible: new Set() })).toBeNull();
 });
 
 it("lists bounded catalogue pages and never describes prototype properties as layers", () => {

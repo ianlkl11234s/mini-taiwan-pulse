@@ -1471,8 +1471,8 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   civilDefenseShelter: boolean;       // 62,695 防空避難（PMTiles，z≥10 才顯示）
   aviationControl: boolean;           // ✈️ 飛航情報/終端管制（FIR 3 + TMA 6，FIR 只邊框）
   aviationRestricted: boolean;        // ⛔ 禁/限航 + 危險 + 機場管制（CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT 72）
-  droneNoFlyZone: boolean;            // 🚫 無人機禁航區 紅+未分類 5,633（共用 drone_restricted_zones.pmtiles）
-  droneRestrictedZone: boolean;       // ⚠️ 無人機限航區 黃 108（需申請）
+  droneNoFlyZone: boolean;            // 🚫 2026-06-30 歷史紅+未分類參考面 5,635（共用 drone_restricted_zones.pmtiles）
+  droneRestrictedZone: boolean;       // ⚠️ 2026-06-30 歷史黃區參考面 108
   // 警察覆蓋分析（isochrone PMTiles，帶 overlap_count）
   policeIsoSubstation: boolean;       // 派出所 isochrone（步行/開車 × 5/10 min）
   policeIsoPrecinct: boolean;         // 分局 isochrone（步行/開車 × 15/30 min）

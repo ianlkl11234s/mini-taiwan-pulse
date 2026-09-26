@@ -8,12 +8,66 @@ export type QueryHealth = { state: "retrying" | "offline" | "recovered" | "pause
 const QUERY_POLL_BASE_MS = 2_000;
 const QUERY_POLL_HIDDEN_MS = 10_000;
 export const MAX_QUERY_RESULT_BYTES = 256 * 1024;
+export const MAX_QUERY_RESULT_STRING_LENGTH = 32 * 1024;
+export const MAX_QUERY_RESULT_CONTAINER_ITEMS = 100;
+export const MAX_QUERY_RESULT_DEPTH = 12;
 // 8s retry + the BridgeClient's worst-case 8s request leaves 9s before its 25s wait.
 const QUERY_POLL_MAX_MS = 8_000;
 
 export function queryPollDelay(failures: number, visibility: DocumentVisibilityState | "unknown" = "unknown"): number {
   const failureDelay = Math.min(QUERY_POLL_MAX_MS, QUERY_POLL_BASE_MS * (2 ** Math.max(0, failures)));
   return Math.max(failureDelay, visibility === "hidden" ? QUERY_POLL_HIDDEN_MS : QUERY_POLL_BASE_MS);
+}
+
+/** Must stay aligned with the Gateway's validResult guard to avoid retrying INVALID_INPUT. */
+export function validQueryResultData(value: unknown, depth = 0): boolean {
+  if (value === null || typeof value === "boolean") return true;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "string") return value.length <= MAX_QUERY_RESULT_STRING_LENGTH;
+  if (Array.isArray(value)) return depth < MAX_QUERY_RESULT_DEPTH && value.length <= MAX_QUERY_RESULT_CONTAINER_ITEMS && value.every(item => validQueryResultData(item, depth + 1));
+  if (!value || typeof value !== "object") return false;
+  const object = value as Record<string, unknown>;
+  const entries = Object.entries(object);
+  return depth < MAX_QUERY_RESULT_DEPTH && entries.length <= MAX_QUERY_RESULT_CONTAINER_ITEMS && entries.every(([, item]) => validQueryResultData(item, depth + 1));
+}
+
+function recoverableTransportResult(data: Record<string, unknown>): QueryResult {
+  const resultId = typeof data.resultId === "string" && /^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$/.test(data.resultId) ? data.resultId : null;
+  return resultId
+    ? { ok: true, data: { resultId, recoverable: true, error: "RESULT_NOT_TRANSPORTABLE", recovery: "get_analysis_result" } }
+    : { ok: false, error: "RESULT_TOO_LARGE" };
+}
+
+/**
+ * Geometry is available from the browser-session result store. Only compact
+ * top-level result-page rows for transport; do not recursively alter unknown
+ * nested metadata or the stored analysis geometry.
+ */
+function compactRowGeometries(data: Record<string, unknown>): Record<string, unknown> {
+  if (!Array.isArray(data.rows)) return data;
+  let changed = false;
+  const rows = data.rows.map(row => {
+    if (!row || typeof row !== "object" || Array.isArray(row)) return row;
+    const record = row as Record<string, unknown>;
+    const geometry = record.geometry;
+    if (!geometry || typeof geometry !== "object" || Array.isArray(geometry) || !("coordinates" in geometry)) return row;
+    const geometryType = Reflect.get(geometry, "type");
+    const type = typeof geometryType === "string" ? geometryType : "unknown";
+    changed = true;
+    return { ...record, geometry: { type, coordinatesOmitted: true } };
+  });
+  return changed ? { ...data, rows } : data;
+}
+
+function isTransportable(result: QueryResult): boolean {
+  return new TextEncoder().encode(JSON.stringify(result)).byteLength <= MAX_QUERY_RESULT_BYTES
+    && (!result.ok || validQueryResultData(result.data));
+}
+
+/** Validate the JSON wire representation: object undefined fields are omitted and array holes become null. */
+function toWireResult(result: QueryResult): QueryResult | null {
+  try { return JSON.parse(JSON.stringify(result)) as QueryResult; }
+  catch { return null; }
 }
 
 /** Single-flight tab reader. Reads never apply a scene or run user-supplied code. */
@@ -62,7 +116,12 @@ export class QueryResponder {
           const message = error instanceof Error ? error.message : "QUERY_FAILED";
           result = { ok: false, error: /^[A-Z_]{1,64}$/.test(message) ? message : "QUERY_FAILED" };
         }
-        if (new TextEncoder().encode(JSON.stringify(result)).byteLength > MAX_QUERY_RESULT_BYTES) result = { ok: false, error: "RESULT_TOO_LARGE" };
+        const wireResult = toWireResult(result);
+        result = wireResult ?? { ok: false, error: "RESULT_TOO_LARGE" };
+        if (!isTransportable(result)) {
+          const compacted = result.ok ? { ok: true as const, data: compactRowGeometries(result.data) } : result;
+          result = isTransportable(compacted) ? compacted : result.ok ? recoverableTransportResult(result.data) : { ok: false, error: "RESULT_TOO_LARGE" };
+        }
         if (!this.stopped) this.last = { id: request.requestId, result };
       }
       if (!this.stopped && request.expiresAt > Date.now()) {

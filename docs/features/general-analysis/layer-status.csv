@@ -1,0 +1,795 @@
+layer_key,label,panel,theme,source_kind,upstream_status,dataset_ids,warehouse_tables,geometry,updated,coverage,l1_operable,l2_analysis,l2_via,l3_precision,owner_only,blocker,description
+statsComparisonBusAccessibleSharePct,無障礙公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBusElectricSharePct,電動公車占營業車比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingUnoccupiedSharePctCounty,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingUnoccupiedSharePctTownship,無人經常居住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingOccasionalSharePctCounty,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingOccasionalSharePctTownship,偶爾自住住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingOtherUseSharePctCounty,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingOtherUseSharePctTownship,其他使用住宅占總住宅比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty,有人居住住宅中的混合用途占比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityNationalSharePct,農業生產設施用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyTotalHectare,農業生產設施用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyNationalSharePct,農業生產設施用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityTownshipOfCountySharePct,農業生產設施用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandNationalSharePct,機場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandCountyTotalHectare,機場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandCountyNationalSharePct,機場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAirportLandTownshipOfCountySharePct,機場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandNationalSharePct,水產養殖用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandCountyTotalHectare,水產養殖用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandCountyNationalSharePct,水產養殖用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAquacultureLandTownshipOfCountySharePct,水產養殖用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestNationalSharePct,竹林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestCountyTotalHectare,竹林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestCountyNationalSharePct,竹林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBambooForestTownshipOfCountySharePct,竹林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestNationalSharePct,闊葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestCountyTotalHectare,闊葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestCountyNationalSharePct,闊葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonBroadleafForestTownshipOfCountySharePct,闊葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestNationalSharePct,針葉林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestCountyTotalHectare,針葉林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestCountyNationalSharePct,針葉林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonConiferForestTownshipOfCountySharePct,針葉林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldNationalSharePct,旱田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldCountyTotalHectare,旱田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldCountyNationalSharePct,旱田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonDryFieldTownshipOfCountySharePct,旱田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingNationalSharePct,畜禽舍用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingCountyTotalHectare,畜禽舍用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingCountyNationalSharePct,畜禽舍用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonLivestockBuildingTownshipOfCountySharePct,畜禽舍用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestNationalSharePct,混合林用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestCountyTotalHectare,混合林用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestCountyNationalSharePct,混合林用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonMixedForestTownshipOfCountySharePct,混合林用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonOrchardNationalSharePct,果園用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonOrchardCountyTotalHectare,果園用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonOrchardCountyNationalSharePct,果園用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonOrchardTownshipOfCountySharePct,果園用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandNationalSharePct,水田用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandCountyTotalHectare,水田用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandCountyNationalSharePct,水田用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPaddyLandTownshipOfCountySharePct,水田用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPastureNationalSharePct,牧場用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPastureCountyTotalHectare,牧場用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPastureCountyNationalSharePct,牧場用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPastureTownshipOfCountySharePct,牧場用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPortLandNationalSharePct,港口用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPortLandCountyTotalHectare,港口用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPortLandCountyNationalSharePct,港口用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonPortLandTownshipOfCountySharePct,港口用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRailLandNationalSharePct,鐵路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRailLandCountyTotalHectare,鐵路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRailLandCountyNationalSharePct,鐵路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRailLandTownshipOfCountySharePct,鐵路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandNationalSharePct,道路用地面積－鄉鎮占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandCountyTotalHectare,道路用地面積－縣市面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandCountyNationalSharePct,道路用地面積－縣市占全臺同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonRoadLandTownshipOfCountySharePct,道路用地面積－鄉鎮占所屬縣市同類比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAcuteBedTotalPer10000PopulationTownship,急性病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospiceBedTotalPer10000PopulationTownship,安寧病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospitalBedTotalPer10000PopulationTownship,醫院病床總數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHospitalCountPer10000PopulationTownship,醫院家數（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonIcuBedTotalPer10000PopulationTownship,加護病床（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2024 年原始醫療統計；分母為 2024 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonHealthProfessionalTotalPer10000PopulationTownship,醫院醫事人員總計（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonRegisteredNurseCountPer10000PopulationTownship,醫院護理師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonWesternPhysicianCountPer10000PopulationTownship,醫院西醫師（每萬人口）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分子為 2025 年原始醫療統計；分母為 2025 年12月底戶籍人口，兩者觀察時點分別保留。
+statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County,一般護理之家開放床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,65歲以上人口依年齡組加總，僅取總計或男女各一次。
+statsComparisonCareWorkerRegistrationCountPer65plus1000County,照顧服務員登錄數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,65歲以上人口依年齡組加總，僅取總計或男女各一次。
+statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County,產後護理之家開放護理床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
+statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County,產後護理之家開放嬰兒床數（人口比較）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,床位供給相對同年出生流量的 proxy；不是使用率或涵蓋率。
+statsComparisonA2AccidentCount,A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonA2InjuryCount,A2 事故受傷人數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonA1A2AccidentCount,A1＋A2 事故件數,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,依來源口徑推算；缺值不補零。
+statsComparisonAgriculturalFacilityCountyAreaSharePct,農業生產設施用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAgriculturalFacilityCountyLq,農業生產設施用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct,農業生產設施用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandCountyAreaSharePct,機場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandCountyLq,機場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAirportLandTownshipAdminAreaSharePct,機場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandCountyAreaSharePct,水產養殖用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandCountyLq,水產養殖用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAquacultureLandTownshipAdminAreaSharePct,水產養殖用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestCountyAreaSharePct,竹林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestCountyLq,竹林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBambooForestTownshipAdminAreaSharePct,竹林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestCountyAreaSharePct,闊葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestCountyLq,闊葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonBroadleafForestTownshipAdminAreaSharePct,闊葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestCountyAreaSharePct,針葉林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestCountyLq,針葉林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonConiferForestTownshipAdminAreaSharePct,針葉林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldCountyAreaSharePct,旱田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldCountyLq,旱田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonDryFieldTownshipAdminAreaSharePct,旱田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingCountyAreaSharePct,畜禽舍用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingCountyLq,畜禽舍用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonLivestockBuildingTownshipAdminAreaSharePct,畜禽舍用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestCountyAreaSharePct,混合林用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestCountyLq,混合林用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonMixedForestTownshipAdminAreaSharePct,混合林用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardCountyAreaSharePct,果園用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardCountyLq,果園用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonOrchardTownshipAdminAreaSharePct,果園用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandCountyAreaSharePct,水田用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandCountyLq,水田用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPaddyLandTownshipAdminAreaSharePct,水田用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureCountyAreaSharePct,牧場用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureCountyLq,牧場用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPastureTownshipAdminAreaSharePct,牧場用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandCountyAreaSharePct,港口用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandCountyLq,港口用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonPortLandTownshipAdminAreaSharePct,港口用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandCountyAreaSharePct,鐵路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandCountyLq,鐵路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRailLandTownshipAdminAreaSharePct,鐵路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandCountyAreaSharePct,道路用地面積－占縣市行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandCountyLq,道路用地面積－縣市相對集中度 LQ,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,1 為同類面積密度等於全臺368鄉鎮範圍平均；高於1較集中 113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonRoadLandTownshipAdminAreaSharePct,道路用地面積－占鄉鎮行政面積,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,113–114年土地調查與114年底行政面積分別保留；不宣稱同一測量時點
+statsComparisonAcuteBedTotalPerKm2Township,急性病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospiceBedTotalPerKm2Township,安寧病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospitalBedTotalPerKm2Township,醫院病床總數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHospitalCountPerKm2Township,醫院家數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonIcuBedTotalPerKm2Township,加護病床（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonHealthProfessionalTotalPerKm2Township,醫院醫事人員總計（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonRegisteredNurseCountPerKm2Township,醫院護理師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonWesternPhysicianCountPerKm2Township,醫院西醫師（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,資源空間密度；不是旅行可達性、服務品質或即時空床
+statsComparisonLivestockHeadsPerFarmTownship,畜禽每場在養數量,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,同畜種同季在養數除以有報告場數；遮蔽、未報告與零場數不可計算，僅代表可配對鄉鎮。
+statsComparisonFisheryProductionTonnesNationalSharePctCounty,漁業生產量－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
+statsComparisonFisheryValueThousandNationalSharePctCounty,漁業生產值－縣市占全臺比,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,分母由完整22縣市同類觀察值加總；不是獨立官方全國總計。不同魚種組成與產值價格仍需分別理解。
+statsComparisonEducationClassCountPer10000Residents,班級數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationClassCountPerKm2,班級數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationInstitutionCountPer10000Residents,機構或學校數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationInstitutionCountPerKm2,機構或學校數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStaffCountPer10000Residents,職員數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStaffCountPerKm2,職員數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStudentCountPer10000Residents,學生或幼生數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationStudentCountPerKm2,學生或幼生數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationTeacherCountPer10000Residents,教師數（每萬名居民）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonEducationTeacherCountPerKm2,教師數（每平方公里）,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全體居民口徑的規模比較；不是學齡涵蓋率、就學率或教育品質 教育114學年度與2025年底人口/面積時點不同，分別保留
+statsComparisonBusOperatingRouteLengthKmPer10000Residents,期末營業里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingRouteLengthKmPerKm2,期末營業里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusApprovedRouteCountPer10000Residents,核定路線數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusApprovedRouteCountPerKm2,核定路線數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonUrbanBusOperatorCountPer10000Residents,市區客運業家數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonUrbanBusOperatorCountPerKm2,市區客運業家數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleCountPer10000Residents,期末營業車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleCountPerKm2,期末營業車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusAccessibleVehicleCountPer10000Residents,期末無障礙車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusAccessibleVehicleCountPerKm2,期末無障礙車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusElectricVehicleCountPer10000Residents,期末電動車輛－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusElectricVehicleCountPerKm2,期末電動車輛－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingTripCountPer10000Residents,營業行車次數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingTripCountPerKm2,營業行車次數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleKmPer10000Residents,營業行車里程－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonBusOperatingVehicleKmPerKm2,營業行車里程－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,營運／建置量相對居民或面積；不是個人實際使用率 分子年度流量或年末存量依原資料，分母2025年底
+statsComparisonAutomobileLicenseHoldersCountPer10000Residents,領有汽車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonAutomobileRegisteredCountPer10000Residents,汽車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonMotorcycleLicenseHoldersCountPer10000Residents,領有機車駕照人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonMotorcycleRegisteredCountPer10000Residents,機車登記數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路外停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents,小型汽車路邊停車位－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1AccidentCountPer10000Residents,A1交通事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1AccidentCountPerKm2,A1交通事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1DeathCountPer10000Residents,A1交通事故死亡人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1DeathCountPerKm2,A1交通事故死亡人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1InjuryCountPer10000Residents,A1交通事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1InjuryCountPerKm2,A1交通事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteRecyclingVehiclesPer10000Residents,資源（含廚餘）回收車輛數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteRecyclingVehiclesPerKm2,資源（含廚餘）回收車輛數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteTotalVehiclesPer10000Residents,垃圾清運車輛總數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonWasteTotalVehiclesPerKm2,垃圾清運車輛總數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,供給存量相對居民，非使用率、適齡持照率或服務品質。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2AccidentCountPer10000Residents,A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2AccidentCountPerKm2,A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2InjuryCountPer10000Residents,A2 事故受傷人數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA2InjuryCountPerKm2,A2 事故受傷人數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1A2AccidentCountPer10000Residents,A1＋A2 事故件數－每萬名居民,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsComparisonA1A2AccidentCountPerKm2,A1＋A2 事故件數－每平方公里,臺灣圖層,統計比較,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,每萬居民事件／傷亡負擔，不是每趟行程、每輛車或車公里風險。 分子年度流量或年底存量依原資料；分母同年年底。
+statsPaddyLandAreaTownship,水田用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse+browser,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsDryFieldAreaTownship,旱田用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsOrchardAreaTownship,果園用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsAgriculturalFacilityAreaTownship,農業生產設施用地面積,統計,農業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsLivestockBuildingAreaTownship,畜禽舍用地面積,統計,畜牧統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsPastureAreaTownship,牧場用地面積,統計,畜牧統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsAquacultureLandAreaTownship,水產養殖用地面積,統計,漁業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsConiferForestAreaTownship,針葉林用地面積,統計,林業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsBroadleafForestAreaTownship,闊葉林用地面積,統計,林業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsBambooForestAreaTownship,竹林用地面積,統計,林業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsMixedForestAreaTownship,混合林用地面積,統計,林業統計,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsRoadLandAreaTownship,道路用地面積,統計,交通統計 Transport Statistics,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsRailLandAreaTownship,鐵路用地面積,統計,交通統計 Transport Statistics,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsAirportLandAreaTownship,機場用地面積,統計,交通統計 Transport Statistics,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsPortLandAreaTownship,港口用地面積,統計,交通統計 Transport Statistics,custom,verified,land_use_township_statistics,,,2024-01-01,,yes,statistics,warehouse,,,,115年1月統計參考版，113–114年調查；368鄉鎮完整。圖形採1140318參考界線，無面積重分配；不宣稱版本相同。
+statsCropPlantedAreaTownship,作物種植面積,統計,農業統計,custom,verified,crop_township_statistics,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,行政區統計值依reference boundary呈現；不是設施geometry。
+statsCropHarvestedAreaTownship,作物收穫面積,統計,農業統計,custom,verified,crop_township_statistics,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,行政區統計值依reference boundary呈現；不是設施geometry。
+statsCropProductionTownship,作物收量,統計,農業統計,custom,verified,crop_township_statistics,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,行政區統計值依reference boundary呈現；不是設施geometry。
+statsCropYieldTownship,每公頃收穫量,統計,農業統計,custom,verified,crop_township_statistics,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,行政區統計值依reference boundary呈現；不是設施geometry。
+statsFisheryProductionCounty,漁業生產量,統計,漁業統計,custom,verified,fishery_stats,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,既有2026-05-27本地快照重用；未更新production。只開2015後且raw逐值一致的資料；總計不與子類相加。
+statsFisheryProductionValueCounty,漁業生產值,統計,漁業統計,custom,verified,fishery_stats,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,既有2026-05-27本地快照重用；未更新production。只開2015後且raw逐值一致的資料；總計不與子類相加。
+statsAquacultureAreaCounty,水產養殖面積,統計,漁業統計,custom,verified,fishery_stats,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,既有2026-05-27本地快照重用；未更新production。只開2015後且raw逐值一致的資料；總計不與子類相加。
+statsLivestockFarmCountTownship,畜禽飼養場數,統計,畜牧統計,custom,verified,livestock_township_statistics,,,2026-01-01,,yes,statistics,warehouse,,,,僅顯示官方明示鄉鎮值。`*` 為 suppressed；`-` 為 not_reported，兩者均非 0；總計列已排除，且不由可見鄉鎮值回推縣市。
+statsLivestockHeadCountTownship,畜禽在養數量,統計,畜牧統計,custom,verified,livestock_township_statistics,,,2026-01-01,,yes,statistics,warehouse,,,,僅顯示官方明示鄉鎮值。`*` 為 suppressed；`-` 為 not_reported，兩者均非 0；總計列已排除，且不由可見鄉鎮值回推縣市。
+statsEducationCountyInstitutionCount,機構或學校數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyTeacherCount,教師數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStaffCount,職員數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStudentCount,學生或幼生數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyClassCount,班級數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountySmallSchoolCount,12班以下學校數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountySmallSchoolSharePct,12班以下學校占比,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStudentTeacherRatio,生師比,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStudentsPerClass,每班學生數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStudentYearChange,學生或幼生年增減數,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsEducationCountyStudentYearChangePct,學生或幼生年增減率,臺灣圖層,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse+browser,,,,統計按學校所在地。display geometry is COUNTY_MOI_1140318 local reference; source has no native geometry id. 幼兒園 legacy/current schema 分開選擇，不跨 schema 
+statsHealthHospitalCount,醫院家數,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthHospitalBedTotal,醫院病床總數,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthAcuteBedTotal,急性病床,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthIcuBedTotal,加護病床,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthHospiceBedTotal,安寧病床,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthHealthProfessionalTotal,醫院醫事人員總計,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthWesternPhysicianCount,醫院西醫師,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthRegisteredNurseCount,醫院護理師,統計,醫療與長照統計,custom,verified,medical_resource_statistics,,,2025-01-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthNursingStaffListedAgeSexSum,一般護理之家列示護理人員欄位加總,統計,醫療與長照統計,custom,verified,nursing_workforce_statistics,,,2025-12-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthCareWorkerListedSexSum,一般護理之家列示照服員欄位加總,統計,醫療與長照統計,custom,verified,nursing_workforce_statistics,,,2025-12-01,,yes,statistics,warehouse+browser,,,,病床為設置容量、非空床；列示人力欄位只表達官方欄位和，不宣稱全體不重複人數。未列或原始 - 均非零。
+statsHealthGeneralNursingHomeOpenBeds,一般護理之家開放床數,統計,醫療與長照統計,custom,verified,nursing_facility_capacity,,,2025-12-01,,yes,statistics,warehouse+browser,,,,長照相關住宿護理容量；原始欄位口徑；床數保留官方「一般護理之家-開放床數」欄位口徑，並非即時空床或使用床數。
+statsHealthPostpartumNursingHomeOpenBeds,產後護理之家開放護理床數,統計,醫療與長照統計,custom,verified,nursing_facility_capacity,,,2025-12-01,,yes,statistics,warehouse+browser,,,,母嬰照護；不得作為高齡長照床位；床數保留官方「產後護理床-開放床數」欄位口徑，並非即時空床或使用床數。
+statsHealthPostpartumNursingHomeOpenInfantBeds,產後護理之家開放嬰兒床數,統計,醫療與長照統計,custom,verified,nursing_facility_capacity,,,2025-12-01,,yes,statistics,warehouse+browser,,,,母嬰照護；不得作為高齡長照床位；床數保留官方「護理類-嬰兒床-開放床數」欄位口徑，並非即時空床或使用床數。
+statsHealthCareWorkerRegistration,照顧服務員登錄數,統計,醫療與長照統計,custom,verified,care_worker_registration_statistics,,,2024-01-01,,yes,statistics,warehouse+browser,,,,113 年長照照顧服務員登錄數。縣市與全國均不歸人；不是不重複人數，各職類可能重複；涵蓋多類長照機構及相關機構，排除 C 據點。官方 CSV 無全國列，前端不顯示自行補造的全國值。
+statsHealthMedicalInstitutionBedsPer10000Population,醫療院所每萬人口病床數,統計,醫療與長照統計,custom,verified,medical_percapita_statistics,,,2025-12-31,,yes,statistics,warehouse+browser,,,,此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。
+statsHealthPracticingMedicalPersonnelPer10000Population,機構每萬人口執業醫事人員數,統計,醫療與長照統計,custom,verified,medical_percapita_statistics,,,2025-12-31,,yes,statistics,warehouse+browser,,,,此為官方原生縣市每萬人口率。病床為醫療院所病床數，非既有醫院子集；人力為機構執業醫事人員，非不重複就業人口。
+statsHousingTotalCounty,住宅總數（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingOccupiedCounty,有人經常居住住宅（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingUnoccupiedCounty,無人經常居住住宅（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingOccasionalCounty,偶爾自住住宅（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingOtherUseCounty,自住以外用途住宅（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingUnusedCounty,目前沒有使用住宅（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingResidenceOnlyCounty,有人居住住宅－住宅專用（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingMixedUseCounty,有人居住住宅－兼農工服務業用（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingOccupiedPctCounty,經常居住住宅占比（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingUnusedPctCounty,目前未使用住宅占比（縣市）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。
+statsHousingTotalTownship,住宅總數（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingOccupiedTownship,有人經常居住住宅（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingUnoccupiedTownship,無人經常居住住宅（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingOccasionalTownship,偶爾自住住宅（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingOtherUseTownship,自住以外用途住宅（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingUnusedTownship,目前沒有使用住宅（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingOccupiedPctTownship,經常居住住宅占比（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsHousingUnusedPctTownship,目前未使用住宅占比（鄉鎮市區）,統計,住宅存量與使用,custom,verified,housing_use_statistics,,,2020-11-08,,yes,statistics,warehouse+browser,,,,109年普查標準日2020-11-08之住宅使用。歷史快照非即時空屋、非低度用電住宅；無人經常居住含偶爾自住與其他用途，不能全稱空屋。新竹縣13筆來源中文縣名前綴錯誤已依段落、英文地名及縣市總量核對修正。
+statsEducationPreschoolSchool,幼兒園－學校端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationPreschoolTeacher,幼兒園－老師端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationPreschoolStudent,幼兒園－學生端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationElementarySchool,國小－學校端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationElementaryTeacher,國小－老師端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationElementaryStudent,國小－學生端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationJuniorHighSchool,國中－學校端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationJuniorHighTeacher,國中－老師端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationJuniorHighStudent,國中－學生端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationSeniorHighSchool,高中－學校端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationSeniorHighTeacher,高中－老師端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsEducationSeniorHighStudent,高中－學生端,統計,教育與少子化統計,custom,verified,education_county_statistics,,,2025-08-01,,yes,statistics,warehouse,,,,固定學制 view；指標只可切換至產品矩陣列出的既有公開 selector，缺值不補零。
+statsMaritimeSubsidyCounty,航港局獎補助金額（受補助對象所在地）,統計,交通統計 Transport Statistics,custom,verified,maritime_bureau_subsidy_county,,,2026-07-01,,yes,statistics,warehouse,,,,依受補助對象所在地彙總的航港局獎補助金額；不是工程地、港口投資地或最終受益地。PARTIAL coverage、未分配金額與缺值會明確揭露。
+statsCivilAeronauticsSubsidyCounty,民航局獎補助費（受補助對象所在地）,統計,交通統計 Transport Statistics,custom,verified,civil_aeronautics_subsidy_county,,,2023-01-01,,yes,statistics,warehouse,,,,112Q4 年度累計歷史快照，依受補助對象所在地縣市呈現；不是機場、工程或實際受益地。不得跨預算類型或期別合計。
+statsTaipeiTrafficViolationCitations,臺北市交通違規舉發筆數（法條）,統計,交通統計 Transport Statistics,custom,verified,taipei_traffic_violation_citations_135096,,,2025-01-01,,yes,statistics,warehouse,,,,臺北市法條分類交通違規舉發筆數；其餘縣市為缺資料，法條間不得相加推論唯一事件或人數。
+statsTaichungRoadNoiseMonitoringStations,臺中市道路交通噪音監測站數,統計,交通統計 Transport Statistics,custom,verified,taichung_road_noise_monitoring_stations_89477,,,2024-07-01,,yes,statistics,warehouse,,,,臺中市道路交通噪音監測站數，依管制區類別呈現；不是不合格站數、噪音均值或暴露人口。
+statsBusOperatingRouteLengthKm,期末營業里程,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運期末營業里程；不是即時路況、乘客量或唯一線路數。
+statsBusApprovedRouteCount,核定路線數,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運核定路線數；不是即時路況、乘客量或唯一線路數。
+statsUrbanBusOperatorCount,市區客運業家數,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運業家數；不是即時路況、乘客量或唯一線路數。
+statsBusOperatingVehicleCount,期末營業車輛,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運期末營業車輛；不是即時路況、乘客量或唯一線路數。
+statsBusAccessibleVehicleCount,期末無障礙車輛,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運期末無障礙車輛；不是即時路況、乘客量或唯一線路數。
+statsBusElectricVehicleCount,期末電動車輛,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse,,,,114 年縣市市區客運期末電動車輛；7 縣市來源為缺資料，非零。
+statsBusOperatingTripCount,營業行車次數,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運營業行車次數；不是不重複乘客或唯一事件。
+statsBusOperatingVehicleKm,營業行車里程,統計,交通統計 Transport Statistics,custom,verified,segis_bus_operation_county_315fh_1d3,,,2025-01-01,,yes,statistics,warehouse+browser,,,,114 年縣市市區客運營業行車里程；不是即時路況、乘客量或唯一線路數。
+statsTmrtStationOutboundCounty,中捷車站所在地出站人次,統計,交通統計 Transport Statistics,custom,verified,tmrt_station_outbound_county,,,2025-12-01,,yes,statistics,warehouse,,,,中捷車站所在地出站人次歷史快照；不是不重複旅客、居民旅運或全市旅次。
+statsTaipeiUrbanRentalStations,市區自行車租借站數,統計,交通統計 Transport Statistics,custom,verified,segis_taipei_bicycle_usage_township_110,,,2021-01-01,,yes,statistics,warehouse,,,,110 年臺北市 12 區市區自行車租借站數；不是即時站點、車輛可用量或全臺統計。
+statsTaipeiUrbanRentalTrips,市區自行車年租借次數,統計,交通統計 Transport Statistics,custom,verified,segis_taipei_bicycle_usage_township_110,,,2021-01-01,,yes,statistics,warehouse,,,,110 年臺北市 12 區市區自行車年租借人次；不是不重複騎士或即時旅次。
+statsTaipeiRiversideRentalStations,河濱公園租借站數,統計,交通統計 Transport Statistics,custom,verified,segis_taipei_bicycle_usage_township_110,,,2021-01-01,,yes,statistics,warehouse,,,,110 年臺北市 12 區河濱公園自行車租借站數；不是市區站數或即時服務狀態。
+statsTaipeiRiversideBicycles,河濱公園自行車數,統計,交通統計 Transport Statistics,custom,verified,segis_taipei_bicycle_usage_township_110,,,2021-01-01,,yes,statistics,warehouse,,,,110 年臺北市 12 區河濱公園自行車數；不是可租車輛即時庫存。
+statsTaipeiRiversideRentalTrips,河濱公園年租借次數,統計,交通統計 Transport Statistics,custom,verified,segis_taipei_bicycle_usage_township_110,,,2021-01-01,,yes,statistics,warehouse,,,,110 年臺北市 12 區河濱公園年租借人次；不是不重複騎士或即時旅次。
+statsA1AccidentCount,A1 交通事故件數,統計,交通統計 Transport Statistics,custom,verified,npa_a1_accident_county_177136,,,2025-01-01,,yes,statistics,warehouse,,,,114 年 A1 當場或 24 小時內死亡事故件數；不是全部交通事故。連江缺資料與未分配事件會揭露。
+statsA1DeathCount,A1 交通事故死亡人數,統計,交通統計 Transport Statistics,custom,verified,npa_a1_accident_county_177136,,,2025-01-01,,yes,statistics,warehouse,,,,114 年 A1 當場或 24 小時內死亡人數；不是全事故死亡或事故件數。連江缺資料與未分配人數會揭露。
+statsA1InjuryCount,A1 交通事故受傷人數,統計,交通統計 Transport Statistics,custom,verified,npa_a1_accident_county_177136,,,2025-01-01,,yes,statistics,warehouse,,,,114 年 A1 當場或 24 小時內死亡事故的受傷人數；不是全部交通事故傷者。連江缺資料與未分配人數會揭露。
+statsAirportTakeoffsLandings,機場所在地起降架次,統計,交通統計 Transport Statistics,custom,verified,caa_airport_activity_county_33238,,,2026-07-01,,yes,statistics,warehouse,,,,115 年 7 月各機場所在地起降架次；不是居民活動或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。
+statsAirportPassengerMovements,機場所在地旅客人次,統計,交通統計 Transport Statistics,custom,verified,caa_airport_activity_county_33238,,,2026-07-01,,yes,statistics,warehouse,,,,115 年 7 月各機場所在地旅客人次，含入境、出境與過境；不是居民或不重複旅客。PARTIAL coverage、望安未分配與恆春缺值會揭露。
+statsAirportCargoTonnes,機場所在地貨運量,統計,交通統計 Transport Statistics,custom,verified,caa_airport_activity_county_33238,,,2026-07-01,,yes,statistics,warehouse,,,,115 年 7 月各機場所在地貨運量；不是居民貨運或航空公司所在地。PARTIAL coverage、望安未分配與恆春缺值會揭露。
+statsTaoyuanAirportArrivals,桃園機場所在地入境旅客人次,統計,交通統計 Transport Statistics,custom,verified,taoyuan_airport_passengers_county_32997,,,2022-01-01,,yes,statistics,warehouse,,,,2022 年桃園機場所在地入境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。
+statsTaoyuanAirportDepartures,桃園機場所在地出境旅客人次,統計,交通統計 Transport Statistics,custom,verified,taoyuan_airport_passengers_county_32997,,,2022-01-01,,yes,statistics,warehouse,,,,2022 年桃園機場所在地出境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。
+statsTaoyuanAirportTransit,桃園機場所在地過境旅客人次,統計,交通統計 Transport Statistics,custom,verified,taoyuan_airport_passengers_county_32997,,,2022-01-01,,yes,statistics,warehouse,,,,2022 年桃園機場所在地過境旅客人次；僅桃園市有值，其餘縣市為缺資料，不是 0 或居民統計。
+statsTaoyuanAirportPassengerMovements,桃園機場所在地旅客人次總計,統計,交通統計 Transport Statistics,custom,verified,taoyuan_airport_passengers_county_32997,,,2022-01-01,,yes,statistics,warehouse,,,,2022 年桃園機場所在地旅客人次總計；這是總計欄位，不可再與入境、出境、過境指標相加。僅桃園市有值。
+statsOffstreetSmallCarParkingSpacesCount,小型汽車路外停車位,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的小型汽車路外停車位；不是道路流量或居民比率。
+statsOnstreetSmallCarParkingSpacesCount,小型汽車路邊停車位,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的小型汽車路邊停車位；不是道路流量或居民比率。
+statsMotorcycleRegisteredCount,機車登記數,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的機車登記數；不是居民比率或道路流量。
+statsAutomobileRegisteredCount,汽車登記數,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的汽車登記數；不是居民比率或道路流量。
+statsAutomobileLicenseHoldersCount,汽車駕照持有人數,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的汽車駕照持有人數；不是居民比率或道路流量。
+statsMotorcycleLicenseHoldersCount,機車駕照持有人數,統計,交通統計 Transport Statistics,custom,verified,dgbas_county_transport_supply_10935,,,2024-01-01,,yes,statistics,warehouse+browser,,,,縣市原生行政區統計的機車駕照持有人數；不是居民比率或道路流量。
+statsWaterSupplyHistorical,供水普及率（2015 年，7 縣市）,統計,水資源統計 Water Statistics,custom,verified,water_supply_county_historical,,,2015-01-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsPigWaterCounty,養豬用水量（歷史統計）,統計,水資源統計 Water Statistics,custom,verified,livestock_pig_water_county,,,2019-01-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsWasteRecyclingRate,一般廢棄物回收率,統計,廢棄物統計 Waste Statistics,custom,verified,waste_recycling_rate_county,,,2024-01-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsResidentialElectricity,住宅每月售電量,統計,能源統計 Energy Statistics,custom,verified,residential_electricity_sales_county_monthly,,,2026-06-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsRiceHarvest,全年稻作收穫面積（複種計次）,統計,農業統計 Agriculture Statistics,custom,verified,rice_harvested_area_township,,,2025-01-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsBirthsTownship,每月出生數（歷史快照）,統計,人口統計 Population Statistics,custom,verified,village_births_township_monthly,,,2022-01-01,,yes,statistics,warehouse,,,,依行政區與原始資料期別呈現；未收錄區域保留缺資料，來源與處理可展開查閱
+statsWasteCounty,垃圾清運車輛數,統計,廢棄物統計 Waste Statistics,custom,verified,waste_vehicles_county,,,2025-01-01,,yes,statistics,warehouse,,,,依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關
+statsRecyclingCounty,資源回收車輛數,統計,資源回收統計 Recycling Statistics,custom,verified,waste_vehicles_county,,,2025-01-01,,yes,statistics,warehouse,,,,依縣市與資料期別呈現原始統計值；與既有GIS圖層獨立開關
+cctv,道路攝影機 CCTV,臺灣圖層,交通 Move,geojson,verified,cctv,ds_transportation_cctv,POINT,2026-07-07,19 counties,yes,spatial,warehouse+browser,unknown,,,全台道路監視器點位（含即時影像連結）
+newsEvents,新聞事件 News Events,臺灣圖層,情勢 Situation,supabase,verified,layer2_polygon news_events,ds_intel_digest_news_events,POINT,2026-09-26,national,yes,spatial,warehouse+browser,proxy,,,新聞事件地理標定（分類著色 + 嚴重度篩選 + 時間漣漪）
+urbanZoningTaipei,北市土地使用分區 Taipei Zoning,臺灣圖層,底圖 Base Map,pmtiles,verified,urban_zoning_taipei,ds_urban_composite_urban_zoning_taipei,MULTIPOLYGON,2026-07-27,2 counties,yes,spatial,warehouse+browser,unknown,,,臺北市都市計畫土地使用分區（zone_category 9 類分色）
+rail,鐵道 Rail,臺灣圖層,交通 Move,custom,verified,rail,,,,,yes,none,,,,dataset_not_in_warehouse,台鐵／高鐵／捷運列車依時刻表推算的即時位置與軌道
+pollutionFacility,污染潛勢設施 Facility,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,環境部列管污染潛勢設施 152k 點（介質 × 嚴重度分色，列管≠污染）
+jpAccommodationCanonical,旅宿去重總覽 宿泊施設の統合一覧,日本,旅宿,custom,verified,jp_accommodation_canonical,,,,,yes,none,,,,dataset_not_in_warehouse,"日本旅宿保守去重總覽 25,961 entities；來源不等同權威合併，缺名／缺類型／缺 geometry 仍保留 null。"
+jpAccommodationDensity,旅宿密度網格 宿泊施設密度グリッド,日本,旅宿,pmtiles,verified,jp_accommodation_canonical,,,,,yes,none,,,,dataset_not_in_warehouse,Canonical 旅宿可繪點的 450m / 1.5km 非空網格；顏色表示格內旅宿數，不含 OSM 另一份 coverage。
+jpAccommodationJta,觀光廳登錄飯店／旅館 観光庁登録ホテル・旅館,日本,旅宿,custom,verified,jp_accommodation_jta,,,,,yes,none,,,,dataset_not_in_warehouse,"觀光廳《國際觀光ホテル整備法》登錄子集；40 筆 geometry miss 不補 0,0。"
+jpAccommodationLocal,地方旅館業許可 地方自治体の旅館業許可,日本,旅宿,custom,verified,jp_accommodation_local,,,,,yes,none,,,,dataset_not_in_warehouse,"地方政府旅館業許可首批 4,410 rows；coverage 限京都市、靜岡市、江東區。"
+jpAccommodationOsm,OpenStreetMap 住宿涵蓋 OpenStreetMap 宿泊施設カバレッジ,日本,旅宿,custom,verified,jp_accommodation_osm,,,,,yes,none,,,,dataset_not_in_warehouse,"OSM 住宿 20,502 elements；native point 與 feature center 精度分開顯示，ODbL。"
+jpNaturalParksNational,國立公園 国立公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 國立公園 outer polygons；非商用限制。
+jpNaturalParksQuasiNational,國定公園 国定公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 國定公園 outer polygons；非商用限制。
+jpNaturalParksPrefectural,都道府縣立自然公園 都道府県立自然公園（A10 2010）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A10 2010 historical 都道府縣立自然公園 outer polygons；非商用限制。
+jpNatureConservationArea,自然保育地域 自然保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 自然保全地域；HOLD_LICENSE。
+jpPrimitiveNatureEnvironmentArea,原生自然環境地域 原生自然環境保全地域（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 原生自然環境地域；HOLD_LICENSE、精度不保證。
+jpNatureConservationSpecialDistrict,自然保育特別地區 自然保全特別地区（A11 2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A11 2015 historical 自然保全特別地區；HOLD_LICENSE、精度不保證。
+jpWildlifeProtectionNational,國家指定鳥獸保護區 国指定鳥獣保護区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 國指定鳥獸保護區；LICENSE_UNVERIFIED。
+jpWildlifeSpecialProtectionDistrict,鳥獸特別保護地區 鳥獣保護区特別保護地区,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 鳥獸特別保護地區；LICENSE_UNVERIFIED。
+jpWildlifeSpecialProtectionDesignatedArea,鳥獸特別保護指定區域 特別保護指定区域,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,環境省 2025-04 鳥獸特別保護指定地域；LICENSE_UNVERIFIED。
+jpWorldHeritageCultural,UNESCO 文化遺產代表點 UNESCO 文化遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,UNESCO 現行文化遺產 22 rows；21 代表點、1 null，非遺產界線。
+jpWorldHeritageNatural,UNESCO 自然遺產代表點 UNESCO 自然遺産代表点,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,UNESCO 現行自然遺產 5 個代表點；非遺產界線。
+jpWorldNaturalHeritageHistorical,世界自然遺產歷史範圍 世界自然遺産の歴史的範囲（A28 2011）,日本,世界遺產,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,A28 historical 面僅 3 處；不等同 UNESCO 現行 5 處，非商用限制。
+jpRamsarSites,拉姆薩濕地名冊衍生點 ラムサール条約湿地名簿の派生点,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Ramsar 54 名冊衍生點；預設 10 個名稱命中，44 個低精度中心點需另切 filter。
+jpMarineEbsaCoastal,沿岸生態重要海域 沿岸EBSA（2015）,日本,自然保護,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,2015 沿岸 EBSA ecological reference；不是法定保護區。
+religionTemples,寺廟 Temples,臺灣圖層,宗教 Religion,pmtiles,verified,temples,ds_religion_temples,POINT,2026-08-21,national,yes,spatial,warehouse+browser,google_geocode,,,"全台登記寺廟 19,201 座（主祀神 deity_family 9 族分色）"
+religionChurches,教會 Churches,臺灣圖層,宗教 Religion,geojson,verified,churches,ds_religion_churches,POINT,2026-08-21,national,yes,spatial,warehouse+browser,google_geocode,,,"全台教會 2,116 處（含 OSM 補入的聚會點）"
+religionAncestralHalls,宗祠 Ancestral Halls,臺灣圖層,宗教 Religion,geojson,verified,ancestral_halls,ds_religion_ancestral_halls,POINT,2026-08-21,18 counties,yes,spatial,warehouse+browser,google_geocode,,,宗祠家廟 173 處（登記宗祠 / 宗親基金會 / 文資祠堂三類）
+religionFoundations,宗教基金會 Foundations,臺灣圖層,宗教 Religion,geojson,verified,foundations,ds_religion_foundations,POINT,2026-08-21,18 counties,yes,spatial,warehouse+browser,google_geocode,,,全國性宗教財團法人 165 處
+religionOtherWorship,其他宗教場所 Other Worship,臺灣圖層,宗教 Religion,geojson,verified,other_worship,ds_religion_other_worship,POINT,2026-08-02,national,yes,spatial,warehouse+browser,address_geocode,,,"清真寺／神社遺構／風獅爺等其他信仰場所 1,319 處（全 OSM 源）"
+religionTop100,宗教百景 Top 100,臺灣圖層,宗教 Religion,geojson,verified,top100,ds_religion_top100,POINT,2026-08-01,national,yes,spatial,warehouse+browser,unknown,,,內政部宗教百景 100 處精選（2026-08 由 tourReligion 更名歸位）
+funeralFacilities,殯葬設施 Facilities,臺灣圖層,殯葬 Funeral,geojson,verified,funeral_facilities_moi,ds_funeral_funeral_facilities_moi,POINT,2026-08-05,national,yes,spatial,warehouse+browser,google_geocode,,,"內政部殯葬設施名冊 3,707 點（殯儀館／火化場／納骨塔／公墓分類）"
+funeralOperators,禮儀業者 Operators,臺灣圖層,殯葬 Funeral,geojson,verified,funeral_operators_biz,ds_funeral_funeral_operators_biz,POINT,2026-08-05,national,yes,spatial,warehouse+browser,address_geocode,,,"殯葬禮儀服務業 6,233 家登記地（預設只畫營業中 4,569）"
+cemeteryOsm,墓區範圍 OSM Cemeteries,臺灣圖層,殯葬 Funeral,pmtiles,verified,cemetery_osm,ds_funeral_cemetery_osm,MULTIPOLYGON+POLYGON,2026-08-05,national,yes,spatial,warehouse+browser,unknown,,,"OSM 實地測繪墓區範圍 3,229 面（ODbL；僅 34.5% 有名稱）"
+cemeteryZoning,都計墓葬用地 Zoning（北北）,臺灣圖層,殯葬 Funeral,geojson,verified,cemetery_zoning_urban,ds_funeral_cemetery_zoning_urban,MULTIPOLYGON,2026-08-05,3 counties,yes,spatial,warehouse+browser,unknown,,,都市計畫墓葬類法定用地 114 面（僅臺北 12＋新北 102，非全國）
+funeralOperatorDensity,業者密度 Operator Density,臺灣圖層,殯葬 Funeral,custom,verified,funeral_operators_district,ds_funeral_funeral_operators_district,MULTIPOLYGON+POLYGON,2026-08-05,national,yes,spatial,warehouse,address_geocode,,,禮儀業者區級密度面量圖 325 區（⚠️ 是登記地家數，非服務涵蓋率）
+culturalFacilities,文化設施 Cultural Facilities,臺灣圖層,文化 Culture,geojson,verified,cultural_facilities_moc,ds_culture_cultural_facilities_moc,POINT,2026-07-16,national,yes,spatial,warehouse+browser,address_geocode,,,文化部文化設施全國 787 點（類型分色）
+culturalMuseums,地方文化館 Local Museums,臺灣圖層,文化 Culture,geojson,verified,local_cultural_museums_moc,ds_culture_local_cultural_museums_moc,POINT,2026-07-16,national,yes,spatial,warehouse+browser,google_geocode,,,地方文化館全國 252 點（社區型小型館舍，與文化設施分開計）
+artsEvents,藝文活動 Arts Events,臺灣圖層,文化 Culture,geojson,verified,arts_events_moc,ds_culture_arts_events_moc,POINT,2026-07-16,19 counties,yes,spatial,warehouse+browser,address_geocode,,,"文化部藝文活動全國 6,121 場（含展演期間，overlay filter 依當日篩選）"
+performingVenues,表演場館 Performing Venues,臺灣圖層,文化 Culture,geojson,verified,performing_venues_moc,ds_culture_performing_venues_moc,POINT,2026-07-16,national,yes,spatial,warehouse+browser,google_geocode,,,表演場館全國 857 點（劇場／音樂廳／展演空間）
+librarySeats,圖書館即時座位 Library Seats,臺灣圖層,文化 Culture,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,北市圖 6 分館即時空位率（29 閱覽區聚合，10 分鐘資料／5 分鐘輪詢）
+fireStations,消防分隊 Fire Station,臺灣圖層,消防 Fire & Rescue,geojson,verified,fire_stations,ds_fire_fire_stations,POINT,2026-07-10,national,yes,spatial,warehouse+browser,unknown,,,全台消防分隊據點（fireIsochrone 等時圈的計算起點）
+fireHydrants,消防栓 Hydrant,臺灣圖層,消防 Fire & Rescue,pmtiles,verified,hydrants,,,,,yes,browser_reader,browser,,,warehouse_SKIPPED_FORMAT,全台消防栓點位（量體大走 PMTiles 按需載入）
+fireEvents,火災歷史 Fire History,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,address_geocode,,,歷史火災點位（需進歷史模式選年／月／日）
+fireLatest,火災最新年度 Latest,臺灣圖層,消防 Fire & Rescue,custom,verified,fire_incidents,ds_fire_fire_incidents,POINT,2026-05-19,national,yes,spatial,warehouse,address_geocode,,,資料庫最新年度火災快照（不需切歷史模式，任何模式都可開）
+fireIsochrone,救援等時圈 Isochrone,臺灣圖層,消防 Fire & Rescue,custom,pulse_only,,,,,,yes,none,,,,derived_layer,消防分隊路網救援等時圈（5／10／15 分鐘環差，21 縣市＋全國聚合）
+urbanFormGrid,都市紋理網格 Urban Form,臺灣圖層,都市分析 Urban Analysis,pmtiles,verified,urban_form_grid,ds_urban_composite_urban_form_grid,POLYGON,2026-07-27,19 counties,yes,spatial,warehouse,unknown,,,"全台 500m 都市紋理網格 145,119 格（建物密度 × 樹冠覆蓋合成指標）"
+civilDefenseShelter,防空避難 Civil Defense Shelters,臺灣圖層,民防避難 Civil Defense,pmtiles,verified,civil_defense_shelters,ds_police_justice_civil_defense_shelters,POINT,2026-08-24,national,yes,spatial,warehouse+browser,address_geocode,,,全台防空避難處所（量體大且僅高倍率可見，z10 起載入）
+worldTrashDebris,垃圾與殘骸觀測 Trash & Debris Observations,世界,全球環境 Global Environment,custom,verified,trash_debris_outerview,ds_world_trash_debris_outerview,POINT,2026-07-19,unknown,yes,spatial,warehouse,unknown,,,Outerview 全球垃圾殘骸 ~25k 點（⚠️ 點密度是街景覆蓋度，不是垃圾分佈）
+coralReefDistribution,珊瑚礁歷史分布 Historical Coral Reefs,世界,全球環境 Global Environment,custom,verified,coral_reef_distribution,ds_marine_coral_reef_distribution,MULTIPOLYGON+POLYGON,2026-09-08,3 counties,yes,spatial,warehouse,unknown,,,全球暖水珊瑚礁歷史基線（v4.1，2021-03）；非健康、活珊瑚覆蓋率或白化。
+allenCoralAtlas,珊瑚礁棲地分類 Allen Coral Atlas（私人研究）,世界,全球環境 Global Environment,custom,verified,allen_coral_atlas,ds_marine_allen_coral_atlas,MULTIPOLYGON,2026-09-15,8 counties,yes,spatial,warehouse+browser,unknown,,,Allen Coral Atlas 5m 名目解析度淺海分類與礁體地形快照；© Allen Coral Atlas Partnership and Arizona State University，僅本人私人非商業研究。
+globalEvents,全球重大事件 Global Events,世界,全球情勢 Global Situation,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,全球情勢最近七天總覽與時間軸回放；同位置事件可展開，跨國弧線只表示事件關聯，不是移動軌跡
+aisstreamVessels,AISStream 船舶 AISStream Vessels,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,AISStream 最近 30 分鐘回報的船舶位置（視窗查詢；非全量船舶）
+gfwVesselPresence,GFW 舊版每日船舶 Historical Presence,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Global Fishing Watch 舊版每日 presence 歷史快照；不代表最新 release，也不是即時 AIS 或暗船清單
+gfwHourlyGrid,GFW 小時船舶網格 Hourly Grid,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,0.1° GFW 小時 vessel presence 格網；色階與透明度依船舶數連續插值，點擊列出格內完整船舶
+gfwHourlyTracks,GFW 小時近似航跡 Hourly Tracks,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW schema-4 小時船舶近似航跡；跟隨時間軸載入 H-1/H/H+1，六船種獨立選取、同座標完整聚合
+gfwFishingEffort,GFW 每日捕撈活動 Fishing Effort,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW 每日 apparent fishing effort sample；面積色階代表捕撈活動小時，不代表漁獲量、船數或違法性
+gfwDarkVessels,GFW SAR 未匹配 AIS Unmatched Detections,世界,全球海事 Global Maritime,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,GFW SAR 偵測未與 AIS 匹配的格網中心；非暗船、違法船或確認關 AIS 認定
+jpMedicalHospitals,醫院 病院,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,醫院 病院；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
+jpMedicalClinics,診所 診療所,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,診所 診療所；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
+jpMedicalDental,牙科 歯科,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,牙科 歯科；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
+jpMedicalMaternity,助產所 助産所,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,助產所 助産所；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
+jpMedicalPharmacies,藥局 薬局,日本,醫療設施,custom,verified,jp_medical_navii,,,,,yes,none,,,,dataset_not_in_warehouse,藥局 薬局；低縮放顯示守恆密度網格，zoom 8 起自動切換完整可繪點位
+jpCarePlanning,照護諮詢／計畫 介護の相談・ケアプラン,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,照護諮詢／計畫 介護の相談・ケアプラン；同址多筆服務登記不合併成唯一機構
+jpCareHomeVisit,到宅服務 自宅に訪問,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,到宅服務 自宅に訪問；同址多筆服務登記不合併成唯一機構
+jpCareDayServices,日間服務 施設に通う,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,日間服務 施設に通う；同址多筆服務登記不合併成唯一機構
+jpCareResidential,住宿／短期入住 施設で生活・宿泊,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,住宿／短期入住 施設で生活・宿泊；同址多筆服務登記不合併成唯一機構
+jpCareCombined,複合服務 訪問・通い・宿泊の組合せ,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,複合服務 訪問・通い・宿泊の組合せ；同址多筆服務登記不合併成唯一機構
+jpCareEquipment,福祉用具 福祉用具,日本,長照服務,custom,verified,jp_medical_reports,,,,,yes,none,,,,dataset_not_in_warehouse,福祉用具 福祉用具；同址多筆服務登記不合併成唯一機構
+jpMedicalAreasPrimary,一次醫療圈 一次医療圏 · 2020,日本,醫療圈,custom,verified,jp_medical_areas,,,,,yes,none,,,,dataset_not_in_warehouse,一次醫療圈 一次医療圏的 2020 歷史邊界；不是設施服務範圍或即時就醫可達圈
+jpMedicalAreasSecondary,二次醫療圈 二次医療圏 · 2020,日本,醫療圈,custom,verified,jp_medical_areas,,,,,yes,none,,,,dataset_not_in_warehouse,二次醫療圈 二次医療圏的 2020 歷史邊界；不是設施服務範圍或即時就醫可達圈
+jpMedicalAreasTertiary,三次醫療圈 三次医療圏 · 2020,日本,醫療圈,custom,verified,jp_medical_areas,,,,,yes,none,,,,dataset_not_in_warehouse,三次醫療圈 三次医療圏的 2020 歷史邊界；不是設施服務範圍或即時就醫可達圈
+jpWaterDams,水壩 ダム（2014）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,2014 歷史水壩點位；非即時蓄水量或全國現況。
+jpWaterLakes,湖沼 湖沼（W09・2005）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,W09 2005 湖沼範圍歷史快照；非現況水位、蓄水量或水質。
+jpWaterRivers,河川流路 河川（2006–2009）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,2006–2009 歷史河川流路線段；不是河川條數，端點已排除。
+jpWaterSupplyFacilities,上水道相關設施（2010）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,2010 上水道相關設施；依設施名稱保守分類，未命中者保留未分類。
+jpWaterSupplyAreas,給水區域 給水区域（2010）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,2010 給水區域歷史面；不是事業者數，低透明度以保留其他點選。
+jpWaterSewerFacilities,下水道設施（2012）,日本,水資源,custom,verified,jp_water_ksj,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,2012 下水道設施點；依 P22a／P22b 區分泵場與處理場，不代表完整地下管線。
+jpWaterLocalFacilities,高松供排水相關設施 高松市,日本,水資源,custom,verified,jp_water_local,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,高松市供排水相關設施；含下水道設施，coverage 僅該市，分類與容量以來源欄位為準。
+jpWaterQualityStations,水質測定地点 水質測定地点（2024）,日本,水資源,custom,verified,jp_water_quality,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,環境省 2024 水質測定地点台帳；站點名錄不是水質濃度或趨勢。
+jpWaterLevelStations,橫濱水位站 横浜市,日本,水資源,custom,verified,jp_water_local,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,橫濱市水位站名錄；站表未註資料時點，2026-03 觀測另行處理。
+jpWaterGroundwaterSites,地下水等觀測點（24縣）,日本,水資源,custom,verified,jp_water_hydro,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,GSJ 地下水・湧水・河川地点，實際僅24縣，年份未提供。
+jpWaterNilimDams,NILIM 水壩位置（46縣）,日本,水資源,custom,verified,jp_water_hydro,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,NILIM 水壩位置，實際46縣、年份未提供；不可與 KSJ 水壩相加。
+jpWaterAgriculturalPonds,農業蓄水池（2026-03）,日本,水資源,custom,verified,jp_water_agri_civic,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,"MAFF 2026-03 農業蓄水池位置候選；來源 datum 未知，保留4,284同座標列。"
+jpWaterFloodHazard,洪水浸水想定（最大規模）,日本,水資源,custom,verified,jp_water_hazard_pollution,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,官方最大規模洪水浸水想定背景；空白不等於無風險，非即時災情或預報。
+jpReligionGsi,宗教設施 宗教施設（国土地理院）,日本,宗教,custom,verified,jp_religion_gsi,ds_world_jp_religion_gsi,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"国土地理院寺院／神社地圖記號 167,037 點（96.7% 無名稱）"
+jpReligionOsm,宗教設施 宗教施設（OpenStreetMap）,日本,宗教,custom,verified,jp_religion_osm,ds_world_jp_religion_osm,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"OpenStreetMap 日本宗教設施 71,040 點（唯一含基督教；ODbL）"
+jpReligionWikidata,宗教設施 宗教施設（Wikidata）,日本,宗教,custom,verified,jp_religion_wikidata,ds_world_jp_religion_wikidata,POINT,2026-08-23,unknown,yes,spatial,warehouse,unknown,,,"Wikidata 日本宗教設施 37,154 點（99.9% 有名稱；QID 可追溯）"
+jpAdminPrefecture,都道府縣界 都道府県境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本都道府県界（47 筆）
+jpAdminBoundaries,市區町村界 市区町村境,日本,行政區,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本市区町村界（1,905 筆）"
+jpStations,車站 駅,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本車站（9,046 點，含路線／營運者／運量）"
+jpAirports,機場 空港,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本機場（108 面，含空港種別／跑道規格）
+jpRailways,鐵道路線 鉄道路線,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本鐵道路線（21,933 段，事業者種別 5 類分色）"
+jpHistoricalFlightTrails,歷史航班軌跡 Japan,日本,交通,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,日本機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
+osmBridgeCarriers,OSM 橋梁承載線,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,OSM 橋梁的道路、鐵道與其他承載線。
+osmBridgeFootprints,OSM 橋梁輪廓,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,OSM 原生橋梁輪廓，資料可能不完整。
+officialBridgesNewTaipei,新北市轄管橋梁,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,新北市轄管橋梁，不代表全市所有橋梁。
+bridgeComparisonNewTaipei,新北橋梁 OSM 比對,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,新北官方橋梁與 OSM 的候選比對。
+tainanBridgeInspections,臺南橋梁定期檢測紀錄,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,"臺南 112–113 年 1,719 筆檢測紀錄點；名稱含天橋、地下道，不等於實體道路橋數或即時安全狀態。"
+officialBridgesHsinchu,新竹市橋梁清冊,臺灣圖層,交通 Move,pmtiles,verified,network_structures,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,新竹市官方清冊 175 筆；有名稱、路線及登錄長度，端點連線不是橋身幾何。
+taipeiRoadTunnels,臺北市道路隧道,臺灣圖層,交通 Move,pmtiles,verified,tunnels,,,,,yes,none,,,,dataset_not_in_warehouse,臺北 13 個官方登錄點，含 21 筆方向明細；不是洞口或隧道路廊。
+tainanRoadTunnels,臺南市道路隧道,臺灣圖層,交通 Move,pmtiles,verified,tunnels,,,,,yes,none,,,,dataset_not_in_warehouse,臺南 6 個官方登錄點；來源未宣告 CRS，非隧道線形或通行狀態。
+changhuaTrafficSignals,彰化縣道路號誌,臺灣圖層,交通 Move,pmtiles,verified,roadside_facilities,,,,,yes,none,,,,dataset_not_in_warehouse,"彰化縣 3,448 個可定位號誌清冊點；非獨立路口數，也沒有即時燈態。"
+bridgeRainThresholds,一級監控橋梁參考雨量,臺灣圖層,交通 Move,custom,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,10 座公路局一級監控橋梁的參考雨量試點；表版次待覆核，缺測與未覆核條件顯示未知，位置為 OSM 同名候選。
+jpPoliceFacilities,警察設施 警察施設,日本,治安,custom,verified,jp_police_facilities,ds_world_jp_police_facilities,POINT,2026-09-07,unknown,yes,spatial,warehouse,address_geocode,,,日本核心警察設施：本部、警察署、交番、駐在所；年度靜態名冊
+jpSchools,學校 学校,日本,教育,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本學校（56,807 點，学校分類 13 類分色）"
+jpPopulationMesh1km,人口網格 人口メッシュ,日本,人口,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,"日本 1km 人口網格（176,896 格，總人口 5 年／65 歲以上比率 4 年，共 9 種指標）"
+plaActivity,共機活動區 PLA Activity,臺灣圖層,情勢 Situation,custom,verified,pla_activity,,,,,yes,none,,,,dataset_not_in_warehouse,國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）
+vesselWatch,特殊船舶 Vessel Watch,臺灣圖層,情勢 Situation,custom,verified,ship,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）
+submarineCables,OSM 通訊海纜 Submarine Cable,世界,全球通訊 Global Communications,geojson,verified,submarine_cable,,,,,yes,none,,,,warehouse_FAILED,OSM crowd 海纜世界概覽 104 條；OpenInfraMap z2 概化線位，非完整清冊或工程圖
+landingStations,OSM 海纜登陸站 Landing Station,世界,全球通訊 Global Communications,geojson,verified,submarine_cable,,,,,yes,browser_reader,browser,,,warehouse_FAILED,OSM crowd 海纜登陸站 58 處；標註不完整，空白區域不代表沒有設施
+internetExchangePoints,網際網路交換中心 Internet Exchange,世界,全球通訊 Global Communications,geojson,verified,internet_exchange_points,,,,,yes,none,,,,warehouse_FAILED,PCH Active IXP Directory 全球網際網路交換中心點位；顏色為洲區、大小為參與者數
+anfrWirelessSites,法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview,世界,全球通訊 Global Communications,geojson,verified,anfr_wireless_sites,,,,,yes,none,,,,warehouse_FAILED,"ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）"
+osmCommunicationSites,OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates,世界,全球通訊 Global Communications,geojson,verified,osm_communication_sites,,,,,yes,none,,,,warehouse_FAILED,OpenStreetMap mapped communication candidates；全球區域抽樣，非官方且不完整
+ripeAtlasProbes,RIPE Atlas 連線量測節點 Connected Probes,世界,全球通訊 Global Communications,geojson,verified,ripe_atlas_probes,,,,,yes,none,,,,warehouse_FAILED,RIPE Atlas 連線量測探針；座標經 80–400m 模糊化，存在志願者偏差
+ooklaMobilePerformance,Ookla 行動網路效能格網 Mobile Performance Grid,世界,全球通訊 Global Communications,geojson,verified,network_performance_grid,ds_infrastructure_network_performance_grid,POLYGON,2026-08-25,national,yes,spatial,warehouse,unknown,,,全球格網可切 z6（約 500 km）／z8（約 156 km）／z10（約 78 km）；Ookla Speedtest 行動網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍
+ooklaFixedPerformance,Ookla 固定網路效能格網 Fixed Performance Grid,世界,全球通訊 Global Communications,geojson,verified,network_performance_grid,ds_infrastructure_network_performance_grid,POLYGON,2026-08-25,national,yes,spatial,warehouse,unknown,,,全球格網可切 z6（約 500 km）／z8（約 156 km）／z10（約 78 km）；Ookla Speedtest 固定網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍
+ooklaMobileTaiwan,Ookla 台灣行動細格 Taiwan Mobile Fine Grid,世界,全球通訊 Global Communications,pmtiles,verified,network_performance_grid,ds_infrastructure_network_performance_grid,POLYGON,2026-08-25,national,yes,spatial,warehouse,unknown,,,台灣範圍行動網路細格：z14（約 2.4 km）拉近自動換 z16 原生格（610 m）；使用者樣本，不代表覆蓋範圍
+ooklaFixedTaiwan,Ookla 台灣固定網路細格 Taiwan Fixed Fine Grid,世界,全球通訊 Global Communications,pmtiles,verified,network_performance_grid,ds_infrastructure_network_performance_grid,POLYGON,2026-08-25,national,yes,spatial,warehouse,unknown,,,台灣範圍固定網路細格：z14（約 2.4 km）拉近自動換 z16 原生格（610 m）；WiFi／乙太連線的測速樣本
+convenienceStores,超商 Convenience Store,臺灣圖層,基礎建設 Infrastructure,geojson,verified,convenience_store,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,全台便利商店點位（單色 POI，無圖例）
+postOffices,郵局 Post Office,臺灣圖層,基礎建設 Infrastructure,geojson,verified,post_offices,ds_civic_facilities_post_offices,POINT,2026-07-17,national,yes,spatial,warehouse+browser,address_geocode,,,"中華郵政郵局據點全國 1,278 處"
+iPostBoxes,i郵箱 iPost Box,臺灣圖層,基礎建設 Infrastructure,geojson,verified,ibox,ds_civic_facilities_ibox,POINT,2026-07-17,national,yes,spatial,warehouse+browser,address_geocode,,,"中華郵政 i郵箱智慧包裹櫃全國 2,345 處"
+communityCenters,活動中心（部分縣市） Community Center,臺灣圖層,基礎建設 Infrastructure,geojson,verified,community_centers,ds_civic_facilities_community_centers,POINT,2026-07-17,8 counties,yes,spatial,warehouse+browser,address_geocode,,,"村里活動中心 1,794 處（⚠️ 非全國，僅有開放資料的縣市）"
+govServiceOffices,機關便民據點 Gov Service Office,臺灣圖層,基礎建設 Infrastructure,geojson,verified,gov_service_offices,ds_civic_facilities_gov_service_offices,POINT,2026-07-17,national,yes,spatial,warehouse+browser,address_geocode,,,各級機關便民服務據點全國 702 處
+publicLibraries,公共圖書館 Public Library,臺灣圖層,基礎建設 Infrastructure,geojson,verified,public_libraries,ds_culture_public_libraries,POINT,2026-07-17,national,yes,spatial,warehouse+browser,address_geocode,,,公共圖書館全國 634 處（含分館；與文化主題的 librarySeats 即時座位不同層）
+welfareCenters,社福中心 Welfare Center,臺灣圖層,基礎建設 Infrastructure,geojson,verified,welfare_centers,ds_civic_facilities_welfare_centers,POINT,2026-08-12,national,yes,spatial,warehouse+browser,address_geocode,,,社會福利服務中心全國 157 處
+animalAdoption,待認領養動物 Animal Adoption,臺灣圖層,動物福利 Animal Welfare,custom,verified,animal_adoption,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,各公立收容所待認領養動物數量（每日快照，缺值不補 0）
+animalShelterPressure,收容壓力 Shelter Pressure,臺灣圖層,動物福利 Animal Welfare,custom,verified,animal_shelter_pressure_monthly animal_shelter_outcomes_monthly,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,各縣市收容所最新官方月報容量使用率；缺值透明、不以 0 補值
+animalWelfarePoints,動物服務據點 Animal Services,臺灣圖層,動物福利 Animal Welfare,custom,verified,animal_service_points,,,,,yes,none,,,,warehouse_FAILED,全國動物醫院、寵物登記、疫苗與友善場所等服務點（7 類；約 7k active located canonical points）
+retailMarkets,公有市場 Public Market,臺灣圖層,基礎建設 Infrastructure,geojson,verified,public_retail_markets,ds_poi_public_retail_markets,POINT,2026-07-17,national,yes,spatial,warehouse+browser,google_geocode,,,公有零售市場全國 731 處
+publicToilets,公廁 Public Toilet,臺灣圖層,基礎建設 Infrastructure,geojson,verified,public_toilets,ds_environment_public_toilets,POINT,2026-07-17,national,yes,spatial,warehouse+browser,address_geocode,,,"環境部列管公廁全國 13,281 座（本主題量體最大的一層）"
+sportsSchool,學校場館 School,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,all_venues,ds_sports_all_venues,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,各級學校運動場館（全國場館名冊中「學校場館」類）
+sportsPublicOther,其他公共場館 Other Public Venues,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,all_venues,ds_sports_all_venues,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,學校與國民運動中心以外的公共運動場館
+sportsPrivate,民營場館 Private Venues,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,all_venues,ds_sports_all_venues,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,民營運動場館（健身房／球館等商業經營場地）
+sportsPark,運動公園/開放空間 Park,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,all_venues,ds_sports_all_venues,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,運動公園與開放空間型場地（免費開放為主）
+sportsCenter,國民運動中心 Sports Center,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,all_venues,ds_sports_all_venues,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,各縣市國民運動中心（綜合型室內場館）
+parksTaipei,公園 Parks,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,parks,ds_urban_open_space_parks,POINT,2026-07-05,4 counties,yes,spatial,warehouse+browser,address_geocode,,,"臺北市公園點位 2,917 處（公園／兒童遊戲場／綠地／鄰里公園等 7 類分色）"
+tourAttractions,觀光景點 Attractions,臺灣圖層,觀光 Tourism,geojson,verified,attraction,ds_tourism_attraction,POINT,2026-07-22,national,yes,spatial,warehouse+browser,unknown,,,"交通部觀光署觀光景點全國 ~6,070 點（可切「分類／熱度」兩種著色模式）"
+tourHotSprings,溫泉露頭 Hot Springs,臺灣圖層,觀光 Tourism,geojson,verified,hot_spring,ds_tourism_hot_spring,POINT,2026-07-22,national,yes,spatial,warehouse+browser,unknown,,,溫泉露頭全國 150 點（單色 POI，無圖例）
+tourHotSpringZones,溫泉露頭區 Hot Spring Zones,臺灣圖層,觀光 Tourism,geojson,verified,hot_spring_zone,ds_tourism_hot_spring_zone,POLYGON,2026-07-22,1 counties,yes,spatial,warehouse+browser,unknown,,,溫泉露頭區 16 面（面層；與點狀的 tourHotSprings 是兩份資料）
+tourScenicAreas,國家風景區 Scenic Areas,臺灣圖層,觀光 Tourism,geojson,verified,scenic_area,ds_tourism_scenic_area,MULTIPOLYGON+POLYGON,2026-05-24,13 counties,yes,spatial,warehouse+browser,unknown,,,國家風景區 12 處管理處轄區範圍（面層）
+tourHeritage,文化資產 Heritage,臺灣圖層,觀光 Tourism,geojson,verified,heritage,ds_tourism_heritage,POINT,2026-05-24,national,yes,spatial,warehouse+browser,unknown,,,"文化資產全國 2,894 點（category 三類同色系分色，基底 #6d4c41）"
+tourEvents,觀光活動・節慶 Tourism Events,臺灣圖層,觀光 Tourism,geojson,verified,activity,ds_tourism_activity,POINT,2026-07-22,national,yes,spatial,warehouse+browser,unknown,,,觀光活動・節慶全國 ~828 場（狀態下拉：全部／進行中／未開始，依當日判定）
+tourFactories,觀光工廠 Tourism Factories,臺灣圖層,觀光 Tourism,geojson,verified,tourism_factory,ds_tourism_tourism_factory,POINT,2026-07-23,18 counties,yes,spatial,warehouse+browser,address_geocode,,,經濟部認證觀光工廠全國 158 家
+tourAmusementParks,民營遊樂園 Amusement Parks,臺灣圖層,觀光 Tourism,geojson,verified,amusement_park,ds_tourism_amusement_park,POINT,2026-07-23,13 counties,yes,spatial,warehouse+browser,address_geocode,,,民營觀光遊樂業全國 26 家
+tourCamping,露營場 Campgrounds,臺灣圖層,觀光 Tourism,geojson,verified,camping,ds_tourism_camping,POINT,2026-05-24,national,yes,spatial,warehouse+browser,unknown,,,"露營場全國 1,737 處"
+tourHotels,旅宿 Hotels & B&Bs,臺灣圖層,觀光 Tourism,geojson,verified,hotel,ds_tourism_hotel,POINT,2026-07-22,national,yes,spatial,warehouse+browser,unknown,,,"旅宿全國 ~15,654 家（國際觀光旅館／一般觀光旅館／旅館／民宿 4 類分色）"
+tourRestaurants,觀光餐飲 Restaurants,臺灣圖層,觀光 Tourism,geojson,verified,restaurant,ds_poi_restaurant ds_tourism_restaurant,POINT,2026-07-23,national,yes,spatial,warehouse+browser,unknown,,,"觀光署收錄餐飲店家全國 ~3,688 家（非全國餐飲母體）"
+schools,學校總覽 All Schools,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,"全國各級學校 4,315 點總覽（依學制上色，可切「分級配色」）"
+eduSchoolElementary,國小 Elementary,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,"國小 2,656 校（含附設國小 42；schools.geojson 依學制 filter 切出）"
+eduSchoolJunior,國中 Junior High,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,國中 964 校（含附設國中 228）
+eduSchoolSenior,高中職 Senior High,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,高中職 508 校
+eduSchoolUniversity,大專 University,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,大專校院 159 校（含空大進修 10／宗教研修 9）
+eduSchoolSpecial,特教 Special Education,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,特殊教育學校 28 校
+eduRemoteSchools,偏遠地區學校 Remote Schools,臺灣圖層,教育 Education,geojson,verified,schools,ds_education_schools,POINT,2026-05-19,national,yes,spatial,warehouse+browser,address_geocode,,,"偏遠地區學校 1,152 校（偏遠 830／特偏 192／極偏 130；非偏遠是 JSON null 不是 0）"
+eduUniversityStudents,大專學生數 University Students,臺灣圖層,教育 Education,geojson,verified,university_students,ds_education_university_students,POINT,2026-08-07,national,yes,spatial,warehouse+browser,unknown,,,大專校別學生數 159 點 bubble（半徑隨學生數；21 筆為 null 不可當 0）
+eduCampusPolygon,校地範圍 Campus Area,臺灣圖層,教育 Education,pmtiles,verified,campus_polygon,ds_education_campus_polygon,POLYGON,2026-08-07,national,yes,spatial,warehouse+browser,address_geocode,,,"校地範圍面 4,324（依學制分色；與 eduCampusArea 同一份切片的兩種讀法）"
+eduCampusArea,校地面積 Campus Size,臺灣圖層,教育 Education,pmtiles,verified,campus_polygon,ds_education_campus_polygon,POLYGON,2026-08-07,national,yes,spatial,warehouse+browser,address_geocode,,,"校地面積面量圖（< 1 / 1~2 / 2~5 / 5~10 / ≥ 10 公頃，合計 4,324）"
+eduDistrictElementary,國小學區 Elementary District,臺灣圖層,教育 Education,pmtiles,verified,school_district_k12,ds_education_school_district_k12,MULTIPOLYGON+POLYGON,2026-08-09,4 counties,yes,spatial,warehouse+browser,address_geocode,,,國小學區 621 面（僅 4 縣市有公告，無資料 ≠ 無學區）
+eduDistrictJunior,國中學區 Junior High District,臺灣圖層,教育 Education,pmtiles,verified,school_district_k12,ds_education_school_district_k12,MULTIPOLYGON+POLYGON,2026-08-09,4 counties,yes,spatial,warehouse+browser,address_geocode,,,國中學區 239 面（village_partial 654 面為整里近似）
+eduDistrictSenior,高中就學區（縣市級） Senior High District,臺灣圖層,教育 Education,geojson,verified,school_district_senior,ds_education_school_district_senior,MULTIPOLYGON+POLYGON,2026-08-07,15 counties,yes,spatial,warehouse+browser,unknown,,,高中就學區 15 面（縣市級，與國中小學區的里級粒度不可混用）
+eduKindergarten,幼兒園 Kindergarten,臺灣圖層,教育 Education,geojson,verified,kindergartens,ds_education_kindergartens,POINT,2026-08-07,national,yes,spatial,warehouse+browser,unknown,,,"幼兒園 6,689 點（公立 2,392／私立 4,297，依公私立分色）"
+eduCramSchool,短期補習班 Cram School,臺灣圖層,教育 Education,pmtiles,verified,cram_schools,ds_education_cram_schools,POINT,2026-08-07,national,yes,spatial,warehouse+browser,address_geocode,,,"短期補習班 17,137 點（依類別分色；上游 daily 更新，前端為快照）"
+eduAfterschoolCare,兒童課後照顧中心 Afterschool Care,臺灣圖層,教育 Education,geojson,verified,afterschool_care,ds_education_afterschool_care,POINT,2026-08-07,18 counties,yes,spatial,warehouse+browser,google_geocode,,,兒童課後照顧服務中心 782 點（單色 POI）
+eduMutualCare,互助教保服務中心 Mutual Care,臺灣圖層,教育 Education,geojson,verified,mutual_care,ds_education_mutual_care,POINT,2026-08-07,19 counties,yes,spatial,warehouse+browser,address_geocode,,,職場／社區互助教保服務中心 148 點（全數私立）
+welfareNursingHomes,護理機構 Nursing Homes,臺灣圖層,社福長照 Welfare,geojson,verified,nursing_homes,ds_welfare_nursing_homes,POINT,2026-08-12,national,yes,spatial,warehouse+browser,address_geocode,,,"護理機構全國 1,611 點（一般護理之家／居家護理所／產後護理之家三分色，半徑隨總床數）"
+welfareElderlyHomes,老人住宿機構 Elderly Homes,臺灣圖層,社福長照 Welfare,geojson,verified,elderly_care_homes,ds_welfare_elderly_care_homes,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,"老人住宿機構全國 1,160 點（公立／公設民營／私立分色，半徑隨核定床數）"
+welfareDisability,身障福利機構 Disability,臺灣圖層,社福長照 Welfare,geojson,verified,disability_facilities,ds_welfare_disability_facilities,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,身心障礙福利機構全國 334 點（實際安置／核定量使用率分色，88 筆無核定量落灰）
+welfareLtcInstitutions,長照立案機構 LTC Institutions,臺灣圖層,社福長照 Welfare,geojson,verified,ltc_institutions,ds_welfare_ltc_institutions,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,"長照服務法立案機構全國 3,117 點（居家式／社區式／住宿式／綜合式四分色；與 medLTC 特約單位不同體系）"
+welfareChildcare,托嬰中心 Childcare,臺灣圖層,社福長照 Welfare,geojson,verified,childcare_centers,ds_welfare_childcare_centers,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,"機構式托嬰中心全國 1,578 點（⚠️ 名單約 21 個月舊；不含居家托育保母）"
+welfareChildServices,兒少服務 Child Services,臺灣圖層,社福長照 Welfare,geojson,verified,child_services,ds_welfare_child_services,POINT,2026-08-12,national,yes,spatial,warehouse+browser,address_geocode,,,"兒少服務全國 1,396 點（早療／親子館／兒少安置三類分色；⚠️ 早療含醫院診所，與醫療主題重疊）"
+welfareGovOffices,公部門社福據點 Gov Offices,臺灣圖層,社福長照 Welfare,geojson,verified,welfare_service_centers,ds_welfare_welfare_service_centers,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,公部門社福據點全國 151 點（局處／防治中心／長照管理中心／公所；已排除既有 welfareCenters 的 162 筆社福中心）
+welfareMentalHealth,心理衛生機構 Mental Health,臺灣圖層,社福長照 Welfare,geojson,verified,mental_health_facilities,ds_welfare_mental_health_facilities,POINT,2026-08-12,national,yes,spatial,warehouse+browser,unknown,,,心理衛生機構全國 70 點（社區心衛中心／毒防中心／康復之家／心理諮商所／社區復健五分色）
+welfareSocialWorkOrgs,社福團體 Social Work Orgs,臺灣圖層,社福長照 Welfare,geojson,verified,social_work_orgs,ds_welfare_social_work_orgs,POINT,2026-08-12,national,yes,spatial,warehouse+browser,address_geocode,,,社福團體／社工事務所／基金會全國 587 點（⚠️ 是登記組織不是服務設施，地址多為辦公室，不可當可近性指標）
+forestCompartments,林班 Compartments,臺灣圖層,林業 Forestry,pmtiles,verified,national_forest_compartments,ds_forestry_national_forest_compartments,MULTIPOLYGON+POLYGON,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,國有林事業區林班界（面層切片）
+forestReserve,保安林 Reserve,臺灣圖層,林業 Forestry,pmtiles,verified,forest_reserve,ds_forestry_forest_reserve,MULTIPOLYGON+POLYGON,2026-05-19,national,yes,spatial,warehouse,unknown,,,保安林編號區（依保安林種類分色，見 forestReserveTypes.ts）
+forestRecreation,森林遊樂區 Recreation,臺灣圖層,林業 Forestry,geojson,verified,forest_recreation_areas,ds_forestry_forest_recreation_areas,MULTIPOLYGON+POLYGON,2026-05-19,11 counties,yes,spatial,warehouse+browser,unknown,,,國家森林遊樂區範圍（面層）
+forestFlatParks,平地森林 Flat Parks,臺灣圖層,林業 Forestry,geojson,verified,flat_forest_parks,ds_forestry_flat_forest_parks,POINT,2026-05-19,3 counties,yes,spatial,warehouse+browser,address_geocode,,,平地森林園區點位
+canopyHeight,樹冠高度 Canopy Height,臺灣圖層,林業 Forestry,pmtiles,verified,canopy_height_meta,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）
+jpCanopyHeight,樹冠高度 CHMv2,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,Meta/WRI CHMv2 估計樹冠高度（日本分區資料；影像日期依地點而異）
+canopyGiants,樹冠巨木 Canopy Giants,臺灣圖層,林業 Forestry,geojson,pulse_only,,,,,,yes,browser_reader,browser,,,derived_layer,樹冠 45m 以上巨木點位（依離步道距離帶分色，見 canopyGiantsTypes.ts）
+forestTreatmentWorks,治理工程 Treatment Works,臺灣圖層,林業 Forestry,geojson,verified,forestry_treatment_works,ds_forestry_forestry_treatment_works,POINT,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,林業治理工程點位（崩塌地治理／野溪整治等）
+forestTrailSigns,步道路標 Trail Signs,臺灣圖層,林業 Forestry,geojson,verified,mountain_trail_signs,ds_forestry_mountain_trail_signs,POINT,2026-05-19,11 counties,yes,spatial,warehouse+browser,unknown,,,山區步道路標點位（與山屋／通訊點疊圖 = 登山安全敘事）
+forestSignalPoints,通訊點 Signal Points,臺灣圖層,林業 Forestry,geojson,verified,mountain_signal_points,ds_forestry_mountain_signal_points,POINT,2026-05-19,15 counties,yes,spatial,warehouse+browser,unknown,,,山區手機通訊可用點位（登山安全用）
+forestEducationCenters,自然教育中心 Natural Education Centers,臺灣圖層,林業 Forestry,geojson,verified,forest_education_centers,ds_forestry_forest_education_centers,POINT,2026-05-19,8 counties,yes,spatial,warehouse+browser,address_geocode,,,林業保育署自然教育中心點位
+mountainHuts,山屋・高山營地 Mountain Huts,臺灣圖層,林業 Forestry,geojson,verified,mountain_huts,ds_forestry_mountain_huts,POINT,2026-08-01,15 counties,yes,spatial,warehouse+browser,address_geocode,,,山屋・高山營地 136 處（官方 30 × OSM 126 跨源合成）
+forestDamLakes,堰塞湖 Dam Lakes,臺灣圖層,林業 Forestry,geojson,verified,dam_lakes_in_forest,ds_forestry_dam_lakes_in_forest,POINT,2026-05-19,8 counties,yes,spatial,warehouse+browser,unknown,,,林區內堰塞湖點位（崩塌堵塞形成，土砂災害關聯）
+forestRoads,林道 Forest Roads,臺灣圖層,林業 Forestry,pmtiles,verified,forest_roads,ds_forestry_forest_roads,LINESTRING,2026-05-19,13 counties,yes,spatial,warehouse+browser,unknown,,,全台林道線形（切片，z0-14）
+forestAlishanRail,阿里山鐵路 Alishan Rail,臺灣圖層,林業 Forestry,geojson,verified,wildlife_distribution_3rd_alt,ds_forestry_wildlife_distribution_3rd_alt,POINT,2026-05-19,3 counties,yes,spatial,warehouse,unknown,,,阿里山林業鐵路相關點位（資料檔為 wildlife_distribution_3rd_alt，上游對應待釐清）
+hikingTrails,全台步道 Hiking Trails,臺灣圖層,林業 Forestry,pmtiles,verified,hiking_trails,ds_forestry_hiking_trails,LINESTRING+MULTILINESTRING,2026-06-08,national,yes,spatial,warehouse+browser,unknown,,,"全台步道 7,339 條線形（glow + line 兩個 layer）"
+forestWildlife,野生動物分布 Wildlife,臺灣圖層,林業 Forestry,geojson,verified,wildlife_distribution_3rd,ds_forestry_wildlife_distribution_3rd,POINT,2026-05-19,16 counties,yes,spatial,warehouse+browser,unknown,,,第三次野生動物分布調查點位
+realEstateRentalGrid,租賃熱力圖 Rental Grid,臺灣圖層,房地產 Real Estate,pmtiles,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄租賃案件 150m 網格中位單價
+realEstateRentalPoint,租賃交易點 Rental Point,臺灣圖層,房地產 Real Estate,custom,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄租賃交易點位（時間軸播放，GPU fade）
+realEstateSaleGrid,買賣熱力圖 Sale Grid,臺灣圖層,房地產 Real Estate,pmtiles,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄買賣案件 150m 網格中位單價
+realEstateSalePoint,買賣交易點 Sale Point,臺灣圖層,房地產 Real Estate,custom,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄買賣交易點位（時間軸播放，GPU fade）
+realEstatePresaleGrid,預售熱力圖 Presale Grid,臺灣圖層,房地產 Real Estate,pmtiles,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄預售屋 150m 網格中位單價
+realEstatePresalePoint,預售交易點 Presale Point,臺灣圖層,房地產 Real Estate,custom,verified,real_estate real_estate_points real_estate_grids,ds_real_estate_merged_points ds_real_estate_merged_grids,POINT+POLYGON,2026-09-26,national,yes,spatial,warehouse,address_geocode+unknown,,,實價登錄預售屋交易點位（時間軸播放，GPU fade）
+propertyValueAdmin,不動產總市值行政區 Property Value,統計,房地產統計 Real Estate Statistics,custom,pulse_only,,,,,,yes,none,,,,derived_layer,不動產模型估值依縣市／鄉鎮市區聚合；市場交易建物口徑，缺值不是 0
+propertyValueGrid,不動產總市值網格 Value Grid,臺灣圖層,房地產 Real Estate,pmtiles,pulse_only,,,,,,yes,none,,,,derived_layer,全台不動產總市值網格，150m / 450m / 1.5km 三尺度（v_mkt 萬元，全台 204.1 兆）
+medHospital,醫院 Hospital,臺灣圖層,醫療 Medical,geojson,verified,medical,ds_poi_medical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,全台醫院點位（醫療 POI 四層之首，量體最小走 geojson）
+medClinic,診所 / 其他醫療 Clinic,臺灣圖層,醫療 Medical,pmtiles,verified,medical,ds_poi_medical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,全台診所與其他醫療機構點位
+medPharmacy,藥局 Pharmacy,臺灣圖層,醫療 Medical,pmtiles,verified,medical,ds_poi_medical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,全台健保特約藥局點位
+medAED,AED 點位 AED,臺灣圖層,醫療 Medical,pmtiles,verified,aed,ds_emergency_response_aed,POINT,2026-05-24,national,yes,spatial,warehouse+browser,unknown,,,全台公共 AED 設置點位
+medLTC,長照機構 LTC,臺灣圖層,醫療 Medical,pmtiles,verified,long_term_care,ds_poi_long_term_care,POINT,2026-08-11,national,yes,spatial,warehouse+browser,unknown,,,全台長期照顧服務機構點位
+erHospital,急診壅塞 ER,臺灣圖層,醫療 Medical,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,急診壅塞即時狀態（等待推床／滯留人數，座標 join 醫院 POI）
+medIsochrone,醫療等時圈 Isochrone,臺灣圖層,醫療 Medical,custom,pulse_only,,,,,,yes,none,,,,derived_layer,醫療設施 OSRM 路網等時圈（駕車 5/10/15/30 分鐘分級）
+medDesert,醫療沙漠 Desert,臺灣圖層,醫療 Medical,custom,pulse_only,,,,,,yes,none,,,,derived_layer,醫療沙漠：距任一醫療設施駕車 > 15 分鐘的網格（等時圈同層 filter 收窄）
+policeStation,警察機關 Police,臺灣圖層,執法治安 Law & Order,geojson,verified,police_stations,ds_police_justice_police_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,全台警察機關點位（警局／分局／派出所）
+womenChildWarning,婦幼警示點 Women/Child Warning,臺灣圖層,執法治安 Law & Order,geojson,verified,women_child_warning,ds_police_justice_women_child_warning,POINT,2026-06-26,national,yes,spatial,warehouse+browser,google_geocode,,,婦幼安全警示點位
+speedCamera,測速照相 Speed Camera,臺灣圖層,執法治安 Law & Order,geojson,verified,speed_cameras,ds_police_justice_speed_cameras,POINT,2026-08-24,national,yes,spatial,warehouse+browser,address_geocode,,,固定式測速照相點位
+speedZoneSegment,區間測速 Speed Zone,臺灣圖層,執法治安 Law & Order,geojson,verified,speed_zone_segments,ds_police_justice_speed_zone_segments,LINESTRING,2026-06-26,2 counties,yes,spatial,warehouse+browser,unknown,,,區間測速路段起訖點
+policeIsoSubstation,派出所 5/10 min,臺灣圖層,執法治安 Law & Order,pmtiles,verified,police_stations,ds_police_justice_police_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,派出所 5／10 分鐘路網等時圈
+policeIsoPrecinct,分局 15/30 min,臺灣圖層,執法治安 Law & Order,pmtiles,verified,police_stations,ds_police_justice_police_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,分局 15／30 分鐘路網等時圈
+policeIsoCityDept,縣市警局 30/60 min,臺灣圖層,執法治安 Law & Order,pmtiles,verified,police_stations,ds_police_justice_police_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,縣市警察局 30／60 分鐘路網等時圈
+court,法院 Courts,臺灣圖層,執法治安 Law & Order,geojson,verified,courts,ds_police_justice_courts,POINT,2026-06-26,national,yes,spatial,warehouse+browser,google_geocode,,,各級法院點位
+prosecutorsOffice,檢察署 Prosecutors,臺灣圖層,執法治安 Law & Order,geojson,verified,prosecutors_offices,ds_police_justice_prosecutors_offices,POINT,2026-06-26,national,yes,spatial,warehouse+browser,google_geocode,,,各級檢察署點位
+correctionalFacility,矯正機關 Correctional,臺灣圖層,執法治安 Law & Order,geojson,verified,correctional_facilities,ds_police_justice_correctional_facilities,POINT,2026-06-26,19 counties,yes,spatial,warehouse+browser,google_geocode,,,矯正機關點位（監獄／看守所／技訓所）
+courtJurisdiction,法院管轄區 Jurisdiction,臺灣圖層,執法治安 Law & Order,pmtiles,verified,court_jurisdictions,ds_police_justice_court_jurisdictions,MULTIPOLYGON,2026-06-26,national,yes,spatial,warehouse,unknown,,,地方法院管轄區範圍面
+crimeAreaMonthly,鄉鎮市區犯罪統計,統計,執法治安 Law & Order,pmtiles,verified,crime_area_monthly,ds_police_justice_crime_area_monthly,MULTIPOLYGON+POLYGON,2026-06-26,national,yes,spatial,warehouse,unknown,,,鄉鎮市區月別犯罪案件統計 choropleth
+theftTaoyuan,桃園竊盜 Theft Taoyuan,臺灣圖層,執法治安 Law & Order,geojson,verified,theft_points_taoyuan,ds_police_justice_theft_points_taoyuan,POINT,2026-06-26,5 counties,yes,spatial,warehouse+browser,unknown,,,桃園市竊盜案件發生點位
+trafficAccidentYearly,A1 死亡事故 Fatal Accident,臺灣圖層,執法治安 Law & Order,geojson,verified,traffic_accident_yearly,ds_police_justice_traffic_accident_yearly,POINT,2026-06-26,national,yes,spatial,warehouse+browser,unknown,,,A1 類（24 小時內死亡）交通事故年度點位
+accidentTaipei,北市事故點 Taipei Dots,臺灣圖層,執法治安 Law & Order,geojson,verified,accident_taipei_dots,ds_police_justice_accident_taipei_dots,POINT,2026-06-26,2 counties,yes,spatial,warehouse+browser,unknown,,,臺北市交通事故點位
+a1AccidentRealtime,A1 即時事故 A1 Realtime,臺灣圖層,執法治安 Law & Order,supabase,verified,traffic_accident,ds_environment_traffic_accident,POINT,2026-07-07,national,yes,spatial,warehouse,unknown,,,A1 死亡交通事故即時通報
+investigationBureau,調查局 MJIB,臺灣圖層,執法治安 Law & Order,geojson,verified,investigation_bureau,ds_police_justice_investigation_bureau,POINT,2026-06-26,national,yes,spatial,warehouse+browser,google_geocode,,,法務部調查局各級機關點位
+antiCorruptionOffice,廉政署 AAC,臺灣圖層,執法治安 Law & Order,geojson,verified,anti_corruption_offices,ds_police_justice_anti_corruption_offices,POINT,2026-06-26,national,yes,spatial,warehouse+browser,google_geocode,,,法務部廉政署與各機關政風單位點位
+immigrationOffice,移民署 Immigration,臺灣圖層,執法治安 Law & Order,geojson,verified,immigration_offices,ds_police_justice_immigration_offices,POINT,2026-06-26,18 counties,yes,spatial,warehouse+browser,address_geocode,,,內政部移民署各服務站點位
+coastGuardStation,海巡 Coast Guard,臺灣圖層,執法治安 Law & Order,geojson,verified,coast_guard_stations,ds_police_justice_coast_guard_stations,POINT,2026-06-26,national,yes,spatial,warehouse+browser,address_geocode,,,海洋委員會海巡署各級單位點位
+popCount,人口數 Population,臺灣圖層,人口社經 People,custom,verified,population,ds_demographics_population,MULTIPOLYGON+POLYGON,2026-05-19,national,yes,spatial,warehouse,unknown,,,H3 網格人口數（日間／夜間，可依年份回放）
+h3Population,人流模擬 Pop. Flow,臺灣圖層,人口社經 People,custom,verified,population,ds_demographics_population,MULTIPOLYGON+POLYGON,2026-05-19,national,yes,spatial,warehouse,unknown,,,H3 人流模擬（日夜人口差推估的移動量）
+indicators,人口指標 Indicators,臺灣圖層,人口社經 People,custom,verified,county_indicators_yearly,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）
+socioeconomic,社經面貌 Socio-Econ,臺灣圖層,人口社經 People,custom,verified,village_comprehensive_extended,,,,,yes,none,,,,dataset_not_in_warehouse,村里社經面貌綜合指標（所得／教育／年齡結構）
+spatialEconomy,空間經濟 Spatial-Econ,臺灣圖層,人口社經 People,custom,verified,village_comprehensive_extended,,,,,yes,none,,,,dataset_not_in_warehouse,村里空間經濟指標（產業家數／營業額分布）
+youbikeFullness,YouBike 有車率 Fullness,臺灣圖層,交通 Move,custom,verified,youbike_baselines,ds_transportation_youbike_baselines,POINT,2026-05-19,2 counties,yes,spatial,warehouse,unknown,,,YouBike 站點有車率的 H3 聚合（共享運具供給熱區）
+companyPoints,公司登記分布 Company Registry,臺灣圖層,工商登記 Business Registry,pmtiles,verified,company_points company_points_analysis,ds_business_registry_company_points_analysis,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,202608 公司登記快照；z4–9 為 1.5km、z10–11 為 450m 的公司密度（家／km²）概覽，z12+ 為可點擊個別公司。設定篩選條件時概覽隱藏，請放大至 z12。
+companyCapitalGrid,公司資本額網格 Company Capital Grid,臺灣圖層,工商登記 Business Registry,pmtiles,verified,company_capital_grid,ds_business_registry_company_capital_grid,POLYGON,2026-08-18,national,yes,spatial,warehouse+browser,unknown,,,150m / 450m / 1.5km 三尺度非空網格，可切換資本額總和、公司數與資本額中位數
+companyIndustryDistribution,登記產業分布 Company Industry,臺灣圖層,工商登記 Business Registry,pmtiles,verified,company_demographics_grid,ds_business_registry_company_demographics_grid,POLYGON,2026-09-10,national,yes,spatial,warehouse+browser,unknown,,,202608 公司登記第一順位行業中類；z4–<10 為 1.5km、z≥10 為 450m 網格，預設依所選群組中家數最多者分色，可切換每 km² 合計密度。缺失欄位不視為 0。
+companyAgeStructure,公司年齡結構 Company Age,臺灣圖層,工商登記 Business Registry,pmtiles,verified,company_demographics_grid,ds_business_registry_company_demographics_grid,POLYGON,2026-09-10,national,yes,spatial,warehouse+browser,unknown,,,202608 公司設立年齡網格；預設為近 5 年（2022–2026）已知設立年占比，可改看年齡中位數。
+manufacturingCompanyPoints,製造業公司登記點位 Manufacturing Registry,臺灣圖層,工商登記 Business Registry,pmtiles,verified,manufacturing_company_points company_points_analysis,ds_business_registry_company_points_analysis,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,202608 製造業公司登記；全台尺度即顯示全部可定位登記點，不抽稀、不聚合；不是工廠位置
+factoryLocations,生產中工廠登記 Factory Locations,臺灣圖層,工商登記 Business Registry,pmtiles,verified,factory_locations,ds_business_registry_factory_locations,POINT,2026-08-16,national,yes,spatial,warehouse+browser,address_geocode,,,202606 生產中工廠登記；全台尺度即顯示全部可定位工廠，不抽稀、不聚合；座標 coverage 90.09%
+regulatedFacilities,列管設施 Regulated Facilities,臺灣圖層,工商登記 Business Registry,pmtiles,verified,regulated_facilities,ds_business_registry_regulated_facilities,POINT,2026-08-18,national,yes,spatial,warehouse+browser,address_geocode,,,環境部 20260818 active 列管設施；列管身分不代表排放、裁罰或風險等級，全台尺度即顯示全部可定位點，不抽稀、不聚合
+factoryDensityGrid,生產中工廠密度 Factory Density,臺灣圖層,工商登記 Business Registry,pmtiles,verified,factory_locations,ds_business_registry_factory_locations,POINT,2026-08-16,national,yes,spatial,warehouse,address_geocode,,,202606 生產中工廠登記，有座標 records 密度；不代表產能。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。
+manufacturingCompanyDensityGrid,製造業公司登記密度 Manufacturing Registry Density,臺灣圖層,工商登記 Business Registry,pmtiles,verified,manufacturing_company_points company_points_analysis,ds_business_registry_company_points_analysis,POINT,2026-09-26,national,yes,spatial,warehouse,address_geocode,,,202608 製造業公司登記地址密度，不代表實際工廠位置。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。
+regulatedFacilityDensityGrid,列管設施密度 Regulated Facility Density,臺灣圖層,工商登記 Business Registry,pmtiles,verified,regulated_facilities,ds_business_registry_regulated_facilities,POINT,2026-08-18,national,yes,spatial,warehouse,address_geocode,,,20260818 active 列管設施密度，不代表排放、裁罰或風險。 z4–<10 為 1.5km，z10+ 為 450m 固定網格；每 km² 記錄數，同色階跨尺度可比。
+industrialParkBoundaries,產業園區邊界 Industrial Parks,臺灣圖層,工商登記 Business Registry,pmtiles,verified,industrial_park_boundaries,ds_industrial_zone_industrial_park_boundaries,MULTIPOLYGON+POLYGON,2026-08-18,17 counties,yes,spatial,warehouse,unknown,,,20260818 產業園區 polygon；v1 不含科學園區，不以 A3 membership 虛構邊界
+industrialParkComparison,園區商工比較 Industrial Park Metrics,臺灣圖層,工商登記 Business Registry,pmtiles,verified,industrial_park_comparison,ds_business_registry_industrial_park_comparison,MULTIPOLYGON+POLYGON,2026-08-18,17 counties,yes,spatial,warehouse,address_geocode,,,215 產業園區內已定位工廠／製造業公司觀測指標；受 geocode coverage 影響，不含科學園區 membership
+commonRegistrationAddresses,共同登記地址 Shared Address,臺灣圖層,工商登記 Business Registry,geojson,verified,common_registration_addresses,ds_business_registry_common_registration_addresses,POINT,2026-08-18,national,yes,spatial,warehouse+browser,address_geocode,,,同一門牌登記至少 5 家公司的聚合點；可用門檻篩選，大小表示公司數，顏色表示資本額中位數
+earthquakesGlobal,全球地震 USGS Earthquake,世界,全球氣候 Global Climate,custom,verified,usgs_earthquakes_global,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,USGS 全球地震（規模分大小、深度分色，回溯天數可選，跟時間軸播放並跑震波擴散圈）
+typhoonTracks,颱風軌跡 Typhoon Track,世界,全球氣候 Global Climate,custom,verified,jma_typhoon_positions,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,颱風軌跡（實測實線＋預報虛線＋軌跡點）
+windField,風場 Wind Field 10m,世界,全球氣候 Global Climate,custom,verified,noaa_gfs_wind_forecast,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,GFS 10m 風場（粒子流線動畫，點擊讀值）
+oceanCurrents,海流 Ocean Currents,世界,全球氣候 Global Climate,custom,verified,cmems_ocean_forecast,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,CMEMS 表層海流（粒子流線動畫，點擊讀值）
+dustForecast,沙塵預報 Dust Forecast,世界,全球氣候 Global Climate,custom,verified,cams_atmosphere_forecast,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,CAMS 沙塵預報濃度場（raster 疊圖）
+countyBoundary,縣市界 County,臺灣圖層,底圖 Base Map,pmtiles,verified,county_boundary,ds_demographics_county_boundary,MULTIPOLYGON,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,內政部縣市行政區界（22 縣市，fill + line 雙層）
+townshipBoundary,鄉鎮市區界 Township,臺灣圖層,底圖 Base Map,pmtiles,verified,township_boundary,ds_demographics_township_boundary,MULTIPOLYGON+POLYGON,2026-07-07,national,yes,spatial,warehouse,unknown,,,內政部鄉鎮市區界（368 區，fill + line 雙層）
+villageBoundary,村里界 Village,臺灣圖層,底圖 Base Map,pmtiles,verified,village_boundary,ds_demographics_village_boundary,MULTIPOLYGON+POLYGON,2026-07-07,national,yes,spatial,warehouse,unknown,,,內政部村里界（最細一級行政區，z8 以上才切片）
+maritimeBoundary,領海界線 Maritime Boundary,臺灣圖層,底圖 Base Map,pmtiles,verified,maritime_boundary,ds_environment_maritime_boundary,LINESTRING+MULTILINESTRING+POINT,2026-07-07,unknown,yes,spatial,warehouse,unknown,,,內政部公告的領海基線、12 浬領海與 24 浬鄰接區外界線
+contour25k,等高線 Contour 25k (10m),臺灣圖層,底圖 Base Map,pmtiles,verified,contour_25k,ds_base_map_contour_25k,LINESTRING+MULTILINESTRING,2026-07-07,8 counties,yes,spatial,warehouse,unknown,,,經建版 2.5 萬分之一地形圖等高線（間距 10m）
+contourDtm20,等高線 Contour DTM20 (20m),臺灣圖層,底圖 Base Map,pmtiles,verified,contour_dtm20,ds_base_map_contour_dtm20,LINESTRING,2026-07-07,19 counties,yes,spatial,warehouse,unknown,,,DTM 20m 網格推導等高線（比 25k 稀疏、涵蓋較廣）
+hillshade,山體陰影 Hillshade,臺灣圖層,底圖 Base Map,custom,verified,hillshade,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,全臺山體陰影灰階圖（單張 PNG 預烤，單色無分類故無圖例）
+slopeVector,坡度分級 Slope 6級,臺灣圖層,底圖 Base Map,custom,verified,slope,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,建管六級坡分級面（slope_class 1-6 分色）
+aspectVector,坡向分級 Aspect 8向,臺灣圖層,底圖 Base Map,custom,verified,aspect,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,坡向八方位分級面（N/NE/E/…/NW 分色）
+isobath,海底等深線 Isobath,臺灣圖層,底圖 Base Map,pmtiles,verified,gebco_isobath,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,全球海底等深線（GEBCO，等深線 11 級 + 深度分帶 12 級，3 種配色模式）
+buildingsGba,建物輪廓 Buildings,臺灣圖層,底圖 Base Map,pmtiles,verified,buildings_3d_gba,ds_urban_composite_buildings_3d_gba,POLYGON,2026-07-27,1 counties,yes,spatial,warehouse,unknown,,,全台建物輪廓（高度 / 來源 / 夜光三種著色模式，z14 起 fill-extrusion）
+jpBuildingHeight,建物高度 PLATEAU,日本,高度與地表,pmtiles,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,PLATEAU 日本分區建物高度（遠距格網、近距輪廓；高度缺值保留中性平面）
+urbanZoningNewTaipei,新北土地使用分區 New Taipei Zoning,臺灣圖層,底圖 Base Map,pmtiles,verified,urban_zoning_newtaipei,ds_urban_composite_urban_zoning_newtaipei,MULTIPOLYGON,2026-07-27,5 counties,yes,spatial,warehouse,unknown,,,新北市都市計畫土地使用分區（與北市同一組 zone_category 分色）
+nonUrbanZoning,非都市土地使用分區 Non-Urban Zoning,臺灣圖層,底圖 Base Map,pmtiles,verified,non_urban_zoning,ds_urban_composite_non_urban_zoning,GEOMETRYCOLLECTION+MULTIPOLYGON+POLYGON,2026-08-01,national,yes,spatial,warehouse,unknown,,,非都市土地使用分區（與北市/新北兩層互補，合起來是全國拼圖）
+osmRoadDrive,OSM 道路 OSM Roads,臺灣圖層,底圖 Base Map,pmtiles,verified,osm_road_drive,ds_transportation_osm_road_drive,MULTILINESTRING,2026-07-07,national,yes,spatial,warehouse,unknown,,,OSM 可行車道路網（依 highway 分級著色，含 z5 揭露門檻）
+lifelineAlerts,民生中斷 Lifeline,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 民生中斷示警（停水停電停氣等，依 event_term 分色）
+floodAlerts,水文防汛 Flood Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 水文防汛示警（淹水/水庫放流/河川高水位）
+weatherAlerts,氣象特報 Weather Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 氣象特報（豪雨/強風/低溫等大面積警戒範圍）
+transitAlerts,交通阻斷 Transit Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 交通阻斷示警（道路封閉/鐵路中斷/航班異常）
+safetyAlerts,安全環境 Safety Alerts,臺灣圖層,災害 Hazard,custom,verified,ncdr_alerts,,,,,yes,none,,,,dataset_not_in_warehouse,NCDR 安全環境示警（毒災/輻射/公共安全事件）
+earthquakes,地震 Earthquake,臺灣圖層,災害 Hazard,custom,verified,earthquake,,,,,yes,none,,,,dataset_not_in_warehouse,CWA 國內地震事件（依 timeline 分 pre/post/ripple 三態，圓徑依規模、色依深度）
+earthquakeReplay,地震回放 EQ Replay,臺灣圖層,災害 Hazard,custom,verified,earthquake,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,單一地震事件回放（震央→P/S 波前→逐站 PGA→鄉鎮震度面→沙灘球）
+activeFaults,活動斷層 Fault Zone,臺灣圖層,災害 Hazard,geojson,verified,earthquake,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,經濟部地調所活動斷層帶（glow + fill + line 三層）
+lightning,落雷 Lightning 60min（台電）,臺灣圖層,災害 Hazard,supabase,verified,lightning_taipower,,,,,yes,none,,,,dataset_not_in_warehouse,台電落雷偵測（滾動 60 分鐘視窗，halo + core 雙層，含電流強度）
+lightningCwa,落雷 Lightning 60min（氣象署）,臺灣圖層,災害 Hazard,supabase,verified,lightning_cwa,,,,,yes,none,,,,dataset_not_in_warehouse,氣象署落雷偵測（滾動 60 分鐘視窗，台電源枯竭後的替代兼交叉驗證）
+mountainRescueIncidents,山域事故 Mountain Rescue,臺灣圖層,災害 Hazard,geojson,verified,mountain_rescue_incidents,ds_hazards_mountain_rescue_incidents,POINT,2026-08-01,17 counties,yes,spatial,warehouse+browser,unknown,,,山域意外事故救援案件點（可依年份篩選，圓徑依受困人數）
+nuclearRadiation,核安輻射 Radiation,臺灣圖層,災害 Hazard,supabase,verified,nuclear_radiation_taipower,,,,,yes,none,,,,dataset_not_in_warehouse,核能電廠周界環境輻射監測即時值（halo + core 雙層）
+satellitesTaiwan,台灣 FORMOSAT / TRITON / IRIS-C,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,台灣自主衛星（福衛系列光學/雷達、獵風者 GNSS-R、IRIS-C 立方衛星）
+satellitesYaogan,Yaogan 遙感,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,中國遙感系列（軍用光學/電子偵察，16 層中數量最大的一支）
+satellitesJilin,Jilin 吉林,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,吉林一號商業遙感星座（長光衛星，高重訪率光學）
+satellitesGaofen,Gaofen 高分,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,高分系列（國家高分辨率對地觀測，民用掛名的軍民兩用）
+satellitesTJS,TJS / TJSW GEO 情報,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,通信技術試驗衛星（GEO 靜止軌道，普遍研判為預警/訊號情報）
+satellitesBeidou,北斗 BD-3 PNT,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,北斗三號導航星座（PNT 定位授時，MEO/IGSO/GEO 混合軌道）
+satellitesShiyan,Shiyan / Shijian 試驗,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,試驗/實踐系列（技術驗證掛名，含在軌操作與變軌測試）
+satellitesUSA,🇺🇸 USA · KH / BlackSky / Planet,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,美國偵察與商業遙感（KH 鎖眼系列 + BlackSky / Planet 高重訪）
+satellitesJapan,🇯🇵 Japan · IGS / ALOS,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,日本情報收集衛星 IGS 與陸域觀測 ALOS 系列
+satellitesRussia,🇷🇺 Russia · PERSONA / RESURS / COSMOS,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,俄羅斯偵察與資源觀測（PERSONA 光學、RESURS、COSMOS 軍用編號）
+satellitesIndia,🇮🇳 India · CARTOSAT / RISAT / EOS,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,印度對地觀測（CARTOSAT 製圖、RISAT 雷達、EOS 系列）
+satellitesKorea,🇰🇷 Korea · KOMPSAT,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,南韓多用途實用衛星 KOMPSAT（阿里郎系列，光學 + SAR）
+satellitesFrance,🇫🇷 France · CSO / PLEIADES / ELISA,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,法國軍用光學 CSO、商業 PLEIADES 與電子情報 ELISA
+satellitesGermany,🇩🇪 Germany · SAR-Lupe / SARah,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,德國軍用雷達偵察星座 SAR-Lupe 與後繼 SARah
+satellitesItaly,🇮🇹 Italy · COSMO-SkyMed,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,義大利 COSMO-SkyMed X 波段 SAR 星座（軍民兩用）
+satellitesIsrael,🇮🇱 Israel · Ofeq / EROS,臺灣圖層,太空 Space,custom,verified,celestrak_satellites,,,,,yes,none,,,,dataset_not_in_warehouse,以色列偵察衛星 Ofeq 與商業遙感 EROS
+weatherStations,氣象站 Weather Station,臺灣圖層,環境氣候 Environment,geojson,verified,weather,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,中央氣象署地面氣象測站點位（點擊看該站即時觀測）
+cwaCloudImagery,衛星雲圖 Cloud Imagery,臺灣圖層,環境氣候 Environment,custom,verified,cwa_satellite,,,,,yes,none,,,,dataset_not_in_warehouse,中央氣象署真彩色衛星雲圖（逐時影像疊圖，隨時間軸播放）
+cwaRadarImagery,雷達回波 Radar Imagery,臺灣圖層,環境氣候 Environment,custom,verified,cwa_satellite,,,,,yes,none,,,,dataset_not_in_warehouse,中央氣象署雷達回波合成圖（降雨強度，隨時間軸播放）
+temperatureWave,溫度波 Temperature Wave,臺灣圖層,環境氣候 Environment,custom,verified,weather,,,,,yes,none,,,,dataset_not_in_warehouse,全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）
+temperatureGrid,溫度網格 Temperature Grid,臺灣圖層,環境氣候 Environment,custom,verified,weather,,,,,yes,none,,,,dataset_not_in_warehouse,全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）
+urbanHeat,都市熱島 Urban Heat,臺灣圖層,環境氣候 Environment,pmtiles,verified,urban_heat_lst,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）
+aqiImagery,空氣品質色階 AQI Raster,臺灣圖層,環境氣候 Environment,custom,verified,air_quality,,,,,yes,none,,,,dataset_not_in_warehouse,環境部空氣品質內插色階圖（全台面狀 AQI，隨時間軸播放）
+aqiStations,空氣品質測站 AQI Station,臺灣圖層,環境氣候 Environment,custom,verified,air_quality,,,,,yes,none,,,,dataset_not_in_warehouse,環境部空品測站即時 AQI（點擊看該站六項污染物讀值）
+aqiMicroSensors,LASS 微型感測 Micro Sensor,臺灣圖層,環境氣候 Environment,custom,verified,air_quality,,,,,yes,none,,,,dataset_not_in_warehouse,LASS 民間微型感測器即時 PM2.5 / 溫度 / 濕度（約 500 點，可聚合）
+officialNoiseMonitoring,官方噪音測站 Official Monitoring,臺灣圖層,環境氣候 Environment,geojson,verified,official_noise_monitoring,ds_environment_official_noise_monitoring,POINT,2026-08-27,national,yes,spatial,warehouse+browser,address_geocode,,,官方站點最近可用視窗內的實際回報樣本 LAeq；非完整連續月均值，無已驗 dB 站仍保留
+noiseCaptureGrid,NoiseCapture 公民格網,臺灣圖層,環境氣候 Environment,pmtiles,verified,noise_capture_grid,,,,,yes,none,,,,warehouse_SKIPPED_DISPLAY_ONLY,NoiseCapture／Noise-Planet rolling-365 公民科學格網；高度稀疏且 provisional，留白不代表安靜或 0 dB
+noiseControlZones,噪音管制區 Control Zones,臺灣圖層,環境氣候 Environment,pmtiles,verified,noise_control_zones,ds_environment_noise_control_zones,MULTIPOLYGON,2026-08-27,1 counties,yes,spatial,warehouse,unknown,,,臺中 v1 第一至第四類法定噪音管制區；類別不是實測聲音大小
+aviationNoiseZones,航空噪音法定里別 Aviation Zones,臺灣圖層,環境氣候 Environment,geojson,verified,aviation_noise_zones,ds_environment_aviation_noise_zones,POLYGON,2026-08-27,2 counties,yes,spatial,warehouse+browser,unknown,,,桃園／高雄 v1 航空噪音法定村里 membership；不是 DNL 實測等噪音線
+noiseEnforcementEvents,噪音裁處事件 Enforcement,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,官方噪音裁處事件與罰鍰（固定 noise subset）；不是 dB 觀測或聲音強度
+soundCameraLocations,聲音照相設備 Sound Camera,臺灣圖層,環境氣候 Environment,geojson,verified,sound_camera_locations,ds_environment_sound_camera_locations,POINT,2026-08-27,2 counties,yes,spatial,warehouse+browser,address_geocode,,,臺南／彰化官方設備或執法路段清單；定位精度混合，不代表即時啟用、違規事件位置或 dB
+pollutionPenaltyCritical,重大裁處 Critical Penalty,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,環境部重大裁處事件點位（罰鍰金額 / 違反法規 / 裁處年份可篩）
+pollutionPenaltyGeneral,一般裁處 General Penalty,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,環境部一般裁處事件點位（severity high / normal）
+pollutionPenaltyMobile,移動污染 Mobile Penalty,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,移動污染源（車輛）裁處事件點位
+pollutionSite,污染場址 Site,臺灣圖層,環境氣候 Environment,pmtiles,verified,pollution_source pollution_penalties,ds_environment_pollution_penalties,POINT,2026-09-26,national,yes,spatial,warehouse+browser,address_geocode,,,"環境部列管確認污染場址 8,253 處（土壤 / 地下水污染整治場址）"
+streetTreesTaipeiDiff,行道樹變化 Street Tree Diff,臺灣圖層,環境氣候 Environment,pmtiles,verified,street_trees_taipei_diff,ds_urban_open_space_street_trees_taipei_diff,POINT,2026-07-12,2 counties,yes,spatial,warehouse+browser,unknown,,,台北行道樹兩時點比對（新植 / 移除 / 存續，逐株軌跡）
+streetTreesTaipei3epoch,行道樹三時點 Street Tree 3-Epoch,臺灣圖層,環境氣候 Environment,pmtiles,verified,street_trees_taipei_3epoch,ds_urban_open_space_street_trees_taipei_3epoch,POINT,2026-07-13,2 counties,yes,spatial,warehouse,unknown,,,台北行道樹 2022 / 2024 / 2026 三時點存續軌跡
+streetTreesNational,行道樹全國 Street Trees TW,臺灣圖層,環境氣候 Environment,pmtiles,verified,street_trees_national,ds_urban_open_space_street_trees_national,POINT,2026-07-14,3 counties,yes,spatial,warehouse+browser,address_geocode,,,"行道樹全國分佈 210,436 株（目前涵蓋台北 + 台中）"
+protectedTreesNational,受保護樹木 Protected Trees,臺灣圖層,環境氣候 Environment,geojson,verified,protected_trees_national,ds_urban_open_space_protected_trees_national,POINT,2026-07-14,10 counties,yes,spatial,warehouse+browser,address_geocode,,,各縣市列管受保護老樹（8 城彙整，樹種 / 樹齡 / 胸徑）
+riversideTreesTaipei,河濱喬木 Riverside Trees,臺灣圖層,環境氣候 Environment,geojson,verified,riverside_trees_taipei,ds_urban_open_space_riverside_trees_taipei,POINT,2026-07-14,2 counties,yes,spatial,warehouse+browser,unknown,,,台北 30 座河濱公園喬木清冊
+treePitsTaipei,人行道樹穴 Tree Pits,臺灣圖層,環境氣候 Environment,pmtiles,verified,tree_pits_taipei,ds_urban_open_space_tree_pits_taipei,MULTIPOLYGON,2026-07-14,2 counties,yes,spatial,warehouse+browser,unknown,,,"台北人行道樹穴 56,720 面（面狀，含空穴 / 已植）"
+waterFacilities,水利設施 Facility,臺灣圖層,水資源 Water,geojson,verified,water_facilities_osm,ds_water_resources_water_facilities_osm,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,水利設施點位（OSM 取水口 / 水處理 / 閘門等）
+waterMonitorStations,監測站 Monitor,臺灣圖層,水資源 Water,geojson,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,水利署各類監測站靜態點位（雨量 / 水位 / 水質）
+waterReservoirs,水庫 Reservoir,臺灣圖層,水資源 Water,pmtiles+geojson,verified,reservoir_storage_wra,ds_water_resources_reservoir_storage_wra,MULTIPOLYGON,2026-05-19,19 counties,yes,spatial,warehouse+browser,unknown,,,全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）
+marineObservationCwa,CWA 海洋觀測站 CWA Marine,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,中央氣象署固定式海洋觀測站；點色表示 freshness／source status，各指標保留 depth、quality 與 vertical datum。
+marineObservationIsohe,ISOHE 港區海氣象 ISOHE Port,臺灣圖層,水資源 Water,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,ISOHE 港區海氣象固定站；採自身更新頻率判讀 freshness，不與 CWA 同名指標平均或直接比較不同 vertical datum。
+groundwaterWells,水井點位 Wells,臺灣圖層,水資源 Water,custom,verified,groundwater_wells,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,地下水井監測網站位 backdrop（灰點，呈現監測密度）
+rainGauge,即時雨量 Rain Gauge,臺灣圖層,水資源 Water,custom,verified,rain_gauge_stations,ds_water_resources_rain_gauge_stations,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,全台雨量站 10 分鐘 / 1 小時累積雨量（CWA 分級色階 + 熱區）
+riverLevel,河川水位 River Level,臺灣圖層,水資源 Water,custom,verified,river_level_stations_wra,,,,,yes,none,,,,dataset_not_in_warehouse,水利署河川水位站即時水位（對警戒水位的相對高度）
+floodSensor,都市淹水感測 USWG,臺灣圖層,水資源 Water,custom,verified,water.uswg_measurements,,,,,yes,none,,,,dataset_not_in_warehouse,水利署都市淹水感測器（USWG）即時積水深度
+iotWraRiver,IoT 河川 IoT River,臺灣圖層,水資源 Water,custom,verified,river_water_level_realtime,ds_water_resources_river_water_level_realtime,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,水利署 IoT 河川水位感測器（民間協力布建的密網）
+iotWraStructure,IoT 水工結構 IoT Structure,臺灣圖層,水資源 Water,custom,verified,dam_weirs_wra,ds_water_resources_dam_weirs_wra,POINT,2026-05-19,19 counties,yes,spatial,warehouse,unknown,,,水利署 IoT 水工結構物感測（堰壩 / 閘門 / 抽水站等，5 類可篩）
+taipeiSewer,北市下水道水位 Sewer (TP),臺灣圖層,水資源 Water,custom,verified,storm_drainage_pipes,,,,,yes,none,,,,dataset_not_in_warehouse,台北市下水道水位監測（WIC，防汛期即時水情）
+taipeiEvacuate,北市疏散門 Evacuate Gate (TP),臺灣圖層,水資源 Water,custom,verified,civil_defense_shelters,ds_police_justice_civil_defense_shelters,POINT,2026-08-24,national,yes,spatial,warehouse,address_geocode,,,台北市堤防疏散門開關狀態（WIC，颱風豪雨時的封閉狀況）
+taipeiPumb,北市抽水站 Pump Station (TP),臺灣圖層,水資源 Water,custom,verified,pump_stations_wra,ds_water_resources_pump_stations_wra,POINT,2026-05-19,6 counties,yes,spatial,warehouse,unknown,,,台北市抽水站即時運轉狀態（WIC，機組啟動台數 / 前池水位）
+waterBasins,流域 Basin,臺灣圖層,水資源 Water,geojson,verified,river_basins_wra,,,,,yes,none,,,,dataset_not_in_warehouse,中央管河川流域界（純輪廓線，不分色故無圖例）
+waterRivers,河川 River,臺灣圖層,水資源 Water,pmtiles,verified,river_polygons_wra,,,,,yes,none,,,,dataset_not_in_warehouse,河川水域面 + 中心線（同一個 toggle 疊兩份切片）
+waterLevees,堤防 Levee,臺灣圖層,水資源 Water,pmtiles,verified,river_levees_wra,,,,,yes,none,,,,dataset_not_in_warehouse,水利署堤防線（單色，無分類維度故無圖例）
+waterCanals,灌排渠道 Canal,臺灣圖層,水資源 Water,pmtiles,verified,irrigation_canals,,,,,yes,none,,,,dataset_not_in_warehouse,農田水利署灌溉排水渠道（依引灌需求屬性 3 類分色）
+waterProtectionZones,管制區 Protection,臺灣圖層,水資源 Water,geojson,verified,water_zones_wra,ds_water_resources_water_zones_wra,MULTIPOLYGON,2026-05-19,17 counties,yes,spatial,warehouse,unknown,,,水質水量保護區與河川管制區範圍（依管制類別分色）
+waterDetentionBasins,滯洪池 Detention,臺灣圖層,水資源 Water,geojson,verified,detention_basins,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,滯洪池點位與容量（點擊看設計滯洪量）
+groundwater,地下水井 Groundwater,臺灣圖層,水資源 Water,custom,verified,groundwater_wells,,,,,yes,none,,,,dataset_not_in_warehouse,地下水井日內水位變化（紅降藍升，半徑＝變化強度）
+lakesPondsOsm,湖泊 / 埤塘 Lakes & Ponds,臺灣圖層,水資源 Water,pmtiles,verified,lakes_ponds_osm,ds_water_resources_lakes_ponds_osm,MULTIPOLYGON+POLYGON,2026-07-11,national,yes,spatial,warehouse,unknown,,,全台湖泊與埤塘水體面（OSM，含桃園埤塘群）
+waterFloodExtreme,淹水潛勢 Flood 650mm/24h,臺灣圖層,水資源 Water,pmtiles,verified,flood_hazard_wra,ds_water_resources_flood_hazard_wra,MULTIPOLYGON,2026-05-19,national,yes,spatial,warehouse,unknown,,,水利署淹水潛勢圖（650mm/24h 極端降雨情境，依淹水深度分級）
+floodSensorIsochrone,淹水 3 分步行圈 Isochrone (雙北),臺灣圖層,水資源 Water,custom,verified,water.uswg_measurements,,,,,yes,none,,,,dataset_not_in_warehouse,雙北淹水感測器 3 分鐘步行可達範圍（沿路網等時圈）
+precipRaster,累積雨量柵格 Precip Raster,臺灣圖層,水資源 Water,custom,verified,water.precipitation_raster_frames,,,,,yes,none,,,,dataset_not_in_warehouse,累積雨量柵格圖（多時距累積，隨時間軸播放）
+wasteTruck,垃圾車 Truck (含音符),臺灣圖層,廢棄物 Waste,custom,verified,garbage_collection,ds_environment_garbage_collection,POINT,2026-07-07,3 counties,yes,spatial,warehouse,unknown,,,高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）
+wasteSchedule,垃圾車（表定） Schedule,臺灣圖層,廢棄物 Waste,custom,verified,garbage_collection,ds_environment_garbage_collection,POINT,2026-07-07,3 counties,yes,spatial,warehouse,unknown,,,全台 22 縣市垃圾車表定路線（依星期幾推算，與 GPS 實跡並行）
+wasteScheduleNote,　└ 表定音符 Notes 🎵,臺灣圖層,廢棄物 Waste,custom,verified,waste_collection_routes,ds_waste_management_waste_collection_routes,LINESTRING,2026-05-19,national,yes,spatial,warehouse,unknown,,,表定垃圾車的音符動畫（獨立開關，與 GPS 版音符分開）
+wasteCleaningSquads,清潔隊 Squads,臺灣圖層,廢棄物 Waste,custom,verified,waste_cleaning_squads,ds_waste_management_waste_cleaning_squads,POINT,2026-05-19,national,yes,spatial,warehouse,unknown,,,全國清潔隊辦公點（23 縣市 359 處，綠色雙圓與橘色清運點區隔）
+wasteStopsStatic,全台清運點位 Stops (靜態),臺灣圖層,廢棄物 Waste,geojson,verified,waste_collection_stops,ds_waste_management_waste_collection_stops,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,全台垃圾車停靠點位（靜態快照，非即時）
+wdClothes,衣物回收箱 Clothes,臺灣圖層,廢棄物 Waste,custom,verified,waste_positions_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,"全台舊衣回收箱點位（7,236 處）"
+wdMixed,混合投放點 Mixed,臺灣圖層,廢棄物 Waste,custom,verified,waste_positions_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,"社區資收站／廚餘／大型廢棄物等混合投放點（6,368 處）"
+wdRecyclingContainer,街頭資收桶 Container,臺灣圖層,廢棄物 Waste,custom,verified,waste_positions_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,街頭資源回收桶點位（145 處）
+wdBattery,電池回收 Battery,臺灣圖層,廢棄物 Waste,custom,verified,waste_positions_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,電池回收點位（僅 2 處，資料涵蓋度低）
+wfIncinerator,焚化爐 Incinerator,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,全台焚化爐（30 座，3D 煙囪＋地面底圈）
+wfLandfill,衛生掩埋場 Landfill,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,全台衛生掩埋場（154 處）
+wfLandfillCoastal,濱海掩埋場 Coastal,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse,unknown,,,臨海掩埋場（23 處，含離海距離欄位）
+wfTransfer,轉運站 Transfer,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,垃圾轉運站（28 處）
+wfMedical,醫療廢棄物 Medical,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse,unknown,,,醫療廢棄物處理設施（40 處）
+wfMonitoring,地下水監測井 Monitor,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,掩埋場周邊地下水監測井（574 口）
+wfRecycling,資源回收廠 Recycling,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,資源回收廠（653 處）
+wfScrapYard,廢車 / 廢金屬 Scrap,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,廢車／廢金屬處理場（僅 3 處，資料涵蓋度低）
+wfOther,其他事廢設施 Other,臺灣圖層,廢棄物 Waste,custom,verified,waste_facilities,ds_waste_management_waste_facilities,POINT,2026-05-19,national,yes,spatial,warehouse,unknown,,,"其他事業廢棄物處理設施（3,164 處，含廚餘處理與維修廠）"
+agriPOI,休農場 / 田媽媽 / 特色農旅 POI,臺灣圖層,農業 Agriculture,custom,verified,agritourism_certified_2024,ds_agriculture_agritourism_certified_2024,POINT,2026-05-23,national,yes,spatial,warehouse+browser,unknown,,,休閒農場／田媽媽／特色農業旅遊場域三合一 POI（840 點）
+agriRetail,農產零售商 Retail,臺灣圖層,農業 Agriculture,pmtiles,verified,agri_retail_companies,ds_agriculture_agri_retail_companies,POINT,2026-05-25,national,yes,spatial,warehouse+browser,address_geocode,,,農產零售商登記點位（PT-1 後由 geojson 切成 PMTiles）
+agriProduceWholesale,蔬果批發商 Produce Wholesale,臺灣圖層,農業 Agriculture,pmtiles,verified,produce_wholesale_companies,ds_agriculture_produce_wholesale_companies,POINT,2026-05-25,national,yes,spatial,warehouse+browser,address_geocode,,,蔬果批發商登記點位
+agriWholesaleMarket,農產批發市場 Wholesale Market,臺灣圖層,農業 Agriculture,geojson,verified,agri_wholesale_market_companies,ds_agriculture_agri_wholesale_market_companies,POINT,2026-05-25,national,yes,spatial,warehouse+browser,address_geocode,,,農產批發市場（果菜／花卉／魚類等公有批發市場）
+livestockFarmPig,畜禽飼養場·豬 Pig Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養豬場登記點位（依飼養規模分級）
+livestockFarmChicken,畜禽飼養場·雞 Chicken Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養雞場登記點位（蛋雞／肉雞）
+livestockFarmCattle,畜禽飼養場·牛 Cattle Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養牛場登記點位（乳牛／肉牛）
+livestockFarmDuck,畜禽飼養場·鴨 Duck Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養鴨場登記點位
+livestockFarmGoose,畜禽飼養場·鵝 Goose Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養鵝場登記點位
+livestockFarmSheep,畜禽飼養場·羊 Sheep/Goat Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,養羊場登記點位（綿羊／山羊）
+livestockFarmOther,畜禽飼養場·其他 Other Farms,臺灣圖層,農業 Agriculture,supabase,verified,livestock_farms,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,其他畜禽飼養場（鹿／兔／鴕鳥等）
+livestockSlaughter,屠宰場 Slaughterhouses,臺灣圖層,農業 Agriculture,supabase,verified,slaughterhouses,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,合法屠宰場（依屠宰畜種與規模）
+livestockFeed,飼料廠 Feed Factories,臺灣圖層,農業 Agriculture,geojson,verified,feed_factories,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,飼料製造工廠登記點位
+livestockMarket,拍賣/批發市場 Markets,臺灣圖層,農業 Agriculture,geojson,verified,livestock_markets,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,家畜禽拍賣／批發市場
+aquaculturePonds,逐口魚塭 Aquaculture Ponds,臺灣圖層,農業 Agriculture,pmtiles,verified,aquaculture_ponds_osm,ds_fishery_aquaculture_ponds_osm,MULTIPOLYGON+POLYGON,2026-07-08,14 counties,yes,spatial,warehouse,unknown,,,逐口魚塭範圍（OSM 水體標註）
+aquacultureZone,養殖漁業生產區 Production Zone,臺灣圖層,農業 Agriculture,geojson,verified,aquaculture_production_zone,ds_agriculture_aquaculture_production_zone,MULTIPOLYGON+POLYGON,2026-05-19,11 counties,yes,spatial,warehouse+browser,unknown,,,官方劃設的養殖漁業生產區範圍
+aquacultureCageNet,海上箱網 Cage Net,臺灣圖層,農業 Agriculture,geojson,verified,aquaculture_cage_net,ds_fishery_aquaculture_cage_net,POLYGON,2026-05-19,unknown,yes,spatial,warehouse+browser,unknown,,,海上箱網養殖區範圍
+aquacultureWaterSatellite,衛星偵測養殖水體 Satellite Detected,臺灣圖層,農業 Agriculture,pmtiles,verified,aquaculture_water_satellite,ds_fishery_aquaculture_water_satellite,POLYGON,2026-07-12,13 counties,yes,spatial,warehouse,unknown,,,衛星影像偵測出的養殖水體（補官方圖資之不足）
+aquacultureWaterSatelliteMoa,魚塭·官方標籤版(2026-07) MOA Labeled,臺灣圖層,農業 Agriculture,pmtiles,verified,aquaculture_water_satellite_moa,ds_fishery_aquaculture_water_satellite_moa,POLYGON,2026-07-18,national,yes,spatial,warehouse,unknown,,,農業部標籤版魚塭圖資（2026-07 版）
+aquacultureWaterUnion,魚塭·整合版 (官方∪衛星) Union,臺灣圖層,農業 Agriculture,pmtiles,verified,aquaculture_water_sat_union,ds_fishery_aquaculture_water_sat_union,POLYGON,2026-08-11,19 counties,yes,spatial,warehouse,unknown,,,官方標籤 ∪ 衛星偵測的魚塭整合圖層
+aquacultureIntegrated,養殖漁業整合 Integrated,臺灣圖層,農業 Agriculture,pmtiles,pulse_only,,,,,,yes,none,,,,derived_layer,"三來源養殖面聚合（逐口魚塭 + 衛星偵測 + 生產區，20,212 面依來源三色）"
+agriculture,農田範圍 FTW Fields 2025,臺灣圖層,農業 Agriculture,custom,verified,ftw_fields,,,,,yes,none,,,,dataset_not_in_warehouse,全台農田範圍（FTW Fields 2025，38.6 萬田區）
+agriLeisureFarmZones,休閒農業區 Leisure Farm Zones,臺灣圖層,農業 Agriculture,custom,verified,leisure_farm_zones_2025,ds_agriculture_leisure_farm_zones_2025,MULTIPOLYGON+POLYGON,2026-05-23,17 counties,yes,spatial,warehouse+browser,unknown,,,官方劃設的休閒農業區範圍（2025 版）
+agriRuralRegen,農村再生社區 Rural Regen,臺灣圖層,農業 Agriculture,custom,verified,rural_regen_communities_2025,ds_agriculture_rural_regen_communities_2025,MULTIPOLYGON+POLYGON,2026-05-23,national,yes,spatial,warehouse,unknown,,,農村再生計畫社區範圍（2025 版）
+ecoNetworkZones,國土綠網分區 Eco Network Zones,臺灣圖層,農業 Agriculture,pmtiles,verified,eco_network_zones,,,,,yes,none,,,,dataset_not_in_warehouse,國土生態綠網保育軸帶分區
+agriSoil,全台土壤分類 Soil Map,臺灣圖層,農業 Agriculture,custom,verified,soil_map_national,ds_agriculture_soil_map_national,POLYGON,2026-05-23,national,yes,spatial,warehouse,unknown,,,全台土壤分類圖（土綱／土類）
+agriSoilFertility,土壤肥力 250m Soil Fertility,臺灣圖層,農業 Agriculture,custom,verified,soil_fertility_grid_250m,ds_agriculture_soil_fertility_grid_250m,POLYGON,2026-05-23,19 counties,yes,spatial,warehouse,unknown,,,250m 網格土壤肥力（pH／有機質／氮磷鉀等多指標可切換）
+agriCropSuitability,作物適栽 Crop Suitability,臺灣圖層,農業 Agriculture,custom,verified,crop_suitability_132,ds_agriculture_crop_suitability_132,POLYGON,2026-05-23,18 counties,yes,spatial,warehouse,unknown,,,132 種作物的適栽分級圖（依 select 切換作物）
+farmRoads,農路 Farm Roads,臺灣圖層,農業 Agriculture,pmtiles,verified,farm_roads,,,,,yes,none,,,,dataset_not_in_warehouse,農路線形（含 glow 底線與主線兩層）
+ports,港口 Port,臺灣圖層,交通 Move,geojson,verified,ports,ds_transportation_ports,POINT,2026-05-27,national,yes,spatial,warehouse+browser,unknown,,,港口實際範圍／代表點切換，依 port_class 分級上色，可另開 3D 光柱
+airports,機場 Airport,臺灣圖層,交通 Move,geojson,verified,airport,ds_transportation_airport,POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,機場實際範圍／代表點切換，可另開 3D 光柱
+lighthouses,燈塔 Lighthouse,臺灣圖層,交通 Move,geojson,verified,light_house,ds_transportation_light_house,POINT,2026-05-19,14 counties,yes,spatial,warehouse+browser,unknown,,,燈塔點位（雙圓 glow ＋ 可切 Three.js 旋轉光束與照射距離）
+aviationControl,飛航情報/終端管制 ✈️ FIR + TMA,臺灣圖層,交通 Move,custom,verified,airspace_aip,,,,,yes,none,,,,dataset_not_in_warehouse,飛航情報區 FIR ＋ 終端管制區 TMA（航管區域，非禁航）
+aviationRestricted,機場管制/限航/危險 ⛔ CTR+RCR+DANGER,臺灣圖層,交通 Move,custom,verified,drone_restricted_zones,ds_aviation_drone_drone_restricted_zones,MULTIPOLYGON+POLYGON,2026-07-07,national,yes,spatial,warehouse,unknown,,,對航空器有限制的具體區域（機場管制／軍方限航／危險／起降航線）
+droneNoFlyZone,無人機紅區／未分類快照 🚫 Drone NFZ,臺灣圖層,交通 Move,custom,verified,airport_safety_zones,ds_aviation_drone_airport_safety_zones,LINESTRING+POINT,2026-07-07,18 counties,yes,spatial,warehouse,unknown,,,"民航局 dronegis 2026-06-30 歷史紅區及未分類參考範圍（5,635 面）；有效日期多數缺值，不作當前飛行判定"
+droneRestrictedZone,無人機黃區快照 ⚠️ Drone Restricted,臺灣圖層,交通 Move,custom,verified,drone_restricted_zones,ds_aviation_drone_drone_restricted_zones,MULTIPOLYGON+POLYGON,2026-07-07,national,yes,spatial,warehouse,unknown,,,民航局 dronegis 2026-06-30 歷史黃區參考範圍（108 面）；不作當前飛行或申請判定
+stationsTHSR,高鐵站 THSR Station,臺灣圖層,交通 Move,geojson,verified,rail_stations,ds_transportation_rail_stations,POINT,2026-09-26,19 counties,yes,spatial,warehouse+browser,address_geocode,,,高鐵站體實際範圍／代表點切換，可另開 3D 光柱
+stationsTRA,台鐵站 TRA Station,臺灣圖層,交通 Move,geojson,verified,rail_stations,ds_transportation_rail_stations,POINT,2026-09-26,19 counties,yes,spatial,warehouse+browser,address_geocode,,,台鐵站：原模式以大站範圍面＋小站點呈現，可切為全點位模式
+stationsMetro,捷運站 Metro Station,臺灣圖層,交通 Move,geojson,verified,rail_stations,ds_transportation_rail_stations,POINT,2026-09-26,19 counties,yes,spatial,warehouse+browser,address_geocode,,,捷運站點（上游無站體面，實際範圍選項會明示停用），可另開 3D 光柱
+busStationsCity,市區公車站 City Bus,臺灣圖層,交通 Move,pmtiles,verified,bus,ds_transportation_bus,LINESTRING+POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,市區公車站牌點位（PMTiles 切片，雙圓 glow）
+busStationsIntercity,公路客運站 Intercity,臺灣圖層,交通 Move,geojson,verified,bus,ds_transportation_bus,LINESTRING+POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,公路客運站牌點位（雙圓 glow）
+bikeStations,公共自行車 Bike Station,臺灣圖層,交通 Move,geojson,verified,bike,ds_transportation_bike,MULTILINESTRING+POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,YouBike／公共自行車站點位（雙圓 glow）
+flights,航班 Flight,臺灣圖層,交通 Move,custom,verified,opensky_flights,,,,,yes,none,,,,dataset_not_in_warehouse,即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）
+historicalFlightTrails,歷史航班軌跡 Taiwan,臺灣圖層,交通 Move,custom,catalog_missing,,,,,,yes,none,,,,upstream_catalog_missing,台灣機場的歷史航班樣本軌跡，保留資料缺口與原始點位品質資訊。
+ships,船舶 Ship,臺灣圖層,交通 Move,custom,verified,ship,ds_transportation_ship,POINT,2026-05-19,14 counties,yes,spatial,warehouse,unknown,,,AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）
+busLive,公車 Bus,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,市區公車即時／回放位置（八大區域可多選，依路線 progress 插值）
+busIntercityLive,公路客運 Intercity,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,公路客運即時／回放位置（全國單一資料源）
+touristShuttleLive,台灣好行 Tourist Shuttle,臺灣圖層,交通 Move,custom,verified,bus_realtime,,,,,yes,none,,,,dataset_not_in_warehouse,台灣好行觀光巴士即時／回放位置
+highways,國道 Highway,臺灣圖層,交通 Move,pmtiles,verified,freeway,ds_transportation_freeway,LINESTRING+POINT,2026-05-19,17 counties,yes,spatial,warehouse,unknown,,,國道路線（glow 底線 ＋ 主線兩層）
+osmExpressway,快速道路 Expressway,臺灣圖層,交通 Move,pmtiles,verified,osm_expressway,ds_transportation_osm_expressway,MULTILINESTRING,2026-07-07,17 counties,yes,spatial,warehouse,unknown,,,OSM 快速道路線形（單色橘線，與國道分開）
+provincialRoads,省道 Provincial Road,臺灣圖層,交通 Move,pmtiles,verified,road,,,,,yes,none,,,,dataset_not_in_warehouse,省道路線（glow 底線 ＋ 主線兩層）
+cyclingRoutes,自行車道 Cycling Route,臺灣圖層,交通 Move,geojson,verified,bike,ds_transportation_bike,MULTILINESTRING+POINT,2026-05-19,national,yes,spatial,warehouse+browser,unknown,,,自行車道路線（glow 底線 ＋ 主線兩層）
+etcGantry,ETC 收費門架 Gantry,臺灣圖層,交通 Move,geojson,verified,etc_gantry,ds_transportation_etc_gantry,POINT,2026-07-07,16 counties,yes,spatial,warehouse+browser,unknown,,,國道 ETC 計程收費門架點位
+serviceArea,國道服務區 Service Area,臺灣圖層,交通 Move,geojson,verified,service_area,ds_transportation_service_area,POINT,2026-07-07,9 counties,yes,spatial,warehouse+browser,unknown,,,國道服務區點位（雙圓 glow）
+serviceAreaPolygon,國道服務區範圍 SA Area,臺灣圖層,交通 Move,geojson,verified,service_area_polygon,ds_transportation_service_area_polygon,MULTIPOLYGON+POLYGON,2026-07-07,9 counties,yes,spatial,warehouse+browser,unknown,,,國道服務區範圍面（fill ＋ 邊框）
+taxiStand,計程車招呼站 Taxi Stand,臺灣圖層,交通 Move,geojson,verified,taxi_stand,ds_transportation_taxi_stand,POINT,2026-07-07,2 counties,yes,spatial,warehouse+browser,unknown,,,計程車招呼站點位（雙圓 glow）
+freewayCongestion,國道壅塞 Congestion,臺灣圖層,交通 Move,custom,verified,road_congestion,,,,,yes,none,,,,dataset_not_in_warehouse,國道路段壅塞等級（依時間軸逐快照染色）
+roadCongestion,省道路況 Provincial v1,臺灣圖層,交通 Move,custom,verified,road_congestion,,,,,yes,none,,,,dataset_not_in_warehouse,省道 TDX live_highway 路況（5 分鐘槽，feature-state 染色）
+roadEvents,即時路況 Road Events,臺灣圖層,交通 Move,custom,verified,road_event,,,,,yes,none,,,,dataset_not_in_warehouse,TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）
+parkingOnstreet,路邊停車 On-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,路邊停車格（台北面／新北・台中點含空位率）
+parkingOffstreet,場外停車場 Off-street,臺灣圖層,交通 Move,supabase,pulse_only,,,,,,yes,none,,,,pulse_only,場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）
+facPrimary,發電廠 主要・運轉中 Primary,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）
+facSecondary,發電廠 小型分散 Secondary,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 小型分散式發電設施
+facPlanned,發電廠 未來規劃 Planned,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 規劃中／興建中發電廠
+facHistorical,發電廠 歷史・退役 Historical,臺灣圖層,能源 Energy,supabase,verified,power_plants,ds_energy_power_plants,POINT,2026-06-15,13 counties,yes,spatial,warehouse,google_geocode,,,SSOT 已除役／停機發電廠
+facOsmSupplement,發電廠 OSM 補充 Supplement,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 補充的發電設施（SSOT 未收錄的 IPP／小型廠）
+powerGenerationUnit,機組即時出力 Live Output,臺灣圖層,能源 Energy,supabase,verified,power_generation,,,,,yes,none,,,,warehouse_SKIPPED_FORMAT,台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）
+powerPlantGlow,發電廠 Bloom 測試 ✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）
+aviationRestrictedGlow,機場管制/限航 Rim Glow 測試 ⛔✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）
+osmSubstations,變電所 區域 Substation,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 區域變電所（migration 235 電網層級分色）
+osmSubstationsEhv,變電所 超高壓 EHV,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 超高壓變電所（345kV 級，halo ＋ core 兩層）
+osmPowerLines,高壓輸電線 Power Lines,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）
+osmPowerTowers,高壓鐵塔 Power Towers,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,browser_reader,browser,,,dataset_not_in_warehouse,OSM 高壓鐵塔點位
+powerPoles,電桿 Power Poles (2.96M),臺灣圖層,能源 Energy,custom,verified,power_poles,ds_energy_power_poles,POINT,2026-06-15,19 counties,yes,spatial,warehouse,unknown,,,台電全國電桿 296 萬點（pole_type 5 類分色，熱區與全台顯示可切）
+powerLinesGlow,高壓輸電線 Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）
+substationEhvGlow,變電所 EHV Bloom 測試 ⚡✨,臺灣圖層,能源 Energy,custom,pulse_only,,,,,,yes,none,,,,pulse_only,EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）
+gasStationCpc,加油站 中油 CPC,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台灣中油直營／加盟加油站
+gasStationFpcc,加油站 台塑 FPCC,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台塑石化加油站
+gasStationTaisugar,加油站 台糖 Taisugar,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,台糖加油站
+gasStationOther,加油站 其他 / 私營 Other,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,其他品牌／私營加油站
+gasStationCanonical,加油站 SSOT 合併 Canonical,臺灣圖層,能源 Energy,supabase,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,google_geocode,,,四個品牌去重合併後的加油站 SSOT
+lpgSubpackaging,LPG 分裝 / 儲存場 Subpackaging,臺灣圖層,能源 Energy,supabase,verified,lpg_facilities_canonical,ds_energy_lpg_facilities_canonical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,address_geocode,,,液化石油氣分裝場／儲存場
+lpgRetailers,LPG 加氣站 / 瓦斯行 Retailer,臺灣圖層,能源 Energy,supabase,verified,lpg_facilities_canonical,ds_energy_lpg_facilities_canonical,POINT,2026-07-07,national,yes,spatial,warehouse+browser,address_geocode,,,液化石油氣加氣站與瓦斯零售商
+lngTerminal,LNG 接收站 Terminal,臺灣圖層,能源 Energy,supabase,verified,gem_lng_terminals_tw,ds_energy_gem_lng_terminals_tw,POINT,2026-07-07,4 counties,yes,spatial,warehouse,unknown,,,液化天然氣接收站（GEM 全球資料庫台灣段）
+pipelineGas,天然氣主幹線 Gas Pipeline,臺灣圖層,能源 Energy,supabase,verified,gem_gas_pipelines_tw,ds_energy_gem_gas_pipelines_tw,GEOMETRYCOLLECTION+LINESTRING+MULTILINESTRING,2026-07-07,5 counties,yes,spatial,warehouse,unknown,,,天然氣輸送主幹線（GEM）
+pipelineOilGas,油氣管線 OSM Oil/Gas Pipeline,臺灣圖層,能源 Energy,supabase,verified,gem_oil_ngl_pipelines_tw,ds_energy_gem_oil_ngl_pipelines_tw,,2026-07-07,,yes,attribute,warehouse,,,,原油／NGL 輸送管線（GEM）
+industrialRefinery,煉油 / 化工廠 Refinery,臺灣圖層,能源 Energy,supabase,verified,osm_refineries,ds_energy_osm_refineries,MULTIPOLYGON+POLYGON,2026-07-07,19 counties,yes,spatial,warehouse,unknown,,,OSM 煉油廠／石化工廠面（halo ＋ fill ＋ 可切邊框）
+industrialStorageTank,油氣儲槽 Storage Tank,臺灣圖層,能源 Energy,supabase,verified,osm_storage_tanks_oil_gas,ds_energy_osm_storage_tanks_oil_gas,POINT+POLYGON,2026-07-07,12 counties,yes,spatial,warehouse,unknown,,,OSM 油氣儲槽面（halo ＋ fill ＋ 可切邊框）
+industrialPowerPlant,火力廠 polygon Thermal Plant,臺灣圖層,能源 Energy,supabase,verified,osm_fossil_power_plants,ds_energy_osm_fossil_power_plants,MULTIPOLYGON+POLYGON,2026-07-07,15 counties,yes,spatial,warehouse,unknown,,,OSM 火力發電廠廠區面（與 SSOT 的點位 facPrimary 互補）
+coalTerminal,煤炭碼頭 Coal Terminal,臺灣圖層,能源 Energy,supabase,verified,gem_coal_terminals,ds_energy_gem_coal_terminals,POINT,2026-07-07,2 counties,yes,spatial,warehouse,unknown,,,燃煤進口碼頭（GEM）
+fossilFuelInfra,石化能源設施 Fossil Fuel (legacy),臺灣圖層,能源 Energy,supabase,verified,gem_coal_plants,ds_energy_gem_coal_plants,POINT,2026-07-07,11 counties,yes,spatial,warehouse,unknown,,,早期能源 MVP 的石化設施合併層（已被上面的分類層取代，保留相容）
+offshoreWindZones,離岸風場 Offshore Wind,臺灣圖層,能源 Energy,supabase,verified,offshore_wind_zones,ds_energy_offshore_wind_zones,POLYGON,2026-06-15,unknown,yes,spatial,warehouse,unknown,,,OSM 離岸風場範圍面 36 處（fill ＋ 邊框）
+osmWindTurbines,風機 Wind Turbines,臺灣圖層,能源 Energy,supabase,verified,osm_power,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 陸域／離岸風力發電機點位
+windPlan,風電場規劃 Wind Plan,臺灣圖層,能源 Energy,geojson,verified,renewable,,,,,yes,none,,,,dataset_not_in_warehouse,離岸風電場規劃區位（glow ＋ fill ＋ 邊框，無控件）
+geothermalWells,地熱井 Geothermal,臺灣圖層,能源 Energy,supabase,verified,geothermal_wells,ds_energy_geothermal_wells,POINT,2026-06-15,6 counties,yes,spatial,warehouse+browser,unknown,,,地熱探勘井／生產井點位
+renewablePermitsTaipei,北市再生能源許可 Renewable Permits,臺灣圖層,能源 Energy,supabase,verified,renewable,,,,,yes,none,,,,dataset_not_in_warehouse,臺北市再生能源設備設置許可點位
+evChargingStations,電動車充電站 EV Charging,臺灣圖層,能源 Energy,supabase,verified,ev_charging_stations,ds_energy_ev_charging_stations,POINT,2026-07-07,national,yes,spatial,warehouse+browser,unknown,,,全台電動車充電站點位
+gasCoverageAll,加油站 最近距離 Coverage All,臺灣圖層,能源 Energy,pmtiles,pulse_only,,,,,,yes,none,,,,derived_layer,全台各處到最近加油站（四品牌合併）的路網距離分級
+gasCoverageCpc,中油 最近距離 Coverage CPC,臺灣圖層,能源 Energy,pmtiles,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse,google_geocode,,,全台各處到最近中油加油站的路網距離分級
+gasCoverageFpcc,台塑 最近距離 Coverage FPCC,臺灣圖層,能源 Energy,pmtiles,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse,google_geocode,,,全台各處到最近台塑加油站的路網距離分級
+gasCoverageTaisugar,台糖 最近距離 Coverage Taisugar,臺灣圖層,能源 Energy,pmtiles,verified,gas_stations,ds_energy_gas_stations,POINT,2026-07-07,national,yes,spatial,warehouse,google_geocode,,,全台各處到最近台糖加油站的路網距離分級
+evIsland,充電站 最近距離 EV Island,臺灣圖層,能源 Energy,pmtiles,pulse_only,,,,,,yes,none,,,,derived_layer,充電站服務孤島（距任一充電站超過門檻的區域）
+facOffshore,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留
+islandPowerGrid,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,離島電網設施 14 處（澎湖／金門／馬祖／蘭嶼／綠島／琉球）—— facPrimary 的 is_island 已涵蓋後移出 sidebar
+osmSolarFarms,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,OSM 光電廠 734 處（POI centroid）—— 與 SSOT facilities 重疊後移出 sidebar
+osmPowerPlantsStatic,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar
+powerPlants,,臺灣圖層,(orphan),supabase,pulse_only,,,,,,yes,none,,,,pulse_only,"legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar"
+powerStatusHud,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,供電燈號 KPI HUD（備轉容量率燈號，top-left 卡片；非地圖圖層）
+powerRegionDemand,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,北中南東 4 區用電 3D bars（高 ∝ 用電量、色 = 備轉指標）
+drinkingWaterPoints,飲水點 Drinking Water,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記飲水點的 snapshot exploration，非完整官方清冊；z0–z14 保留每筆可定位實體。
+publicWasteBaskets,公共垃圾桶 Waste Baskets,臺灣圖層,基礎建設 Infrastructure,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記公共垃圾桶的 snapshot exploration，非完整官方清冊。
+materialRecyclingPoints,資源回收點 Recycling,臺灣圖層,基礎建設 Infrastructure,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 標記資源回收點；僅顯示來源明列的材料。
+disasterShelters,預定收容處所 Disaster Shelters,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,emergency_response.shelters,,,,,yes,none,,,,dataset_not_in_warehouse,全國預定天災收容處所；不代表目前已開設；z0–z14 保留每筆有效座標。
+playgrounds,遊戲場 Playgrounds,臺灣圖層,運動休閒 Sports & Leisure,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 遊戲場 snapshot exploration，非完整官方清冊。
+accessibleParkFacilities,無障礙設施探索 Accessibility,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 廣義無障礙標記設施 snapshot，含出入口、公廁、遊戲場、路徑與其他 POI；unknown 不等於無障礙否；z0–z14 保留每筆實體。
+bicycleSupport,自行車支援 Bicycle Support,臺灣圖層,交通 Move,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 自行車支援設施 snapshot exploration，非完整官方清冊；z0–z14 保留每筆實體。
+nationalParks,國家（自然）公園 National Parks,臺灣圖層,觀光 Tourism,pmtiles,verified,tourism.national_park_boundaries,,,,,yes,none,,,,dataset_not_in_warehouse,9 座國家公園 + 1 座國家自然公園的官方計畫邊界。
+visitorCentres,遊客中心 Visitor Centres,臺灣圖層,觀光 Tourism,geojson,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 遊客中心 snapshot exploration，非完整官方清冊。
+publicLifeOsmCoverage,公共生活 OSM 映射密度,臺灣圖層,基礎建設 Infrastructure,pmtiles,verified,poi.public_life_osm,,,,,yes,none,,,,dataset_not_in_warehouse,OSM 公共生活資料的觀測密度；不可解讀為服務覆蓋或可達性。
+medICUBeds,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,急重症床位壓力（規劃中，尚未實作渲染）
+wasteRoute,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）
+wasteStop,,臺灣圖層,(orphan),custom,pulse_only,,,,,,yes,none,,,,pulse_only,清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）

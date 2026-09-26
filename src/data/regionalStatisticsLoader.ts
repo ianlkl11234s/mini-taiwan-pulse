@@ -40,6 +40,8 @@ export interface RegionalStatisticsValuesResult {
 const STATISTICS_CDN_SCHEMA = 'regional-statistics-cdn-v1';
 const DEFAULT_STATISTICS_CDN_BASE = 'https://data.itsmigu.com/statistics/v1';
 const LOCAL_STATISTICS_CDN_ROUTE = '/__statistics-cdn';
+export const STATISTICS_CDN_FETCH_TIMEOUT_MS = 12_000;
+const STATISTICS_BOUNDARY_FETCH_TIMEOUT_MS = 40_000;
 interface StatisticsCdnAsset { path: string; sha256: string; bytes: number }
 interface StatisticsCdnPointer { schema_version: string; manifest: StatisticsCdnAsset }
 interface StatisticsCdnSelector {
@@ -114,15 +116,47 @@ async function sha256Hex(bytes: ArrayBuffer): Promise<string> {
 }
 
 async function fetchJson(url: string, expected?: StatisticsCdnAsset): Promise<unknown> {
-  const response = await fetch(url, expected ? undefined : { cache: 'no-cache' });
-  if (!response.ok) throw new Error(`Statistics CDN 回應 ${response.status}`);
-  const bytes = await response.arrayBuffer();
-  if (expected) {
-    if (!Number.isInteger(expected.bytes) || expected.bytes < 2 || bytes.byteLength !== expected.bytes) throw new Error('Statistics CDN artifact 大小不符');
-    if (!/^[0-9a-f]{64}$/.test(expected.sha256) || await sha256Hex(bytes) !== expected.sha256) throw new Error('Statistics CDN artifact SHA-256 不符');
+  // This signal belongs to the shared immutable cache entry, never an
+  // individual caller. A caller may stop waiting via waitForGeometry without
+  // cancelling a fetch another caller is already sharing.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), STATISTICS_CDN_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { ...(expected ? {} : { cache: 'no-cache' }), signal: controller.signal });
+    if (!response.ok) throw new Error(`Statistics CDN 回應 ${response.status}`);
+    const bytes = await response.arrayBuffer();
+    if (expected) {
+      if (!Number.isInteger(expected.bytes) || expected.bytes < 2 || bytes.byteLength !== expected.bytes) throw new Error('Statistics CDN artifact 大小不符');
+      if (!/^[0-9a-f]{64}$/.test(expected.sha256) || await sha256Hex(bytes) !== expected.sha256) throw new Error('Statistics CDN artifact SHA-256 不符');
+    }
+    try { return JSON.parse(new TextDecoder().decode(bytes)); }
+    catch { throw new Error('Statistics CDN JSON 格式不符'); }
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('Statistics CDN 載入逾時');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-  try { return JSON.parse(new TextDecoder().decode(bytes)); }
-  catch { throw new Error('Statistics CDN JSON 格式不符'); }
+}
+
+async function fetchBoundaryBytes(url: string): Promise<ArrayBuffer> {
+  // The geometry cache is shared just like CDN metadata.  Do not use a
+  // caller's signal here: waitForGeometry lets that caller leave while a
+  // concurrent render can still consume the one validated boundary read.
+  const controller = new AbortController();
+  // Township reference geometry is a verified 45 MB immutable asset. It needs
+  // a longer, still bounded budget than manifest and release metadata.
+  const timeout = setTimeout(() => controller.abort(), STATISTICS_BOUNDARY_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
+    return await response.arrayBuffer();
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('Statistics CDN 載入逾時');
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 const loadCdnManifestCached = cachedByKey<StatisticsCdnManifest>(async base => {
@@ -340,9 +374,7 @@ async function loadStatisticsValuesResult(recipe: StatisticsRecipe, signal?: Abo
         if (geometryResponse.status !== 'OK' || !geometryManifest || geometryManifest.boundary_version !== release.boundary_version || geometryManifest.level !== recipe.level) throw new Error('參考邊界、來源紀錄或健康狀態不可用');
         if (!includeBoundary) return { geometryManifest };
         const boundary = await waitForGeometry(statisticsGeometryCache.load(geometryManifest, async () => {
-          const response = await fetch(statisticsBoundaryFetchUrl(geometryManifest, globalThis.location?.origin));
-          if (!response.ok) throw new Error(`邊界載入失敗 ${response.status}`);
-          return response.arrayBuffer();
+          return fetchBoundaryBytes(statisticsBoundaryFetchUrl(geometryManifest, globalThis.location?.origin));
         }), signal);
         return { geometryManifest, boundary };
       })(),

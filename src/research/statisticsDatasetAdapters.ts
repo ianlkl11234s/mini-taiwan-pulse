@@ -56,20 +56,20 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       { name: "inputs", type: "json", nullable: true, nullMeaning: "來源未提供組成輸入或衍生值明細。", unit: null },
     ],
     geometry: {
-      type: "MultiPolygon", crs: "EPSG:4326", role: "actual",
-      precision: recipe.boundary_semantics ?? "同版 immutable 行政邊界，依 area_code 精確 join；Polygon 正規化為單一 part 的 MultiPolygon。",
-      spatialAnalysisEligible: true,
+      type: "MultiPolygon", crs: "EPSG:4326", role: "generalized",
+      precision: `Published display/reference boundary joined by exact area_code, not a raw-precision analysis boundary. County snapshot is generalized relative to the raw MOI geometry; other levels require analytical precision verification. ${recipe.boundary_semantics ?? ""}`,
+      spatialAnalysisEligible: false,
     },
     timeFields: [
       { name: "period_start", role: "period_start", timezone: "Asia/Taipei" },
       { name: "period_end", role: "period_end", timezone: "Asia/Taipei" },
     ],
     coverage: JSON.stringify(recipe.release_options.map(option => ({ release_id: option.release_id, coverage: option.coverage }))),
-    license: "unknown; consult the exact regional-statistics release provenance before redistribution",
+    license: recipe.license ?? "unknown; consult the exact regional-statistics release provenance before redistribution",
     valueSemantics: valueSemantics(recipe),
     versions: recipe.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
     source: {
-      publisher: "regional-statistics-cdn-v1 registered publisher(s)",
+      publisher: recipe.publisher ?? "regional-statistics-cdn-v1 registered publisher(s)",
       reference: `regional-statistics://${recipe.dataset_id}/${recipe.indicator_id}/${recipe.layer_key}`,
       lineage: `exact recipe whitelist (${recipe.layer_key}) -> immutable release artifact -> status-aware administrative values -> immutable ${recipe.boundary_version} boundary joined by area_code`,
     },
@@ -79,7 +79,8 @@ export function socialStatisticsDescriptor(recipe: SocialRecipe): DatasetDescrip
       filters: ["release_id", "dataset_id", "indicator_id", "layer_key", "level", "area_code", "status", "source_status", "boundary_version"],
       timeFields: ["period_start", "period_end"], maxRowsPerQuery: 100, maxScanRows: 10_000, maxResponseBytes: 1024 * 1024,
     }),
-    supportedOperations: ["query_records", "aggregate"],
+    parameters: [{ name: "releaseId", type: "string", required: true, options: recipe.release_options.map(option => option.release_id) }],
+    supportedOperations: ["query_records", "aggregate", "compare_regions"],
     adapterId: "regional-statistics-recipe-v1",
   };
 }

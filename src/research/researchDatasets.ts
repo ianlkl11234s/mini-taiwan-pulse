@@ -2,6 +2,13 @@ import { describeRegisteredLayer, readRegisteredLayer } from "./registeredLayerR
 import { searchScore } from "./researchSearch";
 import { describeDatasetSemantics } from "./semanticRegistry";
 import type { SemanticCard } from "./contracts/semantic-validator.mjs";
+import { createAdministrativeBoundaryAdapter } from "./administrativeBoundaryAdapter";
+import { localPopulationPreviewAdapters } from "./localPopulationPreview";
+import { createRoadEventCurrentAdapter } from "./roadEventDatasetAdapter";
+import { chiayiBusRouteAdapter } from "./busRouteDatasetAdapter";
+import { yushanHutsAdapter } from "./yushanHutsDataset";
+import { createCemeteryZoningDatasetAdapter } from "./cemeteryZoningDatasetAdapter";
+import { earthquakeReplayAdapter } from "./earthquakeDatasetAdapter";
 import { schoolsGridAdapter } from "./gridDatasetAdapter";
 import { AGRI_STATISTICS_RECIPES_BY_KEY } from "../data/agriStatisticsRecipes";
 import { fetchNewsEventsDayClustersStrict } from "../data/newsEventsLoader";
@@ -9,20 +16,152 @@ import { loadRegionalStatisticsValues } from "../data/regionalStatisticsLoader";
 import { assertDatasetDescriptor, boundedAccess, DEFAULT_VALUE_SEMANTICS, type DatasetDescriptor, type Scalar, type SourceReceipt } from "./dataContracts";
 import { loadPointDataset } from "./pointDatasetAdapter";
 import { createAdminStatisticsAdapter, createNewsEventAdapter, createPointDatasetAdapter } from "./queryAdapters";
+import { createVerifiedPointDatasetAdapter } from "./verifiedPointDataset";
+import { culturalFacilitiesSourceCoordinatesAdapter, postOfficesSourceCoordinatesAdapter } from "./civicCultureDatasets";
+import { iPostBoxesSourceCoordinatesAdapter } from "./iPostBoxesDataset";
+import { forestryPointAdapters } from "./forestryPointDatasets";
+import { forestryProxyAdapters } from "./forestryProxyDatasets";
+import { lighthousesSourceCoordinatesAdapter } from "./lighthouseDataset";
+import { hotSpringsSourceCoordinatesAdapter } from "./hotSpringDataset";
+import { mentalHealthFacilitiesUpstreamCoordinatesAdapter } from "./mentalHealthFacilitiesDataset";
+import { govWelfareOfficesUpstreamCoordinatesAdapter } from "./govWelfareOfficesDataset";
+import { welfareCentersUpstreamCoordinatesAdapter } from "./welfareCentersDataset";
+import { govServiceOfficesTgosAdapter } from "./govServiceOfficesDataset";
+import { retailMarketsTgosAdapter } from "./retailMarketsDataset";
+import { agriPoiSourceCoordinatesAdapter } from "./agriPoiDataset";
+import { publicToiletsSourceCoordinatesAdapter } from "./publicToiletsDataset";
+import { communityCentersNativeCoordinatesAdapter } from "./communityCentersDataset";
+import { communityCentersListedAdapter } from "./communityCentersListedDataset";
+import { sportsVenuesSourceCoordinatesAdapter } from "./sportsVenuesDataset";
+import { gasStationsCanonicalAdapter } from "./gasStationsDataset";
+import { policeStationsSourceCoordinatesAdapter } from "./policeStationsDataset";
+import { pollutionSitesSourceCoordinatesAdapter } from "./pollutionSitesDataset";
+import { pollutionFacilitiesAdapter } from "./pollutionFacilitiesDataset";
+import { pollutionPenaltyEventsAdapter } from "./pollutionPenaltiesDataset";
+import { publicLibrariesListedAdapter, publicLibrariesTgosCoordinatesAdapter } from "./publicLibrariesDataset";
+import { coastGuardStationsSourceCoordinatesAdapter } from "./coastGuardStationsDataset";
+import { companyPointsAdapter, manufacturingCompanyPointsAdapter } from "./companyPointsDataset";
+import { culturalMuseumsOwnerAdapter } from "./culturalMuseumsDataset";
+import { performingVenuesAdapter } from "./performingVenuesDataset";
+import { speedCameraListedAdapter, speedCameraTaiwanCoordinatesAdapter } from "./speedCameraDataset";
+import { fireStationsOwnerAdapter } from "./fireStationsDataset";
+import { ltcInstitutionsTgosUpstreamAdapter } from "./ltcInstitutionsDataset";
+import { elderlyCareHomesTgosUpstreamAdapter } from "./elderlyCareHomesDataset";
+import { welfareChildcareOwnerAdapter, welfareDisabilityOwnerAdapter, welfareSocialWorkOrgsOwnerAdapter } from "./welfareGeocodedOwnerDatasets";
+import { welfareLtcInstitutionsOwnerAdapter, welfareElderlyHomesOwnerAdapter } from "./welfareCarePointsOwnerDatasets";
+import { eduSchoolElementaryOwnerAdapter, eduSchoolJuniorOwnerAdapter, eduSchoolSeniorOwnerAdapter, eduSchoolUniversityOwnerAdapter, eduSchoolSpecialOwnerAdapter, eduRemoteSchoolsOwnerAdapter } from "./eduSchoolsOwnerDatasets";
+import { welfareChildServicesOwnerAdapter } from "./welfareChildServicesOwnerDataset";
+import { artsEventsOwnerAdapter } from "./artsEventsOwnerDataset";
+import { railStationsTHSROwnerAdapter, railStationsTRAOwnerAdapter, railStationsMetroOwnerAdapter } from "./railStationsOwnerDatasets";
+import { antiCorruptionOfficeOwnerAdapter, correctionalFacilityOwnerAdapter, courtOwnerAdapter, immigrationOfficeOwnerAdapter, investigationBureauOwnerAdapter, prosecutorsOfficeOwnerAdapter } from "./justiceFacilitiesOwnerDatasets";
+import { busStationsCityOwnerAdapter, busStationsIntercityOwnerAdapter } from "./busStationsOwnerDatasets";
+import { taxiStandsSourceCoordinatesAdapter, etcGantrySourceCoordinatesAdapter } from "./transportFixedPointDatasets";
+import { factoryLocationsOwnerAdapter } from "./factoryLocationsOwnerDataset";
+import { educationKindergartenOwnerAdapter, educationAfterschoolCareOwnerAdapter, educationMutualCareOwnerAdapter } from "./educationChildcareOwnerDatasets";
+import { tourismHotelOwnerAdapter, tourismRestaurantOwnerAdapter } from "./tourismHospitalityOwnerDatasets";
+import { civilDefenseSheltersOwnerAdapter } from "./civilDefenseSheltersOwnerDataset";
+import { tourismFactoriesOwnerAdapter } from "./tourismFactoriesOwnerDataset";
+import { bikeStationsFixedPointAdapter, weatherStationsFixedPointAdapter } from "./bikeWeatherFixedPointDatasets";
+import { agriWholesaleMarketOwnerAdapter } from "./agriWholesaleMarketOwnerDataset";
+import { womenChildWarningOwnerAdapter } from "./justiceEventPointsOwnerDatasets";
+import { cctvFixedPointAdapter } from "./cctvFixedPointDataset";
+import { funeralFacilitiesOwnerAdapter, funeralOperatorsOwnerAdapter } from "./funeralPointsOwnerDatasets";
+import { religionAncestralHallsOwnerAdapter, religionChurchesOwnerAdapter, religionOtherWorshipOwnerAdapter, religionFoundationsOwnerAdapter, religionTop100OwnerAdapter } from "./religionPointsOwnerDatasets";
+import { mountainHutsOwnerAdapter, mountainRescueIncidentsOwnerAdapter } from "./mountainPointsOwnerDatasets";
+import { nursingHomesOwnerAdapter } from "./nursingHomesOwnerDataset";
+import { commonRegistrationAddressesAdapter } from "./commonRegistrationAddressesDataset";
+import { canopyGiantsAdapter } from "./canopyGiantsDataset";
+import { serviceAreaFixedPointAdapter } from "./serviceAreaFixedDataset";
+import { parksFixedPointAdapter } from "./parksFixedDataset";
+import { tourHeritageFixedAdapter } from "./tourHeritageFixedDataset";
+import { tourEventsFixedPointAdapter } from "./tourEventsFixedDataset";
+import { protectedTreesOwnerAdapter } from "./protectedTreesOwnerDataset";
+import { riversideTreesTaipeiOwnerAdapter } from "./riversideTreesOwnerDataset";
+import { treePitsTaipeiOwnerAdapter } from "./treePitsTaipeiOwnerDataset";
+import { forestTreatmentWorksOwnerAdapter } from "./forestTreatmentWorksDataset";
+import { forestWildlifeReferenceAdapter } from "./forestWildlifeReferenceDataset";
+import { universityStudentsOwnerAdapter } from "./universityStudentsOwnerDataset";
+import { livestockFeedOwnerAdapter, livestockMarketOwnerAdapter, livestockSlaughterOwnerAdapter } from "./livestockAuxOwnerDatasets";
+import { wasteStopsOwnerAdapter } from "./wasteStopsOwnerDataset";
+import { lpgSubpackagingOwnerAdapter, lpgRetailersOwnerAdapter } from "./lpgOwnerDatasets";
+import { wasteFacilitiesIncineratorOwnerAdapter, wasteFacilitiesLandfillOwnerAdapter, wasteFacilitiesMonitoringOwnerAdapter, wasteFacilitiesTransferOwnerAdapter, wasteFacilitiesRecyclingOwnerAdapter, wasteFacilitiesScrapYardOwnerAdapter } from "./wasteFacilitiesOwnerDatasets";
+import { evChargingOwnerAdapter } from "./evChargingOwnerDataset";
+import { geothermalWellsOwnerAdapter } from "./geothermalWellsOwnerDataset";
+import { accidentTaipeiOwnerAdapter } from "./accidentTaipeiOwnerDataset";
+import { regulatedFacilitiesOwnerAdapter } from "./regulatedFacilitiesOwnerDataset";
+import { streetTreesDiffOwnerAdapter } from "./streetTreesDiffOwnerDataset";
+import { medAedOwnerAdapter } from "./medAedOwnerDataset";
+import { portsOwnerAdapter } from "./portsOwnerDataset";
+import { nhiMedicalHospitalOwnerAdapter, nhiMedicalClinicOwnerAdapter, nhiMedicalPharmacyOwnerAdapter } from "./nhiMedicalOwnerDatasets";
+import { airportsOwnerAdapter } from "./airportsOwnerDataset";
+import { cramSchoolsOwnerAdapter } from "./cramSchoolsOwnerDataset";
+import { companyCapitalGridOwnerAdapter } from "./companyCapitalGridOwnerDataset";
+import { companyCapitalGrid150mOwnerAdapter, companyCapitalGrid450mOwnerAdapter } from "./companyCapitalGridFineOwnerDatasets";
+import { companyAgeStructure450mOwnerAdapter, companyAgeStructure1500mOwnerAdapter, companyIndustryDistribution450mOwnerAdapter, companyIndustryDistribution1500mOwnerAdapter } from "./companyDemographicsOwnerDataset";
+import { waterDetentionBasinsAdapter } from "./waterDetentionBasinsDataset";
+import { waterFacilitiesOwnerAdapter } from "./waterFacilitiesOwnerDataset";
+import { waterMonitorStationsOwnerAdapter } from "./waterMonitorStationsOwnerDataset";
+import { wraDamWeirsOwnerAdapter } from "./wraWaterSystemsOwnerDatasets";
+import { trafficAccidentYearlyOwnerAdapter, theftTaoyuanOwnerAdapter } from "./policeJusticeHistoricalOwnerDatasets";
+import { fireHydrantsOwnerAdapter } from "./fireHydrantsOwnerDataset";
+import { culturalFacilitiesOwnerAdapter } from "./culturalFacilitiesOwnerDataset";
+import { groundwaterWellsOwnerAdapter } from "./groundwaterWellsOwnerDataset";
+import { agriRetailOwnerAdapter } from "./agriRetailOwnerDataset";
+import { livestockFarmsOwnerAdapters } from "./livestockFarmsOwnerDatasets";
+import { agriProduceWholesaleOwnerAdapter } from "./agriProduceWholesaleOwnerDataset";
+import { religionTemplesOwnerAdapter } from "./religionTemplesOwnerDataset";
+import { streetTreesNationalOwnerAdapter } from "./streetTreesNationalOwnerDataset";
+import { medLtcOwnerAdapter } from "./medLtcOwnerDataset";
+import { activeFaultsAdapter } from "./activeFaultsDataset";
+import { cyclingRoutesAdapter } from "./cyclingRoutesDataset";
+import { forestRecreationOwnerAdapter } from "./forestRecreationOwnerDataset";
+import { aquacultureZoneOwnerAdapter } from "./aquacultureZoneOwnerDataset";
+import { serviceAreaPolygonAdapter } from "./serviceAreaPolygonDataset";
+import { campusPolygonOwnerAdapter } from "./campusPolygonOwnerDataset";
+import { aviationNoiseZonesAdapter } from "./aviationNoiseZonesDataset";
+import { scenicAreasAdapter } from "./scenicAreasDataset";
+import { hotSpringZonesAdapter } from "./hotSpringZonesDataset";
+import { aquacultureCageNetAdapter } from "./aquacultureCageNetDataset";
+import { soundCameraListedLocationsAdapter } from "./soundCameraDataset";
+import { officialNoiseMonitoringAdapter } from "./officialNoiseMonitoringDataset";
+import { amusementParksListedAdapter, amusementParksSourceCoordinatesAdapter } from "./amusementParksDataset";
+import { campingSourceCoordinatesAdapter } from "./campingDataset";
+import { tourAttractionsSourceCoordinatesAdapter } from "./tourAttractionsDataset";
+import { forestRoadsAdapter } from "./forestRoadsDataset";
+import { speedZoneSegmentsAdapter } from "./speedZoneSegmentsDataset";
+import { seniorSchoolDistrictAdapter } from "./seniorSchoolDistrictDataset";
+import { schoolDistrictElementaryOwnerAdapter, schoolDistrictJuniorOwnerAdapter } from "./schoolDistrictK12OwnerDataset";
+import { policeIsochroneOwnerAdapters } from "./policeIsochroneOwnerDataset";
+import { hikingTrailsOwnerAdapter } from "./hikingTrailsOwnerDataset";
+import { agriLeisureFarmZonesOwnerAdapter } from "./agriLeisureFarmZonesOwnerDataset";
+import { cemeteryZoningOwnerAdapter } from "./cemeteryZoningOwnerDataset";
+import { cemeteryOsmAdapter } from "./cemeteryOsmDataset";
+import { osmPowerLinesOwnerAdapter, osmPowerTowersOwnerAdapter } from "./osmPowerNetworkOwnerDataset";
+import { dgbasCountyTransportOwnerAdapters } from "./dgbasCountyTransportOwnerDatasets";
+import { landingStationsNodeCoordinatesAdapter, landingStationsOverpassCenterAdapter } from "./landingStationDataset";
+import { taipeiZoningAttributeAdapter } from "./zoningAttributeSidecar";
+import { createBusOperationStatisticsAdapters } from "./busOperationStatisticsDatasets";
 import { QueryExecutor, type QueryExecution, type QueryRecordsInput } from "./queryExecutor";
 import { createSocialStatisticsAdapters } from "./statisticsDatasetAdapters";
+
+// Full MOI geometry is pinned as a localhost owner-only source; the display PMTiles release is separate.
+const localRawBoundaries = [createAdministrativeBoundaryAdapter({
+    datasetId: "tw-county-boundaries-raw", sourceUrl: "/__local-research-boundaries/county.geojson",
+    layerRefs: ["countyBoundary"],
+    sourceSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6",
+    version: "COUNTY_MOI_1140318", observedAt: "2025-03-18", rawAcquiredAt: null,
+    publisher: "內政部國土測繪中心；SEGIS existing local snapshot",
+    license: "政府資料開放授權條款-第1版（data.gov.tw dataset 7442）；本地 preview 資產尚未發布",
+    codeProperty: "行政區域代碼", nameProperty: "名稱", expectedAreas: 22, maxBytes: 16 * 1024 * 1024,
+  })];
+
+// Immutable localhost-only previews; they deliberately have no permanent map layers.
+const localPopulationPreview = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POPULATION_PREVIEW === "1"
+  ? localPopulationPreviewAdapters : [];
 
 const PADDY = AGRI_STATISTICS_RECIPES_BY_KEY.statsPaddyLandAreaTownship;
 
 const discoveryOnlyDescriptors: readonly DatasetDescriptor[] = [
-  {
-    schemaVersion: "pulse-dataset/0.1", datasetId: "urban_zoning_taipei", label: "臺北市土地使用分區", description: "公開 PMTiles 土地使用分區形狀；目前僅開放探索說明，未有同版 sidecar 前不開放紀錄查詢。",
-    layerRefs: ["urbanZoningTaipei"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
-    geometry: { type: "Polygon", crs: null, role: "generalized", precision: "PMTiles display geometry; source CRS, simplification and analysis precision require a version-matched sidecar", spatialAnalysisEligible: false },
-    timeFields: [], coverage: "臺北市都市計畫土地使用分區；完整性待同版 sidecar 驗證", license: "registered upstream license not yet copied into this runtime descriptor", valueSemantics: DEFAULT_VALUE_SEMANTICS,
-    versions: [], source: { publisher: "臺北市政府資料開放平台", reference: "/urban/urban_zoning_taipei.pmtiles", lineage: "data.taipei SHP -> PMTiles display asset; catalog registration is not payload health proof" },
-    access: boundedAccess({ mode: "public", method: "pmtiles_sidecar", fields: [], maxRowsPerQuery: 1, maxScanRows: 1, queryEnabled: false }), supportedOperations: [], adapterId: "pmtiles-sidecar-required",
-  },
   {
     schemaVersion: "pulse-dataset/0.1", datasetId: "allen_coral_atlas", label: "Allen Coral Atlas 淺海棲地分類", description: "僅 owner 私人非商業研究；搜尋、說明與查詢都必須每次重新驗權。目前未建立 query adapter。",
     layerRefs: ["allenCoralAtlas"], kind: "polygon", recordGrain: "feature", primaryKey: [], fields: [],
@@ -160,7 +299,7 @@ const statisticsDescriptor: DatasetDescriptor = {
   coverage: JSON.stringify(PADDY.release_options[0]?.coverage ?? { status: "unknown" }), license: String(PADDY.source.license ?? "unknown"), valueSemantics: { ...DEFAULT_VALUE_SEMANTICS, null: "status/source_token distinguishes missing, suppressed and not_reported; null is never zero", suppressed: "suppressed status requires value=null and may retain only the source token", zero: "value=0 is valid only with status=observed" },
   versions: PADDY.release_options.map(option => ({ versionId: option.release_id, observedAt: option.period_end, availableAt: null, checksumSha256: null, mutable: false })),
   source: { publisher: String(PADDY.source.publisher ?? "unknown"), reference: String(PADDY.source.source_landing_url ?? "unknown"), lineage: "immutable current pointer -> hashed manifest -> exact release artifact; geometry is not returned by query_records" },
-  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
+  access: boundedAccess({ mode: "public", method: "statistics_snapshot", fields: ["release_id", "area_code", "value", "status", "source_status", "source_token", "period_start", "period_end", "boundary_version"], filters: ["release_id", "area_code", "status", "source_status"], timeFields: ["period_start", "period_end"], maxRowsPerQuery: 50, maxScanRows: 1_000 }), parameters: [{ name: "releaseId", type: "string", required: true, options: PADDY.release_options.map(option => option.release_id) }], supportedOperations: ["query_records", "aggregate"], adapterId: "regional-statistics-v1",
 };
 
 function receipt(sourceId: string, version: string, reference: string, checksumSha256: string | null = null): SourceReceipt {
@@ -184,13 +323,44 @@ function requireDate(value: Scalar | undefined): string {
   return value;
 }
 
-const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async () => {
-  const snapshot = await loadPointDataset({ datasetId: schoolsDescriptor.datasetId, url: schoolsDescriptor.source.reference, idField: "code", safeFields: schoolsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)) });
+// Opt-in local acceptance only; production keeps the existing canonical source.
+const schoolsPartition = import.meta.env.DEV && import.meta.env.VITE_RESEARCH_POINT_PARTITIONS === "1" ? {
+  manifestUrl: "/__local-research-point-partitions/schools/manifest.json",
+  manifestSha256: "a531452a19ddb104634096baf99f13065479630bf6443063602eb9e7999da09b",
+  sourceSha256: "7ab34ec23180077bcd32f4617ff31404f1a21c68706d36b2a74a3c4b079377c3",
+} : undefined;
+const schoolsAdapter = createPointDatasetAdapter(schoolsDescriptor, async (_parameters, signal, context) => {
+  const snapshot = await loadPointDataset({ datasetId: schoolsDescriptor.datasetId, url: schoolsDescriptor.source.reference, idField: "code", safeFields: schoolsDescriptor.fields.map(field => field.name).filter(name => !["record_id", "geometry"].includes(name)), spatialPartition: schoolsPartition }, { bbox: context?.bbox, signal });
   return {
     rows: snapshot.rows, source: receipt("tw-schools", snapshot.checksumSha256, schoolsDescriptor.source.reference, snapshot.checksumSha256),
     coverage: schoolsDescriptor.coverage, freshness: "unknown", exclusions: snapshot.exclusions,
-    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.cacheHit ? 0 : snapshot.bytes, requests: snapshot.cacheHit ? 0 : 1, cacheHit: snapshot.cacheHit,
+    rowsScanned: snapshot.rows.length + Object.values(snapshot.exclusions).reduce((sum, value) => sum + value, 0), bytesScanned: snapshot.bytes, downloadedBytes: snapshot.downloadedBytes, requests: snapshot.requests, cacheHit: snapshot.cacheHit,
   };
+});
+
+const nursingHomesUpstreamAdapter = createVerifiedPointDatasetAdapter({
+  datasetId: "tw-nursing-homes-upstream", label: "護理機構來源自帶座標子集",
+  description: "護理機構來源紀錄中僅保留 coord_source=upstream_wgs84 且 coord_precision=upstream 的來源自帶座標子集。1,499 筆為原始 1,611 筆來源紀錄的固定子集，計數不是唯一機構數；觀測期間 unknown。",
+  sourceUrl: "/welfare/nursing_homes_national.geojson",
+  expectedSha256: "775bc1a88a5e8675e48ed7930645a5e7df505968c0821ed080843e7e75bef3d9",
+  expectedSourceRows: 1611, expectedSelectedRows: 1499,
+  selection: { coord_source: "upstream_wgs84", coord_precision: "upstream" },
+  fields: [
+    { name: "record_id", type: "string", nullable: false, nullMeaning: null, unit: null },
+    { name: "uid", type: "string", nullable: true, nullMeaning: "來源未提供識別碼", unit: null },
+    { name: "name", type: "string", nullable: true, nullMeaning: "來源未提供機構名稱", unit: null },
+    { name: "city", type: "string", nullable: true, nullMeaning: "來源未提供縣市", unit: null },
+    { name: "inst_code", type: "string", nullable: true, nullMeaning: "來源未提供機構代碼", unit: null },
+    { name: "nh_type", type: "string", nullable: true, nullMeaning: "來源未提供機構類型", unit: null },
+    { name: "coord_source", type: "string", nullable: true, nullMeaning: "來源未標示座標來源", unit: null },
+    { name: "coord_precision", type: "string", nullable: true, nullMeaning: "來源未標示座標精度", unit: null },
+    { name: "src_datasets", type: "string", nullable: true, nullMeaning: "來源未提供資料集來源", unit: null },
+    { name: "n_src", type: "number", nullable: true, nullMeaning: "來源未提供來源數量", unit: null },
+    { name: "beds_nh", type: "string", nullable: true, nullMeaning: "來源未提供床數文字", unit: null },
+    { name: "geometry", type: "json", nullable: false, nullMeaning: null, unit: null },
+  ],
+  publisher: "衛生福利部；existing nursing-home source artifact", license: "政府資料開放授權條款（OGDL）; source provenance receipt",
+  precision: "來源標示 upstream_wgs84 且 upstream；未另行驗證位置精度",
 });
 
 const medicalHospitalsAdapter = createPointDatasetAdapter(medicalHospitalsDescriptor, async () => {
@@ -249,11 +419,193 @@ const statisticsAdapter = createAdminStatisticsAdapter(statisticsDescriptor, asy
 export const RESEARCH_QUERY_EXECUTOR = new QueryExecutor([
   schoolsAdapter,
   medicalHospitalsAdapter,
+  nursingHomesUpstreamAdapter,
   newsAdapter,
   statisticsAdapter,
   schoolsGridAdapter,
   librariesAdapter,
   convenienceStoresAdapter,
+  earthquakeReplayAdapter,
+  chiayiBusRouteAdapter,
+  yushanHutsAdapter,
+  createCemeteryZoningDatasetAdapter(),
+  createRoadEventCurrentAdapter(),
+  postOfficesSourceCoordinatesAdapter,
+  culturalFacilitiesSourceCoordinatesAdapter,
+  iPostBoxesSourceCoordinatesAdapter,
+  ...forestryPointAdapters,
+  ...forestryProxyAdapters,
+  lighthousesSourceCoordinatesAdapter,
+  hotSpringsSourceCoordinatesAdapter,
+  mentalHealthFacilitiesUpstreamCoordinatesAdapter,
+  govWelfareOfficesUpstreamCoordinatesAdapter,
+  welfareCentersUpstreamCoordinatesAdapter,
+  govServiceOfficesTgosAdapter,
+  retailMarketsTgosAdapter,
+  agriPoiSourceCoordinatesAdapter,
+  publicToiletsSourceCoordinatesAdapter,
+  communityCentersNativeCoordinatesAdapter,
+  communityCentersListedAdapter,
+  sportsVenuesSourceCoordinatesAdapter,
+  gasStationsCanonicalAdapter,
+  policeStationsSourceCoordinatesAdapter,
+  pollutionSitesSourceCoordinatesAdapter,
+  pollutionFacilitiesAdapter,
+  pollutionPenaltyEventsAdapter,
+  publicLibrariesListedAdapter,
+  publicLibrariesTgosCoordinatesAdapter,
+  coastGuardStationsSourceCoordinatesAdapter,
+  companyPointsAdapter,
+  manufacturingCompanyPointsAdapter,
+  culturalMuseumsOwnerAdapter,
+  performingVenuesAdapter,
+  speedCameraListedAdapter,
+  speedCameraTaiwanCoordinatesAdapter,
+  fireStationsOwnerAdapter,
+  ltcInstitutionsTgosUpstreamAdapter,
+  elderlyCareHomesTgosUpstreamAdapter,
+  welfareChildcareOwnerAdapter,
+  welfareDisabilityOwnerAdapter,
+  welfareSocialWorkOrgsOwnerAdapter,
+  welfareLtcInstitutionsOwnerAdapter,
+  welfareElderlyHomesOwnerAdapter,
+  eduSchoolElementaryOwnerAdapter,
+  eduSchoolJuniorOwnerAdapter,
+  eduSchoolSeniorOwnerAdapter,
+  eduSchoolUniversityOwnerAdapter,
+  eduSchoolSpecialOwnerAdapter,
+  eduRemoteSchoolsOwnerAdapter,
+  welfareChildServicesOwnerAdapter,
+  artsEventsOwnerAdapter,
+  railStationsTHSROwnerAdapter,
+  railStationsTRAOwnerAdapter,
+  railStationsMetroOwnerAdapter,
+  antiCorruptionOfficeOwnerAdapter,
+  correctionalFacilityOwnerAdapter,
+  courtOwnerAdapter,
+  immigrationOfficeOwnerAdapter,
+  investigationBureauOwnerAdapter,
+  prosecutorsOfficeOwnerAdapter,
+  busStationsCityOwnerAdapter,
+  busStationsIntercityOwnerAdapter,
+  taxiStandsSourceCoordinatesAdapter,
+  etcGantrySourceCoordinatesAdapter,
+  factoryLocationsOwnerAdapter,
+  educationKindergartenOwnerAdapter,
+  educationAfterschoolCareOwnerAdapter,
+  educationMutualCareOwnerAdapter,
+  tourismHotelOwnerAdapter,
+  tourismRestaurantOwnerAdapter,
+  civilDefenseSheltersOwnerAdapter,
+  tourismFactoriesOwnerAdapter,
+  bikeStationsFixedPointAdapter,
+  weatherStationsFixedPointAdapter,
+  agriWholesaleMarketOwnerAdapter,
+  womenChildWarningOwnerAdapter,
+  cctvFixedPointAdapter,
+  funeralFacilitiesOwnerAdapter,
+  funeralOperatorsOwnerAdapter,
+  religionAncestralHallsOwnerAdapter,
+  religionChurchesOwnerAdapter,
+  religionOtherWorshipOwnerAdapter,
+  religionFoundationsOwnerAdapter,
+  religionTop100OwnerAdapter,
+  mountainHutsOwnerAdapter,
+  mountainRescueIncidentsOwnerAdapter,
+  nursingHomesOwnerAdapter,
+  commonRegistrationAddressesAdapter,
+  canopyGiantsAdapter,
+  serviceAreaFixedPointAdapter,
+  parksFixedPointAdapter,
+  tourHeritageFixedAdapter,
+  tourEventsFixedPointAdapter,
+  protectedTreesOwnerAdapter,
+  riversideTreesTaipeiOwnerAdapter,
+  treePitsTaipeiOwnerAdapter,
+  forestTreatmentWorksOwnerAdapter,
+  forestWildlifeReferenceAdapter,
+  universityStudentsOwnerAdapter,
+  livestockFeedOwnerAdapter,
+  livestockMarketOwnerAdapter,
+  livestockSlaughterOwnerAdapter,
+  wasteStopsOwnerAdapter,
+  lpgSubpackagingOwnerAdapter,
+  lpgRetailersOwnerAdapter,
+  wasteFacilitiesIncineratorOwnerAdapter,
+  wasteFacilitiesLandfillOwnerAdapter,
+  wasteFacilitiesMonitoringOwnerAdapter,
+  wasteFacilitiesTransferOwnerAdapter,
+  wasteFacilitiesRecyclingOwnerAdapter,
+  wasteFacilitiesScrapYardOwnerAdapter,
+  evChargingOwnerAdapter,
+  geothermalWellsOwnerAdapter,
+  accidentTaipeiOwnerAdapter,
+  regulatedFacilitiesOwnerAdapter,
+  streetTreesDiffOwnerAdapter,
+  medAedOwnerAdapter,
+  portsOwnerAdapter,
+  nhiMedicalHospitalOwnerAdapter,
+  nhiMedicalClinicOwnerAdapter,
+  nhiMedicalPharmacyOwnerAdapter,
+  airportsOwnerAdapter,
+  cramSchoolsOwnerAdapter,
+  companyCapitalGridOwnerAdapter,
+  companyCapitalGrid150mOwnerAdapter,
+  companyCapitalGrid450mOwnerAdapter,
+  companyAgeStructure450mOwnerAdapter,
+  companyAgeStructure1500mOwnerAdapter,
+  companyIndustryDistribution450mOwnerAdapter,
+  companyIndustryDistribution1500mOwnerAdapter,
+  waterDetentionBasinsAdapter,
+  waterFacilitiesOwnerAdapter,
+  waterMonitorStationsOwnerAdapter,
+  wraDamWeirsOwnerAdapter,
+  trafficAccidentYearlyOwnerAdapter,
+  theftTaoyuanOwnerAdapter,
+  fireHydrantsOwnerAdapter,
+  culturalFacilitiesOwnerAdapter,
+  groundwaterWellsOwnerAdapter,
+  agriRetailOwnerAdapter,
+  ...livestockFarmsOwnerAdapters,
+  agriProduceWholesaleOwnerAdapter,
+  religionTemplesOwnerAdapter,
+  streetTreesNationalOwnerAdapter,
+  medLtcOwnerAdapter,
+  activeFaultsAdapter,
+  cyclingRoutesAdapter,
+  forestRecreationOwnerAdapter,
+  aquacultureZoneOwnerAdapter,
+  serviceAreaPolygonAdapter,
+  campusPolygonOwnerAdapter,
+  aviationNoiseZonesAdapter,
+  scenicAreasAdapter,
+  hotSpringZonesAdapter,
+  aquacultureCageNetAdapter,
+  soundCameraListedLocationsAdapter,
+  officialNoiseMonitoringAdapter,
+  amusementParksSourceCoordinatesAdapter,
+  amusementParksListedAdapter,
+  campingSourceCoordinatesAdapter,
+  tourAttractionsSourceCoordinatesAdapter,
+  forestRoadsAdapter,
+  speedZoneSegmentsAdapter,
+  seniorSchoolDistrictAdapter,
+  schoolDistrictElementaryOwnerAdapter,
+  schoolDistrictJuniorOwnerAdapter,
+  ...policeIsochroneOwnerAdapters,
+  hikingTrailsOwnerAdapter,
+  agriLeisureFarmZonesOwnerAdapter,
+  cemeteryZoningOwnerAdapter,
+  cemeteryOsmAdapter,
+  osmPowerLinesOwnerAdapter,
+  osmPowerTowersOwnerAdapter,
+  ...dgbasCountyTransportOwnerAdapters,
+  landingStationsNodeCoordinatesAdapter,
+  landingStationsOverpassCenterAdapter,
+  taipeiZoningAttributeAdapter,
+  ...createBusOperationStatisticsAdapters(),
+  ...localRawBoundaries,
+  ...localPopulationPreview,
   ...createSocialStatisticsAdapters(),
 ]);
 
@@ -263,9 +615,19 @@ function allDescriptors(): DatasetDescriptor[] {
   return descriptors;
 }
 
+/** Current registry snapshot for one caller operation; never hydrates a source or caches across calls. */
+export function registeredDatasetSnapshot(): readonly DatasetDescriptor[] {
+  return allDescriptors();
+}
+
 /** Read-only descriptor lookup for manifest-derived capability reporting; never hydrates a source. */
 export function registeredDatasetForLayer(layerKey: string): DatasetDescriptor | null {
-  return allDescriptors().find(descriptor => descriptor.layerRefs.includes(layerKey)) ?? null;
+  return registeredDatasetsForLayer(layerKey)[0] ?? null;
+}
+
+/** Registry-derived layer mapping used by discovery and capability reporting; it never loads a source. */
+export function registeredDatasetsForLayer(layerKey: string): readonly DatasetDescriptor[] {
+  return allDescriptors().filter(descriptor => descriptor.layerRefs.includes(layerKey));
 }
 
 /** Temporary projection for the legacy browser-chat tools; metadata stays owned by the dataset descriptor. */
@@ -318,13 +680,18 @@ export function searchDatasets(query: string, offset = 0, limit = 20, locked: Re
 }
 
 export function describeDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): DatasetDescriptor & { semantics: SemanticCard | null } {
-  const descriptor = RESEARCH_QUERY_EXECUTOR.describe(datasetId) ?? discoveryOnlyDescriptors.find(item => item.datasetId === datasetId) ?? null;
+  const descriptor = allDescriptors().find(item => item.datasetId === datasetId) ?? null;
   if (!descriptor || !descriptor.access.discovery.describe || !datasetAuthorized(descriptor, locked)) throw new Error("DATASET_NOT_FOUND");
   return { ...descriptor, semantics: describeDatasetSemantics(datasetId) };
 }
 
 export async function queryRecords(input: QueryRecordsInput): Promise<Record<string, unknown>> {
   return await RESEARCH_QUERY_EXECUTOR.execute(input) as unknown as Record<string, unknown>;
+}
+
+/** Use before persisting a query plan so required selectors fail before materialization. */
+export function validateQueryRecordsInput(input: QueryRecordsInput): QueryRecordsInput {
+  return RESEARCH_QUERY_EXECUTOR.validateParameters(input);
 }
 
 export async function queryRecordsDetailed(input: QueryRecordsInput): Promise<QueryExecution> {
@@ -346,7 +713,16 @@ export async function datasetForLayer(layerKey: string, locked: ReadonlySet<stri
 const hydrating = new Map<string, Promise<void>>();
 /** Hydrate only a manifest-owned local Point asset, never a user-supplied URL. */
 export async function ensureDataset(datasetId: string, locked: ReadonlySet<string> = new Set()): Promise<void> {
-  if (RESEARCH_QUERY_EXECUTOR.describe(datasetId)) return;
+  const discoveryOnly = discoveryOnlyDescriptors.find(descriptor => descriptor.datasetId === datasetId);
+  if (discoveryOnly) {
+    if (!datasetAuthorized(discoveryOnly, locked)) throw new Error("DATASET_NOT_FOUND");
+    return;
+  }
+  const registered = RESEARCH_QUERY_EXECUTOR.describe(datasetId);
+  if (registered) {
+    if (!datasetAuthorized(registered, locked)) throw new Error("DATASET_NOT_FOUND");
+    return;
+  }
   if (!datasetId.startsWith("layer:")) throw new Error("DATASET_NOT_FOUND");
   const layerKey = datasetId.slice(6);
   if (locked.has(layerKey)) throw new Error("LAYER_DENIED");

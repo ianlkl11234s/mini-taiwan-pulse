@@ -35,3 +35,11 @@
 - ready receipt → browser 已清楚呈現完整資料。
 
 結論分成 observed、derived、source-stated、unknown。外部網路背景與 Pulse dataset receipt 分開引用；不同年份或 grain 不強行比較。
+
+## 行政統計、座標格式與面資料讀取（逐字自 SKILL.md §3 搬出，2026-09-26）
+
+行政統計須先核對 values 的 `boundary_version`、level、immutable boundary manifest 與 `area_code` join；這只證明行政代碼可連接，不證明 geometry 是原始精度。公開統計邊界目前標為 generalized，只能呈現及按代碼做數值比較，不能用於點歸屬或線面交叉。空間分析須另外使用已驗證原始 bytes、CRS 與精度的 eligible 邊界；即使 boundary_version 同名也不可略過 SHA 與 geometry gate。每個結果同時保留 values 與 boundary 兩份 receipt；boundary 有但 observation 缺席的行政區仍保留為 `missing`，不可從地圖消失或補零。
+
+所有 EPSG:4326 center 都必須是數字 tuple `[longitude, latitude]`；不得把 URL、DOM 或 JSON 中讀到的座標字串直接傳給 spatial/map tools。
+
+面資料的 `query_records` 預設應在 `select` 排除 `geometry`，除非使用者明確需要讀取原始座標。瀏覽器儲存的 `resultId` 仍保留完整 materialized geometry，可繼續做 spatial analysis 與地圖呈現；`select` 只縮小傳回 Agent 的 rows。空間 join 的 readback 使用小 `limit`，但計算仍以儲存內的完整 result 為準。點與行政面並用時，優先查詢不內嵌 geometry 的全部面值、將點 spatial join 到面，再依命中的 `area_code` 查一筆可呈現邊界。

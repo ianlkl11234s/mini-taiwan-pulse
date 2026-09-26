@@ -1,5 +1,5 @@
 import type { DatasetDescriptor, Scalar, SourceReceipt } from "./dataContracts";
-import type { AdapterReadResult, QueryAdapter } from "./queryExecutor";
+import type { AdapterReadResult, QueryAdapter, QueryReadContext } from "./queryExecutor";
 
 export interface AdapterSnapshot {
   rows: readonly Record<string, unknown>[];
@@ -21,14 +21,15 @@ export interface AdapterSnapshot {
   expiresAt?: string | null;
 }
 
-export type SnapshotReader = (parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal) => Promise<AdapterSnapshot>;
+export type SnapshotReader = (parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal, context?: QueryReadContext) => Promise<AdapterSnapshot>;
 
-function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter["allowedParameters"], reader: SnapshotReader): QueryAdapter {
+function adapter(descriptor: DatasetDescriptor, allowedParameters: QueryAdapter["allowedParameters"], reader: SnapshotReader, requiredParameters?: readonly string[]): QueryAdapter {
   return {
     descriptor,
     allowedParameters,
-    async read(parameters, signal): Promise<AdapterReadResult> {
-      const snapshot = await reader(parameters, signal);
+    ...(requiredParameters ? { requiredParameters } : {}),
+    async read(parameters, signal, context): Promise<AdapterReadResult> {
+      const snapshot = await reader(parameters, signal, context);
       return {
         rows: snapshot.rows,
         sourceRefs: [snapshot.source, ...(snapshot.sourceRefs ?? [])].filter((source, index, sources) =>
@@ -51,6 +52,20 @@ export function createPointDatasetAdapter(descriptor: DatasetDescriptor, reader:
   return adapter(descriptor, {}, reader);
 }
 
+/** Reference coordinates can support bounded record lookup without claiming exact distance. */
+export function createReferencePointDatasetAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
+  if (descriptor.kind !== "point" || !["place", "event"].includes(descriptor.recordGrain) || descriptor.geometry.type !== "Point"
+    || descriptor.geometry.role !== "proxy" || descriptor.geometry.spatialAnalysisEligible) throw new Error("INVALID_REFERENCE_POINT_ADAPTER");
+  return adapter(descriptor, {}, reader);
+}
+
+/** A line reader is only eligible when its source coordinates are actual EPSG:4326 geometry. */
+export function createLineDatasetAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
+  if (descriptor.kind !== "line" || descriptor.recordGrain !== "feature" || !["LineString", "MultiLineString"].includes(descriptor.geometry.type) || descriptor.geometry.crs !== "EPSG:4326"
+    || descriptor.geometry.role !== "actual" || !descriptor.geometry.spatialAnalysisEligible) throw new Error("INVALID_LINE_ADAPTER");
+  return adapter(descriptor, {}, reader);
+}
+
 export function createNewsEventAdapter(descriptor: DatasetDescriptor, reader: SnapshotReader): QueryAdapter {
   if (descriptor.kind !== "event" || descriptor.recordGrain !== "event") throw new Error("INVALID_EVENT_ADAPTER");
   return adapter(descriptor, { date: "string", minRelevance: "number", eventsOnly: "boolean", minSeverity: "number" }, reader);
@@ -66,5 +81,5 @@ export function createAdminStatisticsAdapter(descriptor: DatasetDescriptor, read
       } else if (typeof row.status !== "string" || row.value !== null) throw new Error("INVALID_STATISTICS_VALUE");
     }
     return snapshot;
-  });
+  }, ["releaseId"]);
 }

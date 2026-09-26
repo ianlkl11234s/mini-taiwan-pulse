@@ -1,0 +1,63 @@
+import { createHash } from "node:crypto";
+import { describe, expect, it } from "vitest";
+import { ResearchAnalysisSession } from "../researchAnalysisSession";
+import { loadWarehouseResult, validateWarehouseImportArgs, warehouseResultFileName } from "../warehouseResultImport";
+
+const collection = {
+  type: "FeatureCollection",
+  features: [
+    { type: "Feature", geometry: { type: "Polygon", coordinates: [[[121.50, 25.03], [121.52, 25.03], [121.52, 25.05], [121.50, 25.05], [121.50, 25.03]]] }, properties: { name: "671 路 200m 環域", _wh_label: "671" } },
+    { type: "Feature", geometry: { type: "Point", coordinates: [121.51, 25.04] }, properties: { name: "樣品國小", _wh_dataset: "schools" } },
+    { type: "Feature", geometry: { type: "MultiPoint", coordinates: [[121.505, 25.035], [121.515, 25.045]] }, properties: { school_name: "分校" } },
+  ],
+};
+const body = JSON.stringify(collection);
+const sha = createHash("sha256").update(body).digest("hex");
+const okFetch = (text = body, status = 200) => (async () => new Response(text, { status })) as unknown as typeof fetch;
+
+describe("warehouse result import", () => {
+  it("validates relay args and file names", () => {
+    expect(validateWarehouseImportArgs({ resultId: "wh-8", sha256: sha, label: " 671 ", featureCount: 3 }).label).toBe("671");
+    for (const bad of [{ resultId: "x-8", sha256: sha, label: "a", featureCount: 1 }, { resultId: "wh-8", sha256: "ABC", label: "a", featureCount: 1 }, { resultId: "wh-8", sha256: sha, label: "", featureCount: 1 }, { resultId: "wh-8", sha256: sha, label: "a", featureCount: 5001 }, { resultId: "wh-8", sha256: sha, label: "a", featureCount: 1, extra: 1 }]) {
+      expect(() => validateWarehouseImportArgs(bad)).toThrow("WAREHOUSE_RESULT_INVALID");
+    }
+    expect(warehouseResultFileName("wh-12")).toBe("wh-12.geojson");
+    expect(warehouseResultFileName("../etc/passwd")).toBeNull();
+  });
+
+  it("splits a verified mixed result into one session result per geometry type", async () => {
+    const results = await loadWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, okFetch());
+    expect(results.map(r => r.resultId).sort()).toEqual(["wh-8:point", "wh-8:polygon"]);
+    const points = results.find(r => r.geometry.type === "Point")!;
+    expect(points.rows).toHaveLength(3); // MultiPoint split into two Points
+    expect(points.rows.map(row => row.label)).toEqual(["樣品國小", "分校", "分校"]);
+    expect(points.lineage).toMatchObject({ origin: "warehouse", sha256: sha, warehouseDatasets: ["schools"] });
+  });
+
+  it("rejects unavailable, tampered, miscounted or invalid files", async () => {
+    const args = { resultId: "wh-8", sha256: sha, label: "x", featureCount: 3 };
+    await expect(loadWarehouseResult(args, okFetch(body, 404))).rejects.toThrow("WAREHOUSE_RESULT_UNAVAILABLE");
+    await expect(loadWarehouseResult(args, (async () => { throw new Error("net"); }) as unknown as typeof fetch)).rejects.toThrow("WAREHOUSE_RESULT_UNAVAILABLE");
+    await expect(loadWarehouseResult(args, okFetch(body.replace("樣品", "樣本")))).rejects.toThrow("WAREHOUSE_RESULT_SHA_MISMATCH");
+    await expect(loadWarehouseResult({ ...args, featureCount: 2 }, okFetch())).rejects.toThrow("WAREHOUSE_RESULT_INVALID");
+    const projected = JSON.stringify({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [302166, 2771171] }, properties: {} }] });
+    const projectedSha = createHash("sha256").update(projected).digest("hex");
+    await expect(loadWarehouseResult({ ...args, sha256: projectedSha, featureCount: 1 }, okFetch(projected))).rejects.toThrow("WAREHOUSE_RESULT_INVALID");
+  });
+
+  it("registers presentable results in the analysis session and replaces a re-import", async () => {
+    const session = new ResearchAnalysisSession();
+    const receipt = await session.importWarehouseResult({ resultId: "wh-8", sha256: sha, label: "671 環域", featureCount: 3 }, okFetch());
+    expect(receipt.resultIds).toEqual(expect.arrayContaining(["wh-8:point", "wh-8:polygon"]));
+    const presentable = session.presentable(receipt.resultIds as string[]);
+    expect(presentable.map(item => item.displayLabel)).toEqual(["671 環域", "671 環域"]);
+    const bounds = session.bounds(receipt.resultIds as string[]);
+    expect(bounds.bounds).toEqual([121.5, 25.03, 121.52, 25.05]);
+    // Re-import with a single geometry type drops the stale split ids.
+    const single = JSON.stringify({ type: "FeatureCollection", features: [collection.features[1]] });
+    const singleSha = createHash("sha256").update(single).digest("hex");
+    const second = await session.importWarehouseResult({ resultId: "wh-8", sha256: singleSha, label: "只剩學校", featureCount: 1 }, okFetch(single));
+    expect(second.resultIds).toEqual(["wh-8"]);
+    expect(session.hasResult("wh-8:polygon")).toBe(false);
+  });
+});

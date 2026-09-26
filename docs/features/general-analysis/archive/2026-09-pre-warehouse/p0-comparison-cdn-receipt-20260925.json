@@ -1,0 +1,4229 @@
+{
+  "schemaVersion": "pulse-p0-comparison-cdn-receipt/2026-09-25",
+  "evidenceBoundary": "One public CDN current pointer and SHA-pinned manifest were read through the existing 3734 local proxy; all 244 selector identities are present. Only one artifact payload was inspected, so 243 other source/value/health payloads remain unaudited. This is not a research query adapter or map acceptance.",
+  "currentPointer": {
+    "generatedAt": "2026-09-17T13:26:03.937867+00:00",
+    "manifest": {
+      "path": "manifests/8e4511ef4627d6a511b8208e05ab6cd2787e2319df17252c749d01e0005f5efe.json",
+      "sha256": "8e4511ef4627d6a511b8208e05ab6cd2787e2319df17252c749d01e0005f5efe",
+      "bytes": 2448038
+    }
+  },
+  "summary": {
+    "recipeLayers": 188,
+    "recipeReleaseSelectors": 244,
+    "matchedSelectors": 244,
+    "sampledArtifactPayloads": 1
+  },
+  "sampleArtifact": {
+    "indicatorId": "bus_accessible_share_pct",
+    "releaseId": "comparison-066ec1b184b470e081ecff45",
+    "artifactSha256": "e140fe8bd28961ede3c9b57808eb1320d2a20554d14aa1c7ea67205ce18b5e2f",
+    "sourceDatasetIds": [
+      "segis_bus_operation_county_315fh_1d3",
+      "segis_bus_operation_county_315fh_1d3"
+    ],
+    "inputSha256": [
+      "acf185f453a3a24d3aec7133975c008c1dca87905c800f32cc10fe0861a21260",
+      "eaa2b5dd6b978f2da9c143a837e2fa2489f350f0264f1fb50dade13c09778359"
+    ],
+    "formula": "numerator / denominator × 100",
+    "observations": 22,
+    "geometryRole": "administrative reference, not native source geometry",
+    "publicationStatus": "LOCAL_ONLY",
+    "freshnessStatus": [
+      "UNKNOWN",
+      "UNKNOWN"
+    ]
+  },
+  "layers": [
+    {
+      "layerKey": "statsComparisonBusAccessibleSharePct",
+      "indicatorId": "bus_accessible_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-066ec1b184b470e081ecff45",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 16020,
+            "path": "artifacts/e140fe8bd28961ede3c9b57808eb1320d2a20554d14aa1c7ea67205ce18b5e2f.json",
+            "sha256": "e140fe8bd28961ede3c9b57808eb1320d2a20554d14aa1c7ea67205ce18b5e2f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusElectricSharePct",
+      "indicatorId": "bus_electric_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e1ee49045f26dcb8e3283952",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 16209,
+            "path": "artifacts/177dc2b336cf66bff3ff3ffd72da9afaa6248e88e2c5f48c2425a7a438cd6ee0.json",
+            "sha256": "177dc2b336cf66bff3ff3ffd72da9afaa6248e88e2c5f48c2425a7a438cd6ee0"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingUnoccupiedSharePctCounty",
+      "indicatorId": "housing_unoccupied_share_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-084fc6f1c1d200081376245e",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 19461,
+            "path": "artifacts/534eff7754dbd6cb425fb849bc31f468414912630abb7031cd58ec96dabfaa8d.json",
+            "sha256": "534eff7754dbd6cb425fb849bc31f468414912630abb7031cd58ec96dabfaa8d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingUnoccupiedSharePctTownship",
+      "indicatorId": "housing_unoccupied_share_pct_township",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-412a3838989cce5521fff7ac",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 157385,
+            "path": "artifacts/7f2d2161c61a8d19c77df8f30568584adadd33ccd3a29a7f8e755ba8ed24d9b3.json",
+            "sha256": "7f2d2161c61a8d19c77df8f30568584adadd33ccd3a29a7f8e755ba8ed24d9b3"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingOccasionalSharePctCounty",
+      "indicatorId": "housing_occasional_share_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-dadcaebe8f02c6934b20c451",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 19430,
+            "path": "artifacts/c46599f8358f585db20f6c2f1229db5bbceee14dea6d65404d1b62458cbf191d.json",
+            "sha256": "c46599f8358f585db20f6c2f1229db5bbceee14dea6d65404d1b62458cbf191d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingOccasionalSharePctTownship",
+      "indicatorId": "housing_occasional_share_pct_township",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-33a52fc5fd7a0b9d909a2952",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 157077,
+            "path": "artifacts/6619b5ad6306a982d014487405489185b9a366ab830a68840128faf7d4819db4.json",
+            "sha256": "6619b5ad6306a982d014487405489185b9a366ab830a68840128faf7d4819db4"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingOtherUseSharePctCounty",
+      "indicatorId": "housing_other_use_share_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-923656789d1ae85a18793555",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 19433,
+            "path": "artifacts/06334ff36784dfed67c62d4396ac93ab2e4df5bd7e40b1dfb5827c20336e17a2.json",
+            "sha256": "06334ff36784dfed67c62d4396ac93ab2e4df5bd7e40b1dfb5827c20336e17a2"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingOtherUseSharePctTownship",
+      "indicatorId": "housing_other_use_share_pct_township",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f4c500fccd0e13ae14c797cc",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 156964,
+            "path": "artifacts/0d83da9236765a43f77f1718fe8ac8b9fb55e45348559e397ee6c1b7dc987547.json",
+            "sha256": "0d83da9236765a43f77f1718fe8ac8b9fb55e45348559e397ee6c1b7dc987547"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHousingMixedShareOfResidentialOrMixedPctCounty",
+      "indicatorId": "housing_mixed_share_of_residential_or_mixed_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f44815b92f43707082aeba18",
+          "periodStart": "2020-11-08",
+          "periodEnd": "2020-11-08",
+          "artifact": {
+            "bytes": 23666,
+            "path": "artifacts/a49e1267128bd8de82961048cb9cd3e3a221a0cced427201d8eed727515353f7.json",
+            "sha256": "a49e1267128bd8de82961048cb9cd3e3a221a0cced427201d8eed727515353f7"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityNationalSharePct",
+      "indicatorId": "agricultural_facility_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-96e348cf058f706730e248d4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65259,
+            "path": "artifacts/fd2a7e4a3b6f33e4d778cabe17bb01d123aedf19ab26cd33557f483267947404.json",
+            "sha256": "fd2a7e4a3b6f33e4d778cabe17bb01d123aedf19ab26cd33557f483267947404"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityCountyTotalHectare",
+      "indicatorId": "agricultural_facility_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8efb930d435064d8ae02b3e",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5416,
+            "path": "artifacts/9221476640d3d26a907d1dd07d03b4a13ad3014f917b817a4a51cc06be1a2dbc.json",
+            "sha256": "9221476640d3d26a907d1dd07d03b4a13ad3014f917b817a4a51cc06be1a2dbc"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityCountyNationalSharePct",
+      "indicatorId": "agricultural_facility_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2bfb52ca12344ea88ec2b69e",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7269,
+            "path": "artifacts/b99c5cf593778fb21ef00077e17333c7945bf36f7f80d6908f9ad8d3ababa29b.json",
+            "sha256": "b99c5cf593778fb21ef00077e17333c7945bf36f7f80d6908f9ad8d3ababa29b"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityTownshipOfCountySharePct",
+      "indicatorId": "agricultural_facility_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5e5006c66fd6249527b57d52",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64082,
+            "path": "artifacts/28f57ba1a67503cc370118bea5665f5d3b3eeabe3ba3fac2669caa213fbc69a7.json",
+            "sha256": "28f57ba1a67503cc370118bea5665f5d3b3eeabe3ba3fac2669caa213fbc69a7"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandNationalSharePct",
+      "indicatorId": "airport_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9312f5aaaf490a3729e838e8",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 59608,
+            "path": "artifacts/abe1124cd7b7934f355fbdaab54e723408523fc1d7163a22d3c0037651887185.json",
+            "sha256": "abe1124cd7b7934f355fbdaab54e723408523fc1d7163a22d3c0037651887185"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandCountyTotalHectare",
+      "indicatorId": "airport_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-3eb96fcff552700ae16c61e1",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5362,
+            "path": "artifacts/10ffe205dc993d5fdc7861125bcb2ebf831f635b738c9034b03eb6cba367151e.json",
+            "sha256": "10ffe205dc993d5fdc7861125bcb2ebf831f635b738c9034b03eb6cba367151e"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandCountyNationalSharePct",
+      "indicatorId": "airport_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-a42e2556fde085bba3fb47ce",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7114,
+            "path": "artifacts/c6023da7478062f645dfc1e127b807f7ebc63b15b2c5b04e43aad6d9b5444776.json",
+            "sha256": "c6023da7478062f645dfc1e127b807f7ebc63b15b2c5b04e43aad6d9b5444776"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandTownshipOfCountySharePct",
+      "indicatorId": "airport_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f65f5d453f9c94c5d43a64d3",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 61083,
+            "path": "artifacts/1b5e43116ad9c5787e38a44859008ac98888ba5e22fc905a0b055f0840f3809d.json",
+            "sha256": "1b5e43116ad9c5787e38a44859008ac98888ba5e22fc905a0b055f0840f3809d"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandNationalSharePct",
+      "indicatorId": "aquaculture_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9f8bf49460833426324baf09",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64595,
+            "path": "artifacts/bb24b8c96652d9bf58f50382ec2144bb21e19b848887c602d8a6720c2e238938.json",
+            "sha256": "bb24b8c96652d9bf58f50382ec2144bb21e19b848887c602d8a6720c2e238938"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandCountyTotalHectare",
+      "indicatorId": "aquaculture_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-8942450cec963da360c5eaa7",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5396,
+            "path": "artifacts/45d3b7ad10c2565c023e8ad2d228263cefe7986c5ac15a80225b0627c4c7b00e.json",
+            "sha256": "45d3b7ad10c2565c023e8ad2d228263cefe7986c5ac15a80225b0627c4c7b00e"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandCountyNationalSharePct",
+      "indicatorId": "aquaculture_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-eefe3a961f42f4c526e41e01",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7256,
+            "path": "artifacts/39310e4a45789d70afc1060452a6564b2444708383fcd5cc0e53f83576dec6d8.json",
+            "sha256": "39310e4a45789d70afc1060452a6564b2444708383fcd5cc0e53f83576dec6d8"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandTownshipOfCountySharePct",
+      "indicatorId": "aquaculture_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-36e5db02b288f85da44ee131",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 63433,
+            "path": "artifacts/d29445b2da5e2d6477e2c4aa190874f3026816d97ab6a2981e12512ecfd27629.json",
+            "sha256": "d29445b2da5e2d6477e2c4aa190874f3026816d97ab6a2981e12512ecfd27629"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestNationalSharePct",
+      "indicatorId": "bamboo_forest_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6e0677498b45774181b1b73e",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65665,
+            "path": "artifacts/f8d4c67cc94bd3b1d01d20105b530ea0892fc8a4c7c2b9ac473d9badf99a4f4f.json",
+            "sha256": "f8d4c67cc94bd3b1d01d20105b530ea0892fc8a4c7c2b9ac473d9badf99a4f4f"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestCountyTotalHectare",
+      "indicatorId": "bamboo_forest_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-20ea1cc3e897a29ff08c6abb",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5398,
+            "path": "artifacts/aff06fe2b6a76e8070d0f374d136194def8bb6024c1a0c6399e56fa890824501.json",
+            "sha256": "aff06fe2b6a76e8070d0f374d136194def8bb6024c1a0c6399e56fa890824501"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestCountyNationalSharePct",
+      "indicatorId": "bamboo_forest_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-4bdb6d7ff028946113879415",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7257,
+            "path": "artifacts/d52c980f019d5f763a0deaaf1344ad139bb8a8193227c5cea167777957bbf7b4.json",
+            "sha256": "d52c980f019d5f763a0deaaf1344ad139bb8a8193227c5cea167777957bbf7b4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestTownshipOfCountySharePct",
+      "indicatorId": "bamboo_forest_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-60fb96c6ec8b3bcb63f81dc4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64672,
+            "path": "artifacts/91557ccd5cfbda4dd71212a76eafd606c40fec2b1cb65d0d780c191c8d52403e.json",
+            "sha256": "91557ccd5cfbda4dd71212a76eafd606c40fec2b1cb65d0d780c191c8d52403e"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestNationalSharePct",
+      "indicatorId": "broadleaf_forest_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2a0a78ad58f268f4d20d6368",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 66551,
+            "path": "artifacts/ebab60b3afcaaa51d22e40ae117b2dd41e3a632e944e6372783493bb4e708834.json",
+            "sha256": "ebab60b3afcaaa51d22e40ae117b2dd41e3a632e944e6372783493bb4e708834"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestCountyTotalHectare",
+      "indicatorId": "broadleaf_forest_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-181d8acff6def3b5f28dd22f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5443,
+            "path": "artifacts/ee1624428192a004bc839bd96586bd9aa5cba3a7c4ed0442dccd7ca754c70ab4.json",
+            "sha256": "ee1624428192a004bc839bd96586bd9aa5cba3a7c4ed0442dccd7ca754c70ab4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestCountyNationalSharePct",
+      "indicatorId": "broadleaf_forest_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-99849d6ec84bfeece3f9ac74",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7307,
+            "path": "artifacts/cdb6fd8ca5452376576ff8cdf110650aadbd154855261cda0e646c349fba8d97.json",
+            "sha256": "cdb6fd8ca5452376576ff8cdf110650aadbd154855261cda0e646c349fba8d97"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestTownshipOfCountySharePct",
+      "indicatorId": "broadleaf_forest_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-95b5f3cf39d0036e99256fea",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65807,
+            "path": "artifacts/8c16c6538d0965e4484ebc3cca8aa386ee4ca7fa3c2e7d3014069bb4e5a04e5f.json",
+            "sha256": "8c16c6538d0965e4484ebc3cca8aa386ee4ca7fa3c2e7d3014069bb4e5a04e5f"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestNationalSharePct",
+      "indicatorId": "conifer_forest_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-3e479851dbf305f67fe76958",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 63382,
+            "path": "artifacts/9973679083e010d0c232203c6fd95365f67cb7f3db48913a967cb917c0b09fa7.json",
+            "sha256": "9973679083e010d0c232203c6fd95365f67cb7f3db48913a967cb917c0b09fa7"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestCountyTotalHectare",
+      "indicatorId": "conifer_forest_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6f74bced0be0003e09391a04",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5397,
+            "path": "artifacts/643ec45409dc00f13cc69952a2c8ffc0c59373ed7ac198f75c89a7e38cbb6098.json",
+            "sha256": "643ec45409dc00f13cc69952a2c8ffc0c59373ed7ac198f75c89a7e38cbb6098"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestCountyNationalSharePct",
+      "indicatorId": "conifer_forest_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-dbbc427b9a8a8bf53236ffb6",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7246,
+            "path": "artifacts/3fe1cb735481815783dda4c62e08c84ff11f5739af371218441f76eeaba94fb3.json",
+            "sha256": "3fe1cb735481815783dda4c62e08c84ff11f5739af371218441f76eeaba94fb3"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestTownshipOfCountySharePct",
+      "indicatorId": "conifer_forest_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-3b03f0e8df5ba6b9ec63eef5",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 62354,
+            "path": "artifacts/db083734eee6d9a29baa41bc072583a1663dbeef0c174971f5c4005bdccdd3fb.json",
+            "sha256": "db083734eee6d9a29baa41bc072583a1663dbeef0c174971f5c4005bdccdd3fb"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldNationalSharePct",
+      "indicatorId": "dry_field_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-03d715ba259d186f49dd6c10",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 66364,
+            "path": "artifacts/c3ccd064e9fc33ba7bee3764f820be4bf45086f7b15329189a0d3d358871c4c3.json",
+            "sha256": "c3ccd064e9fc33ba7bee3764f820be4bf45086f7b15329189a0d3d358871c4c3"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldCountyTotalHectare",
+      "indicatorId": "dry_field_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-56e2bc6b3f1b022a0b61ee10",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5405,
+            "path": "artifacts/1c5c51c09f7f214eb471b894814e41e324351758b8f839e3a4d9faace973cd12.json",
+            "sha256": "1c5c51c09f7f214eb471b894814e41e324351758b8f839e3a4d9faace973cd12"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldCountyNationalSharePct",
+      "indicatorId": "dry_field_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-12a6786742f3e17750ffa2d9",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7264,
+            "path": "artifacts/750a2514f86c1617c5ed4d2f02f7c4491b44dea1e19239815c2499afd72b1f37.json",
+            "sha256": "750a2514f86c1617c5ed4d2f02f7c4491b44dea1e19239815c2499afd72b1f37"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldTownshipOfCountySharePct",
+      "indicatorId": "dry_field_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-4cd9087ad00a5a25654ef9ca",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65439,
+            "path": "artifacts/a7acf0167921faee99827fa8a1f28ccdadbca2da7a149bab89c96f681686fc5e.json",
+            "sha256": "a7acf0167921faee99827fa8a1f28ccdadbca2da7a149bab89c96f681686fc5e"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingNationalSharePct",
+      "indicatorId": "livestock_building_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-15e3d0935cd1559ad8b4c6e8",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64844,
+            "path": "artifacts/29eb647c6ff21f27af6d1a880febfdfb22827784d04d513f2896a6593a8d0b46.json",
+            "sha256": "29eb647c6ff21f27af6d1a880febfdfb22827784d04d513f2896a6593a8d0b46"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingCountyTotalHectare",
+      "indicatorId": "livestock_building_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2efbc36e019674afb09602de",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5394,
+            "path": "artifacts/20e8a4cdd2852301da70292d39476f9db1d379729a486b3e6aad2c68a1a023e0.json",
+            "sha256": "20e8a4cdd2852301da70292d39476f9db1d379729a486b3e6aad2c68a1a023e0"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingCountyNationalSharePct",
+      "indicatorId": "livestock_building_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-7b78b6e8dc5828a307fa9d53",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7219,
+            "path": "artifacts/70bfe040d2b77731e7351bdd947092236331cebf9ba04349aa1c3db6fd1744d5.json",
+            "sha256": "70bfe040d2b77731e7351bdd947092236331cebf9ba04349aa1c3db6fd1744d5"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingTownshipOfCountySharePct",
+      "indicatorId": "livestock_building_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-10405400961c01bfd6b19359",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 63917,
+            "path": "artifacts/2d2922cfc66540dc1a21784107367a00381cc800a66d2da8b597164f492a34e6.json",
+            "sha256": "2d2922cfc66540dc1a21784107367a00381cc800a66d2da8b597164f492a34e6"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestNationalSharePct",
+      "indicatorId": "mixed_forest_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-970d762b4db1205ee63baa39",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65071,
+            "path": "artifacts/b2587be3744ba72d1c26a9206be0c5ae2ae9704ecf7f8c95154c59f1cf5d5ac9.json",
+            "sha256": "b2587be3744ba72d1c26a9206be0c5ae2ae9704ecf7f8c95154c59f1cf5d5ac9"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestCountyTotalHectare",
+      "indicatorId": "mixed_forest_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-8e8d8a12ed62b13f8df65f3a",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5413,
+            "path": "artifacts/46da6d5bab4d00b44c47ae028b68101d8a8c29030df2ecaffe590479729237b4.json",
+            "sha256": "46da6d5bab4d00b44c47ae028b68101d8a8c29030df2ecaffe590479729237b4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestCountyNationalSharePct",
+      "indicatorId": "mixed_forest_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-4b6327c116746e01656faba0",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7250,
+            "path": "artifacts/b5fc4245aeeafbb8b7ecd87740f30d7bf4e418a27c5d653fb6b8a9adba29e35c.json",
+            "sha256": "b5fc4245aeeafbb8b7ecd87740f30d7bf4e418a27c5d653fb6b8a9adba29e35c"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestTownshipOfCountySharePct",
+      "indicatorId": "mixed_forest_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-1d4e69cd43c20c2b7ebdceff",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64738,
+            "path": "artifacts/10c560e09b5c85258cec29f35f9b3e080c80a11bf71659bbb29fbb6e5dc700ea.json",
+            "sha256": "10c560e09b5c85258cec29f35f9b3e080c80a11bf71659bbb29fbb6e5dc700ea"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardNationalSharePct",
+      "indicatorId": "orchard_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f90e1f36d3b0d2d682daeec4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 66163,
+            "path": "artifacts/7206172d64dfbec797adc1f55aded03b1a2e3b0e1899b406539541bcf539a2df.json",
+            "sha256": "7206172d64dfbec797adc1f55aded03b1a2e3b0e1899b406539541bcf539a2df"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardCountyTotalHectare",
+      "indicatorId": "orchard_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f7d377964b42bea6246af640",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5388,
+            "path": "artifacts/c18dad6b62517ffc198ff1db366516ddfa577655a2adaca4f4fb7f66ffa8c7dd.json",
+            "sha256": "c18dad6b62517ffc198ff1db366516ddfa577655a2adaca4f4fb7f66ffa8c7dd"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardCountyNationalSharePct",
+      "indicatorId": "orchard_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-1a2252b943e0159a37016845",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7260,
+            "path": "artifacts/b67e08a9e55b8b860f76d500d0eb7bed40d147c27eeb0c89a302e8c017ce8909.json",
+            "sha256": "b67e08a9e55b8b860f76d500d0eb7bed40d147c27eeb0c89a302e8c017ce8909"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardTownshipOfCountySharePct",
+      "indicatorId": "orchard_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-19dc1767c76fa12269edc10f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 65073,
+            "path": "artifacts/e1a783a131f1e4107ac036914ea588f586741046b3f95e6df2b7efc9eec10305.json",
+            "sha256": "e1a783a131f1e4107ac036914ea588f586741046b3f95e6df2b7efc9eec10305"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandNationalSharePct",
+      "indicatorId": "paddy_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b053e2041b92b06c3c605bf5",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64776,
+            "path": "artifacts/a2c5e496805170248fffd89be31ab7e2c5bc6f7d1b2658fb99927821b2b0e3c2.json",
+            "sha256": "a2c5e496805170248fffd89be31ab7e2c5bc6f7d1b2658fb99927821b2b0e3c2"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandCountyTotalHectare",
+      "indicatorId": "paddy_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-12a7ce73b3a85f18b488c871",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5392,
+            "path": "artifacts/735fe3f0dc32c1f1239bcccdd4e15960599f30d50c2a96319475d5588bb998a5.json",
+            "sha256": "735fe3f0dc32c1f1239bcccdd4e15960599f30d50c2a96319475d5588bb998a5"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandCountyNationalSharePct",
+      "indicatorId": "paddy_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e954bb6b46430af3f17053a2",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7233,
+            "path": "artifacts/55fcf6acc64455a513c71c5a49ed69b1fc6a6bba3fef57de44b7ecce6b4aa589.json",
+            "sha256": "55fcf6acc64455a513c71c5a49ed69b1fc6a6bba3fef57de44b7ecce6b4aa589"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandTownshipOfCountySharePct",
+      "indicatorId": "paddy_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-66a4068339f49eaf18334f20",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64040,
+            "path": "artifacts/0d6407a2017ca8be5780943d23945e8320da1963104f35d95c38533db0a54f51.json",
+            "sha256": "0d6407a2017ca8be5780943d23945e8320da1963104f35d95c38533db0a54f51"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureNationalSharePct",
+      "indicatorId": "pasture_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b61b6b854609872156d22603",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 64434,
+            "path": "artifacts/18a13ccb445b89b3c8df87a778995fdc67e88d6c68524b27542f602b75bad4d2.json",
+            "sha256": "18a13ccb445b89b3c8df87a778995fdc67e88d6c68524b27542f602b75bad4d2"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureCountyTotalHectare",
+      "indicatorId": "pasture_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5e0e8f93b72fd63d413f7366",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5352,
+            "path": "artifacts/76a0e353e3a48f2edc5994d391fd2ea8ff3c34f90457b042e4fda913d6993532.json",
+            "sha256": "76a0e353e3a48f2edc5994d391fd2ea8ff3c34f90457b042e4fda913d6993532"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureCountyNationalSharePct",
+      "indicatorId": "pasture_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8eebb48f1ce6e3034571fcd",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7177,
+            "path": "artifacts/819161cf1f7de20c48a8bc54a6b48a1143addd450776ba13e4b016898b0537c2.json",
+            "sha256": "819161cf1f7de20c48a8bc54a6b48a1143addd450776ba13e4b016898b0537c2"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureTownshipOfCountySharePct",
+      "indicatorId": "pasture_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6e371bdca72967988e442355",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 63389,
+            "path": "artifacts/2d4dc300eff123a1500b932a656f766ec43fec9360740e6ebfd07e2e90e63171.json",
+            "sha256": "2d4dc300eff123a1500b932a656f766ec43fec9360740e6ebfd07e2e90e63171"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandNationalSharePct",
+      "indicatorId": "port_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e08d0d56e3d8a3185e6cedea",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 60574,
+            "path": "artifacts/2a4c508402828e01b26c34457843b4b88c180770ec7cf1af463cc658bfae57aa.json",
+            "sha256": "2a4c508402828e01b26c34457843b4b88c180770ec7cf1af463cc658bfae57aa"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandCountyTotalHectare",
+      "indicatorId": "port_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-826b9120b7b8af60a1f66f12",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5391,
+            "path": "artifacts/254e0e4d19fed1e1bb51bae8619908fd555c366fa40baa56ed808da1e0fd3395.json",
+            "sha256": "254e0e4d19fed1e1bb51bae8619908fd555c366fa40baa56ed808da1e0fd3395"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandCountyNationalSharePct",
+      "indicatorId": "port_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-16e0f776efca1504f639f753",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7191,
+            "path": "artifacts/3e3dcc8da456f96ff267248d8b5984769870e2e6923a6b3553cf911a3a46b4a2.json",
+            "sha256": "3e3dcc8da456f96ff267248d8b5984769870e2e6923a6b3553cf911a3a46b4a2"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandTownshipOfCountySharePct",
+      "indicatorId": "port_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-399d4b2cc438b504cd47d505",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 60856,
+            "path": "artifacts/04569870bf7e3bfcd85bf8f2c366bb8f6d13d17f542fd6fd311456bc36d768f2.json",
+            "sha256": "04569870bf7e3bfcd85bf8f2c366bb8f6d13d17f542fd6fd311456bc36d768f2"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandNationalSharePct",
+      "indicatorId": "rail_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-28c2c1162010217d32beefcb",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 62851,
+            "path": "artifacts/4b8aa51540f91e85375f753f99028a4d42720c82f9b9b51b965b569914e2a736.json",
+            "sha256": "4b8aa51540f91e85375f753f99028a4d42720c82f9b9b51b965b569914e2a736"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandCountyTotalHectare",
+      "indicatorId": "rail_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-d24225f13de6be8771644f03",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5377,
+            "path": "artifacts/5bc18e9357079ea73f8b2e81b9c5cd33d4b6732ddc8995d0b0cfccb5fd83e4d8.json",
+            "sha256": "5bc18e9357079ea73f8b2e81b9c5cd33d4b6732ddc8995d0b0cfccb5fd83e4d8"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandCountyNationalSharePct",
+      "indicatorId": "rail_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-116aea321f5ef87d1dab143b",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7146,
+            "path": "artifacts/5d8a9b8f549c5f091efad6efbc5ca0ca973120131507c0d406bf79236e662f99.json",
+            "sha256": "5d8a9b8f549c5f091efad6efbc5ca0ca973120131507c0d406bf79236e662f99"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandTownshipOfCountySharePct",
+      "indicatorId": "rail_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2078e1af610987cb2ac93589",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 62736,
+            "path": "artifacts/c2c04826cd118693877eaf1bd487c50e8516ac0f034bb5b1c8eb2e4fb7c55615.json",
+            "sha256": "c2c04826cd118693877eaf1bd487c50e8516ac0f034bb5b1c8eb2e4fb7c55615"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandNationalSharePct",
+      "indicatorId": "road_land_national_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-390c5bcb6e0bc51ac587135d",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 70605,
+            "path": "artifacts/08060344bad5e0eca2b9fc53b0f4489ec14cd6cbc307bb2fd64455cf9160edb0.json",
+            "sha256": "08060344bad5e0eca2b9fc53b0f4489ec14cd6cbc307bb2fd64455cf9160edb0"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandCountyTotalHectare",
+      "indicatorId": "road_land_county_total_hectare",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ebd540445fba1587a59f6b62",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 5407,
+            "path": "artifacts/51e6fabd4b2bcf9301219a668f0cf71ab6f421b48fe46db9762831d9a4ee934f.json",
+            "sha256": "51e6fabd4b2bcf9301219a668f0cf71ab6f421b48fe46db9762831d9a4ee934f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandCountyNationalSharePct",
+      "indicatorId": "road_land_county_national_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-d8f10b5284a9067be85d23bf",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7463,
+            "path": "artifacts/88e9d46e90ee63f1662ea11847dc678a5763ebe0292a78a70cf73e0fd3418679.json",
+            "sha256": "88e9d46e90ee63f1662ea11847dc678a5763ebe0292a78a70cf73e0fd3418679"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandTownshipOfCountySharePct",
+      "indicatorId": "road_land_township_of_county_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-54288d6db735d55862b14c98",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 66204,
+            "path": "artifacts/fe9aaa544e7a2237c353ca97fbfedb9c666bb4571da21b5b0279e76087357733.json",
+            "sha256": "fe9aaa544e7a2237c353ca97fbfedb9c666bb4571da21b5b0279e76087357733"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAcuteBedTotalPer10000PopulationTownship",
+      "indicatorId": "acute_bed_total_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-acute_bed_total_per_10000_population_township-752d29ee4ca8404d",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 77859,
+            "path": "6091ea781048c443e3cec3bf40ff3e538d0778b0a2c560459e50b27582cefa8f.json",
+            "sha256": "6091ea781048c443e3cec3bf40ff3e538d0778b0a2c560459e50b27582cefa8f"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "derived-acute_bed_total_per_10000_population_township-4f87e662eac96a4d",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 79129,
+            "path": "5cc7c9d5279c1a5118e95f10d11d75e51ab82879fddf83a00072641a2e33b91c.json",
+            "sha256": "5cc7c9d5279c1a5118e95f10d11d75e51ab82879fddf83a00072641a2e33b91c"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospiceBedTotalPer10000PopulationTownship",
+      "indicatorId": "hospice_bed_total_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-hospice_bed_total_per_10000_population_township-931e36d593f956e5",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 76316,
+            "path": "489710131c080dc886cb007c621dd34a353fb9452ec8913068adc8290f5ba57d.json",
+            "sha256": "489710131c080dc886cb007c621dd34a353fb9452ec8913068adc8290f5ba57d"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "derived-hospice_bed_total_per_10000_population_township-38526828e40eec47",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 77536,
+            "path": "e3fbaa285fcec498ebfe4667524eb01662b4019dba6eda8dfd449ed50afcf8b8.json",
+            "sha256": "e3fbaa285fcec498ebfe4667524eb01662b4019dba6eda8dfd449ed50afcf8b8"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospitalBedTotalPer10000PopulationTownship",
+      "indicatorId": "hospital_bed_total_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-hospital_bed_total_per_10000_population_township-703f776da95c5b9c",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 77899,
+            "path": "b03d2ff3a0c43400603b7aaa24d20084c810564e0669ca8cc2fe016638f8ae30.json",
+            "sha256": "b03d2ff3a0c43400603b7aaa24d20084c810564e0669ca8cc2fe016638f8ae30"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "derived-hospital_bed_total_per_10000_population_township-6665e99737984519",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 79210,
+            "path": "cb33e24c8d7c6d58437f9863dce6e5f1702556cce666253db5c3c5cd0c5e147b.json",
+            "sha256": "cb33e24c8d7c6d58437f9863dce6e5f1702556cce666253db5c3c5cd0c5e147b"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospitalCountPer10000PopulationTownship",
+      "indicatorId": "hospital_count_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-hospital_count_per_10000_population_township-273f03d953c8fb31",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 77707,
+            "path": "13b4b7b16b725538e4d2f38196fc26b09d0bbce36ccdeb1acc5bc93268d2eb5d.json",
+            "sha256": "13b4b7b16b725538e4d2f38196fc26b09d0bbce36ccdeb1acc5bc93268d2eb5d"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "derived-hospital_count_per_10000_population_township-8ef5ca4fd9227f3f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 79006,
+            "path": "0451ad15e51cf8906d8cab7a61268088489c1d127f6bdde6eb0365d59459093b.json",
+            "sha256": "0451ad15e51cf8906d8cab7a61268088489c1d127f6bdde6eb0365d59459093b"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonIcuBedTotalPer10000PopulationTownship",
+      "indicatorId": "icu_bed_total_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-icu_bed_total_per_10000_population_township-b06324a70a036a61",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 77118,
+            "path": "50ab5ef2d722cdb73f26cf9da0013c0a73d78081b85df7d70d9a8555cf7ebd41.json",
+            "sha256": "50ab5ef2d722cdb73f26cf9da0013c0a73d78081b85df7d70d9a8555cf7ebd41"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "derived-icu_bed_total_per_10000_population_township-5aa9a5cdef0eb74a",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 78378,
+            "path": "2ffc377ef1f8070825646fc5ffefff795fba7dfc40e38658299bdddefe292d17.json",
+            "sha256": "2ffc377ef1f8070825646fc5ffefff795fba7dfc40e38658299bdddefe292d17"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHealthProfessionalTotalPer10000PopulationTownship",
+      "indicatorId": "health_professional_total_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-health_professional_total_per_10000_population_township-60c93e37ea34df65",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 72305,
+            "path": "128bd7f66ee249dd1123d6dd1d372a06e69918225e197557d32ef7f3f02efc98.json",
+            "sha256": "128bd7f66ee249dd1123d6dd1d372a06e69918225e197557d32ef7f3f02efc98"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRegisteredNurseCountPer10000PopulationTownship",
+      "indicatorId": "registered_nurse_count_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-registered_nurse_count_per_10000_population_township-de489910e787128f",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 72220,
+            "path": "724846f20e291b65f17cb9818d9bbe0d8e9a49fd90a91f48349e15ec1b6416c2.json",
+            "sha256": "724846f20e291b65f17cb9818d9bbe0d8e9a49fd90a91f48349e15ec1b6416c2"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWesternPhysicianCountPer10000PopulationTownship",
+      "indicatorId": "western_physician_count_per_10000_population_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "derived-western_physician_count_per_10000_population_township-3f14c70e8321feb9",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 72119,
+            "path": "2a48765bedd3713bbf599f11ee7e99048718ff342ed4c5c77913ca90ee2ad306.json",
+            "sha256": "2a48765bedd3713bbf599f11ee7e99048718ff342ed4c5c77913ca90ee2ad306"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonGeneralNursingHomeOpenBedsPer65plus1000County",
+      "indicatorId": "general_nursing_home_open_beds_per_65plus_1000_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "derived-general_nursing_home_open_beds_per_65plus_1000_county-bf53db45ad064cf7",
+          "periodStart": "2025-12-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 18709,
+            "path": "36b837a7270df6ad609a19a50bc5e8624980436a4b0024a61301c84d0c540cda.json",
+            "sha256": "36b837a7270df6ad609a19a50bc5e8624980436a4b0024a61301c84d0c540cda"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonCareWorkerRegistrationCountPer65plus1000County",
+      "indicatorId": "care_worker_registration_count_per_65plus_1000_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "derived-care_worker_registration_count_per_65plus_1000_county-ecd3315fba34f988",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 18654,
+            "path": "9cd7843b29f41952ea9bc51ea321fe5ab4d160bf2666b88c2dd7f8736e8e0c61.json",
+            "sha256": "9cd7843b29f41952ea9bc51ea321fe5ab4d160bf2666b88c2dd7f8736e8e0c61"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPostpartumNursingHomeOpenBedsPerBirths1000County",
+      "indicatorId": "postpartum_nursing_home_open_beds_per_births_1000_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "derived-postpartum_nursing_home_open_beds_per_births_1000_county-4dc0fe491b93b00c",
+          "periodStart": "2025-12-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 18451,
+            "path": "da036618875d61bbcd36249a28271b7a5d1c3ed0198d1a6569e45c4e32c06982.json",
+            "sha256": "da036618875d61bbcd36249a28271b7a5d1c3ed0198d1a6569e45c4e32c06982"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPostpartumNursingHomeOpenInfantBedsPerBirths1000County",
+      "indicatorId": "postpartum_nursing_home_open_infant_beds_per_births_1000_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "derived-postpartum_nursing_home_open_infant_beds_per_births_1000_county-3198f3254fa4a67b",
+          "periodStart": "2025-12-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 18601,
+            "path": "42a206fb71f064311f0c0a5d46058ccf5ab0340314e7b9e202480c5017faf1f3.json",
+            "sha256": "42a206fb71f064311f0c0a5d46058ccf5ab0340314e7b9e202480c5017faf1f3"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2AccidentCount",
+      "indicatorId": "a2_accident_count",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b4e54c547916dbd61da766b9",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 4898,
+            "path": "artifacts/15bdf1abd9e2552a624e65697b55407a3f187c29b171e018f2a8acbb1aebac42.json",
+            "sha256": "15bdf1abd9e2552a624e65697b55407a3f187c29b171e018f2a8acbb1aebac42"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2InjuryCount",
+      "indicatorId": "a2_injury_count",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-cff1f2381843095ae6217bb2",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 4927,
+            "path": "artifacts/81a5404605f4596dc2056b73bc69de3343b36d098a5fda1089f0ee56b6407bb7.json",
+            "sha256": "81a5404605f4596dc2056b73bc69de3343b36d098a5fda1089f0ee56b6407bb7"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1A2AccidentCount",
+      "indicatorId": "a1_a2_accident_count",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-89ec3180514a24e26cf2feb1",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 4904,
+            "path": "artifacts/a97e1ec82d8e72508786475e93d40346e7d90b577b195234af25195a53857e9b.json",
+            "sha256": "a97e1ec82d8e72508786475e93d40346e7d90b577b195234af25195a53857e9b"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityCountyAreaSharePct",
+      "indicatorId": "agricultural_facility_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-67818cc22e92fe9c0b46fdd3",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7829,
+            "path": "artifacts/d98d0f6bcce0fb0e6a7d36dfada2e4e85bb15091f48602d1208170843e3f7395.json",
+            "sha256": "d98d0f6bcce0fb0e6a7d36dfada2e4e85bb15091f48602d1208170843e3f7395"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityCountyLq",
+      "indicatorId": "agricultural_facility_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-de484546a22d9b0bcb95c2c4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10288,
+            "path": "artifacts/f2f4ef1d419df4644a53794da26a420f71dcd452ea87cd7732862c195c91c4bc.json",
+            "sha256": "f2f4ef1d419df4644a53794da26a420f71dcd452ea87cd7732862c195c91c4bc"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAgriculturalFacilityTownshipAdminAreaSharePct",
+      "indicatorId": "agricultural_facility_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-49aa6b8052fd78d378a09fe0",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 57075,
+            "path": "artifacts/b35f92935cd75ee765360c15c0749df68864ae7a97e35db88b6b8e84741e70ad.json",
+            "sha256": "b35f92935cd75ee765360c15c0749df68864ae7a97e35db88b6b8e84741e70ad"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandCountyAreaSharePct",
+      "indicatorId": "airport_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-892bfee4287224cbae650620",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7581,
+            "path": "artifacts/4462f542ca97612d6178bc5522b61656ebca2ed8dd8f1c42e272642a95113823.json",
+            "sha256": "4462f542ca97612d6178bc5522b61656ebca2ed8dd8f1c42e272642a95113823"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandCountyLq",
+      "indicatorId": "airport_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9195ab3b8153aea44af895d6",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10256,
+            "path": "artifacts/1820f7375f9aaa5e1557e3484ad3f816a5a19825455581f88aa81d433533f59e.json",
+            "sha256": "1820f7375f9aaa5e1557e3484ad3f816a5a19825455581f88aa81d433533f59e"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAirportLandTownshipAdminAreaSharePct",
+      "indicatorId": "airport_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ff07163426a3f0034f998e75",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 51921,
+            "path": "artifacts/817ace60fe4a14b26169c2d3a0a3b9e000636f84309d156c43cc04009d02383d.json",
+            "sha256": "817ace60fe4a14b26169c2d3a0a3b9e000636f84309d156c43cc04009d02383d"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandCountyAreaSharePct",
+      "indicatorId": "aquaculture_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f8d138bb1a65fbd4d49b22b5",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7752,
+            "path": "artifacts/3a341342847050f7575317cea61451b907942a5ba51425cb13a58896b848d405.json",
+            "sha256": "3a341342847050f7575317cea61451b907942a5ba51425cb13a58896b848d405"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandCountyLq",
+      "indicatorId": "aquaculture_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ede07ad24effaf393326b00f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10214,
+            "path": "artifacts/fc3e10eda0873dd9c09eb135791a9c33df8ca4297950b6b426a8a07a86ba6fa4.json",
+            "sha256": "fc3e10eda0873dd9c09eb135791a9c33df8ca4297950b6b426a8a07a86ba6fa4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAquacultureLandTownshipAdminAreaSharePct",
+      "indicatorId": "aquaculture_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-586a53848fd57409649f4049",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 56372,
+            "path": "artifacts/7c17f21caef2b782fff6c8fdd22116c0e8197627d3b426a9347975724da73423.json",
+            "sha256": "7c17f21caef2b782fff6c8fdd22116c0e8197627d3b426a9347975724da73423"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestCountyAreaSharePct",
+      "indicatorId": "bamboo_forest_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-3a07d472438f247fce455e8c",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7647,
+            "path": "artifacts/dc8aaae3e18c4b8728d346a05aec182a442f2bb9133a0c3f2d5070836a67495f.json",
+            "sha256": "dc8aaae3e18c4b8728d346a05aec182a442f2bb9133a0c3f2d5070836a67495f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestCountyLq",
+      "indicatorId": "bamboo_forest_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-46d5824f8393fe2d1e869d45",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10346,
+            "path": "artifacts/134bbfb14d76b3af53a3f044de0b8ae7a0c0df3ab8c8a825f7209bc44f95654f.json",
+            "sha256": "134bbfb14d76b3af53a3f044de0b8ae7a0c0df3ab8c8a825f7209bc44f95654f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBambooForestTownshipAdminAreaSharePct",
+      "indicatorId": "bamboo_forest_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-dd75acd132e87d2f101b843e",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 56887,
+            "path": "artifacts/dd400e6bf6d073afcb67c9ed0b802db5b66c1c1cad037febf45c5353c35b8dd3.json",
+            "sha256": "dd400e6bf6d073afcb67c9ed0b802db5b66c1c1cad037febf45c5353c35b8dd3"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestCountyAreaSharePct",
+      "indicatorId": "broadleaf_forest_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-03f8103f68599035f0f28fef",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7704,
+            "path": "artifacts/deef277b667ae6aaad8183953e6691339280113dda94f9a50d188e5df99d28dd.json",
+            "sha256": "deef277b667ae6aaad8183953e6691339280113dda94f9a50d188e5df99d28dd"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestCountyLq",
+      "indicatorId": "broadleaf_forest_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8151b5d6f3b0a9558cdd947",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10409,
+            "path": "artifacts/58aa584cab9fb359fbbc33d2357186007d0094a9083fadb13065ef1e7c094bb3.json",
+            "sha256": "58aa584cab9fb359fbbc33d2357186007d0094a9083fadb13065ef1e7c094bb3"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBroadleafForestTownshipAdminAreaSharePct",
+      "indicatorId": "broadleaf_forest_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-efc3956cdead4f7598debe6b",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 57489,
+            "path": "artifacts/2ab5f721b41385aed5f7c42b14611d15626e26656c4aaf0c99b87778c093b029.json",
+            "sha256": "2ab5f721b41385aed5f7c42b14611d15626e26656c4aaf0c99b87778c093b029"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestCountyAreaSharePct",
+      "indicatorId": "conifer_forest_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-713bd65de1396d7dae74d075",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7675,
+            "path": "artifacts/e675ce4fa0d06a89e8fe7bc3588bef72582054fe428f3c2ae93582e3fc5ce9d2.json",
+            "sha256": "e675ce4fa0d06a89e8fe7bc3588bef72582054fe428f3c2ae93582e3fc5ce9d2"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestCountyLq",
+      "indicatorId": "conifer_forest_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2ac988fa2a3840518a5aad98",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10176,
+            "path": "artifacts/fbff31d524a6436345693a077aacde8bfd32b7e34805a10383fb84c049b4734a.json",
+            "sha256": "fbff31d524a6436345693a077aacde8bfd32b7e34805a10383fb84c049b4734a"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonConiferForestTownshipAdminAreaSharePct",
+      "indicatorId": "conifer_forest_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6d4757b449be5d12bc42f874",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 54699,
+            "path": "artifacts/38d9f00994440c14b627f92953af4838b61219e9916c70e955c1c3f6d2007870.json",
+            "sha256": "38d9f00994440c14b627f92953af4838b61219e9916c70e955c1c3f6d2007870"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldCountyAreaSharePct",
+      "indicatorId": "dry_field_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e4472287405f3f59faf559fa",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7697,
+            "path": "artifacts/4afef640da58dc6e6ce50879b3c1766018214e9caa2b981b09daa30eb34266f4.json",
+            "sha256": "4afef640da58dc6e6ce50879b3c1766018214e9caa2b981b09daa30eb34266f4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldCountyLq",
+      "indicatorId": "dry_field_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-8f241a1f6af7168e5b85f04e",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10210,
+            "path": "artifacts/8248c2745f9e6e6277db4f80d00354def63fa3d6f0547f4d4d1e0a22deac8a3f.json",
+            "sha256": "8248c2745f9e6e6277db4f80d00354def63fa3d6f0547f4d4d1e0a22deac8a3f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonDryFieldTownshipAdminAreaSharePct",
+      "indicatorId": "dry_field_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-98962db561539a78badf4576",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 57494,
+            "path": "artifacts/3a2c18f68e5112c0e813d6afbf4f50265663ad739bbffa631b7ba6ac8253b8d7.json",
+            "sha256": "3a2c18f68e5112c0e813d6afbf4f50265663ad739bbffa631b7ba6ac8253b8d7"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingCountyAreaSharePct",
+      "indicatorId": "livestock_building_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9d9c97168edc016bd9446cb4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7774,
+            "path": "artifacts/858e47212bf01a0373d5811b25dc0edffaaeece40716ff4081db48bced7de1d4.json",
+            "sha256": "858e47212bf01a0373d5811b25dc0edffaaeece40716ff4081db48bced7de1d4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingCountyLq",
+      "indicatorId": "livestock_building_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5cc6c39cead8a616494975ea",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10418,
+            "path": "artifacts/4eef4c587b1b62b2f9dee7ca3969a16be7ae7db6253fa87a2a6029980a305641.json",
+            "sha256": "4eef4c587b1b62b2f9dee7ca3969a16be7ae7db6253fa87a2a6029980a305641"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockBuildingTownshipAdminAreaSharePct",
+      "indicatorId": "livestock_building_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-05316571a9da7a6c6c1b62d0",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 57160,
+            "path": "artifacts/e9926d8eded363d14b1a0919a94f6b4c41f80cdb7273be9c920c7d29241017c7.json",
+            "sha256": "e9926d8eded363d14b1a0919a94f6b4c41f80cdb7273be9c920c7d29241017c7"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestCountyAreaSharePct",
+      "indicatorId": "mixed_forest_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-a9733afcfdab7ec528550df4",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7644,
+            "path": "artifacts/8d2aca7a606f00346f105f8289f6718d931bb3061e2ad58a3d0bee80ba06c145.json",
+            "sha256": "8d2aca7a606f00346f105f8289f6718d931bb3061e2ad58a3d0bee80ba06c145"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestCountyLq",
+      "indicatorId": "mixed_forest_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-fdde76c1991cb9d10fb24cc0",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10147,
+            "path": "artifacts/8495d5e6b9a0cf402e16feec4b966bc614f4516c4927a13403c5b2c1ad636eb2.json",
+            "sha256": "8495d5e6b9a0cf402e16feec4b966bc614f4516c4927a13403c5b2c1ad636eb2"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMixedForestTownshipAdminAreaSharePct",
+      "indicatorId": "mixed_forest_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-797db83f3113401314b0bc05",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 56335,
+            "path": "artifacts/205e35b0132f3a246a8923a63d574437b36657691eb8e7db93f0e80360a372e1.json",
+            "sha256": "205e35b0132f3a246a8923a63d574437b36657691eb8e7db93f0e80360a372e1"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardCountyAreaSharePct",
+      "indicatorId": "orchard_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6d9c0e1597f24386866a7b39",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7685,
+            "path": "artifacts/f3aa6e3ae79c9875db2fbfdea5e78e9bbf62de31a52fb6886b9fadf178d13964.json",
+            "sha256": "f3aa6e3ae79c9875db2fbfdea5e78e9bbf62de31a52fb6886b9fadf178d13964"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardCountyLq",
+      "indicatorId": "orchard_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-dd92e289db2989d1d0987224",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10186,
+            "path": "artifacts/0835da43a44b5ede6d3aad841044c7faa7504f32fc3998024a18c293557164cb.json",
+            "sha256": "0835da43a44b5ede6d3aad841044c7faa7504f32fc3998024a18c293557164cb"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOrchardTownshipAdminAreaSharePct",
+      "indicatorId": "orchard_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8d8af398fed878680e8b983",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 57284,
+            "path": "artifacts/1dd956aaaa6d2b56e44dbcfb1da9c67ca5901395d1045fa9cf4ef45b1dfeaa08.json",
+            "sha256": "1dd956aaaa6d2b56e44dbcfb1da9c67ca5901395d1045fa9cf4ef45b1dfeaa08"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandCountyAreaSharePct",
+      "indicatorId": "paddy_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-70617835b29b71756cabf732",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7713,
+            "path": "artifacts/c4ed2e1774b1471214ddb95cd7e72dc319f08755aef14fb6885d11de5c39653f.json",
+            "sha256": "c4ed2e1774b1471214ddb95cd7e72dc319f08755aef14fb6885d11de5c39653f"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandCountyLq",
+      "indicatorId": "paddy_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-48fe69cda968df9e69317579",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10211,
+            "path": "artifacts/7f10663c8ede79a1cf929d813c1c162086fa4ed45544e11654688e814158f1ab.json",
+            "sha256": "7f10663c8ede79a1cf929d813c1c162086fa4ed45544e11654688e814158f1ab"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPaddyLandTownshipAdminAreaSharePct",
+      "indicatorId": "paddy_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-77fec3e7da9d2ba8c18ecc62",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 56113,
+            "path": "artifacts/35c53ce3f0773b6e0bd7f798beace42b6efd1fc9985f66946b709d77ec70195c.json",
+            "sha256": "35c53ce3f0773b6e0bd7f798beace42b6efd1fc9985f66946b709d77ec70195c"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureCountyAreaSharePct",
+      "indicatorId": "pasture_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-88051e9326739e68db6ffd96",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7721,
+            "path": "artifacts/2c297cd6bd15b7f395a71633bcaa333275a95eb749c8758c2573b4ed54e5b3dc.json",
+            "sha256": "2c297cd6bd15b7f395a71633bcaa333275a95eb749c8758c2573b4ed54e5b3dc"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureCountyLq",
+      "indicatorId": "pasture_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-48fcc295867207cc2980ba54",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10141,
+            "path": "artifacts/1f9714bf65670e0f2a7ae7680bb359ae0328731237c1399d943387241ce60357.json",
+            "sha256": "1f9714bf65670e0f2a7ae7680bb359ae0328731237c1399d943387241ce60357"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPastureTownshipAdminAreaSharePct",
+      "indicatorId": "pasture_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-784b6bcae9c2164d8decb249",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 56874,
+            "path": "artifacts/e1f30126579edfde1442b69dd311da2ac4e862aa0f4cfa54a196c7f9b1d9b886.json",
+            "sha256": "e1f30126579edfde1442b69dd311da2ac4e862aa0f4cfa54a196c7f9b1d9b886"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandCountyAreaSharePct",
+      "indicatorId": "port_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-1460242e465d50514ae2adf9",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7716,
+            "path": "artifacts/8c5e05a637702756661f537feee0081bc76b3184803fa3de54da650bedc90f25.json",
+            "sha256": "8c5e05a637702756661f537feee0081bc76b3184803fa3de54da650bedc90f25"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandCountyLq",
+      "indicatorId": "port_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-cb51f2f1a1118b0b38a4ad7f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10385,
+            "path": "artifacts/8e674aa5ae2518f2660038bf64afb16572b70ce3a950c35116878df383bb701a.json",
+            "sha256": "8e674aa5ae2518f2660038bf64afb16572b70ce3a950c35116878df383bb701a"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonPortLandTownshipAdminAreaSharePct",
+      "indicatorId": "port_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-44d5d681c6a52ebe7259addb",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 52908,
+            "path": "artifacts/0d5cf2f6c29aafcd9d59d966a78ecdb4a6ca078a03f6db67e1b9a3cdb7a50d42.json",
+            "sha256": "0d5cf2f6c29aafcd9d59d966a78ecdb4a6ca078a03f6db67e1b9a3cdb7a50d42"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandCountyAreaSharePct",
+      "indicatorId": "rail_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f9cea8b90230a6921875c049",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7680,
+            "path": "artifacts/1e194083c2fee9c8bcb81af3babcec29b01fb023fe7279708c0a4a9d234a07a1.json",
+            "sha256": "1e194083c2fee9c8bcb81af3babcec29b01fb023fe7279708c0a4a9d234a07a1"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandCountyLq",
+      "indicatorId": "rail_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f603381881ab4a5bd0de7951",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10351,
+            "path": "artifacts/f591626f94b52dc64818b67c1e04b954894dd1c0aef6b57da8ddb5952f1d4718.json",
+            "sha256": "f591626f94b52dc64818b67c1e04b954894dd1c0aef6b57da8ddb5952f1d4718"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRailLandTownshipAdminAreaSharePct",
+      "indicatorId": "rail_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-17cb35ab2bd90403629caa5f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 55193,
+            "path": "artifacts/3f9e84b41846abd18aedc88dbedce9e6b4155fd7917d1039bb96cc505ee2b01b.json",
+            "sha256": "3f9e84b41846abd18aedc88dbedce9e6b4155fd7917d1039bb96cc505ee2b01b"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandCountyAreaSharePct",
+      "indicatorId": "road_land_county_area_share_pct",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-7e1594f5c4255cc4dd69c674",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 7738,
+            "path": "artifacts/a32a5a0669efd6b61724579481c144650f4d9da6974a9d45fd8a262b58494c74.json",
+            "sha256": "a32a5a0669efd6b61724579481c144650f4d9da6974a9d45fd8a262b58494c74"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandCountyLq",
+      "indicatorId": "road_land_county_lq",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-4cc79bf0f792607c34ce78a0",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10238,
+            "path": "artifacts/13e13c13091adff76f489da2d1ff516a4d6d45e87802b61430dbd49e118ca89c.json",
+            "sha256": "13e13c13091adff76f489da2d1ff516a4d6d45e87802b61430dbd49e118ca89c"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRoadLandTownshipAdminAreaSharePct",
+      "indicatorId": "road_land_township_admin_area_share_pct",
+      "level": "township",
+      "boundaryVersion": "TOWN_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-85cc5fb9349aa168ea33b782",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 58437,
+            "path": "artifacts/15c5c7c126e60d99e1f6353bdaac0b983eae7e3bb150ca96e21be944c506d91d.json",
+            "sha256": "15c5c7c126e60d99e1f6353bdaac0b983eae7e3bb150ca96e21be944c506d91d"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAcuteBedTotalPerKm2Township",
+      "indicatorId": "acute_bed_total_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-b7bc7d013ea26ce37c93ea79",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 55231,
+            "path": "artifacts/b2324b28a92a6c2f286d6afe5a3be22cf79f6cb8a5041033a1be0641b72aada2.json",
+            "sha256": "b2324b28a92a6c2f286d6afe5a3be22cf79f6cb8a5041033a1be0641b72aada2"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospiceBedTotalPerKm2Township",
+      "indicatorId": "hospice_bed_total_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-4cba18ae654861c638d18754",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 53689,
+            "path": "artifacts/b0f46387214d4e96066af25873b9d20e88dc0d894f4ac0ab6d26002a0614cc01.json",
+            "sha256": "b0f46387214d4e96066af25873b9d20e88dc0d894f4ac0ab6d26002a0614cc01"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospitalBedTotalPerKm2Township",
+      "indicatorId": "hospital_bed_total_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-bed058c875acbefc2b67b127",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 55264,
+            "path": "artifacts/e116a0fa0be9e126ada8def227f28ce8d2828cb8f9cb294dde09c777aed913ec.json",
+            "sha256": "e116a0fa0be9e126ada8def227f28ce8d2828cb8f9cb294dde09c777aed913ec"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHospitalCountPerKm2Township",
+      "indicatorId": "hospital_count_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-62be844eecd5fb8c1be1993c",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 55180,
+            "path": "artifacts/d2557e93e2bab04bf3eabcb65342436c4454e13917bb1bd0030eacc464bf7d61.json",
+            "sha256": "d2557e93e2bab04bf3eabcb65342436c4454e13917bb1bd0030eacc464bf7d61"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonIcuBedTotalPerKm2Township",
+      "indicatorId": "icu_bed_total_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-bb07db7f31898d7c31225335",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 54534,
+            "path": "artifacts/0a0ead80133b0630bcec1e6dc475c94885668d8716094b376fe719921d76bf18.json",
+            "sha256": "0a0ead80133b0630bcec1e6dc475c94885668d8716094b376fe719921d76bf18"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonHealthProfessionalTotalPerKm2Township",
+      "indicatorId": "health_professional_total_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-25dabc329992e8a2dfd72a13",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 49713,
+            "path": "artifacts/09975d8bdf020c818fc7d99cacbafa0e3f5acf5677e99aa9d0e12bde21f200c3.json",
+            "sha256": "09975d8bdf020c818fc7d99cacbafa0e3f5acf5677e99aa9d0e12bde21f200c3"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonRegisteredNurseCountPerKm2Township",
+      "indicatorId": "registered_nurse_count_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-d00a154320edc903b0aaf205",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 49658,
+            "path": "artifacts/d81c9fa435702eca415bd1b655fc8f19e182ffac04de0dd614a752ee64aaf8fb.json",
+            "sha256": "d81c9fa435702eca415bd1b655fc8f19e182ffac04de0dd614a752ee64aaf8fb"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWesternPhysicianCountPerKm2Township",
+      "indicatorId": "western_physician_count_per_km2_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-cd791ad9be0b42d85582f472",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 49599,
+            "path": "artifacts/d431e18ea785f777af0c0b38db7ea36f31ba7d9e6f8e06c24cab84cfa70bb191.json",
+            "sha256": "d431e18ea785f777af0c0b38db7ea36f31ba7d9e6f8e06c24cab84cfa70bb191"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonLivestockHeadsPerFarmTownship",
+      "indicatorId": "livestock_heads_per_farm_township",
+      "level": "township",
+      "boundaryVersion": "township_reference_20260626_v1",
+      "releases": [
+        {
+          "releaseId": "comparison-eddbbde2875eda1b7f7ed745",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 174463,
+            "path": "artifacts/b4d195cf347847cc112920f9e8b805087a9e47d75a44f1d271b52dae6091578b.json",
+            "sha256": "b4d195cf347847cc112920f9e8b805087a9e47d75a44f1d271b52dae6091578b"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-ecdaae769b74f793c3d856e6",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 188526,
+            "path": "artifacts/1ace06c52166b1b630e26afc087c2c082927209ce04c812ff033c79a2ed160f9.json",
+            "sha256": "1ace06c52166b1b630e26afc087c2c082927209ce04c812ff033c79a2ed160f9"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-eb96e9d8ef7afcdc15fbd017",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 196507,
+            "path": "artifacts/5c7ab2c66dc80b6ac7ed1bfbd528b82e88407bc367e0d2c21cff86bff47aaae5.json",
+            "sha256": "5c7ab2c66dc80b6ac7ed1bfbd528b82e88407bc367e0d2c21cff86bff47aaae5"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-e2113915e156f72df9414d0e",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 192869,
+            "path": "artifacts/f20b5662b9ec995e9ae50173988df6adb9743c959e9c4ebef324e9f06e75428b.json",
+            "sha256": "f20b5662b9ec995e9ae50173988df6adb9743c959e9c4ebef324e9f06e75428b"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-dac8b0834e44769c0b203705",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 184529,
+            "path": "artifacts/f19ef1a21b81afe6b92f5d7b259044b7c17377d6bd70abeb13b446fedefbd2c4.json",
+            "sha256": "f19ef1a21b81afe6b92f5d7b259044b7c17377d6bd70abeb13b446fedefbd2c4"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-cf170ceeb99177414ef42db7",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 198862,
+            "path": "artifacts/3d6e9607c1a707964736158e886c66df95034fe5c5080947f752f923fb39ad27.json",
+            "sha256": "3d6e9607c1a707964736158e886c66df95034fe5c5080947f752f923fb39ad27"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-ce301d2d279fdeb210b9e5f5",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 183539,
+            "path": "artifacts/5d00006df5ab0c2fa211fa9119a619ff5a7ffe3ffe94a96e73b88bf0610c9ab9.json",
+            "sha256": "5d00006df5ab0c2fa211fa9119a619ff5a7ffe3ffe94a96e73b88bf0610c9ab9"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-cbf2184b9abd01334cdda952",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 156530,
+            "path": "artifacts/b67212f5a9febeea17edbc734e9a98bfe449004d2fa70dd2a31ffc73fd300b2c.json",
+            "sha256": "b67212f5a9febeea17edbc734e9a98bfe449004d2fa70dd2a31ffc73fd300b2c"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-b94ff62deee7ae766828d86e",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 199135,
+            "path": "artifacts/3be2b7aaaca00c7ac384013b17a8827283d70053584e5bd6fdc343198f5fa609.json",
+            "sha256": "3be2b7aaaca00c7ac384013b17a8827283d70053584e5bd6fdc343198f5fa609"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-775fe815cc3675e94517dca3",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 195942,
+            "path": "artifacts/5e01ba3fa7ed7561c052b1251d07f9d6c9e9eea5a7ea85905dd453054b752e2a.json",
+            "sha256": "5e01ba3fa7ed7561c052b1251d07f9d6c9e9eea5a7ea85905dd453054b752e2a"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-73d34c28233d0c1670cfb532",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 189735,
+            "path": "artifacts/91329a84642f4fe158eacbbfb99b4fa9bb7d750809814e5fd2245aaafc8a6e05.json",
+            "sha256": "91329a84642f4fe158eacbbfb99b4fa9bb7d750809814e5fd2245aaafc8a6e05"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-7133cf4306d51a2d8dcebc1b",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 142465,
+            "path": "artifacts/b16a40c7bfeb1b3c8d4b581d24bfc309f758e9346f515ed9ee83b26ddbbae296.json",
+            "sha256": "b16a40c7bfeb1b3c8d4b581d24bfc309f758e9346f515ed9ee83b26ddbbae296"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-6c85983f03128fe2d4cd21b7",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 176277,
+            "path": "artifacts/bda13acb9071e224a8c754b52ef2536888565d39189c8db5991468a93819d6bd.json",
+            "sha256": "bda13acb9071e224a8c754b52ef2536888565d39189c8db5991468a93819d6bd"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-5e2a421894274c99d1d51e65",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 165746,
+            "path": "artifacts/f1f0a5544fe75f1f3640f2b489c9b2fae5852d961f1f4e5c54cf5759dbfcd186.json",
+            "sha256": "f1f0a5544fe75f1f3640f2b489c9b2fae5852d961f1f4e5c54cf5759dbfcd186"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-5d4eb307113b5fcbf6631240",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 196631,
+            "path": "artifacts/074b681bfbfa612aec062a154aa090f3dd8f77664c86551ebdfa66ef40010dab.json",
+            "sha256": "074b681bfbfa612aec062a154aa090f3dd8f77664c86551ebdfa66ef40010dab"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-50e46e3b3c246977465daa29",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 182760,
+            "path": "artifacts/c41b61f0ae28fedf3b327c616fcb6375d71007514b8f6f30e5fce62c2fbba5e4.json",
+            "sha256": "c41b61f0ae28fedf3b327c616fcb6375d71007514b8f6f30e5fce62c2fbba5e4"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-4ae46d18dfe213016cb1b75b",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 185651,
+            "path": "artifacts/e7b8eecfb321bb34389a4dc317df13af31c42bf7b40da9955ae865cf7fd24b6d.json",
+            "sha256": "e7b8eecfb321bb34389a4dc317df13af31c42bf7b40da9955ae865cf7fd24b6d"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-3b011f55c90c69a18a26b559",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 197372,
+            "path": "artifacts/3e706b561de9014f8873ed11d3bc0c20f0a8ba3b3ab612d6e6fc46aa93a9e006.json",
+            "sha256": "3e706b561de9014f8873ed11d3bc0c20f0a8ba3b3ab612d6e6fc46aa93a9e006"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-1f58079676c3de99b632ce85",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 192135,
+            "path": "artifacts/9fdb00a0389b980d26d4ec26bbebc1559ccadbb24caee4bad71a718c9de28006.json",
+            "sha256": "9fdb00a0389b980d26d4ec26bbebc1559ccadbb24caee4bad71a718c9de28006"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-1d783ea68069a5b592d61fd5",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 198104,
+            "path": "artifacts/da3c10ab1c077520ccf1645f6a26cd2c9e59adf3d16f31237067f83cc3b9c5b2.json",
+            "sha256": "da3c10ab1c077520ccf1645f6a26cd2c9e59adf3d16f31237067f83cc3b9c5b2"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-12d98726be531c3b54cefc18",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 157528,
+            "path": "artifacts/e3c1a2161ba1423db475f2892e4d012c2d99248808338a914c88f13ab8c53158.json",
+            "sha256": "e3c1a2161ba1423db475f2892e4d012c2d99248808338a914c88f13ab8c53158"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-10ce2ffb717a3729c60986f7",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 137210,
+            "path": "artifacts/045b968528bdb2938811fcc7f1ee64cf726cd94ee6bbf74ca1dc485fda430b27.json",
+            "sha256": "045b968528bdb2938811fcc7f1ee64cf726cd94ee6bbf74ca1dc485fda430b27"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-0f2d2497d33875e5c7301764",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 196956,
+            "path": "artifacts/473887def5dc07393740f2135836d15cab528489b8de699c299135a4b69b7507.json",
+            "sha256": "473887def5dc07393740f2135836d15cab528489b8de699c299135a4b69b7507"
+          },
+          "areaLevel": "township"
+        },
+        {
+          "releaseId": "comparison-0cdf1740b58d2479b7f62fa9",
+          "periodStart": "2026-01-01",
+          "periodEnd": "2026-03-31",
+          "artifact": {
+            "bytes": 195649,
+            "path": "artifacts/412e81f046cc2de13b3b942c3ce8a74ad4a51f0be6680e37a0b1f1dea38c665b.json",
+            "sha256": "412e81f046cc2de13b3b942c3ce8a74ad4a51f0be6680e37a0b1f1dea38c665b"
+          },
+          "areaLevel": "township"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonFisheryProductionTonnesNationalSharePctCounty",
+      "indicatorId": "fishery_production_tonnes_national_share_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-4f8f04bb9fbbf8605dd8a352",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 8301,
+            "path": "artifacts/5b4225be98651e660ef0bdde155b0081945b4229e34cb1012b653726db930ba1.json",
+            "sha256": "5b4225be98651e660ef0bdde155b0081945b4229e34cb1012b653726db930ba1"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonFisheryValueThousandNationalSharePctCounty",
+      "indicatorId": "fishery_value_thousand_national_share_pct_county",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-588565a1ab3431cb73c0e266",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 8278,
+            "path": "artifacts/a2b357a6c8c16a564406ea4de48d9161843aaec158d0ff71f319efb1e6e219a4.json",
+            "sha256": "a2b357a6c8c16a564406ea4de48d9161843aaec158d0ff71f319efb1e6e219a4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationClassCountPer10000Residents",
+      "indicatorId": "education_class_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-dfeb56c085280317d3e327e5",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14485,
+            "path": "artifacts/4cc5347d44829416c8730c6d2fd0d172227f943978909978f924b29de593de26.json",
+            "sha256": "4cc5347d44829416c8730c6d2fd0d172227f943978909978f924b29de593de26"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-cf3728d9dc1b9ff93d940950",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14471,
+            "path": "artifacts/5b9dacee156e2d28600a59c4b7389e8d289a4199eff9652b438d9aff9c8e3e65.json",
+            "sha256": "5b9dacee156e2d28600a59c4b7389e8d289a4199eff9652b438d9aff9c8e3e65"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-ce6a863d2557a53375acc423",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14500,
+            "path": "artifacts/a46509cdb0fcfe1376b1f4d3c54ee66f0e86667c00105efbefeeb0d915d0cca6.json",
+            "sha256": "a46509cdb0fcfe1376b1f4d3c54ee66f0e86667c00105efbefeeb0d915d0cca6"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationClassCountPerKm2",
+      "indicatorId": "education_class_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-989fdcd4d14f27205026c2e3",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14587,
+            "path": "artifacts/fb56c506353785343123e350656497593fd5e5f6ee520b62d9c05183223158de.json",
+            "sha256": "fb56c506353785343123e350656497593fd5e5f6ee520b62d9c05183223158de"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-9680ce245cdee7a31530b9fe",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14575,
+            "path": "artifacts/31fa173334482dc2ace5265ba33fed19c8cddbb2e90632cbbeb753b23f307094.json",
+            "sha256": "31fa173334482dc2ace5265ba33fed19c8cddbb2e90632cbbeb753b23f307094"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-0e9f7c9f3d917709d8bf57b7",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14635,
+            "path": "artifacts/1edbdb4f64e8968ad5c694970465b5b492167bc6f6d0b4007a0508fe93d21586.json",
+            "sha256": "1edbdb4f64e8968ad5c694970465b5b492167bc6f6d0b4007a0508fe93d21586"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationInstitutionCountPer10000Residents",
+      "indicatorId": "education_institution_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5c965a2631e63b6e9e2d91ba",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14528,
+            "path": "artifacts/886e88caa6da1b543d71577c9068a6a5f00146fd919a43d60bb0f52305016f13.json",
+            "sha256": "886e88caa6da1b543d71577c9068a6a5f00146fd919a43d60bb0f52305016f13"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-5b0404ce2ac359936eafb4b4",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14504,
+            "path": "artifacts/a5cff1424e1794a600f003fb0e24c981201a9ed0bc3275de01e0ba531a7e4488.json",
+            "sha256": "a5cff1424e1794a600f003fb0e24c981201a9ed0bc3275de01e0ba531a7e4488"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-2277c502dcc532f57c5fab23",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14879,
+            "path": "artifacts/ae580543625b6fde720d7c21e809928d67cfe0a315fde381c88137d07fe20e4c.json",
+            "sha256": "ae580543625b6fde720d7c21e809928d67cfe0a315fde381c88137d07fe20e4c"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-19f06a36ae47061e682b2b91",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14472,
+            "path": "artifacts/2089ea9e1f73eaddf499cdeb1780d32649b495ef15d7931c46c859e8dcf5d5b3.json",
+            "sha256": "2089ea9e1f73eaddf499cdeb1780d32649b495ef15d7931c46c859e8dcf5d5b3"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationInstitutionCountPerKm2",
+      "indicatorId": "education_institution_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e5506cbcef5747a2a8dda49c",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14598,
+            "path": "artifacts/36447777620315f07b37ce15128f91d40d853643a448fc95052527aed1ba8498.json",
+            "sha256": "36447777620315f07b37ce15128f91d40d853643a448fc95052527aed1ba8498"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-ad5625758e4721e191c83067",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 15006,
+            "path": "artifacts/f3ab01dfab650c9833f7dbe5191540f9486dfb2eee5b8b00848429e5307f4be2.json",
+            "sha256": "f3ab01dfab650c9833f7dbe5191540f9486dfb2eee5b8b00848429e5307f4be2"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-ad0e605cef5db04250a27e8d",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14657,
+            "path": "artifacts/007318927e47c2ffc41e15e9f092abf95790ed2ab931f85dafa5f52cc04a82f9.json",
+            "sha256": "007318927e47c2ffc41e15e9f092abf95790ed2ab931f85dafa5f52cc04a82f9"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-2a167fbe00ac3944b13565af",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14626,
+            "path": "artifacts/647d620f88da9d2dcba92550cb1632c7e2d2ba17700518941b1dd51f98dc347b.json",
+            "sha256": "647d620f88da9d2dcba92550cb1632c7e2d2ba17700518941b1dd51f98dc347b"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationStaffCountPer10000Residents",
+      "indicatorId": "education_staff_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8a0b9fb5423b2cd08916061",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14479,
+            "path": "artifacts/f589c78e89d92ac537b51bc37b4ad05230a9c4fbaa65689503e709e4a1124070.json",
+            "sha256": "f589c78e89d92ac537b51bc37b4ad05230a9c4fbaa65689503e709e4a1124070"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-ced024cd2a70331ddc3a82e2",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14562,
+            "path": "artifacts/5872b8f4362a47bb2e14243f5e695e4cc2d31d4e5d59d2f5f68eeac15a964498.json",
+            "sha256": "5872b8f4362a47bb2e14243f5e695e4cc2d31d4e5d59d2f5f68eeac15a964498"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-54a381edf0f572b5cf2f8780",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14515,
+            "path": "artifacts/1587d3688be1914638ebb90b515f7635d4dd3e56ae74bbbfa8c58a9be534c453.json",
+            "sha256": "1587d3688be1914638ebb90b515f7635d4dd3e56ae74bbbfa8c58a9be534c453"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-39e76059afedf8a9c578ad97",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14452,
+            "path": "artifacts/4dcc3bb16cf3669d00eb69e90a8cde9e5725fbab2bae70a06a2c1663c5727944.json",
+            "sha256": "4dcc3bb16cf3669d00eb69e90a8cde9e5725fbab2bae70a06a2c1663c5727944"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationStaffCountPerKm2",
+      "indicatorId": "education_staff_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9ed4a7d72129853193c5c00c",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14601,
+            "path": "artifacts/222e5f200863f1bce57df5047835faf1a66e5bb232d56e44d80271174883db8c.json",
+            "sha256": "222e5f200863f1bce57df5047835faf1a66e5bb232d56e44d80271174883db8c"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-90436f5fb7aa8dd3a248fb41",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14573,
+            "path": "artifacts/78cd06bb87888098af22c890f5c3f9ec8099a0b25783005e6ae2b73bf63d7230.json",
+            "sha256": "78cd06bb87888098af22c890f5c3f9ec8099a0b25783005e6ae2b73bf63d7230"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-6fa3f56e3f19b07579e558fe",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14668,
+            "path": "artifacts/c122a47fa0dab9fb0aabdd369dc2ab6892786970042b7a5a6e4fee5fae216dea.json",
+            "sha256": "c122a47fa0dab9fb0aabdd369dc2ab6892786970042b7a5a6e4fee5fae216dea"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-3d97c35d1bdc61c5a1ddb175",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14642,
+            "path": "artifacts/24ee5f160f24c0a73cef012f349543790bc5b1de61e23dd8eafe2924992f3ab4.json",
+            "sha256": "24ee5f160f24c0a73cef012f349543790bc5b1de61e23dd8eafe2924992f3ab4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationStudentCountPer10000Residents",
+      "indicatorId": "education_student_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-d80fa2ca47cd1c44a7282b63",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14886,
+            "path": "artifacts/d9a4b643ff0016cee9dc0800a7bbbba89cbce91827b2a556ead05c853bf58d3a.json",
+            "sha256": "d9a4b643ff0016cee9dc0800a7bbbba89cbce91827b2a556ead05c853bf58d3a"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-8e8ef9983169a3313ac22b90",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14573,
+            "path": "artifacts/7e1a5af1814984bf4f69a261255bff2ecd504b6839be47a497484da68299d621.json",
+            "sha256": "7e1a5af1814984bf4f69a261255bff2ecd504b6839be47a497484da68299d621"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-6dac3a0dfa83f19c1fc9b43e",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14537,
+            "path": "artifacts/32f5637f538de3518a6ebed769d7e710fef6da9084837fa26d6376dcbc542895.json",
+            "sha256": "32f5637f538de3518a6ebed769d7e710fef6da9084837fa26d6376dcbc542895"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-46e490747f18b456c75975e1",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14510,
+            "path": "artifacts/98a21012ac69ce8a81b94d16679ade5ba44fdc42c667908d190f404ef10d81b7.json",
+            "sha256": "98a21012ac69ce8a81b94d16679ade5ba44fdc42c667908d190f404ef10d81b7"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationStudentCountPerKm2",
+      "indicatorId": "education_student_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b86f1f6d986446cf8ff0f5a4",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14656,
+            "path": "artifacts/f23e76d316f88897d77afecafef08d5468686b778b1311e56c721715234a953c.json",
+            "sha256": "f23e76d316f88897d77afecafef08d5468686b778b1311e56c721715234a953c"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-a88e65531175eaa892d084f4",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14983,
+            "path": "artifacts/f4c3be677e2ee42ed7789171f61b23db52965c76f6bcf2d1384fa48d9848d339.json",
+            "sha256": "f4c3be677e2ee42ed7789171f61b23db52965c76f6bcf2d1384fa48d9848d339"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-7c904eb82fbc15e4de68189d",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14632,
+            "path": "artifacts/8ec1004db9f3972b4428d466b7d06987afda66ccf973ee12a9d2fd18878c7189.json",
+            "sha256": "8ec1004db9f3972b4428d466b7d06987afda66ccf973ee12a9d2fd18878c7189"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-479f2b164c1f46e7428d4b0a",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14618,
+            "path": "artifacts/426526314019d53feec264cb639b22c18de07a1e150c2751ded4327a4060a14d.json",
+            "sha256": "426526314019d53feec264cb639b22c18de07a1e150c2751ded4327a4060a14d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationTeacherCountPer10000Residents",
+      "indicatorId": "education_teacher_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ee76e8cb0653d2e906cac75d",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14544,
+            "path": "artifacts/c0aeafd1061c041d8508754951592f72e112536e906e60c75a9f0be3bc465f4d.json",
+            "sha256": "c0aeafd1061c041d8508754951592f72e112536e906e60c75a9f0be3bc465f4d"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-b4f2cac5efb403d730bef4e6",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14498,
+            "path": "artifacts/178de16a78b614a5298f1e60479801ae15570e557ea0cb1f8e2a0579796716af.json",
+            "sha256": "178de16a78b614a5298f1e60479801ae15570e557ea0cb1f8e2a0579796716af"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-78e3caba195c2a5a6c393b4b",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14568,
+            "path": "artifacts/016aff508b13fefffcab698478f5c80f2579752318445d212447b7d5ea7de2da.json",
+            "sha256": "016aff508b13fefffcab698478f5c80f2579752318445d212447b7d5ea7de2da"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-69a5fea2fdd08c297181fc78",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14474,
+            "path": "artifacts/7168ce93dd0bdb694e04bf3bb0d4b287f82bb6e9c8c86c0781d466b66740e771.json",
+            "sha256": "7168ce93dd0bdb694e04bf3bb0d4b287f82bb6e9c8c86c0781d466b66740e771"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonEducationTeacherCountPerKm2",
+      "indicatorId": "education_teacher_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-cdaff26744c779041b225753",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14590,
+            "path": "artifacts/3b9c10c42c2dac4cc60f5e5fc260e0e0c334ce3e01cf5e89845dca942e218b0c.json",
+            "sha256": "3b9c10c42c2dac4cc60f5e5fc260e0e0c334ce3e01cf5e89845dca942e218b0c"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-ac37ace0d5e3f959fdf4fd07",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14648,
+            "path": "artifacts/d5537797ade59c2d6c6db12a897e3fe713b611506d4d601a6059217ef568f31d.json",
+            "sha256": "d5537797ade59c2d6c6db12a897e3fe713b611506d4d601a6059217ef568f31d"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-922f06c38cc79d091c901f16",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14608,
+            "path": "artifacts/4196800c4472e4f62d989edaa80859f5b8b74537aab765fe237b953e3f8671dc.json",
+            "sha256": "4196800c4472e4f62d989edaa80859f5b8b74537aab765fe237b953e3f8671dc"
+          },
+          "areaLevel": "county"
+        },
+        {
+          "releaseId": "comparison-79b393dd82a5c12dbab3c3e8",
+          "periodStart": "2025-08-01",
+          "periodEnd": "2026-07-31",
+          "artifact": {
+            "bytes": 14689,
+            "path": "artifacts/7cea167ec26dea3996025b5d5e6a8be89f44cf8f8bf7fdc762720dd23c2b4307.json",
+            "sha256": "7cea167ec26dea3996025b5d5e6a8be89f44cf8f8bf7fdc762720dd23c2b4307"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingRouteLengthKmPer10000Residents",
+      "indicatorId": "bus_operating_route_length_km_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-fa8951f4594d8119fb805f79",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10010,
+            "path": "artifacts/56cd2ed490d331f7aae40bd37597697e44fc368b36cc9c32661a2c850042bb26.json",
+            "sha256": "56cd2ed490d331f7aae40bd37597697e44fc368b36cc9c32661a2c850042bb26"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingRouteLengthKmPerKm2",
+      "indicatorId": "bus_operating_route_length_km_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-531f4067d86dd9f20f3b7b98",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10122,
+            "path": "artifacts/0429544c4423caa90aebb96a821df3396a762cad5b28f6a66d46842acac6f6a6.json",
+            "sha256": "0429544c4423caa90aebb96a821df3396a762cad5b28f6a66d46842acac6f6a6"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusApprovedRouteCountPer10000Residents",
+      "indicatorId": "bus_approved_route_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6674176370e8d5108be70309",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9922,
+            "path": "artifacts/c0009f1bdc64e17d53f950a770e0abf1db783a851645adf0ed5248cde7081cf5.json",
+            "sha256": "c0009f1bdc64e17d53f950a770e0abf1db783a851645adf0ed5248cde7081cf5"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusApprovedRouteCountPerKm2",
+      "indicatorId": "bus_approved_route_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b000b67cfafab6c77f6ae1cf",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10049,
+            "path": "artifacts/f8e0bd36e7846c917fb4025cf3e5dd218f29231f971f08cc06775fe47ff33909.json",
+            "sha256": "f8e0bd36e7846c917fb4025cf3e5dd218f29231f971f08cc06775fe47ff33909"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonUrbanBusOperatorCountPer10000Residents",
+      "indicatorId": "urban_bus_operator_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e4322e0f5b8d0a7d56112b4c",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9929,
+            "path": "artifacts/07f4fe81c5b6583cd117e12747fe0eff1cfb7a1cc9e9b370cdcf06d7247701af.json",
+            "sha256": "07f4fe81c5b6583cd117e12747fe0eff1cfb7a1cc9e9b370cdcf06d7247701af"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonUrbanBusOperatorCountPerKm2",
+      "indicatorId": "urban_bus_operator_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-09a5d5739955730dea2bf356",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10057,
+            "path": "artifacts/6611e988ccbb832af547de5c00fbeafa04e559661874e244320e629bb1be17a9.json",
+            "sha256": "6611e988ccbb832af547de5c00fbeafa04e559661874e244320e629bb1be17a9"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingVehicleCountPer10000Residents",
+      "indicatorId": "bus_operating_vehicle_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-aa0c1fa9cab17a8efe850ef4",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9933,
+            "path": "artifacts/3fbcb8370d295587f6ea0277a4a0a275b980af927b8513ca61179bad0630b51e.json",
+            "sha256": "3fbcb8370d295587f6ea0277a4a0a275b980af927b8513ca61179bad0630b51e"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingVehicleCountPerKm2",
+      "indicatorId": "bus_operating_vehicle_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-d7b7dc4e2ea6012cc157187a",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10053,
+            "path": "artifacts/a2a011fd803ac403147820473e541841d8426a15a80f909ccbe396822b4c7f67.json",
+            "sha256": "a2a011fd803ac403147820473e541841d8426a15a80f909ccbe396822b4c7f67"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusAccessibleVehicleCountPer10000Residents",
+      "indicatorId": "bus_accessible_vehicle_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-d271436894851480df84052e",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9941,
+            "path": "artifacts/b3d7f4922a2bf627777a00c920de05917cf9130ee2158bdb7517851d97e1eba4.json",
+            "sha256": "b3d7f4922a2bf627777a00c920de05917cf9130ee2158bdb7517851d97e1eba4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusAccessibleVehicleCountPerKm2",
+      "indicatorId": "bus_accessible_vehicle_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-308b125e0d240da77fb19511",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10060,
+            "path": "artifacts/d56eadb3251bd1794c577507096b831f6b66eea5f8d7861537b400e10f08aa2a.json",
+            "sha256": "d56eadb3251bd1794c577507096b831f6b66eea5f8d7861537b400e10f08aa2a"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusElectricVehicleCountPer10000Residents",
+      "indicatorId": "bus_electric_vehicle_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-8b4c1096318b728d1e683591",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9830,
+            "path": "artifacts/288fb0dec224cef4f6519f6d83716ca11d3a52e5ad1fae20143fc6c27bcd519d.json",
+            "sha256": "288fb0dec224cef4f6519f6d83716ca11d3a52e5ad1fae20143fc6c27bcd519d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusElectricVehicleCountPerKm2",
+      "indicatorId": "bus_electric_vehicle_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-51a1de7159519cc1d16c32e6",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9950,
+            "path": "artifacts/f156263ad09c48f17d833d8eb5b78c76a4c93590f8e95d20d25295353dc7ebfb.json",
+            "sha256": "f156263ad09c48f17d833d8eb5b78c76a4c93590f8e95d20d25295353dc7ebfb"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingTripCountPer10000Residents",
+      "indicatorId": "bus_operating_trip_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-c76f6bf089faad11f99b997e",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9994,
+            "path": "artifacts/e1722e4c301eac20b4fc69ba9e3a19a00cf60b13730b652a1b5845edcf266508.json",
+            "sha256": "e1722e4c301eac20b4fc69ba9e3a19a00cf60b13730b652a1b5845edcf266508"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingTripCountPerKm2",
+      "indicatorId": "bus_operating_trip_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-99ef07ef5cf2298284065572",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10102,
+            "path": "artifacts/ddf0082864a215fe046c5808ec810676f6176270ce5a575e1c4be7c83d576b80.json",
+            "sha256": "ddf0082864a215fe046c5808ec810676f6176270ce5a575e1c4be7c83d576b80"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingVehicleKmPer10000Residents",
+      "indicatorId": "bus_operating_vehicle_km_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-1edb40f9aafd7fe7f25e0d7c",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10039,
+            "path": "artifacts/01791103cb68afa4c3e5934fbbe2df5e6a3dc703f1e6d86973c9af65fceafc55.json",
+            "sha256": "01791103cb68afa4c3e5934fbbe2df5e6a3dc703f1e6d86973c9af65fceafc55"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonBusOperatingVehicleKmPerKm2",
+      "indicatorId": "bus_operating_vehicle_km_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2fa65d37823ba345468aa7ae",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 10147,
+            "path": "artifacts/3b478a5d19c802172ab6f324e9835e999b36d6367c21065eacf0fb2b40fc6a29.json",
+            "sha256": "3b478a5d19c802172ab6f324e9835e999b36d6367c21065eacf0fb2b40fc6a29"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAutomobileLicenseHoldersCountPer10000Residents",
+      "indicatorId": "automobile_license_holders_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-9afb2e79d6b859e889ffd042",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9043,
+            "path": "artifacts/c86ad4186194fbb1b799962622a70a35f794d6027e04a583668429ae73dce9b4.json",
+            "sha256": "c86ad4186194fbb1b799962622a70a35f794d6027e04a583668429ae73dce9b4"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonAutomobileRegisteredCountPer10000Residents",
+      "indicatorId": "automobile_registered_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-691249920f933e5a4a0f769f",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9025,
+            "path": "artifacts/1f8b52408f4ddf4dd2571a01f05bdc11f2bcc48a2140e819ccb451d9e68c510e.json",
+            "sha256": "1f8b52408f4ddf4dd2571a01f05bdc11f2bcc48a2140e819ccb451d9e68c510e"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMotorcycleLicenseHoldersCountPer10000Residents",
+      "indicatorId": "motorcycle_license_holders_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-66f6d1d7aff18fbcdee80a16",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9045,
+            "path": "artifacts/8af938e5cff7a28aba61529119f135473d00571ba4d5e6af690eac2197f72cb9.json",
+            "sha256": "8af938e5cff7a28aba61529119f135473d00571ba4d5e6af690eac2197f72cb9"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonMotorcycleRegisteredCountPer10000Residents",
+      "indicatorId": "motorcycle_registered_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-f61248f61aa1b7f7ceeecb10",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9025,
+            "path": "artifacts/0b6a4467ab6d944ddf70e241c81d5085cb2cf68ad43bcd2369f50ce6557ed97a.json",
+            "sha256": "0b6a4467ab6d944ddf70e241c81d5085cb2cf68ad43bcd2369f50ce6557ed97a"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOffstreetSmallCarParkingSpacesCountPer10000Residents",
+      "indicatorId": "offstreet_small_car_parking_spaces_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-29c45dab4ba17affe30fd8aa",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9050,
+            "path": "artifacts/78d049fa2377db6610597ceeeb657e4717788e13926b7fa0694c90b9704969df.json",
+            "sha256": "78d049fa2377db6610597ceeeb657e4717788e13926b7fa0694c90b9704969df"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonOnstreetSmallCarParkingSpacesCountPer10000Residents",
+      "indicatorId": "onstreet_small_car_parking_spaces_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5adcbaca377ba881afcf6a09",
+          "periodStart": "2024-01-01",
+          "periodEnd": "2024-12-31",
+          "artifact": {
+            "bytes": 9036,
+            "path": "artifacts/72fb2582cc1a1d3b42a0e7d0f9da28fcc49f7a710513c9de9c7aa38a2437752a.json",
+            "sha256": "72fb2582cc1a1d3b42a0e7d0f9da28fcc49f7a710513c9de9c7aa38a2437752a"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1AccidentCountPer10000Residents",
+      "indicatorId": "a1_accident_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-161f81a4990fd938f4abf6dc",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9017,
+            "path": "artifacts/c83469cb7ff6bcc04d243caa55e0ccb2e41c4616ebe4f61bc9c4619f0926261d.json",
+            "sha256": "c83469cb7ff6bcc04d243caa55e0ccb2e41c4616ebe4f61bc9c4619f0926261d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1AccidentCountPerKm2",
+      "indicatorId": "a1_accident_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ad9b4f7730caf9fcb4ec10b9",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9837,
+            "path": "artifacts/8289a5c97069007c6533a8bef3c9182816d6ac099ecb05899e3efec21d436ac0.json",
+            "sha256": "8289a5c97069007c6533a8bef3c9182816d6ac099ecb05899e3efec21d436ac0"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1DeathCountPer10000Residents",
+      "indicatorId": "a1_death_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-2742e4ccce6d1afea316da3a",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9007,
+            "path": "artifacts/4dbb1e6abc3a0d6a532e181a9b141526675101300b480b4617ad7343afe491dc.json",
+            "sha256": "4dbb1e6abc3a0d6a532e181a9b141526675101300b480b4617ad7343afe491dc"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1DeathCountPerKm2",
+      "indicatorId": "a1_death_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-bbcb7d05896f9289c425b027",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9825,
+            "path": "artifacts/7c6c8d0c79272da763b1a9f5e0d764962fb3d205276fc338f3297bf5395f1411.json",
+            "sha256": "7c6c8d0c79272da763b1a9f5e0d764962fb3d205276fc338f3297bf5395f1411"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1InjuryCountPer10000Residents",
+      "indicatorId": "a1_injury_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-6bc227cf10914bd8198cf58d",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9013,
+            "path": "artifacts/bc481ef35470b1c751f7462c90a9bdbe4ca9f021907d19fa05ef7010cf79e258.json",
+            "sha256": "bc481ef35470b1c751f7462c90a9bdbe4ca9f021907d19fa05ef7010cf79e258"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1InjuryCountPerKm2",
+      "indicatorId": "a1_injury_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-fb3a7aa0ea18b3e0108321f1",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9831,
+            "path": "artifacts/c950095ea995226d463aa040333d99e74bf734c839ff32e26bf7689d4e545b06.json",
+            "sha256": "c950095ea995226d463aa040333d99e74bf734c839ff32e26bf7689d4e545b06"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWasteRecyclingVehiclesPer10000Residents",
+      "indicatorId": "waste_recycling_vehicles_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e8adf45a260de2dad7aaebe5",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 8982,
+            "path": "artifacts/e68b102bd17ecb9cc72435481d4753cb98745ca37fbbb54d2a6677ca70a1f5a5.json",
+            "sha256": "e68b102bd17ecb9cc72435481d4753cb98745ca37fbbb54d2a6677ca70a1f5a5"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWasteRecyclingVehiclesPerKm2",
+      "indicatorId": "waste_recycling_vehicles_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-296d643f405ef0bbcd0c44f1",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9804,
+            "path": "artifacts/bc6a40a6aed94a80fe6c81a4b1e5730b98c3d1824d91a86bc18cb8529bb099e6.json",
+            "sha256": "bc6a40a6aed94a80fe6c81a4b1e5730b98c3d1824d91a86bc18cb8529bb099e6"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWasteTotalVehiclesPer10000Residents",
+      "indicatorId": "waste_total_vehicles_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e37ef1f77959a03445a2e65e",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 8957,
+            "path": "artifacts/ed6c13d1b5e594869e75e2dc034d4abb3d4576235d9841a43408761b20ab5c24.json",
+            "sha256": "ed6c13d1b5e594869e75e2dc034d4abb3d4576235d9841a43408761b20ab5c24"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonWasteTotalVehiclesPerKm2",
+      "indicatorId": "waste_total_vehicles_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-93fd4dd6aa80f93334770a89",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9779,
+            "path": "artifacts/cc68d6c749b64db16b41c7d14fadecccbad17f59a3c7664aef0bc08433bb7275.json",
+            "sha256": "cc68d6c749b64db16b41c7d14fadecccbad17f59a3c7664aef0bc08433bb7275"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2AccidentCountPer10000Residents",
+      "indicatorId": "a2_accident_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-7ac38e7a1c9ebf2ff24e837b",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 8400,
+            "path": "artifacts/9471c0918ba742a840eb8e96ca5f8410357642d3a5e37b9856a44d192f9495e0.json",
+            "sha256": "9471c0918ba742a840eb8e96ca5f8410357642d3a5e37b9856a44d192f9495e0"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2AccidentCountPerKm2",
+      "indicatorId": "a2_accident_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-e0f4556bb8e80e4aac5b5eff",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9190,
+            "path": "artifacts/8d0cad0c35034420cdc3e06bc5febd8c1b3ea90166a3281827308577f8f480a9.json",
+            "sha256": "8d0cad0c35034420cdc3e06bc5febd8c1b3ea90166a3281827308577f8f480a9"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2InjuryCountPer10000Residents",
+      "indicatorId": "a2_injury_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-5a23aa3380697968447f6a05",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 8405,
+            "path": "artifacts/80fed5daafe35d38f286ecdc81a6f05e8d2cd8c561a144fb277a7e5cc86b14ee.json",
+            "sha256": "80fed5daafe35d38f286ecdc81a6f05e8d2cd8c561a144fb277a7e5cc86b14ee"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA2InjuryCountPerKm2",
+      "indicatorId": "a2_injury_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-ce291909eaac8c5a18c605a6",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9196,
+            "path": "artifacts/3206c2c239dcbcb0196b660d05a54b06b1d9e327234fe43aa5399cb6d8ef7ac0.json",
+            "sha256": "3206c2c239dcbcb0196b660d05a54b06b1d9e327234fe43aa5399cb6d8ef7ac0"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1A2AccidentCountPer10000Residents",
+      "indicatorId": "a1_a2_accident_count_per_10000_residents",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-b2606948a92c8a52dea9217f",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 8405,
+            "path": "artifacts/911d52d2c8304ce4c9f919b64604e9c677ee822c49a528d8dc949826e0da923d.json",
+            "sha256": "911d52d2c8304ce4c9f919b64604e9c677ee822c49a528d8dc949826e0da923d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    },
+    {
+      "layerKey": "statsComparisonA1A2AccidentCountPerKm2",
+      "indicatorId": "a1_a2_accident_count_per_km2",
+      "level": "county",
+      "boundaryVersion": "COUNTY_MOI_1140318",
+      "releases": [
+        {
+          "releaseId": "comparison-8152d60428dd6e048184420b",
+          "periodStart": "2025-01-01",
+          "periodEnd": "2025-12-31",
+          "artifact": {
+            "bytes": 9199,
+            "path": "artifacts/3b5322afb9fc3b58b27a6f6bfebe6dc7ffa581db61f1233e43ee597b4f9e7e1d.json",
+            "sha256": "3b5322afb9fc3b58b27a6f6bfebe6dc7ffa581db61f1233e43ee597b4f9e7e1d"
+          },
+          "areaLevel": "county"
+        }
+      ]
+    }
+  ]
+}

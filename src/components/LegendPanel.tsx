@@ -5609,10 +5609,10 @@ function DroneZonesLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   const rows: Array<{ key: string; label: string; color: string }> = [];
   if (visibility.droneNoFlyZone) {
-    rows.push({ key: "nfz", label: "🚫 禁航區（紅+未分類 5,633）禁飛", color: "#DC3545" });
+    rows.push({ key: "nfz", label: "2026-06-30 參考面（紅+未分類 5,635；現行規則未驗）", color: "#DC3545" });
   }
   if (visibility.droneRestrictedZone) {
-    rows.push({ key: "restricted", label: "⚠️ 限航區（黃 108）需申請", color: "#FFC107" });
+    rows.push({ key: "restricted", label: "2026-06-30 黃區參考面（108；現行規則未驗）", color: "#FFC107" });
   }
   if (rows.length === 0) return null;
   return (

@@ -6,18 +6,18 @@ import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
- * 無人機禁/限航區（民航局 dronegis）— 5,741 polygon 共用 PMTiles，filter 拆兩 layer
+ * 民航局 dronegis 歷史空域參考面 — 5,741 Polygon + 2 MultiPolygon 共用 PMTiles，filter 拆兩 layer
  *
  * 資料來源：
  *   taipei-gis-analytics/pipelines/aviation_drone/drone_restricted_zones/
  *   → /public/coverage/drone_restricted_zones.pmtiles（11 MB，z 5-14）
  *
  * 拆分：
- *   🚫 droneNoFlyZone     紅 4,311 + 未分類 1,322 = 5,633（保守視為禁飛）
- *   ⚠️  droneRestrictedZone 黃 108（縣市政府限航需申請）
+ *   🚫 droneNoFlyZone     2026-06-30 快照：紅 4,311 + 未分類 1,324 = 5,635（不判定當前規則）
+ *   ⚠️  droneRestrictedZone 2026-06-30 快照黃 108（不判定當前申請規則）
  *
- * 為什麼未分類併紅：__source = nfz only 沒填中文「空域顏色」，內容多為
- * 機場 5km 圈 / 軍區 / 邊境 / 國家公園 → 規則上都禁飛，視覺保守 > 激進。
+ * 未分類併紅色顯示只因 __source = nfz 的中文「空域顏色」缺值；
+ * 顏色與歷史幾何不能作現行飛行規則判定。
  */
 
 const SOURCE_TYPE = (PmTilesSource as unknown as { SOURCE_TYPE: string }).SOURCE_TYPE;

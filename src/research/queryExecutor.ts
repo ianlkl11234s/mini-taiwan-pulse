@@ -1,4 +1,6 @@
 import { assertDatasetDescriptor, type DatasetDescriptor, type ResultEnvelope, type Scalar, type SourceReceipt } from "./dataContracts";
+import { geometriesIntersect, parseSpatialGeometry, type PolygonGeometry } from "./spatialKernel";
+import { lineIntersectsBbox, parseLineGeometry } from "./lineGeometry";
 
 export type QueryFilter =
   | { field: string; op: "eq"; value: Scalar }
@@ -32,10 +34,16 @@ export interface AdapterReadResult {
   expiresAt: string | null;
 }
 
+/** Validated query scope supplied to readers without widening dataset parameters. */
+export interface QueryReadContext {
+  bbox?: readonly [number, number, number, number];
+}
+
 export interface QueryAdapter {
   descriptor: DatasetDescriptor;
   allowedParameters: Readonly<Record<string, "string" | "number" | "boolean">>;
-  read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal): Promise<AdapterReadResult>;
+  requiredParameters?: readonly string[];
+  read(parameters: Readonly<Record<string, Scalar>>, signal?: AbortSignal, context?: QueryReadContext): Promise<AdapterReadResult>;
 }
 
 export interface QueryExecution {
@@ -90,19 +98,35 @@ function validPoint(value: unknown): boolean {
     && Math.abs(geometry.coordinates[0] as number) <= 180 && Math.abs(geometry.coordinates[1] as number) <= 90;
 }
 
-function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, number, number, number]): boolean {
+function bboxSurface(bbox: readonly [number, number, number, number]): PolygonGeometry {
+  const [west, south, east, north] = bbox;
+  return { type: "Polygon", coordinates: [[[west, south], [east, south], [east, north], [west, north], [west, south]]] };
+}
+
+function bboxMatches(row: Record<string, unknown>, bbox: readonly [number, number, number, number], geometryType: DatasetDescriptor["geometry"]["type"]): boolean {
   const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | null | undefined;
-  if (!geometry || geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
-  const [lng, lat] = geometry.coordinates;
-  return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+  if (!geometry) return false;
+  if (geometryType === "Point") {
+    if (geometry.type !== "Point" || !Array.isArray(geometry.coordinates)) return false;
+    const [lng, lat] = geometry.coordinates;
+    return typeof lng === "number" && typeof lat === "number" && lng >= bbox[0] && lat >= bbox[1] && lng <= bbox[2] && lat <= bbox[3];
+  }
+  if (geometryType === "LineString" || geometryType === "MultiLineString") {
+    if (geometry.type !== geometryType) throw new Error("INVALID_ADAPTER_GEOMETRY");
+    return lineIntersectsBbox(parseLineGeometry(geometry), bbox);
+  }
+  if (geometryType !== "Polygon" && geometryType !== "MultiPolygon") return false;
+  const surface = parseSpatialGeometry(geometry);
+  if (surface.type !== geometryType) throw new Error("INVALID_ADAPTER_GEOMETRY");
+  return geometriesIntersect(surface, bboxSurface(bbox));
 }
 
 function parseCursor(cursor: string | undefined): { prefix: string; offset: number } | null {
   if (cursor === undefined) return null;
-  const match = /^cursor-([a-f0-9]{16})-(\d{1,5})$/.exec(cursor);
+  const match = /^cursor-([a-f0-9]{16})-(\d{1,6})$/.exec(cursor);
   if (!match) throw new Error("INVALID_CURSOR");
   const offset = Number(match[2]);
-  if (!Number.isInteger(offset) || offset < 0 || offset > 10_000) throw new Error("INVALID_CURSOR");
+  if (!Number.isInteger(offset) || offset < 0 || offset > 100_000) throw new Error("INVALID_CURSOR");
   return { prefix: match[1]!, offset };
 }
 
@@ -127,8 +151,25 @@ function validateAdapterRead(descriptor: DatasetDescriptor, read: AdapterReadRes
         : typeof value === "object";
       if (!valid) throw new Error("INVALID_ADAPTER_ROW");
     }
-    if (geometryField && row.geometry !== null && row.geometry !== undefined && descriptor.geometry.type === "Point" && !validPoint(row.geometry)) throw new Error("INVALID_ADAPTER_GEOMETRY");
+    if (geometryField && row.geometry !== null && row.geometry !== undefined) {
+      if (descriptor.geometry.type === "Point" && !validPoint(row.geometry)) throw new Error("INVALID_ADAPTER_GEOMETRY");
+      if (descriptor.geometry.type === "Polygon" || descriptor.geometry.type === "MultiPolygon") {
+        const geometry = parseSpatialGeometry(row.geometry);
+        if (geometry.type !== descriptor.geometry.type) throw new Error("INVALID_ADAPTER_GEOMETRY");
+      }
+    }
   }
+}
+
+function normalizeStatisticsReleaseSelector(descriptor: DatasetDescriptor, filters: readonly QueryFilter[], parameters: Readonly<Record<string, Scalar>>): { filters: readonly QueryFilter[]; parameters: Record<string, Scalar> } {
+  if (descriptor.kind !== "admin_statistic") return { filters, parameters: { ...parameters } };
+  const releaseFilters = filters.filter(filter => filter.field === "release_id");
+  if (releaseFilters.length === 0) return { filters, parameters: { ...parameters } };
+  if (releaseFilters.length !== 1 || releaseFilters[0]!.op !== "eq" || typeof releaseFilters[0]!.value !== "string") throw new Error("INVALID_RELEASE_SELECTOR");
+  const releaseId = releaseFilters[0]!.value;
+  const requested = parameters.releaseId;
+  if (requested !== undefined && requested !== releaseId) throw new Error("RELEASE_SELECTOR_CONFLICT");
+  return { filters: filters.filter(filter => filter !== releaseFilters[0]), parameters: { ...parameters, releaseId } };
 }
 
 export class QueryExecutor {
@@ -163,27 +204,51 @@ export class QueryExecutor {
     return adapter?.descriptor ?? null;
   }
 
+  /** Validates and canonicalizes adapter selectors before a plan is persisted or a source is read. */
+  validateParameters(input: QueryRecordsInput): QueryRecordsInput {
+    const adapter = this.adapters.get(input.datasetId);
+    if (!adapter) throw new Error("DATASET_NOT_FOUND");
+    const { descriptor } = adapter;
+    if (!descriptor.access.query.enabled) throw new Error("DATASET_QUERY_UNAVAILABLE");
+    const inputFilters = input.filters ?? [];
+    const allowedFilters = new Set(descriptor.access.query.filters);
+    if (inputFilters.length > 10 || inputFilters.some(filter => !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
+    const normalizedSelectors = normalizeStatisticsReleaseSelector(descriptor, inputFilters, input.parameters ?? {});
+    const parameters = normalizedSelectors.parameters;
+    if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
+    for (const [name, value] of Object.entries(parameters)) {
+      const expected = adapter.allowedParameters[name];
+      if (!expected || value === null || typeof value !== expected) throw new Error("PARAMETER_NOT_ALLOWED");
+    }
+    if (adapter.requiredParameters?.some(name => parameters[name] === undefined)) throw new Error("REQUIRED_PARAMETER_MISSING");
+    return { ...input, filters: normalizedSelectors.filters, parameters };
+  }
+
   async execute(input: QueryRecordsInput, signal?: AbortSignal): Promise<ResultEnvelope> {
     return (await this.executeDetailed(input, signal)).envelope;
   }
 
   async executeDetailed(input: QueryRecordsInput, signal?: AbortSignal): Promise<QueryExecution> {
+    input = this.validateParameters(input);
     const adapter = this.adapters.get(input.datasetId);
     if (!adapter) throw new Error("DATASET_NOT_FOUND");
     const { descriptor } = adapter;
     if (!descriptor.access.query.enabled) throw new Error("DATASET_QUERY_UNAVAILABLE");
     if (input.cursor !== undefined && input.offset !== undefined) throw new Error("INVALID_PAGINATION");
     const parsedCursor = parseCursor(input.cursor);
-    const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 10_000, "INVALID_OFFSET");
+    const offset = parsedCursor?.offset ?? integer(input.offset, 0, 0, 100_000, "INVALID_OFFSET");
     const limit = integer(input.limit, Math.min(20, descriptor.access.limits.maxRowsPerQuery), 1, descriptor.access.limits.maxRowsPerQuery, "INVALID_LIMIT");
     const fieldMap = new Map(descriptor.fields.map(field => [field.name, field]));
-    const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name);
+    // Surface coordinates stay in the complete materialized result. Default tool
+    // pages return attributes, so one large polygon does not exhaust the receipt.
+    const surface = ["Polygon", "MultiPolygon"].includes(descriptor.geometry.type);
+    const select = input.select?.length ? [...input.select] : descriptor.fields.map(field => field.name).filter(name => !surface || name !== "geometry");
     const allowedFields = new Set(descriptor.access.query.fields);
     if (select.length > 50 || new Set(select).size !== select.length || select.some(field => !fieldMap.has(field) || !allowedFields.has(field))) throw new Error("FIELD_NOT_ALLOWED");
-    const filters = input.filters ?? [];
+    const inputFilters = input.filters ?? [];
     const allowedFilters = new Set(descriptor.access.query.filters);
-    if (filters.length > 10 || filters.some(filter => !fieldMap.has(filter.field) || !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
-    for (const filter of filters) {
+    if (inputFilters.length > 10 || inputFilters.some(filter => !fieldMap.has(filter.field) || !allowedFilters.has(filter.field))) throw new Error("FILTER_NOT_ALLOWED");
+    for (const filter of inputFilters) {
       const field = fieldMap.get(filter.field)!;
       if (filter.op === "contains" && field.type !== "string") throw new Error("FILTER_NOT_ALLOWED");
     }
@@ -198,17 +263,18 @@ export class QueryExecutor {
       if (!descriptor.access.query.supportsBbox || bbox.length !== 4 || bbox.some(value => typeof value !== "number" || !Number.isFinite(value))
         || bbox[0] < -180 || bbox[2] > 180 || bbox[1] < -90 || bbox[3] > 90 || bbox[0] > bbox[2] || bbox[1] > bbox[3]) throw new Error("BBOX_NOT_SUPPORTED");
     }
+    const filters = inputFilters;
     const parameters = { ...(input.parameters ?? {}) };
     if (Object.keys(parameters).length > 12) throw new Error("PARAMETER_NOT_ALLOWED");
     for (const [name, value] of Object.entries(parameters)) {
       const expected = adapter.allowedParameters[name];
       if (!expected || value === null || typeof value !== expected) throw new Error("PARAMETER_NOT_ALLOWED");
     }
-    const read = await adapter.read(parameters, signal);
+    const read = await adapter.read(parameters, signal, bbox ? { bbox } : undefined);
     validateAdapterRead(descriptor, read);
     if (!Number.isInteger(read.rowsScanned) || read.rowsScanned < read.rows.length || read.rowsScanned > descriptor.access.limits.maxScanRows) throw new Error("SCAN_BUDGET_EXCEEDED");
     if (read.bytesScanned !== null && descriptor.access.limits.maxSourceBytes !== null && read.bytesScanned > descriptor.access.limits.maxSourceBytes) throw new Error("SOURCE_BYTE_BUDGET_EXCEEDED");
-    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)) && (!bbox || bboxMatches(row, bbox)));
+    const matched = read.rows.filter(row => filters.every(filter => applyFilter(row, filter)) && (!time || applyTime(row, time)) && (!bbox || bboxMatches(row, bbox, descriptor.geometry.type)));
     const rows = matched.slice(offset, offset + limit).map(row => Object.fromEntries(select.map(field => [field, row[field] ?? null])));
     const scope = { datasetId: input.datasetId, select, filters, ...(time ? { time } : {}), ...(bbox ? { bbox } : {}), parameters };
     const sources = read.sourceRefs.map(source => ({ sourceId: source.sourceId, version: source.version, checksumSha256: source.checksumSha256 }));

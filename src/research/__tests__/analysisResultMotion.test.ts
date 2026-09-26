@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { describeAnalysisResults, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
 type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
@@ -38,6 +38,71 @@ describe("analysis result reveal lifecycle", () => {
     }]);
   });
 
+  it("passes result-contract raw and normalized units to each rendered feature", () => {
+    const { map, sources } = stubMap();
+    const comparison = {
+      ...result,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] }, status: "observed", value: 20, absoluteDifference: 10, normalizedValue: 12.5, normalization_status: "valid", area_ha: 0 }],
+      units: { value: "cases", absoluteDifference: "cases", normalizedValue: "cases per 10000 persons", area_ha: "hectares (source EPSG:3826 planar area)" },
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [comparison]);
+    expect((sources.get("research-analysis-result-0")!.data as { features: Array<{ properties: Record<string, unknown> }> }).features[0]!.properties).toMatchObject({
+      value: 20,
+      unit: "cases",
+      absoluteDifference: 10,
+      differenceUnit: "cases",
+      area_ha: 0,
+      sourceAreaUnit: "hectares (source EPSG:3826 planar area)",
+      normalizedValue: 12.5,
+      normalizedUnit: "cases per 10000 persons",
+    });
+  });
+
+  it("passes event measurement units from the result contract to the rendered feature", () => {
+    const { map, sources } = stubMap();
+    const event = {
+      ...result,
+      rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] }, event_id: "E-1", magnitude: 4.2, depth_km: 12 }],
+      units: { magnitude: "M", depth_km: "km" },
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [event]);
+    expect((sources.get("research-analysis-result-0")!.data as { features: Array<{ properties: Record<string, unknown> }> }).features[0]!.properties).toMatchObject({
+      event_id: "E-1", magnitude: 4.2, magnitudeUnit: "M", depth_km: 12, depthUnit: "km",
+    });
+  });
+
+  it("returns the actual rendered palette position and count thresholds for the legend", () => {
+    const { map } = stubMap();
+    const neighborhood = {
+      ...result,
+      presentation: { kind: "neighborhood" as const, countField: "source_0_count", label: "護理中心", radiusM: 500, sourceLabels: [{ field: "source_0_count", label: "護理中心" }] },
+    } satisfies PresentableResult;
+    const installed = installAnalysisResults(map, [result, neighborhood]);
+    expect(installed[0]).toMatchObject({ color: "#00b8d9" });
+    expect(installed[1]).toMatchObject({ countLegend: { label: "護理中心", radiusM: 500, entries: [
+      { label: "0–4 筆", color: "#bae6fd" }, { label: "5–9 筆", color: "#0284c7" }, { label: "≥10 筆", color: "#075985" },
+    ] } });
+  });
+
+  it("reassigns the palette when a hidden result changes the rendered order", () => {
+    const { map } = stubMap();
+    const second = { ...result, resultId: "result-2" } satisfies PresentableResult;
+    expect(installAnalysisResults(map, [result, second])[1]).toMatchObject({ color: "#ff8f00" });
+    expect(installAnalysisResults(map, [second])[0]).toMatchObject({ resultId: "result-2", color: "#00b8d9" });
+  });
+
+  it("keeps opacity with its resultId when visible order changes", () => {
+    const { map, layers, render } = stubMap();
+    const second = { ...result, resultId: "result-2" } satisfies PresentableResult;
+    const opacity = { defaultOpacity: 0.85, byResult: { "result-1": 0.25, "result-2": 0.7 } };
+    installAnalysisResults(map, [result, second], opacity); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.25);
+    expect(layers.get("research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.7);
+    installAnalysisResults(map, [second, result], opacity); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.7);
+    expect(layers.get("research-analysis-result-points-1")!.paint["circle-opacity"]).toBe(0.25);
+  });
+
   it("presents more than four independent result layers and reads them all back", () => {
     const { map, layers } = stubMap();
     const results = Array.from({ length: 5 }, (_, index) => ({
@@ -49,6 +114,15 @@ describe("analysis result reveal lifecycle", () => {
     expect(installed).toHaveLength(5);
     expect(layers.size).toBe(5);
     expect(readAnalysisResultPresentation(map, installed)).toMatchObject({ resultIds: results.map(item => item.resultId), featureCount: 5, ready: true });
+  });
+
+  it("restores retained result rows after a style reset removes transient sources and layers", () => {
+    const { map } = stubMap();
+    const first = installAnalysisResults(map, [result]);
+    removeAnalysisResults(map);
+    const restored = installAnalysisResults(map, [result]);
+    expect(restored).toEqual(first);
+    expect(readAnalysisResultPresentation(map, restored)).toMatchObject({ sourcesReady: true, layersReady: true, ready: true });
   });
 
   it("uses geometry rather than dataset id for Polygon and MultiPolygon results", () => {
@@ -68,6 +142,91 @@ describe("analysis result reveal lifecycle", () => {
     expect(layers.get("research-analysis-result-points-0")?.type).toBe("fill");
     expect(layers.get("research-analysis-result-points-1")?.type).toBe("fill");
     expect((sources.get("research-analysis-result-1")!.data as { features: Array<{ geometry: { type: string } }> }).features[0]!.geometry.type).toBe("MultiPolygon");
+  });
+
+  it("colors only contract-shaped region comparisons from the normalized measurement and keeps invalid states out of the scale", () => {
+    const { map, layers } = stubMap();
+    const comparison = {
+      resultId: "regional-comparison", datasetId: "stats:fixture", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+      rows: [
+        { area_code: "A01", area_name: "甲", status: "observed", comparison_status: "valid", normalization_status: "valid", value: 20, normalizedValue: 10, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } },
+        { area_code: "A02", area_name: "乙", status: "observed", comparison_status: "valid", normalization_status: "valid", value: 0, normalizedValue: 0, geometry: { type: "Polygon", coordinates: [[[121.6, 25], [121.7, 25], [121.7, 25.1], [121.6, 25.1], [121.6, 25]]] } },
+        { area_code: "A03", area_name: "丙", status: "suppressed", comparison_status: "suppressed", normalization_status: "denominator_suppressed", value: null, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.7, 25], [121.8, 25], [121.8, 25.1], [121.7, 25.1], [121.7, 25]]] } },
+        { area_code: "A04", area_name: "丁", status: "observed", comparison_status: "valid", normalization_status: "zero_denominator", value: 3, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.8, 25], [121.9, 25], [121.9, 25.1], [121.8, 25.1], [121.8, 25]]] } },
+      ],
+    } satisfies PresentableResult;
+    const legend = numericResultLegend(comparison)!;
+    expect(legend).toMatchObject({ field: "normalizedValue", unit: "cases per 10000 persons", method: "equal_interval" });
+    expect(legend.entries.filter(entry => entry.min !== undefined)).toHaveLength(2);
+    expect(legend.entries.slice(0, 2)).toMatchObject([
+      { color: "#e0f2fe", label: "0–<5 cases per 10000 persons" },
+      { color: "#075985", label: "5–10 cases per 10000 persons" },
+    ]);
+    expect(legend.entries).toEqual(expect.arrayContaining([
+      expect.objectContaining({ status: "suppressed", color: "#64748b" }),
+      expect.objectContaining({ status: "missing", color: "#cbd5e1" }),
+    ]));
+    const installed = installAnalysisResults(map, [comparison]);
+    expect(installed[0]!.numericLegend).toEqual(legend);
+    const paint = layers.get("research-analysis-result-points-0")!.paint["fill-color"] as unknown[];
+    expect(paint[0]).toBe("case");
+    expect(JSON.stringify(paint)).toContain('"typeof"');
+    expect(paint).toContain("#64748b");
+    expect(paint).toContain("#cbd5e1");
+  });
+
+  it("uses a constant valid color for a single numeric value", () => {
+    const { map, layers } = stubMap();
+    const comparison = {
+      resultId: "single-regional-comparison", datasetId: "stats:fixture", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "cases" },
+      rows: [{ area_code: "A01", status: "observed", comparison_status: "baseline_zero", normalization_status: "not_requested", value: 0, normalizedValue: null, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    expect(numericResultLegend(comparison)).toMatchObject({ method: "single_value" });
+    expect(numericResultLegend(comparison)!.entries).toEqual(expect.arrayContaining([expect.objectContaining({ color: "#0369a1", min: 0, max: 0 })]));
+    installAnalysisResults(map, [comparison]);
+    const paint = layers.get("research-analysis-result-points-0")!.paint["fill-color"];
+    expect(JSON.stringify(paint)).not.toContain('"step"');
+    expect(JSON.stringify(paint)).toContain("#0369a1");
+  });
+
+  it("does not turn arbitrary polygon source values into a numeric choropleth", () => {
+    const polygon = {
+      resultId: "ordinary-polygon", datasetId: "any-polygon-dataset", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      units: { value: "people" }, rows: [{ value: 42, geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    expect(numericResultLegend(polygon)).toBeUndefined();
+  });
+
+  it("keeps authoritative polygon opacity while making the derived analysis scope a light context fill", () => {
+    const { map, layers, render } = stubMap();
+    const scope = {
+      resultId: "scope", datasetId: "derived:analysis-scope-area", geometry: { type: "Polygon", role: "derived", spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }],
+    } satisfies PresentableResult;
+    const area = { ...scope, resultId: "area", datasetId: "authoritative-area", geometry: { type: "Polygon" as const, role: "actual" as const, spatialAnalysisEligible: true } } satisfies PresentableResult;
+    installAnalysisResults(map, [scope, area], 0.85); render();
+    expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.153);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.3825);
+    const installed = installAnalysisResults(map, [scope, area], 0.85);
+    setAnalysisOpacity(map, installed, "scope", 0.6);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.3825);
+    setAnalysisOpacity(map, installed, "area", 0.6);
+    expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.108);
+    expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.27);
+  });
+
+  it("reapplies center paint semantics when it reuses a prior POI layer slot", () => {
+    const { map, layers } = stubMap();
+    const center = { ...result, resultId: "center", datasetId: "derived:analysis-scope-center" } satisfies PresentableResult;
+    installAnalysisResults(map, [result, center]);
+    const installed = installAnalysisResults(map, [center]);
+    expect(installed[0]).toMatchObject({ color: "#fef3c7" });
+    expect(layers.get("research-analysis-result-points-0")!.paint).toMatchObject({
+      "circle-color": "#fef3c7", "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12],
+      "circle-stroke-color": "#0f172a", "circle-stroke-width": 3,
+    });
   });
 
   it("rejects a collection over its visible-result budget before changing the map", () => {
@@ -106,7 +265,7 @@ describe("analysis result reveal lifecycle", () => {
   it("lets the opacity slider cancel a pending reveal so an old callback cannot overwrite it", () => {
     const { map, layers, listeners, render } = stubMap();
     installAnalysisResults(map, [result], 0.2);
-    setAnalysisOpacity(map, 1, 0.83);
+    setAnalysisOpacity(map, installAnalysisResults(map, [result], 0.2), "result-1", 0.83);
     expect(layers.get("research-analysis-result-points-0")!.paint["circle-opacity"]).toBe(0.83);
     expect(listeners.size).toBe(0);
     render();

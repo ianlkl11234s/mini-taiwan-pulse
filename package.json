@@ -21,7 +21,8 @@
     "s3:upload:ships": "tsx scripts/deploy/upload-ships-to-s3.ts",
     "s3:upload:rail": "tsx scripts/deploy/upload-rail-to-s3.ts",
     "rail:bundle": "python3 scripts/preprocess/bundle-rail-data.py",
-    "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py"
+    "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py",
+    "research:layer-status": "vite-node --script scripts/research/build-layer-status.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.5",
@@ -30,6 +31,10 @@
     "@aws-sdk/client-s3": "^3.995.0",
     "@protomaps/basemaps": "^5.7.2",
     "@supabase/supabase-js": "^2.101.1",
+    "@turf/area": "7.2.0",
+    "@turf/buffer": "7.2.0",
+    "@turf/intersect": "7.2.0",
+    "@turf/length": "7.2.0",
     "ai": "^7.0.11",
     "dotenv": "^17.3.1",
     "h3-js": "^4.4.0",

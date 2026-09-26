@@ -927,8 +927,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   civilDefenseShelter: "防空避難所",
   aviationControl: "飛航情報/終端管制",
   aviationRestricted: "機場管制/限航/危險",
-  droneNoFlyZone: "無人機禁航區",
-  droneRestrictedZone: "無人機限航區",
+  droneNoFlyZone: "無人機紅區／未分類快照",
+  droneRestrictedZone: "無人機黃區快照",
   // 警察覆蓋分析
   policeIsoSubstation: "派出所等時圈",
   policeIsoPrecinct: "分局等時圈",

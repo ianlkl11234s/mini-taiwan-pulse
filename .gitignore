@@ -205,3 +205,10 @@ public/jp-medical
 
 # Japan height local artifacts, independently published
 public/jp-heights/
+
+# 研究 sidecar（agent 查詢用資料）改放 ../runtime/research-public，DEV 由 loopback middleware
+# 以原 URL /research/... 提供；production build 不包含；未來走 R2/Supabase。
+public/research/
+
+# 研究用分析 sidecar 一律放 ../runtime/research-public，DEV 以 /research/... 提供（ADR-0014 D5）
+/public/urban/urban_zoning_taipei.analysis.json

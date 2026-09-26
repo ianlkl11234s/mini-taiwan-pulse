@@ -447,7 +447,7 @@ export function DroneZonesPanel({ props }: PanelProps) {
   const headerColor = DRONE_COLOR[zoneColor] ?? "#6C757D";
   return (
     <>
-      <Header color={headerColor} name={String(props["空域名稱"] ?? "禁航區")} />
+      <Header color={headerColor} name={String(props["空域名稱"] ?? "空域參考面")} />
       <Row label="空域顏色" value={zoneColor} />
       <Row label="空域類別" value={String(props["空域類別"] ?? "")} />
       <Row label="主管機關" value={String(props["主管機關名稱"] ?? "")} />
@@ -455,6 +455,7 @@ export function DroneZonesPanel({ props }: PanelProps) {
       <Row label="聯絡方式" value={String(props["聯絡方式"] ?? "")} />
       <Row label="說明" value={String(props["空域說明"] ?? "")} />
       <Row label="縣市" value={String(props.countyname ?? "")} />
+      <Note>2026-06-30 歷史快照；切片未保留有效日期，不能據此判定當前可飛、禁飛或申請規則。</Note>
       <SourceFooter props={props} />
     </>
   );

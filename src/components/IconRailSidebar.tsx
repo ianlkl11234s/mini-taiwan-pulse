@@ -1,17 +1,18 @@
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
+import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType, type ReactNode } from "react";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, X, User, Star, Bot,
+  Activity, Layers, ChartColumn, MapPin, Settings, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -33,6 +34,7 @@ import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_T
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
+import { searchLocationPresets } from "../lib/locationSearch";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
@@ -114,8 +116,10 @@ interface IconRailSidebarProps {
   memberActive?: boolean;
   favoriteKeys?: ReadonlySet<string>;
   onToggleFavorite?: (key: string) => void;
-  /** DEV-only 本地研究 Agent；保持 mounted，切換其他 rail app 不會中斷配對。 */
-  agentPanel?: ReactNode;
+  /** DEV-only 本地研究 Agent 的單一常駐實例由 App 持有；rail 僅提供開關。 */
+  agentAvailable?: boolean;
+  agentActive?: boolean;
+  onAgentToggle?: () => void;
 }
 
 // ── Shared Styles ──
@@ -158,7 +162,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "agent";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
 
 // ── Main Component ──
 
@@ -183,20 +187,11 @@ export function IconRailSidebar({
   onJapanOpen,
   onMemberToggle, memberActive,
   favoriteKeys, onToggleFavorite,
-  agentPanel,
+  agentAvailable, agentActive, onAgentToggle,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
   const { BG_RAIL, BORDER, BG_PANEL } = palette;
-  const agentTheme = {
-    "--agent-text": palette.TEXT_STRONG,
-    "--agent-muted": palette.SUB_LABEL,
-    "--agent-accent": palette.ACCENT,
-    "--agent-border": palette.BORDER,
-    "--agent-control-bg": palette.CTRL_INACTIVE_BG,
-    "--agent-control-hover": palette.CTRL_ACTIVE_BG,
-    "--agent-control-border": palette.CTRL_INACTIVE_BORDER,
-  } as CSSProperties;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -222,6 +217,7 @@ export function IconRailSidebar({
   }, [externalCloseEpoch]);
 
   const closeExternalPanels = () => {
+    if (agentActive && onAgentToggle) onAgentToggle();
     if (memberActive && onMemberToggle) onMemberToggle();
     if (intelActive && onIntelToggle) onIntelToggle();
     if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
@@ -237,11 +233,11 @@ export function IconRailSidebar({
         lastExplorationPanel.current = panel;
         closeExternalPanels();
         setActivePanel(panel);
-      } else setActivePanel(current => current === "agent" ? lastExplorationPanel.current : current);
+      } else setActivePanel(current => current ?? lastExplorationPanel.current);
     };
     window.addEventListener("pulse:explore-layers", onExplore);
     return () => window.removeEventListener("pulse:explore-layers", onExplore);
-  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle]);
+  }, [memberActive, onMemberToggle, intelActive, onIntelToggle, satelliteActive, onSatelliteToggle, agentActive, onAgentToggle]);
 
   const panelOpen = activePanel !== null;
 
@@ -289,15 +285,11 @@ export function IconRailSidebar({
   const cityPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "city"), []);
 
   const filteredCities = useMemo(() => {
-    if (!locationSearch) return cityPresets;
-    const q = locationSearch.toLowerCase();
-    return cityPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(cityPresets, locationSearch);
   }, [cityPresets, locationSearch]);
 
   const filteredOverviews = useMemo(() => {
-    if (!locationSearch) return overviewPresets;
-    const q = locationSearch.toLowerCase();
-    return overviewPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
+    return searchLocationPresets(overviewPresets, locationSearch);
   }, [overviewPresets, locationSearch]);
 
   return (
@@ -365,11 +357,11 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
-        {agentPanel && (
+        {agentAvailable && onAgentToggle && (
           <RailIcon
             icon={Bot}
-            active={activePanel === "agent"}
-            onClick={() => togglePanel("agent")}
+            active={!!agentActive}
+            onClick={() => { if (!agentActive) { closePanel(); closeExternalPanels(); } onAgentToggle(); }}
             tooltip="本地 Agent"
           />
         )}
@@ -380,7 +372,7 @@ export function IconRailSidebar({
             icon={Radio}
             active={!!intelActive}
             onClick={() => {
-              if (!intelActive) closePanel();
+              if (!intelActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onIntelToggle();
             }}
             tooltip="即時情報 Intel"
@@ -393,7 +385,7 @@ export function IconRailSidebar({
             icon={Satellite}
             active={!!satelliteActive}
             onClick={() => {
-              if (!satelliteActive) closePanel();
+              if (!satelliteActive) { closePanel(); if (agentActive) onAgentToggle?.(); }
               onSatelliteToggle();
             }}
             tooltip="衛星情報 Satellite"
@@ -405,7 +397,7 @@ export function IconRailSidebar({
           <RailIcon
             icon={PanelRight}
             active={!!monitorSplitActive}
-            onClick={onMonitorSplitToggle}
+            onClick={() => { if (!monitorSplitActive && agentActive) onAgentToggle?.(); onMonitorSplitToggle(); }}
             tooltip="監測模式 Monitor"
           />
         )}
@@ -414,7 +406,7 @@ export function IconRailSidebar({
           <RailIcon
             icon={User}
             active={!!memberActive}
-            onClick={() => { if (!memberActive) closePanel(); onMemberToggle(); }}
+            onClick={() => { if (!memberActive) { closePanel(); if (agentActive) onAgentToggle?.(); } onMemberToggle(); }}
             tooltip="會員專區"
           />
         )}
@@ -452,7 +444,7 @@ export function IconRailSidebar({
       )}
 
       {/* ── Floating Panel ── */}
-      {panelOpen && activePanel !== "agent" && (
+      {panelOpen && (
         <>
           <style>{`
             @keyframes panelFadeIn {
@@ -592,32 +584,6 @@ export function IconRailSidebar({
         </>
       )}
 
-      {agentPanel && (
-        <div
-          style={{
-            ...agentTheme,
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            top: 92,
-            width: PANEL_WIDTH,
-            maxWidth: "calc(100vw - 80px)",
-            maxHeight: "70vh",
-            background: BG_PANEL,
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderRadius: RADIUS.xl,
-            display: activePanel === "agent" ? "flex" : "none",
-            flexDirection: "column",
-            overflow: "hidden",
-            zIndex: 3,
-            pointerEvents: "auto",
-            animation: "panelFadeIn 0.25s ease-out",
-          }}
-        >
-          <PanelHeader title="本地 Agent" onClose={closePanel} />
-          {agentPanel}
-        </div>
-      )}
     </div>
     </RailThemeContext.Provider>
   );
@@ -747,41 +713,7 @@ function PanelHeader({
   title: string; onClose: () => void;
 }) {
   const { BORDER, DIM, TEXT_STRONG } = useRailTheme();
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 8,
-        padding: "12px 12px 10px",
-        borderBottom: `1px solid ${BORDER}`,
-        flexShrink: 0,
-      }}
-    >
-      <span style={{ color: TEXT_STRONG, fontSize: FONT_SIZE.lg, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
-        {title}
-      </span>
-      <div style={{ flex: 1 }} />
-      <button
-        onClick={onClose}
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: RADIUS.md,
-          border: "none",
-          background: "transparent",
-          color: DIM,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          padding: 0,
-        }}
-      >
-        <X size={14} />
-      </button>
-    </div>
-  );
+  return <SharedPanelHeader title={title} onClose={onClose} borderColor={BORDER} mutedColor={DIM} textColor={TEXT_STRONG} titleSize={FONT_SIZE.lg} />;
 }
 
 

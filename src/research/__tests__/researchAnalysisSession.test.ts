@@ -1,10 +1,34 @@
+import { readFile } from "node:fs/promises";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { clearPointDatasetCache } from "../pointDatasetAdapter";
 import { assertResultCollectionBudget, presentationMetrics, ResearchAnalysisSession } from "../researchAnalysisSession";
+import { validQueryResultData } from "../QueryResponder";
 
 afterEach(() => { clearPointDatasetCache(); vi.unstubAllGlobals(); });
 
 describe("research analysis session", () => {
+  it("labels multi-source comparison results with descriptor labels while preserving unknown ids", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    const common = { recordGrain: "metric", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true }, rows: [{ geometry: { type: "Point", coordinates: [121.5, 25] } }], sourceRefs: [], coverage: "fixture", freshness: "current", units: {}, operation: "compare_regions", inputResultIds: ["left", "right"], method: {}, summary: {} };
+    store.put({ ...common, resultId: "known-comparison", datasetId: "tw-schools+tw-public-libraries" });
+    store.put({ ...common, resultId: "unknown-comparison", datasetId: "fixture-left+fixture-right" });
+    expect(session.presentable(["known-comparison"])[0]?.displayLabel).toBe("全國各級學校＋公共圖書館 比較");
+    expect(session.presentable(["unknown-comparison"])[0]?.displayLabel).toBe("fixture-left＋fixture-right 比較");
+  });
+
+  it("keeps raw and normalized units on the session presentation contract", () => {
+    const session = new ResearchAnalysisSession();
+    (session as unknown as { store: { put: (value: object) => void } }).store.put({
+      resultId: "comparison", datasetId: "fixture-comparison", recordGrain: "metric", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ status: "observed", value: 20, normalizedValue: 12.5, geometry: { type: "Point", coordinates: [121.5, 25] } }],
+      sourceRefs: [], coverage: "fixture", freshness: "current", units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+    });
+    expect(session.presentable(["comparison"])).toEqual([expect.objectContaining({
+      units: { value: "cases", normalizedValue: "cases per 10000 persons" },
+    })]);
+  });
+
   it("counts polygon holes and multipolygon parts in generic map bounds", () => {
     const polygon = presentationMetrics([{ geometry: {
       type: "Polygon", coordinates: [
@@ -39,6 +63,32 @@ describe("research analysis session", () => {
     expect(() => assertResultCollectionBudget([metrics])).toThrow("RESULT_COLLECTION_FEATURE_LIMIT");
   });
 
+  it.runIf(process.env.RUN_RAW_BOUNDARY_INTEGRATION === "1")("presents all 22 raw counties with source and comparison values intact", async () => {
+    const raw = new URL("../../../../../../../taipei-gis-analytics/data/processed/demographics/county_boundary/county_boundary_20260626.geojson", import.meta.url);
+    const sourceBytes = await readFile(raw);
+    const source = JSON.parse(new TextDecoder().decode(sourceBytes)) as { features: Array<{ properties: { 行政區域代碼: string }; geometry: Record<string, unknown> }> };
+    const vertexCount = (value: unknown): number => Array.isArray(value) ? (typeof value[0] === "number" ? 1 : value.reduce((sum, item) => sum + vertexCount(item), 0)) : 0;
+    expect(source.features).toHaveLength(22);
+    expect(sourceBytes.byteLength).toBe(14_719_725);
+    expect(source.features.reduce((sum, feature) => sum + vertexCount(feature.geometry.coordinates), 0)).toBe(332_091);
+
+    const session = new ResearchAnalysisSession();
+    const resultId = "raw-county-22-comparison";
+    const sourceRef = { sourceId: "county-boundary", version: "COUNTY_MOI_1140318", acquiredAt: "2026-09-23T00:00:00Z", checksumSha256: "5044636b840fba57230f15b6728030a09f3d6dc801a86c2301052514acc684d6", reference: "local-preview://county-boundary" };
+    const rows = source.features.map((feature, index) => ({ area_code: feature.properties.行政區域代碼, status: "observed", comparison_status: "valid", value: 1_000 + index, normalizedValue: 10 + index / 10, geometry: feature.geometry }));
+    (session as unknown as { store: { put: (value: object) => void } }).store.put({
+      resultId, datasetId: "statistics:county-comparison", recordGrain: "metric", geometry: { type: "MultiPolygon", role: "actual", spatialAnalysisEligible: true }, rows,
+      sourceRefs: [sourceRef], coverage: "22 county-level observations; raw COUNTY_MOI_1140318 boundaries.", freshness: "current", units: { value: "persons", normalizedValue: "persons per 1000 persons" },
+      lineage: { sourceContract: { datasetId: "statistics:county-comparison", boundaryVersion: "COUNTY_MOI_1140318" } },
+    });
+
+    const presented = session.presentable([resultId]);
+    expect(presented[0]?.rows).toHaveLength(22);
+    expect(presented[0]?.rows.map(row => row.value)).toEqual(rows.map(row => row.value));
+    expect(session.bounds([resultId])).toMatchObject({ featureCount: 22, vertexCount: 332_091, bounds: [114.35928247200002, 10.371347663000051, 124.56115802500004, 26.38527526200005] });
+    expect(session.execute("get_analysis_result", { resultId, limit: 50 })).toMatchObject({ totalRows: 22, sourceRefs: [sourceRef], rows: expect.arrayContaining([expect.objectContaining({ area_code: rows[0]?.area_code, value: 1_000, normalizedValue: 10 })]) });
+  });
+
   it("dispatches generic point-to-area joins and area aggregation by result id", () => {
     const session = new ResearchAnalysisSession();
     const store = (session as unknown as { store: { put: (value: object) => void } }).store;
@@ -62,6 +112,19 @@ describe("research analysis session", () => {
     expect(session.presentable([String(aggregate.resultId)])).toHaveLength(1);
   });
 
+  it("finds the source-observed administrative area containing an explicit map coordinate", () => {
+    const session = new ResearchAnalysisSession();
+    const store = (session as unknown as { store: { put: (value: object) => void } }).store;
+    store.put({
+      resultId: "admin-areas", datasetId: "fixture-admin", recordGrain: "feature", geometry: { type: "Polygon", role: "actual", spatialAnalysisEligible: true },
+      rows: [{ district: "甲區", geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }], sourceRefs: [], coverage: "fixture boundary", freshness: "current", units: {}, lineage: { source: "fixture" },
+    });
+    const found = session.execute("spatial_query", { predicate: "contains_center", areaResultId: "admin-areas", center: [121.55, 25.05] });
+    expect(found).toMatchObject({ totalRows: 1, rows: [expect.objectContaining({ district: "甲區" })], method: { predicate: "contains_center", centerSource: "map_or_user_coordinate" }, sourceRefs: [], lineage: { inputs: [expect.objectContaining({ resultId: "admin-areas" })] } });
+    expect(session.presentable([String(found.resultId)])).toEqual([expect.objectContaining({ geometry: { type: "Polygon", role: "actual", spatialAnalysisEligible: true }, rows: [expect.objectContaining({ district: "甲區" })] })]);
+    expect(session.execute("spatial_query", { predicate: "contains_center", areaResultId: "admin-areas", center: [121.5, 25.05] })).toMatchObject({ totalRows: 0, summary: { matchedAreas: 0 } });
+  });
+
   it("creates a derived center and straight-line scope without making either spatial-analysis eligible", () => {
     const session = new ResearchAnalysisSession();
     const scope = session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 1000, label: "市府周邊" });
@@ -72,6 +135,8 @@ describe("research analysis session", () => {
     expect(area).toMatchObject({ displayLabel: "市府周邊・範圍", geometry: { type: "Polygon", role: "generalized", spatialAnalysisEligible: false } });
     expect(center).toMatchObject({ displayLabel: "市府周邊・中心點", geometry: { type: "Point", role: "generalized", spatialAnalysisEligible: false } });
     expect((area!.rows[0]!.geometry as { coordinates: unknown[][] }).coordinates[0]).toHaveLength(65);
+    expect(scope).toMatchObject({ area: { resultId: resultIds[0], geometryType: "Polygon", spatialAnalysisEligible: false }, centerResult: { resultId: resultIds[1], geometryType: "Point", spatialAnalysisEligible: false } });
+    expect(validQueryResultData(scope)).toBe(true);
     expect(() => session.execute("spatial_query", { resultId: resultIds[1], predicate: "within_distance", center: [121.5638, 25.0375], radiusM: 1000 })).toThrow("SPATIAL_ANALYSIS_INELIGIBLE_GEOMETRY");
     expect(() => session.execute("create_analysis_scope", { center: [121.5638, 25.0375], radiusM: 0 })).toThrow("INVALID_DISTANCE_RADIUS");
   });
@@ -99,11 +164,31 @@ describe("research analysis session", () => {
     const store = (session as unknown as { store: { put: (value: object) => void } }).store;
     store.put({
       resultId: "points-for-walk", datasetId: "fixture-points", recordGrain: "place", geometry: { type: "Point", role: "actual", spatialAnalysisEligible: true },
-      rows: [{ name: "inside", geometry: { type: "Point", coordinates: [121.5, 25] } }, { name: "outside", geometry: { type: "Point", coordinates: [122, 25] } }],
-      sourceRefs: [], coverage: "fixture", freshness: "current", units: {},
+      rows: [
+        { name: "inside", geometry: { type: "Point", coordinates: [121.5, 25] } },
+        { name: "boundary", geometry: { type: "Point", coordinates: [121.45, 25] } },
+        { name: "outside", geometry: { type: "Point", coordinates: [122, 25] } },
+      ],
+      sourceRefs: [], coverage: "fixture candidate scope", freshness: "current", units: {},
+      excludedByReason: { missing_geometry: 2 },
+      lineage: { queryScope: { datasetId: "fixture-points", bbox: [121.4, 24.9, 121.6, 25.1], totalMatched: 3 } },
     });
-    expect(session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "within", limit: 20 }))
-      .toMatchObject({ totalRows: 1, rows: [expect.objectContaining({ name: "inside" })] });
+    const coverage = session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "within", limit: 20 });
+    expect(session.presentable([coverage.resultId as string])[0]?.displayLabel).toBe("fixture-points・範圍篩選");
+    expect(coverage).toMatchObject({
+      totalRows: 1,
+      rows: [expect.objectContaining({ name: "inside" })],
+      method: { predicate: "within", boundaryRule: "boundary_excluded" },
+      summary: { pointRows: 3, matchedPoints: 1, unmatchedPoints: 2 },
+    });
+    expect((coverage.lineage as { inputs: unknown[] }).inputs).toEqual(expect.arrayContaining([
+      expect.objectContaining({ resultId: "points-for-walk", lineage: expect.objectContaining({ queryScope: expect.objectContaining({ totalMatched: 3 }) }) }),
+    ]));
+    expect(session.execute("get_data_quality", { resultId: coverage.resultId })).toMatchObject({
+      rows: 1, excludedByReason: { missing_geometry: 2 }, coverage: expect.stringContaining("fixture candidate scope"),
+    });
+    expect(session.execute("spatial_query", { pointResultId: "points-for-walk", areaResultId: resultIds[1], predicate: "intersects", limit: 20 }))
+      .toMatchObject({ totalRows: 2, summary: { matchedPoints: 2, unmatchedPoints: 1 } });
   });
 
   it("composes query, spatial, aggregate, quality, paging and removal by resultId", async () => {
@@ -119,6 +204,13 @@ describe("research analysis session", () => {
     const plannedResult = await session.materializeData(plan.planId);
     expect(plannedResult).toMatchObject({ planId: plan.planId, materialized: true, result: { totalMatched: 3 } });
     await expect(session.materializeData(plan.planId)).rejects.toThrow("PLAN_NOT_FOUND_OR_EXPIRED");
+    const scoped = await session.queryRecords({ datasetId: "tw-schools", bbox: [121.4, 24.9, 121.6, 25.1], limit: 1 });
+    const scopedEvidence = session.execute("get_data_quality", { resultId: scoped.resultId });
+    expect(scopedEvidence).toMatchObject({ rows: 2, lineage: {
+      queryScope: { datasetId: "tw-schools", bbox: [121.4, 24.9, 121.6, 25.1], parameters: {}, filters: [], time: null, totalMatched: 2 },
+      sourceContract: { datasetId: "tw-schools", recordGrain: "place", geometry: { type: "Point", role: "actual" } },
+    } });
+    session.execute("remove_result", { resultId: scoped.resultId });
     const queried = await session.queryRecords({ datasetId: "tw-schools", limit: 2 });
     expect(queried).toMatchObject({ totalMatched: 3, returned: 2, displayTruncated: true });
     const resultId = String(queried.resultId);
@@ -134,5 +226,10 @@ describe("research analysis session", () => {
     expect(session.execute("get_analysis_result", { resultId, offset: 2, limit: 1 })).toMatchObject({ returned: 1, nextOffset: null });
     expect(session.execute("remove_result", { resultId })).toEqual({ resultId, removed: true });
     expect(() => session.execute("get_analysis_result", { resultId })).toThrow("RESULT_NOT_FOUND_OR_EXPIRED");
+  });
+
+  it("validates required plan selectors before materialization", async () => {
+    const session = new ResearchAnalysisSession();
+    await expect(session.planDataAccess({ datasetId: "regional-statistics:statsEducationCountyStudentTeacherRatio" })).rejects.toThrow("REQUIRED_PARAMETER_MISSING");
   });
 });
