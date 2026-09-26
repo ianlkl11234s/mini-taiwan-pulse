@@ -185,7 +185,7 @@ npm run dev
 
 ## Step 6a — Agent 查詢關卡
 
-每個新資料層上線時，依[新圖層查詢關卡](../../../docs/features/general-analysis/new-layer-queryability-gate.md)留下 Q0–Q6 收據：先核來源、授權、版次、筆數／缺值與 geometry，再接 `DatasetDescriptor` 和有界 reader，以新地點、問題變體、原表獨立 oracle 及正常 MCP 實問。需要地圖的結果再驗 `ready`／readback／目視。預設至少 Q0–Q3 通過才稱「Agent 可查」；僅有 PMTiles／地圖展示不得當作查詢已通。對已接受來源，驗的是系統忠實查詢原座標；來源點是否等於真實現場的限制要說明，但不反覆重審既有資料品質。來源本質不能查或授權不明時標具體 `DISPLAY_ONLY`／HOLD，記解鎖條件，不編造分析能力。
+新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析，詳見 [PLAN-warehouse-20260926](../../../docs/features/general-analysis/PLAN-warehouse-20260926.md)。上線仍留 Q0–Q6 收據：先核來源、授權、版次、筆數／缺值與 geometry，再接 `DatasetDescriptor` 和有界 reader，以新地點、問題變體、原表獨立 oracle 及正常 MCP 實問。需要地圖的結果再驗 `ready`／readback／目視。預設至少 Q0–Q3 通過才稱「Agent 可查」；僅有 PMTiles／地圖展示不得當作查詢已通。對已接受來源，驗的是系統忠實查詢原座標；來源點是否等於真實現場的限制要說明，但不反覆重審既有資料品質。來源本質不能查或授權不明時標具體 `DISPLAY_ONLY`／HOLD，記解鎖條件，不編造分析能力。
 
 ## Step 7 — 收尾
 

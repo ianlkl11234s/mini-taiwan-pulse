@@ -7,7 +7,8 @@ import { LAYER_MANIFEST, MANIFEST_KEYS } from "../../src/data/layerManifest.ts";
 import { WORLD_TAB_THEME_TITLES } from "../../src/components/sidebar/layerCatalog.ts";
 
 const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
-const ledger = JSON.parse(readFileSync(resolve(root, "docs/features/general-analysis/p0-source-family-ledger-20260925-current.json"), "utf8"));
+// 2026-09-26 起舊台帳已封存；此工具屬逐家族 reader 時期遺留腳本，若重跑仍讀寫封存目錄。
+const ledger = JSON.parse(readFileSync(resolve(root, "docs/features/general-analysis/archive/2026-09-pre-warehouse/p0-source-family-ledger-20260925-current.json"), "utf8"));
 const byKey = new Map(ledger.entries.map(entry => [entry.layerKey, entry]));
 const groups = ["taiwan_gis", "county_statistics", "global_gis", "japan_gis"];
 const worldThemes = new Set(WORLD_TAB_THEME_TITLES);
@@ -77,8 +78,8 @@ const pending = all.filter(row => row.status !== "QUERYABLE_REGISTERED").sort((a
   a.sourceCluster.localeCompare(b.sourceCluster) || a.layerKey.localeCompare(b.layerKey));
 const columns = Object.keys(all[0]);
 const csv = [columns.join(","), ...pending.map(row => columns.map(column => csvCell(row[column])).join(","))].join("\n") + "\n";
-writeFileSync(resolve(root, "docs/features/general-analysis/completion-queue-20260925.csv"), csv);
-writeFileSync(resolve(root, "docs/features/general-analysis/completion-queue-20260925-summary.json"),
+writeFileSync(resolve(root, "docs/features/general-analysis/archive/2026-09-pre-warehouse/completion-queue-20260925.csv"), csv);
+writeFileSync(resolve(root, "docs/features/general-analysis/archive/2026-09-pre-warehouse/completion-queue-20260925-summary.json"),
   JSON.stringify({ schemaVersion: "pulse-research-completion-queue/2026-09-25", ledger: "p0-source-family-ledger-20260925-current.json",
     classification: "Primary operational group from manifest section and exact key; not a claim that every feature has Taiwan-only or county-only geographic coverage.",
     hiddenOrphanCount: all.filter(row => row.uiTheme === "ORPHAN_NO_UI_SECTION").length,

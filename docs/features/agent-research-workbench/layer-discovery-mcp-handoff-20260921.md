@@ -7,7 +7,7 @@
 
 ### 2026-09-22 區域比較與 Google 補驗（最新）
 
-目前隔離 worktree 已有 50-tool built stdio、核心區域比較與證據表、Agent 光暈；本地與 Google 地址／建築名稱定位、Valhalla 步行均有實測。Google 初輪 disabled 是程序未載 `.env`，以 `PULSE_RESEARCH_ENV_FILE` 修正。核心功能已原子化 commit，未整合／發布。請以 [S1b–S3 驗收單](../general-analysis/acceptance-S1b-S3.md) 的最新結果與限制為準，下列舊數字保留為歷史 checkpoint。
+目前隔離 worktree 已有 50-tool built stdio、核心區域比較與證據表、Agent 光暈；本地與 Google 地址／建築名稱定位、Valhalla 步行均有實測。Google 初輪 disabled 是程序未載 `.env`，以 `PULSE_RESEARCH_ENV_FILE` 修正。核心功能已原子化 commit，未整合／發布。請以 [S1b–S3 驗收單](../general-analysis/archive/2026-09-pre-warehouse/acceptance-S1b-S3.md) 的最新結果與限制為準，下列舊數字保留為歷史 checkpoint。
 
 ### 2026-09-22 optimization worktree checkpoint
 
@@ -15,7 +15,7 @@
 
 ### 通用分析的後續計畫
 
-使用者已確認以周邊探索、區域／縣市比較、事件與背景交叉分析為主軸。後續範圍與分階段驗收以 [通用分析計畫](../general-analysis/plan.md) 為準；不要將新增工具或分類器本身當作成果。
+使用者已確認以周邊探索、區域／縣市比較、事件與背景交叉分析為主軸。後續範圍與分階段驗收以 [通用分析計畫](../general-analysis/archive/2026-09-pre-warehouse/plan.md) 為準；不要將新增工具或分類器本身當作成果。
 
 ## 1. 新 session 先讀這裡
 

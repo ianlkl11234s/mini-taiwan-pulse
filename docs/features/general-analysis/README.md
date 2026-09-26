@@ -1,13 +1,11 @@
-# AI Agent 資料查詢與圖層覆蓋入口
+# AI Agent 資料查詢與分析倉庫入口
 
-新 Agent 先讀[2026-09-26 收尾接手點](./handoff-20260926-queryability-wrapup.md)，再按工作類型選讀，不整包載入大型台帳。
+現況與下一步規劃看 [`PLAN-warehouse-20260926.md`](./PLAN-warehouse-20260926.md)；架構決策依據是
+[ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)
+（GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
 
-| 要做什麼 | 入口 |
-|---|---|
-| 了解一條龍能力及目前數字 | [Agent 查詢系統檢查點](./agent-query-system-checkpoint-20260926.md) |
-| 新圖層上線時保證資料格式與可查範圍 | [新圖層查詢關卡](./new-layer-queryability-gate.md)＋[`layer-onboarding`](../../../.claude/skills/layer-onboarding/SKILL.md) |
-| 回補既有 778 層 | [可打勾施工清單](./completion-checklist-20260925.md)與[來源家族收據](./source-family-priority-rollout-20260925.md) |
-| 查某層實際狀態 | [778 層台帳](./p0-source-family-ledger-20260925-current.json)與[目前佇列](./completion-queue-20260925.csv)；註冊不等於全鏈通過 |
-| 查施工架構 | [P0–P7 計畫](./all-layer-spatial-coverage-execution-plan-20260925.md)；2026-09-25 的[歷史交接](./handoff-20260925-spatial-coverage.md)只作起點 |
+新圖層：有 manifest 並能自動入分析倉庫即為 L2 可分析。
 
-所有 `current` 檔案仍有生成日期與收據邊界；新一輪更新請產生新日期快照或先記精確變更，不能用改名覆寫歷史驗收。
+2026-09-22～26「逐家族（per-family）reader」時期的規劃、驗收、盤點文件已封存於
+[`archive/2026-09-pre-warehouse/`](./archive/2026-09-pre-warehouse/README.md)，只作歷史查證，
+其中數字（248、778 等）不再是現況，不作施工依據。

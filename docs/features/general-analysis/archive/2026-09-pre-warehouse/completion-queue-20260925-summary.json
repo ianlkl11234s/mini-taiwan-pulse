@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "pulse-research-completion-queue/2026-09-25",
+  "ledger": "p0-source-family-ledger-20260925-current.json",
+  "classification": "Primary operational group from manifest section and exact key; not a claim that every feature has Taiwan-only or county-only geographic coverage.",
+  "hiddenOrphanCount": 10,
+  "counts": {
+    "taiwan_gis": {
+      "all": 381,
+      "registered": 188,
+      "pending": 193
+    },
+    "county_statistics": {
+      "all": 312,
+      "registered": 59,
+      "pending": 253
+    },
+    "global_gis": {
+      "all": 25,
+      "registered": 1,
+      "pending": 24
+    },
+    "japan_gis": {
+      "all": 60,
+      "registered": 0,
+      "pending": 60
+    }
+  },
+  "pending": 530,
+  "statuses": {
+    "READER_PENDING": 316,
+    "RIGHTS_HOLD": 26,
+    "SOURCE_MISSING": 188
+  }
+}

@@ -106,4 +106,4 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 四工作流入口
 
-首次選方法可讀[通用分析手冊](../../../docs/features/general-analysis/analyst-guide.md)。已知descriptor與完整receipt直接重用；quality/result readback只補真正缺少的欄位，不是每題必經。呈現用一次collection＋必要framing，pending只接續未完成request。共用流程與schema可重用，地點、數值、來源、期間與限制必須由本次查詢計算。
+首次選方法可讀[PLAN-warehouse-20260926](../../../docs/features/general-analysis/PLAN-warehouse-20260926.md)。已知descriptor與完整receipt直接重用；quality/result readback只補真正缺少的欄位，不是每題必經。呈現用一次collection＋必要framing，pending只接續未完成request。共用流程與schema可重用，地點、數值、來源、期間與限制必須由本次查詢計算。
