@@ -19,7 +19,7 @@ FROM f
 - 污染裁罰 `ds_environment_pollution_penalties`（414,904 筆；建議 `penalty_year >= 2023`，並排除 `geocode_precision = 'address_osm'` 的補位座標；`event_medium`／`transgress_type` 可分類）。
 - 保護區面 `ds_marine_wildlife_protected_areas`：用 `ST_Intersects(ST_Buffer(f.g, 1000), w.geom_3826)`。
 - 全國 2023 年後裁罰約 9.4 萬筆 × 學校／河川／保護區約 14 秒；先縮到縣市或期間可更快。再依縣市彙總找集中區。
-- ⚠️ 倉庫**沒有水源保護區（水質水量保護區）面資料**（catalog 只有 wildlife/reef/protected_trees，都不是水源保護區）；被問「污染 × 水源保護區」時明講這段缺資料，改回答其他受體。
+- 水源保護區（水質水量保護區）面 `ds_water_resources_water_source_protection_areas`（107 面，2026-09-26 store 起有；`ST_Within` 判內、`ST_DWithin(..., 1000)` 判 1km 緩衝內）；全國 2023 年後裁罰落在保護區內約 3%、1km 內約 5%（見 questionBank Q15），新竹縣／新竹市／苗栗縣佔比明顯高於六都。此表**只有面**，沒有保護區等級／管制內容欄位，只能判斷「有無疊合」，管制強度需另查法規。
 - 換成連續距離（例如「最近距離的分佈」而非「N 公尺內有沒有」）：把 `ST_DWithin` 換成 `min(ST_Distance(...))` 分組後配 `quantile_cont(d, 0.25/0.5/0.75)` 算四分位；同樣先依縣市或分組再算，避免混進不同密度地區。
 - 事故點 × 設施（例如 A1 事故 300m 內有沒有學校）也是同一套模板：來源換成事故表、受體換成設施表，命中後用 `boundaries_county` 空間 join 依縣市彙總，再算命中率（`count(*) FILTER (...) * 100.0 / count(*)`）。
 
