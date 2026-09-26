@@ -35,7 +35,7 @@
 
 - 本次核對時 `git HEAD=50bb0536`（2026-09-26 06:10 +0800）。3734 前端、8794 Gateway 均未 LISTEN；因此**此刻沒有 live MCP→browser 查詢保證**。既有歷史配對／資料庫不應以重置來求通過；恢復服務後先核 origin、session、tool catalog，再針對未過 gate 的新片做查詢與 readback。
 - 第 83 批 `policeIsoSubstation`／`policeIsoPrecinct`／`policeIsoCityDept`：本機 reader、固定 SHA、來源 oracle、focused tests、`tsc -b`、程式 bundle 有收據；正常 MCP／地圖仍待驗。完整資產 build 曾因 ENOSPC 失敗，程式 bundle 通過不可冒稱完整 build。
-- 下一批 eAIP 空域目前有未提交的 `aviationAirspaceOwnerDataset.ts`、`build-airspace-owner-only.py`、`researchDatasets.ts`、`vite.config.ts` 工作檔；它們**未列入 248**，不可當已固化完成，也不可隨本文件 commit。接續先核其來源／授權／幾何修補，補真實來源測試、tsc/build、audit 與收據；各片 exact-path commit。
+- 下一批 eAIP 空域研究草稿已在 `046a1fc4` 單獨保存 `aviationAirspaceOwnerDataset.ts` 與 `build-airspace-owner-only.py`；查詢 registry 與 Vite route **未接線**，因此**未列入 248**。本機 owner-only 81 面 sidecar 保留於 `../runtime/owner-only/aviation-airspace/`，SHA `b32288f6d8a7bb31313b3b6ad853e27f1e2323b1ef65a814f50de6350d405fb7`。接續先核來源／授權／幾何修補，補真實來源測試、runtime route、audit 與收據，正常 MCP／browser 通過後才標可用。
 - 工作區是 `research-streamline/mini` 隔離 worktree；原 checkout、其他配對、Supabase／S3、已暫停過夜排程保持原狀。下一步按 [完成清單的 A03 與 B／C／D／E／F](./completion-checklist-20260925.md) 持續施工，先臺灣 GIS、再縣市統計、全球與日本；缺來源或權利證據的家族記具體 HOLD，轉做其他可行家族。
 
 **重新驗證的最小順序**：核 `git status` 與本頁 HEAD → 檢查本片 runtime sidecar 是否存在、SHA 是否吻合 → 檢查 3734／8794 與 Gateway origin → 看 MCP host 是否有 live `pulse-research` tools、建立／恢復配對 → 用未驗片的新地點和問題變體實問 → `ready`、readback、目視 → 記錄結果及 commit。服務離線或 sidecar 不在時，應回報明確失敗原因，不能用歷史成功收據回答「現在一定查得到」。
