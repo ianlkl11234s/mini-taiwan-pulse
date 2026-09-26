@@ -11,7 +11,11 @@ WITH x AS (SELECT v.area_code, count(*) AS n
 SELECT count(*) AS areas, corr(coalesce(x.n, 0), y.value) AS r, corr(ln(1 + coalesce(x.n, 0)), y.value) AS r_log
 FROM y LEFT JOIN x USING (area_code)
 ```
-點資料要先除以面積或人口再比（密度），否則只是在畫「大村里」。
+點資料要先除以面積或人口再比（密度），否則只是在畫「大村里」。房價用 `ds_real_estate_merged_points` 且 **只取 `type = 'sale'`**（`rental` 的單價是租金）；公司用 `ds_business_registry_company_points_analysis`。
+
+**必做兩個檢查**（2026-09-26 實例：全國合併時公車站密度 vs 房價 r = −0.29，但縣市內中位數是 +0.12）：
+1. **縣市內再算一次**：在 SELECT 加 `substr(area_code, 1, 5) AS county` 後 `GROUP BY county` 算 `corr`；全國與縣市內方向相反時，以縣市內為準並說明（辛普森悖論）。
+2. **資料覆蓋**：算每縣市「0 筆的村里比例」；超過一半代表資料缺漏（例：`bus_by_city` 在臺北、新北大多沒有站牌），這些縣市不解讀。
 
 **必帶但書**（讀 [geo-reasoning 陷阱](../../../geo-reasoning/references/frameworks.md)）：區域相關不等於個體關係（生態謬誤）；換成鄉鎮可能改變結果（MAUP）；相關不是因果，先想第三變數（都市化程度常同時驅動兩者）。|r| < 0.1 就說「幾乎沒有線性關係」。
 

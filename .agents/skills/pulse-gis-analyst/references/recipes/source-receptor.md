@@ -15,7 +15,10 @@ SELECT count(*) AS sources,
        count(*) FILTER (WHERE _row_id IN (SELECT _row_id FROM near_school) AND _row_id IN (SELECT _row_id FROM near_river)) AS with_both
 FROM f
 ```
-換來源表（裁罰、列管設施）或受體表（保護區面用 `ST_Intersects`）時先 `pulse_wh_describe`。再依縣市彙總找集中區。
+換來源表或受體表時先 `pulse_wh_describe`：
+- 污染裁罰 `ds_environment_pollution_penalties`（414,904 筆；建議 `penalty_year >= 2023`，並排除 `geocode_precision = 'address_osm'` 的補位座標；`event_medium`／`transgress_type` 可分類）。
+- 保護區面 `ds_marine_wildlife_protected_areas`：用 `ST_Intersects(ST_Buffer(f.g, 1000), w.geom_3826)`。
+- 全國 2023 年後裁罰約 9.4 萬筆 × 學校／河川／保護區約 14 秒；先縮到縣市或期間可更快。再依縣市彙總找集中區。
 
 **必帶但書**：來源點多為地址地理編碼的參考點；「半徑內」不是污染傳播或暴露；裁罰是歷史事件，不代表現況仍違規；河川資料含堤防等線，必要時只取河道線。
 
