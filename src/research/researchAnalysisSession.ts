@@ -9,7 +9,7 @@ import type { WalkingIsochroneExecution } from "./networkProvider";
 import { loadWarehouseResult, validateWarehouseImportArgs } from "./warehouseResultImport";
 
 export type AnalysisQueryOperation = "compare_neighborhoods" | "create_analysis_scope" | "spatial_query" | "aggregate_by_area" | "aggregate_records" | "join_records" | "calculate_metric" | "read_series" | "compare_series" | "compare_regions" | "get_data_quality" | "get_record_evidence" | "get_analysis_result" | "get_result_bounds" | "list_results" | "remove_result";
-export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation"> & { displayLabel?: string; units?: StoredDataResult["units"] };
+export type PresentableResult = Pick<StoredDataResult, "resultId" | "datasetId" | "rows" | "geometry" | "presentation" | "resultStyle"> & { displayLabel?: string; units?: StoredDataResult["units"] };
 
 /**
  * Presentation is a collection, rather than a domain-specific single result.
@@ -483,7 +483,7 @@ export class ResearchAnalysisSession {
       return { result, metrics };
     });
     assertResultCollectionBudget(prepared.map(item => item.metrics));
-    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation, units: result.units }));
+    return prepared.map(({ result }) => ({ resultId: result.resultId, datasetId: result.datasetId, displayLabel: resultDisplayLabel(result), rows: result.rows, geometry: result.geometry, presentation: result.presentation, units: result.units, ...(result.resultStyle ? { resultStyle: result.resultStyle } : {}) }));
   }
 
   bounds(resultIds: readonly string[]): { bounds: [number, number, number, number]; pointCount: number; featureCount: number; vertexCount: number } {
@@ -515,6 +515,7 @@ export class ResearchAnalysisSession {
     const resultIds = results.map(result => result.resultId);
     return {
       resultId: input.resultId, resultIds, featureCount: input.featureCount,
+      ...(input.style ? { styleKind: input.style.kind } : {}),
       geometryTypes: results.map(result => result.geometry.type),
       ...(resultIds.length ? { bounds: this.bounds(resultIds).bounds } : {}),
       next: "Present with pulse_set_result_collection using these resultIds, then wait for scene ready and read map context.",

@@ -1,4 +1,5 @@
 import type { AnalysisResult } from "./analysisOperations";
+import { validateWarehouseResultStyle, type WarehouseResultStyle } from "./warehouseResultStyle";
 
 /**
  * Server-side warehouse results (ADR-0014) arrive as a local GeoJSON file plus a small
@@ -6,7 +7,7 @@ import type { AnalysisResult } from "./analysisOperations";
  * over the DEV loopback middleware, verifies its SHA-256, and registers one session
  * result per geometry type so the existing result-collection presentation can draw it.
  */
-export type WarehouseImportArgs = { resultId: string; sha256: string; label: string; featureCount: number };
+export type WarehouseImportArgs = { resultId: string; sha256: string; label: string; featureCount: number; style?: WarehouseResultStyle };
 export type WarehouseImportGeometry = "Point" | "LineString" | "MultiLineString" | "Polygon" | "MultiPolygon";
 
 const RESULT_ID = /^wh-[0-9]{1,6}$/;
@@ -19,13 +20,13 @@ export function warehouseResultFileName(resultId: string): string | null {
 
 export function validateWarehouseImportArgs(args: Record<string, unknown>): WarehouseImportArgs {
   const keys = Object.keys(args);
-  if (!keys.every(key => ["resultId", "sha256", "label", "featureCount"].includes(key))) throw new Error("WAREHOUSE_RESULT_INVALID");
+  if (!keys.every(key => ["resultId", "sha256", "label", "featureCount", "style"].includes(key))) throw new Error("WAREHOUSE_RESULT_INVALID");
   const { resultId, sha256, label, featureCount } = args;
   if (typeof resultId !== "string" || !RESULT_ID.test(resultId)) throw new Error("WAREHOUSE_RESULT_INVALID");
   if (typeof sha256 !== "string" || !SHA256.test(sha256)) throw new Error("WAREHOUSE_RESULT_INVALID");
   if (typeof label !== "string" || !label.trim() || label.length > 120) throw new Error("WAREHOUSE_RESULT_INVALID");
   if (typeof featureCount !== "number" || !Number.isInteger(featureCount) || featureCount < 0 || featureCount > WAREHOUSE_RESULT_MAX_FEATURES) throw new Error("WAREHOUSE_RESULT_INVALID");
-  return { resultId, sha256, label: label.trim(), featureCount };
+  return { resultId, sha256, label: label.trim(), featureCount, ...(args.style !== undefined ? { style: validateWarehouseResultStyle(args.style) } : {}) };
 }
 
 async function sha256Hex(text: string): Promise<string> {
@@ -89,6 +90,8 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
   if (featureCount !== args.featureCount) throw new Error("WAREHOUSE_RESULT_INVALID");
   const features = normalizeWarehouseFeatures(parsed);
   const types = [...new Set(features.map(feature => feature.type))];
+  if (args.style?.kind === "heatmap" && types.some(type => type !== "Point")) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
+  if (args.style?.kind === "compare" && (types.some(type => type !== "Point") || features.length !== args.style.columns.length)) throw new Error("WAREHOUSE_RESULT_STYLE_INVALID");
   const createdAt = new Date().toISOString();
   return types.map(type => {
     const group = features.filter(feature => feature.type === type);
@@ -113,6 +116,7 @@ export async function loadWarehouseResult(args: WarehouseImportArgs, fetchImpl: 
       inputResultIds: [],
       method: { operation: "import_warehouse_result", version: "0.1", sha256Verified: true },
       summary: { featureCount: group.length, geometryType: type, label: args.label },
+      ...(args.style ? { resultStyle: args.style } : {}),
     } satisfies AnalysisResult;
   });
 }

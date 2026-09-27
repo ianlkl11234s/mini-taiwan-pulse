@@ -240,3 +240,17 @@
 .main-map-agent .research-pairing > p { display: inline-block; max-width: calc(100% - 52px); margin-right: 8px; }
 .main-map-agent .research-pairing > strong { display: block; }
 .main-map-agent .research-pairing > button { padding: 3px 7px; }
+.main-map-agent .agent-style-legend__bar { display: flex; height: 8px; margin-top: 3px; border-radius: 2px; overflow: hidden; }
+.main-map-agent .agent-style-legend__bar b { flex: 1 1 0; }
+.main-map-agent .agent-style-legend__breaks { display: flex; justify-content: space-around; }
+.main-map-agent .agent-style-legend__bivariate { display: grid; grid-template-columns: auto 42px; grid-template-rows: 42px auto; gap: 2px 4px; align-items: center; margin-top: 3px; }
+.main-map-agent .agent-style-legend__y { grid-column: 1; grid-row: 1; }
+.main-map-agent .agent-style-legend__grid { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: repeat(3, 14px); grid-template-rows: repeat(3, 14px); }
+.main-map-agent .agent-style-legend__x { grid-column: 2; grid-row: 2; white-space: nowrap; }
+.main-map-agent .agent-style-legend__null i { border-radius: 2px; }
+.main-map-agent .agent-compare-table__grid { width: 100%; margin-top: 4px; border-collapse: collapse; font-size: 10px; }
+.main-map-agent .agent-compare-table__grid th, .main-map-agent .agent-compare-table__grid td { padding: 2px 4px; text-align: right; border-bottom: 1px solid var(--agent-border, #07100e); }
+.main-map-agent .agent-compare-table__grid th[scope="row"] { text-align: left; font-weight: 400; color: var(--agent-text, #fff); }
+.main-map-agent .agent-compare-table__column { background: none; border: none; padding: 0; color: inherit; text-decoration: underline dotted; cursor: pointer; font-size: 10px; }
+.main-map-agent .agent-compare-table__best { font-weight: 700; color: var(--agent-text, #fff); }
+.main-map-agent .agent-compare-table__muted { color: var(--agent-muted, #c7c7c7); }
