@@ -78,6 +78,12 @@
 
 **Phase B 施工備註（2026-09-27）**：`Row` 已加 `mono?: boolean` prop（`shared.tsx`），套 `FONT_DATA` + `tabular-nums`。這輪只手動套在 4 處明顯純數值列（`airPanels.tsx` 的 AQI/微感測站 PM2.5·PM10、`shared.tsx` 的 `ChatHighlightPanel` 座標），未跑 regex 全面偵測——**mono 全面套用（41 個 `*Panels.tsx` 逐一過一次數值欄位）留待後續工作**，不在本輪 Phase B 範圍。
 
+**Phase C 施工備註（2026-09-27）**：`shared.tsx` 新增共用 `Title`，13 個 domain 檔改 import、刪本地重複版本。盤點發現的差異：
+- 11/13 檔（culture/education/fishery/funeral/japan/livestock/religion/sports/tourism/urban/welfare）的本地版完全相同（10px 色點 flex 佈局、13px bold、letterSpacing 0.5、marginBottom 6，無底線）。
+- `jpMedicalPanels.tsx` 少了 `flexShrink: 0`（色點被擠壓的既有小 bug，改共用版後修正）與 `letterSpacing: 0.5`（差異在雜訊範圍內）。
+- `networkStructuresPanels.tsx` 原本**沒有色點**，用分類色直接染標題文字（非 `textStrong`），改共用版後視覺變成「9px 色點 + textStrong 文字」——這是本次統一刻意消弭的不一致，非誤改。
+- 共用版套 B 版規格：9px 色點（原 10px）、加 `1px solid palette.border` 底線 + `paddingBottom 5`、`marginBottom 4`（原 6）、拿掉 `letterSpacing: 0.5`（規格未列）。
+
 以下結構規則沿用：
 
 ```

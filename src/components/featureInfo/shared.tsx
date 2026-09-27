@@ -1,5 +1,33 @@
-import { RADIUS, FONT_SIZE, FONT_DATA } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE, FONT_WEIGHT, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+
+/**
+ * Popup 內容共用標題 — 前置分類色點 + 粗體標題 + 下方分隔線（B 版規格，
+ * 見 docs/features/ui-consistency-audit-20260927/proposal.md §6.1）。
+ * 原本 13 個 domain 檔（culturePanels/religionPanels/educationPanels/…）
+ * 各自複製同一段極簡本地版，此處收斂為單一 export，各檔改 import 此版本。
+ */
+export function Title({ color, children }: { color: string; children: string }) {
+  const t = useFeatureTheme();
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: FONT_SIZE.lg,
+        fontWeight: FONT_WEIGHT.bold,
+        color: t.textStrong,
+        borderBottom: `1px solid ${t.border}`,
+        paddingBottom: 5,
+        marginBottom: 4,
+      }}
+    >
+      <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+      {children}
+    </div>
+  );
+}
 
 export function formatTaiwanTime(iso: string | null): string {
   if (!iso) return "";

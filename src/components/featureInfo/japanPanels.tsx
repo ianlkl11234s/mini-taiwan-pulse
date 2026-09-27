@@ -1,7 +1,5 @@
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
-import { Row } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { useFeatureTheme } from "./featureTheme";
+import { Row, Title } from "./shared";
 import {
   JP_RAILWAY_LAYER_COLOR,
   JP_RAILWAY_TYPES,
@@ -12,17 +10,6 @@ import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
 } from "../../data/jpPopulationMeshModes";
 import { JP_WATER_FACILITY_CATEGORIES } from "../../data/jpWaterTypes";
-
-// 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 

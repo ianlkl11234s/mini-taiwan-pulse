@@ -1,5 +1,5 @@
-import { Row } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { Row, Title } from "./shared";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import {
   WELFARE_LAYER_COLORS,
@@ -13,7 +13,6 @@ import {
 
 /**
  * 社福長照 9 層的 click popup。
- * 本檔 Title 為極簡本地版（同 funeralPanels / religionPanels 慣例）。
  *
  * ⚠️ **空值約定**：上游匯出時把空字串與 null 的 property **整個拿掉**（不是留空值）
  *    → 一律 `str(props.x)` / `"key" in props` 判斷，不可假設 key 一定存在。
@@ -23,16 +22,6 @@ import {
  *    T0705-08 老人機構全是 C01），它是隨次類別走的法規／來源代碼空間。
  *    顯示出來只會讓使用者當成狀態讀。
  */
-
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 function Note({ children }: { children: React.ReactNode }) {
   const t = useFeatureTheme();

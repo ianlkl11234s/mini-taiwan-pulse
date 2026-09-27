@@ -1,18 +1,10 @@
 import { jpMedicalCategory, JP_MEDICAL_CARE_GROUPS } from "../../data/jpMedicalTypes";
-import { FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
-import { Row } from "./shared";
+import { Row, Title } from "./shared";
 
 const text = (value: unknown) => value == null || value === "" || value === "null" ? "未提供" : String(value);
 const date = (value: unknown) => text(value).replace(/^(\d{4})(\d{2})(\d{2})$/, "$1-$2-$3");
-
-function Title({ color, children }: { color: string; children: string }) {
-  const theme = useFeatureTheme();
-  return <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-    <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color }} />
-    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: theme.textStrong }}>{children}</div>
-  </div>;
-}
 
 export function JpMedicalFacilitiesPanel({ props }: { props: Record<string, unknown> }) {
   const category = jpMedicalCategory(props.record_kind);

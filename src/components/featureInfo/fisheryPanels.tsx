@@ -1,16 +1,5 @@
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { Row, SourceFooter } from "./shared";
-import { useFeatureTheme } from "./featureTheme";
-
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
+import { FONT_SIZE } from "../../styles/designTokens";
+import { Row, SourceFooter, Title } from "./shared";
 
 function areaHa(v: unknown): string {
   const n = Number(v);
