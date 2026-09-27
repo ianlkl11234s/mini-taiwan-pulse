@@ -2008,25 +2008,38 @@ export default function App() {
               transition: "left 0.2s ease",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
-              <h1
-                style={{
-                  margin: 0,
-                  fontSize: 20,
-                  color: isDarkTheme ? "#fff" : "#333",
-                  fontFamily: FONT_DATA,
-                  fontWeight: 700,
-                  letterSpacing: 2,
-                }}
-              >
-                Mini Taiwan Pulse
-              </h1>
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: 20,
+                    color: isDarkTheme ? "#fff" : "#333",
+                    fontFamily: FONT_DATA,
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                  }}
+                >
+                  Mini Taiwan Pulse
+                </h1>
 
-              {loading && (
-                <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
-                  Loading...
-                </span>
-              )}
+                {loading && (
+                  <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
+                    Loading...
+                  </span>
+                )}
+              </div>
+              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD */}
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                }}
+              />
             </div>
 
             <div
@@ -2041,6 +2054,11 @@ export default function App() {
                 boxShadow: toolbarPalette.shadow,
                 flexWrap: "wrap",
                 justifyContent: "flex-end",
+                // 窄寬度時整條 Row 1 換行：toolbar 掉到第二行時，若沒有 marginLeft: auto，
+                // space-between 對「單一子項」的那一行會把它推去 flex-start。auto margin
+                // 讓它即使獨佔一行也維持靠右；HUD 已併入左側品牌欄，換行後 toolbar 落在
+                // 整欄下方，兩者不會再互相重疊。
+                marginLeft: "auto",
               }}
             >
               <ModeToggle
@@ -2283,27 +2301,6 @@ export default function App() {
             />
           )}
 
-          {/* 座標 HUD（品牌名下方）*/}
-          <div
-            style={{
-              position: "absolute",
-              top: 48,
-              left: sidebarWidth + 16,
-              zIndex: 10,
-              transition: "left 0.2s ease",
-            }}
-          >
-            <CameraHud
-              store={cameraHud}
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
-                fontSize: FONT_SIZE.sm,
-                fontFamily: FONT_DATA,
-                fontVariantNumeric: "tabular-nums",
-                letterSpacing: 0.5,
-              }}
-            />
-          </div>
         </>
       )}
 
