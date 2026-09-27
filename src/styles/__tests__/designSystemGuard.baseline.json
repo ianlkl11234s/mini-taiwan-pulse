@@ -1,0 +1,52 @@
+{
+  "english-control-label": {
+    "src/data/layerParamsSpec.ts": 1
+  },
+  "font-data-on-cjk": {
+    "src/components/intel/monitor/FoodPriceBoard.tsx": 1,
+    "src/components/intel/monitor/TelecomStatusCard.tsx": 1,
+    "src/components/satelliteConsole/ManeuverCompareModal.tsx": 1
+  },
+  "hex-literal-in-ui-css": {
+    "src/components/sidebar/layerParamControls.css": 1,
+    "src/research/mainMapConnection.css": 3
+  },
+  "internal-id-display": {
+    "src/components/sidebar/DataSourcePanel.tsx": 2,
+    "src/components/sidebar/StatisticsDetails.tsx": 1
+  },
+  "native-range": {
+    "src/bbox/BboxSelectorApp.tsx": 1,
+    "src/components/EarthquakeReplayPanel.tsx": 1,
+    "src/components/HistoricalTimeline.tsx": 2,
+    "src/components/TimelineControls.tsx": 1,
+    "src/components/intel/IntelReplay.tsx": 1,
+    "src/research/MainMapConnection.tsx": 1,
+    "src/research/NearbyResults.tsx": 1,
+    "src/research/ResearchApp.tsx": 1,
+    "src/research/jev-layer-screening/LayerScreeningApp.tsx": 1
+  },
+  "triangle-chevron": {
+    "src/components/HistoricalTimeline.tsx": 1,
+    "src/components/InfoModal.tsx": 3,
+    "src/components/LayerSidebar.tsx": 1,
+    "src/components/TimelineControls.tsx": 2,
+    "src/components/intel/monitor/FoodPriceBoard.tsx": 1,
+    "src/data/layerParamsSpec.ts": 2,
+    "src/embed/EmbedApp.tsx": 1
+  },
+  "uppercase-eyebrow": {
+    "src/components/IconRailSidebar.tsx": 2,
+    "src/components/InfoModal.tsx": 2,
+    "src/components/LayerSidebar.tsx": 2,
+    "src/components/intel/monitor/PressureRing.tsx": 1,
+    "src/gfw-v4-bench/styles.css": 2
+  },
+  "web-font": {
+    "src/App.tsx": 1,
+    "src/components/IconRailSidebar.tsx": 7,
+    "src/components/TransientNotice.tsx": 1,
+    "src/components/sidebar/PanelHeader.tsx": 1,
+    "src/components/sidebar/StatisticsDetails.tsx": 1
+  }
+}
