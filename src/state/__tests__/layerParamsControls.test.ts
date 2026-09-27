@@ -78,7 +78,24 @@ describe("buildParamControls", () => {
     const list = buildParamControls("cemeteryOsm") ?? [];
     expect(list).toHaveLength(1);
     expect(Object.keys(list[0] as object).sort())
-      .toEqual(["label", "max", "min", "onChange", "step", "value"]);
+      .toEqual(["label", "max", "min", "name", "onChange", "step", "value", "valueText"]);
+  });
+
+  // ── Phase I：標籤與數值拆欄（name / valueText），label 維持整串給 research 端 ──
+  it("slider name／valueText：前綴結尾運算符號移到數值欄，字母／中文單位前補空白", () => {
+    const opacity = (buildParamControls("religionTemples") ?? [])[2] as SliderConfig;
+    expect(opacity).toMatchObject({ name: "透明度", valueText: "0.80" });
+
+    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    expect(z).toMatchObject({ name: "漂浮高度", valueText: "0 px" });
+
+    const shuttle = buildParamControls("touristShuttleLive") ?? [];
+    expect(shuttle.find((c) => !("type" in c) && (c as SliderConfig).name === "高度"))
+      .toMatchObject({ label: "高度 +0m", valueText: "+0 m" });
+
+    const alt = (buildParamControls("flights") ?? []).find((c) => (c as SliderConfig).name === "高度倍率") as SliderConfig;
+    expect(alt.valueText.startsWith("×")).toBe(true);
+    expect(alt.label).toBe(`高度倍率 ×${alt.valueText.slice(1)}`);
   });
 
   it("slider onChange 寫回 store，label 隨新值重算（toFixed 位數不變）", () => {
@@ -169,9 +186,9 @@ describe("buildParamControls", () => {
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["lightningMinutes"]).toBe(45);
 
     const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
-    expect(z.label).toBe("Z 漂浮 0px");
+    expect(z.label).toBe("漂浮高度 0px");
     z.onChange(24);
-    expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "Z 漂浮 24px" });
+    expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "漂浮高度 24px", valueText: "24 px" });
   });
 
   // ── P3-2C 補：encodeNumeric 在**非預設值**下才與索引編碼分岔 ──────
@@ -241,8 +258,8 @@ describe("buildParamControls", () => {
     (before[3] as ToggleConfig).onChange(true);
     const after = buildParamControls("propertyValueGrid") ?? [];
     expect(after, "3D 打開後對比／高度兩個控件要出現").toHaveLength(6);
-    expect(after[4]).toMatchObject({ label: "對比 Contrast 1.8" });
-    expect(after[5]).toMatchObject({ label: "整體高度 Height 40" });
+    expect(after[4]).toMatchObject({ label: "對比 1.8" });
+    expect(after[5]).toMatchObject({ label: "整體高度 40" });
 
     (after[3] as ToggleConfig).onChange(false);
     expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);

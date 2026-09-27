@@ -35,7 +35,12 @@ export interface SliderConfig {
    * 判定 slider。
    */
   type?: "slider";
+  /** 舊的整串顯示文字（`透明度 0.80`）；research 端與既有測試仍讀這欄，形狀不變 */
   label: string;
+  /** 控件名稱（標籤欄，不含數值）；前綴結尾的運算符號（`×`／`+`／`≥`）移到 `valueText` */
+  name: string;
+  /** 數值欄：沿用 digits／zeroLabel／displayScale／suffix；字母或中文單位前補一個空白（`+0 m`） */
+  valueText: string;
   value: number;
   min: number;
   max: number;
@@ -71,6 +76,23 @@ export interface MultiSelectConfig {
 
 export type ParamControl = SliderConfig | ToggleConfig | SelectConfig | MultiSelectConfig;
 
+/** 前綴結尾的運算符號（`高度 ×` → 名稱「高度」、數值「×1.0」） */
+const TRAILING_OPERATOR = /^(.*?)\s*([×+≥≤±-]+)$/u;
+/** 字母／中文開頭的單位才補空白；`×`、`%` 這類符號維持緊貼 */
+const WORD_SUFFIX = /^[\p{L}]/u;
+
+export function splitSliderLabel(
+  labelPrefix: string,
+  shown: string,
+  labelSuffix = "",
+): { name: string; valueText: string } {
+  const match = TRAILING_OPERATOR.exec(labelPrefix);
+  const name = (match ? match[1]! : labelPrefix).trim();
+  const operator = match ? match[2]! : "";
+  const suffix = WORD_SUFFIX.test(labelSuffix) ? ` ${labelSuffix}` : labelSuffix;
+  return { name, valueText: `${operator}${shown}${suffix}` };
+}
+
 /**
  * ⚠️ slider **不帶 `type` 欄位** —— `SliderConfig.type` 是選填，現行手寫 case
  * 一律省略。多輸出一個 `type: "slider"` 會讓黃金快照 params section 立刻紅，
@@ -102,6 +124,7 @@ export function buildParamControls(
           // （`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。兩欄都省略時，
           // 輸出與 P3-1 定的 `${labelPrefix} ${toFixed}` 一位元不變。
           label: `${s.labelPrefix}${s.labelSep ?? " "}${shown}${s.labelSuffix ?? ""}`,
+          ...splitSliderLabel(s.labelPrefix, shown, s.labelSuffix),
           value, min: s.min, max: s.max, step: s.step,
           onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
         };

@@ -531,7 +531,7 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
  */
 function zFloatSlider(name: string): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Z 漂浮", digits: 0, labelSuffix: "px",
+    kind: "slider", name, labelPrefix: "漂浮高度", digits: 0, labelSuffix: "px",
     default: 0, min: 0, max: 100, step: 2,
   };
 }
@@ -574,7 +574,7 @@ function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS): LayerParamSpec
  */
 function sharedReturnOpacity(name: string, group: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Opacity", digits: 2,
+    kind: "slider", name, labelPrefix: "透明度", digits: 2,
     default: def, min: 0, max: 1, step: 0.05,
     sharedGroup: group, out: null,
   };
@@ -636,7 +636,7 @@ function busGroupToggles(
 /** 三種公車圖層共用的「Color」染色模式 select（路線 / 速度 / 密度；值走 Three.js ref） */
 function busColorSelect(name: string): SelectNoOverlayParamSpec {
   return {
-    kind: "select", name, label: "Color", default: "route",
+    kind: "select", name, label: "配色", default: "route",
     options: [
       { label: "路線", value: "route" },
       { label: "速度", value: "speed" },
@@ -649,7 +649,7 @@ function busColorSelect(name: string): SelectNoOverlayParamSpec {
 /** 高鐵／台鐵／捷運三層共用的站點大小（跨 case 共用同一個 useState 的等價表達） */
 function stationScaleSlider(): SliderParamSpec {
   return {
-    kind: "slider", name: "stationScale", labelPrefix: "Stn", digits: 1,
+    kind: "slider", name: "stationScale", labelPrefix: "大小", digits: 1,
     default: 1, min: 0.3, max: 3, step: 0.1,
     sharedGroup: "stationScale",
   };
@@ -680,7 +680,7 @@ function hubDisplayModeSelect(
 /** 站點／碼頭／機場的月台柱高度（五處同構，只有參數名與 default 不同） */
 function pillarHeightSlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Height", digits: 1,
+    kind: "slider", name, labelPrefix: "高度", digits: 1,
     default: def, min: 0.2, max: 3, step: 0.1, out: null,
   };
 }
@@ -721,7 +721,7 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
       default: opacity, min: 0.1, max: 1, step: 0.05, out: null,
     },
     {
-      kind: "slider", name: `${key}Altitude`, labelPrefix: "Z 軸", digits: 0,
+      kind: "slider", name: `${key}Altitude`, labelPrefix: "高度", digits: 0,
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
   ];
@@ -731,19 +731,19 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
 // 控件組慣例：Opacity → Contrast → 3D → Height，六個子物件層共用同一組形狀。
 function gridOpacitySlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Opacity", digits: 1,
+    kind: "slider", name, labelPrefix: "透明度", digits: 1,
     default: def, min: 0.1, max: 1, step: 0.1, out: null,
   };
 }
 function gridContrastSlider(name: string): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Contrast", digits: 1,
+    kind: "slider", name, labelPrefix: "對比", digits: 1,
     default: 1.8, min: 0.5, max: 4, step: 0.1, out: null,
   };
 }
 function gridHeightSlider(name: string, def: number): SliderParamSpec {
   return {
-    kind: "slider", name, labelPrefix: "Height", digits: 0,
+    kind: "slider", name, labelPrefix: "高度", digits: 0,
     default: def, min: 10, max: 200, step: 10, out: null,
   };
 }
@@ -801,7 +801,7 @@ function categoryMetricPair(
     (metricMap[cat] ?? metricMap[defaultCategory] as ParamSelectOption[])[0]!.value;
   return [
     {
-      kind: "select", name: categoryName, label: "Category", default: defaultCategory,
+      kind: "select", name: categoryName, label: "類別", default: defaultCategory,
       options: categoryOptions,
       cascade: categoryOptions.map((o) => ({
         whenSelfIs: o.value, target: metricName, set: firstOf(o.value),
@@ -809,7 +809,7 @@ function categoryMetricPair(
       out: null,
     },
     {
-      kind: "select", name: metricName, label: "Metric", default: firstOf(defaultCategory),
+      kind: "select", name: metricName, label: "指標", default: firstOf(defaultCategory),
       options: metricMap[defaultCategory] as ParamSelectOption[],
       optionsByParam: { param: categoryName, byValue: metricMap, fallback: defaultCategory },
       out: null,
@@ -1190,25 +1190,25 @@ export const LAYER_PARAMS_SPEC = {
 
   // ══════════ 交通・醫療・公共設施・教育 ══════════
   bikeStations: [
-    { kind: "slider", name: "bikeScale", labelPrefix: "Bike", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "bikeScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("bikeStationsOpacity", 1),
   ],
   highways: [
-    { kind: "slider", name: "highwayWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
-    { kind: "slider", name: "highwayGlow", labelPrefix: "Glow", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
+    { kind: "slider", name: "highwayWidth", labelPrefix: "線寬", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "highwayGlow", labelPrefix: "光暈", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
     opacitySlider("highwaysOpacity", 1),
   ],
   provincialRoads: [
-    { kind: "slider", name: "provincialWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
-    { kind: "slider", name: "provincialGlow", labelPrefix: "Glow", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
+    { kind: "slider", name: "provincialWidth", labelPrefix: "線寬", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "provincialGlow", labelPrefix: "光暈", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
     opacitySlider("provincialRoadsOpacity", 1),
   ],
   cyclingRoutes: [
-    { kind: "slider", name: "cyclingWidth", labelPrefix: "Cycling", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "cyclingWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("cyclingRoutesOpacity", 1),
   ],
   freewayCongestion: [
-    { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "freewayWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("freewayCongestionOpacity", 1),
   ],
   roadCongestion: [
@@ -1216,7 +1216,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("roadCongestionOpacity", 0.85),
   ],
   weatherStations: [
-    { kind: "slider", name: "weatherScale", labelPrefix: "Weather", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "weatherScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("weatherStationsOpacity", 1),
   ],
   fireEvents: [opacitySlider("fireEventsOpacity", 1)],
@@ -1351,11 +1351,11 @@ export const LAYER_PARAMS_SPEC = {
   eduDistrictSenior: [opacitySlider("eduDistrictSeniorOpacity", 0.18)],
   eduCramSchool: [
     opacitySlider("eduCramSchoolOpacity", 0.75),
-    { kind: "slider", name: "eduCramSchoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "eduCramSchoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   eduUniversityStudents: [
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
-    { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
   internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85), scaleSlider("internetExchangePointsScale", 1)],
   landingStations: [opacitySlider("landingOpacity", 1), scaleSlider("landingScale", 1)],
@@ -1408,7 +1408,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("ooklaFixedTaiwanOpacity", 0.75),
   ],
   convenienceStores: [
-    { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "convenienceScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("convenienceStoresOpacity", 1),
   ],
   postOffices: [opacitySlider("postOfficesOpacity", 0.85), scaleSlider("postOfficesScale", 1)],
@@ -1521,12 +1521,12 @@ export const LAYER_PARAMS_SPEC = {
       ],
       out: null,
     },
-    { kind: "toggle", name: "gfwHourlyTracksFishing", label: "Fishing", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksCargo", label: "Cargo", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksPassenger", label: "Passenger", default: true, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksCarrier", label: "Carrier", default: false, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksOther", label: "Other", default: false, out: null },
-    { kind: "toggle", name: "gfwHourlyTracksUnknown", label: "Unknown", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksFishing", label: "漁船", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCargo", label: "貨輪", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksPassenger", label: "客輪", default: true, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksCarrier", label: "運搬船", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksOther", label: "其他", default: false, out: null },
+    { kind: "toggle", name: "gfwHourlyTracksUnknown", label: "未知", default: false, out: null },
   ],
   gfwFishingEffort: [
     { kind: "slider", name: "gfwFishingEffortOpacity", labelPrefix: "透明度", digits: 2, default: 0.58, min: 0, max: 1, step: 0.05, out: null },
@@ -2241,11 +2241,11 @@ export const LAYER_PARAMS_SPEC = {
 
   // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
   busStationsCity: [
-    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    { kind: "slider", name: "busScale", labelPrefix: "大小", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
     opacitySlider("busStationsCityOpacity", 1),
   ],
   busStationsIntercity: [
-    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+    { kind: "slider", name: "busScale", labelPrefix: "大小", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
     opacitySlider("busStationsIntercityOpacity", 1),
   ],
   fireIsochrone: [
@@ -2272,32 +2272,32 @@ export const LAYER_PARAMS_SPEC = {
   ],
   schools: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
     { kind: "toggle", name: "schoolLevelColor", label: "分級配色", default: false },
   ],
   eduSchoolElementary: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolJunior: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolSenior: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolUniversity: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduSchoolSpecial: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduRemoteSchools: [
     { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
-    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
   ],
   eduDistrictElementary: [
     { kind: "slider", name: "eduDistrictK12Opacity", labelPrefix: "透明度", digits: 2, default: 0.3, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduDistrictK12Opacity" },
@@ -2307,15 +2307,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   eduKindergarten: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
   eduAfterschoolCare: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
   eduMutualCare: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
-    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
 
   // ══════════ 天災水利・農林・工業・不動產 20 層 ══════════
@@ -2336,11 +2336,11 @@ export const LAYER_PARAMS_SPEC = {
   iotWraStructure: [
     { kind: "slider", name: "iotWraStructureScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     { kind: "slider", name: "iotWraStructureOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
-    { kind: "toggle", name: "iotWraStructureFlow", label: "累計流量 Flow", default: true },
-    { kind: "toggle", name: "iotWraStructureGate", label: "閘門 Watergate", default: true },
-    { kind: "toggle", name: "iotWraStructureDam", label: "堤防安全 Dam", default: true },
-    { kind: "toggle", name: "iotWraStructureErosion", label: "河床沖刷 Erosion", default: true },
-    { kind: "toggle", name: "iotWraStructureDust", label: "揚塵 Dust", default: true },
+    { kind: "toggle", name: "iotWraStructureFlow", label: "累計流量", default: true },
+    { kind: "toggle", name: "iotWraStructureGate", label: "閘門", default: true },
+    { kind: "toggle", name: "iotWraStructureDam", label: "堤防安全", default: true },
+    { kind: "toggle", name: "iotWraStructureErosion", label: "河床沖刷", default: true },
+    { kind: "toggle", name: "iotWraStructureDust", label: "揚塵", default: true },
   ],
   agriSoilFertility: [
     { kind: "slider", name: "agriSoilFertilityOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
@@ -2353,17 +2353,17 @@ export const LAYER_PARAMS_SPEC = {
   forestCompartments: [
     { kind: "slider", name: "forestCompartmentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestCompartmentsOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestCompartmentsShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestCompartmentsShowOutline", label: "邊框", default: true },
   ],
   forestReserve: [
     { kind: "slider", name: "forestReserveOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestReserveOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestReserveShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestReserveShowOutline", label: "邊框", default: true },
   ],
   forestRecreation: [
     { kind: "slider", name: "forestRecreationOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
     { kind: "slider", name: "forestRecreationOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "forestRecreationShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "forestRecreationShowOutline", label: "邊框", default: true },
   ],
   forestTreatmentWorks: [
     { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
@@ -2437,15 +2437,15 @@ export const LAYER_PARAMS_SPEC = {
   ],
   aquacultureWaterSatelliteMoa: [
     { kind: "slider", name: "aquacultureWaterSatelliteMoaOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowConfirmed", label: "確認 Confirmed", default: true },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowSolar", label: "漁電共生 Solar", default: true },
-    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowOther", label: "其他 Other", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowConfirmed", label: "確認", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowSolar", label: "漁電共生", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowOther", label: "其他", default: true },
   ],
   aquacultureWaterUnion: [
     { kind: "slider", name: "aquacultureWaterUnionOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
-    { kind: "toggle", name: "aquacultureWaterUnionShowBoth", label: "兩版都有 Both", default: true },
-    { kind: "toggle", name: "aquacultureWaterUnionShowMoaOnly", label: "只官方 MOA", default: true },
-    { kind: "toggle", name: "aquacultureWaterUnionShowOsmOnly", label: "只舊版 OSM", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowBoth", label: "兩版都有", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowMoaOnly", label: "只看官方", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowOsmOnly", label: "只看舊版 OSM", default: true },
   ],
   streetTreesTaipeiDiff: [
     {
@@ -2656,7 +2656,7 @@ export const LAYER_PARAMS_SPEC = {
   agriculture: [
     opacitySlider("agricultureOpacity", 1),
     { kind: "slider", name: "agricultureOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 1, min: 0, max: 5, step: 0.1 },
-    { kind: "toggle", name: "agricultureShowOutline", label: "邊框 Outline", default: true },
+    { kind: "toggle", name: "agricultureShowOutline", label: "邊框", default: true },
     zFloatSlider("agricultureZ"),
   ],
   wasteStopsStatic: [
@@ -2883,12 +2883,12 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "propertyValueGridOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
     { kind: "toggle", name: "propertyValueGridExtruded", label: "3D 立體", default: false },
     {
-      kind: "slider", name: "propertyValueGridContrast", labelPrefix: "對比 Contrast", digits: 1,
+      kind: "slider", name: "propertyValueGridContrast", labelPrefix: "對比", digits: 1,
       default: 1.8, min: 0.5, max: 4, step: 0.1,
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
     {
-      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "整體高度 Height", digits: 0,
+      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "整體高度", digits: 0,
       default: 40, min: 10, max: 400, step: 10,
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
@@ -2938,14 +2938,14 @@ export const LAYER_PARAMS_SPEC = {
 
   earthquakes: [
     {
-      kind: "slider", name: "eqOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "eqOpacity", labelPrefix: "透明度", digits: 2,
       default: 1.0, min: 0, max: 1, step: 0.05, out: null,
     },
     // ⚠️ 參數名**不**沿用舊 useState 的 `eqShowHistory` —— 那是 boolean，
     //    而控件本體是 select（`"timeline"` / `"history"`）。hook 端還原成
     //    `eqShowHistory = value === "history"` 再回傳，回傳 API 一字未動。
     {
-      kind: "select", name: "eqMode", label: "Mode", default: "timeline",
+      kind: "select", name: "eqMode", label: "模式", default: "timeline",
       options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }],
       out: null,
     },
@@ -2959,7 +2959,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   roadEvents: [
     {
-      kind: "slider", name: "reOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "reOpacity", labelPrefix: "透明度", digits: 2,
       default: 1.0, min: 0, max: 1, step: 0.05, out: null,
     },
   ],
@@ -2980,7 +2980,7 @@ export const LAYER_PARAMS_SPEC = {
     // 單日沒有東西可掃 → 回放只在疊加 > 單日時有意義
     { kind: "toggle", name: "plaReplay", label: "回放", default: false, out: null },
     {
-      kind: "slider", name: "plaOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "plaOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.6, min: 0, max: 1, step: 0.05, out: null,
     },
     // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
@@ -3012,19 +3012,19 @@ export const LAYER_PARAMS_SPEC = {
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
   cwaCloudImagery: [
     {
-      kind: "slider", name: "cwaCloudOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "cwaCloudOpacity", labelPrefix: "透明度", digits: 2,
       default: 1.0, min: 0, max: 1, step: 0.05, out: null,
     },
   ],
   cwaRadarImagery: [
     {
-      kind: "slider", name: "cwaRadarOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "cwaRadarOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0, max: 1, step: 0.05, out: null,
     },
   ],
   aqiImagery: [
     {
-      kind: "slider", name: "aqiImageryOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "aqiImageryOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
     },
   ],
@@ -3038,7 +3038,7 @@ export const LAYER_PARAMS_SPEC = {
       options: MICRO_SENSOR_MODES,
       out: "aqiMicroModeIdx", encodeNumeric: true,
     },
-    { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
+    { kind: "toggle", name: "aqiMicroCluster", label: "聚合", default: true, out: null },
     opacitySlider("aqiMicroOpacity", 1),
   ],
 
@@ -3105,19 +3105,19 @@ export const LAYER_PARAMS_SPEC = {
   flights: [
     // Alt ×3.0：前綴自帶 `×`、與數字之間沒有空白 → labelSep ""
     {
-      kind: "slider", name: "altExaggeration", labelPrefix: "Alt ×", labelSep: "", digits: 1,
+      kind: "slider", name: "altExaggeration", labelPrefix: "高度倍率 ×", labelSep: "", digits: 1,
       default: 3, min: 1, max: 5, step: 0.5, out: null,
     },
     {
-      kind: "slider", name: "altOffset", labelPrefix: "Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "altOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 50, min: 0, max: 200, step: 50, out: null,
     },
     {
-      kind: "slider", name: "staticOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "staticOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.1, min: 0.02, max: 0.5, step: 0.02, out: null,
     },
     {
-      kind: "slider", name: "orbScale", labelPrefix: "Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "orbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.000005, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
   ],
@@ -3130,31 +3130,31 @@ export const LAYER_PARAMS_SPEC = {
   ],
   ships: [
     {
-      kind: "slider", name: "shipOrbScale", labelPrefix: "Ship Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "shipOrbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.000003, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
     },
     {
-      kind: "slider", name: "shipTrailOpacity", labelPrefix: "Ship Trail", digits: 2,
+      kind: "slider", name: "shipTrailOpacity", labelPrefix: "尾跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
   ],
   rail: [
-    { kind: "toggle", name: "railTrainVisible", label: "Train", default: true, out: null },
+    { kind: "toggle", name: "railTrainVisible", label: "列車", default: true, out: null },
     {
-      kind: "select", name: "railTrackMode", label: "Track", default: "3d",
+      kind: "select", name: "railTrackMode", label: "軌道", default: "3d",
       options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }],
       out: null,
     },
     {
-      kind: "slider", name: "railAltOffset", labelPrefix: "Rail Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "railAltOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 110, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "railOrbScale", labelPrefix: "Rail Orb", digits: 1, displayScale: 100000,
+      kind: "slider", name: "railOrbScale", labelPrefix: "光點", digits: 1, displayScale: 100000,
       default: 0.00001, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
     },
     {
-      kind: "slider", name: "railTrackOpacity", labelPrefix: "Rail Trk", digits: 2,
+      kind: "slider", name: "railTrackOpacity", labelPrefix: "軌道透明度", digits: 2,
       default: 0.35, min: 0.05, max: 1, step: 0.05, out: null,
     },
   ],
@@ -3163,11 +3163,11 @@ export const LAYER_PARAMS_SPEC = {
     busGroupMultiSelect(),
     busColorSelect("busColorMode"),
     {
-      kind: "slider", name: "busAltOffset", labelPrefix: "Bus Z +", labelSep: "", digits: 0,
+      kind: "slider", name: "busAltOffset", labelPrefix: "高度 +", labelSep: "", digits: 0,
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "busOrbScale", labelPrefix: "Bus Orb", digits: 0, displayScale: 1000000,
+      kind: "slider", name: "busOrbScale", labelPrefix: "光點", digits: 0, displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
     opacitySlider("busOpacity", 1),
@@ -3175,11 +3175,11 @@ export const LAYER_PARAMS_SPEC = {
   busIntercityLive: [
     busColorSelect("busIntercityColorMode"),
     {
-      kind: "slider", name: "busIntercityAltOffset", labelPrefix: "InterCity Z +", labelSep: "",
+      kind: "slider", name: "busIntercityAltOffset", labelPrefix: "高度 +", labelSep: "",
       digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "busIntercityOrbScale", labelPrefix: "InterCity Orb", digits: 0,
+      kind: "slider", name: "busIntercityOrbScale", labelPrefix: "光點", digits: 0,
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
@@ -3188,15 +3188,15 @@ export const LAYER_PARAMS_SPEC = {
   touristShuttleLive: [
     busColorSelect("touristShuttleColorMode"),
     {
-      kind: "slider", name: "touristShuttleOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "touristShuttleOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0.2, max: 1, step: 0.05, out: null,
     },
     {
-      kind: "slider", name: "touristShuttleAltOffset", labelPrefix: "Shuttle Z +", labelSep: "",
+      kind: "slider", name: "touristShuttleAltOffset", labelPrefix: "高度 +", labelSep: "",
       digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
     },
     {
-      kind: "slider", name: "touristShuttleOrbScale", labelPrefix: "Shuttle Orb", digits: 0,
+      kind: "slider", name: "touristShuttleOrbScale", labelPrefix: "光點", digits: 0,
       displayScale: 1000000,
       default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
     },
@@ -3204,16 +3204,16 @@ export const LAYER_PARAMS_SPEC = {
   lighthouses: [
     // ⚠️ 只有 lighthouseScale 走 overlayParams（paint 吃），三個光束參數全是 Three.js ref
     {
-      kind: "slider", name: "lighthouseScale", labelPrefix: "LH", digits: 1,
+      kind: "slider", name: "lighthouseScale", labelPrefix: "大小", digits: 1,
       default: 0.6, min: 0.3, max: 3, step: 0.1,
     },
-    { kind: "toggle", name: "beamVisible", label: "Beam", default: true, out: null },
+    { kind: "toggle", name: "beamVisible", label: "光束", default: true, out: null },
     {
-      kind: "slider", name: "beamDistance", labelPrefix: "Dist", digits: 1,
+      kind: "slider", name: "beamDistance", labelPrefix: "光束距離", digits: 1,
       default: 0.9, min: 0.2, max: 3, step: 0.1, out: null,
     },
     {
-      kind: "slider", name: "beamOpacity", labelPrefix: "Opa", digits: 2,
+      kind: "slider", name: "beamOpacity", labelPrefix: "光束透明度", digits: 2,
       default: 0.1, min: 0.05, max: 0.8, step: 0.05, out: null,
     },
   ],
@@ -3222,14 +3222,14 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("thsrOpacity", 1),
     hubDisplayModeSelect("thsrDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
+    { kind: "toggle", name: "thsrPillarVisible", label: "光柱", default: true, out: null },
     pillarHeightSlider("thsrPillarHeight", 0.6),
   ],
   stationsTRA: [
     opacitySlider("traOpacity", 1),
     hubDisplayModeSelect("traDisplayMode"),
     stationScaleSlider(),
-    { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
+    { kind: "toggle", name: "traPillarVisible", label: "光柱", default: true, out: null },
     pillarHeightSlider("traPillarHeight", 0.5),
   ],
   stationsMetro: [
@@ -3239,7 +3239,7 @@ export const LAYER_PARAMS_SPEC = {
     // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
     //    （與參數名不同名），Three.js 那側另外吃 ref。
     {
-      kind: "toggle", name: "metroPillarVisible", label: "Pillar", default: false,
+      kind: "toggle", name: "metroPillarVisible", label: "光柱", default: false,
       out: "metroPillar3d",
     },
     pillarHeightSlider("metroPillarHeight", 0.2),
@@ -3248,8 +3248,8 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("portOpacity", 1),
     hubDisplayModeSelect("portDisplayMode"),
     scaleSlider("portScale", 1),
-    { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
-    { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
+    { kind: "slider", name: "portGlow", labelPrefix: "光暈", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "portPillarVisible", label: "光柱", default: false, out: null },
     pillarHeightSlider("portPillarHeight", 0.3),
   ],
   airports: [
@@ -3257,10 +3257,10 @@ export const LAYER_PARAMS_SPEC = {
     hubDisplayModeSelect("airportDisplayMode"),
     scaleSlider("airportScale", 1),
     {
-      kind: "slider", name: "airportGlow", labelPrefix: "Glow", digits: 1,
+      kind: "slider", name: "airportGlow", labelPrefix: "光暈", digits: 1,
       default: 0.8, min: 0, max: 2, step: 0.1,
     },
-    { kind: "toggle", name: "airportPillarVisible", label: "Pillar", default: false, out: null },
+    { kind: "toggle", name: "airportPillarVisible", label: "光柱", default: false, out: null },
     pillarHeightSlider("airportPillarHeight", 0.6),
   ],
   // 消防分隊：散點（Mapbox circle）與 3D 光柱（Three.js）各自開關 → 前者走 paint、後者走 ref
@@ -3274,18 +3274,18 @@ export const LAYER_PARAMS_SPEC = {
   temperatureWave: [
     { kind: "toggle", name: "tempExtruded", label: "3D", default: true, out: null },
     {
-      kind: "slider", name: "tempHeight", labelPrefix: "Height", digits: 0,
+      kind: "slider", name: "tempHeight", labelPrefix: "高度", digits: 0,
       default: 200, min: 0, max: 400, step: 20, out: null,
     },
     {
-      kind: "slider", name: "tempZOffset", labelPrefix: "Z Offset", digits: 0,
+      kind: "slider", name: "tempZOffset", labelPrefix: "離地高度", digits: 0,
       default: 300, min: 0, max: 1000, step: 50, out: null,
     },
     {
-      kind: "slider", name: "tempOpacity", labelPrefix: "Opacity", digits: 2,
+      kind: "slider", name: "tempOpacity", labelPrefix: "透明度", digits: 2,
       default: 0.85, min: 0.1, max: 1, step: 0.05, out: null,
     },
-    { kind: "toggle", name: "tempWireframe", label: "Grid", default: false, out: null },
+    { kind: "toggle", name: "tempWireframe", label: "網格線", default: false, out: null },
   ],
   // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
   // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
@@ -3310,10 +3310,10 @@ export const LAYER_PARAMS_SPEC = {
       out: null,
     },
     { kind: "toggle", name: "newsEventsOnly", label: "只看事件", default: true, out: null },
-    { kind: "toggle", name: "newsTimeBased", label: "Time", default: true, out: null },
-    { kind: "toggle", name: "newsRipple", label: "Ripple", default: true, out: null },
+    { kind: "toggle", name: "newsTimeBased", label: "依時間", default: true, out: null },
+    { kind: "toggle", name: "newsRipple", label: "漣漪", default: true, out: null },
     {
-      kind: "slider", name: "newsScale", labelPrefix: "Scale", digits: 1,
+      kind: "slider", name: "newsScale", labelPrefix: "大小", digits: 1,
       default: 1, min: 0.3, max: 3, step: 0.1,
     },
   ],
@@ -3328,7 +3328,7 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "toggle", name: "h3Extruded", label: "3D", default: false, out: null },
     gridHeightSlider("h3ElevationScale", 50),
     {
-      kind: "select", name: "h3Metric", label: "Metric", default: "day",
+      kind: "select", name: "h3Metric", label: "指標", default: "day",
       options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }],
       out: null,
     },
@@ -3363,12 +3363,12 @@ export const LAYER_PARAMS_SPEC = {
   ],
   youbikeFullness: [
     {
-      kind: "select", name: "ybResolution", label: "Grid", default: "7",
+      kind: "select", name: "ybResolution", label: "網格", default: "7",
       options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }],
       out: null,
     },
     {
-      kind: "select", name: "ybHeightMode", label: "Height", default: "mixed",
+      kind: "select", name: "ybHeightMode", label: "高度依據", default: "mixed",
       options: [
         { label: "有車×容量", value: "mixed" },
         { label: "有車率", value: "fullness" },
@@ -3378,7 +3378,7 @@ export const LAYER_PARAMS_SPEC = {
     },
     gridOpacitySlider("ybOpacity", 0.65),
     {
-      kind: "slider", name: "ybContrast", labelPrefix: "Contrast", digits: 1,
+      kind: "slider", name: "ybContrast", labelPrefix: "對比", digits: 1,
       default: 1, min: 0.3, max: 3, step: 0.1, out: null,
     },
     { kind: "toggle", name: "ybExtruded", label: "3D", default: true, out: null },
@@ -3402,7 +3402,8 @@ export const LAYER_PARAMS_SPEC = {
     ...FACILITY_MEDIA.map((m) => ({
       kind: "toggle" as const,
       name: `pollutionFacilityMedia_${m}`,
-      label: POLLUTION_MEDIUM_LABELS[m],
+      // 控件標籤只留中文（共用表是「空污 Air」中英並列，popup 仍用原表）
+      label: POLLUTION_MEDIUM_LABELS[m].replace(/\s+[A-Za-z]+$/, ""),
       default: true,
       out: null,
     })),
@@ -3456,7 +3457,7 @@ export const LAYER_PARAMS_SPEC = {
       default: 1, min: 0.3, max: 3, step: 0.1,
     },
     {
-      kind: "toggle", name: "pollutionSiteActiveOnly", label: "只看列管中 Active",
+      kind: "toggle", name: "pollutionSiteActiveOnly", label: "只看列管中",
       default: true, out: null,
     },
   ],
