@@ -62,7 +62,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 4. 證據與呈現
 
-回答照 geo-reasoning 的淺白語氣：第一句是答案、術語配比喻、但書 ≤2 句用「小提醒：」、來源一行小字，不露表名／欄位／工具名等內部代號。dataset／版本／coverage／grain 等技術細節留在 receipt 可追溯，使用者問才展開，不寫成限制大段。說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
+回答照 geo-reasoning 的淺白語氣：第一句是答案、術語配比喻、但書 ≤2 句用「小提醒：」、來源一行小字，不露表名等內部代號。技術細節留在 receipt，使用者問才展開；不寫「限制：」段落。結尾用 2–3 句一起探索的邀請（「要不要一起看看…？」），不列「接下來可以做的」清單。說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
 
 ## 5. 效率規則
 
