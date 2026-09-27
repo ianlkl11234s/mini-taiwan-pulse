@@ -915,7 +915,7 @@ function SubGroupLabel({ children }: { children: string }) {
       }}
     >
       <span>{children}</span>
-      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
     </div>
   );
 }
