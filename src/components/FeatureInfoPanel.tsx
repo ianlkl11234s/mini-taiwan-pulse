@@ -14,7 +14,7 @@ import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo
 import { THEMES } from "./sidebar/layerCatalog";
 import "./featureInfo/featureInfo.css";
 
-// layerKey → 子群組中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。
+// layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。
 // 來源：Layers 側欄的 THEMES（sidebar/layerCatalog.ts），本檔唯讀引用、不改該檔。
 // 多數圖層 layerType 與側欄 layer key 同名；統計/衍生/子類 layerType 對不到時，
 // eyebrow 會 fallback 回單純的 HEADER_LABELS（維持既有行為）。
@@ -23,7 +23,8 @@ const LAYER_GROUP_TITLES: Record<string, string> = (() => {
   for (const theme of THEMES) {
     for (const group of theme.groups) {
       for (const layer of group.layers) {
-        map[layer.key] = group.title;
+        // 用主題名（「宗教 Religion」→「宗教」）：子群組標題多半是「點位」「面」這類幾何分類，不適合當 eyebrow
+        map[layer.key] = theme.title.replace(/\s+[A-Za-z].*$/, "");
       }
     }
   }
