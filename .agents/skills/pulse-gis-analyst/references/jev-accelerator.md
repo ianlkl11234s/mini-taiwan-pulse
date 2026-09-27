@@ -2,6 +2,8 @@
 
 Jev 是 routing accelerator，不是 agent、執行器、授權層或資料真值來源。正式工具仍須通過 MCP schema、Gateway allowlist、session/access gate 與資料契約。
 
+`pulse_find_data` 是廣搜工具：跨 dataset 名稱、欄位名、統計指標名稱比對，並用 Jev 相關性分數排序（保留 ≥0.7）。不確定有沒有相關資料，或 Jev 分類信心 <0.7 時，改呼叫這個工具，不要直接執行低信心候選、也不要在搜尋前說「沒有資料」。
+
 ## 何時呼叫
 
 - **零次**：已知精確 tool、dataset ID、layer key，deterministic search 只剩一個明確候選，或題目落在下方「題型對照」表中任一格（速度優先，直接查表用配方，不呼叫 Jev）。
@@ -37,7 +39,7 @@ Jev 是 routing accelerator，不是 agent、執行器、授權層或資料真�
 1. 以本 session 實際 tool catalog 移除不存在的工具。
 2. 在 describe/read/execute 前重新檢查 access 與 schema。
 3. 由主 agent選擇最小工具鏈，不照單全收 candidateTools。
-4. provider unavailable、timeout、confidence 低、空候選或未知 tool 時，退回本檔「題型對照」表或 `recipes/README.md` 配方索引（deterministic fallback）；Jev 失敗不得阻擋明確可做的查詢。
+4. provider unavailable、timeout、confidence <0.7、空候選或未知 tool 時，改呼叫 `pulse_find_data` 廣搜；仍無結果才退回本檔「題型對照」表或 `recipes/README.md` 配方索引（deterministic fallback）；Jev 失敗不得阻擋明確可做的查詢。
 
 ## 不可交給 Jev 的判斷
 

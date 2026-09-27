@@ -23,6 +23,8 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 倉庫語意：`notCovered`＝該縣市沒有此資料（說「未涵蓋」，不是 0）；`zeroWithinRadius` 才是有涵蓋但半徑內沒有；`caveats` 挑會改變解讀的，用一句白話帶進回答；缺資料就說缺什麼，用替代資料要標明。
 
+**找資料規則**：不確定有沒有相關資料時先呼叫 `pulse_find_data`（跨 dataset／欄位／統計指標搜尋；找不到再換一種說法試一次）；沒找過不可以說「沒有資料」，真的沒有要說「我找過 A、B 都沒找到」。Jev 信心 <0.7 也改用 `pulse_find_data`。
+
 ## 1. 先路由，再動工具
 
 先辨識問題所需的資料與方法；已知的有界相依步驟可一次交給 `pulse_run_analysis_plan`，不用每步重新決策：
@@ -40,7 +42,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 | 操作既有地圖 | 先讀 context/revision，再用 typed map tools 並等待 ready |
 | 配對或 pending receipt | session tools／`pulse_get_query_result` |
 
-精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。只有問題含糊、無法判斷資料家族時，才選用一次 `pulse_route_request`；已知附近設施／行政統計等方法時可直接執行。 Jev 只提供 capability 與候選，不執行、不授權；低信心、provider error 或候選不合法時，立即退回上述 deterministic 路由，同一題不得再次呼叫 Jev。
+精確的 dataset ID、layer key、tool 或單一步驟已知時，直接走 deterministic 路徑。只有問題含糊、無法判斷資料家族時，才選用一次 `pulse_route_request`；已知附近設施／行政統計等方法時可直接執行。Jev 只提供 capability 與候選，不執行、不授權；provider error 或候選不合法時，退回上述路由，同一題不得再次呼叫 Jev（信心<0.7 見上節）。
 
 地址定位是 deterministic 單一步驟，不需先呼叫 Jev。`pulse_geocode_address` 的 `exact_cache`、`exact_osm`、`interpolated` 必須分開敘述；內插點不可說成精確門牌。`no_match` 只代表目前離線索引未命中，`unavailable` 代表本機 adapter 不可用，兩者都不代表地址不存在。預設 local-first；已明示選擇外部 provider 並同意外傳時，依 capability 直接使用指定 provider，避免先等待離線查詢。相同範圍授權持續有效，每次外部呼叫仍帶 externalConsent:true。Google 的 configured 不等於已通過 Mapbox 顯示政策；政策與候選精度見對話 reference。`disabled`／`hold` receipt 表示沒有外部請求或替代結果，不得當成 `no_match`。取得座標後若要做附近分析，仍須另外確認目標 dataset 的 geometry role 與 spatial eligibility。
 
@@ -56,13 +58,11 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 直線距離只接受 actual、eligible Point。`within`／`intersects`／`aggregate_by_area` 只接受 actual、eligible Point 與 actual Polygon／MultiPolygon，保留 holes、multipart、邊界規則、未匹配與多重匹配；已驗證 Valhalla receipt 的 derived 等時圈及有界幾何工具產生的 eligible derived 面可作面輸入；generalized／proxy geometry 不可升格為分析邊界。這些平面運算不得稱為步行／道路可達性。`route_distance`／`walking_isochrone` 只有 provider receipt 含版本化 graph/profile 且非 HOLD 才可引用；不得用 Haversine 代替。僅能使用 live schema 宣告的有界 buffer／intersection／measure；任意批次 clip、raster 疊合、任意 SQL／URL／檔案讀取仍不可做。
 
-行政統計的邊界版本核對、`[lng, lat]` 數字座標、面資料 `select` 排除 geometry 等細則見 [語意與安全守門](references/semantic-guardrails.md)。
-
-完整檢查表與 prohibited claims 見 [語意與安全守門](references/semantic-guardrails.md)。
+行政統計的邊界版本核對、`[lng, lat]` 數字座標、面資料 `select` 排除 geometry 等細則，以及完整檢查表與 prohibited claims，見 [語意與安全守門](references/semantic-guardrails.md)。
 
 ## 4. 證據與呈現
 
-回答照 geo-reasoning 的淺白語氣：第一句是答案、術語配白話、但書 ≤2 句用「小提醒：」、來源一行小字。dataset／版本／coverage／grain／缺值與排除／filters／limits／resultId 留在 receipt 可追溯，使用者問才展開，不寫成限制大段。說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
+回答照 geo-reasoning 的淺白語氣：第一句是答案、術語配比喻、但書 ≤2 句用「小提醒：」、來源一行小字，不露表名等內部代號。技術細節留在 receipt，使用者問才展開；不寫「限制：」段落。結尾用 2–3 句一起探索的邀請（「要不要一起看看…？」），不列「接下來可以做的」清單。說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
 
 ## 5. 效率規則
 

@@ -60,7 +60,9 @@ export type ResearchResultPopupOverlapFeature = {
 
 function isDisplayScope(feature: ResearchResultPopupOverlapFeature): boolean {
   const datasetId = feature.properties?.datasetId;
-  return datasetId === "derived:analysis-scope-area" || datasetId === "derived:analysis-scope-center";
+  // Defense in depth: analysisResultOverlay already keeps a nearby_profile scope-circle row
+  // (_role: "scope") off the interactive layer list entirely, so it should never reach here.
+  return datasetId === "derived:analysis-scope-area" || datasetId === "derived:analysis-scope-center" || feature.properties?._role === "scope";
 }
 
 /** Retain a bounded, deduplicated set of actual results; display-scope context never hides a real hit. */

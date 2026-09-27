@@ -49,6 +49,8 @@
 .main-map-agent .agent-analysis-count-legend > div { display: flex; flex-wrap: wrap; gap: 3px 7px; margin-top: 2px; }
 .main-map-agent .agent-analysis-count-legend > div span { display: inline-flex; align-items: center; gap: 3px; }
 .main-map-agent .agent-analysis-count-legend i { width: 8px; height: 8px; border: 1px solid var(--agent-text, #fff); border-radius: 50%; box-shadow: 0 0 0 1px var(--agent-border, #07100e); }
+.main-map-agent .agent-analysis-scope-legend { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; color: var(--agent-muted, #c7c7c7); font-size: 10px; line-height: 1.45; }
+.main-map-agent .agent-analysis-scope-legend i { display: inline-block; width: 14px; border-top: 1.5px dashed #e2e8f0; }
 .main-map-agent .agent-analysis-results li { display: block; padding: 5px 0; }
 .main-map-agent .agent-analysis-groups { margin: 8px 0; padding: 6px 0; border: 0; border-top: 1px solid var(--agent-border, #ffffff1a); }
 .main-map-agent .agent-analysis-groups legend { padding: 0; color: var(--agent-muted, #9ca3af); font-size: 10px; }

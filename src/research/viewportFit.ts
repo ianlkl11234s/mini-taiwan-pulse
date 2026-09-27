@@ -20,6 +20,13 @@ const EDGE_ATTACH_PX = 80;
 const MIN_EDGE_SPACE_PX = 16;
 const OVERLAY_GAP_PX = 16;
 const MIN_CONTENT_PX = 80;
+// Below this, an edge-strip inset is too narrow to read a fitted result comfortably; fall back
+// to the corner-maximizing search instead (mobile viewports pinched from both sides).
+const MIN_STRIP_PX = 240;
+// A neighborhood-scale analysis (e.g. a 500 m nearby_profile circle) never needs to fit closer
+// than this; without a ceiling, a generous Agent-supplied maxZoom can zoom in far enough to lose
+// surrounding context once the safe rectangle is small.
+const CAMERA_MAX_ZOOM_CEILING = 16;
 const REFINEMENT_INSET_PX = 2;
 const EXCLUDED_OVERLAY_CLASSES = ["mapboxgl-canvas-container", "mapboxgl-canvas", "mapboxgl-map"];
 
@@ -122,6 +129,12 @@ function insetForOverlays(viewport: ViewportRect, overlays: readonly ViewportRec
   }
   const safeRight = viewport.right - right;
   const safeBottom = viewport.bottom - bottom;
+  // Prefer the simple edge-strip inset -- reserving space along each occluded edge, e.g. a left
+  // Layers rail plus a top-right activity card -- whenever it leaves a comfortably readable
+  // rectangle. Users expect a result framed in the open middle of the screen, not shoved into
+  // whichever corner happens to measure a larger raw area once two panels occlude opposite
+  // edges; the corner-maximizing search below is a fallback for a narrow/pinched viewport only.
+  if (safeRight - left >= MIN_STRIP_PX && safeBottom - top >= MIN_STRIP_PX) return { left, top, right: safeRight, bottom: safeBottom };
   // Compare edge strips with open space around corner panels; reject fully occluded layouts.
   {
     // Edge strips can overlap even though space below a corner panel is usable.
@@ -221,7 +234,7 @@ export function resolveViewportCameraFromContext(map: Pick<MapboxMap, "cameraFor
     bottom: Math.max(0, viewport.bottom - safe.bottom + framingPadding),
   };
   const [west, south, east, north] = framing.bounds;
-  const camera = map.cameraForBounds([[west, south], [east, north]], { padding, maxZoom: framing.maxZoom, bearing: 0, pitch: 0 });
+  const camera = map.cameraForBounds([[west, south], [east, north]], { padding, maxZoom: Math.min(framing.maxZoom, CAMERA_MAX_ZOOM_CEILING), bearing: 0, pitch: 0 });
   const rawCenter: unknown = camera?.center;
   const zoom = camera?.zoom;
   const center = Array.isArray(rawCenter)
@@ -295,7 +308,7 @@ export function refineViewportCameraFromContext(map: ViewportRefinementMap, cont
   if (!finite(zoom) || zoom < 0 || zoom > 24) return null;
   const fitScale = Math.min(1, availableWidth / measuredWidth, availableHeight / measuredHeight);
   if (!finite(fitScale) || fitScale <= 0) return null;
-  const nextZoom = Math.max(0, Math.min(zoom, framing.maxZoom, zoom + Math.log2(fitScale)));
+  const nextZoom = Math.max(0, Math.min(zoom, framing.maxZoom, CAMERA_MAX_ZOOM_CEILING, zoom + Math.log2(fitScale)));
   const actualScale = 2 ** (nextZoom - zoom);
   if (!finite(nextZoom) || !finite(actualScale) || actualScale <= 0) return null;
   const boundsCenterX = (left + right) / 2; const boundsCenterY = (top + bottom) / 2;

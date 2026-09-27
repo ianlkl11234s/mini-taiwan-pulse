@@ -6,7 +6,7 @@ import { describeLayerStatistics, searchLayerRecords, summarizeLayer, type Layer
 import { listLayerCapabilities } from "./layerCapabilities";
 import { framingFitsViewport, refineViewportCamera, resolveViewportCamera, resolveViewportContext } from "./viewportFit";
 import type { TimelineAdapter } from "./timelineControl";
-import { requestLayerExploration } from "./explorationNavigation";
+import { explorationLayerKeys, requestLayerExploration } from "./explorationNavigation";
 import { createPortal } from "react-dom";
 import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
@@ -176,7 +176,10 @@ export function MainMapConnection(props: Props) {
     applying.current = true;
     try {
       if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) validateLayerControl(scene.layerControl, locked);
-      const newlyEnabled = Object.entries(scene.layers ?? {}).filter(([key, on]) => on && previous.current?.layers?.[key] !== true).map(([key]) => key);
+      // Only an explicit `pulse_set_layers`-style command (this render's own patch carrying
+      // `layers`) may pop the Layers rail open. Presenting analysis results (patch.results,
+      // patch.framing/camera) or a resync/report replay (no patch at all) must never surface it.
+      const newlyEnabled = explorationLayerKeys(scene.layers, previous.current?.layers, patch?.layers);
       applyMainMapLayers(scene.layers ?? {}, new Set(Object.keys(labels)), locked, bridge);
       if (newlyEnabled.length) requestLayerExploration(newlyEnabled);
       if (scene.layerControl && JSON.stringify(scene.layerControl) !== JSON.stringify(previous.current?.layerControl ?? null)) applyLayerControl(scene.layerControl, locked);
@@ -547,6 +550,7 @@ export function MainMapConnection(props: Props) {
                   if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
                 }} />}
                 {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
+                {rendered?.scopeRing && <p className="agent-analysis-scope-legend"><i aria-hidden="true" />分析範圍（虛線）{rendered.scopeRing.radiusM != null ? ` · 半徑 ${rendered.scopeRing.radiusM.toLocaleString("zh-TW")} 公尺` : ""}</p>}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
             </div>
