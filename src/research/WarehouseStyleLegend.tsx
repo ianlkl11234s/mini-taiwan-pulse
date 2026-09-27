@@ -1,20 +1,37 @@
 import { FONT_DATA } from "../styles/designTokens";
 import { formatVizNumber } from "./vizFormat";
-import type { WarehouseLegendNullEntry, WarehouseStyleLegend } from "./warehouseResultStyle";
+import type { WarehouseLegendNullEntry, WarehouseSizeLegendEntry, WarehouseStyleLegend } from "./warehouseResultStyle";
 
 /** Numeric ticks (breaks, not labels/units) use the data font with tabular figures (spec §5). */
 const DATA_NUM_STYLE = { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" as const };
 
-/** A hatch null entry (choropleth `nullStyle: "hatch"`) shows its CSS gradient sample instead of a
- *  flat colour swatch, matching the transparent-background diagonal pattern drawn on the map. */
+/** A hatch null entry (choropleth/bivariate `nullStyle: "hatch"`) shows its CSS gradient sample
+ *  instead of a flat colour swatch, matching the transparent-background diagonal pattern drawn on
+ *  the map. */
 function NullSwatch({ entry }: { entry: WarehouseLegendNullEntry }) {
   return <i style={entry.hatch ? { backgroundImage: entry.gradient, backgroundColor: "transparent" } : { backgroundColor: entry.color }} aria-hidden="true" />;
 }
 
-/** Legend for server-styled warehouse results: colour bar + breaks, 3x3 grid + axes, or density ramp. */
+/** Three reference circles (proportional's server-computed `sizeLegend`, or bivariate's picks from
+ *  its own actually-drawn rows) nested bottom-aligned, largest at the back. */
+function SizeLegendCircles({ entries }: { entries: WarehouseSizeLegendEntry[] }) {
+  if (!entries.length) return null;
+  const maxRadius = Math.max(...entries.map(entry => entry.radiusPx));
+  const size = maxRadius * 2 + 4;
+  const sorted = [...entries].sort((a, b) => b.radiusPx - a.radiusPx);
+  return <div className="agent-style-legend__size">
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="大小圖例">
+      {sorted.map(entry => <circle key={entry.value} cx={size / 2} cy={size - 2 - entry.radiusPx} r={entry.radiusPx} fill="none" stroke="currentColor" strokeWidth={1} />)}
+    </svg>
+    <div className="agent-style-legend__size-labels">{sorted.map(entry => <small key={entry.value} style={DATA_NUM_STYLE}>{entry.label}</small>)}</div>
+  </div>;
+}
+
+/** Legend for server-styled warehouse results: colour bar + breaks, fill + size bubbles (bivariate
+ *  V3), density ramp, or size circles + optional colour scale (proportional). */
 export function WarehouseStyleLegendView({ legend }: { legend: WarehouseStyleLegend }) {
-  const empty = legend.nullEntry && <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
   if (legend.kind === "choropleth") {
+    const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="choropleth">
       <span>{legend.title} · {legend.method}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
@@ -23,20 +40,30 @@ export function WarehouseStyleLegendView({ legend }: { legend: WarehouseStyleLeg
     </div>;
   }
   if (legend.kind === "bivariate") {
-    // Row 0 is the high y tier so "high y" sits at the top of the grid.
-    const rows = [3, 2, 1].map(y => [1, 2, 3].map(x => legend.cells.find(cell => cell.x === x && cell.y === y)!));
+    const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="bivariate">
-      <span>{legend.xLabel} × {legend.yLabel} · 各三分位</span>
-      <div className="agent-style-legend__bivariate">
-        <small className="agent-style-legend__y">↑ {legend.yLabel}</small>
-        <div className="agent-style-legend__grid" role="img" aria-label={`雙變量圖例：橫軸 ${legend.xLabel}、縱軸 ${legend.yLabel}，各分低中高三級`}>
-          {rows.flat().map(cell => <b key={cell.cls} title={cell.cls} style={{ backgroundColor: cell.color }} />)}
-        </div>
-        <small className="agent-style-legend__x">{legend.xLabel} →</small>
-      </div>
-      <div>{empty}</div>
+      <span>{legend.xLabel}（填色）× {legend.yLabel}（大小）</span>
+      <div className="agent-style-legend__bar" aria-hidden="true">{legend.fillEntries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
+      <div className="agent-style-legend__breaks">{legend.fillBreaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
+      <div>{legend.fillEntries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
+      <SizeLegendCircles entries={legend.sizeLegend} />
     </div>;
   }
+  if (legend.kind === "proportional") {
+    return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="proportional">
+      <span>{legend.sizeLabel}</span>
+      <SizeLegendCircles entries={legend.sizeLegend} />
+      {legend.colorLegend && <>
+        <span>{legend.colorLegend.title}</span>
+        <div className="agent-style-legend__bar" aria-hidden="true">{legend.colorLegend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
+        <div>{legend.colorLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}
+          <span><NullSwatch entry={legend.colorLegend.nullEntry} />{legend.colorLegend.nullEntry.label}</span>
+        </div>
+      </>}
+      {legend.excludedNote && <small>{legend.excludedNote}</small>}
+    </div>;
+  }
+  const empty = legend.nullEntry && <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
   return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="heatmap">
     <span>{legend.title}</span>
     <div className="agent-style-legend__bar" style={{ backgroundImage: legend.gradient }} aria-hidden="true" />

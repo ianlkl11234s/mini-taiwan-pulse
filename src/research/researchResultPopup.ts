@@ -3,7 +3,9 @@ import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
 export type ResearchResultPopupFact = { label: string; value: string };
 
 const number = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
-const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
+/** Exported for analysisResultOverlay.ts's proportional-symbol label layer, which needs the same
+ *  fallback key order as a Mapbox `coalesce` expression (a static list, not a per-feature function). */
+export const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
 
 const statusLabels: Record<string, string> = {
   observed: "有觀測值",

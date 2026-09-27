@@ -12,8 +12,8 @@ describe("viz-spec contract", () => {
     expect(createHash("sha256").update(bytes).digest("hex")).toBe(expected);
   });
 
-  it("keeps the warehouse style registry's key set in lockstep with the mcp STYLE_REGISTRY (stage A: 4 kinds)", () => {
-    expect(Object.keys(WAREHOUSE_STYLE_RENDERERS).sort()).toEqual(["bivariate", "choropleth", "compare", "heatmap"]);
+  it("keeps the warehouse style registry's key set in lockstep with the mcp STYLE_REGISTRY (stage B: 5 kinds)", () => {
+    expect(Object.keys(WAREHOUSE_STYLE_RENDERERS).sort()).toEqual(["bivariate", "choropleth", "compare", "heatmap", "proportional"]);
   });
 
   it("exposes the two magnitude/heat ramps used by choropleth and heatmap defaults", () => {
