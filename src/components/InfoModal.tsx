@@ -178,6 +178,9 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
           : <>Welcome to <b>Mini Taiwan Pulse</b> — a real-time 3D visualization of Taiwan's flights, ships, and trains. The map opens with a bird's-eye view of Taiwan. Feel free to rotate and zoom to explore.</>
         }
       </p>
+      <p style={{ fontSize: FONT_SIZE.sm, color: c.dim, margin: 0 }}>
+        {L ? "右鍵拖曳旋轉 · 滾輪縮放" : "Right-drag to rotate · Scroll to zoom"}
+      </p>
 
       <SectionTitle>{L ? "地圖操作" : "MAP CONTROLS"}</SectionTitle>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
