@@ -1,14 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Map } from "mapbox-gl";
-import { describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
-type Layer = { id: string; type: string; source: string; paint: Record<string, unknown> };
+type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown };
 function stubMap() {
   const sources = new globalThis.Map<string, { setData: (data: unknown) => void; data: unknown }>();
   const layers = new globalThis.Map<string, Layer>();
   const listeners = new Set<() => void>();
   const paintWrites: Array<{ id: string; property: string; value: unknown }> = [];
+  const moveLayerCalls: Array<{ id: string; beforeId?: string }> = [];
   const api = {
     getSource: (id: string) => sources.get(id),
     addSource: (id: string, value: { data: unknown }) => sources.set(id, { data: value.data, setData(data) { this.data = data; } }),
@@ -18,10 +19,12 @@ function stubMap() {
     removeSource: (id: string) => sources.delete(id),
     isSourceLoaded: (id: string) => sources.has(id),
     setPaintProperty: (id: string, property: string, value: unknown) => { layers.get(id)?.paint && (layers.get(id)!.paint[property] = value); paintWrites.push({ id, property, value }); },
+    setFilter: (id: string, filter: unknown) => { const layer = layers.get(id); if (layer) layer.filter = filter ?? undefined; },
+    moveLayer: (id: string, beforeId?: string) => { moveLayerCalls.push({ id, beforeId }); },
     on: (event: string, listener: () => void) => { if (event === "render") listeners.add(listener); },
     off: (event: string, listener: () => void) => { if (event === "render") listeners.delete(listener); },
   };
-  return { map: api as unknown as Map, sources, layers, listeners, paintWrites, render: () => [...listeners].forEach(listener => listener()) };
+  return { map: api as unknown as Map, sources, layers, listeners, paintWrites, moveLayerCalls, render: () => [...listeners].forEach(listener => listener()) };
 }
 
 const result: PresentableResult = {
@@ -215,6 +218,67 @@ describe("analysis result reveal lifecycle", () => {
     setAnalysisOpacity(map, installed, "area", 0.6);
     expect(layers.get("research-analysis-result-points-0")!.paint["fill-opacity"]).toBeCloseTo(0.108);
     expect(layers.get("research-analysis-result-points-1")!.paint["fill-opacity"]).toBeCloseTo(0.27);
+  });
+
+  it("draws a nearby_profile scope-circle row (_role: scope) as a dashed unfilled outline, excluded from featureCount and never hit-testable", () => {
+    const { map, layers } = stubMap();
+    const scopeOnly = {
+      resultId: "wh-1:polygon", datasetId: "warehouse:wh-1", geometry: { type: "Polygon" as const, role: "derived" as const, spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] }, _role: "scope", label: "分析範圍", radiusM: 500 }],
+    } satisfies PresentableResult;
+    const installed = installAnalysisResults(map, [scopeOnly]);
+    expect(installed[0]).toMatchObject({ featureCount: 0, scopeRing: { radiusM: 500 } });
+    // Fill layer still exists (geometry type is Polygon) but excludes the scope row entirely.
+    expect(layers.get("research-analysis-result-points-0")!.filter).toEqual(["!=", ["get", "_role"], "scope"]);
+    const ring = layers.get("research-analysis-result-scope-0")!;
+    expect(ring.type).toBe("line");
+    expect(ring.filter).toEqual(["==", ["get", "_role"], "scope"]);
+    expect(ring.paint["line-dasharray"]).toEqual([2, 2]);
+    expect(ring.paint["line-color"]).not.toBe("#00b8d9"); // not the ordinary result palette
+    expect(analysisResultInteractiveLayerIds(map, installed.length)).not.toContain("research-analysis-result-scope-0");
+  });
+
+  it("keeps a real polygon match's own row counted when a scope-circle row shares its result", () => {
+    const { map } = stubMap();
+    const mixed = {
+      resultId: "wh-2:polygon", datasetId: "warehouse:wh-2", geometry: { type: "Polygon" as const, role: "derived" as const, spatialAnalysisEligible: false },
+      rows: [
+        { geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] }, name: "公園" },
+        { geometry: { type: "Polygon", coordinates: [[[121.7, 25], [121.8, 25], [121.8, 25.1], [121.7, 25.1], [121.7, 25]]] }, _role: "scope", radiusM: 500 },
+      ],
+    } satisfies PresentableResult;
+    const installed = installAnalysisResults(map, [mixed]);
+    expect(installed[0]).toMatchObject({ featureCount: 1, scopeRing: { radiusM: 500 } });
+    expect(describeAnalysisResults([mixed])[0]).toMatchObject({ featureCount: 1 });
+  });
+
+  it("keeps the scope ring under the point result's layer regardless of which index it was installed at", () => {
+    const { map, moveLayerCalls } = stubMap();
+    // Polygon (scope) is index 0, Point (nearby matches) is index 1 -- the opposite of the
+    // desired stacking order, so a naive add-order stack would put the ring on top of points.
+    const scope = {
+      resultId: "wh-3:polygon", datasetId: "warehouse:wh-3", geometry: { type: "Polygon" as const, role: "derived" as const, spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] }, _role: "scope", radiusM: 500 }],
+    } satisfies PresentableResult;
+    const points = {
+      resultId: "wh-3:point", datasetId: "warehouse:wh-3", geometry: { type: "Point" as const, role: "actual" as const, spatialAnalysisEligible: true },
+      rows: [{ geometry: { type: "Point", coordinates: [121.55, 25.02] } }],
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [scope, points]);
+    expect(moveLayerCalls).toContainEqual({ id: "research-analysis-result-scope-0", beforeId: "research-analysis-result-points-1" });
+  });
+
+  it("removes the scope ring layer once its result stops carrying a scope row", () => {
+    const { map, layers } = stubMap();
+    const scope = {
+      resultId: "wh-4:polygon", datasetId: "warehouse:wh-4", geometry: { type: "Polygon" as const, role: "derived" as const, spatialAnalysisEligible: false },
+      rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] }, _role: "scope", radiusM: 500 }],
+    } satisfies PresentableResult;
+    installAnalysisResults(map, [scope]);
+    expect(layers.has("research-analysis-result-scope-0")).toBe(true);
+    const ordinary = { ...scope, rows: [{ geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.6, 25], [121.6, 25.1], [121.5, 25.1], [121.5, 25]]] } }] } satisfies PresentableResult;
+    installAnalysisResults(map, [ordinary]);
+    expect(layers.has("research-analysis-result-scope-0")).toBe(false);
   });
 
   it("reapplies center paint semantics when it reuses a prior POI layer slot", () => {

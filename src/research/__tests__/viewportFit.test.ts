@@ -18,15 +18,41 @@ describe("research viewport fit", () => {
       { left: 782, top: 88, right: 1200, bottom: 400 },
       { left: 72, top: 610, right: 452, bottom: 800 },
     ]);
-    expect(context.safe).toEqual({ left: 468, top: 416, right: 1184, bottom: 784 });
+    // A readable edge-strip inset (between the left rail and the top-right activity card, above
+    // the bottom timeline) is preferred over the corner-maximizing search: users expect a result
+    // framed in the open middle, not shoved into whichever corner measures a larger raw area.
+    expect(context.safe).toEqual({ left: 368, top: 16, right: 766, bottom: 594 });
     const resolved = resolveViewportCameraFromContext(state.map, context, framing);
     expect(resolved).toMatchObject({ zoom: 7.25, bearing: 0, pitch: 0, padding: 0 });
-    // The larger unoccluded rectangle is below-right: compensate west/north.
-    expect(resolved.center[0]).toBeLessThan(120.5);
-    expect(resolved.center[1]).toBeGreaterThan(23.5);
+    // The safe strip's centroid sits left/above the full-viewport centre: compensate east/south.
+    expect(resolved.center[0]).toBeGreaterThan(120.5);
+    expect(resolved.center[1]).toBeLessThan(23.5);
     expect(state.cameraForBounds).toHaveBeenCalledWith([[118, 21.5], [123, 26.5]], {
-      padding: { left: 492, top: 440, right: 40, bottom: 40 }, maxZoom: 9, bearing: 0, pitch: 0,
+      padding: { left: 392, top: 40, right: 458, bottom: 230 }, maxZoom: 9, bearing: 0, pitch: 0,
     });
+  });
+
+  it("reserves nothing beyond the baseline margin when no panel is open (closed panels never appear in overlays)", () => {
+    const context = viewportContextFromRects(1200, 800, []);
+    expect(context.safe).toEqual({ left: 16, top: 16, right: 1184, bottom: 784 });
+  });
+
+  it("reserves exactly the live-measured panel width, not a fixed guess, and drops it once that panel closes", () => {
+    const openLeft = viewportContextFromRects(1200, 800, [{ left: 0, top: 0, right: 300, bottom: 800 }]);
+    expect(openLeft.safe.left).toBe(316); // 300 + OVERLAY_GAP_PX
+    const widerLeft = viewportContextFromRects(1200, 800, [{ left: 0, top: 0, right: 420, bottom: 800 }]);
+    expect(widerLeft.safe.left).toBe(436);
+    const closedLeft = viewportContextFromRects(1200, 800, []);
+    expect(closedLeft.safe.left).toBe(16);
+  });
+
+  it("clamps a generous Agent-supplied maxZoom to a browser-side neighborhood-scale ceiling", () => {
+    const state = mapStub();
+    const context = viewportContextFromRects(1200, 800, []);
+    resolveViewportCameraFromContext(state.map, context, { ...framing, maxZoom: 22 });
+    expect(state.cameraForBounds).toHaveBeenCalledWith([[118, 21.5], [123, 26.5]], expect.objectContaining({ maxZoom: 16 }));
+    resolveViewportCameraFromContext(state.map, context, { ...framing, maxZoom: 10 });
+    expect(state.cameraForBounds).toHaveBeenLastCalledWith([[118, 21.5], [123, 26.5]], expect.objectContaining({ maxZoom: 10 }));
   });
 
   it("keeps nonzero safe edges in a narrow live viewport instead of assuming a 1024px canvas", () => {

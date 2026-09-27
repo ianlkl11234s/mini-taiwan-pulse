@@ -51,6 +51,14 @@ describe("researchResultPopupFacts", () => {
     expect(researchResultPopupFacts({ occurred_at: "2026-09-24T00:00:00Z", magnitude: null, depth_km: null })).toEqual([{ label: "發生時間", value: "2026-09-24T00:00:00Z" }]);
   });
 
+  it("also excludes a nearby_profile scope-circle row (_role: scope) from overlap stats, defense in depth", () => {
+    const ring = { id: "ring", properties: { resultId: "wh-1:polygon", _role: "scope" }, geometry: { type: "Polygon" } };
+    const point = { id: "same", properties: { resultId: "nursing", record_id: "N-1" }, geometry: { type: "Point" } };
+    const overlaps = researchResultPopupOverlaps([ring, point]);
+    expect(overlaps.features).toEqual([point]);
+    expect(overlaps.total).toBe(1);
+  });
+
   it("prefers real points over display scope, deduplicates result feature pairs, and discloses overlap truncation", () => {
     const scope = { id: "scope", properties: { resultId: "scope", datasetId: "derived:analysis-scope-area" }, geometry: { type: "Polygon" } };
     const point = { id: "same", properties: { resultId: "nursing", record_id: "N-1" }, geometry: { type: "Point" } };
