@@ -45,6 +45,22 @@
 5. **`/research` 獨立頁（standalone research.html，淺色系 + Georgia/Songti TC 品牌調性）是否納入統一範圍**：本提案傾向保留其獨立品牌調性（只要求嵌入主站的 `MainMapConnection`／活動卡部分跟主站一致），但這是刻意排除還是應該一併處理，需使用者確認。
 6. **`SourceFooter` 缺席的 32 個檔案，是否全部要補**：還是部分圖層本來就沒有可標示的來源（例如衍生計算欄位），需要一份例外清單而非無腦全補。
 
+## 4a. 拍板結果（2026-09-27 使用者確認）
+
+| # | 決定 | 影響 |
+|---|---|---|
+| 1 | **全部改成右下停靠**：Agent 分析結果改進 `FeatureInfoPanel` 停靠面板，拿掉 `mapboxgl.Popup` 錨定與尖角 | Phase E 改 `MainMapConnection.tsx` 的 popup 建構路徑 |
+| 2 | **(B) `border-left` 直線**，淘汰 Layers 群組標題的 `└` | Phase E |
+| 3 | **不載入 web font**，`--font-cjk`／`--font-data` 改寫成實際生效的系統字 stack | Phase A |
+| 4 | **現在開 `CONTROL.*`**，同步更新 `design-system.md §8` 決策紀錄 | Phase F |
+| 5 | **`/research` 獨立頁一併統一**（改走主站暗色情報風格，不保留 Georgia/宋體品牌調性） | Phase F 範圍擴大 |
+| 6 | **`SourceFooter` 全部補**，沒有來源顯示「來源資訊待補」 | Phase D |
+| — | 捷運站排名泡泡圖：**先不做個案**，之後與通用圖表函式庫一起設計 | 移出本輪 |
+
+**Popup 視覺方向**：保留分隔線的條理，但行距要比 mockup §1「建議」版更緊，走精簡情報風格（參考現行寺廟 popup 的密度）。密度候選版見 `popup-density-variants.html`，**使用者選定 B 版（細線緊湊）**，規格已回寫 `proposal.md §6.1`。
+
+**相關後續**：泡泡圖與通用圖表函式庫的規劃見 [`docs/features/general-analysis/PLAN-round3-20260927.md`](../general-analysis/PLAN-round3-20260927.md) 下一步建議 §1（依賴本次 popup／面板／token 規範拍板後再動工）。
+
 ## 5. 建議施工順序與驗收方式
 
 沿用 `docs/design-system.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
