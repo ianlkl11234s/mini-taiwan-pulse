@@ -36,6 +36,7 @@ import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
+import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean };
@@ -168,7 +169,10 @@ export function MainMapConnection(props: Props) {
     const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
     const visibleAnalysisIds = new Set(visibleResultIds(scene.results));
     const analysisResults = allAnalysisResults.filter(result => visibleAnalysisIds.has(result.resultId));
-    const availableResults = describeAnalysisResults(allAnalysisResults);
+    // Read fresh at render time (not captured in this callback's closure) so a basemap switch that
+    // just landed is honoured immediately, not one render behind.
+    const theme = vizThemeForBasemap(latest.current.isDarkTheme);
+    const availableResults = describeAnalysisResults(allAnalysisResults, theme);
     const framingChanged = !!scene.framing && (!!patch?.framing || JSON.stringify(scene.framing) !== JSON.stringify(previous.current?.framing ?? null));
     const cameraChanged = framingChanged || !!patch?.camera || JSON.stringify(scene.camera) !== JSON.stringify(previous.current?.camera);
     let movement: Promise<boolean> = Promise.resolve(true);
@@ -196,7 +200,7 @@ export function MainMapConnection(props: Props) {
       // GeoJSONSource#setData for those commands needlessly reloads sources.
       const presentationChanged = JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds);
       const installed = analysisResults.length
-        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current) : presentedAnalysisRef.current
+        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current, theme) : presentedAnalysisRef.current
         : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
       setAvailableAnalysis(availableResults);
@@ -422,11 +426,14 @@ export function MainMapConnection(props: Props) {
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
       if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+        // Read fresh via the ref (not a dep of this effect) so a style/basemap switch — which is
+        // exactly what triggers "style.load" below — recolours with the *new* theme, not a stale one.
+        const theme = vizThemeForBasemap(latest.current.isDarkTheme);
         const visibleIds = new Set(resultIds);
         const available = analysis.current.presentable(allResultIds);
-        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current);
+        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme);
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
-        setAvailableAnalysis(describeAnalysisResults(available));
+        setAvailableAnalysis(describeAnalysisResults(available, theme));
       } else {
         removeAnalysisResults(map);
         presentedAnalysisRef.current = []; setPresentedAnalysis([]);

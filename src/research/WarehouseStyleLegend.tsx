@@ -1,15 +1,24 @@
-import type { WarehouseStyleLegend } from "./warehouseResultStyle";
+import { FONT_DATA } from "../styles/designTokens";
+import { formatVizNumber } from "./vizFormat";
+import type { WarehouseLegendNullEntry, WarehouseStyleLegend } from "./warehouseResultStyle";
 
-const fmt = (value: number) => new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 }).format(value);
+/** Numeric ticks (breaks, not labels/units) use the data font with tabular figures (spec §5). */
+const DATA_NUM_STYLE = { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" as const };
+
+/** A hatch null entry (choropleth `nullStyle: "hatch"`) shows its CSS gradient sample instead of a
+ *  flat colour swatch, matching the transparent-background diagonal pattern drawn on the map. */
+function NullSwatch({ entry }: { entry: WarehouseLegendNullEntry }) {
+  return <i style={entry.hatch ? { backgroundImage: entry.gradient, backgroundColor: "transparent" } : { backgroundColor: entry.color }} aria-hidden="true" />;
+}
 
 /** Legend for server-styled warehouse results: colour bar + breaks, 3x3 grid + axes, or density ramp. */
 export function WarehouseStyleLegendView({ legend }: { legend: WarehouseStyleLegend }) {
-  const empty = legend.nullEntry && <span className="agent-style-legend__null"><i style={{ backgroundColor: legend.nullEntry.color }} aria-hidden="true" />{legend.nullEntry.label}</span>;
+  const empty = legend.nullEntry && <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
   if (legend.kind === "choropleth") {
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="choropleth">
       <span>{legend.title} · {legend.method}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
-      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value}>{fmt(value)}</small>)}</div>
+      <div className="agent-style-legend__breaks">{legend.breaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
       <div>{legend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
     </div>;
   }

@@ -3,7 +3,9 @@ import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
-import { warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle, type WarehouseStyleLegend } from "./warehouseResultStyle";
+import type { Theme } from "./vizSpec";
+import { ensureNullHatchImage } from "./vizNullPattern";
+import { warehouseChoroplethNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle, type WarehouseStyleLegend } from "./warehouseResultStyle";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
 const COLORS = ["#00b8d9", "#ff8f00", "#d81b60", "#7e57c2", "#43a047", "#5c6bc0", "#e53935", "#00897b"];
@@ -19,6 +21,10 @@ const layerId = (index: number) => `research-analysis-result-points-${index}`;
 const heatPointsLayerId = (index: number) => `research-analysis-result-heat-points-${index}`;
 /** Numbered marker labels (1..N) for a compare-styled point result; decorative only, not pickable. */
 const compareLabelLayerId = (index: number) => `research-analysis-result-compare-label-${index}`;
+/** Choropleth `nullStyle: "hatch"` overlay: a transparent fill-pattern layer drawn only over the
+ *  features the main fill layer leaves transparent (missing `_style_value`). Not independently
+ *  pickable — the main fill layer already covers the same features for click/popup. */
+const nullHatchLayerId = (index: number) => `research-analysis-result-null-hatch-${index}`;
 /**
  * A `properties._role === "scope"` feature (e.g. a nearby_profile search-radius circle, MCP
  * contract in warehouse/engine.ts `scopeCircleFeature`) draws as a dashed, unfilled outline
@@ -219,7 +225,7 @@ function numericFillColor(legend: NumericResultLegend): ExpressionSpecification 
   return ["case", valid, scale, ["any", ["==", ["get", "status"], "suppressed"], ["==", ["get", "normalization_status"], "denominator_suppressed"]], SUPPRESSED_NUMERIC_COLOR, MISSING_NUMERIC_COLOR] as unknown as ExpressionSpecification;
 }
 
-function presentation(result: PresentableResult, featureCount: number, index?: number): AnalysisResultPresentation {
+function presentation(result: PresentableResult, featureCount: number, theme: Theme, index?: number): AnalysisResultPresentation {
   const countLegend = result.presentation && result.geometry.type === "Point" ? {
     label: result.presentation.label,
     radiusM: result.presentation.radiusM,
@@ -231,11 +237,12 @@ function presentation(result: PresentableResult, featureCount: number, index?: n
   } : undefined;
   const numericLegend = numericResultLegend(result);
   const style = result.resultStyle;
-  const styleSwatch = style && style.kind !== "compare" ? style.colors[style.colors.length - 1]! : undefined;
+  const styleColors = style && style.kind !== "compare" ? (style.palette ? style.palette[theme] : style.colors) : undefined;
+  const styleSwatch = styleColors?.[styleColors.length - 1];
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
-    ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style) } : {}),
+    ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style, theme) } : {}),
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(hasScopeRows(result) ? { scopeRing: { radiusM: scopeRadiusM(result) } } : {}),
@@ -249,17 +256,20 @@ function nonScopeRowCount(result: PresentableResult): number {
   return hasScopeRows(result) ? result.rows.filter(row => !isScopeRow(row)).length : result.rows.length;
 }
 
-/** Metadata for the whole authorized collection, including effectively hidden items. */
-export function describeAnalysisResults(results: readonly PresentableResult[]): AnalysisResultPresentation[] {
+/** Metadata for the whole authorized collection, including effectively hidden items. `theme` picks
+ *  which side of a styled result's `palette` the swatch/legend colours come from (default dark). */
+export function describeAnalysisResults(results: readonly PresentableResult[], theme: Theme = "dark"): AnalysisResultPresentation[] {
   return results.map(result => {
     const data = collection(result);
     if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
-    return presentation(result, nonScopeRowCount(result));
+    return presentation(result, nonScopeRowCount(result), theme);
   });
 }
 
-/** Transient result layers are independent of the permanent layer catalogue. */
-export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55): AnalysisResultPresentation[] {
+/** Transient result layers are independent of the permanent layer catalogue. `theme` follows the
+ *  basemap (see vizSpec.ts `vizThemeForBasemap`); a basemap switch re-runs this (MainMapConnection's
+ *  `style.load` redraw), so palette + null-hatch pattern always match the currently visible basemap. */
+export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55, theme: Theme = "dark"): AnalysisResultPresentation[] {
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
   // Validate every result before mutating Mapbox so a bad later result cannot
   // leave an earlier source partially updated.
@@ -282,11 +292,15 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const style = result.resultStyle;
     const heatmap = style?.kind === "heatmap" && result.geometry.type === "Point" ? style : null;
     const compare = style?.kind === "compare" && result.geometry.type === "Point" ? style : null;
-    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" ? warehouseStyleColor(style) : null;
+    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" ? warehouseStyleColor(style, theme) : null;
+    // Choropleth null cells render fully transparent in `styleColor` above (see warehouseStyleColor);
+    // this sibling layer paints exactly those cells with the theme's hatch tile instead.
+    const choroplethHatch = polygon && style?.kind === "choropleth" && style.nullStyle === "hatch" ? style : null;
     const fillColor: string | ExpressionSpecification = styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
     const outlineColor = styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
-    const circleColor: string | ExpressionSpecification = styleColor ? styleColor : heatmap ? heatmap.colors[heatmap.colors.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
+    const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
+    const circleColor: string | ExpressionSpecification = styleColor ? styleColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
     const circleRadius: ExpressionSpecification = (scopeCenter ? ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12] : ["interpolate", ["linear"], ["zoom"], 5, 3, 12, 6, 16, 9]) as unknown as ExpressionSpecification;
     const circleStrokeColor = scopeCenter ? "#0f172a" : "#ffffff";
     const circleStrokeWidth = scopeCenter ? 3 : 2;
@@ -296,6 +310,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (existing && existing.type !== (polygon ? "fill" : line ? "line" : heatmap ? "heatmap" : "circle")) map.removeLayer(layerId(index));
     if (!heatmap && map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
     if (!compare && map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
+    if (!choroplethHatch && map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
     if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), ...(scopeRingRows ? { filter: SCOPE_ROLE_EXCLUDE_FILTER } : {}), paint: {
         "fill-color": fillColor, "fill-opacity": reveal ? 0 : resultOpacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": outlineColor,
@@ -304,7 +319,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": lineColor, "line-width": 3, "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration } } });
     } else if (heatmap) {
       const filter = warehouseHeatmapFilter(heatmap);
-      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "heatmap", source: sourceId(index), ...(filter ? { filter } : {}), paint: warehouseHeatmapPaint(heatmap, reveal ? 0 : resultOpacity) as never });
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "heatmap", source: sourceId(index), ...(filter ? { filter } : {}), paint: warehouseHeatmapPaint(heatmap, reveal ? 0 : resultOpacity, theme) as never });
       if (!map.getLayer(heatPointsLayerId(index))) map.addLayer({ id: heatPointsLayerId(index), type: "circle", source: sourceId(index), minzoom: HEAT_POINTS_MINZOOM, paint: {
         "circle-color": circleColor, "circle-radius": 4, "circle-opacity": resultOpacity, "circle-stroke-color": "#ffffff", "circle-stroke-width": 1, "circle-stroke-opacity": resultOpacity,
       } });
@@ -323,7 +338,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "line-color", lineColor);
       map.setPaintProperty(layerId(index), "line-width", 3);
     } else if (heatmap) {
-      const paint = warehouseHeatmapPaint(heatmap, resultOpacity);
+      const paint = warehouseHeatmapPaint(heatmap, resultOpacity, theme);
       for (const key of ["heatmap-weight", "heatmap-intensity", "heatmap-radius", "heatmap-color"] as const) map.setPaintProperty(layerId(index), key, paint[key] as never);
       map.setFilter(layerId(index), warehouseHeatmapFilter(heatmap));
     } else {
@@ -331,6 +346,20 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "circle-radius", circleRadius);
       map.setPaintProperty(layerId(index), "circle-stroke-color", circleStrokeColor);
       map.setPaintProperty(layerId(index), "circle-stroke-width", circleStrokeWidth);
+    }
+    if (choroplethHatch) {
+      // A style/basemap switch (map.setStyle) clears every addImage'd image; re-add it (guarded) on
+      // every install rather than once, since this runs again right after that switch settles.
+      // Decorative/secondary layer, like heatPointsLayerId above: opacity follows resultOpacity
+      // directly rather than the primary layer's reveal fade-in.
+      const patternId = ensureNullHatchImage(map, theme);
+      const hatchFilter = warehouseChoroplethNullFilter(choroplethHatch);
+      if (!map.getLayer(nullHatchLayerId(index))) map.addLayer({ id: nullHatchLayerId(index), type: "fill", source: sourceId(index), filter: hatchFilter, paint: { "fill-pattern": patternId, "fill-opacity": resultOpacity } });
+      else {
+        map.setPaintProperty(nullHatchLayerId(index), "fill-pattern", patternId);
+        map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", resultOpacity);
+        map.setFilter(nullHatchLayerId(index), hatchFilter);
+      }
     }
     if (compare) {
       if (!map.getLayer(compareLabelLayerId(index))) map.addLayer({ id: compareLabelLayerId(index), type: "symbol", source: sourceId(index), layout: {
@@ -357,7 +386,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
-    return presentation(result, nonScopeRowCount(result), index);
+    return presentation(result, nonScopeRowCount(result), theme, index);
   });
   // Keep every scope ring under the first Point-type result's layer, regardless of each
   // result's index in this batch (moveLayer works on already-existing layers, so it is not
@@ -379,6 +408,7 @@ function removeIndex(map: Map, index: number): void {
   if (map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
   if (map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
   if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
+  if (map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
   if (map.getLayer(layerId(index))) map.removeLayer(layerId(index));
   if (map.getSource(sourceId(index))) map.removeSource(sourceId(index));
 }
@@ -428,6 +458,7 @@ export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPre
       map.setPaintProperty(heatPointsLayerId(index), "circle-stroke-opacity", opacity);
     }
     if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
+    if (map.getLayer(nullHatchLayerId(index))) map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", opacity);
     if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
   }
 }
