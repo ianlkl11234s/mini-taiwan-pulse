@@ -1,5 +1,5 @@
 import { FONT_SIZE } from "../../styles/designTokens";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import {
   STREET_TREE_3EPOCH_TRAJ,
@@ -64,7 +64,6 @@ export function StreetTreesTaipeiDiffPanel({ props }: { props: Record<string, un
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ TreeID 消失≠砍除；2024 基準取自 Wayback，含颱風後清運滯後
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -87,7 +86,6 @@ export function ProtectedTreesNationalPanel({ props }: { props: Record<string, u
       <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
       <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
       <Row label="管理單位" value={String(props.manager ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -106,7 +104,6 @@ export function RiversideTreesTaipeiPanel({ props }: { props: Record<string, unk
       <Row label="樹冠面積" value={numUnit(props.crown_area_m2, "m²")} />
       <Row label="推估樹齡" value={numUnit(props.estimated_age_years, "年")} />
       <Row label="調查日" value={String(props.survey_date ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -121,7 +118,6 @@ export function ParksTaipeiPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="分類" value={String(props.category ?? "")} />
       <Row label="面積" value={numUnit(props.area_sqm, "m²")} />
       <Row label="兒童遊具" value={playground} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -195,7 +191,6 @@ export function StreetTrees3epochPanel({ props }: { props: Record<string, unknow
       {renumberEpochs.length > 0 && (
         <Row label="提示" value={`⚠️ 疑似重編號（${renumberEpochs.join("、")}），可能非真消失/新增`} color="#fbbf24" />
       )}
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -222,7 +217,6 @@ export function StreetTreesNationalPanel({ props }: { props: Record<string, unkn
       <Row label="樹高" value={numUnit(props.height_m, "m")} />
       <Row label="調查日" value={String(props.survey_date ?? "")} />
       <Row label="資料來源" value={String(props.source ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -241,7 +235,6 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
       <Row label="行政區" value={String(props.district ?? "")} />
       <Row label="面積" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
       <Row label="編號" value={String(props.pit_id ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -292,7 +285,6 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
           ⓘ {PROPERTY_VALUE_APPROX_NOTE}
         </div>
       )}
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -364,7 +356,6 @@ export function PropertyValueAdminPanel({ props }: { props: Record<string, unkno
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ 市場交易建物模型估值聚合；不是公告地價、稅基或逐筆鑑價。缺值不當作 0。
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -399,7 +390,6 @@ export function PropertyValueGridPanel({ props }: { props: Record<string, unknow
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
         ⓘ {PROPERTY_VALUE_APPROX_NOTE}
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -422,7 +412,6 @@ export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ {URBAN_FORM_GRID_APPROX_NOTE}
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -458,7 +447,6 @@ export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> 
       {town ? <Row label="鄉鎮" value={town} /> : null}
       {/* zone_category（agricultural / slope_conservation…）是英文粗分類，跟 zone_name 資訊重複
           且未中文化，不入 popup —— 11 碼的中文名本身就是分類 */}
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -477,7 +465,6 @@ export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="代碼" value={zoneText(props.zone_code)} />
       <Row label="城市" value={zoneText(props.city)} />
       <Row label="計畫層級" value={zoneText(props.plan_level)} />
-      <SourceFooter props={props} />
     </>
   );
 }

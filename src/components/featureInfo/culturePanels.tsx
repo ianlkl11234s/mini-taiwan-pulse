@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { RADIUS, FONT_SIZE, COLORS } from "../../styles/designTokens";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES, CULTURE_MISSING_COLOR,
@@ -26,7 +26,6 @@ export function CulturalFacilitiesPanel({ props }: { props: Record<string, unkno
       <Row label="類型" value={type} color={color} />
       <Row label="城市" value={String(props.city ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -42,7 +41,6 @@ export function CulturalMuseumsPanel({ props }: { props: Record<string, unknown>
       <Row label="城市" value={String(props.city ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="官網" value={String(props.website ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -73,7 +71,6 @@ export function ArtsEventsPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="場次時間" value={String(props.show_time ?? "")} />
       <Row label="地點" value={String(props.location_name ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -87,7 +84,6 @@ export function PerformingVenuesPanel({ props }: { props: Record<string, unknown
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="活動數" value={intOrEmpty(props.event_count)} />
       <Row label="場次數" value={intOrEmpty(props.show_count)} />
-      <SourceFooter props={props} />
     </>
   );
 }

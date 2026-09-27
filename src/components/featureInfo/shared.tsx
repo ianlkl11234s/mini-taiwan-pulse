@@ -126,10 +126,15 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
 }
 
 /**
- * 標準溯源 footer — 任何 panel 底部都應該掛這個。
+ * 標準溯源 footer（F2 規格，見 proposal.md §6.1 / handoff.md §4a 第三輪拍板）——
+ * 2026-09-27 起由 FeatureInfoPanel 統一在 content 後掛一次，各 panel 不再各自呼叫
+ * （少數欄位需要 panel 端 enrich 常數值，或另有自訂溯源 UI 的例外見 FeatureInfoPanel.tsx）。
  * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier。
  * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）；
  * 部分 pipeline（如宗教）欄位名是 `_provenance`（底線開頭），兩者都接。
+ *
+ * F2：第一行「機關 · Tier N · 原始下載頁 ↗」（缺項省略）；第二行 license ＋ 抓取時間
+ * （FONT_DATA 等寬）；完全沒有 org/url 時整段改顯示「來源資訊待補」（warn 色）。
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
@@ -139,38 +144,56 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const tier = props.source_tier;
   const fetched = String(props.fetched_at ?? "");
   const provenance = toProvenanceArray(props._provenance ?? props.provenance);
+  const hasSource = Boolean(org || url);
+
+  if (!hasSource) {
+    return (
+      <div
+        className="fi-footer"
+        style={{
+          marginTop: 10,
+          paddingTop: 8,
+          borderTop: `1px solid ${t.borderSoft}`,
+          fontSize: FONT_SIZE.xs,
+          color: t.warn,
+        }}
+      >
+        資料來源 · 來源資訊待補
+      </div>
+    );
+  }
+
+  const firstLine = [org, tier == null ? "" : `Tier ${String(tier)}`].filter(Boolean);
 
   return (
     <div
+      className="fi-footer"
       style={{
         marginTop: 10,
         paddingTop: 8,
-        borderTop: `1px solid ${t.border}`,
+        borderTop: `1px solid ${t.borderSoft}`,
         fontSize: FONT_SIZE.xs,
         color: t.textDim,
       }}
     >
-      <div style={{ marginBottom: 4, letterSpacing: 1.2 }}>
-        資料來源{tier == null ? "" : ` (Tier ${String(tier)})`}
+      <div>
+        {firstLine.join(" · ")}
+        {url && (
+          <>
+            {firstLine.length > 0 ? " · " : ""}
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: t.link, textDecoration: "none" }}
+            >
+              原始下載頁 ↗
+            </a>
+          </>
+        )}
       </div>
-      {org && <div>{org}</div>}
-      {url && (
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            display: "inline-block",
-            color: t.link,
-            textDecoration: "none",
-            marginTop: 2,
-          }}
-        >
-          原始下載頁 ↗
-        </a>
-      )}
       {(license || fetched) && (
-        <div style={{ marginTop: 2 }}>
+        <div style={{ marginTop: 2, fontFamily: FONT_DATA }}>
           {license}
           {license && fetched ? " · " : ""}
           {fetched && `抓取於 ${fetched}`}
@@ -179,7 +202,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
       {provenance.length > 1 && (
         <details style={{ marginTop: 4 }}>
           <summary style={{ cursor: "pointer" }}>
-            跨來源溯源（{provenance.length} 筆）
+            溯源 {provenance.length} 筆
           </summary>
           <ul style={{ margin: "4px 0 0 12px", padding: 0 }}>
             {provenance.map((p, i) => {

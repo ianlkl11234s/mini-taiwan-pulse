@@ -11,8 +11,33 @@ import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
 import { WaterReservoirContextPanel } from "./featureInfo/waterPanels";
 import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo/featureTheme";
+import { SourceFooter } from "./featureInfo/shared";
 import { THEMES } from "./sidebar/layerCatalog";
 import "./featureInfo/featureInfo.css";
+
+// layerType 白名單：這些 panel 已經有自己的溯源 UI，不需要（也不該疊加）中央 SourceFooter。
+// - chatHighlight：AI 助手標記點，非資料圖層，不顯示來源。
+// - publicToilet / disasterShelters / nationalParks：panel 內把常數 source_org/license/url
+//   併進 props（上游 feature 本身沒有這些欄位，是 panel 端補的產品知識），中央版讀不到這些
+//   enrich 後的值，硬套會錯誤顯示「來源資訊待補」。
+// - networkStructuresPanels 9 個 layerType：整份檔案走自訂 SourceRows（欄位命名慣例是
+//   source_name/source_date/retrieved_at，不是中央版讀的 source_org/license/fetched_at），
+//   兩種 schema 對不上，中央版一樣會誤判成「無來源」。
+const FOOTER_SELF_MANAGED_LAYER_TYPES = new Set<string>([
+  "chatHighlight",
+  "publicToilet",
+  "disasterShelters",
+  "nationalParks",
+  "osmBridgeCarriers",
+  "osmBridgeFootprints",
+  "officialBridgesNewTaipei",
+  "bridgeComparisonNewTaipei",
+  "tainanBridgeInspections",
+  "officialBridgesHsinchu",
+  "taipeiRoadTunnels",
+  "tainanRoadTunnels",
+  "changhuaTrafficSignals",
+]);
 
 // layerKey → 主題中文名對照（供 header eyebrow「圖層群組 · 圖層名」使用）。
 // 來源：Layers 側欄的 THEMES（sidebar/layerCatalog.ts），本檔唯讀引用、不改該檔。
@@ -88,13 +113,21 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
   const compareId = feature.properties.compare_id;
   const hasCompareId = typeof compareId === "number" && compareId > 0;
 
+  // 水庫 context 面板彙整水情/集水區/流域/最近河川等多個資料源，不是單一 feature.properties
+  // 能代表的溯源對象，central footer 在這個分支略過（沿用 panel 各自）。
+  const isReservoirContextView = Boolean(isReservoir && hasCompareId && reservoirContext?.reservoir);
+
   let content: React.ReactNode;
-  if (isReservoir && hasCompareId && reservoirContext?.reservoir) {
-    content = <WaterReservoirContextPanel ctx={reservoirContext} />;
+  if (isReservoirContextView) {
+    content = <WaterReservoirContextPanel ctx={reservoirContext!} />;
   } else {
     const Panel = PANEL_REGISTRY[feature.layerType];
     content = Panel ? <Panel props={feature.properties} /> : null;
   }
+
+  // content 為 null（BASELINE_NO_PANEL：無對應 panel，只顯示 header）時不掛 footer——
+  // 目標是「PANEL_REGISTRY 會渲染的 panel 都有 footer」，不是空白內容也硬掛一行待補。
+  const showCentralFooter = content != null && !isReservoirContextView && !FOOTER_SELF_MANAGED_LAYER_TYPES.has(feature.layerType);
 
   // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
   const isCctv = feature.layerType === "cctv";
@@ -146,6 +179,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
 
       <div style={{ overflowY: "auto", minHeight: 0, flex: 1 }}>
         {content}
+        {showCentralFooter && <SourceFooter props={feature.properties} />}
       </div>
     </div>
     </FeatureThemeProvider>

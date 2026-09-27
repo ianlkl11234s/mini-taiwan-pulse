@@ -1,5 +1,5 @@
 import { FONT_SIZE } from "../../styles/designTokens";
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, Title } from "./shared";
 
 function areaHa(v: unknown): string {
   const n = Number(v);
@@ -12,7 +12,6 @@ export function AquaculturePondsPanel({ props }: { props: Record<string, unknown
       <Title color="#26c6da">{String(props.name ?? "魚塭")}</Title>
       <Row label="養殖物" value={String(props.produce ?? "")} />
       <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -24,7 +23,6 @@ export function AquacultureZonePanel({ props }: { props: Record<string, unknown>
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="鄉鎮" value={String(props.township ?? "")} />
       <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -35,7 +33,6 @@ export function AquacultureCageNetPanel({ props }: { props: Record<string, unkno
       <Title color="#5c6bc0">{String(props.public_no ?? "海上箱網")}</Title>
       <Row label="鄉鎮" value={String(props.township ?? "")} />
       <Row label="位置" value={String(props.location ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -71,7 +68,6 @@ export function AquacultureWaterSatellitePanel({ props }: { props: Record<string
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ 10m 解析度水體團塊，非逐口輪廓；漏標候選含少量假陽性（太陽能板/滯洪池等）
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -123,7 +119,6 @@ export function AquacultureWaterSatelliteMoaPanel({ props }: { props: Record<str
       <Row label="面積" value={areaHa(props.area_ha)} />
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="土地使用（NLSC）" value={nlscLandUse(props)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -173,7 +168,6 @@ export function AquacultureWaterUnionPanel({ props }: { props: Record<string, un
       <Row label="面積" value={areaHa(props.area_ha)} />
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="來源版本" value={sourceLabel} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -193,7 +187,6 @@ export function AquacultureIntegratedPanel({ props }: { props: Record<string, un
       <Title color={tier.color}>養殖漁業整合</Title>
       <Row label="來源" value={tier.label} color={tier.color} />
       <Row label="面積" value={areaHa(props.area_ha)} />
-      <SourceFooter props={props} />
     </>
   );
 }

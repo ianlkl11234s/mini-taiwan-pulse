@@ -103,7 +103,6 @@ function PublicLifeOsmPanelContent({ props, accessibilityMode = false }: Props &
     <Row label="原始幾何" value={text(props.source_geometry_type)} />
     <Row label="顯示位置" value={displayGeometry(props.display_geometry_method)} />
     <Row label="涵蓋限制" value={text(props.coverage_scope) || "群眾標註且不完整；空白區域不代表沒有設施。"} />
-    <SourceFooter props={props} />
   </>;
 }
 
@@ -159,6 +158,5 @@ export function PublicLifeOsmCoveragePanel({ props }: Props) {
     <Row label="遊客中心" value={text(props.visitor_centre_count)} />
     <Row label="快照時間" value={text(props.snapshot_at)} />
     <Row label="重要提醒" value="OSM 映射密度，不是服務品質、人口覆蓋或道路可達性。" />
-    <SourceFooter props={props} />
   </>;
 }
