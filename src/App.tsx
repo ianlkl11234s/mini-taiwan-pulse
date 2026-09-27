@@ -1,5 +1,6 @@
 import { MainMapConnection } from "./research/MainMapConnection";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
+import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
@@ -1063,6 +1064,11 @@ export default function App() {
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
 
+  // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
+  useEffect(() => {
+    mapRef.current?.getContainer().style.setProperty(SELECTION_RING_ACCENT_VAR, selectionRingAccent(isDarkTheme));
+  }, [isDarkTheme, mapPrepared]);
+
   // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
   // Lazy setup：任一 wf* toggle 開 + map 已 ready 才建 8 sources + 16 layers
   const wasteMapboxSetupRef = useRef(false);
@@ -1179,6 +1185,8 @@ export default function App() {
       onMove: updateCamera,
       onZoomEnd: onZoomH3,
       onClick: (e) => {
+        // 選取圈的單一點擊記錄點（沒有 coords 的面板，例如 Agent 分析結果，靠它定位）
+        recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
         const layer = wasteFacilityLayerRef.current;
         if (!layer) return;
         // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
