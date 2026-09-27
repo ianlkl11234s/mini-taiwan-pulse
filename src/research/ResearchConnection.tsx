@@ -227,7 +227,7 @@ export function ResearchConnection({ onState, onDisconnect, onConnection, onRead
   const copyPairing = async () => {
     if (!pairing || Date.now() >= Number(pairing.expiresAt)) { setMessage("配對碼已過期，請撤銷後重新建立。"); return; }
     try {
-      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。取得比對短語後等我在網站確認，再讀取目前地圖狀態。接著依我的問題搜尋圖層、查看來源說明並協助探索；可使用已支援圖層的基本統計，尚未支援或資料契約不明的分析請明確說明目前不能做；需要計算時先說明目前範圍，並提供相關圖層作為探索起點。`);
+      await navigator.clipboard.writeText(`請使用 pulse-research MCP 的 pulse_pair_session 配對：pairingId=${pairing.pairingId}，code=${pairing.code}，deviceLabel=Codex-Local。拿到比對短語後，等我在網站按確認，再讀取目前地圖狀態。之後照我的問題找圖層、看來源、幫我探索，用我聽得懂的白話回答；某件事現在做不到，就用一句話說，並給一個替代做法。`);
       setMessage("已複製，請貼給已載入 pulse-research 的 Codex。");
     } catch { setMessage("無法複製，請手動複製下方配對 ID 與配對碼。"); }
   };
