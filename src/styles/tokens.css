@@ -5,8 +5,13 @@
  * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §1、§5 與 tokens-draft.css。
  *
  * 淺色：不做全站切換。各子系統沿用既有的淺色觸發 class
- * （.main-map-agent--light / .member-panel-light / .research-activity-position--light），
+ * （.main-map-agent--light / .member-panel-light / .research-activity-position--light / .lpc-theme--light），
  * 在該 class 內把自己的語意別名指到下方 --light-*。
+ *
+ * TS ↔ CSS 對應（改一邊必須同步另一邊；規範見 docs/design-system.md §3）：
+ *   SURFACE.x ↔ --surface-x；COLORS.textX ↔ --text-x；COLORS.link ↔ --link；
+ *   COLORS.statusDerived ↔ --status-derived；BORDER.x ↔ --border-x；CONTROL.x ↔ --control-x；
+ *   SLIDER.x ↔ --slider-x；LIGHT.camelCase ↔ --light-kebab-case。
  */
 :root {
   /* ── FONT_FAMILY ── */
@@ -36,6 +41,8 @@
   --status-warn: #ff9800;
   --status-warn-soft: rgba(255, 152, 0, 0.16);
   --status-err: #ef4444;
+  --status-derived: #a78bfa;
+  --link: #7fb2ff;
 
   /* ── WHITE_ALPHA ── */
   --white-a4: rgba(255, 255, 255, 0.04);
@@ -94,14 +101,24 @@
   --control-bg-hover: rgba(255, 255, 255, 0.10);
   --control-border: rgba(255, 255, 255, 0.12);
   --control-disabled-opacity: 0.55;
+  --control-option-bg: #10101b;
 
-  /* ── LIGHT — 淺色 chrome（收斂 4 套手刻淺色；accent/warn 取自 ui-unification-sheet.html .t-light） ── */
+  /* ── SLIDER — S1 細滑桿（= SLIDER） ── */
+  --slider-track: rgba(255, 255, 255, 0.14);
+  --slider-fill: rgba(255, 255, 255, 0.55);
+  --slider-thumb: #f3f4f6;
+
+  /* ── LIGHT — 淺色 chrome（= designTokens.ts LIGHT；收斂 4 套手刻淺色；accent/warn 取自 ui-unification-sheet.html .t-light） ── */
   --light-surface-panel: rgba(255, 255, 255, 0.95);
   --light-surface-strong: rgba(255, 255, 255, 0.97);
+  --light-surface-solid: #ffffff;
   --light-text-strong: #111827;
   --light-text-default: #1f2937;
   --light-text-muted: #4b5563;
   --light-text-dim: #6b7280;
+  --light-fill-subtle: rgba(0, 0, 0, 0.04);
+  --light-fill-strong: rgba(0, 0, 0, 0.06);
+  --light-border-soft: rgba(0, 0, 0, 0.06);
   --light-border: rgba(0, 0, 0, 0.10);
   --light-border-mid: rgba(0, 0, 0, 0.16);
   --light-control-bg: rgba(0, 0, 0, 0.035);
@@ -109,7 +126,12 @@
   --light-control-border: rgba(0, 0, 0, 0.14);
   --light-accent: #0b6fd6;
   --light-accent-faint: rgba(11, 111, 214, 0.10);
+  --light-link: #0284c7;
+  --light-status-live: #15803d;
   --light-status-warn: #c2410c;
   --light-status-err: #b42318;
+  --light-slider-track: rgba(0, 0, 0, 0.12);
+  --light-slider-fill: rgba(0, 0, 0, 0.45);
+  --light-slider-thumb: #111827;
   --light-elevation-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
 }

@@ -69,6 +69,10 @@ export const SURFACE = {
  */
 export const COLORS = {
   ...INTEL_COLORS,
+  /** 暗色連結字（資料來源面板、圖層控制「全選／清除」）。CSS：--link。淡色見 LIGHT.link */
+  link: "#7fb2ff",
+  /** 「派生」狀態紫（資料來源面板 pulse_only）。暗／淡共用。CSS：--status-derived */
+  statusDerived: "#a78bfa",
 } as const;
 
 // ─── WHITE_ALPHA — 白色半透階梯（裝飾線 / 軟分隔）─────────────
@@ -177,4 +181,67 @@ export const CONTROL = {
   bgHover: "rgba(255,255,255,0.10)",
   border: "rgba(255,255,255,0.12)",
   disabledOpacity: 0.55,
+  /** 原生 <select> 展開選項的底色（不透明，避免透出地圖）。CSS：--control-option-bg */
+  optionBg: "#10101b",
+} as const;
+
+// ─── SLIDER — S1 細滑桿（圖層控制 V2＋S1）──────────────────────
+/**
+ * 2px 軌道＋10px 圓點。實作：src/components/sidebar/layerParamControls.css（.lpc-range）。
+ * CSS：--slider-track / --slider-fill / --slider-thumb。淡色見 LIGHT.slider*。
+ */
+export const SLIDER = {
+  track: "rgba(255,255,255,0.14)",
+  fill: "rgba(255,255,255,0.55)",
+  thumb: "#f3f4f6",
+} as const;
+
+// ─── LIGHT — 淡色 chrome（淡色底圖時使用）──────────────────────
+/**
+ * 全站唯一的淡色色票，與 src/styles/tokens.css 的 --light-* 1:1 同值（key 對應：
+ * camelCase ↔ kebab-case，例 surfacePanel ↔ --light-surface-panel）。改一邊必須同步另一邊。
+ *
+ * 不做全站主題切換：各子系統依 isDarkTheme 選 dark／light palette（TS）或加觸發 class（CSS），
+ * 但數值一律取自這裡，不得另開一套淡色色票（design-system.md §3.9）。
+ * accent / 狀態色在淡底上需加深，所以另有 light 版；圖層資料色（LAYER_COLORS）兩主題共用。
+ */
+export const LIGHT = {
+  surfacePanel: "rgba(255,255,255,0.95)",
+  surfaceStrong: "rgba(255,255,255,0.97)",
+  /** 不透明白：選單彈出層、原生 <select> 選項底 */
+  surfaceSolid: "#ffffff",
+  textStrong: "#111827",
+  textDefault: "#1f2937",
+  textMuted: "#4b5563",
+  textDim: "#6b7280",
+  /** 中性淺底（popup 內 badge／區塊底） */
+  fillSubtle: "rgba(0,0,0,0.04)",
+  /** 中性較實底；同值也用作 popup Row 細線（borderSoft） */
+  fillStrong: "rgba(0,0,0,0.06)",
+  borderSoft: "rgba(0,0,0,0.06)",
+  border: "rgba(0,0,0,0.10)",
+  borderMid: "rgba(0,0,0,0.16)",
+  controlBg: "rgba(0,0,0,0.035)",
+  controlBgHover: "rgba(0,0,0,0.08)",
+  controlBorder: "rgba(0,0,0,0.14)",
+  accent: "#0b6fd6",
+  accentFaint: "rgba(11,111,214,0.10)",
+  link: "#0284c7",
+  statusLive: "#15803d",
+  statusWarn: "#c2410c",
+  statusErr: "#b42318",
+  sliderTrack: "rgba(0,0,0,0.12)",
+  sliderFill: "rgba(0,0,0,0.45)",
+  sliderThumb: "#111827",
+  elevationLg: "0 12px 40px rgba(0,0,0,0.18)",
+} as const;
+
+// ─── SELECTION_RING — R2 選取圈 accent ─────────────────────────
+/**
+ * 暗 = COLORS.accent、淡 = LIGHT.accent（不是新顏色，只是固定的組合）。
+ * 由 src/map/selectionRing.ts 寫到地圖容器的 CSS 變數 --selection-ring-accent。
+ */
+export const SELECTION_RING = {
+  dark: INTEL_COLORS.accent,
+  light: LIGHT.accent,
 } as const;

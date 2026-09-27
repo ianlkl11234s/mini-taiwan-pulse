@@ -4,6 +4,7 @@
 // 位置優先用 featureInfo.coords（點圖徵時多半已吸附到點位；AI 標記點也只有這個），
 // 沒有 coords 的來源（Agent 分析結果、歷史航跡等）改用最後一次地圖點擊位置。
 import type { FeatureInfo } from "../types";
+import { SELECTION_RING } from "../styles/designTokens";
 
 type LngLat = [number, number];
 
@@ -36,5 +37,5 @@ export function selectionRingPosition(
 /** 主題色走 CSS 變數，掛在地圖容器上（App 依 isDarkTheme 設定）。 */
 export const SELECTION_RING_ACCENT_VAR = "--selection-ring-accent";
 export function selectionRingAccent(isDarkTheme: boolean): string {
-  return isDarkTheme ? "#64aaff" : "#0b6fd6";
+  return isDarkTheme ? SELECTION_RING.dark : SELECTION_RING.light;
 }

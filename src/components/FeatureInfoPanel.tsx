@@ -5,7 +5,7 @@
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { useEffect, useRef, type CSSProperties } from "react";
 import { X } from "lucide-react";
-import { COLORS, SURFACE, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, SURFACE, LIGHT, FONT_CJK, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import type { FeatureInfo } from "../types";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
@@ -99,9 +99,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkThe
         textDim: COLORS.textDim,
       }
     : {
-        panelBg: "rgba(255,255,255,0.95)",
-        border: "rgba(0,0,0,0.10)",
-        textDim: "#6B7280",
+        panelBg: LIGHT.surfacePanel,
+        border: LIGHT.border,
+        textDim: LIGHT.textDim,
       };
   // 內容子面板（各 domain *Panels）走 context 讀主題色
   const featurePalette = isDarkTheme ? DARK_FEATURE : LIGHT_FEATURE;

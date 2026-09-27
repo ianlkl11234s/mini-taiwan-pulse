@@ -1,11 +1,10 @@
 /**
  * 右上角工具列（Phase G）暗／淡色色票。
  *
- * `designTokens.ts` 只定義暗色 token；淡色數值取自
- * `src/styles/tokens.css` 的 `--light-*`（與 `UserAvatar.tsx` 既有的手刻淡色物件同源，
- * 兩處數值需同步變動）。不是新 token，只是把已存在的 CSS 變數鏡射進 TS 供 inline style 使用。
+ * 暗／淡兩組都取自 `designTokens.ts`（淡色 = `LIGHT`，與 `tokens.css` 的 `--light-*` 同值）。
+ * 不是新 token，只是把 token 組成工具列需要的語意欄位。
  */
-import { COLORS, SURFACE, BORDER, CONTROL, ELEVATION } from "../../styles/designTokens";
+import { COLORS, SURFACE, BORDER, CONTROL, ELEVATION, LIGHT as LIGHT_TOKENS } from "../../styles/designTokens";
 
 export interface ToolbarPalette {
   surfaceBg: string;
@@ -24,19 +23,19 @@ export interface ToolbarPalette {
 }
 
 const LIGHT: ToolbarPalette = {
-  surfaceBg: "rgba(255,255,255,0.95)",
-  borderPanel: "rgba(0,0,0,0.10)",
-  controlBg: "rgba(0,0,0,0.035)",
-  controlBgHover: "rgba(0,0,0,0.08)",
-  controlBorder: "rgba(0,0,0,0.14)",
-  accent: "#0b6fd6",
-  accentFaint: "rgba(11,111,214,0.10)",
-  textStrong: "#111827",
-  textMuted: "#4b5563",
-  textDim: "#6b7280",
-  shadow: "0 12px 40px rgba(0,0,0,0.18)",
-  popupBg: "#ffffff",
-  popupBorder: "rgba(0,0,0,0.10)",
+  surfaceBg: LIGHT_TOKENS.surfacePanel,
+  borderPanel: LIGHT_TOKENS.border,
+  controlBg: LIGHT_TOKENS.controlBg,
+  controlBgHover: LIGHT_TOKENS.controlBgHover,
+  controlBorder: LIGHT_TOKENS.controlBorder,
+  accent: LIGHT_TOKENS.accent,
+  accentFaint: LIGHT_TOKENS.accentFaint,
+  textStrong: LIGHT_TOKENS.textStrong,
+  textMuted: LIGHT_TOKENS.textMuted,
+  textDim: LIGHT_TOKENS.textDim,
+  shadow: LIGHT_TOKENS.elevationLg,
+  popupBg: LIGHT_TOKENS.surfaceSolid,
+  popupBorder: LIGHT_TOKENS.border,
 };
 
 const DARK: ToolbarPalette = {

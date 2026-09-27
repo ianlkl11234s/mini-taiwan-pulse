@@ -18,7 +18,7 @@ import { searchLayers } from "../../lib/layerSearch";
 import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
 import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
 import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
-import { COLORS, BORDER, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import { COLORS, BORDER, CONTROL, LIGHT, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { LayerVisibility } from "../../types";
 
 function comparisonInputUrl(value: unknown): string | undefined {
@@ -29,7 +29,7 @@ function comparisonInputUrl(value: unknown): string | undefined {
   } catch { return undefined; }
 }
 
-// ── Palette（暗／淡；沿用 ui-controls-sheet.html §4 .t-dark／.t-light 同值）──
+// ── Palette（暗／淡；token 取自 designTokens.ts，與 ui-controls-sheet.html §4 .t-dark／.t-light 同值）──
 
 interface DsPalette {
   text: string; textDefault: string; muted: string; dim: string;
@@ -45,17 +45,17 @@ const DARK_DS: DsPalette = {
   border: BORDER.panel, borderMid: BORDER.mid,
   controlBg: CONTROL.bg, controlBgHover: CONTROL.bgHover, controlBorder: CONTROL.border,
   accent: COLORS.accent, accentFaint: COLORS.accentFaint,
-  statusLive: COLORS.statusLive, statusWarn: COLORS.statusWarn, statusDerived: "#a78bfa",
-  link: "#7fb2ff",
+  statusLive: COLORS.statusLive, statusWarn: COLORS.statusWarn, statusDerived: COLORS.statusDerived,
+  link: COLORS.link,
 };
 
 const LIGHT_DS: DsPalette = {
-  text: "#111827", textDefault: "#1f2937", muted: "#4b5563", dim: "#6b7280",
-  border: "rgba(0,0,0,0.10)", borderMid: "rgba(0,0,0,0.16)",
-  controlBg: "rgba(0,0,0,0.035)", controlBgHover: "rgba(0,0,0,0.08)", controlBorder: "rgba(0,0,0,0.14)",
-  accent: "#0b6fd6", accentFaint: "rgba(11,111,214,0.10)",
-  statusLive: "#15803d", statusWarn: "#c2410c", statusDerived: "#a78bfa",
-  link: "#0284c7",
+  text: LIGHT.textStrong, textDefault: LIGHT.textDefault, muted: LIGHT.textMuted, dim: LIGHT.textDim,
+  border: LIGHT.border, borderMid: LIGHT.borderMid,
+  controlBg: LIGHT.controlBg, controlBgHover: LIGHT.controlBgHover, controlBorder: LIGHT.controlBorder,
+  accent: LIGHT.accent, accentFaint: LIGHT.accentFaint,
+  statusLive: LIGHT.statusLive, statusWarn: LIGHT.statusWarn, statusDerived: COLORS.statusDerived,
+  link: LIGHT.link,
 };
 
 type StatusFilter = "all" | UpstreamStatus;
