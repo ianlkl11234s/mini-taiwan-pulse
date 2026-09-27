@@ -27,6 +27,7 @@ interface Props {
   nowTs: number;
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
+  message?: string | null;
 }
 
 export function NewsFeedPanel({
@@ -34,7 +35,7 @@ export function NewsFeedPanel({
   timeRange, onTimeRange, county, onCounty,
   filter, onFilterChange,
   selectedId, expandedId, onSelectCard, onToggleExpand,
-  isTrendingFor, nowTs, status, lastSuccessAt,
+  isTrendingFor, nowTs, status, lastSuccessAt, message,
 }: Props) {
   const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
   const statusVisual = status === "ready"
@@ -102,7 +103,7 @@ export function NewsFeedPanel({
 
       {status !== "ready" && (
         <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
-          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? (message ?? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`) : "正在讀取新聞資料"}
         </div>
       )}
 
@@ -136,10 +137,10 @@ export function NewsFeedPanel({
           >
             <IntelIcon d={ICON.radio} size={26} color={COLORS.textGhost} />
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-              目前無符合條件的事件
+              {status === "error" ? "新聞資料更新中斷" : "目前無符合條件的事件"}
             </div>
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-              調整分類 / 縣市，或回到即時
+              {status === "error" ? (message ?? "請檢查新聞來源與分類流程") : "調整分類 / 縣市，或回到即時"}
             </div>
           </div>
         ) : (
