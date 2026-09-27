@@ -5,6 +5,8 @@
  * 字型：CJK 用系統，數字 / 時間用 mono。
  */
 
+import type { CSSProperties } from "react";
+
 // 全站不載入 web font：stack 只列各平台實際內建的字（macOS → PingFang TC / SF Mono）。
 // 與 src/styles/tokens.css 的 --font-cjk / --font-data 同值，改一邊要同步另一邊。
 export const FONT_CJK = `"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif`;
@@ -65,6 +67,33 @@ export const COUNTY_OPTIONS = [
   "雲林縣", "嘉義市", "嘉義縣", "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣",
   "澎湖縣", "金門縣", "連江縣", "全國",
 ];
+
+/** #rrggbb（或 3 碼 #rgb）→ rgba()；非 hex（例如已是 rgba() 字串）原樣回傳，呼叫端保底用純 hex。 */
+function withAlpha(color: string, alpha: number): string {
+  const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(color)?.[1];
+  if (!hex) return color;
+  const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
+  const n = parseInt(full, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
+/** 分類徽章：淡底色（14% alpha）＋ 該色字，無框。 */
+export function chipTint(color: string): CSSProperties {
+  return { background: withAlpha(color, 0.14), color };
+}
+
+/** 程度／狀態徽章：外框（50% alpha）＋ 該色字，透明底。 */
+export function chipOutline(color: string): CSSProperties {
+  return { background: "transparent", border: `1px solid ${withAlpha(color, 0.5)}`, color };
+}
+
+/**
+ * relTime() 回傳中英混排字串（如「3 分鐘前」）；拆成片段供呼叫端把數字包 FONT_DATA、
+ * 文字維持外層 FONT_CJK。不改 relTime() 本身（多處共用，含 Monitor 卡片）。
+ */
+export function splitRelTimeParts(text: string): Array<{ text: string; mono: boolean }> {
+  return text.split(/(\d+)/g).filter((p) => p !== "").map((p) => ({ text: p, mono: /^\d+$/.test(p) }));
+}
 
 export function relTime(ts: number, now: number): string {
   const d = Math.max(0, now - ts);
