@@ -66,7 +66,17 @@
 
 ### 6.1 Popup（優先度最高）
 
-**待決前提**：是否統一成同一種錨定方式（見 `handoff.md` 待決問題）。以下結構規則兩種錨定方式都適用：
+**已拍板（2026-09-27）**：全部改成右下停靠面板（無尖角）；密度採 `popup-density-variants.html` 的 **B 版「細線緊湊」**：
+
+| 部位 | 規格 |
+|---|---|
+| 容器 | 280px、`--surface-strong` 底、`1px --border-panel`、`RADIUS.xl`、padding `12px 14px`、字型 `--font-cjk`（不再整個容器套 `--font-data`） |
+| Eyebrow | 9px、`--text-dim`、letter-spacing 1.2px，中文「分類 · 子類」 |
+| Title | 13px bold `--text-strong`，前置 9px 分類色點；下方 `1px --border-panel` 分隔，padding-bottom 5px |
+| Row | 11px、line-height 1.3、padding `3px 0`、每列底線 `1px --border-soft`（最後一列不畫）；標籤 10px `--text-muted` 寬 56px；數值 `--text-strong`，純數字改 `--font-data` + tabular-nums。列高約 21px |
+| Footer | 9px `--text-dim`、上方 `1px --border-soft`；無來源時顯示「來源資訊待補」（`--status-warn`） |
+
+以下結構規則沿用：
 
 ```
 ┌ Eyebrow（--font-xs, --font-data, uppercase, --text-dim, letter-spacing 1.2~1.6px）

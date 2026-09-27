@@ -119,8 +119,8 @@
 
 | Token | 值 |
 |---|---|
-| `FONT_CJK` | `"Noto Sans TC", "PingFang TC", ...` |
-| `FONT_DATA` | `"JetBrains Mono", "SF Mono", ui-monospace, ...`（**取代散落的 `"monospace"`**） |
+| `FONT_CJK` | `"PingFang TC", "Microsoft JhengHei", ...`（系統字，不載入 web font；CSS 端為 `--font-cjk`，見 `src/styles/tokens.css`） |
+| `FONT_DATA` | `ui-monospace, "SF Mono", Menlo, ...`（**取代散落的 `"monospace"`**；系統字，CSS 端為 `--font-data`） |
 
 ## 3. 災害 / 警示語意色
 

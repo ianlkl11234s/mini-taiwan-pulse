@@ -45,6 +45,37 @@
 5. **`/research` 獨立頁（standalone research.html，淺色系 + Georgia/Songti TC 品牌調性）是否納入統一範圍**：本提案傾向保留其獨立品牌調性（只要求嵌入主站的 `MainMapConnection`／活動卡部分跟主站一致），但這是刻意排除還是應該一併處理，需使用者確認。
 6. **`SourceFooter` 缺席的 32 個檔案，是否全部要補**：還是部分圖層本來就沒有可標示的來源（例如衍生計算欄位），需要一份例外清單而非無腦全補。
 
+## 4a. 拍板結果（2026-09-27 使用者確認）
+
+| # | 決定 | 影響 |
+|---|---|---|
+| 1 | **全部改成右下停靠**：Agent 分析結果改進 `FeatureInfoPanel` 停靠面板，拿掉 `mapboxgl.Popup` 錨定與尖角 | Phase E 改 `MainMapConnection.tsx` 的 popup 建構路徑 |
+| 2 | **(B) `border-left` 直線**，淘汰 Layers 群組標題的 `└` | Phase E |
+| 3 | **不載入 web font**，`--font-cjk`／`--font-data` 改寫成實際生效的系統字 stack | Phase A |
+| 4 | **現在開 `CONTROL.*`**，同步更新 `design-system.md §8` 決策紀錄 | Phase F |
+| 5 | **`/research` 獨立頁一併統一**（改走主站暗色情報風格，不保留 Georgia/宋體品牌調性） | Phase F 範圍擴大 |
+| 6 | **`SourceFooter` 全部補**，沒有來源顯示「來源資訊待補」 | Phase D |
+| — | 捷運站排名泡泡圖：**先不做個案**，之後與通用圖表函式庫一起設計 | 移出本輪 |
+
+**Popup 視覺方向**：保留分隔線的條理，但行距要比 mockup §1「建議」版更緊，走精簡情報風格（參考現行寺廟 popup 的密度）。密度候選版見 `popup-density-variants.html`，**使用者選定 B 版（細線緊湊）**，規格已回寫 `proposal.md §6.1`。
+
+**相關後續**：泡泡圖與通用圖表函式庫的規劃見 [`docs/features/general-analysis/PLAN-round3-20260927.md`](../general-analysis/PLAN-round3-20260927.md) 下一步建議 §1（依賴本次 popup／面板／token 規範拍板後再動工）。
+
+**第二輪拍板**：每個 Phase 一個 PR（共 6 個）；停靠後在點擊處加選取圈（全站圖層共用）；eyebrow 用「圖層群組 · 圖層名」；設計稿一律暗／淡色並排。待選項（選取圈樣式、footer、Layers 群組、面板標頭、按鈕）見 `ui-unification-sheet.html`。
+
+**第三輪拍板（`ui-unification-sheet.html`）**：
+
+| 區 | 選定 | 規格要點 |
+|---|---|---|
+| 1 popup 暗／淡 | ✔ | B 版；淡色用 `LIGHT_FEATURE` 值 |
+| 2 選取圈 | **R2 呼吸脈衝** | 實線 24px 圈（2px accent）＋同心圈 1.8s 擴散到 58px 淡出；`prefers-reduced-motion` 時改靜態 36px 淡圈；popup 關閉即移除；全站圖層共用 |
+| 3 來源 footer | **F2** | 第一行「機關 · Tier N · 原始下載頁 ↗」；第二行授權＋抓取時間（等寬）；有 provenance 時 `<details>` 收合「溯源 N 筆」；無來源顯示「資料來源 · 來源資訊待補」（warn 色） |
+| 4 Layers 群組 | **L2** | 群組標題 CJK 10px semibold `--text-muted`，標題右側拉 1px `--border-soft` 細線到底；子項目縮排 14px；淘汰「└」 |
+| 5 活動時間軸 | ✔ | 保留 `border-left`（`--border-mid`），時間戳 `--font-data`，外框同 popup（8px 圓角、`--surface-strong`） |
+| 6 面板標頭 | **H2** | eyebrow 9px `--text-dim` ＋ 13px bold 標題，下方 `--border-panel`，padding 10×14 |
+| 7 按鈕 | **C2** | 一般：`--control-bg`＋`--control-border`；主要：`--accent-faint` 底＋accent 框＋accent 字；focus 2px accent outline；disabled opacity .55 |
+| 8 research.html | ✔ | 暗色情報風，左欄面板＋右地圖，三段改 eyebrow＋`border-left` |
+
 ## 5. 建議施工順序與驗收方式
 
 沿用 `docs/design-system.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
