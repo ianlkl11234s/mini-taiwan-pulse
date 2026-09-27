@@ -3292,7 +3292,7 @@ export const LAYER_PARAMS_SPEC = {
   newsEvents: [
     opacitySlider("newsEventsOpacity", 1),
     {
-      kind: "select", name: "newsMinRelevance", label: "相關度", default: "3",
+      kind: "select", name: "newsMinRelevance", label: "相關度", default: "2",
       options: [
         { label: "全部", value: "0" },
         { label: "地方+", value: "2" },

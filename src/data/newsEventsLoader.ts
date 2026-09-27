@@ -61,9 +61,9 @@ export interface NewsFilter {
   minSeverity: 0 | 1 | 2;
 }
 
-/** 預設「重大」(minRelevance=3) — 新聞 / 全部 tab 進來就只看重大級 */
+/** 預設「地方+」(minRelevance=2) — 避免沒有重大級時 Monitor 看起來像資料中斷 */
 export const DEFAULT_NEWS_FILTER: NewsFilter = {
-  minRelevance: 3,
+  minRelevance: 2,
   eventsOnly: true,
   minSeverity: 1,
 };
