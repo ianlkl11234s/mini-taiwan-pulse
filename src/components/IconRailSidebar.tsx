@@ -4,8 +4,9 @@ import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
+import { HideLayerButton, LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
 import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
@@ -130,8 +131,7 @@ interface RailPalette {
   TEXT_STRONG: string; BANNER_BG: string; SEARCH_BG: string;
   TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
   ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
-  CTRL_ACTIVE_BG: string; CTRL_INACTIVE_BG: string; CTRL_ACTIVE_BORDER: string; CTRL_INACTIVE_BORDER: string;
-  SELECT_BG: string; OPTION_BG: string; ALLOFF_BG: string; ALLOFF_BORDER: string;
+  ALLOFF_BG: string; ALLOFF_BORDER: string;
   COLOR_SCHEME: 'light' | 'dark';
 }
 
@@ -141,9 +141,7 @@ const DARK_PALETTE: RailPalette = {
   TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
   TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
-  CTRL_ACTIVE_BG: "rgba(255,255,255,0.12)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.4)",
-  CTRL_ACTIVE_BORDER: "rgba(255,255,255,0.25)", CTRL_INACTIVE_BORDER: "rgba(255,255,255,0.15)",
-  SELECT_BG: "rgba(0,0,0,0.5)", OPTION_BG: "#1a1a1a", ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
+  ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
   COLOR_SCHEME: 'dark',
 };
 
@@ -153,9 +151,7 @@ const LIGHT_PALETTE: RailPalette = {
   TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
   TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
-  CTRL_ACTIVE_BG: "rgba(0,0,0,0.10)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.03)",
-  CTRL_ACTIVE_BORDER: "rgba(0,0,0,0.22)", CTRL_INACTIVE_BORDER: "rgba(0,0,0,0.12)",
-  SELECT_BG: "#FFFFFF", OPTION_BG: "#FFFFFF", ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
+  ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
   COLOR_SCHEME: 'light',
 };
 
@@ -1037,7 +1033,7 @@ function LayersPanel({
           />
         </div>
       </div>
-      {statisticsModeControl && <StatisticsModeControl />}
+      {statisticsModeControl && <StatisticsModeControl isDarkTheme={COLOR_SCHEME === "dark"} />}
       <div
         className="layer-sidebar-scroll"
         style={{
@@ -1209,231 +1205,29 @@ function ExpandedControls({
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   const controls = buildParamControls(layerKey, paramValues) ?? [];
-  const {
-    TEXT_STRONG, CTRL_ACTIVE_BG, CTRL_INACTIVE_BG, CTRL_ACTIVE_BORDER, CTRL_INACTIVE_BORDER,
-    SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE, COLOR_SCHEME,
-  } = useRailTheme();
-  const btnBase: CSSProperties = {
-    fontSize: FONT_SIZE.xs,
-    padding: "2px 6px",
-    borderRadius: RADIUS.md,
-    fontFamily: FONT_DATA,
-    cursor: "pointer",
-    border: "1px solid transparent",
-  };
-
-  const activeBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_ACTIVE_BG,
-    border: `1px solid ${CTRL_ACTIVE_BORDER}`,
-    color: TEXT_STRONG,
-  };
-
-  const inactiveBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_INACTIVE_BG,
-    color: INACTIVE_TEXT,
-  };
+  const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
+  const isDarkTheme = COLOR_SCHEME === "dark";
 
   return (
-    <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
+    <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 12px 8px 22px" }}>
+      <div className="lpc-head">
+        {isTransport && layerKey === "flights" && (
+          <>
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
+              即時狀態
+            </button>
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
+              航跡
+            </button>
+          </>
+        )}
+        <HideLayerButton onHide={onHide} />
+      </div>
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
-      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={TEXT_STRONG === DARK_PALETTE.TEXT_STRONG} />}
-      {/* Display mode (flights only) + Hide */}
-      {isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-          {layerKey === "flights" && (
-            <>
-              <button
-                style={displayMode === "status" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("status")}
-              >
-                Live Status
-              </button>
-              <button
-                style={displayMode === "trails" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("trails")}
-              >
-                Trails
-              </button>
-            </>
-          )}
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-      {!isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-
-      {/* Controls */}
-      {controls.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {controls.map((ctrl) => {
-            if (ctrl.type === "multiSelect") {
-              const selected = new Set(ctrl.value);
-              return (
-                <details
-                  key={ctrl.label}
-                  onClick={(event) => event.stopPropagation()}
-                  style={{ color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA }}
-                >
-                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
-                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
-                  </summary>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
-                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
-                    </div>
-                    {ctrl.options.map((option) => (
-                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(option.value)}
-                          disabled={option.disabled}
-                          onChange={() => {
-                            const next = new Set(selected);
-                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
-                            ctrl.onChange([...next]);
-                          }}
-                        />
-                        {option.label}
-                      </label>
-                    ))}
-                  </div>
-                </details>
-              );
-            }
-
-            if (ctrl.type === "select") {
-              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
-              if (ctrl.options.length > 3) {
-                return (
-                  <div
-                    key={ctrl.label}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 4,
-                      color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                    }}
-                  >
-                    <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                    <select
-                      value={ctrl.value}
-                      onChange={(e) => ctrl.onChange(e.target.value)}
-                      style={{
-                        flex: 1, fontSize: FONT_SIZE.sm, padding: "1px 6px",
-                        background: SELECT_BG, color: TEXT_STRONG,
-                        border: `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        borderRadius: RADIUS.md, fontFamily: FONT_DATA,
-                      }}
-                    >
-                      {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value} disabled={opt.disabled} style={{ background: OPTION_BG }}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  {ctrl.options.map((opt) => (
-                    <button
-                      key={opt.value}
-                      disabled={opt.disabled}
-                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
-                      style={{
-                        ...btnBase,
-                        fontSize: FONT_SIZE.xs,
-                        padding: "1px 8px",
-                        background: ctrl.value === opt.value
-                          ? CTRL_ACTIVE_BG
-                          : CTRL_INACTIVE_BG,
-                        border: ctrl.value === opt.value
-                          ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                          : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        color: ctrl.value === opt.value ? TEXT_STRONG : DIM,
-                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
-                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              );
-            }
-
-            if (ctrl.type === "toggle") {
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  <button
-                    onClick={() => ctrl.onChange(!ctrl.value)}
-                    style={{
-                      ...btnBase,
-                      fontSize: FONT_SIZE.xs,
-                      padding: "1px 8px",
-                      background: ctrl.value ? CTRL_ACTIVE_BG : CTRL_INACTIVE_BG,
-                      border: ctrl.value
-                        ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                        : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                      color: ctrl.value ? TEXT_STRONG : DIM,
-                    }}
-                  >
-                    {ctrl.value ? "ON" : "OFF"}
-                  </button>
-                </div>
-              );
-            }
-
-            // Slider
-            const s = ctrl;
-            return (
-              <label
-                key={s.label}
-                style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                }}
-              >
-                <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>
-                <input
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={s.value}
-                  onChange={(e) => s.onChange(Number(e.target.value))}
-                  style={{
-                    flex: 1, height: 3,
-                    accentColor: ACCENT_TOGGLE,
-                    cursor: "pointer",
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}
+      <ParamControlList controls={controls} />
+    </LayerControlArea>
   );
 }
 

@@ -45,19 +45,20 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
   };
   const selectedAggregate = aggregateForDate(selection.date);
   const color = isDarkTheme ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.65)";
-  const inputStyle = { width: "100%", marginTop: 3, fontSize: 11, borderRadius: 4, padding: "3px 5px", color, background: isDarkTheme ? "rgba(0,0,0,0.25)" : "rgba(255,255,255,0.7)", border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.16)" : "rgba(0,0,0,0.14)"}` };
+  // select／按鈕外觀交給共用 .lpc-*（layerParamControls.css；主題 class 在展開區容器上）
+  const inputStyle = { marginTop: 3 };
 
   return (
-    <div style={{ margin: "6px 12px 2px", fontSize: 11, color }}>
+    <div style={{ fontSize: 11, color }}>
       <div style={{ marginBottom: 6 }}>3D 航跡 · 觀測點依序連線，資料空白區間以直線連接。</div>
-      <label>機場
-        <select aria-label="歷史航班機場" value={selection.airport} onChange={(event) => setHistoricalFlightSelection(country, { airport: event.target.value, date: selection.date })} style={inputStyle}>
+      <label className="lpc-k" style={{ display: "block" }}>機場
+        <select className="lpc-select" aria-label="歷史航班機場" value={selection.airport} onChange={(event) => setHistoricalFlightSelection(country, { airport: event.target.value, date: selection.date })} style={inputStyle}>
           <option value={HISTORICAL_FLIGHT_ALL_AIRPORTS}>全部機場</option>
           {airports.map((airport) => <option key={airport.icao} value={airport.icao}>{airport.name}（{airport.iata || airport.icao}／{airport.icao}）</option>)}
         </select>
       </label>
-      <label style={{ display: "block", marginTop: 6 }}>樣本日期
-        <select aria-label="歷史航班樣本日期" value={selection.date} onChange={(event) => setHistoricalFlightSelection(country, { airport: selection.airport, date: event.target.value })} style={inputStyle}>
+      <label className="lpc-k" style={{ display: "block", marginTop: 6 }}>樣本日期
+        <select className="lpc-select" aria-label="歷史航班樣本日期" value={selection.date} onChange={(event) => setHistoricalFlightSelection(country, { airport: selection.airport, date: event.target.value })} style={inputStyle}>
           <option value={selection.date}>{selection.date}{selected ? "" : `（${selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? "全部機場" : "此機場"}無此樣本／unavailable）`}</option>
           {samples.filter((sample) => sample.date !== selection.date).map((sample) => <option key={sample.date} value={sample.date}>{sample.date} · {selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? `可用機場 ${aggregateForDate(sample.date).availableAirportCount} 座` : sample.label}</option>)}
         </select>
@@ -76,8 +77,8 @@ export function HistoricalFlightTrailControls({ country, isDarkTheme }: { countr
       {selection.airport !== HISTORICAL_FLIGHT_ALL_AIRPORTS && !selected && <div style={{ marginTop: 6, lineHeight: 1.45 }}>此機場沒有 {selection.date} 的樣本（unavailable）。</div>}
       {status.state !== "idle" && <div style={{ marginTop: 5, color: status.state === "error" ? "#ef5350" : color }}>{status.message || (status.state === "loading" ? "載入航跡中" : "")}{status.count != null ? ` · ${numberText(status.count)} 航班` : ""}</div>}
       <div style={{ display: "flex", gap: 5, marginTop: 6 }}>
-        <button type="button" onClick={() => requestHistoricalFlightFocus(country)} style={{ fontSize: 11, cursor: "pointer" }}>{selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? "查看全部機場" : "定位機場"}</button>
-        {status.state === "error" && <button type="button" onClick={() => retryHistoricalFlightSelection(country)} style={{ fontSize: 11, cursor: "pointer" }}>重試</button>}
+        <button type="button" className="lpc-btn" onClick={() => requestHistoricalFlightFocus(country)}>{selection.airport === HISTORICAL_FLIGHT_ALL_AIRPORTS ? "查看全部機場" : "定位機場"}</button>
+        {status.state === "error" && <button type="button" className="lpc-btn" onClick={() => retryHistoricalFlightSelection(country)}>重試</button>}
       </div>
     </div>
   );
