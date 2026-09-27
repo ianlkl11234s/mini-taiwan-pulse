@@ -644,6 +644,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 等寬中文 | 3 處 | `FoodPriceBoard.tsx`、`TelecomStatusCard.tsx`、`ManeuverCompareModal.tsx` |
 | popup 暗色連結色 | `DARK_FEATURE.link = #7DD3FC`，與 `COLORS.link #7fb2ff` 不同；本輪只做等值替換未改 | `featureTheme.tsx` |
 | 其他手刻淡色物件 | `UserAvatar`（陰影、分隔線、hover 值不在 token 階）、`LegendPanel` `LIGHT_LEGEND`、`InfoModal`、`ChatPanel`、`LayerSidebar` 開關色、`LoadingIndicator` | 各檔 |
+| popup 暗色外框 | `rgba(100,170,255,0.25)` inline 字面，不在 `BORDER` 階上（`BORDER.accent` 為 0.55） | `FeatureInfoPanel.tsx` |
 | 淡色錯誤色 | tokens `--light-status-err #b42318` vs 設計稿 `#b91c1c` | 以 token 為準，設計稿未同步 |
 | 按鈕 pressed 態 | 未定義 | §5.7 |
 
