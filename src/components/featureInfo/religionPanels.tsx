@@ -1,5 +1,5 @@
-import { Row, SourceFooter } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { Row, SourceFooter, Title } from "./shared";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import {
   deityFamilyColor, deityFamilyLabel, ancestralHallTypeLabel,
@@ -8,17 +8,6 @@ import {
 import {
   JP_RELIGION_COLORS, jpReligionLabel, religionNameFallback,
 } from "../../data/jpReligionTypes";
-
-// 本檔 Title 為極簡本地版（同 urbanPanels / fisheryPanels 慣例）。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
