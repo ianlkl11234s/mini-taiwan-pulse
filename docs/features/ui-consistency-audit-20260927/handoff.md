@@ -76,6 +76,18 @@
 | 7 按鈕 | **C2** | 一般：`--control-bg`＋`--control-border`；主要：`--accent-faint` 底＋accent 框＋accent 字；focus 2px accent outline；disabled opacity .55 |
 | 8 research.html | ✔ | 暗色情報風，左欄面板＋右地圖，三段改 eyebrow＋`border-left` |
 
+**第四輪拍板（`ui-controls-sheet.html`，2026-09-27）**：
+
+| 區 | 選定 | 規格要點 |
+|---|---|---|
+| 1 工具列 | **T2 工具列底板** | 右側單一底板（`--surface-strong`、1px `--border-panel`、圓角 7、padding 3）；項目高 26、圓角 4；順序：即時／歷史分段 ｜ 底圖 ｜ 分享（圖示）、說明（圖示）、AI、**拍攝模式**（C2 主要按鈕）｜ 帳號。拿掉 Monitor BETA 按鈕（左側 rail「監測模式」保留）；第二排併入；操作提示移進「說明」 |
+| 1 左上 | 品牌字標維持 `FONT_DATA` 粗體（刻意例外），18 → 20px，與右側工具列垂直置中；計數列「flights · ships · 台灣好行」整行拿掉；座標改「25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°」 |
+| 1b 拍攝模式 | **P2 滑過才出現** | 離開提示「離開拍攝模式 Esc」平常隱藏，滑鼠移動淡入、靜止 2 秒淡出；副標改 CJK |
+| 1c 底圖 | **B3 純圖示** | 地圖圖示＋右下色點；展開靠右的 7 格縮圖（中文名）＋「顯示地名」開關 |
+| 2 即時情報 | ✔ | H2 標頭、中文不用等寬字、徽章兩種公式（分類淡底／程度外框）、分段分頁、左線時間軸；計數口徑不在本輪 |
+| 3 圖層控制 | **V2＋S1** | 標籤＋數值一行、滑桿全寬在下；2px 軌道＋10px 圓點；標籤中文；開關迷你切換；Hide→眼睛圖示；chevron 統一 |
+| — | design system | repo 文件（`docs/design-system.md`）＋參考頁＋自動檢查（測試） |
+
 ## 5. 建議施工順序與驗收方式
 
 沿用 `docs/design-system.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
