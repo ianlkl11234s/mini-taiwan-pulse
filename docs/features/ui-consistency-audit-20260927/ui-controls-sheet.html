@@ -232,6 +232,45 @@
   .bm-ic { position: relative; }
   .bm-dot { position: absolute; right: 3px; bottom: 3px; width: 7px; height: 7px; border-radius: 2px; border: 1px solid var(--surface-solid); }
   .lbl-tg { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 6px; font: 500 11px/1 var(--font-cjk); color: var(--t-muted); white-space: nowrap; }
+  .railapp { display: flex; gap: 0; align-items: flex-start; }
+  .rail { width: 40px; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px 0 0 8px; padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .rail i { width: 26px; height: 26px; border-radius: 5px; display: grid; place-items: center; }
+  .rail i svg { width: 14px; height: 14px; stroke: var(--t-muted); fill: none; stroke-width: 1.7; }
+  .rail i.on { background: var(--accent-faint); }
+  .rail i.on svg { stroke: var(--accent); }
+  .dsp { width: 300px; max-width: calc(100vw - 90px); background: var(--surface); border: 1px solid var(--b-panel); border-left: 0; border-radius: 0 8px 8px 0; box-shadow: var(--shadow); font-family: var(--font-cjk); overflow: hidden; }
+  .dsp .ih { padding: 10px 12px; }
+  .dsp .body { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+  .dsp .search { height: 26px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-dim); font-size: 11px; padding: 0 8px; display: flex; align-items: center; gap: 6px; }
+  .dsp .search svg { width: 12px; height: 12px; stroke: var(--t-dim); fill: none; stroke-width: 2; }
+  .dsp .seg { width: 100%; height: 24px; }
+  .dsp .seg button { flex: 1; justify-content: center; padding: 0 4px; font-size: 10px; }
+  .dsp .seg .n { font-family: var(--font-data); font-size: 9.5px; }
+  .theme-h { font: 600 11px var(--font-cjk); color: var(--t-strong); padding: 6px 0 0; display: flex; align-items: center; gap: 6px; }
+  .theme-h .en { font: 9px var(--font-data); color: var(--t-dim); letter-spacing: .8px; }
+  .grp-h { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; color: var(--t-muted); padding: 4px 0 1px; }
+  .grp-h::after { content: ""; flex: 1; height: 1px; background: var(--b-mid); }
+  .dsr { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t-default); padding: 3px 4px; border-radius: 4px; }
+  .dsr.sel { background: var(--c-bg-hover); }
+  .dsr .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dsr .en { color: var(--t-dim); font-size: 10px; }
+  .dsr .st { margin-left: auto; font-size: 10px; }
+  .st-ok { color: var(--live); } .st-der { color: #a78bfa; } .st-todo { color: var(--warn); }
+  .dscard { margin: 2px 0 4px 14px; padding: 6px 0 6px 10px; border-left: 1px solid var(--b-mid); display: flex; flex-direction: column; gap: 4px; }
+  .dscard .ttl { font-size: 11.5px; font-weight: 700; color: var(--t-strong); display: flex; gap: 6px; align-items: center; }
+  .dscard .desc { font-size: 10.5px; color: var(--t-muted); line-height: 1.5; }
+  .fr { display: flex; gap: 8px; padding: 3px 0; font-size: 10.5px; line-height: 1.3; border-bottom: 1px solid var(--b-soft); }
+  .fr:last-of-type { border-bottom: 0; }
+  .fr .k { width: 44px; flex-shrink: 0; font-size: 10px; color: var(--t-muted); }
+  .fr .v { color: var(--t-strong); word-break: break-all; }
+  .fr .v a { color: var(--link); text-decoration: none; }
+  .fr .v.d { font-family: var(--font-data); font-size: 10px; }
+  .backbar { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--link); padding-bottom: 6px; border-bottom: 1px solid var(--b-soft); }
+  .dockcard { width: 260px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 12px 14px; font-family: var(--font-cjk); align-self: flex-end; }
+  .dockcard .ey { font-size: 9px; letter-spacing: 1.2px; color: var(--t-dim); margin-bottom: 4px; }
+  .dockcard .ttl { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--t-strong); padding-bottom: 5px; margin-bottom: 4px; border-bottom: 1px solid var(--b-panel); }
+  .dockcard .foot { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--b-soft); font-size: 9px; color: var(--t-dim); }
+  .ds-wrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
   .combo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; align-items: start; }
   .combo-cap { font-size: 10.5px; color: var(--t-muted); margin-bottom: 5px; display: flex; gap: 6px; }
   .combo-cap .c { font-family: var(--font-data); color: var(--t-dim); }
@@ -247,7 +286,7 @@
   <header>
     <h1>工具列、即時情報與圖層控制</h1>
     <p>沿用上一輪拍板：系統字，中文用 <code>--font-cjk</code>、只有數字用 <code>--font-data</code>；按鈕 C2；面板標頭 H2；分隔用左線。每區暗、淡色並排。圖層控制的滑桿、分段、開關都可以直接操作。</p>
-    <p class="howto">回覆格式：「1-T2、1b-P1、1c-B2、3-V1＋S1，2 OK」。混搭也可以。工具列 T1～T4 的底圖控制項先以 B4 示意。</p>
+    <p class="howto">回覆格式：「4-D3」。前面 1、1b、1c、2、3 已拍板並施工中。工具列 T1～T4 的底圖控制項先以 B4 示意。</p>
   </header>
 
   <!-- 1 工具列 -->
@@ -304,6 +343,27 @@
       <li><b>B2 色塊按鈕</b>：按鈕顯示目前底圖色塊與名稱；展開是 7 格縮圖＋「顯示地名」開關。</li>
       <li><b>B3 純圖示</b>：只有地圖圖示＋右下小色點，最省寬；展開同 B2。缺點是看不出目前是哪種底圖，要滑過才知道。</li>
       <li><b>B4 色塊按鈕＋地名外露</b>：B2 的按鈕旁多一個「地名 ●」小開關，地名一鍵切換；展開面板只放縮圖。介於 B1 與 B2 之間。</li>
+    </ul>
+  </section>
+
+  <!-- 4 資料來源 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">4</span><h2>資料來源總覽：收進側邊欄</h2><span class="tag pick">選一</span></div>
+    <ul class="note">
+      <li><b>現況</b>：右下角浮動 ⓘ 按鈕（與「LEGEND」並排）→ 右側全高抽屜 → 點圖層再跳出置中的詳細視窗。元件沒有設定字型，所以顯示成瀏覽器預設的襯線字；顏色全部寫死。</li>
+      <li><b>共通改法</b>：左側欄新增一個「資料來源」圖示（資料庫圖示，放在「Locations」之後）；拿掉右下角的浮動 ⓘ。面板外殼與 Layers 相同：H2 標頭（小字「資料」＋標題「資料來源」）、搜尋框、主題標題與 L2 群組標題。</li>
+      <li>統計數字改成可點的篩選分段：全部 803 · 已接上 554 · 派生 27 · 待補 222；每列右側用同一組狀態記號（✓ 綠／⚙ 紫／? 橙）。</li>
+      <li>三版差別在「點一個圖層後，詳細資料在哪裡出現」：</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="rowwrap" data-ds></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="rowwrap" data-ds></div></div>
+    </div>
+    <ul class="note">
+      <li><b>D1 列內展開</b>：點一下在清單中直接展開上游資料卡，同時只展開一筆。最直覺，但長內容會把清單往下推。</li>
+      <li><b>D2 面板內下一層</b>：點進去整個面板換成詳細頁，左上「← 資料來源」返回；清單位置會記住。適合內容長、要專心讀的情境。</li>
+      <li><b>D3 右下停靠卡</b>：清單留在左側，詳細資料出現在右下角，外觀與地圖 popup 完全相同（B 版列＋F2 來源 footer）。全站只有一種「詳細資料」長相。</li>
+      <li>順帶：右下角的「LEGEND」改成中文「圖例」、改中文字型（與拿掉的 ⓘ 同一區，一起整理）。</li>
     </ul>
   </section>
 
@@ -453,6 +513,37 @@
   const captures = capture("P1", "常駐小提示", '<div class="exit">離開拍攝模式 <span class="k">Esc</span></div>')
     + capture("P2", "滑過才出現", '<div class="exit ghost">離開拍攝模式 <span class="k">Esc</span></div>');
 
+  const DBI = '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
+  const railIcons = [I.layer, I.layer, I.layer, '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>', DBI, I.ai, I.info];
+  const rail = (onIdx) => `<div class="rail">${railIcons.map((ic, i) => `<i class="${i === onIdx ? "on" : ""}" ${i === 4 ? 'title="資料來源"' : ""}>${ic.replace('class="ic"', "")}</i>`).join("")}</div>`;
+  const dsHead = `<div class="ih"><div><div class="ey">資料</div><h3>資料來源</h3></div><span class="x">✕</span></div>`;
+  const dsFilter = `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>搜尋圖層名稱</div>
+    <div class="seg"><button class="on" type="button">全部 <span class="n">803</span></button><button type="button"><span class="st-ok">✓</span> <span class="n">554</span></button><button type="button"><span class="st-der">⚙</span> <span class="n">27</span></button><button type="button"><span class="st-todo">?</span> <span class="n">222</span></button></div>`;
+  const dsRow = (c, n, en, st, sel) => `<div class="dsr ${sel ? "sel" : ""}"><span class="dot" style="background:${c}"></span>${n}<span class="en">${en}</span><span class="st ${st === "ok" ? "st-ok" : st === "der" ? "st-der" : "st-todo"}">${st === "ok" ? "✓" : st === "der" ? "⚙" : "?"}</span></div>`;
+  const facts = `<div class="fr"><span class="k">機關</span><span class="v">內政部國土測繪中心</span></div>
+    <div class="fr"><span class="k">頻率</span><span class="v">不定期（行政區劃調整時）</span></div>
+    <div class="fr"><span class="k">授權</span><span class="v">政府資料開放授權條款 第 1 版</span></div>
+    <div class="fr"><span class="k">更新</span><span class="v d">2026-06-26</span></div>
+    <div class="fr"><span class="k">API</span><span class="v"><a href="#">data.gov.tw/dataset/7438 ↗</a></span></div>`;
+  const dsCard = `<div class="dscard"><div class="ttl"><span class="st-ok">✓ 已接上</span> · 1 個上游資料集</div><div class="ttl">全國村里邊界（視覺化版）</div>
+    <div class="desc">全國 7,973 村里面，GeoJSON＋PMTiles 兩種格式，供前端視覺化與底圖。</div>${facts}
+    <div style="display:flex;gap:6px;margin-top:4px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div></div>`;
+  const listTop = `<div class="theme-h">底圖<span class="en">BASE MAP</span></div><div class="grp-h">行政邊界</div>
+    ${dsRow("#6b7280", "縣市界", "County", "ok")}${dsRow("#9ca3af", "鄉鎮市區界", "Township", "ok")}`;
+  const listRest = `<div class="grp-h">地形</div>${dsRow("#8b5a2b", "等高線", "Contour 25k", "ok")}${dsRow("#f59e0b", "坡度分級", "Slope", "der")}
+    <div class="grp-h">行政區</div>${dsRow("#f59e0b", "都道府縣界", "Prefecture", "todo")}`;
+  const D1 = `<div><div class="opt-cap"><b>D1</b>列內展開</div><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body">${dsFilter}${listTop}${dsRow("#d1d5db", "村里界", "Village", "ok", true)}${dsCard}${listRest}</div></div></div></div>`;
+  const D2 = `<div><div class="opt-cap"><b>D2</b>面板內下一層</div><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body"><div class="backbar">← 資料來源</div>
+      <div class="dockcard" style="box-shadow:none;border:0;padding:0;width:auto;background:transparent"><div class="ey">底圖 · 行政邊界</div><div class="ttl"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:#d1d5db"></span>村里界 <span style="font-weight:400;color:var(--t-dim);font-size:11px">Village</span></div>
+      <div style="font-size:10px;color:var(--t-muted);margin-bottom:4px"><span class="st-ok">✓ 已接上</span> · 1 個上游資料集</div>
+      <div class="dscard" style="margin-left:0"><div class="ttl">全國村里邊界（視覺化版）</div><div class="desc">全國 7,973 村里面，GeoJSON＋PMTiles 兩種格式，供前端視覺化與底圖。</div>${facts}</div>
+      <div style="display:flex;gap:6px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div></div></div></div></div></div>`;
+  const D3 = `<div><div class="opt-cap"><b>D3</b>右下停靠卡（與地圖 popup 同一種）</div><div class="ds-wrap"><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body">${dsFilter}${listTop}${dsRow("#d1d5db", "村里界", "Village", "ok", true)}${listRest}</div></div></div>
+      <div class="dockcard"><div class="ey">資料來源 · 底圖</div><div class="ttl"><span style="width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block"></span>村里界</div>
+        <div style="font-size:10px;color:var(--t-muted);margin:2px 0 4px"><span class="st-ok">✓ 已接上</span> · 全國村里邊界（視覺化版）</div>${facts}
+        <div style="display:flex;gap:6px;margin-top:6px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div>
+        <div class="foot">資料文件 · <span style="font-family:var(--font-data)">docs/data-catalog/demographics/village_boundary.md</span></div></div></div></div>`;
+  const dsViews = D1 + D2 + D3;
   const card = (cat, cc, lvl, lc, sub, time, title, loc, n, ago, dot) => `
     <li class="card" style="--dotc:${dot}"><div class="top"><span class="chip" style="--cc:${cc}">${cat}</span><span class="chip o" style="--cc:${lc}">${lvl}</span>${sub}<span class="time">${time}</span></div>
       <h4>${title}</h4><div class="loc"><span>${loc}</span>${n ? `<span><span class="d">${n}</span> 區</span>` : ""}<span><span class="d">${ago}</span> 分鐘前</span></div></li>`;
@@ -505,6 +596,7 @@
   fill("[data-bars]", bars);
   fill("[data-capture]", captures);
   fill("[data-basemap]", basemaps);
+  fill("[data-ds]", dsViews);
   fill("[data-intel]", intel);
   fill("[data-layouts]", layouts);
   fill("[data-combos]", combos);
