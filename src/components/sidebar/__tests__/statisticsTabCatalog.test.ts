@@ -9,6 +9,7 @@ import { STATISTICS_RENDER_KEYS } from "../../../data/regionalStatisticsRecipes"
 import { EDUCATION_PRESENTATION_VIEW_KEYS } from "../../../data/statisticsPresentationViews";
 
 const EXPECTED_THEME_STRUCTURE = [
+  { title: "工作與所得 Work & Income", groups: ["戶籍村里／申報戶", "實際工作所在地", "居住地人力資源調查"] },
   { title: "人口與社會 People & Society", groups: ["人口動態", "教育與少子化", "醫療與長照", "住宅存量與使用", "不動產總市值", "犯罪與治安"] },
   { title: "交通與運輸 Transport", groups: ["建置量", "使用與營運", "車輛登記存量", "自行車（臺北市，民國 110 年）", "道路安全與監測", "駕照與停車", "航空運輸", "運輸補助", "交通用地"] },
   { title: "農林漁牧 Agriculture, Forestry & Fisheries", groups: ["農地與設施", "作物生產", "畜牧用地", "畜牧飼養", "漁業生產", "水產養殖", "森林用地"] },
@@ -19,6 +20,7 @@ const NON_EDUCATION_COMPARISON_KEYS = COMPARISON_STATISTICS_KEYS.filter(key => !
 const layers = STATISTICS_TAB_THEMES.flatMap((theme) => theme.groups.flatMap((group) => group.layers));
 
 const EXPECTED_LAYER_KEYS = [
+  "statsLaborVillageIncomeMedian", "statsLaborCountyAnnualSalaryMedian", "statsLaborCountyLaborForce", "statsLaborCountyEmployment", "statsLaborCountyUnemployment", "statsLaborCountyNonLaborForce", "statsLaborCountyParticipationRate", "statsLaborCountyUnemploymentRate", "statsLaborCountyEmploymentByIndustry",
   "statsBirthsTownship",
   ...EDUCATION_PRESENTATION_VIEW_KEYS,
   "statsHealthHospitalCount", "statsHealthHospitalBedTotal", "statsHealthAcuteBedTotal", "statsHealthIcuBedTotal", "statsHealthHospiceBedTotal", "statsHealthHealthProfessionalTotal", "statsHealthWesternPhysicianCount", "statsHealthRegisteredNurseCount", "statsHealthNursingStaffListedAgeSexSum", "statsHealthCareWorkerListedSexSum", "statsHealthGeneralNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenBeds", "statsHealthPostpartumNursingHomeOpenInfantBeds", "statsHealthCareWorkerRegistration", "statsHealthMedicalInstitutionBedsPer10000Population", "statsHealthPracticingMedicalPersonnelPer10000Population",
@@ -43,7 +45,7 @@ const EXPECTED_LAYER_KEYS = [
 ];
 
 describe("STATISTICS_TAB_THEMES", () => {
-  it("以五個使用者主題與一致的小群組呈現", () => {
+  it("以六個使用者主題與一致的小群組呈現", () => {
     expect(STATISTICS_TAB_THEMES.map((theme) => ({
       title: theme.title,
       groups: theme.groups.map((group) => group.title),

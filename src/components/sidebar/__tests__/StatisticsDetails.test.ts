@@ -3,6 +3,7 @@ import { statisticsCoverageAreaLabel, statisticsCoverageStatusLabel, statisticsD
 import { medicalStatisticsSelectStyle } from '../MedicalStatisticsGroupControls';
 import { STATISTICS_RECIPES } from '../../../data/regionalStatisticsRecipes';
 import { getSocialRecipe } from '../../../data/socialStatisticsRecipes';
+import { getLaborRecipe, laborLocationSemantics } from '../../../data/laborStatisticsRecipes';
 
 describe('statisticsDimensionSummary', () => {
   it('keeps statistics selectors readable in either sidebar theme', () => {
@@ -54,6 +55,16 @@ describe('statisticsDimensionSummary', () => {
 
   it('shows the selected TMRT station-location semantics', () => {
     expect(statisticsDimensionSummary({ roc_year: '114', month: '12', system_id: 'tmrt', geographic_semantics: 'station_location' })).toBe('期間：民國 114 年・12 月；系統：臺中捷運；地理語意：車站所在地');
+  });
+
+  it('humanizes labor exact selectors without hiding the industry subset rule', () => {
+    expect(statisticsDimensionSummary({ industry: 'manufacturing', period: 'H1', roc_year: '115' }, undefined, 'labor_statistics'))
+      .toBe('期間：民國 115 年；行業：製造業（工業子集）；期別：上半年');
+    const salary = getLaborRecipe('statsLaborCountyAnnualSalaryMedian')!;
+    expect(laborLocationSemantics(salary)).toContain('實際工作場所縣市');
+    expect(laborLocationSemantics(salary)).not.toContain('人力資源調查的居住地');
+    expect(laborLocationSemantics(getLaborRecipe('statsLaborVillageIncomeMedian')!)).toContain('申報／戶籍村里');
+    expect(laborLocationSemantics(getLaborRecipe('statsLaborCountyLaborForce')!)).toContain('居住地');
   });
 
   it('humanizes new source-field and facility-location disclosures', () => {

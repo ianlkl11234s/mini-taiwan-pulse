@@ -7,6 +7,7 @@ import { CORAL_REEF_COLOR } from "./coralReefTypes";
 import { JP_POLICE_LAYER_COLOR } from "./jpPoliceFacilityTypes";
 import { AGRI_ENABLED_STATISTICS_RECIPES, type AgriStatisticsLayerKey } from "./agriStatisticsRecipes";
 import { SOCIAL_ENABLED_STATISTICS_RECIPES, type SocialStatisticsLayerKey } from "./socialStatisticsRecipes";
+import { LABOR_ENABLED_STATISTICS_RECIPES, type LaborStatisticsLayerKey } from "./laborStatisticsRecipes";
 import { EDUCATION_PRESENTATION_VIEWS, type EducationPresentationViewKey } from "./statisticsPresentationViews";
 // ══════════════════════════════════════════════════════════════════
 //  Layer Manifest — 一個 layer 的「登記資料」單一真實來源（AR-22）
@@ -368,6 +369,18 @@ const SOCIAL_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(SOCIAL_ENABLED_STA
   topics: ["統計", recipe.group.replace("統計", ""), "行政區", recipe.level === "township" ? "鄉鎮市區" : "縣市"],
 }])) as Record<SocialStatisticsLayerKey, LayerManifestEntry>;
 
+/** Labor recipes are an incremental local delivery and share the dynamic Statistics renderer. */
+const LABOR_STATISTICS_MANIFEST_ENTRIES = Object.fromEntries(LABOR_ENABLED_STATISTICS_RECIPES.map((recipe) => [recipe.layer_key, {
+  key: recipe.layer_key,
+  section: { theme: "工作與所得 Work & Income", group: recipe.subgroup },
+  label: recipe.label, expandable: true, color: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).accent, icon: getStatisticsVisual(recipe.layer_key, recipe.label, recipe.group).icon,
+  upstream: { status: "verified", datasets: [{ datasetId: recipe.dataset_id, confidence: "HIGH" }] }, dataClass: "D",
+  source: { kind: "custom", note: `Immutable ${recipe.dataset_id} release, exact selector and ${recipe.boundary_version} reference geometry; regionalStatisticsMap runtime` },
+  legend: recipe.layer_key, popup: "regionalStatistic", params: { count: 1, kinds: ["slider"] },
+  description: recipe.disclosure,
+  topics: ["統計", "工作", "所得", "勞動", recipe.level === "village" ? "村里" : "縣市"],
+}])) as Record<LaborStatisticsLayerKey, LayerManifestEntry>;
+
 /** Fixed-stage education views are presentation keys; they never add to the 45 source recipes. */
 const EDUCATION_PRESENTATION_MANIFEST_ENTRIES = Object.fromEntries(EDUCATION_PRESENTATION_VIEWS.map((view) => {
   const metric = view.metrics[0]!;
@@ -460,6 +473,7 @@ export const LAYER_MANIFEST = {
   ...COMPARISON_MANIFEST_ENTRIES,
   ...AGRI_STATISTICS_MANIFEST_ENTRIES,
   ...SOCIAL_STATISTICS_MANIFEST_ENTRIES,
+  ...LABOR_STATISTICS_MANIFEST_ENTRIES,
   ...EDUCATION_PRESENTATION_MANIFEST_ENTRIES,
   statsMaritimeSubsidyCounty: {
     key: "statsMaritimeSubsidyCounty", section: { theme: "交通統計 Transport Statistics", group: "航港獎補助" },

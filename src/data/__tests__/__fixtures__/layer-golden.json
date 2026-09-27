@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 794,
+    "keyCount": 803,
     "sections": [
       "gisLayers",
       "overlays",
@@ -2633,6 +2633,15 @@
         "statsHousingUnusedTownship-fill",
         "statsHousingOccupiedPctTownship-fill",
         "statsHousingUnusedPctTownship-fill",
+        "statsLaborVillageIncomeMedian-fill",
+        "statsLaborCountyAnnualSalaryMedian-fill",
+        "statsLaborCountyLaborForce-fill",
+        "statsLaborCountyEmployment-fill",
+        "statsLaborCountyUnemployment-fill",
+        "statsLaborCountyNonLaborForce-fill",
+        "statsLaborCountyParticipationRate-fill",
+        "statsLaborCountyUnemploymentRate-fill",
+        "statsLaborCountyEmploymentByIndustry-fill",
         "statsEducationPreschoolSchool-fill",
         "statsEducationPreschoolTeacher-fill",
         "statsEducationPreschoolStudent-fill",
@@ -76338,6 +76347,87 @@
       }
     ],
     "statsHousingUnusedTownship": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyAnnualSalaryMedian": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyEmployment": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyEmploymentByIndustry": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyLaborForce": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyNonLaborForce": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyParticipationRate": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyUnemployment": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborCountyUnemploymentRate": [
+      {
+        "label": "透明度 0.55",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.55
+      }
+    ],
+    "statsLaborVillageIncomeMedian": [
       {
         "label": "透明度 0.55",
         "max": 1,

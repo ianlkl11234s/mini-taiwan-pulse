@@ -884,6 +884,15 @@ const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
  */
 export const LAYER_PARAMS_SPEC = {
   ...Object.fromEntries(COMPARISON_STATISTICS_KEYS.map(key => [key, [opacitySlider(`${key}Opacity`, 0.55)]])) as Record<ComparisonStatisticsLayerKey, ReturnType<typeof opacitySlider>[]>,
+  statsLaborVillageIncomeMedian: [opacitySlider("statsLaborVillageIncomeMedianOpacity", 0.55)],
+  statsLaborCountyAnnualSalaryMedian: [opacitySlider("statsLaborCountyAnnualSalaryMedianOpacity", 0.55)],
+  statsLaborCountyLaborForce: [opacitySlider("statsLaborCountyLaborForceOpacity", 0.55)],
+  statsLaborCountyEmployment: [opacitySlider("statsLaborCountyEmploymentOpacity", 0.55)],
+  statsLaborCountyUnemployment: [opacitySlider("statsLaborCountyUnemploymentOpacity", 0.55)],
+  statsLaborCountyNonLaborForce: [opacitySlider("statsLaborCountyNonLaborForceOpacity", 0.55)],
+  statsLaborCountyParticipationRate: [opacitySlider("statsLaborCountyParticipationRateOpacity", 0.55)],
+  statsLaborCountyUnemploymentRate: [opacitySlider("statsLaborCountyUnemploymentRateOpacity", 0.55)],
+  statsLaborCountyEmploymentByIndustry: [opacitySlider("statsLaborCountyEmploymentByIndustryOpacity", 0.55)],
   // 農林漁牧 Statistics 的實質 values/filter 邏輯由 dynamic renderer 處理；登記簿只宣告共通透明度。
   // 社會統計同樣由 dynamic renderer 處理；release/filter 選項由 recipe exact whitelist 提供。
   statsEducationCountyInstitutionCount: [opacitySlider("statsEducationCountyInstitutionCountOpacity", 0.55)],

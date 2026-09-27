@@ -1,5 +1,6 @@
 import {
   Baby,
+  Briefcase,
   BedDouble,
   Beef,
   Bike,
@@ -51,6 +52,7 @@ const THEMES = {
   forestry: { theme: '林業', accent: '#74c476', colors: ['#edf8e9', '#bae4b3', '#74c476', '#31a354', '#006d2c'] },
   environment: { theme: '環境', accent: '#8c96c6', colors: ['#edf8fb', '#b3cde3', '#8c96c6', '#8856a7', '#810f7c'] },
   utilities: { theme: '公用事業', accent: '#7bccc4', colors: ['#f0f9e8', '#bae4bc', '#7bccc4', '#43a2ca', '#0868ac'] },
+  labor: { theme: '工作與所得', accent: '#2a9d8f', colors: ['#edf8fb', '#b2e2e2', '#66c2a4', '#2ca25f', '#006d2c'] },
   security: { theme: '治安', accent: '#ef4444', colors: ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15'] },
   fallback: { theme: '統計', accent: '#6baed6', colors: ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c'] },
 } as const satisfies Record<string, StatisticsTheme>;
@@ -138,6 +140,10 @@ export function getStatisticsVisual(key: string, label?: string, group?: string)
 
   if (has(text, ['住宅', 'housing', '住戶', '空屋', '居住', '建物'])) {
     return visual(THEMES.housing, House);
+  }
+
+  if (has(text, ['勞動', '所得', '薪資', '就業', '失業', 'labor', 'employment', 'salary', 'income'])) {
+    return visual(THEMES.labor, Briefcase);
   }
 
   if (has(text, ['漁業', 'fishery', 'aquaculture', '水產', '養殖'])) return visual(THEMES.fishery, Fish);
