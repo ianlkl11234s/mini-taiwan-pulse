@@ -69,7 +69,6 @@ import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
-import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
@@ -2930,9 +2929,6 @@ export default function App() {
         onTestKey={testKey}
         compact={featureInfo !== null}
       />
-
-      {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
-      {!memberOpen && <DataSourceBrowser isDarkTheme={isDarkTheme} lockedKeys={lockedKeys} onActivateLayer={(key) => handleBulkSetVisibility([key], true)} />}
 
       {/*
         ── 圖層掛載（AR-22 P1）────────────────────────────────────

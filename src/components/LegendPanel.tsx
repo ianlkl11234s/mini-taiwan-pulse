@@ -10,7 +10,7 @@ import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, SURFACE, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
@@ -735,14 +735,13 @@ export const LegendPanel = memo(function LegendPanel({
           cursor: "pointer",
           color: c.headerText,
           fontSize: FONT_SIZE.sm,
-          fontFamily: FONT_DATA,
-          letterSpacing: 1,
+          fontFamily: FONT_CJK,
         }}
       >
         {expanded
           ? <ChevronDown size={12} style={{ flexShrink: 0 }} />
           : <ChevronRight size={12} style={{ flexShrink: 0 }} />}
-        <span>LEGEND</span>
+        <span>圖例</span>
       </button>
 
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
