@@ -1,6 +1,7 @@
 import { statisticsColorStops } from '../data/statisticsColorScale';
 import { getSocialRecipe } from '../data/socialStatisticsRecipes';
 import { getAgriRecipe } from '../data/agriStatisticsRecipes';
+import { getLaborRecipe } from '../data/laborStatisticsRecipes';
 import { STATISTICS_RENDER_KEYS, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsRenderKey } from '../data/regionalStatisticsRecipes';
 import { regionalStatisticsStore } from '../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../state/layerVisibilityStore';
@@ -36,7 +37,7 @@ export function attachRegionalStatistics(map: mapboxgl.Map): () => void {
       const outlineColor = recipe.colors[recipe.colors.length - 1] ?? recipe.colors[0] ?? '#64748b';
       if (!layerVisibilityStore.getAll()[key] && !map.getSource(key)) continue;
       const baseKey = statisticsBaseKey(key, state.selection?.indicatorId);
-      const agri = getAgriRecipe(baseKey) ?? getSocialRecipe(baseKey);
+      const agri = getAgriRecipe(baseKey) ?? getSocialRecipe(baseKey) ?? getLaborRecipe(baseKey);
       if (!map.getSource(key)) {
         rendered.delete(key);
         map.addSource(key, { type: 'geojson', data: { type: 'FeatureCollection', features: [] }, promoteId: 'area_code' });

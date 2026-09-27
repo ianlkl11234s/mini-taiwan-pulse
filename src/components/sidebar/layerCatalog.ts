@@ -205,6 +205,11 @@ export const JAPAN_TAB_THEME_TITLES: string[] = ["行政區", "交通", "旅宿"
 
 /** Statistics uses the existing Layers hierarchy; reference GIS layers retain their original entries. */
 export const STATISTICS_DATA_THEMES: ThemeDef[] = [
+  { title: "工作與所得 Work & Income", groups: [
+    { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
+    { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
+    { title: "居住地人力資源調查", layers: [fromManifest("statsLaborCountyLaborForce"), fromManifest("statsLaborCountyEmployment"), fromManifest("statsLaborCountyUnemployment"), fromManifest("statsLaborCountyNonLaborForce"), fromManifest("statsLaborCountyParticipationRate"), fromManifest("statsLaborCountyUnemploymentRate"), fromManifest("statsLaborCountyEmploymentByIndustry")] },
+  ] },
   { title: "房地產統計 Real Estate Statistics", groups: [
     { title: "行政區總市值", layers: [fromManifest("propertyValueAdmin")] },
   ] },
@@ -274,6 +279,19 @@ export const STATISTICS_DATA_THEMES: ThemeDef[] = [
  * manifest / statistics recipes 管理，這裡只決定統計入口的閱讀順序。
  */
 export const STATISTICS_TAB_THEMES: ThemeDef[] = [
+  {
+    title: "工作與所得 Work & Income",
+    groups: [
+      { title: "戶籍村里／申報戶", layers: [fromManifest("statsLaborVillageIncomeMedian")] },
+      { title: "實際工作所在地", layers: [fromManifest("statsLaborCountyAnnualSalaryMedian")] },
+      { title: "居住地人力資源調查", layers: [
+        fromManifest("statsLaborCountyLaborForce"), fromManifest("statsLaborCountyEmployment"),
+        fromManifest("statsLaborCountyUnemployment"), fromManifest("statsLaborCountyNonLaborForce"),
+        fromManifest("statsLaborCountyParticipationRate"), fromManifest("statsLaborCountyUnemploymentRate"),
+        fromManifest("statsLaborCountyEmploymentByIndustry"),
+      ] },
+    ],
+  },
   {
     title: "人口與社會 People & Society",
     groups: [
@@ -1928,6 +1946,7 @@ export const LAYER_MACRO_GROUPS = [
 export type LayerMacroGroup = (typeof LAYER_MACRO_GROUPS)[number]["key"];
 
 const THEME_MACRO_GROUPS: Record<string, LayerMacroGroup> = {
+  "工作與所得 Work & Income": "city",
   "農業統計": "environment",
   "畜牧統計": "environment",
   "漁業統計": "environment",

@@ -157,7 +157,8 @@ describe("黃金快照覆蓋度", () => {
     // 2026-09-20: +2 日本建物高度／樹冠高度分區圖層。
     // 2026-09-22: +10 公共生活與韌性圖層。
     // 2026-09-23/24: +6 交通設施與橋梁雨量圖層。
-    expect(keys.length).toBe(794);
+    // 2026-09-27: +9 勞動與所得 Statistics 圖層。
+    expect(keys.length).toBe(803);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

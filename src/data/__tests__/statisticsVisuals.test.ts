@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   Baby, BedDouble, Beef, Bike, Bus, Car, ChartNoAxesCombined, Droplets, Fish,
-  GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
+  Briefcase, GraduationCap, HeartHandshake, Hospital, House, Plane, Presentation,
   Recycle, Route, School, Shield, Ship, Stethoscope, Trash2, Trees, TriangleAlert,
   Volume2, Wheat, Zap,
 } from 'lucide-react';
@@ -25,6 +25,7 @@ describe('getStatisticsVisual', () => {
     ['醫療人員', 'statsHealthWesternPhysicianCount', undefined, undefined, Stethoscope],
     ['長照', 'statsHealthCareWorkerRegistration', undefined, undefined, HeartHandshake],
     ['住宅', 'statsHousingOccupiedCounty', undefined, undefined, House],
+    ['工作與所得', 'statsLaborCountyEmployment', undefined, undefined, Briefcase],
     ['公車', 'statsBusOperatingTripCount', undefined, undefined, Bus],
     ['自行車', 'statsTaipeiUrbanRentalTrips', undefined, undefined, Bike],
     ['汽車', 'statsAutomobileRegisteredCount', undefined, undefined, Car],
@@ -90,8 +91,8 @@ describe('getStatisticsVisual', () => {
   });
 
   it('covers all source keys, presentation views, and their manifest entries', () => {
-    expect(STATISTICS_KEYS).toHaveLength(299);
-    expect(STATISTICS_RENDER_KEYS).toHaveLength(311);
+    expect(STATISTICS_KEYS).toHaveLength(308);
+    expect(STATISTICS_RENDER_KEYS).toHaveLength(320);
     const uncoveredRenderKeys = STATISTICS_RENDER_KEYS.filter(key => {
       const recipe = statisticsRenderRecipe(key);
       return getStatisticsVisual(key, recipe.label).icon === ChartNoAxesCombined;

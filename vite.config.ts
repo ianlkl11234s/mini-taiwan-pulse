@@ -1304,6 +1304,13 @@ export default defineConfig({
           rewrite: (path: string) => path.replace(/^\/__social-statistics-cdn/, ''),
         },
       } : {}),
+      ...(process.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' ? {
+        '/__labor-statistics-cdn': {
+          target: `http://127.0.0.1:${Number(process.env.LABOR_STATISTICS_PREVIEW_PORT || 3761)}`,
+          changeOrigin: false,
+          rewrite: (path: string) => path.replace(/^\/__labor-statistics-cdn/, ''),
+        },
+      } : {}),
       "/api/private-research/coral": { target: "http://127.0.0.1:8789", changeOrigin: false },
       "/api/private-research/allen-coral-atlas": { target: "http://127.0.0.1:8796", changeOrigin: false },
       "/api/private-research/jp-water": { target: "http://127.0.0.1:8796", changeOrigin: false },
