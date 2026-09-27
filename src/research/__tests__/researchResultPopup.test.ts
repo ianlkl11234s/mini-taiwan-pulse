@@ -24,6 +24,15 @@ describe("researchResultPopupFacts", () => {
     expect(researchResultPopupFacts({ status: "observed", value: 20, normalizedValue: 10, normalization_status: "valid" })).toContainEqual({ label: "標準化值", value: "10（單位未隨圖徵提供）" });
   });
 
+  it("formats a % unit as a percentage without re-appending the unit, and a per-X unit with thousands grouping (spec U1)", () => {
+    expect(researchResultPopupFacts({ status: "observed", value: 12.34, unit: "%" })).toContainEqual({ label: "原始值", value: "12.3%" });
+    expect(researchResultPopupFacts({ status: "observed", value: 27450, unit: "人/km²" })).toContainEqual({ label: "原始值", value: "27,450 人/km²" });
+  });
+
+  it("never rounds away a fractional value with no unit signal (falls back to ratio, not count)", () => {
+    expect(researchResultPopupFacts({ status: "observed", value: 12.5, unit: "cases per 10000 persons" })).toContainEqual({ label: "原始值", value: "12.5 cases per 10000 persons" });
+  });
+
   it("does not turn null or undefined distance into a zero-metre straight line", () => {
     expect(researchResultPopupDistance(null)).toBeNull();
     expect(researchResultPopupDistance(undefined)).toBeNull();

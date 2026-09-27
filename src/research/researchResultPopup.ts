@@ -1,7 +1,11 @@
+import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
+
 export type ResearchResultPopupFact = { label: string; value: string };
 
 const number = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
-const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
+/** Exported for analysisResultOverlay.ts's proportional-symbol label layer, which needs the same
+ *  fallback key order as a Mapbox `coalesce` expression (a static list, not a per-feature function). */
+export const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
 
 const statusLabels: Record<string, string> = {
   observed: "有觀測值",
@@ -33,8 +37,13 @@ function status(value: unknown): string | null {
   return raw ? statusLabels[raw] ?? raw : null;
 }
 
+/** Popup number display (spec U1): a conservative kind guess from the field's free-text unit (no
+ *  ResultStyle field declares an explicit value kind yet) plus the value's own shape — see
+ *  classifyVizNumberKind. A "%" unit's own value already embeds the sign, so it is never re-appended. */
 function formatted(value: number, unit: string | null): string {
-  return `${number.format(value)}${unit ? ` ${unit}` : ""}`;
+  const kind = classifyVizNumberKind(value, unit);
+  const text = formatVizNumber(value, kind);
+  return kind === "percent" ? text : `${text}${unit ? ` ${unit}` : ""}`;
 }
 
 /** Mapbox properties may contain null; only a finite numeric distance is a measured straight-line distance. */
@@ -120,6 +129,6 @@ export function researchResultPopupFacts(properties: Record<string, unknown>): R
   const differenceUnit = text(properties.differenceUnit) ?? unit;
   if (comparisonStatus === "valid" && difference !== null) facts.push({ label: "差值（本區－基準）", value: formatted(difference, differenceUnit) });
   const ratio = finiteNumber(properties.ratio);
-  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: number.format(ratio) });
+  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: formatVizNumber(ratio, "ratio") });
   return facts;
 }
