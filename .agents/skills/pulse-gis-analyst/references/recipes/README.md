@@ -1,6 +1,6 @@
 # 分析配方索引（一題型一檔）
 
-先用 [geo-reasoning](../../../geo-reasoning/SKILL.md) 判斷問題在哪條軸（空間／關聯／因果），再只讀**一份**對應配方。題型已知時不要呼叫 `pulse_route_request`。
+先用 [geo-reasoning](../../../geo-reasoning/SKILL.md) 判斷問題在哪條軸（空間／關聯／因果），再只讀**一份**對應配方。題型已知時不要呼叫 `pulse_route_request`。下表對不上、或不確定有沒有相關資料時，先呼叫 `pulse_find_data` 廣搜再判斷，不要直接說沒有配方或沒有資料。
 
 | 使用者大概這樣問 | 配方 | 軸 |
 |---|---|---|
