@@ -23,6 +23,8 @@ export interface FeaturePalette {
   bgStrong: string;
   /** 中性邊框 / 分隔線 */
   border: string;
+  /** Row 之間的細線（比 border 更淡，B 版密度用）*/
+  borderSoft: string;
   /** 連結色（accent-on-white 需加深）*/
   link: string;
 }
@@ -35,6 +37,7 @@ export const DARK_FEATURE: FeaturePalette = {
   bgSubtle: "rgba(255,255,255,0.05)",
   bgStrong: "rgba(255,255,255,0.10)",
   border: "rgba(255,255,255,0.10)",
+  borderSoft: "rgba(255,255,255,0.06)",
   link: "#7DD3FC",
 };
 
@@ -46,6 +49,7 @@ export const LIGHT_FEATURE: FeaturePalette = {
   bgSubtle: "rgba(0,0,0,0.04)",
   bgStrong: "rgba(0,0,0,0.06)",
   border: "rgba(0,0,0,0.10)",
+  borderSoft: "rgba(0,0,0,0.06)",
   link: "#0284C7",
 };
 
