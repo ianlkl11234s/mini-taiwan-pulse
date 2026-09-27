@@ -92,7 +92,17 @@
 - `osmBridgeCarriers`／`osmBridgeFootprints`／`officialBridgesNewTaipei`／`bridgeComparisonNewTaipei`／`tainanBridgeInspections`／`officialBridgesHsinchu`／`taipeiRoadTunnels`／`tainanRoadTunnels`／`changhuaTrafficSignals`（`networkStructuresPanels.tsx` 全部 9 個 panel）：整份檔案走自訂 `SourceRows`（欄位命名慣例是 `source_name`/`source_date`/`retrieved_at`，不是 F2 讀的 `source_org`/`license`/`fetched_at`），兩種 schema 對不上，硬套中央版只會誤判成「無來源」，故維持現狀不動。
 - 水庫 context 特例（`isReservoirContextView`：點到有 `compare_id` 的水庫且 context 已載入）：這個分支顯示的是彙整水情/集水區/流域/最近河川等多個資料源，`feature.properties` 只代表其中一筆（水庫點本身），不是整個彙整視圖的代表來源，中央版在此分支略過。
 
-**F2 規格落地**：第一行 `機關 · Tier N · 原始下載頁 ↗`（任一項缺就省略，不留孤立分隔符）；第二行 `license ＋ 抓取於 …`（`FONT_DATA` 等寬）；`org`/`url` 兩者都沒有時整段改顯示「資料來源 · 來源資訊待補」（`warn` 色，暗色沿用既有 `COLORS.statusWarn` #ff9800、淡色新增 `#c2410c`），不半調子顯示其他欄位。跨來源 `_provenance`／`provenance` 陣列沿用舊版 `length > 1` 才收合展開（1 筆會跟第一行重複，不重複顯示），標籤字樣改「溯源 N 筆」（原「跨來源溯源（N 筆）」，貼近 handoff.md 字面）。新增 `src/components/featureInfo/__tests__/shared.test.ts` 直接測 F2 四種情境（完整欄位／只有 url／完全無來源／provenance 收合門檻）。
+**F2 規格落地**：第一行 `機關 · Tier N · 原始下載頁 ↗`（任一項缺就省略，不留孤立分隔符）；第二行 `license ＋ 抓取於 …`（`FONT_DATA` 等寬——這點跟 §1「FONT_DATA 不套中文容器」的一般規則有張力，但 handoff.md §4a 第三輪拍板 F2 明確列出「第二行授權＋抓取時間（等寬）」，屬於更晚、更具體的決策，故照拍板字面實作）；`org`/`url` 兩者都沒有時整段改顯示「資料來源 · 來源資訊待補」（`warn` 色，暗色沿用既有 `COLORS.statusWarn` #ff9800、淡色新增 `#c2410c`），**完全取代**該狀態下的其他欄位（不半調子同時顯示 license/fetched_at）。跨來源 `_provenance`／`provenance` 陣列沿用舊版 `length > 1` 才收合展開（1 筆會跟第一行重複，不重複顯示——判斷取捨，非拍板明文規定），標籤字樣改「溯源 N 筆」（原「跨來源溯源（N 筆）」，貼近 handoff.md 字面）。
+
+新增兩個測試檔驗證這條路徑真的有跑到（先前只測過個別 `*Panels.tsx`，從未 render 過 `FeatureInfoPanel.tsx` 本體，等於 eyebrow 對照表、footer 白名單邏輯只驗證了型別沒驗證過行為）：
+- `src/components/featureInfo/__tests__/shared.test.ts`：直接測 `SourceFooter` F2 四種情境（完整欄位／只有 url／完全無來源／provenance 收合門檻）。
+- `src/components/featureInfo/__tests__/FeatureInfoPanel.test.ts`：render `FeatureInfoPanel` 本體三種情境（一般圖層 eyebrow +footer／`chatHighlight` 無 footer／`osmBridgeCarriers` 白名單略過不誤判待補），順帶驗證 `layerCatalog` 的 import chain 在測試環境能正常載入。
+
+**已知的潛在 footer 重複顯示（本輪未修，列給下一步決定）**：中央 footer 讀 `feature.properties.source_url`／`source_org`，以下 panel 在內容區自己也用相同欄位渲染了一份，central 版上線後這些欄位的來源資訊會顯示兩次（欄位重疊、非另開 schema，跟已排除的 `networkStructuresPanels`/`publicToilet` 等不同）：
+- `noisePanels.tsx` 的 `SourceRows`（六個噪音圖層共用）：自己就有「來源機關」「授權」「原始資料頁 ↗」，且直接讀 `source_org`/`source_url`，跟中央 F2 幾乎完全同義重複，是本清單裡最該處理的一個。
+- `wastePanels.tsx`：`WasteFacilityPanel`／`WasteCleaningSquadPanel`／`WasteDisposalPointPanel` 三個各自用 `props.source_url` 渲染自己的下載連結。
+- `japanPanels.tsx`：兩處 `Row label="來源網址"` 直接把 `props.source_url` 印成純文字列（不是連結，跟 footer 的可點擊連結呈現方式不同，但同一個值顯示兩次）。
+不擴大 Phase D 的白名單去蓋掉這些（會違背「SourceFooter 全部補」的拍板方向），留給主 agent／下一輪決定是要拿掉這些 panel 內建的重複顯示，還是也收進白名單。
 
 以下結構規則沿用：
 
