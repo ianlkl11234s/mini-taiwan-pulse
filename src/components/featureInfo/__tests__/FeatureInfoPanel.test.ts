@@ -29,8 +29,8 @@ describe("FeatureInfoPanel", () => {
     } as FeatureInfo);
 
     // religionTemples 在 layerCatalog 屬於「宗教 Religion」主題底下的「點位」子群組，
-    // HEADER_LABELS.religionTemples = "寺廟" → eyebrow 應為「點位 · 寺廟」。
-    expect(html).toContain("點位 · 寺廟");
+    // HEADER_LABELS.religionTemples = "寺廟" → eyebrow 應為「宗教 · 寺廟」。
+    expect(html).toContain("宗教 · 寺廟");
     expect(html).toContain("測試宮廟");
     expect(html).toContain("內政部民政司");
     expect(html).toContain("原始下載頁");
