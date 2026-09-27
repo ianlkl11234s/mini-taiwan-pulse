@@ -24,6 +24,7 @@
 | 台北市哪些村里買不到超商、食物可及性缺口 | [food-access](food-access.md) | 空間 |
 | 哪個鄉鎮某產業／設施特別集中，超出全國平均比例 | [location-quotient](location-quotient.md) | 關聯 |
 | X 出現的頻率跟新聞報導量是不是同步、誰先動 | [event-context-timeseries](event-context-timeseries.md) | 因果前置 |
+| 走路／騎車／開車幾分鐘能到、真等時圈涵蓋率（不是直線代理） | [isochrone-access](isochrone-access.md) | 空間 |
 
 ## 新增配方
 
