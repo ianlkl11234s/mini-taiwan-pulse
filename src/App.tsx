@@ -1,4 +1,5 @@
 import { MainMapConnection } from "./research/MainMapConnection";
+import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
@@ -958,6 +959,14 @@ export default function App() {
     if (featureInfo && RELEASE_HOLD_LAYERS.has(featureInfo.layerType as keyof LayerVisibility)) setFeatureInfo(null);
   }, [featureInfo, setFeatureInfo, setLayerVisibility]);
 
+  // 與 Agent 協作的分析結果點擊 → 共用右下停靠 FeatureInfoPanel。
+  // 刻意不帶 coords：coords 會經 MainMapConnection 的 selection 回報成「使用者選取」給 Agent。
+  // 選取圈改由 useSelectionRing 以最後一次地圖點擊位置補上。null 只關分析結果面板，不動其他圖層的。
+  const handleAnalysisResultFeature = useCallback((properties: AnalysisResultPanelProperties | null) => {
+    if (properties) setFeatureInfo({ layerType: "analysisResult", properties });
+    else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
+  }, [setFeatureInfo]);
+
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
   const activeReservoirId: number | null = (() => {
@@ -1853,6 +1862,7 @@ export default function App() {
         onOpenChange={setAgentOpen}
         showToggle={false}
         uiHidden={captureMode}
+        onAnalysisResultFeature={handleAnalysisResultFeature}
       />}
 
       {/* ── 拍攝模式 vignette + 標題 ── */}

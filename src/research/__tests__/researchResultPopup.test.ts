@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle, type ResearchResultPopupOverlapFeature } from "../researchResultPopup";
+import { UNNAMED_DATASET_LABEL, researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupDistance, researchResultPopupFacts, researchResultPopupOverlaps, researchResultPopupTitle, researchResultRecordFacts, type ResearchResultPopupOverlapFeature } from "../researchResultPopup";
 
 describe("researchResultPopupFacts", () => {
   it("keeps original and normalized values distinct, including their units", () => {
@@ -77,5 +77,47 @@ describe("researchResultPopupFacts", () => {
     expect(overlaps.features.every(feature => feature.properties?.datasetId !== "derived:analysis-scope-area")).toBe(true);
     expect(overlaps.total).toBe(10);
     expect(overlaps.omitted).toBe(2);
+  });
+});
+
+describe("docked analysis result panel data", () => {
+  const noDescriptor = () => { throw new Error("DATASET_NOT_FOUND"); };
+
+  it("never shows an internal dataset identifier as the dataset name", () => {
+    expect(researchResultDatasetLabel("warehouse:wh-8", "新北市國小周邊", noDescriptor)).toBe("新北市國小周邊");
+    // displayLabel falls back to the raw datasetId upstream; that echo is not a name.
+    expect(researchResultDatasetLabel("warehouse:wh-8", "warehouse:wh-8", noDescriptor)).toBe(UNNAMED_DATASET_LABEL);
+    expect(researchResultDatasetLabel("edu-schools", "edu-schools", id => id === "edu-schools" ? "各級學校" : null)).toBe("各級學校");
+    expect(researchResultDatasetLabel("a+b", undefined, noDescriptor)).toBe(UNNAMED_DATASET_LABEL);
+    expect(researchResultDatasetLabel("edu-schools", "", id => id)).toBe(UNNAMED_DATASET_LABEL);
+  });
+
+  it("orders facts dataset → source values → distance → versions, with Chinese labels", () => {
+    expect(researchResultRecordFacts({ datasetId: "warehouse:wh-8", status: "observed", value: 3, distanceM: 120.4, source_version: "2026-09", boundary_version: "113" }, "國小周邊")).toEqual([
+      { label: "資料集", value: "國小周邊" },
+      { label: "原始值", value: "3" },
+      { label: "距離", value: "120 公尺 · 直線" },
+      { label: "版本", value: "2026-09" },
+      { label: "邊界版本", value: "113" },
+    ]);
+  });
+
+  it("keeps the generic record fact when a hit carries nothing else", () => {
+    expect(researchResultRecordFacts({}, UNNAMED_DATASET_LABEL)).toEqual([{ label: "紀錄", value: "本次分析命中的空間紀錄" }]);
+  });
+
+  it("resolves every overlapping hit at click time, keeping total and omitted counts", () => {
+    const features = [
+      { id: 1, properties: { resultId: "r1", datasetId: "warehouse:wh-8", name: "甲國小" }, geometry: { type: "Point" } },
+      { id: 2, properties: { resultId: "r2", datasetId: "warehouse:wh-9", name: "乙國小" }, geometry: { type: "Point" } },
+    ];
+    const panel = researchResultPanelProperties({ features, total: 10, omitted: 8 }, resultId => resultId === "r1" ? { displayLabel: "國小周邊", color: "#38bdf8" } : { displayLabel: "warehouse:wh-9" }, noDescriptor);
+    expect(panel.total).toBe(10);
+    expect(panel.omitted).toBe(8);
+    expect(panel.records.map(record => [record.title, record.color, record.facts[0]])).toEqual([
+      ["甲國小", "#38bdf8", { label: "資料集", value: "國小周邊" }],
+      ["乙國小", null, { label: "資料集", value: UNNAMED_DATASET_LABEL }],
+    ]);
+    expect(JSON.stringify(panel)).not.toContain("warehouse:");
   });
 });

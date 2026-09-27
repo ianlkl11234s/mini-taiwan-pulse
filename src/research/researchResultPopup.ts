@@ -132,3 +132,62 @@ export function researchResultPopupFacts(properties: Record<string, unknown>): R
   if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: formatVizNumber(ratio, "ratio") });
   return facts;
 }
+
+/** Shown instead of an internal identifier when no human-readable dataset name is known. */
+export const UNNAMED_DATASET_LABEL = "未命名資料集";
+
+/**
+ * Human-readable dataset name for the docked result panel. Internal identifiers
+ * (`warehouse:wh-8`, descriptor ids, `a+b` composites) are never shown: the presented
+ * result's displayLabel wins unless it merely echoes the id, then the dataset
+ * descriptor label, then a neutral placeholder.
+ */
+export function researchResultDatasetLabel(datasetId: unknown, displayLabel: string | null | undefined, describe: (datasetId: string) => string | null): string {
+  const id = typeof datasetId === "string" ? datasetId.trim() : "";
+  const shown = typeof displayLabel === "string" ? displayLabel.trim() : "";
+  if (shown && shown !== id) return shown;
+  if (id) {
+    let described: string | null = null;
+    try { described = describe(id); } catch { described = null; }
+    if (described && described.trim() && described.trim() !== id) return described.trim();
+  }
+  return UNNAMED_DATASET_LABEL;
+}
+
+/** Facts for one hit, in panel order; source values stay separate from derived calculations. */
+export function researchResultRecordFacts(properties: Record<string, unknown>, datasetLabel: string): ResearchResultPopupFact[] {
+  const facts: ResearchResultPopupFact[] = [];
+  if (properties.datasetId) facts.push({ label: "資料集", value: datasetLabel });
+  facts.push(...researchResultPopupFacts(properties));
+  const distance = researchResultPopupDistance(properties.distanceM);
+  if (distance) facts.push({ label: "距離", value: distance });
+  if (properties.source_version) facts.push({ label: "版本", value: String(properties.source_version) });
+  if (properties.boundary_version) facts.push({ label: "邊界版本", value: String(properties.boundary_version) });
+  if (!facts.length) facts.push({ label: "紀錄", value: "本次分析命中的空間紀錄" });
+  return facts;
+}
+
+export type AnalysisResultPanelRecord = { title: string; color: string | null; facts: ResearchResultPopupFact[] };
+/** Serializable `FeatureInfo.properties` payload for `layerType: "analysisResult"`. */
+export type AnalysisResultPanelProperties = { records: AnalysisResultPanelRecord[]; total: number; omitted: number };
+
+/** Resolve every overlapping hit at click time so the panel stays a pure renderer. */
+export function researchResultPanelProperties<T extends ResearchResultPopupOverlapFeature>(
+  overlaps: { features: readonly T[]; total: number; omitted: number },
+  presentationFor: (resultId: string) => { displayLabel?: string; color?: string } | undefined,
+  describe: (datasetId: string) => string | null,
+): AnalysisResultPanelProperties {
+  return {
+    records: overlaps.features.map(feature => {
+      const properties = feature.properties ?? {};
+      const presentation = typeof properties.resultId === "string" ? presentationFor(properties.resultId) : undefined;
+      return {
+        title: researchResultPopupTitle(properties),
+        color: presentation?.color ?? null,
+        facts: researchResultRecordFacts(properties, researchResultDatasetLabel(properties.datasetId, presentation?.displayLabel, describe)),
+      };
+    }),
+    total: overlaps.total,
+    omitted: overlaps.omitted,
+  };
+}
