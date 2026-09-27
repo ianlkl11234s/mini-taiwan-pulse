@@ -14,7 +14,8 @@ import { useMonitorDashboardData } from "../../../hooks/useMonitorDashboardData"
 import { MonitorDataStatus } from "./MonitorDataStatus";
 
 import {
-  fetchNewsEventsDayClusters, type NewsFilter,
+  fetchNewsEventDates, fetchNewsEventsDayClusters, isNewsEventSourceStale,
+  latestNewsEventDay, type NewsFilter,
 } from "../../../data/newsEventsLoader";
 import {
   fetchAlertSummary,
@@ -291,6 +292,19 @@ export function MonitorPanel({
   const newsFilter = useMemo(() => ({ ...filter }), [fKey]);
   const loadClusters = useCallback(async () => {
     const rows = await fetchNewsEventsDayClusters(dayKey, newsFilter);
+    if (rows.length === 0) {
+      const latestDay = latestNewsEventDay(await fetchNewsEventDates());
+      if (isNewsEventSourceStale(dayKey, latestDay)) {
+        return {
+          status: "error" as const,
+          data: EMPTY_CLUSTERS,
+          lastSuccessAt: null,
+          message: latestDay
+            ? `可供地圖使用的定位新聞只到 ${latestDay}，分類／定位流程可能已停更`
+            : "沒有可供地圖使用的定位新聞日期，請檢查分類／定位流程",
+        };
+      }
+    }
     const data: Cluster[] = rows.map((r) => ({
       county: r.county,
       location_name: r.location_name,
@@ -573,6 +587,7 @@ export function MonitorPanel({
         nowTs={now}
         status={clustersQuery.status}
         lastSuccessAt={clustersQuery.lastSuccessAt}
+        message={clustersQuery.message}
       /></>
     ),
     alertBoard: (

@@ -155,6 +155,33 @@ export function fetchNewsEventDates(): Promise<NewsEventDateInfo[]> {
   return fetchNewsEventDatesCached();
 }
 
+/** RPC 不保證排序；Monitor 用最新有定位事件日判斷空結果是否其實是上游停更。 */
+export function latestNewsEventDay(dates: readonly NewsEventDateInfo[]): string | null {
+  let latest: string | null = null;
+  for (const row of dates) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.day)) continue;
+    if (latest === null || row.day > latest) latest = row.day;
+  }
+  return latest;
+}
+
+/**
+ * 允許最新有定位事件日落後所選日期一天，避免午夜剛換日時把正常空窗誤報成停更。
+ * 這只判斷「可供地圖/Monitor 使用的定位事件」新鮮度，不代表 raw RSS 是否仍在收集。
+ */
+export function isNewsEventSourceStale(
+  requestedDay: string,
+  latestDay: string | null,
+  toleranceDays = 1,
+): boolean {
+  if (latestDay === null) return true;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(requestedDay) || !/^\d{4}-\d{2}-\d{2}$/.test(latestDay)) return true;
+  const requestedMs = Date.parse(`${requestedDay}T00:00:00Z`);
+  const latestMs = Date.parse(`${latestDay}T00:00:00Z`);
+  if (!Number.isFinite(requestedMs) || !Number.isFinite(latestMs)) return true;
+  return requestedMs - latestMs > toleranceDays * 86_400_000;
+}
+
 // ── 按日載入 ──
 
 async function fetchNewsEventsDayUncached(cacheKey: string): Promise<GeoJSON.FeatureCollection> {
