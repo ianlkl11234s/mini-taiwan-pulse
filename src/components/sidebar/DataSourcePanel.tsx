@@ -234,7 +234,7 @@ function DataSourceCard({
     }
     if (statisticsSource) return [];
     return [{ title: null, desc: "此圖層尚無對應 catalog 條目。", facts: facts(), docPath: null }];
-  }, [entries, status, ref, upstreamIds, statisticsSource]);
+  }, [entries, status, ref, upstreamIds, statisticsSource, p]);
 
   const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
 
