@@ -8,16 +8,26 @@
  *
  * 規格依據：docs/features/ui-consistency-audit-20260927/ui-controls-sheet.html §4 D1。
  */
-import { Fragment, useMemo, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Search, Lock } from "lucide-react";
 import { PanelHeader } from "./PanelHeader";
 import { THEMES, LAYER_COLORS } from "./layerCatalog";
 import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
 import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
 import { searchLayers } from "../../lib/layerSearch";
-import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible } from "../../data/statisticsDataSources";
+import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
+import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
+import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
 import { COLORS, BORDER, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { LayerVisibility } from "../../types";
+
+function comparisonInputUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : undefined;
+  } catch { return undefined; }
+}
 
 // ── Palette（暗／淡；沿用 ui-controls-sheet.html §4 .t-dark／.t-light 同值）──
 
@@ -116,7 +126,83 @@ function DataSourceCard({
   const statisticsSource = getStatisticsDataSourceDefinition(layerKey);
   const upstreamIds = useMemo(() => resolveUpstreamDatasets(layerKey), [layerKey]);
 
-  const blocks: SourceBlock[] = useMemo(() => {
+  // 統計圖層的「已發布來源紀錄」（release 期間＋derivation 公式／上游 input_sources）。
+  // 與舊 DataSourceModal 的 ArtifactSourceCard 同一條資料路徑，只換外殼。
+  const [artifactSource, setArtifactSource] = useState<StatisticsSource | null>(null);
+  const [artifactRelease, setArtifactRelease] = useState<{ period_start: string; period_end: string } | null>(null);
+  const [artifactLoading, setArtifactLoading] = useState(false);
+  const [artifactError, setArtifactError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isStatisticsRenderLayer(layerKey)) {
+      setArtifactSource(null); setArtifactRelease(null); setArtifactError(null);
+      return;
+    }
+    const recipe = statisticsRenderRecipe(layerKey);
+    const releaseFallback = statisticsReleaseFallback(layerKey);
+    const controller = new AbortController();
+    setArtifactSource(null); setArtifactRelease(null); setArtifactError(null); setArtifactLoading(true);
+    loadRegionalStatisticsValues({
+      layerKey,
+      datasetId: recipe.dataset_id,
+      indicatorId: recipe.indicator_id,
+      level: recipe.level,
+      releaseId: "releaseId" in recipe ? recipe.releaseId : undefined,
+      dimensions: recipe.dimensions,
+      label: recipe.label,
+      allowReleaseFallback: Boolean(releaseFallback),
+      releaseFallback,
+    }, controller.signal)
+      .then((result) => { if (!controller.signal.aborted) { setArtifactSource(result.sources); setArtifactRelease(result.values.release); } })
+      .catch((e) => { if (!controller.signal.aborted) setArtifactError(e instanceof Error ? e.message : String(e)); })
+      .finally(() => { if (!controller.signal.aborted) setArtifactLoading(false); });
+    return () => controller.abort();
+  }, [layerKey]);
+
+  const statisticsBlock: SourceBlock | null = useMemo(() => {
+    if (!statisticsSource) return null;
+    const kindLabel = statisticsSource.kind === "derived" ? "派生統計" : statisticsSource.kind === "presentation" ? "固定學制統計入口" : "原始統計";
+    const derivation = artifactSource?.derivation as Record<string, unknown> | undefined;
+    const inputs = Array.isArray(derivation?.input_sources)
+      ? derivation.input_sources.filter((v): v is Record<string, unknown> => Boolean(v && typeof v === "object" && !Array.isArray(v)))
+      : [];
+    return {
+      title: `${kindLabel} · ${statisticsSource.label}`,
+      desc: [statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — "),
+      facts: facts(
+        statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
+        { k: "頻率", v: statisticsSource.period },
+        statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
+        { k: "單位", v: `${statisticsSource.unit} · ${statisticsSourceLevelLabel(statisticsSource.level)}` },
+        statisticsSource.sourceUrl ? { k: "API", v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
+        artifactLoading ? { k: "來源", v: "讀取已發布的來源紀錄…" } : null,
+        artifactError ? { k: "來源", v: `未載入：${artifactError}` } : null,
+        artifactRelease ? { k: "期間", v: `${artifactRelease.period_start} 至 ${artifactRelease.period_end}`, mono: true } : null,
+        derivation && typeof derivation.formula === "string" ? { k: "公式", v: derivation.formula.replace(/\bnumerator\b/g, "分子").replace(/\bdenominator\b/g, "分母") } : null,
+        inputs.length ? {
+          k: "上游", v: (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {inputs.map((input, idx) => {
+                const url = comparisonInputUrl(input.source_landing_url);
+                return (
+                  <div key={`${String(input.dataset_id ?? input.source_dataset_id ?? idx)}-${idx}`} style={{ paddingTop: idx ? 4 : 0, borderTop: idx ? `1px solid ${p.border}` : undefined }}>
+                    <div>{String(input.publisher ?? "未標示提供機關")} · {String(input.dataset_id ?? input.source_dataset_id ?? "未標示 dataset")}</div>
+                    <div style={{ color: p.muted, marginTop: 2 }}>
+                      期別：{typeof input.period_start === "string" && typeof input.period_end === "string" ? `${input.period_start} 至 ${input.period_end}` : String(input.period ?? input.period_label ?? "未標示")} · 授權：{String(input.license ?? "未標示")}
+                    </div>
+                    {url && <a href={url} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{url}</a>}
+                  </div>
+                );
+              })}
+            </div>
+          ),
+        } : null,
+      ),
+      docPath: null,
+    };
+  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, p]);
+
+  const baseBlocks: SourceBlock[] = useMemo(() => {
     if (entries.length > 0) {
       return entries.map((e) => ({
         title: e.title ?? e.datasetId,
@@ -130,19 +216,6 @@ function DataSourceCard({
         ),
         docPath: e.catalogMdPath,
       }));
-    }
-    if (statisticsSource) {
-      return [{
-        title: statisticsSource.label,
-        desc: statisticsSource.metricLabel,
-        facts: facts(
-          statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
-          { k: "頻率", v: statisticsSource.period },
-          statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
-          statisticsSource.sourceUrl ? { k: "API", v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
-        ),
-        docPath: null,
-      }];
     }
     if (status === "verified") {
       return ref.datasets.map((d) => ({ title: d.datasetId, desc: `比對信心：${d.confidence}`, facts: facts(), docPath: null }));
@@ -159,14 +232,16 @@ function DataSourceCard({
         docPath: null,
       }];
     }
+    if (statisticsSource) return [];
     return [{ title: null, desc: "此圖層尚無對應 catalog 條目。", facts: facts(), docPath: null }];
-  }, [entries, statisticsSource, status, ref, upstreamIds]);
+  }, [entries, status, ref, upstreamIds, statisticsSource]);
 
-  const upstreamCount = entries.length > 0 ? entries.length
-    : statisticsSource ? 1
+  const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
+
+  const upstreamCount = (entries.length > 0 ? entries.length
     : status === "verified" ? ref.datasets.length
     : status === "pulse_only" ? Math.max(upstreamIds.length, 1)
-    : 0;
+    : 0) + (statisticsSource ? 1 : 0);
   const docPath = blocks.find((b) => b.docPath)?.docPath ?? null;
 
   return (
@@ -195,7 +270,12 @@ function DataSourceCard({
           {locked && <Lock size={11} />}開啟圖層
         </button>
         {docPath && (
-          <button type="button" disabled title={docPath} style={{ ...c2Style(p, false, true), fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs }}>
+          <button
+            type="button"
+            disabled
+            title={docPath}
+            style={{ ...c2Style(p, false, true), fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, height: "auto", minHeight: 22, whiteSpace: "normal", wordBreak: "break-all", textAlign: "left", flex: 1, minWidth: 0 }}
+          >
             {docPath}
           </button>
         )}
