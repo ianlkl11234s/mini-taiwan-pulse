@@ -211,14 +211,14 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
 
       <SectionTitle>{L ? "右上角工具列" : "TOP-RIGHT TOOLBAR"}</SectionTitle>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
-        <Card title={L ? "底圖樣式 ▾" : "Map Style ▾"}>
+        <Card title={L ? "底圖" : "Basemap"}>
           {L
-            ? "下拉選單切換 6 種 Mapbox 底圖：Dark · Light · Satellite · Satellite Streets · Navigation Night · Streets"
-            : "Dropdown to switch between 6 Mapbox styles: Dark · Light · Satellite · Satellite Streets · Navigation Night · Streets"}
+            ? "地圖圖示按鈕，右下色點代表目前底圖。展開後可從 7 種底圖縮圖中切換（純黑 · 暗色 · 淡色 · 衛星 · 衛星街道 · 夜間導航 · 街道），並開關地名。"
+            : "Map icon button; the corner dot shows the current basemap. Opens 7 basemap thumbnails (Pure Black · Dark · Light · Satellite · Satellite Streets · Navigation Night · Streets) and a place-label switch."}
         </Card>
-        <Card title="Capture">
+        <Card title={L ? "拍攝模式" : "Capture mode"}>
           {L
-            ? <>進入拍攝模式 — 畫面加上電影感暗角（vignette）、標題和時間戳記。按 <KeyBadge>ESC</KeyBadge> 退出拍攝模式。</>
+            ? <>隱藏所有介面，畫面加上電影感暗角、標題和時間戳記。移動滑鼠會出現離開提示，按 <KeyBadge>ESC</KeyBadge> 退出。</>
             : <>Enter capture mode — adds a cinematic vignette, title overlay, and timestamp. Press <KeyBadge>ESC</KeyBadge> to exit.</>
           }
         </Card>
@@ -228,8 +228,8 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
             : <><b>3D Altitude</b>: Flight arcs rendered at actual altitude with Three.js orbs. <b>2D Flat</b>: All vehicles projected onto a flat plane.</>
           }
         </Card>
-        <Card title="Info">
-          {L ? "開啟此說明面板（你正在看的就是它）。" : "Opens this info panel (you're looking at it right now)."}
+        <Card title={L ? "說明" : "Help"}>
+          {L ? "ⓘ 圖示按鈕，開啟此說明面板（你正在看的就是它）。" : "The ⓘ icon button opens this info panel (you're looking at it right now)."}
         </Card>
       </div>
 
