@@ -12,7 +12,7 @@
 // App 完全不參與。
 //
 // ⚠️ 派生邏輯（`oneOfParamNum` 的窄化與 fallback）逐字照抄已退役的
-// `useLayerParamsRuntime`：`minRelevance` 落在 `0 | 2 | 3`（fallback 3）、
+// `useLayerParamsRuntime`：`minRelevance` 落在 `0 | 2 | 3`（fallback 2）、
 // `minSeverity` 落在 `0 | 1 | 2`（fallback 1）—— `NewsFilter` 的欄位是字面聯集，
 // 不做無憑據的 `as`。
 
@@ -38,7 +38,7 @@ export function useNewsFilter(): {
   const values = useLayerParams(KEY);
 
   const minRelevance = oneOfParamNum(
-    paramNum(values, KEY, "newsMinRelevance"), NEWS_RELEVANCE_LEVELS, 3,
+    paramNum(values, KEY, "newsMinRelevance"), NEWS_RELEVANCE_LEVELS, 2,
   );
   const minSeverity = oneOfParamNum(
     paramNum(values, KEY, "newsMinSeverity"), NEWS_SEVERITY_LEVELS, 1,
