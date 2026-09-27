@@ -98,11 +98,7 @@
 - `src/components/featureInfo/__tests__/shared.test.ts`：直接測 `SourceFooter` F2 四種情境（完整欄位／只有 url／完全無來源／provenance 收合門檻）。
 - `src/components/featureInfo/__tests__/FeatureInfoPanel.test.ts`：render `FeatureInfoPanel` 本體三種情境（一般圖層 eyebrow +footer／`chatHighlight` 無 footer／`osmBridgeCarriers` 白名單略過不誤判待補），順帶驗證 `layerCatalog` 的 import chain 在測試環境能正常載入。
 
-**已知的潛在 footer 重複顯示（本輪未修，列給下一步決定）**：中央 footer 讀 `feature.properties.source_url`／`source_org`，以下 panel 在內容區自己也用相同欄位渲染了一份，central 版上線後這些欄位的來源資訊會顯示兩次（欄位重疊、非另開 schema，跟已排除的 `networkStructuresPanels`/`publicToilet` 等不同）：
-- `noisePanels.tsx` 的 `SourceRows`（六個噪音圖層共用）：自己就有「來源機關」「授權」「原始資料頁 ↗」，且直接讀 `source_org`/`source_url`，跟中央 F2 幾乎完全同義重複，是本清單裡最該處理的一個。
-- `wastePanels.tsx`：`WasteFacilityPanel`／`WasteCleaningSquadPanel`／`WasteDisposalPointPanel` 三個各自用 `props.source_url` 渲染自己的下載連結。
-- `japanPanels.tsx`：兩處 `Row label="來源網址"` 直接把 `props.source_url` 印成純文字列（不是連結，跟 footer 的可點擊連結呈現方式不同，但同一個值顯示兩次）。
-不擴大 Phase D 的白名單去蓋掉這些（會違背「SourceFooter 全部補」的拍板方向），留給主 agent／下一輪決定是要拿掉這些 panel 內建的重複顯示，還是也收進白名單。
+**footer 重複顯示已處理**：`noisePanels.tsx` 的 `SourceRows` 拿掉「來源機關」與「原始資料頁 ↗」（保留 footer 沒有的來源 ID／更新時間／授權）；`wastePanels.tsx` 3 個 panel 拿掉自帶的「原始資料 ↗」連結；`japanPanels.tsx` 拿掉純 `source_url` 的「來源網址」列，另一處改成只有在沒有 `source_url` 時才顯示 leaflet／area 的「相關網址」。
 
 以下結構規則沿用：
 
