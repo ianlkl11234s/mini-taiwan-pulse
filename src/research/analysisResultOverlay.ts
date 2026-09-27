@@ -19,11 +19,30 @@ const layerId = (index: number) => `research-analysis-result-points-${index}`;
 const heatPointsLayerId = (index: number) => `research-analysis-result-heat-points-${index}`;
 /** Numbered marker labels (1..N) for a compare-styled point result; decorative only, not pickable. */
 const compareLabelLayerId = (index: number) => `research-analysis-result-compare-label-${index}`;
+/**
+ * A `properties._role === "scope"` feature (e.g. a nearby_profile search-radius circle, MCP
+ * contract in warehouse/engine.ts `scopeCircleFeature`) draws as a dashed, unfilled outline
+ * sharing the result's own polygon source, never as part of its fill/circle layer.
+ */
+const scopeRingLayerId = (index: number) => `research-analysis-result-scope-${index}`;
+const SCOPE_ROLE_FILTER = ["==", ["get", "_role"], "scope"] as unknown as ExpressionSpecification;
+const SCOPE_ROLE_EXCLUDE_FILTER = ["!=", ["get", "_role"], "scope"] as unknown as ExpressionSpecification;
+const SCOPE_RING_COLOR = "#e2e8f0";
 const HEAT_POINTS_MINZOOM = 13;
 const reveals = new WeakMap<Map, globalThis.Map<number, () => void>>();
 
 function isAnalysisScopeArea(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-area"; }
 function isAnalysisScopeCenter(result: PresentableResult): boolean { return result.datasetId === "derived:analysis-scope-center"; }
+/** A row tagged by the MCP nearby_profile scope-circle contract; never a real analysis match. */
+function isScopeRow(row: Record<string, unknown>): boolean { return row._role === "scope"; }
+function hasScopeRows(result: PresentableResult): boolean {
+  return (result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon") && result.rows.some(isScopeRow);
+}
+function scopeRadiusM(result: PresentableResult): number | null {
+  const row = result.rows.find(isScopeRow);
+  const value = row?.radiusM;
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
 
 export type AnalysisResultPresentation = {
   resultId: string;
@@ -35,6 +54,9 @@ export type AnalysisResultPresentation = {
   color?: string;
   /** Derived display scope uses a lighter fill than authoritative polygon results. */
   scopeArea?: true;
+  /** A nearby_profile search-radius circle is mixed into this result's own rows (_role "scope");
+   *  it renders as a dashed unfilled outline and is excluded from featureCount/popup stats. */
+  scopeRing?: { radiusM: number | null };
   /** Only emitted for the existing neighborhood count presentation. */
   countLegend?: { label: string; radiusM: number; entries: readonly { label: string; color: string }[] };
   /** Administrative comparison values and the exact colors used by the map. */
@@ -216,9 +238,15 @@ function presentation(result: PresentableResult, featureCount: number, index?: n
     ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style) } : {}),
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
+    ...(hasScopeRows(result) ? { scopeRing: { radiusM: scopeRadiusM(result) } } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
   };
+}
+
+/** A scope-circle row is a supplementary visualization aid, never a counted analysis match. */
+function nonScopeRowCount(result: PresentableResult): number {
+  return hasScopeRows(result) ? result.rows.filter(row => !isScopeRow(row)).length : result.rows.length;
 }
 
 /** Metadata for the whole authorized collection, including effectively hidden items. */
@@ -226,7 +254,7 @@ export function describeAnalysisResults(results: readonly PresentableResult[]): 
   return results.map(result => {
     const data = collection(result);
     if (data.features.length !== result.rows.length) throw new Error("RESULT_PRESENTATION_GEOMETRY_MISMATCH");
-    return presentation(result, data.features.length);
+    return presentation(result, nonScopeRowCount(result));
   });
 }
 
@@ -249,6 +277,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
     const scopeArea = isAnalysisScopeArea(result);
     const scopeCenter = isAnalysisScopeCenter(result);
+    const scopeRingRows = hasScopeRows(result);
     const numericLegend = numericResultLegend(result);
     const style = result.resultStyle;
     const heatmap = style?.kind === "heatmap" && result.geometry.type === "Point" ? style : null;
@@ -268,7 +297,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (!heatmap && map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
     if (!compare && map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
     if (polygon) {
-      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), paint: {
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), ...(scopeRingRows ? { filter: SCOPE_ROLE_EXCLUDE_FILTER } : {}), paint: {
         "fill-color": fillColor, "fill-opacity": reveal ? 0 : resultOpacity * (scopeArea ? 0.18 : 0.45), "fill-opacity-transition": { duration }, "fill-outline-color": outlineColor,
       } });
     } else if (line) {
@@ -289,6 +318,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (polygon) {
       map.setPaintProperty(layerId(index), "fill-color", fillColor);
       map.setPaintProperty(layerId(index), "fill-outline-color", outlineColor);
+      map.setFilter(layerId(index), scopeRingRows ? SCOPE_ROLE_EXCLUDE_FILTER : null);
     } else if (line) {
       map.setPaintProperty(layerId(index), "line-color", lineColor);
       map.setPaintProperty(layerId(index), "line-width", 3);
@@ -308,20 +338,36 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       }, paint: { "text-color": "#ffffff", "text-halo-color": "#0f172a", "text-halo-width": 1.4, "text-opacity": resultOpacity } });
       else map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
     }
+    if (scopeRingRows) {
+      if (!map.getLayer(scopeRingLayerId(index))) map.addLayer({ id: scopeRingLayerId(index), type: "line", source: sourceId(index), filter: SCOPE_ROLE_FILTER, paint: {
+        "line-color": SCOPE_RING_COLOR, "line-width": 2, "line-dasharray": [2, 2], "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration },
+      } });
+      else { map.setPaintProperty(scopeRingLayerId(index), "line-color", SCOPE_RING_COLOR); map.setFilter(scopeRingLayerId(index), SCOPE_ROLE_FILTER); }
+    } else if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
     const applyOpacity = () => {
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
       map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity", polygon ? resultOpacity * (scopeArea ? 0.18 : 0.45) : resultOpacity);
       if (!polygon && !line && !heatmap) map.setPaintProperty(layerId(index), "circle-stroke-opacity", resultOpacity);
       if (compare && map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
+      if (scopeRingRows && map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", resultOpacity);
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
       reveals.get(map)!.set(index, applyOpacity);
       map.on("render", applyOpacity);
     } else applyOpacity();
-    return presentation(result, data.features.length, index);
+    return presentation(result, nonScopeRowCount(result), index);
   });
+  // Keep every scope ring under the first Point-type result's layer, regardless of each
+  // result's index in this batch (moveLayer works on already-existing layers, so it is not
+  // sensitive to which order addLayer ran in above).
+  const firstPointIndex = prepared.findIndex(({ result }) => result.geometry.type === "Point");
+  if (firstPointIndex >= 0 && map.getLayer(layerId(firstPointIndex))) {
+    prepared.forEach(({ result }, index) => {
+      if (hasScopeRows(result) && map.getLayer(scopeRingLayerId(index))) map.moveLayer(scopeRingLayerId(index), layerId(firstPointIndex));
+    });
+  }
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
   return installed;
 }
@@ -332,6 +378,7 @@ function removeIndex(map: Map, index: number): void {
   cancelReveal(map, index);
   if (map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
   if (map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
+  if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
   if (map.getLayer(layerId(index))) map.removeLayer(layerId(index));
   if (map.getSource(sourceId(index))) map.removeSource(sourceId(index));
 }
@@ -381,5 +428,6 @@ export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPre
       map.setPaintProperty(heatPointsLayerId(index), "circle-stroke-opacity", opacity);
     }
     if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
+    if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
   }
 }
