@@ -5,8 +5,10 @@
  * 字型：CJK 用系統，數字 / 時間用 mono。
  */
 
-export const FONT_CJK = `"Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif`;
-export const FONT_DATA = `"JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace`;
+// 全站不載入 web font：stack 只列各平台實際內建的字（macOS → PingFang TC / SF Mono）。
+// 與 src/styles/tokens.css 的 --font-cjk / --font-data 同值，改一邊要同步另一邊。
+export const FONT_CJK = `"PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif`;
+export const FONT_DATA = `ui-monospace, "SF Mono", Menlo, Consolas, monospace`;
 
 /** 半透明 / 邊框 token */
 export const COLORS = {

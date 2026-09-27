@@ -1,0 +1,9 @@
+/*
+ * 全站 CSS 變數 — 供 .css 檔使用（.css 無法 import designTokens.ts）。
+ * 字型不載入 web font，只列各平台內建字；值與 intelTokens.ts 的 FONT_CJK / FONT_DATA 相同。
+ * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §1。
+ */
+:root {
+  --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+  --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
