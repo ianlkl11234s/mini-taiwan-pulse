@@ -1,17 +1,7 @@
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_SIZE } from "../../styles/designTokens";
 import { SPORTS_CATEGORY_COLOR, SPORTS_FALLBACK_COLOR } from "../../data/sportsTypes";
-import { Row } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
-
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 // open_status 顏色：可用（綠）/ 付費（琥珀）/ 不對外（紅）/ 其他（灰）
 function openStatusColor(s: string): string {

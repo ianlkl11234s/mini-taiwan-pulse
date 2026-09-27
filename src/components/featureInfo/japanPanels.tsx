@@ -1,7 +1,5 @@
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_LAYER_COLOR, JP_POLICE_ATTRIBUTION } from "../../data/jpPoliceFacilityTypes";
-import { Row } from "./shared";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
-import { useFeatureTheme } from "./featureTheme";
+import { Row, Title } from "./shared";
 import {
   JP_RAILWAY_LAYER_COLOR,
   JP_RAILWAY_TYPES,
@@ -12,17 +10,6 @@ import {
   JP_POPULATION_MESH_MODES, JP_POPULATION_MESH_LAYER_COLOR, JP_POPULATION_MESH_MASK,
 } from "../../data/jpPopulationMeshModes";
 import { JP_WATER_FACILITY_CATEGORIES } from "../../data/jpWaterTypes";
-
-// 本檔 Title 為極簡本地版（同 religionPanels / urbanPanels 慣例）。
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
-    </div>
-  );
-}
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
 
@@ -80,7 +67,7 @@ export function JpTourismPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="顯示分類" value={str(props.facility_category)} />
       <Row label="類型" value={str(props.facility_type) || str(props.registered_type) || str(props.park_class_name) || str(props.legal_class_label) || str(props.protection_class) || str(props.category)} />
       <Row label="地址／位置" value={str(props.address) || str(props.location_ja) || str(props.prefecture)} />
-      <Row label="來源網址" value={str(props.source_url) || str(props.leaflet_url) || str(props.area_detail_url)} />
+      <Row label="相關網址" value={str(props.source_url) ? "" : str(props.leaflet_url) || str(props.area_detail_url)} />
     </>
   );
 }
@@ -138,7 +125,6 @@ export function JpWaterPanel({ props }: { props: Record<string, unknown> }) {
     <Row label="涵蓋範圍" value={str(props.coverage)} />
     <Row label="來源欄位 operator" value={str(props.operator) ? `${str(props.operator)}（來源原值，未驗證為公司或營運者）` : ""} />
     <Row label="容量" value={str(props.capacity)} />
-    <Row label="來源網址" value={str(props.source_url)} />
     <Row label="來源識別" value={str(props.source_id) ? `${str(props.source_id)}（僅在此來源／版本內，不是跨源實體 ID）` : ""} />
     <Row label="選取識別" value={str(props.selection_identity)} />
     <Row label="資料限制" value={caveat} />

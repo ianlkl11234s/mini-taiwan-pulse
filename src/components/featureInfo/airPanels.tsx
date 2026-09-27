@@ -45,8 +45,8 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="主污染物" value={String(props.pollutant ?? "")} />
-      <Row label="PM2.5" value={formatNum(numOrNull(props.pm25), "µg/m³")} />
-      <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} />
+      <Row label="PM2.5" value={formatNum(numOrNull(props.pm25), "µg/m³")} mono />
+      <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="O₃" value={formatNum(numOrNull(props.o3), "ppb", 1)} />
       <Row label="NO₂" value={formatNum(numOrNull(props.no2), "ppb", 1)} />
       <Row label="SO₂" value={formatNum(numOrNull(props.so2), "ppb", 2)} />
@@ -97,7 +97,7 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
       <Row label="來源" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />
       <Row label="地區" value={String(props.area ?? "")} />
-      <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} />
+      <Row label="PM10" value={formatNum(numOrNull(props.pm10), "µg/m³")} mono />
       <Row label="PM1" value={formatNum(numOrNull(props.pm1), "µg/m³")} />
       <Row label="溫度" value={tempStr} />
       <Row label="濕度" value={formatNum(numOrNull(props.humidity), "%")} />

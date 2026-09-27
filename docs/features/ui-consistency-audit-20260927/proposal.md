@@ -76,6 +76,30 @@
 | Row | 11px、line-height 1.3、padding `3px 0`、每列底線 `1px --border-soft`（最後一列不畫）；標籤 10px `--text-muted` 寬 56px；數值 `--text-strong`，純數字改 `--font-data` + tabular-nums。列高約 21px |
 | Footer | 9px `--text-dim`、上方 `1px --border-soft`；無來源時顯示「來源資訊待補」（`--status-warn`） |
 
+**Phase B 施工備註（2026-09-27）**：`Row` 已加 `mono?: boolean` prop（`shared.tsx`），套 `FONT_DATA` + `tabular-nums`。這輪只手動套在 4 處明顯純數值列（`airPanels.tsx` 的 AQI/微感測站 PM2.5·PM10、`shared.tsx` 的 `ChatHighlightPanel` 座標），未跑 regex 全面偵測——**mono 全面套用（41 個 `*Panels.tsx` 逐一過一次數值欄位）留待後續工作**，不在本輪 Phase B 範圍。
+
+**Phase C 施工備註（2026-09-27）**：`shared.tsx` 新增共用 `Title`，13 個 domain 檔改 import、刪本地重複版本。盤點發現的差異：
+- 11/13 檔（culture/education/fishery/funeral/japan/livestock/religion/sports/tourism/urban/welfare）的本地版完全相同（10px 色點 flex 佈局、13px bold、letterSpacing 0.5、marginBottom 6，無底線）。
+- `jpMedicalPanels.tsx` 少了 `flexShrink: 0`（色點被擠壓的既有小 bug，改共用版後修正）與 `letterSpacing: 0.5`（差異在雜訊範圍內）。
+- `networkStructuresPanels.tsx` 原本**沒有色點**，用分類色直接染標題文字（非 `textStrong`），改共用版後視覺變成「9px 色點 + textStrong 文字」——這是本次統一刻意消弭的不一致，非誤改。
+- 共用版套 B 版規格：9px 色點（原 10px）、加 `1px solid palette.border` 底線 + `paddingBottom 5`、`marginBottom 4`（原 6）、拿掉 `letterSpacing: 0.5`（規格未列）。
+
+**Phase D 施工備註（2026-09-27）**：`SourceFooter` 改 F2 規格（`shared.tsx`），並改走**做法 (a)**——`FeatureInfoPanel.tsx` 在 `{content}` 後統一掛一次 `<SourceFooter props={feature.properties} />`，取代原本 8 個 domain 檔（culture/energy/fishery/policeJustice/publicLife/religion/urban，共 61 處）各自呼叫 `<SourceFooter props={props} />`——這些呼叫因為 `props` 本來就等於 `feature.properties`，拿掉後行為完全等價，換來「41 個 registry panel 全數有 footer」不用逐檔補。
+
+**例外清單**（`FeatureInfoPanel.tsx` 的 `FOOTER_SELF_MANAGED_LAYER_TYPES`，中央版跳過）：
+- `chatHighlight`：AI 助手標記點，非資料圖層，依規格不掛 footer。
+- `publicToilet`／`disasterShelters`／`nationalParks`：panel 內把常數 `source_org`/`license`/`source_url` 併進 `props`（上游 feature 本身沒有這些欄位，是 panel 端補的產品知識），中央版讀原始 `feature.properties` 拿不到這些 enrich 後的值，維持各自的 `SourceFooter` 呼叫。
+- `osmBridgeCarriers`／`osmBridgeFootprints`／`officialBridgesNewTaipei`／`bridgeComparisonNewTaipei`／`tainanBridgeInspections`／`officialBridgesHsinchu`／`taipeiRoadTunnels`／`tainanRoadTunnels`／`changhuaTrafficSignals`（`networkStructuresPanels.tsx` 全部 9 個 panel）：整份檔案走自訂 `SourceRows`（欄位命名慣例是 `source_name`/`source_date`/`retrieved_at`，不是 F2 讀的 `source_org`/`license`/`fetched_at`），兩種 schema 對不上，硬套中央版只會誤判成「無來源」，故維持現狀不動。
+- 水庫 context 特例（`isReservoirContextView`：點到有 `compare_id` 的水庫且 context 已載入）：這個分支顯示的是彙整水情/集水區/流域/最近河川等多個資料源，`feature.properties` 只代表其中一筆（水庫點本身），不是整個彙整視圖的代表來源，中央版在此分支略過。
+
+**F2 規格落地**：第一行 `機關 · Tier N · 原始下載頁 ↗`（任一項缺就省略，不留孤立分隔符）；第二行 `license ＋ 抓取於 …`（`FONT_DATA` 等寬——這點跟 §1「FONT_DATA 不套中文容器」的一般規則有張力，但 handoff.md §4a 第三輪拍板 F2 明確列出「第二行授權＋抓取時間（等寬）」，屬於更晚、更具體的決策，故照拍板字面實作）；`org`/`url` 兩者都沒有時整段改顯示「資料來源 · 來源資訊待補」（`warn` 色，暗色沿用既有 `COLORS.statusWarn` #ff9800、淡色新增 `#c2410c`），**完全取代**該狀態下的其他欄位（不半調子同時顯示 license/fetched_at）。跨來源 `_provenance`／`provenance` 陣列沿用舊版 `length > 1` 才收合展開（1 筆會跟第一行重複，不重複顯示——判斷取捨，非拍板明文規定），標籤字樣改「溯源 N 筆」（原「跨來源溯源（N 筆）」，貼近 handoff.md 字面）。
+
+新增兩個測試檔驗證這條路徑真的有跑到（先前只測過個別 `*Panels.tsx`，從未 render 過 `FeatureInfoPanel.tsx` 本體，等於 eyebrow 對照表、footer 白名單邏輯只驗證了型別沒驗證過行為）：
+- `src/components/featureInfo/__tests__/shared.test.ts`：直接測 `SourceFooter` F2 四種情境（完整欄位／只有 url／完全無來源／provenance 收合門檻）。
+- `src/components/featureInfo/__tests__/FeatureInfoPanel.test.ts`：render `FeatureInfoPanel` 本體三種情境（一般圖層 eyebrow +footer／`chatHighlight` 無 footer／`osmBridgeCarriers` 白名單略過不誤判待補），順帶驗證 `layerCatalog` 的 import chain 在測試環境能正常載入。
+
+**footer 重複顯示已處理**：`noisePanels.tsx` 的 `SourceRows` 拿掉「來源機關」與「原始資料頁 ↗」（保留 footer 沒有的來源 ID／更新時間／授權）；`wastePanels.tsx` 3 個 panel 拿掉自帶的「原始資料 ↗」連結；`japanPanels.tsx` 拿掉純 `source_url` 的「來源網址」列，另一處改成只有在沒有 `source_url` 時才顯示 leaflet／area 的「相關網址」。
+
 以下結構規則沿用：
 
 ```
