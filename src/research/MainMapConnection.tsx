@@ -488,7 +488,7 @@ export function MainMapConnection(props: Props) {
     {props.map && createPortal(<div className={`research-activity-position${props.isDarkTheme === false ? " research-activity-position--light" : ""}`} style={props.uiHidden ? { display: "none" } : undefined}><ResearchActivity activity={activity} history={activityHistory.slice(1)} /></div>, props.map.getContainer())}
     {showToggle && <button className="main-map-agent-toggle" onClick={() => setOpen(value => !value)} aria-expanded={open}>本地 Agent</button>}
     <div className="main-map-agent-panel" data-viewport-occluder="research-agent" hidden={!panelOpen}>
-      {!props.embedded && <PanelHeader className="main-map-agent-heading" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
+      {!props.embedded && <PanelHeader className="main-map-agent-heading" eyebrow="研究" title="與 Agent 協作" onClose={() => setOpen(false)} borderColor="var(--agent-border)" mutedColor="var(--agent-muted)" textColor="var(--agent-text)" />}
       <ResearchConnection surface="map" onConnection={connect} onDisconnect={disconnect} onState={receive} onReady={() => { followingRef.current = true; setFollowing(true); requestLayerExploration(); setOpen(false); setActivity({ phase: "ready", title: "已連線，可以開始探索", detail: "預設會跟隨 Agent；手動查看地圖後，下一個動作仍可調整圖層與視角。" }); }} />
       <div className="agent-panel-body">
       <label className="agent-follow-setting">
