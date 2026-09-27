@@ -34,7 +34,20 @@
 - null → 0；suppressed → 0；沒有 snapshot → 關閉或不存在。
 - ready receipt → browser 已清楚呈現完整資料。
 
-結論分成 observed、derived、source-stated、unknown。外部網路背景與 Pulse dataset receipt 分開引用；不同年份或 grain 不強行比較。
+結論在內部分成 observed、derived、source-stated、unknown；外部網路背景與 Pulse dataset receipt 分開引用；不同年份或 grain 不強行比較。
+
+## 守門結果怎麼講給使用者聽
+
+上面的檢查是給 Agent 做的，不是逐條念給使用者。只有會改變答案的那一條才寫出來，用一句白話放在相關句子旁（「小提醒：」），不集中成限制大段：
+
+| 內部語意 | 講給使用者 |
+|---|---|
+| null／missing／notCovered | 「這裡沒有資料，不是 0。」 |
+| derived（自行推算） | 「這個數字是從村里資料推算的，不是官方直接公布。」 |
+| 關聯結果 | 「一起出現，不代表誰造成誰。」 |
+| proxy／geocoded 座標 | 「位置是用地址推估的，差幾十公尺很正常。」 |
+| 直線距離 | 「這是直線距離，實際走路會再遠一點。」 |
+| unknown 且會改變結論 | 一句話說做不到，並給替代做法：「產量目前沒資料；可以先看收成面積。」 |
 
 ## 行政統計、座標格式與面資料讀取（逐字自 SKILL.md §3 搬出，2026-09-26）
 

@@ -21,7 +21,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 | 環域、疊合、密度、相關、任意組合 | `pulse_sql`（唯讀；公尺用 `geom_3826`，上地圖的幾何回 EPSG:4326） |
 | 畫到地圖 | `pulse_wh_present` → 回條 resultIds → `pulse_set_result_collection` → `pulse_wait_scene_ready` → `pulse_get_map_context` |
 
-倉庫語意：`notCovered`＝該縣市沒有此資料（說「未涵蓋」，不是 0）；`zeroWithinRadius` 才是有涵蓋但半徑內沒有；`caveats` 必須帶進回答；缺資料就說缺什麼，用替代資料要標明。
+倉庫語意：`notCovered`＝該縣市沒有此資料（說「未涵蓋」，不是 0）；`zeroWithinRadius` 才是有涵蓋但半徑內沒有；`caveats` 挑會改變解讀的，用一句白話帶進回答；缺資料就說缺什麼，用替代資料要標明。
 
 ## 1. 先路由，再動工具
 
@@ -62,7 +62,7 @@ description: 以 Mini Taiwan Pulse 做有來源、可驗證的 GIS 資料探索�
 
 ## 4. 證據與呈現
 
-回答保留 dataset／版本／coverage／grain／缺值與排除／實際 filters／limits／resultId；accepted／applied 不等於 ready，說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
+回答照 geo-reasoning 的淺白語氣：第一句是答案、術語配白話、但書 ≤2 句用「小提醒：」、來源一行小字。dataset／版本／coverage／grain／缺值與排除／filters／limits／resultId 留在 receipt 可追溯，使用者問才展開，不寫成限制大段。說「已顯示」前要有 ready＋map_context readback。細節見 [證據與呈現](references/evidence-presentation.md)。
 
 ## 5. 效率規則
 
