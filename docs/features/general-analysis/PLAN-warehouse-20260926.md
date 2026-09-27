@@ -1,5 +1,19 @@
 # Agent 分析倉庫計劃（2026-09-26 起的唯一施工入口）
 
+## 現況（2026-09-27 收尾）
+
+- **覆蓋率**：可分析 605/794（臺灣圖層 484/595＝81%）。
+- **倉庫 store**：版本 `20260926T200634Z`，已同步 R2（`r2://pulse-warehouse/warehouse`），R2 與本機各保留最近 2 版。
+- **問題庫**：29 題（詳見進度表）。
+- **Jev 路由**：真實模型準確率約 90%（28/31）。
+- **工具新增**：`pulse_find_data`（跨 dataset 名稱／中文圖層標籤／欄位名／統計指標搜尋）、`pulse_isochrone`（自架 Valhalla）、`pulse_wh_present` 新增 style 參數（choropleth／bivariate／heatmap／compare）。
+- **等時圈**：自架 Valhalla（repo `ianlkl11234s/valhalla-taiwan`、Zeabur 服務 `valhalla-taiwan`），台灣路網月更後需手動重啟服務。
+- **回答語氣**：已改為對非 GIS 讀者友善（答案先講、術語附比喻、但書精簡、追問口語化）。
+- **地圖呈現體驗**：不自動開 Layers 面板、框選避開面板、周邊分析結果帶虛線範圍圈。
+- **UI 一致性盤點**：另案處理，見 [`docs/features/ui-consistency-audit-20260927/handoff.md`](../ui-consistency-audit-20260927/handoff.md)，不在本計劃範圍內。
+
+詳細進度表與逐項證據以 [PLAN-round3-20260927.md](./PLAN-round3-20260927.md) 為準。
+
 決策依據：[ADR-0014](../../../../.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md)（GIS 工作區 `.gis-agent-system/decisions/0014-pulse-analysis-warehouse.md`）。
 舊的 P0–P7、Q0–Q6、778 層回補清單已移到 [`archive/2026-09-pre-warehouse/`](./archive/2026-09-pre-warehouse/)，**只作歷史，不再作施工依據**。
 
