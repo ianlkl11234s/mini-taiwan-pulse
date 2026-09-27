@@ -1,4 +1,4 @@
-import { Row, SourceFooter } from "./shared";
+import { Row } from "./shared";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 
@@ -75,7 +75,6 @@ export function PoliceStationPanel({ props }: PanelProps) {
       <Row label="類型" value={POLICE_SUBTYPE_ZH[sub] ?? sub} />
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -88,7 +87,6 @@ export function WomenChildWarningPanel({ props }: PanelProps) {
       <Row label="分局" value={String(props.branch ?? "")} />
       <Row label="承辦" value={String(props.contact ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -103,7 +101,6 @@ export function SpeedCameraPanel({ props }: PanelProps) {
       <Row label="限速" value={props.limit_kph ? `${props.limit_kph} km/h` : ""} />
       <Row label="縣市" value={`${String(props.city ?? "")} ${String(props.region ?? "")}`.trim()} />
       <Row label="分局" value={String(props.branch ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -116,7 +113,6 @@ export function SpeedZoneSegmentPanel({ props }: PanelProps) {
       <Row label="限速" value={String(props.limit_kph ?? "")} />
       <Row label="取締項目" value={String(props.enforcement_item ?? "")} />
       <Row label="縣市" value={String(props.city ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -131,7 +127,6 @@ export function CourtPanel({ props }: PanelProps) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="官網" value={String(props.url ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -145,7 +140,6 @@ export function ProsecutorsOfficePanel({ props }: PanelProps) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="官網" value={String(props.url ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -163,7 +157,6 @@ export function CorrectionalFacilityPanel({ props }: PanelProps) {
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         ⓘ 全國在監人數請看右下 Monitor PrisonCard
       </div>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -179,7 +172,6 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
       <Row label="少年家事" value={String(props.juvenile_family_court ?? "")} />
       <Row label="最高法院" value={String(props.supreme_court ?? "")} />
       <Row label="法源" value={String(props.source_law ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -239,7 +231,6 @@ export function TheftTaoyuanPanel({ props }: PanelProps) {
       <Row label="年度" value={String(props.year ?? "")} />
       <Row label="日期" value={String(props.date ?? "")} />
       <Row label="行政區" value={String(props.district ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -258,7 +249,6 @@ export function TrafficAccidentYearlyPanel({ props }: PanelProps) {
       <Row label="照明" value={String(props.light ?? "")} />
       <Row label="道路類別" value={String(props.road_type ?? "")} />
       <Row label="速限" value={props.speed_limit ? `${props.speed_limit} km/h` : ""} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -273,7 +263,6 @@ export function AccidentTaipeiPanel({ props }: PanelProps) {
       </div>
       <Row label="時間" value={String(props.occurred_at ?? "")} />
       <Row label="地點" value={String(props.location ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -315,7 +304,6 @@ export function InvestigationBureauPanel({ props }: PanelProps) {
       <Header color="#0f766e" name={String(props.name ?? "調查局")} />
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -330,7 +318,6 @@ export function AntiCorruptionOfficePanel({ props }: PanelProps) {
       <Row label="檢舉電話" value={String(props.phone1 ?? props.phone ?? "")} />
       <Row label="檢舉專線" value={String(props.phone2 ?? "")} />
       <Row label="信箱" value={String(props.email ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -360,7 +347,6 @@ export function CoastGuardStationPanel({ props }: PanelProps) {
       <Row label="類型" value={sub === "patrol_station" ? "巡防隊" : sub === "ocean_pier" ? "漁港" : sub} />
       <Row label="所屬" value={String(props.area ?? "")} />
       <Row label="地址" value={String(props.address ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -432,7 +418,6 @@ export function AviationAirspacePanel({ props }: PanelProps) {
       <Row label="頂高度 ceiling" value={fmtAlt(props.ceiling_m, props.ceiling_raw)} />
       <Row label="airspace class" value={String(props.airspace_class ?? "")} />
       <Row label="備註" value={String(props.remarks ?? "")} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -456,7 +441,6 @@ export function DroneZonesPanel({ props }: PanelProps) {
       <Row label="說明" value={String(props["空域說明"] ?? "")} />
       <Row label="縣市" value={String(props.countyname ?? "")} />
       <Note>2026-06-30 歷史快照；切片未保留有效日期，不能據此判定當前可飛、禁飛或申請規則。</Note>
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -491,7 +475,6 @@ export function CivilDefenseShelterPanel({ props }: PanelProps) {
       <Row label="容量" value={props.capacity ? `${props.capacity} 人` : ""} />
       <Row label="行政區" value={String(props.district ?? "")} />
       <ShelterCoordNote props={props} />
-      <SourceFooter props={props} />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { Row, SourceFooter, Title } from "./shared";
+import { Row, Title } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import {
@@ -81,7 +81,6 @@ export function ChurchPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
       <OdblNote props={props} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -97,7 +96,6 @@ export function AncestralHallPanel({ props }: { props: Record<string, unknown> }
       {str(props.heritage_grade) ? <Row label="文資級別" value={str(props.heritage_grade)} /> : null}
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -109,7 +107,6 @@ export function FoundationPanel({ props }: { props: Record<string, unknown> }) {
       <Title color={RELIGION_LAYER_COLORS.religionFoundations}>{str(props.name) || "宗教基金會"}</Title>
       <Row label="縣市" value={str(props.county)} />
       <Row label="地址" value={str(props.address)} />
-      <SourceFooter props={props} />
     </>
   );
 }
@@ -129,7 +126,6 @@ export function OtherWorshipPanel({ props }: { props: Record<string, unknown> })
       <Row label="鄉鎮" value={str(props.town)} />
       <Row label="地址" value={str(props.address)} />
       <OdblNote props={props} />
-      <SourceFooter props={props} />
     </>
   );
 }

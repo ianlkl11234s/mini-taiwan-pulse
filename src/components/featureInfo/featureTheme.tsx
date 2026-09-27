@@ -27,6 +27,8 @@ export interface FeaturePalette {
   borderSoft: string;
   /** 連結色（accent-on-white 需加深）*/
   link: string;
+  /** 警示（SourceFooter「來源資訊待補」等）*/
+  warn: string;
 }
 
 export const DARK_FEATURE: FeaturePalette = {
@@ -39,6 +41,7 @@ export const DARK_FEATURE: FeaturePalette = {
   border: "rgba(255,255,255,0.10)",
   borderSoft: "rgba(255,255,255,0.06)",
   link: "#7DD3FC",
+  warn: COLORS.statusWarn,
 };
 
 export const LIGHT_FEATURE: FeaturePalette = {
@@ -51,6 +54,7 @@ export const LIGHT_FEATURE: FeaturePalette = {
   border: "rgba(0,0,0,0.10)",
   borderSoft: "rgba(0,0,0,0.06)",
   link: "#0284C7",
+  warn: "#c2410c",
 };
 
 const FeatureThemeContext = createContext<FeaturePalette>(DARK_FEATURE);
