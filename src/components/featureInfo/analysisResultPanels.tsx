@@ -6,34 +6,13 @@
 import { useState } from "react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
 import type { AnalysisResultPanelProperties, AnalysisResultPanelRecord } from "../../research/researchResultPopup";
-import { Row } from "./shared";
+import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 
 const FALLBACK_DOT = "#64aaff";
 
-// TODO(phase-c): 改用 shared Title
-function Title({ color, children }: { color: string; children: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 7, paddingBottom: 5, marginBottom: 4, borderBottom: `1px solid ${t.border}` }}>
-      <div style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, wordBreak: "break-word" }}>{children}</div>
-    </div>
-  );
-}
-
-/** 以數字開頭的值（含單位、時間戳）走等寬 + tabular-nums，其餘沿用 shared Row。 */
+/** 以數字開頭的值（含單位、時間戳）走 Row 的 mono（等寬 + tabular-nums）。 */
 const NUMERIC_VALUE = /^[-+−]?\d/;
-
-function DataRow({ label, value }: { label: string; value: string }) {
-  const t = useFeatureTheme();
-  return (
-    <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
-      <span style={{ color: t.textStrong, wordBreak: "break-word", fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{value}</span>
-    </div>
-  );
-}
 
 function isRecord(value: unknown): value is AnalysisResultPanelRecord {
   if (!value || typeof value !== "object") return false;
@@ -78,9 +57,7 @@ export function AnalysisResultPanel({ props }: { props: Record<string, unknown> 
       {record ? (
         <>
           <Title color={record.color ?? FALLBACK_DOT}>{record.title}</Title>
-          {record.facts.map((fact, i) => NUMERIC_VALUE.test(fact.value)
-            ? <DataRow key={i} label={fact.label} value={fact.value} />
-            : <Row key={i} label={fact.label} value={fact.value} />)}
+          {record.facts.map((fact, i) => <Row key={i} label={fact.label} value={fact.value} mono={NUMERIC_VALUE.test(fact.value)} />)}
         </>
       ) : (
         <Row label="紀錄" value="本次分析命中的空間紀錄" />
