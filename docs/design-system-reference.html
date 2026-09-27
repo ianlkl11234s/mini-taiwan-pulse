@@ -491,7 +491,7 @@
         <div class="brand"><h4>Mini Taiwan Pulse</h4><div class="hud">25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°</div></div>
         <div class="tb">
           <div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div><span class="vsep"></span>
-          <button class="btn icon" title="底圖：深色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b></b></span></button><span class="vsep"></span>
+          <button class="btn icon" title="底圖：暗色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b></b></span></button><span class="vsep"></span>
           <button class="btn icon" title="分享目前畫面" aria-label="分享目前畫面"><svg class="i"><use href="#i-share"/></svg></button>
           <button class="btn icon" title="說明與操作提示" aria-label="說明與操作提示"><svg class="i"><use href="#i-help"/></svg></button>
           <button class="btn"><svg class="i"><use href="#i-msg"/></svg>AI</button>
@@ -503,7 +503,7 @@
         <div class="brand"><h4>Mini Taiwan Pulse</h4><div class="hud">25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°</div></div>
         <div class="tb">
           <div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div><span class="vsep"></span>
-          <button class="btn icon" title="底圖：淺色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></b></span></button><span class="vsep"></span>
+          <button class="btn icon" title="底圖：淡色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></b></span></button><span class="vsep"></span>
           <button class="btn icon" title="分享目前畫面" aria-label="分享目前畫面"><svg class="i"><use href="#i-share"/></svg></button>
           <button class="btn icon" title="說明與操作提示" aria-label="說明與操作提示"><svg class="i"><use href="#i-help"/></svg></button>
           <button class="btn"><svg class="i"><use href="#i-msg"/></svg>AI</button>
@@ -519,17 +519,11 @@
     <div class="blk-head"><h2>底圖選單（B3 純圖示）</h2><span class="num">§5.19</span><span class="impl path">src/components/toolbar/BasemapMenu.tsx</span></div>
     <div class="pair">
       <div class="board t-dark"><div class="bm-pop" role="menu">
-        <div class="bm-grid">
-          <span class="on"><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>深色</span><span><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淺色</span><span><i style="background:linear-gradient(135deg,#dbe7d3,#a7c4a0)"></i>街道</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span>
-          <span><i style="background:linear-gradient(135deg,#556b82,#1e293b)"></i>地形</span><span><i style="background:linear-gradient(135deg,#1e1b4b,#0f172a)"></i>夜景</span><span><i style="background:linear-gradient(135deg,#374151,#111827)"></i>單色</span>
-        </div>
+        <div class="bm-grid"><span><i style="background:linear-gradient(135deg,#000000,#111111)"></i>純黑</span><span class="on"><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>暗色</span><span><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淡色</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#caa43a)"></i>衛星街道</span><span><i style="background:linear-gradient(135deg,#0f1a33,#1e3a8a)"></i>夜間導航</span><span><i style="background:linear-gradient(135deg,#f5efe4,#e8c98a)"></i>街道</span></div>
         <div class="bm-sep"></div><div class="bm-lbl">顯示地名<button class="tgl lg" role="switch" aria-checked="true" aria-label="顯示地名"><span class="sw2"></span></button></div>
       </div></div>
       <div class="board t-light"><div class="bm-pop" role="menu">
-        <div class="bm-grid">
-          <span><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>深色</span><span class="on"><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淺色</span><span><i style="background:linear-gradient(135deg,#dbe7d3,#a7c4a0)"></i>街道</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span>
-          <span><i style="background:linear-gradient(135deg,#556b82,#1e293b)"></i>地形</span><span><i style="background:linear-gradient(135deg,#1e1b4b,#0f172a)"></i>夜景</span><span><i style="background:linear-gradient(135deg,#374151,#111827)"></i>單色</span>
-        </div>
+        <div class="bm-grid"><span><i style="background:linear-gradient(135deg,#000000,#111111)"></i>純黑</span><span><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>暗色</span><span class="on"><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淡色</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#caa43a)"></i>衛星街道</span><span><i style="background:linear-gradient(135deg,#0f1a33,#1e3a8a)"></i>夜間導航</span><span><i style="background:linear-gradient(135deg,#f5efe4,#e8c98a)"></i>街道</span></div>
         <div class="bm-sep"></div><div class="bm-lbl">顯示地名<button class="tgl lg" role="switch" aria-checked="false" aria-label="顯示地名"><span class="sw2"></span></button></div>
       </div></div>
     </div>
@@ -571,10 +565,10 @@
   <!-- ───────── D1 ───────── -->
   <section class="blk" id="datasource">
     <div class="blk-head"><h2>資料來源面板（D1 列內展開）</h2><span class="num">§5.22</span><span class="impl path">src/components/sidebar/DataSourcePanel.tsx</span></div>
-    <p class="note">狀態篩選分段（全部／已接上／派生／待補）；點列在列下方展開上游資料卡，同時只展開一筆。狀態：✓ 已接上、⚙ 派生、? 待補。</p>
+    <p class="note">狀態篩選分段（全部＋三個狀態圖示與數量，title 為中文狀態名）；點列在列下方展開上游資料卡，同時只展開一筆。狀態：✓ 已接上、⚙ 派生、? 待補。</p>
     <div class="pair">
       <div class="board t-dark"><div class="lp">
-        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true">全部 <span class="n">312</span></button><button aria-pressed="false">已接上</button><button aria-pressed="false">派生</button><button aria-pressed="false">待補</button></div></div>
+        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true" title="全部圖層">全部 <span class="n">803</span></button><button aria-pressed="false" title="已接上"><span style="color:var(--live)">✓</span> <span class="n">554</span></button><button aria-pressed="false" title="派生"><span style="color:var(--derived)">⚙</span> <span class="n">27</span></button><button aria-pressed="false" title="待補"><span style="color:var(--warn)">?</span> <span class="n">222</span></button></div></div>
         <div class="l2">公共運輸</div>
         <div class="ds-row open"><span class="st" style="color:var(--live)">✓</span>公車即時位置 <span class="en">Bus realtime</span></div>
         <div class="ds-card"><div class="fact"><span>機關</span><span>交通部 TDX</span></div><div class="fact"><span>更新</span><span>即時（分鐘級）</span></div><div class="fact"><span>授權</span><span class="mono">OGDL-1.0</span></div><div class="fact"><span>下載</span><span><a href="#datasource">原始資料頁 ↗</a></span></div></div>
@@ -582,7 +576,7 @@
         <div class="ds-row"><span class="st" style="color:var(--warn)">?</span>客運轉乘站</div>
       </div></div>
       <div class="board t-light"><div class="lp">
-        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true">全部 <span class="n">312</span></button><button aria-pressed="false">已接上</button><button aria-pressed="false">派生</button><button aria-pressed="false">待補</button></div></div>
+        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true" title="全部圖層">全部 <span class="n">803</span></button><button aria-pressed="false" title="已接上"><span style="color:var(--live)">✓</span> <span class="n">554</span></button><button aria-pressed="false" title="派生"><span style="color:var(--derived)">⚙</span> <span class="n">27</span></button><button aria-pressed="false" title="待補"><span style="color:var(--warn)">?</span> <span class="n">222</span></button></div></div>
         <div class="l2">公共運輸</div>
         <div class="ds-row open"><span class="st" style="color:var(--live)">✓</span>公車即時位置 <span class="en">Bus realtime</span></div>
         <div class="ds-card"><div class="fact"><span>機關</span><span>交通部 TDX</span></div><div class="fact"><span>更新</span><span>即時（分鐘級）</span></div><div class="fact"><span>授權</span><span class="mono">OGDL-1.0</span></div><div class="fact"><span>下載</span><span><a href="#datasource">原始資料頁 ↗</a></span></div></div>

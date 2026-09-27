@@ -439,7 +439,7 @@
 ### 5.19 底圖選單（B3 純圖示）
 
 - **按鈕**：工具列圖示按鈕，地圖 glyph 13px ＋ 右下 7px 色點（當前底圖漸層，`RADIUS.sm`、1px 底板色描邊）；`title="底圖：{中文名}"`。
-- **彈出層**：靠右、top `100% + 6px`、底 `palette.popupBg`（暗 `SURFACE.strong`／淡 `LIGHT.surfaceSolid`）、`RADIUS.xl`、`ELEVATION.lg`、padding 4；4 欄 × 52px 縮圖（1:1、圓角 5、選中 2px accent outline＋accent 600 字）、中文名 9.5px；分隔線後「顯示地名」＋迷你開關。
+- **彈出層**：靠右、top `100% + 6px`、底 `palette.popupBg`（暗 `SURFACE.strong`／淡 `LIGHT.surfaceSolid`）、`RADIUS.xl`、`ELEVATION.lg`、padding 4；7 個底圖（純黑、暗色、淡色、衛星、衛星街道、夜間導航、街道）以 4 欄 × 52px 縮圖排列（1:1、圓角 5、選中 2px accent outline＋accent 600 字）、中文名 9.5px；分隔線後「顯示地名」＋迷你開關。
 - **互動**：點外部或 Esc 關閉；`role="menu"`／`menuitemradio`。
 - **實作**：`src/components/toolbar/BasemapMenu.tsx`。
 
@@ -464,7 +464,7 @@
 ### 5.22 資料來源面板（D1 列內展開）
 
 - **位置**：左側 rail「資料來源」（資料庫圖示，Locations 之後）；取代舊右下浮動 ⓘ 與置中詳細視窗。
-- **外殼**：同 Layers：H2（eyebrow「資料」）、搜尋框「搜尋圖層名稱」、狀態篩選分段（全部／已接上／派生／待補，附數量）、主題 → L2 群組。
+- **外殼**：同 Layers：H2（eyebrow「資料」）、搜尋框「搜尋圖層名稱」、狀態篩選分段（「全部 N」＋ ✓／⚙／? 三個狀態圖示與數量，`title` 為中文狀態名）、主題 → L2 群組。
 - **列**：狀態圖示（✓ 已接上 `statusLive`／⚙ 派生 `statusDerived`／? 待補 `statusWarn`）＋中文名，英文名小字 `textDim`；鎖頭圖示表示受限。
 - **展開**：點列在列下方展開上游資料卡，同時只展開一筆（`aria-expanded`）；卡內 Fact 列標籤 10px `muted` 寬 44、值 `textStrong`，代碼類值 `FONT_DATA`；連結 `link` 色。
 - **暗／淡**：`DARK_DS`／`LIGHT_DS`（皆取 token）。
