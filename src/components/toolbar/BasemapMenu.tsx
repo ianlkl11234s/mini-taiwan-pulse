@@ -133,7 +133,9 @@ export function BasemapMenu({ selected, onChange, isDarkTheme, showLabels, onTog
                       width: "100%",
                       aspectRatio: "1",
                       borderRadius: 5,
-                      border: isSelected ? `2px solid ${palette.accent}` : `1px solid ${palette.controlBorder}`,
+                      border: `1px solid ${palette.controlBorder}`,
+                      outline: isSelected ? `2px solid ${palette.accent}` : "none",
+                      outlineOffset: 1,
                       background: o.gradient,
                     }}
                   />

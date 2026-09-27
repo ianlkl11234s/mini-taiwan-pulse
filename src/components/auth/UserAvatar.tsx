@@ -125,7 +125,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
         onMouseEnter={(e) => { if (!compact) e.currentTarget.style.background = c.hover; }}
         onMouseLeave={(e) => { if (!compact) e.currentTarget.style.background = "transparent"; }}
       >
-        <Avatar url={avatarUrl} />
+        <Avatar url={avatarUrl} size={compact ? 22 : 26} />
       </button>
 
       {open && (
@@ -220,8 +220,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
 }
 
 /** 圓形頭像：有圖顯示圖，無圖顯示 fallback 人形 icon */
-function Avatar({ url }: { url: string | null }) {
-  const size = 22;
+function Avatar({ url, size = 22 }: { url: string | null; size?: number }) {
   const common: React.CSSProperties = {
     width: size,
     height: size,
