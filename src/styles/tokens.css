@@ -1,9 +1,115 @@
 /*
  * 全站 CSS 變數 — 供 .css 檔使用（.css 無法 import designTokens.ts）。
- * 字型不載入 web font，只列各平台內建字；值與 intelTokens.ts 的 FONT_CJK / FONT_DATA 相同。
- * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §1。
+ * 數值與 designTokens.ts 1:1 對應；字型不載入 web font，只列各平台內建字，
+ * 值與 intelTokens.ts 的 FONT_CJK / FONT_DATA 相同。
+ * 規格見 docs/features/ui-consistency-audit-20260927/proposal.md §1、§5 與 tokens-draft.css。
+ *
+ * 淺色：不做全站切換。各子系統沿用既有的淺色觸發 class
+ * （.main-map-agent--light / .member-panel-light / .research-activity-position--light），
+ * 在該 class 內把自己的語意別名指到下方 --light-*。
  */
 :root {
+  /* ── FONT_FAMILY ── */
   --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
   --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ── SURFACE — 面板背景五階（= SURFACE） ── */
+  --surface-app: #0a0a14;
+  --surface-subtle: rgba(0, 0, 0, 0.40);
+  --surface-panel: rgba(0, 0, 0, 0.52);
+  --surface-strong: rgba(10, 10, 20, 0.88);
+  --surface-solid: rgba(10, 10, 20, 0.94);
+
+  /* ── TEXT（= COLORS.text*） ── */
+  --text-strong: #f3f4f6;
+  --text-default: #d8dce3;
+  --text-muted: #9ca3af;
+  --text-dim: #6b7280;
+  --text-faint: #4b5560;
+  --text-ghost: #363b44;
+
+  /* ── ACCENT / STATUS（= COLORS.accent* / status*） ── */
+  --accent: #64aaff;
+  --accent-soft: rgba(100, 170, 255, 0.55);
+  --accent-faint: rgba(100, 170, 255, 0.16);
+  --status-live: #22c55e;
+  --status-warn: #ff9800;
+  --status-warn-soft: rgba(255, 152, 0, 0.16);
+  --status-err: #ef4444;
+
+  /* ── WHITE_ALPHA ── */
+  --white-a4: rgba(255, 255, 255, 0.04);
+  --white-a8: rgba(255, 255, 255, 0.08);
+  --white-a12: rgba(255, 255, 255, 0.12);
+  --white-a20: rgba(255, 255, 255, 0.20);
+  --white-a40: rgba(255, 255, 255, 0.40);
+  --white-a60: rgba(255, 255, 255, 0.60);
+
+  /* ── BORDER ── */
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-panel: rgba(255, 255, 255, 0.10);
+  --border-mid: rgba(255, 255, 255, 0.14);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --border-accent: rgba(100, 170, 255, 0.55);
+
+  /* ── RADIUS ── */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
+  --radius-pill: 9999px;
+  --radius-full: 50%;
+
+  /* ── FONT_SIZE ── */
+  --font-xs: 9px;
+  --font-sm: 10px;
+  --font-base: 11px;
+  --font-md: 12px;
+  --font-lg: 13px;
+  --font-xl: 18px;
+  --font-xxl: 22px;
+
+  /* ── FONT_WEIGHT ── */
+  --font-weight-regular: 400;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* ── ELEVATION ── */
+  --elevation-sm: 0 6px 20px rgba(0, 0, 0, 0.50);
+  --elevation-md: 0 8px 32px rgba(0, 0, 0, 0.55);
+  --elevation-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --elevation-dock: 0 -16px 50px rgba(0, 0, 0, 0.50);
+
+  /* ── SPACING ── */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 6px;
+  --space-md: 8px;
+  --space-lg: 12px;
+  --space-xl: 16px;
+  --space-xxl: 24px;
+
+  /* ── CONTROL — 互動態背景（= CONTROL，design-system.md §8，2026-09-27 開啟） ── */
+  --control-bg: rgba(255, 255, 255, 0.06);
+  --control-bg-hover: rgba(255, 255, 255, 0.10);
+  --control-border: rgba(255, 255, 255, 0.12);
+  --control-disabled-opacity: 0.55;
+
+  /* ── LIGHT — 淺色 chrome（收斂 4 套手刻淺色；accent/warn 取自 ui-unification-sheet.html .t-light） ── */
+  --light-surface-panel: rgba(255, 255, 255, 0.95);
+  --light-surface-strong: rgba(255, 255, 255, 0.97);
+  --light-text-strong: #111827;
+  --light-text-default: #1f2937;
+  --light-text-muted: #4b5563;
+  --light-text-dim: #6b7280;
+  --light-border: rgba(0, 0, 0, 0.10);
+  --light-border-mid: rgba(0, 0, 0, 0.16);
+  --light-control-bg: rgba(0, 0, 0, 0.035);
+  --light-control-bg-hover: rgba(0, 0, 0, 0.08);
+  --light-control-border: rgba(0, 0, 0, 0.14);
+  --light-accent: #0b6fd6;
+  --light-accent-faint: rgba(11, 111, 214, 0.10);
+  --light-status-warn: #c2410c;
+  --light-status-err: #b42318;
+  --light-elevation-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
 }
