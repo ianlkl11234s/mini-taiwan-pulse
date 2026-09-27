@@ -908,7 +908,7 @@ function SubGroupLabel({ children }: { children: string }) {
         gap: 8,
         color: dark ? "#9CA3AF" : "#4B5563",
         fontFamily: FONT_CJK,
-        fontSize: 10,
+        fontSize: FONT_SIZE.sm,
         fontWeight: 600,
         letterSpacing: 0.6,
         padding: "10px 12px 3px 12px",

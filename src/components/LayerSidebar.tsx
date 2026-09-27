@@ -482,7 +482,7 @@ function SidebarContent({
                     alignItems: "center",
                     gap: 8,
                     fontFamily: FONT_CJK,
-                    fontSize: 10,
+                    fontSize: FONT_SIZE.sm,
                     fontWeight: 600,
                     letterSpacing: 0.6,
                     color: isDarkTheme ? "#9CA3AF" : "#4B5563",
