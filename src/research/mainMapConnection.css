@@ -98,7 +98,7 @@
 /* Collaboration panel: same geometry and control rhythm as the Layers rail (tokens: H2 header, C2 controls). */
 .main-map-agent { --agent-text: var(--text-strong); --agent-muted: var(--text-muted); --agent-border: var(--border-panel); }
 .main-map-agent .main-map-agent-panel { padding: 0; border-radius: var(--radius-xl); background: var(--surface-strong); border: 1px solid var(--border-panel); backdrop-filter: blur(12px); box-shadow: var(--elevation-lg); }
-.main-map-agent .main-map-agent-heading { position: sticky; top: 0; z-index: 1; background: inherit; }
+.main-map-agent .main-map-agent-heading { position: sticky; top: 0; z-index: 1; background: inherit; backdrop-filter: blur(12px); }
 .main-map-agent button { font: inherit; }
 .main-map-agent button:hover:not(:disabled) { background: var(--control-bg-hover); }
 .main-map-agent button:focus-visible, .main-map-agent summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
