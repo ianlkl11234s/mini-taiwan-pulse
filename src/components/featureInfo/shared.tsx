@@ -1,4 +1,4 @@
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 
 export function formatTaiwanTime(iso: string | null): string {
@@ -13,13 +13,21 @@ export function formatTaiwanTime(iso: string | null): string {
   }
 }
 
-export function Row({ label, value, color }: { label: string; value: string; color?: string }) {
+export function Row({ label, value, color, mono }: { label: string; value: string; color?: string; mono?: boolean }) {
   const t = useFeatureTheme();
   if (!value || value === "null" || value === "undefined") return null;
   return (
-    <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
-      <span style={{ color: color ?? t.textStrong, wordBreak: "break-word" }}>{value}</span>
+    <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
+      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{label}</span>
+      <span
+        style={{
+          color: color ?? t.textStrong,
+          wordBreak: "break-word",
+          ...(mono ? { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" as const } : {}),
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -36,7 +44,7 @@ export function ChatHighlightPanel({ props }: { props: Record<string, unknown> }
   return (
     <div>
       {label && <Row label="標記" value={label} />}
-      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} />}
+      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} mono />}
       {!label && !hasCoords && <Row label="標記" value="地圖標記點" />}
     </div>
   );

@@ -76,6 +76,8 @@
 | Row | 11px、line-height 1.3、padding `3px 0`、每列底線 `1px --border-soft`（最後一列不畫）；標籤 10px `--text-muted` 寬 56px；數值 `--text-strong`，純數字改 `--font-data` + tabular-nums。列高約 21px |
 | Footer | 9px `--text-dim`、上方 `1px --border-soft`；無來源時顯示「來源資訊待補」（`--status-warn`） |
 
+**Phase B 施工備註（2026-09-27）**：`Row` 已加 `mono?: boolean` prop（`shared.tsx`），套 `FONT_DATA` + `tabular-nums`。這輪只手動套在 4 處明顯純數值列（`airPanels.tsx` 的 AQI/微感測站 PM2.5·PM10、`shared.tsx` 的 `ChatHighlightPanel` 座標），未跑 regex 全面偵測——**mono 全面套用（41 個 `*Panels.tsx` 逐一過一次數值欄位）留待後續工作**，不在本輪 Phase B 範圍。
+
 以下結構規則沿用：
 
 ```
