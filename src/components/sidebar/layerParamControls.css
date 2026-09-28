@@ -1,7 +1,8 @@
 /*
  * 圖層調整控制項（Layers 側欄展開區）— UI 統一 Phase I（V2 版面＋S1 滑桿）。
- * 顏色、字型、控件底色取自 src/styles/tokens.css；軌道／已拖段／圓點／連結色
- * 目前 tokens.css 沒有對應值，先在本檔以 --lpc-* 定義（候選 token，見 Phase I 回報）。
+ * 顏色、字型、控件底色、軌道／已拖段／圓點／連結色、選項底色全部取自 src/styles/tokens.css
+ * （Phase J 收斂：--slider-* / --link / --control-option-bg 與其 --light-* 版本）。
+ * --lpc-* 只是本元件的語意別名；--lpc-line 淡色 rgba(0,0,0,.12) 不在 token 階上，刻意保留。
  *
  * 淺色：與其他子系統相同，靠觸發 class（.lpc-theme--light）把語意別名指到 --light-*。
  */
@@ -10,11 +11,11 @@
   --lpc-strong: var(--text-strong);
   --lpc-text: var(--text-default);
   --lpc-muted: var(--text-muted);
-  --lpc-track: rgba(255, 255, 255, 0.14);
-  --lpc-fill: rgba(255, 255, 255, 0.55);
-  --lpc-thumb: #f3f4f6;
-  --lpc-link: #7fb2ff;
-  --lpc-option-bg: #10101b;
+  --lpc-track: var(--slider-track);
+  --lpc-fill: var(--slider-fill);
+  --lpc-thumb: var(--slider-thumb);
+  --lpc-link: var(--link);
+  --lpc-option-bg: var(--control-option-bg);
   --lpc-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' fill='none' stroke='%239ca3af' stroke-width='1.3'/%3E%3C/svg%3E");
   color-scheme: dark;
 }
@@ -24,11 +25,11 @@
   --lpc-strong: var(--light-text-strong);
   --lpc-text: var(--light-text-default);
   --lpc-muted: var(--light-text-muted);
-  --lpc-track: rgba(0, 0, 0, 0.12);
-  --lpc-fill: rgba(0, 0, 0, 0.45);
-  --lpc-thumb: #111827;
-  --lpc-link: #0284c7;
-  --lpc-option-bg: #ffffff;
+  --lpc-track: var(--light-slider-track);
+  --lpc-fill: var(--light-slider-fill);
+  --lpc-thumb: var(--light-slider-thumb);
+  --lpc-link: var(--light-link);
+  --lpc-option-bg: var(--light-surface-solid);
   --lpc-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' fill='none' stroke='%234b5563' stroke-width='1.3'/%3E%3C/svg%3E");
   --accent: var(--light-accent);
   --accent-faint: var(--light-accent-faint);
