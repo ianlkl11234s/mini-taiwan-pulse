@@ -1,4 +1,5 @@
 import { LayerToggleSwitch } from "../components/sidebar/LayerToggleSwitch";
+import { Slider } from "../components/controls/Slider";
 import { PanelHeader } from "../components/sidebar/PanelHeader";
 import { researchEvidence, analysisErrorMessage, type ResearchEvidence } from "./researchEvidence";
 import { ResearchEvidencePanel } from "./ResearchEvidencePanel";
@@ -598,7 +599,7 @@ export function MainMapConnection(props: Props) {
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
               <div className="agent-analysis-row-label"><strong>{result?.displayLabel ?? "分析結果"}</strong><small>{rendered ? `${rendered.featureCount} 筆 · ${rendered.geometryType}` : "目前未顯示"}{group ? ` · ${group.label}` : ""}</small>
                 <label className="agent-analysis-opacity">透明度
-                  <input aria-label={`${result?.displayLabel ?? "分析結果"}透明度`} type="range" min="0.15" max="1" step="0.05" value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
+                  <Slider ariaLabel={`${result?.displayLabel ?? "分析結果"}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
                 {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
                   if (!props.map) return;

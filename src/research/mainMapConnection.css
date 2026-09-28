@@ -70,6 +70,10 @@
   --control-bg: var(--light-control-bg);
   --control-bg-hover: var(--light-control-bg-hover);
   --control-border: var(--light-control-border);
+  /* 共用滑桿（controls/Slider，.ctl-range）淡色版 */
+  --slider-track: var(--light-slider-track);
+  --slider-fill: var(--light-slider-fill);
+  --slider-thumb: var(--light-slider-thumb);
 }
 .main-map-agent.main-map-agent--light .main-map-agent-panel { background: var(--light-surface-panel); border-color: var(--light-border-mid); box-shadow: var(--light-elevation-lg); }
 .main-map-agent--light input { background: var(--light-surface-strong); }
@@ -116,7 +120,6 @@
 .main-map-agent .agent-section-count { color: var(--agent-muted); font-family: var(--font-data); font-size: var(--font-sm); font-variant-numeric: tabular-nums; }
 .main-map-agent .agent-analysis-results > p { font-size: var(--font-sm); margin: 0 0 10px; }
 .main-map-agent .agent-analysis-opacity { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; margin-top: 4px; color: var(--agent-muted); font-size: var(--font-sm); }
-.main-map-agent input[type=range] { padding: 0; height: 16px; accent-color: var(--accent); border: 0; background: transparent; }
 .main-map-agent .agent-analysis-result-item { padding: 10px 0; }
 .main-map-agent .agent-analysis-row-main { display: flex; align-items: center; gap: 8px; }
 .main-map-agent .agent-analysis-row-main .agent-analysis-swatch { flex: 0 0 10px; width: 10px; height: 10px; border-width: 1px; box-shadow: none; margin: 0; }

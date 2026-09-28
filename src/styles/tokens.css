@@ -137,8 +137,8 @@
   --light-elevation-lg: 0 12px 40px rgba(0, 0, 0, 0.18);
 
   /* ── Z_INDEX — 層級規則（= designTokens.ts Z_INDEX；camelCase ↔ kebab-case） ── */
-  --z-map-overlay: 10;     /* 地圖上的標記、選取圈 */
-  --z-floating-panel: 20;  /* 左側 rail 面板、Agent 活動卡、右下停靠 popup、時間軸 */
+  --z-map-overlay: 10;     /* 地圖上的標記、選取圈；時間軸（地圖控制列）刻意在此層 */
+  --z-floating-panel: 20;  /* 左側 rail 面板、Agent 活動卡、右下停靠 popup */
   --z-toolbar: 25;         /* 右上工具列、手機標頭 */
   --z-popover: 30;         /* 下拉面板、選單 */
   --z-modal: 40;           /* 置中視窗 */

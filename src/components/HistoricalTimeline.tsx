@@ -10,6 +10,7 @@ import {
   ratioToIndex,
 } from "./timeline/timelineAxis";
 import "./timeline/timeline.css";
+import { Z_INDEX } from "../styles/designTokens";
 
 export type HistoricalGranularity = "year" | "month" | "day";
 
@@ -134,7 +135,8 @@ export function HistoricalTimeline({
         position: "absolute",
         bottom: 16,
         left: leftOffset,
-        zIndex: 10,
+        // 時間軸屬地圖控制列，刻意維持 mapOverlay（10），在浮動面板（20）之下
+        zIndex: Z_INDEX.mapOverlay,
         width: 620,
         maxWidth: `calc(100vw - ${leftOffset + RIGHT_RESERVE}px)`,
         minWidth: 320,

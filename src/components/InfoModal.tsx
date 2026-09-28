@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { X } from "lucide-react";
 import { CHANGELOG } from "../data/changelog";
-import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA } from "../styles/designTokens";
+import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA, Z_INDEX } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
 type GuidePage = "getting-started" | "feature-legend" | "data-sources" | "daily-changelog";
@@ -1130,7 +1130,7 @@ export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoM
     <PaletteCtx.Provider value={c}>
     <div onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 100, background: c.overlay,
+        position: "fixed", inset: 0, zIndex: Z_INDEX.modal, background: c.overlay,
         display: "flex", alignItems: isMobile ? "flex-end" : "center",
         justifyContent: "center", fontFamily: c.font,
       }}>

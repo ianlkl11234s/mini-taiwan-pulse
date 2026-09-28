@@ -13,7 +13,7 @@
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { Rewind, Play, Pause, RotateCcw, X } from "lucide-react";
-import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, Z_INDEX } from "../styles/designTokens";
 import { fetchReplayEvents } from "../data/earthquakeReplayLoader";
 import { eventTier, type EarthquakeReplayEvent } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
@@ -101,7 +101,7 @@ export function EarthquakeReplayPanel({
         border: `1px solid ${COLORS.panelBorder}`,
         boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
         borderRadius: RADIUS.xl,
-        zIndex: 30,
+        zIndex: Z_INDEX.floatingPanel,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",

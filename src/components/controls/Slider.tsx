@@ -1,8 +1,8 @@
 /**
  * 共用 S1 細滑桿元件（UI 統一第二輪 Phase P）。
  *
- * 給 LayerParamControls 以外、單一 range input 的場景（地震回放、情報回放、
- * bbox 工具、研究頁的透明度／門檻滑桿）。樣式見 `./slider.css`（`.ctl-range`）。
+ * 全站唯一的原生 range 元件：圖層控制（LayerParamControls，Phase Q 收斂）、地震回放、
+ * 情報回放、bbox 工具、研究頁與 Agent 面板的透明度／門檻滑桿。樣式見 `./slider.css`（`.ctl-range`）。
  *
  * 預設吃全域暗色 token；呼叫端若已有自己的主題系統（例如 intel 面板的
  * `useIntelTheme()`），可傳 trackColor/fillColor/thumbColor/accentColor

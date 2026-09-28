@@ -16,6 +16,7 @@ import {
   type AxisGap,
 } from "./timeline/timelineAxis";
 import "./timeline/timeline.css";
+import { Z_INDEX } from "../styles/designTokens";
 
 interface Props {
   playing: boolean;
@@ -175,7 +176,8 @@ export function TimelineControls({
         position: "absolute",
         bottom: 16,
         left: leftOffset,
-        zIndex: 10,
+        // 時間軸屬地圖控制列，刻意維持 mapOverlay（10），在浮動面板（20）之下
+        zIndex: Z_INDEX.mapOverlay,
         width: 620,
         maxWidth: `calc(100vw - ${leftOffset + RIGHT_RESERVE}px)`,
         minWidth: 320,

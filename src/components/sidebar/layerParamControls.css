@@ -94,68 +94,8 @@
   min-width: 0;
 }
 
-/* ── 滑桿 S1：2px 軌道＋10px 圓點，已拖段較亮（--p 由元件 inline 更新） ── */
-input[type="range"].lpc-range {
-  -webkit-appearance: none;
-  appearance: none;
-  display: block;
-  width: 100%;
-  height: 14px;
-  margin: 0;
-  background: transparent;
-  cursor: pointer;
-  --p: 50%;
-}
-
-input[type="range"].lpc-range::-webkit-slider-runnable-track {
-  height: 2px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--lpc-fill) 0 var(--p), var(--lpc-track) var(--p) 100%);
-}
-
-input[type="range"].lpc-range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 10px;
-  height: 10px;
-  margin-top: -4px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--lpc-thumb);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lpc-thumb) 12%, transparent);
-}
-
-input[type="range"].lpc-range::-moz-range-track {
-  height: 2px;
-  border-radius: 2px;
-  background: var(--lpc-track);
-}
-
-input[type="range"].lpc-range::-moz-range-progress {
-  height: 2px;
-  border-radius: 2px;
-  background: var(--lpc-fill);
-}
-
-input[type="range"].lpc-range::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--lpc-thumb);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lpc-thumb) 12%, transparent);
-}
-
-input[type="range"].lpc-range:focus-visible {
-  outline: none;
-}
-
-input[type="range"].lpc-range:focus-visible::-webkit-slider-thumb {
-  box-shadow: 0 0 0 2px var(--accent);
-}
-
-input[type="range"].lpc-range:focus-visible::-moz-range-thumb {
-  box-shadow: 0 0 0 2px var(--accent);
-}
+/* ── 滑桿 S1：改用共用 controls/Slider（src/components/controls/slider.css 的 .ctl-range），
+ *    顏色由元件 inline 指到 --lpc-track／--lpc-fill／--lpc-thumb（ui-r2 Phase Q 收斂） ── */
 
 /* ── 分段（≤3 選項） ── */
 .lpc-seg {
