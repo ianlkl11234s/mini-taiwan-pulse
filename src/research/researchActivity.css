@@ -2,7 +2,10 @@
  * 不隨左側 Agent 面板開關（見 MainMapConnection activityCardVisible）。
  * 底部預留 112px：右下停靠區底邊 64（LAYOUT.mapBottomInset）＋圖例收合列＋間距。 */
 .research-activity-position { --research-activity-top: 100px; position: absolute; top: var(--research-activity-top); right: 18px; z-index: var(--z-floating-panel); max-height: calc(100% - var(--research-activity-top) - 112px); overflow: auto; pointer-events: none; }
-.research-activity__viewport-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 50% -18%, rgba(246,250,255,.16), transparent 45%), radial-gradient(ellipse at 112% 46%, rgba(168,206,255,.13), transparent 42%), radial-gradient(ellipse at -12% 68%, rgba(192,220,255,.10), transparent 40%); box-shadow: inset 0 0 28px rgba(244,249,255,.13), inset 0 0 72px rgba(137,190,255,.10), inset 0 0 124px rgba(98,163,255,.06); animation: research-activity-aurora 3.8s ease-in-out infinite alternate; }
+/* Agent 處理中光暈（design-system §5.31）：強調色內光暈，常駐節點以 class 淡入 0.6s／淡出 0.9s；不再用白色、不再無限閃動。
+ * 淡色底圖時 --accent 由 .research-activity-position--light 換成 --light-accent。 */
+.research-activity__viewport-glow { position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: 0; box-shadow: inset 0 0 40px color-mix(in srgb, var(--accent) 22%, transparent), inset 0 0 110px color-mix(in srgb, var(--accent) 10%, transparent); transition: opacity .9s ease; }
+.research-activity__viewport-glow--on { opacity: 1; transition-duration: .6s; }
 .research-activity { box-sizing: border-box; width: min(300px, calc(100vw - 80px)); padding: 12px 14px; border: 1px solid var(--border-panel); border-radius: var(--radius-xl); color: var(--text-strong); background: var(--surface-strong); box-shadow: var(--elevation-lg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); font: var(--font-md)/1.5 var(--font-cjk); pointer-events: auto; animation: research-activity-enter .24s ease-out; }
 .research-activity__header { display: flex; gap: 9px; align-items: flex-start; }
 .research-activity__dot { width: 6px; height: 6px; margin-top: 6px; flex: 0 0 auto; border-radius: var(--radius-full); background: var(--accent); }
@@ -21,9 +24,8 @@
 .research-activity__time { margin-right: 6px; color: var(--text-dim); font-family: var(--font-data); font-size: var(--font-sm); font-variant-numeric: tabular-nums; }
 @keyframes research-activity-breathe { 50% { opacity: .35; transform: scale(.8); } }
 @keyframes research-activity-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes research-activity-aurora { from { opacity: .64; } to { opacity: 1; } }
 @media(max-width: 640px) { .research-activity-position { top: 92px; right: 10px; max-height: 45%; } .research-activity { width: min(260px, calc(100vw - 80px)); } .research-activity__history { max-height: 100px; } }
-@media(prefers-reduced-motion: reduce) { .research-activity, .research-activity--working .research-activity__dot, .research-activity--presenting .research-activity__dot, .research-activity__viewport-glow { animation: none; } }
+@media(prefers-reduced-motion: reduce) { .research-activity, .research-activity--working .research-activity__dot, .research-activity--presenting .research-activity__dot { animation: none; } .research-activity__viewport-glow { transition: none; } }
 
 /* This card is portaled into the map, outside the connection panel theme; it remaps the shared tokens to --light-*. */
 .research-activity-position--light {
