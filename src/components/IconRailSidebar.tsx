@@ -7,7 +7,7 @@ import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
-import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT } from "../styles/designTokens";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT, SURFACE, BORDER as BORDER_TOKEN, ELEVATION, LIGHT, LAYOUT } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
@@ -127,7 +127,7 @@ interface IconRailSidebarProps {
 // ── Shared Styles ──
 
 interface RailPalette {
-  ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string;
+  ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string; PANEL_BORDER: string;
   BORDER: string; DIM: string; INACTIVE_TEXT: string;
   TEXT_STRONG: string; BANNER_BG: string; SEARCH_BG: string;
   TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
@@ -137,7 +137,7 @@ interface RailPalette {
 }
 
 const DARK_PALETTE: RailPalette = {
-  ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: "#0D0E10", BG_PANEL: "rgba(0,0,0,0.45)",
+  ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: SURFACE.app, BG_PANEL: SURFACE.strong, PANEL_BORDER: BORDER_TOKEN.panel,
   BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
   TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
   TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
@@ -147,7 +147,7 @@ const DARK_PALETTE: RailPalette = {
 };
 
 const LIGHT_PALETTE: RailPalette = {
-  ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: "rgba(255,255,255,0.92)",
+  ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: LIGHT.surfacePanel, PANEL_BORDER: LIGHT.border,
   BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
   TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
   TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
@@ -188,7 +188,7 @@ export function IconRailSidebar({
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
-  const { BG_RAIL, BORDER, BG_PANEL } = palette;
+  const { BG_RAIL, BORDER, BG_PANEL, PANEL_BORDER } = palette;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const lastExplorationPanel = useRef<ExplorationPanel>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -423,10 +423,12 @@ export function IconRailSidebar({
             style={{
               position: "absolute",
               left: RAIL_WIDTH + 8,
-              top: 92,
+              top: LAYOUT.leftDockTop,
               width: compactLayers ? MONITOR_SPLIT_DOCK.layersWidth : PANEL_WIDTH,
               maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : "70vh",
               background: BG_PANEL,
+              border: `1px solid ${PANEL_BORDER}`,
+              boxShadow: ELEVATION.lg,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
               borderRadius: RADIUS.xl,

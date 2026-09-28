@@ -300,6 +300,7 @@
 - **用途**：左側 rail 浮動面板（Layers、資料來源…）、與 Agent 協作面板、即時情報、會員專區。
 - **結構**：外殼 → H2 標頭（eyebrow ＋ 標題 ＋ 關閉鈕）→ 內容（捲動區）。
 - **外殼**：底 `SURFACE.strong`、`1px BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`font-family: --font-cjk`。
+- **位置**：左側停靠面板（rail 面板、即時情報、衛星、地震回放、Agent）一律 `left: 64`、上緣 `LAYOUT.leftDockTop`（60）＝對齊 rail 第一條分隔線，剛好在左上座標列（底 58）下方。rail 本體底色 `SURFACE.app`，與時間軸、面板同一個藍黑色系；不再用中性黑 `#0D0E10`／`rgba(0,0,0,0.45)`（2026-09-29 修正：Layers 面板原本比時間軸淡）。
 - **H2 標頭**：padding `10px 14px`；eyebrow 9px `--text-dim`、letterSpacing 1.4px、中文（例「資料」「研究」）；標題 13px bold `--text-strong`、上距 1px；底線 `1px --border-panel`；關閉鈕 24×24、`<X size={14}/>`、透明底、`--text-muted`，`aria-label="關閉{標題}"`。
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。

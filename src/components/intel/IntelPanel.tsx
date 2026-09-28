@@ -3,7 +3,7 @@ import { MonitorDataStatus } from "./monitor/MonitorDataStatus";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { FONT_CJK, FONT_DATA, withAlpha, type AlertGroupShort } from "./intelTokens";
 import { getIntelPalette, IntelThemeProvider, neutralFill } from "./intelTheme";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
@@ -455,7 +455,7 @@ export function IntelPanel({
       style={{
         position: "fixed",
         left: 64,
-        top: 98,
+        top: LAYOUT.leftDockTop,
         bottom: 130,
         width: 412,
         background: palette.panelBg,

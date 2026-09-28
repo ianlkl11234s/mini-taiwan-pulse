@@ -12,7 +12,7 @@
  * 淡色底圖下淺色相（黃、淺綠…）字色不足以對比時，改用 `chipText()`／`levelColor()` 加深。
  */
 import { createContext, useContext, type ReactNode } from "react";
-import { COLORS, CONTROL, LIGHT } from "../../styles/designTokens";
+import { COLORS, CONTROL, LIGHT, SURFACE } from "../../styles/designTokens";
 import { withAlpha } from "./intelTokens";
 
 export interface IntelPalette {
@@ -54,7 +54,7 @@ export interface IntelPalette {
 
 export const DARK_INTEL: IntelPalette = {
   isDark: true,
-  panelBg: COLORS.panelBg,
+  panelBg: SURFACE.strong,
   panelBorder: COLORS.panelBorder,
   borderSoft: COLORS.borderSoft,
   borderMid: COLORS.borderMid,
