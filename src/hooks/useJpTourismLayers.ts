@@ -11,6 +11,7 @@ import {
 } from "../data/jpTourismTypes";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 type GeometryKind = "point" | "polygon";
@@ -76,9 +77,14 @@ function clampOpacity(value: number): number {
   return Math.max(0, Math.min(1, value));
 }
 
-function pointRadius(scale: number): ExpressionSpecification {
-  return ["interpolate", ["linear"], ["zoom"], 4, 1.4 * scale, 6, 2.5 * scale, 12, 6 * scale] as ExpressionSpecification;
-}
+const POINT_OPACITY_DEFAULTS: Partial<Record<JpTourismLayerKey, number>> = {
+  jpAccommodationCanonical: 0.85, jpAccommodationJta: 0.85, jpAccommodationLocal: 0.85,
+  jpAccommodationOsm: 0.72, jpWorldHeritageCultural: 0.9, jpWorldHeritageNatural: 0.9,
+  jpRamsarSites: 0.9,
+};
+
+const pointStrokeOpacity = (key: JpTourismLayerKey, opacity: number, isDark: boolean) =>
+  Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / (POINT_OPACITY_DEFAULTS[key] ?? 1));
 
 function pointColor(key: JpTourismLayerKey): string | ExpressionSpecification {
   return key === "jpAccommodationCanonical" || key === "jpAccommodationOsm"
@@ -107,6 +113,7 @@ export function useJpTourismLayers(
   opacity: JpTourismOpacity,
   scale: JpTourismScale,
   ramsarMode: RamsarGeometryMode,
+  isDarkTheme = true,
 ) {
   const anyVisible = JP_TOURISM_LAYER_KEYS.some((key) => visibility[key]);
   const mapTick = useMapReadyTick(mapRef, anyVisible);
@@ -140,6 +147,7 @@ export function useJpTourismLayers(
     if (!map) return;
 
     const mount = () => {
+      const isDark = isDarkTheme;
       for (const config of CONFIGS) {
         const datasetConfig = JP_TOURISM_DATASETS[config.dataset];
         const visible = visibility[config.key] && isJpTourismDatasetAvailable(config.dataset);
@@ -175,11 +183,12 @@ export function useJpTourismLayers(
             ...(filter ? { filter } : {}),
             layout: { visibility: "none" },
             paint: {
-              "circle-radius": pointRadius(scale[config.key] ?? 1),
+              "circle-radius": pointRadius("M", scale[config.key] ?? 1),
               "circle-color": pointColor(config.key),
               "circle-opacity": clampOpacity(opacity[config.key]),
-              "circle-stroke-color": "rgba(15, 23, 42, 0.55)",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": mapSeamColor(isDark),
+              "circle-stroke-width": POINT_STROKE.width,
+              "circle-stroke-opacity": pointStrokeOpacity(config.key, opacity[config.key], isDark),
             },
           });
         }
@@ -211,7 +220,10 @@ export function useJpTourismLayers(
           map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
           if (config.kind === "point") {
             map.setPaintProperty(id, "circle-opacity", clampOpacity(opacity[config.key]));
-            map.setPaintProperty(id, "circle-radius", pointRadius(scale[config.key] ?? 1));
+            map.setPaintProperty(id, "circle-radius", pointRadius("M", scale[config.key] ?? 1));
+            map.setPaintProperty(id, "circle-stroke-color", mapSeamColor(isDark));
+            map.setPaintProperty(id, "circle-stroke-width", POINT_STROKE.width);
+            map.setPaintProperty(id, "circle-stroke-opacity", pointStrokeOpacity(config.key, opacity[config.key], isDark));
             if (filter) map.setFilter(id, filter);
           } else if (id === fillId) {
             map.setPaintProperty(id, "fill-opacity", clampOpacity(opacity[config.key]));
@@ -225,5 +237,5 @@ export function useJpTourismLayers(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visibility, opacity, scale, ramsarMode, mapTick, dataTick]);
+  }, [mapRef, visibility, opacity, scale, ramsarMode, isDarkTheme, mapTick, dataTick]);
 }
