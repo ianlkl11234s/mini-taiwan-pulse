@@ -52,7 +52,9 @@ describe("design system guard — 規則樣本", () => {
     expect(hits("native-range", `<input type="range" min={0} />`)).toBe(1);
     expect(hits("native-range", `<input type={"range"} />`)).toBe(1);
     expect(hits("native-range", `el.setAttribute("x", 1); const cfg = { type: "range" };`)).toBe(1);
-    expect(hits("native-range", `<input type="range" />`, "src/components/sidebar/LayerParamControls.tsx")).toBe(0);
+    // 白名單只有共用滑桿本體；LayerParamControls 已改用 <Slider>（Phase Q），不再豁免
+    expect(hits("native-range", `<input type="range" />`, "src/components/controls/Slider.tsx")).toBe(0);
+    expect(hits("native-range", `<input type="range" />`, "src/components/sidebar/LayerParamControls.tsx")).toBe(1);
     expect(hits("native-range", `<input type="checkbox" />`)).toBe(0);
     expect(hits("native-range", `const t = { type: "rangeStart" }`)).toBe(0);
   });
@@ -91,6 +93,24 @@ describe("design system guard — 規則樣本", () => {
     expect(countFontDataOnCjk(`<span style={{ fontFamily: FONT_DATA }}>{count}</span>`)).toBe(0);
     expect(countFontDataOnCjk(`// 註解：FONT_DATA 只給數字>中文`)).toBe(0);
     expect(hits("font-data-on-cjk", `<b style={{ fontFamily: FONT_DATA }}>中文</b>`, "src/x.ts")).toBe(0);
+  });
+
+  it("raw-z-index：≥10 的寫死層級數字（TS 與 CSS），排除 src/styles 與元件內部小值", () => {
+    expect(hits("raw-z-index", `style={{ zIndex: 30 }}`)).toBe(1);
+    expect(hits("raw-z-index", `.x { z-index: 45; } .y{z-index:70}`, "src/components/x.css")).toBe(2);
+    expect(hits("raw-z-index", `zIndex: 3000, padding: 4`)).toBe(1);
+    expect(hits("raw-z-index", `zIndex: "20"`)).toBe(1);
+    expect(hits("raw-z-index", `style={{ zIndex: 2 }}`)).toBe(0);
+    expect(hits("raw-z-index", `zIndex: Z_INDEX.modal`)).toBe(0);
+    expect(hits("raw-z-index", `.x { z-index: var(--z-modal); }`, "src/components/x.css")).toBe(0);
+    expect(hits("raw-z-index", `zIndex: -1`)).toBe(0);
+    expect(hits("raw-z-index", `// 以前是 zIndex: 200`)).toBe(0);
+    expect(hits("raw-z-index", `--z-toast: 50; z-index: 50;`, "src/styles/tokens.css")).toBe(0);
+  });
+
+  it("web-font：涵蓋 Inter 字族寫法", () => {
+    expect(hits("web-font", `fontFamily: "Inter, system-ui, sans-serif"`)).toBe(1);
+    expect(hits("web-font", `font-family: Inter, sans-serif;`, "src/components/x.css")).toBe(1);
   });
 
   it("internal-id-display：datasetId 進 JSX 文字或 title／label 欄位（只記錄）", () => {
