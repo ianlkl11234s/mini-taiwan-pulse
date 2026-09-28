@@ -182,24 +182,35 @@ export function researchResultRecordFacts(properties: Record<string, unknown>, d
   return facts;
 }
 
-export type AnalysisResultPanelRecord = { title: string; color: string | null; facts: ResearchResultPopupFact[] };
+/** P3=W3 popup trend marker: T2 A2's own recent-periods line, index-aligned with `points`.
+ *  `markerIndex` is the currently playing/scrubbed period (null when playback has nothing to mark). */
+export type AnalysisResultPanelTrend = { points: { label: string; value: number | null }[]; caption: string; markerIndex: number | null };
+export type AnalysisResultPanelRecord = { title: string; color: string | null; facts: ResearchResultPopupFact[]; trend?: AnalysisResultPanelTrend };
 /** Serializable `FeatureInfo.properties` payload for `layerType: "analysisResult"`. */
 export type AnalysisResultPanelProperties = { records: AnalysisResultPanelRecord[]; total: number; omitted: number };
 
-/** Resolve every overlapping hit at click time so the panel stays a pure renderer. */
+/** Resolve every overlapping hit at click time so the panel stays a pure renderer. `trendFor`, when
+ *  given, attaches a T2 A2 recent-periods trend line to a feature belonging to a timed choropleth
+ *  (spec P3=W3 「點選區域 popup 內近期趨勢線」) — the caller resolves it from the row store (`_fid`),
+ *  never from `properties` itself (a queried Mapbox feature's array-valued properties are not
+ *  reliably read back; see MainMapConnection.tsx). */
 export function researchResultPanelProperties<T extends ResearchResultPopupOverlapFeature>(
   overlaps: { features: readonly T[]; total: number; omitted: number },
   presentationFor: (resultId: string) => { displayLabel?: string; color?: string } | undefined,
   describe: (datasetId: string) => string | null,
+  trendFor?: (resultId: string, properties: Record<string, unknown>) => AnalysisResultPanelTrend | null,
 ): AnalysisResultPanelProperties {
   return {
     records: overlaps.features.map(feature => {
       const properties = feature.properties ?? {};
-      const presentation = typeof properties.resultId === "string" ? presentationFor(properties.resultId) : undefined;
+      const resultId = typeof properties.resultId === "string" ? properties.resultId : null;
+      const presentation = resultId ? presentationFor(resultId) : undefined;
+      const trend = resultId && trendFor ? trendFor(resultId, properties) : null;
       return {
         title: researchResultPopupTitle(properties),
         color: presentation?.color ?? null,
         facts: researchResultRecordFacts(properties, researchResultDatasetLabel(properties.datasetId, presentation?.displayLabel, describe)),
+        ...(trend ? { trend } : {}),
       };
     }),
     total: overlaps.total,

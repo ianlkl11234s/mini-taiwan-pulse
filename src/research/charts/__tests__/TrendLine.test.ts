@@ -59,4 +59,14 @@ describe("TrendLine component", () => {
     const withUnit = renderToStaticMarkup(createElement(TrendLine, { points: [{ id: "p1", label: "09/01", value: 12 }], unit: "件" }));
     expect(withUnit).toContain("12件");
   });
+
+  it("marks the given markerIndex (T2 A2 popup: the currently playing/scrubbed period), not necessarily the last point", () => {
+    const html = renderToStaticMarkup(createElement(TrendLine, { points, markerIndex: 0, compact: true }));
+    expect(html).toContain('role="img"');
+    expect(html).toContain("目前期別「09/01」10");
+    expect(html).toContain("<circle");
+    // markerIndex out of range clamps rather than throwing or silently omitting the dot.
+    const clamped = renderToStaticMarkup(createElement(TrendLine, { points, markerIndex: 99 }));
+    expect(clamped).toContain('最新一期「09/03」30'); // clamps to the last index, same as the default
+  });
 });

@@ -39,4 +39,26 @@ describe("AnalysisResultPanel", () => {
     const html = renderToStaticMarkup(createElement(AnalysisResultPanel, { props: { label: "x" } }));
     expect(html).toContain("本次分析命中的空間紀錄");
   });
+
+  it("renders a compact trend below the facts (P3=W3), marking the current playback period", () => {
+    const html = renderToStaticMarkup(createElement(AnalysisResultPanel, { props: {
+      records: [{
+        ...record("大安區", [{ label: "房價中位數", value: "88" }]),
+        trend: { points: [{ label: "01/01", value: 10 }, { label: "02/01", value: 34 }, { label: "03/01", value: 88 }], caption: "近 3 期", markerIndex: 1 },
+      }],
+      total: 1, omitted: 0,
+    } }));
+    expect(html).toContain("近 3 期");
+    expect(html).toContain('role="img"');
+    expect(html).toContain("<circle"); // marker dot drawn at markerIndex, not just the last point
+    expect(html).toContain("目前期別「02/01」34");
+  });
+
+  it("shows no trend for a record without one (a result with no time dimension)", () => {
+    const html = renderToStaticMarkup(createElement(AnalysisResultPanel, { props: {
+      records: [record("甲國小", [{ label: "距離", value: "120 公尺 · 直線" }])],
+      total: 1, omitted: 0,
+    } }));
+    expect(html).not.toContain('role="img"');
+  });
 });

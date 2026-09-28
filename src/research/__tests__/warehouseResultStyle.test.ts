@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Map } from "mapbox-gl";
-import { analysisResultInteractiveLayerIds, installAnalysisResults, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { analysisResultInteractiveLayerIds, installAnalysisResults, layerId, nullHatchLayerId, removeAnalysisResults, setAnalysisOpacity, setAnalysisResultPeriod } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 import { researchResultPopupFacts } from "../researchResultPopup";
 import { loadWarehouseResult, validateWarehouseImportArgs } from "../warehouseResultImport";
@@ -105,7 +105,7 @@ function stubMap() {
     addImage: (id: string) => { if (images.has(id)) throw new Error(`DUPLICATE_IMAGE:${id}`); images.add(id); },
     on: () => {}, off: () => {},
   };
-  return { map: api as unknown as Map, layers, images };
+  return { map: api as unknown as Map, layers, images, sources };
 }
 
 describe("warehouse result style contract", () => {
@@ -597,6 +597,46 @@ describe("choropleth with T2 A2 map-playback fields", () => {
     expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 1)).toEqual({ label: "房價中位數（2024-03-11）", value: "34", period: "2024-03-11" });
     expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 99).period).toBe("2024-03-18");
     expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, { _style_series: [null, 34, 56] }, 0).value).toBe("無資料");
+  });
+
+  const timedPolygon: PresentableResult = {
+    resultId: "wh-6", datasetId: "warehouse:wh-6", geometry: { type: "Polygon", role: "derived", spatialAnalysisEligible: false }, resultStyle: choroplethTimed,
+    rows: [
+      { geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.51, 25], [121.51, 25.01], [121.5, 25]]] }, name: "大安區", _style_value: 88, _style_series: [12, 34, 88] },
+      // A short/missing series (e.g. an older cached export) must not crash the paint expression —
+      // it is padded with null out to periods.length, never left as-is or dropped.
+      { geometry: { type: "Polygon", coordinates: [[[121.6, 25], [121.61, 25], [121.61, 25.01], [121.6, 25]]] }, name: "信義區", _style_value: 40, _style_series: [40] },
+    ],
+  };
+
+  it("normalizes each feature's _style_series to exactly periods.length, padding a short/missing one with null", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [timedPolygon], 0.6, "dark");
+    const data = sources.get("research-analysis-result-0")!.data as { features: { properties: Record<string, unknown> }[] };
+    expect(data.features[0]!.properties._style_series).toEqual([12, 34, 88]);
+    expect(data.features[1]!.properties._style_series).toEqual([40, null, null]);
+  });
+
+  it("re-paints an installed timed choropleth's fill and null-hatch filter to a scrubbed period, without rebuilding the source", () => {
+    const { map, sources, layers } = stubMap();
+    const installed = installAnalysisResults(map, [timedPolygon], 0.6, "dark");
+    const before = sources.get("research-analysis-result-0")!.data;
+    setAnalysisResultPeriod(map, installed, "wh-6", 0, "dark", false);
+    expect(sources.get("research-analysis-result-0")!.data).toBe(before); // same object — no setData call
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 0));
+    expect(layers.get(nullHatchLayerId(0))!.filter).toEqual(warehouseFillNullFilterAtPeriod(choroplethTimed as WarehouseTimedChoropleth, 0));
+    // Out-of-range index clamps to the last period rather than throwing.
+    setAnalysisResultPeriod(map, installed, "wh-6", 999, "dark", false);
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 2));
+  });
+
+  it("is a no-op for an outlineOnly slot (never re-enables a fill the panel turned off), or a non-timed/unknown result", () => {
+    const { map, layers } = stubMap();
+    const installed = installAnalysisResults(map, [timedPolygon], 0.6, "dark", { outlineOnly: ["wh-6"] });
+    const before = layers.get(layerId(0))!.paint["fill-color"];
+    setAnalysisResultPeriod(map, installed, "wh-6", 0, "dark", true);
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(before);
+    setAnalysisResultPeriod(map, installed, "not-a-real-id", 0, "dark", false); // unknown id: no throw
   });
 });
 

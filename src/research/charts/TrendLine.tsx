@@ -22,6 +22,10 @@ export interface TrendLineProps {
   baseline?: readonly TrendPoint[];
   compact?: boolean;
   title?: string;
+  /** Index of the point to mark + label (T2 A2's popup trend marks the currently playing/scrubbed
+   *  period, not necessarily the last one). Defaults to the last point — the original "latest
+   *  period" marker every other caller (Agent panel series cards) still gets unchanged. */
+  markerIndex?: number;
 }
 
 const WIDTH = 300;
@@ -63,14 +67,15 @@ function valueText(value: number | null, kind: VizNumberKind, unit: string | nul
   return value !== null && unit && kind !== "percent" ? `${text}${unit}` : text;
 }
 
-function summaryLabel(points: readonly TrendPoint[], latest: TrendPoint | undefined, kind: VizNumberKind, unit: string | null, hasBaseline: boolean, title: string | undefined): string {
+function summaryLabel(points: readonly TrendPoint[], marker: TrendPoint | undefined, kind: VizNumberKind, unit: string | null, hasBaseline: boolean, title: string | undefined, isLatest: boolean): string {
   const prefix = title ? `${title}：` : "";
   if (!points.length) return `${prefix}趨勢折線圖，暫無資料`;
-  const latestText = latest && latest.value !== null ? `最新一期「${latest.label}」${valueText(latest.value, kind, unit)}` : "最新一期無資料";
-  return `${prefix}趨勢折線圖，共 ${points.length} 期；${latestText}${hasBaseline ? "，已加上比較基準線" : ""}`;
+  const markerPhrase = isLatest ? "最新一期" : "目前期別";
+  const markerText = marker && marker.value !== null ? `${markerPhrase}「${marker.label}」${valueText(marker.value, kind, unit)}` : `${markerPhrase}無資料`;
+  return `${prefix}趨勢折線圖，共 ${points.length} 期；${markerText}${hasBaseline ? "，已加上比較基準線" : ""}`;
 }
 
-export function TrendLine({ points, valueKind = "count", unit = null, color, baseline, compact = false, title }: TrendLineProps) {
+export function TrendLine({ points, valueKind = "count", unit = null, color, baseline, compact = false, title, markerIndex }: TrendLineProps) {
   const height = compact ? HEIGHT_COMPACT : HEIGHT_FULL;
   const padRight = compact ? 4 : 44;
   const padBottom = compact ? 4 : 16;
@@ -92,9 +97,11 @@ export function TrendLine({ points, valueKind = "count", unit = null, color, bas
   const baselinePath = pathFor(baselineRuns, x, y);
 
   const lineColor = color ?? "currentColor";
-  const latest = points[points.length - 1];
-  const showLatestDot = !!latest && latest.value !== null;
-  const summary = summaryLabel(points, latest, valueKind, unit, baselineValues.length > 0, title);
+  const markIndex = markerIndex !== undefined ? Math.max(0, Math.min(points.length - 1, markerIndex)) : points.length - 1;
+  const isLatestMarker = markIndex === points.length - 1;
+  const marker = points[markIndex];
+  const showMarkerDot = !!marker && marker.value !== null;
+  const summary = summaryLabel(points, marker, valueKind, unit, baselineValues.length > 0, title, isLatestMarker);
 
   const tickIndexes = !compact && points.length > 0
     ? [...new Set([0, Math.round((points.length - 1) / 3), Math.round(((points.length - 1) * 2) / 3), points.length - 1])]
@@ -111,14 +118,14 @@ export function TrendLine({ points, valueKind = "count", unit = null, color, bas
         {baselinePath && <path d={baselinePath} fill="none" stroke="currentColor" strokeOpacity={0.55} strokeDasharray="3 3" strokeWidth={1.25} />}
         {areaPath && <path d={areaPath} fill={lineColor} fillOpacity={0.15} stroke="none" />}
         {linePath && <path d={linePath} fill="none" stroke={lineColor} strokeWidth={1.75} />}
-        {showLatestDot && <circle cx={x(points.length - 1)} cy={y(latest!.value!)} r={2.75} fill={lineColor} />}
-        {showLatestDot && (
+        {showMarkerDot && <circle cx={x(markIndex)} cy={y(marker!.value!)} r={2.75} fill={lineColor} />}
+        {showMarkerDot && (
           <text
-            x={compact ? WIDTH - padRight : Math.min(x(points.length - 1) + 5, WIDTH - 2)}
-            y={y(latest!.value!)} dy="0.32em" fontSize={9} fill="currentColor" textAnchor={compact ? "end" : "start"}
+            x={compact ? (isLatestMarker ? WIDTH - padRight : x(markIndex)) : Math.min(x(markIndex) + 5, WIDTH - 2)}
+            y={y(marker!.value!)} dy="0.32em" fontSize={9} fill="currentColor" textAnchor={compact ? (isLatestMarker ? "end" : "middle") : "start"}
             style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}
           >
-            {valueText(latest!.value, valueKind, unit)}
+            {valueText(marker!.value, valueKind, unit)}
           </text>
         )}
         {tickIndexes.map(index => (
