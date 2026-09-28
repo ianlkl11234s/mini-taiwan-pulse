@@ -1,5 +1,5 @@
 /* Colors, type and controls come from src/styles/tokens.css (C2 buttons, H2 header). */
-.main-map-agent { position: fixed; right: 16px; top: 68px; z-index: 1500; font: var(--font-lg)/1.5 var(--font-cjk); color: var(--agent-text); }
+.main-map-agent { position: fixed; right: 16px; top: 68px; z-index: var(--z-floating-panel); font: var(--font-lg)/1.5 var(--font-cjk); color: var(--agent-text); }
 .main-map-agent button { color: inherit; background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); padding: 6px 10px; cursor: pointer; }
 .main-map-agent-toggle { float: right; }
 .main-map-agent-panel { clear: both; margin-top: 40px; width: min(360px, calc(100vw - 32px)); max-height: calc(100dvh - 130px); overflow: auto; padding: 16px; background: var(--surface-strong); border: 1px solid var(--border-panel); border-radius: var(--radius-xl); box-shadow: var(--elevation-lg); }
@@ -76,7 +76,7 @@
 .main-map-agent--light .research-pairing { background: transparent; border-color: var(--agent-border); }
 
 @media (max-width: 767px) {
-  .main-map-agent { top: 52px; right: 8px; left: 8px; z-index: 1500; }
+  .main-map-agent { top: 52px; right: 8px; left: 8px; z-index: var(--z-floating-panel); }
   .main-map-agent-panel { width: auto; max-width: none; max-height: min(68dvh, 560px); margin-top: 0; padding: 12px; }
 }
 .main-map-agent-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

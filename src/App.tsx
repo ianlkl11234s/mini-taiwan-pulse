@@ -7,7 +7,7 @@ import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -76,6 +76,7 @@ import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./co
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
+import { leftPanelsToClose, type LeftPanelState } from "./state/leftPanelMutex";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
@@ -87,6 +88,7 @@ import { BasemapMenu } from "./components/toolbar/BasemapMenu";
 import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
 import { ToolbarButton } from "./components/toolbar/ToolbarButton";
 import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
+import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -101,7 +103,7 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { Bot, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -116,6 +118,9 @@ import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
 import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
+
+/** 手機標頭 M1 的 30×30 圖示按鈕（圓角 6） */
+const mobileIconButtonStyle = { width: 30, height: 30, borderRadius: RADIUS.lg } as const;
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -1353,6 +1358,26 @@ export default function App() {
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
 
+  // Z1 左側浮動面板互斥：Agent／會員／即時情報／衛星 已由 closeExternalPanels 與上方 handler 互關；
+  // 地震回放是圖層旗標、開啟路徑很多，所以在這裡補上「剛打開一個 → 關掉其他」。只看由關變開，不會連鎖觸發。
+  const earthquakeReplayOpen = layerVisibility.earthquakeReplay;
+  const leftPanelsPrevRef = useRef<LeftPanelState>({ agent: false, earthquakeReplay: false, intel: false, satellite: false, member: false });
+  useEffect(() => {
+    const next: LeftPanelState = { agent: agentOpen, earthquakeReplay: earthquakeReplayOpen, intel: intelOpen, satellite: satConsoleOpen, member: memberOpen };
+    const toClose = leftPanelsToClose(leftPanelsPrevRef.current, next);
+    // B1：地震回放從 Layers 清單打開時，比照即時情報／衛星收起左側 rail 面板，避免兩者重疊
+    const earthquakeJustOpened = next.earthquakeReplay && !leftPanelsPrevRef.current.earthquakeReplay;
+    leftPanelsPrevRef.current = next;
+    if (earthquakeJustOpened) setRailCloseEpoch((value) => value + 1);
+    for (const key of toClose) {
+      if (key === "agent") setAgentOpen(false);
+      else if (key === "earthquakeReplay") setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }));
+      else if (key === "intel") setIntelOpen(false);
+      else if (key === "satellite") satelliteConsoleStore.setOpen(false);
+      else setMemberOpen(false);
+    }
+  }, [agentOpen, earthquakeReplayOpen, intelOpen, satConsoleOpen, memberOpen, setLayerVisibility]);
+
   const markPrivateView = useCallback(() => {
     privateViewRef.current = true;
     window.history.replaceState(null, "", window.location.pathname);
@@ -1879,7 +1904,7 @@ export default function App() {
             style={{
               position: "absolute",
               inset: 0,
-              zIndex: 20,
+              zIndex: Z_INDEX.floatingPanel,
               pointerEvents: "none",
               background:
                 "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.6) 100%)",
@@ -1890,7 +1915,7 @@ export default function App() {
               position: "absolute",
               top: isMobile ? 16 : 32,
               left: isMobile ? 16 : 32,
-              zIndex: 21,
+              zIndex: Z_INDEX.toolbar,
               pointerEvents: "none",
             }}
           >
@@ -1959,7 +1984,7 @@ export default function App() {
                 position: "absolute",
                 top: 16,
                 right: 16,
-                zIndex: 21,
+                zIndex: Z_INDEX.toolbar,
                 width: 48,
                 height: 48,
                 borderRadius: 24,
@@ -1992,8 +2017,8 @@ export default function App() {
               top: 16,
               left: sidebarWidth + 16,
               right: 16,
-              // 25：高於 Agent 活動卡（research-activity-position，20），工具列展開的帳號選單／底圖面板才不會被蓋住
-              zIndex: 25,
+              // toolbar（25）：高於浮動面板層（Agent 活動卡、rail、右下 popup），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
@@ -2115,7 +2140,7 @@ export default function App() {
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
             <IconRailSidebar
               isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
@@ -2301,7 +2326,7 @@ export default function App() {
       {/* ── 手機版 UI ── */}
       {!captureMode && isMobile && (
         <>
-          {/* Compact Header */}
+          {/* Compact Header（M1）：品牌＋座標｜AI、拍攝模式、⋯ 更多、帳號；其餘收進「⋯」 */}
           <div
             style={{
               position: "absolute",
@@ -2309,148 +2334,83 @@ export default function App() {
               left: 0,
               right: 0,
               height: 44,
-              zIndex: 10,
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
               alignItems: "center",
-              gap: 2,
-              padding: "0 6px",
+              gap: 4,
+              padding: "0 8px",
               paddingTop: "env(safe-area-inset-top, 0px)",
-              background: "rgba(0,0,0,0.5)",
+              background: isDarkTheme ? SURFACE.strong : LIGHT.surfaceStrong,
+              borderBottom: `1px solid ${toolbarPalette.borderPanel}`,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1 }}>
-              MTP
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1, marginRight: 4 }}>
+              <span style={{ color: toolbarPalette.textStrong, fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1.5, lineHeight: 1.2 }}>
+                MTP
+              </span>
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: toolbarPalette.textDim,
+                  fontSize: FONT_SIZE.xs,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              />
+            </div>
 
-            <div style={{ flex: 1, minWidth: 0 }} />
-
-            <button
-              onClick={() => setShowInfo(true)}
-              aria-label="資訊"
-              title="資訊"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CircleHelp size={17} />
-            </button>
-
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              aria-label="分享目前畫面 / 取得嵌入碼"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-              }}
-            >
-              <Share2 size={17} />
-            </button>
-
-            <button
-              onClick={() => setCaptureMode(true)}
-              title="截圖"
-              aria-label="截圖"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Camera size={17} />
-            </button>
-
-            {import.meta.env.DEV && <button
-              onClick={() => setAgentOpen(value => !value)}
-              title="本地 Agent"
-              aria-label="本地 Agent"
-              aria-pressed={agentOpen}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: agentOpen ? "#75d6c5" : "rgba(117,214,197,0.22)",
-                border: "1px solid " + (agentOpen ? "#75d6c5" : "rgba(117,214,197,0.55)"),
-                color: agentOpen ? "#06211c" : "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            ><Bot size={16} /></button>}
-
-            <button
-              onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary={chatOpen}
               title="AI 助手"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: chatOpen ? "#64aaff" : "rgba(80,140,255,0.25)",
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                color: chatOpen ? "#04121f" : "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
+              style={mobileIconButtonStyle}
             >
               <MessageSquare size={16} />
-            </button>
-
-            <button
-              onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
-              style={{
-                height: 36,
-                width: 36,
-                borderRadius: RADIUS.xl,
-                background: renderMode === "3d"
-                  ? "rgba(80,140,255,0.25)"
-                  : "rgba(255,170,68,0.25)",
-                border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            </ToolbarButton>
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary
+              title="拍攝模式（隱藏介面，只留地圖）"
+              onClick={() => setCaptureMode(true)}
+              style={mobileIconButtonStyle}
             >
-              {renderMode === "3d" ? "3D" : "2D"}
-            </button>
-
-            <button aria-label="會員專區" title="會員專區" onClick={handleMemberToggle} style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid #577184", background: memberOpen ? "#285563" : "rgba(0,0,0,.45)", color: "white", display: "grid", placeItems: "center" }}><UserRound size={17} /></button>
-            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
+              <Camera size={16} />
+            </ToolbarButton>
+            <MobileMoreMenu
+              palette={toolbarPalette}
+              isDarkTheme={isDarkTheme}
+              buttonStyle={mobileIconButtonStyle}
+              items={[
+                { key: "info", label: "說明與操作提示", icon: <CircleHelp size={15} />, onSelect: () => setShowInfo(true) },
+                {
+                  key: "share",
+                  label: "分享目前畫面",
+                  icon: <Share2 size={15} />,
+                  onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); },
+                },
+                {
+                  key: "render",
+                  label: "3D／2D 切換",
+                  icon: <Box size={15} />,
+                  onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
+                  trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
+                },
+                ...(import.meta.env.DEV
+                  ? [{ key: "agent", label: "本地 Agent", icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
+                  : []),
+                { key: "member", label: "會員專區", icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
+              ]}
+            />
+            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
           </div>
 
           {/* Timeline */}
@@ -2599,7 +2559,7 @@ export default function App() {
             position: "absolute",
             left: tooltipInfo.x + 12,
             top: tooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(100,170,255,0.4)",
@@ -2633,7 +2593,7 @@ export default function App() {
             position: "absolute",
             left: trainTooltipInfo.x + 12,
             top: trainTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${trainTooltipInfo.train.color}66`,
@@ -2667,7 +2627,7 @@ export default function App() {
             position: "absolute",
             left: busTooltipInfo.x + 12,
             top: busTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${busTooltipInfo.bus.color}66`,
@@ -2709,7 +2669,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.9)",
               backdropFilter: "blur(12px)",
               border: `1px solid ${accent}66`,
@@ -2783,7 +2743,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.92)",
               backdropFilter: "blur(12px)",
               border: "1px solid #a78bfa66",
@@ -2865,7 +2825,7 @@ export default function App() {
           right: splitActive
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : 16,
-          zIndex: 30,
+          zIndex: Z_INDEX.floatingPanel,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
