@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
+import { X } from "lucide-react";
 import { CHANGELOG } from "../data/changelog";
-import { RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { RADIUS, FONT_SIZE, FONT_CJK, FONT_DATA } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
 type GuidePage = "getting-started" | "feature-legend" | "data-sources" | "daily-changelog";
@@ -29,43 +30,41 @@ type Palette = {
   sub: string;
   dim: string;
   accentText: string;
-  keyBadgeBg: string;
+  /** 選中分頁底色（= design tokens COLORS.accentFaint／LIGHT.accentFaint） */
+  accentFaint: string;
   keyBadgeBorder: string;
-  closeBg: string;
 };
 
 const DARK: Palette = {
-  font: "monospace",
+  font: FONT_CJK,
   bg: "rgba(14,14,22,0.96)",
   overlay: "rgba(0,0,0,0.8)",
   border: "rgba(255,255,255,0.1)",
-  cardBg: "rgba(255,255,255,0.04)",
-  cardBorder: "rgba(255,255,255,0.08)",
+  cardBg: "rgba(255,255,255,0.06)",
+  cardBorder: "rgba(255,255,255,0.06)",
   label: "rgba(255,255,255,0.4)",
   text: "rgba(255,255,255,0.85)",
   sub: "rgba(255,255,255,0.5)",
   dim: "rgba(255,255,255,0.3)",
   accentText: "#64aaff",
-  keyBadgeBg: "rgba(255,255,255,0.08)",
+  accentFaint: "rgba(100,170,255,0.16)",
   keyBadgeBorder: "rgba(255,255,255,0.15)",
-  closeBg: "rgba(255,255,255,0.08)",
 };
 
 const LIGHT: Palette = {
-  font: "monospace",
+  font: FONT_CJK,
   bg: "#FFFFFF",
   overlay: "rgba(0,0,0,0.35)",
   border: "rgba(0,0,0,0.10)",
-  cardBg: "#F9FAFB",
-  cardBorder: "rgba(0,0,0,0.08)",
+  cardBg: "rgba(0,0,0,0.035)",
+  cardBorder: "rgba(0,0,0,0.06)",
   label: "#6B7280",
   text: "#1F2937",
   sub: "#4B5563",
   dim: "#9CA3AF",
   accentText: "#2563EB",
-  keyBadgeBg: "#F3F4F6",
+  accentFaint: "rgba(11,111,214,0.10)",
   keyBadgeBorder: "rgba(0,0,0,0.10)",
-  closeBg: "#F3F4F6",
 };
 
 const PaletteCtx = createContext<Palette>(DARK);
@@ -80,7 +79,7 @@ const t = (obj: T, lang: Lang) => obj[lang];
 function SectionTitle({ children }: { children: React.ReactNode }) {
   const c = useC();
   return (
-    <h3 style={{ fontSize: FONT_SIZE.base, color: c.label, margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+    <h3 style={{ fontSize: FONT_SIZE.base, color: c.label, margin: "0 0 10px", letterSpacing: 1.5 }}>
       {children}
     </h3>
   );
@@ -97,7 +96,7 @@ function Card({ title, children, accentColor, style }: {
     <div style={{
       background: c.cardBg,
       border: `1px solid ${c.cardBorder}`,
-      borderRadius: RADIUS.xl,
+      borderRadius: RADIUS.lg,
       padding: "12px 14px",
       borderLeft: accentColor ? `3px solid ${accentColor}` : undefined,
       ...style,
@@ -130,12 +129,13 @@ function KeyBadge({ children }: { children: React.ReactNode }) {
   return (
     <span style={{
       display: "inline-block",
-      padding: "1px 6px",
-      background: c.keyBadgeBg,
+      padding: "1px 4px",
+      background: "transparent",
       border: `1px solid ${c.keyBadgeBorder}`,
-      borderRadius: RADIUS.md,
-      fontSize: FONT_SIZE.base,
-      fontFamily: c.font,
+      borderRadius: 3,
+      fontSize: 9.5,
+      fontWeight: 600,
+      fontFamily: FONT_DATA,
       color: c.text,
     }}>
       {children}
@@ -245,10 +245,10 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
       <Card>
         {L ? "畫面底部的時間軸以日期為中心，控制航班 / 船舶 / 列車的播放時間：" : "The date-centric timeline at the bottom controls playback time for flights, ships, and trains:"}
         <div style={{ marginTop: 6 }}>
-          <ParamRow label={L ? "日期導航" : "Date Nav"} desc={L ? "◀ ▶ 切換日期，點擊日期可展開日期選擇器" : "◀ ▶ to switch dates, click the date to open a date picker"} />
+          <ParamRow label={L ? "日期導航" : "Date Nav"} desc={L ? "上一頁／下一頁切換日期，點擊日期可展開日期選擇器" : "Previous/Next to switch dates, click the date to open a date picker"} />
           <ParamRow label="Now" desc={L ? "跳至今日（Live 模式）" : "Jump to today (Live mode)"} />
           <ParamRow label={L ? "範圍" : "Range"} desc={L ? "1d / 3d / 7d 控制瀏覽天數" : "1d / 3d / 7d to control the browsing range"} />
-          <ParamRow label="▶ / ⏸" desc={L ? "播放或暫停時間推進" : "Play or pause time progression"} />
+          <ParamRow label={L ? "播放／暫停" : "Play/Pause"} desc={L ? "播放或暫停時間推進" : "Play or pause time progression"} />
           <ParamRow label={L ? "速度" : "Speed"} desc={L ? "可選 30x · 60x · 120x · 300x · 600x · 1800x · 3600x 加速倍率" : "Choose from 30x · 60x · 120x · 300x · 600x · 1800x · 3600x acceleration"} />
           <ParamRow label={L ? "滑桿" : "Slider"} desc={L ? "拖曳跳轉到資料時間範圍內的任意時刻" : "Drag to jump to any moment within the data time range"} />
         </div>
@@ -1053,7 +1053,7 @@ export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoM
         padding: "20px 0",
       }}>
         <div style={{ padding: "0 16px" }}>
-          <div style={{ fontSize: FONT_SIZE.base, color: c.label, letterSpacing: 1.5, marginBottom: 14, textTransform: "uppercase" }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: c.label, letterSpacing: 1.5, marginBottom: 14 }}>
             {lang === "zh" ? "使用指南" : "User Guide"}
           </div>
           {activeTab === "guide" && (
@@ -1061,7 +1061,7 @@ export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoM
               {guideSubNav.map((item) => (
                 <button key={item.key} onClick={() => setGuidePage(item.key)}
                   style={{
-                    background: guidePage === item.key ? "rgba(100,170,255,0.12)" : "transparent",
+                    background: guidePage === item.key ? c.accentFaint : "transparent",
                     border: "none", borderRadius: RADIUS.lg, padding: "8px 12px", textAlign: "left",
                     color: guidePage === item.key ? c.accentText : c.sub,
                     fontSize: FONT_SIZE.md, fontFamily: c.font, cursor: "pointer", transition: "all 0.15s",
@@ -1076,7 +1076,7 @@ export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoM
           {bottomTabs.map((tab) => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
-                background: activeTab === tab.key ? "rgba(100,170,255,0.12)" : "transparent",
+                background: activeTab === tab.key ? c.accentFaint : "transparent",
                 border: "none", borderRadius: RADIUS.lg, padding: "8px 12px", textAlign: "left",
                 color: activeTab === tab.key ? c.accentText : c.sub,
                 fontSize: FONT_SIZE.md, fontFamily: c.font, cursor: "pointer",
@@ -1150,32 +1150,37 @@ export function InfoModal({ open, onClose, isMobile, isDarkTheme = true }: InfoM
         <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <div style={{
             display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: isMobile ? "14px 16px" : "20px 28px",
+            padding: "10px 14px",
             borderBottom: `1px solid ${c.border}`, flexShrink: 0,
           }}>
-            <h2 style={{ margin: 0, fontSize: isMobile ? FONT_SIZE.xl : FONT_SIZE.xl, letterSpacing: 1, color: c.text }}>{title}</h2>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ display: "flex", borderRadius: RADIUS.lg, overflow: "hidden", border: `1px solid ${c.border}` }}>
-                {(["zh", "en"] as Lang[]).map((l) => (
+            <div>
+              <div style={{ fontSize: 9, color: c.dim, letterSpacing: 1.4 }}>說明</div>
+              <h2 style={{ margin: "1px 0 0", fontSize: FONT_SIZE.lg, fontWeight: 700, color: c.text }}>{title}</h2>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ display: "inline-flex", height: 24, padding: 2, gap: 2, borderRadius: RADIUS.md, border: `1px solid ${c.border}` }}>
+                {([["zh", "中文"], ["en", "EN"]] as [Lang, string][]).map(([l, labelText]) => (
                   <button key={l} onClick={() => setLang(l)}
                     style={{
-                      background: lang === l ? "rgba(100,170,255,0.15)" : "transparent",
-                      border: "none", padding: "3px 10px",
+                      background: lang === l ? c.accentFaint : "transparent",
+                      border: "none", borderRadius: RADIUS.sm, padding: "0 8px",
                       color: lang === l ? c.accentText : c.sub,
-                      fontSize: FONT_SIZE.base, fontFamily: c.font, cursor: "pointer",
+                      fontWeight: lang === l ? 600 : 400,
+                      fontSize: 10.5, fontFamily: c.font, cursor: "pointer",
                     }}>
-                    {l.toUpperCase()}
+                    {labelText}
                   </button>
                 ))}
               </div>
               <button onClick={onClose}
+                aria-label={`關閉${title}`}
                 style={{
-                  width: 28, height: 28, borderRadius: RADIUS.full,
-                  background: c.closeBg, border: "none", color: c.sub,
-                  fontSize: FONT_SIZE.xl, cursor: "pointer",
+                  width: 24, height: 24, borderRadius: RADIUS.md,
+                  background: "transparent", border: "none", color: c.dim,
+                  cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                ✕
+                <X size={14} />
               </button>
             </div>
           </div>
