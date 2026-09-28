@@ -1,14 +1,14 @@
 import { useEffect } from "react";
-import type { CircleLayer, ExpressionSpecification, FilterSpecification, Map as MapboxMap } from "mapbox-gl";
+import type { CircleLayer, FilterSpecification, Map as MapboxMap } from "mapbox-gl";
 import {
   JP_POLICE_ATTRIBUTION,
-  JP_POLICE_DEGRADED_COLOR,
   JP_POLICE_FACILITY_TYPES,
   JP_POLICE_FACILITY_TYPE_COLOR_EXPRESSION,
 } from "../data/jpPoliceFacilityTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
+import { mapSeamColor, POINT_STROKE, pointRadius } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "jp-police-facilities";
@@ -18,18 +18,9 @@ const LAYER_ID = "jp-police-facilities-circle";
 const FILE = "jp_police_facilities.pmtiles?v=3b6236fbf0a9";
 const MINZOOM = 5;
 const MAXZOOM = 14;
-const NORMAL_STROKE_COLOR = "#0f172a";
 
 function clampOpacity(opacity: number): number {
   return Math.max(0, Math.min(1, opacity));
-}
-
-function scaledRadius(scale: number): ExpressionSpecification {
-  return [
-    "interpolate", ["linear"], ["zoom"],
-    5, 2 * scale,
-    12, 5 * scale,
-  ] as unknown as ExpressionSpecification;
 }
 
 function absoluteUrl(relativeFile: string): string {
@@ -51,7 +42,7 @@ export function jpPoliceFacilityInitialFilter(typeIndex: number): FilterSpecific
   return jpPoliceFacilityTypeFilter(typeIndex) ?? undefined;
 }
 
-function policeCircleLayer(opacity: number, scale: number, typeIndex: number): CircleLayer {
+function policeCircleLayer(opacity: number, scale: number, typeIndex: number, isDark: boolean): CircleLayer {
   const initialFilter = jpPoliceFacilityInitialFilter(typeIndex);
   return {
     id: LAYER_ID,
@@ -63,16 +54,12 @@ function policeCircleLayer(opacity: number, scale: number, typeIndex: number): C
       : { filter: initialFilter }),
     layout: { visibility: "none" },
     paint: {
-      "circle-radius": scaledRadius(scale),
+      "circle-radius": pointRadius("M", scale),
       "circle-color": JP_POLICE_FACILITY_TYPE_COLOR_EXPRESSION,
       "circle-opacity": clampOpacity(opacity),
-      "circle-stroke-color": [
-        "case", ["==", ["get", "geom_status"], "degraded"], JP_POLICE_DEGRADED_COLOR, NORMAL_STROKE_COLOR,
-      ] as unknown as ExpressionSpecification,
-      "circle-stroke-width": [
-        "case", ["==", ["get", "geom_status"], "degraded"], 1.5, 0.35,
-      ] as unknown as ExpressionSpecification,
-      "circle-stroke-opacity": clampOpacity(opacity),
+      "circle-stroke-color": mapSeamColor(isDark),
+      "circle-stroke-width": POINT_STROKE.width,
+      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75),
     },
   } as CircleLayer;
 }
@@ -84,6 +71,7 @@ export function useJpPoliceFacilitiesLayer(
   opacity: number,
   scale: number,
   typeIndex: number,
+  isDarkTheme = true,
 ) {
   const mapTick = useMapReadyTick(mapRef, visible);
 
@@ -96,6 +84,7 @@ export function useJpPoliceFacilitiesLayer(
     }
 
     const mount = () => {
+      const isDark = isDarkTheme;
       registerPmtilesSourceTypeOnce();
       let sourceAdded = false;
       if (!map.getSource(SOURCE_ID)) {
@@ -109,12 +98,14 @@ export function useJpPoliceFacilitiesLayer(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any);
       }
-      if (!map.getLayer(LAYER_ID)) map.addLayer(policeCircleLayer(opacity, scale, typeIndex));
+      if (!map.getLayer(LAYER_ID)) map.addLayer(policeCircleLayer(opacity, scale, typeIndex, isDark));
       if (map.getLayer(LAYER_ID)) {
         map.setLayoutProperty(LAYER_ID, "visibility", "visible");
         map.setPaintProperty(LAYER_ID, "circle-opacity", clampOpacity(opacity));
-        map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", clampOpacity(opacity));
-        map.setPaintProperty(LAYER_ID, "circle-radius", scaledRadius(scale));
+        map.setPaintProperty(LAYER_ID, "circle-radius", pointRadius("M", scale));
+        map.setPaintProperty(LAYER_ID, "circle-stroke-color", mapSeamColor(isDark));
+        map.setPaintProperty(LAYER_ID, "circle-stroke-width", POINT_STROKE.width);
+        map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * clampOpacity(opacity) / 0.75));
         map.setFilter(LAYER_ID, jpPoliceFacilityTypeFilter(typeIndex));
       }
       if (sourceAdded) {
@@ -125,5 +116,5 @@ export function useJpPoliceFacilitiesLayer(
     mount();
     map.on("style.load", mount);
     return () => { map.off("style.load", mount); };
-  }, [mapRef, visible, opacity, scale, typeIndex, mapTick]);
+  }, [mapRef, visible, opacity, scale, typeIndex, isDarkTheme, mapTick]);
 }
