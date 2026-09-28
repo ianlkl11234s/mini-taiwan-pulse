@@ -27,16 +27,25 @@ it("derives dataset IDs and release-selector requirements from the registered da
   expect(describeLayer("statsEducationCountyStudentTeacherRatio", { locked: new Set(["statsEducationCountyStudentTeacherRatio"]), visible: new Set() })).toBeNull();
 });
 
+// An empty query matches every manifest layer, so discoverLayers() maps asDiscovery()
+// over the whole catalogue; asDiscovery() calls registeredDatasetsForLayer() twice per
+// layer, and that rebuilds + revalidates the entire dataset descriptor registry on every
+// call (see researchDatasets.ts allDescriptors(), which is uncached). That's O(layers *
+// descriptors) work per empty-query call and measures ~1.2-1.3s alone; under full-suite
+// or CI load it can exceed vitest's default 5000ms timeout (observed CI failure at
+// 5086ms). Reported as a production perf candidate, not fixed here per task scope —
+// widen the timeout so this test doesn't flake under load.
 it("lists bounded catalogue pages and never describes prototype properties as layers", () => {
   expect(discoverLayers("",0,2).returned).toBe(2);
   expect(discoverLayers("",0,2).truncated).toBe(true);
   expect(describeLayer("toString")).toBeNull();
   expect(findPlaces("臺北").candidates[0]?.id).toBe("taipei");
-});
+}, 15_000);
 
+// Same empty-query cost as above, doubled (two discoverLayers("", ...) calls).
 it("returns a continuation offset without silently dropping layers after the first page", () => {
   const first = discoverLayers("", 0, 20);
   expect(first.nextOffset).toBe(20);
   const second = discoverLayers("", first.nextOffset!, 20);
   expect(new Set([...first.layers, ...second.layers].map(layer => layer.key)).size).toBe(first.returned + second.returned);
-});
+}, 15_000);
