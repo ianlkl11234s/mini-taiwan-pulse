@@ -1365,7 +1365,10 @@ export default function App() {
   useEffect(() => {
     const next: LeftPanelState = { agent: agentOpen, earthquakeReplay: earthquakeReplayOpen, intel: intelOpen, satellite: satConsoleOpen, member: memberOpen };
     const toClose = leftPanelsToClose(leftPanelsPrevRef.current, next);
+    // B1：地震回放從 Layers 清單打開時，比照即時情報／衛星收起左側 rail 面板，避免兩者重疊
+    const earthquakeJustOpened = next.earthquakeReplay && !leftPanelsPrevRef.current.earthquakeReplay;
     leftPanelsPrevRef.current = next;
+    if (earthquakeJustOpened) setRailCloseEpoch((value) => value + 1);
     for (const key of toClose) {
       if (key === "agent") setAgentOpen(false);
       else if (key === "earthquakeReplay") setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }));
