@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
+import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -14,6 +15,14 @@ import { useMapReadyTick } from "./useMapReadyTick";
 const SOURCE_ID = "fire-latest-src";
 const LAYER_ID = "fire-latest-layer";
 
+export function fireLatestPointStroke(isDark: boolean, opacity: number) {
+  return {
+    "circle-stroke-color": mapSeamColor(isDark),
+    "circle-stroke-width": POINT_STROKE.width,
+    "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity),
+  };
+}
+
 function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
@@ -26,8 +35,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       paint: {
         "circle-radius": ["case", ["get", "casualty"], 6, 3],
         "circle-color": ["case", ["get", "casualty"], "#ff1744", "#ff7043"],
-        "circle-stroke-width": ["case", ["get", "casualty"], 1, 0],
-        "circle-stroke-color": "#ffffff",
+        ...fireLatestPointStroke(isDark, 1),
         "circle-opacity": isDark ? 0.8 : 0.65,
         "circle-blur": 0.15,
       },
@@ -67,7 +75,10 @@ function updatePaint(map: MapboxMap, isDark: boolean, opacity: number, scale: nu
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-radius", ["case", ["get", "casualty"], 6 * scale, 3 * scale]);
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);
-  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+  const stroke = fireLatestPointStroke(isDark, opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
 }
 
 /** 最新年度火災點位（資料只載一次，任何模式可見）。 */
