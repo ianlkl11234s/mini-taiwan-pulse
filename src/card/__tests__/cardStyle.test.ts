@@ -44,6 +44,16 @@ describe("buildCardAreaFeatures", () => {
     expect(features.map(feature => feature.properties.label)).toEqual(["中正區", null]);
   });
 
+  it("top 有 code 時只標代碼相符的那一個同名區", () => {
+    const towns = { type: "FeatureCollection", features: [
+      { type: "Feature", geometry: square(121.5), properties: { TOWNCODE: "63000050", TOWNNAME: "中正區" } },
+      { type: "Feature", geometry: square(121.7), properties: { TOWNCODE: "10017070", TOWNNAME: "中正區" } },
+    ] };
+    const map = { ...areaPayload().map!, geometry: { ...areaPayload().map!.geometry, level: "township" as const }, areas: [["63000050", 1], ["10017070", 1]] as [string, number | null][] };
+    const features = buildCardAreaFeatures(towns, map, [{ name: "中正區", value: 9, class_index: 1, code: "10017070" }]);
+    expect(features.map(feature => feature.properties.label)).toEqual([null, "中正區"]);
+  });
+
   it("檔案格式不對或代碼對不上就 throw（由地圖區顯示容錯訊息）", () => {
     const payload = areaPayload();
     expect(() => buildCardAreaFeatures({ type: "Feature" }, payload.map!, payload.top)).toThrow("CARD_GEOMETRY_SHAPE");

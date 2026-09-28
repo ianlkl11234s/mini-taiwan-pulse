@@ -13,7 +13,7 @@ export const CARD_MAX_BYTES = 32 * 1024;
 
 export type CardValueKind = "count" | "ratio" | "percent" | "currency" | "number";
 export type CardStat = { label: string; value: number | null; unit: string | null; value_kind: CardValueKind };
-export type CardTopItem = { name: string; value: number | null; class_index: number | null };
+export type CardTopItem = { name: string; value: number | null; class_index: number | null; /** 行政區代碼（選填，mcp／414 已支援） */ code?: string };
 export type CardGeometryRef = {
   level: "county" | "township";
   boundary_version: string;
@@ -110,7 +110,7 @@ export function validateCardPayload(value: unknown): CardValidation {
   const stats = value.stats ?? [];
   if (!Array.isArray(stats) || stats.length > 3 || !stats.every(stat => isObject(stat) && text(stat.label, 1, 20) && nullableFinite(stat.value) && nullableText(stat.unit, 12) && VALUE_KINDS.has(String(stat.value_kind)))) return fail("STATS");
   const top = value.top ?? [];
-  if (!Array.isArray(top) || top.length > 5 || !top.every(item => isObject(item) && onlyKeys(item, ["name", "value", "class_index"]) && text(item.name, 1, 40) && nullableFinite(item.value) && classIndex(item.class_index ?? null))) return fail("TOP");
+  if (!Array.isArray(top) || top.length > 5 || !top.every(item => isObject(item) && onlyKeys(item, ["name", "value", "class_index", "code"]) && text(item.name, 1, 40) && nullableFinite(item.value) && classIndex(item.class_index ?? null) && (item.code === undefined || (typeof item.code === "string" && /^[A-Za-z0-9_-]{1,16}$/.test(item.code))))) return fail("TOP");
 
   const sources = value.sources;
   if (!Array.isArray(sources) || sources.length < 1 || sources.length > 6 || !sources.every(source => isObject(source) && onlyKeys(source, ["dataset_label", "publisher", "data_time", "license", "attribution"]) && text(source.dataset_label, 1, 80) && text(source.license, 1, 40) && nullableText(source.publisher, 200) && nullableText(source.data_time, 200) && nullableText(source.attribution, 200))) return fail("SOURCES");
@@ -135,7 +135,7 @@ export function validateCardPayload(value: unknown): CardValidation {
   } else {
     const points = value.points;
     if (!isObject(points) || !Array.isArray(points.items) || points.items.length < 1 || points.items.length > 50
-      || !points.items.every(item => isObject(item) && onlyKeys(item, ["name", "lnglat", "class_index"]) && (item.name === null || item.name === undefined || text(item.name, 1, 120)) && lngLat(item.lnglat) && classIndex(item.class_index ?? null))) return fail("POINTS");
+      || !points.items.every(item => isObject(item) && onlyKeys(item, ["name", "lnglat", "class_index"]) && (item.name === null || item.name === undefined || text(item.name, 1, 40)) && lngLat(item.lnglat) && classIndex(item.class_index ?? null))) return fail("POINTS");
     if (!(points.ramp === null || points.ramp === undefined || typeof points.ramp === "string") || !(points.breaks === undefined || (Array.isArray(points.breaks) && points.breaks.length <= 8 && points.breaks.every(finite)))) return fail("POINTS_RAMP");
   }
 

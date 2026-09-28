@@ -24,6 +24,14 @@ describe("validateCardPayload（對照 migration 414 validator）", () => {
     expect(validateCardPayload({ ...pointsPayload(), query_scope: { center: [121.5, 25.04], radius_m: 500, geometry: { type: "Point", coordinates: [1, 2] } } }).ok).toBe(false);
   });
 
+  it("top[].code 選填，格式不對拒絕；點位名稱上限 40 字", () => {
+    const payload = areaPayload();
+    expect(validateCardPayload({ ...payload, top: [{ ...payload.top[0]!, code: "63000" }] }).ok).toBe(true);
+    expect(validateCardPayload({ ...payload, top: [{ ...payload.top[0]!, code: "x".repeat(17) }] }).ok).toBe(false);
+    const points = pointsPayload();
+    expect(validateCardPayload({ ...points, points: { ...points.points!, items: [{ name: "字".repeat(41), lnglat: [121.5, 25.04], class_index: null }] } }).ok).toBe(false);
+  });
+
   it("超出上限或不認得的欄位拒絕", () => {
     const payload = areaPayload();
     expect(validateCardPayload({ ...payload, stats: [...payload.stats, payload.stats[0]] }).ok).toBe(false);

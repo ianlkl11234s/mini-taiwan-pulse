@@ -107,7 +107,7 @@ function nameOf(properties: Record<string, unknown> | null, nameProperty: string
 /**
  * 從完整界線檔挑出 payload.areas 列到的區域並上色；標籤只給前 5 名（E2 K0：只標名稱）。
  *
- * top[] 沒有代碼（mcp CardTopItem／414 validator 只收 name/value/class_index），只能用名稱比對；
+ * 優先以 top[].code 對應界線代碼欄位；沒有 code（舊卡片）才退回名稱比對：
  * 鄉鎮名稱跨縣市會重複（例如兩個「中正區」），所以同名時以 class_index 相同者優先，
  * 仍有多個時全部標上（寧可多標，也不猜錯一個）。
  */
@@ -124,6 +124,10 @@ export function buildCardAreaFeatures(geojson: unknown, map: CardAreaMap, top: C
 
   const labelled = new Set<GeoFeature>();
   for (const item of top.slice(0, 5)) {
+    if (item.code) {
+      for (const feature of picked) if (String(feature.properties?.[codeProperty]) === item.code) labelled.add(feature);
+      continue;
+    }
     const named = picked.filter(feature => {
       const name = nameOf(feature.properties, nameProperty);
       return name !== null && (name === item.name || item.name.endsWith(name));
