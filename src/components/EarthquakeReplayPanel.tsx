@@ -17,6 +17,7 @@ import { COLORS, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/design
 import { fetchReplayEvents } from "../data/earthquakeReplayLoader";
 import { eventTier, type EarthquakeReplayEvent } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
+import { Slider } from "./controls/Slider";
 
 const PANEL_WIDTH = 322;
 
@@ -277,15 +278,14 @@ export function EarthquakeReplayPanel({
             <RotateCcw size={11} />
           </button>
         </div>
-        <input
-          type="range"
+        <Slider
           min={0}
           max={Math.max(1, clock.duration)}
           step={0.1}
           value={clock.clock}
           disabled={!hasTimeline}
-          onChange={(ev) => earthquakeReplayClock.set(Number(ev.target.value), true)}
-          style={{ width: "100%", height: 3, accentColor: COLORS.accent, cursor: hasTimeline ? "pointer" : "default" }}
+          onChange={(value) => earthquakeReplayClock.set(value, true)}
+          ariaLabel="地震回放時間"
         />
       </div>
     </div>

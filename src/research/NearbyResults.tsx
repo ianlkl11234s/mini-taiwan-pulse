@@ -1,4 +1,5 @@
 import type { NearbyResult, NearbyRow } from "./nearbyData";
+import { Slider } from "../components/controls/Slider";
 
 type Props = { result: NearbyResult; opacity: number; onOpacity: (value: number) => void; onSelect: (row: NearbyRow) => void; onClear: () => void };
 export function NearbyResults({ result, opacity, onOpacity, onSelect, onClear }: Props) {
@@ -9,7 +10,7 @@ export function NearbyResults({ result, opacity, onOpacity, onSelect, onClear }:
     <p><strong>{result.totalMatched} 筆符合</strong> · 半徑 {result.radiusM.toLocaleString()} 公尺</p>
     <small>地表直線距離，並非步行距離或服務範圍。此資料集內的紀錄數，不保證現況完整。</small>
     <p>虛線：查詢半徑。點位沿用已開啟圖層的分類與顏色，不代表全部都符合本次查詢。</p>
-    <label>範圍圈透明度<input aria-label="附近範圍圈透明度" type="range" min="0" max="1" step="0.05" value={opacity} onChange={event => onOpacity(Number(event.target.value))} /></label>
+    <label>範圍圈透明度<Slider ariaLabel="附近範圍圈透明度" min={0} max={1} step={0.05} value={opacity} onChange={onOpacity} /></label>
     {result.truncated && <p>共 {result.totalMatched} 筆，下方清單顯示最近 {result.returned} 筆。</p>}
     {result.totalMatched === 0 && <p>這份資料在指定半徑內沒有符合的有效點位；不代表現地一定沒有學校。</p>}
     <ol>{result.rows.map(row => <li key={row.id}><button onClick={() => onSelect(row)}><span>{row.name || "未提供名稱"}</span><span>{row.distanceM.toFixed(0)} 公尺</span></button></li>)}</ol>
