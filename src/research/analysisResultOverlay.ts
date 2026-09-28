@@ -9,7 +9,8 @@ import { ensureNullHatchImage } from "./vizNullPattern";
 import { SELECTION_RING } from "../styles/designTokens";
 import { TITLE_KEYS } from "./researchResultPopup";
 import {
-  warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint, warehouseProportionalColor, warehouseProportionalLabelFilter,
+  warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  warehouseIsochroneSortKey, warehouseProportionalColor, warehouseProportionalLabelFilter,
   warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
   type WarehouseResultStyle, type WarehouseStyleLegend,
 } from "./warehouseResultStyle";
@@ -40,6 +41,22 @@ const proportionalLabelLayerId = (index: number) => `research-analysis-result-pr
  *  independently pickable — the primary fill layer already covers the same features for popup. */
 const bivariateSizeSourceId = (index: number) => `research-analysis-result-bivariate-size-${index}`;
 const bivariateSizeLayerId = (index: number) => `research-analysis-result-bivariate-size-circle-${index}`;
+/** M6: the basemap-coloured gap between grid cells (spec "格間縫用 line 圖層"), traced over the
+ *  same cell polygons — Mapbox draws a "line" layer's boundary directly from Polygon geometry. */
+const gridGapLayerId = (index: number) => `research-analysis-result-grid-gap-${index}`;
+/** M2 I1: the isochrone band's own 1.3px solid outline (spec "同色 1.3px 實線邊") — a `fill` layer
+ *  has no configurable outline width, so this is a sibling `line` layer instead. */
+const isochroneOutlineLayerId = (index: number) => `research-analysis-result-isochrone-outline-${index}`;
+/** L2 W1: the flow line's own ring-coloured outline, drawn *beneath* the classified line
+ *  (spec "底下一層 ring[theme] 顏色、寬度 = 線寬 + 3"). */
+const flowOutlineLayerId = (index: number) => `research-analysis-result-flow-outline-${index}`;
+/** L2 F3: the slow-moving "flowing dots" overlay (a cycled `line-dasharray`), only when the server
+ *  allowed it (`style.animate`) and the viewer has not asked for reduced motion. */
+const flowDotLayerId = (index: number) => `research-analysis-result-flow-dot-${index}`;
+/** L2: one small ring-stroked dot per flow at its destination coordinate; own point source since the
+ *  primary source's geometry is the (possibly arced) line, not a drawable point. */
+const flowEndpointSourceId = (index: number) => `research-analysis-result-flow-endpoint-${index}`;
+const flowEndpointLayerId = (index: number) => `research-analysis-result-flow-endpoint-circle-${index}`;
 /**
  * A `properties._role === "scope"` feature (e.g. a nearby_profile search-radius circle, MCP
  * contract in warehouse/engine.ts `scopeCircleFeature`) draws as a dashed, unfilled outline
@@ -72,6 +89,59 @@ const hovered = new WeakMap<Map, AnalysisFeatureTarget>();
 const dimmed = new WeakMap<Map, Set<number>>();
 const selectedTargets = new WeakMap<Map, AnalysisFeatureTarget[]>();
 const SOURCE_INDEX_PATTERN = /^research-analysis-result-(\d+)$/;
+/** M7: extrusion's own fixed opacity ratio (spec "不透明度 0.85"), composed with the user's opacity
+ *  slider the same way a polygon's fill / a proportional circle's own ratio already compose. */
+const EXTRUSION_FILL_OPACITY = 0.85;
+/** L2: how far the arc's control point is pushed off the straight midpoint, as a fraction of the
+ *  origin -> destination vector's own length. */
+const FLOW_ARC_CURVATURE = 0.15;
+/** L2 F3: the official Mapbox "animate a line" dasharray cycle — a fixed sequence of dash/gap
+ *  lengths whose apparent motion comes purely from stepping through it, not from any offset math. */
+const FLOW_DOT_DASH_FRAMES: readonly (readonly number[])[] = [
+  [0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0],
+  [0, 0.5, 3, 3.5], [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2], [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5],
+];
+const FLOW_DOT_FRAME_MS = 100; // ~10fps (spec "低頻循環")
+const flowTimers = new WeakMap<Map, globalThis.Map<number, ReturnType<typeof setInterval>>>();
+
+/** L2: bends a straight 2-point line into a quadratic-bezier arc, always to the same side of travel
+ *  (rotate the direction vector 90° — reversing origin/destination mirrors the arc, but the rule
+ *  itself never flips). Pure and independent of Mapbox so it is directly unit-testable. */
+export function flowArcCoordinates(origin: readonly [number, number], destination: readonly [number, number], segments = 24): [number, number][] {
+  const [x0, y0] = origin;
+  const [x1, y1] = destination;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const controlX = (x0 + x1) / 2 - dy * FLOW_ARC_CURVATURE;
+  const controlY = (y0 + y1) / 2 + dx * FLOW_ARC_CURVATURE;
+  return Array.from({ length: segments + 1 }, (_, index) => {
+    const t = index / segments;
+    const oneMinusT = 1 - t;
+    return [
+      oneMinusT * oneMinusT * x0 + 2 * oneMinusT * t * controlX + t * t * x1,
+      oneMinusT * oneMinusT * y0 + 2 * oneMinusT * t * controlY + t * t * y1,
+    ] as [number, number];
+  });
+}
+
+function stopFlowAnimation(map: Map, index: number): void {
+  const timer = flowTimers.get(map)?.get(index);
+  if (timer !== undefined) { clearInterval(timer); flowTimers.get(map)!.delete(index); }
+}
+
+/** Starts (idempotently — always stops any prior timer for this slot first) the F3 dash-cycle on
+ *  `layerId`; self-cancels once that layer is gone (slot reused by a non-flow result, or removed). */
+function startFlowAnimation(map: Map, index: number, dotLayerId: string): void {
+  stopFlowAnimation(map, index);
+  let frame = 0;
+  const timer = setInterval(() => {
+    if (!map.getLayer(dotLayerId)) { stopFlowAnimation(map, index); return; }
+    frame = (frame + 1) % FLOW_DOT_DASH_FRAMES.length;
+    map.setPaintProperty(dotLayerId, "line-dasharray", FLOW_DOT_DASH_FRAMES[frame] as number[]);
+  }, FLOW_DOT_FRAME_MS);
+  if (!flowTimers.has(map)) flowTimers.set(map, new globalThis.Map());
+  flowTimers.get(map)!.set(index, timer);
+}
 
 /** One rendered row: its result source plus the promoted numeric feature id. */
 export type AnalysisFeatureTarget = { source: string; id: number };
@@ -110,6 +180,12 @@ export type AnalysisResultPresentation = {
   /** A proportional-symbol circle's own base opacity ratio (spec M3 `fillOpacity`), composed with
    *  the user's opacity slider the same way `scopeArea` composes with a polygon's fill ratio. */
   circleOpacityRatio?: number;
+  /** M2: an isochrone's own base opacity ratio (spec `style.fillOpacity`), replacing the plain
+   *  polygon's scopeArea/default ratio the same way `circleOpacityRatio` overrides a circle's. */
+  fillOpacityRatio?: number;
+  /** L2 F3: the flowing-dot layer's own base opacity ratio (spec `style.dotOpacity`), composed with
+   *  the user's opacity slider the same way `circleOpacityRatio` composes with a circle's. */
+  flowDotOpacityRatio?: number;
   /** A nearby_profile search-radius circle is mixed into this result's own rows (_role "scope");
    *  it renders as a dashed unfilled outline and is excluded from featureCount/popup stats. */
   scopeRing?: { radiusM: number | null };
@@ -192,6 +268,35 @@ function bivariateSizeCollection(result: PresentableResult, style: Extract<Wareh
     const [lng, lat] = anchor;
     if (typeof lng !== "number" || !Number.isFinite(lng) || lng < -180 || lng > 180 || typeof lat !== "number" || !Number.isFinite(lat) || lat < -90 || lat > 90) return [];
     return [{ type: "Feature", id: `${result.resultId}:size:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: { type: "Point", coordinates: [lng, lat] } }];
+  });
+  return { type: "FeatureCollection", features };
+}
+
+/** L2: replaces every straight 2-point LineString in `data` with its bent arc (flowArcCoordinates);
+ *  every other geometry (or a line with any other vertex count) passes through unchanged. */
+function flowArcCollection<T extends FeatureCollection<Point | LineString | MultiLineString | Polygon | MultiPolygon>>(data: T): T {
+  return {
+    ...data,
+    features: data.features.map(feature => {
+      if (feature.geometry.type !== "LineString" || feature.geometry.coordinates.length !== 2) return feature;
+      const [origin, destination] = feature.geometry.coordinates as [[number, number], [number, number]];
+      return { ...feature, geometry: { type: "LineString", coordinates: flowArcCoordinates(origin, destination) } };
+    }),
+  };
+}
+
+/** One Point feature per drawable flow row (`_flow_width` numeric), at its destination coordinate
+ *  (the raw line's last vertex, taken before arcing) — the small ring-stroked endpoint dot (spec L2). */
+function flowEndpointCollection(result: PresentableResult, style: Extract<WarehouseResultStyle, { kind: "flow" }>): FeatureCollection<Point> {
+  const features: Feature<Point>[] = result.rows.flatMap<Feature<Point>>((row, rowIndex) => {
+    if (typeof row[style.widthProperty] !== "number") return [];
+    const geometry = row.geometry as { type?: unknown; coordinates?: unknown } | undefined;
+    if (geometry?.type !== "LineString" || !Array.isArray(geometry.coordinates) || geometry.coordinates.length !== 2) return [];
+    const destination = geometry.coordinates[1];
+    if (!Array.isArray(destination) || destination.length !== 2) return [];
+    const [lng, lat] = destination;
+    if (typeof lng !== "number" || !Number.isFinite(lng) || typeof lat !== "number" || !Number.isFinite(lat)) return [];
+    return [{ type: "Feature", id: `${result.resultId}:endpoint:${rowIndex}`, properties: { ...propertiesFor(row, result), [FEATURE_ID_PROPERTY]: rowIndex }, geometry: { type: "Point", coordinates: [lng, lat] } }];
   });
   return { type: "FeatureCollection", features };
 }
@@ -317,6 +422,8 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(style?.kind === "proportional" ? { circleOpacityRatio: style.fillOpacity } : {}),
+    ...(style?.kind === "isochrone" ? { fillOpacityRatio: style.fillOpacity } : {}),
+    ...(style?.kind === "flow" ? { flowDotOpacityRatio: style.dotOpacity } : {}),
     ...(hasScopeRows(result) ? { scopeRing: { radiusM: scopeRadiusM(result) } } : {}),
     ...(countLegend ? { countLegend } : {}),
     ...(numericLegend ? { numericLegend } : {}),
@@ -363,8 +470,6 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
   const installed = prepared.map(({ result, data }, index) => {
     const resultOpacity = typeof opacity === "number" ? opacity : opacity.byResult[result.resultId] ?? opacity.defaultOpacity;
     cancelReveal(map, index);
-    const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
-    if (source) source.setData(data); else map.addSource(sourceId(index), { type: "geojson", data, promoteId: FEATURE_ID_PROPERTY });
     const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
     const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
     const scopeArea = isAnalysisScopeArea(result);
@@ -376,6 +481,15 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const compare = style?.kind === "compare" && result.geometry.type === "Point" ? style : null;
     const proportional = style?.kind === "proportional" && result.geometry.type === "Point" ? style : null;
     const bivariate = style?.kind === "bivariate" ? style : null;
+    const grid = style?.kind === "grid" && polygon ? style : null;
+    const extrusion = style?.kind === "extrusion" && polygon ? style : null;
+    const isochrone = style?.kind === "isochrone" && polygon ? style : null;
+    const flow = style?.kind === "flow" && line ? style : null;
+    // L2: the source carries the bent arc, not the server's straight 2-point line — every reader
+    // (hover, popup, selection) then addresses the same drawn geometry.
+    const renderData = flow ? flowArcCollection(data) : data;
+    const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
+    if (source) source.setData(renderData); else map.addSource(sourceId(index), { type: "geojson", data: renderData, promoteId: FEATURE_ID_PROPERTY });
     const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" && style.kind !== "proportional" ? warehouseStyleColor(style, theme) : null;
     const proportionalColor = proportional ? warehouseProportionalColor(proportional, theme) : null;
     // Choropleth/bivariate null cells render fully transparent in `styleColor` above (see
@@ -384,9 +498,12 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     // S1: a second/third visible area result gives up its fill and draws only a 1.4px neutral
     // edge. The fill layer stays (transparent) as the click/hover pick surface.
     const outlineOnly = polygon && outlineOnlyIds.has(result.resultId);
-    const fillHatch = polygon && !outlineOnly && (style?.kind === "choropleth" || style?.kind === "bivariate") && style.nullStyle === "hatch" ? style : null;
+    const fillHatch = polygon && !outlineOnly && (style?.kind === "choropleth" || style?.kind === "bivariate" || style?.kind === "grid" || style?.kind === "extrusion") && style.nullStyle === "hatch" ? style : null;
     const fillColor: string | ExpressionSpecification = outlineOnly ? TRANSPARENT : styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
-    const outlineColor = outlineOnly ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
+    // M2 I1: isochrone's outline is a dedicated 1.3px line layer (isochroneOutlineLayerId), not the
+    // fill layer's own (fixed-width) fill-outline-color — leave that one transparent to avoid a
+    // doubled edge.
+    const outlineColor = outlineOnly ? TRANSPARENT : isochrone ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
     const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
     const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
@@ -399,13 +516,16 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const proportionalSizeFilter = proportional ? warehouseProportionalSizeFilter(proportional) : null;
     const proportionalSortKey = proportional ? warehouseProportionalSortKey(proportional) : null;
     // The user's opacity slider composes with the style's own base ratio for polygon fill
-    // (scope-area vs. authoritative) and proportional circles (spec M3 fillOpacity), matching the
-    // convention already used for polygon fill below.
-    const primaryOpacity = polygon ? resultOpacity * (scopeArea ? 0.18 : 0.45) : proportional ? resultOpacity * proportional.fillOpacity : resultOpacity;
+    // (scope-area vs. authoritative), extrusion (M7 0.85) / isochrone (its own fillOpacity), and
+    // proportional circles (spec M3 fillOpacity), matching the convention already used below.
+    const primaryOpacity = polygon
+      ? resultOpacity * (scopeArea ? 0.18 : extrusion ? EXTRUSION_FILL_OPACITY : isochrone ? isochrone.fillOpacity : 0.45)
+      : proportional ? resultOpacity * proportional.fillOpacity : resultOpacity;
     const existing = map.getLayer(layerId(index));
+    const targetType = polygon ? (extrusion ? "fill-extrusion" : "fill") : line ? "line" : heatmap ? "heatmap" : "circle";
     const reveal = !existing && !prefersReducedMotion();
     const duration = prefersReducedMotion() ? 0 : 380;
-    if (existing && existing.type !== (polygon ? "fill" : line ? "line" : heatmap ? "heatmap" : "circle")) map.removeLayer(layerId(index));
+    if (existing && existing.type !== targetType) map.removeLayer(layerId(index));
     if (!heatmap && map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
     if (!compare && map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
     if (!fillHatch && map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
@@ -414,9 +534,27 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       if (map.getLayer(bivariateSizeLayerId(index))) map.removeLayer(bivariateSizeLayerId(index));
       if (map.getSource(bivariateSizeSourceId(index))) map.removeSource(bivariateSizeSourceId(index));
     }
-    if (polygon) {
+    if (!grid && map.getLayer(gridGapLayerId(index))) map.removeLayer(gridGapLayerId(index));
+    if (!isochrone && map.getLayer(isochroneOutlineLayerId(index))) map.removeLayer(isochroneOutlineLayerId(index));
+    if (!flow) {
+      stopFlowAnimation(map, index);
+      if (map.getLayer(flowDotLayerId(index))) map.removeLayer(flowDotLayerId(index));
+      if (map.getLayer(flowOutlineLayerId(index))) map.removeLayer(flowOutlineLayerId(index));
+      if (map.getLayer(flowEndpointLayerId(index))) map.removeLayer(flowEndpointLayerId(index));
+      if (map.getSource(flowEndpointSourceId(index))) map.removeSource(flowEndpointSourceId(index));
+    }
+    if (polygon && extrusion) {
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill-extrusion", source: sourceId(index), filter: warehouseExtrusionHeightFilter(extrusion), paint: {
+        "fill-extrusion-color": fillColor, "fill-extrusion-height": ["get", extrusion.heightProperty], "fill-extrusion-base": 0,
+        "fill-extrusion-opacity": reveal ? 0 : primaryOpacity, "fill-extrusion-opacity-transition": { duration },
+      } });
+    } else if (polygon) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "fill", source: sourceId(index), ...(scopeRingRows ? { filter: SCOPE_ROLE_EXCLUDE_FILTER } : {}), paint: {
         "fill-color": fillColor, "fill-opacity": reveal ? 0 : primaryOpacity, "fill-opacity-transition": { duration }, "fill-outline-color": outlineColor,
+      } });
+    } else if (line && flow) {
+      if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), filter: warehouseFlowWidthFilter(flow), layout: { "line-cap": "round" }, paint: {
+        "line-color": lineColor, "line-width": ["get", flow.widthProperty], "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration },
       } });
     } else if (line) {
       if (!map.getLayer(layerId(index))) map.addLayer({ id: layerId(index), type: "line", source: sourceId(index), paint: { "line-color": lineColor, "line-width": 3, "line-opacity": reveal ? 0 : resultOpacity, "line-opacity-transition": { duration } } });
@@ -435,13 +573,22 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
         "circle-opacity": reveal ? 0 : primaryOpacity, "circle-opacity-transition": { duration }, "circle-stroke-opacity": reveal ? 0 : resultOpacity, "circle-stroke-opacity-transition": { duration }, "circle-stroke-color": circleStrokeColor, "circle-stroke-width": circleStrokeWidth,
       },
     });
-    if (polygon) {
+    if (polygon && extrusion) {
+      map.setPaintProperty(layerId(index), "fill-extrusion-color", fillColor);
+      map.setPaintProperty(layerId(index), "fill-extrusion-height", ["get", extrusion.heightProperty]);
+      map.setFilter(layerId(index), warehouseExtrusionHeightFilter(extrusion));
+    } else if (polygon) {
       map.setPaintProperty(layerId(index), "fill-color", fillColor);
       map.setPaintProperty(layerId(index), "fill-outline-color", outlineColor);
       map.setFilter(layerId(index), scopeRingRows ? SCOPE_ROLE_EXCLUDE_FILTER : null);
+    } else if (line && flow) {
+      map.setPaintProperty(layerId(index), "line-color", lineColor);
+      map.setPaintProperty(layerId(index), "line-width", ["get", flow.widthProperty]);
+      map.setFilter(layerId(index), warehouseFlowWidthFilter(flow));
     } else if (line) {
       map.setPaintProperty(layerId(index), "line-color", lineColor);
       map.setPaintProperty(layerId(index), "line-width", 3);
+      map.setFilter(layerId(index), null);
     } else if (heatmap) {
       const paint = warehouseHeatmapPaint(heatmap, resultOpacity, theme);
       for (const key of ["heatmap-weight", "heatmap-intensity", "heatmap-radius", "heatmap-color"] as const) map.setPaintProperty(layerId(index), key, paint[key] as never);
@@ -470,6 +617,87 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
         map.setPaintProperty(nullHatchLayerId(index), "fill-pattern", patternId);
         map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", resultOpacity);
         map.setFilter(nullHatchLayerId(index), hatchFilter);
+      }
+    }
+    if (grid) {
+      // M6: the basemap-coloured gap between cells (spec "格間縫用 line 圖層…顏色 = 底圖面色").
+      const gapColor = VIZ_SPEC.surfaces[theme];
+      if (!map.getLayer(gridGapLayerId(index))) map.addLayer({ id: gridGapLayerId(index), type: "line", source: sourceId(index), paint: {
+        "line-color": gapColor, "line-width": grid.gapPx, "line-opacity": resultOpacity,
+      } });
+      else {
+        map.setPaintProperty(gridGapLayerId(index), "line-color", gapColor);
+        map.setPaintProperty(gridGapLayerId(index), "line-width", grid.gapPx);
+        map.setPaintProperty(gridGapLayerId(index), "line-opacity", resultOpacity);
+      }
+    }
+    if (isochrone) {
+      // M2 I1: a dedicated 1.3px solid outline, same colour as the band's fill (a `fill` layer's own
+      // fill-outline-color has no configurable width).
+      const isoOutlineColor = warehouseStyleColor(isochrone, theme);
+      if (!map.getLayer(isochroneOutlineLayerId(index))) map.addLayer({ id: isochroneOutlineLayerId(index), type: "line", source: sourceId(index), paint: {
+        "line-color": isoOutlineColor, "line-width": 1.3, "line-opacity": resultOpacity,
+      } });
+      else {
+        map.setPaintProperty(isochroneOutlineLayerId(index), "line-color", isoOutlineColor);
+        map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", resultOpacity);
+      }
+    }
+    if (polygon && !extrusion) {
+      // M2 "大的先畫": only isochrone carries a sort key. Every other polygon result would need to
+      // clear a leftover one from a prior isochrone occupant of this slot (same convention as
+      // circle-sort-key below) — but only actually calls setLayoutProperty when there is a key to
+      // set or clear, so a plain choropleth/grid/bivariate slot that never held one stays untouched.
+      const existingLayer = map.getLayer(layerId(index)) as { layout?: Record<string, unknown> } | undefined;
+      if (isochrone || existingLayer?.layout?.["fill-sort-key"] !== undefined) {
+        map.setLayoutProperty(layerId(index), "fill-sort-key", isochrone ? warehouseIsochroneSortKey(isochrone) : undefined);
+      }
+    }
+    if (flow) {
+      const ring = VIZ_SPEC.ring[theme];
+      const widthFilter = warehouseFlowWidthFilter(flow);
+      // L2 W1: the ring-coloured outline sits beneath the classified line (spec "底下一層…寬度 = 線寬 + 3").
+      const outlineWidth = ["+", ["get", flow.widthProperty], 3] as unknown as ExpressionSpecification;
+      if (!map.getLayer(flowOutlineLayerId(index))) map.addLayer({ id: flowOutlineLayerId(index), type: "line", source: sourceId(index), filter: widthFilter, layout: { "line-cap": "round" }, paint: {
+        "line-color": ring, "line-width": outlineWidth, "line-opacity": resultOpacity,
+      } });
+      else {
+        map.setPaintProperty(flowOutlineLayerId(index), "line-color", ring);
+        map.setPaintProperty(flowOutlineLayerId(index), "line-width", outlineWidth);
+        map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", resultOpacity);
+        map.setFilter(flowOutlineLayerId(index), widthFilter);
+      }
+      // Destination dot: own point source built from each row's raw (pre-arc) last vertex.
+      const endpointData = flowEndpointCollection(result, flow);
+      const endpointSource = map.getSource(flowEndpointSourceId(index)) as GeoJSONSource | undefined;
+      if (endpointSource) endpointSource.setData(endpointData); else map.addSource(flowEndpointSourceId(index), { type: "geojson", data: endpointData, promoteId: FEATURE_ID_PROPERTY });
+      if (!map.getLayer(flowEndpointLayerId(index))) map.addLayer({ id: flowEndpointLayerId(index), type: "circle", source: flowEndpointSourceId(index), paint: {
+        "circle-radius": 2.5, "circle-color": lineColor, "circle-stroke-color": ring, "circle-stroke-width": 1, "circle-opacity": resultOpacity, "circle-stroke-opacity": resultOpacity,
+      } as never });
+      else {
+        map.setPaintProperty(flowEndpointLayerId(index), "circle-color", lineColor);
+        map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-color", ring);
+        map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", resultOpacity);
+        map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", resultOpacity);
+      }
+      // F3: only when the server allowed it (< animateBelow drawn flows) and the viewer has not
+      // asked for reduced motion; otherwise this stays a plain arc (F1 fallback).
+      if (flow.animate && !prefersReducedMotion()) {
+        const dotColor = theme === "dark" ? "#ffffff" : "#111827";
+        if (!map.getLayer(flowDotLayerId(index))) map.addLayer({ id: flowDotLayerId(index), type: "line", source: sourceId(index), filter: widthFilter, layout: { "line-cap": "round" }, paint: {
+          "line-color": dotColor, "line-width": flow.dotPx, "line-opacity": flow.dotOpacity * resultOpacity, "line-dasharray": FLOW_DOT_DASH_FRAMES[0] as number[],
+        } });
+        else {
+          map.setPaintProperty(flowDotLayerId(index), "line-color", dotColor);
+          map.setPaintProperty(flowDotLayerId(index), "line-opacity", flow.dotOpacity * resultOpacity);
+          map.setFilter(flowDotLayerId(index), widthFilter);
+        }
+        // Idempotent: always cancels any prior timer for this slot first, so a redraw (e.g. a
+        // basemap switch reinstalling the same result) never leaves two timers ticking.
+        startFlowAnimation(map, index, flowDotLayerId(index));
+      } else {
+        stopFlowAnimation(map, index);
+        if (map.getLayer(flowDotLayerId(index))) map.removeLayer(flowDotLayerId(index));
       }
     }
     if (proportional) {
@@ -533,14 +761,23 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       cancelReveal(map, index);
       if (!map.getLayer(layerId(index))) return;
       const primary = polygon || proportional ? primaryOpacity : resultOpacity;
-      // heatmap-opacity cannot read feature-state; a heatmap is never dimmed (its close-zoom points are).
-      map.setPaintProperty(layerId(index), polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity", heatmap ? primary : dimmable(map, index, primary));
+      const primaryOpacityProperty = extrusion ? "fill-extrusion-opacity" : polygon ? "fill-opacity" : line ? "line-opacity" : heatmap ? "heatmap-opacity" : "circle-opacity";
+      // heatmap/fill-extrusion cannot read feature-state; neither is ever dimmed (a heatmap's
+      // close-zoom points are dimmed instead; an extrusion has no equivalent secondary layer yet).
+      map.setPaintProperty(layerId(index), primaryOpacityProperty, heatmap || extrusion ? primary : dimmable(map, index, primary));
       if (!polygon && !line && !heatmap) map.setPaintProperty(layerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity));
       if (compare && map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", resultOpacity);
       if (proportional && map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", resultOpacity);
       if (bivariate && map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, resultOpacity));
       if (scopeRingRows && map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", resultOpacity);
       if (polygon && map.getLayer(edgeLayerId(index))) map.setPaintProperty(edgeLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
+      if (grid && map.getLayer(gridGapLayerId(index))) map.setPaintProperty(gridGapLayerId(index), "line-opacity", dimmable(map, index, resultOpacity));
+      if (isochrone && map.getLayer(isochroneOutlineLayerId(index))) map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", resultOpacity);
+      if (flow) {
+        if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", resultOpacity);
+        if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", resultOpacity); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", resultOpacity); }
+        if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", flow.dotOpacity * resultOpacity);
+      }
     };
     if (reveal) {
       if (!reveals.has(map)) reveals.set(map, new globalThis.Map());
@@ -563,7 +800,10 @@ export type AnalysisInstallOptions = {
 export function analysisResultStackKind(result: PresentableResult): AnalysisStackKind {
   const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
   if (result.resultStyle?.kind === "heatmap" && result.geometry.type === "Point") return "heat";
-  if (polygon && (result.resultStyle?.kind === "choropleth" || result.resultStyle?.kind === "bivariate" || (!result.resultStyle && numericResultLegend(result)))) return "area";
+  // M6/M7: grid and extrusion are area fills the same way choropleth/bivariate are — only one such
+  // fill is ever visible at once (S1 O1). Isochrone is deliberately excluded: DECISIONS O1 only
+  // names 區域深淺／格點 and 熱力 for single-fill exclusivity, not the nested time-band ranges.
+  if (polygon && (result.resultStyle?.kind === "choropleth" || result.resultStyle?.kind === "bivariate" || result.resultStyle?.kind === "grid" || result.resultStyle?.kind === "extrusion" || (!result.resultStyle && numericResultLegend(result)))) return "area";
   return "other";
 }
 
@@ -582,13 +822,21 @@ export function analysisLayerStack(results: readonly PresentableResult[]): { id:
     const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
     const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
     const style = result.resultStyle;
-    const areaBand: AnalysisLayerBand = isAnalysisScopeArea(result) ? "range" : "area";
+    // M2: an isochrone's nested bands are a "range" (drawn just above the scope ring / below
+    // areas/grids), not an "area" fill — it never competes for the single-fill slot.
+    const areaBand: AnalysisLayerBand = isAnalysisScopeArea(result) || style?.kind === "isochrone" ? "range" : "area";
     const primary: AnalysisLayerBand = polygon ? areaBand : line ? "line" : style?.kind === "heatmap" ? "heat" : style?.kind === "proportional" ? "bubble" : "point";
     entries.push({ id: layerId(index), band: primary, index, sub: 0 });
     entries.push({ id: nullHatchLayerId(index), band: areaBand, index, sub: 1 });
+    entries.push({ id: gridGapLayerId(index), band: areaBand, index, sub: 1.5 });
+    entries.push({ id: isochroneOutlineLayerId(index), band: areaBand, index, sub: 1.5 });
     entries.push({ id: edgeLayerId(index), band: areaBand, index, sub: 2 });
     entries.push({ id: heatPointsLayerId(index), band: "point", index, sub: 0 });
     entries.push({ id: bivariateSizeLayerId(index), band: "bubble", index, sub: 0 });
+    // L2: outline sits beneath the classified line, the flowing dots above it (both share "line").
+    entries.push({ id: flowOutlineLayerId(index), band: "line", index, sub: -1 });
+    entries.push({ id: flowDotLayerId(index), band: "line", index, sub: 1 });
+    entries.push({ id: flowEndpointLayerId(index), band: "bubble", index, sub: 0 });
     entries.push({ id: scopeRingLayerId(index), band: "range", index, sub: 0 });
     entries.push({ id: compareLabelLayerId(index), band: "label", index, sub: 0 });
     entries.push({ id: proportionalLabelLayerId(index), band: "label", index, sub: 1 });
@@ -611,10 +859,17 @@ export function removeAnalysisResults(map: Map): void { for (let index = 0; inde
 
 function removeIndex(map: Map, index: number): void {
   cancelReveal(map, index);
+  stopFlowAnimation(map, index);
   if (map.getLayer(heatPointsLayerId(index))) map.removeLayer(heatPointsLayerId(index));
   if (map.getLayer(compareLabelLayerId(index))) map.removeLayer(compareLabelLayerId(index));
   if (map.getLayer(scopeRingLayerId(index))) map.removeLayer(scopeRingLayerId(index));
   if (map.getLayer(nullHatchLayerId(index))) map.removeLayer(nullHatchLayerId(index));
+  if (map.getLayer(gridGapLayerId(index))) map.removeLayer(gridGapLayerId(index));
+  if (map.getLayer(isochroneOutlineLayerId(index))) map.removeLayer(isochroneOutlineLayerId(index));
+  if (map.getLayer(flowDotLayerId(index))) map.removeLayer(flowDotLayerId(index));
+  if (map.getLayer(flowOutlineLayerId(index))) map.removeLayer(flowOutlineLayerId(index));
+  if (map.getLayer(flowEndpointLayerId(index))) map.removeLayer(flowEndpointLayerId(index));
+  if (map.getSource(flowEndpointSourceId(index))) map.removeSource(flowEndpointSourceId(index));
   if (map.getLayer(proportionalLabelLayerId(index))) map.removeLayer(proportionalLabelLayerId(index));
   if (map.getLayer(bivariateSizeLayerId(index))) map.removeLayer(bivariateSizeLayerId(index));
   if (map.getSource(bivariateSizeSourceId(index))) map.removeSource(bivariateSizeSourceId(index));
@@ -662,8 +917,13 @@ function applyResultOpacity(map: Map, index: number, result: AnalysisResultPrese
   const layer = map.getLayer(id);
   if (layer) {
     cancelReveal(map, index);
-    const composedOpacity = layer.type === "fill" ? opacity * (result.scopeArea ? 0.18 : 0.45) : layer.type === "circle" && result.circleOpacityRatio !== undefined ? opacity * result.circleOpacityRatio : opacity;
-    map.setPaintProperty(id, layer.type === "fill" ? "fill-opacity" : layer.type === "line" ? "line-opacity" : layer.type === "heatmap" ? "heatmap-opacity" : "circle-opacity", layer.type === "heatmap" ? composedOpacity : dimmable(map, index, composedOpacity));
+    const composedOpacity = layer.type === "fill" ? opacity * (result.fillOpacityRatio ?? (result.scopeArea ? 0.18 : 0.45))
+      : layer.type === "fill-extrusion" ? opacity * EXTRUSION_FILL_OPACITY
+      : layer.type === "circle" && result.circleOpacityRatio !== undefined ? opacity * result.circleOpacityRatio
+      : opacity;
+    const opacityProperty = layer.type === "fill" ? "fill-opacity" : layer.type === "fill-extrusion" ? "fill-extrusion-opacity" : layer.type === "line" ? "line-opacity" : layer.type === "heatmap" ? "heatmap-opacity" : "circle-opacity";
+    // Neither heatmap nor fill-extrusion can read feature-state, so neither is ever dimmed by a selection.
+    map.setPaintProperty(id, opacityProperty, layer.type === "heatmap" || layer.type === "fill-extrusion" ? composedOpacity : dimmable(map, index, composedOpacity));
     if (layer.type === "circle") map.setPaintProperty(id, "circle-stroke-opacity", dimmable(map, index, opacity));
   }
   if (map.getLayer(heatPointsLayerId(index))) {
@@ -672,6 +932,11 @@ function applyResultOpacity(map: Map, index: number, result: AnalysisResultPrese
   }
   if (map.getLayer(compareLabelLayerId(index))) map.setPaintProperty(compareLabelLayerId(index), "text-opacity", opacity);
   if (map.getLayer(nullHatchLayerId(index))) map.setPaintProperty(nullHatchLayerId(index), "fill-opacity", dimmable(map, index, opacity));
+  if (map.getLayer(gridGapLayerId(index))) map.setPaintProperty(gridGapLayerId(index), "line-opacity", dimmable(map, index, opacity));
+  if (map.getLayer(isochroneOutlineLayerId(index))) map.setPaintProperty(isochroneOutlineLayerId(index), "line-opacity", opacity);
+  if (map.getLayer(flowOutlineLayerId(index))) map.setPaintProperty(flowOutlineLayerId(index), "line-opacity", opacity);
+  if (map.getLayer(flowEndpointLayerId(index))) { map.setPaintProperty(flowEndpointLayerId(index), "circle-opacity", opacity); map.setPaintProperty(flowEndpointLayerId(index), "circle-stroke-opacity", opacity); }
+  if (map.getLayer(flowDotLayerId(index))) map.setPaintProperty(flowDotLayerId(index), "line-opacity", opacity * (result.flowDotOpacityRatio ?? 1));
   if (map.getLayer(proportionalLabelLayerId(index))) map.setPaintProperty(proportionalLabelLayerId(index), "text-opacity", opacity);
   if (map.getLayer(bivariateSizeLayerId(index))) map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", dimmable(map, index, opacity));
   if (map.getLayer(scopeRingLayerId(index))) map.setPaintProperty(scopeRingLayerId(index), "line-opacity", opacity);
