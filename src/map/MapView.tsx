@@ -387,7 +387,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       onMapReadyRef.current?.(map);
     });
 
-    const detachStatistics = attachRegionalStatistics(map);
+    const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
       detachStatistics();
       jpHeightLifecycle.dispose();
