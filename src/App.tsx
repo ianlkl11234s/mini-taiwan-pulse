@@ -2861,7 +2861,8 @@ export default function App() {
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
           {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (
             <Suspense fallback={<span role="status">圖例載入中…</span>}>
-              <LegendPanel isDarkTheme={isDarkTheme} />
+              {/* LG-9：停靠 popup 開著時圖例轉精簡（只留標題與色票） */}
+              <LegendPanel isDarkTheme={isDarkTheme} compact={!!privateUiFeatureInfo} />
             </Suspense>
           )}
         </div>
