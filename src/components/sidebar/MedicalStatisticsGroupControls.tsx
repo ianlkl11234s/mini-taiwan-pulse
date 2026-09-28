@@ -1,7 +1,8 @@
 import { getStatisticsVisual } from "../../data/statisticsVisuals";
 import { LayerToggleSwitch } from "./LayerToggleSwitch";
 import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
+import { layerControlThemeClass } from './LayerParamControls';
 import type { LayerVisibility } from '../../types';
 import { getMedicalStatisticsGroup, resolveMedicalStatisticsGroupKey } from '../../data/medicalStatisticsGroups';
 import { prepareMedicalStatisticsVariant, selectMedicalStatisticsVariant } from '../../state/medicalStatisticsSelection';
@@ -9,7 +10,7 @@ import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { layerVisibilityStore } from '../../state/layerVisibilityStore';
 import { statisticsDisplayModeStore } from '../../state/statisticsDisplayModeStore';
 import { isStatisticsChoropleth } from '../../data/statisticsLayerRegistry';
-import { FONT_SIZE, RADIUS } from '../../styles/designTokens';
+import { FONT_SIZE } from '../../styles/designTokens';
 import type { LayerClickIntent } from '../../lib/statisticsPopupSelection';
 
 interface Props {
@@ -24,12 +25,12 @@ interface Props {
   colorScheme: 'light' | 'dark';
 }
 
-/** Keep the native select aligned with the surrounding sidebar palette. */
-export function medicalStatisticsSelectStyle(textColor: string, colorScheme: 'light' | 'dark') {
-  return {
-    width: '100%', boxSizing: 'border-box' as const, padding: '5px 8px', borderRadius: RADIUS.md,
-    border: '1px solid currentColor', background: 'transparent', color: textColor, colorScheme, font: 'inherit',
-  };
+/**
+ * 外觀交給共用的 `.lpc-select`（layerParamControls.css）；這裡只補原生選單清單要跟著的
+ * color-scheme（暗色下拉清單才不會變白底）。
+ */
+export function medicalStatisticsSelectStyle(colorScheme: 'light' | 'dark') {
+  return { colorScheme };
 }
 
 export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedLayer, onLayerClick, renderControls, renderToggle, textColor = '#e5e7eb', dimColor = '#9ca3af', colorScheme }: Props) {
@@ -81,14 +82,14 @@ export function MedicalStatisticsGroupControls({ groupKey, visibility, expandedL
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderLeft: active.length ? `2px solid ${visual.accent}` : '2px solid transparent' }}>
       <Icon size={14} color={visual.accent} style={{ flexShrink: 0 }} />
       <button type="button" aria-expanded={expanded} onClick={() => onLayerClick(selected)} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', color: textColor, border: 0, background: 'transparent', padding: 0, cursor: 'pointer', fontSize: FONT_SIZE.md }}>
-        {group.label}{expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        {group.label}<ChevronRight size={12} aria-hidden="true" style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }} />
       </button>
       {renderToggle ? renderToggle(active.length > 0, toggle, `${group.label} 顯示`) : <LayerToggleSwitch on={active.length > 0} onChange={toggle} label={`${group.label} 顯示`} />}
     </div>
     {expanded && <>
-      <div style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
-        <label style={{ display: 'block', color: dimColor, marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
-        <select disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={medicalStatisticsSelectStyle(textColor, colorScheme)}>
+      <div className={layerControlThemeClass(colorScheme === 'dark')} style={{ padding: '4px 14px 8px', fontSize: FONT_SIZE.sm }}>
+        <label className="lpc-k" style={{ display: 'block', marginBottom: 4 }}>{group.optionLabel ?? '指標'}</label>
+        <select className="lpc-select" disabled={sourceState.loading || !sourceState.selection || switching} aria-busy={switching} aria-label={`${group.label} 類型`} value={selected} onChange={event => { void choose(event.target.value as keyof LayerVisibility); }} style={medicalStatisticsSelectStyle(colorScheme)}>
           {group.options.map(option => <option key={option.key} value={option.key}>{option.label}</option>)}
         </select>
         {switching && <p role="status" style={{ color: dimColor }}>正在確認目標期別…</p>}

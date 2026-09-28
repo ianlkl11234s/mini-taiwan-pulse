@@ -1,7 +1,7 @@
 import { getStatisticsVisual } from "../data/statisticsVisuals";
 import { LayerToggleSwitch } from "./sidebar/LayerToggleSwitch";
 import { useState } from "react";
-import { Lock, Search, Star, User } from "lucide-react";
+import { ChevronRight, Lock, Search, Star, User } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 // AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
 // 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
@@ -24,6 +24,7 @@ import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { searchLayers } from "../lib/layerSearch";
@@ -57,7 +58,6 @@ interface LayerSidebarProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   /** 可選的「我的」入口，由 App 持有 panel mutex 與會員狀態。 */
@@ -82,7 +82,6 @@ export function LayerSidebar({
   onToggleVisibility,
   onViewModeChange,
   onDisplayModeChange,
-  onHideTransport,
   onBulkSetVisibility,
   onMemberToggle,
   memberActive,
@@ -116,7 +115,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onBulkSetVisibility={onBulkSetVisibility}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -207,7 +206,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
+        onBulkSetVisibility={onBulkSetVisibility}
         onMemberToggle={onMemberToggle} memberActive={memberActive}
         favoriteKeys={favoriteKeys} onToggleFavorite={onToggleFavorite}
       />
@@ -221,7 +220,7 @@ function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility,
+  onViewModeChange, onDisplayModeChange, onBulkSetVisibility,
   onMemberToggle, memberActive, favoriteKeys, onToggleFavorite,
 }: {
   visibility: LayerVisibility;
@@ -239,7 +238,6 @@ function SidebarContent({
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   onMemberToggle?: () => void;
   memberActive?: boolean;
@@ -292,7 +290,7 @@ function SidebarContent({
           return <button key={tab} type="button" role="tab" aria-selected={active} onClick={() => { setMobileTab(tab); setSearch(""); }} style={{ flex: 1, border: "none", borderRadius: RADIUS.lg, padding: "6px 8px", cursor: "pointer", background: active ? (isDarkTheme ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)") : "transparent", color: active ? textColor : dimColor, fontSize: baseFontSize, fontWeight: 700 }}>{label}</button>;
         })}
       </div>}
-      {isMobile && mobileTab === "statistics" && <StatisticsModeControl />}
+      {isMobile && mobileTab === "statistics" && <StatisticsModeControl isDarkTheme={isDarkTheme} />}
       {isMobile && mobileTab === "statistics" && onBulkSetVisibility && <button type="button" onClick={() => onBulkSetVisibility(MOBILE_STATISTICS_ALL_OFF_KEYS, false)} style={{ margin: "0 12px 6px", border: "none", borderRadius: RADIUS.lg, padding: "6px 8px", cursor: "pointer", background: "transparent", color: dimColor, fontSize: baseFontSize, textAlign: "left" }}>統計全關</button>}
       {onMemberToggle && (
         <button
@@ -425,9 +423,11 @@ function SidebarContent({
                 userSelect: "none",
               }}
             >
-              <span style={{ color: dimColor, fontSize: FONT_SIZE.xs, width: 10 }}>
-                {isCollapsed ? "▶" : "▼"}
-              </span>
+              <ChevronRight
+                size={12}
+                aria-hidden="true"
+                style={{ color: dimColor, flexShrink: 0, transform: isCollapsed ? "none" : "rotate(90deg)", transition: "transform 0.15s" }}
+              />
               <span
                 style={{
                   flex: 1,
@@ -518,7 +518,6 @@ function SidebarContent({
                         displayMode={displayMode}
                         onViewModeChange={onViewModeChange}
                         onDisplayModeChange={onDisplayModeChange}
-                        onHide={onHideTransport}
                       />
                     )}
                   />
@@ -617,18 +616,16 @@ function SidebarContent({
                       aria-expanded={isExpanded}
                       onClick={(event) => { event.stopPropagation(); onLayerClick(key); }}
                       style={{
-                        fontSize: FONT_SIZE.sm,
+                        display: "grid",
+                        placeItems: "center",
                         color: dimColor,
-                        transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
-                        transition: "transform 0.2s",
                         cursor: "pointer",
-                        userSelect: "none",
                         background: "transparent",
                         border: 0,
                         padding: 0,
                       }}
                     >
-                      &#x25B6;
+                      <ChevronRight size={12} aria-hidden="true" style={{ transform: isExpanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }} />
                     </button>
                   )}
                 </div>
@@ -643,7 +640,6 @@ function SidebarContent({
                     displayMode={displayMode}
                     onViewModeChange={onViewModeChange}
                     onDisplayModeChange={onDisplayModeChange}
-                    onHide={onHideTransport}
                   />
                 )}
               </div>
@@ -669,278 +665,36 @@ interface ExpandedPanelProps {
   displayMode: DisplayMode;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHide: () => void;
 }
 
 function ExpandedPanel({
   layerKey,
   isTransport,
   isDarkTheme,
-  isMobile,
   displayMode,
   onDisplayModeChange,
-  onHide,
 }: ExpandedPanelProps) {
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   const controls = buildParamControls(layerKey, paramValues) ?? [];
   const historicalCountry = layerKey === "historicalFlightTrails" ? "TW" : layerKey === "jpHistoricalFlightTrails" ? "JP" : null;
 
-  const btnBase: React.CSSProperties = {
-    fontSize: FONT_SIZE.xs,
-    padding: "2px 6px",
-    borderRadius: RADIUS.md,
-    fontFamily: FONT_DATA,
-    cursor: "pointer",
-    border: "1px solid transparent",
-  };
-
-  const activeBtn: React.CSSProperties = {
-    ...btnBase,
-    background: isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)",
-    border: "1px solid rgba(100,170,255,0.5)",
-    color: isDarkTheme ? "#fff" : "#000",
-  };
-
-  const inactiveBtn: React.CSSProperties = {
-    ...btnBase,
-    background: isDarkTheme ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)",
-    color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-  };
-
-  const hasTransportControls = isTransport;
-
   return (
-    <div
-      style={{
-        padding: "6px 14px 8px 32px",
-        display: "flex",
-        flexDirection: "column",
-        gap: 6,
-        overflow: "hidden",
-      }}
-    >
+    <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 14px 8px 19px" }}>
+      {isTransport && layerKey === "flights" && (
+        <div className="lpc-head">
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
+              即時狀態
+            </button>
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
+              航跡
+            </button>
+        </div>
+      )}
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={isDarkTheme ? '#fff' : '#333'} colorScheme={isDarkTheme ? 'dark' : 'light'} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
       {historicalCountry && <HistoricalFlightTrailControls country={historicalCountry} isDarkTheme={isDarkTheme} />}
-      {/* Display mode (flights only) + Hide */}
-      {hasTransportControls && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-          {layerKey === "flights" && (
-            <>
-              <button style={displayMode === "status" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("status")}>
-                Live Status
-              </button>
-              <button style={displayMode === "trails" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("trails")}>
-                Trails
-              </button>
-            </>
-          )}
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>
-            Hide
-          </button>
-        </div>
-      )}
-
-      {/* Non-transport: just a Hide button */}
-      {!hasTransportControls && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>
-            Hide
-          </button>
-        </div>
-      )}
-
-      {/* Controls: sliders + toggles */}
-      {controls.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {controls.map((ctrl) => {
-            if (ctrl.type === "multiSelect") {
-              const selected = new Set(ctrl.value);
-              return (
-                <details
-                  key={ctrl.label}
-                  onClick={(event) => event.stopPropagation()}
-                  style={{ color: isDarkTheme ? "rgba(255,255,255,0.68)" : "rgba(0,0,0,0.65)", fontSize: FONT_SIZE.sm }}
-                >
-                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
-                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
-                  </summary>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
-                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
-                    </div>
-                    {ctrl.options.map((option) => (
-                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(option.value)}
-                          disabled={option.disabled}
-                          onChange={() => {
-                            const next = new Set(selected);
-                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
-                            ctrl.onChange([...next]);
-                          }}
-                        />
-                        {option.label}
-                      </label>
-                    ))}
-                  </div>
-                </details>
-              );
-            }
-
-            if (ctrl.type === "select") {
-              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
-              if (ctrl.options.length > 3) {
-                return (
-                  <div
-                    key={ctrl.label}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                      color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                      fontSize: FONT_SIZE.sm,
-                      fontFamily: FONT_DATA,
-                    }}
-                  >
-                    <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
-                    <select
-                      value={ctrl.value}
-                      onChange={(e) => ctrl.onChange(e.target.value)}
-                      style={{
-                        flex: 1,
-                        fontSize: FONT_SIZE.sm,
-                        padding: "1px 6px",
-                        background: isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)",
-                        color: isDarkTheme ? "#fff" : "#000",
-                        border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
-                        borderRadius: RADIUS.md,
-                        fontFamily: FONT_DATA,
-                      }}
-                    >
-                      {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                    fontSize: FONT_SIZE.sm,
-                    fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  {ctrl.options.map((opt) => (
-                    <button
-                      key={opt.value}
-                      disabled={opt.disabled}
-                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
-                      style={{
-                        ...btnBase,
-                        fontSize: FONT_SIZE.xs,
-                        padding: "1px 8px",
-                        background: ctrl.value === opt.value
-                          ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
-                          : (isDarkTheme ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)"),
-                        border: ctrl.value === opt.value
-                          ? "1px solid rgba(100,170,255,0.5)"
-                          : `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
-                        color: ctrl.value === opt.value
-                          ? (isDarkTheme ? "#fff" : "#000")
-                          : (isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
-                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
-                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              );
-            }
-
-            if (ctrl.type === "toggle") {
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                    fontSize: FONT_SIZE.sm,
-                    fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  <button
-                    onClick={() => ctrl.onChange(!ctrl.value)}
-                    style={{
-                      ...btnBase,
-                      fontSize: FONT_SIZE.xs,
-                      padding: "1px 8px",
-                      background: ctrl.value
-                        ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
-                        : (isDarkTheme ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)"),
-                      border: ctrl.value
-                        ? "1px solid rgba(100,170,255,0.5)"
-                        : `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
-                      color: ctrl.value
-                        ? (isDarkTheme ? "#fff" : "#000")
-                        : (isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
-                    }}
-                  >
-                    {ctrl.value ? "ON" : "OFF"}
-                  </button>
-                </div>
-              );
-            }
-
-            // Slider
-            const s = ctrl;
-            return (
-              <label
-                key={s.label}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                  fontSize: FONT_SIZE.sm,
-                  fontFamily: FONT_DATA,
-                }}
-              >
-                <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{s.label}</span>
-                <input
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={s.value}
-                  onChange={(e) => s.onChange(Number(e.target.value))}
-                  style={{
-                    flex: 1,
-                    height: 3,
-                    accentColor: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)",
-                    cursor: "pointer",
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      <ParamControlList controls={controls} />
+    </LayerControlArea>
   );
 }

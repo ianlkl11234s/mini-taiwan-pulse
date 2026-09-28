@@ -7,10 +7,11 @@ import { getLaborRecipe, laborLocationSemantics } from '../../../data/laborStati
 
 describe('statisticsDimensionSummary', () => {
   it('keeps statistics selectors readable in either sidebar theme', () => {
-    expect(statisticsDetailControlStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
-    expect(statisticsDetailControlStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
-    expect(medicalStatisticsSelectStyle('#111827', 'light')).toMatchObject({ background: 'transparent', color: '#111827', border: '1px solid currentColor', colorScheme: 'light' });
-    expect(medicalStatisticsSelectStyle('#ffffff', 'dark')).toMatchObject({ background: 'transparent', color: '#ffffff', border: '1px solid currentColor', colorScheme: 'dark' });
+    // 外觀交給共用 `.lpc-select`（主題 class 在展開區容器上）；style 只帶 color-scheme，讓原生下拉清單跟著主題
+    expect(statisticsDetailControlStyle('light')).toEqual({ colorScheme: 'light' });
+    expect(statisticsDetailControlStyle('dark')).toEqual({ colorScheme: 'dark' });
+    expect(medicalStatisticsSelectStyle('light')).toEqual({ colorScheme: 'light' });
+    expect(medicalStatisticsSelectStyle('dark')).toEqual({ colorScheme: 'dark' });
   });
 
   it('renders the selected period and fund as a compact disclosure label', () => {
