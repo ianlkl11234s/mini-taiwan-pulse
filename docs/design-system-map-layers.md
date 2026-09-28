@@ -3,19 +3,19 @@
 > 本檔是 [`design-system.md`](./design-system.md) §13 的完整版：**地圖上**的點、線、面、3D、熱區、網格、影像、文字標籤與圖例該用什麼數值。UI chrome（面板、按鈕、popup）仍以 `design-system.md` 為準。
 >
 > - **資料表**：[`design-system/layer-style-inventory.json`](./design-system/layer-style-inventory.json)（803 個圖層逐一列出，重跑 `npm run design:audit-layers` 產生）。本檔只放分佈、離群與規則，不逐層抄。
-> - **視覺參考**：[`design-system-reference.html`](./design-system-reference.html) 「地圖圖層」區塊（暗／淡並排，標出現況中位值與提案值）。
-> - **狀態**：§2 是 2026-09-28 盤點的**現況**；§3、§4 的建議值全部是**提案，待使用者逐項拍板**（§7 清單）。拍板前不改程式；拍板後逐層調整時照 §6 工作流。
+> - **視覺參考**：[`design-system-reference.html`](./design-system-reference.html) 「地圖圖層」區塊；拍板用的比較頁 [`design-system/map-layer-picks.html`](./design-system/map-layer-picks.html)（真實底圖 1:1，現況 vs 提案，暗／淡並排）。
+> - **狀態**：§2 是 2026-09-28 盤點的**現況**；§3、§4 **已於 2026-09-28 逐項拍板**（結果見 §7，§3／§4 內文已改成拍板版）。逐層調整時照 §6 工作流。
 > - 分析結果（Agent 畫在地圖上的結果）的視覺規格已定案於 [`features/viz-library/DECISIONS.md`](./features/viz-library/DECISIONS.md)，本檔只引用，不重寫。統計圖層配色另見 [`statistics-layer-guidelines.md`](./statistics-layer-guidelines.md) §4。
 
 ## 目錄
 
 1. [怎麼用這份文件](#1-怎麼用這份文件)
 2. [現況總覽](#2-現況總覽)
-3. [建議規格（提案）](#3-建議規格提案待使用者逐項拍板)
+3. [規格（拍板版）](#3-規格2026-09-28-拍板)
 4. [圖例規格](#4-圖例legend規格)
 5. [組合範例](#5-組合範例)
 6. [調整工作流](#6-調整工作流)
-7. [待拍板清單](#7-待拍板清單)
+7. [拍板結果](#7-拍板結果2026-09-28)
 8. [盤點方法與限制](#8-盤點方法與限制)
 
 ---
@@ -135,7 +135,7 @@
 | 熱區（heatmap） | 2 層（`powerPoles`、`rainGauge`），皆 static-scan、數值為非字面表達式；runtime 無 heatmap |
 | 網格 | 14 層（企業網格、房價網格、`urbanFormGrid`、`noiseCaptureGrid`…），面 0.7–0.85；格線 0.15–0.3px 或無 |
 | 影像（raster） | runtime 3 層 0.7／0.75（`urbanHeat` 等）；其餘 CWA 雲圖／雷達、`dustForecast`、`canopyHeight` 為 hook 設定 |
-| 文字標籤 | 6 個 symbol 文字子圖層：字型 `["DIN Pro Medium","Arial Unicode MS Regular"]`（`newsEvents` 計數用 Bold），字級 z14 10–13（中位 11.5），halo 1.2–1.25px；地圖**沒有**設定 `localIdeographFontFamily`，中文字形由 Mapbox 伺服器的 Arial Unicode MS 提供 |
+| 文字標籤 | 6 個 symbol 文字子圖層：字型 `["DIN Pro Medium","Arial Unicode MS Regular"]`（`newsEvents` 計數用 Bold），字級 z14 10–13（中位 11.5），halo 1.2–1.25px；地圖**沒有**設定 `localIdeographFontFamily`，但 mapbox-gl 3.x 的**預設值就是 `'sans-serif'`**（`node_modules/mapbox-gl` Map 預設選項），所以中文字（CJK 表意字）已經由瀏覽器用本機系統字在前端繪製，不向伺服器下載 glyph；DIN Pro／Arial Unicode MS 只負責英數。（初版盤點誤寫成「中文由伺服器 Arial Unicode MS 提供」，2026-09-28 更正） |
 | icon（symbol） | 2 層（`osmSubstations`、`osmSubstationsEhv`，`substation-diamond`），`icon-size` 0.06–0.45（依 sprite 原圖尺寸，無法與 circle 半徑直接比） |
 
 ### 2.6 暗／淡底圖差異（現況）
@@ -161,31 +161,32 @@
 
 ---
 
-## 3. 建議規格（提案，待使用者逐項拍板）
+## 3. 規格（2026-09-28 拍板）
 
-> 每條有代號（對應 §7）。數值以「現況中位值」為錨，並對齊已拍板的 viz-library 與 `layer-onboarding` skill 的 UX baseline；兩者衝突時列成選項，不默選。
+> 每條有代號（對應 §7）。數值以「現況中位值」為錨，並對齊 viz-library 與 `layer-onboarding` skill 的 UX baseline。以下是**拍板後的版本**；與原提案不同處標「拍板改」。
 
 ### 3.1 點
 
-**P-1 尺寸三階**（半徑 px，`interpolate linear zoom`，再乘大小滑桿）
+**P-1 尺寸三階**（拍板改：採 **B**＝viz-library M1，**固定半徑、不隨縮放**，再乘大小滑桿）
 
-| 階 | z6 | z10 | z14 | 用途 |
-|---|---|---|---|---|
-| 小 S | 1.5 | 2.5 | 4 | 密集點（>10k）、參考點（消防栓、公車站、行道樹） |
-| **標準 M** | 2.5 | 4 | 6 | 一般 POI（預設） |
-| 強調 L | 4 | 6 | 9 | 少量重點設施（≤ 50 點）、即時事件 |
+| 階 | 半徑 px（所有 zoom） | 用途 |
+|---|---|---|
+| 小 S | **3** | 密集點（>10k）、參考點（消防栓、公車站、行道樹） |
+| **標準 M** | **4.5** | 一般 POI（預設） |
+| 強調 L | **6.5** | 少量重點設施（≤ 50 點）、即時事件 |
 
-理由：M 的 z10 4／z14 6 貼近現況中位 4.75／6；S、L 約 ×0.65、×1.5。與 viz-library M1（S 3／M 4.5／L 6.5，固定不隨縮放）差在**本站需要隨縮放**；另一選項是直接用 M1 的值當 z12 錨點。與 onboarding 表（<1k：z6 4／z12 8）相比，本案 z12 的 M ≈ 5，較小——onboarding 表是舊值，拍板後請同步更新該表。
+寫法：`circle-radius: 4.5 * size`（常數，不寫 `interpolate zoom`）。與分析結果（viz-library M1）同一組值，全站點大小一致。低縮放時點會較密：由 P-3 的密度透明度與 P-4 的熱區門檻處理，不靠縮小半徑。onboarding 表（<1k：z6 4／z12 8）是舊值，逐層改時一併更新該表。
 資料驅動大小（泡泡）不受三階限制，照 viz-library M3：面積 ∝ 值、rMin 4、rMax 28。
+（原提案 A「隨縮放 S 2.5／4、M 4／6、L 6／9」未採用。）
 
 **P-2 描邊**
 
 | 底圖 | 色 | 寬（z10／z14） | 透明度 |
 |---|---|---|---|
-| 暗 | `#0a0a14`（深色細框） | 0.6／1 | 0.8 |
-| 淡 | `#ffffff`（白框） | 0.6／1 | 0.9 |
+| 暗 | `#0a0a14`（深色細框） | 1 | 0.8 |
+| 淡 | `#ffffff`（白框） | 1 | 0.9 |
 
-理由：現況中位寬 1、多數已是「暗黑淡白」；色號收斂成 viz-library M1 的 `#0a0a14`／`#ffffff`，取代 `#000000`、`#0f172a`、`#0d1117`、`#0b1118` 四種。暗色底圖用白描邊的 47 層改為深色（白框在暗底會把點放大、搶視覺）；若某層白框有語意（例：即時事件），需在 §7 逐層例外登記。
+理由：現況中位寬 1、多數已是「暗黑淡白」；色號收斂成 viz-library M1 的 `#0a0a14`／`#ffffff`，取代 `#000000`、`#0f172a`、`#0d1117`、`#0b1118` 四種。暗色底圖用白描邊的 47 層**全部改為深色**（拍板 A，不設即時事件例外）。描邊寬配合 P-1 固定半徑，也固定 1px（原提案 z10 0.6／z14 1 的插值不再需要）。
 
 **P-3 不透明度**：主體點 0.85（現況中位）；密集 1k–10k 0.8、10k–100k 0.75、>100k 0.6（沿 onboarding 表）。裝飾子圖層見 P-6。
 
@@ -194,12 +195,14 @@
 | 點數（全台） | 做法 |
 |---|---|
 | < 10k | 直接畫 circle |
-| 10k–100k | z < 10 用聚合（cluster）或熱區，z ≥ 10 畫點 |
-| > 100k | 必須聚合／熱區或 PMTiles 低 zoom 抽稀；z ≥ 12 才畫單點 |
+| 10k–100k | z < 10 用**熱區**（G-2），z ≥ 10 畫點 |
+| > 100k | 必須用**熱區**或 PMTiles 低 zoom 抽稀；z ≥ 12 才畫單點 |
 
-**P-5 icon 與 circle 的選用**：預設 circle。只有「形狀本身帶語意且 circle 分不出」時才用 icon（例：變電所菱形、方向箭頭），且 ≤ 5k 點；icon 在 z14 的顯示尺寸對齊 M 階直徑 12px（`icon-size` = 12 ÷ sprite 原圖邊長）。icon 也必須有對應的圖例圖示。
+拍板改：低縮放一律用**熱區**，不用聚合（cluster 數字泡泡）。
 
-**P-6 選取與裝飾**：選取狀態**只用** R2 選取圈（`design-system.md` §5.4，`src/map/selectionRing.ts`；`useSelectedFeatureHalo` 已是它的別名），圖層不自己畫選取高亮。光暈／漣漪等裝飾子圖層：半徑 ≤ 主體 ×2、不透明度 ≤ 0.35、`circle-blur` ≥ 0.6，只給即時或進行中資料（呼應 viz-library M8：同時 ≤ 20 個脈衝）。
+**P-5 icon 與 circle 的選用**：預設 circle。只有「形狀本身帶語意且 circle 分不出」時才用 icon（例：變電所菱形、方向箭頭），且 ≤ 5k 點；icon 顯示尺寸對齊點的直徑：預設 M 階 9px；形狀在 9px 分不清時用 L 階 13px（`icon-size` = 目標 px ÷ sprite 原圖邊長；P-1 採固定半徑後，icon 也固定大小）。icon 也必須有對應的圖例圖示。
+
+**P-6 選取與裝飾**：選取狀態**只用** R2 選取圈（`design-system.md` §5.4，`src/map/selectionRing.ts`；`useSelectedFeatureHalo` 已是它的別名），圖層不自己畫選取高亮。光暈／漣漪等裝飾子圖層：半徑 ≤ 主體 ×2、不透明度 ≤ 0.35、`circle-blur` ≥ 0.6，只給即時或進行中資料（呼應 viz-library M8：同時 ≤ 20 個脈衝）。拍板：現有 92 層的裝飾子圖層**逐層檢視**，靜態資料的光暈移除。
 
 ### 3.2 線
 
@@ -227,7 +230,7 @@
 | 行政界 | 中性灰：暗 `#9ca3af`、淡 `#374151`（現況 `countyBoundary`） | 縣市 強調、鄉鎮 標準、村里 細 | 只換色 |
 | 法定／海域界 | 類別色＋虛線 `[4,3]` | 標準 | 只換色 |
 
-**L-6 外框（casing）**：只給「強調」線且底圖複雜時用，外框 = 線寬 + 1.5px、底圖色（暗 `#0a0a14`、淡 `#ffffff`），對齊 viz-library L1。
+**L-6 外框（casing）**：拍板改：**一般圖層不加線外框**。（原提案「強調線 +1.5px 底圖色外框」未採用；分析結果的 viz-library L1 不受影響。）
 
 ### 3.3 面
 
@@ -253,20 +256,20 @@
 
 一律用獨立 line 子圖層畫外框，不用 `fill-outline-color`（固定 1px、無法隨縮放；現況 7 處）。
 
-**F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值：統計現行灰色 `#64748b`＋遮蔽斜線，viz-library N1 是「透明底＋45° 細斜線」——兩套是否統一列 §7。
+**F-3 分級色階**：不自創。統計圖層照 `statistics-layer-guidelines.md` §4（各主題 ColorBrewer 序列色、正負用 PuOr、門檻不隨當次資料重算、至少 `breaks + 1` 色）；Agent 分析結果照 viz-library §1（viridis／magma、暗淡方向相反、5 級）。缺值（拍板 A）：統計圖層改成 viz-library N1「透明底＋45° 細斜線」，取代現行灰色 `#64748b`＋遮蔽斜線，全站缺值只有一種畫法。
 
 **F-4 fill-extrusion**：高度與顏色用同一指標（viz-library M7），最高約畫面 1/4；開啟時不透明度 0.85、`fill-extrusion-vertical-gradient: true`；高度倍率由滑桿控制，預設 1。
 
 ### 3.4 3D／熱區／網格／影像
 
-- **G-1 Three.js／CustomLayer**：不進本檔數值階（值在 shader／材質）。要求：透明度參數、圖例、popup 照四鐵則；新元件照 `three-3d-component` skill 的 checklist。13 層 `unresolved` 在 JSON 有檔案指標，逐層調整時人工讀值後補記到該層 `docs/features/<slug>/`。
+- **G-1 Three.js／CustomLayer**：拍板加碼：每個 Three.js／CustomLayer 圖層都要有**「基本點線面」模式**，用 Mapbox 原生 circle／line／fill 畫同一份資料，並套用本檔 §3 的數值階；**預設是 Mapbox 模式**，Three.js 立體版保留為可切換的選項（圖層控制項加一個切換）。理由：點線面比較好理解，但不放棄立體效果。Three.js 模式本身的值在 shader／材質，不進數值階；透明度、圖例、popup 兩種模式都照四鐵則。13 層 `unresolved` 在 JSON 有檔案指標，實作時逐層讀值、補記到該層 `docs/features/<slug>/`。
 - **G-2 熱區**：magma（截）色階、密度 0 完全透明、`heatmap-radius` z10 12／z14 20、`heatmap-opacity` 0.8；z ≥ 12 切回點（與 P-4 門檻一致）。對齊 viz-library M5。
 - **G-3 網格**：面 0.7、空格不畫、格縫同 F-2；H3 解析度與方格尺寸照 viz-library M6。
 - **G-4 影像**：預設 0.7、滑桿 0.3–1.0（onboarding）；量測值影像（熱島、樹冠高）`raster-resampling: nearest`，照片／雲圖 `linear`；`raster-fade-duration: 0` 給時間序列影像（避免換幀閃爍）。
 
 ### 3.5 文字標籤
 
-- **T-1 字型**：地圖標籤只能用 Mapbox glyph 字型（`text-font`），**不受** `design-system.md` §4 的系統字規則約束；維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`，強調用 Bold。提案加設 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack），讓中文字形改用系統字：與 UI 同字、少下載 glyph。需改 `MapView.tsx` 初始化，屬程式改動，拍板後另做。
+- **T-1 字型**：`text-font` 維持 `["DIN Pro Medium","Arial Unicode MS Regular"]`（英數），強調用 Bold。中文：明確設定 `localIdeographFontFamily: "PingFang TC","Microsoft JhengHei","Noto Sans CJK TC",sans-serif`（與 `--font-cjk` 同 stack）。mapbox-gl 預設已是 `'sans-serif'`（中文本來就在前端用系統字繪製），這次只是把字型名稱指定成與 UI 相同，**不增加下載或運算負擔**。改 `MapView.tsx` 初始化（主站與 embed 各一處）。
 - **T-2 字級與 halo**：POI 名稱 z10 10／z14 12；計數徽章 11／13 Bold；halo 1.25px、底圖色（暗 `rgba(15,23,42,0.92)`、淡 `rgba(255,255,255,0.94)`，現況已如此）。viz-library N2（分析標籤 10px 粗體＋3px halo）只用於分析結果。
 - **T-3 密度**：標籤 z ≥ 13 才出現、`text-allow-overlap: false`；計數徽章可 overlap。
 
@@ -280,9 +283,9 @@
 
 ### 3.7 顏色
 
-- **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（現況 10 層不一致）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
-- **K-2 類別色與序列色分工**：類別（不同種類）用類別色，≤ 7 類＋「其他」（viz-library C2）；數量、密度、比率用序列色（淺→深＝低→高）；正負用雙向色。不用彩虹色，不以紅／綠暗示好壞（`statistics-layer-guidelines.md` §4）。
-- **K-3 語意色不可挪用**：`design-system.md` §3.5 STATUS（即時綠、警告橘、錯誤紅）與 §3.15 災害語意色只給狀態與警報；資料類別不得用這幾個色號表達一般分類。紅色保留給警報，一律搭配圖示或文字。
+- **K-1 `LAYER_COLORS` 的角色**：圖層的**識別色**（側欄 icon、單色圖層的預設 paint 色、圖例標題色塊）。單色圖層的 paint 主色必須等於 `LAYER_COLORS`（現況 10 層不一致）。拍板 B：**以地圖現在的顏色為準**：`LAYER_COLORS` 改成地圖的暗色版主色；若地圖暗淡不同色，圖例色票跟著暗淡切換（醫療 5 層：暗 `#e53935`／淡 `#c62828`）；類別或序列圖層的 paint 用自己的色票，`LAYER_COLORS` 只當識別，不要求出現在 paint。
+- **K-2 類別色與序列色分工**：拍板**不採用**「一般圖層 ≤ 7 類＋其他」的限制：一般圖層的類別數與配色維持各層自訂（例：非都市分區 12 類照舊）。viz-library C2 只約束分析結果；統計圖層仍照 `statistics-layer-guidelines.md` §4。
+- **K-3 語意色不可挪用**：`design-system.md` §3.5 STATUS（即時綠、警告橘、錯誤紅）與 §3.15 災害語意色只給狀態與警報；資料類別不得用這幾個色號表達一般分類。紅色保留給警報，一律搭配圖示或文字。拍板 B：**只寫成規則**，不加自動 guard，靠 review 把關。
 
 ---
 
@@ -319,13 +322,13 @@
 
 沒有雙變量圖例（viz-library V3 已決定不用 3×3 bivariate）。
 
-### 4.2 各型規格（提案）
+### 4.2 各型規格（2026-09-28 拍板）
 
 共通結構：**標題列 → 內容列 → 註記 → 來源（可選）**。
 
 | 元素 | 規格 |
 |---|---|
-| 標題 | 中文、`FONT_SIZE.sm` 10px、`FONT_WEIGHT` 600、`textStrong`；英文代碼不放標題（§6.1），需要時放註記 |
+| 標題 | 拍板 LG-11：**中文在前、英文小字在後**，同側欄主題標題（`design-system.md` §5.5，`splitThemeTitle()` 拆中英）：中文 `FONT_SIZE.sm` 10px、`FONT_WEIGHT` 600、`textStrong`；英文 `FONT_SIZE.xs` 9px、`textDim`、`FONT_CJK`、**不轉大寫**、baseline 對齊、gap 4。例：`MEDICAL 醫療據點` → `醫療據點 Medical`。沒有英文名時只顯示中文 |
 | 列標籤 | 9px `FONT_CJK`、`textMuted`；數字與單位用 `FONT_DATA`＋tabular-nums |
 | 註記（方法、缺值、來源） | 9px、`textDim` |
 | 組間距 | 10px；列間距 2–4px；色票與文字間 6px |
@@ -371,10 +374,10 @@
 
 | 組合 | 地圖建議值 | 圖例 | 現有代表圖層（現況） |
 |---|---|---|---|
-| 點＋類別色 | M 階 4／6、描邊 P-2、0.85 | LG-1 圓點列 | `religionTemples`（4.5／5.5、描邊 0.8 暗黑淡白、0.8，9 類） |
-| 點＋單色（識別色） | M 階、主色＝`LAYER_COLORS` | 可省略或 LG-1 單列 | `playgrounds`（5.1／6、描邊 1.2、0.85） |
+| 點＋類別色 | M 階 4.5（固定）、描邊 P-2、0.85 | LG-1 圓點列 | `religionTemples`（4.5／5.5、描邊 0.8 暗黑淡白、0.8，9 類） |
+| 點＋單色（識別色） | M 階 4.5、主色＝`LAYER_COLORS`（K-1：取地圖現色） | 可省略或 LG-1 單列 | `playgrounds`（5.1／6、描邊 1.2、0.85） |
 | 點大小＋大小圖例 | M3 泡泡 rMin 4／rMax 28、0.75 | LG-5 三圓 | `performingVenues`（3–14、描邊 1、0.85） |
-| 密集點 | S 階 2.5／4、0.75、z<10 聚合 | LG-1 | `fireHydrants`（0.8／1.6，過小） |
+| 密集點 | S 階 3（固定）、0.75、z<10 熱區 | LG-1 | `fireHydrants`（0.8／1.6，過小） |
 | 線＋類別色 | 標準 1／2、0.85、round | LG-4 線段 | `osmPowerLines`（0.35–2.1、0.24–0.56、海纜虛線 `[2,2]`） |
 | 行政界線 | 強調／標準／細、中性灰暗淡切換 | 不需 | `countyBoundary`（1.9／2.4、0.85、round） |
 | 面＋序列色階（統計） | 0.55、1px 底圖色縫 | LG-3 方塊列＋分界數字＋LG-7 | 統計 320 層（0.55、外框最深色 0.8px） |
@@ -400,51 +403,49 @@
 6. **重跑盤點**：`npm run design:audit-layers`，確認 JSON diff 只動目標層、`legends[].issues` 減少。
 7. **黃金快照**：`overlayRegistry` 改動會讓 `layerGoldenSnapshot.test.ts` 紅，確認 diff 後重產 fixture（`npx vite-node scripts/preprocess/dump-layer-golden.ts`）。
 8. **guard**：若拍板的規則可機械檢查（例：`fill-outline-color` 禁用、描邊色只能是兩個值、暗淡不得改寬度），在 `layerUxPolicy.test.ts` 加 ratchet（現況違規列 backlog，只減不增），不要一次改完全部。
-9. **更新本檔**：§2 數字以重跑結果為準；§7 拍板狀態改「✅ 已拍板（日期）」。
+9. **更新本檔**：§2 數字以重跑結果為準；§7 備註欄記下已完成的圖層家族與 PR。
 
 ---
 
-## 7. 待拍板清單
+## 7. 拍板結果（2026-09-28）
 
-回覆格式建議：`P-1 A`、`L-4 同意`、`F-2 改 0.8px` 等。
+使用者在比較頁（[`design-system/map-layer-picks.html`](./design-system/map-layer-picks.html)）逐題選定。§3、§4 內文已改成拍板版；本表是索引與原話紀錄。
 
-| 代號 | 題目 | 提案 | 選項／備註 |
+| 代號 | 題目 | 拍板 | 使用者補充／備註 |
 |---|---|---|---|
-| **P-1** | 點尺寸三階 | S 2.5／4、M 4／6、L 6／9（z10／z14），z6 另有錨點 | A：本案（隨縮放）／B：viz-library M1 固定 3／4.5／6.5 |
-| **P-2** | 點描邊 | 暗 `#0a0a14`、淡 `#ffffff`，寬 0.6／1，透明度 0.8／0.9 | 暗底白框的 47 層是否全改深色 |
-| **P-3** | 點不透明度 | 主體 0.85；依密度 0.8／0.75／0.6 | |
-| **P-4** | 密集點門檻 | <10k 直接畫；10k–100k z<10 聚合或熱區；>100k 必須 | |
-| **P-5** | icon 使用條件 | 形狀有語意且 ≤5k 點；z14 顯示 12px | |
-| **P-6** | 選取與裝飾 | 選取只用 R2；裝飾 ≤2× 半徑、≤0.35、只給即時資料 | 現有 92 層裝飾是否逐層檢視 |
-| **L-1** | 線寬三階 | 細 0.5／1、標準 1／2、強調 2／3.5（z10／z14） | 標準 z14 由現況 1.0 提到 2 |
-| **L-2** | 虛線語意與值 | 四種語意；`[2,2]`、`[4,3]` 兩種 | `[2,1]` 併入 `[2,2]` |
-| **L-3** | 端點接合 | 路網類 round／round；界線 butt／miter | |
-| **L-4** | 線透明度 | 標準 0.85、參考 0.6、網格 0.4、下限 0.3 | |
-| **L-5** | 道路 vs 邊界 | 邊界中性灰暗 `#9ca3af`／淡 `#374151`、寬依層級 | |
-| **L-6** | 線外框 | 只給強調線，+1.5px 底圖色 | |
-| **F-1** | 面透明度三階 | 分級 0.55、覆蓋 0.35、背景 0.15、網格 0.7 | |
-| **F-2** | 面外框 | 分級面 1px 底圖色縫（改統計 renderer）；覆蓋同色 1px；背景 0.5px 灰；禁用 `fill-outline-color` | 統計外框改動影響 320 層 |
-| **F-3** | 缺值表示 | 統計現行灰 `#64748b`＋斜線 vs viz-library N1 透明底＋斜線 | A：統一成 N1／B：統計維持現行 |
-| **F-4** | 3D 擠出 | 開啟時 0.85、vertical-gradient、高度＝顏色指標 | |
-| **G-1** | Three.js 圖層 | 不進數值階；四鐵則照舊；讀值後補記 | |
-| **G-2** | 熱區 | magma、0.8、radius 12／20、z≥12 切回點 | |
-| **G-3** | 網格 | 0.7、空格不畫、0.5px 縫 | |
-| **G-4** | 影像 | 0.7、量測值 nearest、時間序列 fade 0 | |
-| **T-1** | 地圖字型 | 維持 DIN Pro＋Arial Unicode MS；加 `localIdeographFontFamily` 用系統中文字 | 需改 `MapView.tsx`（程式改動） |
-| **T-2** | 標籤字級與 halo | POI 10／12、徽章 11／13、halo 1.25 底圖色 | |
-| **T-3** | 標籤密度 | z≥13、不重疊 | |
-| **K-1** | `LAYER_COLORS` 角色 | 識別色；單色層 paint 必須相同（修 10 層） | 醫療 5 層以哪一邊為準 |
-| **K-2** | 類別／序列分工 | ≤7 類＋其他；序列淺→深；不用彩虹 | 引用現有規則，確認適用全部圖層 |
-| **K-3** | 語意色保留 | STATUS／災害色不得當一般類別色 | 是否加 guard |
-| **K-4** | 暗／淡切換範圍（§3.6） | 只換色，不換尺寸與透明度 | 23 層需改 |
-| **LG-1–LG-8** | 各型圖例規格 | §4.2 表 | 可整批拍板 |
-| **LG-9** | 常駐與收合 | §4.2；popup 開啟時一般圖層也轉精簡 | 精簡版擴及一般圖層是新行為 |
-| **LG-10** | 圖例字型 | 面板容器改 `FONT_CJK`，數字節點才 `FONT_DATA` | 屬 §4.1 既有規則的修正 |
-| **LG-11** | 圖例標題 | 移除英文大寫前綴（37 個） | |
-| **LG-12** | 統計圖例淡色 | `StatisticsLegend` 改用圖例主題色 | 320 層 |
-| **LG-13** | 28 個不一致圖例 | 逐一修正（§4.3） | 「hook 可能覆寫」6 個先人工確認 |
-
-共 **40** 個代號（P 6、L 6、F 4、G 4、T 3、K 4、LG 13；其中 LG-1–LG-8 可合成一題回覆）。
+| **P-1** | 點尺寸三階 | **B**：固定 S 3／M 4.5／L 6.5，不隨縮放 | |
+| **P-2** | 點描邊 | **A**：暗 `#0a0a14`／淡 `#ffffff`，1px，47 層白框全改 | |
+| **P-3** | 點不透明度 | 同意：0.85；依密度 0.8／0.75／0.6 | |
+| **P-4** | 密集點門檻 | 同意，**改用熱區** | 「想要不要是聚合，可以是熱區的形式來顯示」 |
+| **P-5** | icon 使用條件 | 同意 | |
+| **P-6** | 選取與裝飾 | 同意，**逐層檢視 92 層** | |
+| **L-1** | 線寬三階 | 同意：細 0.5／1、標準 1／2、強調 2／3.5（z10／z14） | 線仍隨縮放（點不隨縮放，見 P-1） |
+| **L-2** | 虛線語意與值 | 同意 | |
+| **L-3** | 端點接合 | 同意 | |
+| **L-4** | 線透明度 | 同意 | |
+| **L-5** | 道路 vs 邊界 | 同意 | |
+| **L-6** | 線外框 | **不要外框** | |
+| **F-1** | 面透明度三階 | 同意 | |
+| **F-2** | 面外框 | 同意（統計 renderer 一起改，影響 320 層） | |
+| **F-3** | 缺值表示 | **A**：統一成 N1 透明底＋細斜線 | |
+| **F-4** | 3D 擠出 | 同意 | |
+| **G-1** | Three.js 圖層 | 同意＋**新增「基本點線面」模式，預設 Mapbox，可切回 Three.js** | 「想要是 three.js 的圖層，都可以返璞歸真，還是要回到最基本的點 線 面，有這個切換選項……預設是 mapbox 的元件」 |
+| **G-2** | 熱區 | 同意 | |
+| **G-3** | 網格 | 同意 | |
+| **G-4** | 影像 | 同意 | |
+| **T-1** | 地圖字型 | 同意（條件：不增加系統負擔） | 查證：mapbox-gl 預設已在前端用系統字畫中文，只是把字型名稱指定成與 UI 相同，不增加負擔 → 採用 |
+| **T-2** | 標籤字級與 halo | 同意 | |
+| **T-3** | 標籤密度 | 同意 | |
+| **K-1** | `LAYER_COLORS` 角色 | **B**：以地圖現色為準，圖例跟著暗淡切換 | |
+| **K-2** | 類別／序列分工 | **不採用** | 「不同意」；一般圖層類別數維持各層自訂 |
+| **K-3** | 語意色保留 | **B**：只寫成規則，不加 guard | |
+| **K-4** | 暗／淡切換範圍 | 同意：只換色（23 層要改） | |
+| **LG-1–LG-8** | 各型圖例規格 | 同意 | |
+| **LG-9** | 常駐與收合 | 同意（popup 開啟時一般圖層也轉精簡） | |
+| **LG-10** | 圖例字型 | 同意 | |
+| **LG-11** | 圖例標題 | 同意，**中文在前、英文小字在後** | 「且同現在標題，先是中文 再來英文（小一點）」 |
+| **LG-12** | 統計圖例淡色 | 同意 | |
+| **LG-13** | 28 個不一致圖例 | 同意（hook 6 個先人工確認） | |
 
 ---
 
