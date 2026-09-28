@@ -855,6 +855,8 @@ PR 前逐項勾（貼進 PR 描述）：
 | popup 暗色外框 | `rgba(100,170,255,0.25)` inline 字面，不在 `BORDER` 階上（`BORDER.accent` 為 0.55） | `FeatureInfoPanel.tsx` |
 | 淡色錯誤色 | tokens `--light-status-err #b42318` vs 設計稿 `#b91c1c` | 以 token 為準，設計稿未同步 |
 | 按鈕 pressed 態 | 未定義 | §5.7 |
+| 點圖層字面值（R2） | `overlayRegistry.ts` 裡 192 個點圖層的 `circle-radius`／`circle-stroke-*` 字面值已被 `pointSpec.ts` 覆寫、不生效；改大小請改 `pointTiers.ts`，字面值逐層調整時清除 | `src/map/pointSpec.ts` |
+| 泡泡圖層（P-1 B 後續） | 38 個依資料放大的點圖層仍用各自的半徑範圍，部分還隨縮放；待逐層改成 M3（面積∝值、rMin 4／rMax 28） | `pointTiers.ts` 的 `B` |
 | 圖例手寫色票 | `LegendPanel.tsx` 仍有 90 處手寫 `width／height` 色票（8×8、9×9、14×10…），未走 `legendKit`；ratchet 只准減少 | `legendKit.test.ts` |
 | 圖例精簡版（LG-9） | 只有 `LegendNote` 會在停靠 popup 開著時收起；手寫註記 div 不會 | `LegendPanel.tsx` |
 

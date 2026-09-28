@@ -341,14 +341,16 @@ describe("交通場站派生點位接線", () => {
     expect(entry?.layers.every((layer) => layer.type === "circle")).toBe(true);
   });
 
-  it("捷運保留原 detail layers，並在 z10 以下提供全台 overview 點", () => {
+  it("捷運：Mapbox 點位所有縮放都有點；實際範圍模式 z10 以下點、z10 以上範圍光暈", () => {
     const metro = OVERLAY_REGISTRY.filter((config) => config.id === "stationsMetro");
     const overview = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-overview-point-core"));
     const detail = metro.find((config) => config.layers.some((layer) => layer.suffix === "metro-pt-fill"));
     expect(overview?.sourceId).toBe("station-points");
+    // 2026-09-28：點位模式放大後也要有點，overview 不再限 maxzoom 10
     expect(overview?.layers
       .filter((layer) => layer.suffix.startsWith("metro-overview-"))
-      .every((layer) => layer.maxzoom === 10 && layer.minzoom == null)).toBe(true);
+      .every((layer) => layer.maxzoom == null && layer.minzoom == null)).toBe(true);
+    expect(overview?.layers.find((layer) => layer.suffix === "metro-lowzoom-core")?.maxzoom).toBe(10);
     expect(detail?.layers.some((layer) => layer.minzoom === 10)).toBe(true);
   });
 

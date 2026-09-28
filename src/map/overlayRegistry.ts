@@ -1,5 +1,10 @@
 import { INDUSTRIAL_DENSITY_DATASETS, industrialDensitySources, industrialDensityColorExpr, type IndustrialDensityKey } from "../data/industrialDensityTypes";
 import type { OverlayConfig } from "../types";
+import { withPointSpec } from "./pointSpec";
+import { POINT_ICON_PX, SUBSTATION_ICON_DIAGONAL_PX } from "./mapStyleScale";
+
+/** 變電所菱形：32px 方塊轉 45°，對角寬 ≈ 45px；回傳讓對角寬＝targetPx×ratio 的 icon-size。 */
+const substationIconSize = (targetPx: number, ratio: number) => (targetPx * ratio) / SUBSTATION_ICON_DIAGONAL_PX;
 import { carrierColorExpression, comparisonColorExpression, comparisonGeometryFilter, comparisonStatusFilter, NETWORK_STRUCTURES_COLORS } from "../data/networkStructuresTypes";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import {
@@ -1123,17 +1128,28 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
-    rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    // 不用 rebuildOnParamChange：rebuild 會把「原本有一層隱藏」當成整組隱藏，
+    // 顯示模式切到「實際範圍」時 metro-pt-* 會被藏回去。半徑、透明度都能走 paint diff。
     layers: [
+      // Mapbox 點位：所有縮放都有點（原本 maxzoom 10，放大後點會消失）
       ...hubPointLayers(
         "metro-overview-",
         "metroDisplayModeIdx",
         ["get", "color"],
         "stationScale",
-      ).map((layer) => ({ ...layer, maxzoom: 10 })),
+      ),
+      // 實際範圍（光暈示意）：低縮放仍顯示點，z≥10 換成下面的範圍光暈
+      {
+        ...hubPointLayers("metro-lowzoom-", "metroDisplayModeIdx", ["get", "color"], "stationScale")[1]!,
+        suffix: "metro-lowzoom-core",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
+        maxzoom: 10,
+      },
+      // 以下 metro-pt-* 只在「實際範圍」模式出現；是範圍的呈現方式，不套 R2 光暈規則（pointSpec 例外）
       {
         suffix: "metro-pt-range",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 11,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1149,6 +1165,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-2",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1164,6 +1181,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-glow-1",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -1179,6 +1197,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "metro-pt-fill",
         type: "circle",
+        layout: hubModeLayout("metroDisplayModeIdx", "polygon"),
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
@@ -5965,12 +5984,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-rotate": 45,
             "icon-allow-overlap": true,
             "icon-ignore-placement": true,
-            "icon-size": [
-              "interpolate", ["linear"], ["zoom"],
-              6,  ["match", ["get", "class"], "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB, 0.32 * sB],
-              11, ["match", ["get", "class"], "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB, 0.52 * sB],
-              14, ["match", ["get", "class"], "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB, 0.72 * sB],
-            ],
+            // P-5：固定大小（不隨縮放），最大一級＝L 直徑 13px；等級比例保留
+            "icon-size": ["match", ["get", "class"],
+              "EHV_SWITCH", substationIconSize(POINT_ICON_PX.L, 1) * sB,
+              substationIconSize(POINT_ICON_PX.L, 0.72 / 0.9) * sB],
           };
         },
         paint: (_isDark, params) => {
@@ -6018,18 +6035,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-rotate": 45,
             "icon-allow-overlap": true,
             "icon-ignore-placement": true,
-            "icon-size": [
-              "interpolate", ["linear"], ["zoom"],
-              6, ["match", ["get", "class"],
-                  "PS", 0.25 * sS, "DPS", 0.20 * sS, "SS", 0.18 * sS,
-                  "TRACTION", 0.16 * sS, 0.13 * sS],
-              11, ["match", ["get", "class"],
-                   "PS", 0.40 * sS, "DPS", 0.32 * sS, "SS", 0.28 * sS,
-                   "TRACTION", 0.24 * sS, 0.20 * sS],
-              14, ["match", ["get", "class"],
-                   "PS", 0.55 * sS, "DPS", 0.45 * sS, "SS", 0.36 * sS,
-                   "TRACTION", 0.32 * sS, 0.28 * sS],
-            ],
+            // P-5：固定大小（不隨縮放），最大一級（PS）＝M 直徑 9px；等級比例保留
+            "icon-size": ["match", ["get", "class"],
+              "PS", substationIconSize(POINT_ICON_PX.M, 1) * sS,
+              "DPS", substationIconSize(POINT_ICON_PX.M, 0.45 / 0.55) * sS,
+              "SS", substationIconSize(POINT_ICON_PX.M, 0.36 / 0.55) * sS,
+              "TRACTION", substationIconSize(POINT_ICON_PX.M, 0.32 / 0.55) * sS,
+              substationIconSize(POINT_ICON_PX.M, 0.28 / 0.55) * sS],
           };
         },
         paint: (_isDark, params) => {
@@ -10851,3 +10863,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 ];
 
 OVERLAY_REGISTRY.push(...PUBLIC_LIFE_OVERLAYS);
+
+// R2（P-1 B／P-2 A）：點圖層的半徑與描邊統一由 pointTiers.ts＋pointSpec.ts 套用，
+// 上面各 config 的 circle-radius／circle-stroke-* 字面值對這些圖層已不生效。
+OVERLAY_REGISTRY.splice(0, OVERLAY_REGISTRY.length, ...OVERLAY_REGISTRY.map(withPointSpec));
