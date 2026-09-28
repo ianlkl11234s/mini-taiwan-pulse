@@ -87,7 +87,7 @@
 .main-map-agent-heading button { flex: 0 0 auto; }
 
 /* Keep the single App-root shell where the rail previously placed its compact panel. */
-.main-map-agent--persistent { left: 64px; right: auto; top: 92px; font-size: var(--font-base); line-height: 1.5; }
+.main-map-agent--persistent { left: 64px; right: auto; top: 60px; font-size: var(--font-base); line-height: 1.5; }
 .main-map-agent--persistent .main-map-agent-panel { width: min(288px, calc(100vw - 80px)); max-height: 70vh; margin-top: 0; padding: 10px 12px 12px; }
 .main-map-agent--persistent .main-map-agent-panel p { font-size: var(--font-base); }
 .main-map-agent--persistent .main-map-agent-panel h3 { font-size: var(--font-md); }

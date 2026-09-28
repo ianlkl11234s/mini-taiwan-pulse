@@ -300,6 +300,7 @@
 - **用途**：左側 rail 浮動面板（Layers、資料來源…）、與 Agent 協作面板、即時情報、會員專區。
 - **結構**：外殼 → H2 標頭（eyebrow ＋ 標題 ＋ 關閉鈕）→ 內容（捲動區）。
 - **外殼**：底 `SURFACE.strong`、`1px BORDER.panel`、`RADIUS.xl`、`ELEVATION.lg`、`font-family: --font-cjk`。
+- **位置**：左側停靠面板（rail 面板、即時情報、衛星、地震回放、Agent）一律 `left: 64`、上緣 `LAYOUT.leftDockTop`（60）＝對齊 rail 第一條分隔線，剛好在左上座標列（底 58）下方。rail 本體底色 `SURFACE.app`，與時間軸、面板同一個藍黑色系；不再用中性黑 `#0D0E10`／`rgba(0,0,0,0.45)`（2026-09-29 修正：Layers 面板原本比時間軸淡）。
 - **H2 標頭**：padding `10px 14px`；eyebrow 9px `--text-dim`、letterSpacing 1.4px、中文（例「資料」「研究」）；標題 13px bold `--text-strong`、上距 1px；底線 `1px --border-panel`；關閉鈕 24×24、`<X size={14}/>`、透明底、`--text-muted`，`aria-label="關閉{標題}"`。
 - **淡色**：底 `LIGHT.surfacePanel`、框 `LIGHT.border`、字 `LIGHT.textStrong`／`textDim`。
 - **禁止**：自己手刻標頭；英文大寫 eyebrow；純文字「×」關閉鈕；標頭用等寬字。
@@ -664,6 +665,20 @@
 - **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
 - **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
+
+### 5.33 開站畫面（W2 城市脈動＋M2 機關展開）
+
+- **用途**：第一次打開網站、地圖還沒畫好之前的全螢幕畫面；只出現一次，之後的載入都走 §5.30 載入狀態條。
+- **開頭**：台灣輪廓淡入 0.7s，品牌字與狀態列 0.3s 後淡入 0.5s；城市脈動等淡入完成才開始（試過由小彈出，不自然，改淡入）。
+- **等待（W2）**：底色 `SURFACE.app`（淡色 `--light-surface-solid`，依開站 URL 的 `style` 決定）。中間是台灣本島＋離島輪廓（澎湖、金門、馬祖、綠島、蘭嶼、小琉球、龜山島；不含東沙、太平島、釣魚台），填 5% 強調色、0.5px 強調色描邊。九個城市點由北往南依序亮起並擴出波紋：馬祖、台北、新竹、金門、台中、花蓮、澎湖、台南、高雄。
+- **版面（2026-09-29 以調整工具定案）**：本島高 `19vh`；**本島外框中心**對齊視窗中心再往上 `4.5vh`（X 0）；城市點直徑 5.8px（以 900px 高視窗為準，隨高度等比）；波紋放大 ×6；一輪 2.2s；不顯示城市名稱。本島下緣再往下 `3.5vh` 放品牌字「MINI TAIWAN PULSE」（`FONT_DATA` 700、字距 0.3em、PULSE 用強調色）與狀態列。
+- **狀態列**：與 §5.30 同款（高 22、`--font-sm`、`SURFACE.strong`、`BORDER.panel`、`RADIUS.lg`）；文字「載入地圖」→「✓ 完成」。**文字中心對齊中線**（「入」「地」之間），圖示掛在左側，不計入置中。
+- **收尾（M2）**：地圖就緒 → 「✓ 完成」停 0.4s → 遮罩淡出 0.45s（內容同時放大 1.04）→ 主畫面元件從邊界彈入：側欄從左、工具列從上、時間軸從下、左上標題最後落下，`cubic-bezier(0.34,1.56,0.64,1)` 0.85s，依序延遲 0／0.12／0.24／0.36s；側欄圖示 0.4s 逐一放大彈出（延遲 0.4–0.7s）；整段約 1.6s（2026-09-29 依使用者要求比初版慢約 0.5s）；工具列與時間軸到位時閃一下強調色光暈（像機關卡住）。
+- **做法**：`<html data-boot="wait|enter">` 控制，要參與進場的元件只標 `data-boot-part="rail|toolbar|timeline|title"`，不必接 props；進場結束後移除 `data-boot`。30 秒還沒就緒直接跳到淡出。
+- **減少動態**：不跑波紋與彈入，只淡出。
+- **開站加速（同一輪）**：地形（DEM）只在傾斜視角時才載入（`MapView.tsx` `ensureTerrainIfTilted`），正俯視開站不再等 DEM 圖磚。
+- **禁止**：假進度條、log 終端框、漸層光暈進度（舊版已移除）；在開站畫面加入即時數字（開站時還沒有資料，會變成假數據）。
+- **實作**：`src/components/LoadingScreen.tsx`、`src/components/boot/`（`bootSequence.ts` 規格與時間、`taiwanOutline.ts` 輪廓資料、`bootScreen.css`）、`src/App.tsx`（`bootPhase`）、`src/main.tsx`。設計稿：`docs/features/ui-consistency-audit-20260927/boot-*-sheet.html`、`boot-w2-tuner.html`。
 
 ## 6. 文案規則
 

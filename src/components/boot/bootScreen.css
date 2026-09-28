@@ -1,0 +1,89 @@
+/*
+ * 開站畫面 W2 城市脈動（design-system §5.33）。顏色全部取自 src/styles/tokens.css。
+ * 淡色靠 .boot-screen--light 指到 --light-*。
+ */
+.boot-screen {
+  --bs-bg: var(--surface-app);
+  --bs-land: rgba(100, 170, 255, 0.05);
+  --bs-accent: var(--accent);
+  --bs-strong: var(--text-strong);
+  --bs-dim: var(--text-dim);
+  --bs-surface: var(--surface-strong);
+  --bs-border: var(--border-panel);
+  --bs-track: var(--border-mid);
+  --bs-live: var(--status-live);
+  position: fixed;
+  inset: 0;
+  /* z-index 9999 在 LoadingScreen.tsx inline（design-system §5.25 特例：開站遮罩） */
+  background: var(--bs-bg);
+  overflow: hidden;
+  transition: opacity 0.45s ease;
+}
+.boot-screen--light {
+  --bs-bg: var(--light-surface-solid);
+  --bs-land: rgba(11, 111, 214, 0.06);
+  --bs-accent: var(--light-accent);
+  --bs-strong: var(--light-text-strong);
+  --bs-dim: var(--light-text-dim);
+  --bs-surface: var(--light-surface-strong);
+  --bs-border: var(--light-border);
+  --bs-track: var(--light-border-mid);
+  --bs-live: var(--light-status-live);
+}
+.boot-screen--leaving { opacity: 0; pointer-events: none; }
+.boot-screen__stage { position: absolute; inset: 0; transition: transform 0.45s ease; }
+.boot-screen--leaving .boot-screen__stage { transform: scale(1.04); }
+
+.boot-screen__map { position: absolute; overflow: visible; animation: boot-fade-in 0.7s ease-out both; }
+.boot-screen__land { fill: var(--bs-land); stroke: var(--bs-accent); stroke-width: 0.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; opacity: 0.75; }
+.boot-screen__city { fill: var(--bs-accent); transform-box: fill-box; transform-origin: center; animation: boot-city-blink var(--cycle) ease-out infinite; animation-delay: var(--delay); }
+.boot-screen__ripple { fill: none; stroke: var(--bs-accent); stroke-width: 1; vector-effect: non-scaling-stroke; transform-box: fill-box; transform-origin: center; opacity: 0; animation: boot-city-ripple var(--cycle) ease-out infinite; animation-delay: var(--delay); }
+
+.boot-screen__foot { position: absolute; transform: translateX(-50%); animation: boot-fade-in 0.5s ease-out 0.3s both; display: flex; flex-direction: column; align-items: center; gap: 1.9vh; }
+.boot-screen__wordmark { font: 700 clamp(11px, 2.08vh, 20px)/1 var(--font-data); letter-spacing: 0.3em; color: var(--bs-strong); opacity: 0.85; white-space: nowrap; }
+.boot-screen__wordmark span { color: var(--bs-accent); }
+
+/* 狀態列＝§5.30 載入狀態條同款；文字中心對齊中線，圖示掛在左邊（位移＝(圖示 10 + 間距 6) / 2） */
+.boot-screen__status { display: flex; align-items: center; gap: 6px; height: 22px; padding: 0 9px; border: 1px solid var(--bs-border); border-radius: var(--radius-lg); background: var(--bs-surface); color: var(--bs-strong); font: var(--font-sm)/1 var(--font-cjk); white-space: nowrap; transform: translateX(-8px); }
+.boot-screen__icon { display: grid; place-items: center; width: 10px; height: 10px; flex: 0 0 10px; color: var(--bs-live); }
+.boot-screen__ring { width: 9px; height: 9px; box-sizing: border-box; border: 1.5px solid var(--bs-track); border-top-color: var(--bs-accent); border-radius: 50%; animation: boot-spin 0.9s linear infinite; }
+
+@keyframes boot-spin { to { transform: rotate(360deg); } }
+@keyframes boot-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes boot-city-ripple { 0% { transform: scale(1); opacity: 0.9; } 70%, 100% { transform: scale(var(--ripple)); opacity: 0; } }
+@keyframes boot-city-blink { 0% { transform: scale(1.8); } 25%, 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-screen__city, .boot-screen__ripple, .boot-screen__ring, .boot-screen__map, .boot-screen__foot { animation: none; }
+  .boot-screen--leaving .boot-screen__stage { transform: none; }
+}
+
+/*
+ * M2 機關展開：<html data-boot="wait|enter"> 期間，標了 data-boot-part 的主畫面元件先藏在邊界外，
+ * enter 時帶回彈歸位。!important 是為了蓋過元件 inline 的 transition（只在開站這一秒內生效）。
+ */
+html[data-boot] [data-boot-part] { transition: transform 0.85s cubic-bezier(0.34, 1.56, 0.64, 1) !important; }
+html[data-boot="wait"] [data-boot-part="rail"] { transform: translateX(-105%); }
+html[data-boot="wait"] [data-boot-part="toolbar"] { transform: translateY(-170%); }
+html[data-boot="wait"] [data-boot-part="title"] { transform: translateY(-220%); }
+html[data-boot="wait"] [data-boot-part="timeline"] { transform: translateY(260%); }
+html[data-boot] [data-boot-part="rail"] > * { transition: transform 0.4s cubic-bezier(0.34, 1.8, 0.64, 1) !important; }
+html[data-boot="wait"] [data-boot-part="rail"] > * { transform: scale(0); }
+html[data-boot="enter"] [data-boot-part="toolbar"] { transition-delay: 0.12s !important; }
+html[data-boot="enter"] [data-boot-part="timeline"] { transition-delay: 0.24s !important; }
+html[data-boot="enter"] [data-boot-part="title"] { transition-delay: 0.36s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(1) { transition-delay: 0.4s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(2) { transition-delay: 0.45s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(3) { transition-delay: 0.5s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(4) { transition-delay: 0.55s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(5) { transition-delay: 0.6s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(6) { transition-delay: 0.64s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(7) { transition-delay: 0.67s !important; }
+html[data-boot="enter"] [data-boot-part="rail"] > :nth-child(n + 8) { transition-delay: 0.7s !important; }
+html[data-boot="enter"] [data-boot-part="toolbar"],
+html[data-boot="enter"] [data-boot-part="timeline"] { animation: boot-latch 0.4s ease-out 1.05s; }
+@keyframes boot-latch { 0% { filter: drop-shadow(0 0 0 transparent); } 30% { filter: drop-shadow(0 0 3px var(--accent)); } 100% { filter: drop-shadow(0 0 0 transparent); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-boot] [data-boot-part], html[data-boot] [data-boot-part="rail"] > * { transform: none !important; transition: none !important; animation: none !important; }
+}

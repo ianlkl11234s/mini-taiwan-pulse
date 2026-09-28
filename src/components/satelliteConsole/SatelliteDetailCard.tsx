@@ -13,7 +13,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { X } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { ELEVATION, RADIUS, FONT_SIZE, LAYOUT, SURFACE } from "../../styles/designTokens";
 import { fetchCatalog, formatOperatingSince, type CatalogRow } from "../../data/satelliteCatalogLoader";
 import {
   fetchTleHistory,
@@ -80,10 +80,10 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
       style={{
         position: "fixed",
         left: 64 + 412 + 8,
-        top: 98,
+        top: LAYOUT.leftDockTop,
         width: 380,
         maxHeight: "calc(100vh - 112px)",
-        background: COLORS.panelBg,
+        background: SURFACE.strong,
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${COLORS.panelBorder}`,

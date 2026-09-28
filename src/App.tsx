@@ -107,6 +107,7 @@ import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingStatus } from "./components/LoadingStatus";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { BOOT_TIMING, setBootAttr, type BootPhase } from "./components/boot/bootSequence";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
 import { MemberPanel } from "./components/member/MemberPanel";
@@ -1327,20 +1328,31 @@ export default function App() {
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
-  // allReady 後延遲 600ms 再 unmount LoadingScreen，讓使用者看到 100%
-  const [dismissedLoading, setDismissedLoading] = useState(false);
-  useEffect(() => {
-    if (!allReady) return;
-    const t = setTimeout(() => setDismissedLoading(true), 600);
-    return () => clearTimeout(t);
-  }, [allReady]);
-
-  // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading
+  // 開站畫面（design-system §5.33）：allReady → 「✓ 完成」停一下 → 遮罩淡出＋主畫面元件彈入 → 結束。
+  // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading（直接跳到淡出）。
+  const [bootPhase, setBootPhase] = useState<BootPhase>("loading");
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   useEffect(() => {
     const timer = setTimeout(() => setLoadingTimedOut(true), 30_000);
     return () => clearTimeout(timer);
   }, []);
+  useEffect(() => {
+    if (bootPhase === "loading" && loadingTimedOut) { setBootPhase("leaving"); return; }
+    if (bootPhase === "loading" && allReady) { setBootPhase("done"); return; }
+    if (bootPhase === "done") {
+      const t = setTimeout(() => setBootPhase("leaving"), BOOT_TIMING.doneHoldMs);
+      return () => clearTimeout(t);
+    }
+    if (bootPhase === "leaving") {
+      setBootAttr("enter");
+      const t = setTimeout(() => setBootPhase("gone"), BOOT_TIMING.fadeMs);
+      return () => clearTimeout(t);
+    }
+    if (bootPhase === "gone") {
+      const t = setTimeout(() => setBootAttr(null), BOOT_TIMING.enterMs);
+      return () => clearTimeout(t);
+    }
+  }, [bootPhase, allReady, loadingTimedOut]);
 
   // 全部資料載入完成後自動播放
   useEffect(() => {
@@ -1747,10 +1759,10 @@ export default function App() {
   // 讓 Mapbox + Three.js 場景在 loading 期間於底下平行初始化；
   // 舊版 early return 會讓地圖等 loading 收掉才開始載，造成進場後動態點空窗。
   //
-  // 一次性：只在初次 mount 顯示，dismissedLoading=true 後絕不重開。
+  // 一次性：只在初次 mount 顯示，bootPhase 到 gone 後絕不重開。
   // 之後使用者 toggle 動態圖層的 loading 由 loadingRegistry 的小型 indicator 處理，
   // 不再用 full-screen splash 蓋整個畫面（會打斷已經在用地圖的使用者）。
-  const showLoadingScreen = !loadingTimedOut && !dismissedLoading;
+  const showLoadingScreen = bootPhase !== "gone";
 
   // ── LayerHost 的跨切面依賴（AR-22 P1）────────────────────────────
   // 圖層自己的參數**不在這裡** —— 每個 Host 用 `useLayerParams(key)` 自己訂閱。
@@ -1807,7 +1819,7 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
+      {showLoadingScreen && <LoadingScreen phase={bootPhase as Exclude<BootPhase, "gone">} isDarkTheme={isDarkTheme} />}
       <TransientNotice />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
@@ -2027,7 +2039,7 @@ export default function App() {
               transition: "left 0.2s ease",
             }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div data-boot-part="title" style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
                 <h1
                   style={{
@@ -2062,6 +2074,7 @@ export default function App() {
             </div>
 
             <div
+              data-boot-part="toolbar"
               style={{
                 display: "flex",
                 alignItems: "center",

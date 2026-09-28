@@ -1,12 +1,12 @@
 /**
  * SatelliteConsole — 衛星情報儀表板主 panel
  *
- * 左 docked（與 IntelPanel 同位置 left:64, top:98），用 IntelPanel 同樣的 token / 動畫，
+ * 左 docked（與 IntelPanel 同位置 left:64, top:LAYOUT.leftDockTop），用 IntelPanel 同樣的 token / 動畫，
  * 確保視覺一致。P5-P10 接入 §A-§F 子區塊。
  */
 import { useEffect, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE, LAYOUT, SURFACE } from "../../styles/designTokens";
 import { SatelliteConsoleHeader } from "./SatelliteConsoleHeader";
 import { ManeuverAlertSection } from "./ManeuverAlertSection";
 import { CNGroupSection } from "./CNGroupSection";
@@ -63,10 +63,10 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
         style={{
           position: "fixed",
           left: 64,
-          top: 98,
+          top: LAYOUT.leftDockTop,
           bottom: 130,
           width: PANEL_WIDTH,
-          background: COLORS.panelBg,
+          background: SURFACE.strong,
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
           border: `1px solid ${isHistory ? "rgba(255,152,0,0.45)" : COLORS.panelBorder}`,
