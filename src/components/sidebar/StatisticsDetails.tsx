@@ -208,7 +208,6 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
   return typeof value === 'number' && Number.isFinite(value) ? `${value.toLocaleString()}${unit ? ` ${unit}` : ''}` : '未提供';
 }
 
-/** Let statistics controls inherit the light or dark sidebar palette. */
 /**
  * 外觀交給共用的 `.lpc-select`（layerParamControls.css，展開區容器帶主題 class）；
  * 這裡只補原生下拉清單要跟著的 color-scheme。
@@ -318,8 +317,8 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         return <option key={metric.layerKey} value={metric.layerKey} disabled={!enabled}>{metric.label}{enabled ? '' : '（此學年未提供）'}</option>;
       })}</select>
     </label>}
-    {laborView && selectedLaborMetric && <label style={filterLabel}>顯示
-      <select className="statistics-detail-control" aria-label={`${laborView.label} 顯示方式`} style={control} value={selectedLaborMetric.sourceLayerKey} onChange={event => {
+    {laborView && selectedLaborMetric && <label className="statistics-filter-label" style={filterLabel}>顯示
+      <select className="statistics-detail-control lpc-select" aria-label={`${laborView.label} 顯示方式`} style={control} value={selectedLaborMetric.sourceLayerKey} onChange={event => {
         const metric = laborView.metrics.find(candidate => candidate.sourceLayerKey === event.target.value);
         const sourceRecipe = metric ? getLaborRecipe(metric.sourceLayerKey) : undefined;
         if (!metric || !sourceRecipe) return;
