@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchWasteCleaningSquads, type WasteCleaningSquadRow } from "../data/wasteLoader";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
@@ -30,10 +31,11 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       source: SOURCE_ID,
       minzoom: 6,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 10, 6, 14, 10, 17, 16],
+        "circle-radius": pointRadius("L"),
         "circle-color": color,
         "circle-blur": 0.7,
-        "circle-opacity": isDark ? 0.35 : 0.25,
+        // 靜態清潔隊據點；glow 不參與點擊，保留子圖層但不顯示。
+        "circle-opacity": 0,
       },
     });
   }
@@ -44,10 +46,11 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       source: SOURCE_ID,
       minzoom: 6,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 10, 2.5, 14, 4, 17, 6],
+        "circle-radius": pointRadius("L"),
         "circle-color": color,
-        "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.35)",
-        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 12, 0.6, 16, 1.2],
+        "circle-stroke-color": mapSeamColor(isDark),
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
         "circle-opacity": 0.95,
       },
     });
@@ -116,6 +119,10 @@ export function useWasteCleaningSquadLayer(
       }
       try {
         ensureLayer(map, isDarkTheme);
+        if (map.getLayer(CORE_LAYER_ID)) {
+          map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-color", mapSeamColor(isDarkTheme));
+          map.setPaintProperty(CORE_LAYER_ID, "circle-stroke-opacity", POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"]);
+        }
       } catch {
         scheduleRetry();
         return;
