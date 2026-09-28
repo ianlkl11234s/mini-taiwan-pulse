@@ -16,6 +16,7 @@ import { ALERT_GROUP_KEYS, type AlertGroupKey } from "../data/disasterAlertTypes
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -45,8 +46,8 @@ const PULSE_IDS = ["disaster-alert-pulse-0", "disaster-alert-pulse-1"];
 const PULSE_CYCLE_MS = 2200;
 const PULSE_FRAME_MS = 40;
 const PULSE_R_MIN = 7;
-const PULSE_R_MAX = 30;
-const PULSE_PEAK_OPACITY = 0.85;
+const PULSE_R_MAX = 9;
+const PULSE_PEAK_OPACITY = 0.35;
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined"
@@ -94,7 +95,7 @@ interface CachedDay {
   accessedAt: number;
 }
 
-function buildLayers(map: MapboxMap): boolean {
+function buildLayers(map: MapboxMap, isDark: boolean): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
   for (const group of ALERT_GROUP_KEYS) {
@@ -143,15 +144,11 @@ function buildLayers(map: MapboxMap): boolean {
         source: SOURCE_ID,
         filter: ptFilter,
         paint: {
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 3.5,
-            10, 5.5,
-            14, 7,
-          ] as unknown as ExpressionSpecification,
+          "circle-radius": pointRadius("M"),
           "circle-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
-          "circle-stroke-color": "#ffffff",
-          "circle-stroke-width": 1.2,
+          "circle-stroke-color": mapSeamColor(isDark),
+          "circle-stroke-width": POINT_STROKE.width,
+          "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"],
           "circle-opacity": 0.85,
         },
       } as CircleLayer);
@@ -173,6 +170,7 @@ function buildLayers(map: MapboxMap): boolean {
         "circle-stroke-color": ["get", "color"] as unknown as ExpressionSpecification,
         "circle-stroke-width": 2.5,
         "circle-stroke-opacity": 0,
+        "circle-blur": 0.6,
       },
     } as CircleLayer);
   }
@@ -184,6 +182,7 @@ export function useDisasterAlertLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visibility: Record<AlertGroupKey, boolean>,
   opacity: number = 1,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef);
@@ -232,10 +231,10 @@ export function useDisasterAlertLayer(
     }
     const probe = layerIds(ALERT_GROUP_KEYS[0]!).fill;
     if (!layersReadyRef.current || !map.getLayer(probe)) {
-      layersReadyRef.current = buildLayers(map);
+      layersReadyRef.current = buildLayers(map, isDark);
     }
     return layersReadyRef.current;
-  }, []);
+  }, [isDark]);
 
   const refreshSource = useCallback((map: MapboxMap, t: number) => {
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
@@ -426,7 +425,9 @@ export function useDisasterAlertLayer(
       }
       if (map.getLayer(ids.point)) {
         map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
-        map.setPaintProperty(ids.point, "circle-stroke-opacity", o);
+        map.setPaintProperty(ids.point, "circle-stroke-color", mapSeamColor(isDark));
+        map.setPaintProperty(ids.point, "circle-stroke-width", POINT_STROKE.width);
+        map.setPaintProperty(ids.point, "circle-stroke-opacity", POINT_STROKE.opacity[isDark ? "dark" : "light"] * o);
       }
     }
     // pulse 的 opacity 平常由 rAF 每幀寫（讀 opacityRef），只有 reduced-motion
@@ -436,5 +437,5 @@ export function useDisasterAlertLayer(
         if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-opacity", 0.5 * o);
       }
     }
-  }, [opacity, visKey, mapRef, mapTick]);
+  }, [opacity, isDark, visKey, mapRef, mapTick]);
 }
