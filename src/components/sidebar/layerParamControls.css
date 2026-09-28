@@ -423,24 +423,6 @@ button.lpc-btn[aria-pressed="true"] {
   font-weight: var(--font-weight-semibold);
 }
 
-button.lpc-icon-btn {
-  display: grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--lpc-muted);
-  cursor: pointer;
-}
-
-button.lpc-icon-btn:hover {
-  background: var(--control-bg-hover);
-  color: var(--lpc-strong);
-}
-
 .lpc-area button:focus-visible,
 .lpc-area select:focus-visible,
 .lpc-area summary:focus-visible,
