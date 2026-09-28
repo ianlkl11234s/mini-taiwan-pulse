@@ -1,0 +1,22 @@
+/* G1: analysis result legends inside the 「圖例」 panel (moved out of the Agent panel). */
+.analysis-legend-group { --agent-text: var(--text-strong); --agent-muted: var(--text-muted); --agent-border: var(--border-panel); display: flex; flex-direction: column; gap: 8px; font-family: var(--font-cjk); }
+.analysis-legend-group--light { --agent-text: var(--light-text-strong); --agent-muted: var(--light-text-muted); --agent-border: var(--light-border); --text-dim: var(--light-text-dim); --border-soft: var(--light-border-soft); }
+.analysis-legend-group__heading { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--agent-muted); font-size: var(--font-sm); font-weight: var(--font-weight-semibold); }
+.analysis-legend-group__heading::after { content: ""; flex: 1; border-top: 1px solid var(--border-soft); }
+.analysis-legend-group__entry { display: flex; flex-direction: column; }
+.analysis-legend-group__title { color: var(--agent-text); font-size: var(--font-base); font-weight: var(--font-weight-bold); }
+.analysis-legend-group__source { margin-top: 3px; color: var(--text-dim); font-size: var(--font-sm); }
+.analysis-legend-group .agent-analysis-count-legend { margin-top: 4px; color: var(--agent-muted); font-size: var(--font-sm); line-height: 1.45; }
+.analysis-legend-group .agent-analysis-count-legend > div { display: flex; flex-wrap: wrap; gap: 3px 7px; margin-top: 2px; }
+.analysis-legend-group .agent-analysis-count-legend > div span { display: inline-flex; align-items: center; gap: 3px; }
+.analysis-legend-group .agent-analysis-count-legend i { width: 8px; height: 8px; border: 1px solid var(--agent-text); border-radius: var(--radius-full); box-shadow: 0 0 0 1px var(--agent-border); }
+.analysis-legend-group .agent-analysis-scope-legend { display: flex; align-items: center; gap: 5px; margin: 4px 0 0; color: var(--agent-muted); font-size: var(--font-sm); line-height: 1.45; }
+.analysis-legend-group .agent-analysis-scope-legend i { display: inline-block; width: 14px; border-top: 1.5px dashed var(--agent-text); }
+.analysis-legend-group .agent-style-legend__bar { display: flex; height: 8px; margin-top: 3px; border-radius: var(--radius-sm); overflow: hidden; }
+.analysis-legend-group .agent-style-legend__bar b { flex: 1 1 0; }
+.analysis-legend-group .agent-style-legend__breaks { display: flex; justify-content: space-around; }
+.analysis-legend-group .agent-style-legend__bivariate { display: grid; grid-template-columns: auto 42px; grid-template-rows: 42px auto; gap: 2px 4px; align-items: center; margin-top: 3px; }
+.analysis-legend-group .agent-style-legend__y { grid-column: 1; grid-row: 1; }
+.analysis-legend-group .agent-style-legend__grid { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: repeat(3, 14px); grid-template-rows: repeat(3, 14px); }
+.analysis-legend-group .agent-style-legend__x { grid-column: 2; grid-row: 2; white-space: nowrap; }
+.analysis-legend-group .agent-style-legend__null i { border-radius: var(--radius-sm); }

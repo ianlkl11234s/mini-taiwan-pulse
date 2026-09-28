@@ -27,9 +27,22 @@ function SizeLegendCircles({ entries }: { entries: WarehouseSizeLegendEntry[] })
   </div>;
 }
 
+/** G2 精簡版: only the title and the colour bar (no breaks, classes, null entry or size circles). */
+function CompactStyleLegend({ legend }: { legend: WarehouseStyleLegend }) {
+  const title = legend.kind === "choropleth" || legend.kind === "heatmap" ? legend.title : legend.kind === "bivariate" ? `填色：${legend.xLabel} · 大小：${legend.yLabel}` : legend.colorLegend?.title ?? legend.sizeLabel;
+  const entries = legend.kind === "choropleth" ? legend.entries : legend.kind === "bivariate" ? legend.fillEntries : legend.kind === "proportional" ? legend.colorLegend?.entries ?? [] : [];
+  return <div className="agent-analysis-count-legend agent-style-legend agent-style-legend--compact" data-style-kind={legend.kind}>
+    <span>{title}</span>
+    {legend.kind === "heatmap"
+      ? <div className="agent-style-legend__bar" style={{ backgroundImage: legend.gradient }} aria-hidden="true" />
+      : entries.length > 0 && <div className="agent-style-legend__bar" aria-hidden="true">{entries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>}
+  </div>;
+}
+
 /** Legend for server-styled warehouse results: colour bar + breaks, fill + size bubbles (bivariate
  *  V3), density ramp, or size circles + optional colour scale (proportional). */
-export function WarehouseStyleLegendView({ legend }: { legend: WarehouseStyleLegend }) {
+export function WarehouseStyleLegendView({ legend, compact = false }: { legend: WarehouseStyleLegend; compact?: boolean }) {
+  if (compact) return <CompactStyleLegend legend={legend} />;
   if (legend.kind === "choropleth") {
     const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="choropleth">

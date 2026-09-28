@@ -33,10 +33,10 @@ import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
 import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisSelection, type AnalysisSelection, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
-import { researchResultPanelProperties, researchResultPopupOverlaps, type AnalysisResultPanelProperties } from "./researchResultPopup";
-import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
+import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties } from "./researchResultPopup";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
 import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStack";
+import { analysisLegendEntries, publishAnalysisLegend } from "./analysisLegendStore";
 import type { PresentableResult } from "./researchAnalysisSession";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import { vizThemeForBasemap } from "./vizSpec";
@@ -526,6 +526,18 @@ export function MainMapConnection(props: Props) {
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
     };
   }, [props.map]);
+  // G1/G2: the analysis legend lives in the 「圖例」 panel (top group); compact while the docked panel is open.
+  useEffect(() => {
+    publishAnalysisLegend({
+      // Source line = the dataset descriptor's name (not the result title, which is often the same text).
+      entries: analysisLegendEntries(presentedAnalysis, datasetId => {
+        const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
+        return label === UNNAMED_DATASET_LABEL ? null : label;
+      }),
+      compact: !!props.analysisResultSelected,
+    });
+  }, [presentedAnalysis, props.analysisResultSelected]);
+  useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
   // I2: closing the docked panel, or selecting another layer's feature, restores every result.
   useEffect(() => {
     if (props.analysisResultSelected || !analysisSelectionRef.current.length) return;
@@ -580,8 +592,6 @@ export function MainMapConnection(props: Props) {
                 <label className="agent-analysis-opacity">透明度
                   <input aria-label={`${result?.displayLabel ?? "分析結果"}透明度`} type="range" min="0.15" max="1" step="0.05" value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={event => { const value = Number(event.target.value); setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
-                {rendered?.numericLegend && <div className="agent-analysis-count-legend"><span>{rendered.numericLegend.label} · {rendered.numericLegend.method === "single_value" ? "單一數值" : "本次結果等距分級"}</span><div>{rendered.numericLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
-                {rendered?.styleLegend && <WarehouseStyleLegendView legend={rendered.styleLegend} />}
                 {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
                   if (!props.map) return;
                   let point: Record<string, unknown> | undefined;
@@ -589,8 +599,6 @@ export function MainMapConnection(props: Props) {
                   const geometry = point?.geometry as { type?: string; coordinates?: [number, number] } | undefined;
                   if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
                 }} />}
-                {rendered?.countLegend && <div className="agent-analysis-count-legend"><span>{rendered.countLegend.label} · {rendered.countLegend.radiusM.toLocaleString("zh-TW")} 公尺內</span><div>{rendered.countLegend.entries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}</div></div>}
-                {rendered?.scopeRing && <p className="agent-analysis-scope-legend"><i aria-hidden="true" />分析範圍（虛線）{rendered.scopeRing.radiusM != null ? ` · 半徑 ${rendered.scopeRing.radiusM.toLocaleString("zh-TW")} 公尺` : ""}</p>}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
             </div>

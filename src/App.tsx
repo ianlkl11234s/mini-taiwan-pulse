@@ -1,4 +1,5 @@
 import { MainMapConnection } from "./research/MainMapConnection";
+import { useAnalysisLegend } from "./research/analysisLegendStore";
 import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
 import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
@@ -968,6 +969,8 @@ export default function App() {
   // 與 Agent 協作的分析結果點擊 → 共用右下停靠 FeatureInfoPanel。
   // 刻意不帶 coords：coords 會經 MainMapConnection 的 selection 回報成「使用者選取」給 Agent。
   // 選取圈改由 useSelectionRing 以最後一次地圖點擊位置補上。null 只關分析結果面板，不動其他圖層的。
+  // G1：分析結果圖例住在「圖例」面板，沒有任何圖層開著時也要讓面板出現。
+  const hasAnalysisLegend = useAnalysisLegend().entries.length > 0;
   const handleAnalysisResultFeature = useCallback((properties: AnalysisResultPanelProperties | null) => {
     if (properties) setFeatureInfo({ layerType: "analysisResult", properties });
     else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
@@ -2895,7 +2898,7 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          {Object.values(layerVisibility).some(Boolean) && (
+          {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (
             <Suspense fallback={<span role="status">圖例載入中…</span>}>
               <LegendPanel isDarkTheme={isDarkTheme} />
             </Suspense>
