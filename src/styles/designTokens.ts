@@ -221,6 +221,8 @@ export const LIGHT = {
   borderSoft: "rgba(0,0,0,0.06)",
   border: "rgba(0,0,0,0.10)",
   borderMid: "rgba(0,0,0,0.16)",
+  /** 即時情報「強分隔」（分類 chip 選中框）淡色版；同 alpha 換極性，沿用 BORDER.strong ↔ 本欄慣例 */
+  borderStrong: "rgba(0,0,0,0.22)",
   controlBg: "rgba(0,0,0,0.035)",
   controlBgHover: "rgba(0,0,0,0.08)",
   controlBorder: "rgba(0,0,0,0.14)",

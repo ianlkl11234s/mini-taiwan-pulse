@@ -69,7 +69,7 @@ export const COUNTY_OPTIONS = [
 ];
 
 /** #rrggbb（或 3 碼 #rgb）→ rgba()；非 hex（例如已是 rgba() 字串）原樣回傳，呼叫端保底用純 hex。 */
-function withAlpha(color: string, alpha: number): string {
+export function withAlpha(color: string, alpha: number): string {
   const hex = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(color)?.[1];
   if (!hex) return color;
   const full = hex.length === 3 ? hex.split("").map((c) => c + c).join("") : hex;
@@ -77,14 +77,18 @@ function withAlpha(color: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
-/** 分類徽章：淡底色（14% alpha）＋ 該色字，無框。 */
-export function chipTint(color: string): CSSProperties {
-  return { background: withAlpha(color, 0.14), color };
+/**
+ * 分類徽章：淡底色（14% alpha）＋ 該色字，無框。
+ * `textColor` 預設＝`color`（暗色不變）；淡色主題底色偏淺（黃／淺綠…）時，
+ * 呼叫端應改傳 `intelTheme.ts` 的 `chipText(color, palette)` 加深字色以維持對比（design-system.md §5.21）。
+ */
+export function chipTint(color: string, textColor: string = color): CSSProperties {
+  return { background: withAlpha(color, 0.14), color: textColor };
 }
 
-/** 程度／狀態徽章：外框（50% alpha）＋ 該色字，透明底。 */
-export function chipOutline(color: string): CSSProperties {
-  return { background: "transparent", border: `1px solid ${withAlpha(color, 0.5)}`, color };
+/** 程度／狀態徽章：外框（50% alpha）＋ 該色字，透明底。`textColor` 用法同 `chipTint`。 */
+export function chipOutline(color: string, textColor: string = color): CSSProperties {
+  return { background: "transparent", border: `1px solid ${withAlpha(color, 0.5)}`, color: textColor };
 }
 
 /**

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA } from "./intelTokens";
+import { FONT_CJK, FONT_DATA } from "./intelTokens";
+import { neutralFill, useIntelTheme } from "./intelTheme";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, getNewsCategoryDef, type NewsCategory } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
@@ -80,6 +81,7 @@ function rankHotspots(
 }
 
 export function IntelSituation({ events, countyByEventId, trending }: Props) {
+  const palette = useIntelTheme();
   const [open, setOpen] = useState(true);
 
   const trendingKeys = useMemo(() => {
@@ -121,8 +123,8 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
       style={{
         flexShrink: 0,
         padding: "9px 14px 10px",
-        borderBottom: `1px solid ${COLORS.borderSoft}`,
-        background: "rgba(255,255,255,0.015)",
+        borderBottom: `1px solid ${palette.borderSoft}`,
+        background: neutralFill(0.015, palette.isDark),
       }}
     >
       {/* header */}
@@ -137,23 +139,23 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
             border: "none",
             background: "transparent",
             cursor: "pointer",
-            color: COLORS.textMuted,
+            color: palette.textMuted,
           }}
         >
-          <IntelIcon d={open ? ICON.chevDown : ICON.chevRight} size={11} color={COLORS.textDim} />
+          <IntelIcon d={open ? ICON.chevDown : ICON.chevRight} size={11} color={palette.textDim} />
           <span
             style={{
               fontFamily: FONT_DATA,
               fontSize: 9.5,
               letterSpacing: "1.8px",
-              color: COLORS.textMuted,
+              color: palette.textMuted,
               whiteSpace: "nowrap",
             }}
           >
             現況 SITUATION
           </span>
         </button>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: palette.textFaint, whiteSpace: "nowrap" }}>
           {dayTotal} 則
         </span>
       </div>
@@ -167,7 +169,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 fontFamily: FONT_DATA,
                 fontSize: 8.5,
                 letterSpacing: "1px",
-                color: COLORS.textFaint,
+                color: palette.textFaint,
                 whiteSpace: "nowrap",
               }}
             >
@@ -192,7 +194,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 right: 0,
                 top: "50%",
                 height: 1,
-                background: "rgba(255,255,255,0.05)",
+                background: neutralFill(0.05, palette.isDark),
               }}
             />
             {buckets.map((b) => {
@@ -235,7 +237,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               marginTop: 2,
               fontFamily: FONT_DATA,
               fontSize: FONT_SIZE.xs,
-              color: COLORS.textGhost,
+              color: palette.textGhost,
             }}
           >
             <span>00:00</span>
@@ -244,7 +246,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
           </div>
 
           {/* divider */}
-          <div style={{ height: 1, background: COLORS.borderSoft, margin: "9px 0 8px" }} />
+          <div style={{ height: 1, background: palette.borderSoft, margin: "9px 0 8px" }} />
 
           {/* 熱區 TOP 5 */}
           <div
@@ -252,14 +254,14 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               fontFamily: FONT_DATA,
               fontSize: 8.5,
               letterSpacing: "1px",
-              color: COLORS.textFaint,
+              color: palette.textFaint,
               marginBottom: 6,
             }}
           >
             熱區 TOP 5 · HOTSPOTS
           </div>
           {hotspots.length === 0 ? (
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "2px 0" }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint, padding: "2px 0" }}>
               ⚠ 尚無資料
             </div>
           ) : (
@@ -268,7 +270,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 const cat = getNewsCategoryDef(r.topCat);
                 return (
                   <div key={r.county} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim, width: 9 }}>
+                    <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: palette.textDim, width: 9 }}>
                       {i + 1}
                     </span>
                     <span
@@ -278,7 +280,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                       style={{
                         fontFamily: FONT_CJK,
                         fontSize: 10.5,
-                        color: COLORS.textDefault,
+                        color: palette.textDefault,
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -289,7 +291,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                         flex: 1,
                         height: 4,
                         borderRadius: RADIUS.sm,
-                        background: "rgba(255,255,255,0.05)",
+                        background: neutralFill(0.05, palette.isDark),
                         overflow: "hidden",
                         minWidth: 14,
                       }}
@@ -305,14 +307,14 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                       />
                     </div>
                     {r.surge && (
-                      <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.statusWarn }}>🔥</span>
+                      <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: palette.statusWarn }}>🔥</span>
                     )}
                     <span
                       style={{
                         fontFamily: FONT_DATA,
                         fontSize: FONT_SIZE.base,
                         fontWeight: 700,
-                        color: "#fff",
+                        color: palette.textStrong,
                         width: 16,
                         textAlign: "right",
                       }}
@@ -330,7 +332,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
             style={{
               marginTop: 9,
               paddingTop: 8,
-              borderTop: `1px solid ${COLORS.borderSoft}`,
+              borderTop: `1px solid ${palette.borderSoft}`,
               display: "flex",
               alignItems: "center",
               gap: 11,
@@ -339,11 +341,11 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               flexWrap: "wrap",
             }}
           >
-            <span style={{ color: COLORS.textFaint, letterSpacing: "1px" }}>分級</span>
-            <span style={{ color: COLORS.accent }}>事件 {triage.event}</span>
-            <span style={{ color: COLORS.textDim }}>聲明 {triage.statement}</span>
-            <span style={{ color: COLORS.statusWarn }}>地理重大 {triage.majorGis}</span>
-            <span style={{ color: COLORS.statusErr }}>嚴重級 {triage.majorSev}</span>
+            <span style={{ color: palette.textFaint, letterSpacing: "1px" }}>分級</span>
+            <span style={{ color: palette.accent }}>事件 {triage.event}</span>
+            <span style={{ color: palette.textDim }}>聲明 {triage.statement}</span>
+            <span style={{ color: palette.statusWarn }}>地理重大 {triage.majorGis}</span>
+            <span style={{ color: palette.statusErr }}>嚴重級 {triage.majorSev}</span>
           </div>
         </>
       )}

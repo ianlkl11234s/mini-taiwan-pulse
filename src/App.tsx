@@ -2218,6 +2218,7 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat, zoom) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: zoom ?? 12, speed: 1.2 });
             }}

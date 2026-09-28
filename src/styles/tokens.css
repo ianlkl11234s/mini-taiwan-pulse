@@ -121,6 +121,7 @@
   --light-border-soft: rgba(0, 0, 0, 0.06);
   --light-border: rgba(0, 0, 0, 0.10);
   --light-border-mid: rgba(0, 0, 0, 0.16);
+  --light-border-strong: rgba(0, 0, 0, 0.22);
   --light-control-bg: rgba(0, 0, 0, 0.035);
   --light-control-bg-hover: rgba(0, 0, 0, 0.08);
   --light-control-border: rgba(0, 0, 0, 0.14);

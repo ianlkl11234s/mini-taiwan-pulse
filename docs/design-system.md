@@ -162,6 +162,7 @@
 | `LIGHT.borderSoft` | `--light-border-soft` | `rgba(0,0,0,0.06)` | `BORDER.soft` |
 | `LIGHT.border` | `--light-border` | `rgba(0,0,0,0.10)` | `BORDER.panel` |
 | `LIGHT.borderMid` | `--light-border-mid` | `rgba(0,0,0,0.16)` | `BORDER.mid` |
+| `LIGHT.borderStrong` | `--light-border-strong` | `rgba(0,0,0,0.22)` | `BORDER.strong`（Phase L 新增，即時情報選中 chip 強分隔框） |
 | `LIGHT.controlBg` | `--light-control-bg` | `rgba(0,0,0,0.035)` | `CONTROL.bg` |
 | `LIGHT.controlBgHover` | `--light-control-bg-hover` | `rgba(0,0,0,0.08)` | `CONTROL.bgHover` |
 | `LIGHT.controlBorder` | `--light-control-border` | `rgba(0,0,0,0.14)` | `CONTROL.border` |
@@ -176,7 +177,7 @@
 | `LIGHT.sliderThumb` | `--light-slider-thumb` | `#111827` | `SLIDER.thumb` |
 | `LIGHT.elevationLg` | `--light-elevation-lg` | `0 12px 40px rgba(0,0,0,0.18)` | `ELEVATION.lg` |
 
-目前取用 `LIGHT` 的消費端：`toolbar/toolbarTheme.ts`、`sidebar/DataSourcePanel.tsx`（`LIGHT_DS`）、`featureInfo/featureTheme.tsx`（`LIGHT_FEATURE`）、`FeatureInfoPanel.tsx`、`sidebar/layerParamControls.css`（`--lpc-*`）、`map/selectionRing.ts`，以及各子系統 CSS 的 `--light-*`。尚未收斂者列在 §10.3。
+目前取用 `LIGHT` 的消費端：`toolbar/toolbarTheme.ts`、`sidebar/DataSourcePanel.tsx`（`LIGHT_DS`）、`featureInfo/featureTheme.tsx`（`LIGHT_FEATURE`）、`FeatureInfoPanel.tsx`、`sidebar/layerParamControls.css`（`--lpc-*`）、`map/selectionRing.ts`、`intel/intelTheme.tsx`（`LIGHT_INTEL`，Phase L）以及各子系統 CSS 的 `--light-*`。尚未收斂者列在 §10.3。
 
 ### 3.10 RADIUS
 
@@ -458,7 +459,9 @@
   - 共通：10px、padding `3px 5px`（外框版 `2px 5px`）、圓角 3。
 - **篩選**：分段控制（§5.8）；事件列表用左線時間軸（§5.6）。
 - **禁止**：自訂第三種徽章公式；分類與程度用同一種外觀。
-- **實作**：`src/components/intel/{IntelHeader.tsx,IntelCard.tsx,IntelFilters.tsx,intelTokens.ts}`、`intel/alerts/AlertCard.tsx`。**尚無淡色主題**（§10.3）。
+- **暗／淡**：`intel/intelTheme.tsx` 的 `IntelPalette`（`DARK_INTEL`／`LIGHT_INTEL`，淡色一律取自本檔 `LIGHT`）＋ `IntelThemeProvider`／`useIntelTheme()` 分發，由 `IntelPanel` 依 `isDarkTheme` 建 palette；未被 Provider 包住時 fallback 深色（Monitor Mode 的戰情看板刻意維持全暗，`monitor/NewsFeedPanel.tsx` 顯式套 `DARK_INTEL`，不隨主站底圖切換）。
+- **淡色徽章對比規則**：`chipTint`／`chipOutline` 的底色／框線沿用資料 hue 不變（§3.16 資料色不進 token）；但淡色主題若直接拿該 hue 當「字」色，淺色相（黃、淺綠、青…）對近白面板對比不足。呼叫端改用 `intelTheme.ts` 的 `chipText(color, palette)`：暗色原樣回傳，淡色把 hue 與 `LIGHT.textStrong` 依 45%／55% 混色（`CHIP_TEXT_MIX = 0.55`）。已對 7 個新聞分類、6 個警示分類、4 個嚴重度色、`COLORS.cluster` 共 18 色驗證 WCAG 對比：`chipOutline`（字疊在不透明面板底，對純白量測即精確值）全數 ≥5.32:1；`chipTint`（字疊在「白＋該色 14% alpha」的真實淡底，對比略低於純白版本）全數 ≥5.01:1；兩者最低都是 lifeline `#a3e635`（見 `intel/__tests__/intelTheme.contrast.test.ts`，兩種底各自量測，未達標顏色目前為零）。`GIS_LEVELS`／`SEV_LEVELS` 的分級色另用 `levelColor()` 轉換（白色半透明佔位→中性文字階；與 accent／statusWarn／statusErr 同值→換成對應 palette 欄位；其餘資料 hue→`chipText`）。
+- **實作**：`src/components/intel/{IntelHeader.tsx,IntelCard.tsx,IntelFilters.tsx,intelTokens.ts,intelTheme.tsx}`、`intel/alerts/{AlertCard.tsx,AlertSummaryBar.tsx,FeedTabs.tsx}`。
 
 ### 5.22 資料來源面板（D1 列內展開）
 
@@ -612,6 +615,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | I | 圖層控制 V2＋S1、標籤中文化 | ✅ | `79a23cf8`、`6b0ffa34` |
 | K | 資料來源面板 D1 | ✅ | `75c4c669` |
 | J | 淡色／控制 token 收斂、本文件改寫、參考頁、guard | ✅ | 本 PR |
+| L | 即時情報 Intel 面板淡色主題（`intelTheme.tsx` palette／徽章對比公式） | ✅ | 本 PR |
 
 ### 10.2 區塊狀態
 
@@ -625,7 +629,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 與 Agent 協作面板、研究頁、活動時間軸 | ✅ 符合 | 分析色階漸層屬資料色例外 |
 | 會員專區 | ✅ 符合 | |
 | Layers 面板 L2 群組 | ⚠️ 部分 | 群組標題顏色仍 inline hex；**主題標題（`MacroGroupLabel`）仍是等寬英文大寫，如「交通 MOVE」** |
-| 即時情報 | ⚠️ 部分 | 暗色符合；**沒有淡色主題** |
+| 即時情報 | ✅ 符合 | Phase L：暗／淡皆吃 `intelTheme.ts` palette；Monitor Mode 戰情看板刻意維持全暗（`NewsFeedPanel` 顯式套 `DARK_INTEL`），不在本輪淡色範圍 |
 | 面板標頭（非 H2 分支） | ⚠️ 部分 | `PanelHeader` 未傳 `eyebrow` 的分支仍用 Inter |
 | 圖例 | ✅ 符合 | |
 
@@ -636,7 +640,6 @@ PR 前逐項勾（貼進 PR 描述）：
 | 左下時間軸控制 | 未套 C2／S1：原生 range、`▶` 文字箭頭、自訂按鈕樣式 | `src/components/TimelineControls.tsx`、`HistoricalTimeline.tsx` |
 | Layers 主題標題 | `FONT_DATA` + `uppercase` + 中英混排（「交通 MOVE」） | `IconRailSidebar.tsx` `MacroGroupLabel`、`LayerSidebar.tsx` |
 | Mobile compact header | 未依 H2／T2 改寫 | `App.tsx` 手機分支、`LayerSidebar.tsx` |
-| 即時情報淡色主題 | 未做 | `src/components/intel/**` |
 | Settings／Info／Share 等 modal | 未依本輪規格檢查；`InfoModal` 有 `uppercase` 與 `▶` 說明文字 | `InfoModal.tsx`、`ShareModal.tsx`、Settings |
 | Inter 殘留 | 11 處 `fontFamily: "Inter, …"`（`IconRailSidebar.tsx` 7、其餘各 1） | `IconRailSidebar.tsx`、`App.tsx`、`TransientNotice.tsx`、`PanelHeader.tsx`、`StatisticsDetails.tsx` |
 | 其他原生 range | 地震回放、情報回放、研究頁、bbox 工具 | 見 guard 基準 `native-range` |

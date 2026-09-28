@@ -1,5 +1,6 @@
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { CONTROL, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
+import { useIntelTheme } from "../intelTheme";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 export type FeedTab = "all" | "news" | "alerts" | "globalEvents";
 
@@ -26,12 +27,13 @@ const TABS: { key: FeedTab; label: string }[] = [
 ];
 
 export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
+  const palette = useIntelTheme();
   return (
     <div
       style={{
         flexShrink: 0,
         padding: "8px 14px 6px",
-        borderBottom: `1px solid ${COLORS.borderSoft}`,
+        borderBottom: `1px solid ${palette.borderSoft}`,
       }}
     >
       <div
@@ -41,8 +43,8 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
           display: "flex", gap: 2,
           padding: 2,
           borderRadius: RADIUS.lg,
-          border: `1px solid ${CONTROL.border}`,
-          background: CONTROL.bg,
+          border: `1px solid ${palette.controlBorder}`,
+          background: palette.controlBg,
         }}
       >
         {TABS.map((t) => {
@@ -68,11 +70,11 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
                 border: "none",
                 cursor: "pointer",
                 background: active
-                  ? (hot ? "rgba(239,68,68,0.16)" : COLORS.accentFaint)
+                  ? (hot ? withAlpha(palette.statusErr, 0.16) : palette.accentFaint)
                   : "transparent",
                 color: active
-                  ? (hot ? "#ef4444" : COLORS.accent)
-                  : COLORS.textMuted,
+                  ? (hot ? palette.statusErr : palette.accent)
+                  : palette.textMuted,
                 fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 600,
               }}
             >
@@ -80,7 +82,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, a
               <span
                 style={{
                   fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
-                  color: hot && active ? "#ef4444" : "inherit",
+                  color: hot && active ? palette.statusErr : "inherit",
                   opacity: 0.9,
                 }}
               >
