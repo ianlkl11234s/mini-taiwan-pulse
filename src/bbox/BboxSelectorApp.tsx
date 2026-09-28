@@ -17,6 +17,7 @@ import {
 } from "./gfwTrackContract";
 import { Slider } from "../components/controls/Slider";
 import "./bboxSelector.css";
+import { MAP_LOCAL_IDEOGRAPH_FONT } from "../map/mapStyleScale";
 
 const SELECTION_SOURCE = "bbox-selector-source";
 const SELECTION_FILL = "bbox-selector-fill";
@@ -163,6 +164,7 @@ export function BboxSelectorApp() {
       zoom: 5.4,
       pitch: 0,
       bearing: 0,
+      localIdeographFontFamily: MAP_LOCAL_IDEOGRAPH_FONT,
       attributionControl: true,
     });
     mapRef.current = map;
