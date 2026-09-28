@@ -19,6 +19,7 @@ import {
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   Lock,        // gated 圖層鎖頭
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
+  Database,    // 資料來源 rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -37,6 +38,7 @@ import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
 import { searchLocationPresets } from "../lib/locationSearch";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { DataSourcePanel } from "./sidebar/DataSourcePanel";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 
@@ -157,7 +159,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "datasource";
 
 // ── Main Component ──
 
@@ -350,6 +352,14 @@ export function IconRailSidebar({
           active={activePanel === "locations"}
           onClick={() => togglePanel("locations")}
           tooltip="Locations"
+        />
+
+        {/* 資料來源（Phase K：收進側邊欄，取代右下浮動 ⓘ 抽屜） */}
+        <RailIcon
+          icon={Database}
+          active={activePanel === "datasource"}
+          onClick={() => togglePanel("datasource")}
+          tooltip="資料來源"
         />
 
         {agentAvailable && onAgentToggle && (
@@ -568,6 +578,14 @@ export function IconRailSidebar({
                 cityPresets={filteredCities}
                 currentLocationId={currentLocationId}
                 onLocationJump={onLocationJump}
+                onClose={closePanel}
+              />
+            )}
+            {activePanel === "datasource" && (
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={onBulkSetVisibility ? (key) => onBulkSetVisibility([key], true) : undefined}
                 onClose={closePanel}
               />
             )}

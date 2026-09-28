@@ -1,0 +1,483 @@
+/**
+ * DataSourcePanel — 左側 rail「資料來源」面板（D1：列內展開）
+ *
+ * 取代舊 DataSourceBrowser（右下浮動 ⓘ → 右側抽屜）+ DataSourceModal（置中彈窗）。
+ * 資料載入邏輯（dataCatalogLoader / useDataCatalogForLayer / UPSTREAM_REGISTRY /
+ * searchLayers / statisticsDataSources / lockedKeys 鎖頭）全部保留，只換外殼與互動：
+ * 面板嵌在 IconRailSidebar 的浮動面板區，點列在列下方展開上游資料卡（同時只展開一筆）。
+ *
+ * 規格依據：docs/features/ui-consistency-audit-20260927/ui-controls-sheet.html §4 D1。
+ */
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Search, Lock } from "lucide-react";
+import { PanelHeader } from "./PanelHeader";
+import { THEMES, LAYER_COLORS } from "./layerCatalog";
+import { UPSTREAM_REGISTRY, resolveUpstreamDatasets, type UpstreamStatus } from "../../data/upstreamRegistry";
+import { useDataCatalogForLayer } from "../../hooks/useDataCatalog";
+import { searchLayers } from "../../lib/layerSearch";
+import { getStatisticsDataSourceDefinition, isDataSourceBrowserVisible, statisticsSourceLevelLabel } from "../../data/statisticsDataSources";
+import { isStatisticsRenderLayer, statisticsReleaseFallback, statisticsRenderRecipe } from "../../data/regionalStatisticsRecipes";
+import { loadRegionalStatisticsValues, type StatisticsSource } from "../../data/regionalStatisticsLoader";
+import { COLORS, BORDER, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
+import type { LayerVisibility } from "../../types";
+
+function comparisonInputUrl(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : undefined;
+  } catch { return undefined; }
+}
+
+// ── Palette（暗／淡；沿用 ui-controls-sheet.html §4 .t-dark／.t-light 同值）──
+
+interface DsPalette {
+  text: string; textDefault: string; muted: string; dim: string;
+  border: string; borderMid: string;
+  controlBg: string; controlBgHover: string; controlBorder: string;
+  accent: string; accentFaint: string;
+  statusLive: string; statusWarn: string; statusDerived: string;
+  link: string;
+}
+
+const DARK_DS: DsPalette = {
+  text: COLORS.textStrong, textDefault: COLORS.textDefault, muted: COLORS.textMuted, dim: COLORS.textDim,
+  border: BORDER.panel, borderMid: BORDER.mid,
+  controlBg: CONTROL.bg, controlBgHover: CONTROL.bgHover, controlBorder: CONTROL.border,
+  accent: COLORS.accent, accentFaint: COLORS.accentFaint,
+  statusLive: COLORS.statusLive, statusWarn: COLORS.statusWarn, statusDerived: "#a78bfa",
+  link: "#7fb2ff",
+};
+
+const LIGHT_DS: DsPalette = {
+  text: "#111827", textDefault: "#1f2937", muted: "#4b5563", dim: "#6b7280",
+  border: "rgba(0,0,0,0.10)", borderMid: "rgba(0,0,0,0.16)",
+  controlBg: "rgba(0,0,0,0.035)", controlBgHover: "rgba(0,0,0,0.08)", controlBorder: "rgba(0,0,0,0.14)",
+  accent: "#0b6fd6", accentFaint: "rgba(11,111,214,0.10)",
+  statusLive: "#15803d", statusWarn: "#c2410c", statusDerived: "#a78bfa",
+  link: "#0284c7",
+};
+
+type StatusFilter = "all" | UpstreamStatus;
+
+const STATUS_ICON: Record<UpstreamStatus, string> = { verified: "✓", pulse_only: "⚙", catalog_missing: "?" };
+const STATUS_TITLE: Record<UpstreamStatus, string> = { verified: "已接上", pulse_only: "派生", catalog_missing: "待補" };
+const LIFECYCLE_LABEL: Record<string, string> = {
+  realtime: "即時（分鐘級）", daily: "每日", weekly: "每週", monthly: "每月",
+  quarterly: "每季", yearly: "每年", static: "一次性 / 靜態", semi_annual: "每半年",
+  planned: "規劃中", deprecated: "已停用",
+};
+
+function statusOf(key: string): UpstreamStatus {
+  return UPSTREAM_REGISTRY[key as keyof LayerVisibility]?.status ?? "catalog_missing";
+}
+
+/** 圖層／主題名稱多為「中文 English」單一字串；只在尾段是純 ASCII 時才拆出英文名，
+ *  避免把「2015 年」這類含空白的中文數字誤切。 */
+function splitLabel(label: string): { zh: string; en: string } {
+  const m = /^(.+?)\s+([A-Za-z][A-Za-z0-9 .,()/'’&+-]*)$/.exec(label);
+  return m ? { zh: m[1] ?? label, en: m[2] ?? "" } : { zh: label, en: "" };
+}
+
+type Fact = { k: string; v: ReactNode; mono?: boolean };
+/** 過濾掉不成立的事實列，統一 facts 陣列型別（否則各分支的字面量型別互不相容）。 */
+function facts(...items: (Fact | null)[]): Fact[] {
+  return items.filter((f): f is Fact => f !== null);
+}
+
+function statusColor(p: DsPalette, status: UpstreamStatus): string {
+  return status === "verified" ? p.statusLive : status === "pulse_only" ? p.statusDerived : p.statusWarn;
+}
+
+// ── Fact row（B 版：標籤 10px muted 寬 44、值 strong）──
+
+function FactRow({ p, k, children, mono }: { p: DsPalette; k: string; children: ReactNode; mono?: boolean }) {
+  return (
+    <div style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: 10.5, lineHeight: 1.3, borderBottom: `1px solid ${p.border}` }}>
+      <span style={{ width: 44, flexShrink: 0, fontSize: FONT_SIZE.sm, color: p.muted, fontFamily: FONT_CJK }}>{k}</span>
+      <span style={{ color: p.text, wordBreak: "break-all", fontFamily: mono ? FONT_DATA : FONT_CJK, fontSize: mono ? FONT_SIZE.sm : FONT_SIZE.base }}>{children}</span>
+    </div>
+  );
+}
+
+function c2Style(p: DsPalette, primary: boolean, disabled?: boolean): React.CSSProperties {
+  return {
+    display: "inline-flex", alignItems: "center", gap: 5, height: 22, padding: "0 9px",
+    borderRadius: RADIUS.md, border: `1px solid ${primary ? p.accent : p.controlBorder}`,
+    background: primary ? p.accentFaint : p.controlBg,
+    color: primary ? p.accent : p.text,
+    fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: primary ? 600 : 500,
+    cursor: disabled ? "default" : "pointer",
+    opacity: disabled ? CONTROL.disabledOpacity : 1,
+    whiteSpace: "nowrap",
+  };
+}
+
+// ── 上游資料卡（列內展開）──
+
+interface SourceBlock { title: string | null; desc?: string | null; facts: { k: string; v: ReactNode; mono?: boolean }[]; docPath?: string | null }
+
+function DataSourceCard({
+  p, layerKey, locked, onActivateLayer,
+}: { p: DsPalette; layerKey: keyof LayerVisibility; locked: boolean; onActivateLayer?: (key: keyof LayerVisibility) => void }) {
+  const { data: entries, loading, error } = useDataCatalogForLayer(layerKey);
+  const ref = UPSTREAM_REGISTRY[layerKey];
+  const status: UpstreamStatus = ref?.status ?? "catalog_missing";
+  const statisticsSource = getStatisticsDataSourceDefinition(layerKey);
+  const upstreamIds = useMemo(() => resolveUpstreamDatasets(layerKey), [layerKey]);
+
+  // 統計圖層的「已發布來源紀錄」（release 期間＋derivation 公式／上游 input_sources）。
+  // 與舊 DataSourceModal 的 ArtifactSourceCard 同一條資料路徑，只換外殼。
+  const [artifactSource, setArtifactSource] = useState<StatisticsSource | null>(null);
+  const [artifactRelease, setArtifactRelease] = useState<{ period_start: string; period_end: string } | null>(null);
+  const [artifactLoading, setArtifactLoading] = useState(false);
+  const [artifactError, setArtifactError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isStatisticsRenderLayer(layerKey)) {
+      setArtifactSource(null); setArtifactRelease(null); setArtifactError(null);
+      return;
+    }
+    const recipe = statisticsRenderRecipe(layerKey);
+    const releaseFallback = statisticsReleaseFallback(layerKey);
+    const controller = new AbortController();
+    setArtifactSource(null); setArtifactRelease(null); setArtifactError(null); setArtifactLoading(true);
+    loadRegionalStatisticsValues({
+      layerKey,
+      datasetId: recipe.dataset_id,
+      indicatorId: recipe.indicator_id,
+      level: recipe.level,
+      releaseId: "releaseId" in recipe ? recipe.releaseId : undefined,
+      dimensions: recipe.dimensions,
+      label: recipe.label,
+      allowReleaseFallback: Boolean(releaseFallback),
+      releaseFallback,
+    }, controller.signal)
+      .then((result) => { if (!controller.signal.aborted) { setArtifactSource(result.sources); setArtifactRelease(result.values.release); } })
+      .catch((e) => { if (!controller.signal.aborted) setArtifactError(e instanceof Error ? e.message : String(e)); })
+      .finally(() => { if (!controller.signal.aborted) setArtifactLoading(false); });
+    return () => controller.abort();
+  }, [layerKey]);
+
+  const statisticsBlock: SourceBlock | null = useMemo(() => {
+    if (!statisticsSource) return null;
+    const kindLabel = statisticsSource.kind === "derived" ? "派生統計" : statisticsSource.kind === "presentation" ? "固定學制統計入口" : "原始統計";
+    const derivation = artifactSource?.derivation as Record<string, unknown> | undefined;
+    const inputs = Array.isArray(derivation?.input_sources)
+      ? derivation.input_sources.filter((v): v is Record<string, unknown> => Boolean(v && typeof v === "object" && !Array.isArray(v)))
+      : [];
+    return {
+      title: `${kindLabel} · ${statisticsSource.label}`,
+      desc: [statisticsSource.metricLabel, statisticsSource.contract, statisticsSource.disclosure].filter(Boolean).join(" — "),
+      facts: facts(
+        statisticsSource.provider ? { k: "機關", v: statisticsSource.provider } : null,
+        { k: "頻率", v: statisticsSource.period },
+        statisticsSource.license ? { k: "授權", v: statisticsSource.license } : null,
+        { k: "單位", v: `${statisticsSource.unit} · ${statisticsSourceLevelLabel(statisticsSource.level)}` },
+        statisticsSource.sourceUrl ? { k: "API", v: <a href={statisticsSource.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{statisticsSource.sourceUrl}</a> } : null,
+        artifactLoading ? { k: "來源", v: "讀取已發布的來源紀錄…" } : null,
+        artifactError ? { k: "來源", v: `未載入：${artifactError}` } : null,
+        artifactRelease ? { k: "期間", v: `${artifactRelease.period_start} 至 ${artifactRelease.period_end}`, mono: true } : null,
+        derivation && typeof derivation.formula === "string" ? { k: "公式", v: derivation.formula.replace(/\bnumerator\b/g, "分子").replace(/\bdenominator\b/g, "分母") } : null,
+        inputs.length ? {
+          k: "上游", v: (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {inputs.map((input, idx) => {
+                const url = comparisonInputUrl(input.source_landing_url);
+                return (
+                  <div key={`${String(input.dataset_id ?? input.source_dataset_id ?? idx)}-${idx}`} style={{ paddingTop: idx ? 4 : 0, borderTop: idx ? `1px solid ${p.border}` : undefined }}>
+                    <div>{String(input.publisher ?? "未標示提供機關")} · {String(input.dataset_id ?? input.source_dataset_id ?? "未標示 dataset")}</div>
+                    <div style={{ color: p.muted, marginTop: 2 }}>
+                      期別：{typeof input.period_start === "string" && typeof input.period_end === "string" ? `${input.period_start} 至 ${input.period_end}` : String(input.period ?? input.period_label ?? "未標示")} · 授權：{String(input.license ?? "未標示")}
+                    </div>
+                    {url && <a href={url} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{url}</a>}
+                  </div>
+                );
+              })}
+            </div>
+          ),
+        } : null,
+      ),
+      docPath: null,
+    };
+  }, [statisticsSource, artifactSource, artifactRelease, artifactLoading, artifactError, p]);
+
+  const baseBlocks: SourceBlock[] = useMemo(() => {
+    if (entries.length > 0) {
+      return entries.map((e) => ({
+        title: e.title ?? e.datasetId,
+        desc: e.summary,
+        facts: facts(
+          e.providerAgency ? { k: "機關", v: e.providerAgency } : null,
+          e.lifecycle ? { k: "頻率", v: `${LIFECYCLE_LABEL[e.lifecycle] ?? e.lifecycle}${e.updateFrequency ? ` · ${e.updateFrequency}` : ""}` } : null,
+          e.license ? { k: "授權", v: e.license } : null,
+          e.lastUpdated ? { k: "更新", v: e.lastUpdated, mono: true } : null,
+          e.sourceUrl ? { k: "API", v: <a href={e.sourceUrl} target="_blank" rel="noreferrer" style={{ color: p.link, wordBreak: "break-all" }}>{e.sourceUrl}</a> } : null,
+        ),
+        docPath: e.catalogMdPath,
+      }));
+    }
+    if (status === "verified") {
+      return ref.datasets.map((d) => ({ title: d.datasetId, desc: `比對信心：${d.confidence}`, facts: facts(), docPath: null }));
+    }
+    if (status === "pulse_only") {
+      return [{
+        title: "派生分析",
+        desc: ref?.processing ?? null,
+        facts: facts(
+          { k: "類型", v: ref?.derivationType ?? "custom" },
+          ref?.derivedFromLayers?.length ? { k: "派生自", v: ref.derivedFromLayers.join("、") } : null,
+          upstreamIds.length ? { k: "上游", v: upstreamIds.join("、") } : null,
+        ),
+        docPath: null,
+      }];
+    }
+    if (statisticsSource) return [];
+    return [{ title: null, desc: "此圖層尚無對應 catalog 條目。", facts: facts(), docPath: null }];
+  }, [entries, status, ref, upstreamIds, statisticsSource, p]);
+
+  const blocks: SourceBlock[] = statisticsBlock ? [statisticsBlock, ...baseBlocks] : baseBlocks;
+
+  const upstreamCount = (entries.length > 0 ? entries.length
+    : status === "verified" ? ref.datasets.length
+    : status === "pulse_only" ? Math.max(upstreamIds.length, 1)
+    : 0) + (statisticsSource ? 1 : 0);
+  const docPath = blocks.find((b) => b.docPath)?.docPath ?? null;
+
+  return (
+    <div style={{ margin: "2px 4px 6px 14px", padding: "6px 0 6px 10px", borderLeft: `1px solid ${p.borderMid}`, display: "flex", flexDirection: "column", gap: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 6, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}>
+        <span style={{ fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]} {STATUS_TITLE[status]}</span>
+        {upstreamCount > 0 && <span style={{ color: p.dim, fontSize: FONT_SIZE.sm }}>· {upstreamCount} 個上游資料集</span>}
+      </div>
+      {loading && <div style={{ color: p.dim, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>載入中…</div>}
+      {error && <div style={{ color: p.statusWarn, fontSize: FONT_SIZE.sm, fontFamily: FONT_CJK }}>⚠ 來源紀錄未載入（{error}）— 顯示 static bridge 內容。</div>}
+      {blocks.map((block, i) => (
+        <div key={`${block.title ?? "x"}-${i}`} style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          {block.title && <div style={{ fontSize: FONT_SIZE.md, fontWeight: 700, color: p.text, fontFamily: FONT_CJK }}>{block.title}</div>}
+          {block.desc && <div style={{ fontSize: 10.5, color: p.muted, lineHeight: 1.5, fontFamily: FONT_CJK }}>{block.desc}</div>}
+          {block.facts.map((f) => <FactRow key={f.k} p={p} k={f.k} mono={f.mono}>{f.v}</FactRow>)}
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 6, marginTop: 2 }}>
+        <button
+          type="button"
+          disabled={locked}
+          onClick={() => { if (!locked) onActivateLayer?.(layerKey); }}
+          title={locked ? "此圖層需要授權" : "開啟圖層"}
+          style={c2Style(p, true, locked)}
+        >
+          {locked && <Lock size={11} />}開啟圖層
+        </button>
+        {docPath && (
+          <button
+            type="button"
+            disabled
+            title={docPath}
+            style={{ ...c2Style(p, false, true), fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, height: "auto", minHeight: 22, whiteSpace: "normal", wordBreak: "break-all", textAlign: "left", flex: 1, minWidth: 0 }}
+          >
+            {docPath}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── 主題 / 群組標題 ──
+
+function ThemeHeader({ p, title }: { p: DsPalette; title: string }) {
+  const { zh, en } = splitLabel(title);
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 10px 0", fontSize: FONT_SIZE.base, fontWeight: 600, color: p.text, fontFamily: FONT_CJK }}>
+      <span>{zh}</span>
+      {en && <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: p.dim, letterSpacing: 0.8 }}>{en}</span>}
+    </div>
+  );
+}
+
+function GroupHeader({ p, title }: { p: DsPalette; title: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: FONT_SIZE.sm, fontWeight: 600, color: p.muted, padding: "5px 10px 2px", fontFamily: FONT_CJK }}>
+      <span>{title}</span>
+      <span aria-hidden style={{ flex: 1, height: 1, background: p.borderMid }} />
+    </div>
+  );
+}
+
+// ── 圖層列 ──
+
+function Row({
+  p, layerKeyLabel, layerKey, locked, expanded, onToggle,
+}: { p: DsPalette; layerKeyLabel: string; layerKey: keyof LayerVisibility; locked: boolean; expanded: boolean; onToggle: () => void }) {
+  const { zh, en } = splitLabel(layerKeyLabel);
+  const color = LAYER_COLORS[layerKey] ?? "#666";
+  const status = statusOf(layerKey);
+  return (
+    <div
+      role="button"
+      tabIndex={0}
+      aria-expanded={expanded}
+      onClick={onToggle}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggle(); } }}
+      style={{
+        display: "flex", alignItems: "center", gap: 7, fontSize: FONT_SIZE.base,
+        color: p.textDefault, padding: "3px 10px", borderRadius: RADIUS.md, cursor: "pointer",
+        background: expanded ? p.controlBgHover : "transparent", fontFamily: FONT_CJK,
+      }}
+    >
+      <span style={{ width: 7, height: 7, borderRadius: "50%", background: color, flexShrink: 0 }} />
+      <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{zh}</span>
+      {en && <span style={{ color: p.dim, fontSize: FONT_SIZE.sm, whiteSpace: "nowrap" }}>{en}</span>}
+      <span style={{ flex: 1 }} />
+      {locked && <Lock size={11} color={p.dim} />}
+      <span style={{ fontSize: FONT_SIZE.sm, fontWeight: 700, color: statusColor(p, status) }}>{STATUS_ICON[status]}</span>
+    </div>
+  );
+}
+
+// ── 主面板 ──
+
+interface DataSourcePanelProps {
+  isDarkTheme?: boolean;
+  onClose: () => void;
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
+  onActivateLayer?: (key: keyof LayerVisibility) => void;
+}
+
+export function DataSourcePanel({ isDarkTheme = true, onClose, lockedKeys, onActivateLayer }: DataSourcePanelProps) {
+  const p = isDarkTheme ? DARK_DS : LIGHT_DS;
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [expandedKey, setExpandedKey] = useState<keyof LayerVisibility | null>(null);
+
+  const toggleExpand = (key: keyof LayerVisibility) => setExpandedKey((cur) => (cur === key ? null : key));
+
+  const totals = useMemo(() => {
+    let v = 0, po = 0, cm = 0;
+    for (const key of Object.keys(UPSTREAM_REGISTRY)) {
+      if (!isDataSourceBrowserVisible(key)) continue;
+      const s = statusOf(key);
+      if (s === "verified") v++; else if (s === "pulse_only") po++; else cm++;
+    }
+    return { all: v + po + cm, verified: v, pulse_only: po, catalog_missing: cm } as Record<StatusFilter, number>;
+  }, []);
+
+  const q = search.trim().toLowerCase();
+  const matchesFilter = (key: string) => statusFilter === "all" || statusOf(key) === statusFilter;
+
+  const themedLayers = useMemo(() => {
+    const out: { theme: string; groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] }[] = [];
+    for (const theme of THEMES) {
+      const groups: { title: string; layers: { key: keyof LayerVisibility; label: string }[] }[] = [];
+      for (const g of theme.groups) {
+        const layers = g.layers
+          .filter((l) => isDataSourceBrowserVisible(l.key))
+          .filter((l) => matchesFilter(l.key))
+          .filter((l) => !q || l.label.toLowerCase().includes(q) || l.key.toLowerCase().includes(q))
+          .map((l) => ({ key: l.key, label: l.label }));
+        if (layers.length > 0) groups.push({ title: g.title, layers });
+      }
+      if (groups.length > 0) out.push({ theme: theme.title, groups });
+    }
+    return out;
+  }, [q, statusFilter]);
+
+  const searchResults = useMemo(
+    () => (q ? searchLayers(search, { lockedKeys }).filter((r) => isDataSourceBrowserVisible(r.key) && matchesFilter(r.key)) : []),
+    [q, search, lockedKeys, statusFilter],
+  );
+  const visibleSearchResults = searchResults.slice(0, 50);
+
+  const segments: { id: StatusFilter; label: string; title: string }[] = [
+    { id: "all", label: "全部", title: "全部圖層" },
+    { id: "verified", label: STATUS_ICON.verified, title: "已接上" },
+    { id: "pulse_only", label: STATUS_ICON.pulse_only, title: "派生" },
+    { id: "catalog_missing", label: STATUS_ICON.catalog_missing, title: "待補" },
+  ];
+
+  return (
+    <>
+      <PanelHeader title="資料來源" eyebrow="資料" onClose={onClose} borderColor={p.border} mutedColor={p.dim} textColor={p.text} />
+
+      {/* 搜尋框：高 26、--control-* */}
+      <div style={{ padding: "8px 12px 6px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, height: 26, padding: "0 8px", borderRadius: RADIUS.md, border: `1px solid ${p.controlBorder}`, background: p.controlBg }}>
+          <Search size={12} color={p.dim} style={{ flexShrink: 0 }} />
+          <input
+            type="text"
+            aria-label="搜尋圖層名稱"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="搜尋圖層名稱"
+            style={{ flex: 1, background: "transparent", border: "none", outline: "none", color: p.text, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}
+          />
+        </div>
+      </div>
+
+      {/* 可點篩選分段 */}
+      <div style={{ padding: "0 12px 6px" }}>
+        <div style={{ display: "flex", height: 24, borderRadius: RADIUS.md, border: `1px solid ${p.controlBorder}`, background: p.controlBg, padding: 2, gap: 2 }}>
+          {segments.map((seg) => {
+            const on = statusFilter === seg.id;
+            return (
+              <button
+                key={seg.id}
+                type="button"
+                onClick={() => setStatusFilter(seg.id)}
+                title={seg.title}
+                style={{
+                  flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                  border: "none", borderRadius: RADIUS.sm, cursor: "pointer",
+                  background: on ? p.accentFaint : "transparent",
+                  color: on ? p.accent : (seg.id === "all" ? p.muted : statusColor(p, seg.id as UpstreamStatus)),
+                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: on ? 600 : 500,
+                }}
+              >
+                <span>{seg.label}</span>
+                <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, opacity: 0.85 }}>{totals[seg.id]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="layer-sidebar-scroll" style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}>
+        {q ? (
+          searchResults.length === 0 ? (
+            <div style={{ padding: 12, color: p.dim, fontSize: FONT_SIZE.base, fontFamily: FONT_CJK }}>找不到相符圖層</div>
+          ) : (
+            <>
+              <div aria-live="polite" style={{ padding: "4px 12px", color: p.dim, fontSize: FONT_SIZE.xs, fontFamily: FONT_CJK }}>
+                找到 {searchResults.length} 筆{searchResults.length > visibleSearchResults.length ? `，顯示前 ${visibleSearchResults.length} 筆` : ""}
+              </div>
+              {visibleSearchResults.map((r) => (
+                <Fragment key={r.key}>
+                  <Row p={p} layerKeyLabel={r.label} layerKey={r.key} locked={!!lockedKeys?.has(r.key)} expanded={expandedKey === r.key} onToggle={() => toggleExpand(r.key)} />
+                  {expandedKey === r.key && <DataSourceCard p={p} layerKey={r.key} locked={!!lockedKeys?.has(r.key)} onActivateLayer={onActivateLayer} />}
+                </Fragment>
+              ))}
+            </>
+          )
+        ) : (
+          themedLayers.map((t) => (
+            <div key={t.theme}>
+              <ThemeHeader p={p} title={t.theme} />
+              {t.groups.map((g) => (
+                <div key={g.title}>
+                  <GroupHeader p={p} title={g.title} />
+                  {g.layers.map((l) => (
+                    <Fragment key={l.key}>
+                      <Row p={p} layerKeyLabel={l.label} layerKey={l.key} locked={!!lockedKeys?.has(l.key)} expanded={expandedKey === l.key} onToggle={() => toggleExpand(l.key)} />
+                      {expandedKey === l.key && <DataSourceCard p={p} layerKey={l.key} locked={!!lockedKeys?.has(l.key)} onActivateLayer={onActivateLayer} />}
+                    </Fragment>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ))
+        )}
+      </div>
+    </>
+  );
+}
