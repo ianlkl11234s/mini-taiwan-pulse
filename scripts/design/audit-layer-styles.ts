@@ -350,6 +350,34 @@ for (const f of SRC_FILES) {
   for (const m of text(f).matchAll(/export\s+(?:function|const)\s+(use[A-Za-z0-9_]+)/g)) if (!HOOK_FILE.has(m[1])) HOOK_FILE.set(m[1], f);
 }
 
+/** src/map・src/three・src/hooks 匯出的函式 → 檔（用來從呼叫點反查渲染檔） */
+const FUNC_FILE = new Map<string, string>();
+for (const f of SRC_FILES) {
+  if (!/^src\/(map|three|hooks)\//.test(f)) continue;
+  for (const m of text(f).matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z0-9_]+)/g)) if (!FUNC_FILE.has(m[1])) FUNC_FILE.set(m[1], f);
+}
+const CALLSITE_FILES = ["src/map/MapView.tsx", "src/App.tsx", ...SRC_FILES.filter((f) => f.startsWith("src/layers/hosts/"))];
+/** 在掛載點（MapView／App／Host）找引用本 key 的行，取前後 4 行內、函式名含 key 字根的已匯出渲染函式所在檔 */
+function filesFromCallsites(key: string): string[] {
+  const out = new Set<string>();
+  // 只收「函式名含 key 第一個字根」的呼叫（例：agriculture → updateAgricultureLayer），避免把鄰近別層的呼叫算進來
+  const stem = (key.match(/^[a-z0-9]+/)?.[0] ?? key).toLowerCase();
+  const ref = new RegExp(`(?:vis|visibility|layerVisibility)\\.${key}\\b|["'\`]${key}["'\`]`);
+  for (const f of CALLSITE_FILES) {
+    const lines = text(f).split("\n");
+    lines.forEach((ln, i) => {
+      if (!ref.test(ln)) return;
+      for (const w of lines.slice(Math.max(0, i - 4), i + 5)) {
+        for (const m of w.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*\(/g)) {
+          const file = FUNC_FILE.get(m[1]);
+          if (file && m[1].toLowerCase().includes(stem) && /(Layer|Layers|Scene|Factory|Trails|Tracks|Overlay)/.test(m[1] + file)) out.add(file);
+        }
+      }
+    });
+  }
+  return [...out];
+}
+
 const lineOf = (s: string, idx: number) => s.slice(0, idx).split("\n").length;
 
 /** 從 idx 起擷取一個 JS 值（括號平衡到 depth 0 的 , 或 } 為止） */
@@ -671,7 +699,8 @@ for (const key of [...MANIFEST_KEYS].sort()) {
     const hooks = hookOfKey.get(key) ?? [];
     const files = new Set<string>();
     for (const h of hooks) { const f = HOOK_FILE.get(h); if (f) { files.add(f); localImports(f).forEach((x) => files.add(x)); } }
-    if (!hooks.length) {
+    if (!files.size) for (const f of filesFromCallsites(key)) { files.add(f); localImports(f).forEach((x) => files.add(x)); }
+    if (!files.size) {
       // factory / App.tsx 掛載：找 src/map 內引用本 key 的檔
       const re = new RegExp(`["'\`]${key}["'\`]|\\.${key}\\b`);
       for (const f of SRC_FILES) if (/^src\/(map|three)\//.test(f) && !/overlayRegistry|gisClickRegistry|MapView|overlayManager/.test(f) && re.test(text(f))) files.add(f);
@@ -713,9 +742,10 @@ for (const key of [...MANIFEST_KEYS].sort()) {
         ? `Three.js／WebGL CustomLayer，數值在 shader／材質（${three.join(", ")}）`
         : files.size
           ? `找不到 paint 字面值（${[...files].join(", ")}）`
-          : ledger || "找不到渲染檔";
+          : ledger || "hook 名無對應 export（Host 直接呼叫 factory），且 src/map 無引用本 key 的檔";
       rec.evidence = three.length ? three : [...files];
-      if (!files.size) { renders.add("unknown"); }
+      if (!files.size) for (const f of filesFromCallsites(key)) { files.add(f); localImports(f).forEach((x) => files.add(x)); }
+    if (!files.size) { renders.add("unknown"); }
     }
   }
   rec.geometry = [...geoms].sort();
