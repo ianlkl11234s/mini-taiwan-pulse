@@ -194,12 +194,19 @@ export function TimelineControls({
                 {playing ? <Pause size={12} fill="currentColor" strokeWidth={0} /> : <Play size={12} fill="currentColor" strokeWidth={0} />}
               </button>
             )}
-            <span className={isFuture && !isLive ? "tl3-clock tl3-clock--future" : "tl3-clock"}>{timeLabel}</span>
+            <span className={isFuture && !isLive ? "tl3-clock tl3-clock--future" : "tl3-clock"}>
+              {/* 「尚無資料」掛在時間的冒號上：標籤中線（無／資之間）對齊冒號，且不佔列寬 */}
+              {timeLabel.slice(0, timeLabel.lastIndexOf(":"))}
+              <span className="tl3-colon">
+                :
+                {expanded && isFuture && !isLive && (
+                  <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
+                )}
+              </span>
+              {timeLabel.slice(timeLabel.lastIndexOf(":") + 1)}
+            </span>
             {expanded && isLive && (
               <span className="tl3-live"><i />即時</span>
-            )}
-            {expanded && isFuture && !isLive && (
-              <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
             )}
             <TimeAxis
               compact={!expanded}
