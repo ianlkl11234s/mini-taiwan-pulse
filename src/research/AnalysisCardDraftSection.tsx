@@ -12,8 +12,15 @@ import "../card/card.css";
 
 const CardMap = lazy(() => import("../card/CardMap"));
 
-type Publish = (payload: unknown) => Promise<CardActionResult<{ slug: string; expiresAt: string; url: string }>>;
-type PublishState = { phase: "idle" } | { phase: "publishing" } | { phase: "published"; url: string; expiresAt: string } | { phase: "error"; message: string };
+export type Publish = (payload: unknown) => Promise<CardActionResult<{ slug: string; expiresAt: string; url: string }>>;
+export type PublishState = { phase: "idle" } | { phase: "publishing" } | { phase: "published"; url: string; expiresAt: string } | { phase: "error"; message: string };
+
+/** 「發布連結」的狀態轉移（抽出來讓測試不需 DOM）。閘門不通過時不呼叫 RPC。 */
+export async function publishDraft(draft: AnalysisCardDraft, publish: Publish): Promise<PublishState> {
+  if (!draft.gate.publishable) return { phase: "error", message: draft.gate.message || "這份結果的資料還不能公開分享。" };
+  const result = await publish(draft.payload);
+  return result.ok ? { phase: "published", url: result.value.url, expiresAt: result.value.expiresAt } : { phase: "error", message: result.message };
+}
 
 export function AnalysisCardDraftSection({ draft, onDiscard, publish = publishAnalysisCard, showMap = true, initialState = { phase: "idle" } }: {
   draft: AnalysisCardDraft;
@@ -27,8 +34,7 @@ export function AnalysisCardDraftSection({ draft, onDiscard, publish = publishAn
   const [copied, setCopied] = useState(false);
   const run = async () => {
     setState({ phase: "publishing" });
-    const result = await publish(draft.payload);
-    setState(result.ok ? { phase: "published", url: result.value.url, expiresAt: result.value.expiresAt } : { phase: "error", message: result.message });
+    setState(await publishDraft(draft, publish));
   };
   const copy = async (url: string) => {
     try { await navigator.clipboard.writeText(url); setCopied(true); } catch { setCopied(false); }
