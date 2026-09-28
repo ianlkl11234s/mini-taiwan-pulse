@@ -666,6 +666,18 @@
 - **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
 - **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
 
+### 5.33 開站畫面（W2 城市脈動＋M2 機關展開）
+
+- **用途**：第一次打開網站、地圖還沒畫好之前的全螢幕畫面；只出現一次，之後的載入都走 §5.30 載入狀態條。
+- **等待（W2）**：底色 `SURFACE.app`（淡色 `--light-surface-solid`，依開站 URL 的 `style` 決定）。中間是台灣本島＋離島輪廓（澎湖、金門、馬祖、綠島、蘭嶼、小琉球、龜山島；不含東沙、太平島、釣魚台），填 5% 強調色、0.5px 強調色描邊。九個城市點由北往南依序亮起並擴出波紋：馬祖、台北、新竹、金門、台中、花蓮、澎湖、台南、高雄。
+- **版面（2026-09-29 以調整工具定案）**：本島高 `19vh`；**本島外框中心**對齊視窗中心再往上 `4.5vh`（X 0）；城市點直徑 5.8px（以 900px 高視窗為準，隨高度等比）；波紋放大 ×6；一輪 2.2s；不顯示城市名稱。本島下緣再往下 `3.5vh` 放品牌字「MINI TAIWAN PULSE」（`FONT_DATA` 700、字距 0.3em、PULSE 用強調色）與狀態列。
+- **狀態列**：與 §5.30 同款（高 22、`--font-sm`、`SURFACE.strong`、`BORDER.panel`、`RADIUS.lg`）；文字「載入地圖」→「✓ 完成」。**文字中心對齊中線**（「入」「地」之間），圖示掛在左側，不計入置中。
+- **收尾（M2）**：地圖就緒 → 「✓ 完成」停 0.4s → 遮罩淡出 0.45s（內容同時放大 1.04）→ 主畫面元件從邊界彈入：側欄從左、工具列從上、時間軸從下、左上標題最後落下，`cubic-bezier(0.34,1.56,0.64,1)` 0.55s，依序延遲 0／0.08／0.16／0.24s；側欄圖示逐一放大彈出；工具列與時間軸到位時閃一下強調色光暈（像機關卡住）。
+- **做法**：`<html data-boot="wait|enter">` 控制，要參與進場的元件只標 `data-boot-part="rail|toolbar|timeline|title"`，不必接 props；進場結束後移除 `data-boot`。30 秒還沒就緒直接跳到淡出。
+- **減少動態**：不跑波紋與彈入，只淡出。
+- **禁止**：假進度條、log 終端框、漸層光暈進度（舊版已移除）；在開站畫面加入即時數字（開站時還沒有資料，會變成假數據）。
+- **實作**：`src/components/LoadingScreen.tsx`、`src/components/boot/`（`bootSequence.ts` 規格與時間、`taiwanOutline.ts` 輪廓資料、`bootScreen.css`）、`src/App.tsx`（`bootPhase`）、`src/main.tsx`。設計稿：`docs/features/ui-consistency-audit-20260927/boot-*-sheet.html`、`boot-w2-tuner.html`。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文

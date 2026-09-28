@@ -285,7 +285,7 @@ export function IconRailSidebar({
     <RailThemeContext.Provider value={palette}>
     <div style={{ position: "relative", height: "100%", pointerEvents: "auto" }}>
       {/* ── Icon Rail ── */}
-      <div data-viewport-occluder="icon-rail"
+      <div data-viewport-occluder="icon-rail" data-boot-part="rail"
         style={{
           width: RAIL_WIDTH,
           background: BG_RAIL,
