@@ -3,23 +3,26 @@ import type { GeoJSONSource, Map as MapboxMap } from "mapbox-gl";
 import { useMapReadyTick } from "./useMapReadyTick";
 import { fetchRainGaugeLatest, type RainGaugeLatestRow } from "../data/rainGaugeLoader";
 import { assessBridgeRain, BRIDGE_RAIN_DEFINITIONS, BRIDGE_TABLE_VERSION } from "../data/bridgeRainThresholds";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 const SOURCE = "bridge-rain-source";
 export const BRIDGE_RAIN_CLICK_LAYER = "bridge-rain-circle";
 const REFRESH_MS = 10 * 60_000; // 畫面讀取頻率；不改上游測站採集排程
 
-function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: boolean) {
+function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: boolean, opacity: number, isDark: boolean) {
+  const opacityScale = Math.max(0, Math.min(1, opacity)) / 0.9;
   if (!map.getSource(SOURCE)) map.addSource(SOURCE, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   if (!map.getLayer(BRIDGE_RAIN_CLICK_LAYER)) map.addLayer({
     id: BRIDGE_RAIN_CLICK_LAYER,
     type: "circle",
     source: SOURCE,
     paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 4, 10, 7, 15, 11],
+      "circle-radius": pointRadius("L"),
       "circle-color": ["match", ["get", "status"], "triggered", "#ef4444", "below", "#3b82f6", "#94a3b8"],
       "circle-opacity": 0.95,
-      "circle-stroke-width": 2,
-      "circle-stroke-color": "#ffffff",
+      "circle-stroke-width": POINT_STROKE.width,
+      "circle-stroke-color": mapSeamColor(isDark),
+      "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacityScale),
     },
   });
   const latest = new Map(rows.map((row) => [row.station_id, row]));
@@ -61,14 +64,14 @@ function render(map: MapboxMap, rows: readonly RainGaugeLatestRow[], visible: bo
 }
 
 /** 一級監控橋梁的參考雨量；固定 10 分鐘重抓 latest，過期後自然轉灰。 */
-export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number) {
+export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, visible: boolean, opacity: number, isDark: boolean = true) {
   const mapTick = useMapReadyTick(mapRef, visible);
   const rowsRef = useRef<RainGaugeLatestRow[]>([]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     let cancelled = false;
-    const apply = () => { if (map.isStyleLoaded()) render(map, rowsRef.current, visible); };
+    const apply = () => { if (map.isStyleLoaded()) render(map, rowsRef.current, visible, opacity, isDark); };
     const refresh = async () => {
       try {
         const rows = await fetchRainGaugeLatest();
@@ -88,11 +91,14 @@ export function useBridgeRainLayer(mapRef: React.RefObject<MapboxMap | null>, vi
       return () => { cancelled = true; window.clearInterval(timer); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, mapTick]);
+  }, [mapRef, visible, opacity, isDark, mapTick]);
   useEffect(() => {
     const map = mapRef.current;
     if (map?.getLayer(BRIDGE_RAIN_CLICK_LAYER)) {
       map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-opacity", 0.95 * Math.max(0, Math.min(1, opacity)));
+      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-color", mapSeamColor(isDark));
+      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-width", POINT_STROKE.width);
+      map.setPaintProperty(BRIDGE_RAIN_CLICK_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * Math.max(0, Math.min(1, opacity)) / 0.9));
     }
-  }, [mapRef, mapTick, opacity]);
+  }, [mapRef, mapTick, opacity, isDark]);
 }
