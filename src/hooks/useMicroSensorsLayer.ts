@@ -29,6 +29,7 @@ import { microSensorColorExpr } from "../data/microSensorTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { MicroSensor } from "../types";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
 
 const SOURCE_ID = "aqi-micro-src";
 const LAYER_CLUSTER = "aqi-micro-cluster";
@@ -94,10 +95,10 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx
           ? ["interpolate", ["linear"], ["zoom"], 9, 2, 12, 4, 15, 6, 18, 10]
           : ["interpolate", ["linear"], ["zoom"], 5, 1.5, 8, 2.5, 11, 4, 15, 7, 18, 11],
         "circle-color": microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
-        "circle-stroke-width": cluster ? 0.5 : 0.3,
-        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)",
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-color": mapSeamColor(isDark),
         "circle-opacity": (cluster ? 0.9 : 0.85) * opacity,
-        "circle-stroke-opacity": opacity,
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity,
       },
     } as CircleLayer);
   }
@@ -231,9 +232,9 @@ export function useMicroSensorsLayer(
     if (map.getLayer(LAYER_CLUSTER_COUNT)) map.setPaintProperty(LAYER_CLUSTER_COUNT, "text-opacity", opacity);
     if (map.getLayer(LAYER_POINT)) {
       map.setPaintProperty(LAYER_POINT, "circle-opacity", (cluster ? 0.9 : 0.85) * opacity);
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", opacity);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity);
     }
-  }, [mapRef, visible, cluster, opacity, mapTick]);
+  }, [mapRef, visible, isDark, cluster, opacity, mapTick]);
 
   // ── Unmount 清理 ──
   useEffect(() => {
