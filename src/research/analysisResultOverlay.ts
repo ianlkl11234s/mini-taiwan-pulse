@@ -3,7 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
-import { VIZ_SPEC, type Theme } from "./vizSpec";
+import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
 import { TITLE_KEYS } from "./researchResultPopup";
 import {
@@ -38,10 +38,6 @@ const proportionalLabelLayerId = (index: number) => `research-analysis-result-pr
  *  independently pickable — the primary fill layer already covers the same features for popup. */
 const bivariateSizeSourceId = (index: number) => `research-analysis-result-bivariate-size-${index}`;
 const bivariateSizeLayerId = (index: number) => `research-analysis-result-bivariate-size-circle-${index}`;
-/** Stroke for a bivariate V3 size bubble: a neutral grey contrasting with each basemap theme, per
- *  the viz-library PLAN phase-B message (not itself a viz-spec value — SPEC GAP: this should live
- *  next to `VIZ_SPEC.ring` in viz-spec.json, see this worker's phase-B report). */
-const BIVARIATE_SIZE_RING: Record<Theme, string> = { dark: "#f3f4f6", light: "#111827" };
 /**
  * A `properties._role === "scope"` feature (e.g. a nearby_profile search-radius circle, MCP
  * contract in warehouse/engine.ts `scopeCircleFeature`) draws as a dashed, unfilled outline
@@ -406,10 +402,11 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       map.setPaintProperty(layerId(index), "circle-stroke-color", circleStrokeColor);
       map.setPaintProperty(layerId(index), "circle-stroke-width", circleStrokeWidth);
       map.setFilter(layerId(index), proportionalSizeFilter);
-      // Only touches `setLayoutProperty` for a proportional result — most stub/real callers of a
-      // plain circle result never need it, and a slot switching *out* of proportional into another
-      // circle-drawn kind (compare/plain point) is repainted on colour/radius anyway.
-      if (proportionalSortKey && map.getLayer(layerId(index))) map.setLayoutProperty(layerId(index), "circle-sort-key", proportionalSortKey);
+      // Always resets `circle-sort-key`, not just when this result is itself proportional: a slot
+      // switching *out* of proportional into another circle-drawn kind (compare/plain point) must
+      // clear the previous occupant's sort key (`undefined` reverts it to the unsorted default),
+      // otherwise it lingers and reorders draw order for an unrelated result reusing this slot.
+      if (map.getLayer(layerId(index))) map.setLayoutProperty(layerId(index), "circle-sort-key", proportionalSortKey ?? undefined);
     }
     if (fillHatch) {
       // A style/basemap switch (map.setStyle) clears every addImage'd image; re-add it (guarded) on
@@ -445,12 +442,13 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
       const sizeData = bivariateSizeCollection(result, bivariate);
       const sizeSource = map.getSource(bivariateSizeSourceId(index)) as GeoJSONSource | undefined;
       if (sizeSource) sizeSource.setData(sizeData); else map.addSource(bivariateSizeSourceId(index), { type: "geojson", data: sizeData });
-      const ringColor = BIVARIATE_SIZE_RING[theme];
+      const { widthPx: ringWidth, color: ringColor } = bivariateSizeStrokeFor(theme);
       if (!map.getLayer(bivariateSizeLayerId(index))) map.addLayer({ id: bivariateSizeLayerId(index), type: "circle", source: bivariateSizeSourceId(index), paint: {
-        "circle-color": "rgba(0,0,0,0)", "circle-radius": ["get", bivariate.sizeRadiusProperty], "circle-stroke-color": ringColor, "circle-stroke-width": 1.4, "circle-stroke-opacity": resultOpacity,
+        "circle-color": "rgba(0,0,0,0)", "circle-radius": ["get", bivariate.sizeRadiusProperty], "circle-stroke-color": ringColor, "circle-stroke-width": ringWidth, "circle-stroke-opacity": resultOpacity,
       } as never });
       else {
         map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-color", ringColor);
+        map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-width", ringWidth);
         map.setPaintProperty(bivariateSizeLayerId(index), "circle-stroke-opacity", resultOpacity);
       }
     }

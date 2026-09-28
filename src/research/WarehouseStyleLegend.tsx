@@ -42,7 +42,7 @@ export function WarehouseStyleLegendView({ legend }: { legend: WarehouseStyleLeg
   if (legend.kind === "bivariate") {
     const empty = <span className="agent-style-legend__null"><NullSwatch entry={legend.nullEntry} />{legend.nullEntry.label}</span>;
     return <div className="agent-analysis-count-legend agent-style-legend" data-style-kind="bivariate">
-      <span>{legend.xLabel}（填色）× {legend.yLabel}（大小）</span>
+      <span>填色：{legend.xLabel} · 大小：{legend.yLabel}</span>
       <div className="agent-style-legend__bar" aria-hidden="true">{legend.fillEntries.map(entry => <b key={entry.label} style={{ backgroundColor: entry.color }} />)}</div>
       <div className="agent-style-legend__breaks">{legend.fillBreaks.map(value => <small key={value} style={DATA_NUM_STYLE}>{formatVizNumber(value, "ratio")}</small>)}</div>
       <div>{legend.fillEntries.map(entry => <span key={entry.label}><i style={{ backgroundColor: entry.color }} aria-hidden="true" />{entry.label}</span>)}{empty}</div>
