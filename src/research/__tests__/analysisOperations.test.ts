@@ -203,8 +203,11 @@ describe("AnalysisOperations", () => {
     expect(() => operations.recordEvidence("points", 3)).toThrow("RECORD_NOT_FOUND");
   });
 
-  it("builds and compares UTC series without inventing missing or zero-baseline values", () => {
+  it("builds and compares Taipei-local series without inventing missing or zero-baseline values", () => {
     const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    // published_at is UTC; bucketing is Taiwan-local (Asia/Taipei, UTC+8). 01:00Z (09:00 Taipei) stays
+    // on 09-01, but 20:00Z (04:00 Taipei next day) rolls into 09-02 — a real day-boundary split that a
+    // naive UTC-day bucket would have missed (see the dedicated "01:00 台灣時間" test below).
     const current = { ...pointResult("current-events"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [
       { published_at: "2026-09-01T01:00:00Z", amount: 4 }, { published_at: "2026-09-01T20:00:00Z", amount: null }, { published_at: null, amount: 8 },
     ] };
@@ -214,14 +217,30 @@ describe("AnalysisOperations", () => {
     const { operations } = setup(current, baseline);
     const currentSeries = operations.readSeries({ resultId: "current-events", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
     const baselineSeries = operations.readSeries({ resultId: "baseline-events", timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
-    expect(currentSeries.rows).toEqual([{ period_start: "2026-09-01T00:00:00.000Z", value: 4, records: 2, missing_value: 1 }]);
+    expect(currentSeries.rows).toEqual([
+      { period_start: "2026-09-01T00:00:00+08:00", value: 4, records: 1, missing_value: 0 },
+      { period_start: "2026-09-02T00:00:00+08:00", value: null, records: 1, missing_value: 1 },
+    ]);
     expect(currentSeries.summary).toMatchObject({ invalidTime: 1, missingPeriodsFilled: false });
+    expect(currentSeries.method).toMatchObject({ timezone: "Asia/Taipei" });
     const compared = operations.compareSeries({ currentResultId: currentSeries.resultId, baselineResultId: baselineSeries.resultId, operation: "ratio" });
     expect(compared.rows).toEqual([
-      expect.objectContaining({ period_start: "2026-09-01T00:00:00.000Z", value: null, status: "zero_baseline" }),
-      expect.objectContaining({ period_start: "2026-09-02T00:00:00.000Z", value: null, status: "missing_current" }),
+      expect.objectContaining({ period_start: "2026-09-01T00:00:00+08:00", value: null, status: "zero_baseline" }),
+      expect.objectContaining({ period_start: "2026-09-02T00:00:00+08:00", value: null, status: "missing_current" }),
     ]);
     expect(compared.summary).toMatchObject({ zeroBaseline: 1, missingCurrent: 1 });
+  });
+
+  it("buckets a 01:00 Taiwan-time (凌晨) record into its own Taipei calendar day, not the earlier UTC day", () => {
+    const eventLineage = { sourceContract: { timeFields: [{ name: "published_at", role: "published" }] } };
+    const events = { ...pointResult("early-morning"), datasetId: "fixture-events", lineage: eventLineage, units: { amount: "items" }, rows: [
+      // 2026-09-20T17:00:00Z is still 09-20 in UTC, but 2026-09-21T01:00 Taiwan-local — a naive
+      // UTC-day bucket would misfile this onto 09-20 instead of the Taiwan calendar day it actually falls on.
+      { published_at: "2026-09-20T17:00:00Z", amount: 3 },
+    ] };
+    const { operations } = setup(events);
+    const series = operations.readSeries({ resultId: events.resultId, timeField: "published_at", resolution: "day", operation: "sum", valueField: "amount" });
+    expect(series.rows).toEqual([{ period_start: "2026-09-21T00:00:00+08:00", value: 3, records: 1, missing_value: 0 }]);
   });
 
   it("fails closed when a series has insufficient evidence or a known incompatible unit", () => {

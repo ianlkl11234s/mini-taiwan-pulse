@@ -30,9 +30,19 @@ export type WarehouseCompareRow = { field: string; label: string; unit: string |
 export type WarehouseCompareColumn = { index: number; label: string };
 export type WarehousePalette = { dark: string[]; light: string[] };
 export type WarehouseSizeLegendEntry = { value: number; radiusPx: number; label: string };
+/** Inferred spacing of a time axis (mirrors the mcp warehouse's own PeriodUnit); see `inferPeriodUnit`
+ *  server-side — the browser never recomputes this, only displays it. */
+export type PeriodUnit = "day" | "week" | "month" | "year" | "other";
 
 export type WarehouseResultStyle =
-  | { kind: "choropleth"; field: string; valueProperty: "_style_value"; method: "quantile" | "equal"; scheme: "sequential" | "diverging"; label: string; breaks: number[]; colors: string[]; labels: string[]; min: number; max: number; nullColor: string; nullCount: number; ramp?: string; palette?: WarehousePalette; nullStyle?: "hatch"; valueKind?: VizNumberKind; unit?: string | null }
+  | {
+      kind: "choropleth"; field: string; valueProperty: "_style_value"; method: "quantile" | "equal"; scheme: "sequential" | "diverging"; label: string; breaks: number[]; colors: string[]; labels: string[]; min: number; max: number; nullColor: string; nullCount: number; ramp?: string; palette?: WarehousePalette; nullStyle?: "hatch"; valueKind?: VizNumberKind; unit?: string | null;
+      /** T2 A2: present only when the server folded area x period rows into a map-playback series
+       *  (all six keys together, or none — never partial). `seriesProperty` names the per-feature
+       *  aligned-with-`periods` array; `_style_value` (above) stays the latest period's value so a
+       *  time-unaware caller still draws a valid default map. */
+      timeField?: string; idField?: string | null; periods?: string[]; periodUnit?: PeriodUnit; seriesProperty?: "_style_series"; latestPeriod?: string;
+    }
   | {
       kind: "bivariate"; mode: "fill-and-size"; xField: string; yField: string; xLabel: string; yLabel: string;
       xValueKind: VizNumberKind; yValueKind: VizNumberKind;
@@ -80,6 +90,15 @@ export type WarehouseResultStyle =
       ramp: string; palette: WarehousePalette; breaks: number[]; labels: string[]; min: number; max: number;
       widthMinPx: number; widthMaxPx: number; flowCount: number; animate: boolean; animateBelow: number; dotPx: number; dotOpacity: number;
       droppedCount: number; nullStyle: "hatch"; nullColor: string; nullCount: number;
+    }
+  | {
+      /** T1=L1: a panel line chart with no map geometry (`pulse_wh_present` returns an empty
+       *  FeatureCollection alongside it, featureCount 0). `baseline`/`baselineLabel` are both set or
+       *  both null together (a same-row comparison column, e.g. last year's value). */
+      kind: "series"; timeField: string; valueField: string; baselineField: string | null; baselineLabel: string | null;
+      title: string; unit: string | null; valueKind: VizNumberKind;
+      periods: string[]; periodUnit: PeriodUnit; values: (number | null)[]; baseline: (number | null)[] | null;
+      min: number; max: number; latest: { period: string; value: number | null }; nullCount: number;
     };
 
 /** `hatch`/`gradient` are only set for a fill (choropleth/bivariate) null entry under
@@ -104,8 +123,16 @@ const FIELD = /^[\p{L}_][\p{L}\p{N}_]{0,79}$/u;
 const HEX = /^#[0-9a-fA-F]{6}$/;
 const NUMBER_FORMAT_KINDS = ["count", "density", "ratio", "percent"] as const;
 const STYLE_OPTIONAL_KEYS = ["ramp", "palette", "nullStyle"] as const;
-const CHOROPLETH_OPTIONAL_KEYS = [...STYLE_OPTIONAL_KEYS, "valueKind", "unit"] as const;
+/** T2 A2: choropleth's map-playback fields — all six or none (see `validateChoroplethTimeFields`). */
+const CHOROPLETH_TIME_KEYS = ["timeField", "idField", "periods", "periodUnit", "seriesProperty", "latestPeriod"] as const;
+const CHOROPLETH_OPTIONAL_KEYS = [...STYLE_OPTIONAL_KEYS, "valueKind", "unit", ...CHOROPLETH_TIME_KEYS] as const;
 const CHOROPLETH_KEYS = ["kind", "field", "valueProperty", "method", "scheme", "label", "breaks", "colors", "labels", "min", "max", "nullColor", "nullCount"];
+const PERIOD_UNITS = ["day", "week", "month", "year", "other"] as const;
+/** Map playback carries at most two years of weeks (mcp `MAP_MAX_PERIODS`); a panel line chart
+ *  (series) carries a little over a year of days (mcp `SERIES_MAX_PERIODS`). */
+const MAP_MAX_PERIODS = 104;
+const SERIES_MAX_PERIODS = 400;
+const SERIES_KEYS = ["kind", "timeField", "valueField", "baselineField", "baselineLabel", "title", "unit", "valueKind", "periods", "periodUnit", "values", "baseline", "min", "max", "latest", "nullCount"];
 const BIVARIATE_KEYS = ["kind", "mode", "xField", "yField", "xLabel", "yLabel", "xValueKind", "yValueKind", "valueProperty", "sizeValueProperty", "sizeRadiusProperty", "sizeRankProperty", "sizeAnchorProperty", "ramp", "palette", "breaks", "labels", "min", "max", "rMinPx", "rMaxPx", "topN", "nullStyle", "nullColor", "nullCount"];
 /** Optional display-unit metadata the mcp warehouse may attach; a style omitting them renders
  *  exactly as before. Titles are not part of this addition — choropleth/bivariate keep using their
@@ -171,6 +198,28 @@ function validSizeLegend(value: unknown, maxLength: number): value is WarehouseS
   return Array.isArray(value) && value.length <= maxLength && value.every(entry => isObject(entry) && Object.keys(entry).length === 3 && finite(entry.value) && finite(entry.radiusPx) && text(entry.label));
 }
 
+/** One period key, e.g. "2024-03-04" or "2024" (mcp `periodKey`); generous length for a
+ *  non-midnight timestamp the server kept verbatim (e.g. "2024-02-26T13:00:00+08:00"). */
+const period = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0 && value.length <= 40;
+const periodsList = (value: unknown, max: number): value is string[] => Array.isArray(value) && value.length >= 1 && value.length <= max && value.every(period) && new Set(value).size === value.length;
+const validPeriodUnit = (value: unknown): value is PeriodUnit => typeof value === "string" && (PERIOD_UNITS as readonly string[]).includes(value);
+const numberOrNullList = (value: unknown, length: number): value is (number | null)[] => Array.isArray(value) && value.length === length && value.every(item => item === null || finite(item));
+
+/** T2 A2: choropleth's six map-playback keys travel together — all present and well-formed, or none
+ *  present at all (mirrors the mcp union `ChoroplethTimeFields | { timeField?: never }`). */
+function validateChoroplethTimeFields(value: Record<string, unknown>): boolean {
+  const present = CHOROPLETH_TIME_KEYS.filter(key => key in value);
+  if (present.length === 0) return true;
+  if (present.length !== CHOROPLETH_TIME_KEYS.length) return false;
+  if (!field(value.timeField)) return false;
+  if (!(value.idField === null || field(value.idField))) return false;
+  if (!periodsList(value.periods, MAP_MAX_PERIODS)) return false;
+  if (!validPeriodUnit(value.periodUnit)) return false;
+  if (value.seriesProperty !== "_style_series") return false;
+  if (!period(value.latestPeriod) || value.latestPeriod !== value.periods[value.periods.length - 1]) return false;
+  return true;
+}
+
 function validateChoropleth(value: Record<string, unknown>): boolean {
   if (!hasOnly(value, CHOROPLETH_KEYS, CHOROPLETH_OPTIONAL_KEYS)) return false;
   if (!field(value.field) || value.valueProperty !== "_style_value") return false;
@@ -185,6 +234,30 @@ function validateChoropleth(value: Record<string, unknown>): boolean {
   if (!validOptional(value, value.colors.length)) return false;
   if ("valueKind" in value && !validNumberFormatKind(value.valueKind)) return false;
   if ("unit" in value && !optionalUnit(value.unit)) return false;
+  if (!validateChoroplethTimeFields(value)) return false;
+  return true;
+}
+
+/** T1=L1: a non-spatial panel line chart (no `_style_value`/geometry — see `computeResultStyle`
+ *  `series`). `baselineField`/`baselineLabel` and `baseline` all travel together (set or null as one
+ *  group), never independently. */
+function validateSeries(value: Record<string, unknown>): boolean {
+  if (!exactly(value, SERIES_KEYS)) return false;
+  if (!field(value.timeField) || !field(value.valueField)) return false;
+  if (!(value.baselineField === null || field(value.baselineField))) return false;
+  const hasBaseline = value.baselineField !== null;
+  if (!(value.baselineLabel === null || (hasBaseline && text(value.baselineLabel)))) return false;
+  if (hasBaseline && value.baselineLabel === null) return false;
+  if (!text(value.title) || !optionalUnit(value.unit) || !validNumberFormatKind(value.valueKind)) return false;
+  if (!periodsList(value.periods, SERIES_MAX_PERIODS) || !validPeriodUnit(value.periodUnit)) return false;
+  const length = value.periods.length;
+  if (!numberOrNullList(value.values, length)) return false;
+  if (!(hasBaseline ? numberOrNullList(value.baseline, length) : value.baseline === null)) return false;
+  if (!finite(value.min) || !finite(value.max) || value.min > value.max) return false;
+  if (!isObject(value.latest) || Object.keys(value.latest).length !== 2 || !period(value.latest.period)) return false;
+  if (!(value.latest.value === null || finite(value.latest.value))) return false;
+  if (value.latest.period !== value.periods[length - 1]) return false;
+  if (!count(value.nullCount) || value.nullCount > length) return false;
   return true;
 }
 
@@ -374,7 +447,16 @@ export function validateWarehouseResultStyle(value: unknown): WarehouseResultSty
   if (value.kind === "grid") return validateGrid(value) ? (value as WarehouseResultStyle) : fail();
   if (value.kind === "isochrone") return validateIsochrone(value) ? (value as WarehouseResultStyle) : fail();
   if (value.kind === "flow") return validateFlow(value) ? (value as WarehouseResultStyle) : fail();
+  if (value.kind === "series") return validateSeries(value) ? (value as WarehouseResultStyle) : fail();
   return fail();
+}
+
+/** Choropleth carrying T2 A2's map-playback fields (see `validateChoroplethTimeFields`); narrows to
+ *  the shape `warehouseChoroplethColorAtPeriod`/`warehouseFillNullFilterAtPeriod` need. */
+export type WarehouseTimedChoropleth = Extract<WarehouseResultStyle, { kind: "choropleth" }> & Required<Pick<Extract<WarehouseResultStyle, { kind: "choropleth" }>, "timeField" | "periods" | "periodUnit" | "seriesProperty" | "latestPeriod">> & { idField: string | null };
+
+export function isTimedChoropleth(style: WarehouseResultStyle): style is WarehouseTimedChoropleth {
+  return style.kind === "choropleth" && style.timeField !== undefined;
 }
 
 /** `palette[theme]` when the server sent one, otherwise the flat (pre-theme) `colors` array. Only
@@ -391,12 +473,70 @@ export function warehouseFillNullFilter(style: Extract<WarehouseResultStyle, { k
   return ["!=", ["typeof", ["get", style.valueProperty]], "number"] as unknown as ExpressionSpecification;
 }
 
+/** Choropleth/bivariate/grid/extrusion all classify one row's own numeric value into the same
+ *  ascending-`breaks` colour classes (spec P1, docs/features/viz-library/DECISIONS.md §6: "長條色＝
+ *  該區地圖級距色"); bivariate uses its x-side (the fill classification — the y-side is the separate
+ *  bubble size, not a rankable magnitude on its own). */
+export type WarehouseRankBarStyle = Extract<WarehouseResultStyle, { kind: "choropleth" | "bivariate" | "grid" | "extrusion" }>;
+
+/** Runtime (non-Mapbox-expression) equivalent of `stepColorExpression`'s `step` semantics: the first
+ *  class whose threshold the value has not yet reached, i.e. `colors[count of breaks <= value]`. Used
+ *  by RankBars item building, which needs a plain colour string per row, not a paint expression. */
+export function classifyStepColor(value: number, breaks: readonly number[], colors: readonly string[]): string {
+  let index = 0;
+  for (const threshold of breaks) { if (value >= threshold) index += 1; else break; }
+  return colors[index] ?? colors[colors.length - 1]!;
+}
+
+/** Per-kind breaks/colours/title/unit/valueKind for a style's own classified value (`_style_value`
+ *  for all four kinds). `valueKind` stays optional for a stage-A choropleth that omitted it — the
+ *  caller falls back to `classifyVizNumberKind` per value, same as `show()` above. */
+export function warehouseRankBarStyle(style: WarehouseRankBarStyle, theme: Theme): { breaks: readonly number[]; colors: readonly string[]; title: string; unit: string | null; valueKind: VizNumberKind | undefined } {
+  if (style.kind === "choropleth") return { breaks: style.breaks, colors: resolvePalette(style, theme), title: style.label, unit: style.unit ?? null, valueKind: style.valueKind };
+  if (style.kind === "bivariate") return { breaks: style.breaks, colors: style.palette[theme], title: style.xLabel, unit: style.xUnit ?? null, valueKind: style.xValueKind };
+  if (style.kind === "grid") return { breaks: style.breaks, colors: style.palette[theme], title: style.title, unit: style.unit, valueKind: style.valueKind };
+  return { breaks: style.breaks, colors: style.palette[theme], title: style.label, unit: style.unit, valueKind: style.valueKind }; // extrusion
+}
+
+/** Shared `step` colour scale over ascending `breaks`, keyed by an arbitrary value expression; a
+ *  single-class style (no breaks) is just its one colour. */
+function stepColorExpressionFor(value: unknown, breaks: readonly number[], colors: readonly string[]): unknown {
+  return breaks.length === 0 ? colors[0]! : ["step", value, colors[0]!, ...breaks.flatMap((threshold, index) => [threshold, colors[index + 1]!])];
+}
+
 /** Shared `step` colour scale over ascending `breaks`, reading `valueProperty`; a single-class style
  *  (no breaks) is just its one colour. Used by choropleth/grid/extrusion (their step-classified fill)
  *  and flow (its line colour) — all four classify a `_style_value`/`valueField` the same way. */
 function stepColorExpression(valueProperty: string, breaks: readonly number[], colors: readonly string[]): unknown {
-  const value = ["get", valueProperty];
-  return breaks.length === 0 ? colors[0]! : ["step", value, colors[0]!, ...breaks.flatMap((threshold, index) => [threshold, colors[index + 1]!])];
+  return stepColorExpressionFor(["get", valueProperty], breaks, colors);
+}
+
+/** T2 A2: the per-period scalar property name a map feature carries for its Nth period (see
+ *  analysisResultOverlay.ts `timedChoroplethPeriodProperties`). A Mapbox GeoJSON source does not
+ *  reliably keep an array-valued property through its own worker-side feature encoding — a paint/
+ *  filter expression reading `["at", i, ["get", "_style_series"]]` back can observe it as a *string*
+ *  instead ("_style_series" evaluated to string but was expected to be of type array, confirmed in a
+ *  live browser) — so the map source never carries that array at all, only these flat scalars. */
+export function warehouseChoroplethPeriodProperty(periodIndex: number): string { return `_p${periodIndex}`; }
+
+/** `["get", "_pN"]` in place of `["get", valueProperty]` — same step classification, same hatch/
+ *  solid null fallback, just reading one period's own flat scalar property instead of the folded
+ *  feature's latest-period `_style_value`. See warehouseChoroplethPeriodProperty for why this is not
+ *  `["at", periodIndex, ["get", "_style_series"]]`. */
+export function warehouseChoroplethColorAtPeriod(style: WarehouseTimedChoropleth, theme: Theme, periodIndex: number): ExpressionSpecification {
+  const colors = resolvePalette(style, theme);
+  const value = ["get", warehouseChoroplethPeriodProperty(periodIndex)];
+  const scale = stepColorExpressionFor(value, style.breaks, colors);
+  const nullColor = style.nullStyle === "hatch" ? "rgba(0,0,0,0)" : style.nullColor;
+  return ["case", ["==", ["typeof", value], "number"], scale, nullColor] as unknown as ExpressionSpecification;
+}
+
+/** T2 A2 counterpart of `warehouseFillNullFilter` for one period: selects exactly the features
+ *  `warehouseChoroplethColorAtPeriod` leaves transparent at that period, so the hatch overlay layer
+ *  can be re-filtered to match while scrubbing. `style` is kept in the signature (unused) to mirror
+ *  `warehouseChoroplethColorAtPeriod`'s call shape at every call site. */
+export function warehouseFillNullFilterAtPeriod(_style: WarehouseTimedChoropleth, periodIndex: number): ExpressionSpecification {
+  return ["!=", ["typeof", ["get", warehouseChoroplethPeriodProperty(periodIndex)]], "number"] as unknown as ExpressionSpecification;
 }
 
 function choroplethColor(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): ExpressionSpecification {
@@ -638,6 +778,20 @@ function choroplethFact(style: Extract<WarehouseResultStyle, { kind: "choropleth
   return { label: style.label, value: withUnit(show(properties[style.valueProperty], null, style.valueKind), style.unit) };
 }
 
+/** T2 A2: same fact as `choroplethFact`, but for one period of the row's own `_style_series` (hover
+ *  tip / popup trend marker while scrubbing playback), labelled with that period so "目前期別" is
+ *  never ambiguous. `row` is the session-stored row (not a queried Mapbox feature — arrays are not
+ *  reliably read back from Mapbox GL's own feature-property query, see analysisResultCharts.ts /
+ *  MainMapConnection.tsx callers). `periodIndex` is clamped defensively (a stale index outliving a
+ *  shorter re-import), never throwing. */
+export function warehouseChoroplethPeriodFact(style: WarehouseTimedChoropleth, row: Record<string, unknown>, periodIndex: number): { label: string; value: string; period: string } {
+  const clamped = Math.max(0, Math.min(style.periods.length - 1, periodIndex));
+  const period = style.periods[clamped]!;
+  const series = row[style.seriesProperty];
+  const raw = Array.isArray(series) ? series[clamped] : undefined;
+  return { label: `${style.label}（${period}）`, value: withUnit(show(raw, null, style.valueKind), style.unit), period };
+}
+
 function bivariateFact(style: Extract<WarehouseResultStyle, { kind: "bivariate" }>, properties: Record<string, unknown>): { label: string; value: string } | null {
   const x = properties[style.valueProperty];
   const yRanked = properties[style.sizeValueProperty];
@@ -728,10 +882,14 @@ export const WAREHOUSE_STYLE_RENDERERS = {
   grid: { validate: validateGrid, color: gridColor, legend: gridLegend, fact: gridFact },
   isochrone: { validate: validateIsochrone, color: isochroneFillColor, legend: isochroneLegend, fact: isochroneFact },
   flow: { validate: validateFlow, color: flowLineColor, legend: flowLegend, fact: flowFact },
+  // T1=L1: series has no geometry — validation only. Its panel display (TrendLine) is built directly
+  // from the style by analysisResultCharts.ts's warehouseSeriesTrendLineData, not through this
+  // color/legend/fact pipeline (which every other kind uses to paint a Mapbox layer / popup fact).
+  series: { validate: validateSeries },
 } as const;
 
 /** Fill/line colour: `step` (or, for isochrone, `match`-on-rank) over the server's classification. */
-export function warehouseStyleColor(style: Exclude<WarehouseResultStyle, { kind: "heatmap" | "compare" | "proportional" }>, theme: Theme = "dark"): ExpressionSpecification {
+export function warehouseStyleColor(style: Exclude<WarehouseResultStyle, { kind: "heatmap" | "compare" | "proportional" | "series" }>, theme: Theme = "dark"): ExpressionSpecification {
   if (style.kind === "choropleth") return WAREHOUSE_STYLE_RENDERERS.choropleth.color(style, theme);
   if (style.kind === "bivariate") return WAREHOUSE_STYLE_RENDERERS.bivariate.color(style, theme);
   if (style.kind === "grid") return WAREHOUSE_STYLE_RENDERERS.grid.color(style, theme);
@@ -757,7 +915,7 @@ export function warehouseProportionalColor(style: Extract<WarehouseResultStyle, 
 /** compare has no colour legend (rendered as a table instead); callers exclude it before reaching
  *  here. `rows` is only consulted by bivariate (its size legend needs real drawn values); every
  *  other kind ignores it, so omitting it (e.g. in a legend-only test) is always safe. */
-export function warehouseStyleLegend(style: Exclude<WarehouseResultStyle, { kind: "compare" }>, theme: Theme = "dark", rows: readonly Record<string, unknown>[] = []): WarehouseStyleLegend {
+export function warehouseStyleLegend(style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>, theme: Theme = "dark", rows: readonly Record<string, unknown>[] = []): WarehouseStyleLegend {
   if (style.kind === "choropleth") return WAREHOUSE_STYLE_RENDERERS.choropleth.legend(style, theme);
   if (style.kind === "bivariate") return WAREHOUSE_STYLE_RENDERERS.bivariate.legend(style, theme, rows);
   if (style.kind === "proportional") return WAREHOUSE_STYLE_RENDERERS.proportional.legend(style, theme);
@@ -778,5 +936,6 @@ export function warehouseStyleFact(style: WarehouseResultStyle, properties: Reco
   if (style.kind === "grid") return WAREHOUSE_STYLE_RENDERERS.grid.fact(style, properties);
   if (style.kind === "isochrone") return WAREHOUSE_STYLE_RENDERERS.isochrone.fact(style, properties);
   if (style.kind === "flow") return WAREHOUSE_STYLE_RENDERERS.flow.fact(style, properties);
+  if (style.kind === "series") return null; // no geometry/feature to describe — see warehouseSeriesTrendLineData instead
   return WAREHOUSE_STYLE_RENDERERS.compare.fact(style, properties);
 }

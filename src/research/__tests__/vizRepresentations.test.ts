@@ -198,7 +198,7 @@ describe("warehouse result style: colour, legend and popup fact", () => {
   });
 
   it("renders all four new legends without throwing and with the expected caption text", () => {
-    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
+    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
     expect(html(grid)).toContain("H3 網格（res 8）");
     expect(html(extrusion)).toContain("人口數（人）");
     expect(html(isochrone)).toContain("15分鐘");

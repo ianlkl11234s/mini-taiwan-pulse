@@ -5,7 +5,8 @@
 // 本檔只負責渲染與「本位置多筆紀錄」的切換。
 import { useState } from "react";
 import { FONT_CJK, FONT_DATA, FONT_SIZE, RADIUS } from "../../styles/designTokens";
-import type { AnalysisResultPanelProperties, AnalysisResultPanelRecord } from "../../research/researchResultPopup";
+import type { AnalysisResultPanelProperties, AnalysisResultPanelRecord, AnalysisResultPanelTrend } from "../../research/researchResultPopup";
+import { TrendLine } from "../../research/charts/TrendLine";
 import { Row, Title } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
 
@@ -14,10 +15,17 @@ const FALLBACK_DOT = "#64aaff";
 /** 以數字開頭的值（含單位、時間戳）走 Row 的 mono（等寬 + tabular-nums）。 */
 const NUMERIC_VALUE = /^[-+−]?\d/;
 
+function isTrend(value: unknown): value is AnalysisResultPanelTrend {
+  if (!value || typeof value !== "object") return false;
+  const trend = value as Partial<AnalysisResultPanelTrend>;
+  return Array.isArray(trend.points) && typeof trend.caption === "string" && (trend.markerIndex === null || typeof trend.markerIndex === "number");
+}
+
 function isRecord(value: unknown): value is AnalysisResultPanelRecord {
   if (!value || typeof value !== "object") return false;
   const record = value as Partial<AnalysisResultPanelRecord>;
-  return typeof record.title === "string" && Array.isArray(record.facts);
+  if (typeof record.title !== "string" || !Array.isArray(record.facts)) return false;
+  return record.trend === undefined || isTrend(record.trend);
 }
 
 /** highlightPoint 也可能以 layerType "analysisResult" 送進任意 properties —— 只接受合格形狀。 */
@@ -58,6 +66,16 @@ export function AnalysisResultPanel({ props }: { props: Record<string, unknown> 
         <>
           <Title color={record.color ?? FALLBACK_DOT}>{record.title}</Title>
           {record.facts.map((fact, i) => <Row key={i} label={fact.label} value={fact.value} mono={NUMERIC_VALUE.test(fact.value)} />)}
+          {record.trend && (
+            <div style={{ marginTop: 6 }}>
+              <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>{record.trend.caption}</div>
+              <TrendLine
+                points={record.trend.points.map((point, i) => ({ id: String(i), label: point.label, value: point.value }))}
+                compact
+                {...(record.trend.markerIndex !== null ? { markerIndex: record.trend.markerIndex } : {})}
+              />
+            </div>
+          )}
         </>
       ) : (
         <Row label="紀錄" value="本次分析命中的空間紀錄" />

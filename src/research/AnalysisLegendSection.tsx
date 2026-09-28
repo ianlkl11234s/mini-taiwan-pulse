@@ -1,6 +1,7 @@
 // G1：「圖例」面板最上方的「分析結果」一組。G2：compact（停靠 popup 開著）時每筆只留標題＋色階條。
+import { Slider } from "../components/controls/Slider";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
-import type { AnalysisLegendEntry } from "./analysisLegendStore";
+import type { AnalysisLegendEntry, AnalysisLegendPlayback } from "./analysisLegendStore";
 import "./analysisLegend.css";
 
 function Swatches({ entries }: { entries: readonly { label: string; color: string }[] }) {
@@ -11,10 +12,28 @@ function Bar({ colors }: { colors: readonly string[] }) {
   return <div className="agent-style-legend__bar" aria-hidden="true">{colors.map((color, index) => <b key={`${index}:${color}`} style={{ backgroundColor: color }} />)}</div>;
 }
 
+/** T2 A2: 分析結果自帶播放列（圖例上方），只控制該結果、不動全站時間軸（spec
+ *  docs/features/viz-library/DECISIONS.md §6）。播放／暫停鈕＋目前期別文字＋可拖曳軌道；
+ *  單期（periods.length <= 1）時停用播放鈕（沒有可播的東西）。 */
+function PlaybackBar({ playback }: { playback: AnalysisLegendPlayback }) {
+  const { periods, index, playing, onToggle, onScrub } = playback;
+  const maxIndex = Math.max(0, periods.length - 1);
+  const clampedIndex = Math.min(Math.max(0, index), maxIndex);
+  const period = periods[clampedIndex] ?? "";
+  return <div className="analysis-legend-group__playback">
+    <button type="button" className="analysis-legend-group__playback-toggle" onClick={onToggle} aria-pressed={playing} disabled={periods.length <= 1}>
+      {playing ? "暫停" : "播放"}
+    </button>
+    <Slider ariaLabel="播放期別" min={0} max={maxIndex} step={1} value={clampedIndex} onChange={onScrub} ariaValueText={period} disabled={periods.length <= 1} className="analysis-legend-group__playback-slider" />
+    <span className="analysis-legend-group__playback-period">{period}</span>
+  </div>;
+}
+
 function EntryLegend({ entry, compact }: { entry: AnalysisLegendEntry; compact: boolean }) {
   const numeric = entry.numericLegend;
   const count = entry.countLegend;
   return <>
+    {entry.playback && <PlaybackBar playback={entry.playback} />}
     {entry.styleLegend && <WarehouseStyleLegendView legend={entry.styleLegend} compact={compact} />}
     {numeric && <div className="agent-analysis-count-legend">
       <span>{numeric.label}{compact ? "" : ` · ${numeric.method === "single_value" ? "單一數值" : "本次結果等距分級"}`}</span>

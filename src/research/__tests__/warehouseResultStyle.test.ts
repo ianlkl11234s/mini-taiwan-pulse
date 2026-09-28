@@ -3,14 +3,15 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import type { Map } from "mapbox-gl";
-import { analysisResultInteractiveLayerIds, installAnalysisResults, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
+import { analysisResultInteractiveLayerIds, installAnalysisResults, layerId, nullHatchLayerId, removeAnalysisResults, setAnalysisOpacity, setAnalysisResultPeriod } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 import { researchResultPopupFacts } from "../researchResultPopup";
 import { loadWarehouseResult, validateWarehouseImportArgs } from "../warehouseResultImport";
 import {
-  validateWarehouseResultStyle, warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  classifyStepColor, isTimedChoropleth, validateWarehouseResultStyle, warehouseChoroplethColorAtPeriod, warehouseChoroplethPeriodFact, warehouseChoroplethPeriodProperty,
+  warehouseFillNullFilter, warehouseFillNullFilterAtPeriod, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseProportionalColor, warehouseProportionalLabelFilter, warehouseProportionalSizeFilter, warehouseProportionalSortKey,
-  warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle,
+  warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle, type WarehouseTimedChoropleth,
 } from "../warehouseResultStyle";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "../WarehouseCompareTable";
@@ -60,6 +61,23 @@ const proportionalMono = {
 const choroplethWithUnit = { ...choropleth, unit: "人/km²" } as const satisfies WarehouseResultStyle;
 const bivariateWithUnit = { ...bivariateV3, xUnit: "元", yUnit: "站/km²" } as const satisfies WarehouseResultStyle;
 const proportionalWithTitles = { ...proportional, sizeTitle: "人口數", sizeUnit: "人", colorTitle: "人口密度", colorUnit: "人/km²" } as const satisfies WarehouseResultStyle;
+const gridFixture = {
+  kind: "grid", method: "h3", resolution: 8, cellMeters: null, weightField: null,
+  valueProperty: "_style_value", countProperty: "_grid_count", weightProperty: null, idProperty: "_grid_id",
+  title: "格點密度", unit: "件", valueKind: "count",
+  ramp: "viridis", palette: { dark: ["#31688e", "#21918c", "#35b779"], light: ["#35b779", "#1f9e89", "#26828e"] },
+  breaks: [10, 20], labels: ["< 10", "10 – < 20", "≥ 20"], min: 0, max: 40,
+  cellCount: 3, pointCount: 12, weightMissingCount: 0, gapPx: 1,
+  nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0,
+} as const satisfies WarehouseResultStyle;
+const extrusionFixture = {
+  kind: "extrusion", field: "height_m", valueProperty: "_style_value", method: "quantile", scheme: "sequential", label: "建物高度",
+  breaks: [10, 20], colors: ["#eff3ff", "#6baed6", "#08519c"], labels: ["< 10", "10 – < 20", "≥ 20"], min: 0, max: 40,
+  valueKind: "count", unit: "m",
+  ramp: "viridis", palette: { dark: ["#eff3ff", "#6baed6", "#08519c"], light: ["#f0f0f0", "#a1c9e6", "#1858a8"] },
+  nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0,
+  heightField: "height_m", heightProperty: "_extrusion_height", maxHeightM: 60, heightMax: 300,
+} as const satisfies WarehouseResultStyle;
 // The pre-V3 shape (9-colour categorical grid on `_bi_class`); must now be rejected, not rendered.
 const OLD_BIVARIATE_FORMAT = { kind: "bivariate", xField: "price", yField: "stops", xLabel: "房價", yLabel: "公車站密度", classProperty: "_bi_class", xBreaks: [50, 70], yBreaks: [3, 8], classes: ["1-1", "2-1", "3-1", "1-2", "2-2", "3-2", "1-3", "2-3", "3-3"], colors: ["#e8e8e8", "#e4acac", "#c85a5a", "#b0d5df", "#ad9ea5", "#985356", "#64acbe", "#627f8c", "#574249"], nullColor: "#bdbdbd", nullCount: 1 };
 const clone = <T,>(value: T): T => structuredClone(value) as T;
@@ -87,7 +105,7 @@ function stubMap() {
     addImage: (id: string) => { if (images.has(id)) throw new Error(`DUPLICATE_IMAGE:${id}`); images.add(id); },
     on: () => {}, off: () => {},
   };
-  return { map: api as unknown as Map, layers, images };
+  return { map: api as unknown as Map, layers, images, sources };
 }
 
 describe("warehouse result style contract", () => {
@@ -294,7 +312,7 @@ describe("warehouse result style contract", () => {
   });
 
   it("renders colour bars, size-legend circles and density legends", () => {
-    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
+    const html = (style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>) => renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(style) }));
     const bar = html(choropleth);
     expect(bar).toContain("房價中位數 · 分位數分級");
     expect(bar).toContain("無資料／未涵蓋（2）");
@@ -315,6 +333,26 @@ describe("warehouse result style contract", () => {
     // 有單位時標題不重複加括號：「填色：X（單位） · 大小：Y（單位）」
     const bivariateUnitHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(bivariateWithUnit, "dark") }));
     expect(bivariateUnitHtml).toContain("填色：房價（元） · 大小：公車站密度（站/km²）");
+  });
+});
+
+describe("P1 rank-bar classification (docs/features/viz-library/DECISIONS.md §6)", () => {
+  it("classifies a value into the same step colour a map step expression would use for it", () => {
+    expect(classifyStepColor(35, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[0]);
+    expect(classifyStepColor(40, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[1]); // >= a threshold moves up a class
+    expect(classifyStepColor(200, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[4]); // past the last threshold
+  });
+
+  it("reads choropleth/grid/extrusion's own title/unit/valueKind, and bivariate's x-side (its fill classification, not the size y-side)", () => {
+    expect(warehouseRankBarStyle(choroplethWithUnit, "dark")).toMatchObject({ title: "房價中位數", unit: "人/km²", valueKind: undefined, breaks: choropleth.breaks });
+    expect(warehouseRankBarStyle(bivariateWithUnit, "dark")).toMatchObject({ title: "房價", unit: "元", valueKind: "count" });
+    expect(warehouseRankBarStyle(gridFixture, "dark")).toMatchObject({ title: "格點密度", unit: "件", valueKind: "count" });
+    expect(warehouseRankBarStyle(extrusionFixture, "dark")).toMatchObject({ title: "建物高度", unit: "m", valueKind: "count" });
+  });
+
+  it("picks the theme-matched palette side when the style carries one, else falls back to the flat stage-A colors array", () => {
+    expect(warehouseRankBarStyle(choroplethHatch, "light").colors).toEqual(choroplethHatch.palette.light);
+    expect(warehouseRankBarStyle(choropleth, "dark").colors).toEqual(choropleth.colors);
   });
 });
 
@@ -511,5 +549,130 @@ describe("warehouse import with style", () => {
     const shaTwo = createHash("sha256").update(threePoints).digest("hex");
     const fetchTwo = (async () => new Response(threePoints)) as unknown as typeof fetch;
     await expect(loadWarehouseResult(validateWarehouseImportArgs({ resultId: "wh-9", sha256: shaTwo, label: "x", featureCount: 2, style: clone(compare) }), fetchTwo)).rejects.toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+});
+
+// T2 A2: choropleth folded from area x period rows (map playback).
+const choroplethTimed = {
+  ...choropleth, ramp: "viridis", nullStyle: "hatch", palette: choroplethHatch.palette,
+  timeField: "wk", idField: "town_code", periods: ["2024-03-04", "2024-03-11", "2024-03-18"], periodUnit: "week",
+  seriesProperty: "_style_series", latestPeriod: "2024-03-18",
+} as const satisfies WarehouseResultStyle;
+
+// T1=L1: a non-spatial panel line chart (no map geometry).
+const series = {
+  kind: "series", timeField: "m", valueField: "v", baselineField: "ly", baselineLabel: "去年同期",
+  title: "事故件數", unit: "件", valueKind: "count",
+  periods: ["2024-01-01", "2024-02-01", "2024-03-01"], periodUnit: "month", values: [10, null, 30], baseline: [8, 20, 25],
+  min: 10, max: 30, latest: { period: "2024-03-01", value: 30 }, nullCount: 1,
+} as const satisfies WarehouseResultStyle;
+
+describe("choropleth with T2 A2 map-playback fields", () => {
+  it("accepts the six time keys together and rejects them alone or mismatched", () => {
+    expect(validateWarehouseResultStyle(clone(choroplethTimed))).toEqual(choroplethTimed);
+    expect(isTimedChoropleth(choroplethTimed)).toBe(true);
+    expect(isTimedChoropleth(choropleth)).toBe(false);
+    // partial: only timeField, missing the other five.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), idField: undefined, periods: undefined, periodUnit: undefined, seriesProperty: undefined, latestPeriod: undefined })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // latestPeriod must equal periods' own last entry, not just any string.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), latestPeriod: "2024-04-01" })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // seriesProperty is a fixed literal.
+    expect(() => validateWarehouseResultStyle({ ...clone(choroplethTimed), seriesProperty: "_other" })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    // more than 104 periods is rejected (mcp MAP_MAX_PERIODS).
+    const many = { ...clone(choroplethTimed), periods: Array.from({ length: 105 }, (_, index) => `${2000 + index}`), latestPeriod: "2104" };
+    expect(() => validateWarehouseResultStyle(many)).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("builds a period-indexed fill-color expression and matching null filter, keyed off a flat _pN scalar (never an array read)", () => {
+    // Regression: a Mapbox GeoJSON source does not reliably keep an array-valued property through
+    // its own worker encoding — ["at", i, ["get", "_style_series"]] observed it as a *string* in a
+    // live browser ("evaluated to string but was expected to be of type array"). Every period gets
+    // its own flat scalar property instead (warehouseChoroplethPeriodProperty).
+    expect(warehouseChoroplethPeriodProperty(1)).toBe("_p1");
+    const color = warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 1);
+    expect(color).toEqual(["case", ["==", ["typeof", ["get", "_p1"]], "number"],
+      ["step", ["get", "_p1"], "#eff3ff", 40, "#bdd7e7", 55, "#6baed6", 70, "#3182bd", 90, "#08519c"],
+      "rgba(0,0,0,0)"]);
+    expect(JSON.stringify(color)).not.toContain('"at"');
+    const filter = warehouseFillNullFilterAtPeriod(choroplethTimed as WarehouseTimedChoropleth, 1);
+    expect(filter).toEqual(["!=", ["typeof", ["get", "_p1"]], "number"]);
+  });
+
+  it("reports one period's own value, clamping an out-of-range index rather than throwing", () => {
+    const row = { _style_series: [12, 34, 56] };
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 1)).toEqual({ label: "房價中位數（2024-03-11）", value: "34", period: "2024-03-11" });
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, row, 99).period).toBe("2024-03-18");
+    expect(warehouseChoroplethPeriodFact(choroplethTimed as WarehouseTimedChoropleth, { _style_series: [null, 34, 56] }, 0).value).toBe("無資料");
+  });
+
+  const timedPolygon: PresentableResult = {
+    resultId: "wh-6", datasetId: "warehouse:wh-6", geometry: { type: "Polygon", role: "derived", spatialAnalysisEligible: false }, resultStyle: choroplethTimed,
+    rows: [
+      { geometry: { type: "Polygon", coordinates: [[[121.5, 25], [121.51, 25], [121.51, 25.01], [121.5, 25]]] }, name: "大安區", _style_value: 88, _style_series: [12, 34, 88] },
+      // A short/missing series (e.g. an older cached export) must not crash the paint expression —
+      // it is padded with null out to periods.length, never left as-is or dropped.
+      { geometry: { type: "Polygon", coordinates: [[[121.6, 25], [121.61, 25], [121.61, 25.01], [121.6, 25]]] }, name: "信義區", _style_value: 40, _style_series: [40] },
+    ],
+  };
+
+  it("expands each feature's series into flat _p0.._pN scalars (padding a short/missing one with null), never an array property on the map source", () => {
+    const { map, sources } = stubMap();
+    installAnalysisResults(map, [timedPolygon], 0.6, "dark");
+    const data = sources.get("research-analysis-result-0")!.data as { features: { properties: Record<string, unknown> }[] };
+    expect([0, 1, 2].map(index => data.features[0]!.properties[warehouseChoroplethPeriodProperty(index)])).toEqual([12, 34, 88]);
+    expect([0, 1, 2].map(index => data.features[1]!.properties[warehouseChoroplethPeriodProperty(index)])).toEqual([40, null, null]);
+    expect(data.features[0]!.properties).not.toHaveProperty("_style_series");
+    // No property on any installed feature may be an array — that is exactly what broke Mapbox's
+    // own paint-expression evaluation in a live browser.
+    for (const feature of data.features) for (const value of Object.values(feature.properties)) expect(Array.isArray(value)).toBe(false);
+  });
+
+  it("re-paints an installed timed choropleth's fill and null-hatch filter to a scrubbed period, without rebuilding the source", () => {
+    const { map, sources, layers } = stubMap();
+    const installed = installAnalysisResults(map, [timedPolygon], 0.6, "dark");
+    const before = sources.get("research-analysis-result-0")!.data;
+    setAnalysisResultPeriod(map, installed, "wh-6", 0, "dark", false);
+    expect(sources.get("research-analysis-result-0")!.data).toBe(before); // same object — no setData call
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 0));
+    expect(layers.get(nullHatchLayerId(0))!.filter).toEqual(warehouseFillNullFilterAtPeriod(choroplethTimed as WarehouseTimedChoropleth, 0));
+    // Scrubbing to period 0 reads the _p0 scalar, never an "at"/array read on _style_series.
+    expect(JSON.stringify(layers.get(layerId(0))!.paint["fill-color"])).toContain('"_p0"');
+    expect(JSON.stringify(layers.get(layerId(0))!.paint["fill-color"])).not.toContain("_style_series");
+    // Out-of-range index clamps to the last period rather than throwing.
+    setAnalysisResultPeriod(map, installed, "wh-6", 999, "dark", false);
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(warehouseChoroplethColorAtPeriod(choroplethTimed as WarehouseTimedChoropleth, "dark", 2));
+    expect(JSON.stringify(layers.get(layerId(0))!.paint["fill-color"])).toContain('"_p2"');
+  });
+
+  it("is a no-op for an outlineOnly slot (never re-enables a fill the panel turned off), or a non-timed/unknown result", () => {
+    const { map, layers } = stubMap();
+    const installed = installAnalysisResults(map, [timedPolygon], 0.6, "dark", { outlineOnly: ["wh-6"] });
+    const before = layers.get(layerId(0))!.paint["fill-color"];
+    setAnalysisResultPeriod(map, installed, "wh-6", 0, "dark", true);
+    expect(layers.get(layerId(0))!.paint["fill-color"]).toEqual(before);
+    setAnalysisResultPeriod(map, installed, "not-a-real-id", 0, "dark", false); // unknown id: no throw
+  });
+});
+
+describe("series (T1=L1 panel line chart, no map geometry)", () => {
+  it("validates a well-formed series style and round-trips it", () => {
+    expect(validateWarehouseResultStyle(clone(series))).toEqual(series);
+    expect(warehouseStyleFact(series, {})).toBeNull();
+  });
+
+  it("rejects a baseline/baselineField/baselineLabel that do not travel together", () => {
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baselineField: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baselineLabel: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baseline: null })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("rejects a latest period that disagrees with periods, or values/baseline of the wrong length", () => {
+    expect(() => validateWarehouseResultStyle({ ...clone(series), latest: { period: "2024-02-01", value: 30 } })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), values: [10, 30] })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+    expect(() => validateWarehouseResultStyle({ ...clone(series), baseline: [8, 20] })).toThrow("WAREHOUSE_RESULT_STYLE_INVALID");
+  });
+
+  it("keeps the warehouse style registry key set including series, with validate-only (no color/legend/fact)", () => {
+    expect(validateWarehouseResultStyle(clone({ ...series, unit: null, baselineField: null, baselineLabel: null, baseline: null }))).toMatchObject({ kind: "series" });
   });
 });

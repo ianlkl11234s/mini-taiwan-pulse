@@ -7,12 +7,15 @@ import type { AnalysisStackKind } from "./analysisResultStack";
 import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
 import { SELECTION_RING } from "../styles/designTokens";
-import { TITLE_KEYS } from "./researchResultPopup";
+import { TITLE_KEYS, researchResultPopupTitle } from "./researchResultPopup";
+import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
+import type { RankBarItem } from "./charts/RankBars";
 import {
-  warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  classifyStepColor, isTimedChoropleth, warehouseChoroplethColorAtPeriod, warehouseChoroplethPeriodProperty, warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFillNullFilterAtPeriod,
+  warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseIsochroneSortKey, warehouseProportionalColor, warehouseProportionalLabelFilter,
-  warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
-  type WarehouseResultStyle, type WarehouseStyleLegend,
+  warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
+  type WarehouseRankBarStyle, type WarehouseResultStyle, type WarehouseStyleLegend,
 } from "./warehouseResultStyle";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
@@ -24,7 +27,10 @@ const NUMERIC_SINGLE_COLOR = "#0369a1";
 const MISSING_NUMERIC_COLOR = "#cbd5e1";
 const SUPPRESSED_NUMERIC_COLOR = "#64748b";
 const sourceId = (index: number) => `research-analysis-result-${index}`;
-const layerId = (index: number) => `research-analysis-result-points-${index}`;
+/** Exported (T2 A2) so MainMapConnection's playback controls can `setPaintProperty`/`setFilter` an
+ *  already-installed choropleth's fill/hatch layers by the same index installAnalysisResults used —
+ *  its returned array order *is* this slot index (see installAnalysisResults). */
+export const layerId = (index: number) => `research-analysis-result-points-${index}`;
 /** Heatmaps are not pickable, so a styled heatmap keeps a close-zoom circle layer for popup/select. */
 const heatPointsLayerId = (index: number) => `research-analysis-result-heat-points-${index}`;
 /** Numbered marker labels (1..N) for a compare-styled point result; decorative only, not pickable. */
@@ -32,7 +38,7 @@ const compareLabelLayerId = (index: number) => `research-analysis-result-compare
 /** Choropleth/bivariate `nullStyle: "hatch"` overlay: a transparent fill-pattern layer drawn only
  *  over the features the main fill layer leaves transparent (missing `_style_value`). Not
  *  independently pickable — the main fill layer already covers the same features for click/popup. */
-const nullHatchLayerId = (index: number) => `research-analysis-result-null-hatch-${index}`;
+export const nullHatchLayerId = (index: number) => `research-analysis-result-null-hatch-${index}`;
 /** Proportional-symbol top-N name labels; decorative only, not pickable (like compareLabelLayerId). */
 const proportionalLabelLayerId = (index: number) => `research-analysis-result-proportional-label-${index}`;
 /** Bivariate V3's y-size bubbles need their own point source: the primary source's geometry is
@@ -197,6 +203,14 @@ export type AnalysisResultPresentation = {
   styleLegend?: WarehouseStyleLegend;
   /** Server-computed field x point comparison table; rendered as a table, never a colour legend. */
   compareTable?: Extract<WarehouseResultStyle, { kind: "compare" }>;
+  /** The raw style this result was installed with (any map-eligible kind — never "series", which is
+   *  never map-eligible). T2 A2's playback controls read `periods`/`seriesProperty`/`breaks` off this
+   *  directly instead of re-fetching via `presentable()` on every tick. */
+  resultStyle?: Exclude<WarehouseResultStyle, { kind: "series" }>;
+  /** P1 rank-bar data (spec docs/features/viz-library/DECISIONS.md §6) for a choropleth/bivariate/
+   *  grid/extrusion-styled result: each row's own classified value and its exact map fill colour.
+   *  Absent when the style is not one of those four kinds, or no row has a usable numeric value. */
+  rankBars?: { title: string; unit: string | null; valueKind: VizNumberKind; items: RankBarItem[] };
 };
 
 /** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
@@ -301,6 +315,30 @@ function flowEndpointCollection(result: PresentableResult, style: Extract<Wareho
   return { type: "FeatureCollection", features };
 }
 
+/** T2 A2: a Mapbox GeoJSON source does not reliably keep an array-valued property through its own
+ *  worker-side feature encoding — a paint/filter expression reading it back (`["at", i, ["get",
+ *  "_style_series"]]`) can observe it as a *string* instead (`"_style_series" evaluated to string
+ *  but was expected to be of type array`, confirmed in a live browser). So the map source never
+ *  carries the array at all: each period gets its own flat scalar property, `_p0`.._p{n-1}` (padded/
+ *  truncated to exactly `style.periods.length`, coercing anything non-numeric to null — a short/
+ *  missing/malformed series becomes "every period null", never a missing property or a crash).
+ *  `warehouseChoroplethColorAtPeriod`/`warehouseFillNullFilterAtPeriod` read these, not `_style_series`.
+ *  The *session-stored* row (availableResultRowsRef in MainMapConnection.tsx, used by hover/click for
+ *  the full recent-periods trend) still carries the real `_style_series` array — that object never
+ *  passes through Mapbox at all, so it is unaffected and unchanged. */
+function timedChoroplethPeriodProperties(row: Record<string, unknown>, result: PresentableResult): Record<string, number | null> {
+  const style = result.resultStyle;
+  if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return {};
+  const raw = row[style.seriesProperty];
+  const source = Array.isArray(raw) ? raw : [];
+  const out: Record<string, number | null> = {};
+  style.periods.forEach((_period, index) => {
+    const value = source[index];
+    out[warehouseChoroplethPeriodProperty(index)] = typeof value === "number" && Number.isFinite(value) ? value : null;
+  });
+  return out;
+}
+
 function propertiesFor(row: Record<string, unknown>, result: PresentableResult): Record<string, string | number | boolean | null> {
   const properties = Object.fromEntries(Object.entries(row).filter(([key, value]) => key !== "geometry" && (value === null || ["string", "number", "boolean"].includes(typeof value))));
   const valueUnit = result.units?.value;
@@ -310,8 +348,10 @@ function propertiesFor(row: Record<string, unknown>, result: PresentableResult):
   const magnitudeUnit = result.units?.magnitude;
   const depthUnit = result.units?.depth_km;
   const styleFact = result.resultStyle ? warehouseStyleFact(result.resultStyle, row) : null;
+  const periodProperties = timedChoroplethPeriodProperties(row, result);
   return {
     ...properties,
+    ...periodProperties,
     ...(styleFact ? { styleFactLabel: styleFact.label, styleFactValue: styleFact.value } : {}),
     ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "value") ? { unit: valueUnit ?? null } : {}),
     ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "absoluteDifference") ? { differenceUnit: differenceUnit ?? null } : {}),
@@ -397,9 +437,30 @@ function numericFillColor(legend: NumericResultLegend): ExpressionSpecification 
 /** The single representative swatch colour for a styled result's row-item icon: the "most" end of
  *  its resolved palette. Bivariate/proportional have no flat `colors` fallback (always `palette`);
  *  choropleth/heatmap may still be the stage-A flat-`colors` format. */
-function styleSwatchColor(style: Exclude<WarehouseResultStyle, { kind: "compare" }>, theme: Theme): string {
+function styleSwatchColor(style: Exclude<WarehouseResultStyle, { kind: "compare" | "series" }>, theme: Theme): string {
   const colors = "colors" in style ? (style.palette ? style.palette[theme] : style.colors) : style.palette[theme];
   return colors[colors.length - 1]!;
+}
+
+/** P1 rank-bar items for a choropleth/bivariate/grid/extrusion-styled result: each row's own
+ *  classified value, coloured exactly like the map's own fill (spec: "長條色＝該區地圖級距色"). A row
+ *  with no usable numeric value is skipped — RankBars only ranks values it actually has, never a
+ *  fabricated 0. Returns undefined when nothing is rankable (e.g. every row is null). */
+function warehouseRankBars(style: WarehouseRankBarStyle, rows: readonly Record<string, unknown>[], theme: Theme): AnalysisResultPresentation["rankBars"] {
+  const spec = warehouseRankBarStyle(style, theme);
+  const items: RankBarItem[] = [];
+  rows.forEach((row, rowIndex) => {
+    const raw = row[style.valueProperty];
+    if (typeof raw !== "number" || !Number.isFinite(raw)) return;
+    items.push({ id: String(rowIndex), label: researchResultPopupTitle(row), value: raw, color: classifyStepColor(raw, spec.breaks, spec.colors) });
+  });
+  if (!items.length) return undefined;
+  // Stage-A choropleth may omit its own valueKind; fall back to the conservative unit/shape guess
+  // used everywhere else in this style layer (warehouseStyleFact's `show()`).
+  // items[0]'s value is always a number by construction (only pushed after the typeof/Number.isFinite
+  // check above); the `?? 0` is purely to satisfy RankBarItem's wider (nullable) value type.
+  const valueKind = spec.valueKind ?? classifyVizNumberKind(items[0]!.value ?? 0, spec.unit);
+  return { title: spec.title, unit: spec.unit, valueKind, items };
 }
 
 function presentation(result: PresentableResult, featureCount: number, theme: Theme, index?: number): AnalysisResultPresentation {
@@ -414,12 +475,19 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
   } : undefined;
   const numericLegend = numericResultLegend(result);
   const style = result.resultStyle;
-  const styleSwatch = style && style.kind !== "compare" ? styleSwatchColor(style, theme) : undefined;
+  const styleSwatch = style && style.kind !== "compare" && style.kind !== "series" ? styleSwatchColor(style, theme) : undefined;
+  const rankBarKind = style && (style.kind === "choropleth" || style.kind === "bivariate" || style.kind === "grid" || style.kind === "extrusion");
+  const rankBars = rankBarKind ? warehouseRankBars(style as WarehouseRankBarStyle, result.rows, theme) : undefined;
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
-    ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style, theme, result.rows) } : {}),
+    ...(style && style.kind !== "compare" && style.kind !== "series" ? { styleLegend: warehouseStyleLegend(style, theme, result.rows) } : {}),
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
+    // T2 A2: exposed so a caller (MainMapConnection's playback controls) can find a timed
+    // choropleth's periods/breaks/seriesProperty without re-fetching via presentable(). "series"
+    // never reaches here (never map-eligible — see researchAnalysisSession.ts mapEligible).
+    ...(style && style.kind !== "series" ? { resultStyle: style } : {}),
+    ...(rankBars ? { rankBars } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(style?.kind === "proportional" ? { circleOpacityRatio: style.fillOpacity } : {}),
     ...(style?.kind === "isochrone" ? { fillOpacityRatio: style.fillOpacity } : {}),
@@ -490,7 +558,7 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     const renderData = flow ? flowArcCollection(data) : data;
     const source = map.getSource(sourceId(index)) as GeoJSONSource | undefined;
     if (source) source.setData(renderData); else map.addSource(sourceId(index), { type: "geojson", data: renderData, promoteId: FEATURE_ID_PROPERTY });
-    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" && style.kind !== "proportional" ? warehouseStyleColor(style, theme) : null;
+    const styleColor = style && style.kind !== "heatmap" && style.kind !== "compare" && style.kind !== "proportional" && style.kind !== "series" ? warehouseStyleColor(style, theme) : null;
     const proportionalColor = proportional ? warehouseProportionalColor(proportional, theme) : null;
     // Choropleth/bivariate null cells render fully transparent in `styleColor` above (see
     // warehouseStyleColor); this sibling layer paints exactly those cells with the theme's hatch
@@ -912,6 +980,26 @@ export function setAnalysisOpacity(map: Map, results: readonly AnalysisResultPre
   for (const [index, result] of results.entries()) if (result.resultId === resultId) applyResultOpacity(map, index, result, opacity);
 }
 
+/** T2 A2: re-paints one already-installed timed choropleth's fill (and its null-hatch overlay, when
+ *  present) to a specific period index, without rebuilding its source/layers — called by the
+ *  playback controls (analysisPlaybackStore.ts) on every tick/scrub/redraw. A no-op when the slot's
+ *  fill is currently suppressed (S1 `outlineOnly` — repainting it would silently re-enable a fill the
+ *  panel turned off) or when the result is not actually a timed choropleth. `results`' array order is
+ *  the same slot index `installAnalysisResults` used (see `layerId`). */
+export function setAnalysisResultPeriod(map: Map, results: readonly AnalysisResultPresentation[], resultId: string, periodIndex: number, theme: Theme, outlineOnly: boolean): void {
+  if (outlineOnly) return;
+  const index = results.findIndex(result => result.resultId === resultId);
+  if (index < 0) return;
+  const style = results[index]!.resultStyle;
+  if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return;
+  const id = layerId(index);
+  if (!map.getLayer(id)) return;
+  const clamped = Math.max(0, Math.min(style.periods.length - 1, Math.round(periodIndex)));
+  map.setPaintProperty(id, "fill-color", warehouseChoroplethColorAtPeriod(style, theme, clamped));
+  const hatchId = nullHatchLayerId(index);
+  if (map.getLayer(hatchId)) map.setFilter(hatchId, warehouseFillNullFilterAtPeriod(style, clamped));
+}
+
 function applyResultOpacity(map: Map, index: number, result: AnalysisResultPresentation, opacity: number): void {
   const id = layerId(index);
   const layer = map.getLayer(id);
@@ -991,6 +1079,14 @@ export function analysisFeatureTarget(feature: { source?: unknown; properties?: 
   if (typeof id !== "number" || !Number.isInteger(id) || id < 0) return null;
   if (feature.properties?._role === "scope") return null;
   return { source: feature.source, id };
+}
+
+/** The result slot index encoded in a rendered feature's own source id (`research-analysis-result-N`
+ *  — the same N `installAnalysisResults`'s returned array order uses). Callers (T2 A2 hover/popup
+ *  period lookups) use this instead of duplicating the source-id pattern themselves. */
+export function analysisResultSlotIndex(source: string): number | null {
+  const match = SOURCE_INDEX_PATTERN.exec(source);
+  return match ? Number(match[1]) : null;
 }
 
 function setState(map: Map, target: AnalysisFeatureTarget, state: Record<string, boolean>): void {

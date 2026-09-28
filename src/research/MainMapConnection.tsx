@@ -12,7 +12,7 @@ import { createPortal } from "react-dom";
 import { ResearchActivity } from "./ResearchActivityCard";
 import { activityForOperation, appendActivity, type Activity } from "./researchActivity";
 import { cancelResearchMotion, moveResearchCamera } from "./researchMotion";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import type { Map as MapboxMap, MapMouseEvent } from "mapbox-gl";
 import type { MapBridge } from "../chat/types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
@@ -32,14 +32,22 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
-import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisSelection, type AnalysisSelection, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultSlotIndex, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisResultPeriod, setAnalysisSelection, type AnalysisSelection, FEATURE_ID_PROPERTY, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
-import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties } from "./researchResultPopup";
+import { researchResultDatasetLabel, researchResultPanelProperties, researchResultPopupOverlaps, researchResultPopupTitle, UNNAMED_DATASET_LABEL, type AnalysisResultPanelProperties, type AnalysisResultPanelTrend } from "./researchResultPopup";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
 import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStack";
-import { analysisLegendEntries, publishAnalysisLegend } from "./analysisLegendStore";
+import { analysisLegendEntries, publishAnalysisLegend, type AnalysisLegendPlayback } from "./analysisLegendStore";
+import {
+  clearAnalysisPlayback, getAnalysisPlaybackState, getAnalysisPlaybackVersion, scrubAnalysisPlayback,
+  subscribeAnalysisPlayback, syncAnalysisPlaybackRegistry, toggleAnalysisPlayback,
+} from "./analysisPlaybackStore";
 import type { PresentableResult } from "./researchAnalysisSession";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
+import { RankBars } from "./charts/RankBars";
+import { TrendLine } from "./charts/TrendLine";
+import { seriesTrendLineData, shortTaipeiDateLabel, warehouseSeriesTrendLineData } from "./analysisResultCharts";
+import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseResultStyle";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 
@@ -121,6 +129,10 @@ export function MainMapConnection(props: Props) {
   const analysisOpacityRef = useRef(analysisOpacity); analysisOpacityRef.current = analysisOpacity;
   const [presentedAnalysis, setPresentedAnalysis] = useState<AnalysisResultPresentation[]>([]);
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
+  /** T2 A2: the raw (row-carrying) results behind the currently presented slots — cached at install
+   *  time (render()/redraw()) so hover/click lookups (period-specific value/trend) never re-call
+   *  presentable() per mousemove/click. */
+  const availableResultRowsRef = useRef<PresentableResult[]>([]);
   /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
   const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
   /** S1: when each result last became visible (LRU for the 3-result cap) and which area results lost the fill slot. */
@@ -142,7 +154,20 @@ export function MainMapConnection(props: Props) {
     const map = latest.current.map;
     if (map) setAnalysisSelection(map, presentedAnalysisRef.current, analysisSelectionRef.current, analysisOpacityRef.current);
   }, []);
+  /** T2 A2: reconciles the playback registry with whichever installed results are actually timed
+   *  choropleths, after every install (render()'s Agent-driven path and redraw()'s style.load path
+   *  both call this — see analysisPlaybackStore.ts syncAnalysisPlaybackRegistry). */
+  const syncPlaybackForResults = useCallback((installed: readonly AnalysisResultPresentation[]) => {
+    const active = new globalThis.Map<string, number>();
+    for (const result of installed) {
+      const style = result.resultStyle;
+      if (style && style.kind === "choropleth" && isTimedChoropleth(style)) active.set(result.resultId, style.periods.length);
+    }
+    syncAnalysisPlaybackRegistry(active);
+  }, []);
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
+  // W1: 本次分析圖層 defaults to its first 5 items + a "展開全部" toggle (spec docs/features/viz-library/DECISIONS.md §6).
+  const [resultsExpanded, setResultsExpanded] = useState(false);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
@@ -168,6 +193,7 @@ export function MainMapConnection(props: Props) {
     ++generation.current;
     latest.current.onAnalysisResultFeature?.(null);
     if (latest.current.map) removeAnalysisResults(latest.current.map);
+    clearAnalysisPlayback();
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
     requestedResultsRef.current = null; analysisActivationsRef.current = new globalThis.Map(); analysisOutlineOnlyRef.current = []; installedOutlineKeyRef.current = "";
@@ -256,6 +282,8 @@ export function MainMapConnection(props: Props) {
         ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current }) : presentedAnalysisRef.current
         : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+      availableResultRowsRef.current = allAnalysisResults;
+      syncPlaybackForResults(installed);
       setAvailableAnalysis(availableResults);
       resultCollectionRef.current = scene.results ?? null; setResultCollection(scene.results ?? null);
       analysis.current?.setActiveResultCollection(scene.results?.items.map(item => item.resultId) ?? []);
@@ -478,6 +506,10 @@ export function MainMapConnection(props: Props) {
     // never re-renders this panel. Install/redraw already drops the feature-state highlight.
     const hoverTip = supportsAnalysisHover() ? createAnalysisHoverTip(map.getContainer()) : null;
     const endHover = () => { hoverTip?.hide(); clearAnalysisHover(map); };
+    // T2 A2: hover resolves a rendered feature's row from the session store by resultId + _fid,
+    // never from the Mapbox-queried feature's own properties — a GeoJSON source's array-valued
+    // properties are not reliably read back through queryRenderedFeatures, unlike the scalar
+    // properties hover/click already rely on (see analysisResultOverlay.ts propertiesFor).
     const hover = (event: MapMouseEvent) => {
       if (!hoverTip) return;
       const layers = analysisResultHoverLayerIds(map, presentedAnalysisRef.current.length);
@@ -485,6 +517,18 @@ export function MainMapConnection(props: Props) {
       const target = feature ? analysisFeatureTarget(feature) : null;
       if (!feature || !target) { endHover(); return; }
       setAnalysisHover(map, target);
+      const slotIndex = analysisResultSlotIndex(target.source);
+      const presented = slotIndex !== null ? presentedAnalysisRef.current[slotIndex] : undefined;
+      const style = presented?.resultStyle;
+      const row = presented && style && style.kind === "choropleth" && isTimedChoropleth(style)
+        ? availableResultRowsRef.current.find(result => result.resultId === presented.resultId)?.rows[target.id] as Record<string, unknown> | undefined
+        : undefined;
+      if (presented && style && style.kind === "choropleth" && isTimedChoropleth(style) && row) {
+        const playback = getAnalysisPlaybackState(presented.resultId);
+        const fact = warehouseChoroplethPeriodFact(style, row, playback?.index ?? style.periods.length - 1);
+        hoverTip.show(event.point, { name: researchResultPopupTitle(feature.properties ?? {}), value: `${fact.period}：${fact.value}` }, latest.current.isDarkTheme === false);
+        return;
+      }
       hoverTip.show(event.point, analysisHoverLabel(feature.properties ?? {}), latest.current.isDarkTheme === false);
     };
     const redraw = () => {
@@ -492,21 +536,49 @@ export function MainMapConnection(props: Props) {
       if (!map.isStyleLoaded()) return;
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
-      if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+      // Series-kind analysis results (read_series/compare_series, geometry "none") are analysis-only
+      // cards, never map layers — and presentable() throws RESULT_NOT_MAP_ELIGIBLE for the *whole*
+      // batch if even one id lacks map-eligible geometry. Keep them out of this batch so one such
+      // result never blanks every spatial result; they get their own TrendLine card below instead
+      // (spec P3=W3, docs/features/viz-library/DECISIONS.md §6).
+      const mapResultIds = analysis.current ? allResultIds.filter(resultId => analysis.current!.mapEligible(resultId)) : [];
+      if (mapResultIds.length && analysis.current && mapResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
         // Read fresh via the ref (not a dep of this effect) so a style/basemap switch — which is
         // exactly what triggers "style.load" below — recolours with the *new* theme, not a stale one.
         const theme = vizThemeForBasemap(latest.current.isDarkTheme);
         const visibleIds = new Set(resultIds);
-        const available = analysis.current.presentable(allResultIds);
+        const available = analysis.current.presentable(mapResultIds);
         const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current });
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
+        availableResultRowsRef.current = available;
+        syncPlaybackForResults(installed);
         applyAnalysisSelection();
         setAvailableAnalysis(describeAnalysisResults(available, theme));
       } else {
         removeAnalysisResults(map);
         presentedAnalysisRef.current = []; setPresentedAnalysis([]);
+        availableResultRowsRef.current = [];
+        syncPlaybackForResults([]);
         setAvailableAnalysis([]);
       }
+    };
+    // P3=W3: a clicked feature's own recent-periods trend (only for a timed choropleth; every other
+    // result's popup shows no trend). Resolves the row the same way `hover` does — by resultId+_fid
+    // from the session store, not from the queried feature's own properties.
+    const trendFor = (resultId: string, properties: Record<string, unknown>): AnalysisResultPanelTrend | null => {
+      const fid = properties[FEATURE_ID_PROPERTY];
+      if (typeof fid !== "number") return null;
+      const style = presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle;
+      if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return null;
+      const row = availableResultRowsRef.current.find(result => result.resultId === resultId)?.rows[fid] as Record<string, unknown> | undefined;
+      const series = row?.[style.seriesProperty];
+      if (!Array.isArray(series)) return null;
+      const playback = getAnalysisPlaybackState(resultId);
+      const points = style.periods.map((period, index) => {
+        const value = series[index];
+        return { label: shortTaipeiDateLabel(period), value: typeof value === "number" && Number.isFinite(value) ? value : null };
+      });
+      return { points, caption: `近 ${style.periods.length} 期`, markerIndex: playback?.index ?? style.periods.length - 1 };
     };
     const click = (event: MapMouseEvent) => {
       const layers = analysisResultInteractiveLayerIds(map, presentedAnalysisRef.current.length);
@@ -521,6 +593,7 @@ export function MainMapConnection(props: Props) {
         overlaps,
         resultId => presentedAnalysisRef.current.find(result => result.resultId === resultId),
         datasetId => describeDataset(datasetId, latest.current.locked).label,
+        trendFor,
       ));
     };
     let cancelStyleRestore: (() => void) | null = null;
@@ -541,8 +614,44 @@ export function MainMapConnection(props: Props) {
       cancelStyleRestore?.(); map.off("style.load", redrawAfterStyleLoad); map.off("click", click);
       if (hoverTip) { map.off("mousemove", hover); map.off("mouseout", endHover); map.off("movestart", endHover); endHover(); hoverTip.destroy(); }
       latest.current.onAnalysisResultFeature?.(null); removeAnalysisResults(map);
+      clearAnalysisPlayback();
     };
   }, [props.map]);
+  // T2 A2: subscribes to the playback store so a tick/scrub (analysisPlaybackStore.ts) re-renders
+  // this panel — both to re-paint the map (the effect below) and to republish the legend's playback
+  // bar (index/playing) live.
+  const playbackVersion = useSyncExternalStore(subscribeAnalysisPlayback, getAnalysisPlaybackVersion, getAnalysisPlaybackVersion);
+  // T2 A2: re-paints every installed timed choropleth to its own stored period on every tick/scrub,
+  // and again whenever a fresh install (Agent command, basemap switch) lands — so a scrubbed period
+  // survives `style.load`'s source/layer rebuild (spec: "切換底圖...後保留目前期別").
+  useEffect(() => {
+    const map = props.map;
+    if (!map) return;
+    const theme = vizThemeForBasemap(props.isDarkTheme);
+    const outlineOnly = new Set(analysisOutlineOnlyRef.current);
+    for (const result of presentedAnalysis) {
+      const style = result.resultStyle;
+      if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) continue;
+      const state = getAnalysisPlaybackState(result.resultId);
+      const periodIndex = state?.index ?? style.periods.length - 1;
+      setAnalysisResultPeriod(map, presentedAnalysis, result.resultId, periodIndex, theme, outlineOnly.has(result.resultId));
+    }
+    // playbackVersion is read only inside the loop (via getAnalysisPlaybackState); it is the actual
+    // trigger for a tick/scrub, so it must stay a dep even though it is not referenced by name above.
+  }, [playbackVersion, presentedAnalysis, props.map, props.isDarkTheme]);
+  // T2 A2: one entry's own play/pause/scrub bundle for the legend bar (AnalysisLegendSection),
+  // resolved fresh from the store at publish time — see analysisLegendEntries' playbackFor param.
+  const analysisPlaybackFor = useCallback((resultId: string): AnalysisLegendPlayback | undefined => {
+    const style = presentedAnalysisRef.current.find(result => result.resultId === resultId)?.resultStyle;
+    if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return undefined;
+    const length = style.periods.length;
+    const state = getAnalysisPlaybackState(resultId) ?? { index: Math.max(0, length - 1), playing: false };
+    return {
+      periods: style.periods, periodUnit: style.periodUnit, index: state.index, playing: state.playing,
+      onToggle: () => toggleAnalysisPlayback(resultId, length),
+      onScrub: (index: number) => scrubAnalysisPlayback(resultId, index, length),
+    };
+  }, []);
   // G1/G2: the analysis legend lives in the 「圖例」 panel (top group); compact while the docked panel is open.
   useEffect(() => {
     publishAnalysisLegend({
@@ -550,10 +659,11 @@ export function MainMapConnection(props: Props) {
       entries: analysisLegendEntries(presentedAnalysis, datasetId => {
         const label = researchResultDatasetLabel(datasetId, null, id => describeDataset(id, latest.current.locked).label);
         return label === UNNAMED_DATASET_LABEL ? null : label;
-      }),
+      }, analysisPlaybackFor),
       compact: !!props.analysisResultSelected,
     });
-  }, [presentedAnalysis, props.analysisResultSelected]);
+    // playbackVersion: republishes on every tick/scrub so the bar's index/playing stay live.
+  }, [presentedAnalysis, props.analysisResultSelected, playbackVersion, analysisPlaybackFor]);
   useEffect(() => () => publishAnalysisLegend({ entries: [], compact: false }), []);
   // I2: closing the docked panel, or selecting another layer's feature, restores every result.
   useEffect(() => {
@@ -599,9 +709,32 @@ export function MainMapConnection(props: Props) {
           </label>)}
         </fieldset>}
         <ul>{resultCollection.items.map((item, index) => {
+          if (!resultsExpanded && index >= 5) return null;
+          const series = analysis.current?.seriesResult(item.resultId) ?? null;
+          const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
+          if (series) {
+            // T1=L1: a warehouse-imported series style (pulse_wh_present kind "series") carries its
+            // own periods/values/baseline directly; a session-local read_series/compare_series result
+            // has no resultStyle and instead shapes its rows as period_start/value/baseline_value.
+            const warehouseStyle = series.resultStyle?.kind === "series" ? series.resultStyle : null;
+            const trend = warehouseStyle ? warehouseSeriesTrendLineData(warehouseStyle) : seriesTrendLineData(series.rows, typeof series.units.value === "string" ? series.units.value : null);
+            const latestText = "latestText" in trend ? trend.latestText : null;
+            const title = warehouseStyle?.title ?? series.displayLabel;
+            const unit = warehouseStyle ? warehouseStyle.unit : (typeof series.units.value === "string" ? series.units.value : null);
+            const periodCount = warehouseStyle ? warehouseStyle.periods.length : series.rows.length;
+            return <li key={item.resultId} className="agent-analysis-result-item">
+              <div className="agent-analysis-row-label"><strong>{title}</strong>
+                <small>
+                  {periodCount} 期{group ? ` · ${group.label}` : ""}
+                  {latestText !== null ? ` · 最新一期 ${trend.points[trend.points.length - 1]?.label ?? ""}：${latestText}` : ""}
+                  {warehouseStyle?.baselineLabel ? ` · 比較基準：${warehouseStyle.baselineLabel}` : ""}
+                </small>
+                <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={unit} />
+              </div>
+            </li>;
+          }
           const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
           const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
-          const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           return <li key={item.resultId} className="agent-analysis-result-item">
             <div className="agent-analysis-row-main">
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
@@ -609,13 +742,14 @@ export function MainMapConnection(props: Props) {
                 <label className="agent-analysis-opacity">透明度
                   <Slider ariaLabel={`${result?.displayLabel ?? "分析結果"}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
-                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
+                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} theme={vizThemeForBasemap(props.isDarkTheme)} onSelectColumn={column => {
                   if (!props.map) return;
                   let point: Record<string, unknown> | undefined;
                   try { point = analysis.current?.presentable([item.resultId])[0]?.rows.find(row => row._compare_index === column.index); } catch { point = undefined; }
                   const geometry = point?.geometry as { type?: string; coordinates?: [number, number] } | undefined;
                   if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
                 }} />}
+                {rendered?.rankBars && <RankBars items={rendered.rankBars.items} theme={vizThemeForBasemap(props.isDarkTheme)} valueKind={rendered.rankBars.valueKind} unit={rendered.rankBars.unit} title={rendered.rankBars.title} />}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
             </div>
@@ -625,6 +759,9 @@ export function MainMapConnection(props: Props) {
             </span>
           </li>;
         })}</ul>
+        {resultCollection.items.length > 5 && <button type="button" className="agent-analysis-expand" onClick={() => setResultsExpanded(value => !value)}>
+          {resultsExpanded ? "收合" : `展開全部（共 ${resultCollection.items.length} 項）`}
+        </button>}
         <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>清除本次圖層</button>
       </section>}
       {!resultCollection && <section className="agent-empty-results"><h3>本次分析圖層</h3><p>在 Codex 提出想了解的地點或主題。<br />Agent 產生的分析圖層會顯示在這裡。</p></section>}

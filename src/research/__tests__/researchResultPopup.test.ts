@@ -120,6 +120,29 @@ describe("docked analysis result panel data", () => {
     ]);
     expect(JSON.stringify(panel)).not.toContain("warehouse:");
   });
+
+  it("attaches a trend (P3=W3) only when trendFor returns one for that record's resultId", () => {
+    const features = [
+      { id: 1, properties: { resultId: "r1", datasetId: "warehouse:wh-8", name: "甲區" }, geometry: { type: "Polygon" } },
+      { id: 2, properties: { resultId: "r2", datasetId: "warehouse:wh-9", name: "乙區" }, geometry: { type: "Polygon" } },
+    ];
+    const trend = { points: [{ label: "01/01", value: 1 }], caption: "近 1 期", markerIndex: 0 };
+    const panel = researchResultPanelProperties(
+      { features, total: 2, omitted: 0 },
+      () => ({ displayLabel: "x" }),
+      noDescriptor,
+      resultId => (resultId === "r1" ? trend : null),
+    );
+    expect(panel.records[0]!.trend).toEqual(trend);
+    expect(panel.records[1]!.trend).toBeUndefined();
+  });
+
+  it("omits trend entirely when no trendFor is given (every other caller's existing behaviour)", () => {
+    const features = [{ id: 1, properties: { resultId: "r1", name: "甲區" }, geometry: { type: "Polygon" } }];
+    const panel = researchResultPanelProperties({ features, total: 1, omitted: 0 }, () => ({ displayLabel: "x" }), noDescriptor);
+    expect(panel.records[0]).not.toHaveProperty("trend");
+  });
+
   it("titles warehouse rows by their source name column and shows address and dist_m", () => {
     const stop = { StationName: "捷運大安站(信義)", StationAddress: "信義路四段上近復興南路同向(向西)", dist_m: 25, _wh_label: "大安捷運站 300m 內公車站位" };
     expect(researchResultPopupTitle(stop)).toBe("捷運大安站(信義)");

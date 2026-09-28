@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { AnalysisResultPresentation } from "../analysisResultOverlay";
-import { analysisLegendEntries, getAnalysisLegendSnapshot, publishAnalysisLegend, subscribeAnalysisLegend, type AnalysisLegendEntry } from "../analysisLegendStore";
+import { analysisLegendEntries, getAnalysisLegendSnapshot, publishAnalysisLegend, subscribeAnalysisLegend, type AnalysisLegendEntry, type AnalysisLegendPlayback } from "../analysisLegendStore";
 import { AnalysisLegendSection } from "../AnalysisLegendSection";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
-import type { WarehouseStyleLegend } from "../warehouseResultStyle";
+import type { WarehouseResultStyle, WarehouseStyleLegend } from "../warehouseResultStyle";
 import { LegendPanel } from "../../components/LegendPanel";
 import type { LayerVisibility } from "../../types";
 
@@ -28,6 +28,23 @@ describe("G1 analysis legend store", () => {
     ], datasetId => datasetId === "fixture:ds" ? "內政部人口統計" : null);
     expect(entries.map(entry => [entry.resultId, entry.title, entry.source])).toEqual([["r1", "各區人口密度", "內政部人口統計"], ["ring", "各區人口密度", "內政部人口統計"]]);
     expect(entries[0]!.styleLegend).toBe(choroplethLegend);
+  });
+
+  it("attaches playback (T2 A2) only for a timed choropleth entry when playbackFor is given", () => {
+    const timedChoropleth = {
+      kind: "choropleth", field: "n", valueProperty: "_style_value", method: "quantile", scheme: "sequential", label: "房價", breaks: [50], colors: ["#eff3ff", "#08519c"], labels: ["< 50", "≥ 50"], min: 1, max: 90, nullColor: "#bdbdbd", nullCount: 0,
+      timeField: "wk", idField: null, periods: ["2024-01-01", "2024-02-01"], periodUnit: "month", seriesProperty: "_style_series", latestPeriod: "2024-02-01",
+    } as const satisfies WarehouseResultStyle;
+    const playback: AnalysisLegendPlayback = { periods: timedChoropleth.periods, periodUnit: "month", index: 0, playing: false, onToggle: () => {}, onScrub: () => {} };
+    const entries = analysisLegendEntries([
+      presented({ resultId: "timed", styleLegend: choroplethLegend, resultStyle: timedChoropleth }),
+      presented({ resultId: "plain", styleLegend: choroplethLegend }), // no resultStyle at all
+    ], () => null, resultId => (resultId === "timed" ? playback : undefined));
+    expect(entries.find(entry => entry.resultId === "timed")!.playback).toBe(playback);
+    expect(entries.find(entry => entry.resultId === "plain")!.playback).toBeUndefined();
+    // Without a playbackFor at all, no entry carries one — existing callers are unaffected.
+    const withoutPlaybackFor = analysisLegendEntries([presented({ resultId: "timed", styleLegend: choroplethLegend, resultStyle: timedChoropleth })], () => null);
+    expect(withoutPlaybackFor[0]!.playback).toBeUndefined();
   });
 
   it("notifies subscribers and collapses an empty publish to one stable snapshot", () => {
@@ -66,6 +83,31 @@ describe("G2 full vs compact legend", () => {
 
   it("leaves the default (non-compact) WarehouseStyleLegendView markup unchanged", () => {
     expect(renderToStaticMarkup(h(WarehouseStyleLegendView, { legend: choroplethLegend, compact: false }))).toBe(renderToStaticMarkup(h(WarehouseStyleLegendView, { legend: choroplethLegend })));
+  });
+
+  it("T2 A2: renders a play/pause + scrub bar above the legend for an entry carrying playback", () => {
+    const playback: AnalysisLegendPlayback = { periods: ["2024-01-01", "2024-02-01", "2024-03-01"], periodUnit: "month", index: 1, playing: false, onToggle: () => {}, onScrub: () => {} };
+    const withPlayback = analysisLegendEntries([presented({ styleLegend: choroplethLegend })], () => null).map(entry => ({ ...entry, playback }));
+    const html = renderToStaticMarkup(h(AnalysisLegendSection, { entries: withPlayback, compact: false, isDark: true }));
+    expect(html).toContain("播放");
+    expect(html).toContain("2024-02-01"); // the current (scrubbed) period, not necessarily the latest
+    expect(html).toContain('aria-pressed="false"');
+    expect(html.indexOf("analysis-legend-group__playback")).toBeLessThan(html.indexOf("agent-style-legend__bar")); // above the legend
+  });
+
+  it("disables the playback toggle for a single-period result (nothing to play)", () => {
+    const playback: AnalysisLegendPlayback = { periods: ["2024-01-01"], periodUnit: "other", index: 0, playing: false, onToggle: () => {}, onScrub: () => {} };
+    const entries = analysisLegendEntries([presented({ styleLegend: choroplethLegend })], () => null).map(entry => ({ ...entry, playback }));
+    const html = renderToStaticMarkup(h(AnalysisLegendSection, { entries, compact: false, isDark: true }));
+    expect(html).toContain("disabled");
+  });
+
+  it("shows 暫停 and aria-pressed=true while playing", () => {
+    const playback: AnalysisLegendPlayback = { periods: ["2024-01-01", "2024-02-01"], periodUnit: "month", index: 1, playing: true, onToggle: () => {}, onScrub: () => {} };
+    const entries = analysisLegendEntries([presented({ styleLegend: choroplethLegend })], () => null).map(entry => ({ ...entry, playback }));
+    const html = renderToStaticMarkup(h(AnalysisLegendSection, { entries, compact: false, isDark: true }));
+    expect(html).toContain("暫停");
+    expect(html).toContain('aria-pressed="true"');
   });
 });
 

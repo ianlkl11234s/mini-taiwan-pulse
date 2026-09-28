@@ -1,34 +1,28 @@
-import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
+import { CompareTable, type CompareTableColumn } from "./charts/CompareTable";
 import type { WarehouseCompareColumn, WarehouseResultStyle } from "./warehouseResultStyle";
-
-/** Same conservative unit/shape heuristic as warehouseStyleFact/researchResultPopup (spec U1). */
-const fmt = (value: number, unit: string | null) => formatVizNumber(value, classifyVizNumberKind(value, unit));
+import type { Theme } from "./vizSpec";
 
 /**
- * Field x point comparison table for a compare-styled warehouse result. Rows are metrics, columns are
- * the compared points (server-numbered 1..N); the highest value in a row is bold, a not-covered cell
- * (regional dataset with no data at that point) reads "未涵蓋" in muted grey rather than 0 or a blank.
+ * Field x point comparison table for a compare-styled warehouse result (spec P2 = C1,
+ * docs/features/viz-library/DECISIONS.md §6). Thin adapter over the shared `CompareTable` chart:
+ * maps the MCP warehouse's server-numbered columns/ranked cells onto its generic props, and keeps the
+ * click-through in `WarehouseCompareColumn` shape (callers fly the map to a clicked point's own
+ * coordinates). The highest value in a row is bold (server `rank === 1`); a not-covered cell (regional
+ * dataset with no data at that point) reads "未涵蓋", a covered-but-missing one reads "無資料" — never
+ * 0 or a blank.
  */
-export function WarehouseCompareTableView({ table, onSelectColumn }: { table: Extract<WarehouseResultStyle, { kind: "compare" }>; onSelectColumn?: (column: WarehouseCompareColumn) => void }) {
+export function WarehouseCompareTableView({ table, theme = "dark", onSelectColumn }: { table: Extract<WarehouseResultStyle, { kind: "compare" }>; theme?: Theme; onSelectColumn?: (column: WarehouseCompareColumn) => void }) {
+  const columns: CompareTableColumn[] = table.columns.map(column => ({ id: String(column.index), label: column.label }));
   return <div className="agent-analysis-count-legend agent-compare-table" data-style-kind="compare">
     <span>多點比較</span>
-    <table className="agent-compare-table__grid">
-      <thead>
-        <tr>
-          <th scope="col" />
-          {table.columns.map(column => <th scope="col" key={column.index}>
-            {onSelectColumn ? <button type="button" className="agent-compare-table__column" onClick={() => onSelectColumn(column)}>{column.label}</button> : column.label}
-          </th>)}
-        </tr>
-      </thead>
-      <tbody>
-        {table.rows.map(row => <tr key={row.field}>
-          <th scope="row">{row.label}{row.unit ? `（${row.unit}）` : ""}</th>
-          {row.cells.map((cell, index) => <td key={table.columns[index]!.index} className={cell.rank === 1 ? "agent-compare-table__best" : undefined}>
-            {cell.notCovered ? <span className="agent-compare-table__muted">未涵蓋</span> : cell.value === null ? <span className="agent-compare-table__muted">–</span> : fmt(cell.value, row.unit)}
-          </td>)}
-        </tr>)}
-      </tbody>
-    </table>
+    <CompareTable
+      theme={theme}
+      columns={columns}
+      rows={table.rows.map(row => ({ id: row.field, label: row.label, unit: row.unit, cells: row.cells.map(cell => ({ value: cell.value, notCovered: cell.notCovered, rank: cell.rank })) }))}
+      onSelectColumn={onSelectColumn ? columnId => {
+        const column = table.columns.find(candidate => String(candidate.index) === columnId);
+        if (column) onSelectColumn(column);
+      } : undefined}
+    />
   </div>;
 }
