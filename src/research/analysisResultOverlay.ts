@@ -11,7 +11,7 @@ import { TITLE_KEYS, researchResultPopupTitle } from "./researchResultPopup";
 import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
 import type { RankBarItem } from "./charts/RankBars";
 import {
-  classifyStepColor, isTimedChoropleth, warehouseChoroplethColorAtPeriod, warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFillNullFilterAtPeriod,
+  classifyStepColor, isTimedChoropleth, warehouseChoroplethColorAtPeriod, warehouseChoroplethPeriodProperty, warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFillNullFilterAtPeriod,
   warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseIsochroneSortKey, warehouseProportionalColor, warehouseProportionalLabelFilter,
   warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
@@ -315,24 +315,31 @@ function flowEndpointCollection(result: PresentableResult, style: Extract<Wareho
   return { type: "FeatureCollection", features };
 }
 
-/** T2 A2: a timed choropleth's `_style_series` (mcp `pulse_wh_present`) is padded/truncated to
- *  exactly `style.periods.length`, coercing anything non-numeric to null. This guarantees every
- *  drawn feature's array is the length the period-indexed paint expression
- *  (`warehouseChoroplethColorAtPeriod`) expects, so an in-range `["at", i, ...]` never throws at
- *  Mapbox eval time — a short/missing/malformed array becomes "every period null" rather than a
- *  runtime error. */
-function normalizedSeriesValue(row: Record<string, unknown>, result: PresentableResult): (number | null)[] | null {
+/** T2 A2: a Mapbox GeoJSON source does not reliably keep an array-valued property through its own
+ *  worker-side feature encoding — a paint/filter expression reading it back (`["at", i, ["get",
+ *  "_style_series"]]`) can observe it as a *string* instead (`"_style_series" evaluated to string
+ *  but was expected to be of type array`, confirmed in a live browser). So the map source never
+ *  carries the array at all: each period gets its own flat scalar property, `_p0`.._p{n-1}` (padded/
+ *  truncated to exactly `style.periods.length`, coercing anything non-numeric to null — a short/
+ *  missing/malformed series becomes "every period null", never a missing property or a crash).
+ *  `warehouseChoroplethColorAtPeriod`/`warehouseFillNullFilterAtPeriod` read these, not `_style_series`.
+ *  The *session-stored* row (availableResultRowsRef in MainMapConnection.tsx, used by hover/click for
+ *  the full recent-periods trend) still carries the real `_style_series` array — that object never
+ *  passes through Mapbox at all, so it is unaffected and unchanged. */
+function timedChoroplethPeriodProperties(row: Record<string, unknown>, result: PresentableResult): Record<string, number | null> {
   const style = result.resultStyle;
-  if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return null;
+  if (!style || style.kind !== "choropleth" || !isTimedChoropleth(style)) return {};
   const raw = row[style.seriesProperty];
   const source = Array.isArray(raw) ? raw : [];
-  return Array.from({ length: style.periods.length }, (_, index) => {
+  const out: Record<string, number | null> = {};
+  style.periods.forEach((_period, index) => {
     const value = source[index];
-    return typeof value === "number" && Number.isFinite(value) ? value : null;
+    out[warehouseChoroplethPeriodProperty(index)] = typeof value === "number" && Number.isFinite(value) ? value : null;
   });
+  return out;
 }
 
-function propertiesFor(row: Record<string, unknown>, result: PresentableResult): Record<string, string | number | boolean | null | (number | null)[]> {
+function propertiesFor(row: Record<string, unknown>, result: PresentableResult): Record<string, string | number | boolean | null> {
   const properties = Object.fromEntries(Object.entries(row).filter(([key, value]) => key !== "geometry" && (value === null || ["string", "number", "boolean"].includes(typeof value))));
   const valueUnit = result.units?.value;
   const differenceUnit = result.units?.absoluteDifference;
@@ -341,10 +348,10 @@ function propertiesFor(row: Record<string, unknown>, result: PresentableResult):
   const magnitudeUnit = result.units?.magnitude;
   const depthUnit = result.units?.depth_km;
   const styleFact = result.resultStyle ? warehouseStyleFact(result.resultStyle, row) : null;
-  const seriesValue = normalizedSeriesValue(row, result);
+  const periodProperties = timedChoroplethPeriodProperties(row, result);
   return {
     ...properties,
-    ...(seriesValue ? { _style_series: seriesValue } : {}),
+    ...periodProperties,
     ...(styleFact ? { styleFactLabel: styleFact.label, styleFactValue: styleFact.value } : {}),
     ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "value") ? { unit: valueUnit ?? null } : {}),
     ...(result.units && Object.prototype.hasOwnProperty.call(result.units, "absoluteDifference") ? { differenceUnit: differenceUnit ?? null } : {}),

@@ -511,24 +511,32 @@ function stepColorExpression(valueProperty: string, breaks: readonly number[], c
   return stepColorExpressionFor(["get", valueProperty], breaks, colors);
 }
 
-/** T2 A2: `["at", periodIndex, ["get", seriesProperty]]` in place of `["get", valueProperty]` — same
- *  step classification, same hatch/solid null fallback, just reading one period of the aligned
- *  `_style_series` array instead of the folded feature's latest-period `_style_value`. The browser
- *  (analysisResultOverlay.ts propertiesFor) guarantees every feature's `_style_series` is padded/
- *  truncated to exactly `style.periods.length`, so an in-range `at` never throws at eval time. */
+/** T2 A2: the per-period scalar property name a map feature carries for its Nth period (see
+ *  analysisResultOverlay.ts `timedChoroplethPeriodProperties`). A Mapbox GeoJSON source does not
+ *  reliably keep an array-valued property through its own worker-side feature encoding — a paint/
+ *  filter expression reading `["at", i, ["get", "_style_series"]]` back can observe it as a *string*
+ *  instead ("_style_series" evaluated to string but was expected to be of type array, confirmed in a
+ *  live browser) — so the map source never carries that array at all, only these flat scalars. */
+export function warehouseChoroplethPeriodProperty(periodIndex: number): string { return `_p${periodIndex}`; }
+
+/** `["get", "_pN"]` in place of `["get", valueProperty]` — same step classification, same hatch/
+ *  solid null fallback, just reading one period's own flat scalar property instead of the folded
+ *  feature's latest-period `_style_value`. See warehouseChoroplethPeriodProperty for why this is not
+ *  `["at", periodIndex, ["get", "_style_series"]]`. */
 export function warehouseChoroplethColorAtPeriod(style: WarehouseTimedChoropleth, theme: Theme, periodIndex: number): ExpressionSpecification {
   const colors = resolvePalette(style, theme);
-  const atValue = ["at", periodIndex, ["get", style.seriesProperty]];
-  const scale = stepColorExpressionFor(atValue, style.breaks, colors);
+  const value = ["get", warehouseChoroplethPeriodProperty(periodIndex)];
+  const scale = stepColorExpressionFor(value, style.breaks, colors);
   const nullColor = style.nullStyle === "hatch" ? "rgba(0,0,0,0)" : style.nullColor;
-  return ["case", ["==", ["typeof", atValue], "number"], scale, nullColor] as unknown as ExpressionSpecification;
+  return ["case", ["==", ["typeof", value], "number"], scale, nullColor] as unknown as ExpressionSpecification;
 }
 
-/** T2 A2 counterpart of `warehouseFillNullFilter` for one period of the series: selects exactly the
- *  features `warehouseChoroplethColorAtPeriod` leaves transparent at that period, so the hatch overlay
- *  layer can be re-filtered to match while scrubbing. */
-export function warehouseFillNullFilterAtPeriod(style: WarehouseTimedChoropleth, periodIndex: number): ExpressionSpecification {
-  return ["!=", ["typeof", ["at", periodIndex, ["get", style.seriesProperty]]], "number"] as unknown as ExpressionSpecification;
+/** T2 A2 counterpart of `warehouseFillNullFilter` for one period: selects exactly the features
+ *  `warehouseChoroplethColorAtPeriod` leaves transparent at that period, so the hatch overlay layer
+ *  can be re-filtered to match while scrubbing. `style` is kept in the signature (unused) to mirror
+ *  `warehouseChoroplethColorAtPeriod`'s call shape at every call site. */
+export function warehouseFillNullFilterAtPeriod(_style: WarehouseTimedChoropleth, periodIndex: number): ExpressionSpecification {
+  return ["!=", ["typeof", ["get", warehouseChoroplethPeriodProperty(periodIndex)]], "number"] as unknown as ExpressionSpecification;
 }
 
 function choroplethColor(style: Extract<WarehouseResultStyle, { kind: "choropleth" }>, theme: Theme): ExpressionSpecification {
