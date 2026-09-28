@@ -1,12 +1,13 @@
 /**
- * 分享／嵌入面板（EM-19）
+ * 分享／嵌入面板（EM-19，UI 統一第二輪 Phase P）
  *
  * 因為網址已由 App 的雙向同步保持最新（相機／圖層／底圖／歷史日期都在裡面），
  * 這裡不重新計算狀態 —— 直接取用 `window.location`，把它翻成兩種可貼的形式：
  * 主站連結，以及指向 `/embed` 的 iframe 代碼。
  */
-import { useEffect, useState } from "react";
-import { COLORS, FONT_DATA, FONT_SIZE, RADIUS, SURFACE } from "../styles/designTokens";
+import { useEffect, useRef, useState } from "react";
+import { Copy, X } from "lucide-react";
+import { BORDER, COLORS, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE } from "../styles/designTokens";
 
 /** 正式站網域：本機開發時分享 localhost 沒有意義，一律輸出線上網址 */
 const PROD_ORIGIN = "https://mini-taiwan-pulse.itsmigu.com";
@@ -25,55 +26,68 @@ function buildLinks() {
   };
 }
 
+/** 兩個欄位共用：標籤＋值欄＋複製鈕，寬度與按鈕寬度對齊（grid 1fr auto，鈕固定寬） */
 function CopyBox({
   label, value, hint, isDark,
 }: { label: string; value: string; hint: string; isDark: boolean }) {
   const [copied, setCopied] = useState(false);
+  const valueRef = useRef<HTMLTextAreaElement>(null);
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(value);
     } catch {
-      return;   // 權限被拒（非 https / 使用者拒絕）→ 使用者仍可手動選取
+      valueRef.current?.select();   // 權限被拒（非 https / 使用者拒絕）→ 直接選取，提示使用者手動複製
+      return;
     }
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
 
+  const textStrong = isDark ? COLORS.textStrong : LIGHT.textStrong;
+  const textDim = isDark ? COLORS.textDim : LIGHT.textDim;
+  const controlBg = isDark ? CONTROL.bg : LIGHT.controlBg;
+  const controlBorder = isDark ? CONTROL.border : LIGHT.controlBorder;
+  const accent = isDark ? COLORS.accent : LIGHT.accent;
+  const accentFaint = isDark ? COLORS.accentFaint : LIGHT.accentFaint;
+
   return (
-    <div style={{ marginBottom: 18 }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: isDark ? COLORS.textDefault : "#222" }}>
-          {label}
-        </span>
-        <span style={{ fontSize: FONT_SIZE.sm, color: isDark ? COLORS.textDim : "#777" }}>{hint}</span>
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: textStrong, marginBottom: 4 }}>
+        {label}
+        <span style={{ fontWeight: 400, color: textDim, fontSize: 10, marginLeft: 6 }}>{hint}</span>
       </div>
-      <div style={{ display: "flex", gap: 8, alignItems: "stretch" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 6, alignItems: "stretch" }}>
         <textarea
+          ref={valueRef}
           readOnly
           value={value}
           onFocus={(e) => e.currentTarget.select()}
           rows={value.length > 120 ? 3 : 2}
           style={{
-            flex: 1, resize: "none",
-            background: isDark ? "rgba(0,0,0,0.35)" : "rgba(0,0,0,0.04)",
-            border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)"}`,
-            borderRadius: RADIUS.md, padding: "8px 10px",
-            color: isDark ? "#dfe6ee" : "#222",
-            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-            fontSize: 11.5, lineHeight: 1.55,
+            resize: "none", minWidth: 0,
+            background: controlBg,
+            border: `1px solid ${controlBorder}`,
+            borderRadius: RADIUS.md, padding: "6px 8px",
+            color: isDark ? COLORS.textDefault : LIGHT.textDefault,
+            fontFamily: FONT_DATA,
+            fontSize: 10.5, lineHeight: 1.5,
           }}
         />
         <button
           onClick={copy}
           style={{
-            flexShrink: 0, minWidth: 62,
-            background: copied ? "rgba(64,200,120,0.22)" : isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-            border: `1px solid ${copied ? "rgba(64,200,120,0.5)" : isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-            borderRadius: RADIUS.md, color: isDark ? "#fff" : "#333",
-            fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA, cursor: "pointer",
+            width: 74, flexShrink: 0,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
+            background: copied ? accentFaint : controlBg,
+            border: `1px solid ${copied ? accent : controlBorder}`,
+            borderRadius: RADIUS.md,
+            color: copied ? accent : textStrong,
+            fontWeight: copied ? 600 : 500,
+            fontSize: FONT_SIZE.base, fontFamily: "inherit", cursor: "pointer",
           }}
         >
+          <Copy size={12} />
           {copied ? "已複製" : "複製"}
         </button>
       </div>
@@ -114,6 +128,11 @@ export function ShareModal({ open, onClose, isDarkTheme = true }: Props) {
     params.has("date") && `日期 ${params.get("date")}${params.has("h") ? ` ${params.get("h")}時` : ""}`,
   ].filter(Boolean) as string[];
 
+  const border = isDarkTheme ? BORDER.panel : LIGHT.border;
+  const textDim = isDarkTheme ? COLORS.textDim : LIGHT.textDim;
+  const statusWarn = isDarkTheme ? COLORS.statusWarn : LIGHT.statusWarn;
+  const warnBorder = isDarkTheme ? "rgba(255,152,0,0.4)" : "rgba(194,65,12,0.4)";
+
   return (
     <div
       onClick={onClose}
@@ -126,48 +145,63 @@ export function ShareModal({ open, onClose, isDarkTheme = true }: Props) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: "min(640px, 100%)", maxHeight: "86vh", overflowY: "auto",
+          width: "min(520px, 100%)", maxHeight: "86vh", overflowY: "auto",
           background: isDarkTheme ? SURFACE.strong : "#fff",
-          border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.1)"}`,
-          borderRadius: RADIUS.lg, padding: "20px 22px",
-          fontFamily: FONT_DATA,
+          border: `1px solid ${border}`,
+          borderRadius: RADIUS.xl,
+          fontFamily: FONT_CJK,
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-          <h2 style={{ margin: 0, fontSize: 17, color: isDarkTheme ? "#fff" : "#111" }}>分享目前畫面</h2>
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "10px 14px", borderBottom: `1px solid ${border}`,
+        }}>
+          <div>
+            <div style={{ fontSize: 9, color: textDim, letterSpacing: 1.4 }}>分享</div>
+            <h2 style={{ margin: "1px 0 0", fontSize: FONT_SIZE.lg, fontWeight: 700, color: isDarkTheme ? COLORS.textStrong : LIGHT.textStrong }}>
+              分享目前畫面
+            </h2>
+          </div>
           <button
             onClick={onClose}
+            aria-label="關閉分享目前畫面"
             style={{
-              background: "none", border: "none", cursor: "pointer", fontSize: 20, lineHeight: 1,
-              color: isDarkTheme ? COLORS.textDim : "#888", padding: 4,
+              width: 24, height: 24, borderRadius: RADIUS.md,
+              background: "transparent", border: "none", color: textDim,
+              cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}
-            aria-label="關閉"
           >
-            ×
+            <X size={14} />
           </button>
         </div>
 
-        <p style={{ margin: "0 0 16px", fontSize: FONT_SIZE.sm, color: isDarkTheme ? COLORS.textDim : "#666" }}>
-          包含：{included.length ? included.join("、") : "（尚未設定任何參數）"}
-        </p>
+        <div style={{ padding: "12px 14px" }}>
+          <p style={{ margin: "0 0 14px", fontSize: FONT_SIZE.sm, color: textDim }}>
+            包含：{included.length ? included.join("、") : "（尚未設定任何參數）"}
+          </p>
 
-        <CopyBox
-          label="連結"
-          hint="分享給別人，開啟即為此畫面"
-          value={links.site}
-          isDark={isDarkTheme}
-        />
-        <CopyBox
-          label="嵌入文章"
-          hint="貼進文章 HTML；嵌入版走免費底圖，不計 Mapbox 費用"
-          value={iframeCode}
-          isDark={isDarkTheme}
-        />
+          <CopyBox
+            label="連結"
+            hint="開啟即為此畫面（位置、縮放、底圖）"
+            value={links.site}
+            isDark={isDarkTheme}
+          />
+          <CopyBox
+            label="嵌入文章"
+            hint="貼進文章 HTML；嵌入版走免費底圖，不計 Mapbox 費用"
+            value={iframeCode}
+            isDark={isDarkTheme}
+          />
 
-        <p style={{ margin: 0, fontSize: FONT_SIZE.sm, color: isDarkTheme ? COLORS.textDim : "#777", lineHeight: 1.7 }}>
-          ⚠️ 嵌入版只支援靜態圖層與已建快照的圖層；即時類圖層不會顯示。
-          歷史畫面需先產生當日快照（<code style={{ fontSize: 11 }}>scripts/export/export-embed-snapshot.sh</code>）。
-        </p>
+          <div style={{
+            fontSize: 10.5, color: statusWarn, lineHeight: 1.5,
+            border: `1px solid ${warnBorder}`, borderRadius: RADIUS.md, padding: "5px 8px",
+          }}>
+            嵌入版只支援靜態圖層與已建快照的圖層；即時類圖層不會顯示。
+            歷史畫面需先產生當日快照（<code style={{ fontFamily: FONT_DATA, fontSize: 10 }}>scripts/export/export-embed-snapshot.sh</code>）。
+          </div>
+        </div>
       </div>
     </div>
   );
