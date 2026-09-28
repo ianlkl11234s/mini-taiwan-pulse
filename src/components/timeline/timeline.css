@@ -1,0 +1,423 @@
+/*
+ * 左下時間軸 TL3「刻度時間軸」— UI 統一 Phase M。
+ * 設計稿：docs/features/ui-consistency-audit-20260927/timeline-sheet.html 第 1 區 TL3；
+ * 規格：docs/design-system.md §5.24。顏色全部取自 src/styles/tokens.css。
+ * --tl-* 只是本元件的語意別名；淡色靠觸發 class（.tl3--light）指到 --light-*（同 .lpc-theme--light）。
+ */
+.tl3 {
+  --tl-surface: var(--surface-strong);
+  --tl-border: var(--border-panel);
+  --tl-line: var(--border-mid);
+  --tl-shadow: var(--elevation-lg);
+  --tl-strong: var(--text-strong);
+  --tl-muted: var(--text-muted);
+  --tl-dim: var(--text-dim);
+  --tl-fill: var(--slider-fill);
+  --tl-live: var(--status-live);
+  --tl-warn: var(--status-warn);
+  --tl-option-bg: var(--control-option-bg);
+  --tl-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' fill='none' stroke='%239ca3af' stroke-width='1.3'/%3E%3C/svg%3E");
+  color-scheme: dark;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 12px 10px;
+  background: var(--tl-surface);
+  border: 1px solid var(--tl-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--tl-shadow);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: var(--font-cjk);
+  color: var(--tl-strong);
+}
+
+.tl3--light {
+  --tl-surface: var(--light-surface-strong);
+  --tl-border: var(--light-border);
+  --tl-line: var(--light-border-mid);
+  --tl-shadow: var(--light-elevation-lg);
+  --tl-strong: var(--light-text-strong);
+  --tl-muted: var(--light-text-muted);
+  --tl-dim: var(--light-text-dim);
+  --tl-fill: var(--light-slider-fill);
+  --tl-live: var(--light-status-live);
+  --tl-warn: var(--light-status-warn);
+  --tl-option-bg: var(--light-surface-solid);
+  --tl-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' fill='none' stroke='%234b5563' stroke-width='1.3'/%3E%3C/svg%3E");
+  --accent: var(--light-accent);
+  --accent-faint: var(--light-accent-faint);
+  --control-bg: var(--light-control-bg);
+  --control-bg-hover: var(--light-control-bg-hover);
+  --control-border: var(--light-control-border);
+  color-scheme: light;
+}
+
+/* 手機：外層 App 已提供模糊底，這裡不畫卡片 */
+.tl3--mobile {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.tl3 .mono,
+.tl3-mono {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 上排 ── */
+.tl3-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.tl3-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.tl3-group--end {
+  margin-left: auto;
+  gap: 6px;
+}
+
+.tl3-clock {
+  font: 600 20px/1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+  color: var(--tl-strong);
+  white-space: nowrap;
+}
+
+.tl3-clock--future {
+  color: var(--tl-warn);
+}
+
+.tl3-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 600 10px/1 var(--font-cjk);
+  color: var(--tl-live);
+  white-space: nowrap;
+}
+
+.tl3-live i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--tl-live);
+}
+
+.tl3-date {
+  font: 500 11.5px/1 var(--font-cjk);
+  color: var(--tl-strong);
+  white-space: nowrap;
+}
+
+.tl3-date .mono {
+  font-size: 11.5px;
+}
+
+.tl3-date-dim {
+  color: var(--tl-dim);
+}
+
+/* ── C2 按鈕 ── */
+.tl3-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+  color: var(--tl-strong);
+  font: 500 11px/1 var(--font-cjk);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tl3-btn:hover:not(:disabled) {
+  background: var(--control-bg-hover);
+}
+
+.tl3-btn:disabled {
+  opacity: var(--control-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.tl3-btn--icon {
+  width: 26px;
+  padding: 0;
+}
+
+.tl3-btn--ghost {
+  border-color: transparent;
+  background: transparent;
+}
+
+.tl3-btn--primary,
+.tl3-btn[aria-pressed="true"] {
+  background: var(--accent-faint);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tl3-btn--play {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.tl3--mobile .tl3-btn--play {
+  width: 36px;
+  height: 36px;
+}
+
+.tl3-btn:focus-visible,
+.tl3-select:focus-visible,
+.tl3-seg button:focus-visible,
+.tl3-date-input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ── 選單（原生 select，C2 高度） ── */
+select.tl3-select {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  height: 26px;
+  margin: 0;
+  padding: 0 20px 0 8px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg) var(--tl-arrow) no-repeat right 7px center / 8px 5px;
+  color: var(--tl-strong);
+  font: 500 11px/24px var(--font-cjk);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+select.tl3-select--mono {
+  font-family: var(--font-data);
+  font-variant-numeric: tabular-nums;
+}
+
+select.tl3-select:hover:not(:disabled) {
+  background-color: var(--control-bg-hover);
+}
+
+select.tl3-select:disabled {
+  opacity: var(--control-disabled-opacity);
+  cursor: not-allowed;
+}
+
+select.tl3-select option {
+  background-color: var(--tl-option-bg);
+  color: var(--tl-strong);
+}
+
+.tl3-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 11px/1 var(--font-cjk);
+  color: var(--tl-muted);
+  white-space: nowrap;
+}
+
+/* ── 分段（≤3 選項） ── */
+.tl3-seg {
+  box-sizing: border-box;
+  display: inline-flex;
+  height: 26px;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 5px;
+  border: 1px solid var(--control-border);
+  background: var(--control-bg);
+}
+
+.tl3-seg button {
+  border: 0;
+  background: transparent;
+  color: var(--tl-muted);
+  font: 500 10.5px/1 var(--font-cjk);
+  padding: 0 7px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.tl3-seg button:hover:not([aria-pressed="true"]) {
+  background: var(--control-bg-hover);
+}
+
+.tl3-seg button[aria-pressed="true"] {
+  background: var(--accent-faint);
+  color: var(--accent);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ── 日期輸入（點日期展開） ── */
+.tl3-date-input {
+  box-sizing: border-box;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-md);
+  background: var(--control-bg);
+  color: var(--tl-strong);
+  font: 500 11px/1 var(--font-data);
+}
+
+/* ── 刻度軸 ── */
+.tl3-axis {
+  position: relative;
+  height: 34px;
+  margin-top: 12px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.tl3-axis:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.tl3-axis[aria-disabled="true"] {
+  cursor: default;
+}
+
+.tl3-axis__base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 16px;
+  height: 1px;
+  background: var(--tl-line);
+}
+
+.tl3-axis__done {
+  position: absolute;
+  left: 0;
+  top: 15px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--tl-fill);
+}
+
+.tl3-axis__gap {
+  position: absolute;
+  top: 10px;
+  height: 14px;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--tl-warn) 28%, transparent) 0 3px,
+    transparent 3px 6px
+  );
+}
+
+.tl3-axis__tick {
+  position: absolute;
+  top: 12px;
+  width: 1px;
+  height: 9px;
+  background: var(--tl-line);
+}
+
+.tl3-axis__tick--minor {
+  top: 14px;
+  height: 5px;
+}
+
+.tl3-axis__lbl {
+  position: absolute;
+  top: 24px;
+  font: 9.5px/1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--tl-dim);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tl3-axis__needle {
+  position: absolute;
+  top: 2px;
+  width: 2px;
+  height: 26px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.tl3-axis__needle-label {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  font: 600 9.5px/1 var(--font-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.tl3-axis__unit {
+  font-family: var(--font-cjk);
+}
+
+/* ── 下方提示列 ── */
+.tl3-notes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.tl3-warnchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 10px/1.4 var(--font-cjk);
+  color: var(--tl-warn);
+  border: 1px solid color-mix(in srgb, var(--tl-warn) 45%, transparent);
+  border-radius: 3px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.tl3-hint {
+  font: 10px/1.4 var(--font-cjk);
+  color: var(--tl-dim);
+}
+
+.tl3-btn--small {
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
+}

@@ -480,6 +480,22 @@
 - **禁止**：英文「LEGEND」、大寫。
 - **實作**：`src/components/LegendPanel.tsx`。
 
+### 5.24 左下時間軸（TL3 刻度軸）
+
+- **用途**：地圖左下的即時／回放時間軸（`TimelineControls`）與歷史模式時間軸（`HistoricalTimeline`）。兩者同一張卡片外觀。設計稿：`docs/features/ui-consistency-audit-20260927/timeline-sheet.html` 第 1 區 TL3。
+- **外殼**：寬 620px、`maxWidth: calc(100vw - 左側偏移 - 312px)`（右側留給右下停靠 popup 280px＋間距）、`minWidth 320`；底 `--surface-strong`、`1px --border-panel`、`RADIUS.xl`、`ELEVATION.lg`、padding `8px 12px 10px`、gap 6、`FONT_CJK`。手機（`isMobile`）不畫卡片（外層已有模糊底），上排自動換成兩列。
+- **上排**：圓形播放鍵 30px（C2 主要色，lucide `Play`／`Pause`；手機 36px）→ 大號時間 `FONT_DATA` 20px／600／tabular → 「即時」綠點（僅 live）或「尚無資料」警示標籤（回放到未來時刻）→ 倍速 select（`30×…3600×`；歷史 `0.5×…8×`）→ 右側群組（`margin-left: auto`，窄時整組換行）：
+  - 即時：前／後一天圖示鈕（`ChevronLeft`／`ChevronRight`）＋日期「9/27（日）」（數字 mono、星期 CJK；多天顯示「9/27–9/29」，點擊展開原生日期輸入）＋「現在」（`aria-pressed` 表示即時中）＋範圍 select「1 天…7 天」（7 個選項 >3，依 §5.8 用選單不用分段）。
+  - 歷史：「民國 [115] 年」「[9] 月」「[27] 日」三個 C2 select（數字 mono、單位 CJK；粒度未涵蓋的欄位停用）＋粒度分段「年／月／日」；房地產開啟時改為分段「季／月／週」。
+- **刻度軸**（`TimeAxis`，`role="slider"`＋`aria-valuemin/max/now/valuetext`）：高 34；基線 `1px --border-mid`；已播放段 3px `--slider-fill`；主刻度 9px、次刻度 5px；標籤 `FONT_DATA` 9.5px `--text-dim`（兩端標籤貼齊邊緣）；目前時間指針 2px `--accent`＋上方時間標籤（9.5px／600，隨位置由左對齊漸變到右對齊，不超出卡片）。
+  - 即時標籤規則：1 天主刻度每 4 小時「00 04 … 24」、次刻度每小時；2 天主刻度每 6 小時（日界「M/D」、其餘「HH」）、次刻度每 2 小時；3–7 天主刻度每天「M/D」、次刻度每 6 小時。台北時間固定 +8h 對齊。
+  - 歷史標籤：年粒度＝可用民國年；月粒度＝「1月…12月」；日粒度＝該月日數（超過 13 格隔格標，最後一格必標）。數字 `FONT_DATA`、單位字另包 CJK span。房地產＝各季起點「2024Q3…」。
+  - 資料缺漏：漁船熱區／航跡（GFW）資料窗外的時段畫斜線（`--status-warn` 28% 斜紋），下方警示標籤說明（例「漁船熱區只到 9/26」，日期取資料源 `latestCompleteDate`／`endUtcDate`，tooltip 附 UTC 可用區間）＋「斜線＝該時段無資料」；目前時間在資料窗外時另給「跳至可用時段」小按鈕。
+- **操作**：點擊或拖曳（pointer capture，對齊整分鐘）跳轉；鍵盤 ←→ 5 分鐘、Shift＋←→／PageUp／PageDown 1 小時、Home／End 到兩端（歷史軸 ←→ 一格、PageUp／Down 三格）。回放模式走 `onSeekByProgress`；即時模式下 seek 是 no-op，所以拖曳／鍵盤改走 `onJumpToTime`（切到回放並停在該時刻）；即時的播放鍵顯示暫停圖示，按下＝切換為回放（等同舊「LIVE」鈕）。時間由 props 傳入，軸不訂閱 timeStore、不在 effect deps 放 `currentTime`。
+- **暗／淡**：觸發 class `.tl3--light` 把 `--tl-*` 別名與 `--accent*`／`--control-*` 指到 `--light-*`（同 `.lpc-theme--light`）。
+- **禁止**：原生 `type="range"`；`▶` 字元；英文「Now／LIVE／1d／60x」；等寬字包中文。
+- **實作**：`src/components/TimelineControls.tsx`、`HistoricalTimeline.tsx`、`src/components/timeline/{TimeAxis.tsx,timelineAxis.ts,timeline.css}`。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文
@@ -578,8 +594,8 @@ PR 前逐項勾（貼進 PR 描述）：
 |---|---|---|---|
 | `web-font` | `fonts.googleapis`、`@font-face`、`"JetBrains Mono"`、`Inter,`、`Georgia`、`Songti` | 擋 | 11（5） |
 | `hex-literal-in-ui-css` | `src/research/*.css`、`src/components/**/*.css` 的 `#rgb`／`#rrggbb`（`src/styles/**` 除外） | 擋 | 4（2） |
-| `native-range` | `type="range"`／`type: "range"`（`LayerParamControls.tsx` 除外） | 擋 | 10（9） |
-| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 11（7） |
+| `native-range` | `type="range"`／`type: "range"`（`LayerParamControls.tsx` 除外） | 擋 | 7（7） |
+| `triangle-chevron` | `▶` `▼` 與 escape（註解與 `▲▼` 趨勢成對不算） | 擋 | 8（5） |
 | `english-control-label` | `layerParamsSpec.ts` `labelPrefix` 英文開頭 | 擋 | 1（1） |
 | `uppercase-eyebrow` | `textTransform: "uppercase"`／`text-transform: uppercase` | 擋 | 9（5） |
 | `font-data-on-cjk` | 啟發式：`FONT_DATA` 元素的直接子文字含中文（同一行內） | 擋 | 3（3） |
@@ -615,7 +631,8 @@ PR 前逐項勾（貼進 PR 描述）：
 | I | 圖層控制 V2＋S1、標籤中文化 | ✅ | `79a23cf8`、`6b0ffa34` |
 | K | 資料來源面板 D1 | ✅ | `75c4c669` |
 | J | 淡色／控制 token 收斂、本文件改寫、參考頁、guard | ✅ | 本 PR |
-| L | 即時情報 Intel 面板淡色主題（`intelTheme.tsx` palette／徽章對比公式） | ✅ | 本 PR |
+| L | 即時情報 Intel 面板淡色主題（`intelTheme.tsx` palette／徽章對比公式） | ✅ | `220a7685`、`5ebb3fb4` |
+| M | 左下時間軸 TL3 刻度軸（即時＋歷史） | ✅ | `20d1fd94`、`cc8c2827` 起 |
 
 ### 10.2 區塊狀態
 
@@ -632,12 +649,12 @@ PR 前逐項勾（貼進 PR 描述）：
 | 即時情報 | ✅ 符合 | Phase L：暗／淡皆吃 `intelTheme.ts` palette；Monitor Mode 戰情看板刻意維持全暗（`NewsFeedPanel` 顯式套 `DARK_INTEL`），不在本輪淡色範圍 |
 | 面板標頭（非 H2 分支） | ⚠️ 部分 | `PanelHeader` 未傳 `eyebrow` 的分支仍用 Inter |
 | 圖例 | ✅ 符合 | |
+| 左下時間軸（TL3） | ✅ 符合 | 即時／歷史共用 `TimeAxis`；刻度標籤 9.5px、日期 11.5px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
 
 | 項目 | 現況 | 位置 |
 |---|---|---|
-| 左下時間軸控制 | 未套 C2／S1：原生 range、`▶` 文字箭頭、自訂按鈕樣式 | `src/components/TimelineControls.tsx`、`HistoricalTimeline.tsx` |
 | Layers 主題標題 | `FONT_DATA` + `uppercase` + 中英混排（「交通 MOVE」） | `IconRailSidebar.tsx` `MacroGroupLabel`、`LayerSidebar.tsx` |
 | Mobile compact header | 未依 H2／T2 改寫 | `App.tsx` 手機分支、`LayerSidebar.tsx` |
 | Settings／Info／Share 等 modal | 未依本輪規格檢查；`InfoModal` 有 `uppercase` 與 `▶` 說明文字 | `InfoModal.tsx`、`ShareModal.tsx`、Settings |
