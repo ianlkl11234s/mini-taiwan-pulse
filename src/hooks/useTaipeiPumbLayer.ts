@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
 import { fetchTaipeiPumbLatest, type PumbLatestRow } from "../data/wicTaipeiLoader";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 /**
  * 北市抽水站 latest layer — 即時運轉狀態 + 內池警戒比
@@ -37,17 +38,10 @@ function riskColorExpression(): ExpressionSpecification {
 }
 
 function dotRadiusExpression(scale: number): ExpressionSpecification {
-  return [
-    "interpolate",
-    ["linear"],
-    ["zoom"],
-    8, 3 * scale,
-    12, 6 * scale,
-    16, 11 * scale,
-  ] as unknown as ExpressionSpecification;
+  return pointRadius("M", scale) as unknown as ExpressionSpecification;
 }
 
-function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
+function ensureLayers(map: MapboxMap, scale: number, opacity: number, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: { type: "FeatureCollection", features: [] } });
   }
@@ -57,7 +51,7 @@ function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": dotRadiusExpression(scale * 2.2),
+        "circle-radius": pointRadius("M", scale) * 2,
         "circle-color": riskColorExpression(),
         "circle-opacity": ["*", opacity, 0.25],
         "circle-blur": 0.8,
@@ -73,17 +67,19 @@ function ensureLayers(map: MapboxMap, scale: number, opacity: number) {
         "circle-radius": dotRadiusExpression(scale),
         "circle-color": riskColorExpression(),
         "circle-opacity": opacity,
-        "circle-stroke-width": [
-          "case", ["==", ["get", "pumb_running"], true], 2, 0,
-        ],
-        "circle-stroke-color": "#ffffff",
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-color": mapSeamColor(isDark),
+        "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity / 0.9),
       },
     });
   } else {
     map.setPaintProperty(LAYER_DOT, "circle-radius", dotRadiusExpression(scale));
     map.setPaintProperty(LAYER_DOT, "circle-opacity", opacity);
-    map.setPaintProperty(LAYER_GLOW, "circle-radius", dotRadiusExpression(scale * 2.2));
+    map.setPaintProperty(LAYER_GLOW, "circle-radius", pointRadius("M", scale) * 2);
     map.setPaintProperty(LAYER_GLOW, "circle-opacity", ["*", opacity, 0.25] as unknown as ExpressionSpecification);
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-color", mapSeamColor(isDark));
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-width", POINT_STROKE.width);
+    map.setPaintProperty(LAYER_DOT, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity / 0.9));
   }
 }
 
@@ -124,6 +120,7 @@ export function useTaipeiPumbLayer(
   visible: boolean,
   scale: number,
   opacity: number,
+  isDark: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -136,7 +133,7 @@ export function useTaipeiPumbLayer(
     let cancelled = false;
 
     const apply = () => {
-      try { ensureLayers(map, scale, opacity); } catch { return; }
+      try { ensureLayers(map, scale, opacity, isDark); } catch { return; }
       setData(map, dataRef.current);
       setVisible(map, visible);
     };
@@ -159,5 +156,5 @@ export function useTaipeiPumbLayer(
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity, mapTick]);
+  }, [mapRef, visible, scale, opacity, isDark, mapTick]);
 }
