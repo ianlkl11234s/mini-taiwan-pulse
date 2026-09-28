@@ -53,6 +53,40 @@ position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:h
 /* B2 落位示意：虛線框 = 完成後標題去的位置 */
 .ghost{position:absolute;left:9%;top:3%;width:21%;height:8%;border:1px dashed var(--acc);border-radius:3px;opacity:.7}
 .arrow{position:absolute;left:21%;top:13%;width:26%;height:30%;border-left:1px dashed var(--acc);border-top:1px dashed var(--acc);border-top-left-radius:40px;opacity:.5}
+
+/* B2 動畫 */
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl button{font:12px var(--font-cjk);color:var(--muted);background:transparent;border:1px solid rgba(255,255,255,.16);border-radius:6px;padding:4px 11px;cursor:pointer}
+.ctl button:focus-visible{outline:2px solid var(--pick);outline-offset:2px}
+.ctl .seg{display:inline-flex;gap:0}
+.ctl .seg button{border-radius:0}.ctl .seg button:first-child{border-radius:6px 0 0 6px}.ctl .seg button:last-child{border-radius:0 6px 6px 0;border-left:0}
+.ctl button[aria-pressed="true"]{color:var(--strong);background:var(--pick-faint);border-color:rgba(100,170,255,.45)}
+.clock{font:12px var(--font-data);color:var(--dim);font-variant-numeric:tabular-nums;min-width:4ch}
+.b2{container-type:inline-size;--k:1}
+.b2 .map{opacity:0;transition:opacity calc(1.6s / var(--k)) ease-out}
+.b2 .rail,.b2 .tb,.b2 .tl{opacity:0;transition:opacity calc(.5s / var(--k)) ease}
+.b2 .veil{position:absolute;inset:0;background:var(--app);opacity:.82;transition:opacity calc(.5s / var(--k)) ease}
+.b2-title{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);white-space:nowrap;font:700 5.2cqw/1.1 var(--font-data);letter-spacing:.14em;color:var(--t-strong);
+ transition:left calc(.6s / var(--k)) cubic-bezier(.2,.7,.2,1),top calc(.6s / var(--k)) cubic-bezier(.2,.7,.2,1),transform calc(.6s / var(--k)) cubic-bezier(.2,.7,.2,1),font-size calc(.6s / var(--k)) cubic-bezier(.2,.7,.2,1)}
+.b2-title small{display:block;height:0;overflow:hidden;opacity:0;font:400 .5em/1.6 var(--font-data);letter-spacing:.02em;color:var(--t-dim);transition:opacity calc(.3s / var(--k)) ease}
+.b2-status{position:absolute;left:50%;top:56%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;height:2.2cqw;min-height:14px;padding:0 8px;border-radius:5px;background:var(--strong-s);border:1px solid var(--bd);font-size:clamp(7px,1.05cqw,11px);color:var(--t-strong);white-space:nowrap;transition:opacity calc(.4s / var(--k)) ease}
+.b2-status .ok,.b2-status .lbl-done{display:none;color:var(--live)}
+.b2-status .lbl-done{color:var(--t-strong)}
+.b2.s-load .map{opacity:.55}
+.b2.s-done .map{opacity:1}
+.b2.s-done .ring,.b2.s-done .lbl-load{display:none}
+.b2.s-done .ok,.b2.s-done .lbl-done{display:inline}
+.b2.s-fly .map{opacity:1}
+.b2.s-fly .veil{opacity:0}
+.b2.s-fly .b2-status{opacity:0}
+.b2.s-fly .rail,.b2.s-fly .tb,.b2.s-fly .tl{opacity:1}
+.b2.s-fly .b2-title{left:9%;top:3%;transform:translate(0,0);font-size:2.6cqw}
+.b2.s-fly .b2-title small{height:auto;opacity:1}
+.b2.s-done .ring,.b2.s-fly .ring{display:none}
+.b2.s-fly .ok,.b2.s-fly .lbl-done{display:inline}
+.b2.s-fly .lbl-load{display:none}
+.b2.s-reset *{transition:none!important}
+@media(prefers-reduced-motion:reduce){.b2.s-fly .b2-title{left:50%;top:44%;transform:translate(-50%,-50%);font-size:5.2cqw;opacity:0;transition:opacity .4s}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.ring{animation:none}}
 </style>
@@ -85,15 +119,23 @@ position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:h
 </section>
 
 <section>
-  <h2><span class="tag">B2</span>標題落位</h2>
+  <h2><span class="tag">B2</span>標題落位（實際動畫）</h2>
+  <div class="ctl">
+    <button type="button" id="b2-play">重播</button>
+    <span class="seg" role="group" aria-label="速度">
+      <button type="button" data-speed="1" aria-pressed="true">實際速度</button>
+      <button type="button" data-speed="0.25" aria-pressed="false">慢 4 倍</button>
+    </span>
+    <span class="clock" id="b2-clock">0.0s</span>
+  </div>
   <div class="pair">
-    <figure><div class="scr"><div class="map half"></div><div class="center" style="background:rgba(10,10,20,.82)"><div class="brand">Mini Taiwan Pulse</div><div class="pill"><span class="ring"></span>載入地圖</div></div><div class="ghost"></div><div class="arrow"></div></div><figcaption>暗色：地圖在遮罩下已開始畫；虛線是完成後標題的落點</figcaption></figure>
-    <figure><div class="scr light"><div class="map half"></div><div class="center" style="background:rgba(244,245,247,.82)"><div class="brand">Mini Taiwan Pulse</div><div class="pill"><span class="ring"></span>載入地圖</div></div><div class="ghost"></div><div class="arrow"></div></div><figcaption>淡色</figcaption></figure>
+    <figure><div class="scr b2" data-b2><div class="map"></div><div class="rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="tb"></div><div class="tl"></div><div class="veil"></div><div class="b2-title">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div><div class="b2-status"><span class="ring"></span><span class="ok">✓</span><span class="lbl-load">載入地圖</span><span class="lbl-done">完成</span></div></div><figcaption>暗色</figcaption></figure>
+    <figure><div class="scr b2 light" data-b2><div class="map"></div><div class="rail"><i></i><hr><i></i><i></i><i></i><i></i></div><div class="tb"></div><div class="tl"></div><div class="veil"></div><div class="b2-title">Mini Taiwan Pulse<small>23.7, 121 · z7.5 · 仰角 0° · 方位 0°</small></div><div class="b2-status"><span class="ring"></span><span class="ok">✓</span><span class="lbl-load">載入地圖</span><span class="lbl-done">完成</span></div></div><figcaption>淡色</figcaption></figure>
   </div>
   <div class="notes">
-    <p>遮罩改半透明，底下地圖一邊畫一邊透出來。完成時中央標題縮小、移到左上 HUD 的位置變成正式標題，其他東西淡出，<b>開站到主畫面是同一個畫面接續</b>。</p>
-    <p>唯一的動畫（約 0.6 秒），減少動態偏好時改成直接淡出。</p>
-    <p>比 B1 多一段位置計算，體感仍要等地圖。</p>
+    <p><b>節奏</b>（實際速度）：0–1.6s 載入中，地圖在半透明遮罩下慢慢畫出來 → 1.6s 狀態變「✓ 完成」停 0.4s → 2.0s 起 0.6s 內標題縮小飛到左上、遮罩和狀態淡出、側欄／工具列／時間軸淡入 → 2.6s 進站。</p>
+    <p>1.6s 只是示意；實際多久取決於地圖什麼時候畫好。收尾那 1 秒（停 0.4s＋飛 0.6s）是固定的，會取代現在的 0.6 秒。</p>
+    <p>系統設定「減少動態」時，標題不飛，直接淡出。示意會自動循環播放。</p>
   </div>
 </section>
 
@@ -110,3 +152,27 @@ position:relative;aspect-ratio:16/10;max-width:100%;border-radius:8px;overflow:h
   </div>
 </section>
 </div>
+
+<script>
+(()=>{
+  const scenes=[...document.querySelectorAll('[data-b2]')];
+  const clock=document.getElementById('b2-clock');
+  let k=1,timers=[],t0=0,raf=0,loop=0;
+  const set=c=>scenes.forEach(s=>{s.classList.remove('s-load','s-done','s-fly');if(c)s.classList.add(c)});
+  function play(){
+    timers.forEach(clearTimeout);timers=[];cancelAnimationFrame(raf);clearTimeout(loop);
+    scenes.forEach(s=>{s.style.setProperty('--k',k);s.classList.add('s-reset')});set('');
+    void scenes[0].offsetWidth;scenes.forEach(s=>s.classList.remove('s-reset'));
+    const at=(sec,fn)=>timers.push(setTimeout(fn,sec*1000/k));
+    at(.05,()=>set('s-load'));at(1.6,()=>set('s-done'));at(2.0,()=>set('s-fly'));
+    t0=performance.now();
+    const tick=()=>{const e=(performance.now()-t0)/1000*k;clock.textContent=Math.min(e,2.6).toFixed(1)+'s';if(e<2.6)raf=requestAnimationFrame(tick)};tick();
+    loop=setTimeout(play,(2.6+2.4)*1000/k);
+  }
+  document.getElementById('b2-play').addEventListener('click',play);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{
+    k=+b.dataset.speed;document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));play();
+  }));
+  play();
+})();
+</script>
