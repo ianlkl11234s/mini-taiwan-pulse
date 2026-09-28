@@ -31,11 +31,13 @@ import { describeDatasetLayerStatistics, summarizeDatasetLayer } from "./dataset
 import { ResearchAnalysisSession, type AnalysisQueryOperation } from "./researchAnalysisSession";
 import type { QueryRecordsInput } from "./queryExecutor";
 import { waitForLayoutFrame, waitForMapStyle, waitForSceneRender } from "./sceneReadiness";
-import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisSelection, type AnalysisSelection, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
+import { analysisFeatureTarget, analysisResultHoverLayerIds, analysisResultInteractiveLayerIds, analysisResultStackKind, analysisSelectionOf, clearAnalysisHover, describeAnalysisResults, setAnalysisHover, setAnalysisSelection, type AnalysisSelection, installAnalysisResults, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity, type AnalysisResultOpacity, type AnalysisResultPresentation } from "./analysisResultOverlay";
 import { ValhallaNetworkProvider } from "./networkProvider";
 import { researchResultPanelProperties, researchResultPopupOverlaps, type AnalysisResultPanelProperties } from "./researchResultPopup";
 import { WarehouseStyleLegendView } from "./WarehouseStyleLegend";
 import { analysisHoverLabel, createAnalysisHoverTip, supportsAnalysisHover } from "./analysisResultHover";
+import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStack";
+import type { PresentableResult } from "./researchAnalysisSession";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
@@ -112,6 +114,17 @@ export function MainMapConnection(props: Props) {
   const presentedAnalysisRef = useRef<AnalysisResultPresentation[]>([]);
   /** I2: rows behind the open docked panel; re-applied after every install (feature-state is per source). */
   const analysisSelectionRef = useRef<AnalysisSelection[]>([]);
+  /** S1: when each result last became visible (LRU for the 3-result cap) and which area results lost the fill slot. */
+  const analysisActivationsRef = useRef<Map<string, number>>(new Map());
+  const analysisOutlineOnlyRef = useRef<string[]>([]);
+  const installedOutlineKeyRef = useRef("");
+  const planAnalysisResults = useCallback((results: ResultCollection | null | undefined, presentable: readonly PresentableResult[]): ResultCollection | null => {
+    analysisActivationsRef.current = nextAnalysisActivations(resultCollectionRef.current, results, analysisActivationsRef.current);
+    const kinds = new globalThis.Map(presentable.map(result => [result.resultId, analysisResultStackKind(result)]));
+    const plan = planAnalysisStack(results, analysisActivationsRef.current, resultId => kinds.get(resultId) ?? "other");
+    analysisOutlineOnlyRef.current = plan.outlineOnly;
+    return plan.collection;
+  }, []);
   const applyAnalysisSelection = useCallback(() => {
     const map = latest.current.map;
     if (map) setAnalysisSelection(map, presentedAnalysisRef.current, analysisSelectionRef.current, analysisOpacityRef.current);
@@ -153,13 +166,17 @@ export function MainMapConnection(props: Props) {
   const updateResultCollection = useCallback((update: (collection: ResultCollection) => ResultCollection) => {
     const current = resultCollectionRef.current;
     if (!current || !controller.current) return;
-    const results = update(current);
+    // Re-enabling a hidden result makes it the newest; the S1 cap then hides the least recent one.
+    let presentable: PresentableResult[] = [];
+    try { presentable = analysis.current?.presentable(current.items.map(item => item.resultId)) ?? []; } catch { presentable = []; }
+    const results = planAnalysisResults(update(current), presentable) ?? current;
     resultCollectionRef.current = results; setResultCollection(results);
     const scene = { ...capture(), results };
     previous.current = scene;
     controller.current.manual(scene);
-  }, [capture]);
-  const render = useCallback(async (scene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
+  }, [capture, planAnalysisResults]);
+  const render = useCallback(async (requestedScene: Scene, revision: number, patch?: Partial<Scene>): Promise<"ready" | "error"> => {
+    let scene = requestedScene;
     const { bridge, map, labels, locked } = latest.current;
     if (!map) throw new Error("MAP_NOT_READY");
     const run = ++generation.current;
@@ -178,6 +195,12 @@ export function MainMapConnection(props: Props) {
     // acknowledging the scene. Hidden must not become a way to retain an
     // expired or unauthorized result beyond the normal session boundary.
     const allAnalysisResults = scene.results ? analysis.current!.presentable(scene.results.items.map(item => item.resultId)) : [];
+    // S1 (O1): cap at 3 visible results / one heatmap by switching the least recently shown ones
+    // off (not removed; the list toggle brings them back). The capped collection is what readback
+    // reports, so the Agent sees which results were auto-hidden.
+    const cappedResults = planAnalysisResults(scene.results, allAnalysisResults);
+    if (cappedResults !== (scene.results ?? null)) scene = { ...scene, results: cappedResults };
+    const outlineKey = analysisOutlineOnlyRef.current.join("\n");
     const visibleAnalysisIds = new Set(visibleResultIds(scene.results));
     const analysisResults = allAnalysisResults.filter(result => visibleAnalysisIds.has(result.resultId));
     // Read fresh at render time (not captured in this callback's closure) so a basemap switch that
@@ -210,9 +233,10 @@ export function MainMapConnection(props: Props) {
       }
       // Camera-only commands keep the same immutable result rows. Calling
       // GeoJSONSource#setData for those commands needlessly reloads sources.
-      const presentationChanged = JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds);
+      const presentationChanged = JSON.stringify(previousResultIds) !== JSON.stringify(nextResultIds) || outlineKey !== installedOutlineKeyRef.current;
+      if (presentationChanged) installedOutlineKeyRef.current = outlineKey;
       const installed = analysisResults.length
-        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current, theme) : presentedAnalysisRef.current
+        ? presentationChanged ? installAnalysisResults(map, analysisResults, analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current }) : presentedAnalysisRef.current
         : (removeAnalysisResults(map), []);
       presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
       setAvailableAnalysis(availableResults);
@@ -457,7 +481,7 @@ export function MainMapConnection(props: Props) {
         const theme = vizThemeForBasemap(latest.current.isDarkTheme);
         const visibleIds = new Set(resultIds);
         const available = analysis.current.presentable(allResultIds);
-        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme);
+        const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current });
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
         applyAnalysisSelection();
         setAvailableAnalysis(describeAnalysisResults(available, theme));

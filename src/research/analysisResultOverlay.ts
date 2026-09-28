@@ -3,6 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource, Map } from "mapbox-gl";
 import { RESULT_COLLECTION_LIMITS, type PresentableResult } from "./researchAnalysisSession";
 import { prefersReducedMotion } from "./researchMotion";
 import type { ResultCollection } from "./bridgeClient";
+import type { AnalysisStackKind } from "./analysisResultStack";
 import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
 import { SELECTION_RING } from "../styles/designTokens";
@@ -58,6 +59,9 @@ export const FEATURE_ID_PROPERTY = "_fid";
 const edgeLayerId = (index: number) => `research-analysis-result-edge-${index}`;
 /** I1 hover / I2 selection emphasis: 2px stroke in the selection-ring accent (UI R2 主色). */
 export const ANALYSIS_EMPHASIS_WIDTH_PX = 2;
+/** S1: an area result that lost the single fill slot keeps only this neutral edge. */
+export const ANALYSIS_OUTLINE_ONLY_WIDTH_PX = 1.4;
+const TRANSPARENT = "rgba(0,0,0,0)";
 const HOVERED = ["boolean", ["feature-state", "hover"], false];
 const SELECTED = ["boolean", ["feature-state", "selected"], false];
 const EMPHASIZED = ["any", HOVERED, SELECTED] as unknown as ExpressionSpecification;
@@ -337,7 +341,8 @@ export function describeAnalysisResults(results: readonly PresentableResult[], t
 /** Transient result layers are independent of the permanent layer catalogue. `theme` follows the
  *  basemap (see vizSpec.ts `vizThemeForBasemap`); a basemap switch re-runs this (MainMapConnection's
  *  `style.load` redraw), so palette + null-hatch pattern always match the currently visible basemap. */
-export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55, theme: Theme = "dark"): AnalysisResultPresentation[] {
+export function installAnalysisResults(map: Map, results: readonly PresentableResult[], opacity: number | AnalysisResultOpacity = 0.55, theme: Theme = "dark", options: AnalysisInstallOptions = {}): AnalysisResultPresentation[] {
+  const outlineOnlyIds = new Set(options.outlineOnly ?? []);
   if (results.length > MAX_RESULTS) throw new Error("TOO_MANY_PRESENTED_RESULTS");
   // Validate every result before mutating Mapbox so a bad later result cannot
   // leave an earlier source partially updated.
@@ -373,9 +378,12 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     // Choropleth/bivariate null cells render fully transparent in `styleColor` above (see
     // warehouseStyleColor); this sibling layer paints exactly those cells with the theme's hatch
     // tile instead. Both kinds share the same nullStyle/valueProperty contract.
-    const fillHatch = polygon && (style?.kind === "choropleth" || style?.kind === "bivariate") && style.nullStyle === "hatch" ? style : null;
-    const fillColor: string | ExpressionSpecification = styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
-    const outlineColor = styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
+    // S1: a second/third visible area result gives up its fill and draws only a 1.4px neutral
+    // edge. The fill layer stays (transparent) as the click/hover pick surface.
+    const outlineOnly = polygon && outlineOnlyIds.has(result.resultId);
+    const fillHatch = polygon && !outlineOnly && (style?.kind === "choropleth" || style?.kind === "bivariate") && style.nullStyle === "hatch" ? style : null;
+    const fillColor: string | ExpressionSpecification = outlineOnly ? TRANSPARENT : styleColor ?? (numericLegend ? numericFillColor(numericLegend) : COLORS[index]!);
+    const outlineColor = outlineOnly ? TRANSPARENT : styleColor ? "#475569" : numericLegend ? "#075985" : COLORS[index]!;
     const lineColor: string | ExpressionSpecification = styleColor ?? COLORS[index]!;
     const heatmapPalette = heatmap ? (heatmap.palette ? heatmap.palette[theme] : heatmap.colors) : null;
     const circleColor: string | ExpressionSpecification = styleColor ? styleColor : proportionalColor ? proportionalColor : heatmapPalette ? heatmapPalette[heatmapPalette.length - 1]! : scopeCenter ? "#fef3c7" : result.presentation ? ["step", ["get", result.presentation.countField], COUNT_COLORS[0], COUNT_STOPS[0], COUNT_COLORS[1], COUNT_STOPS[1], COUNT_COLORS[2]] as unknown as ExpressionSpecification : COLORS[index]!;
@@ -506,12 +514,13 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     if (polygon) {
       // Width 0 unless the row is emphasized: the layer costs nothing visible until hover/select.
       const edgeFilter = scopeRingRows ? SCOPE_ROLE_EXCLUDE_FILTER : null;
-      const edgeWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX, 0] as unknown as ExpressionSpecification;
+      const edgeWidth = ["case", EMPHASIZED, ANALYSIS_EMPHASIS_WIDTH_PX, outlineOnly ? ANALYSIS_OUTLINE_ONLY_WIDTH_PX : 0] as unknown as ExpressionSpecification;
+      const edgeColor = outlineOnly ? ["case", EMPHASIZED, accent, VIZ_SPEC.categorical.other[theme]] as unknown as ExpressionSpecification : accent;
       if (!map.getLayer(edgeLayerId(index))) map.addLayer({ id: edgeLayerId(index), type: "line", source: sourceId(index), ...(edgeFilter ? { filter: edgeFilter } : {}), paint: {
-        "line-color": accent, "line-width": edgeWidth, "line-opacity": resultOpacity,
+        "line-color": edgeColor, "line-width": edgeWidth, "line-opacity": resultOpacity,
       } });
       else {
-        map.setPaintProperty(edgeLayerId(index), "line-color", accent);
+        map.setPaintProperty(edgeLayerId(index), "line-color", edgeColor);
         map.setPaintProperty(edgeLayerId(index), "line-width", edgeWidth);
         map.setPaintProperty(edgeLayerId(index), "line-opacity", resultOpacity);
         map.setFilter(edgeLayerId(index), edgeFilter);
@@ -537,17 +546,62 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
     } else applyOpacity();
     return presentation(result, nonScopeRowCount(result), theme, index);
   });
-  // Keep every scope ring under the first Point-type result's layer, regardless of each
-  // result's index in this batch (moveLayer works on already-existing layers, so it is not
-  // sensitive to which order addLayer ran in above).
-  const firstPointIndex = prepared.findIndex(({ result }) => result.geometry.type === "Point");
-  if (firstPointIndex >= 0 && map.getLayer(layerId(firstPointIndex))) {
-    prepared.forEach(({ result }, index) => {
-      if (hasScopeRows(result) && map.getLayer(scopeRingLayerId(index))) map.moveLayer(scopeRingLayerId(index), layerId(firstPointIndex));
-    });
-  }
   for (let index = results.length; index < MAX_RESULTS; index += 1) removeIndex(map, index);
+  stackAnalysisLayers(map, prepared.map(({ result }) => result));
   return installed;
+}
+
+export type AnalysisInstallOptions = {
+  /** S1: visible area results that draw a 1.4px `categorical.other` edge instead of their fill. */
+  outlineOnly?: Iterable<string>;
+};
+
+/** S1 stacking kind: which exclusivity rule (area fill / heatmap) a result falls under. */
+export function analysisResultStackKind(result: PresentableResult): AnalysisStackKind {
+  const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
+  if (result.resultStyle?.kind === "heatmap" && result.geometry.type === "Point") return "heat";
+  if (polygon && (result.resultStyle?.kind === "choropleth" || result.resultStyle?.kind === "bivariate" || (!result.resultStyle && numericResultLegend(result)))) return "area";
+  return "other";
+}
+
+/**
+ * S1 draw order, top → bottom: labels → points → lines → bubbles → ranges (scope ring /
+ * isochrone-like scope areas) → areas / grids → heatmaps. The selection ring is a DOM marker and
+ * always sits above the canvas. Within a band, a later collection slot draws above an earlier one;
+ * within a result, fill < null hatch < edge. All result layers stay above the rest of the style.
+ */
+export const ANALYSIS_LAYER_BANDS = ["label", "point", "line", "bubble", "range", "area", "heat"] as const;
+type AnalysisLayerBand = typeof ANALYSIS_LAYER_BANDS[number];
+
+export function analysisLayerStack(results: readonly PresentableResult[]): { id: string; band: AnalysisLayerBand }[] {
+  const entries: { id: string; band: AnalysisLayerBand; index: number; sub: number }[] = [];
+  results.forEach((result, index) => {
+    const polygon = result.geometry.type === "Polygon" || result.geometry.type === "MultiPolygon";
+    const line = result.geometry.type === "LineString" || result.geometry.type === "MultiLineString";
+    const style = result.resultStyle;
+    const areaBand: AnalysisLayerBand = isAnalysisScopeArea(result) ? "range" : "area";
+    const primary: AnalysisLayerBand = polygon ? areaBand : line ? "line" : style?.kind === "heatmap" ? "heat" : style?.kind === "proportional" ? "bubble" : "point";
+    entries.push({ id: layerId(index), band: primary, index, sub: 0 });
+    entries.push({ id: nullHatchLayerId(index), band: areaBand, index, sub: 1 });
+    entries.push({ id: edgeLayerId(index), band: areaBand, index, sub: 2 });
+    entries.push({ id: heatPointsLayerId(index), band: "point", index, sub: 0 });
+    entries.push({ id: bivariateSizeLayerId(index), band: "bubble", index, sub: 0 });
+    entries.push({ id: scopeRingLayerId(index), band: "range", index, sub: 0 });
+    entries.push({ id: compareLabelLayerId(index), band: "label", index, sub: 0 });
+    entries.push({ id: proportionalLabelLayerId(index), band: "label", index, sub: 1 });
+  });
+  const rank = (band: AnalysisLayerBand) => ANALYSIS_LAYER_BANDS.length - ANALYSIS_LAYER_BANDS.indexOf(band);
+  // Bottom → top.
+  return entries.sort((left, right) => rank(left.band) - rank(right.band) || left.index - right.index || left.sub - right.sub).map(({ id, band }) => ({ id, band }));
+}
+
+function stackAnalysisLayers(map: Map, results: readonly PresentableResult[]): void {
+  const present = analysisLayerStack(results).map(({ id }) => id).filter(id => map.getLayer(id));
+  // Top-most first to the top of the style, then each lower layer just beneath the one above it.
+  for (let position = present.length - 1; position >= 0; position -= 1) {
+    const above = present[position + 1];
+    if (above) map.moveLayer(present[position]!, above); else map.moveLayer(present[position]!);
+  }
 }
 
 export function removeAnalysisResults(map: Map): void { for (let index = 0; index < MAX_RESULTS; index += 1) removeIndex(map, index); }

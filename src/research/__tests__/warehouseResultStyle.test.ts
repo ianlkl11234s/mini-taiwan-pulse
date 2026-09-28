@@ -76,6 +76,7 @@ function stubMap() {
     addLayer: (layer: Layer) => layers.set(layer.id, structuredClone(layer)),
     removeLayer: (id: string) => layers.delete(id),
     removeSource: (id: string) => sources.delete(id),
+    moveLayer: () => {},
     isSourceLoaded: () => true,
     setPaintProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.paint[property] = value; },
     setLayoutProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.layout = { ...layer.layout, [property]: value }; },

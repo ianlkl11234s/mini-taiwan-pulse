@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Map } from "mapbox-gl";
 import {
-  ANALYSIS_DIM_RATIO, analysisFeatureTarget, analysisResultHoverLayerIds, analysisSelectionOf, clearAnalysisHover, FEATURE_ID_PROPERTY, installAnalysisResults,
+  ANALYSIS_DIM_RATIO, analysisFeatureTarget, analysisResultStackKind, analysisResultHoverLayerIds, analysisSelectionOf, clearAnalysisHover, FEATURE_ID_PROPERTY, installAnalysisResults,
   setAnalysisHover, setAnalysisOpacity, setAnalysisSelection,
 } from "../analysisResultOverlay";
 import { analysisHoverLabel, analysisHoverTipPosition, supportsAnalysisHover } from "../analysisResultHover";
 import type { PresentableResult } from "../researchAnalysisSession";
+import { MAX_VISIBLE_ANALYSIS_RESULTS, nextAnalysisActivations, planAnalysisStack, type AnalysisStackKind } from "../analysisResultStack";
+import { visibleResultIds } from "../bridgeClient";
+import { VIZ_SPEC } from "../vizSpec";
 import type { WarehouseResultStyle } from "../warehouseResultStyle";
 import { SELECTION_RING } from "../../styles/designTokens";
 
@@ -188,5 +191,84 @@ describe("I2 selection dimming (X1)", () => {
     setAnalysisSelection(map, reinstalled, selection, opacity);
     expect(stateOf({ source: "research-analysis-result-0", id: 0 })).toEqual({ selected: true });
     expect(order.find(layer => layer.id === "research-analysis-result-points-0")!.paint["fill-opacity"]).toEqual(DIMMED_FILL);
+  });
+});
+
+const collectionOf = (...ids: string[]) => ({ items: ids.map(resultId => ({ resultId, visible: true, groupId: null })), groups: [] });
+const kinds: Record<string, AnalysisStackKind> = { a1: "area", a2: "area", h1: "heat", h2: "heat" };
+const kindOf = (resultId: string) => kinds[resultId] ?? "other";
+
+describe("S1 stacking (O1)", () => {
+  it("hides the least recently shown result when a 4th becomes visible, without removing it", () => {
+    const three = collectionOf("p1", "p2", "p3");
+    const stamps = nextAnalysisActivations(null, three, new globalThis.Map());
+    const four = collectionOf("p1", "p2", "p3", "p4");
+    const next = nextAnalysisActivations(three, four, stamps);
+    const plan = planAnalysisStack(four, next, kindOf);
+    expect(plan.autoHidden).toEqual(["p1"]);
+    expect(plan.collection!.items.map(item => [item.resultId, item.visible])).toEqual([["p1", false], ["p2", true], ["p3", true], ["p4", true]]);
+    expect(visibleResultIds(plan.collection)).toHaveLength(MAX_VISIBLE_ANALYSIS_RESULTS);
+  });
+
+  it("treats a result switched back on from the list as the newest", () => {
+    const capped = { items: [{ resultId: "p1", visible: false, groupId: null }, ...collectionOf("p2", "p3", "p4").items], groups: [] };
+    const stamps = new globalThis.Map([["p1", 1], ["p2", 2], ["p3", 3], ["p4", 4]]);
+    const reenabled = { ...capped, items: capped.items.map(item => ({ ...item, visible: true })) };
+    const plan = planAnalysisStack(reenabled, nextAnalysisActivations(capped, reenabled, stamps), kindOf);
+    expect(plan.autoHidden).toEqual(["p2"]);
+  });
+
+  it("keeps one heatmap and one area fill; other areas become outline-only", () => {
+    const collection = collectionOf("h1", "a1", "h2", "a2");
+    const plan = planAnalysisStack(collection, nextAnalysisActivations(null, collection, new globalThis.Map()), kindOf);
+    expect(plan.autoHidden.sort()).toEqual(["h1"]);
+    expect(plan.outlineOnly).toEqual(["a1"]);
+    // Nothing to change → the very same collection object comes back.
+    const small = collectionOf("a1", "p1");
+    expect(planAnalysisStack(small, nextAnalysisActivations(null, small, new globalThis.Map()), kindOf).collection).toBe(small);
+  });
+
+  it("classifies choropleth/bivariate/numeric polygons as areas and heatmaps as heat", () => {
+    expect(analysisResultStackKind(areas)).toBe("area");
+    expect(analysisResultStackKind(heat)).toBe("heat");
+    expect(analysisResultStackKind(points)).toBe("other");
+  });
+
+  it("draws an outline-only area as a 1.4px categorical.other edge over a transparent pick surface", () => {
+    const { map, order } = stubMap();
+    const second = { ...areas, resultId: "areas-2" };
+    installAnalysisResults(map, [areas, second], 0.8, "dark", { outlineOnly: ["areas"] });
+    const fill = order.find(layer => layer.id === "research-analysis-result-points-0")!;
+    expect(fill.paint["fill-color"]).toBe("rgba(0,0,0,0)");
+    const edge = order.find(layer => layer.id === "research-analysis-result-edge-0")!;
+    expect((edge.paint["line-width"] as unknown[])[3]).toBe(1.4);
+    expect((edge.paint["line-color"] as unknown[])[3]).toBe(VIZ_SPEC.categorical.other.dark);
+    expect(order.find(layer => layer.id === "research-analysis-result-points-1")!.paint["fill-color"]).not.toBe("rgba(0,0,0,0)");
+    expect((order.find(layer => layer.id === "research-analysis-result-edge-1")!.paint["line-width"] as unknown[])[3]).toBe(0);
+  });
+
+  it("orders layers heat → areas → bubbles → lines → points → labels, and again after style.load", () => {
+    const { map, order, styleReload } = stubMap();
+    const proportional = { kind: "proportional", sizeField: "p", colorField: null, labelField: null, sizeValueProperty: "_size_value", sizeRadiusProperty: "_size_radius", labelRankProperty: "_label_rank", valueProperty: null, sizeValueKind: "count", colorValueKind: "count", rMinPx: 4, rMaxPx: 28, fillOpacity: 0.75, ringPx: 1, labelTopN: 5, drawOrder: "largest-first", ramp: "viridis", palette: { dark: ["#35b779"], light: ["#26828e"] }, breaks: [], labels: [], min: null, max: null, nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0, sizeLegend: [{ value: 1, radiusPx: 4, label: "1" }] } as const satisfies WarehouseResultStyle;
+    const bubbles: PresentableResult = { ...points, resultId: "bubbles", resultStyle: proportional };
+    const route: PresentableResult = { resultId: "route", datasetId: "fixture:route", geometry: { type: "LineString", role: "actual", spatialAnalysisEligible: true }, rows: [{ geometry: { type: "LineString", coordinates: [[121.5, 25], [121.6, 25]] } }] };
+    map.addLayer({ id: "basemap-road", type: "line", source: "composite", paint: {} } as never);
+    // Install order is the opposite of the desired stack on purpose.
+    const results = [points, route, bubbles, areas, heat];
+    const expected = [
+      "basemap-road",
+      "research-analysis-result-points-4", // heat
+      "research-analysis-result-points-3", "research-analysis-result-edge-3", // area fill < edge
+      "research-analysis-result-points-2", // bubbles
+      "research-analysis-result-points-1", // line
+      "research-analysis-result-points-0", "research-analysis-result-heat-points-4", // points
+      "research-analysis-result-proportional-label-2", // labels
+    ];
+    installAnalysisResults(map, results);
+    expect(order.map(layer => layer.id)).toEqual(expected);
+    styleReload();
+    map.addLayer({ id: "basemap-road", type: "line", source: "composite", paint: {} } as never);
+    installAnalysisResults(map, results);
+    expect(order.map(layer => layer.id)).toEqual(expected);
   });
 });
