@@ -37,6 +37,6 @@ VITE_LABOR_STATISTICS_PREVIEW=true LABOR_STATISTICS_PREVIEW_PORT=3761 npm run de
 - 行業：四個 exact options 均在同一 toggle 內切換成功，製造業子集警語保持可見。
 - 所得 UX：7,602 筆 observed values 用 octile 切點顯示 8 階 Cividis 色階；normal、protan、deutan、tritan 四種視覺模擬的相鄰階級明度差異測試通過。
 - 非勞動力 UX：桌面與 390×844 mobile Statistics tab 均有人數／比率切換；新竹市實際點擊回讀 40.4%，popup 明示公式、位置口徑、資料期、20/22 coverage 與 reference boundary。這是瀏覽器 viewport 驗收，不等於實體裝置效能測試。
-- 測試：本輪 focused 79/79、真實 analytics delivery 1/1、TypeScript 與 `npm run build` 通過。完整 suite 為 2,170 passed、193 skipped；唯一未綠是既有 `capabilityAudit` 在全套並行時超過測試內寫死的 30s，與其他 timeout 檔案離開全套負載後重跑 29/29 通過。
+- 測試：合併最新 `master` UI 基線後，focused 107/107、真實 analytics delivery 1/1、TypeScript 與 `npm run build` 通過；完整 suite 為 2,324 passed、193 skipped，無失敗。
 
-本輪 UX 改動尚未 commit、push、合併或部署；production 目前仍是修改前基線。Git 與後續門檻見 [changelog](./changelog.md) 與 [backlog](./backlog.md)。
+本輪 UX 改動的 Git delivery 與 production acceptance 證據統一由 [PR #384](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/384) 追蹤；本文件只記錄已驗證的資料、測試與本機 browser gates。後續門檻見 [changelog](./changelog.md) 與 [backlog](./backlog.md)。
