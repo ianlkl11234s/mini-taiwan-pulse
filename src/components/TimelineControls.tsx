@@ -210,6 +210,9 @@ export function TimelineControls({
         {isLive && (
           <span className="tl3-live"><i />即時</span>
         )}
+        {isFuture && !isLive && (
+          <span className="tl3-warnchip" role="status" title="此時間尚未到達，沒有最新資料">尚無資料</span>
+        )}
         <select
           className="tl3-select tl3-select--mono"
           value={speed}
@@ -220,9 +223,7 @@ export function TimelineControls({
           {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
         </select>
 
-        <span className="tl3-spacer" />
-
-        <span className="tl3-group">
+        <span className="tl3-group tl3-group--end">
           <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(-1)} title="前一天" aria-label="前一天">
             <ChevronLeft size={13} />
           </button>
@@ -245,25 +246,25 @@ export function TimelineControls({
           <button type="button" className="tl3-btn tl3-btn--icon tl3-btn--ghost" onClick={() => onShiftDate(1)} title="後一天" aria-label="後一天">
             <ChevronRight size={13} />
           </button>
+          <button
+            type="button"
+            className="tl3-btn"
+            aria-pressed={isLive}
+            onClick={() => { if (!isLive) onTimeModeChange("live"); }}
+            title={isLive ? "目前為即時" : "回到現在（即時）"}
+          >
+            現在
+          </button>
+          <select
+            className="tl3-select"
+            value={rangeDays}
+            onChange={(e) => onRangeDaysChange(Number(e.target.value))}
+            title="顯示天數"
+            aria-label="顯示天數"
+          >
+            {RANGE_DAYS.map((n) => <option key={n} value={n}>{n} 天</option>)}
+          </select>
         </span>
-        <button
-          type="button"
-          className="tl3-btn"
-          aria-pressed={isLive}
-          onClick={() => { if (!isLive) onTimeModeChange("live"); }}
-          title={isLive ? "目前為即時" : "回到現在（即時）"}
-        >
-          現在
-        </button>
-        <select
-          className="tl3-select"
-          value={rangeDays}
-          onChange={(e) => onRangeDaysChange(Number(e.target.value))}
-          title="顯示天數"
-          aria-label="顯示天數"
-        >
-          {RANGE_DAYS.map((n) => <option key={n} value={n}>{n} 天</option>)}
-        </select>
       </div>
 
       {showDatePicker && (
@@ -295,7 +296,8 @@ export function TimelineControls({
         ariaValueMax={windowEnd}
         ariaValueNow={Math.round(currentTime)}
         ariaValueText={needleLabel}
-        onSeekRatio={(r) => seekTo(windowStart + r * duration)}
+        // 指標拖曳對齊到整分鐘（避免 15:59:59 這種顯示）
+        onSeekRatio={(r) => seekTo(Math.min(windowEnd, Math.round((windowStart + r * duration) / 60) * 60))}
         onKey={(key, shiftKey) => {
           const next = keyboardSeekTarget(key, shiftKey, currentTime, windowStart, windowEnd);
           if (next === null) return false;
@@ -304,11 +306,8 @@ export function TimelineControls({
         }}
       />
 
-      {(notices.length > 0 || (isFuture && !isLive)) && (
+      {notices.length > 0 && (
         <div className="tl3-notes" role="status">
-          {isFuture && !isLive && (
-            <span className="tl3-warnchip" title="此時間尚未到達，沒有最新資料">尚無資料</span>
-          )}
           {notices.map((n) => (
             <span key={n.key} className="tl3-group">
               {n.text && <span className="tl3-warnchip" title={n.title}>{n.text}</span>}

@@ -228,65 +228,65 @@ export function HistoricalTimeline({
           {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
         </select>
 
-        <span className="tl3-spacer" />
-
-        {reActive ? (
-          <div className="tl3-seg" role="group" aria-label="房地產時間粒度">
-            {(["quarter", "month", "week"] as ReGran[]).map((g) => (
-              <button key={g} type="button" aria-pressed={g === reGran} onClick={() => onReGranChange?.(g)}>
-                {reGranLabel[g]}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <>
-            <span className="tl3-group">
-              <label className="tl3-field">
-                民國
-                <select
-                  className="tl3-select tl3-select--mono"
-                  value={year}
-                  onChange={(e) => onYearChange(Number(e.target.value))}
-                  aria-label="民國年"
-                >
-                  {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                </select>
-                年
-              </label>
-              <label className="tl3-field">
-                <select
-                  className="tl3-select tl3-select--mono"
-                  value={month}
-                  disabled={!showMonth}
-                  onChange={(e) => onMonthChange(Number(e.target.value))}
-                  aria-label="月"
-                >
-                  {range(1, 12).map((m) => <option key={m} value={m}>{m}</option>)}
-                </select>
-                月
-              </label>
-              <label className="tl3-field">
-                <select
-                  className="tl3-select tl3-select--mono"
-                  value={Math.min(day, dim)}
-                  disabled={!showDay}
-                  onChange={(e) => onDayChange(Number(e.target.value))}
-                  aria-label="日"
-                >
-                  {range(1, dim).map((d) => <option key={d} value={d}>{d}</option>)}
-                </select>
-                日
-              </label>
-            </span>
-            <div className="tl3-seg" role="group" aria-label="時間粒度">
-              {(["year", "month", "day"] as HistoricalGranularity[]).map((g) => (
-                <button key={g} type="button" aria-pressed={g === granularity} onClick={() => onGranularityChange(g)}>
-                  {granLabel[g]}
+        <span className="tl3-group tl3-group--end">
+          {reActive ? (
+            <div className="tl3-seg" role="group" aria-label="房地產時間粒度">
+              {(["quarter", "month", "week"] as ReGran[]).map((g) => (
+                <button key={g} type="button" aria-pressed={g === reGran} onClick={() => onReGranChange?.(g)}>
+                  {reGranLabel[g]}
                 </button>
               ))}
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              <span className="tl3-group">
+                <label className="tl3-field">
+                  民國
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={year}
+                    onChange={(e) => onYearChange(Number(e.target.value))}
+                    aria-label="民國年"
+                  >
+                    {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  年
+                </label>
+                <label className="tl3-field">
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={month}
+                    disabled={!showMonth}
+                    onChange={(e) => onMonthChange(Number(e.target.value))}
+                    aria-label="月"
+                  >
+                    {range(1, 12).map((m) => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  月
+                </label>
+                <label className="tl3-field">
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={Math.min(day, dim)}
+                    disabled={!showDay}
+                    onChange={(e) => onDayChange(Number(e.target.value))}
+                    aria-label="日"
+                  >
+                    {range(1, dim).map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                  日
+                </label>
+              </span>
+              <div className="tl3-seg" role="group" aria-label="時間粒度">
+                {(["year", "month", "day"] as HistoricalGranularity[]).map((g) => (
+                  <button key={g} type="button" aria-pressed={g === granularity} onClick={() => onGranularityChange(g)}>
+                    {granLabel[g]}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </span>
       </div>
 
       {axis}

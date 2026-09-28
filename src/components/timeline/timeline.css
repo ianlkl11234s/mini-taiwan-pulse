@@ -87,8 +87,9 @@
   flex-wrap: wrap;
 }
 
-.tl3-spacer {
+.tl3-group--end {
   margin-left: auto;
+  gap: 6px;
 }
 
 .tl3-clock {
