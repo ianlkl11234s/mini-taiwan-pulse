@@ -19,9 +19,9 @@ describe("fetchAnalysisCard（anon get_analysis_card，mock fetch）", () => {
     expect(JSON.parse(init.body)).toEqual({ p_slug: "AbCdEfGh_-123456" });
   });
 
-  it("0 列（不存在／撤銷／過期）與 payload 不合法都算失效", async () => {
+  it("0 列（不存在／撤銷／過期）算失效；卡片存在但版本看不懂算暫時無法載入", async () => {
     expect((await fetchAnalysisCard("AbCdEfGh_-123456", config(vi.fn().mockResolvedValue(json([])) as unknown as typeof fetch))).status).toBe("gone");
-    expect((await fetchAnalysisCard("AbCdEfGh_-123456", config(vi.fn().mockResolvedValue(json([{ payload: { ...areaPayload(), schema_version: 9 }, expires_at: "x" }])) as unknown as typeof fetch))).status).toBe("gone");
+    expect(await fetchAnalysisCard("AbCdEfGh_-123456", config(vi.fn().mockResolvedValue(json([{ payload: { ...areaPayload(), schema_version: 9 }, expires_at: "x" }])) as unknown as typeof fetch))).toEqual({ status: "error", detail: "PAYLOAD_UNKNOWN_SCHEMA_VERSION" });
   });
 
   it("HTTP 或網路錯誤是「暫時無法載入」，不是失效", async () => {

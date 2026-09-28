@@ -6,8 +6,8 @@
  *
  * 三種結果刻意分開（不要合併）：
  *   - ok：有卡片且 payload 形狀正確
- *   - gone：RPC 回 0 列（不存在／已撤銷／已過期，RPC 不區分原因）或 payload 驗證不過
- *   - error：網路或 HTTP 錯誤 → 「暫時無法載入」，不能說成卡片已失效
+ *   - gone：RPC 回 0 列（不存在／已撤銷／已過期，RPC 不區分原因）
+ *   - error：網路或 HTTP 錯誤，或卡片存在但本頁看不懂（例如較新的 schema_version）→ 「暫時無法載入」，不能說成卡片已失效
  */
 import { validateCardPayload, type CardPayloadV1 } from "./cardPayload";
 
@@ -47,7 +47,7 @@ export async function fetchAnalysisCard(slug: string, config: CardApiConfig, sig
   const row = rows[0] as { payload?: unknown; created_at?: unknown; expires_at?: unknown } | undefined;
   if (!row) return { status: "gone" };
   const validation = validateCardPayload(row.payload);
-  if (!validation.ok) return { status: "gone" };
+  if (!validation.ok) return { status: "error", detail: `PAYLOAD_${validation.reason}` };
   return {
     status: "ok",
     payload: validation.payload,

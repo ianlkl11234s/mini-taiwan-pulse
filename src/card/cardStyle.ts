@@ -73,7 +73,7 @@ export function taipeiDate(iso: string | null | undefined): string | null {
 export function taipeiDateTime(iso: string | null | undefined): string | null {
   const date = taipeiDate(iso);
   if (!date || !iso) return null;
-  const time = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(Date.parse(iso)));
+  const time = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date(Date.parse(iso)));
   return `${date} ${time}`;
 }
 
