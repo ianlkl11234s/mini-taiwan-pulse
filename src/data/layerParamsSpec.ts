@@ -3134,7 +3134,7 @@ export const LAYER_PARAMS_SPEC = {
       default: 0.000003, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
     },
     {
-      kind: "slider", name: "shipTrailOpacity", labelPrefix: "尾跡", digits: 2,
+      kind: "slider", name: "shipTrailOpacity", labelPrefix: "航跡", digits: 2,
       default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
     },
   ],
