@@ -164,3 +164,16 @@
 .analysis-hover-tip__name { overflow: hidden; text-overflow: ellipsis; }
 .analysis-hover-tip__value { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--text-muted); }
 .analysis-hover-tip--light { --surface-solid: var(--light-surface-solid); --border-panel: var(--light-border); --text-strong: var(--light-text-strong); --text-muted: var(--light-text-muted); }
+
+/* 4b 分析卡草稿（卡片本體樣式在 src/card/card.css，與 /card 頁共用） */
+.main-map-agent .agent-card-draft .analysis-card { margin: 6px 0 8px; }
+.main-map-agent .agent-card-draft__actions { display: flex; gap: 6px; margin-top: 6px; }
+.main-map-agent .agent-card-draft__actions button { flex: 1; padding: 5px 0; color: var(--agent-text); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-card-draft__actions button:disabled { opacity: var(--control-disabled-opacity); }
+.main-map-agent .agent-card-draft__primary { border-color: var(--border-accent); }
+.main-map-agent .agent-card-draft__link label { display: grid; gap: 4px; font-size: var(--font-sm); color: var(--agent-muted); }
+.main-map-agent .agent-card-draft__link input { width: 100%; padding: 4px 6px; font-family: var(--font-data); font-size: var(--font-sm); color: var(--agent-text); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-card-draft__link small, .main-map-agent .agent-card-draft__note { display: block; margin-top: 4px; font-size: var(--font-sm); color: var(--agent-muted); }
+.main-map-agent .agent-card-draft__error { color: var(--status-err); font-size: var(--font-sm); }
+.main-map-agent .agent-analysis-make-card { margin-top: 4px; padding: 2px 8px; font-size: var(--font-sm); color: var(--agent-muted); background: var(--control-bg); border: 1px solid var(--control-border); border-radius: var(--radius-md); }
+.main-map-agent .agent-analysis-make-card-hint { display: block; margin-top: 2px; font-size: var(--font-sm); color: var(--agent-muted); }

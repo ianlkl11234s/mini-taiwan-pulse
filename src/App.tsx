@@ -2891,7 +2891,7 @@ export default function App() {
         compact={featureInfo !== null}
       />
 
-      <MemberPanel key={memberUser?.id ?? "guest"} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
+      <MemberPanel key={memberUser?.id ?? "guest"} isOwner={isOwner} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
         userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
         authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
         onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
