@@ -3943,7 +3943,6 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -4006,7 +4005,6 @@
               "visibility": "visible"
             }
           },
-          "maxzoom": 10,
           "minzoom": null,
           "paint": {
             "dark": {
@@ -4037,78 +4035,23 @@
         },
         {
           "filter": null,
-          "layout": null,
-          "minzoom": 11,
-          "paint": {
+          "layout": {
             "dark": {
-              "circle-blur": 0.8,
-              "circle-color": "#ffffff",
-              "circle-opacity": 0,
-              "circle-radius": 40
+              "visibility": "none"
             },
             "light": {
-              "circle-blur": 0.8,
-              "circle-color": "#00838f",
-              "circle-opacity": 0,
-              "circle-radius": 40
+              "visibility": "none"
             }
           },
-          "suffix": "metro-pt-range",
-          "type": "circle"
-        },
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": 10,
-          "paint": {
-            "dark": {
-              "circle-blur": 1,
-              "circle-color": "#00bcd4",
-              "circle-opacity": 0,
-              "circle-radius": 12.5
-            },
-            "light": {
-              "circle-blur": 1,
-              "circle-color": "#00838f",
-              "circle-opacity": 0,
-              "circle-radius": 12.5
-            }
-          },
-          "suffix": "metro-pt-glow-2",
-          "type": "circle"
-        },
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": 10,
-          "paint": {
-            "dark": {
-              "circle-blur": 0.6,
-              "circle-color": "#00bcd4",
-              "circle-opacity": 0,
-              "circle-radius": 7.5
-            },
-            "light": {
-              "circle-blur": 0.6,
-              "circle-color": "#00838f",
-              "circle-opacity": 0,
-              "circle-radius": 7.5
-            }
-          },
-          "suffix": "metro-pt-glow-1",
-          "type": "circle"
-        },
-        {
-          "filter": null,
-          "layout": null,
-          "minzoom": 10,
+          "maxzoom": 10,
+          "minzoom": null,
           "paint": {
             "dark": {
               "circle-color": [
                 "get",
                 "color"
               ],
-              "circle-opacity": 0.08,
+              "circle-opacity": 0.92,
               "circle-radius": 4.5,
               "circle-stroke-color": "#0a0a14",
               "circle-stroke-opacity": 0.8,
@@ -4119,11 +4062,139 @@
                 "get",
                 "color"
               ],
-              "circle-opacity": 0.12,
+              "circle-opacity": 0.92,
               "circle-radius": 4.5,
               "circle-stroke-color": "#ffffff",
               "circle-stroke-opacity": 0.9,
               "circle-stroke-width": 1
+            }
+          },
+          "suffix": "metro-lowzoom-core",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.8,
+              "circle-color": "#ffffff",
+              "circle-opacity": 0.03,
+              "circle-radius": 40
+            },
+            "light": {
+              "circle-blur": 0.8,
+              "circle-color": "#00838f",
+              "circle-opacity": 0.06,
+              "circle-radius": 40
+            }
+          },
+          "suffix": "metro-pt-range",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": "#00bcd4",
+              "circle-opacity": 0.06,
+              "circle-radius": 12.5
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": "#00838f",
+              "circle-opacity": 0.12,
+              "circle-radius": 12.5
+            }
+          },
+          "suffix": "metro-pt-glow-2",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-blur": 0.6,
+              "circle-color": "#00bcd4",
+              "circle-opacity": 0.12,
+              "circle-radius": 7.5
+            },
+            "light": {
+              "circle-blur": 0.6,
+              "circle-color": "#00838f",
+              "circle-opacity": 0.25,
+              "circle-radius": 7.5
+            }
+          },
+          "suffix": "metro-pt-glow-1",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": {
+            "dark": {
+              "visibility": "none"
+            },
+            "light": {
+              "visibility": "none"
+            }
+          },
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.08,
+              "circle-radius": 5,
+              "circle-stroke-color": [
+                "get",
+                "color"
+              ],
+              "circle-stroke-opacity": 0.3,
+              "circle-stroke-width": 1
+            },
+            "light": {
+              "circle-color": [
+                "get",
+                "color"
+              ],
+              "circle-opacity": 0.12,
+              "circle-radius": 5,
+              "circle-stroke-color": [
+                "get",
+                "color"
+              ],
+              "circle-stroke-opacity": 0.5,
+              "circle-stroke-width": 1.5
             }
           },
           "suffix": "metro-pt-fill",
@@ -4131,12 +4202,7 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": [
-        "metro-pt-range",
-        "metro-pt-glow-2",
-        "metro-pt-glow-1",
-        "metro-pt-fill"
-      ],
+      "rebuildOnParamChange": null,
       "sourceId": "station-points",
       "sourceUrl": "./geo/station_points.geojson"
     },
@@ -65707,8 +65773,7 @@
         "label": "顯示",
         "options": [
           {
-            "disabled": true,
-            "label": "實際範圍（無面資料）",
+            "label": "實際範圍（光暈示意）",
             "value": "polygon"
           },
           {
@@ -65780,7 +65845,7 @@
       {
         "label": "光柱",
         "type": "toggle",
-        "value": true
+        "value": false
       },
       {
         "label": "高度 0.6",
@@ -65829,7 +65894,7 @@
       {
         "label": "光柱",
         "type": "toggle",
-        "value": true
+        "value": false
       },
       {
         "label": "高度 0.5",
