@@ -255,7 +255,7 @@ export const SELECTION_RING = {
  * 例 floatingPanel ↔ --z-floating-panel）。改一邊必須同步另一邊。
  * 同一層內的前後由 DOM 順序決定；不要為了壓過鄰居改寫死數字，先確認屬於哪一層。
  *
- * 特例（不在本表、維持寫死）：LoadingScreen 9999、Day-loading 遮罩 1000、LoadingIndicator 1000、
+ * 特例（不在本表、維持寫死）：LoadingScreen 9999、Day-loading 遮罩 1000、
  * AdminPanel 10001、圖層 host 錯誤提示 10000、ChartHoverTooltip、
  * 提示訊息 TransientNotice／私人圖層提示 3000（必須高於 1000 的資料更新中遮罩，toast 50 會被壓暗）。
  */

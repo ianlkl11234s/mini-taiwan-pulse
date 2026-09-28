@@ -1,0 +1,61 @@
+/* 右上載入狀態條（design-system §5.30）。位置由元件 inline 的 top／right 決定。 */
+.loading-status {
+  --ls-surface: var(--surface-strong);
+  --ls-border: var(--border-panel);
+  --ls-text: var(--text-default);
+  --ls-strong: var(--text-strong);
+  --ls-dim: var(--text-dim);
+  --ls-track: var(--border-mid);
+  --ls-accent: var(--accent);
+  --ls-live: var(--status-live);
+  --ls-err: var(--status-err);
+  --ls-elevation: var(--elevation-lg);
+  position: absolute;
+  z-index: var(--z-toolbar);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 0 9px;
+  border: 1px solid var(--ls-border);
+  border-radius: var(--radius-lg);
+  background: var(--ls-surface);
+  box-shadow: var(--ls-elevation);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--ls-text);
+  font: var(--font-sm)/1 var(--font-cjk);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.loading-status--on { opacity: 1; transform: none; transition-duration: 0.22s; }
+.loading-status--light {
+  --ls-surface: var(--light-surface-strong);
+  --ls-border: var(--light-border);
+  --ls-text: var(--light-text-default);
+  --ls-strong: var(--light-text-strong);
+  --ls-dim: var(--light-text-dim);
+  --ls-track: var(--light-border-mid);
+  --ls-accent: var(--light-accent);
+  --ls-live: var(--light-status-live);
+  --ls-err: var(--light-status-err);
+  --ls-elevation: var(--light-elevation-lg);
+}
+.loading-status__icon { display: grid; place-items: center; width: 10px; height: 10px; flex: 0 0 10px; }
+.loading-status__ring { width: 9px; height: 9px; box-sizing: border-box; border: 1.5px solid var(--ls-track); border-top-color: var(--ls-accent); border-radius: 50%; animation: loading-status-spin 0.9s linear infinite; }
+.loading-status--done .loading-status__icon { color: var(--ls-live); }
+.loading-status--error .loading-status__icon { color: var(--ls-err); }
+.loading-status__text { display: flex; align-items: center; gap: 6px; min-width: 0; animation: loading-status-text 0.16s ease-out; }
+.loading-status__label { overflow: hidden; text-overflow: ellipsis; color: var(--ls-strong); }
+.loading-status--error .loading-status__label { color: var(--ls-err); }
+.loading-status__extra { color: var(--ls-dim); font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+@keyframes loading-status-spin { to { transform: rotate(360deg); } }
+@keyframes loading-status-text { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .loading-status, .loading-status--on { transform: none; transition: opacity 0.2s linear; }
+  .loading-status__ring, .loading-status__text { animation: none; }
+}
