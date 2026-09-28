@@ -55,7 +55,7 @@
     "choropleth": { "ramp": "viridis", "classes": 5, "method": "quantile", "gapPx": 1 },
     "heatmap": { "ramp": "magma", "radiusPx": 20, "zeroTransparent": true },
     "compare": { "ramp": "diverging" },
-    "bivariate": { "mode": "fill-and-size", "fillRamp": "viridis", "sizeScale": "sqrt", "topN": 8 },
+    "bivariate": { "mode": "fill-and-size", "fillRamp": "viridis", "sizeScale": "sqrt", "topN": 8, "sizeStrokePx": 1.4, "sizeStroke": { "dark": "#f3f4f6", "light": "#111827" } },
     "proportional": { "ramp": "viridis", "sizeScale": "sqrt", "rMinPx": 4, "rMaxPx": 28, "fillOpacity": 0.75, "ringPx": 1, "labelTopN": 5, "drawOrder": "largest-first" },
     "isochrone": { "ramp": "brand", "minutes": [10, 15, 20], "fillOpacity": 0.3 },
     "points": { "radiusPx": { "s": 3, "m": 4.5, "l": 6.5, "selected": 8 }, "sizeThresholds": { "s": 2000, "l": 50 }, "ringPx": 1 }
