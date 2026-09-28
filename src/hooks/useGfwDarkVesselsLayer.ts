@@ -11,6 +11,7 @@ import { gfwFreshness } from "../data/gfwFreshness";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
 
 export const GFW_DARK_VESSELS_SOURCE_ID = "gfw-dark-vessels-source";
 export const GFW_DARK_VESSELS_LAYER_ID = "gfw-dark-vessels-circle";
@@ -18,7 +19,7 @@ export const GFW_DARK_VESSELS_CLICK_LAYERS = [GFW_DARK_VESSELS_LAYER_ID] as cons
 
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
-function ensureLayer(map: MapboxMap): void {
+function ensureLayer(map: MapboxMap, isDarkTheme: boolean): void {
   if (!map.getSource(GFW_DARK_VESSELS_SOURCE_ID)) {
     map.addSource(GFW_DARK_VESSELS_SOURCE_ID, {
       type: "geojson",
@@ -40,9 +41,9 @@ function ensureLayer(map: MapboxMap): void {
         ],
         "circle-color": "#f43f5e",
         "circle-opacity": 0.86,
-        "circle-stroke-color": "#fff1f2",
-        "circle-stroke-width": 1.2,
-        "circle-stroke-opacity": 0.95,
+        "circle-stroke-color": mapSeamColor(isDarkTheme),
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
       },
     } as CircleLayer);
   }
@@ -52,6 +53,7 @@ export function useGfwDarkVesselsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity = 0.86,
+  isDarkTheme = true,
 ): void {
   const mapTick = useMapReadyTick(mapRef, visible);
   const manifestRef = useRef<GfwDarkVesselsManifest | null>(null);
@@ -133,12 +135,13 @@ export function useGfwDarkVesselsLayer(
           return;
         }
         if (!map.isStyleLoaded()) { scheduleRetry(); return; }
-        ensureLayer(map);
+        ensureLayer(map, isDarkTheme);
         map.setLayoutProperty(GFW_DARK_VESSELS_LAYER_ID, "visibility", "visible");
         (map.getSource(GFW_DARK_VESSELS_SOURCE_ID) as GeoJSONSource | undefined)?.setData(dataRef.current);
         const value = Math.max(0, Math.min(1, opacity));
         map.setPaintProperty(GFW_DARK_VESSELS_LAYER_ID, "circle-opacity", value);
-        map.setPaintProperty(GFW_DARK_VESSELS_LAYER_ID, "circle-stroke-opacity", value);
+        map.setPaintProperty(GFW_DARK_VESSELS_LAYER_ID, "circle-stroke-color", mapSeamColor(isDarkTheme));
+        map.setPaintProperty(GFW_DARK_VESSELS_LAYER_ID, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * value / 0.86));
         if (!manifestRef.current && !manifestRefreshStarted) void refreshManifest();
         else if (manifestRef.current) void loadHour(timeStore.getTime());
       } catch { scheduleRetry(); }
@@ -155,5 +158,5 @@ export function useGfwDarkVesselsLayer(
       map.off("style.load", applyStyle);
       if (retryPending) map.off("idle", retry);
     };
-  }, [mapRef, visible, opacity, mapTick]);
+  }, [mapRef, visible, opacity, isDarkTheme, mapTick]);
 }
