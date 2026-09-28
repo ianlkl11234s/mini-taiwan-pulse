@@ -649,7 +649,7 @@ function JapanGlyph({ size = 20 }: { size?: number }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: Math.round(badge * 0.5),
           fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
-          fontFamily: "Inter, system-ui, sans-serif",
+          fontFamily: FONT_CJK,
         }}
       >
         JP
@@ -825,7 +825,7 @@ const LayerRow = memo(function LayerRow({
           style={{
             flex: 1,
             fontSize: FONT_SIZE.md,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             color: TEXT_STRONG,
             transition: "color 0.15s",
           }}
@@ -1014,7 +1014,7 @@ function LayersPanel({
             color: INACTIVE_TEXT,
             fontSize: FONT_SIZE.base,
             cursor: "pointer",
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
           }}
         >
           All Off
@@ -1046,7 +1046,7 @@ function LayersPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1289,7 +1289,7 @@ function CollapsibleSection({
           : <ChevronRight size={12} color={DIM} />}
         <span style={{
           fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: 1.5,
-          color: DIM, fontFamily: "Inter, system-ui, sans-serif",
+          color: DIM, fontFamily: FONT_CJK,
         }}>
           {title}
         </span>
@@ -1336,7 +1336,7 @@ function LocationsPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1425,7 +1425,7 @@ function LocationItem({
             fontSize: FONT_SIZE.md,
             fontWeight: 600,
             color: active ? TEXT_STRONG : INACTIVE_TEXT,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
