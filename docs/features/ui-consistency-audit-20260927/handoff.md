@@ -127,6 +127,14 @@ Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少�
 
 待決問題 3（要不要真的載入 web font）是二選一問題，但 `--font-cjk`／`--font-data` 這兩個**變數名稱**不管答案是哪個都該先定下來——用變數間接引用，之後不管是「真的載入 JetBrains Mono/Inter」還是「乾脆承認都是系統字、把 fallback stack 寫得更誠實」，消費端（`memberPanel.css` 等）都不用再改一次。先定名稱、字面值可以晚點再拍板。
 
+## 5b. 下一題：地圖圖層數值（2026-09-28 盤點完成，待拍板）
+
+UI chrome 統一完成後，下一步是逐一調整**地圖上**每個圖層的點／線／面數值與圖例樣式。依據在 [`docs/design-system-map-layers.md`](../../design-system-map-layers.md)（`design-system.md` §13）：
+
+- 803 層現況盤點：`docs/design-system/layer-style-inventory.json`（`npm run design:audit-layers` 重產；每層有檔案行號、z10／z14 數值、暗淡差異、四鐵則、圖例問題）。
+- 40 個提案代號（P／L／F／G／T／K／LG）待使用者逐項拍板，拍板前不改 `src/`。
+- 逐層調整照該檔 §6 工作流；參考頁 `design-system-reference.html#map-layers`。
+
 ## 6. 相關檔案路徑
 
 - Token SSOT：`src/styles/designTokens.ts`、`src/components/intel/intelTokens.ts`、`docs/design-system.md`

@@ -19,6 +19,7 @@
 10. [遷移狀態](#10-遷移狀態)
 11. [未納入 token 的範圍與 KEEP OUT](#11-未納入-token-的範圍與-keep-out)
 12. [相關文件](#12-相關文件)
+13. [地圖圖層視覺規格](#13-地圖圖層視覺規格)
 
 ---
 
@@ -34,6 +35,7 @@
 | 要決定元素疊在誰上面（z-index） | §5.25；不寫死數字 |
 | 新的左側浮動面板 | §5.26 互斥清單 |
 | 新的置中視窗／提示訊息 | §5.27、§5.25 |
+| 調整地圖上的點／線／面數值、圖例樣式 | §13 → [`design-system-map-layers.md`](./design-system-map-layers.md) |
 
 ## 1. 原則
 
@@ -788,6 +790,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
 | 層級（z-index） | ⚠️ 部分 | 表內元件已歸層；仍有 18 處寫死數字（含已登記特例），見 §5.25 與 guard 基準 |
 | 圖例 | ✅ 符合 | |
+| 地圖圖層數值（點／線／面／圖例） | ⏳ 盤點完成，待逐項拍板 | 803 層盤點在 `docs/design-system/layer-style-inventory.json`；40 個提案代號見 [`design-system-map-layers.md`](./design-system-map-layers.md) §7 |
 | 左下時間軸（TC3） | ✅ 符合 | 即時／歷史共用 `TimelineShell`＋`TimeAxis`；刻度標籤 9.5px、時間 15px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
@@ -829,6 +832,17 @@ PR 前逐項勾（貼進 PR 描述）：
 ## 12. 相關文件
 
 - 視覺參考頁：[`docs/design-system-reference.html`](./design-system-reference.html)
+- 地圖圖層視覺規格：[`docs/design-system-map-layers.md`](./design-system-map-layers.md)（盤點資料 `docs/design-system/layer-style-inventory.json`，`npm run design:audit-layers` 重產）
 - 拍板與設計稿：`docs/features/ui-consistency-audit-20260927/`（`handoff.md` §4a、`proposal.md`、`ui-unification-sheet.html`、`popup-density-variants.html`、`ui-controls-sheet.html`、`timeline-sheet.html`、第二輪 `round2-sheet.html`）
 - `CLAUDE.md` §5／§5a／§7、`docs/development-rules.md` §4a（圖層 UX 四鐵則）
 - `docs/known-issues.md`
+
+## 13. 地圖圖層視覺規格
+
+地圖上的資料圖形（點、線、面、3D、熱區、網格、影像、地圖文字標籤）與圖例樣式另有專檔：[`design-system-map-layers.md`](./design-system-map-layers.md)。本檔 §3 的 token 規則管 UI chrome；地圖圖形的顏色屬 §3.16「資料色」，數值階（點半徑、線寬、面透明度、描邊、圖例色票尺寸）在專檔定義。
+
+- **現況**（2026-09-28 盤點，803 層）：主體點半徑中位 z10 4.75／z14 6px、描邊 1px、不透明度 0.85；主體線寬中位 z10 0.93／z14 1.0px、不透明度 0.65；面不透明度中位 0.37（統計 320 層共用 0.55）。描邊色有三套慣例並存、28 個圖例與圖層樣式不一致、圖例面板容器誤用 `FONT_DATA`、統計圖例淡色時文字色錯。
+- **提案**：點 S／M／L 三階、線 細／標準／強調 三階、面 分級 0.55／覆蓋 0.35／背景 0.15、暗淡只換色不換尺寸、圖例 8 型規格與常駐規則——共 40 個代號，**全部待使用者逐項拍板**（專檔 §7）。拍板前不改程式。
+- **資料與工具**：`docs/design-system/layer-style-inventory.json`（逐層數值、檔案行號、四鐵則、圖例問題）；`npm run design:audit-layers` 重產；逐層調整照專檔 §6 工作流。
+- **參考頁**：[`design-system-reference.html#map-layers`](./design-system-reference.html#map-layers)（現況中位值與提案值並排）。
+- 分析結果圖層的規格已定案於 `docs/features/viz-library/DECISIONS.md`，專檔引用不重寫。
