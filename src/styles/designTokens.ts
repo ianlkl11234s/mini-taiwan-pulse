@@ -5,7 +5,7 @@
  *
  * 結構：
  * - 沿用 intel/intelTokens.ts 的既有 token（re-export，不重複定義）
- * - 在此擴張 SURFACE / WHITE_ALPHA / BORDER / RADIUS / FONT_SIZE / ELEVATION / SPACING
+ * - 在此擴張 SURFACE / WHITE_ALPHA / BORDER / RADIUS / FONT_SIZE / ELEVATION / SPACING / CONTROL
  * - 新元件統一從本檔 import；intel/satellite 既有元件不強制改
  */
 
@@ -164,4 +164,17 @@ export const SPACING = {
   lg: 12,
   xl: 16,
   xxl: 24,
+} as const;
+
+// ─── CONTROL — 互動態背景（button / select / input / segmented）────
+/**
+ * 2026-09-27 開啟（design-system.md §8；依據 ui-consistency-audit handoff §4a #4 / C2）。
+ * 與 src/styles/tokens.css 的 --control-* 同值。`SURFACE.*` 仍只給面板容器底。
+ * 主要按鈕（C2）：背景 COLORS.accentFaint、框與字 COLORS.accent、semibold。
+ */
+export const CONTROL = {
+  bg: "rgba(255,255,255,0.06)",
+  bgHover: "rgba(255,255,255,0.10)",
+  border: "rgba(255,255,255,0.12)",
+  disabledOpacity: 0.55,
 } as const;

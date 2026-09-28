@@ -200,7 +200,7 @@ style={{ fontFamily: "monospace" }}          // 改用 FONT_DATA
 - ❌ 不一次大爆炸改全部元件 — 每 Phase 獨立 PR
 - ❌ 不在新元件 inline 寫死 hex / rgba / px font size
 - ❌ 不反向把 `intelTokens` 改成 re-export from `designTokens`（會 circular dep，見 §1）
-- ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**（即使數值相同 `rgba(0,0,0,0.4)`）。語意不同 — 互動態背景之後若要 token 化，會獨立開 `CONTROL.*` 群組。Phase 1 review 教訓。
+- ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**（即使數值相同 `rgba(0,0,0,0.4)`）。語意不同 — 互動態背景走獨立的 `CONTROL.*` 群組（2026-09-27 已開，見 §8）。Phase 1 review 教訓。
 
 ## 8. 未納入 token 的範圍（未來題目，不在 Phase 0–6 scope）
 
@@ -208,7 +208,8 @@ style={{ fontFamily: "monospace" }}          // 改用 FONT_DATA
 
 - **Z_INDEX scale** — Mapbox controls / panel / modal / loading 目前散布 inline，未集中。
 - **transition / duration / easing tokens** — 互動動畫多為一次性，未統一節奏。
-- **互動狀態色**（hover / focus-ring / disabled / pressed）— 現多用 opacity 切換，未抽 state vocabulary。
+- ~~**互動狀態色**~~（hover / focus-ring / disabled / pressed）— 現多用 opacity 切換，未抽 state vocabulary。
+  - **2026-09-27 已開啟 `CONTROL.*`**（依據 `docs/features/ui-consistency-audit-20260927/handoff.md` §4a 拍板 #4 與第三輪 C2）：`CONTROL = { bg, bgHover, border, disabledOpacity: 0.55 }`，CSS 鏡射 `--control-bg` / `--control-bg-hover` / `--control-border` / `--control-disabled-opacity`（`src/styles/tokens.css`）。按鈕規格 C2：一般 `--control-bg` 底＋`--control-border` 框；主要 `--accent-faint` 底＋accent 框＋accent 字 semibold；focus-visible 2px accent outline offset 2；disabled opacity .55；圓角 `RADIUS.md`。pressed 態仍未定。
 - **Breakpoint tokens** — 桌機 / 手機分流目前用 JS `isMobile` 判斷，無 CSS breakpoint scale。
 - **Control sizing**（button height / icon size / hit-area）— Phase 6 統一 CloseButton 時順手定，但不擴展為通用 scale。
 
