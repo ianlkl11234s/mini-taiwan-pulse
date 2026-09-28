@@ -234,7 +234,7 @@
 | Layers 大分類標題（§5.5） | 9.5px | 第二輪 LT1：刻意小於 L2 群組標題（10px），大分類只當分段提示，不搶主題列 |
 | 說明視窗 `kbd`（§5.27） | 9.5px `FONT_DATA` 600 | 按鍵標籤嵌在 11px 正文裡，需略小 |
 | 分享欄位值（§5.27） | 10.5px `FONT_DATA` | 網址／HTML 長字串，10px 太擠、11px 換行過多 |
-| 左下時間軸刻度／日期（§5.24） | 9.5px／11.5px | TL3 設計稿值 |
+| 左下時間軸刻度／時間（§5.24） | 9.5px／15px | TC1／TC3 設計稿值 |
 
 ### 3.14 FONT_WEIGHT
 
@@ -511,21 +511,34 @@
 - **禁止**：英文「LEGEND」、大寫。
 - **實作**：`src/components/LegendPanel.tsx`。
 
-### 5.24 左下時間軸（TL3 刻度軸）
+### 5.24 左下時間軸（TC3 收合＋展開；展開＝TC1 單列）
 
-- **用途**：地圖左下的即時／回放時間軸（`TimelineControls`）與歷史模式時間軸（`HistoricalTimeline`）。兩者同一張卡片外觀。設計稿：`docs/features/ui-consistency-audit-20260927/timeline-sheet.html` 第 1 區 TL3。
-- **外殼**：寬 620px、`maxWidth: calc(100vw - 左側偏移 - 312px)`（右側留給右下停靠 popup 280px＋間距）、`minWidth 320`；底 `--surface-strong`、`1px --border-panel`、`RADIUS.xl`、`ELEVATION.lg`、padding `8px 12px 10px`、gap 6、`FONT_CJK`。手機（`isMobile`）不畫卡片（外層已有模糊底），上排自動換成兩列。
-- **上排**：圓形播放鍵 30px（C2 主要色，lucide `Play`／`Pause`；手機 36px）→ 大號時間 `FONT_DATA` 20px／600／tabular → 「即時」綠點（僅 live）或「尚無資料」警示標籤（回放到未來時刻）→ 倍速 select（`30×…3600×`；歷史 `0.5×…8×`）→ 右側群組（`margin-left: auto`，窄時整組換行）：
-  - 即時：前／後一天圖示鈕（`ChevronLeft`／`ChevronRight`）＋日期「9/27（日）」（數字 mono、星期 CJK；多天顯示「9/27–9/29」，點擊展開原生日期輸入）＋「現在」（`aria-pressed` 表示即時中）＋範圍 select「1 天…7 天」（7 個選項 >3，依 §5.8 用選單不用分段）。
-  - 歷史：「民國 [115] 年」「[9] 月」「[27] 日」三個 C2 select（數字 mono、單位 CJK；粒度未涵蓋的欄位停用）＋粒度分段「年／月／日」；房地產開啟時改為分段「季／月／週」。
-- **刻度軸**（`TimeAxis`，`role="slider"`＋`aria-valuemin/max/now/valuetext`）：高 34；基線 `1px --border-mid`；已播放段 3px `--slider-fill`；主刻度 9px、次刻度 5px；標籤 `FONT_DATA` 9.5px `--text-dim`（兩端標籤貼齊邊緣）；目前時間指針 2px `--accent`＋上方時間標籤（9.5px／600，隨位置由左對齊漸變到右對齊，不超出卡片）。
+- **用途**：地圖左下的即時／回放時間軸（`TimelineControls`）與歷史模式時間軸（`HistoricalTimeline`），共用外殼 `TimelineShell`。設計稿：`docs/features/ui-consistency-audit-20260927/timeline-compact-sheet.html` 的 TC1、TC3（Phase R 取代 Phase M 的 TL3 兩列卡片）。
+- **底邊位置（共用常數）**：`LAYOUT.mapBottomInset = 64`（`designTokens.ts`）。時間軸（收合與展開）與右下停靠區（popup＋圖例，`App.tsx`）的 `bottom` **都用這個常數**，兩者底邊對齊；改值會同時移動兩邊，不得在任一處寫死數字。64 讓出 Mapbox 右下版權列。實測（1440×900）：時間軸底 836、右下停靠區／圖例面板底 836。
+- **收合（預設）**：膠囊寬 270px、高 36、`RADIUS.pill`；底 `--surface-strong`＋`1px --border-panel`＋`ELEVATION.lg`。內容：圓形播放鍵 26px（C2 主要色）→ 目前時間 `FONT_DATA` 15px／600 → 細進度軸（`TimeAxis compact`：只畫基線、已播放段、指針、缺漏斜線；**不畫刻度與標籤**）。
+- **展開＝TC1 單列卡片**：寬 590px、高約 44、`RADIUS.xl`。一列排：播放鍵 → 時間（多天時帶日期「9/27 14:00」）→「即時」綠點（僅 live）或「尚無資料」警示 → 帶刻度標籤的 `TimeAxis`（撐滿剩餘寬度）→ 倍速 select → 膠囊按鈕：
+  - 即時：「9/28 · 1 天」（多天「9/27–9/29 · 3 天」）。點開**向上彈出**面板：前／後一天、原生日期輸入＋星期、「現在」（`aria-pressed`＝即時中）、範圍 select「1 天…7 天」。
+  - 歷史：「民國 115 年 9 月」（依粒度到年／月／日）。面板內：民國年／月／日 select（粒度未涵蓋者停用）＋粒度分段「年／月／日」＋資料範圍警示（例「火災資料：111~113」）。房地產開啟時膠囊為「房地產 · 季」，面板內是分段「季／月／週」。
+  - GFW 資料缺漏：斜線在兩態的軸上都畫；說明標籤與「跳至可用時段」只在展開時以第二列出現。
+- **寬度**：兩態都套 `maxWidth: calc(100vw - 左側偏移 - 312px)`（右側留給右下停靠 popup 280px＋間距）；展開時往右、往上長，底邊不動。
+- **展開／收合時機**（純函式 `timelineExpand.ts` `expandReducer`，有單元測試）：
+  - 展開理由（hold）：滑鼠在卡片上、鍵盤 focus 在卡片內、正在拖曳刻度軸、日期面板開著。任一成立即展開。
+  - 全部解除後進入倒數，**2 秒**（`COLLAPSE_DELAY_MS`）後收合；倒數中任一 hold 回來就取消。
+  - 拖曳中（pointer capture，滑出卡片也算）不收；面板開著不收（點卡片外或 Esc 關面板）。
+  - 觸控：點膠囊展開，之後同樣走 2 秒倒數。鍵盤：膠囊 `tabIndex=0`、Enter／Space 展開；Tab 進入卡片即展開。
+  - 滑鼠點按鈕或拖軸留下的 focus **不算** hold（否則點過一次就永不收）；只有鍵盤帶來的 focus 與 select／input 的 focus 算。
+  - 計時器 effect 只依賴狀態機 phase，不依賴 `currentTime`（CLAUDE.md §6）。
+  - `prefers-reduced-motion: reduce` 時寬度／圓角無過場。
+- **刻度軸**（`TimeAxis`，`role="slider"`＋`aria-valuemin/max/now/valuetext`，兩態共用同一個元素，展開時 focus 不會掉）：高 30；基線 `1px --border-mid`；已播放段 3px `--slider-fill`；主刻度 9px、次刻度 5px；標籤 `FONT_DATA` 9.5px `--text-dim`（兩端貼齊邊緣）；指針 2px `--accent`，不再掛時間標籤（時間已在左側大字，值在 `aria-valuetext`）。
   - 即時標籤規則：1 天主刻度每 4 小時「00 04 … 24」、次刻度每小時；2 天主刻度每 6 小時（日界「M/D」、其餘「HH」）、次刻度每 2 小時；3–7 天主刻度每天「M/D」、次刻度每 6 小時。台北時間固定 +8h 對齊。
-  - 歷史標籤：年粒度＝可用民國年；月粒度＝「1月…12月」；日粒度＝該月日數（超過 13 格隔格標，最後一格必標）。數字 `FONT_DATA`、單位字另包 CJK span。房地產＝各季起點「2024Q3…」。
-  - 資料缺漏：漁船熱區／航跡（GFW）資料窗外的時段畫斜線（`--status-warn` 28% 斜紋），下方警示標籤說明（例「漁船熱區只到 9/26」，日期取資料源 `latestCompleteDate`／`endUtcDate`，tooltip 附 UTC 可用區間）＋「斜線＝該時段無資料」；目前時間在資料窗外時另給「跳至可用時段」小按鈕。
-- **操作**：點擊或拖曳（pointer capture，對齊整分鐘）跳轉；鍵盤 ←→ 5 分鐘、Shift＋←→／PageUp／PageDown 1 小時、Home／End 到兩端（歷史軸 ←→ 一格、PageUp／Down 三格）。回放模式走 `onSeekByProgress`；即時模式下 seek 是 no-op，所以拖曳／鍵盤改走 `onJumpToTime`（切到回放並停在該時刻）；即時的播放鍵顯示暫停圖示，按下＝切換為回放（等同舊「LIVE」鈕）。時間由 props 傳入，軸不訂閱 timeStore、不在 effect deps 放 `currentTime`。
-- **暗／淡**：觸發 class `.tl3--light` 把 `--tl-*` 別名與 `--accent*`／`--control-*` 指到 `--light-*`（同 `.lpc-theme--light`）。
-- **禁止**：原生 `type="range"`；`▶` 字元；英文「Now／LIVE／1d／60x」；等寬字包中文。
-- **實作**：`src/components/TimelineControls.tsx`、`HistoricalTimeline.tsx`、`src/components/timeline/{TimeAxis.tsx,timelineAxis.ts,timeline.css}`。
+  - 歷史標籤：年粒度＝可用民國年；月粒度＝「1月…12月」；日粒度＝該月日數（超過 13 格隔格標，最後一格必標）。房地產＝各季起點「2024Q3…」。
+- **操作**：點擊或拖曳（pointer capture，對齊整分鐘）跳轉；鍵盤 ←→ 5 分鐘、Shift＋←→／PageUp／PageDown 1 小時、Home／End 到兩端（歷史軸 ←→ 一格、PageUp／Down 三格）。回放走 `onSeekByProgress`；即時模式拖曳／鍵盤改走 `onJumpToTime`（切到回放並停在該時刻）；即時的播放鍵顯示暫停圖示，按下＝切換為回放。
+- **層級**：時間軸根節點 `Z_INDEX.mapOverlay`（10）；日期面板在它的 stacking context 內，因此也在浮動面板（20）之下——刻意接受，不為此寫死數字。
+- **手機**：固定展開、不做膠囊（沒有 hover）；維持在頂部時間軸條內，第一列播放／時間／倍速／膠囊，刻度軸換到第二列全寬；面板改往下彈。
+- **遮擋判斷**：根節點保留 `data-viewport-occluder="timeline"`（即時）／`data-testid="historical-timeline"`（歷史），`viewportFit` 以此避開時間軸。
+- **暗／淡**：觸發 class `.tl3--light` 把 `--tl-*` 別名與 `--accent*`／`--control-*` 指到 `--light-*`。
+- **禁止**：原生 `type="range"`；`▶` 字元；英文「Now／LIVE／1d／60x」；等寬字包中文；時間軸或右下停靠區寫死 `bottom` 數字。
+- **實作**：`src/components/timeline/{TimelineShell.tsx,timelineExpand.ts,TimeAxis.tsx,timelineAxis.ts,timeline.css}`、`TimelineControls.tsx`、`HistoricalTimeline.tsx`；常數 `designTokens.ts` `LAYOUT`。
 
 ### 5.25 層級（z-index）
 
@@ -563,6 +576,7 @@
 - **規則**：左側浮動面板**同時只開一個**。打開其中一個時，其他已開的自動關閉；只關不開時不做事。
 - **適用面板**：本地 Agent、地震回放、即時情報、衛星情報、會員專區（`LEFT_PANEL_KEYS`）。Layers／資料來源等 rail 面板本來就是同一個抽屜，不在此清單。
 - **地震回放特例**：地震回放是圖層旗標（`layerVisibility.earthquakeReplay`），可從圖層清單、批次開關、URL 還原、Agent bridge 打開；因此「關掉地震回放面板」＝**關掉該圖層**，App 觀察「剛由關變開」的面板再呼叫既有的關閉 setter。
+- **Agent（A1）**：「與 Agent 協作」左側面板只放**配對與連線**（登入、配對碼、連線狀態、本次分析圖層），參與互斥——打開地震回放等其他左側面板時它會收起，Agent 仍保持連線。**執行步驟活動卡**（「最新動作」，`ResearchActivityCard`）掛在地圖容器右上（portal，`top: 100px`＝工具列列底 58＋42 間距，常數 `--research-activity-top`），**不受互斥影響**：只要已配對且有活動就顯示（`activityCardVisible()`，只看活動與拍攝模式），層級 `floatingPanel`，工具列選單（popover 30）蓋在它上面。
 - **新增左側面板時**：把 key 加進 `LEFT_PANEL_KEYS` 並在 App 接上開關 state，層級用 `Z_INDEX.floatingPanel`。
 - **實作**：`src/state/leftPanelMutex.ts`（純函式 `leftPanelsToClose()`＋測試）、`src/App.tsx`。
 
@@ -754,6 +768,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | O | 第二輪：`Z_INDEX` 層級（Z1）＋左側面板互斥、手機標頭 M1 | ✅ | `8b4a6f43`、`a22daf14` |
 | P | 第二輪：說明／分享視窗 H2、分享欄位 `1fr auto`、共用滑桿 `controls/Slider` | ✅ | `1370a736`、`3f8b9741`、`8c7f9fd5` |
 | Q | 第二輪收尾：置中視窗／對話浮層／會員面板歸層、Agent 透明度滑桿與圖層滑桿收斂到 `controls/Slider`、guard `raw-z-index`、本文件與參考頁 | ✅ | `54728865`、`6c43deb2`＋本文件 commit |
+| R | 第二輪：時間軸 TC3（收合膠囊＋展開單列 TC1、底邊與右下停靠區共用 `LAYOUT.mapBottomInset`）、Agent 活動卡固定右上不受左側互斥影響（A1） | ✅ | `965deb17`、`8d52327c`＋本文件 commit |
 
 ### 10.2 區塊狀態
 
@@ -773,7 +788,7 @@ PR 前逐項勾（貼進 PR 描述）：
 | 手機標頭 | ✅ 符合（M1） | 手機時間軸條淡色時仍是暗色底（§10.3） |
 | 層級（z-index） | ⚠️ 部分 | 表內元件已歸層；仍有 18 處寫死數字（含已登記特例），見 §5.25 與 guard 基準 |
 | 圖例 | ✅ 符合 | |
-| 左下時間軸（TL3） | ✅ 符合 | 即時／歷史共用 `TimeAxis`；刻度標籤 9.5px、日期 11.5px 依設計稿，不在 7 階字級上 |
+| 左下時間軸（TC3） | ✅ 符合 | 即時／歷史共用 `TimelineShell`＋`TimeAxis`；刻度標籤 9.5px、時間 15px 依設計稿，不在 7 階字級上 |
 
 ### 10.3 未處理（已知，誠實列出）
 
