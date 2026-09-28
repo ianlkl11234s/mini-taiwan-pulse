@@ -120,4 +120,13 @@ describe("docked analysis result panel data", () => {
     ]);
     expect(JSON.stringify(panel)).not.toContain("warehouse:");
   });
+  it("titles warehouse rows by their source name column and shows address and dist_m", () => {
+    const stop = { StationName: "捷運大安站(信義)", StationAddress: "信義路四段上近復興南路同向(向西)", dist_m: 25, _wh_label: "大安捷運站 300m 內公車站位" };
+    expect(researchResultPopupTitle(stop)).toBe("捷運大安站(信義)");
+    expect(researchResultRecordFacts(stop, "大安捷運站 300m 內公車站位")).toEqual([
+      { label: "地址", value: "信義路四段上近復興南路同向(向西)" },
+      { label: "距離", value: "25 公尺 · 直線" },
+    ]);
+    expect(researchResultPopupTitle({ _wh_label: "只有內部標籤" })).toBe("分析結果");
+  });
 });

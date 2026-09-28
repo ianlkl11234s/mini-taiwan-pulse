@@ -58,7 +58,20 @@ export function researchResultPopupTitle(properties: Record<string, unknown>): s
     const value = properties[key];
     if (value !== null && value !== undefined && String(value).trim()) return String(value);
   }
+  // Warehouse results keep source column names (e.g. TDX `StationName`), so fall back to any
+  // non-internal field whose name ends in "name" before using the generic label.
+  const nameLike = sourceFieldEndingWith(properties, /name$/i);
+  if (nameLike) return nameLike;
   return "分析結果";
+}
+
+/** First non-empty source field (not `_`-prefixed internal fields) whose key matches `pattern`. */
+function sourceFieldEndingWith(properties: Record<string, unknown>, pattern: RegExp): string | null {
+  for (const [key, value] of Object.entries(properties)) {
+    if (key.startsWith("_") || !pattern.test(key)) continue;
+    if (value !== null && value !== undefined && String(value).trim()) return String(value).trim();
+  }
+  return null;
 }
 
 export type ResearchResultPopupOverlapFeature = {
@@ -159,7 +172,9 @@ export function researchResultRecordFacts(properties: Record<string, unknown>, d
   const facts: ResearchResultPopupFact[] = [];
   if (properties.datasetId) facts.push({ label: "資料集", value: datasetLabel });
   facts.push(...researchResultPopupFacts(properties));
-  const distance = researchResultPopupDistance(properties.distanceM);
+  const address = sourceFieldEndingWith(properties, /address$/i);
+  if (address) facts.push({ label: "地址", value: address });
+  const distance = researchResultPopupDistance(properties.distanceM ?? properties.dist_m);
   if (distance) facts.push({ label: "距離", value: distance });
   if (properties.source_version) facts.push({ label: "版本", value: String(properties.source_version) });
   if (properties.boundary_version) facts.push({ label: "邊界版本", value: String(properties.boundary_version) });
