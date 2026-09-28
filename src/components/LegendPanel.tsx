@@ -1955,8 +1955,8 @@ function JpBuildingHeightLegend() {
     <div>
       <LegendTitle zh="建物高度" en="PLATEAU" />
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {JP_BUILDING_HEIGHT_BANDS.map((band) => <UrbanDotRow key={band.label} color={band.color} label={band.label} />)}
-        <UrbanDotRow color="#9e9e9e" label="高度未提供：中性 2D 平面" />
+        {JP_BUILDING_HEIGHT_BANDS.map((band) => <LegendRow key={band.label} swatch={<SwatchSquare color={band.color} />}>{band.label}</LegendRow>)}
+        <LegendRow swatch={<SwatchSquare color="#9e9e9e" />}>高度未提供：中性 2D 平面</LegendRow>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
         遠景：10km／1km／250m 網格的高度中位數；z13+：單棟建物輪廓。PLATEAU 各城市年度不同，詳見點擊資訊。
