@@ -652,6 +652,19 @@
 - **動態**：節點常駐，只切換 class：淡入 0.6 秒、淡出 0.9 秒；**不忙碌 1.5 秒後才熄**（`GLOW_LINGER_MS`），步驟之間短暫不忙碌時不會熄滅再亮起。不做無限循環的明暗閃動。`prefers-reduced-motion` 時不做過渡。
 - **實作**：`src/research/ResearchActivityCard.tsx`（`useLingeringFlag`）、`researchActivity.css`。
 
+### 5.32 地圖圖例（legendKit）
+
+2026-09-28 拍板（`design-system-map-layers.md` §4.2，LG-1–LG-12）。新圖例一律用 `src/components/legend/legendKit.tsx`，不再手寫色票尺寸。
+
+- **結構**：`LegendTitle`（標題）→ `LegendRow`（色票＋標籤）→ `LegendNote`（註記、方法、來源）。組間距 10、列間距 2–4、色票與文字間 6。
+- **標題**（LG-11）：`<LegendTitle zh="醫療據點" en="Medical" />`：中文 10px 600 `textStrong`，英文 9px `textDim`、不轉大寫，中文在前。不要再寫「MEDICAL 醫療據點」或「污染嚴重度 SEVERITY」。
+- **色票**：`SwatchDot` 10px 圓＋1px 底圖色描邊（LG-1）、`SwatchSquare` 12×10 圓角 2（LG-2，`outline` 為框線面）、`SwatchLine` 20px 線段含虛線（LG-4）、`SwatchSteps` 分級列＋分界數字（LG-3）、`SwatchGradient` 漸層條（LG-8）、`SwatchHatch` 缺值單向細斜線／遮蔽交叉斜線（LG-7）。
+- **主題**（LG-12）：文字色只用 `useLegendTheme()`（`DARK_LEGEND`／`LIGHT_LEGEND`，值取 `COLORS`／`LIGHT`），不直接用 `COLORS.*`。
+- **字型**（LG-10）：面板容器 `FONT_CJK`；數字、分界、單位用 `LegendNum`（`FONT_DATA`＋tabular-nums）。
+- **精簡版**（LG-9）：`LegendPanel` 的 `compact`（停靠 popup 開著時）會讓 `LegendNote` 不顯示；色階、分界、單位不可收。
+- **禁止**：手寫 `width／height` 色票（ratchet 只准減少）；英文大寫標題；在圖例裡用 `FONT_DATA` 包中文。
+- **實作**：`src/components/legend/legendKit.tsx`；地圖側缺值斜線 `src/map/mapStyleScale.ts` `hatchImageData()`，圖例與地圖同一組顏色。
+
 ## 6. 文案規則
 
 ### 6.1 標籤一律中文
@@ -803,7 +816,8 @@ PR 前逐項勾（貼進 PR 描述）：
 | P | 第二輪：說明／分享視窗 H2、分享欄位 `1fr auto`、共用滑桿 `controls/Slider` | ✅ | `1370a736`、`3f8b9741`、`8c7f9fd5` |
 | Q | 第二輪收尾：置中視窗／對話浮層／會員面板歸層、Agent 透明度滑桿與圖層滑桿收斂到 `controls/Slider`、guard `raw-z-index`、本文件與參考頁 | ✅ | `54728865`、`6c43deb2`＋本文件 commit |
 | R | 第二輪：時間軸 TC3（收合膠囊＋展開單列 TC1、底邊與右下停靠區共用 `LAYOUT.mapBottomInset`）、Agent 活動卡固定右上不受左側互斥影響（A1） | ✅ | `965deb17`、`8d52327c`＋本文件 commit |
-| S | 載入狀態條（§5.30，取代 `LoadingIndicator`）、Agent 處理中光暈平滑化（§5.31） | ✅ | 本 PR |
+| S | 載入狀態條（§5.30，取代 `LoadingIndicator`）、Agent 處理中光暈平滑化（§5.31） | ✅ | #390 |
+| R1 | 地圖圖層規格 R1：`mapStyleScale.ts`、統計細縫與缺值斜線、`legendKit`（§5.32）、圖例標題中文化、地圖中文字型 | ✅ | 本 PR |
 
 ### 10.2 區塊狀態
 
@@ -841,6 +855,8 @@ PR 前逐項勾（貼進 PR 描述）：
 | popup 暗色外框 | `rgba(100,170,255,0.25)` inline 字面，不在 `BORDER` 階上（`BORDER.accent` 為 0.55） | `FeatureInfoPanel.tsx` |
 | 淡色錯誤色 | tokens `--light-status-err #b42318` vs 設計稿 `#b91c1c` | 以 token 為準，設計稿未同步 |
 | 按鈕 pressed 態 | 未定義 | §5.7 |
+| 圖例手寫色票 | `LegendPanel.tsx` 仍有 90 處手寫 `width／height` 色票（8×8、9×9、14×10…），未走 `legendKit`；ratchet 只准減少 | `legendKit.test.ts` |
+| 圖例精簡版（LG-9） | 只有 `LegendNote` 會在停靠 popup 開著時收起；手寫註記 div 不會 | `LegendPanel.tsx` |
 
 ## 11. 未納入 token 的範圍與 KEEP OUT
 

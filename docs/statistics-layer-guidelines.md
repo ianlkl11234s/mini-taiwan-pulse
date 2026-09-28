@@ -14,7 +14,7 @@
 ## 2. 缺值、零值與資料狀態
 
 - observed 0 是真零，使用數值色階；null、來源「-」、not_reported、suppressed 不得補 0。
-- 缺值用灰色、遮蔽用斜線，圖例同時提供文字；不可反推遮蔽資料。
+- 缺值（null、未發布、not_reported）用**透明底＋單向 45° 細斜線**，遮蔽（suppressed）用**透明底＋交叉斜線**，兩者都不上色、不畫成 0；圖例同時提供文字（2026-09-28 地圖圖層規格 F-3 A，對齊 viz-library N1；見 `design-system-map-layers.md` §3.3）。不可反推遮蔽資料。recipe 的 `legend.missing_color` 已不用於地圖與圖例。
 - `PARTIAL`、`STALE`、分子／分母 coverage、未分配量和來源限定範圍必須保留。有值的地區先顯示，不等全臺完整。
 - 讀取失敗顯示錯誤及重試，不能改成「沒有資料」或宣稱全區為零。
 

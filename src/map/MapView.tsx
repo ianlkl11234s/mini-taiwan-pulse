@@ -30,6 +30,7 @@ import {
   ensureAgriPOILayers, updateAgriPOILayer,
 } from "./agricultureLayerFactory";
 import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
+import { MAP_LOCAL_IDEOGRAPH_FONT } from "./mapStyleScale";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -258,6 +259,8 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       pitch: presetRef.current.pitch,
       bearing: presetRef.current.bearing,
       antialias: true,
+      // T-1：中文字用系統字（與 UI 同 stack），不向伺服器要 glyph
+      localIdeographFontFamily: MAP_LOCAL_IDEOGRAPH_FONT,
     });
     const jpHeightLifecycle = createJpHeightLifecycle(map);
     jpHeightLifecycleRef.current = jpHeightLifecycle;
@@ -384,7 +387,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       onMapReadyRef.current?.(map);
     });
 
-    const detachStatistics = attachRegionalStatistics(map);
+    const detachStatistics = attachRegionalStatistics(map, () => isDarkThemeRef.current);
     return () => {
       detachStatistics();
       jpHeightLifecycle.dispose();

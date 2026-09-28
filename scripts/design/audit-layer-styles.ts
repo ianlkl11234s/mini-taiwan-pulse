@@ -460,11 +460,12 @@ const statsLine = (needle: string) => `${STATS_FILE}:${lineOf(statsText, statsTe
 const STATISTICS_PROFILE = {
   renderer: STATS_FILE,
   sublayers: [
-    { suffix: "fill", type: "fill", geometry: "polygon", values: { "fill-opacity": "= 透明度滑桿（預設 0.55）" }, colors: { "fill-color": { kind: "sequential-step", source: "statisticsRenderRecipe(key).colors／breaks；缺值 legend.missing_color ?? #64748b" } }, evidence: statsLine("'fill-opacity': 0.55") },
-    { suffix: "suppressed", type: "fill", geometry: "polygon", values: { "fill-pattern": "statistics-suppressed-hatch（8px 斜線，#334155）", "fill-opacity": "= 透明度滑桿" }, evidence: statsLine("'fill-pattern'") },
-    { suffix: "line", type: "line", geometry: "line", values: { "line-width": 0.8, "line-opacity": "= 透明度滑桿（與面同值，預設 0.55）" }, colors: { "line-color": { kind: "constant", source: "色階最深一格（recipe.colors 最後一色）" } }, evidence: statsLine("'line-width': 0.8") },
+    { suffix: "fill", type: "fill", geometry: "polygon", values: { "fill-opacity": "= 透明度滑桿（預設 0.55）" }, colors: { "fill-color": { kind: "sequential-step", source: "statisticsRenderRecipe(key).colors／breaks；無數值時透明（F-3 A）" } }, evidence: statsLine("'fill-opacity': 0.55") },
+    { suffix: "missing", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-missing-{dark|light}（8px 單向 45° 細斜線，暗白／淡黑 35%）", "fill-opacity": "= 透明度滑桿" }, evidence: statsLine("hatchImageId('missing'") },
+    { suffix: "suppressed", type: "fill", geometry: "polygon", values: { "fill-pattern": "map-hatch-suppressed-{dark|light}（8px 交叉斜線）", "fill-opacity": "= 透明度滑桿" }, evidence: statsLine("hatchImageId('suppressed'") },
+    { suffix: "line", type: "line", geometry: "line", values: { "line-width": 1, "line-opacity": "暗 0.6／淡 0.8（固定，不綁滑桿）" }, colors: { "line-color": { kind: "constant", source: "底圖色細縫 MAP_SEAM（暗 #0a0a14／淡 #ffffff）" } }, evidence: statsLine("gradedSeamPaint(isDark)") },
   ],
-  themeDiff: "無（暗／淡同值）",
+  themeDiff: "細縫顏色與透明度、斜線顏色隨底圖切換（F-2／F-3）",
 };
 
 const OPACITY_TEST = "src/data/__tests__/layerUxPolicy.test.ts（hasOpacityControl／hasPointSizeControl）";
@@ -562,6 +563,12 @@ function featuresFromSource(src: string): LegendFeatures {
   f.svg = (src.match(/<svg/g) ?? []).length;
   f.square = (src.match(/width:\s*1[0-4],\s*height:\s*(?:[89]|1[0-4])/g) ?? []).length;
   f.sizeSeries = /CAPACITY_RADIUS|radius\s*\*\s*2|size\s*\*\s*2|r\s*\*\s*2/.test(src);
+  // legendKit 元件（R1 起）：原始碼只看得到元件名，不是 inline 尺寸
+  f.dot += (src.match(/<SwatchDot\b/g) ?? []).length;
+  f.square += (src.match(/<SwatchSquare\b|<SwatchSteps\b/g) ?? []).length;
+  f.line += (src.match(/<SwatchLine\b/g) ?? []).length;
+  f.gradient += (src.match(/<SwatchGradient\b/g) ?? []).length;
+  f.hatch += (src.match(/<SwatchHatch\b/g) ?? []).length;
   for (const m of src.matchAll(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g)) { const n = normColor(m[0]); if (n) f.swatchColors.push(n); }
   f.swatchColors = [...new Set(f.swatchColors)].sort();
   return f;
