@@ -4202,12 +4202,7 @@
         }
       ],
       "pmtiles": null,
-      "rebuildOnParamChange": [
-        "metro-pt-range",
-        "metro-pt-glow-2",
-        "metro-pt-glow-1",
-        "metro-pt-fill"
-      ],
+      "rebuildOnParamChange": null,
       "sourceId": "station-points",
       "sourceUrl": "./geo/station_points.geojson"
     },

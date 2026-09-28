@@ -1128,7 +1128,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
-    rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    // 不用 rebuildOnParamChange：rebuild 會把「原本有一層隱藏」當成整組隱藏，
+    // 顯示模式切到「實際範圍」時 metro-pt-* 會被藏回去。半徑、透明度都能走 paint diff。
     layers: [
       // Mapbox 點位：所有縮放都有點（原本 maxzoom 10，放大後點會消失）
       ...hubPointLayers(
