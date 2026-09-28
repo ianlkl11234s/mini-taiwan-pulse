@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, clockTime, fmtCountdown } from "./intelTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { BORDER, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import type { SourceHealthSummary, SourceStatus } from "../../data/intelLoaders";
 
 interface Props {
@@ -37,52 +37,52 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
 
   return (
     <>
-      {/* ── header row ── */}
+      {/* ── header row（H2：eyebrow 在標題上方；LIVE 小膠囊；底線用 canonical border） ── */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: 9,
-          padding: "13px 14px 11px",
-          borderBottom: `1px solid ${COLORS.panelBorder}`,
+          padding: "10px 14px",
+          borderBottom: `1px solid ${BORDER.panel}`,
           flexShrink: 0,
         }}
       >
         <IntelIcon d={ICON.radio} size={17} color={COLORS.accent} />
         <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span style={{ fontFamily: FONT_CJK, fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>
-            即時情報
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, letterSpacing: "1.4px", color: COLORS.textDim }}>
+            情報
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim }}>
-            INTEL
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong, marginTop: 1, display: "flex", alignItems: "center", gap: 8 }}>
+            即時情報
+            {showFeedStatus && (
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "2px 6px",
+                  borderRadius: RADIUS.pill,
+                  border: `1px solid ${COLORS.statusLiveBorder}`,
+                }}
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: RADIUS.full,
+                    background: COLORS.statusLive,
+                    boxShadow: `0 0 6px ${COLORS.statusLive}`,
+                    animation: "intelRing 1.6s ease-in-out infinite",
+                  }}
+                />
+                <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 600, letterSpacing: "0.6px", color: COLORS.statusLive }}>
+                  LIVE
+                </span>
+              </span>
+            )}
           </span>
         </div>
-        {showFeedStatus && <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 5,
-            marginLeft: 6,
-            padding: "2px 8px",
-            borderRadius: RADIUS.md,
-            background: COLORS.statusLiveSoft,
-            border: `1px solid ${COLORS.statusLiveBorder}`,
-          }}
-        >
-          <span
-            style={{
-              width: 6,
-              height: 6,
-              borderRadius: RADIUS.full,
-              background: COLORS.statusLive,
-              boxShadow: `0 0 6px ${COLORS.statusLive}`,
-              animation: "intelRing 1.6s ease-in-out infinite",
-            }}
-          />
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: COLORS.statusLive }}>
-            LIVE
-          </span>
-        </span>}
         <div style={{ flex: 1 }} />
         <button
           onClick={onClose}
@@ -104,7 +104,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         </button>
       </div>
 
-      {/* ── status row ── */}
+      {/* ── status row（整列 CJK；時間／數字另包 FONT_DATA + tabular-nums） ── */}
       {showFeedStatus && <div
         style={{
           flexShrink: 0,
@@ -114,13 +114,17 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           alignItems: "center",
           gap: 10,
           whiteSpace: "nowrap",
-          fontFamily: FONT_DATA,
+          fontFamily: FONT_CJK,
           fontSize: FONT_SIZE.sm,
         }}
       >
-        <span style={{ color: COLORS.textMuted }}>更新 {clockTime(lastUpdateTs)}</span>
+        <span style={{ color: COLORS.textMuted }}>
+          更新 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{clockTime(lastUpdateTs)}</span>
+        </span>
         <span style={{ color: COLORS.textFaint }}>·</span>
-        <span style={{ color: COLORS.textDefault }}>共 {totalCount} 則</span>
+        <span style={{ color: COLORS.textDefault }}>
+          共 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{totalCount}</span> 則
+        </span>
         <button
           onClick={() => setShowHealth((v) => !v)}
           style={{
@@ -133,7 +137,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             background: "rgba(255,255,255,0.04)",
             border: `1px solid ${COLORS.borderSoft}`,
             cursor: "pointer",
-            fontFamily: FONT_DATA,
+            fontFamily: FONT_CJK,
             fontSize: 9.5,
             color: degraded ? COLORS.statusWarn : COLORS.statusLive,
           }}
@@ -146,11 +150,12 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
               background: degraded ? COLORS.statusWarn : COLORS.statusLive,
             }}
           />
-          來源 {okCount}/{total}
+          來源 <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{okCount}/{total}</span>
           <IntelIcon d={showHealth ? ICON.chevDown : ICON.chevRight} size={10} color={COLORS.textDim} />
         </button>
         <span style={{ display: "flex", alignItems: "center", gap: 4, color: COLORS.textDim }}>
-          <IntelIcon d={ICON.refresh} size={11} color={COLORS.textDim} /> {fmtCountdown(countdownSec)}
+          <IntelIcon d={ICON.refresh} size={11} color={COLORS.textDim} />
+          <span style={{ fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" }}>{fmtCountdown(countdownSec)}</span>
         </span>
       </div>}
 
@@ -168,14 +173,13 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
         >
           <div
             style={{
-              fontFamily: FONT_DATA,
+              fontFamily: FONT_CJK,
               fontSize: FONT_SIZE.xs,
-              letterSpacing: "1.5px",
               color: COLORS.textFaint,
               marginBottom: 6,
             }}
           >
-            來源管線 PIPELINE · RSS×{total} → Gemini 地理編碼
+            來源管線 · <span style={{ fontFamily: FONT_DATA }}>RSS×{total}</span> → <span style={{ fontFamily: FONT_DATA }}>Gemini</span> 地理編碼
           </div>
           {total === 0 ? (
             <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>

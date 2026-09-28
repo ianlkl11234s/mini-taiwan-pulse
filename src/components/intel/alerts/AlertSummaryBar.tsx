@@ -88,14 +88,14 @@ export function AlertSummaryBar({
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
               padding: "1px 7px", borderRadius: RADIUS.md,
-              background: "rgba(239,68,68,0.18)",
-              border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
+              background: "transparent",
+              border: "1px solid rgba(239,68,68,0.5)",
+              fontFamily: FONT_CJK, fontSize: 9.5, fontWeight: 700,
               color: "#ef4444",
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
           >
-            含 {severe} 則嚴重
+            含 <span style={{ fontFamily: FONT_DATA }}>{severe}</span> 則嚴重
           </span>
         )}
         {!expanded && (

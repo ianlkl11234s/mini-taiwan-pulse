@@ -1,5 +1,5 @@
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_DATA, clockTime } from "./intelTokens";
+import { COLORS, FONT_CJK, FONT_DATA, clockTime } from "./intelTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 
 interface Props {
@@ -33,18 +33,18 @@ export function IntelReplay({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
-          回放 REPLAY
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          回放
         </span>
         <span
           style={{
-            fontFamily: FONT_DATA,
+            fontFamily: isLive ? FONT_CJK : FONT_DATA,
             fontSize: 10.5,
             fontWeight: 700,
             color: isLive ? COLORS.statusLive : COLORS.statusWarn,
           }}
         >
-          {isLive ? "即時 NOW" : clockTime(playbackTs)}
+          {isLive ? "即時" : clockTime(playbackTs)}
         </span>
         <div style={{ flex: 1 }} />
         <button

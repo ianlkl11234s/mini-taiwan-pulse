@@ -1,7 +1,10 @@
 import type { CSSProperties } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS, relTime, clockTime } from "./intelTokens";
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import {
+  COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS,
+  relTime, clockTime, chipTint, chipOutline, splitRelTimeParts,
+} from "./intelTokens";
+import { RADIUS, FONT_SIZE, SURFACE } from "../../styles/designTokens";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { useWallClock } from "../../hooks/useWallClock";
@@ -41,16 +44,13 @@ interface Props {
   nowTs: number;
 }
 
-/** 中性 chip（「聲明」／國際事件的研判來源標籤共用） */
+/** 中性 chip 版型（「聲明」／國際事件的研判來源標籤共用；色彩交給 chipOutline(COLORS.textDim)） */
 const chipGhost: CSSProperties = {
   fontFamily: FONT_CJK,
   fontSize: 9.5,
-  color: COLORS.textDim,
   whiteSpace: "nowrap",
   padding: "1px 6px",
   borderRadius: RADIUS.md,
-  background: "rgba(255,255,255,0.04)",
-  border: `1px solid ${COLORS.borderSoft}`,
 };
 
 const btnGhost: CSSProperties = {
@@ -91,19 +91,20 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
 
   return (
     <div style={{ position: "relative", paddingLeft: 26 }}>
-      {/* spine dot */}
+      {/* spine dot — 7px ＋ 2px 面板色外圈（與時間軸直線同語彙） */}
       <span
         style={{
           position: "absolute",
-          left: 7,
-          top: 14,
-          width: 11,
-          height: 11,
+          left: 9,
+          top: 16,
+          width: 7,
+          height: 7,
           borderRadius: RADIUS.full,
           background: cat.color,
-          border: "2px solid #0a0a14",
           zIndex: 1,
-          boxShadow: selected ? `0 0 0 3px ${cat.color}55` : "none",
+          boxShadow: selected
+            ? `0 0 0 2px ${SURFACE.app}, 0 0 0 5px ${cat.color}55`
+            : `0 0 0 2px ${SURFACE.app}`,
         }}
       />
       <div
@@ -127,12 +128,11 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               padding: "1px 7px",
               whiteSpace: "nowrap",
               borderRadius: RADIUS.md,
-              background: `${cat.color}22`,
-              border: `1px solid ${cat.color}66`,
+              ...chipTint(cat.color),
             }}
           >
             <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: cat.color }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: cat.color, fontWeight: 600 }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: 600 }}>
               {cat.label}
             </span>
           </span>
@@ -144,12 +144,10 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gap: 3,
                 fontFamily: FONT_CJK,
                 fontSize: 9.5,
-                color: COLORS.cluster,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                background: `${COLORS.cluster}1f`,
-                border: `1px solid ${COLORS.cluster}66`,
+                ...chipOutline(COLORS.cluster),
               }}
             >
               國際
@@ -163,12 +161,10 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gap: 3,
                 fontFamily: FONT_CJK,
                 fontSize: 9.5,
-                color: COLORS.surge,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                background: "rgba(255,152,0,0.14)",
-                border: "1px solid rgba(255,152,0,0.4)",
+                ...chipOutline(COLORS.surge),
               }}
             >
               🔥 升溫
@@ -179,29 +175,29 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               style={{
                 fontFamily: FONT_CJK,
                 fontSize: 9.5,
-                color: COLORS.statusWarn,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
                 borderRadius: RADIUS.md,
-                background: "rgba(255,152,0,0.12)",
-                border: "1px solid rgba(255,152,0,0.35)",
+                ...chipOutline(COLORS.statusWarn),
               }}
             >
               重大
             </span>
           )}
-          {e.is_event === false && <span style={chipGhost}>聲明</span>}
-          {e.origin_label && <span style={chipGhost}>{e.origin_label}</span>}
+          {e.is_event === false && <span style={{ ...chipGhost, ...chipOutline(COLORS.textDim) }}>聲明</span>}
+          {e.origin_label && <span style={{ ...chipGhost, ...chipOutline(COLORS.textDim) }}>{e.origin_label}</span>}
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 6 }}>
             <span
               style={{
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 fontSize: 10.5,
                 color: COLORS.textMuted,
                 whiteSpace: "nowrap",
               }}
             >
-              {relTime(e.published_ts, liveNow)}
+              {splitRelTimeParts(relTime(e.published_ts, liveNow)).map((p, i) =>
+                p.mono ? <span key={i} style={{ fontFamily: FONT_DATA }}>{p.text}</span> : <span key={i}>{p.text}</span>,
+              )}
             </span>
           </span>
         </div>
@@ -221,7 +217,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           {e.title}
         </div>
 
-        {/* location + clock */}
+        {/* location + clock — 地名 CJK，時鐘 mono */}
         {e.location_name && (
           <div
             style={{
@@ -230,7 +226,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               gap: 6,
               marginBottom: 5,
               whiteSpace: "nowrap",
-              fontFamily: FONT_DATA,
+              fontFamily: FONT_CJK,
               fontSize: FONT_SIZE.sm,
               color: COLORS.textDim,
             }}
@@ -245,7 +241,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               ◎ {e.location_name}
             </span>
             <span>·</span>
-            <span>{clockTime(e.published_ts)}</span>
+            <span style={{ fontFamily: FONT_DATA }}>{clockTime(e.published_ts)}</span>
           </div>
         )}
 
@@ -324,13 +320,13 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               gap: 8,
             }}
           >
-            {/* meta grid */}
+            {/* meta grid — 標籤與敘述用 CJK，數字級距另包 FONT_DATA */}
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "auto 1fr",
                 gap: "3px 10px",
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 fontSize: FONT_SIZE.sm,
               }}
             >
@@ -346,7 +342,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               {e.confidence != null && (
                 <>
                   <span style={{ color: COLORS.textFaint }}>信心度</span>
-                  <span style={{ color: COLORS.textDefault }}>
+                  <span style={{ color: COLORS.textDefault, fontFamily: FONT_DATA }}>
                     {Math.round(e.confidence * 100)}%
                   </span>
                 </>
@@ -355,7 +351,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 <>
                   <span style={{ color: COLORS.textFaint }}>地理相關</span>
                   <span style={{ color: gisLevel.color }}>
-                    lv{e.gis_relevance} · {gisLevel.label}
+                    <span style={{ fontFamily: FONT_DATA }}>lv{e.gis_relevance}</span> · {gisLevel.label}
                   </span>
                 </>
               )}
@@ -363,7 +359,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 <>
                   <span style={{ color: COLORS.textFaint }}>嚴重程度</span>
                   <span style={{ color: sevLevel.color }}>
-                    lv{e.severity} · {sevLevel.label}
+                    <span style={{ fontFamily: FONT_DATA }}>lv{e.severity}</span> · {sevLevel.label}
                   </span>
                 </>
               )}
@@ -388,9 +384,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                     padding: "5px 10px",
                     borderRadius: RADIUS.md,
                     whiteSpace: "nowrap",
-                    background: `${cat.color}22`,
-                    border: `1px solid ${cat.color}55`,
-                    color: cat.color,
+                    ...chipTint(cat.color),
                     fontFamily: FONT_CJK,
                     fontSize: 10.5,
                     fontWeight: 600,

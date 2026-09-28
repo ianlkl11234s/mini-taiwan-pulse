@@ -2,7 +2,7 @@ import { useMonitorResource } from "../../hooks/useMonitorResource";
 import { MonitorDataStatus } from "./monitor/MonitorDataStatus";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
-import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { CONTROL, ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
@@ -527,31 +527,40 @@ export function IntelPanel({
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-              color: COLORS.textFaint, marginRight: 4,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+              color: COLORS.textDim, marginRight: 4,
             }}
           >
-            SEVERITY ≥
+            嚴重度 ≥
           </span>
-          {([1, 2, 3, 4] as const).map((lv) => {
-            const labels = ["留意", "警戒", "嚴重", "緊急"];
-            const active = severityMin === lv;
-            return (
-              <button
-                key={lv}
-                onClick={() => setSeverityMin(lv)}
-                style={{
-                  padding: "3px 9px", borderRadius: RADIUS.md,
-                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
-                  color: active ? COLORS.accent : COLORS.textMuted,
-                  fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
-                }}
-              >
-                {labels[lv - 1]}
-              </button>
-            );
-          })}
+          <div
+            style={{
+              display: "flex", height: 22, padding: 2, gap: 2,
+              borderRadius: RADIUS.lg,
+              border: `1px solid ${CONTROL.border}`,
+              background: CONTROL.bg,
+            }}
+          >
+            {([1, 2, 3, 4] as const).map((lv) => {
+              const labels = ["留意", "警戒", "嚴重", "緊急"];
+              const active = severityMin === lv;
+              return (
+                <button
+                  key={lv}
+                  onClick={() => setSeverityMin(lv)}
+                  style={{
+                    padding: "0 9px", borderRadius: RADIUS.md, border: "none",
+                    background: active ? COLORS.accentFaint : "transparent",
+                    color: active ? COLORS.accent : COLORS.textMuted,
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, fontWeight: active ? 600 : 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {labels[lv - 1]}
+                </button>
+              );
+            })}
+          </div>
           {pickedGroups.length > 0 && (
             <>
               <div style={{ flex: 1 }} />
@@ -580,31 +589,39 @@ export function IntelPanel({
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-              color: COLORS.textFaint, marginRight: 4,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+              color: COLORS.textDim, marginRight: 4,
             }}
           >
-            RANGE
+            時間範圍
           </span>
-          {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
-            const active = timeRange === r;
-            return (
-              <button
-                key={r}
-                onClick={() => setTimeRange(r)}
-                style={{
-                  padding: "3px 10px", borderRadius: RADIUS.md,
-                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
-                  color: active ? COLORS.accent : COLORS.textMuted,
-                  fontFamily: FONT_DATA, fontSize: 10.5, fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                {r.toUpperCase()}
-              </button>
-            );
-          })}
+          <div
+            style={{
+              display: "flex", height: 22, padding: 2, gap: 2,
+              borderRadius: RADIUS.lg,
+              border: `1px solid ${CONTROL.border}`,
+              background: CONTROL.bg,
+            }}
+          >
+            {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
+              const active = timeRange === r;
+              return (
+                <button
+                  key={r}
+                  onClick={() => setTimeRange(r)}
+                  style={{
+                    padding: "0 8px", borderRadius: RADIUS.md, border: "none",
+                    background: active ? COLORS.accentFaint : "transparent",
+                    color: active ? COLORS.accent : COLORS.textMuted,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
+                    cursor: "pointer",
+                  }}
+                >
+                  {r.toUpperCase()}
+                </button>
+              );
+            })}
+          </div>
           {isGlobalEventsTab && (
             <>
               <div style={{ flex: 1 }} />
@@ -692,8 +709,7 @@ export function IntelPanel({
                   <span
                     style={{
                       position: "absolute", left: 12, top: 6, bottom: 6,
-                      width: 1.5,
-                      background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                      borderLeft: `1px solid ${COLORS.borderMid}`,
                     }}
                   />
                   {alertRows.map((a) => (
@@ -803,8 +819,7 @@ export function IntelPanel({
                 <span
                   style={{
                     position: "absolute", left: 12, top: 6, bottom: 6,
-                    width: 1.5,
-                    background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                    borderLeft: `1px solid ${COLORS.borderMid}`,
                   }}
                 />
                 {merged.map((row) =>
@@ -863,8 +878,7 @@ export function IntelPanel({
                 left: 12,
                 top: 6,
                 bottom: 6,
-                width: 1.5,
-                background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                borderLeft: `1px solid ${COLORS.borderMid}`,
               }}
             />
             {flatEvents.map((e) => (
