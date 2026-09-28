@@ -30,6 +30,9 @@
 
 ## R1 基礎：共用數值、統計圖層、圖例面板、地圖字型
 
+> **狀態（2026-09-28）**：完成，PR 見下方「R1 實際結果」。
+
+
 | 代號 | 改什麼 | 檔案 |
 |---|---|---|
 | — | 新增 `mapStyleScale.ts`：`POINT_RADIUS` S 3／M 4.5／L 6.5、點描邊（暗 `#0a0a14` 0.8／淡 `#ffffff` 0.9、1px）、點密度透明度 0.85／0.8／0.75／0.6、線寬三階（z10／z14 插值）、線透明度 0.85／0.6／0.4（下限 0.3）、面透明度 0.55／0.35／0.15／0.7、虛線 `[2,2]`／`[4,3]`、熱區參數、標籤字級與 halo | 新檔 |
@@ -43,6 +46,14 @@
 | T-1 | 地圖初始化加 `localIdeographFontFamily`（與 `--font-cjk` 同一組字） | `MapView.tsx:253`、`bbox/BboxSelectorApp.tsx:159` |
 
 影響：320 個統計圖層與全部圖例的外觀一次改變。風險：`LegendPanel.tsx` 很大，只抽共用元件、不改各圖例的資料邏輯。
+
+### R1 實際結果
+
+- **F-3 語意**：缺值與遮蔽改完會長得一樣，所以遮蔽改用**交叉斜線**、缺值用單向細斜線（待使用者確認）；`statistics-layer-guidelines.md` §2 已同步。
+- **LG-11**：實際轉換 **163** 個標題（原盤點寫 37，只算了英文在前的；另有 82 個「中文＋英文大寫」、17 個含程式變數）。純英文標題（例：`SOIL FERTILITY`、`PLA ACTIVITY`）補上中文；類別前綴（`ENERGY ·`、`HAZARD ·`、`MOVE ·`）拿掉；錯字 `PUMB` 改 `Pump`。
+- **LG-1–8**：新增 `src/components/legend/legendKit.tsx`；共用 helper（`FireCatRows`、`UrbanDotRow`、`Swatch`、`Noise*`、`ClimateGradientBar`）已改用 kit。其餘圖例內**手寫色票尺寸 90 處**未逐一改，用 ratchet 測試（`legendKit.test.ts`）只准減少，之後逐層調整時順手換。
+- **LG-9**：`LegendPanel` 接 `compact`，停靠 popup 開著時 `LegendNote` 收起。**只有用 `LegendNote` 的註記會收**；多數圖例的註記仍是手寫 div，逐層改時換成 `LegendNote` 才會生效。
+- **LG-10**：面板容器改 `FONT_CJK`；手寫的數字節點未逐一改成 `FONT_DATA`（新圖例用 `LegendNum`）。
 
 ## R2 點圖層
 
