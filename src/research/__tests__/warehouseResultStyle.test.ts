@@ -8,9 +8,9 @@ import type { PresentableResult } from "../researchAnalysisSession";
 import { researchResultPopupFacts } from "../researchResultPopup";
 import { loadWarehouseResult, validateWarehouseImportArgs } from "../warehouseResultImport";
 import {
-  validateWarehouseResultStyle, warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  classifyStepColor, validateWarehouseResultStyle, warehouseFillNullFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseProportionalColor, warehouseProportionalLabelFilter, warehouseProportionalSizeFilter, warehouseProportionalSortKey,
-  warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle,
+  warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend, type WarehouseResultStyle,
 } from "../warehouseResultStyle";
 import { WarehouseStyleLegendView } from "../WarehouseStyleLegend";
 import { WarehouseCompareTableView } from "../WarehouseCompareTable";
@@ -60,6 +60,23 @@ const proportionalMono = {
 const choroplethWithUnit = { ...choropleth, unit: "人/km²" } as const satisfies WarehouseResultStyle;
 const bivariateWithUnit = { ...bivariateV3, xUnit: "元", yUnit: "站/km²" } as const satisfies WarehouseResultStyle;
 const proportionalWithTitles = { ...proportional, sizeTitle: "人口數", sizeUnit: "人", colorTitle: "人口密度", colorUnit: "人/km²" } as const satisfies WarehouseResultStyle;
+const gridFixture = {
+  kind: "grid", method: "h3", resolution: 8, cellMeters: null, weightField: null,
+  valueProperty: "_style_value", countProperty: "_grid_count", weightProperty: null, idProperty: "_grid_id",
+  title: "格點密度", unit: "件", valueKind: "count",
+  ramp: "viridis", palette: { dark: ["#31688e", "#21918c", "#35b779"], light: ["#35b779", "#1f9e89", "#26828e"] },
+  breaks: [10, 20], labels: ["< 10", "10 – < 20", "≥ 20"], min: 0, max: 40,
+  cellCount: 3, pointCount: 12, weightMissingCount: 0, gapPx: 1,
+  nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0,
+} as const satisfies WarehouseResultStyle;
+const extrusionFixture = {
+  kind: "extrusion", field: "height_m", valueProperty: "_style_value", method: "quantile", scheme: "sequential", label: "建物高度",
+  breaks: [10, 20], colors: ["#eff3ff", "#6baed6", "#08519c"], labels: ["< 10", "10 – < 20", "≥ 20"], min: 0, max: 40,
+  valueKind: "count", unit: "m",
+  ramp: "viridis", palette: { dark: ["#eff3ff", "#6baed6", "#08519c"], light: ["#f0f0f0", "#a1c9e6", "#1858a8"] },
+  nullStyle: "hatch", nullColor: "#bdbdbd", nullCount: 0,
+  heightField: "height_m", heightProperty: "_extrusion_height", maxHeightM: 60, heightMax: 300,
+} as const satisfies WarehouseResultStyle;
 // The pre-V3 shape (9-colour categorical grid on `_bi_class`); must now be rejected, not rendered.
 const OLD_BIVARIATE_FORMAT = { kind: "bivariate", xField: "price", yField: "stops", xLabel: "房價", yLabel: "公車站密度", classProperty: "_bi_class", xBreaks: [50, 70], yBreaks: [3, 8], classes: ["1-1", "2-1", "3-1", "1-2", "2-2", "3-2", "1-3", "2-3", "3-3"], colors: ["#e8e8e8", "#e4acac", "#c85a5a", "#b0d5df", "#ad9ea5", "#985356", "#64acbe", "#627f8c", "#574249"], nullColor: "#bdbdbd", nullCount: 1 };
 const clone = <T,>(value: T): T => structuredClone(value) as T;
@@ -315,6 +332,26 @@ describe("warehouse result style contract", () => {
     // 有單位時標題不重複加括號：「填色：X（單位） · 大小：Y（單位）」
     const bivariateUnitHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(bivariateWithUnit, "dark") }));
     expect(bivariateUnitHtml).toContain("填色：房價（元） · 大小：公車站密度（站/km²）");
+  });
+});
+
+describe("P1 rank-bar classification (docs/features/viz-library/DECISIONS.md §6)", () => {
+  it("classifies a value into the same step colour a map step expression would use for it", () => {
+    expect(classifyStepColor(35, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[0]);
+    expect(classifyStepColor(40, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[1]); // >= a threshold moves up a class
+    expect(classifyStepColor(200, choropleth.breaks, choropleth.colors)).toBe(choropleth.colors[4]); // past the last threshold
+  });
+
+  it("reads choropleth/grid/extrusion's own title/unit/valueKind, and bivariate's x-side (its fill classification, not the size y-side)", () => {
+    expect(warehouseRankBarStyle(choroplethWithUnit, "dark")).toMatchObject({ title: "房價中位數", unit: "人/km²", valueKind: undefined, breaks: choropleth.breaks });
+    expect(warehouseRankBarStyle(bivariateWithUnit, "dark")).toMatchObject({ title: "房價", unit: "元", valueKind: "count" });
+    expect(warehouseRankBarStyle(gridFixture, "dark")).toMatchObject({ title: "格點密度", unit: "件", valueKind: "count" });
+    expect(warehouseRankBarStyle(extrusionFixture, "dark")).toMatchObject({ title: "建物高度", unit: "m", valueKind: "count" });
+  });
+
+  it("picks the theme-matched palette side when the style carries one, else falls back to the flat stage-A colors array", () => {
+    expect(warehouseRankBarStyle(choroplethHatch, "light").colors).toEqual(choroplethHatch.palette.light);
+    expect(warehouseRankBarStyle(choropleth, "dark").colors).toEqual(choropleth.colors);
   });
 });
 

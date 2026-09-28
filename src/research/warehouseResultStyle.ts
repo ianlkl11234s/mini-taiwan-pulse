@@ -391,6 +391,31 @@ export function warehouseFillNullFilter(style: Extract<WarehouseResultStyle, { k
   return ["!=", ["typeof", ["get", style.valueProperty]], "number"] as unknown as ExpressionSpecification;
 }
 
+/** Choropleth/bivariate/grid/extrusion all classify one row's own numeric value into the same
+ *  ascending-`breaks` colour classes (spec P1, docs/features/viz-library/DECISIONS.md §6: "長條色＝
+ *  該區地圖級距色"); bivariate uses its x-side (the fill classification — the y-side is the separate
+ *  bubble size, not a rankable magnitude on its own). */
+export type WarehouseRankBarStyle = Extract<WarehouseResultStyle, { kind: "choropleth" | "bivariate" | "grid" | "extrusion" }>;
+
+/** Runtime (non-Mapbox-expression) equivalent of `stepColorExpression`'s `step` semantics: the first
+ *  class whose threshold the value has not yet reached, i.e. `colors[count of breaks <= value]`. Used
+ *  by RankBars item building, which needs a plain colour string per row, not a paint expression. */
+export function classifyStepColor(value: number, breaks: readonly number[], colors: readonly string[]): string {
+  let index = 0;
+  for (const threshold of breaks) { if (value >= threshold) index += 1; else break; }
+  return colors[index] ?? colors[colors.length - 1]!;
+}
+
+/** Per-kind breaks/colours/title/unit/valueKind for a style's own classified value (`_style_value`
+ *  for all four kinds). `valueKind` stays optional for a stage-A choropleth that omitted it — the
+ *  caller falls back to `classifyVizNumberKind` per value, same as `show()` above. */
+export function warehouseRankBarStyle(style: WarehouseRankBarStyle, theme: Theme): { breaks: readonly number[]; colors: readonly string[]; title: string; unit: string | null; valueKind: VizNumberKind | undefined } {
+  if (style.kind === "choropleth") return { breaks: style.breaks, colors: resolvePalette(style, theme), title: style.label, unit: style.unit ?? null, valueKind: style.valueKind };
+  if (style.kind === "bivariate") return { breaks: style.breaks, colors: style.palette[theme], title: style.xLabel, unit: style.xUnit ?? null, valueKind: style.xValueKind };
+  if (style.kind === "grid") return { breaks: style.breaks, colors: style.palette[theme], title: style.title, unit: style.unit, valueKind: style.valueKind };
+  return { breaks: style.breaks, colors: style.palette[theme], title: style.label, unit: style.unit, valueKind: style.valueKind }; // extrusion
+}
+
 /** Shared `step` colour scale over ascending `breaks`, reading `valueProperty`; a single-class style
  *  (no breaks) is just its one colour. Used by choropleth/grid/extrusion (their step-classified fill)
  *  and flow (its line colour) — all four classify a `_style_value`/`valueField` the same way. */

@@ -7,12 +7,14 @@ import type { AnalysisStackKind } from "./analysisResultStack";
 import { VIZ_SPEC, bivariateSizeStrokeFor, type Theme } from "./vizSpec";
 import { ensureNullHatchImage } from "./vizNullPattern";
 import { SELECTION_RING } from "../styles/designTokens";
-import { TITLE_KEYS } from "./researchResultPopup";
+import { TITLE_KEYS, researchResultPopupTitle } from "./researchResultPopup";
+import { classifyVizNumberKind, type VizNumberKind } from "./vizFormat";
+import type { RankBarItem } from "./charts/RankBars";
 import {
-  warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
+  classifyStepColor, warehouseExtrusionHeightFilter, warehouseFillNullFilter, warehouseFlowWidthFilter, warehouseHeatmapFilter, warehouseHeatmapPaint,
   warehouseIsochroneSortKey, warehouseProportionalColor, warehouseProportionalLabelFilter,
-  warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
-  type WarehouseResultStyle, type WarehouseStyleLegend,
+  warehouseProportionalSizeFilter, warehouseProportionalSortKey, warehouseRankBarStyle, warehouseStyleColor, warehouseStyleFact, warehouseStyleLegend,
+  type WarehouseRankBarStyle, type WarehouseResultStyle, type WarehouseStyleLegend,
 } from "./warehouseResultStyle";
 
 const MAX_RESULTS = RESULT_COLLECTION_LIMITS.maxLogicalResults;
@@ -197,6 +199,10 @@ export type AnalysisResultPresentation = {
   styleLegend?: WarehouseStyleLegend;
   /** Server-computed field x point comparison table; rendered as a table, never a colour legend. */
   compareTable?: Extract<WarehouseResultStyle, { kind: "compare" }>;
+  /** P1 rank-bar data (spec docs/features/viz-library/DECISIONS.md §6) for a choropleth/bivariate/
+   *  grid/extrusion-styled result: each row's own classified value and its exact map fill colour.
+   *  Absent when the style is not one of those four kinds, or no row has a usable numeric value. */
+  rankBars?: { title: string; unit: string | null; valueKind: VizNumberKind; items: RankBarItem[] };
 };
 
 /** User-selected opacity is owned by resultId so hidden or reordered results retain it. */
@@ -402,6 +408,27 @@ function styleSwatchColor(style: Exclude<WarehouseResultStyle, { kind: "compare"
   return colors[colors.length - 1]!;
 }
 
+/** P1 rank-bar items for a choropleth/bivariate/grid/extrusion-styled result: each row's own
+ *  classified value, coloured exactly like the map's own fill (spec: "長條色＝該區地圖級距色"). A row
+ *  with no usable numeric value is skipped — RankBars only ranks values it actually has, never a
+ *  fabricated 0. Returns undefined when nothing is rankable (e.g. every row is null). */
+function warehouseRankBars(style: WarehouseRankBarStyle, rows: readonly Record<string, unknown>[], theme: Theme): AnalysisResultPresentation["rankBars"] {
+  const spec = warehouseRankBarStyle(style, theme);
+  const items: RankBarItem[] = [];
+  rows.forEach((row, rowIndex) => {
+    const raw = row[style.valueProperty];
+    if (typeof raw !== "number" || !Number.isFinite(raw)) return;
+    items.push({ id: String(rowIndex), label: researchResultPopupTitle(row), value: raw, color: classifyStepColor(raw, spec.breaks, spec.colors) });
+  });
+  if (!items.length) return undefined;
+  // Stage-A choropleth may omit its own valueKind; fall back to the conservative unit/shape guess
+  // used everywhere else in this style layer (warehouseStyleFact's `show()`).
+  // items[0]'s value is always a number by construction (only pushed after the typeof/Number.isFinite
+  // check above); the `?? 0` is purely to satisfy RankBarItem's wider (nullable) value type.
+  const valueKind = spec.valueKind ?? classifyVizNumberKind(items[0]!.value ?? 0, spec.unit);
+  return { title: spec.title, unit: spec.unit, valueKind, items };
+}
+
 function presentation(result: PresentableResult, featureCount: number, theme: Theme, index?: number): AnalysisResultPresentation {
   const countLegend = result.presentation && result.geometry.type === "Point" ? {
     label: result.presentation.label,
@@ -415,11 +442,14 @@ function presentation(result: PresentableResult, featureCount: number, theme: Th
   const numericLegend = numericResultLegend(result);
   const style = result.resultStyle;
   const styleSwatch = style && style.kind !== "compare" ? styleSwatchColor(style, theme) : undefined;
+  const rankBarKind = style && (style.kind === "choropleth" || style.kind === "bivariate" || style.kind === "grid" || style.kind === "extrusion");
+  const rankBars = rankBarKind ? warehouseRankBars(style as WarehouseRankBarStyle, result.rows, theme) : undefined;
   return {
     resultId: result.resultId, datasetId: result.datasetId, displayLabel: result.displayLabel ?? result.datasetId,
     geometryType: result.geometry.type, featureCount, ...(index === undefined || countLegend ? {} : { color: styleSwatch ?? (numericLegend ? numericLegend.entries[0]!.color : isAnalysisScopeCenter(result) ? "#fef3c7" : COLORS[index]!) }),
     ...(style && style.kind !== "compare" ? { styleLegend: warehouseStyleLegend(style, theme, result.rows) } : {}),
     ...(style?.kind === "compare" ? { compareTable: style } : {}),
+    ...(rankBars ? { rankBars } : {}),
     ...(isAnalysisScopeArea(result) ? { scopeArea: true as const } : {}),
     ...(style?.kind === "proportional" ? { circleOpacityRatio: style.fillOpacity } : {}),
     ...(style?.kind === "isochrone" ? { fillOpacityRatio: style.fillOpacity } : {}),
