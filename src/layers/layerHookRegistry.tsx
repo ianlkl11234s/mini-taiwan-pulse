@@ -114,7 +114,7 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   },
   { id: "usePropertyValueAdminLayer", keys: ["propertyValueAdmin"], Host: PropertyValueAdminHost },
 
-  // ── 互動裝飾（L781）：跨圖層的點選光暈，不屬於任何單一 layer ──
+  // ── 互動裝飾（L781）：跨圖層的點選選取圈，不屬於任何單一 layer ──
   { id: "useSelectedFeatureHalo", keys: [], Host: SelectedFeatureHaloHost },
 
   // ── 水資源 / 水利（L784-897）──

@@ -10,7 +10,7 @@ import { StatisticsLegend } from "./sidebar/StatisticsDetails";
 import { JP_POLICE_FACILITY_TYPES, JP_POLICE_DEGRADED_COLOR, JP_POLICE_ATTRIBUTION } from "../data/jpPoliceFacilityTypes";
 import { Fragment, memo, useEffect, useState, useSyncExternalStore, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, SURFACE, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
@@ -38,6 +38,8 @@ import { loadGfwDarkVesselsManifest } from "../data/gfwDarkVesselsLoader";
 import { loadGfwHourlyTrackManifest } from "../data/gfwHourlyTracksLoader";
 import { gfwFreshness } from "../data/gfwFreshness";
 import { useTimeStoreTime } from "../hooks/useTimeStoreTime";
+import { useAnalysisLegend } from "../research/analysisLegendStore";
+import { AnalysisLegendSection } from "../research/AnalysisLegendSection";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { JP_RELIGION_CATEGORIES } from "../data/jpReligionTypes";
 import { legendKeys } from "../data/legendGroups";
@@ -702,8 +704,15 @@ export const LegendPanel = memo(function LegendPanel({
   // 子圖例文字主題色（透過 context 分發，色票資料兩主題共用）
   const legendPalette = isDarkTheme ? DARK_LEGEND : LIGHT_LEGEND;
 
+  // G1：Agent 分析結果圖例排最上面一組（不進 LEGEND_REGISTRY；結果是暫時的、沒有 layer key）。
+  // G2：停靠 popup 開著時 compact，只留標題＋色階條。/embed 永遠沒有分析結果。
+  const analysisLegend = useAnalysisLegend();
+  const hasAnalysisLegend = analysisLegend.entries.length > 0;
+  // 分析結果剛出現時自動展開一次，否則圖例從 Agent 面板搬過來後會被預設收合藏住。
+  useEffect(() => { if (hasAnalysisLegend) setExpanded(true); }, [hasAnalysisLegend]);
+
   const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
-  if (active.length === 0) return null;
+  if (active.length === 0 && !hasAnalysisLegend) return null;
 
   return (
     <LegendThemeCtx.Provider value={legendPalette}>
@@ -735,19 +744,19 @@ export const LegendPanel = memo(function LegendPanel({
           cursor: "pointer",
           color: c.headerText,
           fontSize: FONT_SIZE.sm,
-          fontFamily: FONT_DATA,
-          letterSpacing: 1,
+          fontFamily: FONT_CJK,
         }}
       >
         {expanded
           ? <ChevronDown size={12} style={{ flexShrink: 0 }} />
           : <ChevronRight size={12} style={{ flexShrink: 0 }} />}
-        <span>LEGEND</span>
+        <span>圖例</span>
       </button>
 
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
       {expanded && (
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
+          <AnalysisLegendSection entries={analysisLegend.entries} compact={analysisLegend.compact} isDark={isDarkTheme} />
           {active.map((entry) => (
             <Fragment key={entry.id}>
               {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}

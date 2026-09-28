@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { IntelIcon } from "../IntelIcon";
 import {
-  COLORS, FONT_CJK, FONT_DATA, MICON,
+  FONT_CJK, FONT_DATA, MICON,
   ALERT_GROUPS_DEF, alertSeverity, fmtExpiry, relTime, clockTime,
+  chipTint, chipOutline, splitRelTimeParts, withAlpha,
 } from "../intelTokens";
+import { chipText, neutralFill, useIntelTheme } from "../intelTheme";
 import type { ActiveAlert } from "../../../data/alertsLoader";
-import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { RADIUS, FONT_SIZE, SURFACE, LIGHT } from "../../../styles/designTokens";
 
 const TEN_YEARS_SEC = 10 * 365 * 86400;
 
@@ -28,8 +30,13 @@ interface Props {
 }
 
 export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: Props) {
+  const palette = useIntelTheme();
   const def = ALERT_GROUPS_DEF[a.group];
   const sev = alertSeverity(a.severity);
+  const defTextColor = chipText(def.color, palette);
+  const sevTextColor = chipText(sev.color, palette);
+  // spine dot 的「面板色外圈」：暗＝SURFACE.app（原字面值不變），淡＝LIGHT.surfaceSolid（不透明白）。
+  const spineHalo = palette.isDark ? SURFACE.app : LIGHT.surfaceSolid;
 
   // 倒數即時刷新（僅在 expanded 或 severity>=3 時 1s tick）
   const [tick, setTick] = useState(nowTs);
@@ -61,17 +68,18 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
 
   return (
     <div style={{ position: "relative", paddingLeft: 26 }}>
-      {/* spine dot */}
+      {/* spine dot — 7px ＋ 2px 面板色外圈（與時間軸直線同語彙） */}
       <span
         style={{
           position: "absolute",
-          left: 7, top: 14,
-          width: 11, height: 11,
+          left: 9, top: 16,
+          width: 7, height: 7,
           borderRadius: RADIUS.full,
           background: sev.color,
-          border: "2px solid #0a0a14",
           zIndex: 1,
-          boxShadow: selected ? `0 0 0 3px ${sev.color}55` : "none",
+          boxShadow: selected
+            ? `0 0 0 2px ${spineHalo}, 0 0 0 5px ${sev.color}55`
+            : `0 0 0 2px ${spineHalo}`,
           animation: sev.anim ?? undefined,
         }}
       />
@@ -81,8 +89,8 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           cursor: "pointer",
           padding: "10px 12px",
           borderRadius: RADIUS.lg,
-          background: selected ? "rgba(100,170,255,0.06)" : "rgba(255,255,255,0.025)",
-          border: `1px solid ${selected ? COLORS.borderAccent : COLORS.borderMid}`,
+          background: selected ? withAlpha(palette.accent, 0.06) : neutralFill(0.025, palette.isDark),
+          border: `1px solid ${selected ? palette.borderAccent : palette.borderMid}`,
           animation: a.severity >= 3 ? "alertEdge 2s ease-in-out infinite" : undefined,
         }}
       >
@@ -92,10 +100,8 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
               padding: "1px 7px", borderRadius: RADIUS.md,
-              background: `${def.color}22`,
-              border: `1px solid ${def.color}55`,
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
-              color: def.color, letterSpacing: "0.5px",
+              ...chipTint(def.color, defTextColor),
+              fontFamily: FONT_CJK, fontSize: 9.5, fontWeight: 700,
             }}
           >
             <IntelIcon d={MICON[def.iconKey]!} size={10} color={def.color} />
@@ -104,10 +110,8 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           <span
             style={{
               padding: "1px 7px", borderRadius: RADIUS.md,
-              background: `${sev.color}22`,
-              border: `1px solid ${sev.color}55`,
-              fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
-              color: sev.color, letterSpacing: "0.5px",
+              ...chipOutline(sev.color, sevTextColor),
+              fontFamily: FONT_CJK, fontSize: 9.5, fontWeight: 700,
               animation: sev.anim ?? undefined,
             }}
           >
@@ -115,8 +119,8 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           </span>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9.5,
-              color: COLORS.textFaint,
+              fontFamily: FONT_CJK, fontSize: 9.5,
+              color: palette.textFaint,
             }}
           >
             {a.term}
@@ -124,11 +128,13 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           <div style={{ flex: 1 }} />
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9.5,
-              color: expired ? COLORS.textFaint : COLORS.textMuted,
+              fontFamily: FONT_CJK, fontSize: 9.5,
+              color: expired ? palette.textFaint : palette.textMuted,
             }}
           >
-            {expiryText}
+            {splitRelTimeParts(expiryText).map((p, i) =>
+              p.mono ? <span key={i} style={{ fontFamily: FONT_DATA }}>{p.text}</span> : <span key={i}>{p.text}</span>,
+            )}
           </span>
         </div>
 
@@ -136,7 +142,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
         <div
           style={{
             fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 600,
-            color: COLORS.textStrong, lineHeight: 1.45, marginBottom: 4,
+            color: palette.textStrong, lineHeight: 1.45, marginBottom: 4,
           }}
         >
           {a.headline || a.term}
@@ -147,19 +153,21 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           {/* county 與 headline 同字串時不重覆上牆（NCDR/CWA 原文常有這種列） */}
           {a.county && a.county !== (a.headline || a.term) && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-              <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
-              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
+              <IntelIcon d={MICON.pin!} size={10} color={palette.textMuted} />
+              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: palette.textMuted }}>
                 {a.county}
                 {a.area_count > 1 && (
-                  <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
+                  <span style={{ color: palette.textFaint }}> · <span style={{ fontFamily: FONT_DATA }}>{a.area_count}</span> 區</span>
                 )}
               </span>
             </span>
           )}
           <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-            <IntelIcon d={MICON.clock!} size={10} color={COLORS.textMuted} />
-            <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>
-              {relTime(a.sent_ts, effNow)}
+            <IntelIcon d={MICON.clock!} size={10} color={palette.textMuted} />
+            <span style={{ fontFamily: FONT_CJK, fontSize: 10.5, color: palette.textMuted }}>
+              {splitRelTimeParts(relTime(a.sent_ts, effNow)).map((p, i) =>
+                p.mono ? <span key={i} style={{ fontFamily: FONT_DATA }}>{p.text}</span> : <span key={i}>{p.text}</span>,
+              )}
             </span>
           </span>
         </div>
@@ -170,7 +178,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
             onClick={stop}
             style={{
               marginTop: 9, paddingTop: 9,
-              borderTop: `1px solid ${COLORS.borderSoft}`,
+              borderTop: `1px solid ${palette.borderSoft}`,
               animation: "drawerOpen .25s ease-out",
             }}
           >
@@ -178,7 +186,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               <div
                 style={{
                   fontFamily: FONT_CJK, fontSize: 11.5,
-                  color: COLORS.textDefault, lineHeight: 1.55,
+                  color: palette.textDefault, lineHeight: 1.55,
                   marginBottom: 8,
                 }}
               >
@@ -197,8 +205,8 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               >
                 <div
                   style={{
-                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
-                    color: def.color, letterSpacing: "1px", marginBottom: 3,
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, fontWeight: 700,
+                    color: defTextColor, marginBottom: 3,
                   }}
                 >
                   處置指引
@@ -206,7 +214,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
                 <div
                   style={{
                     fontFamily: FONT_CJK, fontSize: 11.5,
-                    color: COLORS.textDefault, lineHeight: 1.55,
+                    color: palette.textDefault, lineHeight: 1.55,
                   }}
                 >
                   {a.instruction}
@@ -214,35 +222,37 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               </div>
             )}
 
-            {/* meta grid */}
+            {/* meta grid — 標籤與敘述用 CJK，時間／數字另包 FONT_DATA */}
             <div
               style={{
                 display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 10px",
-                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
               }}
             >
-              <span style={{ color: COLORS.textFaint }}>發佈</span>
-              <span style={{ color: COLORS.textMuted }}>{clockTime(a.sent_ts)}</span>
-              <span style={{ color: COLORS.textFaint }}>失效</span>
-              <span style={{ color: COLORS.textMuted }}>
-                {expiresInSec > TEN_YEARS_SEC ? "未標示（長期）" : clockTime(a.expires_ts)}
+              <span style={{ color: palette.textFaint }}>發佈</span>
+              <span style={{ color: palette.textMuted, fontFamily: FONT_DATA }}>{clockTime(a.sent_ts)}</span>
+              <span style={{ color: palette.textFaint }}>失效</span>
+              <span style={{ color: palette.textMuted }}>
+                {expiresInSec > TEN_YEARS_SEC
+                  ? "未標示（長期）"
+                  : <span style={{ fontFamily: FONT_DATA }}>{clockTime(a.expires_ts)}</span>}
               </span>
               {a.magnitude != null && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>規模</span>
-                  <span style={{ color: COLORS.textStrong, fontWeight: 700 }}>M {a.magnitude}</span>
+                  <span style={{ color: palette.textFaint }}>規模</span>
+                  <span style={{ color: palette.textStrong, fontWeight: 700, fontFamily: FONT_DATA }}>M {a.magnitude}</span>
                 </>
               )}
               {a.depth_km != null && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>深度</span>
-                  <span style={{ color: COLORS.textMuted }}>{a.depth_km} km</span>
+                  <span style={{ color: palette.textFaint }}>深度</span>
+                  <span style={{ color: palette.textMuted, fontFamily: FONT_DATA }}>{a.depth_km} km</span>
                 </>
               )}
               {a.area_desc && a.area_desc !== a.county && (
                 <>
-                  <span style={{ color: COLORS.textFaint }}>範圍</span>
-                  <span style={{ color: COLORS.textMuted, lineHeight: 1.5 }}>{a.area_desc}</span>
+                  <span style={{ color: palette.textFaint }}>範圍</span>
+                  <span style={{ color: palette.textMuted, lineHeight: 1.5 }}>{a.area_desc}</span>
                 </>
               )}
             </div>

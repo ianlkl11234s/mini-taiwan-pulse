@@ -1,5 +1,6 @@
 import { IntelIcon, ICON } from "../IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
+import { DARK_INTEL, IntelThemeProvider, neutralFill, useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
@@ -27,30 +28,45 @@ interface Props {
   nowTs: number;
   status: IntelQueryStatus;
   lastSuccessAt: number | null;
+  message?: string | null;
 }
 
-export function NewsFeedPanel({
+/**
+ * Monitor Mode（戰情看板）刻意維持全暗（`MonitorPanel` 本身無 `isDarkTheme`，見 App.tsx 只把
+ * `isDarkTheme` 傳給 IntelPanel／不傳給 Monitor 的取捨）。這裡顯式套 `DARK_INTEL`，讓重用的
+ * `IntelCard`／`IntelFilters` 不論外層 context 為何都固定深色，不隨主站底圖切換。
+ */
+export function NewsFeedPanel(props: Props) {
+  return (
+    <IntelThemeProvider palette={DARK_INTEL}>
+      <NewsFeedPanelInner {...props} />
+    </IntelThemeProvider>
+  );
+}
+
+function NewsFeedPanelInner({
   events, cats, onToggleCat, onResetCats,
   timeRange, onTimeRange, county, onCounty,
   filter, onFilterChange,
   selectedId, expandedId, onSelectCard, onToggleExpand,
-  isTrendingFor, nowTs, status, lastSuccessAt,
+  isTrendingFor, nowTs, status, lastSuccessAt, message,
 }: Props) {
+  const palette = useIntelTheme();
   const statusLabel = status === "ready" ? "LIVE" : status === "denied" ? "受限" : status === "error" ? "更新中斷" : "讀取中";
   const statusVisual = status === "ready"
-    ? { color: COLORS.statusLive, background: COLORS.statusLiveSoft, border: COLORS.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
+    ? { color: palette.statusLive, background: palette.statusLiveSoft, border: palette.statusLiveBorder, animation: "intelRing 1.6s ease-in-out infinite" }
     : status === "denied"
-      ? { color: COLORS.statusWarn, background: COLORS.statusWarnSoft, border: COLORS.statusWarnBorder, animation: "none" }
+      ? { color: palette.statusWarn, background: palette.statusWarnSoft, border: palette.statusWarnBorder, animation: "none" }
       : status === "error"
-        ? { color: COLORS.statusErr, background: "rgba(239,68,68,0.16)", border: "rgba(239,68,68,0.45)", animation: "none" }
-        : { color: COLORS.textMuted, background: "rgba(255,255,255,0.05)", border: COLORS.borderMid, animation: "none" };
+        ? { color: palette.statusErr, background: withAlpha(palette.statusErr, 0.16), border: withAlpha(palette.statusErr, 0.45), animation: "none" }
+        : { color: palette.textMuted, background: neutralFill(0.05, palette.isDark), border: palette.borderMid, animation: "none" };
   return (
     <div
       style={{
         height: "100%", minHeight: 0,
         display: "flex", flexDirection: "column", overflow: "hidden",
-        borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
-        background: "rgba(255,255,255,0.022)",
+        borderRadius: RADIUS.xl, border: `1px solid ${palette.panelBorder}`,
+        background: neutralFill(0.022, palette.isDark),
       }}
     >
       <div
@@ -60,11 +76,11 @@ export function NewsFeedPanel({
           padding: "11px 14px 9px",
         }}
       >
-        <IntelIcon d={ICON.radio} size={15} color={COLORS.accent} />
+        <IntelIcon d={ICON.radio} size={15} color={palette.accent} />
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
-            color: COLORS.textStrong, whiteSpace: "nowrap",
+            color: palette.textStrong, whiteSpace: "nowrap",
           }}
         >
           新聞 Feed
@@ -95,14 +111,14 @@ export function NewsFeedPanel({
           </span>
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: palette.textMuted }}>
           {events.length} 則
         </span>
       </div>
 
       {status !== "ready" && (
-        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
-          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}` : "正在讀取新聞資料"}
+        <div style={{ padding: "0 14px 8px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: palette.textMuted }}>
+          {status === "denied" ? "新聞資料無權限讀取" : status === "error" ? (message ?? `新聞更新中斷${lastSuccessAt ? ` · 最後成功 ${new Date(lastSuccessAt).toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" })}` : ""}`) : "正在讀取新聞資料"}
         </div>
       )}
 
@@ -134,12 +150,12 @@ export function NewsFeedPanel({
               height: "100%", gap: 8, textAlign: "center", padding: 24,
             }}
           >
-            <IntelIcon d={ICON.radio} size={26} color={COLORS.textGhost} />
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-              目前無符合條件的事件
+            <IntelIcon d={ICON.radio} size={26} color={palette.textGhost} />
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: palette.textMuted }}>
+              {status === "error" ? "新聞資料更新中斷" : "目前無符合條件的事件"}
             </div>
-            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-              調整分類 / 縣市，或回到即時
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: palette.textFaint }}>
+              {status === "error" ? (message ?? "請檢查新聞來源與分類流程") : "調整分類 / 縣市，或回到即時"}
             </div>
           </div>
         ) : (
@@ -148,7 +164,7 @@ export function NewsFeedPanel({
               style={{
                 position: "absolute", left: 12, top: 6, bottom: 6,
                 width: 1.5,
-                background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                background: `linear-gradient(${palette.borderMid}, ${palette.borderSoft} 90%, transparent)`,
               }}
             />
             {events.map((e) => (

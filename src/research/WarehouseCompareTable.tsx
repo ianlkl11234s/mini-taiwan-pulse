@@ -1,6 +1,8 @@
+import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
 import type { WarehouseCompareColumn, WarehouseResultStyle } from "./warehouseResultStyle";
 
-const fmt = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 });
+/** Same conservative unit/shape heuristic as warehouseStyleFact/researchResultPopup (spec U1). */
+const fmt = (value: number, unit: string | null) => formatVizNumber(value, classifyVizNumberKind(value, unit));
 
 /**
  * Field x point comparison table for a compare-styled warehouse result. Rows are metrics, columns are
@@ -23,7 +25,7 @@ export function WarehouseCompareTableView({ table, onSelectColumn }: { table: Ex
         {table.rows.map(row => <tr key={row.field}>
           <th scope="row">{row.label}{row.unit ? `（${row.unit}）` : ""}</th>
           {row.cells.map((cell, index) => <td key={table.columns[index]!.index} className={cell.rank === 1 ? "agent-compare-table__best" : undefined}>
-            {cell.notCovered ? <span className="agent-compare-table__muted">未涵蓋</span> : cell.value === null ? <span className="agent-compare-table__muted">–</span> : fmt.format(cell.value)}
+            {cell.notCovered ? <span className="agent-compare-table__muted">未涵蓋</span> : cell.value === null ? <span className="agent-compare-table__muted">–</span> : fmt(cell.value, row.unit)}
           </td>)}
         </tr>)}
       </tbody>

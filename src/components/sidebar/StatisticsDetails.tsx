@@ -11,7 +11,7 @@ import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsRenderKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
-import { FONT_SIZE, COLORS, RADIUS, SPACING } from '../../styles/designTokens';
+import { FONT_SIZE, FONT_CJK, COLORS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -209,13 +209,12 @@ export function statisticsValueLabel(value: unknown, unit: string): string {
 }
 
 /** Let statistics controls inherit the light or dark sidebar palette. */
-export function statisticsDetailControlStyle(textColor: string, colorScheme: 'light' | 'dark'): CSSProperties {
-  return {
-    boxSizing: 'border-box', width: '100%', minWidth: 0, maxWidth: '100%',
-    background: 'transparent', color: textColor, border: '1px solid currentColor', colorScheme,
-    borderRadius: RADIUS.md, padding: '3px 24px 3px 6px', font: 'inherit',
-    lineHeight: 1.35, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
-  };
+/**
+ * 外觀交給共用的 `.lpc-select`（layerParamControls.css，展開區容器帶主題 class）；
+ * 這裡只補原生下拉清單要跟著的 color-scheme。
+ */
+export function statisticsDetailControlStyle(colorScheme: 'light' | 'dark'): CSSProperties {
+  return { colorScheme };
 }
 
 /** Mirrors the Mapbox `step` expression: one numeric colour per interval. */
@@ -286,10 +285,10 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     regionalStatisticsStore.setSelection(layerKey, { ...statisticsRecipe(layerKey, state.selection?.indicatorId), releaseId: resolved.releaseId, dimensions: resolved.dimensions, allowReleaseFallback: false });
     void regionalStatisticsStore.load(layerKey);
   };
-  const control = statisticsDetailControlStyle(textColor, colorScheme);
+  const control = statisticsDetailControlStyle(colorScheme);
   const filterLabel: CSSProperties = {
     display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', alignItems: 'center',
-    gap: SPACING.xs, minWidth: 0, color: textColor, lineHeight: 1.35,
+    gap: SPACING.xs, minWidth: 0, lineHeight: 1.35,
   };
   const factStyle: CSSProperties = { margin: 0, minWidth: 0, lineHeight: 1.45 };
   const hasFilterControls = Boolean(selectorDimensions) || state.releases.length > 0;
@@ -298,15 +297,15 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
     return selectorValues(key, filters).length > 1;
   });
-  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
-    <style>{`.statistics-details summary:focus-visible,.statistics-details .statistics-detail-control:focus-visible{outline:2px solid currentColor;outline-offset:2px}`}</style>
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
+    <style>{`.statistics-details summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}.statistics-details label.statistics-filter-label{font:10px/1.35 var(--font-cjk);color:var(--lpc-muted,currentColor)}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
-    {state.error && <div role="alert">{state.error}<button type="button" style={control} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
+    {state.error && <div role="alert">{state.error}<button type="button" className="lpc-btn" style={{ marginLeft: SPACING.xs }} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}
     {agri && import.meta.env.DEV && import.meta.env.VITE_AGRI_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>本地 Preview · 真實交付資料 · 尚未發布至正式 API</p>}
     {labor && import.meta.env.DEV && import.meta.env.VITE_LABOR_STATISTICS_PREVIEW === 'true' && <p style={factStyle}>勞動與所得本地 Preview · 已驗證 incremental snapshot · 尚未發布至正式 CDN</p>}
     {view && import.meta.env.DEV && <a href="/statistics-accessibility-review.html" target="_blank" rel="noreferrer">教育路網可達性：開啟本地試算</a>}
-    {view && <label style={filterLabel}>指標
-      <select className="statistics-detail-control" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} onChange={event => {
+    {view && <label className="statistics-filter-label" style={filterLabel}>指標
+      <select className="statistics-detail-control lpc-select" aria-label={`${view.label} 指標`} style={control} value={activeBaseKey} onChange={event => {
         const nextBaseKey = event.target.value as StatisticsLayerKey;
         const options = (getSocialRecipe(nextBaseKey) ?? getComparisonRecipe(nextBaseKey))?.release_options.filter(option => option.dimensions.education_stage === view.stage) ?? [];
         const option = options.find(candidate => candidate.period_start === selectedRelease?.period_start && candidate.period_end === selectedRelease?.period_end);
@@ -336,14 +335,14 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
         {selectorDimensions && selectableDimensionKeys.map((key, index) => {
           const value = selectorDimensions[key]!;
           const filters = Object.fromEntries(selectorDimensionKeys.slice(0, selectorDimensionKeys.indexOf(key)).map(filterKey => [filterKey, selectorDimensions[filterKey]!])) as Partial<Record<string, string>>;
-          return <label key={key} style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
+          return <label key={key} className="statistics-filter-label" style={{ ...filterLabel, ...(selectableDimensionKeys.length % 2 === 1 && index === selectableDimensionKeys.length - 1 ? { gridColumn: '1 / -1' } : {}) }}>
             {statisticsDimensionLabel(key)}
-            <select className="statistics-detail-control" aria-label={`${recipe.label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value }, key)}>
+            <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} ${statisticsDimensionLabel(key)}`} style={control} title={value} value={value} onChange={event => chooseDimensions({ ...selectorDimensions, [key]: event.target.value }, key)}>
               {selectorValues(key, filters).map(option => <option key={option} value={option}>{statisticsDimensionValueLabel(key, option, recipe.dataset_id)}</option>)}
             </select>
           </label>;
         })}
-        {state.releases.length > 0 && !selectorDimensions && <label style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
+        {state.releases.length > 0 && !selectorDimensions && <label className="statistics-filter-label" style={{ ...filterLabel, gridColumn: '1 / -1' }}>資料期別 <select className="statistics-detail-control lpc-select" aria-label={`${recipe.label} 資料期別`} style={control} value={String(selected)} onChange={event => {
           regionalStatisticsStore.setSelection(layerKey, { ...(state.selection ?? statisticsRecipe(layerKey)), releaseId: event.target.value, allowReleaseFallback: false });
           void regionalStatisticsStore.load(layerKey);
         }}>{state.releases.map(release => <option key={release.release_id} value={release.release_id}>{statisticsPeriodLabel(release)}</option>)}</select></label>}

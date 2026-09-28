@@ -1,7 +1,11 @@
+import { classifyVizNumberKind, formatVizNumber } from "./vizFormat";
+
 export type ResearchResultPopupFact = { label: string; value: string };
 
 const number = new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 4 });
-const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
+/** Exported for analysisResultOverlay.ts's proportional-symbol label layer, which needs the same
+ *  fallback key order as a Mapbox `coalesce` expression (a static list, not a per-feature function). */
+export const TITLE_KEYS = ["area_name", "indicator_name", "school_name", "facility_name", "hospital_name", "name", "title", "location", "label", "route_label", "zone_label", "grid_id", "event_id", "record_id"] as const;
 
 const statusLabels: Record<string, string> = {
   observed: "有觀測值",
@@ -33,8 +37,13 @@ function status(value: unknown): string | null {
   return raw ? statusLabels[raw] ?? raw : null;
 }
 
+/** Popup number display (spec U1): a conservative kind guess from the field's free-text unit (no
+ *  ResultStyle field declares an explicit value kind yet) plus the value's own shape — see
+ *  classifyVizNumberKind. A "%" unit's own value already embeds the sign, so it is never re-appended. */
 function formatted(value: number, unit: string | null): string {
-  return `${number.format(value)}${unit ? ` ${unit}` : ""}`;
+  const kind = classifyVizNumberKind(value, unit);
+  const text = formatVizNumber(value, kind);
+  return kind === "percent" ? text : `${text}${unit ? ` ${unit}` : ""}`;
 }
 
 /** Mapbox properties may contain null; only a finite numeric distance is a measured straight-line distance. */
@@ -49,7 +58,20 @@ export function researchResultPopupTitle(properties: Record<string, unknown>): s
     const value = properties[key];
     if (value !== null && value !== undefined && String(value).trim()) return String(value);
   }
+  // Warehouse results keep source column names (e.g. TDX `StationName`), so fall back to any
+  // non-internal field whose name ends in "name" before using the generic label.
+  const nameLike = sourceFieldEndingWith(properties, /name$/i);
+  if (nameLike) return nameLike;
   return "分析結果";
+}
+
+/** First non-empty source field (not `_`-prefixed internal fields) whose key matches `pattern`. */
+function sourceFieldEndingWith(properties: Record<string, unknown>, pattern: RegExp): string | null {
+  for (const [key, value] of Object.entries(properties)) {
+    if (key.startsWith("_") || !pattern.test(key)) continue;
+    if (value !== null && value !== undefined && String(value).trim()) return String(value).trim();
+  }
+  return null;
 }
 
 export type ResearchResultPopupOverlapFeature = {
@@ -120,6 +142,67 @@ export function researchResultPopupFacts(properties: Record<string, unknown>): R
   const differenceUnit = text(properties.differenceUnit) ?? unit;
   if (comparisonStatus === "valid" && difference !== null) facts.push({ label: "差值（本區－基準）", value: formatted(difference, differenceUnit) });
   const ratio = finiteNumber(properties.ratio);
-  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: number.format(ratio) });
+  if (comparisonStatus === "valid" && ratio !== null) facts.push({ label: "相對基準（本區÷基準）", value: formatVizNumber(ratio, "ratio") });
   return facts;
+}
+
+/** Shown instead of an internal identifier when no human-readable dataset name is known. */
+export const UNNAMED_DATASET_LABEL = "未命名資料集";
+
+/**
+ * Human-readable dataset name for the docked result panel. Internal identifiers
+ * (`warehouse:wh-8`, descriptor ids, `a+b` composites) are never shown: the presented
+ * result's displayLabel wins unless it merely echoes the id, then the dataset
+ * descriptor label, then a neutral placeholder.
+ */
+export function researchResultDatasetLabel(datasetId: unknown, displayLabel: string | null | undefined, describe: (datasetId: string) => string | null): string {
+  const id = typeof datasetId === "string" ? datasetId.trim() : "";
+  const shown = typeof displayLabel === "string" ? displayLabel.trim() : "";
+  if (shown && shown !== id) return shown;
+  if (id) {
+    let described: string | null = null;
+    try { described = describe(id); } catch { described = null; }
+    if (described && described.trim() && described.trim() !== id) return described.trim();
+  }
+  return UNNAMED_DATASET_LABEL;
+}
+
+/** Facts for one hit, in panel order; source values stay separate from derived calculations. */
+export function researchResultRecordFacts(properties: Record<string, unknown>, datasetLabel: string): ResearchResultPopupFact[] {
+  const facts: ResearchResultPopupFact[] = [];
+  if (properties.datasetId) facts.push({ label: "資料集", value: datasetLabel });
+  facts.push(...researchResultPopupFacts(properties));
+  const address = sourceFieldEndingWith(properties, /address$/i);
+  if (address) facts.push({ label: "地址", value: address });
+  const distance = researchResultPopupDistance(properties.distanceM ?? properties.dist_m);
+  if (distance) facts.push({ label: "距離", value: distance });
+  if (properties.source_version) facts.push({ label: "版本", value: String(properties.source_version) });
+  if (properties.boundary_version) facts.push({ label: "邊界版本", value: String(properties.boundary_version) });
+  if (!facts.length) facts.push({ label: "紀錄", value: "本次分析命中的空間紀錄" });
+  return facts;
+}
+
+export type AnalysisResultPanelRecord = { title: string; color: string | null; facts: ResearchResultPopupFact[] };
+/** Serializable `FeatureInfo.properties` payload for `layerType: "analysisResult"`. */
+export type AnalysisResultPanelProperties = { records: AnalysisResultPanelRecord[]; total: number; omitted: number };
+
+/** Resolve every overlapping hit at click time so the panel stays a pure renderer. */
+export function researchResultPanelProperties<T extends ResearchResultPopupOverlapFeature>(
+  overlaps: { features: readonly T[]; total: number; omitted: number },
+  presentationFor: (resultId: string) => { displayLabel?: string; color?: string } | undefined,
+  describe: (datasetId: string) => string | null,
+): AnalysisResultPanelProperties {
+  return {
+    records: overlaps.features.map(feature => {
+      const properties = feature.properties ?? {};
+      const presentation = typeof properties.resultId === "string" ? presentationFor(properties.resultId) : undefined;
+      return {
+        title: researchResultPopupTitle(properties),
+        color: presentation?.color ?? null,
+        facts: researchResultRecordFacts(properties, researchResultDatasetLabel(properties.datasetId, presentation?.displayLabel, describe)),
+      };
+    }),
+    total: overlaps.total,
+    omitted: overlaps.omitted,
+  };
 }

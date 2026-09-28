@@ -3,7 +3,7 @@ import type { Map } from "mapbox-gl";
 import { analysisResultInteractiveLayerIds, describeAnalysisResults, installAnalysisResults, numericResultLegend, readAnalysisResultPresentation, removeAnalysisResults, setAnalysisOpacity } from "../analysisResultOverlay";
 import type { PresentableResult } from "../researchAnalysisSession";
 
-type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown };
+type Layer = { id: string; type: string; source: string; paint: Record<string, unknown>; filter?: unknown; layout?: Record<string, unknown> };
 function stubMap() {
   const sources = new globalThis.Map<string, { setData: (data: unknown) => void; data: unknown }>();
   const layers = new globalThis.Map<string, Layer>();
@@ -19,6 +19,7 @@ function stubMap() {
     removeSource: (id: string) => sources.delete(id),
     isSourceLoaded: (id: string) => sources.has(id),
     setPaintProperty: (id: string, property: string, value: unknown) => { layers.get(id)?.paint && (layers.get(id)!.paint[property] = value); paintWrites.push({ id, property, value }); },
+    setLayoutProperty: (id: string, property: string, value: unknown) => { const layer = layers.get(id); if (layer) layer.layout = { ...layer.layout, [property]: value }; },
     setFilter: (id: string, filter: unknown) => { const layer = layers.get(id); if (layer) layer.filter = filter ?? undefined; },
     moveLayer: (id: string, beforeId?: string) => { moveLayerCalls.push({ id, beforeId }); },
     on: (event: string, listener: () => void) => { if (event === "render") listeners.add(listener); },
@@ -289,7 +290,9 @@ describe("analysis result reveal lifecycle", () => {
     expect(installed[0]).toMatchObject({ color: "#fef3c7" });
     expect(layers.get("research-analysis-result-points-0")!.paint).toMatchObject({
       "circle-color": "#fef3c7", "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 12, 9, 16, 12],
-      "circle-stroke-color": "#0f172a", "circle-stroke-width": 3,
+      // Base ring stays the fallback branch of the I1/I2 emphasis `case` expression.
+      "circle-stroke-color": ["case", ["any", ["boolean", ["feature-state", "hover"], false], ["boolean", ["feature-state", "selected"], false]], expect.any(String), "#0f172a"],
+      "circle-stroke-width": ["case", ["any", ["boolean", ["feature-state", "hover"], false], ["boolean", ["feature-state", "selected"], false]], 2, 3],
     });
   });
 

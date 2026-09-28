@@ -23,7 +23,7 @@ export function readCameraInfo(map: MapboxMap): CameraInfo {
 }
 
 export function formatCameraInfo(camera: CameraInfo): string {
-  return `${camera.lat}, ${camera.lng} z${camera.zoom} pitch ${camera.pitch} bearing ${camera.bearing}`;
+  return `${camera.lat}, ${camera.lng} · z${camera.zoom} · 仰角 ${camera.pitch}° · 方位 ${camera.bearing}°`;
 }
 
 /** A map-local external store: move events only re-render HUD subscribers. */

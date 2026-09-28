@@ -1,5 +1,15 @@
-import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
-import type { ReGran } from "../lib/realEstateTime";
+import { Pause, Play } from "lucide-react";
+import { DAY, RE_PERIODS, type ReGran } from "../lib/realEstateTime";
+import { TimeAxis } from "./timeline/TimeAxis";
+import {
+  buildDiscreteAxis,
+  buildQuarterTicks,
+  indexToRatio,
+  keyboardIndexTarget,
+  range,
+  ratioToIndex,
+} from "./timeline/timelineAxis";
+import "./timeline/timeline.css";
 
 export type HistoricalGranularity = "year" | "month" | "day";
 
@@ -37,28 +47,9 @@ interface Props {
 }
 
 const ROC_OFFSET = 1911;
-
-const getBtnStyle = (dark: boolean): React.CSSProperties => ({
-  background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
-  color: dark ? "rgba(220,220,220,0.9)" : "#555",
-  border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: RADIUS.md,
-  padding: "4px 10px",
-  fontSize: FONT_SIZE.lg,
-  cursor: "pointer",
-  fontFamily: FONT_DATA,
-  backdropFilter: "blur(8px)",
-});
-
-const getSelectStyle = (dark: boolean): React.CSSProperties => ({
-  background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
-  color: dark ? "rgba(220,220,220,0.9)" : "#555",
-  border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: RADIUS.md,
-  padding: "4px 8px",
-  fontSize: FONT_SIZE.lg,
-  fontFamily: FONT_DATA,
-});
+const SPEEDS = [0.5, 1, 2, 4, 8];
+/** 卡片右側預留給右下停靠 popup（280px）＋間距 */
+const RIGHT_RESERVE = 312;
 
 const granLabel: Record<HistoricalGranularity, string> = {
   year: "年",
@@ -66,24 +57,26 @@ const granLabel: Record<HistoricalGranularity, string> = {
   day: "日",
 };
 const reGranLabel: Record<ReGran, string> = { quarter: "季", month: "月", week: "週" };
+/** 房地產游標的鍵盤步長（秒）；季由 App 端 snapQuarterStart 吸附 */
+const RE_KEY_STEP: Record<ReGran, number> = { quarter: 92 * DAY, month: 30 * DAY, week: 7 * DAY };
 
 function daysInMonth(rocYear: number, month: number): number {
   // 用 AD Date 末日 trick：new Date(year, month, 0) 回傳上個月最後一天
   return new Date(rocYear + ROC_OFFSET, month, 0).getDate();
 }
 
-function formatLabel(
-  year: number,
-  month: number,
-  day: number,
-  granularity: HistoricalGranularity,
-): string {
-  const ad = year + ROC_OFFSET;
-  if (granularity === "year") return `民國 ${year}（${ad}）`;
-  if (granularity === "month") {
-    return `民國 ${year}/${String(month).padStart(2, "0")}（${ad}）`;
-  }
-  return `民國 ${year}/${String(month).padStart(2, "0")}/${String(day).padStart(2, "0")}`;
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+function formatClock(year: number, month: number, day: number, granularity: HistoricalGranularity): string {
+  if (granularity === "year") return String(year);
+  if (granularity === "month") return `${year}/${pad2(month)}`;
+  return `${year}/${pad2(month)}/${pad2(day)}`;
+}
+
+function formatValueText(year: number, month: number, day: number, granularity: HistoricalGranularity): string {
+  if (granularity === "year") return `民國 ${year} 年（${year + ROC_OFFSET}）`;
+  if (granularity === "month") return `民國 ${year} 年 ${month} 月`;
+  return `民國 ${year} 年 ${month} 月 ${day} 日`;
 }
 
 export function HistoricalTimeline({
@@ -115,13 +108,10 @@ export function HistoricalTimeline({
   reCursorLabel = "",
   onReCursorChange,
 }: Props) {
-  const dark = isDarkTheme;
-  const minYear = availableYears[0] ?? 104;
-  const maxYear = availableYears[availableYears.length - 1] ?? 113;
+  const years = availableYears.length > 0 ? availableYears : range(104, 113);
   const dim = daysInMonth(year, month);
   const showMonth = granularity === "month" || granularity === "day";
   const showDay = granularity === "day";
-  const headLabel = reActive ? reCursorLabel : formatLabel(year, month, day, granularity);
   // 提示該模式下「現在開著的圖層」實際有資料的區間，避免使用者在空年份亂撥
   const dataNote = reActive
     ? "房地產：2024Q3~2026Q1"
@@ -132,178 +122,178 @@ export function HistoricalTimeline({
       : "火災資料：111~113";
   const playStepLabel = reActive ? reGranLabel[reGran] : granLabel[granularity];
 
-  const wrapStyle: React.CSSProperties = isMobile
+  const rootClass = [
+    "tl3",
+    isDarkTheme ? "" : "tl3--light",
+    isMobile ? "tl3--mobile" : "",
+  ].filter(Boolean).join(" ");
+
+  const rootStyle: React.CSSProperties = isMobile
     ? {}
     : {
         position: "absolute",
         bottom: 16,
         left: leftOffset,
         zIndex: 10,
-        width: 380,
+        width: 620,
+        maxWidth: `calc(100vw - ${leftOffset + RIGHT_RESERVE}px)`,
+        minWidth: 320,
         transition: "left 0.2s ease",
       };
 
-  const btnActiveStyle = (active: boolean): React.CSSProperties => ({
-    ...getBtnStyle(dark),
-    fontSize: FONT_SIZE.md,
-    padding: "3px 10px",
-    fontWeight: active ? 700 : 400,
-    color: active ? "#4caf50" : dark ? "rgba(220,220,220,0.9)" : "#555",
-    background: active
-      ? "rgba(76,175,80,0.18)"
-      : dark
-        ? "rgba(120,120,120,0.25)"
-        : "rgba(255,255,255,0.9)",
-    border: `1px solid ${active ? "rgba(76,175,80,0.5)" : dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
-    cursor: "pointer",
-  });
-
-  const sliderRow = (
-    label: string,
-    value: number,
-    min: number,
-    max: number,
-    onChange: (v: number) => void,
-    dimmed: boolean,
-    valueText?: string,
-  ): React.ReactNode => (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-        opacity: dimmed ? 0.45 : 1,
-        marginTop: 2,
-      }}
-    >
-      <span
-        style={{
-          width: 26,
-          fontSize: FONT_SIZE.base,
-          color: dark ? "rgba(180,180,180,0.7)" : "rgba(0,0,0,0.55)",
-          fontFamily: FONT_DATA,
-          textAlign: "right",
+  // ── 下排刻度軸 ──
+  let axis: React.ReactNode;
+  if (reActive) {
+    const span = reCursorMax - reCursorMin;
+    const ts = Math.min(Math.max(reCursorTs, reCursorMin), reCursorMax);
+    const seek = (next: number) => {
+      const clamped = Math.min(Math.max(next, reCursorMin), reCursorMax);
+      const step = reCursorStep > 0 ? reCursorStep : 1;
+      onReCursorChange?.(reCursorMin + Math.round((clamped - reCursorMin) / step) * step);
+    };
+    axis = (
+      <TimeAxis
+        ratio={span > 0 ? (ts - reCursorMin) / span : 0}
+        ticks={buildQuarterTicks(RE_PERIODS, reCursorMin, reCursorMax)}
+        needleLabel={reCursorLabel}
+        ariaLabel={`房地產時間游標（${reGranLabel[reGran]}）`}
+        ariaValueMin={reCursorMin}
+        ariaValueMax={reCursorMax}
+        ariaValueNow={ts}
+        ariaValueText={reCursorLabel}
+        onSeekRatio={(r) => seek(reCursorMin + r * span)}
+        onKey={(key) => {
+          const stepSec = RE_KEY_STEP[reGran];
+          if (key === "ArrowLeft" || key === "ArrowDown") seek(ts - stepSec);
+          else if (key === "ArrowRight" || key === "ArrowUp") seek(ts + stepSec);
+          else if (key === "Home") seek(reCursorMin);
+          else if (key === "End") seek(reCursorMax);
+          else return false;
+          return true;
         }}
-      >
-        {label}
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={1}
-        value={Math.min(Math.max(value, min), max)}
-        onChange={(e) => onChange(Number(e.target.value))}
-        disabled={dimmed}
-        style={{ flex: 1, accentColor: dark ? "#aaa" : "#4caf50" }}
       />
-      <span
-        style={{
-          minWidth: valueText ? 64 : 36,
-          fontSize: FONT_SIZE.base,
-          color: dark ? "rgba(220,220,220,0.85)" : "#444",
-          fontFamily: FONT_DATA,
-          textAlign: "right",
+    );
+  } else {
+    const values = granularity === "year" ? years : granularity === "month" ? range(1, 12) : range(1, dim);
+    const current = granularity === "year" ? year : granularity === "month" ? month : Math.min(day, dim);
+    const onPick = granularity === "year" ? onYearChange : granularity === "month" ? onMonthChange : onDayChange;
+    const unit = granularity === "year" ? undefined : granLabel[granularity];
+    const discrete = buildDiscreteAxis(values, current, String);
+    const pick = (index: number) => {
+      const v = values[index];
+      if (v !== undefined && v !== current) onPick(v);
+    };
+    axis = (
+      <TimeAxis
+        ratio={indexToRatio(discrete.index, values.length)}
+        ticks={discrete.ticks}
+        needleLabel={String(current)}
+        unit={unit}
+        ariaLabel={`歷史時間軸（${granLabel[granularity]}）`}
+        ariaValueMin={values[0] ?? 0}
+        ariaValueMax={values[values.length - 1] ?? 0}
+        ariaValueNow={current}
+        ariaValueText={formatValueText(year, month, day, granularity)}
+        onSeekRatio={(r) => pick(ratioToIndex(r, values.length))}
+        onKey={(key) => {
+          const next = keyboardIndexTarget(key, discrete.index, values.length);
+          if (next === null) return false;
+          pick(next);
+          return true;
         }}
-      >
-        {valueText ?? value}
-      </span>
-    </div>
-  );
+      />
+    );
+  }
 
   return (
-    <div style={wrapStyle} data-testid="historical-timeline">
-      {/* Row 1: 粒度 + Label */}
-      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
-        {reActive ? (
-          (["quarter", "month", "week"] as ReGran[]).map((g) => (
-            <button key={g} style={btnActiveStyle(g === reGran)} onClick={() => onReGranChange?.(g)}>
-              {reGranLabel[g]}
-            </button>
-          ))
-        ) : (
-          <>
-            <button style={btnActiveStyle(granularity === "year")} onClick={() => onGranularityChange("year")}>{granLabel.year}</button>
-            <button style={btnActiveStyle(granularity === "month")} onClick={() => onGranularityChange("month")}>{granLabel.month}</button>
-            <button style={btnActiveStyle(granularity === "day")} onClick={() => onGranularityChange("day")}>{granLabel.day}</button>
-          </>
-        )}
-        <span
-          style={{
-            marginLeft: "auto",
-            fontSize: FONT_SIZE.lg,
-            fontWeight: 600,
-            color: dark ? "rgba(240,240,240,0.95)" : "#222",
-            fontFamily: FONT_DATA,
-          }}
-        >
-          {headLabel}
-        </span>
-      </div>
-
-      {/* Row 2: 播放控制 */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
+    <div data-testid="historical-timeline" className={rootClass} style={rootStyle}>
+      <div className="tl3-top">
         <button
+          type="button"
+          className="tl3-btn tl3-btn--primary tl3-btn--play"
           onClick={onTogglePlay}
-          style={{
-            ...getBtnStyle(dark),
-            ...(isMobile
-              ? { width: 44, height: 44, fontSize: FONT_SIZE.xl, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }
-              : {}),
-          }}
           title={playing ? "暫停" : `播放（依${playStepLabel}推進）`}
+          aria-label={playing ? "暫停" : "播放"}
         >
-          {playing ? "⏸" : "▶"}
+          {playing ? <Pause size={13} fill="currentColor" strokeWidth={0} /> : <Play size={13} fill="currentColor" strokeWidth={0} />}
         </button>
+        <span className="tl3-clock">{reActive ? reCursorLabel : formatClock(year, month, day, granularity)}</span>
         <select
+          className="tl3-select tl3-select--mono"
           value={speed}
           onChange={(e) => onSpeedChange(Number(e.target.value))}
-          style={getSelectStyle(dark)}
           title="每秒幾步"
+          aria-label="播放倍速"
         >
-          <option value={0.5}>0.5x</option>
-          <option value={1}>1x</option>
-          <option value={2}>2x</option>
-          <option value={4}>4x</option>
-          <option value={8}>8x</option>
+          {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
         </select>
-        <span
-          style={{
-            fontSize: FONT_SIZE.base,
-            color: dark ? "rgba(180,180,180,0.55)" : "rgba(0,0,0,0.5)",
-            fontFamily: FONT_DATA,
-          }}
-        >
-          {dataNote}
+
+        <span className="tl3-group tl3-group--end">
+          {reActive ? (
+            <div className="tl3-seg" role="group" aria-label="房地產時間粒度">
+              {(["quarter", "month", "week"] as ReGran[]).map((g) => (
+                <button key={g} type="button" aria-pressed={g === reGran} onClick={() => onReGranChange?.(g)}>
+                  {reGranLabel[g]}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <>
+              <span className="tl3-group">
+                <label className="tl3-field">
+                  民國
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={year}
+                    onChange={(e) => onYearChange(Number(e.target.value))}
+                    aria-label="民國年"
+                  >
+                    {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                  </select>
+                  年
+                </label>
+                <label className="tl3-field">
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={month}
+                    disabled={!showMonth}
+                    onChange={(e) => onMonthChange(Number(e.target.value))}
+                    aria-label="月"
+                  >
+                    {range(1, 12).map((m) => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  月
+                </label>
+                <label className="tl3-field">
+                  <select
+                    className="tl3-select tl3-select--mono"
+                    value={Math.min(day, dim)}
+                    disabled={!showDay}
+                    onChange={(e) => onDayChange(Number(e.target.value))}
+                    aria-label="日"
+                  >
+                    {range(1, dim).map((d) => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                  日
+                </label>
+              </span>
+              <div className="tl3-seg" role="group" aria-label="時間粒度">
+                {(["year", "month", "day"] as HistoricalGranularity[]).map((g) => (
+                  <button key={g} type="button" aria-pressed={g === granularity} onClick={() => onGranularityChange(g)}>
+                    {granLabel[g]}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </span>
       </div>
 
-      {/* Row 3+: 房地產 → 連續日期游標 slider；否則火災三層 年/月/日 slider */}
-      {reActive ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-          <span style={{ width: 26, fontSize: FONT_SIZE.base, color: dark ? "rgba(180,180,180,0.7)" : "rgba(0,0,0,0.55)", fontFamily: FONT_DATA, textAlign: "right" }}>
-            {reGranLabel[reGran]}
-          </span>
-          <input
-            type="range"
-            min={reCursorMin}
-            max={reCursorMax}
-            step={reGran === "quarter" ? Math.max(1, Math.round((reCursorMax - reCursorMin) / 6)) : reCursorStep}
-            value={Math.min(Math.max(reCursorTs, reCursorMin), reCursorMax)}
-            onChange={(e) => onReCursorChange?.(Number(e.target.value))}
-            style={{ flex: 1, accentColor: dark ? "#aaa" : "#4caf50" }}
-          />
-          <span style={{ minWidth: 70, fontSize: FONT_SIZE.base, color: dark ? "rgba(220,220,220,0.85)" : "#444", fontFamily: FONT_DATA, textAlign: "right" }}>
-            {reCursorLabel}
-          </span>
-        </div>
-      ) : (
-        <>
-          {sliderRow("年", year, minYear, maxYear, onYearChange, false)}
-          {sliderRow("月", month, 1, 12, onMonthChange, !showMonth)}
-          {sliderRow("日", day, 1, dim, onDayChange, !showDay)}
-        </>
-      )}
+      {axis}
+
+      <div className="tl3-notes">
+        <span className="tl3-warnchip">{dataNote}</span>
+      </div>
     </div>
   );
 }

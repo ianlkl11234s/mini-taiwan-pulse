@@ -13,7 +13,6 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
   const type = String(props.facility_type ?? "");
   const color = WASTE_FACILITY_COLORS[type] ?? "#9ca3af";
   const label = WASTE_FACILITY_LABELS[type] ?? type;
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -40,23 +39,6 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
           color="#0891b2"
         />
       )}
-      {sourceUrl && (
-        <div style={{ marginTop: 6 }}>
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: FONT_SIZE.sm,
-              color: t.link,
-              textDecoration: "underline",
-              wordBreak: "break-all",
-            }}
-          >
-            原始資料 ↗
-          </a>
-        </div>
-      )}
     </>
   );
 }
@@ -65,7 +47,6 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
 export function WasteCleaningSquadPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const phone = props.phone ? String(props.phone) : "";
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -79,14 +60,6 @@ export function WasteCleaningSquadPanel({ props }: { props: Record<string, unkno
       <Row label="地址" value={String(props.address ?? "")} />
       {phone && <Row label="電話" value={phone} color={t.link} />}
       <Row label="主管轄區" value={String(props.jurisdiction ?? "")} />
-      {sourceUrl && (
-        <div style={{ marginTop: 6 }}>
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: FONT_SIZE.sm, color: t.link, textDecoration: "underline", wordBreak: "break-all" }}>
-            原始資料 ↗
-          </a>
-        </div>
-      )}
     </>
   );
 }
@@ -100,7 +73,6 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
   const source = String(props.source ?? "");
   const sourceLabel = WASTE_SOURCE_LABELS[source] ?? source;
   const badge = WASTE_SOURCE_BADGE_COLORS[source] ?? { bg: "rgba(148,163,184,0.18)", fg: "#94a3b8" };
-  const sourceUrl = props.source_url ? String(props.source_url) : "";
   let categories: string[] = [];
   const rawCats = props.accepts_categories;
   if (Array.isArray(rawCats)) categories = rawCats.map(String);
@@ -166,23 +138,6 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
         </div>
       )}
 
-      {sourceUrl && (
-        <div style={{ marginTop: 8 }}>
-          <a
-            href={sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              fontSize: FONT_SIZE.sm,
-              color: t.link,
-              textDecoration: "underline",
-              wordBreak: "break-all",
-            }}
-          >
-            原始資料 ↗
-          </a>
-        </div>
-      )}
     </>
   );
 }

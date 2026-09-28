@@ -1,4 +1,5 @@
-import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { FONT_CJK, FONT_DATA, withAlpha } from "../intelTokens";
+import { useIntelTheme } from "../intelTheme";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 export type FeedTab = "all" | "news" | "alerts" | "globalEvents";
@@ -26,63 +27,71 @@ const TABS: { key: FeedTab; label: string }[] = [
 ];
 
 export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere, globalCount, globalCountInAll }: Props) {
+  const palette = useIntelTheme();
   return (
     <div
-      role="tablist"
-      aria-label="情報分頁"
       style={{
         flexShrink: 0,
-        display: "flex", gap: 4,
         padding: "8px 14px 6px",
-        borderBottom: `1px solid ${COLORS.borderSoft}`,
+        borderBottom: `1px solid ${palette.borderSoft}`,
       }}
     >
-      {TABS.map((t) => {
-        const active = tab === t.key;
-        const isAlerts = t.key === "alerts";
-        const hot = isAlerts && alertSevere > 0;
-        const count =
-          t.key === "globalEvents" ? globalCount : t.key === "news" ? newsCount
-            : t.key === "alerts" ? alertCount
-              : newsCount + alertCountInAll + globalCountInAll;
-        return (
-          <button
-            key={t.key}
-            role="tab"
-            aria-selected={active}
-            onClick={() => onTab(t.key)}
-            style={{
-              flex: 1,
-              minWidth: 0, whiteSpace: "nowrap",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-              padding: "5px 6px",
-              borderRadius: RADIUS.lg,
-              cursor: "pointer",
-              background: active
-                ? (hot ? "rgba(239,68,68,0.16)" : COLORS.accentFaint)
-                : "rgba(255,255,255,0.04)",
-              border: `1px solid ${active
-                ? (hot ? "rgba(239,68,68,0.55)" : COLORS.accentSoft)
-                : COLORS.borderMid}`,
-              color: active
-                ? (hot ? "#ef4444" : COLORS.accent)
-                : COLORS.textMuted,
-              fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 600,
-            }}
-          >
-            {t.label}
-            <span
+      <div
+        role="tablist"
+        aria-label="情報分頁"
+        style={{
+          display: "flex", gap: 2,
+          padding: 2,
+          borderRadius: RADIUS.lg,
+          border: `1px solid ${palette.controlBorder}`,
+          background: palette.controlBg,
+        }}
+      >
+        {TABS.map((t) => {
+          const active = tab === t.key;
+          const isAlerts = t.key === "alerts";
+          const hot = isAlerts && alertSevere > 0;
+          const count =
+            t.key === "globalEvents" ? globalCount : t.key === "news" ? newsCount
+              : t.key === "alerts" ? alertCount
+                : newsCount + alertCountInAll + globalCountInAll;
+          return (
+            <button
+              key={t.key}
+              role="tab"
+              aria-selected={active}
+              onClick={() => onTab(t.key)}
               style={{
-                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
-                color: hot && active ? "#ef4444" : "inherit",
-                opacity: 0.9,
+                flex: 1,
+                minWidth: 0, whiteSpace: "nowrap",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
+                padding: "5px 6px",
+                borderRadius: RADIUS.md,
+                border: "none",
+                cursor: "pointer",
+                background: active
+                  ? (hot ? withAlpha(palette.statusErr, 0.16) : palette.accentFaint)
+                  : "transparent",
+                color: active
+                  ? (hot ? palette.statusErr : palette.accent)
+                  : palette.textMuted,
+                fontFamily: FONT_CJK, fontSize: 11.5, fontWeight: 600,
               }}
             >
-              {count}
-            </span>
-          </button>
-        );
-      })}
+              {t.label}
+              <span
+                style={{
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
+                  color: hot && active ? palette.statusErr : "inherit",
+                  opacity: 0.9,
+                }}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

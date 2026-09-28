@@ -35,22 +35,12 @@ function dateRange(start: unknown, end: unknown, fallback = "無已驗資料"): 
 }
 
 function SourceRows({ props }: PanelProps) {
-  const sourceId = text(props.source_dataset_id, "未提供");
-  const org = text(props.source_org, "未提供");
-  const url = text(props.source_url, "");
+  // 來源機關與原始資料頁由 FeatureInfoPanel 統一掛的 SourceFooter 顯示，這裡只留 footer 沒有的欄位
   return (
     <>
-      <Row label="來源 ID" value={sourceId} />
-      <Row label="來源機關" value={org} />
+      <Row label="來源 ID" value={text(props.source_dataset_id, "未提供")} />
       <Row label="來源更新" value={text(props.source_updated_at, "未提供")} />
       <Row label="授權" value={text(props.source_license, "未提供")} />
-      {url && (
-        <div style={{ marginTop: 6, fontSize: 11 }}>
-          <a href={url} target="_blank" rel="noreferrer" style={{ color: "#38bdf8" }}>
-            原始資料頁 ↗
-          </a>
-        </div>
-      )}
     </>
   );
 }

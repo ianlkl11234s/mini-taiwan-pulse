@@ -1,0 +1,613 @@
+<title>Pulse 工具列與圖層控制</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --page: #07070f; --page-2: #0d0d18; --page-line: rgba(255,255,255,0.09);
+    --page-text: #d1d5db; --page-strong: #f3f4f6; --page-muted: #9ca3af; --page-dim: #6b7280;
+    --pick: #64aaff; --warn-page: #f59e0b;
+    --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+    --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .t-dark {
+    --surface: rgba(10,10,20,0.88); --surface-solid: #10101b; --map: #1b1f27; --map-2: #232833;
+    --t-strong: #f3f4f6; --t-default: #d8dce3; --t-muted: #9ca3af; --t-dim: #6b7280;
+    --b-soft: rgba(255,255,255,0.06); --b-panel: rgba(255,255,255,0.10); --b-mid: rgba(255,255,255,0.14);
+    --c-bg: rgba(255,255,255,0.06); --c-bg-hover: rgba(255,255,255,0.10); --c-border: rgba(255,255,255,0.12);
+    --accent: #64aaff; --accent-faint: rgba(100,170,255,0.16); --accent-ink: #0a0a14;
+    --track: rgba(255,255,255,0.14); --fill: rgba(255,255,255,0.55); --thumb: #f3f4f6;
+    --live: #22c55e; --warn: #ff9800; --err: #ef4444; --link: #7fb2ff;
+    --shadow: 0 8px 28px rgba(0,0,0,0.5);
+  }
+  .t-light {
+    --surface: rgba(255,255,255,0.95); --surface-solid: #ffffff; --map: #e7eaee; --map-2: #d9dee4;
+    --t-strong: #111827; --t-default: #1f2937; --t-muted: #4b5563; --t-dim: #6b7280;
+    --b-soft: rgba(0,0,0,0.06); --b-panel: rgba(0,0,0,0.10); --b-mid: rgba(0,0,0,0.16);
+    --c-bg: rgba(0,0,0,0.035); --c-bg-hover: rgba(0,0,0,0.08); --c-border: rgba(0,0,0,0.14);
+    --accent: #0b6fd6; --accent-faint: rgba(11,111,214,0.10); --accent-ink: #ffffff;
+    --track: rgba(0,0,0,0.12); --fill: rgba(0,0,0,0.45); --thumb: #111827;
+    --live: #15803d; --warn: #c2410c; --err: #b91c1c; --link: #0284c7;
+    --shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--page); color: var(--page-text); font: 13px/1.6 var(--font-cjk); padding: 28px 20px 72px; }
+  .wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+  code { font-family: var(--font-data); font-size: 12px; color: var(--page-strong); }
+  header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; color: var(--page-strong); text-wrap: balance; }
+  header p { margin: 0 0 6px; max-width: 76ch; color: var(--page-muted); }
+  .howto { color: var(--warn-page); }
+  section.blk { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--page-line); padding-top: 20px; }
+  .blk-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+  .blk-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--page-strong); }
+  .num { font-family: var(--font-data); font-size: 12px; color: var(--page-dim); }
+  .tag { font-family: var(--font-data); font-size: 11px; padding: 1px 7px; border-radius: 3px; font-weight: 700; }
+  .tag.pick { background: var(--pick); color: #07070f; }
+  .tag.ok { border: 1px solid var(--page-dim); color: var(--page-muted); font-weight: 500; }
+  .note { margin: 0; max-width: 86ch; color: var(--page-muted); font-size: 12.5px; }
+  .note b { color: var(--page-strong); font-weight: 600; }
+  ul.note { padding-left: 18px; display: flex; flex-direction: column; gap: 3px; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 540px), 1fr)); gap: 14px; }
+  .board { border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px; color: var(--t-default); overflow: hidden;
+    background: linear-gradient(90deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 80px 80px,
+                linear-gradient(0deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 80px 80px, var(--map); }
+  .board-cap { font-size: 10px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .opt-cap { display: flex; gap: 6px; align-items: baseline; font-size: 11px; color: var(--t-muted); }
+  .opt-cap b { font-family: var(--font-data); color: var(--accent); }
+  .stack { display: flex; flex-direction: column; gap: 16px; }
+  .rowwrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+
+  /* ── 通用按鈕 C2 ── */
+  .btn { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--c-border);
+    background: var(--c-bg); color: var(--t-strong); font: 500 11px/1 var(--font-cjk); white-space: nowrap; cursor: pointer; }
+  .btn:hover { background: var(--c-bg-hover); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn.pri { background: var(--accent-faint); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .btn.icon { width: 26px; padding: 0; justify-content: center; }
+  .btn svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .seg { display: inline-flex; height: 26px; padding: 2px; gap: 2px; border-radius: 5px; border: 1px solid var(--c-border); background: var(--c-bg); }
+  .seg button { border: 0; background: transparent; color: var(--t-muted); font: 500 11px/1 var(--font-cjk); padding: 0 9px; border-radius: 3px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+  .seg button.on { background: var(--accent-faint); color: var(--accent); font-weight: 600; }
+  .dotlive { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+  .badge-beta { font: 700 8px/1 var(--font-data); letter-spacing: .6px; padding: 2px 4px; border-radius: 2px; border: 1px solid currentColor; opacity: .8; }
+  .vsep { width: 1px; height: 16px; background: var(--b-mid); }
+
+  /* ── 工具列 ── */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .brand .name { font: 700 15px/1 var(--font-cjk); color: var(--t-strong); letter-spacing: .2px; }
+  .brand .name span { font-weight: 400; color: var(--t-dim); font-size: 11px; margin-left: 6px; }
+  .sel { height: 26px; padding: 0 22px 0 9px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-strong); font: 500 11px/26px var(--font-cjk); position: relative; }
+  .sel::after { content: ""; position: absolute; right: 8px; top: 10px; width: 5px; height: 5px; border-right: 1.5px solid var(--t-muted); border-bottom: 1.5px solid var(--t-muted); transform: rotate(45deg); }
+  .hud { margin-top: 8px; font: 10px/1.5 var(--font-data); color: var(--t-dim); font-variant-numeric: tabular-nums; }
+  .tools { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .tb-surface { display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 7px; background: var(--surface); border: 1px solid var(--b-panel); box-shadow: var(--shadow); }
+  .tb-surface .btn { border-color: transparent; background: transparent; }
+  .tb-surface .btn:hover { background: var(--c-bg-hover); }
+  .tb-surface .seg { border-color: transparent; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #5b8def, #9b6bf0); color: #fff; font: 700 11px/26px var(--font-cjk); text-align: center; }
+  .menu { position: relative; }
+  .menu-pop { position: absolute; right: 0; top: 32px; width: 168px; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 4px; z-index: 2; }
+  .menu-pop div { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 4px; font-size: 11px; color: var(--t-default); }
+  .menu-pop div:hover { background: var(--c-bg-hover); }
+  .menu-pop div svg { width: 13px; height: 13px; stroke: var(--t-muted); fill: none; stroke-width: 1.8; }
+  .menu-pop .kbd { margin-left: auto; font: 9px var(--font-data); color: var(--t-dim); }
+  .menu-pop hr { border: 0; border-top: 1px solid var(--b-soft); margin: 4px 0; }
+  .tip { font: 10px var(--font-cjk); color: var(--t-dim); margin-top: 6px; text-align: right; }
+
+  /* ── 即時情報 ── */
+  .intel { width: 400px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; font-family: var(--font-cjk); }
+  .ih { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--b-panel); }
+  .ih .ey { font-size: 9px; letter-spacing: 1.4px; color: var(--t-dim); }
+  .ih h3 { margin: 1px 0 0; font-size: 13px; font-weight: 700; color: var(--t-strong); display: flex; align-items: center; gap: 8px; }
+  .pill-live { display: inline-flex; align-items: center; gap: 4px; font: 600 9px/1 var(--font-data); letter-spacing: .6px; color: var(--live); padding: 2px 6px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--live) 50%, transparent); }
+  .ih .x { color: var(--t-dim); font-size: 13px; }
+  .imeta { display: flex; align-items: center; gap: 10px; padding: 6px 14px; font-size: 10.5px; color: var(--t-muted); border-bottom: 1px solid var(--b-soft); }
+  .imeta .d { font-family: var(--font-data); font-variant-numeric: tabular-nums; color: var(--t-default); }
+  .imeta .src { margin-left: auto; display: inline-flex; gap: 5px; align-items: center; color: var(--warn); }
+  .ialert { display: flex; align-items: center; gap: 8px; padding: 7px 14px; font-size: 11.5px; color: var(--t-strong); border-bottom: 1px solid var(--b-soft); background: color-mix(in srgb, var(--err) 6%, transparent); }
+  .ialert .sev { font-size: 10px; color: var(--err); border: 1px solid color-mix(in srgb, var(--err) 45%, transparent); border-radius: 3px; padding: 1px 5px; }
+  .ialert .dots { display: flex; gap: 3px; margin-left: auto; }
+  .ialert .dots i { width: 6px; height: 6px; border-radius: 50%; display: block; }
+  .ifilter { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--b-soft); }
+  .ifilter .seg { width: 100%; }
+  .ifilter .seg button { flex: 1; justify-content: center; }
+  .ifilter .seg .n { font-family: var(--font-data); font-size: 10px; opacity: .8; }
+  .range { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--t-dim); }
+  .range .seg { width: auto; height: 22px; }
+  .range .seg button { font: 500 10px/1 var(--font-data); padding: 0 8px; flex: none; }
+  .tl { list-style: none; margin: 0; padding: 10px 14px 12px 28px; display: flex; flex-direction: column; gap: 8px; position: relative; }
+  .tl::before { content: ""; position: absolute; left: 18px; top: 14px; bottom: 16px; border-left: 1px solid var(--b-mid); }
+  .card { position: relative; border: 1px solid var(--b-soft); border-radius: 6px; padding: 8px 10px; background: var(--c-bg); }
+  .card::before { content: ""; position: absolute; left: -14px; top: 12px; width: 7px; height: 7px; border-radius: 50%; background: var(--dotc, var(--warn)); box-shadow: 0 0 0 2px var(--surface-solid); }
+  .card .top { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--t-dim); }
+  .chip { font-size: 10px; line-height: 1; padding: 3px 5px; border-radius: 3px; color: var(--cc); background: color-mix(in srgb, var(--cc) 14%, transparent); }
+  .chip.o { background: transparent; border: 1px solid color-mix(in srgb, var(--cc) 50%, transparent); padding: 2px 5px; }
+  .card .time { margin-left: auto; font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .card h4 { margin: 5px 0 3px; font-size: 12.5px; font-weight: 600; color: var(--t-strong); }
+  .card .loc { font-size: 10.5px; color: var(--t-muted); display: flex; gap: 8px; }
+  .card .loc .d { font-family: var(--font-data); }
+  .ifoot { display: flex; align-items: center; gap: 8px; padding: 8px 14px 10px; border-top: 1px solid var(--b-panel); font-size: 10px; color: var(--t-dim); }
+  .ifoot .now { color: var(--live); font-weight: 600; }
+  .ifoot .bar { flex: 1; height: 2px; background: var(--track); border-radius: 2px; position: relative; }
+  .ifoot .bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 96%; background: var(--accent); border-radius: 2px; }
+  .ifoot .bar b { position: absolute; left: 96%; top: -4px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--thumb); }
+
+  /* ── 圖層列與控制項 ── */
+  .lp { width: 290px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 4px 0; font-family: var(--font-cjk); }
+  .lrow { display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 11.5px; color: var(--t-strong); }
+  .lrow .ic { width: 14px; height: 14px; stroke: var(--t-muted); fill: none; stroke-width: 1.6; flex-shrink: 0; }
+  .lrow .en { color: var(--t-dim); font-size: 10.5px; }
+  .lrow .chev { margin-left: auto; width: 12px; height: 12px; stroke: var(--t-muted); fill: none; stroke-width: 2; transition: transform .15s; }
+  .lrow.open .chev { transform: rotate(90deg); }
+  .sw { width: 24px; height: 14px; border-radius: 999px; background: var(--c-border); position: relative; flex-shrink: 0; border: 0; cursor: pointer; padding: 0; }
+  .sw::after { content: ""; position: absolute; left: 2px; top: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--t-strong); transition: left .15s; }
+  .sw.on { background: var(--accent); }
+  .sw.on::after { left: 12px; background: #fff; }
+  .lrow.open { box-shadow: inset 2px 0 0 var(--accent); }
+  .eye { width: 20px; height: 20px; border-radius: 4px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
+  .eye svg { width: 13px; height: 13px; stroke: var(--t-muted); fill: none; stroke-width: 1.7; }
+  .ctl { margin: 0 12px 8px 34px; padding: 4px 0 4px 10px; border-left: 1px solid var(--b-mid); display: flex; flex-direction: column; gap: 6px; }
+  /* V1：三欄  label | 滑桿 | 值 */
+  .cr { display: grid; grid-template-columns: 52px 1fr 34px; align-items: center; gap: 8px; min-height: 18px; }
+  .cr .k { font-size: 10px; color: var(--t-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cr .v { font: 10px var(--font-data); color: var(--t-default); text-align: right; font-variant-numeric: tabular-nums; }
+  .cr.wide { grid-template-columns: 52px 1fr; }
+  /* V2：label 與值同一行，滑桿在下 */
+  .v2 .cr { grid-template-columns: 1fr auto; grid-template-areas: "k v" "s s"; row-gap: 2px; }
+  .v2 .cr .k { grid-area: k; } .v2 .cr .v { grid-area: v; } .v2 .cr input { grid-area: s; }
+  .v2 .cr.wide { grid-template-columns: 1fr; grid-template-areas: "k" "s"; }
+  .v2 .cr.wide > :last-child { grid-area: s; }
+  /* 細滑桿 */
+  input[type=range].rng { -webkit-appearance: none; appearance: none; width: 100%; height: 14px; background: transparent; margin: 0; cursor: pointer; --p: 50%; }
+  input[type=range].rng::-webkit-slider-runnable-track { height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--fill) 0 var(--p), var(--track) var(--p) 100%); }
+  input[type=range].rng::-moz-range-track { height: 2px; border-radius: 2px; background: var(--track); }
+  input[type=range].rng::-moz-range-progress { height: 2px; background: var(--fill); }
+  input[type=range].rng::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: var(--thumb); margin-top: -4px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--thumb) 12%, transparent); }
+  input[type=range].rng::-moz-range-thumb { width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--thumb); }
+  input[type=range].rng:focus-visible { outline: none; }
+  input[type=range].rng:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px var(--accent); }
+  /* S2：刻度型（兩端短刻度） */
+  .s2 input[type=range].rng::-webkit-slider-runnable-track { height: 1px; background: linear-gradient(90deg, var(--fill) 0 var(--p), var(--track) var(--p) 100%); }
+  .s2 input[type=range].rng::-webkit-slider-thumb { width: 3px; height: 11px; border-radius: 1px; margin-top: -5px; box-shadow: none; }
+  .s2 input[type=range].rng::-moz-range-thumb { width: 3px; height: 11px; border-radius: 1px; }
+  .mseg { display: inline-flex; gap: 2px; padding: 1px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); width: fit-content; max-width: 100%; flex-wrap: wrap; }
+  .mseg button { border: 0; background: transparent; color: var(--t-muted); font: 500 10px/1 var(--font-cjk); padding: 4px 7px; border-radius: 3px; cursor: pointer; }
+  .mseg button.on { background: var(--accent-faint); color: var(--accent); font-weight: 600; }
+  .msel { height: 20px; padding: 0 20px 0 7px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-strong); font: 10px/20px var(--font-cjk); position: relative; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .msel::after { content: ""; position: absolute; right: 7px; top: 6px; width: 4px; height: 4px; border-right: 1.3px solid var(--t-muted); border-bottom: 1.3px solid var(--t-muted); transform: rotate(45deg); }
+  .mini-sw { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--t-muted); }
+  .mini-sw .sw { width: 20px; height: 11px; } .mini-sw .sw::after { width: 7px; height: 7px; } .mini-sw .sw.on::after { left: 11px; }
+  .tgl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+  details.ms { font-size: 10px; color: var(--t-muted); }
+  details.ms summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 5px; }
+  details.ms summary::-webkit-details-marker { display: none; }
+  details.ms summary svg { width: 10px; height: 10px; stroke: var(--t-muted); fill: none; stroke-width: 2; transition: transform .15s; }
+  details.ms[open] summary svg { transform: rotate(90deg); }
+  details.ms summary .cnt { font-family: var(--font-data); color: var(--t-default); }
+  details.ms summary .act { margin-left: auto; display: flex; gap: 8px; }
+  details.ms summary .act span { color: var(--link); }
+  .chk { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 8px; margin-top: 6px; }
+  .chk label { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--t-default); cursor: pointer; }
+  .chk input { appearance: none; width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--b-mid); margin: 0; display: grid; place-items: center; }
+  .chk input:checked { background: var(--cc, var(--accent)); border-color: var(--cc, var(--accent)); }
+  .opt { display: flex; flex-direction: column; gap: 6px; }
+  .capsolo { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 44px; height: 38px; border-radius: 6px; border: 1px solid var(--accent); background: var(--accent-faint); color: var(--accent); font: 600 9.5px/1 var(--font-cjk); cursor: pointer; box-shadow: var(--shadow); }
+  .capsolo svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+  .capscene { position: relative; height: 200px; border-radius: 6px; overflow: hidden; border: 1px solid var(--b-panel);
+    background: linear-gradient(90deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 60px 60px,
+                linear-gradient(0deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 60px 60px, var(--map); }
+  .capscene .vig { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.30) 80%, rgba(0,0,0,.5) 100%); }
+  .captitle { position: absolute; left: 16px; top: 14px; }
+  .captitle .t1 { font: 700 18px/1.2 var(--font-cjk); color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.6); }
+  .captitle .t2 { font: 500 10.5px/1.4 var(--font-cjk); color: rgba(255,255,255,.8); margin-top: 3px; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
+  .captitle .t3 { font: 10px var(--font-data); color: rgba(255,255,255,.6); margin-top: 2px; }
+  .exit { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; font: 10px var(--font-cjk); color: rgba(255,255,255,.75); background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; padding: 4px 10px; backdrop-filter: blur(6px); white-space: nowrap; }
+  .exit .k { font: 600 9px var(--font-data); border: 1px solid rgba(255,255,255,.3); border-radius: 3px; padding: 1px 4px; }
+  .exit.ghost { opacity: .45; border-style: dashed; }
+  .bm-row { display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start; }
+  .bm-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .bm-col .lbl { font-size: 10px; color: var(--t-dim); }
+  .cap2 { display: inline-flex; align-items: stretch; height: 26px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); overflow: hidden; font: 500 11px/1 var(--font-cjk); color: var(--t-strong); }
+  .cap2 > span { display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; }
+  .cap2 > span + span { border-left: 1px solid var(--c-border); color: var(--t-muted); }
+  .caret { width: 5px; height: 5px; border-right: 1.4px solid var(--t-muted); border-bottom: 1.4px solid var(--t-muted); transform: rotate(45deg) translateY(-2px); }
+  .swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--b-mid); flex-shrink: 0; }
+  .pop { background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 4px; font-family: var(--font-cjk); }
+  .pop .it { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 4px; font-size: 11px; color: var(--t-default); }
+  .pop .it.on { background: var(--accent-faint); color: var(--accent); font-weight: 600; }
+  .pop .it .ck { margin-left: auto; font-size: 10px; }
+  .pop hr { border: 0; border-top: 1px solid var(--b-soft); margin: 4px 2px; }
+  .pop .foot-sw { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 8px; font-size: 11px; color: var(--t-default); }
+  .thumbs { display: grid; grid-template-columns: repeat(4, 52px); gap: 6px; padding: 6px; }
+  .thumbs.row { grid-template-columns: repeat(7, 46px); }
+  .th { display: flex; flex-direction: column; gap: 3px; align-items: center; font-size: 9.5px; color: var(--t-muted); }
+  .th i { display: block; width: 100%; aspect-ratio: 1; border-radius: 5px; border: 1px solid var(--b-mid); }
+  .th.on i { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .th.on { color: var(--accent); font-weight: 600; }
+  .corner { width: 58px; height: 58px; border-radius: 8px; border: 2px solid var(--surface-solid); box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .corner span { position: absolute; left: 0; right: 0; bottom: 0; font: 600 9.5px/1 var(--font-cjk); color: #fff; padding: 3px 0 4px; text-align: center; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
+  .corner-open { display: flex; align-items: flex-end; gap: 8px; }
+  .rb { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 100%; }
+  .rb .tb-surface { flex-wrap: wrap; justify-content: flex-end; }
+  .rb-pop { align-self: flex-end; max-width: 100%; overflow-x: auto; }
+  .bm-ic { position: relative; }
+  .bm-dot { position: absolute; right: 3px; bottom: 3px; width: 7px; height: 7px; border-radius: 2px; border: 1px solid var(--surface-solid); }
+  .lbl-tg { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 6px; font: 500 11px/1 var(--font-cjk); color: var(--t-muted); white-space: nowrap; }
+  .railapp { display: flex; gap: 0; align-items: flex-start; }
+  .rail { width: 40px; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px 0 0 8px; padding: 6px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .rail i { width: 26px; height: 26px; border-radius: 5px; display: grid; place-items: center; }
+  .rail i svg { width: 14px; height: 14px; stroke: var(--t-muted); fill: none; stroke-width: 1.7; }
+  .rail i.on { background: var(--accent-faint); }
+  .rail i.on svg { stroke: var(--accent); }
+  .dsp { width: 300px; max-width: calc(100vw - 90px); background: var(--surface); border: 1px solid var(--b-panel); border-left: 0; border-radius: 0 8px 8px 0; box-shadow: var(--shadow); font-family: var(--font-cjk); overflow: hidden; }
+  .dsp .ih { padding: 10px 12px; }
+  .dsp .body { padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 8px; }
+  .dsp .search { height: 26px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-dim); font-size: 11px; padding: 0 8px; display: flex; align-items: center; gap: 6px; }
+  .dsp .search svg { width: 12px; height: 12px; stroke: var(--t-dim); fill: none; stroke-width: 2; }
+  .dsp .seg { width: 100%; height: 24px; }
+  .dsp .seg button { flex: 1; justify-content: center; padding: 0 4px; font-size: 10px; }
+  .dsp .seg .n { font-family: var(--font-data); font-size: 9.5px; }
+  .theme-h { font: 600 11px var(--font-cjk); color: var(--t-strong); padding: 6px 0 0; display: flex; align-items: center; gap: 6px; }
+  .theme-h .en { font: 9px var(--font-data); color: var(--t-dim); letter-spacing: .8px; }
+  .grp-h { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; color: var(--t-muted); padding: 4px 0 1px; }
+  .grp-h::after { content: ""; flex: 1; height: 1px; background: var(--b-mid); }
+  .dsr { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--t-default); padding: 3px 4px; border-radius: 4px; }
+  .dsr.sel { background: var(--c-bg-hover); }
+  .dsr .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dsr .en { color: var(--t-dim); font-size: 10px; }
+  .dsr .st { margin-left: auto; font-size: 10px; }
+  .st-ok { color: var(--live); } .st-der { color: #a78bfa; } .st-todo { color: var(--warn); }
+  .dscard { margin: 2px 0 4px 14px; padding: 6px 0 6px 10px; border-left: 1px solid var(--b-mid); display: flex; flex-direction: column; gap: 4px; }
+  .dscard .ttl { font-size: 11.5px; font-weight: 700; color: var(--t-strong); display: flex; gap: 6px; align-items: center; }
+  .dscard .desc { font-size: 10.5px; color: var(--t-muted); line-height: 1.5; }
+  .fr { display: flex; gap: 8px; padding: 3px 0; font-size: 10.5px; line-height: 1.3; border-bottom: 1px solid var(--b-soft); }
+  .fr:last-of-type { border-bottom: 0; }
+  .fr .k { width: 44px; flex-shrink: 0; font-size: 10px; color: var(--t-muted); }
+  .fr .v { color: var(--t-strong); word-break: break-all; }
+  .fr .v a { color: var(--link); text-decoration: none; }
+  .fr .v.d { font-family: var(--font-data); font-size: 10px; }
+  .backbar { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--link); padding-bottom: 6px; border-bottom: 1px solid var(--b-soft); }
+  .dockcard { width: 260px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 12px 14px; font-family: var(--font-cjk); align-self: flex-end; }
+  .dockcard .ey { font-size: 9px; letter-spacing: 1.2px; color: var(--t-dim); margin-bottom: 4px; }
+  .dockcard .ttl { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; color: var(--t-strong); padding-bottom: 5px; margin-bottom: 4px; border-bottom: 1px solid var(--b-panel); }
+  .dockcard .foot { margin-top: 8px; padding-top: 6px; border-top: 1px solid var(--b-soft); font-size: 9px; color: var(--t-dim); }
+  .ds-wrap { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; }
+  .combo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 14px; align-items: start; }
+  .combo-cap { font-size: 10.5px; color: var(--t-muted); margin-bottom: 5px; display: flex; gap: 6px; }
+  .combo-cap .c { font-family: var(--font-data); color: var(--t-dim); }
+  table.spec { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 12px; }
+  table.spec th, table.spec td { text-align: left; padding: 6px 9px; border-bottom: 1px solid var(--page-line); vertical-align: top; }
+  table.spec th { color: var(--page-dim); font-weight: 500; font-size: 11px; }
+  table.spec td:first-child { color: var(--page-strong); white-space: nowrap; }
+  .scroll { overflow-x: auto; }
+  @media (max-width: 480px) { body { padding-inline: 16px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>工具列、即時情報與圖層控制</h1>
+    <p>沿用上一輪拍板：系統字，中文用 <code>--font-cjk</code>、只有數字用 <code>--font-data</code>；按鈕 C2；面板標頭 H2；分隔用左線。每區暗、淡色並排。圖層控制的滑桿、分段、開關都可以直接操作。</p>
+    <p class="howto">回覆格式：「4-D3」。前面 1、1b、1c、2、3 已拍板並施工中。工具列 T1～T4 的底圖控制項先以 B4 示意。</p>
+  </header>
+
+  <!-- 1 工具列 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">1</span><h2>右上角工具列</h2><span class="tag pick">選一</span><span class="tag ok">第二版</span></div>
+    <ul class="note">
+      <li><b>這版的變更</b>：拿掉「Monitor BETA」（左側欄的「監測模式」入口保留）；「Capture」改名<b>拍攝模式</b>並設為工具列的主角。</li>
+      <li><b>現況問題</b>：兩排是兩個寫死位置的區塊，不是自動換行；按鈕圓角 4／6／膠囊混用；「即時／歷史」「地名：開」中文用了等寬字；「Right-drag to rotate」是第三層獨立提示。</li>
+      <li>四版共通：高度 26px、圓角 4px、中文字型；品牌名改中文字型；座標 HUD 保留等寬；操作提示收進「說明」。</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="stack" data-bars></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="stack" data-bars></div></div>
+    </div>
+    <ul class="note">
+      <li><b>T1 單排分組</b>：一排按鈕、細豎線分組，拍攝模式用主要按鈕樣式（淡藍底＋藍框）放在最右側、頭像之前。</li>
+      <li><b>T2 工具列底板</b>：放進一條有底色的工具列；分享、說明改圖示，只有「拍攝模式」和「AI」保留文字。</li>
+      <li><b>T3 精簡＋選單</b>：外面只留即時／歷史、AI、拍攝模式、頭像；分享與說明收進「⋯」。</li>
+      <li><b>T4 拍攝模式獨立</b>：工具列同 T2，拍攝模式拉出來成為獨立的一顆方形按鈕，與其他工具分開，一眼就找得到。</li>
+    </ul>
+  </section>
+
+  <!-- 1b 拍攝模式進行中 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">1b</span><h2>拍攝模式進行中</h2><span class="tag pick">選一</span></div>
+    <ul class="note">
+      <li>現況：所有介面隱藏、加暗角，左上角出現等寬字的「Mini Taiwan Pulse / Taiwan Transport Visualization」，只能按 Esc 離開，畫面上沒有任何提示。</li>
+      <li>兩版都把標題改成中文字型（英文副標保留為小字）。差別在「怎麼離開」的提示：</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="rowwrap" data-capture></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="rowwrap" data-capture></div></div>
+    </div>
+    <ul class="note">
+      <li><b>P1 常駐小提示</b>：底部置中一顆很淡的「離開拍攝模式 · Esc」，擷圖時會一起入鏡，但使用者不會迷路。</li>
+      <li><b>P2 滑過才出現</b>：畫面完全乾淨；滑鼠移動時提示淡入，靜止 2 秒後淡出（示意中以虛線框表示「平常看不到」）。</li>
+    </ul>
+  </section>
+
+  <!-- 1c 底圖與地名 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">1c</span><h2>底圖與地名（併入右側工具列）</h2><span class="tag pick">選一</span></div>
+    <ul class="note">
+      <li>底圖選單與「地名」開關從品牌名旁邊移到右側工具列，放在「即時／歷史」後面；左上只留品牌名與座標。</li>
+      <li>底圖名稱改中文（純黑、暗色、淡色、衛星、衛星街道、夜間導航、街道）。三版差別在收合時露出多少、地名開關放哪裡；展開面板都靠右對齊工具列。</li>
+      <li>上方 T1～T4 目前以 B4 示意。</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="stack" data-basemap></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="stack" data-basemap></div></div>
+    </div>
+    <ul class="note">
+      <li><b>B1 膠囊</b>：「暗色 ⌄｜地名 ●」都露在外面，地名一鍵切換；展開是文字清單。工具列最寬。</li>
+      <li><b>B2 色塊按鈕</b>：按鈕顯示目前底圖色塊與名稱；展開是 7 格縮圖＋「顯示地名」開關。</li>
+      <li><b>B3 純圖示</b>：只有地圖圖示＋右下小色點，最省寬；展開同 B2。缺點是看不出目前是哪種底圖，要滑過才知道。</li>
+      <li><b>B4 色塊按鈕＋地名外露</b>：B2 的按鈕旁多一個「地名 ●」小開關，地名一鍵切換；展開面板只放縮圖。介於 B1 與 B2 之間。</li>
+    </ul>
+  </section>
+
+  <!-- 4 資料來源 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">4</span><h2>資料來源總覽：收進側邊欄</h2><span class="tag pick">選一</span></div>
+    <ul class="note">
+      <li><b>現況</b>：右下角浮動 ⓘ 按鈕（與「LEGEND」並排）→ 右側全高抽屜 → 點圖層再跳出置中的詳細視窗。元件沒有設定字型，所以顯示成瀏覽器預設的襯線字；顏色全部寫死。</li>
+      <li><b>共通改法</b>：左側欄新增一個「資料來源」圖示（資料庫圖示，放在「Locations」之後）；拿掉右下角的浮動 ⓘ。面板外殼與 Layers 相同：H2 標頭（小字「資料」＋標題「資料來源」）、搜尋框、主題標題與 L2 群組標題。</li>
+      <li>統計數字改成可點的篩選分段：全部 803 · 已接上 554 · 派生 27 · 待補 222；每列右側用同一組狀態記號（✓ 綠／⚙ 紫／? 橙）。</li>
+      <li>三版差別在「點一個圖層後，詳細資料在哪裡出現」：</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="rowwrap" data-ds></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="rowwrap" data-ds></div></div>
+    </div>
+    <ul class="note">
+      <li><b>D1 列內展開</b>：點一下在清單中直接展開上游資料卡，同時只展開一筆。最直覺，但長內容會把清單往下推。</li>
+      <li><b>D2 面板內下一層</b>：點進去整個面板換成詳細頁，左上「← 資料來源」返回；清單位置會記住。適合內容長、要專心讀的情境。</li>
+      <li><b>D3 右下停靠卡</b>：清單留在左側，詳細資料出現在右下角，外觀與地圖 popup 完全相同（B 版列＋F2 來源 footer）。全站只有一種「詳細資料」長相。</li>
+      <li>順帶：右下角的「LEGEND」改成中文「圖例」、改中文字型（與拿掉的 ⓘ 同一區，一起整理）。</li>
+    </ul>
+  </section>
+
+  <!-- 2 即時情報 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">2</span><h2>即時情報面板</h2><span class="tag ok">確認</span></div>
+    <ul class="note">
+      <li><b>標頭改 H2</b>：「情報」小字在上、「即時情報」13px 在下，LIVE 改成小膠囊。原本「INTEL」在標題下方。</li>
+      <li><b>中文不再用等寬字</b>：「更新」「共」「則」「x 分鐘前」、地名、「回放」都改中文字型，只有時間與數字等寬。英文大寫小標（INTEL／RANGE／REPLAY）改中文「時間範圍」「回放」。</li>
+      <li><b>徽章收斂成兩種</b>：分類＝淡底色（民生、安全、水文）；程度＝外框（留意、警戒）。原本至少 5～6 種底色寫法。</li>
+      <li><b>分頁用分段控制</b>，計數用等寬小字；時間軸改左線（與活動時間軸同一種）。範例裡的計數是示意。</li>
+      <li><b>另列一個資料問題（不在這次 UI 範圍）</b>：標頭「共 N 則」只算新聞、「全部」是三類加總、「66 則警報」沒套時間範圍，三處算法不同，截圖裡才會出現「共 0 則」「全部 11」「66 則警報」同時存在。</li>
+    </ul>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div data-intel></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div data-intel></div></div>
+    </div>
+  </section>
+
+  <!-- 3 圖層控制 -->
+  <section class="blk">
+    <div class="blk-head"><span class="num">3</span><h2>圖層調整控制項</h2><span class="tag pick">選版面＋滑桿</span></div>
+    <ul class="note">
+      <li><b>盤點</b>：約 770 個圖層規格；控制項 4 種：滑桿（約 1,092 個）、選單（106；3 個選項以內顯示成分段按鈕）、開關（64）、多選清單（21）。另有醫療統計、統計詳情等 4 個手寫控制元件。</li>
+      <li><b>現況問題</b>：標籤和數值黏成一串（「Opacity 0.85」「Shuttle Z +0m」）、中英混用（Opacity／透明度並存）、等寬字、滑桿頭是瀏覽器預設、開關是「ON／OFF」文字、展開箭頭有 ▶ 和圖示兩套、「Hide」是英文字按鈕。</li>
+      <li><b>共通改法</b>：標籤一律中文（透明度、大小、高度、光點、尾跡、配色）；數值獨立靠右對齊、等寬；開關改迷你切換；「Hide」改成眼睛圖示；展開箭頭統一一種；控制區左側用左線（與 Layers 群組、時間軸同一語彙）。</li>
+    </ul>
+
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色 · 版面選擇</span><div class="rowwrap" data-layouts></div></div>
+      <div class="board t-light"><span class="board-cap">淡色 · 版面選擇</span><div class="rowwrap" data-layouts></div></div>
+    </div>
+    <ul class="note">
+      <li><b>V1 三欄</b>：標籤｜滑桿｜數值，一列一個控制，最省高度，標籤欄寬 52px（長標籤會截斷，滑過看全名）。</li>
+      <li><b>V2 上下兩行</b>：標籤與數值在上、滑桿在下全寬，最好讀，每個控制多約 8px 高度。</li>
+      <li><b>S1 圓點</b>：2px 軌道＋10px 圓點，已拖過的部分較亮。<b>S2 刻度</b>：1px 軌道＋細直條，更接近儀表風，但可點範圍看起來較小。</li>
+    </ul>
+
+    <div class="blk-head" style="margin-top:6px"><h2 style="font-size:14px">實際組合（依使用量排序，套 V1＋S1）</h2></div>
+    <p class="note">組合種類與層數來自盤點；⑥⑧⑨ 的控制項名稱與選項是示意，實際以各圖層規格為準。</p>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色</span><div class="combo-grid" data-combos></div></div>
+      <div class="board t-light"><span class="board-cap">淡色</span><div class="combo-grid" data-combos></div></div>
+    </div>
+
+    <div class="scroll">
+      <table class="spec">
+        <thead><tr><th>元件</th><th>規格</th><th>取代現況</th></tr></thead>
+        <tbody>
+          <tr><td>滑桿</td><td>2px 軌道、10px 圓點、已拖段較亮；列高 18px</td><td>3px 瀏覽器預設滑桿</td></tr>
+          <tr><td>標籤</td><td>10px 中文、muted；V1 固定 52px</td><td>標籤＋數值黏成一串、等寬字</td></tr>
+          <tr><td>數值</td><td>10px 等寬、靠右、tabular-nums；單位接在數值後（+0 m、×1.0）</td><td>各控制項自訂 digits／suffix</td></tr>
+          <tr><td>分段（≤3 項）</td><td>高 20px、10px 字、選中淡 accent 底</td><td>藍框按鈕</td></tr>
+          <tr><td>選單（&gt;3 項）</td><td>高 20px、10px 字、自繪箭頭</td><td>原生 select</td></tr>
+          <tr><td>開關</td><td>20×11 迷你切換＋中文標籤；多個時排成兩欄</td><td>「ON／OFF」文字按鈕</td></tr>
+          <tr><td>多選清單</td><td>摺疊標題「主祀類別 7/9」＋「全選／全關」連結＋兩欄小方塊勾選，勾選框用各類別顏色</td><td>details＋原生 checkbox 一欄</td></tr>
+          <tr><td>隱藏</td><td>圖層列上的眼睛圖示</td><td>展開區內「Hide」英文按鈕</td></tr>
+          <tr><td>展開箭頭</td><td>12px 線條 chevron，展開轉 90°</td><td>▶ 字元與圖示兩套</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  const I = {
+    share: '<svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>',
+    cap: '<svg viewBox="0 0 24 24"><path d="M3 7h3l2-3h8l2 3h3v12H3z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+    mon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>',
+    ai: '<svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+    more: '<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>',
+    login: '<svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5M15 12H3"/></svg>',
+    chev: '<svg viewBox="0 0 24 24" class="chev"><path d="M9 6l6 6-6 6"/></svg>',
+    eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+    ship: '<svg viewBox="0 0 24 24" class="ic"><path d="M3 17l2 4h14l2-4-9-3z"/><path d="M12 3v11M8 7h8"/></svg>',
+    temple: '<svg viewBox="0 0 24 24" class="ic"><path d="M3 9l9-5 9 5M5 9v10M19 9v10M9 19v-6h6v6M3 19h18"/></svg>',
+    bus: '<svg viewBox="0 0 24 24" class="ic"><rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M8 21v-3M16 21v-3"/></svg>',
+    layer: '<svg viewBox="0 0 24 24" class="ic"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg>',
+  };
+  const hud = '<div class="hud">25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°</div>';
+  const brand = `<div><div class="brand"><span class="name">Mini Taiwan Pulse<span>台灣脈動</span></span></div>${hud}</div>`;
+  const timeSeg = '<div class="seg"><button class="on" type="button"><span class="dotlive"></span>即時</button><button type="button">歷史</button></div>';
+  const BM = [
+    ["純黑", "linear-gradient(135deg,#000 0 60%,#111 60%)"],
+    ["暗色", "linear-gradient(135deg,#262a33 0 55%,#3a3f4b 55% 58%,#262a33 58%)"],
+    ["淡色", "linear-gradient(135deg,#eef0f3 0 55%,#d5d9df 55% 58%,#eef0f3 58%)"],
+    ["衛星", "radial-gradient(circle at 30% 40%,#3f5a36,#27361f 60%,#1d3040)"],
+    ["衛星街道", "linear-gradient(90deg,transparent 46%,#f5d77a 46% 54%,transparent 54%),radial-gradient(circle at 30% 40%,#3f5a36,#27361f 60%,#1d3040)"],
+    ["夜間導航", "linear-gradient(135deg,#0e1a2b 0 55%,#2c5a8a 55% 58%,#0e1a2b 58%)"],
+    ["街道", "linear-gradient(135deg,#f4efe6 0 55%,#f7c96b 55% 58%,#f4efe6 58%)"],
+  ];
+  const cur = 1;
+  const labelSw = (on) => `<span class="mini-sw"><button type="button" class="sw ${on ? "on" : ""}" aria-label="顯示地名"></button></span>`;
+  const mapIcon = '<svg viewBox="0 0 24 24"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>';
+  // 三種收合樣式（右側工具列內）
+  const bmCapsule = `<div class="cap2"><span>${BM[cur][0]}<i class="caret"></i></span><span>地名 ${labelSw(true)}</span></div>`;
+  const bmSwatch = `<button class="btn" type="button"><span class="swatch" style="background:${BM[cur][1]}"></span>${BM[cur][0]}<i class="caret"></i></button>`;
+  const bmIcon = `<button class="btn icon bm-ic" type="button" title="底圖：${BM[cur][0]}">${mapIcon}<span class="bm-dot" style="background:${BM[cur][1]}"></span></button>`;
+  const bmSwatchLabel = `${bmSwatch}<span class="lbl-tg">地名 ${labelSw(true)}</span>`;
+  const thumbPopNoLabel = `<div class="pop"><div class="thumbs">${BM.map(([n, g], i) => `<div class="th ${i === cur ? "on" : ""}"><i style="background:${g}"></i>${n}</div>`).join("")}</div></div>`;
+  const listPop = `<div class="pop" style="width:150px">${BM.map(([n], i) => `<div class="it ${i === cur ? "on" : ""}">${n}${i === cur ? '<span class="ck">✓</span>' : ""}</div>`).join("")}</div>`;
+  const thumbPop = `<div class="pop"><div class="thumbs">${BM.map(([n, g], i) => `<div class="th ${i === cur ? "on" : ""}"><i style="background:${g}"></i>${n}</div>`).join("")}</div><hr><div class="foot-sw">顯示地名${labelSw(true)}</div></div>`;
+  const rightBar = (ctl, pop) => `<div class="rb"><div class="tb-surface">${timeSeg}<span class="vsep"></span>${ctl}<span class="vsep"></span><button class="btn icon" type="button" title="分享">${I.share}</button><button class="btn icon" type="button" title="說明">${I.info}</button><button class="btn" type="button">${I.ai}AI</button><button class="btn pri" type="button">${I.cap}拍攝模式</button><span class="vsep"></span><span class="avatar">我</span></div>${pop ? `<div class="rb-pop">${pop}</div>` : ""}</div>`;
+  const bmv = (id, label, ctl, pop) => `<div><div class="opt-cap"><b>${id}</b>${label}</div><div class="bm-row"><div class="bm-col" style="flex:1 1 100%"><span class="lbl">收合</span>${rightBar(ctl)}</div><div class="bm-col" style="flex:1 1 100%"><span class="lbl">展開</span>${rightBar(ctl, pop)}</div></div></div>`;
+  const basemaps = bmv("B1", "膠囊：底圖名稱＋地名開關都露在外面", bmCapsule, listPop)
+    + bmv("B2", "色塊按鈕：顯示目前底圖，地名開關收進面板", bmSwatch, thumbPop)
+    + bmv("B3", "純圖示：最省寬，滑過顯示底圖名稱", bmIcon, thumbPop)
+    + bmv("B4", "色塊按鈕＋地名開關外露", bmSwatchLabel, thumbPopNoLabel);
+  const capBtn = (cls = "pri") => `<button class="btn ${cls}" type="button" title="隱藏介面，只留地圖（Esc 離開）">${I.cap}拍攝模式</button>`;
+  const bars = `
+    <div><div class="opt-cap"><b>T1</b>單排分組・拍攝模式為主要按鈕</div>
+      <div class="topbar">${brand}
+        <div><div class="tools">${timeSeg}<span class="vsep"></span>${bmSwatchLabel}<span class="vsep"></span>
+          <button class="btn" type="button">${I.share}分享</button><button class="btn icon" type="button" title="說明與操作提示">${I.info}</button><span class="vsep"></span>
+          <button class="btn" type="button">${I.ai}AI</button>${capBtn()}<span class="vsep"></span>
+          <button class="btn" type="button">${I.login}登入</button></div></div>
+      </div></div>
+    <div><div class="opt-cap"><b>T2</b>工具列底板・只有拍攝模式與 AI 保留文字</div>
+      <div class="topbar">${brand}
+        <div><div class="tb-surface">${timeSeg}<span class="vsep"></span>${bmSwatchLabel}<span class="vsep"></span>
+          <button class="btn icon" type="button" title="分享">${I.share}</button><button class="btn icon" type="button" title="說明與操作提示">${I.info}</button><span class="vsep"></span>
+          <button class="btn" type="button">${I.ai}AI</button>${capBtn("pri")}<span class="vsep"></span>
+          <span class="avatar" title="已登入">我</span></div>
+          <div class="tip">滑過圖示顯示中文名稱</div></div>
+      </div></div>
+    <div><div class="opt-cap"><b>T3</b>精簡＋「⋯」選單（選單展開示意）</div>
+      <div class="topbar">${brand}
+        <div class="tools">${timeSeg}${bmSwatchLabel}<button class="btn" type="button">${I.ai}AI</button>${capBtn()}
+          <div class="menu"><button class="btn icon" type="button" aria-label="更多">${I.more}</button>
+            <div class="menu-pop"><div>${I.share}分享目前畫面</div><div>${I.info}說明與操作提示</div></div></div>
+          <span class="avatar">我</span></div>
+      </div><div style="height:70px"></div></div>
+    <div><div class="opt-cap"><b>T4</b>拍攝模式獨立一顆</div>
+      <div class="topbar">${brand}
+        <div class="tools"><div class="tb-surface">${timeSeg}<span class="vsep"></span>${bmSwatchLabel}<span class="vsep"></span>
+          <button class="btn icon" type="button" title="分享">${I.share}</button><button class="btn icon" type="button" title="說明與操作提示">${I.info}</button><button class="btn" type="button">${I.ai}AI</button><span class="vsep"></span>
+          <span class="avatar" title="已登入">我</span></div>
+          <button class="capsolo" type="button" title="拍攝模式（Esc 離開）">${I.cap}<span>拍攝</span></button></div>
+      </div></div>`;
+
+  const capture = (id, label, hint) => `
+    <div class="opt" style="flex:1 1 260px;min-width:0"><div class="opt-cap"><b>${id}</b>${label}</div>
+      <div class="capscene"><div class="vig"></div>
+        <div class="captitle"><div class="t1">Mini Taiwan Pulse</div><div class="t2">台灣脈動 · Taiwan Transport Visualization</div><div class="t3">2026-09-27 21:18</div></div>
+        ${hint}</div></div>`;
+  const captures = capture("P1", "常駐小提示", '<div class="exit">離開拍攝模式 <span class="k">Esc</span></div>')
+    + capture("P2", "滑過才出現", '<div class="exit ghost">離開拍攝模式 <span class="k">Esc</span></div>');
+
+  const DBI = '<svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>';
+  const railIcons = [I.layer, I.layer, I.layer, '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>', DBI, I.ai, I.info];
+  const rail = (onIdx) => `<div class="rail">${railIcons.map((ic, i) => `<i class="${i === onIdx ? "on" : ""}" ${i === 4 ? 'title="資料來源"' : ""}>${ic.replace('class="ic"', "")}</i>`).join("")}</div>`;
+  const dsHead = `<div class="ih"><div><div class="ey">資料</div><h3>資料來源</h3></div><span class="x">✕</span></div>`;
+  const dsFilter = `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>搜尋圖層名稱</div>
+    <div class="seg"><button class="on" type="button">全部 <span class="n">803</span></button><button type="button"><span class="st-ok">✓</span> <span class="n">554</span></button><button type="button"><span class="st-der">⚙</span> <span class="n">27</span></button><button type="button"><span class="st-todo">?</span> <span class="n">222</span></button></div>`;
+  const dsRow = (c, n, en, st, sel) => `<div class="dsr ${sel ? "sel" : ""}"><span class="dot" style="background:${c}"></span>${n}<span class="en">${en}</span><span class="st ${st === "ok" ? "st-ok" : st === "der" ? "st-der" : "st-todo"}">${st === "ok" ? "✓" : st === "der" ? "⚙" : "?"}</span></div>`;
+  const facts = `<div class="fr"><span class="k">機關</span><span class="v">內政部國土測繪中心</span></div>
+    <div class="fr"><span class="k">頻率</span><span class="v">不定期（行政區劃調整時）</span></div>
+    <div class="fr"><span class="k">授權</span><span class="v">政府資料開放授權條款 第 1 版</span></div>
+    <div class="fr"><span class="k">更新</span><span class="v d">2026-06-26</span></div>
+    <div class="fr"><span class="k">API</span><span class="v"><a href="#">data.gov.tw/dataset/7438 ↗</a></span></div>`;
+  const dsCard = `<div class="dscard"><div class="ttl"><span class="st-ok">✓ 已接上</span> · 1 個上游資料集</div><div class="ttl">全國村里邊界（視覺化版）</div>
+    <div class="desc">全國 7,973 村里面，GeoJSON＋PMTiles 兩種格式，供前端視覺化與底圖。</div>${facts}
+    <div style="display:flex;gap:6px;margin-top:4px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div></div>`;
+  const listTop = `<div class="theme-h">底圖<span class="en">BASE MAP</span></div><div class="grp-h">行政邊界</div>
+    ${dsRow("#6b7280", "縣市界", "County", "ok")}${dsRow("#9ca3af", "鄉鎮市區界", "Township", "ok")}`;
+  const listRest = `<div class="grp-h">地形</div>${dsRow("#8b5a2b", "等高線", "Contour 25k", "ok")}${dsRow("#f59e0b", "坡度分級", "Slope", "der")}
+    <div class="grp-h">行政區</div>${dsRow("#f59e0b", "都道府縣界", "Prefecture", "todo")}`;
+  const D1 = `<div><div class="opt-cap"><b>D1</b>列內展開</div><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body">${dsFilter}${listTop}${dsRow("#d1d5db", "村里界", "Village", "ok", true)}${dsCard}${listRest}</div></div></div></div>`;
+  const D2 = `<div><div class="opt-cap"><b>D2</b>面板內下一層</div><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body"><div class="backbar">← 資料來源</div>
+      <div class="dockcard" style="box-shadow:none;border:0;padding:0;width:auto;background:transparent"><div class="ey">底圖 · 行政邊界</div><div class="ttl"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:#d1d5db"></span>村里界 <span style="font-weight:400;color:var(--t-dim);font-size:11px">Village</span></div>
+      <div style="font-size:10px;color:var(--t-muted);margin-bottom:4px"><span class="st-ok">✓ 已接上</span> · 1 個上游資料集</div>
+      <div class="dscard" style="margin-left:0"><div class="ttl">全國村里邊界（視覺化版）</div><div class="desc">全國 7,973 村里面，GeoJSON＋PMTiles 兩種格式，供前端視覺化與底圖。</div>${facts}</div>
+      <div style="display:flex;gap:6px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div></div></div></div></div></div>`;
+  const D3 = `<div><div class="opt-cap"><b>D3</b>右下停靠卡（與地圖 popup 同一種）</div><div class="ds-wrap"><div class="railapp">${rail(4)}<div class="dsp">${dsHead}<div class="body">${dsFilter}${listTop}${dsRow("#d1d5db", "村里界", "Village", "ok", true)}${listRest}</div></div></div>
+      <div class="dockcard"><div class="ey">資料來源 · 底圖</div><div class="ttl"><span style="width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block"></span>村里界</div>
+        <div style="font-size:10px;color:var(--t-muted);margin:2px 0 4px"><span class="st-ok">✓ 已接上</span> · 全國村里邊界（視覺化版）</div>${facts}
+        <div style="display:flex;gap:6px;margin-top:6px"><button class="btn pri" type="button" style="height:22px;font-size:10px">開啟圖層</button><button class="btn" type="button" style="height:22px;font-size:10px">資料文件</button></div>
+        <div class="foot">資料文件 · <span style="font-family:var(--font-data)">docs/data-catalog/demographics/village_boundary.md</span></div></div></div></div>`;
+  const dsViews = D1 + D2 + D3;
+  const card = (cat, cc, lvl, lc, sub, time, title, loc, n, ago, dot) => `
+    <li class="card" style="--dotc:${dot}"><div class="top"><span class="chip" style="--cc:${cc}">${cat}</span><span class="chip o" style="--cc:${lc}">${lvl}</span>${sub}<span class="time">${time}</span></div>
+      <h4>${title}</h4><div class="loc"><span>${loc}</span>${n ? `<span><span class="d">${n}</span> 區</span>` : ""}<span><span class="d">${ago}</span> 分鐘前</span></div></li>`;
+  const intel = `<div class="intel">
+    <div class="ih"><div><div class="ey">情報</div><h3>即時情報<span class="pill-live"><span class="dotlive"></span>LIVE</span></h3></div><span class="x">✕</span></div>
+    <div class="imeta"><span>更新 <span class="d">22:19</span></span><span>新聞 <span class="d">0</span> 則</span><span class="src">● 來源 <span class="d">27/29</span></span></div>
+    <div class="ialert">66 則警報<span class="sev">含 1 則嚴重</span><span class="dots"><i style="background:#ef4444"></i><i style="background:#f59e0b"></i><i style="background:#3b82f6"></i><i style="background:#22c55e"></i></span></div>
+    <div class="ifilter"><div class="seg"><button class="on" type="button">全部 <span class="n">77</span></button><button type="button">新聞 <span class="n">0</span></button><button type="button">警報 <span class="n">66</span></button><button type="button">全球 <span class="n">11</span></button></div>
+      <div class="range">時間範圍<div class="seg"><button type="button">1H</button><button type="button">6H</button><button class="on" type="button">24H</button></div></div></div>
+    <ol class="tl">
+      ${card("民生","#16a34a","留意","#d97706",'<span>停水</span>',"19:40:18","停水","嘉義縣民雄鄉福樂村",2,39,"#f59e0b")}
+      ${card("安全","#ef4444","警戒","#ea580c",'<span>火災</span>',"00:18:12","重大火災事件通報","臺北市基隆路",0,41,"#ea580c")}
+      ${card("水文","#0ea5e9","留意","#d97706",'<span>水庫放流</span>',"01:58:58","寶山第二水庫（放流至石井溪）：自由溢流","新竹縣寶山鄉",5,61,"#f59e0b")}
+    </ol>
+    <div class="ifoot">回放<span class="now">即時</span><span class="bar"><i></i><b></b></span><span class="d" style="font-family:var(--font-data)">22:19</span></div>
+  </div>`;
+
+  const rng = (v, min, max, step) => `<input class="rng" type="range" min="${min}" max="${max}" step="${step}" value="${v}" aria-label="調整">`;
+  const cr = (k, v, min, max, step, fmt) => `<div class="cr"><span class="k" title="${k}">${k}</span>${rng(v, min, max, step)}<span class="v" data-fmt="${fmt}">${fmt.replace("{}", v)}</span></div>`;
+  const seg = (k, opts, on) => `<div class="cr wide"><span class="k">${k}</span><div class="mseg">${opts.map((o, i) => `<button type="button" class="${i === on ? "on" : ""}">${o}</button>`).join("")}</div></div>`;
+  const sel = (k, v) => `<div class="cr wide"><span class="k">${k}</span><div class="msel">${v}</div></div>`;
+  const msw = (label, on) => `<span class="mini-sw"><button type="button" class="sw ${on ? "on" : ""}" aria-label="${label}"></button>${label}</span>`;
+  const deities = [["媽祖","#e05a7a",1],["觀音","#e0a82e",1],["土地公","#9a7b4f",1],["王爺","#c96b4a",1],["關聖","#b91c1c",1],["玄天","#475569",1],["佛教","#d4a017",0],["其他","#8a8a8a",1],["未分類","#6b7280",0]];
+  const multi = (open) => `<details class="ms" ${open ? "open" : ""}><summary><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>主祀類別 <span class="cnt">7/9</span><span class="act"><span>全選</span><span>全關</span></span></summary>
+      <div class="chk">${deities.map(([n, c, on]) => `<label style="--cc:${c}"><input type="checkbox" ${on ? "checked" : ""}>${n}</label>`).join("")}</div></details>`;
+  const layer = (icon, name, en, body, open = true) => `
+    <div class="lp"><div class="lrow ${open ? "open" : ""}">${icon}${name}<span class="en">${en}</span>${I.chev}<button class="eye" type="button" title="暫時隱藏">${I.eye}</button><button class="sw on" type="button" aria-label="開關"></button></div>
+      ${open ? `<div class="ctl">${body}</div>` : ""}</div>`;
+
+  const shuttleBody = seg("配色", ["路線", "速度", "密度"], 0) + cr("透明度", 0.85, 0, 1, 0.05, "{}") + cr("高度", 0, -200, 500, 10, "+{} m") + cr("光點", 4, 1, 10, 1, "×{}");
+  const layouts = `
+    <div><div class="opt-cap"><b>V1＋S1</b>三欄・圓點</div>${layer(I.bus, "台灣好行", "Tourist Shuttle", shuttleBody)}</div>
+    <div class="v2"><div class="opt-cap"><b>V2＋S1</b>上下兩行・圓點</div>${layer(I.bus, "台灣好行", "Tourist Shuttle", shuttleBody)}</div>
+    <div class="s2"><div class="opt-cap"><b>V1＋S2</b>三欄・刻度</div>${layer(I.bus, "台灣好行", "Tourist Shuttle", shuttleBody)}</div>`;
+
+  const combos = [
+    ["① 只有透明度", "約 453 層・多為統計疊圖", layer(I.layer, "人口密度", "Population", cr("透明度", 0.7, 0, 1, 0.05, "{}"))],
+    ["② 透明度＋大小", "176 層", layer(I.layer, "宗教基金會", "Foundations", cr("透明度", 0.8, 0, 1, 0.05, "{}") + cr("大小", 1, 0.2, 3, 0.1, "×{}"))],
+    ["③ 分段＋透明度＋大小", "16 層・如教會", layer(I.temple, "教會", "Churches", seg("登記", ["全部", "官方登記", "登記制度外"], 0) + cr("透明度", 0.8, 0, 1, 0.05, "{}") + cr("大小", 1, 0.2, 3, 0.1, "×{}"))],
+    ["④ 三個滑桿", "13 層・如船舶", layer(I.ship, "船舶", "Ship", cr("光點", 0.3, 0, 1, 0.05, "{}") + cr("尾跡", 0.15, 0, 1, 0.05, "{}") + cr("透明度", 0.9, 0, 1, 0.05, "{}"))],
+    ["⑤ 多選清單＋分段＋2 滑桿", "10 層・如寺廟", layer(I.temple, "寺廟", "Temples", multi(true) + seg("登記", ["全部", "官方登記", "登記制度外"], 0) + cr("透明度", 0.8, 0, 1, 0.05, "{}") + cr("大小", 1, 0.2, 3, 0.1, "×{}"))],
+    ["⑥ 2 滑桿＋開關", "9 層", layer(I.layer, "颱風路徑", "Typhoon", cr("透明度", 0.8, 0, 1, 0.05, "{}") + cr("線寬", 2, 0.5, 6, 0.5, "{} px") + `<div class="cr wide"><span class="k">預測</span>${msw("顯示預測路徑", true)}</div>`)],
+    ["⑦ 選單（>3 項）＋滑桿", "23 層・如公司年齡", layer(I.layer, "公司年齡結構", "Company Age", sel("指標", "設立 10 年以上占比") + cr("透明度", 0.75, 0, 1, 0.05, "{}"))],
+    ["⑧ 最複雜：4 選單＋4 滑桿", "companyPoints", layer(I.layer, "公司登記點", "Company Points", sel("產業", "全部產業（19 類）") + sel("資本額", "全部級距") + seg("狀態", ["營業中", "全部"], 0) + sel("配色", "依產業") + cr("透明度", 0.8, 0, 1, 0.05, "{}") + cr("大小", 1, 0.2, 3, 0.1, "×{}") + cr("最小縮放", 11, 6, 16, 1, "z{}") + cr("模糊", 0.2, 0, 1, 0.05, "{}"))],
+    ["⑨ 最多開關：6 開關＋選單＋滑桿", "gfwHourlyTracks", layer(I.ship, "漁船逐時軌跡", "GFW Tracks", `<div class="tgl-grid">${msw("拖網", true)}${msw("延繩釣", true)}${msw("圍網", false)}${msw("刺網", true)}${msw("未分類", false)}${msw("疑似暗船", true)}</div>` + sel("配色", "依漁法") + cr("透明度", 0.8, 0, 1, 0.05, "{}"))],
+    ["⑩ 收合狀態", "未展開的圖層列", `<div class="lp">${[["寺廟","Temples",1],["教會","Churches",0],["宗祠","Ancestral Halls",0]].map(([n,e,on]) => `<div class="lrow">${I.temple}${n}<span class="en">${e}</span>${I.chev}<button class="eye" type="button" title="暫時隱藏">${I.eye}</button><button class="sw ${on ? "on" : ""}" type="button" aria-label="開關"></button></div>`).join("")}</div>`],
+  ].map(([t, c, html]) => `<div><div class="combo-cap">${t}<span class="c">${c}</span></div>${html}</div>`).join("");
+
+  const fill = (sel, html) => document.querySelectorAll(sel).forEach((el) => { el.innerHTML = html; });
+  fill("[data-bars]", bars);
+  fill("[data-capture]", captures);
+  fill("[data-basemap]", basemaps);
+  fill("[data-ds]", dsViews);
+  fill("[data-intel]", intel);
+  fill("[data-layouts]", layouts);
+  fill("[data-combos]", combos);
+
+  // 互動：滑桿填色與數值、分段、開關
+  const paint = (r) => { const p = ((r.value - r.min) / (r.max - r.min)) * 100; r.style.setProperty("--p", p + "%"); const v = r.parentElement.querySelector(".v"); if (v) v.textContent = v.dataset.fmt.replace("{}", r.value); };
+  document.querySelectorAll("input.rng").forEach((r) => { paint(r); r.addEventListener("input", () => paint(r)); });
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".mseg button, .seg button");
+    if (b) { b.parentElement.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b)); return; }
+    const s = e.target.closest("button.sw");
+    if (s) s.classList.toggle("on");
+  });
+</script>

@@ -1,10 +1,13 @@
 import { MainMapConnection } from "./research/MainMapConnection";
+import { useAnalysisLegend } from "./research/analysisLegendStore";
+import type { AnalysisResultPanelProperties } from "./research/researchResultPopup";
+import { recordSelectionClick, selectionRingAccent, SELECTION_RING_ACCENT_VAR } from "./map/selectionRing";
 import { createTimelineControl, type ShipDateAvailability, type TimelineActions, type TimelineSnapshot } from "./research/timelineControl";
 import { useAllenCoralPrivateAccess } from "./hooks/useAllenCoralPrivateAccess";
 import { JP_WATER_ACCESS_DENIED_EVENT, useJpWaterPrivateAccess } from "./hooks/useJpWaterPrivateAccess";
 import { isJpWaterPrivateLayer, JP_WATER_PRIVATE_LAYER_KEYS } from "./data/jpWaterTypes";
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
+import { COLORS, FONT_CJK, FONT_DATA, LIGHT, RADIUS, FONT_SIZE, SURFACE, Z_INDEX } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -67,13 +70,13 @@ import { DEFAULT_CAMERA, getPresetById, JAPAN_CAMERA } from "./map/cameraPresets
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
-import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
 import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
+import { leftPanelsToClose, type LeftPanelState } from "./state/leftPanelMutex";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
@@ -81,6 +84,11 @@ import { HistoricalTimeline, type HistoricalGranularity } from "./components/His
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl, MAP_STYLES } from "./components/StyleSelector";
+import { BasemapMenu } from "./components/toolbar/BasemapMenu";
+import { CaptureExitHint } from "./components/toolbar/CaptureExitHint";
+import { ToolbarButton } from "./components/toolbar/ToolbarButton";
+import { getToolbarPalette } from "./components/toolbar/toolbarTheme";
+import { MobileMoreMenu } from "./components/toolbar/MobileMoreMenu";
 import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
 import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -95,7 +103,7 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
-import { Bot, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
+import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -110,6 +118,9 @@ import type { SavedPlace } from "./data/memberLibraryLoader";
 import { LayerHosts } from "./layers/LayerHost";
 import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
 import { coralSafeFeatureInfo, isAllenCoralPrivateFeature } from "./lib/coralPrivateUi";
+
+/** 手機標頭 M1 的 30×30 圖示按鈕（圓角 6） */
+const mobileIconButtonStyle = { width: 30, height: 30, borderRadius: RADIUS.lg } as const;
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -522,6 +533,8 @@ export default function App() {
 
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
+  const toolbarPalette = getToolbarPalette(isDarkTheme);
+  const toolbarDivider = <span style={{ width: 1, height: 16, background: toolbarPalette.controlBorder, flexShrink: 0 }} />;
   const showTrails = displayMode === "trails";
 
   // Refs for Three.js render loops
@@ -570,7 +583,7 @@ export default function App() {
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
-  const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
+  const { activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
     useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
@@ -958,6 +971,16 @@ export default function App() {
     if (featureInfo && RELEASE_HOLD_LAYERS.has(featureInfo.layerType as keyof LayerVisibility)) setFeatureInfo(null);
   }, [featureInfo, setFeatureInfo, setLayerVisibility]);
 
+  // 與 Agent 協作的分析結果點擊 → 共用右下停靠 FeatureInfoPanel。
+  // 刻意不帶 coords：coords 會經 MainMapConnection 的 selection 回報成「使用者選取」給 Agent。
+  // 選取圈改由 useSelectionRing 以最後一次地圖點擊位置補上。null 只關分析結果面板，不動其他圖層的。
+  // G1：分析結果圖例住在「圖例」面板，沒有任何圖層開著時也要讓面板出現。
+  const hasAnalysisLegend = useAnalysisLegend().entries.length > 0;
+  const handleAnalysisResultFeature = useCallback((properties: AnalysisResultPanelProperties | null) => {
+    if (properties) setFeatureInfo({ layerType: "analysisResult", properties });
+    else setFeatureInfo((current) => current?.layerType === "analysisResult" ? null : current);
+  }, [setFeatureInfo]);
+
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
   const activeReservoirId: number | null = (() => {
@@ -1053,6 +1076,11 @@ export default function App() {
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
+
+  // 選取圈（useSelectionRing）的主題色走地圖容器上的 CSS 變數，Marker DOM 直接繼承。
+  useEffect(() => {
+    mapRef.current?.getContainer().style.setProperty(SELECTION_RING_ACCENT_VAR, selectionRingAccent(isDarkTheme));
+  }, [isDarkTheme, mapPrepared]);
 
   // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
   // Lazy setup：任一 wf* toggle 開 + map 已 ready 才建 8 sources + 16 layers
@@ -1170,6 +1198,8 @@ export default function App() {
       onMove: updateCamera,
       onZoomEnd: onZoomH3,
       onClick: (e) => {
+        // 選取圈的單一點擊記錄點（沒有 coords 的面板，例如 Agent 分析結果，靠它定位）
+        recordSelectionClick([e.lngLat.lng, e.lngLat.lat]);
         const layer = wasteFacilityLayerRef.current;
         if (!layer) return;
         // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
@@ -1327,6 +1357,26 @@ export default function App() {
     satelliteConsoleStore.setOpen(false); setChatOpen(false);
     setRailCloseEpoch((value) => value + 1);
   }, [memberOpen]);
+
+  // Z1 左側浮動面板互斥：Agent／會員／即時情報／衛星 已由 closeExternalPanels 與上方 handler 互關；
+  // 地震回放是圖層旗標、開啟路徑很多，所以在這裡補上「剛打開一個 → 關掉其他」。只看由關變開，不會連鎖觸發。
+  const earthquakeReplayOpen = layerVisibility.earthquakeReplay;
+  const leftPanelsPrevRef = useRef<LeftPanelState>({ agent: false, earthquakeReplay: false, intel: false, satellite: false, member: false });
+  useEffect(() => {
+    const next: LeftPanelState = { agent: agentOpen, earthquakeReplay: earthquakeReplayOpen, intel: intelOpen, satellite: satConsoleOpen, member: memberOpen };
+    const toClose = leftPanelsToClose(leftPanelsPrevRef.current, next);
+    // B1：地震回放從 Layers 清單打開時，比照即時情報／衛星收起左側 rail 面板，避免兩者重疊
+    const earthquakeJustOpened = next.earthquakeReplay && !leftPanelsPrevRef.current.earthquakeReplay;
+    leftPanelsPrevRef.current = next;
+    if (earthquakeJustOpened) setRailCloseEpoch((value) => value + 1);
+    for (const key of toClose) {
+      if (key === "agent") setAgentOpen(false);
+      else if (key === "earthquakeReplay") setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }));
+      else if (key === "intel") setIntelOpen(false);
+      else if (key === "satellite") satelliteConsoleStore.setOpen(false);
+      else setMemberOpen(false);
+    }
+  }, [agentOpen, earthquakeReplayOpen, intelOpen, satConsoleOpen, memberOpen, setLayerVisibility]);
 
   const markPrivateView = useCallback(() => {
     privateViewRef.current = true;
@@ -1499,16 +1549,6 @@ export default function App() {
     setDisplayMode(mode);
     setTooltipInfo(null);
   }, [setTooltipInfo]);
-
-  const handleHideTransport = useCallback(() => {
-    setExpandedLayer((prevExpanded) => {
-      if (prevExpanded) {
-        sessionTracker.logWithSnapshot("layer_toggle", { layer: prevExpanded, on: false }, layerVisibilityRef.current);
-        setLayerVisibility((prev) => ({ ...prev, [prevExpanded]: false }));
-      }
-      return null;
-    });
-  }, [setLayerVisibility, layerVisibilityRef]);
 
   const handleAllOff = useCallback(() => {
     sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
@@ -1853,6 +1893,8 @@ export default function App() {
         onOpenChange={setAgentOpen}
         showToggle={false}
         uiHidden={captureMode}
+        onAnalysisResultFeature={handleAnalysisResultFeature}
+        analysisResultSelected={featureInfo?.layerType === "analysisResult"}
       />}
 
       {/* ── 拍攝模式 vignette + 標題 ── */}
@@ -1862,7 +1904,7 @@ export default function App() {
             style={{
               position: "absolute",
               inset: 0,
-              zIndex: 20,
+              zIndex: Z_INDEX.floatingPanel,
               pointerEvents: "none",
               background:
                 "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.6) 100%)",
@@ -1873,7 +1915,7 @@ export default function App() {
               position: "absolute",
               top: isMobile ? 16 : 32,
               left: isMobile ? 16 : 32,
-              zIndex: 21,
+              zIndex: Z_INDEX.toolbar,
               pointerEvents: "none",
             }}
           >
@@ -1892,7 +1934,7 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.xl,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 fontWeight: 600,
                 color: COLORS.textDefault,
                 letterSpacing: 2,
@@ -1905,7 +1947,7 @@ export default function App() {
             <div
               style={{
                 fontSize: FONT_SIZE.lg,
-                fontFamily: FONT_DATA,
+                fontFamily: FONT_CJK,
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1927,6 +1969,7 @@ export default function App() {
               style={{
                 fontSize: FONT_SIZE.lg,
                 fontFamily: FONT_DATA,
+                fontVariantNumeric: "tabular-nums",
                 color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1934,97 +1977,170 @@ export default function App() {
               }}
             />
           </div>
-          <button
-            onClick={() => setCaptureMode(false)}
-            style={isMobile ? {
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 21,
-              width: 48,
-              height: 48,
-              borderRadius: 24,
-              background: "rgba(0,0,0,0.4)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              color: "#fff",
-              fontSize: FONT_SIZE.xxl,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              backdropFilter: "blur(8px)",
-            } : {
-              position: "absolute",
-              bottom: 32,
-              right: 32,
-              zIndex: 21,
-              padding: "4px 12px",
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: RADIUS.md,
-              color: COLORS.textDim,
-              fontSize: FONT_SIZE.base,
-              fontFamily: FONT_DATA,
-              cursor: "pointer",
-            }}
-          >
-            {isMobile ? "✕" : "ESC"}
-          </button>
+          {isMobile ? (
+            <button
+              onClick={() => setCaptureMode(false)}
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+                zIndex: Z_INDEX.toolbar,
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                background: "rgba(0,0,0,0.4)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: FONT_SIZE.xxl,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backdropFilter: "blur(8px)",
+              }}
+            >
+              ✕
+            </button>
+          ) : (
+            <CaptureExitHint onExit={() => setCaptureMode(false)} />
+          )}
         </>
       )}
 
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* Row 1: 標題 + 樣式 + 地點跳轉 */}
+          {/* Row 1: 品牌（左）+ 工具列（右）— 同一列，垂直置中對齊 */}
           <div
             style={{
               position: "absolute",
               top: 16,
               left: sidebarWidth + 16,
-              zIndex: 10,
+              right: 16,
+              // toolbar（25）：高於浮動面板層（Agent 活動卡、rail、右下 popup），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
-              gap: 10,
+              justifyContent: "space-between",
               alignItems: "center",
+              gap: 10,
+              flexWrap: "wrap",
               transition: "left 0.2s ease",
             }}
           >
-            <h1
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, height: 26 }}>
+                <h1
+                  style={{
+                    margin: 0,
+                    fontSize: 20,
+                    color: isDarkTheme ? "#fff" : "#333",
+                    fontFamily: FONT_DATA,
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                  }}
+                >
+                  Mini Taiwan Pulse
+                </h1>
+
+                {loading && (
+                  <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
+                    Loading...
+                  </span>
+                )}
+              </div>
+              {/* 座標 HUD：緊貼品牌名下方，同一欄——toolbar 窄寬度換行時只會落在整欄下方，不會疊到 HUD */}
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                }}
+              />
+            </div>
+
+            <div
               style={{
-                margin: 0,
-                fontSize: FONT_SIZE.xl,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontFamily: FONT_DATA,
-                letterSpacing: 2,
+                display: "flex",
+                alignItems: "center",
+                gap: 4,
+                padding: 3,
+                borderRadius: 7,
+                background: toolbarPalette.surfaceBg,
+                border: `1px solid ${toolbarPalette.borderPanel}`,
+                boxShadow: toolbarPalette.shadow,
+                flexWrap: "wrap",
+                justifyContent: "flex-end",
+                // 窄寬度時整條 Row 1 換行：toolbar 掉到第二行時，若沒有 marginLeft: auto，
+                // space-between 對「單一子項」的那一行會把它推去 flex-start。auto margin
+                // 讓它即使獨佔一行也維持靠右；HUD 已併入左側品牌欄，換行後 toolbar 落在
+                // 整欄下方，兩者不會再互相重疊。
+                marginLeft: "auto",
               }}
             >
-              Mini Taiwan Pulse
-            </h1>
-
-            <StyleSelector
-              selected={mapStyleId}
-              isDarkTheme={isDarkTheme}
-              onChange={setMapStyleId}
-            />
-            <BasemapLabelToggle
-              isDarkTheme={isDarkTheme}
-              visible={showBasemapLabels}
-              onToggle={() => setShowBasemapLabels((visible) => !visible)}
-              title={showBasemapLabels ? "隱藏底圖地名" : "顯示底圖地名"}
-            />
-
-            {loading && (
-              <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
-                Loading...
-              </span>
-            )}
+              <ModeToggle
+                appMode={appMode}
+                isDarkTheme={isDarkTheme}
+                onAppModeChange={(mode: AppMode) => {
+                  sessionTracker.log("mode_switch", { from: appMode, to: mode });
+                  setAppMode(mode);
+                }}
+              />
+              {toolbarDivider}
+              <BasemapMenu
+                selected={mapStyleId}
+                onChange={setMapStyleId}
+                isDarkTheme={isDarkTheme}
+                showLabels={showBasemapLabels}
+                onToggleLabels={() => setShowBasemapLabels((visible) => !visible)}
+              />
+              {toolbarDivider}
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title="分享目前畫面"
+                onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
+              >
+                <Share2 size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                icon
+                title="說明與操作提示"
+                onClick={() => setShowInfo(true)}
+              >
+                <CircleHelp size={13} />
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary={chatOpen}
+                title="AI 助手 BYOK Chat"
+                onClick={() => setChatOpen((v) => !v)}
+              >
+                <MessageSquare size={13} />
+                AI
+              </ToolbarButton>
+              <ToolbarButton
+                palette={toolbarPalette}
+                primary
+                title="隱藏介面，只留地圖（Esc 離開）"
+                onClick={() => setCaptureMode(true)}
+              >
+                <Camera size={13} />
+                拍攝模式
+              </ToolbarButton>
+              {toolbarDivider}
+              <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
+            </div>
           </div>
 
           {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
               hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: Z_INDEX.floatingPanel, pointerEvents: "none" }}>
             <IconRailSidebar
               isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
@@ -2044,7 +2160,6 @@ export default function App() {
               onToggleVisibility={handleToggleVisibility}
               onViewModeChange={setViewMode}
               onDisplayModeChange={handleDisplayModeChange}
-              onHideTransport={handleHideTransport}
               onAllOff={handleAllOff}
               onBulkSetVisibility={handleBulkSetVisibility}
 
@@ -2132,6 +2247,7 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
+            isDarkTheme={isDarkTheme}
             onSelectLocation={(lon, lat, zoom) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: zoom ?? 12, speed: 1.2 });
             }}
@@ -2204,244 +2320,13 @@ export default function App() {
             />
           )}
 
-          {/* 右上角按鈕群 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <ModeToggle
-              appMode={appMode}
-              isDarkTheme={isDarkTheme}
-              onAppModeChange={(mode: AppMode) => {
-                sessionTracker.log("mode_switch", { from: appMode, to: mode });
-                setAppMode(mode);
-              }}
-            />
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Share
-            </button>
-            <button
-              onClick={() => setCaptureMode(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Capture
-            </button>
-            <button
-              onClick={() => {
-                if (!monitorOpen) {
-                  setMemberOpen(false);
-                  setIntelOpen(false);
-                  satelliteConsoleStore.setOpen(false);
-                  // 2026-08-20 起開啟一律進 split（原本是 dock）——
-                  // 會連帶觸發 MONITOR_SPLIT_CAMERA 的自動定位，即為預期行為
-                  setMonitorMode("split");
-                }
-                setMonitorOpen((v) => !v);
-              }}
-              title="監看模式 Monitor"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: monitorOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${monitorOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: monitorOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <svg
-                width={13} height={13} viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth={1.8}
-                strokeLinecap="round" strokeLinejoin="round"
-              >
-                <path d="M3 3h7v7H3z" />
-                <path d="M14 3h7v7h-7z" />
-                <path d="M14 14h7v7h-7z" />
-                <path d="M3 14h7v7H3z" />
-              </svg>
-              Monitor
-              <span
-                style={{
-                  marginLeft: 2,
-                  padding: "1px 5px",
-                  borderRadius: RADIUS.md,
-                  background: monitorOpen
-                    ? "rgba(4,18,31,0.18)"
-                    : "rgba(255,152,0,0.18)",
-                  border: `1px solid ${monitorOpen ? "rgba(4,18,31,0.35)" : "rgba(255,152,0,0.55)"}`,
-                  fontSize: FONT_SIZE.xs,
-                  fontWeight: 700,
-                  letterSpacing: 1,
-                  color: monitorOpen ? "#04121f" : "#ff9800",
-                }}
-              >
-                BETA
-              </span>
-            </button>
-            <button
-              onClick={() => setChatOpen((v) => !v)}
-              title="AI 助手 BYOK Chat"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "6px 14px",
-                background: chatOpen
-                  ? "#64aaff"
-                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: RADIUS.lg,
-                color: chatOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                fontWeight: chatOpen ? 700 : 400,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              <MessageSquare size={13} />
-              AI
-            </button>
-          </div>
-
-          {/* 右上角第二排 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 52,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <button
-              onClick={() => setShowInfo(true)}
-              style={{
-                padding: "6px 14px",
-                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
-                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: RADIUS.lg,
-                color: isDarkTheme ? "#fff" : "#333",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                backdropFilter: "blur(8px)",
-                letterSpacing: 1,
-              }}
-            >
-              Info
-            </button>
-            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
-          </div>
-
-          {/* 操作提示 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 84,
-              right: 16,
-              zIndex: 10,
-              color: isDarkTheme ? COLORS.textFaint : "rgba(0,0,0,0.2)",
-              fontSize: FONT_SIZE.sm,
-              fontFamily: FONT_DATA,
-              letterSpacing: 0.5,
-              textAlign: "right",
-            }}
-          >
-            Right-drag to rotate · Scroll to zoom
-          </div>
-
-          {/* 統計 + 相機角度 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 48,
-              left: sidebarWidth + 16,
-              zIndex: 10,
-              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
-              borderRadius: RADIUS.lg,
-              padding: "4px 10px",
-              transition: "left 0.2s ease",
-            }}
-          >
-            <div
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            >
-              {displayedFlights.length} flights
-              {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-              {layerVisibility.rail && ` · ${trainCount} trains`}
-              {layerVisibility.busLive && ` · ${busCount} buses`}
-              {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
-              {layerVisibility.touristShuttleLive && ` · ${touristShuttleCount} 台灣好行`}
-              {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
-              {viewMode === "time-window" && " (±12h)"}
-            </div>
-            <CameraHud
-              store={cameraHud}
-              style={{
-                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
-                fontSize: FONT_SIZE.base,
-                fontFamily: FONT_DATA,
-              }}
-            />
-          </div>
         </>
       )}
 
       {/* ── 手機版 UI ── */}
       {!captureMode && isMobile && (
         <>
-          {/* Compact Header */}
+          {/* Compact Header（M1）：品牌＋座標｜AI、拍攝模式、⋯ 更多、帳號；其餘收進「⋯」 */}
           <div
             style={{
               position: "absolute",
@@ -2449,148 +2334,83 @@ export default function App() {
               left: 0,
               right: 0,
               height: 44,
-              zIndex: 10,
+              zIndex: Z_INDEX.toolbar,
               display: "flex",
               alignItems: "center",
-              gap: 2,
-              padding: "0 6px",
+              gap: 4,
+              padding: "0 8px",
               paddingTop: "env(safe-area-inset-top, 0px)",
-              background: "rgba(0,0,0,0.5)",
+              background: isDarkTheme ? SURFACE.strong : LIGHT.surfaceStrong,
+              borderBottom: `1px solid ${toolbarPalette.borderPanel}`,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1 }}>
-              MTP
-            </span>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1, marginRight: 4 }}>
+              <span style={{ color: toolbarPalette.textStrong, fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1.5, lineHeight: 1.2 }}>
+                MTP
+              </span>
+              <CameraHud
+                store={cameraHud}
+                style={{
+                  color: toolbarPalette.textDim,
+                  fontSize: FONT_SIZE.xs,
+                  fontFamily: FONT_DATA,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: 0.5,
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              />
+            </div>
 
-            <div style={{ flex: 1, minWidth: 0 }} />
-
-            <button
-              onClick={() => setShowInfo(true)}
-              aria-label="資訊"
-              title="資訊"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CircleHelp size={17} />
-            </button>
-
-            <button
-              onClick={() => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); }}
-              title="分享目前畫面 / 取得嵌入碼"
-              aria-label="分享目前畫面 / 取得嵌入碼"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-              }}
-            >
-              <Share2 size={17} />
-            </button>
-
-            <button
-              onClick={() => setCaptureMode(true)}
-              title="截圖"
-              aria-label="截圖"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Camera size={17} />
-            </button>
-
-            {import.meta.env.DEV && <button
-              onClick={() => setAgentOpen(value => !value)}
-              title="本地 Agent"
-              aria-label="本地 Agent"
-              aria-pressed={agentOpen}
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: agentOpen ? "#75d6c5" : "rgba(117,214,197,0.22)",
-                border: "1px solid " + (agentOpen ? "#75d6c5" : "rgba(117,214,197,0.55)"),
-                color: agentOpen ? "#06211c" : "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            ><Bot size={16} /></button>}
-
-            <button
-              onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary={chatOpen}
               title="AI 助手"
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: RADIUS.xl,
-                background: chatOpen ? "#64aaff" : "rgba(80,140,255,0.25)",
-                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                color: chatOpen ? "#04121f" : "#fff",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+              onClick={() => { if (!chatOpen) setMemberOpen(false); setChatOpen(!chatOpen); }}
+              style={mobileIconButtonStyle}
             >
               <MessageSquare size={16} />
-            </button>
-
-            <button
-              onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
-              style={{
-                height: 36,
-                width: 36,
-                borderRadius: RADIUS.xl,
-                background: renderMode === "3d"
-                  ? "rgba(80,140,255,0.25)"
-                  : "rgba(255,170,68,0.25)",
-                border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
-                color: "#fff",
-                fontSize: FONT_SIZE.md,
-                fontFamily: FONT_DATA,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            </ToolbarButton>
+            <ToolbarButton
+              palette={toolbarPalette}
+              icon
+              primary
+              title="拍攝模式（隱藏介面，只留地圖）"
+              onClick={() => setCaptureMode(true)}
+              style={mobileIconButtonStyle}
             >
-              {renderMode === "3d" ? "3D" : "2D"}
-            </button>
-
-            <button aria-label="會員專區" title="會員專區" onClick={handleMemberToggle} style={{ width: 36, height: 36, borderRadius: 10, border: "1px solid #577184", background: memberOpen ? "#285563" : "rgba(0,0,0,.45)", color: "white", display: "grid", placeItems: "center" }}><UserRound size={17} /></button>
-            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
+              <Camera size={16} />
+            </ToolbarButton>
+            <MobileMoreMenu
+              palette={toolbarPalette}
+              isDarkTheme={isDarkTheme}
+              buttonStyle={mobileIconButtonStyle}
+              items={[
+                { key: "info", label: "說明與操作提示", icon: <CircleHelp size={15} />, onSelect: () => setShowInfo(true) },
+                {
+                  key: "share",
+                  label: "分享目前畫面",
+                  icon: <Share2 size={15} />,
+                  onSelect: () => { privateViewRef.current = false; syncUrlRef.current(); setShareOpen(true); },
+                },
+                {
+                  key: "render",
+                  label: "3D／2D 切換",
+                  icon: <Box size={15} />,
+                  onSelect: () => setRenderMode((m) => (m === "3d" ? "2d" : "3d")),
+                  trailing: <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: toolbarPalette.textDim }}>{renderMode === "3d" ? "3D" : "2D"}</span>,
+                },
+                ...(import.meta.env.DEV
+                  ? [{ key: "agent", label: "本地 Agent", icon: <Bot size={15} />, active: agentOpen, onSelect: () => setAgentOpen((value) => !value) }]
+                  : []),
+                { key: "member", label: "會員專區", icon: <UserRound size={15} />, active: memberOpen, onSelect: handleMemberToggle },
+              ]}
+            />
+            <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
           </div>
 
           {/* Timeline */}
@@ -2686,12 +2506,6 @@ export default function App() {
                       onToggleVisibility={handleToggleVisibility}
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-                      onHideTransport={() => {
-                        if (expandedLayer) {
-                          setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
-                          setExpandedLayer(null);
-                        }
-                      }}
                       onBulkSetVisibility={handleBulkSetVisibility}
                     />
                   </div>
@@ -2745,7 +2559,7 @@ export default function App() {
             position: "absolute",
             left: tooltipInfo.x + 12,
             top: tooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(100,170,255,0.4)",
@@ -2779,7 +2593,7 @@ export default function App() {
             position: "absolute",
             left: trainTooltipInfo.x + 12,
             top: trainTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${trainTooltipInfo.train.color}66`,
@@ -2813,7 +2627,7 @@ export default function App() {
             position: "absolute",
             left: busTooltipInfo.x + 12,
             top: busTooltipInfo.y - 10,
-            zIndex: 30,
+            zIndex: Z_INDEX.popover,
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${busTooltipInfo.bus.color}66`,
@@ -2855,7 +2669,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.9)",
               backdropFilter: "blur(12px)",
               border: `1px solid ${accent}66`,
@@ -2929,7 +2743,7 @@ export default function App() {
               position: "absolute",
               left: x + 12,
               top: y - 10,
-              zIndex: 30,
+              zIndex: Z_INDEX.popover,
               background: "rgba(10,10,20,0.92)",
               backdropFilter: "blur(12px)",
               border: "1px solid #a78bfa66",
@@ -3011,7 +2825,7 @@ export default function App() {
           right: splitActive
             ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
             : 16,
-          zIndex: 30,
+          zIndex: Z_INDEX.floatingPanel,
           display: "flex",
           flexDirection: "column",
           alignItems: "flex-end",
@@ -3044,7 +2858,7 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          {Object.values(layerVisibility).some(Boolean) && (
+          {(Object.values(layerVisibility).some(Boolean) || hasAnalysisLegend) && (
             <Suspense fallback={<span role="status">圖例載入中…</span>}>
               <LegendPanel isDarkTheme={isDarkTheme} />
             </Suspense>
@@ -3080,9 +2894,6 @@ export default function App() {
         onTestKey={testKey}
         compact={featureInfo !== null}
       />
-
-      {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
-      {!memberOpen && <DataSourceBrowser isDarkTheme={isDarkTheme} lockedKeys={lockedKeys} onActivateLayer={(key) => handleBulkSetVisibility([key], true)} />}
 
       {/*
         ── 圖層掛載（AR-22 P1）────────────────────────────────────

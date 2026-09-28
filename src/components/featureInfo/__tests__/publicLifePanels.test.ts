@@ -26,8 +26,10 @@ describe("public life popup panels", () => {
     expect(html).toContain("MultiPolygon");
     expect(html).toContain("由原始線／面取內部代表點");
     expect(html).toContain("community-mapped and incomplete");
-    expect(html).toContain("OpenStreetMap Taiwan extract");
-    expect(html).toContain("原始下載頁");
+    // 溯源 footer 已於 Phase D 收斂到 FeatureInfoPanel 統一渲染一次（見
+    // FeatureInfoPanel.tsx 的 <SourceFooter props={feature.properties} />），
+    // 本 panel 不再自己掛 SourceFooter，故這裡不斷言 org/原始下載頁——
+    // F2 footer 行為改由 shared.test.ts 直接測 SourceFooter。
   });
 
   it("國家公園 popup 保留計畫邊界與非即時管制語意", () => {

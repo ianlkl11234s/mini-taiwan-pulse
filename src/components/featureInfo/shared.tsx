@@ -1,5 +1,33 @@
-import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE, FONT_WEIGHT, FONT_DATA } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+
+/**
+ * Popup 內容共用標題 — 前置分類色點 + 粗體標題 + 下方分隔線（B 版規格，
+ * 見 docs/features/ui-consistency-audit-20260927/proposal.md §6.1）。
+ * 原本 13 個 domain 檔（culturePanels/religionPanels/educationPanels/…）
+ * 各自複製同一段極簡本地版，此處收斂為單一 export，各檔改 import 此版本。
+ */
+export function Title({ color, children }: { color: string; children: string }) {
+  const t = useFeatureTheme();
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: FONT_SIZE.lg,
+        fontWeight: FONT_WEIGHT.bold,
+        color: t.textStrong,
+        borderBottom: `1px solid ${t.border}`,
+        paddingBottom: 5,
+        marginBottom: 4,
+      }}
+    >
+      <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+      {children}
+    </div>
+  );
+}
 
 export function formatTaiwanTime(iso: string | null): string {
   if (!iso) return "";
@@ -13,13 +41,21 @@ export function formatTaiwanTime(iso: string | null): string {
   }
 }
 
-export function Row({ label, value, color }: { label: string; value: string; color?: string }) {
+export function Row({ label, value, color, mono }: { label: string; value: string; color?: string; mono?: boolean }) {
   const t = useFeatureTheme();
   if (!value || value === "null" || value === "undefined") return null;
   return (
-    <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
-      <span style={{ color: color ?? t.textStrong, wordBreak: "break-word" }}>{value}</span>
+    <div className="fi-row" style={{ display: "flex", gap: 8, padding: "3px 0", fontSize: FONT_SIZE.base, lineHeight: 1.3 }}>
+      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56, fontSize: FONT_SIZE.sm }}>{label}</span>
+      <span
+        style={{
+          color: color ?? t.textStrong,
+          wordBreak: "break-word",
+          ...(mono ? { fontFamily: FONT_DATA, fontVariantNumeric: "tabular-nums" as const } : {}),
+        }}
+      >
+        {value}
+      </span>
     </div>
   );
 }
@@ -36,7 +72,7 @@ export function ChatHighlightPanel({ props }: { props: Record<string, unknown> }
   return (
     <div>
       {label && <Row label="標記" value={label} />}
-      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} />}
+      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} mono />}
       {!label && !hasCoords && <Row label="標記" value="地圖標記點" />}
     </div>
   );
@@ -90,10 +126,15 @@ function toProvenanceArray(raw: unknown): Record<string, unknown>[] {
 }
 
 /**
- * 標準溯源 footer — 任何 panel 底部都應該掛這個。
+ * 標準溯源 footer（F2 規格，見 proposal.md §6.1 / handoff.md §4a 第三輪拍板）——
+ * 2026-09-27 起由 FeatureInfoPanel 統一在 content 後掛一次，各 panel 不再各自呼叫
+ * （少數欄位需要 panel 端 enrich 常數值，或另有自訂溯源 UI 的例外見 FeatureInfoPanel.tsx）。
  * props 期望帶：source / source_org / source_url / license / fetched_at / source_tier。
  * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）；
  * 部分 pipeline（如宗教）欄位名是 `_provenance`（底線開頭），兩者都接。
+ *
+ * F2：第一行「機關 · Tier N · 原始下載頁 ↗」（缺項省略）；第二行 license ＋ 抓取時間
+ * （FONT_DATA 等寬）；完全沒有 org/url 時整段改顯示「來源資訊待補」（warn 色）。
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
@@ -103,38 +144,56 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
   const tier = props.source_tier;
   const fetched = String(props.fetched_at ?? "");
   const provenance = toProvenanceArray(props._provenance ?? props.provenance);
+  const hasSource = Boolean(org || url);
+
+  if (!hasSource) {
+    return (
+      <div
+        className="fi-footer"
+        style={{
+          marginTop: 10,
+          paddingTop: 8,
+          borderTop: `1px solid ${t.borderSoft}`,
+          fontSize: FONT_SIZE.xs,
+          color: t.warn,
+        }}
+      >
+        資料來源 · 來源資訊待補
+      </div>
+    );
+  }
+
+  const firstLine = [org, tier == null ? "" : `Tier ${String(tier)}`].filter(Boolean);
 
   return (
     <div
+      className="fi-footer"
       style={{
         marginTop: 10,
         paddingTop: 8,
-        borderTop: `1px solid ${t.border}`,
+        borderTop: `1px solid ${t.borderSoft}`,
         fontSize: FONT_SIZE.xs,
         color: t.textDim,
       }}
     >
-      <div style={{ marginBottom: 4, letterSpacing: 1.2 }}>
-        資料來源{tier == null ? "" : ` (Tier ${String(tier)})`}
+      <div>
+        {firstLine.join(" · ")}
+        {url && (
+          <>
+            {firstLine.length > 0 ? " · " : ""}
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: t.link, textDecoration: "none" }}
+            >
+              原始下載頁 ↗
+            </a>
+          </>
+        )}
       </div>
-      {org && <div>{org}</div>}
-      {url && (
-        <a
-          href={url}
-          target="_blank"
-          rel="noreferrer"
-          style={{
-            display: "inline-block",
-            color: t.link,
-            textDecoration: "none",
-            marginTop: 2,
-          }}
-        >
-          原始下載頁 ↗
-        </a>
-      )}
       {(license || fetched) && (
-        <div style={{ marginTop: 2 }}>
+        <div style={{ marginTop: 2, fontFamily: FONT_DATA }}>
           {license}
           {license && fetched ? " · " : ""}
           {fetched && `抓取於 ${fetched}`}
@@ -143,7 +202,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
       {provenance.length > 1 && (
         <details style={{ marginTop: 4 }}>
           <summary style={{ cursor: "pointer" }}>
-            跨來源溯源（{provenance.length} 筆）
+            溯源 {provenance.length} 筆
           </summary>
           <ul style={{ margin: "4px 0 0 12px", padding: 0 }}>
             {provenance.map((p, i) => {

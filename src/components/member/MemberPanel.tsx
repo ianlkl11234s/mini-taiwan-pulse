@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bookmark, Layers, MapPin, RefreshCw, UserRound, X } from "lucide-react";
+import { Bookmark, Layers, MapPin, RefreshCw, X } from "lucide-react";
 import { signInWithGoogle, signOut } from "../../lib/auth";
 import { memberLibraryStore, useMemberLibrary } from "../../state/memberLibraryStore";
 import type { SavedScene, SavedPlace, PlaceInput, MemberLibrary } from "../../data/memberLibraryLoader";
@@ -68,7 +68,7 @@ export function MemberPanel(props: Props) {
   ) : <button disabled={!ready} onClick={() => setEditing({ id: row.id, name: row.name, kind })}>重新命名</button>;
   return (
     <section role="dialog" aria-modal={false} aria-label="會員專區" className={`member-panel ${props.isDarkTheme ? "" : "member-panel-light"} ${props.isMobile ? "member-panel-mobile" : ""}`} onKeyDown={(event) => { if (event.key === "Escape") { event.stopPropagation(); props.onClose(); } }}>
-      <header className="member-header"><div><span className="member-eyebrow">MY PULSE</span><h2><UserRound size={18} />會員專區</h2></div><button ref={closeRef} onClick={props.onClose} aria-label="關閉會員專區"><X size={18} /></button></header>
+      <header className="member-header"><div><span className="member-eyebrow">帳號</span><h2>會員專區</h2></div><button ref={closeRef} className="member-close" onClick={props.onClose} aria-label="關閉會員專區"><X size={14} /></button></header>
       <div className="member-account">
         <div><strong>{props.userId ? props.displayName || "我的帳號" : "你的地圖收藏"}</strong><small>{status}</small></div>
         {props.userId ? <button onClick={() => attempt(signOut)}>登出</button> : <button disabled={props.authLoading} onClick={() => attempt(async () => { try { await signInWithGoogle(); } catch { throw new Error("登入未完成，請重試。"); } })}>登入並同步</button>}

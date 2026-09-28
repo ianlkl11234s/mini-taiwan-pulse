@@ -6,7 +6,7 @@
 //
 // 只處理中性 chrome — accent 藍、狀態色（綠橘紅黃）、各 layer 資料色兩主題共用，不進本 palette。
 import { createContext, useContext, type ReactNode } from "react";
-import { COLORS } from "../../styles/designTokens";
+import { COLORS, LIGHT } from "../../styles/designTokens";
 
 export interface FeaturePalette {
   /** 主要數值文字（Row value / 強調）*/
@@ -23,8 +23,12 @@ export interface FeaturePalette {
   bgStrong: string;
   /** 中性邊框 / 分隔線 */
   border: string;
+  /** Row 之間的細線（比 border 更淡，B 版密度用）*/
+  borderSoft: string;
   /** 連結色（accent-on-white 需加深）*/
   link: string;
+  /** 警示（SourceFooter「來源資訊待補」等）*/
+  warn: string;
 }
 
 export const DARK_FEATURE: FeaturePalette = {
@@ -35,18 +39,24 @@ export const DARK_FEATURE: FeaturePalette = {
   bgSubtle: "rgba(255,255,255,0.05)",
   bgStrong: "rgba(255,255,255,0.10)",
   border: "rgba(255,255,255,0.10)",
+  borderSoft: "rgba(255,255,255,0.06)",
   link: "#7DD3FC",
+  warn: COLORS.statusWarn,
 };
 
+// 淡色一律取自 designTokens.ts LIGHT（= tokens.css --light-*）。原本的大寫 hex（#1F2937 等）
+// 改成 token 的小寫寫法，顏色值相同。
 export const LIGHT_FEATURE: FeaturePalette = {
-  textStrong: "#111827",
-  textDefault: "#1F2937",
-  textMuted: "#4B5563",
-  textDim: "#6B7280",
-  bgSubtle: "rgba(0,0,0,0.04)",
-  bgStrong: "rgba(0,0,0,0.06)",
-  border: "rgba(0,0,0,0.10)",
-  link: "#0284C7",
+  textStrong: LIGHT.textStrong,
+  textDefault: LIGHT.textDefault,
+  textMuted: LIGHT.textMuted,
+  textDim: LIGHT.textDim,
+  bgSubtle: LIGHT.fillSubtle,
+  bgStrong: LIGHT.fillStrong,
+  border: LIGHT.border,
+  borderSoft: LIGHT.borderSoft,
+  link: LIGHT.link,
+  warn: LIGHT.statusWarn,
 };
 
 const FeatureThemeContext = createContext<FeaturePalette>(DARK_FEATURE);

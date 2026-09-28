@@ -136,11 +136,11 @@ describe("Global Events Intel tab", () => {
     expect(markup).toContain("共 2 件");
   });
 
-  it("沿用新聞的 RANGE，但不混入新聞 LIVE／健康列／警報篩選／REPLAY", () => {
+  it("沿用新聞的時間範圍，但不混入新聞 LIVE／健康列／警報篩選／回放", () => {
     seed(publishedEvent);
     const markup = renderToStaticMarkup(panel());
-    for (const shown of ["RANGE", "1H", "6H", "24H"]) expect(markup).toContain(shown);
-    for (const hidden of ["共 0 則", ">LIVE<", "SEVERITY ≥", "REPLAY", "來源管線"]) expect(markup).not.toContain(hidden);
+    for (const shown of ["時間範圍", "1H", "6H", "24H"]) expect(markup).toContain(shown);
+    for (const hidden of ["共 0 則", ">LIVE<", "嚴重度 ≥", "回放", "來源管線"]) expect(markup).not.toContain(hidden);
   });
 
   it("載入中／失敗保留語意，不用空清單假裝沒事", () => {
@@ -165,12 +165,12 @@ describe("Global Events Intel tab", () => {
     // publishedEvent 30 分鐘前、coreCandidate 120 分鐘前 → 新的在前
     expect(all.indexOf("已研究的國際事件")).toBeLessThan(all.indexOf("AI 初判的重要事件"));
     expect(all).toContain("1H");
-    expect(all).toContain("REPLAY");
+    expect(all).toContain("回放");
     expect(all).toContain("更新 ");
-    // 「共 N 則」維持新聞語意，不被國際筆數污染
-    expect(all).toContain("共 0 則");
+    // 「共 N 則」維持新聞語意，不被國際筆數污染（數字另包 span，故先去標籤再比對）
+    expect(all.replace(/<[^>]+>/g, "")).toContain("共 0 則");
     harness.tab = "alerts";
-    expect(renderToStaticMarkup(panel())).toContain("SEVERITY ≥");
+    expect(renderToStaticMarkup(panel())).toContain("嚴重度 ≥");
   });
 
   it("「全部」分頁不會把新聞讀取中當成空清單", () => {

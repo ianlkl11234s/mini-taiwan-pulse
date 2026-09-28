@@ -56,8 +56,12 @@ function useMapZoom(mapRef: React.RefObject<MapboxMap | null>, active: boolean) 
 }
 
 function removeMapLayers(map: MapboxMap, layerIds: readonly string[], sourceId: string) {
-  layerIds.forEach((layerId) => { if (map.getLayer(layerId)) map.removeLayer(layerId); });
-  if (map.getSource(sourceId)) map.removeSource(sourceId);
+  // cleanup 可能在 map.remove() 之後才跑（見 LayerHost.tsx 的 unmount 順序說明），
+  // 此時 map.style 已不存在，getLayer 會拋 "reading 'getOwnLayer'" 並整頁崩潰。
+  try {
+    layerIds.forEach((layerId) => { if (map.getLayer(layerId)) map.removeLayer(layerId); });
+    if (map.getSource(sourceId)) map.removeSource(sourceId);
+  } catch { /* map 可能已銷毀 */ }
 }
 
 function aggregateOpacity(definitions: readonly PointLayerDefinition[], visibility: JpMedicalVisibility, params: JpMedicalParams) {

@@ -4,20 +4,22 @@ import { PanelHeader as SharedPanelHeader } from "./sidebar/PanelHeader";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { PropertyValueStatisticsDetails } from "./sidebar/PropertyValueStatisticsDetails";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
+import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
-import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, User, Star, Bot,
+  Activity, Layers, ChartColumn, MapPin, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
   Lock,        // gated 圖層鎖頭
   PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
+  Database,    // 資料來源 rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -30,12 +32,13 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, splitThemeTitle, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
 import { searchLocationPresets } from "../lib/locationSearch";
 import { MedicalStatisticsGroupControls } from "./sidebar/MedicalStatisticsGroupControls";
+import { DataSourcePanel } from "./sidebar/DataSourcePanel";
 import { getMedicalStatisticsGroup } from "../data/medicalStatisticsGroups";
 import { panelForExplorationLayers, type ExplorationPanel } from "../research/explorationNavigation";
 
@@ -86,7 +89,6 @@ interface IconRailSidebarProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onAllOff: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
@@ -127,42 +129,37 @@ interface IconRailSidebarProps {
 interface RailPalette {
   ACCENT: string; ACCENT_TOGGLE: string; BG_RAIL: string; BG_PANEL: string;
   BORDER: string; DIM: string; INACTIVE_TEXT: string;
-  TEXT_STRONG: string; SUB_LABEL: string; BANNER_BG: string; SEARCH_BG: string;
+  TEXT_STRONG: string; BANNER_BG: string; SEARCH_BG: string;
   TOGGLE_OFF: string; TOGGLE_KNOB_ON: string; TOGGLE_KNOB_OFF: string;
   ROW_HOVER: string; ROW_ACTIVE: string; RAIL_ICON_ACTIVE: string;
-  CTRL_ACTIVE_BG: string; CTRL_INACTIVE_BG: string; CTRL_ACTIVE_BORDER: string; CTRL_INACTIVE_BORDER: string;
-  SELECT_BG: string; OPTION_BG: string; ALLOFF_BG: string; ALLOFF_BORDER: string;
+  ALLOFF_BG: string; ALLOFF_BORDER: string;
   COLOR_SCHEME: 'light' | 'dark';
 }
 
 const DARK_PALETTE: RailPalette = {
   ACCENT: "#E5E7EB", ACCENT_TOGGLE: "#FFFFFF", BG_RAIL: "#0D0E10", BG_PANEL: "rgba(0,0,0,0.45)",
   BORDER: "#2A2D32", DIM: "#6B7280", INACTIVE_TEXT: "#9CA3AF",
-  TEXT_STRONG: "#fff", SUB_LABEL: "#D1D5DB", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
+  TEXT_STRONG: "#fff", BANNER_BG: "rgba(20,21,24,0.95)", SEARCH_BG: "#1A1C20",
   TOGGLE_OFF: "#4B5563", TOGGLE_KNOB_ON: "#1a1a1a", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(255,255,255,0.03)", ROW_ACTIVE: "rgba(255,255,255,0.06)", RAIL_ICON_ACTIVE: "rgba(255,255,255,0.08)",
-  CTRL_ACTIVE_BG: "rgba(255,255,255,0.12)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.4)",
-  CTRL_ACTIVE_BORDER: "rgba(255,255,255,0.25)", CTRL_INACTIVE_BORDER: "rgba(255,255,255,0.15)",
-  SELECT_BG: "rgba(0,0,0,0.5)", OPTION_BG: "#1a1a1a", ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
+  ALLOFF_BG: "rgba(255,255,255,0.06)", ALLOFF_BORDER: "rgba(255,255,255,0.12)",
   COLOR_SCHEME: 'dark',
 };
 
 const LIGHT_PALETTE: RailPalette = {
   ACCENT: "#374151", ACCENT_TOGGLE: "#1F2937", BG_RAIL: "#FFFFFF", BG_PANEL: "rgba(255,255,255,0.92)",
   BORDER: "rgba(0,0,0,0.10)", DIM: "#9CA3AF", INACTIVE_TEXT: "#6B7280",
-  TEXT_STRONG: "#111827", SUB_LABEL: "#4B5563", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
+  TEXT_STRONG: "#111827", BANNER_BG: "rgba(243,244,246,0.96)", SEARCH_BG: "#F3F4F6",
   TOGGLE_OFF: "#D1D5DB", TOGGLE_KNOB_ON: "#fff", TOGGLE_KNOB_OFF: "#fff",
   ROW_HOVER: "rgba(0,0,0,0.04)", ROW_ACTIVE: "rgba(0,0,0,0.05)", RAIL_ICON_ACTIVE: "rgba(0,0,0,0.07)",
-  CTRL_ACTIVE_BG: "rgba(0,0,0,0.10)", CTRL_INACTIVE_BG: "rgba(0,0,0,0.03)",
-  CTRL_ACTIVE_BORDER: "rgba(0,0,0,0.22)", CTRL_INACTIVE_BORDER: "rgba(0,0,0,0.12)",
-  SELECT_BG: "#FFFFFF", OPTION_BG: "#FFFFFF", ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
+  ALLOFF_BG: "rgba(0,0,0,0.04)", ALLOFF_BORDER: "rgba(0,0,0,0.10)",
   COLOR_SCHEME: 'light',
 };
 
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations" | "statistics" | "world" | "japan";
+type PanelId = "layers" | "locations" | "statistics" | "world" | "japan" | "datasource";
 
 // ── Main Component ──
 
@@ -176,7 +173,7 @@ export function getThemeLayerKeys(themes: ThemeDef[]): (keyof LayerVisibility)[]
 export function IconRailSidebar({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
+  onViewModeChange, onDisplayModeChange, onAllOff,
   onBulkSetVisibility,
   currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
@@ -199,14 +196,6 @@ export function IconRailSidebar({
   const [statisticsSearch, setStatisticsSearch] = useState("");
   const [worldSearch, setWorldSearch] = useState("");
   const [japanSearch, setJapanSearch] = useState("");
-  const [comingSoon, setComingSoon] = useState(false);
-
-  // 齒輪「規劃中」提示：顯示後 2 秒自動消失
-  useEffect(() => {
-    if (!comingSoon) return;
-    const t = setTimeout(() => setComingSoon(false), 2000);
-    return () => clearTimeout(t);
-  }, [comingSoon]);
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -357,6 +346,14 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
+        {/* 資料來源（Phase K：收進側邊欄，取代右下浮動 ⓘ 抽屜） */}
+        <RailIcon
+          icon={Database}
+          active={activePanel === "datasource"}
+          onClick={() => togglePanel("datasource")}
+          tooltip="資料來源"
+        />
+
         {agentAvailable && onAgentToggle && (
           <RailIcon
             icon={Bot}
@@ -411,37 +408,7 @@ export function IconRailSidebar({
           />
         )}
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Settings（規劃中） */}
-        <RailIcon icon={Settings} active={false} onClick={() => setComingSoon(true)} tooltip="Settings" />
       </div>
-
-      {/* 齒輪「規劃中」提示 */}
-      {comingSoon && (
-        <div
-          style={{
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            bottom: 12,
-            padding: "8px 14px",
-            background: "rgba(17,24,39,0.92)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: RADIUS.xl,
-            color: "#fff",
-            fontSize: FONT_SIZE.lg,
-            whiteSpace: "nowrap",
-            zIndex: 5,
-            pointerEvents: "none",
-            animation: "panelFadeIn 0.2s ease-out",
-          }}
-        >
-          ⚙️ 設定功能規劃中
-        </div>
-      )}
 
       {/* ── Floating Panel ── */}
       {panelOpen && (
@@ -487,7 +454,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -511,7 +477,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -537,7 +502,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -561,7 +525,6 @@ export function IconRailSidebar({
                 onToggleVisibility={onToggleVisibility}
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
-                onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
                 favoriteKeys={favoriteKeys}
@@ -577,6 +540,14 @@ export function IconRailSidebar({
                 cityPresets={filteredCities}
                 currentLocationId={currentLocationId}
                 onLocationJump={onLocationJump}
+                onClose={closePanel}
+              />
+            )}
+            {activePanel === "datasource" && (
+              <DataSourcePanel
+                isDarkTheme={isDarkTheme}
+                lockedKeys={lockedKeys}
+                onActivateLayer={onBulkSetVisibility ? (key) => onBulkSetVisibility([key], true) : undefined}
                 onClose={closePanel}
               />
             )}
@@ -640,7 +611,7 @@ function JapanGlyph({ size = 20 }: { size?: number }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: Math.round(badge * 0.5),
           fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
-          fontFamily: "Inter, system-ui, sans-serif",
+          fontFamily: FONT_CJK,
         }}
       >
         JP
@@ -747,7 +718,6 @@ interface LayersPanelProps {
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHideTransport: () => void;
   onAllOff: () => void;
   allOffKeys?: (keyof LayerVisibility)[];
   /** 僅 Statistics rail panel 顯示單一／重疊模式。 */
@@ -817,7 +787,7 @@ const LayerRow = memo(function LayerRow({
           style={{
             flex: 1,
             fontSize: FONT_SIZE.md,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             color: TEXT_STRONG,
             transition: "color 0.15s",
           }}
@@ -853,11 +823,10 @@ function ThemeBanner({
   onToggleCollapse: () => void;
   onBulkToggle: () => void;
 }) {
-  const { DIM, BORDER, TEXT_STRONG, INACTIVE_TEXT, BANNER_BG } = useRailTheme();
-  const allOn = onCount === totalCount;
+  const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
   const someOn = onCount > 0;
-  // tri-state visual: 全開 / 部分開 / 全關
-  const indicatorColor = allOn ? TEXT_STRONG : someOn ? INACTIVE_TEXT : DIM;
+  // LT1（design-system §5.5）：theme.title 資料格式是「中文 English」，渲染時拆開分別給字級／字型。
+  const { zh, en } = splitThemeTitle(title);
   return (
     <div
       style={{
@@ -871,7 +840,7 @@ function ThemeBanner({
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         borderTop: `1px solid ${BORDER}`,
-        borderBottom: isCollapsed ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
         userSelect: "none",
       }}
     >
@@ -884,10 +853,13 @@ function ThemeBanner({
         <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </span>
-        <span style={{ flex: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, letterSpacing: 1.5, color: TEXT_STRONG, textTransform: "uppercase" }}>
-          {title}
+        <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
+          {en && (
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{en}</span>
+          )}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: indicatorColor, marginRight: 4 }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
           {onCount}/{totalCount}
         </span>
       </button>
@@ -896,40 +868,50 @@ function ThemeBanner({
   );
 }
 
+/** L2 群組標題：CJK 標題＋右側 1px 細線拉到底（淘汰「└」字元縮排）。 */
 function SubGroupLabel({ children }: { children: string }) {
-  const { SUB_LABEL } = useRailTheme();
+  const { COLOR_SCHEME } = useRailTheme();
+  const dark = COLOR_SCHEME === "dark";
   return (
     <div
       style={{
-        color: SUB_LABEL,
-        fontFamily: FONT_DATA,
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        color: dark ? "#9CA3AF" : "#4B5563",
+        fontFamily: FONT_CJK,
         fontSize: FONT_SIZE.sm,
         fontWeight: 600,
-        letterSpacing: 1.2,
-        padding: "10px 12px 4px 22px",
+        letterSpacing: 0.6,
+        padding: "10px 12px 3px 12px",
       }}
     >
-      └ {children}
+      <span>{children}</span>
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
     </div>
   );
 }
 
+/** 大分類標題：只顯示中文（LT1），右側細線同 L2 群組線色（design-system §5.5）。 */
 function MacroGroupLabel({ title }: { title: string }) {
-  const { BORDER, DIM } = useRailTheme();
+  const { DIM, COLOR_SCHEME } = useRailTheme();
+  const dark = COLOR_SCHEME === "dark";
+  const { zh } = splitThemeTitle(title);
   return (
     <div
       style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "10px 12px 4px",
         color: DIM,
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        fontWeight: 700,
-        letterSpacing: 1.6,
-        padding: "16px 12px 6px",
-        borderBottom: `1px solid ${BORDER}`,
-        textTransform: "uppercase",
+        fontFamily: FONT_CJK,
+        fontSize: 9.5,
+        letterSpacing: 1.2,
       }}
     >
-      {title}
+      <span>{zh}</span>
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
     </div>
   );
 }
@@ -939,7 +921,7 @@ function LayersPanel({
   showMacroGroups = false,
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
+  onViewModeChange: _onViewModeChange, onDisplayModeChange,
   onAllOff, onBulkSetVisibility, onClose,
   favoriteKeys, onToggleFavorite, allOffKeys,
   statisticsModeControl = false,
@@ -994,7 +976,7 @@ function LayersPanel({
             color: INACTIVE_TEXT,
             fontSize: FONT_SIZE.base,
             cursor: "pointer",
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
           }}
         >
           All Off
@@ -1026,12 +1008,12 @@ function LayersPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
       </div>
-      {statisticsModeControl && <StatisticsModeControl />}
+      {statisticsModeControl && <StatisticsModeControl isDarkTheme={COLOR_SCHEME === "dark"} />}
       <div
         className="layer-sidebar-scroll"
         style={{
@@ -1140,7 +1122,6 @@ function LayersPanel({
                                 isTransport={false}
                                 displayMode={displayMode}
                                 onDisplayModeChange={onDisplayModeChange}
-                                onHide={onHideTransport}
                               />
                             )}
                           />
@@ -1170,7 +1151,6 @@ function LayersPanel({
                             isTransport={isTransport}
                             displayMode={displayMode}
                             onDisplayModeChange={onDisplayModeChange}
-                            onHide={onHideTransport}
                           />
                         )}
                       </div>
@@ -1193,241 +1173,35 @@ interface ExpandedControlsProps {
   isTransport: boolean;
   displayMode: DisplayMode;
   onDisplayModeChange: (mode: DisplayMode) => void;
-  onHide: () => void;
 }
 
 function ExpandedControls({
   layerKey, isTransport, displayMode,
-  onDisplayModeChange, onHide,
+  onDisplayModeChange,
 }: ExpandedControlsProps) {
   // per-key 訂閱：只有這一層的參數變動才重繪本元件
   const paramValues = useLayerParams(layerKey);
   const controls = buildParamControls(layerKey, paramValues) ?? [];
-  const {
-    TEXT_STRONG, CTRL_ACTIVE_BG, CTRL_INACTIVE_BG, CTRL_ACTIVE_BORDER, CTRL_INACTIVE_BORDER,
-    SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE, COLOR_SCHEME,
-  } = useRailTheme();
-  const btnBase: CSSProperties = {
-    fontSize: FONT_SIZE.xs,
-    padding: "2px 6px",
-    borderRadius: RADIUS.md,
-    fontFamily: FONT_DATA,
-    cursor: "pointer",
-    border: "1px solid transparent",
-  };
-
-  const activeBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_ACTIVE_BG,
-    border: `1px solid ${CTRL_ACTIVE_BORDER}`,
-    color: TEXT_STRONG,
-  };
-
-  const inactiveBtn: CSSProperties = {
-    ...btnBase,
-    background: CTRL_INACTIVE_BG,
-    color: INACTIVE_TEXT,
-  };
+  const { TEXT_STRONG, COLOR_SCHEME } = useRailTheme();
+  const isDarkTheme = COLOR_SCHEME === "dark";
 
   return (
-    <div style={{ padding: "6px 12px 8px 36px", display: "flex", flexDirection: "column", gap: 6 }}>
+    <LayerControlArea isDarkTheme={isDarkTheme} style={{ margin: "2px 12px 8px 22px" }}>
+      {isTransport && layerKey === "flights" && (
+        <div className="lpc-head">
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "status"} onClick={() => onDisplayModeChange("status")}>
+              即時狀態
+            </button>
+            <button type="button" className="lpc-btn" aria-pressed={displayMode === "trails"} onClick={() => onDisplayModeChange("trails")}>
+              航跡
+            </button>
+        </div>
+      )}
       {isStatisticsRenderLayer(layerKey) && <StatisticsDetails layerKey={layerKey} textColor={TEXT_STRONG} colorScheme={COLOR_SCHEME} />}
       {layerKey === "propertyValueAdmin" && <PropertyValueStatisticsDetails />}
-      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={TEXT_STRONG === DARK_PALETTE.TEXT_STRONG} />}
-      {/* Display mode (flights only) + Hide */}
-      {isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-          {layerKey === "flights" && (
-            <>
-              <button
-                style={displayMode === "status" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("status")}
-              >
-                Live Status
-              </button>
-              <button
-                style={displayMode === "trails" ? activeBtn : inactiveBtn}
-                onClick={() => onDisplayModeChange("trails")}
-              >
-                Trails
-              </button>
-            </>
-          )}
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-      {!isTransport && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>Hide</button>
-        </div>
-      )}
-
-      {/* Controls */}
-      {controls.length > 0 && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {controls.map((ctrl) => {
-            if (ctrl.type === "multiSelect") {
-              const selected = new Set(ctrl.value);
-              return (
-                <details
-                  key={ctrl.label}
-                  onClick={(event) => event.stopPropagation()}
-                  style={{ color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA }}
-                >
-                  <summary style={{ cursor: "pointer", padding: "3px 0" }}>
-                    {ctrl.label}（{selected.size}/{ctrl.options.length}）
-                  </summary>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 4, padding: "5px 0 2px 10px" }}>
-                    <div style={{ display: "flex", gap: 4 }}>
-                      <button onClick={ctrl.onSelectAll} style={btnBase}>全選</button>
-                      <button onClick={ctrl.onSelectNone} style={btnBase}>全關</button>
-                    </div>
-                    {ctrl.options.map((option) => (
-                      <label key={option.value} style={{ display: "flex", alignItems: "center", gap: 6, opacity: option.disabled ? 0.45 : 1 }}>
-                        <input
-                          type="checkbox"
-                          checked={selected.has(option.value)}
-                          disabled={option.disabled}
-                          onChange={() => {
-                            const next = new Set(selected);
-                            if (next.has(option.value)) next.delete(option.value); else next.add(option.value);
-                            ctrl.onChange([...next]);
-                          }}
-                        />
-                        {option.label}
-                      </label>
-                    ))}
-                  </div>
-                </details>
-              );
-            }
-
-            if (ctrl.type === "select") {
-              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
-              if (ctrl.options.length > 3) {
-                return (
-                  <div
-                    key={ctrl.label}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 4,
-                      color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                    }}
-                  >
-                    <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                    <select
-                      value={ctrl.value}
-                      onChange={(e) => ctrl.onChange(e.target.value)}
-                      style={{
-                        flex: 1, fontSize: FONT_SIZE.sm, padding: "1px 6px",
-                        background: SELECT_BG, color: TEXT_STRONG,
-                        border: `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        borderRadius: RADIUS.md, fontFamily: FONT_DATA,
-                      }}
-                    >
-                      {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value} disabled={opt.disabled} style={{ background: OPTION_BG }}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              }
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  {ctrl.options.map((opt) => (
-                    <button
-                      key={opt.value}
-                      disabled={opt.disabled}
-                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
-                      style={{
-                        ...btnBase,
-                        fontSize: FONT_SIZE.xs,
-                        padding: "1px 8px",
-                        background: ctrl.value === opt.value
-                          ? CTRL_ACTIVE_BG
-                          : CTRL_INACTIVE_BG,
-                        border: ctrl.value === opt.value
-                          ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                          : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                        color: ctrl.value === opt.value ? TEXT_STRONG : DIM,
-                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
-                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              );
-            }
-
-            if (ctrl.type === "toggle") {
-              return (
-                <div
-                  key={ctrl.label}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 4,
-                    color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                  }}
-                >
-                  <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
-                  <button
-                    onClick={() => ctrl.onChange(!ctrl.value)}
-                    style={{
-                      ...btnBase,
-                      fontSize: FONT_SIZE.xs,
-                      padding: "1px 8px",
-                      background: ctrl.value ? CTRL_ACTIVE_BG : CTRL_INACTIVE_BG,
-                      border: ctrl.value
-                        ? `1px solid ${CTRL_ACTIVE_BORDER}`
-                        : `1px solid ${CTRL_INACTIVE_BORDER}`,
-                      color: ctrl.value ? TEXT_STRONG : DIM,
-                    }}
-                  >
-                    {ctrl.value ? "ON" : "OFF"}
-                  </button>
-                </div>
-              );
-            }
-
-            // Slider
-            const s = ctrl;
-            return (
-              <label
-                key={s.label}
-                style={{
-                  display: "flex", alignItems: "center", gap: 4,
-                  color: INACTIVE_TEXT, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
-                }}
-              >
-                <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>
-                <input
-                  type="range"
-                  min={s.min}
-                  max={s.max}
-                  step={s.step}
-                  value={s.value}
-                  onChange={(e) => s.onChange(Number(e.target.value))}
-                  style={{
-                    flex: 1, height: 3,
-                    accentColor: ACCENT_TOGGLE,
-                    cursor: "pointer",
-                  }}
-                />
-              </label>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      {(layerKey === "historicalFlightTrails" || layerKey === "jpHistoricalFlightTrails") && <HistoricalFlightTrailControls country={layerKey === "historicalFlightTrails" ? "TW" : "JP"} isDarkTheme={isDarkTheme} />}
+      <ParamControlList controls={controls} />
+    </LayerControlArea>
   );
 }
 
@@ -1477,7 +1251,7 @@ function CollapsibleSection({
           : <ChevronRight size={12} color={DIM} />}
         <span style={{
           fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: 1.5,
-          color: DIM, fontFamily: "Inter, system-ui, sans-serif",
+          color: DIM, fontFamily: FONT_CJK,
         }}>
           {title}
         </span>
@@ -1524,7 +1298,7 @@ function LocationsPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1613,7 +1387,7 @@ function LocationItem({
             fontSize: FONT_SIZE.md,
             fontWeight: 600,
             color: active ? TEXT_STRONG : INACTIVE_TEXT,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",

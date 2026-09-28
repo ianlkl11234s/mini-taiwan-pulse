@@ -12,6 +12,8 @@ import {
   SPACING,
   ELEVATION,
   WHITE_ALPHA,
+  LIGHT,
+  Z_INDEX,
 } from "../../styles/designTokens";
 
 /**
@@ -26,6 +28,8 @@ import {
 export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact = false }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean; compact?: boolean } = {}) {
   const { user, loading } = useUser();
   const [open, setOpen] = useState(false);
+  // 按鈕字色跟主題走（淡色底圖上白字會看不見）；compact = 手機標頭 M1 的 30×30、圓角 6 圖示按鈕
+  const fg = isDarkTheme ? COLORS.textStrong : LIGHT.textStrong;
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 下拉選單面板的中性 chrome 色票（頭像本體、accent、狀態色不受此控制）
@@ -75,22 +79,22 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
           display: "inline-flex",
           alignItems: "center",
           gap: SPACING.sm,
-          padding: compact ? 0 : `${SPACING.sm}px ${SPACING.lg}px`,
-          width: compact ? 36 : undefined,
-          height: compact ? 36 : undefined,
-          background: SURFACE.panel,
-          color: COLORS.textStrong,
-          border: `1px solid ${BORDER.mid}`,
-          borderRadius: RADIUS.md,
-          fontSize: FONT_SIZE.md,
+          justifyContent: "center",
+          padding: compact ? 0 : "0 10px",
+          width: compact ? 30 : undefined,
+          height: compact ? 30 : 26,
+          background: "transparent",
+          color: fg,
+          border: "1px solid transparent",
+          borderRadius: compact ? RADIUS.lg : RADIUS.md,
+          fontSize: FONT_SIZE.base,
           fontWeight: FONT_WEIGHT.semibold,
           fontFamily: FONT_CJK,
-          backdropFilter: "blur(8px)",
           cursor: "pointer",
         }}
       >
-        <LogIn size={14} />
-        {!compact && "使用 Google 登入"}
+        <LogIn size={compact ? 16 : 14} />
+        {!compact && "登入"}
       </button>
     );
   }
@@ -110,24 +114,21 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
         style={{
           display: "inline-flex",
           alignItems: "center",
-          gap: SPACING.sm,
-          padding: compact ? 0 : `${SPACING.xs}px ${SPACING.md}px`,
-          width: compact ? 36 : undefined,
-          height: compact ? 36 : undefined,
-          background: SURFACE.panel,
-          color: COLORS.textStrong,
-          border: `1px solid ${BORDER.mid}`,
-          borderRadius: RADIUS.pill,
-          fontSize: FONT_SIZE.md,
+          justifyContent: "center",
+          padding: 0,
+          width: compact ? 30 : 26,
+          height: compact ? 30 : 26,
+          background: "transparent",
+          color: fg,
+          border: "1px solid transparent",
+          borderRadius: compact ? RADIUS.lg : RADIUS.full,
           fontFamily: FONT_CJK,
-          backdropFilter: "blur(8px)",
           cursor: "pointer",
         }}
+        onMouseEnter={(e) => { if (!compact) e.currentTarget.style.background = c.hover; }}
+        onMouseLeave={(e) => { if (!compact) e.currentTarget.style.background = "transparent"; }}
       >
-        <Avatar url={avatarUrl} />
-        {!compact && <span style={{ maxWidth: 120, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {displayName}
-        </span>}
+        <Avatar url={avatarUrl} size={compact ? 24 : 26} />
       </button>
 
       {open && (
@@ -143,7 +144,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
             boxShadow: c.shadow,
             backdropFilter: "blur(8px)",
             overflow: "hidden",
-            zIndex: 10,
+            zIndex: Z_INDEX.popover,
           }}
         >
           <div
@@ -222,8 +223,7 @@ export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true, compact =
 }
 
 /** 圓形頭像：有圖顯示圖，無圖顯示 fallback 人形 icon */
-function Avatar({ url }: { url: string | null }) {
-  const size = 22;
+function Avatar({ url, size = 22 }: { url: string | null; size?: number }) {
   const common: React.CSSProperties = {
     width: size,
     height: size,

@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulse 元件規格參考</title>
+<style>
+  /* 參考頁本身：只用系統字、無外部資源。元件數值 1:1 取自 src/styles/tokens.css（暗 = :root、淡 = --light-*）。 */
+  :root {
+    color-scheme: dark;
+    --page: #07070f; --page-line: rgba(255,255,255,0.09);
+    --page-text: #d1d5db; --page-strong: #f3f4f6; --page-muted: #9ca3af; --page-dim: #6b7280;
+    --font-cjk: "PingFang TC", "Microsoft JhengHei", "Noto Sans CJK TC", system-ui, sans-serif;
+    --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  .t-dark {
+    --surface: rgba(10,10,20,0.88); --surface-solid: #10101b; --map: #1b1f27; --map-2: #232833;
+    --t-strong: #f3f4f6; --t-default: #d8dce3; --t-muted: #9ca3af; --t-dim: #6b7280;
+    --b-soft: rgba(255,255,255,0.06); --b-panel: rgba(255,255,255,0.10); --b-mid: rgba(255,255,255,0.14);
+    --c-bg: rgba(255,255,255,0.06); --c-bg-hover: rgba(255,255,255,0.10); --c-border: rgba(255,255,255,0.12);
+    --accent: #64aaff; --accent-faint: rgba(100,170,255,0.16);
+    --track: rgba(255,255,255,0.14); --fill: rgba(255,255,255,0.55); --thumb: #f3f4f6;
+    --live: #22c55e; --warn: #ff9800; --err: #ef4444; --derived: #a78bfa; --link: #7fb2ff;
+    --popup-border: rgba(100,170,255,0.25); --lpc-line: rgba(255,255,255,0.14); --brand: #ffffff;
+    --shadow: 0 12px 40px rgba(0,0,0,0.45);
+  }
+  .t-light {
+    --surface: rgba(255,255,255,0.95); --surface-solid: #ffffff; --map: #e7eaee; --map-2: #d9dee4;
+    --t-strong: #111827; --t-default: #1f2937; --t-muted: #4b5563; --t-dim: #6b7280;
+    --b-soft: rgba(0,0,0,0.06); --b-panel: rgba(0,0,0,0.10); --b-mid: rgba(0,0,0,0.16);
+    --c-bg: rgba(0,0,0,0.035); --c-bg-hover: rgba(0,0,0,0.08); --c-border: rgba(0,0,0,0.14);
+    --accent: #0b6fd6; --accent-faint: rgba(11,111,214,0.10);
+    --track: rgba(0,0,0,0.12); --fill: rgba(0,0,0,0.45); --thumb: #111827;
+    --live: #15803d; --warn: #c2410c; --err: #b42318; --derived: #a78bfa; --link: #0284c7;
+    --popup-border: rgba(0,0,0,0.10); --lpc-line: rgba(0,0,0,0.12); --brand: #333333;
+    --shadow: 0 12px 40px rgba(0,0,0,0.18);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; overflow-x: hidden; }
+  body { background: var(--page); color: var(--page-text); font: 13px/1.6 var(--font-cjk); padding: 28px 16px 72px; }
+  .wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+  code, .path { font-family: var(--font-data); font-size: 11.5px; color: var(--page-strong); overflow-wrap: anywhere; }
+  header h1 { margin: 0 0 8px; font-size: 22px; font-weight: 600; color: var(--page-strong); }
+  header p { margin: 0 0 6px; max-width: 76ch; color: var(--page-muted); }
+  nav.toc { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; }
+  nav.toc a { color: var(--page-muted); text-decoration: none; }
+  nav.toc a:hover { color: var(--page-strong); }
+  section.blk { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--page-line); padding-top: 20px; }
+  .blk-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+  .blk-head h2 { margin: 0; font-size: 16px; font-weight: 600; color: var(--page-strong); }
+  .num { font-family: var(--font-data); font-size: 12px; color: var(--page-dim); }
+  .impl { font-size: 12px; color: var(--page-muted); }
+  .note { margin: 0; max-width: 86ch; color: var(--page-muted); font-size: 12.5px; }
+  .note b { color: var(--page-strong); font-weight: 600; }
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 14px; }
+  .board { min-width: 0; border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 12px; color: var(--t-default); overflow: hidden; font-family: var(--font-cjk);
+    background: linear-gradient(90deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 80px 80px,
+                linear-gradient(0deg, transparent 49.6%, var(--map-2) 49.6% 50.4%, transparent 50.4%) 0 0 / 80px 80px, var(--map); }
+  .board-cap { font-size: 10px; letter-spacing: 1.2px; color: var(--t-dim); }
+  .row-wrap { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  svg.i { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+
+  /* ── Token 色票 ── */
+  .sw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .sw { display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--t-muted); min-width: 0; }
+  .sw i { display: block; height: 26px; border-radius: 4px; border: 1px solid var(--b-panel); }
+  .sw b { font-weight: 500; color: var(--t-strong); overflow-wrap: anywhere; }
+  .type-scale { display: flex; flex-direction: column; gap: 4px; color: var(--t-strong); }
+  .type-scale span { display: flex; gap: 10px; align-items: baseline; }
+  .type-scale small { width: 64px; flex-shrink: 0; font: 10px var(--font-data); color: var(--t-dim); }
+
+  /* ── 面板外殼 + H2 ── */
+  .panel { width: 300px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); overflow: hidden; }
+  .h2 { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--b-panel); }
+  .h2 .ey { font-size: 9px; letter-spacing: 1.4px; color: var(--t-dim); line-height: 1.3; }
+  .h2 h3 { margin: 1px 0 0; font-size: 13px; font-weight: 700; color: var(--t-strong); line-height: 1.4; }
+  .h2 .x { margin-left: auto; width: 24px; height: 24px; border: 0; background: transparent; color: var(--t-muted); display: grid; place-items: center; border-radius: 4px; }
+  .panel-body { padding: 8px 14px 12px; font-size: 11px; color: var(--t-default); }
+  .search { height: 26px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-dim); font-size: 11px; display: flex; align-items: center; gap: 6px; padding: 0 8px; }
+
+  /* ── Popup B ── */
+  .popup { position: relative; width: 280px; max-width: 100%; background: var(--surface); border: 1px solid var(--popup-border); border-radius: 8px; padding: 12px 14px; font-family: var(--font-cjk); box-shadow: var(--shadow); }
+  .popup .x { position: absolute; top: 8px; right: 8px; color: var(--t-dim); }
+  .popup .ey { font-size: 9px; color: var(--t-dim); letter-spacing: 1.2px; margin-bottom: 6px; }
+  .popup .ttl { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--t-strong); border-bottom: 1px solid var(--b-panel); padding-bottom: 5px; margin-bottom: 4px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .fi-row { display: flex; gap: 8px; padding: 3px 0; font-size: 11px; line-height: 1.3; }
+  .fi-row + .fi-row { border-top: 1px solid var(--b-soft); }
+  .fi-row span:first-child { color: var(--t-muted); min-width: 56px; font-size: 10px; flex-shrink: 0; }
+  .fi-row span:last-child { color: var(--t-strong); overflow-wrap: anywhere; }
+  .foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--b-soft); font-size: 9px; color: var(--t-dim); }
+  .foot a { color: var(--link); text-decoration: none; }
+  .foot .l2 { margin-top: 2px; font-family: var(--font-data); }
+  .foot.warn { color: var(--warn); }
+
+  /* ── R2 選取圈 ── */
+  .ring-stage { position: relative; height: 120px; border-radius: 6px; border: 1px solid var(--b-panel); }
+  .ring { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+  .ring i { position: absolute; left: 0; top: 0; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--accent); transform: translate(-50%, -50%); }
+  .ring .pulse { animation: ring-pulse 1.8s ease-out infinite; }
+  @keyframes ring-pulse { from { width: 24px; height: 24px; opacity: .8; } to { width: 58px; height: 58px; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .ring .pulse { animation: none; width: 36px; height: 36px; opacity: .35; } }
+  .ring-static { position: absolute; left: 75%; top: 50%; }
+  .ring-static i.pulse { animation: none; width: 36px; height: 36px; opacity: .35; }
+  .ring-label { position: absolute; bottom: 6px; font-size: 10px; color: var(--t-dim); }
+
+  /* ── L2 群組 + 圖層列 ── */
+  .lp { width: 300px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 4px 0 8px; }
+  .macro { padding: 10px 12px 2px; font-size: 11px; font-weight: 600; color: var(--t-strong); }
+  .l2 { display: flex; align-items: center; gap: 8px; padding: 10px 12px 3px; font-size: 10px; font-weight: 600; letter-spacing: .6px; color: var(--t-muted); }
+  .l2::after { content: ""; flex: 1; height: 1px; background: var(--lpc-line); }
+  .lrow { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 26px; font-size: 11px; color: var(--t-strong); min-width: 0; }
+  .lrow .en { color: var(--t-dim); font-size: 10px; }
+  .lrow .chev { margin-left: auto; color: var(--t-muted); transition: transform .15s; }
+  .lrow.open { box-shadow: inset 2px 0 0 var(--accent); }
+  .lrow.open .chev { transform: rotate(90deg); }
+
+  /* ── 時間軸 ── */
+  .tl { list-style: none; margin: 0; padding: 0 0 0 12px; border-left: 1px solid var(--b-mid); display: flex; flex-direction: column; gap: 6px; font-size: 11px; color: var(--t-default); }
+  .tl li { position: relative; }
+  .tl li::before { content: ""; position: absolute; left: -16px; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--surface-solid); }
+  .tl time { margin-right: 6px; font: 10px var(--font-data); color: var(--t-dim); font-variant-numeric: tabular-nums; }
+
+  /* ── C2 按鈕 / 分段 / 選單 / 開關 ── */
+  .btn { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-strong); font: 500 11px/1 var(--font-cjk); white-space: nowrap; cursor: pointer; }
+  .btn:hover { background: var(--c-bg-hover); }
+  .btn:focus-visible, .btn.focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn.pri { background: var(--accent-faint); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+  .btn.icon { width: 26px; padding: 0; justify-content: center; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn.sm { height: 22px; padding: 0 8px; font-size: 10px; }
+  .seg { display: inline-flex; height: 26px; padding: 2px; gap: 2px; border-radius: 5px; border: 1px solid var(--c-border); background: var(--c-bg); }
+  .seg button { border: 0; background: transparent; color: var(--t-muted); font: 500 11px/1 var(--font-cjk); padding: 0 9px; border-radius: 3px; display: inline-flex; align-items: center; gap: 5px; }
+  .seg button[aria-pressed="true"] { background: var(--accent-faint); color: var(--accent); font-weight: 600; }
+  .seg .n { font-family: var(--font-data); font-size: 10px; opacity: .8; }
+  .seg.sm { height: auto; padding: 1px; border-radius: 4px; }
+  .seg.sm button { font-size: 10px; padding: 4px 7px; }
+  .livedot { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+  .sel { position: relative; height: 20px; width: 170px; max-width: 100%; padding: 0 20px 0 7px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); color: var(--t-strong); font: 10px/18px var(--font-cjk); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sel::after { content: ""; position: absolute; right: 8px; top: 5px; width: 4px; height: 4px; border-right: 1.3px solid var(--t-muted); border-bottom: 1.3px solid var(--t-muted); transform: rotate(45deg); }
+  .opts { width: 170px; max-width: 100%; background: var(--surface-solid); border: 1px solid var(--c-border); border-radius: 4px; font-size: 10px; color: var(--t-strong); }
+  .opts div { padding: 3px 7px; } .opts div.on { background: var(--accent-faint); color: var(--accent); }
+  .tgl { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: var(--t-muted); border: 0; background: transparent; padding: 0; font-family: var(--font-cjk); }
+  .tgl .sw2 { position: relative; width: 20px; height: 11px; border-radius: 999px; background: var(--c-border); }
+  .tgl .sw2::after { content: ""; position: absolute; left: 2px; top: 2px; width: 7px; height: 7px; border-radius: 50%; background: var(--t-strong); }
+  .tgl[aria-checked="true"] { color: var(--t-default); }
+  .tgl[aria-checked="true"] .sw2 { background: var(--accent); }
+  .tgl[aria-checked="true"] .sw2::after { left: 11px; background: #fff; }
+  .tgl.lg .sw2 { width: 24px; height: 14px; } .tgl.lg .sw2::after { width: 10px; height: 10px; } .tgl.lg[aria-checked="true"] .sw2::after { left: 12px; }
+
+  /* ── 圖層控制區 V2 + S1 ── */
+  .lpc { margin: 2px 12px 6px 34px; padding: 2px 0 2px 10px; border-left: 1px solid var(--lpc-line); display: flex; flex-direction: column; gap: 6px; }
+  .lpc-head { display: flex; align-items: center; gap: 4px; min-height: 20px; }
+  .cr { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "k v" "c c"; column-gap: 8px; row-gap: 2px; align-items: center; }
+  .cr .k { grid-area: k; font-size: 10px; line-height: 1.35; color: var(--t-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cr .v { grid-area: v; font: 10px/1.35 var(--font-data); color: var(--t-default); font-variant-numeric: tabular-nums; }
+  .cr .c { grid-area: c; min-width: 0; }
+  .rng { position: relative; height: 14px; }
+  .rng::before { content: ""; position: absolute; left: 0; right: 0; top: 6px; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--fill) 0 var(--p), var(--track) var(--p) 100%); }
+  .rng::after { content: ""; position: absolute; top: 2px; left: calc(var(--p) - 5px); width: 10px; height: 10px; border-radius: 50%; background: var(--thumb); box-shadow: 0 0 0 3px color-mix(in srgb, var(--thumb) 12%, transparent); }
+  .tgl-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 4px 10px; }
+  .ms { font-size: 10px; color: var(--t-muted); }
+  .ms-sum { display: flex; align-items: center; gap: 5px; }
+  .ms-sum .chev { transform: rotate(90deg); color: var(--t-muted); }
+  .ms-sum .cnt { font-family: var(--font-data); color: var(--t-default); }
+  .ms-sum .act { margin-left: auto; display: flex; gap: 8px; color: var(--link); }
+  .chk { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 3px 8px; margin-top: 6px; }
+  .chk span { display: flex; align-items: center; gap: 5px; color: var(--t-default); min-width: 0; }
+  .chk i { width: 10px; height: 10px; border-radius: 2px; border: 1px solid var(--lpc-line); flex-shrink: 0; }
+  .chk i.on { background: var(--cc); border-color: var(--cc); }
+
+  /* ── 工具列 T2 ── */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .brand h4 { margin: 0; height: 26px; display: flex; align-items: center; font: 700 20px/1 var(--font-data); letter-spacing: 2px; color: var(--brand); white-space: nowrap; }
+  .hud { font: 10px/1.5 var(--font-data); color: var(--t-dim); letter-spacing: .5px; font-variant-numeric: tabular-nums; }
+  .tb { display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 7px; background: var(--surface); border: 1px solid var(--b-panel); box-shadow: var(--shadow); flex-wrap: wrap; justify-content: flex-end; margin-left: auto; max-width: 100%; }
+  .tb .btn:not(.pri) { border-color: transparent; background: transparent; }
+  .tb .btn:not(.pri):hover { background: var(--c-bg-hover); }
+  .tb .seg { border-color: transparent; }
+  .vsep { width: 1px; height: 16px; background: var(--c-border); }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #5b8def, #9b6bf0); color: #fff; font: 700 11px/26px var(--font-cjk); text-align: center; }
+  .bm-glyph { position: relative; display: inline-flex; }
+  .bm-glyph b { position: absolute; right: -3px; bottom: -3px; width: 7px; height: 7px; border-radius: 2px; border: 1px solid var(--surface); background: linear-gradient(135deg, #2b3440, #111827); }
+
+  /* ── B3 底圖 ── */
+  .bm-pop { width: 252px; max-width: 100%; background: var(--surface-solid); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); padding: 4px; }
+  .bm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 52px)); gap: 6px; padding: 6px; }
+  .bm-grid span { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 9.5px; color: var(--t-muted); }
+  .bm-grid span i { display: block; width: 100%; aspect-ratio: 1; border-radius: 5px; border: 1px solid var(--c-border); }
+  .bm-grid span.on { color: var(--accent); font-weight: 600; }
+  .bm-grid span.on i { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .bm-sep { height: 1px; background: var(--c-border); margin: 4px 2px; }
+  .bm-lbl { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 5px 8px; font-size: 11px; color: var(--t-strong); }
+
+  /* ── P2 拍攝模式 ── */
+  .cap { position: relative; height: 170px; border-radius: 6px; overflow: hidden; border: 1px solid var(--b-panel); background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.3) 80%, rgba(0,0,0,.5) 100%); }
+  .cap .t1 { position: absolute; left: 16px; top: 14px; font: 700 28px/1.2 var(--font-data); letter-spacing: 4px; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+  .cap .t2 { position: absolute; left: 16px; top: 54px; font: 600 18px/1.2 var(--font-cjk); letter-spacing: 2px; color: #d8dce3; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+  .cap .hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.75); font: 10px var(--font-cjk); white-space: nowrap; }
+  .cap .hint kbd { font: 9px var(--font-data); }
+
+  /* ── 即時情報 ── */
+  .chip { display: inline-block; font-size: 10px; line-height: 1; padding: 3px 5px; border-radius: 3px; color: var(--cc); background: color-mix(in srgb, var(--cc) 14%, transparent); }
+  .chip.o { background: transparent; border: 1px solid color-mix(in srgb, var(--cc) 50%, transparent); padding: 2px 5px; }
+  .pill-live { display: inline-flex; align-items: center; gap: 4px; font: 600 9px/1 var(--font-data); color: var(--live); padding: 2px 6px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--live) 50%, transparent); }
+  .icard { border: 1px solid var(--b-soft); border-radius: 6px; padding: 8px 10px; background: var(--c-bg); }
+  .icard .top { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--t-dim); flex-wrap: wrap; }
+  .icard .top time { margin-left: auto; font-family: var(--font-data); }
+  .icard h5 { margin: 5px 0 0; font-size: 12px; font-weight: 600; color: var(--t-strong); }
+
+  /* ── D1 資料來源 ── */
+  .ds-row { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 26px; font-size: 11px; color: var(--t-strong); min-width: 0; }
+  .ds-row .st { width: 14px; text-align: center; font-size: 10px; flex-shrink: 0; }
+  .ds-row .en { color: var(--t-dim); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .ds-row.open { box-shadow: inset 2px 0 0 var(--accent); }
+  .ds-card { margin: 0 12px 6px 34px; padding: 6px 0 6px 10px; border-left: 1px solid var(--lpc-line); font-size: 11px; }
+  .fact { display: flex; gap: 8px; padding: 2px 0; }
+  .fact span:first-child { width: 44px; flex-shrink: 0; font-size: 10px; color: var(--t-muted); }
+  .fact span:last-child { color: var(--t-strong); overflow-wrap: anywhere; min-width: 0; }
+  .fact a { color: var(--link); text-decoration: none; }
+
+  /* ── 圖例 ── */
+  .legend { width: 220px; max-width: 100%; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; }
+  .legend button { width: 100%; display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: none; border: 0; color: var(--t-default); font: 10px var(--font-cjk); }
+  .legend .body { padding: 0 10px 8px; display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--t-default); }
+  .legend .body span { display: flex; align-items: center; gap: 6px; }
+  /* TL3 左下時間軸（§5.24） */
+  .tl3 { width: 620px; max-width: 100%; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--b-panel); border-radius: 8px; box-shadow: var(--shadow); color: var(--t-strong); }
+  .tl3 .top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .tl3 .end { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .tl3 .play { width: 30px; height: 30px; border-radius: 50%; padding: 0; justify-content: center; background: var(--accent-faint); border-color: var(--accent); color: var(--accent); }
+  .tl3 .clock { font: 600 20px/1 var(--font-data); font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+  .tl3 .live { display: inline-flex; align-items: center; gap: 5px; font: 600 10px/1 var(--font-cjk); color: var(--live); }
+  .tl3 .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+  .tl3 .sel26 { position: relative; display: inline-flex; align-items: center; height: 26px; padding: 0 20px 0 8px; border-radius: 4px; border: 1px solid var(--c-border); background: var(--c-bg); font: 500 11px/1 var(--font-cjk); white-space: nowrap; }
+  .tl3 .sel26::after { content: ""; position: absolute; right: 8px; top: 9px; width: 4px; height: 4px; border-right: 1.3px solid var(--t-muted); border-bottom: 1.3px solid var(--t-muted); transform: rotate(45deg); }
+  .tl3 .sel26.mono { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+  .tl3 .field { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--t-muted); }
+  .tl3 .ghost { border-color: transparent; background: transparent; }
+  .tl3 .date { font: 500 11.5px/1 var(--font-cjk); }
+  .tl3 .axis { position: relative; height: 34px; margin-top: 12px; }
+  .tl3 .axis .base { position: absolute; left: 0; right: 0; top: 16px; height: 1px; background: var(--b-mid); }
+  .tl3 .axis .done { position: absolute; left: 0; top: 15px; height: 3px; border-radius: 2px; background: var(--fill); }
+  .tl3 .axis .gap { position: absolute; top: 10px; height: 14px; border-radius: 2px; background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--warn) 28%, transparent) 0 3px, transparent 3px 6px); }
+  .tl3 .axis .tick { position: absolute; top: 12px; width: 1px; height: 9px; background: var(--b-mid); }
+  .tl3 .axis .tick.minor { top: 14px; height: 5px; }
+  .tl3 .axis .lbl { position: absolute; top: 24px; transform: translateX(-50%); font: 9.5px/1 var(--font-data); color: var(--t-dim); white-space: nowrap; }
+  .tl3 .axis .lbl.first { transform: none; } .tl3 .axis .lbl.last { transform: translateX(-100%); }
+  .tl3 .axis .lbl u, .tl3 .axis .needle u { text-decoration: none; font-family: var(--font-cjk); }
+  .tl3 .axis .needle { position: absolute; top: 2px; width: 2px; height: 26px; margin-left: -1px; border-radius: 1px; background: var(--accent); }
+  .tl3 .axis .needle span { position: absolute; top: -12px; left: 0; font: 600 9.5px/1 var(--font-data); color: var(--accent); white-space: nowrap; }
+  .tl3 .notes { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .tl3 .warnchip { font-size: 10px; color: var(--warn); border: 1px solid color-mix(in srgb, var(--warn) 45%, transparent); border-radius: 3px; padding: 1px 5px; white-space: nowrap; }
+  .tl3 .hint { font-size: 10px; color: var(--t-dim); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l11-7z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h3v14H7zM14 5h3v14h-3z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-cam" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3z"/><path d="M9 3v15M15 6v15"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></symbol>
+</svg>
+
+<div class="wrap">
+  <header>
+    <h1>Pulse 元件規格參考</h1>
+    <p>Mini Taiwan Pulse UI 統一工程（第一至第四輪拍板）的<b>最終規格</b>，暗色與淡色並排；只保留已選定的版本。每個區塊標出實作檔。</p>
+    <p>規範文字與 token 表：<code>docs/design-system.md</code>。數值取自 <code>src/styles/tokens.css</code>（暗 = <code>:root</code>，淡 = <code>--light-*</code>）。本頁只用系統字、無外部資源。</p>
+    <nav class="toc" aria-label="目錄">
+      <a href="#tokens">Token</a><a href="#panel">面板 H2</a><a href="#popup">Popup B＋F2</a><a href="#ring">選取圈 R2</a>
+      <a href="#l2">L2 群組</a><a href="#timeline">時間軸</a><a href="#controls">按鈕與控制</a><a href="#lpc">圖層控制 V2＋S1</a>
+      <a href="#toolbar">工具列 T2</a><a href="#basemap">底圖 B3</a><a href="#capture">拍攝模式 P2</a><a href="#intel">即時情報</a>
+      <a href="#datasource">資料來源 D1</a><a href="#legend">圖例</a><a href="#tl3">時間軸 TL3</a>
+    </nav>
+  </header>
+
+  <!-- ───────── Token ───────── -->
+  <section class="blk" id="tokens">
+    <div class="blk-head"><h2>Token 色票與字級</h2><span class="num">§3</span><span class="impl path">src/styles/designTokens.ts · src/styles/tokens.css</span></div>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">暗色（預設）</span>
+        <div class="sw-grid">
+          <span class="sw"><i style="background:var(--surface)"></i><b>surface-strong</b>rgba(10,10,20,.88)</span>
+          <span class="sw"><i style="background:var(--t-strong)"></i><b>text-strong</b>#f3f4f6</span>
+          <span class="sw"><i style="background:var(--t-default)"></i><b>text-default</b>#d8dce3</span>
+          <span class="sw"><i style="background:var(--t-muted)"></i><b>text-muted</b>#9ca3af</span>
+          <span class="sw"><i style="background:var(--t-dim)"></i><b>text-dim</b>#6b7280</span>
+          <span class="sw"><i style="background:var(--accent)"></i><b>accent</b>#64aaff</span>
+          <span class="sw"><i style="background:var(--link)"></i><b>link</b>#7fb2ff</span>
+          <span class="sw"><i style="background:var(--live)"></i><b>status-live</b>#22c55e</span>
+          <span class="sw"><i style="background:var(--warn)"></i><b>status-warn</b>#ff9800</span>
+          <span class="sw"><i style="background:var(--err)"></i><b>status-err</b>#ef4444</span>
+          <span class="sw"><i style="background:var(--derived)"></i><b>status-derived</b>#a78bfa</span>
+          <span class="sw"><i style="background:var(--c-bg)"></i><b>control-bg</b>rgba(255,255,255,.06)</span>
+          <span class="sw"><i style="background:var(--surface-solid)"></i><b>control-option-bg</b>#10101b</span>
+          <span class="sw"><i style="background:var(--fill)"></i><b>slider-fill</b>rgba(255,255,255,.55)</span>
+        </div>
+      </div>
+      <div class="board t-light"><span class="board-cap">淡色（LIGHT／--light-*）</span>
+        <div class="sw-grid">
+          <span class="sw"><i style="background:var(--surface)"></i><b>light-surface-panel</b>rgba(255,255,255,.95)</span>
+          <span class="sw"><i style="background:var(--t-strong)"></i><b>light-text-strong</b>#111827</span>
+          <span class="sw"><i style="background:var(--t-default)"></i><b>light-text-default</b>#1f2937</span>
+          <span class="sw"><i style="background:var(--t-muted)"></i><b>light-text-muted</b>#4b5563</span>
+          <span class="sw"><i style="background:var(--t-dim)"></i><b>light-text-dim</b>#6b7280</span>
+          <span class="sw"><i style="background:var(--accent)"></i><b>light-accent</b>#0b6fd6</span>
+          <span class="sw"><i style="background:var(--link)"></i><b>light-link</b>#0284c7</span>
+          <span class="sw"><i style="background:var(--live)"></i><b>light-status-live</b>#15803d</span>
+          <span class="sw"><i style="background:var(--warn)"></i><b>light-status-warn</b>#c2410c</span>
+          <span class="sw"><i style="background:var(--err)"></i><b>light-status-err</b>#b42318</span>
+          <span class="sw"><i style="background:var(--derived)"></i><b>status-derived</b>#a78bfa（共用）</span>
+          <span class="sw"><i style="background:var(--c-bg)"></i><b>light-control-bg</b>rgba(0,0,0,.035)</span>
+          <span class="sw"><i style="background:var(--surface-solid)"></i><b>light-surface-solid</b>#ffffff</span>
+          <span class="sw"><i style="background:var(--fill)"></i><b>light-slider-fill</b>rgba(0,0,0,.45)</span>
+        </div>
+      </div>
+    </div>
+    <div class="pair">
+      <div class="board t-dark"><span class="board-cap">字級 7 階 · --font-cjk／--font-data</span>
+        <div class="type-scale">
+          <span><small>xs 9</small><span style="font-size:9px">eyebrow 主題 · 圖層</span></span>
+          <span><small>sm 10</small><span style="font-size:10px">標籤、控制項 <span class="mono">0.80</span></span></span>
+          <span><small>base 11</small><span style="font-size:11px">預設正文、Row 值 <span class="mono">1,234</span></span></span>
+          <span><small>md 12</small><span style="font-size:12px">強調副資訊</span></span>
+          <span><small>lg 13</small><span style="font-size:13px;font-weight:700">面板標題</span></span>
+          <span><small>xl 18</small><span style="font-size:18px">卡片大標</span></span>
+          <span><small>xxl 22</small><span style="font-size:22px">大型標頭</span></span>
+        </div>
+      </div>
+      <div class="board t-light"><span class="board-cap">字型角色</span>
+        <div class="type-scale">
+          <span><small>cjk</small><span style="font-size:12px">中文與一般文字：臺北市信義區</span></span>
+          <span><small>data</small><span class="mono" style="font-size:12px">25.0464, 121.5318 · 14:05 · 1,234</span></span>
+          <span><small>混排</small><span style="font-size:12px">更新 <span class="mono">14:05</span> · 共 <span class="mono">128</span> 則</span></span>
+          <span><small>品牌例外</small><span style="font:700 14px var(--font-data);letter-spacing:2px">Mini Taiwan Pulse</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 面板 H2 ───────── -->
+  <section class="blk" id="panel">
+    <div class="blk-head"><h2>面板外殼＋H2 標頭</h2><span class="num">§5.1</span><span class="impl path">src/components/sidebar/PanelHeader.tsx（傳 eyebrow）</span></div>
+    <p class="note">eyebrow 9px text-dim、標題 13px bold、padding 10×14、下方 border-panel；關閉鈕 24×24 lucide X 14。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="panel">
+        <div class="h2"><div><div class="ey">資料</div><h3>資料來源</h3></div><button class="x" aria-label="關閉資料來源"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="panel-body"><div class="search"><svg class="i"><use href="#i-search"/></svg>搜尋圖層名稱</div></div>
+      </div></div>
+      <div class="board t-light"><div class="panel">
+        <div class="h2"><div><div class="ey">資料</div><h3>資料來源</h3></div><button class="x" aria-label="關閉資料來源"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="panel-body"><div class="search"><svg class="i"><use href="#i-search"/></svg>搜尋圖層名稱</div></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── Popup ───────── -->
+  <section class="blk" id="popup">
+    <div class="blk-head"><h2>停靠 popup（B 版）＋來源 footer（F2）</h2><span class="num">§5.2 §5.3</span><span class="impl path">src/components/FeatureInfoPanel.tsx · featureInfo/shared.tsx · featureTheme.tsx · featureInfo.css</span></div>
+    <p class="note">停靠右下、寬 280、padding 12×14、容器 --font-cjk。Row 11px／標籤 10px 寬 56、列間 border-soft 細線、純數值 mono。無來源時 footer 只顯示「資料來源 · 來源資訊待補」（warn）。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="row-wrap" style="align-items:flex-start">
+        <div class="popup"><svg class="i x"><use href="#i-x"/></svg>
+          <div class="ey">宗教 · 寺廟</div>
+          <div class="ttl"><span class="dot" style="background:#f59e0b"></span>艋舺龍山寺</div>
+          <div class="fi-row"><span>主祀神</span><span>觀世音菩薩</span></div>
+          <div class="fi-row"><span>地址</span><span>臺北市萬華區廣州街 211 號</span></div>
+          <div class="fi-row"><span>建立年份</span><span class="mono">1738</span></div>
+          <div class="foot"><div>內政部 · Tier 1 · <a href="#popup">原始下載頁 ↗</a></div><div class="l2">政府資料開放授權 · 抓取於 2026-09-27</div></div>
+        </div>
+        <div class="popup"><div class="ey">文化 · 文化設施</div>
+          <div class="ttl"><span class="dot" style="background:#26c6da"></span>松山文創園區</div>
+          <div class="fi-row"><span>類型</span><span>文創園區</span></div>
+          <div class="foot warn">資料來源 · 來源資訊待補</div>
+        </div>
+      </div></div>
+      <div class="board t-light"><div class="row-wrap" style="align-items:flex-start">
+        <div class="popup"><svg class="i x"><use href="#i-x"/></svg>
+          <div class="ey">宗教 · 寺廟</div>
+          <div class="ttl"><span class="dot" style="background:#f59e0b"></span>艋舺龍山寺</div>
+          <div class="fi-row"><span>主祀神</span><span>觀世音菩薩</span></div>
+          <div class="fi-row"><span>地址</span><span>臺北市萬華區廣州街 211 號</span></div>
+          <div class="fi-row"><span>建立年份</span><span class="mono">1738</span></div>
+          <div class="foot"><div>內政部 · Tier 1 · <a href="#popup">原始下載頁 ↗</a></div><div class="l2">政府資料開放授權 · 抓取於 2026-09-27</div></div>
+        </div>
+        <div class="popup"><div class="ey">文化 · 文化設施</div>
+          <div class="ttl"><span class="dot" style="background:#26c6da"></span>松山文創園區</div>
+          <div class="fi-row"><span>類型</span><span>文創園區</span></div>
+          <div class="foot warn">資料來源 · 來源資訊待補</div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── R2 ───────── -->
+  <section class="blk" id="ring">
+    <div class="blk-head"><h2>選取圈（R2 呼吸脈衝）</h2><span class="num">§5.4</span><span class="impl path">src/map/selectionRing.ts · selectionRing.css</span></div>
+    <p class="note">實線 24px（2px accent）＋同心圈 1.8s 擴散到 58px 淡出；右側為 prefers-reduced-motion 的靜態 36px 淡圈。popup 關閉即移除。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="ring-stage">
+        <span class="ring"><i></i><i class="pulse"></i></span><span class="ring-label" style="left:40%">動態</span>
+        <span class="ring ring-static"><i></i><i class="pulse"></i></span><span class="ring-label" style="left:68%">減少動態</span>
+      </div></div>
+      <div class="board t-light"><div class="ring-stage">
+        <span class="ring"><i></i><i class="pulse"></i></span><span class="ring-label" style="left:40%">動態</span>
+        <span class="ring ring-static"><i></i><i class="pulse"></i></span><span class="ring-label" style="left:68%">減少動態</span>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── L2 ───────── -->
+  <section class="blk" id="l2">
+    <div class="blk-head"><h2>L2 群組標題＋chevron</h2><span class="num">§5.5 §5.16</span><span class="impl path">src/components/IconRailSidebar.tsx SubGroupLabel</span></div>
+    <p class="note">群組標題 10px semibold、右側 1px 細線拉到底；子項縮排；展開用 lucide ChevronRight 旋轉 90°，不用 ▶。主題標題（「交通 MOVE」等寬大寫）尚未遷移，這裡畫的是目標樣式。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="lp">
+        <div class="macro">交通</div>
+        <div class="l2">公共運輸</div>
+        <div class="lrow open">公車即時位置 <span class="en">Bus</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="lrow">捷運路網<svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="l2">交通用地</div>
+        <div class="lrow">停車場<svg class="i chev"><use href="#i-chev"/></svg></div>
+      </div></div>
+      <div class="board t-light"><div class="lp">
+        <div class="macro">交通</div>
+        <div class="l2">公共運輸</div>
+        <div class="lrow open">公車即時位置 <span class="en">Bus</span><svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="lrow">捷運路網<svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="l2">交通用地</div>
+        <div class="lrow">停車場<svg class="i chev"><use href="#i-chev"/></svg></div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 時間軸 ───────── -->
+  <section class="blk" id="timeline">
+    <div class="blk-head"><h2>時間軸（border-left）</h2><span class="num">§5.6</span><span class="impl path">src/research/researchActivity.css · src/components/intel/</span></div>
+    <div class="pair">
+      <div class="board t-dark"><div class="panel"><div class="panel-body" style="padding:12px 14px 12px 18px">
+        <ul class="tl"><li><time>14:02</time>查詢信義區學校 38 筆</li><li><time>14:03</time>計算 500 公尺環域</li><li><time>14:05</time>結果已顯示在地圖</li></ul>
+      </div></div></div>
+      <div class="board t-light"><div class="panel"><div class="panel-body" style="padding:12px 14px 12px 18px">
+        <ul class="tl"><li><time>14:02</time>查詢信義區學校 38 筆</li><li><time>14:03</time>計算 500 公尺環域</li><li><time>14:05</time>結果已顯示在地圖</li></ul>
+      </div></div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 按鈕與控制 ───────── -->
+  <section class="blk" id="controls">
+    <div class="blk-head"><h2>按鈕 C2・分段・選單・迷你開關</h2><span class="num">§5.7–§5.10</span><span class="impl path">toolbar/ToolbarButton.tsx · ModeToggle.tsx · sidebar/layerParamControls.css · toolbar/BasemapMenu.tsx MiniSwitch</span></div>
+    <p class="note">一般：control-bg＋control-border；主要：accent-faint 底＋accent 框與字；圖示 26×26；focus 2px accent；停用 opacity .55。分段選中 accent-faint。選單保留原生 select，展開選項底 control-option-bg。</p>
+    <div class="pair">
+      <div class="board t-dark">
+        <div class="row-wrap"><button class="btn">一般</button><button class="btn pri">主要</button><button class="btn icon" title="分享" aria-label="分享"><svg class="i"><use href="#i-share"/></svg></button><button class="btn focus">focus</button><button class="btn" disabled>停用</button><button class="btn sm">小按鈕</button></div>
+        <div class="row-wrap"><div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div>
+          <div class="seg sm" role="group"><button aria-pressed="false">點</button><button aria-pressed="true">熱區</button><button aria-pressed="false">網格</button></div></div>
+        <div class="row-wrap" style="align-items:flex-start"><div><div class="sel">依行政區（縣市）</div><div class="opts" style="margin-top:4px"><div>依行政區（縣市）</div><div class="on">依行政區（鄉鎮）</div><div>依網格</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><button class="tgl" role="switch" aria-checked="true"><span class="sw2"></span>顯示標籤</button><button class="tgl" role="switch" aria-checked="false"><span class="sw2"></span>只看營業中</button><button class="tgl lg" role="switch" aria-checked="true"><span class="sw2"></span>面板版 24×14</button></div></div>
+      </div>
+      <div class="board t-light">
+        <div class="row-wrap"><button class="btn">一般</button><button class="btn pri">主要</button><button class="btn icon" title="分享" aria-label="分享"><svg class="i"><use href="#i-share"/></svg></button><button class="btn focus">focus</button><button class="btn" disabled>停用</button><button class="btn sm">小按鈕</button></div>
+        <div class="row-wrap"><div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div>
+          <div class="seg sm" role="group"><button aria-pressed="false">點</button><button aria-pressed="true">熱區</button><button aria-pressed="false">網格</button></div></div>
+        <div class="row-wrap" style="align-items:flex-start"><div><div class="sel">依行政區（縣市）</div><div class="opts" style="margin-top:4px"><div>依行政區（縣市）</div><div class="on">依行政區（鄉鎮）</div><div>依網格</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><button class="tgl" role="switch" aria-checked="true"><span class="sw2"></span>顯示標籤</button><button class="tgl" role="switch" aria-checked="false"><span class="sw2"></span>只看營業中</button><button class="tgl lg" role="switch" aria-checked="true"><span class="sw2"></span>面板版 24×14</button></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────── 圖層控制 ───────── -->
+  <section class="blk" id="lpc">
+    <div class="blk-head"><h2>圖層控制區 V2＋S1 滑桿・多選</h2><span class="num">§5.11–§5.14</span><span class="impl path">src/components/sidebar/LayerParamControls.tsx · layerParamControls.css · src/state/layerParamsControls.ts</span></div>
+    <p class="note">控制區左側 1px 線；標籤＋數值同一行、控件全寬在下。滑桿 2px 軌道＋10px 圓點；數值字母／中文單位前補空白（<span class="mono">12 m</span>、<span class="mono">30</span> 分鐘），符號緊貼（<span class="mono">80%</span>、<span class="mono">×1.5</span>）。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="lp">
+        <div class="lrow open">公車即時位置<svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="lpc">
+          <div class="lpc-head"><div class="seg sm" role="group"><button aria-pressed="true">點</button><button aria-pressed="false">軌跡</button></div></div>
+          <div class="cr"><span class="k">透明度</span><span class="v">0.80</span><div class="c rng" style="--p:80%"></div></div>
+          <div class="cr"><span class="k">大小</span><span class="v">×1.5</span><div class="c rng" style="--p:45%"></div></div>
+          <div class="cr"><span class="k">軌跡長度</span><span class="v">30 分鐘</span><div class="c rng" style="--p:30%"></div></div>
+          <div class="cr"><span class="k">路線篩選</span><div class="c"><div class="sel" style="width:100%">全部路線</div></div></div>
+          <div class="tgl-grid"><button class="tgl" role="switch" aria-checked="true"><span class="sw2"></span>顯示站牌</button><button class="tgl" role="switch" aria-checked="false"><span class="sw2"></span>只看誤點</button></div>
+          <div class="ms"><div class="ms-sum"><svg class="i chev" style="width:10px;height:10px"><use href="#i-chev"/></svg>業者 <span class="cnt">3/5</span><span class="act"><span>全選</span><span>清除</span></span></div>
+            <div class="chk"><span><i class="on" style="--cc:#22d3ee"></i>首都客運</span><span><i class="on" style="--cc:#f97316"></i>大都會客運</span><span><i class="on" style="--cc:#a855f7"></i>欣欣客運</span><span><i></i>三重客運</span></div></div>
+        </div>
+      </div></div>
+      <div class="board t-light"><div class="lp">
+        <div class="lrow open">公車即時位置<svg class="i chev"><use href="#i-chev"/></svg></div>
+        <div class="lpc">
+          <div class="lpc-head"><div class="seg sm" role="group"><button aria-pressed="true">點</button><button aria-pressed="false">軌跡</button></div></div>
+          <div class="cr"><span class="k">透明度</span><span class="v">0.80</span><div class="c rng" style="--p:80%"></div></div>
+          <div class="cr"><span class="k">大小</span><span class="v">×1.5</span><div class="c rng" style="--p:45%"></div></div>
+          <div class="cr"><span class="k">軌跡長度</span><span class="v">30 分鐘</span><div class="c rng" style="--p:30%"></div></div>
+          <div class="cr"><span class="k">路線篩選</span><div class="c"><div class="sel" style="width:100%">全部路線</div></div></div>
+          <div class="tgl-grid"><button class="tgl" role="switch" aria-checked="true"><span class="sw2"></span>顯示站牌</button><button class="tgl" role="switch" aria-checked="false"><span class="sw2"></span>只看誤點</button></div>
+          <div class="ms"><div class="ms-sum"><svg class="i chev" style="width:10px;height:10px"><use href="#i-chev"/></svg>業者 <span class="cnt">3/5</span><span class="act"><span>全選</span><span>清除</span></span></div>
+            <div class="chk"><span><i class="on" style="--cc:#22d3ee"></i>首都客運</span><span><i class="on" style="--cc:#f97316"></i>大都會客運</span><span><i class="on" style="--cc:#a855f7"></i>欣欣客運</span><span><i></i>三重客運</span></div></div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 工具列 ───────── -->
+  <section class="blk" id="toolbar">
+    <div class="blk-head"><h2>工具列 T2＋品牌字標＋座標 HUD</h2><span class="num">§5.17 §5.18</span><span class="impl path">src/App.tsx · toolbar/ToolbarButton.tsx · toolbar/toolbarTheme.ts · ModeToggle.tsx · auth/UserAvatar.tsx</span></div>
+    <p class="note">順序固定：即時／歷史 ｜ 底圖 ｜ 分享、說明、AI、<b>拍攝模式（主要）</b> ｜ 帳號。品牌字標為刻意例外（FONT_DATA 700 20px）。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="topbar">
+        <div class="brand"><h4>Mini Taiwan Pulse</h4><div class="hud">25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°</div></div>
+        <div class="tb">
+          <div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div><span class="vsep"></span>
+          <button class="btn icon" title="底圖：暗色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b></b></span></button><span class="vsep"></span>
+          <button class="btn icon" title="分享目前畫面" aria-label="分享目前畫面"><svg class="i"><use href="#i-share"/></svg></button>
+          <button class="btn icon" title="說明與操作提示" aria-label="說明與操作提示"><svg class="i"><use href="#i-help"/></svg></button>
+          <button class="btn"><svg class="i"><use href="#i-msg"/></svg>AI</button>
+          <button class="btn pri"><svg class="i"><use href="#i-cam"/></svg>拍攝模式</button><span class="vsep"></span>
+          <span class="avatar">我</span>
+        </div>
+      </div></div>
+      <div class="board t-light"><div class="topbar">
+        <div class="brand"><h4>Mini Taiwan Pulse</h4><div class="hud">25.0464, 121.5318 · z12.5 · 仰角 0° · 方位 0°</div></div>
+        <div class="tb">
+          <div class="seg" role="group"><button aria-pressed="true"><i class="livedot"></i>即時</button><button aria-pressed="false">歷史</button></div><span class="vsep"></span>
+          <button class="btn icon" title="底圖：淡色" aria-label="底圖"><span class="bm-glyph"><svg class="i"><use href="#i-map"/></svg><b style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></b></span></button><span class="vsep"></span>
+          <button class="btn icon" title="分享目前畫面" aria-label="分享目前畫面"><svg class="i"><use href="#i-share"/></svg></button>
+          <button class="btn icon" title="說明與操作提示" aria-label="說明與操作提示"><svg class="i"><use href="#i-help"/></svg></button>
+          <button class="btn"><svg class="i"><use href="#i-msg"/></svg>AI</button>
+          <button class="btn pri"><svg class="i"><use href="#i-cam"/></svg>拍攝模式</button><span class="vsep"></span>
+          <span class="avatar">我</span>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── B3 ───────── -->
+  <section class="blk" id="basemap">
+    <div class="blk-head"><h2>底圖選單（B3 純圖示）</h2><span class="num">§5.19</span><span class="impl path">src/components/toolbar/BasemapMenu.tsx</span></div>
+    <div class="pair">
+      <div class="board t-dark"><div class="bm-pop" role="menu">
+        <div class="bm-grid"><span><i style="background:linear-gradient(135deg,#000000,#111111)"></i>純黑</span><span class="on"><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>暗色</span><span><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淡色</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#caa43a)"></i>衛星街道</span><span><i style="background:linear-gradient(135deg,#0f1a33,#1e3a8a)"></i>夜間導航</span><span><i style="background:linear-gradient(135deg,#f5efe4,#e8c98a)"></i>街道</span></div>
+        <div class="bm-sep"></div><div class="bm-lbl">顯示地名<button class="tgl lg" role="switch" aria-checked="true" aria-label="顯示地名"><span class="sw2"></span></button></div>
+      </div></div>
+      <div class="board t-light"><div class="bm-pop" role="menu">
+        <div class="bm-grid"><span><i style="background:linear-gradient(135deg,#000000,#111111)"></i>純黑</span><span><i style="background:linear-gradient(135deg,#2b3440,#111827)"></i>暗色</span><span class="on"><i style="background:linear-gradient(135deg,#f3f4f6,#d1d5db)"></i>淡色</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#1f2d1c)"></i>衛星</span><span><i style="background:linear-gradient(135deg,#3f5a3a,#caa43a)"></i>衛星街道</span><span><i style="background:linear-gradient(135deg,#0f1a33,#1e3a8a)"></i>夜間導航</span><span><i style="background:linear-gradient(135deg,#f5efe4,#e8c98a)"></i>街道</span></div>
+        <div class="bm-sep"></div><div class="bm-lbl">顯示地名<button class="tgl lg" role="switch" aria-checked="false" aria-label="顯示地名"><span class="sw2"></span></button></div>
+      </div></div>
+    </div>
+    <p class="note">縮圖漸層為示意（資料色例外，實際值見 BasemapMenu.tsx GRADIENT）。</p>
+  </section>
+
+  <!-- ───────── P2 ───────── -->
+  <section class="blk" id="capture">
+    <div class="blk-head"><h2>拍攝模式（P2 滑過才出現）</h2><span class="num">§5.20</span><span class="impl path">src/components/toolbar/CaptureExitHint.tsx · src/App.tsx</span></div>
+    <p class="note">離開提示平常隱藏；滑鼠移動淡入，靜止 2 秒淡出。圖中為顯示狀態。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="cap"><div class="t1">Mini Taiwan Pulse</div><div class="t2">台灣即時脈動</div><div class="hint">離開拍攝模式 <kbd>Esc</kbd></div></div></div>
+      <div class="board t-light"><div class="cap"><div class="t1">Mini Taiwan Pulse</div><div class="t2">台灣即時脈動</div><div class="hint">離開拍攝模式 <kbd>Esc</kbd></div></div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 即時情報 ───────── -->
+  <section class="blk" id="intel">
+    <div class="blk-head"><h2>即時情報：H2＋徽章兩公式</h2><span class="num">§5.21</span><span class="impl path">src/components/intel/{IntelHeader,IntelCard,IntelFilters}.tsx · intelTokens.ts chipTint／chipOutline</span></div>
+    <p class="note">分類徽章 <code>chipTint</code>：14% 淡底＋該色字；程度徽章 <code>chipOutline</code>：透明底＋50% 外框。實作目前只有暗色；淡色欄為目標規格（§10.3 未處理）。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="panel">
+        <div class="h2"><div><div class="ey">情報</div><h3>即時情報 <span class="pill-live"><i class="livedot"></i>LIVE</span></h3></div><button class="x" aria-label="關閉即時情報"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:8px">
+          <div class="seg sm" role="group" style="width:100%"><button aria-pressed="true" style="flex:1">全部 <span class="n">42</span></button><button aria-pressed="false" style="flex:1">災害 <span class="n">5</span></button><button aria-pressed="false" style="flex:1">交通 <span class="n">12</span></button></div>
+          <div class="icard"><div class="top"><span class="chip" style="--cc:#fb923c">交通</span><span class="chip o" style="--cc:#ef4444">區域</span><time>14:05</time></div><h5>國道一號南下 25K 事故，內側車道封閉</h5></div>
+        </div>
+      </div></div>
+      <div class="board t-light"><div class="panel">
+        <div class="h2"><div><div class="ey">情報</div><h3>即時情報 <span class="pill-live"><i class="livedot"></i>LIVE</span></h3></div><button class="x" aria-label="關閉即時情報"><svg class="i"><use href="#i-x"/></svg></button></div>
+        <div class="panel-body" style="display:flex;flex-direction:column;gap:8px">
+          <div class="seg sm" role="group" style="width:100%"><button aria-pressed="true" style="flex:1">全部 <span class="n">42</span></button><button aria-pressed="false" style="flex:1">災害 <span class="n">5</span></button><button aria-pressed="false" style="flex:1">交通 <span class="n">12</span></button></div>
+          <div class="icard"><div class="top"><span class="chip" style="--cc:#c2410c">交通</span><span class="chip o" style="--cc:#b42318">區域</span><time>14:05</time></div><h5>國道一號南下 25K 事故，內側車道封閉</h5></div>
+        </div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── D1 ───────── -->
+  <section class="blk" id="datasource">
+    <div class="blk-head"><h2>資料來源面板（D1 列內展開）</h2><span class="num">§5.22</span><span class="impl path">src/components/sidebar/DataSourcePanel.tsx</span></div>
+    <p class="note">狀態篩選分段（全部＋三個狀態圖示與數量，title 為中文狀態名）；點列在列下方展開上游資料卡，同時只展開一筆。狀態：✓ 已接上、⚙ 派生、? 待補。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="lp">
+        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true" title="全部圖層">全部 <span class="n">803</span></button><button aria-pressed="false" title="已接上"><span style="color:var(--live)">✓</span> <span class="n">554</span></button><button aria-pressed="false" title="派生"><span style="color:var(--derived)">⚙</span> <span class="n">27</span></button><button aria-pressed="false" title="待補"><span style="color:var(--warn)">?</span> <span class="n">222</span></button></div></div>
+        <div class="l2">公共運輸</div>
+        <div class="ds-row open"><span class="st" style="color:var(--live)">✓</span>公車即時位置 <span class="en">Bus realtime</span></div>
+        <div class="ds-card"><div class="fact"><span>機關</span><span>交通部 TDX</span></div><div class="fact"><span>更新</span><span>即時（分鐘級）</span></div><div class="fact"><span>授權</span><span class="mono">OGDL-1.0</span></div><div class="fact"><span>下載</span><span><a href="#datasource">原始資料頁 ↗</a></span></div></div>
+        <div class="ds-row"><span class="st" style="color:var(--derived)">⚙</span>公車站點密度</div>
+        <div class="ds-row"><span class="st" style="color:var(--warn)">?</span>客運轉乘站</div>
+      </div></div>
+      <div class="board t-light"><div class="lp">
+        <div style="padding:8px 12px"><div class="seg sm" role="group"><button aria-pressed="true" title="全部圖層">全部 <span class="n">803</span></button><button aria-pressed="false" title="已接上"><span style="color:var(--live)">✓</span> <span class="n">554</span></button><button aria-pressed="false" title="派生"><span style="color:var(--derived)">⚙</span> <span class="n">27</span></button><button aria-pressed="false" title="待補"><span style="color:var(--warn)">?</span> <span class="n">222</span></button></div></div>
+        <div class="l2">公共運輸</div>
+        <div class="ds-row open"><span class="st" style="color:var(--live)">✓</span>公車即時位置 <span class="en">Bus realtime</span></div>
+        <div class="ds-card"><div class="fact"><span>機關</span><span>交通部 TDX</span></div><div class="fact"><span>更新</span><span>即時（分鐘級）</span></div><div class="fact"><span>授權</span><span class="mono">OGDL-1.0</span></div><div class="fact"><span>下載</span><span><a href="#datasource">原始資料頁 ↗</a></span></div></div>
+        <div class="ds-row"><span class="st" style="color:var(--derived)">⚙</span>公車站點密度</div>
+        <div class="ds-row"><span class="st" style="color:var(--warn)">?</span>客運轉乘站</div>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- ───────── 圖例 ───────── -->
+  <section class="blk" id="legend">
+    <div class="blk-head"><h2>圖例收合鈕</h2><span class="num">§5.23</span><span class="impl path">src/components/LegendPanel.tsx</span></div>
+    <div class="pair">
+      <div class="board t-dark"><div class="legend"><button><svg class="i" style="width:12px;height:12px"><use href="#i-down"/></svg>圖例</button>
+        <div class="body"><span><i class="dot" style="background:#22c55e"></i>準點</span><span><i class="dot" style="background:#ff9800"></i>誤點 5 分鐘內</span><span><i class="dot" style="background:#ef4444"></i>誤點 5 分鐘以上</span></div></div></div>
+      <div class="board t-light"><div class="legend"><button><svg class="i" style="width:12px;height:12px"><use href="#i-chev"/></svg>圖例</button></div></div>
+    </div>
+  </section>
+  <!-- ───────── 左下時間軸 TL3 ───────── -->
+  <section class="blk" id="tl3">
+    <div class="blk-head"><h2>左下時間軸（TL3 刻度軸）</h2><span class="num">§5.24</span><span class="impl path">src/components/TimelineControls.tsx · HistoricalTimeline.tsx · timeline/{TimeAxis.tsx,timelineAxis.ts,timeline.css}</span></div>
+    <p class="note">一張卡片：上排圓形播放鍵＋20px 等寬時間＋即時綠點＋倍速選單，右側日期切換／現在／範圍（歷史：民國年月日選單＋年月日分段）。下排刻度軸 role=slider，可點擊、拖曳、鍵盤 ←→／Home／End；資料窗外畫斜線並附警示標籤。上：即時（暗／淡）；下：歷史月粒度。</p>
+    <div class="pair">
+      <div class="board t-dark"><div class="tl3">
+          <div class="top"><button class="btn play" aria-label="暫停即時，切換為回放"><svg class="i"><use href="#i-pause"/></svg></button><span class="clock">22:42</span><span class="live"><i></i>即時</span><span class="sel26 mono">60×</span>
+            <span class="end"><button class="btn icon ghost" aria-label="前一天"><svg class="i"><use href="#i-left"/></svg></button><span class="date"><span class="mono">9/27</span><span style="color:var(--t-dim)">（日）</span></span><button class="btn icon ghost" aria-label="後一天"><svg class="i"><use href="#i-chev"/></svg></button><button class="btn pri" aria-pressed="true">現在</button><span class="sel26">1 天</span></span></div>
+          <div class="axis"><span class="base"></span><span class="gap" style="left:79.2%;width:20.8%"></span><span class="done" style="width:94.6%"></span><i class="tick" style="left:0.000%"></i><span class="lbl first" style="left:0.000%">00</span><i class="tick minor" style="left:4.167%"></i><i class="tick minor" style="left:8.333%"></i><i class="tick minor" style="left:12.500%"></i><i class="tick" style="left:16.667%"></i><span class="lbl" style="left:16.667%">04</span><i class="tick minor" style="left:20.833%"></i><i class="tick minor" style="left:25.000%"></i><i class="tick minor" style="left:29.167%"></i><i class="tick" style="left:33.333%"></i><span class="lbl" style="left:33.333%">08</span><i class="tick minor" style="left:37.500%"></i><i class="tick minor" style="left:41.667%"></i><i class="tick minor" style="left:45.833%"></i><i class="tick" style="left:50.000%"></i><span class="lbl" style="left:50.000%">12</span><i class="tick minor" style="left:54.167%"></i><i class="tick minor" style="left:58.333%"></i><i class="tick minor" style="left:62.500%"></i><i class="tick" style="left:66.667%"></i><span class="lbl" style="left:66.667%">16</span><i class="tick minor" style="left:70.833%"></i><i class="tick minor" style="left:75.000%"></i><i class="tick minor" style="left:79.167%"></i><i class="tick" style="left:83.333%"></i><span class="lbl" style="left:83.333%">20</span><i class="tick minor" style="left:87.500%"></i><i class="tick minor" style="left:91.667%"></i><i class="tick minor" style="left:95.833%"></i><i class="tick" style="left:100.000%"></i><span class="lbl last" style="left:100.000%">24</span><span class="needle" style="left:94.6%"><span style="transform:translateX(-94.6%)">22:42</span></span></div>
+          <div class="notes"><span class="warnchip">漁船熱區只到 9/26</span><span class="hint">斜線＝該時段無資料</span></div>
+        </div></div>
+      <div class="board t-light"><div class="tl3">
+          <div class="top"><button class="btn play" aria-label="暫停即時，切換為回放"><svg class="i"><use href="#i-pause"/></svg></button><span class="clock">22:42</span><span class="live"><i></i>即時</span><span class="sel26 mono">60×</span>
+            <span class="end"><button class="btn icon ghost" aria-label="前一天"><svg class="i"><use href="#i-left"/></svg></button><span class="date"><span class="mono">9/27</span><span style="color:var(--t-dim)">（日）</span></span><button class="btn icon ghost" aria-label="後一天"><svg class="i"><use href="#i-chev"/></svg></button><button class="btn pri" aria-pressed="true">現在</button><span class="sel26">1 天</span></span></div>
+          <div class="axis"><span class="base"></span><span class="gap" style="left:79.2%;width:20.8%"></span><span class="done" style="width:94.6%"></span><i class="tick" style="left:0.000%"></i><span class="lbl first" style="left:0.000%">00</span><i class="tick minor" style="left:4.167%"></i><i class="tick minor" style="left:8.333%"></i><i class="tick minor" style="left:12.500%"></i><i class="tick" style="left:16.667%"></i><span class="lbl" style="left:16.667%">04</span><i class="tick minor" style="left:20.833%"></i><i class="tick minor" style="left:25.000%"></i><i class="tick minor" style="left:29.167%"></i><i class="tick" style="left:33.333%"></i><span class="lbl" style="left:33.333%">08</span><i class="tick minor" style="left:37.500%"></i><i class="tick minor" style="left:41.667%"></i><i class="tick minor" style="left:45.833%"></i><i class="tick" style="left:50.000%"></i><span class="lbl" style="left:50.000%">12</span><i class="tick minor" style="left:54.167%"></i><i class="tick minor" style="left:58.333%"></i><i class="tick minor" style="left:62.500%"></i><i class="tick" style="left:66.667%"></i><span class="lbl" style="left:66.667%">16</span><i class="tick minor" style="left:70.833%"></i><i class="tick minor" style="left:75.000%"></i><i class="tick minor" style="left:79.167%"></i><i class="tick" style="left:83.333%"></i><span class="lbl" style="left:83.333%">20</span><i class="tick minor" style="left:87.500%"></i><i class="tick minor" style="left:91.667%"></i><i class="tick minor" style="left:95.833%"></i><i class="tick" style="left:100.000%"></i><span class="lbl last" style="left:100.000%">24</span><span class="needle" style="left:94.6%"><span style="transform:translateX(-94.6%)">22:42</span></span></div>
+          <div class="notes"><span class="warnchip">漁船熱區只到 9/26</span><span class="hint">斜線＝該時段無資料</span></div>
+        </div></div>
+    </div>
+    <div class="pair">
+      <div class="board t-dark"><div class="tl3">
+          <div class="top"><button class="btn play" aria-label="播放"><svg class="i"><use href="#i-play"/></svg></button><span class="clock">115/09</span><span class="sel26 mono">1×</span>
+            <span class="end"><span class="field">民國<span class="sel26 mono">115</span>年</span><span class="field"><span class="sel26 mono">9</span>月</span><span class="field" style="opacity:.55"><span class="sel26 mono">27</span>日</span><div class="seg" role="group"><button aria-pressed="false">年</button><button aria-pressed="true">月</button><button aria-pressed="false">日</button></div></span></div>
+          <div class="axis"><span class="base"></span><span class="done" style="width:72.727%"></span><i class="tick" style="left:0.000%"></i><span class="lbl first" style="left:0.000%">1<u>月</u></span><i class="tick" style="left:9.091%"></i><span class="lbl" style="left:9.091%">2<u>月</u></span><i class="tick" style="left:18.182%"></i><span class="lbl" style="left:18.182%">3<u>月</u></span><i class="tick" style="left:27.273%"></i><span class="lbl" style="left:27.273%">4<u>月</u></span><i class="tick" style="left:36.364%"></i><span class="lbl" style="left:36.364%">5<u>月</u></span><i class="tick" style="left:45.455%"></i><span class="lbl" style="left:45.455%">6<u>月</u></span><i class="tick" style="left:54.545%"></i><span class="lbl" style="left:54.545%">7<u>月</u></span><i class="tick" style="left:63.636%"></i><span class="lbl" style="left:63.636%">8<u>月</u></span><i class="tick" style="left:72.727%"></i><span class="lbl" style="left:72.727%">9<u>月</u></span><i class="tick" style="left:81.818%"></i><span class="lbl" style="left:81.818%">10<u>月</u></span><i class="tick" style="left:90.909%"></i><span class="lbl" style="left:90.909%">11<u>月</u></span><i class="tick" style="left:100.000%"></i><span class="lbl last" style="left:100.000%">12<u>月</u></span><span class="needle" style="left:72.727%"><span style="transform:translateX(-72.7%)">9<u>月</u></span></span></div>
+          <div class="notes"><span class="warnchip">共機活動區：115/01~115/07</span></div>
+        </div></div>
+      <div class="board t-light"><div class="tl3">
+          <div class="top"><button class="btn play" aria-label="播放"><svg class="i"><use href="#i-play"/></svg></button><span class="clock">115/09</span><span class="sel26 mono">1×</span>
+            <span class="end"><span class="field">民國<span class="sel26 mono">115</span>年</span><span class="field"><span class="sel26 mono">9</span>月</span><span class="field" style="opacity:.55"><span class="sel26 mono">27</span>日</span><div class="seg" role="group"><button aria-pressed="false">年</button><button aria-pressed="true">月</button><button aria-pressed="false">日</button></div></span></div>
+          <div class="axis"><span class="base"></span><span class="done" style="width:72.727%"></span><i class="tick" style="left:0.000%"></i><span class="lbl first" style="left:0.000%">1<u>月</u></span><i class="tick" style="left:9.091%"></i><span class="lbl" style="left:9.091%">2<u>月</u></span><i class="tick" style="left:18.182%"></i><span class="lbl" style="left:18.182%">3<u>月</u></span><i class="tick" style="left:27.273%"></i><span class="lbl" style="left:27.273%">4<u>月</u></span><i class="tick" style="left:36.364%"></i><span class="lbl" style="left:36.364%">5<u>月</u></span><i class="tick" style="left:45.455%"></i><span class="lbl" style="left:45.455%">6<u>月</u></span><i class="tick" style="left:54.545%"></i><span class="lbl" style="left:54.545%">7<u>月</u></span><i class="tick" style="left:63.636%"></i><span class="lbl" style="left:63.636%">8<u>月</u></span><i class="tick" style="left:72.727%"></i><span class="lbl" style="left:72.727%">9<u>月</u></span><i class="tick" style="left:81.818%"></i><span class="lbl" style="left:81.818%">10<u>月</u></span><i class="tick" style="left:90.909%"></i><span class="lbl" style="left:90.909%">11<u>月</u></span><i class="tick" style="left:100.000%"></i><span class="lbl last" style="left:100.000%">12<u>月</u></span><span class="needle" style="left:72.727%"><span style="transform:translateX(-72.7%)">9<u>月</u></span></span></div>
+          <div class="notes"><span class="warnchip">共機活動區：115/01~115/07</span></div>
+        </div></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
