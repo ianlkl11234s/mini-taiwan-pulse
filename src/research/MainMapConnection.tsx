@@ -50,6 +50,8 @@ import { seriesTrendLineData, shortTaipeiDateLabel, warehouseSeriesTrendLineData
 import { isTimedChoropleth, warehouseChoroplethPeriodFact } from "./warehouseResultStyle";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
+import { AnalysisCardDraftSection } from "./AnalysisCardDraftSection";
+import { parseAnalysisCardDraft, type AnalysisCardDraft } from "./analysisCardDraft";
 
 type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | null; labels: Record<string, string>; locked: ReadonlySet<string>; selection?: [number, number] | null; embedded?: boolean; isDarkTheme?: boolean; open?: boolean; onOpenChange?: (open: boolean) => void; showToggle?: boolean; uiHidden?: boolean;
   /** Opens (properties) or closes (null) the App-level docked FeatureInfoPanel for a clicked analysis result. Null must only close an analysis-result panel, never another layer's. */
@@ -58,7 +60,7 @@ type Props = { timeline?: TimelineAdapter; bridge: MapBridge; map: MapboxMap | n
    *  Drives I2 selection dimming and the G2 compact legend; kept apart from `selection` coords, which are reported to the Agent. */
   analysisResultSelected?: boolean };
 const ANALYSIS_OPERATIONS = new Set<AnalysisQueryOperation>(["compare_neighborhoods", "create_analysis_scope", "spatial_query", "aggregate_by_area", "aggregate_records", "join_records", "calculate_metric", "read_series", "compare_series", "compare_regions", "get_data_quality", "get_record_evidence", "get_analysis_result", "get_result_bounds", "list_results", "remove_result"]);
-export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", ...ANALYSIS_OPERATIONS]);
+export const EXPLORATION_OPERATIONS = new Set<BrowserQuery["operation"]>(["describe_layer_statistics", "summarize_layer", "list_layer_capabilities", "search_layer_records", "search_layers", "describe_layer", "layer_details", "layer_controls", "map_context", "find_places", "geocode_address", "route_distance", "walking_isochrone", "time_context", "search_datasets", "describe_dataset", "query_records", "plan_data_access", "materialize_data", "import_warehouse_result", "analysis_card_draft", ...ANALYSIS_OPERATIONS]);
 
 export function completedActivityForOperation(operation: string, data: Record<string, unknown>): Activity {
   const totalMatched = typeof data.totalMatched === "number" ? data.totalMatched : null;
@@ -74,9 +76,18 @@ export function completedActivityForOperation(operation: string, data: Record<st
   if (operation === "query_records") {
     return { phase: "complete", title: "資料紀錄已回傳", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `完整符合 ${totalMatched} 筆資料紀錄；本次回傳 ${returned ?? totalMatched} 筆。` };
   }
+  if (operation === "analysis_card_draft") return { phase: "complete", title: "卡片草稿已在面板", detail: "預覽後按「發布連結」才會產生分享網址；Agent 無法代為發布。" };
   if (operation === "layer_details" || operation === "describe_layer") return { phase: "complete", title: "圖層說明已備妥", detail: "資料已回傳給 Agent，可繼續探索。" };
   if (operation === "summarize_layer" && totalMatched !== null) return { phase: "complete", title: "這一步已完成", detail: `符合 ${totalMatched} 筆來源紀錄；範圍、粒度與缺值已一併回傳。` };
   return { phase: "complete", title: "這一步已完成", detail: totalMatched === null ? "資料已回傳給 Agent，可繼續探索。" : `符合 ${totalMatched} 筆結果，Agent 正在整理下一步。` };
+}
+
+/**
+ * 4b「做成卡片」：瀏覽器沒有主動呼叫 Agent 的通道（bridge 只有 MCP 發起的 query），且閘門在 MCP 端算，
+ * 所以按鈕只說明怎麼請 Agent 產草稿；草稿送達後由「卡片草稿」區塊預覽與發布。
+ */
+export function makeCardHint(label: string): string {
+  return `請在對話中對 Agent 說「把「${label}」做成卡片」。Agent 會先檢查資料授權，可公開時草稿會出現在這個面板，由你按「發布連結」。`;
 }
 
 /**
@@ -168,6 +179,10 @@ export function MainMapConnection(props: Props) {
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
   // W1: 本次分析圖層 defaults to its first 5 items + a "展開全部" toggle (spec docs/features/viz-library/DECISIONS.md §6).
   const [resultsExpanded, setResultsExpanded] = useState(false);
+  /** 4b: the one pending analysis-card draft relayed by pulse_publish_card (a newer draft replaces it). */
+  const [cardDraft, setCardDraft] = useState<AnalysisCardDraft | null>(null);
+  /** 4b 「做成卡片」: which result's hint is showing (no browser→Agent channel, so the button only explains). */
+  const [cardHintFor, setCardHintFor] = useState<string | null>(null);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
@@ -401,6 +416,14 @@ export function MainMapConnection(props: Props) {
           result = await analysis.current.importWarehouseResult(request.args);
           break;
         }
+        case "analysis_card_draft": {
+          // Draft only: the browser shows a preview; publishing needs the user's own click (拍板 8).
+          const parsed = parseAnalysisCardDraft(request.args);
+          if (!parsed.ok) throw new Error(parsed.error);
+          setCardDraft(parsed.draft);
+          result = { accepted: true, draftId: parsed.draft.draftId };
+          break;
+        }
         case "describe_layer": {
           const layer = describeLayer(String(request.args.layerKey ?? ""), discoveryContext);
           if (!layer) throw new Error("LAYER_NOT_FOUND");
@@ -465,7 +488,7 @@ export function MainMapConnection(props: Props) {
     }) : null;
     responder.current?.start();
   }, [clearAnalysisPresentation, render]);
-  const disconnect = useCallback(() => { setEvidence([]); connect(null); }, [connect]);
+  const disconnect = useCallback(() => { setEvidence([]); setCardDraft(null); connect(null); }, [connect]);
   const receive = useCallback((state: StudyState) => { if (state.paused) setActivity({ phase: "complete", title: "操作已暫停", detail: "目前地圖會保留。" }); controller.current?.receive(state); }, []);
   const changeFollowing = (value: boolean) => {
     followingRef.current = value; setFollowing(value);
@@ -698,6 +721,7 @@ export function MainMapConnection(props: Props) {
         <span>跟隨 Agent 視角<small>可隨時拖曳地圖，停止這次移動。</small></span>
       </label>
       <p className="agent-session-status" role="status">{message.replace(/^r\d+\s+/, "")}</p>
+      {cardDraft && <AnalysisCardDraftSection key={cardDraft.draftId} draft={cardDraft} onDiscard={() => setCardDraft(null)} />}
       {resultCollection && <section className="agent-analysis-results" aria-label="分析結果集合">
         <h3>本次分析圖層 <span className="agent-section-count">{resultCollection.items.length}</span></h3>
         <p>{presentedAnalysis.reduce((sum, result) => sum + result.featureCount, 0)} 筆紀錄已顯示 · 僅含本次分析結果</p>
@@ -750,6 +774,10 @@ export function MainMapConnection(props: Props) {
                   if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
                 }} />}
                 {rendered?.rankBars && <RankBars items={rendered.rankBars.items} theme={vizThemeForBasemap(props.isDarkTheme)} valueKind={rendered.rankBars.valueKind} unit={rendered.rankBars.unit} title={rendered.rankBars.title} />}
+                {/^wh-\d+/.test(item.resultId) && <>
+                  <button type="button" className="agent-analysis-make-card" aria-expanded={cardHintFor === item.resultId} onClick={() => setCardHintFor(current => current === item.resultId ? null : item.resultId)}>做成卡片</button>
+                  {cardHintFor === item.resultId && <small className="agent-analysis-make-card-hint" role="status">{makeCardHint(result?.displayLabel ?? "這個結果")}</small>}
+                </>}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
             </div>
