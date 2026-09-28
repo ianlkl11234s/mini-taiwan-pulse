@@ -1999,7 +1999,8 @@ export default function App() {
               top: 16,
               left: sidebarWidth + 16,
               right: 16,
-              zIndex: 10,
+              // 25：高於 Agent 活動卡（research-activity-position，20），工具列展開的帳號選單／底圖面板才不會被蓋住
+              zIndex: 25,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
