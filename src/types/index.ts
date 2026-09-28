@@ -1117,6 +1117,14 @@ export interface LayerVisibility extends Record<ComparisonStatisticsLayerKey, bo
   gfwDarkVessels: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
+  soilLiquefactionPotential: boolean;
+  weakSoilClay0To5: boolean;
+  weakSoilSand0To5: boolean;
+  weakSoilClay5To10: boolean;
+  weakSoilSand5To10: boolean;
+  weakSoilClay10To20: boolean;
+  weakSoilSand10To20: boolean;
+  liquefactionMonitoringSites: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
   /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */

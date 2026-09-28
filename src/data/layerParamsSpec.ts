@@ -1431,6 +1431,14 @@ export const LAYER_PARAMS_SPEC = {
   ],
 
   // ══════════ 天災・水利・農業・運動生態 ══════════
+  soilLiquefactionPotential: [opacitySlider("soilLiquefactionPotentialOpacity", 0.78)],
+  weakSoilClay0To5: [opacitySlider("weakSoilClay0To5Opacity", 0.72)],
+  weakSoilSand0To5: [opacitySlider("weakSoilSand0To5Opacity", 0.72)],
+  weakSoilClay5To10: [opacitySlider("weakSoilClay5To10Opacity", 0.72)],
+  weakSoilSand5To10: [opacitySlider("weakSoilSand5To10Opacity", 0.72)],
+  weakSoilClay10To20: [opacitySlider("weakSoilClay10To20Opacity", 0.72)],
+  weakSoilSand10To20: [opacitySlider("weakSoilSand10To20Opacity", 0.72)],
+  liquefactionMonitoringSites: [opacitySlider("liquefactionMonitoringSitesOpacity", 0.9)],
   earthquakesGlobal: [
     // 回溯天數決定 loader 的「查詢窗」（非 filter）—— 全域時間軸最多 7 天視窗，
     // 表達不了 14/30 天的回看。hook 端 `Number(value)` 還原成數字。
@@ -3580,7 +3588,7 @@ export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[
 const SHARED_GROUP_OF = (() => {
   const m = new Map<string, string>();
   for (const [id, members] of SHARED_PARAM_GROUPS) {
-    for (const mem of members) m.set(`${mem.key} ${mem.name}`, id);
+    for (const mem of members) m.set(`${mem.key}${mem.name}`, id);
   }
   return m;
 })();
@@ -3590,7 +3598,7 @@ const SHARED_GROUP_OF = (() => {
  * 呼叫端據此走「只寫自己」的快路徑。
  */
 export function sharedSlotMembers(key: string, name: string): readonly SharedSlotMember[] | null {
-  const id = SHARED_GROUP_OF.get(`${key} ${name}`);
+  const id = SHARED_GROUP_OF.get(`${key}${name}`);
   return id ? (SHARED_PARAM_GROUPS.get(id) ?? null) : null;
 }
 

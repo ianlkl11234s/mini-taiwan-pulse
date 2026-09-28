@@ -217,6 +217,8 @@ const NO_POPUP_LEDGER = new Set([
   "realEstateSaleGrid", "realEstateSalePoint",
   "realEstatePresaleGrid", "realEstatePresalePoint",
   "dustForecast",                                    // 全球氣候：raster 沙塵預報
+  // 土壤液化潛勢與弱層皆為官方已著色 raster，沒有可查詢的 feature properties；監測站僅保留名稱/連結且重利用條款待確認。
+  "soilLiquefactionPotential", "weakSoilClay0To5", "weakSoilSand0To5", "weakSoilClay5To10", "weakSoilSand5To10", "weakSoilClay10To20", "weakSoilSand10To20", "liquefactionMonitoringSites",
   "hillshade",                                       // 底圖：raster 山影
   // 環境氣候 raster：雲圖 / 雷達 / AQI 影像皆為上游已上色成品，無數值通道
   //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）

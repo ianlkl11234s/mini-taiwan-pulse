@@ -1220,6 +1220,16 @@ const THEME_CATALOG: ThemeDef[] = [
         ],
       },
       {
+        title: "土壤液化",
+        layers: [
+          fromManifest("soilLiquefactionPotential"),
+          fromManifest("weakSoilClay0To5"), fromManifest("weakSoilSand0To5"),
+          fromManifest("weakSoilClay5To10"), fromManifest("weakSoilSand5To10"),
+          fromManifest("weakSoilClay10To20"), fromManifest("weakSoilSand10To20"),
+          fromManifest("liquefactionMonitoringSites"),
+        ],
+      },
+      {
         title: "雷暴",
         layers: [
           fromManifest("lightning"),

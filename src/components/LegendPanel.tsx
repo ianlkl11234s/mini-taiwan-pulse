@@ -406,6 +406,10 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "statsWasteCounty", render: () => <StatisticsLegend layerKey="statsWasteCounty" /> },
   { id: "statsRecyclingCounty", render: () => <StatisticsLegend layerKey="statsRecyclingCounty" /> },
   { id: "earthquakes", render: () => <EarthquakeLegend /> },
+  { id: "soilLiquefactionPotential", render: () => <SoilLiquefactionPotentialLegend /> },
+  { id: "weakSoilClay", render: () => <WeakSoilLegend type="clay" /> },
+  { id: "weakSoilSand", render: () => <WeakSoilLegend type="sand" /> },
+  { id: "liquefactionMonitoringSites", render: () => <LiquefactionMonitoringLegend /> },
   { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
   { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
   { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
@@ -3653,6 +3657,24 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
 }
 
 // ── Earthquake Legend ──
+
+function SoilLiquefactionPotentialLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+    {[['#ff0000', '高潛勢'], ['#ffdd00', '中潛勢'], ['#0ec64d', '低潛勢']].map(([color, label]) => <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}><i style={{ width: 10, height: 10, background: color }} />{label}</div>)}
+    <div style={{ marginTop: 5 }}>經濟部地質調查及礦業管理中心現行圖台。未調查／留白不等於低潛勢；公開瀏覽服務的重利用條款待確認。</div>
+  </div>;
+}
+
+function WeakSoilLegend({ type }: { type: 'clay' | 'sand' }) {
+  const t = useLegendTheme(); const colors = type === 'clay' ? ['#DBDBDB','#B8B8B8','#969696','#787878','#5E5E5E','#454545'] : ['#FFEBCC','#FFD1A1','#FFBA7A','#FCA253','#F78B31','#F07605'];
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}><div>{type === 'clay' ? '弱層黏土厚度' : '弱層砂土厚度'}（0–5／5–10／10–20m 分圖層）</div><div style={{ display: 'flex', marginTop: 4 }}>{colors.map((color) => <i key={color} style={{ width: 18, height: 8, background: color }} />)}</div><div style={{ marginTop: 5 }}>官方 WMS 已著色；色階表示該深度區間的弱層厚度，精確分級請回官方圖台。重利用條款待確認。</div></div>;
+}
+
+function LiquefactionMonitoringLegend() {
+  const t = useLegendTheme();
+  return <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}><i style={{ display: 'inline-block', width: 9, height: 9, borderRadius: '50%', background: '#2563eb', marginRight: 6 }} />11 個官方圖台監測站位置。未接即時觀測值；名稱與位置須回官方頁面確認，重利用條款待確認。</div>;
+}
 
 function EarthquakeLegend() {
   const t = useLegendTheme();
