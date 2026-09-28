@@ -11,9 +11,22 @@
 
 type Listener = () => void;
 
+/** 單一任務的生命週期事件（給需要節奏控制的 UI，例如右上載入狀態條）。 */
+export interface LoadingEvent {
+  type: "start" | "end" | "fail";
+  id: string;
+  label: string;
+}
+type EventListener = (event: LoadingEvent) => void;
+
 const active = new Map<string, number>();   // taskId → 同 id 同時併發 count
 const labels = new Map<string, string>();   // taskId → 顯示文字
 const listeners = new Set<Listener>();
+const eventListeners = new Set<EventListener>();
+
+function emitEvent(event: LoadingEvent) {
+  for (const l of eventListeners) l(event);
+}
 
 let cachedSnapshot: LoadingTask[] = [];
 
@@ -40,8 +53,11 @@ export const loadingRegistry = {
     active.set(id, (active.get(id) ?? 0) + 1);
     labels.set(id, label);
     emit();
+    emitEvent({ type: "start", id, label });
   },
-  end(id: string): void {
+  /** @param failed 這次呼叫失敗（reject，或 Supabase 回傳 `{ error }`）。 */
+  end(id: string, failed = false): void {
+    const label = labels.get(id) ?? id;
     const n = (active.get(id) ?? 0) - 1;
     if (n <= 0) {
       active.delete(id);
@@ -50,6 +66,7 @@ export const loadingRegistry = {
       active.set(id, n);
     }
     emit();
+    emitEvent({ type: failed ? "fail" : "end", id, label });
   },
   snapshot(): LoadingTask[] {
     return cachedSnapshot;
@@ -58,12 +75,31 @@ export const loadingRegistry = {
     listeners.add(l);
     return () => listeners.delete(l);
   },
+  /** 訂閱每個任務的 start／end／fail 事件。 */
+  subscribeEvents(l: EventListener): () => void {
+    eventListeners.add(l);
+    return () => eventListeners.delete(l);
+  },
 };
+
+/** Supabase query builder 失敗時不 reject，而是 resolve 成 `{ error }`。 */
+function isErrorResult(value: unknown): boolean {
+  return typeof value === "object" && value !== null && "error" in value && (value as { error: unknown }).error != null;
+}
 
 /** 包裝 Promise / thenable（含 Supabase query builder）：自動 start / end */
 export function withLoading<T>(id: string, label: string, p: PromiseLike<T>): Promise<T> {
   loadingRegistry.start(id, label);
-  return Promise.resolve(p).finally(() => loadingRegistry.end(id));
+  return Promise.resolve(p).then(
+    (value) => {
+      loadingRegistry.end(id, isErrorResult(value));
+      return value;
+    },
+    (err) => {
+      loadingRegistry.end(id, true);
+      throw err;
+    },
+  );
 }
 
 /**

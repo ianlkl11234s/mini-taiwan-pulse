@@ -78,3 +78,12 @@ describe("活動卡顯示條件（不受左側 Agent 面板互斥影響）", () 
     expect(portalLine).not.toMatch(/\bopen\b|panelOpen/);
   });
 });
+
+describe("Agent 光暈 A1", () => {
+  it("忙碌時光暈加 --on；節點常駐，靠 CSS 淡入淡出", () => {
+    const busy = renderToStaticMarkup(createElement(ResearchActivity, { activity: { phase: "working", title: "正在讀取資料" } }));
+    expect(busy).toContain("research-activity__viewport-glow research-activity__viewport-glow--on");
+    const idle = renderToStaticMarkup(createElement(ResearchActivity, { activity: { phase: "complete", title: "Agent 已完成這一步" } }));
+    expect(idle).toContain('class="research-activity__viewport-glow"');
+  });
+});

@@ -105,7 +105,7 @@ import { runChatTurn, testKey } from "./chat/lazyAgent";
 import type { MapBridge } from "./chat/types";
 import { Bot, Box, Camera, CircleHelp, MessageSquare, Share2, UserRound } from "lucide-react";
 const LegendPanel = lazy(() => import("./components/LegendPanel").then(({ LegendPanel }) => ({ default: LegendPanel })));
-import { LoadingIndicator } from "./components/LoadingIndicator";
+import { LoadingStatus } from "./components/LoadingStatus";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { TransientNotice, showTransientNotice } from "./components/TransientNotice";
 import { CameraHud, createCameraHudStore } from "./components/CameraHud";
@@ -2867,13 +2867,17 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── 全域 loading 指示器 ── */}
-      <LoadingIndicator
-        isDarkTheme={isDarkTheme}
-        rightOffset={splitActive
-          ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
-          : "16px"}
-      />
+      {/* ── 全域載入狀態條（§5.30）：工具列正下方；拍攝模式隱藏 ── */}
+      {!captureMode && (
+        <LoadingStatus
+          isDarkTheme={isDarkTheme}
+          top={isMobile ? 52 : 60}
+          playing={timeline.playing || eqReplayPlaying || historicalPlaying}
+          rightOffset={splitActive
+            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+            : isMobile ? "10px" : "16px"}
+        />
+      )}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel

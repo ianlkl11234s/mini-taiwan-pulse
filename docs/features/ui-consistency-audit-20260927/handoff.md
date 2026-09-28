@@ -106,6 +106,8 @@
 | B Layers 清單與地震回放 | **B1** | 從 Layers 清單打開地震回放時，比照即時情報／衛星收起左側 rail 面板（`railCloseEpoch`），避免兩者重疊 | Phase O |
 | T 時間軸（`timeline-compact-sheet.html`） | **TC3** | 平常 270px 膠囊（播放、15px 時間、無刻度細進度軸）；滑過／focus／拖曳／點膠囊展開成 590px TC1 單列卡片（刻度軸、倍速、日期膠囊→向上彈出面板）；移出且 focus 離開 2 秒收合，拖曳中與面板開著不收；底邊與右下停靠區共用 `LAYOUT.mapBottomInset`（64），實測兩者底邊皆 836（1440×900）；手機固定展開、刻度軸換第二列 | Phase R `965deb17` |
 
+**第六輪拍板（載入提示與 Agent 動態，`loading-status-sheet.html`，2026-09-28）**：位置 **S1**（工具列正下方單行狀態條；使用者補充「大概兩秒左右再慢慢消失」→ 完成停 2 秒、淡出 0.5 秒）；節奏同意（150ms 內不顯示、載入中至少 0.6 秒、播放中不跳完成、失敗停 4 秒）；Agent **A1**（保留光暈但改強調色、淡入淡出、不忙碌 1.5 秒後才熄）。規格見 `design-system.md` §5.30、§5.31。
+
 表中 commit 編號為整合前的暫定值（之後有 rebase），實際以 PR 與 master 上的 merge commit 為準。
 
 Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少），並把以上規格寫進 `docs/design-system.md` §5.5、§5.25–§5.29 與參考頁。已知未處理：手機時間軸條淡色時仍是暗色底；`Z_INDEX.toast` 暫無使用者（提示訊息需高於 1000 遮罩）；ChatPanel／手機會員面板暫放 modal 層（表上缺側欄槽位）——見 design-system §10.3。
