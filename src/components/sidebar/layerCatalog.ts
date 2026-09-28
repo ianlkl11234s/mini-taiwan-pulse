@@ -2021,6 +2021,16 @@ export function themeMacroGroup(title: string): LayerMacroGroup {
   return group;
 }
 
+/**
+ * 主題／大分類標題資料格式為「中文 English」（空白分隔，英文部分可能不存在）。
+ * design-system §5.5 LT1：渲染時拆成中文與英文分開設定字級／字型 —— 不改資料本身，只在這裡拆分。
+ */
+export function splitThemeTitle(title: string): { zh: string; en: string } {
+  const spaceIndex = title.indexOf(" ");
+  if (spaceIndex === -1) return { zh: title, en: "" };
+  return { zh: title.slice(0, spaceIndex), en: title.slice(spaceIndex + 1) };
+}
+
 const MACRO_GROUP_ORDER = new Map(
   LAYER_MACRO_GROUPS.map((group, index) => [group.key, index]),
 );

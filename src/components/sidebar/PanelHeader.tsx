@@ -7,6 +7,7 @@ type Props = { title: string; onClose: () => void; borderColor: string; mutedCol
  * Shared title row for floating rail panels and the persistent collaboration panel.
  * `eyebrow` opts into the H2 header (ui-consistency-audit handoff §4a):
  * 9px dim eyebrow + 13px bold title, padding 10×14, CJK system font.
+ * 沒傳 eyebrow 的舊分支原用 Inter（§10.3 待遷移項目），第二輪已改用 CJK 系統字。
  */
 export function PanelHeader({ title, onClose, borderColor, mutedColor, textColor, titleSize = 13, className, eyebrow }: Props) {
   const closeButton = <button type="button" onClick={onClose} aria-label={`關閉${title}`} style={{ width: 24, height: 24, borderRadius: 4, border: "none", background: "transparent", color: mutedColor, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", padding: 0 }}><X size={14} /></button>;
@@ -20,7 +21,7 @@ export function PanelHeader({ title, onClose, borderColor, mutedColor, textColor
     </div>;
   }
   return <div className={className} style={{ display: "flex", alignItems: "center", gap: 8, padding: "12px 12px 10px", borderBottom: `1px solid ${borderColor}`, flexShrink: 0 }}>
-    <span style={{ color: textColor, fontSize: titleSize, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>{title}</span><div style={{ flex: 1 }} />
+    <span style={{ color: textColor, fontSize: titleSize, fontWeight: 600, fontFamily: "var(--font-cjk)" }}>{title}</span><div style={{ flex: 1 }} />
     {closeButton}
   </div>;
 }

@@ -11,7 +11,7 @@ import { regionalStatisticsStore } from '../../state/regionalStatisticsStore';
 import { STATISTICS_RECIPES, statisticsBaseKey, statisticsRenderRecipe, statisticsReleaseFallback, type StatisticsLayerKey, type StatisticsRenderKey, type StatisticsReleaseOption } from '../../data/regionalStatisticsRecipes';
 import type { StatisticsRecipe, StatisticsRelease, StatisticsLevel } from '../../data/regionalStatisticsLoader';
 import { statisticsColorStops } from '../../data/statisticsColorScale';
-import { FONT_SIZE, COLORS, SPACING } from '../../styles/designTokens';
+import { FONT_SIZE, FONT_CJK, COLORS, SPACING } from '../../styles/designTokens';
 
 const LEVEL_LABELS: Record<StatisticsLevel, string> = {county:'縣市',township:'鄉鎮市區',village:'村里',statistical_min:'最小統計區',statistical_l1:'第一級統計區',statistical_l2:'第二級統計區'};
 const LIVESTOCK_TOWNSHIP_STATISTICS_DATASET = 'livestock_township_statistics';
@@ -283,7 +283,7 @@ export function StatisticsDetails({ layerKey, textColor, colorScheme }: { layerK
     const filters = Object.fromEntries(selectorDimensionKeys.slice(0, index).map(filterKey => [filterKey, selectorDimensions![filterKey]!])) as Partial<Record<string, string>>;
     return selectorValues(key, filters).length > 1;
   });
-  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: 'Inter, system-ui, sans-serif', fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
+  return <div className="statistics-details" style={{ display: 'flex', flexDirection: 'column', gap: SPACING.md, minWidth: 0, maxWidth: '100%', fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: textColor, colorScheme, lineHeight: 1.45 }}>
     <style>{`.statistics-details summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}.statistics-details label.statistics-filter-label{font:10px/1.35 var(--font-cjk);color:var(--lpc-muted,currentColor)}`}</style>
     {state.loading && <span role="status">統計資料載入中…</span>}
     {state.error && <div role="alert">{state.error}<button type="button" className="lpc-btn" style={{ marginLeft: SPACING.xs }} onClick={() => void regionalStatisticsStore.load(layerKey)}>重試</button></div>}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FONT_CJK } from "../styles/designTokens";
 
 type NoticeListener = (message: string) => void;
 const listeners = new Set<NoticeListener>();
@@ -44,7 +45,7 @@ export function TransientNotice() {
         borderRadius: 10,
         color: "#E5E7EB",
         fontSize: 13,
-        fontFamily: "Inter, system-ui, sans-serif",
+        fontFamily: FONT_CJK,
         whiteSpace: "nowrap",
         pointerEvents: "none",
         boxShadow: "0 6px 24px rgba(0,0,0,0.35)",

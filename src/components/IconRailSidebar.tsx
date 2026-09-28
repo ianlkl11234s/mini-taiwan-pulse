@@ -7,13 +7,13 @@ import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { LayerControlArea, ParamControlList } from "./sidebar/LayerParamControls";
 import { isStatisticsRenderLayer, STATISTICS_RENDER_KEYS } from "../data/regionalStatisticsRecipes";
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type ComponentType } from "react";
-import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT } from "../styles/designTokens";
 import {
   // ✅ AR-22 Phase 2 完成（批 8）：全部 layer 的 icon **全部**由 layerManifest 派生，
   //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
   //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
   //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
-  Activity, Layers, ChartColumn, MapPin, Settings, User, Star, Bot,
+  Activity, Layers, ChartColumn, MapPin, User, Star, Bot,
   ChevronDown, ChevronRight, Search, Navigation,
   Radio, Globe,
   Satellite,   // 衛星情報 Console 的 rail 按鈕
@@ -32,7 +32,7 @@ import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, LAYER_MACRO_GROUPS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, JAPAN_TAB_THEME_TITLES, STATISTICS_DATA_THEMES, STATISTICS_TAB_THEMES, themeMacroGroup, splitThemeTitle, type ThemeDef, withoutStatisticsLayers } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 import { searchLayers } from "../lib/layerSearch";
@@ -196,14 +196,6 @@ export function IconRailSidebar({
   const [statisticsSearch, setStatisticsSearch] = useState("");
   const [worldSearch, setWorldSearch] = useState("");
   const [japanSearch, setJapanSearch] = useState("");
-  const [comingSoon, setComingSoon] = useState(false);
-
-  // 齒輪「規劃中」提示：顯示後 2 秒自動消失
-  useEffect(() => {
-    if (!comingSoon) return;
-    const t = setTimeout(() => setComingSoon(false), 2000);
-    return () => clearTimeout(t);
-  }, [comingSoon]);
 
   // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
   const firstEpochRunRef = useRef(true);
@@ -416,37 +408,7 @@ export function IconRailSidebar({
           />
         )}
 
-        {/* Spacer */}
-        <div style={{ flex: 1 }} />
-
-        {/* Settings（規劃中） */}
-        <RailIcon icon={Settings} active={false} onClick={() => setComingSoon(true)} tooltip="Settings" />
       </div>
-
-      {/* 齒輪「規劃中」提示 */}
-      {comingSoon && (
-        <div
-          style={{
-            position: "absolute",
-            left: RAIL_WIDTH + 8,
-            bottom: 12,
-            padding: "8px 14px",
-            background: "rgba(17,24,39,0.92)",
-            backdropFilter: "blur(8px)",
-            WebkitBackdropFilter: "blur(8px)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: RADIUS.xl,
-            color: "#fff",
-            fontSize: FONT_SIZE.lg,
-            whiteSpace: "nowrap",
-            zIndex: 5,
-            pointerEvents: "none",
-            animation: "panelFadeIn 0.2s ease-out",
-          }}
-        >
-          ⚙️ 設定功能規劃中
-        </div>
-      )}
 
       {/* ── Floating Panel ── */}
       {panelOpen && (
@@ -649,7 +611,7 @@ function JapanGlyph({ size = 20 }: { size?: number }) {
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: Math.round(badge * 0.5),
           fontWeight: 800, lineHeight: 1, letterSpacing: "-0.5px",
-          fontFamily: "Inter, system-ui, sans-serif",
+          fontFamily: FONT_CJK,
         }}
       >
         JP
@@ -825,7 +787,7 @@ const LayerRow = memo(function LayerRow({
           style={{
             flex: 1,
             fontSize: FONT_SIZE.md,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             color: TEXT_STRONG,
             transition: "color 0.15s",
           }}
@@ -861,11 +823,10 @@ function ThemeBanner({
   onToggleCollapse: () => void;
   onBulkToggle: () => void;
 }) {
-  const { DIM, BORDER, TEXT_STRONG, INACTIVE_TEXT, BANNER_BG } = useRailTheme();
-  const allOn = onCount === totalCount;
+  const { DIM, BORDER, TEXT_STRONG, BANNER_BG } = useRailTheme();
   const someOn = onCount > 0;
-  // tri-state visual: 全開 / 部分開 / 全關
-  const indicatorColor = allOn ? TEXT_STRONG : someOn ? INACTIVE_TEXT : DIM;
+  // LT1（design-system §5.5）：theme.title 資料格式是「中文 English」，渲染時拆開分別給字級／字型。
+  const { zh, en } = splitThemeTitle(title);
   return (
     <div
       style={{
@@ -879,7 +840,7 @@ function ThemeBanner({
         backdropFilter: "blur(8px)",
         WebkitBackdropFilter: "blur(8px)",
         borderTop: `1px solid ${BORDER}`,
-        borderBottom: isCollapsed ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${BORDER}`,
         userSelect: "none",
       }}
     >
@@ -892,10 +853,13 @@ function ThemeBanner({
         <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
           {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
         </span>
-        <span style={{ flex: 1, fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, letterSpacing: 1.5, color: TEXT_STRONG, textTransform: "uppercase" }}>
-          {title}
+        <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: TEXT_STRONG }}>{zh}</span>
+          {en && (
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: DIM, letterSpacing: 0.3 }}>{en}</span>
+          )}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: indicatorColor, marginRight: 4 }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: DIM, marginRight: 4 }}>
           {onCount}/{totalCount}
         </span>
       </button>
@@ -928,22 +892,26 @@ function SubGroupLabel({ children }: { children: string }) {
   );
 }
 
+/** 大分類標題：只顯示中文（LT1），右側細線同 L2 群組線色（design-system §5.5）。 */
 function MacroGroupLabel({ title }: { title: string }) {
-  const { BORDER, DIM } = useRailTheme();
+  const { DIM, COLOR_SCHEME } = useRailTheme();
+  const dark = COLOR_SCHEME === "dark";
+  const { zh } = splitThemeTitle(title);
   return (
     <div
       style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "10px 12px 4px",
         color: DIM,
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.xs,
-        fontWeight: 700,
-        letterSpacing: 1.6,
-        padding: "16px 12px 6px",
-        borderBottom: `1px solid ${BORDER}`,
-        textTransform: "uppercase",
+        fontFamily: FONT_CJK,
+        fontSize: 9.5,
+        letterSpacing: 1.2,
       }}
     >
-      {title}
+      <span>{zh}</span>
+      <span aria-hidden="true" style={{ flex: 1, height: 1, background: dark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
     </div>
   );
 }
@@ -1008,7 +976,7 @@ function LayersPanel({
             color: INACTIVE_TEXT,
             fontSize: FONT_SIZE.base,
             cursor: "pointer",
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
           }}
         >
           All Off
@@ -1040,7 +1008,7 @@ function LayersPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1283,7 +1251,7 @@ function CollapsibleSection({
           : <ChevronRight size={12} color={DIM} />}
         <span style={{
           fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: 1.5,
-          color: DIM, fontFamily: "Inter, system-ui, sans-serif",
+          color: DIM, fontFamily: FONT_CJK,
         }}>
           {title}
         </span>
@@ -1330,7 +1298,7 @@ function LocationsPanel({
               outline: "none",
               color: TEXT_STRONG,
               fontSize: FONT_SIZE.md,
-              fontFamily: "Inter, system-ui, sans-serif",
+              fontFamily: FONT_CJK,
             }}
           />
         </div>
@@ -1419,7 +1387,7 @@ function LocationItem({
             fontSize: FONT_SIZE.md,
             fontWeight: 600,
             color: active ? TEXT_STRONG : INACTIVE_TEXT,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",

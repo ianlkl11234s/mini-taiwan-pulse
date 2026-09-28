@@ -15,10 +15,11 @@ import {
   STATISTICS_TAB_THEMES,
   THEMES,
   themeMacroGroup,
+  splitThemeTitle,
   TRANSPORT_LABELS,
   type ThemeDef,
 } from "./sidebar/layerCatalog";
-import { SURFACE, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { SURFACE, FONT_CJK, FONT_DATA, RADIUS, FONT_SIZE, FONT_WEIGHT } from "../styles/designTokens";
 import { StatisticsModeControl } from "./sidebar/StatisticsModeControl";
 import { StatisticsDetails } from "./sidebar/StatisticsDetails";
 import { HistoricalFlightTrailControls } from "./sidebar/HistoricalFlightTrailControls";
@@ -380,15 +381,18 @@ function SidebarContent({
             {showMacroGroup && (
               <div
                 style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
                   padding: "14px 14px 5px",
                   color: isDarkTheme ? "rgba(255,255,255,0.52)" : "rgba(0,0,0,0.48)",
-                  fontSize: baseFontSize - 1,
-                  fontWeight: 700,
-                  letterSpacing: 1.4,
-                  textTransform: "uppercase",
+                  fontFamily: FONT_CJK,
+                  fontSize: 9.5,
+                  letterSpacing: 1.2,
                 }}
               >
-                {macroTitle}
+                <span>{splitThemeTitle(macroTitle!).zh}</span>
+                <span aria-hidden="true" style={{ flex: 1, height: 1, background: isDarkTheme ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.12)" }} />
               </div>
             )}
             {/* ── Theme Banner（sticky：滾到該 theme 時黏頂） ── */}
@@ -428,22 +432,21 @@ function SidebarContent({
                 aria-hidden="true"
                 style={{ color: dimColor, flexShrink: 0, transform: isCollapsed ? "none" : "rotate(90deg)", transition: "transform 0.15s" }}
               />
-              <span
-                style={{
-                  flex: 1,
-                  fontSize: baseFontSize + 1,
-                  fontWeight: 700,
-                  letterSpacing: 1.5,
-                  color: textColor,
-                  textTransform: "uppercase",
-                }}
-              >
-                {theme.title}
+              <span style={{ flex: 1, display: "flex", alignItems: "baseline", gap: 6, minWidth: 0 }}>
+                <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: FONT_WEIGHT.semibold, color: textColor }}>
+                  {splitThemeTitle(theme.title).zh}
+                </span>
+                {splitThemeTitle(theme.title).en && (
+                  <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: dimColor, letterSpacing: 0.3 }}>
+                    {splitThemeTitle(theme.title).en}
+                  </span>
+                )}
               </span>
               <span
                 style={{
-                  fontSize: baseFontSize - 1,
-                  color: someOn ? textColor : dimColor,
+                  fontFamily: FONT_DATA,
+                  fontSize: FONT_SIZE.sm,
+                  color: dimColor,
                   marginRight: 4,
                 }}
               >
