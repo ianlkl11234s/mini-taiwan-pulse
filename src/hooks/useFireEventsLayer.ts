@@ -2,10 +2,19 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, type FireEvent } from "../data/fireLoader";
 import type { HistoricalGranularity } from "../components/HistoricalTimeline";
+import { POINT_STROKE, mapSeamColor } from "../map/mapStyleScale";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "fire-events-src";
 const LAYER_ID = "fire-events-layer";
+
+export function fireEventsPointStroke(isDark: boolean, opacity: number) {
+  return {
+    "circle-stroke-color": mapSeamColor(isDark),
+    "circle-stroke-width": POINT_STROKE.width,
+    "circle-stroke-opacity": Math.min(1, POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity),
+  };
+}
 
 function ensureLayer(map: MapboxMap, isDark: boolean) {
   if (!map.getSource(SOURCE_ID)) {
@@ -30,12 +39,7 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
           ["get", "casualty"], "#ff1744",
           "#ff7043",
         ],
-        "circle-stroke-width": [
-          "case",
-          ["get", "casualty"], 1,
-          0,
-        ],
-        "circle-stroke-color": "#ffffff",
+        ...fireEventsPointStroke(isDark, 1),
         "circle-opacity": isDark ? 0.75 : 0.6,
         "circle-blur": 0.15,
       },
@@ -75,7 +79,10 @@ function setVisible(map: MapboxMap, visible: boolean) {
 function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number) {
   if (!map.getLayer(LAYER_ID)) return;
   map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
-  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+  const stroke = fireEventsPointStroke(isDark, opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-color", stroke["circle-stroke-color"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-width", stroke["circle-stroke-width"]);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", stroke["circle-stroke-opacity"]);
 }
 
 /**
