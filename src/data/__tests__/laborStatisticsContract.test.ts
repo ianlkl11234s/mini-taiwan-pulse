@@ -4,11 +4,15 @@ import {
   LABOR_ENABLED_STATISTICS_RECIPES,
   LABOR_STATISTICS_SCOPE,
   getLaborRecipe,
+  getLaborStatisticsPresentationMetric,
+  getLaborStatisticsPresentationView,
+  isLaborStatisticsPresentationSelection,
   laborReleaseOptions,
   resolveLaborRelease,
 } from "../laborStatisticsRecipes";
 import type { LaborStatisticsScope } from "../laborStatisticsRecipes";
-import type { StatisticsRelease } from "../regionalStatisticsLoader";
+import { transformStatisticsObservation, type StatisticsRelease } from "../regionalStatisticsLoader";
+import { statisticsBaseKey, statisticsRenderRecipe } from "../regionalStatisticsRecipes";
 
 const asRelease = (recipe: (typeof LABOR_ENABLED_STATISTICS_RECIPES)[number], option: (typeof recipe.release_options)[number]): StatisticsRelease => ({
   dataset_id: recipe.dataset_id,
@@ -57,6 +61,8 @@ describe("labor statistics adapter contract", () => {
     const village = getLaborRecipe("statsLaborVillageIncomeMedian")!;
     expect(village.release_options[0]?.coverage).toMatchObject({ denominator: 7973, numerator: 7602, observed: { missing_count: 371, status: "PARTIAL" } });
     expect(village.disclosure).toContain("371村里缺值不補零");
+    expect(village.legend.breaks).toEqual([388, 415, 438, 460, 486, 523, 593]);
+    expect(village.legend.colors).toHaveLength(8);
 
     const salary = getLaborRecipe("statsLaborCountyAnnualSalaryMedian")!;
     expect(salary.release_options[0]?.dimensions).toEqual({ employee_scope: "national_full_time", roc_year: "113", sex: "total" });
@@ -65,5 +71,32 @@ describe("labor statistics adapter contract", () => {
     const industry = getLaborRecipe("statsLaborCountyEmploymentByIndustry")!;
     expect(industry.release_options.map((option) => option.dimensions.industry)).toEqual(["agriculture", "industry", "manufacturing", "services"]);
     expect(industry.disclosure).toContain("manufacturing 是 industry 子集");
+  });
+
+  it("keeps non-labor-force count and share inside one layer while reusing the exact participation-rate selector", () => {
+    const key = "statsLaborCountyNonLaborForce";
+    const view = getLaborStatisticsPresentationView(key)!;
+    expect(view.metrics.map((metric) => metric.optionLabel)).toEqual(["人數（千人）", "非勞動力率（%）"]);
+
+    const derived = getLaborStatisticsPresentationMetric(key, "participation_rate")!;
+    expect(derived).toMatchObject({ sourceLayerKey: "statsLaborCountyParticipationRate", valueTransform: "complement_100" });
+    expect(statisticsBaseKey(key, "participation_rate")).toBe("statsLaborCountyParticipationRate");
+    expect(statisticsRenderRecipe(key, "participation_rate")).toMatchObject({
+      indicator_id: "participation_rate",
+      label: "非勞動力率",
+      unit: "%",
+      breaks: [39.6, 40.2, 40.8, 42],
+      sourceLayerKey: "statsLaborCountyParticipationRate",
+      valueTransform: "complement_100",
+    });
+    expect(transformStatisticsObservation({ area_code: "10018", value: 59.6, status: "observed" }, "complement_100"))
+      .toMatchObject({ value: 40.4, inputs: { source_participation_rate_pct: 59.6 } });
+    expect(transformStatisticsObservation({ area_code: "09007", value: null, status: "missing" }, "complement_100"))
+      .toEqual({ area_code: "09007", value: null, status: "missing" });
+    expect(isLaborStatisticsPresentationSelection(key, {
+      datasetId: "labor_statistics",
+      indicatorId: "unknown",
+      sourceLayerKey: key,
+    })).toBe(false);
   });
 });

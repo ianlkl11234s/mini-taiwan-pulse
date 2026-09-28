@@ -6,6 +6,7 @@ const INPUT_LABELS: Record<string, string> = {
   local_category_ha: '當地同類面積（公頃）', local_admin_ha: '當地行政面積（公頃）',
   national_category_ha: '全臺同類面積（公頃）', national_admin_ha: '全臺行政面積（公頃）',
   denominator_population: '分母人口', population: '分母人口', heads: '在養頭／隻數', farms: '飼養場數',
+  source_participation_rate_pct: '來源勞動力參與率（%）',
 };
 function inputValue(value: unknown): string {
   if (typeof value === 'number') return value.toLocaleString('zh-TW', {maximumFractionDigits: 4});

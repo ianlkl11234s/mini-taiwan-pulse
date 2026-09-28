@@ -33,5 +33,10 @@ for (const [vision,matrix] of Object.entries(matrices)) {
         for (let i=1;i<values.length;i++) expect(values[i-1]! - values[i]!,key).toBeGreaterThan(5);
       }
     }
+    const derived = statisticsRenderRecipe('statsLaborCountyNonLaborForce', 'participation_rate');
+    const derivedValues = derived.colors.map(color => lightness(color, matrix));
+    for (let i = 1; i < derivedValues.length; i++) {
+      expect(derivedValues[i - 1]! - derivedValues[i]!, 'statsLaborCountyNonLaborForce:participation_rate').toBeGreaterThan(5);
+    }
   });
 }

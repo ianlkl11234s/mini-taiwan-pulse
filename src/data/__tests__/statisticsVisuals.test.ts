@@ -56,15 +56,21 @@ describe('getStatisticsVisual', () => {
     expect(getStatisticsVisual('statsBusOperatingTripCount').theme).toBe(getStatisticsVisual('statsComparisonBusOperatingTripCountPerKm2').theme);
   });
 
-  it('uses five-step sequential palettes with monotonically decreasing luminance', () => {
+  it('uses sequential palettes with at least five ordered classes', () => {
     for (const key of STATISTICS_KEYS) {
       const recipe = STATISTICS_RECIPES[key]!;
       const colors = getStatisticsVisual(key, recipe.label).colors;
-      expect(colors).toHaveLength(5);
+      expect(colors.length).toBeGreaterThanOrEqual(5);
       for (let index = 1; index < colors.length; index += 1) {
         expect(luminance(colors[index - 1]!)).toBeGreaterThan(luminance(colors[index]!));
       }
     }
+  });
+
+  it('uses the eight-class colorblind-friendly income palette for village income', () => {
+    expect(getStatisticsVisual('statsLaborVillageIncomeMedian', '綜合所得中位數').colors).toEqual([
+      '#fee838', '#d8c55c', '#b2a56c', '#8d8778', '#6c6b7c', '#4c526e', '#2b3f5d', '#00224e',
+    ]);
   });
 
   it('resamples sequential colors to the number of Mapbox step intervals', () => {
