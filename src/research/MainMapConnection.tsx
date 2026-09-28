@@ -118,8 +118,12 @@ export function MainMapConnection(props: Props) {
   const analysisActivationsRef = useRef<Map<string, number>>(new Map());
   const analysisOutlineOnlyRef = useRef<string[]>([]);
   const installedOutlineKeyRef = useRef("");
-  const planAnalysisResults = useCallback((results: ResultCollection | null | undefined, presentable: readonly PresentableResult[]): ResultCollection | null => {
-    analysisActivationsRef.current = nextAnalysisActivations(resultCollectionRef.current, results, analysisActivationsRef.current);
+  /** Last collection as the server holds it. An Agent-side cap is not pushed back (a manual push
+   *  mid-command would cancel that command's report), so the server keeps re-sending the uncapped
+   *  collection; activations must diff against that, or the hidden slot rotates on every command. */
+  const requestedResultsRef = useRef<ResultCollection | null>(null);
+  const planAnalysisResults = useCallback((previousResults: ResultCollection | null, results: ResultCollection | null | undefined, presentable: readonly PresentableResult[]): ResultCollection | null => {
+    analysisActivationsRef.current = nextAnalysisActivations(previousResults, results, analysisActivationsRef.current);
     const kinds = new globalThis.Map(presentable.map(result => [result.resultId, analysisResultStackKind(result)]));
     const plan = planAnalysisStack(results, analysisActivationsRef.current, resultId => kinds.get(resultId) ?? "other");
     analysisOutlineOnlyRef.current = plan.outlineOnly;
@@ -157,6 +161,7 @@ export function MainMapConnection(props: Props) {
     if (latest.current.map) removeAnalysisResults(latest.current.map);
     presentedAnalysisRef.current = []; setPresentedAnalysis([]); setAvailableAnalysis([]); setAnalysisOpacityValue({ defaultOpacity: 0.85, byResult: {} });
     resultCollectionRef.current = null; setResultCollection(null);
+    requestedResultsRef.current = null; analysisActivationsRef.current = new globalThis.Map(); analysisOutlineOnlyRef.current = []; installedOutlineKeyRef.current = "";
     analysis.current?.setActiveResultCollection([]);
     if (syncScene && controller.current) {
       const scene = { ...capture(), results: null };
@@ -169,7 +174,9 @@ export function MainMapConnection(props: Props) {
     // Re-enabling a hidden result makes it the newest; the S1 cap then hides the least recent one.
     let presentable: PresentableResult[] = [];
     try { presentable = analysis.current?.presentable(current.items.map(item => item.resultId)) ?? []; } catch { presentable = []; }
-    const results = planAnalysisResults(update(current), presentable) ?? current;
+    // The user toggle diffs against what is on screen (capped) and is pushed, so the server follows.
+    const results = planAnalysisResults(current, update(current), presentable) ?? current;
+    requestedResultsRef.current = results;
     resultCollectionRef.current = results; setResultCollection(results);
     const scene = { ...capture(), results };
     previous.current = scene;
@@ -198,7 +205,8 @@ export function MainMapConnection(props: Props) {
     // S1 (O1): cap at 3 visible results / one heatmap by switching the least recently shown ones
     // off (not removed; the list toggle brings them back). The capped collection is what readback
     // reports, so the Agent sees which results were auto-hidden.
-    const cappedResults = planAnalysisResults(scene.results, allAnalysisResults);
+    const cappedResults = planAnalysisResults(requestedResultsRef.current, scene.results, allAnalysisResults);
+    requestedResultsRef.current = scene.results ?? null;
     if (cappedResults !== (scene.results ?? null)) scene = { ...scene, results: cappedResults };
     const outlineKey = analysisOutlineOnlyRef.current.join("\n");
     const visibleAnalysisIds = new Set(visibleResultIds(scene.results));

@@ -180,6 +180,13 @@ describe("I2 selection dimming (X1)", () => {
     expect(order.find(layer => layer.id === "research-analysis-result-points-0")!.paint["fill-opacity"]).toEqual(DIMMED_FILL);
   });
 
+  it("does not leak a selection into another result that reuses the same slot (setData keeps feature-state)", () => {
+    const { map, stateOf } = stubMap();
+    setAnalysisSelection(map, installAnalysisResults(map, [areas], 0.8), [{ resultId: "areas", fid: 0 }], opacity);
+    installAnalysisResults(map, [{ ...areas, resultId: "other-areas" }], 0.8);
+    expect(stateOf({ source: "research-analysis-result-0", id: 0 }).selected).toBe(false);
+  });
+
   it("re-applies after a basemap switch (style.load → reinstall → setAnalysisSelection)", () => {
     const { map, order, stateOf, styleReload } = stubMap();
     const selection = [{ resultId: "areas", fid: 0 }];
@@ -208,6 +215,18 @@ describe("S1 stacking (O1)", () => {
     expect(plan.autoHidden).toEqual(["p1"]);
     expect(plan.collection!.items.map(item => [item.resultId, item.visible])).toEqual([["p1", false], ["p2", true], ["p3", true], ["p4", true]]);
     expect(visibleResultIds(plan.collection)).toHaveLength(MAX_VISIBLE_ANALYSIS_RESULTS);
+  });
+
+  it("keeps hiding the same result when the Agent re-sends the uncapped collection (diffed against the request)", () => {
+    const four = collectionOf("p1", "p2", "p3", "p4");
+    let stamps = nextAnalysisActivations(collectionOf("p1", "p2", "p3"), four, new globalThis.Map([["p1", 1], ["p2", 2], ["p3", 3]]));
+    const first = planAnalysisStack(four, stamps, kindOf);
+    // Next command (e.g. camera only): the server still has all four visible; diff against that request, not the capped view.
+    stamps = nextAnalysisActivations(four, four, stamps);
+    const second = planAnalysisStack(four, stamps, kindOf);
+    expect(first.autoHidden).toEqual(["p1"]);
+    expect(second.autoHidden).toEqual(["p1"]);
+    expect(second.collection).toEqual(first.collection);
   });
 
   it("treats a result switched back on from the list as the newest", () => {

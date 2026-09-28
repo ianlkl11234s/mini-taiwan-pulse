@@ -355,6 +355,9 @@ export function installAnalysisResults(map: Map, results: readonly PresentableRe
   // the same feature, so drop it rather than carry a stale highlight into the new data.
   clearAnalysisHover(map);
   // Selection is likewise re-applied by the caller (setAnalysisSelection) after an install.
+  // Mapbox keeps feature-state across GeoJSONSource#setData, so a reused slot must be un-selected
+  // explicitly or the new result's row with the same _fid would inherit the accent outline.
+  for (const target of selectedTargets.get(map) ?? []) setState(map, target, { selected: false });
   dimmed.delete(map); selectedTargets.delete(map);
   const accent = emphasisAccent(theme);
   const installed = prepared.map(({ result, data }, index) => {
