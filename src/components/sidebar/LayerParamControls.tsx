@@ -8,6 +8,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import type { ParamControl, SliderConfig, ToggleConfig } from "../../state/layerParamsControls";
+import { Slider } from "../controls/Slider";
 import "./layerParamControls.css";
 
 /** 主題 class：暗色用 tokens.css 預設值，淡色改指 --light-*（與其他子系統同一套做法） */
@@ -55,22 +56,22 @@ export function ControlSegmented({ label, value, options, onChange }: {
   );
 }
 
+/** S1 滑桿：共用 controls/Slider（.ctl-range），顏色指到本元件的 --lpc-* 讓淡色主題跟著切換 */
 function SliderControl({ ctrl }: { ctrl: SliderConfig }) {
-  const span = ctrl.max - ctrl.min;
-  const pct = span > 0 ? Math.min(100, Math.max(0, ((ctrl.value - ctrl.min) / span) * 100)) : 0;
   return (
     <label className="lpc-row">
       <span className="lpc-k" title={ctrl.name}>{ctrl.name}</span>
       <span className="lpc-v">{ctrl.valueText}</span>
-      <input
-        className="lpc-c lpc-range"
-        type="range"
+      <Slider
+        className="lpc-c"
         min={ctrl.min}
         max={ctrl.max}
         step={ctrl.step}
         value={ctrl.value}
-        onChange={(e) => ctrl.onChange(Number(e.target.value))}
-        style={{ "--p": `${pct}%` } as CSSProperties}
+        onChange={ctrl.onChange}
+        trackColor="var(--lpc-track)"
+        fillColor="var(--lpc-fill)"
+        thumbColor="var(--lpc-thumb)"
       />
     </label>
   );

@@ -7,7 +7,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { Copy, X } from "lucide-react";
-import { BORDER, COLORS, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE } from "../styles/designTokens";
+import { BORDER, COLORS, CONTROL, FONT_CJK, FONT_DATA, FONT_SIZE, LIGHT, RADIUS, SURFACE, Z_INDEX } from "../styles/designTokens";
 
 /** 正式站網域：本機開發時分享 localhost 沒有意義，一律輸出線上網址 */
 const PROD_ORIGIN = "https://mini-taiwan-pulse.itsmigu.com";
@@ -137,7 +137,7 @@ export function ShareModal({ open, onClose, isDarkTheme = true }: Props) {
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 200,
+        position: "fixed", inset: 0, zIndex: Z_INDEX.modal,
         background: "rgba(0,0,0,0.55)", backdropFilter: "blur(2px)",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
       }}

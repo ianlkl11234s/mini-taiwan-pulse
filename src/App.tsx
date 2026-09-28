@@ -1809,7 +1809,6 @@ export default function App() {
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
       <TransientNotice />
-      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
         <div
@@ -1818,6 +1817,7 @@ export default function App() {
             bottom: 28,
             left: "50%",
             transform: "translateX(-50%)",
+            // 特例：與 TransientNotice 同值 3000，必須高於「資料更新中」遮罩（1000），不用 Z_INDEX.toast（見 design-system.md 層級章節）
             zIndex: 3000,
             padding: "9px 16px",
             background: "rgba(0,0,0,0.82)",
@@ -1827,7 +1827,7 @@ export default function App() {
             borderRadius: 10,
             color: "#E5E7EB",
             fontSize: 13,
-            fontFamily: "Inter, system-ui, sans-serif",
+            fontFamily: FONT_CJK,
             whiteSpace: "nowrap",
             pointerEvents: "none",
             boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
@@ -2413,14 +2413,14 @@ export default function App() {
             <UserAvatar compact isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
           </div>
 
-          {/* Timeline */}
+          {/* Timeline — 時間軸屬地圖控制列，刻意維持 mapOverlay（10），在浮動面板之下 */}
           <div
             style={{
               position: "absolute",
               top: 44,
               left: 0,
               right: 0,
-              zIndex: 10,
+              zIndex: Z_INDEX.mapOverlay,
               padding: "8px 12px",
               background: "rgba(0,0,0,0.4)",
               backdropFilter: "blur(12px)",
@@ -2874,16 +2874,6 @@ export default function App() {
           : "16px"}
       />
 
-      <MemberPanel key={memberUser?.id ?? "guest"} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
-        userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
-        authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
-        onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
-        captureScene={captureMemberScene} restoreScene={restoreMemberScene} capturePlace={captureMemberPlace} restorePlace={restoreMemberPlace} />
-
-      {/* ── Info Modal ── */}
-      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
-      {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
-
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel
         isDarkTheme={isDarkTheme}
@@ -2894,6 +2884,19 @@ export default function App() {
         onTestKey={testKey}
         compact={featureInfo !== null}
       />
+
+      <MemberPanel key={memberUser?.id ?? "guest"} open={memberOpen} onClose={() => setMemberOpen(false)} isDarkTheme={isDarkTheme} isMobile={isMobile}
+        userId={memberUser?.id ?? null} displayName={String(memberUser?.user_metadata?.full_name ?? memberUser?.user_metadata?.name ?? "")}
+        authLoading={memberAuthLoading} labels={memberLabels} visibleKeys={Object.entries(layerVisibility).filter(([, on]) => on).map(([key]) => key)} lockedKeys={lockedKeys}
+        onToggleLayer={(key) => { if (knownMemberKeys.has(key)) handleToggleVisibility(key as keyof LayerVisibility); }}
+        captureScene={captureMemberScene} restoreScene={restoreMemberScene} capturePlace={captureMemberPlace} restorePlace={restoreMemberPlace} />
+
+      {/* ── 置中視窗（Z_INDEX.modal）──
+          ChatPanel、手機 MemberPanel 與置中視窗同為 modal 層，同層前後靠 DOM 順序：
+          對話浮層 → 會員面板 → 說明／分享視窗（最後渲染＝最上層）。不要把這幾個往上搬。 */}
+      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
+      {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
 
       {/*
         ── 圖層掛載（AR-22 P1）────────────────────────────────────

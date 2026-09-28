@@ -90,6 +90,21 @@
 | 4 資料來源 | **D1 列內展開** | 左側 rail 新增「資料來源」（資料庫圖示，Locations 之後）；拿掉右下浮動 ⓘ 與置中詳細視窗；面板外殼同 Layers（H2、搜尋、主題／L2 群組）；統計改篩選分段；點列在清單內展開上游資料卡（同時只展開一筆）；「LEGEND」改「圖例」 |
 | — | PR 切法 | G（工具列）、H（即時情報）、I（圖層控制）、K（資料來源）、J（design system）各自 commit、各自 PR |
 
+**第五輪拍板（第二輪統一，`round2-sheet.html`，2026-09-28）**：使用者選 1-LT1、2-Z1、3、4、5-S1（移除設定）、6-M1、7、8。
+
+| 區 | 選定 | 規格要點 | 實作 |
+|---|---|---|---|
+| 1 Layers 主題標題 | **LT1** | 主題中文 13px semibold、英文 10px text-dim 不大寫、計數固定等寬 10px dim（不依狀態變色）；大分類只留中文 9.5px letterSpacing 1.2＋右側細線（同 L2 線色）；`splitThemeTitle()` 為唯一拆分入口 | Phase N `efff01d4` |
+| 2 面板重疊 | **Z1** | `Z_INDEX`／`--z-*`：mapOverlay 10／floatingPanel 20／toolbar 25／popover 30／modal 40／toast 50；左側浮動面板互斥（Agent、地震回放、即時情報、衛星、會員；關地震回放＝關圖層）；時間軸維持 10（地圖控制列，在浮動面板之下）；同層靠 DOM 順序；特例（LoadingScreen 9999、資料更新中遮罩／LoadingIndicator 1000、提示訊息 3000、host 錯誤 10000、Admin 10001）登記於 design-system §5.25 | Phase O `8b4a6f43`；Phase Q 收尾（modal／對話浮層／會員面板歸層、提示訊息保留 3000） |
+| 3 說明視窗 | ✔ | H2 標頭、lucide X、語言分段「中文／EN」、卡片 CONTROL.bg＋BORDER.soft、kbd 等寬 9.5px；移除 uppercase 與 ▶ | Phase P `1370a736` |
+| 4 分享視窗 | ✔ | H2 標頭；欄位 `grid 1fr auto`、複製鈕固定 74px（文字切換不跳動）；成功 2 秒主要樣式 | Phase P `3f8b9741` |
+| 5 設定 | **S1 移除** | 移除 rail 上只會跳「設定功能規劃中」的齒輪；規則：不放沒有功能的占位按鈕，有需求再加 | Phase N `4a643ac6` |
+| 6 手機標頭 | **M1** | 高 44；MTP＋座標；外露 AI／拍攝模式／⋯／帳號，按鈕 30×30 圓角 6；「⋯」選單 190px | Phase O `a22daf14` |
+| 7 其他原生滑桿 | ✔ | 共用 `controls/Slider`（`.ctl-range`）；Agent 分析結果透明度與圖層控制 `LayerParamControls` 也收斂到同一元件，`.lpc-range` 刪除；guard `native-range` 白名單只剩 `Slider.tsx` | Phase P `8c7f9fd5`；Phase Q |
+| 8 Inter 殘留 | ✔ | 全部改 `FONT_CJK`（guard `web-font` 基準歸零） | Phase N `099cf4c6`；Phase Q（App 私人圖層提示） |
+
+Phase Q 另新增 guard `raw-z-index`（≥10 的寫死層級數字只能減少），並把以上規格寫進 `docs/design-system.md` §5.5、§5.25–§5.29 與參考頁。已知未處理：手機時間軸條淡色時仍是暗色底；`Z_INDEX.toast` 暫無使用者（提示訊息需高於 1000 遮罩）；ChatPanel／手機會員面板暫放 modal 層（表上缺側欄槽位）——見 design-system §10.3。
+
 ## 5. 建議施工順序與驗收方式
 
 沿用 `docs/design-system.md` 既有的「每 Phase 一個獨立 PR」慣例，不一次大改：
