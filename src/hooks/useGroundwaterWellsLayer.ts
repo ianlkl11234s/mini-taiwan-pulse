@@ -3,6 +3,7 @@ import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import { fetchGroundwaterLatest, type GroundwaterLatestRow } from "../data/groundwaterLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 /**
  * 地下水井靜態點位層（backdrop，48h 內有讀值的 ~733 站）
@@ -51,12 +52,12 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": 2.2 * scale,
+        "circle-radius": pointRadius("M", scale),
         "circle-color": isDark ? "#94a3b8" : "#64748b", // slate-400 / slate-500
         "circle-opacity": (isDark ? 0.75 : 0.6) * opacity,
-        "circle-stroke-width": 0.6,
-        "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
-        "circle-stroke-opacity": 0.8 * opacity,
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-color": mapSeamColor(isDark),
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity,
       },
     } as CircleLayer);
   }
@@ -64,9 +65,11 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: n
 
 function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getLayer(LAYER_CIRCLE)) return;
-  map.setPaintProperty(LAYER_CIRCLE, "circle-radius", 2.2 * scale);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-radius", pointRadius("M", scale));
   map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
-  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.8 * opacity);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-color", mapSeamColor(isDark));
+  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-width", POINT_STROKE.width);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", POINT_STROKE.opacity[isDark ? "dark" : "light"] * opacity);
 }
 
 function setLayerVisibility(map: MapboxMap, visible: boolean) {
