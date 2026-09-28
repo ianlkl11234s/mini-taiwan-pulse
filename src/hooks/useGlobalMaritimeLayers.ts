@@ -9,6 +9,7 @@ import {
 } from "../data/globalMaritimeLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
+import { POINT_STROKE, mapSeamColor, pointRadius } from "../map/mapStyleScale";
 
 const AIS_SOURCE = "global-maritime-aisstream-current";
 const AIS_LAYER = "global-maritime-aisstream-circle";
@@ -34,7 +35,7 @@ function safeBounds(map: MapboxMap): MaritimeBounds {
   };
 }
 
-function ensureSources(map: MapboxMap): void {
+function ensureSources(map: MapboxMap, isDarkTheme: boolean): void {
   if (!map.getSource(AIS_SOURCE)) map.addSource(AIS_SOURCE, { type: "geojson", data: EMPTY_FC, attribution: "AISStream" });
   if (!map.getSource(GFW_SOURCE)) map.addSource(GFW_SOURCE, { type: "geojson", data: EMPTY_FC, attribution: "Global Fishing Watch" });
   if (!map.getLayer(AIS_LAYER)) {
@@ -43,11 +44,12 @@ function ensureSources(map: MapboxMap): void {
       type: "circle",
       source: AIS_SOURCE,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 2, 5, 3.5, 10, 6, 14, 9],
+        "circle-radius": pointRadius("L"),
         "circle-color": "#22d3ee",
         "circle-opacity": 0.9,
-        "circle-stroke-color": "#083344",
-        "circle-stroke-width": 0.7,
+        "circle-stroke-color": mapSeamColor(isDarkTheme),
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -58,11 +60,12 @@ function ensureSources(map: MapboxMap): void {
       type: "circle",
       source: GFW_SOURCE,
       paint: {
-        "circle-radius": ["interpolate", ["linear"], ["zoom"], 1, 2, 5, 3.5, 10, 6, 14, 9],
+        "circle-radius": pointRadius("L"),
         "circle-color": "#f59e0b",
         "circle-opacity": 0.75,
-        "circle-stroke-color": "#451a03",
-        "circle-stroke-width": 0.7,
+        "circle-stroke-color": mapSeamColor(isDarkTheme),
+        "circle-stroke-width": POINT_STROKE.width,
+        "circle-stroke-opacity": POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"],
       },
       layout: { visibility: "none" },
     } as CircleLayer);
@@ -75,6 +78,7 @@ export function useGlobalMaritimeLayers(
   gfwVisible: boolean,
   aisOpacity = 0.9,
   gfwOpacity = 0.75,
+  isDarkTheme = true,
 ): void {
   const mapTick = useMapReadyTick(mapRef, aisVisible || gfwVisible);
   const aisDataRef = useRef<GeoJSON.FeatureCollection>(EMPTY_FC);
@@ -121,14 +125,18 @@ export function useGlobalMaritimeLayers(
         if (map.getLayer(GFW_LAYER) && !gfwVisible) map.setLayoutProperty(GFW_LAYER, "visibility", "none");
         if (!aisVisible && !gfwVisible) return;
         if (!map.isStyleLoaded()) { scheduleRetry(); return; }
-        ensureSources(map);
+        ensureSources(map, isDarkTheme);
         if (map.getLayer(AIS_LAYER)) {
           map.setLayoutProperty(AIS_LAYER, "visibility", aisVisible ? "visible" : "none");
           map.setPaintProperty(AIS_LAYER, "circle-opacity", Math.max(0, Math.min(1, aisOpacity)));
+          map.setPaintProperty(AIS_LAYER, "circle-stroke-color", mapSeamColor(isDarkTheme));
+          map.setPaintProperty(AIS_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * aisOpacity / 0.9));
         }
         if (map.getLayer(GFW_LAYER)) {
           map.setLayoutProperty(GFW_LAYER, "visibility", gfwVisible ? "visible" : "none");
           map.setPaintProperty(GFW_LAYER, "circle-opacity", Math.max(0, Math.min(1, gfwOpacity)));
+          map.setPaintProperty(GFW_LAYER, "circle-stroke-color", mapSeamColor(isDarkTheme));
+          map.setPaintProperty(GFW_LAYER, "circle-stroke-opacity", Math.min(1, POINT_STROKE.opacity[isDarkTheme ? "dark" : "light"] * gfwOpacity / 0.75));
         }
       } catch {
         scheduleRetry();
@@ -148,5 +156,5 @@ export function useGlobalMaritimeLayers(
       if (retryPending) map.off("idle", retry);
       window.clearInterval(interval);
     };
-  }, [aisVisible, gfwVisible, aisOpacity, gfwOpacity, mapRef, mapTick, update]);
+  }, [aisVisible, gfwVisible, aisOpacity, gfwOpacity, isDarkTheme, mapRef, mapTick, update]);
 }
