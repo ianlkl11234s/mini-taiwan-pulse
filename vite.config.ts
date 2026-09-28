@@ -28,6 +28,20 @@ function stripBuildAssets(relPaths: string[]): Plugin {
   };
 }
 
+/** Dev-only: `/card/<slug>` 對應 nginx 的 `location ^~ /card/`（→ card.html），讓本機能直接開卡片連結。 */
+function serveCardPage(): Plugin {
+  return {
+    name: "serve-card-page",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        if (req.url && /^\/card\/[^/?#]*\/?(?:[?#].*)?$/.test(req.url)) req.url = "/card.html";
+        next();
+      });
+    },
+  };
+}
+
 /** Dev-only, opt-in candidate mount for the isolated Phase-2 benchmark. */
 function serveGfwV4CandidateStage(): Plugin {
   const stageRoot = process.env.GFW_V4_STAGE_ROOT;
@@ -1223,6 +1237,7 @@ function serveLocalPopulationPreview(): Plugin {
 export default defineConfig({
   plugins: [
     react(),
+    serveCardPage(),
     serveLocalResearchAssets(),
     serveResearchAnalysisSidecars(),
     serveResearchPublicSidecars(),
@@ -1280,6 +1295,8 @@ export default defineConfig({
         lab: resolve(process.cwd(), "lab/index.html"),
         // EM-06 嵌入版（MapLibre + Protomaps 底圖，不載入 mapbox-gl / Three.js）
         embed: resolve(process.cwd(), "embed.html"),
+        // 4b 分析卡分享頁（MapLibre，不載入 mapbox-gl／lib/supabase；nginx `location ^~ /card/`）
+        card: resolve(process.cwd(), "card.html"),
         // GFW / AIS 查詢範圍框選工具（獨立 Mapbox entry，不載入主站 overlays）
         bbox: resolve(process.cwd(), "bbox.html"),
         // Isolated metadata-only layer relevance replay; does not mount the main map.
