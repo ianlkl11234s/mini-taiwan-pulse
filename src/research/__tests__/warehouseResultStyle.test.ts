@@ -300,7 +300,7 @@ describe("warehouse result style contract", () => {
     const hatch = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(choroplethHatch, "dark") }));
     expect(hatch).toContain(nullHatchCssGradient("dark"));
     const bivariateHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(bivariateV3, "dark", [{ _size_value: 900, _size_radius: 28, _size_rank: 1 }]) }));
-    expect(bivariateHtml).toContain("房價（填色）× 公車站密度（大小）");
+    expect(bivariateHtml).toContain("填色：房價 · 大小：公車站密度");
     expect(bivariateHtml.match(/agent-style-legend__bar/g)).toHaveLength(1);
     expect(bivariateHtml).toContain("<svg");
     const proportionalHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(proportional, "dark") }));
@@ -309,12 +309,9 @@ describe("warehouse result style contract", () => {
     expect(proportionalHtml).toContain("<svg");
     expect(proportionalHtml).toContain("另有 2 筆缺少可用的「population」數值，未顯示");
     expect(renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(proportionalMono, "dark") }))).not.toContain("另有");
-    // KNOWN DISPLAY QUIRK (flag for the main agent, not fixed here — a WarehouseStyleLegend.tsx
-    // wording call, not this file's concern): the view appends its own "（填色）"/"（大小）" suffix
-    // after xLabel/yLabel, so a unit-bearing bivariate legend doubles up its parens, e.g.
-    // "房價（元）（填色）× 公車站密度（站/km²）（大小）". Locking this in so the fix is deliberate.
+    // 有單位時標題不重複加括號：「填色：X（單位） · 大小：Y（單位）」
     const bivariateUnitHtml = renderToStaticMarkup(createElement(WarehouseStyleLegendView, { legend: warehouseStyleLegend(bivariateWithUnit, "dark") }));
-    expect(bivariateUnitHtml).toContain("房價（元）（填色）× 公車站密度（站/km²）（大小）");
+    expect(bivariateUnitHtml).toContain("填色：房價（元） · 大小：公車站密度（站/km²）");
   });
 });
 
