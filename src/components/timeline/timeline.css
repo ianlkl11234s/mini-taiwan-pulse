@@ -444,7 +444,18 @@ select.tl3-select option {
   min-width: 0;
 }
 
+/*
+ * 「尚無資料」浮在卡片上方、對準時間，不佔 .tl3-row 寬度：
+ * 放在列內會把 TimeAxis 擠窄，拖曳中同一個滑鼠位置換算出的時間跟著變，
+ * 在「現在」前後反覆出現／消失（2026-09-29 修正）。
+ */
 .tl3-warnchip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 44px;
+  background: var(--tl-surface);
+  box-shadow: var(--tl-shadow);
+  pointer-events: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
