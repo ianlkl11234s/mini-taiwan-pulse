@@ -40,6 +40,9 @@ import { nextAnalysisActivations, planAnalysisStack } from "./analysisResultStac
 import { analysisLegendEntries, publishAnalysisLegend } from "./analysisLegendStore";
 import type { PresentableResult } from "./researchAnalysisSession";
 import { WarehouseCompareTableView } from "./WarehouseCompareTable";
+import { RankBars } from "./charts/RankBars";
+import { TrendLine } from "./charts/TrendLine";
+import { seriesTrendLineData } from "./analysisResultCharts";
 import { vizThemeForBasemap } from "./vizSpec";
 import "./mainMapConnection.css";
 
@@ -143,6 +146,8 @@ export function MainMapConnection(props: Props) {
     if (map) setAnalysisSelection(map, presentedAnalysisRef.current, analysisSelectionRef.current, analysisOpacityRef.current);
   }, []);
   const [availableAnalysis, setAvailableAnalysis] = useState<AnalysisResultPresentation[]>([]);
+  // W1: 本次分析圖層 defaults to its first 5 items + a "展開全部" toggle (spec docs/features/viz-library/DECISIONS.md §6).
+  const [resultsExpanded, setResultsExpanded] = useState(false);
   const [resultCollection, setResultCollection] = useState<ResultCollection | null>(null);
   const resultCollectionRef = useRef<ResultCollection | null>(null);
   const [message, setMessage] = useState("先配對，再到 Codex 說出想探索的主題。");
@@ -492,12 +497,18 @@ export function MainMapConnection(props: Props) {
       if (!map.isStyleLoaded()) return;
       const resultIds = visibleResultIds(previous.current?.results);
       const allResultIds = previous.current?.results?.items.map(item => item.resultId) ?? [];
-      if (allResultIds.length && analysis.current && allResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
+      // Series-kind analysis results (read_series/compare_series, geometry "none") are analysis-only
+      // cards, never map layers — and presentable() throws RESULT_NOT_MAP_ELIGIBLE for the *whole*
+      // batch if even one id lacks map-eligible geometry. Keep them out of this batch so one such
+      // result never blanks every spatial result; they get their own TrendLine card below instead
+      // (spec P3=W3, docs/features/viz-library/DECISIONS.md §6).
+      const mapResultIds = analysis.current ? allResultIds.filter(resultId => analysis.current!.mapEligible(resultId)) : [];
+      if (mapResultIds.length && analysis.current && mapResultIds.every(resultId => analysis.current!.hasResult(resultId))) {
         // Read fresh via the ref (not a dep of this effect) so a style/basemap switch — which is
         // exactly what triggers "style.load" below — recolours with the *new* theme, not a stale one.
         const theme = vizThemeForBasemap(latest.current.isDarkTheme);
         const visibleIds = new Set(resultIds);
-        const available = analysis.current.presentable(allResultIds);
+        const available = analysis.current.presentable(mapResultIds);
         const installed = installAnalysisResults(map, available.filter(result => visibleIds.has(result.resultId)), analysisOpacityRef.current, theme, { outlineOnly: analysisOutlineOnlyRef.current });
         presentedAnalysisRef.current = installed; setPresentedAnalysis(installed);
         applyAnalysisSelection();
@@ -599,9 +610,19 @@ export function MainMapConnection(props: Props) {
           </label>)}
         </fieldset>}
         <ul>{resultCollection.items.map((item, index) => {
+          if (!resultsExpanded && index >= 5) return null;
+          const series = analysis.current?.seriesResult(item.resultId) ?? null;
+          const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
+          if (series) {
+            const trend = seriesTrendLineData(series.rows, typeof series.units.value === "string" ? series.units.value : null);
+            return <li key={item.resultId} className="agent-analysis-result-item">
+              <div className="agent-analysis-row-label"><strong>{series.displayLabel}</strong><small>{series.rows.length} 期{group ? ` · ${group.label}` : ""}</small>
+                <TrendLine points={trend.points} baseline={trend.baseline} valueKind={trend.valueKind} unit={typeof series.units.value === "string" ? series.units.value : null} />
+              </div>
+            </li>;
+          }
           const result = availableAnalysis.find(candidate => candidate.resultId === item.resultId);
           const rendered = presentedAnalysis.find(candidate => candidate.resultId === item.resultId);
-          const group = item.groupId ? resultCollection.groups.find(candidate => candidate.groupId === item.groupId) : null;
           return <li key={item.resultId} className="agent-analysis-result-item">
             <div className="agent-analysis-row-main">
               <span className={`agent-analysis-swatch agent-analysis-swatch--${(rendered?.geometryType ?? result?.geometryType ?? "none").toLowerCase()}`} style={{ "--analysis-result-color": rendered?.color ?? result?.color ?? "#6b7280" } as CSSProperties} aria-hidden="true" />
@@ -609,13 +630,14 @@ export function MainMapConnection(props: Props) {
                 <label className="agent-analysis-opacity">透明度
                   <Slider ariaLabel={`${result?.displayLabel ?? "分析結果"}透明度`} min={0.15} max={1} step={0.05} value={analysisOpacity.byResult[item.resultId] ?? analysisOpacity.defaultOpacity} onChange={value => { setAnalysisOpacityValue(current => ({ ...current, byResult: { ...current.byResult, [item.resultId]: value } })); if (props.map) setAnalysisOpacity(props.map, presentedAnalysis, item.resultId, value); }} />
                 </label>
-                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} onSelectColumn={column => {
+                {rendered?.compareTable && <WarehouseCompareTableView table={rendered.compareTable} theme={vizThemeForBasemap(props.isDarkTheme)} onSelectColumn={column => {
                   if (!props.map) return;
                   let point: Record<string, unknown> | undefined;
                   try { point = analysis.current?.presentable([item.resultId])[0]?.rows.find(row => row._compare_index === column.index); } catch { point = undefined; }
                   const geometry = point?.geometry as { type?: string; coordinates?: [number, number] } | undefined;
                   if (geometry?.type === "Point" && Array.isArray(geometry.coordinates)) props.map.flyTo({ center: geometry.coordinates, zoom: Math.max(props.map.getZoom(), 14) });
                 }} />}
+                {rendered?.rankBars && <RankBars items={rendered.rankBars.items} theme={vizThemeForBasemap(props.isDarkTheme)} valueKind={rendered.rankBars.valueKind} unit={rendered.rankBars.unit} title={rendered.rankBars.title} />}
               </div>
               <LayerToggleSwitch label={`顯示 ${result?.displayLabel ?? "分析結果"}`} on={item.visible} onChange={() => updateResultCollection(collection => ({ ...collection, items: collection.items.map(candidate => candidate.resultId === item.resultId ? { ...candidate, visible: !item.visible } : candidate) }))} ACCENT_TOGGLE={props.isDarkTheme === false ? "#1f2937" : "#fff"} TOGGLE_OFF={props.isDarkTheme === false ? "#d1d5db" : "#4b5563"} TOGGLE_KNOB_ON={props.isDarkTheme === false ? "#fff" : "#1a1a1a"} />
             </div>
@@ -625,6 +647,9 @@ export function MainMapConnection(props: Props) {
             </span>
           </li>;
         })}</ul>
+        {resultCollection.items.length > 5 && <button type="button" className="agent-analysis-expand" onClick={() => setResultsExpanded(value => !value)}>
+          {resultsExpanded ? "收合" : `展開全部（共 ${resultCollection.items.length} 項）`}
+        </button>}
         <button className="agent-clear-results" onClick={() => clearAnalysisPresentation(true)}>清除本次圖層</button>
       </section>}
       {!resultCollection && <section className="agent-empty-results"><h3>本次分析圖層</h3><p>在 Codex 提出想了解的地點或主題。<br />Agent 產生的分析圖層會顯示在這裡。</p></section>}
