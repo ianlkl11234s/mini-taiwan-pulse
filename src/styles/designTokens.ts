@@ -273,3 +273,14 @@ export const Z_INDEX = {
   /** 提示訊息（toast）。目前 TransientNotice 仍用特例 3000（見上），本值保留給不需蓋過遮罩的提示 */
   toast: 50,
 } as const;
+
+// ─── LAYOUT — 地圖角落停靠的共用偏移（ui-r2 Phase R）────────────────
+/**
+ * 左下時間軸（TC3 收合膠囊與展開卡片）與右下停靠區（popup＋圖例）共用同一個底邊偏移，
+ * 兩者底邊必須對齊：改這個值會同時移動兩邊。規格見 docs/design-system.md §5.24。
+ * 64 是右下停靠區原本的值，讓出 Mapbox 右下角的版權標示。
+ */
+export const LAYOUT = {
+  /** 地圖底部停靠元件（時間軸、右下停靠區）距視窗底邊的距離（px） */
+  mapBottomInset: 64,
+} as const;

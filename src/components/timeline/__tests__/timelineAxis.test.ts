@@ -120,8 +120,11 @@ it("formatClock 用台北時間", () => {
 
 describe("元件靜態渲染", () => {
   const noop = () => {};
-  it("即時模式：刻度軸 slider、中文控制項、沒有原生 range", () => {
+  // TC3：桌機預設收合，完整控制項在展開態；SSR 以手機（固定展開）驗展開內容。
+  // 「現在」與範圍選單在日期膠囊的彈出面板內，面板預設關閉。
+  it("即時模式（展開）：刻度軸 slider、中文控制項、沒有原生 range", () => {
     const html = renderToStaticMarkup(createElement(TimelineControls, {
+      isMobile: true,
       playing: false, speed: 60, progress: 0.5, currentTime: DAY_START + 43_200, timeMode: "live",
       selectedDate: new Date(DAY_START * 1000), rangeDays: 1, windowStart: DAY_START, windowEnd: dayEnd(1),
       onToggle: noop, onSpeedChange: noop, onSeekByProgress: noop, onJumpToTime: noop, onTimeModeChange: noop,
@@ -130,15 +133,16 @@ describe("元件靜態渲染", () => {
     expect(html).toContain('role="slider"');
     expect(html).toContain('data-viewport-occluder="timeline"');
     expect(html).toContain("即時");
-    expect(html).toContain("現在");
-    expect(html).toContain("1 天");
+    expect(html).toContain("> 天");
+    expect(html).toContain('aria-label="日期與範圍：');
     expect(html).toContain("60×");
     expect(html).not.toContain('type="range"');
     expect(html).not.toMatch(/Now|LIVE|\d+x</);
   });
 
-  it("歷史模式：年月日選單＋粒度分段", () => {
+  it("歷史模式（展開）：時間膠囊＋倍速", () => {
     const html = renderToStaticMarkup(createElement(HistoricalTimeline, {
+      isMobile: true,
       year: 115, month: 9, day: 27, availableYears: range(104, 115), playing: false, speed: 1, granularity: "month",
       isDarkTheme: false, onTogglePlay: noop, onSpeedChange: noop, onYearChange: noop, onMonthChange: noop,
       onDayChange: noop, onGranularityChange: noop,
@@ -146,7 +150,8 @@ describe("元件靜態渲染", () => {
     expect(html).toContain('data-testid="historical-timeline"');
     expect(html).toContain("tl3--light");
     expect(html).toContain("115/09");
-    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('aria-label="時間與粒度：民國 115 年 9 月"');
+    expect(html).toContain("1×");
     expect(html).not.toContain('type="range"');
   });
 });

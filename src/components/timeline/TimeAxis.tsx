@@ -7,7 +7,6 @@ interface Props {
   ticks: readonly AxisTick[];
   gaps?: readonly AxisGap[];
   gapTitle?: string;
-  needleLabel: string;
   /** 標籤單位（中文，例「月」）：接在數字後、用 CJK 字型，避免等寬字包中文 */
   unit?: string;
   ariaLabel: string;
@@ -19,6 +18,10 @@ interface Props {
   onSeekRatio: (ratio: number) => void;
   /** 鍵盤操作；回傳 true 表示已處理（會 preventDefault） */
   onKey: (key: string, shiftKey: boolean) => boolean;
+  /** TC3 收合膠囊：只畫基線＋已播放段＋指針＋缺漏斜線，不畫刻度與標籤 */
+  compact?: boolean;
+  /** 拖曳開始／結束（讓 TC3 狀態機在拖曳中不收合） */
+  onDragChange?: (dragging: boolean) => void;
 }
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -32,7 +35,7 @@ function labelShift(pos: number): string {
 }
 
 /**
- * TL3 刻度軸（role="slider"）。只負責畫與把指標／鍵盤轉成比例；
+ * TC3 刻度軸（沿用 TL3 的 TimeAxis）（role="slider"）。只負責畫與把指標／鍵盤轉成比例；
  * 拖曳狀態放 ref，不進 effect，也不訂閱時間（時間由父層以 props 傳入）。
  */
 export function TimeAxis({
@@ -40,7 +43,6 @@ export function TimeAxis({
   ticks,
   gaps = [],
   gapTitle,
-  needleLabel,
   unit,
   ariaLabel,
   ariaValueMin,
@@ -49,9 +51,17 @@ export function TimeAxis({
   ariaValueText,
   onSeekRatio,
   onKey,
+  compact = false,
+  onDragChange,
 }: Props) {
   const draggingRef = useRef(false);
   const r = clamp01(Number.isFinite(ratio) ? ratio : 0);
+
+  const endDrag = () => {
+    if (!draggingRef.current) return;
+    draggingRef.current = false;
+    onDragChange?.(false);
+  };
 
   const ratioFromEvent = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -61,7 +71,7 @@ export function TimeAxis({
 
   return (
     <div
-      className="tl3-axis"
+      className={compact ? "tl3-axis tl3-axis--compact" : "tl3-axis"}
       role="slider"
       tabIndex={0}
       aria-label={ariaLabel}
@@ -75,6 +85,7 @@ export function TimeAxis({
         const next = ratioFromEvent(e);
         if (next === null) return;
         draggingRef.current = true;
+        onDragChange?.(true);
         e.currentTarget.setPointerCapture?.(e.pointerId);
         e.currentTarget.focus({ preventScroll: true });
         onSeekRatio(next);
@@ -85,11 +96,11 @@ export function TimeAxis({
         if (next !== null) onSeekRatio(next);
       }}
       onPointerUp={(e) => {
-        draggingRef.current = false;
+        endDrag();
         e.currentTarget.releasePointerCapture?.(e.pointerId);
       }}
-      onPointerCancel={() => { draggingRef.current = false; }}
-      onLostPointerCapture={() => { draggingRef.current = false; }}
+      onPointerCancel={endDrag}
+      onLostPointerCapture={endDrag}
       onKeyDown={(e) => {
         if (onKey(e.key, e.shiftKey)) e.preventDefault();
       }}
@@ -104,25 +115,22 @@ export function TimeAxis({
         />
       ))}
       <span className="tl3-axis__done" style={{ width: pct(r) }} />
-      {ticks.map((t, i) => (
+      {!compact && ticks.map((t, i) => (
         <span
           key={`t${i}`}
           className={t.major ? "tl3-axis__tick" : "tl3-axis__tick tl3-axis__tick--minor"}
           style={{ left: pct(t.pos) }}
         />
       ))}
-      {ticks.map((t, i) =>
+      {!compact && ticks.map((t, i) =>
         t.label === undefined ? null : (
           <span key={`l${i}`} className="tl3-axis__lbl" style={{ left: pct(t.pos), transform: labelShift(t.pos) }}>
             {t.label}{unit && <span className="tl3-axis__unit">{unit}</span>}
           </span>
         ),
       )}
-      <span className="tl3-axis__needle" style={{ left: pct(r) }}>
-        <span className="tl3-axis__needle-label" style={{ transform: `translateX(${(-r * 100).toFixed(1)}%)`, left: 0 }}>
-          {needleLabel}{unit && <span className="tl3-axis__unit">{unit}</span>}
-        </span>
-      </span>
+      {/* TC3 單列：目前時間已顯示在左側大字，指針不再掛標籤（值仍在 aria-valuetext） */}
+      <span className="tl3-axis__needle" style={{ left: pct(r) }} />
     </div>
   );
 }
