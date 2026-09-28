@@ -6,8 +6,8 @@
 |---|---|---|---|---|---|---|
 | NLE-1 | data-health | P1 | in_progress | 相似文章不再只有丟棄統計，能輸出 article relation candidate | 完成 collector pure contract 與 fixtures | 鹿草錯 hint、同稿、全國、多地、國外、unknown 單測通過 |
 | NLE-2 | data-health | P1 | in_progress | Shadow tables 保存文章版本、地點證據、canonical event 與 relations | 完成 migration 414 與 psql contract test | migration idempotent、無 backfill／delete、constraints 與 ACL 測試通過 |
-| NLE-3 | product | P1 | in_progress | 未定位／全國多地／國外可由 bounded RPC 載入及呈現 | 完成 loader 與純 UI component | shape/null/bucket/copy 測試與 TypeScript 通過 |
-| NLE-4 | validation | P1 | ready | 建立事件隔離的固定評估集 | 從唯讀 bounded sample 建 200 篇／150 pairs 標註表 | 樣本 strata、來源日期、review 狀態、train/test event split 可稽核 |
+| NLE-3 | product | P1 | in_progress | 未定位／全國多地／國外可由 bounded RPC 載入及呈現 | 完成 loader、純 UI component 與 default-off frontend gate | shape/null/bucket/copy、flag no-mount/no-request 與 TypeScript 通過 |
+| NLE-4 | validation | P1 | in_progress | 建立事件隔離的固定評估集 | 既有 45 列只含 35 個 unique URL；補齊為 200 篇／150 pairs 標註表 | 樣本無重複 identity、strata／來源日期／review 狀態／train-test event split 可稽核 |
 | NLE-5 | validation | P1 | ready | 定位與關聯達到上線 gate | shadow replay 並產 consistency、coverage、error、cost report | point precision >=95%、same-event precision >=95%、2x 月成本 < US$20 |
 
 ## Decision needed

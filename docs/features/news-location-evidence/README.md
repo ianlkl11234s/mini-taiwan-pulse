@@ -37,4 +37,10 @@
 
 ## 發布邊界
 
-目前只建立隔離 branch、shadow contract、離線測試與尚未接入 production route 的 UI 元件；不套 migration、不寫 live tables、不做歷史 backfill、不切換 production model。
+目前已接入 production bundle 的 Monitor 插入點，但 default-off；仍不套 migration、不寫 live tables、不做歷史 backfill、不切換 production model。
+
+## Frontend POC gate 與 rollback
+
+- 預設不掛載 POC，亦不呼叫 `get_news_articles_poc`。只有 `VITE_NEWS_LOCATION_EVIDENCE_POC=true` 才在 Monitor 內顯示 shadow 清單。
+- POC 的 request/loading/error 與既有 `fetchNewsEventsDayClusters`／`NewsFeedPanel` 分離；不改既有 map 點、layout registry 或 fly-to 行為。
+- rollback：移除該環境變數或改為非 `true`，重新建置後 POC 不 mount；不需資料庫 migration、資料刪除或 legacy code rollback。

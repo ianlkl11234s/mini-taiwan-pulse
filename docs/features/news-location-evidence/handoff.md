@@ -67,5 +67,6 @@ RSS article/version
 ## 相容性
 
 - 既有 `live.news_events` 與 `get_news_events_day_clustered_v2` 在 POC 期間不變。
-- POC 元件預設不接 production UI。
+- POC 元件已接入 production bundle／Monitor 插入點，但 default-off；flag off 時不 mount、不 request。
 - Migration 不 backfill；測試資料只能進 shadow tables。
+- 前端只在 `VITE_NEWS_LOCATION_EVIDENCE_POC=true` 掛載 shadow 清單；flag off 時不 request RPC，且與 legacy clustered-news query 隔離。
